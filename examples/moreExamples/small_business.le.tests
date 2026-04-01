@@ -1,0 +1,25 @@
+expected(one,one,["Cherrio Charity is a small business entity for 2025"]).
+expected(one,two,[]).
+expected(one,three,[]).
+expected(one,four,[]).
+expected(one,five,[]).
+expected(two,one,[]).
+expected(two,two,["Tech Innovations Ltd is a small business entity for 2025"]).
+expected(two,three,[]).
+expected(two,four,[]).
+expected(two,five,[]).
+expected(three,one,[]).
+expected(three,two,[]).
+expected(three,three,["Bakehouse Bliss Partnership is a small business entity for 2025"]).
+expected(three,four,[]).
+expected(three,five,[]).
+expected(four,one,[]).
+expected(four,two,[]).
+expected(four,three,[]).
+expected(four,four,["River View Trust is a small business entity for 2025"]).
+expected(four,five,[]).
+expected(five,one,[]).
+expected(five,two,[]).
+expected(five,three,[]).
+expected(five,four,[]).
+expected(five,five,["Australian Trust is a small business entity for 2025","Australian Trust is a small business entity for 2025"]).

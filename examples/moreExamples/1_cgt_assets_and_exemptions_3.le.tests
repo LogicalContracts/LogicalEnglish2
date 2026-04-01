@@ -1,0 +1,3 @@
+expected(one,'Colin',[]).
+expected(two,'Colin',["asset one is a CGT exempt asset","asset two is a CGT exempt asset"]).
+expected(three,'Colin',[]).

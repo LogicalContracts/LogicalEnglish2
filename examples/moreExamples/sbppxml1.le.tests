@@ -1,0 +1,2 @@
+expected(indirect,one,["the indirect small business participation percentage of Tom Fry in Tallow Unit Trust is 0.04000000000000001"]).
+expected(direct,one,[]).
