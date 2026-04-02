@@ -11,15 +11,25 @@ tokenize(String, Tokens) :-
     string_codes(String, Codes),
     phrase(tokens(0, 1, Tokens), Codes).
 
+tokens_to_string([],"") :- !.
 tokens_to_string(Tokens,String) :-
-    tokens_to_string_(Tokens,Strings),
-    atomic_list_concat(Strings,' ',String).
+    tokens_to_string_(Tokens,0,Strings),
+    atomic_list_concat(Strings,String).
 
-tokens_to_string_([],[]).
-tokens_to_string_([T|Tokens],[S|Strings]) :-
-    (T=indent(N,_) -> spaces(N,Spaces), format(string(S),"\n~a",[Spaces]) ; 
-        arg(1,T,X) -> S=X),
-    tokens_to_string_(Tokens,Strings).
+% tokens_to_string_(Tokens,EndPositionOfPrevious,Strings)
+tokens_to_string_([],_,[]).
+tokens_to_string_([T|Tokens],LastEnd,[S|Strings]) :-
+    arg(2,T,loc(Begin,NewEnd)),
+    AdvanceN is Begin-LastEnd,
+    spaces(AdvanceN,Advance),
+    (T=indent(N,_) -> spaces(N,Spaces), format(string(S_),"\n~a",[Spaces]) ; 
+        T=line_comment(X,_) -> format(string(S_),"%~a",[X]) ;
+        T=multi_comment(X,_) -> format(string(S_),"/*~a*/",[X]) ;
+        T=quoteString(X,_) -> format(string(S_),"'~a'",[X]) ;
+        T=doubleQuoteString(X,_) -> format(string(S_),'"~a"',[X]) ;
+        arg(1,T,X) -> S_=X),
+    atomic_list_concat([Advance,S_],S),
+    tokens_to_string_(Tokens,NewEnd,Strings).
 
 
 % --- The Main DCG Loop ---
@@ -61,7 +71,7 @@ tokens(Idx, 0, [punctuation(A, loc(Idx, End))|Ts]) -->
 % --- Token Definitions (Priority Order) ---
 
 % Multi-line Comment: /* ... */
-token_match(Idx, comment(Content, loc(Idx, End)), End) -->
+token_match(Idx, multi_comment(Content, loc(Idx, End)), End) -->
     "/*", !,
     string_until_ending("*/", Codes),
     % "*/",
@@ -70,7 +80,7 @@ token_match(Idx, comment(Content, loc(Idx, End)), End) -->
       End is Idx + L + 4 }.
 
 % Single-line Comment: % ...
-token_match(Idx, comment(Content, loc(Idx, End)), End) -->
+token_match(Idx, line_comment(Content, loc(Idx, End)), End) -->
     "%", !,
     string_until_newline(Codes),
     { string_codes(Content, Codes),
@@ -85,7 +95,7 @@ token_match(Idx, date(date(Y, M, D), loc(Idx, End)), End) -->
       End is Idx + Ly + Lm + Ld + 2 }.
 
 % Quoted String: "..."
-token_match(Idx, quoteString(S, loc(Idx, End)), End) -->
+token_match(Idx, doubleQuoteString(S, loc(Idx, End)), End) -->
     "\"", !,
     string_until_ending("\"", Codes),
     { string_codes(S, Codes),
@@ -144,4 +154,4 @@ spaces(0) --> "".
 
 spaces(N,Spaces) :-
     spaces(N,Spaces_,[]),
-    atomic_list_concat(Spaces_,Spaces).
+    atom_codes(Spaces,Spaces_).
