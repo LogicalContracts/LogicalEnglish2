@@ -41,25 +41,30 @@ section(target_language(L)) -->
     ( t(punct(':')) | [] ),
     t(word(L)), t(punct('.')).
 
-section(templates(Ts)) -->
-    t(word(the)), t(word(templates)), t(word(are)), t(punct(':')),
-    templates(Ts).
-
-section(predicates(Ts)) -->
+section(predicates(Dicts)) -->
     t(word(the)), t(word(predicates)), t(word(are)), t(punct(':')),
-    templates(Ts).
+    templates(Ts),
+    { templatesToDicts(Ts, Dicts) }.
 
-section(fluents(Ts)) -->
+section(templates(Dicts)) -->
+    t(word(the)), t(word(templates)), t(word(are)), t(punct(':')),
+    templates(Ts),
+    { templatesToDicts(Ts, Dicts) }.
+
+section(fluents(Dicts)) -->
     t(word(the)), t(word(fluents)), t(word(are)), t(punct(':')),
-    templates(Ts).
+    templates(Ts),
+    { templatesToDicts(Ts, Dicts) }.
 
-section(events(Ts)) -->
+section(events(Dicts)) -->
     t(word(the)), t(word(event)), t(word(predicates)), t(word(are)), t(punct(':')),
-    templates(Ts).
+    templates(Ts),
+    { templatesToDicts(Ts, Dicts) }.
 
-section(meta(Ts)) -->
+section(meta(Dicts)) -->
     t(word(the)), t(word(meta)), t(word(predicates)), t(word(are)), t(punct(':')),
-    templates(Ts).
+    templates(Ts),
+    { templatesToDicts(Ts, Dicts) }.
 
 section(ontology(Ts)) -->
     t(word(the)), t(word(ontology)), ( t(word(is)) | t(word(includes)) ), t(punct(':')),
@@ -98,10 +103,37 @@ name_part(P) --> t(punct(P)).
 % Templates
 templates([T|Ts]) -->
     \+ next_section_start,
-    template_instance(T),
+    template(T),
     ( t(punct(',')), !, templates(Ts)
     | t(punct('.')), !, ( templates(Ts) | { Ts = [] } )
     ).
+
+template([P|Ps]) -->
+    template_part(P),
+    template_tail(Ps).
+
+template_tail([P|Ps]) -->
+    \+ is_terminator,
+    template_part(P), !,
+    template_tail(Ps).
+template_tail([]) --> [].
+
+template_part(word(W)) --> t(word(W)).
+template_part(number(N)) --> t(number(N)).
+template_part(string(S)) --> t(string(S)).
+template_part(var(Words)) --> t(punct('*')), words(Words), t(punct('*')).
+template_part(that(I)) --> t(word(that)), template(I).
+template_part(punct(P)) --> t(punct(P)), { \+ member(P, ['*', '[', ']', '.', ',', '(', ')']) }.
+template_part(punct('(')) --> t(punct('(')).
+template_part(punct(')')) --> t(punct(')')).
+
+is_terminator --> any_indent, [punctuation('.', _)], \+ [number(_, _)].
+is_terminator --> any_indent, [punctuation(',', _)].
+is_terminator --> any_indent, [punctuation(']', _)].
+is_terminator --> any_indent, [punctuation(')', _)].
+is_terminator --> any_indent, [word(if, _)].
+is_terminator --> [indent(_, _), word(and, _)].
+is_terminator --> [indent(_, _), word(or, _)].
 
 next_section_start --> any_indent, [word(the, _), word(knowledge, _), word(base, _)].
 next_section_start --> any_indent, [word(the, _), word(ontology, _)].
@@ -139,18 +171,16 @@ template_instance_tail([P|Ps]) -->
     template_instance_tail(Ps).
 template_instance_tail([]) --> [].
 
-is_terminator --> any_indent, [punctuation('.', _)], \+ [number(_, _)].
-is_terminator --> any_indent, [punctuation(',', _)].
-is_terminator --> any_indent, [punctuation(']', _)].
-is_terminator --> any_indent, [punctuation(')', _)].
-is_terminator --> any_indent, [word(if, _)].
-is_terminator --> [indent(_, _), word(and, _)].
-is_terminator --> [indent(_, _), word(or, _)].
-
 template_instance_part(word(W)) --> t(word(W)).
 template_instance_part(number(N)) --> t(number(N)).
-template_instance_part(var(Words)) --> t(punct('*')), words(Words), t(punct('*')).
+template_instance_part(date(D)) --> t(date(D)).
+template_instance_part(string(S)) --> t(string(S)).
 template_instance_part(that(I)) --> t(word(that)), template_instance(I).
+template_instance_part(list(L)) --> t(punct('[')), list_elements(L), t(punct(']')).
+template_instance_part(expr(E)) --> t(punct('(')), template_instance(E), t(punct(')')).
+template_instance_part(punct(P)) --> t(punct(P)), { \+ member(P, ['*', '[', ']', '.', ',', '(', ')']) }.
+template_instance_part(punct('(')) --> t(punct('(')).
+template_instance_part(punct(')')) --> t(punct(')')).
 
 list_elements([E|Es]) --> template_instance(E), ( t(punct(',')), !, list_elements(Es) | { Es = [] } ).
 list_elements([]) --> [].
@@ -169,10 +199,71 @@ body_token(string(S)) --> [quoteString(S, _)].
 body_token(string(S)) --> [doubleQuoteString(S, _)].
 body_token(punct(P)) --> [punctuation(P, _)].
 
-
 % Helpers
 words([W|Ws]) --> t(word(W)), !, words(Ws).
 words([]) --> [].
+
+% Semantics: Templates to Dicts
+templatesToDicts([], []).
+templatesToDicts([T|Ts], [D|Ds]) :-
+    templateToDict(T, D),
+    templatesToDicts(Ts, Ds).
+
+templateToDict(T, dict([Functor|Args], NamesTypes, WordsAndVars)) :-
+    process_template_parts(T, FunctorWords, Args, NamesTypes, WordsAndVars),
+    atomic_list_concat(FunctorWords, '_', Functor).
+
+process_template_parts([], [], [], [], []).
+process_template_parts([word(W)|Ps], [W|FWs], Args, NTs, [W|WVs]) :-
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([var(Words)|Ps], FWs, [V|Args], [Name-Type|NTs], [V|WVs]) :-
+    extract_name_type(Words, Name, Type),
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([number(N)|Ps], [N_Atom|FWs], Args, NTs, [N|WVs]) :-
+    atom_number(N_Atom, N),
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([date(D)|Ps], [D_Atom|FWs], Args, NTs, [D|WVs]) :-
+    term_to_atom(D, D_Atom),
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([string(S)|Ps], [S|FWs], Args, NTs, [S|WVs]) :-
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([punct(P)|Ps], [P|FWs], Args, NTs, [P|WVs]) :-
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([that(I)|Ps], [that|FWs], Args, NTs, [that|WVs]) :-
+    % 'that' is a meta-variable
+    process_template_parts(I, IFWs, IArgs, INTs, IWVs),
+    append(IFWs, RestFWs, FWs),
+    append(IArgs, RestArgs, Args),
+    append(INTs, RestNTs, NTs),
+    append(IWVs, RestWVs, WVs),
+    process_template_parts(Ps, RestFWs, RestArgs, RestNTs, RestWVs).
+process_template_parts([list(_)|Ps], FWs, [V|Args], [list-list|NTs], [V|WVs]) :-
+    % Treat list in template as a variable for now
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([expr(_)|Ps], FWs, [V|Args], [expr-expr|NTs], [V|WVs]) :-
+    % Treat expr in template as a variable for now
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+
+extract_name_type(Words, Name, Type) :-
+    (   Words = [Art | Rest], is_article(Art) -> extract_name_type_no_art(Rest, Name, Type)
+    ;   extract_name_type_no_art(Words, Name, Type)
+    ).
+
+extract_name_type_no_art([N], N, N) :- !.
+extract_name_type_no_art([T, N], N, T) :- !.
+extract_name_type_no_art(Words, Name, Type) :-
+    last(Words, N),
+    append(TypeWords, [N], Words),
+    atomic_list_concat(TypeWords, '_', Type),
+    Name = N.
+
+is_article(a).
+is_article(an).
+is_article(the).
+is_article(some).
+is_article(any).
+is_article(each).
+is_article(which).
 
 % Test all examples
 test_all :-
@@ -181,4 +272,3 @@ test_all :-
            ( format('Parsing ~w... ', [File]),
              ( parse_le_file(File, _AST) -> writeln('OK') ; writeln('FAILED') )
            )).
-
