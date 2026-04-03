@@ -17,7 +17,7 @@ parse_le(String, doc(NewSections)) :-
             NewSections = [kb(anonymous, NewContent)]
         ;   NewSections = []
         )
-    ;   NewSections = []
+    ;   fail
     ).
 
 parse_le_file(File, AST) :-
@@ -122,10 +122,13 @@ template([P|Ps]) -->
     template_tail(Ps).
 
 template_tail([P|Ps]) -->
-    \+ is_terminator,
+    \+ is_template_terminator,
     template_part(P), !,
     template_tail(Ps).
 template_tail([]) --> [].
+
+is_template_terminator --> any_indent, [punctuation('.', _)], \+ [number(_, _)].
+is_template_terminator --> any_indent, [punctuation(',', _)].
 
 template_part(word(W)) --> t(word(W)).
 template_part(number(N)) --> t(number(N)).
@@ -303,29 +306,42 @@ section_dicts(meta(Ds), Ds) :- !.
 section_dicts(_, []).
 
 default_templates([
+    dict([is_a, A, B], [A-any, B-any], [A, is, a, B]),
+    dict([is_a, A, B], [A-any, B-any], [A, is, an, B]),
     dict([=, A, B], [A-any, B-any], [A, '=', B]),
     dict([>=, A, B], [A-any, B-any], [A, '>=', B]),
     dict([<=, A, B], [A-any, B-any], [A, '<=', B]),
     dict([>, A, B], [A-any, B-any], [A, '>', B]),
     dict([<, A, B], [A-any, B-any], [A, '<', B]),
     dict([is, A, B], [A-any, B-any], [A, is, B]),
-    dict([=, A, B], [A-any, B-any], [A, is, B]),
-    dict([=, A, B], [A-any, B-any], [A, is, a, number, B]),
-    dict([=, A, B], [A-any, B-any], [A, is, a, percentage, B]),
-    dict([=, A, B], [A-any, B-any], [A, is, an, amount, B])
+    dict([is, A, B], [A-any, B-any], [A, is, a, number, B]),
+    dict([is, A, B], [A-any, B-any], [A, is, a, percentage, B]),
+    dict([is, A, B], [A-any, B-any], [A, is, an, amount, B])
 ]).
-
 
 
 transform_section(Templates, kb(Name, Content), kb(Name, NewContent)) :- !,
     maplist(transform_kb_item_with_vmap(Templates), Content, NewContent).
 transform_section(Templates, ontology(Content), ontology(NewContent)) :- !,
-    maplist(transform_kb_item_with_vmap(Templates), Content, NewContent).
+    maplist(transform_ontology_item(Templates), Content, NewContent).
 transform_section(Templates, scenario(Name, Content), scenario(Name, NewContent)) :- !,
     maplist(transform_kb_item_with_vmap(Templates), Content, NewContent).
 transform_section(Templates, query(Name, Content), query(Name, NewContent)) :- !,
     maplist(transform_kb_item_with_vmap(Templates), Content, NewContent).
 transform_section(_, S, S).
+
+transform_ontology_item(Templates, fact(Head), clause(NewHeadTerm, true)) :-
+    VarMap = vmap([]),
+    (   transform_instance(Head, Templates, VarMap, HeadTerm)
+    ->  (   HeadTerm = [is, A, B] -> NewHeadTerm =.. [is_a, A, B]
+        ;   HeadTerm = [is_a, A, B] -> NewHeadTerm =.. [is_a, A, B]
+        ;   NewHeadTerm = HeadTerm
+        )
+    ;   NewHeadTerm = unknown_fact(Head)
+    ).
+transform_ontology_item(Templates, rule(Head, Body), clause(HeadTerm, StructuredBody)) :-
+    transform_kb_item_with_vmap(Templates, rule(Head, Body), clause(HeadTerm, StructuredBody)).
+
 
 transform_kb_item_with_vmap(Templates, Item, NewItem) :-
     VarMap = vmap([]),
@@ -550,60 +566,62 @@ get_line_tokens([T|Ts], [T|LTs], Rest) :-
 
 lines_to_tree([], _, _, true) :- !.
 lines_to_tree(Lines, Templates, VarMap, Tree) :-
-    lines_to_groups(Lines, Groups),
-    groups_to_logic(Groups, Templates, VarMap, Tree).
+    lines_to_hierarchy(Lines, Hierarchy),
+    hierarchy_to_logic(Hierarchy, Templates, VarMap, Tree).
 
-lines_to_groups([], []).
-lines_to_groups([line(N, Tokens)|Lines], [group(N, Tokens, SubGroups)|RestGroups]) :-
-    take_nested(Lines, N, Nested, Remaining),
-    lines_to_groups(Nested, SubGroups),
-    lines_to_groups(Remaining, RestGroups).
+% hierarchy: list of node(Indent, Tokens, Children)
+lines_to_hierarchy([], []).
+lines_to_hierarchy([line(N, Tokens)|Lines], [node(N, Tokens, Children)|RestNodes]) :-
+    take_nested_hierarchy(Lines, N, Nested, Remaining),
+    lines_to_hierarchy(Nested, Children),
+    lines_to_hierarchy(Remaining, RestNodes).
 
-take_nested([line(M, Tokens)|Lines], N, [line(M, Tokens)|Nested], Remaining) :-
-    M > N, 
-    \+ starts_with_and_or(Tokens), !,
-    take_nested(Lines, N, Nested, Remaining).
-take_nested(Lines, _, [], Lines).
+take_nested_hierarchy([line(M, Tokens)|Lines], N, [line(M, Tokens)|Nested], Remaining) :-
+    M > N, !,
+    take_nested_hierarchy(Lines, N, Nested, Remaining).
+take_nested_hierarchy(Lines, _, [], Lines).
 
-starts_with_and_or([word(Op, _)|_]) :- (Op == and ; Op == or).
+hierarchy_to_logic([], _, _, true) :- !.
+hierarchy_to_logic([node(_, Tokens, Children)|RestNodes], Templates, VarMap, Logic) :-
+    strip_op(Tokens, _Op, RestTokens),
+    parse_node(RestTokens, Children, Templates, VarMap, FirstLogic),
+    fold_nodes(FirstLogic, RestNodes, Templates, VarMap, Logic).
 
-groups_to_logic([group(_, Tokens, SubGroups)], Templates, VarMap, Logic) :- !,
-    group_to_logic_child(Templates, VarMap, group(0, Tokens, SubGroups), Logic).
-groups_to_logic(Groups, Templates, VarMap, Logic) :-
-    (   member(group(_, [word(or, _)|_], _), Groups)
-    ->  Op = or
-    ;   Op = and
-    ),
-    maplist(group_to_logic_child(Templates, VarMap), Groups, Children),
-    list_to_binary(Op, Children, Logic).
+fold_nodes(Acc, [], _, _, Acc).
+fold_nodes(Acc, [node(_, Tokens, Children)|Rest], Templates, VarMap, Logic) :-
+    strip_op(Tokens, Op, RestTokens),
+    parse_node(RestTokens, Children, Templates, VarMap, ChildLogic),
+    NewAcc =.. [Op, Acc, ChildLogic],
+    fold_nodes(NewAcc, Rest, Templates, VarMap, Logic).
+
+strip_op([word(if, _)|Rest], and, Rest) :- !.
+strip_op([word(Op, _)|Rest], Op, Rest) :- (Op == and ; Op == or), !.
+strip_op(Tokens, and, Tokens).
+
+parse_node(Tokens, Children, Templates, VarMap, Logic) :-
+    (   is_not_the_case(Tokens)
+    ->  hierarchy_to_logic(Children, Templates, VarMap, SubLogic),
+        Logic = not(SubLogic)
+    ;   parse_literal(Tokens, Templates, VarMap, Literal),
+        fold_nodes(Literal, Children, Templates, VarMap, Logic)
+    ).
+
+is_not_the_case(Tokens) :-
+    maplist(extract_word_atom, Tokens, Atoms),
+    (   Atoms = [it, is, not, the, case, that]
+    ;   Atoms = [not, the, case, that]
+    ).
+
+extract_word_atom(word(A, _), A) :- !.
+extract_word_atom(punctuation(P, _), P) :- !.
+extract_word_atom(number(N, _), N) :- !.
+extract_word_atom(_, unknown).
+
 
 list_to_binary(_, [Child], Child) :- !.
 list_to_binary(Op, [C|Cs], Term) :-
     list_to_binary(Op, Cs, Rest),
     Term =.. [Op, C, Rest].
-
-group_to_logic_child(Templates, VarMap, group(_, Tokens, SubGroups), Logic) :-
-    (   Tokens = [word(Op, _)|Rest], (Op == and ; Op == or)
-    ->  parse_group(Rest, SubGroups, Templates, VarMap, Logic)
-    ;   parse_group(Tokens, SubGroups, Templates, VarMap, Logic)
-    ).
-
-parse_group(Tokens, SubGroups, Templates, VarMap, Logic) :-
-    (   is_not_the_case(Tokens)
-    ->  groups_to_logic(SubGroups, Templates, VarMap, SubLogic),
-        Logic = not(SubLogic)
-    ;   parse_literal(Tokens, Templates, VarMap, Literal),
-        (   SubGroups == []
-        ->  Logic = Literal
-        ;   groups_to_logic(SubGroups, Templates, VarMap, SubLogic),
-            (   SubGroups = [group(_, [word(Op, _)|_], _)|_], (Op == and ; Op == or)
-            ->  Logic =.. [Op, Literal, SubLogic]
-            ;   Logic = and(Literal, SubLogic)
-            )
-        )
-    ).
-
-is_not_the_case([word(it, _), word(is, _), word(not, _), word(the, _), word(case, _), word(that, _)]).
 
 parse_literal(Tokens, Templates, VarMap, Literal) :-
     (   phrase(template_instance(Instance), Tokens)

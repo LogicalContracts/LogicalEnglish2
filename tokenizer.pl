@@ -146,10 +146,16 @@ token_match(Idx, quoteString(S, loc(Idx, End)), End) -->
 
 % Number
 token_match(Idx, number(N, loc(Idx, End)), End) -->
-    digits_strict(Codes), !,
-    { number_codes(N, Codes),
-      length(Codes, L),
-      End is Idx + L }.
+    digits_strict(Codes), 
+    (   ".", digits_strict(Fraction)
+    ->  { append(Codes, [0'.|Fraction], AllCodes),
+          number_codes(N, AllCodes),
+          length(AllCodes, L),
+          End is Idx + L }
+    ;   { number_codes(N, Codes),
+          length(Codes, L),
+          End is Idx + L }
+    ).
 
 % Word
 token_match(Idx, word(A, loc(Idx, End)), End) -->
