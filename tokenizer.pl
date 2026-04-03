@@ -94,6 +94,16 @@ tokens(Idx, 0, [punctuation(A, loc(Idx, End))|Ts]) -->
 
 % --- Token Definitions (Priority Order) ---
 
+% Multi-character Punctuation
+token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
+    ">=", !, { A = '>=', End is Idx + 2 }.
+token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
+    "<=", !, { A = '<=', End is Idx + 2 }.
+token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
+    "==", !, { A = '==', End is Idx + 2 }.
+token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
+    "!=", !, { A = '!=', End is Idx + 2 }.
+
 % Multi-line Comment: /* ... */
 token_match(Idx, multi_comment(Content, loc(Idx, End)), End) -->
     "/*", !,
