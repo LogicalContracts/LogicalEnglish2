@@ -3,13 +3,22 @@
 :- use_module(library(pcre)).
 
 % Main entry point
-parse_le(String, Doc) :-
+parse_le(String, doc(NewSections)) :-
     % Replace non-standard whitespace with space to help tokenizer
     re_replace("\u2002"/g, " ", String, CleanString),
     tokenize(CleanString, Tokens),
     % Filter out comments
     exclude(is_comment, Tokens, CleanTokens),
-    phrase(document(Doc), CleanTokens).
+    (   phrase(document(Doc), CleanTokens)
+    ->  (   Doc = doc(Sections), Sections \== []
+        ->  second_pass(Sections, NewSections)
+        ;   Doc = doc([], Content)
+        ->  second_pass_content(Content, NewContent),
+            NewSections = [kb(anonymous, NewContent)]
+        ;   NewSections = []
+        )
+    ;   NewSections = []
+    ).
 
 parse_le_file(File, AST) :-
     read_file_to_string(File, String, []),
@@ -191,13 +200,13 @@ body_tokens([]) --> [].
 
 is_body_terminator --> any_indent, [punctuation('.', _)], \+ [number(_, _)].
 
-body_token(indent(N)) --> [indent(N, _)].
-body_token(word(W)) --> [word(W, _)].
-body_token(number(N)) --> [number(N, _)].
-body_token(date(D)) --> [date(D, _)].
-body_token(string(S)) --> [quoteString(S, _)].
-body_token(string(S)) --> [doubleQuoteString(S, _)].
-body_token(punct(P)) --> [punctuation(P, _)].
+body_token(indent(N, Loc)) --> [indent(N, Loc)].
+body_token(word(W, Loc)) --> [word(W, Loc)].
+body_token(number(N, Loc)) --> [number(N, Loc)].
+body_token(date(D, Loc)) --> [date(D, Loc)].
+body_token(string(S, Loc)) --> [quoteString(S, Loc)].
+body_token(string(S, Loc)) --> [doubleQuoteString(S, Loc)].
+body_token(punct(P, Loc)) --> [punctuation(P, Loc)].
 
 % Helpers
 words([W|Ws]) --> t(word(W)), !, words(Ws).
@@ -264,6 +273,198 @@ is_article(some).
 is_article(any).
 is_article(each).
 is_article(which).
+
+% Second Pass: Transform AST into Clauses
+second_pass(Sections, NewSections) :-
+    is_list(Sections), !,
+    collect_templates(Sections, UserTemplates),
+    default_templates(DefaultTemplates),
+    append(UserTemplates, DefaultTemplates, AllTemplates),
+    maplist(transform_section(AllTemplates), Sections, NewSections).
+
+
+second_pass_content(Content, NewContent) :-
+    default_templates(AllTemplates),
+    maplist(transform_kb_item(AllTemplates), Content, NewContent).
+
+collect_templates(Sections, Templates) :-
+    findall(D, (member(S, Sections), section_dicts(S, Ds), member(D, Ds)), Templates).
+
+section_dicts(templates(Ds), Ds) :- !.
+section_dicts(predicates(Ds), Ds) :- !.
+section_dicts(fluents(Ds), Ds) :- !.
+section_dicts(events(Ds), Ds) :- !.
+section_dicts(meta(Ds), Ds) :- !.
+section_dicts(_, []).
+
+default_templates([
+    dict([=, A, B], [any-any, any-any], [A, punct(=), B]),
+    dict([>=, A, B], [any-any, any-any], [A, punct(>=), B]),
+    dict([<=, A, B], [any-any, any-any], [A, punct(<=), B]),
+    dict([>, A, B], [any-any, any-any], [A, punct(>), B]),
+    dict([<, A, B], [any-any, any-any], [A, punct(<), B]),
+    dict([is, A, B], [any-any, any-any], [A, word(is), B])
+]).
+
+transform_section(Templates, kb(Name, Content), kb(Name, NewContent)) :- !,
+    maplist(transform_kb_item(Templates), Content, NewContent).
+transform_section(Templates, ontology(Content), ontology(NewContent)) :- !,
+    maplist(transform_kb_item(Templates), Content, NewContent).
+transform_section(Templates, scenario(Name, Content), scenario(Name, NewContent)) :- !,
+    maplist(transform_kb_item(Templates), Content, NewContent).
+transform_section(Templates, query(Name, Content), query(Name, NewContent)) :- !,
+    maplist(transform_kb_item(Templates), Content, NewContent).
+transform_section(_, S, S).
+
+transform_kb_item(Templates, rule(Head, BodyTokens), clause(HeadTerm, StructuredBody)) :- !,
+    (   transform_instance(Head, Templates, HeadTerm)
+    ->  parse_body(BodyTokens, Templates, StructuredBody)
+    ;   HeadTerm = unknown_head(Head), StructuredBody = unknown_body(BodyTokens)
+    ).
+transform_kb_item(Templates, fact(Head), clause(HeadTerm, true)) :- !,
+    (   transform_instance(Head, Templates, HeadTerm)
+    ->  true
+    ;   HeadTerm = unknown_fact(Head)
+    ).
+
+transform_instance(Instance, Templates, Literal) :-
+    match_template(Instance, Templates, Literal).
+
+match_template(Instance, Templates, Literal) :-
+    member(Dict, Templates),
+    copy_term(Dict, dict(FunctorArgs, _NamesTypes, WordsAndVars)),
+    match_instance_to_template(Instance, WordsAndVars, Templates),
+    !,
+    Literal = FunctorArgs.
+
+match_instance_to_template([], [], _).
+match_instance_to_template(Instance, [WAV|WAVs], Templates) :-
+    (   var(WAV)
+    ->  % Greedy match for variables
+        append(MatchedParts, RestInstance, Instance),
+        MatchedParts \= [],
+        % Lookahead to next non-variable word in template to prune search
+        (   WAVs = [NextWAV|_], \+ var(NextWAV)
+        ->  RestInstance = [NextPart|_],
+            match_part(NextPart, NextWAV, Templates)
+        ;   true
+        ),
+        extract_value_from_parts(MatchedParts, WAV, Templates),
+        match_instance_to_template(RestInstance, WAVs, Templates)
+    ;   % WAV is an atom or punct
+        Instance = [Part|RestInstance],
+        match_part(Part, WAV, Templates),
+        match_instance_to_template(RestInstance, WAVs, Templates)
+    ).
+
+match_part(word(W), W, _) :- atom(W), !.
+match_part(number(N), N, _) :- number(N), !.
+match_part(string(S), S, _) :- string(S), !.
+match_part(punct(P), P, _) :- atom(P), !.
+match_part(Part, V, Templates) :- var(V), !, extract_value(Part, V, Templates).
+match_part(that(I), V, Templates) :- var(V), !, transform_instance(I, Templates, V).
+
+extract_value_from_parts([Part], Value, Templates) :- !,
+    extract_value(Part, Value, Templates).
+extract_value_from_parts(Parts, Value, _Templates) :-
+    maplist(extract_simple_value, Parts, Values),
+    atomic_list_concat(Values, ' ', Value).
+
+extract_simple_value(word(W), W).
+extract_simple_value(number(N), N).
+extract_simple_value(string(S), S).
+extract_simple_value(punct(P), P).
+
+extract_value(word(W), W, _).
+extract_value(number(N), N, _).
+extract_value(date(D), D, _).
+extract_value(string(S), S, _).
+extract_value(list(L), TransformedL, Templates) :-
+    maplist(transform_instance_rec(Templates), L, TransformedL).
+extract_value(expr(E), TransformedE, Templates) :-
+    transform_instance(E, Templates, TransformedE).
+
+transform_instance_rec(Templates, I, T) :- transform_instance(I, Templates, T).
+
+% Structured Body Parsing
+parse_body(Tokens, Templates, StructuredBody) :-
+    tokens_to_lines(Tokens, Lines),
+    lines_to_tree(Lines, Templates, StructuredBody).
+
+tokens_to_lines([], []) :- !.
+tokens_to_lines([indent(N, _)|Ts], [line(N, LineTokens)|Lines]) :- !,
+    get_line_tokens(Ts, LineTokens, Rest),
+    tokens_to_lines(Rest, Lines).
+tokens_to_lines(Ts, [line(0, LineTokens)|Lines]) :-
+    get_line_tokens(Ts, LineTokens, Rest),
+    tokens_to_lines(Rest, Lines).
+
+get_line_tokens([], [], []) :- !.
+get_line_tokens([indent(N, Loc)|Ts], [], [indent(N, Loc)|Ts]) :- !.
+get_line_tokens([T|Ts], [T|LTs], Rest) :-
+    get_line_tokens(Ts, LTs, Rest).
+
+lines_to_tree([], _, true) :- !.
+lines_to_tree(Lines, Templates, Tree) :-
+    lines_to_groups(Lines, Groups),
+    groups_to_logic(Groups, Templates, Tree).
+
+lines_to_groups([], []).
+lines_to_groups([line(N, Tokens)|Lines], [group(N, Tokens, SubGroups)|RestGroups]) :-
+    take_nested(Lines, N, Nested, Remaining),
+    lines_to_groups(Nested, SubGroups),
+    lines_to_groups(Remaining, RestGroups).
+
+take_nested([line(M, Tokens)|Lines], N, [line(M, Tokens)|Nested], Remaining) :-
+    M > N, 
+    \+ starts_with_and_or(Tokens), !,
+    take_nested(Lines, N, Nested, Remaining).
+take_nested(Lines, _, [], Lines).
+
+starts_with_and_or([word(Op, _)|_]) :- (Op == and ; Op == or).
+
+groups_to_logic([group(_, Tokens, SubGroups)], Templates, Logic) :- !,
+    parse_group(Tokens, SubGroups, Templates, Logic).
+groups_to_logic(Groups, Templates, Logic) :-
+    (   member(group(_, [word(or, _)|_], _), Groups)
+    ->  Op = or
+    ;   Op = and
+    ),
+    maplist(group_to_logic_child(Templates), Groups, Children),
+    list_to_binary(Op, Children, Logic).
+
+list_to_binary(_, [Child], Child) :- !.
+list_to_binary(Op, [C|Cs], Term) :-
+    list_to_binary(Op, Cs, Rest),
+    Term =.. [Op, C, Rest].
+
+group_to_logic_child(Templates, group(_, Tokens, SubGroups), Logic) :-
+    (   Tokens = [word(Op, _)|Rest], (Op == and ; Op == or)
+    ->  parse_group(Rest, SubGroups, Templates, Logic)
+    ;   parse_group(Tokens, SubGroups, Templates, Logic)
+    ).
+
+parse_group(Tokens, [], Templates, Literal) :- !,
+    parse_literal(Tokens, Templates, Literal).
+parse_group(Tokens, SubGroups, Templates, Special) :-
+    (   is_not_the_case(Tokens)
+    ->  groups_to_logic(SubGroups, Templates, SubLogic),
+        Special = not(SubLogic)
+    ;   parse_literal(Tokens, Templates, Literal),
+        groups_to_logic(SubGroups, Templates, SubLogic),
+        Special = and(Literal, SubLogic)
+    ).
+
+is_not_the_case([word(it, _), word(is, _), word(not, _), word(the, _), word(case, _), word(that, _)]).
+
+parse_literal(Tokens, Templates, Literal) :-
+    (   phrase(template_instance(Instance), Tokens)
+    ->  (   match_template(Instance, Templates, Literal)
+        ->  true
+        ;   Literal = unknown_template(Instance)
+        )
+    ;   Literal = unknown_tokens(Tokens)
+    ).
 
 % Test all examples
 test_all :-
