@@ -1,9 +1,13 @@
-:- module(le_grammar, [parse_le/2, parse_le/3, parse_le_file/2, parse_le_file/3, test_all/0]).
+:- module(le_grammar, [parse_le/2, parse_le/3, parse_le_file/2, parse_le_file/3, test_all/0, transitive_is_a/2]).
 :- use_module(tokenizer).
 :- use_module(library(pcre)).
 :- use_module(le_system_templates).
 
 :- thread_local issue/1.
+:- thread_local is_a/2.
+:- thread_local is_a_taxonomy_edge/3.
+:- thread_local in_ontology/0.
+:- thread_local current_ontology_super/1.
 
 % Main entry point
 parse_le(String, Doc) :-
@@ -11,6 +15,8 @@ parse_le(String, Doc) :-
 
 parse_le(String, doc(NewSections), Issues) :-
     retractall(issue(_)),
+    retractall(is_a(_, _)),
+    retractall(is_a_taxonomy_edge(_, _, _)),
     % Replace non-standard whitespace with space to help tokenizer
     re_replace("\u2002"/g, " ", String, CleanString),
     tokenize(CleanString, Tokens),
@@ -22,7 +28,8 @@ parse_le(String, doc(NewSections), Issues) :-
         ;   true
         ),
         (   Doc = doc(Sections), Sections \== []
-        ->  second_pass(Sections, NewSections)
+        ->  second_pass(Sections, NewSections),
+            check_is_a_loops
         ;   Doc = doc([], Content)
         ->  second_pass_content(Content, [], NewContent),
             NewSections = [kb(anonymous, NewContent)]
@@ -364,19 +371,34 @@ second_pass_item(Templates, fact(Head), clause(NewHead, true)) :-
 second_pass_item(_, error_item(Tokens), error_item(Tokens)).
 
 second_pass_ontology_item(Templates, fact(Head), Item) :-
-    (   match_is_a(Head, Type, SuperType, [], _VMOut, false)
-    ->  concatenate_if_list(Type, CType),
-        concatenate_if_list(SuperType, CSuperType),
-        Item = is_a(CType, CSuperType)
+    (   match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false)
+    ->  Item = is_a(TypeAtom, SuperTypeAtom)
     ;   transform_instance(Head, Templates, [], _VMOut, RawItem, false)
     ->  RawItem =.. [Functor|Args],
         maplist(concatenate_if_list, Args, CArgs),
         Item =.. [Functor|CArgs]
     ;   Item = unknown_template(Head),
         report_issue(error, 'Unknown template in ontology fact', Head)
+    ),
+    (   match_is_a(Head, _, _, TAtom, SAtom, [], _, false)
+    ->  assertz(is_a(TAtom, SAtom)),
+        (   Head = [T|_] -> (T =.. [_, _, loc(Pos, _)] -> true ; T =.. [_, loc(Pos, _)] -> true ; Pos = 0) ; Pos = 0 ),
+        assertz(is_a_taxonomy_edge(TAtom, SAtom, Pos))
+    ;   true
     ).
-second_pass_ontology_item(Templates, rule(Head, Body), Item) :-
-    second_pass_item(Templates, rule(Head, Body), Item).
+second_pass_ontology_item(Templates, rule(Head, BodyTokens), Item) :-
+    (   match_is_a(Head, Type, SuperType, _TAtom, SAtom, [], _, true)
+    ->  asserta(in_ontology),
+        asserta(current_ontology_super(SAtom)),
+        second_pass_item(Templates, rule(Head, BodyTokens), Item),
+        retract(current_ontology_super(SAtom)),
+        retract(in_ontology),
+        (   Item = clause(_, NewBody)
+        ->  assertz((is_a(Type, SuperType) :- NewBody))
+        ;   assertz(is_a(Type, SuperType))
+        )
+    ;   second_pass_item(Templates, rule(Head, BodyTokens), Item)
+    ).
 
 concatenate_if_list(Val, Result) :-
     is_list(Val),
@@ -426,6 +448,9 @@ second_pass_query_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBod
 second_pass_query_item(_, error_item(Tokens), error_item(Tokens)).
 
 match_is_a(Parts, Type, SuperType, VMIn, VMOut, AllowVars) :-
+    match_is_a(Parts, Type, SuperType, _, _, VMIn, VMOut, AllowVars).
+
+match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVars) :-
     maplist(extract_simple_word, Parts, Words),
     (   append(TypeWords, [is, a | SuperTypeWords], Words)
     ;   append(TypeWords, [is, an | SuperTypeWords], Words)
@@ -433,7 +458,9 @@ match_is_a(Parts, Type, SuperType, VMIn, VMOut, AllowVars) :-
     ),
     TypeWords \== [], SuperTypeWords \== [],
     extract_words_to_value(TypeWords, Type, VMIn, VM1, AllowVars),
-    extract_words_to_value(SuperTypeWords, SuperType, VM1, VMOut, AllowVars).
+    extract_words_to_value(SuperTypeWords, SuperType, VM1, VMOut, AllowVars),
+    extract_name_type(TypeWords, TypeAtom, _),
+    extract_name_type(SuperTypeWords, SuperTypeAtom, _).
 
 extract_words_to_value(Words, Value, VMIn, VMOut, AllowVars) :-
     (   AllowVars == true, extract_var_name(Words, Name)
@@ -757,6 +784,10 @@ strip_op([word(Op, _)|Rest], Op, Rest) :- (Op == and ; Op == or), !.
 strip_op(Tokens, and, Tokens).
 
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
+    (   in_ontology, current_ontology_super(CurrentSuper), match_is_a(Tokens, _, _, _, SAtom, VMIn, _, true)
+    ->  assertz(is_a_taxonomy_edge(SAtom, CurrentSuper, 0))
+    ;   true
+    ),
     (   is_not_the_case(Tokens)
     ->  hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic),
         Logic = not(SubLogic)
@@ -768,8 +799,8 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ;   parse_literal(Tokens, Templates, VMIn, VM1, Literal)
     ->  fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
     ;   match_is_a(Tokens, Type, SuperType, VMIn, VM1, true)
-    ->  Literal = is_a(Type, SuperType),
-        fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
+    ->  Logic = is_a(Type, SuperType),
+        fold_nodes(Logic, Children, Templates, VM1, VMOut, Logic)
     ;   phrase(template_instance(Instance), Tokens)
     ->  Literal = unknown_template(Instance),
         report_issue(error, 'Unknown template in body', Instance),
@@ -806,6 +837,29 @@ extract_word_atom(word(A, _), A) :- !.
 extract_word_atom(punctuation(P, _), P) :- !.
 extract_word_atom(number(N, _), N) :- !.
 extract_word_atom(_, unknown).
+
+% Loop checker for is_a hierarchy
+check_is_a_loops :-
+    is_a_taxonomy_edge(Type, SuperType, Pos),
+    check_loop(SuperType, [Type], Pos),
+    fail.
+check_is_a_loops.
+
+check_loop(Current, Path, Pos) :-
+    member(Current, Path), !,
+    reverse([Current|Path], Loop),
+    atomic_list_concat(Loop, ' -> ', LoopStr),
+    atom_concat('Loop detected in is_a hierarchy: ', LoopStr, Msg),
+    assertz(issue(error(Msg, Pos))).
+check_loop(Current, Path, Pos) :-
+    is_a_taxonomy_edge(Current, Next, _),
+    check_loop(Next, [Current|Path], Pos).
+
+transitive_is_a(Type, SuperType) :-
+    is_a(Type, SuperType).
+transitive_is_a(Type, SuperType) :-
+    is_a(Type, Intermediate),
+    transitive_is_a(Intermediate, SuperType).
 
 % Test all examples
 test_all :-
