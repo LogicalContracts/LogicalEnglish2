@@ -1,0 +1,19 @@
+the target language is: prolog. 
+    
+the templates are:
+    the estimated tax for *an entity* for *a year* is *an amount* % Error: missing period
+    the estimated annual net tax payable for *an entity* for *a year* is *an amount*.
+
+the rules are: % Error: unknown section
+    this has no period
+
+the knowledge base payg includes:
+    the estimated tax for an entity for a year is an amount ET
+        if the estimated annual net tax payable for the entity for the year is ET
+            and ET >= 0.
+
+    something completely unknown here. % Error: unknown template
+
+scenario test_quarter_2 is:
+    Australian entity is the taxpayer % Error: missing period
+    2025 is a year under consideration.

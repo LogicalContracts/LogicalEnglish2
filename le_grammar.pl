@@ -1,28 +1,56 @@
-:- module(le_grammar, [parse_le/2, parse_le_file/2, test_all/0]).
+:- module(le_grammar, [parse_le/2, parse_le/3, parse_le_file/2, parse_le_file/3, test_all/0]).
 :- use_module(tokenizer).
 :- use_module(library(pcre)).
 
+:- thread_local issue/1.
+
 % Main entry point
-parse_le(String, doc(NewSections)) :-
+parse_le(String, Doc) :-
+    parse_le(String, Doc, _Issues).
+
+parse_le(String, doc(NewSections), Issues) :-
+    retractall(issue(_)),
     % Replace non-standard whitespace with space to help tokenizer
     re_replace("\u2002"/g, " ", String, CleanString),
     tokenize(CleanString, Tokens),
     % Filter out comments
     exclude(is_comment, Tokens, CleanTokens),
-    (   phrase(document(Doc), CleanTokens)
-    ->  (   Doc = doc(Sections), Sections \== []
+    (   phrase(document(Doc), CleanTokens, Remainder)
+    ->  (   Remainder \== []
+        ->  report_issue(error, 'Unexpected tokens at end of document', Remainder)
+        ;   true
+        ),
+        (   Doc = doc(Sections), Sections \== []
         ->  second_pass(Sections, NewSections)
         ;   Doc = doc([], Content)
         ->  second_pass_content(Content, [], NewContent),
             NewSections = [kb(anonymous, NewContent)]
         ;   NewSections = []
         )
-    ;   fail
-    ).
+    ;   report_issue(error, 'Failed to parse document', CleanTokens),
+        NewSections = []
+    ),
+    findall(I, retract(issue(I)), Issues).
 
 parse_le_file(File, AST) :-
+    parse_le_file(File, AST, _Issues).
+
+parse_le_file(File, AST, Issues) :-
     read_file_to_string(File, String, []),
-    parse_le(String, AST).
+    parse_le(String, AST, Issues).
+
+report_issue(_Type, Message, Tokens) :-
+    (   is_list(Tokens), Tokens = [T|_]
+    ->  (   T =.. [_, _, loc(Pos, _)] -> true
+        ;   T =.. [_, loc(Pos, _)] -> true
+        ;   Pos = 0
+        )
+    ;   (   Tokens =.. [_, _, loc(Pos, _)] -> true
+        ;   Tokens =.. [_, loc(Pos, _)] -> true
+        ;   Pos = 0
+        )
+    ),
+    assertz(issue(error(Message, Pos))). % Using error/2 as requested, can be extended to Type(Message, Pos)
 
 is_comment(line_comment(_, _)).
 is_comment(multi_comment(_, _)).
@@ -43,7 +71,18 @@ document(doc(Sections)) --> sections(Sections), any_indent, { Sections \== [] }.
 document(doc([], Content)) --> kb_content(Content), any_indent.
 
 sections([S|Ss]) --> section(S), !, sections(Ss).
+sections([error_section(Tokens)|Ss]) -->
+    \+ next_section_start,
+    consume_until_next_section(Tokens),
+    { Tokens \== [], report_issue(error, 'Invalid or unknown section', Tokens) },
+    sections(Ss).
 sections([]) --> [].
+
+consume_until_next_section([T|Ts]) -->
+    \+ next_section_start,
+    [T], !,
+    consume_until_next_section(Ts).
+consume_until_next_section([]) --> [].
 
 section(target_language(L)) -->
     t(word(the)), t(word(target)), t(word(language)), t(word(is)),
@@ -112,10 +151,21 @@ name_part(P) --> t(punct(P)).
 % Templates
 templates([T|Ts]) -->
     \+ next_section_start,
-    template(T),
+    (   template(T) -> !
+    ;   consume_until_template_terminator(Tokens),
+        { T = error_template(Tokens), report_issue(error, 'Invalid template', Tokens) }
+    ),
     ( t(punct(',')), !, templates(Ts)
     | t(punct('.')), !, ( templates(Ts) | { Ts = [] } )
+    | { Ts = [] }
     ).
+
+consume_until_template_terminator([T|Ts]) -->
+    \+ is_template_terminator,
+    \+ next_section_start,
+    [T], !,
+    consume_until_template_terminator(Ts).
+consume_until_template_terminator([]) --> [].
 
 template([P|Ps]) -->
     template_part(P),
@@ -123,6 +173,7 @@ template([P|Ps]) -->
 
 template_tail([P|Ps]) -->
     \+ is_template_terminator,
+    \+ next_section_start,
     template_part(P), !,
     template_tail(Ps).
 template_tail([]) --> [].
@@ -159,9 +210,21 @@ next_section_start --> any_indent, [word(query, _)].
 % KB Content
 kb_content([Item|Items]) -->
     \+ next_section_start,
-    kb_item(Item), !,
+    (   kb_item(Item) -> !
+    ;   consume_until_kb_terminator(Tokens),
+        { Item = error_item(Tokens), report_issue(error, 'Invalid KB item', Tokens) }
+    ),
     kb_content(Items).
 kb_content([]) --> [].
+
+consume_until_kb_terminator([T|Ts]) -->
+    \+ is_kb_terminator,
+    \+ next_section_start,
+    [T], !,
+    consume_until_kb_terminator(Ts).
+consume_until_kb_terminator([T]) --> [T]. % Consume the terminator if possible
+
+is_kb_terminator --> any_indent, [punctuation('.', _)], \+ [number(_, _)].
 
 kb_item(rule(Head, Body)) -->
     template_instance(Head),
@@ -178,19 +241,21 @@ template_instance([P|Ps]) -->
 
 template_instance_tail([P|Ps]) -->
     \+ is_terminator,
+    \+ next_section_start,
     template_instance_part(P), !,
     template_instance_tail(Ps).
 template_instance_tail([]) --> [].
 
-template_instance_part(word(W)) --> t(word(W)).
-template_instance_part(number(N)) --> t(number(N)).
-template_instance_part(date(D)) --> t(date(D)).
-template_instance_part(string(S)) --> t(string(S)).
+template_instance_part(word(W, Loc)) --> any_indent, [word(W, Loc)].
+template_instance_part(number(N, Loc)) --> any_indent, [number(N, Loc)].
+template_instance_part(date(D, Loc)) --> any_indent, [date(D, Loc)].
+template_instance_part(string(S, Loc)) --> any_indent, [quoteString(S, Loc)].
+template_instance_part(string(S, Loc)) --> any_indent, [doubleQuoteString(S, Loc)].
 template_instance_part(list(L)) --> t(punct('[')), list_elements(L), t(punct(']')).
 template_instance_part(expr(E)) --> t(punct('(')), template_instance(E), t(punct(')')).
-template_instance_part(punct(P)) --> t(punct(P)), { \+ member(P, ['[', ']', '.', ',', '(', ')']) }.
-template_instance_part(punct('(')) --> t(punct('(')).
-template_instance_part(punct(')')) --> t(punct(')')).
+template_instance_part(punct(P, Loc)) --> any_indent, [punctuation(P, Loc)], { \+ member(P, ['[', ']', '.', ',', '(', ')']) }.
+template_instance_part(punct('(', Loc)) --> any_indent, [punctuation('(', Loc)].
+template_instance_part(punct(')', Loc)) --> any_indent, [punctuation(')', Loc)].
 
 list_elements([E|Es]) --> template_instance(E), ( t(punct(',')), !, list_elements(Es) | { Es = [] } ).
 list_elements([]) --> [].
@@ -259,6 +324,8 @@ second_pass(Sections, NewSections) :-
 
 default_templates([
     dict([=, V1, V2], [V1-any, V2-any], [V1, punct(=), V2]),
+    dict([is, V1, V2], [V1-any, V2-any], [V1, word(is), V2]),
+    dict([is_equal_to, V1, V2], [V1-any, V2-any], [V1, word(is), word(equal), word(to), V2]),
     dict([>=, V1, V2], [V1-number, V2-number], [V1, punct(>=), V2]),
     dict([<=, V1, V2], [V1-number, V2-number], [V1, punct(<=), V2]),
     dict([>, V1, V2], [V1-number, V2-number], [V1, punct(>), V2]),
@@ -292,6 +359,7 @@ second_pass_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBody)) :-
     ->  NewHead = is_a(Type, SuperType),
         parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
     ;   NewHead = unknown_template(Head),
+        report_issue(error, 'Unknown template in rule head', Head),
         parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
     ).
 second_pass_item(Templates, fact(Head), clause(NewHead, true)) :-
@@ -299,13 +367,18 @@ second_pass_item(Templates, fact(Head), clause(NewHead, true)) :-
     ->  true
     ;   match_is_a(Head, Type, SuperType, [], _VMOut, true)
     ->  NewHead = is_a(Type, SuperType)
-    ;   NewHead = unknown_template(Head)
+    ;   NewHead = unknown_template(Head),
+        report_issue(error, 'Unknown template in fact', Head)
     ).
+second_pass_item(_, error_item(Tokens), error_item(Tokens)).
 
-second_pass_ontology_item(_Templates, fact(Head), Item) :-
+second_pass_ontology_item(Templates, fact(Head), Item) :-
     (   match_is_a(Head, Type, SuperType, [], _VMOut, false)
     ->  Item = is_a(Type, SuperType)
-    ;   Item = unknown_template(Head)
+    ;   transform_instance(Head, Templates, [], _VMOut, Item, false)
+    ->  true
+    ;   Item = unknown_template(Head),
+        report_issue(error, 'Unknown template in ontology fact', Head)
     ).
 second_pass_ontology_item(Templates, rule(Head, Body), Item) :-
     second_pass_item(Templates, rule(Head, Body), Item).
@@ -315,7 +388,8 @@ second_pass_scenario_item(Templates, fact(Head), Item) :-
     ->  Item = NewHead
     ;   match_is_a(Head, Type, SuperType, [], _VMOut, false)
     ->  Item = is_a(Type, SuperType)
-    ;   Item = unknown_template(Head)
+    ;   Item = unknown_template(Head),
+        report_issue(error, 'Unknown template in scenario fact', Head)
     ).
 second_pass_scenario_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBody)) :-
     (   transform_instance(Head, Templates, [], VM1, NewHead, true)
@@ -324,15 +398,18 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens), clause(NewHead, New
     ->  NewHead = is_a(Type, SuperType),
         parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
     ;   NewHead = unknown_template(Head),
+        report_issue(error, 'Unknown template in scenario rule head', Head),
         parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
     ).
+second_pass_scenario_item(_, error_item(Tokens), error_item(Tokens)).
 
 second_pass_query_item(Templates, fact(Head), Item) :-
     (   transform_instance(Head, Templates, [], _VMOut, NewHead, true)
     ->  Item = NewHead
     ;   match_is_a(Head, Type, SuperType, [], _VMOut, true)
     ->  Item = is_a(Type, SuperType)
-    ;   Item = unknown_template(Head)
+    ;   Item = unknown_template(Head),
+        report_issue(error, 'Unknown template in query', Head)
     ).
 second_pass_query_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBody)) :-
     (   transform_instance(Head, Templates, [], VM1, NewHead, true)
@@ -341,11 +418,13 @@ second_pass_query_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBod
     ->  NewHead = is_a(Type, SuperType),
         parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
     ;   NewHead = unknown_template(Head),
+        report_issue(error, 'Unknown template in query rule head', Head),
         parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
     ).
+second_pass_query_item(_, error_item(Tokens), error_item(Tokens)).
 
 match_is_a(Parts, Type, SuperType, VMIn, VMOut, AllowVars) :-
-    maplist(extract_simple_value, Parts, Words),
+    maplist(extract_simple_word, Parts, Words),
     (   append(TypeWords, [is, a | SuperTypeWords], Words)
     ;   append(TypeWords, [is, an | SuperTypeWords], Words)
     ;   append(TypeWords, [is, the | SuperTypeWords], Words)
@@ -376,15 +455,24 @@ templateToDict(T, dict([Functor|Args], NamesTypes, WordsAndVars)) :-
     atomic_list_concat(FunctorWords, '_', Functor).
 
 process_template_parts([], [], [], [], []).
+process_template_parts([word(W, _)|Ps], [W|FWs], Args, NTs, [word(W)|WVs]) :-
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
 process_template_parts([word(W)|Ps], [W|FWs], Args, NTs, [word(W)|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
 process_template_parts([var(Words)|Ps], FWs, [V|Args], [V-Type|NTs], [V|WVs]) :-
     extract_name_type(Words, _Name, Type),
     process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([number(N, _)|Ps], [N_Atom|FWs], Args, NTs, [number(N)|WVs]) :-
+    atom_number(N_Atom, N),
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
 process_template_parts([number(N)|Ps], [N_Atom|FWs], Args, NTs, [number(N)|WVs]) :-
     atom_number(N_Atom, N),
     process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([string(S, _)|Ps], [S|FWs], Args, NTs, [string(S)|WVs]) :-
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
 process_template_parts([string(S)|Ps], [S|FWs], Args, NTs, [string(S)|WVs]) :-
+    process_template_parts(Ps, FWs, Args, NTs, WVs).
+process_template_parts([punct(P, _)|Ps], [P|FWs], Args, NTs, [punct(P)|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
 process_template_parts([punct(P)|Ps], [P|FWs], Args, NTs, [punct(P)|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
@@ -447,7 +535,7 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
     ;   (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
     ;   parse_expression(Parts, VMIn, VMOut, Templates, Expr)
     ->  Value = Expr
-    ;   maplist(extract_simple_value, Parts, Words),
+    ;   maplist(extract_simple_word, Parts, Words),
         (   AllowVars == true, extract_var_name(Words, Name)
         ->  unify_with_vmap(Name, Value, VMIn, VMOut)
         ;   (NoTransform == false, transform_instance(Parts, Templates, VMIn, VMOut, Transformed, AllowVars))
@@ -493,6 +581,14 @@ extract_simple_value(number(N), N).
 extract_simple_value(string(S), S).
 extract_simple_value(punct(P), P).
 extract_simple_value(date(D), D).
+extract_simple_value(var(Words), Atom) :- atomic_list_concat(Words, '_', Atom).
+
+extract_simple_word(Part, Word) :-
+    extract_simple_value(Part, Val),
+    (   compound(Val), Val = date(Y, M, D)
+    ->  format(atom(Word), '~w-~w-~w', [Y, M, D])
+    ;   Word = Val
+    ).
 
 extract_value(word(W, _), Val, VMIn, VMOut, _Templates, AllowVars) :-
     (   is_proper_name_atom(W) -> Val = W, VMOut = VMIn
@@ -675,8 +771,10 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
         fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
     ;   phrase(template_instance(Instance), Tokens)
     ->  Literal = unknown_template(Instance),
+        report_issue(error, 'Unknown template in body', Instance),
         fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
     ;   Literal = unknown_tokens(Tokens),
+        report_issue(error, 'Unknown tokens in body', Tokens),
         fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
     ).
 
@@ -687,7 +785,7 @@ is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     !.
 
 build_aggregate_list(Tokens, VMIn, VMOut, List) :-
-    maplist(extract_simple_value, Tokens, Words),
+    maplist(extract_simple_word, Tokens, Words),
     (   extract_var_name(Words, Name)
     ->  unify_with_vmap(Name, Var, VMIn, VMOut),
         maplist(replace_name_with_var(Name, Var), Words, List)

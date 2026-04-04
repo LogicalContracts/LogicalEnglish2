@@ -50,7 +50,7 @@ We want to transform rules into Prolog clauses. So we need to refine the rule bo
 - Each rule head must match a template in the templates list; the PROLOG clause head will be dict/3's first argument
 - Each rule body may have a tree logic structure as per the LE language, with expressions and literals in the leaves; each literal must match a template too
 
-# fixing it
+## fixing it
 The parsing is not quite well yet. For example in citizenship.le the first rule...
 
 a person acquires British citizenship on a date
@@ -96,7 +96,7 @@ Its parse is wrong:
 
 That unknoown_template is incorrect: "a third person" means just "a person"; second, third, etc. are auxiliaries just to allow different variables of the same type to be used. 
 
-# more fixes
+## more fixes
 Better but not correct yet. For example in payg.le the first rule...
 
 the estimated tax for an entity for a year is an amount ET
@@ -126,7 +126,7 @@ clause([the_estimated_tax_for_for_is,'an entity','a year','an amount ET'],
 			     not([the_estimated_annual_net_tax_payable_for_for_is,'the entity','the year','an X']))
             ))
 
-# is_a
+## is_a
 Much better, but the ontology clauses should use instead the is_a/2 predicate. 
 Also, you should recognize Prolog's is/2, so for example payg.le's third rule ...
 
@@ -165,7 +165,7 @@ should NOT parse to the following...:
             and( not([is_under_the_aggregated_turnover_threshold_in,entity,year]),
                 and(not([is_a_base_rate_entity,entity]))))))
 
-# sums
+## sums
 Better, now we need to support aggregates properly. In rule
 
 the year-to-date instalment adjustment for an entity E for an income year is an amount V
@@ -184,7 +184,7 @@ the year-to-date instalment adjustment for an entity E for an income year is an 
 
     sum([each, amount], INDENTED_GOAL, [a number, IR])
 
-# fixing sums
+## fixing sums
 
 The fragment:
 
@@ -205,6 +205,37 @@ a number IVC is the sum of each number such that
             and Y is previous to C
 
 "the number with an other ID was reported as a variation on a quarter Y of the income year" is being parsed as unknown_tokens(..)
+
+## simplify ontology and scenarios
+In the ontology parse each fact as is_a(Type,SuperType) fact or clause
+
+In scenarios and queries, instead of terms clause(Literal,true) keep simply Literal.
+
+In scenarios, in general facts have no variables. For example "John is born in the UK on 2021-10-09" should be is_born_in_on('John',[the,'UK'],date(2021,10,09)); we can keep the date representation provided by out tokenizer.
+
+## Error reporting
+Let's add syntax error reporting, so we have a new last argument: parse_le(String, doc(NewSections), Issues), where Issues will be a list of error(Message,CharPosition); future versions may add warning(...) too. A normal parsing will return an empty Issues list. If errors exist, try keeping as much of the parsed doc as possible.
+Also, any unknown_tokens(Tokens) in the parse result should be reported as errors too
+
+To test this start by building variants of two examples: payg.le and citizenship.le, by introducing a few syntactic errors in each.
+
+For the implementation, consider these optional suggestions: 
+- CharPositions are in the tokens being parsed
+- remainder(Tokens)//1 which returns the tokens not yet parsed; ans
+- asserting errors, so that multiple errors can be noted in  thread_local temporary facts and collected at the end of the parse to include in the Issues list
+
+  ---
+
+There is a new bug:
+?- test_all.
+Parsing examples/moreExamples/1_cgt_assets_and_exemptions_3.le... 
+ERROR: Type error: `text' expected, found `date(2015,10,24)' (a compound)
+ERROR: In:
+ERROR:   [72] atomic_list_concat([before,...],'_',_157872)
+ERROR:   [69] le_grammar:extract_value_from_parts([word(before,...),...],_157916,[date-_157956,...|...],_157920,[dict(...,...,...),...|...],true,true) at /Users/mc/git/LogicalEnglish2/le_grammar.pl:547
+ERROR:   [68] le_grammar:match_instance_to_template([word(before,...),...],[_158044],[date-_158058,...|...],_158018,[dict(...,...,...),...|...],true) at /Users/mc/git/LogicalEnglish2/le_grammar.p
+## Generate list of PROLOG clauses
+
 
 # LE 2.0 language differences vs LE 1.0
 * no target language nor
