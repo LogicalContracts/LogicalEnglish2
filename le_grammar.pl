@@ -1,6 +1,7 @@
 :- module(le_grammar, [parse_le/2, parse_le/3, parse_le_file/2, parse_le_file/3, test_all/0]).
 :- use_module(tokenizer).
 :- use_module(library(pcre)).
+:- use_module(le_system_templates).
 
 :- thread_local issue/1.
 
@@ -318,19 +319,9 @@ is_proper_name(Words) :-
 second_pass(Sections, NewSections) :-
     % Collect all templates from all sections first
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
-    default_templates(Defaults),
-    append(UserDicts, Defaults, AllDicts),
+    findall(SystemDict, le_system_template(SystemDict), SystemDicts),
+    append(UserDicts, SystemDicts, AllDicts),
     maplist(second_pass_section(AllDicts), Sections, NewSections).
-
-default_templates([
-    dict([=, V1, V2], [V1-any, V2-any], [V1, punct(=), V2]),
-    dict([is, V1, V2], [V1-any, V2-any], [V1, word(is), V2]),
-    dict([is_equal_to, V1, V2], [V1-any, V2-any], [V1, word(is), word(equal), word(to), V2]),
-    dict([>=, V1, V2], [V1-number, V2-number], [V1, punct(>=), V2]),
-    dict([<=, V1, V2], [V1-number, V2-number], [V1, punct(<=), V2]),
-    dict([>, V1, V2], [V1-number, V2-number], [V1, punct(>), V2]),
-    dict([<, V1, V2], [V1-number, V2-number], [V1, punct(<), V2])
-]).
 
 get_dicts(predicates(Ds), Ds).
 get_dicts(templates(Ds), Ds).
@@ -374,14 +365,25 @@ second_pass_item(_, error_item(Tokens), error_item(Tokens)).
 
 second_pass_ontology_item(Templates, fact(Head), Item) :-
     (   match_is_a(Head, Type, SuperType, [], _VMOut, false)
-    ->  Item = is_a(Type, SuperType)
-    ;   transform_instance(Head, Templates, [], _VMOut, Item, false)
-    ->  true
+    ->  concatenate_if_list(Type, CType),
+        concatenate_if_list(SuperType, CSuperType),
+        Item = is_a(CType, CSuperType)
+    ;   transform_instance(Head, Templates, [], _VMOut, RawItem, false)
+    ->  RawItem =.. [Functor|Args],
+        maplist(concatenate_if_list, Args, CArgs),
+        Item =.. [Functor|CArgs]
     ;   Item = unknown_template(Head),
         report_issue(error, 'Unknown template in ontology fact', Head)
     ).
 second_pass_ontology_item(Templates, rule(Head, Body), Item) :-
     second_pass_item(Templates, rule(Head, Body), Item).
+
+concatenate_if_list(Val, Result) :-
+    is_list(Val),
+    maplist(atomic, Val),
+    !,
+    atomic_list_concat(Val, '', Result).
+concatenate_if_list(Val, Val).
 
 second_pass_scenario_item(Templates, fact(Head), Item) :-
     (   transform_instance(Head, Templates, [], _VMOut, NewHead, false)
@@ -455,26 +457,26 @@ templateToDict(T, dict([Functor|Args], NamesTypes, WordsAndVars)) :-
     atomic_list_concat(FunctorWords, '_', Functor).
 
 process_template_parts([], [], [], [], []).
-process_template_parts([word(W, _)|Ps], [W|FWs], Args, NTs, [word(W)|WVs]) :-
+process_template_parts([word(W, _)|Ps], [W|FWs], Args, NTs, [W|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
-process_template_parts([word(W)|Ps], [W|FWs], Args, NTs, [word(W)|WVs]) :-
+process_template_parts([word(W)|Ps], [W|FWs], Args, NTs, [W|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
 process_template_parts([var(Words)|Ps], FWs, [V|Args], [V-Type|NTs], [V|WVs]) :-
     extract_name_type(Words, _Name, Type),
     process_template_parts(Ps, FWs, Args, NTs, WVs).
-process_template_parts([number(N, _)|Ps], [N_Atom|FWs], Args, NTs, [number(N)|WVs]) :-
+process_template_parts([number(N, _)|Ps], [N_Atom|FWs], Args, NTs, [N|WVs]) :-
     atom_number(N_Atom, N),
     process_template_parts(Ps, FWs, Args, NTs, WVs).
-process_template_parts([number(N)|Ps], [N_Atom|FWs], Args, NTs, [number(N)|WVs]) :-
+process_template_parts([number(N)|Ps], [N_Atom|FWs], Args, NTs, [N|WVs]) :-
     atom_number(N_Atom, N),
     process_template_parts(Ps, FWs, Args, NTs, WVs).
-process_template_parts([string(S, _)|Ps], [S|FWs], Args, NTs, [string(S)|WVs]) :-
+process_template_parts([string(S, _)|Ps], [S|FWs], Args, NTs, [S|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
-process_template_parts([string(S)|Ps], [S|FWs], Args, NTs, [string(S)|WVs]) :-
+process_template_parts([string(S)|Ps], [S|FWs], Args, NTs, [S|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
-process_template_parts([punct(P, _)|Ps], [P|FWs], Args, NTs, [punct(P)|WVs]) :-
+process_template_parts([punct(P, _)|Ps], [P|FWs], Args, NTs, [P|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
-process_template_parts([punct(P)|Ps], [P|FWs], Args, NTs, [punct(P)|WVs]) :-
+process_template_parts([punct(P)|Ps], [P|FWs], Args, NTs, [P|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
 process_template_parts([list(_)|Ps], FWs, [V|Args], [V-list|NTs], [V|WVs]) :-
     process_template_parts(Ps, FWs, Args, NTs, WVs).
@@ -514,19 +516,15 @@ types_compatible(percentage, amount) :- !.
 is_reserved(W) :- member(W, [says, that, if, and, or]).
 is_generic_type(T) :- member(T, [thing, object, item, sentence, event, fluent, any]).
 
-match_part(word(W, _), word(W), VM, VM, _, _) :- !.
-match_part(word(W), word(W), VM, VM, _, _) :- !.
-match_part(number(N, _), number(N), VM, VM, _, _) :- !.
-match_part(number(N), number(N), VM, VM, _, _) :- !.
-match_part(string(S, _), string(S), VM, VM, _, _) :- !.
-match_part(string(S), string(S), VM, VM, _, _) :- !.
-match_part(punctuation(P, _), punct(P), VM, VM, _, _) :- !.
-match_part(punct(P), punct(P), VM, VM, _, _) :- !.
 match_part(word(W, _), W, VM, VM, _, _) :- atom(W), !.
+match_part(word(W), W, VM, VM, _, _) :- atom(W), !.
 match_part(number(N, _), N, VM, VM, _, _) :- number(N), !.
-match_part(quoteString(S, _), S, VM, VM, _, _) :- string(S), !.
-match_part(doubleQuoteString(S, _), S, VM, VM, _, _) :- string(S), !.
+match_part(number(N), N, VM, VM, _, _) :- number(N), !.
+match_part(string(S, _), S, VM, VM, _, _) :- string(S), !.
+match_part(string(S), S, VM, VM, _, _) :- string(S), !.
 match_part(punctuation(P, _), P, VM, VM, _, _) :- atom(P), !.
+match_part(punct(P, _), P, VM, VM, _, _) :- atom(P), !.
+match_part(punct(P), P, VM, VM, _, _) :- atom(P), !.
 match_part(Part, V, VMIn, VMOut, Templates, AllowVars) :- var(V), !, extract_value(Part, V, VMIn, VMOut, Templates, AllowVars).
 
 extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, AllowVars) :-
@@ -599,6 +597,8 @@ extract_value(number(N, _), N, VM, VM, _, _).
 extract_value(date(D, _), D, VM, VM, _, _).
 extract_value(quoteString(S, _), S, VM, VM, _, _).
 extract_value(doubleQuoteString(S, _), S, VM, VM, _, _).
+extract_value(punctuation(P, _), P, VM, VM, _, _).
+extract_value(punct(P, _), P, VM, VM, _, _).
 extract_value(word(W), Val, VMIn, VMOut, _Templates, AllowVars) :-
     (   is_proper_name_atom(W) -> Val = W, VMOut = VMIn
     ;   AllowVars == true -> unify_with_vmap(W, Val, VMIn, VMOut)
@@ -607,6 +607,7 @@ extract_value(word(W), Val, VMIn, VMOut, _Templates, AllowVars) :-
 extract_value(number(N), N, VM, VM, _, _).
 extract_value(date(D), D, VM, VM, _, _).
 extract_value(string(S), S, VM, VM, _, _).
+extract_value(punct(P), P, VM, VM, _, _).
 extract_value(list(L), TransformedL, VMIn, VMOut, Templates, AllowVars) :-
     transform_list(L, Templates, VMIn, VMOut, TransformedL, AllowVars).
 extract_value(expr(E), TransformedE, VMIn, VMOut, Templates, AllowVars) :-
