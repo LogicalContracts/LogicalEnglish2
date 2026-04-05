@@ -234,6 +234,61 @@ ERROR: In:
 ERROR:   [72] atomic_list_concat([before,...],'_',_157872)
 ERROR:   [69] le_grammar:extract_value_from_parts([word(before,...),...],_157916,[date-_157956,...|...],_157920,[dict(...,...,...),...|...],true,true) at /Users/mc/git/LogicalEnglish2/le_grammar.pl:547
 ERROR:   [68] le_grammar:match_instance_to_template([word(before,...),...],[_158044],[date-_158058,...|...],_158018,[dict(...,...,...),...|...],true) at /Users/mc/git/LogicalEnglish2/le_grammar.p
+
+## More clean up
+The third argument of dict(..) should have simply the atoms and variable, not word(_) terms
+Lists of atoms in ontology fact arguments should be concatenated into single atoms, e.g. [quarter,1] becoming quarter1
+
+In payg.le the rule:
+
+the year-to-date fraction for a quarter Q is a number F
+    if Q is quarter 1 
+        and F is 0.25
+    or Q is quarter 2 
+        and F is 0.5
+    or Q is quarter 3 
+        and F is 0.75
+    or Q is quarter 4 
+        and F is 1.0.
+
+is not being parsed correctly: the head is resulting into unknown_template(...) when it should match the existing template: 
+the year-to-date fraction for *a quarter* is *a fraction*.
+
+The ontology rule
+
+    a quarter X is previous or equal to a quarter Y 
+        if X is previous to Y 
+        or X is equal to Y.
+
+should parse to
+
+    clause(is_previous_or_equal_to(L6,M6),or(is_previous_to(L6,M6), equal_to(L6,M6) ))
+
+This requires that a "system template" or "predefined template" exists, as if defined by 
+
+    *a thing* is equal to *another thing*
+
+, so let's have a le_system_template table, in a separate module file le_system_templates.le used by le_grammar
+
+In the ontology fact arguments, when parsing token sequences to atoms you should concatenate the atoms with '_'. So for example "quarter 1 is a quarter" should produce is_a(quarter_1,quarter)
+
+ontology facts should have no singleton variables, they typicall have only constants. So for example "Q1 is previous to Q2" should parse to is_previous_to('Q1','Q2')
+
+## Restarting our vibe and build transtive_is_a
+You are an expert in Logical English (LE), a constrained natural language mapping to PROLOG. It is described in @docs/le_syntax.md. There are examples in @examples/moreExamples - all files with extension .le
+Consider the working LE parser in @le_grammar.pl, and related files le_system_templates.pl and tokenizer.pl
+
+Using the information provided in the parsing of the ontology section, build a temporary (thread_local) is_a(Type,SuperType) predicate with all is_a facts and clauses; make also a validation agains loops in the is_a tree, so please write a loop checker and report a parsing issue if a loop is found; also define transitive_is_a(Type,SuperType) which calls is_a/2.
+
+
+## multiple errors
+It would be nice to report several parser errors, not just the first. For example, parsing moreExamples/payg_buggy.le should result in two errors
+
+## TBD: 
+
+## use transitive_is_a
+The matching of rule literals and scenario facts to existing templates should consider the ontology, making sure that the template instance in the rule head or body matches the template considering the type of the variables in there. So for example in scenarion test_quarter_2 of payg.le, "the current quarter is quarter 2" matches template "the current quarter is *a quarter*." only because transitive_is_a(quarter_2,quarter)
+
 ## Generate list of PROLOG clauses
 
 

@@ -22,7 +22,7 @@ parse_le(String, doc(NewSections), Issues) :-
     tokenize(CleanString, Tokens),
     % Filter out comments
     exclude(is_comment, Tokens, CleanTokens),
-    (   phrase(document(Doc), CleanTokens, Remainder)
+    (   once(phrase(document(Doc), CleanTokens, Remainder))
     ->  (   Remainder \== []
         ->  report_issue(error, 'Unexpected tokens at end of document', Remainder)
         ;   true
@@ -35,10 +35,12 @@ parse_le(String, doc(NewSections), Issues) :-
             NewSections = [kb(anonymous, NewContent)]
         ;   NewSections = []
         )
-    ;   report_issue(error, 'Failed to parse document', CleanTokens),
+    ;   % If document//1 failed, it might be because of a partial parse that didn't reach the end
+        % but we still want to collect issues reported during that partial parse.
         NewSections = []
     ),
-    findall(I, retract(issue(I)), Issues).
+    findall(I, retract(issue(I)), AllIssues),
+    sort(AllIssues, Issues).
 
 parse_le_file(File, AST) :-
     parse_le_file(File, AST, _Issues).
@@ -58,7 +60,7 @@ report_issue(_Type, Message, Tokens) :-
         ;   Pos = 0
         )
     ),
-    assertz(issue(error(Message, Pos))). % Using error/2 as requested, can be extended to Type(Message, Pos)
+    assertz(issue(error(Message, Pos))).
 
 is_comment(line_comment(_, _)).
 is_comment(multi_comment(_, _)).
@@ -75,14 +77,13 @@ t(string(S)) --> any_indent, [doubleQuoteString(S, _)].
 t(punct(P)) --> any_indent, [punctuation(P, _)].
 
 % DCG
-document(doc(Sections)) --> sections(Sections), any_indent, { Sections \== [] }.
-document(doc([], Content)) --> kb_content(Content), any_indent.
+document(doc(Sections)) --> sections(Sections), !, any_indent.
 
 sections([S|Ss]) --> section(S), !, sections(Ss).
-sections([error_section(Tokens)|Ss]) -->
-    \+ next_section_start,
-    consume_until_next_section(Tokens),
-    { Tokens \== [], report_issue(error, 'Invalid or unknown section', Tokens) },
+sections([error_section([T|Ts])|Ss]) -->
+    [T], !,
+    consume_until_next_section(Ts),
+    { report_issue(error, 'Invalid or unknown section', [T|Ts]) },
     sections(Ss).
 sections([]) --> [].
 
@@ -212,6 +213,8 @@ next_section_start --> any_indent, [word(the, _), word(predicates, _)].
 next_section_start --> any_indent, [word(the, _), word(fluents, _)].
 next_section_start --> any_indent, [word(the, _), word(event, _)].
 next_section_start --> any_indent, [word(the, _), word(meta, _)].
+next_section_start --> any_indent, [word(the, _), word(target, _), word(language, _)].
+next_section_start --> any_indent, [word(the, _), word(rules, _)].
 next_section_start --> any_indent, [word(scenario, _)].
 next_section_start --> any_indent, [word(query, _)].
 
@@ -220,7 +223,8 @@ kb_content([Item|Items]) -->
     \+ next_section_start,
     (   kb_item(Item) -> !
     ;   consume_until_kb_terminator(Tokens),
-        { Item = error_item(Tokens), report_issue(error, 'Invalid KB item', Tokens) }
+        { Item = error_item(Tokens), report_issue(error, 'Invalid KB item', Tokens) },
+        !
     ),
     kb_content(Items).
 kb_content([]) --> [].
