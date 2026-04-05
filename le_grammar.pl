@@ -69,6 +69,18 @@ is_comment(multi_comment(_, _)).
 any_indent --> [indent(_, _)], !, any_indent.
 any_indent --> [].
 
+token_loc(T, Start, End) :-
+    ( T =.. [_, _, loc(Start, End)] -> true
+    ; T =.. [_, loc(Start, End)] -> true
+    ; Start = 0, End = 0
+    ).
+
+tokens_range(Tokens, Start, End) :-
+    Tokens = [First|_],
+    last(Tokens, Last),
+    token_loc(First, Start, _),
+    token_loc(Last, _, End).
+
 t(word(W)) --> any_indent, [word(W, _)].
 t(number(N)) --> any_indent, [number(N, _)].
 t(date(D)) --> any_indent, [date(D, _)].
@@ -123,26 +135,30 @@ section(meta(Dicts)) -->
     templates(Ts),
     { templatesToDicts(Ts, Dicts) }.
 
-section(ontology(Ts)) -->
-    t(word(the)), t(word(ontology)), ( t(word(is)) | t(word(includes)) ), t(punct(':')),
-    kb_content(Ts).
+section(ontology(Ts, Start, End)) -->
+    any_indent, [word(the, loc(Start, _))], t(word(ontology)), ( t(word(is)) | t(word(includes)) ), t(punct(':')),
+    kb_content(Ts),
+    { (Ts = [] -> End = Start ; last(Ts, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = Start)) }.
 
-section(kb(Name, Content)) -->
-    t(word(the)), t(word(knowledge)), t(word(base)),
+section(kb(Name, Content, Start, End)) -->
+    any_indent, [word(the, loc(Start, _))], t(word(knowledge)), t(word(base)),
     kb_name(NameWords),
     t(word(includes)), t(punct(':')),
     { atomic_list_concat(NameWords, '', Name) },
-    kb_content(Content).
+    kb_content(Content),
+    { (Content = [] -> End = Start ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = Start)) }.
 
-section(scenario(Name, Content)) -->
-    t(word(scenario)), scenario_name(NameWords), t(word(is)), t(punct(':')),
+section(scenario(Name, Content, Start, End)) -->
+    any_indent, [word(scenario, loc(Start, _))], scenario_name(NameWords), t(word(is)), t(punct(':')),
     { atomic_list_concat(NameWords, '', Name) },
-    kb_content(Content).
+    kb_content(Content),
+    { (Content = [] -> End = Start ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = Start)) }.
 
-section(query(Name, Content)) -->
-    t(word(query)), query_name(NameWords), t(word(is)), t(punct(':')),
+section(query(Name, Content, Start, End)) -->
+    any_indent, [word(query, loc(Start, _))], query_name(NameWords), t(word(is)), t(punct(':')),
     { atomic_list_concat(NameWords, '', Name) },
-    kb_content(Content).
+    kb_content(Content),
+    { (Content = [] -> End = Start ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = Start)) }.
 
 kb_name([W|Ws]) --> \+ (any_indent, [word(includes, _)]), name_part(W), !, kb_name(Ws).
 kb_name([]) --> [].
@@ -238,13 +254,15 @@ consume_until_kb_terminator([T]) --> [T]. % Consume the terminator if possible
 
 is_kb_terminator --> any_indent, [punctuation('.', _)], \+ [number(_, _)].
 
-kb_item(rule(Head, Body)) -->
+kb_item(rule(Head, Body, Start, End)) -->
     template_instance(Head),
+    { tokens_range(Head, Start, _) },
     t(word(if)),
-    body(Body).
-kb_item(fact(Head)) -->
+    body(Body, End).
+kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
-    t(punct('.')).
+    { tokens_range(Head, Start, _) },
+    any_indent, [punctuation('.', loc(_, End))].
 
 % Template Instance
 template_instance([P|Ps]) -->
@@ -272,7 +290,7 @@ template_instance_part(punct(')', Loc)) --> any_indent, [punctuation(')', Loc)].
 list_elements([E|Es]) --> template_instance(E), ( t(punct(',')), !, list_elements(Es) | { Es = [] } ).
 list_elements([]) --> [].
 
-body(Body) --> body_tokens(Body), t(punct('.')).
+body(Body, End) --> body_tokens(Body), any_indent, [punctuation('.', loc(_, End))].
 body_tokens([T|Ts]) --> \+ is_body_terminator, body_token(T), !, body_tokens(Ts).
 body_tokens([]) --> [].
 
@@ -341,20 +359,20 @@ get_dicts(events(Ds), Ds).
 get_dicts(meta(Ds), Ds).
 get_dicts(_, []).
 
-second_pass_section(Templates, kb(Name, Content), kb(Name, NewContent)) :-
+second_pass_section(Templates, kb(Name, Content, Start, End), kb(Name, NewContent, Start, End)) :-
     second_pass_content(Content, Templates, NewContent).
-second_pass_section(Templates, ontology(Content), ontology(NewContent)) :-
+second_pass_section(Templates, ontology(Content, Start, End), ontology(NewContent, Start, End)) :-
     maplist(second_pass_ontology_item(Templates), Content, NewContent).
-second_pass_section(Templates, scenario(Name, Content), scenario(Name, NewContent)) :-
+second_pass_section(Templates, scenario(Name, Content, Start, End), scenario(Name, NewContent, Start, End)) :-
     maplist(second_pass_scenario_item(Templates), Content, NewContent).
-second_pass_section(Templates, query(Name, Content), query(Name, NewContent)) :-
+second_pass_section(Templates, query(Name, Content, Start, End), query(Name, NewContent, Start, End)) :-
     maplist(second_pass_query_item(Templates), Content, NewContent).
 second_pass_section(_, S, S). % Keep other sections as is
 
 second_pass_content(Items, Templates, NewItems) :-
     maplist(second_pass_item(Templates), Items, NewItems).
 
-second_pass_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBody)) :-
+second_pass_item(Templates, rule(Head, BodyTokens, Start, End), clause(NewHead, NewBody, Start, End)) :-
     (   transform_instance(Head, Templates, [], VM1, NewHead, true)
     ->  parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
     ;   match_is_a(Head, Type, SuperType, [], VM1, true)
@@ -364,7 +382,7 @@ second_pass_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBody)) :-
         report_issue(error, 'Unknown template in rule head', Head),
         parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
     ).
-second_pass_item(Templates, fact(Head), clause(NewHead, true)) :-
+second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
     (   transform_instance(Head, Templates, [], _VMOut, NewHead, true)
     ->  true
     ;   match_is_a(Head, Type, SuperType, [], _VMOut, true)
@@ -374,34 +392,34 @@ second_pass_item(Templates, fact(Head), clause(NewHead, true)) :-
     ).
 second_pass_item(_, error_item(Tokens), error_item(Tokens)).
 
-second_pass_ontology_item(Templates, fact(Head), Item) :-
+second_pass_ontology_item(Templates, fact(Head, Start, End), Item) :-
     (   match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false)
-    ->  Item = is_a(TypeAtom, SuperTypeAtom)
+    ->  Item = clause(is_a(TypeAtom, SuperTypeAtom), true, Start, End)
     ;   transform_instance(Head, Templates, [], _VMOut, RawItem, false)
     ->  RawItem =.. [Functor|Args],
         maplist(concatenate_if_list, Args, CArgs),
-        Item =.. [Functor|CArgs]
-    ;   Item = unknown_template(Head),
+        HeadTerm =.. [Functor|CArgs],
+        Item = clause(HeadTerm, true, Start, End)
+    ;   Item = unknown_template(Head, Start, End),
         report_issue(error, 'Unknown template in ontology fact', Head)
     ),
     (   match_is_a(Head, _, _, TAtom, SAtom, [], _, false)
     ->  assertz(is_a(TAtom, SAtom)),
-        (   Head = [T|_] -> (T =.. [_, _, loc(Pos, _)] -> true ; T =.. [_, loc(Pos, _)] -> true ; Pos = 0) ; Pos = 0 ),
-        assertz(is_a_taxonomy_edge(TAtom, SAtom, Pos))
+        assertz(is_a_taxonomy_edge(TAtom, SAtom, Start))
     ;   true
     ).
-second_pass_ontology_item(Templates, rule(Head, BodyTokens), Item) :-
+second_pass_ontology_item(Templates, rule(Head, BodyTokens, Start, End), Item) :-
     (   match_is_a(Head, Type, SuperType, _TAtom, SAtom, [], _, true)
     ->  asserta(in_ontology),
         asserta(current_ontology_super(SAtom)),
-        second_pass_item(Templates, rule(Head, BodyTokens), Item),
+        second_pass_item(Templates, rule(Head, BodyTokens, Start, End), Item),
         retract(current_ontology_super(SAtom)),
         retract(in_ontology),
-        (   Item = clause(_, NewBody)
+        (   Item = clause(_, NewBody, _, _)
         ->  assertz((is_a(Type, SuperType) :- NewBody))
         ;   assertz(is_a(Type, SuperType))
         )
-    ;   second_pass_item(Templates, rule(Head, BodyTokens), Item)
+    ;   second_pass_item(Templates, rule(Head, BodyTokens, Start, End), Item)
     ).
 
 concatenate_if_list(Val, Result) :-
@@ -411,15 +429,15 @@ concatenate_if_list(Val, Result) :-
     atomic_list_concat(Val, '', Result).
 concatenate_if_list(Val, Val).
 
-second_pass_scenario_item(Templates, fact(Head), Item) :-
+second_pass_scenario_item(Templates, fact(Head, Start, End), Item) :-
     (   transform_instance(Head, Templates, [], _VMOut, NewHead, false)
-    ->  Item = NewHead
+    ->  Item = clause(NewHead, true, Start, End)
     ;   match_is_a(Head, Type, SuperType, [], _VMOut, false)
-    ->  Item = is_a(Type, SuperType)
-    ;   Item = unknown_template(Head),
+    ->  Item = clause(is_a(Type, SuperType), true, Start, End)
+    ;   Item = unknown_template(Head, Start, End),
         report_issue(error, 'Unknown template in scenario fact', Head)
     ).
-second_pass_scenario_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBody)) :-
+second_pass_scenario_item(Templates, rule(Head, BodyTokens, Start, End), clause(NewHead, NewBody, Start, End)) :-
     (   transform_instance(Head, Templates, [], VM1, NewHead, true)
     ->  parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
     ;   match_is_a(Head, Type, SuperType, [], VM1, true)
@@ -431,15 +449,15 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens), clause(NewHead, New
     ).
 second_pass_scenario_item(_, error_item(Tokens), error_item(Tokens)).
 
-second_pass_query_item(Templates, fact(Head), Item) :-
+second_pass_query_item(Templates, fact(Head, Start, End), Item) :-
     (   transform_instance(Head, Templates, [], _VMOut, NewHead, true)
-    ->  Item = NewHead
+    ->  Item = clause(NewHead, true, Start, End)
     ;   match_is_a(Head, Type, SuperType, [], _VMOut, true)
-    ->  Item = is_a(Type, SuperType)
-    ;   Item = unknown_template(Head),
+    ->  Item = clause(is_a(Type, SuperType), true, Start, End)
+    ;   Item = unknown_template(Head, Start, End),
         report_issue(error, 'Unknown template in query', Head)
     ).
-second_pass_query_item(Templates, rule(Head, BodyTokens), clause(NewHead, NewBody)) :-
+second_pass_query_item(Templates, rule(Head, BodyTokens, Start, End), clause(NewHead, NewBody, Start, End)) :-
     (   transform_instance(Head, Templates, [], VM1, NewHead, true)
     ->  parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
     ;   match_is_a(Head, Type, SuperType, [], VM1, true)

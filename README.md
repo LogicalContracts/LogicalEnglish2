@@ -284,7 +284,25 @@ Using the information provided in the parsing of the ontology section, build a t
 ## multiple errors
 It would be nice to report several parser errors, not just the first. For example, parsing moreExamples/payg_buggy.le should result in two errors
 
+## le_kbs module
+
+You are an expert in Logical English (LE), a constrained natural language mapping to PROLOG. It is described in @docs/le_syntax.md. There are examples in @examples/moreExamples - all files with extension .le.
+Now create a simple LE knowledge bases manager, a new module file le_kbs.pl, importing le_grammar. Its main predicate is load(FilePath,NewModule) which:
+1) Creates a new module name M, from a variant_sha1 of the FilePath and its modification date
+2) calls parse_le, takes the doc AST term term and keeps its information in several relations in the new module M:
+- a single fact le_kb(KBname)
+- scenario(Name,FactsList),
+- query(Name,Goal)
+- PROLOG clauses with the LE program rules and is_a clauses; these will not be executable dirctly (we will introduce an interpreter later), but stored as is
+- All previous asserts should keep the respective clause references, so that for each one you can add a fact le_source(ClauseRef, BeginPosition,EndPosition), preserving the information from the positions of the parsed tokens 
+
 ## TBD: 
+
+## Sessions
+
+Add to le_kbs a createSection(KBmodule,NewSessionModule) predicate, which given a KB module as produced by load/2 returns a new module (named with a new uuid) with working memory for a LE session. This module will provide workspace specific to a sessionb. Declare a single le_neg/1 dynamic relation for asserting negated literals; any other session specific facts will be asserted normally.
+
+Later our meta-interpreter will decide when it needs to use this data.
 
 ## use transitive_is_a
 The matching of rule literals and scenario facts to existing templates should consider the ontology, making sure that the template instance in the rule head or body matches the template considering the type of the variables in there. So for example in scenarion test_quarter_2 of payg.le, "the current quarter is quarter 2" matches template "the current quarter is *a quarter*." only because transitive_is_a(quarter_2,quarter)
