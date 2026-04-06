@@ -1,5 +1,6 @@
-:- module(le_kbs, [load/2]).
+:- module(le_kbs, [load/2, createSection/2, addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1]).
 :- use_module(le_grammar).
+:- use_module(library(uuid)).
 
 load(FilePath, NewModule) :-
     time_file(FilePath, Time),
@@ -47,3 +48,39 @@ item_to_term(Item, Item).
 list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], (G, Rest)) :- list_to_conj(Gs, Rest).
 list_to_conj([], true).
+
+createSection(KBmodule, SessionModule) :-
+    uuid(UUID),
+    atom_concat(s, UUID, SessionModule),
+    dynamic(SessionModule:le_neg/1),
+    dynamic(SessionModule:sessionClause/1),
+    assertz(SessionModule:le_my_kb(KBmodule)).
+
+addSessionFact(SessionModule, Fact) :-
+    assertz(SessionModule:Fact, Ref),
+    assertz(SessionModule:sessionClause(Ref)).
+
+negateSessionFact(SessionModule, Fact) :-
+    % Retract matching facts from the session and clean up sessionClause
+    forall(clause(SessionModule:Fact, _, Ref),
+           (erase(Ref), retractall(SessionModule:sessionClause(Ref)))),
+    % Assert negation
+    assertz(SessionModule:le_neg(Fact), NewRef),
+    assertz(SessionModule:sessionClause(NewRef)).
+
+setScenarion(SessionModule, ScenarioName) :-
+    SessionModule:le_my_kb(KBmodule),
+    KBmodule:scenario(ScenarioName, Facts),
+    forall(member(Fact, Facts), addSessionFact(SessionModule, Fact)).
+
+clearSession(SessionModule) :-
+    forall(retract(SessionModule:sessionClause(Ref)), erase(Ref)).
+
+printSession(SessionModule) :-
+    SessionModule:le_my_kb(KBmodule),
+    KBmodule:le_kb(KBName),
+    format('Session: ~w~n', [SessionModule]),
+    format('KB: ~w (~w)~n', [KBName, KBmodule]),
+    format('Current Facts:~n'),
+    forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
+           (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).

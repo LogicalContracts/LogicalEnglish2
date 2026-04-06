@@ -300,7 +300,13 @@ Now create a simple LE knowledge bases manager, a new module file le_kbs.pl, imp
 
 ## Sessions
 
-Add to le_kbs a createSection(KBmodule,NewSessionModule) predicate, which given a KB module as produced by load/2 returns a new module (named with a new uuid) with working memory for a LE session. This module will provide workspace specific to a sessionb. Declare a single le_neg/1 dynamic relation for asserting negated literals; any other session specific facts will be asserted normally.
+We'll now add session modules,  mutable counterparts to the imutable KBmodeuls. Add to le_kbs these predicates:
+ - createSection(KBmodule,NewSessionModule) , which given a KB module as produced by load/2 returns a new module (named with a new uuid) with working memory for a LE session. Assert a le_my_kb(KBmnodule) fact. This module will provide workspace specific to a sessionb. Declare in it a single le_neg/1 dynamic relation for asserting negated literals; any other session specific facts will be asserted normally via...
+ - ... addSessionFact(SessionModule,Fact), which asserts Fact into SessionModule, recording its clause ref in relation sessionClause(Ref)
+ - setScenarion(SessionModule,ScenarionName): this copies the facts in the scenarion in the session's kb into the session module, by calling addSessionFact
+ - clearSession(SessionModule), which erases all favts previously asserted, by using their clause refs in sessionClause/1; it then reases all facts in sessionCluase/1
+
+The session module will represent the mutable data of a LE program in its KBmodule, which is imutable.
 
 Later our meta-interpreter will decide when it needs to use this data.
 
