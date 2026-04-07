@@ -296,24 +296,46 @@ Now create a simple LE knowledge bases manager, a new module file le_kbs.pl, imp
 - PROLOG clauses with the LE program rules and is_a clauses; these will not be executable dirctly (we will introduce an interpreter later), but stored as is
 - All previous asserts should keep the respective clause references, so that for each one you can add a fact le_source(ClauseRef, BeginPosition,EndPosition), preserving the information from the positions of the parsed tokens 
 
-## TBD: 
-
 ## Sessions
 
-We'll now add session modules,  mutable counterparts to the imutable KBmodeuls. Add to le_kbs these predicates:
- - createSection(KBmodule,NewSessionModule) , which given a KB module as produced by load/2 returns a new module (named with a new uuid) with working memory for a LE session. Assert a le_my_kb(KBmnodule) fact. This module will provide workspace specific to a sessionb. Declare in it a single le_neg/1 dynamic relation for asserting negated literals; any other session specific facts will be asserted normally via...
- - ... addSessionFact(SessionModule,Fact), which asserts Fact into SessionModule, recording its clause ref in relation sessionClause(Ref)
+We'll now add session modules,  mutable counterparts to the imutable KBmodules. The session module will represent the mutable data of a LE program in its KBmodule, which is imutable. E.g. provide workspace specific to a session.  Later our future meta-interpreter will decide when it needs to use this data.
+
+Add to le_kbs.pl these predicates:
+ - createSection(KBmodule,NewSessionModule) , which given a KB module as produced by load/2 returns a new module (named with a new uuid) with working memory for a LE session. Assert in it a le_my_kb(KBmnodule) fact. Declare in it a single le_neg/1 dynamic relation for negated facts; 
+ - addSessionFact(SessionModule,Fact), which asserts Fact into SessionModule, recording its clause ref in a relation sessionClause(Ref)
+ - negateSessionFact(SessionModule,Fact), which will retract any matching facts from the session and assert a le_neg(Fact) fact
  - setScenarion(SessionModule,ScenarionName): this copies the facts in the scenarion in the session's kb into the session module, by calling addSessionFact
- - clearSession(SessionModule), which erases all favts previously asserted, by using their clause refs in sessionClause/1; it then reases all facts in sessionCluase/1
+ - clearSession(SessionModule), which erases all facts previously asserted, by using their clause refs in sessionClause/1; it then reases all facts in sessionCluase/1
+ - printSession(SessionModule), which prints the session id (module name), its kb name and the current facts 
 
-The session module will represent the mutable data of a LE program in its KBmodule, which is imutable.
+Write a simple program exxample.pl which uses the parser and le_kbs.pl to create a simple session witn a scenarion for the citizenship.le example
 
-Later our meta-interpreter will decide when it needs to use this data.
+## Running queries
+
+We'll now add to le_kbs.pl a predicate query(SessionModule,Template, TemplateInstance) which:
+- converts Template to a Prolog literal Goal, using dict(...) in the KB module of the session
+- Calls Goal in the SessionModule
+- Converts the bound Goal to TemplateInstance, again using dict(...)
+
+Then another predicate queryScenario(SessionModule,ScenarioName,TemplateInstance), which sets a scenario and then calls the previous query(...)
+
+for this to work we also need the session module to import its KB module - set that up  when you create the session; also we need these meta predicates defined in le_kbs.pl, so that the rule bodies can be executed in PROLOG:
+
+and(A,B):- A,B.
+
+or(A,_) :- A,
+or(_,B) :- B.
+
+not(A) :- \+ A.
+
+Then alter examples/appExample1.pl so it runs a couple of queries
+
+## TBD: 
+
 
 ## use transitive_is_a
 The matching of rule literals and scenario facts to existing templates should consider the ontology, making sure that the template instance in the rule head or body matches the template considering the type of the variables in there. So for example in scenarion test_quarter_2 of payg.le, "the current quarter is quarter 2" matches template "the current quarter is *a quarter*." only because transitive_is_a(quarter_2,quarter)
 
-## Generate list of PROLOG clauses
 
 
 # LE 2.0 language differences vs LE 1.0

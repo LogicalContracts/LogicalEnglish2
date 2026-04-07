@@ -476,7 +476,6 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
     maplist(extract_simple_word, Parts, Words),
     (   append(TypeWords, [is, a | SuperTypeWords], Words)
     ;   append(TypeWords, [is, an | SuperTypeWords], Words)
-    ;   append(TypeWords, [is, the | SuperTypeWords], Words)
     ),
     TypeWords \== [], SuperTypeWords \== [],
     extract_words_to_value(TypeWords, Type, VMIn, VM1, AllowVars),

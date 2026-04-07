@@ -28,6 +28,18 @@ main :-
     format('~nAfter clearing session:~n'),
     printSession(Session),
     
+    % Run queries
+    format('~nRunning queries:~n'),
+    % Query 1: Who acquires British citizenship on which date in scenario 'alice'?
+    Template1 = [Who, acquires, British, citizenship, on, When],
+    forall(queryScenario(Session, 'alice', Template1, Instance1),
+           format('Query 1 Result: ~w~n', [Instance1])),
+           
+    % Query 2: Who is the mother of whom in scenario 'alice'?
+    Template2 = [Mother, is, the, mother, of, Child],
+    forall(queryScenario(Session, 'alice', Template2, Instance2),
+           format('Query 2 Result: ~w~n', [Instance2])),
+
     halt.
 
 :- main.
