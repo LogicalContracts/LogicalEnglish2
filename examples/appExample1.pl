@@ -6,7 +6,7 @@ main :-
     format('Loaded KB: ~w~n', [KB]),
     
     % Create a session for this KB
-    createSection(KB, Session),
+    createSession(KB, Session),
     format('Created Session: ~w~n', [Session]),
     
     % Set a scenario

@@ -1,4 +1,4 @@
-:- module(le_kbs, [load/2, createSection/2, addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/3, queryScenario/4, and/2, or/2, not/1]).
+:- module(le_kbs, [load/2, createSession/2, addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/3, queryScenario/4]).
 :- use_module(le_grammar).
 :- use_module(le_system_templates).
 :- use_module(library(uuid)).
@@ -64,30 +64,19 @@ list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], (G, Rest)) :- list_to_conj(Gs, Rest).
 list_to_conj([], true).
 
-createSection(KBmodule, SessionModule) :-
+createSession(KBmodule, SessionModule) :-
     uuid(UUID),
     atom_concat(s, UUID, SessionModule),
     assertz(SessionModule:le_my_kb(KBmodule)),
     % Declare dynamic relations
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:sessionClause/1),
-    dynamic(SessionModule:le_source/3),
-    % Define meta-predicates locally in the session module
-    assertz((SessionModule:and(A, B) :- A, B)),
-    assertz((SessionModule:or(A, _) :- A)),
-    assertz((SessionModule:or(_, B) :- B)),
-    assertz((SessionModule:not(A) :- \+ A)),
-    % Copy rules and facts from KBmodule to SessionModule
-    forall(current_predicate(KBmodule:F/A),
-           (functor(H, F, A),
-            (H \= le_dict(_), H \= le_kb(_), H \= scenario(_, _), H \= query(_, _), H \= ontology(_), H \= le_source(_, _, _) ->
-                dynamic(SessionModule:F/A),
-                forall(clause(KBmodule:H, B, Ref),
-                       ((B == true -> assertz(SessionModule:H, NewRef) ; assertz((SessionModule:H :- B), NewRef)),
-                        (KBmodule:le_source(Ref, S, E) -> assertz(SessionModule:le_source(NewRef, S, E)) ; true)))
-            ;   true))).
+    dynamic(SessionModule:le_source/3).
 
+%TODO: should handle conflicts with le_neg:
 addSessionFact(SessionModule, Fact) :-
+    functor(Fact,F,N),
+    SessionModule:dynamic(F/N),
     assertz(SessionModule:Fact, Ref),
     assertz(SessionModule:sessionClause(Ref)).
 
@@ -116,22 +105,16 @@ printSession(SessionModule) :-
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
            (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
 
-query(SessionModule, Template, TemplateInstance) :-
+query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     SessionModule:le_my_kb(KBmodule),
     KBmodule:le_dict(dict([Functor|Args], _NTs, WordsAndVars)),
     copy_term(WordsAndVars, Template),
     Goal =.. [Functor|Args],
-    SessionModule:Goal,
+    SessionModule:call(Goal),
+    i(Goal,SessionModule,Unknowns,Why),
     TemplateInstance = Template.
 
 queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
     clearSession(SessionModule),
     setScenarion(SessionModule, ScenarioName),
-    query(SessionModule, Template, TemplateInstance).
-
-% Meta-predicates for LE rule execution
-:- module_transparent and/2, or/2, not/1.
-and(A, B) :- call(A), call(B).
-or(A, _) :- call(A).
-or(_, B) :- call(B).
-not(A) :- \+ call(A).
+    query(SessionModule, Template, TemplateInstance,_,_).
