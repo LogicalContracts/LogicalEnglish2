@@ -1,6 +1,7 @@
-:- module(le_kbs, [load/2, createSession/2, addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/3, queryScenario/4]).
+:- module(le_kbs, [load/2, createSession/2, addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4]).
 :- use_module(le_grammar).
 :- use_module(le_system_templates).
+:- use_module(reasoner).
 :- use_module(library(uuid)).
 
 load(FilePath, NewModule) :-
@@ -107,12 +108,30 @@ printSession(SessionModule) :-
 
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     SessionModule:le_my_kb(KBmodule),
-    KBmodule:le_dict(dict([Functor|Args], _NTs, WordsAndVars)),
-    copy_term(WordsAndVars, Template),
+    KBmodule:le_dict(Dict),
+    copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
+    match_query_template(Template, WordsAndVars),
     Goal =.. [Functor|Args],
-    SessionModule:call(Goal),
-    i(Goal,SessionModule,Unknowns,Why),
-    TemplateInstance = Template.
+    i(Goal, SessionModule, Unknowns, Why),
+    TemplateInstance = WordsAndVars.
+
+match_query_template([], []).
+match_query_template([W1|T1], [W2|T2]) :-
+    (   W1 == W2 -> true
+    ;   is_query_word(W1), var(W2) -> true
+    ;   var(W1), var(W2) -> W1 = W2
+    ;   var(W1) -> W1 = W2
+    ;   var(W2) -> W2 = W1
+    ;   fail
+    ),
+    match_query_template(T1, T2).
+
+is_query_word(which).
+is_query_word(a).
+is_query_word(an).
+is_query_word(the).
+is_query_word(some).
+
 
 queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
     clearSession(SessionModule),

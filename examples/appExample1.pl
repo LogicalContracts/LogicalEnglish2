@@ -22,12 +22,7 @@ main :-
     negateSessionFact(Session, is_a('Alice', 'person')),
     format('~nAfter negating Alice is a person:~n'),
     printSession(Session),
-    
-    % Clear the session
-    clearSession(Session),
-    format('~nAfter clearing session:~n'),
-    printSession(Session),
-    
+        
     % Run queries
     format('~nRunning queries:~n'),
     % Query 1: Who acquires British citizenship on which date in scenario 'alice'?
@@ -39,6 +34,11 @@ main :-
     Template2 = [Mother, is, the, mother, of, Child],
     forall(queryScenario(Session, 'alice', Template2, Instance2),
            format('Query 2 Result: ~w~n', [Instance2])),
+
+    % Clear the session
+    clearSession(Session),
+    format('~nAfter clearing session:~n'),
+    printSession(Session),
 
     halt.
 
