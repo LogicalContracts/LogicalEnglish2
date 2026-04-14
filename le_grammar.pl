@@ -17,6 +17,8 @@ parse_le(String, doc(NewSections), Issues) :-
     retractall(issue(_)),
     retractall(is_a(_, _)),
     retractall(is_a_taxonomy_edge(_, _, _)),
+    retractall(in_ontology),
+    retractall(current_ontology_super(_)),
     % Replace non-standard whitespace with space to help tokenizer
     re_replace("\u2002"/g, " ", String, CleanString),
     tokenize(CleanString, Tokens),

@@ -8,11 +8,14 @@ load(FilePath, NewModule) :-
     time_file(FilePath, Time),
     variant_sha1([FilePath, Time], Hash),
     atom_concat(m, Hash, NewModule),
-    parse_le_file(FilePath, doc(Sections)),
-    forall(member(S, Sections), process_section(S, NewModule)),
-    % Also store system templates in the KB module
-    findall(D, le_system_template(D), SysDicts),
-    forall(member(D, SysDicts), assertz(NewModule:le_dict(D))).
+    (   current_module(NewModule)
+    ->  true
+    ;   parse_le_file(FilePath, doc(Sections)),
+        forall(member(S, Sections), process_section(S, NewModule)),
+        % Also store system templates in the KB module
+        findall(D, le_system_template(D), SysDicts),
+        forall(member(D, SysDicts), assertz(NewModule:le_dict(D)))
+    ).
 
 process_section(kb(Name, Content, Start, End), M) :-
     assertz(M:le_kb(Name), Ref),
@@ -95,7 +98,9 @@ setScenarion(SessionModule, ScenarioName) :-
     forall(member(Fact, Facts), addSessionFact(SessionModule, Fact)).
 
 clearSession(SessionModule) :-
-    forall(retract(SessionModule:sessionClause(Ref)), erase(Ref)).
+    % Abolish all predicates in the session module
+    forall(current_predicate(SessionModule:F/N),
+           abolish(SessionModule:F/N)).
 
 printSession(SessionModule) :-
     SessionModule:le_my_kb(KBmodule),
