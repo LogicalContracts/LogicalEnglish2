@@ -117,14 +117,11 @@ solve(G, SM, KM, Anc, Us, Why) :-
             call(G), Us = [], Why = success(G, built_in, [])
         ;   % If it's not a built-in and has no clauses, it might be a fact in the session
             % that was added via addSessionFact/2.
-            functor(G, F, N), current_predicate(SM:F/N), SM:G,
-            Us = [], Why = success(G, session, [])
-        ;   % If it's not a built-in and has no clauses, it might be a fact in the KB
-            % that was added via process_item/2.
-            KM \== none, functor(G, F, N), current_predicate(KM:F/N), KM:G,
-            Us = [], Why = success(G, kb_fact, [])
+            SM:sessionClause(Ref), clause(SM:G, true, Ref),
+            Us = [], Why = success(G, Ref, [])
         )
     ).
+
 
 % Helpers
 

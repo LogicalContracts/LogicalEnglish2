@@ -350,7 +350,17 @@ second_pass(Sections, NewSections) :-
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
     append(UserDicts, SystemDicts, AllDicts),
-    maplist(second_pass_section(AllDicts), Sections, NewSections).
+    % Sort templates: those with 'that' should come first to avoid over-consumption by greedy variables
+    sort_templates(AllDicts, SortedDicts),
+    maplist(second_pass_section(SortedDicts), Sections, NewSections).
+
+sort_templates(Dicts, Sorted) :-
+    partition(is_meta_template, Dicts, Meta, Regular),
+    append(Meta, Regular, Sorted).
+
+is_meta_template(dict(_, _, WordsAndVars)) :-
+    member(W, WordsAndVars),
+    (W == that ; W == says).
 
 get_dicts(predicates(Ds), Ds).
 get_dicts(templates(Ds), Ds).
@@ -603,6 +613,7 @@ extract_var_name(Words, Name) :-
     ).
 
 extract_id(Words, Name) :-
+    \+ (member(W, Words), is_reserved(W)),
     (   append(TypeWords, [ID], Words), TypeWords \== [], is_id(ID)
     ->  Name = ID
     ;   atomic_list_concat(Words, '_', Name)
@@ -687,6 +698,11 @@ match_instance_to_template(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars) 
     ;   % T is a variable (from the template dict)
         append(VarTokens, Rest, Instance),
         VarTokens \== [],
+        % If this is not the last part of the template, don't allow reserved words in variables
+        (   Ts \== []
+        ->  \+ (member(VT, VarTokens), extract_simple_word(VT, VW), is_reserved(VW))
+        ;   true
+        ),
         % Lookahead to avoid over-consuming
         (   Ts = [NextT|_], \+ var(NextT)
         ->  Rest = [NextI|_], match_part(NextI, NextT, VMIn, _, Templates, AllowVars)

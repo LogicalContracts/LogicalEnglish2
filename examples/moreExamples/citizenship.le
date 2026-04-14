@@ -1,7 +1,6 @@
 the target language is: prolog.
 
 the templates are:
-*a person* says that *a sentence*,
 *a person* acquires British citizenship on *a date*.
 *a person* is born in *a place* on *a date*,
 *a date* is after commencement,
@@ -9,6 +8,7 @@ the templates are:
 *a person* is the father of *a person*,
 *a person* is a British citizen on *a date*,
 *a person* is settled in the UK on *a date*,
+*a person* says that *a sentence*,
 *a person* is qualified to determine fatherhood.
 
 the knowledge base citizenship includes:
