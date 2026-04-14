@@ -136,7 +136,7 @@ is_built_in(le_lt(_, _)).
 
 le_equal_to(X, Y) :- X = Y.
 le_assign(X, Y) :- X = Y.
-le_is(X, Y) :- (number(Y) -> X is Y ; X = Y).
+le_is(X, Y) :- catch(X is Y, _, X = Y).
 le_ge(X, Y) :- X >= Y.
 le_le(X, Y) :- X =< Y.
 le_gt(X, Y) :- X > Y.

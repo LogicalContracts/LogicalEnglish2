@@ -144,19 +144,19 @@ section(kb(Name, Content, Start, End)) -->
     any_indent, [word(the, loc(Start, _))], t(word(knowledge)), t(word(base)),
     kb_name(NameWords),
     t(word(includes)), t(punct(':')),
-    { atomic_list_concat(NameWords, '', Name) },
+    { atomic_list_concat(NameWords, ' ', Name) },
     kb_content(Content),
     { (Content = [] -> End = Start ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = Start)) }.
 
 section(scenario(Name, Content, Start, End)) -->
     any_indent, [word(scenario, loc(Start, _))], scenario_name(NameWords), t(word(is)), t(punct(':')),
-    { atomic_list_concat(NameWords, '', Name) },
+    { atomic_list_concat(NameWords, ' ', Name) },
     kb_content(Content),
     { (Content = [] -> End = Start ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = Start)) }.
 
 section(query(Name, Content, Start, End)) -->
     any_indent, [word(query, loc(Start, _))], query_name(NameWords), t(word(is)), t(punct(':')),
-    { atomic_list_concat(NameWords, '', Name) },
+    { atomic_list_concat(NameWords, ' ', Name) },
     kb_content(Content),
     { (Content = [] -> End = Start ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = Start)) }.
 
@@ -768,14 +768,18 @@ tokens_to_lines(Tokens, Lines) :-
 tokens_to_lines_acc([], Acc, Lines) :- reverse(Acc, Lines).
 tokens_to_lines_acc([indent(N, _)|Ts], Acc, Lines) :- !,
     get_line_tokens(Ts, LineTokens, Rest),
-    (   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
+    (   LineTokens == []
+    ->  tokens_to_lines_acc(Rest, Acc, Lines)
+    ;   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
     ->  append(PrevTokens, LineTokens, NewPrevTokens),
         tokens_to_lines_acc(Rest, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
     ;   tokens_to_lines_acc(Rest, [line(N, LineTokens)|Acc], Lines)
     ).
 tokens_to_lines_acc(Ts, Acc, Lines) :-
     get_line_tokens(Ts, LineTokens, Rest),
-    (   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
+    (   LineTokens == []
+    ->  tokens_to_lines_acc(Rest, Acc, Lines)
+    ;   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
     ->  append(PrevTokens, LineTokens, NewPrevTokens),
         tokens_to_lines_acc(Rest, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
     ;   tokens_to_lines_acc(Rest, [line(0, LineTokens)|Acc], Lines)
@@ -820,6 +824,8 @@ strip_op([word(if, _)|Rest], and, Rest) :- !.
 strip_op([word(Op, _)|Rest], Op, Rest) :- (Op == and ; Op == or), !.
 strip_op(Tokens, and, Tokens).
 
+parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
+    hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     (   in_ontology, current_ontology_super(CurrentSuper), match_is_a(Tokens, _, _, _, SAtom, VMIn, _, true)
     ->  assertz(is_a_taxonomy_edge(SAtom, CurrentSuper, 0))

@@ -185,7 +185,7 @@ digits_maybe([])      --> [].
 white_prefix(N) --> [C], { code_type(C, white), C \== 10 }, !, white_prefix(N1), { N is N1 + 1 }.
 white_prefix(0) --> [].
 
-word_remainder([C|Cs]) --> [C], { code_type(C, alnum) }, !, word_remainder(Cs).
+word_remainder([C|Cs]) --> [C], { code_type(C, csym) }, !, word_remainder(Cs).
 word_remainder([])     --> [].
 
 spaces(N) --> {nonvar(N), N>0, N1 is N-1}, " ", !, spaces(N1).

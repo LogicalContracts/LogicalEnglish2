@@ -1,4 +1,4 @@
-# Some experimentgs in vibe coding a new LE parser
+# Vibe coding the new LE parser
 ## Initial prompt
 You are an expert in Logical English (LE), a constrained natural language mapping to PROLOG. It is described in @docs/le_syntax.md. There are examples in @examples/moreExamples - all files with extension .le
 
@@ -363,15 +363,28 @@ Query 2 Result: [_26672,is,the,mother,of,_26702]
 
 Now let's add a test suite runner. The LE test suite  already exists, it is the set of all .le files in moreExamples/ for which there is a .le.tests file. Each of these files contains the expected answers for all program queries and scenarios, in PROLOG facts expected(QueryName,ScenarioName,ListOfTemplateInstances). Please add a runTestsFor(LE_tests_file,Result) predicate to le_kbs.pl which given a tests file loads the corresponding LE program, and runs the queries in  scenarios as dictated by expected(...). Then add a variant to accept a directory argument instead of LE_tests_file, which iterates over all test files in the directory
 
-Now run the test suite and make sure all tests pass
+let's make sure first that the tests for citizenship.le work fine
+
+I see that you reordered the templates in citizenship.le, so that *a person* says that *a sentence*, came first. IF I reorder them into the original order, as I just did in citizenship.le, there is an error:
+
+ERROR: m76c279100630b5341cfaaf647f3ce0f8c53c5338:is_the_father_of/2: Unknown procedure: m76c279100630b5341cfaaf647f3ce0f8c53c5338:and/2
+Warning: Goal (directive) failed: user:test
+
+There is a loop running the first test:
+101 ?- use_module(le_kbs).
+true.
+
+102 ?- runTestsInDir('examples/moreExamples/',R).
+Running tests for cgt_assets.le.tests...
+^CAction (h for help) ? goals
+    [443] le_grammar:parse_literal([], [dict([costed_to_acquire, _242832, _242838], [_242832-asset, _242838-amount], [_242832, costed, _242838, to, acquire]), dict([meets_the_definition_of_plant_and_equipment_under_Division_43_of_the_Income_Tax_Act, _242698], [_242698-thing], [_242698, meets, the, definition|…]), dict([is_used_soley_for_taxable_income_generating_purposes, _242606], [_242606-asset], [_242606, is, used|…]), dict([is_used_purely_for_personal_use_purposes, _242520], [_242520-asset], [_242520, is|…]), dict([was_secured_for_valour_or_brave_conduct|…], [… - …], [_242434|…]), dict([…|…], […], […|…]), dict(…, …, …)|…], ['before_or_equal_to_1985-9-19'-_417750, date-_417390, 'CGT_exempt_asset'-_327160, asset-_327154], _436096, _436098, true)
+etc.
 
 ## TBD: 
 
 
 ## use transitive_is_a
 The matching of rule literals and scenario facts to existing templates should consider the ontology, making sure that the template instance in the rule head or body matches the template considering the type of the variables in there. So for example in scenarion test_quarter_2 of payg.le, "the current quarter is quarter 2" matches template "the current quarter is *a quarter*." only because transitive_is_a(quarter_2,quarter)
-
-
 
 # LE 2.0 language differences vs LE 1.0
 * no target language nor
