@@ -1,4 +1,4 @@
-:- module(le_kbs, [load/2, createSession/2, addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4]).
+:- module(le_kbs, [load/2, createSession/2, addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1]).
 :- use_module(le_grammar).
 :- use_module(le_system_templates).
 :- use_module(reasoner).
@@ -27,7 +27,7 @@ process_section(scenario(Name, Content, Start, End), M) :-
 process_section(query(Name, Content, Start, End), M) :-
     maplist(item_to_term, Content, Terms),
     list_to_conj(Terms, Goal),
-    assertz(M:query(Name, Goal), Ref),
+    assertz(M:query_info(Name, Goal, Content), Ref),
     assertz(M:le_source(Ref, Start, End)).
 
 process_section(ontology(Content, Start, End), M) :-
@@ -104,7 +104,7 @@ printSession(SessionModule) :-
     format('KB: ~w (~w)~n', [KBName, KBmodule]),
     format('Current Facts:~n'),
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
-           (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
+           (H \= sessionClause(_), format('  ~w:', [SessionModule]), writeq(H), format(' :- ~w~n', [B]))).
 
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     SessionModule:le_my_kb(KBmodule),
@@ -137,3 +137,90 @@ queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
     clearSession(SessionModule),
     setScenarion(SessionModule, ScenarioName),
     query(SessionModule, Template, TemplateInstance,_,_).
+
+runTestsInDir(Dir, Results) :-
+    directory_files(Dir, Files),
+    findall(R, (member(F, Files), sub_atom(F, _, _, 0, '.le.tests'), 
+                directory_file_path(Dir, F, Path),
+                format('Running tests for ~w...~n', [F]),
+                runTestsFor(Path, R)), Results).
+
+runTestsFor(TestsFile, Result) :-
+    % 1. Get LE file path
+    (   file_name_extension(LEFile, tests, TestsFile)
+    ->  true
+    ;   LEFile = TestsFile % Fallback
+    ),
+    % 2. Load LE file
+    load(LEFile, KBmodule),
+    % 3. Read tests from file
+    setup_call_cleanup(
+        open(TestsFile, read, Stream),
+        read_tests(Stream, Tests),
+        close(Stream)
+    ),
+    % 4. Run each test
+    maplist(run_one_test(KBmodule), Tests, TestResults),
+    % 5. Summarize
+    Result = test_file(TestsFile, TestResults).
+
+runTests :-
+    runTestsFor('examples/moreExamples/citizenship.le.tests', Result),
+    print_test_result(Result).
+
+print_test_result(test_file(File, FileResults)) :-
+    format('File: ~w~n', [File]),
+    forall(member(R, FileResults),
+           ( R = pass(Q, S) -> format('  PASS: ~w (~w)~n', [Q, S])
+           ; R = fail(Q, S, E, A) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n', [Q, S, E, A])
+           ; format('  ERROR: ~w~n', [R])
+           )).
+
+read_tests(Stream, Tests) :-
+    read(Stream, Term),
+    (   Term == end_of_file
+    ->  Tests = []
+    ;   Term = expected(Q, S, E)
+    ->  Tests = [test(Q, S, E)|Rest],
+        read_tests(Stream, Rest)
+    ;   read_tests(Stream, Tests) % Skip other terms
+    ).
+
+run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :-
+    createSession(KBmodule, SM),
+    (   setScenarion(SM, ScenarioName)
+    ->  (   KBmodule:query_info(QueryName, FullGoal, Items)
+        ->  findall(S, (i(FullGoal, SM, [], _), 
+                        maplist(item_to_instance(KBmodule), Items, Instances),
+                        flatten(Instances, TemplateInstance),
+                        canonical_string(TemplateInstance, Atom),
+                        atom_string(Atom, S)), ActualStrings),
+            sort(ExpectedStrings, SortedExpected),
+            sort(ActualStrings, SortedActual),
+            (   SortedExpected == SortedActual
+            ->  Result = pass(QueryName, ScenarioName)
+            ;   Result = fail(QueryName, ScenarioName, SortedExpected, SortedActual)
+            )
+        ;   Result = error(QueryName, ScenarioName, 'Query not found')
+        )
+    ;   Result = error(QueryName, ScenarioName, 'Scenario not found')
+    ),
+    clearSession(SM).
+
+item_to_instance(KBmodule, clause(Head, _, _, _), WordsAndVars) :-
+    (   Head = is_a(Type, SuperType)
+    ->  WordsAndVars = [Type, is, a, SuperType]
+    ;   KBmodule:le_dict(dict([Functor|Args], _NTs, WordsAndVars)),
+        Head =.. [Functor|Args]
+    ).
+
+canonical_string(Instance, String) :-
+    maplist(token_to_atom, Instance, Atoms),
+    atomic_list_concat(Atoms, ' ', String).
+
+token_to_atom(date(Y,M,D), Atom) :-
+    !, format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]).
+token_to_atom(N, Atom) :-
+    number(N), !, atom_number(Atom, N).
+token_to_atom(A, A) :- atom(A), !.
+token_to_atom(X, Atom) :- term_to_atom(X, Atom).

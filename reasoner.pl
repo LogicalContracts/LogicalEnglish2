@@ -109,13 +109,12 @@ solve(G, SM, KM, Anc, Us, Why) :-
     (   KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G)
     ->  Us = [G], Why = success(G, unknown, [])
     ;   \+ SM:le_neg(G),
-        (   (   (SM:clause(G, Body, Ref) ; (KM \== none, KM:clause(G, Body, Ref)))
-            ->  \+ member(G, Anc),
-                solve(Body, SM, KM, [G|Anc], Us, WhyBody),
-                Why = success(G, Ref, [WhyBody])
-            )
-        ;   is_built_in(G)
-        ->  call(G), Us = [], Why = success(G, built_in, [])
+        (   (SM:clause(G, Body, Ref) ; (KM \== none, KM:clause(G, Body, Ref))),
+            \+ member(G, Anc),
+            solve(Body, SM, KM, [G|Anc], Us, WhyBody),
+            Why = success(G, Ref, [WhyBody])
+        ;   is_built_in(G),
+            call(G), Us = [], Why = success(G, built_in, [])
         ;   % If it's not a built-in and has no clauses, it might be a fact in the session
             % that was added via addSessionFact/2.
             functor(G, F, N), current_predicate(SM:F/N), SM:G,
@@ -130,6 +129,20 @@ solve(G, SM, KM, Anc, Us, Why) :-
 % Helpers
 
 is_built_in(G) :- predicate_property(G, built_in).
-is_built_in(equal_to(_, _)).
+is_built_in(le_equal_to(_, _)).
+is_built_in(le_assign(_, _)).
+is_built_in(le_is(_, _)).
+is_built_in(le_ge(_, _)).
+is_built_in(le_le(_, _)).
+is_built_in(le_gt(_, _)).
+is_built_in(le_lt(_, _)).
+
+le_equal_to(X, Y) :- X = Y.
+le_assign(X, Y) :- X = Y.
+le_is(X, Y) :- (number(Y) -> X is Y ; X = Y).
+le_ge(X, Y) :- X >= Y.
+le_le(X, Y) :- X =< Y.
+le_gt(X, Y) :- X > Y.
+le_lt(X, Y) :- X < Y.
 
 equal_to(X, X).

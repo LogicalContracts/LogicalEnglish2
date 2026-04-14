@@ -603,7 +603,7 @@ extract_var_name(Words, Name) :-
     ).
 
 extract_id(Words, Name) :-
-    (   append(_TypeWords, [ID], Words), is_id(ID)
+    (   append(TypeWords, [ID], Words), TypeWords \== [], is_id(ID)
     ->  Name = ID
     ;   atomic_list_concat(Words, '_', Name)
     ).
@@ -693,8 +693,8 @@ match_instance_to_template(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars) 
         ;   Ts = [] -> Rest = []
         ;   true
         ),
-        % Use NoTransform=true to avoid infinite recursion
-        extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, true, AllowVars),
+        % Use NoTransform=false to allow meta-templates
+        extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars),
         match_instance_to_template(Rest, Ts, VM1, VMOut, Templates, AllowVars)
     ).
 
