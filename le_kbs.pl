@@ -1,8 +1,17 @@
+/** <module> Logical English Knowledge Base Management
+    
+    This module provides predicates for loading Logical English files,
+    managing reasoning sessions, and running tests.
+*/
+
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0]).
 
+:- discontiguous print_test_result/1.
+
 :- use_module(le_grammar).
+:- use_module(tokenizer).
 :- use_module(le_system_templates).
 :- use_module(reasoner).
 :- use_module(library(uuid)).
@@ -12,9 +21,17 @@
 :- multifile prolog:message//1.
 prolog:message(S-Args) --> {atomic(S),is_list(Args)},[S-Args].
 
+%!  do_log is det.
+%
+%   Dynamic predicate that controls whether debug messages are printed.
+%   Retract it to silence the system.
 :- dynamic do_log/0.
 % do_log. % Default to on, user can retract it.
 
+%!  load(+FilePath:atom, -Module:atom) is det.
+%
+%   Loads a Logical English file from FilePath into a new generated Module.
+%   The module name is derived from the file path and modification time.
 load(FilePath, NewModule) :-
     time_file(FilePath, Time),
     variant_sha1([FilePath, Time], Hash),
@@ -76,23 +93,10 @@ process_item(clause(Head, Body, Start, End), M) :-
         assertz(M:le_source(Ref, Start, End))
     ).
 
-addSessionFact(SessionModule, Fact) :-
-    functor(Fact,F,N),
-    SessionModule:dynamic(F/N),
-    (   SessionModule:clause(Fact, true)
-    ->  true
-    ;   assertz(SessionModule:Fact, Ref),
-        assertz(SessionModule:sessionClause(Ref))
-    ).
-
-item_to_term(clause(Head, true, _, _), Head) :- !.
-item_to_term(clause(Head, Body, _, _), (Head :- Body)) :- !.
-item_to_term(Item, Item).
-
-list_to_conj([G], G) :- !.
-list_to_conj([G|Gs], (G, Rest)) :- list_to_conj(Gs, Rest).
-list_to_conj([], true).
-
+%!  createSession(+KBmodule:atom, -SessionModule:atom) is det.
+%
+%   Creates a new reasoning session associated with KBmodule.
+%   Generates a unique SessionModule name.
 createSession(KBmodule, SessionModule) :-
     uuid(UUID),
     atom_concat(s, UUID, SessionModule),
@@ -102,6 +106,22 @@ createSession(KBmodule, SessionModule) :-
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source/3).
 
+%!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
+%
+%   Adds a fact to the current session.
+addSessionFact(SessionModule, Fact) :-
+    functor(Fact,F,N),
+    SessionModule:dynamic(F/N),
+    (   SessionModule:clause(Fact, true)
+    ->  true
+    ;   assertz(SessionModule:Fact, Ref),
+        assertz(SessionModule:sessionClause(Ref))
+    ).
+
+%!  negateSessionFact(+SessionModule:atom, +Fact:term) is det.
+%
+%   Negates a fact in the current session by retracting it and
+%   asserting its negation.
 negateSessionFact(SessionModule, Fact) :-
     % Retract matching facts from the session and clean up sessionClause
     forall(clause(SessionModule:Fact, _, Ref),
@@ -110,6 +130,10 @@ negateSessionFact(SessionModule, Fact) :-
     assertz(SessionModule:le_neg(Fact), NewRef),
     assertz(SessionModule:sessionClause(NewRef)).
 
+%!  setScenarion(+SessionModule:atom, +ScenarioName:atom) is semidet.
+%
+%   Sets the current scenario for the session by loading facts
+%   defined in the KB's scenario ScenarioName.
 setScenarion(SessionModule, ScenarioName) :-
     SessionModule:le_my_kb(KBmodule),
     (   current_predicate(KBmodule:scenario/2)
@@ -119,11 +143,17 @@ setScenarion(SessionModule, ScenarioName) :-
         fail
     ).
 
+%!  clearSession(+SessionModule:atom) is det.
+%
+%   Clears all facts and definitions from the session module.
 clearSession(SessionModule) :-
     % Abolish all predicates in the session module
     forall(current_predicate(SessionModule:F/N),
            abolish(SessionModule:F/N)).
 
+%!  printSession(+SessionModule:atom) is det.
+%
+%   Prints the current state of the session, including the KB and facts.
 printSession(SessionModule) :-
     SessionModule:le_my_kb(KBmodule),
     KBmodule:le_kb(KBName),
@@ -133,32 +163,56 @@ printSession(SessionModule) :-
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
            (H \= sessionClause(_), format('  ~w:', [SessionModule]), writeq(H), format(' :- ~w~n', [B]))).
 
+%!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is semidet.
+%
+%   Executes a query against the session using a Logical English template.
+%   Template can be a list of tokens or an atom/string.
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
+    ensure_tokens(Template, Tokens),
     SessionModule:le_my_kb(KBmodule),
     KBmodule:le_dict(Dict),
     copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
     % Use the grammar's matching logic to handle multi-word variables in queries
     findall(D, KBmodule:le_dict(D), Templates),
-    (   le_grammar:match_instance_to_template(Template, WordsAndVars, [], _, Templates, true)
+    (   le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
     ->  Goal =.. [Functor|Args],
-        format('Query Goal: ~w~n', [Goal]),
+        (do_log -> format('Query Goal: ~w~n', [Goal]) ; true),
         i(Goal, SessionModule, Unknowns, Why),
         TemplateInstance = WordsAndVars
     ).
 
+ensure_tokens(Template, Tokens) :-
+    is_list(Template), !, Tokens = Template.
+ensure_tokens(Template, Tokens) :-
+    (atom(Template) ; string(Template)), !,
+    tokenize(Template, RawTokens),
+    exclude(is_noise_token, RawTokens, Tokens).
+
+is_noise_token(indent(_, _)).
+is_noise_token(line_comment(_, _)).
+is_noise_token(multi_comment(_, _)).
+
+%!  queryScenario(+SessionModule:atom, +ScenarioName:atom, +Template:term, -TemplateInstance:list) is semidet.
+%
+%   Clears the session, sets the scenario, and executes a query.
+%   Template can be a list of tokens or an atom/string.
 queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
     clearSession(SessionModule),
     setScenarion(SessionModule, ScenarioName),
     query(SessionModule, Template, TemplateInstance,_,_).
 
-
-
+%!  runTestsInDir(+Dir:atom, -Results:list) is det.
+%
+%   Runs all Logical English tests found in the specified directory.
 runTestsInDir(Dir, Results) :-
     directory_files(Dir, Files),
     findall(R, (member(F, Files), sub_atom(F, _, _, 0, '.le.tests'), 
                 directory_file_path(Dir, F, Path),
                 runTestsFor(Path, R)), Results).
 
+%!  runTestsFor(+TestsFile:atom, -Result:term) is det.
+%
+%   Runs tests defined in a .le.tests file.
 runTestsFor(TestsFile, Result) :-
     print_message(informational,"Running tests for ~w"-[TestsFile]),
     % 1. Get LE file path
@@ -179,6 +233,64 @@ runTestsFor(TestsFile, Result) :-
         Result = test_file(TestsFile, TestResults)
     ;   Result = test_file(TestsFile, [error(load, LEFile, 'Failed to load or timeout loading LE file')])
     ).
+
+%!  runTests is det.
+%
+%   Runs all tests in the default examples directory and prints a summary.
+runTests :-
+    runTestsInDir('examples/moreExamples', Results),
+    print_test_summary(Results),
+    forall(member(R, Results), print_test_result(R)).
+
+%!  print_test_summary(+Results:list) is det.
+%
+%   Prints a high-level summary of all test results, including
+%   total counts and a per-file breakdown.
+print_test_summary(Results) :-
+    findall(P, (member(test_file(_, FileResults), Results), member(pass(_,_), FileResults), P = 1), Passes),
+    findall(F, (member(test_file(_, FileResults), Results), member(fail(_,_,_,_), FileResults), F = 1), Fails),
+    findall(E, (member(test_file(_, FileResults), Results), member(error(_,_,_), FileResults), E = 1), Errs),
+    length(Results, FileCount),
+    length(Passes, PassCount),
+    length(Fails, FailCount),
+    length(Errs, ErrCount),
+    Total is PassCount + FailCount + ErrCount,
+    format('~nTest Summary:~n'),
+    format('-------------~n'),
+    format('Files processed: ~w~n', [FileCount]),
+    format('Total tests:     ~w~n', [Total]),
+    format('Passed:          ~w~n', [PassCount]),
+    format('Failed:          ~w~n', [FailCount]),
+    format('Errors/Timeouts: ~w~n', [ErrCount]),
+    format('-------------~n'),
+    format('~nDetailed File Summary:~n'),
+    forall(member(test_file(File, FileResults), Results),
+           (   findall(1, member(pass(_,_), FileResults), PFile),
+               findall(1, member(fail(_,_,_,_), FileResults), FFile),
+               findall(1, member(error(_,_,_), FileResults), EFile),
+               length(PFile, PC), length(FFile, FC), length(EFile, EC),
+               format('  ~w: ~w Pass, ~w Fail, ~w Error~n', [File, PC, FC, EC])
+           )),
+    format('-------------~n~n').
+
+%!  print_test_result(+Result:term) is det.
+%
+%   Prints the detailed results of a test file execution.
+print_test_result(test_file(File, FileResults)) :-
+    format('File: ~w~n', [File]),
+    forall(member(R, FileResults),
+           ( R = pass(Q, S) -> format('  PASS: ~w (~w)~n', [Q, S])
+           ; R = fail(Q, S, E, A) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n', [Q, S, E, A])
+           ; format('  ERROR: ~w~n', [R])
+           )).
+
+item_to_term(clause(Head, true, _, _), Head) :- !.
+item_to_term(clause(Head, Body, _, _), (Head :- Body)) :- !.
+item_to_term(Item, Item).
+
+list_to_conj([G], G) :- !.
+list_to_conj([G|Gs], (G, Rest)) :- list_to_conj(Gs, Rest).
+list_to_conj([], true).
 
 normalize_string(S, N) :-
     re_replace("_"/g, " ", S, N1),
@@ -219,46 +331,6 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :
     ),
     clearSession(SM).
 
-runTests :-
-    runTestsInDir('examples/moreExamples', Results),
-    print_test_summary(Results),
-    forall(member(R, Results), print_test_result(R)).
-
-print_test_summary(Results) :-
-    findall(P, (member(test_file(_, FileResults), Results), member(pass(_,_), FileResults), P = 1), Passes),
-    findall(F, (member(test_file(_, FileResults), Results), member(fail(_,_,_,_), FileResults), F = 1), Fails),
-    findall(E, (member(test_file(_, FileResults), Results), member(error(_,_,_), FileResults), E = 1), Errs),
-    length(Results, FileCount),
-    length(Passes, PassCount),
-    length(Fails, FailCount),
-    length(Errs, ErrCount),
-    Total is PassCount + FailCount + ErrCount,
-    format('~nTest Summary:~n'),
-    format('-------------~n'),
-    format('Files processed: ~w~n', [FileCount]),
-    format('Total tests:     ~w~n', [Total]),
-    format('Passed:          ~w~n', [PassCount]),
-    format('Failed:          ~w~n', [FailCount]),
-    format('Errors/Timeouts: ~w~n', [ErrCount]),
-    format('-------------~n'),
-    format('~nDetailed File Summary:~n'),
-    forall(member(test_file(File, FileResults), Results),
-           (   findall(1, member(pass(_,_), FileResults), PFile),
-               findall(1, member(fail(_,_,_,_), FileResults), FFile),
-               findall(1, member(error(_,_,_), FileResults), EFile),
-               length(PFile, PC), length(FFile, FC), length(EFile, EC),
-               format('  ~w: ~w Pass, ~w Fail, ~w Error~n', [File, PC, FC, EC])
-           )),
-    format('-------------~n~n').
-
-print_test_result(test_file(File, FileResults)) :-
-    format('File: ~w~n', [File]),
-    forall(member(R, FileResults),
-           ( R = pass(Q, S) -> format('  PASS: ~w (~w)~n', [Q, S])
-           ; R = fail(Q, S, E, A) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n', [Q, S, E, A])
-           ; format('  ERROR: ~w~n', [R])
-           )).
-
 read_tests(Stream, Tests) :-
     read(Stream, Term),
     (   Term == end_of_file
@@ -280,6 +352,8 @@ canonical_string(Instance, String) :-
     maplist(token_to_atom, Instance, Atoms),
     atomic_list_concat(Atoms, ' ', String).
 
+token_to_atom(S, Atom) :-
+    string(S), !, atom_string(Atom, S).
 token_to_atom(date(Y,M,D), Atom) :-
     number(Y), number(M), number(D),
     !, format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]).
@@ -290,7 +364,7 @@ token_to_atom(N, Atom) :-
     ).
 token_to_atom(A, Atom) :- 
     atom(A), !, 
-    (   sub_atom(A, _, _, _, '_') % If it has underscores, maybe replace them?
+    (   (A \== '_', sub_atom(A, _, _, _, '_')) % If it has underscores, maybe replace them?
     ->  re_replace("_"/g, " ", A, Atom)
     ;   Atom = A
     ).

@@ -1,40 +1,32 @@
-:- module(_,[tokenize/2, tokenize_file/2]).
-/*
-Token types returned by the tokenizer:
-
-1. Structural & Whitespace Tokens
-
-indent(Count, Location): Generated specifically at the start of a new line. Count represents the number of leading spaces.
-punctuation(Atom, Location): 
-
-2. Literal & Value Tokens
-
-word(Atom, Location): A sequence starting with an alphabetic character followed by alphanumeric characters.
-number(Integer, Location): A sequence of one or more digits converted into a Prolog number.
-date(date(Y, M, D), Location): Specifically matches the format YYYY-MM-DD. 
-
-3. String & Quote Tokens
-
-quoteString(String, Location): Content wrapped in single quotes ('...').
-doubleQuoteString(String, Location): Content wrapped in double quotes ("...").
-
-4. Comment Tokens
-
-line_comment(String, Location): Text appearing after a % symbol until the end of the line.
-multi_comment(String, Location): 
+/** <module> Logical English Tokenizer
+    
+    This module provides predicates for converting Logical English source text
+    into a list of tokens. It handles indentation, words, numbers, dates,
+    quoted strings, and comments.
 */
 
+:- module(tokenizer,[tokenize/2, tokenize_file/2, tokens_to_string/2]).
+
+:- use_module(library(dcg/basics)).
+
+%!  tokenize_file(+File:atom, -Tokens:list) is det.
+%
+%   Reads the content of File and converts it into a list of tokens.
 tokenize_file(File,Tokens) :-
     read_file_to_string(File, String, []),
     tokenize(String, Tokens).
 
-:- use_module(library(dcg/basics)).
-
-% Main entry point
+%!  tokenize(+String:string, -Tokens:list) is det.
+%
+%   Converts a string into a list of Logical English tokens.
 tokenize(String, Tokens) :-
     string_codes(String, Codes),
     phrase(tokens(0, 1, Tokens), Codes).
 
+%!  tokens_to_string(+Tokens:list, -String:string) is det.
+%
+%   Converts a list of tokens back into a string representation,
+%   preserving relative spacing and indentation.
 tokens_to_string([],"") :- !.
 tokens_to_string(Tokens,String) :-
     tokens_to_string_(Tokens,0,Strings),

@@ -1,8 +1,3 @@
-:- module(reasoner, [i/4]).
-
-:- use_module(library(time)).
-:- use_module(library(pairs)).
-
 /** <module> Logical English Reasoner
     
     This module implements a meta-interpreter for Logical English (LE).
@@ -11,18 +6,34 @@
     It constructs success explanation trees.
 */
 
+:- module(reasoner, [i/4]).
+
+:- use_module(library(time)).
+:- use_module(library(pairs)).
+
 :- dynamic equal_to/2.
 
-% i(+Goal, +SessionModule, -Unknowns, -Why)
-% Main entry point for the meta-interpreter.
+%!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is semidet.
+%
+%   Main entry point for the meta-interpreter.
+%   Goal is the term to prove.
+%   SessionModule is the module containing session-specific facts.
+%   Unknowns is a list of goals that were assumed true (if defined as unknown).
+%   Why is an explanation tree of the proof.
 i(Goal, SessionModule, Unknowns, Why) :-
     (   SessionModule:le_my_kb(KBmodule) ->  true;   KBmodule = none
     ),
     solve(Goal, SessionModule, KBmodule, [], 0, Unknowns, Why).
 
-% solve(+Goal, +SM, +KM, +Anc, +Depth, -Us, -Why)
-% Succeeds if Goal can be proven (possibly with Unknowns).
-
+%!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, -Us:list, -Why:term) is semidet.
+%
+%   Succeeds if Goal can be proven (possibly with Unknowns).
+%   SM is the Session Module.
+%   KM is the Knowledge Base Module.
+%   Anc is the ancestor list for loop detection.
+%   Depth is the current recursion depth.
+%   Us is the list of Unknowns encountered.
+%   Why is the explanation tree.
 solve(G, SM, KM, Anc, D, Us, Why) :-
     (   le_kbs:do_log -> writeln(solve(G)) ; true),
     solve_real(G, SM, KM, Anc, D, Us, Why).
@@ -98,15 +109,12 @@ solve_real(forall(Cond, Cons), SM, KM, Anc, D, Us, success(forall(Cond, Cons), u
 % Negation as Failure
 solve_real(not(Goal), SM, KM, Anc, D, Us, success(not(Goal), negation, [])) :- !,
     D1 is D + 1,
-    (   \+ ground(Goal)
-    ->  Us = [not(Goal)]
-    ;   findall(UsA, solve(Goal, SM, KM, Anc, D1, UsA, _), AllUsA),
-        (   member([], AllUsA)
-        ->  fail % Certain success of Goal, so not(Goal) fails
-        ;   AllUsA \== []
-        ->  Us = [not(Goal)] % Only unknown successes
-        ;   Us = []
-        )
+    findall(UsA, solve(Goal, SM, KM, Anc, D1, UsA, _), AllUsA),
+    (   member([], AllUsA)
+    ->  fail % Certain success of Goal, so not(Goal) fails
+    ;   AllUsA \== []
+    ->  Us = [not(Goal)] % Only unknown successes
+    ;   Us = [] % Certain failure of Goal, so not(Goal) succeeds
     ).
 
 % True
