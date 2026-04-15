@@ -182,7 +182,9 @@ digits_strict([C|Cs]) --> [C], { code_type(C, digit) }, !, digits_maybe(Cs).
 digits_maybe([C|Cs])  --> [C], { code_type(C, digit) }, !, digits_maybe(Cs).
 digits_maybe([])      --> [].
 
-white_prefix(N) --> [C], { code_type(C, white), C \== 10 }, !, white_prefix(N1), { N is N1 + 1 }.
+white_prefix(N) --> [C], { code_type(C, white), C \== 10 }, !, 
+    { (C == 9 -> Inc = 8 ; Inc = 1) },
+    white_prefix(N1), { N is N1 + Inc }.
 white_prefix(0) --> [].
 
 word_remainder([C|Cs]) --> [C], { code_type(C, csym) }, !, word_remainder(Cs).

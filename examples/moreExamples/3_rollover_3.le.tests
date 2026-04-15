@@ -2,5 +2,5 @@ expected(one,'Testing',["the small business restructure rollover applies to even
 expected(one,'Andrew email Feb 4 2021',[]).
 expected(one,'Andrew email Feb 4 2021 version 2',[]).
 expected(two,'Testing',["company1 is a party of event 123"]).
-expected(two,'Andrew email Feb 4 2021',["company1 is a party of event 123"]).
-expected(two,'Andrew email Feb 4 2021 version 2',["company1 is a party of event 123"]).
+expected(two,'Andrew email Feb 4 2021',["andrew is a party of event 123","company1 is a party of event 123","miguel is a party of event 123"]).
+expected(two,'Andrew email Feb 4 2021 version 2',["andrew is a party of event 123","company1 is a party of event 123","miguel is a party of event 123"]).
