@@ -31,23 +31,23 @@ an entity is a not-for-profit if the entity does not operate for profit.
 the knowledge base gst includes:
 
 an entity must register for GST
-    if the entity is of a service
-    and the service is a ride-sourcing service. 
+    if the entity is a ride-sourcing service. 
 
 an entity must register for GST 
     if the entity is a not-for-profit
-    and		the entity has a turnover 
-    		and the turnover >= 150000
-    	or	the entity projected turnover is a projection 
-    		and the projection >= 150000.  
+    and the entity has a turnover 
+        and the turnover >= 150000
+    or the entity projected turnover is a projection 
+        and the projection >= 150000.  
 
 an entity must register for GST 
     if it is not the case that
-    	the entity is a not-for-profit
-    and 	the entity has a turnover 
-   			and the turnover >= 75000 
-    	or the entity projected turnover is a projection
-    		and the projection >= 75000.
+        the entity is a not-for-profit
+    and the entity has a turnover 
+        and the turnover >= 75000 
+    or the entity projected turnover is a projection
+        and the projection >= 75000.
+
 
 an entity has a current turnover
     if the turnover of the entity for the current month is a monthly amount
