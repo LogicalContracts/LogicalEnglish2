@@ -8,6 +8,10 @@
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 
+% For friendlier messages
+:- multifile prolog:message//1.
+prolog:message(S-Args) --> {atomic(S),is_list(Args)},[S-Args].
+
 :- dynamic do_log/0.
 % do_log. % Default to on, user can retract it.
 
@@ -217,7 +221,35 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :
 
 runTests :-
     runTestsInDir('examples/moreExamples', Results),
+    print_test_summary(Results),
     forall(member(R, Results), print_test_result(R)).
+
+print_test_summary(Results) :-
+    findall(P, (member(test_file(_, FileResults), Results), member(pass(_,_), FileResults), P = 1), Passes),
+    findall(F, (member(test_file(_, FileResults), Results), member(fail(_,_,_,_), FileResults), F = 1), Fails),
+    findall(E, (member(test_file(_, FileResults), Results), member(error(_,_,_), FileResults), E = 1), Errs),
+    length(Results, FileCount),
+    length(Passes, PassCount),
+    length(Fails, FailCount),
+    length(Errs, ErrCount),
+    Total is PassCount + FailCount + ErrCount,
+    format('~nTest Summary:~n'),
+    format('-------------~n'),
+    format('Files processed: ~w~n', [FileCount]),
+    format('Total tests:     ~w~n', [Total]),
+    format('Passed:          ~w~n', [PassCount]),
+    format('Failed:          ~w~n', [FailCount]),
+    format('Errors/Timeouts: ~w~n', [ErrCount]),
+    format('-------------~n'),
+    format('~nDetailed File Summary:~n'),
+    forall(member(test_file(File, FileResults), Results),
+           (   findall(1, member(pass(_,_), FileResults), PFile),
+               findall(1, member(fail(_,_,_,_), FileResults), FFile),
+               findall(1, member(error(_,_,_), FileResults), EFile),
+               length(PFile, PC), length(FFile, FC), length(EFile, EC),
+               format('  ~w: ~w Pass, ~w Fail, ~w Error~n', [File, PC, FC, EC])
+           )),
+    format('-------------~n~n').
 
 print_test_result(test_file(File, FileResults)) :-
     format('File: ~w~n', [File]),
