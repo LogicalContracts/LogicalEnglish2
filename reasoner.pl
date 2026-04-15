@@ -35,7 +35,7 @@ i(Goal, SessionModule, Unknowns, Why) :-
 %   Us is the list of Unknowns encountered.
 %   Why is the explanation tree.
 solve(G, SM, KM, Anc, D, Us, Why) :-
-    (   le_kbs:do_log -> writeln(solve(G)) ; true),
+    (   le_kbs:do_log -> format('solve(~w) at depth ~w~n', [G, D]) ; true),
     solve_real(G, SM, KM, Anc, D, Us, Why).
 
 % Conjunction

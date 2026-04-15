@@ -92,6 +92,8 @@ token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
 token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
     "<=", !, { A = '<=', End is Idx + 2 }.
 token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
+    "=<", !, { A = '=<', End is Idx + 2 }.
+token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
     "==", !, { A = '==', End is Idx + 2 }.
 token_match(Idx, punctuation(A, loc(Idx, End)), End) -->
     "!=", !, { A = '!=', End is Idx + 2 }.

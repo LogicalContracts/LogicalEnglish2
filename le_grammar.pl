@@ -192,10 +192,7 @@ extract_var_info_from_words(Words, Name, Type) :-
     ),
     Name = Type.
 
-is_article(a).
-is_article(an).
-is_article(the).
-is_article(some).
+is_article(A) :- memberchk(A, [a, an, the, some, 'A', 'An', 'The', 'Some']).
 
 template_instance([P|Ps]) -->
     template_instance_part(P),
@@ -284,7 +281,7 @@ is_proper_name(Words) :-
     forall(member(W, Words), is_proper_name_atom(W)).
 
 is_id(W) :- atom(W), atom_length(W, 1), is_upper_atom(W).
-is_id(W) :- atom(W), is_all_caps(W).
+is_id(W) :- atom(W), atom_length(W, L), L =< 6, is_all_caps(W).
 
 is_reserved(W) :- member(W, [says, that, if, and, or]).
 
@@ -312,11 +309,10 @@ unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
         ->  Var = ExistingVar, VMOut = VMIn
         ;   VMOut = [NormName-Var|VMIn]
         )
-    ;   (member(NormName-ExistingVar, VMIn))
+    ;   member(NormName-ExistingVar, VMIn)
     ->  Var = ExistingVar, VMOut = VMIn
-    ;   is_proper_name_atom(Name)
-    ->  Var = Name, VMOut = VMIn
-    ;   VMOut = [NormName-Var|VMIn]
+    ;   % Not a known variable and no article/ID, so it's a constant
+        Var = Name, VMOut = VMIn
     ).
 
 normalize_var_name(Name, Norm) :-
@@ -471,6 +467,7 @@ match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVa
             % and satisfies the variable extraction. This avoids exponential backtracking.
             once((
                 append(VarTokens, [NextI|Rest], Instance),
+                VarTokens \== [],
                 match_part(NextI, NextT, VMIn, VM1, Templates, AllowVars),
                 extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth)
             )),
@@ -605,7 +602,7 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
 
 extract_words_to_value(Words, Value, VMIn, VMOut, AllowVars) :-
     (   AllowVars == true, extract_var_name(Words, Name)
-    ->  unify_with_vmap(Name, Value, VMIn, VMOut)
+    ->  unify_with_vmap(Name, Value, VMIn, VMOut, true)
     ;   Words = [Value], (number(Value) ; string(Value))
     ->  VMOut = VMIn
     ;   reconstruct_name_acc(Words, Value),
