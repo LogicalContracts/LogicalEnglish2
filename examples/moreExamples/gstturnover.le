@@ -24,7 +24,7 @@ sporting club is an entity.
 charity is an entity.
 community group is an entity.
 professional association is an entity.
-Uber driver is a ride-sourcing service.    
+an entity is a ride-sourcing service if the entity is an Uber driver.
 
 an entity is a not-for-profit if the entity does not operate for profit. 
         

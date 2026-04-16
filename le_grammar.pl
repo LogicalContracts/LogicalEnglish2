@@ -613,11 +613,8 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
     ;   append(TypeWords, [is, an | SuperTypeWords], Words)
     )),
     TypeWords \== [], SuperTypeWords \== [],
-    % Removed restrictive check on SuperTypeWords to allow multi-word types
     extract_words_to_value(TypeWords, Type, VMIn, VM1, AllowVars),
-    % SuperType in 'is a' is always treated as a constant class name
-    extract_name_type(SuperTypeWords, SuperType, _),
-    VMOut = VM1,
+    extract_words_to_value(SuperTypeWords, SuperType, VM1, VMOut, AllowVars),
     extract_name_type(TypeWords, TypeAtom, _),
     extract_name_type(SuperTypeWords, SuperTypeAtom, _).
 

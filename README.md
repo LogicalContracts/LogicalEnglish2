@@ -384,17 +384,19 @@ etc.
 The first time I run time(runTestsInDir('examples/moreExamples/',R)) it takes about 2 seconds. Running it again takes 9 seconds.
 This suggests some problem managing loading of programs, or something else
 
-## TBD: 
 
 
-## use transitive_is_a
-The matching of rule literals and scenario facts to existing templates should consider the ontology, making sure that the template instance in the rule head or body matches the template considering the type of the variables in there. So for example in scenarion test_quarter_2 of payg.le, "the current quarter is quarter 2" matches template "the current quarter is *a quarter*." only because transitive_is_a(quarter_2,quarter)
-
+# Next steps
+Check what predicates are in KB and session modules: write doc!
+negative explanations
+add InsurLE examples to repo
+ask for incremental addition to le_grammar... and others(?) 
+immitate 
+    old warnings, command line, old API
 # LE 2.0 language differences vs LE 1.0
 * no target language nor
 * no knowledge base name?
   * loading context dependent instead: 
-* expects ListOfAnswers in Scenario, subordinated to query
 * globals, e.g. the Insured: *The Insured* --> insured(I)...
 * importing modules: perhaps just import(myModule:WordsOrInternalName); the party is an eligible party [according to seciton 1]
 * prolog bridge: a party is an eligible party with a percentage if prolog eligible(the party,the percentage) because Explanation
