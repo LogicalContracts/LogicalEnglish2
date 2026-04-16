@@ -240,6 +240,11 @@ runTestsFor(TestsFile, Result) :-
 runTests :-
     runTestsInDir('examples/moreExamples', Results),
     print_test_summary(Results),
+    setup_call_cleanup(
+        open('testSuiteStatus.txt', write, Stream),
+        with_output_to(Stream, print_test_summary(Results)),
+        close(Stream)
+    ),
     forall(member(R, Results), print_test_result(R)).
 
 %!  print_test_summary(+Results:list) is det.
