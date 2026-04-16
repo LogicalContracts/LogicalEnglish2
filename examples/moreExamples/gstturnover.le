@@ -43,10 +43,11 @@ an entity must register for GST
 an entity must register for GST 
     if it is not the case that
         the entity is a not-for-profit
-    and the entity has a turnover 
-        and the turnover >= 75000 
-    or the entity projected turnover is a projection
-        and the projection >= 75000.
+    and 
+        the entity has a turnover 
+            and the turnover >= 75000 
+        or the entity projected turnover is a projection
+            and the projection >= 75000.
 
 
 an entity has a current turnover

@@ -269,7 +269,8 @@ print_test_summary(Results) :-
                findall(1, member(fail(_,_,_,_), FileResults), FFile),
                findall(1, member(error(_,_,_), FileResults), EFile),
                length(PFile, PC), length(FFile, FC), length(EFile, EC),
-               format('  ~w: ~w Pass, ~w Fail, ~w Error~n', [File, PC, FC, EC])
+               (   (FC > 0 ; EC > 0) -> Status = '[FAIL]' ; Status = '[PASS]' ),
+               format('  ~w ~w: ~w Pass, ~w Fail, ~w Error~n', [Status, File, PC, FC, EC])
            )),
     format('-------------~n~n').
 
@@ -359,9 +360,7 @@ token_to_atom(date(Y,M,D), Atom) :-
     !, format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]).
 token_to_atom(N, Atom) :-
     number(N), !, 
-    (   float(N) -> format(atom(Atom), '~1f', [N])
-    ;   atom_number(Atom, N)
-    ).
+    atom_number(Atom, N).
 token_to_atom(A, Atom) :- 
     atom(A), !, 
     (   (A \== '_', sub_atom(A, _, _, _, '_')) % If it has underscores, maybe replace them?

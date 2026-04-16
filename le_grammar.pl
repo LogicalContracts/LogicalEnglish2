@@ -136,10 +136,11 @@ kb_content(Content, End) -->
 kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
 kb_items([]) --> [].
 
-kb_item(rule(Head, Body, Start, End)) -->
+kb_item(rule(Head, Body, Indent, Start, End)) -->
     template_instance(Head),
-    any_indent, t(word(if, loc(Start, _))),
-    body(Body, End).
+    any_indent(N), t(word(if, loc(Start, _))),
+    body(Body, End),
+    { Indent = N }.
 kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
     any_indent, t(punctuation('.', loc(Start, End))).
@@ -237,10 +238,17 @@ is_terminator --> any_indent, t(word(if, _)).
 
 is_body_terminator --> any_indent, t(punctuation('.', _)).
 
-any_indent --> [indent(_, _)], !, any_indent.
-any_indent --> [line_comment(_, _)], !, any_indent.
-any_indent --> [multi_comment(_, _)], !, any_indent.
-any_indent --> [].
+any_indent --> any_indent(_).
+
+any_indent(N) --> [indent(N1, _)], !, any_indent_tail(N1, N).
+any_indent(N) --> [line_comment(_, _)], !, any_indent(N).
+any_indent(N) --> [multi_comment(_, _)], !, any_indent(N).
+any_indent(0) --> [].
+
+any_indent_tail(_, N) --> [indent(N2, _)], !, any_indent_tail(N2, N).
+any_indent_tail(N1, N) --> [line_comment(_, _)], !, any_indent_tail(N1, N).
+any_indent_tail(N1, N) --> [multi_comment(_, _)], !, any_indent_tail(N1, N).
+any_indent_tail(N, N) --> [].
 
 t(word(W, L)) --> any_indent, [word(W, L)].
 t(word(W)) --> any_indent, [word(W, _)].
@@ -530,11 +538,11 @@ second_pass_section(_, S, S). % Keep other sections as is
 second_pass_content(Items, Templates, NewItems) :-
     maplist(second_pass_item(Templates), Items, NewItems).
 
-second_pass_item(Templates, rule(Head, BodyTokens, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
     (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
+    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
     ;   NewHead = unknown_template(Head),
-        parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
     (   parse_literal(Head, Templates, [], _VM1, NewHead, true)
@@ -551,11 +559,11 @@ second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, tru
     ->  true
     ;   NewHead = unknown_template(Head, Start, End)
     ).
-second_pass_ontology_item(Templates, rule(Head, BodyTokens, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
     (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
+    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
     ;   NewHead = unknown_template(Head, Start, End),
-        parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
 second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
@@ -563,11 +571,11 @@ second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, tru
     ->  true
     ;   NewHead = unknown_template(Head, Start, End)
     ).
-second_pass_scenario_item(Templates, rule(Head, BodyTokens, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
     (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
+    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
     ;   NewHead = unknown_template(Head, Start, End),
-        parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
 second_pass_query_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
@@ -575,11 +583,11 @@ second_pass_query_item(Templates, fact(Head, Start, End), clause(NewHead, true, 
     ->  true
     ;   NewHead = unknown_template(Head, Start, End)
     ).
-second_pass_query_item(Templates, rule(Head, BodyTokens, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
     (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Templates, VM1, _VMOut, NewBody)
+    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
     ;   NewHead = unknown_template(Head, Start, End),
-        parse_body(BodyTokens, Templates, [], _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
 match_is_a(Parts, Type, SuperType, VMIn, VMOut, AllowVars) :-
@@ -685,31 +693,31 @@ factor_logic(W, VM, VM, _, false) --> [word(W, _)], { is_proper_name_atom(W) }.
 factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 
 % Structured Body Parsing
-parse_body(Tokens, Templates, VMIn, VMOut, StructuredBody) :-
-    tokens_to_lines(Tokens, Lines),
+parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
+    tokens_to_lines(Tokens, Indent, Lines),
     once(lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody)).
 
-tokens_to_lines(Tokens, Lines) :-
-    tokens_to_lines_acc(Tokens, [], Lines).
+tokens_to_lines(Tokens, DefaultIndent, Lines) :-
+    tokens_to_lines_acc(Tokens, DefaultIndent, [], Lines).
 
-tokens_to_lines_acc([], Acc, Lines) :- reverse(Acc, Lines).
-tokens_to_lines_acc([indent(N, _)|Ts], Acc, Lines) :- !,
+tokens_to_lines_acc([], _, Acc, Lines) :- reverse(Acc, Lines).
+tokens_to_lines_acc([indent(N, _)|Ts], DefaultIndent, Acc, Lines) :- !,
     get_line_tokens(Ts, LineTokens, Rest),
     (   LineTokens == []
-    ->  tokens_to_lines_acc(Rest, Acc, Lines)
+    ->  tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
     ;   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
     ->  append(PrevTokens, LineTokens, NewPrevTokens),
-        tokens_to_lines_acc(Rest, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
-    ;   tokens_to_lines_acc(Rest, [line(N, LineTokens)|Acc], Lines)
+        tokens_to_lines_acc(Rest, DefaultIndent, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
+    ;   tokens_to_lines_acc(Rest, DefaultIndent, [line(N, LineTokens)|Acc], Lines)
     ).
-tokens_to_lines_acc(Ts, Acc, Lines) :-
+tokens_to_lines_acc(Ts, DefaultIndent, Acc, Lines) :-
     get_line_tokens(Ts, LineTokens, Rest),
     (   LineTokens == []
-    ->  tokens_to_lines_acc(Rest, Acc, Lines)
+    ->  tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
     ;   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
     ->  append(PrevTokens, LineTokens, NewPrevTokens),
-        tokens_to_lines_acc(Rest, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
-    ;   tokens_to_lines_acc(Rest, [line(0, LineTokens)|Acc], Lines)
+        tokens_to_lines_acc(Rest, DefaultIndent, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
+    ;   tokens_to_lines_acc(Rest, DefaultIndent, [line(DefaultIndent, LineTokens)|Acc], Lines)
     ).
 
 get_line_tokens([], [], []) :- !.
@@ -772,6 +780,7 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ;   match_is_a(Tokens, Type, SuperType, VMIn, VM1, true)
     ->  Literal = is_a(Type, SuperType),
         fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
+
     ;   phrase(template_instance(Instance), Tokens)
     ->  Literal = unknown_template(Instance),
         fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
