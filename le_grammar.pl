@@ -195,6 +195,8 @@ extract_var_info_from_words(Words, Name, Type) :-
 
 is_article(A) :- memberchk(A, [a, an, the, some, 'A', 'An', 'The', 'Some']).
 
+is_ignorable(W) :- memberchk(W, [a, an, the, is, are, was, were, has, have, had, do, does, did, been]).
+
 template_instance([P|Ps]) -->
     template_instance_part(P),
     template_instance_tail(Ps).
@@ -303,7 +305,7 @@ extract_id(Words, Name) :-
 extract_var_name(Words, Name) :-
     (   Words = [Art | Rest], Rest \== [], is_article(Art) -> extract_id(Rest, Name)
     ;   Words = [each | Rest], Rest \== [] -> extract_id(Rest, Name)
-    ;   Words = [which | Rest], Rest \== [] -> extract_id(Rest, Name)
+    ;   Words = [which | Rest], Rest \== [] -> extract_id(Rest, Name); Words = [who] -> Name = who; Words = [what] -> Name = what; Words = [when] -> Name = when; Words = [where] -> Name = where
     ;   Words = [W], is_id(W) -> Name = W
     ).
 
@@ -371,6 +373,8 @@ extract_simple_value(number(N), N).
 extract_simple_value(string(S), S).
 extract_simple_value(punct(P), P).
 extract_simple_value(date(D), D).
+extract_simple_value(list(_), '[]').
+extract_simple_value(expr(_), '()').
 extract_simple_value(var(Words), Atom) :- atomic_list_concat(Words, ' ', Atom).
 
 extract_simple_word(Part, Word) :-
@@ -463,6 +467,15 @@ match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, Allow
     once(match_instance_to_template_acc(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth)).
 
 match_instance_to_template_acc([], [], VM, VM, _, _, _).
+match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
+    \+ var(T), is_ignorable(T), !,
+    (   Instance = [I|Is], extract_simple_word(I, W), W == T
+    ->  (match_instance_to_template_acc(Is, Ts, VMIn, VM1, Templates, AllowVars, Depth) -> VMOut = VM1 ; match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth))
+    ;   match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
+    ).
+match_instance_to_template_acc([I|Is], [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
+    \+ var(T), extract_simple_word(I, W), is_ignorable(W), W \== T, !,
+    match_instance_to_template_acc(Is, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth).
 match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
     (   \+ var(T)
     ->  Instance = [I|Is],

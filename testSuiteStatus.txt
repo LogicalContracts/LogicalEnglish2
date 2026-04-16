@@ -3,8 +3,8 @@ Test Summary:
 -------------
 Files processed: 16
 Total tests:     162
-Passed:          143
-Failed:          16
+Passed:          151
+Failed:          8
 Errors/Timeouts: 3
 -------------
 
@@ -21,8 +21,8 @@ Detailed File Summary:
   [PASS] examples/moreExamples/sum_simple.le.tests: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/1_net_asset_value_test_3.le.tests: 4 Pass, 0 Fail, 0 Error
   [FAIL] examples/moreExamples/gstturnover.le.tests: 42 Pass, 7 Fail, 0 Error
-  [FAIL] examples/moreExamples/4_affiliates_3.le.tests: 1 Pass, 6 Fail, 0 Error
-  [FAIL] examples/moreExamples/3_rollover_3.le.tests: 4 Pass, 2 Fail, 0 Error
+  [PASS] examples/moreExamples/4_affiliates_3.le.tests: 7 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/3_rollover_3.le.tests: 6 Pass, 0 Fail, 0 Error
   [FAIL] examples/moreExamples/sbppxml1.le.tests: 0 Pass, 0 Fail, 1 Error
   [FAIL] examples/moreExamples/sum_onto.le.tests: 1 Pass, 1 Fail, 0 Error
 -------------

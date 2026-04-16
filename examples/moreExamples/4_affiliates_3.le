@@ -64,20 +64,20 @@ query one is:
     andrew has affiliated with his company at 2020-01-02.
 
 query two is:
-    who affiliated with which entity at which date. 
+    *who* has affiliated with *which entity* at *which date*. 
 
 query three is:
-    what entity affiliated with which company at which date. 
+    *what entity* has affiliated with *which company* at *which date*. 
 
 query four is:
-    when did which entity affiliate with which other entity.
+    *which entity* has affiliated with *which other entity* at *when*.
 
 query five is:
-    on what date did which entity affiliate with which company. 
+    *which entity* has affiliated with *which company* at *what date*. 
 
 query six is:
-    is there an affiliation between which entity and which company. 
+    *which entity* has affiliated with *which company* at *a date*. 
 
 query seven is:
-    when did the affiliation between which entity and which company begin.
+    *which entity* has affiliated with *which company* at *when*.
     
