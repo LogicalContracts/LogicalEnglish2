@@ -2,6 +2,22 @@
     
     This module provides predicates for loading Logical English files,
     managing reasoning sessions, and running tests.
+
+    Predicates asserted into the KB module (e.g., m<hash>):
+    - le_kb(Name): The name of the knowledge base.
+    - le_source(Ref, Start, End): Source location information for a clause or fact.
+    - scenario(Name, Facts): A list of facts defining a scenario.
+    - query_info(Name, Goal, Terms): Information about a named query.
+    - ontology(Content): The content of the ontology section.
+    - le_dict(Dict): Template dictionary definitions.
+    - <user_predicate>(...): Predicates generated from Logical English rules and facts.
+
+    Predicates asserted into the Session module (e.g., s<uuid>):
+    - le_my_kb(KBmodule): The KB module associated with this session.
+    - le_neg(Fact): Represents a negated fact in the session.
+    - sessionClause(Ref): Tracks clauses/facts added specifically to this session.
+    - le_source(Ref, Start, End): Source location for session-specific facts.
+    - <user_predicate>(...): Facts added to the session (e.g., from a scenario).
 */
 
 :- module(le_kbs, [load/2, createSession/2, 

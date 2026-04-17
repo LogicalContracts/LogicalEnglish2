@@ -32,11 +32,14 @@ parse_le_tokens(Tokens, doc(NewSections)) :-
     second_pass(Sections, NewSections).
 
 % DCG for Logical English
+% doc(Sections) parses the entire document into a list of sections.
 doc(Sections) --> sections(Sections), any_indent.
 
+% sections([S|Ss]) parses one or more sections.
 sections([S|Ss]) --> section(S), !, sections(Ss).
 sections([]) --> [].
 
+% section(kb(...)) parses a knowledge base section.
 section(kb(Name, Content, Start, End)) --> 
     any_indent, t(word(the, loc(Start, _))), t(word(knowledge)), t(word(base)), kb_name_tokens(Tokens), t(word(includes)), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
@@ -44,45 +47,55 @@ section(kb(Name, Content, Start, End)) -->
     kb_content(Content, End),
     { (le_kbs:do_log -> format('Finished KB: ~w~n', [Name]) ; true) }.
 
+% section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
     any_indent, t(word(scenario, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     kb_content(Content, End).
 
+% section(query(...)) parses a query section.
 section(query(Name, Content, Start, End)) -->
     any_indent, t(word(query, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     kb_content(Content, End).
 
+% section(ontology(...)) parses an ontology section.
 section(ontology(Content, Start, End)) -->
     any_indent, t(word(the, loc(Start, _))), t(word(ontology)), t(word(is)), t(punctuation(':', _)),
     kb_content(Content, End).
 
+% section(predicates(...)) parses a predicates declaration section.
 section(predicates(Dicts)) -->
     any_indent, t(word(the, _)), t(word(predicates)), t(word(are)), t(punctuation(':', _)),
     templates(Dicts).
 
+% section(templates(...)) parses a templates declaration section.
 section(templates(Dicts)) -->
     any_indent, t(word(the, _)), t(word(templates)), t(word(are)), t(punctuation(':', _)),
     templates(Dicts).
 
+% section(fluents(...)) parses a fluents declaration section.
 section(fluents(Dicts)) -->
     any_indent, t(word(the, _)), t(word(fluents)), t(word(are)), t(punctuation(':', _)),
     templates(Dicts).
 
+% section(events(...)) parses an events declaration section.
 section(events(Dicts)) -->
     any_indent, t(word(the, _)), t(word(events)), t(word(are)), t(punctuation(':', _)),
     templates(Dicts).
 
+% section(meta(...)) parses a meta-information section (e.g., target language).
 section(meta(Dicts)) -->
     any_indent, t(word(the, _)), t(word(target)), t(word(language)), t(word(is)), t(punctuation(':', _)), t(word(prolog)), t(punctuation('.', _)),
     { Dicts = [] }.
 
+% section(unknown_section(...)) is a fallback for unrecognized sections.
 section(unknown_section(Tokens)) -->
     [T], { T =.. [_, _, loc(_, _)] },
     consume_until_next_section(Ts),
     { Tokens = [T|Ts] }.
 
+% kb_name_tokens(Tokens) consumes tokens until the 'includes' keyword.
 kb_name_tokens([T|Ts]) -->
     t(T),
     (   \+ t(word(includes))
@@ -90,6 +103,7 @@ kb_name_tokens([T|Ts]) -->
     ;   { Ts = [] }
     ).
 
+% section_name_tokens(Tokens) consumes tokens until 'is' or ':'.
 section_name_tokens([T|Ts]) -->
     t(T),
     (   \+ t(word(is)), \+ t(punctuation(':', _))
@@ -113,12 +127,14 @@ reconstruct_name_acc([W1, W2 | Rest], Name) :-
 
 is_punct(W) :- member(W, ['-', '.', ',', ':', ';', '(', ')', '[', ']', '{', '}', '/', '\\', '\'', '"', '*', '>=', '<=', '==', '!=', '=', '>', '<', '+']).
 
+% consume_until_next_section(Tokens) consumes all tokens until the start of a new section.
 consume_until_next_section([T|Ts]) -->
     \+ next_section_start,
     [T], !,
     consume_until_next_section(Ts).
 consume_until_next_section([]) --> [].
 
+% next_section_start matches the beginning of any Logical English section.
 next_section_start --> any_indent, t(word(the, _)), t(word(knowledge)).
 next_section_start --> any_indent, t(word(scenario, _)).
 next_section_start --> any_indent, t(word(query, _)).
@@ -129,22 +145,27 @@ next_section_start --> any_indent, t(word(the, _)), t(word(fluents)).
 next_section_start --> any_indent, t(word(the, _)), t(word(events)).
 next_section_start --> any_indent, t(word(the, _)), t(word(target)).
 
+% kb_content(Content, End) parses the items within a knowledge base or scenario.
 kb_content(Content, End) -->
     kb_items(Content),
     { (Content = [] -> End = 0 ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = 0)) }.
 
+% kb_items([I|Is]) parses a sequence of rules or facts.
 kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
 kb_items([]) --> [].
 
+% kb_item(rule(...)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End)) -->
     template_instance(Head),
     any_indent(N), t(word(if, loc(Start, _))),
     body(Body, End),
     { Indent = N }.
+% kb_item(fact(...)) parses a Logical English fact (Head.).
 kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
     any_indent, t(punctuation('.', loc(Start, End))).
 
+% templates([T|Ts]) parses a list of template definitions.
 templates([T|Ts]) -->
     \+ next_section_start,
     template(T),
@@ -153,6 +174,7 @@ templates([T|Ts]) -->
     ).
 templates([]) --> [].
 
+% template(dict(...)) parses a single template definition into a dictionary term.
 template(dict(FunctorArgs, NamesTypes, WordsAndVars)) -->
     template_instance(Tokens),
     { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) }.
@@ -197,10 +219,12 @@ is_article(A) :- memberchk(A, [a, an, the, some, 'A', 'An', 'The', 'Some']).
 
 is_ignorable(W) :- memberchk(W, [a, an, the, is, are, was, were, has, have, had, do, does, did, been]).
 
+% template_instance(Tokens) parses a sequence of tokens that form a template instance.
 template_instance([P|Ps]) -->
     template_instance_part(P),
     template_instance_tail(Ps).
 
+% template_instance_tail(Tokens) parses the remainder of a template instance.
 template_instance_tail([P|Ps]) -->
     \+ is_terminator,
     \+ next_section_start,
@@ -208,6 +232,7 @@ template_instance_tail([P|Ps]) -->
     template_instance_tail(Ps).
 template_instance_tail([]) --> [].
 
+% template_instance_part(Part) parses a single component of a template instance.
 template_instance_part(var(Words)) --> t(punctuation('*')), template_var_words(Words), t(punctuation('*')).
 template_instance_part(word(W, Loc)) --> t(word(W, Loc)).
 template_instance_part(number(N, Loc)) --> t(number(N, Loc)).
@@ -220,38 +245,49 @@ template_instance_part(punct(P, Loc)) --> t(punctuation(P, Loc)), { \+ member(P,
 template_instance_part(punct('(', Loc)) --> t(punctuation('(', Loc)).
 template_instance_part(punct(')', Loc)) --> t(punctuation(')', Loc)).
 
+% template_var_words(Words) parses the words inside a *variable*.
 template_var_words([W|Ws]) --> t(word(W)), !, template_var_words(Ws).
 template_var_words([]) --> [].
 
+% list_elements(Elements) parses a comma-separated list of template instances.
 list_elements([E|Es]) --> template_instance(E), ( t(punct(',')), !, list_elements(Es) | { Es = [] } ).
 list_elements([]) --> [].
 
+% body(Body, End) parses the body of a rule, ending with a period.
 body(Body, End) --> body_tokens(Body), any_indent, t(punctuation('.', loc(_, End))).
 
+% body_tokens(Tokens) parses the sequence of tokens in a rule body.
 body_tokens([T|Ts]) --> \+ is_body_terminator, body_token(T), !, body_tokens(Ts).
 body_tokens([]) --> [].
 
+% body_token(Token) parses a single token in a rule body, including indentation.
 body_token(indent(N, L)) --> [indent(N, L)].
 body_token(T) --> template_instance_part(T).
 
+% is_terminator matches tokens that end a template instance (period, comma, or 'if').
 is_terminator --> any_indent, t(punctuation('.', _)).
 is_terminator --> any_indent, t(punctuation(',', _)).
 is_terminator --> any_indent, t(word(if, _)).
 
+% is_body_terminator matches the period that ends a rule body.
 is_body_terminator --> any_indent, t(punctuation('.', _)).
 
+% any_indent matches any number of indentation tokens and comments.
 any_indent --> any_indent(_).
 
+% any_indent(N) matches indentation and returns the level N.
 any_indent(N) --> [indent(N1, _)], !, any_indent_tail(N1, N).
 any_indent(N) --> [line_comment(_, _)], !, any_indent(N).
 any_indent(N) --> [multi_comment(_, _)], !, any_indent(N).
 any_indent(0) --> [].
 
+% any_indent_tail(N1, N) handles subsequent indentation tokens and comments.
 any_indent_tail(_, N) --> [indent(N2, _)], !, any_indent_tail(N2, N).
 any_indent_tail(N1, N) --> [line_comment(_, _)], !, any_indent_tail(N1, N).
 any_indent_tail(N1, N) --> [multi_comment(_, _)], !, any_indent_tail(N1, N).
 any_indent_tail(N, N) --> [].
 
+% t(Token) is a helper to match a token while skipping preceding indentation/comments.
 t(word(W, L)) --> any_indent, [word(W, L)].
 t(word(W)) --> any_indent, [word(W, _)].
 t(number(N, L)) --> any_indent, [number(N, L)].
@@ -672,10 +708,12 @@ is_indent_or_comment(multi_comment(_, _)).
 
 is_operator(W) :- member(W, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!=']).
 
+% multi_word_var(Words) parses a sequence of words that form a multi-word variable.
 multi_word_var([W|Rest]) --> 
     [word(W, _)], { \+ is_reserved(W), \+ is_operator(W) },
     (multi_word_var(Rest) | { Rest = [] }).
 
+% part_to_token(Part, Token) converts various part terms into a uniform token structure.
 part_to_token(word(W), word(W, loc(0,0))).
 part_to_token(number(N), number(N, loc(0,0))).
 part_to_token(punct(P), punctuation(P, loc(0,0))).
@@ -685,14 +723,17 @@ part_to_token(punct(P, L), punctuation(P, L)).
 part_to_token(punctuation(P, L), punctuation(P, L)).
 part_to_token(expr(E), expr(E)).
 
+% expr_logic(Expr, ...) parses an arithmetic expression with addition and subtraction.
 expr_logic(E, VMIn, VMOut, T, AllowVars) --> term_logic(T1, VMIn, VM1, T, AllowVars), expr_tail(T1, E, VM1, VMOut, T, AllowVars).
 expr_tail(T1, E, VMIn, VMOut, T, AllowVars) --> [punctuation(Op, _)], { member(Op, ['+', '-']) }, term_logic(T2, VMIn, VM1, T, AllowVars), { E1 =.. [Op, T1, T2] }, expr_tail(E1, E, VM1, VMOut, T, AllowVars).
 expr_tail(E, E, VM, VM, _, _) --> [].
 
+% term_logic(Term, ...) parses an arithmetic term with multiplication and division.
 term_logic(T, VMIn, VMOut, Ts, AllowVars) --> factor_logic(F1, VMIn, VM1, Ts, AllowVars), term_tail(F1, T, VM1, VMOut, Ts, AllowVars).
 term_tail(F1, T, VMIn, VMOut, Ts, AllowVars) --> [punctuation(Op, _)], { member(Op, ['*', '/']) }, factor_logic(F2, VMIn, VM1, Ts, AllowVars), { T1 =.. [Op, F1, F2] }, term_tail(T1, T, VM1, VMOut, Ts, AllowVars).
 term_tail(T, T, VM, VM, _, _) --> [].
 
+% factor_logic(Factor, ...) parses an arithmetic factor (parenthesized expression, variable, or number).
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [punctuation('(', _)], expr_logic(F, VMIn, VMOut, Ts, AllowVars), [punctuation(')', _)].
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [expr(E)], { parse_expression(E, VMIn, VMOut, Ts, F, AllowVars) }.
 factor_logic(V, VMIn, VMOut, _, true) --> 
