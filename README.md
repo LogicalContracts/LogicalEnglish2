@@ -393,7 +393,9 @@ Let's now add negative explanations to the reasoner. We'll use the same last arg
 These changes must be local to reasoner.pl and not alter the overall reasoner results
 
 # Next steps
-negative explanations
+Explanations are currently over detaioled. We need to ignore the trivial LE connectives (and, or) retaining only the "juicy" elements supporting the conclusion
+
+
 add InsurLE examples to repo
 ask for incremental addition to le_grammar... and others(?) 
 immitate 
