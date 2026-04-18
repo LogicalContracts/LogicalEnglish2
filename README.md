@@ -384,15 +384,23 @@ etc.
 The first time I run time(runTestsInDir('examples/moreExamples/',R)) it takes about 2 seconds. Running it again takes 9 seconds.
 This suggests some problem managing loading of programs, or something else
 
-
+## negative explanations
+Let's now add negative explanations to the reasoner. We'll use the same last argument Why in i(...), as follows:
+- Every goal literal will have an ID, kept by a global counter
+- When a literal calls another, assert a thread_local fact called(ParentID,My\ID,MyCallTerm)
+- When ending i(...), enhance the positive explanatin tree with failed subtrees (under not(..) subgoals)
+- When a not(G)) subgoal suceeds, the positive (success) explanation subtree will be the failure tree for G
+These changes must be local to reasoner.pl and not alter the overall reasoner results
 
 # Next steps
-Check what predicates are in KB and session modules: write doc!
 negative explanations
 add InsurLE examples to repo
 ask for incremental addition to le_grammar... and others(?) 
 immitate 
     old warnings, command line, old API
+generators (?)
+    standalone Prolog
+    scasp
 # LE 2.0 language differences vs LE 1.0
 * no target language nor
 * no knowledge base name?
