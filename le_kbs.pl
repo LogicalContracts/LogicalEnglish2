@@ -41,8 +41,7 @@ prolog:message(S-Args) --> {atomic(S),is_list(Args)},[S-Args].
 %
 %   Dynamic predicate that controls whether debug messages are printed.
 %   Retract it to silence the system.
-:- dynamic do_log/0.
-% do_log. % Default to on, user can retract it.
+:- dynamic do_log/0. % assert(le_kbs:do_log).
 
 %!  load(+FilePath:atom, -Module:atom) is det.
 %

@@ -28,7 +28,8 @@ parse_le_file(FilePath, Doc) :-
 %   Parses a list of tokens into a Logical English document structure.
 %   Performs a second pass to resolve templates and variables.
 parse_le_tokens(Tokens, doc(NewSections)) :-
-    phrase(doc(Sections), Tokens),
+    (le_kbs:do_log -> format('Parsing LE tokens...~n') ; true),
+    once(phrase(doc(Sections), Tokens)),
     second_pass(Sections, NewSections).
 
 % DCG for Logical English
@@ -184,7 +185,7 @@ process_template(Tokens, [Functor|Args], NamesTypes, WordsAndVars) :-
     process_template_parts(Tokens, Args, NamesTypes, WordsAndVars).
 
 extract_functor(Tokens, Functor) :-
-    findall(W, (member(T, Tokens), T = word(W, _)), Words),
+    findall(W, (member(T, Tokens), (T = word(W, _) ; T = number(W, _))), Words),
     atomic_list_concat(Words, '_', Functor).
 
 process_template_parts([], [], [], []).
@@ -339,9 +340,19 @@ extract_id(Words, Name) :-
     ).
 
 extract_var_name(Words, Name) :-
-    (   Words = [Art | Rest], Rest \== [], is_article(Art) -> extract_id(Rest, Name)
-    ;   Words = [each | Rest], Rest \== [] -> extract_id(Rest, Name)
-    ;   Words = [which | Rest], Rest \== [] -> extract_id(Rest, Name); Words = [who] -> Name = who; Words = [what] -> Name = what; Words = [when] -> Name = when; Words = [where] -> Name = where
+    (   Words = [Art | Rest], Rest \== [], is_article(Art) -> 
+        length(Rest, L), L =< 5,
+        extract_id(Rest, Name)
+    ;   Words = [each | Rest], Rest \== [] -> 
+        length(Rest, L), L =< 5,
+        extract_id(Rest, Name)
+    ;   Words = [which | Rest], Rest \== [] -> 
+        length(Rest, L), L =< 5,
+        extract_id(Rest, Name)
+    ;   Words = [who] -> Name = who
+    ;   Words = [what] -> Name = what
+    ;   Words = [when] -> Name = when
+    ;   Words = [where] -> Name = where
     ;   Words = [W], is_id(W) -> Name = W
     ).
 
@@ -484,6 +495,7 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars) :-
 transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Depth) :-
     (   Depth > 1 -> fail ; true
     ),
+    (le_kbs:do_log -> maplist(extract_simple_word, Instance, Words), format('Transform instance (depth ~w): ~w~n', [Depth, Words]) ; true),
     D1 is Depth + 1,
     (   match_template(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, D1)
     ->  true
@@ -491,8 +503,10 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Dep
     ).
 
 match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
+    maplist(extract_simple_word, Instance, Words),
     member(Dict, Templates),
-    copy_term(Dict, dict(FunctorArgs, _NTs, WordsAndVars)),
+    copy_term(Dict, dict(FunctorArgs, _NTs, WordsAndVars, NIW)),
+    contains_subsequence(NIW, Words),
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth),
     Literal =.. FunctorArgs.
 
@@ -506,7 +520,7 @@ match_instance_to_template_acc([], [], VM, VM, _, _, _).
 match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
     \+ var(T), is_ignorable(T), !,
     (   Instance = [I|Is], extract_simple_word(I, W), W == T
-    ->  (match_instance_to_template_acc(Is, Ts, VMIn, VM1, Templates, AllowVars, Depth) -> VMOut = VM1 ; match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth))
+    ->  match_instance_to_template_acc(Is, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
     ;   match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
     ).
 match_instance_to_template_acc([I|Is], [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
@@ -543,13 +557,20 @@ match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVa
 
 % Semantics: Second Pass
 second_pass(Sections, NewSections) :-
+    (le_kbs:do_log -> length(Sections, L), format('Second pass: ~w sections~n', [L]) ; true),
     % Collect all templates from all sections first
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
     append(UserDicts, SystemDicts, AllDicts),
+    sort(AllDicts, UniqueDicts),
+    % Pre-calculate non-ignorable words for each template to speed up matching
+    maplist(add_non_ignorable, UniqueDicts, AllDictsWithWords),
     % Sort templates: meta-templates first, then by specificity
-    sort_templates(AllDicts, SortedDicts),
+    sort_templates(AllDictsWithWords, SortedDicts),
     maplist(second_pass_section(SortedDicts), Sections, NewSections).
+
+add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, NIW)) :-
+    findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
 
 sort_templates(Dicts, Sorted) :-
     partition(is_meta_template, Dicts, Meta, Regular),
@@ -559,11 +580,11 @@ sort_templates(Dicts, Sorted) :-
     pairs_values(RevSortedPairs, SortedRegular),
     append(Meta, SortedRegular, Sorted).
 
-template_specificity(dict(_, _, WordsAndVars), Score) :-
+template_specificity(dict(_, _, WordsAndVars, _), Score) :-
     findall(1, (member(W, WordsAndVars), atom(W)), Words),
     length(Words, Score).
 
-is_meta_template(dict(_, _, WordsAndVars)) :-
+is_meta_template(dict(_, _, WordsAndVars, _)) :-
     member(W, WordsAndVars),
     (W == that ; W == says).
 
@@ -585,12 +606,18 @@ second_pass_section(Templates, query(Name, Content, Start, End), query(Name, New
 second_pass_section(_, S, S). % Keep other sections as is
 
 second_pass_content(Items, Templates, NewItems) :-
+    (le_kbs:do_log -> length(Items, L), format('Second pass content: ~w items~n', [L]) ; true),
     maplist(second_pass_item(Templates), Items, NewItems).
 
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
+    (le_kbs:do_log -> maplist(extract_simple_word, Head, Words), format('Processing rule: ~w~n', [Words]) ; true),
     (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
-    ;   NewHead = unknown_template(Head),
+    ->  (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        ->  (le_kbs:do_log -> format('  Rule succeeded~n') ; true)
+        ;   (le_kbs:do_log -> format('  Rule body failed to parse~n') ; true), fail
+        )
+    ;   (le_kbs:do_log -> format('  Rule head failed to match template~n') ; true),
+        NewHead = unknown_template(Head),
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
@@ -667,30 +694,38 @@ parse_literal(Tokens, Templates, VMIn, VMOut, Literal) :-
     parse_literal(Tokens, Templates, VMIn, VMOut, Literal, true).
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
-    % length(Templates, L), writeln(templates_count(L, Tokens)),
-    once(parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars)).
+    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), format('Parsing literal: ~w~n', [Words]) ; true),
+    once(parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars)),
+    (le_kbs:do_log -> format('  Succeeded: ~w~n', [Literal]) ; true).
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
-    (   maplist(extract_simple_word, Tokens, Words),
-        member(dict(FunctorArgs, NTs, WordsAndVars), Templates),
+    maplist(extract_simple_word, Tokens, Words),
+    (   member(dict(FunctorArgs, NTs, WordsAndVars, NIW), Templates),
         \+ (FunctorArgs = [le_is|_]),
-        template_could_match(Words, WordsAndVars),
-        copy_term(dict(FunctorArgs, NTs, WordsAndVars), dict(FunctorArgsCopy, _, WordsAndVarsCopy)),
+        (le_kbs:do_log -> format('  Trying template: ~w~n', [FunctorArgs]) ; true),
+        contains_subsequence(NIW, Words),
+        copy_term(dict(FunctorArgs, NTs, WordsAndVars, NIW), dict(FunctorArgsCopy, _, WordsAndVarsCopy, _)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0),
         Literal =.. FunctorArgsCopy
     ->  true
     ;   match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars)
     ->  Literal = is_a(Type, SuperType)
     ;   % Fallback to le_is
-        member(dict([le_is, V1, V2], NTs, WordsAndVars), Templates),
-        copy_term(dict([le_is, V1, V2], NTs, WordsAndVars), dict([le_is, V1Copy, V2Copy], _, WordsAndVarsCopy)),
+        member(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), Templates),
+        (le_kbs:do_log -> format('  Trying fallback le_is~n') ; true),
+        copy_term(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), dict([le_is, V1Copy, V2Copy], _, WordsAndVarsCopy, _)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0)
     ->  Literal = le_is(V1Copy, V2Copy)
     ).
 
-template_could_match(Words, WordsAndVars) :-
-    forall((member(W, WordsAndVars), atom(W), \+ is_reserved(W), \+ memberchk(W, [a, an, the, is])),
-           memberchk(W, Words)).
+contains_subsequence([], _).
+contains_subsequence([W|Ws], Words) :-
+    memberchk(W, Words),
+    find_word_after(W, Words, Rest), !,
+    contains_subsequence(Ws, Rest).
+
+find_word_after(W, [W|Rest], Rest) :- !.
+find_word_after(W, [_|Words], Rest) :- find_word_after(W, Words, Rest).
 
 % Simple Expression Parser
 parse_expression(Parts, VMIn, VMOut, Templates, Expr, AllowVars) :-
@@ -745,8 +780,11 @@ factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 
 % Structured Body Parsing
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
-    tokens_to_lines(Tokens, Indent, Lines),
-    once(lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody)).
+    once(tokens_to_lines(Tokens, Indent, Lines)),
+    (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody)
+    ->  (le_kbs:do_log -> format('  Body succeeded~n') ; true)
+    ;   (le_kbs:do_log -> format('  Body failed to parse~n') ; true), fail
+    ).
 
 tokens_to_lines(Tokens, DefaultIndent, Lines) :-
     tokens_to_lines_acc(Tokens, DefaultIndent, [], Lines).
@@ -774,11 +812,12 @@ tokens_to_lines_acc(Ts, DefaultIndent, Acc, Lines) :-
 get_line_tokens([], [], []) :- !.
 get_line_tokens([indent(N, Loc)|Ts], [], [indent(N, Loc)|Ts]) :- !.
 get_line_tokens([T|Ts], [T|LTs], Rest) :-
+    !,
     get_line_tokens(Ts, LTs, Rest).
 
 lines_to_tree(_Tokens, Lines, Templates, VMIn, VMOut, Tree) :-
-    lines_to_hierarchy(Lines, Hierarchy),
-    hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Tree).
+    once(lines_to_hierarchy(Lines, Hierarchy)),
+    once(hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Tree)).
 
 lines_to_hierarchy([], []).
 lines_to_hierarchy([line(N, Tokens)|Lines], [node(N, Tokens, Children)|RestNodes]) :-
@@ -803,7 +842,7 @@ fold_nodes(Acc, [node(_, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic)
     strip_op(Tokens, Op, RestTokens),
     once(parse_node(RestTokens, Children, Templates, VMIn, VM1, ChildLogic)),
     NewAcc =.. [Op, Acc, ChildLogic],
-    once(fold_nodes(NewAcc, Rest, Templates, VM1, VMOut, Logic)).
+    fold_nodes(NewAcc, Rest, Templates, VM1, VMOut, Logic).
 
 strip_op([word(if, _)|Rest], and, Rest) :- !.
 strip_op([word(Op, _)|Rest], Op, Rest) :- (Op == and ; Op == or), !.
@@ -812,7 +851,7 @@ strip_op(Tokens, and, Tokens).
 parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
     hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
-    % format('Parse node: ~w~n', [Tokens]),
+    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), format('Parsing node: ~w~n', [Words]) ; true),
     (   is_forall(Tokens)
     ->  split_forall_children(Children, CondNodes, ConsNodes),
         hierarchy_to_logic(CondNodes, Templates, VMIn, VM1, CondLogic),
@@ -837,16 +876,21 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
         fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
     ;   Literal = unknown_tokens(Tokens),
         fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
-    ).
+    ),
+    (le_kbs:do_log -> format('  Node succeeded: ~w~n', [Logic]) ; true).
 
 is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
-    append(Rest, [word(such, _), word(that, _)], Tokens),
-    append(ResultTokens, [word(is, _), word(the, _), word(Op, _), word(of, _), word(each, _)|ElementTokens], Rest),
+    Tokens = [_, _, _, _, _, _, _, _ | _],
+    last(Tokens, word(that, _)),
+    once(append(Rest, [word(such, _), word(that, _)], Tokens)),
     member(Op, [sum, count, average, min, max]),
+    once(append(ResultTokens, [word(is, _), word(the, _), word(Op, _), word(of, _), word(each, _)|ElementTokens], Rest)),
     !.
 
 build_aggregate_list(Tokens, VMIn, VMOut, List) :-
-    maplist(extract_simple_word, Tokens, Words),
+    (   Tokens = [word(and, _)|Rest] -> TokensToUse = Rest ; TokensToUse = Tokens
+    ),
+    maplist(extract_simple_word, TokensToUse, Words),
     (   extract_var_name(Words, Name)
     ->  unify_with_vmap(Name, Var, VMIn, VMOut, true),
         List = [Var]
