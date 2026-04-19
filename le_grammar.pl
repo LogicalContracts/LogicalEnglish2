@@ -328,7 +328,8 @@ is_proper_name(Words) :-
     forall(member(W, Words), is_proper_name_atom(W)).
 
 is_id(W) :- atom(W), atom_length(W, 1), is_upper_atom(W).
-is_id(W) :- atom(W), atom_length(W, L), L =< 6, is_all_caps(W).
+is_id(W) :- atom(W), atom_length(W, L), L =< 6, is_all_caps(W), \+ (W == 'UK').
+is_id(W) :- atom(W), atom_length(W, L), L =< 3, is_proper_name_atom(W).
 
 is_reserved(W) :- member(W, [says, that, if, and, or]).
 
@@ -884,7 +885,8 @@ is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     last(Tokens, word(that, _)),
     append(Rest, [word(such, _), word(that, _)], Tokens),
     member(Op, [sum, count, average, min, max]),
-    append(ResultTokens, [word(is, _), word(the, _), word(Op, _), word(of, _), word(each, _)|ElementTokens], Rest).
+    append(ResultTokens, [word(is, _), word(the, _), word(Op, _), word(of, _), word(each, _)|ElementTokens], Rest),
+    !.
 
 build_aggregate_list(Tokens, VMIn, VMOut, List) :-
     (   Tokens = [word(and, _)|Rest] -> TokensToUse = Rest ; TokensToUse = Tokens
@@ -893,8 +895,7 @@ build_aggregate_list(Tokens, VMIn, VMOut, List) :-
     (   extract_var_name(Words, Name)
     ->  unify_with_vmap(Name, Var, VMIn, VMOut, true),
         List = [Var]
-    ;   \+ is_proper_name(Words),
-        atomic_list_concat(Words, ' ', Name),
+    ;   atomic_list_concat(Words, ' ', Name),
         unify_with_vmap(Name, Var, VMIn, VMOut, true),
         List = [Var]
     ).

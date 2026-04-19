@@ -392,14 +392,19 @@ Let's now add negative explanations to the reasoner. We'll use the same last arg
 - When a not(G)) subgoal suceeds, the positive (success) explanation subtree will be the failure tree for G
 These changes must be local to reasoner.pl and not alter the overall reasoner results
 
-# Next steps
 Explanations are currently over detaioled. We need to ignore the trivial LE connectives (and, or) retaining only the "juicy" elements supporting the conclusion
 
+# Next steps
+old warnings (define meta predicates for xref?), 
+adjust expected to cover parsing errors
 
+command line wrapper
+    
+web API, curl sequence example for same
+New web app
+Editor...?
 add InsurLE examples to repo
 ask for incremental addition to le_grammar... and others(?) 
-immitate 
-    old warnings, command line, old API
 generators (?)
     standalone Prolog
     scasp

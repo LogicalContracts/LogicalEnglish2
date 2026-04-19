@@ -3,8 +3,8 @@ Test Summary:
 -------------
 Files processed: 16
 Total tests:     164
-Passed:          161
-Failed:          2
+Passed:          163
+Failed:          0
 Errors/Timeouts: 1
 -------------
 
@@ -14,7 +14,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/payg.le.tests: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/augmentedsem.le.tests: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/1_cgt_assets_and_exemptions_3.le.tests: 3 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/sbpp_0.le.tests: 1 Pass, 1 Fail, 0 Error
+  [PASS] examples/moreExamples/sbpp_0.le.tests: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/small_business.le.tests: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le.tests: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gst.le.tests: 12 Pass, 0 Fail, 0 Error
@@ -23,7 +23,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/gstturnover.le.tests: 49 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le.tests: 7 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/3_rollover_3.le.tests: 6 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/sbppxml1.le.tests: 1 Pass, 1 Fail, 0 Error
+  [PASS] examples/moreExamples/sbppxml1.le.tests: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le.tests: 2 Pass, 0 Fail, 0 Error
 -------------
 
