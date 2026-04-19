@@ -29,7 +29,7 @@ parse_le_file(FilePath, Doc) :-
 %   Performs a second pass to resolve templates and variables.
 parse_le_tokens(Tokens, doc(NewSections)) :-
     (le_kbs:do_log -> format('Parsing LE tokens...~n') ; true),
-    once(phrase(doc(Sections), Tokens)),
+    phrase(doc(Sections), Tokens),
     second_pass(Sections, NewSections).
 
 % DCG for Logical English
@@ -514,7 +514,7 @@ match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, Allow
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, 0).
 
 match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth) :-
-    once(match_instance_to_template_acc(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth)).
+    match_instance_to_template_acc(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth).
 
 match_instance_to_template_acc([], [], VM, VM, _, _, _).
 match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
@@ -695,7 +695,7 @@ parse_literal(Tokens, Templates, VMIn, VMOut, Literal) :-
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
     (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), format('Parsing literal: ~w~n', [Words]) ; true),
-    once(parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars)),
+    parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars),
     (le_kbs:do_log -> format('  Succeeded: ~w~n', [Literal]) ; true).
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
@@ -780,7 +780,7 @@ factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 
 % Structured Body Parsing
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
-    once(tokens_to_lines(Tokens, Indent, Lines)),
+    once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/sbpp_0.le
     (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody)
     ->  (le_kbs:do_log -> format('  Body succeeded~n') ; true)
     ;   (le_kbs:do_log -> format('  Body failed to parse~n') ; true), fail
@@ -816,8 +816,8 @@ get_line_tokens([T|Ts], [T|LTs], Rest) :-
     get_line_tokens(Ts, LTs, Rest).
 
 lines_to_tree(_Tokens, Lines, Templates, VMIn, VMOut, Tree) :-
-    once(lines_to_hierarchy(Lines, Hierarchy)),
-    once(hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Tree)).
+    lines_to_hierarchy(Lines, Hierarchy),
+    hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Tree).
 
 lines_to_hierarchy([], []).
 lines_to_hierarchy([line(N, Tokens)|Lines], [node(N, Tokens, Children)|RestNodes]) :-
@@ -834,13 +834,13 @@ take_nested_hierarchy(Lines, _, [], Lines).
 hierarchy_to_logic([], _, VM, VM, true) :- !.
 hierarchy_to_logic([node(_, Tokens, Children)|RestNodes], Templates, VMIn, VMOut, Logic) :-
     strip_op(Tokens, _Op, RestTokens),
-    once(parse_node(RestTokens, Children, Templates, VMIn, VM1, FirstLogic)),
+    parse_node(RestTokens, Children, Templates, VMIn, VM1, FirstLogic),
     fold_nodes(FirstLogic, RestNodes, Templates, VM1, VMOut, Logic).
 
 fold_nodes(Acc, [], _, VM, VM, Acc).
 fold_nodes(Acc, [node(_, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic) :-
     strip_op(Tokens, Op, RestTokens),
-    once(parse_node(RestTokens, Children, Templates, VMIn, VM1, ChildLogic)),
+    parse_node(RestTokens, Children, Templates, VMIn, VM1, ChildLogic),
     NewAcc =.. [Op, Acc, ChildLogic],
     fold_nodes(NewAcc, Rest, Templates, VM1, VMOut, Logic).
 
@@ -863,7 +863,7 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ;   is_aggregate(Tokens, Op, ElementTokens, ResultTokens)
     ->  build_aggregate_list(ElementTokens, VMIn, VM1, ElementList),
         build_aggregate_list(ResultTokens, VM1, VM2, ResultList),
-        once(hierarchy_to_logic(Children, Templates, VM2, VMOut, Goal)),
+        hierarchy_to_logic(Children, Templates, VM2, VMOut, Goal),
         Logic =.. [Op, [each|ElementList], Goal, ResultList]
     ;   parse_literal(Tokens, Templates, VMIn, VM1, Literal)
     ->  fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
@@ -882,10 +882,9 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
 is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     Tokens = [_, _, _, _, _, _, _, _ | _],
     last(Tokens, word(that, _)),
-    once(append(Rest, [word(such, _), word(that, _)], Tokens)),
+    append(Rest, [word(such, _), word(that, _)], Tokens),
     member(Op, [sum, count, average, min, max]),
-    once(append(ResultTokens, [word(is, _), word(the, _), word(Op, _), word(of, _), word(each, _)|ElementTokens], Rest)),
-    !.
+    append(ResultTokens, [word(is, _), word(the, _), word(Op, _), word(of, _), word(each, _)|ElementTokens], Rest).
 
 build_aggregate_list(Tokens, VMIn, VMOut, List) :-
     (   Tokens = [word(and, _)|Rest] -> TokensToUse = Rest ; TokensToUse = Tokens
