@@ -61,7 +61,7 @@ load(FilePath, NewModule) :-
     ).
 
 process_section(S, M) :-
-    (do_log -> format('Processing section: ~w~n', [S]) ; true),
+    (do_log -> print_message(informational,'Processing section: ~w~n' - [S]) ; true),
     process_section_acc(S, M).
 
 process_section_acc(kb(Name, Content, Start, End), M) :-
@@ -154,7 +154,7 @@ setScenarion(SessionModule, ScenarioName) :-
     (   current_predicate(KBmodule:scenario/2)
     ->  KBmodule:scenario(ScenarioName, Facts),
         forall(member(Fact, Facts), addSessionFact(SessionModule, Fact))
-    ;   format('Warning: scenario/2 not found in module ~w~n', [KBmodule]),
+    ;   print_message(warning,'scenario/2 not found in module ~w~n' - [KBmodule]),
         fail
     ).
 
@@ -172,11 +172,11 @@ clearSession(SessionModule) :-
 printSession(SessionModule) :-
     SessionModule:le_my_kb(KBmodule),
     KBmodule:le_kb(KBName),
-    format('Session: ~w~n', [SessionModule]),
-    format('KB: ~w (~w)~n', [KBName, KBmodule]),
-    format('Current Facts:~n'),
+    print_message(informational,'Session: ~w~n' - [SessionModule]),
+    print_message(informational,'KB: ~w (~w)~n' - [KBName, KBmodule]),
+    print_message(informational,'Current Facts:~n'),
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
-           (H \= sessionClause(_), format('  ~w:', [SessionModule]), writeq(H), format(' :- ~w~n', [B]))).
+           (H \= sessionClause(_), print_message(informational,'  ~w:' - [SessionModule]), writeq(H), print_message(informational,' :- ~w~n' - [B]))).
 
 %!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is semidet.
 %
@@ -191,7 +191,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     findall(D, KBmodule:le_dict(D), Templates),
     (   le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
     ->  Goal =.. [Functor|Args],
-        (do_log -> format('Query Goal: ~w~n', [Goal]) ; true),
+        (do_log -> print_message(informational,'Query Goal: ~w~n' - [Goal]) ; true),
         i(Goal, SessionModule, Unknowns, Why),
         TemplateInstance = WordsAndVars
     ).

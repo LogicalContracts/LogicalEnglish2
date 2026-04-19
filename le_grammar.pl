@@ -28,7 +28,7 @@ parse_le_file(FilePath, Doc) :-
 %   Parses a list of tokens into a Logical English document structure.
 %   Performs a second pass to resolve templates and variables.
 parse_le_tokens(Tokens, doc(NewSections)) :-
-    (le_kbs:do_log -> format('Parsing LE tokens...~n') ; true),
+    (le_kbs:do_log -> print_message(informational,'Parsing LE tokens...~n') ; true),
     phrase(doc(Sections), Tokens),
     second_pass(Sections, NewSections).
 
@@ -44,9 +44,9 @@ sections([]) --> [].
 section(kb(Name, Content, Start, End)) --> 
     any_indent, t(word(the, loc(Start, _))), t(word(knowledge)), t(word(base)), kb_name_tokens(Tokens), t(word(includes)), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
-    { (le_kbs:do_log -> format('Parsing KB: ~w~n', [Name]) ; true) },
+    { (le_kbs:do_log -> print_message(informational,'Parsing KB: ~w~n' - [Name]) ; true) },
     kb_content(Content, End),
-    { (le_kbs:do_log -> format('Finished KB: ~w~n', [Name]) ; true) }.
+    { (le_kbs:do_log -> print_message(informational,'Finished KB: ~w~n' - [Name]) ; true) }.
 
 % section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
@@ -457,7 +457,7 @@ extract_value(var(Words), Val, VMIn, VMOut, _Templates, AllowVars) :-
     ;   Val = Name, VMOut = VMIn
     ).
 extract_value(word(W, _), Val, VMIn, VMOut, _Templates, AllowVars) :-
-    (le_kbs:do_log -> format('Extract value word: ~w (AllowVars: ~w)~n', [W, AllowVars]) ; true),
+    (le_kbs:do_log -> print_message(informational,'Extract value word: ~w (AllowVars: ~w)~n' - [W, AllowVars]) ; true),
     (   AllowVars == false
     ->  Val = W, VMOut = VMIn
     ;   unify_with_vmap(W, Val, VMIn, VMOut, false)
@@ -496,7 +496,7 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars) :-
 transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Depth) :-
     (   Depth > 1 -> fail ; true
     ),
-    (le_kbs:do_log -> maplist(extract_simple_word, Instance, Words), format('Transform instance (depth ~w): ~w~n', [Depth, Words]) ; true),
+    (le_kbs:do_log -> maplist(extract_simple_word, Instance, Words), print_message(informational,'Transform instance (depth ~w): ~w~n' - [Depth, Words]) ; true),
     D1 is Depth + 1,
     (   match_template(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, D1)
     ->  true
@@ -558,7 +558,7 @@ match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVa
 
 % Semantics: Second Pass
 second_pass(Sections, NewSections) :-
-    (le_kbs:do_log -> length(Sections, L), format('Second pass: ~w sections~n', [L]) ; true),
+    (le_kbs:do_log -> length(Sections, L), print_message(informational,'Second pass: ~w sections~n' - [L]) ; true),
     % Collect all templates from all sections first
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
@@ -607,17 +607,17 @@ second_pass_section(Templates, query(Name, Content, Start, End), query(Name, New
 second_pass_section(_, S, S). % Keep other sections as is
 
 second_pass_content(Items, Templates, NewItems) :-
-    (le_kbs:do_log -> length(Items, L), format('Second pass content: ~w items~n', [L]) ; true),
+    (le_kbs:do_log -> length(Items, L), print_message(informational,'Second pass content: ~w items~n' - [L]) ; true),
     maplist(second_pass_item(Templates), Items, NewItems).
 
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
-    (le_kbs:do_log -> maplist(extract_simple_word, Head, Words), format('Processing rule: ~w~n', [Words]) ; true),
+    (le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]) ; true),
     (   parse_literal(Head, Templates, [], VM1, NewHead, true)
     ->  (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
-        ->  (le_kbs:do_log -> format('  Rule succeeded~n') ; true)
-        ;   (le_kbs:do_log -> format('  Rule body failed to parse~n') ; true), fail
+        ->  (le_kbs:do_log -> print_message(informational,'  Rule succeeded~n') ; true)
+        ;   (le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n') ; true), fail
         )
-    ;   (le_kbs:do_log -> format('  Rule head failed to match template~n') ; true),
+    ;   (le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n') ; true),
         NewHead = unknown_template(Head),
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
@@ -695,15 +695,15 @@ parse_literal(Tokens, Templates, VMIn, VMOut, Literal) :-
     parse_literal(Tokens, Templates, VMIn, VMOut, Literal, true).
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
-    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), format('Parsing literal: ~w~n', [Words]) ; true),
+    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing literal: ~w~n' - [Words]) ; true),
     parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars),
-    (le_kbs:do_log -> format('  Succeeded: ~w~n', [Literal]) ; true).
+    (le_kbs:do_log -> print_message(informational,'  Succeeded: ~w~n' - [Literal]) ; true).
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
     maplist(extract_simple_word, Tokens, Words),
     (   member(dict(FunctorArgs, NTs, WordsAndVars, NIW), Templates),
         \+ (FunctorArgs = [le_is|_]),
-        (le_kbs:do_log -> format('  Trying template: ~w~n', [FunctorArgs]) ; true),
+        (le_kbs:do_log -> print_message(informational,'  Trying template: ~w~n' - [FunctorArgs]) ; true),
         contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, NTs, WordsAndVars, NIW), dict(FunctorArgsCopy, _, WordsAndVarsCopy, _)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0),
@@ -713,7 +713,7 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
     ->  Literal = is_a(Type, SuperType)
     ;   % Fallback to le_is
         member(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), Templates),
-        (le_kbs:do_log -> format('  Trying fallback le_is~n') ; true),
+        (le_kbs:do_log -> print_message(informational,'  Trying fallback le_is~n') ; true),
         copy_term(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), dict([le_is, V1Copy, V2Copy], _, WordsAndVarsCopy, _)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0)
     ->  Literal = le_is(V1Copy, V2Copy)
@@ -783,8 +783,8 @@ factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
     once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/sbpp_0.le
     (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody)
-    ->  (le_kbs:do_log -> format('  Body succeeded~n') ; true)
-    ;   (le_kbs:do_log -> format('  Body failed to parse~n') ; true), fail
+    ->  (le_kbs:do_log -> print_message(informational,'  Body succeeded~n') ; true)
+    ;   (le_kbs:do_log -> print_message(informational,'  Body failed to parse~n') ; true), fail
     ).
 
 tokens_to_lines(Tokens, DefaultIndent, Lines) :-
@@ -852,7 +852,7 @@ strip_op(Tokens, and, Tokens).
 parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
     hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
-    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), format('Parsing node: ~w~n', [Words]) ; true),
+    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing node: ~w~n' - [Words]) ; true),
     (   is_forall(Tokens)
     ->  split_forall_children(Children, CondNodes, ConsNodes),
         hierarchy_to_logic(CondNodes, Templates, VMIn, VM1, CondLogic),
@@ -878,7 +878,7 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ;   Literal = unknown_tokens(Tokens),
         fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
     ),
-    (le_kbs:do_log -> format('  Node succeeded: ~w~n', [Logic]) ; true).
+    (le_kbs:do_log -> print_message(informational,'  Node succeeded: ~w~n' - [Logic]) ; true).
 
 is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     Tokens = [_, _, _, _, _, _, _, _ | _],
