@@ -30,6 +30,7 @@
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
 :- use_module(reasoner).
+:- use_module(le_verifier).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 
@@ -57,7 +58,10 @@ load(FilePath, NewModule) :-
         forall(member(S, Sections), process_section(S, NewModule)),
         % Also store system templates in the KB module
         findall(D, le_system_template(D), SysDicts),
-        forall(member(D, SysDicts), assertz(NewModule:le_dict(D)))
+        forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+        % Verify the KB
+        verify(NewModule, Issues),
+        forall(member(Issue, Issues), le_verifier:print_issue(Issue))
     ).
 
 process_section(S, M) :-

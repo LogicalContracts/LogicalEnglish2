@@ -1,0 +1,198 @@
+:- module(le_verifier, [verify/2, print_issue/1]).
+
+:- use_module(le_kbs).
+
+%!  verify(+KBModule:atom, -Issues:list) is det.
+%
+%   Performs load-time verifications on a Logical English knowledge base.
+verify(KB, Issues) :-
+    (   setof(Issue, check_issue(KB, Issue), Issues)
+    ->  true
+    ;   Issues = []
+    ).
+
+check_issue(KB, Issue) :- missing_template(KB, Issue).
+check_issue(KB, Issue) :- undefined_predicate(KB, Issue).
+check_issue(KB, Issue) :- untested_predicate(KB, Issue).
+check_issue(KB, Issue) :- rule_without_variables(KB, Issue).
+check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
+
+% --- 1. Missing template ---
+missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
+    (   current_predicate(KB:unknown_template/1), KB:clause(unknown_template(Tokens), _, Ref)
+    ;   current_predicate(KB:F/A), functor(Head, F, A), KB:clause(Head, Body, Ref), find_unknown_in_body(Body, unknown_template(Tokens))
+    ),
+    le_grammar:reconstruct_name(Tokens, Name),
+    format(atom(Description), "Missing template for '~w'", [Name]),
+    Fix = "add a template for the phrase to the 'the templates are:' section.",
+    (KB:le_source(Ref, Start, End) -> true ; Start = 0, End = 0).
+
+find_unknown_in_body(unknown_template(T), unknown_template(T)).
+find_unknown_in_body(not(B), U) :- find_unknown_in_body(B, U).
+find_unknown_in_body((A, B), U) :- (find_unknown_in_body(A, U) ; find_unknown_in_body(B, U)).
+find_unknown_in_body((A ; B), U) :- (find_unknown_in_body(A, U) ; find_unknown_in_body(B, U)).
+find_unknown_in_body(forall(A, B), U) :- (find_unknown_in_body(A, U) ; find_unknown_in_body(B, U)).
+find_unknown_in_body(sum(_, G, _), U) :- find_unknown_in_body(G, U).
+find_unknown_in_body(count(_, G, _), U) :- find_unknown_in_body(G, U).
+find_unknown_in_body(min(_, G, _), U) :- find_unknown_in_body(G, U).
+find_unknown_in_body(max(_, G, _), U) :- find_unknown_in_body(G, U).
+find_unknown_in_body(average(_, G, _), U) :- find_unknown_in_body(G, U).
+
+% --- 2. Undefined predicate ---
+undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
+    current_predicate(KB:F/A), functor(Head, F, A),
+    KB:clause(Head, Body, Ref),
+    find_literal_in_body(Body, Literal),
+    \+ is_defined(KB, Literal),
+    \+ is_built_in_literal(Literal),
+    functor(Literal, FL, AL),
+    format(atom(Description), "Undefined predicate '~w/~w'", [FL, AL]),
+    Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
+    (KB:le_source(Ref, Start, End) -> true ; Start = 0, End = 0).
+
+find_literal_in_body(L, L) :- L \= (_ , _), L \= (_ ; _), L \= not(_), L \= forall(_, _), L \= true, L \= fail, L \= unknown_template(_), L \= unknown_tokens(_), \+ is_aggregate_literal(L).
+find_literal_in_body(not(B), L) :- find_literal_in_body(B, L).
+find_literal_in_body((A, B), L) :- (find_literal_in_body(A, L) ; find_literal_in_body(B, L)).
+find_literal_in_body((A ; B), L) :- (find_literal_in_body(A, L) ; find_literal_in_body(B, L)).
+find_literal_in_body(forall(A, B), L) :- (find_literal_in_body(A, L) ; find_literal_in_body(B, L)).
+find_literal_in_body(sum(_, G, _), L) :- find_literal_in_body(G, L).
+find_literal_in_body(count(_, G, _), L) :- find_literal_in_body(G, L).
+find_literal_in_body(min(_, G, _), L) :- find_literal_in_body(G, L).
+find_literal_in_body(max(_, G, _), L) :- find_literal_in_body(G, L).
+find_literal_in_body(average(_, G, _), L) :- find_literal_in_body(G, L).
+
+is_aggregate_literal(sum(_, _, _)).
+is_aggregate_literal(count(_, _, _)).
+is_aggregate_literal(min(_, _, _)).
+is_aggregate_literal(max(_, _, _)).
+is_aggregate_literal(average(_, _, _)).
+
+is_defined(KB, Literal) :-
+    catch(is_defined_real(KB, Literal), _, fail).
+
+is_defined_real(KB, Literal) :-
+    functor(Literal, F, A),
+    (   Literal = is_a(_, _) -> true
+    ;   memberchk(F/A, [and/2, or/2, not/1, forall/2, true/0, fail/0, sum/3, count/3, min/3, max/3, average/3]) -> true
+    ;   safe_clause(KB, Literal) -> true
+    ;   safe_scenario_fact(KB, F, A) -> true
+    ;   fail
+    ).
+
+safe_clause(KB, Literal) :-
+    functor(Literal, F, A),
+    current_predicate(KB:F/A),
+    clause(KB:Literal, _).
+
+safe_scenario_fact(KB, F, A) :-
+    current_predicate(KB:scenario/2),
+    clause(KB:scenario(_, Facts), _),
+    member(Fact, Facts),
+    functor(Fact, F, A).
+
+is_built_in_literal(L) :- reasoner:is_built_in(L).
+
+% --- 3. Untested predicate ---
+untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-
+    current_predicate(KB:F/A),
+    functor(G, F, A),
+    \+ le_kbs:is_system_predicate(F/A),
+    \+ reasoner:is_built_in(G),
+    \+ predicate_property(KB:G, imported_from(_)),
+    is_intensional(KB, F, A),
+    \+ is_reachable_from_query(KB, F, A),
+    format(atom(Description), "This predicate is not tested by any query: '~w/~w'", [F, A]),
+    Fix = "add a query that exercises the predicate, and add expected answers to the .le.tests file.".
+
+is_intensional(KB, F, A) :-
+    functor(G, F, A),
+    KB:clause(G, Body),
+    Body \== true, !.
+
+is_reachable_from_query(KB, F, A) :-
+    KB:query_info(_, Goal, _),
+    is_reachable(KB, Goal, F, A, []).
+
+is_reachable(_KB, Goal, F, A, _) :-
+    find_literal_in_body(Goal, Literal),
+    functor(Literal, F, A).
+is_reachable(KB, Goal, F, A, Anc) :-
+    find_literal_in_body(Goal, Literal),
+    functor(Literal, F1, A1),
+    \+ member(F1/A1, Anc),
+    functor(G1, F1, A1),
+    current_predicate(KB:F1/A1),
+    KB:clause(G1, Body),
+    is_reachable(KB, Body, F, A, [F1/A1|Anc]).
+
+% --- 4. Rule without variables ---
+rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start, End)) :-
+    current_predicate(KB:F/A), functor(Head, F, A),
+    KB:clause(Head, Body, Ref),
+    Body \== true,
+    ground(Head),
+    ground(Body),
+    format(atom(Description), "Rule without variables: ~w if ~w", [Head, Body]),
+    Fix = "move the concrete data into a scenario; rules should use variables.",
+    (KB:le_source(Ref, Start, End) -> true ; Start = 0, End = 0).
+
+% --- 5. Facts/Rules ratio ---
+facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
+    count_rules(KB, Rules),
+    Rules == 0,
+    count_facts(KB, Facts),
+    Facts > 0,
+    Description = "Missing rules: the program contains only facts and no rules.",
+    Fix = "add rules that derive conclusions from the facts.".
+facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
+    count_rules(KB, Rules),
+    Rules > 0,
+    count_facts(KB, Facts),
+    Facts > Rules * 5,
+    format(atom(Description), "Too many facts: facts (~w) outnumber rules (~w) by more than 5:1.", [Facts, Rules]),
+    Fix = "add rules that derive conclusions from the facts.".
+
+count_rules(KB, Count) :-
+    findall(1, (
+        current_predicate(KB:F/A), functor(Head, F, A),
+        \+ le_kbs:is_system_predicate_head(Head),
+        KB:clause(Head, Body),
+        Body \== true
+    ), L),
+    length(L, Count).
+
+count_facts(KB, Count) :-
+    findall(1, (
+        current_predicate(KB:F/A), functor(Head, F, A),
+        \+ le_kbs:is_system_predicate_head(Head),
+        KB:clause(Head, true)
+    ), L1),
+    findall(1, (current_predicate(KB:scenario/2), clause(KB:scenario(_, Facts), _), member(_, Facts)), L2),
+    length(L1, C1), length(L2, C2),
+    Count is C1 + C2.
+
+% Helper for system predicates
+:- multifile le_kbs:is_system_predicate_head/1.
+le_kbs:is_system_predicate_head(le_kb(_)).
+le_kbs:is_system_predicate_head(le_source(_, _, _)).
+le_kbs:is_system_predicate_head(scenario(_, _)).
+le_kbs:is_system_predicate_head(query_info(_, _, _)).
+le_kbs:is_system_predicate_head(ontology(_)).
+le_kbs:is_system_predicate_head(le_dict(_)).
+le_kbs:is_system_predicate_head(le_my_kb(_)).
+le_kbs:is_system_predicate_head(le_neg(_)).
+le_kbs:is_system_predicate_head(sessionClause(_)).
+
+% --- Printing ---
+print_issues(Issues) :-
+    forall(member(Issue, Issues), print_issue(Issue)).
+
+print_issue(issue(Type, Description, Fix, Start, End)) :-
+    format(atom(Msg), "~w~n    Fix: ~w~n    Position: ~w-~w", [Description, Fix, Start, End]),
+    print_message(warning, Type - [Msg]).
+
+% Extend prolog:message to handle our issues
+:- multifile prolog:message//1.
+prolog:message(Type - [Msg]) -->
+    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts]) },
+    [ '~w: ~w' - [Type, Msg] ].
