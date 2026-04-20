@@ -22,7 +22,8 @@
 
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
-    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1]).
+    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
+    verify/1]).
 
 :- discontiguous print_test_result/1.
 
@@ -435,3 +436,38 @@ is_system_predicate(le_dict/1).
 is_system_predicate(le_my_kb/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).
+
+%!  verify(+LEfilePath:atom) is det.
+%
+%   Loads the LE program into a new module, calls the le_verifier,
+%   runs the tests for the file (if the corresponding .tests file exists),
+%   and deletes the new module.
+verify(LEfilePath) :-
+    % 1. Load the LE program into a new module
+    % We use a unique ID to ensure it's a "new" module and doesn't interfere with the cache
+    uuid(UUID),
+    atom_concat(v, UUID, KBmodule),
+    parse_le_file(LEfilePath, doc(Sections)),
+    forall(member(S, Sections), process_section(S, KBmodule)),
+    findall(D, le_system_template(D), SysDicts),
+    forall(member(D, SysDicts), assertz(KBmodule:le_dict(D))),
+    
+    % 2. Call the le_verifier
+    le_verifier:verify(KBmodule, Issues),
+    forall(member(Issue, Issues), print_issue(Issue)),
+    
+    % 3. Run the tests for the file (if the corresponding .tests file exists)
+    atom_concat(LEfilePath, '.tests', TestsFile),
+    (   exists_file(TestsFile)
+    ->  setup_call_cleanup(
+            open(TestsFile, read, Stream),
+            read_tests(Stream, Tests),
+            close(Stream)
+        ),
+        maplist(run_one_test(KBmodule), Tests, TestResults),
+        print_test_result(test_file(TestsFile, TestResults))
+    ;   true
+    ),
+    
+    % 4. Delete the new module
+    forall(current_predicate(KBmodule:F/N), abolish(KBmodule:F/N)).
