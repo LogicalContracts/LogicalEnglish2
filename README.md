@@ -1,4 +1,4 @@
-# Vibe coding the new LE parser
+# Vibe coding the new LE
 ## Initial prompt
 You are an expert in Logical English (LE), a constrained natural language mapping to PROLOG. It is described in @docs/le_syntax.md. There are examples in @examples/moreExamples - all files with extension .le
 
@@ -394,13 +394,17 @@ These changes must be local to reasoner.pl and not alter the overall reasoner re
 
 Explanations are currently over detaioled. We need to ignore the trivial LE connectives (and, or) retaining only the "juicy" elements supporting the conclusion
 
+## web api
+Create a new module classic_web_api.pl implementing a web API as described in docs/api.md, which uses le_kbs. Implement all methods except le2prolog, answer_via_llm and draft.
+Then create an example client shell script appExample1_web.sh using curl to test the classic_web_api, similar to appExample1.pl
+
+
 # Next steps
 old warnings (define meta predicates for xref?), 
 adjust expected to cover parsing errors
 
 command line wrapper
-    
-web API, curl sequence example for same
+
 New web app
 Editor...?
 add InsurLE examples to repo

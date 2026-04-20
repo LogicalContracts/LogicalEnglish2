@@ -22,7 +22,7 @@
 
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
-    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0]).
+    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1]).
 
 :- discontiguous print_test_result/1.
 
@@ -391,3 +391,43 @@ token_to_atom(X, Atom) :-
     (   var(X) -> Atom = '_'
     ;   term_to_atom(X, Atom)
     ).
+
+%!  get_kb_metadata(+KBModule:atom, -Metadata:dict) is det.
+%
+%   Extracts metadata from a knowledge base module.
+get_kb_metadata(KB, Metadata) :-
+    findall(PredStr, (
+        current_predicate(KB:P/A), 
+        functor(G, P, A),
+        \+ is_system_predicate(P/A),
+        \+ predicate_property(KB:G, imported_from(_)),
+        format(atom(PredStr), '~w/~w', [P, A])
+    ), Preds),
+    (KB:le_kb(KBName) -> true ; KBName = null),
+    findall(_{name: Name, scenarios: JSONScenarios}, (
+        KB:scenario(Name, Scenarios),
+        maplist(term_string, Scenarios, JSONScenarios)
+    ), Examples),
+    findall(JSONQ, (
+        KB:query_info(_, _, Q),
+        maplist(term_string, Q, JSONQ)
+    ), Queries),
+    Metadata = _{
+        kb: KBName,
+        predicates: Preds,
+        examples: Examples,
+        queries: Queries
+    }.
+
+%!  is_system_predicate(?PI) is semidet.
+%
+%   True if PI is a predicate indicator for a Logical English system predicate.
+is_system_predicate(le_kb/1).
+is_system_predicate(le_source/3).
+is_system_predicate(scenario/2).
+is_system_predicate(query_info/3).
+is_system_predicate(ontology/1).
+is_system_predicate(le_dict/1).
+is_system_predicate(le_my_kb/1).
+is_system_predicate(le_neg/1).
+is_system_predicate(sessionClause/1).
