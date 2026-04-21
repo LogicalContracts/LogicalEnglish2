@@ -182,11 +182,10 @@ handle_answering_query(Dict, Response) :-
         )
     ;   true
     ),
-    (   findall(AnswerStr, (
-            query(SM, Query, Instance, _Unknowns, _Why),
+    (   setof(AnswerStr, Instance^Unknowns^Why^(
+            query(SM, Query, Instance, Unknowns, Why),
             canonical_string(Instance, AnswerStr)
-        ), Answers),
-        Answers \== []
+        ), Answers)
     ->  atomic_list_concat(Answers, '\n', AllAnswers),
         Response = _{answer: AllAnswers, result: "ok"}
     ;   Response = _{answer: "false", result: "ok"}

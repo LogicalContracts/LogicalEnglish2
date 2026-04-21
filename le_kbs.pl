@@ -170,22 +170,16 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
         atom_string(QueryName, Template),
         current_predicate(KBmodule:query_info/3),
         KBmodule:query_info(QueryName, Goal, Items)
-    ->  (   reasoner:i(Goal, SessionModule, Unknowns, Why)
-        ->  maplist(item_to_instance(KBmodule), Items, Instances),
-            flatten(Instances, TemplateInstance)
-        ;   fail
-        )
+    ->  reasoner:i(Goal, SessionModule, Unknowns, Why),
+        maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
+        flatten(Instances, TemplateInstance)
     ;   findall(D, KBmodule:le_dict(D), Templates),
-        (   member(Dict, Templates),
-            copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
-            le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
-        ->  Goal =.. [Functor|Args],
-            (   reasoner:i(Goal, SessionModule, Unknowns, Why)
-            ->  TemplateInstance = WordsAndVars
-            ;   fail
-            )
-        ;   fail
-        )
+        member(Dict, Templates),
+        copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
+        le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true),
+        Goal =.. [Functor|Args],
+        reasoner:i(Goal, SessionModule, Unknowns, Why),
+        TemplateInstance = WordsAndVars
     ).
 
 ensure_tokens(Template, Tokens) :-
@@ -208,7 +202,7 @@ queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
 canonical_string(Instance, String) :-
     (   is_list(Instance)
     ->  maplist(le_kbs:token_to_atom, Instance, Atoms),
-        (   maplist(var, Atoms) -> String = "" % Should not happen with robust token_to_atom
+        (   maplist(var, Atoms) -> String = "" 
         ;   catch(atomic_list_concat(Atoms, ' ', String), _, String = "error")
         )
     ;   le_kbs:token_to_atom(Instance, Atom),
@@ -221,7 +215,7 @@ token_to_atom(word(W, _), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(word(W), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(var(Words), Atom) :- !, 
     (   var(Words) -> Atom = '_'
-    ;   is_list(Words) -> (maplist(token_to_atom, Words, Atoms), atomic_list_concat(Atoms, ' ', Atom))
+    ;   is_list(Words) -> (maplist(le_kbs:token_to_atom, Words, Atoms), atomic_list_concat(Atoms, ' ', Atom))
     ;   atom_string(Atom, Words)
     ).
 token_to_atom(number(N, _), Atom) :- !, (var(N) -> Atom = '0' ; atom_number(Atom, N)).
@@ -332,9 +326,9 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :
              KBmodule:query_info(InfoName, FullGoal, Items),
              normalize_string(InfoName, NormName))
         ->  (   catch(call_with_time_limit(30, findall(S, (reasoner:i(FullGoal, SM, [], _), 
-                                                          maplist(item_to_instance(KBmodule), Items, Instances),
+                                                          maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
                                                           flatten(Instances, TemplateInstance),
-                                                          canonical_string(TemplateInstance, Atom),
+                                                          le_kbs:canonical_string(TemplateInstance, Atom),
                                                           atom_string(Atom, S)), ActualStrings)),
                       time_limit_exceeded, (ActualStrings = timeout))
             ->  (   ActualStrings == timeout -> Result = error(QueryName, ScenarioName, 'Timeout exceeded')
