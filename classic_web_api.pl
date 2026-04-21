@@ -25,20 +25,27 @@ start_api_server :-
     start_api_server(3050).
 
 start_api_server(Port) :-
+    assertz(le_kbs:do_log),
     http_server(http_dispatch, [port(Port)]).
+
+:- multifile prolog:message//1.
+prolog:message(le_api_error(Op, Msg)) -->
+    [ 'LE API Operation failed: ~w - ~w' - [Op, Msg] ].
+prolog:message(le_api_info(Msg)) -->
+    [ 'LE API: ~w' - [Msg] ].
 
 handle_leapi(Request) :-
     http_read_json_dict(Request, Dict),
     (   validate_token(Dict)
     ->  get_dict(operation, Dict, Op),
-        print_message(informational, 'LE API Request: ~w' - [Op]),
+        print_message(informational, le_api_info(Op)),
         (   catch(handle_operation(Dict, Response), E, (print_message(error, E), fail))
-        ->  print_message(informational, 'LE API Response: Success (~w)' - [Op]),
+        ->  print_message(informational, le_api_info(success(Op))),
             reply_json_dict(Response)
-        ;   print_message(error, 'LE API Operation failed: ~w' - [Op]),
+        ;   print_message(error, le_api_error(Op, "Operation failed")),
             reply_json_dict(_{error: "Operation failed or internal error"}, [status(500)])
         )
-    ;   print_message(warning, 'LE API: Invalid token'),
+    ;   print_message(warning, le_api_info("Invalid token")),
         reply_json_dict(_{error: "Invalid token"}, [status(403)])
     ).
 
@@ -52,7 +59,11 @@ handle_operation(Dict, Response) :-
     ;   Op == "list_examples" -> handle_list_examples(Dict, Response)
     ;   Op == "answer" -> handle_answer(Dict, Response)
     ;   Op == "explain" -> handle_explain(Dict, Response)
-    ;   Op == "load" -> handle_load(Dict, Response)
+    ;   Op == "load" -> 
+        (   catch(handle_load(Dict, Response), E, (print_message(error, E), fail))
+        ->  true
+        ;   print_message(error, le_api_error(load, "handle_load failed")), fail
+        )
     ;   Op == "answeringQuery" -> handle_answering_query(Dict, Response)
     ;   Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
     ;   Op == "query" -> handle_query(Dict, Response)
@@ -112,8 +123,10 @@ handle_explain(Dict, Response) :-
 
 handle_load(Dict, Response) :-
     (   get_dict(le, Dict, Doc)
-    ->  load_le_text(Doc, KB),
-        Language = le
+    ->  (   catch(load_le_text(Doc, KB), E1, (print_message(error, E1), fail))
+        ->  Language = le
+        ;   print_message(error, le_api_error(load, "load_le_text failed")), fail
+        )
     ;   get_dict(file, Dict, File),
         atom_concat('examples/moreExamples/', File, Path0),
         (   exists_file(Path0) -> Path = Path0
@@ -121,20 +134,30 @@ handle_load(Dict, Response) :-
         ;   Path = Path0 % will fail later
         ),
         (   sub_atom(Path, _, _, 0, '.le')
-        ->  le_kbs:load(Path, KB),
-            Language = le
-        ;   load_prolog_file(Path, KB),
-            Language = prolog
+        ->  (   catch(le_kbs:load(Path, KB), E2, (print_message(error, E2), fail))
+            ->  Language = le
+            ;   print_message(error, le_api_error(load, "le_kbs:load failed")), fail
+            )
+        ;   (   catch(load_prolog_file(Path, KB), E3, (print_message(error, E3), fail))
+            ->  Language = prolog
+            ;   print_message(error, le_api_error(load, "load_prolog_file failed")), fail
+            )
         )
     ),
-    createSession(KB, SM),
-    get_kb_metadata(KB, Metadata),
-    Response = Metadata.put(_{
-        sessionModule: SM,
-        language: Language,
-        target: prolog
-    }),
-    print_message(informational, 'Loaded KB ~w into session ~w' - [KB, SM]).
+    (   catch(createSession(KB, SM), E4, (print_message(error, E4), fail))
+    ->  true
+    ;   print_message(error, le_api_error(load, "createSession failed")), fail
+    ),
+    (   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), fail))
+    ->  Response = Metadata.put(_{
+            sessionModule: SM,
+            language: Language,
+            target: prolog
+        }),
+        print_message(informational, le_api_info(loaded(KB, SM)))
+    ;   print_message(error, le_api_error(load, "get_kb_metadata failed")),
+        fail
+    ).
 
 handle_answering_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
@@ -144,8 +167,12 @@ handle_answering_query(Dict, Response) :-
     (   get_dict(scenario, Dict, ScenarioStr)
     ->  (   (atom(ScenarioStr) ; string(ScenarioStr)), \+ sub_atom(ScenarioStr, _, _, _, '(')
         ->  atom_string(ScenarioName, ScenarioStr),
-            print_message(informational, 'Setting scenario by name: ~w' - [ScenarioName]),
-            setScenarion(SM, ScenarioName)
+            (   ScenarioName \== ''
+            ->  print_message(informational, 'Setting scenario by name: ~w' - [ScenarioName]),
+                clearSession(SM),
+                setScenarion(SM, ScenarioName)
+            ;   clearSession(SM)
+            )
         ;   term_string(Scenario, ScenarioStr),
             clearSession(SM),
             (   is_list(Scenario)
@@ -155,9 +182,13 @@ handle_answering_query(Dict, Response) :-
         )
     ;   true
     ),
-    (   query(SM, Query, Instance, _Unknowns, _Why)
-    ->  term_string(Instance, InstanceStr),
-        Response = _{answer: InstanceStr, result: "ok"}
+    (   findall(AnswerStr, (
+            query(SM, Query, Instance, _Unknowns, _Why),
+            canonical_string(Instance, AnswerStr)
+        ), Answers),
+        Answers \== []
+    ->  atomic_list_concat(Answers, '\n', AllAnswers),
+        Response = _{answer: AllAnswers, result: "ok"}
     ;   Response = _{answer: "false", result: "ok"}
     ).
 
@@ -230,8 +261,10 @@ load_le_text(Text, KB) :-
     tmp_file_stream(utf8, Path, Stream),
     write(Stream, Text),
     close(Stream),
-    le_kbs:load(Path, KB),
-    delete_file(Path).
+    (   catch(le_kbs:load(Path, KB), E, (delete_file(Path), throw(E)))
+    ->  delete_file(Path)
+    ;   delete_file(Path), fail
+    ).
 
 load_prolog_file(Path, Module) :-
     variant_sha1(Path, Hash),

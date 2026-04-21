@@ -29,8 +29,16 @@ parse_le_file(FilePath, Doc) :-
 %   Performs a second pass to resolve templates and variables.
 parse_le_tokens(Tokens, doc(NewSections)) :-
     (le_kbs:do_log -> print_message(informational,'Parsing LE tokens...~n') ; true),
-    phrase(doc(Sections), Tokens),
-    second_pass(Sections, NewSections).
+    (   phrase(doc(Sections), Tokens)
+    ->  true
+    ;   print_message(error, "DCG phrase(doc(Sections), Tokens) failed"),
+        fail
+    ),
+    (   second_pass(Sections, NewSections)
+    ->  true
+    ;   print_message(error, "second_pass failed"),
+        fail
+    ).
 
 % DCG for Logical English
 % doc(Sections) parses the entire document into a list of sections.
@@ -289,6 +297,7 @@ any_indent_tail(N1, N) --> [multi_comment(_, _)], !, any_indent_tail(N1, N).
 any_indent_tail(N, N) --> [].
 
 % t(Token) is a helper to match a token while skipping preceding indentation/comments.
+t(T) --> any_indent, [T], { T \= indent(_, _), T \= line_comment(_, _), T \= multi_comment(_, _) }.
 t(word(W, L)) --> any_indent, [word(W, L)].
 t(word(W)) --> any_indent, [word(W, _)].
 t(number(N, L)) --> any_indent, [number(N, L)].

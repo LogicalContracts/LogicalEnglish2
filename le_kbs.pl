@@ -23,7 +23,7 @@
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
-    verify/1, edit/1]).
+    verify/1, edit/1, canonical_string/2, token_to_atom/2]).
 
 :- discontiguous print_test_result/1.
 
@@ -31,7 +31,7 @@
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
 :- use_module(reasoner).
-:- use_module(le_verifier).
+:- use_module(le_verifier, [verify/2]).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -63,18 +63,24 @@ edit(LEfilePath) :-
 %   The module name is derived from the file path and modification time.
 load(FilePath, NewModule) :-
     time_file(FilePath, Time),
+    print_message(informational,"Loading ~w"-[FilePath]),
     variant_sha1([FilePath, Time], Hash),
     atom_concat(m, Hash, NewModule),
     (   current_module(NewModule)
     ->  true
-    ;   parse_le_file(FilePath, doc(Sections)),
-        forall(member(S, Sections), process_section(S, NewModule)),
-        % Also store system templates in the KB module
-        findall(D, le_system_template(D), SysDicts),
-        forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-        % Verify the KB
-        verify(NewModule, Issues),
-        forall(member(Issue, Issues), le_verifier:print_issue(Issue))
+    ;   (   catch(parse_le_file(FilePath, doc(Sections)), EP, (print_message(error, EP), fail))
+        ->  forall(member(S, Sections), process_section(S, NewModule)),
+            % Also store system templates in the KB module
+            findall(D, le_system_template(D), SysDicts),
+            forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+            % Verify the KB
+            (   catch(le_verifier:verify(NewModule, _Issues), EV, (print_message(error, EV), true))
+            ->  true
+            ;   true
+            )
+        ;   print_message(error, "parse_le_file failed for ~w" - [FilePath]),
+            fail
+        )
     ).
 
 process_section(S, M) :-
@@ -177,11 +183,24 @@ setScenarion(SessionModule, ScenarioName) :-
 
 %!  clearSession(+SessionModule:atom) is det.
 %
-%   Clears all facts and definitions from the session module.
+%   Clears all facts and definitions from the session module,
+%   preserving the link to the KB module.
 clearSession(SessionModule) :-
+    (   SessionModule:le_my_kb(KBmodule)
+    ->  true
+    ;   KBmodule = none
+    ),
     % Abolish all predicates in the session module
     forall(current_predicate(SessionModule:F/N),
-           abolish(SessionModule:F/N)).
+           abolish(SessionModule:F/N)),
+    (   KBmodule \== none
+    ->  assertz(SessionModule:le_my_kb(KBmodule))
+    ;   true
+    ),
+    % Re-declare dynamic relations required by the reasoner
+    dynamic(SessionModule:le_neg/1),
+    dynamic(SessionModule:sessionClause/1),
+    dynamic(SessionModule:le_source/3).
 
 %!  printSession(+SessionModule:atom) is det.
 %
@@ -202,15 +221,34 @@ printSession(SessionModule) :-
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     SessionModule:le_my_kb(KBmodule),
-    KBmodule:le_dict(Dict),
-    copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
-    % Use the grammar's matching logic to handle multi-word variables in queries
-    findall(D, KBmodule:le_dict(D), Templates),
-    (   le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
-    ->  Goal =.. [Functor|Args],
-        (do_log -> print_message(informational,'Query Goal: ~w~n' - [Goal]) ; true),
-        i(Goal, SessionModule, Unknowns, Why),
-        TemplateInstance = WordsAndVars
+    (do_log -> print_message(informational, 'Querying KB ~w in session ~w with tokens ~w' - [KBmodule, SessionModule, Tokens]) ; true),
+    (   (atom(Template) ; string(Template)),
+        atom_string(QueryName, Template),
+        current_predicate(KBmodule:query_info/3),
+        KBmodule:query_info(QueryName, Goal, Items)
+    ->  (do_log -> print_message(informational, 'Querying named query ~w' - [QueryName]) ; true),
+        (   reasoner:i(Goal, SessionModule, Unknowns, Why)
+        ->  maplist(item_to_instance(KBmodule), Items, Instances),
+            flatten(Instances, TemplateInstance),
+            (do_log -> print_message(informational, 'Named query succeeded: ~w' - [TemplateInstance]) ; true)
+        ;   (do_log -> print_message(informational, 'Named query failed in reasoner: ~w' - [Goal]) ; true),
+            fail
+        )
+    ;   findall(D, KBmodule:le_dict(D), Templates),
+        (   member(Dict, Templates),
+            copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
+            le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
+        ->  Goal =.. [Functor|Args],
+            (do_log -> print_message(informational,'Query Goal: ~w' - [Goal]) ; true),
+            (   reasoner:i(Goal, SessionModule, Unknowns, Why)
+            ->  TemplateInstance = WordsAndVars,
+                (do_log -> print_message(informational, 'Query succeeded: ~w' - [TemplateInstance]) ; true)
+            ;   (do_log -> print_message(informational, 'Query failed in reasoner: ~w' - [Goal]) ; true),
+                fail
+            )
+        ;   (do_log -> print_message(informational, 'Query failed to match any template: ~w' - [Tokens]) ; true),
+            fail
+        )
     ).
 
 ensure_tokens(Template, Tokens) :-
@@ -343,7 +381,7 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :
              normalize_string(QueryName, NormName),
              KBmodule:query_info(InfoName, FullGoal, Items),
              normalize_string(InfoName, NormName))
-        ->  (   catch(call_with_time_limit(30, findall(S, (i(FullGoal, SM, [], _), 
+        ->  (   catch(call_with_time_limit(30, findall(S, (reasoner:i(FullGoal, SM, [], _), 
                                                           maplist(item_to_instance(KBmodule), Items, Instances),
                                                           flatten(Instances, TemplateInstance),
                                                           canonical_string(TemplateInstance, Atom),
@@ -387,17 +425,30 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
     ).
 
 canonical_string(Instance, String) :-
-    maplist(token_to_atom, Instance, Atoms),
-    atomic_list_concat(Atoms, ' ', String).
+    (   is_list(Instance)
+    ->  maplist(le_kbs:token_to_atom, Instance, Atoms),
+        atomic_list_concat(Atoms, ' ', String)
+    ;   le_kbs:token_to_atom(Instance, Atom),
+        atom_string(Atom, String)
+    ).
 
+token_to_atom(word(W, _), W) :- !.
+token_to_atom(word(W), W) :- !.
+token_to_atom(var(Words), Atom) :- !, atomic_list_concat(Words, ' ', Atom).
+token_to_atom(number(N, _), Atom) :- !, atom_number(Atom, N).
+token_to_atom(number(N), Atom) :- !, atom_number(Atom, N).
+token_to_atom(punctuation(P, _), P) :- !.
+token_to_atom(punctuation(P), P) :- !.
+token_to_atom(punct(P, _), P) :- !.
+token_to_atom(punct(P), P) :- !.
+token_to_atom(date(date(Y,M,D), _), Atom) :- !, format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]).
+token_to_atom(date(Y,M,D), Atom) :- 
+    (   number(Y), number(M), number(D)
+    ->  format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D])
+    ;   term_to_atom(date(Y,M,D), Atom)
+    ), !.
 token_to_atom(S, Atom) :-
     string(S), !, atom_string(Atom, S).
-token_to_atom(date(Y,M,D), Atom) :-
-    number(Y), number(M), number(D),
-    !, format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]).
-token_to_atom(N, Atom) :-
-    number(N), !, 
-    atom_number(Atom, N).
 token_to_atom(A, Atom) :- 
     atom(A), !, 
     (   (A \== '_', sub_atom(A, _, _, _, '_')) % If it has underscores, maybe replace them?
@@ -413,22 +464,32 @@ token_to_atom(X, Atom) :-
 %
 %   Extracts metadata from a knowledge base module.
 get_kb_metadata(KB, Metadata) :-
-    findall(PredStr, (
-        current_predicate(KB:P/A), 
-        functor(G, P, A),
-        \+ is_system_predicate(P/A),
-        \+ predicate_property(KB:G, imported_from(_)),
-        format(atom(PredStr), '~w/~w', [P, A])
-    ), Preds),
-    (KB:le_kb(KBName) -> true ; KBName = null),
-    findall(_{name: Name, scenarios: JSONScenarios}, (
-        KB:scenario(Name, Scenarios),
-        maplist(term_string, Scenarios, JSONScenarios)
-    ), Examples),
-    findall(JSONQ, (
-        KB:query_info(_, _, Q),
-        maplist(term_string, Q, JSONQ)
-    ), Queries),
+    (   current_predicate(KB:P/A)
+    ->  findall(PredStr, (
+            current_predicate(KB:P/A), 
+            functor(G, P, A),
+            \+ is_system_predicate(P/A),
+            \+ predicate_property(KB:G, imported_from(_)),
+            format(atom(PredStr), '~w/~w', [P, A])
+        ), Preds)
+    ;   Preds = []
+    ),
+    (   current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true ; KBName = null),
+    (   current_predicate(KB:scenario/2)
+    ->  findall(_{name: Name, scenarios: JSONScenarios}, (
+            KB:scenario(Name, Scenarios),
+            maplist(term_string, Scenarios, JSONScenarios)
+        ), Examples)
+    ;   Examples = []
+    ),
+    (   current_predicate(KB:query_info/3)
+    ->  findall(_{name: Name, template: QueryStr}, (
+            KB:query_info(Name, _, Q),
+            maplist(le_kbs:canonical_string, Q, QueryStrings),
+            atomic_list_concat(QueryStrings, ' and ', QueryStr)
+        ), Queries)
+    ;   Queries = []
+    ),
     Metadata = _{
         kb: KBName,
         predicates: Preds,
@@ -466,7 +527,7 @@ verify(LEfilePath) :-
     
     % 2. Call the le_verifier
     le_verifier:verify(KBmodule, Issues),
-    forall(member(Issue, Issues), print_issue(Issue)),
+    forall(member(Issue, Issues), le_verifier:print_issue(Issue)),
     
     % 3. Run the tests for the file (if the corresponding .tests file exists)
     atom_concat(LEfilePath, '.tests', TestsFile),

@@ -102,6 +102,8 @@ function start() {
   const savedTheme = localStorage.getItem("le-editor-theme") || "vs-dark";
   const savedFontSize = parseInt(localStorage.getItem("le-editor-font-size") || "16");
   let isDirty = false;
+  let isLoaded = false;
+  let sessionModule = null;
   const container = document.getElementById("container");
   const editor = monaco.editor.create(container, {
     value: getInitialValue(),
@@ -385,6 +387,124 @@ function start() {
       }
     }
   });
+  const scenarioSelect = document.getElementById("scenario-select");
+  const querySelect = document.getElementById("query-select");
+  const btnQuery = document.getElementById("btn-query");
+  const resultsDisplay = document.getElementById("results-display");
+  const loadModule = async () => {
+    if (isLoaded)
+      return true;
+    resultsDisplay.textContent = "Loading module on server...";
+    try {
+      const response = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "load",
+          le: editor.getValue()
+        })
+      });
+      const res = await response.json();
+      if (res && res.sessionModule) {
+        sessionModule = res.sessionModule;
+        isLoaded = true;
+        scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+        if (res.examples) {
+          res.examples.forEach((ex) => {
+            if (ex.name) {
+              const option = document.createElement("option");
+              option.value = ex.name;
+              option.textContent = ex.name;
+              scenarioSelect.appendChild(option);
+            }
+          });
+        }
+        querySelect.innerHTML = '<option value="">Select a query...</option>';
+        if (res.queries) {
+          res.queries.forEach((q) => {
+            const option = document.createElement("option");
+            option.value = q.name;
+            option.textContent = q.template;
+            querySelect.appendChild(option);
+          });
+        }
+        resultsDisplay.textContent = "Results";
+        return true;
+      } else {
+        resultsDisplay.textContent = "Error loading module: " + (res?.error || "Unknown error");
+        return false;
+      }
+    } catch (err) {
+      resultsDisplay.textContent = "Error connecting to server.";
+      console.error(err);
+      return false;
+    }
+  };
+  scenarioSelect.addEventListener("mousedown", async (e) => {
+    if (!isLoaded) {
+      e.preventDefault();
+      const success = await loadModule();
+      if (success) {
+        setTimeout(() => {
+          scenarioSelect.focus();
+          scenarioSelect.click();
+        }, 100);
+      }
+    }
+  });
+  querySelect.addEventListener("mousedown", async (e) => {
+    if (!isLoaded) {
+      e.preventDefault();
+      const success = await loadModule();
+      if (success) {
+        setTimeout(() => {
+          querySelect.focus();
+          querySelect.click();
+        }, 100);
+      }
+    }
+  });
+  btnQuery.addEventListener("click", async () => {
+    if (!isLoaded) {
+      const success = await loadModule();
+      if (!success)
+        return;
+    }
+    const scenario = scenarioSelect.value;
+    const query = querySelect.value;
+    if (!query) {
+      resultsDisplay.textContent = "Please select a query.";
+      return;
+    }
+    resultsDisplay.textContent = "Executing query...";
+    try {
+      const response = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "answeringQuery",
+          sessionModule,
+          query,
+          scenario
+        })
+      });
+      const res = await response.json();
+      if (res && res.answer) {
+        resultsDisplay.textContent = typeof res.answer === "string" ? res.answer : JSON.stringify(res.answer, null, 2);
+      } else if (res && res.error) {
+        resultsDisplay.textContent = "Error: " + res.error;
+      } else if (res && res.result) {
+        resultsDisplay.textContent = "Result: " + res.result;
+      } else {
+        resultsDisplay.textContent = "No results returned.";
+      }
+    } catch (err) {
+      resultsDisplay.textContent = "Error executing query.";
+      console.error(err);
+    }
+  });
   window.addEventListener("beforeunload", (e) => {
     if (isDirty) {
       e.preventDefault();
@@ -438,6 +558,11 @@ function start() {
   });
   editor.onDidChangeModelContent(() => {
     isDirty = true;
+    if (isLoaded) {
+      isLoaded = false;
+      scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+      querySelect.innerHTML = '<option value="">Select a query...</option>';
+    }
     const text = model.getValue();
     sendNotification("textDocument/didChange", {
       textDocument: {

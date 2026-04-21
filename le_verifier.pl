@@ -1,6 +1,6 @@
 :- module(le_verifier, [verify/2, print_issue/1]).
 
-:- use_module(le_kbs).
+:- use_module(le_kbs, [is_system_predicate/1]).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
 %
@@ -96,7 +96,7 @@ is_built_in_literal(L) :- reasoner:is_built_in(L).
 untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-
     current_predicate(KB:F/A),
     functor(G, F, A),
-    \+ le_kbs:is_system_predicate(F/A),
+    \+ is_system_predicate(F/A),
     \+ reasoner:is_built_in(G),
     \+ predicate_property(KB:G, imported_from(_)),
     is_intensional(KB, F, A),
@@ -155,7 +155,7 @@ facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
 count_rules(KB, Count) :-
     findall(1, (
         current_predicate(KB:F/A), functor(Head, F, A),
-        \+ le_kbs:is_system_predicate_head(Head),
+        \+ is_system_predicate_head(Head),
         KB:clause(Head, Body),
         Body \== true
     ), L),
@@ -164,7 +164,7 @@ count_rules(KB, Count) :-
 count_facts(KB, Count) :-
     findall(1, (
         current_predicate(KB:F/A), functor(Head, F, A),
-        \+ le_kbs:is_system_predicate_head(Head),
+        \+ is_system_predicate_head(Head),
         KB:clause(Head, true)
     ), L1),
     findall(1, (current_predicate(KB:scenario/2), clause(KB:scenario(_, Facts), _), member(_, Facts)), L2),
@@ -172,16 +172,15 @@ count_facts(KB, Count) :-
     Count is C1 + C2.
 
 % Helper for system predicates
-:- multifile le_kbs:is_system_predicate_head/1.
-le_kbs:is_system_predicate_head(le_kb(_)).
-le_kbs:is_system_predicate_head(le_source(_, _, _)).
-le_kbs:is_system_predicate_head(scenario(_, _)).
-le_kbs:is_system_predicate_head(query_info(_, _, _)).
-le_kbs:is_system_predicate_head(ontology(_)).
-le_kbs:is_system_predicate_head(le_dict(_)).
-le_kbs:is_system_predicate_head(le_my_kb(_)).
-le_kbs:is_system_predicate_head(le_neg(_)).
-le_kbs:is_system_predicate_head(sessionClause(_)).
+is_system_predicate_head(le_kb(_)).
+is_system_predicate_head(le_source(_, _, _)).
+is_system_predicate_head(scenario(_, _)).
+is_system_predicate_head(query_info(_, _, _)).
+is_system_predicate_head(ontology(_)).
+is_system_predicate_head(le_dict(_)).
+is_system_predicate_head(le_my_kb(_)).
+is_system_predicate_head(le_neg(_)).
+is_system_predicate_head(sessionClause(_)).
 
 % --- Printing ---
 print_issues(Issues) :-

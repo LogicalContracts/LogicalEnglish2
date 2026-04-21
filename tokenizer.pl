@@ -53,8 +53,17 @@ tokens_to_string_([T|Tokens],LastEnd,[S|Strings]) :-
 tokens(_, _, []) --> [].
 
 % 1. Handle Newlines: Reset LineStart flag
+% Support Windows (\r\n), Unix (\n), and old Mac (\r) line endings
+tokens(Idx, _, Ts) -->
+    "\r\n", !,
+    { NewIdx is Idx + 2 },
+    tokens(NewIdx, 1, Ts).
 tokens(Idx, _, Ts) -->
     "\n", !,
+    { NewIdx is Idx + 1 },
+    tokens(NewIdx, 1, Ts).
+tokens(Idx, _, Ts) -->
+    "\r", !,
     { NewIdx is Idx + 1 },
     tokens(NewIdx, 1, Ts).
 
@@ -64,8 +73,7 @@ tokens(Idx, 1, [indent(N, loc(Idx, End))|Ts]) -->
     { End is Idx + N },
     tokens(End, 0, Ts).
 
-% 3. SKIP WHITESPACE FIRST: 
-% We must clear the space so the 'next' character is exactly the '/' of the comment.
+% 3. SKIP WHITESPACE (Space/Tab)
 tokens(Idx, 0, Ts) -->
     [C], { code_type(C, white) }, !,
     { NewIdx is Idx + 1 },

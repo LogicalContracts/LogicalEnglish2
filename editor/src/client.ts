@@ -34,6 +34,8 @@ function start() {
     const savedTheme = localStorage.getItem('le-editor-theme') || 'vs-dark';
     const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
     let isDirty = false;
+    let isLoaded = false;
+    let sessionModule: string | null = null;
 
     const container = document.getElementById('container')!;
 
@@ -341,6 +343,145 @@ function start() {
         }
     });
 
+    // Query Panel Logic
+    const scenarioSelect = document.getElementById('scenario-select') as HTMLSelectElement;
+    const querySelect = document.getElementById('query-select') as HTMLSelectElement;
+    const btnQuery = document.getElementById('btn-query') as HTMLButtonElement;
+    const resultsDisplay = document.getElementById('results-display') as HTMLPreElement;
+
+    const loadModule = async () => {
+        if (isLoaded) return true;
+        
+        resultsDisplay.textContent = 'Loading module on server...';
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'load',
+                    le: editor.getValue()
+                })
+            });
+            const res = await response.json();
+            
+            if (res && res.sessionModule) {
+                sessionModule = res.sessionModule;
+                isLoaded = true;
+                
+                // Populate scenarios
+                scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+                if (res.examples) {
+                    res.examples.forEach((ex: any) => {
+                        if (ex.name) {
+                            const option = document.createElement('option');
+                            option.value = ex.name;
+                            option.textContent = ex.name;
+                            scenarioSelect.appendChild(option);
+                        }
+                    });
+                }
+                
+                // Populate queries
+                querySelect.innerHTML = '<option value="">Select a query...</option>';
+                if (res.queries) {
+                    res.queries.forEach((q: any) => {
+                        const option = document.createElement('option');
+                        // q is now an object with name and template
+                        option.value = q.name;
+                        option.textContent = q.template;
+                        querySelect.appendChild(option);
+                    });
+                }
+                
+                resultsDisplay.textContent = 'Results';
+                return true;
+            } else {
+                resultsDisplay.textContent = 'Error loading module: ' + (res?.error || 'Unknown error');
+                return false;
+            }
+        } catch (err) {
+            resultsDisplay.textContent = 'Error connecting to server.';
+            console.error(err);
+            return false;
+        }
+    };
+
+    scenarioSelect.addEventListener('mousedown', async (e) => {
+        if (!isLoaded) {
+            e.preventDefault();
+            const success = await loadModule();
+            if (success) {
+                // After loading, we need to show the populated options.
+                // A simple way is to trigger another click after a short delay
+                // or just focus and let the user click again.
+                // To show it "immediately", we can try to dispatch a new click event.
+                setTimeout(() => {
+                    scenarioSelect.focus();
+                    scenarioSelect.click();
+                }, 100);
+            }
+        }
+    });
+
+    querySelect.addEventListener('mousedown', async (e) => {
+        if (!isLoaded) {
+            e.preventDefault();
+            const success = await loadModule();
+            if (success) {
+                setTimeout(() => {
+                    querySelect.focus();
+                    querySelect.click();
+                }, 100);
+            }
+        }
+    });
+
+    btnQuery.addEventListener('click', async () => {
+        if (!isLoaded) {
+            const success = await loadModule();
+            if (!success) return;
+        }
+        
+        const scenario = scenarioSelect.value;
+        const query = querySelect.value;
+        
+        if (!query) {
+            resultsDisplay.textContent = 'Please select a query.';
+            return;
+        }
+        
+        resultsDisplay.textContent = 'Executing query...';
+        
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'answeringQuery',
+                    sessionModule: sessionModule,
+                    query: query,
+                    scenario: scenario
+                })
+            });
+            const res = await response.json();
+            
+            if (res && res.answer) {
+                resultsDisplay.textContent = typeof res.answer === 'string' ? res.answer : JSON.stringify(res.answer, null, 2);
+            } else if (res && res.error) {
+                resultsDisplay.textContent = 'Error: ' + res.error;
+            } else if (res && res.result) {
+                resultsDisplay.textContent = 'Result: ' + res.result;
+            } else {
+                resultsDisplay.textContent = 'No results returned.';
+            }
+        } catch (err) {
+            resultsDisplay.textContent = 'Error executing query.';
+            console.error(err);
+        }
+    });
+
     // Window closing check
     window.addEventListener('beforeunload', (e) => {
         if (isDirty) {
@@ -403,6 +544,11 @@ function start() {
 
     editor.onDidChangeModelContent(() => {
         isDirty = true;
+        if (isLoaded) {
+            isLoaded = false;
+            scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+            querySelect.innerHTML = '<option value="">Select a query...</option>';
+        }
         const text = model.getValue();
         sendNotification('textDocument/didChange', {
             textDocument: {
