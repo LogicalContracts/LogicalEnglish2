@@ -25,6 +25,7 @@ function start() {
     }
 
     let currentFileName = getInitialFilename();
+    let fileHandle: any = null;
     const filenameDisplay = document.getElementById('filename-display');
     if (filenameDisplay) {
         filenameDisplay.textContent = currentFileName;
@@ -47,18 +48,60 @@ function start() {
         showFoldingControls: 'always'
     });
 
+    const menuSave = document.getElementById('menu-save');
+    const menuSaveAs = document.getElementById('menu-save-as');
+
+    // Update Save As label for browsers without File System Access API
+    if (!('showSaveFilePicker' in window) && menuSaveAs) {
+        menuSaveAs.textContent = 'Download';
+    }
+
+    const updateSaveMenu = () => {
+        if (menuSave) {
+            menuSave.style.display = fileHandle ? 'block' : 'none';
+        }
+    };
+
     // Menu Actions
     document.getElementById('menu-new')?.addEventListener('click', () => {
         if (isDirty && !confirm('You have unsaved changes. Create new file anyway?')) return;
         editor.setValue('');
         currentFileName = 'document.le';
+        fileHandle = null;
+        updateSaveMenu();
         if (filenameDisplay) filenameDisplay.textContent = currentFileName;
         isDirty = false;
     });
 
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
-    document.getElementById('menu-open')?.addEventListener('click', () => {
+    document.getElementById('menu-open')?.addEventListener('click', async () => {
         if (isDirty && !confirm('You have unsaved changes. Open another file anyway?')) return;
+        
+        if ('showOpenFilePicker' in window) {
+            try {
+                const [handle] = await (window as any).showOpenFilePicker({
+                    types: [{
+                        description: 'Logical English File',
+                        accept: { 'text/plain': ['.le'] },
+                    }],
+                    multiple: false
+                });
+                const file = await handle.getFile();
+                const content = await file.text();
+                
+                fileHandle = handle;
+                currentFileName = file.name;
+                if (filenameDisplay) filenameDisplay.textContent = currentFileName;
+                editor.setValue(content);
+                isDirty = false;
+                updateSaveMenu();
+                return;
+            } catch (err: any) {
+                if (err.name === 'AbortError') return;
+                console.error('File System Access API failed, falling back to input', err);
+            }
+        }
+        
         fileInput?.click();
     });
 
@@ -66,6 +109,8 @@ function start() {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;
         currentFileName = file.name;
+        fileHandle = null; // Traditional input doesn't give us a handle we can write back to
+        updateSaveMenu();
         if (filenameDisplay) filenameDisplay.textContent = currentFileName;
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -79,8 +124,53 @@ function start() {
         fileInput.value = '';
     });
 
-    const saveAction = () => {
+    const saveToFile = async (handle: any) => {
         const content = editor.getValue();
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        isDirty = false;
+    };
+
+    const saveAction = async () => {
+        if (fileHandle) {
+            try {
+                await saveToFile(fileHandle);
+                return;
+            } catch (err) {
+                console.error('Direct save failed, falling back to Save As', err);
+            }
+        }
+        await saveAsAction();
+    };
+
+    const saveAsAction = async () => {
+        const content = editor.getValue();
+        
+        // Try to use the File System Access API for "Save As"
+        if ('showSaveFilePicker' in window) {
+            try {
+                const handle = await (window as any).showSaveFilePicker({
+                    suggestedName: currentFileName,
+                    types: [{
+                        description: 'Logical English File',
+                        accept: { 'text/plain': ['.le'] },
+                    }],
+                });
+                await saveToFile(handle);
+                
+                fileHandle = handle;
+                currentFileName = handle.name;
+                if (filenameDisplay) filenameDisplay.textContent = currentFileName;
+                updateSaveMenu();
+                return;
+            } catch (err: any) {
+                if (err.name === 'AbortError') return;
+                console.error('File System Access API failed, falling back to download', err);
+            }
+        }
+
+        // Fallback to traditional download
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -91,7 +181,8 @@ function start() {
         isDirty = false;
     };
 
-    document.getElementById('menu-save')?.addEventListener('click', saveAction);
+    menuSave?.addEventListener('click', saveAction);
+    menuSaveAs?.addEventListener('click', saveAsAction);
 
     // Edit Actions
     document.getElementById('menu-cut')?.addEventListener('click', () => editor.focus() || editor.trigger('keyboard', 'editor.action.clipboardCutAction', null));

@@ -94,6 +94,7 @@ function start() {
     return filename || "document.le";
   }
   let currentFileName = getInitialFilename();
+  let fileHandle = null;
   const filenameDisplay = document.getElementById("filename-display");
   if (filenameDisplay) {
     filenameDisplay.textContent = currentFileName;
@@ -112,19 +113,56 @@ function start() {
     folding: true,
     showFoldingControls: "always"
   });
+  const menuSave = document.getElementById("menu-save");
+  const menuSaveAs = document.getElementById("menu-save-as");
+  if (!("showSaveFilePicker" in window) && menuSaveAs) {
+    menuSaveAs.textContent = "Download";
+  }
+  const updateSaveMenu = () => {
+    if (menuSave) {
+      menuSave.style.display = fileHandle ? "block" : "none";
+    }
+  };
   document.getElementById("menu-new")?.addEventListener("click", () => {
     if (isDirty && !confirm("You have unsaved changes. Create new file anyway?"))
       return;
     editor.setValue("");
     currentFileName = "document.le";
+    fileHandle = null;
+    updateSaveMenu();
     if (filenameDisplay)
       filenameDisplay.textContent = currentFileName;
     isDirty = false;
   });
   const fileInput = document.getElementById("file-input");
-  document.getElementById("menu-open")?.addEventListener("click", () => {
+  document.getElementById("menu-open")?.addEventListener("click", async () => {
     if (isDirty && !confirm("You have unsaved changes. Open another file anyway?"))
       return;
+    if ("showOpenFilePicker" in window) {
+      try {
+        const [handle] = await window.showOpenFilePicker({
+          types: [{
+            description: "Logical English File",
+            accept: { "text/plain": [".le"] }
+          }],
+          multiple: false
+        });
+        const file = await handle.getFile();
+        const content = await file.text();
+        fileHandle = handle;
+        currentFileName = file.name;
+        if (filenameDisplay)
+          filenameDisplay.textContent = currentFileName;
+        editor.setValue(content);
+        isDirty = false;
+        updateSaveMenu();
+        return;
+      } catch (err) {
+        if (err.name === "AbortError")
+          return;
+        console.error("File System Access API failed, falling back to input", err);
+      }
+    }
     fileInput?.click();
   });
   fileInput?.addEventListener("change", (e) => {
@@ -132,6 +170,8 @@ function start() {
     if (!file)
       return;
     currentFileName = file.name;
+    fileHandle = null;
+    updateSaveMenu();
     if (filenameDisplay)
       filenameDisplay.textContent = currentFileName;
     const reader = new FileReader();
@@ -145,8 +185,48 @@ function start() {
     reader.readAsText(file);
     fileInput.value = "";
   });
-  const saveAction = () => {
+  const saveToFile = async (handle) => {
     const content = editor.getValue();
+    const writable = await handle.createWritable();
+    await writable.write(content);
+    await writable.close();
+    isDirty = false;
+  };
+  const saveAction = async () => {
+    if (fileHandle) {
+      try {
+        await saveToFile(fileHandle);
+        return;
+      } catch (err) {
+        console.error("Direct save failed, falling back to Save As", err);
+      }
+    }
+    await saveAsAction();
+  };
+  const saveAsAction = async () => {
+    const content = editor.getValue();
+    if ("showSaveFilePicker" in window) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: currentFileName,
+          types: [{
+            description: "Logical English File",
+            accept: { "text/plain": [".le"] }
+          }]
+        });
+        await saveToFile(handle);
+        fileHandle = handle;
+        currentFileName = handle.name;
+        if (filenameDisplay)
+          filenameDisplay.textContent = currentFileName;
+        updateSaveMenu();
+        return;
+      } catch (err) {
+        if (err.name === "AbortError")
+          return;
+        console.error("File System Access API failed, falling back to download", err);
+      }
+    }
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -156,7 +236,8 @@ function start() {
     URL.revokeObjectURL(url);
     isDirty = false;
   };
-  document.getElementById("menu-save")?.addEventListener("click", saveAction);
+  menuSave?.addEventListener("click", saveAction);
+  menuSaveAs?.addEventListener("click", saveAsAction);
   document.getElementById("menu-cut")?.addEventListener("click", () => editor.focus() || editor.trigger("keyboard", "editor.action.clipboardCutAction", null));
   document.getElementById("menu-copy")?.addEventListener("click", () => editor.focus() || editor.trigger("keyboard", "editor.action.clipboardCopyAction", null));
   document.getElementById("menu-paste")?.addEventListener("click", () => editor.focus() || editor.trigger("keyboard", "editor.action.clipboardPasteAction", null));
