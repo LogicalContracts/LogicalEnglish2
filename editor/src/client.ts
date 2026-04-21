@@ -35,7 +35,9 @@ function start() {
     const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
     let isDirty = false;
     let isLoaded = false;
+    let isLoading = false;
     let sessionModule: string | null = null;
+    let loadTimeout: any = null;
 
     const container = document.getElementById('container')!;
 
@@ -350,7 +352,8 @@ function start() {
     const resultsDisplay = document.getElementById('results-display') as HTMLPreElement;
 
     const loadModule = async () => {
-        if (isLoaded) return true;
+        if (isLoaded || isLoading) return true;
+        isLoading = true;
         
         resultsDisplay.textContent = 'Loading module on server...';
         try {
@@ -387,52 +390,68 @@ function start() {
                 if (res.queries) {
                     res.queries.forEach((q: any) => {
                         const option = document.createElement('option');
-                        // q is now an object with name and template
+                        // q is now an object with name, template, and le
                         option.value = q.name;
-                        option.textContent = q.template;
+                        option.textContent = q.le || q.template;
                         querySelect.appendChild(option);
                     });
                 }
                 
                 resultsDisplay.textContent = 'Results';
+                isLoading = false;
                 return true;
             } else {
                 resultsDisplay.textContent = 'Error loading module: ' + (res?.error || 'Unknown error');
+                isLoading = false;
                 return false;
             }
         } catch (err) {
             resultsDisplay.textContent = 'Error connecting to server.';
             console.error(err);
+            isLoading = false;
             return false;
         }
     };
 
+    scenarioSelect.addEventListener('mouseenter', () => {
+        if (!isLoaded && !isLoading) loadModule();
+    });
+
+    querySelect.addEventListener('mouseenter', () => {
+        if (!isLoaded && !isLoading) loadModule();
+    });
+
     scenarioSelect.addEventListener('mousedown', async (e) => {
         if (!isLoaded) {
-            e.preventDefault();
-            const success = await loadModule();
-            if (success) {
-                // After loading, we need to show the populated options.
-                // A simple way is to trigger another click after a short delay
-                // or just focus and let the user click again.
-                // To show it "immediately", we can try to dispatch a new click event.
-                setTimeout(() => {
-                    scenarioSelect.focus();
-                    scenarioSelect.click();
-                }, 100);
+            if (!isLoading) {
+                e.preventDefault();
+                const success = await loadModule();
+                if (success) {
+                    setTimeout(() => {
+                        scenarioSelect.focus();
+                        scenarioSelect.click();
+                    }, 100);
+                }
+            } else {
+                // If already loading, just wait for it to finish
+                e.preventDefault();
             }
         }
     });
 
     querySelect.addEventListener('mousedown', async (e) => {
         if (!isLoaded) {
-            e.preventDefault();
-            const success = await loadModule();
-            if (success) {
-                setTimeout(() => {
-                    querySelect.focus();
-                    querySelect.click();
-                }, 100);
+            if (!isLoading) {
+                e.preventDefault();
+                const success = await loadModule();
+                if (success) {
+                    setTimeout(() => {
+                        querySelect.focus();
+                        querySelect.click();
+                    }, 100);
+                }
+            } else {
+                e.preventDefault();
             }
         }
     });
@@ -549,6 +568,13 @@ function start() {
             scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
             querySelect.innerHTML = '<option value="">Select a query...</option>';
         }
+        
+        // Debounced proactive load
+        if (loadTimeout) clearTimeout(loadTimeout);
+        loadTimeout = setTimeout(() => {
+            if (!isLoaded && !isLoading) loadModule();
+        }, 1500);
+
         const text = model.getValue();
         sendNotification('textDocument/didChange', {
             textDocument: {

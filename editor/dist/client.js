@@ -103,7 +103,9 @@ function start() {
   const savedFontSize = parseInt(localStorage.getItem("le-editor-font-size") || "16");
   let isDirty = false;
   let isLoaded = false;
+  let isLoading = false;
   let sessionModule = null;
+  let loadTimeout = null;
   const container = document.getElementById("container");
   const editor = monaco.editor.create(container, {
     value: getInitialValue(),
@@ -392,8 +394,9 @@ function start() {
   const btnQuery = document.getElementById("btn-query");
   const resultsDisplay = document.getElementById("results-display");
   const loadModule = async () => {
-    if (isLoaded)
+    if (isLoaded || isLoading)
       return true;
+    isLoading = true;
     resultsDisplay.textContent = "Loading module on server...";
     try {
       const response = await fetch("/leapi", {
@@ -425,43 +428,62 @@ function start() {
           res.queries.forEach((q) => {
             const option = document.createElement("option");
             option.value = q.name;
-            option.textContent = q.template;
+            option.textContent = q.le || q.template;
             querySelect.appendChild(option);
           });
         }
         resultsDisplay.textContent = "Results";
+        isLoading = false;
         return true;
       } else {
         resultsDisplay.textContent = "Error loading module: " + (res?.error || "Unknown error");
+        isLoading = false;
         return false;
       }
     } catch (err) {
       resultsDisplay.textContent = "Error connecting to server.";
       console.error(err);
+      isLoading = false;
       return false;
     }
   };
+  scenarioSelect.addEventListener("mouseenter", () => {
+    if (!isLoaded && !isLoading)
+      loadModule();
+  });
+  querySelect.addEventListener("mouseenter", () => {
+    if (!isLoaded && !isLoading)
+      loadModule();
+  });
   scenarioSelect.addEventListener("mousedown", async (e) => {
     if (!isLoaded) {
-      e.preventDefault();
-      const success = await loadModule();
-      if (success) {
-        setTimeout(() => {
-          scenarioSelect.focus();
-          scenarioSelect.click();
-        }, 100);
+      if (!isLoading) {
+        e.preventDefault();
+        const success = await loadModule();
+        if (success) {
+          setTimeout(() => {
+            scenarioSelect.focus();
+            scenarioSelect.click();
+          }, 100);
+        }
+      } else {
+        e.preventDefault();
       }
     }
   });
   querySelect.addEventListener("mousedown", async (e) => {
     if (!isLoaded) {
-      e.preventDefault();
-      const success = await loadModule();
-      if (success) {
-        setTimeout(() => {
-          querySelect.focus();
-          querySelect.click();
-        }, 100);
+      if (!isLoading) {
+        e.preventDefault();
+        const success = await loadModule();
+        if (success) {
+          setTimeout(() => {
+            querySelect.focus();
+            querySelect.click();
+          }, 100);
+        }
+      } else {
+        e.preventDefault();
       }
     }
   });
@@ -563,6 +585,12 @@ function start() {
       scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
       querySelect.innerHTML = '<option value="">Select a query...</option>';
     }
+    if (loadTimeout)
+      clearTimeout(loadTimeout);
+    loadTimeout = setTimeout(() => {
+      if (!isLoaded && !isLoading)
+        loadModule();
+    }, 1500);
     const text = model.getValue();
     sendNotification("textDocument/didChange", {
       textDocument: {
