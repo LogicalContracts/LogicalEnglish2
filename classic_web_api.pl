@@ -5,6 +5,8 @@
 :- use_module(library(http/http_json)).
 :- use_module(library(http/http_client)).
 :- use_module(library(http/http_parameters)).
+:- use_module(library(http/http_files)).
+:- use_module(library(http/http_host)).
 :- use_module(le_kbs).
 :- use_module(tokenizer).
 :- use_module(le_grammar).
@@ -12,6 +14,8 @@
 :- use_module(le_system_templates).
 
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
+:- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
+:- http_handler('/editor', http_redirect(moved, '/editor/index.html'), []).
 
 %!  start_api_server is det.
 %!  start_api_server(+Port:integer) is det.

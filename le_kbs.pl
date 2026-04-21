@@ -23,7 +23,7 @@
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
-    verify/1]).
+    verify/1, edit/1]).
 
 :- discontiguous print_test_result/1.
 
@@ -34,10 +34,20 @@
 :- use_module(le_verifier).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
+:- use_module(library(www_browser)).
 
 % For friendlier messages
 :- multifile prolog:message//1.
 prolog:message(S-Args) --> {atomic(S),is_list(Args)},[S-Args].
+
+%!  edit(+LEfilePath:atom) is det.
+%
+%   Fetches the LE file and opens the user browser to display/edit it.
+edit(LEfilePath) :-
+    read_file_to_string(LEfilePath, Text, []),
+    www_form_encode(Text, Encoded),
+    format(atom(URL), 'http://localhost:3050/editor/index.html?text=~w', [Encoded]),
+    www_open_url(URL).
 
 %!  do_log is det.
 %

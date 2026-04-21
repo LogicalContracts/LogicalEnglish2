@@ -398,15 +398,25 @@ Explanations are currently over detaioled. We need to ignore the trivial LE conn
 Create a new module classic_web_api.pl implementing a web API as described in docs/api.md, which uses le_kbs. Implement all methods except le2prolog, answer_via_llm and draft.
 Then create an example client shell script appExample1_web.sh using curl to test the classic_web_api, similar to appExample1.pl
 
+## Editor
+You are a Logical English (@docs/le_syntax.md) expert, and also an expert on Language Server Protocol and the Monaco LSP client,  https://github.com/microsoft/monaco-editor. We need a cute, simple browser based editor for LE programs, so please implement (ALL changes for this need to go into directory editor/ ):
+- a LSP server for Logical English, written in Typescript, so it is fully browser based; to write the Typescript you should introspect the DCG rules and tokens in le_grammar.pl
+- a simple static web page using Monaco, receiving the LE text in the URL; later versions will load LE text from other sources; this first version will not be able to save - only edit and display coloured LE locally
+
+    for inspiration: https://github.com/nikolaimerritt/LogicalEnglish/blob/main/report/FinalReport/main.pdf
+
 
 # Next steps
-old warnings (define meta predicates for xref?), 
+
+
+inter module calling...
 adjust expected to cover parsing errors
 
-command line wrapper
+command line wrapper...or MCP server?
 
 New web app
-Editor...?
+New docker container
+Editor... or language server ? CodeMirror, Monaco...? generate from DCG introspection please!
 add InsurLE examples to repo
 ask for incremental addition to le_grammar... and others(?) 
 generators (?)

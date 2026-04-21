@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logical English Editor</title>
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        #header {
+            height: 40px;
+            line-height: 40px;
+            padding: 0 20px;
+            background-color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #444;
+        }
+        #header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: normal;
+        }
+        #container {
+            height: calc(100% - 40px);
+            width: 100%;
+        }
+        .logo {
+            color: #4fc1ff;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1><span class="logo">LE</span> Editor</h1>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <label for="theme-select" style="font-size: 12px; color: #aaa;">Theme:</label>
+                <select id="theme-select" style="background: #444; color: #fff; border: 1px solid #555; border-radius: 3px; font-size: 12px; padding: 2px 5px; cursor: pointer;">
+                    <option value="vs-dark">Dark</option>
+                    <option value="vs">Light</option>
+                    <option value="hc-black">High Contrast</option>
+                </select>
+            </div>
+            <div style="font-size: 12px; color: #aaa;">Logical English Browser-based Editor</div>
+        </div>
+    </div>
+    <div id="container"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+    <script type="module">
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+        require(['vs/editor/editor.main'], async function() {
+            await import('./dist/client.js');
+            window.startEditor();
+        });
+    </script>
+</body>
+</html>
