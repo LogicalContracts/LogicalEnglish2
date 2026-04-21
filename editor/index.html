@@ -17,22 +17,70 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
         #header {
-            height: 40px;
-            line-height: 40px;
-            padding: 0 20px;
+            height: 35px;
+            line-height: 35px;
+            padding: 0 15px;
             background-color: #333;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid #444;
         }
+        #menu-bar {
+            height: 30px;
+            background-color: #2d2d2d;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            border-bottom: 1px solid #444;
+            font-size: 13px;
+        }
+        .menu-item {
+            padding: 0 10px;
+            cursor: pointer;
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+        .menu-item:hover {
+            background-color: #444;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            z-index: 1000;
+            min-width: 150px;
+        }
+        .menu-item:hover .dropdown {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .dropdown-item:hover {
+            background-color: #094771;
+            color: white;
+        }
+        .dropdown-divider {
+            height: 1px;
+            background-color: #444;
+            margin: 4px 0;
+        }
         #header h1 {
             margin: 0;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: normal;
         }
         #container {
-            height: calc(100% - 40px);
+            height: calc(100% - 65px);
             width: 100%;
         }
         .logo {
@@ -43,18 +91,48 @@
 </head>
 <body>
     <div id="header">
-        <h1><span class="logo">LE</span> Editor</h1>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <label for="theme-select" style="font-size: 12px; color: #aaa;">Theme:</label>
-                <select id="theme-select" style="background: #444; color: #fff; border: 1px solid #555; border-radius: 3px; font-size: 12px; padding: 2px 5px; cursor: pointer;">
-                    <option value="vs-dark">Dark</option>
-                    <option value="vs">Light</option>
-                    <option value="hc-black">High Contrast</option>
-                </select>
-            </div>
-            <div style="font-size: 12px; color: #aaa;">Logical English Browser-based Editor</div>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <h1><span class="logo">LE</span> Editor</h1>
+            <div id="filename-display" style="font-size: 12px; color: #888; font-style: italic;">document.le</div>
         </div>
+        <div style="font-size: 12px; color: #aaa;">Logical English Browser-based Editor</div>
+    </div>
+    <div id="menu-bar">
+        <div class="menu-item">
+            File
+            <div class="dropdown">
+                <div class="dropdown-item" id="menu-new">New</div>
+                <div class="dropdown-item" id="menu-open">Open...</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" id="menu-save">Save</div>
+            </div>
+        </div>
+        <div class="menu-item">
+            Edit
+            <div class="dropdown">
+                <div class="dropdown-item" id="menu-cut">Cut</div>
+                <div class="dropdown-item" id="menu-copy">Copy</div>
+                <div class="dropdown-item" id="menu-paste">Paste</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" id="menu-find">Find</div>
+                <div class="dropdown-item" id="menu-replace">Replace</div>
+            </div>
+        </div>
+        <div class="menu-item">
+            Misc
+            <div class="dropdown">
+                <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">THEME</div>
+                <div class="dropdown-item" id="theme-dark">Dark</div>
+                <div class="dropdown-item" id="theme-light">Light</div>
+                <div class="dropdown-item" id="theme-hc">High Contrast</div>
+                <div class="dropdown-divider"></div>
+                <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">FONT SIZE</div>
+                <div class="dropdown-item" id="font-small">Small</div>
+                <div class="dropdown-item" id="font-medium">Medium</div>
+                <div class="dropdown-item" id="font-large">Large</div>
+            </div>
+        </div>
+        <input type="file" id="file-input" accept=".le" style="display: none;">
     </div>
     <div id="container"></div>
     

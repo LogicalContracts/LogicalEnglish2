@@ -46,7 +46,9 @@ prolog:message(S-Args) --> {atomic(S),is_list(Args)},[S-Args].
 edit(LEfilePath) :-
     read_file_to_string(LEfilePath, Text, []),
     www_form_encode(Text, Encoded),
-    format(atom(URL), 'http://localhost:3050/editor/index.html?text=~w', [Encoded]),
+    file_base_name(LEfilePath, FileName),
+    www_form_encode(FileName, EncodedFileName),
+    format(atom(URL), 'http://localhost:3050/editor/index.html?text=~w&filename=~w', [Encoded, EncodedFileName]),
     www_open_url(URL).
 
 %!  do_log is det.

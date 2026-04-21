@@ -18,29 +18,112 @@ function start() {
         return text || '% Welcome to Logical English Editor\n\nthe knowledge base my_kb includes:\n  *a person* is happy if\n    *the person* is healthy.\n';
     }
 
+    function getInitialFilename() {
+        const params = new URLSearchParams(window.location.search);
+        const filename = params.get('filename');
+        return filename || 'document.le';
+    }
+
+    let currentFileName = getInitialFilename();
+    const filenameDisplay = document.getElementById('filename-display');
+    if (filenameDisplay) {
+        filenameDisplay.textContent = currentFileName;
+    }
+
     const savedTheme = localStorage.getItem('le-editor-theme') || 'vs-dark';
+    const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
+    let isDirty = false;
 
     const container = document.getElementById('container')!;
+
     const editor = monaco.editor.create(container, {
         value: getInitialValue(),
         language: 'le',
         theme: savedTheme,
         automaticLayout: true,
-        fontSize: 16,
+        fontSize: savedFontSize,
         minimap: { enabled: false },
         folding: true,
         showFoldingControls: 'always'
     });
 
-    const themeSelect = document.getElementById('theme-select') as HTMLSelectElement;
-    if (themeSelect) {
-        themeSelect.value = savedTheme;
-        themeSelect.addEventListener('change', () => {
-            const newTheme = themeSelect.value;
-            monaco.editor.setTheme(newTheme);
-            localStorage.setItem('le-editor-theme', newTheme);
-        });
-    }
+    // Menu Actions
+    document.getElementById('menu-new')?.addEventListener('click', () => {
+        if (isDirty && !confirm('You have unsaved changes. Create new file anyway?')) return;
+        editor.setValue('');
+        currentFileName = 'document.le';
+        if (filenameDisplay) filenameDisplay.textContent = currentFileName;
+        isDirty = false;
+    });
+
+    const fileInput = document.getElementById('file-input') as HTMLInputElement;
+    document.getElementById('menu-open')?.addEventListener('click', () => {
+        if (isDirty && !confirm('You have unsaved changes. Open another file anyway?')) return;
+        fileInput?.click();
+    });
+
+    fileInput?.addEventListener('change', (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+        currentFileName = file.name;
+        if (filenameDisplay) filenameDisplay.textContent = currentFileName;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target?.result as string;
+            if (content !== undefined) {
+                editor.setValue(content);
+                isDirty = false;
+            }
+        };
+        reader.readAsText(file);
+        fileInput.value = '';
+    });
+
+    const saveAction = () => {
+        const content = editor.getValue();
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = currentFileName;
+        a.click();
+        URL.revokeObjectURL(url);
+        isDirty = false;
+    };
+
+    document.getElementById('menu-save')?.addEventListener('click', saveAction);
+
+    // Edit Actions
+    document.getElementById('menu-cut')?.addEventListener('click', () => editor.focus() || editor.trigger('keyboard', 'editor.action.clipboardCutAction', null));
+    document.getElementById('menu-copy')?.addEventListener('click', () => editor.focus() || editor.trigger('keyboard', 'editor.action.clipboardCopyAction', null));
+    document.getElementById('menu-paste')?.addEventListener('click', () => editor.focus() || editor.trigger('keyboard', 'editor.action.clipboardPasteAction', null));
+    document.getElementById('menu-find')?.addEventListener('click', () => editor.trigger('keyboard', 'actions.find', null));
+    document.getElementById('menu-replace')?.addEventListener('click', () => editor.trigger('keyboard', 'editor.action.startFindReplaceAction', null));
+
+    // Misc Actions
+    const setTheme = (theme: string) => {
+        monaco.editor.setTheme(theme);
+        localStorage.setItem('le-editor-theme', theme);
+    };
+    document.getElementById('theme-dark')?.addEventListener('click', () => setTheme('vs-dark'));
+    document.getElementById('theme-light')?.addEventListener('click', () => setTheme('vs'));
+    document.getElementById('theme-hc')?.addEventListener('click', () => setTheme('hc-black'));
+
+    const setFontSize = (size: number) => {
+        editor.updateOptions({ fontSize: size });
+        localStorage.setItem('le-editor-font-size', size.toString());
+    };
+    document.getElementById('font-small')?.addEventListener('click', () => setFontSize(12));
+    document.getElementById('font-medium')?.addEventListener('click', () => setFontSize(16));
+    document.getElementById('font-large')?.addEventListener('click', () => setFontSize(20));
+
+    // Window closing check
+    window.addEventListener('beforeunload', (e) => {
+        if (isDirty) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
 
     const worker = new Worker(new URL('../dist/server.js', import.meta.url), { type: 'module' });
 
@@ -95,6 +178,7 @@ function start() {
     });
 
     editor.onDidChangeModelContent(() => {
+        isDirty = true;
         const text = model.getValue();
         sendNotification('textDocument/didChange', {
             textDocument: {
@@ -105,7 +189,7 @@ function start() {
         });
 
         const url = new URL(window.location.href);
-        url.searchParams.set('text', encodeURIComponent(text));
+        url.searchParams.set('text', text);
         window.history.replaceState({}, '', url.toString());
     });
 
