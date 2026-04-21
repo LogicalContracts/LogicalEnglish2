@@ -41,12 +41,25 @@ Returns the source text of a named LE example file.
 
 On error: `{ "answer": "...", "details": "...", "document": "" }`
 
-**curl example**
+---
 
-```bash
-curl -s -X POST http://localhost:3050/leapi \
-  -H 'Content-Type: application/json' \
-  -d '{"token":"myToken123","operation":"examples","file":"1_net_asset_value_test_3"}'
+### `list_examples` — List all available LE examples
+
+Returns a list of all `.le` files in the `examples/moreExamples/` directory.
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "list_examples"
+}
+```
+
+**Response**
+
+```json
+{ "examples": [ "1_cgt_assets_and_exemptions_3", "1_net_asset_value_test_3", ... ] }
 ```
 
 ---

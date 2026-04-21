@@ -238,6 +238,84 @@ function start() {
   };
   menuSave?.addEventListener("click", saveAction);
   menuSaveAs?.addEventListener("click", saveAsAction);
+  const modalOverlay = document.getElementById("modal-overlay");
+  const exampleList = document.getElementById("example-list");
+  const modalClose = document.getElementById("modal-close");
+  const modalCancel = document.getElementById("modal-cancel");
+  const closeModal = () => {
+    if (modalOverlay)
+      modalOverlay.style.display = "none";
+  };
+  modalClose?.addEventListener("click", closeModal);
+  modalCancel?.addEventListener("click", closeModal);
+  modalOverlay?.addEventListener("click", (e) => {
+    if (e.target === modalOverlay)
+      closeModal();
+  });
+  document.getElementById("menu-open-server")?.addEventListener("click", async () => {
+    if (isDirty && !confirm("You have unsaved changes. Open from server anyway?"))
+      return;
+    if (modalOverlay)
+      modalOverlay.style.display = "flex";
+    if (exampleList)
+      exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Loading examples...</div>';
+    try {
+      const response = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "list_examples"
+        })
+      });
+      const data = await response.json();
+      if (data.examples && exampleList) {
+        exampleList.innerHTML = "";
+        data.examples.sort().forEach((ex) => {
+          const item = document.createElement("div");
+          item.className = "dropdown-item";
+          item.style.padding = "10px 15px";
+          item.style.borderBottom = "1px solid #333";
+          item.textContent = ex;
+          item.addEventListener("click", async () => {
+            closeModal();
+            await loadExampleFromServer(ex);
+          });
+          exampleList.appendChild(item);
+        });
+      }
+    } catch (err) {
+      if (exampleList)
+        exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';
+      console.error("Failed to list examples", err);
+    }
+  });
+  async function loadExampleFromServer(name) {
+    try {
+      const response = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "examples",
+          file: name
+        })
+      });
+      const data = await response.json();
+      if (data.document !== void 0) {
+        editor.setValue(data.document);
+        currentFileName = name + ".le";
+        fileHandle = null;
+        updateSaveMenu();
+        if (filenameDisplay)
+          filenameDisplay.textContent = currentFileName;
+        isDirty = false;
+      }
+    } catch (err) {
+      alert("Failed to load example from server.");
+      console.error("Failed to load example", err);
+    }
+  }
   document.getElementById("menu-cut")?.addEventListener("click", () => editor.focus() || editor.trigger("keyboard", "editor.action.clipboardCutAction", null));
   document.getElementById("menu-copy")?.addEventListener("click", () => editor.focus() || editor.trigger("keyboard", "editor.action.clipboardCopyAction", null));
   document.getElementById("menu-paste")?.addEventListener("click", () => editor.focus() || editor.trigger("keyboard", "editor.action.clipboardPasteAction", null));

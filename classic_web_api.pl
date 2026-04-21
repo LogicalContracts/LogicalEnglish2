@@ -49,6 +49,7 @@ validate_token(Dict) :-
 handle_operation(Dict, Response) :-
     get_dict(operation, Dict, Op),
     (   Op == "examples" -> handle_examples(Dict, Response)
+    ;   Op == "list_examples" -> handle_list_examples(Dict, Response)
     ;   Op == "answer" -> handle_answer(Dict, Response)
     ;   Op == "explain" -> handle_explain(Dict, Response)
     ;   Op == "load" -> handle_load(Dict, Response)
@@ -72,6 +73,15 @@ handle_examples(Dict, Response) :-
         Response = _{document: Doc}
     ;   Response = _{answer: "File not found", details: Path, document: ""}
     ).
+
+handle_list_examples(_Dict, Response) :-
+    directory_files('examples/moreExamples/', Files),
+    findall(Base, (
+        member(F, Files),
+        sub_atom(F, _, _, 0, '.le'),
+        file_name_extension(Base, le, F)
+    ), Examples),
+    Response = _{examples: Examples}.
 
 handle_answer(Dict, Response) :-
     get_dict(document, Dict, Doc),
