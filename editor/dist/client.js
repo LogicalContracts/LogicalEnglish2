@@ -335,6 +335,56 @@ function start() {
   document.getElementById("font-small")?.addEventListener("click", () => setFontSize(12));
   document.getElementById("font-medium")?.addEventListener("click", () => setFontSize(16));
   document.getElementById("font-large")?.addEventListener("click", () => setFontSize(20));
+  document.getElementById("menu-fold-all")?.addEventListener("click", () => {
+    console.log("Collapse All clicked");
+    editor.focus();
+    const foldingContrib = editor.getContribution("editor.contrib.folding");
+    if (foldingContrib) {
+      const foldingModelPromise = foldingContrib.getFoldingModel();
+      if (foldingModelPromise && typeof foldingModelPromise.then === "function") {
+        foldingModelPromise.then((foldingModel) => {
+          if (foldingModel) {
+            const regions = foldingModel.regions;
+            if (regions && regions.length > 0) {
+              console.log(`Collapsing ${regions.length} regions`);
+              for (let i = 0; i < regions.length; i++) {
+                regions.setCollapsed(i, true);
+              }
+              if (typeof foldingModel.onBeforeModelContentChange === "function") {
+                foldingModel.onBeforeModelContentChange();
+              }
+              if (foldingModel._updateEventEmitter) {
+                foldingModel._updateEventEmitter.fire();
+              }
+            }
+          }
+        });
+      }
+    }
+  });
+  document.getElementById("menu-unfold-all")?.addEventListener("click", () => {
+    console.log("Expand All clicked");
+    editor.focus();
+    const foldingContrib = editor.getContribution("editor.contrib.folding");
+    if (foldingContrib) {
+      const foldingModelPromise = foldingContrib.getFoldingModel();
+      if (foldingModelPromise && typeof foldingModelPromise.then === "function") {
+        foldingModelPromise.then((foldingModel) => {
+          if (foldingModel) {
+            const regions = foldingModel.regions;
+            if (regions && regions.length > 0) {
+              for (let i = 0; i < regions.length; i++) {
+                regions.setCollapsed(i, false);
+              }
+              if (foldingModel._updateEventEmitter) {
+                foldingModel._updateEventEmitter.fire();
+              }
+            }
+          }
+        });
+      }
+    }
+  });
   window.addEventListener("beforeunload", (e) => {
     if (isDirty) {
       e.preventDefault();
@@ -489,14 +539,16 @@ function start() {
   });
   monaco.languages.registerFoldingRangeProvider("le", {
     provideFoldingRanges: async (model2, context, token) => {
+      console.log("Providing folding ranges for", model2.uri.toString());
       const res = await sendRequest("textDocument/foldingRange", {
         textDocument: { uri: "file:///main.le" }
       });
+      console.log("Folding ranges from server:", res);
       if (res) {
         return res.map((range) => ({
           start: range.startLine + 1,
           end: range.endLine + 1,
-          kind: range.kind === 3 ? monaco.languages.FoldingRangeKind.Region : void 0
+          kind: monaco.languages.FoldingRangeKind.Region
         }));
       }
       return [];

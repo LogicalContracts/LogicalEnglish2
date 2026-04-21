@@ -405,9 +405,10 @@ You are a Logical English (@docs/le_syntax.md) expert, and also an expert on Lan
 
     for inspiration: https://github.com/nikolaimerritt/LogicalEnglish/blob/main/report/FinalReport/main.pdf
 
-# Next steps
 First, add a method to our docs/api.md to return the names of all LE examples in (hardwired path) "examples/moreExamples", and implement it in classic_web_api.pl
 Then a "Open from server" item to the File menu which opens a modal dialog to pick any of the avaialble LE examples, fetched it from the server and loads it into the editor; prior to all this, warn the user to dave any changes
+
+# Next steps
 
 add panel for scenarios and queries
 

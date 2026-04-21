@@ -288,6 +288,59 @@ function start() {
     document.getElementById('font-medium')?.addEventListener('click', () => setFontSize(16));
     document.getElementById('font-large')?.addEventListener('click', () => setFontSize(20));
 
+    document.getElementById('menu-fold-all')?.addEventListener('click', () => {
+        console.log('Collapse All clicked');
+        editor.focus();
+        const foldingContrib = editor.getContribution('editor.contrib.folding');
+        if (foldingContrib) {
+            const foldingModelPromise = (foldingContrib as any).getFoldingModel();
+            if (foldingModelPromise && typeof foldingModelPromise.then === 'function') {
+                foldingModelPromise.then((foldingModel: any) => {
+                    if (foldingModel) {
+                        const regions = foldingModel.regions;
+                        if (regions && regions.length > 0) {
+                            console.log(`Collapsing ${regions.length} regions`);
+                            for (let i = 0; i < regions.length; i++) {
+                                regions.setCollapsed(i, true);
+                            }
+                            // Use the internal update method that doesn't clear regions
+                            if (typeof foldingModel.onBeforeModelContentChange === 'function') {
+                                foldingModel.onBeforeModelContentChange();
+                            }
+                            // Trigger the change event that Monaco expects to refresh the view
+                            if (foldingModel._updateEventEmitter) {
+                                foldingModel._updateEventEmitter.fire();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+    document.getElementById('menu-unfold-all')?.addEventListener('click', () => {
+        console.log('Expand All clicked');
+        editor.focus();
+        const foldingContrib = editor.getContribution('editor.contrib.folding');
+        if (foldingContrib) {
+            const foldingModelPromise = (foldingContrib as any).getFoldingModel();
+            if (foldingModelPromise && typeof foldingModelPromise.then === 'function') {
+                foldingModelPromise.then((foldingModel: any) => {
+                    if (foldingModel) {
+                        const regions = foldingModel.regions;
+                        if (regions && regions.length > 0) {
+                            for (let i = 0; i < regions.length; i++) {
+                                regions.setCollapsed(i, false);
+                            }
+                            if (foldingModel._updateEventEmitter) {
+                                foldingModel._updateEventEmitter.fire();
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    });
+
     // Window closing check
     window.addEventListener('beforeunload', (e) => {
         if (isDirty) {
@@ -456,14 +509,16 @@ function start() {
 
     monaco.languages.registerFoldingRangeProvider('le', {
         provideFoldingRanges: async (model: any, context: any, token: any) => {
+            console.log('Providing folding ranges for', model.uri.toString());
             const res: any = await sendRequest('textDocument/foldingRange', {
                 textDocument: { uri: 'file:///main.le' }
             });
+            console.log('Folding ranges from server:', res);
             if (res) {
                 return res.map((range: any) => ({
                     start: range.startLine + 1,
                     end: range.endLine + 1,
-                    kind: range.kind === 3 ? monaco.languages.FoldingRangeKind.Region : undefined
+                    kind: monaco.languages.FoldingRangeKind.Region
                 }));
             }
             return [];
