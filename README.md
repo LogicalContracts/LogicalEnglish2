@@ -428,18 +428,16 @@ About "Open from server...": please rename to "Open copy from server..."; and ma
 Also make the session ID a bit larger, and justify it to the right of tht window
 
 # Next steps
+deploy to le2.logicalcontracts.com
 
+Public MCP server?
 
 arbitrary queries... via LLM?
-
 inter module calling...
 adjust expected to cover parsing errors
 
 command line wrapper...or MCP server?
 
-New web app
-New docker container
-Editor... or language server ? CodeMirror, Monaco...? generate from DCG introspection please!
 add InsurLE examples to repo
 ask for incremental addition to le_grammar... and others(?) 
 generators (?)
@@ -454,3 +452,8 @@ generators (?)
 * prolog bridge: a party is an eligible party with a percentage if prolog eligible(the party,the percentage) because Explanation
 * time argument: the party is an eligible party on TimeExpression; instants or durations (intervals) (exclusive??)
   * use timeExpression and time_interval_operators for testing
+
+# Docker deployment
+1. docker build -t logical-english-server .
+2. docker run -p 3050:3050 logical-english-server
+3. 
