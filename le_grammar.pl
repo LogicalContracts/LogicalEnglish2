@@ -165,14 +165,16 @@ kb_items([]) --> [].
 
 % kb_item(rule(...)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End)) -->
+    { b_getval(current_token_pos, Start) },
     template_instance(Head),
-    any_indent(N), t(word(if, loc(Start, _))),
+    any_indent(N), t(word(if, _)),
     body(Body, End),
     { Indent = N }.
 % kb_item(fact(...)) parses a Logical English fact (Head.).
 kb_item(fact(Head, Start, End)) -->
+    { b_getval(current_token_pos, Start) },
     template_instance(Head),
-    any_indent, t(punctuation('.', loc(Start, End))).
+    any_indent, t(punctuation('.', loc(_, End))).
 
 % templates([T|Ts]) parses a list of template definitions.
 templates([T|Ts]) -->
@@ -297,19 +299,19 @@ any_indent_tail(N1, N) --> [multi_comment(_, _)], !, any_indent_tail(N1, N).
 any_indent_tail(N, N) --> [].
 
 % t(Token) is a helper to match a token while skipping preceding indentation/comments.
-t(T) --> any_indent, [T], { T \= indent(_, _), T \= line_comment(_, _), T \= multi_comment(_, _) }.
-t(word(W, L)) --> any_indent, [word(W, L)].
-t(word(W)) --> any_indent, [word(W, _)].
-t(number(N, L)) --> any_indent, [number(N, L)].
-t(number(N)) --> any_indent, [number(N, _)].
-t(punctuation(P, L)) --> any_indent, [punctuation(P, L)].
-t(punctuation(P)) --> any_indent, [punctuation(P, _)].
-t(punct(P, L)) --> any_indent, [punctuation(P, L)].
-t(punct(P)) --> any_indent, [punctuation(P, _)].
-t(date(D, L)) --> any_indent, [date(D, L)].
-t(date(D)) --> any_indent, [date(D, _)].
-t(quoteString(S, L)) --> any_indent, [quoteString(S, L)].
-t(doubleQuoteString(S, L)) --> any_indent, [doubleQuoteString(S, L)].
+t(T) --> any_indent, [T], { T \= indent(_, _), T \= line_comment(_, _), T \= multi_comment(_, _), (T =.. [_, _, loc(Start, _)] -> b_setval(current_token_pos, Start) ; true) }.
+t(word(W, L)) --> any_indent, [word(W, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(word(W)) --> any_indent, [word(W, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(number(N, L)) --> any_indent, [number(N, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(number(N)) --> any_indent, [number(N, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(punctuation(P, L)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(punctuation(P)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(punct(P, L)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(punct(P)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(date(D, L)) --> any_indent, [date(D, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(date(D)) --> any_indent, [date(D, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(quoteString(S, L)) --> any_indent, [quoteString(S, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(doubleQuoteString(S, L)) --> any_indent, [doubleQuoteString(S, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
 
 skip_comments --> any_indent.
 

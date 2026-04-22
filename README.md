@@ -424,7 +424,11 @@ next...:
 First, we need to keep source positions for scenarion facts, so navigation from the explanation tree to code is commplete. Thise requires a revision of setScenarion/2 (probably)
 Another issue is the explanation nodes: the explanation post processing should also add to the explanation nodes a "bound template" version of the PROLOG literal; and the explanation tree rendering in the UI should use that
 
+About "Open from server...": please rename to "Open copy from server..."; and make it refresh the example name at the top of the window
+Also make the session ID a bit larger, and justify it to the right of tht window
+
 # Next steps
+
 
 arbitrary queries... via LLM?
 

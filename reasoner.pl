@@ -14,30 +14,28 @@
 :- dynamic equal_to/2.
 :- thread_local called/3, counter/1.
 
-%!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is nondet.
+%!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 %
 %   Main entry point for the meta-interpreter.
-i(Goal, SessionModule, Unknowns, Why) :-
+i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     init_counter,
     (   SessionModule:le_my_kb(KBmodule) ->  true;   KBmodule = none
     ),
-    solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys),
-    (Whys = [Why] -> true ; Why = Whys).
+    solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys).
 
-%!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is nondet.
+%!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 %
 %   Similar to i/4, but always returns an explanation tree (success or failure).
-explain(Goal, SessionModule, Unknowns, Why) :-
+explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     init_counter,
     (   SessionModule:le_my_kb(KBmodule) ->  true;   KBmodule = none
     ),
     (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys)
-    ->  (Whys = [Why] -> true ; Why = Whys)
+    ->  true
     ;   Unknowns = [],
-        build_failure_tree(0, Whys),
-        (Whys = [Why] -> true ; Why = Whys)
+        findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
     ).
 
 %!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is nondet.
@@ -182,7 +180,7 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 % build_failure_tree(+ID, -Whys)
 % Reconstructs a list of "juicy" failure trees of all calls made under ID.
 build_failure_tree(ID, Whys) :-
-    called(_, ID, Term),
+    called(_PID, ID, Term), % ID is the MyID of the call
     (   is_trivial(Term)
     ->  findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
     ;   findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Children),

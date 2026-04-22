@@ -314,6 +314,11 @@ function start() {
         if (filenameDisplay)
           filenameDisplay.textContent = currentFileName;
         isDirty = false;
+        isLoaded = false;
+        scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+        querySelect.innerHTML = '<option value="">Select a query...</option>';
+        kbModuleDisplay.textContent = "";
+        sessionModuleDisplay.textContent = "";
       }
     } catch (err) {
       alert("Failed to load example from server.");
@@ -491,20 +496,54 @@ function start() {
       }
     }
   });
+  const bottomPanel = document.getElementById("bottom-panel");
+  const resizer = document.getElementById("resizer");
+  let isResizing = false;
+  resizer.addEventListener("mousedown", (e) => {
+    isResizing = true;
+    document.body.style.cursor = "ns-resize";
+  });
+  document.addEventListener("mousemove", (e) => {
+    if (!isResizing)
+      return;
+    const offsetTop = e.clientY;
+    const windowHeight = window.innerHeight;
+    const headerHeight = 35 + 30;
+    const newContainerHeight = offsetTop - headerHeight;
+    const newPanelHeight = windowHeight - offsetTop - 5;
+    if (newContainerHeight > 100 && newPanelHeight > 100) {
+      container.style.height = `${newContainerHeight}px`;
+      bottomPanel.style.height = `${newPanelHeight}px`;
+      editor.layout();
+    }
+  });
+  document.addEventListener("mouseup", () => {
+    isResizing = false;
+    document.body.style.cursor = "default";
+  });
   const answersList = document.getElementById("answers-list");
   const explanationTree = document.getElementById("explanation-tree");
   const renderExplanation = (why) => {
     explanationTree.innerHTML = "";
     if (!why)
       return;
-    const createNode = (node) => {
+    const createNode = (node, depth) => {
       const container2 = document.createElement("div");
       container2.className = "tree-node";
       const label = document.createElement("div");
       label.className = `tree-label ${node.type || "success"}`;
-      label.textContent = node.literal || node;
+      const hasChildren = node.children && node.children.length > 0;
+      if (hasChildren) {
+        const toggle = document.createElement("span");
+        toggle.className = "tree-toggle";
+        toggle.textContent = depth < 2 ? "-" : "+";
+        label.appendChild(toggle);
+      }
+      const text = document.createElement("span");
+      text.textContent = node.literal || node;
+      label.appendChild(text);
       if (node.start !== void 0 && node.end !== void 0) {
-        label.addEventListener("click", (e) => {
+        text.addEventListener("click", (e) => {
           e.stopPropagation();
           const startPos = model.getPositionAt(node.start);
           const endPos = model.getPositionAt(node.end);
@@ -524,20 +563,27 @@ function start() {
         });
       }
       container2.appendChild(label);
-      if (node.children && node.children.length > 0) {
+      if (hasChildren) {
         const childrenContainer = document.createElement("div");
         childrenContainer.className = "tree-children";
+        childrenContainer.style.display = depth < 2 ? "block" : "none";
+        label.querySelector(".tree-toggle")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const isExpanded = childrenContainer.style.display !== "none";
+          childrenContainer.style.display = isExpanded ? "none" : "block";
+          e.target.textContent = isExpanded ? "+" : "-";
+        });
         node.children.forEach((child) => {
-          childrenContainer.appendChild(createNode(child));
+          childrenContainer.appendChild(createNode(child, depth + 1));
         });
         container2.appendChild(childrenContainer);
       }
       return container2;
     };
     if (Array.isArray(why)) {
-      why.forEach((w) => explanationTree.appendChild(createNode(w)));
+      why.forEach((w) => explanationTree.appendChild(createNode(w, 0)));
     } else {
-      explanationTree.appendChild(createNode(why));
+      explanationTree.appendChild(createNode(why, 0));
     }
   };
   btnQuery.addEventListener("click", async () => {
@@ -584,9 +630,14 @@ function start() {
         });
       } else if (res && res.why) {
         const item = document.createElement("div");
-        item.className = "answer-item failure";
+        item.className = "answer-item failure selected";
         item.style.color = "#f48771";
-        item.textContent = "false";
+        item.textContent = "No answers (false)";
+        item.addEventListener("click", () => {
+          document.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
+          item.classList.add("selected");
+          renderExplanation(res.why);
+        });
         answersList.appendChild(item);
         renderExplanation(res.why);
       } else if (res && res.error) {

@@ -195,9 +195,11 @@ handle_answering_query(Dict, Response) :-
         Response = _{results: Results, result: "ok"}
     ;   % No answers, get negative explanation
         print_message(informational, 'No answers found, generating negative explanation'),
-        query_explain(SM, Query, _Instance, _Unknowns, Why),
-        convert_why(Why, KB, JSONWhy),
-        Response = _{results: [], why: JSONWhy, result: "ok"}
+        (   catch(query_explain(SM, Query, _Instance, _Unknowns, Why), E, (print_message(error, E), fail))
+        ->  convert_why(Why, KB, JSONWhy),
+            Response = _{results: [], why: JSONWhy, result: "ok"}
+        ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
+        )
     ).
 
 handle_load_facts_and_query(Dict, Response) :-

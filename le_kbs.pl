@@ -225,7 +225,8 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
         atom_string(QueryName, Template),
         current_predicate(KBmodule:query_info/3),
         KBmodule:query_info(QueryName, Goal, Items)
-    ->  reasoner:explain(Goal, SessionModule, Unknowns, Why0),
+    ->  (do_log -> print_message(informational, 'Executing named query explain ~w: ~w' - [QueryName, Goal]) ; true),
+        reasoner:explain(Goal, SessionModule, Unknowns, Why0),
         (   maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
             flatten(Instances, TemplateInstance)
         ->  true
@@ -237,6 +238,7 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
             le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
         ->  Goal =.. [Functor|Args],
+            (do_log -> print_message(informational, 'Executing template goal explain: ~w' - [Goal]) ; true),
             reasoner:explain(Goal, SessionModule, Unknowns, Why0),
             TemplateInstance = WordsAndVars,
             postprocess_why(Why0, SessionModule, Why)

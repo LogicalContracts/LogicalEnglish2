@@ -80,13 +80,23 @@
             font-weight: normal;
         }
         #container {
-            height: calc(100% - 265px);
+            height: calc(100% - 270px);
             width: 100%;
+        }
+        #resizer {
+            height: 5px;
+            background-color: #333;
+            cursor: ns-resize;
+            width: 100%;
+            border-top: 1px solid #444;
+            border-bottom: 1px solid #444;
+        }
+        #resizer:hover {
+            background-color: #0e639c;
         }
         #bottom-panel {
             height: 200px;
             background-color: #252526;
-            border-top: 1px solid #444;
             display: flex;
             flex-direction: column;
         }
@@ -170,7 +180,25 @@
             cursor: pointer;
             padding: 2px 4px;
             border-radius: 2px;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .tree-toggle {
+            width: 12px;
+            height: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 10px;
+            border: 1px solid #666;
+            border-radius: 2px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .tree-toggle:hover {
+            background-color: #444;
         }
         .tree-label:hover {
             background-color: #37373d;
@@ -196,9 +224,9 @@
             <h1><span class="logo">LE</span> Editor</h1>
             <div id="filename-display" style="font-size: 12px; color: #888; font-style: italic;">document.le</div>
         </div>
-        <div id="module-info" style="font-size: 10px; color: #666; font-style: italic; text-align: right;">
+        <div id="module-info" style="font-size: 11px; color: #888; font-style: italic; text-align: right; flex-grow: 1;">
             <span id="kb-module-display"></span><br>
-            <span id="session-module-display"></span>
+            <span id="session-module-display" style="font-size: 13px; color: #aaa;"></span>
         </div>
         <div style="font-size: 12px; color: #aaa;">Logical English Browser-based Editor</div>
     </div>
@@ -208,7 +236,7 @@
             <div class="dropdown">
                 <div class="dropdown-item" id="menu-new">New</div>
                 <div class="dropdown-item" id="menu-open">Open...</div>
-                <div class="dropdown-item" id="menu-open-server">Open from server...</div>
+                <div class="dropdown-item" id="menu-open-server">Open copy from server...</div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item" id="menu-save" style="display: none;">Save</div>
                 <div class="dropdown-item" id="menu-save-as">Save As...</div>
@@ -245,6 +273,7 @@
         <input type="file" id="file-input" accept=".le" style="display: none;">
     </div>
     <div id="container"></div>
+    <div id="resizer"></div>
     <div id="bottom-panel">
         <div class="panel-controls">
             <div class="control-group">
