@@ -351,6 +351,9 @@ function start() {
     const btnQuery = document.getElementById('btn-query') as HTMLButtonElement;
     const resultsDisplay = document.getElementById('results-display') as HTMLPreElement;
 
+    const kbModuleDisplay = document.getElementById('kb-module-display')!;
+    const sessionModuleDisplay = document.getElementById('session-module-display')!;
+
     const loadModule = async () => {
         if (isLoaded || isLoading) return true;
         isLoading = true;
@@ -371,6 +374,9 @@ function start() {
             if (res && res.sessionModule) {
                 sessionModule = res.sessionModule;
                 isLoaded = true;
+                
+                kbModuleDisplay.textContent = `KB: ${res.kb || 'unknown'}`;
+                sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
                 
                 // Populate scenarios
                 scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';

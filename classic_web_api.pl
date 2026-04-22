@@ -183,13 +183,18 @@ handle_answering_query(Dict, Response) :-
     ;   true
     ),
     (SM:le_my_kb(KB) -> true ; KB = none),
-    (   setof(_{answer: AnswerStr, why: JSONWhy}, Instance^Unknowns^Why^(
-            query(SM, Query, Instance, Unknowns, Why),
+    findall(_{answer: AnswerStr, why: JSONWhy}, (
+            query(SM, Query, Instance, _Us, Why),
             canonical_string(Instance, AnswerStr),
-            convert_why(Why, KB, JSONWhy)
-        ), Results)
-    ->  Response = _{results: Results, result: "ok"}
+            convert_why(Why, KB, JSONWhy),
+            print_message(informational, 'Found answer: ~w' - [AnswerStr])
+        ), Results),
+    (   Results \== []
+    ->  length(Results, Count),
+        print_message(informational, 'Total answers found: ~w' - [Count]),
+        Response = _{results: Results, result: "ok"}
     ;   % No answers, get negative explanation
+        print_message(informational, 'No answers found, generating negative explanation'),
         query_explain(SM, Query, _Instance, _Unknowns, Why),
         convert_why(Why, KB, JSONWhy),
         Response = _{results: [], why: JSONWhy, result: "ok"}
@@ -261,12 +266,17 @@ handle_query(Dict, Response) :-
 % --- Helpers ---
 
 load_le_text(Text, KB) :-
-    tmp_file_stream(utf8, Path, Stream),
-    write(Stream, Text),
-    close(Stream),
-    (   catch(le_kbs:load(Path, KB), E, (delete_file(Path), throw(E)))
-    ->  delete_file(Path)
-    ;   delete_file(Path), fail
+    variant_sha1(Text, Hash),
+    atom_concat(m, Hash, KB),
+    (   current_module(KB)
+    ->  true
+    ;   tmp_file_stream(utf8, Path, Stream),
+        write(Stream, Text),
+        close(Stream),
+        (   catch(le_kbs:load(Path, KB), E, (delete_file(Path), throw(E)))
+        ->  delete_file(Path)
+        ;   delete_file(Path), fail
+        )
     ).
 
 load_prolog_file(Path, Module) :-
@@ -277,22 +287,18 @@ load_prolog_file(Path, Module) :-
     ;   load_files(Module:Path, [])
     ).
 
-convert_why(success(Goal, range(Start, End), Children), KB, JSON) :- !,
-    term_string(Goal, GoalStr),
+convert_why(success(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    JSON = _{type: "success", literal: GoalStr, start: Start, end: End, children: JSONChildren}.
-convert_why(success(Goal, Ref, Children), KB, JSON) :- !,
-    term_string(Goal, GoalStr),
+    JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}.
+convert_why(success(_Goal, Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     (   KB \== none, KB:le_source(Ref, Start, End)
-    ->  JSON = _{type: "success", literal: GoalStr, start: Start, end: End, children: JSONChildren}
-    ;   term_string(Ref, RefStr),
-        JSON = _{type: "success", literal: GoalStr, ref: RefStr, children: JSONChildren}
+    ->  JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}
+    ;   JSON = _{type: "success", literal: LE, children: JSONChildren}
     ).
-convert_why(failure(Goal, Children), KB, JSON) :- !,
-    term_string(Goal, GoalStr),
+convert_why(failure(_Goal, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    JSON = _{type: "failure", literal: GoalStr, children: JSONChildren}.
+    JSON = _{type: "failure", literal: LE, children: JSONChildren}.
 convert_why(Whys, KB, JSON) :-
     is_list(Whys), !,
     maplist(convert_why_child(KB), Whys, JSON).

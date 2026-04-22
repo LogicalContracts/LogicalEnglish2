@@ -9,39 +9,6 @@
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5]).
 
-% ... (rest of the file)
-
-%!  query_explain(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is det.
-%
-%   Similar to query/5, but always returns an explanation (success or failure).
-query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
-    ensure_tokens(Template, Tokens),
-    SessionModule:le_my_kb(KBmodule),
-    (   (atom(Template) ; string(Template)),
-        atom_string(QueryName, Template),
-        current_predicate(KBmodule:query_info/3),
-        KBmodule:query_info(QueryName, Goal, Items)
-    ->  reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-        (   TemplateInstance = WordsAndVars,
-            maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
-            flatten(Instances, WordsAndVars)
-        ->  true
-        ;   TemplateInstance = []
-        ),
-        postprocess_why(Why0, KBmodule, Why)
-    ;   findall(D, KBmodule:le_dict(D), Templates),
-        (   member(Dict, Templates),
-            copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
-            le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
-        ->  Goal =.. [Functor|Args],
-            reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-            TemplateInstance = WordsAndVars,
-            postprocess_why(Why0, KBmodule, Why)
-        ;   % No template matched
-            TemplateInstance = [], Unknowns = [], Why = failure(no_template_matched(Tokens), [])
-        )
-    ).
-
 :- discontiguous print_test_result/1.
 
 :- use_module(le_grammar).
@@ -77,13 +44,23 @@ edit(LEfilePath) :-
 %
 %   Loads a Logical English file from FilePath into a new generated Module.
 load(FilePath, NewModule) :-
-    time_file(FilePath, Time),
-    variant_sha1([FilePath, Time], Hash),
-    atom_concat(m, Hash, NewModule),
-    (   current_module(NewModule)
+    (   var(NewModule)
+    ->  time_file(FilePath, Time),
+        variant_sha1([FilePath, Time], Hash),
+        atom_concat(m, Hash, NewModule)
+    ;   true
+    ),
+    (   current_module(NewModule), 
+        % If it's a generated module name from a file, we can trust the hash.
+        % But if it's a provided module name (like from load_le_text), 
+        % we might want to reload if the content is different.
+        % For now, let's assume if the module exists and has our markers, it's loaded.
+        current_predicate(NewModule:le_source/3)
     ->  true
     ;   (   catch(parse_le_file(FilePath, doc(Sections)), EP, (print_message(error, EP), fail))
-        ->  forall(member(S, Sections), process_section(S, NewModule)),
+        ->  % Ensure we start with a clean module
+            forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+            forall(member(S, Sections), process_section(S, NewModule)),
             findall(D, le_system_template(D), SysDicts),
             forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
             (   catch(le_verifier:verify(NewModule, _Issues), EV, (print_message(error, EV), true))
@@ -105,7 +82,7 @@ process_section_acc(kb(Name, Content, Start, End), M) :-
     forall(member(Item, Content), process_item(Item, M)).
 
 process_section_acc(scenario(Name, Content, Start, End), M) :-
-    maplist(item_to_term, Content, Terms),
+    maplist(item_to_term_with_source(M), Content, Terms),
     assertz(M:scenario(Name, Terms), Ref),
     assertz(M:le_source(Ref, Start, End)).
 
@@ -148,12 +125,29 @@ createSession(KBmodule, SessionModule) :-
 
 %!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
 addSessionFact(SessionModule, Fact) :-
-    functor(Fact,F,N),
-    SessionModule:dynamic(F/N),
-    (   SessionModule:clause(Fact, true)
+    (   Fact = fact_with_source(ActualFact, Start, End)
     ->  true
-    ;   assertz(SessionModule:Fact, Ref),
-        assertz(SessionModule:sessionClause(Ref))
+    ;   ActualFact = Fact, Start = 0, End = 0
+    ),
+    (do_log -> print_message(informational, 'Adding session fact: ~w' - [ActualFact]) ; true),
+    functor(ActualFact,F,N),
+    SessionModule:dynamic(F/N),
+    % Use variant check instead of unification to allow multiple facts with variables
+    (   current_predicate(SessionModule:F/N),
+        functor(Template, F, N),
+        SessionModule:clause(Template, true),
+        copy_term(Template, ECopy),
+        copy_term(ActualFact, ACopy),
+        numbervars(ECopy, 0, _),
+        numbervars(ACopy, 0, _),
+        ECopy == ACopy
+    ->  (do_log -> print_message(informational, 'Fact already exists (variant): ~w' - [ActualFact]) ; true)
+    ;   assertz(SessionModule:ActualFact, Ref),
+        assertz(SessionModule:sessionClause(Ref)),
+        (   Start \== 0
+        ->  assertz(SessionModule:le_source(Ref, Start, End))
+        ;   true
+        )
     ).
 
 %!  negateSessionFact(+SessionModule:atom, +Fact:term) is det.
@@ -195,53 +189,89 @@ printSession(SessionModule) :-
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
            (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
 
-%!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is semidet.
+%!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
+    ensure_tokens(Template, Tokens),
+    SessionModule:le_my_kb(KBmodule),
+    (do_log -> print_message(informational, 'Querying KB ~w in session ~w with tokens ~w' - [KBmodule, SessionModule, Tokens]) ; true),
+    (   (atom(Template) ; string(Template)),
+        atom_string(QueryName, Template),
+        current_predicate(KBmodule:query_info/3),
+        KBmodule:query_info(QueryName, Goal, Items)
+    ->  (do_log -> print_message(informational, 'Executing named query ~w: ~w' - [QueryName, Goal]) ; true),
+        reasoner:i(Goal, SessionModule, Unknowns, Why0),
+        (do_log -> print_message(informational, 'Named query solution found for ~w' - [QueryName]) ; true),
+        maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
+        flatten(Instances, TemplateInstance),
+        postprocess_why(Why0, SessionModule, Why)
+    ;   (do_log -> print_message(informational, 'Searching for template matching tokens: ~w' - [Tokens]) ; true),
+        findall(D, KBmodule:le_dict(D), Templates),
+        member(Dict, Templates),
+        copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
+        le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true),
+        Goal =.. [Functor|Args],
+        (do_log -> print_message(informational, 'Executing template goal: ~w' - [Goal]) ; true),
+        reasoner:i(Goal, SessionModule, Unknowns, Why0),
+        (do_log -> print_message(informational, 'Template goal solution found: ~w' - [Goal]) ; true),
+        TemplateInstance = WordsAndVars,
+        postprocess_why(Why0, SessionModule, Why)
+    ).
+
+%!  query_explain(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
+query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     SessionModule:le_my_kb(KBmodule),
     (   (atom(Template) ; string(Template)),
         atom_string(QueryName, Template),
         current_predicate(KBmodule:query_info/3),
         KBmodule:query_info(QueryName, Goal, Items)
-    ->  (   reasoner:i(Goal, SessionModule, Unknowns, Why0)
-        ->  maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
-            flatten(Instances, TemplateInstance),
-            postprocess_why(Why0, KBmodule, Why)
-        ;   % If it fails, we might want a failure tree, but reasoner:i/4 doesn't return one for the top goal yet.
-            % For now, just fail as before, or we could enhance reasoner.
-            fail
-        )
+    ->  reasoner:explain(Goal, SessionModule, Unknowns, Why0),
+        (   maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
+            flatten(Instances, TemplateInstance)
+        ->  true
+        ;   TemplateInstance = []
+        ),
+        postprocess_why(Why0, SessionModule, Why)
     ;   findall(D, KBmodule:le_dict(D), Templates),
-        member(Dict, Templates),
-        copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
-        le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true),
-        Goal =.. [Functor|Args],
-        (   reasoner:i(Goal, SessionModule, Unknowns, Why0)
-        ->  TemplateInstance = WordsAndVars,
-            postprocess_why(Why0, KBmodule, Why)
-        ;   fail
+        (   member(Dict, Templates),
+            copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
+            le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
+        ->  Goal =.. [Functor|Args],
+            reasoner:explain(Goal, SessionModule, Unknowns, Why0),
+            TemplateInstance = WordsAndVars,
+            postprocess_why(Why0, SessionModule, Why)
+        ;   TemplateInstance = [], Unknowns = [], Why = failure(no_template_matched(Tokens), [])
         )
     ).
 
-%!  postprocess_why(+WhyIn:term, +KB:atom, -WhyOut:term) is det.
-%
-%   Replaces clause references with character position ranges.
-postprocess_why(success(Goal, Ref, Children), KB, success(Goal, Range, ChildrenOut)) :- !,
-    (   KB \== none, KB:le_source(Ref, Start, End)
+%!  postprocess_why(+WhyIn:term, +SM:atom, -WhyOut:term) is det.
+postprocess_why(success(Goal, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
+    (SM:le_my_kb(KB) -> true ; KB = none),
+    (   (   SM:le_source(Ref, Start, End)
+        ;   KB \== none, KB:le_source(Ref, Start, End)
+        )
     ->  Range = range(Start, End)
     ;   Range = Ref
     ),
-    maplist(postprocess_why_child(KB), Children, ChildrenOut).
-postprocess_why(failure(Goal, Children), KB, failure(Goal, ChildrenOut)) :- !,
-    maplist(postprocess_why_child(KB), Children, ChildrenOut).
-postprocess_why(Whys, KB, WhysOut) :-
+    (   KB \== none, item_to_instance(KB, Goal, Tokens)
+    ->  canonical_string(Tokens, LE)
+    ;   term_string(Goal, LE)
+    ),
+    maplist(postprocess_why_child(SM), Children, ChildrenOut).
+postprocess_why(failure(Goal, Children), SM, failure(Goal, LE, ChildrenOut)) :- !,
+    (SM:le_my_kb(KB) -> true ; KB = none),
+    (   KB \== none, item_to_instance(KB, Goal, Tokens)
+    ->  canonical_string(Tokens, LE)
+    ;   term_string(Goal, LE)
+    ),
+    maplist(postprocess_why_child(SM), Children, ChildrenOut).
+postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
-    maplist(postprocess_why_child(KB), Whys, WhysOut).
+    maplist(postprocess_why_child(SM), Whys, WhysOut).
 postprocess_why(Other, _, Other).
 
-postprocess_why_child(KB, Child, ChildOut) :-
-    postprocess_why(Child, KB, ChildOut).
-
+postprocess_why_child(SM, Child, ChildOut) :-
+    postprocess_why(Child, SM, ChildOut).
 
 ensure_tokens(Template, Tokens) :-
     is_list(Template), !, Tokens = Template.
@@ -276,7 +306,7 @@ token_to_atom(word(W, _), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(word(W), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(var(Words), Atom) :- !, 
     (   var(Words) -> Atom = '_'
-    ;   is_list(Words) -> (maplist(le_kbs:token_to_atom, Words, Atoms), atomic_list_concat(Atoms, ' ', Atom))
+    ;   is_list(Words) -> (maplist(token_to_atom, Words, Atoms), atomic_list_concat(Atoms, ' ', Atom))
     ;   atom_string(Atom, Words)
     ).
 token_to_atom(number(N, _), Atom) :- !, (var(N) -> Atom = '0' ; atom_number(Atom, N)).
@@ -370,6 +400,12 @@ verify(LEfilePath) :-
 item_to_term(clause(Head, true, _, _), Head) :- !.
 item_to_term(clause(Head, Body, _, _), (Head :- Body)) :- !.
 item_to_term(Item, Item).
+
+item_to_term_with_source(_M, clause(Head, true, Start, End), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, clause(Head, Body, _Start, _End), (Head :- Body)) :- 
+    % Rules in scenarios are rare but possible; we don't track their source yet
+    !.
+item_to_term_with_source(_, Item, Item).
 
 list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], (G, Rest)) :- list_to_conj(Gs, Rest).

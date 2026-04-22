@@ -14,13 +14,9 @@
 :- dynamic equal_to/2.
 :- thread_local called/3, counter/1.
 
-%!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is semidet.
+%!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is nondet.
 %
 %   Main entry point for the meta-interpreter.
-%   Goal is the term to prove.
-%   SessionModule is the module containing session-specific facts.
-%   Unknowns is a list of goals that were assumed true (if defined as unknown).
-%   Why is an explanation tree of the proof.
 i(Goal, SessionModule, Unknowns, Why) :-
     retractall(called(_, _, _)),
     init_counter,
@@ -29,7 +25,7 @@ i(Goal, SessionModule, Unknowns, Why) :-
     solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys),
     (Whys = [Why] -> true ; Why = Whys).
 
-%!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is det.
+%!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is nondet.
 %
 %   Similar to i/4, but always returns an explanation tree (success or failure).
 explain(Goal, SessionModule, Unknowns, Why) :-
@@ -44,27 +40,14 @@ explain(Goal, SessionModule, Unknowns, Why) :-
         (Whys = [Why] -> true ; Why = Whys)
     ).
 
-%!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is semidet.
-%
-%   Succeeds if Goal can be proven (possibly with Unknowns).
-%   SM is the Session Module.
-%   KM is the Knowledge Base Module.
-%   Anc is the ancestor list for loop detection.
-%   Depth is the current recursion depth.
-%   ParentID is the ID of the calling goal.
-%   Us is the list of Unknowns encountered.
-%   Whys is a list of "juicy" explanation trees.
+%!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is nondet.
 solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     next_id(MyID),
     (   ParentID \== none
     ->  assertz(called(ParentID, MyID, G))
     ;   true
     ),
-    (   solve_real(G, SM, KM, Anc, D, MyID, Us, Whys)
-    ->  true
-    ;   % If it fails, we still want to record that it was called for failure tree construction
-        fail
-    ).
+    solve_real(G, SM, KM, Anc, D, MyID, Us, Whys).
 
 % Conjunction
 solve_real((A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,

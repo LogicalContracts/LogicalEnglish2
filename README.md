@@ -412,8 +412,20 @@ Then a "Open from server" item to the File menu which opens a modal dialog to pi
 
 Now add a panel below the editor, with two popup menus: one for scenarios, the other for queries. When the user presses either, the editor client should ask the server (cf. docs/api.md) to load the editor text as a new LE module, obtaining the queries and examples in the program. the server should be asked for this only once (until the editor changes the program text). Then add also a Query button, which will execute the selected query and scenarion on the editor program; and a field below to depict the answers obtained
 
+## Explanations
+
+At the end of query/5 in le_kbs.pl, postprocess the explanation term to replace clause refs by character position ranges, as obtained from le_source; review convert_why in classic_web_api.pl accordingly, so explanations will contain character positions rather than clause refs.
+Then back to the UI: Split the RESULTS panel in two: the left continues to show the last answers for the selected query, but each answer is clickable; when clicked, the right panel will show the explanation tree for the answer. IF no answers, the explanation will be the negative explanation.
+Explanation objects are in the 'why' fields.
+Finally, make each explanation tree node clickable: when clicked, the editor should select the respective text range
+
+next...:
+
+First, we need to keep source positions for scenarion facts, so navigation from the explanation tree to code is commplete. Thise requires a revision of setScenarion/2 (probably)
+Another issue is the explanation nodes: the explanation post processing should also add to the explanation nodes a "bound template" version of the PROLOG literal; and the explanation tree rendering in the UI should use that
+
 # Next steps
-Show Explanations
+
 arbitrary queries... via LLM?
 
 inter module calling...
