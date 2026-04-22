@@ -6,7 +6,7 @@
     It constructs success explanation trees.
 */
 
-:- module(reasoner, [i/4]).
+:- module(reasoner, [i/4, explain/4, is_built_in/1]).
 
 :- use_module(library(time)).
 :- use_module(library(pairs)).
@@ -29,6 +29,21 @@ i(Goal, SessionModule, Unknowns, Why) :-
     solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys),
     (Whys = [Why] -> true ; Why = Whys).
 
+%!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Why:term) is det.
+%
+%   Similar to i/4, but always returns an explanation tree (success or failure).
+explain(Goal, SessionModule, Unknowns, Why) :-
+    retractall(called(_, _, _)),
+    init_counter,
+    (   SessionModule:le_my_kb(KBmodule) ->  true;   KBmodule = none
+    ),
+    (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys)
+    ->  (Whys = [Why] -> true ; Why = Whys)
+    ;   Unknowns = [],
+        build_failure_tree(0, Whys),
+        (Whys = [Why] -> true ; Why = Whys)
+    ).
+
 %!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is semidet.
 %
 %   Succeeds if Goal can be proven (possibly with Unknowns).
@@ -45,7 +60,11 @@ solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     ->  assertz(called(ParentID, MyID, G))
     ;   true
     ),
-    solve_real(G, SM, KM, Anc, D, MyID, Us, Whys).
+    (   solve_real(G, SM, KM, Anc, D, MyID, Us, Whys)
+    ->  true
+    ;   % If it fails, we still want to record that it was called for failure tree construction
+        fail
+    ).
 
 % Conjunction
 solve_real((A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,

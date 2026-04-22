@@ -182,13 +182,17 @@ handle_answering_query(Dict, Response) :-
         )
     ;   true
     ),
-    (   setof(AnswerStr, Instance^Unknowns^Why^(
+    (SM:le_my_kb(KB) -> true ; KB = none),
+    (   setof(_{answer: AnswerStr, why: JSONWhy}, Instance^Unknowns^Why^(
             query(SM, Query, Instance, Unknowns, Why),
-            canonical_string(Instance, AnswerStr)
-        ), Answers)
-    ->  atomic_list_concat(Answers, '\n', AllAnswers),
-        Response = _{answer: AllAnswers, result: "ok"}
-    ;   Response = _{answer: "false", result: "ok"}
+            canonical_string(Instance, AnswerStr),
+            convert_why(Why, KB, JSONWhy)
+        ), Results)
+    ->  Response = _{results: Results, result: "ok"}
+    ;   % No answers, get negative explanation
+        query_explain(SM, Query, _Instance, _Unknowns, Why),
+        convert_why(Why, KB, JSONWhy),
+        Response = _{results: [], why: JSONWhy, result: "ok"}
     ).
 
 handle_load_facts_and_query(Dict, Response) :-
@@ -273,11 +277,18 @@ load_prolog_file(Path, Module) :-
     ;   load_files(Module:Path, [])
     ).
 
+convert_why(success(Goal, range(Start, End), Children), KB, JSON) :- !,
+    term_string(Goal, GoalStr),
+    maplist(convert_why_child(KB), Children, JSONChildren),
+    JSON = _{type: "success", literal: GoalStr, start: Start, end: End, children: JSONChildren}.
 convert_why(success(Goal, Ref, Children), KB, JSON) :- !,
     term_string(Goal, GoalStr),
     maplist(convert_why_child(KB), Children, JSONChildren),
-    get_source_info(Ref, KB, Source, Start, End),
-    JSON = _{type: "success", literal: GoalStr, source: Source, start: Start, end: End, children: JSONChildren}.
+    (   KB \== none, KB:le_source(Ref, Start, End)
+    ->  JSON = _{type: "success", literal: GoalStr, start: Start, end: End, children: JSONChildren}
+    ;   term_string(Ref, RefStr),
+        JSON = _{type: "success", literal: GoalStr, ref: RefStr, children: JSONChildren}
+    ).
 convert_why(failure(Goal, Children), KB, JSON) :- !,
     term_string(Goal, GoalStr),
     maplist(convert_why_child(KB), Children, JSONChildren),

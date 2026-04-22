@@ -7,7 +7,40 @@
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
-    verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3]).
+    verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5]).
+
+% ... (rest of the file)
+
+%!  query_explain(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is det.
+%
+%   Similar to query/5, but always returns an explanation (success or failure).
+query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
+    ensure_tokens(Template, Tokens),
+    SessionModule:le_my_kb(KBmodule),
+    (   (atom(Template) ; string(Template)),
+        atom_string(QueryName, Template),
+        current_predicate(KBmodule:query_info/3),
+        KBmodule:query_info(QueryName, Goal, Items)
+    ->  reasoner:explain(Goal, SessionModule, Unknowns, Why0),
+        (   TemplateInstance = WordsAndVars,
+            maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
+            flatten(Instances, WordsAndVars)
+        ->  true
+        ;   TemplateInstance = []
+        ),
+        postprocess_why(Why0, KBmodule, Why)
+    ;   findall(D, KBmodule:le_dict(D), Templates),
+        (   member(Dict, Templates),
+            copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
+            le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)
+        ->  Goal =.. [Functor|Args],
+            reasoner:explain(Goal, SessionModule, Unknowns, Why0),
+            TemplateInstance = WordsAndVars,
+            postprocess_why(Why0, KBmodule, Why)
+        ;   % No template matched
+            TemplateInstance = [], Unknowns = [], Why = failure(no_template_matched(Tokens), [])
+        )
+    ).
 
 :- discontiguous print_test_result/1.
 
@@ -170,17 +203,45 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
         atom_string(QueryName, Template),
         current_predicate(KBmodule:query_info/3),
         KBmodule:query_info(QueryName, Goal, Items)
-    ->  reasoner:i(Goal, SessionModule, Unknowns, Why),
-        maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
-        flatten(Instances, TemplateInstance)
+    ->  (   reasoner:i(Goal, SessionModule, Unknowns, Why0)
+        ->  maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
+            flatten(Instances, TemplateInstance),
+            postprocess_why(Why0, KBmodule, Why)
+        ;   % If it fails, we might want a failure tree, but reasoner:i/4 doesn't return one for the top goal yet.
+            % For now, just fail as before, or we could enhance reasoner.
+            fail
+        )
     ;   findall(D, KBmodule:le_dict(D), Templates),
         member(Dict, Templates),
         copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
         le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true),
         Goal =.. [Functor|Args],
-        reasoner:i(Goal, SessionModule, Unknowns, Why),
-        TemplateInstance = WordsAndVars
+        (   reasoner:i(Goal, SessionModule, Unknowns, Why0)
+        ->  TemplateInstance = WordsAndVars,
+            postprocess_why(Why0, KBmodule, Why)
+        ;   fail
+        )
     ).
+
+%!  postprocess_why(+WhyIn:term, +KB:atom, -WhyOut:term) is det.
+%
+%   Replaces clause references with character position ranges.
+postprocess_why(success(Goal, Ref, Children), KB, success(Goal, Range, ChildrenOut)) :- !,
+    (   KB \== none, KB:le_source(Ref, Start, End)
+    ->  Range = range(Start, End)
+    ;   Range = Ref
+    ),
+    maplist(postprocess_why_child(KB), Children, ChildrenOut).
+postprocess_why(failure(Goal, Children), KB, failure(Goal, ChildrenOut)) :- !,
+    maplist(postprocess_why_child(KB), Children, ChildrenOut).
+postprocess_why(Whys, KB, WhysOut) :-
+    is_list(Whys), !,
+    maplist(postprocess_why_child(KB), Whys, WhysOut).
+postprocess_why(Other, _, Other).
+
+postprocess_why_child(KB, Child, ChildOut) :-
+    postprocess_why(Child, KB, ChildOut).
+
 
 ensure_tokens(Template, Tokens) :-
     is_list(Template), !, Tokens = Template.

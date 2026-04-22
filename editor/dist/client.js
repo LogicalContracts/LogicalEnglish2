@@ -487,6 +487,55 @@ function start() {
       }
     }
   });
+  const answersList = document.getElementById("answers-list");
+  const explanationTree = document.getElementById("explanation-tree");
+  const renderExplanation = (why) => {
+    explanationTree.innerHTML = "";
+    if (!why)
+      return;
+    const createNode = (node) => {
+      const container2 = document.createElement("div");
+      container2.className = "tree-node";
+      const label = document.createElement("div");
+      label.className = `tree-label ${node.type || "success"}`;
+      label.textContent = node.literal || node;
+      if (node.start !== void 0 && node.end !== void 0) {
+        label.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const startPos = model.getPositionAt(node.start);
+          const endPos = model.getPositionAt(node.end);
+          editor.setSelection(new monaco.Range(
+            startPos.lineNumber,
+            startPos.column,
+            endPos.lineNumber,
+            endPos.column
+          ));
+          editor.revealRangeInCenter(new monaco.Range(
+            startPos.lineNumber,
+            startPos.column,
+            endPos.lineNumber,
+            endPos.column
+          ));
+          editor.focus();
+        });
+      }
+      container2.appendChild(label);
+      if (node.children && node.children.length > 0) {
+        const childrenContainer = document.createElement("div");
+        childrenContainer.className = "tree-children";
+        node.children.forEach((child) => {
+          childrenContainer.appendChild(createNode(child));
+        });
+        container2.appendChild(childrenContainer);
+      }
+      return container2;
+    };
+    if (Array.isArray(why)) {
+      why.forEach((w) => explanationTree.appendChild(createNode(w)));
+    } else {
+      explanationTree.appendChild(createNode(why));
+    }
+  };
   btnQuery.addEventListener("click", async () => {
     if (!isLoaded) {
       const success = await loadModule();
@@ -499,7 +548,8 @@ function start() {
       resultsDisplay.textContent = "Please select a query.";
       return;
     }
-    resultsDisplay.textContent = "Executing query...";
+    answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
+    explanationTree.innerHTML = "";
     try {
       const response = await fetch("/leapi", {
         method: "POST",
@@ -513,17 +563,35 @@ function start() {
         })
       });
       const res = await response.json();
-      if (res && res.answer) {
-        resultsDisplay.textContent = typeof res.answer === "string" ? res.answer : JSON.stringify(res.answer, null, 2);
+      answersList.innerHTML = "";
+      if (res && res.results && res.results.length > 0) {
+        res.results.forEach((result, index) => {
+          const item = document.createElement("div");
+          item.className = "answer-item";
+          item.textContent = result.answer;
+          item.addEventListener("click", () => {
+            document.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
+            item.classList.add("selected");
+            renderExplanation(result.why);
+          });
+          answersList.appendChild(item);
+          if (index === 0)
+            item.click();
+        });
+      } else if (res && res.why) {
+        const item = document.createElement("div");
+        item.className = "answer-item failure";
+        item.style.color = "#f48771";
+        item.textContent = "false";
+        answersList.appendChild(item);
+        renderExplanation(res.why);
       } else if (res && res.error) {
-        resultsDisplay.textContent = "Error: " + res.error;
-      } else if (res && res.result) {
-        resultsDisplay.textContent = "Result: " + res.result;
+        answersList.textContent = "Error: " + res.error;
       } else {
-        resultsDisplay.textContent = "No results returned.";
+        answersList.textContent = "No results returned.";
       }
     } catch (err) {
-      resultsDisplay.textContent = "Error executing query.";
+      answersList.textContent = "Error executing query.";
       console.error(err);
     }
   });

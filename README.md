@@ -408,9 +408,13 @@ You are a Logical English (@docs/le_syntax.md) expert, and also an expert on Lan
 First, add a method to our docs/api.md to return the names of all LE examples in (hardwired path) "examples/moreExamples", and implement it in classic_web_api.pl
 Then a "Open from server" item to the File menu which opens a modal dialog to pick any of the avaialble LE examples, fetched it from the server and loads it into the editor; prior to all this, warn the user to dave any changes
 
-# Next steps
+## Editor querying
 
-add panel for scenarios and queries
+Now add a panel below the editor, with two popup menus: one for scenarios, the other for queries. When the user presses either, the editor client should ask the server (cf. docs/api.md) to load the editor text as a new LE module, obtaining the queries and examples in the program. the server should be asked for this only once (until the editor changes the program text). Then add also a Query button, which will execute the selected query and scenarion on the editor program; and a field below to depict the answers obtained
+
+# Next steps
+Show Explanations
+arbitrary queries... via LLM?
 
 inter module calling...
 adjust expected to cover parsing errors
