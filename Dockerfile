@@ -1,3 +1,17 @@
+# Build the image:
+#   docker build -t le2 .
+#
+# Run locally:
+#   docker run -p 3050:3050 le2
+#
+# Push to Docker Hub:
+#   docker tag le2 logicalcontracts/le2:latest
+#   docker push logicalcontracts/le2:latest
+#
+# Pull and run as a server:
+#   docker pull logicalcontracts/le2:latest
+#   docker run -d -p 8084:3050 --name le2_server logicalcontracts/le2:latest
+#
 # Use the official SWI-Prolog image as the base
 FROM swipl:latest
 
