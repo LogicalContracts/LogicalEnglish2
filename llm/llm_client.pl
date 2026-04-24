@@ -1,0 +1,349 @@
+/* llm_client.pl  –  A SWI-Prolog client for OpenAI-compatible LLM APIs
+ *
+ * Public interface
+ * ────────────────
+ *   llm_request(+Model, +Query, -Answer)
+ *       Send Query (atom or string) to Model, unify Answer with the
+ *       assistant's reply text.
+ *
+ *   llm_request(+Model, +Messages, -Answer, +Options)
+ *       Low-level call.  Messages is a list of role-content pairs
+ *       (see below).  Options is a list of Name(Value) terms that
+ *       are forwarded verbatim as extra JSON fields (e.g. temperature(0.2),
+ *       max_tokens(512)).
+ *
+ *   llm_model(+Model, -Provider, -APIModel)
+ *       Look up the provider and the exact model string for a short name.
+ *
+ *   llm_list_models(-Rows)
+ *       Rows = list of row(ShortName, Provider, APIModel).
+ *
+ * Message format
+ * ──────────────
+ *   Messages may be given as:
+ *     • A plain atom/string  →  treated as a single user message.
+ *     • A list of  role(Role, Content)  terms where Role ∈ {system, user, assistant}.
+ *
+ * API-key configuration
+ * ─────────────────────
+ *   Keys are read from environment variables:
+ *     OPENAI_API_KEY    – for provider openai
+ *     GROQ_API_KEY      – for provider groq
+ *     ANTHROPIC_API_KEY – for provider anthropic
+ *     TOGETHER_API_KEY  – for provider together
+ *     GEMINI_API_KEY    – for provider gemini  (free at aistudio.google.com)
+ *
+ *   Alternatively set Prolog flags:
+ *     :- set_prolog_flag(llm_openai_key,    'sk-...').
+ *     :- set_prolog_flag(llm_groq_key,      'gsk_...').
+ *     :- set_prolog_flag(llm_anthropic_key, 'sk-ant-...').
+ *     :- set_prolog_flag(llm_gemini_key,    'AIza...').
+ *
+ * Dependencies
+ * ────────────
+ *   library(http/http_client)     – ships with SWI-Prolog
+ *   library(http/http_json)       – ships with SWI-Prolog
+ *   library(http/http_ssl_plugin) – TLS support (usually auto-loaded)
+ */
+
+:- module(llm_client,
+    [ llm_request/3,        % +Model, +Query, -Answer
+      llm_request/4,        % +Model, +Messages, -Answer, +Options
+      llm_model/3,          % +ShortName, -Provider, -APIModel
+      llm_list_models/1,    % -Rows
+      llm_print_models/0    % pretty-print registry
+    ]).
+
+:- use_module(library(http/http_client)).
+:- use_module(library(http/http_json)).
+:- use_module(library(http/http_open)).
+:- use_module(library(http/http_ssl_plugin)).
+:- use_module(library(option)).
+:- use_module(library(lists)).
+:- use_module(library(apply)).
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 1.  MODEL REGISTRY
+%     llm_model_entry(ShortName, Provider, APIModelString, BaseURL)
+% ═══════════════════════════════════════════════════════════════════
+
+%% OpenAI  ──────────────────────────────────────────────────────────
+llm_model_entry('o1',                openai, 'o1',                'https://api.openai.com/v1').
+llm_model_entry('o1-mini',           openai, 'o1-mini',           'https://api.openai.com/v1').
+llm_model_entry('o3-mini',           openai, 'o3-mini',           'https://api.openai.com/v1').
+llm_model_entry('gpt-4o',            openai, 'gpt-4o',            'https://api.openai.com/v1').
+llm_model_entry('gpt-4o-mini',       openai, 'gpt-4o-mini',       'https://api.openai.com/v1').
+llm_model_entry('gpt-4-turbo',       openai, 'gpt-4-turbo',       'https://api.openai.com/v1').
+llm_model_entry('gpt-4',             openai, 'gpt-4',             'https://api.openai.com/v1').
+
+%% Groq  ────────────────────────────────────────────────────────────
+llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
+llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
+llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
+llm_model_entry('mixtral-8x7b',     groq, 'mixtral-8x7b-32768',               'https://api.groq.com/openai/v1').
+llm_model_entry('gemma2-9b',        groq, 'gemma2-9b-it',                     'https://api.groq.com/openai/v1').
+llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
+
+%% Anthropic  ───────────────────────────────────────────────────────
+%  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/5.
+llm_model_entry('claude-3-5-sonnet', anthropic, 'claude-3-5-sonnet-20241022', 'https://api.anthropic.com/v1').
+llm_model_entry('claude-3-5-haiku',  anthropic, 'claude-3-5-haiku-20241022',  'https://api.anthropic.com/v1').
+llm_model_entry('claude-3-opus',     anthropic, 'claude-3-opus-20240229',     'https://api.anthropic.com/v1').
+
+%% Together AI  ─────────────────────────────────────────────────────
+llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
+llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
+llm_model_entry('mixtral-8x22b',          together, 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'https://api.together.xyz/v1').
+
+%% Google Gemini  (OpenAI-compatible endpoint) ──────────────────────
+%  Endpoint: https://generativelanguage.googleapis.com/v1beta/openai
+%  Key:      GEMINI_API_KEY  –  get one free at aistudio.google.com
+%
+llm_model_entry('gemini-2.0-flash',      gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-2.0-flash-lite', gemini, 'gemini-2.0-flash-lite-preview', 'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-1.5-flash',      gemini, 'gemini-1.5-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+%  Convenience alias → latest stable flash
+llm_model_entry('gemini',                gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+
+
+% ───────────────────────────────────────────────────────────────────
+% llm_model(+Short, -Provider, -APIModel)
+% ───────────────────────────────────────────────────────────────────
+llm_model(Short, Provider, APIModel) :-
+    llm_model_entry(Short, Provider, APIModel, _).
+
+% ───────────────────────────────────────────────────────────────────
+% llm_list_models(-Rows)
+% ───────────────────────────────────────────────────────────────────
+llm_list_models(Rows) :-
+    findall(row(S,P,M), llm_model_entry(S,P,M,_), Rows).
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 2.  PUBLIC ENTRY POINTS
+% ═══════════════════════════════════════════════════════════════════
+
+%% llm_request(+Model, +Query, -Answer)
+llm_request(Model, Query, Answer) :-
+    llm_request(Model, Query, Answer, []).
+
+%% llm_request(+Model, +Query, -Answer, +Options)
+%
+%  Options are extra JSON fields: temperature(T), max_tokens(N), top_p(P), …
+%
+llm_request(Model, Query, Answer, Options) :-
+    resolve_model(Model, Provider, APIModel, BaseURL),
+    normalise_messages(Query, Messages),
+    api_key(Provider, Key),
+    build_body(Provider, APIModel, Messages, Options, BodyPairs),
+    call_api(Provider, BaseURL, Key, BodyPairs, RawJSON),
+    extract_answer(Provider, RawJSON, Answer).
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 3.  MODEL RESOLUTION
+% ═══════════════════════════════════════════════════════════════════
+
+resolve_model(Model, Provider, APIModel, BaseURL) :-
+    llm_model_entry(Model, Provider, APIModel, BaseURL), !.
+resolve_model(Model, Provider, APIModel, BaseURL) :-
+    infer_provider(Model, Provider, BaseURL),
+    APIModel = Model, !.
+resolve_model(Model, _, _, _) :-
+    format(atom(Msg),
+        "Unknown model '~w'. Use llm_list_models/1 to see available models.",
+        [Model]),
+    throw(error(llm_unknown_model(Model), context(llm_client, Msg))).
+
+infer_provider(M, openai,   'https://api.openai.com/v1')                             :- sub_atom(M,0,_,_,'gpt-'),    !.
+infer_provider(M, openai,   'https://api.openai.com/v1')                             :- sub_atom(M,0,_,_,'o1'),      !.
+infer_provider(M, openai,   'https://api.openai.com/v1')                             :- sub_atom(M,0,_,_,'o3'),      !.
+infer_provider(M, anthropic,'https://api.anthropic.com/v1')                          :- sub_atom(M,0,_,_,'claude'),  !.
+infer_provider(M, gemini,   'https://generativelanguage.googleapis.com/v1beta/openai'):- sub_atom(M,0,_,_,'gemini'), !.
+infer_provider(M, groq,     'https://api.groq.com/openai/v1')                        :- sub_atom(M,0,_,_,'llama'),   !.
+infer_provider(M, groq,     'https://api.groq.com/openai/v1')                        :- sub_atom(M,0,_,_,'mixtral'), !.
+infer_provider(M, groq,     'https://api.groq.com/openai/v1')                        :- sub_atom(M,0,_,_,'gemma'),   !.
+% infer_provider(_M, openai,  'https://api.openai.com/v1').                           % fallback removed to avoid accidental backtracking
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 4.  MESSAGE NORMALISATION
+% ═══════════════════════════════════════════════════════════════════
+
+normalise_messages(Query, [_{role:user, content:QA}]) :-
+    ( atom(Query) ; string(Query) ), !,
+    atom_string(QA, Query).
+normalise_messages(Messages, JSON) :-
+    is_list(Messages), !,
+    maplist(msg_to_dict, Messages, JSON).
+normalise_messages(role(R,C), [_{role:R, content:C}]) :- !.
+
+msg_to_dict(role(Role, Content), _{role:Role, content:Content}) :- !.
+msg_to_dict(system(Content),     _{role:system,    content:Content}) :- !.
+msg_to_dict(user(Content),       _{role:user,      content:Content}) :- !.
+msg_to_dict(assistant(Content),  _{role:assistant, content:Content}) :- !.
+msg_to_dict(Dict, Dict) :- is_dict(Dict), !.
+msg_to_dict(json(Pairs), Dict) :- dict_pairs(Dict, _, Pairs).
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 5.  REQUEST BODY CONSTRUCTION
+%
+%  build_body/5 produces a dict ready for http_post(..., json(Dict), ...).
+% ═══════════════════════════════════════════════════════════════════
+
+build_body(anthropic, APIModel, Messages, Options, Body) :- !,
+    % Anthropic Messages API: max_tokens is required; system is a top-level field.
+    option(max_tokens(MaxTok), Options, 1024),
+    extract_system(Messages, SysContent, UserMessages),
+    Base = _{model:APIModel, max_tokens:MaxTok, messages:UserMessages},
+    ( SysContent \= '' ->
+        Body0 = Base.put(system, SysContent)
+    ;   Body0 = Base
+    ),
+    option_pairs(Options, [max_tokens], OptionPairs),
+    dict_pairs(Extra, _, OptionPairs),
+    Body = Body0.put(Extra).
+
+build_body(_Provider, APIModel, Messages, Options, Body) :-
+    % OpenAI-compatible: OpenAI, Groq, Gemini, Together …
+    Body0 = _{model:APIModel, messages:Messages},
+    option_pairs(Options, [], OptionPairs),
+    dict_pairs(Extra, _, OptionPairs),
+    Body = Body0.put(Extra).
+
+% Pull the system message out of the list for Anthropic
+extract_system(Messages, System, Rest) :-
+    ( selectchk(_{role:system, content:S}, Messages, Rest1) ->
+        System = S, Rest = Rest1
+    ;   System = '', Rest = Messages
+    ).
+
+% Convert Options list → JSON key=Value pairs, skipping SkipKeys
+option_pairs(Options, SkipKeys, Pairs) :-
+    include(option_allowed(SkipKeys), Options, Allowed),
+    maplist(option_to_pair, Allowed, Pairs).
+
+option_allowed(Skip, Opt) :-
+    Opt =.. [Key | _],
+    \+ memberchk(Key, Skip).
+
+option_to_pair(Opt, Key-Val) :-
+    Opt =.. [Key, Val].
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 6.  HTTP CALL
+%
+%  Receives Body as a dict from build_body.
+%  Posts it as json(Body) → http_post sees json(Dict) which tells it
+%  to use the JSON plugin to write the dict as a JSON object.
+% ═══════════════════════════════════════════════════════════════════
+
+call_api(anthropic, BaseURL, Key, Body, Response) :- !,
+    atomic_list_concat([BaseURL, '/messages'], Endpoint),
+    atom_string(Key, KeyStr),
+    catch(
+        http_post(Endpoint,
+            json(Body),
+            Response,
+            [ json_object(dict),
+              status_code(Code),
+              request_header('x-api-key'=KeyStr),
+              request_header('anthropic-version'='2023-06-01')
+            ]),
+        E, handle_http_error(E)
+    ),
+    check_status(Code, Response).
+
+call_api(_Provider, BaseURL, Key, Body, Response) :-
+    atomic_list_concat([BaseURL, '/chat/completions'], Endpoint),
+    atom_string(Key, KeyStr),
+    atomic_list_concat(['Bearer ', KeyStr], Auth),
+    catch(
+        http_post(Endpoint,
+            json(Body),
+            Response,
+            [ json_object(dict),
+              status_code(Code),
+              request_header('Authorization'=Auth)
+            ]),
+        E, handle_http_error(E)
+    ),
+    check_status(Code, Response).
+
+handle_http_error(E) :-
+    throw(error(llm_http_error(E), context(llm_client, "HTTP request failed"))).
+
+check_status(Code, _) :-
+    Code >= 200, Code < 300, !.
+check_status(Code, Response) :-
+    format(atom(Msg), "API returned HTTP ~w: ~w", [Code, Response]),
+    throw(error(llm_api_error(Code, Response), context(llm_client, Msg))).
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 7.  RESPONSE PARSING
+% ═══════════════════════════════════════════════════════════════════
+
+% Anthropic: { content: [ { text: "..." } ] }
+extract_answer(anthropic, Response, Answer) :- !,
+    ( is_dict(Response) ->
+        Response.content = [First|_],
+        Answer = First.text
+    ;
+        Response = json(RList),
+        member(content=[json(C0)|_], RList),
+        member(text=Answer, C0)
+    ).
+
+% OpenAI-compatible (OpenAI, Groq, Gemini, Together):
+%   { choices: [ { message: { content: "..." } } ] }
+extract_answer(_Provider, Response, Answer) :-
+    ( is_dict(Response) ->
+        Response.choices = [First|_],
+        Answer = First.message.content
+    ;
+        Response = json(RList),
+        member(choices=[json(C0)|_], RList),
+        member(message=json(M0), C0),
+        member(content=Answer, M0)
+    ).
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 8.  API KEY RESOLUTION
+% ═══════════════════════════════════════════════════════════════════
+
+api_key(openai,    Key) :- key_from_flag_or_env(llm_openai_key,    'OPENAI_API_KEY',    Key), !.
+api_key(groq,      Key) :- key_from_flag_or_env(llm_groq_key,      'GROQ_API_KEY',      Key), !.
+api_key(anthropic, Key) :- key_from_flag_or_env(llm_anthropic_key, 'ANTHROPIC_API_KEY', Key), !.
+api_key(together,  Key) :- key_from_flag_or_env(llm_together_key,  'TOGETHER_API_KEY',  Key), !.
+api_key(gemini,    Key) :- key_from_flag_or_env(llm_gemini_key,    'GEMINI_API_KEY',    Key), !.
+api_key(Provider, _) :-
+    format(atom(Msg),
+        "No API key for provider '~w'. Set env var or set_prolog_flag(llm_~w_key, 'KEY').",
+        [Provider, Provider]),
+    throw(error(llm_no_api_key(Provider), context(llm_client, Msg))).
+
+key_from_flag_or_env(Flag, EnvVar, Key) :-
+    ( current_prolog_flag(Flag, Key), Key \= '' -> true
+    ; getenv(EnvVar, Key)
+    ).
+
+
+% ═══════════════════════════════════════════════════════════════════
+% 9.  UTILITIES
+% ═══════════════════════════════════════════════════════════════════
+
+%% llm_print_models/0  – Pretty-print the model table
+llm_print_models :-
+    llm_list_models(Rows),
+    format("~`─t~65|~n"),
+    format("~w~t~25|~w~t~42|~w~n", ['Short name', 'Provider', 'API model string']),
+    format("~`─t~65|~n"),
+    forall(member(row(S,P,M), Rows),
+        format("~w~t~25|~w~t~42|~w~n", [S, P, M])),
+    format("~`─t~65|~n").

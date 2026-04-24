@@ -428,9 +428,13 @@ About "Open from server...": please rename to "Open copy from server..."; and ma
 Also make the session ID a bit larger, and justify it to the right of tht window
 
 # Next steps
-deploy to le2.logicalcontracts.com
-
+Mini app at /
 Public MCP server?
+    list program summaries
+    generate scenario for existing program(s)
+    Execute query on existing program
+    generate program from text, verification included (Opencode subprocess)
+    https://microsoft.github.io/debug-adapter-protocol/ for LE
 
 arbitrary queries... via LLM?
 inter module calling...
