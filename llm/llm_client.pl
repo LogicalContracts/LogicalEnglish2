@@ -97,6 +97,7 @@ llm_model_entry('claude-3-5-haiku',  anthropic, 'claude-3-5-haiku-20241022',  'h
 llm_model_entry('claude-3-opus',     anthropic, 'claude-3-opus-20240229',     'https://api.anthropic.com/v1').
 
 %% Together AI  ─────────────────────────────────────────────────────
+% https://api.together.ai/models
 llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
 llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
 llm_model_entry('mixtral-8x22b',          together, 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'https://api.together.xyz/v1').
