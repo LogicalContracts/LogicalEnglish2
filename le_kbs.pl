@@ -7,7 +7,8 @@
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
-    verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5]).
+    verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
+    topPredicates/2, kbSummary/2]).
 
 :- discontiguous print_test_result/1.
 
@@ -322,6 +323,53 @@ get_kb_metadata(KB, Metadata) :-
         Queries = []
     ),
     Metadata = _{ kb: KBName, predicates: Preds, examples: Examples, queries: Queries }.
+
+%!  topPredicates(+KBmodule:atom, -TopPredicates:list) is det.
+%
+%   Returns a list of templates for the top-level predicates of the given KB module.
+%   A top-level predicate is one defined by a rule but not used by other rules.
+topPredicates(KB, TopPreds) :-
+    findall(F/A, (
+        current_predicate(KB:F/A),
+        \+ is_system_predicate(F/A),
+        le_verifier:is_intensional(KB, F, A),
+        \+ is_used_by_other_rules(KB, F, A)
+    ), Preds),
+    sort(Preds, UniquePreds),
+    maplist(pred_to_template(KB), UniquePreds, TopPreds).
+
+is_used_by_other_rules(KB, F, A) :-
+    current_predicate(KB:F2/A2),
+    F2/A2 \== F/A,
+    \+ is_system_predicate(F2/A2),
+    functor(G2, F2, A2),
+    KB:clause(G2, Body),
+    le_verifier:find_in_body(Body, Literal),
+    functor(Literal, F, A).
+
+pred_to_template(KB, F/A, TemplateStr) :-
+    (   KB:le_dict(dict([F|_], NTs, WordsAndVars))
+    ->  copy_term(NTs-WordsAndVars, NTsCopy-WordsAndVarsCopy),
+        maplist(fill_type, NTsCopy),
+        canonical_string(WordsAndVarsCopy, TemplateStr)
+    ;   functor(Head, F, A),
+        item_to_instance(KB, Head, Tokens),
+        canonical_string(Tokens, TemplateStr)
+    ).
+
+fill_type(V-Type) :-
+    (   atom(Type) -> format(atom(V), "a ~w", [Type])
+    ;   V = 'a variable'
+    ).
+
+%!  kbSummary(+KBmodule:atom, -Summary:string) is det.
+%
+%   Returns a summary of the KB, including its name and top-level predicates.
+kbSummary(KB, Summary) :-
+    (current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true ; KBName = KB),
+    topPredicates(KB, TopPreds),
+    atomic_list_concat(TopPreds, '; ', PredsStr),
+    format(string(Summary), "KB: ~w. Top predicates: ~w", [KBName, PredsStr]).
 
 is_system_predicate(le_kb/1).
 is_system_predicate(le_source/3).

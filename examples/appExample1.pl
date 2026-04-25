@@ -5,6 +5,10 @@ main :-
     % Load the citizenship knowledge base
     load('examples/moreExamples/citizenship.le', KB),
     format('Loaded KB: ~w~n', [KB]),
+
+    % Test kbSummary
+    kbSummary(KB, Summary),
+    format('KB Summary: ~w~n~n', [Summary]),
     
     % Create a session for this KB
     createSession(KB, Session),

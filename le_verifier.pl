@@ -1,4 +1,4 @@
-:- module(le_verifier, [verify/2, print_issue/1]).
+:- module(le_verifier, [verify/2, print_issue/1, is_intensional/3, find_in_body/2]).
 
 :- use_module(le_kbs, [is_system_predicate/1]).
 
@@ -17,30 +17,20 @@ check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
     (   current_predicate(KB:unknown_template/1), KB:clause(unknown_template(Tokens), _, Ref)
-    ;   current_predicate(KB:F/A), functor(Head, F, A), KB:clause(Head, Body, Ref), find_unknown_in_body(Body, unknown_template(Tokens))
+    ;   current_predicate(KB:F/A), functor(Head, F, A), KB:clause(Head, Body, Ref), find_in_body(Body, unknown_template(Tokens))
     ),
     le_grammar:reconstruct_name(Tokens, Name),
     format(atom(Description), "Missing template for '~w'", [Name]),
     Fix = "add a template for the phrase to the 'the templates are:' section.",
     ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
 
-find_unknown_in_body(unknown_template(T), unknown_template(T)).
-find_unknown_in_body(not(B), U) :- find_unknown_in_body(B, U).
-find_unknown_in_body((A, B), U) :- (find_unknown_in_body(A, U) ; find_unknown_in_body(B, U)).
-find_unknown_in_body((A ; B), U) :- (find_unknown_in_body(A, U) ; find_unknown_in_body(B, U)).
-find_unknown_in_body(forall(A, B), U) :- (find_unknown_in_body(A, U) ; find_unknown_in_body(B, U)).
-find_unknown_in_body(sum(_, G, _), U) :- find_unknown_in_body(G, U).
-find_unknown_in_body(count(_, G, _), U) :- find_unknown_in_body(G, U).
-find_unknown_in_body(min(_, G, _), U) :- find_unknown_in_body(G, U).
-find_unknown_in_body(max(_, G, _), U) :- find_unknown_in_body(G, U).
-find_unknown_in_body(average(_, G, _), U) :- find_unknown_in_body(G, U).
-
 % --- 2. Undefined predicate ---
 undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A), functor(Head, F, A),
     \+ is_system_predicate(F/A),
     KB:clause(Head, Body, Ref),
-    find_literal_in_body(Body, Literal),
+    find_in_body(Body, Literal),
+    Literal \= unknown_template(_),
     \+ is_defined(KB, Literal),
     \+ is_built_in_literal(Literal),
     functor(Literal, FL, AL),
@@ -48,22 +38,24 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
     ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
 
-find_literal_in_body(L, L) :- L \= (_ , _), L \= (_ ; _), L \= not(_), L \= forall(_, _), L \= true, L \= fail, L \= unknown_template(_), L \= unknown_tokens(_), \+ is_aggregate_literal(L).
-find_literal_in_body(not(B), L) :- find_literal_in_body(B, L).
-find_literal_in_body((A, B), L) :- (find_literal_in_body(A, L) ; find_literal_in_body(B, L)).
-find_literal_in_body((A ; B), L) :- (find_literal_in_body(A, L) ; find_literal_in_body(B, L)).
-find_literal_in_body(forall(A, B), L) :- (find_literal_in_body(A, L) ; find_literal_in_body(B, L)).
-find_literal_in_body(sum(_, G, _), L) :- find_literal_in_body(G, L).
-find_literal_in_body(count(_, G, _), L) :- find_literal_in_body(G, L).
-find_literal_in_body(min(_, G, _), L) :- find_literal_in_body(G, L).
-find_literal_in_body(max(_, G, _), L) :- find_literal_in_body(G, L).
-find_literal_in_body(average(_, G, _), L) :- find_literal_in_body(G, L).
-
-is_aggregate_literal(sum(_, _, _)).
-is_aggregate_literal(count(_, _, _)).
-is_aggregate_literal(min(_, _, _)).
-is_aggregate_literal(max(_, _, _)).
-is_aggregate_literal(average(_, _, _)).
+% find_in_body(+Body, -Literal)
+% Recursively finds literals in a rule body.
+% WARNING: This logic is dependent on the structure of solve_real/8 in reasoner.pl
+find_in_body((A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
+find_in_body(and(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
+find_in_body((A ; B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
+find_in_body(or(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
+find_in_body(not(B), L) :- !, find_in_body(B, L).
+find_in_body(forall(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
+find_in_body(sum(_, G, _), L) :- !, find_in_body(G, L).
+find_in_body(count(_, G, _), L) :- !, find_in_body(G, L).
+find_in_body(min(_, G, _), L) :- !, find_in_body(G, L).
+find_in_body(max(_, G, _), L) :- !, find_in_body(G, L).
+find_in_body(average(_, G, _), L) :- !, find_in_body(G, L).
+find_in_body(true, _) :- !, fail.
+find_in_body(fail, _) :- !, fail.
+find_in_body(unknown_tokens(_), _) :- !, fail.
+find_in_body(L, L).
 
 is_defined(KB, Literal) :-
     catch(is_defined_real(KB, Literal), _, fail).
@@ -116,10 +108,10 @@ is_reachable_from_query(KB, F, A) :-
     is_reachable(KB, Goal, F, A, []).
 
 is_reachable(_KB, Goal, F, A, _) :-
-    find_literal_in_body(Goal, Literal),
+    find_in_body(Goal, Literal),
     functor(Literal, F, A).
 is_reachable(KB, Goal, F, A, Anc) :-
-    find_literal_in_body(Goal, Literal),
+    find_in_body(Goal, Literal),
     functor(Literal, F1, A1),
     \+ member(F1/A1, Anc),
     functor(G1, F1, A1),
