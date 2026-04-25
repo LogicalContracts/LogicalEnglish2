@@ -51,14 +51,20 @@ load(FilePath, NewModule) :-
         ;   
         true
     ),
-    (   (current_module(NewModule), current_predicate(NewModule:le_source/3)) -> true
+    (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
         ; (   catch(parse_le_file(FilePath, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
                 % Ensure we start with a clean module
                 forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+                dynamic(NewModule:le_issue/5),
                 forall(member(S, Sections), process_section(S, NewModule)),
                 findall(D, le_system_template(D), SysDicts),
                 forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-                ( catch(le_verifier:verify(NewModule, _Issues), EV, (print_message(error, EV), true)) -> true; true)
+                ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+                    forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+                        (Type == missing_template -> Severity = error; Severity = warning),
+                        assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+                    ))
+                ; true)
             ; print_message(error, "parse_le_file failed for ~w" - [FilePath]),
               fail
         )
@@ -100,6 +106,11 @@ process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assertz(M:l
 process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
 process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
 process_section_acc(meta(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
+process_section_acc(unknown_section(Tokens, Start, End), M) :-
+    le_grammar:reconstruct_name(Tokens, FullName),
+    ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
+    format(atom(Desc), "Unknown or malformed section starting with: ~w", [Name]),
+    assertz(M:le_issue(error, unknown_section, Desc, Start, End)).
 process_section_acc(_, _).
 
 process_item(clause(Head, Body, Start, End), M) :-
@@ -319,6 +330,8 @@ is_system_predicate(le_expected/3).
 is_system_predicate(query_info/3).
 is_system_predicate(ontology/1).
 is_system_predicate(le_dict/1).
+is_system_predicate(unknown_template/1).
+is_system_predicate(le_issue/5).
 is_system_predicate(le_my_kb/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).

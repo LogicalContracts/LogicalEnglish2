@@ -361,6 +361,34 @@ function start() {
     const kbModuleDisplay = document.getElementById('kb-module-display')!;
     const sessionModuleDisplay = document.getElementById('session-module-display')!;
 
+    const updateMarkers = (issues: any[]) => {
+        const model = editor.getModel();
+        if (!model) return;
+
+        const markers = issues.map((issue: any) => {
+            const startPos = model.getPositionAt(issue.start);
+            const endPos = model.getPositionAt(issue.end);
+            return {
+                severity: issue.severity === 'error' ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
+                startLineNumber: startPos.lineNumber,
+                startColumn: startPos.column,
+                endLineNumber: endPos.lineNumber,
+                endColumn: endPos.column,
+                message: issue.message,
+                source: 'LE Verifier'
+            };
+        });
+
+        monaco.editor.setModelMarkers(model, 'le-verifier', markers);
+
+        // Update Query button state
+        const hasErrors = issues.some(i => i.severity === 'error');
+        if (btnQuery) {
+            btnQuery.disabled = hasErrors;
+            btnQuery.title = hasErrors ? 'Cannot query while there are errors in the document' : '';
+        }
+    };
+
     const loadModule = async () => {
         if (isLoaded || isLoading) return true;
         isLoading = true;
@@ -410,18 +438,26 @@ function start() {
                     });
                 }
                 
+                if (res.issues) {
+                    updateMarkers(res.issues);
+                } else {
+                    updateMarkers([]);
+                }
+
                 resultsDisplay.textContent = 'Results';
                 isLoading = false;
                 return true;
             } else {
                 resultsDisplay.textContent = 'Error loading module: ' + (res?.error || 'Unknown error');
                 isLoading = false;
+                updateMarkers([]);
                 return false;
             }
         } catch (err) {
             resultsDisplay.textContent = 'Error connecting to server.';
             console.error(err);
             isLoading = false;
+            updateMarkers([]);
             return false;
         }
     };

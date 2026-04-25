@@ -4,7 +4,7 @@
     logic that transforms tokens into executable Prolog terms.
 */
 
-:- module(le_grammar, [parse_le_file/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7]).
+:- module(le_grammar, [parse_le_file/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2]).
 
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
@@ -99,10 +99,11 @@ section(meta(Dicts)) -->
     { Dicts = [] }.
 
 % section(unknown_section(...)) is a fallback for unrecognized sections.
-section(unknown_section(Tokens)) -->
-    [T], { T =.. [_, _, loc(_, _)] },
+section(unknown_section(Tokens, Start, End)) -->
+    [T], { T =.. [_, _, loc(Start, _)] },
     consume_until_next_section(Ts),
-    { Tokens = [T|Ts] }.
+    { append([T], Ts, Tokens) },
+    { last(Tokens, Last), ( Last =.. [_, _, loc(_, End)] -> true ; End = Start) }.
 
 % kb_name_tokens(Tokens) consumes tokens until the 'includes' keyword.
 kb_name_tokens([T|Ts]) -->
@@ -433,6 +434,9 @@ extract_simple_value(number(N), N).
 extract_simple_value(string(S), S).
 extract_simple_value(punct(P), P).
 extract_simple_value(date(D), D).
+extract_simple_value(indent(_, _), '').
+extract_simple_value(line_comment(_, _), '').
+extract_simple_value(multi_comment(_, _), '').
 extract_simple_value(list(_), '[]').
 extract_simple_value(expr(_), '()').
 extract_simple_value(var(Words), Atom) :- atomic_list_concat(Words, ' ', Atom).
@@ -592,6 +596,7 @@ get_dicts(_, []).
 
 second_pass_section(Templates, kb(Name, Content, Start, End), kb(Name, NewContent, Start, End)) :-
     second_pass_content(Content, Templates, NewContent).
+second_pass_section(_, unknown_section(Tokens, Start, End), unknown_section(Tokens, Start, End)).
 second_pass_section(Templates, ontology(Content, Start, End), ontology(NewContent, Start, End)) :-
     maplist(second_pass_ontology_item(Templates), Content, NewContent).
 second_pass_section(Templates, scenario(Name, Content, Start, End), scenario(Name, NewContent, Start, End)) :-
@@ -610,12 +615,13 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(N
         (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody) ->  
             ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true)
             ;   
-            ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true), fail
+            ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
+            NewBody = true % Fallback
         )
         ;   
         ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
         NewHead = unknown_template(Head),
-        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
+        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
     ).
 second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
     ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head)).

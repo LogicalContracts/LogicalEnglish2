@@ -513,10 +513,6 @@ second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End),
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
-
-# Next steps
-CLAUDE.md for code styling, basic LE understanding
-
 ## expected answers
 Let's add an optional construct for scenarios: "QueryName expects answers ListOfAnswers.". This is intended to replace the need for .le.tests files. For example the first fact in citizenship.le.tests will be represented like this in scenario 'alice':
 
@@ -533,8 +529,15 @@ Considering this design:
 - Review the runTests etc. predicates to use both this new predicate and the legacy .le.tests files, which we will continue to support
 - Move all expected/3 facts from the .le.tests into the .le files
 
+## Warnings and error in the editor
+We need to show in the editor any errors (detected by the parser) and warnings (as produced by le_verifier:verify(..)); I suggest using red and yellow respectively.
+And also make sure that if there are errors the Query button is disabled (with a tooltip referring the presence of errors)
 
-Warnings and error in the editor
+# Next steps
+CLAUDE.md for code styling, basic LE understanding
+
+
+
 
 Arbitrary queries and scenario facts (strict)
 prolog self-contained representation, with le_xxx predicates too

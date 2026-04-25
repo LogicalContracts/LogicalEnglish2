@@ -400,6 +400,30 @@ function start() {
   const resultsDisplay = document.getElementById("results-display");
   const kbModuleDisplay = document.getElementById("kb-module-display");
   const sessionModuleDisplay = document.getElementById("session-module-display");
+  const updateMarkers = (issues) => {
+    const model2 = editor.getModel();
+    if (!model2)
+      return;
+    const markers = issues.map((issue) => {
+      const startPos = model2.getPositionAt(issue.start);
+      const endPos = model2.getPositionAt(issue.end);
+      return {
+        severity: issue.severity === "error" ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
+        startLineNumber: startPos.lineNumber,
+        startColumn: startPos.column,
+        endLineNumber: endPos.lineNumber,
+        endColumn: endPos.column,
+        message: issue.message,
+        source: "LE Verifier"
+      };
+    });
+    monaco.editor.setModelMarkers(model2, "le-verifier", markers);
+    const hasErrors = issues.some((i) => i.severity === "error");
+    if (btnQuery) {
+      btnQuery.disabled = hasErrors;
+      btnQuery.title = hasErrors ? "Cannot query while there are errors in the document" : "";
+    }
+  };
   const loadModule = async () => {
     if (isLoaded || isLoading)
       return true;
@@ -441,18 +465,25 @@ function start() {
             querySelect.appendChild(option);
           });
         }
+        if (res.issues) {
+          updateMarkers(res.issues);
+        } else {
+          updateMarkers([]);
+        }
         resultsDisplay.textContent = "Results";
         isLoading = false;
         return true;
       } else {
         resultsDisplay.textContent = "Error loading module: " + (res?.error || "Unknown error");
         isLoading = false;
+        updateMarkers([]);
         return false;
       }
     } catch (err) {
       resultsDisplay.textContent = "Error connecting to server.";
       console.error(err);
       isLoading = false;
+      updateMarkers([]);
       return false;
     }
   };

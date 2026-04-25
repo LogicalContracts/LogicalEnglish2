@@ -38,6 +38,7 @@ find_unknown_in_body(average(_, G, _), U) :- find_unknown_in_body(G, U).
 % --- 2. Undefined predicate ---
 undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A), functor(Head, F, A),
+    \+ is_system_predicate(F/A),
     KB:clause(Head, Body, Ref),
     find_literal_in_body(Body, Literal),
     \+ is_defined(KB, Literal),
@@ -71,6 +72,8 @@ is_defined_real(KB, Literal) :-
     functor(Literal, F, A),
     (   Literal = is_a(_, _) -> true
     ;   memberchk(F/A, [and/2, or/2, not/1, forall/2, true/0, fail/0, sum/3, count/3, min/3, max/3, average/3]) -> true
+    ;   memberchk(F/A, [le_is/2, le_equal_to/2, le_assign/2, le_ge/2, le_le/2, le_gt/2, le_lt/2, le_known/1, le_is_in/2]) -> true
+    ;   (F == says_that, A == 2) -> true
     ;   safe_clause(KB, Literal) -> true
     ;   safe_scenario_fact(KB, F, A) -> true
     ;   fail
@@ -88,6 +91,7 @@ safe_scenario_fact(KB, F, A) :-
     functor(Fact, F, A).
 
 is_built_in_literal(L) :- reasoner:is_built_in(L).
+is_built_in_literal(says_that(_, _)).
 
 % --- 3. Untested predicate ---
 untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-

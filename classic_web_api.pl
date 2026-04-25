@@ -118,10 +118,12 @@ handle_load(Dict, Response) :-
     ),
     ( catch(createSession(KB, SM), E4, (print_message(error, E4), fail)) -> true; print_message(error, le_api_error(load, "createSession failed")), fail),
     (   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), fail)) ->  
+        findall(_{severity: Sev, type: Type, message: Msg, start: Start, end: End}, KB:le_issue(Sev, Type, Msg, Start, End), Issues),
         Response = Metadata.put(_{
             sessionModule: SM,
             language: Language,
-            target: prolog
+            target: prolog,
+            issues: Issues
         }),
         print_message(informational, le_api_info(loaded(KB, SM)))
         ;   
