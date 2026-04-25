@@ -99,7 +99,7 @@ untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-
     is_intensional(KB, F, A),
     \+ is_reachable_from_query(KB, F, A),
     format(atom(Description), "This predicate is not tested by any query: '~w/~w'", [F, A]),
-    Fix = "add a query that exercises the predicate, and add expected answers to the .le.tests file.".
+    Fix = "add a query that exercises the predicate, and add expected answers to the .le.tests file or using 'expects answers' in a scenario.".
 
 is_intensional(KB, F, A) :-
     functor(G, F, A),

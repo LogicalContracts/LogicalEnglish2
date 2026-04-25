@@ -517,6 +517,24 @@ second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End),
 # Next steps
 CLAUDE.md for code styling, basic LE understanding
 
+## expected answers
+Let's add an optional construct for scenarios: "QueryName expects answers ListOfAnswers.". This is intended to replace the need for .le.tests files. For example the first fact in citizenship.le.tests will be represented like this in scenario 'alice':
+
+scenario alice is:
+    John is born in the UK on 2021-10-09.
+	2021-10-09 is after commencement.
+	Alice is the mother of John.
+	Alice is a British citizen on 2021-10-09.
+    one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
+
+Considering this design:
+- Enhance the parser to recognize it
+- Represent the information into a new system predicate le_expected(Queryname,ScenarioName,listOfAnswers) in the KB module
+- Review the runTests etc. predicates to use both this new predicate and the legacy .le.tests files, which we will continue to support
+- Move all expected/3 facts from the .le.tests into the .le files
+
+
+Warnings and error in the editor
 
 Arbitrary queries and scenario facts (strict)
 prolog self-contained representation, with le_xxx predicates too

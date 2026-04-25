@@ -128,6 +128,9 @@ XYZ Pty Ltd makes distribution of  income  during the relevant year.
 % holds shares in
 Tom Fry holds the legal and equitable interests in shares in XYZ Pty Ltd.
 Sarah Fry holds the legal and equitable interests in shares in XYZ Pty Ltd.
+    indirect expects answers ["the indirect small business participation percentage of Tom Fry in Tallow Unit Trust is 0.04000000000000001"].
+    direct expects answers [].
+
 
      
 query indirect is:

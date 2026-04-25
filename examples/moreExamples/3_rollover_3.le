@@ -147,6 +147,9 @@ scenario Testing is:
     event 123 of transfering company1 goodwill from company1 to miguel at 2016-07-01 occurs.
     miguel has an aggregated turnover of 400000 according to other legislation.
     company1 has an aggregated turnover of 5300000 according to other legislation.
+    one expects answers ["the small business restructure rollover applies to event 123"].
+    two expects answers ["company1 is a party of event 123"].
+
 
 scenario Andrew email Feb 4 2021 is:
     company1 owns company1 goodwill at a time according to other legislation.
@@ -168,6 +171,9 @@ scenario Andrew email Feb 4 2021 is:
     event 123 is part of genuine restructuring according to other legislation.
     company1 goodwill is used in business of company1 according to other legislation.
     company1 goodwill is of type trading stock.
+    one expects answers [].
+    two expects answers ["andrew is a party of event 123","company1 is a party of event 123","miguel is a party of event 123"].
+
     
     
 scenario Andrew email Feb 4 2021 version 2 is:
@@ -179,4 +185,5 @@ scenario Andrew email Feb 4 2021 version 2 is:
     andrew is a small business entity according to other legislation.
     miguel is a small business entity according to other legislation.
     event 123 of transfering company1 goodwill from company1 to [andrew,miguel] at 2020-07-01 occurs.
-    
+    one expects answers [].
+    two expects answers ["andrew is a party of event 123","company1 is a party of event 123","miguel is a party of event 123"].

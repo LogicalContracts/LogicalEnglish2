@@ -315,7 +315,11 @@ an asset is a CGT exempt asset
 scenario Colin is:
     asset one belongs to Colin.
     Colin was a resident of Norfolk Island at 2000-01-01.
-    asset two was acquired at 1985-09-19.  
+    asset two was acquired at 1985-09-19.
+    cgt asset expects answers [].
+    exempt asset expects answers ["asset one is a CGT exempt asset","asset two is a CGT exempt asset"].
+    predate expects answers [].
+
 
 scenario Crypto is: 
     Alice is a taxpayer.
@@ -328,6 +332,10 @@ scenario Crypto is:
     asset nft_gift is a gift. 
 	asset nft_gift belongs to Alice.
     asset nft_gift was gifted through a will to a deductible gift recipient beneficiary.
+    cgt asset expects answers ["asset bitcoin is a CGT asset"].
+    exempt asset expects answers ["asset nft_gift is a CGT exempt asset","asset bitcoin is a CGT exempt asset"].
+    predate expects answers [].
+
 
 scenario Farmer is:
     Bob is a taxpayer.
@@ -342,7 +350,11 @@ scenario Farmer is:
     asset tractor_business is a rental property plant or equipment.
     asset tractor_business meets the definition of plant and equipment under Division 43 of the Income Tax Act.
     asset tractor_vintage belongs to Bob.
-    asset tractor_vintage costed 8000 to acquire. 
+    asset tractor_vintage costed 8000 to acquire.
+    cgt asset expects answers ["asset hobby_farm is a CGT asset","asset tractor_business is a CGT asset","asset tractor_business is a CGT asset","asset commercial_farm is a CGT asset"].
+    exempt asset expects answers [].
+    predate expects answers [].
+
 
 scenario Legal is:
     Carol is a taxpayer.
@@ -350,7 +362,11 @@ scenario Legal is:
     asset leasehold belongs to Carol.
     asset lawsuit_settlement belongs to Carol.
     asset lawsuit_settlement corresponds to compensation or damages.
-    asset lawsuit_settlement was received for an injury at workplace of Carol.   
+    asset lawsuit_settlement was received for an injury at workplace of Carol.
+    cgt asset expects answers [].
+    exempt asset expects answers ["asset lawsuit_settlement is a CGT exempt asset"].
+    predate expects answers [].
+
 
 scenario Loan is:
     David is a taxpayer.
@@ -360,6 +376,10 @@ scenario Loan is:
     asset boat is used purely for personal use purposes.
     asset stamps belongs to David.
     asset stamps was acquired at 1980-01-01.
+    cgt asset expects answers [].
+    exempt asset expects answers ["asset stamps is a CGT exempt asset"].
+    predate expects answers [].
+
 
 scenario Insurance is: 
     Emma is a taxpayer.
@@ -370,7 +390,11 @@ scenario Insurance is:
     %the fund has 4 members.
     asset super_interest is being transferred because of a relationship breakdown.
     asset medal belongs to Emma.
-    asset medal was secured for valour or brave conduct.  
+    asset medal was secured for valour or brave conduct.
+    cgt asset expects answers [].
+    exempt asset expects answers [].
+    predate expects answers [].
+
 
 scenario Mixed is:
     Frank is a taxpayer.
@@ -383,6 +407,10 @@ scenario Mixed is:
     asset fridge meets the definition of plant and equipment under Division 43 of the Income Tax Act.
 
 % Check if your assets are subject to CGT, exempt, or pre-date CGT.
+    cgt asset expects answers ["asset fridge is a CGT asset"].
+    exempt asset expects answers [].
+    predate expects answers [].
+
 query cgt asset is:
   which thing is a CGT asset.
 

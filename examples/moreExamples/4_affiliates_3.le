@@ -59,6 +59,14 @@ scenario test is:
     his company is a company. 
     his company acts in accordance with directions from andrew.
     his company is affiliated per older legislation with andrew.
+    one expects answers ["andrew has affiliated with his company at 2020-1-2T0:0:0.0"].
+    two expects answers ["andrew has affiliated with his company at 2009-1-1T0:0:0.0"].
+    three expects answers ["andrew has affiliated with his company at 2009-1-1T0:0:0.0"].
+    four expects answers ["andrew has affiliated with his company at 2009-1-1T0:0:0.0"].
+    five expects answers ["andrew has affiliated with his company at 2009-1-1T0:0:0.0"].
+    six expects answers ["andrew has affiliated with his company at 2009-1-1T0:0:0.0"].
+    seven expects answers ["andrew has affiliated with his company at 2009-1-1T0:0:0.0"].
+
     
 query one is:
     andrew has affiliated with his company at 2020-01-02.

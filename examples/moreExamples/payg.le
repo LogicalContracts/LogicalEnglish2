@@ -228,6 +228,12 @@ scenario test_quarter_2 is:
     the estimated royalties for Australian entity for 2025 is 35000 with idrAE2025.
     the estimated capital gain for Australian entity for 2025 is 10000 with idcAE2025. % excluded not a superfund
     the estimated GST for Australian entity for 2025 is 20000 with idgAE2025. % just excluded
+    test expects answers ["the varied amount payable for quarter 2 for 2025 by Australian entity is 6250.0"].
+    payable expects answers ["the varied amount payable for quarter 2 for 2025 by Australian entity is 6250.0"].
+    new_rate expects answers ["the new varied rate for Australian entity for 2025 is 25.0"].
+    estimated_tax expects answers ["the estimated tax for Australian entity for 2025 is 25000.0"].
+    payg_income expects answers ["the estimated PAYG instalment income for Australian entity for 2025 is 75000"].
+
 
 query test is:
     the varied amount payable for which quarter for which year by Australian entity is which amount.
@@ -241,6 +247,12 @@ scenario ato_1_quarter_2 is:
     the tax offsets for Australian entity for 2025 is 5000. 
     the estimated tax credits for Australian entity for 2025 are 2000.
     3000 with idiAE202501 was reported as an instalment on quarter 1 of 2025.
+    test expects answers ["the varied amount payable for quarter 2 for 2025 by Australian entity is 6000.0"].
+    payable expects answers ["the varied amount payable for quarter 2 for 2025 by Australian entity is 6000.0"].
+    new_rate expects answers ["the new varied rate for Australian entity for 2025 is 0"].
+    estimated_tax expects answers ["the estimated tax for Australian entity for 2025 is 18000.0"].
+    payg_income expects answers ["the estimated PAYG instalment income for Australian entity for 2025 is 0"].
+
 
 scenario ato_2_quarter_3 is:
     Australian entity is the taxpayer. 
@@ -252,6 +264,12 @@ scenario ato_2_quarter_3 is:
     the estimated tax credits for Australian entity for 2025 are 2000.
     3000 with idiAE202501 was reported as an instalment on quarter 1 of 2025.
     1000 with idiAE202502 was reported as a variation on quarter 2 of 2025.
+    test expects answers ["the varied amount payable for quarter 3 for 2025 by Australian entity is 11500.0"].
+    payable expects answers ["the varied amount payable for quarter 3 for 2025 by Australian entity is 11500.0"].
+    new_rate expects answers ["the new varied rate for Australian entity for 2025 is 0"].
+    estimated_tax expects answers ["the estimated tax for Australian entity for 2025 is 18000.0"].
+    payg_income expects answers ["the estimated PAYG instalment income for Australian entity for 2025 is 0"].
+
 
 scenario ato_3_quarter_4 is:
     Australian entity is the taxpayer. 
@@ -264,6 +282,12 @@ scenario ato_3_quarter_4 is:
     3000 with idiAE202501 was reported as an instalment on quarter 1 of 2025.
     1000 with idiAE202502 was reported as a variation on quarter 3 of 2025.
     3000 with idiAE202503 was reported as an instalment on quarter 2 of 2025.
+    test expects answers ["the varied amount payable for quarter 4 for 2025 by Australian entity is 13000.0"].
+    payable expects answers ["the varied amount payable for quarter 4 for 2025 by Australian entity is 13000.0"].
+    new_rate expects answers ["the new varied rate for Australian entity for 2025 is 0"].
+    estimated_tax expects answers ["the estimated tax for Australian entity for 2025 is 18000.0"].
+    payg_income expects answers ["the estimated PAYG instalment income for Australian entity for 2025 is 0"].
+
 
 scenario ato_4_quarter_2 is:
     Australian entity is the taxpayer. 
@@ -275,6 +299,12 @@ scenario ato_4_quarter_2 is:
     the estimated tax credits for Australian entity for 2025 are 2000.
     3000 with idiAE202501 was reported as an instalment on quarter 1 of 2025.
     the estimated gross rent for Australian entity for 2025 is 100000 with idegAE2025.
+    test expects answers ["the varied amount payable for quarter 2 for 2025 by Australian entity is 6000.0"].
+    payable expects answers ["the varied amount payable for quarter 2 for 2025 by Australian entity is 6000.0"].
+    new_rate expects answers ["the new varied rate for Australian entity for 2025 is 15.0"].
+    estimated_tax expects answers ["the estimated tax for Australian entity for 2025 is 18000.0"].
+    payg_income expects answers ["the estimated PAYG instalment income for Australian entity for 2025 is 100000"].
+
 
 query payable is:
     the varied amount payable for which quarter for which year by which entity is which amount.

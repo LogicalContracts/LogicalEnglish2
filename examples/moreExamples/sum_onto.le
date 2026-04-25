@@ -16,7 +16,9 @@ a number S is the result if
          F is a factor. 
     
 scenario one is:
-    0 is a factor.    
+    0 is a factor.
+    one expects answers ["5 is the result"].
+    two expects answers ["3 is a factor","2 is a factor","0 is a factor","a is a c","a is a b","b is a c"].    
       
 query one is:
     which number is the result. 

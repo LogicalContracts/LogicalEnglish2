@@ -83,7 +83,15 @@ a GST_Turnover is the GST Turnover
 scenario A is:
 Cherrio Charity is an entity. 
 Cherrio Charity does not operate for profit. 
-Cherrio Charity has 160000. 
+Cherrio Charity has 160000.
+    A expects answers ["Cherrio Charity must register for GST"].
+    B expects answers [].
+    C expects answers [].
+    not-for-profit expects answers ["Cherrio Charity is a not - for - profit"].
+    tbi expects answers [].
+    gst_turnover expects answers [].
+    who expects answers ["Cherrio Charity must register for GST"].
+
     
 query A is:
 Cherrio Charity must register for GST. 
@@ -91,7 +99,15 @@ Cherrio Charity must register for GST.
     
 scenario B is: 
 sporting club does not operate for profit.
-sporting club projected turnover is 100000. 
+sporting club projected turnover is 100000.
+    A expects answers [].
+    B expects answers [].
+    C expects answers [].
+    not-for-profit expects answers ["sporting club is a not - for - profit"].
+    tbi expects answers [].
+    gst_turnover expects answers [].
+    who expects answers [].
+
         
 query B is:
 sporting club must register for GST. 
@@ -100,6 +116,14 @@ sporting club must register for GST.
 scenario C is: 
 Tom s Bakery is an entity.
 Tom s Bakery has 80000.
+    A expects answers [].
+    B expects answers [].
+    C expects answers ["Tom s Bakery must register for GST"].
+    not-for-profit expects answers [].
+    tbi expects answers [].
+    gst_turnover expects answers [].
+    who expects answers ["Tom s Bakery must register for GST"].
+
     
 query C is: 
 Tom s Bakery must register for GST.
@@ -115,6 +139,14 @@ scenario typical is:
 	5000 is input-taxed sales you make.
 	0 is sales not connected with Australia (export sales). 
 	100000 is sales of goods or services within Australia that are sales to third parties.
+    A expects answers [].
+    B expects answers [].
+    C expects answers [].
+    not-for-profit expects answers [].
+    tbi expects answers ["105000 is the total business income"].
+    gst_turnover expects answers ["90909.09 is the GST Turnover"].
+    who expects answers [].
+
 
 scenario significant exports is:
 	6818.18 is the GST included in sales to your customers.
@@ -123,6 +155,14 @@ scenario significant exports is:
 	0 is input-taxed sales you make.
 	50000 is sales not connected with Australia (export sales). 
 	75000 is sales of goods or services within Australia that are sales to third parties.
+    A expects answers [].
+    B expects answers [].
+    C expects answers [].
+    not-for-profit expects answers [].
+    tbi expects answers ["137000 is the total business income"].
+    gst_turnover expects answers ["68181.82 is the GST Turnover"].
+    who expects answers [].
+
 
 scenario small business is:
 	0 is the GST included in sales to your customers.
@@ -130,7 +170,15 @@ scenario small business is:
 	1000 is sales not connected with an enterprise you run. 
 	0 is input-taxed sales you make.
 	0 is sales not connected with Australia (export sales). 
-	0 is sales of goods or services within Australia that are sales to third parties. 
+	0 is sales of goods or services within Australia that are sales to third parties.
+    A expects answers [].
+    B expects answers [].
+    C expects answers [].
+    not-for-profit expects answers [].
+    tbi expects answers ["6000 is the total business income"].
+    gst_turnover expects answers ["0 is the GST Turnover"].
+    who expects answers [].
+
     
 query tbi is:
     which amount is the total business income. 
@@ -139,7 +187,15 @@ query gst_turnover is:
     which amount is the GST Turnover.  
 
 scenario uber is:
-    mario is an Uber driver. 
+    mario is an Uber driver.
+    A expects answers [].
+    B expects answers [].
+    C expects answers [].
+    not-for-profit expects answers [].
+    tbi expects answers [].
+    gst_turnover expects answers [].
+    who expects answers ["mario must register for GST"].
+
 
 query who is:
 	which entity must register for GST.

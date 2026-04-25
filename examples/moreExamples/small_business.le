@@ -39,7 +39,13 @@ scenario one is:
 Cherrio Charity carried on a business in 2024.
 Cherrio Charity carries on a business in 2025. 
 Cherrio Charity is entitled to a concession with 10000000.
-Cherrio Charity has a probable aggregated turnover of 9000000 for 2025. 
+Cherrio Charity has a probable aggregated turnover of 9000000 for 2025.
+    one expects answers ["Cherrio Charity is a small business entity for 2025"].
+    two expects answers [].
+    three expects answers [].
+    four expects answers [].
+    five expects answers [].
+
     
 query one is:
 Cherrio Charity is a small business entity for which year.  
@@ -50,6 +56,12 @@ Tech Innovations Ltd carries on a business in 2025.
 Tech Innovations Ltd is entitled to a concession with 10000000.
 Tech Innovations Ltd has an aggregated turnover of 11000000 for 2024.
 Tech Innovations Ltd has a probable aggregated turnover of 9000000 for 2025.
+    one expects answers [].
+    two expects answers ["Tech Innovations Ltd is a small business entity for 2025"].
+    three expects answers [].
+    four expects answers [].
+    five expects answers [].
+
 
 query two is:
 Tech Innovations Ltd is a small business entity for which year.
@@ -59,6 +71,12 @@ Bakehouse Bliss Partnership carries on a business in 2025.
 Bakehouse Bliss Partnership carried on a business in 2024.
 Bakehouse Bliss Partnership is entitled to a concession with 10000000.
 Bakehouse Bliss Partnership has a probable aggregated turnover of 9500000 for 2025.
+    one expects answers [].
+    two expects answers [].
+    three expects answers ["Bakehouse Bliss Partnership is a small business entity for 2025"].
+    four expects answers [].
+    five expects answers [].
+
 
 query three is:
 Bakehouse Bliss Partnership is a small business entity for which year.
@@ -69,6 +87,12 @@ River View Trust carries on a business in 2025.
 River View Trust is entitled to a concession with 10000000.
 River View Trust has an aggregated turnover of 8000000 for 2024.
 River View Trust has a probable aggregated turnover of 11000000 for 2025.
+    one expects answers [].
+    two expects answers [].
+    three expects answers [].
+    four expects answers ["River View Trust is a small business entity for 2025"].
+    five expects answers [].
+
 
 query four is:
 River View Trust is a small business entity for which year.
@@ -79,6 +103,12 @@ Australian Trust carries on a business in 2025.
 Australian Trust is entitled to a concession with 10000000.
 Australian Trust has an aggregated turnover of 8000000 for 2024.
 Australian Trust has a probable aggregated turnover of 9000000 for 2025.
+    one expects answers [].
+    two expects answers [].
+    three expects answers [].
+    four expects answers [].
+    five expects answers ["Australian Trust is a small business entity for 2025","Australian Trust is a small business entity for 2025"].
+
 
 query five is:
 Australian Trust is a small business entity for which year.

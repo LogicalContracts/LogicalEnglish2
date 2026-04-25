@@ -12,7 +12,8 @@ a number S is the result if
     
 scenario one is:
     3 is a factor.
-    2 is a factor.  
+    2 is a factor.
+    one expects answers ["5 is the result"].  
       
 query one is:
     which number is the result. 

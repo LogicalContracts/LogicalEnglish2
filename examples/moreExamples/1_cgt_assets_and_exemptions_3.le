@@ -318,6 +318,10 @@ scenario Colin is:
     asset two was acquired at 1985-09-19.  
 
 % Check if your assets are subject to CGT, exempt, or pre-date CGT.
+    one expects answers [].
+    two expects answers ["asset one is a CGT exempt asset","asset two is a CGT exempt asset"].
+    three expects answers [].
+
 query one is:
   which thing is a CGT asset.
 

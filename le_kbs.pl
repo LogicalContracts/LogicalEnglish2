@@ -74,9 +74,14 @@ process_section_acc(kb(Name, Content, Start, End), M) :-
     forall(member(Item, Content), process_item(Item, M)).
 
 process_section_acc(scenario(Name, Content, Start, End), M) :-
-    maplist(item_to_term_with_source(M), Content, Terms),
+    partition(is_expected_item, Content, ExpectedItems, FactItems),
+    maplist(item_to_term_with_source(M), FactItems, Terms),
     assertz(M:scenario(Name, Terms), Ref),
-    assertz(M:le_source(Ref, Start, End)).
+    assertz(M:le_source(Ref, Start, End)),
+    forall(member(expected(Q, A, S, E), ExpectedItems), (
+        assertz(M:le_expected(Q, Name, A), ERef),
+        assertz(M:le_source(ERef, S, E))
+    )).
 
 process_section_acc(query(Name, Content, Start, End), M) :-
     maplist(item_to_term, Content, Terms),
@@ -309,12 +314,15 @@ get_kb_metadata(KB, Metadata) :-
 is_system_predicate(le_kb/1).
 is_system_predicate(le_source/3).
 is_system_predicate(scenario/2).
+is_system_predicate(le_expected/3).
 is_system_predicate(query_info/3).
 is_system_predicate(ontology/1).
 is_system_predicate(le_dict/1).
 is_system_predicate(le_my_kb/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).
+
+is_expected_item(expected(_, _, _, _)).
 
 verify(LEfilePath) :-
     uuid(UUID), atom_concat(v, UUID, KBmodule),
@@ -326,9 +334,14 @@ verify(LEfilePath) :-
     forall(member(Issue, Issues), le_verifier:print_issue(Issue)),
     atom_concat(LEfilePath, '.tests', TestsFile),
     (   exists_file(TestsFile) ->  
-        setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, Tests), close(Stream)),
-        maplist(run_one_test(KBmodule), Tests, TestResults),
-        print_test_result(test_file(TestsFile, TestResults))
+        setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
+        ; LegacyTests = []
+    ),
+    ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A), KBmodule:le_expected(Q, S, A), EmbeddedTests); EmbeddedTests = []),
+    append(LegacyTests, EmbeddedTests, AllTests),
+    (   AllTests \== [] ->  
+        maplist(run_one_test(KBmodule), AllTests, TestResults),
+        print_test_result(test_file(LEfilePath, TestResults))
         ;   
         true
     ),
@@ -386,19 +399,23 @@ read_tests(Stream, Tests) :-
 
 runTestsInDir(Dir, Results) :-
     directory_files(Dir, Files),
-    findall(R, (member(F, Files), sub_atom(F, _, _, 0, '.le.tests'), 
-                directory_file_path(Dir, F, Path),
-                runTestsFor(Path, R)), Results).
+    findall(LEFile, (member(F, Files), sub_atom(F, _, _, 0, '.le'), \+ sub_atom(F, _, _, 0, '.le.tests'), directory_file_path(Dir, F, LEFile)), LEFiles),
+    maplist(runTestsFor, LEFiles, Results).
 
-runTestsFor(TestsFile, Result) :-
-    print_message(informational,"Running tests for ~w"-[TestsFile]),
-    (file_name_extension(LEFile, tests, TestsFile) -> true ; LEFile = TestsFile),
+runTestsFor(LEFile, Result) :-
+    print_message(informational,"Running tests for ~w"-[LEFile]),
     (   catch(call_with_time_limit(5, load(LEFile, KBmodule)), E, (format('Error loading ~w: ~w~n', [LEFile, E]), fail)) ->  
-        setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, Tests), close(Stream)),
-        maplist(run_one_test(KBmodule), Tests, TestResults),
-        Result = test_file(TestsFile, TestResults)
+        atom_concat(LEFile, '.tests', TestsFile),
+        (   exists_file(TestsFile) ->  
+            setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
+            ; LegacyTests = []
+        ),
+        ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A), KBmodule:le_expected(Q, S, A), EmbeddedTests); EmbeddedTests = []),
+        append(LegacyTests, EmbeddedTests, AllTests),
+        maplist(run_one_test(KBmodule), AllTests, TestResults),
+        Result = test_file(LEFile, TestResults)
         ;   
-        Result = test_file(TestsFile, [error(load, LEFile, 'Failed to load or timeout loading LE file')])
+        Result = test_file(LEFile, [error(load, LEFile, 'Failed to load or timeout loading LE file')])
     ).
 
 runTests :-

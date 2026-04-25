@@ -166,6 +166,13 @@ kb_item(fact(Head, Start, End)) -->
     { b_getval(current_token_pos, Start) },
     template_instance(Head),
     any_indent, t(punctuation('.', loc(_, End))).
+% kb_item(expected(QueryName, Answers, Start, End)) parses "QueryName expects answers [Answers]."
+kb_item(expected(QueryName, Answers, Start, End)) -->
+    { b_getval(current_token_pos, Start) },
+    section_name_tokens(Tokens), { reconstruct_name(Tokens, QueryName) },
+    t(word(expects)), t(word(answers)),
+    t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
+    any_indent, t(punctuation('.', loc(_, End))).
 
 % templates([T|Ts]) parses a list of template definitions.
 templates([T|Ts]) -->
@@ -622,6 +629,12 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End),
         NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
+second_pass_scenario_item(_Templates, expected(QueryName, Answers, Start, End), expected(QueryName, AnswerStrings, Start, End)) :-
+    maplist(extract_answer_string, Answers, AnswerStrings).
+
+extract_answer_string(Tokens, String) :-
+    maplist(extract_simple_word, Tokens, Words),
+    atomic_list_concat(Words, ' ', String).
 
 second_pass_query_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
     ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head, Start, End)).

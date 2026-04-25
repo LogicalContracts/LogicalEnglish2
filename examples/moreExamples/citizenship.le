@@ -34,18 +34,21 @@ scenario alice is:
 	2021-10-09 is after commencement.
 	Alice is the mother of John.
 	Alice is a British citizen on 2021-10-09.
+    one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
     
 scenario harry is:
 	John is born in the UK on 2021-10-09.
 	2021-10-09 is after commencement.
 	Harry is the father of John.
 	Harry is settled in the UK on 2021-10-09.
+    one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
 
 scenario trust_harry is:
 	John is born in the UK on 2021-10-09.
 	2021-10-09 is after commencement.
 	Harry says that Harry is the father of John.
 	Harry is settled in the UK on 2021-10-09.
+    one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
     
 scenario alice_harry is:
 	John is born in the UK on 2021-10-09.
@@ -54,6 +57,7 @@ scenario alice_harry is:
 	Alice says that Harry is the father of John.
     Alice is qualified to determine fatherhood.
 	Harry is settled in the UK on 2021-10-09.
+    one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
       
 query one is:
     which person acquires British citizenship on which date.

@@ -137,6 +137,11 @@ scenario feb 5 2021 is:
     entity owns asset3.
     asset3 is a cgt asset according to other legislation. 
     asset3 is an earnout cgt asset valued at 2000000.
+    andrew expects answers ["andrew satisfies maximum net asset value test at 2021-2-5T0:0:0.0"].
+    taxpayer expects answers ["andrew satisfies maximum net asset value test at 2021-2-5T0:0:0.0","affiliate1 satisfies maximum net asset value test at EARNOUT"].
+    date expects answers ["andrew satisfies maximum net asset value test at 2021-2-5T0:0:0.0"].
+    asset expects answers ["asset3 is a cgt asset","cgt asset 1 is a cgt asset"].
+
     
 query andrew is:
     andrew satisfies maximum net asset value test at which date. 
