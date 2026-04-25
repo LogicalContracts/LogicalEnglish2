@@ -107,6 +107,7 @@ is_intensional(KB, F, A) :-
     Body \== true, !.
 
 is_reachable_from_query(KB, F, A) :-
+    current_predicate(KB:query_info/3),
     KB:query_info(_, Goal, _),
     is_reachable(KB, Goal, F, A, []).
 
@@ -172,6 +173,7 @@ count_facts(KB, Count) :-
 is_system_predicate_head(le_kb(_)).
 is_system_predicate_head(le_source(_, _, _)).
 is_system_predicate_head(scenario(_, _)).
+is_system_predicate_head(le_expected(_, _, _)).
 is_system_predicate_head(query_info(_, _, _)).
 is_system_predicate_head(ontology(_)).
 is_system_predicate_head(le_dict(_)).

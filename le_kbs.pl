@@ -74,6 +74,7 @@ process_section_acc(kb(Name, Content, Start, End), M) :-
     forall(member(Item, Content), process_item(Item, M)).
 
 process_section_acc(scenario(Name, Content, Start, End), M) :-
+    M:dynamic(le_expected/3),
     partition(is_expected_item, Content, ExpectedItems, FactItems),
     maplist(item_to_term_with_source(M), FactItems, Terms),
     assertz(M:scenario(Name, Terms), Ref),

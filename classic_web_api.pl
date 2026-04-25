@@ -25,7 +25,7 @@ start_api_server :-
     start_api_server(3050).
 
 start_api_server(Port) :-
-    assertz(le_kbs:do_log),
+    % assertz(le_kbs:do_log),
     http_server(http_dispatch, [port(Port)]).
 
 :- multifile prolog:message//1.

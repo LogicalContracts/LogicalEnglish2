@@ -51,10 +51,6 @@ scenario A is:
 Cherrio Charity is an entity. 
 Cherrio Charity does not operate for profit. 
 Cherrio Charity has 160000.
-A expects answers ["Cherrio Charity must register for GST"].
-B expects answers [].
-C expects answers [].
-not-for-profit expects answers ["Cherrio Charity is a not - for - profit"].
     A expects answers ["Cherrio Charity must register for GST"].
     B expects answers [].
     C expects answers [].
@@ -68,10 +64,6 @@ Cherrio Charity must register for GST.
 scenario B is: 
 sporting club does not operate for profit.
 sporting club projected turnover is 100000.
-A expects answers [].
-B expects answers [].
-C expects answers [].
-not-for-profit expects answers ["sporting club is a not - for - profit"].
     A expects answers [].
     B expects answers [].
     C expects answers [].
@@ -85,10 +77,6 @@ sporting club must register for GST.
 scenario C is: 
 Tom s Bakery is an entity.
 Tom s Bakery has 80000.
-A expects answers [].
-B expects answers [].
-C expects answers ["Tom s Bakery must register for GST"].
-not-for-profit expects answers [].
     A expects answers [].
     B expects answers [].
     C expects answers ["Tom s Bakery must register for GST"].

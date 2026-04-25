@@ -114,6 +114,15 @@ section_name_tokens([T|Ts]) -->
     t(T),
     ( \+ t(word(is)), \+ t(punctuation(':', _)) -> section_name_tokens(Ts); { Ts = [] }).
 
+% query_name_tokens(Tokens) consumes tokens until 'expects'.
+query_name_tokens([T|Ts]) -->
+    \+ t(word(expects)),
+    \+ t(punctuation('.')),
+    t(T),
+    !,
+    query_name_tokens(Ts).
+query_name_tokens([]) --> [].
+
 reconstruct_name(Parts, Name) :-
     maplist(extract_simple_word, Parts, Words),
     reconstruct_name_acc(Words, Name).
@@ -154,6 +163,13 @@ kb_content(Content, End) -->
 kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
 kb_items([]) --> [].
 
+% kb_item(expected(QueryName, Answers, Start, End)) parses "QueryName expects answers [Answers]."
+kb_item(expected(QueryName, Answers, Start, End)) -->
+    { b_getval(current_token_pos, Start) },
+    query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
+    t(word(expects)), t(word(answers)),
+    t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
+    any_indent, t(punctuation('.', loc(_, End))).
 % kb_item(rule(...)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End)) -->
     { b_getval(current_token_pos, Start) },
@@ -169,7 +185,7 @@ kb_item(fact(Head, Start, End)) -->
 % kb_item(expected(QueryName, Answers, Start, End)) parses "QueryName expects answers [Answers]."
 kb_item(expected(QueryName, Answers, Start, End)) -->
     { b_getval(current_token_pos, Start) },
-    section_name_tokens(Tokens), { reconstruct_name(Tokens, QueryName) },
+    query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
     t(word(expects)), t(word(answers)),
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
     any_indent, t(punctuation('.', loc(_, End))).
@@ -408,6 +424,7 @@ extract_simple_value(word(W, _), W).
 extract_simple_value(number(N, _), N).
 extract_simple_value(quoteString(S, _), S).
 extract_simple_value(doubleQuoteString(S, _), S).
+extract_simple_value(string(S, _), S).
 extract_simple_value(punctuation(P, _), P).
 extract_simple_value(punct(P, _), P).
 extract_simple_value(date(D, _), D).
