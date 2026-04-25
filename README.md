@@ -534,10 +534,6 @@ We need to show in the editor any errors (detected by the parser) and warnings (
 And also make sure that if there are errors the Query button is disabled (with a tooltip referring the presence of errors)
 
 # Next steps
-CLAUDE.md for code styling, basic LE understanding
-
-
-
 
 Arbitrary queries and scenario facts (strict)
 prolog self-contained representation, with le_xxx predicates too

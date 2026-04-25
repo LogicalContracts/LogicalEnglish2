@@ -34,6 +34,7 @@ export const leMonarchTokens = {
             
             // Keywords
             [/\b(includes|is|are|if|and|or|for all cases in which|it is the case that|it is not the case that|not the case that|sum|count|average|min|max|such that)\b/, 'keyword'],
+            [/\bexpects answers\b/, 'keyword.expects'],
             
             // Variables
             [/\*[^*]+\*/, 'variable'],

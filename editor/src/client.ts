@@ -12,6 +12,32 @@ function start() {
     monaco.languages.setLanguageConfiguration('le', leLanguageConfiguration);
     monaco.languages.setMonarchTokensProvider('le', leMonarchTokens);
 
+    monaco.editor.defineTheme('le-theme', {
+        base: 'vs-dark',
+        inherit: true,
+        rules: [
+            { token: 'keyword.header', foreground: '569cd6', fontStyle: 'bold' },
+            { token: 'keyword.expects', foreground: 'c586c0', fontStyle: 'italic' },
+            { token: 'variable', foreground: '9cdcfe' },
+            { token: 'number.date', foreground: 'b5cea8' }
+        ],
+        colors: {
+            'editor.background': '#1e1e1e'
+        }
+    });
+
+    monaco.editor.defineTheme('le-theme-light', {
+        base: 'vs',
+        inherit: true,
+        rules: [
+            { token: 'keyword.header', foreground: '0000ff', fontStyle: 'bold' },
+            { token: 'keyword.expects', foreground: 'af00db', fontStyle: 'italic' },
+            { token: 'variable', foreground: '001080' },
+            { token: 'number.date', foreground: '098658' }
+        ],
+        colors: {}
+    });
+
     function getInitialValue() {
         const params = new URLSearchParams(window.location.search);
         const text = params.get('text');
@@ -31,7 +57,7 @@ function start() {
         filenameDisplay.textContent = currentFileName;
     }
 
-    const savedTheme = localStorage.getItem('le-editor-theme') || 'vs-dark';
+    const savedTheme = localStorage.getItem('le-editor-theme') || 'le-theme';
     const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
     let isDirty = false;
     let isLoaded = false;
@@ -287,8 +313,8 @@ function start() {
         monaco.editor.setTheme(theme);
         localStorage.setItem('le-editor-theme', theme);
     };
-    document.getElementById('theme-dark')?.addEventListener('click', () => setTheme('vs-dark'));
-    document.getElementById('theme-light')?.addEventListener('click', () => setTheme('vs'));
+    document.getElementById('theme-dark')?.addEventListener('click', () => setTheme('le-theme'));
+    document.getElementById('theme-light')?.addEventListener('click', () => setTheme('le-theme-light'));
     document.getElementById('theme-hc')?.addEventListener('click', () => setTheme('hc-black'));
 
     const setFontSize = (size: number) => {
@@ -300,56 +326,12 @@ function start() {
     document.getElementById('font-large')?.addEventListener('click', () => setFontSize(20));
 
     document.getElementById('menu-fold-all')?.addEventListener('click', () => {
-        console.log('Collapse All clicked');
         editor.focus();
-        const foldingContrib = editor.getContribution('editor.contrib.folding');
-        if (foldingContrib) {
-            const foldingModelPromise = (foldingContrib as any).getFoldingModel();
-            if (foldingModelPromise && typeof foldingModelPromise.then === 'function') {
-                foldingModelPromise.then((foldingModel: any) => {
-                    if (foldingModel) {
-                        const regions = foldingModel.regions;
-                        if (regions && regions.length > 0) {
-                            console.log(`Collapsing ${regions.length} regions`);
-                            for (let i = 0; i < regions.length; i++) {
-                                regions.setCollapsed(i, true);
-                            }
-                            // Use the internal update method that doesn't clear regions
-                            if (typeof foldingModel.onBeforeModelContentChange === 'function') {
-                                foldingModel.onBeforeModelContentChange();
-                            }
-                            // Trigger the change event that Monaco expects to refresh the view
-                            if (foldingModel._updateEventEmitter) {
-                                foldingModel._updateEventEmitter.fire();
-                            }
-                        }
-                    }
-                });
-            }
-        }
+        editor.trigger('keyboard', 'editor.foldAll', null);
     });
     document.getElementById('menu-unfold-all')?.addEventListener('click', () => {
-        console.log('Expand All clicked');
         editor.focus();
-        const foldingContrib = editor.getContribution('editor.contrib.folding');
-        if (foldingContrib) {
-            const foldingModelPromise = (foldingContrib as any).getFoldingModel();
-            if (foldingModelPromise && typeof foldingModelPromise.then === 'function') {
-                foldingModelPromise.then((foldingModel: any) => {
-                    if (foldingModel) {
-                        const regions = foldingModel.regions;
-                        if (regions && regions.length > 0) {
-                            for (let i = 0; i < regions.length; i++) {
-                                regions.setCollapsed(i, false);
-                            }
-                            if (foldingModel._updateEventEmitter) {
-                                foldingModel._updateEventEmitter.fire();
-                            }
-                        }
-                    }
-                });
-            }
-        }
+        editor.trigger('keyboard', 'editor.unfoldAll', null);
     });
 
     // Query Panel Logic
