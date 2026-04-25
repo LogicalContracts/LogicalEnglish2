@@ -44,10 +44,11 @@ main :-
     % Query: it is not the case that Harry acquires British citizenship on 2021-10-09
     % We manually construct the goal for demonstration
     GoalNeg = not(KB:acquires_British_citizenship_on('Harry', date(2021,10,9))),
-    (   reasoner:i(GoalNeg, Session, _UnknownsNeg, WhyNeg)
-    ->  format('Negative Query Result: ~w~nExplanation Tree (Failure Tree):~n', [GoalNeg]),
+    (   reasoner:i(GoalNeg, Session, _UnknownsNeg, WhyNeg) ->  
+        format('Negative Query Result: ~w~nExplanation Tree (Failure Tree):~n', [GoalNeg]),
         print_term(WhyNeg, [indent_step(4)]), nl
-    ;   format('Negative query failed.~n')
+        ;   
+        format('Negative query failed.~n')
     ),
 
     % Clear the session

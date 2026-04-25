@@ -28,15 +28,15 @@ parse_le_file(FilePath, Doc) :-
 %   Parses a list of tokens into a Logical English document structure.
 %   Performs a second pass to resolve templates and variables.
 parse_le_tokens(Tokens, doc(NewSections)) :-
-    (le_kbs:do_log -> print_message(informational,'Parsing LE tokens...~n') ; true),
-    (   phrase(doc(Sections), Tokens)
-    ->  true
-    ;   print_message(error, "DCG phrase(doc(Sections), Tokens) failed"),
+    ( le_kbs:do_log -> print_message(informational,'Parsing LE tokens...~n'); true),
+    (   phrase(doc(Sections), Tokens) ->  true 
+        ;   
+        print_message(error, "DCG phrase(doc(Sections), Tokens) failed"),
         fail
     ),
-    (   second_pass(Sections, NewSections)
-    ->  true
-    ;   print_message(error, "second_pass failed"),
+    (   second_pass(Sections, NewSections) ->  true 
+        ;   
+        print_message(error, "second_pass failed"),
         fail
     ).
 
@@ -52,9 +52,9 @@ sections([]) --> [].
 section(kb(Name, Content, Start, End)) --> 
     any_indent, t(word(the, loc(Start, _))), t(word(knowledge)), t(word(base)), kb_name_tokens(Tokens), t(word(includes)), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
-    { (le_kbs:do_log -> print_message(informational,'Parsing KB: ~w~n' - [Name]) ; true) },
+    { ( le_kbs:do_log -> print_message(informational,'Parsing KB: ~w~n' - [Name]); true) },
     kb_content(Content, End),
-    { (le_kbs:do_log -> print_message(informational,'Finished KB: ~w~n' - [Name]) ; true) }.
+    { ( le_kbs:do_log -> print_message(informational,'Finished KB: ~w~n' - [Name]); true) }.
 
 % section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
@@ -107,18 +107,12 @@ section(unknown_section(Tokens)) -->
 % kb_name_tokens(Tokens) consumes tokens until the 'includes' keyword.
 kb_name_tokens([T|Ts]) -->
     t(T),
-    (   \+ t(word(includes))
-    ->  kb_name_tokens(Ts)
-    ;   { Ts = [] }
-    ).
+    ( \+ t(word(includes)) -> kb_name_tokens(Ts); { Ts = [] }).
 
 % section_name_tokens(Tokens) consumes tokens until 'is' or ':'.
 section_name_tokens([T|Ts]) -->
     t(T),
-    (   \+ t(word(is)), \+ t(punctuation(':', _))
-    ->  section_name_tokens(Ts)
-    ;   { Ts = [] }
-    ).
+    ( \+ t(word(is)), \+ t(punctuation(':', _)) -> section_name_tokens(Ts); { Ts = [] }).
 
 reconstruct_name(Parts, Name) :-
     maplist(extract_simple_word, Parts, Words),
@@ -127,10 +121,7 @@ reconstruct_name(Parts, Name) :-
 reconstruct_name_acc([], '') :- !.
 reconstruct_name_acc([W], W) :- !.
 reconstruct_name_acc([W1, W2 | Rest], Name) :-
-    (   (is_punct(W1) ; is_punct(W2))
-    ->  Sep = ''
-    ;   Sep = ' '
-    ),
+    ( (is_punct(W1) ; is_punct(W2)) -> Sep = ''; Sep = ' '),
     reconstruct_name_acc([W2 | Rest], RestName),
     atomic_list_concat([W1, Sep, RestName], '', Name).
 
@@ -157,7 +148,7 @@ next_section_start --> any_indent, t(word(the, _)), t(word(target)).
 % kb_content(Content, End) parses the items within a knowledge base or scenario.
 kb_content(Content, End) -->
     kb_items(Content),
-    { (Content = [] -> End = 0 ; last(Content, Last), (Last =.. [_, _, _, _, End] -> true ; Last =.. [_, _, _, End] -> true ; End = 0)) }.
+    { ( Content = [] -> End = 0; last(Content, Last), ( Last =.. [_, _, _, _, End] -> true; Last =.. [_, _, _, End] -> true; End = 0)) }.
 
 % kb_items([I|Is]) parses a sequence of rules or facts.
 kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
@@ -180,9 +171,7 @@ kb_item(fact(Head, Start, End)) -->
 templates([T|Ts]) -->
     \+ next_section_start,
     template(T),
-    (   (t(punct('.')) ; t(punct(','))) -> ( templates(Ts) | { Ts = [] } )
-    ;   { Ts = [] }
-    ).
+    ( (t(punct('.')) ; t(punct(','))) -> ( templates(Ts) | { Ts = [] }); { Ts = [] }).
 templates([]) --> [].
 
 % template(dict(...)) parses a single template definition into a dictionary term.
@@ -220,10 +209,7 @@ process_template_parts([list(_)|Ps], [V|Args], [V-list|NTs], [V|WVs]) :-
     !, process_template_parts(Ps, Args, NTs, WVs).
 
 extract_var_info_from_words(Words, Name, Type) :-
-    (   Words = [Art | Rest], Rest \== [], is_article(Art)
-    ->  atomic_list_concat(Rest, ' ', Type)
-    ;   atomic_list_concat(Words, ' ', Type)
-    ),
+    ( Words = [Art | Rest], Rest \== [], is_article(Art) -> atomic_list_concat(Rest, ' ', Type); atomic_list_concat(Words, ' ', Type)),
     Name = Type.
 
 is_article(A) :- memberchk(A, [a, an, the, some, 'A', 'An', 'The', 'Some']).
@@ -299,7 +285,7 @@ any_indent_tail(N1, N) --> [multi_comment(_, _)], !, any_indent_tail(N1, N).
 any_indent_tail(N, N) --> [].
 
 % t(Token) is a helper to match a token while skipping preceding indentation/comments.
-t(T) --> any_indent, [T], { T \= indent(_, _), T \= line_comment(_, _), T \= multi_comment(_, _), (T =.. [_, _, loc(Start, _)] -> b_setval(current_token_pos, Start) ; true) }.
+t(T) --> any_indent, [T], { T \= indent(_, _), T \= line_comment(_, _), T \= multi_comment(_, _), ( T =.. [_, _, loc(Start, _)] -> b_setval(current_token_pos, Start); true) }.
 t(word(W, L)) --> any_indent, [word(W, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
 t(word(W)) --> any_indent, [word(W, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
 t(number(N, L)) --> any_indent, [number(N, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
@@ -346,26 +332,23 @@ is_reserved(W) :- member(W, [says, that, if, and, or]).
 
 extract_id(Words, Name) :-
     \+ (member(W, Words), is_reserved(W)),
-    (   append(TypeWords, [ID], Words), TypeWords \== [], is_id(ID)
-    ->  Name = ID
-    ;   atomic_list_concat(Words, ' ', Name)
-    ).
+    ( append(TypeWords, [ID], Words), TypeWords \== [], is_id(ID) -> Name = ID; atomic_list_concat(Words, ' ', Name)).
 
 extract_var_name(Words, Name) :-
-    (   Words = [Art | Rest], Rest \== [], is_article(Art) -> 
-        length(Rest, L), L =< 5,
-        extract_id(Rest, Name)
-    ;   Words = [each | Rest], Rest \== [] -> 
-        length(Rest, L), L =< 5,
-        extract_id(Rest, Name)
-    ;   Words = [which | Rest], Rest \== [] -> 
-        length(Rest, L), L =< 5,
-        extract_id(Rest, Name)
-    ;   Words = [who] -> Name = who
-    ;   Words = [what] -> Name = what
-    ;   Words = [when] -> Name = when
-    ;   Words = [where] -> Name = where
-    ;   Words = [W], is_id(W) -> Name = W
+    (   Words = [Art | Rest], Rest \== [], is_article(Art) ->  
+            length(Rest, L), L =< 5,
+            extract_id(Rest, Name)
+        ; Words = [each | Rest], Rest \== [] ->  
+            length(Rest, L), L =< 5,
+            extract_id(Rest, Name)
+        ; Words = [which | Rest], Rest \== [] ->  
+            length(Rest, L), L =< 5,
+            extract_id(Rest, Name)
+        ; Words = [who] -> Name = who
+        ; Words = [what] -> Name = what
+        ; Words = [when] -> Name = when
+        ; Words = [where] -> Name = where
+        ; Words = [W], is_id(W) -> Name = W
     ).
 
 unify_with_vmap(Name, Var, VMIn, VMOut) :-
@@ -373,14 +356,12 @@ unify_with_vmap(Name, Var, VMIn, VMOut) :-
 
 unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
     normalize_var_name(Name, NormName),
-    (   (IsVar == true ; is_id(Name))
-    ->  (   member(NormName-ExistingVar, VMIn)
-        ->  Var = ExistingVar, VMOut = VMIn
-        ;   VMOut = [NormName-Var|VMIn]
-        )
-    ;   member(NormName-ExistingVar, VMIn)
-    ->  Var = ExistingVar, VMOut = VMIn
-    ;   % Not a known variable and no article/ID, so it's a constant
+    (   (IsVar == true ; is_id(Name)) ->  
+        ( member(NormName-ExistingVar, VMIn) -> Var = ExistingVar, VMOut = VMIn; VMOut = [NormName-Var|VMIn])
+        ;   
+        member(NormName-ExistingVar, VMIn) -> Var = ExistingVar, VMOut = VMIn
+        ;   
+        % Not a known variable and no article/ID, so it's a constant
         Var = Name, VMOut = VMIn
     ).
 
@@ -402,22 +383,18 @@ match_part(Part, V, VMIn, VMOut, Templates, AllowVars) :- var(V), !, extract_val
 
 extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, AllowVars, Depth) :-
     (   Parts = [Part], extract_value(Part, Value, VMIn, VMOut, Templates, AllowVars) -> true
-    ;   (Parts = [number(N, _)] ; Parts = [number(N)]) -> Value = N, VMOut = VMIn
-    ;   (Parts = [string(S, _)] ; Parts = [string(S)]) -> Value = S, VMOut = VMIn
-    ;   (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
-    ;   maplist(extract_simple_word, Parts, Words),
-        (   AllowVars == true, extract_var_name(Words, Name)
-        ->  unify_with_vmap(Name, Value, VMIn, VMOut, true)
-        ;   NoTransform \== true, AllowVars == true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth)
-        ->  true
-        ;   is_proper_name(Words)
-        ->  atomic_list_concat(Words, ' ', Value), VMOut = VMIn
-        ;   parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars) -> true
-        ;   AllowVars == false
-        ->  (Words = [Value] -> true ; atomic_list_concat(Words, ' ', Value)), VMOut = VMIn
-        ;   % Fallback: treat as constant if not a variable name
-            atomic_list_concat(Words, ' ', Value), VMOut = VMIn
-        )
+        ; (Parts = [number(N, _)] ; Parts = [number(N)]) -> Value = N, VMOut = VMIn
+        ; (Parts = [string(S, _)] ; Parts = [string(S)]) -> Value = S, VMOut = VMIn
+        ; (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
+        ; maplist(extract_simple_word, Parts, Words),
+          (   AllowVars == true, extract_var_name(Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
+              ; NoTransform \== true, AllowVars == true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
+              ; is_proper_name(Words) -> atomic_list_concat(Words, ' ', Value), VMOut = VMIn
+              ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars) -> true
+              ; AllowVars == false -> ( Words = [Value] -> true; atomic_list_concat(Words, ' ', Value)), VMOut = VMIn
+              ; % Fallback: treat as constant if not a variable name
+                atomic_list_concat(Words, ' ', Value), VMOut = VMIn
+          )
     ).
 
 extract_simple_value(word(W, _), W).
@@ -438,41 +415,29 @@ extract_simple_value(var(Words), Atom) :- atomic_list_concat(Words, ' ', Atom).
 
 extract_simple_word(Part, Word) :-
     extract_simple_value(Part, Val),
-    (   compound(Val), Val = date(Y, M, D)
-    ->  format(atom(Word), '~w-~w-~w', [Y, M, D])
-    ;   Word = Val
-    ).
+    ( compound(Val), Val = date(Y, M, D) -> format(atom(Word), '~w-~w-~w', [Y, M, D]); Word = Val).
 
 extract_name_type(Words, Name, Type) :-
-    (   Words = [Art | Rest], Rest \== [], is_article(Art) -> extract_name_type_no_art(Rest, Name, Type)
-    ;   extract_name_type_no_art(Words, Name, Type)
-    ).
+    ( Words = [Art | Rest], Rest \== [], is_article(Art) -> extract_name_type_no_art(Rest, Name, Type); extract_name_type_no_art(Words, Name, Type)).
 
 extract_name_type_no_art(Words, Name, Type) :-
     (   Words = [W] -> Name = W, Type = W
-    ;   last(Words, Last),
-        (   is_id(Last)
-        ->  append(TypeWords, [Last], Words),
-            (   TypeWords = [] -> Type = Last
-            ;   reconstruct_name_acc(TypeWords, Type)
-            ),
-            Name = Last
-        ;   reconstruct_name_acc(Words, Name),
-            Type = Name
-        )
+        ; last(Words, Last),
+          (   is_id(Last) ->  
+                  append(TypeWords, [Last], Words),
+                  ( TypeWords = [] -> Type = Last; reconstruct_name_acc(TypeWords, Type)),
+                  Name = Last
+              ; reconstruct_name_acc(Words, Name),
+                Type = Name
+          )
     ).
 
 extract_value(var(Words), Val, VMIn, VMOut, _Templates, AllowVars) :-
     !, extract_var_info_from_words(Words, Name, _Type),
-    (   AllowVars == true -> unify_with_vmap(Name, Val, VMIn, VMOut, true)
-    ;   Val = Name, VMOut = VMIn
-    ).
+    ( AllowVars == true -> unify_with_vmap(Name, Val, VMIn, VMOut, true); Val = Name, VMOut = VMIn).
 extract_value(word(W, _), Val, VMIn, VMOut, _Templates, AllowVars) :-
-    (le_kbs:do_log -> print_message(informational,'Extract value word: ~w (AllowVars: ~w)~n' - [W, AllowVars]) ; true),
-    (   AllowVars == false
-    ->  Val = W, VMOut = VMIn
-    ;   unify_with_vmap(W, Val, VMIn, VMOut, false)
-    ).
+    ( le_kbs:do_log -> print_message(informational,'Extract value word: ~w (AllowVars: ~w)~n' - [W, AllowVars]); true),
+    ( AllowVars == false -> Val = W, VMOut = VMIn; unify_with_vmap(W, Val, VMIn, VMOut, false)).
 extract_value(number(N, _), N, VM, VM, _, _).
 extract_value(date(D, _), D, VM, VM, _, _).
 extract_value(quoteString(S, _), S, VM, VM, _, _).
@@ -480,10 +445,7 @@ extract_value(doubleQuoteString(S, _), S, VM, VM, _, _).
 extract_value(punctuation(P, _), P, VM, VM, _, _).
 extract_value(punct(P, _), P, VM, VM, _, _).
 extract_value(word(W), Val, VMIn, VMOut, _Templates, AllowVars) :-
-    (   AllowVars == false
-    ->  Val = W, VMOut = VMIn
-    ;   unify_with_vmap(W, Val, VMIn, VMOut, false)
-    ).
+    ( AllowVars == false -> Val = W, VMOut = VMIn; unify_with_vmap(W, Val, VMIn, VMOut, false)).
 extract_value(number(N), N, VM, VM, _, _).
 extract_value(date(D), D, VM, VM, _, _).
 extract_value(string(S), S, VM, VM, _, _).
@@ -505,14 +467,10 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars) :-
     transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, 0).
 
 transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Depth) :-
-    (   Depth > 1 -> fail ; true
-    ),
-    (le_kbs:do_log -> maplist(extract_simple_word, Instance, Words), print_message(informational,'Transform instance (depth ~w): ~w~n' - [Depth, Words]) ; true),
+    ( Depth > 1 -> fail; true),
+    ( le_kbs:do_log -> maplist(extract_simple_word, Instance, Words), print_message(informational,'Transform instance (depth ~w): ~w~n' - [Depth, Words]); true),
     D1 is Depth + 1,
-    (   match_template(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, D1)
-    ->  true
-    ;   extract_value_from_parts(Instance, Transformed, VMIn, VMOut, Templates, true, AllowVars, D1)
-    ).
+    ( match_template(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, D1) -> true; extract_value_from_parts(Instance, Transformed, VMIn, VMOut, Templates, true, AllowVars, D1)).
 
 match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
     maplist(extract_simple_word, Instance, Words),
@@ -531,45 +489,46 @@ match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, Allow
 match_instance_to_template_acc([], [], VM, VM, _, _, _).
 match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
     \+ var(T), is_ignorable(T), !,
-    (   Instance = [I|Is], extract_simple_word(I, W), W == T
-    ->  match_instance_to_template_acc(Is, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
-    ;   match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
-    ).
+    ( Instance = [I|Is], extract_simple_word(I, W), W == T -> 
+        match_instance_to_template_acc(Is, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
+        ; match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
+        ).
 match_instance_to_template_acc([I|Is], [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
     \+ var(T), extract_simple_word(I, W), is_ignorable(W), W \== T, !,
     match_instance_to_template_acc(Is, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth).
 match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
-    (   \+ var(T)
-    ->  Instance = [I|Is],
+    (   \+ var(T) ->  
+        Instance = [I|Is],
         match_part(I, T, VMIn, VM1, Templates, AllowVars),
         match_instance_to_template_acc(Is, Ts, VM1, VMOut, Templates, AllowVars, Depth)
-    ;   % T is a variable (from the template dict)
+        ;   
+        % T is a variable (from the template dict)
         % Lookahead to avoid over-consuming
-        (   Ts = [NextT|RestTs], \+ var(NextT)
-        ->  % Optimization: find the first split that matches the next constant part
-            % and satisfies the variable extraction. This avoids exponential backtracking.
-            once((
-                append(VarTokens, [NextI|Rest], Instance),
+        (   Ts = [NextT|RestTs], \+ var(NextT) ->  
+                % Optimization: find the first split that matches the next constant part
+                % and satisfies the variable extraction. This avoids exponential backtracking.
+                once((
+                    append(VarTokens, [NextI|Rest], Instance),
+                    VarTokens \== [],
+                    match_part(NextI, NextT, VMIn, VM1, Templates, AllowVars),
+                    extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth)
+                )),
+                match_instance_to_template_acc(Rest, RestTs, VM2, VMOut, Templates, AllowVars, Depth)
+            ; Ts = [] ->  
+                VarTokens = Instance,
                 VarTokens \== [],
-                match_part(NextI, NextT, VMIn, VM1, Templates, AllowVars),
-                extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth)
-            )),
-            match_instance_to_template_acc(Rest, RestTs, VM2, VMOut, Templates, AllowVars, Depth)
-        ;   Ts = []
-        ->  VarTokens = Instance,
-            VarTokens \== [],
-            extract_value_from_parts(VarTokens, T, VMIn, VMOut, Templates, false, AllowVars, Depth)
-        ;   % Next part is also a variable, must try all splits
-            once(append(VarTokens, Rest, Instance)),
-            VarTokens \== [],
-            extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars, Depth),
-            match_instance_to_template_acc(Rest, Ts, VM1, VMOut, Templates, AllowVars, Depth)
+                extract_value_from_parts(VarTokens, T, VMIn, VMOut, Templates, false, AllowVars, Depth)
+            ; % Next part is also a variable, must try all splits
+              once(append(VarTokens, Rest, Instance)),
+              VarTokens \== [],
+              extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars, Depth),
+              match_instance_to_template_acc(Rest, Ts, VM1, VMOut, Templates, AllowVars, Depth)
         )
     ).
 
 % Semantics: Second Pass
 second_pass(Sections, NewSections) :-
-    (le_kbs:do_log -> length(Sections, L), print_message(informational,'Second pass: ~w sections~n' - [L]) ; true),
+    ( le_kbs:do_log -> length(Sections, L), print_message(informational,'Second pass: ~w sections~n' - [L]); true),
     % Collect all templates from all sections first
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
@@ -618,63 +577,60 @@ second_pass_section(Templates, query(Name, Content, Start, End), query(Name, New
 second_pass_section(_, S, S). % Keep other sections as is
 
 second_pass_content(Items, Templates, NewItems) :-
-    (le_kbs:do_log -> length(Items, L), print_message(informational,'Second pass content: ~w items~n' - [L]) ; true),
+    ( le_kbs:do_log -> length(Items, L), print_message(informational,'Second pass content: ~w items~n' - [L]); true),
     maplist(second_pass_item(Templates), Items, NewItems).
 
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
-    (le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]) ; true),
-    (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
-        ->  (le_kbs:do_log -> print_message(informational,'  Rule succeeded~n') ; true)
-        ;   (le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n') ; true), fail
+    ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
+    (   parse_literal(Head, Templates, [], VM1, NewHead, true) ->  
+        (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody) ->  
+            ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true)
+            ;   
+            ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true), fail
         )
-    ;   (le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n') ; true),
+        ;   
+        ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
         NewHead = unknown_template(Head),
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
-    (   parse_literal(Head, Templates, [], _VM1, NewHead, true)
-    ->  true
-    ;   NewHead = unknown_template(Head)
-    ).
+    ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head)).
 
 second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
-    (   match_is_a(Head, _Type, _SuperType, TypeAtom, SuperTypeAtom, [], _VMOut, true)
-    ->  (   NewHead = is_a(TypeAtom, SuperTypeAtom),
-            assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
-        )
-    ;   parse_literal(Head, Templates, [], _VM1, NewHead, true)
-    ->  true
-    ;   NewHead = unknown_template(Head, Start, End)
+    (   match_is_a(Head, _Type, _SuperType, TypeAtom, SuperTypeAtom, [], _VMOut, true) ->  
+        ( NewHead = is_a(TypeAtom, SuperTypeAtom), assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start)))
+        ;   
+        parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true
+        ;   
+        NewHead = unknown_template(Head, Start, End)
     ).
 second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
-    (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
-    ;   NewHead = unknown_template(Head, Start, End),
+    ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
+        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        ; 
+        NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
 second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
-    (   parse_literal(Head, Templates, [], _VM1, NewHead, true)
-    ->  true
-    ;   NewHead = unknown_template(Head, Start, End)
-    ).
+    ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head, Start, End)).
+
 second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
-    (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
-    ;   NewHead = unknown_template(Head, Start, End),
+    ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
+        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        ; 
+        NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
 second_pass_query_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
-    (   parse_literal(Head, Templates, [], _VM1, NewHead, true)
-    ->  true
-    ;   NewHead = unknown_template(Head, Start, End)
-    ).
+    ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head, Start, End)).
+
 second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
-    (   parse_literal(Head, Templates, [], VM1, NewHead, true)
-    ->  parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
-    ;   NewHead = unknown_template(Head, Start, End),
+    ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
+        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        ; 
+        NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
@@ -694,40 +650,39 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
     extract_name_type(SuperTypeWords, SuperTypeAtom, _).
 
 extract_words_to_value(Words, Value, VMIn, VMOut, AllowVars) :-
-    (   AllowVars == true, extract_var_name(Words, Name)
-    ->  unify_with_vmap(Name, Value, VMIn, VMOut, true)
-    ;   Words = [Value], (number(Value) ; string(Value))
-    ->  VMOut = VMIn
-    ;   reconstruct_name_acc(Words, Value),
-        VMOut = VMIn
+    (   AllowVars == true, extract_var_name(Words, Name) ->  
+            unify_with_vmap(Name, Value, VMIn, VMOut, true)
+        ; Words = [Value], (number(Value) ; string(Value)) ->  
+            VMOut = VMIn
+        ; reconstruct_name_acc(Words, Value),
+          VMOut = VMIn
     ).
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal) :-
     parse_literal(Tokens, Templates, VMIn, VMOut, Literal, true).
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
-    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing literal: ~w~n' - [Words]) ; true),
+    ( le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing literal: ~w~n' - [Words]); true),
     parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars),
-    (le_kbs:do_log -> print_message(informational,'  Succeeded: ~w~n' - [Literal]) ; true).
+    ( le_kbs:do_log -> print_message(informational,'  Succeeded: ~w~n' - [Literal]); true).
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
     maplist(extract_simple_word, Tokens, Words),
     (   member(dict(FunctorArgs, NTs, WordsAndVars, NIW), Templates),
         \+ (FunctorArgs = [le_is|_]),
-        (le_kbs:do_log -> print_message(informational,'  Trying template: ~w~n' - [FunctorArgs]) ; true),
+        ( le_kbs:do_log -> print_message(informational,'  Trying template: ~w~n' - [FunctorArgs]); true),
         contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, NTs, WordsAndVars, NIW), dict(FunctorArgsCopy, _, WordsAndVarsCopy, _)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0),
-        Literal =.. FunctorArgsCopy
-    ->  true
-    ;   match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars)
-    ->  Literal = is_a(Type, SuperType)
-    ;   % Fallback to le_is
+        Literal =.. FunctorArgsCopy -> true
+        ;   
+        match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) -> Literal = is_a(Type, SuperType)
+        ;   
+        % Fallback to le_is
         member(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), Templates),
-        (le_kbs:do_log -> print_message(informational,'  Trying fallback le_is~n') ; true),
+        ( le_kbs:do_log -> print_message(informational,'  Trying fallback le_is~n'); true),
         copy_term(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), dict([le_is, V1Copy, V2Copy], _, WordsAndVarsCopy, _)),
-        match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0)
-    ->  Literal = le_is(V1Copy, V2Copy)
+        match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0) -> Literal = le_is(V1Copy, V2Copy)
     ).
 
 contains_subsequence([], _).
@@ -742,11 +697,11 @@ find_word_after(W, [_|Words], Rest) :- find_word_after(W, Words, Rest).
 % Simple Expression Parser
 parse_expression(Parts, VMIn, VMOut, Templates, Expr, AllowVars) :-
     % Optimization: only try parsing as expression if it looks like one
-    (   member(Part, Parts), (Part = punct(Op, _) ; Part = punctuation(Op, _)), member(Op, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!='])
-    ->  exclude(is_indent_or_comment, Parts, CleanParts),
-        maplist(part_to_token, CleanParts, Tokens),
-        phrase(expr_logic(Expr, VMIn, VMOut, Templates, AllowVars), Tokens)
-    ;   fail
+    (   member(Part, Parts), (Part = punct(Op, _) ; Part = punctuation(Op, _)), member(Op, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!=']) ->  
+            exclude(is_indent_or_comment, Parts, CleanParts),
+            maplist(part_to_token, CleanParts, Tokens),
+            phrase(expr_logic(Expr, VMIn, VMOut, Templates, AllowVars), Tokens)
+        ; fail
     ).
 
 is_indent_or_comment(indent(_, _)).
@@ -785,7 +740,7 @@ factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [punctuation('(', _)], expr_logi
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [expr(E)], { parse_expression(E, VMIn, VMOut, Ts, F, AllowVars) }.
 factor_logic(V, VMIn, VMOut, _, true) --> 
     multi_word_var(Words),
-    { (extract_var_name(Words, Name) -> true ; reconstruct_name_acc(Words, Name)),
+    { ( extract_var_name(Words, Name) -> true; reconstruct_name_acc(Words, Name)),
       unify_with_vmap(Name, V, VMIn, VMOut, false) }.
 factor_logic(W, VM, VM, _, false) --> [word(W, _)], { is_proper_name_atom(W) }.
 factor_logic(N, VM, VM, _, _) --> [number(N, _)].
@@ -793,9 +748,10 @@ factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 % Structured Body Parsing
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
     once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/sbpp_0.le
-    (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody)
-    ->  (le_kbs:do_log -> print_message(informational,'  Body succeeded~n') ; true)
-    ;   (le_kbs:do_log -> print_message(informational,'  Body failed to parse~n') ; true), fail
+    (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody) ->  
+        ( le_kbs:do_log -> print_message(informational,'  Body succeeded~n'); true)
+        ;   
+        ( le_kbs:do_log -> print_message(informational,'  Body failed to parse~n'); true), fail
     ).
 
 tokens_to_lines(Tokens, DefaultIndent, Lines) :-
@@ -804,21 +760,23 @@ tokens_to_lines(Tokens, DefaultIndent, Lines) :-
 tokens_to_lines_acc([], _, Acc, Lines) :- reverse(Acc, Lines).
 tokens_to_lines_acc([indent(N, _)|Ts], DefaultIndent, Acc, Lines) :- !,
     get_line_tokens(Ts, LineTokens, Rest),
-    (   LineTokens == []
-    ->  tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
-    ;   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
-    ->  append(PrevTokens, LineTokens, NewPrevTokens),
+    (   LineTokens == [] -> tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
+        ;   
+        LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc] ->  
+        append(PrevTokens, LineTokens, NewPrevTokens),
         tokens_to_lines_acc(Rest, DefaultIndent, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
-    ;   tokens_to_lines_acc(Rest, DefaultIndent, [line(N, LineTokens)|Acc], Lines)
+        ;   
+        tokens_to_lines_acc(Rest, DefaultIndent, [line(N, LineTokens)|Acc], Lines)
     ).
 tokens_to_lines_acc(Ts, DefaultIndent, Acc, Lines) :-
     get_line_tokens(Ts, LineTokens, Rest),
-    (   LineTokens == []
-    ->  tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
-    ;   LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc]
-    ->  append(PrevTokens, LineTokens, NewPrevTokens),
+    (   LineTokens == [] -> tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
+        ;   
+        LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc] ->  
+        append(PrevTokens, LineTokens, NewPrevTokens),
         tokens_to_lines_acc(Rest, DefaultIndent, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
-    ;   tokens_to_lines_acc(Rest, DefaultIndent, [line(DefaultIndent, LineTokens)|Acc], Lines)
+        ;   
+        tokens_to_lines_acc(Rest, DefaultIndent, [line(DefaultIndent, LineTokens)|Acc], Lines)
     ).
 
 get_line_tokens([], [], []) :- !.
@@ -863,33 +821,33 @@ strip_op(Tokens, and, Tokens).
 parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
     hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
-    (le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing node: ~w~n' - [Words]) ; true),
-    (   is_forall(Tokens)
-    ->  split_forall_children(Children, CondNodes, ConsNodes),
-        hierarchy_to_logic(CondNodes, Templates, VMIn, VM1, CondLogic),
-        hierarchy_to_logic(ConsNodes, Templates, VM1, VMOut, ConsLogic),
-        Logic = forall(CondLogic, ConsLogic)
-    ;   is_not_the_case(Tokens)
-    ->  hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic),
-        Logic = not(SubLogic)
-    ;   is_aggregate(Tokens, Op, ElementTokens, ResultTokens)
-    ->  build_aggregate_list(ElementTokens, VMIn, VM1, ElementList),
-        build_aggregate_list(ResultTokens, VM1, VM2, ResultList),
-        hierarchy_to_logic(Children, Templates, VM2, VMOut, Goal),
-        Logic =.. [Op, [each|ElementList], Goal, ResultList]
-    ;   parse_literal(Tokens, Templates, VMIn, VM1, Literal)
-    ->  fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
-    ;   match_is_a(Tokens, Type, SuperType, VMIn, VM1, true)
-    ->  Literal = is_a(Type, SuperType),
-        fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
-
-    ;   phrase(template_instance(Instance), Tokens)
-    ->  Literal = unknown_template(Instance),
-        fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
-    ;   Literal = unknown_tokens(Tokens),
-        fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
+    ( le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing node: ~w~n' - [Words]); true),
+    (   is_forall(Tokens) ->  
+            split_forall_children(Children, CondNodes, ConsNodes),
+            hierarchy_to_logic(CondNodes, Templates, VMIn, VM1, CondLogic),
+            hierarchy_to_logic(ConsNodes, Templates, VM1, VMOut, ConsLogic),
+            Logic = forall(CondLogic, ConsLogic)
+        ; is_not_the_case(Tokens) ->  
+            hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic),
+            Logic = not(SubLogic)
+        ; is_aggregate(Tokens, Op, ElementTokens, ResultTokens) ->  
+            build_aggregate_list(ElementTokens, VMIn, VM1, ElementList),
+            build_aggregate_list(ResultTokens, VM1, VM2, ResultList),
+            hierarchy_to_logic(Children, Templates, VM2, VMOut, Goal),
+            Logic =.. [Op, [each|ElementList], Goal, ResultList]
+        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal) ->  
+            fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
+        ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
+            Literal = is_a(Type, SuperType),
+            fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
+        ; phrase(template_instance(Instance), Tokens) ->  
+            Literal = unknown_template(Instance),
+            fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
+        ; Literal = unknown_tokens(Tokens),
+            fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)
     ),
-    (le_kbs:do_log -> print_message(informational,'  Node succeeded: ~w~n' - [Logic]) ; true).
+    ( le_kbs:do_log -> print_message(informational,'  Node succeeded: ~w~n' - [Logic]); true).
+
 
 is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     Tokens = [_, _, _, _, _, _, _, _ | _],
@@ -900,13 +858,13 @@ is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     !.
 
 build_aggregate_list(Tokens, VMIn, VMOut, List) :-
-    (   Tokens = [word(and, _)|Rest] -> TokensToUse = Rest ; TokensToUse = Tokens
-    ),
+    ( Tokens = [word(and, _)|Rest] -> TokensToUse = Rest; TokensToUse = Tokens),
     maplist(extract_simple_word, TokensToUse, Words),
-    (   extract_var_name(Words, Name)
-    ->  unify_with_vmap(Name, Var, VMIn, VMOut, true),
+    (   extract_var_name(Words, Name) ->  
+        unify_with_vmap(Name, Var, VMIn, VMOut, true),
         List = [Var]
-    ;   atomic_list_concat(Words, ' ', Name),
+        ;   
+        atomic_list_concat(Words, ' ', Name),
         unify_with_vmap(Name, Var, VMIn, VMOut, true),
         List = [Var]
     ).
@@ -920,9 +878,7 @@ is_forall(Tokens) :-
 split_forall_children([], [], []).
 split_forall_children([node(_, Tokens, Children)|Rest], [], Consequences) :-
     is_it_the_case(Tokens), !,
-    (   Children == [] -> Consequences = Rest
-    ;   Consequences = Children
-    ).
+    ( Children == [] -> Consequences = Rest; Consequences = Children).
 split_forall_children([Node|Rest], [Node|Conds], Cons) :-
     split_forall_children(Rest, Conds, Cons).
 

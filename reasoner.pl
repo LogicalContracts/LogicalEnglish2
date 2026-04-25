@@ -20,8 +20,7 @@
 i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     init_counter,
-    (   SessionModule:le_my_kb(KBmodule) ->  true;   KBmodule = none
-    ),
+    ( SessionModule:le_my_kb(KBmodule) ->  true; KBmodule = none),
     solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys).
 
 %!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
@@ -30,21 +29,17 @@ i(Goal, SessionModule, Unknowns, Whys) :-
 explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     init_counter,
-    (   SessionModule:le_my_kb(KBmodule) ->  true;   KBmodule = none
-    ),
-    (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys)
-    ->  true
-    ;   Unknowns = [],
+    ( SessionModule:le_my_kb(KBmodule) ->  true; KBmodule = none),
+    (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys) ->  true 
+        ;   
+        Unknowns = [],
         findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
     ).
 
 %!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is nondet.
 solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     next_id(MyID),
-    (   ParentID \== none
-    ->  assertz(called(ParentID, MyID, G))
-    ;   true
-    ),
+    ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
     solve_real(G, SM, KM, Anc, D, MyID, Us, Whys).
 
 % Conjunction
@@ -107,7 +102,7 @@ solve_real(average([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [succ
     flatten(WhysList, WhysGoal),
     sum_list(List, Sum),
     length(List, Count),
-    (Count > 0 -> Result is Sum / Count ; Result = 0),
+    ( Count > 0 -> Result is Sum / Count; Result = 0),
     Us = [],
     WhyGoal = success(Goal, aggregate_elements, WhysGoal).
 % Forall
@@ -115,9 +110,10 @@ solve_real(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(forall(Cond, C
     D1 is D + 1,
     findall(UsC-WhysC, solve(Cond, SM, KM, Anc, D1, MyID, UsC, WhysC), CondResults),
     (   CondResults == [] -> Us = [], Whys = [success(Cond, empty_forall, [])]
-    ;   % For each solution of Cond, Cons must succeed
+        ;   
+        % For each solution of Cond, Cons must succeed
         forall(member(UsC-WhysC, CondResults),
-               (UsC == [] -> solve(Cons, SM, KM, Anc, D1, MyID, [], _) ; true)),
+               ( UsC == [] -> solve(Cons, SM, KM, Anc, D1, MyID, [], _); true)),
         Us = [], % TODO: handle unknowns in forall
         Whys = [success(forall(Cond, Cons), universal_success, [])]
     ).
@@ -128,13 +124,12 @@ solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, Fa
     next_id(GoalID),
     assertz(called(MyID, GoalID, Goal)),
     findall(UsA, solve(Goal, SM, KM, Anc, D1, GoalID, UsA, _), AllUsA),
-    (   member([], AllUsA)
-    ->  fail % Certain success of Goal, so not(Goal) fails
-    ;   AllUsA \== []
-    ->  Us = [not(Goal)], % Only unknown successes
-        build_failure_tree(GoalID, FailureTrees)
-    ;   Us = [], % Certain failure of Goal, so not(Goal) succeeds
-        build_failure_tree(GoalID, FailureTrees)
+    (   member([], AllUsA) -> fail % Certain success of Goal, so not(Goal) fails
+        ; AllUsA \== [] ->  
+            Us = [not(Goal)], % Only unknown successes
+            build_failure_tree(GoalID, FailureTrees)
+        ; Us = [], % Certain failure of Goal, so not(Goal) succeeds
+            build_failure_tree(GoalID, FailureTrees)
     ).
 
 % True
@@ -147,34 +142,34 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
     (   D > 100 -> fail ; true % Depth limit
     ),
 
-    (   KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G)
-    ->  Us = [G], WhysBody = [success(G, unknown, [])]
-    ;   is_built_in(G)
-    ->  call_reasoner_built_in(G), Us = [], Ref = built_in, WhysBody = []
-    ;   G = is_a(X, Z)
-    ->  D1 is D + 1,
-        (   get_clause(is_a(X, Z), SM, KM, Body, Ref),
-            \+ SM:le_neg(is_a(X, Z)),
-            \+ member(is_a(X, Z), Anc),
-            solve(Body, SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody)
-        ;   % Transitivity: X is a Y and Y is a Z
-            % Use a base fact for the first step to avoid infinite recursion
-            (SM:clause(is_a(X, Y), true, Ref1) ; (KM \== none, KM:clause(is_a(X, Y), true, Ref1))),
-            Y \== Z,
-            \+ SM:le_neg(is_a(X, Y)),
-            \+ member(is_a(X, Y), Anc),
-            % Record the fact call
-            next_id(FactID),
-            assertz(called(MyID, FactID, is_a(X, Y))),
-            solve(is_a(Y, Z), SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody2),
-            Ref = transitivity,
-            WhysBody = [success(is_a(X, Y), Ref1, []) | WhysBody2]
-        )
-    ;   get_clause(G, SM, KM, Body, Ref),
-        \+ SM:le_neg(G),
-        \+ member(G, Anc),
-        D1 is D + 1,
-        solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
+    (   KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G) ->  
+            Us = [G], WhysBody = [success(G, unknown, [])]
+        ; is_built_in(G) ->  
+            call_reasoner_built_in(G), Us = [], Ref = built_in, WhysBody = []
+        ; G = is_a(X, Z) ->  
+            D1 is D + 1,
+            (   get_clause(is_a(X, Z), SM, KM, Body, Ref),
+                \+ SM:le_neg(is_a(X, Z)),
+                \+ member(is_a(X, Z), Anc),
+                solve(Body, SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody)
+            ;   % Transitivity: X is a Y and Y is a Z
+                % Use a base fact for the first step to avoid infinite recursion
+                (SM:clause(is_a(X, Y), true, Ref1) ; (KM \== none, KM:clause(is_a(X, Y), true, Ref1))),
+                Y \== Z,
+                \+ SM:le_neg(is_a(X, Y)),
+                \+ member(is_a(X, Y), Anc),
+                % Record the fact call
+                next_id(FactID),
+                assertz(called(MyID, FactID, is_a(X, Y))),
+                solve(is_a(Y, Z), SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody2),
+                Ref = transitivity,
+                WhysBody = [success(is_a(X, Y), Ref1, []) | WhysBody2]
+            )
+        ; get_clause(G, SM, KM, Body, Ref),
+            \+ SM:le_neg(G),
+            \+ member(G, Anc),
+            D1 is D + 1,
+            solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
     ).
 
 % build_failure_tree(+ID, -Whys)
@@ -216,8 +211,8 @@ is_built_in(equal_to(_, _)).
 
 call_reasoner_built_in(le_known(X)) :- !, ground(X).
 call_reasoner_built_in(le_equal_to(X, Y)) :- !, X = Y.
-call_reasoner_built_in(le_assign(X, Y)) :- !, (number(Y) -> X is Y ; catch(X is Y, _, X = Y)).
-call_reasoner_built_in(le_is(X, Y)) :- !, (number(Y) -> X is Y ; catch(X is Y, _, X = Y)).
+call_reasoner_built_in(le_assign(X, Y)) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
+call_reasoner_built_in(le_is(X, Y)) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
 call_reasoner_built_in(le_is_in(X, Y)) :- !, is_list(Y), member(X, Y).
 call_reasoner_built_in(le_ge(X, Y)) :- !, le_compare(>=, X, Y).
 call_reasoner_built_in(le_le(X, Y)) :- !, le_compare(=<, X, Y).

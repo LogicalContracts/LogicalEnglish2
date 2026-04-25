@@ -38,12 +38,13 @@ tokens_to_string_([T|Tokens],LastEnd,[S|Strings]) :-
     arg(2,T,loc(Begin,NewEnd)),
     AdvanceN is Begin-LastEnd,
     spaces(AdvanceN,Advance),
-    (T=indent(N,_) -> spaces(N,Spaces), format(string(S_),"\n~a",[Spaces]) ; 
-        T=line_comment(X,_) -> format(string(S_),"%~a",[X]) ;
-        T=multi_comment(X,_) -> format(string(S_),"/*~a*/",[X]) ;
-        T=quoteString(X,_) -> format(string(S_),"'~a'",[X]) ;
-        T=doubleQuoteString(X,_) -> format(string(S_),'"~a"',[X]) ;
-        arg(1,T,X) -> S_=X),
+    (   T=indent(N,_) -> spaces(N,Spaces), format(string(S_),"\n~a",[Spaces])
+        ; T=line_comment(X,_) -> format(string(S_),"%~a",[X])
+        ; T=multi_comment(X,_) -> format(string(S_),"/*~a*/",[X])
+        ; T=quoteString(X,_) -> format(string(S_),"'~a'",[X])
+        ; T=doubleQuoteString(X,_) -> format(string(S_),'"~a"',[X])
+        ; arg(1,T,X) -> S_=X
+    ),
     atomic_list_concat([Advance,S_],S),
     tokens_to_string_(Tokens,NewEnd,Strings).
 
@@ -149,12 +150,13 @@ token_match(Idx, quoteString(S, loc(Idx, End)), End) -->
 % Number
 token_match(Idx, number(N, loc(Idx, End)), End) -->
     digits_strict(Codes), 
-    (   ".", digits_strict(Fraction)
-    ->  { append(Codes, [0'.|Fraction], AllCodes),
+    (   (".", digits_strict(Fraction)) ->  
+        { append(Codes, [0'.|Fraction], AllCodes),
           number_codes(N, AllCodes),
           length(AllCodes, L),
           End is Idx + L }
-    ;   { number_codes(N, Codes),
+        ;   
+        { number_codes(N, Codes),
           length(Codes, L),
           End is Idx + L }
     ).
@@ -185,7 +187,7 @@ digits_maybe([C|Cs])  --> [C], { code_type(C, digit) }, !, digits_maybe(Cs).
 digits_maybe([])      --> [].
 
 white_prefix(N) --> [C], { code_type(C, white), C \== 10 }, !, 
-    { (C == 9 -> Inc = 8 ; Inc = 1) },
+    { ( C == 9 -> Inc = 8; Inc = 1) },
     white_prefix(N1), { N is N1 + Inc }.
 white_prefix(0) --> [].
 

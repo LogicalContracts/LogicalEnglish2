@@ -6,10 +6,7 @@
 %
 %   Performs load-time verifications on a Logical English knowledge base.
 verify(KB, Issues) :-
-    (   setof(Issue, check_issue(KB, Issue), Issues)
-    ->  true
-    ;   Issues = []
-    ).
+    ( setof(Issue, check_issue(KB, Issue), Issues) -> true; Issues = []).
 
 check_issue(KB, Issue) :- missing_template(KB, Issue).
 check_issue(KB, Issue) :- undefined_predicate(KB, Issue).
@@ -25,7 +22,7 @@ missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
     le_grammar:reconstruct_name(Tokens, Name),
     format(atom(Description), "Missing template for '~w'", [Name]),
     Fix = "add a template for the phrase to the 'the templates are:' section.",
-    (KB:le_source(Ref, Start, End) -> true ; Start = 0, End = 0).
+    ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
 
 find_unknown_in_body(unknown_template(T), unknown_template(T)).
 find_unknown_in_body(not(B), U) :- find_unknown_in_body(B, U).
@@ -48,7 +45,7 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     functor(Literal, FL, AL),
     format(atom(Description), "Undefined predicate '~w/~w'", [FL, AL]),
     Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
-    (KB:le_source(Ref, Start, End) -> true ; Start = 0, End = 0).
+    ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
 
 find_literal_in_body(L, L) :- L \= (_ , _), L \= (_ ; _), L \= not(_), L \= forall(_, _), L \= true, L \= fail, L \= unknown_template(_), L \= unknown_tokens(_), \+ is_aggregate_literal(L).
 find_literal_in_body(not(B), L) :- find_literal_in_body(B, L).
@@ -134,7 +131,7 @@ rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start
     ground(Body),
     format(atom(Description), "Rule without variables: ~w if ~w", [Head, Body]),
     Fix = "move the concrete data into a scenario; rules should use variables.",
-    (KB:le_source(Ref, Start, End) -> true ; Start = 0, End = 0).
+    ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
 
 % --- 5. Facts/Rules ratio ---
 facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-

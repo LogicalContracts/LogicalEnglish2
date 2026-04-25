@@ -427,16 +427,108 @@ Another issue is the explanation nodes: the explanation post processing should a
 About "Open from server...": please rename to "Open copy from server..."; and make it refresh the example name at the top of the window
 Also make the session ID a bit larger, and justify it to the right of tht window
 
+## Indentation
+Let's please indent the code in all our .pl files in a different manner, without altering its functionality. Specifically, we need PROLOG if-then-else constructs laid out differently. So for example instead of 
+
+explain(Goal, SessionModule, Unknowns, Whys) :-
+    retractall(called(_, _, _)),
+    init_counter,
+    (   SessionModule:le_my_kb(KBmodule) ->  true;   KBmodule = none
+    ),
+    (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys)
+    ->  true
+    ;   Unknowns = [],
+        findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
+    ).
+
+...please write the above instead as:
+explain(Goal, SessionModule, Unknowns, Whys) :-
+    retractall(called(_, _, _)),
+    init_counter,
+    ( SessionModule:le_my_kb(KBmodule) ->  true; KBmodule = none),
+    (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys) ->  true 
+        ;   
+        Unknowns = [],
+        findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
+    ).
+
+Notice that if a if-then-else construct is small (as in the first above) we keep it in a single line; otherwise we indent and split lines as in the second.
+
+For longer, multi branch if-then elses use a terser version; for example instead of:
+
+extract_var_name(Words, Name) :-
+    (   Words = [Art | Rest], Rest \== [], is_article(Art) ->  
+        length(Rest, L), L =< 5,
+        extract_id(Rest, Name)
+        ;   
+        Words = [each | Rest], Rest \== [] ->  
+        length(Rest, L), L =< 5,
+        extract_id(Rest, Name)
+        ;   
+        Words = [which | Rest], Rest \== [] ->  
+        length(Rest, L), L =< 5,
+        extract_id(Rest, Name)
+        ;   
+        Words = [who] -> Name = who
+        ;   
+        Words = [what] -> Name = what
+        ;   
+        Words = [when] -> Name = when
+        ;   
+        Words = [where] -> Name = where
+        ;   
+        Words = [W], is_id(W) -> Name = W
+    ).
+
+...use:
+extract_var_name(Words, Name) :-
+    (   Words = [Art | Rest], Rest \== [], is_article(Art) ->  
+            length(Rest, L), L =< 5,
+            extract_id(Rest, Name)
+        ; Words = [each | Rest], Rest \== [] ->  
+            length(Rest, L), L =< 5,
+            extract_id(Rest, Name)
+        ; Words = [which | Rest], Rest \== [] ->  
+            length(Rest, L), L =< 5,
+            extract_id(Rest, Name)
+        ; Words = [who] -> Name = who
+        ; Words = [what] -> Name = what
+        ; Words = [when] -> Name = when
+        ; Words = [where] -> Name = where
+        ; Words = [W], is_id(W) -> Name = W
+    ).
+
+Some single line if-then-elses are too long for a single line. For example:
+
+second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
+    ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody); NewHead = unknown_template(Head, Start, End), parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)).
+
+...should be instead:
+
+second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
+    ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
+        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        ; 
+        NewHead = unknown_template(Head, Start, End), 
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
+    ).
+
+
 # Next steps
-Mini app at /
-Public MCP server?
+CLAUDE.md for code styling, basic LE understanding
+
+
+Arbitrary queries and scenario facts (strict)
+prolog self-contained representation, with le_xxx predicates too
+in each scenario: one expects [Answer1, ..]
+Public MCP server
     list program summaries
-    generate scenario for existing program(s)
+    generate scenario facts from free form for existing program(s)
     Execute query on existing program
     generate program from text, verification included (Opencode subprocess)
-    https://microsoft.github.io/debug-adapter-protocol/ for LE
+https://microsoft.github.io/debug-adapter-protocol/ for LE
+Mini app at /
 
-arbitrary queries... via LLM?
 inter module calling...
 adjust expected to cover parsing errors
 
@@ -458,6 +550,4 @@ generators (?)
   * use timeExpression and time_interval_operators for testing
 
 # Docker deployment
-1. docker build -t logical-english-server .
-2. docker run -p 3050:3050 logical-english-server
-3. 
+See comments in Dockerfile.

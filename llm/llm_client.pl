@@ -69,6 +69,7 @@
 % ═══════════════════════════════════════════════════════════════════
 
 %% OpenAI  ──────────────────────────────────────────────────────────
+% cf. https://platform.openai.com/docs/models
 llm_model_entry('o1',                openai, 'o1',                'https://api.openai.com/v1').
 llm_model_entry('o1-mini',           openai, 'o1-mini',           'https://api.openai.com/v1').
 llm_model_entry('o3-mini',           openai, 'o3-mini',           'https://api.openai.com/v1').
@@ -76,8 +77,11 @@ llm_model_entry('gpt-4o',            openai, 'gpt-4o',            'https://api.o
 llm_model_entry('gpt-4o-mini',       openai, 'gpt-4o-mini',       'https://api.openai.com/v1').
 llm_model_entry('gpt-4-turbo',       openai, 'gpt-4-turbo',       'https://api.openai.com/v1').
 llm_model_entry('gpt-4',             openai, 'gpt-4',             'https://api.openai.com/v1').
+llm_model_entry('gpt-5.5',             openai, 'gpt-5.5',             'https://api.openai.com/v1').
+
 
 %% Groq  ────────────────────────────────────────────────────────────
+% https://console.groq.com/docs/models
 llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
 llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
 llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
@@ -86,6 +90,7 @@ llm_model_entry('gemma2-9b',        groq, 'gemma2-9b-it',                     'h
 llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
 
 %% Anthropic  ───────────────────────────────────────────────────────
+% https://platform.claude.com/docs/en/about-claude/models/overview
 %  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/5.
 llm_model_entry('claude-3-5-sonnet', anthropic, 'claude-3-5-sonnet-20241022', 'https://api.anthropic.com/v1').
 llm_model_entry('claude-3-5-haiku',  anthropic, 'claude-3-5-haiku-20241022',  'https://api.anthropic.com/v1').
@@ -95,8 +100,10 @@ llm_model_entry('claude-3-opus',     anthropic, 'claude-3-opus-20240229',     'h
 llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
 llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
 llm_model_entry('mixtral-8x22b',          together, 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'https://api.together.xyz/v1').
+llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/DeepSeek-V4-Pro', 'https://api.together.xyz/v1').
 
 %% Google Gemini  (OpenAI-compatible endpoint) ──────────────────────
+% cf. https://ai.google.dev/gemini-api/docs/models
 %  Endpoint: https://generativelanguage.googleapis.com/v1beta/openai
 %  Key:      GEMINI_API_KEY  –  get one free at aistudio.google.com
 %
@@ -199,10 +206,7 @@ build_body(anthropic, APIModel, Messages, Options, Body) :- !,
     option(max_tokens(MaxTok), Options, 1024),
     extract_system(Messages, SysContent, UserMessages),
     Base = _{model:APIModel, max_tokens:MaxTok, messages:UserMessages},
-    ( SysContent \= '' ->
-        Body0 = Base.put(system, SysContent)
-    ;   Body0 = Base
-    ),
+    ( SysContent \= '' -> Body0 = Base.put(system, SysContent); Body0 = Base),
     option_pairs(Options, [max_tokens], OptionPairs),
     dict_pairs(Extra, _, OptionPairs),
     Body = Body0.put(Extra).
@@ -216,10 +220,7 @@ build_body(_Provider, APIModel, Messages, Options, Body) :-
 
 % Pull the system message out of the list for Anthropic
 extract_system(Messages, System, Rest) :-
-    ( selectchk(_{role:system, content:S}, Messages, Rest1) ->
-        System = S, Rest = Rest1
-    ;   System = '', Rest = Messages
-    ).
+    ( selectchk(_{role:system, content:S}, Messages, Rest1) -> System = S, Rest = Rest1; System = '', Rest = Messages).
 
 % Convert Options list → JSON key=Value pairs, skipping SkipKeys
 option_pairs(Options, SkipKeys, Pairs) :-
@@ -290,10 +291,10 @@ check_status(Code, Response) :-
 
 % Anthropic: { content: [ { text: "..." } ] }
 extract_answer(anthropic, Response, Answer) :- !,
-    ( is_dict(Response) ->
-        Response.content = [First|_],
-        Answer = First.text
-    ;
+    (   is_dict(Response) ->  
+            Response.content = [First|_],
+            Answer = First.text
+        ; 
         Response = json(RList),
         member(content=[json(C0)|_], RList),
         member(text=Answer, C0)
@@ -302,10 +303,10 @@ extract_answer(anthropic, Response, Answer) :- !,
 % OpenAI-compatible (OpenAI, Groq, Gemini, Together):
 %   { choices: [ { message: { content: "..." } } ] }
 extract_answer(_Provider, Response, Answer) :-
-    ( is_dict(Response) ->
-        Response.choices = [First|_],
-        Answer = First.message.content
-    ;
+    (   is_dict(Response) ->  
+            Response.choices = [First|_],
+            Answer = First.message.content
+        ; 
         Response = json(RList),
         member(choices=[json(C0)|_], RList),
         member(message=json(M0), C0),
@@ -329,9 +330,7 @@ api_key(Provider, _) :-
     throw(error(llm_no_api_key(Provider), context(llm_client, Msg))).
 
 key_from_flag_or_env(Flag, EnvVar, Key) :-
-    ( current_prolog_flag(Flag, Key), Key \= '' -> true
-    ; getenv(EnvVar, Key)
-    ).
+    ( (current_prolog_flag(Flag, Key), Key \= '') -> true; getenv(EnvVar, Key)).
 
 
 % ═══════════════════════════════════════════════════════════════════

@@ -118,3 +118,13 @@ demo_gemini_conversation :-
         Answer,
         [temperature(0.2)]),
     format("~w~n", [Answer]).
+
+
+% ── 10. Together AI examples ────────────────────────────────────────
+%  Requires: export TOGETHER_API_KEY=...
+%  Get a key at https://www.together.ai/
+
+demo_together :-
+    % Reads TOGETHER_API_KEY from the environment.
+    llm_request('deepseek-ai/DeepSeek-V4-Pro', "What is the most famous theorem in logic?", Answer),
+    format("Answer: ~w~n", [Answer]).

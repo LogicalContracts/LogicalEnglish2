@@ -36,17 +36,17 @@ prolog:message(le_api_info(Msg)) -->
 
 handle_leapi(Request) :-
     http_read_json_dict(Request, Dict),
-    (   validate_token(Dict)
-    ->  get_dict(operation, Dict, Op),
-        print_message(informational, le_api_info(Op)),
-        (   catch(handle_operation(Dict, Response), E, (print_message(error, E), fail))
-        ->  print_message(informational, le_api_info(success(Op))),
-            reply_json_dict(Response)
-        ;   print_message(error, le_api_error(Op, "Operation failed")),
-            reply_json_dict(_{error: "Operation failed or internal error"}, [status(500)])
-        )
-    ;   print_message(warning, le_api_info("Invalid token")),
-        reply_json_dict(_{error: "Invalid token"}, [status(403)])
+    (   validate_token(Dict) ->  
+            get_dict(operation, Dict, Op),
+            print_message(informational, le_api_info(Op)),
+            (   catch(handle_operation(Dict, Response), E, (print_message(error, E), fail)) ->  
+                    print_message(informational, le_api_info(success(Op))),
+                    reply_json_dict(Response)
+                ; print_message(error, le_api_error(Op, "Operation failed")),
+                  reply_json_dict(_{error: "Operation failed or internal error"}, [status(500)])
+            )
+        ; print_message(warning, le_api_info("Invalid token")),
+          reply_json_dict(_{error: "Invalid token"}, [status(403)])
     ).
 
 validate_token(Dict) :-
@@ -56,18 +56,15 @@ validate_token(Dict) :-
 handle_operation(Dict, Response) :-
     get_dict(operation, Dict, Op),
     (   Op == "examples" -> handle_examples(Dict, Response)
-    ;   Op == "list_examples" -> handle_list_examples(Dict, Response)
-    ;   Op == "answer" -> handle_answer(Dict, Response)
-    ;   Op == "explain" -> handle_explain(Dict, Response)
-    ;   Op == "load" -> 
-        (   catch(handle_load(Dict, Response), E, (print_message(error, E), fail))
-        ->  true
-        ;   print_message(error, le_api_error(load, "handle_load failed")), fail
-        )
-    ;   Op == "answeringQuery" -> handle_answering_query(Dict, Response)
-    ;   Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
-    ;   Op == "query" -> handle_query(Dict, Response)
-    ;   Response = _{error: "Unknown operation"}
+        ; Op == "list_examples" -> handle_list_examples(Dict, Response)
+        ; Op == "answer" -> handle_answer(Dict, Response)
+        ; Op == "explain" -> handle_explain(Dict, Response)
+        ; Op == "load" -> 
+            ( catch(handle_load(Dict, Response), E, (print_message(error, E), fail)) -> true; print_message(error, le_api_error(load, "handle_load failed")), fail)
+        ; Op == "answeringQuery" -> handle_answering_query(Dict, Response)
+        ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
+        ; Op == "query" -> handle_query(Dict, Response)
+        ; Response = _{error: "Unknown operation"}
     ).
 
 % --- Handlers ---
@@ -75,15 +72,8 @@ handle_operation(Dict, Response) :-
 handle_examples(Dict, Response) :-
     get_dict(file, Dict, FileName),
     atom_concat('examples/moreExamples/', FileName, Path0),
-    (   exists_file(Path0) -> Path = Path0
-    ;   atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE
-    ;   Path = Path0 % will fail later
-    ),
-    (   exists_file(Path)
-    ->  read_file_to_string(Path, Doc, []),
-        Response = _{document: Doc}
-    ;   Response = _{answer: "File not found", details: Path, document: ""}
-    ).
+    ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
+    ( exists_file(Path) -> read_file_to_string(Path, Doc, []), Response = _{document: Doc}; Response = _{answer: "File not found", details: Path, document: ""}).
 
 handle_list_examples(_Dict, Response) :-
     directory_files('examples/moreExamples/', Files),
@@ -100,13 +90,10 @@ handle_answer(Dict, Response) :-
     get_dict(scenario, Dict, Scenario),
     load_le_text(Doc, KB),
     createSession(KB, SM),
-    (   setScenarion(SM, Scenario)
-    ->  (   query(SM, Query, _Instance, _Unknowns, Why)
-        ->  convert_why(Why, KB, JSONWhy),
-            Response = _{answer: JSONWhy}
-        ;   Response = _{answer: "No answer found"}
-        )
-    ;   Response = _{error: "Scenario not found"}
+    (   setScenarion(SM, Scenario) ->  
+        ( query(SM, Query, _Instance, _Unknowns, Why) -> convert_why(Why, KB, JSONWhy), Response = _{answer: JSONWhy}; Response = _{answer: "No answer found"})
+        ;   
+        Response = _{error: "Scenario not found"}
     ).
 
 handle_explain(Dict, Response) :-
@@ -115,47 +102,30 @@ handle_explain(Dict, Response) :-
     get_dict(scenario, Dict, Scenario),
     load_le_text(Doc, KB),
     createSession(KB, SM),
-    (   setScenarion(SM, Scenario)
-    ->  findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why(Why, KB, JSONWhy)), Results),
-        Response = _{results: Results}
-    ;   Response = _{error: "Scenario not found"}
-    ).
+    ( setScenarion(SM, Scenario) -> findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why(Why, KB, JSONWhy)), Results), Response = _{results: Results}; Response = _{error: "Scenario not found"}).
 
 handle_load(Dict, Response) :-
-    (   get_dict(le, Dict, Doc)
-    ->  (   catch(load_le_text(Doc, KB), E1, (print_message(error, E1), fail))
-        ->  Language = le
-        ;   print_message(error, le_api_error(load, "load_le_text failed")), fail
-        )
-    ;   get_dict(file, Dict, File),
+    (   get_dict(le, Dict, Doc) ->  
+        ( catch(load_le_text(Doc, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "load_le_text failed")), fail)
+        ;   
+        get_dict(file, Dict, File),
         atom_concat('examples/moreExamples/', File, Path0),
-        (   exists_file(Path0) -> Path = Path0
-        ;   atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE
-        ;   Path = Path0 % will fail later
-        ),
-        (   sub_atom(Path, _, _, 0, '.le')
-        ->  (   catch(le_kbs:load(Path, KB), E2, (print_message(error, E2), fail))
-            ->  Language = le
-            ;   print_message(error, le_api_error(load, "le_kbs:load failed")), fail
-            )
-        ;   (   catch(load_prolog_file(Path, KB), E3, (print_message(error, E3), fail))
-            ->  Language = prolog
-            ;   print_message(error, le_api_error(load, "load_prolog_file failed")), fail
-            )
+        ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
+        (   sub_atom(Path, _, _, 0, '.le') ->  
+                ( catch(le_kbs:load(Path, KB), E2, (print_message(error, E2), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load failed")), fail)
+            ; ( catch(load_prolog_file(Path, KB), E3, (print_message(error, E3), fail)) -> Language = prolog; print_message(error, le_api_error(load, "load_prolog_file failed")), fail)
         )
     ),
-    (   catch(createSession(KB, SM), E4, (print_message(error, E4), fail))
-    ->  true
-    ;   print_message(error, le_api_error(load, "createSession failed")), fail
-    ),
-    (   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), fail))
-    ->  Response = Metadata.put(_{
+    ( catch(createSession(KB, SM), E4, (print_message(error, E4), fail)) -> true; print_message(error, le_api_error(load, "createSession failed")), fail),
+    (   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), fail)) ->  
+        Response = Metadata.put(_{
             sessionModule: SM,
             language: Language,
             target: prolog
         }),
         print_message(informational, le_api_info(loaded(KB, SM)))
-    ;   print_message(error, le_api_error(load, "get_kb_metadata failed")),
+        ;   
+        print_message(error, le_api_error(load, "get_kb_metadata failed")),
         fail
     ).
 
@@ -164,41 +134,34 @@ handle_answering_query(Dict, Response) :-
     atom_string(SM, SMStr),
     get_dict(query, Dict, Query),
     print_message(informational, 'Answering query: ~w in session ~w' - [Query, SM]),
-    (   get_dict(scenario, Dict, ScenarioStr)
-    ->  (   (atom(ScenarioStr) ; string(ScenarioStr)), \+ sub_atom(ScenarioStr, _, _, _, '(')
-        ->  atom_string(ScenarioName, ScenarioStr),
-            (   ScenarioName \== ''
-            ->  print_message(informational, 'Setting scenario by name: ~w' - [ScenarioName]),
-                clearSession(SM),
-                setScenarion(SM, ScenarioName)
-            ;   clearSession(SM)
+    (   get_dict(scenario, Dict, ScenarioStr) ->  
+            (   ((atom(ScenarioStr) ; string(ScenarioStr)), \+ sub_atom(ScenarioStr, _, _, _, '(')) ->  
+                    atom_string(ScenarioName, ScenarioStr),
+                    ( ScenarioName \== '' -> print_message(informational, 'Setting scenario by name: ~w' - [ScenarioName]), clearSession(SM), setScenarion(SM, ScenarioName); clearSession(SM))
+                ; term_string(Scenario, ScenarioStr),
+                  clearSession(SM),
+                  ( is_list(Scenario) -> forall(member(F, Scenario), addSessionFact(SM, F)); addSessionFact(SM, Scenario) )
             )
-        ;   term_string(Scenario, ScenarioStr),
-            clearSession(SM),
-            (   is_list(Scenario)
-            ->  forall(member(F, Scenario), addSessionFact(SM, F))
-            ;   addSessionFact(SM, Scenario)
-            )
-        )
-    ;   true
+        ; true
     ),
-    (SM:le_my_kb(KB) -> true ; KB = none),
+    ( SM:le_my_kb(KB) -> true; KB = none),
     findall(_{answer: AnswerStr, why: JSONWhy}, (
             query(SM, Query, Instance, _Us, Why),
             canonical_string(Instance, AnswerStr),
             convert_why(Why, KB, JSONWhy),
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
         ), Results),
-    (   Results \== []
-    ->  length(Results, Count),
+    (   Results \== [] ->  
+        length(Results, Count),
         print_message(informational, 'Total answers found: ~w' - [Count]),
         Response = _{results: Results, result: "ok"}
-    ;   % No answers, get negative explanation
+        ;   
+        % No answers, get negative explanation
         print_message(informational, 'No answers found, generating negative explanation'),
-        (   catch(query_explain(SM, Query, _Instance, _Unknowns, Why), E, (print_message(error, E), fail))
-        ->  convert_why(Why, KB, JSONWhy),
-            Response = _{results: [], why: JSONWhy, result: "ok"}
-        ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
+        (   catch(query_explain(SM, Query, _Instance, _Unknowns, Why), E, (print_message(error, E), fail)) -> 
+                convert_why(Why, KB, JSONWhy),
+                Response = _{results: [], why: JSONWhy, result: "ok"}
+            ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
     ).
 
@@ -208,10 +171,10 @@ handle_load_facts_and_query(Dict, Response) :-
     get_dict(facts, Dict, FactsStrList),
     print_message(informational, 'Loading facts into session ~w' - [SM]),
     forall(member(FStr, FactsStrList), (term_string(F, FStr), addSessionFact(SM, F))),
-    (   get_dict(goal, Dict, GoalStr)
-    ->  print_message(informational, 'Running goal: ~w' - [GoalStr]),
+    (   get_dict(goal, Dict, GoalStr) ->  
+        print_message(informational, 'Running goal: ~w' - [GoalStr]),
         read_term_from_atom(GoalStr, Goal, [variable_names(VarNames)]),
-        (SM:le_my_kb(KB) -> true ; KB = none),
+        ( SM:le_my_kb(KB) -> true; KB = none),
         findall(Answer, (
             reasoner:i(Goal, SM, _Unknowns, Why),
             convert_why(Why, KB, JSONWhy),
@@ -219,31 +182,28 @@ handle_load_facts_and_query(Dict, Response) :-
             dict_create(BindingsDict, bindings, Bindings),
             Answer = _{bindings: BindingsDict, explanation: JSONWhy}
         ), Answers),
-        (   Answers \== []
-        ->  Response = _{
+        (   Answers \== [] ->  
+            Response = _{
                 facts: FactsStrList,
                 goal: GoalStr,
                 answers: Answers,
                 result: "true"
             }
-        ;   Response = _{result: "false"}
+            ;   
+            Response = _{result: "false"}
         )
-    ;   Response = _{facts: FactsStrList, result: "ok"}
+        ;   
+        Response = _{facts: FactsStrList, result: "ok"}
     ).
 
 handle_query(Dict, Response) :-
     get_dict(theQuery, Dict, QueryStr),
     get_dict(module, Dict, ModuleStr),
     atom_string(Module, ModuleStr),
-    (   get_dict(facts, Dict, FactsStrList)
-    ->  maplist(term_string, Facts, FactsStrList)
-    ;   Facts = []
-    ),
-    (   current_module(Module), current_predicate(Module:le_my_kb/1)
-    ->  SM = Module, SM:le_my_kb(KB)
-    ;   current_module(Module)
-    ->  KB = Module, createSession(KB, SM)
-    ;   KB = none, createSession(none, SM)
+    ( get_dict(facts, Dict, FactsStrList) -> maplist(term_string, Facts, FactsStrList); Facts = []),
+    (   (current_module(Module), current_predicate(Module:le_my_kb/1)) -> SM = Module, SM:le_my_kb(KB)
+        ; current_module(Module) -> KB = Module, createSession(KB, SM)
+        ; KB = none, createSession(none, SM)
     ),
     forall(member(F, Facts), addSessionFact(SM, F)),
     read_term_from_atom(QueryStr, Goal, [variable_names(VarNames)]),
@@ -260,34 +220,25 @@ handle_query(Dict, Response) :-
             why: JSONWhy
         }
     ), Results),
-    (   Results == []
-    ->  Response = _{results: [_{result: "false"}]}
-    ;   Response = _{results: Results}
-    ).
+    ( Results == [] -> Response = _{results: [_{result: "false"}]}; Response = _{results: Results}).
 
 % --- Helpers ---
 
 load_le_text(Text, KB) :-
     variant_sha1(Text, Hash),
     atom_concat(m, Hash, KB),
-    (   current_module(KB)
-    ->  true
-    ;   tmp_file_stream(utf8, Path, Stream),
+    (   current_module(KB) -> true
+        ;   
+        tmp_file_stream(utf8, Path, Stream),
         write(Stream, Text),
         close(Stream),
-        (   catch(le_kbs:load(Path, KB), E, (delete_file(Path), throw(E)))
-        ->  delete_file(Path)
-        ;   delete_file(Path), fail
-        )
+        ( catch(le_kbs:load(Path, KB), E, (delete_file(Path), throw(E))) -> delete_file(Path); delete_file(Path), fail)
     ).
 
 load_prolog_file(Path, Module) :-
     variant_sha1(Path, Hash),
     atom_concat(p, Hash, Module),
-    (   current_module(Module)
-    ->  true
-    ;   load_files(Module:Path, [])
-    ).
+    ( current_module(Module) -> true; load_files(Module:Path, [])).
 
 convert_why(success(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
@@ -311,19 +262,11 @@ convert_why_child(KB, Child, JSON) :-
     convert_why(Child, KB, JSON).
 
 get_source_info(Ref, KB, Source, Start, End) :-
-    (   KB \== none, KB:le_source(Ref, Start, End)
-    ->  term_string(Ref, Source)
-    ;   term_string(Ref, Source), Start = 0, End = 0
-    ).
+    ( (KB \== none, KB:le_source(Ref, Start, End)) -> term_string(Ref, Source); term_string(Ref, Source), Start = 0, End = 0).
 
 convert_binding(Name=Val, Name-JSONVal) :-
-    (   (atom(Val) ; string(Val) ; number(Val))
-    ->  JSONVal = Val
-    ;   term_string(Val, JSONVal)
-    ).
+    ( (atom(Val) ; string(Val) ; number(Val)) -> JSONVal = Val; term_string(Val, JSONVal)).
 
 convert_unknown(KB, Goal, _{goal: GoalStr, module: KBStr}) :-
     term_string(Goal, GoalStr),
-    (   atom(KB) -> KBStr = KB
-    ;   term_string(KB, KBStr)
-    ).
+    ( atom(KB) -> KBStr = KB; term_string(KB, KBStr)).
