@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "logical-english": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://le2.logicalcontracts.com/mcp"
+      ]
+    }
+  }
+}
