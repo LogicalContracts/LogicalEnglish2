@@ -7,6 +7,7 @@
 :- module(le_kbs, [load/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
+    run_one_test/3,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
     topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
 

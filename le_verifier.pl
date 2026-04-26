@@ -1,6 +1,6 @@
 :- module(le_verifier, [verify/2, print_issue/1, is_intensional/3, find_in_body/2]).
 
-:- use_module(le_kbs, [is_system_predicate/1]).
+:- use_module(le_kbs, [is_system_predicate/1, run_one_test/3]).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
 %
@@ -13,22 +13,23 @@ check_issue(KB, Issue) :- undefined_predicate(KB, Issue).
 check_issue(KB, Issue) :- untested_predicate(KB, Issue).
 check_issue(KB, Issue) :- rule_without_variables(KB, Issue).
 check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
+check_issue(KB, Issue) :- failed_test(KB, Issue).
 
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
-    (   current_predicate(KB:unknown_template/1), KB:clause(unknown_template(Tokens), _, Ref)
-    ;   current_predicate(KB:F/A), functor(Head, F, A), KB:clause(Head, Body, Ref), find_in_body(Body, unknown_template(Tokens))
+    (   current_predicate(KB:unknown_template/1), clause(KB:unknown_template(Tokens), _, Ref)
+    ;   current_predicate(KB:F/A), functor(Head, F, A), clause(KB:Head, Body, Ref), find_in_body(Body, unknown_template(Tokens))
     ),
     le_grammar:reconstruct_name(Tokens, Name),
     format(atom(Description), "Missing template for '~w'", [Name]),
     Fix = "add a template for the phrase to the 'the templates are:' section.",
-    ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
+    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
 
 % --- 2. Undefined predicate ---
 undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A), functor(Head, F, A),
     \+ is_system_predicate(F/A),
-    KB:clause(Head, Body, Ref),
+    clause(KB:Head, Body, Ref),
     find_in_body(Body, Literal),
     Literal \= unknown_template(_),
     \+ is_defined(KB, Literal),
@@ -36,7 +37,7 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     functor(Literal, FL, AL),
     format(atom(Description), "Undefined predicate '~w/~w'", [FL, AL]),
     Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
-    ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
+    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
 
 % find_in_body(+Body, -Literal)
 % Recursively finds literals in a rule body.
@@ -79,7 +80,8 @@ safe_clause(KB, Literal) :-
 safe_scenario_fact(KB, F, A) :-
     current_predicate(KB:scenario/2),
     clause(KB:scenario(_, Facts), _),
-    member(Fact, Facts),
+    member(FactItem, Facts),
+    ( FactItem = fact_with_source(Fact, _, _) -> true ; Fact = FactItem ),
     functor(Fact, F, A).
 
 is_built_in_literal(L) :- reasoner:is_built_in(L).
@@ -122,13 +124,13 @@ is_reachable(KB, Goal, F, A, Anc) :-
 % --- 4. Rule without variables ---
 rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A), functor(Head, F, A),
-    KB:clause(Head, Body, Ref),
+    clause(KB:Head, Body, Ref),
     Body \== true,
     ground(Head),
     ground(Body),
     format(atom(Description), "Rule without variables: ~w if ~w", [Head, Body]),
     Fix = "move the concrete data into a scenario; rules should use variables.",
-    ( KB:le_source(Ref, Start, End) -> true; Start = 0, End = 0).
+    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
 
 % --- 5. Facts/Rules ratio ---
 facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
@@ -145,6 +147,21 @@ facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
     Facts > Rules * 5,
     format(atom(Description), "Too many facts: facts (~w) outnumber rules (~w) by more than 5:1.", [Facts, Rules]),
     Fix = "add rules that derive conclusions from the facts.".
+
+% --- 6. Failed tests ---
+failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_expected/3),
+    clause(KB:le_expected(QueryName, ScenarioName, ExpectedStrings), true, Ref),
+    run_one_test(KB, test(QueryName, ScenarioName, ExpectedStrings), Result),
+    Result \= pass(_, _),
+    (   Result = fail(_, _, Expected, Actual) ->
+        format(atom(Description), "Test failed for query '~w' in scenario '~w'.~nExpected: ~w~nActual: ~w", [QueryName, ScenarioName, Expected, Actual])
+    ;   Result = error(_, _, Error) ->
+        format(atom(Description), "Test error for query '~w' in scenario '~w': ~w", [QueryName, ScenarioName, Error])
+    ;   format(atom(Description), "Test failed for query '~w' in scenario '~w'", [QueryName, ScenarioName])
+    ),
+    Fix = "check the logic of your rules or the facts in the scenario.",
+    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
 
 count_rules(KB, Count) :-
     findall(1, (
@@ -188,5 +205,5 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts]) },
+    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test]) },
     [ '~w: ~w' - [Type, Msg] ].
