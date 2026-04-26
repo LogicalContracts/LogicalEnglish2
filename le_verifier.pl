@@ -178,9 +178,7 @@ count_facts(KB, Count) :-
         \+ is_system_predicate_head(Head),
         KB:clause(Head, true)
     ), L1),
-    findall(1, (current_predicate(KB:scenario/2), clause(KB:scenario(_, Facts), _), member(_, Facts)), L2),
-    length(L1, C1), length(L2, C2),
-    Count is C1 + C2.
+    length(L1, Count).
 
 % Helper for system predicates
 is_system_predicate_head(le_kb(_)).
