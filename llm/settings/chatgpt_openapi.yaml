@@ -1,0 +1,83 @@
+openapi: 3.0.0
+info:
+  title: Logical English API
+  version: 1.0.0
+  description: API for interacting with Logical English programs, querying them, and verifying their syntax.
+servers:
+  - url: http://localhost:3050
+paths:
+  /list_examples:
+    get:
+      summary: List Logical English program example names and their summaries
+      operationId: listExamples
+      responses:
+        '200':
+          description: A list of examples with their names and summaries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  examples:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: {type: string}
+                        summary: {type: string}
+  /query:
+    post:
+      summary: Execute a query for a named program example or given program text
+      operationId: queryLE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: The query to execute in Logical English
+                example_name:
+                  type: string
+                  description: Name of the example program (optional)
+                program_text:
+                  type: string
+                  description: Logical English program text (optional)
+                scenario_name:
+                  type: string
+                  description: Name of a scenario defined in the program (optional)
+                facts:
+                  type: string
+                  description: Additional Logical English facts to add to the session (optional)
+              required: [query]
+      responses:
+        '200':
+          description: Query results with answers and explanations
+          content:
+            application/json:
+              schema:
+                type: object
+  /verify:
+    post:
+      summary: Parse and verify a Logical English program
+      operationId: verifyLE
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                program_text:
+                  type: string
+                  description: Logical English program text
+              required: [program_text]
+      responses:
+        '200':
+          description: Verification results with issues and test results
+          content:
+            application/json:
+              schema:
+                type: object

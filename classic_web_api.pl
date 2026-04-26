@@ -12,8 +12,13 @@
 :- use_module(le_grammar).
 :- use_module(reasoner).
 :- use_module(le_system_templates).
+:- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1]).
 
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
+:- http_handler(root(mcp), handle_mcp, []).
+:- http_handler(root(list_examples), handle_rest_list_examples, [method(get)]).
+:- http_handler(root(query), handle_rest_query, [method(post)]).
+:- http_handler(root(verify), handle_rest_verify, [method(post)]).
 :- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
 :- http_handler('/editor', http_redirect(moved, '/editor/index.html'), []).
 
