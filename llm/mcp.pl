@@ -70,7 +70,7 @@ match_method(Target, Method) :-
     ).
 
 handle_method(Method, Dict, Response) :-
-    match_method(initialize, Method), !,
+    match_method('initialize', Method), !,
     get_dict(id, Dict, ID),
     Response = _{
         jsonrpc: "2.0",
@@ -78,7 +78,8 @@ handle_method(Method, Dict, Response) :-
         result: _{
             protocolVersion: "2024-11-05",
             capabilities: _{
-                tools: _{}
+                tools: _{},
+                prompts: _{}
             },
             serverInfo: _{
                 name: "Logical English MCP Server",
@@ -86,6 +87,65 @@ handle_method(Method, Dict, Response) :-
             }
         }
     }.
+
+handle_method(Method, Dict, Response) :-
+    match_method('prompts/list', Method), !,
+    get_dict(id, Dict, ID),
+    Response = _{
+        jsonrpc: "2.0",
+        id: ID,
+        result: _{
+            prompts: [
+                _{
+                    name: "massage_query",
+                    description: "Help massage a user's natural language question into a valid Logical English query based on available templates",
+                    arguments: [
+                        _{
+                            name: "user_question",
+                            description: "The question as asked by the user",
+                            required: true
+                        },
+                        _{
+                            name: "templates",
+                            description: "Available Logical English templates for the program",
+                            required: true
+                        }
+                    ]
+                }
+            ]
+        }
+    }.
+
+handle_method(Method, Dict, Response) :-
+    match_method('prompts/get', Method), !,
+    get_dict(id, Dict, ID),
+    Params = Dict.get(params, _{}),
+    PromptName = Params.get(name, ""),
+    Args = Params.get(arguments, _{}),
+    (   PromptName == "massage_query" ->
+        UserQuestion = Args.get(user_question, ""),
+        Templates = Args.get(templates, ""),
+        format(string(PromptText), 
+               "The user wants to ask: \"~w\"~n~nAvailable Logical English templates are:~n~w~n~nYour task is to rewrite the user's question into a single Logical English query that matches one of the templates exactly. ~n- Use variables (starting with an uppercase letter) for unknown values.~n- Do not add a period at the end.~n- Return ONLY the massaged query text.", 
+               [UserQuestion, Templates]),
+        Response = _{
+            jsonrpc: "2.0",
+            id: ID,
+            result: _{
+                description: "Massage user question into LE query",
+                messages: [
+                    _{
+                        role: "user",
+                        content: _{
+                            type: "text",
+                            text: PromptText
+                        }
+                    }
+                ]
+            }
+        }
+    ;   fail
+    ).
 
 handle_method(Method, Dict, Response) :-
     match_method('tools/list', Method), !,
@@ -104,23 +164,34 @@ handle_method(Method, Dict, Response) :-
                     }
                 },
                 _{
-                    name: "query",
-                    description: "Execute a query for a named program example or given program text, obtaining answers with explanations",
+                    name: "get_example_details",
+                    description: "Get the full text and metadata (predicates, queries, scenarios) of a specific example",
                     inputSchema: _{
                         type: "object",
                         properties: _{
-                            example_name: _{ type: "string", description: "Name of the example program (e.g., 'citizenship')" },
+                            example_name: _{ type: "string", description: "Name of the example program" }
+                        },
+                        required: ["example_name"]
+                    }
+                },
+                _{
+                    name: "query",
+                    description: "Execute a query for a named program example or given program text. IMPORTANT: The query must match the program's templates exactly. Use get_example_details first to see available templates.",
+                    inputSchema: _{
+                        type: "object",
+                        properties: _{
+                            example_name: _{ type: "string", description: "Name of the example program" },
                             program_text: _{ type: "string", description: "Logical English program text" },
                             scenario_name: _{ type: "string", description: "Name of a scenario defined in the program" },
-                            facts: _{ type: "string", description: "Additional Logical English facts to add to the session" },
-                            query: _{ type: "string", description: "The query to execute in Logical English" }
+                            facts: _{ type: "string", description: "Additional Logical English facts" },
+                            query: _{ type: "string", description: "The query to execute (must match a template)" }
                         },
                         required: ["query"]
                     }
                 },
                 _{
                     name: "verify",
-                    description: "Parse and verify a Logical English program, returning all issues found (syntax, warnings, failed tests)",
+                    description: "Parse and verify a Logical English program, returning all issues found",
                     inputSchema: _{
                         type: "object",
                         properties: _{
@@ -184,6 +255,11 @@ handle_rest_verify(Request) :-
     call_tool("verify", Args, Result),
     reply_json_dict(Result).
 
+handle_rest_example_details(Request) :-
+    http_read_json_dict(Request, Args),
+    call_tool("get_example_details", Args, Result),
+    reply_json_dict(Result).
+
 % --- Tool Implementations ---
 
 call_tool("list_examples", _Args, Result) :-
@@ -200,6 +276,15 @@ call_tool("list_examples", _Args, Result) :-
     ), Examples),
     Result = _{examples: Examples}.
 
+call_tool("get_example_details", Args, Result) :-
+    ExampleName = Args.get(example_name, ""),
+    atom_concat('examples/moreExamples/', ExampleName, Path0),
+    (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
+    le_kbs:load(Path, KB),
+    le_kbs:get_kb_metadata(KB, Metadata),
+    read_file_to_string(Path, Text, []),
+    Result = Metadata.put(_{program_text: Text}).
+
 call_tool("query", Args, Result) :-
     Query = Args.get(query, ""),
     ExampleName = Args.get(example_name, ""),
@@ -215,13 +300,14 @@ call_tool("query", Args, Result) :-
     ;   KB = none
     ),
     le_kbs:createSession(KB, SM),
-    (   ScenarioName \== "" ->
-        le_kbs:setScenarion(SM, ScenarioName)
+    (   (ScenarioName \== "", ScenarioName \== null) ->
+        ( atom_string(ScenarioAtom, ScenarioName), le_kbs:setScenarion(SM, ScenarioAtom) -> true ; true )
     ;   true
     ),
-    (   Facts \== "" ->
-        le_kbs:parse_custom_facts(KB, Facts, FactTerms),
-        forall(member(F, FactTerms), le_kbs:addSessionFact(SM, F))
+    (   (Facts \== "", Facts \== null) ->
+        ( le_kbs:parse_custom_facts(KB, Facts, FactTerms) ->
+            forall(member(F, FactTerms), le_kbs:addSessionFact(SM, F))
+        ; true )
     ;   true
     ),
     findall(_{answer: AnswerStr, explanation: JSONWhy}, (

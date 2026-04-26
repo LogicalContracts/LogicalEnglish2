@@ -19,6 +19,7 @@
 :- http_handler(root(list_examples), handle_rest_list_examples, [method(get)]).
 :- http_handler(root(query), handle_rest_query, [method(post)]).
 :- http_handler(root(verify), handle_rest_verify, [method(post)]).
+:- http_handler(root(example_details), handle_rest_example_details, [method(post)]).
 :- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
 :- http_handler('/editor', http_redirect(moved, '/editor/index.html'), []).
 

@@ -59,6 +59,27 @@ paths:
             application/json:
               schema:
                 type: object
+  /example_details:
+    post:
+      summary: Get the full text and metadata of a specific example
+      operationId: getExampleDetails
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                example_name:
+                  type: string
+              required: [example_name]
+      responses:
+        '200':
+          description: Example details including program text and templates
+          content:
+            application/json:
+              schema:
+                type: object
   /verify:
     post:
       summary: Parse and verify a Logical English program
