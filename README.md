@@ -533,18 +533,24 @@ Considering this design:
 We need to show in the editor any errors (detected by the parser) and warnings (as produced by le_verifier:verify(..)); I suggest using red and yellow respectively.
 And also make sure that if there are errors the Query button is disabled (with a tooltip referring the presence of errors)
 
+
+# Next steps
+slow % Running tests for examples/moreExamples/cgt_assets.le
+
+Run tests from editor, show errors in editor?
+Let verify include test running ?
+
 ## MCP server
 list program names and summaries 
-Execute query on existing program
+Execute arbitrary query on existing program, obtain answers with explanations
 parse and verify a program
+run tests
 
 generate scenario facts from free form for existing program(s)
 generate program from text, verification included (Opencode subprocess ? Try first on Opencode!)
 
-# Next steps
 
-Arbitrary queries and scenario facts (strict)
-prolog self-contained representation, with le_xxx predicates too
+prolog self-contained representation, with le_xxx predicates too; make it testable by runTests too! watch for meta predicates and session module...
 Draft program from ... URL? text field? using opencode with .... some groq llm
 https://microsoft.github.io/debug-adapter-protocol/ for LE
 Mini app at /

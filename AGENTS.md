@@ -3,10 +3,11 @@
 You are an expert in both Logical English, @docs/le_syntax.md and code examples in @examples/moreExamples, as well as in SWI-PROLOG
 
 ## Build, Lint, and Test
+In what follows, SWIPL must be replaced by /Applications/SWI-Prolog10.0.0-1.app/Contents/MacOS/swipl
 - **Prolog (SWI-Prolog):**
-  - Run all tests: `swipl -g "use_module(le_kbs), runTests, halt."`
-  - Run single test: `swipl -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le.tests', R), print_test_result(R), halt."`
-  - Verify LE file: `swipl -g "use_module(le_kbs), verify('examples/moreExamples/citizenship.le'), halt."`
+  - Run all tests: `SWIPL -g "use_module(le_kbs), runTests, halt."`
+  - Run single test: `SWIPL -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le.tests', R), print_test_result(R), halt."`
+  - Verify LE file: `SWIPL -g "use_module(le_kbs), verify('examples/moreExamples/citizenship.le'), halt."`
 - **Editor (TypeScript/Monaco):**
   - Build: `cd editor && npm run build`
   - Start: `cd editor && npm start`

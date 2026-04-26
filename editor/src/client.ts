@@ -340,6 +340,19 @@ function start() {
     const btnQuery = document.getElementById('btn-query') as HTMLButtonElement;
     const resultsDisplay = document.getElementById('results-display') as HTMLPreElement;
 
+    const customScenarioContainer = document.getElementById('custom-scenario-container')!;
+    const customScenarioText = document.getElementById('custom-scenario-text') as HTMLTextAreaElement;
+    const customQueryContainer = document.getElementById('custom-query-container')!;
+    const customQueryText = document.getElementById('custom-query-text') as HTMLTextAreaElement;
+
+    scenarioSelect.addEventListener('change', () => {
+        customScenarioContainer.style.display = scenarioSelect.value === '___custom___' ? 'flex' : 'none';
+    });
+
+    querySelect.addEventListener('change', () => {
+        customQueryContainer.style.display = querySelect.value === '___custom___' ? 'flex' : 'none';
+    });
+
     const kbModuleDisplay = document.getElementById('kb-module-display')!;
     const sessionModuleDisplay = document.getElementById('session-module-display')!;
 
@@ -407,6 +420,10 @@ function start() {
                         }
                     });
                 }
+                const anotherScenarioOption = document.createElement('option');
+                anotherScenarioOption.value = '___custom___';
+                anotherScenarioOption.textContent = 'Another...';
+                scenarioSelect.appendChild(anotherScenarioOption);
                 
                 // Populate queries
                 querySelect.innerHTML = '<option value="">Select a query...</option>';
@@ -419,6 +436,10 @@ function start() {
                         querySelect.appendChild(option);
                     });
                 }
+                const anotherQueryOption = document.createElement('option');
+                anotherQueryOption.value = '___custom___';
+                anotherQueryOption.textContent = 'Another...';
+                querySelect.appendChild(anotherQueryOption);
                 
                 if (res.issues) {
                     updateMarkers(res.issues);
@@ -598,8 +619,16 @@ function start() {
         const scenario = scenarioSelect.value;
         const query = querySelect.value;
         
+        const customScenario = scenario === '___custom___' ? customScenarioText.value : null;
+        const customQuery = query === '___custom___' ? customQueryText.value : null;
+
         if (!query) {
             resultsDisplay.textContent = 'Please select a query.';
+            return;
+        }
+        
+        if (query === '___custom___' && !customQuery) {
+            resultsDisplay.textContent = 'Please enter a custom query.';
             return;
         }
         
@@ -615,7 +644,9 @@ function start() {
                     operation: 'answeringQuery',
                     sessionModule: sessionModule,
                     query: query,
-                    scenario: scenario
+                    scenario: scenario,
+                    customScenario: customScenario,
+                    customQuery: customQuery
                 })
             });
             const res = await response.json();

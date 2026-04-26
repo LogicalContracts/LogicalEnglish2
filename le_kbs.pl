@@ -8,7 +8,7 @@
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    topPredicates/2, kbSummary/2]).
+    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
 
 :- discontiguous print_test_result/1.
 
@@ -173,6 +173,19 @@ printSession(SessionModule) :-
            (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
 
 %!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
+%
+%   Executes a query against the knowledge base associated with the given session.
+%   The query can be specified either as a named query (defined in the LE file) 
+%   or as a natural language string/list of tokens that matches a template.
+%
+%   @param SessionModule The module identifier for the current reasoning session.
+%   @param Template Either an atom/string naming a query, or a natural language 
+%          representation (string, atom, or list of tokens) of the goal.
+%   @param TemplateInstance A list of tokens representing the matched template, 
+%          with variables instantiated to their discovered values.
+%   @param Unknowns A list of goals that could not be proven but are marked as 
+%          unknown in the KB, leading to a conditional success.
+%   @param Why An explanation tree providing the justification for the result.
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     SessionModule:le_my_kb(KBmodule),
@@ -185,19 +198,40 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             flatten(Instances, TemplateInstance),
             postprocess_why(Why0, SessionModule, Why)
         ; ( do_log -> print_message(informational, 'Searching for template matching tokens: ~w' - [Tokens]); true),
-            findall(D, KBmodule:le_dict(D), Templates),
-            member(Dict, Templates),
-            copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)),
-            le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true),
-            Goal =.. [Functor|Args],
+            findall(D, KBmodule:le_dict(D), Dicts),
+            le_grammar:prepare_templates(Dicts, Templates),
+            % Find all matching templates, but separate le_is
+            findall(match(G, WV, FA), (
+                member(Dict, Templates),
+                copy_term(Dict, dict(FA, _, WV, _)),
+                \+ (FA = [le_is|_]),
+                le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
+                G =.. FA
+            ), SpecificMatches),
+            (   SpecificMatches \== [] -> Matches = SpecificMatches
+                ; % Only try le_is if no specific template matched
+                findall(match(G, WV, FA), (
+                    member(Dict, Templates),
+                    copy_term(Dict, dict(FA, _, WV, _)),
+                    FA = [le_is|_],
+                    le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
+                    G =.. FA
+                ), Matches)
+            ),
+            member(match(Goal, TemplateInstance, _), Matches),
             ( do_log -> print_message(informational, 'Executing template goal: ~w' - [Goal]); true),
             reasoner:i(Goal, SessionModule, Unknowns, Why0),
             ( do_log -> print_message(informational, 'Template goal solution found: ~w' - [Goal]); true),
-            TemplateInstance = WordsAndVars,
             postprocess_why(Why0, SessionModule, Why)
     ).
 
 %!  query_explain(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
+query_explain(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
+    compound(Goal), \+ is_list(Goal), !,
+    SessionModule:le_my_kb(KBmodule),
+    reasoner:explain(Goal, SessionModule, Unknowns, Why0),
+    ( (KBmodule \== none, item_to_instance(KBmodule, Goal, TemplateInstance)) -> true ; TemplateInstance = [Goal] ),
+    postprocess_why(Why0, SessionModule, Why).
 query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     SessionModule:le_my_kb(KBmodule),
@@ -206,12 +240,28 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             reasoner:explain(Goal, SessionModule, Unknowns, Why0),
             ( maplist(le_kbs:item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance) -> true; TemplateInstance = []),
             postprocess_why(Why0, SessionModule, Why)
-        ; findall(D, KBmodule:le_dict(D), Templates),
-          (   (member(Dict, Templates), copy_term(Dict, dict([Functor|Args], _NTs, WordsAndVars)), le_grammar:match_instance_to_template(Tokens, WordsAndVars, [], _, Templates, true)) ->  
-                Goal =.. [Functor|Args],
+        ; findall(D, KBmodule:le_dict(D), Dicts),
+          le_grammar:prepare_templates(Dicts, Templates),
+          % Find all matching templates, but separate le_is
+          findall(match(G, WV, FA), (
+              member(Dict, Templates),
+              copy_term(Dict, dict(FA, _, WV, _)),
+              \+ (FA = [le_is|_]),
+              le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
+              G =.. FA
+          ), SpecificMatches),
+          (   SpecificMatches \== [] -> Matches = SpecificMatches
+              ; findall(match(G, WV, FA), (
+                    member(Dict, Templates),
+                    copy_term(Dict, dict(FA, _, WV, _)),
+                    FA = [le_is|_],
+                    le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
+                    G =.. FA
+                ), Matches)
+          ),
+          (   member(match(Goal, TemplateInstance, _), Matches) ->  
                 ( do_log -> print_message(informational, 'Executing template goal explain: ~w' - [Goal]); true),
                 reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-                TemplateInstance = WordsAndVars,
                 postprocess_why(Why0, SessionModule, Why)
             ; TemplateInstance = [], Unknowns = [], Why = failure(no_template_matched(Tokens), [])
           )
@@ -370,6 +420,28 @@ kbSummary(KB, Summary) :-
     topPredicates(KB, TopPreds),
     atomic_list_concat(TopPreds, '; ', PredsStr),
     format(string(Summary), "KB: ~w. Top predicates: ~w", [KBName, PredsStr]).
+
+%!  parse_custom_facts(+KB:atom, +Text:string, -Terms:list) is det.
+%
+%   Parses a string of Logical English facts/rules using the templates of the given KB.
+parse_custom_facts(KB, Text, Terms) :-
+    tokenize(Text, Tokens),
+    b_setval(current_token_pos, 0),
+    ( phrase(le_grammar:kb_items(Items), Tokens) -> true ; Items = [] ),
+    findall(D, KB:le_dict(D), Dicts),
+    le_grammar:prepare_templates(Dicts, Templates),
+    maplist(le_grammar:second_pass_item(Templates), Items, Clauses),
+    findall(Term, (member(clause(Head, Body, _, _), Clauses), (Body == true -> Term = Head; Term = (Head :- Body))), Terms).
+
+%!  parse_custom_query(+KB:atom, +Text:string, -Goal:term) is semidet.
+%
+%   Parses a string of Logical English as a query goal using the templates of the given KB.
+parse_custom_query(KB, Text, Goal) :-
+    tokenize(Text, Tokens),
+    b_setval(current_token_pos, 0),
+    findall(D, KB:le_dict(D), Dicts),
+    le_grammar:prepare_templates(Dicts, Templates),
+    le_grammar:parse_literal(Tokens, Templates, [], _VM, Goal, true).
 
 is_system_predicate(le_kb/1).
 is_system_predicate(le_source/3).

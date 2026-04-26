@@ -126,6 +126,23 @@
             outline: none;
             min-width: 150px;
         }
+        .custom-input-container {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 5px;
+            width: 100%;
+        }
+        .custom-input-container textarea {
+            background-color: #3c3c3c;
+            color: #ccc;
+            border: 1px solid #555;
+            padding: 5px;
+            font-size: 12px;
+            font-family: monospace;
+            resize: vertical;
+            min-height: 60px;
+        }
         #btn-query {
             background-color: #0e639c;
             color: white;
@@ -281,19 +298,31 @@
     <div id="resizer"></div>
     <div id="bottom-panel">
         <div class="panel-controls">
-            <div class="control-group">
-                <label for="scenario-select">Scenario:</label>
-                <select id="scenario-select">
-                    <option value="">Select a scenario...</option>
-                </select>
+            <div style="display: flex; flex-direction: column; gap: 5px; flex-grow: 1;">
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div class="control-group">
+                        <label for="scenario-select">Scenario:</label>
+                        <select id="scenario-select">
+                            <option value="">Select a scenario...</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="query-select">Query:</label>
+                        <select id="query-select">
+                            <option value="">Select a query...</option>
+                        </select>
+                    </div>
+                    <button id="btn-query">Query</button>
+                </div>
+                <div id="custom-scenario-container" class="custom-input-container">
+                    <label style="font-size: 11px; color: #888;">Custom Scenario Facts:</label>
+                    <textarea id="custom-scenario-text" placeholder="Enter facts here..."></textarea>
+                </div>
+                <div id="custom-query-container" class="custom-input-container">
+                    <label style="font-size: 11px; color: #888;">Custom Query:</label>
+                    <textarea id="custom-query-text" placeholder="Enter query here..."></textarea>
+                </div>
             </div>
-            <div class="control-group">
-                <label for="query-select">Query:</label>
-                <select id="query-select">
-                    <option value="">Select a query...</option>
-                </select>
-            </div>
-            <button id="btn-query">Query</button>
         </div>
         <div id="results-area">
             <div id="answers-panel">

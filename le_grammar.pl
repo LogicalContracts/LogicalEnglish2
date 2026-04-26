@@ -4,7 +4,8 @@
     logic that transforms tokens into executable Prolog terms.
 */
 
-:- module(le_grammar, [parse_le_file/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2]).
+:- module(le_grammar, [parse_le_file/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
+    kb_items//1, second_pass_item/3, parse_literal/6, prepare_templates/2]).
 
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
@@ -289,6 +290,7 @@ body_token(T) --> template_instance_part(T).
 is_terminator --> any_indent, t(punctuation('.', _)).
 is_terminator --> any_indent, t(punctuation(',', _)).
 is_terminator --> any_indent, t(word(if, _)).
+is_terminator --> any_indent, t(word(expects, _)).
 
 % is_body_terminator matches the period that ends a rule body.
 is_body_terminator --> any_indent, t(punctuation('.', _)).
@@ -554,6 +556,15 @@ match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVa
         )
     ).
 
+%!  prepare_templates(+DictsIn:list, -DictsOut:list) is det.
+%
+%   Prepares a list of template dictionaries for use in parsing.
+%   Adds non-ignorable words and sorts them by specificity.
+prepare_templates(DictsIn, DictsOut) :-
+    sort(DictsIn, UniqueDicts),
+    maplist(add_non_ignorable, UniqueDicts, AllDictsWithWords),
+    sort_templates(AllDictsWithWords, DictsOut).
+
 % Semantics: Second Pass
 second_pass(Sections, NewSections) :-
     ( le_kbs:do_log -> length(Sections, L), print_message(informational,'Second pass: ~w sections~n' - [L]); true),
@@ -561,11 +572,7 @@ second_pass(Sections, NewSections) :-
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
     append(UserDicts, SystemDicts, AllDicts),
-    sort(AllDicts, UniqueDicts),
-    % Pre-calculate non-ignorable words for each template to speed up matching
-    maplist(add_non_ignorable, UniqueDicts, AllDictsWithWords),
-    % Sort templates: meta-templates first, then by specificity
-    sort_templates(AllDictsWithWords, SortedDicts),
+    prepare_templates(AllDicts, SortedDicts),
     maplist(second_pass_section(SortedDicts), Sections, NewSections).
 
 add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, NIW)) :-
@@ -671,7 +678,8 @@ second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End), cl
     ).
 
 match_is_a(Parts, Type, SuperType, VMIn, VMOut, AllowVars) :-
-    match_is_a(Parts, Type, SuperType, _, _, VMIn, VMOut, AllowVars).
+    exclude(is_indent_or_comment, Parts, CleanParts),
+    match_is_a(CleanParts, Type, SuperType, _, _, VMIn, VMOut, AllowVars).
 
 match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVars) :-
     maplist(extract_simple_word, Parts, Words),
@@ -698,8 +706,9 @@ parse_literal(Tokens, Templates, VMIn, VMOut, Literal) :-
     parse_literal(Tokens, Templates, VMIn, VMOut, Literal, true).
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
-    ( le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing literal: ~w~n' - [Words]); true),
-    parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars),
+    exclude(is_indent_or_comment, Tokens, CleanTokens),
+    ( le_kbs:do_log -> maplist(extract_simple_word, CleanTokens, Words), print_message(informational,'Parsing literal: ~w~n' - [Words]); true),
+    parse_literal_real(CleanTokens, Templates, VMIn, VMOut, Literal, AllowVars),
     ( le_kbs:do_log -> print_message(informational,'  Succeeded: ~w~n' - [Literal]); true).
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-

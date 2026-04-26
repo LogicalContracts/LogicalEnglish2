@@ -381,6 +381,16 @@ function start() {
   const querySelect = document.getElementById("query-select");
   const btnQuery = document.getElementById("btn-query");
   const resultsDisplay = document.getElementById("results-display");
+  const customScenarioContainer = document.getElementById("custom-scenario-container");
+  const customScenarioText = document.getElementById("custom-scenario-text");
+  const customQueryContainer = document.getElementById("custom-query-container");
+  const customQueryText = document.getElementById("custom-query-text");
+  scenarioSelect.addEventListener("change", () => {
+    customScenarioContainer.style.display = scenarioSelect.value === "___custom___" ? "flex" : "none";
+  });
+  querySelect.addEventListener("change", () => {
+    customQueryContainer.style.display = querySelect.value === "___custom___" ? "flex" : "none";
+  });
   const kbModuleDisplay = document.getElementById("kb-module-display");
   const sessionModuleDisplay = document.getElementById("session-module-display");
   const updateMarkers = (issues) => {
@@ -439,6 +449,10 @@ function start() {
             }
           });
         }
+        const anotherScenarioOption = document.createElement("option");
+        anotherScenarioOption.value = "___custom___";
+        anotherScenarioOption.textContent = "Another...";
+        scenarioSelect.appendChild(anotherScenarioOption);
         querySelect.innerHTML = '<option value="">Select a query...</option>';
         if (res.queries) {
           res.queries.forEach((q) => {
@@ -448,6 +462,10 @@ function start() {
             querySelect.appendChild(option);
           });
         }
+        const anotherQueryOption = document.createElement("option");
+        anotherQueryOption.value = "___custom___";
+        anotherQueryOption.textContent = "Another...";
+        querySelect.appendChild(anotherQueryOption);
         if (res.issues) {
           updateMarkers(res.issues);
         } else {
@@ -608,8 +626,14 @@ function start() {
     }
     const scenario = scenarioSelect.value;
     const query = querySelect.value;
+    const customScenario = scenario === "___custom___" ? customScenarioText.value : null;
+    const customQuery = query === "___custom___" ? customQueryText.value : null;
     if (!query) {
       resultsDisplay.textContent = "Please select a query.";
+      return;
+    }
+    if (query === "___custom___" && !customQuery) {
+      resultsDisplay.textContent = "Please enter a custom query.";
       return;
     }
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
@@ -623,7 +647,9 @@ function start() {
           operation: "answeringQuery",
           sessionModule,
           query,
-          scenario
+          scenario,
+          customScenario,
+          customQuery
         })
       });
       const res = await response.json();

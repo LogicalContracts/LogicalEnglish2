@@ -7,17 +7,21 @@ Sections define the context of the code. Each section header ends with a colon `
 
 - **Knowledge Base:** `the knowledge base <name> includes:`
 - **Scenario:** `scenario <name> is:` (Used for defining facts for a specific test case)
+  - Can include expectations: `<QueryName> expects answers [<List of Strings>].`
 - **Query:** `query <name> is:` (Used for defining the goals to be proven)
 - **Ontology:** `the ontology is:` (Used for taxonomy and class hierarchies)
 - **Templates:** `the predicates are:` or `the templates are:` (Used to define NL patterns)
 - **Dynamics:** `the fluents are:` or `the events are:` (For temporal reasoning)
-- **Meta:** `the target language is: prolog.`
+- **Meta:** `the target language is: prolog.` (Required for Prolog generation)
 
 ## 2. Templates
 Templates map natural language sentences to Prolog predicates.
 - **Pattern:** `*a person* is a friend of *another person*`
 - **Variables:** Words enclosed in asterisks `*...*`.
 - **Types:** Extracted from the variable name (e.g., `person`).
+- **Variable Scoping:** Multiple occurrences of the same variable name within a sentence (or query) refer to the same variable.
+  - `which person is the father of which person` will only match if a person is their own father.
+  - Use `which person is the father of which other person` to refer to two different people.
 
 ## 3. Rules and Facts
 - **Fact:** A simple statement ending in a period.
@@ -30,6 +34,8 @@ Templates map natural language sentences to Prolog predicates.
 - **And:** `and` (or new line with same indentation)
 - **Or:** `or`
 - **Negation:** `it is not the case that` or `not the case that`
+  - `it is not the case that *a person* is a citizen`
+  - `not the case that *a person* is a citizen`
 - **Universal Quantification:**
   ```le
   for all cases in which
@@ -80,3 +86,13 @@ Logical English supports meta-predicates that can take other sentences as argume
 - **Keywords:** `says`, `that`
 - **Example:** `*the act* says that *the person* is liable.`
 - **It is the case that:** Used to introduce the consequence in a universal quantification or to wrap a statement.
+
+## 12. Testing and Expectations
+Scenarios can define expected results for queries, which are used by the test runner.
+- **Syntax:** `<QueryName> expects answers ["Answer 1", "Answer 2"].`
+- **Example:**
+  ```le
+  scenario alice is:
+      John is born in the UK on 2021-10-09.
+      query one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
+  ```

@@ -134,9 +134,13 @@ handle_load(Dict, Response) :-
 handle_answering_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
-    get_dict(query, Dict, Query),
-    print_message(informational, 'Answering query: ~w in session ~w' - [Query, SM]),
-    (   get_dict(scenario, Dict, ScenarioStr) ->  
+    ( SM:le_my_kb(KB) -> true; KB = none),
+    
+    % Handle Scenario
+    (   get_dict(customScenario, Dict, CustomScenario), CustomScenario \== null ->
+            clearSession(SM),
+            ( KB \== none -> parse_custom_facts(KB, CustomScenario, Facts), forall(member(F, Facts), addSessionFact(SM, F)); true )
+        ; get_dict(scenario, Dict, ScenarioStr) ->  
             (   ((atom(ScenarioStr) ; string(ScenarioStr)), \+ sub_atom(ScenarioStr, _, _, _, '(')) ->  
                     atom_string(ScenarioName, ScenarioStr),
                     ( ScenarioName \== '' -> print_message(informational, 'Setting scenario by name: ~w' - [ScenarioName]), clearSession(SM), setScenarion(SM, ScenarioName); clearSession(SM))
@@ -146,7 +150,14 @@ handle_answering_query(Dict, Response) :-
             )
         ; true
     ),
-    ( SM:le_my_kb(KB) -> true; KB = none),
+
+    % Handle Query
+    (   get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null ->
+            ( KB \== none, parse_custom_query(KB, CustomQuery, Goal) -> Query = Goal; Query = CustomQuery )
+        ; get_dict(query, Dict, Query)
+    ),
+
+    print_message(informational, 'Answering query: ~w in session ~w' - [Query, SM]),
     findall(_{answer: AnswerStr, why: JSONWhy}, (
             query(SM, Query, Instance, _Us, Why),
             canonical_string(Instance, AnswerStr),
