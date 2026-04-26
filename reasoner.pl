@@ -148,14 +148,15 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             call_reasoner_built_in(G), Us = [], Ref = built_in, WhysBody = []
         ; G = is_a(X, Z) ->  
             D1 is D + 1,
-            (   get_clause(is_a(X, Z), SM, KM, Body, Ref),
+            (   X == Z -> Us = [], WhysBody = [success(G, identity, [])]
+            ;   get_clause(is_a(X, Z), SM, KM, Body, Ref),
                 \+ SM:le_neg(is_a(X, Z)),
                 \+ member(is_a(X, Z), Anc),
                 solve(Body, SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody)
             ;   % Transitivity: X is a Y and Y is a Z
                 % Use a base fact for the first step to avoid infinite recursion
                 (SM:clause(is_a(X, Y), true, Ref1) ; (KM \== none, KM:clause(is_a(X, Y), true, Ref1))),
-                Y \== Z,
+                Y \== Z, Y \== X,
                 \+ SM:le_neg(is_a(X, Y)),
                 \+ member(is_a(X, Y), Anc),
                 % Record the fact call
