@@ -69,9 +69,9 @@ tokens(Idx, _, Ts) -->
     tokens(NewIdx, 1, Ts).
 
 % 2. Indent: Triggered only at LineStart
-tokens(Idx, 1, [indent(N, loc(Idx, End))|Ts]) -->
-    white_prefix(N),
-    { End is Idx + N },
+tokens(Idx, 1, [indent(VW, loc(Idx, End))|Ts]) -->
+    white_prefix(VW, CC),
+    { End is Idx + CC },
     tokens(End, 0, Ts).
 
 % 3. SKIP WHITESPACE (Space/Tab)
@@ -180,16 +180,17 @@ string_until_newline([]) --> eos, !.
 string_until_newline([C|Cs]) --> [C], string_until_newline(Cs).
 
 % Lookahead for newline without consuming
-peek_newline, [10] --> [10].
+peek_newline, [10] --> [10], !.
+peek_newline, [13] --> [13], !.
 
 digits_strict([C|Cs]) --> [C], { code_type(C, digit) }, !, digits_maybe(Cs).
 digits_maybe([C|Cs])  --> [C], { code_type(C, digit) }, !, digits_maybe(Cs).
 digits_maybe([])      --> [].
 
-white_prefix(N) --> [C], { code_type(C, white), C \== 10 }, !, 
-    { ( C == 9 -> Inc = 8; Inc = 1) },
-    white_prefix(N1), { N is N1 + Inc }.
-white_prefix(0) --> [].
+white_prefix(VW, CC) --> [C], { code_type(C, white), C \== 10, C \== 13 }, !, 
+    { ( C == 9 -> VInc = 8; VInc = 1), CInc = 1 },
+    white_prefix(VW1, CC1), { VW is VW1 + VInc, CC is CC1 + CInc }.
+white_prefix(0, 0) --> [].
 
 word_remainder([C|Cs]) --> [C], { code_type(C, csym) }, !, word_remainder(Cs).
 word_remainder([])     --> [].

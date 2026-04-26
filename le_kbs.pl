@@ -4,7 +4,7 @@
     managing reasoning sessions, and running tests.
 */
 
-:- module(le_kbs, [load/2, createSession/2, 
+:- module(le_kbs, [load/2, load_text/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     run_one_test/3,
@@ -265,8 +265,38 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
                 reasoner:explain(Goal, SessionModule, Unknowns, Why0),
                 postprocess_why(Why0, SessionModule, Why)
             ; TemplateInstance = [], Unknowns = [], Why = failure(no_template_matched(Tokens), [])
-          )
+        )
     ).
+
+%!  load_text(+Text:string, -Module:atom) is det.
+%
+%   Loads Logical English source text into a new generated Module.
+load_text(Text, NewModule) :-
+    (   var(NewModule) ->  
+        variant_sha1(Text, Hash),
+        atom_concat(m, Hash, NewModule)
+        ;   
+        true
+    ),
+    (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
+        ; (   catch(parse_le_text(Text, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
+                % Ensure we start with a clean module
+                forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+                dynamic(NewModule:le_issue/5),
+                forall(member(S, Sections), process_section(S, NewModule)),
+                findall(D, le_system_template(D), SysDicts),
+                forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+                ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+                    forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+                        (Type == missing_template -> Severity = error; Severity = warning),
+                        assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+                    ))
+                ; true)
+            ; print_message(error, "parse_le_text failed"),
+              fail
+        )
+    ).
+
 
 %!  postprocess_why(+WhyIn:term, +SM:atom, -WhyOut:term) is det.
 postprocess_why(success(Goal, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,

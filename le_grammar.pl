@@ -4,7 +4,7 @@
     logic that transforms tokens into executable Prolog terms.
 */
 
-:- module(le_grammar, [parse_le_file/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
+:- module(le_grammar, [parse_le_file/2, parse_le_text/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
     kb_items//1, second_pass_item/3, parse_literal/6, prepare_templates/2]).
 
 :- use_module(tokenizer).
@@ -22,6 +22,13 @@
 %   Tokenizes and parses a Logical English file.
 parse_le_file(FilePath, Doc) :-
     tokenize_file(FilePath, Tokens),
+    parse_le_tokens(Tokens, Doc).
+
+%!  parse_le_text(+Text:string, -Doc:term) is det.
+%
+%   Tokenizes and parses Logical English source text.
+parse_le_text(Text, Doc) :-
+    tokenize(Text, Tokens),
     parse_le_tokens(Tokens, Doc).
 
 %!  parse_le_tokens(+Tokens:list, -Doc:term) is det.
@@ -159,7 +166,11 @@ next_section_start --> any_indent, t(word(the, _)), t(word(target)).
 % kb_content(Content, End) parses the items within a knowledge base or scenario.
 kb_content(Content, End) -->
     kb_items(Content),
-    { ( Content = [] -> End = 0; last(Content, Last), ( Last =.. [_, _, _, _, End] -> true; Last =.. [_, _, _, End] -> true; End = 0)) }.
+    { ( Content = [] -> End = 0; last(Content, Last), get_item_end(Last, End)) }.
+
+get_item_end(Item, End) :-
+    Item =.. List,
+    last(List, End).
 
 % kb_items([I|Is]) parses a sequence of rules or facts.
 kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
@@ -167,30 +178,28 @@ kb_items([]) --> [].
 
 % kb_item(expected(QueryName, Answers, Start, End)) parses "QueryName expects answers [Answers]."
 kb_item(expected(QueryName, Answers, Start, End)) -->
-    { b_getval(current_token_pos, Start) },
     query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
+    { Tokens = [First|_], get_token_start(First, Start) },
     t(word(expects)), t(word(answers)),
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
     any_indent, t(punctuation('.', loc(_, End))).
-% kb_item(rule(...)) parses a Logical English rule (Head if Body).
+
+% kb_item(rule(Head, Body, Indent, Start, End)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End)) -->
-    { b_getval(current_token_pos, Start) },
     template_instance(Head),
+    { Head = [First|_], get_token_start(First, Start) },
     any_indent(N), t(word(if, _)),
     body(Body, End),
     { Indent = N }.
-% kb_item(fact(...)) parses a Logical English fact (Head.).
+
+% kb_item(fact(Head, Start, End)) parses a Logical English fact (Head.).
 kb_item(fact(Head, Start, End)) -->
-    { b_getval(current_token_pos, Start) },
     template_instance(Head),
+    { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
-% kb_item(expected(QueryName, Answers, Start, End)) parses "QueryName expects answers [Answers]."
-kb_item(expected(QueryName, Answers, Start, End)) -->
-    { b_getval(current_token_pos, Start) },
-    query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
-    t(word(expects)), t(word(answers)),
-    t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
-    any_indent, t(punctuation('.', loc(_, End))).
+
+get_token_start(T, Start) :-
+    ( T =.. [_, _, loc(Start, _)] -> true; T =.. [_, loc(Start, _)] -> true; Start = 0).
 
 % templates([T|Ts]) parses a list of template definitions.
 templates([T|Ts]) -->

@@ -106,7 +106,7 @@ handle_explain(Dict, Response) :-
 
 handle_load(Dict, Response) :-
     (   get_dict(le, Dict, Doc) ->  
-        ( catch(load_le_text(Doc, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "load_le_text failed")), fail)
+        ( catch(le_kbs:load_text(Doc, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load_text failed")), fail)
         ;   
         get_dict(file, Dict, File),
         atom_concat('examples/moreExamples/', File, Path0),
@@ -236,17 +236,6 @@ handle_query(Dict, Response) :-
     ( Results == [] -> Response = _{results: [_{result: "false"}]}; Response = _{results: Results}).
 
 % --- Helpers ---
-
-load_le_text(Text, KB) :-
-    variant_sha1(Text, Hash),
-    atom_concat(m, Hash, KB),
-    (   current_module(KB) -> true
-        ;   
-        tmp_file_stream(utf8, Path, Stream),
-        write(Stream, Text),
-        close(Stream),
-        ( catch(le_kbs:load(Path, KB), E, (delete_file(Path), throw(E))) -> delete_file(Path); delete_file(Path), fail)
-    ).
 
 load_prolog_file(Path, Module) :-
     variant_sha1(Path, Hash),
