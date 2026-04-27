@@ -370,14 +370,38 @@ declare var monaco: any;
 
     scenarioSelect.addEventListener('change', () => {
         customScenarioContainer.style.display = scenarioSelect.value === '___custom___' ? 'flex' : 'none';
+        updateQueryButtonState();
     });
 
     querySelect.addEventListener('change', () => {
         customQueryContainer.style.display = querySelect.value === '___custom___' ? 'flex' : 'none';
+        updateQueryButtonState();
     });
 
     const kbModuleDisplay = document.getElementById('kb-module-display')!;
     const sessionModuleDisplay = document.getElementById('session-module-display')!;
+
+    const updateQueryButtonState = () => {
+        if (!btnQuery) return;
+        
+        const model = editor.getModel();
+        const markers = model ? monaco.editor.getModelMarkers({ owner: 'le-verifier' }) : [];
+        const hasErrors = markers.some(m => m.severity === monaco.MarkerSeverity.Error);
+        
+        const scenarioSelected = scenarioSelect.value !== "";
+        const querySelected = querySelect.value !== "";
+        
+        if (hasErrors) {
+            btnQuery.disabled = true;
+            btnQuery.title = 'Cannot query while there are errors in the document';
+        } else if (!scenarioSelected || !querySelected) {
+            btnQuery.disabled = true;
+            btnQuery.title = 'Please select both a scenario and a query';
+        } else {
+            btnQuery.disabled = false;
+            btnQuery.title = '';
+        }
+    };
 
     const updateMarkers = (issues: any[]) => {
         const model = editor.getModel();
@@ -398,13 +422,7 @@ declare var monaco: any;
         });
 
         monaco.editor.setModelMarkers(model, 'le-verifier', markers);
-
-        // Update Query button state
-        const hasErrors = issues.some(i => i.severity === 'error');
-        if (btnQuery) {
-            btnQuery.disabled = hasErrors;
-            btnQuery.title = hasErrors ? 'Cannot query while there are errors in the document' : '';
-        }
+        updateQueryButtonState();
     };
 
     const loadModule = async () => {
@@ -455,7 +473,8 @@ declare var monaco: any;
                         const option = document.createElement('option');
                         // q is now an object with name, template, and le
                         option.value = q.name;
-                        option.textContent = q.le || q.template;
+                        const label = q.le || q.template;
+                        option.textContent = q.name ? `${label} (${q.name})` : label;
                         querySelect.appendChild(option);
                     });
                 }

@@ -408,12 +408,33 @@ async function start() {
   const customQueryText = document.getElementById("custom-query-text");
   scenarioSelect.addEventListener("change", () => {
     customScenarioContainer.style.display = scenarioSelect.value === "___custom___" ? "flex" : "none";
+    updateQueryButtonState();
   });
   querySelect.addEventListener("change", () => {
     customQueryContainer.style.display = querySelect.value === "___custom___" ? "flex" : "none";
+    updateQueryButtonState();
   });
   const kbModuleDisplay = document.getElementById("kb-module-display");
   const sessionModuleDisplay = document.getElementById("session-module-display");
+  const updateQueryButtonState = () => {
+    if (!btnQuery)
+      return;
+    const model2 = editor.getModel();
+    const markers = model2 ? monaco.editor.getModelMarkers({ owner: "le-verifier" }) : [];
+    const hasErrors = markers.some((m) => m.severity === monaco.MarkerSeverity.Error);
+    const scenarioSelected = scenarioSelect.value !== "";
+    const querySelected = querySelect.value !== "";
+    if (hasErrors) {
+      btnQuery.disabled = true;
+      btnQuery.title = "Cannot query while there are errors in the document";
+    } else if (!scenarioSelected || !querySelected) {
+      btnQuery.disabled = true;
+      btnQuery.title = "Please select both a scenario and a query";
+    } else {
+      btnQuery.disabled = false;
+      btnQuery.title = "";
+    }
+  };
   const updateMarkers = (issues) => {
     const model2 = editor.getModel();
     if (!model2)
@@ -432,11 +453,7 @@ async function start() {
       };
     });
     monaco.editor.setModelMarkers(model2, "le-verifier", markers);
-    const hasErrors = issues.some((i) => i.severity === "error");
-    if (btnQuery) {
-      btnQuery.disabled = hasErrors;
-      btnQuery.title = hasErrors ? "Cannot query while there are errors in the document" : "";
-    }
+    updateQueryButtonState();
   };
   const loadModule = async () => {
     if (isLoaded || isLoading)
@@ -479,7 +496,8 @@ async function start() {
           res.queries.forEach((q) => {
             const option = document.createElement("option");
             option.value = q.name;
-            option.textContent = q.le || q.template;
+            const label = q.le || q.template;
+            option.textContent = q.name ? `${label} (${q.name})` : label;
             querySelect.appendChild(option);
           });
         }
