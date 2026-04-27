@@ -601,7 +601,7 @@ print_test_summary(Results) :-
                findall(1, member(fail(_,_,_,_), FileResults), FFile),
                findall(1, member(error(_,_,_), FileResults), EFile),
                length(PFile, PC), length(FFile, FC), length(EFile, EC),
-               ( (FC > 0 ; EC > 0) -> Status = '[FAIL]' ; Status = '[PASS]' ),
+               ( (FC > 0 ; EC > 0) -> Status = '[FAIL]' ; (PC == 0, FC == 0, EC == 0) -> Status = '[NONE]' ; Status = '[PASS]' ),
                format('  ~w ~w: ~w Pass, ~w Fail, ~w Error~n', [Status, File, PC, FC, EC])
            )),
     format('-------------~n~n').
