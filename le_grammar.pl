@@ -5,11 +5,27 @@
 */
 
 :- module(le_grammar, [parse_le_file/2, parse_le_text/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
-    kb_items//1, second_pass_item/3, parse_literal/6, prepare_templates/2]).
+    kb_items//1, second_pass_item/3, parse_literal/6, prepare_templates/2,
+    set_token_pos/1, get_token_pos/1]).
 
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
 :- use_module(library(dcg/basics)).
+
+:- thread_local current_token_pos/1.
+
+%!  set_token_pos(+Pos:integer) is det.
+%
+%   Sets the current token position in a thread-local fact.
+set_token_pos(Pos) :-
+    retractall(current_token_pos(_)),
+    assertz(current_token_pos(Pos)).
+
+%!  get_token_pos(-Pos:integer) is det.
+%
+%   Gets the current token position from a thread-local fact.
+get_token_pos(Pos) :-
+    ( current_token_pos(P) -> Pos = P; Pos = 0).
 
 :- discontiguous section/3.
 :- discontiguous is_indent_or_comment/1.
@@ -320,19 +336,19 @@ any_indent_tail(N1, N) --> [multi_comment(_, _)], !, any_indent_tail(N1, N).
 any_indent_tail(N, N) --> [].
 
 % t(Token) is a helper to match a token while skipping preceding indentation/comments.
-t(T) --> any_indent, [T], { T \= indent(_, _), T \= line_comment(_, _), T \= multi_comment(_, _), ( T =.. [_, _, loc(Start, _)] -> b_setval(current_token_pos, Start); true) }.
-t(word(W, L)) --> any_indent, [word(W, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(word(W)) --> any_indent, [word(W, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(number(N, L)) --> any_indent, [number(N, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(number(N)) --> any_indent, [number(N, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(punctuation(P, L)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(punctuation(P)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(punct(P, L)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(punct(P)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(date(D, L)) --> any_indent, [date(D, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(date(D)) --> any_indent, [date(D, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(quoteString(S, L)) --> any_indent, [quoteString(S, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
-t(doubleQuoteString(S, L)) --> any_indent, [doubleQuoteString(S, L)], { L = loc(Start, _), b_setval(current_token_pos, Start) }.
+t(T) --> any_indent, [T], { T \= indent(_, _), T \= line_comment(_, _), T \= multi_comment(_, _), ( T =.. [_, _, loc(Start, _)] -> set_token_pos(Start); true) }.
+t(word(W, L)) --> any_indent, [word(W, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(word(W)) --> any_indent, [word(W, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(number(N, L)) --> any_indent, [number(N, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(number(N)) --> any_indent, [number(N, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(punctuation(P, L)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(punctuation(P)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(punct(P, L)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(punct(P)) --> any_indent, [punctuation(P, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(date(D, L)) --> any_indent, [date(D, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(date(D)) --> any_indent, [date(D, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(quoteString(S, L)) --> any_indent, [quoteString(S, L)], { L = loc(Start, _), set_token_pos(Start) }.
+t(doubleQuoteString(S, L)) --> any_indent, [doubleQuoteString(S, L)], { L = loc(Start, _), set_token_pos(Start) }.
 
 skip_comments --> any_indent.
 

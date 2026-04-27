@@ -219,11 +219,15 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
                     G =.. FA
                 ), Matches)
             ),
-            member(match(Goal, TemplateInstance, _), Matches),
-            ( do_log -> print_message(informational, 'Executing template goal: ~w' - [Goal]); true),
-            reasoner:i(Goal, SessionModule, Unknowns, Why0),
-            ( do_log -> print_message(informational, 'Template goal solution found: ~w' - [Goal]); true),
-            postprocess_why(Why0, SessionModule, Why)
+            (   Matches \== [] ->
+                member(match(Goal, TemplateInstance, _), Matches),
+                ( do_log -> print_message(informational, 'Executing template goal: ~w' - [Goal]); true),
+                reasoner:i(Goal, SessionModule, Unknowns, Why0),
+                ( do_log -> print_message(informational, 'Template goal solution found: ~w' - [Goal]); true),
+                postprocess_why(Why0, SessionModule, Why)
+            ;   format(string(Error), "Query does not match any template: ~w", [Template]),
+                throw(error(le_parse_error(Error), _))
+            )
     ).
 
 %!  query_explain(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
@@ -260,12 +264,14 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
                     G =.. FA
                 ), Matches)
           ),
-          (   member(match(Goal, TemplateInstance, _), Matches) ->  
+          (   Matches \== [] ->
+                member(match(Goal, TemplateInstance, _), Matches),
                 ( do_log -> print_message(informational, 'Executing template goal explain: ~w' - [Goal]); true),
                 reasoner:explain(Goal, SessionModule, Unknowns, Why0),
                 postprocess_why(Why0, SessionModule, Why)
-            ; TemplateInstance = [], Unknowns = [], Why = failure(no_template_matched(Tokens), [])
-        )
+            ;   format(string(Error), "Query does not match any template: ~w", [Template]),
+                throw(error(le_parse_error(Error), _))
+          )
     ).
 
 %!  load_text(+Text:string, -Module:atom) is det.
@@ -373,23 +379,14 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
 
 %!  get_kb_metadata(+KBModule:atom, -Metadata:dict) is det.
 get_kb_metadata(KB, Metadata) :-
-    (   current_predicate(KB:P/A) ->  
-        findall(PredStr, (
-            current_predicate(KB:P/A), functor(G, P, A),
-            \+ is_system_predicate(P/A), \+ predicate_property(KB:G, imported_from(_)),
-            format(atom(PredStr), '~w/~w', [P, A])
-        ), Preds)
-        ;   
-        Preds = []
-    ),
     ( current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true; KBName = null),
-    (   current_predicate(KB:scenario/2) ->  
-        findall(_{name: Name, scenarios: JSONScenarios}, (
-            KB:scenario(Name, Scenarios), maplist(term_string, Scenarios, JSONScenarios)
-        ), Examples)
-        ;   
-        Examples = []
-    ),
+    findall(TemplateStr, (
+        KB:le_dict(dict(FA, NTs, WV)),
+        \+ le_system_templates:le_system_template(dict(FA, NTs, WV)),
+        copy_term(NTs-WV, NTsC-WVC),
+        maplist(fill_type, NTsC),
+        canonical_string(WVC, TemplateStr)
+    ), Templates),
     (   current_predicate(KB:query_info/3) ->  
         findall(_{name: Name, template: QueryStr, le: LEStr}, (
             KB:query_info(Name, _, Q),
@@ -403,7 +400,7 @@ get_kb_metadata(KB, Metadata) :-
         ;   
         Queries = []
     ),
-    Metadata = _{ kb: KBName, predicates: Preds, examples: Examples, queries: Queries }.
+    Metadata = _{ kb: KBName, templates: Templates, queries: Queries }.
 
 %!  topPredicates(+KBmodule:atom, -TopPredicates:list) is det.
 %
@@ -452,27 +449,37 @@ kbSummary(KB, Summary) :-
     atomic_list_concat(TopPreds, '; ', PredsStr),
     format(string(Summary), "KB: ~w. Top predicates: ~w", [KBName, PredsStr]).
 
-%!  parse_custom_facts(+KB:atom, +Text:string, -Terms:list) is det.
+%!  parse_custom_facts(+KB:atom, +Text:string, -Terms:list) is semidet.
 %
 %   Parses a string of Logical English facts/rules using the templates of the given KB.
+%   Fails if any fact or rule head does not match a template.
 parse_custom_facts(KB, Text, Terms) :-
     tokenize(Text, Tokens),
-    b_setval(current_token_pos, 0),
+    le_grammar:set_token_pos(0),
     ( phrase(le_grammar:kb_items(Items), Tokens) -> true ; Items = [] ),
     findall(D, KB:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, Templates),
     maplist(le_grammar:second_pass_item(Templates), Items, Clauses),
-    findall(Term, (member(clause(Head, Body, _, _), Clauses), (Body == true -> Term = Head; Term = (Head :- Body))), Terms).
+    (   member(clause(unknown_template(Head), _, _, _), Clauses) ->
+        le_kbs:canonical_string(Head, HeadStr),
+        format(string(Error), "Fact does not match any template: ~w", [HeadStr]),
+        throw(error(le_parse_error(Error), _))
+    ;   findall(Term, (member(clause(Head, Body, _, _), Clauses), (Body == true -> Term = Head; Term = (Head :- Body))), Terms)
+    ).
 
 %!  parse_custom_query(+KB:atom, +Text:string, -Goal:term) is semidet.
 %
 %   Parses a string of Logical English as a query goal using the templates of the given KB.
+%   Throws an error if the query does not match any template.
 parse_custom_query(KB, Text, Goal) :-
     tokenize(Text, Tokens),
-    b_setval(current_token_pos, 0),
+    le_grammar:set_token_pos(0),
     findall(D, KB:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, Templates),
-    le_grammar:parse_literal(Tokens, Templates, [], _VM, Goal, true).
+    (   le_grammar:parse_literal(Tokens, Templates, [], _VM, Goal, true) -> true
+    ;   format(string(Error), "Query does not match any template: ~w", [Text]),
+        throw(error(le_parse_error(Error), _))
+    ).
 
 is_system_predicate(le_kb/1).
 is_system_predicate(le_source/3).
