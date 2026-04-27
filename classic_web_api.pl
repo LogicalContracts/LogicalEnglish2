@@ -7,6 +7,7 @@
 :- use_module(library(http/http_parameters)).
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_host)).
+:- use_module(library(http/html_write)).
 :- use_module(le_kbs).
 :- use_module(tokenizer).
 :- use_module(le_grammar).
@@ -15,6 +16,7 @@
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1]).
 
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
+:- http_handler(root(.), handle_landing_page, []).
 :- http_handler(root(mcp), handle_mcp, []).
 :- http_handler(root(list_examples), handle_rest_list_examples, [method(get)]).
 :- http_handler(root(query), handle_rest_query, [method(post)]).
@@ -71,6 +73,73 @@ handle_operation(Dict, Response) :-
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
         ; Response = _{error: "Unknown operation"}
+    ).
+
+% --- Landing Page ---
+
+handle_landing_page(Request) :-
+    http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)])]),
+    (   RunTests == true ->
+        le_kbs:runTestsInDir('examples/moreExamples', Results),
+        format_test_results(Results, TestHtml)
+    ;   TestHtml = []
+    ),
+    directory_files('examples/moreExamples/', Files),
+    findall(Base, (
+        member(F, Files),
+        sub_atom(F, _, _, 0, '.le'),
+        file_name_extension(Base, le, F)
+    ), Bases),
+    sort(Bases, SortedBases),
+    findall(li(a([href(Url)], Base)), (
+        member(Base, SortedBases),
+        format(atom(Url), '/editor/index.html?example=~w', [Base])
+    ), ExampleItems),
+    reply_html_page(
+        [title('Logical English 2.0')],
+        [
+            h1('Logical English 2.0'),
+            ul([
+                li([
+                    b('Edit and Query: '),
+                    a(href('/editor/index.html'), '[New Document]'),
+                    ul(ExampleItems)
+                ]),
+                li(a(href('https://github.com/mcalejo/LogicalEnglish2'), 'GitHub Repository'))
+            ]),
+            h2('Test Suite'),
+            form([action('/'), method('get')], [
+                input([type(hidden), name(run_tests), value(true)]),
+                input([type(submit), value('Run All Tests')])
+            ]),
+            div(TestHtml)
+        ]
+    ).
+
+format_test_results(Results, [h3('Test Results'), table([border(1), cellpadding(5)], [
+    tr([th('File'), th('Pass'), th('Fail'), th('Error'), th('Status')])
+    | TableRows
+])]) :-
+    maplist(result_to_row, Results, TableRows).
+
+result_to_row(test_file(File, FileResults), tr([
+    td(File),
+    td(PassCount),
+    td(FailCount),
+    td(ErrCount),
+    td(style(Color), Status)
+])) :-
+    findall(1, member(pass(_,_), FileResults), Passes),
+    findall(1, member(fail(_,_,_,_), FileResults), Fails),
+    findall(1, member(error(_,_,_), FileResults), Errs),
+    length(Passes, PassCount),
+    length(Fails, FailCount),
+    length(Errs, ErrCount),
+    ( (FailCount > 0 ; ErrCount > 0) -> 
+        Status = 'FAIL', Color = 'color: red; font-weight: bold;'
+    ; (PassCount == 0, FailCount == 0, ErrCount == 0) ->
+        Status = 'NONE', Color = 'color: orange; font-weight: bold;'
+    ; Status = 'PASS', Color = 'color: green; font-weight: bold;'
     ).
 
 % --- Handlers ---

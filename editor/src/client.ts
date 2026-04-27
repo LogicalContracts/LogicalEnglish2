@@ -2,81 +2,104 @@ import { leLanguageConfiguration, leMonarchTokens } from './le-language';
 
 declare var monaco: any;
 
-function start() {
-    if (typeof monaco === 'undefined') {
-        console.error('Monaco not loaded');
-        return;
-    }
-
-    monaco.languages.register({ id: 'le' });
-    monaco.languages.setLanguageConfiguration('le', leLanguageConfiguration);
-    monaco.languages.setMonarchTokensProvider('le', leMonarchTokens);
-
-    monaco.editor.defineTheme('le-theme', {
-        base: 'vs-dark',
-        inherit: true,
-        rules: [
-            { token: 'keyword.header', foreground: '569cd6', fontStyle: 'bold' },
-            { token: 'keyword.expects', foreground: 'c586c0', fontStyle: 'italic' },
-            { token: 'variable', foreground: '9cdcfe' },
-            { token: 'number.date', foreground: 'b5cea8' }
-        ],
-        colors: {
-            'editor.background': '#1e1e1e'
+    async function start() {
+        if (typeof monaco === 'undefined') {
+            console.error('Monaco not loaded');
+            return;
         }
-    });
 
-    monaco.editor.defineTheme('le-theme-light', {
-        base: 'vs',
-        inherit: true,
-        rules: [
-            { token: 'keyword.header', foreground: '0000ff', fontStyle: 'bold' },
-            { token: 'keyword.expects', foreground: 'af00db', fontStyle: 'italic' },
-            { token: 'variable', foreground: '001080' },
-            { token: 'number.date', foreground: '098658' }
-        ],
-        colors: {}
-    });
+        monaco.languages.register({ id: 'le' });
+        monaco.languages.setLanguageConfiguration('le', leLanguageConfiguration);
+        monaco.languages.setMonarchTokensProvider('le', leMonarchTokens);
 
-    function getInitialValue() {
+        monaco.editor.defineTheme('le-theme', {
+            base: 'vs-dark',
+            inherit: true,
+            rules: [
+                { token: 'keyword.header', foreground: '569cd6', fontStyle: 'bold' },
+                { token: 'keyword.expects', foreground: 'c586c0', fontStyle: 'italic' },
+                { token: 'variable', foreground: '9cdcfe' },
+                { token: 'number.date', foreground: 'b5cea8' }
+            ],
+            colors: {
+                'editor.background': '#1e1e1e'
+            }
+        });
+
+        monaco.editor.defineTheme('le-theme-light', {
+            base: 'vs',
+            inherit: true,
+            rules: [
+                { token: 'keyword.header', foreground: '0000ff', fontStyle: 'bold' },
+                { token: 'keyword.expects', foreground: 'af00db', fontStyle: 'italic' },
+                { token: 'variable', foreground: '001080' },
+                { token: 'number.date', foreground: '098658' }
+            ],
+            colors: {}
+        });
+
         const params = new URLSearchParams(window.location.search);
-        const text = params.get('text');
-        return text || '% Welcome to Logical English Editor\n\nthe knowledge base my_kb includes:\n  *a person* is happy if\n    *the person* is healthy.\n';
-    }
+        let initialValue = '% Welcome to Logical English Editor\n\nthe knowledge base my_kb includes:\n  *a person* is happy if\n    *the person* is healthy.\n';
+        let initialFilename = 'document.le';
 
-    function getInitialFilename() {
-        const params = new URLSearchParams(window.location.search);
-        const filename = params.get('filename');
-        return filename || 'document.le';
-    }
+        const textParam = params.get('text');
+        const exampleParam = params.get('example');
+        const filenameParam = params.get('filename');
 
-    let currentFileName = getInitialFilename();
-    let fileHandle: any = null;
-    const filenameDisplay = document.getElementById('filename-display');
-    if (filenameDisplay) {
-        filenameDisplay.textContent = currentFileName;
-    }
+        if (textParam) {
+            initialValue = textParam;
+        } else if (exampleParam) {
+            try {
+                const response = await fetch('/leapi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: 'myToken123',
+                        operation: 'examples',
+                        file: exampleParam
+                    })
+                });
+                const data = await response.json();
+                if (data.document) {
+                    initialValue = data.document;
+                    initialFilename = exampleParam + '.le';
+                }
+            } catch (err) {
+                console.error('Failed to load example', err);
+            }
+        }
 
-    const savedTheme = localStorage.getItem('le-editor-theme') || 'le-theme';
-    const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
-    let isDirty = false;
-    let isLoaded = false;
-    let isLoading = false;
-    let sessionModule: string | null = null;
-    let loadTimeout: any = null;
+        if (filenameParam) {
+            initialFilename = filenameParam;
+        }
 
-    const container = document.getElementById('container')!;
+        let currentFileName = initialFilename;
+        let fileHandle: any = null;
+        const filenameDisplay = document.getElementById('filename-display');
+        if (filenameDisplay) {
+            filenameDisplay.textContent = currentFileName;
+        }
 
-    const editor = monaco.editor.create(container, {
-        value: getInitialValue(),
-        language: 'le',
-        theme: savedTheme,
-        automaticLayout: true,
-        fontSize: savedFontSize,
-        minimap: { enabled: false },
-        folding: true,
-        showFoldingControls: 'always'
-    });
+        const savedTheme = localStorage.getItem('le-editor-theme') || 'le-theme';
+        const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
+        let isDirty = false;
+        let isLoaded = false;
+        let isLoading = false;
+        let sessionModule: string | null = null;
+        let loadTimeout: any = null;
+
+        const container = document.getElementById('container')!;
+
+        const editor = monaco.editor.create(container, {
+            value: initialValue,
+            language: 'le',
+            theme: savedTheme,
+            automaticLayout: true,
+            fontSize: savedFontSize,
+            minimap: { enabled: false },
+            folding: true,
+            showFoldingControls: 'always'
+        });
 
     const menuSave = document.getElementById('menu-save');
     const menuSaveAs = document.getElementById('menu-save-as');

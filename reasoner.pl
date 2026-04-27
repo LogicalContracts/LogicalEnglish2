@@ -68,7 +68,17 @@ solve_real(sum([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
-    sum_list(List, Result),
+    (   List == [] -> Result = 0
+    ;   (   exclude(number, List, NonNumbers), NonNumbers == [] -> sum_list(List, Result)
+        ;   % Some elements are not numbers (likely uninstantiated variables)
+            % We try to sum only the numbers, or fail if that's not appropriate.
+            % For LE, usually we expect all elements to be numbers.
+            include(number, List, Numbers),
+            (   Numbers == [] -> Result = 0
+            ;   sum_list(Numbers, Result)
+            )
+        )
+    ),
     Us = [],
     WhyGoal = success(Goal, aggregate_elements, WhysGoal).
 solve_real(count([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(count([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
@@ -84,7 +94,9 @@ solve_real(min([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
-    min_list(List, Result),
+    (   List == [] -> Result = 0 % Or fail? LE usually expects 0 for empty sum/min
+    ;   min_list(List, Result)
+    ),
     Us = [],
     WhyGoal = success(Goal, aggregate_elements, WhysGoal).
 solve_real(max([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(max([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
@@ -92,7 +104,9 @@ solve_real(max([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
-    max_list(List, Result),
+    (   List == [] -> Result = 0
+    ;   max_list(List, Result)
+    ),
     Us = [],
     WhyGoal = success(Goal, aggregate_elements, WhysGoal).
 solve_real(average([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(average([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
@@ -100,9 +114,11 @@ solve_real(average([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [succ
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
-    sum_list(List, Sum),
-    length(List, Count),
-    ( Count > 0 -> Result is Sum / Count; Result = 0),
+    (   List == [] -> Result = 0
+    ;   sum_list(List, Sum),
+        length(List, Count),
+        Result is Sum / Count
+    ),
     Us = [],
     WhyGoal = success(Goal, aggregate_elements, WhysGoal).
 % Forall

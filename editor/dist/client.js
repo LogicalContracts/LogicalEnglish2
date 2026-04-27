@@ -76,7 +76,7 @@ var leMonarchTokens = {
 };
 
 // src/client.ts
-function start() {
+async function start() {
   if (typeof monaco === "undefined") {
     console.error("Monaco not loaded");
     return;
@@ -108,17 +108,38 @@ function start() {
     ],
     colors: {}
   });
-  function getInitialValue() {
-    const params = new URLSearchParams(window.location.search);
-    const text = params.get("text");
-    return text || "% Welcome to Logical English Editor\n\nthe knowledge base my_kb includes:\n  *a person* is happy if\n    *the person* is healthy.\n";
+  const params = new URLSearchParams(window.location.search);
+  let initialValue = "% Welcome to Logical English Editor\n\nthe knowledge base my_kb includes:\n  *a person* is happy if\n    *the person* is healthy.\n";
+  let initialFilename = "document.le";
+  const textParam = params.get("text");
+  const exampleParam = params.get("example");
+  const filenameParam = params.get("filename");
+  if (textParam) {
+    initialValue = textParam;
+  } else if (exampleParam) {
+    try {
+      const response = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "examples",
+          file: exampleParam
+        })
+      });
+      const data = await response.json();
+      if (data.document) {
+        initialValue = data.document;
+        initialFilename = exampleParam + ".le";
+      }
+    } catch (err) {
+      console.error("Failed to load example", err);
+    }
   }
-  function getInitialFilename() {
-    const params = new URLSearchParams(window.location.search);
-    const filename = params.get("filename");
-    return filename || "document.le";
+  if (filenameParam) {
+    initialFilename = filenameParam;
   }
-  let currentFileName = getInitialFilename();
+  let currentFileName = initialFilename;
   let fileHandle = null;
   const filenameDisplay = document.getElementById("filename-display");
   if (filenameDisplay) {
@@ -133,7 +154,7 @@ function start() {
   let loadTimeout = null;
   const container = document.getElementById("container");
   const editor = monaco.editor.create(container, {
-    value: getInitialValue(),
+    value: initialValue,
     language: "le",
     theme: savedTheme,
     automaticLayout: true,
@@ -720,15 +741,15 @@ function start() {
       monaco.editor.setModelMarkers(editor.getModel(), "le", markers);
     }
   };
-  function sendRequest(method, params) {
+  function sendRequest(method, params2) {
     const id = messageId++;
     return new Promise((resolve) => {
       pendingRequests.set(id, resolve);
-      worker.postMessage({ jsonrpc: "2.0", id, method, params });
+      worker.postMessage({ jsonrpc: "2.0", id, method, params: params2 });
     });
   }
-  function sendNotification(method, params) {
-    worker.postMessage({ jsonrpc: "2.0", method, params });
+  function sendNotification(method, params2) {
+    worker.postMessage({ jsonrpc: "2.0", method, params: params2 });
   }
   sendRequest("initialize", { capabilities: {} });
   sendNotification("initialized", {});

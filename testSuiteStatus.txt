@@ -9,23 +9,23 @@ Errors/Timeouts: 1
 -------------
 
 Detailed File Summary:
-  [PASS] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [FAIL] examples/moreExamples/error.le: 0 Pass, 0 Fail, 1 Error
-  [PASS] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gst.le: 12 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/small_business.le: 25 Pass, 0 Fail, 0 Error
