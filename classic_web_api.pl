@@ -214,7 +214,10 @@ handle_answering_query(Dict, Response) :-
     % Handle Scenario
     (   get_dict(customScenario, Dict, CustomScenario), CustomScenario \== null ->
             clearSession(SM),
-            ( KB \== none -> parse_custom_facts(KB, CustomScenario, Facts), forall(member(F, Facts), addSessionFact(SM, F)); true )
+            ( KB \== none -> 
+                catch(parse_custom_facts(KB, CustomScenario, Facts), error(le_parse_error(Msg), _), ErrorFacts = Msg),
+                ( var(ErrorFacts) -> forall(member(F, Facts), addSessionFact(SM, F)) ; true )
+            ; true )
         ; get_dict(scenario, Dict, ScenarioStr) ->  
             (   ((atom(ScenarioStr) ; string(ScenarioStr)), \+ sub_atom(ScenarioStr, _, _, _, '(')) ->  
                     atom_string(ScenarioName, ScenarioStr),
@@ -226,12 +229,21 @@ handle_answering_query(Dict, Response) :-
         ; true
     ),
 
-    % Handle Query
-    (   get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null ->
-            ( KB \== none, parse_custom_query(KB, CustomQuery, Goal) -> Query = Goal; Query = CustomQuery )
-        ; get_dict(query, Dict, Query)
-    ),
+    (   nonvar(ErrorFacts) -> Response = _{error: ErrorFacts}
+    ;   % Handle Query
+        (   get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null ->
+                ( KB \== none ->
+                    catch(parse_custom_query(KB, CustomQuery, Goal), error(le_parse_error(Msg), _), ErrorQuery = Msg),
+                    ( var(ErrorQuery) -> Query = Goal ; true )
+                ; Query = CustomQuery )
+            ; get_dict(query, Dict, Query)
+        ),
+        (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
+        ;   catch(run_answering_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg})
+        )
+    ).
 
+run_answering_query(SM, Query, KB, Response) :-
     print_message(informational, 'Answering query: ~w in session ~w' - [Query, SM]),
     findall(_{answer: AnswerStr, why: JSONWhy}, (
             query(SM, Query, Instance, _Us, Why),
@@ -246,7 +258,7 @@ handle_answering_query(Dict, Response) :-
         ;   
         % No answers, get negative explanation
         print_message(informational, 'No answers found, generating negative explanation'),
-        (   catch(query_explain(SM, Query, _Instance, _Unknowns, Why), E, (print_message(error, E), fail)) -> 
+        (   query_explain(SM, Query, _Instance, _Unknowns, Why) -> 
                 convert_why(Why, KB, JSONWhy),
                 Response = _{results: [], why: JSONWhy, result: "ok"}
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}

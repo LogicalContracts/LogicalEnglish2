@@ -79,7 +79,8 @@ handle_method(Method, Dict, Response) :-
             protocolVersion: "2024-11-05",
             capabilities: _{
                 tools: _{},
-                prompts: _{}
+                prompts: _{},
+                resources: _{}
             },
             serverInfo: _{
                 name: "Logical English MCP Server",
@@ -87,6 +88,47 @@ handle_method(Method, Dict, Response) :-
             }
         }
     }.
+
+handle_method(Method, Dict, Response) :-
+    match_method('resources/list', Method), !,
+    get_dict(id, Dict, ID),
+    Response = _{
+        jsonrpc: "2.0",
+        id: ID,
+        result: _{
+            resources: [
+                _{
+                    uri: "le://docs/syntax",
+                    name: "Logical English Syntax Summary",
+                    mimeType: "text/markdown",
+                    description: "A summary of the Logical English language syntax and rules"
+                }
+            ]
+        }
+    }.
+
+handle_method(Method, Dict, Response) :-
+    match_method('resources/read', Method), !,
+    get_dict(id, Dict, ID),
+    Params = Dict.get(params, _{}),
+    URI = Params.get(uri, ""),
+    (   URI == "le://docs/syntax" ->
+        read_file_to_string('docs/le_syntax.md', Text, []),
+        Response = _{
+            jsonrpc: "2.0",
+            id: ID,
+            result: _{
+                contents: [
+                    _{
+                        uri: URI,
+                        mimeType: "text/markdown",
+                        text: Text
+                    }
+                ]
+            }
+        }
+    ;   fail
+    ).
 
 handle_method(Method, Dict, Response) :-
     match_method('prompts/list', Method), !,
@@ -97,12 +139,39 @@ handle_method(Method, Dict, Response) :-
         result: _{
             prompts: [
                 _{
+                    name: "use_logical_english",
+                    description: "Set up the LLM to work with a specific Logical English program",
+                    arguments: [
+                        _{
+                            name: "example_name",
+                            description: "The name of the LE program to use (e.g., 'citizenship')",
+                            required: true
+                        }
+                    ]
+                },
+                _{
                     name: "massage_query",
                     description: "Help massage a user's natural language question into a valid Logical English query based on available templates",
                     arguments: [
                         _{
                             name: "user_question",
                             description: "The question as asked by the user",
+                            required: true
+                        },
+                        _{
+                            name: "templates",
+                            description: "Available Logical English templates for the program",
+                            required: true
+                        }
+                    ]
+                },
+                _{
+                    name: "massage_facts",
+                    description: "Help massage a sequence of natural language facts into valid Logical English template instances based on available templates",
+                    arguments: [
+                        _{
+                            name: "user_facts",
+                            description: "The facts as described by the user in natural language",
                             required: true
                         },
                         _{
@@ -122,7 +191,28 @@ handle_method(Method, Dict, Response) :-
     Params = Dict.get(params, _{}),
     PromptName = Params.get(name, ""),
     Args = Params.get(arguments, _{}),
-    (   PromptName == "massage_query" ->
+    (   PromptName == "use_logical_english" ->
+        ExampleName = Args.get(example_name, ""),
+        format(string(PromptText), 
+               "You are an expert in Logical English. You are working with the program '~w'. ~n~nFollow these steps for every user request:~n1. Call 'get_example_details' with example_name: \"~w\" to understand the available templates and queries.~n2. If the user provides facts in natural language, use your internal reasoning to rewrite them into valid Logical English facts that match the templates EXACTLY. Each fact must end with a period.~n3. Rewrite the user's question into a single Logical English query that matches one of the templates exactly. Do not add a period.~n4. Call the 'query' tool with the massaged facts and query.~n5. Explain the results to the user in natural language, using the provided explanation tree.~n~nRead the resource 'le://docs/syntax' if you need a refresher on Logical English syntax.", 
+               [ExampleName, ExampleName]),
+        Response = _{
+            jsonrpc: "2.0",
+            id: ID,
+            result: _{
+                description: "Set up LE expert persona",
+                messages: [
+                    _{
+                        role: "user",
+                        content: _{
+                            type: "text",
+                            text: PromptText
+                        }
+                    }
+                ]
+            }
+        }
+    ;   PromptName == "massage_query" ->
         UserQuestion = Args.get(user_question, ""),
         Templates = Args.get(templates, ""),
         format(string(PromptText), 
@@ -133,6 +223,28 @@ handle_method(Method, Dict, Response) :-
             id: ID,
             result: _{
                 description: "Massage user question into LE query",
+                messages: [
+                    _{
+                        role: "user",
+                        content: _{
+                            type: "text",
+                            text: PromptText
+                        }
+                    }
+                ]
+            }
+        }
+    ;   PromptName == "massage_facts" ->
+        UserFacts = Args.get(user_facts, ""),
+        Templates = Args.get(templates, ""),
+        format(string(PromptText), 
+               "The user provides these facts: \"~w\"~n~nAvailable Logical English templates are:~n~w~n~nYour task is to rewrite the user's facts into a sequence of Logical English facts, each matching one of the templates exactly. ~n- Each fact must end with a period.~n- Use specific values from the user's input.~n- Return ONLY the massaged facts text, one per line.", 
+               [UserFacts, Templates]),
+        Response = _{
+            jsonrpc: "2.0",
+            id: ID,
+            result: _{
+                description: "Massage user facts into LE facts",
                 messages: [
                     _{
                         role: "user",
@@ -176,15 +288,15 @@ handle_method(Method, Dict, Response) :-
                 },
                 _{
                     name: "query",
-                    description: "Execute a query for a named program example or given program text. IMPORTANT: The query must match the program's templates exactly. Use get_example_details first to see available templates.",
+                    description: "Execute a query. MANDATORY: You MUST call get_example_details first to get the correct templates. Your 'facts' and 'query' strings MUST match those templates EXACTLY, word-for-word, or the query will fail. Do not paraphrase or hallucinate templates.",
                     inputSchema: _{
                         type: "object",
                         properties: _{
                             example_name: _{ type: "string", description: "Name of the example program" },
                             program_text: _{ type: "string", description: "Logical English program text" },
                             scenario_name: _{ type: "string", description: "Name of a scenario defined in the program" },
-                            facts: _{ type: "string", description: "Additional Logical English facts" },
-                            query: _{ type: "string", description: "The query to execute (must match a template)" }
+                            facts: _{ type: "string", description: "Additional Logical English facts (MUST match templates exactly)" },
+                            query: _{ type: "string", description: "The query to execute (MUST match a template exactly)" }
                         },
                         required: ["query"]
                     }
@@ -282,8 +394,8 @@ call_tool("get_example_details", Args, Result) :-
     (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
     le_kbs:load(Path, KB),
     le_kbs:get_kb_metadata(KB, Metadata),
-    read_file_to_string(Path, Text, []),
-    Result = Metadata.put(_{program_text: Text}).
+    ( current_predicate(KB:scenario/2) -> findall(_{name: Name}, KB:scenario(Name, _), Scenarios); Scenarios = []),
+    Result = Metadata.put(_{examples: Scenarios}).
 
 call_tool("query", Args, Result) :-
     Query = Args.get(query, ""),
@@ -305,24 +417,12 @@ call_tool("query", Args, Result) :-
     ;   true
     ),
     (   (Facts \== "", Facts \== null) ->
-        ( le_kbs:parse_custom_facts(KB, Facts, FactTerms) ->
-            forall(member(F, FactTerms), le_kbs:addSessionFact(SM, F))
-        ; true )
+        catch(le_kbs:parse_custom_facts(KB, Facts, FactTerms), error(le_parse_error(Msg), _), ErrorFacts = Msg),
+        ( var(ErrorFacts) -> forall(member(F, FactTerms), le_kbs:addSessionFact(SM, F)) ; true )
     ;   true
     ),
-    findall(_{answer: AnswerStr, explanation: JSONWhy}, (
-        le_kbs:query(SM, Query, Instance, _, Why),
-        le_kbs:canonical_string(Instance, AnswerStr),
-        convert_why(Why, KB, JSONWhy)
-    ), Results),
-    (   Results \== [] ->
-        Result = _{results: Results}
-    ;   % Try to get negative explanation
-        (   le_kbs:query_explain(SM, Query, _, _, Why) ->
-            convert_why(Why, KB, JSONWhy),
-            Result = _{results: [], explanation: JSONWhy}
-        ;   Result = _{results: [], error: "No answer and no explanation found"}
-        )
+    (   nonvar(ErrorFacts) -> Result = _{error: ErrorFacts}
+    ;   catch(run_query(SM, Query, KB, Result), error(le_parse_error(Msg), _), Result = _{error: Msg})
     ).
 
 call_tool("verify", Args, Result) :-
@@ -339,6 +439,22 @@ call_tool("verify", Args, Result) :-
     ; JSONTestResults = []
     ),
     Result = _{issues: Issues, test_results: JSONTestResults}.
+
+run_query(SM, Query, KB, Result) :-
+    findall(_{answer: AnswerStr, explanation: JSONWhy}, (
+        le_kbs:query(SM, Query, Instance, _, Why),
+        le_kbs:canonical_string(Instance, AnswerStr),
+        convert_why(Why, KB, JSONWhy)
+    ), Results),
+    (   Results \== [] ->
+        Result = _{results: Results}
+    ;   % Try to get negative explanation
+        (   le_kbs:query_explain(SM, Query, _, _, Why) ->
+            convert_why(Why, KB, JSONWhy),
+            Result = _{results: [], explanation: JSONWhy}
+        ;   Result = _{results: [], error: "No answer and no explanation found"}
+        )
+    ).
 
 % --- Helpers ---
 
