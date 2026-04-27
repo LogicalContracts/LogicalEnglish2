@@ -74,7 +74,6 @@ Loads the LE document, applies the named scenario, and returns an explanation fo
 {
   "token": "myToken123",
   "operation": "answer",
-  "file": "<program_name>",
   "document": "<LE source text>",
   "theQuery": "<query sentence>",
   "scenario": "<scenario name>"
@@ -83,7 +82,6 @@ Loads the LE document, applies the named scenario, and returns an explanation fo
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `file` | string | Logical name / identifier for the program |
 | `document` | string | Full LE source text |
 | `theQuery` | string | Name of the query to run, e.g. `"one"` |
 | `scenario` | string | Name of the scenario to use, e.g. `"alice"` |
@@ -99,7 +97,7 @@ Loads the LE document, applies the named scenario, and returns an explanation fo
 ```bash
 curl -s -X POST http://localhost:3050/leapi \
   -H 'Content-Type: application/json' \
-  -d '{"token":"myToken123","operation":"answer","file":"testingle",
+  -d '{"token":"myToken123","operation":"answer",
        "document":"...","theQuery":"one","scenario":"alice"}'
 ```
 
@@ -115,7 +113,6 @@ Like `answer` but collects every answer, not just the first.
 {
   "token": "myToken123",
   "operation": "explain",
-  "file": "<program_name>",
   "document": "<LE source text>",
   "theQuery": "<query sentence>",
   "scenario": "<scenario name>"
@@ -128,57 +125,6 @@ Same fields as `answer`.
 
 ```json
 { "results": [ <explanation>, ... ] }
-```
-
----
-
-### `answer_via_llm` — Translate free-form user input via an LLM, then answer
-
-Sends `userinput` to a configured LLM (Gemini) to generate a new LE scenario/query pair, appends it to `document`, and then runs the combined program.
-
-**Environment variables required on the server:**
-
-| Variable | Description |
-|----------|-------------|
-| `LE_LLM_K` | API key for the LLM service |
-| `USED_LLM` | Model identifier, e.g. `gemini-2.5-flash` |
-
-**Request**
-
-```json
-{
-  "token": "myToken123",
-  "operation": "answer_via_llm",
-  "file": "<program_name>",
-  "document": "<LE source text>",
-  "userinput": "<free-form description / question>"
-}
-```
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `file` | string | Logical name for the program |
-| `document` | string | Existing LE source text used as context |
-| `userinput` | string | Natural-language description of the situation and question |
-
-**Response**
-
-```json
-{
-  "results": [ <explanation>, ... ],
-  "translation": "<LLM-generated LE text>"
-}
-```
-
-On failure: `"results"` contains an error dict and `"translation"` is `"I did not understand"`.
-
-**curl example**
-
-```bash
-curl -s -X POST http://localhost:3050/leapi \
-  -H 'Content-Type: application/json' \
-  -d '{"token":"myToken123","operation":"answer_via_llm",
-       "file":"testllm","document":"...","userinput":"Is Alice eligible?"}'
 ```
 
 ---
@@ -216,43 +162,15 @@ The `file` path must reside under `/moreExamples/`. Files ending in `.le` are pa
   "sessionModule": "<generated module name>",
   "kb": "<kb name or null>",
   "predicates": [ "<predicate/arity>", ... ],
-  "examples": [ { "name": "...", "scenarios": [ { "assertion": "...", "clauses": "..." } ] } ],
-  "queries": [ "<query term>", ... ],
+  "examples": [ { "name": "...", "scenarios": [ "<fact string>", ... ] } ],
+  "queries": [ { "name": "...", "template": "...", "le": "..." }, ... ],
   "language": "le | prolog",
-  "target": "taxlog | prolog"
+  "target": "prolog",
+  "issues": [ { "severity": "...", "type": "...", "message": "...", "start": 0, "end": 0 }, ... ]
 }
 ```
 
 The `sessionModule` value must be passed to subsequent `answeringQuery` and `loadFactsAndQuery` calls.
-
----
-
-### `le2prolog` — Translate a LE program to Prolog source
-
-Returns the Prolog text equivalent of a LE program without asserting anything.
-
-**Request**
-
-```json
-{
-  "token": "myToken123",
-  "operation": "le2prolog",
-  "le": "<LE source text>"
-}
-```
-
-**Response**
-
-```json
-{
-  "prolog": "<Prolog source text>",
-  "kb": "<kb name>",
-  "predicates": [ "<predicate string>", ... ],
-  "examples": [ ... ],
-  "queries": "<Prolog query clauses>",
-  "target": "taxlog | prolog"
-}
-```
 
 ---
 
@@ -266,17 +184,32 @@ Requires a prior `load` call to obtain `sessionModule`.
 {
   "token": "myToken123",
   "operation": "answeringQuery",
+  "sessionModule": "<module name from load>",
   "query": "<English query string>",
-  "scenario": "<Prolog scenario term>",
-  "sessionModule": "<module name from load>"
+  "scenario": "<Scenario name or Prolog scenario term string>",
+  "customScenario": "<Logical English facts string>",
+  "customQuery": "<Logical English query string>"
 }
 ```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `sessionModule` | string | Module name from `load` |
+| `query` | string | English query string or named query |
+| `scenario` | string | Named scenario or Prolog term string |
+| `customScenario` | string | (Optional) LE facts to add to session |
+| `customQuery` | string | (Optional) LE query string to parse and run |
 
 **Response**
 
 ```json
-{ "answer": "<answer term as string>", "result": "ok" }
+{ 
+  "results": [ { "answer": "<answer string>", "why": <explanation> }, ... ],
+  "result": "ok" 
+}
 ```
+
+If no answers are found, a negative explanation is returned in the `why` field of the top-level object.
 
 ---
 
@@ -304,15 +237,15 @@ Asserts a list of ground facts into an existing session module, then optionally 
 ```json
 {
   "facts": [ ... ],
-  "goal": "<goal>-(vars)",
+  "goal": "<goal>",
   "answers": [ { "bindings": { "<var>": <value> }, "explanation": <tree> } ],
-  "result": "true | false | unknown"
+  "result": "true | false"
 }
 ```
 
 ---
 
-### `query` — Low-level Prolog/taxlog query (legacy taxkbapi)
+### `query` — Low-level Prolog query
 
 Evaluates a Prolog term against a named module's knowledge base, optionally with hypothetical facts.
 
@@ -323,7 +256,7 @@ Evaluates a Prolog term against a named module's knowledge base, optionally with
   "token": "myToken123",
   "operation": "query",
   "theQuery": "<Prolog term string>",
-  "module": "<module URL or name>",
+  "module": "<module name>",
   "facts": [ "<fact term string>", ... ]
 }
 ```
@@ -336,67 +269,43 @@ Evaluates a Prolog term against a named module's knowledge base, optionally with
 {
   "results": [
     {
-      "result": "true | false | unknown",
+      "result": "true | false",
       "bindings": { "<VarName>": <value>, ... },
-      "unknowns": [ { "goal": <term>, "module": "<module>" }, ... ],
+      "unknowns": [ { "goal": "<term>", "module": "<module>" }, ... ],
       "why": <explanation tree>
     }
   ]
 }
 ```
 
-**curl examples**
-
-```bash
-# Simple query
-curl -X POST http://localhost:3050/leapi \
-  -H 'Content-Type: application/json' \
-  -d '{"token":"myToken123","operation":"query","theQuery":"a(1,Y)","module":"http://tests.com"}'
-
-# With hypothetical facts
-curl -X POST http://localhost:3050/leapi \
-  -H 'Content-Type: application/json' \
-  -d '{"token":"myToken123","operation":"query","theQuery":"a(13,Y)","facts":["d(13)"],"module":"http://tests.com"}'
-```
-
 ---
 
-### `draft` — Draft a Prolog file from web-page content (legacy)
+## Model Context Protocol (MCP) & REST Tools
 
-Accepts structured page content and returns a drafted Prolog text.
+The server also exposes endpoints for the Model Context Protocol and direct REST access to LLM-friendly tools.
 
-**Request**
+### Endpoints
 
-```json
-{
-  "token": "myToken123",
-  "operation": "draft",
-  "pageURL": "http://mysite/page1#section2",
-  "content": [
-    { "url": "http://mysite/page1#section2!chunk1", "text": "john flies by instruments" }
-  ]
-}
-```
+- `POST /mcp` — JSON-RPC endpoint for MCP clients (Claude Desktop, etc.)
+- `GET /list_examples` — REST list examples
+- `POST /query` — REST query with support for `example_name`, `program_text`, `scenario_name`, `facts`, and `query`.
+- `POST /verify` — REST verify program text
+- `POST /example_details` — REST get full example text and metadata
 
-**Response**
-
-```json
-{ "pageURL": "http://mysite/page1#section2", "draft": "<Prolog text>" }
-```
+See `llm/settings/README.md` for MCP configuration.
 
 ---
 
 ## Explanation tree nodes
 
-The `why` / explanation fields returned by `query` and `loadFactsAndQuery` are arrays of node objects:
+The `why` / explanation fields are JSON objects:
 
 ```json
 {
-  "type": "<node type>",
-  "literal": "<goal as string>",
-  "module": "<module>",
-  "source": "<source reference>",
-  "textOrigin": "<origin>",
+  "type": "success | failure",
+  "literal": "<LE or Prolog string>",
+  "start": <offset>,
+  "end": <offset>,
   "children": [ <node>, ... ]
 }
 ```
@@ -405,9 +314,6 @@ The `why` / explanation fields returned by `query` and `loadFactsAndQuery` are a
 
 ## Starting the server
 
-```prolog
-?- use_module(api), start_api_server.        % listens on port 3050
-?- use_module(api), start_api_server(8080).  % custom port
+```bash
+swipl -g "use_module(classic_web_api), start_api_server(3050), thread_get_message(_)." classic_web_api.pl
 ```
-
-When loaded inside SWISH the server start is a no-op (SWISH already handles HTTP).

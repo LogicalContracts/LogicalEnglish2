@@ -17,9 +17,12 @@ In what follows, SWIPL must be replaced by /Applications/SWI-Prolog10.0.0-1.app/
   - Indentation: 4 spaces.
   - If-Then-Else: `( Condition -> Then ; Else )` for small blocks; otherwise:
     ```prolog
-    (   Condition ->
-        Then
-    ;   Else
+    ( Condition1 ->
+          Then1
+        ; Condition2 ->
+          Then2
+        ;  
+          Else
     )
     ```
   - Modules: Use `:- module(name, [exports]).` and `thread_local` for temp state.
