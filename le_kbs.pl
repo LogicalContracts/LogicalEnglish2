@@ -11,6 +11,8 @@
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
     topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
 
+:- discontiguous process_section_acc/2.
+
 :- discontiguous print_test_result/1.
 
 :- use_module(le_grammar).
@@ -103,11 +105,17 @@ process_section_acc(ontology(Content, Start, End), M) :-
     assertz(M:le_source(Ref, Start, End)),
     forall(member(Item, Content), process_item(Item, M)).
 
-process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
-process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
-process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
-process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
-process_section_acc(meta(Dicts), M) :- forall(member(D, Dicts), assertz(M:le_dict(D))).
+process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+process_section_acc(meta(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+
+assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
+    assertz(M:le_dict(dict(FA, NTs, WV)), Ref),
+    assertz(M:le_source(Ref, Start, End)).
+assert_dict_with_source(dict(FA, NTs, WV), M) :-
+    assertz(M:le_dict(dict(FA, NTs, WV))).
 process_section_acc(unknown_section(Tokens, Start, End), M) :-
     le_grammar:reconstruct_name(Tokens, FullName),
     ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
@@ -354,6 +362,7 @@ canonical_string(Instance, String) :-
 token_to_atom(X, Atom) :- var(X), !, Atom = '_'.
 token_to_atom(var(Name, Value), Atom) :- !,
     ( nonvar(Value) -> token_to_atom(Value, Atom); token_to_atom(Name, Atom)).
+token_to_atom(var(Words, _), Atom) :- !, token_to_atom(var(Words), Atom).
 token_to_atom(word(W, _), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(word(W), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(var(Words), Atom) :- !, 
