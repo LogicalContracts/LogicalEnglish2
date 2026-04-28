@@ -6,7 +6,7 @@
 
 :- module(le_grammar, [parse_le_file/2, parse_le_text/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
     kb_items//1, second_pass_item/3, parse_literal/6, prepare_templates/2,
-    set_token_pos/1, get_token_pos/1]).
+    set_token_pos/1, get_token_pos/1, is_id/1]).
 
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
@@ -592,13 +592,43 @@ prepare_templates(DictsIn, DictsOut) :-
 
 % Semantics: Second Pass
 second_pass(Sections, NewSections) :-
+    retractall(is_a_type(_)),
+    retractall(is_a_taxonomy_edge(_, _, _)),
     ( le_kbs:do_log -> length(Sections, L), print_message(informational,'Second pass: ~w sections~n' - [L]); true),
     % Collect all templates from all sections first
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
     append(UserDicts, SystemDicts, AllDicts),
     prepare_templates(AllDicts, SortedDicts),
+    % Collect types from ontology
+    forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
     maplist(second_pass_section(SortedDicts), Sections, NewSections).
+
+collect_types_in_section(ontology(Content, _, _), Templates) :-
+    forall(member(Item, Content), collect_types_in_item(Item, Templates)).
+collect_types_in_section(_, _).
+
+collect_types_in_item(fact(Head, _, _), _Templates) :-
+    (match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, true) ->
+        assert_is_a_type(TypeAtom), assert_is_a_type(SuperTypeAtom)
+    ; true).
+collect_types_in_item(rule(Head, BodyTokens, Indent, _, _), Templates) :-
+    (match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, true) ->
+        assert_is_a_type(TypeAtom), assert_is_a_type(SuperTypeAtom)
+    ; true),
+    % Also collect from body
+    ( parse_body(BodyTokens, Indent, Templates, [], _, Body) -> collect_types_from_body(Body); true).
+
+collect_types_from_body(and(A, B)) :- !, collect_types_from_body(A), collect_types_from_body(B).
+collect_types_from_body(or(A, B)) :- !, collect_types_from_body(A), collect_types_from_body(B).
+collect_types_from_body(not(A)) :- !, collect_types_from_body(A).
+collect_types_from_body(is_a(_, Type)) :- !, assert_is_a_type(Type).
+collect_types_from_body(_).
+
+assert_is_a_type(T) :-
+    atom(T), \+ is_id(T), \+ is_article(T), \+ is_reserved(T),
+    (is_a_type(T) -> true; assertz(is_a_type(T))).
+
 
 add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, NIW)) :-
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
@@ -668,7 +698,11 @@ second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, tru
     ).
 second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
     ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
-        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, Body0),
+        ( (NewHead = is_a(Var, SuperType), member(Name-Var, VM1), is_a_type(Name), Name \== SuperType, \+ memberchk(Name, [thing, asset, person, object, entity, element])) ->
+            (Body0 == true -> NewBody = is_a(Var, Name) ; NewBody = and(is_a(Var, Name), Body0))
+          ; NewBody = Body0
+        )
         ; 
         NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
@@ -982,3 +1016,4 @@ tokens_range([First|Rest], Start, End) :-
     arg(2, Last, loc(_, End)).
 
 :- dynamic is_a_taxonomy_edge/3.
+:- dynamic is_a_type/1.
