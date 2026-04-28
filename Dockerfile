@@ -24,6 +24,9 @@ COPY examples/ ./examples/
 COPY llm/ ./llm/
 COPY editor/ ./editor/
 
+ARG BUILD_INFO="unknown"
+RUN echo "${BUILD_INFO}" > build_info.txt
+
 # Expose the port the server runs on
 EXPOSE 3050
 

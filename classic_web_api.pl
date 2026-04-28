@@ -15,7 +15,10 @@
 :- use_module(le_system_templates).
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1]).
 
+:- dynamic build_info/1.
+
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
+:- http_handler(root(build_info), handle_build_info, [method(get)]).
 :- http_handler(root(.), handle_landing_page, []).
 :- http_handler(root(mcp), handle_mcp, []).
 :- http_handler(root(list_examples), handle_rest_list_examples, [method(get)]).
@@ -34,7 +37,22 @@ start_api_server :-
 
 start_api_server(Port) :-
     % assertz(le_kbs:do_log),
+    load_build_info,
     http_server(http_dispatch, [port(Port)]).
+
+load_build_info :-
+    (   exists_file('build_info.txt')
+    ->  read_file_to_string('build_info.txt', Info0, []),
+        split_string(Info0, "\n", "\r", [Info|_]),
+        retractall(build_info(_)),
+        assertz(build_info(Info))
+    ;   retractall(build_info(_)),
+        assertz(build_info("unknown build"))
+    ).
+
+handle_build_info(_Request) :-
+    build_info(Info),
+    reply_json_dict(_{build_info: Info}).
 
 :- multifile prolog:message//1.
 prolog:message(le_api_error(Op, Msg)) -->
@@ -72,6 +90,7 @@ handle_operation(Dict, Response) :-
         ; Op == "answeringQuery" -> handle_answering_query(Dict, Response)
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
+        ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
         ; Response = _{error: "Unknown operation"}
     ).
 
@@ -95,10 +114,12 @@ handle_landing_page(Request) :-
         member(Base, SortedBases),
         format(atom(Url), '/editor/index.html?example=~w', [Base])
     ), ExampleItems),
+    build_info(BuildInfo),
     reply_html_page(
         [title('Logical English 2.0')],
         [
             h1('Logical English 2.0'),
+            p(small(['Build: ', BuildInfo])),
             ul([
                 li([
                     b('Edit and Query: '),
@@ -359,3 +380,30 @@ convert_binding(Name=Val, Name-JSONVal) :-
 convert_unknown(KB, Goal, _{goal: GoalStr, module: KBStr}) :-
     term_string(Goal, GoalStr),
     ( atom(KB) -> KBStr = KB; term_string(KB, KBStr)).
+
+handle_get_prolog(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    ( SM:le_my_kb(KB) -> true; KB = none),
+    ( KB == none -> Response = _{error: "No KB loaded"}
+    ; get_dict(position, Dict, Pos),
+      ( find_clause_at_pos(KB, Pos, Clause) ->
+          with_output_to(string(PrologStr), portray_clause(Clause)),
+          Response = _{prolog: PrologStr}
+      ; Response = _{error: "No rule found at this position"}
+      )
+    ).
+
+find_clause_at_pos(KB, Pos, Clause) :-
+    findall(range(Len, Ref), (
+        KB:le_source(Ref, Start, End),
+        Pos >= Start, Pos =< End,
+        Len is End - Start
+    ), Ranges),
+    sort(Ranges, SortedRanges),
+    member(range(_, Ref), SortedRanges),
+    clause(KB:Head, Body, Ref),
+    functor(Head, F, N),
+    \+ le_kbs:is_system_predicate(F/N),
+    ( Body == true -> Clause = Head; Clause = (Head :- Body)),
+    !.
