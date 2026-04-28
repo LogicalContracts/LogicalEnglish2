@@ -243,7 +243,7 @@
 <body>
     <div id="header">
         <div style="display: flex; align-items: center; gap: 20px;">
-            <h1><span class="logo">LE</span> Editor</h1>
+            <h1 id="editor-title"><span class="logo">LE</span> Editor</h1>
             <div id="filename-display" style="font-size: 12px; color: #888; font-style: italic;">document.le</div>
         </div>
         <div id="module-info" style="font-size: 13px; color: #ccc; font-style: italic; text-align: right; flex-grow: 1; margin-right: 20px;">
@@ -295,6 +295,21 @@
         <input type="file" id="file-input" accept=".le" style="display: none;">
     </div>
     <div id="container"></div>
+    
+    <!-- Prolog Panel -->
+    <div id="prolog-panel" style="display: none; position: fixed; top: 100px; right: 50px; width: 500px; height: 400px; background: #2d2d2d; border: 1px solid #444; z-index: 1500; flex-direction: column; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+        <div style="padding: 10px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center; cursor: move;" id="prolog-panel-header">
+            <h3 style="margin: 0; font-size: 14px;">PROLOG Equivalent</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="prolog-copy" style="background: #3c3c3c; color: #ccc; border: 1px solid #555; border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Copy</button>
+                <span id="prolog-panel-close" style="cursor: pointer; font-size: 18px;">&times;</span>
+            </div>
+        </div>
+        <div style="padding: 10px; overflow: auto; flex-grow: 1; background-color: #1e1e1e;">
+            <pre id="prolog-content" style="margin: 0; font-family: 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 13px; color: #d4d4d4; white-space: pre-wrap;"></pre>
+        </div>
+    </div>
+
     <div id="resizer"></div>
     <div id="bottom-panel">
         <div class="panel-controls">

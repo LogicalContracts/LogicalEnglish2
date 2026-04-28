@@ -114,6 +114,7 @@ async function start() {
   const textParam = params.get("text");
   const exampleParam = params.get("example");
   const filenameParam = params.get("filename");
+  const lineParam = params.get("line");
   if (textParam) {
     initialValue = textParam;
   } else if (exampleParam) {
@@ -152,6 +153,13 @@ async function start() {
   let isLoading = false;
   let sessionModule = null;
   let loadTimeout = null;
+  fetch("/build_info").then((res) => res.json()).then((data) => {
+    if (data.build_info) {
+      const titleEl = document.getElementById("editor-title");
+      if (titleEl)
+        titleEl.title = `Build: ${data.build_info}`;
+    }
+  }).catch((err) => console.error("Failed to fetch build info", err));
   const container = document.getElementById("container");
   const editor = monaco.editor.create(container, {
     value: initialValue,
@@ -162,6 +170,123 @@ async function start() {
     minimap: { enabled: false },
     folding: true,
     showFoldingControls: "always"
+  });
+  if (lineParam) {
+    const lineNumber = parseInt(lineParam);
+    if (!isNaN(lineNumber)) {
+      setTimeout(() => {
+        editor.revealLineInCenter(lineNumber);
+        editor.setPosition({ lineNumber, column: 1 });
+        editor.focus();
+      }, 500);
+    }
+  }
+  editor.addAction({
+    id: "copy-url",
+    label: "Copy URL",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.6,
+    precondition: "editorTextFocus",
+    run: (ed) => {
+      const params2 = new URLSearchParams(window.location.search);
+      const example = params2.get("example");
+      if (!example) {
+        alert("Copy URL is only available for existing examples.");
+        return;
+      }
+      const position = ed.getPosition();
+      const url = new URL(window.location.href);
+      url.searchParams.set("example", example);
+      url.searchParams.delete("text");
+      url.searchParams.set("line", position.lineNumber.toString());
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        console.log("URL copied to clipboard:", url.toString());
+      }).catch((err) => {
+        console.error("Failed to copy URL:", err);
+      });
+    }
+  });
+  editor.addAction({
+    id: "see-prolog",
+    label: "See PROLOG",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.5,
+    run: async (ed) => {
+      const position = ed.getPosition();
+      const model2 = ed.getModel();
+      const offset = model2.getOffsetAt(position);
+      if (!isLoaded && !isLoading) {
+        await loadModule();
+      }
+      if (!sessionModule) {
+        alert("Please wait for the module to load.");
+        return;
+      }
+      try {
+        const response = await fetch("/leapi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: "myToken123",
+            operation: "getProlog",
+            sessionModule,
+            position: offset
+          })
+        });
+        const data = await response.json();
+        if (data.prolog) {
+          showPrologPanel(data.prolog);
+        } else if (data.error) {
+          console.log("Prolog conversion error:", data.error);
+        }
+      } catch (err) {
+        console.error("Failed to get PROLOG:", err);
+      }
+    }
+  });
+  const prologPanel = document.getElementById("prolog-panel");
+  const prologContent = document.getElementById("prolog-content");
+  const prologClose = document.getElementById("prolog-panel-close");
+  const prologHeader = document.getElementById("prolog-panel-header");
+  const prologCopy = document.getElementById("prolog-copy");
+  const showPrologPanel = (content) => {
+    prologContent.textContent = content;
+    prologPanel.style.display = "flex";
+  };
+  prologClose.onclick = () => {
+    prologPanel.style.display = "none";
+  };
+  prologCopy.onclick = () => {
+    navigator.clipboard.writeText(prologContent.textContent || "");
+    const originalText = prologCopy.textContent;
+    prologCopy.textContent = "Copied!";
+    setTimeout(() => {
+      prologCopy.textContent = originalText;
+    }, 2e3);
+  };
+  let isDraggingProlog = false;
+  let prologStartX, prologStartY;
+  let prologStartLeft, prologStartTop;
+  prologHeader.onmousedown = (e) => {
+    isDraggingProlog = true;
+    prologStartX = e.clientX;
+    prologStartY = e.clientY;
+    prologStartLeft = prologPanel.offsetLeft;
+    prologStartTop = prologPanel.offsetTop;
+    document.body.style.userSelect = "none";
+  };
+  document.addEventListener("mousemove", (e) => {
+    if (!isDraggingProlog)
+      return;
+    const dx = e.clientX - prologStartX;
+    const dy = e.clientY - prologStartY;
+    prologPanel.style.left = `${prologStartLeft + dx}px`;
+    prologPanel.style.top = `${prologStartTop + dy}px`;
+    prologPanel.style.right = "auto";
+  });
+  document.addEventListener("mouseup", () => {
+    isDraggingProlog = false;
+    document.body.style.userSelect = "auto";
   });
   const menuSave = document.getElementById("menu-save");
   const menuSaveAs = document.getElementById("menu-save-as");
