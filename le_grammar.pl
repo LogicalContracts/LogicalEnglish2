@@ -896,16 +896,23 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             split_forall_children(Children, CondNodes, ConsNodes),
             hierarchy_to_logic(CondNodes, Templates, VMIn, VM1, CondLogic),
             hierarchy_to_logic(ConsNodes, Templates, VM1, VMOut, ConsLogic),
-            Logic = forall(CondLogic, ConsLogic)
+            Logic0 = forall(CondLogic, ConsLogic),
+            tokens_range(Tokens, Start, End),
+            Logic = le_at(Logic0, Start, End)
         ; is_not_the_case(Tokens) ->  
             hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic),
-            Logic = not(SubLogic)
+            Logic0 = not(SubLogic),
+            tokens_range(Tokens, Start, End),
+            Logic = le_at(Logic0, Start, End)
         ; is_aggregate(Tokens, Op, ElementTokens, ResultTokens) ->  
             build_aggregate_list(ElementTokens, VMIn, VM1, ElementList),
             build_aggregate_list(ResultTokens, VM1, VM2, ResultList),
             hierarchy_to_logic(Children, Templates, VM2, VMOut, Goal),
-            Logic =.. [Op, [each|ElementList], Goal, ResultList]
+            Logic0 =.. [Op, [each|ElementList], Goal, ResultList],
+            tokens_range(Tokens, Start, End),
+            Logic = le_at(Logic0, Start, End)
         ; parse_literal(Tokens, Templates, VMIn, VM1, Literal) ->  
+
             fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
         ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
             Literal = is_a(Type, SuperType),
@@ -932,11 +939,11 @@ build_aggregate_list(Tokens, VMIn, VMOut, List) :-
     maplist(extract_simple_word, TokensToUse, Words),
     (   extract_var_name(Words, Name) ->  
         unify_with_vmap(Name, Var, VMIn, VMOut, true),
-        List = [Var]
+        List = [var(Name, Var)]
         ;   
         atomic_list_concat(Words, ' ', Name),
         unify_with_vmap(Name, Var, VMIn, VMOut, true),
-        List = [Var]
+        List = [var(Name, Var)]
     ).
 
 is_forall(Tokens) :-
@@ -968,5 +975,10 @@ extract_word_atom(word(A, _), A) :- !.
 extract_word_atom(punctuation(P, _), P) :- !.
 extract_word_atom(number(N, _), N) :- !.
 extract_word_atom(_, unknown).
+
+tokens_range([First|Rest], Start, End) :-
+    arg(2, First, loc(Start, _)),
+    last([First|Rest], Last),
+    arg(2, Last, loc(_, End)).
 
 :- dynamic is_a_taxonomy_edge/3.

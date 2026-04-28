@@ -63,34 +63,29 @@ solve_real(or(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     ;   solve(B, SM, KM, Anc, D, MyID, Us, Whys)
     ).
 % Aggregates
-solve_real(sum([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(sum([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
+solve_real(sum([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(sum([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
     D1 is D + 1,
+    extract_var(VarTerm, Var),
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
-    (   List == [] -> Result = 0
-    ;   (   exclude(number, List, NonNumbers), NonNumbers == [] -> sum_list(List, Result)
-        ;   % Some elements are not numbers (likely uninstantiated variables)
-            % We try to sum only the numbers, or fail if that's not appropriate.
-            % For LE, usually we expect all elements to be numbers.
-            include(number, List, Numbers),
-            (   Numbers == [] -> Result = 0
-            ;   sum_list(Numbers, Result)
-            )
-        )
+    (   List == [] -> Sum = 0
+    ;   sum_list(List, Sum)
     ),
     Us = [],
-    WhyGoal = success(Goal, aggregate_elements, WhysGoal).
-solve_real(count([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(count([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
+    extract_var(ResultTerm, Sum).
+solve_real(count([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(count([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
     D1 is D + 1,
+    extract_var(VarTerm, Var),
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
     length(List, Result),
     Us = [],
-    WhyGoal = success(Goal, aggregate_elements, WhysGoal).
-solve_real(min([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(min([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
+    extract_var(ResultTerm, Result).
+solve_real(min([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(min([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
     D1 is D + 1,
+    extract_var(VarTerm, Var),
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
@@ -98,9 +93,10 @@ solve_real(min([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(
     ;   min_list(List, Result)
     ),
     Us = [],
-    WhyGoal = success(Goal, aggregate_elements, WhysGoal).
-solve_real(max([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(max([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
+    extract_var(ResultTerm, Result).
+solve_real(max([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(max([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
     D1 is D + 1,
+    extract_var(VarTerm, Var),
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
@@ -108,9 +104,10 @@ solve_real(max([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(
     ;   max_list(List, Result)
     ),
     Us = [],
-    WhyGoal = success(Goal, aggregate_elements, WhysGoal).
-solve_real(average([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [success(average([each, Var], Goal, [Result]), aggregate, [WhyGoal])]) :- !,
+    extract_var(ResultTerm, Result).
+solve_real(average([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(average([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
     D1 is D + 1,
+    extract_var(VarTerm, Var),
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
@@ -120,7 +117,7 @@ solve_real(average([each, Var], Goal, [Result]), SM, KM, Anc, D, MyID, Us, [succ
         Result is Sum / Count
     ),
     Us = [],
-    WhyGoal = success(Goal, aggregate_elements, WhysGoal).
+    extract_var(ResultTerm, Result).
 % Forall
 solve_real(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(forall(Cond, Cons), universal, Whys)]) :- !,
     D1 is D + 1,
@@ -152,9 +149,11 @@ solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, Fa
 solve_real(true, _, _, _, _, _, [], []) :- !.
 
 % Literals
+solve_real(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+    solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),
+    maplist(attach_range(Start, End), Whys0, Whys).
+
 solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
-    G \= (_ , _), G \= (_ ; _), G \= and(_, _), G \= or(_, _), G \= not(_), G \= true, G \= fail,
-    G \= sum(_, _, _), G \= count(_, _, _), G \= min(_, _, _), G \= max(_, _, _), G \= average(_, _, _),
     (   D > 100 -> fail ; true % Depth limit
     ),
 
@@ -215,6 +214,7 @@ get_clause(G, _SM, KM, Body, Ref) :-
 % Helpers
 
 is_built_in(G) :- predicate_property(G, built_in).
+is_built_in(le_at(_, _, _)).
 is_built_in(le_known(_)).
 is_built_in(le_equal_to(_, _)).
 is_built_in(le_assign(_, _)).
@@ -248,6 +248,12 @@ le_compare(>, X, Y) :- !, X @> Y.
 le_compare(<, X, Y) :- !, X @< Y.
 
 equal_to(X, X).
+
+attach_range(Start, End, success(G, _Ref, Children), success(G, range(Start, End), Children)) :- !.
+attach_range(_, _, Why, Why).
+
+extract_var(var(_, V), V) :- !.
+extract_var(V, V).
 
 init_counter :-
     retractall(counter(_)),
