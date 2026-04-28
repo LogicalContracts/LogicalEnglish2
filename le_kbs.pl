@@ -305,12 +305,14 @@ load_text(Text, NewModule) :-
 
 
 %!  postprocess_why(+WhyIn:term, +SM:atom, -WhyOut:term) is det.
-postprocess_why(success(Goal, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
+postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
+    ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_my_kb(KB) -> true; KB = none),
     ( (SM:le_source(Ref, Start, End); (KB \== none, KB:le_source(Ref, Start, End))) -> Range = range(Start, End); Range = Ref),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
-postprocess_why(failure(Goal, Children), SM, failure(Goal, LE, ChildrenOut)) :- !,
+postprocess_why(failure(Goal0, Children), SM, failure(Goal, LE, ChildrenOut)) :- !,
+    ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_my_kb(KB) -> true; KB = none),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
@@ -350,6 +352,8 @@ canonical_string(Instance, String) :-
 
 %!  token_to_atom(+Token:term, -Atom:atom) is det.
 token_to_atom(X, Atom) :- var(X), !, Atom = '_'.
+token_to_atom(var(Name, Value), Atom) :- !,
+    ( nonvar(Value) -> token_to_atom(Value, Atom); token_to_atom(Name, Atom)).
 token_to_atom(word(W, _), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(word(W), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(var(Words), Atom) :- !, 
@@ -370,12 +374,46 @@ token_to_atom(A, Atom) :- atom(A), !,
 token_to_atom(X, Atom) :- term_to_atom(X, Atom).
 
 %!  item_to_instance(+KBmodule:atom, +Head:term, -WordsAndVars:list) is det.
+item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
+    item_to_instance(KBmodule, Goal, WordsAndVars).
 item_to_instance(KBmodule, Head, WordsAndVars) :-
     (   Head = is_a(Type, SuperType) -> WordsAndVars = [Type, is, a, SuperType]
-        ;   
-        copy_term(Head, HeadCopy),
+    ;   Head = sum([each, Var], _Goal, [Result]) -> 
+        extract_name(Var, VarName),
+        WordsAndVars = [Result, is, the, sum, of, each, VarName, such, that]
+    ;   Head = count([each, Var], _Goal, [Result]) -> 
+        extract_name(Var, VarName),
+        WordsAndVars = [Result, is, the, count, of, each, VarName, such, that]
+    ;   Head = min([each, Var], _Goal, [Result]) -> 
+        extract_name(Var, VarName),
+        WordsAndVars = [Result, is, the, minimum, of, each, VarName, such, that]
+    ;   Head = max([each, Var], _Goal, [Result]) -> 
+        extract_name(Var, VarName),
+        WordsAndVars = [Result, is, the, maximum, of, each, VarName, such, that]
+    ;   Head = average([each, Var], _Goal, [Result]) -> 
+        extract_name(Var, VarName),
+        WordsAndVars = [Result, is, the, average, of, each, VarName, such, that]
+    ;   Head = not(Goal) -> 
+        ( item_to_instance(KBmodule, Goal, GoalLE) -> WordsAndVars = [it, is, not, the, case, that | GoalLE]; WordsAndVars = [it, is, not, the, case, that, Goal])
+    ;   Head = forall(Cond, Cons) -> 
+        ( item_to_instance(KBmodule, Cond, CondLE), item_to_instance(KBmodule, Cons, ConsLE) -> 
+            append([for, all, cases, in, which | CondLE], [it, is, the, case, that | ConsLE], WordsAndVars)
+        ; WordsAndVars = [for, all, cases, in, which, Cond, it, is, the, case, that, Cons])
+    ;   Head = and(A, B) -> 
+        ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) -> 
+            append(ALE, [and | BLE], WordsAndVars)
+        ; WordsAndVars = [A, and, B])
+    ;   Head = or(A, B) -> 
+        ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) -> 
+            append(ALE, [or | BLE], WordsAndVars)
+        ; WordsAndVars = [A, or, B])
+    ;   copy_term(Head, HeadCopy),
         ( (KBmodule:le_dict(dict([Functor|Args], _NTs, WordsAndVars)), HeadCopy =.. [Functor|Args]) -> true; term_string(Head, Str), WordsAndVars = [Str])
     ).
+
+extract_name(var(Name, _), Name) :- !.
+extract_name(V, V).
+
 
 %!  get_kb_metadata(+KBModule:atom, -Metadata:dict) is det.
 get_kb_metadata(KB, Metadata) :-
@@ -400,7 +438,12 @@ get_kb_metadata(KB, Metadata) :-
         ;   
         Queries = []
     ),
-    Metadata = _{ kb: KBName, templates: Templates, queries: Queries }.
+    (   current_predicate(KB:scenario/2) ->  
+        findall(_{name: Name}, KB:scenario(Name, _), Scenarios)
+        ;   
+        Scenarios = []
+    ),
+    Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios }.
 
 %!  topPredicates(+KBmodule:atom, -TopPredicates:list) is det.
 %
