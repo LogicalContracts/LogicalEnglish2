@@ -390,7 +390,7 @@ handle_get_prolog(Dict, Response) :-
       ( find_clause_at_pos(KB, Pos, Clause) ->
           with_output_to(string(PrologStr), portray_clause(Clause)),
           Response = _{prolog: PrologStr}
-      ; Response = _{error: "No rule found at this position"}
+      ; Response = _{error: "No term found at this position"}
       )
     ).
 
@@ -403,7 +403,13 @@ find_clause_at_pos(KB, Pos, Clause) :-
     sort(Ranges, SortedRanges),
     member(range(_, Ref), SortedRanges),
     clause(KB:Head, Body, Ref),
+    (   is_interesting_term(Head)
+    ->  ( Body == true -> Clause = Head; Clause = (Head :- Body)),
+        !
+    ).
+
+is_interesting_term(Head) :-
     functor(Head, F, N),
-    \+ le_kbs:is_system_predicate(F/N),
-    ( Body == true -> Clause = Head; Clause = (Head :- Body)),
-    !.
+    (   \+ le_kbs:is_system_predicate(F/N)
+    ;   member(F/N, [le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3, le_expected/3])
+    ).

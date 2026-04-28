@@ -238,12 +238,17 @@
             color: #4fc1ff;
             font-weight: bold;
         }
+        .home-link:hover {
+            background-color: #4fc1ff;
+            color: #1e1e1e !important;
+        }
     </style>
 </head>
 <body>
     <div id="header">
         <div style="display: flex; align-items: center; gap: 20px;">
             <h1 id="editor-title"><span class="logo">LE</span> Editor</h1>
+            <a href="/" class="home-link" style="color: #4fc1ff; text-decoration: none; font-size: 12px; border: 1px solid #4fc1ff; padding: 2px 8px; border-radius: 3px; transition: all 0.2s;">Home</a>
             <div id="filename-display" style="font-size: 12px; color: #888; font-style: italic;">document.le</div>
         </div>
         <div id="module-info" style="font-size: 13px; color: #ccc; font-style: italic; text-align: right; flex-grow: 1; margin-right: 20px;">

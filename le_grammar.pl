@@ -217,6 +217,9 @@ kb_item(fact(Head, Start, End)) -->
 get_token_start(T, Start) :-
     ( T =.. [_, _, loc(Start, _)] -> true; T =.. [_, loc(Start, _)] -> true; Start = 0).
 
+get_token_end(T, End) :-
+    ( T =.. [_, _, loc(_, End)] -> true; T =.. [_, loc(_, End)] -> true; End = 0).
+
 % templates([T|Ts]) parses a list of template definitions.
 templates([T|Ts]) -->
     \+ next_section_start,
@@ -225,8 +228,9 @@ templates([T|Ts]) -->
 templates([]) --> [].
 
 % template(dict(...)) parses a single template definition into a dictionary term.
-template(dict(FunctorArgs, NamesTypes, WordsAndVars)) -->
+template(dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End)) -->
     template_instance(Tokens),
+    { Tokens = [First|_], get_token_start(First, Start), last(Tokens, Last), get_token_end(Last, End) },
     { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) }.
 
 process_template(Tokens, [Functor|Args], NamesTypes, WordsAndVars) :-
@@ -238,6 +242,9 @@ extract_functor(Tokens, Functor) :-
     atomic_list_concat(Words, '_', Functor).
 
 process_template_parts([], [], [], []).
+process_template_parts([var(Words, _)|Ps], [V|Args], [V-Type|NTs], [V|WVs]) :-
+    !, extract_var_info_from_words(Words, _Name, Type),
+    process_template_parts(Ps, Args, NTs, WVs).
 process_template_parts([var(Words)|Ps], [V|Args], [V-Type|NTs], [V|WVs]) :-
     !, extract_var_info_from_words(Words, _Name, Type),
     process_template_parts(Ps, Args, NTs, WVs).
@@ -280,7 +287,7 @@ template_instance_tail([P|Ps]) -->
 template_instance_tail([]) --> [].
 
 % template_instance_part(Part) parses a single component of a template instance.
-template_instance_part(var(Words)) --> t(punctuation('*')), template_var_words(Words), t(punctuation('*')).
+template_instance_part(var(Words, loc(Start, End))) --> t(punctuation('*', loc(Start, _))), template_var_words(Words), t(punctuation('*', loc(_, End))).
 template_instance_part(word(W, Loc)) --> t(word(W, Loc)).
 template_instance_part(number(N, Loc)) --> t(number(N, Loc)).
 template_instance_part(date(D, Loc)) --> t(date(D, Loc)).
@@ -466,6 +473,7 @@ extract_simple_value(line_comment(_, _), '').
 extract_simple_value(multi_comment(_, _), '').
 extract_simple_value(list(_), '[]').
 extract_simple_value(expr(_), '()').
+extract_simple_value(var(Words, _), Atom) :- !, atomic_list_concat(Words, ' ', Atom).
 extract_simple_value(var(Words), Atom) :- atomic_list_concat(Words, ' ', Atom).
 
 extract_simple_word(Part, Word) :-
@@ -487,6 +495,8 @@ extract_name_type_no_art(Words, Name, Type) :-
           )
     ).
 
+extract_value(var(Words, _), Val, VMIn, VMOut, Templates, AllowVars) :- !,
+    extract_value(var(Words), Val, VMIn, VMOut, Templates, AllowVars).
 extract_value(var(Words), Val, VMIn, VMOut, _Templates, AllowVars) :-
     !, extract_var_info_from_words(Words, Name, _Type),
     ( AllowVars == true -> unify_with_vmap(Name, Val, VMIn, VMOut, true); Val = Name, VMOut = VMIn).
@@ -529,11 +539,11 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Dep
 
 match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
     maplist(extract_simple_word, Instance, Words),
-    member(Dict, Templates),
-    copy_term(Dict, dict(FunctorArgs, _NTs, WordsAndVars, NIW)),
-    contains_subsequence(NIW, Words),
-    match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth),
-    Literal =.. FunctorArgs.
+    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW), Templates),
+    copy_term(dict(FunctorArgs, WordsAndVars, NIW), dict(FunctorArgsCopy, WordsAndVarsCopy, NIWCopy)),
+    contains_subsequence(NIWCopy, Words),
+    match_instance_to_template(Instance, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, Depth),
+    Literal =.. FunctorArgsCopy.
 
 match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars) :-
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, 0).
@@ -630,22 +640,25 @@ assert_is_a_type(T) :-
     (is_a_type(T) -> true; assertz(is_a_type(T))).
 
 
-add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, NIW)) :-
+add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW)) :- !,
+    findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
+add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, 0, 0, NIW)) :-
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
 
 sort_templates(Dicts, Sorted) :-
     partition(is_meta_template, Dicts, Meta, Regular),
-    map_list_to_pairs(template_specificity, Regular, Pairs),
+    map_list_to_pairs(template_priority, Regular, Pairs),
     keysort(Pairs, SortedPairs),
     reverse(SortedPairs, RevSortedPairs),
     pairs_values(RevSortedPairs, SortedRegular),
     append(Meta, SortedRegular, Sorted).
 
-template_specificity(dict(_, _, WordsAndVars, _), Score) :-
+template_priority(dict(FA, _, WordsAndVars, _, _, _), Priority-Score) :-
     findall(1, (member(W, WordsAndVars), atom(W)), Words),
-    length(Words, Score).
+    length(Words, Score),
+    ( FA = [Functor|_], sub_atom(Functor, 0, 3, _, le_) -> Priority = 1 ; Priority = 0 ).
 
-is_meta_template(dict(_, _, WordsAndVars, _)) :-
+is_meta_template(dict(_, _, WordsAndVars, _, _, _)) :-
     member(W, WordsAndVars),
     (W == that ; W == says).
 
@@ -772,22 +785,23 @@ parse_literal(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
     maplist(extract_simple_word, Tokens, Words),
-    (   member(dict(FunctorArgs, NTs, WordsAndVars, NIW), Templates),
+    (   member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW), Templates),
         \+ (FunctorArgs = [le_is|_]),
-        ( le_kbs:do_log -> print_message(informational,'  Trying template: ~w~n' - [FunctorArgs]); true),
+        ( le_kbs:do_log -> print_message(informational,'  Trying template: ~w' - [FunctorArgs]); true),
         contains_subsequence(NIW, Words),
-        copy_term(dict(FunctorArgs, NTs, WordsAndVars, NIW), dict(FunctorArgsCopy, _, WordsAndVarsCopy, _)),
+        copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0),
         Literal =.. FunctorArgsCopy -> true
         ;   
         match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) -> Literal = is_a(Type, SuperType)
         ;   
         % Fallback to le_is
-        member(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), Templates),
-        ( le_kbs:do_log -> print_message(informational,'  Trying fallback le_is~n'); true),
-        copy_term(dict([le_is, V1, V2], NTs, WordsAndVars, NIW), dict([le_is, V1Copy, V2Copy], _, WordsAndVarsCopy, _)),
+        member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2), Templates),
+        ( le_kbs:do_log -> print_message(informational,'  Trying fallback le_is'); true),
+        copy_term(dict([le_is, V1, V2], WordsAndVars), dict([le_is, V1Copy, V2Copy], WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0) -> Literal = le_is(V1Copy, V2Copy)
     ).
+
 
 contains_subsequence([], _).
 contains_subsequence([W|Ws], Words) :-
