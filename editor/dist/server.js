@@ -8472,16 +8472,6 @@ function getWellformedEdit(textEdit) {
 }
 
 // src/tokenizer.ts
-var TokenType = /* @__PURE__ */ ((TokenType2) => {
-  TokenType2[TokenType2["Indent"] = 0] = "Indent";
-  TokenType2[TokenType2["Word"] = 1] = "Word";
-  TokenType2[TokenType2["Number"] = 2] = "Number";
-  TokenType2[TokenType2["Punctuation"] = 3] = "Punctuation";
-  TokenType2[TokenType2["Date"] = 4] = "Date";
-  TokenType2[TokenType2["String"] = 5] = "String";
-  TokenType2[TokenType2["Comment"] = 6] = "Comment";
-  return TokenType2;
-})(TokenType || {});
 function tokenize(text) {
   const tokens = [];
   let i = 0;
@@ -8613,15 +8603,23 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   const text = document.getText();
   const templates = getTemplates(text);
   const tokens = [];
+  const argPattern = `(?:(?:a|an|the|each|some)\\s+[a-z]\\w*|[A-Z][A-Z0-9_]*|\\*[^*]+\\*|\\d+(?:\\.\\d+)?|\\d{4}-\\d{2}-\\d{2}|"[^"]*"|'[^']*')`;
   const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
   for (const template of sortedTemplates) {
     const parts = template.label.split(/\*[^*]+\*/);
     if (parts.length < 2)
       continue;
     const regexParts = parts.map((p) => p.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
-    const regexStr = "\\b" + regexParts.join("\\s+((?:a|an|the|each|some)\\s+[a-z]\\w*|[A-Z][A-Z0-9_]*|\\*[^*]+\\*)\\s*") + "\\b";
+    let regexStr = "";
+    for (let i = 0; i < regexParts.length; i++) {
+      if (i > 0) {
+        const sep = i === 1 && regexParts[0] === "" ? "" : "\\s+";
+        regexStr += sep + "(" + argPattern + ")\\s*";
+      }
+      regexStr += regexParts[i];
+    }
     try {
-      const regex = new RegExp(regexStr, "gi");
+      const regex = new RegExp("\\b" + regexStr.trim() + "\\b", "gi");
       let match;
       while ((match = regex.exec(text)) !== null) {
         let currentOffset = match.index;
@@ -8630,7 +8628,8 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
         for (let i = 0; i < parts.length; i++) {
           const part = parts[i].trim();
           if (part) {
-            const partRegex = new RegExp(part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"), "gi");
+            const escapedPart = part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+            const partRegex = new RegExp(escapedPart, "gi");
             partRegex.lastIndex = lastIndex;
             const partMatch = partRegex.exec(fullMatch);
             if (partMatch) {
@@ -8841,10 +8840,105 @@ connection.onHover((params) => {
   const tokens = tokenize(text);
   const token = tokens.find((t) => t.start <= offset && t.end >= offset);
   if (token) {
+    let leType = "Unknown";
+    let description = "";
+    const templates = getTemplates(text);
+    let templateMatch = null;
+    const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
+    for (const template of sortedTemplates) {
+      const parts = template.label.split(/\*[^*]+\*/);
+      if (parts.length < 2)
+        continue;
+      const regexParts = parts.map((p) => p.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
+      const regexStr = "\\b" + regexParts.join("\\s+((?:a|an|the|each|some)\\s+[a-z]\\w*|[A-Z][A-Z0-9_]*|\\*[^*]+\\*)\\s*") + "\\b";
+      try {
+        const regex = new RegExp(regexStr, "gi");
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          const matchStart = match.index;
+          const matchEnd = match.index + match[0].length;
+          if (offset >= matchStart && offset < matchEnd) {
+            let isVariable = false;
+            for (let i = 1; i < match.length; i++) {
+              const varText = match[i];
+              if (varText) {
+                const varStart = text.indexOf(varText, matchStart);
+                if (offset >= varStart && offset < varStart + varText.length) {
+                  isVariable = true;
+                  break;
+                }
+              }
+            }
+            if (isVariable) {
+              leType = "Variable / Argument";
+              description = "A variable placeholder within a template instance.";
+            } else {
+              leType = "Template Word";
+              description = `Part of the template: \`${template.label}\``;
+            }
+            templateMatch = template;
+            break;
+          }
+        }
+        if (templateMatch)
+          break;
+      } catch (e) {
+      }
+    }
+    if (!templateMatch) {
+      switch (token.type) {
+        case 1 /* Word */:
+          const word = String(token.value);
+          const keywords = ["includes", "if", "and", "or", "which", "sum", "count", "average", "min", "max", "such that"];
+          const headers = ["knowledge", "base", "scenario", "query", "ontology", "predicates", "templates", "fluents", "events", "target", "language"];
+          if (keywords.includes(word.toLowerCase())) {
+            leType = "Logical Keyword";
+            description = `The keyword \`${word}\` is used to define the logical structure of rules.`;
+          } else if (headers.includes(word.toLowerCase())) {
+            leType = "Section Header";
+            description = "Part of a section declaration (e.g., `the knowledge base includes:`).";
+          } else {
+            leType = "Word";
+            description = "A natural language word or constant.";
+          }
+          break;
+        case 2 /* Number */:
+          leType = "Number";
+          description = "A numeric constant.";
+          break;
+        case 4 /* Date */:
+          leType = "Date";
+          description = "A date constant in `YYYY-MM-DD` format.";
+          break;
+        case 5 /* String */:
+          leType = "String";
+          description = "A quoted string constant.";
+          break;
+        case 6 /* Comment */:
+          leType = "Comment";
+          description = "Text ignored by the Logical English reasoner.";
+          break;
+        case 3 /* Punctuation */:
+          leType = "Punctuation";
+          description = "Structural punctuation used for grouping or delimiting.";
+          break;
+        case 0 /* Indent */:
+          leType = "Indentation";
+          description = "Used to define the hierarchy and scope of rule conditions.";
+          break;
+      }
+      const textAtToken = text.substring(token.start, token.end);
+      if (textAtToken.startsWith("*") && textAtToken.endsWith("*")) {
+        leType = "Variable";
+        description = "A named variable placeholder.";
+      }
+    }
     return {
       contents: {
         kind: "markdown",
-        value: `**Token Type**: ${TokenType[token.type]}
+        value: `### LE ${leType}
+
+${description}
 
 **Value**: \`${token.value}\``
       }
