@@ -1,0 +1,21 @@
+
+% WARNING: PROPRIETARY
+the templates are:
+    *a person* is a parent of *a child*.
+    *a person* is an ancestor of *a descendant*.
+
+the knowledge base which_test includes:
+    a person is an ancestor of a descendant if 
+        the person is a parent of a child
+        which is an ancestor of the descendant.
+    
+    a person is an ancestor of a descendant if
+        the person is a parent of the descendant.
+
+query one is:
+    Alice is an ancestor of Charlie.
+
+scenario one is:
+    Alice is a parent of Bob.
+    Bob is a parent of Charlie.
+    one expects answers [Alice is an ancestor of Charlie].

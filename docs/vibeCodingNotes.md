@@ -543,3 +543,17 @@ Implement a new module llm/mcp.pl with a Model Context Protocol Server written i
 - parse and verify a new program, returning all issues found (syntax, warnings, failed tests)
 Also provide example settings files for Claude Code, Claude Desktop and ChatGPT Pro
 
+## which
+Let's introduce a new LE keyword 'which', a short hand for conjunction plus referencing a variable. For example, instead of writing, in royal_family.le,
+
+a person is an ancestor of a descendant if 
+    the person is a parent of a child and 
+    the child is an ancestor of the descendant.
+
+...we want to write the equivalent:
+
+a person is an ancestor of a descendant if 
+    the person is a parent of a child
+    which is an ancestor of the descendant.
+
+Furthermore, we want to use this LE extension to define a methodology for future extensions: the changes needed (probably) to le_grammar.pl and le_kbs.pl should be in a separate file, loaded by the main system if present.

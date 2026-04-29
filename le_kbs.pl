@@ -24,6 +24,8 @@
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
 
+:- (exists_file('le_extensions.pl') -> consult('le_extensions.pl') ; true).
+
 % For friendlier messages
 :- multifile prolog:message//1.
 prolog:message(S-Args) --> {atomic(S),is_list(Args)}, !, [S-Args].
