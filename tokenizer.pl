@@ -86,10 +86,9 @@ tokens(Idx, 0, [T|Ts]) -->
     token_match(Idx, T, NextIdx), !,
     tokens(NextIdx, 0, Ts).
 
-% 5. FALLBACK: Single Punctuation
-% If no complex token matches (like a lone '/' that isn't '/*'), catch it here.
+% 5. FALLBACK: Any other character as punctuation
 tokens(Idx, 0, [punctuation(A, loc(Idx, End))|Ts]) -->
-    [C], { code_type(C, punct) }, !,
+    [C], !,
     { atom_codes(A, [C]), End is Idx + 1 },
     tokens(End, 0, Ts).
 

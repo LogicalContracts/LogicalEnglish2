@@ -124,20 +124,25 @@ section(meta(Dicts)) -->
 
 % section(unknown_section(...)) is a fallback for unrecognized sections.
 section(unknown_section(Tokens, Start, End)) -->
-    [T], { T =.. [_, _, loc(Start, _)] },
+    [T], { get_token_start(T, Start) },
     consume_until_next_section(Ts),
     { append([T], Ts, Tokens) },
-    { last(Tokens, Last), ( Last =.. [_, _, loc(_, End)] -> true ; End = Start) }.
+    { last(Tokens, Last), ( get_token_end(Last, End) -> true ; End = Start) }.
 
 % kb_name_tokens(Tokens) consumes tokens until the 'includes' keyword.
 kb_name_tokens([T|Ts]) -->
-    t(T),
-    ( \+ t(word(includes)) -> kb_name_tokens(Ts); { Ts = [] }).
+    \+ t(word(includes)),
+    t(T), !,
+    kb_name_tokens(Ts).
+kb_name_tokens([]) --> [].
 
 % section_name_tokens(Tokens) consumes tokens until 'is' or ':'.
 section_name_tokens([T|Ts]) -->
-    t(T),
-    ( \+ t(word(is)), \+ t(punctuation(':', _)) -> section_name_tokens(Ts); { Ts = [] }).
+    \+ t(word(is)),
+    \+ t(punctuation(':', _)),
+    t(T), !,
+    section_name_tokens(Ts).
+section_name_tokens([]) --> [].
 
 % query_name_tokens(Tokens) consumes tokens until 'expects'.
 query_name_tokens([T|Ts]) -->
