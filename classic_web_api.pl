@@ -13,6 +13,8 @@
 :- use_module(le_grammar).
 :- use_module(reasoner).
 :- use_module(le_system_templates).
+:- use_module(le_assistant).
+:- use_module(llm/llm_client, [llm_list_models/1]).
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1]).
 
 :- dynamic build_info/1.
@@ -91,6 +93,14 @@ handle_operation(Dict, Response) :-
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
+        ; Op == "assistant_command" -> 
+            ( catch(handle_assistant_command(Dict, Response), E_Asst, (print_message(error, E_Asst), fail)) -> true ; 
+              ( print_message(error, le_api_error(assistant_command, "handle_assistant_command failed")), 
+                % Log the dict for debugging
+                format(user_error, "Failed Dict: ~w~n", [Dict]),
+                fail)
+            )
+        ; Op == "list_models" -> handle_list_models(Dict, Response)
         ; Response = _{error: "Unknown operation"}
     ).
 
@@ -179,6 +189,13 @@ handle_list_examples(_Dict, Response) :-
         file_name_extension(Base, le, F)
     ), Examples),
     Response = _{examples: Examples}.
+
+handle_list_models(_Dict, Response) :-
+    llm_list_models(Rows),
+    maplist(row_to_dict, Rows, Models),
+    Response = _{models: Models}.
+
+row_to_dict(row(Short, Provider, APIModel), _{short: Short, provider: Provider, api_model: APIModel}).
 
 handle_answer(Dict, Response) :-
     get_dict(document, Dict, Doc),

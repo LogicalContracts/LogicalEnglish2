@@ -557,3 +557,14 @@ a person is an ancestor of a descendant if
     which is an ancestor of the descendant.
 
 Furthermore, we want to use this LE extension to define a methodology for future extensions: the changes needed (probably) to le_grammar.pl and le_kbs.pl should be in a separate file, loaded by the main system if present.
+
+## vibe coding LE
+We want to add an agentic/vibe coding ability to our editor, by using opencode.ai as a PROLOG subprocess via its command line interface (cf. https://opencode.ai/docs/cli/). The flow will be like this:
+- The user must provide at least one API key, as expected by llm_client.pl. The key is to be provided in a new modal dialog invoked from the Misc menu, where the user may pick any of the models in llm_model_entry(..), and it is to be stored in browser storage
+- The bottom panels of the editor need to morph into a new simple (bottom) tabbed pane UI, its first, default, pane being "Query", with what we have now; then with a new second pane "LE Assistant" 
+- The LE Assistant pane should have a chat like UI, with scrolling history at the top and a bottom field for user commands.
+- When the user types something in the Assistant command field, like "Fix indentation" or "draft me a LE program encoding parking regulations in London", opencode is called from the PROLOG side, via its CLI; it should use a new specific AGENTS.md (different from the AGENTS.md we have already), inspired in https://raw.githubusercontent.com/LogicalContracts/LogicalEnglish/refs/heads/main/CLAUDE.md BUT not using shell commands, and instead using our own MCP server for program verification. And feel free to revise it! 
+-  So Editor calls Prolog which calls opencode which possibly calls (same, but in different thread...) PRolog MCP server - in addition to going out to the web etc as opencode does.
+- The whole text in the editor is the main implicit argument for the prompt, passed as a temporary text file so that opencode can edit in the server, and then hand it back so the editor replaces the displayed text with the new version. Multiple user commands will correspond to multiple opencode commands, so these need to use the same shared (opencode) session for all of them. 
+  
+Do not install opencode yourself, the user should do that.
