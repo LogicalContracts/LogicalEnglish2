@@ -88,6 +88,8 @@ llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'h
 llm_model_entry('mixtral-8x7b',     groq, 'mixtral-8x7b-32768',               'https://api.groq.com/openai/v1').
 llm_model_entry('gemma2-9b',        groq, 'gemma2-9b-it',                     'https://api.groq.com/openai/v1').
 llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
+llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'https://api.groq.com/openai/v1').
+
 
 %% Anthropic  ───────────────────────────────────────────────────────
 % https://platform.claude.com/docs/en/about-claude/models/overview
@@ -112,6 +114,8 @@ llm_model_entry('gemini-2.0-flash',      gemini, 'gemini-2.0-flash',            
 llm_model_entry('gemini-2.0-flash-lite', gemini, 'gemini-2.0-flash-lite-preview', 'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-1.5-flash',      gemini, 'gemini-1.5-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-3-flash-preview',      gemini, 'gemini-3-flash-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
+
 %  Convenience alias → latest stable flash
 llm_model_entry('gemini',                gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
 
@@ -120,7 +124,8 @@ llm_model_entry('gemini',                gemini, 'gemini-2.0-flash',            
 % llm_model(+Short, -Provider, -APIModel)
 % ───────────────────────────────────────────────────────────────────
 llm_model(Short, Provider, APIModel) :-
-    llm_model_entry(Short, Provider, APIModel, _).
+    ( atom(Short) -> S = Short ; atom_string(S, Short) ),
+    llm_model_entry(S, Provider, APIModel, _).
 
 % ───────────────────────────────────────────────────────────────────
 % llm_list_models(-Rows)
@@ -155,7 +160,8 @@ llm_request(Model, Query, Answer, Options) :-
 % ═══════════════════════════════════════════════════════════════════
 
 resolve_model(Model, Provider, APIModel, BaseURL) :-
-    llm_model_entry(Model, Provider, APIModel, BaseURL), !.
+    ( atom(Model) -> M = Model ; atom_string(M, Model) ),
+    llm_model_entry(M, Provider, APIModel, BaseURL), !.
 resolve_model(Model, Provider, APIModel, BaseURL) :-
     infer_provider(Model, Provider, BaseURL),
     APIModel = Model, !.

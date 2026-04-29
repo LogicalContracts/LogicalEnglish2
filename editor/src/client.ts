@@ -496,6 +496,88 @@ declare var monaco: any;
     document.getElementById('font-medium')?.addEventListener('click', () => setFontSize(16));
     document.getElementById('font-large')?.addEventListener('click', () => setFontSize(20));
 
+    // API Keys Modal
+    const apiKeysModal = document.getElementById('api-keys-modal');
+    const apiKeysClose = document.getElementById('api-keys-close');
+    const apiKeysCancel = document.getElementById('api-keys-cancel');
+    const apiKeysSave = document.getElementById('api-keys-save');
+    const openaiKeyInput = document.getElementById('openai-key') as HTMLInputElement;
+    const anthropicKeyInput = document.getElementById('anthropic-key') as HTMLInputElement;
+    const googleKeyInput = document.getElementById('google-key') as HTMLInputElement;
+    const groqKeyInput = document.getElementById('groq-key') as HTMLInputElement;
+    const togetherKeyInput = document.getElementById('together-key') as HTMLInputElement;
+    const modelSelect = document.getElementById('assistant-model-select') as HTMLSelectElement;
+
+    const loadModels = async () => {
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'list_models'
+                })
+            });
+            const data = await response.json();
+            if (data.models) {
+                modelSelect.innerHTML = '';
+                data.models.forEach((m: any) => {
+                    const opt = document.createElement('option');
+                    opt.value = m.short;
+                    opt.textContent = `${m.short} (${m.provider})`;
+                    modelSelect.appendChild(opt);
+                });
+                const savedModel = localStorage.getItem('le-assistant-model');
+                if (savedModel) modelSelect.value = savedModel;
+            }
+        } catch (err) {
+            console.error('Failed to load models', err);
+        }
+    };
+
+    const openApiKeysModal = () => {
+        if (apiKeysModal) {
+            openaiKeyInput.value = localStorage.getItem('le-openai-key') || '';
+            anthropicKeyInput.value = localStorage.getItem('le-anthropic-key') || '';
+            googleKeyInput.value = localStorage.getItem('le-google-key') || '';
+            groqKeyInput.value = localStorage.getItem('le-groq-key') || '';
+            togetherKeyInput.value = localStorage.getItem('le-together-key') || '';
+            loadModels();
+            apiKeysModal.style.display = 'flex';
+        }
+    };
+
+    const closeApiKeysModal = () => {
+        if (apiKeysModal) apiKeysModal.style.display = 'none';
+    };
+
+    document.getElementById('menu-api-keys')?.addEventListener('click', openApiKeysModal);
+    apiKeysClose?.addEventListener('click', closeApiKeysModal);
+    apiKeysCancel?.addEventListener('click', closeApiKeysModal);
+    apiKeysSave?.addEventListener('click', () => {
+        localStorage.setItem('le-openai-key', openaiKeyInput.value);
+        localStorage.setItem('le-anthropic-key', anthropicKeyInput.value);
+        localStorage.setItem('le-google-key', googleKeyInput.value);
+        localStorage.setItem('le-groq-key', groqKeyInput.value);
+        localStorage.setItem('le-together-key', togetherKeyInput.value);
+        localStorage.setItem('le-assistant-model', modelSelect.value);
+        closeApiKeysModal();
+    });
+
+    // Tab Switching
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const target = tab.getAttribute('data-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById(target!)?.classList.add('active');
+        });
+    });
+
     document.getElementById('menu-fold-all')?.addEventListener('click', () => {
         editor.focus();
         editor.trigger('keyboard', 'editor.foldAll', null);
@@ -876,6 +958,113 @@ declare var monaco: any;
             answersList.textContent = 'Error executing query.';
             console.error(err);
         }
+    });
+
+    // Assistant Logic
+    const assistantInput = document.getElementById('assistant-input') as HTMLInputElement;
+    const btnAssistantSend = document.getElementById('btn-assistant-send') as HTMLButtonElement;
+    const assistantHistory = document.getElementById('assistant-history')!;
+    let assistantSessionId = 'ses_' + Math.random().toString(36).substring(7);
+
+    const addChatMessage = (role: 'user' | 'assistant', text: string, details?: string) => {
+        const msg = document.createElement('div');
+        msg.className = `chat-message ${role}`;
+        
+        const content = document.createElement('div');
+        content.textContent = text;
+        msg.appendChild(content);
+
+        if (details) {
+            const detailsEl = document.createElement('details');
+            detailsEl.style.marginTop = '8px';
+            detailsEl.style.fontSize = '11px';
+            detailsEl.style.borderTop = '1px solid rgba(255,255,255,0.1)';
+            detailsEl.style.paddingTop = '5px';
+
+            const summary = document.createElement('summary');
+            summary.textContent = 'System Logs (stderr)';
+            summary.style.cursor = 'pointer';
+            summary.style.opacity = '0.6';
+            summary.style.outline = 'none';
+            detailsEl.appendChild(summary);
+
+            const pre = document.createElement('pre');
+            pre.textContent = details;
+            pre.style.margin = '5px 0 0 0';
+            pre.style.whiteSpace = 'pre-wrap';
+            pre.style.maxHeight = '150px';
+            pre.style.overflowY = 'auto';
+            pre.style.background = 'rgba(0,0,0,0.2)';
+            pre.style.padding = '5px';
+            pre.style.borderRadius = '3px';
+            pre.style.fontFamily = 'monospace';
+            detailsEl.appendChild(pre);
+            
+            msg.appendChild(detailsEl);
+        }
+
+        assistantHistory.appendChild(msg);
+        assistantHistory.scrollTop = assistantHistory.scrollHeight;
+    };
+
+    const handleAssistantSend = async () => {
+        const command = assistantInput.value.trim();
+        if (!command) return;
+
+        addChatMessage('user', command);
+        assistantInput.value = '';
+        btnAssistantSend.disabled = true;
+
+        const apiKeys = {
+            openai: localStorage.getItem('le-openai-key'),
+            anthropic: localStorage.getItem('le-anthropic-key'),
+            google: localStorage.getItem('le-google-key'),
+            groq: localStorage.getItem('le-groq-key'),
+            together: localStorage.getItem('le-together-key')
+        };
+
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'assistant_command',
+                    command: command,
+                    content: editor.getValue(),
+                    session_id: assistantSessionId,
+                    api_keys: apiKeys,
+                    model: localStorage.getItem('le-assistant-model')
+                })
+            });
+            const data = await response.json();
+            if (data.result === 'ok') {
+                if (data.session_id) assistantSessionId = data.session_id;
+                
+                if (data.stdout) {
+                    addChatMessage('assistant', data.stdout, data.stderr);
+                } else if (data.stderr) {
+                    addChatMessage('assistant', 'The assistant finished with some logs but no direct output.', data.stderr);
+                }
+
+                if (data.new_content && data.new_content !== editor.getValue()) {
+                    editor.setValue(data.new_content);
+                    addChatMessage('assistant', 'I have updated the editor content with the changes.');
+                }
+            } else {
+                addChatMessage('assistant', 'Error: ' + (data.error || 'Unknown error'));
+            }
+        } catch (err) {
+            console.error('Assistant error:', err);
+            addChatMessage('assistant', 'Failed to connect to the assistant.');
+        } finally {
+            btnAssistantSend.disabled = false;
+        }
+    };
+
+    btnAssistantSend.addEventListener('click', handleAssistantSend);
+    assistantInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleAssistantSend();
     });
 
     // Window closing check

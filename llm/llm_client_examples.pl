@@ -25,7 +25,7 @@ demo_openai :-
 
 demo_groq :-
     % Reads GROQ_API_KEY from the environment.
-    llm_request('llama-3.3-70b', "Explain recursion in one sentence.", Answer),
+    llm_request('openai/gpt-oss-120b', "Explain recursion in one sentence.", Answer),
     format("Answer: ~w~n", [Answer]).
 
 
