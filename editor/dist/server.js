@@ -8595,9 +8595,88 @@ connection.onInitialize((params) => {
         triggerCharacters: [" ", "*"]
       },
       hoverProvider: true,
-      foldingRangeProvider: true
+      foldingRangeProvider: true,
+      semanticTokensProvider: {
+        legend: {
+          tokenTypes: ["keyword", "variable", "string", "number", "comment", "type", "templateWord"],
+          tokenModifiers: []
+        },
+        full: true
+      }
     }
   };
+});
+connection.onRequest("textDocument/semanticTokens/full", (params) => {
+  const document = documents.get(params.textDocument.uri);
+  if (!document)
+    return { data: [] };
+  const text = document.getText();
+  const templates = getTemplates(text);
+  const tokens = [];
+  const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
+  for (const template of sortedTemplates) {
+    const parts = template.label.split(/\*[^*]+\*/);
+    if (parts.length < 2)
+      continue;
+    const regexParts = parts.map((p) => p.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
+    const regexStr = "\\b" + regexParts.join("\\s+((?:a|an|the|each|some)\\s+[a-z]\\w*|[A-Z][A-Z0-9_]*|\\*[^*]+\\*)\\s*") + "\\b";
+    try {
+      const regex = new RegExp(regexStr, "gi");
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        let currentOffset = match.index;
+        const fullMatch = match[0];
+        let lastIndex = 0;
+        for (let i = 0; i < parts.length; i++) {
+          const part = parts[i].trim();
+          if (part) {
+            const partRegex = new RegExp(part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"), "gi");
+            partRegex.lastIndex = lastIndex;
+            const partMatch = partRegex.exec(fullMatch);
+            if (partMatch) {
+              tokens.push({ start: currentOffset + partMatch.index, length: partMatch[0].length, typeIndex: 6 });
+              lastIndex = partMatch.index + partMatch[0].length;
+            }
+          }
+          if (i < parts.length - 1) {
+            const varText = match[i + 1];
+            if (varText) {
+              const varIndex = fullMatch.indexOf(varText, lastIndex);
+              if (varIndex !== -1) {
+                tokens.push({ start: currentOffset + varIndex, length: varText.length, typeIndex: 1 });
+                lastIndex = varIndex + varText.length;
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Regex error for template:", template.label, e);
+    }
+  }
+  tokens.sort((a, b) => a.start - b.start);
+  const uniqueTokens = [];
+  let lastEnd = -1;
+  for (const token of tokens) {
+    if (token.start >= lastEnd) {
+      uniqueTokens.push(token);
+      lastEnd = token.start + token.length;
+    }
+  }
+  const data = [];
+  let lastLine = 0;
+  let lastChar = 0;
+  for (const token of uniqueTokens) {
+    const pos = document.positionAt(token.start);
+    const line = pos.line;
+    const char = pos.character;
+    const deltaLine = line - lastLine;
+    const deltaChar = deltaLine === 0 ? char - lastChar : char;
+    data.push(deltaLine, deltaChar, token.length, token.typeIndex, 0);
+    lastLine = line;
+    lastChar = char;
+  }
+  return { data };
 });
 connection.onRequest("textDocument/foldingRange", (params) => {
   const document = documents.get(params.textDocument.uri);

@@ -30,14 +30,24 @@ export const leMonarchTokens = {
     tokenizer: {
         root: [
             // Section headers
-            [/the knowledge base|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the target language/, 'keyword.header'],
+            [/the (predicates|templates|fluents|events) are:/, { token: 'keyword.header', next: '@templates' }],
+            [/the knowledge base|scenario|query|the ontology|the target language/, 'keyword.header'],
             
-            // Keywords
-            [/\b(includes|is|are|if|and|or|for all cases in which|it is the case that|it is not the case that|not the case that|sum|count|average|min|max|such that)\b/, 'keyword'],
+            // Structural Keywords
+            [/\b(includes|if|and|or|which|for all cases in which|it is the case that|it is not the case that|not the case that|sum|count|average|min|max|such that)\b/, 'keyword'],
             [/\bexpects answers\b/, 'keyword.expects'],
             
-            // Variables
+            // Arguments (a/an/each/some + word)
+            [/\b(a|an|each|some)\s+[a-z]\w*/, 'variable'],
+            
+            // Standalone IDs / Variables (Capitalized)
+            [/\b[A-Z][A-Z0-9_]*\b/, 'variable'],
+            
+            // Variables in *...*
             [/\*[^*]+\*/, 'variable'],
+
+            // Catch-all for words to prevent partial keyword matching
+            [/[a-zA-Z_]\w*/, 'text'],
             
             // Strings
             [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string
@@ -59,6 +69,17 @@ export const leMonarchTokens = {
             [/[{}()\[\]]/, '@brackets'],
             [/[<>!=]=?/, 'operator'],
             [/[.,:]/, 'delimiter'],
+        ],
+
+        templates: [
+            [/the knowledge base|scenario|query|the ontology|the target language/, { token: 'keyword.header', next: '@pop' }],
+            [/\*[^*]+\*/, 'variable'],
+            [/%.*$/, 'comment'],
+            [/\/\*/, 'comment', '@comment'],
+            [/[.,;]/, 'delimiter'],
+            [/\b(is|are|has|have|was|were|been|does|do|did)\b/, 'text'], // Don't color as predicate in definitions
+            [/[a-zA-Z_]\w*/, 'text'],
+            [/./, 'text']
         ],
 
         comment: [

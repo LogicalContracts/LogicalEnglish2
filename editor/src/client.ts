@@ -19,7 +19,8 @@ declare var monaco: any;
                 { token: 'keyword.header', foreground: '569cd6', fontStyle: 'bold' },
                 { token: 'keyword.expects', foreground: 'c586c0', fontStyle: 'italic' },
                 { token: 'variable', foreground: '9cdcfe' },
-                { token: 'number.date', foreground: 'b5cea8' }
+                { token: 'number.date', foreground: 'b5cea8' },
+                { token: 'templateWord', foreground: 'd4d4d4' } // Plain text color for template words
             ],
             colors: {
                 'editor.background': '#1e1e1e'
@@ -33,7 +34,8 @@ declare var monaco: any;
                 { token: 'keyword.header', foreground: '0000ff', fontStyle: 'bold' },
                 { token: 'keyword.expects', foreground: 'af00db', fontStyle: 'italic' },
                 { token: 'variable', foreground: '001080' },
-                { token: 'number.date', foreground: '098658' }
+                { token: 'number.date', foreground: '098658' },
+                { token: 'templateWord', foreground: '000000' }
             ],
             colors: {}
         });
@@ -1070,6 +1072,25 @@ declare var monaco: any;
             }
             return [];
         }
+    });
+
+    monaco.languages.registerDocumentSemanticTokensProvider('le', {
+        getLegend: () => ({
+            tokenTypes: ['keyword', 'variable', 'string', 'number', 'comment', 'type', 'templateWord'],
+            tokenModifiers: []
+        }),
+        provideDocumentSemanticTokens: async (model: any, lastResultId: any, token: any) => {
+            const res: any = await sendRequest('textDocument/semanticTokens/full', {
+                textDocument: { uri: 'file:///main.le' }
+            });
+            if (res && res.data) {
+                return {
+                    data: new Uint32Array(res.data)
+                };
+            }
+            return null;
+        },
+        releaseDocumentSemanticTokens: (resultId: any) => {}
     });
 }
 
