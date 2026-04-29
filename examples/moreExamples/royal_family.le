@@ -1,3 +1,17 @@
+/* 
+Created by Claude with LE2 MCP server, with following prompts:
+
+Further below there are some instructions to obtain knowledge in natural language.
+Write a Logical English program encoding that knowledge. also, come up with a few test scenarios and test queries, and provide me with their expected answers.
+
+ Make sure you verify the logical English and fix it so no errors nor warnings are present.
+
+-----
+Fetch facts about the British royal family, namely names and years of birth of all family members descending from Queen Victoria. Then define rules for determing whether 2 persons are cousins, descendents, etc.
+
+ok, but the tests should encoded inside the scenarios, using the "expects answers" LE construct for each query
+*/
+
 the templates are:
   *a person* is a parent of *a child*,
   *a person* was born in *a year*,
