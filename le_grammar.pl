@@ -6,7 +6,10 @@
 
 :- module(le_grammar, [parse_le_file/2, parse_le_text/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
     kb_items//1, second_pass_item/3, parse_literal/6, prepare_templates/2,
-    set_token_pos/1, get_token_pos/1, is_id/1]).
+    set_token_pos/1, get_token_pos/1, is_id/1,
+    extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6]).
+
+:- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6.
 
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
@@ -398,6 +401,8 @@ extract_id(Words, Name) :-
     ( append(TypeWords, [ID], Words), TypeWords \== [], is_id(ID) -> Name = ID; atomic_list_concat(Words, ' ', Name)).
 
 extract_var_name(Words, Name) :-
+    extract_var_name_extension(Words, Name), !.
+extract_var_name(Words, Name) :-
     (   Words = [Art | Rest], Rest \== [], is_article(Art) ->  
             length(Rest, L), L =< 5,
             extract_id(Rest, Name)
@@ -414,9 +419,8 @@ extract_var_name(Words, Name) :-
         ; Words = [W], is_id(W) -> Name = W
     ).
 
-unify_with_vmap(Name, Var, VMIn, VMOut) :-
-    unify_with_vmap(Name, Var, VMIn, VMOut, false).
-
+unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
+    unify_with_vmap_extension(Name, Var, VMIn, VMOut, IsVar), !.
 unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
     normalize_var_name(Name, NormName),
     (   (IsVar == true ; is_id(Name)) ->  
@@ -427,6 +431,9 @@ unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
         % Not a known variable and no article/ID, so it's a constant
         Var = Name, VMOut = VMIn
     ).
+
+unify_with_vmap(Name, Var, VMIn, VMOut) :-
+    unify_with_vmap(Name, Var, VMIn, VMOut, false).
 
 normalize_var_name(Name, Norm) :-
     re_replace("_"/g, " ", Name, N1),
@@ -795,8 +802,9 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, AllowVars) :-
         ( le_kbs:do_log -> print_message(informational,'  Trying template: ~w' - [FunctorArgs]); true),
         contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
-        match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0),
-        Literal =.. FunctorArgsCopy -> true
+        match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut0, Templates, AllowVars, 0),
+        Literal =.. FunctorArgsCopy,
+        ( post_parse_literal_hook(WordsAndVarsCopy, Literal, VMOut0, VMOut) -> true ; VMOut = VMOut0 ) -> true
         ;   
         match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) -> Literal = is_a(Type, SuperType)
         ;   
@@ -945,7 +953,8 @@ parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
     hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ( le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing node: ~w~n' - [Words]); true),
-    (   is_forall(Tokens) ->  
+    (   parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic) -> true
+    ;   is_forall(Tokens) ->  
             split_forall_children(Children, CondNodes, ConsNodes),
             hierarchy_to_logic(CondNodes, Templates, VMIn, VM1, CondLogic),
             hierarchy_to_logic(ConsNodes, Templates, VM1, VMOut, ConsLogic),
@@ -965,8 +974,13 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
         ; parse_literal(Tokens, Templates, VMIn, VM1, Literal) ->  
+            fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic0),
+            ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic0, Start, End) ; Logic = Logic0 )
+        ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
+            Literal = is_a(Type, SuperType),
+            fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic0),
+            ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic0, Start, End) ; Logic = Logic0 )
 
-            fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
         ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
             Literal = is_a(Type, SuperType),
             fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
