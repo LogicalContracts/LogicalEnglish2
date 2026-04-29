@@ -26,7 +26,9 @@
 
 % For friendlier messages
 :- multifile prolog:message//1.
-prolog:message(S-Args) --> {atomic(S),is_list(Args)},[S-Args].
+prolog:message(S-Args) --> {atomic(S),is_list(Args)}, !, [S-Args].
+prolog:message(Msg) --> {string(Msg)}, !, [Msg].
+prolog:message(Msg) --> {atom(Msg)}, !, [Msg].
 
 %!  edit(+LEfilePath:atom) is det.
 %
@@ -69,8 +71,12 @@ load(FilePath, NewModule) :-
                         assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
                     ))
                 ; true)
-            ; print_message(error, "parse_le_file failed for ~w" - [FilePath]),
-              fail
+            ; % Parsing failed
+              forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+              dynamic(NewModule:le_issue/5),
+              assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
+              assertz(NewModule:le_source(none, 0, 0)),
+              print_message(error, "parse_le_file failed for ~w" - [FilePath])
         )
     ).
 
@@ -306,8 +312,12 @@ load_text(Text, NewModule) :-
                         assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
                     ))
                 ; true)
-            ; print_message(error, "parse_le_text failed"),
-              fail
+            ; % Parsing failed
+              forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+              dynamic(NewModule:le_issue/5),
+              assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
+              assertz(NewModule:le_source(none, 0, 0)),
+              print_message(error, "parse_le_text failed")
         )
     ).
 

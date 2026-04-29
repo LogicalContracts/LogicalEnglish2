@@ -1,11 +1,11 @@
 
 Test Summary:
 -------------
-Files processed: 21
-Total tests:     164
-Passed:          163
+Files processed: 22
+Total tests:     171
+Passed:          171
 Failed:          0
-Errors/Timeouts: 1
+Errors/Timeouts: 0
 -------------
 
 Detailed File Summary:
@@ -15,7 +15,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/error.le: 0 Pass, 0 Fail, 1 Error
+  [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
@@ -29,6 +29,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/small_business.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
 -------------
 
