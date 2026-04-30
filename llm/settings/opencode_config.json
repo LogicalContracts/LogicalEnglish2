@@ -1,0 +1,13 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "logical-english": {
+      "type": "local",
+      "enabled": true,
+      "command": ["npx", "mcp-remote", "http://localhost:3050/mcp"]
+    }
+  },
+  "permission": {
+    "externalDirectories": ["/tmp/le_assistant"]
+  }
+}
