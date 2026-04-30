@@ -1,4 +1,4 @@
-:- module(le_assistant, [handle_assistant_command/2]).
+:- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2]).
 
 :- use_module(library(process)).
 :- use_module(library(readutil)).
@@ -8,6 +8,115 @@
 
 :- dynamic assistant_file_counter/1.
 assistant_file_counter(1).
+
+:- dynamic assistant_job/2.        % JobID, PID
+:- dynamic assistant_job_output/3. % JobID, Stream, Text
+:- dynamic assistant_job_status/2. % JobID, Status
+:- dynamic assistant_job_content/2. % JobID, NewContent (after completion)
+
+normalize_path(P, N) :-
+    ( atom(P) -> A = P ; atom_string(A, P) ),
+    % Remove /private prefix if present (macOS symlink)
+    ( sub_atom(A, 0, 8, _, "/private") ->
+        sub_atom(A, 8, _, 0, N0)
+    ; N0 = A
+    ),
+    % Replace multiple slashes with single slash and remove trailing slash
+    split_string(N0, "/", "/", Parts),
+    exclude(==(""), Parts, CleanParts),
+    atomic_list_concat(CleanParts, "/", Path),
+    ( sub_atom(N0, 0, 1, _, "/") -> atom_concat('/', Path, N) ; N = Path ),
+    !.
+
+paths_match(P1, P2) :-
+    normalize_path(P1, N1),
+    normalize_path(P2, N2),
+    N1 == N2.
+
+get_opencode_env(Env) :-
+    findall(Name=SVal, (
+        member(Var, ['PATH', 'HOME', 'USER', 'SHELL']),
+        getenv(Var, SVal),
+        Name = Var
+    ), BaseEnv),
+    absolute_file_name('llm/settings/opencode_config.json', MCPConfig, [access(read), expand(true)]),
+    Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1', 'OPENCODE_CONFIG'=MCPConfig | BaseEnv].
+
+get_directory_for_session(SessionID, Directory) :-
+    get_opencode_env(Env),
+    catch(
+        setup_call_cleanup(
+            process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out)), stderr(null), env(Env), cwd('/')]),
+            json_read_dict(Out, Sessions),
+            close(Out)
+        ),
+        _,
+        fail
+    ),
+    atom_string(ASID, SessionID),
+    member(Session, Sessions),
+    get_dict(id, Session, SID),
+    atom_string(ASID_check, SID),
+    ASID == ASID_check,
+    get_dict(directory, Session, Directory),
+    !.
+
+%!  get_most_recent_opencode_session(+Dir, -SessionID) is semidet.
+%
+%   Finds the most recently updated opencode session ID for the given directory.
+get_most_recent_opencode_session(Dir, SessionID) :-
+    normalize_path(Dir, NormalizedDir),
+    get_opencode_env(Env),
+    catch(
+        setup_call_cleanup(
+            process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out)), stderr(null), env(Env), cwd(Dir)]),
+            json_read_dict(Out, Sessions),
+            close(Out)
+        ),
+        Error,
+        (format(user_error, "DEBUG: Error listing sessions: ~w~n", [Error]), fail)
+    ),
+    % Filter sessions that match our normalized directory
+    findall(S, (
+        member(S, Sessions),
+        get_dict(directory, S, SDir),
+        normalize_path(SDir, NormalizedSDir),
+        ( NormalizedSDir == NormalizedDir ->
+            true
+        ; fail
+        )
+    ), AssistantSessions),
+    ( AssistantSessions == [] ->
+        format(user_error, "DEBUG: No sessions found matching directory ~w (normalized: ~w)~n", [Dir, NormalizedDir]),
+        % Print all available sessions for debugging
+        forall(member(S, Sessions), (
+            get_dict(id, S, SID),
+            get_dict(directory, S, SDir),
+            normalize_path(SDir, NSDir),
+            format(user_error, "DEBUG: Available session: ~w, directory: ~w, normalized: ~w~n", [SID, SDir, NSDir])
+        )),
+        fail
+    ; true
+    ),
+    % Map to pairs of (Updated, Session) for sorting
+    maplist(session_to_pair, AssistantSessions, Pairs),
+    % Sort by Updated timestamp (ascending)
+    keysort(Pairs, SortedPairs),
+    % Get the last one (most recent)
+    last(SortedPairs, _-MostRecent),
+    get_dict(id, MostRecent, SessionID).
+
+session_to_pair(Session, Updated-Session) :-
+    get_dict(updated, Session, Updated).
+
+session_exists(ID) :-
+    get_directory_for_session(ID, _).
+
+assistant_work_dir(AbsDir) :-
+    Base = "/tmp/le_assistant",
+    ( exists_directory(Base) -> true ; make_directory(Base) ),
+    absolute_file_name(Base, AbsDir0, [file_type(directory)]),
+    normalize_path(AbsDir0, AbsDir).
 
 get_next_id(ID) :-
     with_mutex(assistant_id_gen, (
@@ -19,37 +128,54 @@ get_next_id(ID) :-
 
 %!  handle_assistant_command(+Dict, -Response) is det.
 %
-%   Handles a command for the LE Assistant.
+%   Starts a command for the LE Assistant and returns a JobID.
 handle_assistant_command(Dict, Response) :-
     format(user_error, "DEBUG: Entering handle_assistant_command~n", []),
     ( get_dict(command, Dict, Command) -> true ; Command = "" ),
-    ( get_dict(content, Dict, Content) -> string_length(Content, L), format(user_error, "DEBUG: Content length: ~w~n", [L]) ; Content = "", format(user_error, "DEBUG: Content missing~n", []) ),
+    ( get_dict(content, Dict, Content) -> true ; Content = "" ),
     ( get_dict(session_id, Dict, SessionID0) -> 
-        ( sub_atom(SessionID0, 0, 3, _, ses) -> SessionID = SessionID0 ; atom_concat(ses, SessionID0, SessionID) )
+        atom_string(ASID0, SessionID0),
+        ( sub_atom(ASID0, 0, 3, _, ses) -> SessionID = ASID0 ; atom_concat(ses, ASID0, SessionID) )
     ; SessionID = "ses_default" ),
+    format(user_error, "DEBUG: Incoming session_id: ~w~n", [SessionID]),
     ( get_dict(api_keys, Dict, APIKeys) -> true ; APIKeys = _{} ),
     ( get_dict(model, Dict, Model) -> true ; Model = "" ),
     
+    assistant_work_dir(BaseDir),
+    
+    % Determine WorkDir and ActualSessionID
+    ( (string_length(SessionID, Len), Len > 20, get_directory_for_session(SessionID, RealDir)) ->
+        ActualSessionID = SessionID,
+        WorkDir = RealDir,
+        format(user_error, "DEBUG: Continuing opencode session ~w in directory ~w~n", [ActualSessionID, WorkDir])
+    ; % Bogus ID or first request or editor hasn't updated yet
+      format(string(WorkDir0), "~w/~w", [BaseDir, SessionID]),
+      normalize_path(WorkDir0, WorkDir),
+      ( exists_directory(WorkDir) -> true ; make_directory(WorkDir) ),
+      ( get_most_recent_opencode_session(WorkDir, RealSessionID) ->
+          ActualSessionID = RealSessionID,
+          format(user_error, "DEBUG: Discovered real session ~w for conversation ~w~n", [ActualSessionID, SessionID])
+      ; ActualSessionID = "ses_default",
+        format(user_error, "DEBUG: Starting/Continuing conversation ~w in directory ~w~n", [SessionID, WorkDir])
+      )
+    ),
+
     % Create a temporary file for the editor content
     get_next_id(ID),
-    format(string(TempFile), "/tmp/le_assistant/myProgram~w.le", [ID]),
+    format(string(JobID), "job_~w", [ID]),
+    
+    RelTempFile = "myProgram.le",
+    format(string(TempFile), "~w/~w", [WorkDir, RelTempFile]),
+    format(string(AgentFile), "~w/AGENTS.md", [WorkDir]),
+    
     setup_call_cleanup(
         open(TempFile, write, Stream),
         write(Stream, Content),
         close(Stream)
     ),
-    format(user_error, "DEBUG: Temp file created: ~w~n", [TempFile]),
     
     % Prepare environment variables
-    % Inherit important ones and add API keys
-    findall(Name=SVal, (
-        member(Var, ['PATH', 'HOME', 'USER', 'SHELL']),
-        getenv(Var, SVal),
-        Name = Var
-    ), BaseEnv),
-    
-    working_directory(CWD, CWD),
-    format(string(MCPConfig), "~allm/settings/opencode_config.json", [CWD]),
+    get_opencode_env(BaseEnv),
     
     findall(Name=SVal, (
         get_dict(Key, APIKeys, Val),
@@ -76,7 +202,7 @@ handle_assistant_command(Dict, Response) :-
         )
     ;   OpencodeModel = ""
     ),
-
+    
     % Special case: if model is groq/openai/gpt-oss-120b, ensure GROQ_API_KEY is set
     (   sub_atom(OpencodeModel, _, _, _, 'groq/')
     ->  ( get_dict(openai, APIKeys, GKey), GKey \== null, GKey \== "" -> 
@@ -87,169 +213,194 @@ handle_assistant_command(Dict, Response) :-
     ),
     
     append(BaseEnv, APIEnv, Env1),
-    append(ExtraEnv, Env1, Env2),
-    Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1', 'OPENCODE_CONFIG'=MCPConfig | Env2],
+    append(ExtraEnv, Env1, Env),
     
-    format(string(AgentFile), "AGENTS_LE_~w.md", [ID]),
-    create_agent_file(AgentFile, TempFile),
+    create_agent_file(AgentFile, RelTempFile),
 
     % Prepare opencode arguments
-    maplist(to_atom_or_string, [SessionID, TempFile, OpencodeModel, Command], [ASessionID, ATempFile, AModel, ACommand]),
+    maplist(to_atom_or_string, [ActualSessionID, RelTempFile, OpencodeModel, Command], [ASessionID, ARelTempFile, AModel, ACommand]),
+    format(user_error, "DEBUG: Final ActualSessionID: ~w~n", [ASessionID]),
 
     % Check if session exists
-    (   (ASessionID \== "ses_default", session_exists(ASessionID))
-    ->  SessionArgs = ['--session', ASessionID]
-    ;   SessionArgs = []
+    (   (ASessionID \== "ses_default", ASessionID \== "default", ASessionID \== "", session_exists(ASessionID))
+    ->  SessionArgs = ['--session', ASessionID],
+        format(user_error, "DEBUG: Session ~w exists, adding --session flag~n", [ASessionID])
+    ;   SessionArgs = [],
+        format(user_error, "DEBUG: Session ~w does not exist or is default, skipping --session flag~n", [ASessionID])
     ),
 
     % Use 'build' agent as suggested, it should pick up CLAUDE.md
     BaseArgs = ['run' | SessionArgs],
-    append(BaseArgs, ['--file', ATempFile, '--agent', 'build', '--format', 'default'], Args0),
+    append(BaseArgs, ['--file', ARelTempFile, '--agent', 'build', '--format', 'default'], Args0),
     ( (AModel \== "", AModel \== null) -> append(Args0, ['--model', AModel, ACommand], Args) ; append(Args0, [ACommand], Args) ),
     
-    format(user_error, "DEBUG: Running process_create: opencode ~w~n", [Args]),
+    format(user_error, "DEBUG: Starting background process: opencode ~w in ~w~n", [Args, WorkDir]),
     
-    (   catch(
-            (
-                format(user_error, "DEBUG: Calling process_create...~n", []),
-                process_create(path(opencode), Args, [stdin(null), stdout(pipe(Out)), stderr(pipe(Err)), env(Env), process(PID)]),
-                format(user_error, "DEBUG: process_create succeeded, PID: ~w~n", [PID]),
-                
-                % Read from both pipes in separate threads to avoid deadlock
-                thread_create(safe_read(Out, stdout), T1, []),
-                thread_create(safe_read(Err, stderr), T2, []),
-                
-                format(user_error, "DEBUG: Waiting for output threads...~n", []),
-                thread_join(T1, Status1),
-                thread_join(T2, Status2),
-                
-                ( Status1 = exited(Stdout0) -> strip_ansi(Stdout0, Stdout) ; Stdout = "" ),
-                ( Status2 = exited(Stderr0) -> strip_ansi(Stderr0, Stderr) ; Stderr = "" ),
-                
-                % Close pipes
-                close(Out),
-                close(Err),
-                
-                format(user_error, "DEBUG: Waiting for process...~n", []),
-                process_wait(PID, Status),
-                format(user_error, "DEBUG: Process finished with status: ~w~n", [Status])
-            ),
-            E,
-            (
-                format(user_error, "DEBUG: Process execution failed (catch): ~w~n", [E]),
-                Stdout = "",
-                term_string(E, Stderr),
-                Status = error
-            )
+    process_create(path(opencode), Args, [stdin(null), stdout(pipe(Out)), stderr(pipe(Err)), env(Env), cwd(WorkDir), process(PID)]),
+    asserta(assistant_job(JobID, PID)),
+    asserta(assistant_job_status(JobID, running)),
+    
+    % Start threads to read output
+    thread_create(read_to_db(JobID, stdout, Out), _, [detached(true)]),
+    thread_create(read_to_db(JobID, stderr, Err), _, [detached(true)]),
+    
+    % Start a thread to wait for the process
+    thread_create(wait_for_job(JobID, PID, TempFile, AgentFile, ASessionID, Content, WorkDir), _, [detached(true)]),
+    
+    Response = _{
+        result: ok,
+        job_id: JobID
+    }.
+
+read_to_db(JobID, StreamName, Stream) :-
+    format(user_error, "DEBUG: read_to_db started for ~w ~w~n", [JobID, StreamName]),
+    repeat,
+    (   at_end_of_stream(Stream)
+    ->  format(user_error, "DEBUG: read_to_db finished for ~w ~w~n", [JobID, StreamName]),
+        catch(close(Stream), _, true), !
+    ;   catch(read_pending_codes(Stream, Codes, []), E, (format(user_error, "DEBUG: read_to_db error: ~w~n", [E]), Codes = [])),
+        (   Codes == []
+        ->  sleep(0.1), fail
+        ;   string_codes(String, Codes),
+            assertz(assistant_job_output(JobID, StreamName, String)),
+            fail
         )
-    ->  true
-    ;   format(user_error, "DEBUG: Process block failed (backtracked)~n", []),
-        Stdout = "", Stderr = "Internal failure in process block", Status = error
-    ),
+    ).
+
+wait_for_job(JobID, PID, TempFile, _AgentFile, ASessionID, OldContent, WorkDir) :-
+    process_wait(PID, Status),
     
     % After opencode runs, it might have modified TempFile.
     ( exists_file(TempFile) -> 
-        ( catch(read_file_to_string(TempFile, NewContent, []), _, NewContent = Content),
-          catch(delete_file(TempFile), _, true) )
-    ; NewContent = Content ),
+        ( catch(read_file_to_string(TempFile, NewContent, []), _, NewContent = OldContent) )
+    ; NewContent = OldContent ),
     
-    % Delete the agent file
-    ( exists_file(AgentFile) -> catch(delete_file(AgentFile), _, true) ; true ),
+    % We keep the files in the session directory to facilitate discovery
+    asserta(assistant_job_content(JobID, NewContent)),
     
-    % Ensure Stdout and Stderr are bound
-    ( var(Stdout) -> Stdout = "" ; true ),
-    ( var(Stderr) -> Stderr = "" ; true ),
+    % Give opencode a moment to sync its session database
+    sleep(0.2),
 
-    % Try to extract session ID from output if we started a new one
-    (   (var(SessionArgs) ; SessionArgs == [])
-    ->  ( extract_session_id(Stdout, NewSID) -> ActualSID = NewSID ; extract_session_id(Stderr, NewSID) -> ActualSID = NewSID ; ActualSID = ASessionID )
-    ;   ActualSID = ASessionID
+    % Always obtain the most recent session ID for this directory after opencode runs
+    % We MUST obtain it from the session list to get the real ID
+    ( get_most_recent_opencode_session(WorkDir, RecentSID) ->
+        ActualSID = RecentSID,
+        format(user_error, "DEBUG: Discovered session ID for directory ~w: ~w~n", [WorkDir, ActualSID])
+    ; ActualSID = ASessionID,
+      format(user_error, "DEBUG: Could not discover session ID for directory ~w, using ~w~n", [WorkDir, ActualSID])
     ),
+    asserta(assistant_job_output(JobID, session_id, ActualSID)),
+    
+    % FINALLY mark the job as finished, to avoid race conditions with status polling
+    term_string(Status, StatusStr),
+    retractall(assistant_job_status(JobID, _)),
+    asserta(assistant_job_status(JobID, finished(StatusStr))).
 
-    % Ensure Status is a string for JSON
-    ( var(Status) -> StatusStr = "unknown" ; term_string(Status, StatusStr) ),
+%!  handle_assistant_status(+Dict, -Response) is det.
+handle_assistant_status(Dict, Response) :-
+    get_dict(job_id, Dict, JobID),
+    (   assistant_job_status(JobID, Status)
+    ->  findall(L, assistant_job_output(JobID, stdout, L), StdoutLines),
+        findall(L, assistant_job_output(JobID, stderr, L), StderrLines),
+        atomic_list_concat(StdoutLines, "", Stdout0),
+        atomic_list_concat(StderrLines, "", Stderr0),
+        strip_ansi(Stdout0, Stdout),
+        strip_ansi(Stderr0, Stderr),
+        
+        (   Status = finished(ExitStatus)
+        ->  ( assistant_job_content(JobID, NewContent) -> true ; NewContent = "" ),
+            ( assistant_job_output(JobID, session_id, SID) -> ActualSID = SID ; ActualSID = "" ),
+            format(user_error, "DEBUG: Returning session_id to client: ~w~n", [ActualSID]),
+            
+            (   extract_json_from_string(Stdout, JSONDict, StdoutWithoutJSON)
+            ->  ( get_dict(explanation, JSONDict, Explanation) -> 
+                    ( (var(StdoutWithoutJSON) ; string_length(StdoutWithoutJSON, 0) ; catch(normalize_space(atom(""), StdoutWithoutJSON), _, fail)) -> 
+                        FinalStdout = Explanation 
+                    ; ( paths_match(StdoutWithoutJSON, Explanation) ->
+                        FinalStdout = Explanation
+                      ; format(string(FinalStdout), "~w\n\n~w", [StdoutWithoutJSON, Explanation])
+                      )
+                    )
+                ; FinalStdout = StdoutWithoutJSON
+                ),
+                ( get_dict(new_content, JSONDict, ContentFromJson) -> FinalNewContent = ContentFromJson ; FinalNewContent = NewContent )
+            ;   FinalStdout = Stdout, FinalNewContent = NewContent
+            ),
+            
+            Response = _{
+                result: ok,
+                status: finished,
+                exit_status: ExitStatus,
+                stdout: FinalStdout,
+                stderr: Stderr,
+                new_content: FinalNewContent,
+                session_id: ActualSID
+            }
+        ;   Response = _{
+                result: ok,
+                status: running,
+                stdout: Stdout,
+                stderr: Stderr
+            }
+        )
+    ;   Response = _{result: error, error: "Job not found"}
+    ).
 
-    % Try to extract JSON from Stdout for cleaner response
-    (   extract_json_from_string(Stdout, JSONDict)
-    ->  ( get_dict(explanation, JSONDict, FinalStdout) -> true ; FinalStdout = Stdout ),
-        ( get_dict(new_content, JSONDict, ContentFromJson) -> FinalNewContent = ContentFromJson ; FinalNewContent = NewContent )
-    ;   FinalStdout = Stdout, FinalNewContent = NewContent
-    ),
+%!  handle_assistant_interrupt(+Dict, -Response) is det.
+handle_assistant_interrupt(Dict, Response) :-
+    get_dict(job_id, Dict, JobID),
+    (   assistant_job(JobID, PID)
+    ->  ( assistant_job_status(JobID, running) ->
+            process_kill(PID, term),
+            Response = _{result: ok, message: "Job interrupted"}
+        ;   Response = _{result: ok, message: "Job already finished"}
+        )
+    ;   Response = _{result: error, error: "Job not found"}
+    ).
 
-    Response = _{
-        result: ok,
-        stdout: FinalStdout,
-        stderr: Stderr,
-        new_content: FinalNewContent,
-        exit_status: StatusStr,
-        session_id: ActualSID
-    },
-    format(user_error, "DEBUG: Leaving handle_assistant_command, session: ~w~n", [ActualSID]).
-
-extract_session_id(Text, ID) :-
-    Text \== "",
-    catch(re_matchsub("ses_[a-zA-Z0-9]+", Text, Sub, []), _, fail),
-    get_dict(0, Sub, ID).
-
-extract_json_from_string(String, Dict) :-
+extract_json_from_string(String, Dict, Remaining) :-
     String \== "",
-    % Look for JSON in a code block first, then just any JSON-like structure
-    (   re_matchsub("```json\n?(\\{.*\\})\n?```", String, Sub, [dotall])
-    ->  get_dict(1, Sub, JSONStr)
-    ;   re_matchsub("(\\{.*\\})", String, Sub, [dotall])
-    ->  get_dict(1, Sub, JSONStr)
+    (   % Try with code block first. Greedy match for the JSON content.
+        re_matchsub("(?s)```json\\s*(\\{.*\\})\\s*```", String, Sub)
+    ->  get_dict(1, Sub, JSONStr),
+        get_dict(0, Sub, FullMatch)
+    ;   % Try without code block. Greedy match from first { to last }.
+        re_matchsub("(?s)(\\{.*\\})", String, Sub)
+    ->  get_dict(1, Sub, JSONStr),
+        get_dict(0, Sub, FullMatch)
     ;   fail
     ),
-    catch(json_read_dict(string(JSONStr), Dict), _, fail).
+    catch(atom_json_dict(JSONStr, Dict, []), _, fail),
+    % Remove the full match from the string using sub_string to be safe
+    (   sub_string(String, Before, _Len, After, FullMatch)
+    ->  sub_string(String, 0, Before, _, Preamble),
+        sub_string(String, _, After, 0, Postamble),
+        format(string(Remaining0), "~w~w", [Preamble, Postamble]),
+        (   (var(Remaining0) ; string_length(Remaining0, 0))
+        ->  Remaining = ""
+        ;   catch(normalize_space(atom(Remaining), Remaining0), _, Remaining = Remaining0)
+        )
+    ;   Remaining = String
+    ).
 
 strip_ansi(In, Out) :-
-    % Regex for ANSI escape sequences: ESC [ ... m or ESC [ ... K
-    % \x1B is ESC. In Prolog strings, we use \u001b or similar if supported, 
-    % but re_replace often accepts hex escapes in the pattern.
-    % We'll use the hex escape \x1b for the ESC character.
-    re_replace("\\x1b\\[[0-9;]*[mK]"/g, "", In, Out).
-
-safe_read(Stream, Label) :-
-    format(user_error, "DEBUG: Thread ~w started~n", [Label]),
-    read_lines(Stream, Lines, Label),
-    atomic_list_concat(Lines, "\n", String),
-    format(user_error, "DEBUG: Thread ~w finished~n", [Label]),
-    thread_exit(String).
-
-read_lines(Stream, Lines, Label) :-
-    read_line_to_string(Stream, Line),
-    ( Line == end_of_file ->
-        Lines = []
-    ; 
-        format(user_error, "DEBUG: [~w] ~w~n", [Label, Line]),
-        Lines = [Line|Rest],
-        read_lines(Stream, Rest, Label)
+    (   catch(re_replace("\\x1b\\[[0-9;]*[mK]"/g, "", In, Out0), _, fail)
+    ->  Out = Out0
+    ;   Out = In
     ).
 
 to_atom_or_string(X, X) :- (atom(X) ; string(X)), !.
 to_atom_or_string(X, S) :- term_string(X, S).
 
-session_exists(ID) :-
-    format(user_error, "DEBUG: Checking if session exists: ~w~n", [ID]),
-    setup_call_cleanup(
-        process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out)), stderr(null)]),
-        (
-            json_read_dict(Out, Sessions),
-            member(Session, Sessions),
-            get_dict(id, Session, ID)
-        ),
-        close(Out)
+create_agent_file(AgentFile, RelTempFile) :-
+    working_directory(CWD, CWD),
+    format(string(TemplatePath), "~w/AGENTS_LE_template.md", [CWD]),
+    ( exists_file(TemplatePath) -> 
+        read_file_to_string(TemplatePath, Template, [])
+    ; read_file_to_string('AGENTS_LE_template.md', Template, [])
     ),
-    format(user_error, "DEBUG: Session ~w found~n", [ID]),
-    !.
-session_exists(ID) :-
-    format(user_error, "DEBUG: Session ~w not found~n", [ID]),
-    fail.
-
-create_agent_file(AgentFile, TempFile) :-
-    read_file_to_string('AGENTS_LE_template.md', Template, []),
     setup_call_cleanup(
         open(AgentFile, write, Stream),
-        format(Stream, Template, [TempFile, TempFile, TempFile, TempFile]),
+        format(Stream, Template, [RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
         close(Stream)
     ).

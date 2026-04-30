@@ -100,6 +100,8 @@ handle_operation(Dict, Response) :-
                 format(user_error, "Failed Dict: ~w~n", [Dict]),
                 fail)
             )
+        ; Op == "assistant_status" -> handle_assistant_status(Dict, Response)
+        ; Op == "assistant_interrupt" -> handle_assistant_interrupt(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
         ; Response = _{error: "Unknown operation"}
     ).
