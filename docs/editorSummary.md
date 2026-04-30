@@ -15,12 +15,14 @@ The back-end is a SWI-Prolog HTTP server (`classic_web_api.pl`) exposing a singl
 ## Editing
 
 Monaco is initialised with the `le` language definition, providing:
+
+
 - **Syntax highlighting** (`le-language.ts` and `server.ts`):
     - **Template-Aware Highlighting (Semantic Tokens)**: The LSP server extracts templates from the document and applies context-aware coloring to template instances. Template words are styled as plain text, while arguments (e.g., `an entity`, `ET`) are styled as variables. This ensures that template words (like `for`) are not incorrectly highlighted as logical keywords (like `or`).
     - **Section Headers**: `the knowledge base`, `scenario`, `query`, `the ontology`, `the predicates`, `the templates`, `the fluents`, `the events`, `the target language` (styled as `keyword.header`)
-    - **Logical Keywords**: `includes`, `if`, `and`, `or`, `which`, `for all cases in which`, `it is the case that`, `it is not the case that`, `not the case that`, `sum`, `count`, `average`, `min`, `max`, `such that` (styled as `keyword`)
+    - **Logical Keywords**: `includes`, `if`, `and`, `or`, `which`, `for all cases in which`, `it is the case that`, `it is not the case that`, `not the case that`, `sum`, `count`, `average`, `min`, `max`, `is a`, `is an`, `such that` (styled as `keyword`)
     - **Test Keywords**: `expects answers` (styled as `keyword.expects`)
-    - **Variables**: `*variable*` patterns, standalone capitalized IDs (e.g., `ET`, `ATR`), and arguments starting with `a`, `an`, `each`, or `some` (styled as `variable`)
+    - **Variables**: `*variable*` patterns, standalone capitalized IDs (e.g., `ET`, `ATR`), and arguments starting with `a`, `an`, `the`, `each`, or `some` (styled as `variable`)
     - **Strings**: Double-quoted `"..."` and single-quoted `'...'` strings with escape character support (styled as `string`)
     - **Numbers**: Integers and decimals (styled as `number`)
     - **Dates**: `YYYY-MM-DD` format (styled as `number.date`)
@@ -34,6 +36,20 @@ Monaco is initialised with the `le` language definition, providing:
 - **Hover** (`textDocument/hover`) — returns the token type and value at the cursor
 
 Content changes are debounced (1 500 ms) before auto-triggering a module reload on the server.
+
+### Theme Colors
+
+| Language Item | Dark Theme (`le-theme`) | Light Theme (`le-theme-light`) | High Contrast (`hc-black`) |
+| :--- | :--- | :--- | :--- |
+| **Section Headers** | `#569cd6` (Blue, Bold) | `#0000ff` (Blue, Bold) | White (Bold) |
+| **Logical Keywords** | `#569cd6` (Blue) | `#0000ff` (Blue) | `#c586c0` (Purple) |
+| **Test Keywords** | `#c586c0` (Purple, Italic) | `#af00db` (Purple, Italic) | White (Italic) |
+| **Variables / Arguments** | `#9cdcfe` (Light Blue) | `#001080` (Dark Blue) | `#9cdcfe` (Cyan) |
+| **Template Words** | `#d4d4d4` (Light Gray) | `#000000` (Black) | White |
+| **Strings** | `#ce9178` (Orange) | `#a31515` (Red) | `#ce9178` (Orange) |
+| **Numbers / Dates** | `#b5cea8` (Light Green) | `#098658` (Green) | `#b5cea8` (Green) |
+| **Comments** | `#6a9955` (Green) | `#008000` (Green) | `#7ca668` (Green) |
+| **Operators / Punctuation** | `#d4d4d4` (Light Gray) | `#000000` (Black) | White |
 
 ---
 

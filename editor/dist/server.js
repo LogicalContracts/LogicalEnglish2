@@ -8795,7 +8795,10 @@ function getTemplates(text) {
     { label: "*V1* is before *V2*", insertText: "V1 is before *V2", detail: "System Template" },
     { label: "*V1* is known", insertText: "V1 is known", detail: "System Template" },
     { label: "*V1* = *V2*", insertText: "V1 = V2", detail: "System Template" },
+    { label: "*V1* is a *V2*", insertText: "V1 is a V2", detail: "System Template" },
+    { label: "*V1* is an *V2*", insertText: "V1 is an V2", detail: "System Template" },
     { label: "*V1* is *V2*", insertText: "V1 = V2", detail: "System Template" },
+    { label: "*V1* are *V2*", insertText: "V1 are V2", detail: "System Template" },
     { label: "*V1* is in *V2*", insertText: "V1 is in V2", detail: "System Template" }
   ];
   return [...templates, ...systemTemplates];
@@ -8889,7 +8892,7 @@ connection.onHover((params) => {
       switch (token.type) {
         case 1 /* Word */:
           const word = String(token.value);
-          const keywords = ["includes", "if", "and", "or", "which", "sum", "count", "average", "min", "max", "such that"];
+          const keywords = ["includes", "if", "and", "or", "which", "sum", "count", "average", "min", "max", "is", "are", "a", "an", "the", "such that"];
           const headers = ["knowledge", "base", "scenario", "query", "ontology", "predicates", "templates", "fluents", "events", "target", "language"];
           if (keywords.includes(word.toLowerCase())) {
             leType = "Logical Keyword";
