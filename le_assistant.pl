@@ -6,6 +6,17 @@
 :- use_module(library(pcre)).
 :- use_module(llm/llm_client, [llm_model/3]).
 
+:- dynamic assistant_file_counter/1.
+assistant_file_counter(1).
+
+get_next_id(ID) :-
+    with_mutex(assistant_id_gen, (
+        assistant_file_counter(ID),
+        NextID is ID + 1,
+        retractall(assistant_file_counter(_)),
+        asserta(assistant_file_counter(NextID))
+    )).
+
 %!  handle_assistant_command(+Dict, -Response) is det.
 %
 %   Handles a command for the LE Assistant.
@@ -20,8 +31,8 @@ handle_assistant_command(Dict, Response) :-
     ( get_dict(model, Dict, Model) -> true ; Model = "" ),
     
     % Create a temporary file for the editor content
-    random_between(1000, 9999, R),
-    format(string(TempFile), "tmp/myProgram~w.le", [R]),
+    get_next_id(ID),
+    format(string(TempFile), "/tmp/le_assistant/myProgram~w.le", [ID]),
     setup_call_cleanup(
         open(TempFile, write, Stream),
         write(Stream, Content),
@@ -36,6 +47,9 @@ handle_assistant_command(Dict, Response) :-
         getenv(Var, SVal),
         Name = Var
     ), BaseEnv),
+    
+    working_directory(CWD, CWD),
+    format(string(MCPConfig), "~allm/settings/opencode_config.json", [CWD]),
     
     findall(Name=SVal, (
         get_dict(Key, APIKeys, Val),
@@ -74,9 +88,9 @@ handle_assistant_command(Dict, Response) :-
     
     append(BaseEnv, APIEnv, Env1),
     append(ExtraEnv, Env1, Env2),
-    Env = ['TERM'=dumb, 'PAGER'=cat | Env2],
+    Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1', 'OPENCODE_CONFIG'=MCPConfig | Env2],
     
-    format(string(AgentFile), "AGENTS_LE_~w.md", [R]),
+    format(string(AgentFile), "AGENTS_LE_~w.md", [ID]),
     create_agent_file(AgentFile, TempFile),
 
     % Prepare opencode arguments
@@ -109,8 +123,8 @@ handle_assistant_command(Dict, Response) :-
                 thread_join(T1, Status1),
                 thread_join(T2, Status2),
                 
-                ( Status1 = exited(Stdout0) -> Stdout = Stdout0 ; Stdout = "" ),
-                ( Status2 = exited(Stderr0) -> Stderr = Stderr0 ; Stderr = "" ),
+                ( Status1 = exited(Stdout0) -> strip_ansi(Stdout0, Stdout) ; Stdout = "" ),
+                ( Status2 = exited(Stderr0) -> strip_ansi(Stderr0, Stderr) ; Stderr = "" ),
                 
                 % Close pipes
                 close(Out),
@@ -188,6 +202,13 @@ extract_json_from_string(String, Dict) :-
     ),
     catch(json_read_dict(string(JSONStr), Dict), _, fail).
 
+strip_ansi(In, Out) :-
+    % Regex for ANSI escape sequences: ESC [ ... m or ESC [ ... K
+    % \x1B is ESC. In Prolog strings, we use \u001b or similar if supported, 
+    % but re_replace often accepts hex escapes in the pattern.
+    % We'll use the hex escape \x1b for the ESC character.
+    re_replace("\\x1b\\[[0-9;]*[mK]"/g, "", In, Out).
+
 safe_read(Stream, Label) :-
     format(user_error, "DEBUG: Thread ~w started~n", [Label]),
     read_lines(Stream, Lines, Label),
@@ -229,6 +250,6 @@ create_agent_file(AgentFile, TempFile) :-
     read_file_to_string('AGENTS_LE_template.md', Template, []),
     setup_call_cleanup(
         open(AgentFile, write, Stream),
-        format(Stream, Template, [TempFile, TempFile, TempFile]),
+        format(Stream, Template, [TempFile, TempFile, TempFile, TempFile]),
         close(Stream)
     ).

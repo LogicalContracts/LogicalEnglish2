@@ -426,6 +426,7 @@ call_tool("query", Args, Result) :-
     ).
 
 call_tool("verify", Args, Result) :-
+    print_message(informational,"VERIFYING...."-[]),
     ProgramText = Args.get(program_text, ""),
     le_kbs:load_text(ProgramText, KB),
     findall(_{severity: Sev, type: Type, message: Msg, start: Start, end: End},

@@ -958,7 +958,36 @@ async function start() {
     const msg = document.createElement("div");
     msg.className = `chat-message ${role}`;
     const content = document.createElement("div");
-    content.textContent = text;
+    content.className = "message-content";
+    const markedLib = window.marked;
+    console.log("LE Assistant: marked library found:", !!markedLib, typeof markedLib);
+    if (role === "assistant" && markedLib) {
+      try {
+        let html = "";
+        if (typeof markedLib.parse === "function") {
+          html = markedLib.parse(text);
+        } else if (typeof markedLib === "function") {
+          html = markedLib(text);
+        } else if (markedLib.marked && typeof markedLib.marked.parse === "function") {
+          html = markedLib.marked.parse(text);
+        }
+        if (html) {
+          console.log("LE Assistant: Markdown parsed successfully");
+          content.innerHTML = html;
+          content.querySelectorAll("a").forEach((a) => a.target = "_blank");
+        } else {
+          console.warn("LE Assistant: Markdown parsing returned empty string");
+          content.textContent = text;
+        }
+      } catch (e) {
+        console.error("LE Assistant: Markdown parsing failed:", e);
+        content.textContent = text;
+      }
+    } else {
+      if (role === "assistant")
+        console.warn("LE Assistant: marked library not found on window");
+      content.textContent = text;
+    }
     msg.appendChild(content);
     if (details) {
       const detailsEl = document.createElement("details");
@@ -992,6 +1021,26 @@ async function start() {
     const command = assistantInput.value.trim();
     if (!command)
       return;
+    const selectedModel = localStorage.getItem("le-assistant-model") || "";
+    if (!selectedModel) {
+      addChatMessage("assistant", "Warning: No assistant model selected. Please go to **Misc > API Keys...** to select one.");
+      return;
+    }
+    let keyNeeded = "";
+    if (selectedModel.startsWith("openai/"))
+      keyNeeded = "le-openai-key";
+    else if (selectedModel.startsWith("anthropic/"))
+      keyNeeded = "le-anthropic-key";
+    else if (selectedModel.startsWith("google/"))
+      keyNeeded = "le-google-key";
+    else if (selectedModel.startsWith("groq/"))
+      keyNeeded = "le-groq-key";
+    else if (selectedModel.startsWith("together/"))
+      keyNeeded = "le-together-key";
+    if (keyNeeded && !localStorage.getItem(keyNeeded)) {
+      addChatMessage("assistant", `Warning: You have selected model **${selectedModel}** but no API key is configured for it. Please go to **Misc > API Keys...** to set it up.`);
+      return;
+    }
     addChatMessage("user", command);
     assistantInput.value = "";
     btnAssistantSend.disabled = true;
