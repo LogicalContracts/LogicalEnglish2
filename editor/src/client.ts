@@ -964,6 +964,9 @@ declare var monaco: any;
     const assistantInput = document.getElementById('assistant-input') as HTMLInputElement;
     const btnAssistantSend = document.getElementById('btn-assistant-send') as HTMLButtonElement;
     const assistantHistory = document.getElementById('assistant-history')!;
+    const btnAssistantInterrupt = document.getElementById('btn-assistant-interrupt') as HTMLButtonElement;
+    const assistantProgress = document.getElementById('assistant-progress')!;
+    const assistantProgressText = document.getElementById('assistant-progress-text')!;
     let assistantSessionId = 'ses_' + Math.random().toString(36).substring(7);
 
     const addChatMessage = (role: 'user' | 'assistant', text: string, details?: string) => {
@@ -1039,6 +1042,8 @@ declare var monaco: any;
         assistantHistory.scrollTop = assistantHistory.scrollHeight;
     };
 
+    let currentJobId: string | null = null;
+
     const handleAssistantSend = async () => {
         const command = assistantInput.value.trim();
         if (!command) return;
@@ -1064,6 +1069,9 @@ declare var monaco: any;
         addChatMessage('user', command);
         assistantInput.value = '';
         btnAssistantSend.disabled = true;
+        btnAssistantInterrupt.style.display = 'inline-block';
+        assistantProgress.style.display = 'block';
+        assistantProgressText.textContent = 'Starting...';
 
         const apiKeys = {
             openai: localStorage.getItem('le-openai-key'),
@@ -1073,6 +1081,7 @@ declare var monaco: any;
             together: localStorage.getItem('le-together-key')
         };
 
+        console.log('Sending assistant command with session ID:', assistantSessionId);
         try {
             const response = await fetch('/leapi', {
                 method: 'POST',
@@ -1089,30 +1098,111 @@ declare var monaco: any;
             });
             const data = await response.json();
             if (data.result === 'ok') {
-                if (data.session_id) assistantSessionId = data.session_id;
-                
-                if (data.stdout) {
-                    addChatMessage('assistant', data.stdout, data.stderr);
-                } else if (data.stderr) {
-                    addChatMessage('assistant', 'The assistant finished with some logs but no direct output.', data.stderr);
-                }
-
-                if (data.new_content && data.new_content !== editor.getValue()) {
-                    editor.setValue(data.new_content);
-                    addChatMessage('assistant', 'I have updated the editor content with the changes.');
-                }
+                currentJobId = data.job_id;
+                pollAssistantStatus(data.job_id);
             } else {
                 addChatMessage('assistant', 'Error: ' + (data.error || 'Unknown error'));
+                finishAssistantRequest();
             }
         } catch (err) {
             console.error('Assistant error:', err);
             addChatMessage('assistant', 'Failed to connect to the assistant.');
-        } finally {
-            btnAssistantSend.disabled = false;
+            finishAssistantRequest();
         }
     };
 
+    const pollAssistantStatus = async (jobId: string) => {
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'assistant_status',
+                    job_id: jobId
+                })
+            });
+            const data = await response.json();
+            if (data.result === 'ok') {
+                if (data.status === 'running') {
+                    // Update progress with last line of stderr or stdout if available
+                    let progressText = '';
+                    if (data.stderr) {
+                        const lines = data.stderr.trim().split('\n');
+                        progressText = lines[lines.length - 1];
+                    } else if (data.stdout) {
+                        const lines = data.stdout.trim().split('\n');
+                        progressText = lines[lines.length - 1];
+                    }
+                    
+                    if (progressText) {
+                        assistantProgressText.textContent = progressText.substring(0, 60) + (progressText.length > 60 ? '...' : '');
+                    }
+                    setTimeout(() => pollAssistantStatus(jobId), 1000);
+                } else if (data.status === 'finished') {
+                    if (data.session_id) {
+                        assistantSessionId = data.session_id;
+                        console.log('Updated assistant session ID:', assistantSessionId);
+                    }
+                    
+                    let stdout = data.stdout || '';
+                    let newContent = data.new_content || '';
+
+                    if (stdout) {
+                        addChatMessage('assistant', stdout, data.stderr);
+                    } else if (data.stderr) {
+                        addChatMessage('assistant', 'The assistant finished with some logs but no direct output.', data.stderr);
+                    }
+
+                    if (newContent && newContent !== editor.getValue()) {
+                        editor.setValue(newContent);
+                        addChatMessage('assistant', 'I have updated the editor content with the changes.');
+                    }
+                    finishAssistantRequest();
+                }
+            } else {
+                addChatMessage('assistant', 'Error polling status: ' + (data.error || 'Unknown error'));
+                finishAssistantRequest();
+            }
+        } catch (err) {
+            console.error('Polling error:', err);
+            addChatMessage('assistant', 'Lost connection while waiting for assistant.');
+            finishAssistantRequest();
+        }
+    };
+
+    const handleAssistantInterrupt = async () => {
+        if (!currentJobId) return;
+        
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'assistant_interrupt',
+                    job_id: currentJobId
+                })
+            });
+            const data = await response.json();
+            if (data.result === 'ok') {
+                addChatMessage('assistant', '_Request interrupted by user._');
+            }
+        } catch (err) {
+            console.error('Interrupt error:', err);
+        }
+        finishAssistantRequest();
+    };
+
+    const finishAssistantRequest = () => {
+        btnAssistantSend.disabled = false;
+        btnAssistantInterrupt.style.display = 'none';
+        assistantProgress.style.display = 'none';
+        currentJobId = null;
+    };
+
     btnAssistantSend.addEventListener('click', handleAssistantSend);
+    btnAssistantInterrupt.addEventListener('click', handleAssistantInterrupt);
     assistantInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleAssistantSend();
     });
