@@ -7,6 +7,33 @@
       "command": ["npx", "mcp-remote", "http://localhost:3050/mcp"]
     }
   },
+  "provider": {
+    "openai": {
+      "options": {
+      "baseURL": "https://api.openai.com/v1"
+      }
+    },
+    "anthropic": {
+      "options": {
+      "baseURL": "https://api.anthropic.com/v1"
+      }
+    },
+    "groq": {
+      "options": {
+      "baseURL": "https://api.groq.com/openai/v1"
+      }
+    },
+    "together": {
+      "options": {
+      "baseURL": "https://api.together.xyz/v1"
+      }
+    },
+    "google": {
+      "options": {
+      "baseURL": "https://generativelanguage.googleapis.com/v1beta/openai"
+      }
+    }
+  },
   "permission": {
     "externalDirectories": ["/tmp/le_assistant"]
   }

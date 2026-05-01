@@ -569,6 +569,33 @@ async function start() {
         if (savedModel)
           modelSelect.value = savedModel;
       }
+      if (data.server_keys) {
+        const keys = ["openai", "anthropic", "google", "groq", "together"];
+        keys.forEach((k) => {
+          const input = document.getElementById(`${k}-key`);
+          const serverKey = data.server_keys.includes(k === "google" ? "gemini" : k);
+          if (serverKey && input) {
+            input.disabled = true;
+            input.placeholder = "Provided by server";
+            let note = input.parentElement?.querySelector(".server-key-note");
+            if (!note) {
+              note = document.createElement("div");
+              note.className = "server-key-note";
+              note.style.fontSize = "10px";
+              note.style.color = "#89d185";
+              note.style.marginTop = "2px";
+              note.textContent = "This key is provided by the server environment.";
+              input.parentElement?.appendChild(note);
+            }
+          } else if (input) {
+            input.disabled = false;
+            input.placeholder = "";
+            const note = input.parentElement?.querySelector(".server-key-note");
+            if (note)
+              note.remove();
+          }
+        });
+      }
     } catch (err) {
       console.error("Failed to load models", err);
     }
