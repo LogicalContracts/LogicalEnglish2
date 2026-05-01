@@ -1,0 +1,10 @@
+{
+  "provider": {
+    "anthropic": {
+      "options": {
+        "baseURL": "https://api.anthropic.com/v1"
+      }
+    }
+  },
+  "$schema": "https://opencode.ai/config.json"
+}

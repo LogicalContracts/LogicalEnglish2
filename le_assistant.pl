@@ -1,4 +1,4 @@
-:- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2]).
+:- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2, test_llm_providers/0]).
 
 :- use_module(library(process)).
 :- use_module(library(readutil)).
@@ -34,13 +34,41 @@ paths_match(P1, P2) :-
     N1 == N2.
 
 get_opencode_env(Env) :-
+    get_opencode_env(_{}, Env).
+
+get_opencode_env(APIKeys, Env) :-
+    get_opencode_env(APIKeys, true, Env).
+
+get_opencode_env(APIKeys, UseMCP, Env) :-
     findall(Name=SVal, (
         member(Var, ['PATH', 'HOME', 'USER', 'SHELL']),
         getenv(Var, SVal),
         Name = Var
     ), BaseEnv),
-    absolute_file_name('llm/settings/opencode_config.json', MCPConfig, [access(read), expand(true)]),
-    Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1', 'OPENCODE_CONFIG'=MCPConfig | BaseEnv].
+    get_api_env(APIKeys, APIEnv),
+    ( UseMCP == true ->
+        absolute_file_name('llm/settings/opencode_config.json', MCPConfig, [access(read), expand(true)]),
+        ConfigEnv = ['OPENCODE_CONFIG'=MCPConfig]
+    ; ConfigEnv = ['OPENCODE_CONFIG'='/dev/null']
+    ),
+    append(BaseEnv, APIEnv, Env0),
+    append(ConfigEnv, Env0, Env1),
+    Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1' | Env1].
+
+get_api_env(APIKeys, APIEnv) :-
+    findall(Name=SVal, (
+        member(Key-EnvVars, [
+            openai-['OPENAI_API_KEY'], 
+            anthropic-['ANTHROPIC_API_KEY'], 
+            google-['GEMINI_API_KEY', 'GOOGLE_API_KEY'], 
+            groq-['GROQ_API_KEY'], 
+            together-['TOGETHER_API_KEY']
+        ]),
+        (   (is_dict(APIKeys), get_dict(Key, APIKeys, Val), Val \== null, Val \== "")
+        ->  to_atom_or_string(Val, SVal), member(Name, EnvVars)
+        ;   member(EV, EnvVars), catch(getenv(EV, SVal), _, fail), Name = EV
+        )
+    ), APIEnv).
 
 get_directory_for_session(SessionID, Directory) :-
     get_opencode_env(Env),
@@ -174,27 +202,10 @@ handle_assistant_command(Dict, Response) :-
         close(Stream)
     ),
     
-    % Prepare environment variables
-    get_opencode_env(BaseEnv),
-    
-    findall(Name=SVal, (
-        get_dict(Key, APIKeys, Val),
-        Val \== null, Val \== "",
-        to_atom_or_string(Val, SVal),
-        (   Key == openai -> Name = 'OPENAI_API_KEY'
-        ;   Key == anthropic -> Name = 'ANTHROPIC_API_KEY'
-        ;   Key == google -> Name = 'GOOGLE_API_KEY'
-        ;   Key == groq -> Name = 'GROQ_API_KEY'
-        ;   Key == together -> Name = 'TOGETHER_API_KEY'
-        ;   fail
-        )
-    ), APIEnv),
-    
     % Resolve model to provider/model format for opencode
     (   (Model \== "", Model \== null)
     ->  ( llm_model(Model, Provider, APIModel) -> 
             ( Provider == gemini -> ActualProvider = google 
-            ; Provider == openai -> ActualProvider = groq % Based on user's model list
             ; ActualProvider = Provider 
             ),
             format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
@@ -202,18 +213,20 @@ handle_assistant_command(Dict, Response) :-
         )
     ;   OpencodeModel = ""
     ),
+
+    % Prepare environment variables
+    get_opencode_env(APIKeys, BaseEnv),
     
     % Special case: if model is groq/openai/gpt-oss-120b, ensure GROQ_API_KEY is set
     (   sub_atom(OpencodeModel, _, _, _, 'groq/')
-    ->  ( get_dict(openai, APIKeys, GKey), GKey \== null, GKey \== "" -> 
+    ->  ( (is_dict(APIKeys), get_dict(openai, APIKeys, GKey), GKey \== null, GKey \== "") -> 
             to_atom_or_string(GKey, SGKey),
             ExtraEnv = ['GROQ_API_KEY'=SGKey]
         ; ExtraEnv = [] )
     ;   ExtraEnv = []
     ),
     
-    append(BaseEnv, APIEnv, Env1),
-    append(ExtraEnv, Env1, Env),
+    append(ExtraEnv, BaseEnv, Env),
     
     create_agent_file(AgentFile, RelTempFile),
 
@@ -403,4 +416,84 @@ create_agent_file(AgentFile, RelTempFile) :-
         open(AgentFile, write, Stream),
         format(Stream, Template, [RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
         close(Stream)
+    ).
+
+%!  test_llm_providers is det.
+%
+%   Tests all available LLM providers with a simple prompt.
+test_llm_providers :-
+    findall(Provider, (
+        member(Provider-EnvVars, [
+            openai-['OPENAI_API_KEY'], 
+            anthropic-['ANTHROPIC_API_KEY'], 
+            google-['GEMINI_API_KEY', 'GOOGLE_API_KEY'], 
+            groq-['GROQ_API_KEY'], 
+            together-['TOGETHER_API_KEY']
+        ]),
+        member(EV, EnvVars),
+        getenv(EV, _)
+    ), AvailableProviders0),
+    sort(AvailableProviders0, AvailableProviders),
+    ( AvailableProviders == [] -> 
+        writeln("No API keys found in environment variables.")
+    ; forall(member(P, AvailableProviders), (
+        format("Testing provider: ~w~n", [P]),
+        % Pick a model for this provider
+        (   P == openai -> Model = 'gpt-4o-mini'
+        ;   P == anthropic -> Model = 'claude-3-5-haiku'
+        ;   P == google -> Model = 'gemini-2.0-flash'
+        ;   P == groq -> Model = 'llama-3.3-70b'
+        ;   P == together -> Model = 'mixtral-8x22b'
+        ;   fail
+        ),
+        ( test_opencode_prompt(Model, "who are you?", Answer) ->
+            format("Answer from ~w (~w): ~w~n~n", [P, Model, Answer])
+        ; format("Failed to get answer from ~w (~w)~n~n", [P, Model])
+        )
+      ))
+    ).
+
+test_opencode_prompt(Model, Prompt, Answer) :-
+    assistant_work_dir(WorkDir),
+    ( exists_directory(WorkDir) -> true ; make_directory(WorkDir) ),
+    % Create a minimal config with providers but no MCP to avoid noise and ensure resolution
+    format(string(ConfigPath), "~w/test_config.json", [WorkDir]),
+    ConfigDict = _{
+        provider: _{
+            openai:    _{options: _{baseURL: "https://api.openai.com/v1"}},
+            anthropic: _{options: _{baseURL: "https://api.anthropic.com/v1"}},
+            groq:      _{options: _{baseURL: "https://api.groq.com/openai/v1"}},
+            together:  _{options: _{baseURL: "https://api.together.xyz/v1"}},
+            google:    _{options: _{baseURL: "https://generativelanguage.googleapis.com/v1beta/openai"}}
+        }
+    },
+    setup_call_cleanup(
+        open(ConfigPath, write, S),
+        json_write_dict(S, ConfigDict),
+        close(S)
+    ),
+    get_opencode_env(_{}, false, Env0),
+    % Override OPENCODE_CONFIG to our temp one
+    ( select('OPENCODE_CONFIG'=_, Env0, 'OPENCODE_CONFIG'=ConfigPath, Env) -> true ; Env = ['OPENCODE_CONFIG'=ConfigPath | Env0] ),
+    ( llm_model(Model, Provider, APIModel) -> 
+        ( Provider == gemini -> ActualProvider = google 
+        ; ActualProvider = Provider 
+        ),
+        format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
+    ; OpencodeModel = Model
+    ),
+    Args = ['run', '--agent', 'general', '--model', OpencodeModel, Prompt],
+    format(user_error, "DEBUG: Running opencode ~w in ~w~n", [Args, WorkDir]),
+    setup_call_cleanup(
+        process_create(path(opencode), Args, [stdout(pipe(Out)), stderr(pipe(Err)), env(Env), cwd(WorkDir), process(PID)]),
+        (   read_string(Out, _, Answer),
+            read_string(Err, _, ErrMsg),
+            process_wait(PID, Status),
+            ( Status \== exit(0) -> 
+                format(user_error, "DEBUG: opencode failed with status ~w~n", [Status]),
+                format(user_error, "DEBUG: stderr: ~w~n", [ErrMsg]),
+                fail
+            ; true )
+        ),
+        ( close(Out), close(Err) )
     ).

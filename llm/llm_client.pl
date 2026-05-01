@@ -70,9 +70,9 @@
 
 %% OpenAI  ──────────────────────────────────────────────────────────
 % cf. https://platform.openai.com/docs/models
-llm_model_entry('o1',                openai, 'o1',                'https://api.openai.com/v1').
-llm_model_entry('o1-mini',           openai, 'o1-mini',           'https://api.openai.com/v1').
-llm_model_entry('o3-mini',           openai, 'o3-mini',           'https://api.openai.com/v1').
+% llm_model_entry('o1',                openai, 'o1',                'https://api.openai.com/v1').
+% llm_model_entry('o1-mini',           openai, 'o1-mini',           'https://api.openai.com/v1').
+% llm_model_entry('o3-mini',           openai, 'o3-mini',           'https://api.openai.com/v1').
 llm_model_entry('gpt-4o',            openai, 'gpt-4o',            'https://api.openai.com/v1').
 llm_model_entry('gpt-4o-mini',       openai, 'gpt-4o-mini',       'https://api.openai.com/v1').
 llm_model_entry('gpt-4-turbo',       openai, 'gpt-4-turbo',       'https://api.openai.com/v1').
@@ -83,11 +83,11 @@ llm_model_entry('gpt-5.5',             openai, 'gpt-5.5',             'https://a
 %% Groq  ────────────────────────────────────────────────────────────
 % https://console.groq.com/docs/models
 llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
-llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
-llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
+% llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
+% llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
 llm_model_entry('mixtral-8x7b',     groq, 'mixtral-8x7b-32768',               'https://api.groq.com/openai/v1').
 llm_model_entry('gemma2-9b',        groq, 'gemma2-9b-it',                     'https://api.groq.com/openai/v1').
-llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
+% llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
 llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'https://api.groq.com/openai/v1').
 
 
@@ -96,12 +96,12 @@ llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'htt
 %  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/5.
 llm_model_entry('claude-3-5-sonnet', anthropic, 'claude-3-5-sonnet-20241022', 'https://api.anthropic.com/v1').
 llm_model_entry('claude-3-5-haiku',  anthropic, 'claude-3-5-haiku-20241022',  'https://api.anthropic.com/v1').
-llm_model_entry('claude-3-opus',     anthropic, 'claude-3-opus-20240229',     'https://api.anthropic.com/v1').
+% llm_model_entry('claude-3-opus',     anthropic, 'claude-3-opus-20240229',     'https://api.anthropic.com/v1').
 
 %% Together AI  ─────────────────────────────────────────────────────
 % https://api.together.ai/models
-llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
-llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
+% llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
+% llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
 llm_model_entry('mixtral-8x22b',          together, 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'https://api.together.xyz/v1').
 llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/DeepSeek-V4-Pro', 'https://api.together.xyz/v1').
 
@@ -112,8 +112,8 @@ llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/D
 %
 llm_model_entry('gemini-2.0-flash',      gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-2.0-flash-lite', gemini, 'gemini-2.0-flash-lite-preview', 'https://generativelanguage.googleapis.com/v1beta/openai').
-llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
-llm_model_entry('gemini-1.5-flash',      gemini, 'gemini-1.5-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+% llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
+% llm_model_entry('gemini-1.5-flash',      gemini, 'gemini-1.5-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-3-flash-preview',      gemini, 'gemini-3-flash-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
 
 %  Convenience alias → latest stable flash
