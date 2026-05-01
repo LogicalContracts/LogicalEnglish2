@@ -42,11 +42,15 @@ handle_mcp(Request) :-
     (   member(method(post), Request) ->
         http_read_json_dict(Request, Dict),
         % Log request for debugging
-        format(user_error, "MCP Request: ~w~n", [Dict]),
+        ( get_dict(method, Dict, Method) -> true ; Method = unknown ),
+        ( Method \== 'tools/call' -> format(user_error, "MCP Request: ~w~n", [Method]) ; 
+          get_dict(params, Dict, Params), get_dict(name, Params, ToolName),
+          format(user_error, "MCP Request: tools/call ~w~n", [ToolName])
+        ),
         (   get_dict(method, Dict, Method) ->
             (   get_dict(id, Dict, ID) ->
                 (   handle_method(Method, Dict, Response) ->
-                    format(user_error, "MCP Response: ~w~n", [Response]),
+                    % format(user_error, "MCP Response: ~w~n", [Response]),
                     reply_json_dict(Response)
                 ;   format(user_error, "MCP Method not found: ~w~n", [Method]),
                     reply_json_dict(_{jsonrpc: "2.0", id: ID, error: _{code: -32601, message: "Method not found"}}, [status(404)])

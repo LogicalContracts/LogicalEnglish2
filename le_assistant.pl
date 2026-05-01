@@ -1,8 +1,10 @@
 :- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2]).
 
-:- use_module(library(process)).
 :- use_module(library(readutil)).
+:- use_module(library(process)).
+:- use_module(library(http/http_client)).
 :- use_module(library(http/http_json)).
+:- use_module(library(http/json)).
 :- use_module(library(pcre)).
 :- use_module(llm/llm_client, [llm_model/3]).
 
@@ -28,28 +30,56 @@ normalize_path(P, N) :-
     ( sub_atom(N0, 0, 1, _, "/") -> atom_concat('/', Path, N) ; N = Path ),
     !.
 
+opencode_server_url(URL) :-
+    getenv('OPENCODE_SERVER_URL', URL0),
+    atom_string(URL, URL0).
+
+opencode_api_get('/sessions', Sessions) :-
+    catch(
+        setup_call_cleanup(
+            process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out))]),
+            json_read_dict(Out, Sessions),
+            close(Out)
+        ),
+        Error,
+        (format(user_error, "DEBUG: CLI session list failed: ~w~n", [Error]), fail)
+    ),
+    !.
+
+opencode_api_get(Path, Result) :-
+    opencode_server_url(Base),
+    atomic_list_concat([Base, Path], URL),
+    http_get(URL, Result, [json_object(dict)]).
+
+opencode_api_post(Path, Data, Result) :-
+    ( Path == '/run' -> fail ; true ), % We use CLI for /run
+    opencode_server_url(Base),
+    atomic_list_concat([Base, Path], URL),
+    http_post(URL, json(Data), Result, [json_object(dict)]).
+
+opencode_api_delete(Path, Result) :-
+    opencode_server_url(Base),
+    atomic_list_concat([Base, Path], URL),
+    http_delete(URL, Result, [json_object(dict)]).
+
 paths_match(P1, P2) :-
     normalize_path(P1, N1),
     normalize_path(P2, N2),
     N1 == N2.
 
 get_opencode_env(Env) :-
-    findall(Name=SVal, (
+    findall(Name-SVal, (
         member(Var, ['PATH', 'HOME', 'USER', 'SHELL']),
         getenv(Var, SVal),
         Name = Var
     ), BaseEnv),
     absolute_file_name('llm/settings/opencode_config.json', MCPConfig, [access(read), expand(true)]),
-    Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1', 'OPENCODE_CONFIG'=MCPConfig | BaseEnv].
+    Pairs = ['TERM'-"dumb", 'PAGER'-"cat", 'NO_COLOR'-"1", 'OPENCODE_CONFIG'-MCPConfig | BaseEnv],
+    dict_pairs(Env, env, Pairs).
 
 get_directory_for_session(SessionID, Directory) :-
-    get_opencode_env(Env),
     catch(
-        setup_call_cleanup(
-            process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out)), stderr(null), env(Env), cwd('/')]),
-            json_read_dict(Out, Sessions),
-            close(Out)
-        ),
+        opencode_api_get('/sessions', Sessions),
         _,
         fail
     ),
@@ -66,13 +96,8 @@ get_directory_for_session(SessionID, Directory) :-
 %   Finds the most recently updated opencode session ID for the given directory.
 get_most_recent_opencode_session(Dir, SessionID) :-
     normalize_path(Dir, NormalizedDir),
-    get_opencode_env(Env),
     catch(
-        setup_call_cleanup(
-            process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out)), stderr(null), env(Env), cwd(Dir)]),
-            json_read_dict(Out, Sessions),
-            close(Out)
-        ),
+        opencode_api_get('/sessions', Sessions),
         Error,
         (format(user_error, "DEBUG: Error listing sessions: ~w~n", [Error]), fail)
     ),
@@ -88,13 +113,6 @@ get_most_recent_opencode_session(Dir, SessionID) :-
     ), AssistantSessions),
     ( AssistantSessions == [] ->
         format(user_error, "DEBUG: No sessions found matching directory ~w (normalized: ~w)~n", [Dir, NormalizedDir]),
-        % Print all available sessions for debugging
-        forall(member(S, Sessions), (
-            get_dict(id, S, SID),
-            get_dict(directory, S, SDir),
-            normalize_path(SDir, NSDir),
-            format(user_error, "DEBUG: Available session: ~w, directory: ~w, normalized: ~w~n", [SID, SDir, NSDir])
-        )),
         fail
     ; true
     ),
@@ -155,6 +173,9 @@ handle_assistant_command(Dict, Response) :-
       ( get_most_recent_opencode_session(WorkDir, RealSessionID) ->
           ActualSessionID = RealSessionID,
           format(user_error, "DEBUG: Discovered real session ~w for conversation ~w~n", [ActualSessionID, SessionID])
+      ; (string_length(SessionID, Len2), Len2 > 20) ->
+          ActualSessionID = SessionID,
+          format(user_error, "DEBUG: Using provided long session_id ~w for conversation ~w~n", [ActualSessionID, SessionID])
       ; ActualSessionID = "ses_default",
         format(user_error, "DEBUG: Starting/Continuing conversation ~w in directory ~w~n", [SessionID, WorkDir])
       )
@@ -175,9 +196,12 @@ handle_assistant_command(Dict, Response) :-
     ),
     
     % Prepare environment variables
-    get_opencode_env(BaseEnv),
+    get_opencode_env(BaseEnvDict),
     
-    findall(Name=SVal, (
+    % Ensure OPENCODE_LOG_LEVEL is set to DEBUG for better error reporting
+    put_dict(BaseEnvDict, _{'OPENCODE_LOG_LEVEL': "DEBUG"}, Env0),
+    
+    findall(Name-SVal, (
         get_dict(Key, APIKeys, Val),
         Val \== null, Val \== "",
         to_atom_or_string(Val, SVal),
@@ -197,7 +221,10 @@ handle_assistant_command(Dict, Response) :-
             ; Provider == openai -> ActualProvider = groq % Based on user's model list
             ; ActualProvider = Provider 
             ),
-            format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
+            ( (ActualProvider == groq, APIModel == 'llama-3.3-70b-versatile') ->
+                OpencodeModel = 'groq/llama-3.3-70b-specdec' % Use specdec for better compatibility
+            ; format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
+            )
         ;   OpencodeModel = Model % Fallback to original if not found
         )
     ;   OpencodeModel = ""
@@ -207,94 +234,106 @@ handle_assistant_command(Dict, Response) :-
     (   sub_atom(OpencodeModel, _, _, _, 'groq/')
     ->  ( get_dict(openai, APIKeys, GKey), GKey \== null, GKey \== "" -> 
             to_atom_or_string(GKey, SGKey),
-            ExtraEnv = ['GROQ_API_KEY'=SGKey]
+            ExtraEnv = ['GROQ_API_KEY'-SGKey]
         ; ExtraEnv = [] )
     ;   ExtraEnv = []
     ),
     
-    append(BaseEnv, APIEnv, Env1),
-    append(ExtraEnv, Env1, Env),
+    dict_pairs(APIEnvDict, env, APIEnv),
+    dict_pairs(ExtraEnvDict, env, ExtraEnv),
+    put_dict(Env0, APIEnvDict, Env1),
+    put_dict(Env1, ExtraEnvDict, Env),
     
     create_agent_file(AgentFile, RelTempFile),
 
     % Prepare opencode arguments
-    maplist(to_atom_or_string, [ActualSessionID, RelTempFile, OpencodeModel, Command], [ASessionID, ARelTempFile, AModel, ACommand]),
+    maplist(to_atom_or_string, [ActualSessionID, RelTempFile], [ASessionID, ARelTempFile]),
     format(user_error, "DEBUG: Final ActualSessionID: ~w~n", [ASessionID]),
 
-    % Check if session exists
-    (   (ASessionID \== "ses_default", ASessionID \== "default", ASessionID \== "", session_exists(ASessionID))
-    ->  SessionArgs = ['--session', ASessionID],
-        format(user_error, "DEBUG: Session ~w exists, adding --session flag~n", [ASessionID])
-    ;   SessionArgs = [],
-        format(user_error, "DEBUG: Session ~w does not exist or is default, skipping --session flag~n", [ASessionID])
-    ),
-
-    % Use 'build' agent as suggested, it should pick up CLAUDE.md
-    BaseArgs = ['run' | SessionArgs],
-    append(BaseArgs, ['--file', ARelTempFile, '--agent', 'build', '--format', 'default'], Args0),
-    ( (AModel \== "", AModel \== null) -> append(Args0, ['--model', AModel, ACommand], Args) ; append(Args0, [ACommand], Args) ),
-    
-    format(user_error, "DEBUG: Starting background process: opencode ~w in ~w~n", [Args, WorkDir]),
-    
-    process_create(path(opencode), Args, [stdin(null), stdout(pipe(Out)), stderr(pipe(Err)), env(Env), cwd(WorkDir), process(PID)]),
-    asserta(assistant_job(JobID, PID)),
+    asserta(assistant_job(JobID, JobID)), % Use JobID as RemoteJobID for local tracking
     asserta(assistant_job_status(JobID, running)),
     
-    % Start threads to read output
-    thread_create(read_to_db(JobID, stdout, Out), _, [detached(true)]),
-    thread_create(read_to_db(JobID, stderr, Err), _, [detached(true)]),
-    
-    % Start a thread to wait for the process
-    thread_create(wait_for_job(JobID, PID, TempFile, AgentFile, ASessionID, Content, WorkDir), _, [detached(true)]),
+    % Start a thread to run the opencode CLI
+    thread_create(run_job_cli(JobID, ASessionID, ARelTempFile, OpencodeModel, Command, Env, WorkDir, TempFile, Content), _, [detached(true)]),
     
     Response = _{
         result: ok,
         job_id: JobID
     }.
 
-read_to_db(JobID, StreamName, Stream) :-
-    format(user_error, "DEBUG: read_to_db started for ~w ~w~n", [JobID, StreamName]),
-    repeat,
-    (   at_end_of_stream(Stream)
-    ->  format(user_error, "DEBUG: read_to_db finished for ~w ~w~n", [JobID, StreamName]),
-        catch(close(Stream), _, true), !
-    ;   catch(read_pending_codes(Stream, Codes, []), E, (format(user_error, "DEBUG: read_to_db error: ~w~n", [E]), Codes = [])),
-        (   Codes == []
-        ->  sleep(0.1), fail
-        ;   string_codes(String, Codes),
-            assertz(assistant_job_output(JobID, StreamName, String)),
-            fail
+run_job_cli(JobID, ASessionID, RelTempFile, Model, Command, EnvDict, WorkDir, TempFile, OldContent) :-
+    % Convert EnvDict to env([Name=Value, ...])
+    dict_pairs(EnvDict, _, Pairs),
+    maplist([N-V, N=V]>>true, Pairs, EnvList),
+    
+    % Prepare arguments
+    BaseArgs = ['run', '--format', 'json', '--agent', 'build', '--file', RelTempFile],
+    ( (Model \== "", Model \== null) -> Args1 = ['--model', Model | BaseArgs] ; Args1 = BaseArgs ),
+    ( (ASessionID \== "ses_default", ASessionID \== "") -> Args2 = ['--session', ASessionID | Args1] ; Args2 = Args1 ),
+    append(Args2, ['--', Command], FinalArgs),
+    
+    format(user_error, "DEBUG: Running opencode CLI: opencode ~w~n", [FinalArgs]),
+    
+    setup_call_cleanup(
+        process_create(path(opencode), FinalArgs, [
+            stdout(pipe(Out)),
+            stderr(pipe(Err)),
+            cwd(WorkDir),
+            env(EnvList),
+            process(PID)
+        ]),
+        (
+            retractall(assistant_job(JobID, _)),
+            asserta(assistant_job(JobID, PID)),
+            % Read stdout and stderr in separate threads or sequentially if we don't care about interleaving
+            read_string(Err, _, Stderr),
+            read_stdout_events(Out, JobID, ASessionID, FinalSessionID),
+            process_wait(PID, ExitStatus)
+        ),
+        (
+            close(Out),
+            close(Err)
         )
-    ).
-
-wait_for_job(JobID, PID, TempFile, _AgentFile, ASessionID, OldContent, WorkDir) :-
-    process_wait(PID, Status),
+    ),
     
-    % After opencode runs, it might have modified TempFile.
-    ( exists_file(TempFile) -> 
-        ( catch(read_file_to_string(TempFile, NewContent, []), _, NewContent = OldContent) )
-    ; NewContent = OldContent ),
+    % Read the updated content from the temp file
+    ( exists_file(TempFile) ->
+        read_file_to_string(TempFile, NewContent, [])
+    ; NewContent = OldContent
+    ),
     
-    % We keep the files in the session directory to facilitate discovery
+    asserta(assistant_job_output(JobID, stderr, Stderr)),
+    asserta(assistant_job_output(JobID, session_id, FinalSessionID)),
     asserta(assistant_job_content(JobID, NewContent)),
     
-    % Give opencode a moment to sync its session database
-    sleep(0.2),
-
-    % Always obtain the most recent session ID for this directory after opencode runs
-    % We MUST obtain it from the session list to get the real ID
-    ( get_most_recent_opencode_session(WorkDir, RecentSID) ->
-        ActualSID = RecentSID,
-        format(user_error, "DEBUG: Discovered session ID for directory ~w: ~w~n", [WorkDir, ActualSID])
-    ; ActualSID = ASessionID,
-      format(user_error, "DEBUG: Could not discover session ID for directory ~w, using ~w~n", [WorkDir, ActualSID])
-    ),
-    asserta(assistant_job_output(JobID, session_id, ActualSID)),
-    
-    % FINALLY mark the job as finished, to avoid race conditions with status polling
-    term_string(Status, StatusStr),
     retractall(assistant_job_status(JobID, _)),
-    asserta(assistant_job_status(JobID, finished(StatusStr))).
+    ( ExitStatus = exit(0) -> Status = finished(0) ; Status = finished(1) ),
+    asserta(assistant_job_status(JobID, Status)).
+
+read_stdout_events(Stream, JobID, DefaultSID, FinalSID) :-
+    read_line_to_string(Stream, Line),
+    ( Line == end_of_file ->
+        FinalSID = DefaultSID
+    ; ( catch(atom_json_dict(Line, Dict, []), _, fail) ->
+        ( get_dict(type, Dict, "text") ->
+            get_dict(part, Dict, Part),
+            get_dict(text, Part, Text),
+            assertz(assistant_job_output(JobID, stdout, Text))
+        ; true
+        ),
+        ( get_dict(sessionID, Dict, SID) -> NextSID = SID ; NextSID = DefaultSID )
+      ; % Not JSON, just append to stdout
+        assertz(assistant_job_output(JobID, stdout, Line)),
+        assertz(assistant_job_output(JobID, stdout, "\n")),
+        NextSID = DefaultSID
+      ),
+      read_stdout_events(Stream, JobID, NextSID, FinalSID)
+    ).
+
+poll_job(_JobID, _RemoteJobID, _ASessionID, _OldContent) :-
+    % No longer used, but kept for compatibility if needed
+    true.
+
 
 %!  handle_assistant_status(+Dict, -Response) is det.
 handle_assistant_status(Dict, Response) :-
@@ -306,6 +345,9 @@ handle_assistant_status(Dict, Response) :-
         atomic_list_concat(StderrLines, "", Stderr0),
         strip_ansi(Stdout0, Stdout),
         strip_ansi(Stderr0, Stderr),
+        string_length(Stdout, StdoutLen),
+        string_length(Stderr, StderrLen),
+        format(user_error, "DEBUG: Job ~w status: ~w. Stdout len: ~w, Stderr len: ~w~n", [JobID, Status, StdoutLen, StderrLen]),
         
         (   Status = finished(ExitStatus)
         ->  ( assistant_job_content(JobID, NewContent) -> true ; NewContent = "" ),
@@ -351,8 +393,16 @@ handle_assistant_interrupt(Dict, Response) :-
     get_dict(job_id, Dict, JobID),
     (   assistant_job(JobID, PID)
     ->  ( assistant_job_status(JobID, running) ->
-            process_kill(PID, term),
-            Response = _{result: ok, message: "Job interrupted"}
+            ( integer(PID) ->
+                process_kill(PID, sigterm),
+                Response = _{result: ok, message: "Job interrupted"}
+            ; % Fallback to API if it was a remote job (though we switched to local)
+              format(string(Path), "/jobs/~w/interrupt", [PID]),
+              ( catch(opencode_api_post(Path, _{}, _), _, fail) ->
+                  Response = _{result: ok, message: "Job interrupted"}
+              ;   Response = _{result: error, error: "Failed to interrupt job"}
+              )
+            )
         ;   Response = _{result: ok, message: "Job already finished"}
         )
     ;   Response = _{result: error, error: "Job not found"}
