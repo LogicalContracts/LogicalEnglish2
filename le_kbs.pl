@@ -59,28 +59,30 @@ load(FilePath, NewModule) :-
         ;   
         true
     ),
-    (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
-        ; (   catch(parse_le_file(FilePath, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
-                % Ensure we start with a clean module
-                forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-                dynamic(NewModule:le_issue/5),
-                forall(member(S, Sections), process_section(S, NewModule)),
-                findall(D, le_system_template(D), SysDicts),
-                forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-                ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-                    forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
-                        (Type == missing_template -> Severity = error; Severity = warning),
-                        assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
-                    ))
-                ; true)
-            ; % Parsing failed
-              forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-              dynamic(NewModule:le_issue/5),
-              assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
-              assertz(NewModule:le_source(none, 0, 0)),
-              print_message(error, "parse_le_file failed for ~w" - [FilePath])
+    with_mutex(NewModule, (
+        (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
+            ; (   catch(parse_le_file(FilePath, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
+                    % Ensure we start with a clean module
+                    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+                    dynamic(NewModule:le_issue/5),
+                    forall(member(S, Sections), process_section(S, NewModule)),
+                    findall(D, le_system_template(D), SysDicts),
+                    forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+                    ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+                        forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+                            (Type == missing_template -> Severity = error; Severity = warning),
+                            assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+                        ))
+                    ; true)
+                ; % Parsing failed
+                  forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+                  dynamic(NewModule:le_issue/5),
+                  assertz(NewModule:le_issue(error, parse_error, "parse_le_file failed for ~w" - [FilePath], 0, 0)),
+                  assertz(NewModule:le_source(none, 0, 0)),
+                  print_message(error, "parse_le_file failed for ~w" - [FilePath])
+            )
         )
-    ).
+    )).
 
 process_section(S, M) :-
     ( do_log -> print_message(informational,'Processing section: ~w' - [S]); true),
@@ -300,28 +302,30 @@ load_text(Text, NewModule) :-
         ;   
         true
     ),
-    (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
-        ; (   catch(parse_le_text(Text, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
-                % Ensure we start with a clean module
-                forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-                dynamic(NewModule:le_issue/5),
-                forall(member(S, Sections), process_section(S, NewModule)),
-                findall(D, le_system_template(D), SysDicts),
-                forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-                ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-                    forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
-                        (Type == missing_template -> Severity = error; Severity = warning),
-                        assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
-                    ))
-                ; true)
-            ; % Parsing failed
-              forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-              dynamic(NewModule:le_issue/5),
-              assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
-              assertz(NewModule:le_source(none, 0, 0)),
-              print_message(error, "parse_le_text failed")
+    with_mutex(NewModule, (
+        (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
+            ; (   catch(parse_le_text(Text, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
+                    % Ensure we start with a clean module
+                    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+                    dynamic(NewModule:le_issue/5),
+                    forall(member(S, Sections), process_section(S, NewModule)),
+                    findall(D, le_system_template(D), SysDicts),
+                    forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+                    ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+                        forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+                            (Type == missing_template -> Severity = error; Severity = warning),
+                            assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+                        ))
+                    ; true)
+                ; % Parsing failed
+                  forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+                  dynamic(NewModule:le_issue/5),
+                  assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
+                  assertz(NewModule:le_source(none, 0, 0)),
+                  print_message(error, "parse_le_text failed")
+            )
         )
-    ).
+    )).
 
 
 %!  postprocess_why(+WhyIn:term, +SM:atom, -WhyOut:term) is det.

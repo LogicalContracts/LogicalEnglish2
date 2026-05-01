@@ -40,7 +40,7 @@ start_api_server :-
 start_api_server(Port) :-
     % assertz(le_kbs:do_log),
     load_build_info,
-    http_server(http_dispatch, [port(Port)]).
+    http_server(http_dispatch, [port(Port), workers(10)]).
 
 load_build_info :-
     (   exists_file('build_info.txt')
