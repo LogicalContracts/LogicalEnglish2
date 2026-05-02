@@ -62,7 +62,7 @@ get_api_env(APIKeys, APIEnv) :-
             anthropic-['ANTHROPIC_API_KEY'], 
             google-['GEMINI_API_KEY', 'GOOGLE_API_KEY'], 
             groq-['GROQ_API_KEY'], 
-            together-['TOGETHER_API_KEY']
+            together-['TOGETHER_API_KEY', 'TOGETHERAI_API_KEY']
         ]),
         (   (is_dict(APIKeys), get_dict(Key, APIKeys, Val), Val \== null, Val \== "")
         ->  to_atom_or_string(Val, SVal), member(Name, EnvVars)
@@ -206,6 +206,7 @@ handle_assistant_command(Dict, Response) :-
     (   (Model \== "", Model \== null)
     ->  ( llm_model(Model, Provider, APIModel) -> 
             ( Provider == gemini -> ActualProvider = google 
+            ; Provider == together -> ActualProvider = togetherai
             ; ActualProvider = Provider 
             ),
             format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
@@ -428,7 +429,7 @@ test_llm_providers :-
             anthropic-['ANTHROPIC_API_KEY'], 
             google-['GEMINI_API_KEY', 'GOOGLE_API_KEY'], 
             groq-['GROQ_API_KEY'], 
-            together-['TOGETHER_API_KEY']
+            together-['TOGETHER_API_KEY', 'TOGETHERAI_API_KEY']
         ]),
         member(EV, EnvVars),
         getenv(EV, _)
@@ -440,13 +441,13 @@ test_llm_providers :-
         format("Testing provider: ~w~n", [P]),
         % Pick a model for this provider
         (   P == openai -> Model = 'gpt-4o-mini'
-        ;   P == anthropic -> Model = 'claude-3-5-haiku'
-        ;   P == google -> Model = 'gemini-2.0-flash'
-        ;   P == groq -> Model = 'llama-3.3-70b'
-        ;   P == together -> Model = 'mixtral-8x22b'
+        ;   P == anthropic -> Model = 'claude'
+        ;   P == google -> Model = 'gemini'
+        ;   P == groq -> Model = 'openai/gpt-oss-120b'
+        ;   P == together -> Model = 'deepseek-ai/DeepSeek-V4-Pro'
         ;   fail
         ),
-        ( test_opencode_prompt(Model, "who are you?", Answer) ->
+        ( test_opencode_prompt(Model, "who are you? please answer in one sentence.", Answer) ->
             format("Answer from ~w (~w): ~w~n~n", [P, Model, Answer])
         ; format("Failed to get answer from ~w (~w)~n~n", [P, Model])
         )
@@ -460,11 +461,11 @@ test_opencode_prompt(Model, Prompt, Answer) :-
     format(string(ConfigPath), "~w/test_config.json", [WorkDir]),
     ConfigDict = _{
         provider: _{
-            openai:    _{options: _{baseURL: "https://api.openai.com/v1"}},
-            anthropic: _{options: _{baseURL: "https://api.anthropic.com/v1"}},
-            groq:      _{options: _{baseURL: "https://api.groq.com/openai/v1"}},
-            together:  _{options: _{baseURL: "https://api.together.xyz/v1"}},
-            google:    _{options: _{baseURL: "https://generativelanguage.googleapis.com/v1beta/openai"}}
+            openai:    _{},
+            anthropic: _{},
+            groq:      _{},
+            google:    _{},
+            togetherai: _{options: _{baseURL: "https://api.together.xyz/v1"}}
         }
     },
     setup_call_cleanup(
@@ -477,6 +478,7 @@ test_opencode_prompt(Model, Prompt, Answer) :-
     ( select('OPENCODE_CONFIG'=_, Env0, 'OPENCODE_CONFIG'=ConfigPath, Env) -> true ; Env = ['OPENCODE_CONFIG'=ConfigPath | Env0] ),
     ( llm_model(Model, Provider, APIModel) -> 
         ( Provider == gemini -> ActualProvider = google 
+        ; Provider == together -> ActualProvider = togetherai
         ; ActualProvider = Provider 
         ),
         format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
@@ -489,7 +491,7 @@ test_opencode_prompt(Model, Prompt, Answer) :-
         (   read_string(Out, _, Answer),
             read_string(Err, _, ErrMsg),
             process_wait(PID, Status),
-            ( Status \== exit(0) -> 
+            ( (Status \== exit(0), Answer == "") -> 
                 format(user_error, "DEBUG: opencode failed with status ~w~n", [Status]),
                 format(user_error, "DEBUG: stderr: ~w~n", [ErrMsg]),
                 fail
