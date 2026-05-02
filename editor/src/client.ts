@@ -90,6 +90,8 @@ declare var monaco: any;
         let isLoading = false;
         let sessionModule: string | null = null;
         let loadTimeout: any = null;
+        let availableModels: any[] = [];
+        let serverKeys: string[] = [];
 
         // Fetch build info and set tooltip
         fetch('/build_info')
@@ -520,6 +522,7 @@ declare var monaco: any;
             });
             const data = await response.json();
             if (data.models) {
+                availableModels = data.models;
                 modelSelect.innerHTML = '';
                 data.models.forEach((m: any) => {
                     const opt = document.createElement('option');
@@ -527,10 +530,27 @@ declare var monaco: any;
                     opt.textContent = `${m.short} (${m.provider})`;
                     modelSelect.appendChild(opt);
                 });
-                const savedModel = localStorage.getItem('le-assistant-model');
-                if (savedModel) modelSelect.value = savedModel;
+                
+                let savedModel = localStorage.getItem('le-assistant-model');
+                if (savedModel) {
+                    modelSelect.value = savedModel;
+                } else {
+                    // Pick a default model that has a key
+                    const hasKey = (provider: string) => {
+                        const serverP = provider === 'google' ? 'gemini' : provider;
+                        const localP = provider === 'gemini' ? 'google' : provider;
+                        return (data.server_keys && data.server_keys.includes(serverP)) || 
+                               localStorage.getItem(`le-${localP}-key`);
+                    };
+                    const bestModel = data.models.find((m: any) => hasKey(m.provider)) || data.models[0];
+                    if (bestModel) {
+                        modelSelect.value = bestModel.short;
+                        localStorage.setItem('le-assistant-model', bestModel.short);
+                    }
+                }
             }
             if (data.server_keys) {
+                serverKeys = data.server_keys;
                 const keys = ['openai', 'anthropic', 'google', 'groq', 'together'];
                 keys.forEach(k => {
                     const input = document.getElementById(`${k}-key`) as HTMLInputElement;
@@ -561,6 +581,8 @@ declare var monaco: any;
             console.error('Failed to load models', err);
         }
     };
+
+    loadModels();
 
     const openApiKeysModal = () => {
         if (apiKeysModal) {
@@ -1081,15 +1103,16 @@ declare var monaco: any;
             return;
         }
         
-        let keyNeeded = '';
-        if (selectedModel.startsWith('openai/')) keyNeeded = 'le-openai-key';
-        else if (selectedModel.startsWith('anthropic/')) keyNeeded = 'le-anthropic-key';
-        else if (selectedModel.startsWith('google/')) keyNeeded = 'le-google-key';
-        else if (selectedModel.startsWith('groq/')) keyNeeded = 'le-groq-key';
-        else if (selectedModel.startsWith('together/')) keyNeeded = 'le-together-key';
+        const modelInfo = availableModels.find(m => m.short === selectedModel);
+        const provider = modelInfo ? modelInfo.provider : '';
+        const serverP = provider === 'google' ? 'gemini' : provider;
+        const localP = provider === 'gemini' ? 'google' : provider;
+        
+        const hasServerKey = serverKeys.includes(serverP);
+        const hasLocalKey = !!localStorage.getItem(`le-${localP}-key`);
 
-        if (keyNeeded && !localStorage.getItem(keyNeeded)) {
-            addChatMessage('assistant', `Warning: You have selected model **${selectedModel}** but no API key is configured for it. Please go to **Misc > API Keys...** to set it up.`);
+        if (provider && !hasServerKey && !hasLocalKey) {
+            addChatMessage('assistant', `Warning: You have selected model **${selectedModel}** but no API key is configured for provider **${provider}**. Please go to **Misc > API Keys...** to set it up.`);
             return;
         }
 

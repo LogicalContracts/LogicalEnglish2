@@ -174,6 +174,8 @@ async function start() {
   let isLoading = false;
   let sessionModule = null;
   let loadTimeout = null;
+  let availableModels = [];
+  let serverKeys = [];
   fetch("/build_info").then((res) => res.json()).then((data) => {
     if (data.build_info) {
       const titleEl = document.getElementById("editor-title");
@@ -558,6 +560,7 @@ async function start() {
       });
       const data = await response.json();
       if (data.models) {
+        availableModels = data.models;
         modelSelect.innerHTML = "";
         data.models.forEach((m) => {
           const opt = document.createElement("option");
@@ -565,11 +568,24 @@ async function start() {
           opt.textContent = `${m.short} (${m.provider})`;
           modelSelect.appendChild(opt);
         });
-        const savedModel = localStorage.getItem("le-assistant-model");
-        if (savedModel)
+        let savedModel = localStorage.getItem("le-assistant-model");
+        if (savedModel) {
           modelSelect.value = savedModel;
+        } else {
+          const hasKey = (provider) => {
+            const serverP = provider === "google" ? "gemini" : provider;
+            const localP = provider === "gemini" ? "google" : provider;
+            return data.server_keys && data.server_keys.includes(serverP) || localStorage.getItem(`le-${localP}-key`);
+          };
+          const bestModel = data.models.find((m) => hasKey(m.provider)) || data.models[0];
+          if (bestModel) {
+            modelSelect.value = bestModel.short;
+            localStorage.setItem("le-assistant-model", bestModel.short);
+          }
+        }
       }
       if (data.server_keys) {
+        serverKeys = data.server_keys;
         const keys = ["openai", "anthropic", "google", "groq", "together"];
         keys.forEach((k) => {
           const input = document.getElementById(`${k}-key`);
@@ -600,6 +616,7 @@ async function start() {
       console.error("Failed to load models", err);
     }
   };
+  loadModels();
   const openApiKeysModal = () => {
     if (apiKeysModal) {
       openaiKeyInput.value = localStorage.getItem("le-openai-key") || "";
@@ -1057,19 +1074,14 @@ async function start() {
       addChatMessage("assistant", "Warning: No assistant model selected. Please go to **Misc > API Keys...** to select one.");
       return;
     }
-    let keyNeeded = "";
-    if (selectedModel.startsWith("openai/"))
-      keyNeeded = "le-openai-key";
-    else if (selectedModel.startsWith("anthropic/"))
-      keyNeeded = "le-anthropic-key";
-    else if (selectedModel.startsWith("google/"))
-      keyNeeded = "le-google-key";
-    else if (selectedModel.startsWith("groq/"))
-      keyNeeded = "le-groq-key";
-    else if (selectedModel.startsWith("together/"))
-      keyNeeded = "le-together-key";
-    if (keyNeeded && !localStorage.getItem(keyNeeded)) {
-      addChatMessage("assistant", `Warning: You have selected model **${selectedModel}** but no API key is configured for it. Please go to **Misc > API Keys...** to set it up.`);
+    const modelInfo = availableModels.find((m) => m.short === selectedModel);
+    const provider = modelInfo ? modelInfo.provider : "";
+    const serverP = provider === "google" ? "gemini" : provider;
+    const localP = provider === "gemini" ? "google" : provider;
+    const hasServerKey = serverKeys.includes(serverP);
+    const hasLocalKey = !!localStorage.getItem(`le-${localP}-key`);
+    if (provider && !hasServerKey && !hasLocalKey) {
+      addChatMessage("assistant", `Warning: You have selected model **${selectedModel}** but no API key is configured for provider **${provider}**. Please go to **Misc > API Keys...** to set it up.`);
       return;
     }
     addChatMessage("user", command);
