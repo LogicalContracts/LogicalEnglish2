@@ -82,7 +82,7 @@ llm_model_entry('gpt-5.5',             openai, 'gpt-5.5',             'https://a
 
 %% Groq  ────────────────────────────────────────────────────────────
 % https://console.groq.com/docs/models
-% llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
+llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
 % llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
 % llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
 llm_model_entry('meta-llama/llama-4-scout-17b-16e-instruct',     groq, 'meta-llama/llama-4-scout-17b-16e-instruct',               'https://api.groq.com/openai/v1').
@@ -112,7 +112,7 @@ llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/D
 llm_model_entry('gemini-2.0-flash',      gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-2.0-flash-lite', gemini, 'gemini-2.0-flash-lite-preview', 'https://generativelanguage.googleapis.com/v1beta/openai').
 % llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
-% llm_model_entry('gemini-1.5-flash',      gemini, 'gemini-1.5-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-3-flash-preview',      gemini, 'gemini-3-flash-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-flash-latest',      gemini, 'gemini-1.5-flash-latest',             'https://generativelanguage.googleapis.com/v1beta/openai').
 
 %  Convenience alias → latest stable flash

@@ -8,9 +8,9 @@
     }
   },
   "provider": {
-    "togetherai": {
+    "together": {
       "options": {
-      "baseURL": "https://api.together.xyz/v1"
+        "baseURL": "https://api.together.xyz/v1"
       }
     }
   },
