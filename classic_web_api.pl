@@ -195,7 +195,7 @@ handle_list_examples(_Dict, Response) :-
 handle_list_models(_Dict, Response) :-
     llm_list_models(Rows),
     maplist(row_to_dict, Rows, Models),
-    findall(P, (member(P, [openai, groq, anthropic, together, gemini]), use_module(llm/llm_client, [api_key/2]), catch(api_key(P, _), _, fail)), ServerKeys),
+    findall(P, (member(P, [openai, groq, anthropic, together, gemini]), catch(llm_client:api_key(P, _), _, fail)), ServerKeys),
     Response = _{models: Models, server_keys: ServerKeys}.
 
 row_to_dict(row(Short, Provider, APIModel), _{short: Short, provider: Provider, api_model: APIModel}).

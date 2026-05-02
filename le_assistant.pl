@@ -93,11 +93,13 @@ get_directory_for_session(SessionID, Directory) :-
     catch(
         setup_call_cleanup(
             process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out)), stderr(null), env(Env), cwd('/')]),
-            json_read_dict(Out, Sessions),
+            (   at_end_of_stream(Out) -> Sessions = []
+            ;   json_read_dict(Out, Sessions)
+            ),
             close(Out)
         ),
         _,
-        fail
+        Sessions = []
     ),
     atom_string(ASID, SessionID),
     member(Session, Sessions),
@@ -116,11 +118,13 @@ get_most_recent_opencode_session(Dir, SessionID) :-
     catch(
         setup_call_cleanup(
             process_create(path(opencode), ['session', 'list', '--format', 'json'], [stdout(pipe(Out)), stderr(null), env(Env), cwd(Dir)]),
-            json_read_dict(Out, Sessions),
+            (   at_end_of_stream(Out) -> Sessions = []
+            ;   json_read_dict(Out, Sessions)
+            ),
             close(Out)
         ),
         Error,
-        (format(user_error, "DEBUG: Error listing sessions: ~w~n", [Error]), fail)
+        (format(user_error, "DEBUG: Error listing sessions: ~w~n", [Error]), Sessions = [])
     ),
     % Filter sessions that match our normalized directory
     findall(S, (
@@ -134,26 +138,18 @@ get_most_recent_opencode_session(Dir, SessionID) :-
     ), AssistantSessions),
     ( AssistantSessions == [] ->
         format(user_error, "DEBUG: No sessions found matching directory ~w (normalized: ~w)~n", [Dir, NormalizedDir]),
-        % Print all available sessions for debugging
-        forall(member(S, Sessions), (
-            get_dict(id, S, _SID),
-            get_dict(directory, S, SDir),
-            normalize_path(SDir, _NSDir)
-            % format(user_error, "DEBUG: Available session: ~w, directory: ~w, normalized: ~w~n", [_SID, SDir, _NSDir])
-        )),
         fail
-    ; true
-    ),
-    % Map to pairs of (Updated, Session) for sorting
-    maplist(session_to_pair, AssistantSessions, Pairs),
-    % Sort by Updated timestamp (ascending)
-    keysort(Pairs, SortedPairs),
-    % Get the last one (most recent)
-    last(SortedPairs, _-MostRecent),
-    get_dict(id, MostRecent, SessionID).
+    ; % Sort by updated_at descending
+      findall(Time-ID, (
+          member(S, AssistantSessions),
+          get_dict(id, S, ID),
+          get_dict(updated_at, S, Time)
+      ), Pairs),
+      keysort(Pairs, Sorted),
+      reverse(Sorted, [_-SessionID|_]),
+      format(user_error, "DEBUG: Found most recent session ~w for directory ~w~n", [SessionID, Dir])
+    ).
 
-session_to_pair(Session, Updated-Session) :-
-    get_dict(updated, Session, Updated).
 
 session_exists(ID) :-
     get_directory_for_session(ID, _).
@@ -261,7 +257,7 @@ handle_assistant_command(Dict, Response) :-
     ),
 
     % Use 'build' agent as suggested, it should pick up CLAUDE.md or AGENTS.md
-    BaseArgs = ['run' | SessionArgs],
+    BaseArgs = ['run', '--dangerously-skip-permissions' | SessionArgs],
     append(BaseArgs, ['--file', ARelTempFile, '--agent', 'build', '--format', 'default'], Args0),
     ( (AModel \== "", AModel \== null) -> append(Args0, ['--model', AModel, ACommand], Args) ; append(Args0, [ACommand], Args) ),
     
@@ -297,6 +293,7 @@ read_to_db(JobID, StreamName, Stream) :-
             fail
         )
     ).
+
 
 wait_for_job(JobID, PID, TempFile, ASessionID, OldContent, WorkDir) :-
     process_wait(PID, Status),
@@ -436,7 +433,7 @@ create_agent_files(WorkDir, RelTempFile) :-
     forall(member(F, [AgentFile]), (
         setup_call_cleanup(
             open(F, write, Stream),
-            format(Stream, Template, [CWD0, RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
+            format(Stream, Template, [CWD0, CWD0, RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
             close(Stream)
         )
     )).
@@ -506,7 +503,7 @@ test_opencode_prompt(Model, Prompt, Answer) :-
         format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
     ; OpencodeModel = Model
     ),
-    Args = ['run', '--agent', 'general', '--model', OpencodeModel, Prompt],
+    Args = ['run', '--dangerously-skip-permissions', '--agent', 'general', '--model', OpencodeModel, Prompt],
     format(user_error, "DEBUG: Running opencode ~w in ~w~n", [Args, WorkDir]),
     setup_call_cleanup(
         process_create(path(opencode), Args, [stdout(pipe(Out)), stderr(pipe(Err)), env(Env), cwd(WorkDir), process(PID)]),
