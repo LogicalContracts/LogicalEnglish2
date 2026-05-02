@@ -51,7 +51,8 @@
       llm_request/4,        % +Model, +Messages, -Answer, +Options
       llm_model/3,          % +ShortName, -Provider, -APIModel
       llm_list_models/1,    % -Rows
-      llm_print_models/0    % pretty-print registry
+      llm_print_models/0,   % pretty-print registry
+      api_key/2             % +Provider, -Key
     ]).
 
 :- use_module(library(http/http_client)).

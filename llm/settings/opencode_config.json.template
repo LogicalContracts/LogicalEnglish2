@@ -17,6 +17,7 @@
   "permission": {
     "external_directory": {
       "/tmp/le_assistant/**": "allow",
+      "/app/**": "allow",
       "{{PROJECT_ROOT}}/docs/**": "allow",
       "{{PROJECT_ROOT}}/examples/moreExamples/**": "allow"
     }

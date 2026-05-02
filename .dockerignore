@@ -1,0 +1,7 @@
+node_modules
+editor/node_modules
+editor/dist
+tmp
+.git
+.DS_Store
+*.log

@@ -12,8 +12,16 @@
 #   docker pull logicalcontracts/le2:latest
 #   docker run -d -p 8084:3050 --name le2_server logicalcontracts/le2:latest
 #
+
 # Use the official SWI-Prolog image as the base
 FROM swipl:latest
+
+# Install Node.js, git, and opencode
+RUN apt-get update && apt-get install -y curl git gnupg && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g opencode-ai mcp-remote && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
 WORKDIR /app
@@ -23,6 +31,15 @@ COPY *.pl ./
 COPY examples/ ./examples/
 COPY llm/ ./llm/
 COPY editor/ ./editor/
+COPY docs/ ./docs/
+COPY AGENTS_LE_template.md ./
+COPY opencode.json ./
+
+# Set environment variables for opencode
+ENV OPENCODE_DANGEROUSLY_SKIP_PERMISSIONS=true
+
+# Build the editor
+RUN cd editor && npm install && npm run build
 
 ARG BUILD_INFO="unknown"
 RUN echo "${BUILD_INFO}" > build_info.txt
