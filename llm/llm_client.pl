@@ -82,26 +82,26 @@ llm_model_entry('gpt-5.5',             openai, 'gpt-5.5',             'https://a
 
 %% Groq  ────────────────────────────────────────────────────────────
 % https://console.groq.com/docs/models
-llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
+% llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
 % llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
 % llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
 llm_model_entry('meta-llama/llama-4-scout-17b-16e-instruct',     groq, 'meta-llama/llama-4-scout-17b-16e-instruct',               'https://api.groq.com/openai/v1').
 % llm_model_entry('gemma2-9b',        groq, 'gemma2-9b-it',                     'https://api.groq.com/openai/v1').
 % llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
-llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'https://api.groq.com/openai/v1').
+llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'https://api.groq.com/openai/v1'). % our favorite
 
 
 %% Anthropic  ───────────────────────────────────────────────────────
 % https://platform.claude.com/docs/en/about-claude/models/overview
 %  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/5.
 llm_model_entry('claude-haiku-4-5-20251001', anthropic, 'claude-haiku-4-5-20251001', 'https://api.anthropic.com/v1').
-llm_model_entry('claude',     anthropic, 'claude-haiku-4-5-20251001',     'https://api.anthropic.com/v1').
+% llm_model_entry('claude',     anthropic, 'claude-haiku-4-5-20251001',     'https://api.anthropic.com/v1').
 
 %% Together AI  ─────────────────────────────────────────────────────
 % https://api.together.ai/models
 % llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
 % llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
-llm_model_entry('mixtral-8x22b',          together, 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'https://api.together.xyz/v1').
+llm_model_entry('MiniMaxAI/MiniMax-M2.7',          together, 'MiniMaxAI/MiniMax-M2.7', 'https://api.together.xyz/v1').
 llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/DeepSeek-V4-Pro', 'https://api.together.xyz/v1').
 
 %% Google Gemini  (OpenAI-compatible endpoint) ──────────────────────
@@ -110,13 +110,13 @@ llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/D
 %  Key:      GEMINI_API_KEY  –  get one free at aistudio.google.com
 %
 llm_model_entry('gemini-2.0-flash',      gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
-llm_model_entry('gemini-2.0-flash-lite', gemini, 'gemini-2.0-flash-lite-preview', 'https://generativelanguage.googleapis.com/v1beta/openai').
+% llm_model_entry('gemini-2.0-flash-lite', gemini, 'gemini-2.0-flash-lite-preview', 'https://generativelanguage.googleapis.com/v1beta/openai').
 % llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-3-flash-preview',      gemini, 'gemini-3-flash-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
-llm_model_entry('gemini-flash-latest',      gemini, 'gemini-1.5-flash-latest',             'https://generativelanguage.googleapis.com/v1beta/openai').
-
-%  Convenience alias → latest stable flash
-llm_model_entry('gemini',                gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-3.1-flash-lite-preview',      gemini, 'gemini-3.1-flash-lite-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-3.1-pro-preview', gemini, 'gemini-3.1-pro-preview','https://generativelanguage.googleapis.com/v1beta/openai').
+%  Convenience alias 
+% llm_model_entry('gemini',                gemini, 'gemini-3.1-flash-lite-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
 
 
 % ───────────────────────────────────────────────────────────────────
