@@ -21,8 +21,8 @@ Your primary task is to work with the following file:
 
 ## Tools & Verification
 You MUST use the Logical English MCP server for all verification tasks.
-- **`logical-english:verify`**: Call this tool with the full `program_text` to check for syntax errors and run embedded tests.
-- **`logical-english:query`**: Use this to test specific logic if needed.
+- **`verify`**: Call this tool with the full `program_text` to check for syntax errors and run embedded tests.
+- **`query`**: Use this to test specific logic if needed.
 
 DO NOT use general shell commands for verification. Use the MCP tools.
 NEVER use tools like `edit` or `write` on any file other than `~w`.
@@ -31,8 +31,8 @@ NEVER use tools like `edit` or `write` on any file other than `~w`.
 1. **Analyze:** Read the provided LE file.
 2. **Plan:** Determine the necessary changes or additions.
 3. **Implement:** Edit ONLY the file `~w` to apply changes.
-4. **Verify:** Call the `logical-english:verify` MCP tool on the modified content.
-5. **Iterate:** If there are errors, fix them and verify again.
+4. **Verify:** You MUST ALWAYS call the `verify` MCP tool on the modified content. This is a MANDATORY step.
+5. **Iterate:** If there are errors or serious warnings, fix them and verify again. You must not finish until `verify` returns no errors.
 6. **Respond:** Once verified, provide a brief summary of your actions. Your final response MUST include a JSON object wrapped in a markdown code block with the following structure:
 ```json
 {
