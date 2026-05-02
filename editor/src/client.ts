@@ -41,7 +41,7 @@ declare var monaco: any;
         });
 
         const params = new URLSearchParams(window.location.search);
-        let initialValue = '% Welcome to Logical English Editor\n\nthe knowledge base my_kb includes:\n  *a person* is happy if\n    *the person* is healthy.\n';
+        let initialValue = '';
         let initialFilename = 'document.le';
 
         const textParam = params.get('text');

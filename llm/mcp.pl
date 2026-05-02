@@ -8,6 +8,9 @@
 :- use_module('../reasoner').
 :- use_module('../le_system_templates').
 
+:- dynamic mcp_only_query_verify/0.
+mcp_only_query_verify. % Uncomment to enable the flag
+
 % --- STDIO Handler ---
 
 handle_mcp_stdio :-
@@ -44,8 +47,13 @@ handle_mcp(Request) :-
         % Log request for debugging
         ( get_dict(method, Dict, Method) -> true ; Method = unknown ),
         ( Method \== 'tools/call' -> format(user_error, "MCP Request: ~w~n", [Method]) ; 
-          get_dict(params, Dict, Params), get_dict(name, Params, ToolName),
-          format(user_error, "MCP Request: tools/call ~w~n", [ToolName])
+          get_dict(params, Dict, Params), get_dict(name, Params, ToolName0),
+          (   sub_atom(ToolName0, Before, _, _, '<')
+          ->  sub_atom(ToolName0, 0, Before, _, ToolName),
+              format(user_error, "MCP Request: tools/call ~w (cleaned)~n", [ToolName])
+          ;   ToolName = ToolName0,
+              format(user_error, "MCP Request: tools/call ~w~n", [ToolName])
+          )
         ),
         (   get_dict(method, Dict, Method) ->
             (   get_dict(id, Dict, ID) ->
@@ -266,57 +274,62 @@ handle_method(Method, Dict, Response) :-
 handle_method(Method, Dict, Response) :-
     match_method('tools/list', Method), !,
     get_dict(id, Dict, ID),
+    AllTools = [
+        _{
+            name: "list_examples",
+            description: "List Logical English program example names and their summaries",
+            inputSchema: _{
+                type: "object",
+                properties: _{}
+            }
+        },
+        _{
+            name: "get_example_details",
+            description: "Get the full text and metadata (predicates, queries, scenarios) of a specific example",
+            inputSchema: _{
+                type: "object",
+                properties: _{
+                    example_name: _{ type: "string", description: "Name of the example program" }
+                },
+                required: ["example_name"]
+            }
+        },
+        _{
+            name: "query",
+            description: "Execute a query. MANDATORY: You MUST call get_example_details first to get the correct templates. Your 'facts' and 'query' strings MUST match those templates EXACTLY, word-for-word, or the query will fail. Do not paraphrase or hallucinate templates.",
+            inputSchema: _{
+                type: "object",
+                properties: _{
+                    example_name: _{ type: "string", description: "Name of the example program" },
+                    program_text: _{ type: "string", description: "Logical English program text" },
+                    scenario_name: _{ type: "string", description: "Name of a scenario defined in the program" },
+                    facts: _{ type: "string", description: "Additional Logical English facts (MUST match templates exactly)" },
+                    query: _{ type: "string", description: "The query to execute (MUST match a template exactly)" }
+                },
+                required: ["query"]
+            }
+        },
+        _{
+            name: "verify",
+            description: "Parse and verify a Logical English program, returning all issues found",
+            inputSchema: _{
+                type: "object",
+                properties: _{
+                    program_text: _{ type: "string", description: "Logical English program text" }
+                },
+                required: ["program_text"]
+            }
+        }
+    ],
+    (   mcp_only_query_verify
+    ->  include(mcp:is_query_or_verify, AllTools, Tools)
+    ;   Tools = AllTools
+    ),
     Response = _{
         jsonrpc: "2.0",
         id: ID,
         result: _{
-            tools: [
-                _{
-                    name: "list_examples",
-                    description: "List Logical English program example names and their summaries",
-                    inputSchema: _{
-                        type: "object",
-                        properties: _{}
-                    }
-                },
-                _{
-                    name: "get_example_details",
-                    description: "Get the full text and metadata (predicates, queries, scenarios) of a specific example",
-                    inputSchema: _{
-                        type: "object",
-                        properties: _{
-                            example_name: _{ type: "string", description: "Name of the example program" }
-                        },
-                        required: ["example_name"]
-                    }
-                },
-                _{
-                    name: "query",
-                    description: "Execute a query. MANDATORY: You MUST call get_example_details first to get the correct templates. Your 'facts' and 'query' strings MUST match those templates EXACTLY, word-for-word, or the query will fail. Do not paraphrase or hallucinate templates.",
-                    inputSchema: _{
-                        type: "object",
-                        properties: _{
-                            example_name: _{ type: "string", description: "Name of the example program" },
-                            program_text: _{ type: "string", description: "Logical English program text" },
-                            scenario_name: _{ type: "string", description: "Name of a scenario defined in the program" },
-                            facts: _{ type: "string", description: "Additional Logical English facts (MUST match templates exactly)" },
-                            query: _{ type: "string", description: "The query to execute (MUST match a template exactly)" }
-                        },
-                        required: ["query"]
-                    }
-                },
-                _{
-                    name: "verify",
-                    description: "Parse and verify a Logical English program, returning all issues found",
-                    inputSchema: _{
-                        type: "object",
-                        properties: _{
-                            program_text: _{ type: "string", description: "Logical English program text" }
-                        },
-                        required: ["program_text"]
-                    }
-                }
-            ]
+            tools: Tools
         }
     }.
 
@@ -324,9 +337,16 @@ handle_method(Method, Dict, Response) :-
     match_method('tools/call', Method), !,
     get_dict(id, Dict, ID),
     Params = Dict.get(params, _{}),
-    ToolName = Params.get(name, ""),
+    ToolName0 = Params.get(name, ""),
+    % Clean tool name from potential LLM hallucinations like <|channel|>commentary
+    (   sub_atom(ToolName0, Before, _, _, '<')
+    ->  sub_atom(ToolName0, 0, Before, _, ToolName)
+    ;   ToolName = ToolName0
+    ),
     Args = Params.get(arguments, _{}),
     (   catch(call_tool(ToolName, Args, ToolResult), E, (term_string(E, ErrorMsg), ToolResult = _{error: ErrorMsg})) ->
+        % Log summary of result
+        log_tool_result(ToolName, ToolResult),
         (   get_dict(error, ToolResult, Error) ->
             Response = _{
                 jsonrpc: "2.0",
@@ -378,13 +398,20 @@ handle_rest_example_details(Request) :-
 
 % --- Tool Implementations ---
 
+examples_dir(AbsDir) :-
+    working_directory(CWD, CWD),
+    % Remove trailing slash from CWD if present
+    ( sub_atom(CWD, _, 1, 0, '/') -> sub_atom(CWD, 0, _, 1, CWD0) ; CWD0 = CWD ),
+    format(atom(AbsDir), "~w/examples/moreExamples/", [CWD0]).
+
 call_tool("list_examples", _Args, Result) :-
-    directory_files('examples/moreExamples/', Files),
+    examples_dir(Dir),
+    directory_files(Dir, Files),
     findall(_{name: Base, summary: Summary}, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
         file_name_extension(Base, le, F),
-        directory_file_path('examples/moreExamples/', F, Path),
+        directory_file_path(Dir, F, Path),
         ( catch(le_kbs:load(Path, KB), _, fail) ->
             le_kbs:kbSummary(KB, Summary)
         ; Summary = "Failed to load summary"
@@ -394,7 +421,8 @@ call_tool("list_examples", _Args, Result) :-
 
 call_tool("get_example_details", Args, Result) :-
     ExampleName = Args.get(example_name, ""),
-    atom_concat('examples/moreExamples/', ExampleName, Path0),
+    examples_dir(Dir),
+    atom_concat(Dir, ExampleName, Path0),
     (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
     le_kbs:load(Path, KB),
     le_kbs:get_kb_metadata(KB, Metadata),
@@ -408,7 +436,8 @@ call_tool("query", Args, Result) :-
     ScenarioName = Args.get(scenario_name, ""),
     Facts = Args.get(facts, ""),
     (   ExampleName \== "" ->
-        atom_concat('examples/moreExamples/', ExampleName, Path0),
+        examples_dir(Dir),
+        atom_concat(Dir, ExampleName, Path0),
         (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
         le_kbs:load(Path, KB)
     ;   ProgramText \== "" ->
@@ -443,6 +472,11 @@ call_tool("verify", Args, Result) :-
     ; JSONTestResults = []
     ),
     Result = _{issues: Issues, test_results: JSONTestResults}.
+
+call_tool(ToolName, _Args, Result) :-
+    format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
+    format(string(Msg), "Unknown tool: ~w. Available tools are: query, verify.", [ToolName]),
+    Result = _{error: Msg}.
 
 run_query(SM, Query, KB, Result) :-
     findall(_{answer: AnswerStr, explanation: JSONWhy}, (
@@ -483,3 +517,32 @@ convert_why_child(KB, Child, JSON) :-
 convert_test_result(pass(Q, S), _{status: "pass", query: Q, scenario: S}).
 convert_test_result(fail(Q, S, E, A), _{status: "fail", query: Q, scenario: S, expected: E, actual: A}).
 convert_test_result(error(Q, S, Msg), _{status: "error", query: Q, scenario: S, message: Msg}).
+
+% --- MCP Helpers ---
+
+is_query_or_verify(Tool) :-
+    member(Tool.name, ["query", "verify"]).
+
+log_tool_result("verify", Result) :- !,
+    Issues = Result.get(issues, []),
+    Tests = Result.get(test_results, []),
+    length(Issues, NI),
+    length(Tests, NT),
+    include(mcp:is_error, Issues, Errors),
+    length(Errors, NE),
+    include(mcp:is_fail, Tests, Fails),
+    length(Fails, NF),
+    format(user_error, "MCP Result: verify -> ~w issues (~w errors), ~w tests (~w failed)~n", [NI, NE, NT, NF]).
+log_tool_result("query", Result) :- !,
+    (   get_dict(results, Result, Answers)
+    ->  length(Answers, N),
+        format(user_error, "MCP Result: query -> ~w answers~n", [N])
+    ;   get_dict(error, Result, Msg)
+    ->  format(user_error, "MCP Result: query -> Error: ~w~n", [Msg])
+    ;   format(user_error, "MCP Result: query -> No answers~n", [])
+    ).
+log_tool_result(Tool, _) :-
+    format(user_error, "MCP Result: ~w completed~n", [Tool]).
+
+is_error(Issue) :- Issue.get(severity) == "error".
+is_fail(Test) :- Test.get(status) == "fail".

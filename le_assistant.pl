@@ -47,13 +47,31 @@ get_opencode_env(APIKeys, UseMCP, Env) :-
     ), BaseEnv),
     get_api_env(APIKeys, APIEnv),
     ( UseMCP == true ->
-        absolute_file_name('llm/settings/opencode_config.json', MCPConfig, [access(read), expand(true)]),
-        ConfigEnv = ['OPENCODE_CONFIG'=MCPConfig]
+        (   catch(get_dynamic_opencode_config(MCPConfig), _, fail)
+        ->  ConfigEnv = ['OPENCODE_CONFIG'=MCPConfig]
+        ;   absolute_file_name('llm/settings/opencode_config.json', MCPConfig, [access(read), expand(true)]),
+            ConfigEnv = ['OPENCODE_CONFIG'=MCPConfig]
+        )
     ; ConfigEnv = ['OPENCODE_CONFIG'='/dev/null']
     ),
     append(BaseEnv, APIEnv, Env0),
     append(ConfigEnv, Env0, Env1),
     Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1' | Env1].
+
+get_dynamic_opencode_config(ConfigPath) :-
+    absolute_file_name('llm/settings/opencode_config.json.template', TemplatePath, [access(read), expand(true)]),
+    read_file_to_string(TemplatePath, Template, []),
+    working_directory(CWD, CWD),
+    % Remove trailing slash from CWD if present
+    ( sub_atom(CWD, _, 1, 0, '/') -> sub_atom(CWD, 0, _, 1, CWD0) ; CWD0 = CWD ),
+    re_replace("{{PROJECT_ROOT}}"/g, CWD0, Template, ConfigContent),
+    assistant_work_dir(WorkDir),
+    format(string(ConfigPath), "~w/opencode_config.json", [WorkDir]),
+    setup_call_cleanup(
+        open(ConfigPath, write, S),
+        write(S, ConfigContent),
+        close(S)
+    ).
 
 get_api_env(APIKeys, APIEnv) :-
     findall(Name=SVal, (
@@ -407,17 +425,18 @@ to_atom_or_string(X, S) :- term_string(X, S).
 
 create_agent_files(WorkDir, RelTempFile) :-
     working_directory(CWD, CWD),
-    format(string(TemplatePath), "~w/AGENTS_LE_template.md", [CWD]),
+    % Remove trailing slash from CWD if present
+    ( sub_atom(CWD, _, 1, 0, '/') -> sub_atom(CWD, 0, _, 1, CWD0) ; CWD0 = CWD ),
+    format(string(TemplatePath), "~w/AGENTS_LE_template.md", [CWD0]),
     ( exists_file(TemplatePath) -> 
         read_file_to_string(TemplatePath, Template, [])
     ; read_file_to_string('AGENTS_LE_template.md', Template, [])
     ),
     format(string(AgentFile), "~w/AGENTS.md", [WorkDir]),
-    format(string(ClaudeFile), "~w/CLAUDE.md", [WorkDir]),
-    forall(member(F, [AgentFile, ClaudeFile]), (
+    forall(member(F, [AgentFile]), (
         setup_call_cleanup(
             open(F, write, Stream),
-            format(Stream, Template, [RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
+            format(Stream, Template, [CWD0, RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
             close(Stream)
         )
     )).
