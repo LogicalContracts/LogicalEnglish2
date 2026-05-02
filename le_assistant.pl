@@ -118,10 +118,10 @@ get_most_recent_opencode_session(Dir, SessionID) :-
         format(user_error, "DEBUG: No sessions found matching directory ~w (normalized: ~w)~n", [Dir, NormalizedDir]),
         % Print all available sessions for debugging
         forall(member(S, Sessions), (
-            get_dict(id, S, SID),
+            get_dict(id, S, _SID),
             get_dict(directory, S, SDir),
-            normalize_path(SDir, NSDir),
-            format(user_error, "DEBUG: Available session: ~w, directory: ~w, normalized: ~w~n", [SID, SDir, NSDir])
+            normalize_path(SDir, _NSDir)
+            % format(user_error, "DEBUG: Available session: ~w, directory: ~w, normalized: ~w~n", [_SID, SDir, _NSDir])
         )),
         fail
     ; true
@@ -194,7 +194,6 @@ handle_assistant_command(Dict, Response) :-
     
     RelTempFile = "myProgram.le",
     format(string(TempFile), "~w/~w", [WorkDir, RelTempFile]),
-    format(string(AgentFile), "~w/AGENTS.md", [WorkDir]),
     
     setup_call_cleanup(
         open(TempFile, write, Stream),
@@ -229,7 +228,7 @@ handle_assistant_command(Dict, Response) :-
     
     append(ExtraEnv, BaseEnv, Env),
     
-    create_agent_file(AgentFile, RelTempFile),
+    create_agent_files(WorkDir, RelTempFile),
 
     % Prepare opencode arguments
     maplist(to_atom_or_string, [ActualSessionID, RelTempFile, OpencodeModel, Command], [ASessionID, ARelTempFile, AModel, ACommand]),
@@ -243,7 +242,7 @@ handle_assistant_command(Dict, Response) :-
         format(user_error, "DEBUG: Session ~w does not exist or is default, skipping --session flag~n", [ASessionID])
     ),
 
-    % Use 'build' agent as suggested, it should pick up CLAUDE.md
+    % Use 'build' agent as suggested, it should pick up CLAUDE.md or AGENTS.md
     BaseArgs = ['run' | SessionArgs],
     append(BaseArgs, ['--file', ARelTempFile, '--agent', 'build', '--format', 'default'], Args0),
     ( (AModel \== "", AModel \== null) -> append(Args0, ['--model', AModel, ACommand], Args) ; append(Args0, [ACommand], Args) ),
@@ -259,7 +258,7 @@ handle_assistant_command(Dict, Response) :-
     thread_create(read_to_db(JobID, stderr, Err), _, [detached(true)]),
     
     % Start a thread to wait for the process
-    thread_create(wait_for_job(JobID, PID, TempFile, AgentFile, ASessionID, Content, WorkDir), _, [detached(true)]),
+    thread_create(wait_for_job(JobID, PID, TempFile, ASessionID, Content, WorkDir), _, [detached(true)]),
     
     Response = _{
         result: ok,
@@ -281,7 +280,7 @@ read_to_db(JobID, StreamName, Stream) :-
         )
     ).
 
-wait_for_job(JobID, PID, TempFile, _AgentFile, ASessionID, OldContent, WorkDir) :-
+wait_for_job(JobID, PID, TempFile, ASessionID, OldContent, WorkDir) :-
     process_wait(PID, Status),
     
     % After opencode runs, it might have modified TempFile.
@@ -406,18 +405,22 @@ strip_ansi(In, Out) :-
 to_atom_or_string(X, X) :- (atom(X) ; string(X)), !.
 to_atom_or_string(X, S) :- term_string(X, S).
 
-create_agent_file(AgentFile, RelTempFile) :-
+create_agent_files(WorkDir, RelTempFile) :-
     working_directory(CWD, CWD),
     format(string(TemplatePath), "~w/AGENTS_LE_template.md", [CWD]),
     ( exists_file(TemplatePath) -> 
         read_file_to_string(TemplatePath, Template, [])
     ; read_file_to_string('AGENTS_LE_template.md', Template, [])
     ),
-    setup_call_cleanup(
-        open(AgentFile, write, Stream),
-        format(Stream, Template, [RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
-        close(Stream)
-    ).
+    format(string(AgentFile), "~w/AGENTS.md", [WorkDir]),
+    format(string(ClaudeFile), "~w/CLAUDE.md", [WorkDir]),
+    forall(member(F, [AgentFile, ClaudeFile]), (
+        setup_call_cleanup(
+            open(F, write, Stream),
+            format(Stream, Template, [RelTempFile, RelTempFile, RelTempFile, RelTempFile]),
+            close(Stream)
+        )
+    )).
 
 %!  test_llm_providers is det.
 %
