@@ -83,7 +83,7 @@ SCENARIOS
 QUERIES
 ```
 
-* Write the templates based on the predicates found 
+* Write the templates based on the predicates found; use simple nouns for the variable names
 * Write the ontology based on the types
 * Write the rules, defining and using the predicates
   * Make sure rules use variables, because concrete objects/entities should be provided via scenarios instead
