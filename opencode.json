@@ -8,6 +8,8 @@
     }
   },
   "permission": {
-    "externalDirectories": ["/tmp/le_assistant"]
+    "external_directory": {
+      "/tmp/le_assistant/**": "allow"
+    }
   }
 }
