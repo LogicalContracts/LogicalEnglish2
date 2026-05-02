@@ -16,7 +16,9 @@
   },
   "permission": {
     "external_directory": {
-      "/tmp/le_assistant/**": "allow"
+      "/tmp/le_assistant/**": "allow",
+      "{{PROJECT_ROOT}}/docs/**": "allow",
+      "{{PROJECT_ROOT}}/examples/moreExamples/**": "allow"
     }
   }
 }

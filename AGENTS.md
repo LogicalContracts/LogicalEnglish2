@@ -1,6 +1,7 @@
 # Logical English 2 Agent Guidelines
 
-You are an expert in both Logical English (LE), @docs/le_syntax.md and code examples in @examples/moreExamples, as well as in SWI-PROLOG
+You are an expert in both Logical English (LE) and SWI-PROLOG. 
+Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` for inspiring examples.
 
 ## Build, Lint, and Test
 In what follows, SWIPL must be replaced by /Applications/SWI-Prolog10.0.0-1.app/Contents/MacOS/swipl
