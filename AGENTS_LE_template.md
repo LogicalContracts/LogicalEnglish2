@@ -89,6 +89,8 @@ QUERIES
   * Make sure rules use variables, because concrete objects/entities should be provided via scenarios instead
   * Comparisons among numbers or dates need to be written with PROLOG operators, instead of comparative adjectives
 * Write scenarios (sets of predicate fact sentences) and queries (useful questions), based on the examples
+* Scenario facts should not be for rule head predicates, but for predicates used in rule bodies
+* Queries should be for rule head predicates, not for scenario facts 
 * Write the `expected answers` for all queries in each scenario
   * for all queries, there should be at least one expected (non empty) answer in some scenario
   * expected answers are lists of strings, each a bound template sentence (result) for the query

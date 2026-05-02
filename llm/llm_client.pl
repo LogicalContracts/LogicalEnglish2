@@ -329,7 +329,7 @@ api_key(openai,    Key) :- key_from_flag_or_env(llm_openai_key,    'OPENAI_API_K
 api_key(groq,      Key) :- key_from_flag_or_env(llm_groq_key,      'GROQ_API_KEY',      Key), !.
 api_key(anthropic, Key) :- key_from_flag_or_env(llm_anthropic_key, 'ANTHROPIC_API_KEY', Key), !.
 api_key(together,  Key) :- (key_from_flag_or_env(llm_together_key,  'TOGETHER_API_KEY',  Key) ; key_from_flag_or_env(llm_together_key, 'TOGETHERAI_API_KEY', Key)), !.
-api_key(gemini,    Key) :- key_from_flag_or_env(llm_gemini_key,    'GEMINI_API_KEY',    Key), !.
+api_key(gemini,    Key) :- (key_from_flag_or_env(llm_gemini_key,    'GEMINI_API_KEY',    Key) ; key_from_flag_or_env(llm_gemini_key, 'GOOGLE_API_KEY', Key) ; key_from_flag_or_env(llm_gemini_key, 'GOOGLE_GENERATIVE_AI_API_KEY', Key)), !.
 api_key(Provider, _) :-
     format(atom(Msg),
         "No API key for provider '~w'. Set env var or set_prolog_flag(llm_~w_key, 'KEY').",
