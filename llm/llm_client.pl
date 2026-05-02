@@ -30,7 +30,7 @@
  *     OPENAI_API_KEY    – for provider openai
  *     GROQ_API_KEY      – for provider groq
  *     ANTHROPIC_API_KEY – for provider anthropic
- *     TOGETHER_API_KEY  – for provider together
+ *     TOGETHER_API_KEY  – for provider together (also TOGETHERAI_API_KEY)
  *     GEMINI_API_KEY    – for provider gemini  (free at aistudio.google.com)
  *
  *   Alternatively set Prolog flags:
@@ -70,9 +70,9 @@
 
 %% OpenAI  ──────────────────────────────────────────────────────────
 % cf. https://platform.openai.com/docs/models
-llm_model_entry('o1',                openai, 'o1',                'https://api.openai.com/v1').
-llm_model_entry('o1-mini',           openai, 'o1-mini',           'https://api.openai.com/v1').
-llm_model_entry('o3-mini',           openai, 'o3-mini',           'https://api.openai.com/v1').
+% llm_model_entry('o1',                openai, 'o1',                'https://api.openai.com/v1').
+% llm_model_entry('o1-mini',           openai, 'o1-mini',           'https://api.openai.com/v1').
+% llm_model_entry('o3-mini',           openai, 'o3-mini',           'https://api.openai.com/v1').
 llm_model_entry('gpt-4o',            openai, 'gpt-4o',            'https://api.openai.com/v1').
 llm_model_entry('gpt-4o-mini',       openai, 'gpt-4o-mini',       'https://api.openai.com/v1').
 llm_model_entry('gpt-4-turbo',       openai, 'gpt-4-turbo',       'https://api.openai.com/v1').
@@ -83,25 +83,24 @@ llm_model_entry('gpt-5.5',             openai, 'gpt-5.5',             'https://a
 %% Groq  ────────────────────────────────────────────────────────────
 % https://console.groq.com/docs/models
 llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
-llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
-llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
-llm_model_entry('mixtral-8x7b',     groq, 'mixtral-8x7b-32768',               'https://api.groq.com/openai/v1').
-llm_model_entry('gemma2-9b',        groq, 'gemma2-9b-it',                     'https://api.groq.com/openai/v1').
-llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
+% llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
+% llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
+llm_model_entry('meta-llama/llama-4-scout-17b-16e-instruct',     groq, 'meta-llama/llama-4-scout-17b-16e-instruct',               'https://api.groq.com/openai/v1').
+% llm_model_entry('gemma2-9b',        groq, 'gemma2-9b-it',                     'https://api.groq.com/openai/v1').
+% llm_model_entry('deepseek-r1',      groq, 'deepseek-r1-distill-llama-70b',    'https://api.groq.com/openai/v1').
 llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'https://api.groq.com/openai/v1').
 
 
 %% Anthropic  ───────────────────────────────────────────────────────
 % https://platform.claude.com/docs/en/about-claude/models/overview
 %  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/5.
-llm_model_entry('claude-3-5-sonnet', anthropic, 'claude-3-5-sonnet-20241022', 'https://api.anthropic.com/v1').
-llm_model_entry('claude-3-5-haiku',  anthropic, 'claude-3-5-haiku-20241022',  'https://api.anthropic.com/v1').
-llm_model_entry('claude-3-opus',     anthropic, 'claude-3-opus-20240229',     'https://api.anthropic.com/v1').
+llm_model_entry('claude-haiku-4-5-20251001', anthropic, 'claude-haiku-4-5-20251001', 'https://api.anthropic.com/v1').
+llm_model_entry('claude',     anthropic, 'claude-haiku-4-5-20251001',     'https://api.anthropic.com/v1').
 
 %% Together AI  ─────────────────────────────────────────────────────
 % https://api.together.ai/models
-llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
-llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
+% llm_model_entry('llama-3.3-70b-together', together, 'meta-llama/Llama-3.3-70B-Instruct-Turbo', 'https://api.together.xyz/v1').
+% llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
 llm_model_entry('mixtral-8x22b',          together, 'mistralai/Mixtral-8x22B-Instruct-v0.1', 'https://api.together.xyz/v1').
 llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/DeepSeek-V4-Pro', 'https://api.together.xyz/v1').
 
@@ -112,9 +111,9 @@ llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/D
 %
 llm_model_entry('gemini-2.0-flash',      gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-2.0-flash-lite', gemini, 'gemini-2.0-flash-lite-preview', 'https://generativelanguage.googleapis.com/v1beta/openai').
-llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
-llm_model_entry('gemini-1.5-flash',      gemini, 'gemini-1.5-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
+% llm_model_entry('gemini-1.5-pro',        gemini, 'gemini-1.5-pro',               'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-3-flash-preview',      gemini, 'gemini-3-flash-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-flash-latest',      gemini, 'gemini-1.5-flash-latest',             'https://generativelanguage.googleapis.com/v1beta/openai').
 
 %  Convenience alias → latest stable flash
 llm_model_entry('gemini',                gemini, 'gemini-2.0-flash',             'https://generativelanguage.googleapis.com/v1beta/openai').
@@ -328,7 +327,7 @@ extract_answer(_Provider, Response, Answer) :-
 api_key(openai,    Key) :- key_from_flag_or_env(llm_openai_key,    'OPENAI_API_KEY',    Key), !.
 api_key(groq,      Key) :- key_from_flag_or_env(llm_groq_key,      'GROQ_API_KEY',      Key), !.
 api_key(anthropic, Key) :- key_from_flag_or_env(llm_anthropic_key, 'ANTHROPIC_API_KEY', Key), !.
-api_key(together,  Key) :- key_from_flag_or_env(llm_together_key,  'TOGETHER_API_KEY',  Key), !.
+api_key(together,  Key) :- (key_from_flag_or_env(llm_together_key,  'TOGETHER_API_KEY',  Key) ; key_from_flag_or_env(llm_together_key, 'TOGETHERAI_API_KEY', Key)), !.
 api_key(gemini,    Key) :- key_from_flag_or_env(llm_gemini_key,    'GEMINI_API_KEY',    Key), !.
 api_key(Provider, _) :-
     format(atom(Msg),

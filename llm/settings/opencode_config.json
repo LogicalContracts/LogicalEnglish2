@@ -7,6 +7,13 @@
       "command": ["npx", "mcp-remote", "http://127.0.0.1:3050/mcp"]
     }
   },
+  "provider": {
+    "together": {
+      "options": {
+        "baseURL": "https://api.together.xyz/v1"
+      }
+    }
+  },
   "permission": {
     "externalDirectories": ["/tmp/le_assistant"]
   }
