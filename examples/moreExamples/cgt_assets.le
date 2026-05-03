@@ -351,7 +351,7 @@ scenario Farmer is:
     asset tractor_vintage belongs to Bob.
     asset tractor_vintage costed 8000 to acquire.
     cgt asset expects answers ["asset hobby_farm is a CGT asset","asset tractor_business is a CGT asset","asset tractor_business is a CGT asset","asset commercial_farm is a CGT asset"].
-    exempt asset expects answers [].
+    exempt asset expects answers ["asset hobby farm is a CGT exempt asset"].
     predate expects answers [].
 
 
@@ -376,7 +376,7 @@ scenario Loan is:
     asset stamps belongs to David.
     asset stamps was acquired at 1980-01-01.
     cgt asset expects answers [].
-    exempt asset expects answers ["asset stamps is a CGT exempt asset"].
+    exempt asset expects answers ["asset boat is a CGT exempt asset","asset stamps is a CGT exempt asset"].
     predate expects answers [].
 
 
