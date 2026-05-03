@@ -556,6 +556,8 @@ topPredicates(KB, TopPreds) :-
     findall(F/A, (
         current_predicate(KB:F/A),
         \+ is_system_predicate(F/A),
+        functor(G, F, A),
+        \+ predicate_property(KB:G, imported_from(_)),
         le_verifier:is_intensional(KB, F, A),
         \+ is_used_by_other_rules(KB, F, A)
     ), Preds),
