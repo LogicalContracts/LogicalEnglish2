@@ -1,18 +1,20 @@
 
 Test Summary:
 -------------
-Files processed: 23
-Total tests:     172
-Passed:          172
-Failed:          0
+Files processed: 26
+Total tests:     176
+Passed:          174
+Failed:          2
 Errors/Timeouts: 0
 -------------
 
 Detailed File Summary:
   [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/numbering_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/prolog_call.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
@@ -27,8 +29,9 @@ Detailed File Summary:
   [PASS] examples/moreExamples/which_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
+  [FAIL] examples/moreExamples/cgt_assets.le: 19 Pass, 2 Fail, 0 Error
   [PASS] examples/moreExamples/small_business.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error

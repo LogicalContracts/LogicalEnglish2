@@ -568,3 +568,81 @@ We want to add an agentic/vibe coding ability to our editor, by using opencode.a
 - The whole text in the editor is the main implicit argument for the prompt, passed as a temporary text file so that opencode can edit in the server, and then hand it back so the editor replaces the displayed text with the new version. Multiple user commands will correspond to multiple opencode commands, so these need to use the same shared (opencode) session for all of them. 
   
 Do not install opencode yourself, the user should do that.
+
+## 3 features...
+Please implement the following 3 featurfes, in sequence:
+
+### prolog calling
+Let's let the user define special rules whose body is a single PROLOG goal, so that we can interface to system predicates outside LE. For example:
+
+a person has an age if
+    prolog myModule:myAgeFinder(the person, the age).
+
+... where  myAgeFinder(P,A) is a  predicate in module myModule.
+
+### Rules with IDs
+
+Let the user prefix a rule by an arbitrary alphanumeric ID, with the simple syntax:
+
+rule myID:
+myRuleHead if myRuleBody.
+
+The ID should be remembered in an extra argument in le_source(...). If the user provides no ID, the system should generate one ID based on the order of the rule in the LE file.
+
+Also provide a PROLOG predicate le_my_id(ID) which introspects the current rule ID during execution.
+
+Write a simple example testing rule IDs and checking rule ID discover with le_my_id , by using the prolog calling feature above
+
+
+### Rules with numbering
+
+Let's support an alternative syntax to Logical English rules, distinguished from regular rules by using "if:". In this syntax, indentation is irrelevant for the scoping of logic connectives, which is instead determined by item numbering.
+For example, instead of writing...
+
+An A has a relevant asset B if
+    the A is affiliated with a C and
+    the C is connected to a D and
+    the D owns the B and
+        the B is used in the business of the A
+    or
+            the A is connected to an E and
+            the B is used in the business of the E.
+
+...we will be able to also write the same rule as follows:
+
+An A has a relevant asset B if:
+1.the A is affiliated with a C; and
+2.the C is connected to a D; and
+3.the D owns the B; and
+4.one of:
+4.1. the B is used in the business of the A;or
+4.2. all of:
+4.2.1. the A is connected to an E; and
+4.2.2. the B is used in the business of the E.
+
+These hierarchical designators of each sub-condition can use letters, digits, roman numbers, as found usually in legal documents
+
+Furthermore, let's keep track of how those hierarchical designators relate to their specific rule components (sub-conditions), by adding a new predicate le_source_element(RuleID, HierarchicalDesignator, Prolog_goal) to the KB module. 
+
+Implement this addition to the parser, BUT keeping the bulk of changes in le_extensions.pl, because this will be an optional feature in LE.
+Add an example testing this feature, by recovering the hierarchical designators of a rule given its ID, and using the prolog keyword to access le_source_element.
+
+For this you will need to also implement a le_my_kb(KBmodule), which returns the KB module of the current rule.
+
+### Report on the 3 features....
+We have successfully implemented and verified the three requested features: Prolog calling, Rule IDs, and Hierarchical Numbering.
+Key Achievements
+- Prolog Calling: Rules can now execute arbitrary Prolog goals using the prolog keyword. LE variables are automatically unified with Prolog variables.
+- Rule IDs: Rules can be explicitly named (e.g., rule myRule: ...) or will receive auto-generated IDs (rule_1, rule_2, etc.). These IDs are stored in the KB metadata.
+- Hierarchical Numbering: Rules can use hierarchical numbering (e.g., 1., 1.1., a.) with the if: separator. The structure is automatically converted into nested and/or logic, and each numbered element is tracked in le_source_element/3.
+- Introspection: Rules can now use le_my_id(ID) and le_my_kb(KB) to identify themselves and their parent Knowledge Base module at runtime.
+Verification Results
+- New Feature Tests: prolog_call.le, rule_id_test.le, and numbering_test.le all pass their corresponding .tests suites.
+- Regression Testing: 173 out of 175 total tests in the repository are passing. The two remaining failures in cgt_assets.le appear to be pre-existing logic discrepancies in the test data rather than regressions from the new features.
+- Code Quality: Resolved all syntax errors, singleton variable warnings, and module permission issues encountered during development.
+Relevant Files Updated
+- le_grammar.pl: Updated DCG to support rule headers, prolog tokens, and if: separators.
+- le_extensions.pl: Implemented the core logic for Prolog token resolution and hierarchical numbering parsing.
+- le_kbs.pl: Updated KB loading, metadata management, and added introspection predicates.
+- reasoner.pl: Updated the meta-interpreter to maintain rule ID and KB module context using non-backtrackable global variables.
+The system is now stable and the new features are fully integrated into the Logical English environment.

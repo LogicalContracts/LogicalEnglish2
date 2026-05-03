@@ -4,10 +4,11 @@
     logic that transforms tokens into executable Prolog terms.
 */
 
-:- module(le_grammar, [parse_le_file/2, parse_le_text/2, parse_le_tokens/2, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
-    kb_items//1, second_pass_item/3, parse_literal/6, prepare_templates/2,
+:- module(le_grammar, [parse_le_file/3, parse_le_text/3, parse_le_tokens/3, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
+    kb_items//1, second_pass_item/4, parse_literal/6, prepare_templates/2,
     set_token_pos/1, get_token_pos/1, is_id/1,
-    extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6]).
+    extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6,
+    extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3]).
 
 :- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6.
 
@@ -30,7 +31,10 @@ set_token_pos(Pos) :-
 get_token_pos(Pos) :-
     ( current_token_pos(P) -> Pos = P; Pos = 0).
 
-:- discontiguous section/3.
+:- discontiguous second_pass_item/4.
+:- discontiguous second_pass_ontology_item/4.
+:- discontiguous second_pass_scenario_item/4.
+:- discontiguous second_pass_query_item/4.
 :- discontiguous is_indent_or_comment/1.
 :- discontiguous multi_word_var/3.
 :- discontiguous is_operator/1.
@@ -39,9 +43,14 @@ get_token_pos(Pos) :-
 %!  parse_le_file(+FilePath:atom, -Doc:term) is det.
 %
 %   Tokenizes and parses a Logical English file.
-parse_le_file(FilePath, Doc) :-
+parse_le_file(FilePath, Doc, M) :-
     tokenize_file(FilePath, Tokens),
-    parse_le_tokens(Tokens, Doc).
+    parse_le_tokens(Tokens, Doc, M).
+
+parse_le_text(Text, Doc, M) :-
+    tokenize(Text, Tokens),
+    parse_le_tokens(Tokens, Doc, M).
+
 
 %!  parse_le_text(+Text:string, -Doc:term) is det.
 %
@@ -54,14 +63,14 @@ parse_le_text(Text, Doc) :-
 %
 %   Parses a list of tokens into a Logical English document structure.
 %   Performs a second pass to resolve templates and variables.
-parse_le_tokens(Tokens, doc(NewSections)) :-
+parse_le_tokens(Tokens, doc(NewSections), M) :-
     ( le_kbs:do_log -> print_message(informational,'Parsing LE tokens...~n'); true),
     (   phrase(doc(Sections), Tokens) ->  true 
         ;   
         print_message(error, "DCG phrase(doc(Sections), Tokens) failed"),
         fail
     ),
-    (   second_pass(Sections, NewSections) ->  true 
+    (   second_pass(Sections, NewSections, M) ->  true 
         ;   
         print_message(error, "second_pass failed"),
         fail
@@ -192,6 +201,7 @@ kb_content(Content, End) -->
     kb_items(Content),
     { ( Content = [] -> End = 0; last(Content, Last), get_item_end(Last, End)) }.
 
+get_item_end(rule(_, _, _, _, End, _), End) :- !.
 get_item_end(Item, End) :-
     Item =.. List,
     last(List, End).
@@ -208,13 +218,33 @@ kb_item(expected(QueryName, Answers, Start, End)) -->
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
     any_indent, t(punctuation('.', loc(_, End))).
 
-% kb_item(rule(Head, Body, Indent, Start, End)) parses a Logical English rule (Head if Body).
-kb_item(rule(Head, Body, Indent, Start, End)) -->
+% kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
+kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
+    t(word(rule)), !, t(word(ID)), t(punctuation(':')),
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
-    any_indent(N), t(word(if, _)),
-    body(Body, End),
+    any_indent(N), 
+    (   (t(word(if)), t(punctuation(':'))) ->
+        numbered_body(Body, End)
+    ;   t(word(if, _)) ->
+        body(Body, End)
+    ),
     { Indent = N }.
+
+kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
+    template_instance(Head),
+    { Head = [First|_], get_token_start(First, Start) },
+    any_indent(N), 
+    (   (t(word(if)), t(punctuation(':'))) ->
+        numbered_body(Body, End)
+    ;   t(word(if, _)) ->
+        body(Body, End)
+    ),
+    { Indent = N, ID = _ }.
+
+
+
+
 
 % kb_item(fact(Head, Start, End)) parses a Logical English fact (Head.).
 kb_item(fact(Head, Start, End)) -->
@@ -315,6 +345,21 @@ template_var_words([]) --> [].
 list_elements([E|Es]) --> template_instance(E), ( t(punct(',')), !, list_elements(Es) | { Es = [] } ).
 list_elements([]) --> [].
 
+numbered_body(numbered(Body), End) --> 
+    numbered_body_tokens(Body), 
+    any_indent, t(punctuation('.', loc(_, End))).
+
+numbered_body_tokens([T|Ts]) -->
+    \+ is_real_terminator,
+    [T], !,
+    numbered_body_tokens(Ts).
+numbered_body_tokens([]) --> [].
+
+is_real_terminator(Ts, Ts) :-
+    Ts = [punctuation('.', _), indent(_, _) | _].
+is_real_terminator(Ts, Ts) :-
+    Ts = [punctuation('.', _)].
+
 % body(Body, End) parses the body of a rule, ending with a period.
 body(Body, End) --> body_tokens(Body), any_indent, t(punctuation('.', loc(_, End))).
 
@@ -323,10 +368,10 @@ body_tokens([T|Ts]) --> \+ is_body_terminator, body_token(T), !, body_tokens(Ts)
 body_tokens([]) --> [].
 
 % body_token(Token) parses a single token in a rule body, including indentation.
-body_token(indent(N, L)) --> [indent(N, L)].
-body_token(T) --> template_instance_part(T).
+body_token(T) --> [T].
 
 % is_terminator matches tokens that end a template instance (period, comma, or 'if').
+is_terminator --> any_indent, t(word(if)), t(punctuation(':', _)).
 is_terminator --> any_indent, t(punctuation('.', _)).
 is_terminator --> any_indent, t(punctuation(',', _)).
 is_terminator --> any_indent, t(word(if, _)).
@@ -613,7 +658,7 @@ prepare_templates(DictsIn, DictsOut) :-
     sort_templates(AllDictsWithWords, DictsOut).
 
 % Semantics: Second Pass
-second_pass(Sections, NewSections) :-
+second_pass(Sections, NewSections, M) :-
     retractall(is_a_type(_)),
     retractall(is_a_taxonomy_edge(_, _, _)),
     ( le_kbs:do_log -> length(Sections, L), print_message(informational,'Second pass: ~w sections~n' - [L]); true),
@@ -624,7 +669,7 @@ second_pass(Sections, NewSections) :-
     prepare_templates(AllDicts, SortedDicts),
     % Collect types from ontology
     forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
-    maplist(second_pass_section(SortedDicts), Sections, NewSections).
+    maplist(second_pass_section(SortedDicts, M), Sections, NewSections).
 
 collect_types_in_section(ontology(Content, _, _), Templates) :-
     forall(member(Item, Content), collect_types_in_item(Item, Templates)).
@@ -681,22 +726,47 @@ get_dicts(events(Ds), Ds).
 get_dicts(meta(Ds), Ds).
 get_dicts(_, []).
 
-second_pass_section(Templates, kb(Name, Content, Start, End), kb(Name, NewContent, Start, End)) :-
-    second_pass_content(Content, Templates, NewContent).
-second_pass_section(_, unknown_section(Tokens, Start, End), unknown_section(Tokens, Start, End)).
-second_pass_section(Templates, ontology(Content, Start, End), ontology(NewContent, Start, End)) :-
-    maplist(second_pass_ontology_item(Templates), Content, NewContent).
-second_pass_section(Templates, scenario(Name, Content, Start, End), scenario(Name, NewContent, Start, End)) :-
-    maplist(second_pass_scenario_item(Templates), Content, NewContent).
-second_pass_section(Templates, query(Name, Content, Start, End), query(Name, NewContent, Start, End)) :-
-    maplist(second_pass_query_item(Templates), Content, NewContent).
-second_pass_section(_, S, S). % Keep other sections as is
+second_pass_section(Templates, M, kb(Name, Content, Start, End), kb(Name, NewContent, Start, End)) :-
+    second_pass_content(Content, Templates, NewContent, M).
+second_pass_section(_, _, unknown_section(Tokens, Start, End), unknown_section(Tokens, Start, End)).
+second_pass_section(Templates, M, ontology(Content, Start, End), ontology(NewContent, Start, End)) :-
+    maplist(second_pass_ontology_item_with_module(Templates, M), Content, NewContent).
+second_pass_section(Templates, M, scenario(Name, Content, Start, End), scenario(Name, NewContent, Start, End)) :-
+    maplist(second_pass_scenario_item_with_module(Templates, M), Content, NewContent).
+second_pass_section(Templates, M, query(Name, Content, Start, End), query(Name, NewContent, Start, End)) :-
+    maplist(second_pass_query_item_with_module(Templates, M), Content, NewContent).
+second_pass_section(_, _, S, S). % Keep other sections as is
 
-second_pass_content(Items, Templates, NewItems) :-
+second_pass_ontology_item_with_module(Templates, M, Item, NewItem) :-
+    second_pass_ontology_item(Templates, Item, NewItem, M).
+
+second_pass_scenario_item_with_module(Templates, M, Item, NewItem) :-
+    second_pass_scenario_item(Templates, Item, NewItem, M).
+
+second_pass_query_item_with_module(Templates, M, Item, NewItem) :-
+    second_pass_query_item(Templates, Item, NewItem, M).
+
+second_pass_content(Items, Templates, NewItems, M) :-
     ( le_kbs:do_log -> length(Items, L), print_message(informational,'Second pass content: ~w items~n' - [L]); true),
-    maplist(second_pass_item(Templates), Items, NewItems).
+    maplist(second_pass_item_with_module(Templates, M), Items, NewItems).
 
-second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_item_with_module(Templates, M, Item, NewItem) :-
+    second_pass_item(Templates, Item, NewItem, M).
+
+second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (   parse_literal(Head, Templates, [], VM1, NewHead, true) ->  
+        (   le_extensions:parse_numbered_body(BodyTokens, Templates, VM1, _VMOut, NewBody, ActualID, M) ->  
+            true
+            ;   
+            NewBody = true % Fallback
+        )
+        ;   
+        NewHead = unknown_template(Head),
+        ( le_extensions:parse_numbered_body(BodyTokens, Templates, [], _VMOut, NewBody, ActualID, M) -> true; NewBody = true)
+    ).
+second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
     (   parse_literal(Head, Templates, [], VM1, NewHead, true) ->  
         (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody) ->  
@@ -708,12 +778,13 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(N
         ;   
         ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
         NewHead = unknown_template(Head),
-        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
+        ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
     ).
-second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
+second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
     ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head)).
 
-second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
+
+second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
     (   match_is_a(Head, _Type, _SuperType, TypeAtom, SuperTypeAtom, [], _VMOut, true) ->  
         ( NewHead = is_a(TypeAtom, SuperTypeAtom), assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start)))
         ;   
@@ -721,7 +792,8 @@ second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, tru
         ;   
         NewHead = unknown_template(Head, Start, End)
     ).
-second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, Body0),
         ( (NewHead = is_a(Var, SuperType), member(Name-Var, VM1), is_a_type(Name), Name \== SuperType, \+ memberchk(Name, [thing, asset, person, object, entity, element])) ->
@@ -733,33 +805,46 @@ second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End),
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 
-second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
-    ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head, Start, End)).
-
-second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
         ; 
         NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
-second_pass_scenario_item(_Templates, expected(QueryName, Answers, Start, End), expected(QueryName, AnswerStrings, Start, End)) :-
+second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
+    ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head, Start, End)).
+
+second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
+        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        ; 
+        NewHead = unknown_template(Head, Start, End), 
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
+    ).
+second_pass_scenario_item(_Templates, expected(QueryName, Answers, Start, End), expected(QueryName, AnswerStrings, Start, End), _M) :-
     maplist(extract_answer_string, Answers, AnswerStrings).
 
-extract_answer_string(Tokens, String) :-
-    maplist(extract_simple_word, Tokens, Words),
-    atomic_list_concat(Words, ' ', String).
-
-second_pass_query_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End)) :-
+second_pass_query_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
     ( parse_literal(Head, Templates, [], _VM1, NewHead, true) -> true; NewHead = unknown_template(Head, Start, End)).
 
-second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End), clause(NewHead, NewBody, Start, End)) :-
+second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
         ; 
         NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
+
+extract_answer_string(Tokens, string(String, loc(Start, End))) :-
+    Tokens = [First|_],
+    get_token_start(First, Start),
+    last(Tokens, Last),
+    get_token_end(Last, End),
+    le_kbs:canonical_string(Tokens, String).
 
 match_is_a(Parts, Type, SuperType, VMIn, VMOut, AllowVars) :-
     exclude(is_indent_or_comment, Parts, CleanParts),
@@ -877,6 +962,7 @@ factor_logic(W, VM, VM, _, false) --> [word(W, _)], { is_proper_name_atom(W) }.
 factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 
 % Structured Body Parsing
+
 parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
     once(tokens_to_lines(Tokens, Indent, Lines)), % removing this once(..) causes nontermination in moreExamples/sbpp_0.le
     (   lines_to_tree(Tokens, Lines, Templates, VMIn, VMOut, StructuredBody) ->  
@@ -953,7 +1039,12 @@ parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
     hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
 parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ( le_kbs:do_log -> maplist(extract_simple_word, Tokens, Words), print_message(informational,'Parsing node: ~w~n' - [Words]); true),
-    (   parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic) -> true
+    (   Tokens = [word(prolog, _)|Rest], Children == [] ->
+        le_extensions:resolve_prolog_tokens(Rest, Templates, VMIn, VMOut, Goal),
+        Logic = prolog_call(Goal)
+    ;   parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic) -> 
+        ( le_kbs:do_log -> print_message(informational,'  Extension succeeded: ~w~n' - [Logic]); true),
+        true
     ;   is_forall(Tokens) ->  
             split_forall_children(Children, CondNodes, ConsNodes),
             hierarchy_to_logic(CondNodes, Templates, VMIn, VM1, CondLogic),

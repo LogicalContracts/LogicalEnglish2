@@ -7,13 +7,16 @@
 :- module(le_kbs, [load/2, load_text/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
-    run_one_test/3,
+    run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2, person_age/2,
+    current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
     topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
 
 :- discontiguous process_section_acc/2.
 
 :- discontiguous print_test_result/1.
+
+:- meta_predicate set_id_from_ref(+, +).
 
 :- use_module(le_grammar).
 :- use_module(tokenizer).
@@ -24,7 +27,7 @@
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
 
-:- (exists_file('le_extensions.pl') -> consult('le_extensions.pl') ; true).
+:- (exists_file('le_extensions.pl') -> use_module('le_extensions') ; true).
 
 % For friendlier messages
 :- multifile prolog:message//1.
@@ -46,7 +49,7 @@ edit(LEfilePath) :-
 %!  do_log is det.
 %
 %   Dynamic predicate that controls whether debug messages are printed.
-:- dynamic do_log/0. % assert(le_kbs:do_log).
+:- dynamic do_log/0, current_compiling_module/1. % assert(le_kbs:do_log).
 
 %!  load(+FilePath:atom, -Module:atom) is det.
 %
@@ -56,63 +59,145 @@ load(FilePath, NewModule) :-
         time_file(FilePath, Time),
         variant_sha1([FilePath, Time], Hash),
         atom_concat(m, Hash, NewModule)
-        ;   
-        true
+    ;   true
     ),
-    with_mutex(NewModule, (
-        (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
-            ; (   catch(parse_le_file(FilePath, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
-                    % Ensure we start with a clean module
-                    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-                    dynamic(NewModule:le_issue/5),
-                    forall(member(S, Sections), process_section(S, NewModule)),
-                    findall(D, le_system_template(D), SysDicts),
-                    forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-                    ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-                        forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
-                            (Type == missing_template -> Severity = error; Severity = warning),
-                            assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
-                        ))
-                    ; true)
-                ; % Parsing failed
-                  forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-                  dynamic(NewModule:le_issue/5),
-                  assertz(NewModule:le_issue(error, parse_error, "parse_le_file failed for ~w" - [FilePath], 0, 0)),
-                  assertz(NewModule:le_source(none, 0, 0)),
-                  print_message(error, "parse_le_file failed for ~w" - [FilePath])
-            )
+    with_mutex(NewModule, load_sync(NewModule, FilePath)).
+
+load_sync(NewModule, _) :-
+    current_module(NewModule), 
+    current_predicate(NewModule:le_source_info/4), 
+    \+ current_predicate(NewModule:le_issue/5),
+    !.
+load_sync(NewModule, FilePath) :-
+    % Ensure we start with a clean module
+    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+    NewModule:use_module(le_kbs),
+    dynamic(NewModule:le_issue/5),
+    dynamic(NewModule:le_source_element/3),
+    dynamic(NewModule:le_source_info/4),
+    dynamic(NewModule:le_kb/1),
+    dynamic(NewModule:le_dict/1),
+    dynamic(NewModule:query_info/3),
+    dynamic(NewModule:scenario/2),
+    dynamic(NewModule:ontology/1),
+    dynamic(NewModule:le_kb_module_fact/1),
+    assertz(NewModule:le_kb_module_fact(NewModule)),
+    retractall(rule_counter(_)),
+    assertz(rule_counter(1)),
+    (   setup_call_cleanup(
+            asserta(le_grammar:current_compiling_module(NewModule)),
+            catch(parse_le_file(FilePath, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
+            retractall(le_grammar:current_compiling_module(_))
+        ) ->  
+        setup_call_cleanup(
+            nb_setval(le_compiling_module, NewModule),
+            forall(member(S, Sections), process_section(S, NewModule)),
+            nb_delete(le_compiling_module)
+        ),
+        findall(D, le_system_template(D), SysDicts),
+        forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+        (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+            forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+                (Type == missing_template -> Severity = error; Severity = warning),
+                assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+            ))
+        ;   true
         )
-    )).
+    ;   % Parsing failed
+        forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+        dynamic(NewModule:le_issue/5),
+        assertz(NewModule:le_issue(error, parse_error, "parse_le_file failed for ~w" - [FilePath], 0, 0)),
+        assertz(NewModule:le_source_info(none, 0, 0, none)),
+        print_message(error, "parse_le_file failed for ~w" - [FilePath])
+    ).
+
+load_text(Text, NewModule) :-
+    (   var(NewModule) ->  
+        variant_sha1(Text, Hash),
+        atom_concat(m, Hash, NewModule)
+    ;   true
+    ),
+    with_mutex(NewModule, load_text_sync(NewModule, Text)).
+
+load_text_sync(NewModule, _) :-
+    current_module(NewModule), 
+    current_predicate(NewModule:le_source_info/4), 
+    \+ current_predicate(NewModule:le_issue/5),
+    !.
+load_text_sync(NewModule, Text) :-
+    % Ensure we start with a clean module
+    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+    NewModule:use_module(le_kbs),
+    dynamic(NewModule:le_issue/5),
+    dynamic(NewModule:le_source_element/3),
+    dynamic(NewModule:le_source_info/4),
+    dynamic(NewModule:le_kb/1),
+    dynamic(NewModule:le_dict/1),
+    dynamic(NewModule:query_info/3),
+    dynamic(NewModule:scenario/2),
+    dynamic(NewModule:ontology/1),
+    dynamic(NewModule:le_kb_module_fact/1),
+    assertz(NewModule:le_kb_module_fact(NewModule)),
+    retractall(rule_counter(_)),
+    assertz(rule_counter(1)),
+    (   setup_call_cleanup(
+            asserta(le_grammar:current_compiling_module(NewModule)),
+            catch(parse_le_text(Text, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
+            retractall(le_grammar:current_compiling_module(_))
+        ) ->  
+        forall(member(S, Sections), process_section(S, NewModule)),
+        findall(D, le_system_template(D), SysDicts),
+        forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+        (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+            forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+                (Type == missing_template -> Severity = error; Severity = warning),
+                assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+            ))
+        ;   true)
+    ;   % Parsing failed
+        forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+        dynamic(NewModule:le_issue/5),
+        assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
+        assertz(NewModule:le_source_info(none, 0, 0, none)),
+        print_message(error, "parse_le_text failed")
+    ).
+
+
+
+:- dynamic rule_counter/1.
+:- thread_local rule_counter/1.
 
 process_section(S, M) :-
     ( do_log -> print_message(informational,'Processing section: ~w' - [S]); true),
-    process_section_acc(S, M).
+    retractall(rule_counter(_)),
+    assertz(rule_counter(1)),
+    (process_section_acc(S, M) -> true ; writeln(user_error, failed_section(S)), fail).
 
 process_section_acc(kb(Name, Content, Start, End), M) :-
     assertz(M:le_kb(Name), Ref),
-    assertz(M:le_source(Ref, Start, End)),
+    assertz(M:le_source_info(Ref, Start, End, Name)),
     forall(member(Item, Content), process_item(Item, M)).
 
 process_section_acc(scenario(Name, Content, Start, End), M) :-
-    M:dynamic(le_expected/3),
+    dynamic(M:le_expected/3),
     partition(is_expected_item, Content, ExpectedItems, FactItems),
     maplist(item_to_term_with_source(M), FactItems, Terms),
     assertz(M:scenario(Name, Terms), Ref),
-    assertz(M:le_source(Ref, Start, End)),
+    assertz(M:le_source_info(Ref, Start, End, Name)),
     forall(member(expected(Q, A, S, E), ExpectedItems), (
         assertz(M:le_expected(Q, Name, A), ERef),
-        assertz(M:le_source(ERef, S, E))
+        assertz(M:le_source_info(ERef, S, E, Q))
     )).
 
 process_section_acc(query(Name, Content, Start, End), M) :-
     maplist(item_to_term, Content, Terms),
     list_to_conj(Terms, Goal),
     assertz(M:query_info(Name, Goal, Terms), Ref),
-    assertz(M:le_source(Ref, Start, End)).
+    assertz(M:le_source_info(Ref, Start, End, Name)).
 
 process_section_acc(ontology(Content, Start, End), M) :-
     assertz(M:ontology(Content), Ref),
-    assertz(M:le_source(Ref, Start, End)),
+    assertz(M:le_source_info(Ref, Start, End, ontology)),
     forall(member(Item, Content), process_item(Item, M)).
 
 process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
@@ -121,32 +206,69 @@ process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assert_dict_w
 process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(meta(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 
-assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV)), Ref),
-    assertz(M:le_source(Ref, Start, End)).
-assert_dict_with_source(dict(FA, NTs, WV), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV))).
 process_section_acc(unknown_section(Tokens, Start, End), M) :-
     le_grammar:reconstruct_name(Tokens, FullName),
     ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
     format(atom(Desc), "Unknown or malformed section starting with: ~w", [Name]),
     assertz(M:le_issue(error, unknown_section, Desc, Start, End)).
-process_section_acc(_, _).
 
-process_item(clause(Head, Body, Start, End), M) :-
+assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
+    assertz(M:le_dict(dict(FA, NTs, WV)), Ref),
+    assertz(M:le_source_info(Ref, Start, End, template)).
+assert_dict_with_source(dict(FA, NTs, WV), M) :-
+    assertz(M:le_dict(dict(FA, NTs, WV))).
+
+process_item(clause(Head, Body, Start, End, ID), M) :-
+    ( var(ID) -> 
+        rule_counter(C), NextC is C + 1, retractall(rule_counter(_)), assertz(rule_counter(NextC)),
+        format(atom(GeneratedID), 'rule_~w', [C]),
+        ActualID = GeneratedID
+    ; ActualID = ID
+    ),
     ( Body == true -> Clause = Head; Clause = (Head :- Body)),
     functor(Head, F, N),
-    M:dynamic(F/N),
-    ( clause(M:Head, Body) -> true; assertz(M:Clause, Ref), assertz(M:le_source(Ref, Start, End))).
+    dynamic(M:F/N),
+    ( clause(M:Head, Body) -> true; assertz(M:Clause, Ref), assertz(M:le_source_info(Ref, Start, End, ActualID))).
+
+%!  le_my_id(-ID:atom) is det.
+%
+%   Returns the ID of the current rule being executed.
+le_my_id(ID) :-
+    nb_current(le_current_id, ID).
+
+:- multifile le_my_kb/1.
+
+%!  le_my_kb(-KB:atom) is det.
+%
+%   Returns the KB module of the current rule being executed.
+le_my_kb(KB) :-
+    ( nb_current(le_kb_module, K), K \== none -> KB = K
+    ; context_module(KB)
+    ).
+
+%!  set_id_from_ref(+Ref:clause_ref, +Module:atom) is det.
+%
+%   Sets the current rule ID from a clause reference and its module.
+set_id_from_ref(Ref, M) :-
+    ( M:le_source_info(Ref, _, _, ID) -> nb_setval(le_current_id, ID) ; true ).
+
+%!  person_age(?Person, ?Age) is nondet.
+
+%
+%   A dummy predicate for testing the prolog calling feature.
+person_age('Bob', 42).
+person_age('Alice', 30).
 
 %!  createSession(+KBmodule:atom, -SessionModule:atom) is det.
 createSession(KBmodule, SessionModule) :-
     uuid(UUID),
     atom_concat(s, UUID, SessionModule),
-    assertz(SessionModule:le_my_kb(KBmodule)),
+    SessionModule:use_module(le_kbs),
+    dynamic(SessionModule:le_kb_module_fact/1),
+    assertz(SessionModule:le_kb_module_fact(KBmodule)),
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:sessionClause/1),
-    dynamic(SessionModule:le_source/3).
+    dynamic(SessionModule:le_source_info/4).
 
 %!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
 addSessionFact(SessionModule, Fact) :-
@@ -159,7 +281,7 @@ addSessionFact(SessionModule, Fact) :-
             ( do_log -> print_message(informational, 'Fact already exists (variant): ~w' - [ActualFact]); true)
         ; assertz(SessionModule:ActualFact, Ref),
           assertz(SessionModule:sessionClause(Ref)),
-          ( Start \== 0 -> assertz(SessionModule:le_source(Ref, Start, End)); true)
+          ( Start \== 0 -> assertz(SessionModule:le_source_info(Ref, Start, End, session_fact)); true)
     ).
 
 %!  negateSessionFact(+SessionModule:atom, +Fact:term) is det.
@@ -171,43 +293,33 @@ negateSessionFact(SessionModule, Fact) :-
 
 %!  setScenarion(+SessionModule:atom, +ScenarioName:atom) is semidet.
 setScenarion(SessionModule, ScenarioName) :-
-    SessionModule:le_my_kb(KBmodule),
+    ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( current_predicate(KBmodule:scenario/2) -> KBmodule:scenario(ScenarioName, Facts), forall(member(Fact, Facts), addSessionFact(SessionModule, Fact)); fail).
 
 %!  clearSession(+SessionModule:atom) is det.
 clearSession(SessionModule) :-
-    ( SessionModule:le_my_kb(KBmodule) -> true; KBmodule = none),
+    ( SessionModule:le_kb_module_fact(KBmodule) -> true; KBmodule = none),
     forall(current_predicate(SessionModule:F/N), abolish(SessionModule:F/N)),
-    ( KBmodule \== none -> assertz(SessionModule:le_my_kb(KBmodule)); true),
+    ( KBmodule \== none -> 
+        dynamic(SessionModule:le_kb_module_fact/1),
+        assertz(SessionModule:le_kb_module_fact(KBmodule))
+    ; true),
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:sessionClause/1),
-    dynamic(SessionModule:le_source/3).
+    dynamic(SessionModule:le_source_info/4).
 
 %!  printSession(+SessionModule:atom) is det.
 printSession(SessionModule) :-
-    SessionModule:le_my_kb(KBmodule),
-    KBmodule:le_kb(KBName),
+    ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
+    ( KBmodule \== none -> KBmodule:le_kb(KBName) ; KBName = unknown ),
     format('Session: ~w~nKB: ~w (~w)~nFacts:~n', [SessionModule, KBName, KBmodule]),
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
            (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
 
 %!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
-%
-%   Executes a query against the knowledge base associated with the given session.
-%   The query can be specified either as a named query (defined in the LE file) 
-%   or as a natural language string/list of tokens that matches a template.
-%
-%   @param SessionModule The module identifier for the current reasoning session.
-%   @param Template Either an atom/string naming a query, or a natural language 
-%          representation (string, atom, or list of tokens) of the goal.
-%   @param TemplateInstance A list of tokens representing the matched template, 
-%          with variables instantiated to their discovered values.
-%   @param Unknowns A list of goals that could not be proven but are marked as 
-%          unknown in the KB, leading to a conditional success.
-%   @param Why An explanation tree providing the justification for the result.
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
-    SessionModule:le_my_kb(KBmodule),
+    ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( do_log -> print_message(informational, 'Querying KB ~w in session ~w with tokens ~w' - [KBmodule, SessionModule, Tokens]); true),
     (   ((atom(Template) ; string(Template)), atom_string(QueryName, Template), current_predicate(KBmodule:query_info/3), KBmodule:query_info(QueryName, Goal, Items)) ->  
             ( do_log -> print_message(informational, 'Executing named query ~w: ~w' - [QueryName, Goal]); true),
@@ -237,6 +349,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
                     G =.. FA
                 ), Matches)
             ),
+            % writeln(user_error, matches(Matches)),
             (   Matches \== [] ->
                 member(match(Goal, TemplateInstance, _), Matches),
                 ( do_log -> print_message(informational, 'Executing template goal: ~w' - [Goal]); true),
@@ -251,13 +364,13 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
 %!  query_explain(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
 query_explain(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
     compound(Goal), \+ is_list(Goal), !,
-    SessionModule:le_my_kb(KBmodule),
+    ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     reasoner:explain(Goal, SessionModule, Unknowns, Why0),
     ( (KBmodule \== none, item_to_instance(KBmodule, Goal, TemplateInstance)) -> true ; TemplateInstance = [Goal] ),
     postprocess_why(Why0, SessionModule, Why).
 query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
-    SessionModule:le_my_kb(KBmodule),
+    ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     (   ((atom(Template) ; string(Template)), atom_string(QueryName, Template), current_predicate(KBmodule:query_info/3), KBmodule:query_info(QueryName, Goal, Items)) ->  
             ( do_log -> print_message(informational, 'Executing named query explain ~w: ~w' - [QueryName, Goal]); true),
             reasoner:explain(Goal, SessionModule, Unknowns, Why0),
@@ -292,52 +405,16 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
           )
     ).
 
-%!  load_text(+Text:string, -Module:atom) is det.
-%
-%   Loads Logical English source text into a new generated Module.
-load_text(Text, NewModule) :-
-    (   var(NewModule) ->  
-        variant_sha1(Text, Hash),
-        atom_concat(m, Hash, NewModule)
-        ;   
-        true
-    ),
-    with_mutex(NewModule, (
-        (   (current_module(NewModule), current_predicate(NewModule:le_source/3), \+ current_predicate(NewModule:le_issue/5)) -> true
-            ; (   catch(parse_le_text(Text, doc(Sections)), EP, (print_message(error, EP), fail)) ->  
-                    % Ensure we start with a clean module
-                    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-                    dynamic(NewModule:le_issue/5),
-                    forall(member(S, Sections), process_section(S, NewModule)),
-                    findall(D, le_system_template(D), SysDicts),
-                    forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-                    ( catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-                        forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
-                            (Type == missing_template -> Severity = error; Severity = warning),
-                            assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
-                        ))
-                    ; true)
-                ; % Parsing failed
-                  forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-                  dynamic(NewModule:le_issue/5),
-                  assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
-                  assertz(NewModule:le_source(none, 0, 0)),
-                  print_message(error, "parse_le_text failed")
-            )
-        )
-    )).
-
-
 %!  postprocess_why(+WhyIn:term, +SM:atom, -WhyOut:term) is det.
 postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
-    ( SM:le_my_kb(KB) -> true; KB = none),
-    ( (SM:le_source(Ref, Start, End); (KB \== none, KB:le_source(Ref, Start, End))) -> Range = range(Start, End); Range = Ref),
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range = range(Start, End); Range = Ref),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(failure(Goal0, Children), SM, failure(Goal, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
-    ( SM:le_my_kb(KB) -> true; KB = none),
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(Whys, SM, WhysOut) :-
@@ -385,6 +462,7 @@ token_to_atom(var(Words), Atom) :- !,
     ( var(Words) -> Atom = '_'; is_list(Words) -> (maplist(token_to_atom, Words, Atoms), atomic_list_concat(Atoms, ' ', Atom)); atom_string(Atom, Words)).
 token_to_atom(number(N, _), Atom) :- !, (var(N) -> Atom = '0' ; atom_number(Atom, N)).
 token_to_atom(number(N), Atom) :- !, (var(N) -> Atom = '0' ; atom_number(Atom, N)).
+token_to_atom(string(S, _), Atom) :- !, (string(S) -> atom_string(Atom, S) ; atom(S) -> Atom = S ; term_to_atom(S, Atom)).
 token_to_atom(punctuation(P, _), P) :- !.
 token_to_atom(punctuation(P), P) :- !.
 token_to_atom(punct(P, _), P) :- !.
@@ -528,11 +606,11 @@ parse_custom_facts(KB, Text, Terms) :-
     findall(D, KB:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, Templates),
     maplist(le_grammar:second_pass_item(Templates), Items, Clauses),
-    (   member(clause(unknown_template(Head), _, _, _), Clauses) ->
+    (   member(clause(unknown_template(Head), _, _, _, _), Clauses) ->
         le_kbs:canonical_string(Head, HeadStr),
         format(string(Error), "Fact does not match any template: ~w", [HeadStr]),
         throw(error(le_parse_error(Error), _))
-    ;   findall(Term, (member(clause(Head, Body, _, _), Clauses), (Body == true -> Term = Head; Term = (Head :- Body))), Terms)
+    ;   findall(Term, (member(clause(Head, Body, _, _, _), Clauses), (Body == true -> Term = Head; Term = (Head :- Body))), Terms)
     ).
 
 %!  parse_custom_query(+KB:atom, +Text:string, -Goal:term) is semidet.
@@ -549,8 +627,9 @@ parse_custom_query(KB, Text, Goal) :-
         throw(error(le_parse_error(Error), _))
     ).
 
+is_system_predicate(le_source_element/3).
 is_system_predicate(le_kb/1).
-is_system_predicate(le_source/3).
+is_system_predicate(le_source_info/4).
 is_system_predicate(scenario/2).
 is_system_predicate(le_expected/3).
 is_system_predicate(query_info/3).
@@ -558,7 +637,7 @@ is_system_predicate(ontology/1).
 is_system_predicate(le_dict/1).
 is_system_predicate(unknown_template/1).
 is_system_predicate(le_issue/5).
-is_system_predicate(le_my_kb/1).
+is_system_predicate(le_kb_module_fact/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).
 
@@ -566,7 +645,7 @@ is_expected_item(expected(_, _, _, _)).
 
 verify(LEfilePath) :-
     uuid(UUID), atom_concat(v, UUID, KBmodule),
-    parse_le_file(LEfilePath, doc(Sections)),
+    le_grammar:parse_le_file(LEfilePath, doc(Sections), KBmodule),
     forall(member(S, Sections), process_section(S, KBmodule)),
     findall(D, le_system_template(D), SysDicts),
     forall(member(D, SysDicts), assertz(KBmodule:le_dict(D))),
@@ -587,11 +666,15 @@ verify(LEfilePath) :-
     ),
     forall(current_predicate(KBmodule:F/N), abolish(KBmodule:F/N)).
 
+item_to_term(clause(Head, true, _, _, _), Head) :- !.
+item_to_term(clause(Head, Body, _, _, _), (Head :- Body)) :- !.
 item_to_term(clause(Head, true, _, _), Head) :- !.
 item_to_term(clause(Head, Body, _, _), (Head :- Body)) :- !.
 item_to_term(Item, Item).
 
+item_to_term_with_source(_M, clause(Head, true, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, clause(Head, true, Start, End), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, clause(Head, Body, _Start, _End, _ID), (Head :- Body)) :- !.
 item_to_term_with_source(_M, clause(Head, Body, _Start, _End), (Head :- Body)) :- 
     % Rules in scenarios are rare but possible; we don't track their source yet
     !.
@@ -601,9 +684,13 @@ list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], (G, Rest)) :- list_to_conj(Gs, Rest).
 list_to_conj([], true).
 
+normalize_string(string(S, _), N) :- !, normalize_string(S, N).
 normalize_string(S, N) :-
-    re_replace("_"/g, " ", S, N1), re_replace("-"/g, " ", N1, N2),
-    re_replace("  +"/g, " ", N2, N).
+    (atom(S) ; string(S)), !,
+    split_string(S, "_- ", "_- ", Words),
+    atomic_list_concat(Words, ' ', Atom),
+    atom_string(Atom, N).
+normalize_string(S, S).
 
 run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :-
     createSession(KBmodule, SM),
@@ -620,7 +707,7 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :
                         (   SortedExpected == SortedActual -> 
                                 Result = pass(QueryName, ScenarioName)
                             ; 
-                            Result = fail(QueryName, ScenarioName, SortedExpected, SortedActual)
+                            Result = fail(QueryName, ScenarioName, ExpectedStrings, ActualStrings)
                         )
                     )
                 ; Result = error(QueryName, ScenarioName, 'Test execution failed')

@@ -250,7 +250,7 @@ handle_load(Dict, Response) :-
 handle_answering_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
-    ( SM:le_my_kb(KB) -> true; KB = none),
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
     
     % Handle Scenario
     (   get_dict(customScenario, Dict, CustomScenario), CustomScenario \== null ->
@@ -315,7 +315,7 @@ handle_load_facts_and_query(Dict, Response) :-
     (   get_dict(goal, Dict, GoalStr) ->  
         print_message(informational, 'Running goal: ~w' - [GoalStr]),
         read_term_from_atom(GoalStr, Goal, [variable_names(VarNames)]),
-        ( SM:le_my_kb(KB) -> true; KB = none),
+        ( SM:le_kb_module_fact(KB) -> true; KB = none),
         findall(Answer, (
             reasoner:i(Goal, SM, _Unknowns, Why),
             convert_why(Why, KB, JSONWhy),
@@ -342,7 +342,7 @@ handle_query(Dict, Response) :-
     get_dict(module, Dict, ModuleStr),
     atom_string(Module, ModuleStr),
     ( get_dict(facts, Dict, FactsStrList) -> maplist(term_string, Facts, FactsStrList); Facts = []),
-    (   (current_module(Module), current_predicate(Module:le_my_kb/1)) -> SM = Module, SM:le_my_kb(KB)
+    (   (current_module(Module), current_predicate(Module:le_my_kb/1)) -> SM = Module, SM:le_kb_module_fact(KB)
         ; current_module(Module) -> KB = Module, createSession(KB, SM)
         ; KB = none, createSession(none, SM)
     ),
@@ -375,7 +375,7 @@ convert_why(success(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}.
 convert_why(success(_Goal, Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    (   KB \== none, KB:le_source(Ref, Start, End)
+    (   KB \== none, KB:le_source_info(Ref, Start, End, _)
     ->  JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}
     ;   JSON = _{type: "success", literal: LE, children: JSONChildren}
     ).
@@ -392,7 +392,7 @@ convert_why_child(KB, Child, JSON) :-
     convert_why(Child, KB, JSON).
 
 get_source_info(Ref, KB, Source, Start, End) :-
-    ( (KB \== none, KB:le_source(Ref, Start, End)) -> term_string(Ref, Source); term_string(Ref, Source), Start = 0, End = 0).
+    ( (KB \== none, KB:le_source_info(Ref, Start, End, _)) -> term_string(Ref, Source); term_string(Ref, Source), Start = 0, End = 0).
 
 convert_binding(Name=Val, Name-JSONVal) :-
     ( (atom(Val) ; string(Val) ; number(Val)) -> JSONVal = Val; term_string(Val, JSONVal)).
@@ -404,7 +404,7 @@ convert_unknown(KB, Goal, _{goal: GoalStr, module: KBStr}) :-
 handle_get_prolog(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
-    ( SM:le_my_kb(KB) -> true; KB = none),
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( KB == none -> Response = _{error: "No KB loaded"}
     ; get_dict(position, Dict, Pos),
       ( find_clause_at_pos(KB, Pos, Clause) ->
@@ -416,7 +416,7 @@ handle_get_prolog(Dict, Response) :-
 
 find_clause_at_pos(KB, Pos, Clause) :-
     findall(range(Len, Ref), (
-        KB:le_source(Ref, Start, End),
+        KB:le_source_info(Ref, Start, End, _),
         Pos >= Start, Pos =< End,
         Len is End - Start
     ), Ranges),

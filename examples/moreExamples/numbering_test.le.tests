@@ -1,0 +1,1 @@
+expected('one', 'test', ["eligibility has a designator 1 for goal is a citizen('* a person *')", "eligibility has a designator 2 for goal is a resident('* a person *')"]).
