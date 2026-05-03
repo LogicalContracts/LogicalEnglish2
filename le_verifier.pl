@@ -29,6 +29,7 @@ missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
 undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A), functor(Head, F, A),
     \+ is_system_predicate(F/A),
+    \+ predicate_property(KB:Head, imported_from(_)),
     clause(KB:Head, Body, Ref),
     find_in_body(Body, Literal),
     Literal \= unknown_template(_),
@@ -125,6 +126,7 @@ is_reachable(KB, Goal, F, A, Anc) :-
 % --- 4. Rule without variables ---
 rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A), functor(Head, F, A),
+    \+ predicate_property(KB:Head, imported_from(_)),
     clause(KB:Head, Body, Ref),
     Body \== true,
     ground(Head),
