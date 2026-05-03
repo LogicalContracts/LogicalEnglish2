@@ -22,9 +22,9 @@ i(Goal, SessionModule, Unknowns, Whys) :-
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
-        nb_setval(le_kb_module, KBmodule),
+        le_kbs:set_kb_module(KBmodule),
         solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys),
-        nb_delete(le_kb_module)
+        le_kbs:clear_kb_module
     ).
 
 %!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
@@ -35,13 +35,13 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
-        nb_setval(le_kb_module, KBmodule),
+        le_kbs:set_kb_module(KBmodule),
         (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys) ->  true 
             ;   
             Unknowns = [],
             findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
         ),
-        nb_delete(le_kb_module)
+        le_kbs:clear_kb_module
     ).
 
 %!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is nondet.

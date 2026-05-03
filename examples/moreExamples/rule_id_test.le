@@ -10,6 +10,8 @@ the knowledge base id_test includes:
         prolog (le_my_kb(KB), KB:le_kb(*a kb*)).
 
 scenario test is:
+    one expects answers ["a rule has an id mySpecialRule"].
+    two expects answers ["a rule belongs to a kb id_test"].
 
 query one is:
     a rule has an id *the id*.

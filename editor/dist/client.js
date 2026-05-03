@@ -1001,6 +1001,7 @@ async function start() {
   const assistantProgress = document.getElementById("assistant-progress");
   const assistantProgressText = document.getElementById("assistant-progress-text");
   let assistantSessionId = "ses_" + Math.random().toString(36).substring(7);
+  let assistantStartTime = null;
   const addChatMessage = (role, text, details) => {
     const msg = document.createElement("div");
     msg.className = `chat-message ${role}`;
@@ -1090,6 +1091,7 @@ async function start() {
     btnAssistantInterrupt.style.display = "inline-block";
     assistantProgress.style.display = "block";
     assistantProgressText.textContent = "Starting...";
+    assistantStartTime = Date.now();
     const apiKeys = {
       openai: localStorage.getItem("le-openai-key"),
       anthropic: localStorage.getItem("le-anthropic-key"),
@@ -1153,6 +1155,7 @@ async function start() {
           }
           setTimeout(() => pollAssistantStatus(jobId), 1e3);
         } else if (data.status === "finished") {
+          const duration = assistantStartTime ? Math.round((Date.now() - assistantStartTime) / 1e3) : 0;
           if (data.session_id) {
             assistantSessionId = data.session_id;
             console.log("Updated assistant session ID:", assistantSessionId);
@@ -1168,6 +1171,7 @@ async function start() {
             editor.setValue(newContent);
             addChatMessage("assistant", "I have updated the editor content with the changes.");
           }
+          addChatMessage("assistant", `_Request completed in ${duration} seconds._`);
           finishAssistantRequest();
         }
       } else {
@@ -1183,6 +1187,7 @@ async function start() {
   const handleAssistantInterrupt = async () => {
     if (!currentJobId)
       return;
+    const duration = assistantStartTime ? Math.round((Date.now() - assistantStartTime) / 1e3) : 0;
     try {
       const response = await fetch("/leapi", {
         method: "POST",
@@ -1195,7 +1200,7 @@ async function start() {
       });
       const data = await response.json();
       if (data.result === "ok") {
-        addChatMessage("assistant", "_Request interrupted by user._");
+        addChatMessage("assistant", `_Request interrupted by user after ${duration} seconds._`);
       }
     } catch (err) {
       console.error("Interrupt error:", err);

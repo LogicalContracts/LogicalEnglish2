@@ -1,2 +1,0 @@
-expected('one', 'test', ['a rule has an id mySpecialRule']).
-expected('two', 'test', ['a rule belongs to a kb id_test']).
