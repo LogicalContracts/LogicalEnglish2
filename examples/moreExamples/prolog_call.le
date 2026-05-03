@@ -10,6 +10,7 @@ the knowledge base prolog_test includes:
         *a person* is dead.
 
 scenario test is:
+    one expects answers ["Bob has an age 42", "Alice has an age 30"].
 
 query one is:
     *someone* has an age *how old*.

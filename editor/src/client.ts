@@ -1017,6 +1017,7 @@ declare var monaco: any;
     const assistantProgress = document.getElementById('assistant-progress')!;
     const assistantProgressText = document.getElementById('assistant-progress-text')!;
     let assistantSessionId = 'ses_' + Math.random().toString(36).substring(7);
+    let assistantStartTime: number | null = null;
 
     const addChatMessage = (role: 'user' | 'assistant', text: string, details?: string) => {
         const msg = document.createElement('div');
@@ -1122,6 +1123,7 @@ declare var monaco: any;
         btnAssistantInterrupt.style.display = 'inline-block';
         assistantProgress.style.display = 'block';
         assistantProgressText.textContent = 'Starting...';
+        assistantStartTime = Date.now();
 
         const apiKeys = {
             openai: localStorage.getItem('le-openai-key'),
@@ -1190,6 +1192,7 @@ declare var monaco: any;
                     }
                     setTimeout(() => pollAssistantStatus(jobId), 1000);
                 } else if (data.status === 'finished') {
+                    const duration = assistantStartTime ? Math.round((Date.now() - assistantStartTime) / 1000) : 0;
                     if (data.session_id) {
                         assistantSessionId = data.session_id;
                         console.log('Updated assistant session ID:', assistantSessionId);
@@ -1208,6 +1211,7 @@ declare var monaco: any;
                         editor.setValue(newContent);
                         addChatMessage('assistant', 'I have updated the editor content with the changes.');
                     }
+                    addChatMessage('assistant', `_Request completed in ${duration} seconds._`);
                     finishAssistantRequest();
                 }
             } else {
@@ -1223,6 +1227,7 @@ declare var monaco: any;
 
     const handleAssistantInterrupt = async () => {
         if (!currentJobId) return;
+        const duration = assistantStartTime ? Math.round((Date.now() - assistantStartTime) / 1000) : 0;
         
         try {
             const response = await fetch('/leapi', {
@@ -1236,7 +1241,7 @@ declare var monaco: any;
             });
             const data = await response.json();
             if (data.result === 'ok') {
-                addChatMessage('assistant', '_Request interrupted by user._');
+                addChatMessage('assistant', `_Request interrupted by user after ${duration} seconds._`);
             }
         } catch (err) {
             console.error('Interrupt error:', err);

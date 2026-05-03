@@ -8,6 +8,7 @@
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2, person_age/2,
+    set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
     topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
@@ -50,6 +51,7 @@ edit(LEfilePath) :-
 %
 %   Dynamic predicate that controls whether debug messages are printed.
 :- dynamic do_log/0, current_compiling_module/1. % assert(le_kbs:do_log).
+:- thread_local le_current_id/1, le_kb_module/1.
 
 %!  load(+FilePath:atom, -Module:atom) is det.
 %
@@ -72,15 +74,7 @@ load_sync(NewModule, FilePath) :-
     % Ensure we start with a clean module
     forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
     NewModule:use_module(le_kbs),
-    dynamic(NewModule:le_issue/5),
-    dynamic(NewModule:le_source_element/3),
-    dynamic(NewModule:le_source_info/4),
-    dynamic(NewModule:le_kb/1),
-    dynamic(NewModule:le_dict/1),
-    dynamic(NewModule:query_info/3),
-    dynamic(NewModule:scenario/2),
-    dynamic(NewModule:ontology/1),
-    dynamic(NewModule:le_kb_module_fact/1),
+    forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
     assertz(NewModule:le_kb_module_fact(NewModule)),
     retractall(rule_counter(_)),
     assertz(rule_counter(1)),
@@ -89,11 +83,7 @@ load_sync(NewModule, FilePath) :-
             catch(parse_le_file(FilePath, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
             retractall(le_grammar:current_compiling_module(_))
         ) ->  
-        setup_call_cleanup(
-            nb_setval(le_compiling_module, NewModule),
-            forall(member(S, Sections), process_section(S, NewModule)),
-            nb_delete(le_compiling_module)
-        ),
+        forall(member(S, Sections), process_section(S, NewModule)),
         findall(D, le_system_template(D), SysDicts),
         forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
         (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
@@ -105,7 +95,7 @@ load_sync(NewModule, FilePath) :-
         )
     ;   % Parsing failed
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-        dynamic(NewModule:le_issue/5),
+        forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
         assertz(NewModule:le_issue(error, parse_error, "parse_le_file failed for ~w" - [FilePath], 0, 0)),
         assertz(NewModule:le_source_info(none, 0, 0, none)),
         print_message(error, "parse_le_file failed for ~w" - [FilePath])
@@ -128,15 +118,7 @@ load_text_sync(NewModule, Text) :-
     % Ensure we start with a clean module
     forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
     NewModule:use_module(le_kbs),
-    dynamic(NewModule:le_issue/5),
-    dynamic(NewModule:le_source_element/3),
-    dynamic(NewModule:le_source_info/4),
-    dynamic(NewModule:le_kb/1),
-    dynamic(NewModule:le_dict/1),
-    dynamic(NewModule:query_info/3),
-    dynamic(NewModule:scenario/2),
-    dynamic(NewModule:ontology/1),
-    dynamic(NewModule:le_kb_module_fact/1),
+    forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
     assertz(NewModule:le_kb_module_fact(NewModule)),
     retractall(rule_counter(_)),
     assertz(rule_counter(1)),
@@ -156,7 +138,7 @@ load_text_sync(NewModule, Text) :-
         ;   true)
     ;   % Parsing failed
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-        dynamic(NewModule:le_issue/5),
+        forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
         assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
         assertz(NewModule:le_source_info(none, 0, 0, none)),
         print_message(error, "parse_le_text failed")
@@ -234,7 +216,7 @@ process_item(clause(Head, Body, Start, End, ID), M) :-
 %
 %   Returns the ID of the current rule being executed.
 le_my_id(ID) :-
-    nb_current(le_current_id, ID).
+    le_current_id(ID).
 
 :- multifile le_my_kb/1.
 
@@ -242,15 +224,28 @@ le_my_id(ID) :-
 %
 %   Returns the KB module of the current rule being executed.
 le_my_kb(KB) :-
-    ( nb_current(le_kb_module, K), K \== none -> KB = K
+    ( le_kb_module(K), K \== none -> KB = K
     ; context_module(KB)
     ).
+
+%!  set_kb_module(+KB:atom) is det.
+%
+%   Sets the current KB module for reasoning.
+set_kb_module(KB) :-
+    retractall(le_kb_module(_)),
+    assertz(le_kb_module(KB)).
+
+%!  clear_kb_module is det.
+%
+%   Clears the current KB module.
+clear_kb_module :-
+    retractall(le_kb_module(_)).
 
 %!  set_id_from_ref(+Ref:clause_ref, +Module:atom) is det.
 %
 %   Sets the current rule ID from a clause reference and its module.
 set_id_from_ref(Ref, M) :-
-    ( M:le_source_info(Ref, _, _, ID) -> nb_setval(le_current_id, ID) ; true ).
+    ( M:le_source_info(Ref, _, _, ID) -> retractall(le_current_id(_)), assertz(le_current_id(ID)) ; true ).
 
 %!  person_age(?Person, ?Age) is nondet.
 
@@ -728,7 +723,8 @@ read_tests(Stream, Tests) :-
 
 runTestsInDir(Dir, Results) :-
     directory_files(Dir, Files),
-    findall(LEFile, (member(F, Files), sub_atom(F, _, _, 0, '.le'), \+ sub_atom(F, _, _, 0, '.le.tests'), directory_file_path(Dir, F, LEFile)), LEFiles),
+    findall(LEFile, (member(F, Files), sub_atom(F, _, _, 0, '.le'), \+ sub_atom(F, _, _, 0, '.le.tests'), directory_file_path(Dir, F, LEFile)), LEFiles0),
+    sort(LEFiles0, LEFiles),
     maplist(runTestsFor, LEFiles, Results).
 
 runTestsFor(LEFile, Result) :-
