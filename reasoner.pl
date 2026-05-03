@@ -20,8 +20,12 @@
 i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     init_counter,
-    ( SessionModule:le_my_kb(KBmodule) ->  true; KBmodule = none),
-    solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys).
+    ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
+    setup_call_cleanup(
+        nb_setval(le_kb_module, KBmodule),
+        solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys),
+        nb_delete(le_kb_module)
+    ).
 
 %!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 %
@@ -29,11 +33,15 @@ i(Goal, SessionModule, Unknowns, Whys) :-
 explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     init_counter,
-    ( SessionModule:le_my_kb(KBmodule) ->  true; KBmodule = none),
-    (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys) ->  true 
-        ;   
-        Unknowns = [],
-        findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
+    ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
+    setup_call_cleanup(
+        nb_setval(le_kb_module, KBmodule),
+        (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys) ->  true 
+            ;   
+            Unknowns = [],
+            findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
+        ),
+        nb_delete(le_kb_module)
     ).
 
 %!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is nondet.
@@ -160,7 +168,7 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
     (   KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G) ->  
             Us = [G], WhysBody = [success(G, unknown, [])]
         ; is_built_in(G) ->  
-            call_reasoner_built_in(G), Us = [], Ref = built_in, WhysBody = []
+            call_reasoner_built_in(G, SM), Us = [], Ref = built_in, WhysBody = []
         ; G = is_a(X, Z) ->  
             D1 is D + 1,
             (   X == Z -> Us = [], WhysBody = [success(G, identity, [])]
@@ -182,6 +190,7 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
                 WhysBody = [success(is_a(X, Y), Ref1, []) | WhysBody2]
             )
         ; get_clause(G, SM, KM, Body, Ref),
+            ( KM \== none -> le_kbs:set_id_from_ref(Ref, KM) ; le_kbs:set_id_from_ref(Ref, SM) ),
             \+ SM:le_neg(G),
             \+ member(G, Anc),
             D1 is D + 1,
@@ -214,6 +223,7 @@ get_clause(G, _SM, KM, Body, Ref) :-
 % Helpers
 
 is_built_in(G) :- predicate_property(G, built_in).
+is_built_in(prolog_call(_)).
 is_built_in(le_at(_, _, _)).
 is_built_in(le_known(_)).
 is_built_in(le_equal_to(_, _)).
@@ -226,17 +236,24 @@ is_built_in(le_lt(_, _)).
 is_built_in(le_is_in(_, _)).
 is_built_in(equal_to(_, _)).
 
-call_reasoner_built_in(le_known(X)) :- !, ground(X).
-call_reasoner_built_in(le_equal_to(X, Y)) :- !, X = Y.
-call_reasoner_built_in(le_assign(X, Y)) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
-call_reasoner_built_in(le_is(X, Y)) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
-call_reasoner_built_in(le_is_in(X, Y)) :- !, is_list(Y), member(X, Y).
-call_reasoner_built_in(le_ge(X, Y)) :- !, le_compare(>=, X, Y).
-call_reasoner_built_in(le_le(X, Y)) :- !, le_compare(=<, X, Y).
-call_reasoner_built_in(le_gt(X, Y)) :- !, le_compare(>, X, Y).
-call_reasoner_built_in(le_lt(X, Y)) :- !, le_compare(<, X, Y).
-call_reasoner_built_in(equal_to(X, Y)) :- !, X = Y.
-call_reasoner_built_in(G) :- call(G).
+call_reasoner_built_in(prolog_call(G), SM) :- !, 
+    (   compound(G), G = M:Goal -> M:call(Goal)
+    ;   catch(SM:call(G), _, fail) *-> true
+    ;   catch(le_kbs:call(G), _, fail) *-> true
+    ;   call(G)
+    ).
+call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).
+call_reasoner_built_in(le_known(X), _) :- !, ground(X).
+call_reasoner_built_in(le_equal_to(X, Y), _) :- !, X = Y.
+call_reasoner_built_in(le_assign(X, Y), _) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
+call_reasoner_built_in(le_is(X, Y), _) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
+call_reasoner_built_in(le_is_in(X, Y), _) :- !, is_list(Y), member(X, Y).
+call_reasoner_built_in(le_ge(X, Y), _) :- !, le_compare(>=, X, Y).
+call_reasoner_built_in(le_le(X, Y), _) :- !, le_compare(=<, X, Y).
+call_reasoner_built_in(le_gt(X, Y), _) :- !, le_compare(>, X, Y).
+call_reasoner_built_in(le_lt(X, Y), _) :- !, le_compare(<, X, Y).
+call_reasoner_built_in(equal_to(X, Y), _) :- !, X = Y.
+call_reasoner_built_in(G, _) :- call(G).
 
 le_compare(Op, X, Y) :-
     number(X), number(Y), !,

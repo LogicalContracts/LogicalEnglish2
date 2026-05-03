@@ -23,7 +23,7 @@ missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
     le_grammar:reconstruct_name(Tokens, Name),
     format(atom(Description), "Missing template for '~w'", [Name]),
     Fix = "add a template for the phrase to the 'the templates are:' section.",
-    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % --- 2. Undefined predicate ---
 undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
@@ -37,11 +37,12 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     functor(Literal, FL, AL),
     format(atom(Description), "Undefined predicate '~w/~w'", [FL, AL]),
     Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
-    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % find_in_body(+Body, -Literal)
 % Recursively finds literals in a rule body.
 % WARNING: This logic is dependent on the structure of solve_real/8 in reasoner.pl
+find_in_body(prolog_call(_), _) :- !, fail.
 find_in_body((A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(and(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body((A ; B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
@@ -130,7 +131,7 @@ rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start
     ground(Body),
     format(atom(Description), "Rule without variables: ~w if ~w", [Head, Body]),
     Fix = "move the concrete data into a scenario; rules should use variables.",
-    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % --- 5. Facts/Rules ratio ---
 facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
@@ -161,7 +162,7 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     ;   format(atom(Description), "Test failed for query '~w' in scenario '~w'", [QueryName, ScenarioName])
     ),
     Fix = "check the logic of your rules or the facts in the scenario.",
-    ( clause(KB:le_source(Ref, Start, End), true) -> true; Start = 0, End = 0).
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 count_rules(KB, Count) :-
     findall(1, (
@@ -182,13 +183,13 @@ count_facts(KB, Count) :-
 
 % Helper for system predicates
 is_system_predicate_head(le_kb(_)).
-is_system_predicate_head(le_source(_, _, _)).
+is_system_predicate_head(le_source_info(_, _, _, _)).
 is_system_predicate_head(scenario(_, _)).
 is_system_predicate_head(le_expected(_, _, _)).
 is_system_predicate_head(query_info(_, _, _)).
 is_system_predicate_head(ontology(_)).
 is_system_predicate_head(le_dict(_)).
-is_system_predicate_head(le_my_kb(_)).
+is_system_predicate_head(le_kb_module_fact(_)).
 is_system_predicate_head(le_neg(_)).
 is_system_predicate_head(sessionClause(_)).
 

@@ -1,0 +1,15 @@
+the predicates are:
+    *a person* has an age *an age*.
+    *a person* is a ghost.
+
+the knowledge base prolog_test includes:
+    *a person* has an age *an age* if
+        prolog person_age(the person, the age).
+
+    *a person* is a ghost if
+        *a person* is dead.
+
+scenario test is:
+
+query one is:
+    *someone* has an age *how old*.

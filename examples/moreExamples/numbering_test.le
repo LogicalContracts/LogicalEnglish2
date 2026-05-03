@@ -1,0 +1,19 @@
+the predicates are:
+    *a person* is eligible.
+    *a person* is a citizen.
+    *a person* is a resident.
+    *an id* has a designator *a d* for goal *a g*.
+
+the knowledge base numbering_test includes:
+    rule eligibility:
+    *a person* is eligible if:
+    1. *a person* is a citizen; or
+    2. *a person* is a resident.
+
+    *an id* has a designator *a d* for goal *a g* if
+        prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
+
+scenario test is:
+
+query one is:
+    eligibility has a designator *the designator* for goal *the goal*.

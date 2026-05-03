@@ -1,0 +1,18 @@
+the predicates are:
+    a rule has an id *an id*.
+    a rule belongs to a kb *a kb*.
+
+the knowledge base id_test includes:
+    rule mySpecialRule: a rule has an id *an id* if
+        prolog le_my_id(the id).
+
+    rule kbRule: a rule belongs to a kb *a kb* if
+        prolog (le_my_kb(KB), KB:le_kb(*a kb*)).
+
+scenario test is:
+
+query one is:
+    a rule has an id *the id*.
+
+query two is:
+    a rule belongs to a kb *the kb*.
