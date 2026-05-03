@@ -3,8 +3,8 @@ Test Summary:
 -------------
 Files processed: 26
 Total tests:     176
-Passed:          174
-Failed:          2
+Passed:          176
+Failed:          0
 Errors/Timeouts: 0
 -------------
 
@@ -14,7 +14,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/cgt_assets.le: 19 Pass, 2 Fail, 0 Error
+  [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
