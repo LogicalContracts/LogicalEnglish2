@@ -1,3 +1,10 @@
+/** <module> Logical English Classic Web API
+    
+    This module provides a REST API for Logical English. It supports
+    loading KBs, running queries, and interacting with the LE Assistant.
+    It also serves the web-based editor.
+*/
+
 :- module(classic_web_api, [start_api_server/0, start_api_server/1]).
 
 :- use_module(library(http/thread_httpd)).

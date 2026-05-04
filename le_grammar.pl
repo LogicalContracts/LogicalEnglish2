@@ -1,7 +1,8 @@
 /** <module> Logical English Grammar and Parser
     
     This module implements the DCG for Logical English and the second-pass
-    logic that transforms tokens into executable Prolog terms.
+    logic that transforms tokens into executable Prolog terms. It handles
+    the structure of KBs, scenarios, queries, and templates.
 */
 
 :- module(le_grammar, [parse_le_file/3, parse_le_text/3, parse_le_tokens/3, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,

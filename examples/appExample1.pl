@@ -1,3 +1,10 @@
+/** <module> Logical English Application Example
+    
+    A simple example demonstrating how to use the Logical English API
+    from a Prolog application. It shows how to load a KB, create a session,
+    add facts, and run queries with explanations.
+*/
+
 :- use_module('../le_kbs').
 :- use_module(library(pprint)).
 

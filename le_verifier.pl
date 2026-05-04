@@ -1,3 +1,10 @@
+/** <module> Logical English Verifier
+    
+    This module performs load-time verifications on a Logical English knowledge base.
+    It checks for missing templates, undefined predicates, untested predicates,
+    rules without variables, and other potential issues.
+*/
+
 :- module(le_verifier, [verify/2, print_issue/1, is_intensional/3, find_in_body/2]).
 
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3]).
@@ -216,8 +223,9 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
 
 count_rules(KB, Count) :-
     findall(1, (
-        current_predicate(KB:F/A), functor(Head, F, A),
-        \+ is_system_predicate_head(Head),
+        current_predicate(KB:F/A),
+        \+ is_system_predicate(F/A),
+        functor(Head, F, A),
         KB:clause(Head, Body),
         Body \== true
     ), L),
@@ -225,23 +233,12 @@ count_rules(KB, Count) :-
 
 count_facts(KB, Count) :-
     findall(1, (
-        current_predicate(KB:F/A), functor(Head, F, A),
-        \+ is_system_predicate_head(Head),
+        current_predicate(KB:F/A),
+        \+ is_system_predicate(F/A),
+        functor(Head, F, A),
         KB:clause(Head, true)
     ), L1),
     length(L1, Count).
-
-% Helper for system predicates
-is_system_predicate_head(le_kb(_)).
-is_system_predicate_head(le_source_info(_, _, _, _)).
-is_system_predicate_head(scenario(_, _)).
-is_system_predicate_head(le_expected(_, _, _)).
-is_system_predicate_head(query_info(_, _, _)).
-is_system_predicate_head(ontology(_)).
-is_system_predicate_head(le_dict(_)).
-is_system_predicate_head(le_kb_module_fact(_)).
-is_system_predicate_head(le_neg(_)).
-is_system_predicate_head(sessionClause(_)).
 
 % --- Printing ---
 print_issues(Issues) :-

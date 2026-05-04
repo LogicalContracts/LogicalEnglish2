@@ -1,7 +1,8 @@
 /** <module> Logical English Knowledge Base Management
     
     This module provides predicates for loading Logical English files,
-    managing reasoning sessions, and running tests.
+    managing reasoning sessions, running tests, and providing metadata
+    about loaded KBs. It acts as the main interface for managing LE programs.
 */
 
 :- module(le_kbs, [load/2, load_text/2, createSession/2, 

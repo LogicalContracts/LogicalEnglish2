@@ -1,3 +1,10 @@
+/** <module> Logical English Assistant
+    
+    This module provides the backend for the Logical English Assistant.
+    It manages background jobs that run 'opencode' to help users
+    write and debug Logical English programs using LLMs.
+*/
+
 :- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2, test_llm_providers/0]).
 
 :- use_module(library(process)).
