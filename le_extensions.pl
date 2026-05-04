@@ -27,6 +27,62 @@ le_grammar:post_parse_literal_hook(WordsAndVars, _Literal, VMIn, VMOut) :-
 
 is_last_var_entry('$last_var'-_).
 
+% 4. Handle 'unless' in rule bodies
+le_grammar:parse_node_extension([word(unless, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
+    (   Rest == [], Children \== [] ->
+        le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic)
+    ;   Rest \== [], Children == [] ->
+        le_grammar:parse_literal(Rest, Templates, VMIn, VMOut, SubLogic)
+    ;   Rest \== [], Children \== [] ->
+        le_grammar:parse_literal(Rest, Templates, VMIn, VM1, LogicAfter),
+        le_grammar:hierarchy_to_logic(Children, Templates, VM1, VMOut, LogicChildren),
+        SubLogic = and(LogicAfter, LogicChildren)
+    ;   fail
+    ),
+    Logic = not(SubLogic).
+
+le_grammar:parse_node_extension([word(and, _), word(unless, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
+    (   Rest == [], Children \== [] ->
+        le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic)
+    ;   Rest \== [], Children == [] ->
+        le_grammar:parse_literal(Rest, Templates, VMIn, VMOut, SubLogic)
+    ;   Rest \== [], Children \== [] ->
+        le_grammar:parse_literal(Rest, Templates, VMIn, VM1, LogicAfter),
+        le_grammar:hierarchy_to_logic(Children, Templates, VM1, VMOut, LogicChildren),
+        SubLogic = and(LogicAfter, LogicChildren)
+    ;   fail
+    ),
+    Logic = not(SubLogic).
+
+% Handle 'unless' or 'and unless' in the middle of a line
+le_grammar:parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, and(Logic1, not(Logic2))) :-
+    (   append(Before, [word(and, _), word(unless, _)|After], Tokens)
+    ;   append(Before, [word(unless, _)|After], Tokens)
+    ),
+    Before \== [],
+    % Ensure Before is a valid literal (doesn't contain further unless/and unless)
+    \+ (append(_, [word(unless, _)|_], Before)),
+    le_grammar:parse_literal(Before, Templates, VMIn, VM1, Logic1),
+    (   After == [] ->
+        le_grammar:hierarchy_to_logic(Children, Templates, VM1, VMOut, Logic2)
+    ;   Children == [] ->
+        le_grammar:parse_literal(After, Templates, VM1, VMOut, Logic2)
+    ;   % Both After and Children are non-empty. 
+        le_grammar:parse_literal(After, Templates, VM1, VM2, LogicAfter),
+        le_grammar:hierarchy_to_logic(Children, Templates, VM2, VMOut, LogicChildren),
+        Logic2 = and(LogicAfter, LogicChildren)
+    ).
+
+% 5. Handle 'either' and 'all of'
+le_grammar:parse_node_extension([word(either, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
+    Rest == [], Children \== [],
+    le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic0),
+    change_op(Logic0, and, or, Logic).
+
+le_grammar:parse_node_extension([word(all, _), word(of, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
+    Rest == [], Children \== [],
+    le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
+
 resolve_prolog_tokens(Tokens, Templates, VMIn, VMOut, Goal) :-
     % 1. Identify LE variables in Tokens and replace them with unique Prolog variable names
     tokens_to_prolog_string(Tokens, Templates, VMIn, VMOut, String, VarNames),
@@ -160,6 +216,12 @@ parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, 
     strip_numbered_noise(Tokens, CleanTokens, Op),
     (   (CleanTokens == [] ; CleanTokens == [word(either, _)]) , Children \== [] ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M)
+    ;   (CleanTokens == [word(unless, _)] ; CleanTokens == [word(and, _), word(unless, _)]) ->
+        (   Children \== [] ->
+            hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, SubLogic, RuleID, M)
+        ;   fail % Should not happen with numbered unless
+        ),
+        Logic0 = not(SubLogic)
     ;   (member(word(one, _), CleanTokens), member(word(of, _), CleanTokens)) ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M),
         change_op(Logic0, and, or, Logic1),

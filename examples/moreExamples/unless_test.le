@@ -1,0 +1,26 @@
+the predicates are:
+    we will make *a payment* for *an incident* under *a policy*.
+    *an incident* is covered.
+    *a policy* is cancelled.
+
+the knowledge base unless_test includes:
+    rule one:
+    we will make a payment for an incident under a policy if 
+        the incident is covered and unless the policy is cancelled.
+
+scenario test_one is:
+    the payment is payment789.
+    the incident is incident123.
+    the policy is policy456.
+    incident123 is covered.
+    % policy456 is NOT cancelled
+
+scenario test_two is:
+    the payment is payment789.
+    the incident is incident123.
+    the policy is policy456.
+    incident123 is covered.
+    policy456 is cancelled.
+
+query one is:
+    we will make payment789 for incident123 under policy456.
