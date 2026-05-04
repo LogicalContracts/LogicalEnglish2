@@ -407,15 +407,26 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range = range(Start, End); Range = Ref),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
-postprocess_why(failure(Goal0, Children), SM, failure(Goal, LE, ChildrenOut)) :- !,
+postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( find_first_range(Goal, SM, KB, Range) -> true ; Range = none ),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
     maplist(postprocess_why_child(SM), Whys, WhysOut).
 postprocess_why(Other, _, Other).
+
+find_first_range(Goal, SM, KB, range(Start, End)) :-
+    functor(Goal, F, A),
+    functor(Skeleton, F, A),
+    findall(S-E, (
+        (SM:clause(Skeleton, _, Ref) ; (KB \== none, KB:clause(Skeleton, _, Ref))),
+        (SM:le_source_info(Ref, S, E, _) ; (KB \== none, KB:le_source_info(Ref, S, E, _)))
+    ), Ranges),
+    Ranges \== [],
+    sort(Ranges, [Start-End|_]).
 
 postprocess_why_child(SM, Child, ChildOut) :-
     postprocess_why(Child, SM, ChildOut).

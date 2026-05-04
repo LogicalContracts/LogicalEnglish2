@@ -12,13 +12,14 @@
 :- use_module(library(pairs)).
 
 :- dynamic equal_to/2.
-:- thread_local called/3, counter/1.
+:- thread_local called/3, counter/1, success_in_not/2.
 
 %!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 %
 %   Main entry point for the meta-interpreter.
 i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
+    retractall(success_in_not(_, _)),
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
@@ -32,6 +33,7 @@ i(Goal, SessionModule, Unknowns, Whys) :-
 %   Similar to i/4, but always returns an explanation tree (success or failure).
 explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
+    retractall(success_in_not(_, _)),
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
@@ -144,9 +146,12 @@ solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, Fa
     D1 is D + 1,
     next_id(GoalID),
     assertz(called(MyID, GoalID, Goal)),
-    findall(UsA, solve(Goal, SM, KM, Anc, D1, GoalID, UsA, _), AllUsA),
-    (   member([], AllUsA) -> fail % Certain success of Goal, so not(Goal) fails
-        ; AllUsA \== [] ->  
+    findall(UsA-WhysA, solve(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA), AllResults),
+    (   member([]-WhysA, AllResults) ->  
+        assertz(success_in_not(GoalID, WhysA)),
+        fail % Certain success of Goal, so not(Goal) fails
+    ;   pairs_keys(AllResults, AllUsA),
+        AllUsA \== [] ->  
             Us = [not(Goal)], % Only unknown successes
             build_failure_tree(GoalID, FailureTrees)
         ; Us = [], % Certain failure of Goal, so not(Goal) succeeds
@@ -200,11 +205,13 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 % build_failure_tree(+ID, -Whys)
 % Reconstructs a list of "juicy" failure trees of all calls made under ID.
 build_failure_tree(ID, Whys) :-
-    called(_PID, ID, Term), % ID is the MyID of the call
-    (   is_trivial(Term)
-    ->  findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
-    ;   findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Children),
-        Whys = [failure(Term, Children)]
+    (   success_in_not(ID, Whys) -> true
+    ;   called(_PID, ID, Term), % ID is the MyID of the call
+        (   is_trivial(Term)
+        ->  findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
+        ;   findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Children),
+            Whys = [failure(Term, Children)]
+        )
     ).
 
 is_trivial((_, _)).

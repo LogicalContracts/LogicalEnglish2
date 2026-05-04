@@ -1,5 +1,0 @@
-expected("one", test_one, [
-    "we will make payment789 for incident123 under policy456"
-]).
-
-expected("one", test_two, []).

@@ -14,6 +14,7 @@ scenario test_one is:
     the policy is policy456.
     incident123 is covered.
     % policy456 is NOT cancelled
+    one expects answers ["we will make payment789 for incident123 under policy456"].
 
 scenario test_two is:
     the payment is payment789.
@@ -21,6 +22,7 @@ scenario test_two is:
     the policy is policy456.
     incident123 is covered.
     policy456 is cancelled.
+    one expects answers [].
 
 query one is:
     we will make payment789 for incident123 under policy456.
