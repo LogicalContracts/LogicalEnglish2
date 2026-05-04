@@ -11,6 +11,10 @@ the predicates are:
     *a D* owns *a B*.
     *a B* is used in the business of *an A*.
     *an A* is connected to *an E*.
+    *a person* is happy.
+    *a person* is rich.
+    *a person* is famous.
+    *a person* is successful.
 
 the knowledge base numbering_test includes:
     rule eligibility:
@@ -32,6 +36,18 @@ the knowledge base numbering_test includes:
     4.2.1. the A is connected to *an E*; and
     4.2.2. the B is used in the business of the E.
 
+    rule successful:
+    a person is successful if 
+        either
+            the person is rich
+            the person is famous.
+
+    rule happy:
+    a person is happy if
+        all of
+            the person is rich
+            the person is successful.
+
 scenario test is:
     one expects answers [
         "eligibility has designator 1", 
@@ -46,5 +62,20 @@ scenario test is:
         "jd has designator 4"
     ].
 
+scenario test_either is:
+    John is famous.
+    two expects answers ["John is successful"].
+
+scenario test_all_of is:
+    Mary is rich.
+    Mary is successful.
+    three expects answers ["Mary is happy"].
+
 query one is:
     *a rule* has designator *the designator*.
+
+query two is:
+    which person is successful.
+
+query three is:
+    which person is happy.

@@ -379,7 +379,10 @@ convert_why(success(_Goal, Ref, LE, Children), KB, JSON) :- !,
     ->  JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}
     ;   JSON = _{type: "success", literal: LE, children: JSONChildren}
     ).
-convert_why(failure(_Goal, LE, Children), KB, JSON) :- !,
+convert_why(failure(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
+    maplist(convert_why_child(KB), Children, JSONChildren),
+    JSON = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren}.
+convert_why(failure(_Goal, _Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     JSON = _{type: "failure", literal: LE, children: JSONChildren}.
 convert_why(Whys, KB, JSON) :-
