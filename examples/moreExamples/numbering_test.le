@@ -1,8 +1,16 @@
 the predicates are:
+    *an A* has a relevant asset *B*.
+    *a An* *a A* has a relevant asset *a B*.
     *a person* is eligible.
     *a person* is a citizen.
     *a person* is a resident.
     *an id* has a designator *a d* for goal *a g*.
+    *an id* has designator *a d*.
+    *an A* is affiliated with *a C*.
+    *a C* is connected to *a D*.
+    *a D* owns *a B*.
+    *a B* is used in the business of *an A*.
+    *an A* is connected to *an E*.
 
 the knowledge base numbering_test includes:
     rule eligibility:
@@ -10,11 +18,33 @@ the knowledge base numbering_test includes:
     1. *a person* is a citizen; or
     2. *a person* is a resident.
 
-    *an id* has a designator *a d* for goal *a g* if
+    *an id* has designator *a d* if
         prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
 
+    rule jd:
+    *an A* has a relevant asset *a B* if:
+    1.the A is affiliated with *a C*; and
+    2.the C is connected to *a D*; and
+    3.the D owns the B; and
+    4.either:
+    4.1. the B is used in the business of the A; or
+    4.2. all of:
+    4.2.1. the A is connected to *an E*; and
+    4.2.2. the B is used in the business of the E.
+
 scenario test is:
-    one expects answers ["eligibility has a designator 1 for goal is a citizen('* a person *')", "eligibility has a designator 2 for goal is a resident('* a person *')"].
+    one expects answers [
+        "eligibility has designator 1", 
+        "eligibility has designator 2",
+        "jd has designator 1",
+        "jd has designator 2",
+        "jd has designator 3",
+        "jd has designator 4.1",
+        "jd has designator 4.2.1",
+        "jd has designator 4.2.2",
+        "jd has designator 4.2",
+        "jd has designator 4"
+    ].
 
 query one is:
-    eligibility has a designator *the designator* for goal *the goal*.
+    *a rule* has designator *the designator*.

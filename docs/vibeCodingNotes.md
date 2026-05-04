@@ -646,3 +646,7 @@ Relevant Files Updated
 - le_kbs.pl: Updated KB loading, metadata management, and added introspection predicates.
 - reasoner.pl: Updated the meta-interpreter to maintain rule ID and KB module context using non-backtrackable global variables.
 The system is now stable and the new features are fully integrated into the Logical English environment.
+
+## Fix rules with numbering
+The rule IDs and hierarchical designators in rule conditions as alternative to indentation... are not working completely. Consider the revised LE file examples/moreExamples/numbering_test.le .
+Make sure the answers to query one include rule jd

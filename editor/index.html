@@ -286,12 +286,23 @@
         }
         #answers-panel {
             width: 30%;
-            border-right: 1px solid #444;
             overflow-y: auto;
             padding: 10px;
         }
+        #results-resizer {
+            width: 5px;
+            background-color: #333;
+            cursor: ew-resize;
+            height: 100%;
+            border-left: 1px solid #444;
+            border-right: 1px solid #444;
+            flex-shrink: 0;
+        }
+        #results-resizer:hover {
+            background-color: #0e639c;
+        }
         #explanation-panel {
-            width: 70%;
+            flex-grow: 1;
             overflow-y: auto;
             padding: 10px;
         }
@@ -476,6 +487,7 @@
                     <div style="font-size: 11px; color: #888; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Answers</div>
                     <div id="answers-list"></div>
                 </div>
+                <div id="results-resizer"></div>
                 <div id="explanation-panel">
                     <div style="font-size: 11px; color: #888; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Explanation</div>
                     <div id="explanation-tree"></div>

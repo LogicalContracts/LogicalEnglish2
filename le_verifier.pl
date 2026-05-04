@@ -22,8 +22,56 @@ missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
     ),
     le_grammar:reconstruct_name(Tokens, Name),
     format(atom(Description), "Missing template for '~w'", [Name]),
-    Fix = "add a template for the phrase to the 'the templates are:' section.",
+    tokens_to_template_hypothesis(Tokens, Hypothesis),
+    format(atom(Fix), "~w.", [Hypothesis]),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+tokens_to_template_hypothesis(Tokens, Hypothesis) :-
+    group_hypothesis_parts(Tokens, Grouped),
+    maplist(hyp_part_to_string, Grouped, Strings),
+    atomic_list_concat(Strings, ' ', Hypothesis).
+
+group_hypothesis_parts([], []).
+group_hypothesis_parts([var(Words, _)|Rest], [var(Words)|Grouped]) :- !,
+    group_hypothesis_parts(Rest, Grouped).
+% Article + ID -> *article ID*
+group_hypothesis_parts([word(Art, _), word(ID, _)|Rest], [var([LowArt, ID])|Grouped]) :-
+    le_grammar:is_article(Art),
+    le_grammar:is_id(ID), !,
+    downcase_atom(Art, LowArt),
+    group_hypothesis_parts(Rest, Grouped).
+% Just an ID -> *ID*
+group_hypothesis_parts([word(ID, _)|Rest], [var([ID])|Grouped]) :-
+    le_grammar:is_id(ID), !,
+    group_hypothesis_parts(Rest, Grouped).
+% Article + Word -> *article Word* 
+% Only if Word is followed by a stop word or end of tokens
+group_hypothesis_parts([word(Art, _), word(W, _)|Rest], [var([LowArt, W])|Grouped]) :-
+    le_grammar:is_article(Art),
+    \+ is_stop_word(W),
+    (   Rest = [] 
+    ;   Rest = [T|_], le_grammar:extract_simple_word(T, NextW), is_stop_word(NextW)
+    ), !,
+    downcase_atom(Art, LowArt),
+    group_hypothesis_parts(Rest, Grouped).
+% Proper name -> *a Name*
+group_hypothesis_parts([word(W, _)|Rest], [var([a, W])|Grouped]) :-
+    le_grammar:is_proper_name_atom(W),
+    \+ le_grammar:is_article(W), !,
+    group_hypothesis_parts(Rest, Grouped).
+% Regular word
+group_hypothesis_parts([T|Rest], [word(W)|Grouped]) :-
+    le_grammar:extract_simple_word(T, W),
+    group_hypothesis_parts(Rest, Grouped).
+
+is_stop_word(W) :- le_grammar:is_reserved(W).
+is_stop_word(W) :- le_grammar:is_ignorable(W).
+is_stop_word(W) :- le_grammar:is_punct(W).
+
+hyp_part_to_string(var(Words), String) :-
+    atomic_list_concat(Words, ' ', Name),
+    format(atom(String), '*~w*', [Name]).
+hyp_part_to_string(word(W), W).
 
 % --- 2. Undefined predicate ---
 undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
