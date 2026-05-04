@@ -18,15 +18,15 @@ the predicates are:
 
 the knowledge base numbering_test includes:
     rule eligibility:
-    *a person* is eligible if:
-    1. *a person* is a citizen; or
-    2. *a person* is a resident.
+    a person is eligible if:
+    1. a person is a citizen; or
+    2. a person is a resident.
 
-    *an id* has designator *a d* if
+    an id has designator a d if
         prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
 
     rule jd:
-    *an A* has a relevant asset *a B* if:
+    an A has a relevant asset a B if:
     1.the A is affiliated with *a C*; and
     2.the C is connected to *a D*; and
     3.the D owns the B; and
@@ -38,7 +38,7 @@ the knowledge base numbering_test includes:
 
     rule successful:
     a person is successful if 
-        either
+        any of
             the person is rich
             the person is famous.
 

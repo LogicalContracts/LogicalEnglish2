@@ -385,6 +385,9 @@ is_terminator --> any_indent, t(punctuation('.', _)).
 is_terminator --> any_indent, t(punctuation(',', _)).
 is_terminator --> any_indent, t(word(if, _)).
 is_terminator --> any_indent, t(word(unless, _)).
+is_terminator --> any_indent, t(word(either, _)).
+is_terminator --> any_indent, t(word(any, _)), t(word(of, _)).
+is_terminator --> any_indent, t(word(all, _)), t(word(of, _)).
 is_terminator --> any_indent, t(word(and, _)), t(word(unless, _)).
 is_terminator --> any_indent, t(word(expects, _)).
 
