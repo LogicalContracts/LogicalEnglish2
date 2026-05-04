@@ -228,6 +228,10 @@ kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
         numbered_body(Body, End)
     ;   t(word(if, _)) ->
         body(Body, End)
+    ;   (t(word(unless)), t(punctuation(':'))) ->
+        numbered_body(Body0, End), { Body = unless(Body0) }
+    ;   t(word(unless, _)) ->
+        body(Body0, End), { Body = unless(Body0) }
     ),
     { Indent = N }.
 
@@ -239,6 +243,10 @@ kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
         numbered_body(Body, End)
     ;   t(word(if, _)) ->
         body(Body, End)
+    ;   (t(word(unless)), t(punctuation(':'))) ->
+        numbered_body(Body0, End), { Body = unless(Body0) }
+    ;   t(word(unless, _)) ->
+        body(Body0, End), { Body = unless(Body0) }
     ),
     { Indent = N, ID = _ }.
 
@@ -372,9 +380,12 @@ body_token(T) --> [T].
 
 % is_terminator matches tokens that end a template instance (period, comma, or 'if').
 is_terminator --> any_indent, t(word(if)), t(punctuation(':', _)).
+is_terminator --> any_indent, t(word(unless)), t(punctuation(':', _)).
 is_terminator --> any_indent, t(punctuation('.', _)).
 is_terminator --> any_indent, t(punctuation(',', _)).
 is_terminator --> any_indent, t(word(if, _)).
+is_terminator --> any_indent, t(word(unless, _)).
+is_terminator --> any_indent, t(word(and, _)), t(word(unless, _)).
 is_terminator --> any_indent, t(word(expects, _)).
 
 % is_body_terminator matches the period that ends a rule body.
@@ -439,7 +450,7 @@ is_id(W) :- atom(W), atom_length(W, 1), is_upper_atom(W).
 is_id(W) :- atom(W), atom_length(W, L), L =< 6, is_all_caps(W), \+ (W == 'UK').
 is_id(W) :- atom(W), atom_length(W, L), L =< 3, is_proper_name_atom(W).
 
-is_reserved(W) :- member(W, [says, that, if, and, or]).
+is_reserved(W) :- member(W, [says, that, if, and, or, unless]).
 
 extract_id(Words, Name) :-
     \+ (member(W, Words), is_reserved(W)),
@@ -752,6 +763,19 @@ second_pass_content(Items, Templates, NewItems, M) :-
 
 second_pass_item_with_module(Templates, M, Item, NewItem) :-
     second_pass_item(Templates, Item, NewItem, M).
+
+second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (   parse_literal(Head, Templates, [], VM1, NewHead, true) ->  
+        (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, SubBody) ->  
+            NewBody = not(SubBody)
+            ;   
+            NewBody = true % Fallback
+        )
+        ;   
+        NewHead = unknown_template(Head),
+        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, SubBody) -> NewBody = not(SubBody); NewBody = true)
+    ).
 
 second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
@@ -1127,6 +1151,8 @@ is_not_the_case(Tokens) :-
     maplist(extract_word_atom, Tokens, Atoms),
     (   Atoms = [it, is, not, the, case, that]
     ;   Atoms = [not, the, case, that]
+    ;   Atoms = [unless]
+    ;   Atoms = [and, unless]
     ).
 
 extract_word_atom(word(A, _), A) :- !.

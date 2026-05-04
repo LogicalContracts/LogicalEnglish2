@@ -8828,6 +8828,7 @@ connection.onCompletion((params) => {
     { label: "or", kind: 14 },
     { label: "either", kind: 14 },
     { label: "all of", kind: 14 },
+    { label: "unless", kind: 14 },
     { label: "for all cases in which", kind: 14 },
     { label: "it is the case that", kind: 14 },
     { label: "it is not the case that", kind: 14 },
@@ -8894,7 +8895,7 @@ connection.onHover((params) => {
       switch (token.type) {
         case 1 /* Word */:
           const word = String(token.value);
-          const keywords = ["includes", "if", "and", "or", "either", "all of", "which", "sum", "count", "average", "min", "max", "is", "are", "a", "an", "the", "such that"];
+          const keywords = ["includes", "if", "and", "or", "either", "all of", "unless", "which", "sum", "count", "average", "min", "max", "is", "are", "a", "an", "the", "such that"];
           const headers = ["knowledge", "base", "scenario", "query", "ontology", "predicates", "templates", "fluents", "events", "target", "language"];
           if (keywords.includes(word.toLowerCase())) {
             leType = "Logical Keyword";
