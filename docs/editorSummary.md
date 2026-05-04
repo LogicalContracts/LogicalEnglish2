@@ -20,7 +20,7 @@ Monaco is initialised with the `le` language definition, providing:
 - **Syntax highlighting** (`le-language.ts` and `server.ts`):
     - **Template-Aware Highlighting (Semantic Tokens)**: The LSP server extracts templates from the document and applies context-aware coloring to template instances. Template words are styled as plain text, while arguments (e.g., `an entity`, `ET`) are styled as variables. This ensures that template words (like `for`) are not incorrectly highlighted as logical keywords (like `or`).
     - **Section Headers**: `the knowledge base`, `scenario`, `query`, `the ontology`, `the predicates`, `the templates`, `the fluents`, `the events`, `the target language` (styled as `keyword.header`)
-    - **Logical Keywords**: `includes`, `if`, `and`, `or`, `which`, `for all cases in which`, `it is the case that`, `it is not the case that`, `not the case that`, `sum`, `count`, `average`, `min`, `max`, `is a`, `is an`, `such that` (styled as `keyword`)
+    - **Logical Keywords**: `includes`, `if`, `and`, `or`, `either`, `any of`, `all of`, `unless`, `which`, `for all cases in which`, `it is the case that`, `it is not the case that`, `not the case that`, `sum`, `count`, `average`, `min`, `max`, `is a`, `is an`, `such that` (styled as `keyword`)
     - **Test Keywords**: `expects answers` (styled as `keyword.expects`)
     - **Variables**: `*variable*` patterns, standalone capitalized IDs (e.g., `ET`, `ATR`), and arguments starting with `a`, `an`, `the`, `each`, or `some` (styled as `variable`)
     - **Strings**: Double-quoted `"..."` and single-quoted `'...'` strings with escape character support (styled as `string`)
@@ -30,19 +30,12 @@ Monaco is initialised with the `le` language definition, providing:
     - **Operators**: Comparison operators like `<`, `>`, `<=`, `>=`, `==`, `!=`, `!`, `=` (styled as `operator`)
     - **Punctuation**: Brackets `[]`, `()`, `{}` and delimiters `.`, `,`, `:`
 
-- **Auto-closing pairs** — `[]`, `()`, `{}`, `""`, `''`, `**`
-- **Code folding** (`textDocument/foldingRange`) — sections delimited by headers (e.g. `the knowledge base`, `scenario`, `query`) and individual rule bodies (head + indented lines)
-- **Completions** (`textDocument/completion`, triggers: space, `*`) — templates extracted from the `the predicates/templates/fluents/events are:` sections, plus system comparison templates, section-header snippets, and logical keywords; the client applies smart overlap detection to avoid duplicate prefix insertion
-- **Hover** (`textDocument/hover`) — returns the token type and value at the cursor
-
-Content changes are debounced (1 500 ms) before auto-triggering a module reload on the server.
-
 ### Theme Colors
 
 | Language Item | Dark Theme (`le-theme`) | Light Theme (`le-theme-light`) | High Contrast (`hc-black`) |
 | :--- | :--- | :--- | :--- |
 | **Section Headers** | `#569cd6` (Blue, Bold) | `#0000ff` (Blue, Bold) | White (Bold) |
-| **Logical Keywords** | `#569cd6` (Blue) | `#0000ff` (Blue) | `#c586c0` (Purple) |
+| **Logical Keywords** | `#c586c0` (Purple) | `#af00db` (Purple) | `#c586c0` (Purple) |
 | **Test Keywords** | `#c586c0` (Purple, Italic) | `#af00db` (Purple, Italic) | White (Italic) |
 | **Variables / Arguments** | `#9cdcfe` (Light Blue) | `#001080` (Dark Blue) | `#9cdcfe` (Cyan) |
 | **Template Words** | `#d4d4d4` (Light Gray) | `#000000` (Black) | White |
@@ -51,16 +44,32 @@ Content changes are debounced (1 500 ms) before auto-triggering a module reload 
 | **Comments** | `#6a9955` (Green) | `#008000` (Green) | `#7ca668` (Green) |
 | **Operators / Punctuation** | `#d4d4d4` (Light Gray) | `#000000` (Black) | White |
 
+- **Auto-closing pairs** — `[]`, `()`, `{}`, `""`, `''`, `**`
+- **Code folding** (`textDocument/foldingRange`) — sections delimited by headers (e.g. `the knowledge base`, `scenario`, `query`) and individual rule bodies (head + indented lines)
+- **Completions** (`textDocument/completion`, triggers: space, `*`) — templates extracted from the `the predicates/templates/fluents/events are:` sections, plus system comparison templates, section-header snippets, and logical keywords; the client applies smart overlap detection to avoid duplicate prefix insertion
+- **Hover** (`textDocument/hover`) — returns the token type and value at the cursor
+- **Quick Fixes** — missing template warnings provide a lightbulb action to automatically insert a template hypothesis into the `the templates are:` section.
+
+Content changes are debounced (1 500 ms) before auto-triggering a module reload on the server.
+
+### File Management
+
+The editor supports local and server-side file operations:
+- **New / Open / Save / Save As**: Standard file operations using the File System Access API (with fallback to traditional downloads).
+- **Open from Server**: Browse and load built-in examples from the `examples/moreExamples/` directory.
+- **Build Info**: Hovering over the editor title shows the current server build version.
+
 ---
 
-## Error Reporting
+## LE Assistant
 
-Errors arrive from two sources and are merged into Monaco markers (squiggly underlines):
+A built-in chat interface allows users to interact with an LLM-powered agent. The assistant can:
+- Explain Logical English code.
+- Refactor rules or templates.
+- Generate new LE code from natural language descriptions.
+- Update the editor content directly with its suggestions.
 
-1. **LSP diagnostics** (browser, immediate) — the LSP server tokenises on every change and flags unclosed strings as `DiagnosticSeverity.Error`.
-2. **Server issues** (on load) — the `/leapi load` response includes an `issues` array of `{severity, type, message, start, end}` objects produced by the LE verifier (`le_verifier`). These become Monaco markers and are also displayed in a panel below the editor.
-
-When any error-severity issue is present the **Run Query** button is disabled.
+Users can configure API keys and select models (OpenAI, Anthropic, Google, etc.) in the **Misc > API Keys...** menu.
 
 ---
 
@@ -72,6 +81,8 @@ When any error-severity issue is present the **Run Query** button is disabled.
 | Hover token inspection | Implemented (LSP) |
 | Go-to-definition / document outline | Not implemented |
 | **Click node in explanation tree → highlight source range** | Implemented (client.ts) |
+| **See PROLOG** | Implemented (Context Menu) — shows the Prolog translation of the term at cursor |
+| **Copy URL** | Implemented (Context Menu) — copies a link to the current example and line |
 
 The explanation-tree click handler uses `start`/`end` character offsets stored in each tree node (populated by `le_source/3` facts written during KB loading) to call `editor.setSelection()` and `editor.revealRange()`.
 

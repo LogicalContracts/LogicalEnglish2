@@ -15,7 +15,12 @@ A predicate is used in a rule body but is never defined — no rule has it as it
 ## This predicate is not tested by any query: '...'
 
 An intensional predicate (one defined by rules) is not reachable from any `query` in the program.  
-**Fix:** add a query that exercises the predicate, and add expected answers to the `.le.tests` file.
+**Fix:** add a query that exercises the predicate, and add expected answers to the `.le.tests` file or using `expects answers` in a scenario.
+
+## Test failed for query '...' in scenario '...'
+
+The actual results of a query do not match the expected answers defined in the scenario or `.le.tests` file.  
+**Fix:** check the logic of your rules or the facts in the scenario.
 
 ## Rule without variables: ...
 
@@ -27,3 +32,7 @@ Both the head and body of a rule are fully ground — they contain no variables,
 - **Missing rules:** the program contains only facts and no rules.  
 - **Too many facts:** facts outnumber rules by more than 5:1.  
 **Fix:** add rules that derive conclusions from the facts.
+
+---
+
+**Note:** The editor provides **Quick Fixes** (lightbulb icon) for "Missing template" warnings, which automatically suggest and insert a template definition.

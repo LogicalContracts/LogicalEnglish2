@@ -32,10 +32,12 @@ Templates map natural language sentences to Prolog predicates.
 
 ## 4. Logical Operators
 - **And:** `and` (or new line with same indentation)
-- **Or:** `or`
+- **Or:** `or`, `either`, `any of`, `all of`
 - **Negation:** `it is not the case that` or `not the case that`
   - `it is not the case that *a person* is a citizen`
   - `not the case that *a person* is a citizen`
+- **Conditional Negation:** `unless`
+  - `Head if Body unless Condition.` (Equivalent to `Head if Body and not Condition.`)
 - **Universal Quantification:**
   ```le
   for all cases in which
@@ -65,6 +67,14 @@ Used to perform calculations over sets of results.
 ## 7. Arithmetic and Comparisons
 - **Math:** `+`, `-`, `*`, `/`, `( )`
 - **Comparison:** `=`, `>`, `<`, `>=`, `<=`, `==`, `!=`
+- **System Templates:**
+  - `*V1* is equal to *V2*`
+  - `*V1* is greater than or equal to *V2*`
+  - `*V1* is less than or equal to *V2*`
+  - `*V1* is after or equal to *V2*`
+  - `*V1* is before or equal to *V2*`
+  - `*V1* is known`
+  - `*V1* is in *V2*` (List membership)
 
 ## 8. Taxonomy (Ontology)
 - **Is-a hierarchy:** `<Subtype> is a <Supertype>` or `<Subtype> is an <Supertype>`

@@ -166,7 +166,7 @@ The `file` path must reside under `/moreExamples/`. Files ending in `.le` are pa
   "queries": [ { "name": "...", "template": "...", "le": "..." }, ... ],
   "language": "le | prolog",
   "target": "prolog",
-  "issues": [ { "severity": "...", "type": "...", "message": "...", "start": 0, "end": 0 }, ... ]
+  "issues": [ { "severity": "...", "type": "...", "message": "...", "fix": "...", "start": 0, "end": 0 }, ... ]
 }
 ```
 
@@ -187,8 +187,8 @@ Requires a prior `load` call to obtain `sessionModule`.
   "sessionModule": "<module name from load>",
   "query": "<English query string>",
   "scenario": "<Scenario name or Prolog scenario term string>",
-  "customScenario": "<Logical English facts string>",
-  "customQuery": "<Logical English query string>"
+  "customScenario": "<Logical English facts string or null>",
+  "customQuery": "<Logical English query string or null>"
 }
 ```
 
@@ -210,6 +210,114 @@ Requires a prior `load` call to obtain `sessionModule`.
 ```
 
 If no answers are found, a negative explanation is returned in the `why` field of the top-level object.
+
+---
+
+### `getProlog` — Retrieve the Prolog translation of a LE term
+
+Returns the Prolog clause corresponding to the LE source at a given character offset.
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "getProlog",
+  "sessionModule": "<module name>",
+  "position": <character offset>
+}
+```
+
+**Response**
+
+```json
+{ "prolog": "<Prolog source text>" }
+```
+
+---
+
+### `assistant_command` — Send a natural language command to the LE Assistant
+
+Triggers an LLM-powered agent to perform tasks like refactoring, explaining, or generating LE code.
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "assistant_command",
+  "command": "<user prompt>",
+  "document": "<current LE source>",
+  "sessionId": "<unique session ID>",
+  "model": "<model name>",
+  "apiKeys": { "openai": "...", "anthropic": "...", ... }
+}
+```
+
+**Response**
+
+```json
+{ "jobId": "<background job ID>" }
+```
+
+---
+
+### `assistant_status` — Poll for assistant job progress
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "assistant_status",
+  "jobId": "<job ID>"
+}
+```
+
+**Response**
+
+```json
+{
+  "status": "running | completed | failed",
+  "answer": "<markdown response>",
+  "document": "<updated LE source or null>",
+  "logs": "<stderr output>"
+}
+```
+
+---
+
+### `list_models` — List available LLM models and server-side keys
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "list_models"
+}
+```
+
+**Response**
+
+```json
+{
+  "models": [ { "short": "...", "provider": "...", "api_model": "..." }, ... ],
+  "server_keys": [ "openai", "anthropic", ... ]
+}
+```
+
+---
+
+### `build_info` — Get server build information
+
+**Request (GET)**: `/build_info`
+
+**Response**
+
+```json
+{ "build_info": "..." }
+```
 
 ---
 
