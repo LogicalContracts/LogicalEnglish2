@@ -66,6 +66,7 @@ declare var monaco: any;
             base: 'vs-dark',
             inherit: true,
             rules: [
+                { token: 'keyword', foreground: 'c586c0' },
                 { token: 'keyword.header', foreground: '569cd6', fontStyle: 'bold' },
                 { token: 'keyword.expects', foreground: 'c586c0', fontStyle: 'italic' },
                 { token: 'variable', foreground: '9cdcfe' },
@@ -81,6 +82,7 @@ declare var monaco: any;
             base: 'vs',
             inherit: true,
             rules: [
+                { token: 'keyword', foreground: 'af00db' },
                 { token: 'keyword.header', foreground: '0000ff', fontStyle: 'bold' },
                 { token: 'keyword.expects', foreground: 'af00db', fontStyle: 'italic' },
                 { token: 'variable', foreground: '001080' },

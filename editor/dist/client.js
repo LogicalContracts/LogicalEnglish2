@@ -33,7 +33,7 @@ var leMonarchTokens = {
       [/the (predicates|templates|fluents|events) are:/, { token: "keyword.header", next: "@templates" }],
       [/the knowledge base|scenario|query|the ontology|the target language/, "keyword.header"],
       // Structural Keywords
-      [/\b(includes|if|and|or|which|for all cases in which|it is the case that|it is not the case that|not the case that|sum|count|average|min|max|is a|is an|such that)\b/, "keyword"],
+      [/\b(includes|if|and|or|either|all of|which|for all cases in which|it is the case that|it is not the case that|not the case that|sum|count|average|min|max|is a|is an|such that)\b/, "keyword"],
       [/\bexpects answers\b/, "keyword.expects"],
       // Arguments (a/an/the/each/some + word)
       [/\b(a|an|the|each|some)\s+[a-z]\w*/, "variable"],
@@ -152,6 +152,7 @@ async function start() {
     base: "vs-dark",
     inherit: true,
     rules: [
+      { token: "keyword", foreground: "c586c0" },
       { token: "keyword.header", foreground: "569cd6", fontStyle: "bold" },
       { token: "keyword.expects", foreground: "c586c0", fontStyle: "italic" },
       { token: "variable", foreground: "9cdcfe" },
@@ -167,6 +168,7 @@ async function start() {
     base: "vs",
     inherit: true,
     rules: [
+      { token: "keyword", foreground: "af00db" },
       { token: "keyword.header", foreground: "0000ff", fontStyle: "bold" },
       { token: "keyword.expects", foreground: "af00db", fontStyle: "italic" },
       { token: "variable", foreground: "001080" },
