@@ -68,7 +68,7 @@ load(FilePath, NewModule) :-
 load_sync(NewModule, _) :-
     current_module(NewModule), 
     current_predicate(NewModule:le_source_info/4), 
-    \+ current_predicate(NewModule:le_issue/5),
+    \+ current_predicate(NewModule:le_issue/6),
     !.
 load_sync(NewModule, FilePath) :-
     % Ensure we start with a clean module
@@ -87,16 +87,16 @@ load_sync(NewModule, FilePath) :-
         findall(D, le_system_template(D), SysDicts),
         forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
         (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-            forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+            forall(member(issue(Type, Desc, Fix, Start, End), Issues), (
                 (Type == missing_template -> Severity = error; Severity = warning),
-                assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+                assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
             ))
         ;   true
         )
     ;   % Parsing failed
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
         forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
-        assertz(NewModule:le_issue(error, parse_error, "parse_le_file failed for ~w" - [FilePath], 0, 0)),
+        assertz(NewModule:le_issue(error, parse_error, "parse_le_file failed for ~w" - [FilePath], "", 0, 0)),
         assertz(NewModule:le_source_info(none, 0, 0, none)),
         print_message(error, "parse_le_file failed for ~w" - [FilePath])
     ).
@@ -112,7 +112,7 @@ load_text(Text, NewModule) :-
 load_text_sync(NewModule, _) :-
     current_module(NewModule), 
     current_predicate(NewModule:le_source_info/4), 
-    \+ current_predicate(NewModule:le_issue/5),
+    \+ current_predicate(NewModule:le_issue/6),
     !.
 load_text_sync(NewModule, Text) :-
     % Ensure we start with a clean module
@@ -131,15 +131,15 @@ load_text_sync(NewModule, Text) :-
         findall(D, le_system_template(D), SysDicts),
         forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
         (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-            forall(member(issue(Type, Desc, _Fix, Start, End), Issues), (
+            forall(member(issue(Type, Desc, Fix, Start, End), Issues), (
                 (Type == missing_template -> Severity = error; Severity = warning),
-                assertz(NewModule:le_issue(Severity, Type, Desc, Start, End))
+                assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
             ))
         ;   true)
     ;   % Parsing failed
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
         forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
-        assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", 0, 0)),
+        assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", "", 0, 0)),
         assertz(NewModule:le_source_info(none, 0, 0, none)),
         print_message(error, "parse_le_text failed")
     ).
@@ -633,7 +633,7 @@ is_system_predicate(query_info/3).
 is_system_predicate(ontology/1).
 is_system_predicate(le_dict/1).
 is_system_predicate(unknown_template/1).
-is_system_predicate(le_issue/5).
+is_system_predicate(le_issue/6).
 is_system_predicate(le_kb_module_fact/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).

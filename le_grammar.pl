@@ -6,7 +6,7 @@
 
 :- module(le_grammar, [parse_le_file/3, parse_le_text/3, parse_le_tokens/3, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
     kb_items//1, second_pass_item/4, parse_literal/6, prepare_templates/2,
-    set_token_pos/1, get_token_pos/1, is_id/1,
+    set_token_pos/1, get_token_pos/1, is_id/1, is_article/1, is_reserved/1, is_ignorable/1, is_proper_name_atom/1, is_punct/1,
     extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6,
     extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3]).
 

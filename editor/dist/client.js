@@ -102,6 +102,52 @@ async function start() {
   monaco.languages.register({ id: "le" });
   monaco.languages.setLanguageConfiguration("le", leLanguageConfiguration);
   monaco.languages.setMonarchTokensProvider("le", leMonarchTokens);
+  const issueFixes = /* @__PURE__ */ new Map();
+  const getMarkerKey = (marker) => {
+    return `${marker.startLineNumber}:${marker.startColumn}:${marker.message}`;
+  };
+  monaco.languages.registerCodeActionProvider("le", {
+    provideCodeActions: (model2, range, context, token) => {
+      const actions = context.markers.filter((m) => m.source === "LE Verifier").map((m) => {
+        const fix = issueFixes.get(getMarkerKey(m));
+        if (!fix)
+          return null;
+        const text = model2.getValue();
+        const match = text.match(/the (predicates|templates|fluents|events) are:/i);
+        let insertRange;
+        if (match) {
+          const offset = match.index + match[0].length;
+          const pos = model2.getPositionAt(offset);
+          insertRange = new monaco.Range(pos.lineNumber + 1, 1, pos.lineNumber + 1, 1);
+        } else {
+          insertRange = new monaco.Range(1, 1, 1, 1);
+        }
+        return {
+          title: `Add template: ${fix}`,
+          diagnostics: [m],
+          kind: "quickfix",
+          edit: {
+            edits: [
+              {
+                resource: model2.uri,
+                textEdit: {
+                  range: insertRange,
+                  text: `    ${fix}
+`
+                }
+              }
+            ]
+          },
+          isPreferred: true
+        };
+      }).filter((a) => a !== null);
+      return {
+        actions,
+        dispose: () => {
+        }
+      };
+    }
+  });
   monaco.editor.defineTheme("le-theme", {
     base: "vs-dark",
     inherit: true,
@@ -704,10 +750,11 @@ async function start() {
     const model2 = editor.getModel();
     if (!model2)
       return;
+    issueFixes.clear();
     const markers = issues.map((issue) => {
       const startPos = model2.getPositionAt(issue.start);
       const endPos = model2.getPositionAt(issue.end);
-      return {
+      const marker = {
         severity: issue.severity === "error" ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
         startLineNumber: startPos.lineNumber,
         startColumn: startPos.column,
@@ -716,6 +763,10 @@ async function start() {
         message: issue.message,
         source: "LE Verifier"
       };
+      if (issue.fix) {
+        issueFixes.set(getMarkerKey(marker), issue.fix);
+      }
+      return marker;
     });
     monaco.editor.setModelMarkers(model2, "le-verifier", markers);
     updateQueryButtonState();
@@ -856,6 +907,29 @@ async function start() {
   document.addEventListener("mouseup", () => {
     isResizing = false;
     document.body.style.cursor = "default";
+  });
+  const resultsResizer = document.getElementById("results-resizer");
+  const answersPanel = document.getElementById("answers-panel");
+  let isResizingResults = false;
+  resultsResizer.addEventListener("mousedown", (e) => {
+    isResizingResults = true;
+    document.body.style.cursor = "ew-resize";
+  });
+  document.addEventListener("mousemove", (e) => {
+    if (!isResizingResults)
+      return;
+    const resultsArea = document.getElementById("results-area");
+    const rect = resultsArea.getBoundingClientRect();
+    const offsetLeft = e.clientX - rect.left;
+    const percentage = offsetLeft / rect.width * 100;
+    if (percentage > 10 && percentage < 90) {
+      answersPanel.style.width = `${percentage}%`;
+    }
+  });
+  document.addEventListener("mouseup", () => {
+    isResizingResults = false;
+    if (!isResizing)
+      document.body.style.cursor = "default";
   });
   const answersList = document.getElementById("answers-list");
   const explanationTree = document.getElementById("explanation-tree");

@@ -12,6 +12,56 @@ declare var monaco: any;
         monaco.languages.setLanguageConfiguration('le', leLanguageConfiguration);
         monaco.languages.setMonarchTokensProvider('le', leMonarchTokens);
 
+        const issueFixes = new Map<string, string>();
+        const getMarkerKey = (marker: any) => {
+            return `${marker.startLineNumber}:${marker.startColumn}:${marker.message}`;
+        };
+
+        monaco.languages.registerCodeActionProvider('le', {
+            provideCodeActions: (model: any, range: any, context: any, token: any) => {
+                const actions = context.markers
+                    .filter((m: any) => m.source === 'LE Verifier')
+                    .map((m: any) => {
+                        const fix = issueFixes.get(getMarkerKey(m));
+                        if (!fix) return null;
+                        
+                        const text = model.getValue();
+                        const match = text.match(/the (predicates|templates|fluents|events) are:/i);
+                        let insertRange;
+                        if (match) {
+                            const offset = match.index + match[0].length;
+                            const pos = model.getPositionAt(offset);
+                            insertRange = new monaco.Range(pos.lineNumber + 1, 1, pos.lineNumber + 1, 1);
+                        } else {
+                            insertRange = new monaco.Range(1, 1, 1, 1);
+                        }
+
+                        return {
+                            title: `Add template: ${fix}`,
+                            diagnostics: [m],
+                            kind: "quickfix",
+                            edit: {
+                                edits: [
+                                    {
+                                        resource: model.uri,
+                                        textEdit: {
+                                            range: insertRange,
+                                            text: `    ${fix}\n`
+                                        }
+                                    }
+                                ]
+                            },
+                            isPreferred: true
+                        };
+                    })
+                    .filter((a: any) => a !== null);
+                return {
+                    actions: actions,
+                    dispose: () => {}
+                };
+            }
+        });
+
         monaco.editor.defineTheme('le-theme', {
             base: 'vs-dark',
             inherit: true,
@@ -686,10 +736,11 @@ declare var monaco: any;
         const model = editor.getModel();
         if (!model) return;
 
+        issueFixes.clear();
         const markers = issues.map((issue: any) => {
             const startPos = model.getPositionAt(issue.start);
             const endPos = model.getPositionAt(issue.end);
-            return {
+            const marker = {
                 severity: issue.severity === 'error' ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
                 startLineNumber: startPos.lineNumber,
                 startColumn: startPos.column,
@@ -698,6 +749,10 @@ declare var monaco: any;
                 message: issue.message,
                 source: 'LE Verifier'
             };
+            if (issue.fix) {
+                issueFixes.set(getMarkerKey(marker), issue.fix);
+            }
+            return marker;
         });
 
         monaco.editor.setModelMarkers(model, 'le-verifier', markers);
@@ -856,6 +911,32 @@ declare var monaco: any;
     document.addEventListener('mouseup', () => {
         isResizing = false;
         document.body.style.cursor = 'default';
+    });
+
+    const resultsResizer = document.getElementById('results-resizer')!;
+    const answersPanel = document.getElementById('answers-panel')!;
+    let isResizingResults = false;
+
+    resultsResizer.addEventListener('mousedown', (e) => {
+        isResizingResults = true;
+        document.body.style.cursor = 'ew-resize';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isResizingResults) return;
+        const resultsArea = document.getElementById('results-area')!;
+        const rect = resultsArea.getBoundingClientRect();
+        const offsetLeft = e.clientX - rect.left;
+        const percentage = (offsetLeft / rect.width) * 100;
+
+        if (percentage > 10 && percentage < 90) {
+            answersPanel.style.width = `${percentage}%`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isResizingResults = false;
+        if (!isResizing) document.body.style.cursor = 'default';
     });
 
     const answersList = document.getElementById('answers-list')!;

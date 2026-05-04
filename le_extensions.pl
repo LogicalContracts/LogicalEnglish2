@@ -122,7 +122,7 @@ extract_designator_parts([T, punctuation(P, _)|Ts], [Part|Parts], Rest) :-
     P == '.',
     le_grammar:extract_simple_word(T, Part),
     !,
-    (   (Ts = [word(_, _)|_] ; Ts = [number(_, _)|_]) ->
+    (   ( (Ts = [word(_, _), punctuation('.', _)|_] ; Ts = [number(_, _), punctuation('.', _)|_]) ) ->
         extract_designator_parts(Ts, Parts, Rest)
     ;   Rest = Ts, Parts = []
     ).
@@ -158,7 +158,7 @@ fold_numbered_nodes(Acc, Op, [node(D, Tokens, Children)|Rest], Templates, VMIn, 
 
 parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, Op, M) :-
     strip_numbered_noise(Tokens, CleanTokens, Op),
-    (   CleanTokens == [], Children \== [] ->
+    (   (CleanTokens == [] ; CleanTokens == [word(either, _)]) , Children \== [] ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M)
     ;   (member(word(one, _), CleanTokens), member(word(of, _), CleanTokens)) ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M),
@@ -175,7 +175,11 @@ parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, 
           Logic0 =.. [Op, Literal, ChildLogic],
           VMOut = VM2
         )
-    ;   Logic0 = unknown_template(CleanTokens)
+    ;   ( Children \== [] ->
+          hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, ChildLogic, RuleID, M),
+          Logic0 = unknown_template(CleanTokens, ChildLogic)
+        ; Logic0 = unknown_template(CleanTokens)
+        )
     ),
     retractall(M:le_source_element(RuleID, D, _)),
     assertz(M:le_source_element(RuleID, D, Logic0)),
