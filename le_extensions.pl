@@ -1,3 +1,10 @@
+/** <module> Logical English Extensions
+    
+    This module provides extensions to the core Logical English grammar and
+    reasoner. It includes support for 'which' variables, 'unless' in rule
+    bodies, 'either/any of/all of' constructs, and Prolog calls.
+*/
+
 :- module(le_extensions, [resolve_prolog_tokens/5, parse_numbered_body/7]).
 
 :- use_module(le_grammar).

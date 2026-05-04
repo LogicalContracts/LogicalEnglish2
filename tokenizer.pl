@@ -2,7 +2,8 @@
     
     This module provides predicates for converting Logical English source text
     into a list of tokens. It handles indentation, words, numbers, dates,
-    quoted strings, and comments.
+    quoted strings, and comments. It also provides a way to convert tokens
+    back into a string.
 */
 
 :- module(tokenizer,[tokenize/2, tokenize_file/2, tokens_to_string/2]).

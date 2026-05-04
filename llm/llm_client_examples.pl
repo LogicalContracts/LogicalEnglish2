@@ -1,8 +1,9 @@
-/* llm_client_examples.pl  –  Usage examples for llm_client.pl
- *
- * Run from the SWI-Prolog REPL:
- *   ?- [llm_client], [llm_client_examples].
- */
+/** <module> LLM Client Examples
+    
+    Usage examples for the llm_client.pl module.
+    Run from the SWI-Prolog REPL:
+      ?- [llm_client], [llm_client_examples].
+*/
 
 :- use_module(llm_client).
 

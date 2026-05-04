@@ -1,9 +1,9 @@
 /** <module> Logical English Reasoner
     
     This module implements a meta-interpreter for Logical English (LE).
-    It handles conjunctions, disjunctions, negation as failure, and 
-    conditional answers (Unknowns).
-    It constructs success explanation trees.
+    It handles conjunctions, disjunctions, negation as failure, aggregates,
+    and conditional answers (Unknowns). It constructs success and failure
+    explanation trees.
 */
 
 :- module(reasoner, [i/4, explain/4, is_built_in/1]).
@@ -73,59 +73,14 @@ solve_real(or(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     ;   solve(B, SM, KM, Anc, D, MyID, Us, Whys)
     ).
 % Aggregates
-solve_real(sum([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(sum([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
+solve_real(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggregate, WhysGoal)]) :-
+    is_aggregate(Aggregate, Type, VarTerm, Goal, ResultTerm), !,
     D1 is D + 1,
     extract_var(VarTerm, Var),
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
     pairs_keys_values(Pairs, List, WhysList),
     flatten(WhysList, WhysGoal),
-    (   List == [] -> Sum = 0
-    ;   sum_list(List, Sum)
-    ),
-    Us = [],
-    extract_var(ResultTerm, Sum).
-solve_real(count([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(count([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
-    D1 is D + 1,
-    extract_var(VarTerm, Var),
-    findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
-    pairs_keys_values(Pairs, List, WhysList),
-    flatten(WhysList, WhysGoal),
-    length(List, Result),
-    Us = [],
-    extract_var(ResultTerm, Result).
-solve_real(min([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(min([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
-    D1 is D + 1,
-    extract_var(VarTerm, Var),
-    findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
-    pairs_keys_values(Pairs, List, WhysList),
-    flatten(WhysList, WhysGoal),
-    (   List == [] -> Result = 0 % Or fail? LE usually expects 0 for empty sum/min
-    ;   min_list(List, Result)
-    ),
-    Us = [],
-    extract_var(ResultTerm, Result).
-solve_real(max([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(max([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
-    D1 is D + 1,
-    extract_var(VarTerm, Var),
-    findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
-    pairs_keys_values(Pairs, List, WhysList),
-    flatten(WhysList, WhysGoal),
-    (   List == [] -> Result = 0
-    ;   max_list(List, Result)
-    ),
-    Us = [],
-    extract_var(ResultTerm, Result).
-solve_real(average([each, VarTerm], Goal, [ResultTerm]), SM, KM, Anc, D, MyID, Us, [success(average([each, VarTerm], Goal, [ResultTerm]), aggregate, WhysGoal)]) :- !,
-    D1 is D + 1,
-    extract_var(VarTerm, Var),
-    findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
-    pairs_keys_values(Pairs, List, WhysList),
-    flatten(WhysList, WhysGoal),
-    (   List == [] -> Result = 0
-    ;   sum_list(List, Sum),
-        length(List, Count),
-        Result is Sum / Count
-    ),
+    apply_aggregate(Type, List, Result),
     Us = [],
     extract_var(ResultTerm, Result).
 % Forall
@@ -278,6 +233,19 @@ attach_range(_, _, Why, Why).
 
 extract_var(var(_, V), V) :- !.
 extract_var(V, V).
+
+is_aggregate(Term, Type, VarTerm, Goal, ResultTerm) :-
+    Term =.. [Type, [each, VarTerm], Goal, [ResultTerm]],
+    memberchk(Type, [sum, count, min, max, average]).
+
+apply_aggregate(sum, List, Sum) :- (List == [] -> Sum = 0 ; sum_list(List, Sum)).
+apply_aggregate(count, List, Count) :- length(List, Count).
+apply_aggregate(min, List, Min) :- (List == [] -> Min = 0 ; min_list(List, Min)).
+apply_aggregate(max, List, Max) :- (List == [] -> Max = 0 ; max_list(List, Max)).
+apply_aggregate(average, List, Avg) :- 
+    (   List == [] -> Avg = 0 
+    ;   sum_list(List, Sum), length(List, Count), Avg is Sum / Count
+    ).
 
 init_counter :-
     retractall(counter(_)),

@@ -1,50 +1,38 @@
-/* llm_client.pl  –  A SWI-Prolog client for OpenAI-compatible LLM APIs
- *
- * Public interface
- * ────────────────
- *   llm_request(+Model, +Query, -Answer)
- *       Send Query (atom or string) to Model, unify Answer with the
- *       assistant's reply text.
- *
- *   llm_request(+Model, +Messages, -Answer, +Options)
- *       Low-level call.  Messages is a list of role-content pairs
- *       (see below).  Options is a list of Name(Value) terms that
- *       are forwarded verbatim as extra JSON fields (e.g. temperature(0.2),
- *       max_tokens(512)).
- *
- *   llm_model(+Model, -Provider, -APIModel)
- *       Look up the provider and the exact model string for a short name.
- *
- *   llm_list_models(-Rows)
- *       Rows = list of row(ShortName, Provider, APIModel).
- *
- * Message format
- * ──────────────
- *   Messages may be given as:
- *     • A plain atom/string  →  treated as a single user message.
- *     • A list of  role(Role, Content)  terms where Role ∈ {system, user, assistant}.
- *
- * API-key configuration
- * ─────────────────────
- *   Keys are read from environment variables:
- *     OPENAI_API_KEY    – for provider openai
- *     GROQ_API_KEY      – for provider groq
- *     ANTHROPIC_API_KEY – for provider anthropic
- *     TOGETHER_API_KEY  – for provider together (also TOGETHERAI_API_KEY)
- *     GEMINI_API_KEY    – for provider gemini  (free at aistudio.google.com)
- *
- *   Alternatively set Prolog flags:
- *     :- set_prolog_flag(llm_openai_key,    'sk-...').
- *     :- set_prolog_flag(llm_groq_key,      'gsk_...').
- *     :- set_prolog_flag(llm_anthropic_key, 'sk-ant-...').
- *     :- set_prolog_flag(llm_gemini_key,    'AIza...').
- *
- * Dependencies
- * ────────────
- *   library(http/http_client)     – ships with SWI-Prolog
- *   library(http/http_json)       – ships with SWI-Prolog
- *   library(http/http_ssl_plugin) – TLS support (usually auto-loaded)
- */
+/** <module> LLM Client
+    
+    A SWI-Prolog client for OpenAI-compatible LLM APIs.
+    Supports OpenAI, Groq, Anthropic, Together AI, and Google Gemini.
+    
+    Public interface:
+    - llm_request(+Model, +Query, -Answer): Send Query (atom or string) to Model, unify Answer with the assistant's reply text.
+    - llm_request(+Model, +Messages, -Answer, +Options): Low-level call. Messages is a list of role-content pairs. Options is a list of Name(Value) terms that are forwarded verbatim as extra JSON fields (e.g. temperature(0.2), max_tokens(512)).
+    - llm_model(+Model, -Provider, -APIModel): Look up the provider and the exact model string for a short name.
+    - llm_list_models(-Rows): Rows = list of row(ShortName, Provider, APIModel).
+
+    Message format:
+    Messages may be given as:
+    - A plain atom/string -> treated as a single user message.
+    - A list of role(Role, Content) terms where Role in {system, user, assistant}.
+
+    API-key configuration:
+    Keys are read from environment variables:
+    - OPENAI_API_KEY - for provider openai
+    - GROQ_API_KEY - for provider groq
+    - ANTHROPIC_API_KEY - for provider anthropic
+    - TOGETHER_API_KEY - for provider together (also TOGETHERAI_API_KEY)
+    - GEMINI_API_KEY - for provider gemini (free at aistudio.google.com)
+
+    Alternatively set Prolog flags:
+    - :- set_prolog_flag(llm_openai_key, 'sk-...').
+    - :- set_prolog_flag(llm_groq_key, 'gsk_...').
+    - :- set_prolog_flag(llm_anthropic_key, 'sk-ant-...').
+    - :- set_prolog_flag(llm_gemini_key, 'AIza...').
+
+    Dependencies:
+    - library(http/http_client) - ships with SWI-Prolog
+    - library(http/http_json) - ships with SWI-Prolog
+    - library(http/http_ssl_plugin) - TLS support (usually auto-loaded)
+*/
 
 :- module(llm_client,
     [ llm_request/3,        % +Model, +Query, -Answer

@@ -1,3 +1,10 @@
+/** <module> Logical English System Templates
+    
+    This module defines the built-in system templates for Logical English.
+    These include comparison operators, assignment, and other core
+    language constructs.
+*/
+
 :- module(le_system_templates, [le_system_template/1]).
 
 % le_system_template(dict(FunctorArgs, NamesTypes, WordsAndVars))

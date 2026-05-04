@@ -1,3 +1,10 @@
+/** <module> Logical English MCP Server
+    
+    This module implements the Model Context Protocol (MCP) for Logical English.
+    It allows LLMs to interact with Logical English KBs through tools,
+    prompts, and resources. It supports both STDIO (untested) and HTTP transports.
+*/
+
 :- module(mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_mcp_stdio/0]).
 
 :- use_module(library(http/http_json)).
