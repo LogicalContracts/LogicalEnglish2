@@ -34,7 +34,7 @@ export const leMonarchTokens = {
             [/the knowledge base|scenario|query|the ontology|the target language/, 'keyword.header'],
             
             // Structural Keywords
-            [/\b(includes|if|and|or|which|for all cases in which|it is the case that|it is not the case that|not the case that|sum|count|average|min|max|is a|is an|such that)\b/, 'keyword'],
+            [/\b(includes|if|and|or|either|all of|which|for all cases in which|it is the case that|it is not the case that|not the case that|sum|count|average|min|max|is a|is an|such that)\b/, 'keyword'],
             [/\bexpects answers\b/, 'keyword.expects'],
             
             // Arguments (a/an/the/each/some + word)
