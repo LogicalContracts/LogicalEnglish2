@@ -13,7 +13,7 @@
 
 :- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6.
 
-:- use_module(tokenizer).
+:- use_module(tokenizer, [tokenize/2, tokenize_file/2, tokens_to_string/2]).
 :- use_module(le_system_templates).
 :- use_module(library(dcg/basics)).
 
@@ -342,7 +342,7 @@ template_instance_part(string(S, Loc)) --> t(quoteString(S, Loc)).
 template_instance_part(string(S, Loc)) --> t(doubleQuoteString(S, Loc)).
 template_instance_part(list(L)) --> t(punct('[')), list_elements(L), t(punct(']')).
 template_instance_part(expr(E)) --> t(punct('(')), template_instance(E), t(punct(')')).
-template_instance_part(punct(P, Loc)) --> t(punctuation(P, Loc)), { \+ member(P, ['[', ']', '.', ',', '(', ')']) }.
+template_instance_part(punct(P, Loc)) --> t(punctuation(P, Loc)), { \+ member(P, ['[', ']', '(', ')']) }.
 template_instance_part(punct('(', Loc)) --> t(punctuation('(', Loc)).
 template_instance_part(punct(')', Loc)) --> t(punctuation(')', Loc)).
 
@@ -382,7 +382,7 @@ body_token(T) --> [T].
 % is_terminator matches tokens that end a template instance (period, comma, or 'if').
 is_terminator --> any_indent, t(word(if)), t(punctuation(':', _)).
 is_terminator --> any_indent, t(word(unless)), t(punctuation(':', _)).
-is_terminator --> any_indent, t(punctuation('.', _)).
+is_terminator --> any_indent, t(punctuation('.', _)), peek_terminator.
 is_terminator --> any_indent, t(punctuation(',', _)).
 is_terminator --> any_indent, t(word(if, _)).
 is_terminator --> any_indent, t(word(unless, _)).
@@ -391,6 +391,9 @@ is_terminator --> any_indent, t(word(any, _)), t(word(of, _)).
 is_terminator --> any_indent, t(word(all, _)), t(word(of, _)).
 is_terminator --> any_indent, t(word(and, _)), t(word(unless, _)).
 is_terminator --> any_indent, t(word(expects, _)).
+
+peek_terminator, [T] --> [T], { is_indent_or_comment(T) }, !.
+peek_terminator --> eos.
 
 % is_body_terminator matches the period that ends a rule body.
 is_body_terminator --> any_indent, t(punctuation('.', _)).
@@ -519,11 +522,11 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
         ; maplist(extract_simple_word, Parts, Words),
           (   AllowVars == true, extract_var_name(Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
               ; NoTransform \== true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
-              ; is_proper_name(Words) -> atomic_list_concat(Words, ' ', Value), VMOut = VMIn
+              ; is_proper_name(Words) -> tokens_to_string(Parts, Value), VMOut = VMIn
               ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars) -> true
-              ; AllowVars == false -> ( Words = [Value] -> true; atomic_list_concat(Words, ' ', Value)), VMOut = VMIn
+              ; AllowVars == false -> ( Words = [Value] -> true; tokens_to_string(Parts, Value)), VMOut = VMIn
               ; % Fallback: treat as constant if not a variable name
-                atomic_list_concat(Words, ' ', Value), VMOut = VMIn
+                tokens_to_string(Parts, Value), VMOut = VMIn
           )
     ).
 

@@ -650,3 +650,102 @@ The system is now stable and the new features are fully integrated into the Logi
 ## Fix rules with numbering
 The rule IDs and hierarchical designators in rule conditions as alternative to indentation... are not working completely. Consider the revised LE file examples/moreExamples/numbering_test.le .
 Make sure the answers to query one include rule jd
+
+## Unless
+We need a new construct in LE rules, 'unless', which may be comboned with 'and'. Here is an example of use:
+
+the templates are:
+we will make *a payment* for *an incident* under *a policy*.
+*an incident* is covered.
+*a policy* is cancelled.
+
+% and now rules with 'unless':
+
+rule one.
+we will make a payment for an incident under a policy if 
+    the incident is covered and unless the policy is canceled.
+
+rule two.
+we will make a payment for an incident under a policy unless 
+     the policy is canceled.
+
+rule one above is equivalent to:
+
+we will make a payment for an incident  if 
+    the incident is covered and 
+    it is not the case that 
+        the policy is canceled.
+
+rule two is equivalent to:
+
+we will make a payment for an incident if
+    it is not the case that
+        the policy is canceled.
+
+Notice that 'unless' can by itself signal the presence of a rule.
+
+Build a simple testing example for this construct, and implement it in the parser etc. The bulk of its implementation should go into le_extensions.
+Please remember to support it in the editor (colouring, word completion)
+
+## Debugging negative explanations
+
+In example 4_affiliates_3.le, scenario test, query one, the following explanation subtree is incorrect:
+
+- it is not the case that his company is a superannuation fund
+  - his company is a superannuation fund
+    - his company is a superannuation fund
+      - his company is a superannuation fund
+        - his company is a superannuation fund according to other legislation
+            his company is a superannuation fund according to other legislation
+        his company is a company
+      - company is a superannuation fund
+        - company is a superannuation fund according to other legislation
+            company is a superannuation fund according to other legislation
+
+It has redudant nodes, and an incorrect subtree. It should be just:
+
+- it is not the case that his company is a superannuation fund
+  - his company is a superannuation fund
+    - his company is a superannuation fund
+        - his company is a superannuation fund according to other legislation
+
+This seems a problem in reasoner.pl
+
+---
+Navigation is now fine, but can we have that exaple failed subtree as just:
+
+- it is not the case that his company is a superannuation fund
+  - his company is a superannuation fund
+        - his company is a superannuation fund according to other legislation
+        - 
+...? I see no reason to repeat the "his company is a superannuation fund" node
+
+### Gemini's comment...
+I have fixed the redundant nodes and incorrect subtrees in the explanation tree.
+The issues were:
+1.  Redundant Nesting: The meta-interpreter was recording every call, including those that were just wrappers like le_at. This caused multiple identical-looking nodes in the tree.
+2.  Incorrect Subtrees: The is_a transitivity logic was producing irrelevant failure paths (like company is a superannuation fund) when a direct rule already explained the failure.
+3.  Negation Redundancy: solve_real(not(Goal)) was asserting a called fact for Goal even if it was already wrapped in le_at, adding another layer of redundancy.
+I modified reasoner.pl to:
+1.  Skip Trivial Goals in solve: Trivial goals like le_at no longer assert a called fact, preventing them from appearing as redundant nodes.
+2.  Strip le_at in Negation: solve_real(not(Goal)) now strips any le_at wrapper before recording the call to Goal, ensuring a cleaner root for the failure tree.
+3.  Enhanced Variant Collapsing in build_failure_tree: The failure tree construction now more aggressively collapses nodes that are variants of each other, even if one is wrapped in le_at.
+4.  Filter Successful Branches in Failure Trees: I implemented a succeeded/1 fact to track successful goals and ensure they don't appear in failure trees, which also helped eliminate the "nonsense" transitivity paths that were partially successful.
+
+## original queries in LE
+
+In the Query panel the query menu is showing templates. Show instead the textual query as in the LE program (it may be available in query_info(...)), and show the selected (query) template instead as a tooltip when the user hovers the Query button
+
+## Templates confusing "is a"
+Some LE templates are being confused with "is a". 
+For example in examples/moreExamples/augmentedsem.le, template "*a label* is a label for *a description*" implies that, in line 24, "X is a label for Latitude" should be translated into PROLOG as is_a_label_for/2 - not to is_a/2.
+
+Good, now for something else:
+We also need "is of" to be recognized as a synonym for "is a". So for example in examples/moreExamples/augmentedsem.le , rule
+
+an object is of a type
+    if a label is a label for the type
+    and the object is of the label.  % connection to the dataset 
+
+a type is a variable; interpreting the head as containing the type 'of a type' is incorrect.  
+

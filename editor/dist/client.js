@@ -557,7 +557,7 @@ async function start() {
           filenameDisplay.textContent = currentFileName;
         isDirty = false;
         isLoaded = false;
-        scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+        scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
         querySelect.innerHTML = '<option value="">Select a query...</option>';
         kbModuleDisplay.textContent = "";
         sessionModuleDisplay.textContent = "";
@@ -736,9 +736,9 @@ async function start() {
     const model2 = editor.getModel();
     const markers = model2 ? monaco.editor.getModelMarkers({ owner: "le-verifier" }) : [];
     const hasErrors = markers.some((m) => m.severity === monaco.MarkerSeverity.Error);
-    const scenarioSelected = scenarioSelect.value !== "";
+    const scenarioSelected = true;
     const querySelected = querySelect.value !== "";
-    const disabled = hasErrors || !scenarioSelected || !querySelected;
+    const disabled = hasErrors || !querySelected;
     btnQuery.disabled = disabled;
     if (btnTrace)
       btnTrace.disabled = disabled;
@@ -747,8 +747,8 @@ async function start() {
       btnQuery.title = title;
       if (btnTrace)
         btnTrace.title = title;
-    } else if (!scenarioSelected || !querySelected) {
-      const title = "Please select both a scenario and a query";
+    } else if (!querySelected) {
+      const title = "Please select a query";
       btnQuery.title = title;
       if (btnTrace)
         btnTrace.title = title;
@@ -809,7 +809,7 @@ async function start() {
         isLoaded = true;
         kbModuleDisplay.textContent = `KB: ${res.kb || "unknown"}`;
         sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
-        scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+        scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
         if (res.examples) {
           res.examples.forEach((ex) => {
             if (ex.name) {
@@ -951,6 +951,19 @@ async function start() {
   });
   const answersList = document.getElementById("answers-list");
   const explanationTree = document.getElementById("explanation-tree");
+  const answerContextMenu = document.getElementById("answer-context-menu");
+  const menuCopyAnswer = document.getElementById("menu-copy-answer");
+  let currentAnswerToCopy = "";
+  document.addEventListener("click", () => {
+    answerContextMenu.style.display = "none";
+  });
+  menuCopyAnswer.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (currentAnswerToCopy) {
+      navigator.clipboard.writeText(currentAnswerToCopy);
+    }
+    answerContextMenu.style.display = "none";
+  });
   const renderExplanation = (why) => {
     explanationTree.innerHTML = "";
     if (!why)
@@ -1250,6 +1263,13 @@ async function start() {
             item.classList.add("selected");
             renderExplanation(result.why);
           });
+          item.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            currentAnswerToCopy = result.answer;
+            answerContextMenu.style.display = "block";
+            answerContextMenu.style.left = `${e.clientX}px`;
+            answerContextMenu.style.top = `${e.clientY}px`;
+          });
           answersList.appendChild(item);
           if (index === 0)
             item.click();
@@ -1263,6 +1283,13 @@ async function start() {
           document.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
           item.classList.add("selected");
           renderExplanation(res.why);
+        });
+        item.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+          currentAnswerToCopy = "No answers (false)";
+          answerContextMenu.style.display = "block";
+          answerContextMenu.style.left = `${e.clientX}px`;
+          answerContextMenu.style.top = `${e.clientY}px`;
         });
         answersList.appendChild(item);
         renderExplanation(res.why);
@@ -1556,7 +1583,7 @@ async function start() {
     isDirty = true;
     if (isLoaded) {
       isLoaded = false;
-      scenarioSelect.innerHTML = '<option value="">Select a scenario...</option>';
+      scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
       querySelect.innerHTML = '<option value="">Select a query...</option>';
     }
     if (loadTimeout)
