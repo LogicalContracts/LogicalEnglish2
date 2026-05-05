@@ -175,7 +175,7 @@ process_section_acc(scenario(Name, Content, Start, End), M) :-
 process_section_acc(query(Name, Content, Start, End), M) :-
     maplist(item_to_term, Content, Terms),
     list_to_conj(Terms, Goal),
-    assertz(M:query_info(Name, Goal, Terms), Ref),
+    assertz(M:query_info(Name, Goal, Content), Ref),
     assertz(M:le_source_info(Ref, Start, End, Name)).
 
 process_section_acc(ontology(Content, Start, End), M) :-
@@ -491,6 +491,8 @@ token_to_atom(X, Atom) :- term_to_atom(X, Atom).
 %!  item_to_instance(+KBmodule:atom, +Head:term, -WordsAndVars:list) is det.
 item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_instance(KBmodule, Goal, WordsAndVars).
+item_to_instance(_KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), InstantiatedTokens) :- !.
+item_to_instance(_KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), InstantiatedTokens) :- !.
 item_to_instance(KBmodule, Head, WordsAndVars) :-
     (   Head = is_a(Type, SuperType) -> WordsAndVars = [Type, is, a, SuperType]
     ;   Head = sum([each, Var], _Goal, [Result]) -> 
@@ -542,13 +544,11 @@ get_kb_metadata(KB, Metadata) :-
     ), Templates),
     (   current_predicate(KB:query_info/3) ->  
         findall(_{name: Name, template: QueryStr, le: LEStr}, (
-            KB:query_info(Name, _, Q),
-            copy_term(Q, QCopy),
-            maplist(le_kbs:item_to_instance(KB), QCopy, Instances),
-            maplist(le_kbs:canonical_string, Instances, QueryStrings),
-            atomic_list_concat(QueryStrings, ' and ', LEStr),
-            maplist(term_string, QCopy, TermStrings),
-            atomic_list_concat(TermStrings, ' and ', QueryStr)
+            KB:query_info(Name, Goal, Items),
+            copy_term(Goal, GoalCopy),
+            term_string(GoalCopy, QueryStr),
+            maplist(item_to_le_string, Items, LEStrings),
+            atomic_list_concat(LEStrings, ' and ', LEStr)
         ), Queries)
         ;   
         Queries = []
@@ -636,7 +636,7 @@ parse_custom_query(KB, Text, Goal) :-
     le_grammar:set_token_pos(0),
     findall(D, KB:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, Templates),
-    (   le_grammar:parse_literal(Tokens, Templates, [], _VM, Goal, true) -> true
+    (   le_grammar:parse_literal(Tokens, Templates, [], _VM, Goal, _, true) -> true
     ;   format(string(Error), "Query does not match any template: ~w", [Text]),
         throw(error(le_parse_error(Error), _))
     ).
@@ -680,12 +680,23 @@ verify(LEfilePath) :-
     ),
     forall(current_predicate(KBmodule:F/N), abolish(KBmodule:F/N)).
 
+item_to_le_string(query_clause(_, OriginalTokens, _, _, _), String) :- !,
+    canonical_string(OriginalTokens, String).
+item_to_le_string(query_clause(_, OriginalTokens, _, _, _, _, _, _), String) :- !,
+    canonical_string(OriginalTokens, String).
+item_to_le_string(Item, String) :-
+    term_string(Item, String).
+
+item_to_term(query_clause(Head, _, _, _, _), Head) :- !.
+item_to_term(query_clause(Head, _, _, _, _, _, _, _), Head) :- !.
 item_to_term(clause(Head, true, _, _, _), Head) :- !.
 item_to_term(clause(Head, Body, _, _, _), (Head :- Body)) :- !.
 item_to_term(clause(Head, true, _, _), Head) :- !.
 item_to_term(clause(Head, Body, _, _), (Head :- Body)) :- !.
 item_to_term(Item, Item).
 
+item_to_term_with_source(_M, query_clause(Head, _, _, Start, End), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, query_clause(Head, _, _, _, _, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, clause(Head, true, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, clause(Head, true, Start, End), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, clause(Head, Body, _Start, _End, _ID), (Head :- Body)) :- !.
