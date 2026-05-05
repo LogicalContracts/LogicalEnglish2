@@ -518,7 +518,7 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
         ; (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
         ; maplist(extract_simple_word, Parts, Words),
           (   AllowVars == true, extract_var_name(Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
-              ; NoTransform \== true, AllowVars == true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
+              ; NoTransform \== true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
               ; is_proper_name(Words) -> atomic_list_concat(Words, ' ', Value), VMOut = VMIn
               ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars) -> true
               ; AllowVars == false -> ( Words = [Value] -> true; atomic_list_concat(Words, ' ', Value)), VMOut = VMIn
@@ -690,16 +690,18 @@ collect_types_in_section(ontology(Content, _, _), Templates) :-
     forall(member(Item, Content), collect_types_in_item(Item, Templates)).
 collect_types_in_section(_, _).
 
-collect_types_in_item(fact(Head, _, _), _Templates) :-
-    (match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, true) ->
+collect_types_in_item(fact(Head, _, _), Templates) :-
+    (   parse_literal(Head, Templates, [], _, Literal, _, false), Literal = is_a(_, _) ->
+        match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, false),
         assert_is_a_type(TypeAtom), assert_is_a_type(SuperTypeAtom)
     ; true).
 collect_types_in_item(rule(Head, BodyTokens, Indent, _, _), Templates) :-
-    (match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, true) ->
+    (   parse_literal(Head, Templates, [], VM1, Literal, _, true), Literal = is_a(_, _) ->
+        match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, true),
         assert_is_a_type(TypeAtom), assert_is_a_type(SuperTypeAtom)
     ; true),
     % Also collect from body
-    ( parse_body(BodyTokens, Indent, Templates, [], _, Body) -> collect_types_from_body(Body); true).
+    ( parse_body(BodyTokens, Indent, Templates, VM1, _, Body) -> collect_types_from_body(Body); true).
 
 collect_types_from_body(and(A, B)) :- !, collect_types_from_body(A), collect_types_from_body(B).
 collect_types_from_body(or(A, B)) :- !, collect_types_from_body(A), collect_types_from_body(B).
@@ -728,7 +730,10 @@ sort_templates(Dicts, Sorted) :-
 template_priority(dict(FA, _, WordsAndVars, _, _, _), Priority-Score) :-
     findall(1, (member(W, WordsAndVars), atom(W)), Words),
     length(Words, Score),
-    ( FA = [Functor|_], sub_atom(Functor, 0, 3, _, le_) -> Priority = 1 ; Priority = 0 ).
+    ( FA = [le_is|_] -> Priority = -2
+    ; FA = [Functor|_], sub_atom(Functor, 0, 3, _, le_) -> Priority = 1
+    ; Priority = 0
+    ).
 
 is_meta_template(dict(_, _, WordsAndVars, _, _, _)) :-
     member(W, WordsAndVars),
@@ -813,10 +818,13 @@ second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start,
 
 
 second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
-    (   match_is_a(Head, _Type, _SuperType, TypeAtom, SuperTypeAtom, [], _VMOut, true) ->  
-        ( NewHead = is_a(TypeAtom, SuperTypeAtom), assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start)))
-        ;   
-        parse_literal(Head, Templates, [], _VM1, NewHead, _, true) -> true
+    (   parse_literal(Head, Templates, [], _VM1, NewHead0, _, false) -> 
+        ( NewHead0 = is_a(_, _) -> 
+            match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false),
+            NewHead = is_a(TypeAtom, SuperTypeAtom),
+            assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
+          ; NewHead = NewHead0
+        )
         ;   
         NewHead = unknown_template(Head, Start, End)
     ).
@@ -842,7 +850,7 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
     ).
 second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
-    ( parse_literal(Head, Templates, [], _VM1, NewHead, _, true) -> true; NewHead = unknown_template(Head, Start, End)).
+    ( parse_literal(Head, Templates, [], _VM1, NewHead, _, false) -> true; NewHead = unknown_template(Head, Start, End)).
 
 second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
