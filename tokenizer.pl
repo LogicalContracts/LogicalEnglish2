@@ -45,6 +45,10 @@ tokens_to_string_([T|Tokens],LastEnd,[S|Strings]) :-
             ; T=multi_comment(_,_) -> S_ = "", Advance_ = Advance
             ; T=quoteString(X,_) -> format(string(S_),"'~a'",[X]), Advance_ = Advance
             ; T=doubleQuoteString(X,_) -> format(string(S_),'"~a"',[X]), Advance_ = Advance
+            ; T=var(Words,_) -> 
+                atomic_list_concat(Words, ' ', WordsStr),
+                format(string(S_), "*~w*", [WordsStr]),
+                Advance_ = Advance
             ; arg(1,T,X) -> 
                 ( X = date(Y,M,D) -> format(string(S_), "~w-~|~`0t~w~2|-~|~`0t~w~2|", [Y,M,D])
                 ; (atom(X); string(X); number(X)) -> S_=X

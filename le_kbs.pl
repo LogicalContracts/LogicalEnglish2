@@ -465,6 +465,7 @@ canonical_string(Instance, String) :-
 
 %!  token_to_atom(+Token:term, -Atom:atom) is det.
 token_to_atom(X, Atom) :- var(X), !, Atom = '_'.
+token_to_atom(var(Words, loc(_, _)), Atom) :- !, token_to_atom(var(Words), Atom).
 token_to_atom(var(Name, Value), Atom) :- !,
     ( nonvar(Value) -> token_to_atom(Value, Atom); token_to_atom(Name, Atom)).
 token_to_atom(var(Words, _), Atom) :- !, token_to_atom(var(Words), Atom).
@@ -681,9 +682,9 @@ verify(LEfilePath) :-
     forall(current_predicate(KBmodule:F/N), abolish(KBmodule:F/N)).
 
 item_to_le_string(query_clause(_, OriginalTokens, _, _, _), String) :- !,
-    canonical_string(OriginalTokens, String).
+    tokens_to_string(OriginalTokens, String).
 item_to_le_string(query_clause(_, OriginalTokens, _, _, _, _, _, _), String) :- !,
-    canonical_string(OriginalTokens, String).
+    tokens_to_string(OriginalTokens, String).
 item_to_le_string(Item, String) :-
     term_string(Item, String).
 
