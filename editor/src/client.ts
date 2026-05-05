@@ -71,7 +71,7 @@ declare var monaco: any;
                 { token: 'keyword.expects', foreground: 'c586c0', fontStyle: 'italic' },
                 { token: 'variable', foreground: '9cdcfe' },
                 { token: 'number.date', foreground: 'b5cea8' },
-                { token: 'templateWord', foreground: 'd4d4d4' } // Plain text color for template words
+                { token: 'templateWord', foreground: 'dcdcaa' } // Distinct color for template words
             ],
             colors: {
                 'editor.background': '#1e1e1e'
@@ -87,7 +87,7 @@ declare var monaco: any;
                 { token: 'keyword.expects', foreground: 'af00db', fontStyle: 'italic' },
                 { token: 'variable', foreground: '001080' },
                 { token: 'number.date', foreground: '098658' },
-                { token: 'templateWord', foreground: '000000' }
+                { token: 'templateWord', foreground: '795e26' }
             ],
             colors: {}
         });
