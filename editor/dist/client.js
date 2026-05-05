@@ -714,6 +714,7 @@ async function start() {
   const scenarioSelect = document.getElementById("scenario-select");
   const querySelect = document.getElementById("query-select");
   const btnQuery = document.getElementById("btn-query");
+  const btnTrace = document.getElementById("btn-trace");
   const resultsDisplay = document.getElementById("results-display");
   const customScenarioContainer = document.getElementById("custom-scenario-container");
   const customScenarioText = document.getElementById("custom-scenario-text");
@@ -737,15 +738,24 @@ async function start() {
     const hasErrors = markers.some((m) => m.severity === monaco.MarkerSeverity.Error);
     const scenarioSelected = scenarioSelect.value !== "";
     const querySelected = querySelect.value !== "";
+    const disabled = hasErrors || !scenarioSelected || !querySelected;
+    btnQuery.disabled = disabled;
+    if (btnTrace)
+      btnTrace.disabled = disabled;
     if (hasErrors) {
-      btnQuery.disabled = true;
-      btnQuery.title = "Cannot query while there are errors in the document";
+      const title = "Cannot query while there are errors in the document";
+      btnQuery.title = title;
+      if (btnTrace)
+        btnTrace.title = title;
     } else if (!scenarioSelected || !querySelected) {
-      btnQuery.disabled = true;
-      btnQuery.title = "Please select both a scenario and a query";
+      const title = "Please select both a scenario and a query";
+      btnQuery.title = title;
+      if (btnTrace)
+        btnTrace.title = title;
     } else {
-      btnQuery.disabled = false;
       btnQuery.title = "";
+      if (btnTrace)
+        btnTrace.title = "";
     }
   };
   const updateMarkers = (issues) => {
@@ -998,6 +1008,196 @@ async function start() {
       explanationTree.appendChild(createNode(why, 0));
     }
   };
+  const debugPanel = document.getElementById("debug-panel");
+  const debugStack = document.getElementById("debug-stack");
+  const debugVariables = document.getElementById("debug-variables");
+  const debugStatus = document.getElementById("debug-status");
+  const debugContinue = document.getElementById("debug-continue");
+  const debugStep = document.getElementById("debug-step");
+  const debugClose = document.getElementById("debug-panel-close");
+  const debugHeader = document.getElementById("debug-panel-header");
+  let dapSocket = null;
+  let dapSeq = 1;
+  let debugDecorations = [];
+  const sendDapRequest = (command, args = {}) => {
+    if (!dapSocket || dapSocket.readyState !== WebSocket.OPEN)
+      return;
+    const request = {
+      seq: dapSeq++,
+      type: "request",
+      command,
+      arguments: args
+    };
+    console.log("Sending DAP Request:", request);
+    dapSocket.send(JSON.stringify(request));
+  };
+  const startTrace = async () => {
+    if (!isLoaded) {
+      const success = await loadModule();
+      if (!success)
+        return;
+    }
+    const scenario = scenarioSelect.value;
+    const query = querySelect.value;
+    const customScenario = scenario === "___custom___" ? customScenarioText.value : null;
+    const customQuery = query === "___custom___" ? customQueryText.value : null;
+    debugPanel.style.display = "flex";
+    debugStatus.textContent = "Connecting to debugger...";
+    debugStack.innerHTML = "";
+    debugVariables.innerHTML = "";
+    debugContinue.disabled = false;
+    debugStep.disabled = false;
+    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const wsUrl = `${protocol}//${window.location.host}/dap?sessionModule=${sessionModule}`;
+    if (dapSocket)
+      dapSocket.close();
+    dapSocket = new WebSocket(wsUrl);
+    dapSocket.onopen = () => {
+      debugStatus.textContent = "Debugger connected. Initializing...";
+      sendDapRequest("initialize", { adapterID: "le-debug" });
+      sendDapRequest("launch", {});
+      fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "answeringQuery",
+          sessionModule,
+          query,
+          scenario,
+          customScenario,
+          customQuery,
+          debug: true
+        })
+      }).then((res) => res.json()).then((data) => {
+        console.log("Debug query finished", data);
+        debugStatus.textContent = "Query finished.";
+        debugContinue.disabled = true;
+        debugStep.disabled = true;
+        debugDecorations = editor.deltaDecorations(debugDecorations, []);
+      }).catch((err) => {
+        console.error("Debug query failed", err);
+        debugStatus.textContent = "Query failed.";
+        debugContinue.disabled = true;
+        debugStep.disabled = true;
+        debugDecorations = editor.deltaDecorations(debugDecorations, []);
+      });
+    };
+    dapSocket.onmessage = (event) => {
+      const msg = JSON.parse(event.data);
+      console.log("DAP Message:", msg);
+      if (msg.type === "event" && msg.event === "stopped") {
+        debugStatus.textContent = `Stopped: ${msg.body.reason}`;
+        sendDapRequest("stackTrace", { threadId: 1 });
+        sendDapRequest("scopes", { frameId: 1 });
+      } else if (msg.type === "response" && msg.success) {
+        if (msg.command === "stackTrace") {
+          renderStack(msg.body.stackFrames);
+          if (msg.body.stackFrames.length > 0) {
+            const f = msg.body.stackFrames[0];
+            const pos = f.offset !== void 0 ? editor.getModel().getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
+            editor.revealLineInCenter(pos.lineNumber);
+            editor.setPosition(pos);
+          }
+        } else if (msg.command === "scopes") {
+          if (msg.body.scopes && msg.body.scopes.length > 0) {
+            sendDapRequest("variables", { variablesReference: msg.body.scopes[0].variablesReference });
+          }
+        } else if (msg.command === "variables") {
+          renderVariables(msg.body.variables);
+        }
+      } else if (msg.type === "response" && !msg.success) {
+        console.error(`DAP Command failed: ${msg.command}`, msg.message);
+      }
+    };
+    dapSocket.onclose = () => {
+      debugStatus.textContent = "Debugger disconnected.";
+      debugContinue.disabled = true;
+      debugStep.disabled = true;
+      debugDecorations = editor.deltaDecorations(debugDecorations, []);
+    };
+  };
+  const renderStack = (frames) => {
+    debugStack.innerHTML = "";
+    const model2 = editor.getModel();
+    const newDecorations = [];
+    frames.forEach((f, index) => {
+      const div = document.createElement("div");
+      div.className = "stack-frame" + (index === 0 ? " current" : "");
+      const pos = f.offset !== void 0 ? model2.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
+      const nameSpan = document.createElement("span");
+      nameSpan.className = "stack-frame-name";
+      nameSpan.textContent = f.name;
+      div.appendChild(nameSpan);
+      const sourceSpan = document.createElement("span");
+      sourceSpan.className = "stack-frame-source";
+      sourceSpan.textContent = `${f.source.name}:${pos.lineNumber}`;
+      div.appendChild(sourceSpan);
+      if (index === 0 && f.offset !== void 0) {
+        newDecorations.push({
+          range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1),
+          options: {
+            isWholeLine: true,
+            className: "debug-line-highlight",
+            glyphMarginClassName: "debug-anchor-glyph"
+          }
+        });
+      }
+      div.onclick = () => {
+        editor.revealLineInCenter(pos.lineNumber);
+        editor.setPosition(pos);
+        editor.focus();
+        document.querySelectorAll(".stack-frame").forEach((el) => el.classList.remove("current"));
+        div.classList.add("current");
+      };
+      debugStack.appendChild(div);
+    });
+    debugDecorations = editor.deltaDecorations(debugDecorations, newDecorations);
+  };
+  const renderVariables = (vars) => {
+    debugVariables.innerHTML = "";
+    vars.forEach((v) => {
+      const div = document.createElement("div");
+      div.style.padding = "2px 5px";
+      div.style.fontFamily = "monospace";
+      div.textContent = `${v.name}: ${v.value}`;
+      debugVariables.appendChild(div);
+    });
+  };
+  btnTrace.addEventListener("click", startTrace);
+  debugContinue.onclick = () => sendDapRequest("continue", { threadId: 1 });
+  debugStep.onclick = () => sendDapRequest("stepIn", { threadId: 1 });
+  debugClose.onclick = () => {
+    debugPanel.style.display = "none";
+    debugDecorations = editor.deltaDecorations(debugDecorations, []);
+    if (dapSocket) {
+      sendDapRequest("disconnect");
+      dapSocket.close();
+    }
+  };
+  let isDraggingDebug = false;
+  let debugStartX, debugStartY;
+  let debugStartLeft, debugStartTop;
+  debugHeader.onmousedown = (e) => {
+    isDraggingDebug = true;
+    debugStartX = e.clientX;
+    debugStartY = e.clientY;
+    debugStartLeft = debugPanel.offsetLeft;
+    debugStartTop = debugPanel.offsetTop;
+    document.body.style.userSelect = "none";
+  };
+  document.addEventListener("mousemove", (e) => {
+    if (!isDraggingDebug)
+      return;
+    const dx = e.clientX - debugStartX;
+    const dy = e.clientY - debugStartY;
+    debugPanel.style.left = `${debugStartLeft + dx}px`;
+    debugPanel.style.top = `${debugStartTop + dy}px`;
+  });
+  document.addEventListener("mouseup", () => {
+    isDraggingDebug = false;
+    document.body.style.userSelect = "auto";
+  });
   btnQuery.addEventListener("click", async () => {
     if (!isLoaded) {
       const success = await loadModule();

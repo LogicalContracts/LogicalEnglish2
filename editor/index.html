@@ -363,6 +363,46 @@
             border-left: 1px solid #444;
             margin-top: 2px;
         }
+        .debug-line-highlight {
+            background-color: rgba(255, 255, 0, 0.2);
+            border: 1px solid yellow;
+            display: block;
+        }
+        .debug-anchor-glyph {
+            background: #ffff00;
+            width: 10px !important;
+            height: 10px !important;
+            margin-left: 5px;
+            margin-top: 5px;
+            border-radius: 50%;
+        }
+        .stack-frame {
+            padding: 6px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            transition: background-color 0.1s;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .stack-frame:hover {
+            background-color: #37373d;
+        }
+        .stack-frame.current {
+            background-color: #094771;
+            border-left: 3px solid #4fc1ff;
+        }
+        .stack-frame-name {
+            font-weight: bold;
+            color: #d4d4d4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .stack-frame-source {
+            font-size: 10px;
+            color: #888;
+        }
         #results-display {
             display: none;
         }
@@ -449,6 +489,31 @@
         </div>
     </div>
 
+    <!-- Debug Panel -->
+    <div id="debug-panel" style="display: none; position: fixed; top: 100px; left: 50px; width: 600px; height: 500px; background: #2d2d2d; border: 1px solid #444; z-index: 1500; flex-direction: column; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);">
+        <div style="padding: 10px; border-bottom: 1px solid #444; display: flex; justify-content: space-between; align-items: center; cursor: move;" id="debug-panel-header">
+            <h3 style="margin: 0; font-size: 14px;">LE Debugger</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="debug-continue" title="Continue (F5)" style="background: #3c3c3c; color: #ccc; border: 1px solid #555; border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Continue</button>
+                <button id="debug-step" title="Step In (F11)" style="background: #3c3c3c; color: #ccc; border: 1px solid #555; border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Step</button>
+                <span id="debug-panel-close" style="cursor: pointer; font-size: 18px;">&times;</span>
+            </div>
+        </div>
+        <div style="display: flex; flex-grow: 1; overflow: hidden;">
+            <div style="width: 60%; border-right: 1px solid #444; display: flex; flex-direction: column;">
+                <div style="padding: 5px 10px; background: #333; font-size: 11px; color: #888;">CALL STACK</div>
+                <div id="debug-stack" style="flex-grow: 1; overflow: auto; padding: 5px; font-size: 12px;"></div>
+            </div>
+            <div style="width: 40%; display: flex; flex-direction: column;">
+                <div style="padding: 5px 10px; background: #333; font-size: 11px; color: #888;">VARIABLES</div>
+                <div id="debug-variables" style="flex-grow: 1; overflow: auto; padding: 5px; font-size: 12px;"></div>
+            </div>
+        </div>
+        <div id="debug-status" style="padding: 5px 10px; background: #333; font-size: 11px; color: #aaa; border-top: 1px solid #444;">
+            Ready
+        </div>
+    </div>
+
     <div id="resizer"></div>
     <div id="bottom-panel">
         <div class="tab-bar">
@@ -473,6 +538,7 @@
                             </select>
                         </div>
                         <button id="btn-query">Query</button>
+                        <button id="btn-trace" style="margin-left: 5px;">Trace</button>
                     </div>
                     <div id="custom-scenario-container" class="custom-input-container">
                         <label style="font-size: 11px; color: #888;">Custom Scenario Facts:</label>

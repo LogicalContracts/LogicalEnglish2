@@ -262,8 +262,11 @@ createSession(KBmodule, SessionModule) :-
     SessionModule:use_module(le_kbs),
     dynamic(SessionModule:le_kb_module_fact/1),
     assertz(SessionModule:le_kb_module_fact(KBmodule)),
+    dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:le_neg/1),
+    dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
+
     dynamic(SessionModule:le_source_info/4).
 
 %!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
@@ -301,6 +304,7 @@ clearSession(SessionModule) :-
         assertz(SessionModule:le_kb_module_fact(KBmodule))
     ; true),
     dynamic(SessionModule:le_neg/1),
+    dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4).
 

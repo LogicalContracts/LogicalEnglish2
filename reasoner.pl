@@ -6,7 +6,7 @@
     explanation trees.
 */
 
-:- module(reasoner, [i/4, explain/4, is_built_in/1]).
+:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8]).
 
 :- use_module(library(time)).
 :- use_module(library(pairs)).
@@ -50,7 +50,16 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
 solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     next_id(MyID),
     ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
-    solve_real(G, SM, KM, Anc, D, MyID, Us, Whys).
+    (   SM:debug_mode
+    ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
+        (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E, 
+                  (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, Anc, D), throw(E)))
+        ->  dap_server:dap_tracer_hook(exit, SM, G, MyID, Anc, D)
+        ;   dap_server:dap_tracer_hook(fail, SM, G, MyID, Anc, D),
+            fail
+        )
+    ;   solve_real(G, SM, KM, Anc, D, MyID, Us, Whys)
+    ).
 
 % Conjunction
 solve_real((A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
