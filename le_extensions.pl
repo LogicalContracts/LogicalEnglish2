@@ -5,7 +5,7 @@
     bodies, 'either/any of/all of' constructs, and Prolog calls.
 */
 
-:- module(le_extensions, [resolve_prolog_tokens/5, parse_numbered_body/7]).
+:- module(le_extensions, [resolve_prolog_tokens/5, parse_numbered_body/7, big_conclusion/6]).
 
 :- use_module(le_grammar).
 
@@ -13,6 +13,49 @@
 :- multifile le_grammar:unify_with_vmap_extension/5.
 :- multifile le_grammar:post_parse_literal_hook/4.
 :- multifile le_grammar:parse_node_extension/6.
+:- multifile le_grammar:second_pass_item_extension/4.
+
+% 0. Big Conclusions: Handle 'which' in rule heads and facts
+% This extension migrates 'which' conditions from the head to the body.
+
+le_grammar:second_pass_item_extension(Templates, rule(HeadTokens, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    contains_which(HeadTokens),
+    big_conclusion(HeadTokens, Templates, [], VM1, NewHead, HeadConditions),
+    (   BodyTokens = unless(BodyTokens0) ->
+        le_grammar:parse_body(BodyTokens0, Indent, Templates, VM1, _VMOut, SubBody),
+        BodyLogic = not(SubBody)
+    ;   BodyTokens = numbered(BodyTokens0) ->
+        le_extensions:parse_numbered_body(BodyTokens0, Templates, VM1, _VMOut, BodyLogic, ActualID, M)
+    ;   le_grammar:parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, BodyLogic)
+    ),
+    ( BodyLogic == true -> NewBody = HeadConditions ; NewBody = and(HeadConditions, BodyLogic) ).
+
+le_grammar:second_pass_item_extension(Templates, fact(HeadTokens, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]),
+    contains_which(HeadTokens),
+    big_conclusion(HeadTokens, Templates, [], _VMOut, NewHead, NewBody).
+
+contains_which(Tokens) :-
+    member(word(which, _), Tokens).
+
+% big_conclusion(+Tokens, +Templates, +VMIn, -VMOut, -HeadLiteral, -BodyLogic)
+big_conclusion(Tokens, Templates, VMIn, VMOut, HeadLiteral, BodyLogic) :-
+    % Split tokens at 'which'
+    append(Before, [word(which, _)|After], Tokens),
+    % 'Before' should be a valid literal
+    le_grammar:parse_literal(Before, Templates, VMIn, VM1, HeadLiteral, _),
+    % The 'which' refers to the last variable in HeadLiteral
+    % Use 'which' as the name for the dummy token, as it's handled by our extension
+    LastVarToken = var([which], loc(0,0)),
+
+
+    % 'After' might contain more 'which's
+    (   contains_which(After) ->
+        big_conclusion([LastVarToken | After], Templates, VM1, VMOut, NestedLiteral, NestedBody),
+        BodyLogic = and(NestedLiteral, NestedBody)
+    ;   le_grammar:parse_literal([LastVarToken | After], Templates, VM1, VMOut, BodyLogic, _)
+    ).
 
 % 1. Recognize 'which' as a variable name
 le_grammar:extract_var_name_extension([which], which).

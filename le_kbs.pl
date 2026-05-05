@@ -15,7 +15,6 @@
     topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
 
 :- discontiguous process_section_acc/2.
-
 :- discontiguous print_test_result/1.
 
 :- meta_predicate set_id_from_ref(+, +).
@@ -145,8 +144,6 @@ load_text_sync(NewModule, Text) :-
         print_message(error, "parse_le_text failed")
     ).
 
-
-
 :- dynamic rule_counter/1.
 :- thread_local rule_counter/1.
 
@@ -164,7 +161,9 @@ process_section_acc(kb(Name, Content, Start, End), M) :-
 process_section_acc(scenario(Name, Content, Start, End), M) :-
     dynamic(M:le_expected/3),
     partition(is_expected_item, Content, ExpectedItems, FactItems),
-    maplist(item_to_term_with_source(M), FactItems, Terms),
+    findall(D, M:le_dict(D), Dicts),
+    le_grammar:prepare_templates(Dicts, AllTemplates),
+    maplist(item_to_term_with_source(M, AllTemplates), FactItems, Terms),
     assertz(M:scenario(Name, Terms), Ref),
     assertz(M:le_source_info(Ref, Start, End, Name)),
     forall(member(expected(Q, A, S, E), ExpectedItems), (
@@ -173,10 +172,14 @@ process_section_acc(scenario(Name, Content, Start, End), M) :-
     )).
 
 process_section_acc(query(Name, Content, Start, End), M) :-
-    maplist(item_to_term, Content, Terms),
+    findall(D, M:le_dict(D), Dicts),
+    le_grammar:prepare_templates(Dicts, AllTemplates),
+    maplist(item_to_term(AllTemplates, M), Content, Terms),
     list_to_conj(Terms, Goal),
     assertz(M:query_info(Name, Goal, Content), Ref),
     assertz(M:le_source_info(Ref, Start, End, Name)).
+
+
 
 process_section_acc(ontology(Content, Start, End), M) :-
     assertz(M:ontology(Content), Ref),
@@ -213,49 +216,29 @@ process_item(clause(Head, Body, Start, End, ID), M) :-
     dynamic(M:F/N),
     ( clause(M:Head, Body) -> true; assertz(M:Clause, Ref), assertz(M:le_source_info(Ref, Start, End, ActualID))).
 
-%!  le_my_id(-ID:atom) is det.
-%
-%   Returns the ID of the current rule being executed.
 le_my_id(ID) :-
     le_current_id(ID).
 
 :- multifile le_my_kb/1.
 
-%!  le_my_kb(-KB:atom) is det.
-%
-%   Returns the KB module of the current rule being executed.
 le_my_kb(KB) :-
     ( le_kb_module(K), K \== none -> KB = K
     ; context_module(KB)
     ).
 
-%!  set_kb_module(+KB:atom) is det.
-%
-%   Sets the current KB module for reasoning.
 set_kb_module(KB) :-
     retractall(le_kb_module(_)),
     assertz(le_kb_module(KB)).
 
-%!  clear_kb_module is det.
-%
-%   Clears the current KB module.
 clear_kb_module :-
     retractall(le_kb_module(_)).
 
-%!  set_id_from_ref(+Ref:clause_ref, +Module:atom) is det.
-%
-%   Sets the current rule ID from a clause reference and its module.
 set_id_from_ref(Ref, M) :-
     ( M:le_source_info(Ref, _, _, ID) -> retractall(le_current_id(_)), assertz(le_current_id(ID)) ; true ).
 
-%!  person_age(?Person, ?Age) is nondet.
-
-%
-%   A dummy predicate for testing the prolog calling feature.
 person_age('Bob', 42).
 person_age('Alice', 30).
 
-%!  createSession(+KBmodule:atom, -SessionModule:atom) is det.
 createSession(KBmodule, SessionModule) :-
     uuid(UUID),
     atom_concat(s, UUID, SessionModule),
@@ -266,16 +249,13 @@ createSession(KBmodule, SessionModule) :-
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
-
     dynamic(SessionModule:le_source_info/4).
 
-%!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
 addSessionFact(SessionModule, Fact) :-
     ( Fact = fact_with_source(ActualFact, Start, End) -> true; ActualFact = Fact, Start = 0, End = 0),
     ( do_log -> print_message(informational, 'Adding session fact: ~w' - [ActualFact]); true),
     functor(ActualFact,F,N),
     SessionModule:dynamic(F/N),
-    % Use variant check instead of unification to allow multiple facts with variables
     (   (current_predicate(SessionModule:F/N), functor(Template, F, N), SessionModule:clause(Template, true), copy_term(Template, ECopy), copy_term(ActualFact, ACopy), numbervars(ECopy, 0, _), numbervars(ACopy, 0, _), ECopy == ACopy) ->  
             ( do_log -> print_message(informational, 'Fact already exists (variant): ~w' - [ActualFact]); true)
         ; assertz(SessionModule:ActualFact, Ref),
@@ -283,19 +263,22 @@ addSessionFact(SessionModule, Fact) :-
           ( Start \== 0 -> assertz(SessionModule:le_source_info(Ref, Start, End, session_fact)); true)
     ).
 
-%!  negateSessionFact(+SessionModule:atom, +Fact:term) is det.
 negateSessionFact(SessionModule, Fact) :-
     forall(clause(SessionModule:Fact, _, Ref),
            (erase(Ref), retractall(SessionModule:sessionClause(Ref)))),
     assertz(SessionModule:le_neg(Fact), NewRef),
     assertz(SessionModule:sessionClause(NewRef)).
 
-%!  setScenarion(+SessionModule:atom, +ScenarioName:atom) is semidet.
 setScenarion(SessionModule, ScenarioName) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
-    ( current_predicate(KBmodule:scenario/2) -> KBmodule:scenario(ScenarioName, Facts), forall(member(Fact, Facts), addSessionFact(SessionModule, Fact)); fail).
+    ( current_predicate(KBmodule:scenario/2) -> 
+        (   KBmodule:scenario(ScenarioName, Facts) -> true
+        ;   atom(ScenarioName), atom_number(ScenarioName, Num), KBmodule:scenario(Num, Facts) -> true
+        ;   fail
+        ),
+        forall(member(Fact, Facts), addSessionFact(SessionModule, Fact))
+    ; fail).
 
-%!  clearSession(+SessionModule:atom) is det.
 clearSession(SessionModule) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true; KBmodule = none),
     forall(current_predicate(SessionModule:F/N), abolish(SessionModule:F/N)),
@@ -308,7 +291,6 @@ clearSession(SessionModule) :-
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4).
 
-%!  printSession(+SessionModule:atom) is det.
 printSession(SessionModule) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( KBmodule \== none -> KBmodule:le_kb(KBName) ; KBName = unknown ),
@@ -316,12 +298,11 @@ printSession(SessionModule) :-
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
            (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
 
-%!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( do_log -> print_message(informational, 'Querying KB ~w in session ~w with tokens ~w' - [KBmodule, SessionModule, Tokens]); true),
-    (   ((atom(Template) ; string(Template)), atom_string(QueryName, Template), current_predicate(KBmodule:query_info/3), KBmodule:query_info(QueryName, Goal, Items)) ->  
+    (   ((atom(Template) ; string(Template)), atom_string(QueryName, Template), current_predicate(KBmodule:query_info/3), (KBmodule:query_info(QueryName, Goal, Items) ; (atom(QueryName), atom_number(QueryName, Num), KBmodule:query_info(Num, Goal, Items)))) ->  
             ( do_log -> print_message(informational, 'Executing named query ~w: ~w' - [QueryName, Goal]); true),
             reasoner:i(Goal, SessionModule, Unknowns, Why0),
             ( do_log -> print_message(informational, 'Named query solution found for ~w' - [QueryName]); true),
@@ -331,7 +312,6 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
         ; ( do_log -> print_message(informational, 'Searching for template matching tokens: ~w' - [Tokens]); true),
             findall(D, KBmodule:le_dict(D), Dicts),
             le_grammar:prepare_templates(Dicts, Templates),
-            % Find all matching templates, but separate le_is
             findall(match(G, WV, FA), (
                 member(Dict, Templates),
                 ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
@@ -340,8 +320,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
                 G =.. FA
             ), SpecificMatches),
             (   SpecificMatches \== [] -> Matches = SpecificMatches
-                ; % Only try le_is if no specific template matched
-                findall(match(G, WV, FA), (
+                ; findall(match(G, WV, FA), (
                     member(Dict, Templates),
                     ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                     FA = [le_is|_],
@@ -349,7 +328,6 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
                     G =.. FA
                 ), Matches)
             ),
-            % writeln(user_error, matches(Matches)),
             (   Matches \== [] ->
                 member(match(Goal, TemplateInstance, _), Matches),
                 ( do_log -> print_message(informational, 'Executing template goal: ~w' - [Goal]); true),
@@ -361,24 +339,22 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             )
     ).
 
-%!  query_explain(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is nondet.
 query_explain(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
     compound(Goal), \+ is_list(Goal), !,
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-    ( (KBmodule \== none, item_to_instance(KBmodule, Goal, TemplateInstance)) -> true ; TemplateInstance = [Goal] ),
+    ( (KBmodule \== none, item_to_instance(KBmodule, Goal, _Tokens)) -> true ; TemplateInstance = [Goal] ),
     postprocess_why(Why0, SessionModule, Why).
 query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
-    (   ((atom(Template) ; string(Template)), atom_string(QueryName, Template), current_predicate(KBmodule:query_info/3), KBmodule:query_info(QueryName, Goal, Items)) ->  
+    (   ((atom(Template) ; string(Template)), atom_string(QueryName, Template), current_predicate(KBmodule:query_info/3), (KBmodule:query_info(QueryName, Goal, Items) ; (atom(QueryName), atom_number(QueryName, Num), KBmodule:query_info(Num, Goal, Items)))) ->  
             ( do_log -> print_message(informational, 'Executing named query explain ~w: ~w' - [QueryName, Goal]); true),
             reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-            ( maplist(le_kbs:item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance) -> true; TemplateInstance = []),
+            ( (maplist(le_kbs:item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance)) -> true; TemplateInstance = []),
             postprocess_why(Why0, SessionModule, Why)
         ; findall(D, KBmodule:le_dict(D), Dicts),
           le_grammar:prepare_templates(Dicts, Templates),
-          % Find all matching templates, but separate le_is
           findall(match(G, WV, FA), (
               member(Dict, Templates),
               ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
@@ -405,7 +381,6 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
           )
     ).
 
-%!  postprocess_why(+WhyIn:term, +SM:atom, -WhyOut:term) is det.
 postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
@@ -453,7 +428,6 @@ queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
     setScenarion(SessionModule, ScenarioName),
     query(SessionModule, Template, TemplateInstance,_,_).
 
-%!  canonical_string(+Instance:list, -String:string) is det.
 canonical_string(Instance, String) :-
     (   is_list(Instance) ->  
         maplist(le_kbs:token_to_atom, Instance, Atoms),
@@ -463,7 +437,6 @@ canonical_string(Instance, String) :-
         atom_string(Atom, String)
     ).
 
-%!  token_to_atom(+Token:term, -Atom:atom) is det.
 token_to_atom(X, Atom) :- var(X), !, Atom = '_'.
 token_to_atom(var(Words, loc(_, _)), Atom) :- !, token_to_atom(var(Words), Atom).
 token_to_atom(var(Name, Value), Atom) :- !,
@@ -489,7 +462,6 @@ token_to_atom(A, Atom) :- atom(A), !,
     ( (A \== '_', sub_atom(A, _, _, _, '_')) -> re_replace("_"/g, " ", A, Atom); Atom = A).
 token_to_atom(X, Atom) :- term_to_atom(X, Atom).
 
-%!  item_to_instance(+KBmodule:atom, +Head:term, -WordsAndVars:list) is det.
 item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_instance(KBmodule, Goal, WordsAndVars).
 item_to_instance(_KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), InstantiatedTokens) :- !.
@@ -532,8 +504,6 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
 extract_name(var(Name, _), Name) :- !.
 extract_name(V, V).
 
-
-%!  get_kb_metadata(+KBModule:atom, -Metadata:dict) is det.
 get_kb_metadata(KB, Metadata) :-
     ( current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true; KBName = null),
     findall(TemplateStr, (
@@ -557,14 +527,10 @@ get_kb_metadata(KB, Metadata) :-
     (   current_predicate(KB:scenario/2) ->  
         findall(_{name: Name}, KB:scenario(Name, _), Scenarios)
         ;   
-        Scenarios = []
+        Queries = []
     ),
     Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios }.
 
-%!  topPredicates(+KBmodule:atom, -TopPredicates:list) is det.
-%
-%   Returns a list of templates for the top-level predicates of the given KB module.
-%   A top-level predicate is one defined by a rule but not used by other rules.
 topPredicates(KB, TopPreds) :-
     findall(F/A, (
         current_predicate(KB:F/A),
@@ -601,37 +567,20 @@ fill_type(V-Type) :-
     ;   V = 'a variable'
     ).
 
-%!  kbSummary(+KBmodule:atom, -Summary:string) is det.
-%
-%   Returns a summary of the KB, including its name and top-level predicates.
 kbSummary(KB, Summary) :-
     (current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true ; KBName = KB),
     topPredicates(KB, TopPreds),
     atomic_list_concat(TopPreds, '; ', PredsStr),
     format(string(Summary), "KB: ~w. Top predicates: ~w", [KBName, PredsStr]).
 
-%!  parse_custom_facts(+KB:atom, +Text:string, -Terms:list) is semidet.
-%
-%   Parses a string of Logical English facts/rules using the templates of the given KB.
-%   Fails if any fact or rule head does not match a template.
 parse_custom_facts(KB, Text, Terms) :-
     tokenize(Text, Tokens),
     le_grammar:set_token_pos(0),
     ( phrase(le_grammar:kb_items(Items), Tokens) -> true ; Items = [] ),
     findall(D, KB:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, Templates),
-    maplist(le_grammar:second_pass_item(Templates), Items, Clauses),
-    (   member(clause(unknown_template(Head), _, _, _, _), Clauses) ->
-        le_kbs:canonical_string(Head, HeadStr),
-        format(string(Error), "Fact does not match any template: ~w", [HeadStr]),
-        throw(error(le_parse_error(Error), _))
-    ;   findall(Term, (member(clause(Head, Body, _, _, _), Clauses), (Body == true -> Term = Head; Term = (Head :- Body))), Terms)
-    ).
+    maplist(item_to_term(Templates), Items, Terms).
 
-%!  parse_custom_query(+KB:atom, +Text:string, -Goal:term) is semidet.
-%
-%   Parses a string of Logical English as a query goal using the templates of the given KB.
-%   Throws an error if the query does not match any template.
 parse_custom_query(KB, Text, Goal) :-
     tokenize(Text, Tokens),
     le_grammar:set_token_pos(0),
@@ -688,23 +637,29 @@ item_to_le_string(query_clause(_, OriginalTokens, _, _, _, _, _, _), String) :- 
 item_to_le_string(Item, String) :-
     term_string(Item, String).
 
-item_to_term(query_clause(Head, _, _, _, _), Head) :- !.
-item_to_term(query_clause(Head, _, _, _, _, _, _, _), Head) :- !.
-item_to_term(clause(Head, true, _, _, _), Head) :- !.
-item_to_term(clause(Head, Body, _, _, _), (Head :- Body)) :- !.
-item_to_term(clause(Head, true, _, _), Head) :- !.
-item_to_term(clause(Head, Body, _, _), (Head :- Body)) :- !.
-item_to_term(Item, Item).
+item_to_term(_Templates, _M, query_clause(Head, _, _, _, _), Head) :- !.
+item_to_term(_Templates, _M, query_clause(Head, _, _, _, _, _, _, _), Head) :- !.
+item_to_term(_Templates, _M, clause(Head, true, _, _, _), Head) :- !.
+item_to_term(_Templates, _M, clause(Head, Body, _, _, _), (Head :- Body)) :- !.
+item_to_term(_Templates, _M, clause(Head, true, _, _), Head) :- !.
+item_to_term(_Templates, _M, clause(Head, Body, _, _), (Head :- Body)) :- !.
+item_to_term(Templates, M, Item, Term) :-
+    ( le_grammar:second_pass_item_with_module(Templates, M, Item, NewItem) -> item_to_term(Templates, M, NewItem, Term)
+    ; Item = Term
+    ).
 
-item_to_term_with_source(_M, query_clause(Head, _, _, Start, End), fact_with_source(Head, Start, End)) :- !.
-item_to_term_with_source(_M, query_clause(Head, _, _, _, _, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
-item_to_term_with_source(_M, clause(Head, true, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
-item_to_term_with_source(_M, clause(Head, true, Start, End), fact_with_source(Head, Start, End)) :- !.
-item_to_term_with_source(_M, clause(Head, Body, _Start, _End, _ID), (Head :- Body)) :- !.
-item_to_term_with_source(_M, clause(Head, Body, _Start, _End), (Head :- Body)) :- 
+item_to_term_with_source(_M, _Templates, query_clause(Head, _, _, Start, End), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, _Templates, query_clause(Head, _, _, _, _, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, _Templates, clause(Head, true, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, _Templates, clause(Head, true, Start, End), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, _Templates, clause(Head, Body, _Start, _End, _ID), (Head :- Body)) :- !.
+item_to_term_with_source(_M, _Templates, clause(Head, Body, _Start, _End), (Head :- Body)) :- 
     % Rules in scenarios are rare but possible; we don't track their source yet
     !.
-item_to_term_with_source(_, Item, Item).
+item_to_term_with_source(M, Templates, Item, Term) :-
+    ( le_grammar:second_pass_item_with_module(Templates, M, Item, NewItem) -> item_to_term_with_source(M, Templates, NewItem, Term)
+    ; Item = Term
+    ).
 
 list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], (G, Rest)) :- list_to_conj(Gs, Rest).
@@ -712,17 +667,19 @@ list_to_conj([], true).
 
 normalize_string(string(S, _), N) :- !, normalize_string(S, N).
 normalize_string(S, N) :-
-    (atom(S) ; string(S)), !,
-    split_string(S, "_- ", "_- ", Words),
-    atomic_list_concat(Words, ' ', Atom),
-    atom_string(Atom, N).
-normalize_string(S, S).
+    (   number(S) -> atom_string(S, N)
+    ;   (atom(S) ; string(S)) ->  
+        split_string(S, "_- ", "_- ", Words),
+        atomic_list_concat(Words, ' ', Atom),
+        atom_string(Atom, N)
+    ;   N = S
+    ).
 
 run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :-
     createSession(KBmodule, SM),
     (   setScenarion(SM, ScenarioName) ->  
         (   ((KBmodule:query_info(QueryName, FullGoal, Items) ; (normalize_string(QueryName, NormName), KBmodule:query_info(InfoName, FullGoal, Items), normalize_string(InfoName, NormName)))) ->  
-            (   catch(call_with_time_limit(30, findall(S, (reasoner:i(FullGoal, SM, [], _), maplist(le_kbs:item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance), le_kbs:canonical_string(TemplateInstance, Atom), atom_string(Atom, S)), ActualStrings)), time_limit_exceeded, (ActualStrings = timeout)) ->  
+            (   catch(call_with_time_limit(30, findall(S, (reasoner:i(FullGoal, SM, [], _Why), maplist(le_kbs:item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance), le_kbs:canonical_string(TemplateInstance, Atom), atom_string(Atom, S)), ActualStrings)), time_limit_exceeded, (ActualStrings = timeout)) ->  
                     (   ActualStrings == timeout -> 
                             Result = error(QueryName, ScenarioName, 'Timeout exceeded')
                         ; 
@@ -733,18 +690,37 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :
                         (   SortedExpected == SortedActual -> 
                                 Result = pass(QueryName, ScenarioName)
                             ; 
-                            Result = fail(QueryName, ScenarioName, ExpectedStrings, ActualStrings)
+                            maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
+                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings)
                         )
                     )
                 ; Result = error(QueryName, ScenarioName, 'Test execution failed')
             )
             ;   
-            Result = error(QueryName, ScenarioName, 'Query not found')
+            % Try to parse QueryName as a custom query if not found in query_info
+            (   catch(parse_custom_query(KBmodule, QueryName, FullGoal), _, fail) ->
+                (   catch(call_with_time_limit(30, findall(S, (reasoner:i(FullGoal, SM, [], _Why), item_to_instance(KBmodule, FullGoal, TemplateInstance), le_kbs:canonical_string(TemplateInstance, Atom), atom_string(Atom, S)), ActualStrings)), time_limit_exceeded, (ActualStrings = timeout)) ->
+                    (   ActualStrings == timeout -> Result = error(QueryName, ScenarioName, 'Timeout exceeded')
+                    ;   maplist(normalize_string, ExpectedStrings, NormExpected),
+                        maplist(normalize_string, ActualStrings, NormActual),
+                        sort(NormExpected, SortedExpected),
+                        sort(NormActual, SortedActual),
+                        ( SortedExpected == SortedActual -> Result = pass(QueryName, ScenarioName) ; maplist(strip_string_wrapper, ExpectedStrings, CleanExpected), Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings) )
+                    )
+                ;   Result = error(QueryName, ScenarioName, 'Test execution failed')
+                )
+            ;   % Last resort: try to find query by name in query_info again with more logging
+                ( le_kbs:do_log -> format('Query not found: ~w~n', [QueryName]) ; true ),
+                Result = error(QueryName, ScenarioName, 'Query not found')
+            )
         )
         ;   
         Result = error(QueryName, ScenarioName, 'Scenario not found')
     ),
     clearSession(SM).
+
+strip_string_wrapper(string(S, _), S) :- !.
+strip_string_wrapper(S, S).
 
 read_tests(Stream, Tests) :-
     read(Stream, Term),
