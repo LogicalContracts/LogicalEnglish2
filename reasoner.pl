@@ -12,7 +12,7 @@
 :- use_module(library(pairs)).
 
 :- dynamic equal_to/2.
-:- thread_local called/3, counter/1, success_in_not/2.
+:- thread_local called/3, counter/1, success_in_not/2, succeeded/1.
 
 %!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 %
@@ -20,6 +20,7 @@
 i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     retractall(success_in_not(_, _)),
+    retractall(succeeded(_)),
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
@@ -34,6 +35,7 @@ i(Goal, SessionModule, Unknowns, Whys) :-
 explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     retractall(success_in_not(_, _)),
+    retractall(succeeded(_)),
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
@@ -48,17 +50,22 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
 
 %!  solve(+Goal:term, +SM:atom, +KM:atom, +Anc:list, +Depth:integer, +ParentID:any, -Us:list, -Whys:list) is nondet.
 solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
-    next_id(MyID),
-    ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
-    (   SM:debug_mode
-    ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
-        (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E, 
-                  (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, Anc, D), throw(E)))
-        ->  dap_server:dap_tracer_hook(exit, SM, G, MyID, Anc, D)
-        ;   dap_server:dap_tracer_hook(fail, SM, G, MyID, Anc, D),
-            fail
+    (   is_trivial(G)
+    ->  solve_real(G, SM, KM, Anc, D, ParentID, Us, Whys)
+    ;   next_id(MyID),
+        ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
+        (   SM:debug_mode
+        ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
+            (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E, 
+                      (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, Anc, D), throw(E)))
+            ->  (succeeded(MyID) -> true ; assertz(succeeded(MyID))),
+                dap_server:dap_tracer_hook(exit, SM, G, MyID, Anc, D)
+            ;   dap_server:dap_tracer_hook(fail, SM, G, MyID, Anc, D),
+                fail
+            )
+        ;   solve_real(G, SM, KM, Anc, D, MyID, Us, Whys),
+            (succeeded(MyID) -> true ; assertz(succeeded(MyID)))
         )
-    ;   solve_real(G, SM, KM, Anc, D, MyID, Us, Whys)
     ).
 
 % Conjunction
@@ -109,7 +116,8 @@ solve_real(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(forall(Cond, C
 solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, FailureTrees)]) :- !,
     D1 is D + 1,
     next_id(GoalID),
-    assertz(called(MyID, GoalID, Goal)),
+    ( Goal = le_at(G, _, _) -> GoalToRecord = G ; GoalToRecord = Goal ),
+    assertz(called(MyID, GoalID, GoalToRecord)),
     findall(UsA-WhysA, solve(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA), AllResults),
     (   member([]-WhysA, AllResults) ->  
         assertz(success_in_not(GoalID, WhysA)),
@@ -117,9 +125,11 @@ solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, Fa
     ;   pairs_keys(AllResults, AllUsA),
         AllUsA \== [] ->  
             Us = [not(Goal)], % Only unknown successes
-            build_failure_tree(GoalID, FailureTrees)
+            build_failure_tree(GoalID, FailureTrees),
+            assertz(success_in_not(GoalID, FailureTrees))
         ; Us = [], % Certain failure of Goal, so not(Goal) succeeds
-            build_failure_tree(GoalID, FailureTrees)
+            build_failure_tree(GoalID, FailureTrees),
+            assertz(success_in_not(GoalID, FailureTrees))
     ).
 
 % True
@@ -147,14 +157,16 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
                 solve(Body, SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody)
             ;   % Transitivity: X is a Y and Y is a Z
                 % Use a base fact for the first step to avoid infinite recursion
+                ground(X),
                 (SM:clause(is_a(X, Y), true, Ref1) ; (KM \== none, KM:clause(is_a(X, Y), true, Ref1))),
+                ground(Y),
                 Y \== Z, Y \== X,
                 \+ SM:le_neg(is_a(X, Y)),
                 \+ member(is_a(X, Y), Anc),
                 % Record the fact call
                 next_id(FactID),
                 assertz(called(MyID, FactID, is_a(X, Y))),
-                solve(is_a(Y, Z), SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody2),
+                solve(is_a(Y, Z), SM, KM, [is_a(X, Y), is_a(X, Z)|Anc], D1, MyID, Us, WhysBody2),
                 Ref = transitivity,
                 WhysBody = [success(is_a(X, Y), Ref1, []) | WhysBody2]
             )
@@ -170,19 +182,21 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 % Reconstructs a list of "juicy" failure trees of all calls made under ID.
 build_failure_tree(ID, Whys) :-
     (   success_in_not(ID, Whys) -> true
-    ;   called(_PID, ID, Term), % ID is the MyID of the call
-        (   is_trivial(Term)
-        ->  findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
-        ;   findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Children),
-            Whys = [failure(Term, Children)]
+    ;   succeeded(ID) -> Whys = []
+    ;   ( setof(W, CID^Ws^(called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), AllWhys) -> true ; AllWhys = []),
+        (   called(_PID, ID, Term0)
+        ->  ( Term0 = le_at(Term, _, _) -> true ; Term = Term0 ),
+            ( (AllWhys = [failure(T2, _)], (variant(Term, T2) ; (T2 = le_at(T3, _, _), variant(Term, T3)))) -> Whys = AllWhys ; Whys = [failure(Term0, AllWhys)] )
+        ;   Whys = AllWhys
         )
     ).
 
-is_trivial((_, _)).
-is_trivial(and(_, _)).
-is_trivial((_ ; _)).
-is_trivial(or(_, _)).
-is_trivial(true).
+is_trivial((_, _)) :- !.
+is_trivial(and(_, _)) :- !.
+is_trivial((_ ; _)) :- !.
+is_trivial(or(_, _)) :- !.
+is_trivial(true) :- !.
+is_trivial(le_at(_, _, _)) :- !.
 
 % get_clause(+Goal, +SM, +KM, -Body, -Ref)
 get_clause(G, SM, _KM, Body, Ref) :-
