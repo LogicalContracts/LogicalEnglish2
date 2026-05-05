@@ -39,9 +39,9 @@ le_grammar:parse_node_extension([word(unless, _)|Rest], Children, Templates, VMI
     (   Rest == [], Children \== [] ->
         le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic)
     ;   Rest \== [], Children == [] ->
-        le_grammar:parse_literal(Rest, Templates, VMIn, VMOut, SubLogic)
+        le_grammar:parse_literal(Rest, Templates, VMIn, VMOut, SubLogic, _)
     ;   Rest \== [], Children \== [] ->
-        le_grammar:parse_literal(Rest, Templates, VMIn, VM1, LogicAfter),
+        le_grammar:parse_literal(Rest, Templates, VMIn, VM1, LogicAfter, _),
         le_grammar:hierarchy_to_logic(Children, Templates, VM1, VMOut, LogicChildren),
         SubLogic = and(LogicAfter, LogicChildren)
     ;   fail
@@ -52,9 +52,9 @@ le_grammar:parse_node_extension([word(and, _), word(unless, _)|Rest], Children, 
     (   Rest == [], Children \== [] ->
         le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic)
     ;   Rest \== [], Children == [] ->
-        le_grammar:parse_literal(Rest, Templates, VMIn, VMOut, SubLogic)
+        le_grammar:parse_literal(Rest, Templates, VMIn, VMOut, SubLogic, _)
     ;   Rest \== [], Children \== [] ->
-        le_grammar:parse_literal(Rest, Templates, VMIn, VM1, LogicAfter),
+        le_grammar:parse_literal(Rest, Templates, VMIn, VM1, LogicAfter, _),
         le_grammar:hierarchy_to_logic(Children, Templates, VM1, VMOut, LogicChildren),
         SubLogic = and(LogicAfter, LogicChildren)
     ;   fail
@@ -69,13 +69,13 @@ le_grammar:parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, and(Lo
     Before \== [],
     % Ensure Before is a valid literal (doesn't contain further unless/and unless)
     \+ (append(_, [word(unless, _)|_], Before)),
-    le_grammar:parse_literal(Before, Templates, VMIn, VM1, Logic1),
+    le_grammar:parse_literal(Before, Templates, VMIn, VM1, Logic1, _),
     (   After == [] ->
         le_grammar:hierarchy_to_logic(Children, Templates, VM1, VMOut, Logic2)
     ;   Children == [] ->
-        le_grammar:parse_literal(After, Templates, VM1, VMOut, Logic2)
+        le_grammar:parse_literal(After, Templates, VM1, VMOut, Logic2, _)
     ;   % Both After and Children are non-empty. 
-        le_grammar:parse_literal(After, Templates, VM1, VM2, LogicAfter),
+        le_grammar:parse_literal(After, Templates, VM1, VM2, LogicAfter, _),
         le_grammar:hierarchy_to_logic(Children, Templates, VM2, VMOut, LogicChildren),
         Logic2 = and(LogicAfter, LogicChildren)
     ).
@@ -243,7 +243,7 @@ parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, 
     ;   CleanTokens = [word(prolog, _)|Rest], Children == [] ->
         resolve_prolog_tokens(Rest, Templates, VMIn, VMOut, Goal),
         Logic0 = prolog_call(Goal)
-    ;   le_grammar:parse_literal(CleanTokens, Templates, VMIn, VMOut, Literal) ->
+    ;   le_grammar:parse_literal(CleanTokens, Templates, VMIn, VMOut, Literal, _) ->
         ( Children == [] -> Logic0 = Literal ; 
           hierarchy_to_numbered_logic(Children, Templates, VMOut, VM2, ChildLogic, RuleID, M),
           Logic0 =.. [Op, Literal, ChildLogic],

@@ -55,7 +55,7 @@ solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     ;   is_redundant(ParentID, G)
     ->  solve_real(G, SM, KM, Anc, D, ParentID, Us, Whys)
     ;   next_id(MyID),
-        ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
+        ( (ParentID \== none, ground(G)) -> assertz(called(ParentID, MyID, G)); true),
         (   SM:debug_mode
         ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
             (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E, 
@@ -158,15 +158,13 @@ solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
                 solve(Body, SM, KM, [is_a(X, Z)|Anc], D1, MyID, Us, WhysBody)
             ;   % Transitivity: X is a Y and Y is a Z
                 % Use a base fact for the first step to avoid infinite recursion
-                ground(X),
                 (SM:clause(is_a(X, Y), true, Ref1) ; (KM \== none, KM:clause(is_a(X, Y), true, Ref1))),
-                ground(Y),
                 Y \== Z, Y \== X,
                 \+ SM:le_neg(is_a(X, Y)),
                 \+ member(is_a(X, Y), Anc),
                 % Record the fact call
                 next_id(FactID),
-                assertz(called(MyID, FactID, is_a(X, Y))),
+                ( ground(is_a(X, Y)) -> assertz(called(MyID, FactID, is_a(X, Y))) ; true ),
                 solve(is_a(Y, Z), SM, KM, [is_a(X, Y), is_a(X, Z)|Anc], D1, MyID, Us, WhysBody2),
                 Ref = transitivity,
                 WhysBody = [success(is_a(X, Y), Ref1, []) | WhysBody2]

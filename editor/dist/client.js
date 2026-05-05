@@ -753,7 +753,12 @@ async function start() {
       if (btnTrace)
         btnTrace.title = title;
     } else {
-      btnQuery.title = "";
+      const selectedOption = querySelect.options[querySelect.selectedIndex];
+      if (selectedOption && selectedOption.dataset.template) {
+        btnQuery.title = `Template: ${selectedOption.dataset.template}`;
+      } else {
+        btnQuery.title = "";
+      }
       if (btnTrace)
         btnTrace.title = "";
     }
@@ -826,6 +831,7 @@ async function start() {
             option.value = q.name;
             const label = q.le || q.template;
             option.textContent = q.name ? `${label} (${q.name})` : label;
+            option.dataset.template = q.template;
             querySelect.appendChild(option);
           });
         }
