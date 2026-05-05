@@ -37,7 +37,8 @@ CBSA_METRO_FLG is a label for Metropolitan Division Flag (Branch).
 CBSA_METRO_NAME is a label for Metropolitan Division Name (Branch). 
 CBSA_MICRO_FLG is a label for Micropolitan Division Flag (Branch). 
 CBSA_NO is a label for Core Based Statistical Area Name (Branch). 
-CERT is a label for Institution FDIC Certificate #. CITY is a label for Branch City. 
+CERT is a label for Institution FDIC Certificate. 
+CITY is a label for Branch City. 
 COUNTY is a label for Branch County. 
 CSA is a label for Combined Statistical Area Name (Branch). 
 CSA_FLG is a label for Combined Statistical Area Flag (Branch). 
