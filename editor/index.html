@@ -641,6 +641,11 @@
         </div>
     </div>
     
+    <!-- Context Menu for Answers -->
+    <div id="answer-context-menu" style="display: none; position: fixed; background: #2d2d2d; border: 1px solid #444; z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.5); border-radius: 3px; min-width: 120px; padding: 4px 0;">
+        <div class="dropdown-item" id="menu-copy-answer" style="padding: 5px 15px; font-size: 12px;">Copy Answer</div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>console.log('Marked loaded in head:', !!window.marked);</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>

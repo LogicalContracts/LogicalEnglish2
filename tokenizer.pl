@@ -29,25 +29,37 @@ tokenize(String, Tokens) :-
 %   Converts a list of tokens back into a string representation,
 %   preserving relative spacing and indentation.
 tokens_to_string([],"") :- !.
-tokens_to_string(Tokens,String) :-
-    tokens_to_string_(Tokens,0,Strings),
+tokens_to_string([T|Ts],String) :-
+    ( arg(2, T, loc(Start, _)) -> true ; Start = 0 ),
+    tokens_to_string_([T|Ts],Start,Strings),
     atomic_list_concat(Strings,String).
 
 % tokens_to_string_(Tokens,EndPositionOfPrevious,Strings)
 tokens_to_string_([],_,[]).
 tokens_to_string_([T|Tokens],LastEnd,[S|Strings]) :-
-    arg(2,T,loc(Begin,NewEnd)),
-    AdvanceN is Begin-LastEnd,
-    spaces(AdvanceN,Advance),
-    (   T=indent(N,_) -> spaces(N,Spaces), format(string(S_),"\n~a",[Spaces])
-        ; T=line_comment(X,_) -> format(string(S_),"%~a",[X])
-        ; T=multi_comment(X,_) -> format(string(S_),"/*~a*/",[X])
-        ; T=quoteString(X,_) -> format(string(S_),"'~a'",[X])
-        ; T=doubleQuoteString(X,_) -> format(string(S_),'"~a"',[X])
-        ; arg(1,T,X) -> S_=X
-    ),
-    atomic_list_concat([Advance,S_],S),
-    tokens_to_string_(Tokens,NewEnd,Strings).
+    ( arg(2,T,loc(Begin,NewEnd)) ->
+        Gap is Begin-LastEnd,
+        (Gap > 0 -> Advance = " " ; Advance = ""),
+        (   T=indent(_,_) -> S_ = "", Advance_ = Advance
+            ; T=line_comment(_,_) -> S_ = "", Advance_ = Advance
+            ; T=multi_comment(_,_) -> S_ = "", Advance_ = Advance
+            ; T=quoteString(X,_) -> format(string(S_),"'~a'",[X]), Advance_ = Advance
+            ; T=doubleQuoteString(X,_) -> format(string(S_),'"~a"',[X]), Advance_ = Advance
+            ; arg(1,T,X) -> 
+                ( X = date(Y,M,D) -> format(string(S_), "~w-~|~`0t~w~2|-~|~`0t~w~2|", [Y,M,D])
+                ; (atom(X); string(X); number(X)) -> S_=X
+                ; term_string(X, S_)
+                ),
+                Advance_ = Advance
+            ; S_ = "", Advance_ = ""
+        ),
+        atomic_list_concat([Advance_,S_],S),
+        tokens_to_string_(Tokens,NewEnd,Strings)
+    ;   % Fallback for tokens without location info
+        ( arg(1,T,X) -> S_ = X ; S_ = "" ),
+        ( Strings == [] -> S = S_ ; atomic_list_concat([' ', S_], S) ),
+        tokens_to_string_(Tokens, LastEnd, Strings)
+    ).
 
 
 % --- The Main DCG Loop ---
