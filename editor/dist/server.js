@@ -8603,7 +8603,7 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   const text = document.getText();
   const templates = getTemplates(text);
   const tokens = [];
-  const argPattern = `(?:(?:a|an|the|each|some)\\s+[a-z]\\w*|[A-Z][A-Z0-9_]*|\\*[^*]+\\*|\\d+(?:\\.\\d+)?|\\d{4}-\\d{2}-\\d{2}|"[^"]*"|'[^']*')`;
+  const argPattern2 = `(?:(?:a|an|the|each|some|which|what)\\s+[a-zA-Z][a-zA-Z0-9_\\s]*?|[a-zA-Z_][a-zA-Z0-9_]*|\\*[^*]+\\*|\\d+(?:\\.\\d+)?|\\d{4}-\\d{2}-\\d{2}|"[^"]*"|'[^']*')`;
   const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
   for (const template of sortedTemplates) {
     const parts = template.label.split(/\*[^*]+\*/);
@@ -8613,15 +8613,18 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
     let regexStr = "";
     for (let i = 0; i < regexParts.length; i++) {
       if (i > 0) {
-        const sep = i === 1 && regexParts[0] === "" ? "" : "\\s+";
-        regexStr += sep + "(" + argPattern + ")\\s*";
+        regexStr += "(" + argPattern2 + ")";
       }
-      regexStr += regexParts[i];
+      if (regexParts[i]) {
+        regexStr += (i > 0 ? "\\s+" : "") + regexParts[i] + (i < regexParts.length - 1 ? "\\s+" : "");
+      }
     }
     try {
       const regex = new RegExp("\\b" + regexStr.trim() + "\\b", "gi");
       let match;
       while ((match = regex.exec(text)) !== null) {
+        if (match[0].includes("*"))
+          continue;
         let currentOffset = match.index;
         const fullMatch = match[0];
         let lastIndex = 0;
@@ -8630,7 +8633,6 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
           if (part) {
             const escapedPart = part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
             const partRegex = new RegExp(escapedPart, "gi");
-            partRegex.lastIndex = lastIndex;
             const partMatch = partRegex.exec(fullMatch);
             if (partMatch) {
               tokens.push({ start: currentOffset + partMatch.index, length: partMatch[0].length, typeIndex: 6 });
@@ -8653,7 +8655,11 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
       console.error("Regex error for template:", template.label, e);
     }
   }
-  tokens.sort((a, b) => a.start - b.start);
+  tokens.sort((a, b) => {
+    if (a.start !== b.start)
+      return a.start - b.start;
+    return b.length - a.length;
+  });
   const uniqueTokens = [];
   let lastEnd = -1;
   for (const token of tokens) {
@@ -8766,20 +8772,24 @@ async function validateTextDocument(textDocument) {
 }
 function getTemplates(text) {
   const templates = [];
-  const templateSections = text.match(/(?:the predicates|the templates|the fluents|the events) are:([\s\S]*?)(?=\n\w|$)/g);
-  if (templateSections) {
-    for (const section of templateSections) {
-      const lines = section.split("\n");
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed && !trimmed.startsWith("%") && !trimmed.includes("are:")) {
-          const clean = trimmed.replace(/[.,;]$/, "");
-          templates.push({
-            label: clean,
-            insertText: clean.replace(/\*/g, ""),
-            detail: "User Template"
-          });
-        }
+  const sectionHeaderRegex = /^the (knowledge base|scenario|query|ontology|predicates|templates|fluents|events|target language)/im;
+  const templateHeaderRegex = /the (predicates|templates|fluents|events) are:/gi;
+  let match;
+  while ((match = templateHeaderRegex.exec(text)) !== null) {
+    const start = match.index + match[0].length;
+    const remaining = text.substring(start);
+    const nextSectionMatch = remaining.match(sectionHeaderRegex);
+    const sectionText = nextSectionMatch ? remaining.substring(0, nextSectionMatch.index) : remaining;
+    const lines = sectionText.split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith("%")) {
+        const clean = trimmed.replace(/[.,;]$/, "");
+        templates.push({
+          label: clean,
+          insertText: clean.replace(/\*/g, ""),
+          detail: "User Template"
+        });
       }
     }
   }
@@ -8857,7 +8867,7 @@ connection.onHover((params) => {
       if (parts.length < 2)
         continue;
       const regexParts = parts.map((p) => p.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
-      const regexStr = "\\b" + regexParts.join("\\s+((?:a|an|the|each|some)\\s+[a-z]\\w*|[A-Z][A-Z0-9_]*|\\*[^*]+\\*)\\s*") + "\\b";
+      const regexStr = "\\b" + regexParts.join("\\s+(" + argPattern + ")\\s*") + "\\b";
       try {
         const regex = new RegExp(regexStr, "gi");
         let match;

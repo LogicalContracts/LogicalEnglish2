@@ -33,10 +33,11 @@ var leMonarchTokens = {
       [/the (predicates|templates|fluents|events) are:/, { token: "keyword.header", next: "@templates" }],
       [/the knowledge base|scenario|query|the ontology|the target language/, "keyword.header"],
       // Structural Keywords
-      [/\b(includes|if|and|or|either|any\s+of|all\s+of|unless|which|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|sum|count|average|min|max|is\s+a|is\s+an|such\s+that)\b/, "keyword"],
+      [/\b(includes|if|and|or|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|sum|count|average|min|max|such\s+that)\b/, "keyword"],
+      [/\b(which|what)\s+[a-zA-Z]\w*/, "variable"],
       [/\bexpects answers\b/, "keyword.expects"],
-      // Arguments (a/an/the/each/some + word)
-      [/\b(a|an|the|each|some)\s+[a-z]\w*/, "variable"],
+      // Arguments (a/an/the/each/some/which/what + word)
+      // [/\b(a|an|the|each|some|which|what)\s+[a-zA-Z]\w*/, 'variable'],
       // Standalone IDs / Variables (Capitalized)
       [/\b[A-Z][A-Z0-9_]*\b/, "variable"],
       // Variables in *...*
@@ -157,8 +158,8 @@ async function start() {
       { token: "keyword.expects", foreground: "c586c0", fontStyle: "italic" },
       { token: "variable", foreground: "9cdcfe" },
       { token: "number.date", foreground: "b5cea8" },
-      { token: "templateWord", foreground: "d4d4d4" }
-      // Plain text color for template words
+      { token: "templateWord", foreground: "dcdcaa" }
+      // Distinct color for template words
     ],
     colors: {
       "editor.background": "#1e1e1e"
@@ -173,7 +174,7 @@ async function start() {
       { token: "keyword.expects", foreground: "af00db", fontStyle: "italic" },
       { token: "variable", foreground: "001080" },
       { token: "number.date", foreground: "098658" },
-      { token: "templateWord", foreground: "000000" }
+      { token: "templateWord", foreground: "795e26" }
     ],
     colors: {}
   });
