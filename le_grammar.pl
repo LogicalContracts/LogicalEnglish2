@@ -8,10 +8,10 @@
 :- module(le_grammar, [parse_le_file/3, parse_le_text/3, parse_le_tokens/3, match_instance_to_template/6, match_instance_to_template/7, reconstruct_name/2,
     kb_items//1, second_pass_item/4, parse_literal/6, prepare_templates/2,
     set_token_pos/1, get_token_pos/1, is_id/1, is_article/1, is_reserved/1, is_ignorable/1, is_proper_name_atom/1, is_punct/1,
-    extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6,
+    extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4,
     extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3]).
 
-:- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6.
+:- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4.
 
 :- use_module(tokenizer, [tokenize/2, tokenize_file/2, tokens_to_string/2]).
 :- use_module(le_system_templates).
@@ -221,7 +221,7 @@ kb_item(expected(QueryName, Answers, Start, End)) -->
 
 % kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
-    t(word(rule)), !, t(word(ID)), t(punctuation(':')),
+    t(word(rule)), !, (t(word(ID)) | t(number(ID))), t(punctuation(':')),
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
     any_indent(N), 
@@ -652,24 +652,26 @@ match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVa
         % T is a variable (from the template dict)
         % Lookahead to avoid over-consuming
         (   Ts = [NextT|RestTs], \+ var(NextT) ->  
-                % Optimization: find the first split that matches the next constant part
-                % and satisfies the variable extraction. This avoids exponential backtracking.
-                once((
+                % Optimization: find a split that matches the next constant part
+                % and satisfies the variable extraction.
+                (
                     append(VarTokens, [NextI|Rest], Instance),
                     VarTokens \== [],
                     match_part(NextI, NextT, VMIn, VM1, Templates, AllowVars),
-                    extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth)
-                )),
-                match_instance_to_template_acc(Rest, RestTs, VM2, VMOut, Templates, AllowVars, Depth)
+                    extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth),
+                    match_instance_to_template_acc(Rest, RestTs, VM2, VMOut, Templates, AllowVars, Depth)
+                )
             ; Ts = [] ->  
                 VarTokens = Instance,
                 VarTokens \== [],
                 extract_value_from_parts(VarTokens, T, VMIn, VMOut, Templates, false, AllowVars, Depth)
             ; % Next part is also a variable, must try all splits
-              once(append(VarTokens, Rest, Instance)),
-              VarTokens \== [],
-              extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars, Depth),
-              match_instance_to_template_acc(Rest, Ts, VM1, VMOut, Templates, AllowVars, Depth)
+              (
+                append(VarTokens, Rest, Instance),
+                VarTokens \== [],
+                extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars, Depth),
+                match_instance_to_template_acc(Rest, Ts, VM1, VMOut, Templates, AllowVars, Depth)
+              )
         )
     ).
 
@@ -741,9 +743,11 @@ template_priority(dict(FA, _, WordsAndVars, _, _, _), Priority-Score) :-
     findall(1, (member(W, WordsAndVars), atom(W)), Words),
     length(Words, Score),
     ( FA = [le_is|_] -> Priority = -2
-    ; FA = [Functor|_], sub_atom(Functor, 0, 3, _, le_) -> Priority = 1
+    ; FA = [le_is_in|_] -> Priority = -1
+    ; FA = [Functor|_], sub_atom(Functor, 0, 3, _, le_) -> Priority = -1
     ; Priority = 0
     ).
+
 
 is_meta_template(dict(_, _, WordsAndVars, _, _, _)) :-
     member(W, WordsAndVars),
@@ -781,7 +785,9 @@ second_pass_content(Items, Templates, NewItems, M) :-
     maplist(second_pass_item_with_module(Templates, M), Items, NewItems).
 
 second_pass_item_with_module(Templates, M, Item, NewItem) :-
-    second_pass_item(Templates, Item, NewItem, M).
+    ( second_pass_item_extension(Templates, Item, NewItem, M) -> true
+    ; second_pass_item(Templates, Item, NewItem, M)
+    ).
 
 second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
