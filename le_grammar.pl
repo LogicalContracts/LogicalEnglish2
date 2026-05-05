@@ -475,10 +475,13 @@ extract_var_name(Words, Name) :-
         ; Words = [which | Rest], Rest \== [] ->  
             length(Rest, L), L =< 5,
             extract_id(Rest, Name)
-        ; Words = [who] -> Name = who
-        ; Words = [what] -> Name = what
-        ; Words = [when] -> Name = when
-        ; Words = [where] -> Name = where
+        ; Words = [what | Rest], Rest \== [] ->  
+            length(Rest, L), L =< 5,
+            extract_id(Rest, Name)
+        ; Words = [who] -> Name = 'Who'
+        ; Words = [what] -> Name = 'What'
+        ; Words = [when] -> Name = 'When'
+        ; Words = [where] -> Name = 'Where'
         ; Words = [W], is_id(W) -> Name = W
     ).
 
@@ -577,7 +580,9 @@ extract_value(var(Words), Val, VMIn, VMOut, _Templates, AllowVars) :-
     ( AllowVars == true -> unify_with_vmap(Name, Val, VMIn, VMOut, true); Val = Name, VMOut = VMIn).
 extract_value(word(W, _), Val, VMIn, VMOut, _Templates, AllowVars) :-
     ( le_kbs:do_log -> print_message(informational,'Extract value word: ~w (AllowVars: ~w)~n' - [W, AllowVars]); true),
-    ( AllowVars == false -> Val = W, VMOut = VMIn; unify_with_vmap(W, Val, VMIn, VMOut, false)).
+    ( AllowVars == false -> Val = W, VMOut = VMIn; 
+      (extract_var_name([W], Name) -> unify_with_vmap(Name, Val, VMIn, VMOut, true) ; unify_with_vmap(W, Val, VMIn, VMOut, false))
+    ).
 extract_value(number(N, _), N, VM, VM, _, _).
 extract_value(date(D, _), D, VM, VM, _, _).
 extract_value(quoteString(S, _), S, VM, VM, _, _).
@@ -585,7 +590,9 @@ extract_value(doubleQuoteString(S, _), S, VM, VM, _, _).
 extract_value(punctuation(P, _), P, VM, VM, _, _).
 extract_value(punct(P, _), P, VM, VM, _, _).
 extract_value(word(W), Val, VMIn, VMOut, _Templates, AllowVars) :-
-    ( AllowVars == false -> Val = W, VMOut = VMIn; unify_with_vmap(W, Val, VMIn, VMOut, false)).
+    ( AllowVars == false -> Val = W, VMOut = VMIn; 
+      (extract_var_name([W], Name) -> unify_with_vmap(Name, Val, VMIn, VMOut, true) ; unify_with_vmap(W, Val, VMIn, VMOut, false))
+    ).
 extract_value(number(N), N, VM, VM, _, _).
 extract_value(date(D), D, VM, VM, _, _).
 extract_value(string(S), S, VM, VM, _, _).

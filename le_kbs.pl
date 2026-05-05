@@ -334,7 +334,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             % Find all matching templates, but separate le_is
             findall(match(G, WV, FA), (
                 member(Dict, Templates),
-                copy_term(Dict, dict(FA, _, WV, _)),
+                ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                 \+ (FA = [le_is|_]),
                 le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                 G =.. FA
@@ -343,7 +343,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
                 ; % Only try le_is if no specific template matched
                 findall(match(G, WV, FA), (
                     member(Dict, Templates),
-                    copy_term(Dict, dict(FA, _, WV, _)),
+                    ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                     FA = [le_is|_],
                     le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                     G =.. FA
@@ -381,7 +381,7 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
           % Find all matching templates, but separate le_is
           findall(match(G, WV, FA), (
               member(Dict, Templates),
-              copy_term(Dict, dict(FA, _, WV, _)),
+              ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
               \+ (FA = [le_is|_]),
               le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
               G =.. FA
@@ -389,7 +389,7 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
           (   SpecificMatches \== [] -> Matches = SpecificMatches
               ; findall(match(G, WV, FA), (
                     member(Dict, Templates),
-                    copy_term(Dict, dict(FA, _, WV, _)),
+                    ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                     FA = [le_is|_],
                     le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                     G =.. FA
