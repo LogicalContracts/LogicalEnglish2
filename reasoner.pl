@@ -237,8 +237,16 @@ le_compare(<, X, Y) :- !, X @< Y.
 
 equal_to(X, X).
 
-attach_range(Start, End, success(G, _Ref, Children), success(G, range(Start, End), Children)) :- !.
+attach_range(Start, End, success(G, Ref, Children), success(G, NewRef, Children)) :- !,
+    (   is_special_ref(Ref)
+    ->  NewRef = range(Start, End)
+    ;   NewRef = Ref
+    ).
 attach_range(_, _, Why, Why).
+
+is_special_ref(Ref) :-
+    memberchk(Ref, [built_in, unknown, identity, transitivity, aggregate, negation, universal, universal_success, empty_forall]).
+is_special_ref(range(_, _)).
 
 extract_var(var(_, V), V) :- !.
 extract_var(V, V).
