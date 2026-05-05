@@ -96,8 +96,17 @@ solve_real(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggregate, W
     D1 is D + 1,
     extract_var(VarTerm, Var),
     findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
-    pairs_keys_values(Pairs, List, WhysList),
-    flatten(WhysList, WhysGoal),
+    (   Pairs == [] ->  
+        % Goal failed, build failure tree for the goal
+        % We need to ensure the failure is recorded under MyID
+        next_id(GoalID),
+        ( (MyID \== none, ground(Goal)) -> assertz(called(MyID, GoalID, Goal)); true),
+        ( solve(Goal, SM, KM, Anc, D1, GoalID, [], _) -> true ; true ),
+        build_failure_tree(GoalID, WhysGoal),
+        List = []
+    ;   pairs_keys_values(Pairs, List, WhysList),
+        flatten(WhysList, WhysGoal)
+    ),
     apply_aggregate(Type, List, Result),
     Us = [],
     extract_var(ResultTerm, Result).

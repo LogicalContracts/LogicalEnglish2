@@ -12,7 +12,7 @@ the templates are:
     the percentage of any distribution of capital *a company* may make is *a percentage*.
     *a percentage* is the smallest among *a first percentage* and *a second percentage* and *a third percentage*.
     *a percentage* is the smallest among *a first percentage* and *a second percentage*.
-    *an entity*  has entitlements to all the income and capital of *a trust*.
+    *an entity* has entitlements to all the income and capital of *a trust*.
     the percentage of any distribution of income *a trustee* may make to which *an entity* would be beneficially entitled is *a percentage*.
     the percentage of any distribution of capital *a trustee* may make to which *an entity* would be beneficially entitled is *a percentage*.
     *a trustee* makes distribution of income during the relevant year.
@@ -131,8 +131,6 @@ Sarah Fry holds the legal and equitable interests in shares in XYZ Pty Ltd.
     indirect expects answers ["the indirect small business participation percentage of Tom Fry in Tallow Unit Trust is 0.04000000000000001"].
     direct expects answers [].
 
-
-     
 query indirect is:
 	the indirect small business participation percentage of Tom Fry in Tallow Unit Trust is which number.
     

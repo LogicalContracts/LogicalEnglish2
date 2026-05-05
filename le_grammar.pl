@@ -318,7 +318,7 @@ extract_var_info_from_words(Words, Name, Type) :-
 
 is_article(A) :- memberchk(A, [a, an, the, some, 'A', 'An', 'The', 'Some']).
 
-is_ignorable(W) :- memberchk(W, [a, an, the, is, are, was, were, has, have, had, do, does, did, been]).
+is_ignorable(W) :- memberchk(W, [a, an, the, are, was, were, has, have, had, do, does, did, been]).
 
 % template_instance(Tokens) parses a sequence of tokens that form a template instance.
 template_instance([P|Ps]) -->
@@ -937,7 +937,6 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
     maplist(extract_simple_word, Tokens, Words),
     (   member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW), Templates),
         \+ (FunctorArgs = [le_is|_]),
-        ( le_kbs:do_log -> print_message(informational,'  Trying template: ~w' - [FunctorArgs]); true),
         contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut0, Templates, AllowVars, 0),
@@ -949,7 +948,6 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
         ;   
         % Fallback to le_is
         member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2), Templates),
-        ( le_kbs:do_log -> print_message(informational,'  Trying fallback le_is'); true),
         copy_term(dict([le_is, V1, V2], WordsAndVars), dict([le_is, V1Copy, V2Copy], WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0) -> Literal = le_is(V1Copy, V2Copy), Instance = WordsAndVarsCopy
     ).
