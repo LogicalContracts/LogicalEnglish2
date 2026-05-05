@@ -52,6 +52,8 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
 solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     (   is_trivial(G)
     ->  solve_real(G, SM, KM, Anc, D, ParentID, Us, Whys)
+    ;   is_redundant(ParentID, G)
+    ->  solve_real(G, SM, KM, Anc, D, ParentID, Us, Whys)
     ;   next_id(MyID),
         ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
         (   SM:debug_mode
@@ -116,9 +118,8 @@ solve_real(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(forall(Cond, C
 solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, FailureTrees)]) :- !,
     D1 is D + 1,
     next_id(GoalID),
-    ( Goal = le_at(G, _, _) -> GoalToRecord = G ; GoalToRecord = Goal ),
-    assertz(called(MyID, GoalID, GoalToRecord)),
-    findall(UsA-WhysA, solve(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA), AllResults),
+    assertz(called(MyID, GoalID, Goal)),
+    findall(UsA-WhysA, solve_real(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA), AllResults),
     (   member([]-WhysA, AllResults) ->  
         assertz(success_in_not(GoalID, WhysA)),
         fail % Certain success of Goal, so not(Goal) fails
@@ -184,19 +185,38 @@ build_failure_tree(ID, Whys) :-
     (   success_in_not(ID, Whys) -> true
     ;   succeeded(ID) -> Whys = []
     ;   ( setof(W, CID^Ws^(called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), AllWhys) -> true ; AllWhys = []),
-        (   called(_PID, ID, Term0)
-        ->  ( Term0 = le_at(Term, _, _) -> true ; Term = Term0 ),
-            ( (AllWhys = [failure(T2, _)], (variant(Term, T2) ; (T2 = le_at(T3, _, _), variant(Term, T3)))) -> Whys = AllWhys ; Whys = [failure(Term0, AllWhys)] )
+        (   called(_PID, ID, Term)
+        ->  (   (AllWhys = [failure(Term2, Children)], variant_or_le_at_variant(Term, Term2))
+            ->  Whys = [failure(Term, Children)] % Collapse pass-through
+            ;   Whys = [failure(Term, AllWhys)]
+            )
         ;   Whys = AllWhys
         )
     ).
+
+variant_or_le_at_variant(T1, T2) :-
+    strip_le_at(T1, S1),
+    strip_le_at(T2, S2),
+    variant(S1, S2).
+
+strip_le_at(le_at(G, _, _), G) :- !.
+strip_le_at(G, G).
 
 is_trivial((_, _)) :- !.
 is_trivial(and(_, _)) :- !.
 is_trivial((_ ; _)) :- !.
 is_trivial(or(_, _)) :- !.
 is_trivial(true) :- !.
-is_trivial(le_at(_, _, _)) :- !.
+
+is_redundant(PID, G) :-
+    PID \== none,
+    called(_, PID, le_at(G1, _, _)),
+    variant(G, G1).
+is_redundant(PID, le_at(G, _, _)) :-
+    PID \== none,
+    called(_, PID, G1),
+    variant(G, G1).
+
 
 % get_clause(+Goal, +SM, +KM, -Body, -Ref)
 get_clause(G, SM, _KM, Body, Ref) :-

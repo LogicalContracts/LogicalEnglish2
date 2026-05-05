@@ -413,9 +413,10 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenOut)) :- !,
-    ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
-    ( find_first_range(Goal, SM, KB, Range) -> true ; Range = none ),
+    ( Goal0 = le_at(Goal, Start, End) -> Range = range(Start, End)
+    ; Goal = Goal0, ( find_first_range(Goal, SM, KB, Range) -> true ; Range = none )
+    ),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(Whys, SM, WhysOut) :-
