@@ -7,7 +7,8 @@
 
 :- module(le_verifier, [verify/2, print_issue/1, is_intensional/3, find_in_body/2]).
 
-:- use_module(le_kbs, [is_system_predicate/1, run_one_test/3]).
+:- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2]).
+:- use_module(le_system_templates, [le_system_template/1]).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
 %
@@ -21,6 +22,7 @@ check_issue(KB, Issue) :- untested_predicate(KB, Issue).
 check_issue(KB, Issue) :- rule_without_variables(KB, Issue).
 check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
 check_issue(KB, Issue) :- failed_test(KB, Issue).
+check_issue(KB, Issue) :- redefined_system_template(KB, Issue).
 
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
@@ -221,6 +223,38 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     Fix = "check the logic of your rules or the facts in the scenario.",
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
+% --- 7. Redefined system template ---
+redefined_system_template(KB, issue(redefined_system_template, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_dict/1),
+    clause(KB:le_dict(dict(FA, NTs, WV)), true, Ref),
+    % It's a user template if it's not in system templates
+    \+ le_system_template(dict(FA, NTs, WV)),
+    % And it matches a system template's words
+    le_system_template(dict(_SysFA, _SysNTs, SysWV)),
+    templates_match(WV, SysWV),
+    % And it has no rules or facts
+    FA = [F|Args],
+    length(Args, Arity),
+    functor(G, F, Arity),
+    \+ is_defined(KB, G),
+    % Get source info
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0),
+    canonical_string(WV, TemplateStr),
+    format(atom(Description), "Template '~w' redefines a similar system template and there are no rules for it", [TemplateStr]),
+    Fix = "Either change the template slightly or add some rules".
+
+templates_match(WV1, WV2) :-
+    length(WV1, L), length(WV2, L),
+    maplist(match_token, WV1, WV2).
+
+match_token(T1, T2) :-
+    (is_var_placeholder(T1) ; var(T1)),
+    (is_var_placeholder(T2) ; var(T2)), !.
+match_token(T, T).
+
+is_var_placeholder(var(_)).
+is_var_placeholder(var(_, _)).
+
 count_rules(KB, Count) :-
     findall(1, (
         current_predicate(KB:F/A),
@@ -251,5 +285,5 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test]) },
+    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template]) },
     [ '~w: ~w' - [Type, Msg] ].
