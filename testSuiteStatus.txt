@@ -3,8 +3,8 @@ Test Summary:
 -------------
 Files processed: 28
 Total tests:     182
-Passed:          179
-Failed:          3
+Passed:          180
+Failed:          2
 Errors/Timeouts: 0
 -------------
 
@@ -31,7 +31,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/sbppxml1.le: 1 Pass, 1 Fail, 0 Error
+  [PASS] examples/moreExamples/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/small_business.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
