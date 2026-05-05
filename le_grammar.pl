@@ -891,6 +891,7 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
     once((
         append(TypeWords, [is, a | SuperTypeWords], Words)
     ;   append(TypeWords, [is, an | SuperTypeWords], Words)
+    ;   append(TypeWords, [is, of | SuperTypeWords], Words)
     )),
     TypeWords \== [], SuperTypeWords \== [],
     extract_words_to_value(TypeWords, Type, VMIn, VM1, AllowVars),
