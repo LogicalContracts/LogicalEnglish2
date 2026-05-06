@@ -960,10 +960,14 @@ declare var monaco: any;
     const explanationTree = document.getElementById('explanation-tree')!;
     const answerContextMenu = document.getElementById('answer-context-menu')!;
     const menuCopyAnswer = document.getElementById('menu-copy-answer')!;
+    const explanationContextMenu = document.getElementById('explanation-context-menu')!;
+    const menuCopyExplanation = document.getElementById('menu-copy-explanation')!;
     let currentAnswerToCopy = '';
+    let currentWhyToCopy: any = null;
 
     document.addEventListener('click', () => {
         answerContextMenu.style.display = 'none';
+        explanationContextMenu.style.display = 'none';
     });
 
     menuCopyAnswer.addEventListener('click', (e) => {
@@ -974,9 +978,70 @@ declare var monaco: any;
         answerContextMenu.style.display = 'none';
     });
 
+    const explanationToText = (node: any, depth: number = 0): string => {
+        if (Array.isArray(node)) {
+            return node.map(n => explanationToText(n, depth)).join('');
+        }
+        const indent = '  '.repeat(depth);
+        const text = node.literal || node;
+        let result = `${indent}${text}\n`;
+        if (node.children) {
+            node.children.forEach((child: any) => {
+                result += explanationToText(child, depth + 1);
+            });
+        }
+        return result;
+    };
+
+    const explanationToHtml = (node: any, depth: number = 0): string => {
+        if (Array.isArray(node)) {
+            return node.map(n => explanationToHtml(n, depth)).join('');
+        }
+        const indent = '&nbsp;&nbsp;'.repeat(depth);
+        const text = node.literal || node;
+        const color = node.type === 'failure' ? '#f48771' : '#89d185';
+        let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
+        if (node.children) {
+            node.children.forEach((child: any) => {
+                result += explanationToHtml(child, depth + 1);
+            });
+        }
+        return result;
+    };
+
+    menuCopyExplanation.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentWhyToCopy) {
+            const text = explanationToText(currentWhyToCopy);
+            const html = explanationToHtml(currentWhyToCopy);
+            
+            try {
+                const clipboardItem = new ClipboardItem({
+                    'text/plain': new Blob([text], { type: 'text/plain' }),
+                    'text/html': new Blob([html], { type: 'text/html' })
+                });
+                navigator.clipboard.write([clipboardItem]);
+            } catch (err) {
+                // Fallback for browsers that don't support ClipboardItem or have issues
+                navigator.clipboard.writeText(text);
+            }
+        }
+        explanationContextMenu.style.display = 'none';
+    });
+
     const renderExplanation = (why: any) => {
         explanationTree.innerHTML = '';
         if (!why) return;
+
+        explanationTree.oncontextmenu = (e) => {
+            if (e.target === explanationTree) {
+                e.preventDefault();
+                currentWhyToCopy = why;
+                explanationContextMenu.style.display = 'block';
+                explanationContextMenu.style.left = `${e.clientX}px`;
+                explanationContextMenu.style.top = `${e.clientY}px`;
+            }
+        };
 
         const createNode = (node: any, depth: number): HTMLElement => {
             const container = document.createElement('div');
@@ -997,6 +1062,15 @@ declare var monaco: any;
             text.textContent = node.literal || node;
             label.appendChild(text);
             
+            label.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                currentWhyToCopy = node;
+                explanationContextMenu.style.display = 'block';
+                explanationContextMenu.style.left = `${e.clientX}px`;
+                explanationContextMenu.style.top = `${e.clientY}px`;
+            });
+
             if (node.start !== undefined && node.end !== undefined) {
                 text.addEventListener('click', (e) => {
                     e.stopPropagation();
