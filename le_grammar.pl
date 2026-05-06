@@ -9,8 +9,7 @@
     kb_items//1, second_pass_item/4, parse_literal/6, prepare_templates/2,
     set_token_pos/1, get_token_pos/1, is_id/1, is_article/1, is_reserved/1, is_ignorable/1, is_proper_name_atom/1, is_punct/1,
     extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4,
-    extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3,
-    is_a_taxonomy_edge/3, is_a_type/1]).
+    extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3]).
 
 :- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4.
 
@@ -18,7 +17,7 @@
 :- use_module(le_system_templates).
 :- use_module(library(dcg/basics)).
 
-:- thread_local current_token_pos/1, is_a_taxonomy_edge/3, is_a_type/1.
+:- thread_local current_token_pos/1.
 
 %!  set_token_pos(+Pos:integer) is det.
 %
@@ -687,60 +686,44 @@ prepare_templates(DictsIn, DictsOut) :-
 
 % Semantics: Second Pass
 second_pass(Sections, NewSections, M) :-
+    retractall(is_a_type(_)),
+    retractall(is_a_taxonomy_edge(_, _, _)),
     ( le_kbs:do_log -> length(Sections, L), print_message(informational,'Second pass: ~w sections~n' - [L]); true),
     % Collect all templates from all sections first
     findall(Dict, (member(S, Sections), get_dicts(S, Dicts), member(Dict, Dicts)), UserDicts),
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
     append(UserDicts, SystemDicts, AllDicts),
     prepare_templates(AllDicts, SortedDicts),
-    % Collect types from all sections
-    forall(member(S, Sections), collect_types_in_section(S, SortedDicts, M)),
+    % Collect types from ontology
+    forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
     maplist(second_pass_section(SortedDicts, M), Sections, NewSections).
 
-collect_types_in_section(ontology(Content, _, _), Templates, M) :- !,
-    forall(member(Item, Content), collect_types_in_item(Item, Templates, M)).
-collect_types_in_section(kb(_, Content, _, _), Templates, M) :- !,
-    forall(member(Item, Content), collect_types_in_item(Item, Templates, M)).
-collect_types_in_section(_, _, _).
+collect_types_in_section(ontology(Content, _, _), Templates) :-
+    forall(member(Item, Content), collect_types_in_item(Item, Templates)).
+collect_types_in_section(_, _).
 
-collect_types_in_item(fact(Head, Start, _), Templates, M) :- !,
+collect_types_in_item(fact(Head, _, _), Templates) :-
     (   parse_literal(Head, Templates, [], _, Literal, _, false), Literal = is_a(_, _) ->
         match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, false),
-        assert_is_a_type(TypeAtom, M), assert_is_a_type(SuperTypeAtom, M),
-        assertz(M:le_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
+        assert_is_a_type(TypeAtom), assert_is_a_type(SuperTypeAtom)
     ; true).
+collect_types_in_item(rule(Head, BodyTokens, Indent, _, _), Templates) :-
+    (   parse_literal(Head, Templates, [], VM1, Literal, _, true), Literal = is_a(_, _) ->
+        match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _, true),
+        assert_is_a_type(TypeAtom), assert_is_a_type(SuperTypeAtom)
+    ; true),
+    % Also collect from body
+    ( parse_body(BodyTokens, Indent, Templates, VM1, _, Body) -> collect_types_from_body(Body); true).
 
-collect_types_in_item(rule(Head, BodyTokens, Indent, Start, _, _), Templates, M) :- !,
-    (   parse_literal(Head, Templates, [], VM1, Literal, _, true), Literal = is_a(Var, _SuperType) ->
-        match_is_a(Head, _, _, _TypeAtom, SuperTypeAtom, [], _, true),
-        assert_is_a_type(SuperTypeAtom, M),
-        ( parse_body(BodyTokens, Indent, Templates, VM1, _, Body) -> 
-            collect_types_from_body(Body, M, BodyTypes),
-            forall(member(is_a(V, SubType), BodyTypes), (
-                (V == Var, atom(SubType)) -> 
-                    assert_is_a_type(SubType, M),
-                    assertz(M:le_taxonomy_edge(SubType, SuperTypeAtom, Start))
-                ; true
-            ))
-        ; true)
-    ; ( parse_body(BodyTokens, Indent, Templates, [], _, Body) -> collect_types_from_body(Body, M, _) ; true )
-    ).
+collect_types_from_body(and(A, B)) :- !, collect_types_from_body(A), collect_types_from_body(B).
+collect_types_from_body(or(A, B)) :- !, collect_types_from_body(A), collect_types_from_body(B).
+collect_types_from_body(not(A)) :- !, collect_types_from_body(A).
+collect_types_from_body(is_a(_, Type)) :- !, assert_is_a_type(Type).
+collect_types_from_body(_).
 
-collect_types_from_body(le_at(Goal, _, _), M, Types) :- !, collect_types_from_body(Goal, M, Types).
-collect_types_from_body(and(A, B), M, Types) :- !, 
-    collect_types_from_body(A, M, TA), collect_types_from_body(B, M, TB), 
-    append(TA, TB, Types).
-collect_types_from_body(or(A, B), M, Types) :- !, 
-    collect_types_from_body(A, M, TA), collect_types_from_body(B, M, TB), 
-    append(TA, TB, Types).
-collect_types_from_body(not(A), M, Types) :- !, collect_types_from_body(A, M, Types).
-collect_types_from_body(is_a(V, Type), M, [is_a(V, Type)]) :- !, assert_is_a_type(Type, M).
-collect_types_from_body(_, _, []).
-
-
-assert_is_a_type(T, M) :-
+assert_is_a_type(T) :-
     atom(T), \+ is_id(T), \+ is_article(T), \+ is_reserved(T),
-    (current_predicate(M:le_type/1), M:le_type(T) -> true; assertz(M:le_type(T))).
+    (is_a_type(T) -> true; assertz(is_a_type(T))).
 
 
 add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW)) :- !,
@@ -854,7 +837,8 @@ second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, tru
     (   parse_literal(Head, Templates, [], _VM1, NewHead0, _, false) -> 
         ( NewHead0 = is_a(_, _) -> 
             match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false),
-            NewHead = is_a(TypeAtom, SuperTypeAtom)
+            NewHead = is_a(TypeAtom, SuperTypeAtom),
+            assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
           ; NewHead = NewHead0
         )
         ;   
@@ -1208,3 +1192,6 @@ tokens_range([First|Rest], Start, End) :-
     arg(2, First, loc(Start, _)),
     last([First|Rest], Last),
     arg(2, Last, loc(_, End)).
+
+:- dynamic is_a_taxonomy_edge/3.
+:- dynamic is_a_type/1.
