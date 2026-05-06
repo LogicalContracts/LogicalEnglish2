@@ -134,6 +134,11 @@ le_grammar:parse_node_extension([word(any, _), word(of, _)|Rest], Children, Temp
     le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic0),
     change_op(Logic0, and, or, Logic).
 
+le_grammar:parse_node_extension([word(at, _), word(least, _), word(one, _), word(of, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
+    Rest == [], Children \== [],
+    le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic0),
+    change_op(Logic0, and, or, Logic).
+
 le_grammar:parse_node_extension([word(all, _), word(of, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
     Rest == [], Children \== [],
     le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
@@ -269,7 +274,7 @@ fold_numbered_nodes(Acc, Op, [node(D, Tokens, Children)|Rest], Templates, VMIn, 
 
 parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, Op, M) :-
     strip_numbered_noise(Tokens, CleanTokens, Op),
-    (   (CleanTokens == [] ; CleanTokens == [word(either, _)] ; CleanTokens == [word(any, _), word(of, _)]) , Children \== [] ->
+    (   (CleanTokens == [] ; CleanTokens == [word(either, _)] ; CleanTokens == [word(any, _), word(of, _)] ; CleanTokens == [word(at, _), word(least, _), word(one, _), word(of, _)]) , Children \== [] ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M)
     ;   (CleanTokens == [word(unless, _)] ; CleanTokens == [word(and, _), word(unless, _)]) ->
         (   Children \== [] ->

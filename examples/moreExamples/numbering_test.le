@@ -36,6 +36,17 @@ the knowledge base numbering_test includes:
     4.2.1. the A is connected to an E; and
     4.2.2. the B is used in the business of the E.
 
+    rule jd2:
+    an A has a relevant asset a B if:
+    1.the A is affiliated with a C; and
+    2.the C is connected to a D; and
+    3.the D owns the B; and
+    4.at least one of:
+    4.1. the B is used in the business of the A; or
+    4.2. all of:
+    4.2.1. the A is connected to an E; and
+    4.2.2. the B is used in the business of the E.
+
     rule successful:
     a person is successful if 
         any of
@@ -59,7 +70,15 @@ scenario test is:
         "jd has designator 4.2.1",
         "jd has designator 4.2.2",
         "jd has designator 4.2",
-        "jd has designator 4"
+        "jd has designator 4",
+        "jd2 has designator 1",
+        "jd2 has designator 2",
+        "jd2 has designator 3",
+        "jd2 has designator 4.1",
+        "jd2 has designator 4.2.1",
+        "jd2 has designator 4.2.2",
+        "jd2 has designator 4.2",
+        "jd2 has designator 4"
     ].
 
 scenario test_either is:
