@@ -54,9 +54,10 @@ solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     ->  solve_real(G, SM, KM, Anc, D, ParentID, Us, Whys)
     ;   is_redundant(ParentID, G)
     ->  solve_real(G, SM, KM, Anc, D, ParentID, Us, Whys)
-    ;   next_id(MyID),
-        ( (ParentID \== none, ground(G)) -> assertz(called(ParentID, MyID, G)); true),
+    ;           next_id(MyID),
+        ( ParentID \== none -> assertz(called(ParentID, MyID, G)); true),
         (   SM:debug_mode
+
         ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
             (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E, 
                       (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, Anc, D), throw(E)))

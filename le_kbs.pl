@@ -581,12 +581,25 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
     ;   copy_term(Head, HeadCopy),
-        (   KBmodule:le_dict(dict([Functor|Args], _NTs, WordsAndVars0)), HeadCopy =.. [Functor|Args]
+        (   KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0)), HeadCopy =.. [Functor|Args]
         ->  maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
-            flatten(WordsAndVars1, WordsAndVars)
+            maplist(fill_variable_name(NTs), WordsAndVars1, WordsAndVars2),
+            flatten(WordsAndVars2, WordsAndVars)
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
     ).
+
+fill_variable_name(NTs, V, Name) :-
+    var(V),
+    member(V1-Type, NTs),
+    V1 == V, !,
+    (   atom(Type) -> 
+        atom_codes(Type, [C|_]),
+        ( memberchk(C, [97, 101, 105, 111, 117, 65, 69, 73, 79, 85]) -> Art = an ; Art = a ),
+        format(atom(Name), "~w ~w", [Art, Type])
+    ;   Name = 'a variable'
+    ).
+fill_variable_name(_, V, V).
 
 maybe_transform_value(KBmodule, Val, Transformed) :-
     (   compound(Val), \+ is_list(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
