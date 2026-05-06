@@ -872,3 +872,36 @@ a third person
 the person
 the other person
 the third person
+
+## Adjusting rule numbering
+
+We need to (also) allow the use of 'at least one of' as an alternative synonym for 'either', in parse_node_extension (le_extensions.pl).
+Please implement this, including adding another rule jd2 to numberingTest.le, identical to jd but using 'at least one of:' instead of 'either:'
+
+## Adjusting unless
+We no longer require 'unless' to be preceded by 'and'. So we can write simply:
+
+ we will make a payment for an incident under a policy if 
+        the incident is covered unless the policy is cancelled.
+
+Implement this change, adapting also the example in unless_test.le
+
+###
+In le_extensions.le:264 I see a clause with this beginning:
+
+parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, Op, M) :-
+    strip_numbered_noise(Tokens, CleanTokens, Op),
+    (   (CleanTokens == [] ; CleanTokens == [word(either, _)] ; CleanTokens == [word(any, _), word(of, _)] ; CleanTokens == [word(at, _), word(least, _), word(one, _), word(of, _)]) , Children \== [] ->
+        hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M)
+    ;   (CleanTokens == [word(unless, _)] ; CleanTokens == [word(and, _), word(unless, _)]) ->
+        (   Children \== [] ->
+            hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, SubLogic, RuleID, M)
+...etc.
+
+Some of the conditions win the diskunctionill always be false, and are redundant. For example:
+
+    CleanTokens == [word(either, _)]
+
+can never be true, because Prolog's '==' operator requires that both terms are identica, down to variables; and because the right operand as an anonymous (and unique) variable, the condition will always be false because it's impossible for that variable to occur in CleanTokend
+
+Clean it up pelase

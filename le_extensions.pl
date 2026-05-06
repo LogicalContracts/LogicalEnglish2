@@ -263,22 +263,25 @@ fold_numbered_nodes(Acc, Op, [node(D, Tokens, Children)|Rest], Templates, VMIn, 
 
 parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, Op, M) :-
     strip_numbered_noise(Tokens, CleanTokens, Op),
-    (   (CleanTokens == [] ; CleanTokens == [word(either, _)] ; CleanTokens == [word(any, _), word(of, _)] ; CleanTokens == [word(at, _), word(least, _), word(one, _), word(of, _)]) , Children \== [] ->
+    maplist(le_grammar:extract_simple_word, CleanTokens, CleanWords),
+    (   (CleanWords == [] ; CleanWords = [either] ; CleanWords = [any, of] ; CleanWords = [at, least, one, of]) , Children \== [] ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M)
-    ;   (CleanTokens == [word(unless, _)] ; CleanTokens == [word(and, _), word(unless, _)]) ->
+    ;   (CleanWords = [unless] ; CleanWords = [and, unless]) ->
         (   Children \== [] ->
             hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, SubLogic, RuleID, M)
         ;   fail % Should not happen with numbered unless
         ),
         Logic0 = not(SubLogic)
-    ;   (member(word(one, _), CleanTokens), member(word(of, _), CleanTokens)) ->
+    ;   (member(one, CleanWords), member(of, CleanWords)) ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M),
         change_op(Logic0, and, or, Logic1),
         Logic0 = Logic1
-    ;   (member(word(all, _), CleanTokens), member(word(of, _), CleanTokens)) ->
+    ;   (member(all, CleanWords), member(of, CleanWords)) ->
         hierarchy_to_numbered_logic(Children, Templates, VMIn, VMOut, Logic0, RuleID, M)
-    ;   CleanTokens = [word(prolog, _)|Rest], Children == [] ->
-        resolve_prolog_tokens(Rest, Templates, VMIn, VMOut, Goal),
+    ;   CleanWords = [prolog|_], Children == [] ->
+        % We need the original tokens for resolve_prolog_tokens to handle variables
+        CleanTokens = [word(prolog, _)|RestTokens],
+        resolve_prolog_tokens(RestTokens, Templates, VMIn, VMOut, Goal),
         Logic0 = prolog_call(Goal)
     ;   le_grammar:parse_literal(CleanTokens, Templates, VMIn, VMOut, Literal, _) ->
         ( Children == [] -> Logic0 = Literal ; 
