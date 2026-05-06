@@ -34,13 +34,21 @@ export const leMonarchTokens = {
             [/the knowledge base|scenario|query|the ontology|the target language/, 'keyword.header'],
             
             // Structural Keywords
-            [/\b(includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|sum|count|average|min|max|such\s+that)\b/, 'keyword'],
+            [/\b(includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|says\s+that|sum|count|average|min|max|such\s+that)\b/, 'keyword'],
             [/^\s*(and|or)\b/, 'keyword'],
             [/\b(which|what)\s+[a-zA-Z]\w*/, 'variable'],
             [/\bexpects answers\b/, 'keyword.expects'],
+
+            // Template words (verbs followed by articles/prepositions)
+            // This prevents "is a parent" from matching the variable rule for "a parent"
+            [/\b(is|are|was|were|has|have|had|does|do|did)\s+(a|an|the|of|in|on|at|to|from|for|with|by)\b/, 'templateWord'],
             
             // Variables (a/an/the/each/some/which/what + word(s))
             [/\b(a|an|the|each|some|which|what)\s+(?:(?:other|another|third|fourth|fifth)\s+)?([a-zA-Z]\w*)\b/, 'variable'],
+            
+            // Standalone Template words
+            [/\b(is|are|was|were|has|have|had|does|do|did|should|must|can|could|may|might|will|would|says|said|that)\b/, 'templateWord'],
+            [/\b(of|in|on|at|to|from|for|with|by|about|between|through|during|before|after|above|below|under|over|again|further|then|there)\b/, 'templateWord'],
             
             // Standalone IDs / Variables (Capitalized)
             [/\b[A-Z][A-Z0-9_]*\b/, 'variable'],
