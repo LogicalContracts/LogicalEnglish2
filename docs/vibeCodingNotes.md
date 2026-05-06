@@ -749,3 +749,107 @@ an object is of a type
 
 a type is a variable; interpreting the head as containing the type 'of a type' is incorrect.  
 
+## big conclusions
+
+We now wish to allow nested sentences with 'which' also in rule heads, or simple facts. For example this rule should be acceptable (templates not shown):
+
+we will cover a cost
+    which is in respect of a damage
+    which is caused by a burst pipe
+if 
+    it is not the case that
+    the damage is caused by wear and tear or negligence.
+
+being equivalent to 
+
+we will cover a cost 
+    which is caused by a burst pipe
+if 
+    the cost is in respect of a damage and
+    the damage is caused by a burst pipe and
+    it is not the case that
+        the damage is caused by wear and tear or negligence.
+
+In summary, which conditions in a head miggrate to the rule body with explicit variables.
+
+
+Similarly for "facts", for example this fact:
+
+we will cover a cost which is in respect of a damage which is caused by a burst pipe
+
+is equivalent to:
+
+we will cover a cost if
+    the cost is in respect of a damage and
+    the damage is caused by a burst pipe.
+
+Write a simple example with these or simlar rules and facts for testing, and implement this LE extension ("big conclusions") mainly in le_extensions.pl
+
+### Gemini's comment
+I have implemented the "big conclusions" extension for Logical English, allowing nested sentences with which in rule heads and facts.
+Changes Implemented:
+1.  Big Conclusions Logic (le_extensions.pl):
+    *   Added a new extension to the second pass of the parser that identifies which in rule heads and facts.
+    *   Implemented big_conclusion/6 to recursively split sentences at which and migrate the resulting conditions into the rule body.
+    *   Ensured correct variable unification by prepending a dummy variable token to nested sentences, allowing which to correctly refer to the subject of the preceding clause.
+2.  Grammar Enhancements (le_grammar.pl):
+    *   Added a second_pass_item_extension/4 multifile hook to allow extensions to override or augment the default clause generation logic.
+    *   Updated rule ID parsing to support both words and numbers (e.g., rule 1:).
+    *   Adjusted template priorities to ensure system templates like *V1* is in *V2* act as fallbacks and do not aggressively match user-defined templates (e.g., *a cost* is in respect of *a damage*).
+3.  Robustness & Cleanup (le_kbs.pl):
+    *   Fixed singleton variable warnings and ensured templates are correctly passed through the term transformation pipeline.
+    *   Updated 3_rollover_3.le to remove a redundant template declaration that conflicted with the improved priority rules.
+4.  Verification:
+    *   Created a new test file examples/moreExamples/big_conclusions.le covering nested which in both rules and facts.
+    *   Verified that all 182 tests (including the new ones) pass, ensuring no regressions in existing functionality.
+Example of Supported Syntax:
+The following is now correctly translated into a single Prolog rule with unified variables:
+we will cover a cost
+    which is in respect of a damage
+    which is caused by a burst pipe
+if 
+    it is not the case that
+        the damage is caused by wear and tear or negligence.
+This is equivalent to:
+we_will_cover(Cost) :-
+    is_in_respect_of(Cost, Damage),
+    is_caused_by(Damage, BurstPipe),
+    not(is_caused_by_wear_and_tear_or_negligence(Damage)).
+
+## explanations are missing for aggregates
+For example in sbppxml1.le for scenario one and query indirect the explanation shown is just:
+
+- the indirect small business participation percentage of Tom Fry in Tallow Unit Trust is 0
+    0 is the sum of each Po such that
+        MISSING
+
+there should be a MISSING node with "the indirect small business participation percentage 1 of the entity in the other entity is Po" - either a failure node, or multiple success nodes, one for each aggregated value; and subtrees under all of these
+
+This may relate to a problem in sbppxml1.le: test failed for query 'indirect' in scenario 'one'.
+
+Expected: [the indirect small business participation percentage of Tom Fry in Tallow Unit Trust is 0.0400000000000001]
+Actual: [the indirect small business participation percentage of Tom Fry in Tallow Unit Trust is 0]
+
+The Actual value with 0 is wrong, should be 0.04 (and so should be the expected value above, which we will round to 0.04)
+
+Might the computation of the sum be buggy...?
+
+## broken test
+In 3_rollover_3.le, tests are failing, missing answers for query two in scenario "Andrew email Feb 4 2021 version 2":
+
+Expected: [andrew is a party of event 123,company1 is a party of event 123,miguel is a party of event 123]
+Actual: [company1 is a party of event 123]
+
+Something preventing backtracking over the rules...?
+
+## another warning
+Add another verification in le_verifier.pl: if the user defines a template identical to any of those in le_system_template(...) AND there isn't any rule or fact in the program, issue a warning: "Template .... redefines a similar system template and there are no rules for it", with fixe:
+ "Either change the template slightly or add some rules"
+
+## is_a hierarchy
+
+We need a visualization of the is_a hieararchy for a LE program. So please:
+- add a predicate is_a_hierarchy(KBmodule,H) to le_kbs.pl which finds all answers for is_a(_,_) on the KB (not using any scenario data) to build the types tree; in each node keep the source location of the fact or rule head producing the node. 
+  --To obtain is_a(..) source locations do NOT alter le_grammar.pl, but instead introspect the clauses loaded into the KB module, to collect matching is_a(...) tuples with the source locations
+- add some method to classic_web_api.pl to expose that tree to our UI
+- add a "See Types Hierarchy" item to the editor's contextual menu, which opens a new window with a simple Javascript based rendering of the tree; tree nodes should navigate back to the editor window, selecting the relevant source code where the type is defined

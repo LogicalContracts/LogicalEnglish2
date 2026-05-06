@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logical English - Type Hierarchy</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+        }
+        .tree-node {
+            margin-left: 20px;
+            border-left: 1px solid #444;
+            padding-left: 10px;
+        }
+        .tree-label {
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .tree-label:hover {
+            background-color: #333;
+        }
+        .type-name {
+            color: #9cdcfe;
+            font-weight: bold;
+        }
+        .has-source {
+            text-decoration: underline dotted #666;
+        }
+        h1 {
+            color: #569cd6;
+            font-size: 1.5em;
+        }
+        #hierarchy-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Type Hierarchy</h1>
+    <div id="hierarchy-container">Loading...</div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const sessionModule = params.get('sessionModule');
+
+        async function loadHierarchy() {
+            if (!sessionModule) {
+                document.getElementById('hierarchy-container').textContent = 'No session module provided.';
+                return;
+            }
+
+            try {
+                const response = await fetch('/leapi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: 'myToken123',
+                        operation: 'is_a_hierarchy',
+                        sessionModule: sessionModule
+                    })
+                });
+                const data = await response.json();
+                if (data.hierarchy) {
+                    renderHierarchy(data.hierarchy);
+                } else {
+                    document.getElementById('hierarchy-container').textContent = 'Error: ' + (data.error || 'Failed to load hierarchy');
+                }
+            } catch (err) {
+                document.getElementById('hierarchy-container').textContent = 'Failed to connect to server.';
+                console.error(err);
+            }
+        }
+
+        function renderHierarchy(hierarchy) {
+            const container = document.getElementById('hierarchy-container');
+            container.innerHTML = '';
+            if (hierarchy.length === 0) {
+                container.textContent = 'No types found.';
+                return;
+            }
+            hierarchy.forEach(node => {
+                container.appendChild(createNodeElement(node));
+            });
+        }
+
+        function createNodeElement(node) {
+            const div = document.createElement('div');
+            div.className = 'tree-node';
+
+            const label = document.createElement('div');
+            label.className = 'tree-label';
+            
+            const span = document.createElement('span');
+            span.className = 'type-name';
+            if (node.range) span.classList.add('has-source');
+            span.textContent = node.type;
+            
+            label.appendChild(span);
+
+            if (node.range) {
+                label.onclick = () => {
+                    if (window.opener && !window.opener.closed) {
+                        window.opener.selectRange(node.range.start, node.range.end);
+                    }
+                };
+            }
+
+            div.appendChild(label);
+
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    div.appendChild(createNodeElement(child));
+                });
+            }
+
+            return div;
+        }
+
+        loadHierarchy();
+    </script>
+</body>
+</html>

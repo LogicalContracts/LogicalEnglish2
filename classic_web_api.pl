@@ -112,6 +112,7 @@ handle_operation(Dict, Response) :-
         ; Op == "assistant_status" -> handle_assistant_status(Dict, Response)
         ; Op == "assistant_interrupt" -> handle_assistant_interrupt(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
+        ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)
         ; Response = _{error: "Unknown operation"}
     ).
 
@@ -206,6 +207,16 @@ handle_list_models(_Dict, Response) :-
     maplist(row_to_dict, Rows, Models),
     findall(P, (member(P, [openai, groq, anthropic, together, gemini]), catch(llm_client:api_key(P, _), _, fail)), ServerKeys),
     Response = _{models: Models, server_keys: ServerKeys}.
+
+handle_is_a_hierarchy(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( KB \== none ->
+        is_a_hierarchy(KB, Hierarchy),
+        Response = _{hierarchy: Hierarchy}
+    ; Response = _{error: "No KB loaded"}
+    ).
 
 row_to_dict(row(Short, Provider, APIModel), _{short: Short, provider: Provider, api_model: APIModel}).
 

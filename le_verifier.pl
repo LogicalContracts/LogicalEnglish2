@@ -101,6 +101,7 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
 % Recursively finds literals in a rule body.
 % WARNING: This logic is dependent on the structure of solve_real/8 in reasoner.pl
 find_in_body(prolog_call(_), _) :- !, fail.
+find_in_body(le_at(G, _, _), L) :- !, find_in_body(G, L).
 find_in_body((A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(and(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body((A ; B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).

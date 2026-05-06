@@ -169,6 +169,22 @@ declare var monaco: any;
             showFoldingControls: 'always'
         });
 
+        (window as any).selectRange = (start: number, end: number) => {
+            const model = editor.getModel();
+            const startPos = model.getPositionAt(start);
+            const endPos = model.getPositionAt(end);
+            editor.setSelection(new monaco.Range(
+                startPos.lineNumber, startPos.column,
+                endPos.lineNumber, endPos.column
+            ));
+            editor.revealRangeInCenter(new monaco.Range(
+                startPos.lineNumber, startPos.column,
+                endPos.lineNumber, endPos.column
+            ));
+            editor.focus();
+            window.focus();
+        };
+
         if (lineParam) {
             const lineNumber = parseInt(lineParam);
             if (!isNaN(lineNumber)) {
@@ -248,6 +264,26 @@ declare var monaco: any;
                 } catch (err) {
                     console.error('Failed to get PROLOG:', err);
                 }
+            }
+        });
+
+        editor.addAction({
+            id: 'see-hierarchy',
+            label: 'See Types Hierarchy',
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 1.7,
+            run: async (ed: any) => {
+                if (!isLoaded && !isLoading) {
+                    await loadModule();
+                }
+
+                if (!sessionModule) {
+                    alert('Please wait for the module to load.');
+                    return;
+                }
+
+                const url = `hierarchy.html?sessionModule=${sessionModule}`;
+                window.open(url, '_blank', 'width=800,height=600');
             }
         });
 
