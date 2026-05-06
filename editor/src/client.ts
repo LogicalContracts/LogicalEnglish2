@@ -169,25 +169,6 @@ declare var monaco: any;
             showFoldingControls: 'always'
         });
 
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'select-range') {
-                const { start, end } = event.data;
-                const model = editor.getModel();
-                if (!model) return;
-                const startPos = model.getPositionAt(start);
-                const endPos = model.getPositionAt(end);
-                editor.setSelection(new monaco.Range(
-                    startPos.lineNumber, startPos.column,
-                    endPos.lineNumber, endPos.column
-                ));
-                editor.revealRangeInCenter(new monaco.Range(
-                    startPos.lineNumber, startPos.column,
-                    endPos.lineNumber, endPos.column
-                ));
-                editor.focus();
-            }
-        });
-
         if (lineParam) {
             const lineNumber = parseInt(lineParam);
             if (!isNaN(lineNumber)) {
@@ -267,26 +248,6 @@ declare var monaco: any;
                 } catch (err) {
                     console.error('Failed to get PROLOG:', err);
                 }
-            }
-        });
-
-        editor.addAction({
-            id: 'see-types-hierarchy',
-            label: 'See Types Hierarchy',
-            contextMenuGroupId: 'navigation',
-            contextMenuOrder: 1.7,
-            run: async (ed: any) => {
-                if (!isLoaded && !isLoading) {
-                    await loadModule();
-                }
-
-                if (!sessionModule) {
-                    alert('Please wait for the module to load.');
-                    return;
-                }
-
-                const url = `/editor/hierarchy.html?sessionModule=${sessionModule}`;
-                window.open(url, 'LEHierarchy', 'width=800,height=600');
             }
         });
 
