@@ -856,3 +856,19 @@ We need a visualization of the is_a hieararchy for a LE program. So please:
 
 ## explanations for 'says that'
 In explanations, some Prolog literals are not beeing shown as template instances. For example in citizenship.le, scenario trust_harry, query one has an explanation which includes a node "Harry says that is_the_father_of('Harry','John')"
+
+## variables colouring in rule,
+Variables are coloured in templates in the editor, but not coloured in template instances in rules. For example, in citizenship.le, in rule
+
+a person is the father of an other person
+    if a third person says 
+    that the person is the father of the other person
+    and the third person is qualified to determine fatherhood.
+
+The following fragments above should be coloured as variables:
+a person
+an other person
+a third person
+the person
+the other person
+the third person

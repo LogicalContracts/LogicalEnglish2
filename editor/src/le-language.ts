@@ -39,8 +39,8 @@ export const leMonarchTokens = {
             [/\b(which|what)\s+[a-zA-Z]\w*/, 'variable'],
             [/\bexpects answers\b/, 'keyword.expects'],
             
-            // Arguments (a/an/the/each/some/which/what + word)
-            // [/\b(a|an|the|each|some|which|what)\s+[a-zA-Z]\w*/, 'variable'],
+            // Variables (a/an/the/each/some/which/what + word(s))
+            [/\b(a|an|the|each|some|which|what)\s+(?:(?:other|another|third|fourth|fifth)\s+)?([a-zA-Z]\w*)\b/, 'variable'],
             
             // Standalone IDs / Variables (Capitalized)
             [/\b[A-Z][A-Z0-9_]*\b/, 'variable'],
