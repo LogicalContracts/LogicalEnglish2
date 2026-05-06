@@ -541,22 +541,30 @@ item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
 item_to_instance(_KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), InstantiatedTokens) :- !.
 item_to_instance(_KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), InstantiatedTokens) :- !.
 item_to_instance(KBmodule, Head, WordsAndVars) :-
-    (   Head = is_a(Type, SuperType) -> WordsAndVars = [Type, is, a, SuperType]
+    (   Head = is_a(Type, SuperType) -> 
+        maybe_transform_value(KBmodule, Type, TypeI),
+        maybe_transform_value(KBmodule, SuperType, SuperTypeI),
+        flatten([TypeI, is, a, SuperTypeI], WordsAndVars)
     ;   Head = sum([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        WordsAndVars = [Result, is, the, sum, of, each, VarName, such, that]
+        maybe_transform_value(KBmodule, Result, ResultI),
+        flatten([ResultI, is, the, sum, of, each, VarName, such, that], WordsAndVars)
     ;   Head = count([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        WordsAndVars = [Result, is, the, count, of, each, VarName, such, that]
+        maybe_transform_value(KBmodule, Result, ResultI),
+        flatten([ResultI, is, the, count, of, each, VarName, such, that], WordsAndVars)
     ;   Head = min([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        WordsAndVars = [Result, is, the, minimum, of, each, VarName, such, that]
+        maybe_transform_value(KBmodule, Result, ResultI),
+        flatten([ResultI, is, the, minimum, of, each, VarName, such, that], WordsAndVars)
     ;   Head = max([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        WordsAndVars = [Result, is, the, maximum, of, each, VarName, such, that]
+        maybe_transform_value(KBmodule, Result, ResultI),
+        flatten([ResultI, is, the, maximum, of, each, VarName, such, that], WordsAndVars)
     ;   Head = average([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        WordsAndVars = [Result, is, the, average, of, each, VarName, such, that]
+        maybe_transform_value(KBmodule, Result, ResultI),
+        flatten([ResultI, is, the, average, of, each, VarName, such, that], WordsAndVars)
     ;   Head = not(Goal) -> 
         ( item_to_instance(KBmodule, Goal, GoalLE) -> WordsAndVars = [it, is, not, the, case, that | GoalLE]; WordsAndVars = [it, is, not, the, case, that, Goal])
     ;   Head = forall(Cond, Cons) -> 
@@ -572,7 +580,17 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
     ;   copy_term(Head, HeadCopy),
-        ( (KBmodule:le_dict(dict([Functor|Args], _NTs, WordsAndVars)), HeadCopy =.. [Functor|Args]) -> true; term_string(Head, Str), WordsAndVars = [Str])
+        (   KBmodule:le_dict(dict([Functor|Args], _NTs, WordsAndVars0)), HeadCopy =.. [Functor|Args]
+        ->  maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
+            flatten(WordsAndVars1, WordsAndVars)
+        ;   term_string(Head, Str), WordsAndVars = [Str]
+        )
+    ).
+
+maybe_transform_value(KBmodule, Val, Transformed) :-
+    (   compound(Val), \+ is_list(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
+    ->  true
+    ;   Transformed = Val
     ).
 
 extract_name(var(Name, _), Name) :- !.
