@@ -2,8 +2,8 @@
 Test Summary:
 -------------
 Files processed: 28
-Total tests:     182
-Passed:          182
+Total tests:     149
+Passed:          149
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -11,7 +11,7 @@ Errors/Timeouts: 0
 Detailed File Summary:
   [PASS] examples/moreExamples/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/3_rollover_3.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/big_conclusions.le: 2 Pass, 0 Fail, 0 Error
@@ -25,7 +25,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbering_test.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/payg.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/prolog_call.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
@@ -33,7 +33,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/small_business.le: 25 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/sum_onto.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unless_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/which_test.le: 1 Pass, 0 Fail, 0 Error
