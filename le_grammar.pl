@@ -280,9 +280,28 @@ template(dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End)) -->
     { Tokens = [First|_], get_token_start(First, Start), last(Tokens, Last), get_token_end(Last, End) },
     { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) }.
 
-process_template(Tokens, [Functor|Args], NamesTypes, WordsAndVars) :-
+process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) :-
     extract_functor(Tokens, Functor),
-    process_template_parts(Tokens, Args, NamesTypes, WordsAndVars).
+    process_template_parts(Tokens, Args, NamesTypes, WordsAndVars),
+    (   is_a_taxonomy_template(WordsAndVars, Args, Type, SuperType) ->
+        FunctorArgs = [is_a, Type, SuperType]
+    ;   FunctorArgs = [Functor|Args]
+    ).
+
+is_a_taxonomy_template(WordsAndVars, Args, Type, SuperType) :-
+    once((
+        append([Type], [is, a | SuperTypeWords], WordsAndVars)
+    ;   append([Type], [is, an | SuperTypeWords], WordsAndVars)
+    ;   append([Type], [is, of | SuperTypeWords], WordsAndVars)
+    )),
+    member_var(Type, Args),
+    (   SuperTypeWords = [SuperType], member_var(SuperType, Args) -> true
+    ;   \+ (member(W, SuperTypeWords), member_var(W, Args)), % No other variables in SuperType
+        reconstruct_name_acc(SuperTypeWords, SuperType)
+    ).
+
+member_var(V, [H|_]) :- V == H, !.
+member_var(V, [_|T]) :- member_var(V, T).
 
 extract_functor(Tokens, Functor) :-
     findall(W, (member(T, Tokens), (T = word(W, _) ; T = number(W, _))), Words),
