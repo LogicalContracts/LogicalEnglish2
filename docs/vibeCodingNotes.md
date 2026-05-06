@@ -853,3 +853,6 @@ We need a visualization of the is_a hieararchy for a LE program. So please:
   --To obtain is_a(..) source locations do NOT alter le_grammar.pl, but instead introspect the clauses loaded into the KB module, to collect matching is_a(...) tuples with the source locations
 - add some method to classic_web_api.pl to expose that tree to our UI
 - add a "See Types Hierarchy" item to the editor's contextual menu, which opens a new window with a simple Javascript based rendering of the tree; tree nodes should navigate back to the editor window, selecting the relevant source code where the type is defined
+
+## explanations for 'says that'
+In explanations, some Prolog literals are not beeing shown as template instances. For example in citizenship.le, scenario trust_harry, query one has an explanation which includes a node "Harry says that is_the_father_of('Harry','John')"
