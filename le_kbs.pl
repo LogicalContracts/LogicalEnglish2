@@ -63,7 +63,18 @@ is_a_hierarchy(KBmodule, Hierarchy) :-
         member(Root, AllAtoms),
         \+ member(edge(Root, _, _, _), Edges)
     ), Roots),
-    maplist(build_hierarchy_node(Edges), Roots, Hierarchy).
+    maplist(build_hierarchy_node(KBmodule, Edges), Roots, Hierarchy).
+
+% find_root_source(+KBmodule, +Root, -Start, -End)
+% Finds the first mention of Root in an is_a clause.
+find_root_source(KBmodule, Root, Start, End) :-
+    (   setof(S-E, Body^Ref^ID^Other^(
+            (KBmodule:clause(is_a(Root, Other), Body, Ref) ; KBmodule:clause(is_a(Other, Root), Body, Ref)),
+            KBmodule:le_source_info(Ref, S, E, ID)
+        ), [Start-End|_])
+    ->  true
+    ;   Start = 0, End = 0
+    ).
 
 % find_is_a_source(+KBmodule, +Type, +SuperType, -Start, -End)
 % Tries to find the clause that defines Type as a SuperType.
@@ -82,14 +93,16 @@ contains_is_a_type(Body, X, Type) :-
     le_verifier:find_in_body(Body, is_a(X1, Type)),
     X1 == X.
 
-build_hierarchy_node(Edges, Type, _{type: Type, range: Range, children: Children}) :-
+build_hierarchy_node(KBmodule, Edges, Type, _{type: Type, range: Range, children: Children}) :-
     (   member(edge(Type, _, Start, End), Edges), Start \== 0
     ->  Range = _{start: Start, end: End}
+    ;   find_root_source(KBmodule, Type, S, E), S \== 0
+    ->  Range = _{start: S, end: E}
     ;   Range = null
     ),
     findall(ChildType, member(edge(ChildType, Type, _, _), Edges), ChildTypes),
     sort(ChildTypes, UniqueChildTypes),
-    maplist(build_hierarchy_node(Edges), UniqueChildTypes, Children).
+    maplist(build_hierarchy_node(KBmodule, Edges), UniqueChildTypes, Children).
 
 % For friendlier messages
 :- multifile prolog:message//1.
