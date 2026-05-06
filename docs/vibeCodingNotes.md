@@ -886,7 +886,7 @@ We no longer require 'unless' to be preceded by 'and'. So we can write simply:
 
 Implement this change, adapting also the example in unless_test.le
 
-###
+## clean up some ==s
 In le_extensions.le:264 I see a clause with this beginning:
 
 parse_numbered_node(D, Tokens, Children, Templates, VMIn, VMOut, Logic, RuleID, Op, M) :-
@@ -904,4 +904,4 @@ Some of the conditions win the diskunctionill always be false, and are redundant
 
 can never be true, because Prolog's '==' operator requires that both terms are identica, down to variables; and because the right operand as an anonymous (and unique) variable, the condition will always be false because it's impossible for that variable to occur in CleanTokend
 
-Clean it up pelase
+Clean it up please
