@@ -23,7 +23,7 @@
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
 :- use_module(reasoner).
-:- use_module(le_verifier, [verify/2]).
+:- use_module(le_verifier, [verify/2, find_in_body/2]).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -35,27 +35,32 @@
 %   Finds all is_a(Type, SuperType) relationships in the KB module and builds
 %    a tree structure representing the type hierarchy.
 is_a_hierarchy(KBmodule, Hierarchy) :-
-    % Find all answers for is_a(T, S)
-    setof(T-S, Body^T0^S0^T1^SubTypes^(
-        KBmodule:clause(is_a(T0, S0), Body),
-        (   atom(T0), atom(S0) -> T = T0, S = S0
-        ;   var(T0), atom(S0), findall(T1, contains_is_a_type(Body, T0, T1), SubTypes),
-            member(T, SubTypes), S = S0
-        ;   fail
-        ),
-        T \== S
-    ), Pairs),
-    % For each pair, find the source location by looking at the clauses
-    findall(edge(Type, SuperType, Start, End), (
-        member(Type-SuperType, Pairs),
-        find_is_a_source(KBmodule, Type, SuperType, Start, End)
+    % 1. Collect all type atoms from the KB module
+    findall(A, (
+        KBmodule:clause(is_a(T, S), Body),
+        (atom(T), A = T ; atom(S), A = S ; le_verifier:find_in_body(Body, is_a(_, A)), atom(A))
+    ), AllAtoms0),
+    sort(AllAtoms0, AllAtoms),
+    % 2. Find all valid ISA relationships using the reasoner
+    setup_call_cleanup(
+        createSession(KBmodule, TempSession),
+        findall(Sub-Type, (
+            member(Sub, AllAtoms),
+            member(Type, AllAtoms),
+            Sub \== Type,
+            once(reasoner:i(is_a(Sub, Type), TempSession, [], _))
+        ), ValidISAs),
+        clearSession(TempSession)
+    ),
+    % 3. Filter for direct edges (those with a source)
+    findall(edge(Sub, Type, Start, End), (
+        member(Sub-Type, ValidISAs),
+        find_is_a_source(KBmodule, Sub, Type, Start, End),
+        Start \== 0
     ), Edges),
-    % Collect all types involved in the hierarchy
-    findall(T, (member(edge(T, _, _, _), Edges) ; member(edge(_, T, _, _), Edges)), AllTypes0),
-    sort(AllTypes0, AllTypes),
-    % A root is a type that has no supertype in our Edges.
+    % 4. Build the tree
     findall(Root, (
-        member(Root, AllTypes),
+        member(Root, AllAtoms),
         \+ member(edge(Root, _, _, _), Edges)
     ), Roots),
     maplist(build_hierarchy_node(Edges), Roots, Hierarchy).
@@ -660,6 +665,7 @@ is_system_predicate(le_issue/6).
 is_system_predicate(le_kb_module_fact/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).
+is_system_predicate(is_a/2).
 
 is_expected_item(expected(_, _, _, _)).
 

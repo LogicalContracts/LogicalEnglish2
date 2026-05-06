@@ -33,7 +33,8 @@ var leMonarchTokens = {
       [/the (predicates|templates|fluents|events) are:/, { token: "keyword.header", next: "@templates" }],
       [/the knowledge base|scenario|query|the ontology|the target language/, "keyword.header"],
       // Structural Keywords
-      [/\b(includes|if|and|or|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|sum|count|average|min|max|such\s+that)\b/, "keyword"],
+      [/\b(includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|sum|count|average|min|max|such\s+that)\b/, "keyword"],
+      [/^\s*(and|or)\b/, "keyword"],
       [/\b(which|what)\s+[a-zA-Z]\w*/, "variable"],
       [/\bexpects answers\b/, "keyword.expects"],
       // Arguments (a/an/the/each/some/which/what + word)
