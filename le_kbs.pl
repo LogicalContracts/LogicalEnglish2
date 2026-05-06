@@ -12,7 +12,7 @@
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
+    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -29,6 +29,62 @@
 :- use_module(library(www_browser)).
 
 :- (exists_file('le_extensions.pl') -> use_module('le_extensions') ; true).
+
+%!  is_a_hierarchy(+KBmodule, -Hierarchy) is det.
+%
+%   Finds all is_a(Type, SuperType) relationships in the KB module and builds
+%    a tree structure representing the type hierarchy.
+is_a_hierarchy(KBmodule, Hierarchy) :-
+    % Find all answers for is_a(T, S)
+    setof(T-S, Body^T0^S0^T1^SubTypes^(
+        KBmodule:clause(is_a(T0, S0), Body),
+        (   atom(T0), atom(S0) -> T = T0, S = S0
+        ;   var(T0), atom(S0), findall(T1, contains_is_a_type(Body, T0, T1), SubTypes),
+            member(T, SubTypes), S = S0
+        ;   fail
+        ),
+        T \== S
+    ), Pairs),
+    % For each pair, find the source location by looking at the clauses
+    findall(edge(Type, SuperType, Start, End), (
+        member(Type-SuperType, Pairs),
+        find_is_a_source(KBmodule, Type, SuperType, Start, End)
+    ), Edges),
+    % Collect all types involved in the hierarchy
+    findall(T, (member(edge(T, _, _, _), Edges) ; member(edge(_, T, _, _), Edges)), AllTypes0),
+    sort(AllTypes0, AllTypes),
+    % A root is a type that has no supertype in our Edges.
+    findall(Root, (
+        member(Root, AllTypes),
+        \+ member(edge(Root, _, _, _), Edges)
+    ), Roots),
+    maplist(build_hierarchy_node(Edges), Roots, Hierarchy).
+
+% find_is_a_source(+KBmodule, +Type, +SuperType, -Start, -End)
+% Tries to find the clause that defines Type as a SuperType.
+find_is_a_source(KBmodule, Type, SuperType, Start, End) :-
+    % Case 1: Direct fact is_a(Type, SuperType)
+    (   KBmodule:clause(is_a(Type, SuperType), true, Ref)
+    ->  KBmodule:le_source_info(Ref, Start, End, _)
+    % Case 2: Rule is_a(X, SuperType) :- ... is_a(X, Type) ...
+    ;   KBmodule:clause(is_a(X, SuperType), Body, Ref),
+        contains_is_a_type(Body, X, Type)
+    ->  KBmodule:le_source_info(Ref, Start, End, _)
+    ;   Start = 0, End = 0
+    ).
+
+contains_is_a_type(Body, X, Type) :-
+    le_verifier:find_in_body(Body, is_a(X1, Type)),
+    X1 == X.
+
+build_hierarchy_node(Edges, Type, _{type: Type, range: Range, children: Children}) :-
+    (   member(edge(Type, _, Start, End), Edges), Start \== 0
+    ->  Range = _{start: Start, end: End}
+    ;   Range = null
+    ),
+    findall(ChildType, member(edge(ChildType, Type, _, _), Edges), ChildTypes),
+    sort(ChildTypes, UniqueChildTypes),
+    maplist(build_hierarchy_node(Edges), UniqueChildTypes, Children).
 
 % For friendlier messages
 :- multifile prolog:message//1.
