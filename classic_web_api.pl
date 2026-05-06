@@ -112,6 +112,7 @@ handle_operation(Dict, Response) :-
         ; Op == "assistant_status" -> handle_assistant_status(Dict, Response)
         ; Op == "assistant_interrupt" -> handle_assistant_interrupt(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
+        ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)
         ; Response = _{error: "Unknown operation"}
     ).
 
@@ -414,6 +415,21 @@ convert_binding(Name=Val, Name-JSONVal) :-
 convert_unknown(KB, Goal, _{goal: GoalStr, module: KBStr}) :-
     term_string(Goal, GoalStr),
     ( atom(KB) -> KBStr = KB; term_string(KB, KBStr)).
+
+handle_is_a_hierarchy(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( KB == none -> Response = _{error: "No KB loaded"}
+    ; is_a_hierarchy(KB, Hierarchy),
+      convert_hierarchy(Hierarchy, JSONHierarchy),
+      Response = _{hierarchy: JSONHierarchy}
+    ).
+
+convert_hierarchy([], []) :- !.
+convert_hierarchy([node(Type, Start, End, Children)|Rest], [_{type: Type, start: Start, end: End, children: JSONChildren}|JSONRest]) :-
+    convert_hierarchy(Children, JSONChildren),
+    convert_hierarchy(Rest, JSONRest).
 
 handle_get_prolog(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),

@@ -12,7 +12,7 @@
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3]).
+    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -573,6 +573,54 @@ kbSummary(KB, Summary) :-
     atomic_list_concat(TopPreds, '; ', PredsStr),
     format(string(Summary), "KB: ~w. Top predicates: ~w", [KBName, PredsStr]).
 
+is_a_hierarchy(KBmodule, Hierarchy) :-
+    findall(edge(Sub, Super, Start, End), (
+        (   current_predicate(KBmodule:le_taxonomy_edge/3),
+            KBmodule:le_taxonomy_edge(Sub, Super, Start), End = Start
+        ;   current_predicate(KBmodule:is_a/2),
+            KBmodule:clause(is_a(Sub, Super), _Body, Ref),
+            KBmodule:le_source_info(Ref, Start, End, _)
+        ),
+        atom(Sub), atom(Super)
+    ), Edges0),
+    sort(Edges0, Edges),
+    % Find all types
+    findall(T, (
+        (member(edge(Sub, Super, _, _), Edges), (T = Sub ; T = Super))
+        ; (current_predicate(KBmodule:le_type/1), KBmodule:le_type(T))
+    ), AllTypes0),
+    sort(AllTypes0, _AllTypes),
+    % Find roots (types that are a Super but not a Sub in any edge)
+    findall(R, (member(edge(_, R, _, _), Edges), \+ member(edge(R, _, _, _), Edges)), Roots0),
+    sort(Roots0, Roots1),
+    % If no roots (cycles?), just take all types that are Super
+    ( Roots1 == [] -> findall(R, member(edge(_, R, _, _), Edges), Roots2), sort(Roots2, Roots) ; Roots = Roots1),
+    maplist(build_node(Edges, []), Roots, Hierarchy).
+
+build_node(Edges, Visited, Type, node(Type, Start, End, Children)) :-
+    \+ memberchk(Type, Visited),
+    % Children are those that have this Type as Super (Sub is_a Type)
+    findall(edge(Sub, Type, S, E), member(edge(Sub, Type, S, E), Edges), ChildEdges),
+    % Sort children by name
+    sort(ChildEdges, SortedChildEdges),
+    maplist(build_child_node(Edges, [Type|Visited]), SortedChildEdges, Children),
+    % A node's source is where it is defined as a Sub of something
+    ( member(edge(Type, _, S, E), Edges) -> Start = S, End = E ; Start = 0, End = 0).
+
+build_child_node(Edges, Visited, edge(Type, _Super, Start, End), node(Type, Start, End, Children)) :-
+    \+ memberchk(Type, Visited),
+    findall(edge(Sub, Type, S, E), member(edge(Sub, Type, S, E), Edges), ChildEdges),
+    sort(ChildEdges, SortedChildEdges),
+    maplist(build_child_node(Edges, [Type|Visited]), SortedChildEdges, Children).
+build_child_node(_Edges, Visited, edge(Type, _Super, _S, _E), node(Type, 0, 0, [])) :-
+    memberchk(Type, Visited).
+
+
+
+
+
+
+
 parse_custom_facts(KB, Text, Terms) :-
     tokenize(Text, Tokens),
     le_grammar:set_token_pos(0),
@@ -604,6 +652,8 @@ is_system_predicate(le_issue/6).
 is_system_predicate(le_kb_module_fact/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).
+is_system_predicate(le_type/1).
+is_system_predicate(le_taxonomy_edge/3).
 
 is_expected_item(expected(_, _, _, _)).
 

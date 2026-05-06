@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logical English - Types Hierarchy</title>
+    <style>
+        body {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+        }
+        h2 {
+            color: #569cd6;
+        }
+        .tree-node {
+            margin-left: 20px;
+            border-left: 1px solid #444;
+            padding-left: 10px;
+        }
+        .type-label {
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .type-label:hover {
+            background-color: #37373d;
+            color: #fff;
+        }
+        .type-name {
+            color: #ce9178;
+            font-weight: bold;
+        }
+        .no-hierarchy {
+            color: #888;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h2>Types Hierarchy</h2>
+    <div id="hierarchy-container">Loading...</div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const sessionModule = params.get('sessionModule');
+
+        async function loadHierarchy() {
+            if (!sessionModule) {
+                document.getElementById('hierarchy-container').textContent = 'No session module provided.';
+                return;
+            }
+
+            try {
+                const response = await fetch('/leapi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: 'myToken123',
+                        operation: 'is_a_hierarchy',
+                        sessionModule: sessionModule
+                    })
+                });
+                const data = await response.json();
+                
+                const container = document.getElementById('hierarchy-container');
+                container.innerHTML = '';
+
+                if (data.hierarchy && data.hierarchy.length > 0) {
+                    data.hierarchy.forEach(node => {
+                        container.appendChild(renderNode(node));
+                    });
+                } else {
+                    container.innerHTML = '<div class="no-hierarchy">No type hierarchy found in this KB.</div>';
+                }
+            } catch (err) {
+                console.error('Failed to load hierarchy', err);
+                document.getElementById('hierarchy-container').textContent = 'Failed to load hierarchy.';
+            }
+        }
+
+        function renderNode(node) {
+            const div = document.createElement('div');
+            div.className = 'tree-node';
+
+            const label = document.createElement('span');
+            label.className = 'type-label';
+            
+            const name = document.createElement('span');
+            name.className = 'type-name';
+            name.textContent = node.type;
+            label.appendChild(name);
+
+            if (node.start !== undefined && node.end !== undefined && node.start !== 0) {
+                label.title = 'Click to see definition';
+                label.onclick = () => {
+                    if (window.opener) {
+                        window.opener.postMessage({
+                            type: 'select-range',
+                            start: node.start,
+                            end: node.end
+                        }, '*');
+                    }
+                };
+            }
+
+            div.appendChild(label);
+
+            if (node.children && node.children.length > 0) {
+                node.children.forEach(child => {
+                    div.appendChild(renderNode(child));
+                });
+            }
+
+            return div;
+        }
+
+        loadHierarchy();
+    </script>
+</body>
+</html>
