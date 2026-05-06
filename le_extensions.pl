@@ -78,20 +78,9 @@ le_grammar:post_parse_literal_hook(WordsAndVars, _Literal, VMIn, VMOut) :-
 is_last_var_entry('$last_var'-_).
 
 % 4. Handle 'unless' in rule bodies
-le_grammar:parse_node_extension([word(unless, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
-    (   Rest == [], Children \== [] ->
-        le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic)
-    ;   Rest \== [], Children == [] ->
-        le_grammar:parse_literal(Rest, Templates, VMIn, VMOut, SubLogic, _)
-    ;   Rest \== [], Children \== [] ->
-        le_grammar:parse_literal(Rest, Templates, VMIn, VM1, LogicAfter, _),
-        le_grammar:hierarchy_to_logic(Children, Templates, VM1, VMOut, LogicChildren),
-        SubLogic = and(LogicAfter, LogicChildren)
-    ;   fail
-    ),
-    Logic = not(SubLogic).
-
-le_grammar:parse_node_extension([word(and, _), word(unless, _)|Rest], Children, Templates, VMIn, VMOut, Logic) :-
+le_grammar:parse_node_extension(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
+    (Tokens = [word(unless, _)|Rest] ; Tokens = [word(and, _), word(unless, _)|Rest]),
+    !,
     (   Rest == [], Children \== [] ->
         le_grammar:hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic)
     ;   Rest \== [], Children == [] ->
