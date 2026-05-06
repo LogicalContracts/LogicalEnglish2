@@ -538,6 +538,7 @@ token_to_atom(X, Atom) :- term_to_atom(X, Atom).
 
 item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_instance(KBmodule, Goal, WordsAndVars).
+item_to_instance(_KBmodule, var(Name, Value), [var(Name, Value)]) :- !.
 item_to_instance(_KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), InstantiatedTokens) :- !.
 item_to_instance(_KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), InstantiatedTokens) :- !.
 item_to_instance(KBmodule, Head, WordsAndVars) :-
@@ -547,24 +548,24 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         flatten([TypeI, is, a, SuperTypeI], WordsAndVars)
     ;   Head = sum([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        maybe_transform_value(KBmodule, Result, ResultI),
-        flatten([ResultI, is, the, sum, of, each, VarName, such, that], WordsAndVars)
+        extract_name(Result, ResultName),
+        flatten([ResultName, is, the, sum, of, each, VarName, such, that], WordsAndVars)
     ;   Head = count([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        maybe_transform_value(KBmodule, Result, ResultI),
-        flatten([ResultI, is, the, count, of, each, VarName, such, that], WordsAndVars)
+        extract_name(Result, ResultName),
+        flatten([ResultName, is, the, count, of, each, VarName, such, that], WordsAndVars)
     ;   Head = min([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        maybe_transform_value(KBmodule, Result, ResultI),
-        flatten([ResultI, is, the, minimum, of, each, VarName, such, that], WordsAndVars)
+        extract_name(Result, ResultName),
+        flatten([ResultName, is, the, minimum, of, each, VarName, such, that], WordsAndVars)
     ;   Head = max([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        maybe_transform_value(KBmodule, Result, ResultI),
-        flatten([ResultI, is, the, maximum, of, each, VarName, such, that], WordsAndVars)
+        extract_name(Result, ResultName),
+        flatten([ResultName, is, the, maximum, of, each, VarName, such, that], WordsAndVars)
     ;   Head = average([each, Var], _Goal, [Result]) -> 
         extract_name(Var, VarName),
-        maybe_transform_value(KBmodule, Result, ResultI),
-        flatten([ResultI, is, the, average, of, each, VarName, such, that], WordsAndVars)
+        extract_name(Result, ResultName),
+        flatten([ResultName, is, the, average, of, each, VarName, such, that], WordsAndVars)
     ;   Head = not(Goal) -> 
         ( item_to_instance(KBmodule, Goal, GoalLE) -> WordsAndVars = [it, is, not, the, case, that | GoalLE]; WordsAndVars = [it, is, not, the, case, that, Goal])
     ;   Head = forall(Cond, Cons) -> 

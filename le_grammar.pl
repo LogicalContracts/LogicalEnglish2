@@ -452,8 +452,10 @@ skip_comments --> any_indent.
 % Semantics: Helper functions
 is_proper_name_atom(W) :-
     atom(W),
-    atom_codes(W, [C|_]),
-    code_type(C, upper).
+    atom_codes(W, [C|Codes]),
+    code_type(C, upper),
+    % Must not be all caps (those are IDs/variables)
+    ( Codes == [] -> true ; member(C2, Codes), code_type(C2, lower) ).
 
 is_upper_atom(W) :-
     atom(W),
@@ -545,7 +547,8 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
           (   AllowVars == true, extract_var_name(Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
               ; NoTransform \== true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
               ; is_proper_name(Words) -> tokens_to_string(Parts, Value), VMOut = VMIn
-              ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars) -> true
+              ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars),
+                \+ is_hyphenated_id(Value, VMIn) -> true
               ; AllowVars == false -> ( Words = [Value] -> true; tokens_to_string(Parts, Value)), VMOut = VMIn
               ; % Fallback: treat as constant if not a variable name
                 tokens_to_string(Parts, Value), VMOut = VMIn
@@ -929,8 +932,12 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
     ;   append(TypeWords, [is, of | SuperTypeWords], Words)
     )),
     TypeWords \== [], SuperTypeWords \== [],
-    extract_words_to_value(TypeWords, Type, VMIn, VM1, AllowVars),
-    extract_words_to_value(SuperTypeWords, SuperType, VM1, VMOut, AllowVars),
+    % Find the corresponding tokens for TypeWords and SuperTypeWords
+    append(TypeTokens, [Is, A | SuperTypeTokens], Parts),
+    extract_simple_word(Is, is), (extract_simple_word(A, a) ; extract_simple_word(A, an) ; extract_simple_word(A, of)),
+    !,
+    extract_value_from_parts(TypeTokens, Type, VMIn, VM1, [], false, AllowVars, 0),
+    extract_value_from_parts(SuperTypeTokens, SuperType, VM1, VMOut, [], false, AllowVars, 0),
     extract_name_type(TypeWords, TypeAtom, _),
     extract_name_type(SuperTypeWords, SuperTypeAtom, _).
 
@@ -1000,7 +1007,7 @@ is_operator(W) :- member(W, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', 
 % multi_word_var(Words) parses a sequence of words that form a multi-word variable.
 multi_word_var([W|Rest]) --> 
     [word(W, _)], { \+ is_reserved(W), \+ is_operator(W) },
-    (multi_word_var(Rest) | { Rest = [] }).
+    (multi_word_var(Rest) ; { Rest = [] }).
 
 % part_to_token(Part, Token) converts various part terms into a uniform token structure.
 part_to_token(word(W), word(W, loc(0,0))).
@@ -1013,13 +1020,26 @@ part_to_token(punctuation(P, L), punctuation(P, L)).
 part_to_token(expr(E), expr(E)).
 
 % expr_logic(Expr, ...) parses an arithmetic expression with addition and subtraction.
-expr_logic(E, VMIn, VMOut, T, AllowVars) --> term_logic(T1, VMIn, VM1, T, AllowVars), expr_tail(T1, E, VM1, VMOut, T, AllowVars).
-expr_tail(T1, E, VMIn, VMOut, T, AllowVars) --> [punctuation(Op, _)], { member(Op, ['+', '-']) }, term_logic(T2, VMIn, VM1, T, AllowVars), { E1 =.. [Op, T1, T2] }, expr_tail(E1, E, VM1, VMOut, T, AllowVars).
+expr_logic(E, VMIn, VMOut, T, AllowVars) --> 
+    term_logic(T1, VMIn, VM1, T, AllowVars), 
+    expr_tail(T1, E, VM1, VMOut, T, AllowVars).
+
+expr_tail(T1, E, VMIn, VMOut, T, AllowVars) --> 
+    [punctuation(Op, _)], { member(Op, ['+', '-']) }, 
+    term_logic(T2, VMIn, VM1, T, AllowVars), 
+    { E1 =.. [Op, T1, T2] }, 
+    expr_tail(E1, E, VM1, VMOut, T, AllowVars).
 expr_tail(E, E, VM, VM, _, _) --> [].
 
 % term_logic(Term, ...) parses an arithmetic term with multiplication and division.
-term_logic(T, VMIn, VMOut, Ts, AllowVars) --> factor_logic(F1, VMIn, VM1, Ts, AllowVars), term_tail(F1, T, VM1, VMOut, Ts, AllowVars).
-term_tail(F1, T, VMIn, VMOut, Ts, AllowVars) --> [punctuation(Op, _)], { member(Op, ['*', '/']) }, factor_logic(F2, VMIn, VM1, Ts, AllowVars), { T1 =.. [Op, F1, F2] }, term_tail(T1, T, VM1, VMOut, Ts, AllowVars).
+term_logic(T, VMIn, VMOut, Ts, AllowVars) --> 
+    factor_logic(F1, VMIn, VM1, Ts, AllowVars), 
+    term_tail(F1, T, VM1, VMOut, Ts, AllowVars).
+term_tail(F1, T, VMIn, VMOut, Ts, AllowVars) --> 
+    [punctuation(Op, _)], { member(Op, ['*', '/']) }, 
+    factor_logic(F2, VMIn, VM1, Ts, AllowVars), 
+    { T1 =.. [Op, F1, F2] }, 
+    term_tail(T1, T, VM1, VMOut, Ts, AllowVars).
 term_tail(T, T, VM, VM, _, _) --> [].
 
 % factor_logic(Factor, ...) parses an arithmetic factor (parenthesized expression, variable, or number).
@@ -1027,10 +1047,27 @@ factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [punctuation('(', _)], expr_logi
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [expr(E)], { parse_expression(E, VMIn, VMOut, Ts, F, AllowVars) }.
 factor_logic(V, VMIn, VMOut, _, true) --> 
     multi_word_var(Words),
-    { ( extract_var_name(Words, Name) -> true; reconstruct_name_acc(Words, Name)),
-      unify_with_vmap(Name, V, VMIn, VMOut, false) }.
+    { Words \== [],
+      (   extract_var_name(Words, Name) 
+      ->  unify_with_vmap(Name, V, VMIn, VMOut, true)
+      ;   reconstruct_name_acc(Words, Name),
+          member_var_name(Name, V, VMIn),
+          VMOut = VMIn
+      )
+    }.
 factor_logic(W, VM, VM, _, false) --> [word(W, _)], { is_proper_name_atom(W) }.
 factor_logic(N, VM, VM, _, _) --> [number(N, _)].
+factor_logic(_, VM, VM, _, _) --> [_], { fail }.
+
+member_var_name(Name, V, VM) :-
+    normalize_var_name(Name, Norm),
+    member(Norm-V, VM).
+
+is_hyphenated_id(-(V, N), VM) :-
+    number(N),
+    var(V),
+    \+ (member(_-V1, VM), V1 == V).
+
 
 % Structured Body Parsing
 
@@ -1166,14 +1203,12 @@ is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
 build_aggregate_list(Tokens, VMIn, VMOut, List) :-
     ( Tokens = [word(and, _)|Rest] -> TokensToUse = Rest; TokensToUse = Tokens),
     maplist(extract_simple_word, TokensToUse, Words),
-    (   extract_var_name(Words, Name) ->  
-        unify_with_vmap(Name, Var, VMIn, VMOut, true),
-        List = [var(Name, Var)]
-        ;   
-        atomic_list_concat(Words, ' ', Name),
-        unify_with_vmap(Name, Var, VMIn, VMOut, true),
-        List = [var(Name, Var)]
-    ).
+    (   extract_var_name(Words, Name) -> true
+    ;   extract_id(Words, Name) -> true
+    ;   atomic_list_concat(Words, ' ', Name)
+    ),
+    unify_with_vmap(Name, Var, VMIn, VMOut, true),
+    List = [var(Name, Var)].
 
 is_forall(Tokens) :-
     maplist(extract_word_atom, Tokens, Atoms),

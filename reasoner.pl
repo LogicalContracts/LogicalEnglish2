@@ -71,27 +71,30 @@ solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
     ).
 
 % Conjunction
-solve_real((A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+solve_real(G, SM, KM, Anc, D, MyID, Us, Whys) :-
+    solve_real_actual(G, SM, KM, Anc, D, MyID, Us, Whys).
+
+solve_real_actual((A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(A, SM, KM, Anc, D, MyID, UsA, WhysA),
     solve(B, SM, KM, Anc, D, MyID, UsB, WhysB),
     append(UsA, UsB, Us),
     append(WhysA, WhysB, Whys).
-solve_real(and(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+solve_real_actual(and(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(A, SM, KM, Anc, D, MyID, UsA, WhysA),
     solve(B, SM, KM, Anc, D, MyID, UsB, WhysB),
     append(UsA, UsB, Us),
     append(WhysA, WhysB, Whys).
 % Disjunction
-solve_real((A ; B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+solve_real_actual((A ; B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     (   solve(A, SM, KM, Anc, D, MyID, Us, Whys)
     ;   solve(B, SM, KM, Anc, D, MyID, Us, Whys)
     ).
-solve_real(or(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+solve_real_actual(or(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     (   solve(A, SM, KM, Anc, D, MyID, Us, Whys)
     ;   solve(B, SM, KM, Anc, D, MyID, Us, Whys)
     ).
 % Aggregates
-solve_real(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggregate, WhysGoal)]) :-
+solve_real_actual(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggregate, WhysGoal)]) :-
     is_aggregate(Aggregate, Type, VarTerm, Goal, ResultTerm), !,
     D1 is D + 1,
     extract_var(VarTerm, Var),
@@ -108,10 +111,11 @@ solve_real(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggregate, W
         flatten(WhysList, WhysGoal)
     ),
     apply_aggregate(Type, List, Result),
+
     Us = [],
     extract_var(ResultTerm, Result).
 % Forall
-solve_real(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(forall(Cond, Cons), universal, Whys)]) :- !,
+solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(forall(Cond, Cons), universal, Whys)]) :- !,
     D1 is D + 1,
     findall(UsC-WhysC, solve(Cond, SM, KM, Anc, D1, MyID, UsC, WhysC), CondResults),
     (   CondResults == [] -> Us = [], Whys = [success(Cond, empty_forall, [])]
@@ -124,7 +128,7 @@ solve_real(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(forall(Cond, C
     ).
 
 % Negation as Failure
-solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, FailureTrees)]) :- !,
+solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, FailureTrees)]) :- !,
     D1 is D + 1,
     next_id(GoalID),
     assertz(called(MyID, GoalID, Goal)),
@@ -143,14 +147,15 @@ solve_real(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, Fa
     ).
 
 % True
-solve_real(true, _, _, _, _, _, [], []) :- !.
+solve_real_actual(true, _, _, _, _, _, [], []) :- !.
 
 % Literals
-solve_real(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
+solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),
     maplist(attach_range(Start, End), Whys0, Whys).
 
-solve_real(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
+solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
+
     (   D > 100 -> fail ; true % Depth limit
     ),
 
@@ -257,7 +262,13 @@ call_reasoner_built_in(prolog_call(G), SM) :- !,
 call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).
 call_reasoner_built_in(le_known(X), _) :- !, ground(X).
 call_reasoner_built_in(le_equal_to(X, Y), _) :- !, X = Y.
-call_reasoner_built_in(le_assign(X, Y), _) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
+call_reasoner_built_in(le_assign(X, Y), _) :- !, 
+    ( number(Y) -> X = Y
+    ; catch(X is Y, _, (
+        (var(X) -> true ; true), % debug point
+        X = Y
+      ))
+    ).
 call_reasoner_built_in(le_is(X, Y), _) :- !, ( number(Y) -> X is Y; catch(X is Y, _, X = Y)).
 call_reasoner_built_in(le_is_in(X, Y), _) :- !, is_list(Y), member(X, Y).
 call_reasoner_built_in(le_ge(X, Y), _) :- !, le_compare(>=, X, Y).
