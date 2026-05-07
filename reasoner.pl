@@ -157,7 +157,7 @@ solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
 
 solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 
-    (   D > 100 -> fail ; true % Depth limit
+    (   D > 100 -> throw('Tried to solve too deep') ; true % Depth limit
     ),
 
     (   KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G) ->  

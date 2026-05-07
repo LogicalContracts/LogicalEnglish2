@@ -716,6 +716,9 @@ second_pass(Sections, NewSections, M) :-
     findall(SystemDict, le_system_template(SystemDict), SystemDicts),
     append(UserDicts, SystemDicts, AllDicts),
     prepare_templates(AllDicts, SortedDicts),
+    % Collect types from templates
+    forall(member(dict(_, NTs, _, _, _, _), SortedDicts), 
+           forall(member(_-Type, NTs), (atom(Type) -> assert_is_a_type(Type) ; true))),
     % Collect types from ontology
     forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
     maplist(second_pass_section(SortedDicts, M), Sections, NewSections).
@@ -744,8 +747,10 @@ collect_types_from_body(is_a(_, Type)) :- !, assert_is_a_type(Type).
 collect_types_from_body(_).
 
 assert_is_a_type(T) :-
-    atom(T), \+ is_id(T), \+ is_article(T), \+ is_reserved(T),
-    (is_a_type(T) -> true; assertz(is_a_type(T))).
+    (   atom(T), \+ is_id(T), \+ is_article(T), \+ is_reserved(T) ->
+        (is_a_type(T) -> true; assertz(is_a_type(T)))
+    ;   true
+    ).
 
 
 add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW)) :- !,
@@ -1247,5 +1252,5 @@ tokens_range([First|Rest], Start, End) :-
     last([First|Rest], Last),
     arg(2, Last, loc(_, End)).
 
-:- dynamic is_a_taxonomy_edge/3.
-:- dynamic is_a_type/1.
+:- thread_local is_a_taxonomy_edge/3.
+:- thread_local is_a_type/1.
