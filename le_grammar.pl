@@ -296,8 +296,7 @@ is_a_taxonomy_template(WordsAndVars, Args, Type, SuperType) :-
     )),
     member_var(Type, Args),
     (   SuperTypeWords = [SuperType], member_var(SuperType, Args) -> true
-    ;   \+ (member(W, SuperTypeWords), member_var(W, Args)), % No other variables in SuperType
-        reconstruct_name_acc(SuperTypeWords, SuperType)
+    ;   SuperTypeWords = [SuperType], \+ member_var(SuperType, Args) -> true
     ).
 
 member_var(V, [H|_]) :- V == H, !.
