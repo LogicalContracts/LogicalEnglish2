@@ -154,7 +154,8 @@ load_sync(NewModule, FilePath) :-
     assertz(rule_counter(1)),
     (   setup_call_cleanup(
             asserta(le_grammar:current_compiling_module(NewModule)),
-            catch(parse_le_file(FilePath, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
+            ( catch(parse_le_file(FilePath, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
+              collect_and_assert_types(NewModule) ),
             retractall(le_grammar:current_compiling_module(_))
         ) ->  
         forall(member(S, Sections), process_section(S, NewModule)),
@@ -198,7 +199,8 @@ load_text_sync(NewModule, Text) :-
     assertz(rule_counter(1)),
     (   setup_call_cleanup(
             asserta(le_grammar:current_compiling_module(NewModule)),
-            catch(parse_le_text(Text, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
+            ( catch(parse_le_text(Text, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
+              collect_and_assert_types(NewModule) ),
             retractall(le_grammar:current_compiling_module(_))
         ) ->  
         forall(member(S, Sections), process_section(S, NewModule)),
@@ -711,12 +713,17 @@ is_system_predicate(le_kb_module_fact/1).
 is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).
 is_system_predicate(is_a/2).
+is_system_predicate(le_type/1).
+
+collect_and_assert_types(M) :-
+    forall(le_grammar:is_a_type(T), assertz(M:le_type(T))).
 
 is_expected_item(expected(_, _, _, _)).
 
 verify(LEfilePath) :-
     uuid(UUID), atom_concat(v, UUID, KBmodule),
     le_grammar:parse_le_file(LEfilePath, doc(Sections), KBmodule),
+    collect_and_assert_types(KBmodule),
     forall(member(S, Sections), process_section(S, KBmodule)),
     findall(D, le_system_template(D), SysDicts),
     forall(member(D, SysDicts), assertz(KBmodule:le_dict(D))),
