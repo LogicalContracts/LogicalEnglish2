@@ -1,0 +1,28 @@
+the predicates are:
+    *a person* is happy.
+    *a man* is strong.
+    *a woman* is wise.
+
+the ontology is:
+    man is a person.
+    woman is a person.
+    boy is a man.
+    girl is a woman.
+
+the knowledge base type_check_test includes:
+    a man is happy if 
+        the man is strong.
+    
+    a woman is happy if
+        the woman is wise.
+
+    % Facts about types
+    boy is wise.
+    girl is wise.
+    girl is strong.
+
+scenario test is:
+    one expects answers ["girl is happy"].
+
+query one is:
+    which person is happy.

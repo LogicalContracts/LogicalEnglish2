@@ -905,3 +905,35 @@ Some of the conditions win the diskunctionill always be false, and are redundant
 can never be true, because Prolog's '==' operator requires that both terms are identica, down to variables; and because the right operand as an anonymous (and unique) variable, the condition will always be false because it's impossible for that variable to occur in CleanTokend
 
 Clean it up please
+
+## Collecting and using types
+Now for a refactoring on how we remember LE types.
+In le_grammar.pl a table is built, is_a_type/1. Please:
+- Make that a thread_local predicate, for multithreading safety
+- When we load(...) a file in le_kbs.pl, obtain from the parse also the list of those types , and assert them into a new le_type/1 predicate in the new knowledge module being loaded.
+
+We now need to use the types in the template for a rule head (when they mention types), so that sometimes (explained below) they be checked at runtime. Specifically, in the last branch of the last clause of solve_real_actual(..), just before calling solve(..), call a new predicate is_type_compatible(..,G) which, for each argument A of G with a type FormalType associated with it in the rule head, checks the following: (le_type(A) -> is_a(A,T) ; true)
+
+Then create an example with a small ontology and two rules illustrating this runtime checking at work, meaning, the type checks acting as hidden conditions supporting different conclusion bindings
+
+### Gemini comment
+I have implemented the runtime type checking in the Logical English reasoner as requested.
+Changes:
+1.  Modified reasoner.pl:
+    *   Updated solve_real_actual/8 to call is_type_compatible/3 before solving a rule body.
+    *   Implemented is_type_compatible/3, which retrieves the template for a goal and checks if the actual arguments are compatible with the formal types defined in the template.
+    *   The check follows the logic: (le_type(A) -> is_a(A, FormalType) ; true). This allows variables in queries to be bound to types that satisfy the hierarchy constraints.
+    *   Implemented a robust is_a_simple/3 helper to handle type hierarchy checks (including transitivity) within the target module.
+2.  Created Example examples/moreExamples/type_check_test.le:
+    *   Ontology: Defines a hierarchy where boy is a man, man is a person, girl is a woman, and woman is a person.
+    *   Rules:
+        *   a person is happy if the person is strong.
+        *   a person is happy if the person is wise.
+    *   Facts: boy is strong. and girl is wise.
+    *   Query: which person is happy.
+    *   Result: The type checks act as hidden conditions. When solving is_happy(P), P is bound to boy (because boy is a person and boy is strong) and girl (because girl is a person and girl is wise).
+
+## TBD
+
+Refactor verify/1 and load/1
+use le_type/1 to build hierarchy; first compare types in is_a_hierarchy vs le_type!
