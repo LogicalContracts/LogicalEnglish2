@@ -191,29 +191,36 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             ( KM \== none -> le_kbs:set_id_from_ref(Ref, KM) ; le_kbs:set_id_from_ref(Ref, SM) ),
             \+ SM:le_neg(G),
             \+ member(G, Anc),
-            is_type_compatible_goal(SM, KM, G, TypeGoal),
+            is_type_compatible(SM, KM, G),
             D1 is D + 1,
-            solve(and(Body, TypeGoal), SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
+            solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
     ).
 
-is_type_compatible_goal(SM, KM, G, Goal) :-
+is_type_compatible(SM, KM, G) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, N),
     ( M:le_dict(dict([F|FormalArgs], NTs, _)), length(FormalArgs, N) ->
         G =.. [F|ActualArgs],
-        build_compatibility_goal(FormalArgs, ActualArgs, NTs, M, Goal)
-    ; Goal = true
+        check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM)
+    ; true
     ).
 
-build_compatibility_goal([], [], _, _, true).
-build_compatibility_goal([FA|FAs], [AA|AAs], NTs, M, and(ThisGoal, RestGoal)) :-
-    ( member(FA-FormalType, NTs), FormalType \== any ->
-        % Check compatibility: AA is a variable, OR AA is a subtype of FormalType, OR AA is not a type at all.
-        % Use once to avoid doubling solutions if AA is a type.
-        ThisGoal = or(prolog_call(var(AA)), once(or(is_a(AA, FormalType), not(le_type(AA)))))
-    ; ThisGoal = true
+check_args_compatibility([], [], _, _, _, _).
+check_args_compatibility([FA|FAs], [AA|AAs], NTs, M, SM, KM) :-
+    ( member(FA_-FormalType, NTs), FA_==FA, FormalType \== any ->
+        when(nonvar(AA), (
+            ( M:le_type(AA) ->
+                once(is_a_simple(AA, FormalType, M))
+            ; true
+            )
+        ))
+    ; true
     ),
-    build_compatibility_goal(FAs, AAs, NTs, M, RestGoal).
+    check_args_compatibility(FAs, AAs, NTs, M, SM, KM).
+
+is_a_simple(X, Z, _) :- X == Z, !.
+is_a_simple(X, Z, M) :- M:clause(is_a(X, Z), true), !.
+is_a_simple(X, Z, M) :- M:clause(is_a(X, Y), true), Y \== Z, is_a_simple(Y, Z, M).
 
 % build_failure_tree(+ID, -Whys)
 % Reconstructs a list of "juicy" failure trees of all calls made under ID.
