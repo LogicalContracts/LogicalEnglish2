@@ -137,6 +137,13 @@ declare var monaco: any;
 
         const savedTheme = localStorage.getItem('le-editor-theme') || 'le-theme';
         const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
+        let showHierarchicalNumbering = localStorage.getItem('le-hierarchical-numbering') === 'true';
+        
+        const numberingCheck = document.getElementById('hierarchical-numbering-check');
+        if (numberingCheck) {
+            numberingCheck.style.visibility = showHierarchicalNumbering ? 'visible' : 'hidden';
+        }
+
         let isDirty = false;
         let isLoaded = false;
         let isLoading = false;
@@ -573,10 +580,32 @@ declare var monaco: any;
     const setTheme = (theme: string) => {
         monaco.editor.setTheme(theme);
         localStorage.setItem('le-editor-theme', theme);
+        
+        document.body.classList.remove('light-theme', 'hc-theme');
+        if (theme === 'le-theme-light') {
+            document.body.classList.add('light-theme');
+        } else if (theme === 'hc-black') {
+            document.body.classList.add('hc-theme');
+        }
     };
+    // Apply initial theme to body
+    setTheme(savedTheme);
+
     document.getElementById('theme-dark')?.addEventListener('click', () => setTheme('le-theme'));
     document.getElementById('theme-light')?.addEventListener('click', () => setTheme('le-theme-light'));
     document.getElementById('theme-hc')?.addEventListener('click', () => setTheme('hc-black'));
+
+    document.getElementById('menu-hierarchical-numbering')?.addEventListener('click', () => {
+        showHierarchicalNumbering = !showHierarchicalNumbering;
+        localStorage.setItem('le-hierarchical-numbering', showHierarchicalNumbering.toString());
+        if (numberingCheck) {
+            numberingCheck.style.visibility = showHierarchicalNumbering ? 'visible' : 'hidden';
+        }
+        // Re-render current explanation if any
+        if (lastWhy) {
+            renderExplanation(lastWhy);
+        }
+    });
 
     const setFontSize = (size: number) => {
         editor.updateOptions({ fontSize: size });
@@ -1000,6 +1029,7 @@ declare var monaco: any;
     const menuCopyExplanation = document.getElementById('menu-copy-explanation')!;
     let currentAnswerToCopy = '';
     let currentWhyToCopy: any = null;
+    let lastWhy: any = null;
 
     document.addEventListener('click', () => {
         answerContextMenu.style.display = 'none';
@@ -1014,32 +1044,40 @@ declare var monaco: any;
         answerContextMenu.style.display = 'none';
     });
 
-    const explanationToText = (node: any, depth: number = 0): string => {
+    const explanationToText = (node: any, depth: number = 0, prefix: string = ''): string => {
         if (Array.isArray(node)) {
-            return node.map(n => explanationToText(n, depth)).join('');
+            return node.map((n, index) => explanationToText(n, depth, (index + 1).toString())).join('');
         }
         const indent = '  '.repeat(depth);
-        const text = node.literal || node;
+        let text = node.literal || node;
+        if (showHierarchicalNumbering && prefix && depth > 0) {
+            text = `${prefix} ${text}`;
+        }
         let result = `${indent}${text}\n`;
         if (node.children) {
-            node.children.forEach((child: any) => {
-                result += explanationToText(child, depth + 1);
+            node.children.forEach((child: any, index: number) => {
+                const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+                result += explanationToText(child, depth + 1, childPrefix);
             });
         }
         return result;
     };
 
-    const explanationToHtml = (node: any, depth: number = 0): string => {
+    const explanationToHtml = (node: any, depth: number = 0, prefix: string = ''): string => {
         if (Array.isArray(node)) {
-            return node.map(n => explanationToHtml(n, depth)).join('');
+            return node.map((n, index) => explanationToHtml(n, depth, (index + 1).toString())).join('');
         }
         const indent = '&nbsp;&nbsp;'.repeat(depth);
-        const text = node.literal || node;
+        let text = node.literal || node;
+        if (showHierarchicalNumbering && prefix && depth > 0) {
+            text = `${prefix} ${text}`;
+        }
         const color = node.type === 'failure' ? '#f48771' : '#89d185';
         let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
         if (node.children) {
-            node.children.forEach((child: any) => {
-                result += explanationToHtml(child, depth + 1);
+            node.children.forEach((child: any, index: number) => {
+                const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+                result += explanationToHtml(child, depth + 1, childPrefix);
             });
         }
         return result;
@@ -1048,8 +1086,10 @@ declare var monaco: any;
     menuCopyExplanation.addEventListener('click', (e) => {
         e.stopPropagation();
         if (currentWhyToCopy) {
-            const text = explanationToText(currentWhyToCopy);
-            const html = explanationToHtml(currentWhyToCopy);
+            // If copying the root node, we don't want a prefix for it, but we want prefixes for its children.
+            // If copying a sub-node, we'll treat it as a new root (no prefix for itself).
+            const text = explanationToText(currentWhyToCopy, 0, "");
+            const html = explanationToHtml(currentWhyToCopy, 0, "");
             
             try {
                 const clipboardItem = new ClipboardItem({
@@ -1066,6 +1106,7 @@ declare var monaco: any;
     });
 
     const renderExplanation = (why: any) => {
+        lastWhy = why;
         explanationTree.innerHTML = '';
         if (!why) return;
 
@@ -1079,7 +1120,7 @@ declare var monaco: any;
             }
         };
 
-        const createNode = (node: any, depth: number): HTMLElement => {
+        const createNode = (node: any, depth: number, prefix: string = ''): HTMLElement => {
             const container = document.createElement('div');
             container.className = 'tree-node';
 
@@ -1095,7 +1136,11 @@ declare var monaco: any;
             }
 
             const text = document.createElement('span');
-            text.textContent = node.literal || node;
+            let labelText = node.literal || node;
+            if (showHierarchicalNumbering && prefix && depth > 0) {
+                labelText = `${prefix} ${labelText}`;
+            }
+            text.textContent = labelText;
             label.appendChild(text);
             
             label.addEventListener('contextmenu', (e) => {
@@ -1110,8 +1155,8 @@ declare var monaco: any;
             if (node.start !== undefined && node.end !== undefined) {
                 text.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const startPos = model.getPositionAt(node.start);
-                    const endPos = model.getPositionAt(node.end);
+                    const startPos = editor.getModel().getPositionAt(node.start);
+                    const endPos = editor.getModel().getPositionAt(node.end);
                     editor.setSelection(new monaco.Range(
                         startPos.lineNumber, startPos.column,
                         endPos.lineNumber, endPos.column
@@ -1138,8 +1183,9 @@ declare var monaco: any;
                     (e.target as HTMLElement).textContent = isExpanded ? '+' : '-';
                 });
 
-                node.children.forEach((child: any) => {
-                    childrenContainer.appendChild(createNode(child, depth + 1));
+                node.children.forEach((child: any, index: number) => {
+                    const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+                    childrenContainer.appendChild(createNode(child, depth + 1, childPrefix));
                 });
                 container.appendChild(childrenContainer);
             }
@@ -1148,9 +1194,9 @@ declare var monaco: any;
         };
 
         if (Array.isArray(why)) {
-            why.forEach(w => explanationTree.appendChild(createNode(w, 0)));
+            why.forEach((w, index) => explanationTree.appendChild(createNode(w, 0, (index + 1).toString())));
         } else {
-            explanationTree.appendChild(createNode(why, 0));
+            explanationTree.appendChild(createNode(why, 0, "1"));
         }
     };
 

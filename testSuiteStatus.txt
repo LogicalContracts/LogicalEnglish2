@@ -3,8 +3,8 @@ Test Summary:
 -------------
 Files processed: 29
 Total tests:     183
-Passed:          171
-Failed:          12
+Passed:          183
+Failed:          0
 Errors/Timeouts: 0
 -------------
 
@@ -25,7 +25,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbering_test.le: 3 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/payg.le: 13 Pass, 12 Fail, 0 Error
+  [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/prolog_call.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
