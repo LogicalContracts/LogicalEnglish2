@@ -893,14 +893,6 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
 second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
     ( parse_literal(Head, Templates, [], _VM1, NewHead, _, false) -> true; NewHead = unknown_template(Head, Start, End)).
 
-second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
-    ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
-        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
-        ; 
-        NewHead = unknown_template(Head, Start, End), 
-        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
-    ).
 second_pass_scenario_item(_Templates, expected(QueryName, Answers, Start, End), expected(QueryName, AnswerStrings, Start, End), _M) :-
     maplist(extract_answer_string, Answers, AnswerStrings).
 

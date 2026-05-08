@@ -106,3 +106,20 @@ Scenarios can define expected results for queries, which are used by the test ru
       John is born in the UK on 2021-10-09.
       query one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
   ```
+
+## 13. System Predicates
+Logical English provides several system predicates that can be accessed via the `prolog` keyword or used for introspection.
+
+- **`le_my_kb(KB)`**: Unifies `KB` with the name of the current knowledge base module.
+- **`le_my_id(ID)`**: Unifies `ID` with the identifier of the current rule or fact.
+- **`le_type(Type)`**: True if `Type` is a known type defined in the ontology or templates.
+- **`is_a(Subtype, Supertype)`**: True if `Subtype` is a descendant of `Supertype` in the taxonomy.
+- **`le_source_element(RuleID, Designator, Goal)`**: Maps hierarchical designators (e.g., `1.1.a`) to their corresponding goals within a numbered rule.
+- **`le_source_info(Ref, Start, End, ID)`**: Provides source file location (start/end character offsets) and ID for a given clause reference.
+- **`le_issue(Severity, Type, Description, Fix, Start, End)`**: Represents a parsing or verification issue (error or warning).
+- **`le_dict(dict(FunctorArgs, NamedTypes, WordsAndVars))`**: Stores the internal representation of a template.
+- **`le_kb(Name)`**: Stores the name of the knowledge base as defined in the source.
+- **`scenario(Name, Facts)`**: Stores the facts associated with a named scenario.
+- **`query_info(Name, Goal, Items)`**: Stores information about a named query.
+- **`le_expected(QueryName, ScenarioName, ExpectedAnswers)`**: Stores expected answers for a query in a scenario.
+- **`ontology(Content)`**: Stores the raw content of the ontology section.

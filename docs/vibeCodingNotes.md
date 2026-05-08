@@ -970,13 +970,7 @@ the varied amount payable for quarter 2 for 2025 by Australian entity is 9000.0
     0 = 0-0
   9000.0 = 18000.0*0.5-0
 
-
-
 ## Explanations closer to LE1
 In the EXPLANATION tree panel, let the user chose to optionally see an hierachical number prefix in each node, to make it easy to refer to them. Make this choice in the Misc menu, and persist the choice in browser storage
 Also, make the theme choice of the editor reflect in the explanation tree and query panel too
 
-## NEXT
-
-Refactor verify/1 and load/1
-Remove % Two dummy facts for testing
