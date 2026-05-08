@@ -1,16 +1,22 @@
 the predicates are:
-    *a person* has an age *an age*.
-    *a person* is a ghost.
+    the kb name is *a name*.
+    the current rule id is *an id*.
 
 the knowledge base prolog_test includes:
-    *a person* has an age *an age* if
-        prolog person_age(the person, the age).
+    rule my_kb_rule:
+    the kb name is *a name* if
+        prolog (le_my_kb(KM), KM:le_kb(the name)).
 
-    *a person* is a ghost if
-        *a person* is dead.
+    rule my_id_rule:
+    the current rule id is *an id* if
+        prolog le_my_id(the id).
 
 scenario test is:
-    one expects answers ["Bob has an age 42", "Alice has an age 30"].
+    one expects answers ["the kb name is prolog_test"].
+    two expects answers ["the current rule id is my_id_rule"].
 
 query one is:
-    *someone* has an age *how old*.
+    the kb name is *what*.
+
+query two is:
+    the current rule id is *what*.

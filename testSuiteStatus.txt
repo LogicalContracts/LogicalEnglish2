@@ -2,8 +2,8 @@
 Test Summary:
 -------------
 Files processed: 29
-Total tests:     183
-Passed:          183
+Total tests:     184
+Passed:          184
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -27,7 +27,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/numbering_test.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/prolog_call.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/prolog_call.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error

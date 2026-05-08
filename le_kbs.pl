@@ -8,7 +8,7 @@
 :- module(le_kbs, [load/2, load_text/2, createSession/2, 
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
-    run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2, person_age/2,
+    run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
@@ -307,9 +307,6 @@ clear_kb_module :-
 set_id_from_ref(Ref, M) :-
     ( M:le_source_info(Ref, _, _, ID) -> retractall(le_current_id(_)), assertz(le_current_id(ID)) ; true ).
 
-% Two dummy facts for testing
-person_age('Bob', 42).
-person_age('Alice', 30).
 
 %!  createSession(+KBmodule:atom, -SessionModule:atom) is det.
 %
