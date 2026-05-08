@@ -225,6 +225,11 @@ async function start() {
   }
   const savedTheme = localStorage.getItem("le-editor-theme") || "le-theme";
   const savedFontSize = parseInt(localStorage.getItem("le-editor-font-size") || "16");
+  let showHierarchicalNumbering = localStorage.getItem("le-hierarchical-numbering") === "true";
+  const numberingCheck = document.getElementById("hierarchical-numbering-check");
+  if (numberingCheck) {
+    numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
+  }
   let isDirty = false;
   let isLoaded = false;
   let isLoading = false;
@@ -619,10 +624,27 @@ async function start() {
   const setTheme = (theme) => {
     monaco.editor.setTheme(theme);
     localStorage.setItem("le-editor-theme", theme);
+    document.body.classList.remove("light-theme", "hc-theme");
+    if (theme === "le-theme-light") {
+      document.body.classList.add("light-theme");
+    } else if (theme === "hc-black") {
+      document.body.classList.add("hc-theme");
+    }
   };
+  setTheme(savedTheme);
   document.getElementById("theme-dark")?.addEventListener("click", () => setTheme("le-theme"));
   document.getElementById("theme-light")?.addEventListener("click", () => setTheme("le-theme-light"));
   document.getElementById("theme-hc")?.addEventListener("click", () => setTheme("hc-black"));
+  document.getElementById("menu-hierarchical-numbering")?.addEventListener("click", () => {
+    showHierarchicalNumbering = !showHierarchicalNumbering;
+    localStorage.setItem("le-hierarchical-numbering", showHierarchicalNumbering.toString());
+    if (numberingCheck) {
+      numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
+    }
+    if (lastWhy) {
+      renderExplanation(lastWhy);
+    }
+  });
   const setFontSize = (size) => {
     editor.updateOptions({ fontSize: size });
     localStorage.setItem("le-editor-font-size", size.toString());
@@ -1001,6 +1023,7 @@ async function start() {
   const menuCopyExplanation = document.getElementById("menu-copy-explanation");
   let currentAnswerToCopy = "";
   let currentWhyToCopy = null;
+  let lastWhy = null;
   document.addEventListener("click", () => {
     answerContextMenu.style.display = "none";
     explanationContextMenu.style.display = "none";
@@ -1012,32 +1035,40 @@ async function start() {
     }
     answerContextMenu.style.display = "none";
   });
-  const explanationToText = (node, depth = 0) => {
+  const explanationToText = (node, depth = 0, prefix = "") => {
     if (Array.isArray(node)) {
-      return node.map((n) => explanationToText(n, depth)).join("");
+      return node.map((n, index) => explanationToText(n, depth, (index + 1).toString())).join("");
     }
     const indent = "  ".repeat(depth);
-    const text = node.literal || node;
+    let text = node.literal || node;
+    if (showHierarchicalNumbering && prefix && depth > 0) {
+      text = `${prefix} ${text}`;
+    }
     let result = `${indent}${text}
 `;
     if (node.children) {
-      node.children.forEach((child) => {
-        result += explanationToText(child, depth + 1);
+      node.children.forEach((child, index) => {
+        const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+        result += explanationToText(child, depth + 1, childPrefix);
       });
     }
     return result;
   };
-  const explanationToHtml = (node, depth = 0) => {
+  const explanationToHtml = (node, depth = 0, prefix = "") => {
     if (Array.isArray(node)) {
-      return node.map((n) => explanationToHtml(n, depth)).join("");
+      return node.map((n, index) => explanationToHtml(n, depth, (index + 1).toString())).join("");
     }
     const indent = "&nbsp;&nbsp;".repeat(depth);
-    const text = node.literal || node;
+    let text = node.literal || node;
+    if (showHierarchicalNumbering && prefix && depth > 0) {
+      text = `${prefix} ${text}`;
+    }
     const color = node.type === "failure" ? "#f48771" : "#89d185";
     let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
     if (node.children) {
-      node.children.forEach((child) => {
-        result += explanationToHtml(child, depth + 1);
+      node.children.forEach((child, index) => {
+        const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+        result += explanationToHtml(child, depth + 1, childPrefix);
       });
     }
     return result;
@@ -1045,8 +1076,8 @@ async function start() {
   menuCopyExplanation.addEventListener("click", (e) => {
     e.stopPropagation();
     if (currentWhyToCopy) {
-      const text = explanationToText(currentWhyToCopy);
-      const html = explanationToHtml(currentWhyToCopy);
+      const text = explanationToText(currentWhyToCopy, 0, "");
+      const html = explanationToHtml(currentWhyToCopy, 0, "");
       try {
         const clipboardItem = new ClipboardItem({
           "text/plain": new Blob([text], { type: "text/plain" }),
@@ -1060,6 +1091,7 @@ async function start() {
     explanationContextMenu.style.display = "none";
   });
   const renderExplanation = (why) => {
+    lastWhy = why;
     explanationTree.innerHTML = "";
     if (!why)
       return;
@@ -1072,7 +1104,7 @@ async function start() {
         explanationContextMenu.style.top = `${e.clientY}px`;
       }
     };
-    const createNode = (node, depth) => {
+    const createNode = (node, depth, prefix = "") => {
       const container2 = document.createElement("div");
       container2.className = "tree-node";
       const label = document.createElement("div");
@@ -1085,7 +1117,11 @@ async function start() {
         label.appendChild(toggle);
       }
       const text = document.createElement("span");
-      text.textContent = node.literal || node;
+      let labelText = node.literal || node;
+      if (showHierarchicalNumbering && prefix && depth > 0) {
+        labelText = `${prefix} ${labelText}`;
+      }
+      text.textContent = labelText;
       label.appendChild(text);
       label.addEventListener("contextmenu", (e) => {
         e.preventDefault();
@@ -1098,8 +1134,8 @@ async function start() {
       if (node.start !== void 0 && node.end !== void 0) {
         text.addEventListener("click", (e) => {
           e.stopPropagation();
-          const startPos = model.getPositionAt(node.start);
-          const endPos = model.getPositionAt(node.end);
+          const startPos = editor.getModel().getPositionAt(node.start);
+          const endPos = editor.getModel().getPositionAt(node.end);
           editor.setSelection(new monaco.Range(
             startPos.lineNumber,
             startPos.column,
@@ -1126,17 +1162,18 @@ async function start() {
           childrenContainer.style.display = isExpanded ? "none" : "block";
           e.target.textContent = isExpanded ? "+" : "-";
         });
-        node.children.forEach((child) => {
-          childrenContainer.appendChild(createNode(child, depth + 1));
+        node.children.forEach((child, index) => {
+          const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
+          childrenContainer.appendChild(createNode(child, depth + 1, childPrefix));
         });
         container2.appendChild(childrenContainer);
       }
       return container2;
     };
     if (Array.isArray(why)) {
-      why.forEach((w) => explanationTree.appendChild(createNode(w, 0)));
+      why.forEach((w, index) => explanationTree.appendChild(createNode(w, 0, (index + 1).toString())));
     } else {
-      explanationTree.appendChild(createNode(why, 0));
+      explanationTree.appendChild(createNode(why, 0, "1"));
     }
   };
   const debugPanel = document.getElementById("debug-panel");

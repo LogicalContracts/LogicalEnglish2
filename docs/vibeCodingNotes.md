@@ -933,7 +933,50 @@ Changes:
     *   Query: which person is happy.
     *   Result: The type checks act as hidden conditions. When solving is_happy(P), P is bound to boy (because boy is a person and boy is strong) and girl (because girl is a person and girl is wise).
 
-## TBD
+## fixing the payg test failure
+
+In line 137 of payg.le, the condition "the income year is a year under consideration" is being translated to PROLOG as 
+is_a(B, 'year under consideration'), which is incorrect - it should be translated instead to 
+"is_a_year_under_consideration(B)", considering the existing template "*a year* is a year under consideration"
+
+I have pinpointed the precise reason of failure of payg.le, scenario ato_1_quarter_2 query 'test': the goal "the amount with an ID was reported as an instalment on a quarter X of the income year", in the rule on line 134, is failing, although there is a fact "3000 with idiAE202501 was reported as an instalment on quarter 1 of 2025". 
+
+
+the varied amount payable for quarter 2 for 2025 by Australian entity is 9000.0
+  the current quarter is quarter 2
+  the estimated tax for Australian entity for 2025 is 18000.0
+    the estimated annual net tax payable for Australian entity for 2025 is 18000.0
+      the estimated taxable income for Australian entity for 2025 is 100000
+      the applicable tax rate for Australian entity on 2025 is 0.25
+        Australian entity is a base rate entity
+        0.25 is 0.25
+      the tax offsets for Australian entity for 2025 is 5000
+      5000 is greater than or equal to 0
+      the estimated tax credits for Australian entity for 2025 are 2000
+      2000 is greater than or equal to 0
+      18000.0 = 100000*0.25-5000-2000
+    18000.0 is greater than or equal to 0
+  the year - to - date fraction for quarter 2 is 0.5
+    quarter 2 is quarter 2
+    0.5 is 0.5
+  the year - to - date instalment adjustment for Australian entity for 2025 is 0
+    Australian entity is the taxpayer
+    the current quarter is quarter 2
+    2025 is a year under consideration
+    IR is the sum of each amount such that
+      RED:   an amount with an ID was reported as an instalment on a quarter of 2025
+    IVC is the sum of each number such that
+      an amount with an ID was reported as a variation on a quarter of 2025
+    0 = 0-0
+  9000.0 = 18000.0*0.5-0
+
+
+
+## Explanations closer to LE1
+In the EXPLANATION tree panel, let the user chose to optionally see an hierachical number prefix in each node, to make it easy to refer to them. Make this choice in the Misc menu, and persist the choice in browser storage
+Also, make the theme choice of the editor reflect in the explanation tree and query panel too
+
+## NEXT
 
 Refactor verify/1 and load/1
-use le_type/1 to build hierarchy; first compare types in is_a_hierarchy vs le_type!
+Remove % Two dummy facts for testing
