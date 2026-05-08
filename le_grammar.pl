@@ -289,15 +289,12 @@ process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) :-
     ).
 
 is_a_taxonomy_template(WordsAndVars, Args, Type, SuperType) :-
-    once((
-        append([Type], [is, a | SuperTypeWords], WordsAndVars)
-    ;   append([Type], [is, an | SuperTypeWords], WordsAndVars)
-    ;   append([Type], [is, of | SuperTypeWords], WordsAndVars)
-    )),
+    (   WordsAndVars = [Type, is, a, SuperType]
+    ;   WordsAndVars = [Type, is, an, SuperType]
+    ;   WordsAndVars = [Type, is, of, SuperType]
+    ),
     member_var(Type, Args),
-    (   SuperTypeWords = [SuperType], member_var(SuperType, Args) -> true
-    ;   SuperTypeWords = [SuperType], \+ member_var(SuperType, Args) -> true
-    ).
+    member_var(SuperType, Args).
 
 member_var(V, [H|_]) :- V == H, !.
 member_var(V, [_|T]) :- member_var(V, T).
@@ -860,15 +857,17 @@ second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start,
 
 
 second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
-    (   parse_literal(Head, Templates, [], _VM1, NewHead0, _, false) -> 
+    (   match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false) ->
+        NewHead = is_a(TypeAtom, SuperTypeAtom),
+        assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
+    ;   parse_literal(Head, Templates, [], _VM1, NewHead0, _, false) -> 
         ( NewHead0 = is_a(_, _) -> 
             match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false),
             NewHead = is_a(TypeAtom, SuperTypeAtom),
             assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
           ; NewHead = NewHead0
         )
-        ;   
-        NewHead = unknown_template(Head, Start, End)
+    ;   NewHead = unknown_template(Head, Start, End)
     ).
 second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),

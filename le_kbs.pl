@@ -312,6 +312,7 @@ clear_kb_module :-
 set_id_from_ref(Ref, M) :-
     ( M:le_source_info(Ref, _, _, ID) -> retractall(le_current_id(_)), assertz(le_current_id(ID)) ; true ).
 
+% Two dummy facts for testing
 person_age('Bob', 42).
 person_age('Alice', 30).
 
