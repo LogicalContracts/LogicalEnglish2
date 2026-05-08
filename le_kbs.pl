@@ -124,8 +124,18 @@ edit(LEfilePath) :-
 %!  do_log is det.
 %
 %   Dynamic predicate that controls whether debug messages are printed.
+%!  current_compiling_module(-Module:atom) is semidet.
+%
+%   True if Module is the module currently being compiled.
 :- dynamic do_log/0, current_compiling_module/1. % assert(le_kbs:do_log).
 :- thread_local le_current_id/1, le_kb_module/1.
+
+%!  rule_counter(-Count:integer) is det.
+%
+%   Gets or sets the current rule counter for generating IDs.
+:- dynamic rule_counter/1.
+:- thread_local rule_counter/1.
+
 
 %!  load(+FilePath:atom, -Module:atom) is det.
 %
@@ -139,43 +149,12 @@ load(FilePath, NewModule) :-
     ),
     with_mutex(NewModule, load_sync(NewModule, FilePath)).
 
-load_sync(NewModule, _) :-
-    current_module(NewModule), 
-    current_predicate(NewModule:le_source_info/4), 
-    \+ current_predicate(NewModule:le_issue/6),
-    !.
 load_sync(NewModule, FilePath) :-
-    % Ensure we start with a clean module
-    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-    NewModule:use_module(le_kbs),
-    forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
-    assertz(NewModule:le_kb_module_fact(NewModule)),
-    retractall(rule_counter(_)),
-    assertz(rule_counter(1)),
-    (   setup_call_cleanup(
-            asserta(le_grammar:current_compiling_module(NewModule)),
-            ( catch(parse_le_file(FilePath, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
-              collect_and_assert_types(NewModule) ),
-            retractall(le_grammar:current_compiling_module(_))
-        ) ->  
-        forall(member(S, Sections), process_section(S, NewModule)),
-        findall(D, le_system_template(D), SysDicts),
-        forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-        (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-            forall(member(issue(Type, Desc, Fix, Start, End), Issues), (
-                (Type == missing_template -> Severity = error; Severity = warning),
-                assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
-            ))
-        ;   true
-        )
-    ;   % Parsing failed
-        forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-        forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
-        assertz(NewModule:le_issue(error, parse_error, "parse_le_file failed for ~w" - [FilePath], "", 0, 0)),
-        assertz(NewModule:le_source_info(none, 0, 0, none)),
-        print_message(error, "parse_le_file failed for ~w" - [FilePath])
-    ).
+    load_common_sync(NewModule, parse_le_file(FilePath, doc(Sections), NewModule), Sections, "parse_le_file failed for ~w" - [FilePath]).
 
+%!  load_text(+Text:string, -Module:atom) is det.
+%
+%   Loads Logical English source text into a new generated Module.
 load_text(Text, NewModule) :-
     (   var(NewModule) ->  
         variant_sha1(Text, Hash),
@@ -184,44 +163,45 @@ load_text(Text, NewModule) :-
     ),
     with_mutex(NewModule, load_text_sync(NewModule, Text)).
 
-load_text_sync(NewModule, _) :-
-    current_module(NewModule), 
-    current_predicate(NewModule:le_source_info/4), 
-    \+ current_predicate(NewModule:le_issue/6),
-    !.
 load_text_sync(NewModule, Text) :-
-    % Ensure we start with a clean module
-    forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-    NewModule:use_module(le_kbs),
-    forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
-    assertz(NewModule:le_kb_module_fact(NewModule)),
-    retractall(rule_counter(_)),
-    assertz(rule_counter(1)),
-    (   setup_call_cleanup(
-            asserta(le_grammar:current_compiling_module(NewModule)),
-            ( catch(parse_le_text(Text, doc(Sections), NewModule), EP, (print_message(error, EP), fail)),
-              collect_and_assert_types(NewModule) ),
-            retractall(le_grammar:current_compiling_module(_))
-        ) ->  
-        forall(member(S, Sections), process_section(S, NewModule)),
-        findall(D, le_system_template(D), SysDicts),
-        forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-        (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
-            forall(member(issue(Type, Desc, Fix, Start, End), Issues), (
-                (Type == missing_template -> Severity = error; Severity = warning),
-                assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
-            ))
-        ;   true)
-    ;   % Parsing failed
-        forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-        forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
-        assertz(NewModule:le_issue(error, parse_error, "Parsing failed. Check for malformed sections or characters.", "", 0, 0)),
-        assertz(NewModule:le_source_info(none, 0, 0, none)),
-        print_message(error, "parse_le_text failed")
-    ).
+    load_common_sync(NewModule, parse_le_text(Text, doc(Sections), NewModule), Sections, "Parsing failed. Check for malformed sections or characters.").
 
-:- dynamic rule_counter/1.
-:- thread_local rule_counter/1.
+load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg) :-
+    (   current_module(NewModule), 
+        current_predicate(NewModule:le_source_info/4), 
+        \+ current_predicate(NewModule:le_issue/6)
+    ->  true
+    ;   % Ensure we start with a clean module
+        forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+        NewModule:use_module(le_kbs),
+        forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
+        assertz(NewModule:le_kb_module_fact(NewModule)),
+        retractall(rule_counter(_)),
+        assertz(rule_counter(1)),
+        (   setup_call_cleanup(
+                asserta(le_grammar:current_compiling_module(NewModule)),
+                ( catch(ParseGoal, EP, (print_message(error, EP), fail)),
+                  collect_and_assert_types(NewModule) ),
+                retractall(le_grammar:current_compiling_module(_))
+            ) ->  
+            forall(member(S, Sections), process_section(S, NewModule)),
+            findall(D, le_system_template(D), SysDicts),
+            forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+            (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+                forall(member(issue(Type, Desc, Fix, Start, End), Issues), (
+                    (Type == missing_template -> Severity = error; Severity = warning),
+                    assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
+                ))
+            ;   true
+            )
+        ;   % Parsing failed
+            forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
+            forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
+            assertz(NewModule:le_issue(error, parse_error, ErrorMsg, "", 0, 0)),
+            assertz(NewModule:le_source_info(none, 0, 0, none)),
+            print_message(error, ErrorMsg)
+        )
+    ).
 
 process_section(S, M) :-
     ( do_log -> print_message(informational,'Processing section: ~w' - [S]); true),
@@ -292,23 +272,38 @@ process_item(clause(Head, Body, Start, End, ID), M) :-
     dynamic(M:F/N),
     ( clause(M:Head, Body) -> true; assertz(M:Clause, Ref), assertz(M:le_source_info(Ref, Start, End, ActualID))).
 
+%!  le_my_id(-ID:atom) is det.
+%
+%   Gets the current Logical English rule or fact ID.
 le_my_id(ID) :-
     le_current_id(ID).
 
 :- multifile le_my_kb/1.
 
+%!  le_my_kb(-KB:atom) is det.
+%
+%   Gets the current Logical English KB module.
 le_my_kb(KB) :-
     ( le_kb_module(K), K \== none -> KB = K
     ; context_module(KB)
     ).
 
+%!  set_kb_module(+KB:atom) is det.
+%
+%   Sets the current Logical English KB module.
 set_kb_module(KB) :-
     retractall(le_kb_module(_)),
     assertz(le_kb_module(KB)).
 
+%!  clear_kb_module is det.
+%
+%   Clears the current Logical English KB module.
 clear_kb_module :-
     retractall(le_kb_module(_)).
 
+%!  set_id_from_ref(+Ref:reference, +M:atom) is det.
+%
+%   Sets the current LE ID based on a clause reference in module M.
 set_id_from_ref(Ref, M) :-
     ( M:le_source_info(Ref, _, _, ID) -> retractall(le_current_id(_)), assertz(le_current_id(ID)) ; true ).
 
@@ -316,6 +311,9 @@ set_id_from_ref(Ref, M) :-
 person_age('Bob', 42).
 person_age('Alice', 30).
 
+%!  createSession(+KBmodule:atom, -SessionModule:atom) is det.
+%
+%   Creates a new reasoning session module for the given KB module.
 createSession(KBmodule, SessionModule) :-
     uuid(UUID),
     atom_concat(s, UUID, SessionModule),
@@ -328,6 +326,10 @@ createSession(KBmodule, SessionModule) :-
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4).
 
+%!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
+%
+%   Adds a fact to the reasoning session. Fact can be a term or
+%   fact_with_source(Term, Start, End).
 addSessionFact(SessionModule, Fact) :-
     ( Fact = fact_with_source(ActualFact, Start, End) -> true; ActualFact = Fact, Start = 0, End = 0),
     ( do_log -> print_message(informational, 'Adding session fact: ~w' - [ActualFact]); true),
@@ -340,12 +342,18 @@ addSessionFact(SessionModule, Fact) :-
           ( Start \== 0 -> assertz(SessionModule:le_source_info(Ref, Start, End, session_fact)); true)
     ).
 
+%!  negateSessionFact(+SessionModule:atom, +Fact:term) is det.
+%
+%   Negates a fact in the reasoning session.
 negateSessionFact(SessionModule, Fact) :-
     forall(clause(SessionModule:Fact, _, Ref),
            (erase(Ref), retractall(SessionModule:sessionClause(Ref)))),
     assertz(SessionModule:le_neg(Fact), NewRef),
     assertz(SessionModule:sessionClause(NewRef)).
 
+%!  setScenarion(+SessionModule:atom, +ScenarioName:atom) is det.
+%
+%   Loads facts from a named scenario into the reasoning session.
 setScenarion(SessionModule, ScenarioName) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( current_predicate(KBmodule:scenario/2) -> 
@@ -356,6 +364,9 @@ setScenarion(SessionModule, ScenarioName) :-
         forall(member(Fact, Facts), addSessionFact(SessionModule, Fact))
     ; fail).
 
+%!  clearSession(+SessionModule:atom) is det.
+%
+%   Clears all facts and state from a reasoning session.
 clearSession(SessionModule) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true; KBmodule = none),
     forall(current_predicate(SessionModule:F/N), abolish(SessionModule:F/N)),
@@ -368,6 +379,9 @@ clearSession(SessionModule) :-
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4).
 
+%!  printSession(+SessionModule:atom) is det.
+%
+%   Prints the current state of a reasoning session.
 printSession(SessionModule) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     ( KBmodule \== none -> KBmodule:le_kb(KBName) ; KBName = unknown ),
@@ -375,6 +389,10 @@ printSession(SessionModule) :-
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
            (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
 
+%!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is det.
+%
+%   Executes a query against a reasoning session. Template can be a list of tokens,
+%   a string, or a named query.
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
@@ -416,6 +434,9 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             )
     ).
 
+%!  query_explain(+SessionModule:atom, +Goal:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is det.
+%
+%   Executes a query and returns a detailed explanation.
 query_explain(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
     compound(Goal), \+ is_list(Goal), !,
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
@@ -500,11 +521,17 @@ is_noise_token(indent(_, _)).
 is_noise_token(line_comment(_, _)).
 is_noise_token(multi_comment(_, _)).
 
+%!  queryScenario(+SessionModule:atom, +ScenarioName:atom, +Template:term, -TemplateInstance:list) is det.
+%
+%   Clears the session, sets a scenario, and runs a query.
 queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
     clearSession(SessionModule),
     setScenarion(SessionModule, ScenarioName),
     query(SessionModule, Template, TemplateInstance,_,_).
 
+%!  canonical_string(+Instance:list, -String:string) is det.
+%
+%   Converts a list of tokens/instances into a space-separated string.
 canonical_string(Instance, String) :-
     (   is_list(Instance) ->  
         maplist(le_kbs:token_to_atom, Instance, Atoms),
@@ -514,6 +541,9 @@ canonical_string(Instance, String) :-
         atom_string(Atom, String)
     ).
 
+%!  token_to_atom(+Token:term, -Atom:atom) is det.
+%
+%   Converts a Logical English token into its atomic representation.
 token_to_atom(X, Atom) :- var(X), !, Atom = '_'.
 token_to_atom(var(Words, loc(_, _)), Atom) :- !, token_to_atom(var(Words), Atom).
 token_to_atom(var(Name, Value), Atom) :- !,
@@ -539,6 +569,10 @@ token_to_atom(A, Atom) :- atom(A), !,
     ( (A \== '_', sub_atom(A, _, _, _, '_')) -> re_replace("_"/g, " ", A, Atom); Atom = A).
 token_to_atom(X, Atom) :- term_to_atom(X, Atom).
 
+%!  item_to_instance(+KBmodule:atom, +Head:term, -WordsAndVars:list) is det.
+%
+%   Converts a Prolog term back into its Logical English token representation
+%   using the templates in the KB module.
 item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_instance(KBmodule, Goal, WordsAndVars).
 item_to_instance(_KBmodule, var(Name, Value), [var(Name, Value)]) :- !.
@@ -613,6 +647,10 @@ maybe_transform_value(KBmodule, Val, Transformed) :-
 extract_name(var(Name, _), Name) :- !.
 extract_name(V, V).
 
+%!  get_kb_metadata(+KB:atom, -Metadata:dict) is det.
+%
+%   Returns metadata about a loaded KB, including its name, templates,
+%   queries, and scenarios.
 get_kb_metadata(KB, Metadata) :-
     ( current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true; KBName = null),
     findall(TemplateStr, (
@@ -640,6 +678,10 @@ get_kb_metadata(KB, Metadata) :-
     ),
     Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios }.
 
+%!  topPredicates(+KB:atom, -TopPreds:list) is det.
+%
+%   Finds the "top-level" predicates in a KB (those not used in the body
+%   of other rules).
 topPredicates(KB, TopPreds) :-
     findall(F/A, (
         current_predicate(KB:F/A),
@@ -676,12 +718,18 @@ fill_type(V-Type) :-
     ;   V = 'a variable'
     ).
 
+%!  kbSummary(+KB:atom, -Summary:string) is det.
+%
+%   Returns a short string summarizing the KB and its top predicates.
 kbSummary(KB, Summary) :-
     (current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true ; KBName = KB),
     topPredicates(KB, TopPreds),
     atomic_list_concat(TopPreds, '; ', PredsStr),
     format(string(Summary), "KB: ~w. Top predicates: ~w", [KBName, PredsStr]).
 
+%!  parse_custom_facts(+KB:atom, +Text:string, -Terms:list) is det.
+%
+%   Parses a string of Logical English facts using the templates in the KB.
 parse_custom_facts(KB, Text, Terms) :-
     tokenize(Text, Tokens),
     le_grammar:set_token_pos(0),
@@ -690,6 +738,9 @@ parse_custom_facts(KB, Text, Terms) :-
     le_grammar:prepare_templates(Dicts, Templates),
     maplist(item_to_term(Templates), Items, Terms).
 
+%!  parse_custom_query(+KB:atom, +Text:string, -Goal:term) is det.
+%
+%   Parses a Logical English query string using the templates in the KB.
 parse_custom_query(KB, Text, Goal) :-
     tokenize(Text, Tokens),
     le_grammar:set_token_pos(0),
@@ -700,6 +751,9 @@ parse_custom_query(KB, Text, Goal) :-
         throw(error(le_parse_error(Error), _))
     ).
 
+%!  is_system_predicate(?Pred:term) is semidet.
+%
+%   True if Pred is a system-defined predicate used by the LE engine.
 is_system_predicate(le_source_element/3).
 is_system_predicate(le_kb/1).
 is_system_predicate(le_source_info/4).
@@ -721,6 +775,9 @@ collect_and_assert_types(M) :-
 
 is_expected_item(expected(_, _, _, _)).
 
+%!  verify(+LEfilePath:atom) is det.
+%
+%   Loads and verifies a Logical English file, printing any issues found.
 verify(LEfilePath) :-
     uuid(UUID), atom_concat(v, UUID, KBmodule),
     le_grammar:parse_le_file(LEfilePath, doc(Sections), KBmodule),
@@ -790,6 +847,9 @@ normalize_string(S, N) :-
     ;   N = S
     ).
 
+%!  run_one_test(+KBmodule:atom, +Test:term, -Result:term) is det.
+%
+%   Runs a single test case against a KB module.
 run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :-
     createSession(KBmodule, SM),
     (   setScenarion(SM, ScenarioName) ->  
@@ -841,12 +901,18 @@ read_tests(Stream, Tests) :-
     read(Stream, Term),
     ( Term == end_of_file -> Tests = []; Term = expected(Q, S, E) -> Tests = [test(Q, S, E)|Rest], read_tests(Stream, Rest); read_tests(Stream, Tests)).
 
+%!  runTestsInDir(+Dir:atom, -Results:list) is det.
+%
+%   Runs all Logical English tests found in the given directory.
 runTestsInDir(Dir, Results) :-
     directory_files(Dir, Files),
     findall(LEFile, (member(F, Files), sub_atom(F, _, _, 0, '.le'), \+ sub_atom(F, _, _, 0, '.le.tests'), directory_file_path(Dir, F, LEFile)), LEFiles0),
     sort(LEFiles0, LEFiles),
     maplist(runTestsFor, LEFiles, Results).
 
+%!  runTestsFor(+LEFile:atom, -Result:term) is det.
+%
+%   Runs all tests associated with a specific Logical English file.
 runTestsFor(LEFile, Result) :-
     print_message(informational,"Running tests for ~w"-[LEFile]),
     (   catch(call_with_time_limit(5, load(LEFile, KBmodule)), E, (format('Error loading ~w: ~w~n', [LEFile, E]), fail)) ->  
@@ -863,6 +929,9 @@ runTestsFor(LEFile, Result) :-
         Result = test_file(LEFile, [error(load, LEFile, 'Failed to load or timeout loading LE file')])
     ).
 
+%!  runTests is det.
+%
+%   Runs all tests in the default examples directory and prints a summary.
 runTests :-
     runTestsInDir('examples/moreExamples', Results),
     print_test_summary(Results),
@@ -886,6 +955,9 @@ print_test_summary(Results) :-
            )),
     format('-------------~n~n').
 
+%!  print_test_result(+Result:term) is det.
+%
+%   Prints the detailed results of a test file.
 print_test_result(test_file(File, FileResults)) :-
     format('File: ~w~n', [File]),
     forall(member(R, FileResults),
