@@ -974,3 +974,40 @@ the varied amount payable for quarter 2 for 2025 by Australian entity is 9000.0
 In the EXPLANATION tree panel, let the user chose to optionally see an hierachical number prefix in each node, to make it easy to refer to them. Make this choice in the Misc menu, and persist the choice in browser storage
 Also, make the theme choice of the editor reflect in the explanation tree and query panel too
 
+## Blockly
+
+We now wish to view and edit a LE program with a Blockly (https://developers.google.com/blockly) editor. First, before any coding, let's just draft a docs/le_blockly.md document describing functionality for Blockly-based editor for LE
+
+## LE Source Graph
+Implement a new panel to complement our editor, following specification in docs/graphDesign.md
+
+### Gemini comment
+I have implemented the new Graph panel for the Logical English editor, following the specification in docs/graphDesign.md.
+Key Features Implemented:
+- Interactive Graph Rendering: Built with Cytoscape.js and the fCoSE layout engine to handle compound nodes (Knowledge Bases and Scenarios).
+- Node & Edge Types:
+    - Nodes: Knowledge Base (compound), Template/Predicate, Rule, Fact, Type, Scenario (compound), and Query.
+    - Edges: uses, defines, is-a, depends-on, negates, and expects.
+- Bidirectional Navigation:
+    - Graph to Editor: Clicking a node highlights its corresponding source range in the Monaco editor.
+    - Editor to Graph: Moving the caret in the editor automatically focuses the most specific node in the graph containing that offset.
+- Graph Controls:
+    - Refresh: Manually reload the graph from the server.
+    - Layout Selection: Choose between fCoSE, CoSE, Grid, and Circle layouts.
+    - Type Filtering: Toggle visibility of Type nodes.
+    - Search: Real-time search that highlights matching nodes and dims others.
+- Server-Side Support:
+    - New Prolog module le_graph.pl to generate the Cytoscape-compatible JSON structure.
+    - Updated classic_web_api.pl with a new graph operation.
+Technical Details:
+- Frontend: Added cytoscape and cytoscape-fcose dependencies. Updated client.ts with graph logic and index.html with the new tabbed UI.
+- Backend: Implemented robust node and edge collection in Prolog, ensuring deterministic IDs and stable source range mapping.
+To see the changes, build the editor and start the server:
+cd editor && npm install && npm run build
+
+### Improve these
+-Edge labels are fine, but add tooltips to provide some more detail, for example in 'uses' (from rules to templates) it should be 'rule uses template').
+-Facts should exclude system facts like le_kb(..) etc
+-I like the templates colour, so render rule nodes with the same colour
+-LEt the "Open in new window" button have a normal aspect, like tthe other buttons; no need for the special color
+
