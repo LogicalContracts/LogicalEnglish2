@@ -275,7 +275,7 @@ The Logical English line of work has involved a wide group of
 contributors and supporting organisations across several jurisdictions.
 The copyright holders of the LE2 implementation, by country, are LodgeIT
 (AU), AORA Law and Axiome (UK), AINexus (USA), Bob Kowalski (UK),
-Miguel Calejo (PT) and Jacinto Dávila (VE). The authors are grateful to
+Miguel Calejo (PT) and Jacinto Dávila (VE). The authors are grateful to Robert Kowalski, 
 Andrew Noble, John Cummins, Chris and Bruce Mennell, Galileo Sartor and
 Faramarz Farhoodi for discussions, feedback, and example material that
 have shaped both the language and its current implementation. The LE1
