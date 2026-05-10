@@ -20,6 +20,7 @@
 :- use_module(le_grammar).
 :- use_module(reasoner).
 :- use_module(le_system_templates).
+:- use_module(le_graph).
 :- use_module(le_assistant).
 :- use_module(dap_server).
 :- use_module(llm/llm_client, [llm_list_models/1]).
@@ -113,7 +114,17 @@ handle_operation(Dict, Response) :-
         ; Op == "assistant_interrupt" -> handle_assistant_interrupt(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
         ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)
+        ; Op == "graph" -> handle_graph(Dict, Response)
         ; Response = _{error: "Unknown operation"}
+    ).
+
+handle_graph(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    ( (current_module(SM), current_predicate(SM:le_kb_module_fact/1), SM:le_kb_module_fact(KB)) -> true; KB = none),
+    ( KB \== none ->
+        le_graph:kb_graph(KB, Response)
+    ; Response = _{error: "No KB loaded"}
     ).
 
 % --- Landing Page ---
