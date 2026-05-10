@@ -813,7 +813,7 @@ second_pass_item_with_module(Templates, M, Item, NewItem) :-
     ).
 
 second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
         (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, SubBody) ->  
             NewBody = not(SubBody)
@@ -824,6 +824,43 @@ second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, I
         NewHead = unknown_template(Head),
         ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, SubBody) -> NewBody = not(SubBody); NewBody = true)
     ).
+
+second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
+    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
+        (   le_extensions:parse_numbered_body(BodyTokens, Templates, VM1, _VMOut, NewBody, ActualID, M) ->  
+            true
+            ;   
+            NewBody = true % Fallback
+        )
+        ;   
+        NewHead = unknown_template(Head),
+        ( le_extensions:parse_numbered_body(BodyTokens, Templates, [], _VMOut, NewBody, ActualID, M) -> true; NewBody = true)
+    ).
+second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
+    ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
+    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
+        (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody) ->  
+            ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true)
+            ;   
+            ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
+            NewBody = true % Fallback
+        )
+        ;   
+        NewHead = unknown_template(Head),
+        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
+    ).
+
+% second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, ActualID), _M) parses a fact.
+second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, ActualID), _M) :-
+    format(atom(ActualID), 'rule_~w', [Start]),
+    (   parse_literal(Head, Templates, [], _VM, NewHead, _, true) ->  
+        true
+        ;   
+        NewHead = unknown_template(Head)
+    ).
+
 
 second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),

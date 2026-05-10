@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logical English Graph View</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --text-color: #d4d4d4;
+            --header-bg: #333;
+            --menu-bg: #2d2d2d;
+            --border-color: #444;
+            --input-bg: #3c3c3c;
+            --input-text: #ccc;
+            --input-border: #555;
+            --label-color: #aaa;
+            --sidebar-width: 220px;
+        }
+
+        .light-theme {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --header-bg: #f3f3f3;
+            --menu-bg: #eeeeee;
+            --border-color: #cccccc;
+            --input-bg: #ffffff;
+            --input-text: #333;
+            --input-border: #cccccc;
+            --label-color: #555;
+        }
+
+        .hc-theme {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --header-bg: #000000;
+            --menu-bg: #000000;
+            --border-color: #ffffff;
+            --input-bg: #000000;
+            --input-text: #ffffff;
+            --input-border: #ffffff;
+            --label-color: #ffffff;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        #header {
+            height: 40px;
+            background-color: var(--header-bg);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        #title {
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        #controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            flex-grow: 1;
+            justify-content: flex-end;
+            min-width: 0;
+        }
+
+        #controls button {
+            width: auto;
+            white-space: nowrap;
+            padding: 4px 8px;
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        #controls input {
+            width: 120px;
+            padding: 4px 8px;
+            font-size: 11px;
+            flex-shrink: 1;
+            min-width: 50px;
+        }
+
+        #main-container {
+            display: flex;
+            height: calc(100% - 41px);
+            width: 100%;
+        }
+
+        #sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background-color: var(--menu-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            gap: 20px;
+            overflow-y: auto;
+        }
+
+        #graph-container {
+            flex-grow: 1;
+            background-color: var(--bg-color);
+            position: relative;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 11px;
+            color: var(--label-color);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        select, button, input:not([type="checkbox"]) {
+            background-color: var(--input-bg);
+            color: var(--input-text);
+            border: 1px solid var(--input-border);
+            padding: 6px 10px;
+            font-size: 12px;
+            outline: none;
+            border-radius: 3px;
+            width: 100%;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+
+        button {
+            cursor: pointer;
+            background-color: #0e639c;
+            color: white;
+            border: none;
+            text-align: center;
+        }
+
+        button:hover {
+            background-color: #1177bb;
+        }
+
+        .nav-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+
+        .nav-buttons button {
+            padding: 8px;
+        }
+
+        #tooltip {
+            position: fixed;
+            display: none;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 3000;
+            pointer-events: none;
+            border: 1px solid #555;
+        }
+
+        #context-menu {
+            position: fixed;
+            display: none;
+            background: var(--dropdown-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            border-radius: 3px;
+            z-index: 4000;
+            min-width: 150px;
+            padding: 4px 0;
+        }
+
+        .context-menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .context-menu-item:hover {
+            background-color: #0e639c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div id="title">Logical English Knowledge Graph</div>
+        <div id="controls">
+            <button id="btn-refresh-graph">Refresh</button>
+            <button id="btn-fit">Fit View</button>
+            <button id="btn-center">Center</button>
+            <button id="btn-zoom-in">+</button>
+            <button id="btn-zoom-out">-</button>
+            <input type="text" id="graph-search" placeholder="Search nodes...">
+        </div>
+    </div>
+    <div id="main-container">
+        <div id="sidebar">
+            <div class="control-group">
+                <label>Scenario</label>
+                <select id="scenario-select">
+                    <option value="">None</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Layout</label>
+                <select id="layout-select">
+                    <option value="elk">ELK (Layered)</option>
+                    <option value="fcose">fCoSE (Default)</option>
+                    <option value="dagre">Dagre (Hierarchical)</option>
+                    <option value="cola">Cola</option>
+                    <option value="grid">Grid</option>
+                    <option value="circle">Circle</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>Node Types</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" data-type="template" checked> Templates</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="rule" checked> Rules</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="fact"> Facts</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="scenario"> Scenarios</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="type"> Types</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="query"> Queries</label>
+                </div>
+            </div>
+            <div class="control-group">
+                <label>Edge Types</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item"><input type="checkbox" data-type="uses" checked> Uses</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="depends-on" checked> Depends-on</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="negates" checked> Negates</label>
+                    <label class="checkbox-item"><input type="checkbox" data-type="is-a" checked> Is-a</label>
+                </div>
+            </div>
+        </div>
+        <div id="graph-container"></div>
+    </div>
+    <div id="tooltip"></div>
+    <div id="context-menu">
+        <div class="context-menu-item" id="ctx-layout-from-here">Redraw from here</div>
+        <div class="context-menu-item" id="ctx-copy-url">Copy URL</div>
+    </div>
+
+    <script type="module">
+
+        import './dist/graph-client.js';
+    </script>
+</body>
+</html>

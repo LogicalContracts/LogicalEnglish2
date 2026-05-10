@@ -665,6 +665,7 @@
     <div id="bottom-panel">
         <div class="tab-bar">
             <div class="tab active" data-tab="query-tab">Query</div>
+            <div class="tab" data-tab="graph-tab">Graph</div>
             <div class="tab" data-tab="assistant-tab">LE Assistant</div>
         </div>
         
@@ -709,6 +710,31 @@
                 </div>
                 <pre id="results-display"></pre>
             </div>
+        </div>
+
+        <div id="graph-tab" class="tab-content">
+            <div class="panel-controls">
+                <button id="btn-refresh-graph">Refresh Graph</button>
+                <button id="btn-open-graph-window" style="margin-left: 5px;">Open in New Window</button>
+                <div class="control-group">
+                    <label for="layout-select">Layout:</label>
+                    <select id="layout-select">
+                        <option value="elk">ELK (Layered)</option>
+                        <option value="fcose">fCoSE (Default)</option>
+                        <option value="cose">CoSE</option>
+                        <option value="grid">Grid</option>
+                        <option value="circle">Circle</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <input type="checkbox" id="check-show-types">
+                    <label for="check-show-types">Show Types</label>
+                </div>
+                <div class="control-group" style="margin-left: auto;">
+                    <input type="text" id="graph-search" placeholder="Search graph..." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); padding: 4px 8px; font-size: 12px; border-radius: 3px;">
+                </div>
+            </div>
+            <div id="graph-container" style="flex-grow: 1; background-color: #1e1e1e; position: relative;"></div>
         </div>
 
         <div id="assistant-tab" class="tab-content">

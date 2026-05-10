@@ -133,7 +133,6 @@ edit(LEfilePath) :-
 %!  rule_counter(-Count:integer) is det.
 %
 %   Gets or sets the current rule counter for generating IDs.
-:- dynamic rule_counter/1.
 :- thread_local rule_counter/1.
 
 
@@ -262,9 +261,7 @@ assert_dict_with_source(dict(FA, NTs, WV), M) :-
 
 process_item(clause(Head, Body, Start, End, ID), M) :-
     ( var(ID) -> 
-        rule_counter(C), NextC is C + 1, retractall(rule_counter(_)), assertz(rule_counter(NextC)),
-        format(atom(GeneratedID), 'rule_~w', [C]),
-        ActualID = GeneratedID
+        format(atom(ActualID), 'rule_~w', [Start])
     ; ActualID = ID
     ),
     ( Body == true -> Clause = Head; Clause = (Head :- Body)),
