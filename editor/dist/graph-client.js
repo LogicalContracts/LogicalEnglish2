@@ -139309,6 +139309,7 @@ cytoscape2.use(import_cytoscape_elk.default);
 var graphContainer = document.getElementById("graph-container");
 var btnRefreshGraph = document.getElementById("btn-refresh-graph");
 var layoutSelect = document.getElementById("layout-select");
+var directionSelect = document.getElementById("direction-select");
 var scenarioSelect = document.getElementById("scenario-select");
 var graphSearch = document.getElementById("graph-search");
 var tooltip = document.getElementById("tooltip");
@@ -139346,14 +139347,14 @@ var getThemeStyles = (theme) => {
         "color": nodeLabelColor,
         "text-valign": "center",
         "text-halign": "center",
-        "font-size": "12px",
+        "font-size": "14px",
         "background-color": isLight ? "#ddd" : "#666",
         "width": "label",
         "height": "label",
-        "padding": "15px",
+        "padding": "20px",
         "shape": "round-rectangle",
         "text-wrap": "wrap",
-        "text-max-width": "350px",
+        "text-max-width": "450px",
         "text-justification": "center"
       }
     },
@@ -139383,7 +139384,7 @@ var getThemeStyles = (theme) => {
         "shape": "round-rectangle",
         "border-width": 1,
         "border-color": "#ffb74d",
-        "font-size": "9px",
+        "font-size": "14px",
         "text-justification": "left"
       }
     },
@@ -139511,26 +139512,20 @@ cy.on("mouseover", "node, edge", (evt) => {
   const type = ele.data("type");
   const label = ele.data("label") || "";
   if (ele.isNode()) {
-    const type2 = ele.data("type");
-    const parent4 = ele.data("parent");
-    let visible = activeTypes.includes(type2);
-    if (type2 === "fact" && parent4 && typeof parent4 === "string" && parent4.startsWith("scenario_")) {
-      if (!activeTypes.includes("scenario")) {
-        visible = false;
-      } else {
-        visible = visible && (selectedScenarioId === "" || parent4 === selectedScenarioId);
-      }
-    }
-    if (type2 === "scenario") {
-      visible = visible && (selectedScenarioId === "" || ele.id() === selectedScenarioId);
-    }
-    if (visible) {
-      ele.removeClass("hidden");
-      ele.style("display", "element");
-    } else {
-      ele.addClass("hidden");
-      ele.style("display", "none");
-    }
+    let typeName = type.toUpperCase();
+    if (type === "template")
+      typeName = "TEMPLATE";
+    else if (type === "rule")
+      typeName = "RULE";
+    else if (type === "fact")
+      typeName = "FACT";
+    else if (type === "scenario")
+      typeName = "SCENARIO";
+    else if (type === "type")
+      typeName = "TYPE";
+    else if (type === "query")
+      typeName = "QUERY";
+    tooltip.textContent = `${typeName}: ${label}`;
   } else {
     const sourceEle = ele.source();
     const sourceType = sourceEle.data("type");
@@ -139601,28 +139596,28 @@ async function refreshGraph() {
 }
 function applyFilters() {
   const checkboxes = document.querySelectorAll('.checkbox-item input[type="checkbox"]');
-  const activeTypes2 = Array.from(checkboxes).filter((cb) => cb.checked).map((cb) => cb.dataset.type || "");
-  const internalTypes = [...activeTypes2];
-  if (activeTypes2.includes("scenario"))
+  const activeTypes = Array.from(checkboxes).filter((cb) => cb.checked).map((cb) => cb.dataset.type || "");
+  const internalTypes = [...activeTypes];
+  if (activeTypes.includes("scenario"))
     internalTypes.push("scopes");
-  if (activeTypes2.includes("template") && activeTypes2.includes("type"))
+  if (activeTypes.includes("template") && activeTypes.includes("type"))
     internalTypes.push("defines");
-  console.log("Active types:", activeTypes2);
-  const selectedScenarioId2 = scenarioSelect.value;
+  console.log("Active types:", activeTypes);
+  const selectedScenarioId = scenarioSelect.value;
   cy.nodes().forEach((ele) => {
     const type = ele.data("type");
     const parent4 = ele.data("parent");
-    let visible = activeTypes2.includes(type);
+    let visible = activeTypes.includes(type);
     if (type === "fact" && parent4 && typeof parent4 === "string" && parent4.startsWith("scenario_")) {
-      visible = activeTypes2.includes("fact") && activeTypes2.includes("scenario");
-      if (visible && selectedScenarioId2 !== "") {
-        visible = parent4 === selectedScenarioId2;
+      visible = activeTypes.includes("fact") && activeTypes.includes("scenario");
+      if (visible && selectedScenarioId !== "") {
+        visible = parent4 === selectedScenarioId;
       }
     }
     if (type === "scenario") {
-      visible = activeTypes2.includes("scenario");
-      if (visible && selectedScenarioId2 !== "") {
-        visible = ele.id() === selectedScenarioId2;
+      visible = activeTypes.includes("scenario");
+      if (visible && selectedScenarioId !== "") {
+        visible = ele.id() === selectedScenarioId;
       }
     }
     if (visible) {
@@ -139648,7 +139643,8 @@ function applyFilters() {
 }
 function runLayout() {
   const layoutName = layoutSelect.value;
-  console.log("Running layout:", layoutName);
+  const direction = directionSelect.value;
+  console.log("Running layout:", layoutName, "Direction:", direction);
   const visibleEles = cy.elements(":visible");
   if (visibleEles.empty())
     return;
@@ -139662,21 +139658,21 @@ function runLayout() {
   };
   if (layoutName === "fcose" || layoutName === "cose") {
     options2.randomize = true;
-    options2.idealEdgeLength = 150;
-    options2.nodeRepulsion = 8e3;
+    options2.idealEdgeLength = 100;
+    options2.nodeRepulsion = 4e3;
     options2.gravity = 0.25;
     options2.numIter = 2500;
     options2.nodeDimensionsIncludeLabels = true;
     options2.uniformNodeDimensions = false;
   } else if (layoutName === "dagre") {
-    options2.rankDir = "LR";
-    options2.spacingFactor = 1.2;
+    options2.rankDir = direction;
+    options2.spacingFactor = 1.1;
   } else if (layoutName === "elk") {
     options2.elk = {
       "algorithm": "layered",
-      "direction": "RIGHT",
-      "spacing.nodeNode": 40,
-      "spacing.componentComponent": 40,
+      "direction": direction === "LR" ? "RIGHT" : "DOWN",
+      "spacing.nodeNode": 30,
+      "spacing.componentComponent": 30,
       "hierarchyHandling": "INCLUDE_CHILDREN"
     };
   }
@@ -139756,6 +139752,7 @@ function focusNodeAtOffset(offset) {
 }
 btnRefreshGraph.addEventListener("click", refreshGraph);
 layoutSelect.addEventListener("change", runLayout);
+directionSelect.addEventListener("change", runLayout);
 scenarioSelect.addEventListener("change", applyFilters);
 visibilityCheckboxes.forEach((cb) => {
   cb.addEventListener("change", applyFilters);
