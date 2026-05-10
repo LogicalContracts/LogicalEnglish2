@@ -10,6 +10,7 @@ cytoscape.use(elk);
 const graphContainer = document.getElementById('graph-container')!;
 const btnRefreshGraph = document.getElementById('btn-refresh-graph')!;
 const layoutSelect = document.getElementById('layout-select') as HTMLSelectElement;
+const directionSelect = document.getElementById('direction-select') as HTMLSelectElement;
 const scenarioSelect = document.getElementById('scenario-select') as HTMLSelectElement;
 const graphSearch = document.getElementById('graph-search') as HTMLInputElement;
 const tooltip = document.getElementById('tooltip')!;
@@ -55,14 +56,14 @@ const getThemeStyles = (theme: string) => {
                 'color': nodeLabelColor,
                 'text-valign': 'center',
                 'text-halign': 'center',
-                'font-size': '12px',
+                'font-size': '14px',
                 'background-color': isLight ? '#ddd' : '#666',
                 'width': 'label',
                 'height': 'label',
-                'padding': '15px',
+                'padding': '20px',
                 'shape': 'round-rectangle',
                 'text-wrap': 'wrap',
-                'text-max-width': '350px',
+                'text-max-width': '450px',
                 'text-justification': 'center'
             }
         },
@@ -92,7 +93,7 @@ const getThemeStyles = (theme: string) => {
                 'shape': 'round-rectangle',
                 'border-width': 1,
                 'border-color': '#ffb74d',
-                'font-size': '9px',
+                'font-size': '14px',
                 'text-justification': 'left'
             }
         },
@@ -228,36 +229,18 @@ cy.on('mouseover', 'node, edge', (evt) => {
     const type = ele.data('type');
     const label = ele.data('label') || '';
     
-        if (ele.isNode()) {
-            const type = ele.data('type');
-            const parent = ele.data('parent');
-            
-            let visible = activeTypes.includes(type);
-            
-            // Special handling for scenario facts
-            if (type === 'fact' && parent && typeof parent === 'string' && parent.startsWith('scenario_')) {
-                // If Scenarios are hidden, hide their facts too
-                if (!activeTypes.includes('scenario')) {
-                    visible = false;
-                } else {
-                    visible = visible && (selectedScenarioId === "" || parent === selectedScenarioId);
-                }
-            }
-            
-            // Special handling for scenario compound nodes
-            if (type === 'scenario') {
-                visible = visible && (selectedScenarioId === "" || ele.id() === selectedScenarioId);
-            }
+    if (ele.isNode()) {
+        // Map internal types to user-friendly names
+        let typeName = type.toUpperCase();
+        if (type === 'template') typeName = 'TEMPLATE';
+        else if (type === 'rule') typeName = 'RULE';
+        else if (type === 'fact') typeName = 'FACT';
+        else if (type === 'scenario') typeName = 'SCENARIO';
+        else if (type === 'type') typeName = 'TYPE';
+        else if (type === 'query') typeName = 'QUERY';
 
-            if (visible) {
-                ele.removeClass('hidden');
-                ele.style('display', 'element');
-            } else {
-                ele.addClass('hidden');
-                ele.style('display', 'none');
-            }
-        } else {
-
+        tooltip.textContent = `${typeName}: ${label}`;
+    } else {
         const sourceEle = ele.source();
         const sourceType = sourceEle.data('type');
         const targetType = ele.target().data('type');
@@ -397,7 +380,8 @@ function applyFilters() {
 
 function runLayout() {
     const layoutName = layoutSelect.value;
-    console.log('Running layout:', layoutName);
+    const direction = directionSelect.value;
+    console.log('Running layout:', layoutName, 'Direction:', direction);
     
     // Filter out hidden elements for the layout engine
     // We use a collection of visible elements to avoid layout crashes
@@ -416,22 +400,22 @@ function runLayout() {
 
     if (layoutName === 'fcose' || layoutName === 'cose') {
         options.randomize = true;
-        options.idealEdgeLength = 150;
-        options.nodeRepulsion = 8000;
+        options.idealEdgeLength = 100;
+        options.nodeRepulsion = 4000;
         options.gravity = 0.25;
         options.numIter = 2500;
         // fCoSE specific
         options.nodeDimensionsIncludeLabels = true;
         options.uniformNodeDimensions = false;
     } else if (layoutName === 'dagre') {
-        options.rankDir = 'LR';
-        options.spacingFactor = 1.2;
+        options.rankDir = direction;
+        options.spacingFactor = 1.1;
     } else if (layoutName === 'elk') {
         options.elk = {
             'algorithm': 'layered',
-            'direction': 'RIGHT',
-            'spacing.nodeNode': 40,
-            'spacing.componentComponent': 40,
+            'direction': direction === 'LR' ? 'RIGHT' : 'DOWN',
+            'spacing.nodeNode': 30,
+            'spacing.componentComponent': 30,
             'hierarchyHandling': 'INCLUDE_CHILDREN'
         };
     }
@@ -517,6 +501,7 @@ function focusNodeAtOffset(offset: number) {
 // Event Listeners
 btnRefreshGraph.addEventListener('click', refreshGraph);
 layoutSelect.addEventListener('change', runLayout);
+directionSelect.addEventListener('change', runLayout);
 scenarioSelect.addEventListener('change', applyFilters);
 
 visibilityCheckboxes.forEach(cb => {

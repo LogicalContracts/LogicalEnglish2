@@ -776,14 +776,14 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     'color': '#fff',
                     'text-valign': 'center',
                     'text-halign': 'center',
-                    'font-size': '12px',
+                    'font-size': '14px',
                     'background-color': '#666',
                     'width': 'label',
                     'height': 'label',
-                    'padding': '15px',
+                    'padding': '20px',
                     'shape': 'round-rectangle',
                     'text-wrap': 'wrap',
-                    'text-max-width': '350px',
+                    'text-max-width': '450px',
                     'text-justification': 'center'
                 }
             },
@@ -822,7 +822,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     'background-color': '#795e26',
                     'shape': 'round-rectangle',
                     'border-width': 1,
-                    'border-color': '#ffb74d'
+                    'border-color': '#ffb74d',
+                    'font-size': '14px'
                 }
             },
             {
