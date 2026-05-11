@@ -275,13 +275,12 @@ process_item(clause(Head, Body, Start, End, ID), M) :-
 le_my_id(ID) :-
     le_current_id(ID).
 
-:- multifile le_my_kb/1.
-
 %!  le_my_kb(-KB:atom) is det.
 %
 %   Gets the current Logical English KB module.
 le_my_kb(KB) :-
     ( le_kb_module(K), K \== none -> KB = K
+    ; current_predicate(le_kb_module_fact/1) -> le_kb_module_fact(KB)
     ; context_module(KB)
     ).
 
@@ -311,7 +310,9 @@ set_id_from_ref(Ref, M) :-
 createSession(KBmodule, SessionModule) :-
     uuid(UUID),
     atom_concat(s, UUID, SessionModule),
-    SessionModule:use_module(le_kbs),
+    % Use add_import_module to make all exported predicates of le_kbs 
+    % available in the session module. This is more robust for dynamic modules.
+    add_import_module(SessionModule, le_kbs, start),
     dynamic(SessionModule:le_kb_module_fact/1),
     assertz(SessionModule:le_kb_module_fact(KBmodule)),
     dynamic(SessionModule:debug_mode/0),
