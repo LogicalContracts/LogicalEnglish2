@@ -8,6 +8,14 @@ BUILD_INFO="${GIT_BRANCH}@${GIT_HASH} (${BUILD_DATE})"
 
 echo "Building le2 with info: ${BUILD_INFO}"
 
-docker build --build-arg BUILD_INFO="${BUILD_INFO}" -t le2 .
+# the following (together with .dockerignore) avoids the symlink problem with le_extensions.pl:
+TARFILE=$(mktemp -t docker-context.XXXXXX.tar)
+tar --exclude-from=.dockerignore -ch -f "$TARFILE" .
+# docker build --build-arg BUILD_INFO="${BUILD_INFO}" -t le2 - < "$TARFILE"
+CTXDIR=$(mktemp -d)
+tar -xf "$TARFILE" -C "$CTXDIR"
+trap "rm -rf $CTXDIR $TARFILE" EXIT
+docker build --build-arg BUILD_INFO="${BUILD_INFO}" -t le2 "$CTXDIR"
+
 docker tag le2 logicalcontracts/le2:latest
 docker push logicalcontracts/le2:latest

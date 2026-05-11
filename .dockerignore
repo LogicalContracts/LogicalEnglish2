@@ -5,3 +5,5 @@ tmp
 .git
 .DS_Store
 *.log
+._*
+examples/moreExamples/._*
