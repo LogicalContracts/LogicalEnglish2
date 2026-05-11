@@ -71,11 +71,42 @@ parse_le_tokens(Tokens, doc(NewSections), M) :-
         print_message(error, "DCG phrase(doc(Sections), Tokens) failed"),
         fail
     ),
+    check_scenario_before_rules(Sections, M),
     (   second_pass(Sections, NewSections, M) ->  true 
         ;   
         print_message(error, "second_pass failed"),
         fail
     ).
+
+check_scenario_before_rules(Sections, M) :-
+    forall(
+        ( nth1(_, Sections, scenario(Name, _, Start, End)),
+          once((member(Other, Sections), is_rule_bearing_section(Other), section_start(Other, StartOther), StartOther > Start))
+        ),
+        ( format(atom(Desc), "Scenario '~w' defined before rules in knowledge base", [Name]),
+          (nonvar(M) -> assertz(M:le_issue(error, scenario_before_rules, Desc, "Move the scenario after the rules.", Start, End)) ; true)
+        )
+    ).
+
+section_start(kb(_, _, S, _), S).
+section_start(scenario(_, _, S, _), S).
+section_start(query(_, _, S, _), S).
+section_start(ontology(_, S, _), S).
+section_start(unknown_section(_, S, _), S).
+section_start(meta(_), 0).
+section_start(templates(_), 0).
+section_start(predicates(_), 0).
+section_start(fluents(_), 0).
+section_start(events(_), 0).
+
+is_rule_bearing_section(kb(_, Content, _, _)) :- member(Item, Content), is_rule_item(Item).
+is_rule_bearing_section(scenario(_, Content, _, _)) :- member(rule(_, _, _, _, _, _), Content).
+is_rule_bearing_section(query(_, Content, _, _)) :- member(rule(_, _, _, _, _, _), Content).
+is_rule_bearing_section(unknown_section(Tokens, _, _)) :- 
+    ( member(word(if, _), Tokens) ; member(word(unless, _), Tokens) ).
+
+is_rule_item(rule(_, _, _, _, _, _)).
+is_rule_item(fact(_, _, _)).
 
 % DCG for Logical English
 % doc(Sections) parses the entire document into a list of sections.
@@ -217,7 +248,16 @@ kb_item(expected(QueryName, Answers, Start, End)) -->
     { Tokens = [First|_], get_token_start(First, Start) },
     t(word(expects)), t(word(answers)),
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
-    any_indent, t(punctuation('.', loc(_, End))).
+    (   (any_indent, t(punctuation('.', loc(_, End))))
+    ->  []
+    ;   { 
+          le_kbs:current_compiling_module(M),
+          get_token_pos(Pos),
+          format(atom(Desc), "Missing trailing dot for 'expects answers' in scenario", []),
+          (nonvar(M) -> assertz(M:le_issue(error, missing_trailing_dot, Desc, "Add a dot at the end of the line.", Start, Pos)) ; true),
+          End = Pos
+        }
+    ).
 
 % kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
