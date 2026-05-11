@@ -285,6 +285,9 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
+prolog:message(Type - [Msg, Start, End]) -->
+    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot]) },
+    [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template]) },
+    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot]) },
     [ '~w: ~w' - [Type, Msg] ].

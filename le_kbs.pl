@@ -178,10 +178,10 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg) :-
         retractall(rule_counter(_)),
         assertz(rule_counter(1)),
         (   setup_call_cleanup(
-                asserta(le_grammar:current_compiling_module(NewModule)),
+                asserta(current_compiling_module(NewModule)),
                 ( catch(ParseGoal, EP, (print_message(error, EP), fail)),
                   collect_and_assert_types(NewModule) ),
-                retractall(le_grammar:current_compiling_module(_))
+                retractall(current_compiling_module(_))
             ) ->  
             forall(member(S, Sections), process_section(S, NewModule)),
             findall(D, le_system_template(D), SysDicts),
@@ -191,6 +191,12 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg) :-
                     (Type == missing_template -> Severity = error; Severity = warning),
                     assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
                 ))
+            ;   true
+            ),
+            % Report ALL issues
+            (   current_predicate(NewModule:le_issue/6)
+            ->  forall(NewModule:le_issue(Severity, Type, Desc, _Fix, Start, End),
+                       print_message(Severity, Type - [Desc, Start, End]))
             ;   true
             )
         ;   % Parsing failed
@@ -775,13 +781,23 @@ is_expected_item(expected(_, _, _, _)).
 %   Loads and verifies a Logical English file, printing any issues found.
 verify(LEfilePath) :-
     uuid(UUID), atom_concat(v, UUID, KBmodule),
-    le_grammar:parse_le_file(LEfilePath, doc(Sections), KBmodule),
+    forall(is_system_predicate(F/N), dynamic(KBmodule:F/N)),
+    setup_call_cleanup(
+        asserta(current_compiling_module(KBmodule)),
+        le_grammar:parse_le_file(LEfilePath, doc(Sections), KBmodule),
+        retractall(current_compiling_module(_))
+    ),
     collect_and_assert_types(KBmodule),
     forall(member(S, Sections), process_section(S, KBmodule)),
     findall(D, le_system_template(D), SysDicts),
     forall(member(D, SysDicts), assertz(KBmodule:le_dict(D))),
     le_verifier:verify(KBmodule, Issues),
     forall(member(Issue, Issues), le_verifier:print_issue(Issue)),
+    % Also report asserted issues
+    ( current_predicate(KBmodule:le_issue/6) ->
+      forall(KBmodule:le_issue(Severity, Type, Desc, _Fix, Start, End),
+             print_message(Severity, Type - [Desc, Start, End]))
+    ; true ),
     atom_concat(LEfilePath, '.tests', TestsFile),
     (   exists_file(TestsFile) ->  
         setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
