@@ -84,7 +84,7 @@ test.describe('Logical English Editor', () => {
 
     // 9. Click answer (it's clicked by default, but let's be explicit)
     await firstAnswer.click();
-
+    
     // 10. In the explanation click a node to select a rule in the editor
     // Wait for explanation tree to populate
     const treeLabel = page.locator('#explanation-tree .tree-label span:not(.tree-toggle)').first();
@@ -95,6 +95,9 @@ test.describe('Logical English Editor', () => {
     
     // Wait a bit for Monaco to update
     await page.waitForTimeout(500);
+
+    // Take screenshot of the selection in editor
+    await page.screenshot({ path: '../docs/images/editor_selection.png' });
 
     // 11. Verify selection in Monaco
     const selectionInfo = await page.evaluate(() => {
@@ -109,5 +112,12 @@ test.describe('Logical English Editor', () => {
     });
     
     expect(selectionInfo.some((s: any) => !s.isEmpty)).toBe(true);
+
+    // Go to Graph tab
+    await page.click('text=Graph');
+    await page.waitForTimeout(2000); // Wait for graph to render
+
+    // Go to Assistant tab
+    await page.click('text=LE Assistant');
   });
 });
