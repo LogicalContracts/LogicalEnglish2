@@ -1,5 +1,7 @@
 .claude
 editor/node_modules
+editor/test-results/
+editor/playwright-report/
 tmp/
 le_extensions.pl
 .github

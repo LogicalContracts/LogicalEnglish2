@@ -12,6 +12,7 @@ In what follows, SWIPL must be replaced by /Applications/SWI-Prolog10.0.0-1.app/
 - **Editor (TypeScript/Monaco):**
   - Build: `cd editor && npm run build`
   - Start: `cd editor && npm start`
+  - E2E Tests: `cd editor && npm run test:e2e` (add `-- --headed` to run visibly)
 
 ## Code Style
 - **Prolog:**
