@@ -49,6 +49,17 @@ To run Logical English 2.0 on your local machine:
    ```
    The editor will be available at `http://localhost:3050/editor/`.
 
+### Testing
+- **Prolog Tests:** `swipl -g "use_module(le_kbs), runTests, halt."`
+- **E2E Tests (Playwright):**
+  ```bash
+  cd editor
+  npm install
+  npm run build
+  npm run test:e2e
+  ```
+  To run tests visibly, use `npm run test:e2e -- --headed` or `npx playwright test --ui`.
+
 ### Docker Deployment
 Logical English 2.0 is also available as a pre-configured Docker image.
 

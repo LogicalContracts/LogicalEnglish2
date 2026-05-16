@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "esbuild src/client.ts --bundle --outfile=dist/client.js --format=esm && esbuild src/server.ts --bundle --outfile=dist/server.js --format=esm && esbuild src/graph-client.ts --bundle --outfile=dist/graph-client.js --format=esm",
-    "start": "serve ."
+    "start": "serve .",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "cose-base": "^2.2.0",
@@ -23,6 +24,8 @@
     "vscode-languageserver-types": "^3.17.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.8.0",
     "esbuild": "^0.19.11",
     "serve": "^14.2.1",
     "typescript": "^5.3.3"
