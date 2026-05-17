@@ -1,6 +1,6 @@
-# How to Use the Logical English Editor
+# How to use the Logical English 2 web application
 
-The Logical English (LE) Editor is a web-based IDE designed for developing, testing, and debugging Logical English programs.
+The Logical English (LE) web application is a simple IDE designed for developing, testing, and debugging Logical English programs.
 
 ## Getting Started
 
