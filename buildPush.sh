@@ -17,5 +17,7 @@ tar -xf "$TARFILE" -C "$CTXDIR"
 trap "rm -rf $CTXDIR $TARFILE" EXIT
 docker build --build-arg BUILD_INFO="${BUILD_INFO}" -t le2 "$CTXDIR"
 
-docker tag le2 logicalcontracts/le2:latest
-docker push logicalcontracts/le2:latest
+# commenting these out, now deploying to fly.io image repo directly instead:
+# docker tag le2 logicalcontracts/le2:latest
+# docker push logicalcontracts/le2:latest
+fly deploy --local-only
