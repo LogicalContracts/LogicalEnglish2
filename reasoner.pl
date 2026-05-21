@@ -193,13 +193,40 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             \+ member(G, Anc),
             is_type_compatible(SM, KM, G),
             D1 is D + 1,
-            solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
+            (   has_opposite(G, SM, KM, OppG), \+ member(OppG, Anc) ->
+                ( le_kbs:do_log -> format('Solving ~w with opposite ~w\n', [G, OppG]) ; true ),
+                % Solve Body, then check that OppG is not true for reasons OTHER than not(G)
+                solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody),
+                \+ ( get_clause(OppG, SM, KM, OppBody, OppRef),
+                     OppRef \== implicit_opposite,
+                     % Use a fresh Anc for OppBody to avoid loop but allow checking G
+                     solve(OppBody, SM, KM, [OppG], D1, MyID, [], _)
+                   )
+            ;   solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
+            )
+    ).
+
+has_opposite(G, SM, KM, OppG) :-
+    ( KM \== none -> M = KM ; M = SM ),
+    functor(G, F, A),
+    (   M:le_dict(dict([F|Args], _, _, _, Opposite)), length(Args, A), nonvar(Opposite) ->
+        % G is the main predicate
+        G =.. [F | GArgs],
+        copy_term(dict(Args, Opposite), dict(GArgs, OppG))
+    ;   M:le_dict(dict(FA, _, _, _, Opposite)), nonvar(Opposite), functor(Opposite, F, A) ->
+        % G is the opposite predicate
+        Opposite =.. [F | OppArgs],
+        G =.. [F | GArgs],
+        OppArgs = GArgs,
+        FA = [MainF | MainArgs],
+        OppG =.. [MainF | MainArgs]
+    ;   fail
     ).
 
 is_type_compatible(SM, KM, G) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, N),
-    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
+    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
         G =.. [F|ActualArgs],
         check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM)
     ; true

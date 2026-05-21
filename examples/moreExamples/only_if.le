@@ -1,0 +1,44 @@
+the templates are:
+    I will marry *a woman*; opposite I will not marry *a woman*.
+    I love *a woman*.
+    *a person* is a citizen; opposite *a person* is not a citizen.
+    *a person* is born in *a country*.
+
+the knowledge base only_if_test includes:
+
+% Sufficient conditions
+I will marry a woman if
+    the woman is "Alice".
+I will marry a woman if
+    the woman is "Eve".
+
+A person is a citizen if
+    the person is born in a country.
+
+% Necessary conditions (constraints)
+I will marry a woman only if
+    I love the woman.
+
+A person is a citizen only if
+    the person is born in "UK".
+
+% Facts
+I love "Alice".
+% I do not love Eve.
+"Bob" is born in "UK".
+"Charlie" is born in "France".
+
+scenario test is:
+    marry_alice expects answers ["I will marry Alice"].
+    marry_eve expects answers [].
+    citizen_bob expects answers ["Bob is a citizen"].
+    citizen_charlie expects answers [].
+
+query marry_alice is:
+    I will marry "Alice".
+query marry_eve is:
+    I will marry "Eve".
+query citizen_bob is:
+    "Bob" is a citizen.
+query citizen_charlie is:
+    "Charlie" is a citizen.

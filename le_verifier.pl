@@ -228,7 +228,7 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
 redefined_system_template(KB, issue(redefined_system_template, Description, Fix, Start, End)) :-
     current_predicate(KB:le_dict/1),
     clause(KB:le_dict(Dict), true, Ref),
-    (Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
+    (Dict = dict(FA, NTs, WV, _, _) ; Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
     % It's a user template if it's not in system templates
     \+ le_system_template(dict(FA, NTs, WV)),
     % And it matches a system template's words
