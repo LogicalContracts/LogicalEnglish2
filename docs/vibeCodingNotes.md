@@ -1024,7 +1024,7 @@ The template "our policy is *a policy*" continues to be handled as before. BUT w
 
 In other words, p(this policy) <-> our policy is X and p(X)
 
-Look into @examples/moreExamples/globals.le, which already includes tests to verify your implementation. 
+Look into @examples/moreExamples/globals.le, which already includes tests (expectations in scenarios) to verify your implementation. 
 
 
 ##

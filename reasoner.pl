@@ -199,7 +199,7 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 is_type_compatible(SM, KM, G) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, N),
-    ( M:le_dict(dict([F|FormalArgs], NTs, _)), length(FormalArgs, N) ->
+    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
         G =.. [F|ActualArgs],
         check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM)
     ; true

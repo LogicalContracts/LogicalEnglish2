@@ -315,10 +315,19 @@ templates([T|Ts]) -->
 templates([]) --> [].
 
 % template(dict(...)) parses a single template definition into a dictionary term.
-template(dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End)) -->
+template(dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End, Globals)) -->
     template_instance(Tokens),
     { Tokens = [First|_], get_token_start(First, Start), last(Tokens, Last), get_token_end(Last, End) },
-    { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) }.
+    { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) },
+    global_definitions(Globals).
+
+global_definitions([G|Gs]) -->
+    t(punctuation(';', _)),
+    t(word(defines)), t(word(global)),
+    template_instance(Tokens),
+    { reconstruct_name(Tokens, G) },
+    global_definitions(Gs).
+global_definitions([]) --> [].
 
 process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) :-
     extract_functor(Tokens, Functor),
@@ -435,6 +444,7 @@ body_tokens([]) --> [].
 body_token(T) --> [T].
 
 % is_terminator matches tokens that end a template instance (period, comma, or 'if').
+is_terminator --> any_indent, t(punctuation(';', _)).
 is_terminator --> any_indent, t(word(if)), t(punctuation(':', _)).
 is_terminator --> any_indent, t(word(unless)), t(punctuation(':', _)).
 is_terminator --> any_indent, t(punctuation('.', _)), peek_terminator.
@@ -574,13 +584,30 @@ match_part(string(S, _), S, VM, VM, _, _) :- string(S), !.
 match_part(string(S), S, VM, VM, _, _) :- string(S), !.
 match_part(Part, V, VMIn, VMOut, Templates, AllowVars) :- var(V), !, extract_value(Part, V, VMIn, VMOut, Templates, AllowVars).
 
+check_global_abbreviation(Words, Templates, Var, VMIn, VMOut) :-
+    reconstruct_name_acc(Words, Name),
+    % Find a template that defines this name as a global
+    member(dict(FunctorArgs, _NTs, _WV, _S, _E, _NIW, Globals), Templates),
+    member(Name, Globals),
+    !,
+    % Use the template's identity (e.g., its Functor) to group variables in VM
+    FunctorArgs = [Functor | _],
+    (   member(global_template(Functor)-Var, VMIn) ->
+        VMOut = VMIn
+    ;   copy_term(FunctorArgs, [Functor | Args]),
+        member(Var, Args),
+        Goal =.. [Functor | Args],
+        VMOut = [global_template(Functor)-Var, extra_goal(Goal) | VMIn]
+    ).
+
 extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, AllowVars, Depth) :-
     (   Parts = [Part], extract_value(Part, Value, VMIn, VMOut, Templates, AllowVars) -> true
         ; (Parts = [number(N, _)] ; Parts = [number(N)]) -> Value = N, VMOut = VMIn
         ; (Parts = [string(S, _)] ; Parts = [string(S)]) -> Value = S, VMOut = VMIn
         ; (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
         ; maplist(extract_simple_word, Parts, Words),
-          (   AllowVars == true, extract_var_name(Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
+          (   check_global_abbreviation(Words, Templates, Value, VMIn, VMOut) -> true
+              ; AllowVars == true, extract_var_name(Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
               ; NoTransform \== true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
               ; is_proper_name(Words) -> tokens_to_string(Parts, Value), VMOut = VMIn
               ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars),
@@ -679,7 +706,7 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Dep
 
 match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
     maplist(extract_simple_word, Instance, Words),
-    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW), Templates),
+    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals), Templates),
     copy_term(dict(FunctorArgs, WordsAndVars, NIW), dict(FunctorArgsCopy, WordsAndVarsCopy, NIWCopy)),
     contains_subsequence(NIWCopy, Words),
     match_instance_to_template(Instance, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, Depth),
@@ -753,7 +780,7 @@ second_pass(Sections, NewSections, M) :-
     append(UserDicts, SystemDicts, AllDicts),
     prepare_templates(AllDicts, SortedDicts),
     % Collect types from templates
-    forall(member(dict(_, NTs, _, _, _, _), SortedDicts), 
+    forall(member(dict(_, NTs, _, _, _, _, _), SortedDicts), 
            forall(member(_-Type, NTs), (atom(Type) -> assert_is_a_type(Type) ; true))),
     % Collect types from ontology
     forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
@@ -789,9 +816,13 @@ assert_is_a_type(T) :-
     ).
 
 
-add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals), dict(FA, NT, WV, Start, End, NIW, Globals)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, 0, 0, NIW)) :-
+add_non_ignorable(dict(FA, NT, WV, Globals), dict(FA, NT, WV, 0, 0, NIW, Globals)) :- !,
+    findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
+add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW, [])) :- !,
+    findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
+add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, 0, 0, NIW, [])) :-
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
 
 sort_templates(Dicts, Sorted) :-
@@ -802,7 +833,7 @@ sort_templates(Dicts, Sorted) :-
     pairs_values(RevSortedPairs, SortedRegular),
     append(Meta, SortedRegular, Sorted).
 
-template_priority(dict(FA, _, WordsAndVars, _, _, _), Priority-Score) :-
+template_priority(dict(FA, _, WordsAndVars, _, _, _, _), Priority-Score) :-
     findall(1, (member(W, WordsAndVars), atom(W)), Words),
     length(Words, Score),
     ( FA = [le_is|_] -> Priority = -2
@@ -812,7 +843,7 @@ template_priority(dict(FA, _, WordsAndVars, _, _, _), Priority-Score) :-
     ).
 
 
-is_meta_template(dict(_, _, WordsAndVars, _, _, _)) :-
+is_meta_template(dict(_, _, WordsAndVars, _, _, _, _)) :-
     member(W, WordsAndVars),
     (W == that ; W == says).
 
@@ -855,8 +886,9 @@ second_pass_item_with_module(Templates, M, Item, NewItem) :-
 second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, SubBody) ->  
-            NewBody = not(SubBody)
+        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, SubBody) ->  
+            collect_extra_goals(VMOut, ExtraGoals),
+            ( ExtraGoals == [] -> NewBody = not(SubBody) ; list_to_conj([not(SubBody) | ExtraGoals], NewBody) )
             ;   
             NewBody = true % Fallback
         )
@@ -866,10 +898,11 @@ second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, I
     ).
 
 second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
-    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   le_extensions:parse_numbered_body(BodyTokens, Templates, VM1, _VMOut, NewBody, ActualID, M) ->  
-            true
+        (   le_extensions:parse_numbered_body(BodyTokens, Templates, VM1, VMOut, Body0, ActualID, M) ->  
+            collect_extra_goals(VMOut, ExtraGoals),
+            ( ExtraGoals == [] -> NewBody = Body0 ; list_to_conj([Body0 | ExtraGoals], NewBody) )
             ;   
             NewBody = true % Fallback
         )
@@ -877,49 +910,15 @@ second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End
         NewHead = unknown_template(Head),
         ( le_extensions:parse_numbered_body(BodyTokens, Templates, [], _VMOut, NewBody, ActualID, M) -> true; NewBody = true)
     ).
-second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
-    ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
-    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody) ->  
-            ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true)
-            ;   
-            ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
-            NewBody = true % Fallback
-        )
-        ;   
-        NewHead = unknown_template(Head),
-        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
-    ).
 
-% second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, ActualID), _M) parses a fact.
-second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, ActualID), _M) :-
-    format(atom(ActualID), 'rule_~w', [Start]),
-    (   parse_literal(Head, Templates, [], _VM, NewHead, _, true) ->  
-        true
-        ;   
-        NewHead = unknown_template(Head)
-    ).
-
-
-second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
-    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   le_extensions:parse_numbered_body(BodyTokens, Templates, VM1, _VMOut, NewBody, ActualID, M) ->  
-            true
-            ;   
-            NewBody = true % Fallback
-        )
-        ;   
-        NewHead = unknown_template(Head),
-        ( le_extensions:parse_numbered_body(BodyTokens, Templates, [], _VMOut, NewBody, ActualID, M) -> true; NewBody = true)
-    ).
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody) ->  
-            ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true)
+        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->  
+            ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true),
+            collect_extra_goals(VMOut, ExtraGoals),
+            ( ExtraGoals == [] -> NewBody = Body0 ; list_to_conj([Body0 | ExtraGoals], NewBody) )
             ;   
             ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
             NewBody = true % Fallback
@@ -929,60 +928,127 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clau
         NewHead = unknown_template(Head),
         ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
     ).
-second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
-    ( parse_literal(Head, Templates, [], _VM1, NewHead, _, true) -> true; NewHead = unknown_template(Head)).
+
+second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]),
+    (   parse_literal(Head, Templates, [], VMOut, NewHead, _, true) ->  
+        collect_extra_goals(VMOut, ExtraGoals),
+        ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
+        ;   
+        NewHead = unknown_template(Head),
+        NewBody = true
+    ).
 
 
-second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
-    (   match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false) ->
+second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
+    setup_call_cleanup(retractall(extra_goal(_)),
+        (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
+            (   parse_body(BodyTokens, Indent, Templates, VM1, _VMOut5, Body0) ->  
+                ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true),
+                findall(G, retract(extra_goal(G)), ExtraGoals),
+                list_to_conj([Body0 | ExtraGoals], NewBody)
+                ;   
+                ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
+                NewBody = true % Fallback
+            )
+            ;   
+            ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
+            NewHead = unknown_template(Head),
+            ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut6, NewBody) -> true; NewBody = true)
+        ),
+        retractall(extra_goal(_))).
+
+second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]),
+    setup_call_cleanup(retractall(extra_goal(_)),
+        (   parse_literal(Head, Templates, [], _VM1, NewHead, _, true) ->  
+            findall(G, retract(extra_goal(G)), ExtraGoals),
+            ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
+            ;   
+            NewHead = unknown_template(Head),
+            NewBody = true
+        ),
+        retractall(extra_goal(_))).
+
+collect_extra_goals(VM, Goals) :-
+    collect_extra_goals_acc(VM, Goals).
+
+collect_extra_goals_acc([], []).
+collect_extra_goals_acc([extra_goal(G)|Rest], [G|Gs]) :- !, collect_extra_goals_acc(Rest, Gs).
+collect_extra_goals_acc([_|Rest], Gs) :- collect_extra_goals_acc(Rest, Gs).
+
+list_to_conj([G], G) :- !.
+list_to_conj([G|Gs], and(G, Rest)) :- list_to_conj(Gs, Rest).
+list_to_conj([], true).
+
+
+second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
+    (   match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut1, false) ->
         NewHead = is_a(TypeAtom, SuperTypeAtom),
+        NewBody = true,
         assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
-    ;   parse_literal(Head, Templates, [], _VM1, NewHead0, _, false) -> 
+    ;   parse_literal(Head, Templates, [], VMOut2, NewHead0, _, false) -> 
+        collect_extra_goals(VMOut2, ExtraGoals),
+        ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) ),
         ( NewHead0 = is_a(_, _) -> 
-            match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut, false),
+            match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut3, false),
             NewHead = is_a(TypeAtom, SuperTypeAtom),
             assertz(is_a_taxonomy_edge(TypeAtom, SuperTypeAtom, Start))
           ; NewHead = NewHead0
         )
-    ;   NewHead = unknown_template(Head, Start, End)
+    ;   NewHead = unknown_template(Head, Start, End), NewBody = true
     ).
 second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
-        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, Body0),
+        parse_body(BodyTokens, Indent, Templates, VM1, VMOut4, Body0),
+        collect_extra_goals(VMOut4, ExtraGoals),
         ( (NewHead = is_a(Var, SuperType), member(Name-Var, VM1), is_a_type(Name), Name \== SuperType, \+ memberchk(Name, [thing, asset, person, object, entity, element])) ->
-            (Body0 == true -> NewBody = is_a(Var, Name) ; NewBody = and(is_a(Var, Name), Body0))
-          ; NewBody = Body0
-        )
+            (Body0 == true -> Body1 = is_a(Var, Name) ; Body1 = and(is_a(Var, Name), Body0))
+          ; Body1 = Body0
+        ),
+        ( ExtraGoals == [] -> NewBody = Body1 ; list_to_conj([Body1 | ExtraGoals], NewBody) )
         ; 
         NewHead = unknown_template(Head, Start, End), 
-        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut5, NewBody)
     ).
 
 second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
-        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, VM1, VMOut6, Body0),
+        collect_extra_goals(VMOut6, ExtraGoals),
+        ( ExtraGoals == [] -> NewBody = Body0 ; list_to_conj([Body0 | ExtraGoals], NewBody) )
         ; 
         NewHead = unknown_template(Head, Start, End), 
-        parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody)
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut7, NewBody)
     ).
-second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, true, Start, End, _ID), _M) :-
-    ( parse_literal(Head, Templates, [], _VM1, NewHead, _, false) -> true; NewHead = unknown_template(Head, Start, End)).
+second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
+    ( parse_literal(Head, Templates, [], VMOut8, NewHead, _, false) -> 
+        collect_extra_goals(VMOut8, ExtraGoals),
+        ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
+        ; NewHead = unknown_template(Head, Start, End), NewBody = true).
 
 second_pass_scenario_item(_Templates, expected(QueryName, Answers, Start, End), expected(QueryName, AnswerStrings, Start, End), _M) :-
     maplist(extract_answer_string, Answers, AnswerStrings).
 
 second_pass_query_item(Templates, fact(Head, Start, End), query_clause(NewHead, Head, Instance, Start, End), _M) :-
-    ( parse_literal(Head, Templates, [], _VM1, NewHead, Instance, true) -> true; NewHead = unknown_template(Head, Start, End), Instance = Head).
+    ( parse_literal(Head, Templates, [], VMOut9, NewHead0, Instance, true) -> 
+        collect_extra_goals(VMOut9, ExtraGoals),
+        ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) )
+        ; NewHead = unknown_template(Head, Start, End), Instance = Head).
 
 second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), query_clause(NewHead, Head, BodyTokens, Instance, Indent, Start, End, ActualID), _M) :-
     (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
-    ( parse_literal(Head, Templates, [], VM1, NewHead, Instance, true) -> 
-        parse_body(BodyTokens, Indent, Templates, VM1, _VMOut, _Body)
+    ( parse_literal(Head, Templates, [], VM1, NewHead0, Instance, true) -> 
+        parse_body(BodyTokens, Indent, Templates, VM1, VMOut10, Body0),
+        collect_extra_goals(VMOut10, ExtraGoals),
+        ( ExtraGoals == [] -> NewHead = and(NewHead0, Body0) ; list_to_conj([NewHead0, Body0 | ExtraGoals], NewHead) )
         ; 
         NewHead = unknown_template(Head, Start, End), Instance = Head,
-        parse_body(BodyTokens, Indent, Templates, [], _VMOut, _Body)
+        parse_body(BodyTokens, Indent, Templates, [], _VMOut11, _Body)
     ).
 
 extract_answer_string(Tokens, string(String, loc(Start, End))) :-
@@ -1033,7 +1099,7 @@ parse_literal(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars) :-
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars) :-
     maplist(extract_simple_word, Tokens, Words),
-    (   member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW), Templates),
+    (   member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals), Templates),
         \+ (FunctorArgs = [le_is|_]),
         contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
@@ -1045,7 +1111,7 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
         match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) -> Literal = is_a(Type, SuperType), Instance = [Type, is, a, SuperType]
         ;   
         % Fallback to le_is
-        member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2), Templates),
+        member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2, _Globals2), Templates),
         copy_term(dict([le_is, V1, V2], WordsAndVars), dict([le_is, V1Copy, V2Copy], WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0) -> Literal = le_is(V1Copy, V2Copy), Instance = WordsAndVarsCopy
     ).
@@ -1245,16 +1311,16 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
         ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->  
-            fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic0),
-            ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic0, Start, End) ; Logic = Logic0 )
+            collect_extra_goals(VM1, ExtraGoals),
+            (   ExtraGoals == [] -> Logic0 = Literal
+            ;   list_to_conj([Literal | ExtraGoals], Logic0)
+            ),
+            fold_nodes(Logic0, Children, Templates, VM1, VMOut, Logic1),
+            ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic1, Start, End) ; Logic = Logic1 )
         ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
             Literal = is_a(Type, SuperType),
             fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic0),
             ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic0, Start, End) ; Logic = Logic0 )
-
-        ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
-            Literal = is_a(Type, SuperType),
-            fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic)
         ; phrase(template_instance(Instance), Tokens) ->  
             Literal = unknown_template(Instance),
             fold_nodes(Literal, Children, Templates, VMIn, VMOut, Logic)

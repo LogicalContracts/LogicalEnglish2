@@ -28,7 +28,8 @@ collect_nodes(KB, Nodes) :-
 node(KB, _{data: _{id: TID, type: "template", label: Label, functor: F, arity: Arity,
                    source: _{start: Start, end: End}}}) :-
     current_predicate(KB:le_dict/1),
-    KB:le_dict(dict(FA, NTs, WV)),
+    KB:le_dict(Dict),
+    (Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
     \+ le_system_templates:le_system_template(dict(FA, NTs, WV)),
     FA = [F|Args],
     length(Args, Arity),
@@ -36,7 +37,7 @@ node(KB, _{data: _{id: TID, type: "template", label: Label, functor: F, arity: A
     copy_term(NTs-WV, NTsC-WVC),
     maplist(fill_type_with_stars, NTsC),
     le_kbs:canonical_string(WVC, Label),
-    ( KB:le_source_info(Ref, Start, End, template), catch(clause(KB:le_dict(dict(FA, NTs, WV)), true, Ref), _, fail) -> true ; Start = 0, End = 0).
+    ( KB:le_source_info(Ref, Start, End, template), catch(clause(KB:le_dict(Dict), true, Ref), _, fail), (Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)) -> true ; Start = 0, End = 0).
 
 % Rule, Fact, Scenario, and Query Nodes
 node(KB, _{data: Data}) :-
@@ -166,7 +167,8 @@ edge(KB, Nodes, _{data: _{id: EID, source: TID, target: TypeID, type: "defines"}
     get_dict(id, TData, TID),
     
     current_predicate(KB:le_dict/1),
-    KB:le_dict(dict(FA, NTs, _)),
+    KB:le_dict(Dict),
+    (Dict = dict(FA, NTs, _) ; Dict = dict(FA, NTs, _, _)),
     FA = [F|Args],
     length(Args, Arity),
     get_dict(functor, TData, F),
