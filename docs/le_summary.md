@@ -23,6 +23,32 @@ Templates map natural language sentences to Prolog predicates.
   - `which person is the father of which person` will only match if a person is their own father.
   - Use `which person is the father of which other person` to refer to two different people.
 
+### Template additions (after `;`)
+A template definition can be followed by one or more additions, each introduced by `;`:
+- `; opposite: <template>` — declares the negation form, used for negative heads and for negation in proofs.
+- `; defines global <name>; defines global <name2>...` — declares a global abbreviation.
+- `; prepositional` — marks a **prepositional** template (see §2.1).
+
+### 2.1 Prepositional templates
+A prepositional template is a binary template that **starts with an argument** and is used to extend a previous condition. When chaining, the leading argument can be omitted and is filled in automatically from the previous condition's type-compatible variable.
+- **Declaration:**
+  ```le
+  *a payment* under *a policy*; prepositional.
+  ```
+- **Constraints:** must have exactly two `*variable*` arguments, and the first token of the template must be a `*variable*`. Otherwise the parser reports a `prepositional_arity` or `prepositional_first_arg` issue.
+- **Chained usage** (omitting the first argument):
+  ```le
+  we will make a payment under this policy in respect of a claim
+  ```
+  expands to the conjunction
+  ```le
+  we will make a payment
+  and the payment under this policy
+  and the payment in respect of a claim
+  ```
+  The prepositional templates' goals become **additional conditions** in the Prolog body (for both rule heads and rule bodies).
+- **Standalone usage** is still allowed: writing the leading argument explicitly (e.g. `the payment under this policy`) matches the template directly.
+
 ## 3. Rules and Facts
 - **Fact:** A simple statement ending in a period.
   - `Alice is a person.`

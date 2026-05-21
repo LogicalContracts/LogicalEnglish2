@@ -16,8 +16,7 @@ the templates are:
         prepositional.
     *a payment* for *an amount*;
         prepositional.
-    *an amount* for all relevant claims or losses covered under *a section* of *a policy* during *a period*;
-        prepositional.
+    *an amount* for all relevant claims or losses covered under *a section* of *a policy* during *a period*.
     *an amount* in respect of *a claim*;
         prepositional.
     *a claim* against *a person*;
@@ -32,7 +31,7 @@ the templates are:
     our company recognizes *a claim*.
     our company can afford *an amount*.
     customer is happy with *an incident*;
-        opposite: customer is unhappy with *an incident*
+        opposite: customer is unhappy with *an incident*.
     customer becomes richer with *a claim*.
 
     our policy is *a policy*;  
@@ -94,14 +93,61 @@ customer becomes richer with a claim if
 
 
 % Form 7
-we will cover a cost in respect of a damage caused by a burst pipe if 
+we will cover a cost in respect of a damage caused by a burst pipe if
     it is not the case that
         the damage is caused by wear and tear or negligence.
 
-query one is:
-    Alice is an ancestor of Charlie.
 
-scenario one is:
-    Alice is a parent of Bob.
-    Bob is a parent of Charlie.
-    one expects answers [Alice is an ancestor of Charlie].
+% --- Test scenarios exercising the prepositional-chaining feature ---
+
+% Form 2 (positive head): we_will_make from "our company recognizes" + chained
+% facts under/2 and in_respect_of/2. We deliberately do NOT set "our policy is"
+% so Form 1's we_will_not_make cannot fire and conflict with the conclusion.
+scenario form2_facts is:
+    our company recognizes claim_C.
+    payment_P under policy_A.
+    payment_P in respect of claim_C.
+    our company loves claim_C.
+    q_make_payment expects answers ["we will make payment_P"].
+
+% Form 6: same as Form 2 plus a "claim against person" fact, exercising the
+% second-level chain (*a claim* against *a person* on top of *a payment* in
+% respect of *a claim*).
+scenario form6_facts is:
+    our company recognizes claim_C.
+    payment_P under policy_A.
+    payment_P in respect of claim_C.
+    claim_C against alice.
+    our company loves claim_C.
+    q_richer_claim expects answers ["customer becomes richer with claim_C"].
+
+% Form 1 (negative head via opposite + chain): we_will_not_make is derived when
+% our company does NOT love the incident.
+scenario form1_facts is:
+    our policy is policy_A.
+    payment_P under policy_A.
+    payment_P in respect of incident_I.
+    q_no_make expects answers ["we will not make payment_P"].
+
+% Form 7: we_will_cover via the "is in respect of" / "is caused by" chain,
+% where the chain matches even though the user omits the leading copula "is".
+scenario form7_facts is:
+    cost_X is in respect of damage_D.
+    damage_D is caused by burst pipe.
+    q_cover_cost expects answers ["we will cover cost_X"].
+
+
+% --- Queries used by the scenarios above ---
+
+query q_make_payment is:
+    we will make which payment.
+
+query q_richer_claim is:
+    customer becomes richer with which claim.
+
+query q_no_make is:
+    we will not make which payment.
+
+query q_cover_cost is:
+    we will cover which cost.
+

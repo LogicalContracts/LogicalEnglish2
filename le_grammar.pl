@@ -307,37 +307,76 @@ get_token_start(T, Start) :-
 get_token_end(T, End) :-
     ( T =.. [_, _, loc(_, End)] -> true; T =.. [_, loc(_, End)] -> true; End = 0).
 
-% templates([T|Ts]) parses a list of template definitions.
-templates([T|Ts]) -->
+% templates(Ds) parses a list of template definitions. Each template definition
+% may produce one or more dicts (a main dict plus an optional synthesized opposite
+% dict that allows the opposite form to be matched directly during parsing).
+templates(AllDicts) -->
     \+ next_section_start,
-    template(T),
-    ( (t(punct('.')) ; t(punct(','))) -> ( templates(Ts) | { Ts = [] }); { Ts = [] }).
+    template(TDicts), !,
+    ( (t(punct('.')) ; t(punct(','))) -> ( templates(MoreDicts) | { MoreDicts = [] }); { MoreDicts = [] }),
+    { append(TDicts, MoreDicts, AllDicts) }.
 templates([]) --> [].
 
-% template(dict(...)) parses a single template definition into a dictionary term.
-template(dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End, Globals, Opposite)) -->
+% template(Dicts) parses a single template definition into a list of dicts.
+% The list always contains the main dict and, if an opposite was declared, a
+% second synthesized dict for the opposite words so it can be matched directly.
+% The Prep field is bound to the atom 'prepositional' if the template is marked
+% prepositional; otherwise it is left unbound.
+template(Dicts) -->
     template_instance(Tokens),
     { Tokens = [First|_], get_token_start(First, Start), last(Tokens, Last), get_token_end(Last, End) },
     { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) },
-    template_additions(Globals, Opposite, NamesTypes, FunctorArgs).
+    template_additions(Globals, Opposite, OppositeWV, Prep, NamesTypes, FunctorArgs, Start, End),
+    { validate_prepositional_template(Prep, FunctorArgs, WordsAndVars, Start, End) },
+    { MainDict = dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End, Globals, Opposite, Prep),
+      (   nonvar(Opposite), nonvar(OppositeWV) ->
+          MainLit =.. FunctorArgs,
+          Opposite =.. [OppF | OppArgs],
+          OppFA = [OppF | OppArgs],
+          OppositeDict = dict(OppFA, NamesTypes, OppositeWV, Start, End, Globals, MainLit, Prep),
+          Dicts = [MainDict, OppositeDict]
+      ;   Dicts = [MainDict]
+      )
+    }.
 
-template_additions(Globals, Opposite, NTs, FunctorArgs) -->
+template_additions(Globals, Opposite, OppositeWV, Prep, NTs, FunctorArgs, TStart, TEnd) -->
     t(punctuation(';', _)),
     (   t(word(defines)), t(word(global)) ->
         template_instance(Tokens),
         { reconstruct_name(Tokens, G) },
-        template_additions(Gs, Opposite, NTs, FunctorArgs),
+        template_additions(Gs, Opposite, OppositeWV, Prep, NTs, FunctorArgs, TStart, TEnd),
         { Globals = [G|Gs] }
     ;   t(word(opposite)) ->
-        template_instance(OppositeTokens),
-        { process_template(OppositeTokens, OppositeFunctorArgs, _OppositeNamesTypes, _OppositeWordsAndVars) },
-        % Unify variables by position
+        template_instance(OppositeTokens0),
+        % The colon written after 'opposite:' is captured as a punct token here;
+        % strip it before processing so it doesn't show up in WordsAndVars.
+        { (OppositeTokens0 = [punct(':', _)|RestTokens] -> OppositeTokens = RestTokens ; OppositeTokens = OppositeTokens0) },
+        { process_template(OppositeTokens, OppositeFunctorArgs, _OppositeNamesTypes, OppositeWV) },
+        % Unify variables by position so main args and opposite args share Prolog vars.
         { FunctorArgs = [_|Args], OppositeFunctorArgs = [OppF|OppArgs], unify_args(Args, OppArgs) },
         { Opposite =.. [OppF | OppArgs] },
-        template_additions(Globals, _, NTs, FunctorArgs)
-
+        template_additions(Globals, _, _, Prep, NTs, FunctorArgs, TStart, TEnd)
+    ;   t(word(prepositional)) ->
+        { Prep = prepositional },
+        template_additions(Globals, Opposite, OppositeWV, _, NTs, FunctorArgs, TStart, TEnd)
     ).
-template_additions([], _, _, _) --> [].
+template_additions([], _, _, _, _, _, _, _) --> [].
+
+% validate_prepositional_template(+Prep, +FunctorArgs, +WordsAndVars, +Start, +End)
+% Reports an issue if the template marked 'prepositional' is malformed.
+validate_prepositional_template(Prep, _, _, _, _) :- var(Prep), !.
+validate_prepositional_template(prepositional, [_Functor|Args], WordsAndVars, Start, End) :-
+    ( le_kbs:current_compiling_module(M) -> true ; M = (-) ),
+    length(Args, N),
+    (   N == 2 -> true
+    ;   format(atom(Desc), "A prepositional template must have exactly two arguments (found ~w)", [N]),
+        (M \== (-) -> assertz(M:le_issue(error, prepositional_arity, Desc, "Use exactly two *variables* in the template.", Start, End)) ; true)
+    ),
+    (   WordsAndVars = [V|_], var(V) -> true
+    ;   Desc2 = "A prepositional template must start with an argument (its first token must be a *variable*)",
+        (M \== (-) -> assertz(M:le_issue(error, prepositional_first_arg, Desc2, "Move the *variable* to the very beginning of the template.", Start, End)) ; true)
+    ).
+validate_prepositional_template(_, _, _, _, _).
 
 unify_args([], []).
 unify_args([A|As], [B|Bs]) :- A = B, unify_args(As, Bs).
@@ -601,7 +640,7 @@ match_part(Part, V, VMIn, VMOut, Templates, AllowVars) :- var(V), !, extract_val
 check_global_abbreviation(Words, Templates, Var, VMIn, VMOut) :-
     reconstruct_name_acc(Words, Name),
     % Find a template that defines this name as a global
-    member(dict(FunctorArgs, _NTs, _WV, _S, _E, _NIW, Globals, _Opposite), Templates),
+    member(dict(FunctorArgs, _NTs, _WV, _S, _E, _NIW, Globals, _Opposite, _Prep), Templates),
     member(Name, Globals),
     !,
     % Use the template's identity (e.g., its Functor) to group variables in VM
@@ -720,11 +759,136 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Dep
 
 match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
     maplist(extract_simple_word, Instance, Words),
-    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite), Templates),
+    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep), Templates),
     copy_term(dict(FunctorArgs, WordsAndVars, NIW), dict(FunctorArgsCopy, WordsAndVarsCopy, NIWCopy)),
     contains_subsequence(NIWCopy, Words),
     match_instance_to_template(Instance, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, Depth),
     Literal =.. FunctorArgsCopy.
+
+%!  match_template_with_chaining(+Instance, +Templates, +VMIn, -VMOut, -Literal, -InstanceOut, +AllowVars, +Depth) is semidet.
+%
+%   Tries to match Instance as a non-prepositional template followed by a non-empty
+%   chain of prepositional templates. The Literal is the main (non-prep) literal;
+%   each prepositional chain step is recorded as an extra_goal(Goal) in VMOut, so
+%   they are folded into the body by the calling second-pass logic.
+match_template_with_chaining(Instance, Templates, VMIn, VMOut, Literal, InstanceOut, AllowVars, Depth) :-
+    maplist(extract_simple_word, Instance, Words),
+    % Pick a primary (non-prepositional) template.
+    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, Prep), Templates),
+    var(Prep),
+    \+ (FunctorArgs = [le_is|_]),
+    contains_subsequence(NIW, Words),
+    copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
+    % Partial match of the primary template against a prefix of the instance.
+    match_instance_to_template_partial(Instance, WordsAndVarsCopy, VMIn, VM1, Templates, AllowVars, Depth, Rest),
+    Rest \== [],
+    Literal =.. FunctorArgsCopy,
+    InstanceOut = WordsAndVarsCopy,
+    ( post_parse_literal_hook(WordsAndVarsCopy, Literal, VM1, VM2) -> true ; VM2 = VM1 ),
+    % Chain prepositional templates against the remaining tokens. At least one chain.
+    chain_prepositionals(Rest, Templates, VM2, VMOut, AllowVars, Depth).
+
+%!  chain_prepositionals(+Tokens, +Templates, +VMIn, -VMOut, +AllowVars, +Depth) is semidet.
+%
+%   Consumes Tokens by repeatedly matching prepositional templates whose leading
+%   variable can be bound to a type-compatible variable already in VMIn.
+%   Each matched goal is added as extra_goal(Goal) in VMOut.
+chain_prepositionals([], _, VM, VM, _, _) :- !.
+chain_prepositionals(Tokens, Templates, VMIn, VMOut, AllowVars, Depth) :-
+    Tokens \== [],
+    match_one_prepositional(Tokens, Templates, VMIn, VM1, Goal, NextTokens, AllowVars, Depth),
+    VM2 = [extra_goal(Goal) | VM1],
+    chain_prepositionals(NextTokens, Templates, VM2, VMOut, AllowVars, Depth).
+
+%!  match_one_prepositional(+Tokens, +Templates, +VMIn, -VMOut, -Goal, -NextTokens, +AllowVars, +Depth) is nondet.
+%
+%   Matches a single prepositional template against a prefix of Tokens, with the
+%   template's leading (omitted) argument bound to a compatible variable from VMIn
+%   (looked up by template-variable type name).
+match_one_prepositional(Tokens, Templates, VMIn, VMOut, Goal, NextTokens, AllowVars, Depth) :-
+    member(Dict, Templates),
+    % Destructure WITHOUT unifying the Prep field, then check it equals 'prepositional'.
+    % Using "Dict = dict(..., prepositional)" would BIND the field, mutating
+    % every non-prepositional template's Prep slot in the shared templates list.
+    Dict = dict([Functor|Args], NTs, WordsAndVars, _Start, _End, _NIW, _Globals, _Opposite, Prep),
+    Prep == prepositional,
+    % By validation the template starts with a variable and has exactly two args.
+    WordsAndVars = [LeadingVar | _RestWV],
+    var(LeadingVar),
+    % Find the type associated with the leading variable in the template's NTs.
+    once((member(LeadingVarKey-LeadingType, NTs), LeadingVarKey == LeadingVar, atom(LeadingType))),
+    % Find a type-compatible variable in VMIn.
+    lookup_var_by_type(LeadingType, VMIn, ExistingVar),
+    % Copy the template, then bind the leading var copy to the existing variable.
+    copy_term(dict([Functor|Args], WordsAndVars), dict([Functor|ArgsCopy], [LeadingVarCopy|RestWVCopy])),
+    LeadingVarCopy = ExistingVar,
+    % When chaining, a leading copula ("is", "are", "was", "were") after the
+    % omitted leading variable may be skipped, so we try with and without it.
+    maybe_strip_chain_copula(RestWVCopy, RestWVCopyFinal),
+    % Match the remaining words-and-vars against a prefix of Tokens, non-greedy.
+    match_instance_to_template_partial(Tokens, RestWVCopyFinal, VMIn, VMOut, Templates, AllowVars, Depth, NextTokens),
+    Goal =.. [Functor | ArgsCopy].
+
+% Non-deterministic: tries with the copula present (no strip) and also with it stripped.
+maybe_strip_chain_copula(WV, WV).
+maybe_strip_chain_copula([X|Rest], Rest) :- atom(X), memberchk(X, [is, are, was, were]).
+
+%!  lookup_var_by_type(+TypeName, +VMIn, -Var) is nondet.
+%
+%   Looks up an existing variable in VMIn whose stored name matches TypeName
+%   (case- and spacing-insensitive via normalize_var_name).
+lookup_var_by_type(TypeName, VMIn, Var) :-
+    normalize_var_name(TypeName, Norm),
+    member(Key-Var, VMIn),
+    atom(Key),
+    Key \== global_template,
+    Key \== '$last_var',
+    Key \== extra_goal,
+    normalize_var_name(Key, KeyNorm),
+    KeyNorm == Norm.
+
+%!  match_instance_to_template_partial(+Instance, +WordsAndVars, +VMIn, -VMOut, +Templates, +AllowVars, +Depth, -Rest) is nondet.
+%
+%   Like match_instance_to_template/7 but matches against a prefix of Instance and
+%   returns the unconsumed Rest. The trailing variable (if any) is matched
+%   non-greedily, so shorter prefixes are tried first on backtracking.
+match_instance_to_template_partial(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
+    match_instance_to_template_partial_acc(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth, Rest).
+
+match_instance_to_template_partial_acc(Rest, [], VM, VM, _, _, _, Rest).
+match_instance_to_template_partial_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
+    \+ var(T), is_ignorable(T), !,
+    (   Instance = [I|Is], extract_simple_word(I, W), W == T ->
+        match_instance_to_template_partial_acc(Is, Ts, VMIn, VMOut, Templates, AllowVars, Depth, Rest)
+    ;   match_instance_to_template_partial_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth, Rest)
+    ).
+match_instance_to_template_partial_acc([I|Is], [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
+    \+ var(T), extract_simple_word(I, W), is_ignorable(W), W \== T, !,
+    match_instance_to_template_partial_acc(Is, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest).
+match_instance_to_template_partial_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
+    (   \+ var(T) ->
+        Instance = [I|Is],
+        match_part(I, T, VMIn, VM1, Templates, AllowVars),
+        match_instance_to_template_partial_acc(Is, Ts, VM1, VMOut, Templates, AllowVars, Depth, Rest)
+    ;   % T is a template variable; pick out a span of Instance for it.
+        (   Ts = [NextT|RestTs], \+ var(NextT) ->
+                append(VarTokens, [NextI|InstanceRest], Instance),
+                VarTokens \== [],
+                match_part(NextI, NextT, VMIn, VM1, Templates, AllowVars),
+                extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth),
+                match_instance_to_template_partial_acc(InstanceRest, RestTs, VM2, VMOut, Templates, AllowVars, Depth, Rest)
+            ;   Ts = [] ->
+                % Last variable: non-greedy, try shortest non-empty span first.
+                append(VarTokens, Rest, Instance),
+                VarTokens \== [],
+                extract_value_from_parts(VarTokens, T, VMIn, VMOut, Templates, false, AllowVars, Depth)
+            ;   % Next template item is also a variable; try all splits.
+                append(VarTokens, RestInstance, Instance),
+                VarTokens \== [],
+                extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars, Depth),
+                match_instance_to_template_partial_acc(RestInstance, Ts, VM1, VMOut, Templates, AllowVars, Depth, Rest)
+        )
+    ).
 
 match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars) :-
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, 0).
@@ -794,7 +958,7 @@ second_pass(Sections, NewSections, M) :-
     append(UserDicts, SystemDicts, AllDicts),
     prepare_templates(AllDicts, SortedDicts),
     % Collect types from templates
-    forall(member(dict(_, NTs, _, _, _, _, _, _), SortedDicts), 
+    forall(member(dict(_, NTs, _, _, _, _, _, _, _), SortedDicts),
            forall(member(_-Type, NTs), (atom(Type) -> assert_is_a_type(Type) ; true))),
     % Collect types from ontology
     forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
@@ -830,15 +994,17 @@ assert_is_a_type(T) :-
     ).
 
 
-add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite, Prep), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, Prep)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Start, End, Globals), dict(FA, NT, WV, Start, End, NIW, Globals, _)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Globals), dict(FA, NT, WV, 0, 0, NIW, Globals, _)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals), dict(FA, NT, WV, Start, End, NIW, Globals, _, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW, [], _)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Globals), dict(FA, NT, WV, 0, 0, NIW, Globals, _, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, 0, 0, NIW, [], _)) :-
+add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW, [], _, _)) :- !,
+    findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
+add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, 0, 0, NIW, [], _, _)) :-
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
 
 sort_templates(Dicts, Sorted) :-
@@ -849,7 +1015,7 @@ sort_templates(Dicts, Sorted) :-
     pairs_values(RevSortedPairs, SortedRegular),
     append(Meta, SortedRegular, Sorted).
 
-template_priority(dict(FA, _, WordsAndVars, _, _, _, _, _), Priority-Score) :-
+template_priority(dict(FA, _, WordsAndVars, _, _, _, _, _, _), Priority-Score) :-
     findall(1, (member(W, WordsAndVars), atom(W)), Words),
     length(Words, Score),
     ( FA = [le_is|_] -> Priority = -2
@@ -859,7 +1025,7 @@ template_priority(dict(FA, _, WordsAndVars, _, _, _, _, _), Priority-Score) :-
     ).
 
 
-is_meta_template(dict(_, _, WordsAndVars, _, _, _, _, _)) :-
+is_meta_template(dict(_, _, WordsAndVars, _, _, _, _, _, _)) :-
     member(W, WordsAndVars),
     (W == that ; W == says).
 
@@ -904,7 +1070,7 @@ second_pass_item(Templates, rule(Head, only_if(BodyTokens), Indent, Start, End, 
     (   parse_literal(Head, Templates, [], VM1, HeadLiteral, _, true) ->
         % Find the opposite of HeadLiteral
         functor(HeadLiteral, F, A),
-        (   member(dict([F|Args], _NTs, _WV, _S, _E, _NIW, _Globals, Opposite), Templates), length(Args, A), nonvar(Opposite) ->
+        (   member(dict([F|Args], _NTs, _WV, _S, _E, _NIW, _Globals, Opposite, _Prep), Templates), length(Args, A), nonvar(Opposite) ->
             % Opposite is a term like I_will_not_marry(X)
             % We need to unify its variables with HeadLiteral's variables
             HeadLiteral =.. [F | HeadArgs],
@@ -1103,7 +1269,12 @@ parse_literal(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars) :-
 
 parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars) :-
     maplist(extract_simple_word, Tokens, Words),
-    (   member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite), Templates),
+    (   % First try chained matching: a non-prepositional template consumes a prefix,
+        % then one or more prepositional templates chain to the suffix, with their
+        % leading argument bound to a type-compatible variable from the previous part.
+        match_template_with_chaining(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars, 0) -> true
+        ;
+        member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep), Templates),
         \+ (FunctorArgs = [le_is|_]),
         contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
@@ -1111,11 +1282,11 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
         Literal =.. FunctorArgsCopy,
         Instance = WordsAndVarsCopy,
         ( post_parse_literal_hook(WordsAndVarsCopy, Literal, VMOut0, VMOut) -> true ; VMOut = VMOut0 ) -> true
-        ;   
+        ;
         match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) -> Literal = is_a(Type, SuperType), Instance = [Type, is, a, SuperType]
-        ;   
+        ;
         % Fallback to le_is
-        member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2, _Globals2, _Opposite2), Templates),
+        member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2, _Globals2, _Opposite2, _Prep2), Templates),
         copy_term(dict([le_is, V1, V2], WordsAndVars), dict([le_is, V1Copy, V2Copy], WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0) -> Literal = le_is(V1Copy, V2Copy), Instance = WordsAndVarsCopy
     ).
@@ -1281,9 +1452,31 @@ fold_nodes(Acc, [node(_, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic)
     NewAcc =.. [Op, Acc, ChildLogic],
     fold_nodes(NewAcc, Rest, Templates, VM1, VMOut, Logic).
 
-strip_op([word(if, _)|Rest], and, Rest) :- !.
-strip_op([word(Op, _)|Rest], Op, Rest) :- (Op == and ; Op == or), !.
-strip_op(Tokens, and, Tokens).
+strip_op(Tokens, Op, RestTokens) :-
+    strip_leading_op(Tokens, Op, Tokens1),
+    strip_trailing_conjunction(Tokens1, RestTokens).
+
+strip_leading_op([word(if, _)|Rest], and, Rest) :- !.
+strip_leading_op([word(Op, _)|Rest], Op, Rest) :- (Op == and ; Op == or), !.
+strip_leading_op(Tokens, and, Tokens).
+
+% Strip a trailing "and" or "or" used as a line continuation marker. Don't strip
+% if the line is just the connective alone. Trailing comments are also dropped.
+strip_trailing_conjunction(Tokens, Stripped) :-
+    drop_trailing_comments(Tokens, Tokens1),
+    Tokens1 \== [],
+    last(Tokens1, word(W, _)),
+    (W == and ; W == or),
+    append(Stripped, [word(W, _)], Tokens1),
+    Stripped \== [], !.
+strip_trailing_conjunction(Tokens, Stripped) :-
+    drop_trailing_comments(Tokens, Stripped).
+
+drop_trailing_comments(Tokens, Stripped) :-
+    append(Front, [Last], Tokens),
+    is_indent_or_comment(Last), !,
+    drop_trailing_comments(Front, Stripped).
+drop_trailing_comments(Tokens, Tokens).
 
 parse_node([], Children, Templates, VMIn, VMOut, Logic) :- !,
     hierarchy_to_logic(Children, Templates, VMIn, VMOut, Logic).
