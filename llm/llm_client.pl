@@ -104,6 +104,8 @@ llm_model_entry('gemini-2.0-flash',      gemini, 'gemini-2.0-flash',            
 llm_model_entry('gemini-3-flash-preview',      gemini, 'gemini-3-flash-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-3.1-flash-lite-preview',      gemini, 'gemini-3.1-flash-lite-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
 llm_model_entry('gemini-3.1-pro-preview', gemini, 'gemini-3.1-pro-preview','https://generativelanguage.googleapis.com/v1beta/openai').
+llm_model_entry('gemini-3.5-flash', gemini, 'gemini-3.5-flash','https://generativelanguage.googleapis.com/v1beta/openai').
+
 %  Convenience alias 
 % llm_model_entry('gemini',                gemini, 'gemini-3.1-flash-lite-preview',             'https://generativelanguage.googleapis.com/v1beta/openai').
 
