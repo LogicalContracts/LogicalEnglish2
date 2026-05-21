@@ -1026,6 +1026,49 @@ In other words, p(this policy) <-> our policy is X and p(X)
 
 Look into @examples/moreExamples/globals.le, which already includes tests (expectations in scenarios) to verify your implementation. 
 
+### opposite and only if
+Another feature please, actually a pair: 
+- 'only if' rules (as alternative to the existing 'if' rules)
+- 'opposite' template addition, indicating how a negated (predicate) template should be written
+
+So for example:
+
+the templates are:
+    I will marry *a woman*; opposite I will not marry *a woman*.
+    I love *a woman*.
+
+I will marry a woman only if
+    I love the woman.
+
+This means (and will be translated to the PROLOG equivalent of):
+
+I will not marry a woman if
+    it is not the case that
+        I love the woman.
+
+Please create a new file examples/moreExamples/only_if.le with the above and a couple of other examples of your own, together with expected answers for testing... and implement this feature pair.
+
+### prepositional additions
+Another feature: an optional additon to templates to let them define prepositional phrases, typically adding to a simpler template. This is intended for binary predicates; a "prepositional" template must start with an argument, and it allows omitting that first argument when chaining to a type-compatible last arg of the previous condition. For example, consider these templates:
+
+the templates are:
+    we will make *a payment* ; 
+    *a payment* under *a policy*;  prepositional.  
+
+these allow the following to be written:
+
+    we will make a payment under this policy
+
+instead of the more verbose (also legitimate)
+
+    we will make a payment and the payment under this policy
+
+
+When this occurs in a rule head, the prepositional tamplates originate new conditions in the PROLOG body; when in a rule body, additional conditions too. There is an expanded example in examples/moreExamples/big_conclusions.le. Please add some scenarios and queries and expected answers to that so we can test this... and implement it!
+
+One more thing, a template with a prepositional additional must have strictly two arguments, and it must start with an argument, otherwise it's an error to be reported.
+
+
 
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
