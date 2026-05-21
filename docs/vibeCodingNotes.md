@@ -1049,25 +1049,34 @@ I will not marry a woman if
 Please create a new file examples/moreExamples/only_if.le with the above and a couple of other examples of your own, together with expected answers for testing... and implement this feature pair.
 
 ### prepositional additions
-Another feature: an optional additon to templates to let them define prepositional phrases, typically adding to a simpler template. This is intended for binary predicates; a "prepositional" template must start with an argument, and it allows omitting that first argument when chaining to a type-compatible last arg of the previous condition. For example, consider these templates:
-
-the templates are:
-    we will make *a payment* ; 
-    *a payment* under *a policy*;  prepositional.  
-
-these allow the following to be written:
-
-    we will make a payment under this policy
-
-instead of the more verbose (also legitimate)
-
-    we will make a payment and the payment under this policy
-
-
-When this occurs in a rule head, the prepositional tamplates originate new conditions in the PROLOG body; when in a rule body, additional conditions too. There is an expanded example in examples/moreExamples/big_conclusions.le. Please add some scenarios and queries and expected answers to that so we can test this... and implement it!
-
-One more thing, a template with a prepositional additional must have strictly two arguments, and it must start with an argument, otherwise it's an error to be reported.
-
+Another Logical English feature please : an optional additon to templates to let them define prepositional phrases, typically to be       
+  combined with a simpler template. This is intended for binary predicates only; a "prepositional" template must start with an argument,    
+  and it allows omitting that first argument when chaining to a type-compatible last arg of the previous condition. For example, consider   
+  these templates:                                                                                                                          
+                                                                                                                                            
+  the templates are:                                                                                                                        
+      we will make *a payment* ;                                                                                                            
+      *a payment* under *a policy*;  prepositional.                                                                                         
+                                                                                                                                            
+  These will allow the following to be written:                                                                                             
+                                                                                                                                            
+      we will make a payment under this policy                                                                                              
+                                                                                                                                            
+  ...instead of the more verbose (also legitimate)                                                                                          
+                                                                                                                                            
+      we will make a payment and the payment under this policy                                                                              
+                                                                                                                                            
+                                                                                                                                            
+  When this occurs in a rule head, the prepositional tamplates originate new conditions in the PROLOG body; when in a rule body, additional 
+   conditions too.                                                                                                                          
+  A template with a 'prepositional' additional must have strictly two arguments, and its string must start with an argument at the very     
+  begining, otherwise it's an error to be reported.                                                                                         
+                                                                                                                                            
+  There is an expanded example in examples/moreExamples/big_conclusions.le.                                                                 
+                                                                                                                                            
+  First, improve our system to make sure it is able to parse it.                                                                            
+                                                                                                                                            
+  Then add it a few scenarios and queries and expected answers, so that you can test this... and implement it!                              
 
 
 ##
