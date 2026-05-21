@@ -259,11 +259,14 @@ process_section_acc(unknown_section(Tokens, Start, End), M) :-
     format(atom(Desc), "Unknown or malformed section starting with: ~w", [Name]),
     assertz(M:le_issue(error, unknown_section, Desc, Start, End)).
 
+assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals), M) :-
+    assertz(M:le_dict(dict(FA, NTs, WV, Globals)), Ref),
+    assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV)), Ref),
+    assertz(M:le_dict(dict(FA, NTs, WV, [])), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV))).
+    assertz(M:le_dict(dict(FA, NTs, WV, []))).
 
 process_item(clause(Head, Body, Start, End, ID), M) :-
     ( var(ID) -> 
@@ -410,7 +413,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             le_grammar:prepare_templates(Dicts, Templates),
             findall(match(G, WV, FA), (
                 member(Dict, Templates),
-                ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+                ( Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                 \+ (FA = [le_is|_]),
                 le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                 G =.. FA
@@ -418,7 +421,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             (   SpecificMatches \== [] -> Matches = SpecificMatches
                 ; findall(match(G, WV, FA), (
                     member(Dict, Templates),
-                    ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+                    ( Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                     FA = [le_is|_],
                     le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                     G =.. FA
@@ -456,7 +459,7 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
           le_grammar:prepare_templates(Dicts, Templates),
           findall(match(G, WV, FA), (
               member(Dict, Templates),
-              ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+              ( Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
               \+ (FA = [le_is|_]),
               le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
               G =.. FA
@@ -464,7 +467,7 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
           (   SpecificMatches \== [] -> Matches = SpecificMatches
               ; findall(match(G, WV, FA), (
                     member(Dict, Templates),
-                    ( Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+                    ( Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                     FA = [le_is|_],
                     le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                     G =.. FA
@@ -619,7 +622,7 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
     ;   copy_term(Head, HeadCopy),
-        (   KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0)), HeadCopy =.. [Functor|Args]
+        (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args]
         ->  maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
             maplist(fill_variable_name(NTs), WordsAndVars1, WordsAndVars2),
             flatten(WordsAndVars2, WordsAndVars)
@@ -655,7 +658,8 @@ extract_name(V, V).
 get_kb_metadata(KB, Metadata) :-
     ( current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true; KBName = null),
     findall(TemplateStr, (
-        KB:le_dict(dict(FA, NTs, WV)),
+        KB:le_dict(Dict),
+        (Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
         \+ le_system_templates:le_system_template(dict(FA, NTs, WV)),
         copy_term(NTs-WV, NTsC-WVC),
         maplist(fill_type, NTsC),
@@ -705,7 +709,7 @@ is_used_by_other_rules(KB, F, A) :-
     functor(Literal, F, A).
 
 pred_to_template(KB, F/A, TemplateStr) :-
-    (   KB:le_dict(dict([F|_], NTs, WordsAndVars))
+    (   (KB:le_dict(dict([F|_], NTs, WordsAndVars, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars)))
     ->  copy_term(NTs-WordsAndVars, NTsCopy-WordsAndVarsCopy),
         maplist(fill_type, NTsCopy),
         canonical_string(WordsAndVarsCopy, TemplateStr)

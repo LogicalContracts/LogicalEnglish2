@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 29
-Total tests:     184
-Passed:          184
+Files processed: 30
+Total tests:     187
+Passed:          187
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -14,12 +14,12 @@ Detailed File Summary:
   [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/big_conclusions.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/globals.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gst.le: 12 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
@@ -38,5 +38,6 @@ Detailed File Summary:
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unless_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/which_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/which_test2.le: 2 Pass, 0 Fail, 0 Error
 -------------
 
