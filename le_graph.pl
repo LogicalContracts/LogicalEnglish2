@@ -29,7 +29,7 @@ node(KB, _{data: _{id: TID, type: "template", label: Label, functor: F, arity: A
                    source: _{start: Start, end: End}}}) :-
     current_predicate(KB:le_dict/1),
     KB:le_dict(Dict),
-    (Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
+    (Dict = dict(FA, NTs, WV, _, _, _) ; Dict = dict(FA, NTs, WV, _, _) ; Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
     \+ le_system_templates:le_system_template(dict(FA, NTs, WV)),
     FA = [F|Args],
     length(Args, Arity),

@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 31
-Total tests:     191
-Passed:          191
+Files processed: 32
+Total tests:     195
+Passed:          195
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -14,6 +14,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
