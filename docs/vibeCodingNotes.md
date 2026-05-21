@@ -1011,3 +1011,22 @@ cd editor && npm install && npm run build
 -I like the templates colour, so render rule nodes with the same colour
 -LEt the "Open in new window" button have a normal aspect, like tthe other buttons; no need for the special color
 
+## big conclusions
+
+### global abbreviations
+Let's a add a feature to our LE templates, the ability to abbreviate a reference to a "global" fact. Consider the following extended template, ending with ";" which indicates an addition, the defining of two abbreviations:
+
+our policy is *a policy*;  
+    defines global this policy; 
+    defines global your policy.   
+
+The template "our policy is *a policy*" continues to be handled as before. BUT wherever the LE program mentions the abbreviations 'this policy' or 'your policy', that will mean the value X determined by the condition "our policy is X"
+
+In other words, p(this policy) <-> our policy is X and p(X)
+
+Look into @examples/moreExamples/globals.le, which already includes tests to verify your implementation. 
+
+
+##
+start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
+show examples with indentation as per their directories
