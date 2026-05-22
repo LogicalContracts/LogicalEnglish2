@@ -211,8 +211,8 @@ facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
 
 % --- 6. Failed tests ---
 failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
-    current_predicate(KB:le_expected/3),
-    clause(KB:le_expected(QueryName, ScenarioName, ExpectedStrings), true, Ref),
+    current_predicate(KB:le_expected/4),
+    clause(KB:le_expected(QueryName, ScenarioName, ExpectedStrings, _Unknowns), true, Ref),
     run_one_test(KB, test(QueryName, ScenarioName, ExpectedStrings), Result),
     Result \= pass(_, _),
     (   Result = fail(_, _, Expected, Actual) ->
@@ -228,7 +228,7 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
 redefined_system_template(KB, issue(redefined_system_template, Description, Fix, Start, End)) :-
     current_predicate(KB:le_dict/1),
     clause(KB:le_dict(Dict), true, Ref),
-    (Dict = dict(FA, NTs, WV, _, _, _) ; Dict = dict(FA, NTs, WV, _, _) ; Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
+    (Dict = dict(FA, NTs, WV, _, _, _, _) ; Dict = dict(FA, NTs, WV, _, _, _) ; Dict = dict(FA, NTs, WV, _, _) ; Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
     % It's a user template if it's not in system templates
     \+ le_system_template(dict(FA, NTs, WV)),
     % And it matches a system template's words

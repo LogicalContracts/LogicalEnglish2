@@ -15,8 +15,6 @@
 :- thread_local called/3, counter/1, success_in_not/2, succeeded/1.
 
 %!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
-%
-%   Main entry point for the meta-interpreter.
 i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
     retractall(success_in_not(_, _)),
@@ -25,9 +23,17 @@ i(Goal, SessionModule, Unknowns, Whys) :-
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
         le_kbs:set_kb_module(KBmodule),
-        solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns, Whys),
+        (
+            solve(Goal, SessionModule, KBmodule, [], 0, none, Unknowns0, Whys),
+            \+ (
+                member(U, Unknowns0),
+                solve(U, SessionModule, KBmodule, [], 0, none, [], _)
+            ),
+            Unknowns = Unknowns0
+        ),
         le_kbs:clear_kb_module
     ).
+
 
 %!  explain(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 %
@@ -39,9 +45,14 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
-        le_kbs:set_kb_module(KBmodule),
-        (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns, Whys) ->  true 
+        (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns0, Whys),
+            \+ (
+                member(U, Unknowns0),
+                solve(U, SessionModule, KBmodule, [], 0, none, [], _)
+            ) ->  
+            Unknowns = Unknowns0
             ;   
+
             Unknowns = [],
             findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
         ),
@@ -157,15 +168,12 @@ solve_real_actual(true, _, _, _, _, _, [], []) :- !.
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),
     maplist(attach_range(Start, End), Whys0, Whys).
-
 solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 
     (   D > 100 -> throw('Tried to solve too deep') ; true % Depth limit
     ),
 
-    (   KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G) ->  
-            Us = [G], WhysBody = [success(G, unknown, [])]
-        ; is_built_in(G) ->  
+    (   is_built_in(G) ->  
             call_reasoner_built_in(G, SM), Us = [], Ref = built_in, WhysBody = []
         ; G = is_a(X, Z) ->  
             D1 is D + 1,
@@ -204,16 +212,20 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
                    )
             ;   solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
             )
+        ; KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G) ->  
+            Us = [G], WhysBody = [success(G, unknown, [])], Ref = unknown
     ).
+
+
 
 has_opposite(G, SM, KM, OppG) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, A),
-    (   (M:le_dict(dict([F|Args], _, _, _, Opposite, _)) ; M:le_dict(dict([F|Args], _, _, _, Opposite))), length(Args, A), nonvar(Opposite) ->
+    (   (M:le_dict(dict([F|Args], _, _, _, Opposite, _, _)) ; M:le_dict(dict([F|Args], _, _, _, Opposite, _)) ; M:le_dict(dict([F|Args], _, _, _, Opposite))), length(Args, A), nonvar(Opposite) ->
         % G is the main predicate
         G =.. [F | GArgs],
         copy_term(dict(Args, Opposite), dict(GArgs, OppG))
-    ;   (M:le_dict(dict(FA, _, _, _, Opposite, _)) ; M:le_dict(dict(FA, _, _, _, Opposite))), nonvar(Opposite), functor(Opposite, F, A) ->
+    ;   (M:le_dict(dict(FA, _, _, _, Opposite, _, _)) ; M:le_dict(dict(FA, _, _, _, Opposite, _)) ; M:le_dict(dict(FA, _, _, _, Opposite))), nonvar(Opposite), functor(Opposite, F, A) ->
         % G is the opposite predicate
         Opposite =.. [F | OppArgs],
         G =.. [F | GArgs],
@@ -226,7 +238,7 @@ has_opposite(G, SM, KM, OppG) :-
 is_type_compatible(SM, KM, G) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, N),
-    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
+    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
         G =.. [F|ActualArgs],
         check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM)
     ; true

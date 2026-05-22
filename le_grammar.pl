@@ -242,13 +242,17 @@ get_item_end(Item, End) :-
 kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
 kb_items([]) --> [].
 
-% kb_item(expected(QueryName, Answers, Start, End)) parses "QueryName expects answers [Answers]."
-kb_item(expected(QueryName, Answers, Start, End)) -->
+% kb_item(expected(QueryName, Answers, Unknowns, Start, End)) parses "QueryName expects answers [Answers] and unknowns [Unknowns]."
+kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
     query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
     { Tokens = [First|_], get_token_start(First, Start) },
     t(word(expects)), t(word(answers)),
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
-    (   (any_indent, t(punctuation('.', loc(_, End))))
+    (   t(word(and)), t(word(unknowns)), t(punctuation('[')), list_elements(Unknowns), t(punctuation(']'))
+    ->  []
+    ;   { Unknowns = [] }
+    ),
+    (   (any_indent, t(punctuation('.' , loc(_, End))))
     ->  []
     ;   { 
           le_kbs:current_compiling_module(M),
@@ -258,6 +262,7 @@ kb_item(expected(QueryName, Answers, Start, End)) -->
           End = Pos
         }
     ).
+
 
 % kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
@@ -326,25 +331,25 @@ template(Dicts) -->
     template_instance(Tokens),
     { Tokens = [First|_], get_token_start(First, Start), last(Tokens, Last), get_token_end(Last, End) },
     { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) },
-    template_additions(Globals, Opposite, OppositeWV, Prep, NamesTypes, FunctorArgs, Start, End),
+    template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, NamesTypes, FunctorArgs, Start, End),
     { validate_prepositional_template(Prep, FunctorArgs, WordsAndVars, Start, End) },
-    { MainDict = dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End, Globals, Opposite, Prep),
+    { MainDict = dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End, Globals, Opposite, Prep, Unknown),
       (   nonvar(Opposite), nonvar(OppositeWV) ->
           MainLit =.. FunctorArgs,
           Opposite =.. [OppF | OppArgs],
           OppFA = [OppF | OppArgs],
-          OppositeDict = dict(OppFA, NamesTypes, OppositeWV, Start, End, Globals, MainLit, Prep),
+          OppositeDict = dict(OppFA, NamesTypes, OppositeWV, Start, End, Globals, MainLit, Prep, Unknown),
           Dicts = [MainDict, OppositeDict]
       ;   Dicts = [MainDict]
       )
     }.
 
-template_additions(Globals, Opposite, OppositeWV, Prep, NTs, FunctorArgs, TStart, TEnd) -->
+template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, NTs, FunctorArgs, TStart, TEnd) -->
     t(punctuation(';', _)),
     (   t(word(defines)), t(word(global)) ->
         template_instance(Tokens),
         { reconstruct_name(Tokens, G) },
-        template_additions(Gs, Opposite, OppositeWV, Prep, NTs, FunctorArgs, TStart, TEnd),
+        template_additions(Gs, Opposite, OppositeWV, Prep, Unknown, NTs, FunctorArgs, TStart, TEnd),
         { Globals = [G|Gs] }
     ;   t(word(opposite)) ->
         template_instance(OppositeTokens0),
@@ -355,12 +360,16 @@ template_additions(Globals, Opposite, OppositeWV, Prep, NTs, FunctorArgs, TStart
         % Unify variables by position so main args and opposite args share Prolog vars.
         { FunctorArgs = [_|Args], OppositeFunctorArgs = [OppF|OppArgs], unify_args(Args, OppArgs) },
         { Opposite =.. [OppF | OppArgs] },
-        template_additions(Globals, _, _, Prep, NTs, FunctorArgs, TStart, TEnd)
+        template_additions(Globals, _, _, Prep, Unknown, NTs, FunctorArgs, TStart, TEnd)
     ;   t(word(prepositional)) ->
         { Prep = prepositional },
-        template_additions(Globals, Opposite, OppositeWV, _, NTs, FunctorArgs, TStart, TEnd)
+        template_additions(Globals, Opposite, OppositeWV, _, Unknown, NTs, FunctorArgs, TStart, TEnd)
+    ;   t(word(unknown)) ->
+        { Unknown = unknown },
+        template_additions(Globals, Opposite, OppositeWV, Prep, _, NTs, FunctorArgs, TStart, TEnd)
     ).
-template_additions([], _, _, _, _, _, _, _) --> [].
+template_additions([], _, _, _, _, _, _, _, _) --> [].
+
 
 % validate_prepositional_template(+Prep, +FunctorArgs, +WordsAndVars, +Start, +End)
 % Reports an issue if the template marked 'prepositional' is malformed.
@@ -640,7 +649,7 @@ match_part(Part, V, VMIn, VMOut, Templates, AllowVars) :- var(V), !, extract_val
 check_global_abbreviation(Words, Templates, Var, VMIn, VMOut) :-
     reconstruct_name_acc(Words, Name),
     % Find a template that defines this name as a global
-    member(dict(FunctorArgs, _NTs, _WV, _S, _E, _NIW, Globals, _Opposite, _Prep), Templates),
+    member(dict(FunctorArgs, _NTs, _WV, _S, _E, _NIW, Globals, _Opposite, _Prep, _Unknown), Templates),
     member(Name, Globals),
     !,
     % Use the template's identity (e.g., its Functor) to group variables in VM
@@ -759,7 +768,7 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Dep
 
 match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
     maplist(extract_simple_word, Instance, Words),
-    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep), Templates),
+    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown), Templates),
     copy_term(dict(FunctorArgs, WordsAndVars, NIW), dict(FunctorArgsCopy, WordsAndVarsCopy, NIWCopy)),
     contains_subsequence(NIWCopy, Words),
     match_instance_to_template(Instance, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, Depth),
@@ -833,7 +842,7 @@ second_pass(Sections, NewSections, M) :-
     append(UserDicts, SystemDicts, AllDicts),
     prepare_templates(AllDicts, SortedDicts),
     % Collect types from templates
-    forall(member(dict(_, NTs, _, _, _, _, _, _, _), SortedDicts),
+    forall(member(dict(_, NTs, _, _, _, _, _, _, _, _), SortedDicts),
            forall(member(_-Type, NTs), (atom(Type) -> assert_is_a_type(Type) ; true))),
     % Collect types from ontology
     forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
@@ -869,18 +878,21 @@ assert_is_a_type(T) :-
     ).
 
 
-add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite, Prep), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, Prep)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite, Prep, Unknown), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, Prep, Unknown)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, _)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite, Prep), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, Prep, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Start, End, Globals), dict(FA, NT, WV, Start, End, NIW, Globals, _, _)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, _, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Globals), dict(FA, NT, WV, 0, 0, NIW, Globals, _, _)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Start, End, Globals), dict(FA, NT, WV, Start, End, NIW, Globals, _, _, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW, [], _, _)) :- !,
+add_non_ignorable(dict(FA, NT, WV, Globals), dict(FA, NT, WV, 0, 0, NIW, Globals, _, _, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, 0, 0, NIW, [], _, _)) :-
+add_non_ignorable(dict(FA, NT, WV, Start, End), dict(FA, NT, WV, Start, End, NIW, [], _, _, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
+add_non_ignorable(dict(FA, NT, WV), dict(FA, NT, WV, 0, 0, NIW, [], _, _, _)) :-
+    findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
+
 
 sort_templates(Dicts, Sorted) :-
     partition(is_meta_template, Dicts, Meta, Regular),
@@ -890,7 +902,7 @@ sort_templates(Dicts, Sorted) :-
     pairs_values(RevSortedPairs, SortedRegular),
     append(Meta, SortedRegular, Sorted).
 
-template_priority(dict(FA, _, WordsAndVars, _, _, _, _, _, _), Priority-Score) :-
+template_priority(dict(FA, _, WordsAndVars, _, _, _, _, _, _, _), Priority-Score) :-
     findall(1, (member(W, WordsAndVars), atom(W)), Words),
     length(Words, Score),
     ( FA = [le_is|_] -> Priority = -2
@@ -945,7 +957,7 @@ second_pass_item(Templates, rule(Head, only_if(BodyTokens), Indent, Start, End, 
     (   parse_literal(Head, Templates, [], VM1, HeadLiteral, _, true) ->
         % Find the opposite of HeadLiteral
         functor(HeadLiteral, F, A),
-        (   member(dict([F|Args], _NTs, _WV, _S, _E, _NIW, _Globals, Opposite, _Prep), Templates), length(Args, A), nonvar(Opposite) ->
+        (   member(dict([F|Args], _NTs, _WV, _S, _E, _NIW, _Globals, Opposite, _Prep, _Unknown), Templates), length(Args, A), nonvar(Opposite) ->
             % Opposite is a term like I_will_not_marry(X)
             % We need to unify its variables with HeadLiteral's variables
             HeadLiteral =.. [F | HeadArgs],
@@ -1076,7 +1088,8 @@ second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, New
         ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
         ; NewHead = unknown_template(Head, Start, End), NewBody = true).
 
-second_pass_scenario_item(_Templates, expected(QueryName, Answers, Start, End), expected(QueryName, AnswerStrings, Start, End), _M) :-
+second_pass_scenario_item(_Templates, expected(QueryName, Answers, Unknowns, Start, End), expected(QueryName, AnswerStrings, UnknownStrings, Start, End), _M) :-
+    maplist(extract_answer_string, Unknowns, UnknownStrings),
     maplist(extract_answer_string, Answers, AnswerStrings).
 
 second_pass_query_item(Templates, fact(Head, Start, End), query_clause(NewHead, Head, Instance, Start, End), _M) :-
@@ -1149,7 +1162,7 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
         % leading argument bound to a type-compatible variable from the previous part.
         match_template_with_chaining(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars, 0) -> true
         ;
-        member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep), Templates),
+        member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown), Templates),
         \+ (FunctorArgs = [le_is|_]),
         contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
@@ -1161,7 +1174,7 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
         match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) -> Literal = is_a(Type, SuperType), Instance = [Type, is, a, SuperType]
         ;
         % Fallback to le_is
-        member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2, _Globals2, _Opposite2, _Prep2), Templates),
+        member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2, _Globals2, _Opposite2, _Prep2, _Unknown2), Templates),
         copy_term(dict([le_is, V1, V2], WordsAndVars), dict([le_is, V1Copy, V2Copy], WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, 0) -> Literal = le_is(V1Copy, V2Copy), Instance = WordsAndVarsCopy
     ).
