@@ -1,0 +1,24 @@
+the templates are:
+    *a person* knows that *a number* will win the lottery; unknown.
+    *a person* becomes rich.
+    *a person* bets *a number* timely.
+
+the knowledge base unknowns includes:
+
+a person becomes rich if
+    the person knows that a number will win the lottery and
+    the person bets the number timely.
+
+scenario one is:
+    alice bets 42 timely.
+    bob bets 7 timely.
+    bob knows that 7 will win the lottery.
+    one expects answers [
+        "alice becomes rich",
+        "bob becomes rich"
+    ] and unknowns [
+        "alice knows that 42 will win the lottery"
+    ].
+
+query one is:
+    which person becomes rich.

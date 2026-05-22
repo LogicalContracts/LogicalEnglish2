@@ -127,7 +127,7 @@ edit(LEfilePath) :-
 %!  current_compiling_module(-Module:atom) is semidet.
 %
 %   True if Module is the module currently being compiled.
-:- dynamic do_log/0, current_compiling_module/1. % assert(le_kbs:do_log).
+:- dynamic do_log/0, current_compiling_module/1. % assert(do_log).
 :- thread_local le_current_id/1, le_kb_module/1.
 
 %!  rule_counter(-Count:integer) is det.
@@ -227,8 +227,8 @@ process_section_acc(scenario(Name, Content, Start, End), M) :-
     maplist(item_to_term_with_source(M, AllTemplates), FactItems, Terms),
     assertz(M:scenario(Name, Terms), Ref),
     assertz(M:le_source_info(Ref, Start, End, Name)),
-    forall(member(expected(Q, A, S, E), ExpectedItems), (
-        assertz(M:le_expected(Q, Name, A), ERef),
+    forall(member(expected(Q, A, U, S, E), ExpectedItems), (
+        assertz(M:le_expected(Q, Name, A, U), ERef),
         assertz(M:le_source_info(ERef, S, E, Q))
     )).
 
@@ -259,20 +259,28 @@ process_section_acc(unknown_section(Tokens, Start, End), M) :-
     format(atom(Desc), "Unknown or malformed section starting with: ~w", [Name]),
     assertz(M:le_issue(error, unknown_section, Desc, Start, End)).
 
+assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, Unknown), M) :-
+    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown)), Ref),
+    assertz(M:le_source_info(Ref, Start, End, template)),
+    (   Unknown == unknown ->
+        Goal =.. FA,
+        assertz(M:le_unknown(Goal))
+    ;   true
+    ).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep)), Ref),
+    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep, _)), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, _)), Ref),
+    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, _, _)), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, _, _)), Ref),
+    assertz(M:le_dict(dict(FA, NTs, WV, Globals, _, _, _)), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _)), Ref),
+    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _, _)), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _))).
+    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _, _))).
 
 process_item(clause(Head, Body, Start, End, ID), M) :-
     ( var(ID) -> 
@@ -411,7 +419,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             ( do_log -> print_message(informational, 'Executing named query ~w: ~w' - [QueryName, Goal]); true),
             reasoner:i(Goal, SessionModule, Unknowns, Why0),
             ( do_log -> print_message(informational, 'Named query solution found for ~w' - [QueryName]); true),
-            maplist(le_kbs:item_to_instance(KBmodule), Items, Instances),
+            maplist(item_to_instance(KBmodule), Items, Instances),
             flatten(Instances, TemplateInstance),
             postprocess_why(Why0, SessionModule, Why)
         ; ( do_log -> print_message(informational, 'Searching for template matching tokens: ~w' - [Tokens]); true),
@@ -419,7 +427,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             le_grammar:prepare_templates(Dicts, Templates),
             findall(match(G, WV, FA), (
                 member(Dict, Templates),
-                ( Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+                ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                 \+ (FA = [le_is|_]),
                 le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                 G =.. FA
@@ -427,7 +435,7 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             (   SpecificMatches \== [] -> Matches = SpecificMatches
                 ; findall(match(G, WV, FA), (
                     member(Dict, Templates),
-                    ( Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+                    ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                     FA = [le_is|_],
                     le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                     G =.. FA
@@ -459,13 +467,13 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     (   ((atom(Template) ; string(Template)), atom_string(QueryName, Template), current_predicate(KBmodule:query_info/3), (KBmodule:query_info(QueryName, Goal, Items) ; (atom(QueryName), atom_number(QueryName, Num), KBmodule:query_info(Num, Goal, Items)))) ->  
             ( do_log -> print_message(informational, 'Executing named query explain ~w: ~w' - [QueryName, Goal]); true),
             reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-            ( (maplist(le_kbs:item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance)) -> true; TemplateInstance = []),
+            ( (maplist(item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance)) -> true; TemplateInstance = []),
             postprocess_why(Why0, SessionModule, Why)
         ; findall(D, KBmodule:le_dict(D), Dicts),
           le_grammar:prepare_templates(Dicts, Templates),
           findall(match(G, WV, FA), (
               member(Dict, Templates),
-              ( Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+              ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
               \+ (FA = [le_is|_]),
               le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
               G =.. FA
@@ -473,7 +481,7 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
           (   SpecificMatches \== [] -> Matches = SpecificMatches
               ; findall(match(G, WV, FA), (
                     member(Dict, Templates),
-                    ( Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
+                    ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
                     FA = [le_is|_],
                     le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
                     G =.. FA
@@ -544,10 +552,10 @@ queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
 %   Converts a list of tokens/instances into a space-separated string.
 canonical_string(Instance, String) :-
     (   is_list(Instance) ->  
-        maplist(le_kbs:token_to_atom, Instance, Atoms),
+        maplist(token_to_atom, Instance, Atoms),
         ( maplist(var, Atoms) -> String = ""; catch(atomic_list_concat(Atoms, ' ', String), _, String = "error"))
         ;   
-        le_kbs:token_to_atom(Instance, Atom),
+        token_to_atom(Instance, Atom),
         atom_string(Atom, String)
     ).
 
@@ -628,7 +636,7 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
     ;   copy_term(Head, HeadCopy),
-        (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args]
+        (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args]
         ->  maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
             maplist(fill_variable_name(NTs), WordsAndVars1, WordsAndVars2),
             flatten(WordsAndVars2, WordsAndVars)
@@ -665,7 +673,7 @@ get_kb_metadata(KB, Metadata) :-
     ( current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true; KBName = null),
     findall(TemplateStr, (
         KB:le_dict(Dict),
-        (Dict = dict(FA, NTs, WV, _, _, _) ; Dict = dict(FA, NTs, WV, _, _) ; Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
+        (Dict = dict(FA, NTs, WV, _, _, _, _) ; Dict = dict(FA, NTs, WV, _, _, _) ; Dict = dict(FA, NTs, WV, _, _) ; Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
         \+ le_system_templates:le_system_template(dict(FA, NTs, WV)),
         copy_term(NTs-WV, NTsC-WVC),
         maplist(fill_type, NTsC),
@@ -715,7 +723,7 @@ is_used_by_other_rules(KB, F, A) :-
     functor(Literal, F, A).
 
 pred_to_template(KB, F/A, TemplateStr) :-
-    (   (KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars)))
+    (   (KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars)))
     ->  copy_term(NTs-WordsAndVars, NTsCopy-WordsAndVarsCopy),
         maplist(fill_type, NTsCopy),
         canonical_string(WordsAndVarsCopy, TemplateStr)
@@ -769,7 +777,7 @@ is_system_predicate(le_source_element/3).
 is_system_predicate(le_kb/1).
 is_system_predicate(le_source_info/4).
 is_system_predicate(scenario/2).
-is_system_predicate(le_expected/3).
+is_system_predicate(le_expected/4).
 is_system_predicate(query_info/3).
 is_system_predicate(ontology/1).
 is_system_predicate(le_dict/1).
@@ -780,11 +788,13 @@ is_system_predicate(le_neg/1).
 is_system_predicate(sessionClause/1).
 is_system_predicate(is_a/2).
 is_system_predicate(le_type/1).
+is_system_predicate(le_unknown/1).
+
 
 collect_and_assert_types(M) :-
     forall(le_grammar:is_a_type(T), assertz(M:le_type(T))).
 
-is_expected_item(expected(_, _, _, _)).
+is_expected_item(expected(_, _, _, _, _)).
 
 %!  verify(+LEfilePath:atom) is det.
 %
@@ -813,7 +823,7 @@ verify(LEfilePath) :-
         setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
         ; LegacyTests = []
     ),
-    ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A), KBmodule:le_expected(Q, S, A), EmbeddedTests); EmbeddedTests = []),
+    ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
     append(LegacyTests, EmbeddedTests, AllTests),
     (   AllTests \== [] ->  
         maplist(run_one_test(KBmodule), AllTests, TestResults),
@@ -867,60 +877,16 @@ normalize_string(S, N) :-
         atom_string(Atom, N)
     ;   N = S
     ).
-
 %!  run_one_test(+KBmodule:atom, +Test:term, -Result:term) is det.
 %
 %   Runs a single test case against a KB module.
-run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings), Result) :-
-    createSession(KBmodule, SM),
-    (   setScenarion(SM, ScenarioName) ->  
-        (   ((KBmodule:query_info(QueryName, FullGoal, Items) ; (normalize_string(QueryName, NormName), KBmodule:query_info(InfoName, FullGoal, Items), normalize_string(InfoName, NormName)))) ->  
-            (   catch(call_with_time_limit(30, findall(S, (reasoner:i(FullGoal, SM, [], _Why), maplist(le_kbs:item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance), le_kbs:canonical_string(TemplateInstance, Atom), atom_string(Atom, S)), ActualStrings)), time_limit_exceeded, (ActualStrings = timeout)) ->  
-                    (   ActualStrings == timeout -> 
-                            Result = error(QueryName, ScenarioName, 'Timeout exceeded')
-                        ; 
-                        maplist(normalize_string, ExpectedStrings, NormExpected),
-                        maplist(normalize_string, ActualStrings, NormActual),
-                        sort(NormExpected, SortedExpected),
-                        sort(NormActual, SortedActual),
-                        (   SortedExpected == SortedActual -> 
-                                Result = pass(QueryName, ScenarioName)
-                            ; 
-                            maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
-                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings)
-                        )
-                    )
-                ; Result = error(QueryName, ScenarioName, 'Test execution failed')
-            )
-            ;   
-            % Try to parse QueryName as a custom query if not found in query_info
-            (   catch(parse_custom_query(KBmodule, QueryName, FullGoal), _, fail) ->
-                (   catch(call_with_time_limit(30, findall(S, (reasoner:i(FullGoal, SM, [], _Why), item_to_instance(KBmodule, FullGoal, TemplateInstance), le_kbs:canonical_string(TemplateInstance, Atom), atom_string(Atom, S)), ActualStrings)), time_limit_exceeded, (ActualStrings = timeout)) ->
-                    (   ActualStrings == timeout -> Result = error(QueryName, ScenarioName, 'Timeout exceeded')
-                    ;   maplist(normalize_string, ExpectedStrings, NormExpected),
-                        maplist(normalize_string, ActualStrings, NormActual),
-                        sort(NormExpected, SortedExpected),
-                        sort(NormActual, SortedActual),
-                        ( SortedExpected == SortedActual -> Result = pass(QueryName, ScenarioName) ; maplist(strip_string_wrapper, ExpectedStrings, CleanExpected), Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings) )
-                    )
-                ;   Result = error(QueryName, ScenarioName, 'Test execution failed')
-                )
-            ;   % Last resort: try to find query by name in query_info again with more logging
-                ( le_kbs:do_log -> format('Query not found: ~w~n', [QueryName]) ; true ),
-                Result = error(QueryName, ScenarioName, 'Query not found')
-            )
-        )
-        ;   
-        Result = error(QueryName, ScenarioName, 'Scenario not found')
-    ),
-    clearSession(SM).
 
 strip_string_wrapper(string(S, _), S) :- !.
 strip_string_wrapper(S, S).
 
 read_tests(Stream, Tests) :-
     read(Stream, Term),
-    ( Term == end_of_file -> Tests = []; Term = expected(Q, S, E) -> Tests = [test(Q, S, E)|Rest], read_tests(Stream, Rest); read_tests(Stream, Tests)).
+    ( Term == end_of_file -> Tests = []; Term = expected(Q, S, E, U) -> Tests = [test(Q, S, E, U)|Rest], read_tests(Stream, Rest); read_tests(Stream, Tests)).
 
 %!  runTestsInDir(+Dir:atom, -Results:list) is det.
 %
@@ -956,7 +922,7 @@ runTestsFor(LEFile, Result) :-
             setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
             ; LegacyTests = []
         ),
-        ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A), KBmodule:le_expected(Q, S, A), EmbeddedTests); EmbeddedTests = []),
+        ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
         append(LegacyTests, EmbeddedTests, AllTests),
         maplist(run_one_test(KBmodule), AllTests, TestResults),
         Result = test_file(LEFile, TestResults)
@@ -996,4 +962,90 @@ print_test_summary(Results) :-
 print_test_result(test_file(File, FileResults)) :-
     format('File: ~w~n', [File]),
     forall(member(R, FileResults),
-           ( R = pass(Q, S) -> format('  PASS: ~w (~w)~n', [Q, S]); R = fail(Q, S, E, A) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n', [Q, S, E, A]); format('  ERROR: ~w~n', [R]))).
+           ( R = pass(Q, S) -> format('  PASS: ~w (~w)~n', [Q, S]); R = fail(Q, S, E, A) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n', [Q, S, E, A]); R = fail(Q, S, E, A, EU, AU) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n    Expected Unknowns: ~w~n    Actual Unknowns: ~w~n', [Q, S, E, A, EU, AU]); format('  ERROR: ~w~n', [R]))).
+run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), Result) :-
+    createSession(KBmodule, SM),
+    (   setScenarion(SM, ScenarioName) ->  
+        (   ((KBmodule:query_info(QueryName, FullGoal, Items) ; (normalize_string(QueryName, NormName), KBmodule:query_info(InfoName, FullGoal, Items), normalize_string(InfoName, NormName)))) ->  
+            (   catch(call_with_time_limit(30, 
+                    findall(S-ActualUnknownStrings, 
+                        (
+                            reasoner:i(FullGoal, SM, ActualUnknownsList, _Why), 
+                            maplist(item_to_instance(KBmodule), Items, Instances), 
+                            flatten(Instances, TemplateInstance), 
+                            canonical_string(TemplateInstance, Atom), 
+                            atom_string(Atom, S), 
+                            maplist(item_to_instance(KBmodule), ActualUnknownsList, UnknownInstances), 
+                            maplist(flatten, UnknownInstances, FlatUnknownInstances), 
+                            maplist(canonical_string, FlatUnknownInstances, UnknownAtoms), 
+                            maplist(atom_string, UnknownAtoms, ActualUnknownStrings)
+                        ), 
+                        ActualResults
+                    )
+                ), time_limit_exceeded, (ActualResults = timeout)) ->  
+                    (   ActualResults == timeout -> 
+                            Result = error(QueryName, ScenarioName, 'Timeout exceeded')
+                        ; 
+                        pairs_keys_values(ActualResults, ActualStrings, ActualUnknownsLists),
+                        flatten(ActualUnknownsLists, FlatActualUnknowns),
+                        sort(FlatActualUnknowns, SortedActualUnknowns),
+                        maplist(normalize_string, ExpectedStrings, NormExpected),
+                        maplist(normalize_string, ActualStrings, NormActual),
+                        sort(NormExpected, SortedExpected),
+                        sort(NormActual, SortedActual),
+                        maplist(normalize_string, ExpectedUnknowns, NormExpectedUnknowns),
+                        maplist(normalize_string, SortedActualUnknowns, NormActualUnknowns),
+                        sort(NormExpectedUnknowns, SortedExpectedUnknowns),
+                        sort(NormActualUnknowns, SortedActualUnknownsFinal),
+                        (   SortedExpected == SortedActual, SortedExpectedUnknowns == SortedActualUnknownsFinal -> 
+                                Result = pass(QueryName, ScenarioName)
+                            ; 
+                            maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
+                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, ExpectedUnknowns, SortedActualUnknownsFinal)
+                        )
+                    )
+                ; Result = error(QueryName, ScenarioName, 'Test execution failed')
+            )
+            ;   
+            % Try to parse QueryName as a custom query if not found in query_info
+            (   catch(parse_custom_query(KBmodule, QueryName, FullGoal), _, fail) ->
+                (   catch(call_with_time_limit(30, 
+                        findall(S-ActualUnknownStrings, 
+                            (
+                                reasoner:i(FullGoal, SM, ActualUnknownsList, _Why), 
+                                item_to_instance(KBmodule, FullGoal, TemplateInstance), 
+                                canonical_string(TemplateInstance, Atom), 
+                                atom_string(Atom, S), 
+                                maplist(item_to_instance(KBmodule), ActualUnknownsList, UnknownInstances), 
+                                maplist(flatten, UnknownInstances, FlatUnknownInstances), 
+                                maplist(canonical_string, FlatUnknownInstances, UnknownAtoms), 
+                                maplist(atom_string, UnknownAtoms, ActualUnknownStrings)
+                            ), 
+                            ActualResults
+                        )
+                    ), time_limit_exceeded, (ActualResults = timeout)) ->
+                    (   ActualResults == timeout -> Result = error(QueryName, ScenarioName, 'Timeout exceeded')
+                    ;   
+                        pairs_keys_values(ActualResults, ActualStrings, ActualUnknownsLists),
+                        flatten(ActualUnknownsLists, FlatActualUnknowns),
+                        sort(FlatActualUnknowns, SortedActualUnknowns),
+                        maplist(normalize_string, ExpectedStrings, NormExpected),
+                        maplist(normalize_string, ActualStrings, NormActual),
+                        sort(NormExpected, SortedExpected),
+                        sort(NormActual, SortedActual),
+                        maplist(normalize_string, ExpectedUnknowns, NormExpectedUnknowns),
+                        maplist(normalize_string, SortedActualUnknowns, NormActualUnknowns),
+                        sort(NormExpectedUnknowns, SortedExpectedUnknowns),
+                        sort(NormActualUnknowns, SortedActualUnknownsFinal),
+                        (   SortedExpected == SortedActual, SortedExpectedUnknowns == SortedActualUnknownsFinal -> Result = pass(QueryName, ScenarioName)
+                        ;   maplist(strip_string_wrapper, ExpectedStrings, CleanExpected),
+                            Result = fail(QueryName, ScenarioName, CleanExpected, ActualStrings, ExpectedUnknowns, SortedActualUnknownsFinal)
+                        )
+                    )
+                ;   Result = error(QueryName, ScenarioName, 'Test execution failed')
+                )
+            ;   Result = error(QueryName, ScenarioName, 'Query not found')
+            )
+        )
+    ;   Result = error(QueryName, ScenarioName, 'Scenario not found')
+    ).
