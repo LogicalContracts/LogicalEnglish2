@@ -924,12 +924,26 @@ read_tests(Stream, Tests) :-
 
 %!  runTestsInDir(+Dir:atom, -Results:list) is det.
 %
-%   Runs all Logical English tests found in the given directory.
+%   Runs all Logical English tests found in Dir and any immediate subdirectories.
 runTestsInDir(Dir, Results) :-
     directory_files(Dir, Files),
-    findall(LEFile, (member(F, Files), sub_atom(F, _, _, 0, '.le'), \+ sub_atom(F, _, _, 0, '.le.tests'), directory_file_path(Dir, F, LEFile)), LEFiles0),
+    findall(LEFile, (
+        member(F, Files),
+        sub_atom(F, _, _, 0, '.le'),
+        \+ sub_atom(F, _, _, 0, '.le.tests'),
+        directory_file_path(Dir, F, LEFile)
+    ), LEFiles0),
     sort(LEFiles0, LEFiles),
-    maplist(runTestsFor, LEFiles, Results).
+    findall(SubResults, (
+        member(F, Files),
+        \+ sub_atom(F, 0, 1, _, '.'),
+        directory_file_path(Dir, F, SubDir),
+        exists_directory(SubDir),
+        runTestsInDir(SubDir, SubResults)
+    ), SubResultsLists),
+    maplist(runTestsFor, LEFiles, FileResults),
+    append(SubResultsLists, SubResultsFlat),
+    append(FileResults, SubResultsFlat, Results).
 
 %!  runTestsFor(+LEFile:atom, -Result:term) is det.
 %

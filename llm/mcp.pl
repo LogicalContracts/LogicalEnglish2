@@ -413,17 +413,7 @@ examples_dir(AbsDir) :-
 
 call_tool("list_examples", _Args, Result) :-
     examples_dir(Dir),
-    directory_files(Dir, Files),
-    findall(_{name: Base, summary: Summary}, (
-        member(F, Files),
-        sub_atom(F, _, _, 0, '.le'),
-        file_name_extension(Base, le, F),
-        directory_file_path(Dir, F, Path),
-        ( catch(le_kbs:load(Path, KB), _, fail) ->
-            le_kbs:kbSummary(KB, Summary)
-        ; Summary = "Failed to load summary"
-        )
-    ), Examples),
+    list_examples_with_summaries(Dir, '', Examples),
     Result = _{examples: Examples}.
 
 call_tool("get_example_details", Args, Result) :-
@@ -484,6 +474,35 @@ call_tool(ToolName, _Args, Result) :-
     format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
     format(string(Msg), "Unknown tool: ~w. Available tools are: query, verify.", [ToolName]),
     Result = _{error: Msg}.
+
+%!  list_examples_with_summaries(+Dir:atom, +Prefix:atom, -Examples:list) is det.
+%
+%   Collects example dicts (name, summary) from Dir and its subdirectories.
+%   Subdirectory examples have names of the form "subdir/name".
+list_examples_with_summaries(Dir, Prefix, Examples) :-
+    directory_files(Dir, Files),
+    findall(_{name: ExPath, summary: Summary}, (
+        member(F, Files),
+        sub_atom(F, _, _, 0, '.le'),
+        \+ sub_atom(F, _, _, 0, '.le.tests'),
+        file_name_extension(Base, le, F),
+        atom_concat(Prefix, Base, ExPath),
+        directory_file_path(Dir, F, Path),
+        ( catch(le_kbs:load(Path, KB), _, fail) ->
+            le_kbs:kbSummary(KB, Summary)
+        ; Summary = "Failed to load summary"
+        )
+    ), DirectExamples),
+    findall(SubExamples, (
+        member(F, Files),
+        \+ sub_atom(F, 0, 1, _, '.'),
+        directory_file_path(Dir, F, SubDir),
+        exists_directory(SubDir),
+        atomic_list_concat([Prefix, F, '/'], SubPrefix),
+        list_examples_with_summaries(SubDir, SubPrefix, SubExamples)
+    ), SubExamplesLists),
+    append(SubExamplesLists, SubExamplesFlat),
+    append(DirectExamples, SubExamplesFlat, Examples).
 
 run_query(SM, Query, KB, Result) :-
     findall(_{answer: AnswerStr, explanation: JSONWhy}, (
