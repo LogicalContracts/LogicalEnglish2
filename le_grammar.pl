@@ -11,7 +11,7 @@
     extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4,
     extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3]).
 
-:- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4.
+:- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4, match_template_with_chaining/8.
 
 :- use_module(tokenizer, [tokenize/2, tokenize_file/2, tokens_to_string/2]).
 :- use_module(le_system_templates).
@@ -764,131 +764,6 @@ match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
     contains_subsequence(NIWCopy, Words),
     match_instance_to_template(Instance, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, Depth),
     Literal =.. FunctorArgsCopy.
-
-%!  match_template_with_chaining(+Instance, +Templates, +VMIn, -VMOut, -Literal, -InstanceOut, +AllowVars, +Depth) is semidet.
-%
-%   Tries to match Instance as a non-prepositional template followed by a non-empty
-%   chain of prepositional templates. The Literal is the main (non-prep) literal;
-%   each prepositional chain step is recorded as an extra_goal(Goal) in VMOut, so
-%   they are folded into the body by the calling second-pass logic.
-match_template_with_chaining(Instance, Templates, VMIn, VMOut, Literal, InstanceOut, AllowVars, Depth) :-
-    maplist(extract_simple_word, Instance, Words),
-    % Pick a primary (non-prepositional) template.
-    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, Prep), Templates),
-    var(Prep),
-    \+ (FunctorArgs = [le_is|_]),
-    contains_subsequence(NIW, Words),
-    copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
-    % Partial match of the primary template against a prefix of the instance.
-    match_instance_to_template_partial(Instance, WordsAndVarsCopy, VMIn, VM1, Templates, AllowVars, Depth, Rest),
-    Rest \== [],
-    Literal =.. FunctorArgsCopy,
-    InstanceOut = WordsAndVarsCopy,
-    ( post_parse_literal_hook(WordsAndVarsCopy, Literal, VM1, VM2) -> true ; VM2 = VM1 ),
-    % Chain prepositional templates against the remaining tokens. At least one chain.
-    chain_prepositionals(Rest, Templates, VM2, VMOut, AllowVars, Depth).
-
-%!  chain_prepositionals(+Tokens, +Templates, +VMIn, -VMOut, +AllowVars, +Depth) is semidet.
-%
-%   Consumes Tokens by repeatedly matching prepositional templates whose leading
-%   variable can be bound to a type-compatible variable already in VMIn.
-%   Each matched goal is added as extra_goal(Goal) in VMOut.
-chain_prepositionals([], _, VM, VM, _, _) :- !.
-chain_prepositionals(Tokens, Templates, VMIn, VMOut, AllowVars, Depth) :-
-    Tokens \== [],
-    match_one_prepositional(Tokens, Templates, VMIn, VM1, Goal, NextTokens, AllowVars, Depth),
-    VM2 = [extra_goal(Goal) | VM1],
-    chain_prepositionals(NextTokens, Templates, VM2, VMOut, AllowVars, Depth).
-
-%!  match_one_prepositional(+Tokens, +Templates, +VMIn, -VMOut, -Goal, -NextTokens, +AllowVars, +Depth) is nondet.
-%
-%   Matches a single prepositional template against a prefix of Tokens, with the
-%   template's leading (omitted) argument bound to a compatible variable from VMIn
-%   (looked up by template-variable type name).
-match_one_prepositional(Tokens, Templates, VMIn, VMOut, Goal, NextTokens, AllowVars, Depth) :-
-    member(Dict, Templates),
-    % Destructure WITHOUT unifying the Prep field, then check it equals 'prepositional'.
-    % Using "Dict = dict(..., prepositional)" would BIND the field, mutating
-    % every non-prepositional template's Prep slot in the shared templates list.
-    Dict = dict([Functor|Args], NTs, WordsAndVars, _Start, _End, _NIW, _Globals, _Opposite, Prep),
-    Prep == prepositional,
-    % By validation the template starts with a variable and has exactly two args.
-    WordsAndVars = [LeadingVar | _RestWV],
-    var(LeadingVar),
-    % Find the type associated with the leading variable in the template's NTs.
-    once((member(LeadingVarKey-LeadingType, NTs), LeadingVarKey == LeadingVar, atom(LeadingType))),
-    % Find a type-compatible variable in VMIn.
-    lookup_var_by_type(LeadingType, VMIn, ExistingVar),
-    % Copy the template, then bind the leading var copy to the existing variable.
-    copy_term(dict([Functor|Args], WordsAndVars), dict([Functor|ArgsCopy], [LeadingVarCopy|RestWVCopy])),
-    LeadingVarCopy = ExistingVar,
-    % When chaining, a leading copula ("is", "are", "was", "were") after the
-    % omitted leading variable may be skipped, so we try with and without it.
-    maybe_strip_chain_copula(RestWVCopy, RestWVCopyFinal),
-    % Match the remaining words-and-vars against a prefix of Tokens, non-greedy.
-    match_instance_to_template_partial(Tokens, RestWVCopyFinal, VMIn, VMOut, Templates, AllowVars, Depth, NextTokens),
-    Goal =.. [Functor | ArgsCopy].
-
-% Non-deterministic: tries with the copula present (no strip) and also with it stripped.
-maybe_strip_chain_copula(WV, WV).
-maybe_strip_chain_copula([X|Rest], Rest) :- atom(X), memberchk(X, [is, are, was, were]).
-
-%!  lookup_var_by_type(+TypeName, +VMIn, -Var) is nondet.
-%
-%   Looks up an existing variable in VMIn whose stored name matches TypeName
-%   (case- and spacing-insensitive via normalize_var_name).
-lookup_var_by_type(TypeName, VMIn, Var) :-
-    normalize_var_name(TypeName, Norm),
-    member(Key-Var, VMIn),
-    atom(Key),
-    Key \== global_template,
-    Key \== '$last_var',
-    Key \== extra_goal,
-    normalize_var_name(Key, KeyNorm),
-    KeyNorm == Norm.
-
-%!  match_instance_to_template_partial(+Instance, +WordsAndVars, +VMIn, -VMOut, +Templates, +AllowVars, +Depth, -Rest) is nondet.
-%
-%   Like match_instance_to_template/7 but matches against a prefix of Instance and
-%   returns the unconsumed Rest. The trailing variable (if any) is matched
-%   non-greedily, so shorter prefixes are tried first on backtracking.
-match_instance_to_template_partial(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
-    match_instance_to_template_partial_acc(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth, Rest).
-
-match_instance_to_template_partial_acc(Rest, [], VM, VM, _, _, _, Rest).
-match_instance_to_template_partial_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
-    \+ var(T), is_ignorable(T), !,
-    (   Instance = [I|Is], extract_simple_word(I, W), W == T ->
-        match_instance_to_template_partial_acc(Is, Ts, VMIn, VMOut, Templates, AllowVars, Depth, Rest)
-    ;   match_instance_to_template_partial_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth, Rest)
-    ).
-match_instance_to_template_partial_acc([I|Is], [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
-    \+ var(T), extract_simple_word(I, W), is_ignorable(W), W \== T, !,
-    match_instance_to_template_partial_acc(Is, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest).
-match_instance_to_template_partial_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Rest) :-
-    (   \+ var(T) ->
-        Instance = [I|Is],
-        match_part(I, T, VMIn, VM1, Templates, AllowVars),
-        match_instance_to_template_partial_acc(Is, Ts, VM1, VMOut, Templates, AllowVars, Depth, Rest)
-    ;   % T is a template variable; pick out a span of Instance for it.
-        (   Ts = [NextT|RestTs], \+ var(NextT) ->
-                append(VarTokens, [NextI|InstanceRest], Instance),
-                VarTokens \== [],
-                match_part(NextI, NextT, VMIn, VM1, Templates, AllowVars),
-                extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth),
-                match_instance_to_template_partial_acc(InstanceRest, RestTs, VM2, VMOut, Templates, AllowVars, Depth, Rest)
-            ;   Ts = [] ->
-                % Last variable: non-greedy, try shortest non-empty span first.
-                append(VarTokens, Rest, Instance),
-                VarTokens \== [],
-                extract_value_from_parts(VarTokens, T, VMIn, VMOut, Templates, false, AllowVars, Depth)
-            ;   % Next template item is also a variable; try all splits.
-                append(VarTokens, RestInstance, Instance),
-                VarTokens \== [],
-                extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars, Depth),
-                match_instance_to_template_partial_acc(RestInstance, Ts, VM1, VMOut, Templates, AllowVars, Depth, Rest)
-        )
-    ).
 
 match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars) :-
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, 0).
