@@ -124,6 +124,13 @@ section(kb(Name, Content, Start, End)) -->
     kb_content(Content, End),
     { ( le_kbs:do_log -> print_message(informational,'Finished KB: ~w~n' - [Name]); true) }.
 
+section(kb(Name, Content, Start, End)) --> 
+    any_indent, t(word(the, loc(Start, _))), t(word(contract)), kb_name_tokens_contract(Tokens), t(word(states)), t(word(that)), t(punctuation(':', _)),
+    { reconstruct_name(Tokens, Name) },
+    { ( le_kbs:do_log -> print_message(informational,'Parsing KB (contract): ~w~n' - [Name]); true) },
+    kb_content(Content, End),
+    { ( le_kbs:do_log -> print_message(informational,'Finished KB (contract): ~w~n' - [Name]); true) }.
+
 % section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
     any_indent, t(word(scenario, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
@@ -180,6 +187,13 @@ kb_name_tokens([T|Ts]) -->
     kb_name_tokens(Ts).
 kb_name_tokens([]) --> [].
 
+% kb_name_tokens_contract(Tokens) consumes tokens until the 'states' keyword.
+kb_name_tokens_contract([T|Ts]) -->
+    \+ t(word(states)),
+    t(T), !,
+    kb_name_tokens_contract(Ts).
+kb_name_tokens_contract([]) --> [].
+
 % section_name_tokens(Tokens) consumes tokens until 'is' or ':'.
 section_name_tokens([T|Ts]) -->
     \+ t(word(is)),
@@ -219,6 +233,7 @@ consume_until_next_section([]) --> [].
 
 % next_section_start matches the beginning of any Logical English section.
 next_section_start --> any_indent, t(word(the, _)), t(word(knowledge)).
+next_section_start --> any_indent, t(word(the, _)), t(word(contract)).
 next_section_start --> any_indent, t(word(scenario, _)).
 next_section_start --> any_indent, t(word(query, _)).
 next_section_start --> any_indent, t(word(the, _)), t(word(ontology)).

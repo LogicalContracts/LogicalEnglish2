@@ -45,6 +45,7 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
+        le_kbs:set_kb_module(KBmodule),
         (   solve(Goal, SessionModule, KBmodule, [], 0, 0, Unknowns0, Whys),
             \+ (
                 member(U, Unknowns0),
@@ -52,7 +53,6 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
             ) ->  
             Unknowns = Unknowns0
             ;   
-
             Unknowns = [],
             findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
         ),
@@ -213,7 +213,7 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             ;   solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
             )
         ; KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G) ->  
-            Us = [G], WhysBody = [success(G, unknown, [])], Ref = unknown
+            Us = [G], WhysBody = [], Ref = unknown
     ).
 
 
@@ -359,6 +359,7 @@ le_compare(<, X, Y) :- !, X @< Y.
 
 equal_to(X, X).
 
+attach_range(Start, End, success(G, unknown, Children), success(G, unknown(Start, End), Children)) :- !.
 attach_range(Start, End, success(G, Ref, Children), success(G, NewRef, Children)) :- !,
     (   is_special_ref(Ref)
     ->  NewRef = range(Start, End)
@@ -367,7 +368,7 @@ attach_range(Start, End, success(G, Ref, Children), success(G, NewRef, Children)
 attach_range(_, _, Why, Why).
 
 is_special_ref(Ref) :-
-    memberchk(Ref, [built_in, unknown, identity, transitivity, aggregate, negation, universal, universal_success, empty_forall]).
+    memberchk(Ref, [built_in, identity, transitivity, aggregate, negation, universal, universal_success, empty_forall]).
 is_special_ref(range(_, _)).
 
 extract_var(var(_, V), V) :- !.
