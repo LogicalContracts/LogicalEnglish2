@@ -212,7 +212,11 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
                    )
             ;   solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
             )
-        ; KM \== none, current_predicate(KM:le_unknown/1), KM:le_unknown(G) ->  
+        ; get_clause(le_unknown(G), SM, KM, UnkBody, _UnkRef),
+          \+ SM:le_neg(le_unknown(G)),
+          \+ member(le_unknown(G), Anc),
+          D1 is D + 1,
+          solve(UnkBody, SM, KM, [le_unknown(G)|Anc], D1, MyID, [], _) ->  
             Us = [G], WhysBody = [], Ref = unknown
     ).
 
@@ -302,10 +306,10 @@ is_redundant(PID, le_at(G, _, _)) :-
 
 % get_clause(+Goal, +SM, +KM, -Body, -Ref)
 get_clause(G, SM, _KM, Body, Ref) :-
-    SM:clause(G, Body, Ref).
+    clause(SM:G, Body, Ref).
 get_clause(G, _SM, KM, Body, Ref) :-
     KM \== none,
-    KM:clause(G, Body, Ref).
+    clause(KM:G, Body, Ref).
 
 % Helpers
 
