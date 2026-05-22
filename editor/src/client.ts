@@ -1408,7 +1408,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (showHierarchicalNumbering && prefix && depth > 0) {
             text = `${prefix} ${text}`;
         }
-        const color = node.type === 'failure' ? '#f48771' : '#89d185';
+        const color = node.type === 'failure' ? '#f48771' : (node.type === 'unknown' ? '#e2b93d' : '#89d185');
+
         let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
         if (node.children) {
             node.children.forEach((child: any, index: number) => {
@@ -1462,6 +1463,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
             const label = document.createElement('div');
             label.className = `tree-label ${node.type || 'success'}`;
+            if (node.type === 'unknown') {
+                label.title = 'This condition could not be proven true or false, but was assumed true because it matches an "unknown" template.';
+            }
+
             
             const hasChildren = node.children && node.children.length > 0;
             if (hasChildren) {

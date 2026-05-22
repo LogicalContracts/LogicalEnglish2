@@ -1084,6 +1084,28 @@ The latest LE engine feature committed yesterday to git (ff951b132307ca573c723c4
 ## hierarchical examples
 the examles/moreExamples directory now has sub-directories. Revise the test runner to make sure it still runs tests in all files; and the web interface so it shows the example list with sub dir names and simple indentation
 
+## unknowns
+Add another prepositional addition, 'unknown', intended to specify facts for le_unknown/1. Here is a trivial example:
+
+the templates are:
+    *a person* knows that *a number* will win the lottery; unknown.
+    *a person* becomes rich.
+    *a person* bets *a number* timely.
+
+the knowledge base unknowns includes:
+
+a person becomes rich if
+    the person knows that a number will win the lottery and
+    the person bets the number timely.
+
+Add something like that (be creative!) and a few small examples of your own to examples/moreExamples/unknowns.le, with expected results (read on). Then implement:
+- parsing of the unknown addition
+- extend scenario expectations' syntax: allow for optional 'and unknowns' complement, as in: "queryQ expects answers ListOfSentences and unknowns ListOfUnknownSentences"
+
+In the EXPLANATION panel make the "unknown" explanation nodes yellow or orange, with a tooltip explaining it
+
+Do NOT commit your changes to git. i will do it later.
+
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests

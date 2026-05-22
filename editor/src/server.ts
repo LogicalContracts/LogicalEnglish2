@@ -159,7 +159,7 @@ connection.onRequest('textDocument/foldingRange', (params) => {
     const lines = text.split('\n');
     const foldingRanges: FoldingRange[] = [];
 
-    const sectionHeaderRegex = /^\s*(the knowledge base|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the target language)/i;
+    const sectionHeaderRegex = /^\s*(the knowledge base|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the target language)/i;
 
     let lastHeaderLine = -1;
 
@@ -310,6 +310,7 @@ connection.onCompletion((params) => {
     
     const sectionCompletions = [
         { label: 'the knowledge base includes:', kind: 14 },
+        { label: 'the contract states that:', kind: 14 },
         { label: 'scenario is:', kind: 14 },
         { label: 'query is:', kind: 14 },
         { label: 'the predicates are:', kind: 14 },

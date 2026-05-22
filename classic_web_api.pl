@@ -453,6 +453,14 @@ load_prolog_file(Path, Module) :-
 convert_why(success(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}.
+convert_why(success(_Goal, unknown(Start, End), LE, Children), KB, JSON) :- !,
+    maplist(convert_why_child(KB), Children, JSONChildren),
+    JSON = _{type: "unknown", literal: LE, start: Start, end: End, children: JSONChildren}.
+convert_why(success(_Goal, unknown, LE, Children), KB, JSON) :- !,
+    maplist(convert_why_child(KB), Children, JSONChildren),
+    JSON = _{type: "unknown", literal: LE, children: JSONChildren}.
+
+
 convert_why(success(_Goal, Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     (   KB \== none, KB:le_source_info(Ref, Start, End, _)

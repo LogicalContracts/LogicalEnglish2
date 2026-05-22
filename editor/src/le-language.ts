@@ -31,7 +31,7 @@ export const leMonarchTokens = {
         root: [
             // Section headers
             [/the (predicates|templates|fluents|events) are:/, { token: 'keyword.header', next: '@templates' }],
-            [/the knowledge base|scenario|query|the ontology|the target language/, 'keyword.header'],
+            [/the knowledge base|the contract|scenario|query|the ontology|the target language/, 'keyword.header'],
             
             // Structural Keywords
             [/\b(includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|says\s+that|sum|count|average|min|max|such\s+that)\b/, 'keyword'],
@@ -82,7 +82,7 @@ export const leMonarchTokens = {
         ],
 
         templates: [
-            [/the knowledge base|scenario|query|the ontology|the target language/, { token: 'keyword.header', next: '@pop' }],
+            [/the knowledge base|the contract|scenario|query|the ontology|the target language/, { token: 'keyword.header', next: '@pop' }],
             [/\*[^*]+\*/, 'variable'],
             [/%.*$/, 'comment'],
             [/\/\*/, 'comment', '@comment'],

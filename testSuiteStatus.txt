@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 32
-Total tests:     195
-Passed:          195
+Files processed: 33
+Total tests:     196
+Passed:          196
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -36,6 +36,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/unknowns.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insurLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insurLE2/globals.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insurLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error

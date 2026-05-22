@@ -7825,7 +7825,7 @@ var leMonarchTokens = {
     root: [
       // Section headers
       [/the (predicates|templates|fluents|events) are:/, { token: "keyword.header", next: "@templates" }],
-      [/the knowledge base|scenario|query|the ontology|the target language/, "keyword.header"],
+      [/the knowledge base|the contract|scenario|query|the ontology|the target language/, "keyword.header"],
       // Structural Keywords
       [/\b(includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|says\s+that|sum|count|average|min|max|such\s+that)\b/, "keyword"],
       [/^\s*(and|or)\b/, "keyword"],
@@ -7865,7 +7865,7 @@ var leMonarchTokens = {
       [/[.,:]/, "delimiter"]
     ],
     templates: [
-      [/the knowledge base|scenario|query|the ontology|the target language/, { token: "keyword.header", next: "@pop" }],
+      [/the knowledge base|the contract|scenario|query|the ontology|the target language/, { token: "keyword.header", next: "@pop" }],
       [/\*[^*]+\*/, "variable"],
       [/%.*$/, "comment"],
       [/\/\*/, "comment", "@comment"],
@@ -39617,7 +39617,7 @@ async function start() {
     if (showHierarchicalNumbering && prefix && depth > 0) {
       text = `${prefix} ${text}`;
     }
-    const color = node.type === "failure" ? "#f48771" : "#89d185";
+    const color = node.type === "failure" ? "#f48771" : node.type === "unknown" ? "#e2b93d" : "#89d185";
     let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
     if (node.children) {
       node.children.forEach((child, index) => {
@@ -39663,6 +39663,9 @@ async function start() {
       container3.className = "tree-node";
       const label = document.createElement("div");
       label.className = `tree-label ${node.type || "success"}`;
+      if (node.type === "unknown") {
+        label.title = 'This condition could not be proven true or false, but was assumed true because it matches an "unknown" template.';
+      }
       const hasChildren = node.children && node.children.length > 0;
       if (hasChildren) {
         const toggle = document.createElement("span");
