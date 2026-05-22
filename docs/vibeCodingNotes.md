@@ -1078,8 +1078,12 @@ Another Logical English feature please : an optional additon to templates to let
                                                                                                                                             
   Then add it a few scenarios and queries and expected answers, so that you can test this... and implement it!                              
 
+#### move to le_extensions.pl
+The latest LE engine feature committed yesterday to git (ff951b132307ca573c723c490e6163c3fd881303), "prepositional template additions", needs to have some of its code moved into le_extensions.pl. Strong candidate for another multifile declaration: match_template_with_chaining/8. This feature is proprietary, and should not work if le_extensions.pl is not present - meaning LE should work normally but lacking that feature. Notice that le_extensions.pl in our directory is a link to ../InsurLE2/le_extensions.pl, which you are allowed to edit.
+
 ## hierarchical examples
 the examles/moreExamples directory now has sub-directories. Revise the test runner to make sure it still runs tests in all files; and the web interface so it shows the example list with sub dir names and simple indentation
 
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
+MCP tests

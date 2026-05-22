@@ -14,13 +14,11 @@ Detailed File Summary:
   [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/globals.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gst.le: 12 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
@@ -38,8 +36,10 @@ Detailed File Summary:
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/unless_test.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/which_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/which_test2.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insurLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insurLE2/globals.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insurLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insurLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insurLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
 -------------
 
