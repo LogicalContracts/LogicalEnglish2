@@ -264,7 +264,8 @@ assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, U
     assertz(M:le_source_info(Ref, Start, End, template)),
     (   Unknown == unknown ->
         Goal =.. FA,
-        assertz(M:le_unknown(Goal))
+        assertz(M:le_unknown(Goal), URef),
+        assertz(M:le_source_info(URef, Start, End, template_unknown))
     ;   true
     ).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep), M) :-

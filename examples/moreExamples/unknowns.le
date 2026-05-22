@@ -2,12 +2,19 @@ the templates are:
     *a person* knows that *a number* will win the lottery; unknown.
     *a person* becomes rich.
     *a person* bets *a number* timely.
+    *a payment* is in respect of *a claim*.
+    *a payment* is processed.
 
 the knowledge base unknowns includes:
 
 a person becomes rich if
     the person knows that a number will win the lottery and
     the person bets the number timely.
+
+it is unknown whether a payment is in respect of claim 01.
+
+a payment is processed if
+    the payment is in respect of a claim.
 
 scenario one is:
     alice bets 42 timely.
@@ -20,5 +27,15 @@ scenario one is:
         "alice knows that 42 will win the lottery"
     ].
 
+scenario two is:
+    two expects answers [
+        "payment 100 is processed"
+    ] and unknowns [
+        "payment 100 is in respect of claim 1"
+    ].
+
 query one is:
     which person becomes rich.
+
+query two is:
+    payment 100 is processed.

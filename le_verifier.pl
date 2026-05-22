@@ -129,6 +129,7 @@ is_defined_real(KB, Literal) :-
     ;   (F == says_that, A == 2) -> true
     ;   safe_clause(KB, Literal) -> true
     ;   safe_scenario_fact(KB, F, A) -> true
+    ;   clause(KB:le_unknown(Literal), _) -> true
     ;   fail
     ).
 

@@ -1106,6 +1106,26 @@ In the EXPLANATION panel make the "unknown" explanation nodes yellow or orange, 
 
 Do NOT commit your changes to git. i will do it later.
 
+### unknown instances
+In addition to the 'unknown' addition to a template, let's add a related feature declaring a predicate instance as unknown, a 'it is unknown whether' statement. 
+
+For example:
+
+the templates are:
+    *a payment* is in respect of *a claim*.
+   ...
+
+the knowledge base myKB includes:
+    ...rules
+    it is unknown whether any payment is in respect of claim 01. 
+    ...more rules...
+
+That "it is unknown whether..." statement should map to a le_unknown(...) fact with the second predicate argument for is_in_respect_of(..) bound to '01', and first argument unbound. 
+
+Please add an example rule and scenarion for testing to unknowns.le, and implement this.
+
+
+
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests

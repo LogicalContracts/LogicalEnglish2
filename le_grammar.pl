@@ -315,6 +315,13 @@ kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
     ),
     { Indent = N, ID = _ }.
 
+% kb_item(unknown_fact(Head, Start, End)) parses "it is unknown whether <template instance>."
+kb_item(unknown_fact(Head, Start, End)) -->
+    t(word(it)), t(word(is)), t(word(unknown)), t(word(whether)),
+    template_instance(Head),
+    { Head = [First|_], get_token_start(First, Start) },
+    any_indent, t(punctuation('.', loc(_, End))).
+
 % kb_item(fact(Head, Start, End)) parses a Logical English fact (Head.).
 kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
@@ -1032,6 +1039,17 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clau
         ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
         NewHead = unknown_template(Head),
         ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
+    ).
+
+second_pass_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+    (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]),
+    (   parse_literal(Head, Templates, [], VMOut, Literal, _, true) ->  
+        NewHead = le_unknown(Literal),
+        collect_extra_goals(VMOut, ExtraGoals),
+        ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
+        ;   
+        NewHead = unknown_template(Head),
+        NewBody = true
     ).
 
 second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
