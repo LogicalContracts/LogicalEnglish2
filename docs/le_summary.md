@@ -7,7 +7,7 @@ Sections define the context of the code. Each section header ends with a colon `
 
 - **Knowledge Base:** `the knowledge base <name> includes:`
 - **Scenario:** `scenario <name> is:` (Used for defining facts for a specific test case)
-  - Can include expectations: `<QueryName> expects answers [<List of Strings>].`
+  - Can include expectations: `<QueryName> expects answers [<List of Strings>] and unknowns [<List of Strings>].`
 - **Query:** `query <name> is:` (Used for defining the goals to be proven)
 - **Ontology:** `the ontology is:` (Used for taxonomy and class hierarchies)
 - **Templates:** `the predicates are:` or `the templates are:` (Used to define NL patterns)
@@ -125,12 +125,12 @@ Logical English supports meta-predicates that can take other sentences as argume
 
 ## 12. Testing and Expectations
 Scenarios can define expected results for queries, which are used by the test runner.
-- **Syntax:** `<QueryName> expects answers ["Answer 1", "Answer 2"].`
+- **Syntax:** `<QueryName> expects answers ["Answer 1", "Answer 2"] and unknowns ["Unknown 1"].` (The `and unknowns [...]` part is optional).
 - **Example:**
   ```le
   scenario alice is:
       John is born in the UK on 2021-10-09.
-      query one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"].
+      query one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"] and unknowns ["John is a good person"].
   ```
 
 ## 13. System Predicates
