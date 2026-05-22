@@ -136,17 +136,7 @@ handle_landing_page(Request) :-
         format_test_results(Results, TestHtml)
     ;   TestHtml = []
     ),
-    directory_files('examples/moreExamples/', Files),
-    findall(Base, (
-        member(F, Files),
-        sub_atom(F, _, _, 0, '.le'),
-        file_name_extension(Base, le, F)
-    ), Bases),
-    sort(Bases, SortedBases),
-    findall(li(a([href(Url)], Base)), (
-        member(Base, SortedBases),
-        format(atom(Url), '/editor/index.html?example=~w', [Base])
-    ), ExampleItems),
+    landing_example_items('examples/moreExamples', ExampleItems),
     build_info(BuildInfo),
     reply_html_page(
         [title('Logical English 2.0')],
@@ -169,6 +159,44 @@ handle_landing_page(Request) :-
             div(TestHtml)
         ]
     ).
+
+%!  landing_example_items(+Dir:atom, -Items:list) is det.
+%
+%   Builds HTML list items for all examples in Dir, grouping subdirectory
+%   examples under an indented header.
+landing_example_items(Dir, Items) :-
+    directory_files(Dir, Files),
+    findall(Base, (
+        member(F, Files),
+        sub_atom(F, _, _, 0, '.le'),
+        \+ sub_atom(F, _, _, 0, '.le.tests'),
+        file_name_extension(Base, le, F)
+    ), Bases0),
+    sort(Bases0, Bases),
+    findall(li(a([href(Url)], Base)), (
+        member(Base, Bases),
+        format(atom(Url), '/editor/index.html?example=~w', [Base])
+    ), DirectItems),
+    findall(li([b([SubDir, '/']), ul(SubItems)]), (
+        member(SubDir, Files),
+        \+ sub_atom(SubDir, 0, 1, _, '.'),
+        directory_file_path(Dir, SubDir, SubDirPath),
+        exists_directory(SubDirPath),
+        directory_files(SubDirPath, SubFiles),
+        findall(SubBase, (
+            member(SF, SubFiles),
+            sub_atom(SF, _, _, 0, '.le'),
+            \+ sub_atom(SF, _, _, 0, '.le.tests'),
+            file_name_extension(SubBase, le, SF)
+        ), SubBases0),
+        sort(SubBases0, SubBases),
+        findall(li(a([href(SubUrl)], SubBase)), (
+            member(SubBase, SubBases),
+            atomic_list_concat([SubDir, '/', SubBase], ExPath),
+            format(atom(SubUrl), '/editor/index.html?example=~w', [ExPath])
+        ), SubItems)
+    ), SubDirItems),
+    append(DirectItems, SubDirItems, Items).
 
 format_test_results(Results, [h3('Test Results'), table([border(1), cellpadding(5)], [
     tr([th('File'), th('Pass'), th('Fail'), th('Error'), th('Status')])
@@ -205,13 +233,32 @@ handle_examples(Dict, Response) :-
     ( exists_file(Path) -> read_file_to_string(Path, Doc, []), Response = _{document: Doc}; Response = _{answer: "File not found", details: Path, document: ""}).
 
 handle_list_examples(_Dict, Response) :-
-    directory_files('examples/moreExamples/', Files),
-    findall(Base, (
+    list_examples_in_dir('examples/moreExamples/', '', Examples),
+    Response = _{examples: Examples}.
+
+%!  list_examples_in_dir(+Dir:atom, +Prefix:atom, -Examples:list) is det.
+%
+%   Collects example base names (with Prefix prepended) from Dir and its subdirectories.
+%   Subdirectory examples are returned as "subdir/name".
+list_examples_in_dir(Dir, Prefix, Examples) :-
+    directory_files(Dir, Files),
+    findall(ExPath, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
-        file_name_extension(Base, le, F)
-    ), Examples),
-    Response = _{examples: Examples}.
+        \+ sub_atom(F, _, _, 0, '.le.tests'),
+        file_name_extension(Base, le, F),
+        atom_concat(Prefix, Base, ExPath)
+    ), DirectExamples),
+    findall(SubExamples, (
+        member(F, Files),
+        \+ sub_atom(F, 0, 1, _, '.'),
+        directory_file_path(Dir, F, SubDir),
+        exists_directory(SubDir),
+        atomic_list_concat([Prefix, F, '/'], SubPrefix),
+        list_examples_in_dir(SubDir, SubPrefix, SubExamples)
+    ), SubExamplesLists),
+    append(SubExamplesLists, SubExamplesFlat),
+    append(DirectExamples, SubExamplesFlat, Examples).
 
 handle_list_models(_Dict, Response) :-
     llm_list_models(Rows),

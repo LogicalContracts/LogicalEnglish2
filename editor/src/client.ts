@@ -524,17 +524,48 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             
             if (data.examples && exampleList) {
                 exampleList.innerHTML = '';
-                data.examples.sort().forEach((ex: string) => {
+                const examples: string[] = [...data.examples].sort();
+
+                // Separate root-level examples from subdirectory ones
+                const rootExamples: string[] = [];
+                const subDirGroups = new Map<string, string[]>();
+                examples.forEach((ex: string) => {
+                    const slashIdx = ex.indexOf('/');
+                    if (slashIdx >= 0) {
+                        const subdir = ex.substring(0, slashIdx);
+                        if (!subDirGroups.has(subdir)) subDirGroups.set(subdir, []);
+                        subDirGroups.get(subdir)!.push(ex);
+                    } else {
+                        rootExamples.push(ex);
+                    }
+                });
+
+                const makeItem = (ex: string, label: string, indent: boolean) => {
                     const item = document.createElement('div');
-                    item.className = 'dropdown-item'; // Reuse styling
-                    item.style.padding = '10px 15px';
+                    item.className = 'dropdown-item';
+                    item.style.padding = indent ? '8px 15px 8px 30px' : '10px 15px';
                     item.style.borderBottom = '1px solid #333';
-                    item.textContent = ex;
+                    item.textContent = label;
                     item.addEventListener('click', async () => {
                         closeModal();
                         await loadExampleFromServer(ex);
                     });
-                    exampleList.appendChild(item);
+                    return item;
+                };
+
+                rootExamples.forEach((ex: string) => {
+                    exampleList.appendChild(makeItem(ex, ex, false));
+                });
+
+                subDirGroups.forEach((items, subdir) => {
+                    const header = document.createElement('div');
+                    header.style.cssText = 'padding: 8px 15px 4px; font-weight: bold; color: #aaa; border-bottom: 1px solid #555; font-size: 0.85em; letter-spacing: 0.03em;';
+                    header.textContent = subdir + '/';
+                    exampleList.appendChild(header);
+                    items.forEach((ex: string) => {
+                        const name = ex.substring(ex.indexOf('/') + 1);
+                        exampleList.appendChild(makeItem(ex, name, true));
+                    });
                 });
             }
         } catch (err) {

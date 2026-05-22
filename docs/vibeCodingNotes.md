@@ -1078,7 +1078,8 @@ Another Logical English feature please : an optional additon to templates to let
                                                                                                                                             
   Then add it a few scenarios and queries and expected answers, so that you can test this... and implement it!                              
 
+## hierarchical examples
+the examles/moreExamples directory now has sub-directories. Revise the test runner to make sure it still runs tests in all files; and the web interface so it shows the example list with sub dir names and simple indentation
 
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
-show examples with indentation as per their directories
