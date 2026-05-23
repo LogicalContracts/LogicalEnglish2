@@ -689,6 +689,7 @@
                         </div>
                         <button id="btn-query">Query</button>
                         <button id="btn-trace" style="margin-left: 5px;">Trace</button>
+                        <button id="btn-proof-game" style="margin-left: 5px; background-color: #4caf50;">Proof Game</button>
                     </div>
                     <div id="custom-scenario-container" class="custom-input-container">
                         <label style="font-size: 11px; color: #888;">Custom Scenario Facts:</label>
@@ -832,7 +833,8 @@
     <script type="module">
         require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
         require(['vs/editor/editor.main'], async function() {
-            await import('./dist/client.js');
+            const v = Date.now();
+            await import(`./dist/client.js?v=${v}`);
             window.startEditor();
         });
     </script>
