@@ -100,6 +100,7 @@ handle_operation(Dict, Response) :-
         ; Op == "load" -> 
             ( catch(handle_load(Dict, Response), E, (print_message(error, E), fail)) -> true; print_message(error, le_api_error(load, "handle_load failed")), fail)
         ; Op == "answeringQuery" -> handle_answering_query(Dict, Response)
+        ; Op == "getGameData" -> handle_get_game_data(Dict, Response)
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
@@ -385,6 +386,94 @@ run_answering_query(SM, Query, KB, Response) :-
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
     ).
+
+handle_get_game_data(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    
+    % Handle Scenario
+    (   get_dict(customScenario, Dict, CustomScenario), CustomScenario \== null ->
+            clearSession(SM),
+            ( KB \== none -> 
+                catch(parse_custom_facts(KB, CustomScenario, Facts), error(le_parse_error(Msg), _), ErrorFacts = Msg),
+                ( var(ErrorFacts) -> forall(member(F, Facts), addSessionFact(SM, F)) ; true )
+            ; true )
+        ; get_dict(scenario, Dict, ScenarioStr) ->  
+            (   ((atom(ScenarioStr) ; string(ScenarioStr)), \+ sub_atom(ScenarioStr, _, _, _, '(')) ->  
+                    atom_string(ScenarioName, ScenarioStr),
+                    ( ScenarioName \== '' -> clearSession(SM), setScenarion(SM, ScenarioName); clearSession(SM))
+                ; term_string(Scenario, ScenarioStr),
+                  clearSession(SM),
+                  ( is_list(Scenario) -> forall(member(F, Scenario), addSessionFact(SM, F)); addSessionFact(SM, Scenario) )
+            )
+        ; true
+    ),
+
+    (   nonvar(ErrorFacts) -> Response = _{error: ErrorFacts}
+    ;   % Handle Query
+        (   get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null ->
+                ( KB \== none ->
+                    catch(parse_custom_query(KB, CustomQuery, Goal), error(le_parse_error(Msg), _), ErrorQuery = Msg),
+                    ( var(ErrorQuery) -> Query = Goal ; true )
+                ; Query = CustomQuery )
+            ; get_dict(query, Dict, QueryStr),
+              atom_string(QueryName, QueryStr),
+              ( KB \== none, KB:query_info(QueryName, Goal, _) -> Query = Goal ; Query = QueryName )
+        ),
+        (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
+        ;   extract_rules_and_facts(KB, SM, Rules, ExtractedFacts),
+            ( KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens) -> le_kbs:canonical_string(QueryTokens, QueryLE) ; term_string(Query, QueryLE) ),
+            Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE}, result: "ok"}
+        )
+    ).
+
+term_to_le(KB, Term, LE) :-
+    ( KB \== none, le_kbs:item_to_instance(KB, Term, Tokens) -> le_kbs:canonical_string(Tokens, LE)
+    ; term_string(Term, LE)
+    ).
+
+extract_rules_and_facts(KB, SM, Rules, Facts) :-
+    findall(_{head: HeadLE, body: BodyLEs, start: Start, end: End}, (
+        current_predicate(KB:F/N),
+        \+ le_kbs:is_system_predicate(F/N),
+        functor(Head, F, N),
+        clause(KB:Head, Body, Ref),
+        KB:le_source_info(Ref, Start, End, ID),
+        \+ member(ID, [template, template_unknown, ontology, session_fact]),
+        Body \== true,
+        term_to_le(KB, Head, HeadLE),
+        comma_list(Body, BodyList), 
+        maplist(strip_le_at, BodyList, StrippedBodyList),
+        flatten_and(StrippedBodyList, FlatBodyList),
+        maplist(term_to_le(KB), FlatBodyList, BodyLEs)
+    ), Rules),
+    findall(_{fact: FactLE, start: Start, end: End}, (
+        (   current_predicate(KB:F/N),
+            \+ le_kbs:is_system_predicate(F/N),
+            functor(Head, F, N),
+            clause(KB:Head, true, Ref),
+            KB:le_source_info(Ref, Start, End, ID),
+            \+ member(ID, [template, template_unknown, ontology, session_fact])
+        ;   SM \== none,
+            current_predicate(SM:F/N),
+            \+ le_kbs:is_system_predicate(F/N),
+            functor(Head, F, N),
+            clause(SM:Head, true, Ref),
+            SM:le_source_info(Ref, Start, End, session_fact)
+        ),
+        term_to_le(KB, Head, FactLE)
+    ), Facts).
+
+comma_list((A, B), [A|T]) :- !, comma_list(B, T).
+comma_list(A, [A]).
+
+strip_le_at(le_at(Term, _, _), Stripped) :- !, strip_le_at(Term, Stripped).
+strip_le_at(Term, Term).
+
+flatten_and([], []).
+flatten_and([and(A, B)|T], Flat) :- !, flatten_and([A, B|T], Flat).
+flatten_and([H|T], [H|FlatT]) :- flatten_and(T, FlatT).
 
 handle_load_facts_and_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),

@@ -1,0 +1,396 @@
+import * as React from 'react';
+import { NodeEditor, GetSchemes, ClassicPreset } from 'rete';
+import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
+import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
+import { ReactPlugin, Presets, ReactArea2D } from 'rete-react-plugin';
+import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin';
+import { createRoot } from 'react-dom/client';
+
+const { RefSocket, Socket, useConnection } = Presets.classic;
+
+type Schemes = GetSchemes<
+    ClassicPreset.Node,
+    ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
+>;
+type AreaExtra = ReactArea2D<Schemes>;
+
+class FactNode extends ClassicPreset.Node {
+    width = 220;
+    height = 60;
+    public sourceLoc?: { start: number, end: number };
+    
+    constructor(public label: string, public color: string, sourceLoc?: { start: number, end: number }) {
+        super(label);
+        this.type = 'fact';
+        this.sourceLoc = sourceLoc;
+        this.addOutput('out', new ClassicPreset.Output(new ClassicPreset.Socket('socket')));
+    }
+    type: string;
+}
+
+class QueryNode extends ClassicPreset.Node {
+    width = 220;
+    height = 60;
+    
+    constructor(public label: string, public color: string) {
+        super(label);
+        this.type = 'query';
+        this.addInput('in', new ClassicPreset.Input(new ClassicPreset.Socket('query-socket')));
+    }
+    type: string;
+}
+
+class RuleNode extends ClassicPreset.Node {
+    width = 220;
+    height = 180;
+    public sourceLoc?: { start: number, end: number };
+    
+    constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
+        super('');
+        this.type = 'rule';
+        this.sourceLoc = sourceLoc;
+        const socket = new ClassicPreset.Socket('socket');
+        this.addOutput('out', new ClassicPreset.Output(socket));
+        if (rule.body) {
+            rule.body.forEach((cond: string, i: number) => {
+                this.addInput(`in-${i}`, new ClassicPreset.Input(socket));
+            });
+        }
+    }
+    type: string;
+}
+
+function CustomNode(props: any) {
+    const { data, emit } = props;
+    const modeToggle = document.getElementById('mode-toggle') as HTMLInputElement;
+    const isAdultMode = modeToggle?.checked;
+    
+    if (data.type === 'rule') {
+        const headColor = isAdultMode ? '#333' : '#ff9800';
+        const bodyColor = isAdultMode ? '#333' : '#ffeb3b';
+        const textColor = isAdultMode ? '#fff' : 'transparent';
+        
+        const bodyCount = data.rule.body ? data.rule.body.length : 0;
+        const nodeWidth = Math.max(220, bodyCount * 220);
+        data.width = nodeWidth;
+        data.height = bodyCount > 0 ? 180 : 80;
+        
+        return React.createElement('div', {
+            className: `le-node rule-node ${data.selected ? 'selected' : ''}`,
+            style: {
+                width: nodeWidth + 'px',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '40px',
+                border: data.selected ? '2px solid #0e639c' : '2px solid transparent',
+                borderRadius: '8px',
+                padding: '10px',
+                background: isAdultMode ? '#252526' : 'rgba(255,255,255,0.05)'
+            }
+        },
+            React.createElement('div', {
+                style: {
+                    background: headColor,
+                    color: textColor,
+                    padding: '10px',
+                    borderRadius: '8px',
+                    width: '200px',
+                    textAlign: 'center',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                    position: 'relative',
+                    zIndex: 1,
+                    border: isAdultMode ? '1px solid #444' : 'none'
+                },
+                title: !isAdultMode ? data.rule.head : ''
+            }, 
+                isAdultMode ? data.rule.head : '',
+                React.createElement('div', {
+                    style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
+                }, React.createElement(RefSocket, {
+                    name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
+                }))
+            ),
+            
+            bodyCount > 0 && React.createElement('div', {
+                style: { display: 'flex', justifyContent: 'center', gap: '20px', width: '100%', zIndex: 1 }
+            }, data.rule.body.map((cond: string, i: number) => {
+                return React.createElement('div', {
+                    key: i,
+                    style: {
+                        position: 'relative', background: bodyColor, color: textColor,
+                        padding: '10px', borderRadius: '8px', width: '200px',
+                        textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                        border: isAdultMode ? '1px solid #444' : 'none'
+                    },
+                    title: !isAdultMode ? cond : ''
+                }, 
+                    isAdultMode ? cond : '',
+                    React.createElement('div', {
+                        style: { position: 'absolute', left: '50%', bottom: '-16px', transform: 'translateX(-50%)' }
+                    }, React.createElement(RefSocket, {
+                        name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: `in-${i}`, payload: data.inputs[`in-${i}`]?.socket
+                    }))
+                );
+            })),
+            
+            bodyCount > 0 && React.createElement('svg', {
+                style: { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }
+            }, 
+                React.createElement('defs', null, 
+                    React.createElement('marker', {
+                        id: 'arrowhead-internal', markerWidth: '10', markerHeight: '7', refX: '9', refY: '3.5', orient: 'auto'
+                    }, React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#888' }))
+                ),
+                data.rule.body.map((_: any, i: number) => {
+                    const headX = nodeWidth / 2;
+                    const headY = 50; 
+                    const totalBodyWidth = bodyCount * 200 + (bodyCount - 1) * 20;
+                    const startX = (nodeWidth - totalBodyWidth) / 2;
+                    const bodyBlockX = startX + i * 220 + 100; 
+                    const bodyY = 90; 
+                    return React.createElement('path', {
+                        key: `arrow-${i}`, d: `M ${bodyBlockX} ${bodyY} L ${headX} ${headY}`,
+                        stroke: '#888', strokeWidth: '2', fill: 'none', markerEnd: 'url(#arrowhead-internal)'
+                    });
+                })
+            )
+        );
+    } else {
+        // Fact or Query
+        const bgColor = isAdultMode ? '#333' : data.color;
+        const textColor = isAdultMode ? '#fff' : 'transparent';
+        data.width = 220;
+        data.height = 60;
+        
+        return React.createElement('div', {
+            className: `le-node ${data.type}-node ${data.selected ? 'selected' : ''}`,
+            style: {
+                background: bgColor,
+                color: textColor,
+                padding: '10px',
+                borderRadius: '8px',
+                width: '200px',
+                textAlign: 'center',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                border: data.selected ? '2px solid #0e639c' : (isAdultMode ? '1px solid #444' : '2px solid transparent'),
+                position: 'relative'
+            },
+            title: !isAdultMode ? data.label : ''
+        },
+            isAdultMode ? data.label : '',
+            data.type === 'fact' && React.createElement('div', {
+                style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
+            }, React.createElement(RefSocket, {
+                name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
+            })),
+            
+            data.type === 'query' && React.createElement('div', {
+                style: { position: 'absolute', left: '50%', bottom: '-16px', transform: 'translateX(-50%)' }
+            }, React.createElement(RefSocket, {
+                name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: 'in', payload: data.inputs['in']?.socket
+            }))
+        );
+    }
+}
+
+function CustomSocket(props: any) {
+    const { data } = props;
+    const isQuery = data.name === 'query-socket';
+    
+    if (isQuery) {
+        return React.createElement('div', {
+            style: {
+                width: '16px',
+                height: '16px',
+                background: '#e2b93d',
+                border: '2px solid #fff',
+                transform: 'rotate(45deg)',
+                cursor: 'pointer',
+                boxSizing: 'border-box'
+            }
+        });
+    }
+    
+    return React.createElement('div', {
+        style: {
+            width: '16px',
+            height: '16px',
+            borderRadius: '50%',
+            background: '#fff',
+            border: '2px solid #333',
+            cursor: 'pointer',
+            boxSizing: 'border-box'
+        }
+    });
+}
+
+function CustomConnection(props: any) {
+    const { start, end, path: defaultPath } = useConnection();
+    
+    let path = defaultPath;
+    if (start && end) {
+        // Vertical path: start is output (top of body), end is input (bottom of head)
+        path = `M ${start.x} ${start.y} C ${start.x} ${start.y - 50}, ${end.x} ${end.y + 50}, ${end.x} ${end.y}`;
+    }
+    
+    if (!path) return null;
+    
+    return React.createElement(
+        'svg',
+        { style: { overflow: 'visible', position: 'absolute', pointerEvents: 'none', width: '100%', height: '100%', left: 0, top: 0 } },
+        React.createElement(
+            'defs',
+            null,
+            React.createElement(
+                'marker',
+                {
+                    id: 'arrowhead',
+                    markerWidth: '10',
+                    markerHeight: '7',
+                    refX: '9',
+                    refY: '3.5',
+                    orient: 'auto'
+                },
+                React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: 'steelblue' })
+            )
+        ),
+        React.createElement('path', {
+            d: path,
+            fill: 'none',
+            stroke: 'steelblue',
+            strokeWidth: '3px',
+            markerEnd: 'url(#arrowhead)'
+        })
+    );
+}
+
+export async function initProofGame(container: HTMLElement, gameData: any) {
+    const editor = new NodeEditor<Schemes>();
+    const area = new AreaPlugin<Schemes, AreaExtra>(container);
+    const connection = new ConnectionPlugin<Schemes, AreaExtra>();
+    const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
+
+    AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
+        accumulating: AreaExtensions.accumulateOnCtrl()
+    });
+
+    render.addPreset(Presets.classic.setup({
+        customize: {
+            node() {
+                return CustomNode;
+            },
+            connection() {
+                return CustomConnection;
+            },
+            socket() {
+                return CustomSocket;
+            }
+        }
+    }));
+
+    connection.addPreset(ConnectionPresets.classic.setup());
+
+    editor.use(area);
+    area.use(connection);
+    area.use(render);
+
+    AreaExtensions.simpleNodesOrder(area);
+
+    const arrange = new AutoArrangePlugin<Schemes>();
+    arrange.addPreset(ArrangePresets.classic.setup());
+    area.use(arrange);
+
+    // Parse gameData and create nodes
+    const nodes: any[] = [];
+    
+    // Layout parameters
+    const startX = 100;
+    let currentX = startX;
+    const factY = 500;
+    const ruleY = 250;
+    const queryY = 50;
+    
+    // Add Query Node
+    if (gameData.query) {
+        const queryNode = new QueryNode(gameData.query, '#2196f3');
+        await editor.addNode(queryNode);
+        await area.translate(queryNode.id, { x: currentX, y: queryY });
+        nodes.push(queryNode);
+        currentX += 250;
+    }
+    
+    // Add Rules
+    if (gameData.rules) {
+        for (const rule of gameData.rules) {
+            const ruleNode = new RuleNode(rule, { start: rule.start, end: rule.end });
+            await editor.addNode(ruleNode);
+            await area.translate(ruleNode.id, { x: currentX, y: ruleY });
+            nodes.push(ruleNode);
+            
+            const bodyCount = rule.body ? rule.body.length : 0;
+            const nodeWidth = Math.max(220, bodyCount * 220);
+            currentX += nodeWidth + 50;
+        }
+    }
+    
+    // Add Facts
+    currentX = startX;
+    if (gameData.facts) {
+        for (const fact of gameData.facts) {
+            const factNode = new FactNode(fact.fact, '#4caf50', { start: fact.start, end: fact.end });
+            await editor.addNode(factNode);
+            await area.translate(factNode.id, { x: currentX, y: factY });
+            currentX += 250;
+            nodes.push(factNode);
+        }
+    }
+
+    setTimeout(() => {
+        AreaExtensions.zoomAt(area, editor.getNodes());
+    }, 100);
+
+    document.getElementById('btn-rearrange')?.addEventListener('click', async () => {
+        await arrange.layout();
+        AreaExtensions.zoomAt(area, editor.getNodes());
+    });
+
+    // Zoom controls
+    document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
+        const zoom = area.area.zoom;
+        area.area.setZoom(zoom * 1.2);
+    });
+    document.getElementById('btn-zoom-out')?.addEventListener('click', () => {
+        const zoom = area.area.zoom;
+        area.area.setZoom(zoom / 1.2);
+    });
+    document.getElementById('btn-zoom-fit')?.addEventListener('click', () => {
+        AreaExtensions.zoomAt(area, editor.getNodes());
+    });
+
+    // Selection logic for editor highlighting
+    area.addPipe(context => {
+        if (context.type === 'nodepicked') {
+            const node = editor.getNode(context.data.id) as any;
+            if (node && node.sourceLoc) {
+                if (window.opener) {
+                    window.opener.postMessage({ type: 'le-highlight', loc: node.sourceLoc }, '*');
+                }
+            }
+        }
+        return context;
+    });
+    
+    // Mode toggle logic
+    document.getElementById('mode-toggle')?.addEventListener('change', () => {
+        nodes.forEach(n => area.update('node', n.id));
+    });
+    
+    // Check proof logic
+    document.getElementById('btn-check')?.addEventListener('click', () => {
+        const connections = editor.getConnections();
+        console.log("Current connections:", connections);
+        alert("Proof check triggered! (Validation logic to be implemented)");
+    });
+}

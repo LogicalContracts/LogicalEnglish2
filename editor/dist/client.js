@@ -40009,6 +40009,109 @@ async function start() {
       console.error(err);
     }
   });
+  const btnProofGame = document.getElementById("btn-proof-game");
+  btnProofGame.addEventListener("click", async () => {
+    if (!isLoaded) {
+      const success = await loadModule();
+      if (!success)
+        return;
+    }
+    const scenario = scenarioSelect.value;
+    const query = querySelect.value;
+    const customScenario = scenario === "___custom___" ? customScenarioText.value : null;
+    const customQuery = query === "___custom___" ? customQueryText.value : null;
+    if (!query) {
+      alert("Please select a query for the Proof Game.");
+      return;
+    }
+    try {
+      const response = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "getGameData",
+          sessionModule,
+          query,
+          scenario,
+          customScenario,
+          customQuery
+        })
+      });
+      const res = await response.json();
+      if (res && res.gameData) {
+        const text = editor.getValue();
+        res.gameData.rules = res.gameData.rules.map((rule) => {
+          if (rule.start !== void 0 && rule.end !== void 0) {
+            const ruleText = text.substring(rule.start, rule.end);
+            const lines = ruleText.split("\n").map((l) => l.trim()).filter((l) => l.length > 0);
+            let exactHead = null;
+            let exactBody = null;
+            if (lines.length > 1) {
+              exactHead = lines[0].replace(/:$/, "").replace(/^(?:only\s+if|if)\b/i, "").trim();
+              let bodyLines = lines.slice(1);
+              if (bodyLines[0].toLowerCase() === "if" || bodyLines[0].toLowerCase() === "only if") {
+                bodyLines = bodyLines.slice(1);
+              }
+              exactBody = bodyLines.map((l) => l.replace(/^(?:only\s+if|if|and|or)\b/i, "").replace(/\b(?:and|or)$/i, "").replace(/\.$/, "").trim());
+            } else if (lines.length === 1) {
+              const match2 = lines[0].match(/\b(?:only\s+if|if)\b/i);
+              if (match2) {
+                exactHead = lines[0].substring(0, match2.index).replace(/:$/, "").trim();
+                const bodyStr = lines[0].substring(match2.index + match2[0].length).replace(/\.$/, "").trim();
+                exactBody = bodyStr.split(/\band\b|\bor\b/i).map((s) => s.trim());
+              }
+            }
+            if (exactHead && exactBody && exactBody.length === rule.body.length) {
+              rule.head = exactHead;
+              rule.body = exactBody;
+            }
+          }
+          return rule;
+        });
+        res.gameData.facts = res.gameData.facts.map((fact) => {
+          if (fact.start !== void 0 && fact.end !== void 0 && fact.start !== 0) {
+            const factText = text.substring(fact.start, fact.end).replace(/\.$/, "").trim();
+            if (factText) {
+              fact.fact = factText;
+            }
+          }
+          return fact;
+        });
+        localStorage.setItem("le_proof_game_data", JSON.stringify(res.gameData));
+        const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
+        window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
+      } else {
+        alert("Failed to get game data from server.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error connecting to server for game data.");
+    }
+  });
+  window.addEventListener("message", (event3) => {
+    if (event3.data && event3.data.type === "le-highlight" && event3.data.loc) {
+      const loc = event3.data.loc;
+      const model2 = editor.getModel();
+      if (model2 && loc.start !== void 0 && loc.end !== void 0) {
+        const startPos = model2.getPositionAt(loc.start);
+        const endPos = model2.getPositionAt(loc.end);
+        editor.setSelection(new monaco.Range(
+          startPos.lineNumber,
+          startPos.column,
+          endPos.lineNumber,
+          endPos.column
+        ));
+        editor.revealRangeInCenter(new monaco.Range(
+          startPos.lineNumber,
+          startPos.column,
+          endPos.lineNumber,
+          endPos.column
+        ));
+        editor.focus();
+      }
+    }
+  });
   const assistantInput = document.getElementById("assistant-input");
   const btnAssistantSend = document.getElementById("btn-assistant-send");
   const assistantHistory = document.getElementById("assistant-history");

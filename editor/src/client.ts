@@ -1852,6 +1852,126 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         }
     });
 
+    const btnProofGame = document.getElementById('btn-proof-game') as HTMLButtonElement;
+    
+    btnProofGame.addEventListener('click', async () => {
+        if (!isLoaded) {
+            const success = await loadModule();
+            if (!success) return;
+        }
+        
+        const scenario = scenarioSelect.value;
+        const query = querySelect.value;
+        
+        const customScenario = scenario === '___custom___' ? customScenarioText.value : null;
+        const customQuery = query === '___custom___' ? customQueryText.value : null;
+
+        if (!query) {
+            alert('Please select a query for the Proof Game.');
+            return;
+        }
+        
+        // Fetch the rules and facts from the server to populate the game
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'getGameData',
+                    sessionModule: sessionModule,
+                    query: query,
+                    scenario: scenario,
+                    customScenario: customScenario,
+                    customQuery: customQuery
+                })
+            });
+            const res = await response.json();
+            
+            if (res && res.gameData) {
+                const text = editor.getValue();
+                
+                // Process rules to extract exact text
+                res.gameData.rules = res.gameData.rules.map((rule: any) => {
+                    if (rule.start !== undefined && rule.end !== undefined) {
+                        const ruleText = text.substring(rule.start, rule.end);
+                        const lines = ruleText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+                        
+                        let exactHead = null;
+                        let exactBody = null;
+                        
+                        if (lines.length > 1) {
+                            // Multi-line rule
+                            exactHead = lines[0].replace(/:$/, '').replace(/^(?:only\s+if|if)\b/i, '').trim();
+                            let bodyLines = lines.slice(1);
+                            if (bodyLines[0].toLowerCase() === 'if' || bodyLines[0].toLowerCase() === 'only if') {
+                                bodyLines = bodyLines.slice(1);
+                            }
+                            exactBody = bodyLines.map(l => l.replace(/^(?:only\s+if|if|and|or)\b/i, '').replace(/\b(?:and|or)$/i, '').replace(/\.$/, '').trim());
+                        } else if (lines.length === 1) {
+                            // Single-line rule
+                            const match = lines[0].match(/\b(?:only\s+if|if)\b/i);
+                            if (match) {
+                                exactHead = lines[0].substring(0, match.index).replace(/:$/, '').trim();
+                                const bodyStr = lines[0].substring(match.index + match[0].length).replace(/\.$/, '').trim();
+                                exactBody = bodyStr.split(/\band\b|\bor\b/i).map(s => s.trim());
+                            }
+                        }
+                        
+                        // Only use exact text if the number of body conditions matches
+                        if (exactHead && exactBody && exactBody.length === rule.body.length) {
+                            rule.head = exactHead;
+                            rule.body = exactBody;
+                        }
+                    }
+                    return rule;
+                });
+                
+                // Process facts to extract exact text
+                res.gameData.facts = res.gameData.facts.map((fact: any) => {
+                    if (fact.start !== undefined && fact.end !== undefined && fact.start !== 0) {
+                        const factText = text.substring(fact.start, fact.end).replace(/\.$/, '').trim();
+                        if (factText) {
+                            fact.fact = factText;
+                        }
+                    }
+                    return fact;
+                });
+
+                localStorage.setItem('le_proof_game_data', JSON.stringify(res.gameData));
+                const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' : 
+                                     document.body.className.includes('hc-theme') ? 'hc-theme' : '';
+                window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
+            } else {
+                alert('Failed to get game data from server.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error connecting to server for game data.');
+        }
+    });
+
+    // Listen for messages from the Proof Game window
+    window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'le-highlight' && event.data.loc) {
+            const loc = event.data.loc;
+            const model = editor.getModel();
+            if (model && loc.start !== undefined && loc.end !== undefined) {
+                const startPos = model.getPositionAt(loc.start);
+                const endPos = model.getPositionAt(loc.end);
+                editor.setSelection(new monaco.Range(
+                    startPos.lineNumber, startPos.column,
+                    endPos.lineNumber, endPos.column
+                ));
+                editor.revealRangeInCenter(new monaco.Range(
+                    startPos.lineNumber, startPos.column,
+                    endPos.lineNumber, endPos.column
+                ));
+                editor.focus();
+            }
+        }
+    });
+
     // Assistant Logic
     const assistantInput = document.getElementById('assistant-input') as HTMLInputElement;
     const btnAssistantSend = document.getElementById('btn-assistant-send') as HTMLButtonElement;
