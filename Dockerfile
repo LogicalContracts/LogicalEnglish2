@@ -39,7 +39,7 @@ COPY opencode.json ./
 ENV OPENCODE_DANGEROUSLY_SKIP_PERMISSIONS=true
 
 # Build the editor
-RUN cd editor && npm install && npm run build
+RUN cd editor && npm install --legacy-peer-deps && npm run build
 
 ARG BUILD_INFO="unknown"
 RUN echo "${BUILD_INFO}" > build_info.txt
