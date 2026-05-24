@@ -1124,7 +1124,41 @@ That "it is unknown whether..." statement should map to a le_unknown(...) fact w
 
 Please add an example rule and scenarion for testing to unknowns.le, and implement this.
 
+## Bob's game
 
+Now for a new feature:  an interactive display view for a Logical English program: a puzzle-solving like canvas surface where rules and facts (including one selected scenario) are represented by blocks, which a naive user can rearrange into a solution (proof tree). So in the example picture, 4 rules and 2 facts are represented on the left, a query on the top right, and an explanation of the solution (answer)  in the bottom right. In the picture blocks are colored and label-less, for pre-literate children, that will be a view mode;  but in another mode rather than color blocks we want blocks labeled LE literals (template instances). 
+To recap, these are the UI elements :
+- We invoke this new view in a separate window after selecting a scenario and query, and clicking a button "Proof Game", which will be near the Query and other existing buttons
+- On the left a palette-like area with all rules of the program represented with head above and body conditions below, connected by arrows
+- Another area on the left with program and scenario facts
+- Top right, a block with the query
+- In "pre-school" mode, literals are uniquely colored (tooltips showing the hidden LE literals); in "adult" mode, LE literals (template instances) appear
+
+the user's goal is to drag and connect together enough rules and facts to support one answer to the query. the whole view is effectively, a manual proof builder/assistant.
+
+Behind the scenes, we can use the explanations for the query answers to check whether the current proof is possible - or simply call our LE server to validate unification of literals. So the user proof has several states:
+- still possible: compatible with some explanation
+- impossible: some non matching rule head vs rule condition of parent above
+- complete: provide some little animation to reward the user
+
+It would be nice to have visual feedback when nodes match or not.
+
+Use Rete.js (install it with npm) for the view UI in a first version, but keep things clean so we may move to React Flow or another library later.
+
+Make an implementation plan... then execute it, I trust you!
+
+### improvemments
+- please improve the layout, nodes (for example for citizenship.le) are all together
+- query node should display the actual LE query sentence, not its name
+- Links betwen nodes should have arrows (body condition --> head)
+- Ideally, if possible I would like lines between nodes to be alway vertical, as we want the proof to be built top down
+- Add some zoom and panning controls
+- When you select a node, highlight the corresponding source in the editor
+  - add a button to rearrange nodes
+### TBD
+variables are not using the correct determiners
+when linking a head/fact to a rule body condition, we need to unify and propagate and retain the bindings in the whole tree fragment
+cleanup code, move some to le_kbs.le?
 
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.

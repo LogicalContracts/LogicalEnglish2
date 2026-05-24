@@ -1,0 +1,46 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
+  <diagram name="Page-1" id="9I-AjP_tMQp-SudOEhIC">
+    <mxGraphModel dx="1885" dy="871" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="2336" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-14" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="" vertex="1">
+          <mxGeometry height="210" width="990" x="200" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="a person acquires British citizenship on a date&lt;div style=&quot;position: absolute; left: 120px; bottom: -16px; transform: translateX(-50%);&quot;&gt;&lt;span class=&quot;input-socket&quot;&gt;&lt;span&gt;&lt;br class=&quot;Apple-interchange-newline&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="40" width="260" x="600" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="the person is born in the UK on the date" vertex="1">
+          <mxGeometry height="40" width="240" x="210" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="the date is after commencement" vertex="1">
+          <mxGeometry height="40" width="190" x="460" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-8" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="an other person is the mother of the person" vertex="1">
+          <mxGeometry height="40" width="253" x="657" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="the other person is the father of the person" vertex="1">
+          <mxGeometry height="40" width="253" x="657" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-10" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="OR" vertex="1">
+          <mxGeometry height="40" width="41.5" x="758.5" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-11" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="the other person is a British citizen on the date" vertex="1">
+          <mxGeometry height="40" width="265" x="915" y="190" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-12" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="the other person is settled in the UK on the date" vertex="1">
+          <mxGeometry height="40" width="265" x="915" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-13" parent="1" style="rhombus;whiteSpace=wrap;html=1;" value="OR" vertex="1">
+          <mxGeometry height="40" width="40" x="1030" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-15" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="John is born in the UK on 2021-10-09" vertex="1">
+          <mxGeometry height="40" width="220" x="220" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="FyYIA5Pts5tQFhWpLoap-16" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Alice is the mother of John" vertex="1">
+          <mxGeometry height="40" width="163" x="690" y="330" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
