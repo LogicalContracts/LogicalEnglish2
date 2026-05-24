@@ -1121,6 +1121,16 @@ second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, New
         ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
         ; NewHead = unknown_template(Head, Start, End), NewBody = true).
 
+second_pass_scenario_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
+    (   parse_literal(Head, Templates, [], VMOut, Literal, _, true) ->  
+        NewHead = le_unknown(Literal),
+        collect_extra_goals(VMOut, ExtraGoals),
+        ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
+        ;   
+        NewHead = unknown_template(Head),
+        NewBody = true
+    ).
+
 second_pass_scenario_item(_Templates, expected(QueryName, Answers, Unknowns, Start, End), expected(QueryName, AnswerStrings, UnknownStrings, Start, End), _M) :-
     maplist(extract_answer_string, Unknowns, UnknownStrings),
     maplist(extract_answer_string, Answers, AnswerStrings).

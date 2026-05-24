@@ -4,17 +4,22 @@ the templates are:
     *a person* bets *a number* timely.
     *a payment* is in respect of *a claim*.
     *a payment* is processed.
+    *a payment* is approved.
+    *a payment* is finalized.
 
 the knowledge base unknowns includes:
+
+it is unknown whether a payment is in respect of claim 01.
 
 a person becomes rich if
     the person knows that a number will win the lottery and
     the person bets the number timely.
 
-it is unknown whether a payment is in respect of claim 01.
-
 a payment is processed if
     the payment is in respect of a claim.
+
+a payment is finalized if
+    the payment is approved.
 
 scenario one is:
     alice bets 42 timely.
@@ -34,8 +39,31 @@ scenario two is:
         "payment 100 is in respect of claim 1"
     ].
 
+scenario three is:
+    payment 100 is in respect of claim 01.
+    two expects answers [
+        "payment 100 is processed"
+    ] and unknowns [].
+
+scenario four is:
+    it is unknown whether a payment is approved.
+    three expects answers [
+        "payment 200 is finalized"
+    ] and unknowns [
+        "payment 200 is approved"
+    ].
+
+scenario five is:
+    payment 200 is approved.
+    three expects answers [
+        "payment 200 is finalized"
+    ] and unknowns [].
+
 query one is:
     which person becomes rich.
 
 query two is:
     payment 100 is processed.
+
+query three is:
+    payment 200 is finalized.

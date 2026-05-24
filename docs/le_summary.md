@@ -55,7 +55,7 @@ A prepositional template is a binary template that **starts with an argument** a
 - **Rule:** A statement with a head and a body.
   - `Head if Body.`
   - `*a person* is eligible if *a person* is a citizen.`
-- **Unknown Fact:** A statement declaring that a specific instance of a template is unknown.
+- **Unknown Fact:** A statement declaring that a specific instance of a template is unknown. These can appear in the knowledge base (applying to all scenarios) or within a specific `scenario` section.
   - `it is unknown whether *a payment* is in respect of claim 01.` (This binds the second argument to 'claim 01' and leaves the first argument unbound).
 
 ## 4. Logical Operators
