@@ -1124,6 +1124,15 @@ That "it is unknown whether..." statement should map to a le_unknown(...) fact w
 
 Please add an example rule and scenarion for testing to unknowns.le, and implement this.
 
+### unknowns in scenarios
+Another Logical English language feature: a tweak to 'unknown facts"; let such statements occur only as part of scenarios. Because in some scenarios something may be unknown, but not in others.
+
+So scenarios will continue to have facts, expected answers and unknonwns, and now.... also statements declaring that a specific instance of a template is unknown.
+
+Add a simple example to unknowns.le and implement this feature: parser, scenario representation, reasoner. 
+While you're at it, colour 'it is unknown whether' as reserve3d words (just like "scenario", "expects answers", etc.)
+And update le_summary.md
+
 ## Bob's game
 
 Now for a new feature:  an interactive display view for a Logical English program: a puzzle-solving like canvas surface where rules and facts (including one selected scenario) are represented by blocks, which a naive user can rearrange into a solution (proof tree). So in the example picture, 4 rules and 2 facts are represented on the left, a query on the top right, and an explanation of the solution (answer)  in the bottom right. In the picture blocks are colored and label-less, for pre-literate children, that will be a view mode;  but in another mode rather than color blocks we want blocks labeled LE literals (template instances). 
