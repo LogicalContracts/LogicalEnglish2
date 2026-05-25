@@ -7827,7 +7827,7 @@ var leMonarchTokens = {
       [/the (predicates|templates|fluents|events) are:/, { token: "keyword.header", next: "@templates" }],
       [/the knowledge base|the contract|scenario|query|the ontology|the target language/, "keyword.header"],
       // Structural Keywords
-      [/\b(includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|it\s+is\s+unknown\s+whether|says\s+that|sum|count|average|min|max|such\s+that)\b/, "keyword"],
+      [/\b(includes\s+these\s+resources|includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|it\s+is\s+unknown\s+whether|says\s+that|sum|count|average|min|max|such\s+that)\b/, "keyword"],
       [/^\s*(and|or)\b/, "keyword"],
       [/\b(which|what)\s+[a-zA-Z]\w*/, "variable"],
       [/\bexpects answers\b/, "keyword.expects"],
@@ -38491,6 +38491,7 @@ async function start() {
   let isLoaded = false;
   let isLoading = false;
   let sessionModule = null;
+  let includedResources = [];
   let loadTimeout = null;
   let availableModels = [];
   let serverKeys = [];
@@ -39423,6 +39424,7 @@ async function start() {
       if (res && res.sessionModule) {
         sessionModule = res.sessionModule;
         isLoaded = true;
+        includedResources = res.included_resources || [];
         kbModuleDisplay.textContent = `KB: ${res.kb || "unknown"}`;
         sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
         graphChannel.postMessage({
@@ -40415,6 +40417,19 @@ async function start() {
   });
   monaco.languages.registerHoverProvider("le", {
     provideHover: async (model2, position3) => {
+      const offset = model2.getOffsetAt(position3);
+      if (includedResources && includedResources.length > 0) {
+        for (const res2 of includedResources) {
+          if (offset >= res2.start && offset <= res2.end) {
+            return {
+              contents: [
+                { value: `**Included Resource:** ${res2.resource}` },
+                { value: `Rules: ${res2.rules} | Templates: ${res2.templates}` }
+              ]
+            };
+          }
+        }
+      }
       const res = await sendRequest("textDocument/hover", {
         textDocument: { uri: "file:///main.le" },
         position: { line: position3.lineNumber - 1, character: position3.column - 1 }

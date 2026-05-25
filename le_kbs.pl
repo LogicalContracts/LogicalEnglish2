@@ -12,7 +12,7 @@
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2]).
+    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -27,6 +27,7 @@
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
+:- use_module(library(http/http_open)).
 
 :- (exists_file('le_extensions.pl') -> use_module('le_extensions') ; true).
 
@@ -247,6 +248,9 @@ process_section_acc(ontology(Content, Start, End), M) :-
     assertz(M:le_source_info(Ref, Start, End, ontology)),
     forall(member(Item, Content), process_item(Item, M)).
 
+process_section_acc(resources(_, Resources, Start, End), M) :-
+    forall(member(R, Resources), assertz(M:le_included_resource(R, Start, End))).
+
 process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
@@ -258,6 +262,66 @@ process_section_acc(unknown_section(Tokens, Start, End), M) :-
     ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
     format(atom(Desc), "Unknown or malformed section starting with: ~w", [Name]),
     assertz(M:le_issue(error, unknown_section, Desc, Start, End)).
+
+fetch_resources(Sections, MergedSections, M) :-
+    (   member(resources(_, Resources, _, _), Sections)
+    ->  fetch_all_resources(Resources, M, IncludedSections),
+        append(IncludedSections, Sections, MergedSections)
+    ;   MergedSections = Sections
+    ).
+
+fetch_all_resources([], _, []).
+fetch_all_resources([R|Rs], M, AllSections) :-
+    fetch_resource(R, M, Sections),
+    fetch_all_resources(Rs, M, RestSections),
+    append(Sections, RestSections, AllSections).
+
+fetch_resource(Resource, M, Sections) :-
+    (   sub_atom(Resource, 0, _, _, 'http://') ; sub_atom(Resource, 0, _, _, 'https://') )
+    ->  atom_concat(Resource, '.le', URL),
+        (   catch(fetch_url(URL, Text), _, fail)
+        ->  parse_resource_text(Text, M, Sections),
+            count_rules_and_templates(Sections, RuleCount, TemplateCount),
+            assertz(M:le_resource_stats(Resource, RuleCount, TemplateCount))
+        ;   format(atom(Desc), "Failed to fetch URL: ~w", [URL]),
+            (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
+            Sections = []
+        )
+    ;   % local file
+        atom_concat(Resource, '.le', File),
+        (   exists_file(File)
+        ->  read_file_to_string(File, Text, []),
+            parse_resource_text(Text, M, Sections),
+            count_rules_and_templates(Sections, RuleCount, TemplateCount),
+            assertz(M:le_resource_stats(Resource, RuleCount, TemplateCount))
+        ;   format(atom(Desc), "Resource not found: ~w", [Resource]),
+            (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
+            Sections = []
+        ).
+
+count_rules_and_templates(Sections, RuleCount, TemplateCount) :-
+    findall(1, (member(kb(_, Content, _, _), Sections), member(rule(_,_,_,_,_,_), Content)), Rules),
+    length(Rules, RuleCount),
+    findall(1, (member(S, Sections), (S = templates(Dicts) ; S = predicates(Dicts)), member(_, Dicts)), Templates),
+    length(Templates, TemplateCount).
+
+parse_resource_text(Text, M, FilteredMergedSections) :-
+    tokenizer:tokenize(Text, Tokens),
+    (   phrase(le_grammar:doc(Sections), Tokens)
+    ->  fetch_resources(Sections, MergedSections, M),
+        exclude(is_scenario_or_query, MergedSections, FilteredMergedSections)
+    ;   FilteredMergedSections = []
+    ).
+
+is_scenario_or_query(scenario(_, _, _, _)).
+is_scenario_or_query(query(_, _, _, _)).
+
+fetch_url(URL, Text) :-
+    setup_call_cleanup(
+        http_open(URL, In, []),
+        read_string(In, _, Text),
+        close(In)
+    ).
 
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, Unknown), M) :-
     assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown)), Ref),
@@ -694,9 +758,16 @@ get_kb_metadata(KB, Metadata) :-
     (   current_predicate(KB:scenario/2) ->  
         findall(_{name: Name}, KB:scenario(Name, _), Scenarios)
         ;   
-        Queries = []
+        Scenarios = []
     ),
-    Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios }.
+    (   current_predicate(KB:le_included_resource/3) ->
+        findall(_{resource: R, start: Start, end: End, rules: RuleCount, templates: TemplateCount}, (
+            KB:le_included_resource(R, Start, End),
+            ( KB:le_resource_stats(R, RuleCount, TemplateCount) -> true ; RuleCount = 0, TemplateCount = 0 )
+        ), IncludedResources)
+    ;   IncludedResources = []
+    ),
+    Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios, included_resources: IncludedResources }.
 
 %!  topPredicates(+KB:atom, -TopPreds:list) is det.
 %

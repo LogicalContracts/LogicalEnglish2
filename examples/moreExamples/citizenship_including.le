@@ -1,0 +1,19 @@
+the templates are:
+    *a person* is awesome.
+
+the knowledge base citizenship_including includes these resources:
+    examples/moreExamples/citizenship_premier,
+    https://raw.githubusercontent.com/mcalejo/LogicalEnglish2/main/examples/moreExamples/royal_family.
+
+the knowledge base citizenship_including includes:
+    a person is awesome if
+        the person is a premier league player.
+
+scenario one is:
+    one expects answers [
+        "alice is awesome",
+        "bob is awesome"
+    ].
+
+query one is:
+    which person is awesome.
