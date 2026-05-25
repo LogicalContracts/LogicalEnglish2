@@ -213,11 +213,13 @@ facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
 % --- 6. Failed tests ---
 failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     current_predicate(KB:le_expected/4),
-    clause(KB:le_expected(QueryName, ScenarioName, ExpectedStrings, _Unknowns), true, Ref),
-    run_one_test(KB, test(QueryName, ScenarioName, ExpectedStrings), Result),
+    clause(KB:le_expected(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), true, Ref),
+    run_one_test(KB, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), Result),
     Result \= pass(_, _),
     (   Result = fail(_, _, Expected, Actual) ->
         format(atom(Description), "Test failed for query '~w' in scenario '~w'.~nExpected: ~w~nActual: ~w", [QueryName, ScenarioName, Expected, Actual])
+    ;   Result = fail(_, _, Expected, Actual, ExpectedU, ActualU) ->
+        format(atom(Description), "Test failed for query '~w' in scenario '~w'.~nExpected: ~w~nActual: ~w~nExpected Unknowns: ~w~nActual Unknowns: ~w", [QueryName, ScenarioName, Expected, Actual, ExpectedU, ActualU])
     ;   Result = error(_, _, Error) ->
         format(atom(Description), "Test error for query '~w' in scenario '~w': ~w", [QueryName, ScenarioName, Error])
     ;   format(atom(Description), "Test failed for query '~w' in scenario '~w'", [QueryName, ScenarioName])

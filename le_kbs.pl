@@ -221,7 +221,7 @@ process_section_acc(kb(Name, Content, Start, End), M) :-
     forall(member(Item, Content), process_item(Item, M)).
 
 process_section_acc(scenario(Name, Content, Start, End), M) :-
-    dynamic(M:le_expected/3),
+    dynamic(M:le_expected/4),
     partition(is_expected_item, Content, ExpectedItems, FactItems),
     findall(D, M:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, AllTemplates),
@@ -895,7 +895,7 @@ verify(LEfilePath) :-
         setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
         ; LegacyTests = []
     ),
-    ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
+    ( current_predicate(KBmodule:le_expected/4) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
     append(LegacyTests, EmbeddedTests, AllTests),
     (   AllTests \== [] ->  
         maplist(run_one_test(KBmodule), AllTests, TestResults),
@@ -994,7 +994,7 @@ runTestsFor(LEFile, Result) :-
             setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
             ; LegacyTests = []
         ),
-        ( current_predicate(KBmodule:le_expected/3) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
+        ( current_predicate(KBmodule:le_expected/4) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
         append(LegacyTests, EmbeddedTests, AllTests),
         maplist(run_one_test(KBmodule), AllTests, TestResults),
         Result = test_file(LEFile, TestResults)
