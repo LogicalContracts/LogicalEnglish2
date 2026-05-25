@@ -17,6 +17,9 @@ primary_region = 'lhr'
 [build]
   image = "le2:latest"
 
+[env]
+  ALLOWED_LE_EXPORTS = "examples/moreExamples"
+
 [http_service]
   internal_port = 3050
   force_https = true

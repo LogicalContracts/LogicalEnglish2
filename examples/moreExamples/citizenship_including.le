@@ -1,19 +1,37 @@
 the templates are:
-    *a person* is awesome.
+    *a person* supports *a team*.
+    *a person* is a royal supporter of *a player*.
 
 the knowledge base citizenship_including includes these resources:
     examples/moreExamples/citizenship_premier,
     https://raw.githubusercontent.com/mcalejo/LogicalEnglish2/main/examples/moreExamples/royal_family.
 
 the knowledge base citizenship_including includes:
-    a person is awesome if
-        the person is a premier league player.
+    queen victoria supports man city.
+    edward supports arsenal.
+    george supports liverpool.
+
+    a person is a royal supporter of a player if
+        the person is an ancestor of elizabeth and
+        the person supports a team and
+        the player plays for the team.
 
 scenario one is:
+    % We need to include the facts from royal_family's scenario to make the ancestor rules work,
+    % because scenarios are not included from resources.
+    queen victoria is a parent of edward.
+    edward is a parent of george.
+    george is a parent of george vi.
+    george vi is a parent of elizabeth.
+
     one expects answers [
-        "alice is awesome",
-        "bob is awesome"
+        "queen victoria is a royal supporter of erling haaland",
+        "queen victoria is a royal supporter of kevin de bruyne",
+        "edward is a royal supporter of bukayo saka",
+        "edward is a royal supporter of martin odegaard",
+        "george is a royal supporter of mohamed salah",
+        "george is a royal supporter of virgil van dijk"
     ].
 
 query one is:
-    which person is awesome.
+    which person is a royal supporter of which player.

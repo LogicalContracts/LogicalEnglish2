@@ -1,14 +1,34 @@
 the templates are:
+    *a person* plays for *a team*.
     *a person* is a premier league player.
 
 the knowledge base citizenship_premier includes:
-    alice is a premier league player.
-    bob is a premier league player.
+    erling haaland plays for man city.
+    kevin de bruyne plays for man city.
+    marcus rashford plays for man united.
+    bruno fernandes plays for man united.
+    bukayo saka plays for arsenal.
+    martin odegaard plays for arsenal.
+    mohamed salah plays for liverpool.
+    virgil van dijk plays for liverpool.
+    son heung min plays for tottenham.
+    james maddison plays for tottenham.
+
+    a person is a premier league player if
+        the person plays for a team.
 
 scenario one is:
     one expects answers [
-        "alice is a premier league player",
-        "bob is a premier league player"
+        "erling haaland is a premier league player",
+        "kevin de bruyne is a premier league player",
+        "marcus rashford is a premier league player",
+        "bruno fernandes is a premier league player",
+        "bukayo saka is a premier league player",
+        "martin odegaard is a premier league player",
+        "mohamed salah is a premier league player",
+        "virgil van dijk is a premier league player",
+        "son heung min is a premier league player",
+        "james maddison is a premier league player"
     ].
 
 query one is:

@@ -626,10 +626,8 @@ handle_source(Request) :-
     ;   http_reply(forbidden(FilePath))
     ).
 
-is_allowed_export(FilePath) :- getenv('ALLOWED_LE_EXPORTS', AllowedStr), !,
+is_allowed_export(FilePath) :- getenv('ALLOWED_LE_EXPORTS', AllowedStr),
     split_string(AllowedStr, ",", " ", AllowedDirs),
     member(DirStr, AllowedDirs),
     atom_string(Dir, DirStr),
     sub_atom(FilePath, 0, _, _, Dir).
-is_allowed_export(FilePath) :-
-    sub_atom(FilePath, 0, _, _, 'examples/moreExamples').
