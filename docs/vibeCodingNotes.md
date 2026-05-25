@@ -1133,6 +1133,45 @@ Add a simple example to unknowns.le and implement this feature: parser, scenario
 While you're at it, colour 'it is unknown whether' as reserve3d words (just like "scenario", "expects answers", etc.)
 And update le_summary.md
 
+## Modules
+
+We now want to let one LE program include others. For this we'll have a new construct "...includes these resources",  which must precede our regular "the knowledge base myKB includes:" header:
+
+the knowledge base myKB includes these resources:
+    Resource1, ..., ResourceN.
+the knowledge base myKB includes:
+    <rules as usual>
+
+Each of the named resources, separated by commas, must be a well formed LE designated as follows, alternatively:
+- relative file path
+- URL
+
+In both cases the '.le' extension is implicit. So for example we could have an expanded citizenship_including.le like this:
+
+<templates...>
+the knowledge base citizenship_including includes these resources:
+    royal_family, https://le2.logicalcontracts.com/source/royal_family .
+
+the knowledge base citizenship_including includes:
+<local rules..>
+
+What does "include another LE program mean": 
+- The included rules, facts, templates, ontology are added to the local KB module, after existing ones (assertz); and are used during reasoning
+- Scenarios and queries are not included
+- The including KB's meaning requires successful including of all the remote resources: expected answers assume that; syntactic colouring assumes that too (by colouring included template occurrences in local rules)
+
+So please implement these steps:
+- new citizenship_including.le example, including a local file (perhaps some variant of royal_family.le, or some new other one that you like doing) and a remote resource; also create a new small example citizenship_premier.le with facts a few about Premier League soccer players, to be included via URL. Include expected answers for each.
+- classic_web_api change: new web endpoint /source to serve the raw LE source text of an example; the example path MUST be allowed in a new env var ALLOWED_LE_EXPORTS defining a list of strict paths to directories in the server's example dir; just "examples/moreExamples" for starters
+- parser changes
+  - in addition to "the knowledge base <name> includes these resources:", accept also the alternative form "the contract citizenship_including includes these resources:"
+- le_kbs and reasoner: loading the includer KB entails immediately loading the included resources; add remote LE fetcher (for URL resources);later we may add some authentication mechanics, but not now
+- editor changes: colouring, and also had tooltips to the included resources, showing rule and template counts of the included resource. Otherwise only local KB items are editable as usual
+- update le_summary.md
+  
+...AND make sure all tests continue to run successfully.
+
+
 ## Bob's game
 
 Now for a new feature:  an interactive display view for a Logical English program: a puzzle-solving like canvas surface where rules and facts (including one selected scenario) are represented by blocks, which a naive user can rearrange into a solution (proof tree). So in the example picture, 4 rules and 2 facts are represented on the left, a query on the top right, and an explanation of the solution (answer)  in the bottom right. In the picture blocks are colored and label-less, for pre-literate children, that will be a view mode;  but in another mode rather than color blocks we want blocks labeled LE literals (template instances). 
