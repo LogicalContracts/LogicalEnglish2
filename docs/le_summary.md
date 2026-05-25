@@ -5,7 +5,8 @@ This document provides a summary of the Logical English constructs supported by 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
 
-- **Knowledge Base:** `the knowledge base <name> includes:`
+- **Included Resources:** `the knowledge base <name> includes these resources:` or `the contract <name> includes these resources:` (Used to include other LE files or URLs. Must precede the main knowledge base header).
+- **Knowledge Base:** `the knowledge base <name> includes:` or `the contract <name> states that:`
 - **Scenario:** `scenario <name> is:` (Used for defining facts for a specific test case)
   - Can include expectations: `<QueryName> expects answers [<List of Strings>] and unknowns [<List of Strings>].`
 - **Query:** `query <name> is:` (Used for defining the goals to be proven)
@@ -151,3 +152,13 @@ Logical English provides several system predicates that can be accessed via the 
 - **`query_info(Name, Goal, Items)`**: Stores information about a named query.
 - **`le_expected(QueryName, ScenarioName, ExpectedAnswers)`**: Stores expected answers for a query in a scenario.
 - **`ontology(Content)`**: Stores the raw content of the ontology section.
+
+## 14. Included Resources
+Logical English programs can include other LE programs using the `includes these resources:` header.
+- **Syntax:**
+  ```le
+  the knowledge base myKB includes these resources:
+      Resource1, Resource2.
+  ```
+- **Resources:** Can be relative file paths (e.g., `royal_family`) or URLs (e.g., `https://le2.logicalcontracts.com/source/royal_family`). The `.le` extension is implicit.
+- **Behavior:** The included rules, facts, templates, and ontology are added to the local KB module and used during reasoning. Scenarios and queries from included resources are ignored.

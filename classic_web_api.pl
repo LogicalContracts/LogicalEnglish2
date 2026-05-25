@@ -36,6 +36,7 @@
 :- http_handler(root(query), handle_rest_query, [method(post)]).
 :- http_handler(root(verify), handle_rest_verify, [method(post)]).
 :- http_handler(root(example_details), handle_rest_example_details, [method(post)]).
+:- http_handler(root('source/'), handle_source, [prefix]).
 :- http_handler('/dap', dap_websocket_handler, []).
 :- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
 :- http_handler('/editor', http_redirect(moved, '/editor/index.html'), []).
@@ -613,3 +614,22 @@ is_interesting_term(Head) :-
     (   \+ le_kbs:is_system_predicate(F/N)
     ;   member(F/N, [le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3, le_expected/3])
     ).
+handle_source(Request) :-
+    member(path(Path), Request),
+    atom_concat('/source/', ExamplePath, Path),
+    atom_concat(ExamplePath, '.le', FilePath),
+    (   is_allowed_export(FilePath)
+    ->  (   exists_file(FilePath)
+        ->  http_reply_file(FilePath, [mime_type(text/plain)], Request)
+        ;   http_reply(not_found(FilePath))
+        )
+    ;   http_reply(forbidden(FilePath))
+    ).
+
+is_allowed_export(FilePath) :- getenv('ALLOWED_LE_EXPORTS', AllowedStr), !,
+    split_string(AllowedStr, ",", " ", AllowedDirs),
+    member(DirStr, AllowedDirs),
+    atom_string(Dir, DirStr),
+    sub_atom(FilePath, 0, _, _, Dir).
+is_allowed_export(FilePath) :-
+    sub_atom(FilePath, 0, _, _, 'examples/moreExamples').

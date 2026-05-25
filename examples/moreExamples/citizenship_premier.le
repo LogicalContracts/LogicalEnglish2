@@ -1,0 +1,15 @@
+the templates are:
+    *a person* is a premier league player.
+
+the knowledge base citizenship_premier includes:
+    alice is a premier league player.
+    bob is a premier league player.
+
+scenario one is:
+    one expects answers [
+        "alice is a premier league player",
+        "bob is a premier league player"
+    ].
+
+query one is:
+    which person is a premier league player.

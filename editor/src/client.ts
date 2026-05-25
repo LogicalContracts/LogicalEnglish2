@@ -155,6 +155,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         let isLoaded = false;
         let isLoading = false;
         let sessionModule: string | null = null;
+        let includedResources: any[] = [];
         let loadTimeout: any = null;
         let availableModels: any[] = [];
         let serverKeys: string[] = [];
@@ -1191,6 +1192,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             if (res && res.sessionModule) {
                 sessionModule = res.sessionModule;
                 isLoaded = true;
+                includedResources = res.included_resources || [];
                 
                 kbModuleDisplay.textContent = `KB: ${res.kb || 'unknown'}`;
                 sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
@@ -2315,6 +2317,20 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
     monaco.languages.registerHoverProvider('le', {
         provideHover: async (model: any, position: any) => {
+            const offset = model.getOffsetAt(position);
+            if (includedResources && includedResources.length > 0) {
+                for (const res of includedResources) {
+                    if (offset >= res.start && offset <= res.end) {
+                        return {
+                            contents: [
+                                { value: `**Included Resource:** ${res.resource}` },
+                                { value: `Rules: ${res.rules} | Templates: ${res.templates}` }
+                            ]
+                        };
+                    }
+                }
+            }
+
             const res: any = await sendRequest('textDocument/hover', {
                 textDocument: { uri: 'file:///main.le' },
                 position: { line: position.lineNumber - 1, character: position.column - 1 }

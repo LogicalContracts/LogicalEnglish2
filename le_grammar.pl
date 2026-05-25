@@ -72,7 +72,8 @@ parse_le_tokens(Tokens, doc(NewSections), M) :-
         fail
     ),
     check_scenario_before_rules(Sections, M),
-    (   second_pass(Sections, NewSections, M) ->  true 
+    le_kbs:fetch_resources(Sections, MergedSections, M),
+    (   second_pass(MergedSections, NewSections, M) ->  true 
         ;   
         print_message(error, "second_pass failed"),
         fail
@@ -115,6 +116,17 @@ doc(Sections) --> sections(Sections), any_indent.
 % sections([S|Ss]) parses one or more sections.
 sections([S|Ss]) --> section(S), !, sections(Ss).
 sections([]) --> [].
+
+% section(resources(...)) parses a resources inclusion section.
+section(resources(Name, Resources, Start, End)) -->
+    any_indent, t(word(the, loc(Start, _))), t(word(knowledge)), t(word(base)), kb_name_tokens(Tokens), t(word(includes)), t(word(these)), t(word(resources)), t(punctuation(':', _)),
+    { reconstruct_name(Tokens, Name) },
+    resource_list(Resources, End).
+
+section(resources(Name, Resources, Start, End)) -->
+    any_indent, t(word(the, loc(Start, _))), t(word(contract)), kb_name_tokens_contract(Tokens), t(word(includes)), t(word(these)), t(word(resources)), t(punctuation(':', _)),
+    { reconstruct_name(Tokens, Name) },
+    resource_list(Resources, End).
 
 % section(kb(...)) parses a knowledge base section.
 section(kb(Name, Content, Start, End)) --> 
@@ -242,6 +254,29 @@ next_section_start --> any_indent, t(word(the, _)), t(word(templates)).
 next_section_start --> any_indent, t(word(the, _)), t(word(fluents)).
 next_section_start --> any_indent, t(word(the, _)), t(word(events)).
 next_section_start --> any_indent, t(word(the, _)), t(word(target)).
+
+resource_list([R|Rs], End) -->
+    any_indent, resource_item(R),
+    (   t(punctuation(',', _)) -> resource_list(Rs, End)
+    ;   t(punctuation('.', loc(_, End))), peek_next_section_start -> { Rs = [] }
+    ).
+
+peek_next_section_start(Tokens, Tokens) :-
+    phrase(next_section_start, Tokens, _).
+
+resource_item(Resource) -->
+    resource_tokens(Tokens),
+    { reconstruct_name(Tokens, ResourceStr),
+      % Remove any trailing spaces
+      normalize_space(atom(Resource), ResourceStr) }.
+
+resource_tokens([T]) -->
+    [T], { \+ is_punctuation(T, ','), \+ is_punctuation(T, '.') }.
+resource_tokens([T|Ts]) -->
+    [T], { \+ is_punctuation(T, ',') },
+    resource_tokens(Ts).
+
+is_punctuation(punctuation(P, _), P).
 
 % kb_content(Content, End) parses the items within a knowledge base or scenario.
 kb_content(Content, End) -->
