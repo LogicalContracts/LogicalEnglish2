@@ -105,6 +105,17 @@ Used to perform calculations over sets of results.
   - `*V1* is known`
   - `*V1* is in *V2*` (List membership)
 
+### 7.1 Date Handling and Comparisons
+Dates are fully supported as a first-class type in Logical English:
+- **Representation:** Dates are parsed by the tokenizer and represented internally as compound terms of the form `date(Year, Month, Day)` (e.g., `date(2021, 10, 9)`).
+- **Type System:** `date` is treated as a regular type. When templates define variables like `*a date*`, the type `date` is automatically registered in the ontology/type system (??? to be confirmed).
+- **Comparisons:** Dates can be compared chronologically using built-in comparison templates:
+  - `*V1* is after *V2*` (maps to `le_gt`)
+  - `*V1* is before *V2*` (maps to `le_lt`)
+  - `*V1* is after or equal to *V2*` (maps to `le_ge`)
+  - `*V1* is before or equal to *V2*` (maps to `le_le`)
+  These map to standard Prolog term comparison operators (`@>`, `@<`, `@>=`, `@=<`), which naturally and correctly compare `date(Y, M, D)` terms chronologically.
+
 ## 8. Taxonomy (Ontology)
 - **Is-a hierarchy:** `<Subtype> is a <Supertype>` or `<Subtype> is an <Supertype>`
 - **Example:** `a student is a person.`
