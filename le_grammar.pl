@@ -32,6 +32,34 @@ set_token_pos(Pos) :-
 get_token_pos(Pos) :-
     ( current_token_pos(P) -> Pos = P; Pos = 0).
 
+:- thread_local current_allow_commas/1.
+
+%!  set_allow_commas(+Val:boolean) is det.
+%
+%   Sets whether commas are allowed inside template instances.
+set_allow_commas(Val) :-
+    retractall(current_allow_commas(_)),
+    assertz(current_allow_commas(Val)).
+
+%!  get_allow_commas(-Val:boolean) is det.
+%
+%   Gets whether commas are allowed inside template instances.
+get_allow_commas(Val) :-
+    ( current_allow_commas(V) -> Val = V ; Val = true ).
+
+%!  with_allow_commas(+Val:boolean, +DCGGoal)// is det.
+%
+%   DCG non-terminal that temporarily sets allow_commas to Val while executing DCGGoal,
+%   ensuring the state is correctly restored on success, failure, or backtracking.
+with_allow_commas(Val, DCGGoal, StateIn, StateOut) :-
+    get_allow_commas(Old),
+    set_allow_commas(Val),
+    (   phrase(DCGGoal, StateIn, StateOut),
+        set_allow_commas(Old)
+    ;   set_allow_commas(Old),
+        fail
+    ).
+
 :- discontiguous second_pass_item/4.
 :- discontiguous second_pass_ontology_item/4.
 :- discontiguous second_pass_scenario_item/4.
@@ -111,7 +139,7 @@ is_rule_item(fact(_, _, _)).
 
 % DCG for Logical English
 % doc(Sections) parses the entire document into a list of sections.
-doc(Sections) --> sections(Sections), any_indent.
+doc(Sections) --> { set_allow_commas(true) }, sections(Sections), any_indent.
 
 % sections([S|Ss]) parses one or more sections.
 sections([S|Ss]) --> section(S), !, sections(Ss).
@@ -533,7 +561,7 @@ template_var_words([W|Ws]) --> t(word(W)), !, template_var_words(Ws).
 template_var_words([]) --> [].
 
 % list_elements(Elements) parses a comma-separated list of template instances.
-list_elements([E|Es]) --> template_instance(E), ( t(punct(',')), !, list_elements(Es) | { Es = [] } ).
+list_elements([E|Es]) --> with_allow_commas(false, template_instance(E)), ( t(punct(',')), !, list_elements(Es) | { Es = [] } ).
 list_elements([]) --> [].
 
 numbered_body(numbered(Body), End) --> 
@@ -567,7 +595,8 @@ is_terminator --> any_indent, t(punctuation(';', _)).
 is_terminator --> any_indent, t(word(if)), t(punctuation(':', _)).
 is_terminator --> any_indent, t(word(unless)), t(punctuation(':', _)).
 is_terminator --> any_indent, t(punctuation('.', _)), peek_terminator.
-is_terminator --> any_indent, t(punctuation(',', _)).
+is_terminator --> any_indent, t(punctuation(',', _)), { \+ get_allow_commas(true) }.
+is_terminator --> any_indent, t(punctuation(',', _)), peek_terminator.
 is_terminator --> any_indent, t(word(if, _)).
 is_terminator --> any_indent, t(word(unless, _)).
 is_terminator --> any_indent, t(word(either, _)).

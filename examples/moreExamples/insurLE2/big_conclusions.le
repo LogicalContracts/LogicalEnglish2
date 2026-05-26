@@ -40,6 +40,9 @@ the templates are:
     our policy is *a policy*;  
         defines global this policy; defines global your policy.   
         % p(this policy) <-> our policy is X and p(X)
+    
+    you can demonstrate that non-compliance with this condition could not have increased the risk of the loss, damage, accident or injury occurring in the incident *an incident*.
+
 
 the ontology is:
     wear and tear or negligence is a cause.
@@ -54,6 +57,11 @@ we will make a payment under this policy in respect of a claim
     and it is not the case that
         we will not make the payment under this policy in respect of the claim
     and the payment with respect of the claim fulfils all the general conditions of this policy.
+
+we will not make a payment under this policy in respect of an incident unless 
+                you take reasonable steps to prevent accident or injury and to protect your property against loss or damage
+       and  you keep any property insured under this policy in good condition and repair
+  or you can demonstrate that non-compliance with this condition could not have increased the risk of the loss, damage, accident or injury occurring in the incident the incident.
 
 % Form 1
 we will not make a payment under this policy in respect of an incident unless
