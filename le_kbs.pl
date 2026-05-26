@@ -701,7 +701,7 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
     ;   copy_term(Head, HeadCopy),
-        (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args]
+        (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _))), HeadCopy =.. [Functor|Args]
         ->  maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
             maplist(fill_variable_name(NTs), WordsAndVars1, WordsAndVars2),
             flatten(WordsAndVars2, WordsAndVars)
@@ -795,7 +795,7 @@ is_used_by_other_rules(KB, F, A) :-
     functor(Literal, F, A).
 
 pred_to_template(KB, F/A, TemplateStr) :-
-    (   (KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars)))
+    (   (KB:le_dict(dict([F|_], NTs, WordsAndVars, _, _, _, _)) ; KB:le_dict(dict([F|_], NTs, WordsAndVars, _)))
     ->  copy_term(NTs-WordsAndVars, NTsCopy-WordsAndVarsCopy),
         maplist(fill_type, NTsCopy),
         canonical_string(WordsAndVarsCopy, TemplateStr)

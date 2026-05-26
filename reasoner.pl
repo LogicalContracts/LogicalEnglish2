@@ -225,11 +225,11 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 has_opposite(G, SM, KM, OppG) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, A),
-    (   (M:le_dict(dict([F|Args], _, _, _, Opposite, _, _)) ; M:le_dict(dict([F|Args], _, _, _, Opposite, _)) ; M:le_dict(dict([F|Args], _, _, _, Opposite))), length(Args, A), nonvar(Opposite) ->
+    (   M:le_dict(dict([F|Args], _, _, _, Opposite, _, _)), length(Args, A), nonvar(Opposite) ->
         % G is the main predicate
         G =.. [F | GArgs],
         copy_term(dict(Args, Opposite), dict(GArgs, OppG))
-    ;   (M:le_dict(dict(FA, _, _, _, Opposite, _, _)) ; M:le_dict(dict(FA, _, _, _, Opposite, _)) ; M:le_dict(dict(FA, _, _, _, Opposite))), nonvar(Opposite), functor(Opposite, F, A) ->
+    ;   M:le_dict(dict(FA, _, _, _, Opposite, _, _)), nonvar(Opposite), functor(Opposite, F, A) ->
         % G is the opposite predicate
         Opposite =.. [F | OppArgs],
         G =.. [F | GArgs],
@@ -242,7 +242,7 @@ has_opposite(G, SM, KM, OppG) :-
 is_type_compatible(SM, KM, G) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, N),
-    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
+    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
         G =.. [F|ActualArgs],
         check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM)
     ; true
