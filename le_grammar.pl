@@ -1023,7 +1023,7 @@ second_pass_item(Templates, rule(Head, only_if(BodyTokens), Indent, Start, End, 
         ),
         (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, SubBody) ->
             collect_extra_goals(VMOut, ExtraGoals),
-            ( ExtraGoals == [] -> NewBody = not(SubBody) ; list_to_conj([not(SubBody) | ExtraGoals], NewBody) )
+            ( ExtraGoals == [] -> NewBody = not(SubBody) ; append(ExtraGoals, [not(SubBody)], AllGoals), list_to_conj(AllGoals, NewBody) )
         ;   NewBody = true
         ),
         ( le_kbs:do_log -> format('only_if rule: ~w if ~w~n', [NewHead, NewBody]) ; true )
@@ -1035,7 +1035,7 @@ second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, I
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
         (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, SubBody) ->  
             collect_extra_goals(VMOut, ExtraGoals),
-            ( ExtraGoals == [] -> NewBody = not(SubBody) ; list_to_conj([not(SubBody) | ExtraGoals], NewBody) )
+            ( ExtraGoals == [] -> NewBody = not(SubBody) ; append(ExtraGoals, [not(SubBody)], AllGoals), list_to_conj(AllGoals, NewBody) )
             ;   
             NewBody = true % Fallback
         )
@@ -1049,7 +1049,7 @@ second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
         (   le_extensions:parse_numbered_body(BodyTokens, Templates, VM1, VMOut, Body0, ActualID, M) ->  
             collect_extra_goals(VMOut, ExtraGoals),
-            ( ExtraGoals == [] -> NewBody = Body0 ; list_to_conj([Body0 | ExtraGoals], NewBody) )
+            ( ExtraGoals == [] -> NewBody = Body0 ; append(ExtraGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
             ;   
             NewBody = true % Fallback
         )
@@ -1065,7 +1065,7 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clau
         (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->  
             ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true),
             collect_extra_goals(VMOut, ExtraGoals),
-            ( ExtraGoals == [] -> NewBody = Body0 ; list_to_conj([Body0 | ExtraGoals], NewBody) )
+            ( ExtraGoals == [] -> NewBody = Body0 ; append(ExtraGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
             ;   
             ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
             NewBody = true % Fallback
@@ -1104,6 +1104,22 @@ collect_extra_goals_acc([], []).
 collect_extra_goals_acc([extra_goal(G)|Rest], [G|Gs]) :- !, collect_extra_goals_acc(Rest, Gs).
 collect_extra_goals_acc([_|Rest], Gs) :- collect_extra_goals_acc(Rest, Gs).
 
+collect_new_extra_goals(VM1, VMIn, NewExtraGoals) :-
+    collect_extra_goals(VM1, AllGoals),
+    collect_extra_goals(VMIn, ExistingGoals),
+    exclude(member_of_list(ExistingGoals), AllGoals, NewExtraGoals).
+
+member_of_list(List, Element) :-
+    member(X, List),
+    X == Element.
+
+remove_extra_goals([], _, []).
+remove_extra_goals([extra_goal(G)|Rest], NewExtraGoals, Out) :-
+    member_of_list(NewExtraGoals, G), !,
+    remove_extra_goals(Rest, NewExtraGoals, Out).
+remove_extra_goals([X|Rest], NewExtraGoals, [X|Out]) :-
+    remove_extra_goals(Rest, NewExtraGoals, Out).
+
 list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], and(G, Rest)) :- list_to_conj(Gs, Rest).
 list_to_conj([], true).
@@ -1134,7 +1150,7 @@ second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
             (Body0 == true -> Body1 = is_a(Var, Name) ; Body1 = and(is_a(Var, Name), Body0))
           ; Body1 = Body0
         ),
-        ( ExtraGoals == [] -> NewBody = Body1 ; list_to_conj([Body1 | ExtraGoals], NewBody) )
+        ( ExtraGoals == [] -> NewBody = Body1 ; append(ExtraGoals, [Body1], AllGoals), list_to_conj(AllGoals, NewBody) )
         ; 
         NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut5, NewBody)
@@ -1145,7 +1161,7 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
     ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, VMOut6, Body0),
         collect_extra_goals(VMOut6, ExtraGoals),
-        ( ExtraGoals == [] -> NewBody = Body0 ; list_to_conj([Body0 | ExtraGoals], NewBody) )
+        ( ExtraGoals == [] -> NewBody = Body0 ; append(ExtraGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
         ; 
         NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut7, NewBody)
@@ -1181,7 +1197,7 @@ second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID)
     ( parse_literal(Head, Templates, [], VM1, NewHead0, Instance, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, VMOut10, Body0),
         collect_extra_goals(VMOut10, ExtraGoals),
-        ( ExtraGoals == [] -> NewHead = and(NewHead0, Body0) ; list_to_conj([NewHead0, Body0 | ExtraGoals], NewHead) )
+        ( ExtraGoals == [] -> NewHead = and(NewHead0, Body0) ; append([NewHead0 | ExtraGoals], [Body0], AllGoals), list_to_conj(AllGoals, NewHead) )
         ; 
         NewHead = unknown_template(Head, Start, End), Instance = Head,
         parse_body(BodyTokens, Indent, Templates, [], _VMOut11, _Body)
@@ -1474,11 +1490,12 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
         ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->  
-            collect_extra_goals(VM1, ExtraGoals),
-            (   ExtraGoals == [] -> Logic0 = Literal
-            ;   list_to_conj([Literal | ExtraGoals], Logic0)
+            collect_new_extra_goals(VM1, VMIn, NewExtraGoals),
+            (   NewExtraGoals == [] -> Logic0 = Literal
+            ;   list_to_conj([Literal | NewExtraGoals], Logic0)
             ),
-            fold_nodes(Logic0, Children, Templates, VM1, VMOut, Logic1),
+            remove_extra_goals(VM1, NewExtraGoals, VM2),
+            fold_nodes(Logic0, Children, Templates, VM2, VMOut, Logic1),
             ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic1, Start, End) ; Logic = Logic1 )
         ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
             Literal = is_a(Type, SuperType),
