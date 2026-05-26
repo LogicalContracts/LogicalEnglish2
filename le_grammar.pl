@@ -1109,6 +1109,20 @@ collect_new_extra_goals(VM1, VMIn, NewExtraGoals) :-
     collect_extra_goals(VMIn, ExistingGoals),
     exclude(member_of_list(ExistingGoals), AllGoals, NewExtraGoals).
 
+collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals) :-
+    get_vm_prefix(VM1, VMIn, Prefix),
+    collect_extra_goals(Prefix, LiteralExtraGoals).
+
+get_vm_prefix(VM1, VMIn, Prefix) :-
+    length(VM1, L1),
+    length(VMIn, LIn),
+    LDiff is L1 - LIn,
+    (   LDiff > 0 ->
+        length(Prefix, LDiff),
+        append(Prefix, _, VM1)
+    ;   Prefix = []
+    ).
+
 member_of_list(List, Element) :-
     member(X, List),
     X == Element.
@@ -1490,10 +1504,11 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
         ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->  
-            collect_new_extra_goals(VM1, VMIn, NewExtraGoals),
-            (   NewExtraGoals == [] -> Logic0 = Literal
-            ;   list_to_conj([Literal | NewExtraGoals], Logic0)
+            collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals),
+            (   LiteralExtraGoals == [] -> Logic0 = Literal
+            ;   list_to_conj([Literal | LiteralExtraGoals], Logic0)
             ),
+            collect_new_extra_goals(VM1, VMIn, NewExtraGoals),
             remove_extra_goals(VM1, NewExtraGoals, VM2),
             fold_nodes(Logic0, Children, Templates, VM2, VMOut, Logic1),
             ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic1, Start, End) ; Logic = Logic1 )
