@@ -25,6 +25,9 @@ the templates are:
         prepositional.
     *a damage* is caused by *a cause*;
         prepositional.
+    
+    *an employee* brings *a claim* against you for *a bodily injury*.
+    *a payment* with respect of *a claim* fulfils all the general conditions of *a policy*.
 
     % fictional helpers:
     our company loves *an incident*.
@@ -42,7 +45,15 @@ the ontology is:
     wear and tear or negligence is a cause.
     burst pipe is a cause.
 
+
 the contract big_conclusions states that:
+
+% May 26 JD email
+we will make a payment under this policy in respect of a claim
+    if an employee brings the claim against you for a bodily injury 
+    and it is not the case that
+        we will not make the payment under this policy in respect of the claim
+    and the payment with respect of the claim fulfils all the general conditions of this policy.
 
 % Form 1
 we will not make a payment under this policy in respect of an incident unless
@@ -96,7 +107,6 @@ customer becomes richer with a claim if
 we will cover a cost in respect of a damage caused by a burst pipe if
     it is not the case that
         the damage is caused by wear and tear or negligence.
-
 
 % --- Test scenarios exercising the prepositional-chaining feature ---
 
