@@ -32,6 +32,7 @@ COPY *.db ./
 COPY examples/ ./examples/
 COPY llm/ ./llm/
 COPY editor/ ./editor/
+COPY web_extras/ ./web_extras/
 COPY docs/ ./docs/
 COPY AGENTS_LE_template.md ./
 COPY opencode.json ./
