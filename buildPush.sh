@@ -1,6 +1,7 @@
 #!/bin/bash
-#WARNING this script pushes proprietary information to the Docker image; make sure that image is kept private, and that 
-#the LE2 authentication protects restricted examples, cf. configuration in restricted_paths.pl
+#WARNING this script pushes proprietary information to the Docker image, namely extended LE examples and web_extras; 
+# make sure that image is kept private, and that 
+# the LE2 authentication protects restricted examples, cf. configuration in restricted_paths.pl
 set -e
 
 GIT_HASH=$(git rev-parse --short HEAD)
