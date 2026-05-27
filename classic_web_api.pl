@@ -25,7 +25,7 @@
 :- use_module(le_assistant).
 :- use_module(dap_server).
 :- use_module(llm/llm_client, [llm_list_models/1]).
-:- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1]).
+:- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_rest_example_details/1]).
 :- use_module(le_users).
 :- use_module(restricted_paths).
 
