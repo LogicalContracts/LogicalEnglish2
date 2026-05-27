@@ -5,7 +5,7 @@
     prompts, and resources. It supports both STDIO (untested) and HTTP transports.
 */
 
-:- module(mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_mcp_stdio/0]).
+:- module(mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_rest_example_details/1, handle_mcp_stdio/0]).
 
 :- use_module(library(http/http_json)).
 :- use_module(library(http/http_dispatch)).
@@ -16,7 +16,7 @@
 :- use_module('../le_system_templates').
 
 :- dynamic mcp_only_query_verify/0.
-mcp_only_query_verify. % Uncomment to enable the flag
+% mcp_only_query_verify. % Uncomment to enable the flag
 
 % --- STDIO Handler ---
 
@@ -418,21 +418,21 @@ call_tool("list_examples", _Args, Result) :-
     Result = _{examples: Examples}.
 
 call_tool("get_example_details", Args, Result) :-
-    ExampleName = Args.get(example_name, ""),
+    get_dict(example_name, Args, ExampleName),
     examples_dir(Dir),
     atom_concat(Dir, ExampleName, Path0),
     (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
     le_kbs:load(Path, KB),
     le_kbs:get_kb_metadata(KB, Metadata),
     ( current_predicate(KB:scenario/2) -> findall(_{name: Name}, KB:scenario(Name, _), Scenarios); Scenarios = []),
-    Result = Metadata.put(_{examples: Scenarios}).
+    Result = Metadata.put(_{scenarios: Scenarios}).
 
 call_tool("query", Args, Result) :-
-    Query = Args.get(query, ""),
-    ExampleName = Args.get(example_name, ""),
-    ProgramText = Args.get(program_text, ""),
-    ScenarioName = Args.get(scenario_name, ""),
-    Facts = Args.get(facts, ""),
+    get_dict(query, Args, Query),
+    ( get_dict(example_name, Args, ExampleName) -> true ; ExampleName = "" ),
+    ( get_dict(program_text, Args, ProgramText) -> true ; ProgramText = "" ),
+    ( get_dict(scenario_name, Args, ScenarioName) -> true ; ScenarioName = "" ),
+    ( get_dict(facts, Args, Facts) -> true ; Facts = "" ),
     (   ExampleName \== "" ->
         examples_dir(Dir),
         atom_concat(Dir, ExampleName, Path0),
@@ -457,10 +457,10 @@ call_tool("query", Args, Result) :-
     ).
 
 call_tool("verify", Args, Result) :-
-    ProgramText = Args.get(program_text, ""),
+    get_dict(program_text, Args, ProgramText),
     le_kbs:load_text(ProgramText, KB),
-    findall(_{severity: Sev, type: Type, message: Msg, start: Start, end: End},
-            KB:le_issue(Sev, Type, Msg, Start, End),
+    findall(_{severity: Sev, type: Type, message: Msg, fix: Fix, start: Start, end: End},
+            KB:le_issue(Sev, Type, Msg, Fix, Start, End),
             Issues),
     % Run embedded tests if any
     ( current_predicate(KB:le_expected/3) -> 
@@ -505,7 +505,8 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
     append(SubExamplesLists, SubExamplesFlat),
     append(DirectExamples, SubExamplesFlat, Examples).
 
-run_query(SM, Query, KB, Result) :-
+run_query(SM, QueryStr, KB, Result) :-
+    ( atom_string(QueryAtom, QueryStr), KB \== none, KB:query_info(QueryAtom, Goal, _) -> Query = Goal ; Query = QueryStr ),
     findall(_{answer: AnswerStr, explanation: JSONWhy}, (
         le_kbs:query(SM, Query, Instance, _, Why),
         le_kbs:canonical_string(Instance, AnswerStr),
