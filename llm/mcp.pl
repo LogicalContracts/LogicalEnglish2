@@ -409,7 +409,8 @@ examples_dir(AbsDir) :-
     working_directory(CWD, CWD),
     % Remove trailing slash from CWD if present
     ( sub_atom(CWD, _, 1, 0, '/') -> sub_atom(CWD, 0, _, 1, CWD0) ; CWD0 = CWD ),
-    format(atom(AbsDir), "~w/examples/moreExamples/", [CWD0]).
+    le_examples_dir(ExDir),
+    format(atom(AbsDir), "~w/~w/", [CWD0, ExDir]).
 
 call_tool("list_examples", _Args, Result) :-
     examples_dir(Dir),
