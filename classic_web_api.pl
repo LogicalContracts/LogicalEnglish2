@@ -626,6 +626,7 @@ handle_source(Request) :-
     ;   http_reply(forbidden(FilePath))
     ).
 
+% installations usually define ALLOWED_LE_EXPORTS=examples/moreExamples
 is_allowed_export(FilePath) :- getenv('ALLOWED_LE_EXPORTS', AllowedStr),
     split_string(AllowedStr, ",", " ", AllowedDirs),
     member(DirStr, AllowedDirs),
