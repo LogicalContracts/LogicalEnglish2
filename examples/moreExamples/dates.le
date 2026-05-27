@@ -1,0 +1,51 @@
+the target language is: prolog. 
+    
+the templates are:
+
+*a person* is a regular member of PEG at *a date*. 
+*a person* has attended a PEG workshop before *a date*.
+*a person* has coauthored a paper presented at a PEG workshop before *a date*.
+*a person* has attended a PEG online meeting at *a date*.
+*a person* is elected for the PEG advisory board by the PEG membership at *a date*.
+*an election* is held for the PEG advisory board at *a date*.
+*a first date* is within 6 months of *a second date*.
+*a person* is a member of the PEG advisory board at *a date*.
+*an election* is held for the PEG advisory board at *a date*.
+
+the knowledge base peg2 includes:
+
+a person is a regular member of PEG at a date if 
+    the person has attended a PEG workshop before the date 
+    or the person has coauthored a paper presented at a PEG workshop before the date.
+
+A person is a regular member of PEG at a date if 
+    the person has attended a PEG online meeting at an other date 
+    and the date is within 6 months of the other date.
+
+A person is a member of the PEG advisory board at a date T2 if 
+    an election is held for the PEG advisory board at a date T1
+    and T1 is before T2
+    and the person is elected for the PEG advisory board by the PEG membership at T1 
+    and it is not the case that 
+        an other election is held for the PEG advisory board at a date T 
+        and T is after T1 
+        and T is before T2.
+
+A date is within 6 months of an other date if 
+    the date is after the other date 
+    and a third date is 180 days after the other date
+    and the date is before the third date.
+
+scenario one is:
+    Senior member has attended a PEG workshop before 2026-03-04.
+    New member has attended a PEG online meeting at 2026-03-03.
+
+scenario two is: 
+    Election 2026 is held for the PEG advisory board at 2026-01-01.
+    Wise person is elected for the PEG advisory board by the PEG membership at 2026-01-01.
+
+query one is:
+    which person is a regular member of PEG at 2026-03-04. 
+
+query two is:
+    which person is a member of the PEG advisory board at 2026-03-04.

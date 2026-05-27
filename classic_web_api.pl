@@ -15,6 +15,7 @@
 :- use_module(library(http/http_files)).
 :- use_module(library(http/http_host)).
 :- use_module(library(http/html_write)).
+:- use_module(library(http/http_session)).
 :- use_module(le_kbs).
 :- use_module(tokenizer).
 :- use_module(le_grammar).
@@ -25,12 +26,16 @@
 :- use_module(dap_server).
 :- use_module(llm/llm_client, [llm_list_models/1]).
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1]).
+:- use_module(le_users).
+:- use_module(restricted_paths).
 
 :- dynamic build_info/1.
 
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
 :- http_handler(root(build_info), handle_build_info, [method(get)]).
 :- http_handler(root(.), handle_landing_page, []).
+:- http_handler(root(login), handle_login, []).
+:- http_handler(root(logout), handle_logout, []).
 :- http_handler(root(mcp), handle_mcp, []).
 :- http_handler(root(list_examples), handle_rest_list_examples, [method(get)]).
 :- http_handler(root(query), handle_rest_query, [method(post)]).
@@ -134,15 +139,28 @@ handle_graph(Dict, Response) :-
 handle_landing_page(Request) :-
     http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)])]),
     (   RunTests == true ->
-        le_kbs:runTestsInDir('examples/moreExamples', Results),
+        le_examples_dir(Dir), le_kbs:runTestsInDir(Dir, Results),
         format_test_results(Results, TestHtml)
     ;   TestHtml = []
     ),
-    landing_example_items('examples/moreExamples', ExampleItems),
+    (   http_in_session(_SessionId),
+        http_session_data(user(Email, Roles))
+    ->  UserEmail = Email, UserRoles = Roles
+    ;   UserEmail = 'anonymous', UserRoles = []
+    ),
+    (   UserEmail == 'anonymous'
+    ->  AuthLink = a(href('/login'), '[Login]')
+    ;   AuthLink = a(href('/logout'), '[Logout]')
+    ),
+    le_examples_dir(Dir), landing_example_items(Dir, UserRoles, ExampleItems),
     build_info(BuildInfo),
     reply_html_page(
         [title('Logical English 2.0')],
         [
+            div([style('float: right; padding: 10px;')], [
+                span(['Logged in as: ', b(UserEmail), ' ']),
+                AuthLink
+            ]),
             h1('Logical English 2.0'),
             p(small(['Build: ', BuildInfo])),
             ul([
@@ -162,17 +180,50 @@ handle_landing_page(Request) :-
         ]
     ).
 
-%!  landing_example_items(+Dir:atom, -Items:list) is det.
+handle_login(Request) :-
+    (   member(method(post), Request)
+    ->  http_parameters(Request, [email(Email, []), password(Password, [])]),
+        (   authenticate_le_user(Email, Password, Roles)
+        ->  http_session_assert(user(Email, Roles)),
+            http_redirect(moved, '/', Request)
+        ;   reply_html_page(
+                [title('Login Failed')],
+                [h1('Login Failed'), p('Invalid email or password.'), a(href('/login'), 'Try again')]
+            )
+        )
+    ;   reply_html_page(
+            [title('Login')],
+            [
+                h1('Login'),
+                form([action('/login'), method('post')], [
+                    p(['Email: ', input([type(text), name(email)])]),
+                    p(['Password: ', input([type(password), name(password)])]),
+                    p(input([type(submit), value('Login')]))
+                ])
+            ]
+        )
+    ).
+
+handle_logout(Request) :-
+    (   http_in_session(_)
+    ->  http_session_retractall(user(_, _))
+    ;   true
+    ),
+    http_redirect(moved, '/', Request).
+
+%!  landing_example_items(+Dir:atom, +UserRoles:list, -Items:list) is det.
 %
 %   Builds HTML list items for all examples in Dir, grouping subdirectory
 %   examples under an indented header.
-landing_example_items(Dir, Items) :-
+landing_example_items(Dir, UserRoles, Items) :-
     directory_files(Dir, Files),
     findall(Base, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
         \+ sub_atom(F, _, _, 0, '.le.tests'),
-        file_name_extension(Base, le, F)
+        file_name_extension(Base, le, F),
+        atomic_list_concat([Dir, '/', F], ExPath),
+        is_path_allowed(ExPath, UserRoles)
     ), Bases0),
     sort(Bases0, Bases),
     findall(li(a([href(Url)], Base)), (
@@ -184,14 +235,18 @@ landing_example_items(Dir, Items) :-
         \+ sub_atom(SubDir, 0, 1, _, '.'),
         directory_file_path(Dir, SubDir, SubDirPath),
         exists_directory(SubDirPath),
+        is_path_allowed(SubDirPath, UserRoles),
         directory_files(SubDirPath, SubFiles),
         findall(SubBase, (
             member(SF, SubFiles),
             sub_atom(SF, _, _, 0, '.le'),
             \+ sub_atom(SF, _, _, 0, '.le.tests'),
-            file_name_extension(SubBase, le, SF)
+            file_name_extension(SubBase, le, SF),
+            atomic_list_concat([SubDirPath, '/', SF], SubExPath),
+            is_path_allowed(SubExPath, UserRoles)
         ), SubBases0),
         sort(SubBases0, SubBases),
+        SubBases \= [],
         findall(li(a([href(SubUrl)], SubBase)), (
             member(SubBase, SubBases),
             atomic_list_concat([SubDir, '/', SubBase], ExPath),
@@ -230,25 +285,35 @@ result_to_row(test_file(File, FileResults), tr([
 
 handle_examples(Dict, Response) :-
     get_dict(file, Dict, FileName),
-    atom_concat('examples/moreExamples/', FileName, Path0),
-    ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
-    ( exists_file(Path) -> read_file_to_string(Path, Doc, []), Response = _{document: Doc}; Response = _{answer: "File not found", details: Path, document: ""}).
+    le_examples_dir(Dir),
+    atomic_list_concat([Dir, '/', FileName], Path0),
+    (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+    (   is_path_allowed(Path0, UserRoles)
+    ->  ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
+        ( exists_file(Path) -> read_file_to_string(Path, Doc, []), Response = _{document: Doc}; Response = _{answer: "File not found", details: Path, document: ""})
+    ;   Response = _{error: "Access denied"}
+    ).
 
 handle_list_examples(_Dict, Response) :-
-    list_examples_in_dir('examples/moreExamples/', '', Examples),
+    le_examples_dir(Dir),
+    atomic_list_concat([Dir, '/'], DirSlash),
+    (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+    list_examples_in_dir(DirSlash, '', UserRoles, Examples),
     Response = _{examples: Examples}.
 
-%!  list_examples_in_dir(+Dir:atom, +Prefix:atom, -Examples:list) is det.
+%!  list_examples_in_dir(+Dir:atom, +Prefix:atom, +UserRoles:list, -Examples:list) is det.
 %
 %   Collects example base names (with Prefix prepended) from Dir and its subdirectories.
 %   Subdirectory examples are returned as "subdir/name".
-list_examples_in_dir(Dir, Prefix, Examples) :-
+list_examples_in_dir(Dir, Prefix, UserRoles, Examples) :-
     directory_files(Dir, Files),
     findall(ExPath, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
         \+ sub_atom(F, _, _, 0, '.le.tests'),
         file_name_extension(Base, le, F),
+        atomic_list_concat([Dir, F], FullPath),
+        is_path_allowed(FullPath, UserRoles),
         atom_concat(Prefix, Base, ExPath)
     ), DirectExamples),
     findall(SubExamples, (
@@ -256,8 +321,10 @@ list_examples_in_dir(Dir, Prefix, Examples) :-
         \+ sub_atom(F, 0, 1, _, '.'),
         directory_file_path(Dir, F, SubDir),
         exists_directory(SubDir),
+        is_path_allowed(SubDir, UserRoles),
         atomic_list_concat([Prefix, F, '/'], SubPrefix),
-        list_examples_in_dir(SubDir, SubPrefix, SubExamples)
+        atomic_list_concat([SubDir, '/'], SubDirSlash),
+        list_examples_in_dir(SubDirSlash, SubPrefix, UserRoles, SubExamples)
     ), SubExamplesLists),
     append(SubExamplesLists, SubExamplesFlat),
     append(DirectExamples, SubExamplesFlat, Examples).
@@ -305,11 +372,16 @@ handle_load(Dict, Response) :-
         ( catch(le_kbs:load_text(Doc, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load_text failed")), fail)
         ;   
         get_dict(file, Dict, File),
-        atom_concat('examples/moreExamples/', File, Path0),
-        ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
-        (   sub_atom(Path, _, _, 0, '.le') ->  
-                ( catch(le_kbs:load(Path, KB), E2, (print_message(error, E2), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load failed")), fail)
-            ; ( catch(load_prolog_file(Path, KB), E3, (print_message(error, E3), fail)) -> Language = prolog; print_message(error, le_api_error(load, "load_prolog_file failed")), fail)
+        le_examples_dir(Dir),
+        atomic_list_concat([Dir, '/', File], Path0),
+        (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+        (   is_path_allowed(Path0, UserRoles)
+        ->  ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
+            (   sub_atom(Path, _, _, 0, '.le') ->  
+                    ( catch(le_kbs:load(Path, KB), E2, (print_message(error, E2), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load failed")), fail)
+                ; ( catch(load_prolog_file(Path, KB), E3, (print_message(error, E3), fail)) -> Language = prolog; print_message(error, le_api_error(load, "load_prolog_file failed")), fail)
+            )
+        ;   print_message(error, le_api_error(load, "Access denied")), fail
         )
     ),
     ( catch(createSession(KB, SM), E4, (print_message(error, E4), fail)) -> true; print_message(error, le_api_error(load, "createSession failed")), fail),
@@ -618,7 +690,8 @@ handle_source(Request) :-
     member(path(Path), Request),
     atom_concat('/source/', ExamplePath, Path),
     atom_concat(ExamplePath, '.le', FilePath),
-    (   is_allowed_export(FilePath)
+    (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+    (   is_allowed_export(FilePath), is_path_allowed(FilePath, UserRoles)
     ->  (   exists_file(FilePath)
         ->  http_reply_file(FilePath, [mime_type(text/plain)], Request)
         ;   http_reply(not_found(FilePath))

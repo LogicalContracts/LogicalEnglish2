@@ -10,7 +10,9 @@
 
 main :-
     % Load the citizenship knowledge base
-    load('examples/moreExamples/citizenship.le', KB),
+    le_examples_dir(Dir),
+    atomic_list_concat([Dir, '/citizenship.le'], Path),
+    load(Path, KB),
     format('Loaded KB: ~w~n', [KB]),
 
     % Test kbSummary

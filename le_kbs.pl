@@ -12,7 +12,8 @@
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3]).
+    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
+    le_examples_dir/1]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -28,6 +29,11 @@
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
 :- use_module(library(http/http_open)).
+
+%!  le_examples_dir(-Dir:atom) is det.
+%
+%   Returns the base directory for Logical English examples.
+le_examples_dir('examples/moreExamples').
 
 :- (exists_file('le_extensions.pl') -> use_module('le_extensions') ; true).
 
@@ -1006,7 +1012,7 @@ runTestsFor(LEFile, Result) :-
 %
 %   Runs all tests in the default examples directory and prints a summary.
 runTests :-
-    runTestsInDir('examples/moreExamples', Results),
+    le_examples_dir(Dir), runTestsInDir(Dir, Results),
     print_test_summary(Results),
     setup_call_cleanup(open('testSuiteStatus.txt', write, Stream), with_output_to(Stream, print_test_summary(Results)), close(Stream)),
     forall(member(R, Results), print_test_result(R)).
