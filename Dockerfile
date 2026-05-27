@@ -28,6 +28,7 @@ WORKDIR /app
 
 # Copy the Prolog source files and examples into the container
 COPY *.pl ./
+COPY *.db ./
 COPY examples/ ./examples/
 COPY llm/ ./llm/
 COPY editor/ ./editor/
