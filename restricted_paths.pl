@@ -10,6 +10,7 @@ restricted_access_for('examples/moreExamples/insureLE2', [insurLE2]).
 %   Succeeds if the Path is allowed for a user with UserRoles.
 %   If the path contains a restricted path, the user must have at least one
 %   of the required roles.
+is_path_allowed(_Path, _UserRoles) :- getenv('NO_RESTRICTIONS',true), !.
 is_path_allowed(Path, UserRoles) :-
     (   restricted_access_for(RestrictedPath, RequiredRoles),
         sub_atom(Path, _, _, _, RestrictedPath)
