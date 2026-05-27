@@ -1,2 +1,6 @@
 created(1779877793.251047).
 assert(le_user('support@logicalcontracts.com','At8mJx8lZnM86',[insurLE2])).
+assert(le_user('jd@logicalcontracts.com',lgClS6puuAGRg,[insurLE2])).
+assert(le_user('r.kowalski@imperial.ac.uk','JiZ4qnH3o/b5A',[insurLE2])).
+assert(le_user('john.cummins@axiomepartners.com','SMFwS/0jOlhmQ',[insurLE2])).
+assert(le_user('mc@logicalcontracts.com','BPr2.ntbZyjAo',[insurLE2])).

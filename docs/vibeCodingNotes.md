@@ -1208,6 +1208,18 @@ variables are not using the correct determiners
 when linking a head/fact to a rule body condition, we need to unify and propagate and retain the bindings in the whole tree fragment
 cleanup code, move some to le_kbs.le?
 
+## Authentication
+We now need to restrict web access to some example paths, with a minimal role-based system. We'll start with two access levels: anonymous users, and one user (support@logicalcontracts.com, initial password 'LE2rocks') with the 'insurLE2' role.
+
+Things to do:
+- (preliminary:) cleanup references to examples/moreExamples in the project. There should be only one reference, all other usage should refer to a single fact in le_kbs.pl
+- Store user(Email, BcryptHash, Roles) in a Prolog fact file le_users.pl. Use library(crypto)'s crypto_password_hash/2 — never store plaintext or unsalted hashes.
+- write predicate add_le_user(email,password,Roleslist) which adds to that file
+- Create a file restricted_paths.pl with a predicate restricted_excel_for(Path,RolesList) where acess rights are stated. Initially has a single fact restricted_excel_for('examples/more/examples/insurLE2', [insurLE2]). ALL web endpoints must refuse access to files containing this path UNLESS the user is authenticated and has one of the indicated roles
+- Review all web endpoints so they comply to the above restrictions. Go over docs/api.md for guidance. For now MCP endpoints should simply assume anonymous access
+- is_allowed_export(..) remains unchanged, just an additional condition on processing the /source endpoint
+- Add a minimal UI to our website, showing current logged-in user email or 'anonymous' in header, with a link to a simple form to authenticate, or alternatively link to logout 
+- Setup Playwright tests: anonymous user should not see insureLE2/ examples in our home page; support@logicalcontracts.com user should
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests

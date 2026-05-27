@@ -1,7 +1,7 @@
 
 Test Summary:
 -------------
-Files processed: 35
+Files processed: 38
 Total tests:     202
 Passed:          202
 Failed:          0
@@ -19,6 +19,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/dates.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gst.le: 12 Pass, 0 Fail, 0 Error
@@ -39,10 +40,12 @@ Detailed File Summary:
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insurLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insurLE2/globals.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insurLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insurLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insurLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/hiscox.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/hiscoxsimple.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
 -------------
 

@@ -138,15 +138,15 @@ handle_graph(Dict, Response) :-
 
 handle_landing_page(Request) :-
     http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)])]),
-    (   RunTests == true ->
-        le_examples_dir(Dir), le_kbs:runTestsInDir(Dir, Results),
-        format_test_results(Results, TestHtml)
-    ;   TestHtml = []
-    ),
     (   http_in_session(_SessionId),
         http_session_data(user(Email, Roles))
     ->  UserEmail = Email, UserRoles = Roles
     ;   UserEmail = 'anonymous', UserRoles = []
+    ),
+    (   RunTests == true ->
+        le_examples_dir(Dir), le_kbs:runTestsInDir(Dir, Results),
+        format_test_results(Results, UserRoles, TestHtml)
+    ;   TestHtml = []
     ),
     (   UserEmail == 'anonymous'
     ->  AuthLink = a(href('/login'), '[Login]')
@@ -255,19 +255,23 @@ landing_example_items(Dir, UserRoles, Items) :-
     ), SubDirItems),
     append(DirectItems, SubDirItems, Items).
 
-format_test_results(Results, [h3('Test Results'), table([border(1), cellpadding(5)], [
+format_test_results(Results, UserRoles, [h3('Test Results'), table([border(1), cellpadding(5)], [
     tr([th('File'), th('Pass'), th('Fail'), th('Error'), th('Status')])
     | TableRows
 ])]) :-
-    maplist(result_to_row, Results, TableRows).
+    maplist(result_to_row(UserRoles), Results, TableRows).
 
-result_to_row(test_file(File, FileResults), tr([
-    td(File),
+result_to_row(UserRoles, test_file(File, FileResults), tr([
+    td(DisplayFile),
     td(PassCount),
     td(FailCount),
     td(ErrCount),
     td(style(Color), Status)
 ])) :-
+    (   is_path_allowed(File, UserRoles)
+    ->  DisplayFile = File
+    ;   DisplayFile = '*** RESTRICTED ***'
+    ),
     findall(1, member(pass(_,_), FileResults), Passes),
     findall(1, member(fail(_,_,_,_), FileResults), Fails),
     findall(1, member(error(_,_,_), FileResults), Errs),
