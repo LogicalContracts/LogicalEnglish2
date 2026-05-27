@@ -34,6 +34,16 @@ The LE 2.0 environment provides a powerful, web-based IDE for developing and tes
 
 ## 🐳 Deployment
 
+### Environment Variables
+You can configure the deployment using the following environment variables:
+- `NO_RESTRICTIONS`: Set to `true` to disable example path restrictions.
+- `ALLOWED_LE_EXPORTS`: Comma-separated list of allowed /source web endpoint export paths.
+- `OPENAI_API_KEY`: API key for OpenAI models.
+- `ANTHROPIC_API_KEY`: API key for Anthropic models.
+- `GEMINI_API_KEY`, `GOOGLE_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`: API key for Google Gemini models.
+- `GROQ_API_KEY`: API key for Groq models.
+- `TOGETHER_API_KEY`, `TOGETHERAI_API_KEY`: API key for Together AI models.
+
 ### Local Installation (SWI-Prolog)
 To run Logical English 2.0 on your local machine:
 
