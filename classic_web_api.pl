@@ -44,6 +44,7 @@
 :- http_handler(root('source/'), handle_source, [prefix]).
 :- http_handler('/dap', dap_websocket_handler, []).
 :- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
+:- http_handler('/web_extras/', http_reply_from_files('web_extras', []), [prefix]).
 :- http_handler('/editor', http_redirect(moved, '/editor/index.html'), []).
 
 %!  start_api_server is det.

@@ -1220,6 +1220,10 @@ Things to do:
 - is_allowed_export(..) remains unchanged, just an additional condition on processing the /source endpoint
 - Add a minimal UI to our website, showing current logged-in user email or 'anonymous' in header, with a link to a simple form to authenticate, or alternatively link to logout 
 - Setup Playwright tests: anonymous user should not see insureLE2/ examples in our home page; support@logicalcontracts.com user should
+
+## Web extensions
+Let's web serve some static resources that may extend LE, by HTTP serving all files under the existing directory /web_extensions/ (which is a sym link; no need to create it) 
+
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests
