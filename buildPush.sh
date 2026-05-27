@@ -8,7 +8,7 @@ BUILD_INFO="${GIT_BRANCH}@${GIT_HASH} (${BUILD_DATE})"
 
 echo "Building le2 with info: ${BUILD_INFO}"
 
-# the following (together with .dockerignore) avoids the symlink problem with le_extensions.pl:
+# the following (together with .dockerignore) avoids the symlink problems with le_extensions.pl etc:
 TARFILE=$(mktemp -t docker-context.XXXXXX.tar)
 tar --exclude-from=.dockerignore -ch -f "$TARFILE" .
 # docker build --build-arg BUILD_INFO="${BUILD_INFO}" -t le2 - < "$TARFILE"

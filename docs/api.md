@@ -1,5 +1,31 @@
 # Logical English Web API (Preliminary DRAFT)
 
+## Table of Contents
+- [Authentication](#authentication)
+- [Request / Response format](#request--response-format)
+- [Operations](#operations)
+  - [`examples`](#examples--retrieve-a-built-in-example-document)
+  - [`list_examples`](#list_examples--list-all-available-le-examples)
+  - [`answer`](#answer--parse-a-document-and-answer-one-queryscenario-pair)
+  - [`explain`](#explain--parse-a-document-and-return-all-answers-for-a-queryscenario)
+  - [`load`](#load--load-a-le-or-prolog-program-into-a-fresh-session-module)
+  - [`answeringQuery`](#answeringquery--run-an-english-query-against-a-loaded-session-module)
+  - [`getProlog`](#getprolog--retrieve-the-prolog-translation-of-a-le-term)
+  - [`assistant_command`](#assistant_command--send-a-natural-language-command-to-the-le-assistant)
+  - [`assistant_status`](#assistant_status--poll-for-assistant-job-progress)
+  - [`getGameData`](#getgamedata--extract-rules-facts-and-query-for-a-gameui)
+  - [`assistant_interrupt`](#assistant_interrupt--interrupt-a-running-assistant-job)
+  - [`is_a_hierarchy`](#is_a_hierarchy--get-the-ontology-hierarchy)
+  - [`graph`](#graph--get-the-knowledge-base-graph)
+  - [`list_models`](#list_models--list-available-llm-models-and-server-side-keys)
+  - [`build_info`](#build_info--get-server-build-information)
+  - [`loadFactsAndQuery`](#loadfactsandquery--assert-facts-into-a-session-module-and-run-a-goal)
+  - [`query`](#query--low-level-prolog-query)
+- [Model Context Protocol (MCP) & REST Tools](#model-context-protocol-mcp--rest-tools)
+  - [Endpoints](#endpoints)
+- [Explanation tree nodes](#explanation-tree-nodes)
+- [Starting the server](#starting-the-server)
+
 The LE API is a JSON-over-HTTP REST endpoint served at `/leapi` (default port 3050).
 
 ## Authentication
@@ -287,6 +313,111 @@ Triggers an LLM-powered agent to perform tasks like refactoring, explaining, or 
 
 ---
 
+### `getGameData` — Extract rules, facts, and query for a game/UI
+
+Extracts the logical rules and facts from a loaded session module, formatted for use in a UI or game engine.
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "getGameData",
+  "sessionModule": "<module name>",
+  "scenario": "<scenario name or null>",
+  "customScenario": "<LE facts string or null>",
+  "query": "<query name or null>",
+  "customQuery": "<LE query string or null>"
+}
+```
+
+**Response**
+
+```json
+{
+  "gameData": {
+    "rules": [ { "head": "...", "body": ["..."], "start": 0, "end": 0 } ],
+    "facts": [ { "fact": "...", "start": 0, "end": 0 } ],
+    "query": "..."
+  },
+  "result": "ok"
+}
+```
+
+---
+
+### `assistant_interrupt` — Interrupt a running assistant job
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "assistant_interrupt",
+  "job_id": "<job ID>"
+}
+```
+
+**Response**
+
+```json
+{
+  "result": "ok | error",
+  "message": "..."
+}
+```
+
+---
+
+### `is_a_hierarchy` — Get the ontology hierarchy
+
+Returns the `is_a` hierarchy from the loaded knowledge base.
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "is_a_hierarchy",
+  "sessionModule": "<module name>"
+}
+```
+
+**Response**
+
+```json
+{
+  "hierarchy": [ ... ]
+}
+```
+
+---
+
+### `graph` — Get the knowledge base graph
+
+Returns a graph representation of the loaded knowledge base (templates, rules, facts).
+
+**Request**
+
+```json
+{
+  "token": "myToken123",
+  "operation": "graph",
+  "sessionModule": "<module name>"
+}
+```
+
+**Response**
+
+```json
+{
+  "nodes": [ ... ],
+  "edges": [ ... ]
+}
+```
+
+---
+
 ### `list_models` — List available LLM models and server-side keys
 
 **Request**
@@ -394,6 +525,10 @@ The server also exposes endpoints for the Model Context Protocol and direct REST
 
 ### Endpoints
 
+- `GET /` — Landing page with test runner and example links
+- `GET /editor/` — Web-based Logical English editor
+- `GET /source/<path>` — Export source files (restricted by `ALLOWED_LE_EXPORTS` env var)
+- `WS /dap` — Debug Adapter Protocol WebSocket endpoint
 - `POST /mcp` — JSON-RPC endpoint for MCP clients (Claude Desktop, etc.)
 - `GET /list_examples` — REST list examples
 - `POST /query` — REST query with support for `example_name`, `program_text`, `scenario_name`, `facts`, and `query`.
