@@ -1224,6 +1224,16 @@ Things to do:
 ## Web extensions
 Let's web serve some static resources that may extend LE, by HTTP serving all files under the existing directory /web_extensions/ (which is a sym link; no need to create it) 
 
+## date tweaks
+We need a new system template and builtin to test/generate a condition for two dates and a number. I already did put it in place, but the builtin is receiving date(...) terms instead of numbers/seconds. Can you fix this, so that the tests in dates.le work without errors? Currently I get this error thrown from my le_is_days_after/3 predicate:
+
+ERROR: Arithmetic: `date/3' is not a function
+ERROR: In:
+ERROR:   [69] _84072 is 180*86400+date(2026,3,3)
+ERROR:   [66] reasoner:solve_real_actual(le_is_days_after(_84142,180,date(2026,3,3)),'sff330352-5a70-11f1-a144-6763a902a272',m3a501f4e48a26c0911dd7757bcce70362a1c3531,[is_within_6_months_of(...,...),...],2,10,_84136,[success(...,_84184,_84186)]) at /Users/mc/git/LogicalEnglish2/reasoner.pl:177
+...
+
+
 ##
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests
