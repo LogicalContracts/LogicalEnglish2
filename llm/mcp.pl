@@ -506,16 +506,15 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
     append(DirectExamples, SubExamplesFlat, Examples).
 
 run_query(SM, QueryStr, KB, Result) :-
-    ( atom_string(QueryAtom, QueryStr), KB \== none, KB:query_info(QueryAtom, Goal, _) -> Query = Goal ; Query = QueryStr ),
     findall(_{answer: AnswerStr, explanation: JSONWhy}, (
-        le_kbs:query(SM, Query, Instance, _, Why),
+        le_kbs:query(SM, QueryStr, Instance, _, Why),
         le_kbs:canonical_string(Instance, AnswerStr),
         convert_why(Why, KB, JSONWhy)
     ), Results),
     (   Results \== [] ->
         Result = _{results: Results}
     ;   % Try to get negative explanation
-        (   le_kbs:query_explain(SM, Query, _, _, Why) ->
+        (   le_kbs:query_explain(SM, QueryStr, _, _, Why) ->
             convert_why(Why, KB, JSONWhy),
             Result = _{results: [], explanation: JSONWhy}
         ;   Result = _{results: [], error: "No answer and no explanation found"}

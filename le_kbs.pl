@@ -707,13 +707,25 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
     ;   copy_term(Head, HeadCopy),
-        (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _))), HeadCopy =.. [Functor|Args]
+        (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args],
+            check_types(NTs)
         ->  maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
             maplist(fill_variable_name(NTs), WordsAndVars1, WordsAndVars2),
             flatten(WordsAndVars2, WordsAndVars)
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
     ).
+
+check_types([]).
+check_types([Var-Type|NTs]) :-
+    (   var(Var) -> true
+    ;   Type == date ->
+        ( Var = date(_) ; Var = date(_,_,_) ; Var = date(_,_,_,_,_,_,_,_,_) )
+    ;   Type == number ->
+        number(Var)
+    ;   true
+    ),
+    check_types(NTs).
 
 fill_variable_name(NTs, V, Name) :-
     var(V),

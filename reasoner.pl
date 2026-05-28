@@ -324,6 +324,7 @@ is_built_in(le_ge(_, _)).
 is_built_in(le_le(_, _)).
 is_built_in(le_gt(_, _)).
 is_built_in(le_lt(_, _)).
+is_built_in(le_is_days_after(_, _, _)).
 is_built_in(le_is_in(_, _)).
 is_built_in(equal_to(_, _)).
 
@@ -349,7 +350,8 @@ call_reasoner_built_in(le_ge(X, Y), _) :- !, le_compare(>=, X, Y).
 call_reasoner_built_in(le_le(X, Y), _) :- !, le_compare(=<, X, Y).
 call_reasoner_built_in(le_gt(X, Y), _) :- !, le_compare(>, X, Y).
 call_reasoner_built_in(le_lt(X, Y), _) :- !, le_compare(<, X, Y).
-call_reasoner_built_in(equal_to(X, Y), _) :- !, X = Y.
+call_reasoner_built_in(le_is_days_after(Later, Count, Before), _) :- !, le_is_days_after(Later, Count, Before).
+call_reasoner_built_in(equal_to(X, Y), _) :- !, equal_to(X, Y).
 call_reasoner_built_in(G, _) :- call(G).
 
 le_compare(Op, X, Y) :-
@@ -362,6 +364,31 @@ le_compare(>, X, Y) :- !, X @> Y.
 le_compare(<, X, Y) :- !, X @< Y.
 
 equal_to(X, X).
+
+le_is_days_after(Later, Count, Before) :-
+    nonvar(Before), nonvar(Count), !, 
+    le_date_stamp(Before, BeforeStamp),
+    LaterStamp is Count*86400 + BeforeStamp,
+    le_stamp_date(LaterStamp, Later).
+le_is_days_after(Later, Count, Before) :-
+    nonvar(Later), nonvar(Count), !, 
+    le_date_stamp(Later, LaterStamp),
+    BeforeStamp is LaterStamp - Count*86400,
+    le_stamp_date(BeforeStamp, Before).
+le_is_days_after(Later, Count, Before) :-
+    nonvar(Later), nonvar(Before),
+    le_date_stamp(Later, LaterStamp),
+    le_date_stamp(Before, BeforeStamp),
+    Count is round(LaterStamp - BeforeStamp) div 86400. % using negative number to indicate reserve order 
+
+le_date_stamp(date(Y,M,D), Stamp) :-
+    date_time_stamp(date(Y,M,D,0,0,0,0,'UTC',-), Stamp).
+le_date_stamp(date(Y,M,D,H,Mn,S,Off,TZ,DST), Stamp) :-
+    date_time_stamp(date(Y,M,D,H,Mn,S,Off,TZ,DST), Stamp).
+
+le_stamp_date(Stamp, date(Y,M,D)) :-
+    stamp_date_time(Stamp, date(Y,M,D,_,_,_,_,_,_), 'UTC').
+
 
 attach_range(Start, End, success(G, unknown, Children), success(G, unknown(Start, End), Children)) :- !.
 attach_range(Start, End, success(G, Ref, Children), success(G, NewRef, Children)) :- !,
