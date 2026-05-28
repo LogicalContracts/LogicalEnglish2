@@ -39,10 +39,14 @@ A date is within 6 months of an other date if
 scenario one is:
     Senior member has attended a PEG workshop before 2026-03-04.
     New member has attended a PEG online meeting at 2026-03-03.
+    one expects answers ["Senior member is a regular member of PEG at 2026-3-4T0:0:0.0","New member is a regular member of PEG at 2026-3-4T0:0:0.0"].
+    two expect answers [].
 
 scenario two is: 
     Election 2026 is held for the PEG advisory board at 2026-01-01.
     Wise person is elected for the PEG advisory board by the PEG membership at 2026-01-01.
+    two expects answers ["Wise person is a member of the PEG advisory board at 2026-3-4T0:0:0.0"].
+    one expect answers [].
 
 query one is:
     which person is a regular member of PEG at 2026-03-04. 
