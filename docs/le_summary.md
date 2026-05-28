@@ -98,10 +98,15 @@ Used to perform calculations over sets of results.
 - **Comparison:** `=`, `>`, `<`, `>=`, `<=`, `==`, `!=`
 - **System Templates:**
   - `*V1* is equal to *V2*`
-  - `*V1* is greater than or equal to *V2*`
-  - `*V1* is less than or equal to *V2*`
-  - `*V1* is after or equal to *V2*`
-  - `*V1* is before or equal to *V2*`
+  - `*V1* is greater than or equal to *V2*` (for numbers)
+  - `*V1* is less than or equal to *V2*` (for numbers)
+  - `*V1* is greater than *V2*` (for numbers)
+  - `*V1* is less than *V2*` (for numbers)
+  - `*V1* is after or equal to *V2*` (for dates)
+  - `*V1* is before or equal to *V2*` (for dates)
+  - `*V1* is after *V2*` (for dates)
+  - `*V1* is before *V2*` (for dates)
+  - `*V1* is *V2* days after *V3*` (for dates and numbers)
   - `*V1* is known`
   - `*V1* is in *V2*` (List membership)
 
