@@ -1133,35 +1133,41 @@ collect_extra_goals_acc([], []).
 collect_extra_goals_acc([extra_goal(G)|Rest], [G|Gs]) :- !, collect_extra_goals_acc(Rest, Gs).
 collect_extra_goals_acc([_|Rest], Gs) :- collect_extra_goals_acc(Rest, Gs).
 
-collect_new_extra_goals(VM1, VMIn, NewExtraGoals) :-
-    collect_extra_goals(VM1, AllGoals),
-    collect_extra_goals(VMIn, ExistingGoals),
-    exclude(member_of_list(ExistingGoals), AllGoals, NewExtraGoals).
-
+%!  collect_literal_extra_goals(+VM1, +VMIn, -LiteralExtraGoals) is det.
+%
+%   The extra goals (e.g. prepositional or global-abbreviation conditions)
+%   introduced while parsing the current literal, i.e. those present in VM1
+%   but not yet in VMIn. extra_goal/1 entries are only ever prepended during
+%   parsing (never reordered or removed: post_parse_literal_hook only churns
+%   the $last_var entry), so VMIn's extra goals remain as a suffix of VM1's
+%   and the new ones are exactly the leading (Total - Kept) goals. We cannot
+%   rely on a length-based VM prefix here because $last_var churn means VM1 is
+%   not always VMIn with a clean prepended prefix, and structural equality
+%   would wrongly treat a re-stated condition as an existing one.
 collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals) :-
-    get_vm_prefix(VM1, VMIn, Prefix),
-    collect_extra_goals(Prefix, LiteralExtraGoals).
-
-get_vm_prefix(VM1, VMIn, Prefix) :-
-    length(VM1, L1),
-    length(VMIn, LIn),
-    LDiff is L1 - LIn,
-    (   LDiff > 0 ->
-        length(Prefix, LDiff),
-        append(Prefix, _, VM1)
-    ;   Prefix = []
+    collect_extra_goals(VMIn, ExistingGoals),
+    length(ExistingGoals, Kept),
+    collect_extra_goals(VM1, AllGoals),
+    length(AllGoals, Total),
+    NumNew is Total - Kept,
+    ( NumNew > 0 -> length(LiteralExtraGoals, NumNew), append(LiteralExtraGoals, _, AllGoals)
+    ; LiteralExtraGoals = []
     ).
 
-member_of_list(List, Element) :-
-    member(X, List),
-    X == Element.
-
-remove_extra_goals([], _, []).
-remove_extra_goals([extra_goal(G)|Rest], NewExtraGoals, Out) :-
-    member_of_list(NewExtraGoals, G), !,
-    remove_extra_goals(Rest, NewExtraGoals, Out).
-remove_extra_goals([X|Rest], NewExtraGoals, [X|Out]) :-
-    remove_extra_goals(Rest, NewExtraGoals, Out).
+%!  remove_leading_extra_goals(+VM, +N, -VMOut) is det.
+%
+%   Removes the first N extra_goal/1 entries from VM (the goals just
+%   introduced by the current literal), leaving every other entry untouched:
+%   variable bindings, $last_var, and VMIn's own extra goals (which remain as
+%   a suffix). This keeps the literal's conditions from being re-collected at
+%   the clause level while preserving all shared variable bindings.
+remove_leading_extra_goals(VM, 0, VM) :- !.
+remove_leading_extra_goals([extra_goal(_)|Rest], N, Out) :-
+    N > 0, !,
+    N1 is N - 1,
+    remove_leading_extra_goals(Rest, N1, Out).
+remove_leading_extra_goals([X|Rest], N, [X|Out]) :-
+    remove_leading_extra_goals(Rest, N, Out).
 
 list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], and(G, Rest)) :- list_to_conj(Gs, Rest).
@@ -1537,8 +1543,8 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             (   LiteralExtraGoals == [] -> Logic0 = Literal
             ;   list_to_conj([Literal | LiteralExtraGoals], Logic0)
             ),
-            collect_new_extra_goals(VM1, VMIn, NewExtraGoals),
-            remove_extra_goals(VM1, NewExtraGoals, VM2),
+            length(LiteralExtraGoals, NumNew),
+            remove_leading_extra_goals(VM1, NumNew, VM2),
             fold_nodes(Logic0, Children, Templates, VM2, VMOut, Logic1),
             ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic1, Start, End) ; Logic = Logic1 )
         ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
