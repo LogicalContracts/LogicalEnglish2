@@ -2,8 +2,8 @@
 Test Summary:
 -------------
 Files processed: 39
-Total tests:     204
-Passed:          204
+Total tests:     205
+Passed:          205
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -26,7 +26,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/numbering_test.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/numbering_test.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/only_if.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
