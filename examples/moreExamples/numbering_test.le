@@ -15,6 +15,9 @@ the predicates are:
     *a person* is rich.
     *a person* is famous.
     *a person* is successful.
+    *an entity* must register for GST. 
+    *an entity* has *a turnover*. 
+    *an entity* projected turnover is *a projection*. 
 
 the knowledge base numbering_test includes:
     rule eligibility:
@@ -47,6 +50,17 @@ the knowledge base numbering_test includes:
     4.2.1. the A is connected to an E; and
     4.2.2. the B is used in the business of the E.
 
+rule gst:
+an entity must register for GST if:
+    1. the entity is a not-for-profit; and
+    2. either:
+    2.1. all of:
+    2.1.1. the entity has a turnover 
+    2.1.2. the turnover >= 150000 ; or
+    2.2. all of:
+    2.2.1. the entity projected turnover is a projection 
+    2.2.2. the projection >= 150000.  
+    
     rule successful:
     a person is successful if 
         any of
@@ -78,7 +92,15 @@ scenario test is:
         "jd2 has designator 4.2.1",
         "jd2 has designator 4.2.2",
         "jd2 has designator 4.2",
-        "jd2 has designator 4"
+        "jd2 has designator 4",
+        "gst has designator 1",
+        "gst has designator 2.1.1",
+        "gst has designator 2.1.2",
+        "gst has designator 2.1",
+        "gst has designator 2.2.1",
+        "gst has designator 2.2.2",
+        "gst has designator 2.2",
+        "gst has designator 2"
     ].
 
 scenario test_either is:
@@ -90,6 +112,14 @@ scenario test_all_of is:
     Mary is successful.
     three expects answers ["Mary is happy"].
 
+scenario test_gst is:
+    Charity is a not-for-profit.
+    Charity has 160000.
+    SmallCharity is a not-for-profit.
+    SmallCharity has 100000.
+    SmallCharity projected turnover is 160000.
+    four expects answers ["Charity must register for GST", "SmallCharity must register for GST"].
+
 query one is:
     *a rule* has designator *the designator*.
 
@@ -98,3 +128,6 @@ query two is:
 
 query three is:
     which person is happy.
+
+query four is:
+    which entity must register for GST.
