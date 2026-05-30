@@ -504,7 +504,17 @@ handle_get_game_data(Dict, Response) :-
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
         ;   le_proof_game:extract_rules_and_facts(KB, SM, Query, Rules, ExtractedFacts),
             ( KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens) -> le_kbs:canonical_string(QueryTokens, QueryLE) ; term_string(Query, QueryLE) ),
-            Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE, sessionModule: SMStr}, result: "ok"}
+            % Try to get the first successful explanation. 
+            % We try both the original Query (which might be a term) and the QueryName if available.
+            (   ( catch(query(SM, Query, _Instance, _Unknowns, Why), _, fail)
+                ; (get_dict(query, Dict, QNameStr), atom_string(QName, QNameStr), catch(query(SM, QName, _Instance, _Unknowns, Why), _, fail))
+                ) -> 
+                convert_why(Why, KB, JSONWhy),
+                print_message(informational, 'Proof Game: Found explanation for query')
+            ;   JSONWhy = null,
+                print_message(warning, 'Proof Game: No explanation found for query')
+            ),
+            Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE, sessionModule: SMStr, explanation: JSONWhy}, result: "ok"}
         )
     ).
 

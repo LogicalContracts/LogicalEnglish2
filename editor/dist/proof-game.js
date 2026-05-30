@@ -124545,10 +124545,51 @@ async function initProofGame(container, gameData) {
   document.getElementById("mode-toggle")?.addEventListener("change", () => {
     nodes.forEach((n2) => area.update("node", n2.id));
   });
-  document.getElementById("btn-check")?.addEventListener("click", () => {
-    const connections = editor.getConnections();
-    console.log("Current connections:", connections);
-    alert("Proof check triggered! (Validation logic to be implemented)");
+  document.getElementById("btn-show")?.addEventListener("click", async () => {
+    if (!gameData.explanation) {
+      alert("No proof found for this query.");
+      return;
+    }
+    if (!confirm("Are you sure you want to miss the excitement of finding the proof yourself?")) {
+      return;
+    }
+    const existingConnections = editor.getConnections();
+    for (const c2 of existingConnections) {
+      await editor.removeConnection(c2.id);
+    }
+    const nodes2 = editor.getNodes();
+    const queryNode = nodes2.find((n2) => n2 instanceof QueryNode);
+    if (!queryNode)
+      return;
+    const explanation = Array.isArray(gameData.explanation) ? gameData.explanation[0] : gameData.explanation;
+    if (!explanation)
+      return;
+    const usedNodes = /* @__PURE__ */ new Set();
+    async function connectExplanation(expNode, targetNodeId, targetInputKey) {
+      const match2 = nodes2.find((n2) => {
+        if (usedNodes.has(n2.id))
+          return false;
+        if (n2 instanceof RuleNode) {
+          return n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end;
+        }
+        if (n2 instanceof FactNode) {
+          return n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end;
+        }
+        return false;
+      });
+      if (match2) {
+        usedNodes.add(match2.id);
+        await editor.addConnection(new classic.Connection(match2, "out", editor.getNode(targetNodeId), targetInputKey));
+        if (expNode.children && match2 instanceof RuleNode) {
+          for (let i2 = 0; i2 < expNode.children.length; i2++) {
+            await connectExplanation(expNode.children[i2], match2.id, `in-${i2}`);
+          }
+        }
+      }
+    }
+    await connectExplanation(explanation, queryNode.id, "in");
+    await arrange.layout();
+    index.zoomAt(area, editor.getNodes());
   });
 }
 export {
