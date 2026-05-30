@@ -96,6 +96,11 @@
             height: calc(100% - 40px);
         }
         
+        /* Smooth node movement */
+        [data-rete-node] {
+            transition: transform 0.5s ease-in-out;
+        }
+        
         .socket {
             width: 16px;
             height: 16px;
@@ -171,7 +176,7 @@
                 <input type="checkbox" id="mode-toggle" checked> Adult Mode (Show Text)
             </label>
             <button id="btn-rearrange">Auto Layout</button>
-            <button id="btn-check">Check Proof</button>
+            <button id="btn-show">Show Proof</button>
         </div>
     </div>
     <div id="rete"></div>

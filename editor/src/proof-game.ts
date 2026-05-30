@@ -602,10 +602,61 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         nodes.forEach(n => area.update('node', n.id));
     });
     
-    // Check proof logic
-    document.getElementById('btn-check')?.addEventListener('click', () => {
-        const connections = editor.getConnections();
-        console.log("Current connections:", connections);
-        alert("Proof check triggered! (Validation logic to be implemented)");
+    // Show proof logic
+    document.getElementById('btn-show')?.addEventListener('click', async () => {
+        if (!gameData.explanation) {
+            alert("No proof found for this query.");
+            return;
+        }
+        
+        if (!confirm("Are you sure you want to miss the excitement of finding the proof yourself?")) {
+            return;
+        }
+
+        // Clear existing connections
+        const existingConnections = editor.getConnections();
+        for (const c of existingConnections) {
+            await editor.removeConnection(c.id);
+        }
+
+        const nodes = editor.getNodes();
+        const queryNode = nodes.find(n => n instanceof QueryNode);
+        if (!queryNode) return;
+
+        const explanation = Array.isArray(gameData.explanation) ? gameData.explanation[0] : gameData.explanation;
+        if (!explanation) return;
+
+        const usedNodes = new Set<string>();
+
+        async function connectExplanation(expNode: any, targetNodeId: string, targetInputKey: string) {
+            // Find a matching game node
+            const match = nodes.find(n => {
+                if (usedNodes.has(n.id)) return false;
+                if (n instanceof RuleNode) {
+                    return n.sourceLoc?.start === expNode.start && n.sourceLoc?.end === expNode.end;
+                }
+                if (n instanceof FactNode) {
+                    return n.sourceLoc?.start === expNode.start && n.sourceLoc?.end === expNode.end;
+                }
+                return false;
+            });
+
+            if (match) {
+                usedNodes.add(match.id);
+                await editor.addConnection(new ClassicPreset.Connection(match, 'out', editor.getNode(targetNodeId) as any, targetInputKey));
+                
+                if (expNode.children && match instanceof RuleNode) {
+                    for (let i = 0; i < expNode.children.length; i++) {
+                        await connectExplanation(expNode.children[i], match.id, `in-${i}`);
+                    }
+                }
+            }
+        }
+
+        await connectExplanation(explanation, queryNode.id, 'in');
+        
+        // Auto-arrange with animation
+        await arrange.layout();
+        AreaExtensions.zoomAt(area, editor.getNodes());
     });
 }
