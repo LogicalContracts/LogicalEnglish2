@@ -38606,6 +38606,26 @@ async function start() {
     }
   });
   editor.addAction({
+    id: "le-toggle-line-comment",
+    label: "Toggle Line Comment",
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash],
+    contextMenuGroupId: "9_cutcopypaste",
+    contextMenuOrder: 1,
+    run: (ed) => {
+      ed.getAction("editor.action.commentLine")?.run();
+    }
+  });
+  editor.addAction({
+    id: "le-toggle-block-comment",
+    label: "Toggle Block Comment",
+    keybindings: [monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyA],
+    contextMenuGroupId: "9_cutcopypaste",
+    contextMenuOrder: 1.1,
+    run: (ed) => {
+      ed.getAction("editor.action.blockComment")?.run();
+    }
+  });
+  editor.addAction({
     id: "see-hierarchy",
     label: "See Types Hierarchy",
     contextMenuGroupId: "navigation",
