@@ -18,10 +18,15 @@ class FactNode extends ClassicPreset.Node {
     width = 220;
     height = 60;
     public sourceLoc?: { start: number, end: number };
+    public templateId: string;
+    public tokens: any[];
+    public complete: boolean = false;
     
-    constructor(public label: string, public color: string, sourceLoc?: { start: number, end: number }) {
+    constructor(public label: string, public color: string, templateId: string, tokens: any[], sourceLoc?: { start: number, end: number }) {
         super(label);
         this.type = 'fact';
+        this.templateId = templateId;
+        this.tokens = tokens;
         this.sourceLoc = sourceLoc;
         this.addOutput('out', new ClassicPreset.Output(new ClassicPreset.Socket('socket')));
     }
@@ -31,6 +36,10 @@ class FactNode extends ClassicPreset.Node {
 class QueryNode extends ClassicPreset.Node {
     width = 220;
     height = 60;
+    public templateId: string = 'query';
+    public tokens: any[] = [];
+    public clash: boolean = false;
+    public complete: boolean = false;
     
     constructor(public label: string, public color: string) {
         super(label);
@@ -44,10 +53,18 @@ class RuleNode extends ClassicPreset.Node {
     width = 220;
     height = 180;
     public sourceLoc?: { start: number, end: number };
+    public templateId: string;
+    public headTokens: any[];
+    public bodyTokens: any[][];
+    public clash: boolean = false;
+    public complete: boolean = false;
     
     constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
         super('');
         this.type = 'rule';
+        this.templateId = rule.id;
+        this.headTokens = rule.headTokens;
+        this.bodyTokens = rule.bodyTokens;
         this.sourceLoc = sourceLoc;
         const socket = new ClassicPreset.Socket('socket');
         this.addOutput('out', new ClassicPreset.Output(socket));
@@ -60,14 +77,19 @@ class RuleNode extends ClassicPreset.Node {
     type: string;
 }
 
+function renderTokens(tokens: any[]) {
+    if (!tokens) return '';
+    return tokens.map(t => t.text).join(' ');
+}
+
 function CustomNode(props: any) {
     const { data, emit } = props;
     const modeToggle = document.getElementById('mode-toggle') as HTMLInputElement;
     const isAdultMode = modeToggle?.checked;
     
     if (data.type === 'rule') {
-        const headColor = isAdultMode ? '#333' : '#ff9800';
-        const bodyColor = isAdultMode ? '#333' : '#ffeb3b';
+        const headColor = data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : '#ff9800'));
+        const bodyColor = data.complete ? '#81c784' : (isAdultMode ? '#333' : '#ffeb3b');
         const textColor = isAdultMode ? '#fff' : 'transparent';
         
         const bodyCount = data.rule.body ? data.rule.body.length : 0;
@@ -75,8 +97,10 @@ function CustomNode(props: any) {
         data.width = nodeWidth;
         data.height = bodyCount > 0 ? 180 : 80;
         
+        const headText = renderTokens(data.headTokens) || data.rule.head;
+        
         return React.createElement('div', {
-            className: `le-node rule-node ${data.selected ? 'selected' : ''}`,
+            className: `le-node rule-node ${data.selected ? 'selected' : ''} ${data.clash ? 'clash' : ''} ${data.complete ? 'complete' : ''}`,
             style: {
                 width: nodeWidth + 'px',
                 position: 'relative',
@@ -84,7 +108,7 @@ function CustomNode(props: any) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: '40px',
-                border: data.selected ? '2px solid #0e639c' : '2px solid transparent',
+                border: data.selected ? '2px solid #0e639c' : (data.clash ? '2px solid #f44336' : (data.complete ? '2px solid #2e7d32' : '2px solid transparent')),
                 borderRadius: '8px',
                 padding: '10px',
                 background: isAdultMode ? '#252526' : 'rgba(255,255,255,0.05)'
@@ -103,9 +127,9 @@ function CustomNode(props: any) {
                     zIndex: 1,
                     border: isAdultMode ? '1px solid #444' : 'none'
                 },
-                title: !isAdultMode ? data.rule.head : ''
+                title: !isAdultMode ? headText : ''
             }, 
-                isAdultMode ? data.rule.head : '',
+                isAdultMode ? headText : '',
                 React.createElement('div', {
                     style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
                 }, React.createElement(RefSocket, {
@@ -116,6 +140,7 @@ function CustomNode(props: any) {
             bodyCount > 0 && React.createElement('div', {
                 style: { display: 'flex', justifyContent: 'center', gap: '20px', width: '100%', zIndex: 1 }
             }, data.rule.body.map((cond: string, i: number) => {
+                const condText = renderTokens(data.bodyTokens[i]) || cond;
                 return React.createElement('div', {
                     key: i,
                     style: {
@@ -124,9 +149,9 @@ function CustomNode(props: any) {
                         textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
                         border: isAdultMode ? '1px solid #444' : 'none'
                     },
-                    title: !isAdultMode ? cond : ''
+                    title: !isAdultMode ? condText : ''
                 }, 
-                    isAdultMode ? cond : '',
+                    isAdultMode ? condText : '',
                     React.createElement('div', {
                         style: { position: 'absolute', left: '50%', bottom: '-16px', transform: 'translateX(-50%)' }
                     }, React.createElement(RefSocket, {
@@ -141,7 +166,7 @@ function CustomNode(props: any) {
                 React.createElement('defs', null, 
                     React.createElement('marker', {
                         id: 'arrowhead-internal', markerWidth: '10', markerHeight: '7', refX: '9', refY: '3.5', orient: 'auto'
-                    }, React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#888' }))
+                    }, React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: data.complete ? '#2e7d32' : '#888' }))
                 ),
                 data.rule.body.map((_: any, i: number) => {
                     const headX = nodeWidth / 2;
@@ -152,20 +177,22 @@ function CustomNode(props: any) {
                     const bodyY = 90; 
                     return React.createElement('path', {
                         key: `arrow-${i}`, d: `M ${bodyBlockX} ${bodyY} L ${headX} ${headY}`,
-                        stroke: '#888', strokeWidth: '2', fill: 'none', markerEnd: 'url(#arrowhead-internal)'
+                        stroke: data.complete ? '#2e7d32' : '#888', strokeWidth: '2', fill: 'none', markerEnd: 'url(#arrowhead-internal)'
                     });
                 })
             )
         );
     } else {
         // Fact or Query
-        const bgColor = isAdultMode ? '#333' : data.color;
+        const bgColor = data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : data.color));
         const textColor = isAdultMode ? '#fff' : 'transparent';
         data.width = 220;
         data.height = 60;
         
+        const labelText = (data.type === 'fact' || data.type === 'query') ? (renderTokens(data.tokens) || data.label) : data.label;
+        
         return React.createElement('div', {
-            className: `le-node ${data.type}-node ${data.selected ? 'selected' : ''}`,
+            className: `le-node ${data.type}-node ${data.selected ? 'selected' : ''} ${data.clash ? 'clash' : ''} ${data.complete ? 'complete' : ''}`,
             style: {
                 background: bgColor,
                 color: textColor,
@@ -174,12 +201,12 @@ function CustomNode(props: any) {
                 width: '200px',
                 textAlign: 'center',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                border: data.selected ? '2px solid #0e639c' : (isAdultMode ? '1px solid #444' : '2px solid transparent'),
+                border: data.selected ? '2px solid #0e639c' : (data.clash ? '2px solid #f44336' : (data.complete ? '2px solid #2e7d32' : (isAdultMode ? '1px solid #444' : '2px solid transparent'))),
                 position: 'relative'
             },
-            title: !isAdultMode ? data.label : ''
+            title: !isAdultMode ? labelText : ''
         },
-            isAdultMode ? data.label : '',
+            isAdultMode ? labelText : '',
             data.type === 'fact' && React.createElement('div', {
                 style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
             }, React.createElement(RefSocket, {
@@ -266,11 +293,191 @@ function CustomConnection(props: any) {
     );
 }
 
+function playSuccessSound() {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    notes.forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + i * 0.1 + 0.5);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + i * 0.1);
+        osc.stop(audioCtx.currentTime + i * 0.1 + 0.5);
+    });
+}
+
+function playClashSound() {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.3);
+    
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+}
+
 export async function initProofGame(container: HTMLElement, gameData: any) {
     const editor = new NodeEditor<Schemes>();
     const area = new AreaPlugin<Schemes, AreaExtra>(container);
     const connection = new ConnectionPlugin<Schemes, AreaExtra>();
     const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
+    const sessionModule = gameData.sessionModule;
+    let wasComplete = false;
+    let wasClash = false;
+
+    function checkCompletion() {
+        const nodes = editor.getNodes();
+        const connections = editor.getConnections();
+        const queryNode = nodes.find(n => n instanceof QueryNode) as QueryNode;
+        
+        if (!queryNode) return false;
+        
+        const visited = new Set<string>();
+        const fragmentNodes = new Set<string>();
+        
+        function isComplete(nodeId: string): boolean {
+            if (visited.has(nodeId)) return true;
+            visited.add(nodeId);
+            
+            const node = editor.getNode(nodeId);
+            if (!node) return false;
+            fragmentNodes.add(nodeId);
+            
+            if (node instanceof FactNode) return true;
+            
+            if (node instanceof QueryNode) {
+                const conn = connections.find(c => c.target === nodeId);
+                if (!conn) return false;
+                return isComplete(conn.source);
+            }
+            
+            if (node instanceof RuleNode) {
+                const bodyCount = node.rule.body ? node.rule.body.length : 0;
+                for (let i = 0; i < bodyCount; i++) {
+                    const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
+                    if (!conn) return false;
+                    if (!isComplete(conn.source)) return false;
+                }
+                return true;
+            }
+            
+            return false;
+        }
+        
+        const complete = isComplete(queryNode.id);
+        
+        // Reset complete flag on all nodes
+        nodes.forEach(n => {
+            const old = (n as any).complete;
+            (n as any).complete = complete && fragmentNodes.has(n.id);
+            if (old !== (n as any).complete) area.update('node', n.id);
+        });
+        
+        if (complete && !wasComplete) {
+            playSuccessSound();
+            wasComplete = true;
+        } else if (!complete) {
+            wasComplete = false;
+        }
+        
+        return complete;
+    }
+
+    async function updateUnification() {
+        const nodes = editor.getNodes();
+        const connections = editor.getConnections();
+        
+        const nodeSpecs = nodes.map(n => {
+            if (n instanceof RuleNode) return { instanceId: n.id, templateId: n.templateId };
+            if (n instanceof FactNode) return { instanceId: n.id, templateId: n.templateId };
+            if (n instanceof QueryNode) return { instanceId: n.id, templateId: n.templateId };
+            return null;
+        }).filter(n => n !== null);
+        
+        const edges = connections.map(c => {
+            const source = editor.getNode(c.source);
+            const target = editor.getNode(c.target);
+            if (!source || !target) return null;
+            
+            let bodyIndex = 0;
+            if (c.targetInput.startsWith('in-')) {
+                bodyIndex = parseInt(c.targetInput.split('-')[1]);
+            }
+            
+            return {
+                child: c.source,
+                parent: c.target,
+                bodyIndex: bodyIndex
+            };
+        }).filter(e => e !== null);
+
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: 'myToken123',
+                    operation: 'unifyGameNodes',
+                    sessionModule: sessionModule,
+                    nodes: nodeSpecs,
+                    edges: edges
+                })
+            });
+            const res = await response.json();
+            
+            if (res.status === 'ok') {
+                res.nodes.forEach((nodeData: any) => {
+                    const node = editor.getNode(nodeData.instanceId) as any;
+                    if (node) {
+                        node.clash = false;
+                        if (node instanceof RuleNode) {
+                            node.headTokens = nodeData.headTokens;
+                            node.bodyTokens = nodeData.bodyTokens;
+                        } else if (node instanceof FactNode) {
+                            node.tokens = nodeData.headTokens;
+                        } else if (node instanceof QueryNode) {
+                            node.tokens = nodeData.bodyTokens[0];
+                        }
+                        area.update('node', node.id);
+                    }
+                });
+                checkCompletion();
+                wasClash = false;
+            } else if (res.status === 'clash') {
+                if (!wasClash) {
+                    playClashSound();
+                    wasClash = true;
+                }
+                const connectedNodeIds = new Set();
+                connections.forEach(c => {
+                    connectedNodeIds.add(c.source);
+                    connectedNodeIds.add(c.target);
+                });
+                nodes.forEach(n => {
+                    if (connectedNodeIds.has(n.id)) {
+                        (n as any).clash = true;
+                        (n as any).complete = false;
+                        area.update('node', n.id);
+                    }
+                });
+            }
+        } catch (err) {
+            console.error('Unification failed:', err);
+        }
+    }
 
     AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
         accumulating: AreaExtensions.accumulateOnCtrl()
@@ -301,6 +508,14 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     const arrange = new AutoArrangePlugin<Schemes>();
     arrange.addPreset(ArrangePresets.classic.setup());
     area.use(arrange);
+
+    // Hook into connection events
+    editor.addPipe(context => {
+        if (context.type === 'connectioncreated' || context.type === 'connectionremoved') {
+            updateUnification();
+        }
+        return context;
+    });
 
     // Parse gameData and create nodes
     const nodes: any[] = [];
@@ -339,7 +554,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     currentX = startX;
     if (gameData.facts) {
         for (const fact of gameData.facts) {
-            const factNode = new FactNode(fact.fact, '#4caf50', { start: fact.start, end: fact.end });
+            const factNode = new FactNode(fact.fact, '#4caf50', fact.id, fact.factTokens, { start: fact.start, end: fact.end });
             await editor.addNode(factNode);
             await area.translate(factNode.id, { x: currentX, y: factY });
             currentX += 250;
