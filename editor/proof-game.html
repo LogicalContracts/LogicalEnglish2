@@ -94,62 +94,184 @@
         #rete {
             width: 100%;
             height: calc(100% - 40px);
-        }
-        
-        .socket {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: #fff;
-            border: 2px solid #333;
-            cursor: pointer;
-        }
-        .socket:hover {
-            background: #ccc;
-        }
-        
-        /* Query socket styling (diamond shape) */
-        .query-socket-container .socket {
-            border-radius: 0;
-            background: #e2b93d;
-            border-color: #fff;
-            transform: rotate(45deg);
-        }
-        
-        /* Pre-school mode overrides */
-        body:not(.adult-mode) .le-node-text {
-            color: transparent !important;
-        }
-        
-        #zoom-controls {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
             display: flex;
             flex-direction: column;
-            gap: 5px;
-            z-index: 100;
         }
-        #zoom-controls button {
-            width: 30px;
-            height: 30px;
-            padding: 0;
-            font-size: 16px;
-            font-weight: bold;
-            border-radius: 4px;
-            background-color: var(--header-bg);
-            color: var(--text-color);
+
+        /* ---- Drag-piece-into-slot board ---- */
+        .pg-root {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-sizing: border-box;
+        }
+        .pg-board {
+            flex: 1 1 auto;
+            overflow: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .pg-section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            margin-bottom: 8px;
+        }
+        .pg-card {
+            background: var(--node-bg);
             border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
-        #zoom-controls button:hover {
-            background-color: #0e639c;
-            color: white;
+        .pg-query-card { border-color: var(--query-bg); align-items: stretch; }
+        .pg-query-label {
+            background: var(--query-bg);
+            color: var(--query-text);
+            padding: 10px 14px;
+            border-radius: 8px;
+            min-width: 180px;
+            text-align: center;
         }
+        .pg-rule-head {
+            background: var(--rule-head-bg);
+            color: var(--rule-head-text);
+            padding: 10px 14px;
+            border-radius: 8px;
+            min-width: 180px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .pg-if-label {
+            font-style: italic;
+            opacity: 0.7;
+            font-size: 13px;
+        }
+        .pg-body-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            justify-content: center;
+        }
+        .pg-cond {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .pg-cond-label {
+            background: var(--rule-body-bg);
+            color: var(--rule-body-text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            min-width: 160px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        /* Slots (drop targets) — size to fit either a token or a nested card */
+        .pg-slot {
+            min-width: 180px;
+            min-height: 44px;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            transition: background 0.1s, border-color 0.1s;
+        }
+        .pg-slot.pg-slot-over {
+            border-color: #0e639c;
+            background: rgba(14,99,156,0.15);
+        }
+        .pg-slot.pg-slot-filled { border-style: solid; }
+        .pg-slot.pg-slot-correct {
+            border-color: #4caf50;
+            background: rgba(76,175,80,0.15);
+        }
+        .pg-slot.pg-slot-wrong {
+            border-color: #e53935;
+            background: rgba(229,57,53,0.15);
+        }
+        /* A piece sitting inside a slot fills it neatly. */
+        .pg-slot > .pg-piece { margin: 0; }
+
+        /* Tray + pieces */
+        .pg-tray {
+            flex: 0 0 auto;
+            border-top: 1px solid var(--border-color);
+            background: var(--header-bg);
+            padding: 12px 20px 16px;
+            max-height: 45%;
+            overflow: auto;
+        }
+        .pg-tray-pieces {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 12px;
+            min-height: 44px;
+        }
+        .pg-piece {
+            cursor: grab;
+            user-select: none;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: 1px solid transparent;
+        }
+        .pg-piece:active { cursor: grabbing; }
+        .pg-piece.pg-dragging { opacity: 0.4; }
+
+        /* Fact piece: a simple coloured token. */
+        .pg-piece-fact {
+            background: var(--fact-bg);
+            color: var(--fact-text);
+            padding: 10px 14px;
+            min-width: 140px;
+            text-align: center;
+        }
+
+        /* Rule piece: a card with a draggable head + nested body slots. */
+        .pg-piece-rule {
+            background: var(--node-bg);
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .pg-piece-rule .pg-rule-head { cursor: grab; }
+
+        /* Pre-school mode: hide text but keep coloured shapes */
+        body:not(.adult-mode) .pg-piece-fact,
+        body:not(.adult-mode) .pg-query-label,
+        body:not(.adult-mode) .pg-rule-head,
+        body:not(.adult-mode) .pg-cond-label {
+            color: transparent !important;
+        }
+
+        .pg-status {
+            font-size: 13px;
+            margin-right: auto;
+            padding-left: 4px;
+        }
+        .pg-status-success { color: #4caf50; font-weight: bold; }
+        .pg-status-progress { color: var(--rule-head-bg); }
     </style>
 </head>
 <body class="adult-mode">
     <div id="header">
         <h1>LE Proof Game</h1>
+        <span id="pg-status" class="pg-status"></span>
         <div class="controls">
             <select id="theme-select">
                 <option value="">Dark Theme</option>
@@ -159,16 +281,11 @@
             <label style="font-size: 12px;">
                 <input type="checkbox" id="mode-toggle" checked> Adult Mode (Show Text)
             </label>
-            <button id="btn-rearrange">Auto Layout</button>
+            <button id="btn-reset">Reset</button>
             <button id="btn-check">Check Proof</button>
         </div>
     </div>
     <div id="rete"></div>
-    <div id="zoom-controls">
-        <button id="btn-zoom-in" title="Zoom In">+</button>
-        <button id="btn-zoom-out" title="Zoom Out">-</button>
-        <button id="btn-zoom-fit" title="Fit to Screen">⛶</button>
-    </div>
     
     <script>
         // Apply theme from URL if present

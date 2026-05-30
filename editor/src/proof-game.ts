@@ -1,396 +1,503 @@
-import * as React from 'react';
-import { NodeEditor, GetSchemes, ClassicPreset } from 'rete';
-import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
-import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
-import { ReactPlugin, Presets, ReactArea2D } from 'rete-react-plugin';
-import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin';
-import { createRoot } from 'react-dom/client';
+// LE Proof Game - "drag piece into slot" mechanic.
+//
+// The player assembles the proof by dragging concrete pieces into empty slots:
+//   - The Goal (query) has one slot.
+//   - Each Rule is itself a draggable piece: a card showing its head plus one
+//     empty slot per body condition.
+//
+// Because rule pieces carry their own body slots, dropping a rule into a slot
+// nests it, and the rule's body slots can in turn be filled by facts or by
+// other rules. This lets the player build a full proof TREE:
+//   fact  -> rule body slot
+//   rule  -> rule body slot (its head matches the condition)
+//   rule  -> goal slot      (its head matches the query)
+//
+// The whole proof is validated only when "Check Proof" is pressed: a slot is
+// correct when the piece in it has a matching head AND (for rule pieces) all of
+// that rule's own body slots are themselves correctly filled.
 
-const { RefSocket, Socket, useConnection } = Presets.classic;
-
-type Schemes = GetSchemes<
-    ClassicPreset.Node,
-    ClassicPreset.Connection<ClassicPreset.Node, ClassicPreset.Node>
->;
-type AreaExtra = ReactArea2D<Schemes>;
-
-class FactNode extends ClassicPreset.Node {
-    width = 220;
-    height = 60;
-    public sourceLoc?: { start: number, end: number };
-    
-    constructor(public label: string, public color: string, sourceLoc?: { start: number, end: number }) {
-        super(label);
-        this.type = 'fact';
-        this.sourceLoc = sourceLoc;
-        this.addOutput('out', new ClassicPreset.Output(new ClassicPreset.Socket('socket')));
-    }
-    type: string;
+interface GameRule {
+    head: string;
+    body: string[];
+    start?: number;
+    end?: number;
 }
 
-class QueryNode extends ClassicPreset.Node {
-    width = 220;
-    height = 60;
-    
-    constructor(public label: string, public color: string) {
-        super(label);
-        this.type = 'query';
-        this.addInput('in', new ClassicPreset.Input(new ClassicPreset.Socket('query-socket')));
-    }
-    type: string;
+interface GameFact {
+    fact: string;
+    start?: number;
+    end?: number;
 }
 
-class RuleNode extends ClassicPreset.Node {
-    width = 220;
-    height = 180;
-    public sourceLoc?: { start: number, end: number };
-    
-    constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
-        super('');
-        this.type = 'rule';
-        this.sourceLoc = sourceLoc;
-        const socket = new ClassicPreset.Socket('socket');
-        this.addOutput('out', new ClassicPreset.Output(socket));
-        if (rule.body) {
-            rule.body.forEach((cond: string, i: number) => {
-                this.addInput(`in-${i}`, new ClassicPreset.Input(socket));
-            });
-        }
-    }
-    type: string;
+interface GameData {
+    query: string;
+    rules: GameRule[];
+    facts: GameFact[];
 }
 
-function CustomNode(props: any) {
-    const { data, emit } = props;
-    const modeToggle = document.getElementById('mode-toggle') as HTMLInputElement;
-    const isAdultMode = modeToggle?.checked;
-    
-    if (data.type === 'rule') {
-        const headColor = isAdultMode ? '#333' : '#ff9800';
-        const bodyColor = isAdultMode ? '#333' : '#ffeb3b';
-        const textColor = isAdultMode ? '#fff' : 'transparent';
-        
-        const bodyCount = data.rule.body ? data.rule.body.length : 0;
-        const nodeWidth = Math.max(220, bodyCount * 220);
-        data.width = nodeWidth;
-        data.height = bodyCount > 0 ? 180 : 80;
-        
-        return React.createElement('div', {
-            className: `le-node rule-node ${data.selected ? 'selected' : ''}`,
-            style: {
-                width: nodeWidth + 'px',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '40px',
-                border: data.selected ? '2px solid #0e639c' : '2px solid transparent',
-                borderRadius: '8px',
-                padding: '10px',
-                background: isAdultMode ? '#252526' : 'rgba(255,255,255,0.05)'
-            }
-        },
-            React.createElement('div', {
-                style: {
-                    background: headColor,
-                    color: textColor,
-                    padding: '10px',
-                    borderRadius: '8px',
-                    width: '200px',
-                    textAlign: 'center',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                    position: 'relative',
-                    zIndex: 1,
-                    border: isAdultMode ? '1px solid #444' : 'none'
-                },
-                title: !isAdultMode ? data.rule.head : ''
-            }, 
-                isAdultMode ? data.rule.head : '',
-                React.createElement('div', {
-                    style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
-                }, React.createElement(RefSocket, {
-                    name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
-                }))
-            ),
-            
-            bodyCount > 0 && React.createElement('div', {
-                style: { display: 'flex', justifyContent: 'center', gap: '20px', width: '100%', zIndex: 1 }
-            }, data.rule.body.map((cond: string, i: number) => {
-                return React.createElement('div', {
-                    key: i,
-                    style: {
-                        position: 'relative', background: bodyColor, color: textColor,
-                        padding: '10px', borderRadius: '8px', width: '200px',
-                        textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                        border: isAdultMode ? '1px solid #444' : 'none'
-                    },
-                    title: !isAdultMode ? cond : ''
-                }, 
-                    isAdultMode ? cond : '',
-                    React.createElement('div', {
-                        style: { position: 'absolute', left: '50%', bottom: '-16px', transform: 'translateX(-50%)' }
-                    }, React.createElement(RefSocket, {
-                        name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: `in-${i}`, payload: data.inputs[`in-${i}`]?.socket
-                    }))
-                );
-            })),
-            
-            bodyCount > 0 && React.createElement('svg', {
-                style: { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }
-            }, 
-                React.createElement('defs', null, 
-                    React.createElement('marker', {
-                        id: 'arrowhead-internal', markerWidth: '10', markerHeight: '7', refX: '9', refY: '3.5', orient: 'auto'
-                    }, React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: '#888' }))
-                ),
-                data.rule.body.map((_: any, i: number) => {
-                    const headX = nodeWidth / 2;
-                    const headY = 50; 
-                    const totalBodyWidth = bodyCount * 200 + (bodyCount - 1) * 20;
-                    const startX = (nodeWidth - totalBodyWidth) / 2;
-                    const bodyBlockX = startX + i * 220 + 100; 
-                    const bodyY = 90; 
-                    return React.createElement('path', {
-                        key: `arrow-${i}`, d: `M ${bodyBlockX} ${bodyY} L ${headX} ${headY}`,
-                        stroke: '#888', strokeWidth: '2', fill: 'none', markerEnd: 'url(#arrowhead-internal)'
-                    });
-                })
-            )
-        );
-    } else {
-        // Fact or Query
-        const bgColor = isAdultMode ? '#333' : data.color;
-        const textColor = isAdultMode ? '#fff' : 'transparent';
-        data.width = 220;
-        data.height = 60;
-        
-        return React.createElement('div', {
-            className: `le-node ${data.type}-node ${data.selected ? 'selected' : ''}`,
-            style: {
-                background: bgColor,
-                color: textColor,
-                padding: '10px',
-                borderRadius: '8px',
-                width: '200px',
-                textAlign: 'center',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                border: data.selected ? '2px solid #0e639c' : (isAdultMode ? '1px solid #444' : '2px solid transparent'),
-                position: 'relative'
-            },
-            title: !isAdultMode ? data.label : ''
-        },
-            isAdultMode ? data.label : '',
-            data.type === 'fact' && React.createElement('div', {
-                style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
-            }, React.createElement(RefSocket, {
-                name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
-            })),
-            
-            data.type === 'query' && React.createElement('div', {
-                style: { position: 'absolute', left: '50%', bottom: '-16px', transform: 'translateX(-50%)' }
-            }, React.createElement(RefSocket, {
-                name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: 'in', payload: data.inputs['in']?.socket
-            }))
-        );
+type PieceKind = 'fact' | 'rule';
+
+interface Piece {
+    id: string;
+    kind: PieceKind;
+    // The text that this piece "proves" (a fact's text, or a rule's head).
+    head: string;
+    // Body conditions (rules only); each gets its own nested slot.
+    body: string[];
+    // Slot ids belonging to this piece (rules only).
+    childSlotIds: string[];
+    sourceLoc?: { start: number; end: number };
+}
+
+interface Slot {
+    id: string;
+    expected: string;
+    // The piece id currently placed in the slot (null if empty).
+    placedPieceId: string | null;
+    // The piece that owns this slot, if it is a rule body slot ('' for the goal).
+    ownerPieceId: string;
+    sourceLoc?: { start: number; end: number };
+}
+
+const slots = new Map<string, Slot>();
+const pieces = new Map<string, Piece>();
+let uid = 0;
+
+function nextId(prefix: string): string {
+    uid += 1;
+    return `${prefix}-${uid}`;
+}
+
+function isAdultMode(): boolean {
+    const modeToggle = document.getElementById('mode-toggle') as HTMLInputElement | null;
+    return modeToggle ? modeToggle.checked : true;
+}
+
+// Normalise text for matching: lowercase, collapse whitespace, drop a trailing
+// period so cosmetic differences don't break a correct placement.
+function normalize(text: string): string {
+    return (text || '')
+        .toLowerCase()
+        .replace(/\.$/, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function highlightSource(loc?: { start: number; end: number }) {
+    if (loc && window.opener) {
+        window.opener.postMessage({ type: 'le-highlight', loc }, '*');
     }
 }
 
-function CustomSocket(props: any) {
-    const { data } = props;
-    const isQuery = data.name === 'query-socket';
-    
-    if (isQuery) {
-        return React.createElement('div', {
-            style: {
-                width: '16px',
-                height: '16px',
-                background: '#e2b93d',
-                border: '2px solid #fff',
-                transform: 'rotate(45deg)',
-                cursor: 'pointer',
-                boxSizing: 'border-box'
-            }
-        });
-    }
-    
-    return React.createElement('div', {
-        style: {
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: '#fff',
-            border: '2px solid #333',
-            cursor: 'pointer',
-            boxSizing: 'border-box'
-        }
-    });
+function slotEl(id: string): HTMLElement | null {
+    return document.querySelector(`.pg-slot[data-slot-id="${id}"]`);
+}
+function pieceEl(id: string): HTMLElement | null {
+    return document.querySelector(`.pg-piece[data-piece-id="${id}"]`);
+}
+function trayEl(): HTMLElement | null {
+    return document.getElementById('pg-tray-pieces');
 }
 
-function CustomConnection(props: any) {
-    const { start, end, path: defaultPath } = useConnection();
-    
-    let path = defaultPath;
-    if (start && end) {
-        // Vertical path: start is output (top of body), end is input (bottom of head)
-        path = `M ${start.x} ${start.y} C ${start.x} ${start.y - 50}, ${end.x} ${end.y + 50}, ${end.x} ${end.y}`;
-    }
-    
-    if (!path) return null;
-    
-    return React.createElement(
-        'svg',
-        { style: { overflow: 'visible', position: 'absolute', pointerEvents: 'none', width: '100%', height: '100%', left: 0, top: 0 } },
-        React.createElement(
-            'defs',
-            null,
-            React.createElement(
-                'marker',
-                {
-                    id: 'arrowhead',
-                    markerWidth: '10',
-                    markerHeight: '7',
-                    refX: '9',
-                    refY: '3.5',
-                    orient: 'auto'
-                },
-                React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: 'steelblue' })
-            )
-        ),
-        React.createElement('path', {
-            d: path,
-            fill: 'none',
-            stroke: 'steelblue',
-            strokeWidth: '3px',
-            markerEnd: 'url(#arrowhead)'
-        })
-    );
-}
+export async function initProofGame(container: HTMLElement, gameData: GameData) {
+    slots.clear();
+    pieces.clear();
+    uid = 0;
 
-export async function initProofGame(container: HTMLElement, gameData: any) {
-    const editor = new NodeEditor<Schemes>();
-    const area = new AreaPlugin<Schemes, AreaExtra>(container);
-    const connection = new ConnectionPlugin<Schemes, AreaExtra>();
-    const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
+    container.innerHTML = '';
+    container.classList.add('pg-root');
 
-    AreaExtensions.selectableNodes(area, AreaExtensions.selector(), {
-        accumulating: AreaExtensions.accumulateOnCtrl()
-    });
+    // --- Board (the goal) -------------------------------------------------
+    const board = document.createElement('div');
+    board.className = 'pg-board';
+    container.appendChild(board);
 
-    render.addPreset(Presets.classic.setup({
-        customize: {
-            node() {
-                return CustomNode;
-            },
-            connection() {
-                return CustomConnection;
-            },
-            socket() {
-                return CustomSocket;
-            }
-        }
-    }));
-
-    connection.addPreset(ConnectionPresets.classic.setup());
-
-    editor.use(area);
-    area.use(connection);
-    area.use(render);
-
-    AreaExtensions.simpleNodesOrder(area);
-
-    const arrange = new AutoArrangePlugin<Schemes>();
-    arrange.addPreset(ArrangePresets.classic.setup());
-    area.use(arrange);
-
-    // Parse gameData and create nodes
-    const nodes: any[] = [];
-    
-    // Layout parameters
-    const startX = 100;
-    let currentX = startX;
-    const factY = 500;
-    const ruleY = 250;
-    const queryY = 50;
-    
-    // Add Query Node
     if (gameData.query) {
-        const queryNode = new QueryNode(gameData.query, '#2196f3');
-        await editor.addNode(queryNode);
-        await area.translate(queryNode.id, { x: currentX, y: queryY });
-        nodes.push(queryNode);
-        currentX += 250;
+        const querySection = document.createElement('div');
+        querySection.className = 'pg-section pg-query-section';
+
+        const title = document.createElement('div');
+        title.className = 'pg-section-title';
+        title.textContent = 'Goal';
+        querySection.appendChild(title);
+
+        const queryCard = document.createElement('div');
+        queryCard.className = 'pg-card pg-query-card';
+
+        const queryLabel = document.createElement('div');
+        queryLabel.className = 'pg-query-label';
+        queryLabel.textContent = displayText(gameData.query);
+        queryLabel.title = gameData.query;
+        queryCard.appendChild(queryLabel);
+
+        // The goal slot (ownerPieceId '' marks a top-level/board slot).
+        queryCard.appendChild(createSlotElement(gameData.query, ''));
+        querySection.appendChild(queryCard);
+        board.appendChild(querySection);
     }
-    
-    // Add Rules
-    if (gameData.rules) {
-        for (const rule of gameData.rules) {
-            const ruleNode = new RuleNode(rule, { start: rule.start, end: rule.end });
-            await editor.addNode(ruleNode);
-            await area.translate(ruleNode.id, { x: currentX, y: ruleY });
-            nodes.push(ruleNode);
-            
-            const bodyCount = rule.body ? rule.body.length : 0;
-            const nodeWidth = Math.max(220, bodyCount * 220);
-            currentX += nodeWidth + 50;
-        }
-    }
-    
-    // Add Facts
-    currentX = startX;
+
+    // --- Tray (draggable pieces: facts + rules) ---------------------------
+    const tray = document.createElement('div');
+    tray.className = 'pg-tray';
+
+    const trayTitle = document.createElement('div');
+    trayTitle.className = 'pg-section-title';
+    trayTitle.textContent = 'Pieces — drag a fact or a rule into a slot';
+    tray.appendChild(trayTitle);
+
+    const trayPieces = document.createElement('div');
+    trayPieces.className = 'pg-tray-pieces';
+    trayPieces.id = 'pg-tray-pieces';
+    tray.appendChild(trayPieces);
+    container.appendChild(tray);
+
+    setupTrayDropTarget(trayPieces);
+
+    // Facts become simple pieces.
     if (gameData.facts) {
         for (const fact of gameData.facts) {
-            const factNode = new FactNode(fact.fact, '#4caf50', { start: fact.start, end: fact.end });
-            await editor.addNode(factNode);
-            await area.translate(factNode.id, { x: currentX, y: factY });
-            currentX += 250;
-            nodes.push(factNode);
+            const piece: Piece = {
+                id: nextId('piece'),
+                kind: 'fact',
+                head: fact.fact,
+                body: [],
+                childSlotIds: [],
+                sourceLoc:
+                    fact.start !== undefined && fact.end !== undefined
+                        ? { start: fact.start, end: fact.end }
+                        : undefined
+            };
+            pieces.set(piece.id, piece);
+            trayPieces.appendChild(createPieceElement(piece));
         }
     }
 
-    setTimeout(() => {
-        AreaExtensions.zoomAt(area, editor.getNodes());
-    }, 100);
-
-    document.getElementById('btn-rearrange')?.addEventListener('click', async () => {
-        await arrange.layout();
-        AreaExtensions.zoomAt(area, editor.getNodes());
-    });
-
-    // Zoom controls
-    document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
-        const zoom = area.area.zoom;
-        area.area.setZoom(zoom * 1.2);
-    });
-    document.getElementById('btn-zoom-out')?.addEventListener('click', () => {
-        const zoom = area.area.zoom;
-        area.area.setZoom(zoom / 1.2);
-    });
-    document.getElementById('btn-zoom-fit')?.addEventListener('click', () => {
-        AreaExtensions.zoomAt(area, editor.getNodes());
-    });
-
-    // Selection logic for editor highlighting
-    area.addPipe(context => {
-        if (context.type === 'nodepicked') {
-            const node = editor.getNode(context.data.id) as any;
-            if (node && node.sourceLoc) {
-                if (window.opener) {
-                    window.opener.postMessage({ type: 'le-highlight', loc: node.sourceLoc }, '*');
-                }
-            }
+    // Rules become self-contained draggable cards (head + nested body slots).
+    if (gameData.rules) {
+        for (const rule of gameData.rules) {
+            const piece: Piece = {
+                id: nextId('piece'),
+                kind: 'rule',
+                head: rule.head,
+                body: rule.body || [],
+                childSlotIds: [],
+                sourceLoc:
+                    rule.start !== undefined && rule.end !== undefined
+                        ? { start: rule.start, end: rule.end }
+                        : undefined
+            };
+            pieces.set(piece.id, piece);
+            trayPieces.appendChild(createPieceElement(piece));
         }
-        return context;
+    }
+
+    wireControls(gameData);
+    updateAllText();
+}
+
+function displayText(text: string): string {
+    return isAdultMode() ? text : '';
+}
+
+// Create a slot (drop target). `ownerPieceId` is '' for the goal slot, else the
+// id of the rule piece this body slot belongs to.
+function createSlotElement(expected: string, ownerPieceId: string): HTMLElement {
+    const el = document.createElement('div');
+    el.className = 'pg-slot';
+    const id = nextId('slot');
+    el.dataset.slotId = id;
+
+    slots.set(id, { id, expected, placedPieceId: null, ownerPieceId });
+
+    el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.add('pg-slot-over');
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
     });
-    
-    // Mode toggle logic
-    document.getElementById('mode-toggle')?.addEventListener('change', () => {
-        nodes.forEach(n => area.update('node', n.id));
+    el.addEventListener('dragleave', (e) => {
+        e.stopPropagation();
+        el.classList.remove('pg-slot-over');
     });
-    
-    // Check proof logic
-    document.getElementById('btn-check')?.addEventListener('click', () => {
-        const connections = editor.getConnections();
-        console.log("Current connections:", connections);
-        alert("Proof check triggered! (Validation logic to be implemented)");
+    el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        el.classList.remove('pg-slot-over');
+        const draggedId = e.dataTransfer?.getData('text/plain');
+        if (draggedId) placePieceInSlot(draggedId, id);
     });
+
+    return el;
+}
+
+// Build the DOM for a piece. Fact pieces are simple tokens; rule pieces are
+// cards with a head (the drag handle) and one nested slot per body condition.
+function createPieceElement(piece: Piece): HTMLElement {
+    const el = document.createElement('div');
+    el.dataset.pieceId = piece.id;
+    el.draggable = true;
+
+    el.addEventListener('dragstart', (e) => {
+        // Ensure the innermost grabbed piece is the one that moves, not an
+        // ancestor rule card.
+        e.stopPropagation();
+        el.classList.add('pg-dragging');
+        if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', piece.id);
+        }
+    });
+    el.addEventListener('dragend', (e) => {
+        e.stopPropagation();
+        el.classList.remove('pg-dragging');
+    });
+
+    if (piece.kind === 'fact') {
+        el.className = 'pg-piece pg-piece-fact';
+        el.textContent = displayText(piece.head);
+        el.title = piece.head;
+        el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            highlightSource(piece.sourceLoc);
+        });
+        return el;
+    }
+
+    // Rule piece: a card.
+    el.className = 'pg-piece pg-piece-rule';
+
+    const head = document.createElement('div');
+    head.className = 'pg-rule-head';
+    head.textContent = displayText(piece.head);
+    head.title = piece.head;
+    head.addEventListener('click', (e) => {
+        e.stopPropagation();
+        highlightSource(piece.sourceLoc);
+    });
+    el.appendChild(head);
+
+    if (piece.body.length) {
+        const ifLabel = document.createElement('div');
+        ifLabel.className = 'pg-if-label';
+        ifLabel.textContent = 'if';
+        el.appendChild(ifLabel);
+
+        const bodyRow = document.createElement('div');
+        bodyRow.className = 'pg-body-row';
+        piece.body.forEach((cond) => {
+            const condWrap = document.createElement('div');
+            condWrap.className = 'pg-cond';
+
+            const condLabel = document.createElement('div');
+            condLabel.className = 'pg-cond-label';
+            condLabel.textContent = displayText(cond);
+            condLabel.title = cond;
+            condWrap.appendChild(condLabel);
+
+            const slot = createSlotElement(cond, piece.id);
+            piece.childSlotIds.push(slot.dataset.slotId!);
+            condWrap.appendChild(slot);
+
+            bodyRow.appendChild(condWrap);
+        });
+        el.appendChild(bodyRow);
+    }
+
+    return el;
+}
+
+// Is `slotId` somewhere inside the subtree owned by `pieceId`? Used to prevent
+// dropping a rule into one of its own (descendant) body slots.
+function slotIsInsidePiece(slotId: string, pieceId: string): boolean {
+    const piece = pieces.get(pieceId);
+    if (!piece) return false;
+    for (const childSlotId of piece.childSlotIds) {
+        if (childSlotId === slotId) return true;
+        const child = slots.get(childSlotId);
+        if (child && child.placedPieceId) {
+            if (slotIsInsidePiece(slotId, child.placedPieceId)) return true;
+        }
+    }
+    return false;
+}
+
+// Move a piece into a slot. Handles re-parenting, bumping an existing occupant
+// back to the tray, and guarding against nesting a rule inside itself.
+function placePieceInSlot(pieceId: string, slotId: string) {
+    const slot = slots.get(slotId);
+    const piece = pieces.get(pieceId);
+    if (!slot || !piece) return;
+
+    const domPiece = pieceEl(pieceId);
+    const domSlot = slotEl(slotId);
+    if (!domPiece || !domSlot) return;
+
+    // Guard: cannot drop a piece into one of its own descendant slots.
+    if (slotIsInsidePiece(slotId, pieceId) || slot.ownerPieceId === pieceId) {
+        return;
+    }
+
+    // Free whatever slot currently holds this piece.
+    slots.forEach((s) => {
+        if (s.placedPieceId === pieceId) {
+            s.placedPieceId = null;
+            clearSlotStatus(s.id);
+        }
+    });
+
+    // If the target slot already had a piece, send the old one back to the tray.
+    if (slot.placedPieceId) {
+        const prev = pieceEl(slot.placedPieceId);
+        if (prev) returnPieceToTray(prev, slot.placedPieceId);
+        slot.placedPieceId = null;
+    }
+
+    domSlot.appendChild(domPiece);
+    slot.placedPieceId = pieceId;
+    domSlot.classList.add('pg-slot-filled');
+    clearSlotStatus(slotId);
+}
+
+function returnPieceToTray(domPiece: HTMLElement, pieceId: string) {
+    const tray = trayEl();
+    if (tray) tray.appendChild(domPiece);
+    // Free any slot that referenced this piece.
+    slots.forEach((s) => {
+        if (s.placedPieceId === pieceId) {
+            s.placedPieceId = null;
+            clearSlotStatus(s.id);
+        }
+    });
+}
+
+function clearSlotStatus(slotId: string) {
+    const el = slotEl(slotId);
+    if (!el) return;
+    el.classList.remove('pg-slot-correct', 'pg-slot-wrong');
+    if (!slots.get(slotId)?.placedPieceId) el.classList.remove('pg-slot-filled');
+}
+
+function setupTrayDropTarget(tray: HTMLElement) {
+    tray.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    });
+    tray.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const pieceId = e.dataTransfer?.getData('text/plain');
+        if (!pieceId) return;
+        const domPiece = pieceEl(pieceId);
+        if (domPiece) returnPieceToTray(domPiece, pieceId);
+    });
+}
+
+function updateAllText() {
+    const adult = isAdultMode();
+    document.querySelectorAll('.pg-piece-fact').forEach((el) => {
+        (el as HTMLElement).textContent = adult ? (el as HTMLElement).title : '';
+    });
+    document
+        .querySelectorAll('.pg-query-label, .pg-rule-head, .pg-cond-label')
+        .forEach((el) => {
+            (el as HTMLElement).textContent = adult ? (el as HTMLElement).title : '';
+        });
+}
+
+// Recursively decide whether a slot is fully satisfied: a piece is present, its
+// head matches the slot's expected condition, and (if it is a rule) all of its
+// own body slots are satisfied too.
+function slotIsCorrect(slot: Slot): boolean {
+    if (!slot.placedPieceId) return false;
+    const piece = pieces.get(slot.placedPieceId);
+    if (!piece) return false;
+    if (normalize(piece.head) !== normalize(slot.expected)) return false;
+    for (const childSlotId of piece.childSlotIds) {
+        const child = slots.get(childSlotId);
+        if (!child || !slotIsCorrect(child)) return false;
+    }
+    return true;
+}
+
+function checkProof(gameData: GameData) {
+    // Paint per-slot feedback for every slot currently on the board.
+    let total = 0;
+    let correct = 0;
+    slots.forEach((slot) => {
+        const el = slotEl(slot.id);
+        if (!el) return; // slot belongs to a piece sitting unused in the tray
+        total += 1;
+        el.classList.remove('pg-slot-correct', 'pg-slot-wrong');
+        if (!slot.placedPieceId) return;
+        if (slotIsCorrect(slot)) {
+            el.classList.add('pg-slot-correct');
+            correct += 1;
+        } else {
+            el.classList.add('pg-slot-wrong');
+        }
+    });
+
+    // The proof succeeds only if the goal slot is fully (recursively) correct.
+    const goalSlot = Array.from(slots.values()).find((s) => s.ownerPieceId === '');
+    const proven = goalSlot ? slotIsCorrect(goalSlot) : false;
+
+    const statusEl = document.getElementById('pg-status');
+    if (statusEl) {
+        if (!goalSlot) {
+            statusEl.textContent = 'Nothing to prove.';
+            statusEl.className = 'pg-status';
+        } else if (proven) {
+            statusEl.textContent = '✓ Proof complete! The goal is fully justified.';
+            statusEl.className = 'pg-status pg-status-success';
+        } else {
+            statusEl.textContent = `Not proven yet — ${correct}/${total} placed slots correct. Keep building.`;
+            statusEl.className = 'pg-status pg-status-progress';
+        }
+    }
+}
+
+function resetBoard() {
+    const tray = trayEl();
+    // Move every placed piece back to the tray, in document order.
+    Array.from(pieces.values()).forEach((p) => {
+        const dom = pieceEl(p.id);
+        if (dom && tray && dom.parentElement !== tray) tray.appendChild(dom);
+    });
+    slots.forEach((slot) => {
+        slot.placedPieceId = null;
+        const el = slotEl(slot.id);
+        if (el) {
+            el.classList.remove(
+                'pg-slot-filled',
+                'pg-slot-correct',
+                'pg-slot-wrong',
+                'pg-slot-over'
+            );
+        }
+    });
+    const statusEl = document.getElementById('pg-status');
+    if (statusEl) {
+        statusEl.textContent = '';
+        statusEl.className = 'pg-status';
+    }
+}
+
+function wireControls(gameData: GameData) {
+    const checkBtn = document.getElementById('btn-check');
+    if (checkBtn) {
+        const fresh = checkBtn.cloneNode(true) as HTMLElement;
+        checkBtn.parentNode?.replaceChild(fresh, checkBtn);
+        fresh.addEventListener('click', () => checkProof(gameData));
+    }
+
+    const resetBtn = document.getElementById('btn-reset');
+    if (resetBtn) {
+        const fresh = resetBtn.cloneNode(true) as HTMLElement;
+        resetBtn.parentNode?.replaceChild(fresh, resetBtn);
+        fresh.addEventListener('click', resetBoard);
+    }
+
+    const modeToggle = document.getElementById('mode-toggle');
+    if (modeToggle) {
+        modeToggle.addEventListener('change', updateAllText);
+    }
 }
