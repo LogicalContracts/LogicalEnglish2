@@ -17,6 +17,7 @@
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_session)).
 :- use_module(le_kbs).
+:- use_module(le_proof_game).
 :- use_module(tokenizer).
 :- use_module(le_grammar).
 :- use_module(reasoner).
@@ -501,14 +502,8 @@ handle_get_game_data(Dict, Response) :-
               ( KB \== none, KB:query_info(QueryName, Goal, _) -> Query = Goal ; Query = QueryName )
         ),
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
-        ;   extract_rules_and_facts(KB, SM, Rules, ExtractedFacts),
+        ;   le_proof_game:extract_rules_and_facts(KB, SM, Query, Rules, ExtractedFacts),
             ( KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens) -> le_kbs:canonical_string(QueryTokens, QueryLE) ; term_string(Query, QueryLE) ),
-            ( SM \== none ->
-                dynamic(SM:game_node_term/3),
-                game_var_ids(Query, QVarIds),
-                % For the query node, we treat the query itself as its "body condition" at index 0
-                assertz(SM:game_node_term(query, query, term(Query, [Query], QVarIds)))
-            ; true ),
             Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE, sessionModule: SMStr}, result: "ok"}
         )
     ).
@@ -518,166 +513,14 @@ term_to_le(KB, Term, LE) :-
     ; term_string(Term, LE)
     ).
 
-%!  game_var_ids(+Term, -VarIds:list) is det.
-%
-%   Assigns a stable integer id to each distinct variable in Term, in
-%   left-to-right order. VarIds is a list of Id-Var pairs.
-next_game_node_id(Kind, NodeId) :-
-    nb_getval(game_node_counter, N),
-    N1 is N + 1,
-    nb_setval(game_node_counter, N1),
-    format(atom(NodeId), "~w_~w", [Kind, N]).
-
-game_var_ids(Term, VarIds) :-
-    term_variables(Term, Vars),
-    number_var_ids(Vars, 0, VarIds).
-
-number_var_ids([], _, []).
-number_var_ids([V|Vs], N, [N-V|T]) :-
-    N1 is N + 1,
-    number_var_ids(Vs, N1, T).
-
-%!  literal_to_game(+KB, +Literal, +VarIds, +SeenIn, -SeenOut, -LE, -Tokens) is det.
-%
-%   Renders a single literal into LE text plus structured game tokens,
-%   threading the determiner "seen variables" state.
-literal_to_game(KB, Literal, VarIds, SeenIn, SeenOut, LE, Tokens) :-
-    ( KB \== none, le_kbs:item_to_typed_instance(KB, Literal, Tagged) ->
-        le_kbs:tagged_tokens_to_game(KB, Tagged, VarIds, SeenIn, SeenOut, Tokens),
-        le_kbs:game_tokens_text(Tokens, LE)
-    ;   term_string(Literal, LE), Tokens = [_{kind: "word", text: LE}], SeenOut = SeenIn
-    ).
-
-extract_rules_and_facts(KB, SM, Rules, Facts) :-
-    ( SM \== none -> dynamic(SM:game_node_term/3), retractall(SM:game_node_term(_,_,_)) ; true ),
-    nb_setval(game_node_counter, 0),
-    findall(RuleDict, (
-        current_predicate(KB:F/N),
-        \+ le_kbs:is_system_predicate(F/N),
-        functor(Head, F, N),
-        clause(KB:Head, Body, Ref),
-        KB:le_source_info(Ref, Start, End, ID),
-        \+ member(ID, [template, template_unknown, ontology, session_fact]),
-        Body \== true,
-        comma_list(Body, BodyList),
-        maplist(strip_le_at, BodyList, StrippedBodyList),
-        flatten_and(StrippedBodyList, FlatBodyList),
-        next_game_node_id(rule, NodeId),
-        game_var_ids((Head :- FlatBodyList), VarIds),
-        literal_to_game(KB, Head, VarIds, [], Seen1, HeadLE, HeadTokens),
-        body_list_to_game(KB, FlatBodyList, VarIds, Seen1, _SeenN, BodyLEs, BodyTokensList),
-        ( SM \== none ->
-            assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
-        ; true ),
-        RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
-                      body: BodyLEs, bodyTokens: BodyTokensList,
-                      start: Start, end: End }
-    ), Rules),
-    findall(FactDict, (
-        (   current_predicate(KB:F/N),
-            \+ le_kbs:is_system_predicate(F/N),
-            functor(Head, F, N),
-            clause(KB:Head, true, Ref),
-            KB:le_source_info(Ref, Start, End, ID),
-            \+ member(ID, [template, template_unknown, ontology, session_fact])
-        ;   SM \== none,
-            current_predicate(SM:F/N),
-            \+ le_kbs:is_system_predicate(F/N),
-            functor(Head, F, N),
-            clause(SM:Head, true, Ref),
-            SM:le_source_info(Ref, Start, End, session_fact)
-        ),
-        next_game_node_id(fact, NodeId),
-        game_var_ids(Head, VarIds),
-        literal_to_game(KB, Head, VarIds, [], _Seen, FactLE, FactTokens),
-        ( SM \== none ->
-            assertz(SM:game_node_term(NodeId, fact, term(Head, [], VarIds)))
-        ; true ),
-        FactDict = _{ id: NodeId, fact: FactLE, factTokens: FactTokens,
-                      start: Start, end: End }
-    ), Facts).
-
-%!  body_list_to_game(+KB, +Literals, +VarIds, +SeenIn, -SeenOut, -LEs, -TokensList) is det.
-body_list_to_game(_KB, [], _VarIds, Seen, Seen, [], []).
-body_list_to_game(KB, [L|Ls], VarIds, SeenIn, SeenOut, [LE|LEs], [Tokens|TokensT]) :-
-    literal_to_game(KB, L, VarIds, SeenIn, Seen1, LE, Tokens),
-    body_list_to_game(KB, Ls, VarIds, Seen1, SeenOut, LEs, TokensT).
-
-%!  handle_unify_game_nodes(+Dict, -Response) is det.
-%
-%   Validates the current proof-tree fragment by unifying connected node
-%   literals using the actual clause terms (with shared variables) stored
-%   during getGameData. On success, returns the re-rendered tokens for each
-%   node reflecting propagated bindings; on a clash, returns status "clash".
 handle_unify_game_nodes(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
     ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
     get_dict(nodes, Dict, NodeSpecs),
     ( get_dict(edges, Dict, Edges) -> true ; Edges = [] ),
-    (   catch(
-            build_proof_fragment(SM, NodeSpecs, Instances),
-            _Err, fail)
-    ->  (   apply_edges(Instances, Edges)
-        ->  render_instances(KB, Instances, NodeResults),
-            Response = _{ status: "ok", nodes: NodeResults, result: "ok" }
-        ;   Response = _{ status: "clash", result: "ok" }
-        )
-    ;   Response = _{ status: "error", error: "Unknown node template", result: "ok" }
-    ).
-
-%!  build_proof_fragment(+SM, +NodeSpecs, -Instances) is det.
-%
-%   For each canvas node spec _{instanceId, templateId}, fetches a fresh
-%   copy of the stored term and builds an instance record:
-%   inst(InstanceId, Kind, Head, BodyLiterals).
-build_proof_fragment(_SM, [], []).
-build_proof_fragment(SM, [Spec|Specs], [inst(IId, Kind, Head, Body)|Insts]) :-
-    get_dict(instanceId, Spec, IIdVal), atom_string(IId, IIdVal),
-    get_dict(templateId, Spec, TIdVal), atom_string(TId, TIdVal),
-    SM:game_node_term(TId, Kind, term(Head0, Body0, _VarIds)),
-    copy_term(Head0-Body0, Head-Body),
-    build_proof_fragment(SM, Specs, Insts).
-
-apply_edges(_Instances, []).
-apply_edges(Instances, [Edge|Edges]) :-
-    get_dict(child, Edge, ChildVal), atom_string(Child, ChildVal),
-    get_dict(parent, Edge, ParentVal), atom_string(Parent, ParentVal),
-    get_dict(bodyIndex, Edge, BodyIndex),
-    member(inst(Child, _, ChildHead, _), Instances),
-    member(inst(Parent, _, _, ParentBody), Instances),
-    nth0(BodyIndex, ParentBody, ParentCond),
-    unify_condition(ChildHead, ParentCond),
-    apply_edges(Instances, Edges).
-
-%!  unify_condition(+Head, +Cond) is semidet.
-%
-%   Unifies Head with Cond, treating a disjunctive condition as a choice
-%   of either disjunct.
-unify_condition(Head, le_at(Cond, _, _)) :- !, unify_condition(Head, Cond).
-unify_condition(Head, or(A, B)) :- !,
-    ( unify_condition(Head, A) ; unify_condition(Head, B) ).
-unify_condition(Head, Cond) :- Head = Cond.
-
-%!  render_instances(+KB, +Instances, -Results) is det.
-render_instances(_KB, [], []).
-render_instances(KB, [inst(IId, _Kind, Head, Body)|Insts], [Result|Results]) :-
-    game_var_ids((Head :- Body), VarIds),
-    literal_to_game(KB, Head, VarIds, [], Seen1, HeadLE, HeadTokens),
-    body_list_to_game(KB, Body, VarIds, Seen1, _SeenN, BodyLEs, BodyTokensList),
-    Result = _{ instanceId: IId, head: HeadLE, headTokens: HeadTokens,
-                body: BodyLEs, bodyTokens: BodyTokensList },
-    render_instances(KB, Insts, Results).
-
-comma_list((A, B), [A|T]) :- !, comma_list(B, T).
-comma_list(A, [A]).
-
-strip_le_at(le_at(Term, _, _), Stripped) :- !, strip_le_at(Term, Stripped).
-strip_le_at(Term, Term).
-
-flatten_and([], []).
-flatten_and([and(A, B)|T], Flat) :- !, flatten_and([A, B|T], Flat).
-flatten_and([H|T], [H|FlatT]) :- flatten_and(T, FlatT).
+    le_proof_game:unify_game_nodes(KB, SM, NodeSpecs, Edges, Res),
+    put_dict(Res, _{result: "ok"}, Response).
 
 handle_load_facts_and_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),

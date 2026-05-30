@@ -12,7 +12,6 @@
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    item_to_typed_instance/3, tagged_tokens_to_game/6, game_tokens_text/2,
     topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
     le_examples_dir/1]).
 
@@ -740,106 +739,11 @@ fill_variable_name(NTs, V, Name) :-
     ).
 fill_variable_name(_, V, V).
 
-%!  fill_variable_typed(+NTs:list, +V, -Tagged) is det.
-%
-%   Like fill_variable_name/3 but, when V is an unbound clause variable,
-%   produces a tagged term gtypedvar(V, Type) that keeps the original
-%   Prolog variable identity (so shared variables remain shared) together
-%   with the base type word. Bound/non-variable tokens pass through.
-fill_variable_typed(NTs, V, gtypedvar(V, Type)) :-
-    var(V),
-    member(V1-Type0, NTs),
-    V1 == V, !,
-    ( atom(Type0) -> Type = Type0 ; Type = variable ).
-fill_variable_typed(_, V, gtypedvar(V, variable)) :- var(V), !.
-fill_variable_typed(_, V, V).
-
-%!  item_to_typed_instance(+KBmodule, +Head, -WordsAndVars) is det.
-%
-%   Variant of item_to_instance/3 that, instead of rendering unbound
-%   variables as indefinite phrases ("a person"), keeps them as
-%   gtypedvar(Var, Type) tokens, preserving the variable identity so that
-%   determiners and bindings can be computed at the clause level.
-item_to_typed_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
-    item_to_typed_instance(KBmodule, Goal, WordsAndVars).
-item_to_typed_instance(_KBmodule, var(Name, Value), [var(Name, Value)]) :- !.
-item_to_typed_instance(KBmodule, not(Goal), WordsAndVars) :- !,
-    ( item_to_typed_instance(KBmodule, Goal, GoalLE) ->
-        WordsAndVars = [it, is, not, the, case, that | GoalLE]
-    ; WordsAndVars = [it, is, not, the, case, that, Goal] ).
-item_to_typed_instance(KBmodule, and(A, B), WordsAndVars) :- !,
-    ( item_to_typed_instance(KBmodule, A, ALE), item_to_typed_instance(KBmodule, B, BLE) ->
-        append(ALE, [and | BLE], WordsAndVars)
-    ; WordsAndVars = [A, and, B] ).
-item_to_typed_instance(KBmodule, or(A, B), WordsAndVars) :- !,
-    ( item_to_typed_instance(KBmodule, A, ALE), item_to_typed_instance(KBmodule, B, BLE) ->
-        append(ALE, [or | BLE], WordsAndVars)
-    ; WordsAndVars = [A, or, B] ).
-item_to_typed_instance(KBmodule, Head, WordsAndVars) :-
-    copy_term(Head, _),
-    (   ( KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _))
-        ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _))
-        ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0)) ),
-        Head =.. [Functor|Args],
-        check_types(NTs)
-    ->  maplist(maybe_transform_typed(KBmodule), WordsAndVars0, WordsAndVars1),
-        maplist(fill_variable_typed(NTs), WordsAndVars1, WordsAndVars2),
-        flatten(WordsAndVars2, WordsAndVars)
-    ;   ( item_to_instance(KBmodule, Head, WordsAndVars) -> true
-        ; term_string(Head, Str), WordsAndVars = [Str] )
-    ).
-
-maybe_transform_typed(KBmodule, Val, Transformed) :-
-    (   compound(Val), \+ is_list(Val), Val \= date(_), Val \= date(_,_,_),
-        item_to_typed_instance(KBmodule, Val, Transformed)
-    ->  true
-    ;   Transformed = Val
-    ).
-
-%!  starts_with_vowel(+Atom:atom) is semidet.
-starts_with_vowel(Atom) :-
-    atom(Atom), atom_codes(Atom, [C|_]),
-    memberchk(C, [97, 101, 105, 111, 117, 65, 69, 73, 79, 85]).
-
-%!  tagged_tokens_to_game(+KB, +Tagged, +VarIds, +SeenIn, -SeenOut, -JSONTokens) is det.
-%
-%   Converts a list of typed tokens (with gtypedvar/2 entries) into a list
-%   of JSON-friendly token dicts, assigning the correct determiner to each
-%   variable: indefinite (a/an) on first occurrence in the clause, definite
-%   (the) on subsequent occurrences. VarIds maps a clause variable to a
-%   stable integer id. Seen tracks which variable ids were already emitted.
-tagged_tokens_to_game(_KB, [], _VarIds, Seen, Seen, []).
-tagged_tokens_to_game(KB, [gtypedvar(V, Type)|T], VarIds, SeenIn, SeenOut, [Tok|ToksT]) :- !,
-    ( member(Vid-V0, VarIds), V0 == V -> Id = Vid ; Id = -1 ),
-    ( memberchk(Id, SeenIn) -> Det = the, Seen1 = SeenIn
-    ; ( starts_with_vowel(Type) -> Det = an ; Det = a ),
-      Seen1 = [Id|SeenIn] ),
-    ( Det == the -> Words = [the, Type] ; Words = [Det, Type] ),
-    atomic_list_concat(Words, ' ', Text),
-    Tok = _{ kind: "var", id: Id, type: Type, det: Det, text: Text },
-    tagged_tokens_to_game(KB, T, VarIds, Seen1, SeenOut, ToksT).
-tagged_tokens_to_game(KB, [W|T], VarIds, SeenIn, SeenOut, [Tok|ToksT]) :-
-    ( token_to_atom(W, A) -> true ; term_to_atom(W, A) ),
-    atom_string(A, S),
-    Tok = _{ kind: "word", text: S },
-    tagged_tokens_to_game(KB, T, VarIds, SeenIn, SeenOut, ToksT).
-
-%!  game_tokens_text(+Tokens:list, -Text:string) is det.
-%
-%   Joins the text fields of game tokens into a single LE sentence.
-game_tokens_text(Tokens, Text) :-
-    maplist(get_dict(text), Tokens, Parts),
-    atomic_list_concat(Parts, ' ', Atom),
-    atom_string(Atom, Text).
-
 maybe_transform_value(KBmodule, Val, Transformed) :-
     (   compound(Val), \+ is_list(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
     ->  true
     ;   Transformed = Val
     ).
-
-extract_name(var(Name, _), Name) :- !.
-extract_name(V, V).
 
 %!  get_kb_metadata(+KB:atom, -Metadata:dict) is det.
 %
