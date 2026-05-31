@@ -123973,6 +123973,46 @@ var AutoArrangePlugin = /* @__PURE__ */ function(_Scope) {
 // src/proof-game.ts
 var import_client = __toESM(require_client());
 var { RefSocket: RefSocket2, Socket: Socket4, useConnection: useConnection2 } = index3.classic;
+var PRESET_COLORS = [
+  "#4caf50",
+  // Green
+  "#2196f3",
+  // Blue
+  "#ff9800",
+  // Orange
+  "#9c27b0",
+  // Purple
+  "#e91e63",
+  // Pink
+  "#00bcd4",
+  // Cyan
+  "#ff5722",
+  // Deep Orange
+  "#3f51b5",
+  // Indigo
+  "#009688",
+  // Teal
+  "#673ab7",
+  // Deep Purple
+  "#8bc34a",
+  // Light Green
+  "#ffc107",
+  // Amber
+  "#03a9f4",
+  // Light Blue
+  "#e040fb",
+  // Magenta
+  "#00e676",
+  // Bright Green
+  "#ff1744"
+  // Bright Red
+];
+var templateColors = /* @__PURE__ */ new Map();
+function getPredicateTemplate(tokens) {
+  if (!tokens || tokens.length === 0)
+    return "";
+  return tokens.map((t2) => t2.kind === "var" ? "*" : t2.text).join(" ");
+}
 var FactNode = class extends classic.Node {
   constructor(label, color, templateId, tokens, sourceLoc) {
     super(label);
@@ -124045,8 +124085,9 @@ function CustomNode(props) {
   const modeToggle = document.getElementById("mode-toggle");
   const isAdultMode = modeToggle?.checked;
   if (data.type === "rule") {
-    const headColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : "#ff9800";
-    const bodyColor = data.complete ? "#81c784" : isAdultMode ? "#333" : "#ffeb3b";
+    const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
+    const headPredicateColor = templateColors.get(headTemplate) || "#ff9800";
+    const headColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : headPredicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     const bodyCount = data.rule.body ? data.rule.body.length : 0;
     const nodeWidth = Math.max(220, bodyCount * 220);
@@ -124103,6 +124144,9 @@ function CustomNode(props) {
         style: { display: "flex", justifyContent: "center", gap: "20px", width: "100%", zIndex: 1 }
       }, data.rule.body.map((cond, i2) => {
         const condText = renderTokens(data.bodyTokens[i2]) || cond;
+        const condTemplate = getPredicateTemplate(data.bodyTokens[i2]) || cond;
+        const condPredicateColor = templateColors.get(condTemplate) || "#ffeb3b";
+        const bodyColor = data.complete ? "#81c784" : isAdultMode ? "#333" : condPredicateColor;
         return React2.createElement(
           "div",
           {
@@ -124169,11 +124213,13 @@ function CustomNode(props) {
       )
     );
   } else {
-    const bgColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : data.color;
+    const labelText = data.type === "fact" || data.type === "query" ? renderTokens(data.tokens) || data.label : data.label;
+    const template = getPredicateTemplate(data.tokens) || labelText;
+    const predicateColor = templateColors.get(template) || data.color;
+    const bgColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : predicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     data.width = 220;
     data.height = 60;
-    const labelText = data.type === "fact" || data.type === "query" ? renderTokens(data.tokens) || data.label : data.label;
     return React2.createElement(
       "div",
       {
@@ -124315,6 +124361,108 @@ async function initProofGame(container, gameData) {
   const connection = new ConnectionPlugin();
   const render2 = new ReactPlugin({ createRoot: import_client.createRoot });
   const sessionModule = gameData.sessionModule;
+  templateColors.clear();
+  const predicateTemplates = /* @__PURE__ */ new Set();
+  if (gameData.queryTokens) {
+    const t2 = getPredicateTemplate(gameData.queryTokens);
+    if (t2)
+      predicateTemplates.add(t2);
+  } else if (gameData.query) {
+    predicateTemplates.add(gameData.query);
+  }
+  if (gameData.rules) {
+    for (const rule of gameData.rules) {
+      if (rule.headTokens) {
+        const t2 = getPredicateTemplate(rule.headTokens);
+        if (t2)
+          predicateTemplates.add(t2);
+      }
+      if (rule.bodyTokens) {
+        for (const tokens of rule.bodyTokens) {
+          const t2 = getPredicateTemplate(tokens);
+          if (t2)
+            predicateTemplates.add(t2);
+        }
+      }
+    }
+  }
+  if (gameData.facts) {
+    for (const fact of gameData.facts) {
+      if (fact.factTokens) {
+        const t2 = getPredicateTemplate(fact.factTokens);
+        if (t2)
+          predicateTemplates.add(t2);
+      }
+    }
+  }
+  let colorIndex = 0;
+  for (const template of predicateTemplates) {
+    const color = PRESET_COLORS[colorIndex % PRESET_COLORS.length];
+    templateColors.set(template, color);
+    colorIndex++;
+  }
+  const legendContent = document.getElementById("legend-content");
+  if (legendContent) {
+    legendContent.innerHTML = "";
+    templateColors.forEach((color, template) => {
+      const item = document.createElement("div");
+      item.className = "legend-item";
+      const colorBox = document.createElement("div");
+      colorBox.className = "legend-color-box";
+      colorBox.style.backgroundColor = color;
+      const text = document.createElement("span");
+      text.textContent = template;
+      item.appendChild(colorBox);
+      item.appendChild(text);
+      legendContent.appendChild(item);
+    });
+  }
+  document.getElementById("btn-legend")?.addEventListener("click", () => {
+    const dialog = document.getElementById("legend-dialog");
+    if (dialog) {
+      if (dialog.style.display === "none") {
+        dialog.style.display = "flex";
+      } else {
+        dialog.style.display = "none";
+      }
+    }
+  });
+  document.getElementById("btn-legend-close")?.addEventListener("click", () => {
+    const dialog = document.getElementById("legend-dialog");
+    if (dialog) {
+      dialog.style.display = "none";
+    }
+  });
+  const legendDialog = document.getElementById("legend-dialog");
+  const legendHeader = legendDialog?.querySelector(".legend-header");
+  if (legendDialog && legendHeader) {
+    let isDragging = false;
+    let startX2 = 0;
+    let startY = 0;
+    let initialLeft = 0;
+    let initialTop = 0;
+    legendHeader.addEventListener("mousedown", (e) => {
+      isDragging = true;
+      startX2 = e.clientX;
+      startY = e.clientY;
+      const rect = legendDialog.getBoundingClientRect();
+      initialLeft = rect.left;
+      initialTop = rect.top;
+      e.preventDefault();
+    });
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging)
+        return;
+      const dx = e.clientX - startX2;
+      const dy = e.clientY - startY;
+      legendDialog.style.left = `${initialLeft + dx}px`;
+      legendDialog.style.top = `${initialTop + dy}px`;
+      legendDialog.style.right = "auto";
+    });
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
+    });
+  }
   let wasComplete = false;
   let wasClash = false;
   function checkCompletion() {
@@ -124487,6 +124635,7 @@ async function initProofGame(container, gameData) {
   const queryY = 50;
   if (gameData.query) {
     const queryNode = new QueryNode(gameData.query, "#2196f3");
+    queryNode.tokens = gameData.queryTokens || [];
     await editor.addNode(queryNode);
     await area.translate(queryNode.id, { x: currentX, y: queryY });
     nodes.push(queryNode);
