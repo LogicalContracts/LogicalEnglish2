@@ -745,6 +745,9 @@ maybe_transform_value(KBmodule, Val, Transformed) :-
     ;   Transformed = Val
     ).
 
+extract_name(var(Name, _), Name) :- !.
+extract_name(V, V).
+
 %!  get_kb_metadata(+KB:atom, -Metadata:dict) is det.
 %
 %   Returns metadata about a loaded KB, including its name, templates,

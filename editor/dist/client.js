@@ -38483,6 +38483,7 @@ async function start() {
   const savedTheme = localStorage.getItem("le-editor-theme") || "le-theme";
   const savedFontSize = parseInt(localStorage.getItem("le-editor-font-size") || "16");
   let showHierarchicalNumbering = localStorage.getItem("le-hierarchical-numbering") === "true";
+  let failedNodePrefix = localStorage.getItem("le-failed-node-prefix") ?? "x ";
   const numberingCheck = document.getElementById("hierarchical-numbering-check");
   if (numberingCheck) {
     numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
@@ -39067,6 +39068,31 @@ async function start() {
     localStorage.setItem("le-assistant-model", modelSelect.value);
     closeApiKeysModal();
   });
+  const explanationsModal = document.getElementById("explanations-modal");
+  const explanationsClose = document.getElementById("explanations-close");
+  const explanationsCancel = document.getElementById("explanations-cancel");
+  const explanationsSave = document.getElementById("explanations-save");
+  const failedPrefixInput = document.getElementById("failed-prefix-input");
+  const openExplanationsModal = () => {
+    if (explanationsModal && failedPrefixInput) {
+      failedPrefixInput.value = failedNodePrefix;
+      explanationsModal.style.display = "flex";
+    }
+  };
+  const closeExplanationsModal = () => {
+    if (explanationsModal)
+      explanationsModal.style.display = "none";
+  };
+  document.getElementById("menu-explanations")?.addEventListener("click", openExplanationsModal);
+  explanationsClose?.addEventListener("click", closeExplanationsModal);
+  explanationsCancel?.addEventListener("click", closeExplanationsModal);
+  explanationsSave?.addEventListener("click", () => {
+    if (failedPrefixInput) {
+      failedNodePrefix = failedPrefixInput.value;
+      localStorage.setItem("le-failed-node-prefix", failedNodePrefix);
+    }
+    closeExplanationsModal();
+  });
   const tabs = document.querySelectorAll(".tab");
   const tabContents = document.querySelectorAll(".tab-content");
   tabs.forEach((tab) => {
@@ -39617,6 +39643,9 @@ async function start() {
     }
     const indent = "  ".repeat(depth);
     let text = node.literal || node;
+    if (node.type === "failure") {
+      text = `${failedNodePrefix}${text}`;
+    }
     if (showHierarchicalNumbering && prefix && depth > 0) {
       text = `${prefix} ${text}`;
     }
@@ -39636,6 +39665,9 @@ async function start() {
     }
     const indent = "&nbsp;&nbsp;".repeat(depth);
     let text = node.literal || node;
+    if (node.type === "failure") {
+      text = `${failedNodePrefix}${text}`;
+    }
     if (showHierarchicalNumbering && prefix && depth > 0) {
       text = `${prefix} ${text}`;
     }
