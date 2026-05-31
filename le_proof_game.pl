@@ -1,5 +1,5 @@
 :- module(le_proof_game, [
-    extract_rules_and_facts/5,
+    extract_rules_and_facts/6,
     unify_game_nodes/5,
     game_var_ids/2
 ]).
@@ -7,8 +7,8 @@
 :- use_module(le_kbs).
 :- use_module(le_grammar).
 
-%!  extract_rules_and_facts(+KB, +SM, +Query, -Rules, -Facts) is det.
-extract_rules_and_facts(KB, SM, Query, Rules, Facts) :-
+%!  extract_rules_and_facts(+KB, +SM, +Query, -Rules, -Facts, -QueryTokens) is det.
+extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
     ( SM \== none -> dynamic(SM:game_node_term/3), retractall(SM:game_node_term(_,_,_)) ; true ),
     nb_setval(game_node_counter, 0),
     findall(RuleDict, (
@@ -59,7 +59,11 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts) :-
     ( SM \== none ->
         game_var_ids(Query, QVarIds),
         assertz(SM:game_node_term(query, query, term(Query, [Query], QVarIds)))
-    ; true ).
+    ; true ),
+    ( KB \== none ->
+        game_var_ids(Query, QVarIds2),
+        literal_to_game(KB, Query, QVarIds2, [], _Seen2, _QueryLE, QueryTokens)
+    ; QueryTokens = [_{kind: "word", text: Query}] ).
 
 %!  unify_game_nodes(+KB, +SM, +NodeSpecs, +Edges, -Response) is det.
 unify_game_nodes(KB, SM, NodeSpecs, Edges, Response) :-
