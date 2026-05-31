@@ -655,8 +655,69 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
         await connectExplanation(explanation, queryNode.id, 'in');
         
-        // Auto-arrange with animation
-        await arrange.layout();
+        // 1. Identify proof tree nodes and non-proof tree nodes
+        const proofTreeNodes = new Set<string>();
+        proofTreeNodes.add(queryNode.id);
+        for (const id of usedNodes) {
+            proofTreeNodes.add(id);
+        }
+
+        const nonProofNodes = nodes.filter(n => !proofTreeNodes.has(n.id));
+
+        // 2. Lay out non-proof tree nodes in a single compact column at the left
+        let currentY = 50;
+        for (const n of nonProofNodes) {
+            await area.translate(n.id, { x: 50, y: currentY });
+            const nodeHeight = (n as any).height || 100;
+            currentY += nodeHeight + 30; // 30px spacing
+        }
+
+        // 3. Lay out ONLY the PROOF tree nodes
+        const proofNodesList = Array.from(proofTreeNodes).map(id => editor.getNode(id));
+        const proofConnectionsList = editor.getConnections().filter(c => proofTreeNodes.has(c.source) && proofTreeNodes.has(c.target));
+
+        await arrange.layout({
+            nodes: proofNodesList,
+            connections: proofConnectionsList,
+            options: {
+                'elk.direction': 'UP',
+                'elk.spacing.nodeNode': '50',
+                'elk.layered.spacing.nodeNodeBetweenLayers': '80'
+            }
+        });
+
+        // 4. Shift proof tree nodes to the right of the non-proof nodes column
+        let maxNonProofWidth = 0;
+        for (const n of nonProofNodes) {
+            const w = (n as any).width || 220;
+            if (w > maxNonProofWidth) {
+                maxNonProofWidth = w;
+            }
+        }
+
+        const proofTreeStartX = maxNonProofWidth > 0 ? 50 + maxNonProofWidth + 100 : 100;
+
+        let minProofX = Infinity;
+        let minProofY = Infinity;
+        for (const id of proofTreeNodes) {
+            const pos = area.nodeViews.get(id)?.position;
+            if (pos) {
+                if (pos.x < minProofX) minProofX = pos.x;
+                if (pos.y < minProofY) minProofY = pos.y;
+            }
+        }
+
+        if (minProofX !== Infinity && minProofY !== Infinity) {
+            const dx = proofTreeStartX - minProofX;
+            const dy = 50 - minProofY;
+            for (const id of proofTreeNodes) {
+                const pos = area.nodeViews.get(id)?.position;
+                if (pos) {
+                    await area.translate(id, { x: pos.x + dx, y: pos.y + dy });
+                }
+            }
+        }
+
         AreaExtensions.zoomAt(area, editor.getNodes());
     });
 }

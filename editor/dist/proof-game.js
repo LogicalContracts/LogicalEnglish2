@@ -124588,7 +124588,58 @@ async function initProofGame(container, gameData) {
       }
     }
     await connectExplanation(explanation, queryNode.id, "in");
-    await arrange.layout();
+    const proofTreeNodes = /* @__PURE__ */ new Set();
+    proofTreeNodes.add(queryNode.id);
+    for (const id of usedNodes) {
+      proofTreeNodes.add(id);
+    }
+    const nonProofNodes = nodes2.filter((n2) => !proofTreeNodes.has(n2.id));
+    let currentY = 50;
+    for (const n2 of nonProofNodes) {
+      await area.translate(n2.id, { x: 50, y: currentY });
+      const nodeHeight = n2.height || 100;
+      currentY += nodeHeight + 30;
+    }
+    const proofNodesList = Array.from(proofTreeNodes).map((id) => editor.getNode(id));
+    const proofConnectionsList = editor.getConnections().filter((c2) => proofTreeNodes.has(c2.source) && proofTreeNodes.has(c2.target));
+    await arrange.layout({
+      nodes: proofNodesList,
+      connections: proofConnectionsList,
+      options: {
+        "elk.direction": "UP",
+        "elk.spacing.nodeNode": "50",
+        "elk.layered.spacing.nodeNodeBetweenLayers": "80"
+      }
+    });
+    let maxNonProofWidth = 0;
+    for (const n2 of nonProofNodes) {
+      const w2 = n2.width || 220;
+      if (w2 > maxNonProofWidth) {
+        maxNonProofWidth = w2;
+      }
+    }
+    const proofTreeStartX = maxNonProofWidth > 0 ? 50 + maxNonProofWidth + 100 : 100;
+    let minProofX = Infinity;
+    let minProofY = Infinity;
+    for (const id of proofTreeNodes) {
+      const pos = area.nodeViews.get(id)?.position;
+      if (pos) {
+        if (pos.x < minProofX)
+          minProofX = pos.x;
+        if (pos.y < minProofY)
+          minProofY = pos.y;
+      }
+    }
+    if (minProofX !== Infinity && minProofY !== Infinity) {
+      const dx = proofTreeStartX - minProofX;
+      const dy = 50 - minProofY;
+      for (const id of proofTreeNodes) {
+        const pos = area.nodeViews.get(id)?.position;
+        if (pos) {
+          await area.translate(id, { x: pos.x + dx, y: pos.y + dy });
+        }
+      }
+    }
     index.zoomAt(area, editor.getNodes());
   });
 }
