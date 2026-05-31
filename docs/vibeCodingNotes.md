@@ -1203,10 +1203,8 @@ Make an implementation plan... then execute it, I trust you!
 - Add some zoom and panning controls
 - When you select a node, highlight the corresponding source in the editor
   - add a button to rearrange nodes
-### TBD
-variables are not using the correct determiners
-when linking a head/fact to a rule body condition, we need to unify and propagate and retain the bindings in the whole tree fragment
-cleanup code, move some to le_kbs.le?
+- variables in rules should use the correct LE determiners
+- when linking a head/fact to a rule body condition, we need to unify and propagate and retain the bindings in the whole tree fragment
 
 ## Authentication
 We now need to restrict web access to some example paths, with a minimal role-based system. We'll start with two access levels: anonymous users, and one user (support@logicalcontracts.com, initial password 'LE2rocks') with the 'insurLE2' role.

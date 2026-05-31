@@ -618,6 +618,9 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item" id="menu-api-keys">API Keys...</div>
+                <div class="dropdown-divider"></div>
+                <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">EXPLANATIONS</div>
+                <div class="dropdown-item" id="menu-explanations">Preferences...</div>
             </div>
         </div>
         <input type="file" id="file-input" accept=".le" style="display: none;">
@@ -796,6 +799,27 @@
             <div class="modal-footer">
                 <button id="api-keys-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
                 <button id="api-keys-save" style="background: #0e639c; color: #fff; border: none; border-radius: 3px; padding: 5px 15px; cursor: pointer;">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Explanations Preferences -->
+    <div id="explanations-modal" class="modal-overlay">
+        <div class="modal-content" style="width: 400px;">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 16px;">Explanations Preferences</h3>
+                <span id="explanations-close" style="cursor: pointer; font-size: 20px;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="control-group" style="flex-direction: column; align-items: flex-start;">
+                    <label for="failed-prefix-input">Prefix for failed nodes:</label>
+                    <input type="text" id="failed-prefix-input" style="width: 100%; background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); padding: 5px; border-radius: 3px;">
+                </div>
+                <p style="font-size: 11px; color: #888; margin: 0; margin-top: 10px;">This prefix is prepended to failed nodes when copying explanations to plain text or HTML.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="explanations-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
+                <button id="explanations-save" style="background: #0e639c; color: #fff; border: none; border-radius: 3px; padding: 5px 15px; cursor: pointer;">Save</button>
             </div>
         </div>
     </div>
