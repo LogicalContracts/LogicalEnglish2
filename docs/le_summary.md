@@ -29,6 +29,7 @@ A template definition can be followed by one or more additions, each introduced 
 - `; opposite: <template>` — declares the negation form, used for negative heads and for negation in proofs.
 - `; defines global <name>; defines global <name2>...` — declares a global abbreviation.
 - `; prepositional` — marks a **prepositional** template (see §2.1).
+- `; unknown` — marks the template as **assumable** (abducible): matching goals that cannot be proven are assumed true and reported as unknowns. The synonyms `; assumed` and `; assumable` are accepted and mean the same thing.
 
 ### 2.1 Prepositional templates
 A prepositional template is a binary template that **starts with an argument** and is used to extend a previous condition. When chaining, the leading argument can be omitted and is filled in automatically from the previous condition's type-compatible variable.
@@ -57,7 +58,7 @@ A prepositional template is a binary template that **starts with an argument** a
   - `Head if Body.`
   - `*a person* is eligible if *a person* is a citizen.`
 - **Unknown Fact:** A statement declaring that a specific instance of a template is unknown. These can appear in the knowledge base (applying to all scenarios) or within a specific `scenario` section.
-  - `it is unknown whether *a payment* is in respect of claim 01.` (This binds the second argument to 'claim 01' and leaves the first argument unbound).
+  - `it is unknown whether *a payment* is in respect of claim 01.` (This binds the second argument to 'claim 01' and leaves the first argument unbound). The synonyms `it is assumed whether ...` and `it is assumable whether ...` are also accepted.
 
 ## 4. Logical Operators
 - **And:** `and` (or new line with same indentation)

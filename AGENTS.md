@@ -14,7 +14,7 @@ In what follows, SWIPL must be replaced by /Applications/SWI-Prolog10.0.0-1.app/
   - Start: `cd editor && npm start`
   - E2E Tests: `cd editor && npm run test:e2e` (add `-- --headed` to run visibly)
 
-**IMPORTANT:** You MUST run both the Prolog tests (`SWIPL -g "use_module(le_kbs), runTests, halt."`) and the Editor E2E Playwright tests (`cd editor && npm run test:e2e`) after completing every feature or making any changes.
+**IMPORTANT:** You MUST run both the Prolog tests (`SWIPL -g "use_module(le_kbs), runTests, halt."`) and the Editor E2E Playwright tests (`cd editor && npm run test:e2e`) after completing every feature or making any changes. Do NOT commit your changes to git.
 
 ## Code Style
 - **Prolog:**

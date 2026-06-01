@@ -380,7 +380,7 @@ kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
 
 % kb_item(unknown_fact(Head, Start, End)) parses "it is unknown whether <template instance>."
 kb_item(unknown_fact(Head, Start, End)) -->
-    t(word(it)), t(word(is)), t(word(unknown)), t(word(whether)),
+    t(word(it)), t(word(is)), unknown_keyword, t(word(whether)),
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
@@ -449,11 +449,18 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, NTs, FunctorArg
     ;   t(word(prepositional)) ->
         { Prep = prepositional },
         template_additions(Globals, Opposite, OppositeWV, _, Unknown, NTs, FunctorArgs, TStart, TEnd)
-    ;   t(word(unknown)) ->
+    ;   unknown_keyword ->
         { Unknown = unknown },
         template_additions(Globals, Opposite, OppositeWV, Prep, _, NTs, FunctorArgs, TStart, TEnd)
     ).
 template_additions([], _, _, _, _, _, _, _, _) --> [].
+
+% unknown_keyword matches the marker declaring a template (or fact) as
+% assumable/abducible. Accepts 'unknown' and its synonyms 'assumed' and
+% 'assumable'; all map to the same downstream 'unknown' semantics.
+unknown_keyword --> t(word(unknown)).
+unknown_keyword --> t(word(assumed)).
+unknown_keyword --> t(word(assumable)).
 
 
 % validate_prepositional_template(+Prep, +FunctorArgs, +WordsAndVars, +Start, +End)
