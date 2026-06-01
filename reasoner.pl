@@ -164,6 +164,13 @@ solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negat
 % True
 solve_real_actual(true, _, _, _, _, _, [], []) :- !.
 
+% Type restriction on a (scenario) variable: succeeds immediately, attaching a
+% lazy constraint that fires once Arg is bound (mirrors check_args_compatibility).
+solve_real_actual(le_type_check(Arg, Type), SM, KM, _Anc, _D, _MyID, [], [success(le_type_check(Arg, Type), built_in, [])]) :- !,
+    ( KM \== none -> M = KM ; M = SM ),
+    when(nonvar(Arg),
+         ( M:le_type(Arg) -> once(is_a_simple(Arg, Type, M)) ; true )).
+
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),

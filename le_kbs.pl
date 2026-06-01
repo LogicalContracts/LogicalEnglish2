@@ -945,10 +945,8 @@ item_to_term_with_source(_M, _Templates, query_clause(Head, _, _, Start, End), f
 item_to_term_with_source(_M, _Templates, query_clause(Head, _, _, _, _, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, _Templates, clause(Head, true, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, _Templates, clause(Head, true, Start, End), fact_with_source(Head, Start, End)) :- !.
-item_to_term_with_source(_M, _Templates, clause(Head, Body, _Start, _End, _ID), (Head :- Body)) :- !.
-item_to_term_with_source(_M, _Templates, clause(Head, Body, _Start, _End), (Head :- Body)) :- 
-    % Rules in scenarios are rare but possible; we don't track their source yet
-    !.
+item_to_term_with_source(_M, _Templates, clause(Head, Body, Start, End, _ID), fact_with_source((Head :- Body), Start, End)) :- !.
+item_to_term_with_source(_M, _Templates, clause(Head, Body, Start, End), fact_with_source((Head :- Body), Start, End)) :- !.
 item_to_term_with_source(M, Templates, Item, Term) :-
     ( le_grammar:second_pass_item_with_module(Templates, M, Item, NewItem) -> item_to_term_with_source(M, Templates, NewItem, Term)
     ; Item = Term
