@@ -7,10 +7,17 @@
 :- use_module(le_kbs).
 :- use_module(le_grammar).
 
+% Fallback counter for the SM == none case (e.g. tests); thread_local so it
+% stays thread-safe. For real sessions the counter is stored in the SM module.
+:- thread_local game_node_counter/1.
+
 %!  extract_rules_and_facts(+KB, +SM, +Query, -Rules, -Facts, -QueryTokens) is det.
 extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
     ( SM \== none -> dynamic(SM:game_node_term/3), retractall(SM:game_node_term(_,_,_)) ; true ),
-    nb_setval(game_node_counter, 0),
+    counter_module(SM, CounterM),
+    ( CounterM \== le_proof_game -> dynamic(CounterM:game_node_counter/1) ; true ),
+    retractall(CounterM:game_node_counter(_)),
+    assertz(CounterM:game_node_counter(0)),
     findall(RuleDict, (
         current_predicate(KB:F/N),
         \+ le_kbs:is_system_predicate(F/N),
@@ -22,7 +29,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         comma_list(Body, BodyList),
         maplist(strip_le_at, BodyList, StrippedBodyList),
         flatten_and(StrippedBodyList, FlatBodyList),
-        next_game_node_id(rule, NodeId),
+        next_game_node_id(SM, rule, NodeId),
         game_var_ids((Head :- FlatBodyList), VarIds),
         literal_to_game(KB, Head, VarIds, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, Seen1, _SeenN, BodyLEs, BodyTokensList),
@@ -47,7 +54,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             clause(SM:Head, true, Ref),
             SM:le_source_info(Ref, Start, End, session_fact)
         ),
-        next_game_node_id(fact, NodeId),
+        next_game_node_id(SM, fact, NodeId),
         game_var_ids(Head, VarIds),
         literal_to_game(KB, Head, VarIds, [], _Seen, FactLE, FactTokens),
         ( SM \== none ->
@@ -80,11 +87,18 @@ unify_game_nodes(KB, SM, NodeSpecs, Edges, Response) :-
 
 % --- Internal Helpers ---
 
-next_game_node_id(Kind, NodeId) :-
-    nb_getval(game_node_counter, N),
+next_game_node_id(SM, Kind, NodeId) :-
+    counter_module(SM, M),
+    retract(M:game_node_counter(N)),
     N1 is N + 1,
-    nb_setval(game_node_counter, N1),
+    assertz(M:game_node_counter(N1)),
     format(atom(NodeId), "~w_~w", [Kind, N]).
+
+% Module holding the per-session node counter fact. Real sessions store it in
+% the session module SM; the SM == none case falls back to this module's
+% thread_local fact.
+counter_module(none, le_proof_game) :- !.
+counter_module(SM, SM).
 
 game_var_ids(Term, VarIds) :-
     term_variables(Term, Vars),
@@ -186,8 +200,9 @@ fill_variable_typed(_, V, gtypedvar(V, variable)) :- var(V), !.
 fill_variable_typed(_, V, V).
 
 tagged_tokens_to_game(_KB, [], _VarIds, Seen, Seen, []).
-tagged_tokens_to_game(KB, [gtypedvar(V, Type)|T], VarIds, SeenIn, SeenOut, [Tok|ToksT]) :- !,
-    ( member(Vid-V0, VarIds), V0 == V -> Id = Vid ; Id = -1 ),
+tagged_tokens_to_game(KB, [G|T], VarIds, SeenIn, SeenOut, [Tok|ToksT]) :-
+    nonvar(G), G = gtypedvar(V, Type), !,
+    ( (member(Vid-V0_, VarIds), V0_=gtypedvar(V0,_), V0 == V) -> Id = Vid ; Id = -1 ),
     ( memberchk(Id, SeenIn) -> Det = the, Seen1 = SeenIn
     ; ( starts_with_vowel(Type) -> Det = an ; Det = a ),
       Seen1 = [Id|SeenIn] ),
