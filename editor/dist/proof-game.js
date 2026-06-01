@@ -124213,7 +124213,7 @@ function CustomNode(props) {
       )
     );
   } else {
-    const labelText = data.type === "fact" || data.type === "query" ? renderTokens(data.tokens) || data.label : data.label;
+    const labelText = data.type === "query" ? data.label || renderTokens(data.tokens) : data.type === "fact" ? renderTokens(data.tokens) || data.label : data.label;
     const template = getPredicateTemplate(data.tokens) || labelText;
     const predicateColor = templateColors.get(template) || data.color;
     const bgColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : predicateColor;

@@ -499,11 +499,20 @@ handle_get_game_data(Dict, Response) :-
                 ; Query = CustomQuery )
             ; get_dict(query, Dict, QueryStr),
               atom_string(QueryName, QueryStr),
-              ( KB \== none, KB:query_info(QueryName, Goal, _) -> Query = Goal ; Query = QueryName )
+              ( KB \== none,
+                ( KB:query_info(QueryName, Goal, Content) -> true
+                ; atom_number(QueryName, Num), KB:query_info(Num, Goal, Content) )
+              -> Query = Goal,
+                 % Prefer the original LE surface text of the named query (e.g.
+                 % "we will cover which cost") over the goal-derived rendering.
+                 ( query_surface_text(Content, QueryLE) -> true ; true )
+              ; Query = QueryName )
         ),
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
         ;   le_proof_game:extract_rules_and_facts(KB, SM, Query, Rules, ExtractedFacts, QueryTokens),
-            ( KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens0) -> le_kbs:canonical_string(QueryTokens0, QueryLE) ; term_string(Query, QueryLE) ),
+            ( nonvar(QueryLE) -> true
+            ; KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens0) -> le_kbs:canonical_string(QueryTokens0, QueryLE)
+            ; term_string(Query, QueryLE) ),
             % Try to get the first successful explanation. 
             % We try both the original Query (which might be a term) and the QueryName if available.
             (   ( catch(query(SM, Query, _Instance, _Unknowns, Why), _, fail)
@@ -517,6 +526,23 @@ handle_get_game_data(Dict, Response) :-
             Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE, queryTokens: QueryTokens, sessionModule: SMStr, explanation: JSONWhy}, result: "ok"}
         )
     ).
+
+%!  query_surface_text(+Content:list, -Text:string) is semidet.
+%
+%   Reconstructs the original LE surface text of a named query from the
+%   query_clause tokens stored in query_info/3 (third argument). This preserves
+%   the query's interrogative variables (e.g. "which cost") instead of the
+%   goal-derived rendering ("a cost").
+query_surface_text(Content, Text) :-
+    is_list(Content),
+    findall(S, (
+        member(QC, Content),
+        compound(QC), QC =.. [query_clause, _, Toks | _],
+        le_grammar:reconstruct_name(Toks, S)
+    ), Parts),
+    Parts \== [],
+    atomic_list_concat(Parts, ' and ', Atom),
+    atom_string(Atom, Text).
 
 term_to_le(KB, Term, LE) :-
     ( KB \== none, le_kbs:item_to_instance(KB, Term, Tokens) -> le_kbs:canonical_string(Tokens, LE)
