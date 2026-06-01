@@ -124048,6 +124048,22 @@ var QueryNode = class extends classic.Node {
   complete = false;
   type;
 };
+var FailNode = class extends classic.Node {
+  constructor(label, color) {
+    super(label);
+    this.label = label;
+    this.color = color;
+    this.type = "fail";
+    this.addOutput("out", new classic.Output(new classic.Socket("socket")));
+  }
+  width = 220;
+  height = 60;
+  templateId = "fail";
+  tokens = [];
+  clash = false;
+  complete = false;
+  type;
+};
 var RuleNode = class extends classic.Node {
   constructor(rule, sourceLoc) {
     super("");
@@ -124084,6 +124100,46 @@ function CustomNode(props) {
   const { data, emit } = props;
   const modeToggle = document.getElementById("mode-toggle");
   const isAdultMode = modeToggle?.checked;
+  if (data.type === "fail") {
+    data.width = 120;
+    data.height = 120;
+    const bg = data.clash ? "#b71c1c" : "#d32f2f";
+    return React2.createElement(
+      "div",
+      {
+        className: `le-node fail-node ${data.selected ? "selected" : ""} ${data.clash ? "clash" : ""} ${data.complete ? "complete" : ""}`,
+        style: {
+          position: "relative",
+          width: "100px",
+          height: "100px",
+          background: bg,
+          // Octagon (stop sign) shape.
+          clipPath: "polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)",
+          border: data.selected ? "3px solid #0e639c" : "none",
+          boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#fff",
+          fontWeight: "bold",
+          fontSize: isAdultMode ? "18px" : "16px",
+          textAlign: "center"
+        },
+        title: 'FAIL: satisfies an "it is not the case that ..." condition'
+      },
+      isAdultMode ? "FAIL" : "STOP",
+      React2.createElement("div", {
+        style: { position: "absolute", left: "50%", top: "-10px", transform: "translateX(-50%)" }
+      }, React2.createElement(RefSocket2, {
+        name: "output-socket",
+        emit,
+        side: "output",
+        nodeId: data.id,
+        socketKey: "out",
+        payload: data.outputs["out"]?.socket
+      }))
+    );
+  }
   if (data.type === "rule") {
     const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
     const headPredicateColor = templateColors.get(headTemplate) || "#ff9800";
@@ -124483,6 +124539,8 @@ async function initProofGame(container, gameData) {
       fragmentNodes.add(nodeId);
       if (node2 instanceof FactNode)
         return true;
+      if (node2 instanceof FailNode)
+        return true;
       if (node2 instanceof QueryNode) {
         const conn = connections.find((c2) => c2.target === nodeId);
         if (!conn)
@@ -124527,6 +124585,8 @@ async function initProofGame(container, gameData) {
         return { instanceId: n2.id, templateId: n2.templateId };
       if (n2 instanceof QueryNode)
         return { instanceId: n2.id, templateId: n2.templateId };
+      if (n2 instanceof FailNode)
+        return { instanceId: n2.id, templateId: "fail" };
       return null;
     }).filter((n2) => n2 !== null);
     const edges = connections.map((c2) => {
@@ -124662,6 +124722,14 @@ async function initProofGame(container, gameData) {
       nodes.push(factNode);
     }
   }
+  const hasNaf = (gameData.rules || []).some((r2) => Array.isArray(r2.bodyNaf) && r2.bodyNaf.length > 0);
+  if (hasNaf) {
+    const failNode = new FailNode("FAIL", "#d32f2f");
+    await editor.addNode(failNode);
+    await area.translate(failNode.id, { x: currentX, y: factY });
+    currentX += 250;
+    nodes.push(failNode);
+  }
   setTimeout(() => {
     index.zoomAt(area, editor.getNodes());
   }, 100);
@@ -124715,6 +124783,18 @@ async function initProofGame(container, gameData) {
       return;
     const usedNodes = /* @__PURE__ */ new Set();
     async function connectExplanation(expNode, targetNodeId, targetInputKey) {
+      if (expNode && expNode.naf) {
+        const failNode = new FailNode("FAIL", "#d32f2f");
+        await editor.addNode(failNode);
+        usedNodes.add(failNode.id);
+        await editor.addConnection(new classic.Connection(
+          failNode,
+          "out",
+          editor.getNode(targetNodeId),
+          targetInputKey
+        ));
+        return;
+      }
       const match2 = nodes2.find((n2) => {
         if (usedNodes.has(n2.id))
           return false;

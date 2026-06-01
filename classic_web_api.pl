@@ -622,9 +622,10 @@ load_prolog_file(Path, Module) :-
     atom_concat(p, Hash, Module),
     ( current_module(Module) -> true; load_files(Module:Path, [])).
 
-convert_why(success(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
+convert_why(success(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}.
+    is_naf_goal(Goal, Naf),
+    JSON = _{type: "success", literal: LE, start: Start, end: End, naf: Naf, children: JSONChildren}.
 convert_why(success(_Goal, unknown(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     JSON = _{type: "unknown", literal: LE, start: Start, end: End, children: JSONChildren}.
@@ -633,11 +634,12 @@ convert_why(success(_Goal, unknown, LE, Children), KB, JSON) :- !,
     JSON = _{type: "unknown", literal: LE, children: JSONChildren}.
 
 
-convert_why(success(_Goal, Ref, LE, Children), KB, JSON) :- !,
+convert_why(success(Goal, Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
+    is_naf_goal(Goal, Naf),
     (   KB \== none, KB:le_source_info(Ref, Start, End, _)
-    ->  JSON = _{type: "success", literal: LE, start: Start, end: End, children: JSONChildren}
-    ;   JSON = _{type: "success", literal: LE, children: JSONChildren}
+    ->  JSON = _{type: "success", literal: LE, start: Start, end: End, naf: Naf, children: JSONChildren}
+    ;   JSON = _{type: "success", literal: LE, naf: Naf, children: JSONChildren}
     ).
 convert_why(failure(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
@@ -653,6 +655,16 @@ convert_why(Other, _, JSON) :-
 
 convert_why_child(KB, Child, JSON) :-
     convert_why(Child, KB, JSON).
+
+%!  is_naf_goal(+Goal, -Naf) is det.
+%
+%   Naf is the JSON boolean true if Goal is a negation-as-failure goal
+%   ("it is not the case that ..."), otherwise false.
+is_naf_goal(Goal, Naf) :-
+    ( nonvar(Goal), strip_le_at_goal(Goal, not(_)) -> Naf = true ; Naf = false ).
+
+strip_le_at_goal(le_at(G, _, _), Stripped) :- !, strip_le_at_goal(G, Stripped).
+strip_le_at_goal(G, G).
 
 get_source_info(Ref, KB, Source, Start, End) :-
     ( (KB \== none, KB:le_source_info(Ref, Start, End, _)) -> term_string(Ref, Source); term_string(Ref, Source), Start = 0, End = 0).

@@ -1205,6 +1205,8 @@ Make an implementation plan... then execute it, I trust you!
   - add a button to rearrange nodes
 - variables in rules should use the correct LE determiners
 - when linking a head/fact to a rule body condition, we need to unify and propagate and retain the bindings in the whole tree fragment
+- The PROOF game is not using negation as failure (NAF) in" Show Proof". For example in insureLE2/which_test2.le scenario 1 query 1 we need to consider that the failure of "the damage is caused by wear and tear or negligence" actually supports the proof. LEt's introduce a generic 'FAIL' node (stop sign in the children version) which can be connected to any node condition (and succeed IFF that condition has a "it is not the case that..." matching literal/template instance)
+
 
 ## Authentication
 We now need to restrict web access to some example paths, with a minimal role-based system. We'll start with two access levels: anonymous users, and one user (support@logicalcontracts.com, initial password 'LE2rocks') with the 'insurLE2' role.
