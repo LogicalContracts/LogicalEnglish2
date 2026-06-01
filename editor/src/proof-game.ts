@@ -214,7 +214,11 @@ function CustomNode(props: any) {
         );
     } else {
         // Fact or Query
-        const labelText = (data.type === 'fact' || data.type === 'query') ? (renderTokens(data.tokens) || data.label) : data.label;
+        // Query nodes prefer their LE label (the original query surface text,
+        // e.g. "we will cover which cost") and fall back to token rendering.
+        const labelText = data.type === 'query'
+            ? (data.label || renderTokens(data.tokens))
+            : (data.type === 'fact' ? (renderTokens(data.tokens) || data.label) : data.label);
         const template = getPredicateTemplate(data.tokens) || labelText;
         const predicateColor = templateColors.get(template) || data.color;
         
