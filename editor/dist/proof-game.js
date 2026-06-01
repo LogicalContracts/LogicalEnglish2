@@ -124242,7 +124242,7 @@ function CustomNode(props) {
           "defs",
           null,
           React2.createElement("marker", {
-            id: "arrowhead-internal",
+            id: `arrowhead-internal-${data.id}`,
             markerWidth: "10",
             markerHeight: "7",
             refX: "9",
@@ -124263,7 +124263,7 @@ function CustomNode(props) {
             stroke: data.complete ? "#2e7d32" : "#888",
             strokeWidth: "2",
             fill: "none",
-            markerEnd: "url(#arrowhead-internal)"
+            markerEnd: `url(#arrowhead-internal-${data.id})`
           });
         })
       )
@@ -124347,22 +124347,62 @@ function CustomSocket(props) {
 }
 function CustomConnection(props) {
   const { start, end, path: defaultPath } = useConnection2();
-  let path = defaultPath;
-  if (start && end) {
-    path = `M ${start.x} ${start.y} C ${start.x} ${start.y - 50}, ${end.x} ${end.y + 50}, ${end.x} ${end.y}`;
+  const markerId = React2.useMemo(
+    () => `arrowhead-${Math.random().toString(36).slice(2)}`,
+    []
+  );
+  if (!start || !end) {
+    if (!defaultPath)
+      return null;
+    return React2.createElement(
+      "svg",
+      {
+        width: 1,
+        height: 1,
+        overflow: "visible",
+        style: { overflow: "visible", position: "absolute", pointerEvents: "none", left: 0, top: 0 }
+      },
+      React2.createElement("path", {
+        d: defaultPath,
+        fill: "none",
+        stroke: "steelblue",
+        strokeWidth: "3px"
+      })
+    );
   }
-  if (!path)
-    return null;
+  const c1x = start.x, c1y = start.y - 50;
+  const c2x = end.x, c2y = end.y + 50;
+  const margin = 14;
+  const minX = Math.min(start.x, end.x, c1x, c2x) - margin;
+  const minY = Math.min(start.y, end.y, c1y, c2y) - margin;
+  const maxX = Math.max(start.x, end.x, c1x, c2x) + margin;
+  const maxY = Math.max(start.y, end.y, c1y, c2y) + margin;
+  const width = Math.max(1, maxX - minX);
+  const height = Math.max(1, maxY - minY);
+  const path = `M ${start.x - minX} ${start.y - minY} C ${c1x - minX} ${c1y - minY}, ${c2x - minX} ${c2y - minY}, ${end.x - minX} ${end.y - minY}`;
   return React2.createElement(
     "svg",
-    { style: { overflow: "visible", position: "absolute", pointerEvents: "none", width: "100%", height: "100%", left: 0, top: 0 } },
+    {
+      width,
+      height,
+      overflow: "visible",
+      style: {
+        position: "absolute",
+        left: `${minX}px`,
+        top: `${minY}px`,
+        width: `${width}px`,
+        height: `${height}px`,
+        overflow: "visible",
+        pointerEvents: "none"
+      }
+    },
     React2.createElement(
       "defs",
       null,
       React2.createElement(
         "marker",
         {
-          id: "arrowhead",
+          id: markerId,
           markerWidth: "10",
           markerHeight: "7",
           refX: "9",
@@ -124377,7 +124417,7 @@ function CustomConnection(props) {
       fill: "none",
       stroke: "steelblue",
       strokeWidth: "3px",
-      markerEnd: "url(#arrowhead)"
+      markerEnd: `url(#${markerId})`
     })
   );
 }
