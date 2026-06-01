@@ -247,21 +247,21 @@ function CustomNode(props: any) {
             bodyCount > 0 && React.createElement('svg', {
                 style: { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }
             }, 
-                React.createElement('defs', null, 
+                React.createElement('defs', null,
                     React.createElement('marker', {
-                        id: 'arrowhead-internal', markerWidth: '10', markerHeight: '7', refX: '9', refY: '3.5', orient: 'auto'
+                        id: `arrowhead-internal-${data.id}`, markerWidth: '10', markerHeight: '7', refX: '9', refY: '3.5', orient: 'auto'
                     }, React.createElement('polygon', { points: '0 0, 10 3.5, 0 7', fill: data.complete ? '#2e7d32' : '#888' }))
                 ),
                 data.rule.body.map((_: any, i: number) => {
                     const headX = nodeWidth / 2;
-                    const headY = 50; 
+                    const headY = 50;
                     const totalBodyWidth = bodyCount * 200 + (bodyCount - 1) * 20;
                     const startX = (nodeWidth - totalBodyWidth) / 2;
-                    const bodyBlockX = startX + i * 220 + 100; 
-                    const bodyY = 90; 
+                    const bodyBlockX = startX + i * 220 + 100;
+                    const bodyY = 90;
                     return React.createElement('path', {
                         key: `arrow-${i}`, d: `M ${bodyBlockX} ${bodyY} L ${headX} ${headY}`,
-                        stroke: data.complete ? '#2e7d32' : '#888', strokeWidth: '2', fill: 'none', markerEnd: 'url(#arrowhead-internal)'
+                        stroke: data.complete ? '#2e7d32' : '#888', strokeWidth: '2', fill: 'none', markerEnd: `url(#arrowhead-internal-${data.id})`
                     });
                 })
             )
@@ -345,25 +345,65 @@ function CustomSocket(props: any) {
 
 function CustomConnection(props: any) {
     const { start, end, path: defaultPath } = useConnection();
-    
-    let path = defaultPath;
-    if (start && end) {
-        // Vertical path: start is output (top of body), end is input (bottom of head)
-        path = `M ${start.x} ${start.y} C ${start.x} ${start.y - 50}, ${end.x} ${end.y + 50}, ${end.x} ${end.y}`;
+    // Unique marker id per connection: many connections each render their own
+    // <defs><marker> and duplicate DOM ids make url(#id) references unreliable.
+    const markerId = React.useMemo(
+        () => `arrowhead-${Math.random().toString(36).slice(2)}`, []);
+
+    // While the endpoints aren't known yet (e.g. mid-drag), fall back to the
+    // preset's path inside a full-area SVG.
+    if (!start || !end) {
+        if (!defaultPath) return null;
+        return React.createElement('svg',
+            { width: 1, height: 1, overflow: 'visible',
+              style: { overflow: 'visible', position: 'absolute', pointerEvents: 'none', left: 0, top: 0 } },
+            React.createElement('path', {
+                d: defaultPath, fill: 'none', stroke: 'steelblue', strokeWidth: '3px'
+            })
+        );
     }
-    
-    if (!path) return null;
-    
+
+    // Cubic bezier from the output (start) up to the input (end).
+    const c1x = start.x, c1y = start.y - 50;
+    const c2x = end.x,   c2y = end.y + 50;
+
+    // Size and position the SVG to the curve's bounding box (plus a margin for
+    // stroke width and the arrowhead). This avoids a 0x0 SVG relying on
+    // `overflow: visible`, which Chromium on Windows often fails to paint.
+    const margin = 14;
+    const minX = Math.min(start.x, end.x, c1x, c2x) - margin;
+    const minY = Math.min(start.y, end.y, c1y, c2y) - margin;
+    const maxX = Math.max(start.x, end.x, c1x, c2x) + margin;
+    const maxY = Math.max(start.y, end.y, c1y, c2y) + margin;
+    const width = Math.max(1, maxX - minX);
+    const height = Math.max(1, maxY - minY);
+
+    // Path expressed in the SVG's local coordinate space.
+    const path = `M ${start.x - minX} ${start.y - minY} ` +
+                 `C ${c1x - minX} ${c1y - minY}, ${c2x - minX} ${c2y - minY}, ` +
+                 `${end.x - minX} ${end.y - minY}`;
+
     return React.createElement(
         'svg',
-        { style: { overflow: 'visible', position: 'absolute', pointerEvents: 'none', width: '100%', height: '100%', left: 0, top: 0 } },
+        {
+            width, height, overflow: 'visible',
+            style: {
+                position: 'absolute',
+                left: `${minX}px`,
+                top: `${minY}px`,
+                width: `${width}px`,
+                height: `${height}px`,
+                overflow: 'visible',
+                pointerEvents: 'none'
+            }
+        },
         React.createElement(
             'defs',
             null,
             React.createElement(
                 'marker',
                 {
-                    id: 'arrowhead',
+                    id: markerId,
                     markerWidth: '10',
                     markerHeight: '7',
                     refX: '9',
@@ -378,7 +418,7 @@ function CustomConnection(props: any) {
             fill: 'none',
             stroke: 'steelblue',
             strokeWidth: '3px',
-            markerEnd: 'url(#arrowhead)'
+            markerEnd: `url(#${markerId})`
         })
     );
 }
