@@ -707,6 +707,22 @@ extract_var_name(Words, Name) :-
         ; Words = [W], is_id(W) -> Name = W
     ).
 
+%!  allow_var_name(+Mode, +Words, -Name) is semidet.
+%
+%   Decides whether a sequence of Words introduces a variable, and under
+%   what determiner policy:
+%   - Mode == true: any article (a/an/the/some) or id introduces a variable
+%     (the classic rule/query behaviour).
+%   - Mode == indefinite: only an indefinite determiner (a/an/some) introduces
+%     a fresh variable. A definite phrase ("the repair cost") is left to be
+%     treated as a constant individual. Used when parsing scenario facts, where
+%     "a damage" is an (existentially) typed variable but "the repair cost" is a
+%     specific individual.
+allow_var_name(true, Words, Name) :- extract_var_name(Words, Name).
+allow_var_name(indefinite, Words, Name) :- \+ definite_phrase(Words), extract_var_name(Words, Name).
+
+definite_phrase([Art | _]) :- memberchk(Art, [the, 'The']).
+
 unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
     unify_with_vmap_extension(Name, Var, VMIn, VMOut, IsVar), !.
 unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
@@ -762,12 +778,12 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
         ; (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
         ; maplist(extract_simple_word, Parts, Words),
           (   check_global_abbreviation(Words, Templates, Value, VMIn, VMOut) -> true
-              ; AllowVars == true, extract_var_name(Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
+              ; allow_var_name(AllowVars, Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
               ; NoTransform \== true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
               ; is_proper_name(Words) -> tokens_to_string(Parts, Value), VMOut = VMIn
               ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars),
                 \+ is_hyphenated_id(Value, VMIn) -> true
-              ; AllowVars == false -> ( Words = [Value] -> true; tokens_to_string(Parts, Value)), VMOut = VMIn
+              ; (AllowVars == false ; AllowVars == indefinite) -> ( Words = [Value] -> true; tokens_to_string(Parts, Value)), VMOut = VMIn
               ; % Fallback: treat as constant if not a variable name
                 tokens_to_string(Parts, Value), VMOut = VMIn
           )
@@ -820,7 +836,7 @@ extract_value(var(Words), Val, VMIn, VMOut, _Templates, AllowVars) :-
     ( AllowVars == true -> unify_with_vmap(Name, Val, VMIn, VMOut, true); Val = Name, VMOut = VMIn).
 extract_value(word(W, _), Val, VMIn, VMOut, _Templates, AllowVars) :-
     ( le_kbs:do_log -> print_message(informational,'Extract value word: ~w (AllowVars: ~w)~n' - [W, AllowVars]); true),
-    ( AllowVars == false -> Val = W, VMOut = VMIn; 
+    ( (AllowVars == false ; AllowVars == indefinite) -> Val = W, VMOut = VMIn;
       (extract_var_name([W], Name) -> unify_with_vmap(Name, Val, VMIn, VMOut, true) ; unify_with_vmap(W, Val, VMIn, VMOut, false))
     ).
 extract_value(number(N, _), N, VM, VM, _, _).
@@ -830,7 +846,7 @@ extract_value(doubleQuoteString(S, _), S, VM, VM, _, _).
 extract_value(punctuation(P, _), P, VM, VM, _, _).
 extract_value(punct(P, _), P, VM, VM, _, _).
 extract_value(word(W), Val, VMIn, VMOut, _Templates, AllowVars) :-
-    ( AllowVars == false -> Val = W, VMOut = VMIn; 
+    ( (AllowVars == false ; AllowVars == indefinite) -> Val = W, VMOut = VMIn;
       (extract_var_name([W], Name) -> unify_with_vmap(Name, Val, VMIn, VMOut, true) ; unify_with_vmap(W, Val, VMIn, VMOut, false))
     ).
 extract_value(number(N), N, VM, VM, _, _).
@@ -1223,10 +1239,57 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut7, NewBody)
     ).
 second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
-    ( parse_literal(Head, Templates, [], VMOut8, NewHead, _, false) -> 
+    % Scenario facts parse with the 'indefinite' policy: an indefinite determiner
+    % ("a damage", "a burst pipe") introduces a typed variable, while a definite
+    % phrase ("the repair cost") stays a concrete individual. The resulting
+    % variables are constrained by a TypesRestriction body so the fact only
+    % applies to arguments of the proper type.
+    ( parse_literal(Head, Templates, [], VMOut8, NewHead, _, indefinite) ->
         collect_extra_goals(VMOut8, ExtraGoals),
-        ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
+        build_type_restriction(NewHead, Templates, TypeRestriction),
+        ( TypeRestriction == true -> Goals = ExtraGoals ; append(ExtraGoals, [TypeRestriction], Goals) ),
+        ( Goals == [] -> NewBody = true ; list_to_conj(Goals, NewBody) )
         ; NewHead = unknown_template(Head, Start, End), NewBody = true).
+
+%!  build_type_restriction(+Literal, +Templates, -Restriction) is det.
+%
+%   Builds a TypesRestriction goal that constrains every variable argument of
+%   Literal to its declared type (from the matching template). Constant
+%   arguments and arguments typed 'any' impose no restriction. When no
+%   restriction is needed the Restriction is 'true'. Variables are checked
+%   with le_type_check/2, which the reasoner evaluates lazily (it only fires
+%   once the argument is bound), mirroring check_args_compatibility/6.
+build_type_restriction(Literal, Templates, Restriction) :-
+    ( literal_arg_types(Literal, Templates, ArgTypes) ->
+        % Do not use findall/3 here: it would copy the terms and detach the
+        % type checks from the actual head variables they must constrain.
+        type_checks(ArgTypes, Checks)
+    ; Checks = [] ),
+    list_to_conj(Checks, Restriction).
+
+type_checks([], []).
+type_checks([Arg-Type | Rest], Checks) :-
+    ( var(Arg), Type \== any ->
+        Checks = [le_type_check(Arg, Type) | Checks0]
+    ; Checks = Checks0
+    ),
+    type_checks(Rest, Checks0).
+
+%!  literal_arg_types(+Literal, +Templates, -ArgTypes) is semidet.
+%
+%   Pairs each argument of Literal with its declared type, by positionally
+%   matching against the template whose functor/arity match Literal.
+literal_arg_types(Literal, Templates, ArgTypes) :-
+    compound(Literal),
+    functor(Literal, F, A),
+    Literal =.. [F | Args],
+    member(dict([F | FormalArgs], NTs, _, _, _, _, _, _, _, _), Templates),
+    length(FormalArgs, A),
+    !,
+    maplist(arg_type(NTs), Args, FormalArgs, ArgTypes).
+
+arg_type(NTs, Arg, FormalArg, Arg-Type) :-
+    ( member(K-T, NTs), K == FormalArg -> Type = T ; Type = any ).
 
 second_pass_scenario_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
     (   parse_literal(Head, Templates, [], VMOut, Literal, _, true) ->  
