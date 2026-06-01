@@ -75,6 +75,23 @@ class QueryNode extends ClassicPreset.Node {
     type: string;
 }
 
+class FailNode extends ClassicPreset.Node {
+    width = 220;
+    height = 60;
+    public templateId: string = 'fail';
+    public tokens: any[] = [];
+    public clash: boolean = false;
+    public complete: boolean = false;
+
+    constructor(public label: string, public color: string) {
+        super(label);
+        this.type = 'fail';
+        // Output connects up into a rule body condition (a NAF condition).
+        this.addOutput('out', new ClassicPreset.Output(new ClassicPreset.Socket('socket')));
+    }
+    type: string;
+}
+
 class RuleNode extends ClassicPreset.Node {
     width = 220;
     height = 180;
@@ -112,7 +129,44 @@ function CustomNode(props: any) {
     const { data, emit } = props;
     const modeToggle = document.getElementById('mode-toggle') as HTMLInputElement;
     const isAdultMode = modeToggle?.checked;
-    
+
+    if (data.type === 'fail') {
+        // Generic FAIL node: a stop sign (children mode) / "FAIL" (adult mode)
+        // that satisfies a negation-as-failure ("it is not the case that ...")
+        // condition when connected to it.
+        data.width = 120;
+        data.height = 120;
+        const bg = data.clash ? '#b71c1c' : '#d32f2f';
+        return React.createElement('div', {
+            className: `le-node fail-node ${data.selected ? 'selected' : ''} ${data.clash ? 'clash' : ''} ${data.complete ? 'complete' : ''}`,
+            style: {
+                position: 'relative',
+                width: '100px',
+                height: '100px',
+                background: bg,
+                // Octagon (stop sign) shape.
+                clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                border: data.selected ? '3px solid #0e639c' : 'none',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#fff',
+                fontWeight: 'bold',
+                fontSize: isAdultMode ? '18px' : '16px',
+                textAlign: 'center'
+            },
+            title: 'FAIL: satisfies an "it is not the case that ..." condition'
+        },
+            isAdultMode ? 'FAIL' : 'STOP',
+            React.createElement('div', {
+                style: { position: 'absolute', left: '50%', top: '-10px', transform: 'translateX(-50%)' }
+            }, React.createElement(RefSocket, {
+                name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
+            }))
+        );
+    }
+
     if (data.type === 'rule') {
         const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
         const headPredicateColor = templateColors.get(headTemplate) || '#ff9800';
@@ -510,7 +564,8 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             fragmentNodes.add(nodeId);
             
             if (node instanceof FactNode) return true;
-            
+            if (node instanceof FailNode) return true;
+
             if (node instanceof QueryNode) {
                 const conn = connections.find(c => c.target === nodeId);
                 if (!conn) return false;
@@ -557,6 +612,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             if (n instanceof RuleNode) return { instanceId: n.id, templateId: n.templateId };
             if (n instanceof FactNode) return { instanceId: n.id, templateId: n.templateId };
             if (n instanceof QueryNode) return { instanceId: n.id, templateId: n.templateId };
+            if (n instanceof FailNode) return { instanceId: n.id, templateId: 'fail' };
             return null;
         }).filter(n => n !== null);
         
@@ -716,6 +772,17 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }
     }
 
+    // Add a generic FAIL node when any rule has a negation-as-failure condition.
+    // A single FAIL node can be connected to every such condition.
+    const hasNaf = (gameData.rules || []).some((r: any) => Array.isArray(r.bodyNaf) && r.bodyNaf.length > 0);
+    if (hasNaf) {
+        const failNode = new FailNode('FAIL', '#d32f2f');
+        await editor.addNode(failNode);
+        await area.translate(failNode.id, { x: currentX, y: factY });
+        currentX += 250;
+        nodes.push(failNode);
+    }
+
     setTimeout(() => {
         AreaExtensions.zoomAt(area, editor.getNodes());
     }, 100);
@@ -783,6 +850,17 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         const usedNodes = new Set<string>();
 
         async function connectExplanation(expNode: any, targetNodeId: string, targetInputKey: string) {
+            // Negation-as-failure condition: satisfy it with a FAIL node rather
+            // than matching a rule/fact.
+            if (expNode && expNode.naf) {
+                const failNode = new FailNode('FAIL', '#d32f2f');
+                await editor.addNode(failNode);
+                usedNodes.add(failNode.id);
+                await editor.addConnection(new ClassicPreset.Connection(
+                    failNode as any, 'out', editor.getNode(targetNodeId) as any, targetInputKey));
+                return;
+            }
+
             // Find a matching game node
             const match = nodes.find(n => {
                 if (usedNodes.has(n.id)) return false;

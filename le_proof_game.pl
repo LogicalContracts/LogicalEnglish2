@@ -33,11 +33,13 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         game_var_ids((Head :- FlatBodyList), VarIds),
         literal_to_game(KB, Head, VarIds, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, Seen1, _SeenN, BodyLEs, BodyTokensList),
+        findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
         ( SM \== none ->
             assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
         ; true ),
         RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
                       body: BodyLEs, bodyTokens: BodyTokensList,
+                      bodyNaf: NafIndices,
                       start: Start, end: End }
     ), Rules),
     findall(FactDict, (
@@ -125,8 +127,13 @@ build_proof_fragment(_SM, [], []).
 build_proof_fragment(SM, [Spec|Specs], [inst(IId, Kind, Head, Body)|Insts]) :-
     get_dict(instanceId, Spec, IIdVal), atom_string(IId, IIdVal),
     get_dict(templateId, Spec, TIdVal), atom_string(TId, TIdVal),
-    SM:game_node_term(TId, Kind, term(Head0, Body0, _VarIds)),
-    copy_term(Head0-Body0, Head-Body),
+    (   TId == fail
+    ->  % Generic FAIL node: represents negation-as-failure. It carries no head
+        % or body; its only role is to satisfy a NAF body condition.
+        Kind = fail, Head = fail, Body = []
+    ;   SM:game_node_term(TId, Kind, term(Head0, Body0, _VarIds)),
+        copy_term(Head0-Body0, Head-Body)
+    ),
     build_proof_fragment(SM, Specs, Insts).
 
 apply_edges(_Instances, []).
@@ -134,10 +141,15 @@ apply_edges(Instances, [Edge|Edges]) :-
     get_dict(child, Edge, ChildVal), atom_string(Child, ChildVal),
     get_dict(parent, Edge, ParentVal), atom_string(Parent, ParentVal),
     get_dict(bodyIndex, Edge, BodyIndex),
-    member(inst(Child, _, ChildHead, _), Instances),
+    member(inst(Child, ChildKind, ChildHead, _), Instances),
     member(inst(Parent, _, _, ParentBody), Instances),
     nth0(BodyIndex, ParentBody, ParentCond),
-    unify_condition(ChildHead, ParentCond),
+    (   ChildKind == fail
+    ->  % A FAIL node satisfies a condition only if it is a negation
+        % ("it is not the case that ...").
+        is_naf_condition(ParentCond)
+    ;   unify_condition(ChildHead, ParentCond)
+    ),
     apply_edges(Instances, Edges).
 
 unify_condition(Head, le_at(Cond, _, _)) :- !, unify_condition(Head, Cond).
@@ -145,7 +157,17 @@ unify_condition(Head, or(A, B)) :- !,
     ( unify_condition(Head, A) ; unify_condition(Head, B) ).
 unify_condition(Head, Cond) :- Head = Cond.
 
+%!  is_naf_condition(+Cond) is semidet.
+%
+%   True if Cond is a negation-as-failure condition (an "it is not the case
+%   that ..." literal), optionally wrapped in le_at/3 source annotations.
+is_naf_condition(le_at(Cond, _, _)) :- !, is_naf_condition(Cond).
+is_naf_condition(not(_)).
+
 render_instances(_KB, [], []).
+render_instances(KB, [inst(IId, fail, _, _)|Insts], [Result|Results]) :- !,
+    Result = _{ instanceId: IId, head: "", headTokens: [], body: [], bodyTokens: [] },
+    render_instances(KB, Insts, Results).
 render_instances(KB, [inst(IId, _Kind, Head, Body)|Insts], [Result|Results]) :-
     game_var_ids((Head :- Body), VarIds),
     literal_to_game(KB, Head, VarIds, [], Seen1, HeadLE, HeadTokens),
