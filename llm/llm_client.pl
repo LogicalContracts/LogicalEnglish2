@@ -71,7 +71,7 @@ llm_model_entry('gpt-5.5',             openai, 'gpt-5.5',             'https://a
 
 %% Groq  ────────────────────────────────────────────────────────────
 % https://console.groq.com/docs/models
-% llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
+llm_model_entry('llama-3.3-70b',    groq, 'llama-3.3-70b-versatile',          'https://api.groq.com/openai/v1').
 % llm_model_entry('llama-3.1-70b',    groq, 'llama-3.1-70b-versatile',          'https://api.groq.com/openai/v1').
 % llm_model_entry('llama-3.1-8b',     groq, 'llama-3.1-8b-instant',             'https://api.groq.com/openai/v1').
 llm_model_entry('meta-llama/llama-4-scout-17b-16e-instruct',     groq, 'meta-llama/llama-4-scout-17b-16e-instruct',               'https://api.groq.com/openai/v1').
@@ -139,8 +139,13 @@ llm_request(Model, Query, Answer) :-
 llm_request(Model, Query, Answer, Options) :-
     resolve_model(Model, Provider, APIModel, BaseURL),
     normalise_messages(Query, Messages),
-    api_key(Provider, Key),
-    build_body(Provider, APIModel, Messages, Options, BodyPairs),
+    (   option(api_key(Key), Options)
+    ->  true
+    ;   api_key(Provider, Key)
+    ),
+    % Remove api_key option from Options before building body
+    select_option(api_key(_), Options, CleanOptions, Options),
+    build_body(Provider, APIModel, Messages, CleanOptions, BodyPairs),
     call_api(Provider, BaseURL, Key, BodyPairs, RawJSON),
     extract_answer(Provider, RawJSON, Answer).
 

@@ -5,13 +5,15 @@
     write and debug Logical English programs using LLMs.
 */
 
-:- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2, test_llm_providers/0]).
+:- module(le_assistant, [handle_assistant_command/2, handle_assistant_status/2, handle_assistant_interrupt/2, get_most_recent_opencode_session/2, normalize_path/2, test_llm_providers/0, extract_json_from_string/3]).
 
 :- use_module(library(process)).
 :- use_module(library(readutil)).
 :- use_module(library(http/http_json)).
+:- use_module(library(http/http_session)).
 :- use_module(library(pcre)).
 :- use_module(llm/llm_client, [llm_model/3]).
+:- use_module(le_assistant_light).
 
 :- dynamic assistant_file_counter/1.
 assistant_file_counter(1).
@@ -180,111 +182,127 @@ get_next_id(ID) :-
 %   Starts a command for the LE Assistant and returns a JobID.
 handle_assistant_command(Dict, Response) :-
     format(user_error, "DEBUG: Entering handle_assistant_command~n", []),
-    ( get_dict(command, Dict, Command) -> true ; Command = "" ),
-    ( get_dict(content, Dict, Content) -> true ; Content = "" ),
-    ( get_dict(session_id, Dict, SessionID0) -> 
-        atom_string(ASID0, SessionID0),
-        ( sub_atom(ASID0, 0, 3, _, ses) -> SessionID = ASID0 ; atom_concat(ses, ASID0, SessionID) )
-    ; SessionID = "ses_default" ),
-    format(user_error, "DEBUG: Incoming session_id: ~w~n", [SessionID]),
-    ( get_dict(api_keys, Dict, APIKeys) -> true ; APIKeys = _{} ),
-    ( get_dict(model, Dict, Model) -> true ; Model = "" ),
-    
-    assistant_work_dir(BaseDir),
-    
-    % Determine WorkDir and ActualSessionID
-    ( (string_length(SessionID, Len), Len > 20, get_directory_for_session(SessionID, RealDir)) ->
-        ActualSessionID = SessionID,
-        WorkDir = RealDir,
-        format(user_error, "DEBUG: Continuing opencode session ~w in directory ~w~n", [ActualSessionID, WorkDir])
-    ; % Bogus ID or first request or editor hasn't updated yet
-      format(string(WorkDir0), "~w/~w", [BaseDir, SessionID]),
-      normalize_path(WorkDir0, WorkDir),
-      ( exists_directory(WorkDir) -> true ; make_directory(WorkDir) ),
-      ( get_most_recent_opencode_session(WorkDir, RealSessionID) ->
-          ActualSessionID = RealSessionID,
-          format(user_error, "DEBUG: Discovered real session ~w for conversation ~w~n", [ActualSessionID, SessionID])
-      ; ActualSessionID = "ses_default",
-        format(user_error, "DEBUG: Starting/Continuing conversation ~w in directory ~w~n", [SessionID, WorkDir])
-      )
-    ),
+    ( get_dict(mode, Dict, Mode) -> true ; Mode = "deep" ),
+    (   Mode == "light"
+    ->  ( get_dict(command, Dict, Command) -> true ; Command = "" ),
+        ( get_dict(content, Dict, Content) -> true ; Content = "" ),
+        ( get_dict(api_keys, Dict, APIKeys) -> true ; APIKeys = _{} ),
+        ( get_dict(model, Dict, Model) -> true ; Model = "" ),
+        get_next_id(ID),
+        format(string(JobID), "job_~w", [ID]),
+        (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+        thread_create(le_assistant_light:run_light_assistant_thread(JobID, Command, Content, Model, APIKeys, UserRoles), ThreadID, [detached(true)]),
+        asserta(assistant_job(JobID, ThreadID)),
+        Response = _{
+            result: ok,
+            job_id: JobID
+        }
+    ;   ( get_dict(command, Dict, Command) -> true ; Command = "" ),
+        ( get_dict(content, Dict, Content) -> true ; Content = "" ),
+        ( get_dict(session_id, Dict, SessionID0) -> 
+            atom_string(ASID0, SessionID0),
+            ( sub_atom(ASID0, 0, 3, _, ses) -> SessionID = ASID0 ; atom_concat(ses, ASID0, SessionID) )
+        ; SessionID = "ses_default" ),
+        format(user_error, "DEBUG: Incoming session_id: ~w~n", [SessionID]),
+        ( get_dict(api_keys, Dict, APIKeys) -> true ; APIKeys = _{} ),
+        ( get_dict(model, Dict, Model) -> true ; Model = "" ),
+        
+        assistant_work_dir(BaseDir),
+        
+        % Determine WorkDir and ActualSessionID
+        ( (string_length(SessionID, Len), Len > 20, get_directory_for_session(SessionID, RealDir)) ->
+            ActualSessionID = SessionID,
+            WorkDir = RealDir,
+            format(user_error, "DEBUG: Continuing opencode session ~w in directory ~w~n", [ActualSessionID, WorkDir])
+        ; % Bogus ID or first request or editor hasn't updated yet
+          format(string(WorkDir0), "~w/~w", [BaseDir, SessionID]),
+          normalize_path(WorkDir0, WorkDir),
+          ( exists_directory(WorkDir) -> true ; make_directory(WorkDir) ),
+          ( get_most_recent_opencode_session(WorkDir, RealSessionID) ->
+              ActualSessionID = RealSessionID,
+              format(user_error, "DEBUG: Discovered real session ~w for conversation ~w~n", [ActualSessionID, SessionID])
+          ; ActualSessionID = "ses_default",
+            format(user_error, "DEBUG: Starting/Continuing conversation ~w in directory ~w~n", [SessionID, WorkDir])
+          )
+        ),
 
-    % Create a temporary file for the editor content
-    get_next_id(ID),
-    format(string(JobID), "job_~w", [ID]),
-    
-    RelTempFile = "myProgram.le",
-    format(string(TempFile), "~w/~w", [WorkDir, RelTempFile]),
-    
-    setup_call_cleanup(
-        open(TempFile, write, Stream),
-        write(Stream, Content),
-        close(Stream)
-    ),
-    
-    % Resolve model to provider/model format for opencode
-    (   (Model \== "", Model \== null)
-    ->  ( llm_model(Model, Provider, APIModel) -> 
-            ( Provider == gemini -> ActualProvider = google 
-            ; Provider == together -> ActualProvider = togetherai
-            ; ActualProvider = Provider 
-            ),
-            format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
-        ;   OpencodeModel = Model % Fallback to original if not found
-        )
-    ;   OpencodeModel = ""
-    ),
+        % Create a temporary file for the editor content
+        get_next_id(ID),
+        format(string(JobID), "job_~w", [ID]),
+        
+        RelTempFile = "myProgram.le",
+        format(string(TempFile), "~w/~w", [WorkDir, RelTempFile]),
+        
+        setup_call_cleanup(
+            open(TempFile, write, Stream),
+            write(Stream, Content),
+            close(Stream)
+        ),
+        
+        % Resolve model to provider/model format for opencode
+        (   (Model \== "", Model \== null)
+        ->  ( llm_model(Model, Provider, APIModel) -> 
+                ( Provider == gemini -> ActualProvider = google 
+                ; Provider == together -> ActualProvider = togetherai
+                ; ActualProvider = Provider 
+                ),
+                format(atom(OpencodeModel), "~w/~w", [ActualProvider, APIModel])
+            ;   OpencodeModel = Model % Fallback to original if not found
+            )
+        ;   OpencodeModel = ""
+        ),
 
-    % Prepare environment variables
-    get_opencode_env(APIKeys, BaseEnv),
-    
-    % Special case: if model is groq/openai/gpt-oss-120b, ensure GROQ_API_KEY is set
-    (   sub_atom(OpencodeModel, _, _, _, 'groq/')
-    ->  ( (is_dict(APIKeys), get_dict(openai, APIKeys, GKey), GKey \== null, GKey \== "") -> 
-            to_atom_or_string(GKey, SGKey),
-            ExtraEnv = ['GROQ_API_KEY'=SGKey]
-        ; ExtraEnv = [] )
-    ;   ExtraEnv = []
-    ),
-    
-    append(ExtraEnv, BaseEnv, Env),
-    
-    create_agent_files(WorkDir, RelTempFile),
+        % Prepare environment variables
+        get_opencode_env(APIKeys, BaseEnv),
+        
+        % Special case: if model is groq/openai/gpt-oss-120b, ensure GROQ_API_KEY is set
+        (   sub_atom(OpencodeModel, _, _, _, 'groq/')
+        ->  ( (is_dict(APIKeys), get_dict(openai, APIKeys, GKey), GKey \== null, GKey \== "") -> 
+                to_atom_or_string(GKey, SGKey),
+                ExtraEnv = ['GROQ_API_KEY'=SGKey]
+            ; ExtraEnv = [] )
+        ;   ExtraEnv = []
+        ),
+        
+        append(ExtraEnv, BaseEnv, Env),
+        
+        create_agent_files(WorkDir, RelTempFile),
 
-    % Prepare opencode arguments
-    maplist(to_atom_or_string, [ActualSessionID, RelTempFile, OpencodeModel, Command], [ASessionID, ARelTempFile, AModel, ACommand]),
-    format(user_error, "DEBUG: Final ActualSessionID: ~w~n", [ASessionID]),
+        % Prepare opencode arguments
+        maplist(to_atom_or_string, [ActualSessionID, RelTempFile, OpencodeModel, Command], [ASessionID, ARelTempFile, AModel, ACommand]),
+        format(user_error, "DEBUG: Final ActualSessionID: ~w~n", [ASessionID]),
 
-    % Check if session exists
-    (   (ASessionID \== "ses_default", ASessionID \== "default", ASessionID \== "", session_exists(ASessionID))
-    ->  SessionArgs = ['--session', ASessionID],
-        format(user_error, "DEBUG: Session ~w exists, adding --session flag~n", [ASessionID])
-    ;   SessionArgs = [],
-        format(user_error, "DEBUG: Session ~w does not exist or is default, skipping --session flag~n", [ASessionID])
-    ),
+        % Check if session exists
+        (   (ASessionID \== "ses_default", ASessionID \== "default", ASessionID \== "", session_exists(ASessionID))
+        ->  SessionArgs = ['--session', ASessionID],
+            format(user_error, "DEBUG: Session ~w exists, adding --session flag~n", [ASessionID])
+        ;   SessionArgs = [],
+            format(user_error, "DEBUG: Session ~w does not exist or is default, skipping --session flag~n", [ASessionID])
+        ),
 
-    % Use 'build' agent as suggested, it should pick up CLAUDE.md or AGENTS.md
-    BaseArgs = ['run', '--dangerously-skip-permissions' | SessionArgs],
-    append(BaseArgs, ['--file', ARelTempFile, '--agent', 'build', '--format', 'default'], Args0),
-    ( (AModel \== "", AModel \== null) -> append(Args0, ['--model', AModel, ACommand], Args) ; append(Args0, [ACommand], Args) ),
-    
-    format(user_error, "DEBUG: Starting background process: opencode ~w in ~w~n", [Args, WorkDir]),
-    
-    process_create(path(opencode), Args, [stdin(null), stdout(pipe(Out)), stderr(pipe(Err)), env(Env), cwd(WorkDir), process(PID)]),
-    asserta(assistant_job(JobID, PID)),
-    asserta(assistant_job_status(JobID, running)),
-    
-    % Start threads to read output
-    thread_create(read_to_db(JobID, stdout, Out), _, [detached(true)]),
-    thread_create(read_to_db(JobID, stderr, Err), _, [detached(true)]),
-    
-    % Start a thread to wait for the process
-    thread_create(wait_for_job(JobID, PID, TempFile, ASessionID, Content, WorkDir), _, [detached(true)]),
-    
-    Response = _{
-        result: ok,
-        job_id: JobID
-    }.
+        % Use 'build' agent as suggested, it should pick up CLAUDE.md or AGENTS.md
+        BaseArgs = ['run', '--dangerously-skip-permissions' | SessionArgs],
+        append(BaseArgs, ['--file', ARelTempFile, '--agent', 'build', '--format', 'default'], Args0),
+        ( (AModel \== "", AModel \== null) -> append(Args0, ['--model', AModel, ACommand], Args) ; append(Args0, [ACommand], Args) ),
+        
+        format(user_error, "DEBUG: Starting background process: opencode ~w in ~w~n", [Args, WorkDir]),
+        
+        process_create(path(opencode), Args, [stdin(null), stdout(pipe(Out)), stderr(pipe(Err)), env(Env), cwd(WorkDir), process(PID)]),
+        asserta(assistant_job(JobID, PID)),
+        asserta(assistant_job_status(JobID, running)),
+        
+        % Start threads to read output
+        thread_create(read_to_db(JobID, stdout, Out), _, [detached(true)]),
+        thread_create(read_to_db(JobID, stderr, Err), _, [detached(true)]),
+        
+        % Start a thread to wait for the process
+        thread_create(wait_for_job(JobID, PID, TempFile, ASessionID, Content, WorkDir), _, [detached(true)]),
+        
+        Response = _{
+            result: ok,
+            job_id: JobID
+        }
+    ).
 
 read_to_db(JobID, StreamName, Stream) :-
     format(user_error, "DEBUG: read_to_db started for ~w ~w~n", [JobID, StreamName]),
@@ -347,16 +365,14 @@ handle_assistant_status(Dict, Response) :-
             ( assistant_job_output(JobID, session_id, SID) -> ActualSID = SID ; ActualSID = "" ),
             format(user_error, "DEBUG: Returning session_id to client: ~w~n", [ActualSID]),
             
-            (   extract_json_from_string(Stdout, JSONDict, StdoutWithoutJSON)
-            ->  ( get_dict(explanation, JSONDict, Explanation) -> 
-                    ( (var(StdoutWithoutJSON) ; string_length(StdoutWithoutJSON, 0) ; catch(normalize_space(atom(""), StdoutWithoutJSON), _, fail)) -> 
-                        FinalStdout = Explanation 
-                    ; ( paths_match(StdoutWithoutJSON, Explanation) ->
-                        FinalStdout = Explanation
-                      ; format(string(FinalStdout), "~w\n\n~w", [StdoutWithoutJSON, Explanation])
-                      )
-                    )
-                ; FinalStdout = StdoutWithoutJSON
+            (   extract_json_from_string(Stdout, JSONDict, StdoutWithoutJSON),
+                get_dict(explanation, JSONDict, Explanation)
+            ->  ( (var(StdoutWithoutJSON) ; string_length(StdoutWithoutJSON, 0) ; catch(normalize_space(atom(""), StdoutWithoutJSON), _, fail)) -> 
+                    FinalStdout = Explanation 
+                ; ( paths_match(StdoutWithoutJSON, Explanation) ->
+                    FinalStdout = Explanation
+                  ; format(string(FinalStdout), "~w\n\n~w", [StdoutWithoutJSON, Explanation])
+                  )
                 ),
                 ( get_dict(new_content, JSONDict, ContentFromJson) -> FinalNewContent = ContentFromJson ; FinalNewContent = NewContent )
             ;   FinalStdout = Stdout, FinalNewContent = NewContent
@@ -384,9 +400,13 @@ handle_assistant_status(Dict, Response) :-
 %!  handle_assistant_interrupt(+Dict, -Response) is det.
 handle_assistant_interrupt(Dict, Response) :-
     get_dict(job_id, Dict, JobID),
-    (   assistant_job(JobID, PID)
+    (   assistant_job(JobID, Target)
     ->  ( assistant_job_status(JobID, running) ->
-            process_kill(PID, term),
+            (   integer(Target) -> % It's a PID
+                catch(process_kill(Target, term), _, true)
+            ;   % It's a thread ID/alias
+                catch(thread_signal(Target, throw(interrupt)), _, true)
+            ),
             Response = _{result: ok, message: "Job interrupted"}
         ;   Response = _{result: ok, message: "Job already finished"}
         )
@@ -398,14 +418,11 @@ extract_json_from_string(String, Dict, Remaining) :-
     (   % Try with code block first. Greedy match for the JSON content.
         re_matchsub("(?s)```json\\s*(\\{.*\\})\\s*```", String, Sub)
     ->  get_dict(1, Sub, JSONStr),
-        get_dict(0, Sub, FullMatch)
-    ;   % Try without code block. Greedy match from first { to last }.
-        re_matchsub("(?s)(\\{.*\\})", String, Sub)
-    ->  get_dict(1, Sub, JSONStr),
-        get_dict(0, Sub, FullMatch)
-    ;   fail
+        get_dict(0, Sub, FullMatch),
+        catch(atom_json_dict(JSONStr, Dict, []), _, fail)
+    ;   % If no code block, find the last valid JSON block by searching from the end
+        find_last_json_block(String, Dict, FullMatch)
     ),
-    catch(atom_json_dict(JSONStr, Dict, []), _, fail),
     % Remove the full match from the string using sub_string to be safe
     (   sub_string(String, Before, _Len, After, FullMatch)
     ->  sub_string(String, 0, Before, _, Preamble),
@@ -417,6 +434,26 @@ extract_json_from_string(String, Dict, Remaining) :-
         )
     ;   Remaining = String
     ).
+
+find_last_json_block(String, Dict, FullMatch) :-
+    % Find all occurrences of '{' in the string
+    findall(Index, sub_string(String, Index, 1, _, "{"), Indices),
+    % Reverse the indices to search from the end
+    reverse(Indices, RevIndices),
+    % Find the first index from the end that forms a valid JSON block
+    member(Index, RevIndices),
+    sub_string(String, Index, _, 0, Sub),
+    string_length(Sub, SubLen),
+    % Find all occurrences of '}' in Sub
+    findall(After, sub_string(Sub, _, 1, After, "}"), Afters),
+    % We want the smallest After first (which corresponds to the longest prefix)
+    sort(Afters, SortedAfters),
+    member(After, SortedAfters),
+    Len is SubLen - After,
+    sub_string(Sub, 0, Len, _, JSONStr),
+    catch(atom_json_dict(JSONStr, Dict, []), _, fail),
+    FullMatch = JSONStr,
+    !.
 
 strip_ansi(In, Out) :-
     (   catch(re_replace("\\x1b\\[[0-9;]*[mK]"/g, "", In, Out0), _, fail)
