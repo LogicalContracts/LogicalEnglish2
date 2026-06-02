@@ -235,7 +235,17 @@ load_agent_template(ResourceMap, InstructionBody) :-
         sub_string(Rest, 0, BeforeDash, _, FrontmatterStr),
         sub_string(Rest, _, AfterDash, 0, Body0),
         parse_yaml_frontmatter(FrontmatterStr, ResourceMap),
-        InstructionBody = Body0
+        % Strip out DEEP_MODE_ONLY block
+        (   sub_string(Body0, StartDeep, _, EndDeep, "<!-- DEEP_MODE_ONLY_START -->")
+        ->  sub_string(Body0, 0, StartDeep, _, Preamble),
+            sub_string(Body0, _, EndDeep, 0, PostDeep),
+            (   sub_string(PostDeep, _, _, EndEnd, "<!-- DEEP_MODE_ONLY_END -->")
+            ->  sub_string(PostDeep, _, EndEnd, 0, Postamble),
+                format(string(InstructionBody), "~w~w", [Preamble, Postamble])
+            ;   InstructionBody = Body0
+            )
+        ;   InstructionBody = Body0
+        )
     ;   ResourceMap = _{},
         InstructionBody = Template
     ).
@@ -291,10 +301,14 @@ load_curated_examples(UserRoles, ExamplesStr) :-
     ), Lines),
     atomic_list_concat(Lines, "", ListStr),
     
-    % Also inline the full content of a few key representative examples
+    % Also inline the full content of a few key representative examples (and only these, token budget oblige)
     CuratedFiles = [
         "examples/moreExamples/citizenship.le",
-        "examples/moreExamples/numbering_test.le"
+        "examples/moreExamples/numbering_test.le",
+        "examples/moreExamples/1_net_asset_value_test_3.le",
+        "examples/moreExamples/payg.le",
+        "examples/moreExamples/dates.le",
+        "examples/moreExamples/insureLE2/big_conclusions.le"
     ],
     findall(ExContent, (
         member(File, CuratedFiles),
