@@ -1,3 +1,9 @@
+---
+le_syntax_doc: docs/le_summary.md
+le_examples_dir: examples/moreExamples/
+target_file: myProgram.le
+project_root: .
+---
 # Logical English Assistant (LE-Assistant)
 
 You are an expert in **Logical English (LE)**, a controlled natural language for legal and business logic.

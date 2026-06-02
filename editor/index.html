@@ -745,12 +745,19 @@
 
         <div id="assistant-tab" class="tab-content">
             <div id="assistant-panel">
+                <div id="assistant-header" style="display: flex; align-items: center; padding: 8px 12px; background: var(--header-bg); border-bottom: 1px solid var(--border-color); font-size: 12px;">
+                    <span style="font-weight: bold; margin-right: auto;">LE Assistant</span>
+                    <div style="display: flex; align-items: center; gap: 5px;" title="Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).">
+                        <input type="checkbox" id="assistant-mode-toggle" checked style="cursor: pointer;">
+                        <label for="assistant-mode-toggle" style="cursor: pointer; user-select: none;">Light Mode</label>
+                    </div>
+                </div>
                 <div id="assistant-history">
                     <div class="chat-message assistant">Hello! I am your Logical English Assistant. How can I help you today?</div>
                 </div>
                 <div id="assistant-input-container">
                     <input type="text" id="assistant-input" placeholder="Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')">
-                    <button id="btn-assistant-send">Send</button>
+                    <button id="btn-assistant-send" title="Send command to the LE Assistant">Send</button>
                     <button id="btn-assistant-interrupt" style="display: none; background-color: #a31515; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 2px; margin-left: 5px;">Interrupt</button>
                 </div>
                 <div id="assistant-progress" style="display: none; padding: 5px 10px; font-size: 11px; color: #aaa; font-style: italic; border-top: 1px solid #333;">

@@ -2039,6 +2039,16 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const btnAssistantInterrupt = document.getElementById('btn-assistant-interrupt') as HTMLButtonElement;
     const assistantProgress = document.getElementById('assistant-progress')!;
     const assistantProgressText = document.getElementById('assistant-progress-text')!;
+    const assistantModeToggle = document.getElementById('assistant-mode-toggle') as HTMLInputElement;
+
+    // Load saved mode
+    if (assistantModeToggle) {
+        const savedMode = localStorage.getItem('le-assistant-mode') || 'light';
+        assistantModeToggle.checked = savedMode === 'light';
+        assistantModeToggle.addEventListener('change', () => {
+            localStorage.setItem('le-assistant-mode', assistantModeToggle.checked ? 'light' : 'deep');
+        });
+    }
     let assistantSessionId = 'ses_' + Math.random().toString(36).substring(7);
     let assistantStartTime: number | null = null;
 
@@ -2168,7 +2178,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     content: editor.getValue(),
                     session_id: assistantSessionId,
                     api_keys: apiKeys,
-                    model: localStorage.getItem('le-assistant-model')
+                    model: localStorage.getItem('le-assistant-model'),
+                    mode: assistantModeToggle ? (assistantModeToggle.checked ? 'light' : 'deep') : 'light'
                 })
             });
             const data = await response.json();
