@@ -10,7 +10,10 @@
     le_tool_query/2,
     convert_test_result/2,
     convert_why/3,
-    run_query/4
+    run_query/4,
+    get_last_verified_program/3,
+    set_verify_job/1,
+    clear_verify_job/0
 ]).
 
 :- use_module(le_kbs).
@@ -33,13 +36,72 @@ le_tool_verify(ProgramText, Result) :-
             KB:le_issue(Sev, Type, Msg, Fix, Start, End),
             Issues),
     % Run embedded tests if any
-    ( current_predicate(KB:le_expected/3) -> 
+    ( current_predicate(KB:le_expected/3) ->
         findall(test(Q, S, A), KB:le_expected(Q, S, A), Tests),
         maplist(le_kbs:run_one_test(KB), Tests, TestResults),
         maplist(convert_test_result, TestResults, JSONTestResults)
     ; JSONTestResults = []
     ),
+    % Capture this program so the LE Assistant can recover the agent's work
+    % even if its file edits failed or the job was interrupted (see le_assistant).
+    record_verified_program(ProgramText),
     Result = _{issues: Issues, test_results: JSONTestResults}.
+
+% --- Capture of the most recent program submitted to the verify tool ---
+% The verify tool runs in-process (same server as the LE Assistant), so the
+% full program_text the agent verifies is available here. We keep a small,
+% time-stamped history so the assistant can deliver the agent's latest verified
+% program to the editor even when its surgical file edits never landed.
+%
+% Captures are keyed by a per-job token so that concurrent assistant jobs (or
+% other MCP clients) cannot recover each other's work. The token is supplied by
+% the MCP HTTP handler (via set_verify_job/1) for the duration of a tool call;
+% callers without a token (REST endpoints, light assistant) record under 'none'.
+
+:- dynamic last_verified_program/3.   % Token, Timestamp, ProgramText
+:- thread_local verify_context_job/1.
+
+%!  set_verify_job(+Token) is det.
+%   Establishes the job token attributed to verify captures on this thread.
+set_verify_job(Token) :-
+    retractall(verify_context_job(_)),
+    ( Token == none -> true ; assertz(verify_context_job(Token)) ).
+
+%!  clear_verify_job is det.
+clear_verify_job :-
+    retractall(verify_context_job(_)).
+
+current_verify_job(Token) :-
+    ( verify_context_job(T) -> Token = T ; Token = none ).
+
+record_verified_program(ProgramText) :-
+    ( (var(ProgramText) ; \+ (string(ProgramText) ; atom(ProgramText)) ; ProgramText == "") ->
+        true
+    ;   current_verify_job(Token),
+        get_time(Now),
+        assertz(last_verified_program(Token, Now, ProgramText)),
+        % Bound the history to the 50 most recent entries (across all tokens).
+        findall(T, last_verified_program(_, T, _), Times),
+        sort(0, @>=, Times, Sorted),
+        ( nth0(50, Sorted, Cutoff) ->
+            forall((last_verified_program(Tk, T2, P2), T2 =< Cutoff),
+                   retract(last_verified_program(Tk, T2, P2)))
+        ; true
+        )
+    ).
+
+%!  get_last_verified_program(+Token, +AfterTime, -ProgramText) is semidet.
+%
+%   Unifies ProgramText with the most recent program submitted to the verify
+%   tool under the given job Token at or after AfterTime (an epoch timestamp).
+%   Fails if none exists for that token.
+get_last_verified_program(Token0, AfterTime, ProgramText) :-
+    % Keys are stored as atoms; normalize so a string JobID also matches.
+    ( atom(Token0) -> Token = Token0 ; atom_string(Token, Token0) ),
+    findall(T-P, (last_verified_program(Token, T, P), T >= AfterTime), Pairs),
+    Pairs \== [],
+    keysort(Pairs, Sorted),
+    last(Sorted, _-ProgramText).
 
 %!  le_tool_query(+Args, -Result) is det.
 %

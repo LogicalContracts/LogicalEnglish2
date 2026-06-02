@@ -52,6 +52,39 @@ loop_mcp_stdio :-
 handle_mcp(Request) :-
     (   member(method(post), Request) ->
         http_read_json_dict(Request, Dict),
+        % Attribute any verify captures during this request to the calling job,
+        % so concurrent assistant jobs cannot recover each other's work.
+        mcp_job_token(Request, JobToken),
+        setup_call_cleanup(
+            set_verify_job(JobToken),
+            handle_mcp_post(Dict),
+            clear_verify_job
+        )
+    ;   member(method(get), Request) ->
+        % mcp-remote or other clients might try GET for SSE
+        reply_json_dict(_{error: "SSE not implemented, use POST JSON-RPC"}, [status(405)])
+    ;   reply_json_dict(_{error: "Method not allowed"}, [status(405)])
+    ).
+
+%!  mcp_job_token(+Request, -Token) is det.
+%
+%   Extracts the LE Assistant job token threaded through the MCP URL by the
+%   assistant backend (e.g. .../mcp?job=job_7), falling back to the X-LE-Job
+%   header. Yields 'none' when absent (REST clients, manual calls, etc.).
+mcp_job_token(Request, Token) :-
+    (   member(search(Search), Request),
+        member(job=Raw, Search),
+        Raw \== '', Raw \== ""
+    ->  to_token_atom(Raw, Token)
+    ;   member(x_le_job(Raw), Request),
+        Raw \== '', Raw \== ""
+    ->  to_token_atom(Raw, Token)
+    ;   Token = none
+    ).
+
+to_token_atom(X, A) :- ( atom(X) -> A = X ; atom_string(A, X) ).
+
+handle_mcp_post(Dict) :-
         % Log request for debugging
         ( get_dict(method, Dict, Method) -> true ; Method = unknown ),
         ( Method \== 'tools/call' -> format(user_error, "MCP Request: ~w~n", [Method]) ; 
@@ -76,12 +109,7 @@ handle_mcp(Request) :-
                 reply_json_dict(_{result: "ok"})
             )
         ;   reply_json_dict(_{jsonrpc: "2.0", error: _{code: -32600, message: "Invalid Request"}}, [status(400)])
-        )
-    ;   member(method(get), Request) ->
-        % mcp-remote or other clients might try GET for SSE
-        reply_json_dict(_{error: "SSE not implemented, use POST JSON-RPC"}, [status(405)])
-    ;   reply_json_dict(_{error: "Method not allowed"}, [status(405)])
-    ).
+        ).
 
 % Helper to match method names as either strings or atoms
 match_method(Target, Method) :-

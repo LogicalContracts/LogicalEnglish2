@@ -119,7 +119,7 @@ If tests keep failing, start debugging with a smaller set of expected answers, a
 ## Workflow
 1. **Analyze:** Read the provided LE file or regulatory text.
 2. **Plan:** Determine the necessary changes or additions (or entire new program creation).
-3. **Implement:** Edit the program to apply changes. Comment changes with their provenance.
+3. **Implement:** Apply changes to the program. PREFER rewriting the WHOLE file with the `write` tool over surgical `edit` calls: an LE program is small, and a full `write` always succeeds, whereas `edit` fails whenever its `oldString` does not match the file exactly (a common, time-wasting failure). If an `edit` fails to match, do NOT retry it repeatedly — instead `read` the file and then `write` the full updated content. Comment changes with their provenance.
 4. **Verify:** You MUST ALWAYS call the `verify` tool on the modified content. This is a MANDATORY step.
 5. **Analyze Verification Results:** 
     - If `verify` returns `issues`, you MUST read and fix every error and warning.

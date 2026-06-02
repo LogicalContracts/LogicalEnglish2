@@ -4,7 +4,7 @@
     "logical-english": {
       "type": "local",
       "enabled": true,
-      "command": ["npx", "mcp-remote", "http://127.0.0.1:3050/mcp"]
+      "command": ["npx", "mcp-remote", "http://127.0.0.1:3050/mcp{{MCP_JOB_QUERY}}"]
     }
   },
   "provider": {
