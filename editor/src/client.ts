@@ -693,6 +693,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const groqKeyInput = document.getElementById('groq-key') as HTMLInputElement;
     const togetherKeyInput = document.getElementById('together-key') as HTMLInputElement;
     const modelSelect = document.getElementById('assistant-model-select') as HTMLSelectElement;
+    const assistantMaxStepsInput = document.getElementById('assistant-max-steps') as HTMLInputElement;
 
     const loadModels = async () => {
         try {
@@ -775,6 +776,9 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             googleKeyInput.value = localStorage.getItem('le-google-key') || '';
             groqKeyInput.value = localStorage.getItem('le-groq-key') || '';
             togetherKeyInput.value = localStorage.getItem('le-together-key') || '';
+            if (assistantMaxStepsInput) {
+                assistantMaxStepsInput.value = localStorage.getItem('le-assistant-max-steps') || '10';
+            }
             loadModels();
             apiKeysModal.style.display = 'flex';
         }
@@ -794,6 +798,12 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         localStorage.setItem('le-groq-key', groqKeyInput.value);
         localStorage.setItem('le-together-key', togetherKeyInput.value);
         localStorage.setItem('le-assistant-model', modelSelect.value);
+        if (assistantMaxStepsInput) {
+            let val = parseInt(assistantMaxStepsInput.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            if (val > 50) val = 50;
+            localStorage.setItem('le-assistant-max-steps', val.toString());
+        }
         closeApiKeysModal();
     });
 
@@ -2179,7 +2189,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     session_id: assistantSessionId,
                     api_keys: apiKeys,
                     model: localStorage.getItem('le-assistant-model'),
-                    mode: assistantModeToggle ? (assistantModeToggle.checked ? 'light' : 'deep') : 'light'
+                    mode: assistantModeToggle ? (assistantModeToggle.checked ? 'light' : 'deep') : 'light',
+                    max_steps: parseInt(localStorage.getItem('le-assistant-max-steps') || '10', 10)
                 })
             });
             const data = await response.json();

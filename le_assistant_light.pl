@@ -6,8 +6,8 @@
 */
 
 :- module(le_assistant_light, [
-    run_light_assistant/8,
-    run_light_assistant_thread/6
+    run_light_assistant/9,
+    run_light_assistant_thread/7
 ]).
 
 :- use_module(library(http/http_json)).
@@ -16,13 +16,13 @@
 :- use_module(llm/llm_client).
 :- use_module(restricted_paths).
 
-%!  run_light_assistant_thread(+JobID, +Command, +Program0, +Model, +Keys, +UserRoles) is det.
+%!  run_light_assistant_thread(+JobID, +Command, +Program0, +Model, +Keys, +UserRoles, +MaxSteps) is det.
 %
 %   Runs the Light Assistant in a background thread.
-run_light_assistant_thread(JobID, Command, Program0, Model, Keys, UserRoles) :-
+run_light_assistant_thread(JobID, Command, Program0, Model, Keys, UserRoles, MaxSteps) :-
     asserta(le_assistant:assistant_job_status(JobID, running)),
     catch(
-        (   run_light_assistant(JobID, Command, Program0, Model, Keys, UserRoles, FinalExplanation, FinalProgram),
+        (   run_light_assistant(JobID, Command, Program0, Model, Keys, UserRoles, MaxSteps, FinalExplanation, FinalProgram),
             asserta(le_assistant:assistant_job_content(JobID, FinalProgram)),
             % Format the final output as JSON so that handle_assistant_status can parse it
             JSONDict = _{explanation: FinalExplanation, new_content: FinalProgram},
@@ -47,22 +47,21 @@ run_light_assistant_thread(JobID, Command, Program0, Model, Keys, UserRoles) :-
         )
     ).
 
-%!  run_light_assistant(+JobID, +Command, +Program0, +Model, +Keys, +UserRoles, -FinalExplanation, -FinalProgram) is det.
+%!  run_light_assistant(+JobID, +Command, +Program0, +Model, +Keys, +UserRoles, +MaxSteps, -FinalExplanation, -FinalProgram) is det.
 %
 %   Runs the main Light Assistant agentic loop.
-run_light_assistant(JobID, Command, Program0, Model, Keys, UserRoles, FinalExplanation, FinalProgram) :-
+run_light_assistant(JobID, Command, Program0, Model, Keys, UserRoles, MaxSteps, FinalExplanation, FinalProgram) :-
     assemble_system_prompt(Program0, UserRoles, SystemPrompt),
     Messages0 = [
         _{role: system, content: SystemPrompt},
         _{role: user, content: Command}
     ],
-    agent_loop(JobID, Model, Keys, Messages0, Program0, 0, FinalExplanation, FinalProgram).
+    agent_loop(JobID, Model, Keys, Messages0, Program0, 0, dirty, MaxSteps, FinalExplanation, FinalProgram).
 
-%!  agent_loop(+JobID, +Model, +Keys, +Messages, +Program, +Step, -FinalExplanation, -FinalProgram) is det.
+%!  agent_loop(+JobID, +Model, +Keys, +Messages, +Program, +Step, +LastVerifyStatus, +MaxSteps, -FinalExplanation, -FinalProgram) is det.
 %
 %   The bounded model-tool loop.
-agent_loop(JobID, Model, Keys, Messages, Program, Step, FinalExplanation, FinalProgram) :-
-    MaxSteps = 10,
+agent_loop(JobID, Model, Keys, Messages, Program, Step, LastVerifyStatus, MaxSteps, FinalExplanation, FinalProgram) :-
     (   Step >= MaxSteps
     ->  FinalExplanation = "Reached step limit before completion.",
         FinalProgram = Program
@@ -92,40 +91,54 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, FinalExplanation, FinalP
             format(string(ActionMsg), "Model action: ~w\n", [Action]),
             assertz(le_assistant:assistant_job_output(JobID, stdout, ActionMsg)),
             (   Action == "verify"
-            ->  % Run verify tool
-                assertz(le_assistant:assistant_job_output(JobID, stdout, "Running verification...\n")),
-                le_tools:le_tool_verify(Program, VerifyResult),
-                % Format result as string to append to messages
-                with_output_to(string(ResultStr), json_write_dict(current_output, VerifyResult, [width(0)])),
-                format_verify_result(VerifyResult, FormattedResult),
-                format(string(VerifyOutputMsg), "Verification result: ~w\n", [FormattedResult]),
-                assertz(le_assistant:assistant_job_output(JobID, stdout, VerifyOutputMsg)),
-                % If there are no issues, nudge the model to finish
-                (   FormattedResult == "no issues"
-                ->  NudgeResultStr = "Verification result: no issues. All tests passed and there are no warnings or errors! You have successfully completed the task. Please respond with the 'finish' action to return the final program and explain your changes to the user."
-                ;   NudgeResultStr = ResultStr
-                ),
-                % Append to messages and loop
-                append(Messages, [
-                    _{role: assistant, content: Reply},
-                    _{role: user, content: NudgeResultStr}
-                ], NewMessages),
-                Step1 is Step + 1,
-                agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, FinalExplanation, FinalProgram)
+            ->  (   LastVerifyStatus == clean
+                ->  % The program is already clean, and the model is just looping. Force terminate as success!
+                    assertz(le_assistant:assistant_job_output(JobID, stdout, "Program is already verified with no issues. Terminating successfully.\n")),
+                    FinalExplanation = "The program was verified successfully with no issues.",
+                    FinalProgram = Program
+                ;   % Run verify tool
+                    assertz(le_assistant:assistant_job_output(JobID, stdout, "Running verification...\n")),
+                    le_tools:le_tool_verify(Program, VerifyResult),
+                    % Format result as string to append to messages
+                    with_output_to(string(ResultStr), json_write_dict(current_output, VerifyResult, [width(0)])),
+                    format_verify_result(VerifyResult, FormattedResult),
+                    format(string(VerifyOutputMsg), "Verification result: ~w\n", [FormattedResult]),
+                    assertz(le_assistant:assistant_job_output(JobID, stdout, VerifyOutputMsg)),
+                    % If there are no issues, nudge the model to finish
+                    (   FormattedResult == "no issues"
+                    ->  NudgeResultStr = "Verification result: no issues. All tests passed and there are no warnings or errors! You have successfully completed the task. You MUST now immediately respond with the 'finish' action to return the final program and explain your changes to the user. Do NOT call 'verify' or 'query' again.",
+                        NextStatus = clean
+                    ;   NudgeResultStr = ResultStr,
+                        NextStatus = dirty
+                    ),
+                    % Append to messages and loop
+                    append(Messages, [
+                        _{role: assistant, content: Reply},
+                        _{role: user, content: NudgeResultStr}
+                    ], NewMessages),
+                    Step1 is Step + 1,
+                    agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, NextStatus, MaxSteps, FinalExplanation, FinalProgram)
+                )
             ;   Action == "query"
-            ->  % Run query tool
-                assertz(le_assistant:assistant_job_output(JobID, stdout, "Running query...\n")),
-                % We need to pass program_text to le_tool_query
-                QueryArgs = ActionDict.put(program_text, Program),
-                le_tools:le_tool_query(QueryArgs, QueryResult),
-                with_output_to(string(ResultStr), json_write_dict(current_output, QueryResult, [width(0)])),
-                % Append to messages and loop
-                append(Messages, [
-                    _{role: assistant, content: Reply},
-                    _{role: user, content: ResultStr}
-                ], NewMessages),
-                Step1 is Step + 1,
-                agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, FinalExplanation, FinalProgram)
+            ->  (   LastVerifyStatus == clean
+                ->  % The program is already clean, and the model is just looping. Force terminate as success!
+                    assertz(le_assistant:assistant_job_output(JobID, stdout, "Program is already verified with no issues. Terminating successfully.\n")),
+                    FinalExplanation = "The program was verified successfully with no issues.",
+                    FinalProgram = Program
+                ;   % Run query tool
+                    assertz(le_assistant:assistant_job_output(JobID, stdout, "Running query...\n")),
+                    % We need to pass program_text to le_tool_query
+                    QueryArgs = ActionDict.put(program_text, Program),
+                    le_tools:le_tool_query(QueryArgs, QueryResult),
+                    with_output_to(string(ResultStr), json_write_dict(current_output, QueryResult, [width(0)])),
+                    % Append to messages and loop
+                    append(Messages, [
+                        _{role: assistant, content: Reply},
+                        _{role: user, content: ResultStr}
+                    ], NewMessages),
+                    Step1 is Step + 1,
+                    agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, dirty, MaxSteps, FinalExplanation, FinalProgram)
+                )
             ;   Action == "edit"
             ->  % Update program
                 ( get_dict(new_content, ActionDict, NewProgram) -> true ; NewProgram = Program ),
@@ -136,7 +149,7 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, FinalExplanation, FinalP
                     _{role: user, content: "Program updated. Please verify your changes."}
                 ], NewMessages),
                 Step1 is Step + 1,
-                agent_loop(JobID, Model, Keys, NewMessages, NewProgram, Step1, FinalExplanation, FinalProgram)
+                agent_loop(JobID, Model, Keys, NewMessages, NewProgram, Step1, dirty, MaxSteps, FinalExplanation, FinalProgram)
             ;   Action == "finish"
             ->  % Finish
                 get_dict(explanation, ActionDict, FinalExplanation),
@@ -149,7 +162,7 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, FinalExplanation, FinalP
                     _{role: user, content: NudgeMsg}
                 ], NewMessages),
                 Step1 is Step + 1,
-                agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, FinalExplanation, FinalProgram)
+                agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, LastVerifyStatus, MaxSteps, FinalExplanation, FinalProgram)
             )
         ;   % No parseable JSON action
             append(Messages, [
@@ -157,7 +170,7 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, FinalExplanation, FinalP
                 _{role: user, content: "Please respond with a single JSON action object."}
             ], NewMessages),
             Step1 is Step + 1,
-            agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, FinalExplanation, FinalProgram)
+            agent_loop(JobID, Model, Keys, NewMessages, Program, Step1, LastVerifyStatus, MaxSteps, FinalExplanation, FinalProgram)
         )
     ).
 

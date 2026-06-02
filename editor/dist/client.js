@@ -38972,6 +38972,7 @@ async function start() {
   const groqKeyInput = document.getElementById("groq-key");
   const togetherKeyInput = document.getElementById("together-key");
   const modelSelect = document.getElementById("assistant-model-select");
+  const assistantMaxStepsInput = document.getElementById("assistant-max-steps");
   const loadModels = async () => {
     try {
       const response = await fetch("/leapi", {
@@ -39048,6 +39049,9 @@ async function start() {
       googleKeyInput.value = localStorage.getItem("le-google-key") || "";
       groqKeyInput.value = localStorage.getItem("le-groq-key") || "";
       togetherKeyInput.value = localStorage.getItem("le-together-key") || "";
+      if (assistantMaxStepsInput) {
+        assistantMaxStepsInput.value = localStorage.getItem("le-assistant-max-steps") || "10";
+      }
       loadModels();
       apiKeysModal.style.display = "flex";
     }
@@ -39066,6 +39070,14 @@ async function start() {
     localStorage.setItem("le-groq-key", groqKeyInput.value);
     localStorage.setItem("le-together-key", togetherKeyInput.value);
     localStorage.setItem("le-assistant-model", modelSelect.value);
+    if (assistantMaxStepsInput) {
+      let val = parseInt(assistantMaxStepsInput.value, 10);
+      if (isNaN(val) || val < 1)
+        val = 1;
+      if (val > 50)
+        val = 50;
+      localStorage.setItem("le-assistant-max-steps", val.toString());
+    }
     closeApiKeysModal();
   });
   const explanationsModal = document.getElementById("explanations-modal");
@@ -40292,7 +40304,8 @@ async function start() {
           session_id: assistantSessionId,
           api_keys: apiKeys,
           model: localStorage.getItem("le-assistant-model"),
-          mode: assistantModeToggle ? assistantModeToggle.checked ? "light" : "deep" : "light"
+          mode: assistantModeToggle ? assistantModeToggle.checked ? "light" : "deep" : "light",
+          max_steps: parseInt(localStorage.getItem("le-assistant-max-steps") || "10", 10)
         })
       });
       const data4 = await response.json();

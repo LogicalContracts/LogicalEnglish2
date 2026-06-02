@@ -188,10 +188,11 @@ handle_assistant_command(Dict, Response) :-
         ( get_dict(content, Dict, Content) -> true ; Content = "" ),
         ( get_dict(api_keys, Dict, APIKeys) -> true ; APIKeys = _{} ),
         ( get_dict(model, Dict, Model) -> true ; Model = "" ),
+        ( get_dict(max_steps, Dict, MaxSteps) -> true ; MaxSteps = 10 ),
         get_next_id(ID),
         format(string(JobID), "job_~w", [ID]),
         (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
-        thread_create(le_assistant_light:run_light_assistant_thread(JobID, Command, Content, Model, APIKeys, UserRoles), ThreadID, [detached(true)]),
+        thread_create(le_assistant_light:run_light_assistant_thread(JobID, Command, Content, Model, APIKeys, UserRoles, MaxSteps), ThreadID, [detached(true)]),
         asserta(assistant_job(JobID, ThreadID)),
         Response = _{
             result: ok,
