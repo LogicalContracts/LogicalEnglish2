@@ -14,6 +14,7 @@
 :- use_module(library(pcre)).
 :- use_module(llm/llm_client, [llm_model/3]).
 :- use_module(le_assistant_light).
+:- use_module(le_tools, [get_last_verified_program/3]).
 
 :- dynamic assistant_file_counter/1.
 assistant_file_counter(1).
@@ -49,6 +50,11 @@ get_opencode_env(APIKeys, Env) :-
     get_opencode_env(APIKeys, true, Env).
 
 get_opencode_env(APIKeys, UseMCP, Env) :-
+    % No job token: used for housekeeping calls (session listing) where MCP
+    % verify captures are irrelevant.
+    get_opencode_env(APIKeys, UseMCP, none, Env).
+
+get_opencode_env(APIKeys, UseMCP, JobToken, Env) :-
     findall(Name=SVal, (
         member(Var, ['PATH', 'HOME', 'USER', 'SHELL']),
         getenv(Var, SVal),
@@ -56,7 +62,7 @@ get_opencode_env(APIKeys, UseMCP, Env) :-
     ), BaseEnv),
     get_api_env(APIKeys, APIEnv),
     ( UseMCP == true ->
-        (   catch(get_dynamic_opencode_config(MCPConfig), _, fail)
+        (   catch(get_dynamic_opencode_config(JobToken, MCPConfig), _, fail)
         ->  ConfigEnv = ['OPENCODE_CONFIG'=MCPConfig]
         ;   absolute_file_name('llm/settings/opencode_config.json', MCPConfig, [access(read), expand(true)]),
             ConfigEnv = ['OPENCODE_CONFIG'=MCPConfig]
@@ -67,15 +73,23 @@ get_opencode_env(APIKeys, UseMCP, Env) :-
     append(ConfigEnv, Env0, Env1),
     Env = ['TERM'=dumb, 'PAGER'=cat, 'NO_COLOR'='1' | Env1].
 
-get_dynamic_opencode_config(ConfigPath) :-
+get_dynamic_opencode_config(JobToken, ConfigPath) :-
     absolute_file_name('llm/settings/opencode_config.json.template', TemplatePath, [access(read), expand(true)]),
     read_file_to_string(TemplatePath, Template, []),
     working_directory(CWD, CWD),
     % Remove trailing slash from CWD if present
     ( sub_atom(CWD, _, 1, 0, '/') -> sub_atom(CWD, 0, _, 1, CWD0) ; CWD0 = CWD ),
-    re_replace("{{PROJECT_ROOT}}"/g, CWD0, Template, ConfigContent),
+    re_replace("{{PROJECT_ROOT}}"/g, CWD0, Template, ConfigContent0),
+    % Thread the job token into the MCP URL so verify captures are attributable.
+    ( JobToken == none ->
+        JobQuery = "", FileSuffix = ""
+    ;   format(string(JobQuery), "?job=~w", [JobToken]),
+        format(string(FileSuffix), "_~w", [JobToken])
+    ),
+    re_replace("{{MCP_JOB_QUERY}}"/g, JobQuery, ConfigContent0, ConfigContent),
     assistant_work_dir(WorkDir),
-    format(string(ConfigPath), "~w/opencode_config.json", [WorkDir]),
+    % Per-job config file so concurrent jobs don't clobber each other's URL.
+    format(string(ConfigPath), "~w/opencode_config~w.json", [WorkDir, FileSuffix]),
     setup_call_cleanup(
         open(ConfigPath, write, S),
         write(S, ConfigContent),
@@ -253,8 +267,9 @@ handle_assistant_command(Dict, Response) :-
         ;   OpencodeModel = ""
         ),
 
-        % Prepare environment variables
-        get_opencode_env(APIKeys, BaseEnv),
+        % Prepare environment variables, threading this job's token so verify
+        % captures from the MCP server are attributed to this job (see wait_for_job).
+        get_opencode_env(APIKeys, true, JobID, BaseEnv),
         
         % Special case: if model is groq/openai/gpt-oss-120b, ensure GROQ_API_KEY is set
         (   sub_atom(OpencodeModel, _, _, _, 'groq/')
@@ -288,16 +303,20 @@ handle_assistant_command(Dict, Response) :-
         
         format(user_error, "DEBUG: Starting background process: opencode ~w in ~w~n", [Args, WorkDir]),
         
+        % Record when the job started, so we can recover any program the agent
+        % submitted to the verify tool from this point on (see wait_for_job/7).
+        get_time(StartTime),
+
         process_create(path(opencode), Args, [stdin(null), stdout(pipe(Out)), stderr(pipe(Err)), env(Env), cwd(WorkDir), process(PID)]),
         asserta(assistant_job(JobID, PID)),
         asserta(assistant_job_status(JobID, running)),
-        
+
         % Start threads to read output
         thread_create(read_to_db(JobID, stdout, Out), _, [detached(true)]),
         thread_create(read_to_db(JobID, stderr, Err), _, [detached(true)]),
-        
+
         % Start a thread to wait for the process
-        thread_create(wait_for_job(JobID, PID, TempFile, ASessionID, Content, WorkDir), _, [detached(true)]),
+        thread_create(wait_for_job(JobID, PID, TempFile, ASessionID, Content, WorkDir, StartTime), _, [detached(true)]),
         
         Response = _{
             result: ok,
@@ -321,14 +340,28 @@ read_to_db(JobID, StreamName, Stream) :-
     ).
 
 
-wait_for_job(JobID, PID, TempFile, ASessionID, OldContent, WorkDir) :-
+wait_for_job(JobID, PID, TempFile, ASessionID, OldContent, WorkDir, StartTime) :-
     process_wait(PID, Status),
-    
+
     % After opencode runs, it might have modified TempFile.
-    ( exists_file(TempFile) -> 
-        ( catch(read_file_to_string(TempFile, NewContent, []), _, NewContent = OldContent) )
-    ; NewContent = OldContent ),
-    
+    ( exists_file(TempFile) ->
+        ( catch(read_file_to_string(TempFile, FileContent, []), _, FileContent = OldContent) )
+    ; FileContent = OldContent ),
+
+    % Fallback recovery: if the agent never actually changed the file (e.g. its
+    % surgical 'edit' calls failed to match, or the job was interrupted), the
+    % program it last submitted to the verify tool is still the work we want to
+    % deliver to the editor. Prefer that over an unchanged file.
+    (   FileContent == OldContent,
+        get_last_verified_program(JobID, StartTime, VerifiedText),
+        VerifiedText \== OldContent,
+        ( string(VerifiedText) -> true ; atom(VerifiedText) ),
+        VerifiedText \== ""
+    ->  NewContent = VerifiedText,
+        format(user_error, "DEBUG: Recovered verified program for job ~w (file was unchanged)~n", [JobID])
+    ;   NewContent = FileContent
+    ),
+
     % We keep the files in the session directory to facilitate discovery
     asserta(assistant_job_content(JobID, NewContent)),
     
@@ -471,9 +504,12 @@ create_agent_files(WorkDir, RelTempFile) :-
     ( sub_atom(CWD, _, 1, 0, '/') -> sub_atom(CWD, 0, _, 1, CWD0) ; CWD0 = CWD ),
     format(string(TemplatePath), "~w/AGENTS_LE_template.md", [CWD0]),
     ( exists_file(TemplatePath) -> 
-        read_file_to_string(TemplatePath, Template, [])
-    ; read_file_to_string('AGENTS_LE_template.md', Template, [])
+        read_file_to_string(TemplatePath, Template0, [])
+    ; read_file_to_string('AGENTS_LE_template.md', Template0, [])
     ),
+    % Strip out the HTML comment tags for Deep Mode so they don't confuse the agent
+    re_replace("<!-- DEEP_MODE_ONLY_START -->"/g, "", Template0, Template1),
+    re_replace("<!-- DEEP_MODE_ONLY_END -->"/g, "", Template1, Template),
     format(string(AgentFile), "~w/AGENTS.md", [WorkDir]),
     forall(member(F, [AgentFile]), (
         setup_call_cleanup(
