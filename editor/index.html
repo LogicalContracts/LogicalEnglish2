@@ -801,7 +801,11 @@
                     <label for="together-key">Together API Key:</label>
                     <input type="password" id="together-key" style="width: 100%; background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); padding: 5px; border-radius: 3px;">
                 </div>
-                <p style="font-size: 11px; color: #888; margin: 0;">Keys are stored in your browser's local storage.</p>
+                <div class="control-group" style="flex-direction: column; align-items: flex-start;">
+                    <label for="assistant-max-steps">Assistant Max Steps (1-50):</label>
+                    <input type="number" id="assistant-max-steps" min="1" max="50" value="10" style="width: 100%; background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); padding: 5px; border-radius: 3px;">
+                </div>
+                <p style="font-size: 11px; color: #888; margin: 0;">Keys and preferences are stored in your browser's local storage.</p>
             </div>
             <div class="modal-footer">
                 <button id="api-keys-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
