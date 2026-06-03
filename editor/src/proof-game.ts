@@ -160,7 +160,7 @@ function CustomNode(props: any) {
         },
             isAdultMode ? 'FAIL' : 'STOP',
             React.createElement('div', {
-                style: { position: 'absolute', left: '50%', top: '-10px', transform: 'translateX(-50%)' }
+                style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
             }, React.createElement(RefSocket, {
                 name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
             }))
@@ -212,12 +212,12 @@ function CustomNode(props: any) {
             }, 
                 isAdultMode ? headText : '',
                 React.createElement('div', {
-                    style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
+                    style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
                 }, React.createElement(RefSocket, {
                     name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
                 }))
             ),
-            
+
             bodyCount > 0 && React.createElement('div', {
                 style: { display: 'flex', justifyContent: 'center', gap: '20px', width: '100%', zIndex: 1 }
             }, data.rule.body.map((cond: string, i: number) => {
@@ -237,7 +237,7 @@ function CustomNode(props: any) {
                 }, 
                     isAdultMode ? condText : '',
                     React.createElement('div', {
-                        style: { position: 'absolute', left: '50%', bottom: '-16px', transform: 'translateX(-50%)' }
+                        style: { position: 'absolute', left: '50%', bottom: '0px', transform: 'translate(-50%, 50%)' }
                     }, React.createElement(RefSocket, {
                         name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: `in-${i}`, payload: data.inputs[`in-${i}`]?.socket
                     }))
@@ -298,13 +298,13 @@ function CustomNode(props: any) {
         },
             isAdultMode ? labelText : '',
             data.type === 'fact' && React.createElement('div', {
-                style: { position: 'absolute', left: '50%', top: '-16px', transform: 'translateX(-50%)' }
+                style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
             }, React.createElement(RefSocket, {
                 name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
             })),
-            
+
             data.type === 'query' && React.createElement('div', {
-                style: { position: 'absolute', left: '50%', bottom: '-16px', transform: 'translateX(-50%)' }
+                style: { position: 'absolute', left: '50%', bottom: '0px', transform: 'translate(-50%, 50%)' }
             }, React.createElement(RefSocket, {
                 name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: 'in', payload: data.inputs['in']?.socket
             }))
@@ -312,35 +312,44 @@ function CustomNode(props: any) {
     }
 }
 
+// Size of the (mostly transparent) square that actually receives pointer/touch
+// events. The connection plugin registers this element for hit-testing, so its
+// bounds are the grabbable area of the socket. It is made far larger than the
+// visible dot so a fingertip can reliably grab a connector on touch devices
+// (e.g. iPad); otherwise the touch misses the tiny dot and the node gets
+// dragged instead. The visible dot is centered inside and stays small.
+const SOCKET_HIT_SIZE = 36;
+const SOCKET_DOT_SIZE = 16;
+
 function CustomSocket(props: any) {
     const { data } = props;
     const isQuery = data.name === 'query-socket';
-    
-    if (isQuery) {
-        return React.createElement('div', {
-            style: {
-                width: '16px',
-                height: '16px',
-                background: '#e2b93d',
-                border: '2px solid #fff',
-                transform: 'rotate(45deg)',
-                cursor: 'pointer',
-                boxSizing: 'border-box'
-            }
-        });
-    }
-    
+
+    const dotStyle: any = {
+        width: `${SOCKET_DOT_SIZE}px`,
+        height: `${SOCKET_DOT_SIZE}px`,
+        boxSizing: 'border-box',
+        // The visible dot must not eat the pointer event itself, so the
+        // enlarged parent (the element the connection plugin registered) is the
+        // one hit-tested by document.elementsFromPoint.
+        pointerEvents: 'none',
+        ...(isQuery
+            ? { background: '#e2b93d', border: '2px solid #fff', transform: 'rotate(45deg)' }
+            : { background: '#fff', border: '2px solid #333', borderRadius: '50%' })
+    };
+
     return React.createElement('div', {
         style: {
-            width: '16px',
-            height: '16px',
-            borderRadius: '50%',
-            background: '#fff',
-            border: '2px solid #333',
+            width: `${SOCKET_HIT_SIZE}px`,
+            height: `${SOCKET_HIT_SIZE}px`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             cursor: 'pointer',
-            boxSizing: 'border-box'
+            background: 'transparent',
+            touchAction: 'none'
         }
-    });
+    }, React.createElement('div', { style: dotStyle }));
 }
 
 function CustomConnection(props: any) {
