@@ -96,11 +96,16 @@
             height: calc(100% - 40px);
         }
         
-        /* Smooth node movement */
-        [data-rete-node] {
-            transition: transform 0.5s ease-in-out;
-        }
-        
+        /* NOTE: do NOT add a CSS `transition` on [data-rete-node] transform.
+           Rete computes connection endpoints and socket hit-testing from each
+           node's *assigned* position (nodeView.position), while a CSS transition
+           paints the node at an interpolated transform. While a node is still
+           animating the two disagree, so connection lines float off their
+           sockets and a press on a socket misses (falling through to node-drag
+           instead of starting a connection). Smooth auto-layout movement is
+           done in JS via the auto-arrange TransitionApplier, which keeps
+           nodeView.position in sync. */
+
         .socket {
             width: 16px;
             height: 16px;
