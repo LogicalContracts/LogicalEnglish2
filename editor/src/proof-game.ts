@@ -3,7 +3,7 @@ import { NodeEditor, GetSchemes, ClassicPreset } from 'rete';
 import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
 import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
 import { ReactPlugin, Presets, ReactArea2D } from 'rete-react-plugin';
-import { AutoArrangePlugin, Presets as ArrangePresets } from 'rete-auto-arrange-plugin';
+import { AutoArrangePlugin, Presets as ArrangePresets, ArrangeAppliers } from 'rete-auto-arrange-plugin';
 import { createRoot } from 'react-dom/client';
 
 const { RefSocket, Socket, useConnection } = Presets.classic;
@@ -758,6 +758,15 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     arrange.addPreset(ArrangePresets.classic.setup());
     area.use(arrange);
 
+    // Smooth movement for auto-layout. Unlike a CSS transition on the node
+    // transform, this animates by updating each node's logical position
+    // (nodeView.position) every frame, so connection endpoints and socket
+    // hit-testing stay correct while nodes move.
+    const arrangeApplier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
+        duration: 500,
+        timingFunction: (t) => t
+    });
+
     // Hook into connection events
     editor.addPipe(context => {
         if (context.type === 'connectioncreated' || context.type === 'connectionremoved') {
@@ -828,7 +837,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     }, 100);
 
     document.getElementById('btn-rearrange')?.addEventListener('click', async () => {
-        await arrange.layout();
+        await arrange.layout({ applier: arrangeApplier });
         AreaExtensions.zoomAt(area, editor.getNodes());
     });
 
@@ -949,6 +958,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         const proofConnectionsList = editor.getConnections().filter(c => proofTreeNodes.has(c.source) && proofTreeNodes.has(c.target));
 
         await arrange.layout({
+            applier: arrangeApplier,
             nodes: proofNodesList,
             connections: proofConnectionsList,
             options: {

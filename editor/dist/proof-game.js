@@ -123618,6 +123618,285 @@ var StandardApplier = /* @__PURE__ */ function(_Applier) {
     }()
   }]);
 }(Applier);
+var AnimationSystem = /* @__PURE__ */ function() {
+  function AnimationSystem2() {
+    _classCallCheck(this, AnimationSystem2);
+    _defineProperty(this, "activeAnimations", /* @__PURE__ */ new Map());
+  }
+  return _createClass(AnimationSystem2, [{
+    key: "start",
+    value: function start() {
+      var _this = this;
+      var entries = Array.from(this.activeAnimations.entries());
+      entries.forEach(function(_ref) {
+        var _ref2 = _slicedToArray(_ref, 2), key = _ref2[0], _ref2$ = _ref2[1], startTime = _ref2$.startTime, duration = _ref2$.duration, cb = _ref2$.cb, done = _ref2$.done;
+        var t2 = (Date.now() - startTime) / duration;
+        if (t2 >= 1)
+          t2 = 1;
+        if (t2 < 0 || t2 >= 1) {
+          _this.activeAnimations["delete"](key);
+          if (t2 >= 1) {
+            cb(1);
+            done(true);
+          }
+          return;
+        }
+        cb(t2);
+      });
+      this.frameId = requestAnimationFrame(function() {
+        _this.start();
+      });
+    }
+  }, {
+    key: "add",
+    value: function() {
+      var _add = _asyncToGenerator(/* @__PURE__ */ import_regenerator6.default.mark(function _callee(duration, id, tick) {
+        var _this2 = this;
+        var startTime;
+        return import_regenerator6.default.wrap(function _callee$(_context) {
+          while (1)
+            switch (_context.prev = _context.next) {
+              case 0:
+                startTime = Date.now();
+                return _context.abrupt("return", new Promise(function(done) {
+                  _this2.activeAnimations.set(id, {
+                    startTime,
+                    duration,
+                    cb: function cb(t2) {
+                      return void tick(t2);
+                    },
+                    done
+                  });
+                }));
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+        }, _callee);
+      }));
+      function add(_x, _x2, _x3) {
+        return _add.apply(this, arguments);
+      }
+      return add;
+    }()
+  }, {
+    key: "cancel",
+    value: function cancel(key) {
+      var _this$activeAnimation;
+      (_this$activeAnimation = this.activeAnimations.get(key)) === null || _this$activeAnimation === void 0 ? void 0 : _this$activeAnimation.done(false);
+      this.activeAnimations["delete"](key);
+    }
+  }, {
+    key: "stop",
+    value: function stop() {
+      if (typeof this.frameId !== "undefined")
+        cancelAnimationFrame(this.frameId);
+    }
+  }]);
+}();
+function ownKeys$13(e, r2) {
+  var t2 = Object.keys(e);
+  if (Object.getOwnPropertySymbols) {
+    var o = Object.getOwnPropertySymbols(e);
+    r2 && (o = o.filter(function(r3) {
+      return Object.getOwnPropertyDescriptor(e, r3).enumerable;
+    })), t2.push.apply(t2, o);
+  }
+  return t2;
+}
+function _objectSpread$13(e) {
+  for (var r2 = 1; r2 < arguments.length; r2++) {
+    var t2 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys$13(Object(t2), true).forEach(function(r3) {
+      _defineProperty(e, r3, t2[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys$13(Object(t2)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    });
+  }
+  return e;
+}
+function _callSuper$14(t2, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct$14() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+}
+function _isNativeReflectConstruct$14() {
+  try {
+    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    }));
+  } catch (t3) {
+  }
+  return (_isNativeReflectConstruct$14 = function _isNativeReflectConstruct7() {
+    return !!t2;
+  })();
+}
+function _superPropGet3(t2, e, o, r2) {
+  var p2 = _get(_getPrototypeOf(1 & r2 ? t2.prototype : t2), e, o);
+  return 2 & r2 && "function" == typeof p2 ? function(t3) {
+    return p2.apply(o, t3);
+  } : p2;
+}
+var TransitionApplier = /* @__PURE__ */ function(_StandardApplier) {
+  function TransitionApplier2(props) {
+    var _this;
+    _classCallCheck(this, TransitionApplier2);
+    _this = _callSuper$14(this, TransitionApplier2);
+    _defineProperty(_this, "animation", new AnimationSystem());
+    _this.props = props;
+    _this.duration = typeof (props === null || props === void 0 ? void 0 : props.duration) !== "undefined" ? props.duration : 2e3;
+    _this.timingFunction = typeof (props === null || props === void 0 ? void 0 : props.timingFunction) !== "undefined" ? props.timingFunction : function(t2) {
+      return t2;
+    };
+    _this.animation.start();
+    return _this;
+  }
+  _inherits(TransitionApplier2, _StandardApplier);
+  return _createClass(TransitionApplier2, [{
+    key: "applyTiming",
+    value: function applyTiming(from2, to, t2) {
+      var k2 = this.timingFunction(t2);
+      return from2 * (1 - k2) + to * k2;
+    }
+  }, {
+    key: "resizeNode",
+    value: function() {
+      var _resizeNode = _asyncToGenerator(/* @__PURE__ */ import_regenerator6.default.mark(function _callee(id, width, height) {
+        var _this2 = this;
+        var node2, previous;
+        return import_regenerator6.default.wrap(function _callee$(_context) {
+          while (1)
+            switch (_context.prev = _context.next) {
+              case 0:
+                node2 = this.editor.getNode(id);
+                if (node2) {
+                  _context.next = 3;
+                  break;
+                }
+                return _context.abrupt("return", false);
+              case 3:
+                previous = {
+                  width: node2.width,
+                  height: node2.height
+                };
+                _context.next = 6;
+                return this.animation.add(this.duration, "".concat(id, "_resize"), function(t2) {
+                  var _this2$props;
+                  var currentWidth = _this2.applyTiming(previous.width, width, t2);
+                  var currentHeight = _this2.applyTiming(previous.height, height, t2);
+                  if ((_this2$props = _this2.props) !== null && _this2$props !== void 0 && _this2$props.onTick) {
+                    _this2.props.onTick(t2);
+                  }
+                  return _superPropGet3(TransitionApplier2, "resizeNode", _this2, 3)([id, currentWidth, currentHeight]);
+                });
+              case 6:
+                return _context.abrupt("return", _context.sent);
+              case 7:
+              case "end":
+                return _context.stop();
+            }
+        }, _callee, this);
+      }));
+      function resizeNode(_x, _x2, _x3) {
+        return _resizeNode.apply(this, arguments);
+      }
+      return resizeNode;
+    }()
+  }, {
+    key: "translateNode",
+    value: function() {
+      var _translateNode = _asyncToGenerator(/* @__PURE__ */ import_regenerator6.default.mark(function _callee2(id, x2, y) {
+        var _this3 = this;
+        var view, previous;
+        return import_regenerator6.default.wrap(function _callee2$(_context2) {
+          while (1)
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                view = this.area.nodeViews.get(id);
+                if (view) {
+                  _context2.next = 3;
+                  break;
+                }
+                return _context2.abrupt("return", false);
+              case 3:
+                previous = _objectSpread$13({}, view.position);
+                _context2.next = 6;
+                return this.animation.add(this.duration, "".concat(id, "_translate"), function(t2) {
+                  var _this3$props;
+                  var currentX = _this3.applyTiming(previous.x, x2, t2);
+                  var currentY = _this3.applyTiming(previous.y, y, t2);
+                  if ((_this3$props = _this3.props) !== null && _this3$props !== void 0 && _this3$props.onTick) {
+                    _this3.props.onTick(t2);
+                  }
+                  return _superPropGet3(TransitionApplier2, "translateNode", _this3, 3)([id, currentX, currentY]);
+                });
+              case 6:
+                return _context2.abrupt("return", _context2.sent);
+              case 7:
+              case "end":
+                return _context2.stop();
+            }
+        }, _callee2, this);
+      }));
+      function translateNode(_x4, _x5, _x6) {
+        return _translateNode.apply(this, arguments);
+      }
+      return translateNode;
+    }()
+  }, {
+    key: "cancel",
+    value: function cancel(id) {
+      this.animation.cancel("".concat(id, "_resize"));
+      this.animation.cancel("".concat(id, "_translate"));
+    }
+  }, {
+    key: "apply",
+    value: function() {
+      var _apply = _asyncToGenerator(/* @__PURE__ */ import_regenerator6.default.mark(function _callee3(nodes) {
+        var _this4 = this;
+        var offset, correctNodes, _args3 = arguments;
+        return import_regenerator6.default.wrap(function _callee3$(_context3) {
+          while (1)
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                offset = _args3.length > 1 && _args3[1] !== void 0 ? _args3[1] : {
+                  x: 0,
+                  y: 0
+                };
+                correctNodes = this.getValidShapes(nodes);
+                _context3.next = 4;
+                return Promise.all(correctNodes.map(function(_ref) {
+                  var _this4$props;
+                  var id = _ref.id, x2 = _ref.x, y = _ref.y, width = _ref.width, height = _ref.height, children = _ref.children;
+                  var hasChilden = children === null || children === void 0 ? void 0 : children.length;
+                  var needsLayout = (_this4$props = _this4.props) !== null && _this4$props !== void 0 && _this4$props.needsLayout ? _this4.props.needsLayout(id) : true;
+                  var forceSelf = !hasChilden || needsLayout;
+                  return Promise.all([hasChilden && _this4.apply(children, {
+                    x: offset.x + x2,
+                    y: offset.y + y
+                  }), forceSelf && _this4.resizeNode(id, width, height), forceSelf && _this4.translateNode(id, offset.x + x2, offset.y + y)]);
+                }));
+              case 4:
+              case "end":
+                return _context3.stop();
+            }
+        }, _callee3, this);
+      }));
+      function apply(_x7) {
+        return _apply.apply(this, arguments);
+      }
+      return apply;
+    }()
+  }, {
+    key: "destroy",
+    value: function destroy() {
+      this.animation.stop();
+    }
+  }]);
+}(StandardApplier);
+var index$22 = /* @__PURE__ */ Object.freeze({
+  __proto__: null,
+  Applier,
+  StandardApplier,
+  TransitionApplier
+});
 var setup3 = function setup4(props) {
   return function() {
     return {
@@ -124721,6 +125000,10 @@ async function initProofGame(container, gameData) {
   const arrange = new AutoArrangePlugin();
   arrange.addPreset(index4.classic.setup());
   area.use(arrange);
+  const arrangeApplier = new index$22.TransitionApplier({
+    duration: 500,
+    timingFunction: (t2) => t2
+  });
   editor.addPipe((context) => {
     if (context.type === "connectioncreated" || context.type === "connectionremoved") {
       updateUnification();
@@ -124774,7 +125057,7 @@ async function initProofGame(container, gameData) {
     index.zoomAt(area, editor.getNodes());
   }, 100);
   document.getElementById("btn-rearrange")?.addEventListener("click", async () => {
-    await arrange.layout();
+    await arrange.layout({ applier: arrangeApplier });
     index.zoomAt(area, editor.getNodes());
   });
   document.getElementById("btn-zoom-in")?.addEventListener("click", () => {
@@ -124872,6 +125155,7 @@ async function initProofGame(container, gameData) {
     const proofNodesList = Array.from(proofTreeNodes).map((id) => editor.getNode(id));
     const proofConnectionsList = editor.getConnections().filter((c2) => proofTreeNodes.has(c2.source) && proofTreeNodes.has(c2.target));
     await arrange.layout({
+      applier: arrangeApplier,
       nodes: proofNodesList,
       connections: proofConnectionsList,
       options: {
