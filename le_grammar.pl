@@ -1654,12 +1654,42 @@ is_forall(Tokens) :-
     ;   Atoms = [and, for, all, cases, in, which]
     ).
 
-split_forall_children([], [], []).
-split_forall_children([node(_, Tokens, Children)|Rest], [], Consequences) :-
+% Split the children of a "for all cases in which" node into the condition
+% nodes and the consequence nodes, divided by the "it is the case that" marker.
+split_forall_children(Children, CondNodes, ConsNodes) :-
+    (   has_direct_marker(Children)
+    ->  split_forall_children_direct(Children, CondNodes, ConsNodes)
+    ;   % The "it is the case that" marker is not a direct child of the forall.
+        % This happens with inconsistent indentation (e.g. tabs mixed with
+        % spaces): when the marker line is indented more deeply than its
+        % condition, the hierarchy builder nests the marker and the
+        % consequences under the last condition instead of as siblings of it.
+        % Recover by flattening the forall subtree into document order and
+        % splitting at the marker.
+        flatten_forall_nodes(Children, Flat),
+        split_forall_children_direct(Flat, CondNodes, ConsNodes)
+    ).
+
+has_direct_marker(Children) :-
+    member(node(_, Tokens, _), Children),
+    is_it_the_case(Tokens), !.
+
+split_forall_children_direct([], [], []).
+split_forall_children_direct([node(_, Tokens, Children)|Rest], [], Consequences) :-
     is_it_the_case(Tokens), !,
     ( Children == [] -> Consequences = Rest; Consequences = Children).
-split_forall_children([Node|Rest], [Node|Conds], Cons) :-
-    split_forall_children(Rest, Conds, Cons).
+split_forall_children_direct([Node|Rest], [Node|Conds], Cons) :-
+    split_forall_children_direct(Rest, Conds, Cons).
+
+% Flatten a node hierarchy into a flat sibling list in document order, dropping
+% the nesting (each node keeps its tokens but no children). Used to recover the
+% intended condition/consequence sequence of a forall when bad indentation has
+% mis-nested it.
+flatten_forall_nodes([], []).
+flatten_forall_nodes([node(N, Tokens, Children)|Rest], Flat) :-
+    flatten_forall_nodes(Children, FlatChildren),
+    flatten_forall_nodes(Rest, FlatRest),
+    append([node(N, Tokens, [])|FlatChildren], FlatRest, Flat).
 
 is_it_the_case(Tokens) :-
     maplist(extract_word_atom, Tokens, Atoms),
