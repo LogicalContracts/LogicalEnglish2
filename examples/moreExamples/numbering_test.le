@@ -15,9 +15,11 @@ the predicates are:
     *a person* is rich.
     *a person* is famous.
     *a person* is successful.
-    *an entity* must register for GST. 
-    *an entity* has *a turnover*. 
-    *an entity* projected turnover is *a projection*. 
+    *an entity* must register for GST.
+    *an entity* has *a turnover*.
+    *an entity* projected turnover is *a projection*.
+    *a rule* is annexed.
+    *a person* is grand.
 
 the knowledge base numbering_test includes:
     rule eligibility:
@@ -73,6 +75,14 @@ an entity must register for GST if:
             the person is rich
             the person is successful.
 
+    a rule is annexed if
+        prolog (le_my_kb(KB), KB:le_source_section(annexes, the rule)).
+
+    the annexes to the contract are:
+
+    rule vip:
+    a person is grand if the person is rich.
+
 scenario test is:
     one expects answers [
         "eligibility has designator 1", 
@@ -120,6 +130,9 @@ scenario test_gst is:
     SmallCharity projected turnover is 160000.
     four expects answers ["Charity must register for GST", "SmallCharity must register for GST"].
 
+scenario test_section is:
+    five expects answers ["vip is annexed"].
+
 query one is:
     *a rule* has designator *the designator*.
 
@@ -131,3 +144,6 @@ query three is:
 
 query four is:
     which entity must register for GST.
+
+query five is:
+    which rule is annexed.

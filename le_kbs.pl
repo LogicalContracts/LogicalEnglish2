@@ -142,6 +142,12 @@ edit(LEfilePath) :-
 %   Gets or sets the current rule counter for generating IDs.
 :- thread_local rule_counter/1.
 
+%!  current_section(-Name:atom) is det.
+%
+%   The section that rules are currently being assigned to while processing a
+%   knowledge base. Defaults to 'main' and is changed by section markers.
+:- thread_local current_section/1.
+
 
 %!  load(+FilePath:atom, -Module:atom) is det.
 %
@@ -219,6 +225,8 @@ process_section(S, M) :-
     ( do_log -> print_message(informational,'Processing section: ~w' - [S]); true),
     retractall(rule_counter(_)),
     assertz(rule_counter(1)),
+    retractall(current_section(_)),
+    assertz(current_section(main)),
     (process_section_acc(S, M) -> true ; writeln(user_error, failed_section(S)), fail).
 
 process_section_acc(kb(Name, Content, Start, End), M) :-
@@ -353,15 +361,25 @@ assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
 assert_dict_with_source(dict(FA, NTs, WV), M) :-
     assertz(M:le_dict(dict(FA, NTs, WV, [], _, _, _))).
 
+% A section marker switches the section that subsequent rules are recorded under.
+process_item(section_marker(Name, _Start, _End), _M) :-
+    retractall(current_section(_)),
+    assertz(current_section(Name)).
+
 process_item(clause(Head, Body, Start, End, ID), M) :-
-    ( var(ID) -> 
+    ( var(ID) ->
         format(atom(ActualID), 'rule_~w', [Start])
     ; ActualID = ID
     ),
     ( Body == true -> Clause = Head; Clause = (Head :- Body)),
     functor(Head, F, N),
     dynamic(M:F/N),
-    ( clause(M:Head, Body) -> true; assertz(M:Clause, Ref), assertz(M:le_source_info(Ref, Start, End, ActualID))).
+    ( current_section(Section) -> true ; Section = main ),
+    ( clause(M:Head, Body) -> true
+    ; assertz(M:Clause, Ref),
+      assertz(M:le_source_info(Ref, Start, End, ActualID)),
+      assertz(M:le_source_section(Section, ActualID))
+    ).
 
 %!  le_my_id(-ID:atom) is det.
 %
@@ -872,6 +890,7 @@ parse_custom_query(KB, Text, Goal) :-
 %
 %   True if Pred is a system-defined predicate used by the LE engine.
 is_system_predicate(le_source_element/3).
+is_system_predicate(le_source_section/2).
 is_system_predicate(le_kb/1).
 is_system_predicate(le_source_info/4).
 is_system_predicate(scenario/2).

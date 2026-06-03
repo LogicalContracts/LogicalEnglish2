@@ -320,6 +320,21 @@ get_item_end(Item, End) :-
 kb_items([I|Is]) --> \+ next_section_start, kb_item(I), !, kb_items(Is).
 kb_items([]) --> [].
 
+% kb_item(section_marker(Name, Start, End)) divides the rules of a knowledge
+% base into named sections. Every rule that follows the marker belongs to
+% section Name until the next marker (recorded via le_source_section/2). Rules
+% before any marker, or in a KB with no markers, belong to section 'main'.
+kb_item(section_marker(Name, Start, End)) -->
+    t(word(section, loc(Start, _))), section_name_tokens(Tokens), { Tokens \== [] },
+    t(word(is)), t(punctuation(':', loc(_, End))),
+    { reconstruct_name(Tokens, Name) }.
+% Shorthand for "section annexes is:": "the annexes to the contract are:"
+% (synonym: "the annexes to the knowledge base are:").
+kb_item(section_marker(annexes, Start, End)) -->
+    t(word(the, loc(Start, _))), t(word(annexes)), t(word(to)), t(word(the)),
+    ( t(word(contract)) ; t(word(knowledge)), t(word(base)) ),
+    t(word(are)), t(punctuation(':', loc(_, End))).
+
 % kb_item(expected(QueryName, Answers, Unknowns, Start, End)) parses "QueryName expects answers [Answers] and unknowns [Unknowns]."
 kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
     query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
@@ -1035,13 +1050,20 @@ get_dicts(_, []).
 second_pass_section(Templates, M, kb(Name, Content, Start, End), kb(Name, NewContent, Start, End)) :-
     second_pass_content(Content, Templates, NewContent, M).
 second_pass_section(_, _, unknown_section(Tokens, Start, End), unknown_section(Tokens, Start, End)).
+% Section markers are only meaningful in knowledge base sections; strip any that
+% appear in ontology/scenario/query content (they share kb_content with the KB).
 second_pass_section(Templates, M, ontology(Content, Start, End), ontology(NewContent, Start, End)) :-
-    maplist(second_pass_ontology_item_with_module(Templates, M), Content, NewContent).
+    exclude(is_section_marker, Content, Content1),
+    maplist(second_pass_ontology_item_with_module(Templates, M), Content1, NewContent).
 second_pass_section(Templates, M, scenario(Name, Content, Start, End), scenario(Name, NewContent, Start, End)) :-
-    maplist(second_pass_scenario_item_with_module(Templates, M), Content, NewContent).
+    exclude(is_section_marker, Content, Content1),
+    maplist(second_pass_scenario_item_with_module(Templates, M), Content1, NewContent).
 second_pass_section(Templates, M, query(Name, Content, Start, End), query(Name, NewContent, Start, End)) :-
-    maplist(second_pass_query_item_with_module(Templates, M), Content, NewContent).
+    exclude(is_section_marker, Content, Content1),
+    maplist(second_pass_query_item_with_module(Templates, M), Content1, NewContent).
 second_pass_section(_, _, S, S). % Keep other sections as is
+
+is_section_marker(section_marker(_, _, _)).
 
 second_pass_ontology_item_with_module(Templates, M, Item, NewItem) :-
     second_pass_ontology_item(Templates, Item, NewItem, M).
@@ -1062,7 +1084,7 @@ second_pass_item_with_module(Templates, M, Item, NewItem) :-
     ).
 
 second_pass_item(Templates, rule(Head, only_if(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     (   parse_literal(Head, Templates, [], VM1, HeadLiteral, _, true) ->
         % Find the opposite of HeadLiteral
         functor(HeadLiteral, F, A),
@@ -1097,7 +1119,7 @@ second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, I
     ).
 
 second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
         (   le_extensions:parse_numbered_body(BodyTokens, Templates, VM1, VMOut, Body0, ActualID, M) ->  
             collect_extra_goals(VMOut, ExtraGoals),
@@ -1111,7 +1133,7 @@ second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End
     ).
 
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
     (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
         (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->  
@@ -1128,8 +1150,12 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clau
         ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
     ).
 
+% Section markers carry no logic; keep them as-is so KB processing can pick up
+% the current section for the rules that follow (see process_item/2).
+second_pass_item(_Templates, section_marker(Name, Start, End), section_marker(Name, Start, End), _M).
+
 second_pass_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]),
+    format(atom(ActualID), 'rule_~w', [Start]),
     (   parse_literal(Head, Templates, [], VMOut, Literal, _, true) ->  
         NewHead = le_unknown(Literal),
         collect_extra_goals(VMOut, ExtraGoals),
@@ -1140,7 +1166,7 @@ second_pass_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewB
     ).
 
 second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]),
+    format(atom(ActualID), 'rule_~w', [Start]),
     (   parse_literal(Head, Templates, [], VMOut, NewHead, _, true) ->  
         collect_extra_goals(VMOut, ExtraGoals),
         ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
@@ -1214,7 +1240,7 @@ second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, New
     ;   NewHead = unknown_template(Head, Start, End), NewBody = true
     ).
 second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, VMOut4, Body0),
         collect_extra_goals(VMOut4, ExtraGoals),
@@ -1229,7 +1255,7 @@ second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
     ).
 
 second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, VMOut6, Body0),
         collect_extra_goals(VMOut6, ExtraGoals),
@@ -1312,7 +1338,7 @@ second_pass_query_item(Templates, fact(Head, Start, End), query_clause(NewHead, 
         ; NewHead = unknown_template(Head, Start, End), Instance = Head).
 
 second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), query_clause(NewHead, Head, BodyTokens, Instance, Indent, Start, End, ActualID), _M) :-
-    (var(ID) -> (le_kbs:rule_counter(C) -> true ; C = 1), format(atom(ActualID), 'rule_~w', [C]) ; ActualID = ID),
+    (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead0, Instance, true) -> 
         parse_body(BodyTokens, Indent, Templates, VM1, VMOut10, Body0),
         collect_extra_goals(VMOut10, ExtraGoals),

@@ -342,10 +342,14 @@ is_built_in(le_is_days_after(_, _, _)).
 is_built_in(le_is_in(_, _)).
 is_built_in(equal_to(_, _)).
 
-call_reasoner_built_in(prolog_call(G), SM) :- !, 
-    (   compound(G), G = M:Goal -> M:call(Goal)
-    ;   catch(SM:call(G), _, fail)
-    ;   catch(le_kbs:call(G), _, fail)
+call_reasoner_built_in(prolog_call(G), SM) :- !,
+    % Resolve the goal in the first module context that yields a solution and
+    % commit to it (soft-cut), so we don't re-enumerate the same solutions in
+    % each fallback context (which would return duplicate answers).
+    (   compound(G), G = M:Goal
+    ->  M:call(Goal)
+    ;   catch(SM:call(G), _, fail) *-> true
+    ;   catch(le_kbs:call(G), _, fail) *-> true
     ;   SM:call(G)
     ).
 call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).
