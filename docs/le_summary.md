@@ -2,6 +2,22 @@
 
 This document provides a summary of the Logical English constructs supported by the parser in `le_grammar.pl`.
 
+## Table of Contents
+1. [Document Sections](#1-document-sections)
+2. [Templates](#2-templates)
+3. [Rules and Facts](#3-rules-and-facts)
+4. [Logical Operators](#4-logical-operators)
+5. [Aggregates](#5-aggregates)
+6. [Variables and Constants](#6-variables-and-constants)
+7. [Arithmetic and Comparisons](#7-arithmetic-and-comparisons)
+8. [Taxonomy (Ontology)](#8-taxonomy-ontology)
+9. [Ignorable Words](#9-ignorable-words)
+10. [Comments](#10-comments)
+11. [Meta-Templates](#11-meta-templates)
+12. [Testing and Expectations](#12-testing-and-expectations)
+13. [System Predicates](#13-system-predicates)
+14. [Included Resources](#14-included-resources)
+
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
 
