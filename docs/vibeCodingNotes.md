@@ -577,7 +577,7 @@ The LE Assistant is described in @docs/le_assistant.md. We need an alternative, 
 
 For now do not implement this, just write a docs/le_assistant_light.md describing the new assistant and its elements; this is to use the same chat UI as the current assistant (just with a checkbox to select "Light" vs "Deep").
 
-#### Gemini 3.5 response:
+#### Gemini 3.5 over optimistic response:
 Summary of Changes
 1. Shared In-Process Tools (le_tools.pl):
 - Created a new module le_tools.pl containing shared, in-process implementations of le_tool_verify/2 and le_tool_query/2.
@@ -596,6 +596,8 @@ Summary of Changes
 - Added a Light Mode checkbox toggle to the top of the Assistant panel.
 - Persisted the toggle state in localStorage (le-assistant-mode).
 - Included the mode field in the assistant_command request body.
+
+*(some debugging followed)*
 
 ## 3 features...
 Please implement the following 3 featurfes, in sequence:
@@ -1260,6 +1262,23 @@ ERROR: In:
 ERROR:   [69] _84072 is 180*86400+date(2026,3,3)
 ERROR:   [66] reasoner:solve_real_actual(le_is_days_after(_84142,180,date(2026,3,3)),'sff330352-5a70-11f1-a144-6763a902a272',m3a501f4e48a26c0911dd7757bcce70362a1c3531,[is_within_6_months_of(...,...),...],2,10,_84136,[success(...,_84184,_84186)]) at /Users/mc/git/LogicalEnglish2/reasoner.pl:177
 ...
+
+## Sections
+Let's now add a simple syntax to let a LE knowledge base (the rules part) be (optionally) split into sections:
+
+    section MySection is:   
+
+...meaning that all rules after this will belong to section MySection - until another "section S is:" instruction is found
+
+We should add a complement to the le_source_element(RuleID, Designator, Goal) predicate , a new predicate le_source_section(SectionName, RuleID).
+
+Some conventions will be followed:
+- If there are no "section S is:" instructions, all rules belong to the default section 'main'
+- All rules until the first "section S is:" instruction belong to section 'main'
+- We need a specific syntactic construct to denote a frequently used section: "the annexes to the contract are:", which is shorthand for "section annexes is:", also accept the synonym "the annexes to the knowledge base are:"
+
+Please implement parser changes, the new le_source_section/2 predicate, and extend example numbering_test.le to include a simple use and verification of "the annexes to the contract are:" construct.
+
 
 
 ##

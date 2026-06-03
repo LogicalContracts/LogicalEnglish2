@@ -60,6 +60,35 @@ A prepositional template is a binary template that **starts with an argument** a
 - **Unknown Fact:** A statement declaring that a specific instance of a template is unknown. These can appear in the knowledge base (applying to all scenarios) or within a specific `scenario` section.
   - `it is unknown whether *a payment* is in respect of claim 01.` (This binds the second argument to 'claim 01' and leaves the first argument unbound). The synonyms `it is assumed whether ...` and `it is assumable whether ...` are also accepted.
 
+### 3.1 Rule Sections
+The rules of a knowledge base can optionally be grouped into named **sections**. A section marker is a line of the form:
+```le
+section <name> is:
+```
+Every rule (or fact) that follows the marker belongs to section `<name>`, until the next marker. The mapping from section name to rule is recorded in `le_source_section/2` (see §13) and does not change how rules behave during reasoning — it is metadata.
+
+Conventions:
+- If a knowledge base has no section markers, all of its rules belong to the default section **`main`**.
+- Rules appearing before the first section marker also belong to **`main`**.
+
+There is a shorthand for a commonly used section named `annexes`:
+```le
+the annexes to the contract are:
+```
+which is exactly equivalent to `section annexes is:`. The synonym `the annexes to the knowledge base are:` is also accepted.
+
+Example:
+```le
+the knowledge base example includes:
+
+a customer is preferred if the customer is loyal.   % belongs to section 'main'
+
+the annexes to the contract are:
+
+rule extra:
+a customer is loyal if the customer is old.         % belongs to section 'annexes'
+```
+
 ## 4. Logical Operators
 - **And:** `and` (or new line with same indentation)
 - **Or:** `or`, `either`, `any of`, `all of`
@@ -161,6 +190,7 @@ Logical English provides several system predicates that can be accessed via the 
 - **`le_type(Type)`**: True if `Type` is a known type defined in the ontology or templates.
 - **`is_a(Subtype, Supertype)`**: True if `Subtype` is a descendant of `Supertype` in the taxonomy.
 - **`le_source_element(RuleID, Designator, Goal)`**: Maps hierarchical designators (e.g., `1.1.a`) to their corresponding goals within a numbered rule.
+- **`le_source_section(SectionName, RuleID)`**: Maps each rule to the section it belongs to (see §3.1). Rules with no enclosing section marker are mapped to `main`.
 - **`le_source_info(Ref, Start, End, ID)`**: Provides source file location (start/end character offsets) and ID for a given clause reference.
 - **`le_issue(Severity, Type, Description, Fix, Start, End)`**: Represents a parsing or verification issue (error or warning).
 - **`le_dict(dict(FunctorArgs, NamedTypes, WordsAndVars))`**: Stores the internal representation of a template.
