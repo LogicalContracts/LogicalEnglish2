@@ -1,0 +1,41 @@
+the target language is: prolog.
+
+the templates are:
+*a creature* smokes.
+*a creature* is a parent of *a dragon*.
+*a creature* is healthy.
+*a creature* is happy.
+*a creature* is a dragon.
+*a collection* is a bag of *a thing* that *a condition*.
+
+the knowledge base happpy_dragon includes:
+
+a creature smokes if 
+an other creature is a parent of the creature
+and the other creature is a dragon
+and the other creature smokes.
+
+A creature is healthy 
+    if the creature is a dragon
+    and it is not the case that
+	the creature smokes.
+
+A creature is happy 	
+    if the creature is a dragon
+    and for all cases in which 
+	    the creature is a parent of an other creature
+		it is the case that 
+		the other creature is healthy.
+
+scenario smoky is:
+	bob is a dragon.
+	alice is a dragon.
+	alice is a parent of bob.
+	happy expects answers ["bob is happy","alice is happy"].
+	healthy expects answers ["bob is healthy","alice is healthy"].
+    
+query happy is:
+	which dragon is happy.
+
+query healthy is:
+	which dragon is healthy.

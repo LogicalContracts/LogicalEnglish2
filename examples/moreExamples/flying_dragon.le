@@ -1,0 +1,38 @@
+the target language is: prolog.
+
+the templates are:
+*a creature* flies.
+*a creature* is a parent of *a dragon*.
+*a creature* is happy.
+*a creature* is green.
+
+the knowledge base flying_dragon includes:
+
+a dragon flies if 
+an other dragon is a parent of the dragon
+and the other dragon flies
+and the other dragon is green.
+
+
+A dragon is happy 	
+    if for all cases in which 
+	    the dragon is a parent of an other dragon
+		it is the case that 
+		the other dragon can fly.
+
+scenario colourless is:
+	bob is a dragon.
+	alice is a dragon.
+	alice is a parent of bob.
+
+scenario green is:
+	bob is a dragon.
+	alice is a dragon.
+	alice is a parent of bob.
+	alice is green.
+    
+query happy is:
+	which creature is happy.
+
+query green is:
+	which creature is green.
