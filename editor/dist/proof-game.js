@@ -124410,6 +124410,7 @@ function CustomNode(props) {
       React2.createElement("div", {
         style: { position: "absolute", left: "50%", top: "0px", transform: "translate(-50%, -50%)" }
       }, React2.createElement(RefSocket2, {
+        style: SOCKET_HIT_STYLE,
         name: "output-socket",
         emit,
         side: "output",
@@ -124467,6 +124468,7 @@ function CustomNode(props) {
         React2.createElement("div", {
           style: { position: "absolute", left: "50%", top: "0px", transform: "translate(-50%, -50%)" }
         }, React2.createElement(RefSocket2, {
+          style: SOCKET_HIT_STYLE,
           name: "output-socket",
           emit,
           side: "output",
@@ -124503,6 +124505,7 @@ function CustomNode(props) {
           React2.createElement("div", {
             style: { position: "absolute", left: "50%", bottom: "0px", transform: "translate(-50%, 50%)" }
           }, React2.createElement(RefSocket2, {
+            style: SOCKET_HIT_STYLE,
             name: "input-socket",
             emit,
             side: "input",
@@ -124576,6 +124579,7 @@ function CustomNode(props) {
       data.type === "fact" && React2.createElement("div", {
         style: { position: "absolute", left: "50%", top: "0px", transform: "translate(-50%, -50%)" }
       }, React2.createElement(RefSocket2, {
+        style: SOCKET_HIT_STYLE,
         name: "output-socket",
         emit,
         side: "output",
@@ -124586,6 +124590,7 @@ function CustomNode(props) {
       data.type === "query" && React2.createElement("div", {
         style: { position: "absolute", left: "50%", bottom: "0px", transform: "translate(-50%, 50%)" }
       }, React2.createElement(RefSocket2, {
+        style: SOCKET_HIT_STYLE,
         name: "input-socket",
         emit,
         side: "input",
@@ -124596,33 +124601,29 @@ function CustomNode(props) {
     );
   }
 }
-var SOCKET_HIT_SIZE = 36;
+var SOCKET_HIT_SIZE = 40;
 var SOCKET_DOT_SIZE = 16;
+var SOCKET_HIT_STYLE = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  width: `${SOCKET_HIT_SIZE}px`,
+  height: `${SOCKET_HIT_SIZE}px`,
+  cursor: "pointer",
+  touchAction: "none"
+};
 function CustomSocket(props) {
   const { data } = props;
   const isQuery = data.name === "query-socket";
-  const dotStyle = {
-    width: `${SOCKET_DOT_SIZE}px`,
-    height: `${SOCKET_DOT_SIZE}px`,
-    boxSizing: "border-box",
-    // The visible dot must not eat the pointer event itself, so the
-    // enlarged parent (the element the connection plugin registered) is the
-    // one hit-tested by document.elementsFromPoint.
-    pointerEvents: "none",
-    ...isQuery ? { background: "#e2b93d", border: "2px solid #fff", transform: "rotate(45deg)" } : { background: "#fff", border: "2px solid #333", borderRadius: "50%" }
-  };
   return React2.createElement("div", {
     style: {
-      width: `${SOCKET_HIT_SIZE}px`,
-      height: `${SOCKET_HIT_SIZE}px`,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      cursor: "pointer",
-      background: "transparent",
-      touchAction: "none"
+      width: `${SOCKET_DOT_SIZE}px`,
+      height: `${SOCKET_DOT_SIZE}px`,
+      boxSizing: "border-box",
+      pointerEvents: "none",
+      ...isQuery ? { background: "#e2b93d", border: "2px solid #fff", transform: "rotate(45deg)" } : { background: "#fff", border: "2px solid #333", borderRadius: "50%" }
     }
-  }, React2.createElement("div", { style: dotStyle }));
+  });
 }
 function CustomConnection(props) {
   const { start, end, path: defaultPath } = useConnection2();
