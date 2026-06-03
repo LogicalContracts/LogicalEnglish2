@@ -694,10 +694,18 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         flatten([ResultName, is, the, average, of, each, VarName, such, that], WordsAndVars)
     ;   Head = not(Goal) -> 
         ( item_to_instance(KBmodule, Goal, GoalLE) -> WordsAndVars = [it, is, not, the, case, that | GoalLE]; WordsAndVars = [it, is, not, the, case, that, Goal])
-    ;   Head = forall(Cond, Cons) -> 
-        ( item_to_instance(KBmodule, Cond, CondLE), item_to_instance(KBmodule, Cons, ConsLE) -> 
+    ;   Head = forall(Cond, Cons) ->
+        ( item_to_instance(KBmodule, Cond, CondLE), item_to_instance(KBmodule, Cons, ConsLE) ->
             append([for, all, cases, in, which | CondLE], [it, is, the, case, that | ConsLE], WordsAndVars)
         ; WordsAndVars = [for, all, cases, in, which, Cond, it, is, the, case, that, Cons])
+    ;   % Pseudo-goals used by the reasoner to render a forall explanation as a
+        % nested branch (see solve_real_actual/8 for forall in reasoner.pl).
+        Head = for_all_cases(Cond) ->
+        ( item_to_instance(KBmodule, Cond, CondLE) ->
+            WordsAndVars = [for, all, cases, in, which | CondLE]
+        ; WordsAndVars = [for, all, cases, in, which, Cond])
+    ;   Head == it_is_the_case ->
+        WordsAndVars = [it, is, the, case, that]
     ;   Head = and(A, B) -> 
         ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) -> 
             append(ALE, [and | BLE], WordsAndVars)
