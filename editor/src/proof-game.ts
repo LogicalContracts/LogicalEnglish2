@@ -162,7 +162,7 @@ function CustomNode(props: any) {
             React.createElement('div', {
                 style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
             }, React.createElement(RefSocket, {
-                name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
+                style: SOCKET_HIT_STYLE, name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
             }))
         );
     }
@@ -214,7 +214,7 @@ function CustomNode(props: any) {
                 React.createElement('div', {
                     style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
                 }, React.createElement(RefSocket, {
-                    name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
+                    style: SOCKET_HIT_STYLE, name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
                 }))
             ),
 
@@ -239,7 +239,7 @@ function CustomNode(props: any) {
                     React.createElement('div', {
                         style: { position: 'absolute', left: '50%', bottom: '0px', transform: 'translate(-50%, 50%)' }
                     }, React.createElement(RefSocket, {
-                        name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: `in-${i}`, payload: data.inputs[`in-${i}`]?.socket
+                        style: SOCKET_HIT_STYLE, name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: `in-${i}`, payload: data.inputs[`in-${i}`]?.socket
                     }))
                 );
             })),
@@ -300,56 +300,60 @@ function CustomNode(props: any) {
             data.type === 'fact' && React.createElement('div', {
                 style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
             }, React.createElement(RefSocket, {
-                name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
+                style: SOCKET_HIT_STYLE, name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
             })),
 
             data.type === 'query' && React.createElement('div', {
                 style: { position: 'absolute', left: '50%', bottom: '0px', transform: 'translate(-50%, 50%)' }
             }, React.createElement(RefSocket, {
-                name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: 'in', payload: data.inputs['in']?.socket
+                style: SOCKET_HIT_STYLE, name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: 'in', payload: data.inputs['in']?.socket
             }))
         );
     }
 }
 
 // Size of the (mostly transparent) square that actually receives pointer/touch
-// events. The connection plugin registers this element for hit-testing, so its
-// bounds are the grabbable area of the socket. It is made far larger than the
-// visible dot so a fingertip can reliably grab a connector on touch devices
-// (e.g. iPad); otherwise the touch misses the tiny dot and the node gets
-// dragged instead. The visible dot is centered inside and stays small.
-const SOCKET_HIT_SIZE = 36;
+// events, and the size of the visible dot centered inside it.
+//
+// IMPORTANT: the element the connection plugin registers for hit-testing is the
+// <span> that rete-react-plugin's RefSocket/RefComponent renders (it caches that
+// span and matches it against document.elementsFromPoint). A <span> is
+// display:inline and shrink-wraps, so enlarging an inner div does NOT enlarge
+// the grabbable area. We therefore size the span itself via SOCKET_HIT_STYLE,
+// which RefSocket forwards onto the span as `style`. The big square lets a
+// fingertip grab a connector on touch devices (iPad); without it the touch
+// misses the tiny span and the whole block gets dragged/selected instead.
+const SOCKET_HIT_SIZE = 40;
 const SOCKET_DOT_SIZE = 16;
+
+// Forwarded by RefSocket onto its <span> (the registered, hit-tested element).
+const SOCKET_HIT_STYLE = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: `${SOCKET_HIT_SIZE}px`,
+    height: `${SOCKET_HIT_SIZE}px`,
+    cursor: 'pointer',
+    touchAction: 'none'
+};
 
 function CustomSocket(props: any) {
     const { data } = props;
     const isQuery = data.name === 'query-socket';
 
-    const dotStyle: any = {
-        width: `${SOCKET_DOT_SIZE}px`,
-        height: `${SOCKET_DOT_SIZE}px`,
-        boxSizing: 'border-box',
-        // The visible dot must not eat the pointer event itself, so the
-        // enlarged parent (the element the connection plugin registered) is the
-        // one hit-tested by document.elementsFromPoint.
-        pointerEvents: 'none',
-        ...(isQuery
-            ? { background: '#e2b93d', border: '2px solid #fff', transform: 'rotate(45deg)' }
-            : { background: '#fff', border: '2px solid #333', borderRadius: '50%' })
-    };
-
+    // Only the small visible dot; it must not eat the pointer event, so the
+    // registered <span> parent is what document.elementsFromPoint returns.
     return React.createElement('div', {
         style: {
-            width: `${SOCKET_HIT_SIZE}px`,
-            height: `${SOCKET_HIT_SIZE}px`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            background: 'transparent',
-            touchAction: 'none'
+            width: `${SOCKET_DOT_SIZE}px`,
+            height: `${SOCKET_DOT_SIZE}px`,
+            boxSizing: 'border-box',
+            pointerEvents: 'none',
+            ...(isQuery
+                ? { background: '#e2b93d', border: '2px solid #fff', transform: 'rotate(45deg)' }
+                : { background: '#fff', border: '2px solid #333', borderRadius: '50%' })
         }
-    }, React.createElement('div', { style: dotStyle }));
+    });
 }
 
 function CustomConnection(props: any) {
