@@ -419,6 +419,22 @@ handle_load(Dict, Response) :-
         fail
     ).
 
+%!  valid_session(+SM:atom) is semidet.
+%
+%   True if SM is still a live reasoning session (it may have been reclaimed by
+%   the idle-session reaper after a long period of inactivity).
+valid_session(SM) :-
+    atom(SM),
+    current_module(SM),
+    current_predicate(SM:le_kb_module_fact/1),
+    SM:le_kb_module_fact(_).
+
+% If the session has been reclaimed, tell the client so it can transparently
+% reload and retry, rather than returning a confusing empty/error result.
+handle_answering_query(Dict, _{error: "Session expired", session_expired: true}) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    \+ valid_session(SM), !.
 handle_answering_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
@@ -481,6 +497,10 @@ run_answering_query(SM, Query, KB, Response) :-
         )
     ).
 
+handle_get_game_data(Dict, _{error: "Session expired", session_expired: true}) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    \+ valid_session(SM), !.
 handle_get_game_data(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
