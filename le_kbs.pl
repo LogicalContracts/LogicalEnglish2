@@ -5,8 +5,8 @@
     about loaded KBs. It acts as the main interface for managing LE programs.
 */
 
-:- module(le_kbs, [load/2, load_text/2, createSession/2, 
-    addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, 
+:- module(le_kbs, [load/2, load_text/2, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
+    addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4,
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
@@ -57,7 +57,7 @@ is_a_hierarchy(KBmodule, Hierarchy) :-
             Sub \== Type,
             once(reasoner:i(is_a(Sub, Type), TempSession, [], _))
         ), ValidISAs),
-        clearSession(TempSession)
+        destroySession(TempSession)
     ),
     % 3. Filter for direct edges (those with a source)
     findall(edge(Sub, Type, Start, End), (
@@ -179,9 +179,12 @@ load_text_sync(NewModule, Text) :-
     load_common_sync(NewModule, parse_le_text(Text, doc(Sections), NewModule), Sections, "Parsing failed. Check for malformed sections or characters.").
 
 load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg) :-
-    (   current_module(NewModule), 
-        current_predicate(NewModule:le_source_info/4), 
-        \+ current_predicate(NewModule:le_issue/6)
+    (   current_module(NewModule),
+        current_predicate(NewModule:le_source_info/4),
+        % Already built and error-free: reuse it. (Checking for the *clause* — not
+        % just the predicate, which is always declared dynamic — so a clean KB is
+        % actually cached instead of being reparsed and re-verified every load.)
+        \+ ( current_predicate(NewModule:le_issue/6), NewModule:le_issue(error, _, _, _, _, _) )
     ->  true
     ;   % Ensure we start with a clean module
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
@@ -431,7 +434,8 @@ createSession(KBmodule, SessionModule) :-
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
-    dynamic(SessionModule:le_source_info/4).
+    dynamic(SessionModule:le_source_info/4),
+    note_session_use(SessionModule).
 
 %!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
 %
@@ -485,6 +489,95 @@ clearSession(SessionModule) :-
     dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4).
+
+% --- Session lifecycle / garbage collection ---------------------------------
+%
+% Every session created by createSession/2 is a fresh module that holds dynamic
+% clauses (session facts, le_source_info, ...) and an import of le_kbs. Nothing
+% reclaimed them, so modules accumulated on every load/query. We now track each
+% session's last-use time and reclaim it, either explicitly (single-use internal
+% sessions) or via an idle reaper (client sessions that are abandoned when the
+% editor reloads or the tab is closed).
+
+:- dynamic session_last_used/2.   % SessionModule, EpochSeconds
+
+session_max_idle(1800).           % reap client sessions idle for > 30 min
+session_reaper_interval(300).     % check every 5 min
+
+%!  note_session_use(+SessionModule:atom) is det.
+%
+%   Records that a session is in use now, protecting it from the idle reaper.
+note_session_use(SessionModule) :-
+    get_time(Now),
+    with_mutex(le_sessions, (
+        retractall(session_last_used(SessionModule, _)),
+        assertz(session_last_used(SessionModule, Now))
+    )).
+
+%!  destroySession(+SessionModule:atom) is det.
+%
+%   Frees all memory held by a reasoning session module: abolishes its dynamic
+%   predicates (their clauses), drops the le_kbs import and forgets it.
+destroySession(SessionModule) :-
+    with_mutex(le_sessions, retractall(session_last_used(SessionModule, _))),
+    (   atom(SessionModule), current_module(SessionModule)
+    ->  forall(current_predicate(SessionModule:F/N),
+               catch(abolish(SessionModule:F/N), _, true)),
+        catch(delete_import_module(SessionModule, le_kbs), _, true)
+    ;   true
+    ).
+
+% A KB module is generated (and therefore reclaimable) when it records itself as
+% its own KB module; session modules instead point at a *different* KB module.
+is_generated_kb_module(M) :-
+    atom(M), current_module(M),
+    current_predicate(M:le_kb_module_fact/1),
+    catch(M:le_kb_module_fact(M), _, fail).
+
+%!  maybe_destroy_kb(+KBmodule:atom) is det.
+%
+%   Reclaims a generated KB module once no live session references it.
+maybe_destroy_kb(KBmodule) :-
+    (   is_generated_kb_module(KBmodule),
+        \+ ( session_last_used(SM, _),
+             SM \== KBmodule,
+             catch(SM:le_kb_module_fact(KBmodule), _, fail) )
+    ->  forall(current_predicate(KBmodule:F/N),
+               catch(abolish(KBmodule:F/N), _, true))
+    ;   true
+    ).
+
+%!  reap_idle_sessions is det.
+%
+%   Destroys sessions (and their now-orphaned KB modules) idle beyond the limit.
+reap_idle_sessions :-
+    get_time(Now),
+    session_max_idle(MaxIdle),
+    findall(SM, (session_last_used(SM, T), Now - T > MaxIdle), Stale),
+    forall(member(SM, Stale),
+           ( ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
+             destroySession(SM),
+             ( KB \== none, KB \== SM -> maybe_destroy_kb(KB) ; true )
+           )).
+
+:- dynamic session_reaper_running/0.
+
+%!  start_session_reaper is det.
+%
+%   Starts (once) a background thread that periodically reaps idle sessions.
+start_session_reaper :-
+    ( session_reaper_running -> true
+    ; assertz(session_reaper_running),
+      catch(thread_create(session_reaper_loop, _,
+                          [alias(le_session_reaper), detached(true)]),
+            _, true)
+    ).
+
+session_reaper_loop :-
+    session_reaper_interval(Interval),
+    sleep(Interval),
+    catch(reap_idle_sessions, E, print_message(warning, E)),
+    session_reaper_loop.
 
 %!  printSession(+SessionModule:atom) is det.
 %
@@ -1080,7 +1173,14 @@ print_test_result(test_file(File, FileResults)) :-
            ( R = pass(Q, S) -> format('  PASS: ~w (~w)~n', [Q, S]); R = fail(Q, S, E, A) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n', [Q, S, E, A]); R = fail(Q, S, E, A, EU, AU) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n    Expected Unknowns: ~w~n    Actual Unknowns: ~w~n', [Q, S, E, A, EU, AU]); format('  ERROR: ~w~n', [R]))).
 run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), Result) :-
     createSession(KBmodule, SM),
-    (   setScenarion(SM, ScenarioName) ->  
+    setup_call_cleanup(
+        true,
+        run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result),
+        destroySession(SM)
+    ).
+
+run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result) :-
+    (   setScenarion(SM, ScenarioName) ->
         (   ((KBmodule:query_info(QueryName, FullGoal, Items) ; (normalize_string(QueryName, NormName), KBmodule:query_info(InfoName, FullGoal, Items), normalize_string(InfoName, NormName)))) ->  
             (   catch(call_with_time_limit(30, 
                     findall(S-ActualUnknownStrings, 
