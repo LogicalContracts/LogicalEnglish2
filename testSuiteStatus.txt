@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 41
-Total tests:     207
-Passed:          207
+Files processed: 42
+Total tests:     208
+Passed:          208
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -28,7 +28,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/happy_dragon.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/numbering_test.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/numbering_test.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/only_if.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
@@ -45,6 +45,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/hiscox.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/hiscoxsimple.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/hiscoxsimple_no_unknowns.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error

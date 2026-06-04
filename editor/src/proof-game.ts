@@ -128,10 +128,11 @@ function renderTokens(tokens: any[]) {
 function CustomNode(props: any) {
     const { data, emit } = props;
     const modeToggle = document.getElementById('mode-toggle') as HTMLInputElement;
-    const isAdultMode = modeToggle?.checked;
+    // Checkbox checked => Child Mode (hide text); unchecked => Adult Mode (show text).
+    const isAdultMode = !modeToggle?.checked;
 
     if (data.type === 'fail') {
-        // Generic FAIL node: a stop sign (children mode) / "FAIL" (adult mode)
+        // Generic FAIL node: a stop sign (child mode) / "FAIL" (adult mode)
         // that satisfies a negation-as-failure ("it is not the case that ...")
         // condition when connected to it.
         data.width = 120;
