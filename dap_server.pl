@@ -71,11 +71,23 @@ send_dap_event(SM, Event) :-
     dap_session(SM, WS, _),
     catch(ws_send(WS, json(Event)), E, (debug(dap, 'ws_send failed: ~w', [E]), fail)).
 
+% Maximum seconds to wait for the next DAP command before treating the trace as
+% abandoned. This bound is essential: the traced query runs on an HTTP worker
+% thread and blocks here until a command arrives over the websocket, so without a
+% timeout an abandoned trace (closed tab, dropped socket, paused-and-forgotten)
+% would hold that worker forever and, after enough of them, exhaust the whole
+% worker pool — making the server stop responding to all requests.
+dap_command_timeout(300).
+
 wait_for_command(SM, Command) :-
     format(atom(Queue), 'dap_commands_~w', [SM]),
-    (   catch(thread_get_message(Queue, Command), E, (debug(dap, 'thread_get_message failed: ~w', [E]), fail))
-    ->  true
-    ;   Command = disconnect
+    dap_command_timeout(Timeout),
+    (   catch(thread_get_message(Queue, Msg, [timeout(Timeout)]), E,
+              (debug(dap, 'thread_get_message failed: ~w', [E]), fail))
+    ->  Command = Msg
+    ;   % Timed out or the queue is gone: abandon the trace and free the worker.
+        debug(dap, 'No DAP command for ~w within ~w s; abandoning trace', [SM, Timeout]),
+        Command = disconnect
     ).
 
 execute_command(continue, _, _, _, _, _) :- !.
@@ -109,6 +121,9 @@ dap_loop(SM, WebSocket) :-
         dap_disconnect,
         debug(dap, 'DAP session ~w disconnected', [SM])
     ),
+    % Wake any traced query still blocked in wait_for_command/2 so its HTTP
+    % worker thread is released immediately, rather than only after the timeout.
+    catch(thread_send_message(Queue, disconnect), _, true),
     message_queue_destroy(Queue),
     retractall(dap_session(SM, WebSocket, Me)).
 
