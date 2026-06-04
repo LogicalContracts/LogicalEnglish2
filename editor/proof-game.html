@@ -126,8 +126,8 @@
             transform: rotate(45deg);
         }
         
-        /* Pre-school mode overrides */
-        body:not(.adult-mode) .le-node-text {
+        /* Child mode overrides */
+        body.child-mode .le-node-text {
             color: transparent !important;
         }
         
@@ -240,7 +240,7 @@
         }
     </style>
 </head>
-<body class="adult-mode">
+<body>
     <div id="header">
         <h1>LE Proof Game</h1>
         <div class="controls">
@@ -250,7 +250,7 @@
                 <option value="hc-theme">High Contrast</option>
             </select>
             <label style="font-size: 12px;">
-                <input type="checkbox" id="mode-toggle" checked> Adult Mode (Show Text)
+                <input type="checkbox" id="mode-toggle"> Child Mode (Hide Text)
             </label>
             <button id="btn-rearrange">Auto Layout</button>
             <button id="btn-show">Show Proof</button>
@@ -289,9 +289,9 @@
         
         document.getElementById('mode-toggle').addEventListener('change', (e) => {
             if (e.target.checked) {
-                document.body.classList.add('adult-mode');
+                document.body.classList.add('child-mode');
             } else {
-                document.body.classList.remove('adult-mode');
+                document.body.classList.remove('child-mode');
             }
         });
     </script>

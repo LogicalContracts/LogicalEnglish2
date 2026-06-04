@@ -124378,7 +124378,7 @@ function renderTokens(tokens) {
 function CustomNode(props) {
   const { data, emit } = props;
   const modeToggle = document.getElementById("mode-toggle");
-  const isAdultMode = modeToggle?.checked;
+  const isAdultMode = !modeToggle?.checked;
   if (data.type === "fail") {
     data.width = 120;
     data.height = 120;
