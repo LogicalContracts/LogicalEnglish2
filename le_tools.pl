@@ -122,17 +122,23 @@ le_tool_query(Args, Result) :-
     ;   KB = none
     ),
     le_kbs:createSession(KB, SM),
-    (   (ScenarioName \== "", ScenarioName \== null) ->
-        ( atom_string(ScenarioAtom, ScenarioName), le_kbs:setScenarion(SM, ScenarioAtom) -> true ; true )
-    ;   true
-    ),
-    (   (Facts \== "", Facts \== null) ->
-        catch(le_kbs:parse_custom_facts(KB, Facts, FactTerms), error(le_parse_error(Msg), _), ErrorFacts = Msg),
-        ( var(ErrorFacts) -> forall(member(F, FactTerms), le_kbs:addSessionFact(SM, F)) ; true )
-    ;   true
-    ),
-    (   nonvar(ErrorFacts) -> Result = _{error: ErrorFacts}
-    ;   catch(run_query(SM, Query, KB, Result), error(le_parse_error(Msg), _), Result = _{error: Msg})
+    % Single-use session: always free it when done.
+    setup_call_cleanup(
+        true,
+        (   (   (ScenarioName \== "", ScenarioName \== null) ->
+                ( atom_string(ScenarioAtom, ScenarioName), le_kbs:setScenarion(SM, ScenarioAtom) -> true ; true )
+            ;   true
+            ),
+            (   (Facts \== "", Facts \== null) ->
+                catch(le_kbs:parse_custom_facts(KB, Facts, FactTerms), error(le_parse_error(Msg), _), ErrorFacts = Msg),
+                ( var(ErrorFacts) -> forall(member(F, FactTerms), le_kbs:addSessionFact(SM, F)) ; true )
+            ;   true
+            ),
+            (   nonvar(ErrorFacts) -> Result = _{error: ErrorFacts}
+            ;   catch(run_query(SM, Query, KB, Result), error(le_parse_error(Msg), _), Result = _{error: Msg})
+            )
+        ),
+        le_kbs:destroySession(SM)
     ).
 
 examples_dir(AbsDir) :-

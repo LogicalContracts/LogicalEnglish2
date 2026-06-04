@@ -58,6 +58,9 @@ start_api_server :-
 start_api_server(Port) :-
     % assertz(le_kbs:do_log),
     load_build_info,
+    % Reclaim reasoning-session modules abandoned by the editor (reload on edit,
+    % tab close, ...) so they don't accumulate in memory over time.
+    le_kbs:start_session_reaper,
     % A debug-trace session holds a worker for its websocket plus one for the
     % blocked traced query, so keep generous headroom on top of the bound in
     % dap_server:dap_command_timeout/1 to avoid starving normal requests.
@@ -134,6 +137,7 @@ handle_operation(Dict, Response) :-
 handle_graph(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
     ( (current_module(SM), current_predicate(SM:le_kb_module_fact/1), SM:le_kb_module_fact(KB)) -> true; KB = none),
     ( KB \== none ->
         le_graph:kb_graph(KB, Response)
@@ -348,6 +352,7 @@ handle_list_models(_Dict, Response) :-
 handle_is_a_hierarchy(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( KB \== none ->
         is_a_hierarchy(KB, Hierarchy),
@@ -362,11 +367,13 @@ handle_answer(Dict, Response) :-
     get_dict(theQuery, Dict, Query),
     get_dict(scenario, Dict, Scenario),
     load_le_text(Doc, KB),
-    createSession(KB, SM),
-    (   setScenarion(SM, Scenario) ->  
-        ( query(SM, Query, _Instance, _Unknowns, Why) -> convert_why(Why, KB, JSONWhy), Response = _{answer: JSONWhy}; Response = _{answer: "No answer found"})
-        ;   
-        Response = _{error: "Scenario not found"}
+    setup_call_cleanup(
+        createSession(KB, SM),
+        (   setScenarion(SM, Scenario) ->
+            ( query(SM, Query, _Instance, _Unknowns, Why) -> convert_why(Why, KB, JSONWhy), Response = _{answer: JSONWhy}; Response = _{answer: "No answer found"})
+            ;   Response = _{error: "Scenario not found"}
+        ),
+        destroySession(SM)
     ).
 
 handle_explain(Dict, Response) :-
@@ -374,8 +381,11 @@ handle_explain(Dict, Response) :-
     get_dict(theQuery, Dict, Query),
     get_dict(scenario, Dict, Scenario),
     load_le_text(Doc, KB),
-    createSession(KB, SM),
-    ( setScenarion(SM, Scenario) -> findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why(Why, KB, JSONWhy)), Results), Response = _{results: Results}; Response = _{error: "Scenario not found"}).
+    setup_call_cleanup(
+        createSession(KB, SM),
+        ( setScenarion(SM, Scenario) -> findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why(Why, KB, JSONWhy)), Results), Response = _{results: Results}; Response = _{error: "Scenario not found"}),
+        destroySession(SM)
+    ).
 
 handle_load(Dict, Response) :-
     (   get_dict(le, Dict, Doc) ->  
@@ -412,6 +422,7 @@ handle_load(Dict, Response) :-
 handle_answering_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     
     % Handle Scenario
@@ -473,6 +484,7 @@ run_answering_query(SM, Query, KB, Response) :-
 handle_get_game_data(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     
     % Handle Scenario
@@ -555,6 +567,7 @@ term_to_le(KB, Term, LE) :-
 handle_unify_game_nodes(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
     get_dict(nodes, Dict, NodeSpecs),
     ( get_dict(edges, Dict, Edges) -> true ; Edges = [] ),
@@ -564,6 +577,7 @@ handle_unify_game_nodes(Dict, Response) :-
 handle_load_facts_and_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
     get_dict(facts, Dict, FactsStrList),
     print_message(informational, 'Loading facts into session ~w' - [SM]),
     forall(member(FStr, FactsStrList), (term_string(F, FStr), addSessionFact(SM, F))),
@@ -597,26 +611,32 @@ handle_query(Dict, Response) :-
     get_dict(module, Dict, ModuleStr),
     atom_string(Module, ModuleStr),
     ( get_dict(facts, Dict, FactsStrList) -> maplist(term_string, Facts, FactsStrList); Facts = []),
-    (   (current_module(Module), current_predicate(Module:le_my_kb/1)) -> SM = Module, SM:le_kb_module_fact(KB)
-        ; current_module(Module) -> KB = Module, createSession(KB, SM)
-        ; KB = none, createSession(none, SM)
+    (   (current_module(Module), current_predicate(Module:le_my_kb/1)) -> SM = Module, SM:le_kb_module_fact(KB), Owned = false
+        ; current_module(Module) -> KB = Module, createSession(KB, SM), Owned = true
+        ; KB = none, createSession(none, SM), Owned = true
     ),
-    forall(member(F, Facts), addSessionFact(SM, F)),
-    read_term_from_atom(QueryStr, Goal, [variable_names(VarNames)]),
-    findall(Result, (
-        reasoner:i(Goal, SM, Unknowns, Why),
-        convert_why(Why, KB, JSONWhy),
-        maplist(convert_binding, VarNames, Bindings),
-        dict_create(BindingsDict, bindings, Bindings),
-        maplist(convert_unknown(KB), Unknowns, JSONUnknowns),
-        Result = _{
-            result: "true",
-            bindings: BindingsDict,
-            unknowns: JSONUnknowns,
-            why: JSONWhy
-        }
-    ), Results),
-    ( Results == [] -> Response = _{results: [_{result: "false"}]}; Response = _{results: Results}).
+    setup_call_cleanup(
+        true,
+        ( forall(member(F, Facts), addSessionFact(SM, F)),
+          read_term_from_atom(QueryStr, Goal, [variable_names(VarNames)]),
+          findall(Result, (
+              reasoner:i(Goal, SM, Unknowns, Why),
+              convert_why(Why, KB, JSONWhy),
+              maplist(convert_binding, VarNames, Bindings),
+              dict_create(BindingsDict, bindings, Bindings),
+              maplist(convert_unknown(KB), Unknowns, JSONUnknowns),
+              Result = _{
+                  result: "true",
+                  bindings: BindingsDict,
+                  unknowns: JSONUnknowns,
+                  why: JSONWhy
+              }
+          ), Results),
+          ( Results == [] -> Response = _{results: [_{result: "false"}]}; Response = _{results: Results}) ),
+        % Free the session if we created it here; otherwise keep the caller's
+        % session alive and mark it as recently used.
+        ( Owned == true -> destroySession(SM) ; note_session_use(SM) )
+    ).
 
 % --- Helpers ---
 
@@ -682,6 +702,7 @@ convert_unknown(KB, Goal, _{goal: GoalStr, module: KBStr}) :-
 handle_get_prolog(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( KB == none -> Response = _{error: "No KB loaded"}
     ; get_dict(position, Dict, Pos),
