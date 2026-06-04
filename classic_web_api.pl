@@ -58,7 +58,10 @@ start_api_server :-
 start_api_server(Port) :-
     % assertz(le_kbs:do_log),
     load_build_info,
-    http_server(http_dispatch, [port(Port), workers(10)]).
+    % A debug-trace session holds a worker for its websocket plus one for the
+    % blocked traced query, so keep generous headroom on top of the bound in
+    % dap_server:dap_command_timeout/1 to avoid starving normal requests.
+    http_server(http_dispatch, [port(Port), workers(24)]).
 
 load_build_info :-
     (   exists_file('build_info.txt')
