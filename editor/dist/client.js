@@ -40010,7 +40010,7 @@ async function start() {
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
     try {
-      const response = await fetch("/leapi", {
+      const runAnsweringQuery = () => fetch("/leapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -40022,8 +40022,16 @@ async function start() {
           customScenario,
           customQuery
         })
-      });
-      const res = await response.json();
+      }).then((r) => r.json());
+      let res = await runAnsweringQuery();
+      if (res && res.session_expired) {
+        isLoaded = false;
+        if (await loadModule()) {
+          scenarioSelect.value = scenario;
+          querySelect.value = query;
+          res = await runAnsweringQuery();
+        }
+      }
       answersList.innerHTML = "";
       if (res && res.results && res.results.length > 0) {
         res.results.forEach((result, index) => {
@@ -40091,7 +40099,7 @@ async function start() {
       return;
     }
     try {
-      const response = await fetch("/leapi", {
+      const runGetGameData = () => fetch("/leapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -40103,8 +40111,16 @@ async function start() {
           customScenario,
           customQuery
         })
-      });
-      const res = await response.json();
+      }).then((r) => r.json());
+      let res = await runGetGameData();
+      if (res && res.session_expired) {
+        isLoaded = false;
+        if (await loadModule()) {
+          scenarioSelect.value = scenario;
+          querySelect.value = query;
+          res = await runGetGameData();
+        }
+      }
       if (res && res.gameData) {
         const text = editor.getValue();
         res.gameData.rules = res.gameData.rules.map((rule) => {

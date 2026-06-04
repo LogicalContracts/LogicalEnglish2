@@ -1856,7 +1856,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         explanationTree.innerHTML = '';
         
         try {
-            const response = await fetch('/leapi', {
+            const runAnsweringQuery = () => fetch('/leapi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1868,9 +1868,20 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     customScenario: customScenario,
                     customQuery: customQuery
                 })
-            });
-            const res = await response.json();
-            
+            }).then(r => r.json());
+
+            let res = await runAnsweringQuery();
+            // The server reclaims long-idle sessions; if ours was reclaimed,
+            // transparently reload the module and retry the query once.
+            if (res && res.session_expired) {
+                isLoaded = false;
+                if (await loadModule()) {
+                    scenarioSelect.value = scenario;
+                    querySelect.value = query;
+                    res = await runAnsweringQuery();
+                }
+            }
+
             answersList.innerHTML = '';
             if (res && res.results && res.results.length > 0) {
                 res.results.forEach((result: any, index: number) => {
@@ -1943,7 +1954,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         
         // Fetch the rules and facts from the server to populate the game
         try {
-            const response = await fetch('/leapi', {
+            const runGetGameData = () => fetch('/leapi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1955,9 +1966,19 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     customScenario: customScenario,
                     customQuery: customQuery
                 })
-            });
-            const res = await response.json();
-            
+            }).then(r => r.json());
+
+            let res = await runGetGameData();
+            // Reload and retry once if the session was reclaimed for being idle.
+            if (res && res.session_expired) {
+                isLoaded = false;
+                if (await loadModule()) {
+                    scenarioSelect.value = scenario;
+                    querySelect.value = query;
+                    res = await runGetGameData();
+                }
+            }
+
             if (res && res.gameData) {
                 const text = editor.getValue();
                 
