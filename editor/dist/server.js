@@ -8549,9 +8549,10 @@ function tokenize(text) {
       }
       continue;
     }
-    const numMatch = text.substring(i).match(/^\d+(\.\d+)?/);
+    const numMatch = text.substring(i).match(/^\d+(?:,\d{3}(?!\d))*(?:\.\d+)?/);
     if (numMatch) {
-      tokens.push({ type: 2 /* Number */, value: parseFloat(numMatch[0]), start, end: i + numMatch[0].length });
+      const value = parseFloat(numMatch[0].replace(/,/g, ""));
+      tokens.push({ type: 2 /* Number */, value, start, end: i + numMatch[0].length });
       i += numMatch[0].length;
       continue;
     }

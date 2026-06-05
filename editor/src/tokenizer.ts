@@ -109,10 +109,13 @@ export function tokenize(text: string): Token[] {
             continue;
         }
 
-        // Number
-        const numMatch = text.substring(i).match(/^\d+(\.\d+)?/);
+        // Number, with optional thousands separators (e.g. 10,000,000).
+        // A ",ddd" group only counts when those 3 digits are not followed by a
+        // 4th digit, so "1,2345" stays as 1 followed by a comma, never 1234.
+        const numMatch = text.substring(i).match(/^\d+(?:,\d{3}(?!\d))*(?:\.\d+)?/);
         if (numMatch) {
-            tokens.push({ type: TokenType.Number, value: parseFloat(numMatch[0]), start, end: i + numMatch[0].length });
+            const value = parseFloat(numMatch[0].replace(/,/g, ''));
+            tokens.push({ type: TokenType.Number, value, start, end: i + numMatch[0].length });
             i += numMatch[0].length;
             continue;
         }
