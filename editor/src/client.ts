@@ -1453,6 +1453,9 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (node.type === 'failure') {
             text = `${failedNodePrefix}${text}`;
         }
+        if (node.repeated) {
+            text = `${text} [Repeated sub-explanation]`;
+        }
         if (showHierarchicalNumbering && prefix && depth > 0) {
             text = `${prefix} ${text}`;
         }
@@ -1475,10 +1478,13 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (node.type === 'failure') {
             text = `${failedNodePrefix}${text}`;
         }
+        if (node.repeated) {
+            text = `${text} [Repeated sub-explanation]`;
+        }
         if (showHierarchicalNumbering && prefix && depth > 0) {
             text = `${prefix} ${text}`;
         }
-        const color = node.type === 'failure' ? '#f48771' : (node.type === 'unknown' ? '#e2b93d' : '#89d185');
+        const color = node.repeated ? '#b18cd9' : (node.type === 'failure' ? '#f48771' : (node.type === 'unknown' ? '#e2b93d' : '#89d185'));
 
         let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
         if (node.children) {
@@ -1536,6 +1542,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             if (node.type === 'unknown') {
                 label.title = 'This condition could not be proven true or false, but was assumed true because it matches an "unknown" template.';
             }
+            if (node.repeated) {
+                label.classList.add('repeated');
+                label.title = 'Repeated sub-explanation';
+            }
 
             
             const hasChildren = node.children && node.children.length > 0;
@@ -1547,6 +1557,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             }
 
             const text = document.createElement('span');
+            text.className = 'tree-text';
             let labelText = node.literal || node;
             if (showHierarchicalNumbering && prefix && depth > 0) {
                 labelText = `${prefix} ${labelText}`;
