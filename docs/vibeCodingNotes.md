@@ -1279,6 +1279,60 @@ Some conventions will be followed:
 
 Please implement parser changes, the new le_source_section/2 predicate, and extend example numbering_test.le to include a simple use and verification of "the annexes to the contract are:" construct.
 
+## Not equals
+In addition to recognizing "*a thing* is equal to *another thing*", already defined in le_system_template/1, we need to handle the opposite "*a thing* is not equal to *another thing*". 
+And after that, please recognize also the synonym form "*a thing* is different from *another thing*".
+
+## Prunning explanations
+Running query 1, scenarion zero on insureLE2/hiscoxclaim1.le  has several problems:
+- it gives a different result on the editor Query UI (failure), vs. the PROLOG command line (success), with goal "load('/Users/mc/git/LogicalEnglish2/examples/moreExamples/insureLE2/hiscoxclaim1.le',KB), createSession(KB, Session), queryScenario(Session, zero, 'we will make which payment under this policy in respect of this claim', TemplateInstance)."  
+- The answers provided in the PROLOG command line are weird: rather than an instance of the query conjunction and(we_will_make(A), and(in_respect_of(A, 'this claim'), under(A, 'this policy'))), it provides fragments of it: [_A, in, respect, of, _A]; ['this claim', in, respect, of, 'this claim']; ...['this policy', under, 'this policy']
+-  Perhaps some mixup caused by preprositional additions...?
+
+- For the same example, scenario and query, query_explain(...) takes way too long to compute the negative explanation, and then returns a gigantic tree with MANY repeteated subtrees, see below. Let's avoid repeating  subtrees in the negative explanaitons, by detecting variants (to cater for different variables but similar patterns). When a subtree is repeated, the explanation rendering should display just its root node and a different colour and tooltip "Repeated sub-explanation")
+
+we will make a payment
+  it is not the case that we will not make a payment and a payment in respect of an incident and a payment under this policy
+    we will not make a payment
+      a payment under this policy
+        a payment is under this policy
+          le_type_check(_14156,payment)
+      it is not the case that you have paid the premium
+        you have paid the premium
+    a payment in respect of an incident
+      a payment is in respect of this claim
+        le_type_check(_14280,payment)
+    a payment under this policy
+      a payment is under this policy
+        le_type_check(_14340,payment)
+  it is not the case that we will not make a payment and a payment in respect of an incident and a payment under this policy
+    we will not make a payment
+      a payment under this policy
+        a payment is under this policy
+          le_type_check(_14460,payment)
+      it is not the case that you have paid the premium
+        you have paid the premium
+    a payment in respect of an incident
+      a payment is in respect of this claim
+        le_type_check(_14584,payment)
+    a payment under this policy
+      a payment is under this policy
+        le_type_check(_14644,payment)
+  it is not the case that we will not make a payment and a payment in respect of an incident and a payment under this policy
+    we will not make a payment
+      a payment under this policy
+        a payment is under this policy
+          le_type_check(_14764,payment)
+      it is not the case that you have paid the premium
+        you have paid the premium
+    a payment in respect of an incident
+      a payment is in respect of this claim
+        le_type_check(_14888,payment)
+    a payment under this policy
+      a payment is under this policy
+        le_type_check(_14948,payment)
+    
+    Etc...
 
 
 ##

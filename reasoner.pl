@@ -154,16 +154,31 @@ solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negat
     D1 is D + 1,
     next_id(GoalID),
     assertz(called(MyID, GoalID, Goal)),
-    findall(UsA-WhysA, solve_real(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA), AllResults),
-    (   member([]-WhysA, AllResults) ->  
-        assertz(success_in_not(GoalID, WhysA)),
-        fail % Certain success of Goal, so not(Goal) fails
-    ;   pairs_keys(AllResults, AllUsA),
-        AllUsA \== [] ->  
+    % A definite (Us == []) success of Goal makes not(Goal) fail — and is the
+    % only thing we need from Goal in that case. So short-circuit: stop exploring
+    % the moment one is found (via a throw out of findall), instead of
+    % enumerating Goal's entire — possibly explosive — search space. If there is
+    % no definite success we still enumerate the rest to distinguish "only
+    % unknown successes" (not(Goal) is unknown) from "no success at all"
+    % (not(Goal) succeeds).
+    (   catch(
+            ( findall(UsA-WhysA,
+                  ( solve_real(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA),
+                    ( UsA == [] -> throw('$definite_success'(WhysA)) ; true )
+                  ),
+                  UnknownResults),
+              DefiniteWhys = none ),
+            '$definite_success'(DefW),
+            DefiniteWhys = DefW )
+    ),
+    (   DefiniteWhys \== none ->
+            assertz(success_in_not(GoalID, DefiniteWhys)),
+            fail % Certain success of Goal, so not(Goal) fails
+    ;   UnknownResults \== [] ->
             Us = [not(Goal)], % Only unknown successes
             build_failure_tree(GoalID, FailureTrees),
             assertz(success_in_not(GoalID, FailureTrees))
-        ; Us = [], % Certain failure of Goal, so not(Goal) succeeds
+    ;   Us = [], % Certain failure of Goal, so not(Goal) succeeds
             build_failure_tree(GoalID, FailureTrees),
             assertz(success_in_not(GoalID, FailureTrees))
     ).
@@ -306,7 +321,22 @@ group_variant_whys(Whys, Grouped) :-
     maplist(variant_key_pair, Whys, Keyed),
     group_keyed_whys(Keyed, Grouped).
 
-variant_key_pair(W, Key-W) :- variant_sha1(W, Key).
+% Group on a key that ignores le_at/3 source positions (which differ between
+% otherwise-identical explanations coming from different rule locations), so
+% logically-identical sub-explanations collapse regardless of where in the
+% source they originated. The original W (with positions) is kept as the rep.
+variant_key_pair(W, Key-W) :- strip_le_at_deep(W, WStripped), variant_sha1(WStripped, Key).
+
+% strip_le_at_deep(+Term, -Stripped): recursively replace every le_at(G,_,_)
+% subterm with G, dropping all embedded source positions.
+strip_le_at_deep(T, T) :- var(T), !.
+strip_le_at_deep(le_at(G, _, _), Out) :- !, strip_le_at_deep(G, Out).
+strip_le_at_deep(T, Out) :-
+    compound(T), !,
+    T =.. [F|Args],
+    maplist(strip_le_at_deep, Args, Args1),
+    Out =.. [F|Args1].
+strip_le_at_deep(T, T).
 
 group_keyed_whys([], []).
 group_keyed_whys([Key-W|Rest], [Group|Groups]) :-
