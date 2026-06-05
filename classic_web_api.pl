@@ -745,27 +745,46 @@ group_repeated_whys(Whys, Grouped) :-
 group_repeated_whys(Why, Grouped) :-
     group_one_why(1, Why, Grouped).
 
-% Group a list of siblings by variant, summing multiplicities; keep first order.
+% Group a list of siblings, summing multiplicities; keep first-occurrence order.
+% Siblings are clustered by subsumption of their goal-structure signatures: two
+% are merged when either is a variant of, or a generalisation of, the other
+% (e.g. in_respect_of(A,B) with B unbound generalises in_respect_of(A,'this
+% claim')). The MOST SPECIFIC node is kept as the representative so the displayed
+% sub-explanation is the most informative one.
 group_sibling_whys(Whys, Grouped) :-
     maplist(unwrap_repeated, Whys, Mults, Bares),
-    maplist(why_struct_hash, Bares, Hashes),
-    combine_sibling_groups(Hashes, Mults, Bares, Grouped).
+    maplist(why_struct_sig, Bares, Sigs),
+    combine_sibling_groups(Sigs, Mults, Bares, Grouped).
 
 combine_sibling_groups([], [], [], []).
-combine_sibling_groups([H|Hs], [M|Ms], [B|Bs], [G|Gs]) :-
-    sum_same_hash(Hs, Ms, Bs, H, M, Total, HsRest, MsRest, BsRest),
-    group_one_why(Total, B, G),
-    combine_sibling_groups(HsRest, MsRest, BsRest, Gs).
+combine_sibling_groups([Sig|Sigs], [M|Ms], [B|Bs], [G|Gs]) :-
+    collect_related(Sigs, Ms, Bs, Sig, M, B, Total, RepBare, SigsRest, MsRest, BsRest),
+    group_one_why(Total, RepBare, G),
+    combine_sibling_groups(SigsRest, MsRest, BsRest, Gs).
 
-% Pull out (and sum the multiplicities of) all later siblings whose hash == H.
-sum_same_hash([], [], [], _, Acc, Acc, [], [], []).
-sum_same_hash([H2|Hs], [M2|Ms], [B2|Bs], H, Acc, Total, HsOut, MsOut, BsOut) :-
-    (   H2 == H
-    ->  Acc1 is Acc + M2,
-        sum_same_hash(Hs, Ms, Bs, H, Acc1, Total, HsOut, MsOut, BsOut)
-    ;   HsOut = [H2|HsOut1], MsOut = [M2|MsOut1], BsOut = [B2|BsOut1],
-        sum_same_hash(Hs, Ms, Bs, H, Acc, Total, HsOut1, MsOut1, BsOut1)
+% Pull out (and sum the multiplicities of) all later siblings whose signature is
+% subsumption-related to the running representative, keeping the most specific.
+collect_related([], [], [], _RepSig, Acc, RepBare, Acc, RepBare, [], [], []).
+collect_related([Sig|Sigs], [M|Ms], [B|Bs], RepSig, Acc, RepBare, Total, OutBare, SigsOut, MsOut, BsOut) :-
+    (   sigs_related(RepSig, Sig)
+    ->  Acc1 is Acc + M,
+        more_specific_sig(RepSig, RepBare, Sig, B, RepSig1, RepBare1),
+        collect_related(Sigs, Ms, Bs, RepSig1, Acc1, RepBare1, Total, OutBare, SigsOut, MsOut, BsOut)
+    ;   SigsOut = [Sig|SigsOut1], MsOut = [M|MsOut1], BsOut = [B|BsOut1],
+        collect_related(Sigs, Ms, Bs, RepSig, Acc, RepBare, Total, OutBare, SigsOut1, MsOut1, BsOut1)
     ).
+
+% Two signatures are related if either subsumes the other (variant included).
+% Compared on independent copies so shared variables don't skew the test;
+% subsumes_term/2 itself binds nothing.
+sigs_related(S1, S2) :-
+    copy_term(S1, C1), copy_term(S2, C2),
+    ( subsumes_term(C1, C2) -> true ; subsumes_term(C2, C1) ).
+
+% Keep the more specific of two related signatures (the one the other subsumes).
+more_specific_sig(S1, B1, S2, B2, OutSig, OutBare) :-
+    copy_term(S1, C1), copy_term(S2, C2),
+    ( subsumes_term(C2, C1) -> OutSig = S1, OutBare = B1 ; OutSig = S2, OutBare = B2 ).
 
 % Recurse into a kept representative's children, then re-wrap with its count.
 group_one_why(Count, Node, Out) :-
@@ -785,18 +804,28 @@ why_node(failure(Goal, Range, LE, Children), "failure", Goal, Range, LE, Childre
 rebuild_why_node("success", Goal, Range, LE, Children, success(Goal, Range, LE, Children)).
 rebuild_why_node("failure", Goal, Range, LE, Children, failure(Goal, Range, LE, Children)).
 
-% A renaming-invariant hash of a node's goal-structure (goals only, recursively),
-% used to decide whether two sibling sub-explanations are "the same".
-why_struct_hash(Node, Hash) :-
-    why_struct_sig(Node, Sig),
-    variant_sha1(Sig, Hash).
-
+% A node's goal-structure signature (goals only, recursively), used to decide
+% whether two sibling sub-explanations are the same (via variant/subsumption).
 why_struct_sig(repeated_group(_, Node), Sig) :- !, why_struct_sig(Node, Sig).
 why_struct_sig(Node, node_sig(Type, GoalStripped, ChildSigs)) :-
     why_node(Node, Type, Goal, _Range, _LE, Children), !,
-    strip_le_at_goal(Goal, GoalStripped),
+    % Strip le_at/3 wrappers recursively so that source positions (which differ
+    % between identical explanations from different rule locations) don't make
+    % otherwise-identical sibling sub-explanations look distinct.
+    strip_le_at_deep(Goal, GoalStripped),
     maplist(why_struct_sig, Children, ChildSigs).
 why_struct_sig(Other, other_sig(Other)).
+
+% strip_le_at_deep(+Term, -Stripped): recursively replace every le_at(G,_,_)
+% subterm with G, dropping all embedded source positions.
+strip_le_at_deep(T, T) :- var(T), !.
+strip_le_at_deep(le_at(G, _, _), Out) :- !, strip_le_at_deep(G, Out).
+strip_le_at_deep(T, Out) :-
+    compound(T), !,
+    T =.. [F|Args],
+    maplist(strip_le_at_deep, Args, Args1),
+    Out =.. [F|Args1].
+strip_le_at_deep(T, T).
 
 %!  is_naf_goal(+Goal, -Naf) is det.
 %
