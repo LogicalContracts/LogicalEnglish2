@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 43
-Total tests:     210
-Passed:          210
+Files processed: 44
+Total tests:     212
+Passed:          212
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -26,6 +26,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/gst.le: 12 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/happy_dragon.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/inequality.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbering_test.le: 5 Pass, 0 Fail, 0 Error
