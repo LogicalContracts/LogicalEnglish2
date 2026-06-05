@@ -1006,7 +1006,12 @@ add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite, Prep, Unknown)
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
 add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite, Prep), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, Prep, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
-add_non_ignorable(dict(FA, NT, WV, Start, End, Globals, Opposite), dict(FA, NT, WV, Start, End, NIW, Globals, Opposite, _, _)) :- !,
+% Stored le_dict templates (see assert_dict_with_source/2 in le_kbs) keep the
+% layout dict(FA, NT, WV, Globals, Opposite, Prep, Unknown) — Start/End are
+% dropped on assertion. Preserve Prep and Unknown here; mapping them as if they
+% were (Start,End,Globals,Opposite) silently loses the prepositional marker and
+% breaks prepositional chaining for post-load queries.
+add_non_ignorable(dict(FA, NT, WV, Globals, Opposite, Prep, Unknown), dict(FA, NT, WV, 0, 0, NIW, Globals, Opposite, Prep, Unknown)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
 add_non_ignorable(dict(FA, NT, WV, Start, End, Globals), dict(FA, NT, WV, Start, End, NIW, Globals, _, _, _)) :- !,
     findall(W, (member(W, WV), atom(W), \+ is_reserved(W), \+ is_ignorable(W)), NIW).
