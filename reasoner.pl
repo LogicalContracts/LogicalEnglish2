@@ -332,6 +332,7 @@ is_built_in(prolog_call(_)).
 is_built_in(le_at(_, _, _)).
 is_built_in(le_known(_)).
 is_built_in(le_equal_to(_, _)).
+is_built_in(le_not_equal_to(_, _)).
 is_built_in(le_assign(_, _)).
 is_built_in(le_is(_, _)).
 is_built_in(le_ge(_, _)).
@@ -355,6 +356,7 @@ call_reasoner_built_in(prolog_call(G), SM) :- !,
 call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).
 call_reasoner_built_in(le_known(X), _) :- !, ground(X).
 call_reasoner_built_in(le_equal_to(X, Y), _) :- !, X = Y.
+call_reasoner_built_in(le_not_equal_to(X, Y), _) :- !, X \= Y.
 call_reasoner_built_in(le_assign(X, Y), _) :- !, 
     ( number(Y) -> X = Y
     ; catch(X is Y, _, (

@@ -10,6 +10,8 @@
 % le_system_template(dict(FunctorArgs, NamesTypes, WordsAndVars))
 
 le_system_template(dict([le_equal_to, V1, V2], [V1-any, V2-any], [V1, is, equal, to, V2])).
+le_system_template(dict([le_not_equal_to, V1, V2], [V1-any, V2-any], [V1, is, not, equal, to, V2])).
+le_system_template(dict([le_not_equal_to, V1, V2], [V1-any, V2-any], [V1, is, different, from, V2])).
 le_system_template(dict([le_ge, V1, V2], [V1-number, V2-number], [V1, is, greater, than, or, equal, to, V2])).
 le_system_template(dict([le_le, V1, V2], [V1-number, V2-number], [V1, is, less, than, or, equal, to, V2])).
 le_system_template(dict([le_gt, V1, V2], [V1-number, V2-number], [V1, is, greater, than, V2])).

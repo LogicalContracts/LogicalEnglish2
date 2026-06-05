@@ -1,0 +1,33 @@
+the target language is: prolog.
+
+the templates are:
+*a person* is a rival of *a other person*.
+*a person* has a different favourite than *a other person*.
+*a person* likes *a thing*.
+*a person* favourite is *a thing*.
+
+the knowledge base rivalry includes:
+
+a person is a rival of a other person
+    if the person likes a thing
+    and the other person likes the thing
+    and the person is not equal to the other person.
+
+a person has a different favourite than a other person
+    if the person favourite is a thing
+    and the other person favourite is a other thing
+    and the thing is different from the other thing.
+
+scenario one is:
+    Alice likes chess.
+    Bob likes chess.
+    Alice favourite is tea.
+    Bob favourite is coffee.
+    one expects answers ["Alice is a rival of Bob", "Bob is a rival of Alice"].
+    two expects answers ["Alice has a different favourite than Bob", "Bob has a different favourite than Alice"].
+
+query one is:
+    which person is a rival of which other person.
+
+query two is:
+    which person has a different favourite than which other person.
