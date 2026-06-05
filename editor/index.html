@@ -429,6 +429,12 @@
         .tree-label.success { color: #89d185; }
         .tree-label.failure { color: #f48771; }
         .tree-label.unknown { color: #e2b93d; }
+        /* A repeated sub-explanation: collapsed to its root, shown muted/italic. */
+        .tree-label.repeated { color: #b18cd9; font-style: italic; }
+        .tree-label.repeated .tree-text::after {
+            content: ' ↩';
+            opacity: 0.7;
+        }
 
         .tree-children {
             border-left: 1px solid var(--border-color);
