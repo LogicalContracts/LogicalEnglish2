@@ -592,7 +592,15 @@ printSession(SessionModule) :-
 %!  query(+SessionModule:atom, +Template:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is det.
 %
 %   Executes a query against a reasoning session. Template can be a list of tokens,
-%   a string, or a named query.
+%   a string, a named query, or an already-parsed compound goal (e.g. produced by
+%   parse_custom_query/3 for the editor's custom-query field).
+query(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
+    compound(Goal), \+ is_list(Goal), !,
+    ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
+    ( do_log -> print_message(informational, 'Executing compound query goal: ~w' - [Goal]); true),
+    reasoner:i(Goal, SessionModule, Unknowns, Why0),
+    ( (KBmodule \== none, item_to_instance(KBmodule, Goal, Tokens)) -> TemplateInstance = Tokens ; TemplateInstance = [Goal] ),
+    postprocess_why(Why0, SessionModule, Why).
 query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
@@ -604,35 +612,32 @@ query(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             maplist(item_to_instance(KBmodule), Items, Instances),
             flatten(Instances, TemplateInstance),
             postprocess_why(Why0, SessionModule, Why)
-        ; ( do_log -> print_message(informational, 'Searching for template matching tokens: ~w' - [Tokens]); true),
-            findall(D, KBmodule:le_dict(D), Dicts),
-            le_grammar:prepare_templates(Dicts, Templates),
-            findall(match(G, WV, FA), (
-                member(Dict, Templates),
-                ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
-                \+ (FA = [le_is|_]),
-                le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
-                G =.. FA
-            ), SpecificMatches),
-            (   SpecificMatches \== [] -> Matches = SpecificMatches
-                ; findall(match(G, WV, FA), (
-                    member(Dict, Templates),
-                    ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
-                    FA = [le_is|_],
-                    le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
-                    G =.. FA
-                ), Matches)
-            ),
-            (   Matches \== [] ->
-                member(match(Goal, TemplateInstance, _), Matches),
-                ( do_log -> print_message(informational, 'Executing template goal: ~w' - [Goal]); true),
+        ; ( do_log -> print_message(informational, 'Parsing free-text query tokens: ~w' - [Tokens]); true),
+            (   parse_query_to_goal(KBmodule, Tokens, Goal, TemplateInstance) ->
+                ( do_log -> print_message(informational, 'Executing query goal: ~w' - [Goal]); true),
                 reasoner:i(Goal, SessionModule, Unknowns, Why0),
-                ( do_log -> print_message(informational, 'Template goal solution found: ~w' - [Goal]); true),
+                ( do_log -> print_message(informational, 'Query goal solution found: ~w' - [Goal]); true),
                 postprocess_why(Why0, SessionModule, Why)
             ;   format(string(Error), "Query does not match any template: ~w", [Template]),
                 throw(error(le_parse_error(Error), _))
             )
     ).
+
+%!  parse_query_to_goal(+KBmodule:atom, +Tokens:list, -Goal:term, -Instance:list) is nondet.
+%
+%   Parses free-text query Tokens into a Goal using the chaining-aware literal
+%   parser, folding any prepositional (extra) goals into a conjunction — exactly
+%   as queries are parsed at load time (see second_pass_query_item/4) and by
+%   parse_custom_query/3. Without this, a query with prepositional additions
+%   (e.g. "we will make which payment under this policy in respect of this claim")
+%   would only match a single prepositional fragment, yielding bogus answers and
+%   results inconsistent with the named-query / editor paths.
+parse_query_to_goal(KBmodule, Tokens, Goal, Instance) :-
+    findall(D, KBmodule:le_dict(D), Dicts),
+    le_grammar:prepare_templates(Dicts, Templates),
+    le_grammar:parse_literal(Tokens, Templates, [], VMOut, Literal, Instance, true),
+    le_grammar:collect_extra_goals(VMOut, ExtraGoals),
+    ( ExtraGoals == [] -> Goal = Literal ; le_grammar:list_to_conj([Literal | ExtraGoals], Goal) ).
 
 %!  query_explain(+SessionModule:atom, +Goal:term, -TemplateInstance:list, -Unknowns:list, -Why:term) is det.
 %
@@ -651,32 +656,13 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             reasoner:explain(Goal, SessionModule, Unknowns, Why0),
             ( (maplist(item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance)) -> true; TemplateInstance = []),
             postprocess_why(Why0, SessionModule, Why)
-        ; findall(D, KBmodule:le_dict(D), Dicts),
-          le_grammar:prepare_templates(Dicts, Templates),
-          findall(match(G, WV, FA), (
-              member(Dict, Templates),
-              ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
-              \+ (FA = [le_is|_]),
-              le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
-              G =.. FA
-          ), SpecificMatches),
-          (   SpecificMatches \== [] -> Matches = SpecificMatches
-              ; findall(match(G, WV, FA), (
-                    member(Dict, Templates),
-                    ( Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _, _) -> true ; Dict = dict(FA, _, WV, _, _, _) -> true ; Dict = dict(FA, _, WV, _) -> true ; Dict = dict(FA, _, WV) ),
-                    FA = [le_is|_],
-                    le_grammar:match_instance_to_template(Tokens, WV, [], _, Templates, true),
-                    G =.. FA
-                ), Matches)
-          ),
-          (   Matches \== [] ->
-                member(match(Goal, TemplateInstance, _), Matches),
-                ( do_log -> print_message(informational, 'Executing template goal explain: ~w' - [Goal]); true),
-                reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-                postprocess_why(Why0, SessionModule, Why)
-            ;   format(string(Error), "Query does not match any template: ~w", [Template]),
-                throw(error(le_parse_error(Error), _))
-          )
+        ;   (   parse_query_to_goal(KBmodule, Tokens, Goal, TemplateInstance) ->
+                    ( do_log -> print_message(informational, 'Executing query goal explain: ~w' - [Goal]); true),
+                    reasoner:explain(Goal, SessionModule, Unknowns, Why0),
+                    postprocess_why(Why0, SessionModule, Why)
+                ;   format(string(Error), "Query does not match any template: ~w", [Template]),
+                    throw(error(le_parse_error(Error), _))
+            )
     ).
 
 postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
@@ -972,9 +958,7 @@ parse_custom_facts(KB, Text, Terms) :-
 parse_custom_query(KB, Text, Goal) :-
     tokenize(Text, Tokens),
     le_grammar:set_token_pos(0),
-    findall(D, KB:le_dict(D), Dicts),
-    le_grammar:prepare_templates(Dicts, Templates),
-    (   le_grammar:parse_literal(Tokens, Templates, [], _VM, Goal, _, true) -> true
+    (   parse_query_to_goal(KB, Tokens, Goal, _Instance) -> true
     ;   format(string(Error), "Query does not match any template: ~w", [Text]),
         throw(error(le_parse_error(Error), _))
     ).
