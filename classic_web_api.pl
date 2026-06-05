@@ -16,6 +16,7 @@
 :- use_module(library(http/http_host)).
 :- use_module(library(http/html_write)).
 :- use_module(library(http/http_session)).
+:- use_module(library(assoc)).
 :- use_module(le_kbs).
 :- use_module(le_proof_game).
 :- use_module(tokenizer).
@@ -370,7 +371,7 @@ handle_answer(Dict, Response) :-
     setup_call_cleanup(
         createSession(KB, SM),
         (   setScenarion(SM, Scenario) ->
-            ( query(SM, Query, _Instance, _Unknowns, Why) -> convert_why(Why, KB, JSONWhy), Response = _{answer: JSONWhy}; Response = _{answer: "No answer found"})
+            ( query(SM, Query, _Instance, _Unknowns, Why) -> convert_why_deduped(Why, KB, JSONWhy), Response = _{answer: JSONWhy}; Response = _{answer: "No answer found"})
             ;   Response = _{error: "Scenario not found"}
         ),
         destroySession(SM)
@@ -383,7 +384,7 @@ handle_explain(Dict, Response) :-
     load_le_text(Doc, KB),
     setup_call_cleanup(
         createSession(KB, SM),
-        ( setScenarion(SM, Scenario) -> findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why(Why, KB, JSONWhy)), Results), Response = _{results: Results}; Response = _{error: "Scenario not found"}),
+        ( setScenarion(SM, Scenario) -> findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why_deduped(Why, KB, JSONWhy)), Results), Response = _{results: Results}; Response = _{error: "Scenario not found"}),
         destroySession(SM)
     ).
 
@@ -480,7 +481,7 @@ run_answering_query(SM, Query, KB, Response) :-
     findall(_{answer: AnswerStr, why: JSONWhy}, (
             query(SM, Query, Instance, _Us, Why),
             canonical_string(Instance, AnswerStr),
-            convert_why(Why, KB, JSONWhy),
+            convert_why_deduped(Why, KB, JSONWhy),
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
         ), Results),
     (   Results \== [] ->  
@@ -490,8 +491,8 @@ run_answering_query(SM, Query, KB, Response) :-
         ;   
         % No answers, get negative explanation
         print_message(informational, 'No answers found, generating negative explanation'),
-        (   query_explain(SM, Query, _Instance, _Unknowns, Why) -> 
-                convert_why(Why, KB, JSONWhy),
+        (   query_explain(SM, Query, _Instance, _Unknowns, Why) ->
+                convert_why_deduped(Why, KB, JSONWhy),
                 Response = _{results: [], why: JSONWhy, result: "ok"}
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
@@ -607,7 +608,7 @@ handle_load_facts_and_query(Dict, Response) :-
         ( SM:le_kb_module_fact(KB) -> true; KB = none),
         findall(Answer, (
             reasoner:i(Goal, SM, _Unknowns, Why),
-            convert_why(Why, KB, JSONWhy),
+            convert_why_deduped(Why, KB, JSONWhy),
             maplist(convert_binding, VarNames, Bindings),
             dict_create(BindingsDict, bindings, Bindings),
             Answer = _{bindings: BindingsDict, explanation: JSONWhy}
@@ -641,7 +642,7 @@ handle_query(Dict, Response) :-
           read_term_from_atom(QueryStr, Goal, [variable_names(VarNames)]),
           findall(Result, (
               reasoner:i(Goal, SM, Unknowns, Why),
-              convert_why(Why, KB, JSONWhy),
+              convert_why_deduped(Why, KB, JSONWhy),
               maplist(convert_binding, VarNames, Bindings),
               dict_create(BindingsDict, bindings, Bindings),
               maplist(convert_unknown(KB), Unknowns, JSONUnknowns),
@@ -665,6 +666,25 @@ load_prolog_file(Path, Module) :-
     atom_concat(p, Hash, Module),
     ( current_module(Module) -> true; load_files(Module:Path, [])).
 
+%!  convert_why_deduped(+Why, +KB, -JSON) is det.
+%
+%   Like convert_why/3, but first collapses repeated sub-explanations (subtrees
+%   that are variants of one already shown) into a single root marker. Used for
+%   the explanation panel / answers, where negative explanations can otherwise
+%   contain thousands of identical subtrees. NOT used for the proof game, which
+%   needs the full tree to wire up its nodes.
+convert_why_deduped(Why, KB, JSON) :-
+    mark_repeated_whys(Why, Marked),
+    convert_why(Marked, KB, JSON).
+
+% A repeated sub-explanation: render the root node only, flagged so the UI can
+% colour it differently and show the "Repeated sub-explanation" tooltip.
+convert_why(repeated_why(Type, Goal, Range, LE), _KB, JSON) :- !,
+    is_naf_goal(Goal, Naf),
+    ( Range = range(Start, End)
+    ->  JSON = _{type: Type, literal: LE, start: Start, end: End, naf: Naf, repeated: true, children: []}
+    ;   JSON = _{type: Type, literal: LE, naf: Naf, repeated: true, children: []}
+    ).
 convert_why(success(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     is_naf_goal(Goal, Naf),
@@ -698,6 +718,58 @@ convert_why(Other, _, JSON) :-
 
 convert_why_child(KB, Child, JSON) :-
     convert_why(Child, KB, JSON).
+
+%!  mark_repeated_whys(+Why, -Marked) is det.
+%
+%   Walks the (postprocessed) why-forest in pre-order and replaces every subtree
+%   that is a variant of an already-seen subtree with a repeated_why/4 marker
+%   (root only). "Variant" detection is via a renaming-invariant hash so that
+%   sub-explanations differing only in their internal variables (e.g.
+%   le_type_check(_14156,payment) vs le_type_check(_14460,payment)) collapse too.
+%
+%   Two passes: (1) bottom-up annotate each node with a variant hash built from
+%   its stripped goal plus its children's hashes — shallow, so O(n) overall;
+%   (2) pre-order collapse, threading the set of seen hashes in an assoc.
+mark_repeated_whys(Why, Marked) :-
+    annotate_why_hash(Why, Annotated),
+    empty_assoc(Seen0),
+    mark_repeated(Annotated, Seen0, _SeenOut, Marked).
+
+annotate_why_hash(Whys, ann_list(Anns)) :-
+    is_list(Whys), !,
+    maplist(annotate_why_hash, Whys, Anns).
+annotate_why_hash(Node, ann(Hash, Type, Goal, Range, LE, AnnChildren)) :-
+    why_node(Node, Type, Goal, Range, LE, Children), !,
+    maplist(annotate_why_hash, Children, AnnChildren),
+    maplist(ann_hash, AnnChildren, ChildHashes),
+    strip_le_at_goal(Goal, GoalStripped),
+    variant_sha1(node_sig(GoalStripped, ChildHashes), Hash).
+annotate_why_hash(Other, ann_other(Other)).
+
+ann_hash(ann(Hash, _, _, _, _, _), Hash).
+
+why_node(success(Goal, Range, LE, Children), "success", Goal, Range, LE, Children).
+why_node(failure(Goal, Range, LE, Children), "failure", Goal, Range, LE, Children).
+
+mark_repeated(ann_list(Anns), SeenIn, SeenOut, Marked) :- !,
+    mark_repeated_list(Anns, SeenIn, SeenOut, Marked).
+mark_repeated(ann(Hash, Type, Goal, Range, LE, AnnChildren), SeenIn, SeenOut, Marked) :- !,
+    (   get_assoc(Hash, SeenIn, _)
+    ->  Marked = repeated_why(Type, Goal, Range, LE),
+        SeenOut = SeenIn
+    ;   put_assoc(Hash, SeenIn, true, Seen1),
+        mark_repeated_list(AnnChildren, Seen1, SeenOut, MarkedChildren),
+        rebuild_why_node(Type, Goal, Range, LE, MarkedChildren, Marked)
+    ).
+mark_repeated(ann_other(Other), Seen, Seen, Other).
+
+mark_repeated_list([], Seen, Seen, []).
+mark_repeated_list([A|As], SeenIn, SeenOut, [M|Ms]) :-
+    mark_repeated(A, SeenIn, Seen1, M),
+    mark_repeated_list(As, Seen1, SeenOut, Ms).
+
+rebuild_why_node("success", Goal, Range, LE, Children, success(Goal, Range, LE, Children)).
+rebuild_why_node("failure", Goal, Range, LE, Children, failure(Goal, Range, LE, Children)).
 
 %!  is_naf_goal(+Goal, -Naf) is det.
 %
