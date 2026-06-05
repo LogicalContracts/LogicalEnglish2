@@ -164,17 +164,21 @@ token_match(Idx, quoteString(S, loc(Idx, End)), End) -->
       End is Idx + L + 2 }.
 
 % Number
+% Accepts an optional integer part with thousands separators (e.g. 10,000,000),
+% which are stripped from the numeric value but counted towards the token length.
 token_match(Idx, number(N, loc(Idx, End)), End) -->
-    digits_strict(Codes), 
-    (   (".", digits_strict(Fraction)) ->  
-        { append(Codes, [0'.|Fraction], AllCodes),
+    digits_strict(Lead),
+    thousands_groups(GroupCodes, SepCount),
+    { append(Lead, GroupCodes, IntCodes) },
+    (   (".", digits_strict(Fraction)) ->
+        { append(IntCodes, [0'.|Fraction], AllCodes),
           number_codes(N, AllCodes),
-          length(AllCodes, L),
-          End is Idx + L }
-        ;   
-        { number_codes(N, Codes),
-          length(Codes, L),
-          End is Idx + L }
+          length(IntCodes, IL), length(Fraction, FL),
+          End is Idx + IL + SepCount + 1 + FL }
+        ;
+        { number_codes(N, IntCodes),
+          length(IntCodes, IL),
+          End is Idx + IL + SepCount }
     ).
 
 % Word
@@ -202,6 +206,28 @@ peek_newline, [13] --> [13], !.
 digits_strict([C|Cs]) --> [C], { code_type(C, digit) }, !, digits_maybe(Cs).
 digits_maybe([C|Cs])  --> [C], { code_type(C, digit) }, !, digits_maybe(Cs).
 digits_maybe([])      --> [].
+
+% Thousands separators: zero or more groups of a comma followed by exactly
+% three digits (e.g. ",000"). A group only matches when those three digits are
+% NOT immediately followed by another digit, so e.g. "1,2345" stays as the
+% number 1 followed by a comma, never an invalid grouping. The collected codes
+% exclude the commas; SepCount counts the commas consumed.
+thousands_groups(Codes, Count) -->
+    thousand_group(Group), !,
+    thousands_groups(Rest, Count0),
+    { append(Group, Rest, Codes), Count is Count0 + 1 }.
+thousands_groups([], 0) --> [].
+
+thousand_group([D1,D2,D3]) -->
+    ",", digit_code(D1), digit_code(D2), digit_code(D3),
+    not_followed_by_digit.
+
+digit_code(C) --> [C], { code_type(C, digit) }.
+
+% Lookahead: succeeds (without consuming) at end of input or when the next
+% character is not a digit. The pushback re-publishes the peeked character.
+not_followed_by_digit, [C] --> [C], { \+ code_type(C, digit) }, !.
+not_followed_by_digit --> eos.
 
 white_prefix(VW, CC) --> [C], { code_type(C, white), C \== 10, C \== 13 }, !, 
     { ( C == 9 -> VInc = 8; VInc = 1), CInc = 1 },

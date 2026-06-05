@@ -1,0 +1,32 @@
+the target language is: prolog.
+
+the templates are:
+*a person* has a salary of *an amount*.
+*a person* has a bonus of *an amount*.
+*a person* has a total compensation of *an amount*.
+*a person* is a high earner.
+
+the knowledge base compensation includes:
+
+a person has a total compensation of an amount
+    if the person has a salary of a salary
+    and the person has a bonus of a bonus
+    and the amount = salary + bonus.
+
+a person is a high earner
+    if the person has a total compensation of an amount
+    and the amount >= 1,000,000.
+
+scenario one is:
+    Alice has a salary of 1,250,000.
+    Alice has a bonus of 500,000.
+    Bob has a salary of 90,000.
+    Bob has a bonus of 10,000.
+    one expects answers ["Alice has a total compensation of 1750000", "Bob has a total compensation of 100000"].
+    two expects answers ["Alice is a high earner"].
+
+query one is:
+    which person has a total compensation of which amount.
+
+query two is:
+    which person is a high earner.
