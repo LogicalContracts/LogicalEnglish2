@@ -284,7 +284,8 @@ is_a_simple(X, Z, M) :- M:clause(is_a(X, Y), true), Y \== Z, is_a_simple(Y, Z, M
 build_failure_tree(ID, Whys) :-
     (   success_in_not(ID, Whys) -> true
     ;   succeeded(ID) -> Whys = []
-    ;   ( setof(W, CID^Ws^(called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), AllWhys) -> true ; AllWhys = []),
+    ;   ( findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), AllWhys0) -> true ; AllWhys0 = []),
+        group_variant_whys(AllWhys0, AllWhys),
         (   called(_PID, ID, Term)
         ->  (   (AllWhys = [failure(Term2, Children)], variant_or_le_at_variant(Term, Term2))
             ->  Whys = [failure(Term, Children)] % Collapse pass-through
@@ -292,6 +293,36 @@ build_failure_tree(ID, Whys) :-
             )
         ;   Whys = AllWhys
         )
+    ).
+
+% group_variant_whys(+Whys, -Grouped)
+% Collapses sibling sub-explanations that are variants of each other (same shape
+% modulo variable renaming) into a single representative, wrapped as
+% repeated_group(Count, Why) when Count > 1. This both shrinks the failure tree
+% at the source (so the expensive downstream passes — postprocess_why/2,
+% convert_why/3, rendering — operate on a small tree) and records how many times
+% each sub-explanation occurred under the same parent.
+group_variant_whys(Whys, Grouped) :-
+    maplist(variant_key_pair, Whys, Keyed),
+    group_keyed_whys(Keyed, Grouped).
+
+variant_key_pair(W, Key-W) :- variant_sha1(W, Key).
+
+group_keyed_whys([], []).
+group_keyed_whys([Key-W|Rest], [Group|Groups]) :-
+    partition_by_key(Key, Rest, NSame, Different),
+    Count is NSame + 1,
+    ( Count =:= 1 -> Group = W ; Group = repeated_group(Count, W) ),
+    group_keyed_whys(Different, Groups).
+
+% partition_by_key(+Key, +Keyed, -CountSame, -Different): counts (and drops)
+% the pairs whose key == Key, keeping the rest in Different (order preserved).
+partition_by_key(_, [], 0, []).
+partition_by_key(Key, [K-W|Rest], CountSame, Different) :-
+    partition_by_key(Key, Rest, CountSame1, Different1),
+    ( K == Key
+    ->  CountSame is CountSame1 + 1, Different = Different1
+    ;   CountSame = CountSame1, Different = [K-W|Different1]
     ).
 
 variant_or_le_at_variant(T1, T2) :-
