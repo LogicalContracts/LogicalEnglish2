@@ -39659,7 +39659,8 @@ async function start() {
       text = `${failedNodePrefix}${text}`;
     }
     if (node.repeated) {
-      text = `${text} [Repeated sub-explanation]`;
+      const repCount = node.repeatedCount;
+      text = typeof repCount === "number" && repCount > 1 ? `${text} [${repCount} repeated sub-explanations]` : `${text} [Repeated sub-explanation]`;
     }
     if (showHierarchicalNumbering && prefix && depth > 0) {
       text = `${prefix} ${text}`;
@@ -39684,7 +39685,8 @@ async function start() {
       text = `${failedNodePrefix}${text}`;
     }
     if (node.repeated) {
-      text = `${text} [Repeated sub-explanation]`;
+      const repCount = node.repeatedCount;
+      text = typeof repCount === "number" && repCount > 1 ? `${text} [${repCount} repeated sub-explanations]` : `${text} [Repeated sub-explanation]`;
     }
     if (showHierarchicalNumbering && prefix && depth > 0) {
       text = `${prefix} ${text}`;
@@ -39740,7 +39742,8 @@ async function start() {
       }
       if (node.repeated) {
         label.classList.add("repeated");
-        label.title = "Repeated sub-explanation";
+        const repCount = node.repeatedCount;
+        label.title = typeof repCount === "number" && repCount > 1 ? `${repCount} repeated sub-explanations` : "Repeated sub-explanation";
       }
       const hasChildren = node.children && node.children.length > 0;
       if (hasChildren) {

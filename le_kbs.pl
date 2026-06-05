@@ -665,6 +665,8 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             )
     ).
 
+postprocess_why(repeated_group(N, Why), SM, repeated_group(N, WhyOut)) :- !,
+    postprocess_why(Why, SM, WhyOut).
 postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),

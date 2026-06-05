@@ -668,23 +668,29 @@ load_prolog_file(Path, Module) :-
 
 %!  convert_why_deduped(+Why, +KB, -JSON) is det.
 %
-%   Like convert_why/3, but first collapses repeated sub-explanations (subtrees
-%   that are variants of one already shown) into a single root marker. Used for
-%   the explanation panel / answers, where negative explanations can otherwise
-%   contain thousands of identical subtrees. NOT used for the proof game, which
-%   needs the full tree to wire up its nodes.
+%   Like convert_why/3, but first collapses repeated sub-explanations: when the
+%   same explanation (a subtree that is a variant of another, modulo variable
+%   renaming) occurs N>1 times under the same parent, only one occurrence is
+%   kept and tagged with its count N. Used for the explanation panel / answers,
+%   where negative explanations can otherwise contain thousands of identical
+%   subtrees. NOT used for the proof game, which needs the full tree to wire up
+%   its nodes.
+%
+%   Failure trees already arrive partly grouped from the reasoner
+%   (group_variant_whys/2 in build_failure_tree/2, which wraps groups as
+%   repeated_group(N, Why)); this pass also groups sibling success branches and
+%   folds any reasoner-supplied counts in, so positive and negative explanations
+%   are handled uniformly.
 convert_why_deduped(Why, KB, JSON) :-
-    mark_repeated_whys(Why, Marked),
-    convert_why(Marked, KB, JSON).
+    group_repeated_whys(Why, Grouped),
+    convert_why(Grouped, KB, JSON).
 
-% A repeated sub-explanation: render the root node only, flagged so the UI can
-% colour it differently and show the "Repeated sub-explanation" tooltip.
-convert_why(repeated_why(Type, Goal, Range, LE), _KB, JSON) :- !,
-    is_naf_goal(Goal, Naf),
-    ( Range = range(Start, End)
-    ->  JSON = _{type: Type, literal: LE, start: Start, end: End, naf: Naf, repeated: true, children: []}
-    ;   JSON = _{type: Type, literal: LE, naf: Naf, repeated: true, children: []}
-    ).
+% A repeated sub-explanation: render the single kept occurrence in full, tagged
+% so the UI can colour it differently and show the "N repeated sub-explanations"
+% tooltip.
+convert_why(repeated_group(N, Node), KB, JSON) :- !,
+    convert_why(Node, KB, JSON0),
+    put_dict(_{repeated: true, repeatedCount: N}, JSON0, JSON).
 convert_why(success(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     is_naf_goal(Goal, Naf),
@@ -719,57 +725,78 @@ convert_why(Other, _, JSON) :-
 convert_why_child(KB, Child, JSON) :-
     convert_why(Child, KB, JSON).
 
-%!  mark_repeated_whys(+Why, -Marked) is det.
+%!  group_repeated_whys(+Why, -Grouped) is det.
 %
-%   Walks the (postprocessed) why-forest in pre-order and replaces every subtree
-%   that is a variant of an already-seen subtree with a repeated_why/4 marker
-%   (root only). "Variant" detection is via a renaming-invariant hash so that
-%   sub-explanations differing only in their internal variables (e.g.
-%   le_type_check(_14156,payment) vs le_type_check(_14460,payment)) collapse too.
+%   Collapses, within each sibling list, sub-explanations that are variants of
+%   one another into a single representative wrapped as repeated_group(N, Node),
+%   where N is how many times that explanation occurred under the same parent.
+%   Reasoner-supplied repeated_group/2 wrappers (from build_failure_tree/2) are
+%   unwrapped and their counts folded in, so a subtree pre-grouped M times that
+%   also appears K more times here is reported as M+K. The single kept
+%   occurrence is itself recursively grouped, so the whole tree shrinks.
 %
-%   Two passes: (1) bottom-up annotate each node with a variant hash built from
-%   its stripped goal plus its children's hashes — shallow, so O(n) overall;
-%   (2) pre-order collapse, threading the set of seen hashes in an assoc.
-mark_repeated_whys(Why, Marked) :-
-    annotate_why_hash(Why, Annotated),
-    empty_assoc(Seen0),
-    mark_repeated(Annotated, Seen0, _SeenOut, Marked).
-
-annotate_why_hash(Whys, ann_list(Anns)) :-
+%   "Variant" detection uses a renaming-invariant hash of the goal structure
+%   (ignoring source ranges and the rendered LE text, which embed variable
+%   numbers), so explanations differing only in internal variables — e.g.
+%   le_type_check(_14156,payment) vs le_type_check(_14460,payment) — group too.
+group_repeated_whys(Whys, Grouped) :-
     is_list(Whys), !,
-    maplist(annotate_why_hash, Whys, Anns).
-annotate_why_hash(Node, ann(Hash, Type, Goal, Range, LE, AnnChildren)) :-
-    why_node(Node, Type, Goal, Range, LE, Children), !,
-    maplist(annotate_why_hash, Children, AnnChildren),
-    maplist(ann_hash, AnnChildren, ChildHashes),
-    strip_le_at_goal(Goal, GoalStripped),
-    variant_sha1(node_sig(GoalStripped, ChildHashes), Hash).
-annotate_why_hash(Other, ann_other(Other)).
+    group_sibling_whys(Whys, Grouped).
+group_repeated_whys(Why, Grouped) :-
+    group_one_why(1, Why, Grouped).
 
-ann_hash(ann(Hash, _, _, _, _, _), Hash).
+% Group a list of siblings by variant, summing multiplicities; keep first order.
+group_sibling_whys(Whys, Grouped) :-
+    maplist(unwrap_repeated, Whys, Mults, Bares),
+    maplist(why_struct_hash, Bares, Hashes),
+    combine_sibling_groups(Hashes, Mults, Bares, Grouped).
+
+combine_sibling_groups([], [], [], []).
+combine_sibling_groups([H|Hs], [M|Ms], [B|Bs], [G|Gs]) :-
+    sum_same_hash(Hs, Ms, Bs, H, M, Total, HsRest, MsRest, BsRest),
+    group_one_why(Total, B, G),
+    combine_sibling_groups(HsRest, MsRest, BsRest, Gs).
+
+% Pull out (and sum the multiplicities of) all later siblings whose hash == H.
+sum_same_hash([], [], [], _, Acc, Acc, [], [], []).
+sum_same_hash([H2|Hs], [M2|Ms], [B2|Bs], H, Acc, Total, HsOut, MsOut, BsOut) :-
+    (   H2 == H
+    ->  Acc1 is Acc + M2,
+        sum_same_hash(Hs, Ms, Bs, H, Acc1, Total, HsOut, MsOut, BsOut)
+    ;   HsOut = [H2|HsOut1], MsOut = [M2|MsOut1], BsOut = [B2|BsOut1],
+        sum_same_hash(Hs, Ms, Bs, H, Acc, Total, HsOut1, MsOut1, BsOut1)
+    ).
+
+% Recurse into a kept representative's children, then re-wrap with its count.
+group_one_why(Count, Node, Out) :-
+    why_node(Node, Type, Goal, Range, LE, Children), !,
+    group_sibling_whys(Children, GroupedChildren),
+    rebuild_why_node(Type, Goal, Range, LE, GroupedChildren, Node1),
+    ( Count > 1 -> Out = repeated_group(Count, Node1) ; Out = Node1 ).
+group_one_why(Count, Other, Out) :-
+    ( Count > 1 -> Out = repeated_group(Count, Other) ; Out = Other ).
+
+unwrap_repeated(repeated_group(N, Node), N, Node) :- !.
+unwrap_repeated(Node, 1, Node).
 
 why_node(success(Goal, Range, LE, Children), "success", Goal, Range, LE, Children).
 why_node(failure(Goal, Range, LE, Children), "failure", Goal, Range, LE, Children).
 
-mark_repeated(ann_list(Anns), SeenIn, SeenOut, Marked) :- !,
-    mark_repeated_list(Anns, SeenIn, SeenOut, Marked).
-mark_repeated(ann(Hash, Type, Goal, Range, LE, AnnChildren), SeenIn, SeenOut, Marked) :- !,
-    (   get_assoc(Hash, SeenIn, _)
-    ->  Marked = repeated_why(Type, Goal, Range, LE),
-        SeenOut = SeenIn
-    ;   put_assoc(Hash, SeenIn, true, Seen1),
-        mark_repeated_list(AnnChildren, Seen1, SeenOut, MarkedChildren),
-        rebuild_why_node(Type, Goal, Range, LE, MarkedChildren, Marked)
-    ).
-mark_repeated(ann_other(Other), Seen, Seen, Other).
-
-mark_repeated_list([], Seen, Seen, []).
-mark_repeated_list([A|As], SeenIn, SeenOut, [M|Ms]) :-
-    mark_repeated(A, SeenIn, Seen1, M),
-    mark_repeated_list(As, Seen1, SeenOut, Ms).
-
 rebuild_why_node("success", Goal, Range, LE, Children, success(Goal, Range, LE, Children)).
 rebuild_why_node("failure", Goal, Range, LE, Children, failure(Goal, Range, LE, Children)).
+
+% A renaming-invariant hash of a node's goal-structure (goals only, recursively),
+% used to decide whether two sibling sub-explanations are "the same".
+why_struct_hash(Node, Hash) :-
+    why_struct_sig(Node, Sig),
+    variant_sha1(Sig, Hash).
+
+why_struct_sig(repeated_group(_, Node), Sig) :- !, why_struct_sig(Node, Sig).
+why_struct_sig(Node, node_sig(Type, GoalStripped, ChildSigs)) :-
+    why_node(Node, Type, Goal, _Range, _LE, Children), !,
+    strip_le_at_goal(Goal, GoalStripped),
+    maplist(why_struct_sig, Children, ChildSigs).
+why_struct_sig(Other, other_sig(Other)).
 
 %!  is_naf_goal(+Goal, -Naf) is det.
 %
