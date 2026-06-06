@@ -76,9 +76,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 { token: 'keyword', foreground: 'c586c0' },
                 { token: 'keyword.header', foreground: '569cd6', fontStyle: 'bold' },
                 { token: 'keyword.expects', foreground: 'c586c0', fontStyle: 'italic' },
+                { token: 'keyword.addition', foreground: 'c586c0', fontStyle: 'italic' },
                 { token: 'variable', foreground: '9cdcfe' },
                 { token: 'number.date', foreground: 'b5cea8' },
-                { token: 'templateWord', foreground: 'dcdcaa' } // Distinct color for template words
+                { token: 'templateWord', foreground: 'dcdcaa' }
             ],
             colors: {
                 'editor.background': '#1e1e1e'
@@ -92,6 +93,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 { token: 'keyword', foreground: 'af00db' },
                 { token: 'keyword.header', foreground: '0000ff', fontStyle: 'bold' },
                 { token: 'keyword.expects', foreground: 'af00db', fontStyle: 'italic' },
+                { token: 'keyword.addition', foreground: 'af00db', fontStyle: 'italic' },
                 { token: 'variable', foreground: '001080' },
                 { token: 'number.date', foreground: '098658' },
                 { token: 'templateWord', foreground: '795e26' }

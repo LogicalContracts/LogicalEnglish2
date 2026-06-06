@@ -1,0 +1,26 @@
+the target language is: prolog.
+
+% 'undefined' (synonym: 'scenario element') marks a template whose facts are
+% expected only in scenarios, never defined in the knowledge base.
+% The verifier:
+%   - suppresses the 'undefined predicate' warning for these templates
+%   - warns if they appear as a fact or rule head in the knowledge base
+
+the templates are:
+    *a person* is eligible.
+    *a person* has passed the test; undefined.
+    *a person* is registered; scenario element.
+
+the knowledge base checks includes:
+
+a person is eligible
+    if the person has passed the test
+    and the person is registered.
+
+scenario one is:
+    alice has passed the test.
+    alice is registered.
+    one expects answers ["alice is eligible"].
+
+query one is:
+    which person is eligible.
