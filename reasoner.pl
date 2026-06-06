@@ -293,6 +293,10 @@ check_args_compatibility([FA|FAs], [AA|AAs], NTs, M, SM, KM) :-
 is_a_simple(X, Z, _) :- X == Z, !.
 is_a_simple(X, Z, M) :- M:clause(is_a(X, Z), true), !.
 is_a_simple(X, Z, M) :- M:clause(is_a(X, Y), true), Y \== Z, is_a_simple(Y, Z, M).
+% A qualified/named type ("first person", "person X") is satisfied by its
+% head-noun type ("person"), so that *a first person* and *a second person* are
+% accepted as values of type person.
+is_a_simple(X, Z, M) :- atom(Z), le_grammar:head_noun_type(Z, HZ), HZ \== Z, is_a_simple(X, HZ, M).
 
 % build_failure_tree(+ID, -Whys)
 % Reconstructs a list of "juicy" failure trees of all calls made under ID.
