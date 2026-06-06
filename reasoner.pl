@@ -142,18 +142,34 @@ solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
     D1 is D + 1,
     next_id(CondID),
     assertz(called(MyID, CondID, Cond)),
-    findall(UsC-WhysC, solve(Cond, SM, KM, Anc, D1, CondID, UsC, WhysC), CondResults),
-    (   CondResults == [] ->
+    % For every solution of the condition (WITH its bindings) the consequent must
+    % hold for those same bindings. The consequent is solved INSIDE the findall
+    % conjunction so that variables shared between Cond and Cons flow from each
+    % condition case to the consequent. (Solving the consequent separately, after
+    % a findall over Cond alone, would lose those bindings and merely check that
+    % the consequent holds for *some* value — a bug that wrongly made e.g. "family
+    % one is a subset of family two" true when Bob ∈ family one but Bob ∉ family two.)
+    findall(Case,
+        ( solve(Cond, SM, KM, Anc, D1, CondID, UsC, WhysCond),
+          ( UsC == []
+            -> ( solve(Cons, SM, KM, Anc, D1, MyID, [], _) -> Case = ok(WhysCond) ; Case = consequent_failed )
+            ;  Case = unknown_condition(WhysCond)
+          )
+        ),
+        Cases),
+    (   Cases == [] ->
             % Vacuously true: no matching cases. Explain the condition's FAILURE
             % so it renders as a (red) negative branch.
             build_failure_tree(CondID, CondFailWhys),
             ( CondFailWhys = [CondWhy] -> true ; CondWhy = failure(Cond, CondFailWhys) )
-        ;
-            % At least one case: the consequent must hold for every definite case.
-            forall(member(UsC-WhysC, CondResults),
-                   ( UsC == [] -> solve(Cons, SM, KM, Anc, D1, MyID, [], _) ; true )),
-            CondResults = [_-FirstCondWhys|_],
-            ( FirstCondWhys = [CondWhy] -> true ; CondWhy = success(Cond, universal_condition, FirstCondWhys) )
+        ;   \+ memberchk(consequent_failed, Cases) ->
+            % Consequent holds for every definite case: the universal holds.
+            ( member(ok(WhysCondOk), Cases) -> CaseWhys = WhysCondOk
+            ; Cases = [unknown_condition(CaseWhys)|_]
+            ),
+            ( CaseWhys = [CondWhy] -> true ; CondWhy = success(Cond, universal_condition, CaseWhys) )
+        ;   % Some definite case's consequent failed: the universal fails.
+            fail
     ),
     Us = [], % TODO: handle unknowns in forall
     ( Cons = le_at(ConsGoal, CS, CE) -> ConsRef = range(CS, CE) ; ConsGoal = Cons, ConsRef = universal_body ),

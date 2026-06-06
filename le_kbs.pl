@@ -789,8 +789,10 @@ token_to_atom(X, Atom) :- term_to_atom(X, Atom).
 item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_instance(KBmodule, Goal, WordsAndVars).
 item_to_instance(_KBmodule, var(Name, Value), [var(Name, Value)]) :- !.
-item_to_instance(_KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), InstantiatedTokens) :- !.
-item_to_instance(_KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), InstantiatedTokens) :- !.
+item_to_instance(KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), Tokens) :- !,
+    maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
+item_to_instance(KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), Tokens) :- !,
+    maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
 item_to_instance(KBmodule, Head, WordsAndVars) :-
     (   Head = is_a(Type, SuperType) -> 
         maybe_transform_value(KBmodule, Type, TypeI),
@@ -876,10 +878,36 @@ fill_variable_name(NTs, V, Name) :-
 fill_variable_name(_, V, V).
 
 maybe_transform_value(KBmodule, Val, Transformed) :-
-    (   compound(Val), \+ is_list(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
+    (   is_list(Val)
+    ->  render_list_value(KBmodule, Val, Transformed)   % e.g. [Alice, Bob] -> '[Alice Bob]'
+    ;   compound(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
     ->  true
     ;   Transformed = Val
     ).
+
+%!  render_list_value(+KBmodule, +List, -Atom) is det.
+%
+%   Renders a list value as a single bracketed atom whose elements are
+%   space-separated, e.g. [Alice, Bob] -> '[Alice Bob]', [] -> '[]'. Producing a
+%   single atom (rather than leaving a sublist) keeps the brackets visible: the
+%   surrounding flatten/2 in item_to_instance/3 and query/5 would otherwise
+%   splice the elements into the sentence and lose the list structure.
+render_list_value(KBmodule, List, Atom) :-
+    maplist(render_list_element(KBmodule), List, ElemAtoms),
+    atomic_list_concat(ElemAtoms, ' ', Inner),
+    atomic_list_concat(['[', Inner, ']'], Atom).
+
+render_list_element(KBmodule, E, A) :-
+    (   is_list(E) -> render_list_value(KBmodule, E, A)
+    ;   nonvar(E), compound(E), E \= date(_,_,_), E \= date(_), item_to_instance(KBmodule, E, WV)
+    ->  canonical_string(WV, S), atom_string(A, S)
+    ;   token_to_atom(E, A)
+    ).
+
+% In a (flat) query instance, a token bound to a list value is rendered as a
+% single bracketed atom so flatten/2 in query/5 keeps its brackets.
+bracket_list_token(KBmodule, Token, Out) :-
+    ( is_list(Token) -> render_list_value(KBmodule, Token, Out) ; Out = Token ).
 
 extract_name(var(Name, _), Name) :- !.
 extract_name(V, V).
