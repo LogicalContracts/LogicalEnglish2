@@ -307,7 +307,12 @@ check_args_compatibility([], [], _, _, _, _).
 check_args_compatibility([FA|FAs], [AA|AAs], NTs, M, SM, KM) :-
     ( member(FA_-FormalType, NTs), FA_==FA, FormalType \== any ->
         when(nonvar(AA), (
-            ( M:le_type(AA) ->
+            % Only enforce subtyping when BOTH the value is a type AND the formal
+            % type is GROUNDED in the ontology (it has instances or taxonomy
+            % edges). Otherwise the formal type is just a generic variable-name
+            % placeholder (e.g. *sub* isa *super*), and requiring e.g.
+            % dragon to be a subtype of "super" would wrongly reject valid values.
+            ( M:le_type(AA), grounded_type(FormalType, SM, KM) ->
                 once(is_a_simple(AA, FormalType, M))
             ; true
             )
@@ -315,6 +320,19 @@ check_args_compatibility([FA|FAs], [AA|AAs], NTs, M, SM, KM) :-
     ; true
     ),
     check_args_compatibility(FAs, AAs, NTs, M, SM, KM).
+
+% grounded_type(+Type, +SM, +KM): Type actually participates in the ontology —
+% something is a Type, or Type is a something — in the session or KB module.
+grounded_type(Type, SM, KM) :-
+    ( has_is_a_edge(SM, Type) -> true
+    ; KM \== none, has_is_a_edge(KM, Type) -> true
+    ).
+
+has_is_a_edge(Mod, Type) :-
+    current_predicate(Mod:is_a/2),
+    ( catch(clause(Mod:is_a(_, Type), _), _, fail) -> true
+    ; catch(clause(Mod:is_a(Type, _), _), _, fail)
+    ).
 
 is_a_simple(X, Z, _) :- X == Z, !.
 is_a_simple(X, Z, M) :- M:clause(is_a(X, Z), true), !.

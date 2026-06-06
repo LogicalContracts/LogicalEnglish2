@@ -1427,9 +1427,18 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
     extract_simple_word(Is, is), (extract_simple_word(A, a) ; extract_simple_word(A, an) ; extract_simple_word(A, of)),
     !,
     extract_value_from_parts(TypeTokens, Type, VMIn, VM1, [], false, AllowVars, 0),
-    extract_value_from_parts(SuperTypeTokens, SuperType, VM1, VMOut, [], false, AllowVars, 0),
     extract_name_type(TypeWords, TypeAtom, _),
-    extract_name_type(SuperTypeWords, SuperTypeAtom, _).
+    extract_name_type(SuperTypeWords, SuperTypeAtom, _),
+    % The supertype after "is a" is the named type itself (a constant), UNLESS it
+    % is written as an explicit variable reference — "... is a the type", "... is
+    % a which other thing", an all-caps id, etc. (anything extract_var_name/2
+    % recognises). A bare type word must NOT co-refer with a same-named variable
+    % already in scope: "the dragon is a dragon" is is_a(Dragon, dragon), not
+    % is_a(Dragon, Dragon).
+    ( extract_var_name(SuperTypeWords, _) ->
+        extract_value_from_parts(SuperTypeTokens, SuperType, VM1, VMOut, [], false, AllowVars, 0)
+    ;   SuperType = SuperTypeAtom, VMOut = VM1
+    ).
 
 extract_words_to_value(Words, Value, VMIn, VMOut, AllowVars) :-
     (   AllowVars == true, extract_var_name(Words, Name) ->  
