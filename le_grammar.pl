@@ -9,7 +9,7 @@
     kb_items//1, second_pass_item/4, parse_literal/6, prepare_templates/2,
     set_token_pos/1, get_token_pos/1, is_id/1, is_article/1, is_reserved/1, is_ignorable/1, is_proper_name_atom/1, is_punct/1,
     extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4,
-    extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3]).
+    extract_var_name/2, unify_with_vmap/5, extract_simple_word/2, extract_var_info_from_words/3, head_noun_type/2]).
 
 :- multifile extract_var_name_extension/2, unify_with_vmap_extension/5, post_parse_literal_hook/4, parse_node_extension/6, second_pass_item_extension/4, match_template_with_chaining/8.
 
@@ -844,6 +844,39 @@ extract_name_type_no_art(Words, Name, Type) :-
           )
     ).
 
+%!  head_noun_type(+Phrase, -HeadType) is det.
+%
+%   Derives the *type* of a variable phrase by dropping (a) a leading determiner,
+%   (b) a trailing all-caps identifier — the "a person X" naming convention — and
+%   (c) any leading qualifier words (ordinals, "other", "another", ...). So both
+%   "first person" and "person X" yield the type "person", while a genuine
+%   multi-word type such as "bodily injury" is left intact. A variable's stored
+%   descriptive phrase ("first person") is kept as its name elsewhere — this only
+%   derives the type used for type checking and ontology registration.
+head_noun_type(Phrase, HeadType) :-
+    ( atom(Phrase) -> true ; string(Phrase) ),
+    atomic_list_concat(Words0, ' ', Phrase),
+    exclude(==(''), Words0, Words1),
+    ( Words1 = [Art|AfterArt], is_article(Art) -> WordsA = AfterArt ; WordsA = Words1 ),
+    ( append(WordsNoId, [Last], WordsA), WordsNoId \== [], is_id(Last) -> WordsB = WordsNoId ; WordsB = WordsA ),
+    strip_leading_qualifiers(WordsB, WordsHead),
+    atomic_list_concat(WordsHead, ' ', HeadType).
+
+% Strip leading qualifier words, always leaving at least the final (head) word.
+strip_leading_qualifiers([W|Rest], Head) :-
+    Rest \== [], is_var_qualifier(W), !,
+    strip_leading_qualifiers(Rest, Head).
+strip_leading_qualifiers(Words, Words).
+
+%!  is_var_qualifier(?Word) is semidet.
+%
+%   Words that may precede a noun to distinguish several variables of the same
+%   type (e.g. "a first person" vs "a second person") without forming part of
+%   the type itself.
+is_var_qualifier(W) :-
+    memberchk(W, [first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth,
+                  other, another, new, previous, next, current, last, same, original, single, given]).
+
 extract_value(var(Words, _), Val, VMIn, VMOut, Templates, AllowVars) :- !,
     extract_value(var(Words), Val, VMIn, VMOut, Templates, AllowVars).
 extract_value(var(Words), Val, VMIn, VMOut, _Templates, AllowVars) :-
@@ -967,7 +1000,14 @@ second_pass(Sections, NewSections, M) :-
     prepare_templates(AllDicts, SortedDicts),
     % Collect types from templates
     forall(member(dict(_, NTs, _, _, _, _, _, _, _, _), SortedDicts),
-           forall(member(_-Type, NTs), (atom(Type) -> assert_is_a_type(Type) ; true))),
+           forall(member(_-Type, NTs),
+                  ( atom(Type) ->
+                        assert_is_a_type(Type),
+                        % Also register the head-noun type, so that a qualified
+                        % variable like "a first person" contributes the type
+                        % "person" to the ontology.
+                        ( head_noun_type(Type, HeadType), HeadType \== Type -> assert_is_a_type(HeadType) ; true )
+                  ; true ))),
     % Collect types from ontology
     forall(member(S, Sections), collect_types_in_section(S, SortedDicts)),
     maplist(second_pass_section(SortedDicts, M), Sections, NewSections).
