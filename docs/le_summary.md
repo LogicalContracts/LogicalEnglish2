@@ -35,7 +35,7 @@ Sections define the context of the code. Each section header ends with a colon `
 Templates map natural language sentences to Prolog predicates.
 - **Pattern:** `*a person* is a friend of *another person*`
 - **Variables:** Words enclosed in asterisks `*...*`.
-- **Types:** Extracted from the variable name (e.g., `person`).
+- **Types:** The **head noun** of the variable phrase (e.g. `person`); see §6 for how names and types are separated.
 - **Variable Scoping:** Multiple occurrences of the same variable name within a sentence (or query) refer to the same variable.
   - `which person is the father of which person` will only match if a person is their own father.
   - Use `which person is the father of which other person` to refer to two different people.
@@ -133,6 +133,16 @@ Used to perform calculations over sets of results.
   - Explicit: `*my variable*`
   - Implicit: `a person`, `the person`, `some person`, `each person`, `which person`
   - Special: `who`, `what`, `when`, `where`
+
+### 6.1 Variable names and types
+A variable phrase optionally carries a **name** in addition to its **type**, so that several variables of the same type can be distinguished:
+- **Type** = the **head noun** of the phrase. The whole phrase is the variable's **name** (used for identity/co-reference and for display).
+- **Leading qualifier:** an ordinal (`first`, `second`, …, `tenth`) or one of `other, another, new, previous, next, current, last, same, original, single, given` in front of the noun marks a distinct variable of the same type. So `a first person` and `a second person` are **two different variables, both of type `person`**, and a `person` value is accepted in either slot.
+  - `*a first person* greets *a second person*` — two `person` arguments; see `examples/moreExamples/named_vars.le`.
+- **All-caps id convention:** a trailing identifier (a single uppercase letter or a short ALL-CAPS token) is the variable's name, and the preceding noun(s) are the type. `a person X` and `a person Y` are two different variables of type `person`; likewise `a number N`, `a date D`.
+- **Genuine multi-word types** (no leading qualifier / trailing id) are kept whole, e.g. `a bodily injury` has type `bodily injury`, `a repair cost` has type `repair cost`.
+- Repeated occurrences of the *same* phrase co-refer (`a first person` … `the first person`), as in §2.
+
 - **Constants:**
   - Proper names: `Alice`, `Bob`
   - Strings: `"Hello"`, `'World'`
