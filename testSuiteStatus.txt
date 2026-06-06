@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 47
-Total tests:     215
-Passed:          215
+Files processed: 48
+Total tests:     217
+Passed:          217
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -43,6 +43,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/small_business.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/subset.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
