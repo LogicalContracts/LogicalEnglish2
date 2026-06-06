@@ -1,0 +1,29 @@
+the target language is: prolog.
+
+% Named variables: a variable phrase may carry a qualifier in front of its type
+% so that several variables of the same type can be told apart. Here
+% *a first person* and *a second person* are two DIFFERENT variables, both of
+% type 'person' (the head noun). The all-caps id convention (e.g. *a person X*)
+% still works too.
+
+the templates are:
+*a first person* greets *a second person*.
+*a person* is sociable.
+
+the ontology is:
+    alice is a person.
+    bob is a person.
+
+the knowledge base demo includes:
+
+a first person is sociable
+    if the first person greets a second person
+    and the first person is different from the second person.
+
+scenario one is:
+    alice greets bob.
+    bob greets bob.
+    one expects answers ["alice is sociable"].
+
+query one is:
+    which person is sociable.
