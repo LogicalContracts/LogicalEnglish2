@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 46
-Total tests:     214
-Passed:          214
+Files processed: 47
+Total tests:     215
+Passed:          215
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -23,6 +23,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/flying_dragon.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gst.le: 12 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/happy_dragon.le: 2 Pass, 0 Fail, 0 Error

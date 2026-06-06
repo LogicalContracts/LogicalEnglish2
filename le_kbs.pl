@@ -369,6 +369,11 @@ process_item(section_marker(Name, _Start, _End), _M) :-
     retractall(current_section(_)),
     assertz(current_section(Name)).
 
+process_item(clause(Head, _Body, _Start, _End, _ID), _M) :-
+    functor(Head, F, N),
+    is_builtin_functor(F, N), !,
+    % Cannot define clauses for a Prolog built-in head (true/0, false/0, ...).
+    ( do_log -> print_message(informational, 'Skipping clause with built-in head ~w' - [Head]); true).
 process_item(clause(Head, Body, Start, End, ID), M) :-
     ( var(ID) ->
         format(atom(ActualID), 'rule_~w', [Start])
@@ -441,6 +446,14 @@ createSession(KBmodule, SessionModule) :-
 %
 %   Adds a fact to the reasoning session. Fact can be a term or
 %   fact_with_source(Term, Start, End).
+addSessionFact(_SessionModule, Fact) :-
+    ( Fact = fact_with_source(ActualFact, _, _) -> true; ActualFact = Fact ),
+    functor(ActualFact, F, N),
+    is_builtin_functor(F, N), !,
+    % Facts whose functor is a Prolog built-in (true/0, false/0, fail/0, ...)
+    % cannot be asserted (static procedure), and need not be: the reasoner
+    % handles such goals directly. Skip instead of raising a permission error.
+    ( do_log -> print_message(informational, 'Skipping built-in session fact ~w (handled directly by the reasoner)' - [ActualFact]); true).
 addSessionFact(SessionModule, Fact) :-
     ( Fact = fact_with_source(ActualFact, Start, End) -> true; ActualFact = Fact, Start = 0, End = 0),
     ( do_log -> print_message(informational, 'Adding session fact: ~w' - [ActualFact]); true),
@@ -452,6 +465,14 @@ addSessionFact(SessionModule, Fact) :-
           assertz(SessionModule:sessionClause(Ref)),
           ( Start \== 0 -> assertz(SessionModule:le_source_info(Ref, Start, End, session_fact)); true)
     ).
+
+%!  is_builtin_functor(+F:atom, +N:integer) is semidet.
+%
+%   True when F/N names a Prolog built-in (e.g. true/0, false/0, fail/0). Such
+%   predicates are static and cannot be declared dynamic or asserted into.
+is_builtin_functor(F, N) :-
+    functor(G, F, N),
+    catch(predicate_property(G, built_in), _, fail).
 
 %!  negateSessionFact(+SessionModule:atom, +Fact:term) is det.
 %
@@ -721,10 +742,14 @@ queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
 %
 %   Converts a list of tokens/instances into a space-separated string.
 canonical_string(Instance, String) :-
-    (   is_list(Instance) ->  
+    (   is_list(Instance) ->
         maplist(token_to_atom, Instance, Atoms),
-        ( maplist(var, Atoms) -> String = ""; catch(atomic_list_concat(Atoms, ' ', String), _, String = "error"))
-        ;   
+        % Always produce a genuine string. atomic_list_concat/3 yields an atom,
+        % and for a one-token instance that atom can be 'false'/'true', which
+        % would serialize to a JSON boolean (and then render as [object Object]
+        % in the UI). atom_string/2 keeps it a string.
+        ( maplist(var, Atoms) -> String = ""; catch((atomic_list_concat(Atoms, ' ', Atom0), atom_string(Atom0, String)), _, String = "error"))
+        ;
         token_to_atom(Instance, Atom),
         atom_string(Atom, String)
     ).
