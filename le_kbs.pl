@@ -823,8 +823,12 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
             append([for, all, cases, in, which | CondLE], [it, is, the, case, that | ConsLE], WordsAndVars)
         ; WordsAndVars = [for, all, cases, in, which, Cond, it, is, the, case, that, Cons])
     ;   % Pseudo-goals used by the reasoner to render a forall explanation as a
-        % nested branch (see solve_real_actual/8 for forall in reasoner.pl).
-        Head = for_all_cases(Cond) ->
+        % nested branch (see solve_real_actual/8 for forall in reasoner.pl). The
+        % condition is now a separate child branch, so the header carries no
+        % condition; the for_all_cases(Cond) form is kept for compatibility.
+        Head == for_all_cases ->
+        WordsAndVars = [for, all, cases, in, which]
+    ;   Head = for_all_cases(Cond) ->
         ( item_to_instance(KBmodule, Cond, CondLE) ->
             WordsAndVars = [for, all, cases, in, which | CondLE]
         ; WordsAndVars = [for, all, cases, in, which, Cond])

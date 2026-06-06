@@ -130,24 +130,34 @@ solve_real_actual(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggre
     Us = [],
     extract_var(ResultTerm, Result).
 % Forall
-% The explanation is a single nested branch that mirrors the LE surface syntax:
-%   for all cases in which <Cond>
+% The explanation mirrors the LE surface syntax, with the condition and the
+% consequent as separate child branches:
+%   for all cases in which          (success node — the universal holds)
+%     <Cond>                        (its own branch; a FAILURE branch — red — when
+%                                     no cases match, i.e. the universal is vacuously true)
 %     it is the case that
 %       <Cons>
-% (Previously this produced two stacked nodes carrying the whole forall term,
-% which rendered the line twice.)
-solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us, [success(for_all_cases(Cond), universal, ConsWhy)]) :- !,
+solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
+        [success(for_all_cases, universal, [CondWhy, ConsequentWhy])]) :- !,
     D1 is D + 1,
-    findall(UsC-WhysC, solve(Cond, SM, KM, Anc, D1, MyID, UsC, WhysC), CondResults),
-    (   CondResults == [] -> true % vacuously true: no matching cases
+    next_id(CondID),
+    assertz(called(MyID, CondID, Cond)),
+    findall(UsC-WhysC, solve(Cond, SM, KM, Anc, D1, CondID, UsC, WhysC), CondResults),
+    (   CondResults == [] ->
+            % Vacuously true: no matching cases. Explain the condition's FAILURE
+            % so it renders as a (red) negative branch.
+            build_failure_tree(CondID, CondFailWhys),
+            ( CondFailWhys = [CondWhy] -> true ; CondWhy = failure(Cond, CondFailWhys) )
         ;
-        % For each solution of Cond, Cons must succeed
-        forall(member(UsC-WhysC, CondResults),
-               ( UsC == [] -> solve(Cons, SM, KM, Anc, D1, MyID, [], _); true))
+            % At least one case: the consequent must hold for every definite case.
+            forall(member(UsC-WhysC, CondResults),
+                   ( UsC == [] -> solve(Cons, SM, KM, Anc, D1, MyID, [], _) ; true )),
+            CondResults = [_-FirstCondWhys|_],
+            ( FirstCondWhys = [CondWhy] -> true ; CondWhy = success(Cond, universal_condition, FirstCondWhys) )
     ),
     Us = [], % TODO: handle unknowns in forall
     ( Cons = le_at(ConsGoal, CS, CE) -> ConsRef = range(CS, CE) ; ConsGoal = Cons, ConsRef = universal_body ),
-    ConsWhy = [success(it_is_the_case, universal_consequent, [success(ConsGoal, ConsRef, [])])].
+    ConsequentWhy = success(it_is_the_case, universal_consequent, [success(ConsGoal, ConsRef, [])]).
 
 % Negation as Failure
 solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, FailureTrees)]) :- !,
