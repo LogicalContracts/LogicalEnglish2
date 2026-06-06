@@ -7865,13 +7865,17 @@ var leMonarchTokens = {
       [/[.,:]/, "delimiter"]
     ],
     templates: [
+      // Template additions must come first so 'scenario element' is matched
+      // before the keyword.header rule sees the bare word 'scenario'.
+      [/scenario\s+element/, "keyword.addition"],
+      [/defines\s+global/, "keyword.addition"],
+      [/\b(opposite|prepositional|assumable|assumed|unknown|undefined)\b/, "keyword.addition"],
       [/the knowledge base|the contract|scenario|query|the ontology|the target language/, { token: "keyword.header", next: "@pop" }],
       [/\*[^*]+\*/, "variable"],
       [/%.*$/, "comment"],
       [/\/\*/, "comment", "@comment"],
       [/[.,;]/, "delimiter"],
       [/\b(is|are|has|have|was|were|been|does|do|did)\b/, "text"],
-      // Don't color as predicate in definitions
       [/[a-zA-Z_]\w*/, "text"],
       [/./, "text"]
     ],
@@ -38420,10 +38424,10 @@ async function start() {
       { token: "keyword", foreground: "c586c0" },
       { token: "keyword.header", foreground: "569cd6", fontStyle: "bold" },
       { token: "keyword.expects", foreground: "c586c0", fontStyle: "italic" },
+      { token: "keyword.addition", foreground: "c586c0", fontStyle: "italic" },
       { token: "variable", foreground: "9cdcfe" },
       { token: "number.date", foreground: "b5cea8" },
       { token: "templateWord", foreground: "dcdcaa" }
-      // Distinct color for template words
     ],
     colors: {
       "editor.background": "#1e1e1e"
@@ -38436,6 +38440,7 @@ async function start() {
       { token: "keyword", foreground: "af00db" },
       { token: "keyword.header", foreground: "0000ff", fontStyle: "bold" },
       { token: "keyword.expects", foreground: "af00db", fontStyle: "italic" },
+      { token: "keyword.addition", foreground: "af00db", fontStyle: "italic" },
       { token: "variable", foreground: "001080" },
       { token: "number.date", foreground: "098658" },
       { token: "templateWord", foreground: "795e26" }

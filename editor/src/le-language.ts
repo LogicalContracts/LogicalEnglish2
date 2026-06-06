@@ -82,12 +82,17 @@ export const leMonarchTokens = {
         ],
 
         templates: [
+            // Template additions must come first so 'scenario element' is matched
+            // before the keyword.header rule sees the bare word 'scenario'.
+            [/scenario\s+element/, 'keyword.addition'],
+            [/defines\s+global/, 'keyword.addition'],
+            [/\b(opposite|prepositional|assumable|assumed|unknown|undefined)\b/, 'keyword.addition'],
             [/the knowledge base|the contract|scenario|query|the ontology|the target language/, { token: 'keyword.header', next: '@pop' }],
             [/\*[^*]+\*/, 'variable'],
             [/%.*$/, 'comment'],
             [/\/\*/, 'comment', '@comment'],
             [/[.,;]/, 'delimiter'],
-            [/\b(is|are|has|have|was|were|been|does|do|did)\b/, 'text'], // Don't color as predicate in definitions
+            [/\b(is|are|has|have|was|were|been|does|do|did)\b/, 'text'],
             [/[a-zA-Z_]\w*/, 'text'],
             [/./, 'text']
         ],

@@ -18,6 +18,7 @@ verify(KB, Issues) :-
 
 check_issue(KB, Issue) :- missing_template(KB, Issue).
 check_issue(KB, Issue) :- undefined_predicate(KB, Issue).
+check_issue(KB, Issue) :- defined_scenario_element(KB, Issue).
 check_issue(KB, Issue) :- untested_predicate(KB, Issue).
 check_issue(KB, Issue) :- rule_without_variables(KB, Issue).
 check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
@@ -93,9 +94,36 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     \+ is_defined(KB, Literal),
     \+ is_built_in_literal(Literal),
     functor(Literal, FL, AL),
+    % Suppress for predicates declared as scenario elements — those are
+    % intentionally undefined in the KB; they live only in scenarios.
+    \+ is_scenario_element_functor(KB, FL, AL),
     format(atom(Description), "Undefined predicate '~w/~w'", [FL, AL]),
     Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% --- 2b. Defined scenario element ---
+% Fires when a predicate declared 'undefined' (scenario element) has a fact or
+% rule head in the knowledge base. Scenario facts (inside a scenario section)
+% are stored in scenario/2, not as direct KB clauses, so they are not caught —
+% only genuine KB-level facts and rule heads trigger this.
+defined_scenario_element(KB, issue(defined_scenario_element, Description, Fix, Start, End)) :-
+    is_scenario_element_functor(KB, F, A),
+    functor(Head, F, A),
+    current_predicate(KB:F/A),
+    clause(KB:Head, _, Ref),
+    format(atom(Description), "Predicate '~w/~w' is declared 'undefined' (scenario element) but has a definition in the knowledge base", [F, A]),
+    Fix = "remove the fact or rule from the knowledge base, or remove the 'undefined'/'scenario element' annotation from the template.",
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+%!  is_scenario_element_functor(+KB, ?F, ?A) is nondet.
+%
+%   True when F/A corresponds to a template declared 'undefined' (scenario
+%   element) in KB. Checks the stored le_dict 7-arg form.
+is_scenario_element_functor(KB, F, A) :-
+    current_predicate(KB:le_dict/1),
+    clause(KB:le_dict(dict([F|Args], _, _, _, _, _, Unknown)), true),
+    Unknown == scenario_element,
+    length(Args, A).
 
 % find_in_body(+Body, -Literal)
 % Recursively finds literals in a rule body.
@@ -290,8 +318,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg]) },
+    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg]) },
+    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg]) },
     [ '~w: ~w' - [Type, Msg] ].

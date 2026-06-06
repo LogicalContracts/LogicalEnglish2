@@ -467,6 +467,9 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, NTs, FunctorArg
     ;   unknown_keyword ->
         { Unknown = unknown },
         template_additions(Globals, Opposite, OppositeWV, Prep, _, NTs, FunctorArgs, TStart, TEnd)
+    ;   undefined_keyword ->
+        { Unknown = scenario_element },
+        template_additions(Globals, Opposite, OppositeWV, Prep, _, NTs, FunctorArgs, TStart, TEnd)
     ).
 template_additions([], _, _, _, _, _, _, _, _) --> [].
 
@@ -476,6 +479,13 @@ template_additions([], _, _, _, _, _, _, _, _) --> [].
 unknown_keyword --> t(word(unknown)).
 unknown_keyword --> t(word(assumed)).
 unknown_keyword --> t(word(assumable)).
+
+% undefined_keyword marks a template as a scenario element: facts matching it
+% are expected only in scenarios, never defined in the knowledge base. The
+% verifier will suppress 'undefined_predicate' warnings for it and instead warn
+% if it appears as a fact or rule head in the knowledge base.
+undefined_keyword --> t(word(undefined)).
+undefined_keyword --> t(word(scenario)), t(word(element)).
 
 
 % validate_prepositional_template(+Prep, +FunctorArgs, +WordsAndVars, +Start, +End)

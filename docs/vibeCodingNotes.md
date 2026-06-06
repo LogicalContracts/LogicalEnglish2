@@ -1335,6 +1335,10 @@ we will make a payment
     Etc...
 
 
-##
+## Undefined predicates
+Let's add an optional addition to a template, added via the ';' separator as usual: 'undefined' (accept also synonym "scenario element"). The only effects of this addition are on verification. If a template is declared undefined:
+- do not warn  about its undefined predicate
+- do warn if there is a template fact or rule head in the program 
+
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests

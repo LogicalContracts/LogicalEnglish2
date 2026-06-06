@@ -3,20 +3,27 @@
 This document provides a summary of the Logical English constructs supported by the parser in `le_grammar.pl`.
 
 ## Table of Contents
-1. [Document Sections](#1-document-sections)
-2. [Templates](#2-templates)
-3. [Rules and Facts](#3-rules-and-facts)
-4. [Logical Operators](#4-logical-operators)
-5. [Aggregates](#5-aggregates)
-6. [Variables and Constants](#6-variables-and-constants)
-7. [Arithmetic and Comparisons](#7-arithmetic-and-comparisons)
-8. [Taxonomy (Ontology)](#8-taxonomy-ontology)
-9. [Ignorable Words](#9-ignorable-words)
-10. [Comments](#10-comments)
-11. [Meta-Templates](#11-meta-templates)
-12. [Testing and Expectations](#12-testing-and-expectations)
-13. [System Predicates](#13-system-predicates)
-14. [Included Resources](#14-included-resources)
+- [Logical English (LE) Syntax Summary](#logical-english-le-syntax-summary)
+  - [Table of Contents](#table-of-contents)
+  - [1. Document Sections](#1-document-sections)
+  - [2. Templates](#2-templates)
+    - [Template additions (after `;`)](#template-additions-after-)
+    - [2.1 Prepositional templates](#21-prepositional-templates)
+  - [3. Rules and Facts](#3-rules-and-facts)
+    - [3.1 Rule Sections](#31-rule-sections)
+  - [4. Logical Operators](#4-logical-operators)
+  - [5. Aggregates](#5-aggregates)
+  - [6. Variables and Constants](#6-variables-and-constants)
+    - [6.1 Variable names and types](#61-variable-names-and-types)
+  - [7. Arithmetic and Comparisons](#7-arithmetic-and-comparisons)
+    - [7.1 Date Handling and Comparisons](#71-date-handling-and-comparisons)
+  - [8. Taxonomy (Ontology)](#8-taxonomy-ontology)
+  - [9. Ignorable Words](#9-ignorable-words)
+  - [10. Comments](#10-comments)
+  - [11. Meta-Templates](#11-meta-templates)
+  - [12. Testing and Expectations](#12-testing-and-expectations)
+  - [13. System Predicates](#13-system-predicates)
+  - [14. Included Resources](#14-included-resources)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -46,6 +53,10 @@ A template definition can be followed by one or more additions, each introduced 
 - `; defines global <name>; defines global <name2>...` — declares a global abbreviation.
 - `; prepositional` — marks a **prepositional** template (see §2.1).
 - `; unknown` — marks the template as **assumable** (abducible): matching goals that cannot be proven are assumed true and reported as unknowns. The synonyms `; assumed` and `; assumable` are accepted and mean the same thing.
+- `; undefined` — marks the template as a **scenario element**: its facts are expected to appear only in scenarios, never as facts or rule heads in the knowledge base. The synonym `; scenario element` (two words) is also accepted. Effect on verification:
+  - The `undefined_predicate` warning is **suppressed** for this template (even though no KB clause exists for it).
+  - A **`defined_scenario_element` warning** is raised if a fact or rule head with this template is found in the knowledge base.
+  - Example: `*a person* has passed the test; undefined.`
 
 ### 2.1 Prepositional templates
 A prepositional template is a binary template that **starts with an argument** and is used to extend a previous condition. When chaining, the leading argument can be omitted and is filled in automatically from the previous condition's type-compatible variable.
