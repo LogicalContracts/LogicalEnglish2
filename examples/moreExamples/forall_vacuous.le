@@ -1,0 +1,26 @@
+the target language is: prolog.
+
+% A 'for all cases in which <C> it is the case that <D>' with no matching cases
+% succeeds vacuously. This also exercises templates/facts whose names collide
+% with Prolog built-ins (true/false): such facts are skipped rather than raising
+% a "No permission to modify static procedure" error.
+
+the templates are:
+    true.
+    false.
+    test.
+
+the knowledge base includes:
+
+test if
+    for all cases in which
+        false
+        it is the case that
+        false.
+
+scenario one is:
+    true.
+    one expects answers ["test"].
+
+query one is:
+    test.

@@ -1451,7 +1451,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             return node.map((n, index) => explanationToText(n, depth, (index + 1).toString())).join('');
         }
         const indent = '  '.repeat(depth);
-        let text = node.literal || node;
+        let text = (node && typeof node === "object") ? (node.literal ?? "") : node;
         if (node.type === 'failure') {
             text = `${failedNodePrefix}${text}`;
         }
@@ -1479,7 +1479,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             return node.map((n, index) => explanationToHtml(n, depth, (index + 1).toString())).join('');
         }
         const indent = '&nbsp;&nbsp;'.repeat(depth);
-        let text = node.literal || node;
+        let text = (node && typeof node === "object") ? (node.literal ?? "") : node;
         if (node.type === 'failure') {
             text = `${failedNodePrefix}${text}`;
         }
@@ -1569,7 +1569,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
             const text = document.createElement('span');
             text.className = 'tree-text';
-            let labelText = node.literal || node;
+            let labelText = (node && typeof node === "object") ? (node.literal ?? "") : node;
             if (showHierarchicalNumbering && prefix && depth > 0) {
                 labelText = `${prefix} ${labelText}`;
             }
