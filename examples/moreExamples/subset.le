@@ -15,8 +15,6 @@ a set A is a subset of a set B
         it is the case that
         the thing belongs to B.
 
-a thing belongs to a set
-    if the thing is in the set.
     
 query subset is:
     which set is a subset of which other set.
@@ -32,5 +30,9 @@ scenario facts is:
 scenario lists is:
     [Alice, Bob] is a set.
     [Alice] is a set.
+
+    a thing belongs to a set if 
+        the thing is in the set.
+        
     subset expects answers ["[Alice Bob] is a subset of [Alice Bob]", "[Alice] is a subset of [Alice Bob]", "[Alice] is a subset of [Alice]"].
 

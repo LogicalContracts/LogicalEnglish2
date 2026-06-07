@@ -448,7 +448,8 @@ createSession(KBmodule, SessionModule) :-
 %   fact_with_source(Term, Start, End).
 addSessionFact(_SessionModule, Fact) :-
     ( Fact = fact_with_source(ActualFact, _, _) -> true; ActualFact = Fact ),
-    functor(ActualFact, F, N),
+    fact_head(ActualFact, Head),
+    functor(Head, F, N),
     is_builtin_functor(F, N), !,
     % Facts whose functor is a Prolog built-in (true/0, false/0, fail/0, ...)
     % cannot be asserted (static procedure), and need not be: the reasoner
@@ -457,14 +458,24 @@ addSessionFact(_SessionModule, Fact) :-
 addSessionFact(SessionModule, Fact) :-
     ( Fact = fact_with_source(ActualFact, Start, End) -> true; ActualFact = Fact, Start = 0, End = 0),
     ( do_log -> print_message(informational, 'Adding session fact: ~w' - [ActualFact]); true),
-    functor(ActualFact,F,N),
+    % A scenario element may be a plain fact OR a rule (Head :- Body); use the
+    % head's predicate for the dynamic declaration / duplicate check.
+    fact_head(ActualFact, Head),
+    functor(Head, F, N),
     SessionModule:dynamic(F/N),
-    (   (current_predicate(SessionModule:F/N), functor(Template, F, N), SessionModule:clause(Template, true), copy_term(Template, ECopy), copy_term(ActualFact, ACopy), numbervars(ECopy, 0, _), numbervars(ACopy, 0, _), ECopy == ACopy) ->  
+    (   % Collapse duplicate plain facts (not rules) that are variants.
+        ActualFact \= (_ :- _),
+        current_predicate(SessionModule:F/N), functor(Template, F, N), SessionModule:clause(Template, true),
+        copy_term(Template, ECopy), copy_term(ActualFact, ACopy), numbervars(ECopy, 0, _), numbervars(ACopy, 0, _), ECopy == ACopy ->
             ( do_log -> print_message(informational, 'Fact already exists (variant): ~w' - [ActualFact]); true)
         ; assertz(SessionModule:ActualFact, Ref),
           assertz(SessionModule:sessionClause(Ref)),
           ( Start \== 0 -> assertz(SessionModule:le_source_info(Ref, Start, End, session_fact)); true)
     ).
+
+% fact_head(+FactOrRule, -Head): the head predicate term of a session element.
+fact_head((Head :- _Body), Head) :- !.
+fact_head(Head, Head).
 
 %!  is_builtin_functor(+F:atom, +N:integer) is semidet.
 %
