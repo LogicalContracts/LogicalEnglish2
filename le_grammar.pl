@@ -128,10 +128,12 @@ section_start(predicates(_), 0).
 section_start(fluents(_), 0).
 section_start(events(_), 0).
 
+% Only KNOWLEDGE BASE rules count for the "scenario before rules" ordering check.
+% Scenarios (and queries) may legitimately contain their own local rules, so they
+% must NOT be treated as rule-bearing here — otherwise an earlier scenario would
+% be wrongly flagged as appearing before a later scenario's rule.
 is_rule_bearing_section(kb(_, Content, _, _)) :- member(Item, Content), is_rule_item(Item).
-is_rule_bearing_section(scenario(_, Content, _, _)) :- member(rule(_, _, _, _, _, _), Content).
-is_rule_bearing_section(query(_, Content, _, _)) :- member(rule(_, _, _, _, _, _), Content).
-is_rule_bearing_section(unknown_section(Tokens, _, _)) :- 
+is_rule_bearing_section(unknown_section(Tokens, _, _)) :-
     ( member(word(if, _), Tokens) ; member(word(unless, _), Tokens) ).
 
 is_rule_item(rule(_, _, _, _, _, _)).
