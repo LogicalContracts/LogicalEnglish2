@@ -180,38 +180,24 @@ solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negat
     D1 is D + 1,
     next_id(GoalID),
     assertz(called(MyID, GoalID, Goal)),
-    % A definite (Us == []) success of Goal makes not(Goal) fail — and is the
-    % only thing we need from Goal in that case. So short-circuit: stop exploring
-    % the moment one is found (via a throw out of findall), instead of
-    % enumerating Goal's entire — possibly explosive — search space. If there is
-    % no definite success we still enumerate the rest to distinguish "only
-    % unknown successes" (not(Goal) is unknown) from "no success at all"
-    % (not(Goal) succeeds).
+    % not(Goal) fails as soon as Goal succeeds AT ALL — whether definitely or only
+    % by assuming some unknowns true. An assumable success still establishes Goal,
+    % so its negation must fail (it is not merely "unknown"). We therefore
+    % short-circuit on the first success of any kind, recording its why-tree (which
+    % explains, in the surrounding failure explanation, why the negation failed).
+    % Only if Goal has NO proof at all does not(Goal) succeed.
     (   catch(
-            ( findall(UsA-WhysA,
-                  ( solve_real(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA),
-                    ( UsA == [] -> throw('$definite_success'(WhysA)) ; true )
-                  ),
-                  UnknownResults),
-              DefiniteWhys = none ),
-            '$definite_success'(DefW),
-            DefiniteWhys = DefW )
-    ),
-    (   DefiniteWhys \== none ->
-            assertz(success_in_not(GoalID, DefiniteWhys)),
-            fail % Certain success of Goal, so not(Goal) fails
-    ;   UnknownResults \== [] ->
-            Us = [not(Goal)], % Only unknown successes
-            % Goal did not fail — it succeeded, but only as an unknown. Show its
-            % own (unknown-bearing) success tree, which explains WHY it is only
-            % unknown (e.g. assumable conditions), rather than an empty failure
-            % tree: build_failure_tree/2 captures failed branches only, and here
-            % nothing failed.
-            ( UnknownResults = [_-WhysA|_] -> FailureTrees = WhysA ; FailureTrees = [] ),
-            assertz(success_in_not(GoalID, FailureTrees))
-    ;   Us = [], % Certain failure of Goal, so not(Goal) succeeds
-            build_failure_tree(GoalID, FailureTrees),
-            assertz(success_in_not(GoalID, FailureTrees))
+            ( solve_real(Goal, SM, KM, Anc, D1, GoalID, _UsA, WhysA),
+              throw('$goal_succeeded'(WhysA)) ),
+            '$goal_succeeded'(SuccWhys),
+            true )
+    ->  % Goal succeeded (possibly only under assumptions): not(Goal) fails.
+        assertz(success_in_not(GoalID, SuccWhys)),
+        fail
+    ;   % Goal has no proof at all: not(Goal) succeeds.
+        Us = [],
+        build_failure_tree(GoalID, FailureTrees),
+        assertz(success_in_not(GoalID, FailureTrees))
     ).
 
 % True
