@@ -1340,5 +1340,62 @@ Let's add an optional addition to a template, added via the ';' separator as usu
 - do not warn  about its undefined predicate
 - do warn if there is a template fact or rule head in the program 
 
+## Buggy forall
+
+In the example program below, query 1 for scenario one should succeed (because forall(false,anything) succeeds), instead in the UI we see "Error: Operation failed or internal error", and the Prolog log has this:
+
+% Setting scenario by name: one
+ERROR: [Thread httpd@3050_7] '$set_predicate_attribute'/3: No permission to modify static procedure `true/0'
+
+The example program:
+
+the templates are:
+    true.
+    false.
+    test. 
+
+the knowledge base includes:
+
+test if 
+    for all cases in which
+        false
+        it  is the case that
+        false. 
+
+scenario one is: 
+    true.
+
+query 1 is: 
+    test. 
+
+### Negative explanation please
+
+Still in forall_vacuous.le: the explanation for the answer to query one, scenarion one needs to be improved. It is currently:
+
+test
+  for all cases in which false
+    it is the case that
+      false
+
+(all green nodes, as if all had succeeded)
+
+We need two changes:
+- split the Condition in "for all cases in which Condition" into a child node
+- If it has failed, as is the case in this scenario, it should be a negative explanation, ergo red
+
+so the explanation should be instead:
+
+test
+  for all cases in which
+    false  % this node should be red
+    it is the case that
+      false
+
+## Rules in scenarios
+Scenarios need to be able to have rules too, not just facts. For example, in line 34 of examples/moreExamples/subset.le that rule is part of scenario lists.
+
+
+KB
+
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests
