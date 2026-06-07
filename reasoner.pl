@@ -202,7 +202,12 @@ solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negat
             fail % Certain success of Goal, so not(Goal) fails
     ;   UnknownResults \== [] ->
             Us = [not(Goal)], % Only unknown successes
-            build_failure_tree(GoalID, FailureTrees),
+            % Goal did not fail — it succeeded, but only as an unknown. Show its
+            % own (unknown-bearing) success tree, which explains WHY it is only
+            % unknown (e.g. assumable conditions), rather than an empty failure
+            % tree: build_failure_tree/2 captures failed branches only, and here
+            % nothing failed.
+            ( UnknownResults = [_-WhysA|_] -> FailureTrees = WhysA ; FailureTrees = [] ),
             assertz(success_in_not(GoalID, FailureTrees))
     ;   Us = [], % Certain failure of Goal, so not(Goal) succeeds
             build_failure_tree(GoalID, FailureTrees),
