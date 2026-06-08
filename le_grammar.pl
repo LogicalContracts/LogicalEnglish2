@@ -1192,20 +1192,72 @@ second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
-    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->  
+    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->
+        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->
             ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true),
             collect_extra_goals(VMOut, ExtraGoals),
-            ( ExtraGoals == [] -> NewBody = Body0 ; append(ExtraGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
-            ;   
+            % Constrain each head variable to the type named by that variable, so
+            % rules sharing a functor but with differently-typed heads (e.g.
+            % "a payment in respect of a claim if ..." vs "an amount in respect of
+            % a claim if ...") only fire for arguments of the matching type.
+            head_var_type_checks(NewHead, VM1, Templates, TypeChecks),
+            append(TypeChecks, ExtraGoals, PreGoals),
+            ( PreGoals == [] -> NewBody = Body0 ; append(PreGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
+            ;
             ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
             NewBody = true % Fallback
         )
-        ;   
+        ;
         ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
         NewHead = unknown_template(Head),
         ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
     ).
+
+%!  head_var_type_checks(+HeadLiteral, +VM, +Templates, -Checks) is det.
+%
+%   le_type_check/2 goals constraining a head argument to the type named by its
+%   variable in VM (its head-noun type) — but ONLY at *ambiguous* argument
+%   positions: positions where the functor's templates disagree on the type
+%   (e.g. argument 1 of in_respect_of/2 is 'payment' in one template and 'amount'
+%   in another). At unambiguous positions the type is not a discriminator (e.g. a
+%   single 'affiliate' template, where a company may legitimately be an
+%   affiliate), so no check is imposed. A head variable with no name in VM, or
+%   whose type is 'any', also imposes no check.
+%
+%   NB: do NOT use findall/3 to collect the checks — it would copy the
+%   le_type_check terms and detach them from the head variables they constrain.
+head_var_type_checks(HeadLiteral, VM, Templates, Checks) :-
+    ( compound(HeadLiteral), HeadLiteral =.. [F | Args], atom(F)
+    -> length(Args, A), head_arg_type_checks(Args, 1, F, A, Templates, VM, Checks)
+    ;  Checks = [] ).
+
+head_arg_type_checks([], _, _, _, _, _, []).
+head_arg_type_checks([Arg|Args], I, F, A, Templates, VM, Checks) :-
+    (   var(Arg),
+        vm_var_name(VM, Arg, Name),
+        head_noun_type(Name, Type), Type \== any,
+        ambiguous_position(F, A, I, Templates)
+    ->  Checks = [le_type_check(Arg, Type) | Checks0]
+    ;   Checks = Checks0
+    ),
+    I1 is I + 1,
+    head_arg_type_checks(Args, I1, F, A, Templates, VM, Checks0).
+
+% True when two templates for F/A declare different (non-any) types at position I.
+ambiguous_position(F, A, I, Templates) :-
+    findall(T,
+        ( member(dict([F|FormalArgs], NTs, _, _, _, _, _, _, _, _), Templates),
+          length(FormalArgs, A),
+          nth1(I, FormalArgs, FormalArg),
+          ( member(K-Ty, NTs), K == FormalArg -> T = Ty ; T = any )
+        ),
+        Types),
+    exclude(==(any), Types, NonAny),
+    sort(NonAny, Distinct),
+    Distinct = [_, _ | _].
+
+vm_var_name(VM, Var, Name) :-
+    member(Name-V, VM), atom(Name), Name \== '$last_var', V == Var, !.
 
 % Section markers carry no logic; keep them as-is so KB processing can pick up
 % the current section for the rules that follow (see process_item/2).
