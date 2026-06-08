@@ -1510,11 +1510,11 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
     menuCopyExplanation.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (currentWhyToCopy) {
-            // If copying the root node, we don't want a prefix for it, but we want prefixes for its children.
-            // If copying a sub-node, we'll treat it as a new root (no prefix for itself).
-            const text = explanationToText(currentWhyToCopy, 0, "");
-            const html = explanationToHtml(currentWhyToCopy, 0, "");
+        // Always copy the WHOLE explanation tree (all sibling subtrees), not just
+        // the right-clicked node.
+        if (lastWhy) {
+            const text = explanationToText(lastWhy, 0, "");
+            const html = explanationToHtml(lastWhy, 0, "");
             
             try {
                 const clipboardItem = new ClipboardItem({

@@ -39709,9 +39709,9 @@ async function start() {
   };
   menuCopyExplanation.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (currentWhyToCopy) {
-      const text = explanationToText(currentWhyToCopy, 0, "");
-      const html = explanationToHtml(currentWhyToCopy, 0, "");
+    if (lastWhy) {
+      const text = explanationToText(lastWhy, 0, "");
+      const html = explanationToHtml(lastWhy, 0, "");
       try {
         const clipboardItem = new ClipboardItem({
           "text/plain": new Blob([text], { type: "text/plain" }),
