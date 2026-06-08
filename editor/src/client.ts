@@ -1432,6 +1432,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     let currentAnswerToCopy = '';
     let currentWhyToCopy: any = null;
     let lastWhy: any = null;
+    // Per-answer expansion state, kept in memory only (no local/session storage).
+    // Keyed by the answer's `why` object; maps each node's tree path ("1.2.3") to
+    // whether it is expanded, so toggles persist when switching between answers.
+    const explanationExpansion = new WeakMap<object, Map<string, boolean>>();
 
     document.addEventListener('click', () => {
         answerContextMenu.style.display = 'none';
@@ -1531,6 +1535,20 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         explanationTree.innerHTML = '';
         if (!why) return;
 
+        // Recover (or start) the in-memory expansion state for this answer.
+        let expansion: Map<string, boolean>;
+        if (why !== null && typeof why === 'object') {
+            const existing = explanationExpansion.get(why);
+            if (existing) {
+                expansion = existing;
+            } else {
+                expansion = new Map<string, boolean>();
+                explanationExpansion.set(why, expansion);
+            }
+        } else {
+            expansion = new Map<string, boolean>();
+        }
+
         explanationTree.oncontextmenu = (e) => {
             if (e.target === explanationTree) {
                 e.preventDefault();
@@ -1560,10 +1578,13 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
             
             const hasChildren = node.children && node.children.length > 0;
+            // Expansion: use the remembered state for this node path if present,
+            // otherwise the default (top two levels expanded).
+            const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix)! : (depth < 2);
             if (hasChildren) {
                 const toggle = document.createElement('span');
                 toggle.className = 'tree-toggle';
-                toggle.textContent = depth < 2 ? '-' : '+';
+                toggle.textContent = isExpandedNow ? '-' : '+';
                 label.appendChild(toggle);
             }
 
@@ -1607,13 +1628,16 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             if (hasChildren) {
                 const childrenContainer = document.createElement('div');
                 childrenContainer.className = 'tree-children';
-                childrenContainer.style.display = depth < 2 ? 'block' : 'none';
-                
+                childrenContainer.style.display = isExpandedNow ? 'block' : 'none';
+
                 label.querySelector('.tree-toggle')?.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const isExpanded = childrenContainer.style.display !== 'none';
-                    childrenContainer.style.display = isExpanded ? 'none' : 'block';
-                    (e.target as HTMLElement).textContent = isExpanded ? '+' : '-';
+                    const newExpanded = !isExpanded;
+                    childrenContainer.style.display = newExpanded ? 'block' : 'none';
+                    (e.target as HTMLElement).textContent = newExpanded ? '-' : '+';
+                    // Remember this node's expansion state for the current answer.
+                    expansion.set(prefix, newExpanded);
                 });
 
                 node.children.forEach((child: any, index: number) => {
