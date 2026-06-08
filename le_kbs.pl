@@ -6,7 +6,7 @@
 */
 
 :- module(le_kbs, [load/2, load_text/2, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
-    addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4,
+    addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
@@ -745,9 +745,12 @@ is_noise_token(multi_comment(_, _)).
 %
 %   Clears the session, sets a scenario, and runs a query.
 queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
+    queryScenario(SessionModule, ScenarioName, Template, TemplateInstance, _, _).
+
+queryScenario(SessionModule, ScenarioName, Template, TemplateInstance, Unknowns, Why) :-
     clearSession(SessionModule),
     setScenarion(SessionModule, ScenarioName),
-    query(SessionModule, Template, TemplateInstance,_,_).
+    query(SessionModule, Template, TemplateInstance,Unknowns, Why).
 
 %!  canonical_string(+Instance:list, -String:string) is det.
 %

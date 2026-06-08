@@ -33,7 +33,7 @@ As you type, the editor performs real-time verification:
 *   **Quick Fixes:** Hover over an error to see suggested fixes (e.g., automatically adding a missing template).
 *   **Status:** The "Query" button in the bottom panel is disabled if the document contains errors.
 
-![Editor Selection](images/editor_selection.png)
+![Editor Selection](images/an_editor_selection.png)
 
 ## Running Queries
 

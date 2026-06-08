@@ -203,12 +203,10 @@ solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negat
 % True
 solve_real_actual(true, _, _, _, _, _, [], []) :- !.
 
-% Type restriction on a (scenario) variable: succeeds immediately, attaching a
-% lazy constraint that fires once Arg is bound (mirrors check_args_compatibility).
+% Type restriction on a variable: succeeds immediately, attaching a lazy
+% constraint that fires once Arg is bound (mirrors check_args_compatibility).
 solve_real_actual(le_type_check(Arg, Type), SM, KM, _Anc, _D, _MyID, [], [success(le_type_check(Arg, Type), built_in, [])]) :- !,
-    ( KM \== none -> M = KM ; M = SM ),
-    when(nonvar(Arg),
-         ( M:le_type(Arg) -> once(is_a_simple(Arg, Type, M)) ; true )).
+    when(nonvar(Arg), once(type_arg_ok(Arg, Type, SM, KM))).
 
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
@@ -297,20 +295,69 @@ is_type_compatible(SM, KM, G) :-
 check_args_compatibility([], [], _, _, _, _).
 check_args_compatibility([FA|FAs], [AA|AAs], NTs, M, SM, KM) :-
     ( member(FA_-FormalType, NTs), FA_==FA, FormalType \== any ->
-        when(nonvar(AA), (
-            % Only enforce subtyping when BOTH the value is a type AND the formal
-            % type is GROUNDED in the ontology (it has instances or taxonomy
-            % edges). Otherwise the formal type is just a generic variable-name
-            % placeholder (e.g. *sub* isa *super*), and requiring e.g.
-            % dragon to be a subtype of "super" would wrongly reject valid values.
-            ( M:le_type(AA), grounded_type(FormalType, SM, KM) ->
-                once(is_a_simple(AA, FormalType, M))
-            ; true
-            )
-        ))
+        % Goal-level check: lenient — only constrains TYPE-valued arguments (for
+        % taxonomy reasoning). Instance arguments are NOT constrained here, since
+        % this fires for every goal and an instance may legitimately fill a role
+        % slot (e.g. a company acting as an 'affiliate'). Per-rule discrimination
+        % between same-functor templates is done by the head le_type_check goals
+        % at ambiguous positions (see head_var_type_checks/4 in le_grammar).
+        when(nonvar(AA), once(type_value_ok(AA, FormalType, SM, KM)))
     ; true
     ),
     check_args_compatibility(FAs, AAs, NTs, M, SM, KM).
+
+% Like type_arg_ok/4 but only constrains TYPE-valued arguments (no instances).
+type_value_ok(_AA, any, _SM, _KM) :- !.
+type_value_ok(_AA, FormalType, _SM, _KM) :- universal_type(FormalType), !.
+type_value_ok(AA, FormalType, SM, KM) :-
+    ( is_type_value(AA, SM, KM), grounded_type(FormalType, SM, KM)
+    -> type_compatible(AA, FormalType, SM, KM)
+    ; true
+    ).
+
+%!  type_arg_ok(+Arg, +FormalType, +SM, +KM) is semidet.
+%
+%   True when the bound Arg is acceptable in a slot declared as FormalType. It is
+%   lenient by design — it only REJECTS on a clear conflict:
+%    * universal types (thing/object/…) and 'any' accept anything;
+%    * if Arg is itself a TYPE, require it to be a sub-type of FormalType, but
+%      only when FormalType is grounded (so a generic placeholder type like
+%      *super* in "*sub* isa *super*" does not reject a real type value);
+%    * if Arg is an INSTANCE with a known type (an is_a fact, e.g.
+%      "this payment is a payment"), require it to be of type FormalType — so a
+%      payment is rejected for an 'amount' slot;
+%    * otherwise (no known type) accept.
+type_arg_ok(_Arg, any, _SM, _KM) :- !.
+type_arg_ok(_Arg, FormalType, _SM, _KM) :- universal_type(FormalType), !.
+type_arg_ok(Arg, FormalType, SM, KM) :-
+    (   is_type_value(Arg, SM, KM)
+    ->  ( grounded_type(FormalType, SM, KM) -> type_compatible(Arg, FormalType, SM, KM) ; true )
+    ;   instance_has_type(Arg, SM, KM)
+    ->  type_compatible(Arg, FormalType, SM, KM)
+    ;   true
+    ).
+
+universal_type(T) :- memberchk(T, [thing, object, entity, asset, element]).
+
+is_type_value(Arg, SM, KM) :-
+    ( catch(SM:le_type(Arg), _, fail) -> true
+    ; KM \== none, catch(KM:le_type(Arg), _, fail)
+    ).
+
+instance_has_type(Arg, SM, KM) :-
+    ( has_is_a_fact(SM, Arg) -> true
+    ; KM \== none, has_is_a_fact(KM, Arg)
+    ).
+
+has_is_a_fact(Mod, Arg) :-
+    current_predicate(Mod:is_a/2),
+    catch(clause(Mod:is_a(Arg, _), true), _, fail).
+
+% Arg satisfies FormalType via is_a facts in either the session or the KB module.
+type_compatible(Arg, FormalType, SM, KM) :-
+    ( is_a_simple(Arg, FormalType, SM) -> true
+    ; KM \== none, is_a_simple(Arg, FormalType, KM)
+    ).
 
 % grounded_type(+Type, +SM, +KM): Type actually participates in the ontology —
 % something is a Type, or Type is a something — in the session or KB module.
