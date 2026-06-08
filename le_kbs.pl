@@ -808,11 +808,17 @@ item_to_instance(KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), Tok
 item_to_instance(KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), Tokens) :- !,
     maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
 item_to_instance(KBmodule, Head, WordsAndVars) :-
-    (   Head = is_a(Type, SuperType) -> 
+    (   Head = is_a(Type, SuperType) ->
         maybe_transform_value(KBmodule, Type, TypeI),
         maybe_transform_value(KBmodule, SuperType, SuperTypeI),
         flatten([TypeI, is, a, SuperTypeI], WordsAndVars)
-    ;   Head = sum([each, Var], _Goal, [Result]) -> 
+    ;   Head = le_type_check(Arg, Type) ->
+        % A type-restriction goal renders like the type assertion it checks:
+        % le_type_check('this payment', payment) -> "this payment is a payment".
+        maybe_transform_value(KBmodule, Arg, ArgI),
+        ( atom(Type), atom_codes(Type, [C|_]), memberchk(C, [97,101,105,111,117,65,69,73,79,85]) -> Art = an ; Art = a ),
+        flatten([ArgI, is, Art, Type], WordsAndVars)
+    ;   Head = sum([each, Var], _Goal, [Result]) ->
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
         flatten([ResultName, is, the, sum, of, each, VarName, such, that], WordsAndVars)
