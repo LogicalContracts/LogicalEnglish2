@@ -168,7 +168,7 @@ test.describe('Logical English Editor', () => {
     
     // 10. Verify that the explanation tree is populated
     const treeLabel = page.locator('#explanation-tree .tree-label span:not(.tree-toggle)').first();
-    await expect(treeLabel).toBeVisible({ timeout: 15000 });
+    await expect(treeLabel).toBeVisible();
   });
 
   test('should configure explanations preferences', async ({ page }) => {
