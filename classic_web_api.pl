@@ -705,14 +705,19 @@ load_prolog_file(Path, Module) :-
 %   are handled uniformly.
 convert_why_deduped(Why, KB, JSON) :-
     group_repeated_whys(Why, Grouped),
-    convert_why(Grouped, KB, JSON).
+    mark_cross_tree_repeats(Grouped, Marked),
+    convert_why(Marked, KB, JSON).
 
-% A repeated sub-explanation: render the single kept occurrence in full, tagged
-% so the UI can colour it differently and show the "N repeated sub-explanations"
-% tooltip.
+% A repeated sub-explanation grouped from sibling duplicates: render the single
+% kept occurrence in full, tagged with its count ("N repeated sub-explanations").
 convert_why(repeated_group(N, Node), KB, JSON) :- !,
     convert_why(Node, KB, JSON0),
     put_dict(_{repeated: true, repeatedCount: N}, JSON0, JSON).
+% A subtree that is a variant of one already shown elsewhere in the tree: render
+% only its root, tagged repeated (no count). Node already has empty children.
+convert_why(repeated_ref(Node), KB, JSON) :- !,
+    convert_why(Node, KB, JSON0),
+    put_dict(_{repeated: true}, JSON0, JSON).
 convert_why(success(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     is_naf_goal(Goal, Naf),
@@ -837,6 +842,60 @@ why_struct_sig(Node, node_sig(Type, GoalStripped, ChildSigs)) :-
     strip_le_at_deep(Goal, GoalStripped),
     maplist(why_struct_sig, Children, ChildSigs).
 why_struct_sig(Other, other_sig(Other)).
+
+%!  mark_cross_tree_repeats(+Grouped, -Marked) is det.
+%
+%   Collapses subtrees that repeat ACROSS the explanation (not just among
+%   siblings): walking pre-order, the first occurrence of a (non-leaf) subtree is
+%   kept in full and each later occurrence — anywhere else in the forest — becomes
+%   a root-only repeated_ref/1 marker (rendered repeated, WITHOUT a count). Two
+%   subtrees count as the same when their goal-structure signatures are variants.
+%   Leaves are never collapsed (a one-line node is not worth a marker).
+mark_cross_tree_repeats(Grouped, Marked) :-
+    mctr(Grouped, [], _Seen, Marked).
+
+mctr(Whys, SeenIn, SeenOut, Marked) :-
+    is_list(Whys), !,
+    mctr_list(Whys, SeenIn, SeenOut, Marked).
+mctr(repeated_group(N, Node), SeenIn, SeenOut, Out) :- !,
+    node_repeat_key(Node, Key),
+    (   memberchk(Key, SeenIn)
+    ->  root_only_marker(Node, Out), SeenOut = SeenIn
+    ;   mctr_keep_children(Node, [Key|SeenIn], SeenOut, Node1),
+        Out = repeated_group(N, Node1)
+    ).
+mctr(Node, SeenIn, SeenOut, Out) :-
+    why_node(Node, _, _, _, _, Children), !,
+    (   Children == []
+    ->  Out = Node, SeenOut = SeenIn                 % leaf: keep as-is, do not register
+    ;   node_repeat_key(Node, Key),
+        (   memberchk(Key, SeenIn)
+        ->  root_only_marker(Node, Out), SeenOut = SeenIn
+        ;   mctr_keep_children(Node, [Key|SeenIn], SeenOut, Out)
+        )
+    ).
+mctr(Other, Seen, Seen, Other).
+
+mctr_list([], Seen, Seen, []).
+mctr_list([W|Ws], SeenIn, SeenOut, [M|Ms]) :-
+    mctr(W, SeenIn, Seen1, M),
+    mctr_list(Ws, Seen1, SeenOut, Ms).
+
+% Keep a node (its first occurrence): recurse into its children, threading Seen.
+mctr_keep_children(Node, SeenIn, SeenOut, Out) :-
+    why_node(Node, Type, Goal, Range, LE, Children),
+    mctr_list(Children, SeenIn, SeenOut, MarkedChildren),
+    rebuild_why_node(Type, Goal, Range, LE, MarkedChildren, Out).
+
+% A variant-insensitive key for a subtree (numbervars-canonicalised signature).
+node_repeat_key(Node, Key) :-
+    why_struct_sig(Node, Sig),
+    copy_term(Sig, C), numbervars(C, 0, _), term_to_atom(C, Key).
+
+% A root-only copy of Node (children removed), wrapped as a repeated_ref/1 marker.
+root_only_marker(Node, repeated_ref(RootOnly)) :-
+    why_node(Node, Type, Goal, Range, LE, _),
+    rebuild_why_node(Type, Goal, Range, LE, [], RootOnly).
 
 % strip_le_at_deep(+Term, -Stripped): recursively replace every le_at(G,_,_)
 % subterm with G, dropping all embedded source positions.
