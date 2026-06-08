@@ -166,7 +166,7 @@ A variable argument's **type** (§6.1) is used to reject values that do not belo
   a payment in respect of a claim if the payment is in respect of the claim.
   an amount  in respect of a claim if the amount  is in respect of the claim.
   ```
-  the fact `this payment is in respect of this claim` (with `this payment is a payment`) matches **only** the first rule, because `this payment` is rejected for the `amount`-typed head of the second. This per-rule head checking is applied **only at *ambiguous* argument positions** — positions where the predicate's templates disagree on the type (here, argument 1 is `payment` in one template and `amount` in another). At unambiguous positions the type is not a discriminator (e.g. a single `affiliate` template, where a `company` may legitimately act as an `affiliate`), so no head check is imposed. See `examples/moreExamples/insureLE2/hiscoxhappypathcurrency1.le`.
+  the fact `this payment is in respect of this claim` (with `this payment is a payment`) matches **only** the first rule, because `this payment` is rejected for the `amount`-typed head of the second. This per-rule head checking is applied **only at *ambiguous* argument positions** — positions where the predicate's templates disagree on the type (here, argument 1 is `payment` in one template and `amount` in another). At unambiguous positions the type is not a discriminator (e.g. a single `affiliate` template, where a `company` may legitimately act as an `affiliate`), so no head check is imposed. 
 
 In an explanation tree, a type check renders like the assertion it verifies, e.g. `this payment is a payment`.
 
