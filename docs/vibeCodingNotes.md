@@ -1394,6 +1394,96 @@ test
 ## Rules in scenarios
 Scenarios need to be able to have rules too, not just facts. For example, in line 34 of examples/moreExamples/subset.le that rule is part of scenario lists.
 
+## Problems with unless
+query one with scenario exclusion in examples/moreExamples/insureLE2/hiscoxexcludingexclusion.le is producing an incomplete explanation:
+
+we will make a payment
+  it is not the case that we will not make a payment
+    we will not make a payment (RED NODE, failing)
+
+The last node should have some more nodes under it, namely "...in respect of...", the first (prepositional originated) condition in the body of the rule in line 28
+
+Great, the explanation is much better. But now another problem: 
+query one for scenario exclusion should actually fail! Notice that 'we will not make a payment' succeeds (even if with 2 unknown literals assumed true), therefore its parent node 'it is not the case that we will not make a payment' must fail. Cf. explanation, all nodes green/succeeded except where indicated:
+
+we will make a payment
+  it is not the case that we will not make a payment
+    we will not make a payment
+      a payment in respect of this claim % ASSUMED
+      a payment under this policy % ASSUMED
+      this claim or part of this claim or loss is directly or indirectly due to any act breach or omission you deliberately or recklessly commit , condone or ignore
+      it is not the case that a payment and this claim are admissible by the laws of the United Kingdom in relation to compulsory employers ` liability insurance
+        a payment and this claim are admissible by the laws of the United Kingdom in relation to compulsory employers ` liability insurance % FAILED
+
+## lack of type checking
+Now for a a problem with type checking. In example examples/moreExamples/insureLE2/TEMP_hiscoxhappypathcurrency.le, query 1 for scenario zero produces too many answers. Looking at their explanations, I diagnosed one of the reasons for this to be that both the rules in line 139,
+
+    a payment in respect of a claim 
+        if the payment is in respect of the claim.
+
+and the rule in line 151,
+
+    an amount in respect of a claim 
+        if the amount is in respect of the claim.
+
+match the scenario fact in line 264:
+
+    this payment is in respect of this claim.
+
+BUT only the first rule should match, because of argument types: 'this payment' is a payment, therefore it should be rejected by the typechecking vs type 'amount' in the second rule
+
+### Opus 4.8 response
+Your diagnosis was right: both in_respect_of annex rules (payment-typed and amount-typed) matched the scenario fact this payment is in respect of this claim, because the generated clauses carried no type information. Two changes make type-checking discriminate:
+
+1. Instance-aware type checking (reasoner.pl)
+
+The type checks (le_type_check, check_args_compatibility) previously only constrained arguments that were themselves types (le_type(AA)), never instances. They also only looked in the KB module, but scenario is_a facts (like this payment is a payment) live in the session. New helper type_arg_ok/4:
+- accepts any and universal types (thing/object/entity/…);
+- for a type value, requires sub-typing only when the formal type is grounded (preserves the earlier *sub* isa *super* fix);
+- for an instance with a known type (an is_a fact in session or KB), requires it to actually be of the formal type — so a payment is rejected for an amount slot;
+- otherwise accepts.
+
+2. Per-rule head type checks at ambiguous positions (le_grammar.pl)
+
+Each KB rule clause now gets le_type_check goals on its head variables (typed by the variable's own name) — but only at argument positions where the functor's templates disagree on the type. So in_respect_of/2 (arg 1 is payment in one template, amount in another) gets checked and the rules become … :- le_type_check(A, payment/amount), …; a single-template role like affiliate does not, so a company acting as an affiliate is still accepted.
+
+The goal-level check_args_compatibility was kept lenient (type-values only, via type_value_ok) — instance discrimination happens solely through the gated head checks. That distinction is exactly what fixed the regression I first hit (4_affiliates_3 rejecting his_company as an affiliate).
+
+Net result: in_respect_of(this_payment, this_claim) now matches only the payment rule.
+
+Note: query 1 still returns 2 answers — you said the in_respect_of clash was one of the reasons for over-answering, so there may be other causes left to chase; this fix removes the one you diagnosed. Want me to dig into what's behind the remaining two?
+
+
+Why query 1 had 2 answers (diagnosis)
+
+Both answers are identical — same instance (we will make this payment) and same unknowns ([]). They come from two distinct proofs of the same answer: the annex rule
+
+all claims and losses … will be regarded as parts of a single claim if
+    … arise from the same original cause or source of the single claim
+    or … arise from a repeated or continuing series of events for the single claim.
+
+has an or, and in scenario zero both branches hold (each is a for all cases … that's vacuously true — there are no matching losses). So …fulfils all the general conditions… is proved two ways, yielding the same we will make this payment twice. This is correct reasoning, just redundant in the answer list.
+
+Fix 1 — deduplicate answers (classic_web_api.pl)
+
+run_answering_query/4 now collects answers keyed by (answer string + unknowns) and keeps the first proof of each via dedup_keep_first/2. So identical answers are listed once; answers that genuinely differ (different bindings or different unknowns) are preserved. (The test harness already deduped via sort, which is why the suite was unaffected.) → query 1 now returns 1 answer.
+
+Fix 2 — render le_type_check nicely (le_kbs.pl)
+
+Added an item_to_instance/3 case so a le_type_check(Arg, Type) node renders like the type assertion it checks, with a/an agreement:
+- le_type_check('this payment', payment) → "this payment is a payment"
+- le_type_check(X, amount) → "X is an amount"
+
+
+Done. handle_explain/2 now applies the same answer deduplication as run_answering_query/4:
+
+- It collects (answer string + unknowns)-JSONWhy pairs and runs them through the shared dedup_keep_first/2, so repeated proofs of the same answer yield a single explanation rather than one per proof path.
+- Distinct answers (different bindings or different unknowns) are still all returned.
+
+
+
+## TBD
+When looking at the explanations of multiple answers, we need the expansion state of each explanation tree to persist as the user goes back and forth between answers. do NO use local nor session storage for this, just state inside the page
 
 KB
 

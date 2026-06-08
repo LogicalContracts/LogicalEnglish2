@@ -225,9 +225,15 @@ handle_logout(Request) :-
 %!  landing_example_items(+Dir:atom, +UserRoles:list, -Items:list) is det.
 %
 %   Builds HTML list items for all examples in Dir, grouping subdirectory
-%   examples under an indented header.
+%   examples under an indented header. Subdirectories are recursed into to any
+%   depth, so e.g. examples/.../insureLE2/testing/foo appears as
+%   insureLE2/ > testing/ > foo.
 landing_example_items(Dir, UserRoles, Items) :-
+    landing_example_items(Dir, '', UserRoles, Items).
+
+landing_example_items(Dir, Prefix, UserRoles, Items) :-
     directory_files(Dir, Files),
+    % Examples directly in this directory.
     findall(Base, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
@@ -239,31 +245,22 @@ landing_example_items(Dir, UserRoles, Items) :-
     sort(Bases0, Bases),
     findall(li(a([href(Url)], Base)), (
         member(Base, Bases),
-        format(atom(Url), '/editor/index.html?example=~w', [Base])
+        atomic_list_concat([Prefix, Base], ExampleName),
+        format(atom(Url), '/editor/index.html?example=~w', [ExampleName])
     ), DirectItems),
-    findall(li([b([SubDir, '/']), ul(SubItems)]), (
+    % Subdirectories, recursed into (header + nested list).
+    findall(SubDir-li([b([SubDir, '/']), ul(SubItems)]), (
         member(SubDir, Files),
         \+ sub_atom(SubDir, 0, 1, _, '.'),
         directory_file_path(Dir, SubDir, SubDirPath),
         exists_directory(SubDirPath),
         is_path_allowed(SubDirPath, UserRoles),
-        directory_files(SubDirPath, SubFiles),
-        findall(SubBase, (
-            member(SF, SubFiles),
-            sub_atom(SF, _, _, 0, '.le'),
-            \+ sub_atom(SF, _, _, 0, '.le.tests'),
-            file_name_extension(SubBase, le, SF),
-            atomic_list_concat([SubDirPath, '/', SF], SubExPath),
-            is_path_allowed(SubExPath, UserRoles)
-        ), SubBases0),
-        sort(SubBases0, SubBases),
-        SubBases \= [],
-        findall(li(a([href(SubUrl)], SubBase)), (
-            member(SubBase, SubBases),
-            atomic_list_concat([SubDir, '/', SubBase], ExPath),
-            format(atom(SubUrl), '/editor/index.html?example=~w', [ExPath])
-        ), SubItems)
-    ), SubDirItems),
+        atomic_list_concat([Prefix, SubDir, '/'], SubPrefix),
+        landing_example_items(SubDirPath, SubPrefix, UserRoles, SubItems),
+        SubItems \= []
+    ), SubDirPairs),
+    keysort(SubDirPairs, SubDirSorted),
+    pairs_values(SubDirSorted, SubDirItems),
     append(DirectItems, SubDirItems, Items).
 
 format_test_results(Results, UserRoles, [h3('Test Results'), table([border(1), cellpadding(5)], [
@@ -384,7 +381,18 @@ handle_explain(Dict, Response) :-
     load_le_text(Doc, KB),
     setup_call_cleanup(
         createSession(KB, SM),
-        ( setScenarion(SM, Scenario) -> findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why_deduped(Why, KB, JSONWhy)), Results), Response = _{results: Results}; Response = _{error: "Scenario not found"}),
+        ( setScenarion(SM, Scenario) ->
+            % Keep one explanation per distinct answer (answer string + unknowns),
+            % so repeated proofs of the same answer aren't listed multiple times.
+            findall((AnswerStr-UnknownsKey)-JSONWhy, (
+                    query(SM, Query, Instance, Us, Why),
+                    canonical_string(Instance, AnswerStr),
+                    convert_why_deduped(Why, KB, JSONWhy),
+                    ( copy_term(Us, UsC), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' )
+                ), Keyed),
+            dedup_keep_first(Keyed, Results),
+            Response = _{results: Results}
+        ; Response = _{error: "Scenario not found"} ),
         destroySession(SM)
     ).
 
@@ -478,12 +486,17 @@ handle_answering_query(Dict, Response) :-
 
 run_answering_query(SM, Query, KB, Response) :-
     print_message(informational, 'Answering query: ~w in session ~w' - [Query, SM]),
-    findall(_{answer: AnswerStr, why: JSONWhy}, (
-            query(SM, Query, Instance, _Us, Why),
+    % A query can have several proofs of the SAME answer (e.g. an 'or' whose
+    % branches both hold). Collect them keyed by (answer string + unknowns) and
+    % keep only the first of each, so the same answer is not listed repeatedly.
+    findall((AnswerStr-UnknownsKey)-_{answer: AnswerStr, why: JSONWhy}, (
+            query(SM, Query, Instance, Us, Why),
             canonical_string(Instance, AnswerStr),
             convert_why_deduped(Why, KB, JSONWhy),
+            ( copy_term(Us, UsC), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' ),
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
-        ), Results),
+        ), KeyedResults),
+    dedup_keep_first(KeyedResults, Results),
     (   Results \== [] ->  
         length(Results, Count),
         print_message(informational, 'Total answers found: ~w' - [Count]),
@@ -497,6 +510,15 @@ run_answering_query(SM, Query, KB, Response) :-
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
     ).
+
+% dedup_keep_first(+KeyedPairs, -Values): the first Value for each distinct Key,
+% preserving order.
+dedup_keep_first(Pairs, Values) :- dedup_keep_first(Pairs, [], Values).
+dedup_keep_first([], _, []).
+dedup_keep_first([K-V|Rest], Seen, Out) :-
+    ( memberchk(K, Seen) -> Out = Out1, Seen1 = Seen
+    ; Out = [V|Out1], Seen1 = [K|Seen] ),
+    dedup_keep_first(Rest, Seen1, Out1).
 
 handle_get_game_data(Dict, _{error: "Session expired", session_expired: true}) :-
     get_dict(sessionModule, Dict, SMStr),
