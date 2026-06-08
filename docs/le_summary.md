@@ -15,6 +15,7 @@ This document provides a summary of the Logical English constructs supported by 
   - [5. Aggregates](#5-aggregates)
   - [6. Variables and Constants](#6-variables-and-constants)
     - [6.1 Variable names and types](#61-variable-names-and-types)
+    - [6.2 Type checking](#62-type-checking)
   - [7. Arithmetic and Comparisons](#7-arithmetic-and-comparisons)
     - [7.1 Date Handling and Comparisons](#71-date-handling-and-comparisons)
   - [8. Taxonomy (Ontology)](#8-taxonomy-ontology)
@@ -153,6 +154,21 @@ A variable phrase optionally carries a **name** in addition to its **type**, so 
 - **All-caps id convention:** a trailing identifier (a single uppercase letter or a short ALL-CAPS token) is the variable's name, and the preceding noun(s) are the type. `a person X` and `a person Y` are two different variables of type `person`; likewise `a number N`, `a date D`.
 - **Genuine multi-word types** (no leading qualifier / trailing id) are kept whole, e.g. `a bodily injury` has type `bodily injury`, `a repair cost` has type `repair cost`.
 - Repeated occurrences of the *same* phrase co-refer (`a first person` … `the first person`), as in §2.
+
+### 6.2 Type checking
+A variable argument's **type** (§6.1) is used to reject values that do not belong to it. Type checking is **lazy** (it fires once the argument is bound) and **lenient** (it only rejects on a clear conflict — an argument of unknown type is always accepted). Both the **session** (scenario facts) and the **knowledge base** are consulted for `is_a` facts.
+
+- **Instance values.** A value with a known type — i.e. there is an `is_a` fact for it (including a scenario fact such as `this payment is a payment`) — is accepted in a slot of type `T` only if it *is a* `T` (directly, or through the `is_a` taxonomy / a head-noun match). So a value declared a `payment` is **rejected** for an `amount` slot. A value with **no** known type imposes no constraint.
+- **Type values.** When a value is itself a *type* (used in taxonomy reasoning, e.g. `*sub* isa *super*`), it is required to be a sub-type of the slot's type — but only when that slot type is **grounded** (it participates in the ontology: something is a `T`, or `T` is a something). A purely generic placeholder type like `super`, which nothing is a and which is not a sub/super of anything, imposes no constraint, so a real type value such as `dragon` is accepted there.
+- **Universal types.** `any`, and the universal types `thing`, `object`, `entity`, `asset`, `element`, accept any value.
+- **Disambiguating same-functor rules.** Rules whose heads share a predicate but declare **different argument types** are kept apart by type. For example, given both prepositional bridges
+  ```le
+  a payment in respect of a claim if the payment is in respect of the claim.
+  an amount  in respect of a claim if the amount  is in respect of the claim.
+  ```
+  the fact `this payment is in respect of this claim` (with `this payment is a payment`) matches **only** the first rule, because `this payment` is rejected for the `amount`-typed head of the second. This per-rule head checking is applied **only at *ambiguous* argument positions** — positions where the predicate's templates disagree on the type (here, argument 1 is `payment` in one template and `amount` in another). At unambiguous positions the type is not a discriminator (e.g. a single `affiliate` template, where a `company` may legitimately act as an `affiliate`), so no head check is imposed. See `examples/moreExamples/insureLE2/hiscoxhappypathcurrency1.le`.
+
+In an explanation tree, a type check renders like the assertion it verifies, e.g. `this payment is a payment`.
 
 - **Constants:**
   - Proper names: `Alice`, `Bob`

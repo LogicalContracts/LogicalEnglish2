@@ -39643,6 +39643,7 @@ async function start() {
   let currentAnswerToCopy = "";
   let currentWhyToCopy = null;
   let lastWhy = null;
+  const explanationExpansion = /* @__PURE__ */ new WeakMap();
   document.addEventListener("click", () => {
     answerContextMenu.style.display = "none";
     explanationContextMenu.style.display = "none";
@@ -39728,6 +39729,18 @@ async function start() {
     explanationTree.innerHTML = "";
     if (!why)
       return;
+    let expansion;
+    if (why !== null && typeof why === "object") {
+      const existing = explanationExpansion.get(why);
+      if (existing) {
+        expansion = existing;
+      } else {
+        expansion = /* @__PURE__ */ new Map();
+        explanationExpansion.set(why, expansion);
+      }
+    } else {
+      expansion = /* @__PURE__ */ new Map();
+    }
     explanationTree.oncontextmenu = (e) => {
       if (e.target === explanationTree) {
         e.preventDefault();
@@ -39751,10 +39764,11 @@ async function start() {
         label.title = typeof repCount === "number" && repCount > 1 ? `${repCount} repeated sub-explanations` : "Repeated sub-explanation";
       }
       const hasChildren = node.children && node.children.length > 0;
+      const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix) : depth < 2;
       if (hasChildren) {
         const toggle = document.createElement("span");
         toggle.className = "tree-toggle";
-        toggle.textContent = depth < 2 ? "-" : "+";
+        toggle.textContent = isExpandedNow ? "-" : "+";
         label.appendChild(toggle);
       }
       const text = document.createElement("span");
@@ -39797,12 +39811,14 @@ async function start() {
       if (hasChildren) {
         const childrenContainer = document.createElement("div");
         childrenContainer.className = "tree-children";
-        childrenContainer.style.display = depth < 2 ? "block" : "none";
+        childrenContainer.style.display = isExpandedNow ? "block" : "none";
         label.querySelector(".tree-toggle")?.addEventListener("click", (e) => {
           e.stopPropagation();
           const isExpanded = childrenContainer.style.display !== "none";
-          childrenContainer.style.display = isExpanded ? "none" : "block";
-          e.target.textContent = isExpanded ? "+" : "-";
+          const newExpanded = !isExpanded;
+          childrenContainer.style.display = newExpanded ? "block" : "none";
+          e.target.textContent = newExpanded ? "-" : "+";
+          expansion.set(prefix, newExpanded);
         });
         node.children.forEach((child, index) => {
           const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
