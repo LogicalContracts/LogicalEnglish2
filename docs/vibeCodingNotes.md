@@ -1483,9 +1483,6 @@ Done. handle_explain/2 now applies the same answer deduplication as run_answerin
 
 
 ## TBD
-When looking at the explanations of multiple answers, we need the expansion state of each explanation tree to persist as the user goes back and forth between answers. do NO use local nor session storage for this, just state inside the page
-
-KB
 
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
 MCP tests
