@@ -148,6 +148,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
         let showHierarchicalNumbering = localStorage.getItem('le-hierarchical-numbering') === 'true';
         let failedNodePrefix = localStorage.getItem('le-failed-node-prefix') ?? 'x ';
+        let detailedFailures = localStorage.getItem('le-detailed-failures') === 'true';
         
         const numberingCheck = document.getElementById('hierarchical-numbering-check');
         if (numberingCheck) {
@@ -815,10 +816,12 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const explanationsCancel = document.getElementById('explanations-cancel');
     const explanationsSave = document.getElementById('explanations-save');
     const failedPrefixInput = document.getElementById('failed-prefix-input') as HTMLInputElement;
+    const detailedFailuresInput = document.getElementById('detailed-failures-input') as HTMLInputElement;
 
     const openExplanationsModal = () => {
         if (explanationsModal && failedPrefixInput) {
             failedPrefixInput.value = failedNodePrefix;
+            if (detailedFailuresInput) detailedFailuresInput.checked = detailedFailures;
             explanationsModal.style.display = 'flex';
         }
     };
@@ -834,6 +837,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (failedPrefixInput) {
             failedNodePrefix = failedPrefixInput.value;
             localStorage.setItem('le-failed-node-prefix', failedNodePrefix);
+        }
+        if (detailedFailuresInput) {
+            detailedFailures = detailedFailuresInput.checked;
+            localStorage.setItem('le-detailed-failures', detailedFailures.toString());
         }
         closeExplanationsModal();
     });
@@ -1723,7 +1730,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     scenario: scenario,
                     customScenario: customScenario,
                     customQuery: customQuery,
-                    debug: true
+                    debug: true,
+                    detailedFailures: detailedFailures
                 })
             }).then(res => res.json()).then(data => {
                 console.log('Debug query finished', data);
@@ -1912,7 +1920,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     query: query,
                     scenario: scenario,
                     customScenario: customScenario,
-                    customQuery: customQuery
+                    customQuery: customQuery,
+                    detailedFailures: detailedFailures
                 })
             }).then(r => r.json());
 
@@ -2010,7 +2019,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     query: query,
                     scenario: scenario,
                     customScenario: customScenario,
-                    customQuery: customQuery
+                    customQuery: customQuery,
+                    detailedFailures: detailedFailures
                 })
             }).then(r => r.json());
 

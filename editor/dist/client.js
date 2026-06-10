@@ -38489,6 +38489,7 @@ async function start() {
   const savedFontSize = parseInt(localStorage.getItem("le-editor-font-size") || "16");
   let showHierarchicalNumbering = localStorage.getItem("le-hierarchical-numbering") === "true";
   let failedNodePrefix = localStorage.getItem("le-failed-node-prefix") ?? "x ";
+  let detailedFailures = localStorage.getItem("le-detailed-failures") === "true";
   const numberingCheck = document.getElementById("hierarchical-numbering-check");
   if (numberingCheck) {
     numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
@@ -39090,9 +39091,12 @@ async function start() {
   const explanationsCancel = document.getElementById("explanations-cancel");
   const explanationsSave = document.getElementById("explanations-save");
   const failedPrefixInput = document.getElementById("failed-prefix-input");
+  const detailedFailuresInput = document.getElementById("detailed-failures-input");
   const openExplanationsModal = () => {
     if (explanationsModal && failedPrefixInput) {
       failedPrefixInput.value = failedNodePrefix;
+      if (detailedFailuresInput)
+        detailedFailuresInput.checked = detailedFailures;
       explanationsModal.style.display = "flex";
     }
   };
@@ -39107,6 +39111,10 @@ async function start() {
     if (failedPrefixInput) {
       failedNodePrefix = failedPrefixInput.value;
       localStorage.setItem("le-failed-node-prefix", failedNodePrefix);
+    }
+    if (detailedFailuresInput) {
+      detailedFailures = detailedFailuresInput.checked;
+      localStorage.setItem("le-detailed-failures", detailedFailures.toString());
     }
     closeExplanationsModal();
   });
@@ -39893,7 +39901,8 @@ async function start() {
           scenario,
           customScenario,
           customQuery,
-          debug: true
+          debug: true,
+          detailedFailures
         })
       }).then((res) => res.json()).then((data4) => {
         console.log("Debug query finished", data4);
@@ -40055,7 +40064,8 @@ async function start() {
           query,
           scenario,
           customScenario,
-          customQuery
+          customQuery,
+          detailedFailures
         })
       }).then((r) => r.json());
       let res = await runAnsweringQuery();
@@ -40144,7 +40154,8 @@ async function start() {
           query,
           scenario,
           customScenario,
-          customQuery
+          customQuery,
+          detailedFailures
         })
       }).then((r) => r.json());
       let res = await runGetGameData();

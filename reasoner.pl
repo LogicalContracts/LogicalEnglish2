@@ -12,11 +12,12 @@
 :- use_module(library(pairs)).
 
 :- dynamic equal_to/2.
-:- thread_local called/3, counter/1, success_in_not/2, succeeded/1.
+:- thread_local called/3, called_clause/3, counter/1, success_in_not/2, succeeded/1.
 
 %!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
+    retractall(called_clause(_, _, _)),
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
     init_counter,
@@ -40,6 +41,7 @@ i(Goal, SessionModule, Unknowns, Whys) :-
 %   Similar to i/4, but always returns an explanation tree (success or failure).
 explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
+    retractall(called_clause(_, _, _)),
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
     init_counter,
@@ -248,13 +250,13 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             (   has_opposite(G, SM, KM, OppG), \+ member(OppG, Anc) ->
                 ( le_kbs:do_log -> format('Solving ~w with opposite ~w\n', [G, OppG]) ; true ),
                 % Solve Body, then check that OppG is not true for reasons OTHER than not(G)
-                solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody),
+                solve_rule_body(Body, SM, KM, [G|Anc], D1, MyID, Ref, Us, WhysBody),
                 \+ ( get_clause(OppG, SM, KM, OppBody, OppRef),
                      OppRef \== implicit_opposite,
                      % Use a fresh Anc for OppBody to avoid loop but allow checking G
                      solve(OppBody, SM, KM, [OppG], D1, MyID, [], _)
                    )
-            ;   solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
+            ;   solve_rule_body(Body, SM, KM, [G|Anc], D1, MyID, Ref, Us, WhysBody)
             )
         ; get_clause(le_unknown(G), SM, KM, UnkBody, _UnkRef),
           \+ SM:le_neg(le_unknown(G)),
@@ -380,13 +382,41 @@ is_a_simple(X, Z, M) :- M:clause(is_a(X, Y), true), Y \== Z, is_a_simple(Y, Z, M
 % accepted as values of type person.
 is_a_simple(X, Z, M) :- atom(Z), le_grammar:head_noun_type(Z, HZ), HZ \== Z, is_a_simple(X, HZ, M).
 
+%!  detailed_failures_on(+SM) is semidet.
+%   True when the session has requested detailed (per-rule) failure explanations.
+detailed_failures_on(SM) :- catch(SM:detailed_failures, _, fail).
+
+%!  solve_rule_body(+Body, +SM, +KM, +Anc, +D, +MyID, +Ref, -Us, -WhysBody)
+%   Solves the body of a clause Ref under goal MyID. When detailed failures are
+%   enabled and Body is a real rule body (not a fact's `true`), the body's
+%   subgoals are solved under a FRESH clause id, recorded as
+%   called_clause(MyID, ClauseID, Ref), so build_failure_tree/2 can group the
+%   subgoal failures under a "failed rule" node. Otherwise (default) the body is
+%   solved directly under MyID, exactly as before.
+solve_rule_body(Body, SM, KM, Anc, D, MyID, Ref, Us, WhysBody) :-
+    (   Body \== true, detailed_failures_on(SM)
+    ->  next_id(ClauseID),
+        assertz(called_clause(MyID, ClauseID, Ref)),
+        solve(Body, SM, KM, Anc, D, ClauseID, Us, WhysBody)
+    ;   solve(Body, SM, KM, Anc, D, MyID, Us, WhysBody)
+    ).
+
 % build_failure_tree(+ID, -Whys)
-% Reconstructs a list of "juicy" failure trees of all calls made under ID.
+% Reconstructs a list of "juicy" failure trees of all calls made under ID. When
+% detailed failures are enabled, each attempted rule body recorded via
+% called_clause/3 becomes an intermediate failed_rule(Ref, BodyWhys) node — but a
+% predicate with a single rule keeps its subgoal failures directly (no rule node).
 build_failure_tree(ID, Whys) :-
     (   success_in_not(ID, Whys) -> true
     ;   succeeded(ID) -> Whys = []
-    ;   ( findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), AllWhys0) -> true ; AllWhys0 = []),
-        group_variant_whys(AllWhys0, AllWhys),
+    ;   % Per-rule failure nodes (only present when detailed failures are on).
+        findall(failed_rule(Ref, ClauseWhys),
+                ( called_clause(ID, ClauseID, Ref),
+                  clause_failure_children(ClauseID, ClauseWhys) ),
+                RuleNodes),
+        % Direct subgoal failures (the default path, and non-rule calls).
+        clause_failure_children(ID, DirectWhys),
+        combine_clause_children(RuleNodes, DirectWhys, AllWhys),
         (   called(_PID, ID, Term)
         ->  (   (AllWhys = [failure(Term2, Children)], variant_or_le_at_variant(Term, Term2))
             ->  Whys = [failure(Term, Children)] % Collapse pass-through
@@ -395,6 +425,21 @@ build_failure_tree(ID, Whys) :-
         ;   Whys = AllWhys
         )
     ).
+
+% Collect and group the failure subtrees of the calls made directly under ID.
+clause_failure_children(ID, Grouped) :-
+    ( findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys0) -> true ; Whys0 = [] ),
+    group_variant_whys(Whys0, Grouped).
+
+% combine_clause_children(+RuleNodes, +DirectWhys, -AllWhys)
+% No rule nodes -> just the direct failures. A SINGLE rule -> drop the rule node
+% and surface its subgoal failures directly. Several rules -> keep one
+% failed_rule node per rule.
+combine_clause_children([], DirectWhys, DirectWhys) :- !.
+combine_clause_children([failed_rule(_Ref, ClauseWhys)], DirectWhys, AllWhys) :- !,
+    append(ClauseWhys, DirectWhys, AllWhys).
+combine_clause_children(RuleNodes, DirectWhys, AllWhys) :-
+    append(RuleNodes, DirectWhys, AllWhys).
 
 % group_variant_whys(+Whys, -Grouped)
 % Collapses sibling sub-explanations that are variants of each other (same shape
