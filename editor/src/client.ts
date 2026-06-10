@@ -1892,12 +1892,17 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         clearTimeout(interruptTimer);
         btnInterruptQuery.style.display = 'none';
         btnInterruptQuery.disabled = false;
-        interruptTimer = window.setTimeout(() => { btnInterruptQuery.style.display = ''; }, 2000);
+        interruptTimer = window.setTimeout(() => {
+            btnInterruptQuery.style.display = '';
+            // Show a waiting cursor while the (long-running) query is in progress.
+            document.body.style.cursor = 'wait';
+        }, 2000);
     };
     const hideInterrupt = () => {
         clearTimeout(interruptTimer);
         interruptTimer = undefined;
         btnInterruptQuery.style.display = 'none';
+        document.body.style.cursor = '';
     };
     btnInterruptQuery.addEventListener('click', () => {
         btnInterruptQuery.disabled = true;

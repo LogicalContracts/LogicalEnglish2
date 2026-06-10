@@ -40041,12 +40041,14 @@ async function start() {
     btnInterruptQuery.disabled = false;
     interruptTimer = window.setTimeout(() => {
       btnInterruptQuery.style.display = "";
+      document.body.style.cursor = "wait";
     }, 2e3);
   };
   const hideInterrupt = () => {
     clearTimeout(interruptTimer);
     interruptTimer = void 0;
     btnInterruptQuery.style.display = "none";
+    document.body.style.cursor = "";
   };
   btnInterruptQuery.addEventListener("click", () => {
     btnInterruptQuery.disabled = true;
