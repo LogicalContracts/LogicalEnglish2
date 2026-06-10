@@ -1,7 +1,7 @@
 
 Test Summary:
 -------------
-Files processed: 54
+Files processed: 55
 Total tests:     221
 Passed:          221
 Failed:          0
@@ -31,6 +31,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/named_vars.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/nonterminating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbering_test.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbers.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/only_if.le: 4 Pass, 0 Fail, 0 Error

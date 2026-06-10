@@ -1884,12 +1884,37 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         document.body.style.userSelect = 'auto';
     });
 
+    // Interrupt support for long-running queries: the button appears after 2s of
+    // waiting and signals the server to abort the in-progress query.
+    const btnInterruptQuery = document.getElementById('btn-interrupt-query') as HTMLButtonElement;
+    let interruptTimer: number | undefined;
+    const showInterruptSoon = () => {
+        clearTimeout(interruptTimer);
+        btnInterruptQuery.style.display = 'none';
+        btnInterruptQuery.disabled = false;
+        interruptTimer = window.setTimeout(() => { btnInterruptQuery.style.display = ''; }, 2000);
+    };
+    const hideInterrupt = () => {
+        clearTimeout(interruptTimer);
+        interruptTimer = undefined;
+        btnInterruptQuery.style.display = 'none';
+    };
+    btnInterruptQuery.addEventListener('click', () => {
+        btnInterruptQuery.disabled = true;
+        btnInterruptQuery.textContent = 'Interrupting…';
+        fetch('/leapi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: 'myToken123', operation: 'interruptQuery', sessionModule: sessionModule })
+        }).catch(() => {}).finally(() => { btnInterruptQuery.textContent = 'Interrupt'; });
+    });
+
     btnQuery.addEventListener('click', async () => {
         if (!isLoaded) {
             const success = await loadModule();
             if (!success) return;
         }
-        
+
         const scenario = scenarioSelect.value;
         const query = querySelect.value;
         
@@ -1908,7 +1933,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         
         answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
         explanationTree.innerHTML = '';
-        
+        showInterruptSoon();
+
         try {
             const runAnsweringQuery = () => fetch('/leapi', {
                 method: 'POST',
@@ -1977,6 +2003,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 });
                 answersList.appendChild(item);
                 renderExplanation(res.why);
+            } else if (res && res.interrupted) {
+                answersList.textContent = 'Query interrupted.';
             } else if (res && res.error) {
                 answersList.textContent = 'Error: ' + res.error;
             } else {
@@ -1985,6 +2013,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         } catch (err) {
             answersList.textContent = 'Error executing query.';
             console.error(err);
+        } finally {
+            hideInterrupt();
         }
     });
 

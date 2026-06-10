@@ -539,10 +539,14 @@ call_reasoner_built_in(prolog_call(G), SM) :- !,
     % Resolve the goal in the first module context that yields a solution and
     % commit to it (soft-cut), so we don't re-enumerate the same solutions in
     % each fallback context (which would return duplicate answers).
+    % Only catch "predicate not defined in this module" so we can fall through to
+    % the next module context. Other exceptions — including the user's query
+    % interrupt and time limits — MUST propagate, not be swallowed (which would
+    % otherwise restart a looping goal in the next context).
     (   compound(G), G = M:Goal
     ->  M:call(Goal)
-    ;   catch(SM:call(G), _, fail) *-> true
-    ;   catch(le_kbs:call(G), _, fail) *-> true
+    ;   catch(SM:call(G), error(existence_error(procedure, _), _), fail) *-> true
+    ;   catch(le_kbs:call(G), error(existence_error(procedure, _), _), fail) *-> true
     ;   SM:call(G)
     ).
 call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).

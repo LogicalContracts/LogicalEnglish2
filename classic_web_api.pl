@@ -115,6 +115,7 @@ handle_operation(Dict, Response) :-
         ; Op == "load" -> 
             ( catch(handle_load(Dict, Response), E, (print_message(error, E), fail)) -> true; print_message(error, le_api_error(load, "handle_load failed")), fail)
         ; Op == "answeringQuery" -> handle_answering_query(Dict, Response)
+        ; Op == "interruptQuery" -> handle_interrupt_query(Dict, Response)
         ; Op == "getGameData" -> handle_get_game_data(Dict, Response)
         ; Op == "unifyGameNodes" -> handle_unify_game_nodes(Dict, Response)
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
@@ -486,8 +487,42 @@ handle_answering_query(Dict, Response) :-
             ; get_dict(query, Dict, Query)
         ),
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
-        ;   catch(run_answering_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg})
+        ;   catch(run_interruptible_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg})
         )
+    ).
+
+% A long-running query (e.g. a failure with a big negative explanation) can be
+% interrupted by the user via a separate 'interruptQuery' request, which signals
+% this worker thread. We register the thread for the session for the duration of
+% the query, and turn the injected exception into an 'interrupted' response.
+:- dynamic query_thread/2.   % query_thread(SessionModule, ThreadId)
+
+run_interruptible_query(SM, Query, KB, Response) :-
+    setup_call_cleanup(
+        register_query_thread(SM),
+        catch(
+            run_answering_query(SM, Query, KB, Response),
+            query_interrupted,
+            Response = _{result: "interrupted", interrupted: true}
+        ),
+        unregister_query_thread(SM)
+    ).
+
+register_query_thread(SM) :-
+    thread_self(Tid),
+    retractall(query_thread(SM, _)),
+    assertz(query_thread(SM, Tid)).
+
+unregister_query_thread(SM) :-
+    retractall(query_thread(SM, _)).
+
+handle_interrupt_query(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    (   query_thread(SM, Tid)
+    ->  catch(thread_signal(Tid, throw(query_interrupted)), _, true),
+        Response = _{result: ok, interrupted: true}
+    ;   Response = _{result: ok, interrupted: false, message: "No running query"}
     ).
 
 run_answering_query(SM, Query, KB, Response) :-

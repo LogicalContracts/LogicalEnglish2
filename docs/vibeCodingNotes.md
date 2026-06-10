@@ -1480,7 +1480,28 @@ Done. handle_explain/2 now applies the same answer deduplication as run_answerin
 - It collects (answer string + unknowns)-JSONWhy pairs and runs them through the shared dedup_keep_first/2, so repeated proofs of the same answer yield a single explanation rather than one per proof path.
 - Distinct answers (different bindings or different unknowns) are still all returned.
 
+## Prunning positive explanations
+First, an issue: "Copy Explanation" is copying just the clicked subtree, but it should copy the whole explanatin tree. For example insureLE2/testing/hiscoxhappypath.le, scenario zero, query 1, I am only able to copy the subtree rooted in "we will make this payment", missing the other two sibling subtrees
 
+Second, an improvement: similarly as for negative explanations, let's please detect repeated subtrees in positive explanations. For the same LE program, for example the subtree rooted in "this payment in respect of this claim" is repeated; please render the repeated instances as you do with failed subtree repetitions (but omit the counting)
+
+## Misguided negative explanation
+Now for a problem navigating from negative explanations to source. In example insureLE2/testing/hiscoxhappypath2.le, query 1 on scenario zero fails with this explanation (all red nodes, prefix "it is not true that:"):
+
+it is not true that: we will make a payment
+  it is not true that: fractured wrist and soft-tissue injuries occurs during a period
+  it is not true that: a claim against a person
+    it is not true that: a claim is against a person
+
+When I click "fractured wrist and soft-tissue injuries occurs during a period", it navigates correctly to line 101. BUT when i click  the first "a claim against a person" it navigates to line 148.
+I would like it to navigate instead to the goal call at line 100
+
+ok, let's make negative explanations more detailed, and try to keep track of  rule failures (when one rule fails and the interpreter backtracks to try the next rule). So in addition to storing called(...) facts, the interpreter should store called_clause(...), when starting to interpret a rule body. Then we want the negative explanation to have intermediate "failed rule" nodes under a failed predicate, with the rule names, and each rule's subgoal failures under it as children. The explanation rendering should allow navigation from these new nodes to the rule as a whole.
+Also, when a predicate has only one rule don't bother to create the failed rule node.
+This change may be computationally expensive, so let's have an explanation preference (stored in browser localStorage and in a LE session fact) to enable it (off by default, e.g. no failed rule nodes).
+
+## Query timeouts
+We need to deal with slow queries. In particular for failures and big negative explanation trees the user may be in for a long wait. So let's make UI queries interruptable by the user, with an interrupt button in the UI that appears after 2 seconds of wait.
 
 ## TBD
 
