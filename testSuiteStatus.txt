@@ -1,7 +1,7 @@
 
 Test Summary:
 -------------
-Files processed: 52
+Files processed: 54
 Total tests:     221
 Passed:          221
 Failed:          0
@@ -53,11 +53,13 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion2.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath2.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypathcurrency1.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxsimple.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxsimple_no_unknowns.le: 0 Pass, 0 Fail, 0 Error
