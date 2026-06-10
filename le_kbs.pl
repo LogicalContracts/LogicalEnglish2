@@ -705,6 +705,19 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range = range(Start, End); Range = Ref),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
+postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref), Range, LE, ChildrenOut)) :- !,
+    % An intermediate "failed rule" node (detailed failure explanations): label it
+    % with the rule's head and point its range at the whole rule for navigation.
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( ( SM:le_source_info(Ref, Start, End, RuleID0)
+      ; (KB \== none, KB:le_source_info(Ref, Start, End, RuleID0)) )
+    -> Range = range(Start, End), RuleID = RuleID0
+    ;  Range = none, RuleID = '' ),
+    ( user_rule_name(RuleID) -> format(atom(LE), 'rule ~w', [RuleID])
+    ; rule_head_text(Ref, SM, KB, HeadStr) -> format(atom(LE), 'rule: ~w', [HeadStr])
+    ; RuleID \== '' -> format(atom(LE), 'rule ~w', [RuleID])
+    ; LE = "failed rule" ),
+    maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenOut)) :- !,
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( Goal0 = le_at(Goal, Start, End) -> Range = range(Start, End)
@@ -712,6 +725,19 @@ postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenO
     ),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
+
+% A user-given rule name (from "rule <name>:"), as opposed to an auto-generated
+% 'rule_<pos>' id.
+user_rule_name(RuleID) :- atom(RuleID), RuleID \== '', \+ atom_concat('rule_', _, RuleID).
+
+% rule_head_text(+Ref, +SM, +KB, -HeadStr): the LE text of the head of the clause
+% referenced by Ref (in the session or KB module).
+rule_head_text(Ref, SM, KB, HeadStr) :-
+    ( catch(clause(SM:Head, _Body, Ref), _, fail) -> true
+    ; KB \== none, catch(clause(KB:Head, _Body, Ref), _, fail) ),
+    nonvar(Head),
+    ( (KB \== none, item_to_instance(KB, Head, Toks)) -> canonical_string(Toks, HeadStr)
+    ; term_string(Head, HeadStr) ).
 postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
     maplist(postprocess_why_child(SM), Whys, WhysOut).

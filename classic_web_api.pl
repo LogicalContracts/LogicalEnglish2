@@ -470,6 +470,12 @@ handle_answering_query(Dict, Response) :-
 
     (   get_dict(debug, Dict, true) -> assertz(SM:debug_mode); true),
 
+    % Detailed (per-rule) failure explanations: off unless requested. Set/cleared
+    % per query so it tracks the client's current preference.
+    dynamic(SM:detailed_failures/0),
+    retractall(SM:detailed_failures),
+    (   get_dict(detailedFailures, Dict, true) -> assertz(SM:detailed_failures); true),
+
     (   nonvar(ErrorFacts) -> Response = _{error: ErrorFacts}
     ;   % Handle Query
         (   get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null ->
