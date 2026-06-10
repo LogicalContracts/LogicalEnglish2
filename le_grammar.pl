@@ -1637,6 +1637,50 @@ parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
         ( le_kbs:do_log -> print_message(informational,'  Body failed to parse~n'); true), fail
     ).
 
+%!  parse_inline_body(+Tokens, +Templates, +VMIn, -VMOut, -Logic) is semidet.
+%
+%   Parse a flat (single-line) token sequence that may contain top-level inline
+%   'and'/'or' connectives, building the corresponding conjunction/disjunction.
+%   With no top-level connective it is a single literal (unchanged behaviour).
+%   Used e.g. for the part after 'unless' on one line, so
+%   "... unless the policy is cancelled and it rains a lot" yields
+%   not(and(is_cancelled, it_rains_a_lot)) rather than swallowing the conjunct.
+parse_inline_body(Tokens, Templates, VMIn, VMOut, Logic) :-
+    inline_segments(Tokens, Segments),
+    (   Segments = [_]                                   % no top-level connective
+    ->  parse_literal(Tokens, Templates, VMIn, VMOut, Logic, _)
+    ;   all_segments_parse(Segments, Templates)          % each conjunct is a valid literal
+    ->  maplist(inline_seg_to_line, Segments, Lines),
+        lines_to_hierarchy(Lines, Hierarchy),
+        hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Logic)
+    ;   % An 'and'/'or' that is part of a template (e.g. "*a payment* and *a
+        % claim* are admissible ...") — keep the whole thing as one literal.
+        parse_literal(Tokens, Templates, VMIn, VMOut, Logic, _)
+    ).
+
+inline_seg_to_line(Seg, line(0, Seg)).
+
+% Every segment (minus its leading and/or) must parse as a literal on its own,
+% otherwise the connective is not a top-level conjunction. Checked without
+% keeping any bindings (\+ \+ ...).
+all_segments_parse([], _).
+all_segments_parse([Seg|Segs], Templates) :-
+    strip_leading_op(Seg, _Op, Body),
+    Body \== [],
+    \+ \+ parse_literal(Body, Templates, [], _, _, _),
+    all_segments_parse(Segs, Templates).
+
+% Split a token list into segments at every top-level 'and'/'or'; each segment
+% after the first begins with its connective word (so strip_op/3 can read it).
+inline_segments([], []).
+inline_segments([T|Ts], [[T|Seg]|Segs]) :-
+    take_until_connective(Ts, Seg, Rest),
+    inline_segments(Rest, Segs).
+
+take_until_connective([], [], []).
+take_until_connective([word(W, L)|Ts], [], [word(W, L)|Ts]) :- (W == and ; W == or), !.
+take_until_connective([T|Ts], [T|Seg], Rest) :- take_until_connective(Ts, Seg, Rest).
+
 tokens_to_lines(Tokens, DefaultIndent, Lines) :-
     tokens_to_lines_acc(Tokens, DefaultIndent, [], Lines).
 
