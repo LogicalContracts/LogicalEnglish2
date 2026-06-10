@@ -40033,6 +40033,33 @@ async function start() {
     isDraggingDebug = false;
     document.body.style.userSelect = "auto";
   });
+  const btnInterruptQuery = document.getElementById("btn-interrupt-query");
+  let interruptTimer;
+  const showInterruptSoon = () => {
+    clearTimeout(interruptTimer);
+    btnInterruptQuery.style.display = "none";
+    btnInterruptQuery.disabled = false;
+    interruptTimer = window.setTimeout(() => {
+      btnInterruptQuery.style.display = "";
+    }, 2e3);
+  };
+  const hideInterrupt = () => {
+    clearTimeout(interruptTimer);
+    interruptTimer = void 0;
+    btnInterruptQuery.style.display = "none";
+  };
+  btnInterruptQuery.addEventListener("click", () => {
+    btnInterruptQuery.disabled = true;
+    btnInterruptQuery.textContent = "Interrupting\u2026";
+    fetch("/leapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: "myToken123", operation: "interruptQuery", sessionModule })
+    }).catch(() => {
+    }).finally(() => {
+      btnInterruptQuery.textContent = "Interrupt";
+    });
+  });
   btnQuery.addEventListener("click", async () => {
     if (!isLoaded) {
       const success = await loadModule();
@@ -40053,6 +40080,7 @@ async function start() {
     }
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
+    showInterruptSoon();
     try {
       const runAnsweringQuery = () => fetch("/leapi", {
         method: "POST",
@@ -40118,6 +40146,8 @@ async function start() {
         });
         answersList.appendChild(item);
         renderExplanation(res.why);
+      } else if (res && res.interrupted) {
+        answersList.textContent = "Query interrupted.";
       } else if (res && res.error) {
         answersList.textContent = "Error: " + res.error;
       } else {
@@ -40126,6 +40156,8 @@ async function start() {
     } catch (err) {
       answersList.textContent = "Error executing query.";
       console.error(err);
+    } finally {
+      hideInterrupt();
     }
   });
   const btnProofGame = document.getElementById("btn-proof-game");

@@ -171,6 +171,42 @@ test.describe('Logical English Editor', () => {
     await expect(treeLabel).toBeVisible();
   });
 
+  test('non-terminating query can be interrupted', async ({ page }) => {
+    test.setTimeout(60000);
+
+    // 1. Open the 'nonterminating' example from the server
+    await page.click('text=File');
+    await page.click('#menu-open-server');
+    const exampleItem = page.locator('#example-list .dropdown-item', { hasText: /^nonterminating$/ });
+    await expect(exampleItem).toBeVisible();
+    await exampleItem.click();
+    await expect(page.locator('#filename-display')).toHaveText('nonterminating.le');
+
+    // 2. Wait for the module to load (scenario dropdown populated)
+    await expect(async () => {
+      const count = await page.locator('#scenario-select option').count();
+      expect(count).toBeGreaterThan(1);
+    }).toPass({ timeout: 10000 });
+
+    // 3. Select the 'base' scenario and the non-terminating 'loop' query
+    await page.selectOption('#scenario-select', 'base');
+    await page.selectOption('#query-select', 'loop');
+
+    // 4. Run the query (it never returns on its own)
+    await page.click('#btn-query');
+
+    // 5. The Interrupt button appears after ~2s of waiting
+    const interruptBtn = page.locator('#btn-interrupt-query');
+    await expect(interruptBtn).toBeVisible({ timeout: 8000 });
+
+    // 6. Interrupt the query
+    await interruptBtn.click();
+
+    // 7. The query stops: the result reports the interruption and the button hides
+    await expect(page.locator('#answers-list')).toContainText('Query interrupted', { timeout: 15000 });
+    await expect(interruptBtn).toBeHidden();
+  });
+
   test('should configure explanations preferences', async ({ page }) => {
     // 1. Open Misc menu
     await page.click('text=Misc');
