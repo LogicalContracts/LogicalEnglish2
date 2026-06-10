@@ -725,6 +725,10 @@ postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenO
     ),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
+postprocess_why(Whys, SM, WhysOut) :-
+    is_list(Whys), !,
+    maplist(postprocess_why_child(SM), Whys, WhysOut).
+postprocess_why(Other, _, Other).
 
 % A user-given rule name (from "rule <name>:"), as opposed to an auto-generated
 % 'rule_<pos>' id.
@@ -738,10 +742,6 @@ rule_head_text(Ref, SM, KB, HeadStr) :-
     nonvar(Head),
     ( (KB \== none, item_to_instance(KB, Head, Toks)) -> canonical_string(Toks, HeadStr)
     ; term_string(Head, HeadStr) ).
-postprocess_why(Whys, SM, WhysOut) :-
-    is_list(Whys), !,
-    maplist(postprocess_why_child(SM), Whys, WhysOut).
-postprocess_why(Other, _, Other).
 
 find_first_range(Goal, SM, KB, range(Start, End)) :-
     functor(Goal, F, A),
