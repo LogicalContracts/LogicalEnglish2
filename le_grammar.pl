@@ -420,9 +420,48 @@ get_token_end(T, End) :-
 templates(AllDicts) -->
     \+ next_section_start,
     template(TDicts), !,
-    ( (t(punct('.')) ; t(punct(','))) -> ( templates(MoreDicts) | { MoreDicts = [] }); { MoreDicts = [] }),
+    ( (t(punct('.')) ; t(punct(','))) -> ( templates(MoreDicts) | { MoreDicts = [] })
+    ; warn_truncated_template(TDicts), { MoreDicts = [] }
+    ),
     { append(TDicts, MoreDicts, AllDicts) }.
 templates([]) --> [].
+
+% A template was parsed but is not followed by a '.'/',' terminator: if what
+% follows is a section keyword (scenario, query, the knowledge base, ...) on a
+% line that ends with '.' (rather than a ':' section header), the template was
+% silently cut off by a reserved word appearing inside it. Warn about it. This is
+% a non-consuming look-ahead (S, S), so parsing is unaffected.
+warn_truncated_template(TDicts, S, S) :-
+    (   reserved_word_truncation(S, Word, DotEnd),
+        TDicts = [dict(_, _, _, TStart, _, _, _, _, _) | _]
+    ->  ( le_kbs:current_compiling_module(M), M \== (-)
+        ->  format(atom(Desc),
+              "Template contains the reserved word '~w', which cuts it off. Section keywords (scenario, query, the knowledge base, the ontology, ...) cannot appear inside a template.",
+              [Word]),
+            assertz(M:le_issue(warning, reserved_word_in_template, Desc,
+                               "Reword the template so it does not use the reserved word.", TStart, DotEnd))
+        ;   true )
+    ;   true
+    ).
+
+% True when the upcoming tokens are a section keyword followed (on the same '.'-
+% terminated line, before any ':') by more content — i.e. a truncated template.
+reserved_word_truncation(Tokens0, Word, DotEnd) :-
+    skip_indents(Tokens0, Tokens),
+    section_keyword_head(Tokens, Word),
+    period_before_colon(Tokens, DotEnd).
+
+skip_indents([indent(_, _) | T], T2) :- !, skip_indents(T, T2).
+skip_indents(T, T).
+
+section_keyword_head([word(scenario, _) | _], scenario) :- !.
+section_keyword_head([word(query, _) | _], query) :- !.
+section_keyword_head([word(the, _), word(KW, _) | _], KW) :-
+    memberchk(KW, [knowledge, contract, ontology, predicates, templates, fluents, events, target]).
+
+period_before_colon([punctuation('.', loc(_, E)) | _], E) :- !.
+period_before_colon([punctuation(':', _) | _], _) :- !, fail.
+period_before_colon([_ | T], E) :- period_before_colon(T, E).
 
 % template(Dicts) parses a single template definition into a list of dicts.
 % The list always contains the main dict and, if an opposite was declared, a
