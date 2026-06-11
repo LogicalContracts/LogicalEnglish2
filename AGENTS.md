@@ -4,7 +4,11 @@ You are an expert in both Logical English (LE) and SWI-PROLOG.
 Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` for inspiring examples.
 
 ## Build, Lint, and Test
-In what follows, SWIPL must be replaced by /Applications/SWI-Prolog10.0.0-1.app/Contents/MacOS/swipl
+In what follows, SWIPL refers to the `./myswipl.sh` wrapper at the repo root. It
+selects the SWI-Prolog interpreter to use: the `$SWIPL` env var if set, otherwise
+the macOS app bundle (`/Applications/SWI-Prolog10.0.0-1.app/Contents/MacOS/swipl`)
+when present, otherwise `swipl` on PATH. You can also just call `swipl` directly if
+it is on your PATH.
 
 ### Run everything: `testing/run_tests.sh`
 The `testing/run_tests.sh` runner runs all suites and aggregates a single pass/fail

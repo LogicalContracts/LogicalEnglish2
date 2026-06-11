@@ -25,7 +25,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: '/Applications/SWI-Prolog10.0.0-1.app/Contents/MacOS/swipl -l classic_web_api.pl -g "start_api_server(3000), thread_get_message(_)."',
+    // ./myswipl.sh (run from the repo root via cwd below) picks the right
+    // SWI-Prolog interpreter: $SWIPL override, then the macOS app bundle, then
+    // `swipl` on PATH. See myswipl.sh.
+    command: './myswipl.sh -l classic_web_api.pl -g "start_api_server(3000), thread_get_message(_)."',
     url: 'http://localhost:3000/editor/index.html',
     reuseExistingServer: !process.env.CI,
     cwd: '../'

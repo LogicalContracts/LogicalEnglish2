@@ -30,7 +30,10 @@ set -u
 TESTING_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$TESTING_DIR/.."
 
-SWIPL="${SWIPL:-swipl}"
+# Default to the ./myswipl.sh wrapper (we cd'd to the repo root above), which
+# resolves $SWIPL / the macOS app bundle / `swipl` on PATH. An explicit SWIPL
+# env var still wins.
+SWIPL="${SWIPL:-./myswipl.sh}"
 
 # --- argument parsing --------------------------------------------------------
 run_unit=0 run_le=0 run_e2e=0
