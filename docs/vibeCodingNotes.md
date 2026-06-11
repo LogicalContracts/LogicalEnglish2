@@ -1501,7 +1501,10 @@ Also, when a predicate has only one rule don't bother to create the failed rule 
 This change may be computationally expensive, so let's have an explanation preference (stored in browser localStorage and in a LE session fact) to enable it (off by default, e.g. no failed rule nodes).
 
 ## Query timeouts
-We need to deal with slow queries. In particular for failures and big negative explanation trees the user may be in for a long wait. So let's make UI queries interruptable by the user, with an interrupt button in the UI that appears after 2 seconds of wait.
+We need to deal with slow queries. In particular for failures and big negative explanation trees the user may be in for a long wait. So let's make UI queries interruptable by the user, with an interrupt button in the UI that appears after 2 seconds of waiting.
+
+## Configurable explanation repetitions
+We currently remove repeated subtrees from both positive (success) and negative (failures) explanations. Make this a preference for the user, persisting on LocalStorage; initial default "Hide repeated explanations"
 
 ## TBD
 

@@ -375,6 +375,7 @@ handle_answer(Dict, Response) :-
     get_dict(document, Dict, Doc),
     get_dict(theQuery, Dict, Query),
     get_dict(scenario, Dict, Scenario),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     load_le_text(Doc, KB),
     setup_call_cleanup(
         createSession(KB, SM),
@@ -389,6 +390,7 @@ handle_explain(Dict, Response) :-
     get_dict(document, Dict, Doc),
     get_dict(theQuery, Dict, Query),
     get_dict(scenario, Dict, Scenario),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     load_le_text(Doc, KB),
     setup_call_cleanup(
         createSession(KB, SM),
@@ -487,6 +489,10 @@ handle_answering_query(Dict, Response) :-
     retractall(SM:detailed_failures),
     (   get_dict(detailedFailures, Dict, true) -> assertz(SM:detailed_failures); true),
 
+    % Repeated sub-explanations are collapsed by default; the client can ask to
+    % see them in full (hideRepeated:false). Set per query on this worker thread.
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
+
     (   nonvar(ErrorFacts) -> Response = _{error: ErrorFacts}
     ;   % Handle Query
         (   get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null ->
@@ -580,6 +586,7 @@ handle_get_game_data(Dict, Response) :-
     atom_string(SM, SMStr),
     le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     
     % Handle Scenario
     (   get_dict(customScenario, Dict, CustomScenario), CustomScenario \== null ->
@@ -671,6 +678,7 @@ handle_unify_game_nodes(Dict, Response) :-
 handle_load_facts_and_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     le_kbs:note_session_use(SM),
     get_dict(facts, Dict, FactsStrList),
     print_message(informational, 'Loading facts into session ~w' - [SM]),
@@ -704,6 +712,7 @@ handle_query(Dict, Response) :-
     get_dict(theQuery, Dict, QueryStr),
     get_dict(module, Dict, ModuleStr),
     atom_string(Module, ModuleStr),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     ( get_dict(facts, Dict, FactsStrList) -> maplist(term_string, Facts, FactsStrList); Facts = []),
     (   (current_module(Module), current_predicate(Module:le_my_kb/1)) -> SM = Module, SM:le_kb_module_fact(KB), Owned = false
         ; current_module(Module) -> KB = Module, createSession(KB, SM), Owned = true
@@ -754,10 +763,16 @@ load_prolog_file(Path, Module) :-
 %   repeated_group(N, Why)); this pass also groups sibling success branches and
 %   folds any reasoner-supplied counts in, so positive and negative explanations
 %   are handled uniformly.
+%   Whether repeated sub-explanations are collapsed is the client's preference
+%   (reasoner:hide_repeated_explanations, set per query); when the user opts to
+%   show them, the full tree is converted as-is.
 convert_why_deduped(Why, KB, JSON) :-
-    group_repeated_whys(Why, Grouped),
-    mark_cross_tree_repeats(Grouped, Marked),
-    convert_why(Marked, KB, JSON).
+    (   hide_repeated_explanations
+    ->  group_repeated_whys(Why, Grouped),
+        mark_cross_tree_repeats(Grouped, Marked),
+        convert_why(Marked, KB, JSON)
+    ;   convert_why(Why, KB, JSON)
+    ).
 
 % A repeated sub-explanation grouped from sibling duplicates: render the single
 % kept occurrence in full, tagged with its count ("N repeated sub-explanations").

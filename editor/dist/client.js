@@ -38490,6 +38490,7 @@ async function start() {
   let showHierarchicalNumbering = localStorage.getItem("le-hierarchical-numbering") === "true";
   let failedNodePrefix = localStorage.getItem("le-failed-node-prefix") ?? "x ";
   let detailedFailures = localStorage.getItem("le-detailed-failures") === "true";
+  let hideRepeatedExplanations = (localStorage.getItem("le-hide-repeated-explanations") ?? "true") === "true";
   const numberingCheck = document.getElementById("hierarchical-numbering-check");
   if (numberingCheck) {
     numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
@@ -39092,11 +39093,14 @@ async function start() {
   const explanationsSave = document.getElementById("explanations-save");
   const failedPrefixInput = document.getElementById("failed-prefix-input");
   const detailedFailuresInput = document.getElementById("detailed-failures-input");
+  const hideRepeatedInput = document.getElementById("hide-repeated-input");
   const openExplanationsModal = () => {
     if (explanationsModal && failedPrefixInput) {
       failedPrefixInput.value = failedNodePrefix;
       if (detailedFailuresInput)
         detailedFailuresInput.checked = detailedFailures;
+      if (hideRepeatedInput)
+        hideRepeatedInput.checked = hideRepeatedExplanations;
       explanationsModal.style.display = "flex";
     }
   };
@@ -39115,6 +39119,10 @@ async function start() {
     if (detailedFailuresInput) {
       detailedFailures = detailedFailuresInput.checked;
       localStorage.setItem("le-detailed-failures", detailedFailures.toString());
+    }
+    if (hideRepeatedInput) {
+      hideRepeatedExplanations = hideRepeatedInput.checked;
+      localStorage.setItem("le-hide-repeated-explanations", hideRepeatedExplanations.toString());
     }
     closeExplanationsModal();
   });
@@ -39902,7 +39910,8 @@ async function start() {
           customScenario,
           customQuery,
           debug: true,
-          detailedFailures
+          detailedFailures,
+          hideRepeated: hideRepeatedExplanations
         })
       }).then((res) => res.json()).then((data4) => {
         console.log("Debug query finished", data4);
@@ -40095,7 +40104,8 @@ async function start() {
           scenario,
           customScenario,
           customQuery,
-          detailedFailures
+          detailedFailures,
+          hideRepeated: hideRepeatedExplanations
         })
       }).then((r) => r.json());
       let res = await runAnsweringQuery();
@@ -40189,7 +40199,8 @@ async function start() {
           scenario,
           customScenario,
           customQuery,
-          detailedFailures
+          detailedFailures,
+          hideRepeated: hideRepeatedExplanations
         })
       }).then((r) => r.json());
       let res = await runGetGameData();

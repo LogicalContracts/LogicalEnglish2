@@ -839,6 +839,11 @@
                     <label for="detailed-failures-input" style="margin: 0;">Detailed failure explanations (per-rule nodes)</label>
                 </div>
                 <p style="font-size: 11px; color: #888; margin: 0; margin-top: 6px;">When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.</p>
+                <div class="control-group" style="flex-direction: row; align-items: center; margin-top: 12px;">
+                    <input type="checkbox" id="hide-repeated-input" style="margin-right: 6px;">
+                    <label for="hide-repeated-input" style="margin: 0;">Hide repeated explanations</label>
+                </div>
+                <p style="font-size: 11px; color: #888; margin: 0; margin-top: 6px;">When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).</p>
             </div>
             <div class="modal-footer">
                 <button id="explanations-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
