@@ -6,13 +6,31 @@
     explanation trees.
 */
 
-:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8]).
+:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8,
+                     hide_repeated_explanations/0, set_show_repeated_explanations/1]).
 
 :- use_module(library(time)).
 :- use_module(library(pairs)).
 
 :- dynamic equal_to/2.
 :- thread_local called/3, called_clause/3, counter/1, success_in_not/2, succeeded/1.
+
+% When set (the default), repeated sub-explanations are collapsed; the client can
+% turn this off per query so the full tree is built and shown. Tracked per worker
+% thread, alongside the query it belongs to (set in classic_web_api before the
+% query runs). Absent flag = hide (the default).
+:- thread_local show_repeated_explanations/0.
+
+%!  hide_repeated_explanations is semidet.
+%   True when repeated sub-explanations should be collapsed (the default).
+hide_repeated_explanations :- \+ show_repeated_explanations.
+
+%!  set_show_repeated_explanations(+Show) is det.
+%   Records the client's preference for the current query thread: Show == true
+%   keeps every repeated sub-explanation; anything else hides them (the default).
+set_show_repeated_explanations(Show) :-
+    retractall(show_repeated_explanations),
+    ( Show == true -> assertz(show_repeated_explanations) ; true ).
 
 %!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 i(Goal, SessionModule, Unknowns, Whys) :-
@@ -449,8 +467,11 @@ combine_clause_children(RuleNodes, DirectWhys, AllWhys) :-
 % convert_why/3, rendering — operate on a small tree) and records how many times
 % each sub-explanation occurred under the same parent.
 group_variant_whys(Whys, Grouped) :-
-    maplist(variant_key_pair, Whys, Keyed),
-    group_keyed_whys(Keyed, Grouped).
+    (   hide_repeated_explanations
+    ->  maplist(variant_key_pair, Whys, Keyed),
+        group_keyed_whys(Keyed, Grouped)
+    ;   Grouped = Whys
+    ).
 
 % Group on a key that ignores le_at/3 source positions (which differ between
 % otherwise-identical explanations coming from different rule locations), so

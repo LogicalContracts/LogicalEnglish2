@@ -149,6 +149,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         let showHierarchicalNumbering = localStorage.getItem('le-hierarchical-numbering') === 'true';
         let failedNodePrefix = localStorage.getItem('le-failed-node-prefix') ?? 'x ';
         let detailedFailures = localStorage.getItem('le-detailed-failures') === 'true';
+        let hideRepeatedExplanations = (localStorage.getItem('le-hide-repeated-explanations') ?? 'true') === 'true';
         
         const numberingCheck = document.getElementById('hierarchical-numbering-check');
         if (numberingCheck) {
@@ -817,11 +818,13 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const explanationsSave = document.getElementById('explanations-save');
     const failedPrefixInput = document.getElementById('failed-prefix-input') as HTMLInputElement;
     const detailedFailuresInput = document.getElementById('detailed-failures-input') as HTMLInputElement;
+    const hideRepeatedInput = document.getElementById('hide-repeated-input') as HTMLInputElement;
 
     const openExplanationsModal = () => {
         if (explanationsModal && failedPrefixInput) {
             failedPrefixInput.value = failedNodePrefix;
             if (detailedFailuresInput) detailedFailuresInput.checked = detailedFailures;
+            if (hideRepeatedInput) hideRepeatedInput.checked = hideRepeatedExplanations;
             explanationsModal.style.display = 'flex';
         }
     };
@@ -841,6 +844,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (detailedFailuresInput) {
             detailedFailures = detailedFailuresInput.checked;
             localStorage.setItem('le-detailed-failures', detailedFailures.toString());
+        }
+        if (hideRepeatedInput) {
+            hideRepeatedExplanations = hideRepeatedInput.checked;
+            localStorage.setItem('le-hide-repeated-explanations', hideRepeatedExplanations.toString());
         }
         closeExplanationsModal();
     });
@@ -1731,7 +1738,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     customScenario: customScenario,
                     customQuery: customQuery,
                     debug: true,
-                    detailedFailures: detailedFailures
+                    detailedFailures: detailedFailures,
+                    hideRepeated: hideRepeatedExplanations
                 })
             }).then(res => res.json()).then(data => {
                 console.log('Debug query finished', data);
@@ -1952,7 +1960,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     scenario: scenario,
                     customScenario: customScenario,
                     customQuery: customQuery,
-                    detailedFailures: detailedFailures
+                    detailedFailures: detailedFailures,
+                    hideRepeated: hideRepeatedExplanations
                 })
             }).then(r => r.json());
 
@@ -2055,7 +2064,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     scenario: scenario,
                     customScenario: customScenario,
                     customQuery: customQuery,
-                    detailedFailures: detailedFailures
+                    detailedFailures: detailedFailures,
+                    hideRepeated: hideRepeatedExplanations
                 })
             }).then(r => r.json());
 
