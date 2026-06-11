@@ -434,13 +434,20 @@ createSession(KBmodule, SessionModule) :-
     % available in the session module. This is more robust for dynamic modules.
     add_import_module(SessionModule, le_kbs, start),
     dynamic(SessionModule:le_kb_module_fact/1),
-    assertz(SessionModule:le_kb_module_fact(KBmodule)),
     dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:le_neg/1),
-    dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4),
-    note_session_use(SessionModule).
+    % Register the KB reference and the in-use timestamp atomically under the
+    % same mutex the reaper uses, so maybe_destroy_kb/1 reliably sees this new
+    % session as a live reference and will not reclaim a shared KB module out
+    % from under a session that is still being created.
+    get_time(Now),
+    with_mutex(le_sessions, (
+        assertz(SessionModule:le_kb_module_fact(KBmodule)),
+        retractall(session_last_used(SessionModule, _)),
+        assertz(session_last_used(SessionModule, Now))
+    )).
 
 %!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
 %
@@ -568,16 +575,22 @@ is_generated_kb_module(M) :-
 
 %!  maybe_destroy_kb(+KBmodule:atom) is det.
 %
-%   Reclaims a generated KB module once no live session references it.
+%   Reclaims a generated KB module once no live session references it. The
+%   liveness check and the abolish run under the le_sessions mutex so a session
+%   being registered concurrently (createSession asserts le_kb_module_fact and
+%   then note_session_use) is reliably seen as a live reference, and the abolish
+%   cannot interleave with a registry update.
 maybe_destroy_kb(KBmodule) :-
-    (   is_generated_kb_module(KBmodule),
-        \+ ( session_last_used(SM, _),
-             SM \== KBmodule,
-             catch(SM:le_kb_module_fact(KBmodule), _, fail) )
-    ->  forall(current_predicate(KBmodule:F/N),
-               catch(abolish(KBmodule:F/N), _, true))
-    ;   true
-    ).
+    with_mutex(le_sessions, (
+        (   is_generated_kb_module(KBmodule),
+            \+ ( session_last_used(SM, _),
+                 SM \== KBmodule,
+                 catch(SM:le_kb_module_fact(KBmodule), _, fail) )
+        ->  forall(current_predicate(KBmodule:F/N),
+                   catch(abolish(KBmodule:F/N), _, true))
+        ;   true
+        )
+    )).
 
 %!  reap_idle_sessions is det.
 %
@@ -585,12 +598,28 @@ maybe_destroy_kb(KBmodule) :-
 reap_idle_sessions :-
     get_time(Now),
     session_max_idle(MaxIdle),
-    findall(SM, (session_last_used(SM, T), Now - T > MaxIdle), Stale),
-    forall(member(SM, Stale),
-           ( ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
-             destroySession(SM),
-             ( KB \== none, KB \== SM -> maybe_destroy_kb(KB) ; true )
-           )).
+    findall(SM, (session_last_used(SM, T), Now - T > MaxIdle), Candidates),
+    forall(member(SM, Candidates), maybe_reap_session(SM, Now, MaxIdle)).
+
+%!  maybe_reap_session(+SM:atom, +Now:number, +MaxIdle:number) is det.
+%
+%   Reaps a single candidate session, but only after atomically re-confirming
+%   under the le_sessions mutex that it is still idle and claiming it (removing
+%   its registry entry). This closes the time-of-check/time-of-use race against
+%   note_session_use/1: a request that touches SM after the stale snapshot but
+%   before reaping refreshes the timestamp, so the re-check fails and the live
+%   session (and the shared KB module it references) is left intact.
+maybe_reap_session(SM, Now, MaxIdle) :-
+    (   with_mutex(le_sessions, (
+            session_last_used(SM, T),
+            Now - T > MaxIdle,
+            retractall(session_last_used(SM, _))
+        ))
+    ->  ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
+        destroySession(SM),
+        ( KB \== none, KB \== SM -> maybe_destroy_kb(KB) ; true )
+    ;   true   % refreshed by a concurrent request since the snapshot — keep it
+    ).
 
 :- dynamic session_reaper_running/0.
 

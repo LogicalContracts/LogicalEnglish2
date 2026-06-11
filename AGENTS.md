@@ -5,16 +5,33 @@ Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` fo
 
 ## Build, Lint, and Test
 In what follows, SWIPL must be replaced by /Applications/SWI-Prolog10.0.0-1.app/Contents/MacOS/swipl
-- **Prolog (SWI-Prolog):**
-  - Run all LE tests: `SWIPL -g "use_module(le_kbs), runTests, halt."`
-  - Run single LE test: `SWIPL -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le.tests', R), print_test_result(R), halt."`
-  - Verify LE file: `SWIPL -g "use_module(le_kbs), verify('examples/moreExamples/citizenship.le'), halt."`
-- **Editor (TypeScript/Monaco):**
-  - Build: `cd editor && npm run build`
-  - Start: `cd editor && npm start`
-  - E2E Tests: `cd editor && npm run test:e2e` (add `-- --headed` to run visibly)
 
-**IMPORTANT:** You MUST run both the Prolog tests (`SWIPL -g "use_module(le_kbs), runTests, halt."`) and the Editor E2E Playwright tests (`cd editor && npm run test:e2e`) after completing every feature or making any changes. Do NOT commit your changes to git.
+### Run everything: `testing/run_tests.sh`
+The `testing/run_tests.sh` runner runs all suites and aggregates a single pass/fail
+(non-zero exit if any suite that ran failed). It always runs from the repo root, so
+you can call it from anywhere. Use it as the default check:
+- `testing/run_tests.sh` — all suites (unit + LE examples + Playwright e2e).
+- `testing/run_tests.sh --no-e2e` — fast path: Prolog unit + LE examples only.
+- `testing/run_tests.sh unit | le | e2e` — run a single suite (space-separated subsets allowed).
+- Set `SWIPL=...` to choose the interpreter; set `CI=1` to make a missing e2e setup
+  a failure instead of a skip.
+
+The three suites it wraps (also runnable directly):
+- **Prolog unit tests (plunit):** `SWIPL -q -g run_tests -t halt testing/test_session_reaper.pl`
+  — fast, no server. Lives in `testing/test_*.pl`; add new ones there with
+  `:- begin_tests(Name). ... :- end_tests(Name).` and `testing/run_tests.sh unit` picks them up.
+  Use `:- use_module('../le_kbs').` (the module is one level up from `testing/`).
+- **Logical English example tests:** `SWIPL -g "use_module(le_kbs), runTests, halt."`
+  (single LE test: `SWIPL -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le.tests', R), print_test_result(R), halt."`)
+- **Editor E2E (Playwright):** `cd editor && npm run test:e2e` (add `-- --headed` to run visibly).
+
+Other Prolog/editor commands:
+- Verify LE file: `SWIPL -g "use_module(le_kbs), verify('examples/moreExamples/citizenship.le'), halt."`
+- Editor build: `cd editor && npm run build`; start: `cd editor && npm start`.
+
+**IMPORTANT:** You MUST run `testing/run_tests.sh` (which covers the Prolog unit, LE
+example, and Editor E2E Playwright suites) after completing every feature or making
+any changes. Do NOT commit your changes to git.
 
 ## Code Style
 - **Prolog:**

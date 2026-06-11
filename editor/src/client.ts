@@ -2124,6 +2124,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' : 
                                      document.body.className.includes('hc-theme') ? 'hc-theme' : '';
                 window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
+            } else if (res && res.error) {
+                alert('Could not open the Proof Game:\n\n' + res.error);
             } else {
                 alert('Failed to get game data from server.');
             }

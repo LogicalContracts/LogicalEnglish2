@@ -116,7 +116,17 @@ handle_operation(Dict, Response) :-
             ( catch(handle_load(Dict, Response), E, (print_message(error, E), fail)) -> true; print_message(error, le_api_error(load, "handle_load failed")), fail)
         ; Op == "answeringQuery" -> handle_answering_query(Dict, Response)
         ; Op == "interruptQuery" -> handle_interrupt_query(Dict, Response)
-        ; Op == "getGameData" -> handle_get_game_data(Dict, Response)
+        ; Op == "getGameData" ->
+            ( catch(handle_get_game_data(Dict, Response), E_GGD,
+                    ( print_message(error, le_api_error(getGameData, E_GGD)),
+                      format(user_error, "getGameData failed. Dict: ~w~n", [Dict]),
+                      term_string(E_GGD, EStr),
+                      Response = _{error: EStr, gameDataError: true} ))
+              -> true
+            ; print_message(error, le_api_error(getGameData, "handle_get_game_data failed")),
+              format(user_error, "getGameData failed (no exception). Dict: ~w~n", [Dict]),
+              Response = _{error: "Could not build the Proof Game for this query (no rules/facts extracted, or the session was reclaimed). Please reload and try again.", gameDataError: true}
+            )
         ; Op == "unifyGameNodes" -> handle_unify_game_nodes(Dict, Response)
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
