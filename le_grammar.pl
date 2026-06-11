@@ -1241,7 +1241,8 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clau
             % a claim if ...") only fire for arguments of the matching type.
             head_var_type_checks(NewHead, VM1, Templates, TypeChecks),
             append(TypeChecks, ExtraGoals, PreGoals),
-            ( PreGoals == [] -> NewBody = Body0 ; append(PreGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
+            ( PreGoals == [] -> NewBody = Body0 ; append(PreGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) ),
+            store_rule_var_names(ActualID, NewHead, NewBody, VMOut)
             ;
             ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
             NewBody = true % Fallback
@@ -1297,6 +1298,26 @@ ambiguous_position(F, A, I, Templates) :-
 
 vm_var_name(VM, Var, Name) :-
     member(Name-V, VM), atom(Name), Name \== '$last_var', V == Var, !.
+
+%!  store_rule_var_names(+ActualID, +Head, +Body, +VM) is det.
+%
+%   Records the explicit source identifiers (e.g. X, Y) of the variables in the
+%   rule clause Head:-Body, keyed by ActualID and by each variable's position in
+%   term_variables/2 order. That ordering matches the Proof Game's game_var_ids/2
+%   numbering, so the game can label a variable with its source name. Only
+%   explicit ids (is_id/1) are stored; ordinary "a thing" variables carry none.
+store_rule_var_names(ActualID, Head, Body, VM) :-
+    (   le_kbs:current_compiling_module(M),
+        term_variables((Head :- Body), Vars),
+        findall(Idx-Name,
+                ( nth0(Idx, Vars, V), vm_var_name(VM, V, Name), is_id(Name) ),
+                Pairs0),
+        sort(Pairs0, Pairs),   % one entry per (index,name); drop vmap duplicates
+        Pairs \== []
+    ->  dynamic(M:le_var_names/2),
+        assertz(M:le_var_names(ActualID, Pairs))
+    ;   true
+    ).
 
 % Section markers carry no logic; keep them as-is so KB processing can pick up
 % the current section for the rules that follow (see process_item/2).
