@@ -1117,6 +1117,9 @@ is_system_predicate(sessionClause/1).
 is_system_predicate(is_a/2).
 is_system_predicate(le_type/1).
 is_system_predicate(le_unknown/1).
+% Per-rule map of explicit source variable identifiers (e.g. X, Y), keyed by
+% rule ID, recorded at parse time so the Proof Game can show variable names.
+is_system_predicate(le_var_names/2).
 
 
 collect_and_assert_types(M) :-
