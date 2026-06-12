@@ -30,6 +30,7 @@ scenario chemical risk is:
     set A contains 'Compound X is FDA-approved for human consumption.'.
     % [Scientific Backing:] The system queries a verified database (e.g., PubChem). It finds the first is true but the second has no corresponding entry.
     % [Non-Falsification:] The system finds a recent 2024 study indicating Compound X is toxic to gut flora.
+    one expects [].
 
 scenario chemical safety is:
     message 1 is 'Compound X is an organic ester and it is FDA-approved for human consumption'.
@@ -44,6 +45,7 @@ scenario chemical safety is:
     lucky person applies every specialized criterion on the subject matter of message 1 to validate set A.
     % [Non-Falsification:] After checking the evidence, there is no evidence the refute the items in the set
     there is no evidence to contradict set A.
+    one expects ["message 1 is verifiable as true by lucky person"].
 
 query one is:
     which message is verifiable as true by which user. 
