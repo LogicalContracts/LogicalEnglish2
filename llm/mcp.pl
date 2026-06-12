@@ -464,7 +464,7 @@ call_tool("verify", Args, Result) :-
 
 call_tool(ToolName, _Args, Result) :-
     format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
-    format(string(Msg), "Unknown tool: ~w. Available tools are: query, verify.", [ToolName]),
+    format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify.", [ToolName]),
     Result = _{error: Msg}.
 
 %!  list_examples_with_summaries(+Dir:atom, +Prefix:atom, -Examples:list) is det.
