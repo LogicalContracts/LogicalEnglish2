@@ -24,6 +24,7 @@ check_issue(KB, Issue) :- rule_without_variables(KB, Issue).
 check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
 check_issue(KB, Issue) :- failed_test(KB, Issue).
 check_issue(KB, Issue) :- redefined_system_template(KB, Issue).
+check_issue(KB, Issue) :- single_variable_fact(KB, Issue).
 
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
@@ -307,6 +308,34 @@ count_facts(KB, Count) :-
     ), L1),
     length(L1, Count).
 
+% --- 8. Fact with a single, likely-accidental variable ---
+% A ground fact written as "the mad hatter is a lofty creature." quietly turns
+% the subject into a *variable* (because "a"/"an"/"the"/"some" + noun introduces
+% one), so the fact becomes universally true rather than a statement about one
+% individual. The author usually does not realise this. We warn whenever a fact
+% (a clause with a 'true' body) has exactly one variable. Subjects written as a
+% proper name ("fluffy") or with "any" ("any beast") become constants, so such
+% facts carry no variable and are not flagged.
+single_variable_fact(KB, issue(single_variable_fact, Description, Fix, Start, End)) :-
+    current_predicate(KB:F/A),
+    \+ is_system_predicate(F/A),
+    functor(Head, F, A),
+    \+ predicate_property(KB:Head, imported_from(_)),
+    clause(KB:Head, true, Ref),
+    term_variables(Head, [_]),
+    fact_le_text(KB, Head, Text),
+    format(atom(Description), "Fact '~w' introduces a variable rather than naming an individual, so it holds for everything", [Text]),
+    Fix = "use a proper name (e.g. 'fluffy') or 'any' for the individual; if you really mean 'every ...', write it as a rule.",
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
+
+% Render a fact head as readable LE text, falling back to the raw term.
+fact_le_text(KB, Head, Text) :-
+    (   catch(le_kbs:item_to_instance(KB, Head, Tokens), _, fail),
+        catch(canonical_string(Tokens, Atom), _, fail)
+    ->  atom_string(Atom, Text)
+    ;   term_string(Head, Text)
+    ).
+
 % --- Printing ---
 print_issues(Issues) :-
     forall(member(Issue, Issues), print_issue(Issue)).
@@ -318,8 +347,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template]) },
+    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template]) },
+    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact]) },
     [ '~w: ~w' - [Type, Msg] ].
