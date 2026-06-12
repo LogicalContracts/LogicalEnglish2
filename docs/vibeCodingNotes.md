@@ -1524,5 +1524,32 @@ it_is_prohibited_that(attends(A,B)) :-
    le_at(not(le_at(it_is_approved_that(attends(A,B)), ..., ...)), ..., ...).
 
 
+Another bug parsing  rules with "that". The following rule in examples/moreExamples/testing/tea_party2.le:
+
+it is prohibited that a creature attends the tea party if
+   the creature is a lofty creature
+	and it is not the case that
+it is approved that the creature attends the tea party.
+
+, which has a weird indentation (but which we wish to tolerate) has this PROLOG equivalent:
+
+it_is_prohibited_that(attends(A, B)) :-
+    and(le_at(and(is_a_lofty_creature(A), le_at(not(true), 1327, 1350)),
+              1289,
+              1321),
+        le_at(it_is_approved_that(attends(A, B)), 1351, 1405)).
+
+This is incorrect, not(true) makes no sense. The parsing should be:
+
+it_is_prohibited_that(attends(A, B)) :-
+    le_at(and(is_a_lofty_creature(A),
+              le_at(not(le_at(it_is_approved_that(attends(A, B)),
+                              ...,
+                              ...)),
+                    ...,
+                    ...)),
+          ...,
+          ...).
+
 
 ## TBD
