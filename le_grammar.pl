@@ -986,49 +986,77 @@ match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, Allow
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, 0).
 
 match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth) :-
-    match_instance_to_template_acc(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth).
+    match_instance_to_template_acc(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, Depth, none).
 
-match_instance_to_template_acc([], [], VM, VM, _, _, _).
-match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
+% The last argument (Prev) is the most recently consumed template *constant*. It
+% lets us recognise a meta-variable: per the LE convention a meta-variable (an
+% embedded eventuality, e.g. the "*an eventuality*" in "it is prohibited that
+% *an eventuality*") is always the last template slot and is immediately preceded
+% by the word "that" (or "says"). Such a slot must be parsed as an embedded
+% literal rather than captured wholesale as a single variable name.
+match_instance_to_template_acc([], [], VM, VM, _, _, _, _).
+match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, _Prev) :-
     \+ var(T), is_ignorable(T), !,
-    ( Instance = [I|Is], extract_simple_word(I, W), W == T -> 
-        match_instance_to_template_acc(Is, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
-        ; match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth)
+    ( Instance = [I|Is], extract_simple_word(I, W), W == T ->
+        match_instance_to_template_acc(Is, Ts, VMIn, VMOut, Templates, AllowVars, Depth, T)
+        ; match_instance_to_template_acc(Instance, Ts, VMIn, VMOut, Templates, AllowVars, Depth, T)
         ).
-match_instance_to_template_acc([I|Is], [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
+match_instance_to_template_acc([I|Is], [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Prev) :-
     \+ var(T), extract_simple_word(I, W), is_ignorable(W), W \== T, !,
-    match_instance_to_template_acc(Is, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth).
-match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth) :-
-    (   \+ var(T) ->  
+    match_instance_to_template_acc(Is, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Prev).
+match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVars, Depth, Prev) :-
+    (   \+ var(T) ->
         Instance = [I|Is],
         match_part(I, T, VMIn, VM1, Templates, AllowVars),
-        match_instance_to_template_acc(Is, Ts, VM1, VMOut, Templates, AllowVars, Depth)
-        ;   
-        % T is a variable (from the template dict)
+        match_instance_to_template_acc(Is, Ts, VM1, VMOut, Templates, AllowVars, Depth, T)
+        ;
+        % T is a variable (from the template dict). A meta-variable (preceded by
+        % "that"/"says") is parsed as an embedded literal; an ordinary variable
+        % captures its token span as a value/name.
+        ( is_meta_prev(Prev) -> Meta = true ; Meta = false ),
         % Lookahead to avoid over-consuming
-        (   Ts = [NextT|RestTs], \+ var(NextT) ->  
+        (   Ts = [NextT|RestTs], \+ var(NextT) ->
                 % Optimization: find a split that matches the next constant part
                 % and satisfies the variable extraction.
                 (
                     append(VarTokens, [NextI|Rest], Instance),
                     VarTokens \== [],
                     match_part(NextI, NextT, VMIn, VM1, Templates, AllowVars),
-                    extract_value_from_parts(VarTokens, T, VM1, VM2, Templates, false, AllowVars, Depth),
-                    match_instance_to_template_acc(Rest, RestTs, VM2, VMOut, Templates, AllowVars, Depth)
+                    extract_template_var(VarTokens, T, VM1, VM2, Templates, AllowVars, Depth, Meta),
+                    match_instance_to_template_acc(Rest, RestTs, VM2, VMOut, Templates, AllowVars, Depth, NextT)
                 )
-            ; Ts = [] ->  
+            ; Ts = [] ->
                 VarTokens = Instance,
                 VarTokens \== [],
-                extract_value_from_parts(VarTokens, T, VMIn, VMOut, Templates, false, AllowVars, Depth)
+                extract_template_var(VarTokens, T, VMIn, VMOut, Templates, AllowVars, Depth, Meta)
             ; % Next part is also a variable, must try all splits
               (
                 append(VarTokens, Rest, Instance),
                 VarTokens \== [],
-                extract_value_from_parts(VarTokens, T, VMIn, VM1, Templates, false, AllowVars, Depth),
-                match_instance_to_template_acc(Rest, Ts, VM1, VMOut, Templates, AllowVars, Depth)
+                extract_template_var(VarTokens, T, VMIn, VM1, Templates, AllowVars, Depth, Meta),
+                match_instance_to_template_acc(Rest, Ts, VM1, VMOut, Templates, AllowVars, Depth, none)
               )
         )
     ).
+
+%!  is_meta_prev(+Prev) is semidet.
+%
+%   True when the template constant just consumed marks the following variable as
+%   a meta-variable (an embedded eventuality/clause).
+is_meta_prev(that).
+is_meta_prev(says).
+
+%!  extract_template_var(+Parts, -Value, +VMIn, -VMOut, +Templates, +AllowVars, +Depth, +Meta) is semidet.
+%
+%   Extract the value for a template variable slot. For a meta-variable
+%   (Meta == true) the token span is parsed as an embedded literal first, so e.g.
+%   "a creature attends a tea party" becomes attends(Creature, TeaParty) instead
+%   of being captured as a single variable named "creature attends a tea party".
+%   It falls back to ordinary value extraction when no embedded template matches.
+extract_template_var(Parts, Value, VMIn, VMOut, Templates, AllowVars, Depth, true) :-
+    transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth), !.
+extract_template_var(Parts, Value, VMIn, VMOut, Templates, AllowVars, Depth, _Meta) :-
+    extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, false, AllowVars, Depth).
 
 %!  prepare_templates(+DictsIn:list, -DictsOut:list) is det.
 %
@@ -1794,10 +1822,32 @@ lines_to_tree(_Tokens, Lines, Templates, VMIn, VMOut, Tree) :-
 
 lines_to_hierarchy([], []).
 lines_to_hierarchy([line(N, Tokens)|Lines], [node(N, Tokens, Children)|RestNodes]) :-
-    take_nested_hierarchy(Lines, N, Nested, Remaining),
-    lines_to_hierarchy(Nested, Children),
+    take_nested_hierarchy(Lines, N, Nested, Remaining0),
+    (   Nested == [],
+        ends_with_that(Tokens),
+        Remaining0 = [line(M, NextTokens)|AfterNext]
+    ->  % A dangling meta connective ("... that" with nothing after it on the
+        % line — e.g. "it is not the case that") whose scope was written at the
+        % same indentation instead of nested underneath. Absorb the next sibling
+        % line (together with its own deeper-nested subtree) as this node's
+        % child, so the connective applies to it.
+        take_nested_hierarchy(AfterNext, M, NextNested, Remaining),
+        ChildLines = [line(M, NextTokens)|NextNested]
+    ;   ChildLines = Nested, Remaining = Remaining0
+    ),
+    lines_to_hierarchy(ChildLines, Children),
     % format('Node ~w has ~w children~n', [Tokens, Children]),
     lines_to_hierarchy(Remaining, RestNodes).
+
+%!  ends_with_that(+Tokens) is semidet.
+%
+%   True when the line's last meaningful token is the word "that" — i.e. a meta
+%   connective (such as "it is not the case that") that expects a following
+%   clause as its argument.
+ends_with_that(Tokens) :-
+    drop_trailing_comments(Tokens, Stripped),
+    Stripped \== [],
+    last(Stripped, word(that, _)).
 
 take_nested_hierarchy([line(M, Tokens)|Lines], N, [line(M, Tokens)|Nested], Remaining) :-
     M > N, !,
