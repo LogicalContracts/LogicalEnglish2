@@ -1822,7 +1822,15 @@ lines_to_tree(_Tokens, Lines, Templates, VMIn, VMOut, Tree) :-
 
 lines_to_hierarchy([], []).
 lines_to_hierarchy([line(N, Tokens)|Lines], [node(N, Tokens, Children)|RestNodes]) :-
-    take_nested_hierarchy(Lines, N, Nested, Remaining0),
+    take_nested_hierarchy(Lines, N, Nested0, Remaining00),
+    % If the deepest trailing line of this node's subtree is itself a dangling
+    % meta connective ("... that" with no argument nested under it) whose
+    % argument was written at a SHALLOWER indentation as a following sibling
+    % (inconsistent indentation we tolerate — e.g. the connective indented more
+    % deeply than the conjunct before it while its argument sits at column 0),
+    % pull that following block into the subtree so the connective can absorb it
+    % as its child rather than being left with an empty (true) scope.
+    absorb_trailing_dangling_that(Nested0, Remaining00, Nested, Remaining0),
     (   Nested == [],
         ends_with_that(Tokens),
         Remaining0 = [line(M, NextTokens)|AfterNext]
@@ -1838,6 +1846,22 @@ lines_to_hierarchy([line(N, Tokens)|Lines], [node(N, Tokens, Children)|RestNodes
     lines_to_hierarchy(ChildLines, Children),
     % format('Node ~w has ~w children~n', [Tokens, Children]),
     lines_to_hierarchy(Remaining, RestNodes).
+
+%!  absorb_trailing_dangling_that(+Nested0, +Remaining0, -Nested, -Remaining) is det.
+%
+%   When the last line of a node's nested subtree is a dangling "... that"
+%   connective with no argument of its own, move the first following sibling
+%   block (the line plus its deeper-nested subtree) from Remaining0 into the
+%   nested subtree. The subsequent recursion then attaches it as the
+%   connective's child via the same-indentation absorption above.
+absorb_trailing_dangling_that(Nested0, Remaining0, Nested, Remaining) :-
+    Nested0 \== [],
+    last(Nested0, line(_, LastTokens)),
+    ends_with_that(LastTokens),
+    Remaining0 = [line(M, MTokens)|AfterNext], !,
+    take_nested_hierarchy(AfterNext, M, ArgNested, Remaining),
+    append(Nested0, [line(M, MTokens)|ArgNested], Nested).
+absorb_trailing_dangling_that(Nested, Remaining, Nested, Remaining).
 
 %!  ends_with_that(+Tokens) is semidet.
 %
