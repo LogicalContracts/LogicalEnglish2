@@ -1,7 +1,7 @@
 
 Test Summary:
 -------------
-Files processed: 56
+Files processed: 58
 Total tests:     221
 Passed:          221
 Failed:          0
@@ -13,6 +13,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/AItest.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
@@ -39,6 +40,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/prolog_call.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/propositional.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error

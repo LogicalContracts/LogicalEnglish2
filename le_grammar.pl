@@ -1718,6 +1718,22 @@ parse_inline_body(Tokens, Templates, VMIn, VMOut, Logic) :-
         parse_literal(Tokens, Templates, VMIn, VMOut, Logic, _)
     ).
 
+%!  parse_inline_connective(+Tokens, +Templates, +VMIn, -VMOut, -Logic) is semidet.
+%
+%   Parse a single line that contains at least one top-level inline 'and'/'or'
+%   connective into the corresponding conjunction/disjunction. Each segment
+%   (minus its connective) must parse as a literal on its own; otherwise this
+%   fails so the caller can keep the whole line as a single literal (e.g. a
+%   template that legitimately contains 'and'). Used by parse_node so that
+%   "p if q and r." parses like the multi-line form.
+parse_inline_connective(Tokens, Templates, VMIn, VMOut, Logic) :-
+    inline_segments(Tokens, Segments),
+    Segments = [_, _|_],                       % at least one top-level connective
+    all_segments_parse(Segments, Templates),
+    maplist(inline_seg_to_line, Segments, Lines),
+    lines_to_hierarchy(Lines, Hierarchy),
+    hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Logic).
+
 inline_seg_to_line(Seg, line(0, Seg)).
 
 % Every segment (minus its leading and/or) must parse as a literal on its own,
@@ -1865,6 +1881,11 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             remove_leading_extra_goals(VM1, NumNew, VM2),
             fold_nodes(Logic0, Children, Templates, VM2, VMOut, Logic1),
             ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic1, Start, End) ; Logic = Logic1 )
+        ; Children == [], parse_inline_connective(Tokens, Templates, VMIn, VMOut, Logic0) ->
+            % A single-line body with top-level inline 'and'/'or' connectives,
+            % e.g. "p if q and r." — split into conjuncts/disjuncts.
+            tokens_range(Tokens, Start, End),
+            Logic = le_at(Logic0, Start, End)
         ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
             Literal = is_a(Type, SuperType),
             fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic0),
