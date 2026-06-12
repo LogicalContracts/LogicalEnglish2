@@ -30,8 +30,8 @@ export const leMonarchTokens = {
     tokenizer: {
         root: [
             // Section headers
-            [/the (predicates|templates|fluents|events) are:/, { token: 'keyword.header', next: '@templates' }],
-            [/the knowledge base|the contract|scenario|query|the ontology|the target language/, 'keyword.header'],
+            [/the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/, { token: 'keyword.header', next: '@templates' }],
+            [/the[ \t]+knowledge[ \t]+base|the[ \t]+contract|scenario|query|the[ \t]+ontology|the[ \t]+target[ \t]+language/, 'keyword.header'],
             
             // Structural Keywords
             [/\b(includes\s+these\s+resources|includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|it\s+is\s+(?:unknown|assumed|assumable)\s+whether|says\s+that|sum|count|average|min|max|such\s+that)\b/, 'keyword'],
@@ -87,7 +87,7 @@ export const leMonarchTokens = {
             [/scenario\s+element/, 'keyword.addition'],
             [/defines\s+global/, 'keyword.addition'],
             [/\b(opposite|prepositional|assumable|assumed|unknown|undefined)\b/, 'keyword.addition'],
-            [/the knowledge base|the contract|scenario|query|the ontology|the target language/, { token: 'keyword.header', next: '@pop' }],
+            [/the[ \t]+knowledge[ \t]+base|the[ \t]+contract|scenario|query|the[ \t]+ontology|the[ \t]+target[ \t]+language/, { token: 'keyword.header', next: '@pop' }],
             [/\*[^*]+\*/, 'variable'],
             [/%.*$/, 'comment'],
             [/\/\*/, 'comment', '@comment'],
