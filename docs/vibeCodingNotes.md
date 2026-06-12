@@ -1507,7 +1507,7 @@ We need to deal with slow queries. In particular for failures and big negative e
 We currently remove repeated subtrees from both positive (success) and negative (failures) explanations. Make this a preference for the user, persisting on LocalStorage; initial default "Hide repeated explanations"
 
 ## Meta-level proposition bugs
-We're not parsing eventualities properly. Meta variables in events are (1) always last and (2) preceded by 'that'. In example examples/moreExamples/tea_party.le the rule at line 13:
+Meta variables in events are (1) always last and (2) preceded by 'that'. In example examples/moreExamples/tea_party.le the rule at line 13:
 
 it is prohibited that a creature attends a tea party if 
 	it is not the case that
