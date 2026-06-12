@@ -1,0 +1,74 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 6 "How to Become a British Citizen", section 6.2,
+%         Example 4 ("Informal CL representation of subsection 1.1" of the
+%         British Nationality Act 1981).
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Book rule (informal CL): X acquires british citizenship by subsection 1.1
+% at time T if X is a person and X is born in the uk at time T and T is after
+% commencement and Y is a parent of X and (Y is a british citizen at time T or
+% Y is settled in the uk at time T).
+%
+% We introduce the "parent" abstraction (parent = mother or father), as the
+% book does, and split the disjunction in the body into two clauses (one for
+% the british-citizen path, one for the settled-in-the-uk path). Dates use the
+% same `*a date* is after commencement` scenario idiom as citizenship.le.
+
+the target language is: prolog.
+
+the templates are:
+*a person* acquires British citizenship by subsection 1.1 on *a date*.
+*a person* is a parent of *a second person*.
+*a person* is born in the UK on *a date*.
+*a date* is after commencement.
+*a person* is the mother of *a second person*.
+*a person* is the father of *a second person*.
+*a person* is a British citizen on *a date*.
+*a person* is settled in the UK on *a date*.
+
+the knowledge base bna citizenship includes:
+
+% The parent abstraction: a parent is a mother or a father.
+a person is a parent of a second person
+    if the person is the mother of the second person.
+
+a person is a parent of a second person
+    if the person is the father of the second person.
+
+% Subsection 1.1, british-citizen-parent path.
+a person acquires British citizenship by subsection 1.1 on a date
+    if the person is born in the UK on the date
+    and the date is after commencement
+    and a second person is a parent of the person
+    and the second person is a British citizen on the date.
+
+% Subsection 1.1, settled-in-the-uk-parent path.
+a person acquires British citizenship by subsection 1.1 on a date
+    if the person is born in the UK on the date
+    and the date is after commencement
+    and a second person is a parent of the person
+    and the second person is settled in the UK on the date.
+
+scenario mother_citizen is:
+    John is born in the UK on 2021-10-09.
+    2021-10-09 is after commencement.
+    Alice is the mother of John.
+    Alice is a British citizen on 2021-10-09.
+    acquisition expects answers ["John acquires British citizenship by subsection 1.1 on 2021-10-9T0:0:0.0"].
+
+scenario father_settled is:
+    Mary is born in the UK on 2021-10-09.
+    2021-10-09 is after commencement.
+    Harry is the father of Mary.
+    Harry is settled in the UK on 2021-10-09.
+    acquisition expects answers ["Mary acquires British citizenship by subsection 1.1 on 2021-10-9T0:0:0.0"].
+
+scenario father_citizen is:
+    Tom is born in the UK on 2021-10-09.
+    2021-10-09 is after commencement.
+    George is the father of Tom.
+    George is a British citizen on 2021-10-09.
+    acquisition expects answers ["Tom acquires British citizenship by subsection 1.1 on 2021-10-9T0:0:0.0"].
+
+query acquisition is:
+    which person acquires British citizenship by subsection 1.1 on which date.

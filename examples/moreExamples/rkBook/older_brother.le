@@ -1,0 +1,34 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 5 "Negation as Failure", section 5.5
+%         ("Moore's older-brother example, the selective closed-world assumption").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Book: "I do not have an older brother if I cannot show that I have an older
+% brother." In LE the "cannot show" is negation as failure. The closed-world
+% assumption is applied selectively to "has an older brother": absence of proof
+% means the negative holds. So that the rule has people to range over, the
+% individuals are introduced with "is a person" facts; the rule quantifies over
+% those people and concludes the negative for anyone with no positive fact.
+
+the target language is: prolog.
+
+the templates are:
+*a person* is a person.
+*a person* has an older brother.
+*a person* does not have an older brother.
+
+the knowledge base older_brother includes:
+
+a person does not have an older brother
+    if the person is a person
+    and it is not the case that
+        the person has an older brother.
+
+scenario robert_and_john is:
+    robert is a person.
+    john is a person.
+    john has an older brother.
+    no_brother expects answers ["robert does not have an older brother"].
+
+query no_brother is:
+    which person does not have an older brother.

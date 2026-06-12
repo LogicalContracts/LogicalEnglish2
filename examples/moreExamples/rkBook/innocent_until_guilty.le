@@ -1,0 +1,38 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 5, section 5.6 ("Innocent-unless-proven-guilty").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Default reasoning with non-monotonic defeat: a person accused of a crime is
+% innocent by default, UNLESS it can be shown the person committed the crime
+% (negation as failure: "it is not the case that"). Being witnessed committing
+% the act defeats the default. The crime is modelled as a single constant term.
+
+the target language is: prolog.
+
+the templates are:
+*a person* is accused of *a crime*.
+*a person* committed *a crime*.
+*a first person* witnessed *a second person* commit *a crime*.
+*a person* is innocent of *a crime*.
+
+the knowledge base innocent until guilty includes:
+
+a person committed a crime
+    if a second person witnessed the person commit the crime.
+
+a person is innocent of a crime
+    if the person is accused of the crime
+    and it is not the case that
+        the person committed the crime.
+
+scenario accused is:
+    bob is accused of robbing_the_bank.
+    innocence expects answers ["bob is innocent of robbing the bank"].
+
+scenario witnessed is:
+    bob is accused of robbing_the_bank.
+    john witnessed bob commit robbing_the_bank.
+    innocence expects answers [].
+
+query innocence is:
+    which person is innocent of which crime.

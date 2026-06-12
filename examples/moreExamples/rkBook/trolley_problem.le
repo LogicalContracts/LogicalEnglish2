@@ -1,0 +1,118 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 12, section 12.2, Example 1 ("Beliefs for the trolley
+%         problem") and Example 2 ("The current situation").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book's beliefs are transcribed with generic variables. "No one saves the
+% person" is modelled as negation as failure over an existential: "it is not the
+% case that an agent saves the person ...". The book's "stops OR diverts" is
+% split into two clauses for "saves". The key result: because john (stops the
+% train) and mary (diverts it) both save the five people, "which person is
+% destroyed" yields NO answers -- the naf condition fails. The original book
+% template was "is killed"; it is renamed "is destroyed" here because "_ is
+% killed" collides with LE's system template "_ is _".
+%
+% Note: "throws _ in front of _" has two readings (a person-throw, feeding
+% "kills", and an object-throw, feeding "places"). The single fact "john throws
+% boulder in front of train" matches both, so "john kills boulder" appears
+% alongside the intended "villain kills victim". This is a faithful consequence
+% of the book's overlapping vocabulary, not a modelling error.
+%
+% The book's optional rule "a train is speeding along a sidetrack if the train
+% is speeding along a track and there is a sidetrack ahead and an agent pushes
+% the button" is OMITTED: it introduces left recursion on "is speeding along"
+% (and is not needed by the queries here).
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is destroyed.
+    *an agent* kills *a person*.
+    *a person* is in danger of being killed by *a train*.
+    *an agent* saves *a person* from being killed by *a train*.
+    *an agent* throws *a person* in front of *a train*.
+    *a person* is on *a railtrack*.
+    *a train* is speeding along *a railtrack*.
+    *a person* is unable to escape from *a railtrack*.
+    *an agent* stops *a train*.
+    *an agent* diverts *a train*.
+    *an agent* places *a heavy object* in front of *a train*.
+    *a heavy object* is next to *an agent*.
+    *an agent* is within throwing distance of *an object* to *a railtrack*.
+    *an agent* throws *an object* in front of *a train*.
+    there is *a sidetrack* ahead of *a train*.
+    *a second agent* is travelling on *a train*.
+    *a second agent* pushes the sidetrack button.
+
+the knowledge base trolley includes:
+
+a person is destroyed
+    if the person is in danger of being killed by a train
+    and it is not the case that
+        an agent saves the person from being killed by the train.
+
+an agent kills a person
+    if the agent throws the person in front of a train.
+
+a person is in danger of being killed by a train
+    if the person is on a railtrack
+    and the train is speeding along the railtrack
+    and the person is unable to escape from the railtrack.
+
+an agent saves a person from being killed by a train
+    if the agent stops the train.
+
+an agent saves a person from being killed by a train
+    if the agent diverts the train.
+
+an agent stops a train
+    if the agent places a heavy object in front of the train.
+
+an agent places a heavy object in front of a train
+    if the heavy object is next to the agent
+    and the train is speeding along a railtrack
+    and the agent is within throwing distance of the heavy object to the railtrack
+    and the agent throws the heavy object in front of the train.
+
+% Reconstruction: the book's rule reads "a train is diverted if there is a
+% sidetrack ahead and someone on the train pushes the button"; the diverter is
+% left implicit. To keep "saves" answers ground, we identify the diverting agent
+% with the agent who pushes the sidetrack button.
+an agent diverts a train
+    if there is a sidetrack ahead of the train
+    and the agent is travelling on the train
+    and the agent pushes the sidetrack button.
+
+scenario situation is:
+    five_people is on maintrack.
+    train is speeding along maintrack.
+    five_people is unable to escape from maintrack.
+    there is sidetrack ahead of train.
+    mary is travelling on train.
+    boulder is next to john.
+    john is within throwing distance of boulder to maintrack.
+    john throws boulder in front of train.
+    mary pushes the sidetrack button.
+    villain throws victim in front of train.
+    danger expects answers ["five people is in danger of being killed by train"].
+    saving expects answers [
+        "john saves five people from being killed by train",
+        "mary saves five people from being killed by train"
+    ].
+    destroyed expects answers [].
+    killing expects answers [
+        "john kills boulder",
+        "villain kills victim"
+    ].
+
+query danger is:
+    which person is in danger of being killed by which train.
+
+query saving is:
+    which agent saves five_people from being killed by which train.
+
+query destroyed is:
+    which person is destroyed.
+
+query killing is:
+    which agent kills which person.
