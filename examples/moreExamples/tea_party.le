@@ -24,15 +24,16 @@ a creature is punished with scolding if
 	and it is prohibited that the creature attends the party
 	and the creature is a lofty creature.
 
-the mad hatter is a lofty creature.
-the doormouse is a lowly creature.
+mad hatter is a lofty creature.
+doormouse is a lowly creature.
 
 scenario attendees is: 
   
 alice attends the tea party.
-the mad hatter attends the tea party.
-the doormouse attends the tea party.
+mad hatter attends the tea party.
+doormouse attends the tea party.
 it is approved that alice attends the tea party.
+punishment expects answers ["doormouse is punished with banishment","mad hatter is punished with scolding"].
     
 query punishment is:
     which creature is punished with which sanction.
