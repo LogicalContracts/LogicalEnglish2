@@ -33,7 +33,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                         if (!fix) return null;
                         
                         const text = model.getValue();
-                        const match = text.match(/the (predicates|templates|fluents|events) are:/i);
+                        const match = text.match(/the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/i);
                         let insertRange;
                         if (match) {
                             const offset = match.index + match[0].length;
