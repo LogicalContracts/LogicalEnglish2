@@ -1,0 +1,49 @@
+the  target language is: prolog.
+
+the  templates are:
+
+*a message* implies *a set*.
+*a set* contains *an item*. 
+*a message* is verifiable as true by *a user*. 
+*a message* makes sense as a whole.
+*a user* can decompose *a message* into *a set*.
+there are enough references from scientific publications for every important statement in *a set*.
+*a user* applies every specialized criterion on the subject matter of *a message* to validate *a set*.
+there is no evidence to contradict *a set*. 
+
+the  knowledge base includes:
+
+a message is verifiable as true by a user if
+        the message makes sense as a whole
+    and an user can decompose the message into a set
+    and there are enough references from scientific publications for every important statement in the set
+    and the user applies every specialized criterion on the subject matter of the message to validate the set
+    and there is no evidence to contradict the set. 
+
+scenario chemical risk is:
+    message 1 is 'Compound X is an organic ester and it is FDA-approved for human consumption'.
+    message 1 makes sense as a whole.
+    % [Decomposition:] The system breaks the message
+    smart person can decompose message 1 into set A.
+    message 1 implies set A.
+    set A contains 'Compound X is an organic ester.'.
+    set A contains 'Compound X is FDA-approved for human consumption.'.
+    % [Scientific Backing:] The system queries a verified database (e.g., PubChem). It finds the first is true but the second has no corresponding entry.
+    % [Non-Falsification:] The system finds a recent 2024 study indicating Compound X is toxic to gut flora.
+
+scenario chemical safety is:
+    message 1 is 'Compound X is an organic ester and it is FDA-approved for human consumption'.
+    message 1 makes sense as a whole.
+    % [Decomposition:] The system breaks the message
+    lucky person can decompose message 1 into set A.
+    message 1 implies set A.
+    set A contains 'Compound X is an organic ester.'.
+    set A contains 'Compound X is FDA-approved for human consumption.'.
+    % [Scientific Backing:] The system queries a verified database (e.g., PubChem). It finds support for all items in the set.
+    there are enough references from scientific publications for every important statement in set A.
+    lucky person applies every specialized criterion on the subject matter of message 1 to validate set A.
+    % [Non-Falsification:] After checking the evidence, there is no evidence the refute the items in the set
+    there is no evidence to contradict set A.
+
+query one is:
+    which message is verifiable as true by which user. 
