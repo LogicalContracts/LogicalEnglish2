@@ -1506,6 +1506,25 @@ We need to deal with slow queries. In particular for failures and big negative e
 ## Configurable explanation repetitions
 We currently remove repeated subtrees from both positive (success) and negative (failures) explanations. Make this a preference for the user, persisting on LocalStorage; initial default "Hide repeated explanations"
 
+## Meta-level proposition bugs
+We're not parsing eventualities properly. Meta variables in events are (1) always last and (2) preceded by 'that'. In example examples/moreExamples/tea_party.le the rule at line 13:
+
+it is prohibited that a creature attends a tea party if 
+	it is not the case that
+	it is approved that the creature attends the tea party.
+
+should NOT have the following PROLOG equivalent:
+
+it_is_prohibited_that(_) :-
+    and(le_at(not(true), 374, 397), le_at(it_is_approved_that(_), 399, 453)).
+
+This should be instead something like (ommiting precise char ranges):
+
+it_is_prohibited_that(attends(A,B)) :-
+   le_at(not(le_at(it_is_approved_that(attends(A,B)), ..., ...)), ..., ...).
+
+
+
 ## TBD
 
 start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.

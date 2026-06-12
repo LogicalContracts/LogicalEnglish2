@@ -1,0 +1,40 @@
+the target language is: prolog.
+
+the templates are:
+*a creature* attends *an event*.
+it is prohibited that *an eventuality*.
+it is approved that *an eventuality*.
+*a creature* is punished with *a sanction*.
+*a creature* is a lofty creature.
+*a creature* is a lowly creature.
+
+the knowledge base tea party includes:
+
+it is prohibited that a creature attends a tea party if 
+	it is not the case that
+	it is approved that the creature attends the tea party.
+
+a creature is punished with banishment if
+	the creature attends a party
+	and it is prohibited that the creature attends the party
+	and the creature is a lowly creature.
+
+a creature is punished with scolding if
+	the creature attends a party
+	and it is prohibited that the creature attends the party
+	and the creature is a lofty creature.
+
+the mad hatter is a lofty creature.
+the doormouse is a lowly creature.
+
+scenario attendees is: 
+  
+alice attends the tea party.
+the mad hatter attends the tea party.
+the doormouse attends the tea party.
+it is approved that alice attends the tea party.
+    
+query punishment is:
+    which creature is punished with which sanction.
+    
+
