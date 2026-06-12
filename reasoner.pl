@@ -6,17 +6,36 @@
     explanation trees.
 */
 
-:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8]).
+:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8,
+                     hide_repeated_explanations/0, set_show_repeated_explanations/1]).
 
 :- use_module(library(time)).
 :- use_module(library(pairs)).
 
 :- dynamic equal_to/2.
-:- thread_local called/3, counter/1, success_in_not/2, succeeded/1.
+:- thread_local called/3, called_clause/3, counter/1, success_in_not/2, succeeded/1.
+
+% When set (the default), repeated sub-explanations are collapsed; the client can
+% turn this off per query so the full tree is built and shown. Tracked per worker
+% thread, alongside the query it belongs to (set in classic_web_api before the
+% query runs). Absent flag = hide (the default).
+:- thread_local show_repeated_explanations/0.
+
+%!  hide_repeated_explanations is semidet.
+%   True when repeated sub-explanations should be collapsed (the default).
+hide_repeated_explanations :- \+ show_repeated_explanations.
+
+%!  set_show_repeated_explanations(+Show) is det.
+%   Records the client's preference for the current query thread: Show == true
+%   keeps every repeated sub-explanation; anything else hides them (the default).
+set_show_repeated_explanations(Show) :-
+    retractall(show_repeated_explanations),
+    ( Show == true -> assertz(show_repeated_explanations) ; true ).
 
 %!  i(+Goal:term, +SessionModule:atom, -Unknowns:list, -Whys:list) is nondet.
 i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
+    retractall(called_clause(_, _, _)),
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
     init_counter,
@@ -40,6 +59,7 @@ i(Goal, SessionModule, Unknowns, Whys) :-
 %   Similar to i/4, but always returns an explanation tree (success or failure).
 explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called(_, _, _)),
+    retractall(called_clause(_, _, _)),
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
     init_counter,
@@ -142,18 +162,34 @@ solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
     D1 is D + 1,
     next_id(CondID),
     assertz(called(MyID, CondID, Cond)),
-    findall(UsC-WhysC, solve(Cond, SM, KM, Anc, D1, CondID, UsC, WhysC), CondResults),
-    (   CondResults == [] ->
+    % For every solution of the condition (WITH its bindings) the consequent must
+    % hold for those same bindings. The consequent is solved INSIDE the findall
+    % conjunction so that variables shared between Cond and Cons flow from each
+    % condition case to the consequent. (Solving the consequent separately, after
+    % a findall over Cond alone, would lose those bindings and merely check that
+    % the consequent holds for *some* value — a bug that wrongly made e.g. "family
+    % one is a subset of family two" true when Bob ∈ family one but Bob ∉ family two.)
+    findall(Case,
+        ( solve(Cond, SM, KM, Anc, D1, CondID, UsC, WhysCond),
+          ( UsC == []
+            -> ( solve(Cons, SM, KM, Anc, D1, MyID, [], _) -> Case = ok(WhysCond) ; Case = consequent_failed )
+            ;  Case = unknown_condition(WhysCond)
+          )
+        ),
+        Cases),
+    (   Cases == [] ->
             % Vacuously true: no matching cases. Explain the condition's FAILURE
             % so it renders as a (red) negative branch.
             build_failure_tree(CondID, CondFailWhys),
             ( CondFailWhys = [CondWhy] -> true ; CondWhy = failure(Cond, CondFailWhys) )
-        ;
-            % At least one case: the consequent must hold for every definite case.
-            forall(member(UsC-WhysC, CondResults),
-                   ( UsC == [] -> solve(Cons, SM, KM, Anc, D1, MyID, [], _) ; true )),
-            CondResults = [_-FirstCondWhys|_],
-            ( FirstCondWhys = [CondWhy] -> true ; CondWhy = success(Cond, universal_condition, FirstCondWhys) )
+        ;   \+ memberchk(consequent_failed, Cases) ->
+            % Consequent holds for every definite case: the universal holds.
+            ( member(ok(WhysCondOk), Cases) -> CaseWhys = WhysCondOk
+            ; Cases = [unknown_condition(CaseWhys)|_]
+            ),
+            ( CaseWhys = [CondWhy] -> true ; CondWhy = success(Cond, universal_condition, CaseWhys) )
+        ;   % Some definite case's consequent failed: the universal fails.
+            fail
     ),
     Us = [], % TODO: handle unknowns in forall
     ( Cons = le_at(ConsGoal, CS, CE) -> ConsRef = range(CS, CE) ; ConsGoal = Cons, ConsRef = universal_body ),
@@ -164,44 +200,33 @@ solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negat
     D1 is D + 1,
     next_id(GoalID),
     assertz(called(MyID, GoalID, Goal)),
-    % A definite (Us == []) success of Goal makes not(Goal) fail — and is the
-    % only thing we need from Goal in that case. So short-circuit: stop exploring
-    % the moment one is found (via a throw out of findall), instead of
-    % enumerating Goal's entire — possibly explosive — search space. If there is
-    % no definite success we still enumerate the rest to distinguish "only
-    % unknown successes" (not(Goal) is unknown) from "no success at all"
-    % (not(Goal) succeeds).
+    % not(Goal) fails as soon as Goal succeeds AT ALL — whether definitely or only
+    % by assuming some unknowns true. An assumable success still establishes Goal,
+    % so its negation must fail (it is not merely "unknown"). We therefore
+    % short-circuit on the first success of any kind, recording its why-tree (which
+    % explains, in the surrounding failure explanation, why the negation failed).
+    % Only if Goal has NO proof at all does not(Goal) succeed.
     (   catch(
-            ( findall(UsA-WhysA,
-                  ( solve_real(Goal, SM, KM, Anc, D1, GoalID, UsA, WhysA),
-                    ( UsA == [] -> throw('$definite_success'(WhysA)) ; true )
-                  ),
-                  UnknownResults),
-              DefiniteWhys = none ),
-            '$definite_success'(DefW),
-            DefiniteWhys = DefW )
-    ),
-    (   DefiniteWhys \== none ->
-            assertz(success_in_not(GoalID, DefiniteWhys)),
-            fail % Certain success of Goal, so not(Goal) fails
-    ;   UnknownResults \== [] ->
-            Us = [not(Goal)], % Only unknown successes
-            build_failure_tree(GoalID, FailureTrees),
-            assertz(success_in_not(GoalID, FailureTrees))
-    ;   Us = [], % Certain failure of Goal, so not(Goal) succeeds
-            build_failure_tree(GoalID, FailureTrees),
-            assertz(success_in_not(GoalID, FailureTrees))
+            ( solve_real(Goal, SM, KM, Anc, D1, GoalID, _UsA, WhysA),
+              throw('$goal_succeeded'(WhysA)) ),
+            '$goal_succeeded'(SuccWhys),
+            true )
+    ->  % Goal succeeded (possibly only under assumptions): not(Goal) fails.
+        assertz(success_in_not(GoalID, SuccWhys)),
+        fail
+    ;   % Goal has no proof at all: not(Goal) succeeds.
+        Us = [],
+        build_failure_tree(GoalID, FailureTrees),
+        assertz(success_in_not(GoalID, FailureTrees))
     ).
 
 % True
 solve_real_actual(true, _, _, _, _, _, [], []) :- !.
 
-% Type restriction on a (scenario) variable: succeeds immediately, attaching a
-% lazy constraint that fires once Arg is bound (mirrors check_args_compatibility).
+% Type restriction on a variable: succeeds immediately, attaching a lazy
+% constraint that fires once Arg is bound (mirrors check_args_compatibility).
 solve_real_actual(le_type_check(Arg, Type), SM, KM, _Anc, _D, _MyID, [], [success(le_type_check(Arg, Type), built_in, [])]) :- !,
-    ( KM \== none -> M = KM ; M = SM ),
-    when(nonvar(Arg),
-         ( M:le_type(Arg) -> once(is_a_simple(Arg, Type, M)) ; true )).
+    when(nonvar(Arg), once(type_arg_ok(Arg, Type, SM, KM))).
 
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
@@ -243,13 +268,13 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             (   has_opposite(G, SM, KM, OppG), \+ member(OppG, Anc) ->
                 ( le_kbs:do_log -> format('Solving ~w with opposite ~w\n', [G, OppG]) ; true ),
                 % Solve Body, then check that OppG is not true for reasons OTHER than not(G)
-                solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody),
+                solve_rule_body(Body, SM, KM, [G|Anc], D1, MyID, Ref, Us, WhysBody),
                 \+ ( get_clause(OppG, SM, KM, OppBody, OppRef),
                      OppRef \== implicit_opposite,
                      % Use a fresh Anc for OppBody to avoid loop but allow checking G
                      solve(OppBody, SM, KM, [OppG], D1, MyID, [], _)
                    )
-            ;   solve(Body, SM, KM, [G|Anc], D1, MyID, Us, WhysBody)
+            ;   solve_rule_body(Body, SM, KM, [G|Anc], D1, MyID, Ref, Us, WhysBody)
             )
         ; get_clause(le_unknown(G), SM, KM, UnkBody, _UnkRef),
           \+ SM:le_neg(le_unknown(G)),
@@ -290,15 +315,82 @@ is_type_compatible(SM, KM, G) :-
 check_args_compatibility([], [], _, _, _, _).
 check_args_compatibility([FA|FAs], [AA|AAs], NTs, M, SM, KM) :-
     ( member(FA_-FormalType, NTs), FA_==FA, FormalType \== any ->
-        when(nonvar(AA), (
-            ( M:le_type(AA) ->
-                once(is_a_simple(AA, FormalType, M))
-            ; true
-            )
-        ))
+        % Goal-level check: lenient — only constrains TYPE-valued arguments (for
+        % taxonomy reasoning). Instance arguments are NOT constrained here, since
+        % this fires for every goal and an instance may legitimately fill a role
+        % slot (e.g. a company acting as an 'affiliate'). Per-rule discrimination
+        % between same-functor templates is done by the head le_type_check goals
+        % at ambiguous positions (see head_var_type_checks/4 in le_grammar).
+        when(nonvar(AA), once(type_value_ok(AA, FormalType, SM, KM)))
     ; true
     ),
     check_args_compatibility(FAs, AAs, NTs, M, SM, KM).
+
+% Like type_arg_ok/4 but only constrains TYPE-valued arguments (no instances).
+type_value_ok(_AA, any, _SM, _KM) :- !.
+type_value_ok(_AA, FormalType, _SM, _KM) :- universal_type(FormalType), !.
+type_value_ok(AA, FormalType, SM, KM) :-
+    ( is_type_value(AA, SM, KM), grounded_type(FormalType, SM, KM)
+    -> type_compatible(AA, FormalType, SM, KM)
+    ; true
+    ).
+
+%!  type_arg_ok(+Arg, +FormalType, +SM, +KM) is semidet.
+%
+%   True when the bound Arg is acceptable in a slot declared as FormalType. It is
+%   lenient by design — it only REJECTS on a clear conflict:
+%    * universal types (thing/object/…) and 'any' accept anything;
+%    * if Arg is itself a TYPE, require it to be a sub-type of FormalType, but
+%      only when FormalType is grounded (so a generic placeholder type like
+%      *super* in "*sub* isa *super*" does not reject a real type value);
+%    * if Arg is an INSTANCE with a known type (an is_a fact, e.g.
+%      "this payment is a payment"), require it to be of type FormalType — so a
+%      payment is rejected for an 'amount' slot;
+%    * otherwise (no known type) accept.
+type_arg_ok(_Arg, any, _SM, _KM) :- !.
+type_arg_ok(_Arg, FormalType, _SM, _KM) :- universal_type(FormalType), !.
+type_arg_ok(Arg, FormalType, SM, KM) :-
+    (   is_type_value(Arg, SM, KM)
+    ->  ( grounded_type(FormalType, SM, KM) -> type_compatible(Arg, FormalType, SM, KM) ; true )
+    ;   instance_has_type(Arg, SM, KM)
+    ->  type_compatible(Arg, FormalType, SM, KM)
+    ;   true
+    ).
+
+universal_type(T) :- memberchk(T, [thing, object, entity, asset, element]).
+
+is_type_value(Arg, SM, KM) :-
+    ( catch(SM:le_type(Arg), _, fail) -> true
+    ; KM \== none, catch(KM:le_type(Arg), _, fail)
+    ).
+
+instance_has_type(Arg, SM, KM) :-
+    ( has_is_a_fact(SM, Arg) -> true
+    ; KM \== none, has_is_a_fact(KM, Arg)
+    ).
+
+has_is_a_fact(Mod, Arg) :-
+    current_predicate(Mod:is_a/2),
+    catch(clause(Mod:is_a(Arg, _), true), _, fail).
+
+% Arg satisfies FormalType via is_a facts in either the session or the KB module.
+type_compatible(Arg, FormalType, SM, KM) :-
+    ( is_a_simple(Arg, FormalType, SM) -> true
+    ; KM \== none, is_a_simple(Arg, FormalType, KM)
+    ).
+
+% grounded_type(+Type, +SM, +KM): Type actually participates in the ontology —
+% something is a Type, or Type is a something — in the session or KB module.
+grounded_type(Type, SM, KM) :-
+    ( has_is_a_edge(SM, Type) -> true
+    ; KM \== none, has_is_a_edge(KM, Type) -> true
+    ).
+
+has_is_a_edge(Mod, Type) :-
+    current_predicate(Mod:is_a/2),
+    ( catch(clause(Mod:is_a(_, Type), _), _, fail) -> true
+    ; catch(clause(Mod:is_a(Type, _), _), _, fail)
+    ).
 
 is_a_simple(X, Z, _) :- X == Z, !.
 is_a_simple(X, Z, M) :- M:clause(is_a(X, Z), true), !.
@@ -308,13 +400,41 @@ is_a_simple(X, Z, M) :- M:clause(is_a(X, Y), true), Y \== Z, is_a_simple(Y, Z, M
 % accepted as values of type person.
 is_a_simple(X, Z, M) :- atom(Z), le_grammar:head_noun_type(Z, HZ), HZ \== Z, is_a_simple(X, HZ, M).
 
+%!  detailed_failures_on(+SM) is semidet.
+%   True when the session has requested detailed (per-rule) failure explanations.
+detailed_failures_on(SM) :- catch(SM:detailed_failures, _, fail).
+
+%!  solve_rule_body(+Body, +SM, +KM, +Anc, +D, +MyID, +Ref, -Us, -WhysBody)
+%   Solves the body of a clause Ref under goal MyID. When detailed failures are
+%   enabled and Body is a real rule body (not a fact's `true`), the body's
+%   subgoals are solved under a FRESH clause id, recorded as
+%   called_clause(MyID, ClauseID, Ref), so build_failure_tree/2 can group the
+%   subgoal failures under a "failed rule" node. Otherwise (default) the body is
+%   solved directly under MyID, exactly as before.
+solve_rule_body(Body, SM, KM, Anc, D, MyID, Ref, Us, WhysBody) :-
+    (   Body \== true, detailed_failures_on(SM)
+    ->  next_id(ClauseID),
+        assertz(called_clause(MyID, ClauseID, Ref)),
+        solve(Body, SM, KM, Anc, D, ClauseID, Us, WhysBody)
+    ;   solve(Body, SM, KM, Anc, D, MyID, Us, WhysBody)
+    ).
+
 % build_failure_tree(+ID, -Whys)
-% Reconstructs a list of "juicy" failure trees of all calls made under ID.
+% Reconstructs a list of "juicy" failure trees of all calls made under ID. When
+% detailed failures are enabled, each attempted rule body recorded via
+% called_clause/3 becomes an intermediate failed_rule(Ref, BodyWhys) node — but a
+% predicate with a single rule keeps its subgoal failures directly (no rule node).
 build_failure_tree(ID, Whys) :-
     (   success_in_not(ID, Whys) -> true
     ;   succeeded(ID) -> Whys = []
-    ;   ( findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), AllWhys0) -> true ; AllWhys0 = []),
-        group_variant_whys(AllWhys0, AllWhys),
+    ;   % Per-rule failure nodes (only present when detailed failures are on).
+        findall(failed_rule(Ref, ClauseWhys),
+                ( called_clause(ID, ClauseID, Ref),
+                  clause_failure_children(ClauseID, ClauseWhys) ),
+                RuleNodes),
+        % Direct subgoal failures (the default path, and non-rule calls).
+        clause_failure_children(ID, DirectWhys),
+        combine_clause_children(RuleNodes, DirectWhys, AllWhys),
         (   called(_PID, ID, Term)
         ->  (   (AllWhys = [failure(Term2, Children)], variant_or_le_at_variant(Term, Term2))
             ->  Whys = [failure(Term, Children)] % Collapse pass-through
@@ -324,6 +444,21 @@ build_failure_tree(ID, Whys) :-
         )
     ).
 
+% Collect and group the failure subtrees of the calls made directly under ID.
+clause_failure_children(ID, Grouped) :-
+    ( findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys0) -> true ; Whys0 = [] ),
+    group_variant_whys(Whys0, Grouped).
+
+% combine_clause_children(+RuleNodes, +DirectWhys, -AllWhys)
+% No rule nodes -> just the direct failures. A SINGLE rule -> drop the rule node
+% and surface its subgoal failures directly. Several rules -> keep one
+% failed_rule node per rule.
+combine_clause_children([], DirectWhys, DirectWhys) :- !.
+combine_clause_children([failed_rule(_Ref, ClauseWhys)], DirectWhys, AllWhys) :- !,
+    append(ClauseWhys, DirectWhys, AllWhys).
+combine_clause_children(RuleNodes, DirectWhys, AllWhys) :-
+    append(RuleNodes, DirectWhys, AllWhys).
+
 % group_variant_whys(+Whys, -Grouped)
 % Collapses sibling sub-explanations that are variants of each other (same shape
 % modulo variable renaming) into a single representative, wrapped as
@@ -332,8 +467,11 @@ build_failure_tree(ID, Whys) :-
 % convert_why/3, rendering — operate on a small tree) and records how many times
 % each sub-explanation occurred under the same parent.
 group_variant_whys(Whys, Grouped) :-
-    maplist(variant_key_pair, Whys, Keyed),
-    group_keyed_whys(Keyed, Grouped).
+    (   hide_repeated_explanations
+    ->  maplist(variant_key_pair, Whys, Keyed),
+        group_keyed_whys(Keyed, Grouped)
+    ;   Grouped = Whys
+    ).
 
 % Group on a key that ignores le_at/3 source positions (which differ between
 % otherwise-identical explanations coming from different rule locations), so
@@ -422,10 +560,14 @@ call_reasoner_built_in(prolog_call(G), SM) :- !,
     % Resolve the goal in the first module context that yields a solution and
     % commit to it (soft-cut), so we don't re-enumerate the same solutions in
     % each fallback context (which would return duplicate answers).
+    % Only catch "predicate not defined in this module" so we can fall through to
+    % the next module context. Other exceptions — including the user's query
+    % interrupt and time limits — MUST propagate, not be swallowed (which would
+    % otherwise restart a looping goal in the next context).
     (   compound(G), G = M:Goal
     ->  M:call(Goal)
-    ;   catch(SM:call(G), _, fail) *-> true
-    ;   catch(le_kbs:call(G), _, fail) *-> true
+    ;   catch(SM:call(G), error(existence_error(procedure, _), _), fail) *-> true
+    ;   catch(le_kbs:call(G), error(existence_error(procedure, _), _), fail) *-> true
     ;   SM:call(G)
     ).
 call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).

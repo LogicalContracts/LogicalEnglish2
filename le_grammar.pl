@@ -128,10 +128,12 @@ section_start(predicates(_), 0).
 section_start(fluents(_), 0).
 section_start(events(_), 0).
 
+% Only KNOWLEDGE BASE rules count for the "scenario before rules" ordering check.
+% Scenarios (and queries) may legitimately contain their own local rules, so they
+% must NOT be treated as rule-bearing here — otherwise an earlier scenario would
+% be wrongly flagged as appearing before a later scenario's rule.
 is_rule_bearing_section(kb(_, Content, _, _)) :- member(Item, Content), is_rule_item(Item).
-is_rule_bearing_section(scenario(_, Content, _, _)) :- member(rule(_, _, _, _, _, _), Content).
-is_rule_bearing_section(query(_, Content, _, _)) :- member(rule(_, _, _, _, _, _), Content).
-is_rule_bearing_section(unknown_section(Tokens, _, _)) :- 
+is_rule_bearing_section(unknown_section(Tokens, _, _)) :-
     ( member(word(if, _), Tokens) ; member(word(unless, _), Tokens) ).
 
 is_rule_item(rule(_, _, _, _, _, _)).
@@ -418,9 +420,48 @@ get_token_end(T, End) :-
 templates(AllDicts) -->
     \+ next_section_start,
     template(TDicts), !,
-    ( (t(punct('.')) ; t(punct(','))) -> ( templates(MoreDicts) | { MoreDicts = [] }); { MoreDicts = [] }),
+    ( (t(punct('.')) ; t(punct(','))) -> ( templates(MoreDicts) | { MoreDicts = [] })
+    ; warn_truncated_template(TDicts), { MoreDicts = [] }
+    ),
     { append(TDicts, MoreDicts, AllDicts) }.
 templates([]) --> [].
+
+% A template was parsed but is not followed by a '.'/',' terminator: if what
+% follows is a section keyword (scenario, query, the knowledge base, ...) on a
+% line that ends with '.' (rather than a ':' section header), the template was
+% silently cut off by a reserved word appearing inside it. Warn about it. This is
+% a non-consuming look-ahead (S, S), so parsing is unaffected.
+warn_truncated_template(TDicts, S, S) :-
+    (   reserved_word_truncation(S, Word, DotEnd),
+        TDicts = [dict(_, _, _, TStart, _, _, _, _, _) | _]
+    ->  ( le_kbs:current_compiling_module(M), M \== (-)
+        ->  format(atom(Desc),
+              "Template contains the reserved word '~w', which cuts it off. Section keywords (scenario, query, the knowledge base, the ontology, ...) cannot appear inside a template.",
+              [Word]),
+            assertz(M:le_issue(warning, reserved_word_in_template, Desc,
+                               "Reword the template so it does not use the reserved word.", TStart, DotEnd))
+        ;   true )
+    ;   true
+    ).
+
+% True when the upcoming tokens are a section keyword followed (on the same '.'-
+% terminated line, before any ':') by more content — i.e. a truncated template.
+reserved_word_truncation(Tokens0, Word, DotEnd) :-
+    skip_indents(Tokens0, Tokens),
+    section_keyword_head(Tokens, Word),
+    period_before_colon(Tokens, DotEnd).
+
+skip_indents([indent(_, _) | T], T2) :- !, skip_indents(T, T2).
+skip_indents(T, T).
+
+section_keyword_head([word(scenario, _) | _], scenario) :- !.
+section_keyword_head([word(query, _) | _], query) :- !.
+section_keyword_head([word(the, _), word(KW, _) | _], KW) :-
+    memberchk(KW, [knowledge, contract, ontology, predicates, templates, fluents, events, target]).
+
+period_before_colon([punctuation('.', loc(_, E)) | _], E) :- !.
+period_before_colon([punctuation(':', _) | _], _) :- !, fail.
+period_before_colon([_ | T], E) :- period_before_colon(T, E).
 
 % template(Dicts) parses a single template definition into a list of dicts.
 % The list always contains the main dict and, if an opposite was declared, a
@@ -1190,19 +1231,92 @@ second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
-    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->  
+    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->
+        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->
             ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true),
             collect_extra_goals(VMOut, ExtraGoals),
-            ( ExtraGoals == [] -> NewBody = Body0 ; append(ExtraGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
-            ;   
+            % Constrain each head variable to the type named by that variable, so
+            % rules sharing a functor but with differently-typed heads (e.g.
+            % "a payment in respect of a claim if ..." vs "an amount in respect of
+            % a claim if ...") only fire for arguments of the matching type.
+            head_var_type_checks(NewHead, VM1, Templates, TypeChecks),
+            append(TypeChecks, ExtraGoals, PreGoals),
+            ( PreGoals == [] -> NewBody = Body0 ; append(PreGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) ),
+            store_rule_var_names(ActualID, NewHead, NewBody, VMOut)
+            ;
             ( le_kbs:do_log -> print_message(informational,'  Rule body failed to parse~n'); true),
             NewBody = true % Fallback
         )
-        ;   
+        ;
         ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
         NewHead = unknown_template(Head),
         ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
+    ).
+
+%!  head_var_type_checks(+HeadLiteral, +VM, +Templates, -Checks) is det.
+%
+%   le_type_check/2 goals constraining a head argument to the type named by its
+%   variable in VM (its head-noun type) — but ONLY at *ambiguous* argument
+%   positions: positions where the functor's templates disagree on the type
+%   (e.g. argument 1 of in_respect_of/2 is 'payment' in one template and 'amount'
+%   in another). At unambiguous positions the type is not a discriminator (e.g. a
+%   single 'affiliate' template, where a company may legitimately be an
+%   affiliate), so no check is imposed. A head variable with no name in VM, or
+%   whose type is 'any', also imposes no check.
+%
+%   NB: do NOT use findall/3 to collect the checks — it would copy the
+%   le_type_check terms and detach them from the head variables they constrain.
+head_var_type_checks(HeadLiteral, VM, Templates, Checks) :-
+    ( compound(HeadLiteral), HeadLiteral =.. [F | Args], atom(F)
+    -> length(Args, A), head_arg_type_checks(Args, 1, F, A, Templates, VM, Checks)
+    ;  Checks = [] ).
+
+head_arg_type_checks([], _, _, _, _, _, []).
+head_arg_type_checks([Arg|Args], I, F, A, Templates, VM, Checks) :-
+    (   var(Arg),
+        vm_var_name(VM, Arg, Name),
+        head_noun_type(Name, Type), Type \== any,
+        ambiguous_position(F, A, I, Templates)
+    ->  Checks = [le_type_check(Arg, Type) | Checks0]
+    ;   Checks = Checks0
+    ),
+    I1 is I + 1,
+    head_arg_type_checks(Args, I1, F, A, Templates, VM, Checks0).
+
+% True when two templates for F/A declare different (non-any) types at position I.
+ambiguous_position(F, A, I, Templates) :-
+    findall(T,
+        ( member(dict([F|FormalArgs], NTs, _, _, _, _, _, _, _, _), Templates),
+          length(FormalArgs, A),
+          nth1(I, FormalArgs, FormalArg),
+          ( member(K-Ty, NTs), K == FormalArg -> T = Ty ; T = any )
+        ),
+        Types),
+    exclude(==(any), Types, NonAny),
+    sort(NonAny, Distinct),
+    Distinct = [_, _ | _].
+
+vm_var_name(VM, Var, Name) :-
+    member(Name-V, VM), atom(Name), Name \== '$last_var', V == Var, !.
+
+%!  store_rule_var_names(+ActualID, +Head, +Body, +VM) is det.
+%
+%   Records the explicit source identifiers (e.g. X, Y) of the variables in the
+%   rule clause Head:-Body, keyed by ActualID and by each variable's position in
+%   term_variables/2 order. That ordering matches the Proof Game's game_var_ids/2
+%   numbering, so the game can label a variable with its source name. Only
+%   explicit ids (is_id/1) are stored; ordinary "a thing" variables carry none.
+store_rule_var_names(ActualID, Head, Body, VM) :-
+    (   le_kbs:current_compiling_module(M),
+        term_variables((Head :- Body), Vars),
+        findall(Idx-Name,
+                ( nth0(Idx, Vars, V), vm_var_name(VM, V, Name), is_id(Name) ),
+                Pairs0),
+        sort(Pairs0, Pairs),   % one entry per (index,name); drop vmap duplicates
+        Pairs \== []
+    ->  dynamic(M:le_var_names/2),
+        assertz(M:le_var_names(ActualID, Pairs))
+    ;   true
     ).
 
 % Section markers carry no logic; keep them as-is so KB processing can pick up
@@ -1427,9 +1541,18 @@ match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVa
     extract_simple_word(Is, is), (extract_simple_word(A, a) ; extract_simple_word(A, an) ; extract_simple_word(A, of)),
     !,
     extract_value_from_parts(TypeTokens, Type, VMIn, VM1, [], false, AllowVars, 0),
-    extract_value_from_parts(SuperTypeTokens, SuperType, VM1, VMOut, [], false, AllowVars, 0),
     extract_name_type(TypeWords, TypeAtom, _),
-    extract_name_type(SuperTypeWords, SuperTypeAtom, _).
+    extract_name_type(SuperTypeWords, SuperTypeAtom, _),
+    % The supertype after "is a" is the named type itself (a constant), UNLESS it
+    % is written as an explicit variable reference — "... is a the type", "... is
+    % a which other thing", an all-caps id, etc. (anything extract_var_name/2
+    % recognises). A bare type word must NOT co-refer with a same-named variable
+    % already in scope: "the dragon is a dragon" is is_a(Dragon, dragon), not
+    % is_a(Dragon, Dragon).
+    ( extract_var_name(SuperTypeWords, _) ->
+        extract_value_from_parts(SuperTypeTokens, SuperType, VM1, VMOut, [], false, AllowVars, 0)
+    ;   SuperType = SuperTypeAtom, VMOut = VM1
+    ).
 
 extract_words_to_value(Words, Value, VMIn, VMOut, AllowVars) :-
     (   AllowVars == true, extract_var_name(Words, Name) ->  
@@ -1573,6 +1696,50 @@ parse_body(Tokens, Indent, Templates, VMIn, VMOut, StructuredBody) :-
         ;   
         ( le_kbs:do_log -> print_message(informational,'  Body failed to parse~n'); true), fail
     ).
+
+%!  parse_inline_body(+Tokens, +Templates, +VMIn, -VMOut, -Logic) is semidet.
+%
+%   Parse a flat (single-line) token sequence that may contain top-level inline
+%   'and'/'or' connectives, building the corresponding conjunction/disjunction.
+%   With no top-level connective it is a single literal (unchanged behaviour).
+%   Used e.g. for the part after 'unless' on one line, so
+%   "... unless the policy is cancelled and it rains a lot" yields
+%   not(and(is_cancelled, it_rains_a_lot)) rather than swallowing the conjunct.
+parse_inline_body(Tokens, Templates, VMIn, VMOut, Logic) :-
+    inline_segments(Tokens, Segments),
+    (   Segments = [_]                                   % no top-level connective
+    ->  parse_literal(Tokens, Templates, VMIn, VMOut, Logic, _)
+    ;   all_segments_parse(Segments, Templates)          % each conjunct is a valid literal
+    ->  maplist(inline_seg_to_line, Segments, Lines),
+        lines_to_hierarchy(Lines, Hierarchy),
+        hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Logic)
+    ;   % An 'and'/'or' that is part of a template (e.g. "*a payment* and *a
+        % claim* are admissible ...") — keep the whole thing as one literal.
+        parse_literal(Tokens, Templates, VMIn, VMOut, Logic, _)
+    ).
+
+inline_seg_to_line(Seg, line(0, Seg)).
+
+% Every segment (minus its leading and/or) must parse as a literal on its own,
+% otherwise the connective is not a top-level conjunction. Checked without
+% keeping any bindings (\+ \+ ...).
+all_segments_parse([], _).
+all_segments_parse([Seg|Segs], Templates) :-
+    strip_leading_op(Seg, _Op, Body),
+    Body \== [],
+    \+ \+ parse_literal(Body, Templates, [], _, _, _),
+    all_segments_parse(Segs, Templates).
+
+% Split a token list into segments at every top-level 'and'/'or'; each segment
+% after the first begins with its connective word (so strip_op/3 can read it).
+inline_segments([], []).
+inline_segments([T|Ts], [[T|Seg]|Segs]) :-
+    take_until_connective(Ts, Seg, Rest),
+    inline_segments(Rest, Segs).
+
+take_until_connective([], [], []).
+take_until_connective([word(W, L)|Ts], [], [word(W, L)|Ts]) :- (W == and ; W == or), !.
+take_until_connective([T|Ts], [T|Seg], Rest) :- take_until_connective(Ts, Seg, Rest).
 
 tokens_to_lines(Tokens, DefaultIndent, Lines) :-
     tokens_to_lines_acc(Tokens, DefaultIndent, [], Lines).

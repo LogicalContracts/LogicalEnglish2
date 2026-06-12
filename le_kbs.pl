@@ -6,7 +6,7 @@
 */
 
 :- module(le_kbs, [load/2, load_text/2, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
-    addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4,
+    addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
@@ -434,13 +434,20 @@ createSession(KBmodule, SessionModule) :-
     % available in the session module. This is more robust for dynamic modules.
     add_import_module(SessionModule, le_kbs, start),
     dynamic(SessionModule:le_kb_module_fact/1),
-    assertz(SessionModule:le_kb_module_fact(KBmodule)),
     dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:le_neg/1),
-    dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4),
-    note_session_use(SessionModule).
+    % Register the KB reference and the in-use timestamp atomically under the
+    % same mutex the reaper uses, so maybe_destroy_kb/1 reliably sees this new
+    % session as a live reference and will not reclaim a shared KB module out
+    % from under a session that is still being created.
+    get_time(Now),
+    with_mutex(le_sessions, (
+        assertz(SessionModule:le_kb_module_fact(KBmodule)),
+        retractall(session_last_used(SessionModule, _)),
+        assertz(session_last_used(SessionModule, Now))
+    )).
 
 %!  addSessionFact(+SessionModule:atom, +Fact:term) is det.
 %
@@ -448,7 +455,8 @@ createSession(KBmodule, SessionModule) :-
 %   fact_with_source(Term, Start, End).
 addSessionFact(_SessionModule, Fact) :-
     ( Fact = fact_with_source(ActualFact, _, _) -> true; ActualFact = Fact ),
-    functor(ActualFact, F, N),
+    fact_head(ActualFact, Head),
+    functor(Head, F, N),
     is_builtin_functor(F, N), !,
     % Facts whose functor is a Prolog built-in (true/0, false/0, fail/0, ...)
     % cannot be asserted (static procedure), and need not be: the reasoner
@@ -457,14 +465,24 @@ addSessionFact(_SessionModule, Fact) :-
 addSessionFact(SessionModule, Fact) :-
     ( Fact = fact_with_source(ActualFact, Start, End) -> true; ActualFact = Fact, Start = 0, End = 0),
     ( do_log -> print_message(informational, 'Adding session fact: ~w' - [ActualFact]); true),
-    functor(ActualFact,F,N),
+    % A scenario element may be a plain fact OR a rule (Head :- Body); use the
+    % head's predicate for the dynamic declaration / duplicate check.
+    fact_head(ActualFact, Head),
+    functor(Head, F, N),
     SessionModule:dynamic(F/N),
-    (   (current_predicate(SessionModule:F/N), functor(Template, F, N), SessionModule:clause(Template, true), copy_term(Template, ECopy), copy_term(ActualFact, ACopy), numbervars(ECopy, 0, _), numbervars(ACopy, 0, _), ECopy == ACopy) ->  
+    (   % Collapse duplicate plain facts (not rules) that are variants.
+        ActualFact \= (_ :- _),
+        current_predicate(SessionModule:F/N), functor(Template, F, N), SessionModule:clause(Template, true),
+        copy_term(Template, ECopy), copy_term(ActualFact, ACopy), numbervars(ECopy, 0, _), numbervars(ACopy, 0, _), ECopy == ACopy ->
             ( do_log -> print_message(informational, 'Fact already exists (variant): ~w' - [ActualFact]); true)
         ; assertz(SessionModule:ActualFact, Ref),
           assertz(SessionModule:sessionClause(Ref)),
           ( Start \== 0 -> assertz(SessionModule:le_source_info(Ref, Start, End, session_fact)); true)
     ).
+
+% fact_head(+FactOrRule, -Head): the head predicate term of a session element.
+fact_head((Head :- _Body), Head) :- !.
+fact_head(Head, Head).
 
 %!  is_builtin_functor(+F:atom, +N:integer) is semidet.
 %
@@ -557,16 +575,22 @@ is_generated_kb_module(M) :-
 
 %!  maybe_destroy_kb(+KBmodule:atom) is det.
 %
-%   Reclaims a generated KB module once no live session references it.
+%   Reclaims a generated KB module once no live session references it. The
+%   liveness check and the abolish run under the le_sessions mutex so a session
+%   being registered concurrently (createSession asserts le_kb_module_fact and
+%   then note_session_use) is reliably seen as a live reference, and the abolish
+%   cannot interleave with a registry update.
 maybe_destroy_kb(KBmodule) :-
-    (   is_generated_kb_module(KBmodule),
-        \+ ( session_last_used(SM, _),
-             SM \== KBmodule,
-             catch(SM:le_kb_module_fact(KBmodule), _, fail) )
-    ->  forall(current_predicate(KBmodule:F/N),
-               catch(abolish(KBmodule:F/N), _, true))
-    ;   true
-    ).
+    with_mutex(le_sessions, (
+        (   is_generated_kb_module(KBmodule),
+            \+ ( session_last_used(SM, _),
+                 SM \== KBmodule,
+                 catch(SM:le_kb_module_fact(KBmodule), _, fail) )
+        ->  forall(current_predicate(KBmodule:F/N),
+                   catch(abolish(KBmodule:F/N), _, true))
+        ;   true
+        )
+    )).
 
 %!  reap_idle_sessions is det.
 %
@@ -574,12 +598,28 @@ maybe_destroy_kb(KBmodule) :-
 reap_idle_sessions :-
     get_time(Now),
     session_max_idle(MaxIdle),
-    findall(SM, (session_last_used(SM, T), Now - T > MaxIdle), Stale),
-    forall(member(SM, Stale),
-           ( ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
-             destroySession(SM),
-             ( KB \== none, KB \== SM -> maybe_destroy_kb(KB) ; true )
-           )).
+    findall(SM, (session_last_used(SM, T), Now - T > MaxIdle), Candidates),
+    forall(member(SM, Candidates), maybe_reap_session(SM, Now, MaxIdle)).
+
+%!  maybe_reap_session(+SM:atom, +Now:number, +MaxIdle:number) is det.
+%
+%   Reaps a single candidate session, but only after atomically re-confirming
+%   under the le_sessions mutex that it is still idle and claiming it (removing
+%   its registry entry). This closes the time-of-check/time-of-use race against
+%   note_session_use/1: a request that touches SM after the stale snapshot but
+%   before reaping refreshes the timestamp, so the re-check fails and the live
+%   session (and the shared KB module it references) is left intact.
+maybe_reap_session(SM, Now, MaxIdle) :-
+    (   with_mutex(le_sessions, (
+            session_last_used(SM, T),
+            Now - T > MaxIdle,
+            retractall(session_last_used(SM, _))
+        ))
+    ->  ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
+        destroySession(SM),
+        ( KB \== none, KB \== SM -> maybe_destroy_kb(KB) ; true )
+    ;   true   % refreshed by a concurrent request since the snapshot — keep it
+    ).
 
 :- dynamic session_reaper_running/0.
 
@@ -694,6 +734,19 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range = range(Start, End); Range = Ref),
     ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
+postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref), Range, LE, ChildrenOut)) :- !,
+    % An intermediate "failed rule" node (detailed failure explanations): label it
+    % with the rule's head and point its range at the whole rule for navigation.
+    ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( ( SM:le_source_info(Ref, Start, End, RuleID0)
+      ; (KB \== none, KB:le_source_info(Ref, Start, End, RuleID0)) )
+    -> Range = range(Start, End), RuleID = RuleID0
+    ;  Range = none, RuleID = '' ),
+    ( user_rule_name(RuleID) -> format(atom(LE), 'rule ~w', [RuleID])
+    ; rule_head_text(Ref, SM, KB, HeadStr) -> format(atom(LE), 'rule: ~w', [HeadStr])
+    ; RuleID \== '' -> format(atom(LE), 'rule ~w', [RuleID])
+    ; LE = "failed rule" ),
+    maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenOut)) :- !,
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( Goal0 = le_at(Goal, Start, End) -> Range = range(Start, End)
@@ -705,6 +758,19 @@ postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
     maplist(postprocess_why_child(SM), Whys, WhysOut).
 postprocess_why(Other, _, Other).
+
+% A user-given rule name (from "rule <name>:"), as opposed to an auto-generated
+% 'rule_<pos>' id.
+user_rule_name(RuleID) :- atom(RuleID), RuleID \== '', \+ atom_concat('rule_', _, RuleID).
+
+% rule_head_text(+Ref, +SM, +KB, -HeadStr): the LE text of the head of the clause
+% referenced by Ref (in the session or KB module).
+rule_head_text(Ref, SM, KB, HeadStr) :-
+    ( catch(clause(SM:Head, _Body, Ref), _, fail) -> true
+    ; KB \== none, catch(clause(KB:Head, _Body, Ref), _, fail) ),
+    nonvar(Head),
+    ( (KB \== none, item_to_instance(KB, Head, Toks)) -> canonical_string(Toks, HeadStr)
+    ; term_string(Head, HeadStr) ).
 
 find_first_range(Goal, SM, KB, range(Start, End)) :-
     functor(Goal, F, A),
@@ -734,9 +800,12 @@ is_noise_token(multi_comment(_, _)).
 %
 %   Clears the session, sets a scenario, and runs a query.
 queryScenario(SessionModule, ScenarioName, Template, TemplateInstance) :-
+    queryScenario(SessionModule, ScenarioName, Template, TemplateInstance, _, _).
+
+queryScenario(SessionModule, ScenarioName, Template, TemplateInstance, Unknowns, Why) :-
     clearSession(SessionModule),
     setScenarion(SessionModule, ScenarioName),
-    query(SessionModule, Template, TemplateInstance,_,_).
+    query(SessionModule, Template, TemplateInstance,Unknowns, Why).
 
 %!  canonical_string(+Instance:list, -String:string) is det.
 %
@@ -789,14 +858,22 @@ token_to_atom(X, Atom) :- term_to_atom(X, Atom).
 item_to_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_instance(KBmodule, Goal, WordsAndVars).
 item_to_instance(_KBmodule, var(Name, Value), [var(Name, Value)]) :- !.
-item_to_instance(_KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), InstantiatedTokens) :- !.
-item_to_instance(_KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), InstantiatedTokens) :- !.
+item_to_instance(KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), Tokens) :- !,
+    maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
+item_to_instance(KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), Tokens) :- !,
+    maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
 item_to_instance(KBmodule, Head, WordsAndVars) :-
-    (   Head = is_a(Type, SuperType) -> 
+    (   Head = is_a(Type, SuperType) ->
         maybe_transform_value(KBmodule, Type, TypeI),
         maybe_transform_value(KBmodule, SuperType, SuperTypeI),
         flatten([TypeI, is, a, SuperTypeI], WordsAndVars)
-    ;   Head = sum([each, Var], _Goal, [Result]) -> 
+    ;   Head = le_type_check(Arg, Type) ->
+        % A type-restriction goal renders like the type assertion it checks:
+        % le_type_check('this payment', payment) -> "this payment is a payment".
+        maybe_transform_value(KBmodule, Arg, ArgI),
+        ( atom(Type), atom_codes(Type, [C|_]), memberchk(C, [97,101,105,111,117,65,69,73,79,85]) -> Art = an ; Art = a ),
+        flatten([ArgI, is, Art, Type], WordsAndVars)
+    ;   Head = sum([each, Var], _Goal, [Result]) ->
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
         flatten([ResultName, is, the, sum, of, each, VarName, such, that], WordsAndVars)
@@ -876,10 +953,36 @@ fill_variable_name(NTs, V, Name) :-
 fill_variable_name(_, V, V).
 
 maybe_transform_value(KBmodule, Val, Transformed) :-
-    (   compound(Val), \+ is_list(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
+    (   is_list(Val)
+    ->  render_list_value(KBmodule, Val, Transformed)   % e.g. [Alice, Bob] -> '[Alice Bob]'
+    ;   compound(Val), Val \= date(_), Val \= date(_,_,_), item_to_instance(KBmodule, Val, Transformed)
     ->  true
     ;   Transformed = Val
     ).
+
+%!  render_list_value(+KBmodule, +List, -Atom) is det.
+%
+%   Renders a list value as a single bracketed atom whose elements are
+%   space-separated, e.g. [Alice, Bob] -> '[Alice Bob]', [] -> '[]'. Producing a
+%   single atom (rather than leaving a sublist) keeps the brackets visible: the
+%   surrounding flatten/2 in item_to_instance/3 and query/5 would otherwise
+%   splice the elements into the sentence and lose the list structure.
+render_list_value(KBmodule, List, Atom) :-
+    maplist(render_list_element(KBmodule), List, ElemAtoms),
+    atomic_list_concat(ElemAtoms, ' ', Inner),
+    atomic_list_concat(['[', Inner, ']'], Atom).
+
+render_list_element(KBmodule, E, A) :-
+    (   is_list(E) -> render_list_value(KBmodule, E, A)
+    ;   nonvar(E), compound(E), E \= date(_,_,_), E \= date(_), item_to_instance(KBmodule, E, WV)
+    ->  canonical_string(WV, S), atom_string(A, S)
+    ;   token_to_atom(E, A)
+    ).
+
+% In a (flat) query instance, a token bound to a list value is rendered as a
+% single bracketed atom so flatten/2 in query/5 keeps its brackets.
+bracket_list_token(KBmodule, Token, Out) :-
+    ( is_list(Token) -> render_list_value(KBmodule, Token, Out) ; Out = Token ).
 
 extract_name(var(Name, _), Name) :- !.
 extract_name(V, V).
@@ -1014,6 +1117,9 @@ is_system_predicate(sessionClause/1).
 is_system_predicate(is_a/2).
 is_system_predicate(le_type/1).
 is_system_predicate(le_unknown/1).
+% Per-rule map of explicit source variable identifiers (e.g. X, Y), keyed by
+% rule ID, recorded at parse time so the Proof Game can show variable names.
+is_system_predicate(le_var_names/2).
 
 
 collect_and_assert_types(M) :-

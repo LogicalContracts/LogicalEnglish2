@@ -115,7 +115,18 @@ handle_operation(Dict, Response) :-
         ; Op == "load" -> 
             ( catch(handle_load(Dict, Response), E, (print_message(error, E), fail)) -> true; print_message(error, le_api_error(load, "handle_load failed")), fail)
         ; Op == "answeringQuery" -> handle_answering_query(Dict, Response)
-        ; Op == "getGameData" -> handle_get_game_data(Dict, Response)
+        ; Op == "interruptQuery" -> handle_interrupt_query(Dict, Response)
+        ; Op == "getGameData" ->
+            ( catch(handle_get_game_data(Dict, Response), E_GGD,
+                    ( print_message(error, le_api_error(getGameData, E_GGD)),
+                      format(user_error, "getGameData failed. Dict: ~w~n", [Dict]),
+                      term_string(E_GGD, EStr),
+                      Response = _{error: EStr, gameDataError: true} ))
+              -> true
+            ; print_message(error, le_api_error(getGameData, "handle_get_game_data failed")),
+              format(user_error, "getGameData failed (no exception). Dict: ~w~n", [Dict]),
+              Response = _{error: "Could not build the Proof Game for this query (no rules/facts extracted, or the session was reclaimed). Please reload and try again.", gameDataError: true}
+            )
         ; Op == "unifyGameNodes" -> handle_unify_game_nodes(Dict, Response)
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
@@ -225,9 +236,15 @@ handle_logout(Request) :-
 %!  landing_example_items(+Dir:atom, +UserRoles:list, -Items:list) is det.
 %
 %   Builds HTML list items for all examples in Dir, grouping subdirectory
-%   examples under an indented header.
+%   examples under an indented header. Subdirectories are recursed into to any
+%   depth, so e.g. examples/.../insureLE2/testing/foo appears as
+%   insureLE2/ > testing/ > foo.
 landing_example_items(Dir, UserRoles, Items) :-
+    landing_example_items(Dir, '', UserRoles, Items).
+
+landing_example_items(Dir, Prefix, UserRoles, Items) :-
     directory_files(Dir, Files),
+    % Examples directly in this directory.
     findall(Base, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
@@ -239,31 +256,22 @@ landing_example_items(Dir, UserRoles, Items) :-
     sort(Bases0, Bases),
     findall(li(a([href(Url)], Base)), (
         member(Base, Bases),
-        format(atom(Url), '/editor/index.html?example=~w', [Base])
+        atomic_list_concat([Prefix, Base], ExampleName),
+        format(atom(Url), '/editor/index.html?example=~w', [ExampleName])
     ), DirectItems),
-    findall(li([b([SubDir, '/']), ul(SubItems)]), (
+    % Subdirectories, recursed into (header + nested list).
+    findall(SubDir-li([b([SubDir, '/']), ul(SubItems)]), (
         member(SubDir, Files),
         \+ sub_atom(SubDir, 0, 1, _, '.'),
         directory_file_path(Dir, SubDir, SubDirPath),
         exists_directory(SubDirPath),
         is_path_allowed(SubDirPath, UserRoles),
-        directory_files(SubDirPath, SubFiles),
-        findall(SubBase, (
-            member(SF, SubFiles),
-            sub_atom(SF, _, _, 0, '.le'),
-            \+ sub_atom(SF, _, _, 0, '.le.tests'),
-            file_name_extension(SubBase, le, SF),
-            atomic_list_concat([SubDirPath, '/', SF], SubExPath),
-            is_path_allowed(SubExPath, UserRoles)
-        ), SubBases0),
-        sort(SubBases0, SubBases),
-        SubBases \= [],
-        findall(li(a([href(SubUrl)], SubBase)), (
-            member(SubBase, SubBases),
-            atomic_list_concat([SubDir, '/', SubBase], ExPath),
-            format(atom(SubUrl), '/editor/index.html?example=~w', [ExPath])
-        ), SubItems)
-    ), SubDirItems),
+        atomic_list_concat([Prefix, SubDir, '/'], SubPrefix),
+        landing_example_items(SubDirPath, SubPrefix, UserRoles, SubItems),
+        SubItems \= []
+    ), SubDirPairs),
+    keysort(SubDirPairs, SubDirSorted),
+    pairs_values(SubDirSorted, SubDirItems),
     append(DirectItems, SubDirItems, Items).
 
 format_test_results(Results, UserRoles, [h3('Test Results'), table([border(1), cellpadding(5)], [
@@ -367,6 +375,7 @@ handle_answer(Dict, Response) :-
     get_dict(document, Dict, Doc),
     get_dict(theQuery, Dict, Query),
     get_dict(scenario, Dict, Scenario),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     load_le_text(Doc, KB),
     setup_call_cleanup(
         createSession(KB, SM),
@@ -381,10 +390,22 @@ handle_explain(Dict, Response) :-
     get_dict(document, Dict, Doc),
     get_dict(theQuery, Dict, Query),
     get_dict(scenario, Dict, Scenario),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     load_le_text(Doc, KB),
     setup_call_cleanup(
         createSession(KB, SM),
-        ( setScenarion(SM, Scenario) -> findall(JSONWhy, (query(SM, Query, _Instance, _Unknowns, Why), convert_why_deduped(Why, KB, JSONWhy)), Results), Response = _{results: Results}; Response = _{error: "Scenario not found"}),
+        ( setScenarion(SM, Scenario) ->
+            % Keep one explanation per distinct answer (answer string + unknowns),
+            % so repeated proofs of the same answer aren't listed multiple times.
+            findall((AnswerStr-UnknownsKey)-JSONWhy, (
+                    query(SM, Query, Instance, Us, Why),
+                    canonical_string(Instance, AnswerStr),
+                    convert_why_deduped(Why, KB, JSONWhy),
+                    ( copy_term(Us, UsC), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' )
+                ), Keyed),
+            dedup_keep_first(Keyed, Results),
+            Response = _{results: Results}
+        ; Response = _{error: "Scenario not found"} ),
         destroySession(SM)
     ).
 
@@ -462,6 +483,16 @@ handle_answering_query(Dict, Response) :-
 
     (   get_dict(debug, Dict, true) -> assertz(SM:debug_mode); true),
 
+    % Detailed (per-rule) failure explanations: off unless requested. Set/cleared
+    % per query so it tracks the client's current preference.
+    dynamic(SM:detailed_failures/0),
+    retractall(SM:detailed_failures),
+    (   get_dict(detailedFailures, Dict, true) -> assertz(SM:detailed_failures); true),
+
+    % Repeated sub-explanations are collapsed by default; the client can ask to
+    % see them in full (hideRepeated:false). Set per query on this worker thread.
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
+
     (   nonvar(ErrorFacts) -> Response = _{error: ErrorFacts}
     ;   % Handle Query
         (   get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null ->
@@ -472,18 +503,57 @@ handle_answering_query(Dict, Response) :-
             ; get_dict(query, Dict, Query)
         ),
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
-        ;   catch(run_answering_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg})
+        ;   catch(run_interruptible_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg})
         )
+    ).
+
+% A long-running query (e.g. a failure with a big negative explanation) can be
+% interrupted by the user via a separate 'interruptQuery' request, which signals
+% this worker thread. We register the thread for the session for the duration of
+% the query, and turn the injected exception into an 'interrupted' response.
+:- dynamic query_thread/2.   % query_thread(SessionModule, ThreadId)
+
+run_interruptible_query(SM, Query, KB, Response) :-
+    setup_call_cleanup(
+        register_query_thread(SM),
+        catch(
+            run_answering_query(SM, Query, KB, Response),
+            query_interrupted,
+            Response = _{result: "interrupted", interrupted: true}
+        ),
+        unregister_query_thread(SM)
+    ).
+
+register_query_thread(SM) :-
+    thread_self(Tid),
+    retractall(query_thread(SM, _)),
+    assertz(query_thread(SM, Tid)).
+
+unregister_query_thread(SM) :-
+    retractall(query_thread(SM, _)).
+
+handle_interrupt_query(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    (   query_thread(SM, Tid)
+    ->  catch(thread_signal(Tid, throw(query_interrupted)), _, true),
+        Response = _{result: ok, interrupted: true}
+    ;   Response = _{result: ok, interrupted: false, message: "No running query"}
     ).
 
 run_answering_query(SM, Query, KB, Response) :-
     print_message(informational, 'Answering query: ~w in session ~w' - [Query, SM]),
-    findall(_{answer: AnswerStr, why: JSONWhy}, (
-            query(SM, Query, Instance, _Us, Why),
+    % A query can have several proofs of the SAME answer (e.g. an 'or' whose
+    % branches both hold). Collect them keyed by (answer string + unknowns) and
+    % keep only the first of each, so the same answer is not listed repeatedly.
+    findall((AnswerStr-UnknownsKey)-_{answer: AnswerStr, why: JSONWhy}, (
+            query(SM, Query, Instance, Us, Why),
             canonical_string(Instance, AnswerStr),
             convert_why_deduped(Why, KB, JSONWhy),
+            ( copy_term(Us, UsC), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' ),
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
-        ), Results),
+        ), KeyedResults),
+    dedup_keep_first(KeyedResults, Results),
     (   Results \== [] ->  
         length(Results, Count),
         print_message(informational, 'Total answers found: ~w' - [Count]),
@@ -498,6 +568,15 @@ run_answering_query(SM, Query, KB, Response) :-
         )
     ).
 
+% dedup_keep_first(+KeyedPairs, -Values): the first Value for each distinct Key,
+% preserving order.
+dedup_keep_first(Pairs, Values) :- dedup_keep_first(Pairs, [], Values).
+dedup_keep_first([], _, []).
+dedup_keep_first([K-V|Rest], Seen, Out) :-
+    ( memberchk(K, Seen) -> Out = Out1, Seen1 = Seen
+    ; Out = [V|Out1], Seen1 = [K|Seen] ),
+    dedup_keep_first(Rest, Seen1, Out1).
+
 handle_get_game_data(Dict, _{error: "Session expired", session_expired: true}) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
@@ -507,6 +586,7 @@ handle_get_game_data(Dict, Response) :-
     atom_string(SM, SMStr),
     le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     
     % Handle Scenario
     (   get_dict(customScenario, Dict, CustomScenario), CustomScenario \== null ->
@@ -598,6 +678,7 @@ handle_unify_game_nodes(Dict, Response) :-
 handle_load_facts_and_query(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     le_kbs:note_session_use(SM),
     get_dict(facts, Dict, FactsStrList),
     print_message(informational, 'Loading facts into session ~w' - [SM]),
@@ -631,6 +712,7 @@ handle_query(Dict, Response) :-
     get_dict(theQuery, Dict, QueryStr),
     get_dict(module, Dict, ModuleStr),
     atom_string(Module, ModuleStr),
+    ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
     ( get_dict(facts, Dict, FactsStrList) -> maplist(term_string, Facts, FactsStrList); Facts = []),
     (   (current_module(Module), current_predicate(Module:le_my_kb/1)) -> SM = Module, SM:le_kb_module_fact(KB), Owned = false
         ; current_module(Module) -> KB = Module, createSession(KB, SM), Owned = true
@@ -681,16 +763,27 @@ load_prolog_file(Path, Module) :-
 %   repeated_group(N, Why)); this pass also groups sibling success branches and
 %   folds any reasoner-supplied counts in, so positive and negative explanations
 %   are handled uniformly.
+%   Whether repeated sub-explanations are collapsed is the client's preference
+%   (reasoner:hide_repeated_explanations, set per query); when the user opts to
+%   show them, the full tree is converted as-is.
 convert_why_deduped(Why, KB, JSON) :-
-    group_repeated_whys(Why, Grouped),
-    convert_why(Grouped, KB, JSON).
+    (   hide_repeated_explanations
+    ->  group_repeated_whys(Why, Grouped),
+        mark_cross_tree_repeats(Grouped, Marked),
+        convert_why(Marked, KB, JSON)
+    ;   convert_why(Why, KB, JSON)
+    ).
 
-% A repeated sub-explanation: render the single kept occurrence in full, tagged
-% so the UI can colour it differently and show the "N repeated sub-explanations"
-% tooltip.
+% A repeated sub-explanation grouped from sibling duplicates: render the single
+% kept occurrence in full, tagged with its count ("N repeated sub-explanations").
 convert_why(repeated_group(N, Node), KB, JSON) :- !,
     convert_why(Node, KB, JSON0),
     put_dict(_{repeated: true, repeatedCount: N}, JSON0, JSON).
+% A subtree that is a variant of one already shown elsewhere in the tree: render
+% only its root, tagged repeated (no count). Node already has empty children.
+convert_why(repeated_ref(Node), KB, JSON) :- !,
+    convert_why(Node, KB, JSON0),
+    put_dict(_{repeated: true}, JSON0, JSON).
 convert_why(success(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     is_naf_goal(Goal, Naf),
@@ -815,6 +908,60 @@ why_struct_sig(Node, node_sig(Type, GoalStripped, ChildSigs)) :-
     strip_le_at_deep(Goal, GoalStripped),
     maplist(why_struct_sig, Children, ChildSigs).
 why_struct_sig(Other, other_sig(Other)).
+
+%!  mark_cross_tree_repeats(+Grouped, -Marked) is det.
+%
+%   Collapses subtrees that repeat ACROSS the explanation (not just among
+%   siblings): walking pre-order, the first occurrence of a (non-leaf) subtree is
+%   kept in full and each later occurrence — anywhere else in the forest — becomes
+%   a root-only repeated_ref/1 marker (rendered repeated, WITHOUT a count). Two
+%   subtrees count as the same when their goal-structure signatures are variants.
+%   Leaves are never collapsed (a one-line node is not worth a marker).
+mark_cross_tree_repeats(Grouped, Marked) :-
+    mctr(Grouped, [], _Seen, Marked).
+
+mctr(Whys, SeenIn, SeenOut, Marked) :-
+    is_list(Whys), !,
+    mctr_list(Whys, SeenIn, SeenOut, Marked).
+mctr(repeated_group(N, Node), SeenIn, SeenOut, Out) :- !,
+    node_repeat_key(Node, Key),
+    (   memberchk(Key, SeenIn)
+    ->  root_only_marker(Node, Out), SeenOut = SeenIn
+    ;   mctr_keep_children(Node, [Key|SeenIn], SeenOut, Node1),
+        Out = repeated_group(N, Node1)
+    ).
+mctr(Node, SeenIn, SeenOut, Out) :-
+    why_node(Node, _, _, _, _, Children), !,
+    (   Children == []
+    ->  Out = Node, SeenOut = SeenIn                 % leaf: keep as-is, do not register
+    ;   node_repeat_key(Node, Key),
+        (   memberchk(Key, SeenIn)
+        ->  root_only_marker(Node, Out), SeenOut = SeenIn
+        ;   mctr_keep_children(Node, [Key|SeenIn], SeenOut, Out)
+        )
+    ).
+mctr(Other, Seen, Seen, Other).
+
+mctr_list([], Seen, Seen, []).
+mctr_list([W|Ws], SeenIn, SeenOut, [M|Ms]) :-
+    mctr(W, SeenIn, Seen1, M),
+    mctr_list(Ws, Seen1, SeenOut, Ms).
+
+% Keep a node (its first occurrence): recurse into its children, threading Seen.
+mctr_keep_children(Node, SeenIn, SeenOut, Out) :-
+    why_node(Node, Type, Goal, Range, LE, Children),
+    mctr_list(Children, SeenIn, SeenOut, MarkedChildren),
+    rebuild_why_node(Type, Goal, Range, LE, MarkedChildren, Out).
+
+% A variant-insensitive key for a subtree (numbervars-canonicalised signature).
+node_repeat_key(Node, Key) :-
+    why_struct_sig(Node, Sig),
+    copy_term(Sig, C), numbervars(C, 0, _), term_to_atom(C, Key).
+
+% A root-only copy of Node (children removed), wrapped as a repeated_ref/1 marker.
+root_only_marker(Node, repeated_ref(RootOnly)) :-
+    why_node(Node, Type, Goal, Range, LE, _),
+    rebuild_why_node(Type, Goal, Range, LE, [], RootOnly).
 
 % strip_le_at_deep(+Term, -Stripped): recursively replace every le_at(G,_,_)
 % subterm with G, dropping all embedded source positions.

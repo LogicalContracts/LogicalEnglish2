@@ -623,7 +623,7 @@
                     Hierarchical Numbering
                 </div>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" id="menu-api-keys">API Keys...</div>
+                <div class="dropdown-item" id="menu-api-keys">API Keys &amp; Assistant Settings...</div>
                 <div class="dropdown-divider"></div>
                 <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">EXPLANATIONS</div>
                 <div class="dropdown-item" id="menu-explanations">Preferences...</div>
@@ -699,6 +699,7 @@
                         <button id="btn-query">Query</button>
                         <button id="btn-trace" style="margin-left: 5px;">Trace</button>
                         <button id="btn-proof-game" style="margin-left: 5px; background-color: #4caf50;">Proof Game</button>
+                        <button id="btn-interrupt-query" style="margin-left: 5px; background-color: #b71c1c; display: none; cursor: pointer;">Interrupt</button>
                     </div>
                     <div id="custom-scenario-container" class="custom-input-container">
                         <label style="font-size: 11px; color: #888;">Custom Scenario Facts:</label>
@@ -762,7 +763,7 @@
                     <div class="chat-message assistant">Hello! I am your Logical English Assistant. How can I help you today?</div>
                 </div>
                 <div id="assistant-input-container">
-                    <input type="text" id="assistant-input" placeholder="Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')">
+                    <input type="text" id="assistant-input" name="assistant-input" placeholder="Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-form-type="other" data-lpignore="true" data-1p-ignore data-bwignore>
                     <button id="btn-assistant-send" title="Send command to the LE Assistant">Send</button>
                     <button id="btn-assistant-interrupt" style="display: none; background-color: #a31515; color: white; border: none; padding: 5px 10px; cursor: pointer; font-size: 12px; border-radius: 2px; margin-left: 5px;">Interrupt</button>
                 </div>
@@ -773,11 +774,11 @@
         </div>
     </div>
 
-    <!-- Modal for API Keys -->
+    <!-- Modal for API Keys & Assistant Settings -->
     <div id="api-keys-modal" class="modal-overlay">
         <div class="modal-content" style="width: 450px;">
             <div class="modal-header">
-                <h3 style="margin: 0; font-size: 16px;">API Keys</h3>
+                <h3 style="margin: 0; font-size: 16px;">API Keys &amp; Assistant Settings</h3>
                 <span id="api-keys-close" style="cursor: pointer; font-size: 20px;">&times;</span>
             </div>
             <div class="modal-body">
@@ -833,6 +834,16 @@
                     <input type="text" id="failed-prefix-input" style="width: 100%; background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); padding: 5px; border-radius: 3px;">
                 </div>
                 <p style="font-size: 11px; color: #888; margin: 0; margin-top: 10px;">This prefix is prepended to failed nodes when copying explanations to plain text or HTML.</p>
+                <div class="control-group" style="flex-direction: row; align-items: center; margin-top: 12px;">
+                    <input type="checkbox" id="detailed-failures-input" style="margin-right: 6px;">
+                    <label for="detailed-failures-input" style="margin: 0;">Detailed failure explanations (per-rule nodes)</label>
+                </div>
+                <p style="font-size: 11px; color: #888; margin: 0; margin-top: 6px;">When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.</p>
+                <div class="control-group" style="flex-direction: row; align-items: center; margin-top: 12px;">
+                    <input type="checkbox" id="hide-repeated-input" style="margin-right: 6px;">
+                    <label for="hide-repeated-input" style="margin: 0;">Hide repeated explanations</label>
+                </div>
+                <p style="font-size: 11px; color: #888; margin: 0; margin-top: 6px;">When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).</p>
             </div>
             <div class="modal-footer">
                 <button id="explanations-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
