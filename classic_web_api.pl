@@ -5,8 +5,9 @@
     It also serves the web-based editor.
 */
 
-:- module(classic_web_api, [start_api_server/0, start_api_server/1]).
+:- module(classic_web_api, [start_api_server/0, start_api_server/1, port_in_use/1]).
 
+:- use_module(library(socket)).
 :- use_module(library(http/thread_httpd)).
 :- use_module(library(http/http_dispatch)).
 :- use_module(library(http/http_json)).
@@ -58,6 +59,15 @@ start_api_server :-
 
 start_api_server(Port) :-
     % assertz(le_kbs:do_log),
+    % Fail loudly if the port is already taken. http_server/2 opens its socket
+    % with SO_REUSEADDR, and on macOS/BSD that lets a second bind to a port
+    % another process is already serving SUCCEED silently — our server would
+    % look started while the other process keeps the connections. Probe with a
+    % TCP connect first so we raise an error instead of starting a dead server.
+    (   port_in_use(Port)
+    ->  throw(error(le_server_error(port_in_use(Port)), start_api_server/1))
+    ;   true
+    ),
     load_build_info,
     % Reclaim reasoning-session modules abandoned by the editor (reload on edit,
     % tab close, ...) so they don't accumulate in memory over time.
@@ -66,6 +76,22 @@ start_api_server(Port) :-
     % blocked traced query, so keep generous headroom on top of the bound in
     % dap_server:dap_command_timeout/1 to avoid starving normal requests.
     http_server(http_dispatch, [port(Port), workers(24)]).
+
+%!  port_in_use(+Port:integer) is semidet.
+%
+%   True when something is already listening on Port (on the loopback
+%   interface). A successful TCP connect means a server is there; a refused
+%   connection (or any error) means the port is free for us to bind.
+port_in_use(Port) :-
+    catch(
+        setup_call_cleanup(
+            tcp_connect(localhost:Port, Stream, []),
+            true,
+            close(Stream)
+        ),
+        _,
+        fail
+    ).
 
 load_build_info :-
     (   exists_file('build_info.txt')
@@ -86,6 +112,9 @@ prolog:message(le_api_error(Op, Msg)) -->
     [ 'LE API Operation failed: ~w - ~w' - [Op, Msg] ].
 prolog:message(le_api_info(Msg)) -->
     [ 'LE API: ~w' - [Msg] ].
+prolog:message(error(le_server_error(port_in_use(Port)), _)) -->
+    [ 'Cannot start LE API server: port ~w is already in use.'-[Port], nl,
+      'Another server is already listening there; stop it (or pick another port) first.'-[] ].
 
 handle_leapi(Request) :-
     http_read_json_dict(Request, Dict),
