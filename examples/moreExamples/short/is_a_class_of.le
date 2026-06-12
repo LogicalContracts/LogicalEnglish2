@@ -1,0 +1,25 @@
+the target language is: prolog. 
+    
+the templates are:
+
+*a subclass* is a class of *a super class*.
+  
+the contract states that:
+
+% A CGT asset is:
+% (a) any kind of property; or
+% (b) a legal or equitable right that is not property.
+
+a thing is a class of CGT asset
+  if the thing is a class of property
+  or    the thing is a class of legal right
+        or the thing is a class of equitable right
+    and it is not the case that
+        the thing is a class of property. 
+
+scenario class is:
+    money is a class of property. 
+    one expects ["money is a class of property", "money is a class of CGT asset"]. 
+
+query one is:
+    which thing is a class of which type.
