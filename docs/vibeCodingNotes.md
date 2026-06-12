@@ -1551,5 +1551,9 @@ it_is_prohibited_that(attends(A, B)) :-
           ...,
           ...).
 
+## Weird colouring of templates
+In examples/moreExamples/AItest.le , "the  templates are:" is not properly coloured; notice that there is an extra space after "the". Also the templates in the following lines are coloured incorrectly, emphasizing words like "there", "are" etc. which are just elements of the templates. 
+If we remove that extra space, all colouring becomes correct! Please fix this; extra spaces in section headers are admissible
+
 
 ## TBD
