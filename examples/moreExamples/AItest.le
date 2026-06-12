@@ -1,6 +1,6 @@
-the  target language is: prolog.
+the target language is: prolog.
 
-the  templates are:
+the templates are:
 
 *a message* implies *a set*.
 *a set* contains *an item*. 
@@ -11,7 +11,7 @@ there are enough references from scientific publications for every important sta
 *a user* applies every specialized criterion on the subject matter of *a message* to validate *a set*.
 there is no evidence to contradict *a set*. 
 
-the  knowledge base includes:
+the knowledge base includes:
 
 a message is verifiable as true by a user if
         the message makes sense as a whole
