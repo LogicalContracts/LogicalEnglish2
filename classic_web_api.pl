@@ -625,15 +625,23 @@ handle_get_game_data(Dict, Response) :-
               ; Query = QueryName )
         ),
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
+            % A query with no answer cannot be proven, so there is nothing to
+            % play. Gate on having a successful explanation before building the
+            % game (we try both the original Query term and the named query).
+        ;   \+ ( catch(query(SM, Query, _, _, _), _, fail)
+               ; ( get_dict(query, Dict, QNameStr0), atom_string(QName0, QNameStr0),
+                   catch(query(SM, QName0, _, _, _), _, fail) )
+               ) ->
+            print_message(warning, 'Proof Game: No answer for query'),
+            Response = _{error: "You need a query with an answer to play"}
         ;   le_proof_game:extract_rules_and_facts(KB, SM, Query, Rules, ExtractedFacts, QueryTokens),
             ( nonvar(QueryLE) -> true
             ; KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens0) -> le_kbs:canonical_string(QueryTokens0, QueryLE)
             ; term_string(Query, QueryLE) ),
-            % Try to get the first successful explanation. 
-            % We try both the original Query (which might be a term) and the QueryName if available.
+            % Re-derive the first successful explanation to render in the game.
             (   ( catch(query(SM, Query, _Instance, _Unknowns, Why), _, fail)
                 ; (get_dict(query, Dict, QNameStr), atom_string(QName, QNameStr), catch(query(SM, QName, _Instance, _Unknowns, Why), _, fail))
-                ) -> 
+                ) ->
                 convert_why(Why, KB, JSONWhy),
                 print_message(informational, 'Proof Game: Found explanation for query')
             ;   JSONWhy = null,
