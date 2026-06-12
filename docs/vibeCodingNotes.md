@@ -1526,6 +1526,3 @@ it_is_prohibited_that(attends(A,B)) :-
 
 
 ## TBD
-
-start_api_server is not checking for errors: if we have a server already on the same port there is no error; that other server continues operating, and ours is not accessible.
-MCP tests
