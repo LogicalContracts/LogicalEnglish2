@@ -54,6 +54,41 @@ test.describe('Logical English Editor', () => {
     await expect(page.locator('#assistant-tab')).not.toBeVisible();
   });
 
+  test('tolerates extra spaces in section headers when highlighting', async ({ page }) => {
+    // Regression: a header with extra spaces (e.g. "the  templates are:") must
+    // still be recognised, so the template definition lines below are
+    // highlighted in the templates state (plain text) rather than the root
+    // state (which would emphasise words like "there"/"are"). See AItest.le.
+    await expect(page.locator('#container')).toBeVisible();
+    // Wait until the 'le' Monarch language has been registered.
+    await page.waitForFunction(() =>
+      typeof (window as any).monaco !== 'undefined' &&
+      (window as any).monaco.languages.getLanguages().some((l: any) => l.id === 'le')
+    );
+
+    const result = await page.evaluate(() => {
+      const body =
+        '\n*a message* implies *a set*.\n' +
+        'there are enough references for every statement in *a set*.\n';
+      const tokenize = (header: string) =>
+        (window as any).monaco.editor
+          .tokenize(header + body, 'le')
+          .map((line: any[]) => line.map((t) => t.type));
+      const doubleSpace = tokenize('the  templates are:');
+      const singleSpace = tokenize('the templates are:');
+      return { doubleSpace, singleSpace };
+    });
+
+    // The double-spaced header line is itself recognised as a section header.
+    expect(result.doubleSpace[0].some((t: string) => t.includes('keyword.header'))).toBeTruthy();
+    // And the template body lines are tokenized identically to the single-space
+    // form — i.e. removing the extra space changes nothing below the header.
+    expect(result.doubleSpace.slice(1)).toEqual(result.singleSpace.slice(1));
+    // Sanity: no body token is emphasised as a template "word" (root state).
+    const bodyTokens = result.doubleSpace.slice(1).flat();
+    expect(bodyTokens.some((t: string) => t.includes('templateword'))).toBeFalsy();
+  });
+
   test('citizenship example integration test', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this complex test
 

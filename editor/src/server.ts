@@ -159,7 +159,7 @@ connection.onRequest('textDocument/foldingRange', (params) => {
     const lines = text.split('\n');
     const foldingRanges: FoldingRange[] = [];
 
-    const sectionHeaderRegex = /^\s*(the knowledge base|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the target language)/i;
+    const sectionHeaderRegex = /^\s*(the[ \t]+knowledge[ \t]+base|the[ \t]+contract|scenario|query|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language)/i;
 
     let lastHeaderLine = -1;
 
@@ -257,8 +257,8 @@ interface Template {
 
 function getTemplates(text: string): Template[] {
     const templates: Template[] = [];
-    const sectionHeaderRegex = /^the (knowledge base|scenario|query|ontology|predicates|templates|fluents|events|target language)/im;
-    const templateHeaderRegex = /the (predicates|templates|fluents|events) are:/gi;
+    const sectionHeaderRegex = /^the[ \t]+(knowledge[ \t]+base|scenario|query|ontology|predicates|templates|fluents|events|target[ \t]+language)/im;
+    const templateHeaderRegex = /the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/gi;
     
     let match;
     while ((match = templateHeaderRegex.exec(text)) !== null) {
