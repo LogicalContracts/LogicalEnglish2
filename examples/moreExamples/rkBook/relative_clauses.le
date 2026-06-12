@@ -1,0 +1,68 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 6, section 6.2, Examples 2 and 3 (restrictive vs
+%         non-restrictive relative clauses in CL form; rewriting an
+%         ambiguous relative clause).
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book observes that English relative clauses ("a person who ...") can be
+% restrictive (they qualify the condition of a rule) or non-restrictive (they
+% add a further conclusion). In CL/LE both readings become plain Head-if-Body
+% conditionals; the relative clause "who is a British citizen" becomes the
+% body condition. We render four such rules:
+%   - deprivation of citizenship (restrictive: only those who lied),
+%   - entitlement to vote in EU elections,
+%   - being an EU citizen,
+%   - owing loyalty to the Crown (further conclusion for those with abode).
+
+the target language is: prolog.
+
+the templates are:
+*a person* is a British citizen.
+*a person* may be deprived of British citizenship.
+*a person* obtains citizenship by providing false information.
+*a person* is entitled to vote in EU elections.
+*a person* is an EU citizen.
+*a person* owes loyalty to the Crown.
+*a person* has the right of abode in the UK.
+
+the knowledge base relative clauses includes:
+
+% Restrictive: only a citizen who lied may be deprived of citizenship.
+a person may be deprived of British citizenship
+    if the person is a British citizen
+    and the person obtains citizenship by providing false information.
+
+% A British citizen is entitled to vote in EU elections.
+a person is entitled to vote in EU elections
+    if the person is a British citizen.
+
+% A British citizen is an EU citizen.
+a person is an EU citizen
+    if the person is a British citizen.
+
+% A British citizen who has the right of abode owes loyalty to the Crown.
+a person owes loyalty to the Crown
+    if the person is a British citizen
+    and the person has the right of abode in the UK.
+
+scenario citizens is:
+    alice is a British citizen.
+    bob is a British citizen.
+    alice obtains citizenship by providing false information.
+    bob has the right of abode in the UK.
+    deprivation expects answers ["alice may be deprived of British citizenship"].
+    voting expects answers ["alice is entitled to vote in EU elections", "bob is entitled to vote in EU elections"].
+    eu_citizens expects answers ["alice is an EU citizen", "bob is an EU citizen"].
+    loyalty expects answers ["bob owes loyalty to the Crown"].
+
+query deprivation is:
+    which person may be deprived of British citizenship.
+
+query voting is:
+    which person is entitled to vote in EU elections.
+
+query eu_citizens is:
+    which person is an EU citizen.
+
+query loyalty is:
+    which person owes loyalty to the Crown.

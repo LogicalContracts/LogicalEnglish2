@@ -1,0 +1,119 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 6 "The Meaning of Life", section 6.7, Examples 20-21
+%         (University of Michigan lease termination clause, disambiguated).
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Two head predicates over a lessee:
+%   (A) terminate with 24 hours notice -- one of five serious grounds.
+%   (B) terminate with 30 days notice  -- one of five lesser grounds, BUT ONLY
+%       when the 24-hours route does NOT apply to the lessee.
+% This is the faithful disambiguated reading: the 30-days route is unavailable
+% whenever the 24-hours route applies. Each "one of" is split into separate
+% single-disjunct clauses (gotcha #6); each 30-days clause carries the guard
+% "it is not the case that ... 24 hours ...".
+
+the target language is: prolog.
+
+the templates are:
+the university may terminate the lease with 24 hours notice for *a lessee*.
+the university may terminate the lease with 30 days notice for *a lessee*.
+life limb or property would be jeopardized by *a lessee*.
+*a lessee* deals in controlled substances.
+*a lessee* is no longer enrolled.
+*a lessee* possesses firearms.
+*a lessee* turns in a false alarm.
+*a lessee* is not eligible to enroll or fails to enroll.
+*a lessee* leaves the university.
+*a lessee* violates a provision of the lease.
+*a lessee* violates a university regulation.
+there are health reasons for terminating *a lessee*.
+
+the knowledge base lease termination includes:
+
+% (A) 24 hours notice -- five independent grounds.
+the university may terminate the lease with 24 hours notice for a lessee
+    if life limb or property would be jeopardized by the lessee.
+
+the university may terminate the lease with 24 hours notice for a lessee
+    if the lessee deals in controlled substances.
+
+the university may terminate the lease with 24 hours notice for a lessee
+    if the lessee is no longer enrolled.
+
+the university may terminate the lease with 24 hours notice for a lessee
+    if the lessee possesses firearms.
+
+the university may terminate the lease with 24 hours notice for a lessee
+    if the lessee turns in a false alarm.
+
+% (B) 30 days notice -- five independent grounds, each guarded by the absence
+% of any 24-hours ground for the same lessee.
+the university may terminate the lease with 30 days notice for a lessee
+    if it is not the case that
+        the university may terminate the lease with 24 hours notice for the lessee
+    and the lessee is not eligible to enroll or fails to enroll.
+
+the university may terminate the lease with 30 days notice for a lessee
+    if it is not the case that
+        the university may terminate the lease with 24 hours notice for the lessee
+    and the lessee leaves the university.
+
+the university may terminate the lease with 30 days notice for a lessee
+    if it is not the case that
+        the university may terminate the lease with 24 hours notice for the lessee
+    and the lessee violates a provision of the lease.
+
+the university may terminate the lease with 30 days notice for a lessee
+    if it is not the case that
+        the university may terminate the lease with 24 hours notice for the lessee
+    and the lessee violates a university regulation.
+
+the university may terminate the lease with 30 days notice for a lessee
+    if it is not the case that
+        the university may terminate the lease with 24 hours notice for the lessee
+    and there are health reasons for terminating the lessee.
+
+% dan fails to enroll, with no 24-hours ground -> 30 days notice applies.
+scenario dan is:
+    dan is not eligible to enroll or fails to enroll.
+    notice24 expects answers [].
+    notice30 expects answers ["the university may terminate the lease with 30 days notice for dan"].
+
+% eve possesses firearms (a 24h ground) AND violates a regulation (a 30-day
+% ground) -> 24 hours notice; the 30-days route is blocked by the guard.
+scenario eve is:
+    eve possesses firearms.
+    eve violates a university regulation.
+    notice24 expects answers ["the university may terminate the lease with 24 hours notice for eve"].
+    notice30 expects answers [].
+
+% Coverage scenarios exercising every remaining body predicate so that no
+% template is left undefined. Each confirms the expected routing.
+
+% frank: jeopardy + deals in substances + no longer enrolled + false alarm
+% (all 24h grounds) plus leaves university + provision violation + health
+% reasons (all 30-day grounds). 24h applies, so 30-day is blocked.
+scenario frank is:
+    life limb or property would be jeopardized by frank.
+    frank deals in controlled substances.
+    frank is no longer enrolled.
+    frank turns in a false alarm.
+    frank leaves the university.
+    frank violates a provision of the lease.
+    there are health reasons for terminating frank.
+    notice24 expects answers ["the university may terminate the lease with 24 hours notice for frank"].
+    notice30 expects answers [].
+
+% grace: only 30-day grounds, no 24h ground -> 30 days notice applies.
+scenario grace is:
+    grace leaves the university.
+    grace violates a provision of the lease.
+    there are health reasons for terminating grace.
+    notice24 expects answers [].
+    notice30 expects answers ["the university may terminate the lease with 30 days notice for grace"].
+
+query notice24 is:
+    the university may terminate the lease with 24 hours notice for which lessee.
+
+query notice30 is:
+    the university may terminate the lease with 30 days notice for which lessee.

@@ -1,0 +1,55 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 11, section 11.4, Example 7
+%         ("General cause-and-effect pattern").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book writes these in the first person ("I will be rich if I buy a lottery
+% ticket and my number is chosen"). We generalize "I" to *an agent* and avoid
+% possessive apostrophes via "the number of *an agent*" and "the book of *an agent*".
+
+the target language is: prolog.
+
+the templates are:
+    *an agent* will be rich.
+    *an agent* will be famous.
+    it will rain tomorrow.
+    *an agent* buys a lottery ticket.
+    the number of *an agent* is chosen.
+    *an agent* writes *a book*.
+    the book of *an agent* receives critical acclaim.
+    *an agent* does a rain dance.
+    the gods are pleased.
+
+the knowledge base cause and effect includes:
+
+an agent will be rich
+    if the agent buys a lottery ticket
+    and the number of the agent is chosen.
+
+an agent will be famous
+    if the agent writes a book
+    and the book of the agent receives critical acclaim.
+
+it will rain tomorrow
+    if an agent does a rain dance
+    and the gods are pleased.
+
+scenario lucky is:
+    bob buys a lottery ticket.
+    the number of bob is chosen.
+    carol writes novel.
+    the book of carol receives critical acclaim.
+    dan does a rain dance.
+    the gods are pleased.
+    riches expects answers ["bob will be rich"].
+    fame expects answers ["carol will be famous"].
+    rain expects answers ["it will rain tomorrow"].
+
+query riches is:
+    which agent will be rich.
+
+query fame is:
+    which agent will be famous.
+
+query rain is:
+    it will rain tomorrow.

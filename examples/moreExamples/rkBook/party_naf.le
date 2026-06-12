@@ -1,0 +1,54 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 5 "Negation as Failure", section 5.3
+%         ("Party example with negation as failure and its defeat").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Book: "mary will go if john will go. john will go if bob will not go."
+% Here "bob will not go" is negation as failure. With no facts about bob, john
+% (and hence mary, who follows john) will go; asserting "bob will go" defeats
+% john's reason, so john and mary both drop out, leaving only bob. This
+% demonstrates non-monotonicity: adding a fact removes conclusions.
+%
+% Reconstruction (matching party_looping.le): to keep the rules generic (LE
+% flags rules built from bare constants), the dependencies are lifted into
+% generic rules over a "follows" relation and an "is reluctant unless ... goes"
+% relation, with the concrete actors supplied as scenario facts:
+%   - "mary will go if john will go"     ->  mary follows john
+%   - "john will go if bob will not go"  ->  john stays home only if bob,
+%       the person john watches, will go (negation as failure on bob).
+
+the target language is: prolog.
+
+the templates are:
+*a person* will go.
+*a first person* follows *a second person*.
+*a first person* watches *a second person*.
+
+the knowledge base party_naf includes:
+
+% A person will go if someone they follow will go.
+a first person will go
+    if the first person follows a second person
+    and the second person will go.
+
+% A person who is waiting on someone they watch will go unless that
+% watched person will go (negation as failure: absence of the watched
+% person's attendance licenses going).
+a first person will go
+    if the first person watches a second person
+    and it is not the case that
+        the second person will go.
+
+scenario no_bob is:
+    mary follows john.
+    john watches bob.
+    who_goes expects answers ["john will go", "mary will go"].
+
+scenario bob_goes is:
+    mary follows john.
+    john watches bob.
+    bob will go.
+    who_goes expects answers ["bob will go"].
+
+query who_goes is:
+    which person will go.

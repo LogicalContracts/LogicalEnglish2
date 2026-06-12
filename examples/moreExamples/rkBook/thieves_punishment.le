@@ -1,0 +1,49 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 5, section 5.8 ("Decompiled layered rules-and-exceptions",
+%         with the Bob/Mary negation-as-failure trace).
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Layered rules-and-exceptions with negation as failure. The general rule
+% punishes thieves, defeated by the exception for minors, which is itself
+% defeated by the exception-to-the-exception for violent offenders. Each layer
+% is a separate clause whose body negates the next layer down, so a violent
+% minor thief is punished again (the double exception cancels out). The negated
+% sub-sentence is placed on its own indented line after "it is not the case
+% that" so the parser binds the shared "the person" variable correctly.
+
+the target language is: prolog.
+
+the templates are:
+*a person* is a thief.
+*a person* is a minor.
+*a person* is violent.
+*a person* should be punished.
+*a person* is an exception to the punishment rule.
+*a person* is an exception to the exception to the punishment rule.
+
+the knowledge base thieves punishment includes:
+
+a person should be punished
+    if the person is a thief
+    and it is not the case that
+        the person is an exception to the punishment rule.
+
+a person is an exception to the punishment rule
+    if the person is a minor
+    and it is not the case that
+        the person is an exception to the exception to the punishment rule.
+
+a person is an exception to the exception to the punishment rule
+    if the person is violent.
+
+scenario bob_mary is:
+    bob is a thief.
+    mary is a thief.
+    mary is a minor.
+    tom is a thief.
+    tom is a minor.
+    tom is violent.
+    punishment expects answers ["bob should be punished", "tom should be punished"].
+
+query punishment is:
+    which person should be punished.

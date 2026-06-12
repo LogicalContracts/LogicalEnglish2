@@ -1555,5 +1555,86 @@ it_is_prohibited_that(attends(A, B)) :-
 In examples/moreExamples/AItest.le , "the  templates are:" is not properly coloured; notice that there is an extra space after "the". Also the templates in the following lines are coloured incorrectly, emphasizing words like "there", "are" etc. which are just elements of the templates. 
 If we remove that extra space, all colouring becomes correct! Please fix this; extra spaces in section headers are admissible
 
+## Bob's Book
+### Survey
+Read docs/RK_book/CLandHT-HtobAI.pdf , a book that preceded and inspired Logical English. It contains a number of illustrative examples written in a "pre LE" dialect, sometimes with connectives and primitives which are not in LE yet. We want to collect all those examples into a new document docs/RK_book/bookExamples.md ,  containing:
+- titles for all chapters and their subsections from the book
+- for each subsection, all its examples if any:  a short summary of the motivation, and the actual sentences/rules of the example
+
+As you do this, add short comments on whether the example is "complete", or just a fragment complementing the text; and also whether it fits already into current LE
+
+In a later step we'll convert most of the examples to LE... but not yet
+
+please number the sections for each chapter N, e.g. N.1, N.2 etc   
+
+#### Opus 4.8 response
+  What was produced
+
+  A structured survey covering every chapter and subsection of Kowalski's Computational Logic and Human Thinking:
+
+  - Front matter (Preface, Contents, Summary/Plan, Introduction)
+  - Chapters 1–17 and the Conclusions
+  - Appendices A1–A6 (the technical chapters — note A6 The Logic of Abductive Logic Programming wasn't in the original heading outline; a reading
+  agent found it) and the References
+
+  Each subsection lists its examples, and every example has:
+  - a one/two-line Motivation,
+  - the actual sentences/rules transcribed close to verbatim in code blocks,
+  - a Status line judging (a) complete vs fragment and (b) fits current LE / partially / not yet — naming the missing construct.
+  
+  Relevant figures are embedded (connection graphs, search trees, semantic networks, decision/event diagrams, the wise-men graph, resolution figures)
+  via CLandHT-HtobAI_conversion/chunk-0-img-N.jpeg; decorative images were skipped.
+
+  Verification
+  
+  - All 27 top-level headings present (Front Matter → References).
+  - All referenced images resolve to existing files.
+  - No leftover agent/scratch artifacts (the grep hits are genuine example lines like "I have the cheese").
+
+  How the LE-fit judgments broke down (useful for the later conversion step)
+
+  - Already fit LE: Ch6 citizenship & lease rules (maps to the existing citizenship.le), Ch5 negation-as-failure / rules-and-exceptions, Ch3
+  fox-and-crow beliefs, Ch12 trolley beliefs, many A1 definite-clause examples.
+  - Partially / abduction: Ch10 wet-grass and open-predicate examples map to LE's unknown/assumable; Ch17 "believes that…" maps to says/that.
+  - Not yet: maintenance goals & the agent cycle (Ch1, 7, 8, 9), event/situation calculus (Ch13, parts of 6), integrity constraints … then false
+  (throughout), decision-theoretic utilities (Ch11), biconditionals-as-equivalences (Ch15), and resolution/connection-graph machinery (A5).
+
+### LE examples
+Read docs/RK_book/bookExamples.md and vibe code into Logical English all the examples that you deemed "Already fit LE"; for now into directory docs/RK_book/examples . For each candidate example, you need to follow a flow similar to the LE Assistant (light mode):
+- follow the instructions in AGENTS_LE_template.md , DISCARDING the DEEP_MODE_ONLY_START section - you cannot use MCP
+- at the end of each example draft do NOT run the full test suite; instead you should verify the example calling le_tool_verify/2; and iterate generate/verify up to about 20 attempts. Use also le_tool_query/2 as needed 
+- At the top of each LE file created, place a comment with: Chapter/subsection origin; and whether the last verification flagged open issues with the program
+  
+#### Opus 4.8 response
+● Done. I vibe-coded 22 Logical English programs into docs/RK_book/examples/, one for each substantive book example that bookExamples.md judged
+  "Already fit LE", following the LE-Assistant light-mode flow (draft → le_tool_verify/2 → fix, iterating with le_tool_query/2, never the full suite,
+  no git commit).
+
+  What was built
+
+  I first identified every "Fits current LE" status line in bookExamples.md (filtering out the "partially"/"not yet" ones), then hand-built and
+  verified a reference example (fox_and_crow.le) to discover the LE gotchas, and fanned the remaining ~19 across parallel subagents — each given the
+  exact book text, an in-process verify/query harness, and the gotchas. I then independently re-verified all 22 files myself:
+  
+  - 22/22 pass with no failing tests. 21 are fully clean (ISSUES: none); only grass_wet_abduction.le carries two inherent rule_without_variables
+  warnings (the book's wet-grass beliefs are genuinely propositional) — documented honestly in its header.
+  - Every file has the required header: chapter/section origin + whether the last verification flagged open issues.
+  - Coverage spans Ch.1 (Underground notice), Ch.3 (fox & crow, above transitivity), Ch.4 (party loop), Ch.5 (last train, naf + defeat, older-brother
+  CWA, innocent-until-guilty, suppression task, housing benefit, layered thief exceptions), Ch.6 (BNA citizenship, relative clauses, naturalisation,
+  lease termination), Ch.7 (Genesis ancestors, equation-solving goal), Ch.10 (wet-grass abduction via ; unknown), Ch.11 (cause/effect), Ch.12 (trolley
+  problem), Ch.14 (behaviourist fox), and Appendix A1 (amazing animals + taxonomy).
+  
+  A README.md maps each file to its origin and documents the handful of "fits LE" entries that were folded into other files or skipped (abstract
+  schemas, bare-fact context illustrations, verbatim duplicates).
+
+  Notable LE findings surfaced during the work
+
+  - Concrete entities must be bare constants (crow, not the crow, which parses as a variable).
+  - Distinct same-type variables need qualifier names (a first person/a second person).
+  - Inline it is not the case that … mis-parses; the negated sentence must sit on its own indented line.
+  - Mutual recursion among head predicates can block enumeration under open queries (split holds vs has).
+  - _ is killed / _ is distracted collide with system templates (renamed to is destroyed / has been distracted).
+
+
 
 ## TBD

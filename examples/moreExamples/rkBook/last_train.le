@@ -1,0 +1,39 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 5 "Negation as Failure", section 5.2
+%         ("The last-train conditional").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Book rule: "the last train from victoria to pulborough leaves at 22:52 on a day
+% if the day is a weekday and the day is in the period between 17 may 2010 and
+% 12 december 2010." We model the time 22:52 as the string "22:52" and use the
+% system date-range templates for the period. "is a weekday" facts and the
+% candidate dates live in the scenarios (a weekday in range -> a train; an
+% out-of-range or weekend date -> no train).
+
+the target language is: prolog.
+
+the templates are:
+*a date* is a weekday.
+the last train from victoria to pulborough leaves at *a time* on *a date*.
+
+the knowledge base last_train includes:
+
+the last train from victoria to pulborough leaves at "22:52" on a date
+    if the date is a weekday
+    and the date is after or equal to 2010-05-17
+    and the date is before or equal to 2010-12-12.
+
+scenario weekday_in_range is:
+    2010-06-15 is a weekday.
+    leaves expects answers ["the last train from victoria to pulborough leaves at 22:52 on 2010-6-15T0:0:0.0"].
+
+scenario out_of_range is:
+    2011-01-03 is a weekday.
+    leaves expects answers [].
+
+% 2010-06-13 was a Sunday: it is in range but NOT a weekday, so no train runs.
+scenario weekend_in_range is:
+    leaves expects answers [].
+
+query leaves is:
+    the last train from victoria to pulborough leaves at which time on which date.

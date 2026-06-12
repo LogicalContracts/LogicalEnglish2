@@ -1,0 +1,41 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 4 "Logic and Computation", section 4.1
+%         ("The party-looping example").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book's rules form a deliberate loop: "mary will go to the party if john
+% will go to the party" and "john will go to the party if mary will go to the
+% party". Neither mary nor john has an independent reason to go, so the loop
+% yields nothing; only bob, asserted as a fact, will go. LE tabling terminates
+% on the mutual recursion and returns just bob.
+%
+% Reconstruction: to keep the rules generic (LE flags rules built from bare
+% constants), the "goes if so-and-so goes" dependency is lifted into a generic
+% rule over a "follows" relation, and the concrete mary<->john loop is the pair
+% of scenario facts "mary follows john" / "john follows mary". This is logically
+% identical to the book's two clauses, while bob's unconditional attendance is a
+% genuine knowledge-base fact (a generic person fact has no free variable to
+% lift, so it stays in the KB as the book has it).
+
+the target language is: prolog.
+
+the templates are:
+*a person* will go to the party.
+*a first person* follows *a second person*.
+
+the knowledge base party includes:
+
+% A person will go to the party if someone they follow will go.
+a first person will go to the party
+    if the first person follows a second person
+    and the second person will go to the party.
+
+bob will go to the party.
+
+scenario empty is:
+    mary follows john.
+    john follows mary.
+    attendance expects answers ["bob will go to the party"].
+
+query attendance is:
+    which person will go to the party.

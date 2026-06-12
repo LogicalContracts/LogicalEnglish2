@@ -1,0 +1,60 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 5, section 5.7 ("Housing Benefit rule and exception").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% Rules-and-exceptions with negation as failure. A person gets help to pay rent
+% if the person receives housing benefit. Receiving housing benefit holds when
+% any one of three eligibility paths applies (on other benefits, works part-time,
+% works full-time on a low income) AND the person is not ineligible. To avoid
+% and/or precedence trouble, the disjunctive "receives housing benefit" rule is
+% SPLIT into three single-disjunct clauses, each carrying the same
+% "it is not the case that ... is ineligible" exception condition. A person is
+% ineligible if not on a low income.
+
+the target language is: prolog.
+
+the templates are:
+*a person* gets help to pay rent.
+*a person* receives housing benefit.
+*a person* is on other benefits.
+*a person* works part-time.
+*a person* works full-time on a low income.
+*a person* is on a low income.
+*a person* is ineligible to receive housing benefit.
+
+the knowledge base housing benefit includes:
+
+a person gets help to pay rent
+    if the person receives housing benefit.
+
+a person receives housing benefit
+    if the person is on other benefits
+    and it is not the case that
+        the person is ineligible to receive housing benefit.
+
+a person receives housing benefit
+    if the person works part-time
+    and it is not the case that
+        the person is ineligible to receive housing benefit.
+
+a person receives housing benefit
+    if the person works full-time on a low income
+    and it is not the case that
+        the person is ineligible to receive housing benefit.
+
+a person is ineligible to receive housing benefit
+    if it is not the case that
+        the person is on a low income.
+
+scenario claimants is:
+    bob is on other benefits.
+    bob is on a low income.
+    mary works part-time.
+    mary is on a low income.
+    tom works full-time on a low income.
+    tom is on a low income.
+    rich works part-time.
+    help expects answers ["bob gets help to pay rent", "mary gets help to pay rent", "tom gets help to pay rent"].
+
+query help is:
+    which person gets help to pay rent.

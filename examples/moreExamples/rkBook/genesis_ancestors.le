@@ -1,0 +1,54 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 7 "Logic", section 7.9, Example 14 (the Genesis family-tree
+%         facts), together with a DECLARATIVE rendering of the ancestor relation
+%         of Example 15. The book's Example 15 presents the ancestor relation as
+%         forward-chaining production rules; here we encode the same relation as
+%         ordinary LE Head-if-Body conditionals (backward-chaining), which is the
+%         logically equivalent declarative reading.
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The concrete Genesis facts (mother-of / father-of) live in the scenario.
+% "is a parent of" lifts both mother-of and father-of; "is an ancestor of" is
+% the recursive transitive closure. The family tree is a finite DAG, so the
+% recursion is well-founded and terminates under tabling. To avoid recursion on
+% the same head predicate blocking enumeration (see fox_and_crow.le note 7), the
+% primitives mother-of / father-of are kept separate from the derived predicates.
+
+the target language is: prolog.
+
+the templates are:
+*a person* mother of *a second person*.
+*a person* father of *a second person*.
+*a person* is a parent of *a second person*.
+*a person* is an ancestor of *a second person*.
+
+the knowledge base genesis includes:
+
+% A person is a parent of a second person if she is the second person's mother.
+a person is a parent of a second person
+    if the person mother of the second person.
+
+% A person is a parent of a second person if he is the second person's father.
+a person is a parent of a second person
+    if the person father of the second person.
+
+% Direct ancestor: a parent is an ancestor.
+a person is an ancestor of a second person
+    if the person is a parent of the second person.
+
+% Transitive ancestor: a parent of an ancestor is an ancestor.
+a person is an ancestor of a second person
+    if the person is a parent of a third person
+    and the third person is an ancestor of the second person.
+
+scenario genesis is:
+    eve mother of cain.
+    eve mother of abel.
+    adam father of cain.
+    adam father of abel.
+    cain father of enoch.
+    enoch father of irad.
+    ancestors expects answers ["enoch is an ancestor of irad", "eve is an ancestor of irad", "adam is an ancestor of irad", "cain is an ancestor of irad"].
+
+query ancestors is:
+    which person is an ancestor of irad.
