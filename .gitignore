@@ -2,8 +2,10 @@
 editor/node_modules
 editor/test-results/
 editor/playwright-report/
+docs/images/editor_selection.png
 tmp/
 le_extensions.pl
 .github
 insureLE2
 web_extras/insurML2browse
+.claude-docker

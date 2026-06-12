@@ -60,7 +60,28 @@ To run Logical English 2.0 on your local machine:
    The editor will be available at `http://localhost:3050/editor/`.
 
 ### Testing
-- **Prolog Tests:** `swipl -g "use_module(le_kbs), runTests, halt."`
+
+The quickest way to run everything is the aggregate runner in `testing/`
+(it always runs from the repo root, regardless of your current directory):
+
+```bash
+testing/run_tests.sh            # run all suites and report a combined pass/fail
+testing/run_tests.sh --no-e2e   # skip the browser tests (fast: unit + LE examples)
+testing/run_tests.sh unit       # only the Prolog plunit suite
+testing/run_tests.sh le         # only the Logical English example tests
+testing/run_tests.sh e2e        # only the Playwright browser tests
+```
+
+It exits non-zero if any suite that ran failed. The Playwright suite is skipped
+(not failed) when its prerequisites are missing, unless `CI` is set. Override the
+interpreter with `SWIPL=/path/to/swipl testing/run_tests.sh`.
+
+The individual suites can also be run directly:
+
+- **Prolog unit tests (plunit):** `swipl -q -g run_tests -t halt testing/test_session_reaper.pl`
+  (covers `testing/test_*.pl`).
+- **Logical English example tests:** `swipl -g "use_module(le_kbs), runTests, halt."`
+  (runs the `.le` / `.le.tests` examples and refreshes `testSuiteStatus.txt`).
 - **E2E Tests (Playwright):**
   ```bash
   cd editor

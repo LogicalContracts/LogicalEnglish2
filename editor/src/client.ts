@@ -148,6 +148,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         const savedFontSize = parseInt(localStorage.getItem('le-editor-font-size') || '16');
         let showHierarchicalNumbering = localStorage.getItem('le-hierarchical-numbering') === 'true';
         let failedNodePrefix = localStorage.getItem('le-failed-node-prefix') ?? 'x ';
+        let detailedFailures = localStorage.getItem('le-detailed-failures') === 'true';
+        let hideRepeatedExplanations = (localStorage.getItem('le-hide-repeated-explanations') ?? 'true') === 'true';
         
         const numberingCheck = document.getElementById('hierarchical-numbering-check');
         if (numberingCheck) {
@@ -815,10 +817,14 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const explanationsCancel = document.getElementById('explanations-cancel');
     const explanationsSave = document.getElementById('explanations-save');
     const failedPrefixInput = document.getElementById('failed-prefix-input') as HTMLInputElement;
+    const detailedFailuresInput = document.getElementById('detailed-failures-input') as HTMLInputElement;
+    const hideRepeatedInput = document.getElementById('hide-repeated-input') as HTMLInputElement;
 
     const openExplanationsModal = () => {
         if (explanationsModal && failedPrefixInput) {
             failedPrefixInput.value = failedNodePrefix;
+            if (detailedFailuresInput) detailedFailuresInput.checked = detailedFailures;
+            if (hideRepeatedInput) hideRepeatedInput.checked = hideRepeatedExplanations;
             explanationsModal.style.display = 'flex';
         }
     };
@@ -834,6 +840,14 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (failedPrefixInput) {
             failedNodePrefix = failedPrefixInput.value;
             localStorage.setItem('le-failed-node-prefix', failedNodePrefix);
+        }
+        if (detailedFailuresInput) {
+            detailedFailures = detailedFailuresInput.checked;
+            localStorage.setItem('le-detailed-failures', detailedFailures.toString());
+        }
+        if (hideRepeatedInput) {
+            hideRepeatedExplanations = hideRepeatedInput.checked;
+            localStorage.setItem('le-hide-repeated-explanations', hideRepeatedExplanations.toString());
         }
         closeExplanationsModal();
     });
@@ -1432,6 +1446,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     let currentAnswerToCopy = '';
     let currentWhyToCopy: any = null;
     let lastWhy: any = null;
+    // Per-answer expansion state, kept in memory only (no local/session storage).
+    // Keyed by the answer's `why` object; maps each node's tree path ("1.2.3") to
+    // whether it is expanded, so toggles persist when switching between answers.
+    const explanationExpansion = new WeakMap<object, Map<string, boolean>>();
 
     document.addEventListener('click', () => {
         answerContextMenu.style.display = 'none';
@@ -1506,11 +1524,11 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
     menuCopyExplanation.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (currentWhyToCopy) {
-            // If copying the root node, we don't want a prefix for it, but we want prefixes for its children.
-            // If copying a sub-node, we'll treat it as a new root (no prefix for itself).
-            const text = explanationToText(currentWhyToCopy, 0, "");
-            const html = explanationToHtml(currentWhyToCopy, 0, "");
+        // Always copy the WHOLE explanation tree (all sibling subtrees), not just
+        // the right-clicked node.
+        if (lastWhy) {
+            const text = explanationToText(lastWhy, 0, "");
+            const html = explanationToHtml(lastWhy, 0, "");
             
             try {
                 const clipboardItem = new ClipboardItem({
@@ -1530,6 +1548,20 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         lastWhy = why;
         explanationTree.innerHTML = '';
         if (!why) return;
+
+        // Recover (or start) the in-memory expansion state for this answer.
+        let expansion: Map<string, boolean>;
+        if (why !== null && typeof why === 'object') {
+            const existing = explanationExpansion.get(why);
+            if (existing) {
+                expansion = existing;
+            } else {
+                expansion = new Map<string, boolean>();
+                explanationExpansion.set(why, expansion);
+            }
+        } else {
+            expansion = new Map<string, boolean>();
+        }
 
         explanationTree.oncontextmenu = (e) => {
             if (e.target === explanationTree) {
@@ -1560,10 +1592,13 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
             
             const hasChildren = node.children && node.children.length > 0;
+            // Expansion: use the remembered state for this node path if present,
+            // otherwise the default (top two levels expanded).
+            const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix)! : (depth < 2);
             if (hasChildren) {
                 const toggle = document.createElement('span');
                 toggle.className = 'tree-toggle';
-                toggle.textContent = depth < 2 ? '-' : '+';
+                toggle.textContent = isExpandedNow ? '-' : '+';
                 label.appendChild(toggle);
             }
 
@@ -1607,13 +1642,16 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             if (hasChildren) {
                 const childrenContainer = document.createElement('div');
                 childrenContainer.className = 'tree-children';
-                childrenContainer.style.display = depth < 2 ? 'block' : 'none';
-                
+                childrenContainer.style.display = isExpandedNow ? 'block' : 'none';
+
                 label.querySelector('.tree-toggle')?.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const isExpanded = childrenContainer.style.display !== 'none';
-                    childrenContainer.style.display = isExpanded ? 'none' : 'block';
-                    (e.target as HTMLElement).textContent = isExpanded ? '+' : '-';
+                    const newExpanded = !isExpanded;
+                    childrenContainer.style.display = newExpanded ? 'block' : 'none';
+                    (e.target as HTMLElement).textContent = newExpanded ? '-' : '+';
+                    // Remember this node's expansion state for the current answer.
+                    expansion.set(prefix, newExpanded);
                 });
 
                 node.children.forEach((child: any, index: number) => {
@@ -1699,7 +1737,9 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     scenario: scenario,
                     customScenario: customScenario,
                     customQuery: customQuery,
-                    debug: true
+                    debug: true,
+                    detailedFailures: detailedFailures,
+                    hideRepeated: hideRepeatedExplanations
                 })
             }).then(res => res.json()).then(data => {
                 console.log('Debug query finished', data);
@@ -1852,12 +1892,42 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         document.body.style.userSelect = 'auto';
     });
 
+    // Interrupt support for long-running queries: the button appears after 2s of
+    // waiting and signals the server to abort the in-progress query.
+    const btnInterruptQuery = document.getElementById('btn-interrupt-query') as HTMLButtonElement;
+    let interruptTimer: number | undefined;
+    const showInterruptSoon = () => {
+        clearTimeout(interruptTimer);
+        btnInterruptQuery.style.display = 'none';
+        btnInterruptQuery.disabled = false;
+        interruptTimer = window.setTimeout(() => {
+            btnInterruptQuery.style.display = '';
+            // Show a waiting cursor while the (long-running) query is in progress.
+            document.body.style.cursor = 'wait';
+        }, 2000);
+    };
+    const hideInterrupt = () => {
+        clearTimeout(interruptTimer);
+        interruptTimer = undefined;
+        btnInterruptQuery.style.display = 'none';
+        document.body.style.cursor = '';
+    };
+    btnInterruptQuery.addEventListener('click', () => {
+        btnInterruptQuery.disabled = true;
+        btnInterruptQuery.textContent = 'Interrupting…';
+        fetch('/leapi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: 'myToken123', operation: 'interruptQuery', sessionModule: sessionModule })
+        }).catch(() => {}).finally(() => { btnInterruptQuery.textContent = 'Interrupt'; });
+    });
+
     btnQuery.addEventListener('click', async () => {
         if (!isLoaded) {
             const success = await loadModule();
             if (!success) return;
         }
-        
+
         const scenario = scenarioSelect.value;
         const query = querySelect.value;
         
@@ -1876,7 +1946,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         
         answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
         explanationTree.innerHTML = '';
-        
+        showInterruptSoon();
+
         try {
             const runAnsweringQuery = () => fetch('/leapi', {
                 method: 'POST',
@@ -1888,7 +1959,9 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     query: query,
                     scenario: scenario,
                     customScenario: customScenario,
-                    customQuery: customQuery
+                    customQuery: customQuery,
+                    detailedFailures: detailedFailures,
+                    hideRepeated: hideRepeatedExplanations
                 })
             }).then(r => r.json());
 
@@ -1944,6 +2017,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 });
                 answersList.appendChild(item);
                 renderExplanation(res.why);
+            } else if (res && res.interrupted) {
+                answersList.textContent = 'Query interrupted.';
             } else if (res && res.error) {
                 answersList.textContent = 'Error: ' + res.error;
             } else {
@@ -1952,6 +2027,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         } catch (err) {
             answersList.textContent = 'Error executing query.';
             console.error(err);
+        } finally {
+            hideInterrupt();
         }
     });
 
@@ -1986,7 +2063,9 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     query: query,
                     scenario: scenario,
                     customScenario: customScenario,
-                    customQuery: customQuery
+                    customQuery: customQuery,
+                    detailedFailures: detailedFailures,
+                    hideRepeated: hideRepeatedExplanations
                 })
             }).then(r => r.json());
 
@@ -2055,6 +2134,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' : 
                                      document.body.className.includes('hc-theme') ? 'hc-theme' : '';
                 window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
+            } else if (res && res.error) {
+                alert('Could not open the Proof Game:\n\n' + res.error);
             } else {
                 alert('Failed to get game data from server.');
             }

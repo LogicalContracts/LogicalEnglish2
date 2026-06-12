@@ -1,0 +1,24 @@
+the target language is: prolog.
+
+the templates are:
+    *a person* is happy.
+    *a person* likes *a thing*. 
+
+the knowledge base alice 2 includes:
+    
+Alice is happy if 
+    	Alice likes a thing X 
+    	and X likes Alice. 
+
+Alice likes a person X if
+	X likes logic.
+
+scenario alice likes is:   
+Alice likes logic.
+
+    
+query likes is:
+    which person likes which thing. 
+    
+query happy is:
+    which person is happy. 

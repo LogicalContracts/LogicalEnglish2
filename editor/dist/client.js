@@ -38489,6 +38489,8 @@ async function start() {
   const savedFontSize = parseInt(localStorage.getItem("le-editor-font-size") || "16");
   let showHierarchicalNumbering = localStorage.getItem("le-hierarchical-numbering") === "true";
   let failedNodePrefix = localStorage.getItem("le-failed-node-prefix") ?? "x ";
+  let detailedFailures = localStorage.getItem("le-detailed-failures") === "true";
+  let hideRepeatedExplanations = (localStorage.getItem("le-hide-repeated-explanations") ?? "true") === "true";
   const numberingCheck = document.getElementById("hierarchical-numbering-check");
   if (numberingCheck) {
     numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
@@ -39090,9 +39092,15 @@ async function start() {
   const explanationsCancel = document.getElementById("explanations-cancel");
   const explanationsSave = document.getElementById("explanations-save");
   const failedPrefixInput = document.getElementById("failed-prefix-input");
+  const detailedFailuresInput = document.getElementById("detailed-failures-input");
+  const hideRepeatedInput = document.getElementById("hide-repeated-input");
   const openExplanationsModal = () => {
     if (explanationsModal && failedPrefixInput) {
       failedPrefixInput.value = failedNodePrefix;
+      if (detailedFailuresInput)
+        detailedFailuresInput.checked = detailedFailures;
+      if (hideRepeatedInput)
+        hideRepeatedInput.checked = hideRepeatedExplanations;
       explanationsModal.style.display = "flex";
     }
   };
@@ -39107,6 +39115,14 @@ async function start() {
     if (failedPrefixInput) {
       failedNodePrefix = failedPrefixInput.value;
       localStorage.setItem("le-failed-node-prefix", failedNodePrefix);
+    }
+    if (detailedFailuresInput) {
+      detailedFailures = detailedFailuresInput.checked;
+      localStorage.setItem("le-detailed-failures", detailedFailures.toString());
+    }
+    if (hideRepeatedInput) {
+      hideRepeatedExplanations = hideRepeatedInput.checked;
+      localStorage.setItem("le-hide-repeated-explanations", hideRepeatedExplanations.toString());
     }
     closeExplanationsModal();
   });
@@ -39643,6 +39659,7 @@ async function start() {
   let currentAnswerToCopy = "";
   let currentWhyToCopy = null;
   let lastWhy = null;
+  const explanationExpansion = /* @__PURE__ */ new WeakMap();
   document.addEventListener("click", () => {
     answerContextMenu.style.display = "none";
     explanationContextMenu.style.display = "none";
@@ -39708,9 +39725,9 @@ async function start() {
   };
   menuCopyExplanation.addEventListener("click", (e) => {
     e.stopPropagation();
-    if (currentWhyToCopy) {
-      const text = explanationToText(currentWhyToCopy, 0, "");
-      const html = explanationToHtml(currentWhyToCopy, 0, "");
+    if (lastWhy) {
+      const text = explanationToText(lastWhy, 0, "");
+      const html = explanationToHtml(lastWhy, 0, "");
       try {
         const clipboardItem = new ClipboardItem({
           "text/plain": new Blob([text], { type: "text/plain" }),
@@ -39728,6 +39745,18 @@ async function start() {
     explanationTree.innerHTML = "";
     if (!why)
       return;
+    let expansion;
+    if (why !== null && typeof why === "object") {
+      const existing = explanationExpansion.get(why);
+      if (existing) {
+        expansion = existing;
+      } else {
+        expansion = /* @__PURE__ */ new Map();
+        explanationExpansion.set(why, expansion);
+      }
+    } else {
+      expansion = /* @__PURE__ */ new Map();
+    }
     explanationTree.oncontextmenu = (e) => {
       if (e.target === explanationTree) {
         e.preventDefault();
@@ -39751,10 +39780,11 @@ async function start() {
         label.title = typeof repCount === "number" && repCount > 1 ? `${repCount} repeated sub-explanations` : "Repeated sub-explanation";
       }
       const hasChildren = node.children && node.children.length > 0;
+      const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix) : depth < 2;
       if (hasChildren) {
         const toggle = document.createElement("span");
         toggle.className = "tree-toggle";
-        toggle.textContent = depth < 2 ? "-" : "+";
+        toggle.textContent = isExpandedNow ? "-" : "+";
         label.appendChild(toggle);
       }
       const text = document.createElement("span");
@@ -39797,12 +39827,14 @@ async function start() {
       if (hasChildren) {
         const childrenContainer = document.createElement("div");
         childrenContainer.className = "tree-children";
-        childrenContainer.style.display = depth < 2 ? "block" : "none";
+        childrenContainer.style.display = isExpandedNow ? "block" : "none";
         label.querySelector(".tree-toggle")?.addEventListener("click", (e) => {
           e.stopPropagation();
           const isExpanded = childrenContainer.style.display !== "none";
-          childrenContainer.style.display = isExpanded ? "none" : "block";
-          e.target.textContent = isExpanded ? "+" : "-";
+          const newExpanded = !isExpanded;
+          childrenContainer.style.display = newExpanded ? "block" : "none";
+          e.target.textContent = newExpanded ? "-" : "+";
+          expansion.set(prefix, newExpanded);
         });
         node.children.forEach((child, index) => {
           const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
@@ -39877,7 +39909,9 @@ async function start() {
           scenario,
           customScenario,
           customQuery,
-          debug: true
+          debug: true,
+          detailedFailures,
+          hideRepeated: hideRepeatedExplanations
         })
       }).then((res) => res.json()).then((data4) => {
         console.log("Debug query finished", data4);
@@ -40008,6 +40042,35 @@ async function start() {
     isDraggingDebug = false;
     document.body.style.userSelect = "auto";
   });
+  const btnInterruptQuery = document.getElementById("btn-interrupt-query");
+  let interruptTimer;
+  const showInterruptSoon = () => {
+    clearTimeout(interruptTimer);
+    btnInterruptQuery.style.display = "none";
+    btnInterruptQuery.disabled = false;
+    interruptTimer = window.setTimeout(() => {
+      btnInterruptQuery.style.display = "";
+      document.body.style.cursor = "wait";
+    }, 2e3);
+  };
+  const hideInterrupt = () => {
+    clearTimeout(interruptTimer);
+    interruptTimer = void 0;
+    btnInterruptQuery.style.display = "none";
+    document.body.style.cursor = "";
+  };
+  btnInterruptQuery.addEventListener("click", () => {
+    btnInterruptQuery.disabled = true;
+    btnInterruptQuery.textContent = "Interrupting\u2026";
+    fetch("/leapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: "myToken123", operation: "interruptQuery", sessionModule })
+    }).catch(() => {
+    }).finally(() => {
+      btnInterruptQuery.textContent = "Interrupt";
+    });
+  });
   btnQuery.addEventListener("click", async () => {
     if (!isLoaded) {
       const success = await loadModule();
@@ -40028,6 +40091,7 @@ async function start() {
     }
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
+    showInterruptSoon();
     try {
       const runAnsweringQuery = () => fetch("/leapi", {
         method: "POST",
@@ -40039,7 +40103,9 @@ async function start() {
           query,
           scenario,
           customScenario,
-          customQuery
+          customQuery,
+          detailedFailures,
+          hideRepeated: hideRepeatedExplanations
         })
       }).then((r) => r.json());
       let res = await runAnsweringQuery();
@@ -40092,6 +40158,8 @@ async function start() {
         });
         answersList.appendChild(item);
         renderExplanation(res.why);
+      } else if (res && res.interrupted) {
+        answersList.textContent = "Query interrupted.";
       } else if (res && res.error) {
         answersList.textContent = "Error: " + res.error;
       } else {
@@ -40100,6 +40168,8 @@ async function start() {
     } catch (err) {
       answersList.textContent = "Error executing query.";
       console.error(err);
+    } finally {
+      hideInterrupt();
     }
   });
   const btnProofGame = document.getElementById("btn-proof-game");
@@ -40128,7 +40198,9 @@ async function start() {
           query,
           scenario,
           customScenario,
-          customQuery
+          customQuery,
+          detailedFailures,
+          hideRepeated: hideRepeatedExplanations
         })
       }).then((r) => r.json());
       let res = await runGetGameData();
@@ -40182,6 +40254,8 @@ async function start() {
         localStorage.setItem("le_proof_game_data", JSON.stringify(res.gameData));
         const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
         window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
+      } else if (res && res.error) {
+        alert("Could not open the Proof Game:\n\n" + res.error);
       } else {
         alert("Failed to get game data from server.");
       }

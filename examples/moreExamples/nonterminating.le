@@ -1,0 +1,34 @@
+the target language is: prolog.
+
+% A query that is non-terminating in one scenario and terminating in another,
+% used to exercise query interruption in the editor.
+%
+% In scenario 'base' the first condition holds, so the body reaches the classic
+% infinite loop 'repeat, fail' (via the Prolog escape) and the query never
+% returns — it must be interrupted by the user. In scenario 'notLooping' the
+% first condition fails, so the query terminates (with no answers).
+%
+% NOTE: there is intentionally no 'expects answers' for query 'loop', so the
+% automated test suite never actually runs the looping case.
+%
+% (Avoid the word 'scenario' inside a template — it is a reserved section
+% keyword, so a predicate like "the scenario is loaded" would not parse.)
+
+the predicates are:
+    it loops forever.
+    the setup is complete.
+    the setup is pending.
+
+the knowledge base loop includes:
+    it loops forever if
+        the setup is complete and
+        prolog (repeat, fail).
+
+scenario base is:
+    the setup is complete.
+
+scenario notLooping is:
+    the setup is pending.
+
+query loop is:
+    it loops forever.

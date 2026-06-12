@@ -14,11 +14,14 @@ and the other dragon flies
 and the other dragon is green.
 
 
-A dragon is happy 	
-    if for all cases in which 
+% a little hack: we add a first "is a" body condition to bind dragons...
+% ... because the "for all cases..." does not bind the dragon variable, and our type checking (on unbound argument *a dragon*) is lazy
+A dragon is happy if
+	the dragon is a dragon and
+    for all cases in which 
 	    the dragon is a parent of an other dragon
 		it is the case that 
-		the other dragon can fly.
+		the other dragon flies.
 
 scenario colourless is:
 	bob is a dragon.
@@ -30,6 +33,8 @@ scenario green is:
 	alice is a dragon.
 	alice is a parent of bob.
 	alice is green.
+	alice flies.
+	happy expects answers ["bob is happy","alice is happy"].
     
 query happy is:
 	which creature is happy.

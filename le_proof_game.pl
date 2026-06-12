@@ -31,8 +31,9 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         flatten_and(StrippedBodyList, FlatBodyList),
         next_game_node_id(SM, rule, NodeId),
         game_var_ids((Head :- FlatBodyList), VarIds),
-        literal_to_game(KB, Head, VarIds, [], Seen1, HeadLE, HeadTokens),
-        body_list_to_game(KB, FlatBodyList, VarIds, Seen1, _SeenN, BodyLEs, BodyTokensList),
+        ( KB \== none, KB:le_var_names(ID, NameMap0) -> NameMap = NameMap0 ; NameMap = [] ),
+        literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
+        body_list_to_game(KB, FlatBodyList, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
         findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
         ( SM \== none ->
             assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
@@ -58,7 +59,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         ),
         next_game_node_id(SM, fact, NodeId),
         game_var_ids(Head, VarIds),
-        literal_to_game(KB, Head, VarIds, [], _Seen, FactLE, FactTokens),
+        literal_to_game(KB, Head, VarIds, [], [], _Seen, FactLE, FactTokens),
         ( SM \== none ->
             assertz(SM:game_node_term(NodeId, fact, term(Head, [], VarIds)))
         ; true ),
@@ -71,7 +72,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
     ; true ),
     ( KB \== none ->
         game_var_ids(Query, QVarIds2),
-        literal_to_game(KB, Query, QVarIds2, [], _Seen2, _QueryLE, QueryTokens)
+        literal_to_game(KB, Query, QVarIds2, [], [], _Seen2, _QueryLE, QueryTokens)
     ; QueryTokens = [_{kind: "word", text: Query}] ).
 
 %!  unify_game_nodes(+KB, +SM, +NodeSpecs, +Edges, -Response) is det.
@@ -111,17 +112,17 @@ number_var_ids([V|Vs], N, [N-V|T]) :-
     N1 is N + 1,
     number_var_ids(Vs, N1, T).
 
-literal_to_game(KB, Literal, VarIds, SeenIn, SeenOut, LE, Tokens) :-
+literal_to_game(KB, Literal, VarIds, NameMap, SeenIn, SeenOut, LE, Tokens) :-
     ( KB \== none, item_to_typed_instance(KB, Literal, Tagged) ->
-        tagged_tokens_to_game(KB, Tagged, VarIds, SeenIn, SeenOut, Tokens),
+        tagged_tokens_to_game(KB, Tagged, VarIds, NameMap, SeenIn, SeenOut, Tokens),
         game_tokens_text(Tokens, LE)
     ;   term_string(Literal, LE), Tokens = [_{kind: "word", text: LE}], SeenOut = SeenIn
     ).
 
-body_list_to_game(_KB, [], _VarIds, Seen, Seen, [], []).
-body_list_to_game(KB, [L|Ls], VarIds, SeenIn, SeenOut, [LE|LEs], [Tokens|TokensT]) :-
-    literal_to_game(KB, L, VarIds, SeenIn, Seen1, LE, Tokens),
-    body_list_to_game(KB, Ls, VarIds, Seen1, SeenOut, LEs, TokensT).
+body_list_to_game(_KB, [], _VarIds, _NameMap, Seen, Seen, [], []).
+body_list_to_game(KB, [L|Ls], VarIds, NameMap, SeenIn, SeenOut, [LE|LEs], [Tokens|TokensT]) :-
+    literal_to_game(KB, L, VarIds, NameMap, SeenIn, Seen1, LE, Tokens),
+    body_list_to_game(KB, Ls, VarIds, NameMap, Seen1, SeenOut, LEs, TokensT).
 
 build_proof_fragment(_SM, [], []).
 build_proof_fragment(SM, [Spec|Specs], [inst(IId, Kind, Head, Body)|Insts]) :-
@@ -170,8 +171,8 @@ render_instances(KB, [inst(IId, fail, _, _)|Insts], [Result|Results]) :- !,
     render_instances(KB, Insts, Results).
 render_instances(KB, [inst(IId, _Kind, Head, Body)|Insts], [Result|Results]) :-
     game_var_ids((Head :- Body), VarIds),
-    literal_to_game(KB, Head, VarIds, [], Seen1, HeadLE, HeadTokens),
-    body_list_to_game(KB, Body, VarIds, Seen1, _SeenN, BodyLEs, BodyTokensList),
+    literal_to_game(KB, Head, VarIds, [], [], Seen1, HeadLE, HeadTokens),
+    body_list_to_game(KB, Body, VarIds, [], Seen1, _SeenN, BodyLEs, BodyTokensList),
     Result = _{ instanceId: IId, head: HeadLE, headTokens: HeadTokens,
                 body: BodyLEs, bodyTokens: BodyTokensList },
     render_instances(KB, Insts, Results).
@@ -221,22 +222,29 @@ fill_variable_typed(NTs, V, gtypedvar(V, Type)) :-
 fill_variable_typed(_, V, gtypedvar(V, variable)) :- var(V), !.
 fill_variable_typed(_, V, V).
 
-tagged_tokens_to_game(_KB, [], _VarIds, Seen, Seen, []).
-tagged_tokens_to_game(KB, [G|T], VarIds, SeenIn, SeenOut, [Tok|ToksT]) :-
+tagged_tokens_to_game(_KB, [], _VarIds, _NameMap, Seen, Seen, []).
+tagged_tokens_to_game(KB, [G|T], VarIds, NameMap, SeenIn, SeenOut, [Tok|ToksT]) :-
     nonvar(G), G = gtypedvar(V, Type), !,
-    ( (member(Vid-V0_, VarIds), V0_=gtypedvar(V0,_), V0 == V) -> Id = Vid ; Id = -1 ),
+    ( (member(Vid-V0, VarIds), V0 == V) -> Id = Vid ; Id = -1 ),
     ( memberchk(Id, SeenIn) -> Det = the, Seen1 = SeenIn
     ; ( starts_with_vowel(Type) -> Det = an ; Det = a ),
       Seen1 = [Id|SeenIn] ),
-    ( Det == the -> Words = [the, Type] ; Words = [Det, Type] ),
-    atomic_list_concat(Words, ' ', Text),
-    Tok = _{ kind: "var", id: Id, type: Type, det: Det, text: Text },
-    tagged_tokens_to_game(KB, T, VarIds, Seen1, SeenOut, ToksT).
-tagged_tokens_to_game(KB, [W|T], VarIds, SeenIn, SeenOut, [Tok|ToksT]) :-
+    ( Det == the -> BaseWords = [the, Type] ; BaseWords = [Det, Type] ),
+    % Append the variable's explicit source identifier (e.g. X) when the rule
+    % named it, so coreferent variables are visible (e.g. "a thing X").
+    ( memberchk(Id-Name, NameMap), Name \== '' ->
+        append(BaseWords, [Name], Words),
+        atomic_list_concat(Words, ' ', Text),
+        Tok = _{ kind: "var", id: Id, type: Type, det: Det, name: Name, text: Text }
+    ;   atomic_list_concat(BaseWords, ' ', Text),
+        Tok = _{ kind: "var", id: Id, type: Type, det: Det, text: Text }
+    ),
+    tagged_tokens_to_game(KB, T, VarIds, NameMap, Seen1, SeenOut, ToksT).
+tagged_tokens_to_game(KB, [W|T], VarIds, NameMap, SeenIn, SeenOut, [Tok|ToksT]) :-
     ( le_kbs:token_to_atom(W, A) -> true ; term_to_atom(W, A) ),
     atom_string(A, S),
     Tok = _{ kind: "word", text: S },
-    tagged_tokens_to_game(KB, T, VarIds, SeenIn, SeenOut, ToksT).
+    tagged_tokens_to_game(KB, T, VarIds, NameMap, SeenIn, SeenOut, ToksT).
 
 starts_with_vowel(Atom) :-
     atom(Atom), atom_codes(Atom, [C|_]),
