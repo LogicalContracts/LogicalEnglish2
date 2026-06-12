@@ -1,0 +1,24 @@
+the target language is: prolog.
+
+the templates are:
+p. 
+q.
+r.
+s.
+t.
+u.
+
+
+the knowledge base p includes:
+    
+p if q and r.
+p if s.
+q if u.
+r if t.
+
+scenario u is:   
+u.
+
+    
+query p is:
+    p. 
