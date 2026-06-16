@@ -1,0 +1,39 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Appendix A1 "The Syntax of Logic", section A1.4 ("Conditionals").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book clauses are:
+%   amazing(X) <- can-fly(X) and isa(X, animal).
+%   isa(X, animal) <- isa(X, person).
+% and the English "any animal that can fly is amazing."
+% In LE the taxonomy (isa) is expressed in the ontology, so the single rule
+% "an animal is amazing if the animal can fly" carries the typed restriction:
+% the head/body type "animal" only admits values that are animals (directly,
+% e.g. a bird, or through the taxonomy, e.g. a person).
+
+the target language is: prolog.
+
+the templates are:
+*an animal* is amazing.
+*an animal* can fly.
+
+the ontology is:
+a bird is an animal.
+a person is an animal.
+
+the knowledge base amazing animals includes:
+
+% any animal that can fly is amazing.
+an animal is amazing
+    if the animal can fly.
+
+scenario story is:
+    tweety can fly.
+    tweety is a bird.
+    clark can fly.
+    clark is a person.
+    waddles is a bird.
+    amazers expects answers ["tweety is amazing", "clark is amazing"].
+
+query amazers is:
+    which animal is amazing.

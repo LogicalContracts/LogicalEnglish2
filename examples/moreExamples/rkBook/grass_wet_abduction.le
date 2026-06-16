@@ -1,0 +1,34 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 10 "Abduction", section 10.2 ("The grass is wet").
+% Last verification: all tests PASS. The only harness notes are two
+% "rule without variables" warnings: the book's grass-is-wet beliefs are
+% genuinely propositional (no variables), so these warnings are expected and
+% not errors. No failing tests.
+%
+% "it rained" and "the sprinkler was on" are open/assumable predicates,
+% declared with "; unknown" so that querying "the grass is wet" returns them
+% as alternative explanations (unknowns) instead of failing.
+
+the target language is: prolog.
+
+the templates are:
+    the grass is wet.
+    it rained; unknown.
+    the sprinkler was on; unknown.
+
+the knowledge base grass includes:
+
+the grass is wet if it rained.
+the grass is wet if the sprinkler was on.
+
+scenario observed is:
+    observe expects answers [
+        "the grass is wet",
+        "the grass is wet"
+    ] and unknowns [
+        "it rained",
+        "the sprinkler was on"
+    ].
+
+query observe is:
+    the grass is wet.

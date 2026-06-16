@@ -1,0 +1,39 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 3 "The Fox and the Crow", section 3.5
+%         ("The beginning-of-story interpretation as atomic sentences" /
+%          "Deriving 'above' from a transitivity rule").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The base facts of the story's setting live in the scenario; the single
+% transitivity rule in the knowledge base derives further "above" relations.
+% In particular "tree is above ground" is DERIVED from "tree above air" and
+% "air above ground". To avoid recursion on the same head predicate blocking
+% enumeration of derived answers (see fox_and_crow.le note 7), the primitive
+% above-facts are stated with "is directly above" and the rule lifts them and
+% chains transitively into "is above".
+
+the target language is: prolog.
+
+the templates are:
+*a first object* is directly above *a second object*.
+*a first object* is above *a second object*.
+
+the knowledge base above story includes:
+
+% An object is above another if it is directly above it.
+a first object is above a second object
+    if the first object is directly above the second object.
+
+% Transitivity: one object is above a second object if the first object is
+% above a third object and the third object is above the second object.
+a first object is above a second object
+    if the first object is directly above a third object
+    and the third object is above the second object.
+
+scenario story is:
+    tree is directly above air.
+    air is directly above ground.
+    levels expects answers ["tree is above air", "air is above ground", "tree is above ground"].
+
+query levels is:
+    which object is above which other object.

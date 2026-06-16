@@ -1,0 +1,52 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 3 "The Fox and the Crow", section 3.1
+%         ("The fox's goal and beliefs").
+% Last verification: no open issues flagged (no errors/warnings; all tests pass).
+%
+% The fox's beliefs are plain Head-if-Body conditionals; the concrete actors
+% live in the scenario. The book writes the crow's initial possession and the
+% fox's achieved possession with the same word "has"; to keep the rules free of
+% recursion we use "holds" for the primitive (initial) possession that the crow
+% starts with, and "has" for the possession the fox reasons towards.
+
+the target language is: prolog.
+
+the templates are:
+*an animal* holds *an object*.
+*an animal* has *an object*.
+*an animal* is near *an object*.
+*an animal* picks up *an object*.
+*an animal* sings.
+*an animal* praises *a second animal*.
+
+the knowledge base fox and crow includes:
+
+% An animal that already holds an object has it.
+an animal has an object
+    if the animal holds the object.
+
+% "An animal has an object if it is near the object and picks it up."
+an animal has an object
+    if the animal is near the object
+    and the animal picks up the object.
+
+% The book's belief is "I am near the cheese if the crow has the cheese and the
+% crow sings"; "I" (the fox) is the agent who makes the crow sing, so the
+% subject is bound here to the animal that praises the singer.
+an animal is near an object
+    if a second animal holds the object
+    and the second animal sings
+    and the animal praises the second animal.
+
+% "the crow sings if I praise the crow."
+an animal sings
+    if a second animal praises the animal.
+
+scenario story is:
+    crow holds cheese.
+    fox praises crow.
+    fox picks up cheese.
+    possession expects answers ["crow has cheese", "fox has cheese"].
+
+query possession is:
+    which animal has which object.

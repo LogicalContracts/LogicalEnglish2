@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 61
-Total tests:     223
-Passed:          223
+Files processed: 84
+Total tests:     274
+Passed:          274
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -54,6 +54,29 @@ Detailed File Summary:
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/amazing_animals.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/behaviourist_fox.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/bna_citizenship_1_1.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/cause_and_effect.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/equation_solving_goal.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/fox_and_crow.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/genesis_ancestors.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/grass_wet_abduction.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/housing_benefit.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/innocent_until_guilty.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/last_train.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/lease_termination.le: 8 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/library_study.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/naturalisation_schedule1.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/older_brother.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/party_looping.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/party_naf.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/relative_clauses.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/thieves_punishment.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/trolley_problem.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/rkBook/underground_emergency.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/short/is_a_class_of.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
