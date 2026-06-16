@@ -1,0 +1,58 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 5, section 5.7 ("Precise suppression-task rule with exceptions").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book's "she" is generalized to *a student*. The default rule says a student
+% studies late in the library if she has an essay to write, UNLESS she is prevented
+% (negation as failure). She is prevented when the library is not open, or she is
+% unwell, has a more important meeting, or has been distracted -- the precise list
+% of exceptions that suppress the conclusion (the Wason suppression task).
+
+the target language is: prolog.
+
+the templates are:
+*a student* has an essay to write.
+*a student* is unwell; undefined.
+*a student* has a more important meeting; undefined.
+*a student* has been distracted; undefined.
+the library is open.
+*a student* is prevented from studying late in the library.
+*a student* studies late in the library.
+
+the knowledge base library study includes:
+
+a student is prevented from studying late in the library
+    if it is not the case that
+        the library is open.
+
+a student is prevented from studying late in the library
+    if the student is unwell.
+
+a student is prevented from studying late in the library
+    if the student has a more important meeting.
+
+a student is prevented from studying late in the library
+    if the student has been distracted.
+
+a student studies late in the library
+    if the student has an essay to write
+    and it is not the case that
+        the student is prevented from studying late in the library.
+
+scenario normal is:
+    sue has an essay to write.
+    the library is open.
+    study expects answers ["sue studies late in the library"].
+
+scenario closed is:
+    sue has an essay to write.
+    study expects answers [].
+
+scenario unwell is:
+    sue has an essay to write.
+    the library is open.
+    sue is unwell.
+    study expects answers [].
+
+query study is:
+    which student studies late in the library.

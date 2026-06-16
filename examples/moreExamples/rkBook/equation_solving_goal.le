@@ -1,0 +1,39 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 7 "Logic", section 7.8, Example 13
+%         ("Explicit-goal conditional for equation solving").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% This is an ABSTRACT, illustrative goal-conditional. The book's rule reads:
+% "An equation with a single variable X is solved if all occurrences of X are
+% combined into a single occurrence and the single occurrence of X is isolated."
+% Only this top-level goal is a logic-programming conditional; the lower-level
+% rewriting steps that actually combine and isolate occurrences are production
+% rules, NOT Logical English. We therefore render the two sub-goals as
+% predicates whose truth is supplied by scenarios, and faithfully encode just
+% the top-level conditional.
+
+the target language is: prolog.
+
+the templates are:
+*an equation* is solved.
+the occurrences of the variable in *an equation* are combined.
+the single occurrence of the variable in *an equation* is isolated.
+
+the knowledge base equation solving includes:
+
+% The book's top-level goal-conditional, rendered declaratively.
+an equation is solved
+    if the occurrences of the variable in the equation are combined
+    and the single occurrence of the variable in the equation is isolated.
+
+scenario solved is:
+    the occurrences of the variable in eq1 are combined.
+    the single occurrence of the variable in eq1 is isolated.
+    which solved expects answers ["eq1 is solved"].
+
+scenario partial is:
+    the occurrences of the variable in eq2 are combined.
+    which solved expects answers [].
+
+query which solved is:
+    which equation is solved.

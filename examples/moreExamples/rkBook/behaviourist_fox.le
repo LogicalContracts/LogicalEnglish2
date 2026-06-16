@@ -1,0 +1,61 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 14 "Logic and Objects", section 14.1
+%         ("Extreme Behaviourism: the fox and the crow as input-output objects").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book gives four "if ... then ..." rules describing the fox/crow as
+% input-output objects. We rewrite each as Head-if-Body and generalize the
+% fox and crow to generic animals. "food" is treated as a single constant.
+% Because "the food falls to the ground" does not by itself entail "the food is
+% next to fox", we (as suggested) simply supply "the food is next to fox" as a
+% scenario fact so the pick-up rule fires.
+
+the target language is: prolog.
+
+the templates are:
+*a first animal* sees *a second animal*.
+*an animal* has food in its mouth.
+*an animal* praises *a second animal*.
+*an animal* sings.
+the food falls to the ground.
+the food is next to *an animal*.
+*an animal* picks up the food.
+
+the knowledge base behaviourist fox includes:
+
+% an animal praises a second animal if the (first) animal sees the second animal
+% and the second animal has food in its mouth.
+a first animal praises a second animal
+    if the first animal sees the second animal
+    and the second animal has food in its mouth.
+
+% a second animal sings if a first animal praises the second animal.
+a second animal sings
+    if a first animal praises the second animal.
+
+% the food falls to the ground if an animal has the food in its mouth and the
+% animal sings.
+the food falls to the ground
+    if an animal has food in its mouth
+    and the animal sings.
+
+% an animal picks up the food if the food is next to the animal.
+an animal picks up the food
+    if the food is next to the animal.
+
+scenario story is:
+    fox sees crow.
+    crow has food in its mouth.
+    the food is next to fox.
+    singer expects answers ["crow sings"].
+    falls expects answers ["the food falls to the ground"].
+    picker expects answers ["fox picks up the food"].
+
+query singer is:
+    which animal sings.
+
+query falls is:
+    the food falls to the ground.
+
+query picker is:
+    which animal picks up the food.

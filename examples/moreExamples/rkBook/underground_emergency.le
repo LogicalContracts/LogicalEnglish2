@@ -1,0 +1,73 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 1 "Logic on the Underground", sections 1.2 (the
+%         disambiguated meaning of the second and third sentences of the
+%         Emergency Notice) and 1.4 (forward reasoning over the notice).
+% Last verification: no open issues flagged (no errors/warnings; all tests pass).
+%
+% The London Underground Emergency Notice. Section 1.2 disambiguates the
+% notice into two conditionals:
+%   - the driver stops the train IN a station if alerted and a part of the
+%     train is in the station;
+%   - the driver stops the train AT THE NEXT station (where help can be given
+%     better than between stations) if alerted and no part of the train is in
+%     a station.
+% Section 1.4 supplies the background that pressing the alarm signal button
+% alerts the driver to an emergency. We keep the rules generic (a driver, a
+% train, a station, a passenger) and put the concrete actors in scenarios.
+%
+% Modeling notes:
+%  - The notice speaks of "the driver" of "the train"; to tie a concrete driver
+%    and train together we add an auxiliary "a driver drives a train" relation
+%    and let the alert be about a particular train. This is a faithful
+%    reconstruction of the implicit indexing in the book's wording.
+%  - The negation in the third sentence MUST be written on its own line after
+%    "it is not the case that" (the multiline form); the inline one-line form
+%    is mis-parsed by the current grammar.
+
+the target language is: prolog.
+
+the templates are:
+*a passenger* on *a train* presses the alarm signal button.
+*a driver* drives *a train*.
+*a driver* is alerted to an emergency on *a train*.
+*a part* of *a train* is in *a station*.
+*a driver* stops *a train* in *a station*.
+*a driver* stops *a train* at the next station.
+
+the knowledge base underground includes:
+
+% Background (§1.4): a passenger on a train pressing the alarm signal button
+% alerts that train's driver to an emergency.
+a driver is alerted to an emergency on a train
+    if the driver drives the train
+    and a passenger on the train presses the alarm signal button.
+
+% §1.2, second sentence: stop the train IN a station if alerted and any part
+% of the train is in the station.
+a driver stops a train in a station
+    if the driver is alerted to an emergency on the train
+    and a part of the train is in the station.
+
+% §1.2, third sentence: stop the train AT THE NEXT station if alerted and no
+% part of the train is in a station.
+a driver stops a train at the next station
+    if the driver is alerted to an emergency on the train
+    and it is not the case that
+        a part of the train is in a station.
+
+scenario in station is:
+    bob drives train1.
+    alice on train1 presses the alarm signal button.
+    front of train1 is in station1.
+    stop in station expects answers ["bob stops train1 in station1"].
+
+scenario between stations is:
+    bob drives train1.
+    alice on train1 presses the alarm signal button.
+    stop at next expects answers ["bob stops train1 at the next station"].
+
+query stop in station is:
+    which driver stops which train in which station.
+
+query stop at next is:
+    which driver stops which train at the next station.

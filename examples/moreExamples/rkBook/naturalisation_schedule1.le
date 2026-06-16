@@ -1,0 +1,76 @@
+% Origin: Kowalski, *Computational Logic and Human Thinking*,
+%         Chapter 6 "The Meaning of Life", section 6.6, Example 17
+%         ("Schedule 1 naturalisation requirements, object level").
+% Last verification: no open issues (no errors/warnings; all tests pass).
+%
+% The book rule has TWO top-level disjunctions:
+%   (residency OR crown service) AND good character AND knowledge of english
+%   AND knowledge about life in the uk AND (principal home in uk OR continue
+%   crown service).
+% Rather than expand into 2x2 = 4 clauses, we factor each disjunction into a
+% helper predicate (the residence-or-service condition; the intention
+% condition), each defined by two single-disjunct clauses, then state one main
+% rule. This keeps precedence unambiguous (gotcha #6).
+
+the target language is: prolog.
+
+the templates are:
+*a person* fulfils the requirements of schedule 1 for naturalisation by 6.1.
+*a person* satisfies the residence-or-service condition.
+*a person* satisfies the intention condition.
+*a person* fulfils the residency requirements.
+*a person* fulfils the crown service requirements.
+*a person* is of good character.
+*a person* has sufficient knowledge of english.
+*a person* has sufficient knowledge about life in the uk.
+*a person* intends to make his principal home in the uk.
+*a person* intends to continue in crown service.
+
+the knowledge base naturalisation includes:
+
+a person fulfils the requirements of schedule 1 for naturalisation by 6.1
+    if the person satisfies the residence-or-service condition
+    and the person is of good character
+    and the person has sufficient knowledge of english
+    and the person has sufficient knowledge about life in the uk
+    and the person satisfies the intention condition.
+
+a person satisfies the residence-or-service condition
+    if the person fulfils the residency requirements.
+
+a person satisfies the residence-or-service condition
+    if the person fulfils the crown service requirements.
+
+a person satisfies the intention condition
+    if the person intends to make his principal home in the uk.
+
+a person satisfies the intention condition
+    if the person intends to continue in crown service.
+
+scenario alice is:
+    alice fulfils the residency requirements.
+    alice is of good character.
+    alice has sufficient knowledge of english.
+    alice has sufficient knowledge about life in the uk.
+    alice intends to make his principal home in the uk.
+    fulfilment expects answers ["alice fulfils the requirements of schedule 1 for naturalisation by 6.1"].
+
+% bob is missing good character -> does not fulfil.
+scenario bob is:
+    bob fulfils the residency requirements.
+    bob has sufficient knowledge of english.
+    bob has sufficient knowledge about life in the uk.
+    bob intends to make his principal home in the uk.
+    fulfilment expects answers [].
+
+% carol qualifies via the crown-service path on both disjunctions.
+scenario carol is:
+    carol fulfils the crown service requirements.
+    carol is of good character.
+    carol has sufficient knowledge of english.
+    carol has sufficient knowledge about life in the uk.
+    carol intends to continue in crown service.
+    fulfilment expects answers ["carol fulfils the requirements of schedule 1 for naturalisation by 6.1"].
+
+query fulfilment is:
+    which person fulfils the requirements of schedule 1 for naturalisation by 6.1.
