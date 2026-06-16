@@ -1636,13 +1636,29 @@ find_word_after(W, [_|Words], Rest) :- find_word_after(W, Words, Rest).
 
 % Simple Expression Parser
 parse_expression(Parts, VMIn, VMOut, Templates, Expr, AllowVars) :-
-    % Optimization: only try parsing as expression if it looks like one
-    (   member(Part, Parts), (Part = punct(Op, _) ; Part = punctuation(Op, _)), member(Op, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!=']) ->  
+    % Optimization: only try parsing as expression if it looks like one — it
+    % contains an arithmetic operator, or a known arithmetic function (so a bare
+    % "ceiling(...)" without a surrounding operator is still recognised).
+    (   (   member(Part, Parts), (Part = punct(Op, _) ; Part = punctuation(Op, _)), member(Op, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!='])
+        ;   member(FPart, Parts), (FPart = word(Fn, _) ; FPart = word(Fn)), is_arith_function(Fn)
+        ) ->
             exclude(is_indent_or_comment, Parts, CleanParts),
             maplist(part_to_token, CleanParts, Tokens),
             phrase(expr_logic(Expr, VMIn, VMOut, Templates, AllowVars), Tokens)
         ; fail
     ).
+
+% Unary arithmetic functions that may appear in an expression, applied to a
+% parenthesised argument, e.g. "ceiling(the amount / a multiple)". They are
+% evaluated by Prolog's is/2 at solve time (see le_is in the reasoner).
+is_arith_function(ceiling).
+is_arith_function(floor).
+is_arith_function(round).
+is_arith_function(truncate).
+is_arith_function(integer).
+is_arith_function(abs).
+is_arith_function(sign).
+is_arith_function(sqrt).
 
 is_indent_or_comment(indent(_, _)).
 is_indent_or_comment(line_comment(_, _)).
@@ -1690,8 +1706,14 @@ term_tail(T, T, VM, VM, _, _) --> [].
 
 % factor_logic(Factor, ...) parses an arithmetic factor (parenthesized expression, variable, or number).
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [punctuation('(', _)], expr_logic(F, VMIn, VMOut, Ts, AllowVars), [punctuation(')', _)].
+% Unary function application: a function name followed by its parenthesised
+% argument, which is either a pre-grouped expr(...) token or explicit "( ... )".
+factor_logic(F, VMIn, VMOut, Ts, AllowVars) -->
+    [word(Fn, _)], { is_arith_function(Fn) },
+    function_arg(Arg, VMIn, VMOut, Ts, AllowVars),
+    { F =.. [Fn, Arg] }.
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [expr(E)], { parse_expression(E, VMIn, VMOut, Ts, F, AllowVars) }.
-factor_logic(V, VMIn, VMOut, _, true) --> 
+factor_logic(V, VMIn, VMOut, _, true) -->
     multi_word_var(Words),
     { Words \== [],
       (   extract_var_name(Words, Name) 
@@ -1704,6 +1726,13 @@ factor_logic(V, VMIn, VMOut, _, true) -->
 factor_logic(W, VM, VM, _, false) --> [word(W, _)], { is_proper_name_atom(W) }.
 factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 factor_logic(_, VM, VM, _, _) --> [_], { fail }.
+
+% function_arg(Arg, ...) parses the parenthesised argument of a unary function,
+% accepting either a pre-grouped expr(...) token or explicit "( ... )".
+function_arg(Arg, VMIn, VMOut, Ts, AllowVars) -->
+    [expr(E)], !, { parse_expression(E, VMIn, VMOut, Ts, Arg, AllowVars) }.
+function_arg(Arg, VMIn, VMOut, Ts, AllowVars) -->
+    [punctuation('(', _)], expr_logic(Arg, VMIn, VMOut, Ts, AllowVars), [punctuation(')', _)].
 
 member_var_name(Name, V, VM) :-
     normalize_var_name(Name, Norm),
