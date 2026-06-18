@@ -1635,6 +1635,30 @@ Read docs/RK_book/bookExamples.md and vibe code into Logical English all the exa
   - Mutual recursion among head predicates can block enumeration under open queries (split holds vs has).
   - _ is killed / _ is distracted collide with system templates (renamed to is destroyed / has been distracted).
 
+## forall explanations
+Now we need an improvement of forall(...) explanations. In examples/moreExamples/subset.le, query subset on scenario facts has second answer "family two is a subset of family one", which is correct, but it has this explanation:
+
+family two is a subset of family one
+  family two is a set
+  family one is a set
+  for all cases in which
+    Alice belongs to family two
+    it is the case that
+      a thing belongs to family one
+
+...which mixes a specific condition (Alice belongs to family two) with a more general statement (a thing belongs to family one). This is confusing. We would like to have instead something like:
+
+family two is a subset of family one
+  family two is a set
+  family one is a set
+  for all cases in which a thing belongs to family two
+    for case Alice belongs to family two
+    it is true that Alice belongs to family one
+    % for some other case...
+    % it is true that ... some other second conditiom
+    % etc
+      
+In this example there is only one case (Alice), but other forall constructs may have several cases, originating more 'for..'/'it is true that..' pairs (which of course may have subtrees), as shown in comments above
 
 
 ## TBD

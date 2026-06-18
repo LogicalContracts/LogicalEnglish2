@@ -909,6 +909,16 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ( item_to_instance(KBmodule, Cond, CondLE) ->
             WordsAndVars = [for, all, cases, in, which | CondLE]
         ; WordsAndVars = [for, all, cases, in, which, Cond])
+    ;   % One universal case: the instantiated condition being considered.
+        Head = for_case(Cond) ->
+        ( item_to_instance(KBmodule, Cond, CondLE) ->
+            WordsAndVars = [for, case | CondLE]
+        ; WordsAndVars = [for, case, Cond])
+    ;   % One universal case: the consequent that holds for that case.
+        Head = it_is_true_that(Cons) ->
+        ( item_to_instance(KBmodule, Cons, ConsLE) ->
+            WordsAndVars = [it, is, true, that | ConsLE]
+        ; WordsAndVars = [it, is, true, that, Cons])
     ;   Head == it_is_the_case ->
         WordsAndVars = [it, is, the, case, that]
     ;   Head = and(A, B) -> 
