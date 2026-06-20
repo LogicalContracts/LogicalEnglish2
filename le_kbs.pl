@@ -929,6 +929,13 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) -> 
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
+    ;   % A "defines global" template's goal renders by its global name, e.g.
+        % "the period of insurance is 123" rather than "our period of insurance
+        % is 123" — matching how the global reads at its use sites.
+        Head =.. [Functor, Value],
+        global_template_name(KBmodule, Functor, GlobalName) ->
+        maybe_transform_value(KBmodule, Value, ValueI),
+        flatten([GlobalName, is, ValueI], WordsAndVars)
     ;   copy_term(Head, HeadCopy),
         (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args],
             check_types(NTs)
@@ -938,6 +945,12 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
     ).
+
+% global_template_name(+KBmodule, +Functor, -GlobalName): the (first) global name
+% declared with "defines global" for the template whose predicate is Functor.
+global_template_name(KBmodule, Functor, GlobalName) :-
+    KBmodule:le_dict(dict([Functor|_], _, _, Globals, _, _, _)),
+    is_list(Globals), Globals = [GlobalName|_].
 
 check_types([]).
 check_types([Var-Type|NTs]) :-
