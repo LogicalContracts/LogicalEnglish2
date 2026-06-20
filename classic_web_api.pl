@@ -1062,7 +1062,11 @@ find_clause_at_pos(KB, Pos, Clause) :-
 is_interesting_term(Head) :-
     functor(Head, F, N),
     (   \+ le_kbs:is_system_predicate(F/N)
-    ;   member(F/N, [le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3, le_expected/3])
+    %   is_a/2 is a system predicate, but is-a facts and rules (ontology
+    %   statements, and rule heads that the generic "*X* is a *Y*" template
+    %   produced) are genuine user clauses: show them rather than falling through
+    %   to the enclosing le_kb/1 fact, whose range spans the whole knowledge base.
+    ;   member(F/N, [is_a/2, le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3, le_expected/3])
     ).
 handle_source(Request) :-
     member(path(Path), Request),
