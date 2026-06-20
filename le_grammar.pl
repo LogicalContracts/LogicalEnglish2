@@ -1372,6 +1372,18 @@ second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Sta
         NewBody = true
     ).
 
+% is_global_extra_goal(+Templates, +Goal) is semidet.
+%
+%   True when Goal was introduced by a "defines global" abbreviation: its functor
+%   is the head of a template that declares a (non-empty) global. Such goals bind
+%   the global's value and so are placed before the literal that uses them, unlike
+%   prepositional extra goals which constrain a variable the literal introduces.
+is_global_extra_goal(Templates, Goal) :-
+    callable(Goal),
+    functor(Goal, F, _),
+    member(dict([F|_], _, _, _, _, _, Globals, _, _, _), Templates),
+    is_list(Globals), Globals \== [], !.
+
 collect_extra_goals(VM, Goals) :-
     collect_extra_goals_acc(VM, Goals).
 
@@ -1975,10 +1987,17 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             Logic0 =.. [Op, [each|ElementList], Goal, ResultList],
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
-        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->  
+        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->
             collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals),
-            (   LiteralExtraGoals == [] -> Logic0 = Literal
-            ;   list_to_conj([Literal | LiteralExtraGoals], Logic0)
+            % A global ("defines global") abbreviation contributes a goal that
+            % BINDS the global's variable, so it must run immediately BEFORE the
+            % literal that uses it. Prepositional extra goals instead further
+            % constrain a variable the literal itself introduces, so they stay
+            % AFTER it (preserving the previous behaviour for them).
+            partition(is_global_extra_goal(Templates), LiteralExtraGoals, GlobalGoals, OtherGoals),
+            append(GlobalGoals, [Literal | OtherGoals], OrderedGoals),
+            (   OrderedGoals = [SingleGoal] -> Logic0 = SingleGoal
+            ;   list_to_conj(OrderedGoals, Logic0)
             ),
             length(LiteralExtraGoals, NumNew),
             remove_leading_extra_goals(VM1, NumNew, VM2),
