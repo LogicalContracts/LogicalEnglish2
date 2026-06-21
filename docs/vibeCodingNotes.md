@@ -1660,5 +1660,7 @@ family two is a subset of family one
       
 In this example there is only one case (Alice), but other forall constructs may have several cases, originating more 'for..'/'it is true that..' pairs (which of course may have subtrees), as shown in comments above
 
+## quotes in templates
+We need to allow single quotes in templates, as in "the limit of indemnity for employers' liability is *an amount*". Tolerate only a single occurrence per template (or template instance), as multiple occurrences would be ambiguous versus string constants. Come up with a simple example for testing and implement this.
 
 ## TBD

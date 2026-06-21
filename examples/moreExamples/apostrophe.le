@@ -1,0 +1,26 @@
+the target language is: prolog.
+
+% Demonstrates that a single apostrophe is allowed inside a template (e.g. the
+% possessive "employers'"). A lone apostrophe attaches to its word; a balanced
+% pair of single quotes still delimits a string constant, so the two do not clash.
+
+the templates are:
+the limit of indemnity for employers' liability is *an amount*.
+*a policy* covers employers' liability.
+
+the knowledge base cover includes:
+
+a policy covers employers' liability
+    if the limit of indemnity for employers' liability is an amount
+    and the amount >= 1,000,000.
+
+scenario one is:
+    the limit of indemnity for employers' liability is 10,000,000.
+    one expects answers ["the limit of indemnity for employers' liability is 10000000"].
+    two expects answers ["this policy covers employers' liability"].
+
+query one is:
+    the limit of indemnity for employers' liability is which amount.
+
+query two is:
+    this policy covers employers' liability.
