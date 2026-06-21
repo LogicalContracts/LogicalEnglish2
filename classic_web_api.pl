@@ -1054,15 +1054,42 @@ find_clause_at_pos(KB, Pos, Clause) :-
     sort(Ranges, SortedRanges),
     member(range(_, Ref), SortedRanges),
     clause(KB:Head, Body, Ref),
-    (   is_interesting_term(Head)
+    (   Head = scenario(Name, Facts)
+    ->  % Show just the scenario fact under the cursor rather than dumping the
+        % whole fact list. Fall back to the whole (source-stripped) scenario when
+        % the cursor is on the header/expectation, not on a specific fact.
+        (   scenario_fact_at_pos(Facts, Pos, Clause)
+        ;   strip_fact_sources(Facts, PlainFacts), Clause = scenario(Name, PlainFacts)
+        ),
+        !
+    ;   is_interesting_term(Head)
     ->  ( Body == true -> Clause = Head; Clause = (Head :- Body)),
         !
     ).
 
+% scenario_fact_at_pos(+Facts, +Pos, -Fact): the single scenario fact whose source
+% range encloses Pos (the smallest one, should ranges ever overlap).
+scenario_fact_at_pos(Facts, Pos, Fact) :-
+    findall(Len-F,
+            ( member(fact_with_source(F, S, E), Facts), S =< Pos, Pos =< E, Len is E - S ),
+            Pairs),
+    Pairs \== [],
+    keysort(Pairs, [_-Fact|_]).
+
+% strip_fact_sources(+Facts, -PlainFacts): drop the fact_with_source/3 wrappers so
+% a scenario renders as a clean list of fact terms.
+strip_fact_sources([], []).
+strip_fact_sources([fact_with_source(F, _, _)|T], [F|T2]) :- !, strip_fact_sources(T, T2).
+strip_fact_sources([F|T], [F|T2]) :- strip_fact_sources(T, T2).
+
 is_interesting_term(Head) :-
     functor(Head, F, N),
     (   \+ le_kbs:is_system_predicate(F/N)
-    ;   member(F/N, [le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3, le_expected/3])
+    %   is_a/2 is a system predicate, but is-a facts and rules (ontology
+    %   statements, and rule heads that the generic "*X* is a *Y*" template
+    %   produced) are genuine user clauses: show them rather than falling through
+    %   to the enclosing le_kb/1 fact, whose range spans the whole knowledge base.
+    ;   member(F/N, [is_a/2, le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3, le_expected/3])
     ).
 handle_source(Request) :-
     member(path(Path), Request),

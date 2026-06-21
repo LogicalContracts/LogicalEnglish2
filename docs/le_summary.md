@@ -178,7 +178,9 @@ In an explanation tree, a type check renders like the assertion it verifies, e.g
 
 ## 7. Arithmetic and Comparisons
 - **Math:** `+`, `-`, `*`, `/`, `( )`
+- **Functions:** the unary arithmetic functions `ceiling`, `floor`, `round`, `truncate`, `integer`, `abs`, `sign`, `sqrt` may be applied to a parenthesised argument, e.g. `the result is the multiple * ceiling(the amount / the multiple)`. They are evaluated by Prolog's `is/2` at solve time.
 - **Comparison:** `=`, `>`, `<`, `>=`, `<=`, `==`, `!=`
+- **Variable names in expressions:** a bare word used in an arithmetic expression is recognised as a variable only if it is an **id** (a single uppercase letter, or a short ALL-CAPS token — see §6.1), e.g. `ENT = ETI * ATR - TO`. A descriptive lower-/mixed-case word like `amount` or `exposure` is treated as part of a *type*, not a variable name, so it will not co-refer with a head variable inside an expression. Use ids (e.g. `EXP`, `IAOR`, `A`) for variables that participate in arithmetic.
 - **System Templates:**
   - `*V1* is equal to *V2*`
   - `*V1* is greater than or equal to *V2*` (for numbers)

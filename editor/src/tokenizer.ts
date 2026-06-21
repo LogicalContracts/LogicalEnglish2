@@ -15,6 +15,13 @@ export interface Token {
     end: number;
 }
 
+// The index of the end of the line containing position `from` (the next newline,
+// or the text length if there is none).
+function lineEndFrom(text: string, from: number): number {
+    const nl = text.indexOf('\n', from);
+    return nl === -1 ? text.length : nl;
+}
+
 export function tokenize(text: string): Token[] {
     const tokens: Token[] = [];
     let i = 0;
@@ -94,10 +101,9 @@ export function tokenize(text: string): Token[] {
             continue;
         }
 
-        // Quoted String
-        if (char === '"' || char === "'") {
-            const quote = char;
-            let endIdx = text.indexOf(quote, i + 1);
+        // Double-quoted String
+        if (char === '"') {
+            const endIdx = text.indexOf('"', i + 1);
             if (endIdx !== -1) {
                 const content = text.substring(i + 1, endIdx);
                 tokens.push({ type: TokenType.String, value: content, start, end: endIdx + 1 });
@@ -107,6 +113,21 @@ export function tokenize(text: string): Token[] {
                 i = text.length;
             }
             continue;
+        }
+
+        // Single-quoted String. A single quote opens a string only when it has a
+        // matching quote later on the SAME line; otherwise it is a lone apostrophe
+        // (e.g. "employers'", "don't") and we fall through so the word rule can
+        // absorb it. Mirrors the Prolog tokenizer.
+        if (char === "'") {
+            const endIdx = text.indexOf("'", i + 1);
+            if (endIdx !== -1 && endIdx < lineEndFrom(text, i)) {
+                const content = text.substring(i + 1, endIdx);
+                tokens.push({ type: TokenType.String, value: content, start, end: endIdx + 1 });
+                i = endIdx + 1;
+                continue;
+            }
+            // else: lone apostrophe — fall through
         }
 
         // Number, with optional thousands separators (e.g. 10,000,000).
@@ -120,11 +141,23 @@ export function tokenize(text: string): Token[] {
             continue;
         }
 
-        // Word
+        // Word. May contain a single apostrophe (e.g. "employers'", "don't") when
+        // that apostrophe is lone — no matching quote before the end of the line —
+        // so it does not start a string. Mirrors the Prolog tokenizer.
         const wordMatch = text.substring(i).match(/^[a-zA-Z][a-zA-Z0-9_]*/);
         if (wordMatch) {
-            tokens.push({ type: TokenType.Word, value: wordMatch[0], start, end: i + wordMatch[0].length });
-            i += wordMatch[0].length;
+            let end = i + wordMatch[0].length;
+            if (text[end] === "'") {
+                const nextQuote = text.indexOf("'", end + 1);
+                const lineEnd = lineEndFrom(text, end);
+                if (nextQuote === -1 || nextQuote >= lineEnd) {
+                    end++; // absorb the lone apostrophe
+                    const tail = text.substring(end).match(/^[a-zA-Z0-9_]*/);
+                    if (tail) end += tail[0].length;
+                }
+            }
+            tokens.push({ type: TokenType.Word, value: text.substring(i, end), start, end });
+            i = end;
             continue;
         }
 
