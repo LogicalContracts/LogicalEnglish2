@@ -173,6 +173,28 @@ section(kb(Name, Content, Start, End)) -->
     kb_content(Content, End),
     { ( le_kbs:do_log -> print_message(informational,'Finished KB (contract): ~w~n' - [Name]); true) }.
 
+% A misplaced expectation: an "expects answers [...]" line prefixed with a section
+% keyword such as 'query', e.g. "query one expects answers [...]" written inside a
+% scenario. Tried before the scenario/query section rules so it is reported as a
+% clear syntactic error instead of silently starting a bogus query section that
+% swallows the real queries.
+section(misplaced_expectation(Start, End)) -->
+    any_indent, t(word(Kw, loc(Start, _))), { member(Kw, [query, scenario]) },
+    section_name_tokens(NameTokens),
+    t(word(expects)), t(word(answers)),
+    t(punctuation('[')), list_elements(_), t(punctuation(']')),
+    (   t(word(and)), t(word(unknowns)), t(punctuation('[')), list_elements(_), t(punctuation(']')) -> [] ; [] ),
+    (   any_indent, t(punctuation('.', loc(_, End))) -> [] ; { get_token_pos(End) } ),
+    {   reconstruct_name(NameTokens, Name),
+        format(atom(Desc),
+            "Misplaced '~w' before an expectation. An expectation belongs to a scenario; write \"~w expects answers [...]\" without the leading '~w'.",
+            [Kw, Name, Kw]),
+        format(atom(Fix), "Remove the leading '~w' from this line.", [Kw]),
+        ( le_kbs:current_compiling_module(M), nonvar(M)
+          -> assertz(M:le_issue(error, misplaced_expectation, Desc, Fix, Start, End))
+          ;  true )
+    }.
+
 % section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
     any_indent, t(word(scenario, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
@@ -236,10 +258,16 @@ kb_name_tokens_contract([T|Ts]) -->
     kb_name_tokens_contract(Ts).
 kb_name_tokens_contract([]) --> [].
 
-% section_name_tokens(Tokens) consumes tokens until 'is' or ':'.
+% section_name_tokens(Tokens) consumes tokens forming a scenario/query name. It
+% stops at 'is'/':' (the header terminator) and also at 'expects' or '.', which a
+% name never legitimately contains — without those guards a malformed expectation
+% prefixed with a section keyword (e.g. "query one expects answers [...]") would
+% greedily swallow the rest of the document, including the real queries.
 section_name_tokens([T|Ts]) -->
     \+ t(word(is)),
     \+ t(punctuation(':', _)),
+    \+ t(word(expects)),
+    \+ t(punctuation('.', _)),
     t(T), !,
     section_name_tokens(Ts).
 section_name_tokens([]) --> [].

@@ -274,6 +274,10 @@ process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assert_dict_w
 process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(meta(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 
+% A misplaced expectation (e.g. "query one expects answers [...]"): the syntactic
+% error was already recorded by the grammar during parsing, so nothing more to do.
+process_section_acc(misplaced_expectation(_Start, _End), _M).
+
 process_section_acc(unknown_section(Tokens, Start, End), M) :-
     le_grammar:reconstruct_name(Tokens, FullName),
     ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
