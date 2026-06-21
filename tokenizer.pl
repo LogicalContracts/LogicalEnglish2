@@ -235,7 +235,28 @@ white_prefix(VW, CC) --> [C], { code_type(C, white), C \== 10, C \== 13 }, !,
 white_prefix(0, 0) --> [].
 
 word_remainder([C|Cs]) --> [C], { code_type(C, csym) }, !, word_remainder(Cs).
+% A lone apostrophe (no matching quote before the end of the line) attaches to the
+% word, so templates may contain possessives/contractions, e.g. "employers'",
+% "don't". At most one apostrophe per word; a quote that has a partner ahead on
+% the line is left alone, so it still opens a string constant. (Code 39 = ').
+word_remainder([39|Cs]) -->
+    [39], peek_rest(After), { \+ quote_before_eol(After) }, !,
+    word_remainder_no_quote(Cs).
 word_remainder([])     --> [].
+
+% Like word_remainder, but never absorbs a further apostrophe: this caps a word at
+% a single apostrophe, keeping a second quote available to delimit a string.
+word_remainder_no_quote([C|Cs]) --> [C], { code_type(C, csym) }, !, word_remainder_no_quote(Cs).
+word_remainder_no_quote([])     --> [].
+
+% Lookahead: unify Rest with the remaining input without consuming anything.
+peek_rest(Rest, Rest, Rest).
+
+% True if a single quote occurs in Codes before the end of the current line.
+quote_before_eol([39|_]) :- !.
+quote_before_eol([10|_]) :- !, fail.
+quote_before_eol([13|_]) :- !, fail.
+quote_before_eol([_|Cs]) :- quote_before_eol(Cs).
 
 spaces(N) --> {nonvar(N), N>0, N1 is N-1}, " ", !, spaces(N1).
 spaces(N) --> {var(N)}, " ", !, spaces(N1), { N is N1 + 1 }.

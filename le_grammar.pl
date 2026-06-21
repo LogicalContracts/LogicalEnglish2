@@ -173,6 +173,28 @@ section(kb(Name, Content, Start, End)) -->
     kb_content(Content, End),
     { ( le_kbs:do_log -> print_message(informational,'Finished KB (contract): ~w~n' - [Name]); true) }.
 
+% A misplaced expectation: an "expects answers [...]" line prefixed with a section
+% keyword such as 'query', e.g. "query one expects answers [...]" written inside a
+% scenario. Tried before the scenario/query section rules so it is reported as a
+% clear syntactic error instead of silently starting a bogus query section that
+% swallows the real queries.
+section(misplaced_expectation(Start, End)) -->
+    any_indent, t(word(Kw, loc(Start, _))), { member(Kw, [query, scenario]) },
+    section_name_tokens(NameTokens),
+    t(word(expects)), t(word(answers)),
+    t(punctuation('[')), list_elements(_), t(punctuation(']')),
+    (   t(word(and)), t(word(unknowns)), t(punctuation('[')), list_elements(_), t(punctuation(']')) -> [] ; [] ),
+    (   any_indent, t(punctuation('.', loc(_, End))) -> [] ; { get_token_pos(End) } ),
+    {   reconstruct_name(NameTokens, Name),
+        format(atom(Desc),
+            "Misplaced '~w' before an expectation. An expectation belongs to a scenario; write \"~w expects answers [...]\" without the leading '~w'.",
+            [Kw, Name, Kw]),
+        format(atom(Fix), "Remove the leading '~w' from this line.", [Kw]),
+        ( le_kbs:current_compiling_module(M), nonvar(M)
+          -> assertz(M:le_issue(error, misplaced_expectation, Desc, Fix, Start, End))
+          ;  true )
+    }.
+
 % section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
     any_indent, t(word(scenario, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
@@ -236,10 +258,16 @@ kb_name_tokens_contract([T|Ts]) -->
     kb_name_tokens_contract(Ts).
 kb_name_tokens_contract([]) --> [].
 
-% section_name_tokens(Tokens) consumes tokens until 'is' or ':'.
+% section_name_tokens(Tokens) consumes tokens forming a scenario/query name. It
+% stops at 'is'/':' (the header terminator) and also at 'expects' or '.', which a
+% name never legitimately contains — without those guards a malformed expectation
+% prefixed with a section keyword (e.g. "query one expects answers [...]") would
+% greedily swallow the rest of the document, including the real queries.
 section_name_tokens([T|Ts]) -->
     \+ t(word(is)),
     \+ t(punctuation(':', _)),
+    \+ t(word(expects)),
+    \+ t(punctuation('.', _)),
     t(T), !,
     section_name_tokens(Ts).
 section_name_tokens([]) --> [].
@@ -1372,6 +1400,18 @@ second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Sta
         NewBody = true
     ).
 
+% is_global_extra_goal(+Templates, +Goal) is semidet.
+%
+%   True when Goal was introduced by a "defines global" abbreviation: its functor
+%   is the head of a template that declares a (non-empty) global. Such goals bind
+%   the global's value and so are placed before the literal that uses them, unlike
+%   prepositional extra goals which constrain a variable the literal introduces.
+is_global_extra_goal(Templates, Goal) :-
+    callable(Goal),
+    functor(Goal, F, _),
+    member(dict([F|_], _, _, _, _, _, Globals, _, _, _), Templates),
+    is_list(Globals), Globals \== [], !.
+
 collect_extra_goals(VM, Goals) :-
     collect_extra_goals_acc(VM, Goals).
 
@@ -1636,13 +1676,29 @@ find_word_after(W, [_|Words], Rest) :- find_word_after(W, Words, Rest).
 
 % Simple Expression Parser
 parse_expression(Parts, VMIn, VMOut, Templates, Expr, AllowVars) :-
-    % Optimization: only try parsing as expression if it looks like one
-    (   member(Part, Parts), (Part = punct(Op, _) ; Part = punctuation(Op, _)), member(Op, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!=']) ->  
+    % Optimization: only try parsing as expression if it looks like one — it
+    % contains an arithmetic operator, or a known arithmetic function (so a bare
+    % "ceiling(...)" without a surrounding operator is still recognised).
+    (   (   member(Part, Parts), (Part = punct(Op, _) ; Part = punctuation(Op, _)), member(Op, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!='])
+        ;   member(FPart, Parts), (FPart = word(Fn, _) ; FPart = word(Fn)), is_arith_function(Fn)
+        ) ->
             exclude(is_indent_or_comment, Parts, CleanParts),
             maplist(part_to_token, CleanParts, Tokens),
             phrase(expr_logic(Expr, VMIn, VMOut, Templates, AllowVars), Tokens)
         ; fail
     ).
+
+% Unary arithmetic functions that may appear in an expression, applied to a
+% parenthesised argument, e.g. "ceiling(the amount / a multiple)". They are
+% evaluated by Prolog's is/2 at solve time (see le_is in the reasoner).
+is_arith_function(ceiling).
+is_arith_function(floor).
+is_arith_function(round).
+is_arith_function(truncate).
+is_arith_function(integer).
+is_arith_function(abs).
+is_arith_function(sign).
+is_arith_function(sqrt).
 
 is_indent_or_comment(indent(_, _)).
 is_indent_or_comment(line_comment(_, _)).
@@ -1690,8 +1746,14 @@ term_tail(T, T, VM, VM, _, _) --> [].
 
 % factor_logic(Factor, ...) parses an arithmetic factor (parenthesized expression, variable, or number).
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [punctuation('(', _)], expr_logic(F, VMIn, VMOut, Ts, AllowVars), [punctuation(')', _)].
+% Unary function application: a function name followed by its parenthesised
+% argument, which is either a pre-grouped expr(...) token or explicit "( ... )".
+factor_logic(F, VMIn, VMOut, Ts, AllowVars) -->
+    [word(Fn, _)], { is_arith_function(Fn) },
+    function_arg(Arg, VMIn, VMOut, Ts, AllowVars),
+    { F =.. [Fn, Arg] }.
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [expr(E)], { parse_expression(E, VMIn, VMOut, Ts, F, AllowVars) }.
-factor_logic(V, VMIn, VMOut, _, true) --> 
+factor_logic(V, VMIn, VMOut, _, true) -->
     multi_word_var(Words),
     { Words \== [],
       (   extract_var_name(Words, Name) 
@@ -1704,6 +1766,13 @@ factor_logic(V, VMIn, VMOut, _, true) -->
 factor_logic(W, VM, VM, _, false) --> [word(W, _)], { is_proper_name_atom(W) }.
 factor_logic(N, VM, VM, _, _) --> [number(N, _)].
 factor_logic(_, VM, VM, _, _) --> [_], { fail }.
+
+% function_arg(Arg, ...) parses the parenthesised argument of a unary function,
+% accepting either a pre-grouped expr(...) token or explicit "( ... )".
+function_arg(Arg, VMIn, VMOut, Ts, AllowVars) -->
+    [expr(E)], !, { parse_expression(E, VMIn, VMOut, Ts, Arg, AllowVars) }.
+function_arg(Arg, VMIn, VMOut, Ts, AllowVars) -->
+    [punctuation('(', _)], expr_logic(Arg, VMIn, VMOut, Ts, AllowVars), [punctuation(')', _)].
 
 member_var_name(Name, V, VM) :-
     normalize_var_name(Name, Norm),
@@ -1946,10 +2015,17 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             Logic0 =.. [Op, [each|ElementList], Goal, ResultList],
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
-        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->  
+        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->
             collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals),
-            (   LiteralExtraGoals == [] -> Logic0 = Literal
-            ;   list_to_conj([Literal | LiteralExtraGoals], Logic0)
+            % A global ("defines global") abbreviation contributes a goal that
+            % BINDS the global's variable, so it must run immediately BEFORE the
+            % literal that uses it. Prepositional extra goals instead further
+            % constrain a variable the literal itself introduces, so they stay
+            % AFTER it (preserving the previous behaviour for them).
+            partition(is_global_extra_goal(Templates), LiteralExtraGoals, GlobalGoals, OtherGoals),
+            append(GlobalGoals, [Literal | OtherGoals], OrderedGoals),
+            (   OrderedGoals = [SingleGoal] -> Logic0 = SingleGoal
+            ;   list_to_conj(OrderedGoals, Logic0)
             ),
             length(LiteralExtraGoals, NumNew),
             remove_leading_extra_goals(VM1, NumNew, VM2),

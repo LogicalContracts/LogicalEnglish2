@@ -7843,8 +7843,10 @@ var leMonarchTokens = {
       [/\b[A-Z][A-Z0-9_]*\b/, "variable"],
       // Variables in *...*
       [/\*[^*]+\*/, "variable"],
-      // Catch-all for words to prevent partial keyword matching
-      [/[a-zA-Z_]\w*/, "text"],
+      // Catch-all for words to prevent partial keyword matching. A word may
+      // include a single apostrophe (e.g. "employers'", "don't") so a lone
+      // apostrophe does not start a string and mis-colour the rest of the line.
+      [/[a-zA-Z_]\w*(?:'\w*)?/, "text"],
       // Strings
       [/"([^"\\]|\\.)*$/, "string.invalid"],
       // non-teminated string
@@ -7876,7 +7878,7 @@ var leMonarchTokens = {
       [/\/\*/, "comment", "@comment"],
       [/[.,;]/, "delimiter"],
       [/\b(is|are|has|have|was|were|been|does|do|did)\b/, "text"],
-      [/[a-zA-Z_]\w*/, "text"],
+      [/[a-zA-Z_]\w*(?:'\w*)?/, "text"],
       [/./, "text"]
     ],
     comment: [

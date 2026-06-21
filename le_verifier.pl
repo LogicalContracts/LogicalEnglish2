@@ -18,6 +18,7 @@ verify(KB, Issues) :-
 
 check_issue(KB, Issue) :- missing_template(KB, Issue).
 check_issue(KB, Issue) :- undefined_predicate(KB, Issue).
+check_issue(KB, Issue) :- suspicious_is_a(KB, Issue).
 check_issue(KB, Issue) :- defined_scenario_element(KB, Issue).
 check_issue(KB, Issue) :- untested_predicate(KB, Issue).
 check_issue(KB, Issue) :- rule_without_variables(KB, Issue).
@@ -101,6 +102,41 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     format(atom(Description), "Undefined predicate '~w/~w'", [FL, AL]),
     Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% --- 2a. Suspicious "is a" (predicate absorbed into a constant type) ---
+% The generic "*X* is a *Y*" template matches almost any "... is ..." sentence,
+% greedily absorbing everything after "is" into the constant type Y. So a rule
+% head or condition whose intended template was never declared (e.g. "a vehicle
+% is allowed to park in a parking zone at a time") parses silently into a bogus
+% is_a(_, 'allowed to park in a parking zone at a time') instead of being flagged
+% as a missing template. We detect the tell-tale sign: an is-a literal whose type
+% is a multi-word *constant* containing connective words (articles, prepositions,
+% conjunctions) that no genuine type name would contain.
+suspicious_is_a(KB, issue(suspicious_is_a, Description, Fix, Start, End)) :-
+    current_predicate(KB:F/A),
+    functor(Head, F, A),
+    clause(KB:Head, Body, Ref),
+    ( Lit = Head ; find_in_body(Body, Lit) ),
+    nonvar(Lit), Lit = is_a(_, Type),
+    suspicious_type_phrase(Type, Phrase),
+    format(atom(Description),
+        "\"... is a ~w\" matches no declared template; it was read as a bare is-a statement with the constant type '~w'. A template was probably intended.",
+        [Phrase, Phrase]),
+    Fix = "Declare a template for this sentence, using *variables* for its arguments, instead of relying on the generic \"is a\" form.",
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% suspicious_type_phrase(+Type, -Phrase): Type is a constant (atom/string) made of
+% at least three words, one of which is a connective — i.e. it looks like an
+% absorbed predicate rather than a type name.
+suspicious_type_phrase(Type, Phrase) :-
+    ( atom(Type) -> Phrase = Type ; string(Type) -> atom_string(Phrase, Type) ; fail ),
+    atomic_list_concat(Words, ' ', Phrase),
+    length(Words, N), N >= 3,
+    member(W, Words), W \== '', downcase_atom(W, WL), connective_word(WL), !.
+
+connective_word(W) :-
+    memberchk(W, [a, an, the, in, on, at, to, from, of, by, for, with, between,
+                  and, or, is, are, was, were, that, than, as, into, over, under, within]).
 
 % --- 2b. Defined scenario element ---
 % Fires when a predicate declared 'undefined' (scenario element) has a fact or
@@ -347,8 +383,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact]) },
     [ '~w: ~w' - [Type, Msg] ].

@@ -1,7 +1,7 @@
 
 Test Summary:
 -------------
-Files processed: 84
+Files processed: 82
 Total tests:     274
 Passed:          274
 Failed:          0
@@ -16,6 +16,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/AItest.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/apostrophe.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
@@ -77,6 +78,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/rkBook/trolley_problem.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/underground_emergency.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/short/is_a_class_of.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/short/sets.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
@@ -86,12 +88,8 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion2.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath2.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypathcurrency1.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxsimple.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxsimple_no_unknowns.le: 0 Pass, 0 Fail, 0 Error
 -------------
 

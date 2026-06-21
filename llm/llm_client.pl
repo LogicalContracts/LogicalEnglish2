@@ -92,6 +92,7 @@ llm_model_entry('claude-haiku-4-5-20251001', anthropic, 'claude-haiku-4-5-202510
 % llm_model_entry('llama-3.1-405b',         together, 'meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo', 'https://api.together.xyz/v1').
 llm_model_entry('MiniMaxAI/MiniMax-M2.7',          together, 'MiniMaxAI/MiniMax-M2.7', 'https://api.together.xyz/v1').
 llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/DeepSeek-V4-Pro', 'https://api.together.xyz/v1').
+llm_model_entry('zai-org/GLM-5.2',          together, 'zai-org/GLM-5.2', 'https://api.together.xyz/v1').
 
 %% Google Gemini  (OpenAI-compatible endpoint) ──────────────────────
 % cf. https://ai.google.dev/gemini-api/docs/models

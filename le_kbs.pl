@@ -274,6 +274,10 @@ process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assert_dict_w
 process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(meta(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 
+% A misplaced expectation (e.g. "query one expects answers [...]"): the syntactic
+% error was already recorded by the grammar during parsing, so nothing more to do.
+process_section_acc(misplaced_expectation(_Start, _End), _M).
+
 process_section_acc(unknown_section(Tokens, Start, End), M) :-
     le_grammar:reconstruct_name(Tokens, FullName),
     ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
@@ -909,6 +913,16 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ( item_to_instance(KBmodule, Cond, CondLE) ->
             WordsAndVars = [for, all, cases, in, which | CondLE]
         ; WordsAndVars = [for, all, cases, in, which, Cond])
+    ;   % One universal case: the instantiated condition being considered.
+        Head = for_case(Cond) ->
+        ( item_to_instance(KBmodule, Cond, CondLE) ->
+            WordsAndVars = [for, case | CondLE]
+        ; WordsAndVars = [for, case, Cond])
+    ;   % One universal case: the consequent that holds for that case.
+        Head = it_is_true_that(Cons) ->
+        ( item_to_instance(KBmodule, Cons, ConsLE) ->
+            WordsAndVars = [it, is, true, that | ConsLE]
+        ; WordsAndVars = [it, is, true, that, Cons])
     ;   Head == it_is_the_case ->
         WordsAndVars = [it, is, the, case, that]
     ;   Head = and(A, B) -> 
@@ -919,6 +933,13 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) -> 
             append(ALE, [or | BLE], WordsAndVars)
         ; WordsAndVars = [A, or, B])
+    ;   % A "defines global" template's goal renders by its global name, e.g.
+        % "the period of insurance is 123" rather than "our period of insurance
+        % is 123" — matching how the global reads at its use sites.
+        Head =.. [Functor, Value],
+        global_template_name(KBmodule, Functor, GlobalName) ->
+        maybe_transform_value(KBmodule, Value, ValueI),
+        flatten([GlobalName, is, ValueI], WordsAndVars)
     ;   copy_term(Head, HeadCopy),
         (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args],
             check_types(NTs)
@@ -928,6 +949,12 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
     ).
+
+% global_template_name(+KBmodule, +Functor, -GlobalName): the (first) global name
+% declared with "defines global" for the template whose predicate is Functor.
+global_template_name(KBmodule, Functor, GlobalName) :-
+    KBmodule:le_dict(dict([Functor|_], _, _, Globals, _, _, _)),
+    is_list(Globals), Globals = [GlobalName|_].
 
 check_types([]).
 check_types([Var-Type|NTs]) :-

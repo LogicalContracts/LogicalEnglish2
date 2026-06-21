@@ -150,18 +150,27 @@ solve_real_actual(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggre
     Us = [],
     extract_var(ResultTerm, Result).
 % Forall
-% The explanation mirrors the LE surface syntax, with the condition and the
-% consequent as separate child branches:
-%   for all cases in which          (success node — the universal holds)
-%     <Cond>                        (its own branch; a FAILURE branch — red — when
-%                                     no cases match, i.e. the universal is vacuously true)
-%     it is the case that
-%       <Cons>
+% The explanation states the universal once in the header (with its quantified
+% variable free) and then enumerates the actual cases, pairing each instantiated
+% condition with the consequent that holds for it:
+%   for all cases in which <general Cond>   (success node — the universal holds)
+%     for case <Cond for case 1>            (with that case's own derivation)
+%     it is true that <Cons for case 1>     (with its derivation)
+%     for case <Cond for case 2>
+%     it is true that <Cons for case 2>
+%     ...
+% When no case matches, the universal is vacuously true and the single child is
+% the condition's FAILURE branch (red) instead.
 solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
-        [success(for_all_cases, universal, [CondWhy, ConsequentWhy])]) :- !,
+        [success(for_all_cases(GeneralCond), universal, CaseChildren)]) :- !,
     D1 is D + 1,
     next_id(CondID),
     assertz(called(MyID, CondID, Cond)),
+    % The condition with its universally-quantified variable(s) still free, for
+    % the header line "for all cases in which <general condition>" (e.g. "a thing
+    % belongs to family two"). Taken before the findall binds them per case.
+    copy_term(Cond, GeneralCond0),
+    unwrap_le_at(GeneralCond0, GeneralCond),
     % For every solution of the condition (WITH its bindings) the consequent must
     % hold for those same bindings. The consequent is solved INSIDE the findall
     % conjunction so that variables shared between Cond and Cons flow from each
@@ -169,31 +178,34 @@ solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
     % a findall over Cond alone, would lose those bindings and merely check that
     % the consequent holds for *some* value — a bug that wrongly made e.g. "family
     % one is a subset of family two" true when Bob ∈ family one but Bob ∉ family two.)
+    % Each ok case keeps the *instantiated* condition and consequent together with
+    % their derivations, so the explanation can pair them up per case.
     findall(Case,
         ( solve(Cond, SM, KM, Anc, D1, CondID, UsC, WhysCond),
           ( UsC == []
-            -> ( solve(Cons, SM, KM, Anc, D1, MyID, [], _) -> Case = ok(WhysCond) ; Case = consequent_failed )
-            ;  Case = unknown_condition(WhysCond)
+            -> ( solve(Cons, SM, KM, Anc, D1, MyID, [], WhysCons)
+                 -> Case = ok(Cond, WhysCond, Cons, WhysCons)
+                 ;  Case = consequent_failed )
+            ;  Case = unknown_condition(Cond, WhysCond)
           )
         ),
         Cases),
     (   Cases == [] ->
             % Vacuously true: no matching cases. Explain the condition's FAILURE
-            % so it renders as a (red) negative branch.
+            % so it renders as a (red) negative branch under the header.
             build_failure_tree(CondID, CondFailWhys),
-            ( CondFailWhys = [CondWhy] -> true ; CondWhy = failure(Cond, CondFailWhys) )
+            ( CondFailWhys = [CondWhy] -> true ; CondWhy = failure(Cond, CondFailWhys) ),
+            CaseChildren = [CondWhy]
         ;   \+ memberchk(consequent_failed, Cases) ->
-            % Consequent holds for every definite case: the universal holds.
-            ( member(ok(WhysCondOk), Cases) -> CaseWhys = WhysCondOk
-            ; Cases = [unknown_condition(CaseWhys)|_]
-            ),
-            ( CaseWhys = [CondWhy] -> true ; CondWhy = success(Cond, universal_condition, CaseWhys) )
+            % Consequent holds for every definite case: the universal holds. Render
+            % one "for case <condition>" / "it is true that <consequent>" pair per
+            % case (each carrying that instance's own derivation).
+            findall(Nodes, ( member(C, Cases), forall_case_nodes(C, Nodes) ), NodeLists),
+            append(NodeLists, CaseChildren)
         ;   % Some definite case's consequent failed: the universal fails.
             fail
     ),
-    Us = [], % TODO: handle unknowns in forall
-    ( Cons = le_at(ConsGoal, CS, CE) -> ConsRef = range(CS, CE) ; ConsGoal = Cons, ConsRef = universal_body ),
-    ConsequentWhy = success(it_is_the_case, universal_consequent, [success(ConsGoal, ConsRef, [])]).
+    Us = []. % TODO: handle unknowns in forall
 
 % Negation as Failure
 solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, FailureTrees)]) :- !,
@@ -284,7 +296,30 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             Us = [G], WhysBody = [], Ref = unknown
     ).
 
+% forall_case_nodes(+Case, -Nodes): explanation nodes for one universal case — a
+% "for case <condition>" node, and (when the condition is definite) an "it is true
+% that <consequent>" node, each carrying that instance's derivation.
+forall_case_nodes(ok(Cond, WhysCond, Cons, WhysCons),
+        [success(for_case(CondGoal), CondRef, CondChildren),
+         success(it_is_true_that(ConsGoal), ConsRef, ConsChildren)]) :- !,
+    unwrap_le_at(Cond, CondGoal),
+    unwrap_le_at(Cons, ConsGoal),
+    case_proof(WhysCond, CondRef, CondChildren),
+    case_proof(WhysCons, ConsRef, ConsChildren).
+forall_case_nodes(unknown_condition(Cond, WhysCond),
+        [success(for_case(CondGoal), CondRef, CondChildren)]) :-
+    unwrap_le_at(Cond, CondGoal),
+    case_proof(WhysCond, CondRef, CondChildren).
 
+unwrap_le_at(le_at(G, _, _), G) :- !.
+unwrap_le_at(G, G).
+
+% case_proof(+Whys, -Ref, -Children): how to attach a single case's derivation to
+% its "for case"/"it is true that" node. When the derivation is a single node, the
+% node already restates the instance, so lift its source ref and children (a plain
+% fact then shows as just the one line); otherwise keep the derivation as children.
+case_proof([success(_, Ref, GrandChildren)], Ref, GrandChildren) :- !.
+case_proof(Whys, universal_case, Whys).
 
 has_opposite(G, SM, KM, OppG) :-
     ( KM \== none -> M = KM ; M = SM ),
