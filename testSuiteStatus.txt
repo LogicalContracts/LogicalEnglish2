@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 81
-Total tests:     272
-Passed:          272
+Files processed: 82
+Total tests:     274
+Passed:          274
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -16,6 +16,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/AItest.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/apostrophe.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error

@@ -8472,6 +8472,10 @@ function getWellformedEdit(textEdit) {
 }
 
 // src/tokenizer.ts
+function lineEndFrom(text, from) {
+  const nl = text.indexOf("\n", from);
+  return nl === -1 ? text.length : nl;
+}
 function tokenize(text) {
   const tokens = [];
   let i = 0;
@@ -8536,9 +8540,8 @@ function tokenize(text) {
       i += dateMatch[0].length;
       continue;
     }
-    if (char === '"' || char === "'") {
-      const quote = char;
-      let endIdx = text.indexOf(quote, i + 1);
+    if (char === '"') {
+      const endIdx = text.indexOf('"', i + 1);
       if (endIdx !== -1) {
         const content = text.substring(i + 1, endIdx);
         tokens.push({ type: 5 /* String */, value: content, start, end: endIdx + 1 });
@@ -8549,6 +8552,15 @@ function tokenize(text) {
       }
       continue;
     }
+    if (char === "'") {
+      const endIdx = text.indexOf("'", i + 1);
+      if (endIdx !== -1 && endIdx < lineEndFrom(text, i)) {
+        const content = text.substring(i + 1, endIdx);
+        tokens.push({ type: 5 /* String */, value: content, start, end: endIdx + 1 });
+        i = endIdx + 1;
+        continue;
+      }
+    }
     const numMatch = text.substring(i).match(/^\d+(?:,\d{3}(?!\d))*(?:\.\d+)?/);
     if (numMatch) {
       const value = parseFloat(numMatch[0].replace(/,/g, ""));
@@ -8558,8 +8570,19 @@ function tokenize(text) {
     }
     const wordMatch = text.substring(i).match(/^[a-zA-Z][a-zA-Z0-9_]*/);
     if (wordMatch) {
-      tokens.push({ type: 1 /* Word */, value: wordMatch[0], start, end: i + wordMatch[0].length });
-      i += wordMatch[0].length;
+      let end = i + wordMatch[0].length;
+      if (text[end] === "'") {
+        const nextQuote = text.indexOf("'", end + 1);
+        const lineEnd = lineEndFrom(text, end);
+        if (nextQuote === -1 || nextQuote >= lineEnd) {
+          end++;
+          const tail = text.substring(end).match(/^[a-zA-Z0-9_]*/);
+          if (tail)
+            end += tail[0].length;
+        }
+      }
+      tokens.push({ type: 1 /* Word */, value: text.substring(i, end), start, end });
+      i = end;
       continue;
     }
     if (/[!@#$%^&*()\-+={}\[\]:;"'<>,.?\/|\\~]/.test(char)) {
