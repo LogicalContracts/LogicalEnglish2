@@ -1,0 +1,18 @@
+the target language is: prolog. 
+
+the templates are:
+    this claim or part of this claim or loss or cost or expense is directly or indirectly caused by, contributed to by, resulting from or in connection with any action taken in controlling, preventing, suppressing, responding or in any way relating to solar weather.
+    this claim or part of this claim or loss or cost or expense is directly or indirectly caused by, contributed to by, resulting from or in connection with any action taken in controlling, preventing, suppressing, responding or in any way relating to polar weather.
+    effect *an id*.
+
+the contract states that:
+
+effect one if 
+    this claim or part of this claim or loss or cost or expense is directly or indirectly caused by, contributed to by, resulting from or in connection with any action taken in controlling, preventing, suppressing, responding or in any way relating to solar weather.
+
+scenario one is:
+    this claim or part of this claim or loss or cost or expense is directly or indirectly caused by, contributed to by, resulting from or in connection with any action taken in controlling, preventing, suppressing, responding or in any way relating to solar whether.
+    one expects ["effect one"].
+
+query one is:
+    effect which id. 
