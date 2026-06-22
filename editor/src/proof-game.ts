@@ -40,6 +40,67 @@ function getPredicateTemplate(tokens: any[]): string {
     return tokens.map(t => t.kind === 'var' ? '*' : t.text).join(' ');
 }
 
+// A predicate template ("* smokes", "* is a parent of *") as a regex that matches
+// any instance of it ("bob smokes", "alice is a parent of bob").
+function templateToRegex(template: string): RegExp | null {
+    if (!template) return null;
+    const escaped = template
+        .split('*')
+        .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+        .join('.+');
+    try { return new RegExp('^' + escaped + '$'); } catch { return null; }
+}
+
+// The rule (from gameData.rules) whose head predicate would prove `literal`
+// (e.g. the smokes rule proves "bob smokes"). Used to anchor failure-subtree
+// nodes, whose explanation literal is an instance, not a template.
+function ruleProving(literal: string, rules: any[]): any {
+    if (!literal) return null;
+    return rules.find(r => {
+        const re = templateToRegex(getPredicateTemplate(r.headTokens));
+        return re && re.test(literal);
+    }) || null;
+}
+
+// Identify the game node (rule/fact) an explanation node corresponds to, returning
+// a stable key, or null for purely structural nodes (for-all wrappers, the NAF
+// condition itself, or a leaf failure with no proving rule). Success/spine nodes
+// match by source range; failure nodes match by the proving rule's predicate.
+function expNodeKey(expNode: any, rules: any[], facts: any[]): string | null {
+    if (!expNode) return null;
+    if (typeof expNode.start === 'number' && typeof expNode.end === 'number') {
+        const r = rules.find(x => x.start === expNode.start && x.end === expNode.end);
+        if (r) return 'rule:' + r.id;
+        const f = facts.find(x => x.start === expNode.start && x.end === expNode.end);
+        if (f) return 'fact:' + f.id;
+    }
+    if (expNode.type === 'failure') {
+        const r = ruleProving(expNode.literal, rules);
+        if (r) return 'rule:' + r.id;
+    }
+    return null;
+}
+
+// True if reconstructing the explanation would use some game node more than once
+// (so the clone tool is needed) — e.g. the smokes rule appears twice in a failure
+// subtree.
+function explanationNeedsCloning(explanation: any, rules: any[], facts: any[]): boolean {
+    const counts = new Map<string, number>();
+    const visit = (node: any) => {
+        if (Array.isArray(node)) { node.forEach(visit); return; }
+        if (!node || typeof node !== 'object') return;
+        const key = expNodeKey(node, rules, facts);
+        if (key) {
+            const n = (counts.get(key) || 0) + 1;
+            counts.set(key, n);
+        }
+        if (Array.isArray(node.children)) node.children.forEach(visit);
+    };
+    visit(explanation);
+    for (const n of counts.values()) if (n > 1) return true;
+    return false;
+}
+
 class FactNode extends ClassicPreset.Node {
     width = 220;
     height = 60;
@@ -47,6 +108,7 @@ class FactNode extends ClassicPreset.Node {
     public templateId: string;
     public tokens: any[];
     public complete: boolean = false;
+    public failing: boolean = false;
     
     constructor(public label: string, public color: string, templateId: string, tokens: any[], sourceLoc?: { start: number, end: number }) {
         super(label);
@@ -101,9 +163,15 @@ class RuleNode extends ClassicPreset.Node {
     public bodyTokens: any[][];
     public bodyNaf: number[];
     public bodyForall: any[];
+    public bodyRanges: any[];
     public forallIndexSet: Set<number>;
     public clash: boolean = false;
     public complete: boolean = false;
+    public failing: boolean = false;
+    // When applied in failing mode, the bound instance of the head (e.g. "bob
+    // smokes") taken from the explanation spine — the failure edges aren't unified,
+    // so the binding comes from the explanation rather than the backend.
+    public boundHead: string | null = null;
 
     constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
         super('');
@@ -113,6 +181,7 @@ class RuleNode extends ClassicPreset.Node {
         this.bodyTokens = rule.bodyTokens;
         this.bodyNaf = Array.isArray(rule.bodyNaf) ? rule.bodyNaf : [];
         this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
+        this.bodyRanges = Array.isArray(rule.bodyRanges) ? rule.bodyRanges : [];
         this.forallIndexSet = new Set(this.bodyForall.map((m: any) => m.index));
         this.sourceLoc = sourceLoc;
         const socket = new ClassicPreset.Socket('socket');
@@ -188,7 +257,11 @@ function CustomNode(props: any) {
     if (data.type === 'rule') {
         const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
         const headPredicateColor = templateColors.get(headTemplate) || '#ff9800';
-        const headColor = data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : headPredicateColor));
+        // A rule applied in "failing mode" (under a negation): it shows WHY the
+        // goal fails, so it is tinted red and only its one failing condition needs
+        // to be connected.
+        const headColor = data.failing ? '#7a2e2e'
+            : (data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : headPredicateColor)));
         const textColor = isAdultMode ? '#fff' : 'transparent';
         
         const bodyCount = data.rule.body ? data.rule.body.length : 0;
@@ -196,8 +269,10 @@ function CustomNode(props: any) {
         data.width = nodeWidth;
         data.height = bodyCount > 0 ? 180 : 80;
         
-        const headText = renderTokens(data.headTokens) || data.rule.head;
-        
+        const headText = (data.failing && data.boundHead)
+            ? data.boundHead
+            : (renderTokens(data.headTokens) || data.rule.head);
+
         return React.createElement('div', {
             className: `le-node rule-node ${data.selected ? 'selected' : ''} ${data.clash ? 'clash' : ''} ${data.complete ? 'complete' : ''}`,
             style: {
@@ -335,7 +410,8 @@ function CustomNode(props: any) {
         const template = getPredicateTemplate(data.tokens) || labelText;
         const predicateColor = templateColors.get(template) || data.color;
         
-        const bgColor = data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : predicateColor));
+        const bgColor = data.failing ? '#7a2e2e'
+            : (data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : predicateColor)));
         const textColor = isAdultMode ? '#fff' : 'transparent';
         data.width = 220;
         data.height = 60;
@@ -557,6 +633,57 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
     const sessionModule = gameData.sessionModule;
 
+    // Clone-tool state (wired further below; declared here so the answer picker can
+    // refresh the tool's visibility when the chosen answer changes).
+    let cloneMode = false;
+    let refreshCloneToolVisibility: () => void = () => {};
+
+    // Answer picker: a query can have several answers with very different proofs
+    // (e.g. "which dragon is happy" → bob, vacuously; alice, via a failure
+    // subtree). Only the explanation (the solution spine) differs between answers,
+    // so switching just re-fetches the chosen answer's explanation. Shown only
+    // when there is more than one answer.
+    const answers: string[] = Array.isArray(gameData.answers) ? gameData.answers : [];
+    if (answers.length > 1) {
+        const picker = document.getElementById('answer-picker') as HTMLElement | null;
+        const select = document.getElementById('answer-select') as HTMLSelectElement | null;
+        if (picker && select) {
+            select.innerHTML = '';
+            answers.forEach((label, i) => {
+                const opt = document.createElement('option');
+                opt.value = String(i);
+                opt.textContent = label;
+                select.appendChild(opt);
+            });
+            select.value = String(gameData.answerIndex || 0);
+            picker.style.display = '';
+            select.addEventListener('change', async () => {
+                const idx = parseInt(select.value);
+                try {
+                    const req = gameData.request
+                        ? { ...gameData.request }
+                        : JSON.parse(localStorage.getItem('le_proof_game_request') || 'null');
+                    if (!req) { console.error('No stored request to switch answers'); return; }
+                    req.answerIndex = idx;
+                    const res = await fetch('/leapi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(req)
+                    }).then(r => r.json());
+                    if (res && res.gameData && res.gameData.explanation !== undefined) {
+                        // Swap in the new answer's spine; the rules/facts/nodes are
+                        // answer-independent and stay as they are.
+                        gameData.explanation = res.gameData.explanation;
+                        gameData.answerIndex = idx;
+                        refreshCloneToolVisibility();
+                    }
+                } catch (err) {
+                    console.error('Answer switch failed:', err);
+                }
+            });
+        }
+    }
+
     // Populate template colors
     templateColors.clear();
     const predicateTemplates = new Set<string>();
@@ -676,24 +803,72 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     let wasComplete = false;
     let wasClash = false;
 
+    // The explanation failure node (the spine root) for a negation whose condition
+    // spans [start,end]; null when the current answer's explanation has no failure
+    // subtree there.
+    function expFailureSpineFor(start: number, end: number): any {
+        let found: any = null;
+        const visit = (node: any) => {
+            if (found) return;
+            if (Array.isArray(node)) { node.forEach(visit); return; }
+            if (!node || typeof node !== 'object') return;
+            if (node.naf === true && node.start === start && node.end === end) {
+                found = (node.children || []).find((c: any) => c.type === 'failure') || null;
+                return;
+            }
+            (node.children || []).forEach(visit);
+        };
+        visit(gameData.explanation);
+        return found;
+    }
+
     function checkCompletion() {
         const nodes = editor.getNodes();
         const connections = editor.getConnections();
         const queryNode = nodes.find(n => n instanceof QueryNode) as QueryNode;
-        
+
         if (!queryNode) return false;
-        
+
         const visited = new Set<string>();
         const fragmentNodes = new Set<string>();
-        
+
+        function markFragment(nodeId: string) {
+            if (fragmentNodes.has(nodeId)) return;
+            fragmentNodes.add(nodeId);
+            connections.filter(c => c.target === nodeId).forEach(c => markFragment(c.source));
+        }
+
+        // Structural validation of a failure subtree against the explanation spine:
+        // the node feeding the socket must be the rule that would prove the failing
+        // goal (in failing mode) with its one failing condition connected, recursing
+        // down to a FAIL leaf — or a FAIL node for a leaf failure.
+        function failureMatches(sourceNodeId: string, expFail: any): boolean {
+            if (!expFail) return false;
+            const node = editor.getNode(sourceNodeId) as any;
+            if (!node) return false;
+            const provRule = ruleProving(expFail.literal, gameData.rules || []);
+            const expChild = (expFail.children || []).find((c: any) => c.type === 'failure');
+            if (!provRule || !expChild) {
+                // Leaf failure (nothing could prove it): a FAIL node represents it.
+                return node instanceof FailNode;
+            }
+            if (!(node instanceof RuleNode)) return false;
+            if (node.templateId !== provRule.id) return false;
+            const idx = (node.bodyRanges || []).findIndex((r: any) => r.start === expChild.start && r.end === expChild.end);
+            if (idx < 0) return false;
+            const conn = connections.find(c => c.target === node.id && c.targetInput === `in-${idx}`);
+            if (!conn) return false;
+            return failureMatches(conn.source, expChild);
+        }
+
         function isComplete(nodeId: string): boolean {
             if (visited.has(nodeId)) return true;
             visited.add(nodeId);
-            
+
             const node = editor.getNode(nodeId);
             if (!node) return false;
             fragmentNodes.add(nodeId);
-            
+
             if (node instanceof FactNode) return true;
             if (node instanceof FailNode) return true;
 
@@ -702,7 +877,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 if (!conn) return false;
                 return isComplete(conn.source);
             }
-            
+
             if (node instanceof RuleNode) {
                 const bodyCount = node.rule.body ? node.rule.body.length : 0;
                 for (let i = 0; i < bodyCount; i++) {
@@ -714,12 +889,16 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                             if (!isComplete(conn.source)) return false;
                         }
                     } else if (node.bodyNaf.includes(i)) {
-                        // A negation is satisfied by ANY connection: a FAIL node, or
-                        // a "not the case" link to the rule that would prove it. The
-                        // linked node's own body is not required (labeled link).
+                        // A negation: its failure subtree must reproduce the
+                        // explanation's failure spine (structural match). When the
+                        // current answer has no such spine, any connection (e.g. a
+                        // FAIL node) suffices.
                         const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
                         if (!conn) return false;
-                        fragmentNodes.add(conn.source);
+                        const range = node.bodyRanges[i];
+                        const spine = range ? expFailureSpineFor(range.start, range.end) : null;
+                        if (spine && !failureMatches(conn.source, spine)) return false;
+                        markFragment(conn.source);
                     } else {
                         const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
                         if (!conn) return false;
@@ -728,10 +907,10 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 }
                 return true;
             }
-            
+
             return false;
         }
-        
+
         const complete = isComplete(queryNode.id);
         
         // Reset complete flag on all nodes
@@ -751,10 +930,78 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         return complete;
     }
 
+    // True if `targetInput` of `targetNode` is a negation ("it is not the case
+    // that ...") socket.
+    function isNafSocket(targetNode: any, targetInput: string): boolean {
+        if (!(targetNode instanceof RuleNode) || typeof targetInput !== 'string') return false;
+        const parts = targetInput.split('-');
+        return parts.length === 2 && targetNode.bodyNaf.includes(parseInt(parts[1]));
+    }
+
+    // Nodes in a failure subtree: a node whose output reaches a negation socket,
+    // directly or through other failing nodes.
+    function computeFailing(): Set<string> {
+        const conns = editor.getConnections();
+        const failing = new Set<string>();
+        for (const c of conns) {
+            if (isNafSocket(editor.getNode(c.target), c.targetInput)) failing.add(c.source);
+        }
+        let changed = true;
+        while (changed) {
+            changed = false;
+            for (const c of conns) {
+                if (failing.has(c.target) && !failing.has(c.source)) { failing.add(c.source); changed = true; }
+            }
+        }
+        return failing;
+    }
+
+    // A failing rule shows its bound head (e.g. "bob smokes") taken from the
+    // explanation spine, since failure edges are not unified by the backend. Walk
+    // each negation socket's failure subtree and label the rules along it.
+    function updateFailingLabels() {
+        const conns = editor.getConnections();
+        editor.getNodes().forEach(n => {
+            if ((n as any).boundHead) { (n as any).boundHead = null; area.update('node', n.id); }
+        });
+        const assign = (sourceNodeId: string, expFail: any) => {
+            const node = editor.getNode(sourceNodeId) as any;
+            if (!node || !expFail || !(node instanceof RuleNode)) return;
+            node.boundHead = expFail.literal;
+            area.update('node', node.id);
+            const expChild = (expFail.children || []).find((c: any) => c.type === 'failure');
+            if (!expChild) return;
+            const idx = (node.bodyRanges || []).findIndex((r: any) => r.start === expChild.start && r.end === expChild.end);
+            const conn = conns.find(c => c.target === node.id && c.targetInput === `in-${idx}`);
+            if (conn) assign(conn.source, expChild);
+        };
+        for (const c of conns) {
+            const target = editor.getNode(c.target) as any;
+            if (target instanceof RuleNode && isNafSocket(target, c.targetInput)) {
+                const i = parseInt(c.targetInput.split('-')[1]);
+                const range = target.bodyRanges[i];
+                const spine = range ? expFailureSpineFor(range.start, range.end) : null;
+                if (spine) assign(c.source, spine);
+            }
+        }
+    }
+
     async function updateUnification() {
         const nodes = editor.getNodes();
         const connections = editor.getConnections();
-        
+
+        // Failure-subtree nodes/edges are validated structurally against the
+        // explanation (see checkCompletion), not by unification — so tint them and
+        // keep their edges out of the unify payload (a FAIL node on a positive
+        // condition, etc., would otherwise clash).
+        const failing = computeFailing();
+        nodes.forEach(n => {
+            const old = (n as any).failing;
+            (n as any).failing = failing.has(n.id);
+            if (old !== (n as any).failing) area.update('node', n.id);
+        });
+        updateFailingLabels();
+
         const nodeSpecs = nodes.map(n => {
             if (n instanceof RuleNode) return { instanceId: n.id, templateId: n.templateId };
             if (n instanceof FactNode) return { instanceId: n.id, templateId: n.templateId };
@@ -762,12 +1009,15 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             if (n instanceof FailNode) return { instanceId: n.id, templateId: 'fail' };
             return null;
         }).filter(n => n !== null);
-        
+
         const edges = connections.map(c => {
             const source = editor.getNode(c.source);
             const target = editor.getNode(c.target);
             if (!source || !target) return null;
-            
+            // Skip failure-subtree edges (target is a negation socket or a failing
+            // node) — those are validated structurally, not unified.
+            if (isNafSocket(target, c.targetInput) || failing.has(c.target)) return null;
+
             // targetInput is "in-<bodyIndex>" or, for a "for all cases" condition,
             // "in-<bodyIndex>-<subIndex>" (sub 0 = condition, sub 1 = consequence).
             let bodyIndex = 0;
@@ -979,23 +1229,92 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         AreaExtensions.zoomAt(area, editor.getNodes());
     });
 
-    // Zoom controls
+    // Zoom controls. area.area.zoom(level, ox, oy) sets the absolute zoom level;
+    // the current level is area.area.transform.k.
     document.getElementById('btn-zoom-in')?.addEventListener('click', () => {
-        const zoom = area.area.zoom;
-        area.area.setZoom(zoom * 1.2);
+        area.area.zoom(area.area.transform.k * 1.2, 0, 0);
     });
     document.getElementById('btn-zoom-out')?.addEventListener('click', () => {
-        const zoom = area.area.zoom;
-        area.area.setZoom(zoom / 1.2);
+        area.area.zoom(area.area.transform.k / 1.2, 0, 0);
     });
     document.getElementById('btn-zoom-fit')?.addEventListener('click', () => {
         AreaExtensions.zoomAt(area, editor.getNodes());
     });
 
-    // Selection logic for editor highlighting
+    // Clone tool: duplicating a rule/fact node. Only offered when the proof needs
+    // the same node more than once (e.g. a failure subtree applies one rule twice).
+    async function cloneNode(orig: any) {
+        let clone: any = null;
+        if (orig instanceof RuleNode) clone = new RuleNode(orig.rule, orig.sourceLoc);
+        else if (orig instanceof FactNode) clone = new FactNode(orig.label, orig.color, orig.templateId, orig.tokens, orig.sourceLoc);
+        if (!clone) return null;
+        await editor.addNode(clone);
+        const pos = area.nodeViews.get(orig.id)?.position || { x: 100, y: 100 };
+        await area.translate(clone.id, { x: pos.x + 40, y: pos.y + 60 });
+        return clone;
+    }
+
+    const btnClone = document.getElementById('btn-clone') as HTMLElement | null;
+    // Shown only when the selected answer's proof reuses a node (e.g. a failure
+    // subtree applies one rule twice). Re-evaluated when the answer changes.
+    refreshCloneToolVisibility = () => {
+        if (!btnClone) return;
+        const need = explanationNeedsCloning(gameData.explanation, gameData.rules || [], gameData.facts || []);
+        btnClone.style.display = need ? '' : 'none';
+        if (!need && cloneMode) {
+            cloneMode = false;
+            btnClone.style.background = '';
+            btnClone.style.color = '';
+        }
+    };
+    if (btnClone) {
+        btnClone.addEventListener('click', () => {
+            cloneMode = !cloneMode;
+            btnClone.style.background = cloneMode ? '#0e639c' : '';
+            btnClone.style.color = cloneMode ? '#fff' : '';
+        });
+    }
+    refreshCloneToolVisibility();
+
+    // A node may be deleted when it is a FAIL node, or a rule/fact that has more
+    // than one instance (clones) — so at least one original always remains.
+    function canDelete(node: any): boolean {
+        if (node instanceof FailNode) return true;
+        if (node instanceof RuleNode || node instanceof FactNode) {
+            const tid = node.templateId;
+            const count = editor.getNodes().filter(n =>
+                (n instanceof RuleNode || n instanceof FactNode) && (n as any).templateId === tid).length;
+            return count > 1;
+        }
+        return false;
+    }
+    async function removeNodeWithConnections(node: any) {
+        for (const c of editor.getConnections().filter(c => c.source === node.id || c.target === node.id)) {
+            await editor.removeConnection(c.id);
+        }
+        await editor.removeNode(node.id);
+    }
+    // Delete/Backspace removes the selected deletable node(s) — the way to remove a
+    // clone. Ignored while a form control (the answer picker, theme select) is focused.
+    document.addEventListener('keydown', async (e) => {
+        if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+        const tag = (e.target as HTMLElement)?.tagName;
+        if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+        const selected = editor.getNodes().filter(n => (n as any).selected);
+        for (const n of selected) {
+            if (canDelete(n)) await removeNodeWithConnections(n);
+        }
+    });
+
+    // Selection logic for editor highlighting (and clone-on-click when the clone
+    // tool is active).
     area.addPipe(context => {
         if (context.type === 'nodepicked') {
             const node = editor.getNode(context.data.id) as any;
+            if (cloneMode && (node instanceof RuleNode || node instanceof FactNode)) {
+                cloneNode(node);
+                return context;
+            }
             if (node && node.sourceLoc) {
                 if (window.opener) {
                     window.opener.postMessage({ type: 'le-highlight', loc: node.sourceLoc }, '*');
@@ -1053,26 +1372,6 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 && (n as any).sourceLoc?.end === expNode.end);
         }
 
-        // Drop the "it is not the case that" prefix from a NAF condition's tokens,
-        // leaving the negated goal's tokens.
-        function dropNafPrefix(tokens: any[]): any[] {
-            const prefix = ['it', 'is', 'not', 'the', 'case', 'that'];
-            let k = 0;
-            while (k < tokens.length && k < prefix.length
-                && tokens[k].kind === 'word' && tokens[k].text?.toLowerCase() === prefix[k]) k++;
-            return tokens.slice(k);
-        }
-
-        // The (unused) rule whose head would prove the negated goal of body
-        // condition `i` of `ruleNode` — i.e. the target of a "not the case" link.
-        function findNegationRule(ruleNode: any, i: number): any {
-            const inner = dropNafPrefix(ruleNode.bodyTokens?.[i] || []);
-            const tmpl = getPredicateTemplate(inner);
-            if (!tmpl) return null;
-            return nodes.find(n => n instanceof RuleNode && !usedNodes.has(n.id)
-                && getPredicateTemplate((n as RuleNode).headTokens) === tmpl) || null;
-        }
-
         // Connect a positive (rule/fact) explanation node into a target input,
         // then recurse into its body.
         async function connectNode(expNode: any, targetNodeId: string, targetInputKey: string) {
@@ -1085,23 +1384,46 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             if (match instanceof RuleNode) await connectRuleBody(expNode, match);
         }
 
-        // Satisfy a NAF condition: prefer a "not the case" link to the rule that
-        // would prove the negated goal; otherwise fall back to a FAIL node.
-        async function connectNegation(ruleNode: any, i: number) {
-            const inputKey = `in-${i}`;
-            if (!hasInput(ruleNode.id, inputKey)) return;
-            const negRule = findNegationRule(ruleNode, i);
-            if (negRule) {
-                usedNodes.add(negRule.id);
-                await editor.addConnection(new ClassicPreset.Connection(
-                    negRule, 'out', editor.getNode(ruleNode.id) as any, inputKey));
-                return;
+        // A game RuleNode instance for ruleId that isn't used yet, cloning one when
+        // all existing instances are taken (a failure subtree can reapply a rule).
+        async function acquireRuleInstance(ruleId: string): Promise<any> {
+            let inst = editor.getNodes().find(n => n instanceof RuleNode
+                && (n as RuleNode).templateId === ruleId && !usedNodes.has(n.id)) as any;
+            if (!inst) {
+                const ruleData = (gameData.rules || []).find((r: any) => r.id === ruleId);
+                if (!ruleData) return null;
+                inst = new RuleNode(ruleData, { start: ruleData.start, end: ruleData.end });
+                await editor.addNode(inst);
             }
+            return inst;
+        }
+
+        async function addFailLeaf(parentNodeId: string, inputKey: string) {
             const failNode = new FailNode('FAIL', '#d32f2f');
             await editor.addNode(failNode);
             usedNodes.add(failNode.id);
             await editor.addConnection(new ClassicPreset.Connection(
-                failNode as any, 'out', editor.getNode(ruleNode.id) as any, inputKey));
+                failNode as any, 'out', editor.getNode(parentNodeId) as any, inputKey));
+        }
+
+        // Build a failure subtree from an explanation [failure] node into
+        // (parentNodeId, inputKey): the proving rule in failing mode with its one
+        // failing condition, recursing down to a FAIL leaf — exactly the spine.
+        async function buildFailure(expFail: any, parentNodeId: string, inputKey: string) {
+            if (!expFail || !hasInput(parentNodeId, inputKey)) return;
+            const provRule = ruleProving(expFail.literal, gameData.rules || []);
+            const expChild = (expFail.children || []).find((c: any) => c.type === 'failure');
+            if (!provRule || !expChild) {
+                await addFailLeaf(parentNodeId, inputKey);
+                return;
+            }
+            const inst = await acquireRuleInstance(provRule.id);
+            if (!inst) { await addFailLeaf(parentNodeId, inputKey); return; }
+            usedNodes.add(inst.id);
+            await editor.addConnection(new ClassicPreset.Connection(
+                inst, 'out', editor.getNode(parentNodeId) as any, inputKey));
+            const idx = (inst.bodyRanges || []).findIndex((r: any) => r.start === expChild.start && r.end === expChild.end);
+            if (idx >= 0) await buildFailure(expChild, inst.id, `in-${idx}`);
         }
 
         // Connect each body condition of a matched rule (its explanation children
@@ -1119,7 +1441,11 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                     if (condExp) await connectNode(condExp, ruleNode.id, `in-${i}-0`);
                     if (consExp) await connectNode(consExp, ruleNode.id, `in-${i}-1`);
                 } else if (child && child.naf) {
-                    await connectNegation(ruleNode, i);
+                    // Negation: build the failure subtree from the explanation spine
+                    // (the NAF node's failure child); fall back to a FAIL leaf.
+                    const spine = (child.children || []).find((c: any) => c.type === 'failure');
+                    if (spine) await buildFailure(spine, ruleNode.id, `in-${i}`);
+                    else await addFailLeaf(ruleNode.id, `in-${i}`);
                 } else {
                     await connectNode(child, ruleNode.id, `in-${i}`);
                 }
@@ -1128,7 +1454,8 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
         await connectNode(explanation, queryNode.id, 'in');
         updateConnectionLabels();
-        
+        updateFailingLabels();
+
         // 1. Identify proof tree nodes and non-proof tree nodes
         const proofTreeNodes = new Set<string>();
         proofTreeNodes.add(queryNode.id);

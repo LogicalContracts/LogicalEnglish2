@@ -1663,4 +1663,30 @@ In this example there is only one case (Alice), but other forall constructs may 
 ## quotes in templates
 We need to allow single quotes in templates, as in "the limit of indemnity for employers' liability is *an amount*". Tolerate only a single occurrence per template (or template instance), as multiple occurrences would be ambiguous versus string constants. Come up with a simple example for testing and implement this.
 
+## Debugging proof game with negative explanation
+In examples/moreExamples/happy_dragon.le, scenario smoky, query happy, the second answer has an explanation that includes a multilevel failure subtree (annotated with "FAILURE: " below). But there is no solution in the "Proof Game", and there should be. 
+Looking closer, I see that the Proof Game has "FAIL" leaf nodes, to represent leaf failures, but seems to miss two things: 
+- negation links (to connect the head of rule in line 13 with the last condition in the rule in line 18); perhaps with "not the case" labels 
+- a way to link to the two sub-conditions in "for all cases in which ...", in the rule in line 23.
+
+
+alice is happy
+  alice is a dragon
+  for all cases in which alice is a parent of a dragon
+    for case alice is a parent of bob
+    it is true that bob is healthy
+      bob is a dragon
+      it is not the case that bob smokes
+        FAILURE: it is not true that: bob smokes
+          FAILURE: it is not true that: alice smokes
+            FAILURE: it is not true that: a creature is a parent of alice
+
+Please wire Show-proof to auto-build forall/negation links. Also, when linking the head of rule in line 13 to rule in line 18, the link should
+  have a "not the case" label. And one more thing: when rule 23 is connected from "alice is a dragon", the forall condition is not showing the
+  binding (of 'the creature' to 'alice')
+
+Let's revisit our "negation link" answer to your question above: we need to go all the way and turn the whole subtree into "failing mode". Otherwise in this example the user cannot construct the full failure tree under "bob smokes". The full explanation needs to be our proof game solution spine. This principle also applies to "Show Proof", it needs to connect based on the actual explanation rather than guess condition matches.
+
+
 ## TBD
+Fix all Typescript warnings
