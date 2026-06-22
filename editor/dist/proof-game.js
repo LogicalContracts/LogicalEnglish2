@@ -124292,6 +124292,65 @@ function getPredicateTemplate(tokens) {
     return "";
   return tokens.map((t2) => t2.kind === "var" ? "*" : t2.text).join(" ");
 }
+function templateToRegex(template) {
+  if (!template)
+    return null;
+  const escaped = template.split("*").map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".+");
+  try {
+    return new RegExp("^" + escaped + "$");
+  } catch {
+    return null;
+  }
+}
+function ruleProving(literal, rules) {
+  if (!literal)
+    return null;
+  return rules.find((r2) => {
+    const re2 = templateToRegex(getPredicateTemplate(r2.headTokens));
+    return re2 && re2.test(literal);
+  }) || null;
+}
+function expNodeKey(expNode, rules, facts) {
+  if (!expNode)
+    return null;
+  if (typeof expNode.start === "number" && typeof expNode.end === "number") {
+    const r2 = rules.find((x2) => x2.start === expNode.start && x2.end === expNode.end);
+    if (r2)
+      return "rule:" + r2.id;
+    const f2 = facts.find((x2) => x2.start === expNode.start && x2.end === expNode.end);
+    if (f2)
+      return "fact:" + f2.id;
+  }
+  if (expNode.type === "failure") {
+    const r2 = ruleProving(expNode.literal, rules);
+    if (r2)
+      return "rule:" + r2.id;
+  }
+  return null;
+}
+function explanationNeedsCloning(explanation, rules, facts) {
+  const counts = /* @__PURE__ */ new Map();
+  const visit = (node2) => {
+    if (Array.isArray(node2)) {
+      node2.forEach(visit);
+      return;
+    }
+    if (!node2 || typeof node2 !== "object")
+      return;
+    const key = expNodeKey(node2, rules, facts);
+    if (key) {
+      const n2 = (counts.get(key) || 0) + 1;
+      counts.set(key, n2);
+    }
+    if (Array.isArray(node2.children))
+      node2.children.forEach(visit);
+  };
+  visit(explanation);
+  for (const n2 of counts.values())
+    if (n2 > 1)
+      return true;
+  return false;
+}
 var FactNode = class extends classic.Node {
   constructor(label, color, templateId, tokens, sourceLoc) {
     super(label);
@@ -124309,6 +124368,7 @@ var FactNode = class extends classic.Node {
   templateId;
   tokens;
   complete = false;
+  failing = false;
   type;
 };
 var QueryNode = class extends classic.Node {
@@ -124353,6 +124413,7 @@ var RuleNode = class extends classic.Node {
     this.bodyTokens = rule.bodyTokens;
     this.bodyNaf = Array.isArray(rule.bodyNaf) ? rule.bodyNaf : [];
     this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
+    this.bodyRanges = Array.isArray(rule.bodyRanges) ? rule.bodyRanges : [];
     this.forallIndexSet = new Set(this.bodyForall.map((m2) => m2.index));
     this.sourceLoc = sourceLoc;
     const socket = new classic.Socket("socket");
@@ -124376,9 +124437,15 @@ var RuleNode = class extends classic.Node {
   bodyTokens;
   bodyNaf;
   bodyForall;
+  bodyRanges;
   forallIndexSet;
   clash = false;
   complete = false;
+  failing = false;
+  // When applied in failing mode, the bound instance of the head (e.g. "bob
+  // smokes") taken from the explanation spine — the failure edges aren't unified,
+  // so the binding comes from the explanation rather than the backend.
+  boundHead = null;
   type;
   forallMeta(i2) {
     return this.bodyForall.find((m2) => m2.index === i2);
@@ -124437,13 +124504,13 @@ function CustomNode(props) {
   if (data.type === "rule") {
     const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
     const headPredicateColor = templateColors.get(headTemplate) || "#ff9800";
-    const headColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : headPredicateColor;
+    const headColor = data.failing ? "#7a2e2e" : data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : headPredicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     const bodyCount = data.rule.body ? data.rule.body.length : 0;
     const nodeWidth = Math.max(220, bodyCount * 220);
     data.width = nodeWidth;
     data.height = bodyCount > 0 ? 180 : 80;
-    const headText = renderTokens(data.headTokens) || data.rule.head;
+    const headText = data.failing && data.boundHead ? data.boundHead : renderTokens(data.headTokens) || data.rule.head;
     return React2.createElement(
       "div",
       {
@@ -124617,7 +124684,7 @@ function CustomNode(props) {
     const labelText = data.type === "query" ? data.label || renderTokens(data.tokens) : data.type === "fact" ? renderTokens(data.tokens) || data.label : data.label;
     const template = getPredicateTemplate(data.tokens) || labelText;
     const predicateColor = templateColors.get(template) || data.color;
-    const bgColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : predicateColor;
+    const bgColor = data.failing ? "#7a2e2e" : data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : predicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     data.width = 220;
     data.height = 60;
@@ -124831,6 +124898,48 @@ async function initProofGame(container, gameData) {
   const connection = new ConnectionPlugin();
   const render2 = new ReactPlugin({ createRoot: import_client.createRoot });
   const sessionModule = gameData.sessionModule;
+  let cloneMode = false;
+  let refreshCloneToolVisibility = () => {
+  };
+  const answers = Array.isArray(gameData.answers) ? gameData.answers : [];
+  if (answers.length > 1) {
+    const picker = document.getElementById("answer-picker");
+    const select = document.getElementById("answer-select");
+    if (picker && select) {
+      select.innerHTML = "";
+      answers.forEach((label, i2) => {
+        const opt = document.createElement("option");
+        opt.value = String(i2);
+        opt.textContent = label;
+        select.appendChild(opt);
+      });
+      select.value = String(gameData.answerIndex || 0);
+      picker.style.display = "";
+      select.addEventListener("change", async () => {
+        const idx = parseInt(select.value);
+        try {
+          const req = gameData.request ? { ...gameData.request } : JSON.parse(localStorage.getItem("le_proof_game_request") || "null");
+          if (!req) {
+            console.error("No stored request to switch answers");
+            return;
+          }
+          req.answerIndex = idx;
+          const res = await fetch("/leapi", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(req)
+          }).then((r2) => r2.json());
+          if (res && res.gameData && res.gameData.explanation !== void 0) {
+            gameData.explanation = res.gameData.explanation;
+            gameData.answerIndex = idx;
+            refreshCloneToolVisibility();
+          }
+        } catch (err) {
+          console.error("Answer switch failed:", err);
+        }
+      });
+    }
+  }
   templateColors.clear();
   const predicateTemplates = /* @__PURE__ */ new Set();
   if (gameData.queryTokens) {
@@ -124935,6 +125044,26 @@ async function initProofGame(container, gameData) {
   }
   let wasComplete = false;
   let wasClash = false;
+  function expFailureSpineFor(start, end) {
+    let found = null;
+    const visit = (node2) => {
+      if (found)
+        return;
+      if (Array.isArray(node2)) {
+        node2.forEach(visit);
+        return;
+      }
+      if (!node2 || typeof node2 !== "object")
+        return;
+      if (node2.naf === true && node2.start === start && node2.end === end) {
+        found = (node2.children || []).find((c2) => c2.type === "failure") || null;
+        return;
+      }
+      (node2.children || []).forEach(visit);
+    };
+    visit(gameData.explanation);
+    return found;
+  }
   function checkCompletion() {
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
@@ -124943,6 +125072,35 @@ async function initProofGame(container, gameData) {
       return false;
     const visited = /* @__PURE__ */ new Set();
     const fragmentNodes = /* @__PURE__ */ new Set();
+    function markFragment(nodeId) {
+      if (fragmentNodes.has(nodeId))
+        return;
+      fragmentNodes.add(nodeId);
+      connections.filter((c2) => c2.target === nodeId).forEach((c2) => markFragment(c2.source));
+    }
+    function failureMatches(sourceNodeId, expFail) {
+      if (!expFail)
+        return false;
+      const node2 = editor.getNode(sourceNodeId);
+      if (!node2)
+        return false;
+      const provRule = ruleProving(expFail.literal, gameData.rules || []);
+      const expChild = (expFail.children || []).find((c2) => c2.type === "failure");
+      if (!provRule || !expChild) {
+        return node2 instanceof FailNode;
+      }
+      if (!(node2 instanceof RuleNode))
+        return false;
+      if (node2.templateId !== provRule.id)
+        return false;
+      const idx = (node2.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
+      if (idx < 0)
+        return false;
+      const conn = connections.find((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`);
+      if (!conn)
+        return false;
+      return failureMatches(conn.source, expChild);
+    }
     function isComplete(nodeId) {
       if (visited.has(nodeId))
         return true;
@@ -124976,7 +125134,11 @@ async function initProofGame(container, gameData) {
             const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
             if (!conn)
               return false;
-            fragmentNodes.add(conn.source);
+            const range = node2.bodyRanges[i2];
+            const spine = range ? expFailureSpineFor(range.start, range.end) : null;
+            if (spine && !failureMatches(conn.source, spine))
+              return false;
+            markFragment(conn.source);
           } else {
             const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
             if (!conn)
@@ -125004,9 +125166,75 @@ async function initProofGame(container, gameData) {
     }
     return complete;
   }
+  function isNafSocket(targetNode, targetInput) {
+    if (!(targetNode instanceof RuleNode) || typeof targetInput !== "string")
+      return false;
+    const parts = targetInput.split("-");
+    return parts.length === 2 && targetNode.bodyNaf.includes(parseInt(parts[1]));
+  }
+  function computeFailing() {
+    const conns = editor.getConnections();
+    const failing = /* @__PURE__ */ new Set();
+    for (const c2 of conns) {
+      if (isNafSocket(editor.getNode(c2.target), c2.targetInput))
+        failing.add(c2.source);
+    }
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const c2 of conns) {
+        if (failing.has(c2.target) && !failing.has(c2.source)) {
+          failing.add(c2.source);
+          changed = true;
+        }
+      }
+    }
+    return failing;
+  }
+  function updateFailingLabels() {
+    const conns = editor.getConnections();
+    editor.getNodes().forEach((n2) => {
+      if (n2.boundHead) {
+        n2.boundHead = null;
+        area.update("node", n2.id);
+      }
+    });
+    const assign2 = (sourceNodeId, expFail) => {
+      const node2 = editor.getNode(sourceNodeId);
+      if (!node2 || !expFail || !(node2 instanceof RuleNode))
+        return;
+      node2.boundHead = expFail.literal;
+      area.update("node", node2.id);
+      const expChild = (expFail.children || []).find((c2) => c2.type === "failure");
+      if (!expChild)
+        return;
+      const idx = (node2.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
+      const conn = conns.find((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`);
+      if (conn)
+        assign2(conn.source, expChild);
+    };
+    for (const c2 of conns) {
+      const target = editor.getNode(c2.target);
+      if (target instanceof RuleNode && isNafSocket(target, c2.targetInput)) {
+        const i2 = parseInt(c2.targetInput.split("-")[1]);
+        const range = target.bodyRanges[i2];
+        const spine = range ? expFailureSpineFor(range.start, range.end) : null;
+        if (spine)
+          assign2(c2.source, spine);
+      }
+    }
+  }
   async function updateUnification() {
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
+    const failing = computeFailing();
+    nodes2.forEach((n2) => {
+      const old = n2.failing;
+      n2.failing = failing.has(n2.id);
+      if (old !== n2.failing)
+        area.update("node", n2.id);
+    });
+    updateFailingLabels();
     const nodeSpecs = nodes2.map((n2) => {
       if (n2 instanceof RuleNode)
         return { instanceId: n2.id, templateId: n2.templateId };
@@ -125022,6 +125250,8 @@ async function initProofGame(container, gameData) {
       const source = editor.getNode(c2.source);
       const target = editor.getNode(c2.target);
       if (!source || !target)
+        return null;
+      if (isNafSocket(target, c2.targetInput) || failing.has(c2.target))
         return null;
       let bodyIndex = 0;
       let subIndex = -1;
@@ -125196,19 +125426,82 @@ async function initProofGame(container, gameData) {
     index.zoomAt(area, editor.getNodes());
   });
   document.getElementById("btn-zoom-in")?.addEventListener("click", () => {
-    const zoom = area.area.zoom;
-    area.area.setZoom(zoom * 1.2);
+    area.area.zoom(area.area.transform.k * 1.2, 0, 0);
   });
   document.getElementById("btn-zoom-out")?.addEventListener("click", () => {
-    const zoom = area.area.zoom;
-    area.area.setZoom(zoom / 1.2);
+    area.area.zoom(area.area.transform.k / 1.2, 0, 0);
   });
   document.getElementById("btn-zoom-fit")?.addEventListener("click", () => {
     index.zoomAt(area, editor.getNodes());
   });
+  async function cloneNode(orig) {
+    let clone = null;
+    if (orig instanceof RuleNode)
+      clone = new RuleNode(orig.rule, orig.sourceLoc);
+    else if (orig instanceof FactNode)
+      clone = new FactNode(orig.label, orig.color, orig.templateId, orig.tokens, orig.sourceLoc);
+    if (!clone)
+      return null;
+    await editor.addNode(clone);
+    const pos = area.nodeViews.get(orig.id)?.position || { x: 100, y: 100 };
+    await area.translate(clone.id, { x: pos.x + 40, y: pos.y + 60 });
+    return clone;
+  }
+  const btnClone = document.getElementById("btn-clone");
+  refreshCloneToolVisibility = () => {
+    if (!btnClone)
+      return;
+    const need = explanationNeedsCloning(gameData.explanation, gameData.rules || [], gameData.facts || []);
+    btnClone.style.display = need ? "" : "none";
+    if (!need && cloneMode) {
+      cloneMode = false;
+      btnClone.style.background = "";
+      btnClone.style.color = "";
+    }
+  };
+  if (btnClone) {
+    btnClone.addEventListener("click", () => {
+      cloneMode = !cloneMode;
+      btnClone.style.background = cloneMode ? "#0e639c" : "";
+      btnClone.style.color = cloneMode ? "#fff" : "";
+    });
+  }
+  refreshCloneToolVisibility();
+  function canDelete(node2) {
+    if (node2 instanceof FailNode)
+      return true;
+    if (node2 instanceof RuleNode || node2 instanceof FactNode) {
+      const tid = node2.templateId;
+      const count = editor.getNodes().filter((n2) => (n2 instanceof RuleNode || n2 instanceof FactNode) && n2.templateId === tid).length;
+      return count > 1;
+    }
+    return false;
+  }
+  async function removeNodeWithConnections(node2) {
+    for (const c2 of editor.getConnections().filter((c3) => c3.source === node2.id || c3.target === node2.id)) {
+      await editor.removeConnection(c2.id);
+    }
+    await editor.removeNode(node2.id);
+  }
+  document.addEventListener("keydown", async (e) => {
+    if (e.key !== "Delete" && e.key !== "Backspace")
+      return;
+    const tag = e.target?.tagName;
+    if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA")
+      return;
+    const selected = editor.getNodes().filter((n2) => n2.selected);
+    for (const n2 of selected) {
+      if (canDelete(n2))
+        await removeNodeWithConnections(n2);
+    }
+  });
   area.addPipe((context) => {
     if (context.type === "nodepicked") {
       const node2 = editor.getNode(context.data.id);
+      if (cloneMode && (node2 instanceof RuleNode || node2 instanceof FactNode)) {
+        cloneNode(node2);
+        return context;
+      }
       if (node2 && node2.sourceLoc) {
         if (window.opener) {
           window.opener.postMessage({ type: "le-highlight", loc: node2.sourceLoc }, "*");
@@ -125247,20 +125540,6 @@ async function initProofGame(container, gameData) {
     function matchNode(expNode) {
       return nodes2.find((n2) => !usedNodes.has(n2.id) && (n2 instanceof RuleNode || n2 instanceof FactNode) && n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end);
     }
-    function dropNafPrefix(tokens) {
-      const prefix2 = ["it", "is", "not", "the", "case", "that"];
-      let k2 = 0;
-      while (k2 < tokens.length && k2 < prefix2.length && tokens[k2].kind === "word" && tokens[k2].text?.toLowerCase() === prefix2[k2])
-        k2++;
-      return tokens.slice(k2);
-    }
-    function findNegationRule(ruleNode, i2) {
-      const inner = dropNafPrefix(ruleNode.bodyTokens?.[i2] || []);
-      const tmpl = getPredicateTemplate(inner);
-      if (!tmpl)
-        return null;
-      return nodes2.find((n2) => n2 instanceof RuleNode && !usedNodes.has(n2.id) && getPredicateTemplate(n2.headTokens) === tmpl) || null;
-    }
     async function connectNode(expNode, targetNodeId, targetInputKey) {
       if (!expNode || !hasInput(targetNodeId, targetInputKey))
         return;
@@ -125277,30 +125556,52 @@ async function initProofGame(container, gameData) {
       if (match2 instanceof RuleNode)
         await connectRuleBody(expNode, match2);
     }
-    async function connectNegation(ruleNode, i2) {
-      const inputKey = `in-${i2}`;
-      if (!hasInput(ruleNode.id, inputKey))
-        return;
-      const negRule = findNegationRule(ruleNode, i2);
-      if (negRule) {
-        usedNodes.add(negRule.id);
-        await editor.addConnection(new classic.Connection(
-          negRule,
-          "out",
-          editor.getNode(ruleNode.id),
-          inputKey
-        ));
-        return;
+    async function acquireRuleInstance(ruleId) {
+      let inst = editor.getNodes().find((n2) => n2 instanceof RuleNode && n2.templateId === ruleId && !usedNodes.has(n2.id));
+      if (!inst) {
+        const ruleData = (gameData.rules || []).find((r2) => r2.id === ruleId);
+        if (!ruleData)
+          return null;
+        inst = new RuleNode(ruleData, { start: ruleData.start, end: ruleData.end });
+        await editor.addNode(inst);
       }
+      return inst;
+    }
+    async function addFailLeaf(parentNodeId, inputKey) {
       const failNode = new FailNode("FAIL", "#d32f2f");
       await editor.addNode(failNode);
       usedNodes.add(failNode.id);
       await editor.addConnection(new classic.Connection(
         failNode,
         "out",
-        editor.getNode(ruleNode.id),
+        editor.getNode(parentNodeId),
         inputKey
       ));
+    }
+    async function buildFailure(expFail, parentNodeId, inputKey) {
+      if (!expFail || !hasInput(parentNodeId, inputKey))
+        return;
+      const provRule = ruleProving(expFail.literal, gameData.rules || []);
+      const expChild = (expFail.children || []).find((c2) => c2.type === "failure");
+      if (!provRule || !expChild) {
+        await addFailLeaf(parentNodeId, inputKey);
+        return;
+      }
+      const inst = await acquireRuleInstance(provRule.id);
+      if (!inst) {
+        await addFailLeaf(parentNodeId, inputKey);
+        return;
+      }
+      usedNodes.add(inst.id);
+      await editor.addConnection(new classic.Connection(
+        inst,
+        "out",
+        editor.getNode(parentNodeId),
+        inputKey
+      ));
+      const idx = (inst.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
+      if (idx >= 0)
+        await buildFailure(expChild, inst.id, `in-${idx}`);
     }
     async function connectRuleBody(expNode, ruleNode) {
       const children = expNode.children || [];
@@ -125315,7 +125616,11 @@ async function initProofGame(container, gameData) {
           if (consExp)
             await connectNode(consExp, ruleNode.id, `in-${i2}-1`);
         } else if (child && child.naf) {
-          await connectNegation(ruleNode, i2);
+          const spine = (child.children || []).find((c2) => c2.type === "failure");
+          if (spine)
+            await buildFailure(spine, ruleNode.id, `in-${i2}`);
+          else
+            await addFailLeaf(ruleNode.id, `in-${i2}`);
         } else {
           await connectNode(child, ruleNode.id, `in-${i2}`);
         }
@@ -125323,6 +125628,7 @@ async function initProofGame(container, gameData) {
     }
     await connectNode(explanation, queryNode.id, "in");
     updateConnectionLabels();
+    updateFailingLabels();
     const proofTreeNodes = /* @__PURE__ */ new Set();
     proofTreeNodes.add(queryNode.id);
     for (const id of usedNodes) {

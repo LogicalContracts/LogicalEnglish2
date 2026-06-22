@@ -2130,8 +2130,22 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                     return fact;
                 });
 
+                // Embed the request so the game's answer picker can re-fetch a
+                // different answer's explanation (with a new answerIndex). Carried
+                // inside gameData so it travels with it.
+                res.gameData.request = {
+                    token: 'myToken123',
+                    operation: 'getGameData',
+                    sessionModule: sessionModule,
+                    query: query,
+                    scenario: scenario,
+                    customScenario: customScenario,
+                    customQuery: customQuery,
+                    detailedFailures: detailedFailures,
+                    hideRepeated: hideRepeatedExplanations
+                };
                 localStorage.setItem('le_proof_game_data', JSON.stringify(res.gameData));
-                const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' : 
+                const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                                      document.body.className.includes('hc-theme') ? 'hc-theme' : '';
                 window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
             } else if (res && res.error) {

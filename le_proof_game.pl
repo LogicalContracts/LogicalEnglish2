@@ -39,12 +39,18 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         % condition, expose its two sub-conditions so the UI can offer a separate
         % link target (sub-socket) for each (sub 0 = Cond, sub 1 = Cons).
         forall_meta_list(KB, FlatBodyList, VarIds, NameMap, ForallMeta),
+        % Per-body-condition source ranges, so the (explanation-driven) Show Proof
+        % and the failure-mode validation can match an explanation node to the
+        % exact body condition it came from. For a NAF condition, also the range of
+        % the negated (inner) goal.
+        body_ranges(FlatBodyList, BodyRanges),
         ( SM \== none ->
             assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
         ; true ),
         RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
                       body: BodyLEs, bodyTokens: BodyTokensList,
                       bodyNaf: NafIndices, bodyForall: ForallMeta,
+                      bodyRanges: BodyRanges,
                       start: Start, end: End }
     ), Rules),
     findall(FactDict, (
@@ -122,6 +128,26 @@ literal_to_game(KB, Literal, VarIds, NameMap, SeenIn, SeenOut, LE, Tokens) :-
         game_tokens_text(Tokens, LE)
     ;   term_string(Literal, LE), Tokens = [_{kind: "word", text: LE}], SeenOut = SeenIn
     ).
+
+% body_ranges(+BodyList, -Ranges): a dict per body condition with its source
+% range, plus (for a negation) the range of the negated inner goal — so an
+% explanation node can be matched to the precise condition it derives from.
+body_ranges(BodyList, Ranges) :-
+    findall(R,
+        ( nth0(I, BodyList, Cond),
+          le_at_range(Cond, S, E),
+          ( naf_inner_range(Cond, IS, IE)
+            -> R = _{ index: I, start: S, end: E, innerStart: IS, innerEnd: IE }
+            ;  R = _{ index: I, start: S, end: E } )
+        ), Ranges).
+
+le_at_range(le_at(_, S, E), S, E) :- !.
+le_at_range(_, 0, 0).
+
+% naf_inner_range(+Cond, -S, -E): the source range of the negated goal G in an
+% "it is not the case that G" condition.
+naf_inner_range(le_at(C, _, _), S, E) :- !, naf_inner_range(C, S, E).
+naf_inner_range(not(le_at(_, S, E)), S, E).
 
 % forall_meta_list(+KB, +BodyList, +VarIds, +NameMap, -Meta): for each "for all
 % cases in which <Cond> it is the case that <Cons>" body condition, a dict with
