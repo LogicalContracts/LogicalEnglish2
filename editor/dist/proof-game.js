@@ -124690,6 +124690,7 @@ function CustomSocket(props) {
 }
 function CustomConnection(props) {
   const { start, end, path: defaultPath } = useConnection2();
+  const label = props?.data?.label || "";
   const markerId = React2.useMemo(
     () => `arrowhead-${Math.random().toString(36).slice(2)}`,
     []
@@ -124758,10 +124759,40 @@ function CustomConnection(props) {
     React2.createElement("path", {
       d: path,
       fill: "none",
-      stroke: "steelblue",
+      stroke: label ? "#e57373" : "steelblue",
       strokeWidth: "3px",
+      strokeDasharray: label ? "6 4" : void 0,
       markerEnd: `url(#${markerId})`
-    })
+    }),
+    // Optional edge label (e.g. "not the case" on a negation link), drawn at
+    // the curve's midpoint (cubic Bezier at t = 0.5).
+    label && (() => {
+      const mx = 0.125 * start.x + 0.375 * c1x + 0.375 * c2x + 0.125 * end.x - minX;
+      const my = 0.125 * start.y + 0.375 * c1y + 0.375 * c2y + 0.125 * end.y - minY;
+      const w2 = label.length * 6.5 + 10;
+      return React2.createElement(
+        "g",
+        { key: "label" },
+        React2.createElement("rect", {
+          x: mx - w2 / 2,
+          y: my - 9,
+          width: w2,
+          height: 18,
+          rx: 4,
+          fill: "#3a1f1f",
+          stroke: "#e57373",
+          strokeWidth: "1"
+        }),
+        React2.createElement("text", {
+          x: mx,
+          y: my + 4,
+          textAnchor: "middle",
+          fill: "#ffcdd2",
+          fontSize: "11px",
+          fontStyle: "italic"
+        }, label)
+      );
+    })()
   );
 }
 function playSuccessSound() {
@@ -125026,6 +125057,9 @@ async function initProofGame(container, gameData) {
             if (node2 instanceof RuleNode) {
               node2.headTokens = nodeData.headTokens;
               node2.bodyTokens = nodeData.bodyTokens;
+              if (Array.isArray(nodeData.bodyForall)) {
+                node2.rule.bodyForall = nodeData.bodyForall;
+              }
             } else if (node2 instanceof FactNode) {
               node2.tokens = nodeData.headTokens;
             } else if (node2 instanceof QueryNode) {
@@ -125035,6 +125069,7 @@ async function initProofGame(container, gameData) {
           }
         });
         checkCompletion();
+        updateConnectionLabels();
         wasClash = false;
       } else if (res.status === "clash") {
         if (!wasClash) {
@@ -125056,6 +125091,24 @@ async function initProofGame(container, gameData) {
       }
     } catch (err) {
       console.error("Unification failed:", err);
+    }
+  }
+  function updateConnectionLabels() {
+    for (const c2 of editor.getConnections()) {
+      const target = editor.getNode(c2.target);
+      const source = editor.getNode(c2.source);
+      let label = "";
+      if (target instanceof RuleNode && typeof c2.targetInput === "string" && c2.targetInput.startsWith("in-")) {
+        const parts = c2.targetInput.split("-");
+        const i2 = parseInt(parts[1]);
+        if (parts.length === 2 && target.bodyNaf.includes(i2) && !(source instanceof FailNode)) {
+          label = "not the case";
+        }
+      }
+      if (c2.label !== label) {
+        c2.label = label;
+        area.update("connection", c2.id);
+      }
     }
   }
   index.selectableNodes(area, index.selector(), {
@@ -125191,43 +125244,85 @@ async function initProofGame(container, gameData) {
       const n2 = editor.getNode(nodeId);
       return !!(n2 && n2.inputs && n2.inputs[key]);
     }
-    async function connectExplanation(expNode, targetNodeId, targetInputKey) {
-      if (!hasInput(targetNodeId, targetInputKey))
+    function matchNode(expNode) {
+      return nodes2.find((n2) => !usedNodes.has(n2.id) && (n2 instanceof RuleNode || n2 instanceof FactNode) && n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end);
+    }
+    function dropNafPrefix(tokens) {
+      const prefix2 = ["it", "is", "not", "the", "case", "that"];
+      let k2 = 0;
+      while (k2 < tokens.length && k2 < prefix2.length && tokens[k2].kind === "word" && tokens[k2].text?.toLowerCase() === prefix2[k2])
+        k2++;
+      return tokens.slice(k2);
+    }
+    function findNegationRule(ruleNode, i2) {
+      const inner = dropNafPrefix(ruleNode.bodyTokens?.[i2] || []);
+      const tmpl = getPredicateTemplate(inner);
+      if (!tmpl)
+        return null;
+      return nodes2.find((n2) => n2 instanceof RuleNode && !usedNodes.has(n2.id) && getPredicateTemplate(n2.headTokens) === tmpl) || null;
+    }
+    async function connectNode(expNode, targetNodeId, targetInputKey) {
+      if (!expNode || !hasInput(targetNodeId, targetInputKey))
         return;
-      if (expNode && expNode.naf) {
-        const failNode = new FailNode("FAIL", "#d32f2f");
-        await editor.addNode(failNode);
-        usedNodes.add(failNode.id);
+      const match2 = matchNode(expNode);
+      if (!match2)
+        return;
+      usedNodes.add(match2.id);
+      await editor.addConnection(new classic.Connection(
+        match2,
+        "out",
+        editor.getNode(targetNodeId),
+        targetInputKey
+      ));
+      if (match2 instanceof RuleNode)
+        await connectRuleBody(expNode, match2);
+    }
+    async function connectNegation(ruleNode, i2) {
+      const inputKey = `in-${i2}`;
+      if (!hasInput(ruleNode.id, inputKey))
+        return;
+      const negRule = findNegationRule(ruleNode, i2);
+      if (negRule) {
+        usedNodes.add(negRule.id);
         await editor.addConnection(new classic.Connection(
-          failNode,
+          negRule,
           "out",
-          editor.getNode(targetNodeId),
-          targetInputKey
+          editor.getNode(ruleNode.id),
+          inputKey
         ));
         return;
       }
-      const match2 = nodes2.find((n2) => {
-        if (usedNodes.has(n2.id))
-          return false;
-        if (n2 instanceof RuleNode) {
-          return n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end;
-        }
-        if (n2 instanceof FactNode) {
-          return n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end;
-        }
-        return false;
-      });
-      if (match2) {
-        usedNodes.add(match2.id);
-        await editor.addConnection(new classic.Connection(match2, "out", editor.getNode(targetNodeId), targetInputKey));
-        if (expNode.children && match2 instanceof RuleNode) {
-          for (let i2 = 0; i2 < expNode.children.length; i2++) {
-            await connectExplanation(expNode.children[i2], match2.id, `in-${i2}`);
-          }
+      const failNode = new FailNode("FAIL", "#d32f2f");
+      await editor.addNode(failNode);
+      usedNodes.add(failNode.id);
+      await editor.addConnection(new classic.Connection(
+        failNode,
+        "out",
+        editor.getNode(ruleNode.id),
+        inputKey
+      ));
+    }
+    async function connectRuleBody(expNode, ruleNode) {
+      const children = expNode.children || [];
+      for (let i2 = 0; i2 < children.length; i2++) {
+        const child = children[i2];
+        if (ruleNode.forallIndexSet && ruleNode.forallIndexSet.has(i2)) {
+          const subs = child && child.children || [];
+          const condExp = subs.find((s) => typeof s.literal === "string" && s.literal.startsWith("for case"));
+          const consExp = subs.find((s) => typeof s.literal === "string" && s.literal.startsWith("it is true that"));
+          if (condExp)
+            await connectNode(condExp, ruleNode.id, `in-${i2}-0`);
+          if (consExp)
+            await connectNode(consExp, ruleNode.id, `in-${i2}-1`);
+        } else if (child && child.naf) {
+          await connectNegation(ruleNode, i2);
+        } else {
+          await connectNode(child, ruleNode.id, `in-${i2}`);
         }
       }
     }
-    await connectExplanation(explanation, queryNode.id, "in");
+    await connectNode(explanation, queryNode.id, "in");
+    updateConnectionLabels();
     const proofTreeNodes = /* @__PURE__ */ new Set();
     proofTreeNodes.add(queryNode.id);
     for (const id of usedNodes) {

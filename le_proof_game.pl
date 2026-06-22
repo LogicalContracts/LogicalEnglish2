@@ -38,13 +38,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         % For each "for all cases in which <Cond> it is the case that <Cons>" body
         % condition, expose its two sub-conditions so the UI can offer a separate
         % link target (sub-socket) for each (sub 0 = Cond, sub 1 = Cons).
-        findall(_{ index: FI, condLE: CondLE, condTokens: CondToks,
-                   consLE: ConsLE, consTokens: ConsToks },
-            (   nth0(FI, FlatBodyList, ForallCond),
-                strip_le_at(ForallCond, forall(ForallC, ForallK)),
-                literal_to_game(KB, ForallC, VarIds, NameMap, [], _SF1, CondLE, CondToks),
-                literal_to_game(KB, ForallK, VarIds, NameMap, [], _SF2, ConsLE, ConsToks)
-            ), ForallMeta),
+        forall_meta_list(KB, FlatBodyList, VarIds, NameMap, ForallMeta),
         ( SM \== none ->
             assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
         ; true ),
@@ -129,6 +123,19 @@ literal_to_game(KB, Literal, VarIds, NameMap, SeenIn, SeenOut, LE, Tokens) :-
     ;   term_string(Literal, LE), Tokens = [_{kind: "word", text: LE}], SeenOut = SeenIn
     ).
 
+% forall_meta_list(+KB, +BodyList, +VarIds, +NameMap, -Meta): for each "for all
+% cases in which <Cond> it is the case that <Cons>" body condition, a dict with
+% its index and the rendered Cond/Cons (carrying whatever variable bindings are
+% currently in effect, so the UI can show them once they get bound).
+forall_meta_list(KB, BodyList, VarIds, NameMap, Meta) :-
+    findall(_{ index: FI, condLE: CondLE, condTokens: CondToks,
+               consLE: ConsLE, consTokens: ConsToks },
+        (   nth0(FI, BodyList, ForallCond),
+            strip_le_at(ForallCond, forall(ForallC, ForallK)),
+            literal_to_game(KB, ForallC, VarIds, NameMap, [], _SF1, CondLE, CondToks),
+            literal_to_game(KB, ForallK, VarIds, NameMap, [], _SF2, ConsLE, ConsToks)
+        ), Meta).
+
 body_list_to_game(_KB, [], _VarIds, _NameMap, Seen, Seen, [], []).
 body_list_to_game(KB, [L|Ls], VarIds, NameMap, SeenIn, SeenOut, [LE|LEs], [Tokens|TokensT]) :-
     literal_to_game(KB, L, VarIds, NameMap, SeenIn, Seen1, LE, Tokens),
@@ -206,8 +213,12 @@ render_instances(KB, [inst(IId, _Kind, Head, Body)|Insts], [Result|Results]) :-
     game_var_ids((Head :- Body), VarIds),
     literal_to_game(KB, Head, VarIds, [], [], Seen1, HeadLE, HeadTokens),
     body_list_to_game(KB, Body, VarIds, [], Seen1, _SeenN, BodyLEs, BodyTokensList),
+    % Re-render any "for all cases" sub-conditions too, so their bindings (e.g.
+    % "the creature" -> alice) appear once the rule's variables are bound.
+    forall_meta_list(KB, Body, VarIds, [], ForallMeta),
     Result = _{ instanceId: IId, head: HeadLE, headTokens: HeadTokens,
-                body: BodyLEs, bodyTokens: BodyTokensList },
+                body: BodyLEs, bodyTokens: BodyTokensList,
+                bodyForall: ForallMeta },
     render_instances(KB, Insts, Results).
 
 % --- Typed Rendering Logic (moved from le_kbs) ---

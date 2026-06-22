@@ -417,6 +417,7 @@ function CustomSocket(props: any) {
 
 function CustomConnection(props: any) {
     const { start, end, path: defaultPath } = useConnection();
+    const label: string = props?.data?.label || '';
     // Unique marker id per connection: many connections each render their own
     // <defs><marker> and duplicate DOM ids make url(#id) references unreliable.
     const markerId = React.useMemo(
@@ -488,10 +489,28 @@ function CustomConnection(props: any) {
         React.createElement('path', {
             d: path,
             fill: 'none',
-            stroke: 'steelblue',
+            stroke: label ? '#e57373' : 'steelblue',
             strokeWidth: '3px',
+            strokeDasharray: label ? '6 4' : undefined,
             markerEnd: `url(#${markerId})`
-        })
+        }),
+        // Optional edge label (e.g. "not the case" on a negation link), drawn at
+        // the curve's midpoint (cubic Bezier at t = 0.5).
+        label && (() => {
+            const mx = 0.125 * start.x + 0.375 * c1x + 0.375 * c2x + 0.125 * end.x - minX;
+            const my = 0.125 * start.y + 0.375 * c1y + 0.375 * c2y + 0.125 * end.y - minY;
+            const w = label.length * 6.5 + 10;
+            return React.createElement('g', { key: 'label' },
+                React.createElement('rect', {
+                    x: mx - w / 2, y: my - 9, width: w, height: 18, rx: 4,
+                    fill: '#3a1f1f', stroke: '#e57373', strokeWidth: '1'
+                }),
+                React.createElement('text', {
+                    x: mx, y: my + 4, textAnchor: 'middle',
+                    fill: '#ffcdd2', fontSize: '11px', fontStyle: 'italic'
+                }, label)
+            );
+        })()
     );
 }
 
@@ -786,6 +805,11 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                         if (node instanceof RuleNode) {
                             node.headTokens = nodeData.headTokens;
                             node.bodyTokens = nodeData.bodyTokens;
+                            // Refresh the "for all cases" sub-condition tokens so a
+                            // binding (e.g. "the creature" -> alice) shows there too.
+                            if (Array.isArray(nodeData.bodyForall)) {
+                                node.rule.bodyForall = nodeData.bodyForall;
+                            }
                         } else if (node instanceof FactNode) {
                             node.tokens = nodeData.headTokens;
                         } else if (node instanceof QueryNode) {
@@ -795,6 +819,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                     }
                 });
                 checkCompletion();
+                updateConnectionLabels();
                 wasClash = false;
             } else if (res.status === 'clash') {
                 if (!wasClash) {
@@ -816,6 +841,28 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             }
         } catch (err) {
             console.error('Unification failed:', err);
+        }
+    }
+
+    // Label connections that are negation links — a rule/fact (not a FAIL node)
+    // feeding an "it is not the case that ..." condition — with "not the case".
+    function updateConnectionLabels() {
+        for (const c of editor.getConnections()) {
+            const target = editor.getNode(c.target) as any;
+            const source = editor.getNode(c.source) as any;
+            let label = '';
+            if (target instanceof RuleNode && typeof c.targetInput === 'string'
+                && c.targetInput.startsWith('in-')) {
+                const parts = c.targetInput.split('-');
+                const i = parseInt(parts[1]);
+                if (parts.length === 2 && target.bodyNaf.includes(i) && !(source instanceof FailNode)) {
+                    label = 'not the case';
+                }
+            }
+            if ((c as any).label !== label) {
+                (c as any).label = label;
+                area.update('connection', c.id);
+            }
         }
     }
 
@@ -998,44 +1045,89 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             return !!(n && n.inputs && n.inputs[key]);
         }
 
-        async function connectExplanation(expNode: any, targetNodeId: string, targetInputKey: string) {
-            if (!hasInput(targetNodeId, targetInputKey)) return;
-            // Negation-as-failure condition: satisfy it with a FAIL node rather
-            // than matching a rule/fact.
-            if (expNode && expNode.naf) {
-                const failNode = new FailNode('FAIL', '#d32f2f');
-                await editor.addNode(failNode);
-                usedNodes.add(failNode.id);
+        // The rule/fact game node whose source range matches an explanation node.
+        function matchNode(expNode: any): any {
+            return nodes.find(n => !usedNodes.has(n.id)
+                && (n instanceof RuleNode || n instanceof FactNode)
+                && (n as any).sourceLoc?.start === expNode.start
+                && (n as any).sourceLoc?.end === expNode.end);
+        }
+
+        // Drop the "it is not the case that" prefix from a NAF condition's tokens,
+        // leaving the negated goal's tokens.
+        function dropNafPrefix(tokens: any[]): any[] {
+            const prefix = ['it', 'is', 'not', 'the', 'case', 'that'];
+            let k = 0;
+            while (k < tokens.length && k < prefix.length
+                && tokens[k].kind === 'word' && tokens[k].text?.toLowerCase() === prefix[k]) k++;
+            return tokens.slice(k);
+        }
+
+        // The (unused) rule whose head would prove the negated goal of body
+        // condition `i` of `ruleNode` — i.e. the target of a "not the case" link.
+        function findNegationRule(ruleNode: any, i: number): any {
+            const inner = dropNafPrefix(ruleNode.bodyTokens?.[i] || []);
+            const tmpl = getPredicateTemplate(inner);
+            if (!tmpl) return null;
+            return nodes.find(n => n instanceof RuleNode && !usedNodes.has(n.id)
+                && getPredicateTemplate((n as RuleNode).headTokens) === tmpl) || null;
+        }
+
+        // Connect a positive (rule/fact) explanation node into a target input,
+        // then recurse into its body.
+        async function connectNode(expNode: any, targetNodeId: string, targetInputKey: string) {
+            if (!expNode || !hasInput(targetNodeId, targetInputKey)) return;
+            const match = matchNode(expNode);
+            if (!match) return;
+            usedNodes.add(match.id);
+            await editor.addConnection(new ClassicPreset.Connection(
+                match, 'out', editor.getNode(targetNodeId) as any, targetInputKey));
+            if (match instanceof RuleNode) await connectRuleBody(expNode, match);
+        }
+
+        // Satisfy a NAF condition: prefer a "not the case" link to the rule that
+        // would prove the negated goal; otherwise fall back to a FAIL node.
+        async function connectNegation(ruleNode: any, i: number) {
+            const inputKey = `in-${i}`;
+            if (!hasInput(ruleNode.id, inputKey)) return;
+            const negRule = findNegationRule(ruleNode, i);
+            if (negRule) {
+                usedNodes.add(negRule.id);
                 await editor.addConnection(new ClassicPreset.Connection(
-                    failNode as any, 'out', editor.getNode(targetNodeId) as any, targetInputKey));
+                    negRule, 'out', editor.getNode(ruleNode.id) as any, inputKey));
                 return;
             }
+            const failNode = new FailNode('FAIL', '#d32f2f');
+            await editor.addNode(failNode);
+            usedNodes.add(failNode.id);
+            await editor.addConnection(new ClassicPreset.Connection(
+                failNode as any, 'out', editor.getNode(ruleNode.id) as any, inputKey));
+        }
 
-            // Find a matching game node
-            const match = nodes.find(n => {
-                if (usedNodes.has(n.id)) return false;
-                if (n instanceof RuleNode) {
-                    return n.sourceLoc?.start === expNode.start && n.sourceLoc?.end === expNode.end;
-                }
-                if (n instanceof FactNode) {
-                    return n.sourceLoc?.start === expNode.start && n.sourceLoc?.end === expNode.end;
-                }
-                return false;
-            });
-
-            if (match) {
-                usedNodes.add(match.id);
-                await editor.addConnection(new ClassicPreset.Connection(match, 'out', editor.getNode(targetNodeId) as any, targetInputKey));
-                
-                if (expNode.children && match instanceof RuleNode) {
-                    for (let i = 0; i < expNode.children.length; i++) {
-                        await connectExplanation(expNode.children[i], match.id, `in-${i}`);
-                    }
+        // Connect each body condition of a matched rule (its explanation children
+        // line up with the body conditions), handling "for all cases" and negation.
+        async function connectRuleBody(expNode: any, ruleNode: any) {
+            const children = expNode.children || [];
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
+                if (ruleNode.forallIndexSet && ruleNode.forallIndexSet.has(i)) {
+                    // child is the "for all cases" node; connect the first case's
+                    // condition (sub 0) and consequence (sub 1) sub-proofs.
+                    const subs = (child && child.children) || [];
+                    const condExp = subs.find((s: any) => typeof s.literal === 'string' && s.literal.startsWith('for case'));
+                    const consExp = subs.find((s: any) => typeof s.literal === 'string' && s.literal.startsWith('it is true that'));
+                    if (condExp) await connectNode(condExp, ruleNode.id, `in-${i}-0`);
+                    if (consExp) await connectNode(consExp, ruleNode.id, `in-${i}-1`);
+                } else if (child && child.naf) {
+                    await connectNegation(ruleNode, i);
+                } else {
+                    await connectNode(child, ruleNode.id, `in-${i}`);
                 }
             }
         }
 
-        await connectExplanation(explanation, queryNode.id, 'in');
+        await connectNode(explanation, queryNode.id, 'in');
+        updateConnectionLabels();
         
         // 1. Identify proof tree nodes and non-proof tree nodes
         const proofTreeNodes = new Set<string>();
