@@ -1687,6 +1687,28 @@ Please wire Show-proof to auto-build forall/negation links. Also, when linking t
 
 Let's revisit our "negation link" answer to your question above: we need to go all the way and turn the whole subtree into "failing mode". Otherwise in this example the user cannot construct the full failure tree under "bob smokes". The full explanation needs to be our proof game solution spine. This principle also applies to "Show Proof", it needs to connect based on the actual explanation rather than guess condition matches.
 
+## missing failures in explanation
+Some failure nodes are missing. Consider the explanation for the second answer of examples/moreExamples/happy_dragon.le, scenario smoky, query happy. Seem my notes below:
+
+alice is happy
+  alice is a dragon
+  for all cases in which alice is a parent of a dragon
+    for case alice is a parent of bob
+    it is true that bob is healthy
+      bob is a dragon
+      it is not the case that bob smokes
+        it is not true that: bob smokes
+          THIS IS MISSING: an other creature is a parent of bob
+          THIS IS CORRECTLY NOT IN THE EXPLANATION: alice is a dragon
+          it is not true that: alice smokes
+            it is not true that: a creature is a parent of alice
+
+THIS IS MISSING: first condition of the smokes rule; although a solution was produced,  the call was not ground, so theyre may be missing solutions explaining the faiure
+THIS IS CORRECTLY NOT IN THE EXPLANATION: one solution produced, but call was already ground (its solutions are irrelevant)
+
+Please fix the explanation trees, and check that the Proof Game reflects the fix
+
+finally, pleaase fix the Typescript warnings
 
 ## TBD
 Fix all Typescript warnings
