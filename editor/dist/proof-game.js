@@ -124351,12 +124351,20 @@ var RuleNode = class extends classic.Node {
     this.templateId = rule.id;
     this.headTokens = rule.headTokens;
     this.bodyTokens = rule.bodyTokens;
+    this.bodyNaf = Array.isArray(rule.bodyNaf) ? rule.bodyNaf : [];
+    this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
+    this.forallIndexSet = new Set(this.bodyForall.map((m2) => m2.index));
     this.sourceLoc = sourceLoc;
     const socket = new classic.Socket("socket");
     this.addOutput("out", new classic.Output(socket));
     if (rule.body) {
-      rule.body.forEach((cond, i2) => {
-        this.addInput(`in-${i2}`, new classic.Input(socket));
+      rule.body.forEach((_cond, i2) => {
+        if (this.forallIndexSet.has(i2)) {
+          this.addInput(`in-${i2}-0`, new classic.Input(socket));
+          this.addInput(`in-${i2}-1`, new classic.Input(socket));
+        } else {
+          this.addInput(`in-${i2}`, new classic.Input(socket));
+        }
       });
     }
   }
@@ -124366,9 +124374,15 @@ var RuleNode = class extends classic.Node {
   templateId;
   headTokens;
   bodyTokens;
+  bodyNaf;
+  bodyForall;
+  forallIndexSet;
   clash = false;
   complete = false;
   type;
+  forallMeta(i2) {
+    return this.bodyForall.find((m2) => m2.index === i2);
+  }
 };
 function renderTokens(tokens) {
   if (!tokens)
@@ -124480,10 +124494,59 @@ function CustomNode(props) {
       bodyCount > 0 && React2.createElement("div", {
         style: { display: "flex", justifyContent: "center", gap: "20px", width: "100%", zIndex: 1 }
       }, data.rule.body.map((cond, i2) => {
+        const isForall = data.forallIndexSet && data.forallIndexSet.has(i2);
+        const isNaf = Array.isArray(data.bodyNaf) && data.bodyNaf.includes(i2);
         const condText = renderTokens(data.bodyTokens[i2]) || cond;
         const condTemplate = getPredicateTemplate(data.bodyTokens[i2]) || cond;
         const condPredicateColor = templateColors.get(condTemplate) || "#ffeb3b";
         const bodyColor = data.complete ? "#81c784" : isAdultMode ? "#333" : condPredicateColor;
+        if (isForall) {
+          const meta = data.rule.bodyForall.find((m2) => m2.index === i2) || {};
+          const condLE = renderTokens(meta.condTokens) || meta.condLE || "";
+          const consLE = renderTokens(meta.consTokens) || meta.consLE || "";
+          const subRow = (subIdx, label, text) => React2.createElement(
+            "div",
+            {
+              key: subIdx,
+              style: { position: "relative", marginTop: subIdx === 1 ? "14px" : "0" }
+            },
+            isAdultMode ? React2.createElement("div", {
+              style: { fontSize: "10px", opacity: 0.8 }
+            }, label) : "",
+            isAdultMode ? text : "",
+            React2.createElement("div", {
+              style: { position: "absolute", left: "50%", bottom: "-10px", transform: "translate(-50%, 50%)" }
+            }, React2.createElement(RefSocket2, {
+              style: SOCKET_HIT_STYLE,
+              name: "input-socket",
+              emit,
+              side: "input",
+              nodeId: data.id,
+              socketKey: `in-${i2}-${subIdx}`,
+              payload: data.inputs[`in-${i2}-${subIdx}`]?.socket
+            }))
+          );
+          return React2.createElement(
+            "div",
+            {
+              key: i2,
+              style: {
+                position: "relative",
+                background: bodyColor,
+                color: textColor,
+                padding: "10px 10px 18px",
+                borderRadius: "8px",
+                width: "200px",
+                textAlign: "center",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
+                border: isAdultMode ? "1px dashed #888" : "none"
+              },
+              title: !isAdultMode ? condText : "for all cases"
+            },
+            subRow(0, "for all cases in which", condLE),
+            subRow(1, "it is the case that", consLE)
+          );
+        }
         return React2.createElement(
           "div",
           {
@@ -124497,9 +124560,9 @@ function CustomNode(props) {
               width: "200px",
               textAlign: "center",
               boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
-              border: isAdultMode ? "1px solid #444" : "none"
+              border: isAdultMode ? isNaf ? "1px dashed #e57373" : "1px solid #444" : "none"
             },
-            title: !isAdultMode ? condText : ""
+            title: !isAdultMode ? condText : isNaf ? "negation: connect the rule that would prove it, or a FAIL node" : ""
           },
           isAdultMode ? condText : "",
           React2.createElement("div", {
@@ -124870,11 +124933,26 @@ async function initProofGame(container, gameData) {
       if (node2 instanceof RuleNode) {
         const bodyCount = node2.rule.body ? node2.rule.body.length : 0;
         for (let i2 = 0; i2 < bodyCount; i2++) {
-          const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
-          if (!conn)
-            return false;
-          if (!isComplete(conn.source))
-            return false;
+          if (node2.forallIndexSet.has(i2)) {
+            for (const sub of [0, 1]) {
+              const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-${sub}`);
+              if (!conn)
+                return false;
+              if (!isComplete(conn.source))
+                return false;
+            }
+          } else if (node2.bodyNaf.includes(i2)) {
+            const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
+            if (!conn)
+              return false;
+            fragmentNodes.add(conn.source);
+          } else {
+            const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
+            if (!conn)
+              return false;
+            if (!isComplete(conn.source))
+              return false;
+          }
         }
         return true;
       }
@@ -124915,14 +124993,17 @@ async function initProofGame(container, gameData) {
       if (!source || !target)
         return null;
       let bodyIndex = 0;
+      let subIndex = -1;
       if (c2.targetInput.startsWith("in-")) {
-        bodyIndex = parseInt(c2.targetInput.split("-")[1]);
+        const parts = c2.targetInput.split("-");
+        bodyIndex = parseInt(parts[1]);
+        if (parts.length > 2)
+          subIndex = parseInt(parts[2]);
       }
-      return {
-        child: c2.source,
-        parent: c2.target,
-        bodyIndex
-      };
+      const edge = { child: c2.source, parent: c2.target, bodyIndex };
+      if (subIndex >= 0)
+        edge.subIndex = subIndex;
+      return edge;
     }).filter((e) => e !== null);
     try {
       const response = await fetch("/leapi", {
@@ -125106,7 +125187,13 @@ async function initProofGame(container, gameData) {
     if (!explanation)
       return;
     const usedNodes = /* @__PURE__ */ new Set();
+    function hasInput(nodeId, key) {
+      const n2 = editor.getNode(nodeId);
+      return !!(n2 && n2.inputs && n2.inputs[key]);
+    }
     async function connectExplanation(expNode, targetNodeId, targetInputKey) {
+      if (!hasInput(targetNodeId, targetInputKey))
+        return;
       if (expNode && expNode.naf) {
         const failNode = new FailNode("FAIL", "#d32f2f");
         await editor.addNode(failNode);

@@ -99,25 +99,42 @@ class RuleNode extends ClassicPreset.Node {
     public templateId: string;
     public headTokens: any[];
     public bodyTokens: any[][];
+    public bodyNaf: number[];
+    public bodyForall: any[];
+    public forallIndexSet: Set<number>;
     public clash: boolean = false;
     public complete: boolean = false;
-    
+
     constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
         super('');
         this.type = 'rule';
         this.templateId = rule.id;
         this.headTokens = rule.headTokens;
         this.bodyTokens = rule.bodyTokens;
+        this.bodyNaf = Array.isArray(rule.bodyNaf) ? rule.bodyNaf : [];
+        this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
+        this.forallIndexSet = new Set(this.bodyForall.map((m: any) => m.index));
         this.sourceLoc = sourceLoc;
         const socket = new ClassicPreset.Socket('socket');
         this.addOutput('out', new ClassicPreset.Output(socket));
         if (rule.body) {
-            rule.body.forEach((cond: string, i: number) => {
-                this.addInput(`in-${i}`, new ClassicPreset.Input(socket));
+            rule.body.forEach((_cond: string, i: number) => {
+                if (this.forallIndexSet.has(i)) {
+                    // A "for all cases in which <Cond> it is the case that <Cons>"
+                    // condition exposes two sub-sockets: -0 for the Cond, -1 for
+                    // the Cons.
+                    this.addInput(`in-${i}-0`, new ClassicPreset.Input(socket));
+                    this.addInput(`in-${i}-1`, new ClassicPreset.Input(socket));
+                } else {
+                    this.addInput(`in-${i}`, new ClassicPreset.Input(socket));
+                }
             });
         }
     }
     type: string;
+    forallMeta(i: number): any {
+        return this.bodyForall.find((m: any) => m.index === i);
+    }
 }
 
 function renderTokens(tokens: any[]) {
@@ -222,20 +239,61 @@ function CustomNode(props: any) {
             bodyCount > 0 && React.createElement('div', {
                 style: { display: 'flex', justifyContent: 'center', gap: '20px', width: '100%', zIndex: 1 }
             }, data.rule.body.map((cond: string, i: number) => {
+                const isForall = data.forallIndexSet && data.forallIndexSet.has(i);
+                const isNaf = Array.isArray(data.bodyNaf) && data.bodyNaf.includes(i);
                 const condText = renderTokens(data.bodyTokens[i]) || cond;
                 const condTemplate = getPredicateTemplate(data.bodyTokens[i]) || cond;
                 const condPredicateColor = templateColors.get(condTemplate) || '#ffeb3b';
                 const bodyColor = data.complete ? '#81c784' : (isAdultMode ? '#333' : condPredicateColor);
+
+                if (isForall) {
+                    // A "for all cases in which <Cond> it is the case that <Cons>"
+                    // condition: render two stacked sub-rows, each with its own
+                    // link socket (sub 0 = the condition, sub 1 = the consequence).
+                    const meta = data.rule.bodyForall.find((m: any) => m.index === i) || {};
+                    const condLE = renderTokens(meta.condTokens) || meta.condLE || '';
+                    const consLE = renderTokens(meta.consTokens) || meta.consLE || '';
+                    const subRow = (subIdx: number, label: string, text: string) =>
+                        React.createElement('div', {
+                            key: subIdx,
+                            style: { position: 'relative', marginTop: subIdx === 1 ? '14px' : '0' }
+                        },
+                            isAdultMode ? React.createElement('div', {
+                                style: { fontSize: '10px', opacity: 0.8 }
+                            }, label) : '',
+                            isAdultMode ? text : '',
+                            React.createElement('div', {
+                                style: { position: 'absolute', left: '50%', bottom: '-10px', transform: 'translate(-50%, 50%)' }
+                            }, React.createElement(RefSocket, {
+                                style: SOCKET_HIT_STYLE, name: 'input-socket', emit, side: 'input',
+                                nodeId: data.id, socketKey: `in-${i}-${subIdx}`, payload: data.inputs[`in-${i}-${subIdx}`]?.socket
+                            }))
+                        );
+                    return React.createElement('div', {
+                        key: i,
+                        style: {
+                            position: 'relative', background: bodyColor, color: textColor,
+                            padding: '10px 10px 18px', borderRadius: '8px', width: '200px',
+                            textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
+                            border: isAdultMode ? '1px dashed #888' : 'none'
+                        },
+                        title: !isAdultMode ? condText : 'for all cases'
+                    },
+                        subRow(0, 'for all cases in which', condLE),
+                        subRow(1, 'it is the case that', consLE)
+                    );
+                }
+
                 return React.createElement('div', {
                     key: i,
                     style: {
                         position: 'relative', background: bodyColor, color: textColor,
                         padding: '10px', borderRadius: '8px', width: '200px',
                         textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                        border: isAdultMode ? '1px solid #444' : 'none'
+                        border: isAdultMode ? (isNaf ? '1px dashed #e57373' : '1px solid #444') : 'none'
                     },
-                    title: !isAdultMode ? condText : ''
-                }, 
+                    title: !isAdultMode ? condText : (isNaf ? 'negation: connect the rule that would prove it, or a FAIL node' : '')
+                },
                     isAdultMode ? condText : '',
                     React.createElement('div', {
                         style: { position: 'absolute', left: '50%', bottom: '0px', transform: 'translate(-50%, 50%)' }
@@ -629,9 +687,25 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             if (node instanceof RuleNode) {
                 const bodyCount = node.rule.body ? node.rule.body.length : 0;
                 for (let i = 0; i < bodyCount; i++) {
-                    const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
-                    if (!conn) return false;
-                    if (!isComplete(conn.source)) return false;
+                    if (node.forallIndexSet.has(i)) {
+                        // Both sub-conditions of a "for all cases" must be satisfied.
+                        for (const sub of [0, 1]) {
+                            const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-${sub}`);
+                            if (!conn) return false;
+                            if (!isComplete(conn.source)) return false;
+                        }
+                    } else if (node.bodyNaf.includes(i)) {
+                        // A negation is satisfied by ANY connection: a FAIL node, or
+                        // a "not the case" link to the rule that would prove it. The
+                        // linked node's own body is not required (labeled link).
+                        const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
+                        if (!conn) return false;
+                        fragmentNodes.add(conn.source);
+                    } else {
+                        const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
+                        if (!conn) return false;
+                        if (!isComplete(conn.source)) return false;
+                    }
                 }
                 return true;
             }
@@ -675,16 +749,19 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             const target = editor.getNode(c.target);
             if (!source || !target) return null;
             
+            // targetInput is "in-<bodyIndex>" or, for a "for all cases" condition,
+            // "in-<bodyIndex>-<subIndex>" (sub 0 = condition, sub 1 = consequence).
             let bodyIndex = 0;
+            let subIndex = -1;
             if (c.targetInput.startsWith('in-')) {
-                bodyIndex = parseInt(c.targetInput.split('-')[1]);
+                const parts = c.targetInput.split('-');
+                bodyIndex = parseInt(parts[1]);
+                if (parts.length > 2) subIndex = parseInt(parts[2]);
             }
-            
-            return {
-                child: c.source,
-                parent: c.target,
-                bodyIndex: bodyIndex
-            };
+
+            const edge: any = { child: c.source, parent: c.target, bodyIndex };
+            if (subIndex >= 0) edge.subIndex = subIndex;
+            return edge;
         }).filter(e => e !== null);
 
         try {
@@ -912,7 +989,17 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
         const usedNodes = new Set<string>();
 
+        // True if the target node actually has the given input socket. "For all
+        // cases" conditions expose `in-i-0`/`in-i-1` instead of `in-i`, which the
+        // explanation-driven auto-connect does not yet address, so we skip those
+        // rather than crash on a missing input.
+        function hasInput(nodeId: string, key: string): boolean {
+            const n = editor.getNode(nodeId) as any;
+            return !!(n && n.inputs && n.inputs[key]);
+        }
+
         async function connectExplanation(expNode: any, targetNodeId: string, targetInputKey: string) {
+            if (!hasInput(targetNodeId, targetInputKey)) return;
             // Negation-as-failure condition: satisfy it with a FAIL node rather
             // than matching a rule/fact.
             if (expNode && expNode.naf) {

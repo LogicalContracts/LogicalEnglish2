@@ -35,12 +35,22 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
         findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
+        % For each "for all cases in which <Cond> it is the case that <Cons>" body
+        % condition, expose its two sub-conditions so the UI can offer a separate
+        % link target (sub-socket) for each (sub 0 = Cond, sub 1 = Cons).
+        findall(_{ index: FI, condLE: CondLE, condTokens: CondToks,
+                   consLE: ConsLE, consTokens: ConsToks },
+            (   nth0(FI, FlatBodyList, ForallCond),
+                strip_le_at(ForallCond, forall(ForallC, ForallK)),
+                literal_to_game(KB, ForallC, VarIds, NameMap, [], _SF1, CondLE, CondToks),
+                literal_to_game(KB, ForallK, VarIds, NameMap, [], _SF2, ConsLE, ConsToks)
+            ), ForallMeta),
         ( SM \== none ->
             assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
         ; true ),
         RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
                       body: BodyLEs, bodyTokens: BodyTokensList,
-                      bodyNaf: NafIndices,
+                      bodyNaf: NafIndices, bodyForall: ForallMeta,
                       start: Start, end: End }
     ), Rules),
     findall(FactDict, (
@@ -142,16 +152,39 @@ apply_edges(Instances, [Edge|Edges]) :-
     get_dict(child, Edge, ChildVal), atom_string(Child, ChildVal),
     get_dict(parent, Edge, ParentVal), atom_string(Parent, ParentVal),
     get_dict(bodyIndex, Edge, BodyIndex),
+    ( get_dict(subIndex, Edge, SubVal), integer(SubVal) -> SubIndex = SubVal ; SubIndex = -1 ),
     member(inst(Child, ChildKind, ChildHead, _), Instances),
     member(inst(Parent, _, _, ParentBody), Instances),
     nth0(BodyIndex, ParentBody, ParentCond),
-    (   ChildKind == fail
-    ->  % A FAIL node satisfies a condition only if it is a negation
-        % ("it is not the case that ...").
-        is_naf_condition(ParentCond)
-    ;   unify_condition(ChildHead, ParentCond)
-    ),
+    target_condition(ParentCond, SubIndex, Target),
+    satisfy_condition(ChildKind, ChildHead, Target),
     apply_edges(Instances, Edges).
+
+% target_condition(+Cond, +SubIndex, -Target): for a "for all cases" condition,
+% pick the sub-goal addressed by SubIndex (0 = the "for all cases in which ..."
+% condition, 1 = the "it is the case that ..." consequence); otherwise the whole
+% condition.
+target_condition(Cond0, SubIndex, Target) :-
+    (   SubIndex >= 0, strip_le_at(Cond0, forall(CondPart, ConsPart))
+    ->  ( SubIndex =:= 0 -> Target = CondPart ; Target = ConsPart )
+    ;   Target = Cond0
+    ).
+
+% satisfy_condition(+ChildKind, +ChildHead, +Target):
+%  - a FAIL node satisfies a negation ("it is not the case that ...");
+%  - a rule/fact head satisfies a positive condition by unifying with it, or a
+%    negation by unifying with its negated (inner) goal — a "not the case" link.
+satisfy_condition(fail, _, Target) :- !, is_naf_condition(Target).
+satisfy_condition(_, ChildHead, Target) :-
+    (   naf_inner_goal(Target, Inner)
+    ->  unify_condition(ChildHead, Inner)
+    ;   unify_condition(ChildHead, Target)
+    ).
+
+% naf_inner_goal(+Cond, -Inner): the negated goal of a NAF condition (the goal G
+% in "it is not the case that G"), stripping source annotations.
+naf_inner_goal(le_at(C, _, _), Inner) :- !, naf_inner_goal(C, Inner).
+naf_inner_goal(not(Inner0), Inner) :- strip_le_at(Inner0, Inner).
 
 unify_condition(Head, le_at(Cond, _, _)) :- !, unify_condition(Head, Cond).
 unify_condition(Head, or(A, B)) :- !,
