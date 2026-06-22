@@ -1142,7 +1142,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
     AreaExtensions.simpleNodesOrder(area);
 
-    const arrange = new AutoArrangePlugin<Schemes>();
+    const arrange = new AutoArrangePlugin<any>();
     arrange.addPreset(ArrangePresets.classic.setup());
     area.use(arrange);
 
@@ -1150,7 +1150,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     // transform, this animates by updating each node's logical position
     // (nodeView.position) every frame, so connection endpoints and socket
     // hit-testing stay correct while nodes move.
-    const arrangeApplier = new ArrangeAppliers.TransitionApplier<Schemes, never>({
+    const arrangeApplier = new ArrangeAppliers.TransitionApplier<any, never>({
         duration: 500,
         timingFunction: (t) => t
     });
@@ -1474,7 +1474,9 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }
 
         // 3. Lay out ONLY the PROOF tree nodes
-        const proofNodesList = Array.from(proofTreeNodes).map(id => editor.getNode(id));
+        const proofNodesList = Array.from(proofTreeNodes)
+            .map(id => editor.getNode(id))
+            .filter((n): n is NonNullable<typeof n> => !!n);
         const proofConnectionsList = editor.getConnections().filter(c => proofTreeNodes.has(c.source) && proofTreeNodes.has(c.target));
 
         await arrange.layout({

@@ -125641,7 +125641,7 @@ async function initProofGame(container, gameData) {
       const nodeHeight = n2.height || 100;
       currentY += nodeHeight + 30;
     }
-    const proofNodesList = Array.from(proofTreeNodes).map((id) => editor.getNode(id));
+    const proofNodesList = Array.from(proofTreeNodes).map((id) => editor.getNode(id)).filter((n2) => !!n2);
     const proofConnectionsList = editor.getConnections().filter((c2) => proofTreeNodes.has(c2.source) && proofTreeNodes.has(c2.target));
     await arrange.layout({
       applier: arrangeApplier,
