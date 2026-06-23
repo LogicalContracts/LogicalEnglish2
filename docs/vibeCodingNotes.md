@@ -1710,5 +1710,13 @@ Please fix the explanation trees, and check that the Proof Game reflects the fix
 
 finally, pleaase fix the Typescript warnings
 
+## Preselect scenarin and query
+Let the editor process two additional optional query string parameteres, which assume that 'example' or 'text' are also present:
+- scenario: selects the indicated scenario
+- query: selects the indicated query
+The query is NOT to be executed, the user should press its button for that.
+If there are syntactic errors or other serious condition (such as nonexisting query etc), present a short modal dialog to the user with the error
+Finally, when the user selects a scenario or query with the menus, alter the URL so that the user can copy a full URL with the selected scenario and/or query
+
 ## TBD
 Fix all Typescript warnings

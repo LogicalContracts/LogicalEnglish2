@@ -38502,6 +38502,7 @@ async function start() {
   let isLoading = false;
   let lastIssues = [];
   let lastLoadError = "";
+  let pendingAnswerIndex = null;
   let sessionModule = null;
   let includedResources = [];
   let loadTimeout = null;
@@ -39432,6 +39433,12 @@ async function start() {
       url.searchParams.set("query", q);
     else
       url.searchParams.delete("query");
+    url.searchParams.delete("answer");
+    window.history.replaceState({}, "", url.toString());
+  }
+  function setAnswerInUrl(order) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("answer", String(order));
     window.history.replaceState({}, "", url.toString());
   }
   scenarioSelect.addEventListener("change", () => {
@@ -39645,6 +39652,24 @@ async function start() {
     if (queryParam && !selectIfPresent(querySelect, queryParam)) {
       showModal(`Query "${queryParam}" does not exist in this document.`, "Unknown query");
       return;
+    }
+    const answerParam = p2.get("answer");
+    if (answerParam) {
+      if (!scenarioParam || !queryParam) {
+        showModal('The "answer" parameter requires both a "scenario" and a "query".', "Cannot select answer");
+        return;
+      }
+      const n = parseInt(answerParam, 10);
+      if (!Number.isInteger(n) || n < 1) {
+        showModal(`Invalid answer order "${answerParam}" \u2014 expected a positive whole number.`, "Cannot select answer");
+        return;
+      }
+      if (btnQuery.disabled) {
+        showModal("The query cannot be run (the document has errors or no query is selected).", "Cannot select answer");
+        return;
+      }
+      pendingAnswerIndex = n - 1;
+      btnQuery.click();
     }
   }
   scenarioSelect.addEventListener("mouseenter", () => {
@@ -40175,6 +40200,8 @@ async function start() {
       resultsDisplay.textContent = "Please enter a custom query.";
       return;
     }
+    const wantAnswer = pendingAnswerIndex;
+    pendingAnswerIndex = null;
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
     showInterruptSoon();
@@ -40205,6 +40232,13 @@ async function start() {
       }
       answersList.innerHTML = "";
       if (res && res.results && res.results.length > 0) {
+        let target = 0;
+        if (wantAnswer !== null) {
+          if (wantAnswer >= 0 && wantAnswer < res.results.length)
+            target = wantAnswer;
+          else
+            showModal(`Answer ${wantAnswer + 1} does not exist \u2014 the query has ${res.results.length} answer(s) in this scenario.`, "No such answer");
+        }
         res.results.forEach((result, index) => {
           const item = document.createElement("div");
           item.className = "answer-item";
@@ -40213,6 +40247,7 @@ async function start() {
             document.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
             item.classList.add("selected");
             renderExplanation(result.why);
+            setAnswerInUrl(index + 1);
           });
           item.addEventListener("contextmenu", (e) => {
             e.preventDefault();
@@ -40222,10 +40257,12 @@ async function start() {
             answerContextMenu.style.top = `${e.clientY}px`;
           });
           answersList.appendChild(item);
-          if (index === 0)
+          if (index === target)
             item.click();
         });
       } else if (res && res.why) {
+        if (wantAnswer !== null)
+          showModal("The query has no answers (it is false in this scenario), so there is no answer to select.", "No such answer");
         const item = document.createElement("div");
         item.className = "answer-item failure selected";
         item.style.color = "#f48771";
