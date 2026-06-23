@@ -211,9 +211,6 @@ section(query(Name, [query_raw(BodyTokens, BStart, End)], Start, End)) -->
     body(BodyTokens, End),
     { ( body_first_start(BodyTokens, BStart) -> true ; BStart = Start ) }.
 
-body_first_start([indent(_, _)|Ts], S) :- !, body_first_start(Ts, S).
-body_first_start([T|_], S) :- get_token_start(T, S).
-
 % section(ontology(...)) parses an ontology section.
 section(ontology(Content, Start, End)) -->
     any_indent, t(word(the, loc(Start, _))), t(word(ontology)), t(word(is)), t(punctuation(':', _)),
@@ -250,6 +247,11 @@ section(unknown_section(Tokens, Start, End)) -->
     consume_until_next_section(Ts),
     { append([T], Ts, Tokens) },
     { last(Tokens, Last), ( get_token_end(Last, End) -> true ; End = Start) }.
+
+% body_first_start(+BodyTokens, -Start): source start of a query body (its first
+% non-indent token), used for the query item's location.
+body_first_start([indent(_, _)|Ts], S) :- !, body_first_start(Ts, S).
+body_first_start([T|_], S) :- get_token_start(T, S).
 
 % kb_name_tokens(Tokens) consumes tokens until the 'includes' keyword.
 kb_name_tokens([T|Ts]) -->
@@ -1889,7 +1891,9 @@ all_segments_parse([], _).
 all_segments_parse([Seg|Segs], Templates) :-
     strip_leading_op(Seg, _Op, Body),
     Body \== [],
-    \+ \+ parse_literal(Body, Templates, [], _, _, _),
+    (   \+ \+ parse_literal(Body, Templates, [], _, _, _)
+    ;   inline_naf_goal(Body, GoalTokens), \+ \+ parse_literal(GoalTokens, Templates, [], _, _, _)
+    ),
     all_segments_parse(Segs, Templates).
 
 % Split a token list into segments at every top-level 'and'/'or'; each segment
@@ -2052,7 +2056,16 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             Logic0 = forall(CondLogic, ConsLogic),
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
-        ; is_not_the_case(Tokens) ->  
+        ; ( Children == [], inline_naf_goal(Tokens, GoalTokens) ) ->
+            % Inline negation: "it is not the case that <goal>" all on one line.
+            % Unambiguous because the negation has a single condition (the rest of
+            % the line), so the goal need not be on a nested line.
+            parse_literal(GoalTokens, Templates, VMIn, VMOut, GoalLit, _),
+            tokens_range(GoalTokens, GStart, GEnd),
+            Logic0 = not(le_at(GoalLit, GStart, GEnd)),
+            tokens_range(Tokens, Start, End),
+            Logic = le_at(Logic0, Start, End)
+        ; is_not_the_case(Tokens) ->
             hierarchy_to_logic(Children, Templates, VMIn, VMOut, SubLogic),
             Logic0 = not(SubLogic),
             tokens_range(Tokens, Start, End),
@@ -2172,6 +2185,16 @@ is_not_the_case(Tokens) :-
     ;   Atoms = [unless]
     ;   Atoms = [and, unless]
     ).
+
+% inline_naf_goal(+Tokens, -GoalTokens): when Tokens are "it is not the case that
+% <goal>" (or "not the case that <goal>") with the goal on the SAME line, GoalTokens
+% is that goal. Fails for the keyword-only form (goal on a nested line).
+inline_naf_goal(Tokens, GoalTokens) :-
+    naf_prefix_tokens(Tokens, GoalTokens),
+    GoalTokens \== [].
+
+naf_prefix_tokens([word(it, _), word(is, _), word(not, _), word(the, _), word(case, _), word(that, _) | Rest], Rest) :- !.
+naf_prefix_tokens([word(not, _), word(the, _), word(case, _), word(that, _) | Rest], Rest).
 
 extract_word_atom(word(A, _), A) :- !.
 extract_word_atom(punctuation(P, _), P) :- !.
