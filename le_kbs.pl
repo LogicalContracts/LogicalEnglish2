@@ -866,6 +866,10 @@ item_to_instance(KBmodule, query_clause(_Goal, _, InstantiatedTokens, _, _), Tok
     maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
 item_to_instance(KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _, _), Tokens) :- !,
     maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
+% A multi-condition query: render its goal (with bindings) — e.g.
+% "alice is happy and alice is healthy".
+item_to_instance(KBmodule, query_body(Goal, _, _, _), Tokens) :- !,
+    ( item_to_instance(KBmodule, Goal, Tokens) -> true ; term_string(Goal, S), Tokens = [S] ).
 item_to_instance(KBmodule, Head, WordsAndVars) :-
     (   Head = is_a(Type, SuperType) ->
         maybe_transform_value(KBmodule, Type, TypeI),
@@ -1195,11 +1199,14 @@ item_to_le_string(query_clause(_, OriginalTokens, _, _, _), String) :- !,
     tokens_to_string(OriginalTokens, String).
 item_to_le_string(query_clause(_, OriginalTokens, _, _, _, _, _, _), String) :- !,
     tokens_to_string(OriginalTokens, String).
+item_to_le_string(query_body(_, OriginalTokens, _, _), String) :- !,
+    tokens_to_string(OriginalTokens, String).
 item_to_le_string(Item, String) :-
     term_string(Item, String).
 
 item_to_term(_Templates, _M, query_clause(Head, _, _, _, _), Head) :- !.
 item_to_term(_Templates, _M, query_clause(Head, _, _, _, _, _, _, _), Head) :- !.
+item_to_term(_Templates, _M, query_body(Goal, _, _, _), Goal) :- !.
 item_to_term(_Templates, _M, clause(Head, true, _, _, _), Head) :- !.
 item_to_term(_Templates, _M, clause(Head, Body, _, _, _), (Head :- Body)) :- !.
 item_to_term(_Templates, _M, clause(Head, true, _, _), Head) :- !.
@@ -1211,6 +1218,7 @@ item_to_term(Templates, M, Item, Term) :-
 
 item_to_term_with_source(_M, _Templates, query_clause(Head, _, _, Start, End), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, _Templates, query_clause(Head, _, _, _, _, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
+item_to_term_with_source(_M, _Templates, query_body(Goal, _, Start, End), fact_with_source(Goal, Start, End)) :- !.
 item_to_term_with_source(_M, _Templates, clause(Head, true, Start, End, _ID), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, _Templates, clause(Head, true, Start, End), fact_with_source(Head, Start, End)) :- !.
 item_to_term_with_source(_M, _Templates, clause(Head, Body, Start, End, _ID), fact_with_source((Head :- Body), Start, End)) :- !.

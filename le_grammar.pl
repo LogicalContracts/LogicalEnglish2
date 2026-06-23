@@ -201,11 +201,18 @@ section(scenario(Name, Content, Start, End)) -->
     { reconstruct_name(Tokens, Name) },
     kb_content(Content, End).
 
-% section(query(...)) parses a query section.
-section(query(Name, Content, Start, End)) -->
+% section(query(...)) parses a query section. The body is captured with its
+% indentation preserved (like a rule body) so it can be a full body expression —
+% and / or / "it is not the case that …" / "for all cases …" — not just a single
+% template instance. The whole body is one raw item, parsed in the second pass.
+section(query(Name, [query_raw(BodyTokens, BStart, End)], Start, End)) -->
     any_indent, t(word(query, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
-    kb_content(Content, End).
+    body(BodyTokens, End),
+    { ( body_first_start(BodyTokens, BStart) -> true ; BStart = Start ) }.
+
+body_first_start([indent(_, _)|Ts], S) :- !, body_first_start(Ts, S).
+body_first_start([T|_], S) :- get_token_start(T, S).
 
 % section(ontology(...)) parses an ontology section.
 section(ontology(Content, Start, End)) -->
@@ -1568,11 +1575,53 @@ second_pass_scenario_item(_Templates, expected(QueryName, Answers, Unknowns, Sta
     maplist(extract_answer_string, Unknowns, UnknownStrings),
     maplist(extract_answer_string, Answers, AnswerStrings).
 
-second_pass_query_item(Templates, fact(Head, Start, End), query_clause(NewHead, Head, Instance, Start, End), _M) :-
-    ( parse_literal(Head, Templates, [], VMOut9, NewHead0, Instance, true) -> 
-        collect_extra_goals(VMOut9, ExtraGoals),
-        ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) )
-        ; NewHead = unknown_template(Head, Start, End), Instance = Head).
+second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, _M) :-
+    !,
+    (   parse_query_body(BodyTokens, Templates, BodyGoal)
+    ->  % A multi-condition query (and / or / not / for all cases), parsed like a
+        % rule body. Rendered from its goal (with bindings) when showing answers.
+        Item = query_body(BodyGoal, BodyTokens, Start, End)
+    ;   exclude(is_indent_or_comment, BodyTokens, FlatTokens),
+        parse_literal(FlatTokens, Templates, [], VMOut9, NewHead0, Instance, true)
+    ->  collect_extra_goals(VMOut9, ExtraGoals),
+        ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) ),
+        Item = query_clause(NewHead, FlatTokens, Instance, Start, End)
+    ;   Item = query_clause(unknown_template(BodyTokens, Start, End), BodyTokens, BodyTokens, Start, End)
+    ).
+second_pass_query_item(Templates, fact(Head, Start, End), Item, _M) :-
+    (   parse_query_body(Head, Templates, BodyGoal)
+    ->  Item = query_body(BodyGoal, Head, Start, End)
+    ;   parse_literal(Head, Templates, [], VMOut9, NewHead0, Instance, true)
+    ->  collect_extra_goals(VMOut9, ExtraGoals),
+        ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) ),
+        Item = query_clause(NewHead, Head, Instance, Start, End)
+    ;   Item = query_clause(unknown_template(Head, Start, End), Head, Head, Start, End)
+    ).
+
+% parse_query_body(+Tokens, +Templates, -Goal): succeeds only when the query is a
+% multi-condition body — connected with and / or / not the case that / for all
+% cases — parsing it exactly as a rule body would. A single template instance
+% (the common case) does NOT match here and keeps its query_clause rendering,
+% which preserves the exact instance tokens for the answer. parse_body handles the
+% multi-line form; parse_inline_body the single-line "a and b" form.
+parse_query_body(Tokens, Templates, Goal) :-
+    % Baseline indent = that of the body's continuation lines (the first indent
+    % token), mirroring the N a rule passes to parse_body — needed so that, e.g.,
+    % the goal under "it is not the case that" nests correctly.
+    ( member(indent(BaseIndent, _), Tokens) -> true ; BaseIndent = 0 ),
+    (   catch(parse_body(Tokens, BaseIndent, Templates, [], _, G), _, fail), has_query_connective(G)
+    ->  Goal = G
+    ;   catch(parse_inline_body(Tokens, Templates, [], _, G2), _, fail), has_query_connective(G2)
+    ->  Goal = G2
+    ).
+
+has_query_connective(le_at(G, _, _)) :- !, has_query_connective(G).
+has_query_connective(and(_, _)).
+has_query_connective((_ , _)).
+has_query_connective(or(_, _)).
+has_query_connective((_ ; _)).
+has_query_connective(not(_)).
+has_query_connective(forall(_, _)).
 
 second_pass_query_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), query_clause(NewHead, Head, BodyTokens, Instance, Indent, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
