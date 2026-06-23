@@ -128,6 +128,9 @@ class QueryNode extends ClassicPreset.Node {
     public tokens: any[] = [];
     public clash: boolean = false;
     public complete: boolean = false;
+    // Once the query is connected to a proof its variables get bound, so show the
+    // bound answer (e.g. "bob is happy") rather than the interrogative label.
+    public bound: boolean = false;
     
     constructor(public label: string, public color: string) {
         super(label);
@@ -402,10 +405,10 @@ function CustomNode(props: any) {
         );
     } else {
         // Fact or Query
-        // Query nodes prefer their LE label (the original query surface text,
-        // e.g. "we will cover which cost") and fall back to token rendering.
+        // Query nodes show the bound answer (e.g. "bob is happy") once connected to
+        // a proof; otherwise the interrogative label (e.g. "which dragon is happy").
         const labelText = data.type === 'query'
-            ? (data.label || renderTokens(data.tokens))
+            ? (data.bound ? (renderTokens(data.tokens) || data.label) : (data.label || renderTokens(data.tokens)))
             : (data.type === 'fact' ? (renderTokens(data.tokens) || data.label) : data.label);
         const template = getPredicateTemplate(data.tokens) || labelText;
         const predicateColor = templateColors.get(template) || data.color;
@@ -822,6 +825,30 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         return found;
     }
 
+    // True when the "for all cases" condition spanning [start,end] is satisfied
+    // VACUOUSLY in the current answer's explanation — i.e. its condition has no
+    // matching cases (its only child is a failure branch, no "for case" pair). Such
+    // a universal is represented in the game by a FAIL on the condition socket.
+    function expForallVacuous(start: number, end: number): boolean {
+        let result = false, found = false;
+        const visit = (node: any) => {
+            if (found) return;
+            if (Array.isArray(node)) { node.forEach(visit); return; }
+            if (!node || typeof node !== 'object') return;
+            if (node.start === start && node.end === end
+                && typeof node.literal === 'string' && node.literal.startsWith('for all cases')) {
+                found = true;
+                const kids = node.children || [];
+                result = kids.some((c: any) => c.type === 'failure')
+                    && !kids.some((c: any) => typeof c.literal === 'string' && c.literal.startsWith('for case'));
+                return;
+            }
+            (node.children || []).forEach(visit);
+        };
+        visit(gameData.explanation);
+        return result;
+    }
+
     function checkCompletion() {
         const nodes = editor.getNodes();
         const connections = editor.getConnections();
@@ -882,11 +909,21 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 const bodyCount = node.rule.body ? node.rule.body.length : 0;
                 for (let i = 0; i < bodyCount; i++) {
                     if (node.forallIndexSet.has(i)) {
-                        // Both sub-conditions of a "for all cases" must be satisfied.
-                        for (const sub of [0, 1]) {
-                            const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-${sub}`);
+                        const range = node.bodyRanges[i];
+                        if (range && expForallVacuous(range.start, range.end)) {
+                            // Vacuously true: the condition has no cases. A FAIL on the
+                            // condition socket represents that; the consequence socket
+                            // is not required.
+                            const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-0`);
                             if (!conn) return false;
-                            if (!isComplete(conn.source)) return false;
+                            markFragment(conn.source);
+                        } else {
+                            // Both sub-conditions of a "for all cases" must be satisfied.
+                            for (const sub of [0, 1]) {
+                                const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-${sub}`);
+                                if (!conn) return false;
+                                if (!isComplete(conn.source)) return false;
+                            }
                         }
                     } else if (node.bodyNaf.includes(i)) {
                         // A negation: its failure subtree must reproduce the
@@ -986,7 +1023,12 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }
     }
 
+    // Each unification round gets a sequence number; since the server round-trip is
+    // async and a round runs per connection change (Show Proof adds several in a
+    // row), a stale earlier reply must not clobber the latest, fuller binding.
+    let unifySeq = 0;
     async function updateUnification() {
+        const mySeq = ++unifySeq;
         const nodes = editor.getNodes();
         const connections = editor.getConnections();
 
@@ -1017,6 +1059,10 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             // Skip failure-subtree edges (target is a negation socket or a failing
             // node) — those are validated structurally, not unified.
             if (isNafSocket(target, c.targetInput) || failing.has(c.target)) return null;
+            // FAIL nodes never participate in unification (they represent a failed
+            // or empty condition — a negation, or a vacuous "for all cases"); they
+            // are validated structurally instead.
+            if (source instanceof FailNode) return null;
 
             // targetInput is "in-<bodyIndex>" or, for a "for all cases" condition,
             // "in-<bodyIndex>-<subIndex>" (sub 0 = condition, sub 1 = consequence).
@@ -1046,7 +1092,9 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 })
             });
             const res = await response.json();
-            
+            // A newer unification round has superseded this one; drop the stale reply.
+            if (mySeq !== unifySeq) return;
+
             if (res.status === 'ok') {
                 res.nodes.forEach((nodeData: any) => {
                     const node = editor.getNode(nodeData.instanceId) as any;
@@ -1064,6 +1112,8 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                             node.tokens = nodeData.headTokens;
                         } else if (node instanceof QueryNode) {
                             node.tokens = nodeData.bodyTokens[0];
+                            // The query is bound once something feeds its socket.
+                            node.bound = connections.some(c => c.target === node.id);
                         }
                         area.update('node', node.id);
                     }
@@ -1438,8 +1488,14 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                     const subs = (child && child.children) || [];
                     const condExp = subs.find((s: any) => typeof s.literal === 'string' && s.literal.startsWith('for case'));
                     const consExp = subs.find((s: any) => typeof s.literal === 'string' && s.literal.startsWith('it is true that'));
-                    if (condExp) await connectNode(condExp, ruleNode.id, `in-${i}-0`);
-                    if (consExp) await connectNode(consExp, ruleNode.id, `in-${i}-1`);
+                    if (condExp || consExp) {
+                        if (condExp) await connectNode(condExp, ruleNode.id, `in-${i}-0`);
+                        if (consExp) await connectNode(consExp, ruleNode.id, `in-${i}-1`);
+                    } else {
+                        // Vacuously true (no cases): the condition has no solutions —
+                        // represent it with a FAIL on the condition socket.
+                        await addFailLeaf(ruleNode.id, `in-${i}-0`);
+                    }
                 } else if (child && child.naf) {
                     // Negation: build the failure subtree from the explanation spine
                     // (the NAF node's failure child); fall back to a FAIL leaf.

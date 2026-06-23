@@ -128,9 +128,9 @@ There are two ways:
    it, condition by condition, until they reach something that simply cannot be
    satisfied (a FAIL leaf).
 
-**Worked failure (happy_dragon).** *bob smokes* is false. Why? The smoking rule
+**Worked failure (happy_dragon).** *bob smokes* is false. Why? No scenario fact stating that bob smokes. Alternatively, the smoking rule
 needs someone who is a parent of bob, is a dragon, and smokes. The only parent of
-bob is **alice**, who is a dragon — but **alice does not smoke**, because no one is
+bob is **alice**, who is a dragon — but **alice does not smoke**, because there is no fact stating it, and no one is
 a parent of *alice*. The failure tree the student builds mirrors exactly that
 chain of reasoning:
 
