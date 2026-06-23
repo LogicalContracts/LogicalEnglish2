@@ -40253,6 +40253,17 @@ async function start() {
           }
           return fact;
         });
+        res.gameData.request = {
+          token: "myToken123",
+          operation: "getGameData",
+          sessionModule,
+          query,
+          scenario,
+          customScenario,
+          customQuery,
+          detailedFailures,
+          hideRepeated: hideRepeatedExplanations
+        };
         localStorage.setItem("le_proof_game_data", JSON.stringify(res.gameData));
         const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
         window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");

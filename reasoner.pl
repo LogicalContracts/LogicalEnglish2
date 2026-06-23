@@ -481,8 +481,24 @@ build_failure_tree(ID, Whys) :-
 
 % Collect and group the failure subtrees of the calls made directly under ID.
 clause_failure_children(ID, Grouped) :-
-    ( findall(W, (called(ID, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys0) -> true ; Whys0 = [] ),
+    ( findall(W, ( called(ID, CID, Goal), child_failure_or_choice(CID, Goal, W) ), Whys0) -> true ; Whys0 = [] ),
     group_variant_whys(Whys0, Grouped).
+
+% child_failure_or_choice(+CID, +Goal, -Why): how a child call CID (Goal recorded
+% at call time, so its groundness is the call-time groundness) contributes to its
+% parent's failure explanation:
+%  - a FAILED child contributes its own failure subtree;
+%  - a child that SUCCEEDED but whose call was NON-GROUND is a choice point that
+%    may have other solutions, each potentially explaining the failure, so the
+%    succeeded condition itself is shown;
+%  - a GROUND success is deterministic and irrelevant to the failure — omitted.
+child_failure_or_choice(CID, _Goal, W) :-
+    \+ succeeded(CID), !,
+    build_failure_tree(CID, Ws), member(W, Ws).
+child_failure_or_choice(CID, le_at(G, S, E), success(G, range(S, E), [])) :-
+    succeeded(CID), \+ ground(G), !.
+child_failure_or_choice(CID, Goal, success(Goal, nonground_success, [])) :-
+    succeeded(CID), \+ ground(Goal).
 
 % combine_clause_children(+RuleNodes, +DirectWhys, -AllWhys)
 % No rule nodes -> just the direct failures. A SINGLE rule -> drop the rule node

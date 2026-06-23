@@ -35,12 +35,22 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
         findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
+        % For each "for all cases in which <Cond> it is the case that <Cons>" body
+        % condition, expose its two sub-conditions so the UI can offer a separate
+        % link target (sub-socket) for each (sub 0 = Cond, sub 1 = Cons).
+        forall_meta_list(KB, FlatBodyList, VarIds, NameMap, ForallMeta),
+        % Per-body-condition source ranges, so the (explanation-driven) Show Proof
+        % and the failure-mode validation can match an explanation node to the
+        % exact body condition it came from. For a NAF condition, also the range of
+        % the negated (inner) goal.
+        body_ranges(FlatBodyList, BodyRanges),
         ( SM \== none ->
             assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
         ; true ),
         RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
                       body: BodyLEs, bodyTokens: BodyTokensList,
-                      bodyNaf: NafIndices,
+                      bodyNaf: NafIndices, bodyForall: ForallMeta,
+                      bodyRanges: BodyRanges,
                       start: Start, end: End }
     ), Rules),
     findall(FactDict, (
@@ -119,6 +129,39 @@ literal_to_game(KB, Literal, VarIds, NameMap, SeenIn, SeenOut, LE, Tokens) :-
     ;   term_string(Literal, LE), Tokens = [_{kind: "word", text: LE}], SeenOut = SeenIn
     ).
 
+% body_ranges(+BodyList, -Ranges): a dict per body condition with its source
+% range, plus (for a negation) the range of the negated inner goal — so an
+% explanation node can be matched to the precise condition it derives from.
+body_ranges(BodyList, Ranges) :-
+    findall(R,
+        ( nth0(I, BodyList, Cond),
+          le_at_range(Cond, S, E),
+          ( naf_inner_range(Cond, IS, IE)
+            -> R = _{ index: I, start: S, end: E, innerStart: IS, innerEnd: IE }
+            ;  R = _{ index: I, start: S, end: E } )
+        ), Ranges).
+
+le_at_range(le_at(_, S, E), S, E) :- !.
+le_at_range(_, 0, 0).
+
+% naf_inner_range(+Cond, -S, -E): the source range of the negated goal G in an
+% "it is not the case that G" condition.
+naf_inner_range(le_at(C, _, _), S, E) :- !, naf_inner_range(C, S, E).
+naf_inner_range(not(le_at(_, S, E)), S, E).
+
+% forall_meta_list(+KB, +BodyList, +VarIds, +NameMap, -Meta): for each "for all
+% cases in which <Cond> it is the case that <Cons>" body condition, a dict with
+% its index and the rendered Cond/Cons (carrying whatever variable bindings are
+% currently in effect, so the UI can show them once they get bound).
+forall_meta_list(KB, BodyList, VarIds, NameMap, Meta) :-
+    findall(_{ index: FI, condLE: CondLE, condTokens: CondToks,
+               consLE: ConsLE, consTokens: ConsToks },
+        (   nth0(FI, BodyList, ForallCond),
+            strip_le_at(ForallCond, forall(ForallC, ForallK)),
+            literal_to_game(KB, ForallC, VarIds, NameMap, [], _SF1, CondLE, CondToks),
+            literal_to_game(KB, ForallK, VarIds, NameMap, [], _SF2, ConsLE, ConsToks)
+        ), Meta).
+
 body_list_to_game(_KB, [], _VarIds, _NameMap, Seen, Seen, [], []).
 body_list_to_game(KB, [L|Ls], VarIds, NameMap, SeenIn, SeenOut, [LE|LEs], [Tokens|TokensT]) :-
     literal_to_game(KB, L, VarIds, NameMap, SeenIn, Seen1, LE, Tokens),
@@ -142,16 +185,39 @@ apply_edges(Instances, [Edge|Edges]) :-
     get_dict(child, Edge, ChildVal), atom_string(Child, ChildVal),
     get_dict(parent, Edge, ParentVal), atom_string(Parent, ParentVal),
     get_dict(bodyIndex, Edge, BodyIndex),
+    ( get_dict(subIndex, Edge, SubVal), integer(SubVal) -> SubIndex = SubVal ; SubIndex = -1 ),
     member(inst(Child, ChildKind, ChildHead, _), Instances),
     member(inst(Parent, _, _, ParentBody), Instances),
     nth0(BodyIndex, ParentBody, ParentCond),
-    (   ChildKind == fail
-    ->  % A FAIL node satisfies a condition only if it is a negation
-        % ("it is not the case that ...").
-        is_naf_condition(ParentCond)
-    ;   unify_condition(ChildHead, ParentCond)
-    ),
+    target_condition(ParentCond, SubIndex, Target),
+    satisfy_condition(ChildKind, ChildHead, Target),
     apply_edges(Instances, Edges).
+
+% target_condition(+Cond, +SubIndex, -Target): for a "for all cases" condition,
+% pick the sub-goal addressed by SubIndex (0 = the "for all cases in which ..."
+% condition, 1 = the "it is the case that ..." consequence); otherwise the whole
+% condition.
+target_condition(Cond0, SubIndex, Target) :-
+    (   SubIndex >= 0, strip_le_at(Cond0, forall(CondPart, ConsPart))
+    ->  ( SubIndex =:= 0 -> Target = CondPart ; Target = ConsPart )
+    ;   Target = Cond0
+    ).
+
+% satisfy_condition(+ChildKind, +ChildHead, +Target):
+%  - a FAIL node satisfies a negation ("it is not the case that ...");
+%  - a rule/fact head satisfies a positive condition by unifying with it, or a
+%    negation by unifying with its negated (inner) goal — a "not the case" link.
+satisfy_condition(fail, _, Target) :- !, is_naf_condition(Target).
+satisfy_condition(_, ChildHead, Target) :-
+    (   naf_inner_goal(Target, Inner)
+    ->  unify_condition(ChildHead, Inner)
+    ;   unify_condition(ChildHead, Target)
+    ).
+
+% naf_inner_goal(+Cond, -Inner): the negated goal of a NAF condition (the goal G
+% in "it is not the case that G"), stripping source annotations.
+naf_inner_goal(le_at(C, _, _), Inner) :- !, naf_inner_goal(C, Inner).
+naf_inner_goal(not(Inner0), Inner) :- strip_le_at(Inner0, Inner).
 
 unify_condition(Head, le_at(Cond, _, _)) :- !, unify_condition(Head, Cond).
 unify_condition(Head, or(A, B)) :- !,
@@ -173,8 +239,12 @@ render_instances(KB, [inst(IId, _Kind, Head, Body)|Insts], [Result|Results]) :-
     game_var_ids((Head :- Body), VarIds),
     literal_to_game(KB, Head, VarIds, [], [], Seen1, HeadLE, HeadTokens),
     body_list_to_game(KB, Body, VarIds, [], Seen1, _SeenN, BodyLEs, BodyTokensList),
+    % Re-render any "for all cases" sub-conditions too, so their bindings (e.g.
+    % "the creature" -> alice) appear once the rule's variables are bound.
+    forall_meta_list(KB, Body, VarIds, [], ForallMeta),
     Result = _{ instanceId: IId, head: HeadLE, headTokens: HeadTokens,
-                body: BodyLEs, bodyTokens: BodyTokensList },
+                body: BodyLEs, bodyTokens: BodyTokensList,
+                bodyForall: ForallMeta },
     render_instances(KB, Insts, Results).
 
 % --- Typed Rendering Logic (moved from le_kbs) ---
