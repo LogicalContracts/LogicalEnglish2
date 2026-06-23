@@ -161,6 +161,9 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         let isLoading = false;
         let lastIssues: any[] = [];
         let lastLoadError = '';
+        // Set (0-based) when an `answer` URL parameter asks the next query run to
+        // auto-select a specific answer instead of the first.
+        let pendingAnswerIndex: number | null = null;
         let sessionModule: string | null = null;
         let includedResources: any[] = [];
         let loadTimeout: any = null;
@@ -1188,6 +1191,17 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         else url.searchParams.delete('scenario');
         if (q && q !== '___custom___') url.searchParams.set('query', q);
         else url.searchParams.delete('query');
+        // A change of scenario/query invalidates a previously selected answer; it is
+        // re-added when an answer is selected after the query is (re-)run.
+        url.searchParams.delete('answer');
+        window.history.replaceState({}, '', url.toString());
+    }
+
+    // Reflect the currently-viewed answer (its 1-based order) in the URL, so a link
+    // can point straight at one answer's explanation.
+    function setAnswerInUrl(order: number) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('answer', String(order));
         window.history.replaceState({}, '', url.toString());
     }
 
@@ -1421,6 +1435,26 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (queryParam && !selectIfPresent(querySelect, queryParam)) {
             showModal(`Query "${queryParam}" does not exist in this document.`, 'Unknown query');
             return;
+        }
+        // `answer` runs the (just-selected) query and selects the answer with the
+        // given 1-based order, so its explanation is shown. Requires scenario+query.
+        const answerParam = p.get('answer');
+        if (answerParam) {
+            if (!scenarioParam || !queryParam) {
+                showModal('The "answer" parameter requires both a "scenario" and a "query".', 'Cannot select answer');
+                return;
+            }
+            const n = parseInt(answerParam, 10);
+            if (!Number.isInteger(n) || n < 1) {
+                showModal(`Invalid answer order "${answerParam}" — expected a positive whole number.`, 'Cannot select answer');
+                return;
+            }
+            if (btnQuery.disabled) {
+                showModal('The query cannot be run (the document has errors or no query is selected).', 'Cannot select answer');
+                return;
+            }
+            pendingAnswerIndex = n - 1;
+            btnQuery.click();   // executes the query; the Nth answer is auto-selected
         }
     }
 
@@ -2033,6 +2067,11 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             return;
         }
         
+        // A pending answer selection (from the `answer` URL parameter) applies to
+        // this run only.
+        const wantAnswer = pendingAnswerIndex;
+        pendingAnswerIndex = null;
+
         answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
         explanationTree.innerHTML = '';
         showInterruptSoon();
@@ -2068,6 +2107,13 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
 
             answersList.innerHTML = '';
             if (res && res.results && res.results.length > 0) {
+                // Which answer to auto-select: the one asked for by `answer` (if in
+                // range), otherwise the first.
+                let target = 0;
+                if (wantAnswer !== null) {
+                    if (wantAnswer >= 0 && wantAnswer < res.results.length) target = wantAnswer;
+                    else showModal(`Answer ${wantAnswer + 1} does not exist — the query has ${res.results.length} answer(s) in this scenario.`, 'No such answer');
+                }
                 res.results.forEach((result: any, index: number) => {
                     const item = document.createElement('div');
                     item.className = 'answer-item';
@@ -2076,6 +2122,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                         document.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
                         item.classList.add('selected');
                         renderExplanation(result.why);
+                        setAnswerInUrl(index + 1);   // keep the URL pointing at the viewed answer
                     });
                     item.addEventListener('contextmenu', (e) => {
                         e.preventDefault();
@@ -2085,9 +2132,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                         answerContextMenu.style.top = `${e.clientY}px`;
                     });
                     answersList.appendChild(item);
-                    if (index === 0) item.click(); // Select first by default
+                    if (index === target) item.click(); // Select the target (default: first)
                 });
             } else if (res && res.why) {
+                if (wantAnswer !== null) showModal('The query has no answers (it is false in this scenario), so there is no answer to select.', 'No such answer');
                 const item = document.createElement('div');
                 item.className = 'answer-item failure selected';
                 item.style.color = '#f48771';
