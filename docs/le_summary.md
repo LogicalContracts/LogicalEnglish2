@@ -11,6 +11,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [2.1 Prepositional templates](#21-prepositional-templates)
   - [3. Rules and Facts](#3-rules-and-facts)
     - [3.1 Rule Sections](#31-rule-sections)
+    - [3.2 Query bodies](#32-query-bodies)
   - [4. Logical Operators](#4-logical-operators)
   - [5. Aggregates](#5-aggregates)
   - [6. Variables and Constants](#6-variables-and-constants)
@@ -33,7 +34,10 @@ Sections define the context of the code. Each section header ends with a colon `
 - **Knowledge Base:** `the knowledge base <name> includes:` or `the contract <name> states that:`
 - **Scenario:** `scenario <name> is:` (Used for defining facts for a specific test case)
   - Can include expectations: `<QueryName> expects answers [<List of Strings>] and unknowns [<List of Strings>].`
-- **Query:** `query <name> is:` (Used for defining the goals to be proven)
+- **Query:** `query <name> is:` (Used for defining the goals to be proven). The
+  body of a query may be a **full body expression — just like a rule body** — not
+  only a single template instance: it can combine conditions with `and`, `or`,
+  negation (`it is not the case that …`) and `for all cases in which …` (see §3.2).
 - **Ontology:** `the ontology is:` (Used for taxonomy and class hierarchies)
 - **Templates:** `the predicates are:` or `the templates are:` (Used to define NL patterns)
 - **Dynamics:** `the fluents are:` or `the events are:` (For temporal reasoning)
@@ -116,6 +120,45 @@ the annexes to the contract are:
 rule extra:
 a customer is loyal if the customer is old.         % belongs to section 'annexes'
 ```
+
+### 3.2 Query bodies
+The body of a `query <name> is:` section is parsed **exactly like a rule body** — it
+is a goal expression, not merely a single template instance. It may combine
+conditions using the operators of §4:
+
+- **Conjunction / disjunction** with `and` / `or`. Variables are shared across the
+  conditions, so the same name refers to the same individual:
+  ```le
+  query both is:
+      a person is happy
+      and the person is healthy.
+  ```
+- **Negation** with `it is not the case that …`. As in a rule body, the negated
+  goal goes on its own nested (indented) line:
+  ```le
+  query safe is:
+      a person is happy
+      and it is not the case that
+          the person is sad.
+  ```
+- **Universals** with `for all cases in which … it is the case that …`, written in
+  the same indented shape used inside rules (see §4 and `examples/.../subset.le`):
+  ```le
+  query all_happy is:
+      for all cases in which
+          a person is a dragon
+          it is the case that
+          the person is happy.
+  ```
+
+A query that is a single template instance (the common case, e.g.
+`which dragon is happy.`) behaves as before. A multi-condition answer is rendered
+from the query's goal with its bindings, e.g. `"bob is happy and bob is healthy"`.
+
+> The same layout rules as rule bodies apply: a negated goal and the parts of a
+> `for all cases` must be on their own nested lines. A single physical line such as
+> `… and it is not the case that the person is sad` does **not** split the negation
+> (the same limitation rule bodies have); put the negated goal on the next line.
 
 ## 4. Logical Operators
 - **And:** `and` (or new line with same indentation)

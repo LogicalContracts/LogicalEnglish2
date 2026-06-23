@@ -728,7 +728,9 @@ query_surface_text(Content, Text) :-
     is_list(Content),
     findall(S, (
         member(QC, Content),
-        compound(QC), QC =.. [query_clause, _, Toks | _],
+        (   QC =.. [query_clause, _, Toks | _]
+        ;   QC = query_body(_, Toks, _, _)     % multi-condition query: its raw body tokens
+        ),
         le_grammar:reconstruct_name(Toks, S)
     ), Parts),
     Parts \== [],
