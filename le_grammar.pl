@@ -1583,13 +1583,21 @@ second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, _M) :
     ->  % A multi-condition query (and / or / not / for all cases), parsed like a
         % rule body. Rendered from its goal (with bindings) when showing answers.
         Item = query_body(BodyGoal, BodyTokens, Start, End)
-    ;   exclude(is_indent_or_comment, BodyTokens, FlatTokens),
-        parse_literal(FlatTokens, Templates, [], VMOut9, NewHead0, Instance, true)
+    ;   query_literal_tokens(BodyTokens, LiteralTokens),
+        parse_literal(LiteralTokens, Templates, [], VMOut9, NewHead0, Instance, true)
     ->  collect_extra_goals(VMOut9, ExtraGoals),
         ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) ),
-        Item = query_clause(NewHead, FlatTokens, Instance, Start, End)
+        Item = query_clause(NewHead, LiteralTokens, Instance, Start, End)
     ;   Item = query_clause(unknown_template(BodyTokens, Start, End), BodyTokens, BodyTokens, Start, End)
     ).
+
+% query_literal_tokens(+BodyTokens, -LiteralTokens): a single-literal query's body
+% tokens reparsed as a template instance, so an explicit *variable* becomes a var
+% token (as in rule heads and the previous query path) rather than the literal text
+% "*the id*". Falls back to the raw (indent/comment-free) tokens if that fails.
+query_literal_tokens(BodyTokens, LiteralTokens) :-
+    exclude(is_indent_or_comment, BodyTokens, Flat),
+    ( phrase(template_instance(LiteralTokens), Flat) -> true ; LiteralTokens = Flat ).
 second_pass_query_item(Templates, fact(Head, Start, End), Item, _M) :-
     (   parse_query_body(Head, Templates, BodyGoal)
     ->  Item = query_body(BodyGoal, Head, Start, End)

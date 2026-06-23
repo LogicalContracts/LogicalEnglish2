@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 82
-Total tests:     274
-Passed:          274
+Files processed: 86
+Total tests:     278
+Passed:          278
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -25,6 +25,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/dates.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/enclosure.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/flying_dragon.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
@@ -78,8 +79,11 @@ Detailed File Summary:
   [PASS] examples/moreExamples/rkBook/trolley_problem.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/underground_emergency.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/short/is_a_class_of.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/short/longsentence.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/short/sets.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/short/sunangel.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
