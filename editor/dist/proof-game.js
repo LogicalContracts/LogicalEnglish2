@@ -124385,6 +124385,9 @@ var QueryNode = class extends classic.Node {
   tokens = [];
   clash = false;
   complete = false;
+  // Once the query is connected to a proof its variables get bound, so show the
+  // bound answer (e.g. "bob is happy") rather than the interrogative label.
+  bound = false;
   type;
 };
 var FailNode = class extends classic.Node {
@@ -124681,7 +124684,7 @@ function CustomNode(props) {
       )
     );
   } else {
-    const labelText = data.type === "query" ? data.label || renderTokens(data.tokens) : data.type === "fact" ? renderTokens(data.tokens) || data.label : data.label;
+    const labelText = data.type === "query" ? data.bound ? renderTokens(data.tokens) || data.label : data.label || renderTokens(data.tokens) : data.type === "fact" ? renderTokens(data.tokens) || data.label : data.label;
     const template = getPredicateTemplate(data.tokens) || labelText;
     const predicateColor = templateColors.get(template) || data.color;
     const bgColor = data.failing ? "#7a2e2e" : data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : predicateColor;
@@ -125064,6 +125067,28 @@ async function initProofGame(container, gameData) {
     visit(gameData.explanation);
     return found;
   }
+  function expForallVacuous(start, end) {
+    let result = false, found = false;
+    const visit = (node2) => {
+      if (found)
+        return;
+      if (Array.isArray(node2)) {
+        node2.forEach(visit);
+        return;
+      }
+      if (!node2 || typeof node2 !== "object")
+        return;
+      if (node2.start === start && node2.end === end && typeof node2.literal === "string" && node2.literal.startsWith("for all cases")) {
+        found = true;
+        const kids = node2.children || [];
+        result = kids.some((c2) => c2.type === "failure") && !kids.some((c2) => typeof c2.literal === "string" && c2.literal.startsWith("for case"));
+        return;
+      }
+      (node2.children || []).forEach(visit);
+    };
+    visit(gameData.explanation);
+    return result;
+  }
   function checkCompletion() {
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
@@ -125123,12 +125148,20 @@ async function initProofGame(container, gameData) {
         const bodyCount = node2.rule.body ? node2.rule.body.length : 0;
         for (let i2 = 0; i2 < bodyCount; i2++) {
           if (node2.forallIndexSet.has(i2)) {
-            for (const sub of [0, 1]) {
-              const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-${sub}`);
+            const range = node2.bodyRanges[i2];
+            if (range && expForallVacuous(range.start, range.end)) {
+              const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-0`);
               if (!conn)
                 return false;
-              if (!isComplete(conn.source))
-                return false;
+              markFragment(conn.source);
+            } else {
+              for (const sub of [0, 1]) {
+                const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-${sub}`);
+                if (!conn)
+                  return false;
+                if (!isComplete(conn.source))
+                  return false;
+              }
             }
           } else if (node2.bodyNaf.includes(i2)) {
             const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
@@ -125224,7 +125257,9 @@ async function initProofGame(container, gameData) {
       }
     }
   }
+  let unifySeq = 0;
   async function updateUnification() {
+    const mySeq = ++unifySeq;
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
     const failing = computeFailing();
@@ -125253,6 +125288,8 @@ async function initProofGame(container, gameData) {
         return null;
       if (isNafSocket(target, c2.targetInput) || failing.has(c2.target))
         return null;
+      if (source instanceof FailNode)
+        return null;
       let bodyIndex = 0;
       let subIndex = -1;
       if (c2.targetInput.startsWith("in-")) {
@@ -125279,6 +125316,8 @@ async function initProofGame(container, gameData) {
         })
       });
       const res = await response.json();
+      if (mySeq !== unifySeq)
+        return;
       if (res.status === "ok") {
         res.nodes.forEach((nodeData) => {
           const node2 = editor.getNode(nodeData.instanceId);
@@ -125294,6 +125333,7 @@ async function initProofGame(container, gameData) {
               node2.tokens = nodeData.headTokens;
             } else if (node2 instanceof QueryNode) {
               node2.tokens = nodeData.bodyTokens[0];
+              node2.bound = connections.some((c2) => c2.target === node2.id);
             }
             area.update("node", node2.id);
           }
@@ -125611,10 +125651,14 @@ async function initProofGame(container, gameData) {
           const subs = child && child.children || [];
           const condExp = subs.find((s) => typeof s.literal === "string" && s.literal.startsWith("for case"));
           const consExp = subs.find((s) => typeof s.literal === "string" && s.literal.startsWith("it is true that"));
-          if (condExp)
-            await connectNode(condExp, ruleNode.id, `in-${i2}-0`);
-          if (consExp)
-            await connectNode(consExp, ruleNode.id, `in-${i2}-1`);
+          if (condExp || consExp) {
+            if (condExp)
+              await connectNode(condExp, ruleNode.id, `in-${i2}-0`);
+            if (consExp)
+              await connectNode(consExp, ruleNode.id, `in-${i2}-1`);
+          } else {
+            await addFailLeaf(ruleNode.id, `in-${i2}-0`);
+          }
         } else if (child && child.naf) {
           const spine = (child.children || []).find((c2) => c2.type === "failure");
           if (spine)
