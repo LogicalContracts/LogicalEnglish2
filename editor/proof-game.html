@@ -252,7 +252,12 @@
             <label style="font-size: 12px;">
                 <input type="checkbox" id="mode-toggle"> Child Mode (Hide Text)
             </label>
+            <label id="answer-picker" style="font-size: 12px; display: none;">
+                Answer to prove:
+                <select id="answer-select"></select>
+            </label>
             <button id="btn-rearrange">Auto Layout</button>
+            <button id="btn-clone" style="display: none;" title="Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)">Clone Tool</button>
             <button id="btn-show">Show Proof</button>
             <button id="btn-legend">Predicates Legend</button>
         </div>

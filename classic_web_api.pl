@@ -667,18 +667,56 @@ handle_get_game_data(Dict, Response) :-
             ( nonvar(QueryLE) -> true
             ; KB \== none, le_kbs:item_to_instance(KB, Query, QueryTokens0) -> le_kbs:canonical_string(QueryTokens0, QueryLE)
             ; term_string(Query, QueryLE) ),
-            % Re-derive the first successful explanation to render in the game.
-            (   ( catch(query(SM, Query, _Instance, _Unknowns, Why), _, fail)
-                ; (get_dict(query, Dict, QNameStr), atom_string(QName, QNameStr), catch(query(SM, QName, _Instance, _Unknowns, Why), _, fail))
-                ) ->
-                convert_why(Why, KB, JSONWhy),
-                print_message(informational, 'Proof Game: Found explanation for query')
-            ;   JSONWhy = null,
+            % Enumerate the query's answers (capped), each with its explanation, so
+            % the user can choose which one to prove — a query like "which dragon is
+            % happy" has several, with very different proofs (some need a failure
+            % subtree). The selected answer's explanation is the game's spine.
+            game_answer_query(SM, Dict, Query, AnswerQuery),
+            % Up to 25 answers (findnsols's first batch; avoids enumerating a
+            % pathologically large or non-terminating answer set).
+            ( findnsols(25, ALE-AWhy,
+                  ( query(SM, AnswerQuery, TI, _, AWhy), le_kbs:canonical_string(TI, ALE) ),
+                  Pairs0)
+              -> true ; Pairs0 = [] ),
+            answers_dedup(Pairs0, Answers),
+            ( get_dict(answerIndex, Dict, Idx0), integer(Idx0) -> Idx = Idx0 ; Idx = 0 ),
+            ( nth0(Idx, Answers, _-SelWhy) -> SelIdx = Idx
+            ; Answers = [_-SelWhy|_] -> SelIdx = 0
+            ; SelWhy = (-), SelIdx = 0 ),
+            ( SelWhy == (-) ->
+                JSONWhy = null,
                 print_message(warning, 'Proof Game: No explanation found for query')
+            ;   convert_why(SelWhy, KB, JSONWhy),
+                print_message(informational, 'Proof Game: Found explanation for query')
             ),
-            Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE, queryTokens: QueryTokens, sessionModule: SMStr, explanation: JSONWhy}, result: "ok"}
+            findall(AL, member(AL-_, Answers), AnswerLabels),
+            Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE,
+                                     queryTokens: QueryTokens, sessionModule: SMStr,
+                                     explanation: JSONWhy, answers: AnswerLabels,
+                                     answerIndex: SelIdx}, result: "ok"}
         )
     ).
+
+% game_answer_query(+SM, +Dict, +Query, -AnswerQuery): the term to enumerate the
+% query's answers over — the resolved goal if available, otherwise the named query.
+game_answer_query(SM, Dict, Query, AnswerQuery) :-
+    % \+ \+ : test satisfiability WITHOUT binding Query's variables — otherwise the
+    % query goal would be committed to its first answer and the enumeration below
+    % would only ever see that one answer.
+    (   \+ \+ catch(query(SM, Query, _, _, _), _, fail)
+    ->  AnswerQuery = Query
+    ;   get_dict(query, Dict, QNameStr), atom_string(QName, QNameStr),
+        AnswerQuery = QName
+    ).
+
+% answers_dedup(+LabelWhyPairs, -Unique): the first explanation for each distinct
+% answer label, preserving order.
+answers_dedup(Pairs, Out) :- answers_dedup(Pairs, [], Out).
+answers_dedup([], _, []).
+answers_dedup([L-W|Rest], Seen, Out) :-
+    ( memberchk(L, Seen) -> Out = Out1, Seen1 = Seen
+    ; Out = [L-W|Out1], Seen1 = [L|Seen] ),
+    answers_dedup(Rest, Seen1, Out1).
 
 %!  query_surface_text(+Content:list, -Text:string) is semidet.
 %
