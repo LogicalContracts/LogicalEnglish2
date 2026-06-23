@@ -159,6 +159,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         let isDirty = false;
         let isLoaded = false;
         let isLoading = false;
+        let lastIssues: any[] = [];
+        let lastLoadError = '';
         let sessionModule: string | null = null;
         let includedResources: any[] = [];
         let loadTimeout: any = null;
@@ -1175,14 +1177,30 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const customQueryContainer = document.getElementById('custom-query-container')!;
     const customQueryText = document.getElementById('custom-query-text') as HTMLTextAreaElement;
 
+    // Reflect the current scenario/query selection in the URL (alongside the
+    // example/text it was loaded from), so the user can copy a shareable link.
+    // Only real named selections are written; placeholders/empties are removed.
+    function updateUrlSelection() {
+        const url = new URL(window.location.href);
+        const sc = scenarioSelect.value;
+        const q = querySelect.value;
+        if (sc && sc !== '___custom___') url.searchParams.set('scenario', sc);
+        else url.searchParams.delete('scenario');
+        if (q && q !== '___custom___') url.searchParams.set('query', q);
+        else url.searchParams.delete('query');
+        window.history.replaceState({}, '', url.toString());
+    }
+
     scenarioSelect.addEventListener('change', () => {
         customScenarioContainer.style.display = scenarioSelect.value === '___custom___' ? 'flex' : 'none';
         updateQueryButtonState();
+        updateUrlSelection();
     });
 
     querySelect.addEventListener('change', () => {
         customQueryContainer.style.display = querySelect.value === '___custom___' ? 'flex' : 'none';
         updateQueryButtonState();
+        updateUrlSelection();
     });
 
     const kbModuleDisplay = document.getElementById('kb-module-display')!;
@@ -1270,6 +1288,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             if (res && res.sessionModule) {
                 sessionModule = res.sessionModule;
                 isLoaded = true;
+                lastIssues = res.issues || [];
+                lastLoadError = '';
                 includedResources = res.included_resources || [];
                 
                 kbModuleDisplay.textContent = `KB: ${res.kb || 'unknown'}`;
@@ -1325,19 +1345,84 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 isLoading = false;
                 return true;
             } else {
-                resultsDisplay.textContent = 'Error loading module: ' + (res?.error || 'Unknown error');
+                lastLoadError = res?.error || 'Unknown error';
+                resultsDisplay.textContent = 'Error loading module: ' + lastLoadError;
                 isLoading = false;
                 updateMarkers([]);
                 return false;
             }
         } catch (err) {
-            resultsDisplay.textContent = 'Error connecting to server.';
+            lastLoadError = 'Error connecting to server.';
+            resultsDisplay.textContent = lastLoadError;
             console.error(err);
             isLoading = false;
             updateMarkers([]);
             return false;
         }
     };
+
+    // A short modal dialog (used to report problems applying URL parameters).
+    function showModal(message: string, title = 'Notice') {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;';
+        const box = document.createElement('div');
+        box.style.cssText = 'background:#252526;color:#ddd;border:1px solid #555;border-radius:8px;max-width:480px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,0.5);font-family:sans-serif;';
+        const h = document.createElement('div');
+        h.textContent = title;
+        h.style.cssText = 'font-weight:bold;font-size:15px;margin-bottom:10px;';
+        const p = document.createElement('div');
+        p.textContent = message;
+        p.style.cssText = 'font-size:13px;line-height:1.5;white-space:pre-wrap;margin-bottom:16px;';
+        const btn = document.createElement('button');
+        btn.textContent = 'OK';
+        btn.style.cssText = 'float:right;padding:6px 16px;background:#0e639c;color:#fff;border:none;border-radius:4px;cursor:pointer;';
+        const close = () => overlay.remove();
+        btn.addEventListener('click', close);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+        box.appendChild(h); box.appendChild(p); box.appendChild(btn);
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+        btn.focus();
+    }
+
+    // Apply the optional `scenario` / `query` URL parameters: select the named
+    // scenario and/or query in the menus (without running the query — the user
+    // presses the button). Reports problems (errors in the document, or an
+    // unknown scenario/query) in a modal.
+    function selectIfPresent(select: HTMLSelectElement, value: string): boolean {
+        const opt = Array.from(select.options).find(o => o.value === value);
+        if (!opt) return false;
+        select.value = value;
+        select.dispatchEvent(new Event('change'));
+        return true;
+    }
+    async function applyUrlSelection() {
+        const p = new URLSearchParams(window.location.search);
+        const scenarioParam = p.get('scenario');
+        const queryParam = p.get('query');
+        // The scenario/query parameters only make sense for a document loaded via
+        // `example` or `text`.
+        if ((!scenarioParam && !queryParam) || !(p.get('example') || p.get('text'))) return;
+        const ok = await loadModule();
+        if (!ok) {
+            showModal('Could not load the document.' + (lastLoadError ? '\n\n' + lastLoadError : ''), 'Cannot select scenario/query');
+            return;
+        }
+        const errs = lastIssues.filter((i: any) => i.severity === 'error');
+        if (errs.length > 0) {
+            const list = errs.slice(0, 5).map((e: any) => '• ' + e.message).join('\n');
+            showModal('The document has errors; fix them before selecting a scenario or query:\n\n' + list, 'Document has errors');
+            return;
+        }
+        if (scenarioParam && !selectIfPresent(scenarioSelect, scenarioParam)) {
+            showModal(`Scenario "${scenarioParam}" does not exist in this document.`, 'Unknown scenario');
+            return;
+        }
+        if (queryParam && !selectIfPresent(querySelect, queryParam)) {
+            showModal(`Query "${queryParam}" does not exist in this document.`, 'Unknown query');
+            return;
+        }
+    }
 
     scenarioSelect.addEventListener('mouseenter', () => {
         if (!isLoaded && !isLoading) loadModule();
@@ -1381,6 +1466,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             }
         }
     });
+
+    // If the URL carried scenario/query parameters, apply them now (the document
+    // has been loaded into the editor from example/text above).
+    applyUrlSelection();
 
     const bottomPanel = document.getElementById('bottom-panel')!;
     const resizer = document.getElementById('resizer')!;

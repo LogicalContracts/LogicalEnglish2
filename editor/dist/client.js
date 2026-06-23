@@ -17750,7 +17750,7 @@ var edgePoints = Object.keys(pts).reduce(function(obj, name) {
   return obj;
 }, {});
 var dimensions = extend({}, position, bounds, widthHeight, edgePoints);
-var Event = function Event2(src, props) {
+var Event2 = function Event3(src, props) {
   this.recycle(src, props);
 };
 function returnFalse() {
@@ -17759,7 +17759,7 @@ function returnFalse() {
 function returnTrue() {
   return true;
 }
-Event.prototype = {
+Event2.prototype = {
   instanceString: function instanceString2() {
     return "event";
   },
@@ -17893,7 +17893,7 @@ var forEachEvent = function forEachEvent2(self2, handler, events, qualifier, cal
 };
 var makeEventObj = function makeEventObj2(self2, obj) {
   self2.addEventFields(self2.context, obj);
-  return new Event(obj.type, obj);
+  return new Event2(obj.type, obj);
 };
 var forEachEventObj = function forEachEventObj2(self2, handler, events) {
   if (event(events)) {
@@ -38500,6 +38500,8 @@ async function start() {
   let isDirty = false;
   let isLoaded = false;
   let isLoading = false;
+  let lastIssues = [];
+  let lastLoadError = "";
   let sessionModule = null;
   let includedResources = [];
   let loadTimeout = null;
@@ -39418,13 +39420,29 @@ async function start() {
   const customScenarioText = document.getElementById("custom-scenario-text");
   const customQueryContainer = document.getElementById("custom-query-container");
   const customQueryText = document.getElementById("custom-query-text");
+  function updateUrlSelection() {
+    const url = new URL(window.location.href);
+    const sc = scenarioSelect.value;
+    const q = querySelect.value;
+    if (sc && sc !== "___custom___")
+      url.searchParams.set("scenario", sc);
+    else
+      url.searchParams.delete("scenario");
+    if (q && q !== "___custom___")
+      url.searchParams.set("query", q);
+    else
+      url.searchParams.delete("query");
+    window.history.replaceState({}, "", url.toString());
+  }
   scenarioSelect.addEventListener("change", () => {
     customScenarioContainer.style.display = scenarioSelect.value === "___custom___" ? "flex" : "none";
     updateQueryButtonState();
+    updateUrlSelection();
   });
   querySelect.addEventListener("change", () => {
     customQueryContainer.style.display = querySelect.value === "___custom___" ? "flex" : "none";
     updateQueryButtonState();
+    updateUrlSelection();
   });
   const kbModuleDisplay = document.getElementById("kb-module-display");
   const sessionModuleDisplay = document.getElementById("session-module-display");
@@ -39505,6 +39523,8 @@ async function start() {
       if (res && res.sessionModule) {
         sessionModule = res.sessionModule;
         isLoaded = true;
+        lastIssues = res.issues || [];
+        lastLoadError = "";
         includedResources = res.included_resources || [];
         kbModuleDisplay.textContent = `KB: ${res.kb || "unknown"}`;
         sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
@@ -39551,19 +39571,82 @@ async function start() {
         isLoading = false;
         return true;
       } else {
-        resultsDisplay.textContent = "Error loading module: " + (res?.error || "Unknown error");
+        lastLoadError = res?.error || "Unknown error";
+        resultsDisplay.textContent = "Error loading module: " + lastLoadError;
         isLoading = false;
         updateMarkers([]);
         return false;
       }
     } catch (err) {
-      resultsDisplay.textContent = "Error connecting to server.";
+      lastLoadError = "Error connecting to server.";
+      resultsDisplay.textContent = lastLoadError;
       console.error(err);
       isLoading = false;
       updateMarkers([]);
       return false;
     }
   };
+  function showModal(message, title = "Notice") {
+    const overlay = document.createElement("div");
+    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:10000;display:flex;align-items:center;justify-content:center;";
+    const box = document.createElement("div");
+    box.style.cssText = "background:#252526;color:#ddd;border:1px solid #555;border-radius:8px;max-width:480px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,0.5);font-family:sans-serif;";
+    const h = document.createElement("div");
+    h.textContent = title;
+    h.style.cssText = "font-weight:bold;font-size:15px;margin-bottom:10px;";
+    const p2 = document.createElement("div");
+    p2.textContent = message;
+    p2.style.cssText = "font-size:13px;line-height:1.5;white-space:pre-wrap;margin-bottom:16px;";
+    const btn = document.createElement("button");
+    btn.textContent = "OK";
+    btn.style.cssText = "float:right;padding:6px 16px;background:#0e639c;color:#fff;border:none;border-radius:4px;cursor:pointer;";
+    const close = () => overlay.remove();
+    btn.addEventListener("click", close);
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay)
+        close();
+    });
+    box.appendChild(h);
+    box.appendChild(p2);
+    box.appendChild(btn);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+    btn.focus();
+  }
+  function selectIfPresent(select, value) {
+    const opt = Array.from(select.options).find((o) => o.value === value);
+    if (!opt)
+      return false;
+    select.value = value;
+    select.dispatchEvent(new Event("change"));
+    return true;
+  }
+  async function applyUrlSelection() {
+    const p2 = new URLSearchParams(window.location.search);
+    const scenarioParam = p2.get("scenario");
+    const queryParam = p2.get("query");
+    if (!scenarioParam && !queryParam || !(p2.get("example") || p2.get("text")))
+      return;
+    const ok = await loadModule();
+    if (!ok) {
+      showModal("Could not load the document." + (lastLoadError ? "\n\n" + lastLoadError : ""), "Cannot select scenario/query");
+      return;
+    }
+    const errs = lastIssues.filter((i) => i.severity === "error");
+    if (errs.length > 0) {
+      const list = errs.slice(0, 5).map((e) => "\u2022 " + e.message).join("\n");
+      showModal("The document has errors; fix them before selecting a scenario or query:\n\n" + list, "Document has errors");
+      return;
+    }
+    if (scenarioParam && !selectIfPresent(scenarioSelect, scenarioParam)) {
+      showModal(`Scenario "${scenarioParam}" does not exist in this document.`, "Unknown scenario");
+      return;
+    }
+    if (queryParam && !selectIfPresent(querySelect, queryParam)) {
+      showModal(`Query "${queryParam}" does not exist in this document.`, "Unknown query");
+      return;
+    }
+  }
   scenarioSelect.addEventListener("mouseenter", () => {
     if (!isLoaded && !isLoading)
       loadModule();
@@ -39604,6 +39687,7 @@ async function start() {
       }
     }
   });
+  applyUrlSelection();
   const bottomPanel = document.getElementById("bottom-panel");
   const resizer = document.getElementById("resizer");
   let isResizing = false;
