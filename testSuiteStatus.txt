@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 86
-Total tests:     278
-Passed:          278
+Files processed: 87
+Total tests:     279
+Passed:          279
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -82,6 +82,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/short/longsentence.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/short/sets.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/sunangel.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/propositional_negation.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
