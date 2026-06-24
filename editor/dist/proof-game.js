@@ -124452,6 +124452,10 @@ var RuleNode = class extends classic.Node {
   // In failing mode, the bound instance of each body condition (index -> literal,
   // e.g. 0 -> "a creature is a parent of bob"), also from the explanation spine.
   boundBody = null;
+  // Per-negation bound inner goal reported by the backend: [{index, goal, ground}].
+  // Used to reject a "not the case" link whose connected failing rule denotes a
+  // different goal than this rule's bindings actually negate.
+  bodyNafInner = [];
   type;
   forallMeta(i2) {
     return this.bodyForall.find((m2) => m2.index === i2);
@@ -125158,6 +125162,8 @@ async function initProofGame(container, gameData) {
             const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
             if (!conn)
               return false;
+            if (!nafLinkConsistent(node2, i2, editor.getNode(conn.source)))
+              return false;
             const range = node2.bodyRanges[i2];
             const spine = range ? expFailureSpineFor(range.start, range.end) : null;
             if (spine && !failureMatches(conn.source, spine))
@@ -125195,6 +125201,35 @@ async function initProofGame(container, gameData) {
       return false;
     const parts = targetInput.split("-");
     return parts.length === 2 && targetNode.bodyNaf.includes(parseInt(parts[1]));
+  }
+  function normalizeGoal(s) {
+    return (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+  }
+  function nafLinkConsistent(parent, i2, source) {
+    if (!(source instanceof RuleNode))
+      return true;
+    const info = (parent.bodyNafInner || []).find((x2) => x2.index === i2);
+    if (!info || !info.ground)
+      return true;
+    const head = source.boundHead;
+    if (!head)
+      return true;
+    return normalizeGoal(head) === normalizeGoal(info.goal);
+  }
+  function invalidNegationLinks() {
+    const bad = /* @__PURE__ */ new Set();
+    for (const c2 of editor.getConnections()) {
+      const target = editor.getNode(c2.target);
+      if (target instanceof RuleNode && isNafSocket(target, c2.targetInput)) {
+        const i2 = parseInt(c2.targetInput.split("-")[1]);
+        const source = editor.getNode(c2.source);
+        if (!nafLinkConsistent(target, i2, source)) {
+          bad.add(c2.target);
+          bad.add(c2.source);
+        }
+      }
+    }
+    return bad;
   }
   function computeFailing() {
     const conns = editor.getConnections();
@@ -125330,6 +125365,7 @@ async function initProofGame(container, gameData) {
               if (Array.isArray(nodeData.bodyForall)) {
                 node2.rule.bodyForall = nodeData.bodyForall;
               }
+              node2.bodyNafInner = Array.isArray(nodeData.bodyNafInner) ? nodeData.bodyNafInner : [];
             } else if (node2 instanceof FactNode) {
               node2.tokens = nodeData.headTokens;
             } else if (node2 instanceof QueryNode) {
@@ -125339,9 +125375,28 @@ async function initProofGame(container, gameData) {
             area.update("node", node2.id);
           }
         });
-        checkCompletion();
-        updateConnectionLabels();
-        wasClash = false;
+        const badNaf = invalidNegationLinks();
+        if (badNaf.size > 0) {
+          if (!wasClash) {
+            playClashSound();
+            wasClash = true;
+          }
+          nodes2.forEach((n2) => {
+            const bad = badNaf.has(n2.id);
+            if (n2.clash !== bad) {
+              n2.clash = bad;
+            }
+            if (bad)
+              n2.complete = false;
+            area.update("node", n2.id);
+          });
+          checkCompletion();
+          updateConnectionLabels();
+        } else {
+          checkCompletion();
+          updateConnectionLabels();
+          wasClash = false;
+        }
       } else if (res.status === "clash") {
         if (!wasClash) {
           playClashSound();

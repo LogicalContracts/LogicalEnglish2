@@ -241,10 +241,29 @@ render_instances(KB, [inst(IId, _Kind, Head, Body)|Insts], [Result|Results]) :-
     % Re-render any "for all cases" sub-conditions too, so their bindings (e.g.
     % "the creature" -> alice) appear once the rule's variables are bound.
     forall_meta_list(KB, Body, VarIds, [], ForallMeta),
+    % The bound inner goal of each negation ("it is not the case that <G>"), so the
+    % client can reject a negation link whose connected failing rule denotes a
+    % different goal than the one this rule's bindings actually negate.
+    naf_inner_list(KB, Body, NafInner),
     Result = _{ instanceId: IId, head: HeadLE, headTokens: HeadTokens,
                 body: BodyLEs, bodyTokens: BodyTokensList,
-                bodyForall: ForallMeta },
+                bodyForall: ForallMeta, bodyNafInner: NafInner },
     render_instances(KB, Insts, Results).
+
+% naf_inner_list(+KB, +Body, -NafInner): for each negation-as-failure body
+% condition, a dict with its index, the canonical rendering of its (possibly
+% bound) inner goal, and whether that goal is ground.
+naf_inner_list(KB, Body, NafInner) :-
+    findall(_{ index: I, goal: GoalStr, ground: Ground },
+        (   nth0(I, Body, Cond),
+            is_naf_condition(Cond),
+            naf_inner_goal(Cond, Inner),
+            ( term_variables(Inner, []) -> Ground = true ; Ground = false ),
+            (   KB \== none, le_kbs:item_to_instance(KB, Inner, Toks)
+            ->  le_kbs:canonical_string(Toks, A),
+                ( string(A) -> GoalStr = A ; atom_string(A, GoalStr) )
+            ;   term_string(Inner, GoalStr) )
+        ), NafInner).
 
 % --- Typed Rendering Logic (moved from le_kbs) ---
 
