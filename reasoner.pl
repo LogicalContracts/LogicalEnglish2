@@ -13,7 +13,7 @@
 :- use_module(library(pairs)).
 
 :- dynamic equal_to/2.
-:- thread_local called/3, called_clause/3, counter/1, success_in_not/2, succeeded/1.
+:- thread_local called/3, called_clause/3, counter/1, success_in_not/2, succeeded/1, solved_binding/2.
 
 % When set (the default), repeated sub-explanations are collapsed; the client can
 % turn this off per query so the full tree is built and shown. Tracked per worker
@@ -38,6 +38,7 @@ i(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called_clause(_, _, _)),
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
+    retractall(solved_binding(_, _)),
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
@@ -62,6 +63,7 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
     retractall(called_clause(_, _, _)),
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
+    retractall(solved_binding(_, _)),
     init_counter,
     ( SessionModule:le_kb_module_fact(KBmodule) ->  true; KBmodule = none),
     setup_call_cleanup(
@@ -90,15 +92,17 @@ solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
         (   SM:debug_mode
 
         ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
-            (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E, 
+            (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E,
                       (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, Anc, D), throw(E)))
             ->  (succeeded(MyID) -> true ; assertz(succeeded(MyID))),
+                note_solved(MyID, G),
                 dap_server:dap_tracer_hook(exit, SM, G, MyID, Anc, D)
             ;   dap_server:dap_tracer_hook(fail, SM, G, MyID, Anc, D),
                 fail
             )
         ;   solve_real(G, SM, KM, Anc, D, MyID, Us, Whys),
-            (succeeded(MyID) -> true ; assertz(succeeded(MyID)))
+            (succeeded(MyID) -> true ; assertz(succeeded(MyID))),
+            note_solved(MyID, G)
         )
     ).
 
@@ -495,10 +499,31 @@ clause_failure_children(ID, Grouped) :-
 child_failure_or_choice(CID, _Goal, W) :-
     \+ succeeded(CID), !,
     build_failure_tree(CID, Ws), member(W, Ws).
-child_failure_or_choice(CID, le_at(G, S, E), success(G, range(S, E), [])) :-
-    succeeded(CID), \+ ground(G), !.
-child_failure_or_choice(CID, Goal, success(Goal, nonground_success, [])) :-
-    succeeded(CID), \+ ground(Goal).
+child_failure_or_choice(CID, le_at(G, S, E), success(GShown, range(S, E), [])) :-
+    succeeded(CID), \+ ground(G), !,
+    choice_binding(CID, le_at(G, S, E), le_at(GShown, _, _)).
+child_failure_or_choice(CID, Goal, success(GShown, nonground_success, [])) :-
+    succeeded(CID), \+ ground(Goal),
+    choice_binding(CID, Goal, GShown).
+
+% note_solved(+CID, +Goal): snapshot a subgoal's bindings AT SUCCESS time. The
+% call-time record (called/3) freezes a choice point before unification fills it
+% in (e.g. "a creature is a parent of bob"); this captures the solved form (e.g.
+% "alice is a parent of bob") so a failure explanation can show the binding the
+% explored path actually used. Stored per distinct solution.
+note_solved(CID, Goal) :-
+    ( solved_binding(CID, Existing), Existing =@= Goal
+    -> true
+    ;  assertz(solved_binding(CID, Goal)) ).
+
+% choice_binding(+CID, +CallGoal, -Shown): if the succeeded choice point had a
+% UNIQUE solution on the explored path, show it with that binding; otherwise keep
+% the call-time (non-ground) form, so a multi-solution choice still reads
+% generally rather than committing to one arbitrary witness.
+choice_binding(CID, CallGoal, Shown) :-
+    ( findall(B, solved_binding(CID, B), Bindings), Bindings = [Unique]
+    -> Shown = Unique
+    ;  Shown = CallGoal ).
 
 % combine_clause_children(+RuleNodes, +DirectWhys, -AllWhys)
 % No rule nodes -> just the direct failures. A SINGLE rule -> drop the rule node

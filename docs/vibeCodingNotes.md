@@ -1723,5 +1723,38 @@ Oh, and also add an 'answer' parameter, same principles, but with the ORDER of a
 Two new issues with the Proof Game:
 - In examples/moreExamples/happy_dragon.le, scenario smoky, query happy, the first condition in the smokes rule (at line 14) is not being bound properly, as can be seen with "Show Proof". For example in node for rule head instance "bob smokes", the first condition shown in the node is "a creature is a parent of the dragon", whereas it should be "a creature is a parent of bob"
 - In the same example, an user was able to construct an incorrect "solution" (e.g. the system paints it all green) manually with only 4 nodes, as shown in the picture. I could not reproduce this myself, so  the user probably did other intermediate edits which somehow messed up the "correct proof detection" logic, that needs to be more robust
+  
+### missing bindings
+In happy_dragon.le / query healthy, second answer "alice is happy", the "Show Proof" solution still lacks some bindings,
+  namely in the rule with head "bob smokes": all 3 conditions should mention alice, since we have "alice smokes" in the thrid
+  condition. We must reflect the effect of unification.
+  As a matter of fact, the explanation tree seems to have the same problem:
+
+alice is happy
+  alice is a dragon
+  for all cases in which alice is a parent of a dragon
+    for case alice is a parent of bob
+    it is true that bob is healthy
+      bob is a dragon
+      it is not the case that bob smokes
+        x bob smokes
+          a creature is a parent of bob %% THIS SHOULD BE "alice is a parent of bob"
+          x alice smokes
+            x a creature is a parent of alice
+
+This may imply keeping solution bindings even for goals that eventually failed, like "a creature is a parent of bob"
+  
+## Multilingual
+
+We need to support alternative hindo european languages, such as Portuguese, Spanish, French, Italian, ..., so that Logical English can be used also as (say) "Português Lógico", "Español Lógico", etc. Please evaluate difficulties and draft an implementation plan docs/MultilingualLEplan.md - no coding yet - considering the following:
+- A Le program file will use only one language, determined at the very start by the first statement, for example "a linguagem alvo é: prolog" for PT, "the target language is: prolog" for EN, etc.
+- All LE keywords, determiners recognised in templates, system templates, error messages (some of them possibly format/3 templates) need multilanguage versions; hopefully we will not need alternative DCG rules per language, not sure
+- LE Assistant prompts need to be tuned and various to generate the desired language 
+- All UI strings need to be multilingual, assuming the English strings as canonical keys: editor and query panel, tooltips, source calls graph, proof game, Trace. These should render accordingly to a new language selector in the UI
+- Monaco tables need to be multilingual too; it may be a good time for some refactoring to avoid duplicating strings in the Prolog backend and editor Typescript...?
+- System Multilingual strings should be all together in one or more file dictionaries per language, as JSON or preferably .csv files (to facilitate later editing/tweaking by human translators);  we should draft a first stab of all translations using our own agent LLM
+- LE examples should also be translated into all supported languages, perhaps either using a simple file naming convention like MyExample.le, MyExample.pt.le, MyExample.en.le etc; or use example su-directories per language
+
+Again, for now produce just the implementation plan with design issues to be resolved if any; no coding yet.
 
 ## TBD
