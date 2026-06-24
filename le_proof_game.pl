@@ -27,8 +27,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         \+ member(ID, [template, template_unknown, ontology, session_fact]),
         Body \== true,
         comma_list(Body, BodyList),
-        maplist(strip_le_at, BodyList, StrippedBodyList),
-        flatten_and(StrippedBodyList, FlatBodyList),
+        flatten_body(BodyList, FlatBodyList),
         next_game_node_id(SM, rule, NodeId),
         game_var_ids((Head :- FlatBodyList), VarIds),
         ( KB \== none, KB:le_var_names(ID, NameMap0) -> NameMap = NameMap0 ; NameMap = [] ),
@@ -336,3 +335,15 @@ strip_le_at(Term, Term).
 flatten_and([], []).
 flatten_and([and(A, B)|T], Flat) :- !, flatten_and([A, B|T], Flat).
 flatten_and([H|T], [H|FlatT]) :- flatten_and(T, FlatT).
+
+% flatten_body(+BodyList, -FlatBodyList): flatten the top-level "and" structure
+% of a rule body into one element per condition, preserving the le_at/3 source
+% annotation on each leaf condition. A condition is split only when it strips to
+% an and/2; otherwise it is kept verbatim (so a single-atom body like le_at(u,...)
+% retains its range instead of being reduced to a bare atom).
+flatten_body([], []).
+flatten_body([Cond|T], Flat) :-
+    ( strip_le_at(Cond, and(A, B))
+    ->  flatten_body([A, B|T], Flat)
+    ;   Flat = [Cond|FlatT], flatten_body(T, FlatT)
+    ).
