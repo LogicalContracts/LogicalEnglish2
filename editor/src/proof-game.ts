@@ -175,6 +175,9 @@ class RuleNode extends ClassicPreset.Node {
     // smokes") taken from the explanation spine — the failure edges aren't unified,
     // so the binding comes from the explanation rather than the backend.
     public boundHead: string | null = null;
+    // In failing mode, the bound instance of each body condition (index -> literal,
+    // e.g. 0 -> "a creature is a parent of bob"), also from the explanation spine.
+    public boundBody: { [i: number]: string } | null = null;
 
     constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
         super('');
@@ -319,7 +322,9 @@ function CustomNode(props: any) {
             }, data.rule.body.map((cond: string, i: number) => {
                 const isForall = data.forallIndexSet && data.forallIndexSet.has(i);
                 const isNaf = Array.isArray(data.bodyNaf) && data.bodyNaf.includes(i);
-                const condText = renderTokens(data.bodyTokens[i]) || cond;
+                const condText = (data.failing && data.boundBody && data.boundBody[i])
+                    ? data.boundBody[i]
+                    : (renderTokens(data.bodyTokens[i]) || cond);
                 const condTemplate = getPredicateTemplate(data.bodyTokens[i]) || cond;
                 const condPredicateColor = templateColors.get(condTemplate) || '#ffeb3b';
                 const bodyColor = data.complete ? '#81c784' : (isAdultMode ? '#333' : condPredicateColor);
@@ -825,29 +830,6 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         return found;
     }
 
-    // True when the "for all cases" condition spanning [start,end] is satisfied
-    // VACUOUSLY in the current answer's explanation — i.e. its condition has no
-    // matching cases (its only child is a failure branch, no "for case" pair). Such
-    // a universal is represented in the game by a FAIL on the condition socket.
-    function expForallVacuous(start: number, end: number): boolean {
-        let result = false, found = false;
-        const visit = (node: any) => {
-            if (found) return;
-            if (Array.isArray(node)) { node.forEach(visit); return; }
-            if (!node || typeof node !== 'object') return;
-            if (node.start === start && node.end === end
-                && typeof node.literal === 'string' && node.literal.startsWith('for all cases')) {
-                found = true;
-                const kids = node.children || [];
-                result = kids.some((c: any) => c.type === 'failure')
-                    && !kids.some((c: any) => typeof c.literal === 'string' && c.literal.startsWith('for case'));
-                return;
-            }
-            (node.children || []).forEach(visit);
-        };
-        visit(gameData.explanation);
-        return result;
-    }
 
     function checkCompletion() {
         const nodes = editor.getNodes();
@@ -856,8 +838,13 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
         if (!queryNode) return false;
 
-        const visited = new Set<string>();
         const fragmentNodes = new Set<string>();
+        // Cycle-safe memoization for isComplete: a node currently being evaluated
+        // (in `computing`) that is reached again means the connections form a cycle —
+        // it cannot justify its own completeness, so it is treated as incomplete
+        // rather than vacuously complete. `completeCache` memoizes settled results.
+        const computing = new Set<string>();
+        const completeCache = new Map<string, boolean>();
 
         function markFragment(nodeId: string) {
             if (fragmentNodes.has(nodeId)) return;
@@ -889,9 +876,17 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }
 
         function isComplete(nodeId: string): boolean {
-            if (visited.has(nodeId)) return true;
-            visited.add(nodeId);
+            const cached = completeCache.get(nodeId);
+            if (cached !== undefined) return cached;
+            if (computing.has(nodeId)) return false;   // cycle: cannot prove itself
+            computing.add(nodeId);
+            const result = computeComplete(nodeId);
+            computing.delete(nodeId);
+            completeCache.set(nodeId, result);
+            return result;
+        }
 
+        function computeComplete(nodeId: string): boolean {
             const node = editor.getNode(nodeId);
             if (!node) return false;
             fragmentNodes.add(nodeId);
@@ -909,21 +904,21 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 const bodyCount = node.rule.body ? node.rule.body.length : 0;
                 for (let i = 0; i < bodyCount; i++) {
                     if (node.forallIndexSet.has(i)) {
-                        const range = node.bodyRanges[i];
-                        if (range && expForallVacuous(range.start, range.end)) {
-                            // Vacuously true: the condition has no cases. A FAIL on the
-                            // condition socket represents that; the consequence socket
-                            // is not required.
-                            const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-0`);
-                            if (!conn) return false;
-                            markFragment(conn.source);
+                        // The condition socket decides which: a FAIL means the
+                        // universal is VACUOUS (no cases) and the consequence is not
+                        // required; anything else is a witnessing CASE, which must be
+                        // proven AND its consequence proven. (Independent of which
+                        // answer's explanation is selected, so it can't be fooled.)
+                        const condConn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-0`);
+                        if (!condConn) return false;
+                        const condSrc = editor.getNode(condConn.source);
+                        if (condSrc instanceof FailNode) {
+                            markFragment(condConn.source);   // vacuous: no cases
                         } else {
-                            // Both sub-conditions of a "for all cases" must be satisfied.
-                            for (const sub of [0, 1]) {
-                                const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-${sub}`);
-                                if (!conn) return false;
-                                if (!isComplete(conn.source)) return false;
-                            }
+                            if (!isComplete(condConn.source)) return false;
+                            const consConn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-1`);
+                            if (!consConn) return false;
+                            if (!isComplete(consConn.source)) return false;
                         }
                     } else if (node.bodyNaf.includes(i)) {
                         // A negation: its failure subtree must reproduce the
@@ -999,12 +994,26 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     function updateFailingLabels() {
         const conns = editor.getConnections();
         editor.getNodes().forEach(n => {
-            if ((n as any).boundHead) { (n as any).boundHead = null; area.update('node', n.id); }
+            if ((n as any).boundHead || (n as any).boundBody) {
+                (n as any).boundHead = null;
+                (n as any).boundBody = null;
+                area.update('node', n.id);
+            }
         });
         const assign = (sourceNodeId: string, expFail: any) => {
             const node = editor.getNode(sourceNodeId) as any;
             if (!node || !expFail || !(node instanceof RuleNode)) return;
             node.boundHead = expFail.literal;
+            // Bind each body condition shown on the failing card to the explanation's
+            // instance (e.g. body[0] of "bob smokes" becomes "a creature is a parent
+            // of bob"), matching explanation children to body conditions by range.
+            const boundBody: { [i: number]: string } = {};
+            (expFail.children || []).forEach((ch: any) => {
+                if (!ch || typeof ch.start !== 'number') return;
+                const bi = (node.bodyRanges || []).findIndex((r: any) => r.start === ch.start && r.end === ch.end);
+                if (bi >= 0) boundBody[bi] = ch.literal;
+            });
+            node.boundBody = boundBody;
             area.update('node', node.id);
             const expChild = (expFail.children || []).find((c: any) => c.type === 'failure');
             if (!expChild) return;

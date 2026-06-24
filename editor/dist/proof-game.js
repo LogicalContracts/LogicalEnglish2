@@ -124449,6 +124449,9 @@ var RuleNode = class extends classic.Node {
   // smokes") taken from the explanation spine — the failure edges aren't unified,
   // so the binding comes from the explanation rather than the backend.
   boundHead = null;
+  // In failing mode, the bound instance of each body condition (index -> literal,
+  // e.g. 0 -> "a creature is a parent of bob"), also from the explanation spine.
+  boundBody = null;
   type;
   forallMeta(i2) {
     return this.bodyForall.find((m2) => m2.index === i2);
@@ -124566,7 +124569,7 @@ function CustomNode(props) {
       }, data.rule.body.map((cond, i2) => {
         const isForall = data.forallIndexSet && data.forallIndexSet.has(i2);
         const isNaf = Array.isArray(data.bodyNaf) && data.bodyNaf.includes(i2);
-        const condText = renderTokens(data.bodyTokens[i2]) || cond;
+        const condText = data.failing && data.boundBody && data.boundBody[i2] ? data.boundBody[i2] : renderTokens(data.bodyTokens[i2]) || cond;
         const condTemplate = getPredicateTemplate(data.bodyTokens[i2]) || cond;
         const condPredicateColor = templateColors.get(condTemplate) || "#ffeb3b";
         const bodyColor = data.complete ? "#81c784" : isAdultMode ? "#333" : condPredicateColor;
@@ -125067,36 +125070,15 @@ async function initProofGame(container, gameData) {
     visit(gameData.explanation);
     return found;
   }
-  function expForallVacuous(start, end) {
-    let result = false, found = false;
-    const visit = (node2) => {
-      if (found)
-        return;
-      if (Array.isArray(node2)) {
-        node2.forEach(visit);
-        return;
-      }
-      if (!node2 || typeof node2 !== "object")
-        return;
-      if (node2.start === start && node2.end === end && typeof node2.literal === "string" && node2.literal.startsWith("for all cases")) {
-        found = true;
-        const kids = node2.children || [];
-        result = kids.some((c2) => c2.type === "failure") && !kids.some((c2) => typeof c2.literal === "string" && c2.literal.startsWith("for case"));
-        return;
-      }
-      (node2.children || []).forEach(visit);
-    };
-    visit(gameData.explanation);
-    return result;
-  }
   function checkCompletion() {
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
     const queryNode = nodes2.find((n2) => n2 instanceof QueryNode);
     if (!queryNode)
       return false;
-    const visited = /* @__PURE__ */ new Set();
     const fragmentNodes = /* @__PURE__ */ new Set();
+    const computing = /* @__PURE__ */ new Set();
+    const completeCache = /* @__PURE__ */ new Map();
     function markFragment(nodeId) {
       if (fragmentNodes.has(nodeId))
         return;
@@ -125127,9 +125109,18 @@ async function initProofGame(container, gameData) {
       return failureMatches(conn.source, expChild);
     }
     function isComplete(nodeId) {
-      if (visited.has(nodeId))
-        return true;
-      visited.add(nodeId);
+      const cached = completeCache.get(nodeId);
+      if (cached !== void 0)
+        return cached;
+      if (computing.has(nodeId))
+        return false;
+      computing.add(nodeId);
+      const result = computeComplete(nodeId);
+      computing.delete(nodeId);
+      completeCache.set(nodeId, result);
+      return result;
+    }
+    function computeComplete(nodeId) {
       const node2 = editor.getNode(nodeId);
       if (!node2)
         return false;
@@ -125148,20 +125139,20 @@ async function initProofGame(container, gameData) {
         const bodyCount = node2.rule.body ? node2.rule.body.length : 0;
         for (let i2 = 0; i2 < bodyCount; i2++) {
           if (node2.forallIndexSet.has(i2)) {
-            const range = node2.bodyRanges[i2];
-            if (range && expForallVacuous(range.start, range.end)) {
-              const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-0`);
-              if (!conn)
-                return false;
-              markFragment(conn.source);
+            const condConn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-0`);
+            if (!condConn)
+              return false;
+            const condSrc = editor.getNode(condConn.source);
+            if (condSrc instanceof FailNode) {
+              markFragment(condConn.source);
             } else {
-              for (const sub of [0, 1]) {
-                const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-${sub}`);
-                if (!conn)
-                  return false;
-                if (!isComplete(conn.source))
-                  return false;
-              }
+              if (!isComplete(condConn.source))
+                return false;
+              const consConn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-1`);
+              if (!consConn)
+                return false;
+              if (!isComplete(consConn.source))
+                return false;
             }
           } else if (node2.bodyNaf.includes(i2)) {
             const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
@@ -125227,8 +125218,9 @@ async function initProofGame(container, gameData) {
   function updateFailingLabels() {
     const conns = editor.getConnections();
     editor.getNodes().forEach((n2) => {
-      if (n2.boundHead) {
+      if (n2.boundHead || n2.boundBody) {
         n2.boundHead = null;
+        n2.boundBody = null;
         area.update("node", n2.id);
       }
     });
@@ -125237,6 +125229,15 @@ async function initProofGame(container, gameData) {
       if (!node2 || !expFail || !(node2 instanceof RuleNode))
         return;
       node2.boundHead = expFail.literal;
+      const boundBody = {};
+      (expFail.children || []).forEach((ch) => {
+        if (!ch || typeof ch.start !== "number")
+          return;
+        const bi = (node2.bodyRanges || []).findIndex((r2) => r2.start === ch.start && r2.end === ch.end);
+        if (bi >= 0)
+          boundBody[bi] = ch.literal;
+      });
+      node2.boundBody = boundBody;
       area.update("node", node2.id);
       const expChild = (expFail.children || []).find((c2) => c2.type === "failure");
       if (!expChild)

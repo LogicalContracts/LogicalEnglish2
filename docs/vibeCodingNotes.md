@@ -1719,4 +1719,9 @@ If there are syntactic errors or other serious condition (such as nonexisting qu
 Finally, when the user selects a scenario or query with the menus, alter the URL so that the user can copy a full URL with the selected scenario and/or query
 Oh, and also add an 'answer' parameter, same principles, but with the ORDER of an answer (requires query and scenario); this actually executes the selected query  and selects the answer so the user can see its explanation etc
 
+## More Proof Game bugs
+Two new issues with the Proof Game:
+- In examples/moreExamples/happy_dragon.le, scenario smoky, query happy, the first condition in the smokes rule (at line 14) is not being bound properly, as can be seen with "Show Proof". For example in node for rule head instance "bob smokes", the first condition shown in the node is "a creature is a parent of the dragon", whereas it should be "a creature is a parent of bob"
+- In the same example, an user was able to construct an incorrect "solution" (e.g. the system paints it all green) manually with only 4 nodes, as shown in the picture. I could not reproduce this myself, so  the user probably did other intermediate edits which somehow messed up the "correct proof detection" logic, that needs to be more robust
+
 ## TBD
