@@ -178,6 +178,10 @@ class RuleNode extends ClassicPreset.Node {
     // In failing mode, the bound instance of each body condition (index -> literal,
     // e.g. 0 -> "a creature is a parent of bob"), also from the explanation spine.
     public boundBody: { [i: number]: string } | null = null;
+    // Per-negation bound inner goal reported by the backend: [{index, goal, ground}].
+    // Used to reject a "not the case" link whose connected failing rule denotes a
+    // different goal than this rule's bindings actually negate.
+    public bodyNafInner: any[] = [];
 
     constructor(public rule: any, sourceLoc?: { start: number, end: number }) {
         super('');
@@ -927,6 +931,10 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                         // FAIL node) suffices.
                         const conn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}`);
                         if (!conn) return false;
+                        // The connected failing rule must denote the goal this rule's
+                        // bindings actually negate (not, say, "bob smokes" under "it is
+                        // not the case that alice smokes").
+                        if (!nafLinkConsistent(node, i, editor.getNode(conn.source))) return false;
                         const range = node.bodyRanges[i];
                         const spine = range ? expFailureSpineFor(range.start, range.end) : null;
                         if (spine && !failureMatches(conn.source, spine)) return false;
@@ -968,6 +976,38 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         if (!(targetNode instanceof RuleNode) || typeof targetInput !== 'string') return false;
         const parts = targetInput.split('-');
         return parts.length === 2 && targetNode.bodyNaf.includes(parseInt(parts[1]));
+    }
+
+    // A "not the case" link is consistent only if the connected failing rule
+    // denotes the SAME goal the parent's bindings actually negate. The parent
+    // reports its bound inner goal (e.g. "alice smokes") in bodyNafInner[i]; the
+    // connected failing rule carries its goal as boundHead (e.g. "bob smokes",
+    // taken from the selected answer's spine). When the parent's inner goal is
+    // ground and the two disagree, the link is invalid (e.g. using "bob smokes"
+    // to discharge "it is not the case that alice smokes").
+    function normalizeGoal(s: string): string {
+        return (s || '').trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+    function nafLinkConsistent(parent: any, i: number, source: any): boolean {
+        if (!(source instanceof RuleNode)) return true;   // FAIL leaves checked elsewhere
+        const info = (parent.bodyNafInner || []).find((x: any) => x.index === i);
+        if (!info || !info.ground) return true;           // parent's negated goal not pinned yet
+        const head = source.boundHead;
+        if (!head) return true;                           // not in failing mode / unlabelled
+        return normalizeGoal(head) === normalizeGoal(info.goal);
+    }
+    // Node ids on either end of an inconsistent negation link.
+    function invalidNegationLinks(): Set<string> {
+        const bad = new Set<string>();
+        for (const c of editor.getConnections()) {
+            const target = editor.getNode(c.target);
+            if (target instanceof RuleNode && isNafSocket(target, c.targetInput)) {
+                const i = parseInt((c.targetInput as string).split('-')[1]);
+                const source = editor.getNode(c.source);
+                if (!nafLinkConsistent(target, i, source)) { bad.add(c.target); bad.add(c.source); }
+            }
+        }
+        return bad;
     }
 
     // Nodes in a failure subtree: a node whose output reaches a negation socket,
@@ -1117,6 +1157,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                             if (Array.isArray(nodeData.bodyForall)) {
                                 node.rule.bodyForall = nodeData.bodyForall;
                             }
+                            node.bodyNafInner = Array.isArray(nodeData.bodyNafInner) ? nodeData.bodyNafInner : [];
                         } else if (node instanceof FactNode) {
                             node.tokens = nodeData.headTokens;
                         } else if (node instanceof QueryNode) {
@@ -1127,9 +1168,25 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                         area.update('node', node.id);
                     }
                 });
-                checkCompletion();
-                updateConnectionLabels();
-                wasClash = false;
+                // A negation link that denotes the wrong goal (e.g. "bob smokes"
+                // feeding "it is not the case that alice smokes") is a clash even
+                // though the backend — which never sees failure edges — said ok.
+                const badNaf = invalidNegationLinks();
+                if (badNaf.size > 0) {
+                    if (!wasClash) { playClashSound(); wasClash = true; }
+                    nodes.forEach(n => {
+                        const bad = badNaf.has(n.id);
+                        if ((n as any).clash !== bad) { (n as any).clash = bad; }
+                        if (bad) (n as any).complete = false;
+                        area.update('node', n.id);
+                    });
+                    checkCompletion();
+                    updateConnectionLabels();
+                } else {
+                    checkCompletion();
+                    updateConnectionLabels();
+                    wasClash = false;
+                }
             } else if (res.status === 'clash') {
                 if (!wasClash) {
                     playClashSound();
