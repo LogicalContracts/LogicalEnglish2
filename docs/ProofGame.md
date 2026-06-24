@@ -94,7 +94,7 @@ that tree until every leaf is a fact.
 
 ## 5. "For all cases" conditions
 
-Some rules use a universal: *"for all cases in which … it is the case that …"*.
+Some rules use a "forall" claim: *"for all cases in which … it is the case that …"*.
 On a rule card this condition shows **two sockets**:
 
 - one for the **case** ("for all cases in which *a creature is a parent of a
@@ -104,7 +104,7 @@ On a rule card this condition shows **two sockets**:
 
 To satisfy it, the student supplies a card for the case (e.g. the fact *alice is a
 parent of bob*) and a card proving the consequence (e.g. the rule that makes *bob*
-healthy). This shows, concretely, that the universal claim holds for the case at
+healthy). This shows, concretely, that the claim holds for the case at
 hand.
 
 ---
@@ -207,7 +207,7 @@ A 30–40 minute session with `happy_dragon.le`:
    the answer **"bob is happy."** Ask the class to connect cards from the query down
    to facts. Introduce **matching/bindings** as they go, and let a **clash** happen
    on purpose to discuss why it's wrong.
-2. **Universals.** Notice the *"for all cases"* condition and its two sockets. Talk
+2. **"forall" conditions.** Notice the *"for all cases"* condition and its two sockets. Talk
    about what it means to check a claim "for every case."
 3. **Switch answers.** Change "Answer to prove" to **"alice is happy."** It looks
    similar — but now there's a *negation* to satisfy.
@@ -236,7 +236,7 @@ A 30–40 minute session with `happy_dragon.le`:
   attempt to prove it **fails**.
 - **Failing mode** — a rule shown in dark red because it is being used to explain a
   failure rather than a success.
-- **Universal ("for all cases")** — a claim that must hold for every relevant case.
+- **"for all cases"** — a claim that must hold for every relevant case.
 
 ---
 
