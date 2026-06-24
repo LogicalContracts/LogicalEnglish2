@@ -125298,6 +125298,12 @@ async function initProofGame(container, gameData) {
     const mySeq = ++unifySeq;
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
+    nodes2.forEach((n2) => {
+      if (n2.complete) {
+        n2.complete = false;
+        area.update("node", n2.id);
+      }
+    });
     const failing = computeFailing();
     nodes2.forEach((n2) => {
       const old = n2.failing;

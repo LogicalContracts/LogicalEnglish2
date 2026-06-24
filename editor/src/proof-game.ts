@@ -1081,6 +1081,16 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         const nodes = editor.getNodes();
         const connections = editor.getConnections();
 
+        // The connection set just changed, so completeness is unknown until THIS
+        // round's authoritative result returns. Clear any green now: otherwise a
+        // stale "complete" state could survive a round that is superseded
+        // (mySeq !== unifySeq), clashes, errors, or never returns — leaving an
+        // invalid proof (e.g. "bob is a dragon" feeding the alice-bound "the
+        // creature is a dragon") painted as solved.
+        nodes.forEach(n => {
+            if ((n as any).complete) { (n as any).complete = false; area.update('node', n.id); }
+        });
+
         // Failure-subtree nodes/edges are validated structurally against the
         // explanation (see checkCompletion), not by unification — so tint them and
         // keep their edges out of the unify payload (a FAIL node on a positive
