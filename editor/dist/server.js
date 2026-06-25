@@ -8600,6 +8600,8 @@ var messageReader = new import_browser.BrowserMessageReader(self);
 var messageWriter = new import_browser.BrowserMessageWriter(self);
 var connection = (0, import_browser.createConnection)(messageReader, messageWriter);
 var documents = new import_browser.TextDocuments(TextDocument2);
+var determinerPhrase = "(?:a|an|the|each|some|which|what)\\s+[a-zA-Z][a-zA-Z0-9_]*(?:\\s+(?!(?:and|or|if|unless)\\b)[a-zA-Z][a-zA-Z0-9_]*)*";
+var argPattern = "(?:" + determinerPhrase + `|\\d{4}-\\d{2}-\\d{2}|[a-zA-Z_][a-zA-Z0-9_]*|\\*[^*]+\\*|\\d+(?:\\.\\d+)?|"[^"]*"|'[^']*')`;
 connection.onInitialize((params) => {
   return {
     capabilities: {
@@ -8627,7 +8629,6 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   const text = document.getText();
   const templates = getTemplates(text);
   const tokens = [];
-  const argPattern2 = `(?:(?:a|an|the|each|some|which|what)\\s+[a-zA-Z][a-zA-Z0-9_\\s]*?|[a-zA-Z_][a-zA-Z0-9_]*|\\*[^*]+\\*|\\d+(?:\\.\\d+)?|\\d{4}-\\d{2}-\\d{2}|"[^"]*"|'[^']*')`;
   const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
   for (const template of sortedTemplates) {
     const parts = template.label.split(/\*[^*]+\*/);
@@ -8637,7 +8638,7 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
     let regexStr = "";
     for (let i = 0; i < regexParts.length; i++) {
       if (i > 0) {
-        regexStr += "(" + argPattern2 + ")";
+        regexStr += "(" + argPattern + ")";
       }
       if (regexParts[i]) {
         regexStr += (i > 0 ? "\\s+" : "") + regexParts[i] + (i < regexParts.length - 1 ? "\\s+" : "");
