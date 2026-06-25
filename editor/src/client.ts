@@ -191,7 +191,14 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             fontSize: savedFontSize,
             minimap: { enabled: false },
             folding: true,
-            showFoldingControls: 'always'
+            showFoldingControls: 'always',
+            // Drive coloring from the template-aware semantic tokenizer (server.ts),
+            // not just the Monarch grammar. Monarch cannot see template definitions,
+            // so it mis-colours multi-word argument values ("the tea party" -> only
+            // "the tea") and dates ("2021-10-09" -> "2021" + fragments). The default
+            // is 'configuredByTheme', and these custom themes don't opt in, so
+            // without this the registered semantic provider would be ignored.
+            'semanticHighlighting.enabled': true
         });
 
         (window as any).selectRange = (start: number, end: number) => {

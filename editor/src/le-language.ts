@@ -67,11 +67,12 @@ export const leMonarchTokens = {
             [/"/,  { token: 'string.quote', bracket: '@open', next: '@string_double' } ],
             [/'/,  { token: 'string.quote', bracket: '@open', next: '@string_single' } ],
 
+            // Dates (must precede the looser number rule, else "2021-10-09" is
+            // tokenised as "2021" + stray "-10-09").
+            [/\d{4}-\d{2}-\d{2}/, 'number.date'],
+
             // Numbers
             [/\d+(\.\d+)?/, 'number'],
-
-            // Dates
-            [/\d{4}-\d{2}-\d{2}/, 'number.date'],
 
             // Comments
             [/%.*$/, 'comment'],
