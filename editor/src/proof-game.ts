@@ -1121,9 +1121,13 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             const source = editor.getNode(c.source);
             const target = editor.getNode(c.target);
             if (!source || !target) return null;
-            // Skip failure-subtree edges (target is a negation socket or a failing
-            // node) — those are validated structurally, not unified.
-            if (isNafSocket(target, c.targetInput) || failing.has(c.target)) return null;
+            // Skip edges INTO a failing node (the deeper failure subtree) — those
+            // are validated structurally, not unified. But the direct negation link
+            // (a rule into an "it is not the case that ..." socket) IS sent: the
+            // backend unifies the rule's head with the negated inner goal, binding
+            // it (e.g. the smokes rule under "it is not the case that bob smokes"
+            // becomes "bob smokes"). A mismatch surfaces as a clash.
+            if (failing.has(c.target)) return null;
             // FAIL nodes never participate in unification (they represent a failed
             // or empty condition — a negation, or a vacuous "for all cases"); they
             // are validated structurally instead.
