@@ -1366,16 +1366,19 @@ vm_var_name(VM, Var, Name) :-
 
 %!  store_rule_var_names(+ActualID, +Head, +Body, +VM) is det.
 %
-%   Records the explicit source identifiers (e.g. X, Y) of the variables in the
-%   rule clause Head:-Body, keyed by ActualID and by each variable's position in
-%   term_variables/2 order. That ordering matches the Proof Game's game_var_ids/2
-%   numbering, so the game can label a variable with its source name. Only
-%   explicit ids (is_id/1) are stored; ordinary "a thing" variables carry none.
+%   Records the source name of each variable in the rule clause Head:-Body, keyed
+%   by ActualID and by each variable's position in term_variables/2 order. That
+%   ordering matches the Proof Game's game_var_ids/2 numbering, so the game can
+%   label a variable with the words the author actually used — a descriptive
+%   phrase ("other creature") or an explicit id ("X") — rather than the template
+%   slot's type. This keeps distinct same-typed variables distinct and a variable
+%   consistent across the differently-typed slots it fills. The first-occurrence
+%   name (from the variable map) is used as the variable's canonical name.
 store_rule_var_names(ActualID, Head, Body, VM) :-
     (   le_kbs:current_compiling_module(M),
         term_variables((Head :- Body), Vars),
         findall(Idx-Name,
-                ( nth0(Idx, Vars, V), vm_var_name(VM, V, Name), is_id(Name) ),
+                ( nth0(Idx, Vars, V), vm_var_name(VM, V, Name) ),
                 Pairs0),
         sort(Pairs0, Pairs),   % one entry per (index,name); drop vmap duplicates
         Pairs \== []
