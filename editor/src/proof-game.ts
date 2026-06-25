@@ -1102,6 +1102,12 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             if (old !== (n as any).failing) area.update('node', n.id);
         });
         updateFailingLabels();
+        // A negation link's dotted line + "not the case" label is purely structural
+        // (target is a NAF socket, source is not a FAIL node), so set it now —
+        // synchronously — rather than only after a successful unification round.
+        // Otherwise a round that clashes, errors, or is superseded would leave a
+        // manually drawn negation link rendered as an ordinary solid edge.
+        updateConnectionLabels();
 
         const nodeSpecs = nodes.map(n => {
             if (n instanceof RuleNode) return { instanceId: n.id, templateId: n.templateId };

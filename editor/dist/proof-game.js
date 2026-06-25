@@ -125312,6 +125312,7 @@ async function initProofGame(container, gameData) {
         area.update("node", n2.id);
     });
     updateFailingLabels();
+    updateConnectionLabels();
     const nodeSpecs = nodes2.map((n2) => {
       if (n2 instanceof RuleNode)
         return { instanceId: n2.id, templateId: n2.templateId };
