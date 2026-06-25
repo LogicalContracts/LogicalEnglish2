@@ -314,18 +314,23 @@ tagged_tokens_to_game(_KB, [], _VarIds, _NameMap, Seen, Seen, []).
 tagged_tokens_to_game(KB, [G|T], VarIds, NameMap, SeenIn, SeenOut, [Tok|ToksT]) :-
     nonvar(G), G = gtypedvar(V, Type), !,
     ( (member(Vid-V0, VarIds), V0 == V) -> Id = Vid ; Id = -1 ),
+    % The noun phrase shown for this variable. A descriptive source name (e.g.
+    % "other creature") replaces the template slot's type, so distinct same-typed
+    % variables stay distinct and a variable keeps one name across the
+    % differently-typed slots it fills. An explicit id (e.g. X) is kept as a
+    % trailing tag after the type ("a thing X"); a name equal to the type (the
+    % common "a creature" case) renders exactly as before.
+    ( memberchk(Id-Name, NameMap), Name \== '' -> HasName = true ; HasName = false ),
+    ( HasName == true, \+ is_id(Name), descriptive_noun_name(Name) -> Noun = Name, IdTag = []
+    ; Noun = Type, ( HasName == true, is_id(Name) -> IdTag = [Name] ; IdTag = [] ) ),
     ( memberchk(Id, SeenIn) -> Det = the, Seen1 = SeenIn
-    ; ( starts_with_vowel(Type) -> Det = an ; Det = a ),
+    ; ( starts_with_vowel(Noun) -> Det = an ; Det = a ),
       Seen1 = [Id|SeenIn] ),
-    ( Det == the -> BaseWords = [the, Type] ; BaseWords = [Det, Type] ),
-    % Append the variable's explicit source identifier (e.g. X) when the rule
-    % named it, so coreferent variables are visible (e.g. "a thing X").
-    ( memberchk(Id-Name, NameMap), Name \== '' ->
-        append(BaseWords, [Name], Words),
-        atomic_list_concat(Words, ' ', Text),
-        Tok = _{ kind: "var", id: Id, type: Type, det: Det, name: Name, text: Text }
-    ;   atomic_list_concat(BaseWords, ' ', Text),
-        Tok = _{ kind: "var", id: Id, type: Type, det: Det, text: Text }
+    append([Det, Noun], IdTag, Words),
+    atomic_list_concat(Words, ' ', Text),
+    ( IdTag = [IdName] ->
+        Tok = _{ kind: "var", id: Id, type: Type, det: Det, name: IdName, text: Text }
+    ;   Tok = _{ kind: "var", id: Id, type: Type, det: Det, text: Text }
     ),
     tagged_tokens_to_game(KB, T, VarIds, NameMap, Seen1, SeenOut, ToksT).
 tagged_tokens_to_game(KB, [W|T], VarIds, NameMap, SeenIn, SeenOut, [Tok|ToksT]) :-
@@ -337,6 +342,13 @@ tagged_tokens_to_game(KB, [W|T], VarIds, NameMap, SeenIn, SeenOut, [Tok|ToksT]) 
 starts_with_vowel(Atom) :-
     atom(Atom), atom_codes(Atom, [C|_]),
     memberchk(C, [97, 101, 105, 111, 117, 65, 69, 73, 79, 85]).
+
+% A variable's source name is shown in place of its slot type only when it is a
+% descriptive common-noun phrase (lower-case initial, e.g. "other creature"). A
+% proper noun or acronym ("UK", "John") read as an individual rather than a
+% variable noun, so it falls back to the type to avoid odd output like "an UK".
+descriptive_noun_name(Name) :-
+    atom(Name), atom_codes(Name, [C|_]), code_type(C, lower).
 
 game_tokens_text(Tokens, Text) :-
     maplist(get_dict(text), Tokens, Parts),

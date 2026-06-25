@@ -87,8 +87,10 @@ test(forall_exposes_subconditions) :-
     once(( member(Happy, Rules), get_dict(head, Happy, "a creature is happy") )),
     get_dict(bodyForall, Happy, [Meta|_]),
     assertion(get_dict(index, Meta, 1)),
-    assertion(get_dict(condLE, Meta, "a creature is a parent of a dragon")),
-    assertion(get_dict(consLE, Meta, "a creature is healthy")).
+    % The sub-conditions show the author's variable names ("other creature"),
+    % not the template slot types ("a dragon" / "a creature").
+    assertion(get_dict(condLE, Meta, "a creature is a parent of an other creature")),
+    assertion(get_dict(consLE, Meta, "an other creature is healthy")).
 
 % The full "alice is happy" proof — with the two forall sub-condition links and a
 % negation link (the smokes rule into the NAF condition) — unifies successfully.
