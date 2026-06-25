@@ -125329,7 +125329,7 @@ async function initProofGame(container, gameData) {
       const target = editor.getNode(c2.target);
       if (!source || !target)
         return null;
-      if (isNafSocket(target, c2.targetInput) || failing.has(c2.target))
+      if (failing.has(c2.target))
         return null;
       if (source instanceof FailNode)
         return null;

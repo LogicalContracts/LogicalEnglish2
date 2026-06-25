@@ -30,7 +30,15 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         flatten_body(BodyList, FlatBodyList),
         next_game_node_id(SM, rule, NodeId),
         game_var_ids((Head :- FlatBodyList), VarIds),
-        ( KB \== none, KB:le_var_names(ID, NameMap0) -> NameMap = NameMap0 ; NameMap = [] ),
+        % Variable-name map keyed by the variable ITSELF (not its term_variables
+        % index): once a variable binds to a constant it leaves term_variables and
+        % the indices shift, so an index-keyed map would mislabel the survivors
+        % after unification. The variables are shared with Head/Body, so they copy
+        % together in build_proof_fragment and stay aligned.
+        ( KB \== none, KB:le_var_names(ID, IdxNames) ->
+            term_variables((Head :- FlatBodyList), AllVars),
+            idx_names_to_var_names(IdxNames, AllVars, NameMap)
+        ; NameMap = [] ),
         literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
         findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
@@ -44,7 +52,10 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         % the negated (inner) goal.
         body_ranges(FlatBodyList, BodyRanges),
         ( SM \== none ->
-            assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds)))
+            % Carry the rule's variable-name map so re-rendering (render_instances,
+            % after unification) shows the author's names too, not just the initial
+            % extract here.
+            assertz(SM:game_node_term(NodeId, rule, term(Head, FlatBodyList, VarIds, NameMap)))
         ; true ),
         RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
                       body: BodyLEs, bodyTokens: BodyTokensList,
@@ -70,14 +81,14 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         game_var_ids(Head, VarIds),
         literal_to_game(KB, Head, VarIds, [], [], _Seen, FactLE, FactTokens),
         ( SM \== none ->
-            assertz(SM:game_node_term(NodeId, fact, term(Head, [], VarIds)))
+            assertz(SM:game_node_term(NodeId, fact, term(Head, [], VarIds, [])))
         ; true ),
         FactDict = _{ id: NodeId, fact: FactLE, factTokens: FactTokens,
                       start: Start, end: End }
     ), Facts),
     ( SM \== none ->
         game_var_ids(Query, QVarIds),
-        assertz(SM:game_node_term(query, query, term(Query, [Query], QVarIds)))
+        assertz(SM:game_node_term(query, query, term(Query, [Query], QVarIds, [])))
     ; true ),
     ( KB \== none ->
         game_var_ids(Query, QVarIds2),
@@ -167,15 +178,17 @@ body_list_to_game(KB, [L|Ls], VarIds, NameMap, SeenIn, SeenOut, [LE|LEs], [Token
     body_list_to_game(KB, Ls, VarIds, NameMap, Seen1, SeenOut, LEs, TokensT).
 
 build_proof_fragment(_SM, [], []).
-build_proof_fragment(SM, [Spec|Specs], [inst(IId, Kind, Head, Body)|Insts]) :-
+build_proof_fragment(SM, [Spec|Specs], [inst(IId, Kind, Head, Body, NameMap)|Insts]) :-
     get_dict(instanceId, Spec, IIdVal), atom_string(IId, IIdVal),
     get_dict(templateId, Spec, TIdVal), atom_string(TId, TIdVal),
     (   TId == fail
     ->  % Generic FAIL node: represents negation-as-failure. It carries no head
         % or body; its only role is to satisfy a NAF body condition.
-        Kind = fail, Head = fail, Body = []
-    ;   SM:game_node_term(TId, Kind, term(Head0, Body0, _VarIds)),
-        copy_term(Head0-Body0, Head-Body)
+        Kind = fail, Head = fail, Body = [], NameMap = []
+    ;   SM:game_node_term(TId, Kind, term(Head0, Body0, _VarIds, NameMap0)),
+        % Copy the name map together with the head/body so its keys remain the very
+        % same variables (binding-stable lookup by ==).
+        copy_term(Head0-Body0-NameMap0, Head-Body-NameMap)
     ),
     build_proof_fragment(SM, Specs, Insts).
 
@@ -185,8 +198,8 @@ apply_edges(Instances, [Edge|Edges]) :-
     get_dict(parent, Edge, ParentVal), atom_string(Parent, ParentVal),
     get_dict(bodyIndex, Edge, BodyIndex),
     ( get_dict(subIndex, Edge, SubVal), integer(SubVal) -> SubIndex = SubVal ; SubIndex = -1 ),
-    member(inst(Child, ChildKind, ChildHead, _), Instances),
-    member(inst(Parent, _, _, ParentBody), Instances),
+    member(inst(Child, ChildKind, ChildHead, _, _), Instances),
+    member(inst(Parent, _, _, ParentBody, _), Instances),
     nth0(BodyIndex, ParentBody, ParentCond),
     target_condition(ParentCond, SubIndex, Target),
     satisfy_condition(ChildKind, ChildHead, Target),
@@ -231,16 +244,16 @@ is_naf_condition(le_at(Cond, _, _)) :- !, is_naf_condition(Cond).
 is_naf_condition(not(_)).
 
 render_instances(_KB, [], []).
-render_instances(KB, [inst(IId, fail, _, _)|Insts], [Result|Results]) :- !,
+render_instances(KB, [inst(IId, fail, _, _, _)|Insts], [Result|Results]) :- !,
     Result = _{ instanceId: IId, head: "", headTokens: [], body: [], bodyTokens: [] },
     render_instances(KB, Insts, Results).
-render_instances(KB, [inst(IId, _Kind, Head, Body)|Insts], [Result|Results]) :-
+render_instances(KB, [inst(IId, _Kind, Head, Body, NameMap)|Insts], [Result|Results]) :-
     game_var_ids((Head :- Body), VarIds),
-    literal_to_game(KB, Head, VarIds, [], [], Seen1, HeadLE, HeadTokens),
-    body_list_to_game(KB, Body, VarIds, [], Seen1, _SeenN, BodyLEs, BodyTokensList),
+    literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
+    body_list_to_game(KB, Body, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
     % Re-render any "for all cases" sub-conditions too, so their bindings (e.g.
     % "the creature" -> alice) appear once the rule's variables are bound.
-    forall_meta_list(KB, Body, VarIds, [], ForallMeta),
+    forall_meta_list(KB, Body, VarIds, NameMap, ForallMeta),
     % The bound inner goal of each negation ("it is not the case that <G>"), so the
     % client can reject a negation link whose connected failing rule denotes a
     % different goal than the one this rule's bindings actually negate.
@@ -320,7 +333,7 @@ tagged_tokens_to_game(KB, [G|T], VarIds, NameMap, SeenIn, SeenOut, [Tok|ToksT]) 
     % differently-typed slots it fills. An explicit id (e.g. X) is kept as a
     % trailing tag after the type ("a thing X"); a name equal to the type (the
     % common "a creature" case) renders exactly as before.
-    ( memberchk(Id-Name, NameMap), Name \== '' -> HasName = true ; HasName = false ),
+    ( member(VN-Name, NameMap), VN == V, Name \== '' -> HasName = true ; HasName = false ),
     ( HasName == true, \+ is_id(Name), descriptive_noun_name(Name) -> Noun = Name, IdTag = []
     ; Noun = Type, ( HasName == true, is_id(Name) -> IdTag = [Name] ; IdTag = [] ) ),
     ( memberchk(Id, SeenIn) -> Det = the, Seen1 = SeenIn
@@ -338,6 +351,16 @@ tagged_tokens_to_game(KB, [W|T], VarIds, NameMap, SeenIn, SeenOut, [Tok|ToksT]) 
     atom_string(A, S),
     Tok = _{ kind: "word", text: S },
     tagged_tokens_to_game(KB, T, VarIds, NameMap, SeenIn, SeenOut, ToksT).
+
+% idx_names_to_var_names(+IdxNames, +AllVars, -VarNames): turn a list of
+% Index-Name pairs (from le_var_names, indexed by term_variables position) into
+% Variable-Name pairs whose keys are the ACTUAL variables in AllVars. Built by
+% direct recursion, not findall/3, so the variables are shared (not copied) and
+% the map keys stay == the head/body variables.
+idx_names_to_var_names([], _, []).
+idx_names_to_var_names([Idx-Name|T], AllVars, Result) :-
+    ( nth0(Idx, AllVars, V) -> Result = [V-Name|T2] ; Result = T2 ),
+    idx_names_to_var_names(T, AllVars, T2).
 
 starts_with_vowel(Atom) :-
     atom(Atom), atom_codes(Atom, [C|_]),
