@@ -1757,4 +1757,7 @@ We need to support alternative hindo european languages, such as Portuguese, Spa
 
 Again, for now produce just the implementation plan with design issues to be resolved if any; no coding yet.
 
+## Home page cleanup
+Our home page is growing with many examples, so please make the example folders (sub dirs) collapsable/expandable, and remember the expanded/collapsed state in LocalStorage. Also provide a way to open the page fully expanded, perhaps with an optional query string param
+
 ## TBD
