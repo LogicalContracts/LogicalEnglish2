@@ -34,9 +34,9 @@ test_suite_fixture('examples/moreExamples/testing/tea_party2.le',
                    'testing/test_grammar_dangling_that.pl').
 test_suite_fixture('examples/moreExamples/citizenship.le',
                    'editor/tests/editor.spec.ts, editor/tests/api/mcp.spec.ts').
-test_suite_fixture('examples/moreExamples/payg.le',
+test_suite_fixture('examples/moreExamples/tax/payg.le',
                    'editor/tests/editor.spec.ts').
-test_suite_fixture('examples/moreExamples/nonterminating.le',
+test_suite_fixture('examples/moreExamples/testing/nonterminating.le',
                    'editor/tests/editor.spec.ts').
 
 :- begin_tests(fixtures_integrity).
