@@ -167,6 +167,20 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
+        /* Clone Tool armed: a gentle pulsing glow + ring so it's obvious the next
+           node click will clone (and that the tool turns itself off afterwards). */
+        #btn-clone.clone-active {
+            background: #0e639c;
+            color: #fff;
+            outline: 2px solid #4fc3f7;
+            outline-offset: 1px;
+            animation: clonePulse 1.4s ease-in-out infinite;
+        }
+        @keyframes clonePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(79, 195, 247, 0.55); }
+            50%      { box-shadow: 0 0 10px 4px rgba(79, 195, 247, 0.55); }
+        }
+
         .legend-dialog {
             position: absolute;
             top: 80px;

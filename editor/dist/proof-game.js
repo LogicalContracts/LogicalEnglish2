@@ -125549,23 +125549,20 @@ async function initProofGame(container, gameData) {
     return clone;
   }
   const btnClone = document.getElementById("btn-clone");
+  const setCloneMode = (on) => {
+    cloneMode = on;
+    btnClone?.classList.toggle("clone-active", on);
+  };
   refreshCloneToolVisibility = () => {
     if (!btnClone)
       return;
     const need = explanationNeedsCloning(gameData.explanation, gameData.rules || [], gameData.facts || []);
     btnClone.style.display = need ? "" : "none";
-    if (!need && cloneMode) {
-      cloneMode = false;
-      btnClone.style.background = "";
-      btnClone.style.color = "";
-    }
+    if (!need && cloneMode)
+      setCloneMode(false);
   };
   if (btnClone) {
-    btnClone.addEventListener("click", () => {
-      cloneMode = !cloneMode;
-      btnClone.style.background = cloneMode ? "#0e639c" : "";
-      btnClone.style.color = cloneMode ? "#fff" : "";
-    });
+    btnClone.addEventListener("click", () => setCloneMode(!cloneMode));
   }
   refreshCloneToolVisibility();
   function canDelete(node2) {
@@ -125601,6 +125598,7 @@ async function initProofGame(container, gameData) {
       const node2 = editor.getNode(context.data.id);
       if (cloneMode && (node2 instanceof RuleNode || node2 instanceof FactNode)) {
         cloneNode(node2);
+        setCloneMode(false);
         return context;
       }
       if (node2 && node2.sourceLoc) {
