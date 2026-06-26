@@ -1394,22 +1394,22 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     const btnClone = document.getElementById('btn-clone') as HTMLElement | null;
     // Shown only when the selected answer's proof reuses a node (e.g. a failure
     // subtree applies one rule twice). Re-evaluated when the answer changes.
+    // Single place to flip clone mode so the flag and the button highlight never
+    // drift apart.
+    const setCloneMode = (on: boolean) => {
+        cloneMode = on;
+        // The `.clone-active` class (see proof-game.html) supplies the highlight and
+        // a gentle pulsing glow while the tool is armed.
+        btnClone?.classList.toggle('clone-active', on);
+    };
     refreshCloneToolVisibility = () => {
         if (!btnClone) return;
         const need = explanationNeedsCloning(gameData.explanation, gameData.rules || [], gameData.facts || []);
         btnClone.style.display = need ? '' : 'none';
-        if (!need && cloneMode) {
-            cloneMode = false;
-            btnClone.style.background = '';
-            btnClone.style.color = '';
-        }
+        if (!need && cloneMode) setCloneMode(false);
     };
     if (btnClone) {
-        btnClone.addEventListener('click', () => {
-            cloneMode = !cloneMode;
-            btnClone.style.background = cloneMode ? '#0e639c' : '';
-            btnClone.style.color = cloneMode ? '#fff' : '';
-        });
+        btnClone.addEventListener('click', () => setCloneMode(!cloneMode));
     }
     refreshCloneToolVisibility();
 
@@ -1450,6 +1450,9 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             const node = editor.getNode(context.data.id) as any;
             if (cloneMode && (node instanceof RuleNode || node instanceof FactNode)) {
                 cloneNode(node);
+                // One clone per activation: turn the tool off so a following plain
+                // drag of a node doesn't keep spawning unwanted copies.
+                setCloneMode(false);
                 return context;
             }
             if (node && node.sourceLoc) {
