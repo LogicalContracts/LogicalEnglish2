@@ -9,47 +9,30 @@ Errors/Timeouts: 0
 -------------
 
 Detailed File Summary:
-  [PASS] examples/moreExamples/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/AItest.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/alice_propositional.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/apostrophe.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/augmentedsem.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/dates.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/enclosure.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/flying_dragon.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/gst.le: 12 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/gstturnover.le: 49 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/happy_dragon.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/inequality.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/journal.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/journal_balance.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/named_vars.le: 1 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/nonterminating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbering_test.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/numbers.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/only_if.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/payg.le: 25 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/prolog_call.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/propositional.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/small_business.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/subset.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
@@ -82,6 +65,23 @@ Detailed File Summary:
   [NONE] examples/moreExamples/short/longsentence.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/short/sets.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/short/sunangel.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/1_cgt_assets_and_exemptions_3.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/1_net_asset_value_test_3.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/3_rollover_3.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/4_affiliates_3.le: 7 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/gst.le: 12 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/gstturnover.le: 49 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/tax/journal_balance.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/payg.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/sbpp_0.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/tax/small_business.le: 25 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/apostrophe.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/testing/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/testing/nonterminating.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/testing/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/propositional_negation.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
