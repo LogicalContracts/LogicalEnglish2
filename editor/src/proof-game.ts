@@ -268,10 +268,11 @@ function CustomNode(props: any) {
         const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
         const headPredicateColor = templateColors.get(headTemplate) || '#ff9800';
         // A rule applied in "failing mode" (under a negation): it shows WHY the
-        // goal fails, so it is tinted red and only its one failing condition needs
-        // to be connected.
-        const headColor = data.failing ? '#7a2e2e'
-            : (data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : headPredicateColor)));
+        // goal fails, tinted dark red — UNLESS the whole proof is complete, in
+        // which case the failure subtree is a correct part of the proof and turns
+        // green like the rest (a clash always wins, as red).
+        const headColor = data.clash ? '#f44336'
+            : (data.complete ? '#4caf50' : (data.failing ? '#7a2e2e' : (isAdultMode ? '#333' : headPredicateColor)));
         const textColor = isAdultMode ? '#fff' : 'transparent';
         
         const bodyCount = data.rule.body ? data.rule.body.length : 0;
@@ -422,8 +423,8 @@ function CustomNode(props: any) {
         const template = getPredicateTemplate(data.tokens) || labelText;
         const predicateColor = templateColors.get(template) || data.color;
         
-        const bgColor = data.failing ? '#7a2e2e'
-            : (data.clash ? '#f44336' : (data.complete ? '#4caf50' : (isAdultMode ? '#333' : predicateColor)));
+        const bgColor = data.clash ? '#f44336'
+            : (data.complete ? '#4caf50' : (data.failing ? '#7a2e2e' : (isAdultMode ? '#333' : predicateColor)));
         const textColor = isAdultMode ? '#fff' : 'transparent';
         data.width = 220;
         data.height = 60;
@@ -1121,17 +1122,17 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             const source = editor.getNode(c.source);
             const target = editor.getNode(c.target);
             if (!source || !target) return null;
-            // Skip edges INTO a failing node (the deeper failure subtree) — those
-            // are validated structurally, not unified. But the direct negation link
-            // (a rule into an "it is not the case that ..." socket) IS sent: the
-            // backend unifies the rule's head with the negated inner goal, binding
-            // it (e.g. the smokes rule under "it is not the case that bob smokes"
-            // becomes "bob smokes"). A mismatch surfaces as a clash.
-            if (failing.has(c.target)) return null;
-            // FAIL nodes never participate in unification (they represent a failed
-            // or empty condition — a negation, or a vacuous "for all cases"); they
-            // are validated structurally instead.
+            // FAIL nodes never participate in unification — a FAIL satisfies a
+            // negation ("it is not the case that ...") or a vacuous "for all cases"
+            // structurally; on a positive condition it has no head and would clash.
             if (source instanceof FailNode) return null;
+            // Every other edge — including those inside a failure subtree — IS
+            // unified, so bindings propagate the way they would in a real proof
+            // attempt (the smokes rule under "it is not the case that bob smokes"
+            // binds to bob, and a fact on "the other creature is a dragon" binds it
+            // to alice). The subtree's SHAPE is still checked structurally against
+            // the explanation (failureMatches); unification just adds the bindings
+            // and rejects an inconsistent connection as a clash.
 
             // targetInput is "in-<bodyIndex>" or, for a "for all cases" condition,
             // "in-<bodyIndex>-<subIndex>" (sub 0 = condition, sub 1 = consequence).
