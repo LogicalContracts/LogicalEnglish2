@@ -205,8 +205,14 @@ handle_landing_page(Request) :-
     ),
     le_examples_dir(Dir), landing_example_items(Dir, UserRoles, ExampleItems),
     build_info(BuildInfo),
+    landing_folders_script(FolderScript),
     reply_html_page(
-        [title('Logical English 2.0')],
+        [title('Logical English 2.0'),
+         % Collapsible example folders: open/closed state per folder is remembered
+         % in LocalStorage; ?expand=all opens everything (script embedded below).
+         style('li.le-folder-item { list-style: none; } \c
+                details.le-folder > summary { cursor: pointer; }'),
+         script([type('text/javascript')], FolderScript)],
         [
             div([style('float: right; padding: 10px;')], [
                 span(['Logged in as: ', b(UserEmail), ' ']),
@@ -218,6 +224,14 @@ handle_landing_page(Request) :-
                 li([
                     b('Edit and Query: '),
                     a(href('/editor/index.html'), '[New Document]'),
+                    ' ',
+                    span([id('le-folder-controls'), style('display:none;')], [
+                        '(',
+                        a([href('#'), id('le-expand-all')], 'expand all'),
+                        ' · ',
+                        a([href('#'), id('le-collapse-all')], 'collapse all'),
+                        ')'
+                    ]),
                     ul(ExampleItems)
                 ]),
                 li(a(href('https://github.com/mcalejo/LogicalEnglish2'), 'GitHub Repository'))
@@ -262,6 +276,56 @@ handle_logout(Request) :-
     ),
     http_redirect(moved, '/', Request).
 
+%!  landing_folders_script(-JS:atom) is det.
+%
+%   Client-side script (embedded inline in the landing page) that makes the
+%   example <details class="le-folder"> elements remember their open/closed state
+%   in LocalStorage, keyed by data-path, and supports ?expand=all plus the
+%   expand-all / collapse-all controls. Kept here (not in web_extras/, which is for
+%   additional apps) since it is part of a core feature. The script content of a
+%   <script> element is emitted verbatim by html_write, so no escaping is needed;
+%   it avoids "//" comments and any "</" sequence on purpose.
+landing_folders_script('(function(){
+  "use strict";
+  var P = "le-folder:";
+  function folders(){
+    return Array.prototype.slice.call(document.querySelectorAll("details.le-folder[data-path]"));
+  }
+  function save(f){
+    var p = f.getAttribute("data-path");
+    if (!p) return;
+    try { window.localStorage.setItem(P + p, f.open ? "1" : "0"); } catch (e) {}
+  }
+  function setAll(open){ folders().forEach(function(f){ f.open = open; save(f); }); }
+  function wantAll(){
+    var v = new URLSearchParams(window.location.search).get("expand");
+    return v === "all" || v === "1" || v === "true" || v === "expanded";
+  }
+  function init(){
+    var all = folders();
+    var controls = document.getElementById("le-folder-controls");
+    if (controls && all.length > 0) controls.style.display = "";
+    var openAll = wantAll();
+    all.forEach(function(f){
+      if (openAll) {
+        f.open = true;
+      } else {
+        var s = null;
+        try { s = window.localStorage.getItem(P + f.getAttribute("data-path")); } catch (e) {}
+        f.open = (s === "1");
+      }
+      f.addEventListener("toggle", function(){ save(f); });
+    });
+    if (openAll) all.forEach(save);
+    var ex = document.getElementById("le-expand-all");
+    if (ex) ex.addEventListener("click", function(e){ e.preventDefault(); setAll(true); });
+    var co = document.getElementById("le-collapse-all");
+    if (co) co.addEventListener("click", function(e){ e.preventDefault(); setAll(false); });
+  }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();').
+
 %!  landing_example_items(+Dir:atom, +UserRoles:list, -Items:list) is det.
 %
 %   Builds HTML list items for all examples in Dir, grouping subdirectory
@@ -288,8 +352,12 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
         atomic_list_concat([Prefix, Base], ExampleName),
         format(atom(Url), '/editor/index.html?example=~w', [ExampleName])
     ), DirectItems),
-    % Subdirectories, recursed into (header + nested list).
-    findall(SubDir-li([b([SubDir, '/']), ul(SubItems)]), (
+    % Subdirectories, recursed into. Each is a collapsible <details> keyed by its
+    % full path (data-path), so landing.js can remember its open/closed state in
+    % LocalStorage and an ?expand=all query can open them all.
+    findall(SubDir-li([class('le-folder-item')],
+                      details(['data-path'(SubPrefix), class('le-folder')],
+                              [summary(b([SubDir, '/'])), ul(SubItems)])), (
         member(SubDir, Files),
         \+ sub_atom(SubDir, 0, 1, _, '.'),
         directory_file_path(Dir, SubDir, SubDirPath),
