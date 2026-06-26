@@ -124514,7 +124514,7 @@ function CustomNode(props) {
   if (data.type === "rule") {
     const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
     const headPredicateColor = templateColors.get(headTemplate) || "#ff9800";
-    const headColor = data.failing ? "#7a2e2e" : data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : headPredicateColor;
+    const headColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : data.failing ? "#7a2e2e" : isAdultMode ? "#333" : headPredicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     const bodyCount = data.rule.body ? data.rule.body.length : 0;
     const nodeWidth = Math.max(220, bodyCount * 220);
@@ -124694,7 +124694,7 @@ function CustomNode(props) {
     const labelText = data.type === "query" ? data.bound ? renderTokens(data.tokens) || data.label : data.label || renderTokens(data.tokens) : data.type === "fact" ? renderTokens(data.tokens) || data.label : data.label;
     const template = getPredicateTemplate(data.tokens) || labelText;
     const predicateColor = templateColors.get(template) || data.color;
-    const bgColor = data.failing ? "#7a2e2e" : data.clash ? "#f44336" : data.complete ? "#4caf50" : isAdultMode ? "#333" : predicateColor;
+    const bgColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : data.failing ? "#7a2e2e" : isAdultMode ? "#333" : predicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     data.width = 220;
     data.height = 60;
@@ -125328,8 +125328,6 @@ async function initProofGame(container, gameData) {
       const source = editor.getNode(c2.source);
       const target = editor.getNode(c2.target);
       if (!source || !target)
-        return null;
-      if (failing.has(c2.target))
         return null;
       if (source instanceof FailNode)
         return null;
