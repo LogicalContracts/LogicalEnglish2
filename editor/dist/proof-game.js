@@ -124519,7 +124519,7 @@ function CustomNode(props) {
   if (data.type === "rule") {
     const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
     const headPredicateColor = templateColors.get(headTemplate) || "#ff9800";
-    const headColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : data.failing ? "#7a2e2e" : isAdultMode ? "#333" : headPredicateColor;
+    const headColor = data.clash ? "#f44336" : isAdultMode ? data.complete ? "#4caf50" : data.failing ? "#7a2e2e" : "#333" : headPredicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     const bodyCount = data.rule.body ? data.rule.body.length : 0;
     const nodeWidth = Math.max(220, bodyCount * 220);
@@ -124581,7 +124581,7 @@ function CustomNode(props) {
         const condText = data.failing && data.boundBody && data.boundBody[i2] ? data.boundBody[i2] : renderTokens(data.bodyTokens[i2]) || cond;
         const condTemplate = getPredicateTemplate(data.bodyTokens[i2]) || cond;
         const condPredicateColor = templateColors.get(condTemplate) || "#ffeb3b";
-        const bodyColor = data.complete ? "#81c784" : isAdultMode ? "#333" : condPredicateColor;
+        const bodyColor = isAdultMode ? data.complete ? "#81c784" : "#333" : condPredicateColor;
         if (isForall) {
           const meta = data.rule.bodyForall.find((m2) => m2.index === i2) || {};
           const condLE = renderTokens(meta.condTokens) || meta.condLE || "";
@@ -124699,7 +124699,7 @@ function CustomNode(props) {
     const labelText = data.type === "query" ? data.bound ? renderTokens(data.tokens) || data.label : data.label || renderTokens(data.tokens) : data.type === "fact" ? renderTokens(data.tokens) || data.label : data.label;
     const template = getPredicateTemplate(data.tokens) || labelText;
     const predicateColor = templateColors.get(template) || data.color;
-    const bgColor = data.clash ? "#f44336" : data.complete ? "#4caf50" : data.failing ? "#7a2e2e" : isAdultMode ? "#333" : predicateColor;
+    const bgColor = data.clash ? "#f44336" : isAdultMode ? data.complete ? "#4caf50" : data.failing ? "#7a2e2e" : "#333" : predicateColor;
     const textColor = isAdultMode ? "#fff" : "transparent";
     data.width = 220;
     data.height = 60;
