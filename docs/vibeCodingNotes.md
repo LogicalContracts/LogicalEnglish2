@@ -1743,6 +1743,9 @@ alice is happy
             x a creature is a parent of alice
 
 This may imply keeping solution bindings even for goals that eventually failed, like "a creature is a parent of bob"
+
+### Multiple attacks to negation
+In example examples/moreExamples/testing/p_with_negation.le , the failure of r requires the failure of both u and w. So the correct proof solution should have two links from "it is not the case that r", one to rule "r if u", the other to rule "r if w". Because the success of either of these would "attack" the NAF conclusion "it is not the case that r". In other words, a "it is not the case that X" condition in a node can admit multiple links to rules, all with matching head X
   
 ## Multilingual
 
@@ -1759,5 +1762,6 @@ Again, for now produce just the implementation plan with design issues to be res
 
 ## Home page cleanup
 Our home page is growing with many examples, so please make the example folders (sub dirs) collapsable/expandable, and remember the expanded/collapsed state in LocalStorage. Also provide a way to open the page fully expanded, perhaps with an optional query string param
+
 
 ## TBD

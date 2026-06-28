@@ -149,3 +149,53 @@ test(fail_node_rejected_on_positive_condition) :-
     assertion(get_dict(status, Response, "clash")).
 
 :- end_tests(proof_game_naf_forall).
+
+% --- A negation satisfied by SEVERAL failing rules ----------------------------
+% In examples/moreExamples/testing/p_with_negation.le the goal `r` is the head of
+% two rules (`r if u`, `r if w`), so "it is not the case that r" fails only when
+% BOTH of them fail. The proof game must accept a link from the NAF condition to
+% each such rule (a "not the case" link unifies the rule head with the negated
+% inner goal `r`), all into the same condition socket, without clashing.
+
+p_with_negation_session(KB, SM) :-
+    le_kbs:load('examples/moreExamples/testing/p_with_negation.le', KB),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, negation).
+
+% The rule id whose head renders as HeadText and whose (single-condition) body is
+% BodyText — distinguishes the two `r` rules (body "u" vs body "w").
+rule_id_for_head_body(Rules, HeadText, BodyText, Id) :-
+    member(R, Rules),
+    get_dict(head, R, HeadText), get_dict(body, R, [BodyText]),
+    get_dict(id, R, Id), !.
+
+:- begin_tests(proof_game_naf_multi_rule).
+
+% Both `r if u` and `r if w` link into the single NAF condition of the `p` rule
+% ("p if q and it is not the case that r") and the fragment still unifies — the
+% backend admits multiple "not the case" links on one negation socket.
+test(two_rules_into_one_negation_unifies) :-
+    p_with_negation_session(KB, SM),
+    le_proof_game:extract_rules_and_facts(KB, SM, p, Rules, Facts, _QT),
+    once(( member(P, Rules), get_dict(head, P, "p"), get_dict(body, P, ["q"|_]),
+           get_dict(id, P, PId) )),
+    rule_id_for_head_body(Rules, "r", "u", RUId),
+    rule_id_for_head_body(Rules, "r", "w", RWId),
+    rule_id_for_head(Rules, "q", QId),
+    fact_id_for_text(Facts, "t", TId),
+    Nodes = [ _{instanceId:"q1", templateId:"query"},
+              _{instanceId:"prule", templateId:PId},
+              _{instanceId:"qrule", templateId:QId},
+              _{instanceId:"ru", templateId:RUId},
+              _{instanceId:"rw", templateId:RWId},
+              _{instanceId:"ft", templateId:TId} ],
+    % bodyIndex 1 of the p rule is the negation; both r-rules connect there.
+    Edges = [ _{child:"prule", parent:"q1", bodyIndex:0},
+              _{child:"qrule", parent:"prule", bodyIndex:0},
+              _{child:"ft", parent:"qrule", bodyIndex:0},
+              _{child:"ru", parent:"prule", bodyIndex:1},
+              _{child:"rw", parent:"prule", bodyIndex:1} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, Edges, Response),
+    assertion(get_dict(status, Response, "ok")).
+
+:- end_tests(proof_game_naf_multi_rule).

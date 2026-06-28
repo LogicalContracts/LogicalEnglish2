@@ -1,0 +1,30 @@
+the target language is: prolog.
+
+the templates are:
+    p.
+	q.
+	r.
+	s.
+	t.
+	u.
+	v.
+	w.
+
+the knowledge base propositional negation includes:
+    
+p if q
+and it is  not the case that
+r.
+
+p if s.
+q if t.
+r if u.
+r if w.
+
+scenario negation is:   
+t.
+v.
+proposition expects answers [p].
+  
+query proposition is:
+    p. 

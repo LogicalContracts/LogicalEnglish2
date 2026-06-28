@@ -124302,13 +124302,16 @@ function templateToRegex(template) {
     return null;
   }
 }
-function ruleProving(literal, rules) {
+function rulesProving(literal, rules) {
   if (!literal)
-    return null;
-  return rules.find((r2) => {
+    return [];
+  return rules.filter((r2) => {
     const re2 = templateToRegex(getPredicateTemplate(r2.headTokens));
     return re2 && re2.test(literal);
-  }) || null;
+  });
+}
+function ruleProving(literal, rules) {
+  return rulesProving(literal, rules)[0] || null;
 }
 function expNodeKey(expNode, rules, facts) {
   if (!expNode)
@@ -124426,6 +124429,8 @@ var RuleNode = class extends classic.Node {
         if (this.forallIndexSet.has(i2)) {
           this.addInput(`in-${i2}-0`, new classic.Input(socket));
           this.addInput(`in-${i2}-1`, new classic.Input(socket));
+        } else if (this.bodyNaf.includes(i2)) {
+          this.addInput(`in-${i2}`, new classic.Input(socket, void 0, true));
         } else {
           this.addInput(`in-${i2}`, new classic.Input(socket));
         }
@@ -125089,28 +125094,42 @@ async function initProofGame(container, gameData) {
       fragmentNodes.add(nodeId);
       connections.filter((c2) => c2.target === nodeId).forEach((c2) => markFragment(c2.source));
     }
-    function failureMatches(sourceNodeId, expFail) {
+    function failureGoalMatches(sourceNodeIds, expFail) {
       if (!expFail)
         return false;
-      const node2 = editor.getNode(sourceNodeId);
-      if (!node2)
-        return false;
-      const provRule = ruleProving(expFail.literal, gameData.rules || []);
-      const expChild = (expFail.children || []).find((c2) => c2.type === "failure");
-      if (!provRule || !expChild) {
-        return node2 instanceof FailNode;
+      const provRules = rulesProving(expFail.literal, gameData.rules || []);
+      if (provRules.length === 0) {
+        return sourceNodeIds.length === 1 && editor.getNode(sourceNodeIds[0]) instanceof FailNode;
       }
-      if (!(node2 instanceof RuleNode))
-        return false;
-      if (node2.templateId !== provRule.id)
-        return false;
-      const idx = (node2.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
-      if (idx < 0)
-        return false;
-      const conn = connections.find((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`);
-      if (!conn)
-        return false;
-      return failureMatches(conn.source, expChild);
+      const failChildren = (expFail.children || []).filter((c2) => c2.type === "failure");
+      const covered = /* @__PURE__ */ new Set();
+      for (const sourceId of sourceNodeIds) {
+        const node2 = editor.getNode(sourceId);
+        if (!(node2 instanceof RuleNode))
+          return false;
+        const rule = provRules.find((r2) => r2.id === node2.templateId);
+        if (!rule)
+          return false;
+        let matched = false;
+        for (const ch of failChildren) {
+          const idx = (node2.bodyRanges || []).findIndex(
+            (r2) => r2.start === ch.start && r2.end === ch.end
+          );
+          if (idx < 0)
+            continue;
+          const subSources = connections.filter((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`).map((c2) => c2.source);
+          if (subSources.length === 0)
+            return false;
+          if (!failureGoalMatches(subSources, ch))
+            return false;
+          matched = true;
+          break;
+        }
+        if (!matched)
+          return false;
+        covered.add(node2.templateId);
+      }
+      return provRules.every((r2) => covered.has(r2.id));
     }
     function isComplete(nodeId) {
       const cached = completeCache.get(nodeId);
@@ -125159,16 +125178,18 @@ async function initProofGame(container, gameData) {
                 return false;
             }
           } else if (node2.bodyNaf.includes(i2)) {
-            const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
-            if (!conn)
+            const conns = connections.filter((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
+            if (conns.length === 0)
               return false;
-            if (!nafLinkConsistent(node2, i2, editor.getNode(conn.source)))
-              return false;
+            for (const conn of conns) {
+              if (!nafLinkConsistent(node2, i2, editor.getNode(conn.source)))
+                return false;
+            }
             const range = node2.bodyRanges[i2];
             const spine = range ? expFailureSpineFor(range.start, range.end) : null;
-            if (spine && !failureMatches(conn.source, spine))
+            if (spine && !failureGoalMatches(conns.map((c2) => c2.source), spine))
               return false;
-            markFragment(conn.source);
+            conns.forEach((c2) => markFragment(c2.source));
           } else {
             const conn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
             if (!conn)
@@ -125274,13 +125295,11 @@ async function initProofGame(container, gameData) {
       });
       node2.boundBody = boundBody;
       area.update("node", node2.id);
-      const expChild = (expFail.children || []).find((c2) => c2.type === "failure");
+      const expChild = (expFail.children || []).filter((c2) => c2.type === "failure").find((c2) => (node2.bodyRanges || []).some((r2) => r2.start === c2.start && r2.end === c2.end));
       if (!expChild)
         return;
       const idx = (node2.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
-      const conn = conns.find((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`);
-      if (conn)
-        assign2(conn.source, expChild);
+      conns.filter((c2) => c2.target === node2.id && c2.targetInput === `in-${idx}`).forEach((c2) => assign2(c2.source, expChild));
     };
     for (const c2 of conns) {
       const target = editor.getNode(c2.target);
@@ -125290,6 +125309,21 @@ async function initProofGame(container, gameData) {
         const spine = range ? expFailureSpineFor(range.start, range.end) : null;
         if (spine)
           assign2(c2.source, spine);
+      }
+    }
+  }
+  function updateSocketMultiplicity(failing) {
+    for (const n2 of editor.getNodes()) {
+      if (!(n2 instanceof RuleNode))
+        continue;
+      const isFailing = failing.has(n2.id);
+      const inputs = n2.inputs || {};
+      for (const key of Object.keys(inputs)) {
+        const port = inputs[key];
+        if (!port)
+          continue;
+        const i2 = parseInt(key.split("-")[1]);
+        port.multipleConnections = n2.bodyNaf.includes(i2) || isFailing;
       }
     }
   }
@@ -125311,6 +125345,7 @@ async function initProofGame(container, gameData) {
       if (old !== n2.failing)
         area.update("node", n2.id);
     });
+    updateSocketMultiplicity(failing);
     updateFailingLabels();
     updateConnectionLabels();
     const nodeSpecs = nodes2.map((n2) => {
@@ -125680,27 +125715,30 @@ async function initProofGame(container, gameData) {
     async function buildFailure(expFail, parentNodeId, inputKey) {
       if (!expFail || !hasInput(parentNodeId, inputKey))
         return;
-      const provRule = ruleProving(expFail.literal, gameData.rules || []);
-      const expChild = (expFail.children || []).find((c2) => c2.type === "failure");
-      if (!provRule || !expChild) {
+      const provRules = rulesProving(expFail.literal, gameData.rules || []);
+      const failChildren = (expFail.children || []).filter((c2) => c2.type === "failure");
+      if (provRules.length === 0 || failChildren.length === 0) {
         await addFailLeaf(parentNodeId, inputKey);
         return;
       }
-      const inst = await acquireRuleInstance(provRule.id);
-      if (!inst) {
-        await addFailLeaf(parentNodeId, inputKey);
-        return;
+      for (const expChild of failChildren) {
+        const rule = provRules.find((r2) => (r2.bodyRanges || []).some((br) => br.start === expChild.start && br.end === expChild.end));
+        if (!rule)
+          continue;
+        const inst = await acquireRuleInstance(rule.id);
+        if (!inst)
+          continue;
+        usedNodes.add(inst.id);
+        await editor.addConnection(new classic.Connection(
+          inst,
+          "out",
+          editor.getNode(parentNodeId),
+          inputKey
+        ));
+        const idx = (inst.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
+        if (idx >= 0)
+          await buildFailure(expChild, inst.id, `in-${idx}`);
       }
-      usedNodes.add(inst.id);
-      await editor.addConnection(new classic.Connection(
-        inst,
-        "out",
-        editor.getNode(parentNodeId),
-        inputKey
-      ));
-      const idx = (inst.bodyRanges || []).findIndex((r2) => r2.start === expChild.start && r2.end === expChild.end);
-      if (idx >= 0)
-        await buildFailure(expChild, inst.id, `in-${idx}`);
     }
     async function connectRuleBody(expNode, ruleNode) {
       const children = expNode.children || [];
