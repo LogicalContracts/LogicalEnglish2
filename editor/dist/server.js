@@ -8600,8 +8600,10 @@ var messageReader = new import_browser.BrowserMessageReader(self);
 var messageWriter = new import_browser.BrowserMessageWriter(self);
 var connection = (0, import_browser.createConnection)(messageReader, messageWriter);
 var documents = new import_browser.TextDocuments(TextDocument2);
-var determinerPhrase = "(?:a|an|the|each|some|which|what)\\s+[a-zA-Z][a-zA-Z0-9_]*(?:\\s+(?!(?:and|or|if|unless)\\b)[a-zA-Z][a-zA-Z0-9_]*)*";
-var argPattern = "(?:" + determinerPhrase + `|\\d{4}-\\d{2}-\\d{2}|[a-zA-Z_][a-zA-Z0-9_]*|\\*[^*]+\\*|\\d+(?:\\.\\d+)?|"[^"]*"|'[^']*')`;
+var DET = "(?:a|an|the|each|some|which|what|this|that|these|those)";
+var argTok = `[A-Za-z0-9_\xA3$\u20AC\xA5%"'](?:[A-Za-z0-9_\xA3$\u20AC\xA5%'".,&-]*[A-Za-z0-9_\xA3$\u20AC\xA5%"'])?`;
+var argCont = "(?:[ \\t]+(?:(?:and|or)[ \\t]+(?!" + DET + "\\b)" + argTok + "|(?!(?:and|or|if|unless|then|that)\\b)" + argTok + "))*";
+var argPattern = "(?!(?:and|or|if|unless|then|that)\\b)" + argTok + argCont;
 connection.onInitialize((params) => {
   return {
     capabilities: {
@@ -8654,6 +8656,12 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
           continue;
         const matchStart = match.index;
         const matchEnd = match.index + match[0].length;
+        const lineStart = text.lastIndexOf("\n", matchStart) + 1;
+        let lineEnd = text.indexOf("\n", matchStart);
+        if (lineEnd < 0)
+          lineEnd = text.length;
+        if (text.slice(lineStart, lineEnd).includes("*"))
+          continue;
         if (overlapsClaimed(matchStart, matchEnd))
           continue;
         claimedSpans.push({ start: matchStart, end: matchEnd });

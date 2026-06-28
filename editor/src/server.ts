@@ -22,17 +22,30 @@ const connection = createConnection(messageReader, messageWriter);
 
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-// Pattern for what can be an argument in a template instance. A determiner-led
-// value ("the tea party", "the coloring for OBJECTID") is captured as a whole
-// multi-word noun phrase — greedily across words, but stopping before a clause
-// connective (and/or/if/unless) so a trailing argument does not swallow the next
-// clause. An earlier non-greedy form truncated such values (e.g. "the tea party"
-// -> "the tea"), leaving the remainder to fall back to a different colour. The
-// ISO-date alternative precedes the looser number rule so a date like
-// "2021-10-09" is not truncated to "2021". Shared by the semantic-token and
-// hover/word-classification handlers so they colour instances identically.
-const determinerPhrase = '(?:a|an|the|each|some|which|what)\\s+[a-zA-Z][a-zA-Z0-9_]*(?:\\s+(?!(?:and|or|if|unless)\\b)[a-zA-Z][a-zA-Z0-9_]*)*';
-const argPattern = '(?:' + determinerPhrase + '|\\d{4}-\\d{2}-\\d{2}|[a-zA-Z_][a-zA-Z0-9_]*|\\*[^*]+\\*|\\d+(?:\\.\\d+)?|"[^"]*"|\'[^\']*\')';
+// Pattern for what can be an argument in a template instance. An argument is
+// whatever fills the gap between a template's literal anchor words, so it is
+// captured as a whole multi-word phrase (the literal anchors, plus the line
+// boundary, bound it): e.g. in "*a person* brings *a claim* against you for
+// *a loss*" the three arguments of "the individual brings this claim against you
+// for fractured wrist and soft-tissue injuries" are "the individual", "this claim"
+// and "fractured wrist and soft-tissue injuries". To make that work the phrase:
+//   - may start with any token EXCEPT a clause keyword (if/unless/then/and/or/that),
+//     so a leading connective ("and the date ...") is not absorbed;
+//   - continues over words, including an internal "and"/"or" ONLY when it is not
+//     followed by a determiner — so a compound noun ("directors and officers",
+//     "war or terrorism or nuclear risks") is kept whole, while a real conjoined
+//     clause ("the UK and the person is happy") still stops at "and the ...";
+//   - is single-line (the continuation uses horizontal whitespace only), so it
+//     never spans into the next clause on the following line.
+// A token allows internal punctuation for amounts/dates ("£10,000,000",
+// "2021-10-09") and hyphenated/compound words ("soft-tissue"), but not trailing
+// sentence punctuation. Shared by the semantic-token and hover/word-classification
+// handlers so they colour instances identically.
+const DET = '(?:a|an|the|each|some|which|what|this|that|these|those)';
+const argTok = '[A-Za-z0-9_£$€¥%"\'](?:[A-Za-z0-9_£$€¥%\'".,&-]*[A-Za-z0-9_£$€¥%"\'])?';
+const argCont = '(?:[ \\t]+(?:(?:and|or)[ \\t]+(?!' + DET + '\\b)' + argTok
+    + '|(?!(?:and|or|if|unless|then|that)\\b)' + argTok + '))*';
+const argPattern = '(?!(?:and|or|if|unless|then|that)\\b)' + argTok + argCont;
 
 connection.onInitialize((params: InitializeParams): InitializeResult => {
     return {
@@ -98,6 +111,13 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
 
                 const matchStart = match.index;
                 const matchEnd = match.index + match[0].length;
+                // Skip template DEFINITION lines (they contain the `*...*` markers):
+                // those are not instances, and a looser template matching their
+                // literal words would otherwise paint spurious arguments there.
+                const lineStart = text.lastIndexOf('\n', matchStart) + 1;
+                let lineEnd = text.indexOf('\n', matchStart);
+                if (lineEnd < 0) lineEnd = text.length;
+                if (text.slice(lineStart, lineEnd).includes('*')) continue;
                 // A more specific template already owns this span — leave it be.
                 if (overlapsClaimed(matchStart, matchEnd)) continue;
                 claimedSpans.push({ start: matchStart, end: matchEnd });
