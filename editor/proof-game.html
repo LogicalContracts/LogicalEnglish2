@@ -160,6 +160,12 @@
             box-shadow: 0 0 15px #f44336 !important;
             animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
         }
+        /* Solved: a green glow marks completion. In Child Mode the fills keep their
+           predicate colours (to match the legend), so the glow — not the fill — is
+           the "you solved it" cue. */
+        .le-node.complete {
+            box-shadow: 0 0 16px 3px #4caf50 !important;
+        }
         @keyframes shake {
             10%, 90% { transform: translate3d(-1px, 0, 0); }
             20%, 80% { transform: translate3d(2px, 0, 0); }

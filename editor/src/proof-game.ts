@@ -281,12 +281,17 @@ function CustomNode(props: any) {
     if (data.type === 'rule') {
         const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
         const headPredicateColor = templateColors.get(headTemplate) || '#ff9800';
-        // A rule applied in "failing mode" (under a negation): it shows WHY the
-        // goal fails, tinted dark red — UNLESS the whole proof is complete, in
-        // which case the failure subtree is a correct part of the proof and turns
-        // green like the rest (a clash always wins, as red).
+        // Child Mode hides text, so a node's FILL is its only predicate cue and must
+        // match the legend — completion (green) and failing (dark red) are shown by
+        // the border/glow instead (see the `.complete` glow and the green border
+        // below), never by recolouring the fill. Adult Mode keeps the tinted fills:
+        // a rule in "failing mode" (under a negation) is dark red to show WHY a goal
+        // fails, unless the whole proof is complete (the failure subtree is then a
+        // correct part of the proof and turns green); a clash always wins, as red.
         const headColor = data.clash ? '#f44336'
-            : (data.complete ? '#4caf50' : (data.failing ? '#7a2e2e' : (isAdultMode ? '#333' : headPredicateColor)));
+            : isAdultMode
+                ? (data.complete ? '#4caf50' : (data.failing ? '#7a2e2e' : '#333'))
+                : headPredicateColor;
         const textColor = isAdultMode ? '#fff' : 'transparent';
         
         const bodyCount = data.rule.body ? data.rule.body.length : 0;
@@ -346,7 +351,8 @@ function CustomNode(props: any) {
                     : (renderTokens(data.bodyTokens[i]) || cond);
                 const condTemplate = getPredicateTemplate(data.bodyTokens[i]) || cond;
                 const condPredicateColor = templateColors.get(condTemplate) || '#ffeb3b';
-                const bodyColor = data.complete ? '#81c784' : (isAdultMode ? '#333' : condPredicateColor);
+                // Child Mode: predicate-coloured fill (legend); completion shown by glow.
+                const bodyColor = isAdultMode ? (data.complete ? '#81c784' : '#333') : condPredicateColor;
 
                 if (isForall) {
                     // A "for all cases in which <Cond> it is the case that <Cons>"
@@ -437,8 +443,11 @@ function CustomNode(props: any) {
         const template = getPredicateTemplate(data.tokens) || labelText;
         const predicateColor = templateColors.get(template) || data.color;
         
+        // Child Mode: predicate-coloured fill (legend); completion/failing via glow.
         const bgColor = data.clash ? '#f44336'
-            : (data.complete ? '#4caf50' : (data.failing ? '#7a2e2e' : (isAdultMode ? '#333' : predicateColor)));
+            : isAdultMode
+                ? (data.complete ? '#4caf50' : (data.failing ? '#7a2e2e' : '#333'))
+                : predicateColor;
         const textColor = isAdultMode ? '#fff' : 'transparent';
         data.width = 220;
         data.height = 60;
