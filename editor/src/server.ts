@@ -63,9 +63,17 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
     const templates = getTemplates(text);
     const tokens: { start: number, length: number, typeIndex: number }[] = [];
 
-    // 1. Find all template instances
+    // 1. Find all template instances, most specific (longest) template first. A
+    // template claims the whole span of each instance it matches; a looser template
+    // that also matches a sub-phrase of that span is then skipped, so it cannot
+    // recolour words the specific template already owns (e.g. "*a person* is working
+    // for you ..." owns its instance, so neither "*an amount* for *a claim*" nor the
+    // system "*V1* is *V2*" paints "working" as a variable inside it).
     const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
-    
+    const claimedSpans: { start: number, end: number }[] = [];
+    const overlapsClaimed = (s: number, e: number) =>
+        claimedSpans.some(c => s < c.end && e > c.start);
+
     for (const template of sortedTemplates) {
         const parts = template.label.split(/\*[^*]+\*/);
         if (parts.length < 2) continue;
@@ -87,7 +95,13 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
             let match;
             while ((match = regex.exec(text)) !== null) {
                 if (match[0].includes('*')) continue; // Skip template definitions
-                
+
+                const matchStart = match.index;
+                const matchEnd = match.index + match[0].length;
+                // A more specific template already owns this span — leave it be.
+                if (overlapsClaimed(matchStart, matchEnd)) continue;
+                claimedSpans.push({ start: matchStart, end: matchEnd });
+
                 let currentOffset = match.index;
                 const fullMatch = match[0];
                 
@@ -279,12 +293,35 @@ function getTemplates(text: string): Template[] {
         for (const line of lines) {
             const trimmed = line.trim();
             if (trimmed && !trimmed.startsWith('%')) {
-                const clean = trimmed.replace(/[.,;]$/, '');
-                templates.push({
-                    label: clean,
-                    insertText: clean.replace(/\*/g, ''),
-                    detail: 'User Template'
-                });
+                // A template line may carry a ';'-separated annotation suffix
+                // ("; assumable", "; prepositional", "; opposite: <template>"). The
+                // template itself is the text before the first ';'. Keeping the
+                // annotation in the label made the generated regex demand those extra
+                // words, so the template never matched its own instances — and looser
+                // templates (or the system "*V1* is *V2*") then mis-coloured the
+                // instance's words. Strip it, and register any "opposite:" form as its
+                // own template.
+                const semiIdx = trimmed.indexOf(';');
+                const mainRaw = semiIdx >= 0 ? trimmed.slice(0, semiIdx) : trimmed;
+                const clean = mainRaw.replace(/[.,]\s*$/, '').trim();
+                if (clean) {
+                    templates.push({
+                        label: clean,
+                        insertText: clean.replace(/\*/g, ''),
+                        detail: 'User Template'
+                    });
+                }
+                if (semiIdx >= 0) {
+                    const oppMatch = trimmed.slice(semiIdx + 1).match(/opposite:\s*(.+)/i);
+                    if (oppMatch) {
+                        const opp = oppMatch[1].replace(/[.,;]\s*$/, '').trim();
+                        if (opp) templates.push({
+                            label: opp,
+                            insertText: opp.replace(/\*/g, ''),
+                            detail: 'User Template'
+                        });
+                    }
+                }
             }
         }
     }

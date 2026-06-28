@@ -8630,6 +8630,8 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   const templates = getTemplates(text);
   const tokens = [];
   const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
+  const claimedSpans = [];
+  const overlapsClaimed = (s, e) => claimedSpans.some((c) => s < c.end && e > c.start);
   for (const template of sortedTemplates) {
     const parts = template.label.split(/\*[^*]+\*/);
     if (parts.length < 2)
@@ -8650,6 +8652,11 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
       while ((match = regex.exec(text)) !== null) {
         if (match[0].includes("*"))
           continue;
+        const matchStart = match.index;
+        const matchEnd = match.index + match[0].length;
+        if (overlapsClaimed(matchStart, matchEnd))
+          continue;
+        claimedSpans.push({ start: matchStart, end: matchEnd });
         let currentOffset = match.index;
         const fullMatch = match[0];
         let lastIndex = 0;
@@ -8809,12 +8816,28 @@ function getTemplates(text) {
     for (const line of lines) {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith("%")) {
-        const clean = trimmed.replace(/[.,;]$/, "");
-        templates.push({
-          label: clean,
-          insertText: clean.replace(/\*/g, ""),
-          detail: "User Template"
-        });
+        const semiIdx = trimmed.indexOf(";");
+        const mainRaw = semiIdx >= 0 ? trimmed.slice(0, semiIdx) : trimmed;
+        const clean = mainRaw.replace(/[.,]\s*$/, "").trim();
+        if (clean) {
+          templates.push({
+            label: clean,
+            insertText: clean.replace(/\*/g, ""),
+            detail: "User Template"
+          });
+        }
+        if (semiIdx >= 0) {
+          const oppMatch = trimmed.slice(semiIdx + 1).match(/opposite:\s*(.+)/i);
+          if (oppMatch) {
+            const opp = oppMatch[1].replace(/[.,;]\s*$/, "").trim();
+            if (opp)
+              templates.push({
+                label: opp,
+                insertText: opp.replace(/\*/g, ""),
+                detail: "User Template"
+              });
+          }
+        }
       }
     }
   }
