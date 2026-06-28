@@ -176,8 +176,8 @@ test.describe('Logical English Editor', () => {
     await expect(exampleItem).toBeVisible();
     await exampleItem.click();
 
-    // 3. Wait for the editor to load the content
-    await expect(page.locator('#filename-display')).toHaveText('payg.le');
+    // 3. Wait for the editor to load the content (payg.le now lives under tax/)
+    await expect(page.locator('#filename-display')).toHaveText('tax/payg.le');
 
     // 4. Wait for the module to load proactively
     await expect(async () => {
@@ -215,7 +215,8 @@ test.describe('Logical English Editor', () => {
     const exampleItem = page.locator('#example-list .dropdown-item', { hasText: /^nonterminating$/ });
     await expect(exampleItem).toBeVisible();
     await exampleItem.click();
-    await expect(page.locator('#filename-display')).toHaveText('nonterminating.le');
+    // nonterminating.le now lives under testing/
+    await expect(page.locator('#filename-display')).toHaveText('testing/nonterminating.le');
 
     // 2. Wait for the module to load (scenario dropdown populated)
     await expect(async () => {

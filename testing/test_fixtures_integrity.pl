@@ -30,6 +30,8 @@
 % test_suite_fixture(Path, UsedBy)
 test_suite_fixture('examples/moreExamples/alice.le',
                    'testing/test_proof_game.pl').
+test_suite_fixture('examples/moreExamples/testing/p_with_negation.le',
+                   'testing/test_proof_game.pl').
 test_suite_fixture('examples/moreExamples/testing/tea_party2.le',
                    'testing/test_grammar_dangling_that.pl').
 test_suite_fixture('examples/moreExamples/citizenship.le',

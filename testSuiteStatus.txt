@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 87
-Total tests:     279
-Passed:          279
+Files processed: 89
+Total tests:     280
+Passed:          280
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -81,6 +81,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/testing/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/nonterminating.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/p_with_negation.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/payg_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/propositional_negation.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
@@ -93,6 +94,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 0 Pass, 0 Fail, 0 Error
