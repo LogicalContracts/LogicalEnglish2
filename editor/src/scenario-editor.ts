@@ -77,6 +77,13 @@ export function initScenarioEditor(data: ScenarioEditorData) {
     let rows: Row[] = [];
     let loadedName = '';    // the existing scenario currently loaded (for replace), '' for New
     let dirty = false;      // edited since the last Copy / Insert (drives the close warning)
+    // Test directives ("<query> expects answers [...]") from the loaded scenario. They
+    // are too complex for this simple form, so they are not shown as rows; instead
+    // they are kept verbatim and written back as COMMENTS for the user to review.
+    let testLines: string[] = [];
+
+    // A scenario "test" line: <query> expects answers [...] (and unknowns [...]).
+    const isTestDirective = (fact: string) => /\bexpects?\s+answers?\b/i.test(fact);
 
     // --- Pickers ---------------------------------------------------------------
     picker.innerHTML = '';
@@ -120,8 +127,10 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         loadedName = block ? block.name : '';
         nameInput.value = block ? block.name : '';
         rows = [];
+        testLines = [];
         if (block) {
             for (const fact of block.facts) {
+                if (isTestDirective(fact)) { testLines.push(fact); continue; }   // set aside as a comment
                 const m = matchFact(fact, templates);
                 if (m) rows.push({ templateLabel: m.label, values: m.values, raw: '' });
                 else rows.push({ templateLabel: null, values: [], raw: fact });
@@ -129,13 +138,15 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         }
         render();
         dirty = false;
-        setStatus(block ? `Loaded scenario "${name}"` : '');
+        const note = testLines.length ? ` (${testLines.length} test line${testLines.length > 1 ? 's' : ''} kept as comments)` : '';
+        setStatus(block ? `Loaded scenario "${name}"${note}` : '');
     }
 
     function newScenario() {
         loadedName = '';
         nameInput.value = '';
         rows = [];
+        testLines = [];
         render();
         dirty = false;
         setStatus('New scenario');
@@ -217,6 +228,11 @@ export function initScenarioEditor(data: ScenarioEditorData) {
             const text = factText(row);
             if (!text) continue;          // skip wholly-empty rows
             lines.push(`    ${text}.`);
+        }
+        // Tests are written back commented out, for the user to review/re-enable.
+        if (testLines.length) {
+            lines.push(`    % tests (review and uncomment to re-enable):`);
+            for (const t of testLines) lines.push(`    % ${t}.`);
         }
         return lines.join('\n');
     }
