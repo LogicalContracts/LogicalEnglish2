@@ -1189,8 +1189,30 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     // Each unification round gets a sequence number; since the server round-trip is
     // async and a round runs per connection change (Show Proof adds several in a
     // row), a stale earlier reply must not clobber the latest, fuller binding.
+    // Re-assert the session's game-node terms by re-running the original getGameData
+    // request (it re-extracts them as a side effect). They can go missing if the
+    // session was reclaimed for being idle, or re-extracted elsewhere — which makes
+    // unifyGameNodes return "error" and, before this, silently fail to bind. The
+    // rule/fact ids are regenerated deterministically, so the existing connections
+    // stay valid. Returns true when the session is alive again (terms restored).
+    async function reprimeSession(): Promise<boolean> {
+        const req = (gameData as any).request;
+        if (!req) return false;
+        try {
+            const res = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(req)
+            }).then(r => r.json());
+            return !!(res && res.gameData && !res.session_expired);
+        } catch {
+            return false;
+        }
+    }
+    let sessionLostNotified = false;
+
     let unifySeq = 0;
-    async function updateUnification() {
+    async function updateUnification(isRetry: boolean = false) {
         const mySeq = ++unifySeq;
         const nodes = editor.getNodes();
         const connections = editor.getConnections();
@@ -1350,6 +1372,21 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                         area.update('node', n.id);
                     }
                 });
+            } else if (res.status === 'error') {
+                // The session lost its game-node terms (idle reclaim, or a re-extract
+                // elsewhere). Previously this was ignored, so a freshly drawn link
+                // failed to bind the head/conditions with no visible reason. Re-prime
+                // the session and retry ONCE; the rule/fact ids are stable, so the
+                // existing connections still apply.
+                console.warn('Proof Game: unifyGameNodes returned error', res.error);
+                if (!isRetry) {
+                    const recovered = await reprimeSession();
+                    if (recovered) { updateUnification(true); return; }
+                    if (!sessionLostNotified) {
+                        sessionLostNotified = true;
+                        alert('The Proof Game session has expired. Please reopen the Proof Game from the editor to continue.');
+                    }
+                }
             }
         } catch (err) {
             console.error('Unification failed:', err);
