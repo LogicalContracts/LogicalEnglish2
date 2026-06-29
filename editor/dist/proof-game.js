@@ -125356,8 +125356,24 @@ async function initProofGame(container, gameData) {
       }
     }
   }
+  async function reprimeSession() {
+    const req = gameData.request;
+    if (!req)
+      return false;
+    try {
+      const res = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(req)
+      }).then((r2) => r2.json());
+      return !!(res && res.gameData && !res.session_expired);
+    } catch {
+      return false;
+    }
+  }
+  let sessionLostNotified = false;
   let unifySeq = 0;
-  async function updateUnification() {
+  async function updateUnification(isRetry = false) {
     const mySeq = ++unifySeq;
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
@@ -125486,6 +125502,19 @@ async function initProofGame(container, gameData) {
             area.update("node", n2.id);
           }
         });
+      } else if (res.status === "error") {
+        console.warn("Proof Game: unifyGameNodes returned error", res.error);
+        if (!isRetry) {
+          const recovered = await reprimeSession();
+          if (recovered) {
+            updateUnification(true);
+            return;
+          }
+          if (!sessionLostNotified) {
+            sessionLostNotified = true;
+            alert("The Proof Game session has expired. Please reopen the Proof Game from the editor to continue.");
+          }
+        }
       }
     } catch (err) {
       console.error("Unification failed:", err);
