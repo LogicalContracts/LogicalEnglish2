@@ -124427,8 +124427,8 @@ var RuleNode = class extends classic.Node {
     if (rule.body) {
       rule.body.forEach((_cond, i2) => {
         if (this.forallIndexSet.has(i2)) {
-          this.addInput(`in-${i2}-0`, new classic.Input(socket));
-          this.addInput(`in-${i2}-1`, new classic.Input(socket));
+          this.addInput(`in-${i2}-0`, new classic.Input(socket, void 0, true));
+          this.addInput(`in-${i2}-1`, new classic.Input(socket, void 0, true));
         } else if (this.bodyNaf.includes(i2)) {
           this.addInput(`in-${i2}`, new classic.Input(socket, void 0, true));
         } else {
@@ -125079,6 +125079,26 @@ async function initProofGame(container, gameData) {
     visit(gameData.explanation);
     return found;
   }
+  function expForallCaseCount(start, end) {
+    let found = -1;
+    const visit = (node2) => {
+      if (found >= 0)
+        return;
+      if (Array.isArray(node2)) {
+        node2.forEach(visit);
+        return;
+      }
+      if (!node2 || typeof node2 !== "object")
+        return;
+      if (node2.start === start && node2.end === end && typeof node2.literal === "string" && node2.literal.startsWith("for all cases")) {
+        found = (node2.children || []).filter((c2) => typeof c2.literal === "string" && c2.literal.startsWith("for case")).length;
+        return;
+      }
+      (node2.children || []).forEach(visit);
+    };
+    visit(gameData.explanation);
+    return found;
+  }
   function checkCompletion() {
     const nodes2 = editor.getNodes();
     const connections = editor.getConnections();
@@ -125162,20 +125182,29 @@ async function initProofGame(container, gameData) {
         const bodyCount = node2.rule.body ? node2.rule.body.length : 0;
         for (let i2 = 0; i2 < bodyCount; i2++) {
           if (node2.forallIndexSet.has(i2)) {
-            const condConn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-0`);
-            if (!condConn)
+            const condConns = connections.filter((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-0`);
+            if (condConns.length === 0)
               return false;
-            const condSrc = editor.getNode(condConn.source);
-            if (condSrc instanceof FailNode) {
-              markFragment(condConn.source);
+            if (condConns.length === 1 && editor.getNode(condConns[0].source) instanceof FailNode) {
+              markFragment(condConns[0].source);
             } else {
-              if (!isComplete(condConn.source))
+              const consConns = connections.filter((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-1`);
+              for (const cc of condConns)
+                if (!isComplete(cc.source))
+                  return false;
+              for (const cc of consConns)
+                if (!isComplete(cc.source))
+                  return false;
+              const range = node2.bodyRanges[i2];
+              const need = range ? expForallCaseCount(range.start, range.end) : -1;
+              if (need > 0) {
+                if (condConns.length < need || consConns.length < need)
+                  return false;
+              } else if (consConns.length === 0) {
                 return false;
-              const consConn = connections.find((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-1`);
-              if (!consConn)
-                return false;
-              if (!isComplete(consConn.source))
-                return false;
+              }
+              condConns.forEach((c2) => markFragment(c2.source));
+              consConns.forEach((c2) => markFragment(c2.source));
             }
           } else if (node2.bodyNaf.includes(i2)) {
             const conns = connections.filter((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}`);
@@ -125323,7 +125352,7 @@ async function initProofGame(container, gameData) {
         if (!port)
           continue;
         const i2 = parseInt(key.split("-")[1]);
-        port.multipleConnections = n2.bodyNaf.includes(i2) || isFailing;
+        port.multipleConnections = n2.bodyNaf.includes(i2) || n2.forallIndexSet.has(i2) || isFailing;
       }
     }
   }
@@ -125373,6 +125402,9 @@ async function initProofGame(container, gameData) {
         bodyIndex = parseInt(parts[1]);
         if (parts.length > 2)
           subIndex = parseInt(parts[2]);
+      }
+      if (subIndex >= 0 && connections.filter((x2) => x2.target === c2.target && x2.targetInput === c2.targetInput).length > 1) {
+        return null;
       }
       const edge = { child: c2.source, parent: c2.target, bodyIndex };
       if (subIndex >= 0)
@@ -125712,6 +125744,32 @@ async function initProofGame(container, gameData) {
         inputKey
       ));
     }
+    async function connectCase(expNode, parentNodeId, inputKey) {
+      if (!expNode || !hasInput(parentNodeId, inputKey))
+        return;
+      const children = expNode.children || [];
+      if (children.length === 0) {
+        await connectNode(expNode, parentNodeId, inputKey);
+        return;
+      }
+      const goal = (expNode.literal || "").replace(/^for case /, "").replace(/^it is true that /, "");
+      const rule = ruleProving(goal, gameData.rules || []);
+      if (!rule) {
+        await connectNode(expNode, parentNodeId, inputKey);
+        return;
+      }
+      const inst = await acquireRuleInstance(rule.id);
+      if (!inst)
+        return;
+      usedNodes.add(inst.id);
+      await editor.addConnection(new classic.Connection(
+        inst,
+        "out",
+        editor.getNode(parentNodeId),
+        inputKey
+      ));
+      await connectRuleBody(expNode, inst);
+    }
     async function buildFailure(expFail, parentNodeId, inputKey) {
       if (!expFail || !hasInput(parentNodeId, inputKey))
         return;
@@ -125746,13 +125804,13 @@ async function initProofGame(container, gameData) {
         const child = children[i2];
         if (ruleNode.forallIndexSet && ruleNode.forallIndexSet.has(i2)) {
           const subs = child && child.children || [];
-          const condExp = subs.find((s) => typeof s.literal === "string" && s.literal.startsWith("for case"));
-          const consExp = subs.find((s) => typeof s.literal === "string" && s.literal.startsWith("it is true that"));
-          if (condExp || consExp) {
-            if (condExp)
-              await connectNode(condExp, ruleNode.id, `in-${i2}-0`);
-            if (consExp)
-              await connectNode(consExp, ruleNode.id, `in-${i2}-1`);
+          const condExps = subs.filter((s) => typeof s.literal === "string" && s.literal.startsWith("for case"));
+          const consExps = subs.filter((s) => typeof s.literal === "string" && s.literal.startsWith("it is true that"));
+          if (condExps.length || consExps.length) {
+            for (const ce2 of condExps)
+              await connectCase(ce2, ruleNode.id, `in-${i2}-0`);
+            for (const ce2 of consExps)
+              await connectCase(ce2, ruleNode.id, `in-${i2}-1`);
           } else {
             await addFailLeaf(ruleNode.id, `in-${i2}-0`);
           }

@@ -208,9 +208,11 @@ class RuleNode extends ClassicPreset.Node {
                 if (this.forallIndexSet.has(i)) {
                     // A "for all cases in which <Cond> it is the case that <Cons>"
                     // condition exposes two sub-sockets: -0 for the Cond, -1 for
-                    // the Cons.
-                    this.addInput(`in-${i}-0`, new ClassicPreset.Input(socket));
-                    this.addInput(`in-${i}-1`, new ClassicPreset.Input(socket));
+                    // the Cons. A universal can have SEVERAL witnessing cases (alice
+                    // is a parent of bob, and of mary), so each sub-socket admits
+                    // multiple links — one per case.
+                    this.addInput(`in-${i}-0`, new ClassicPreset.Input(socket, undefined, true));
+                    this.addInput(`in-${i}-1`, new ClassicPreset.Input(socket, undefined, true));
                 } else if (this.bodyNaf.includes(i)) {
                     // A negation ("it is not the case that X") fails only if EVERY
                     // rule whose head is X fails, so its socket admits multiple links
@@ -858,6 +860,28 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         return found;
     }
 
+    // How many witnessing cases the selected answer's explanation records for the
+    // "for all cases" condition spanning [start,end] — i.e. how many "for case ..."
+    // children its node has. -1 when no such node is found (no explanation info).
+    // Used to require that EVERY case is shown before the universal counts as proven.
+    function expForallCaseCount(start: number, end: number): number {
+        let found = -1;
+        const visit = (node: any) => {
+            if (found >= 0) return;
+            if (Array.isArray(node)) { node.forEach(visit); return; }
+            if (!node || typeof node !== 'object') return;
+            if (node.start === start && node.end === end && typeof node.literal === 'string'
+                && node.literal.startsWith('for all cases')) {
+                found = (node.children || []).filter((c: any) =>
+                    typeof c.literal === 'string' && c.literal.startsWith('for case')).length;
+                return;
+            }
+            (node.children || []).forEach(visit);
+        };
+        visit(gameData.explanation);
+        return found;
+    }
+
 
     function checkCompletion() {
         const nodes = editor.getNodes();
@@ -955,18 +979,29 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                         // The condition socket decides which: a FAIL means the
                         // universal is VACUOUS (no cases) and the consequence is not
                         // required; anything else is a witnessing CASE, which must be
-                        // proven AND its consequence proven. (Independent of which
-                        // answer's explanation is selected, so it can't be fooled.)
-                        const condConn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-0`);
-                        if (!condConn) return false;
-                        const condSrc = editor.getNode(condConn.source);
-                        if (condSrc instanceof FailNode) {
-                            markFragment(condConn.source);   // vacuous: no cases
+                        // proven AND its consequence proven. A universal can have
+                        // SEVERAL cases (alice is a parent of bob, and of mary), so
+                        // gather ALL links: every connected condition and consequence
+                        // must be proven, and EVERY case the selected answer records
+                        // must be present (one condition + one consequence each).
+                        const condConns = connections.filter(c => c.target === nodeId && c.targetInput === `in-${i}-0`);
+                        if (condConns.length === 0) return false;
+                        if (condConns.length === 1 && editor.getNode(condConns[0].source) instanceof FailNode) {
+                            markFragment(condConns[0].source);   // vacuous: no cases
                         } else {
-                            if (!isComplete(condConn.source)) return false;
-                            const consConn = connections.find(c => c.target === nodeId && c.targetInput === `in-${i}-1`);
-                            if (!consConn) return false;
-                            if (!isComplete(consConn.source)) return false;
+                            const consConns = connections.filter(c => c.target === nodeId && c.targetInput === `in-${i}-1`);
+                            for (const cc of condConns) if (!isComplete(cc.source)) return false;
+                            for (const cc of consConns) if (!isComplete(cc.source)) return false;
+                            const range = node.bodyRanges[i];
+                            const need = range ? expForallCaseCount(range.start, range.end) : -1;
+                            if (need > 0) {
+                                // All cases must be shown (one condition + one consequence each).
+                                if (condConns.length < need || consConns.length < need) return false;
+                            } else if (consConns.length === 0) {
+                                return false;
+                            }
+                            condConns.forEach(c => markFragment(c.source));
+                            consConns.forEach(c => markFragment(c.source));
                         }
                     } else if (node.bodyNaf.includes(i)) {
                         // A negation: its failure subtree must reproduce the
@@ -1142,7 +1177,11 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 const port = inputs[key];
                 if (!port) continue;
                 const i = parseInt(key.split('-')[1]);
-                port.multipleConnections = (n as RuleNode).bodyNaf.includes(i) || isFailing;
+                // NAF sockets and "for all cases" sub-sockets always take several
+                // links (one per failing rule / per witnessing case); a positive
+                // socket only while its node is in failing mode.
+                port.multipleConnections = (n as RuleNode).bodyNaf.includes(i)
+                    || (n as RuleNode).forallIndexSet.has(i) || isFailing;
             }
         }
     }
@@ -1217,6 +1256,17 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 const parts = c.targetInput.split('-');
                 bodyIndex = parseInt(parts[1]);
                 if (parts.length > 2) subIndex = parseInt(parts[2]);
+            }
+
+            // A "for all cases" sub-socket carrying MORE THAN ONE case cannot be
+            // unified in this single shared fragment: its cases bind the universal's
+            // variable to different values (bob, then mary), which clash. Such
+            // multi-case foralls are validated structurally (checkCompletion), so
+            // keep their edges out of the unify payload. A single-case forall still
+            // unifies, preserving its binding display.
+            if (subIndex >= 0
+                && connections.filter(x => x.target === c.target && x.targetInput === c.targetInput).length > 1) {
+                return null;
             }
 
             const edge: any = { child: c.source, parent: c.target, bodyIndex };
@@ -1621,6 +1671,31 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 failNode as any, 'out', editor.getNode(parentNodeId) as any, inputKey));
         }
 
+        // Wire the proof of ONE universal case ("for case <X>" / "it is true that
+        // <X>") into (parentNodeId, inputKey). When the case holds by a direct
+        // scenario fact, its source range matches that fact (connectNode handles it).
+        // When it is DERIVED — proven by a rule, e.g. "bob is healthy" via the healthy
+        // rule, whose body conditions are the case node's own children — reconstruct
+        // that rule application: acquire the proving rule, link it, and wire its body.
+        async function connectCase(expNode: any, parentNodeId: string, inputKey: string) {
+            if (!expNode || !hasInput(parentNodeId, inputKey)) return;
+            const children = expNode.children || [];
+            if (children.length === 0) {
+                await connectNode(expNode, parentNodeId, inputKey);   // direct fact
+                return;
+            }
+            const goal = (expNode.literal || '')
+                .replace(/^for case /, '').replace(/^it is true that /, '');
+            const rule = ruleProving(goal, gameData.rules || []);
+            if (!rule) { await connectNode(expNode, parentNodeId, inputKey); return; }
+            const inst = await acquireRuleInstance(rule.id);
+            if (!inst) return;
+            usedNodes.add(inst.id);
+            await editor.addConnection(new ClassicPreset.Connection(
+                inst, 'out', editor.getNode(parentNodeId) as any, inputKey));
+            await connectRuleBody(expNode, inst);
+        }
+
         // Build a failure subtree from an explanation [failure] node into
         // (parentNodeId, inputKey). A goal fails only when EVERY rule whose head
         // matches it fails, so wire ONE failing-mode instance per such rule into the
@@ -1658,14 +1733,15 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             for (let i = 0; i < children.length; i++) {
                 const child = children[i];
                 if (ruleNode.forallIndexSet && ruleNode.forallIndexSet.has(i)) {
-                    // child is the "for all cases" node; connect the first case's
-                    // condition (sub 0) and consequence (sub 1) sub-proofs.
+                    // child is the "for all cases" node; connect EVERY case's
+                    // condition (sub 0) and consequence (sub 1) sub-proof — a universal
+                    // holds only if all its witnessing cases do, so all must be shown.
                     const subs = (child && child.children) || [];
-                    const condExp = subs.find((s: any) => typeof s.literal === 'string' && s.literal.startsWith('for case'));
-                    const consExp = subs.find((s: any) => typeof s.literal === 'string' && s.literal.startsWith('it is true that'));
-                    if (condExp || consExp) {
-                        if (condExp) await connectNode(condExp, ruleNode.id, `in-${i}-0`);
-                        if (consExp) await connectNode(consExp, ruleNode.id, `in-${i}-1`);
+                    const condExps = subs.filter((s: any) => typeof s.literal === 'string' && s.literal.startsWith('for case'));
+                    const consExps = subs.filter((s: any) => typeof s.literal === 'string' && s.literal.startsWith('it is true that'));
+                    if (condExps.length || consExps.length) {
+                        for (const ce of condExps) await connectCase(ce, ruleNode.id, `in-${i}-0`);
+                        for (const ce of consExps) await connectCase(ce, ruleNode.id, `in-${i}-1`);
                     } else {
                         // Vacuously true (no cases): the condition has no solutions —
                         // represent it with a FAIL on the condition socket.

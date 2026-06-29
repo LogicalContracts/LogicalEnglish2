@@ -46,10 +46,40 @@ As you type, the editor performs real-time verification:
 
 Once a query is executed:
 *   **Answers:** A list of results appears in the left side of the bottom panel.
-*   **Explanation Tree:** Clicking an answer displays a natural language justification tree on the right.
-*   **Navigation to Source:** 
+*   **Explanation Tree:** Clicking an answer displays a natural language justification tree on the right. When a query has *no* answer, the tree explains *why* it failed.
+*   **Navigation to Source:**
     *   Clicking any node in the explanation tree will automatically scroll the editor to the corresponding rule or fact in your source code.
     *   The selected range will be highlighted in the editor, allowing you to quickly verify the logic.
+
+### Reading the Explanation Tree
+
+*   **Node colours** show each node's status: **green** for a condition that *succeeded*, **red** for one that *failed*, and **amber** for an *unknown* condition (one that could not be proven true or false, but was assumed true because it matches an "unknown" template).
+*   **Type tooltips:** Hover over any node to see a description of its status (e.g. "Succeeded: this condition was proven", "Failed: this condition could not be proven"). A negated condition that holds reads "Succeeded: this negative condition holds (the inner statement could not be proven)".
+*   **Expand / collapse:** Nodes with sub-steps show a `-`/`+` toggle; the top two levels are expanded by default. Expansion state is remembered per answer while you switch between answers.
+*   **Hierarchical numbering:** Turn on **Misc → Hierarchical Numbering** to prefix each node with its position in the tree (e.g. `1.2.3`).
+
+### Repeated Sub-explanations
+
+Large success — and especially failure — trees often contain the same sub-explanation many times. By default these are collapsed:
+
+*   A sub-explanation that occurs several times is shown **once, in italics**, keeping its normal green/red/amber colour. Its tooltip reports how many times it occurred ("N repeated sub-explanations", or "N repeated occurrences" for a leaf condition that has no sub-steps).
+*   **Go to full sub-explanation:** Some repeats stand in for a copy that *is* shown in full elsewhere in the tree. These carry a small `↩` marker; **right-click → "Go to full sub-explanation"** scrolls to that full copy, expanding any collapsed ancestors and briefly highlighting it. Repeats with no fuller copy anywhere (e.g. a plain repeated leaf) have no marker and no such menu item.
+*   This collapsing is controlled by the **Hide repeated explanations** preference (on by default); turn it off to see every occurrence in full.
+
+### The Explanation Context Menu
+
+Right-click in the explanation tree for:
+
+*   **Copy Explanation:** Copies the whole tree (all sibling subtrees) to the clipboard as both plain text and HTML, ready to paste into a document.
+*   **Go to full sub-explanation:** Shown only on a repeated node that has a full copy elsewhere (see above).
+
+### Explanation Preferences
+
+Open **Misc → EXPLANATIONS → Preferences...** to configure:
+
+*   **Prefix for failed nodes:** Text prepended to failed nodes when copying an explanation (handy when pasting into a context that loses colour).
+*   **Detailed failure explanations (per-rule nodes):** When on, a failed predicate proven by several rules shows an intermediate node per rule (each navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.
+*   **Hide repeated explanations:** As described above; on by default.
 
 ## Advanced Features
 

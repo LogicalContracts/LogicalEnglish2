@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 89
-Total tests:     280
-Passed:          280
+Files processed: 90
+Total tests:     282
+Passed:          282
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -80,6 +80,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/testing/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/happpy_dragon.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/nonterminating.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/p_with_negation.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/payg_buggy.le: 0 Pass, 0 Fail, 0 Error

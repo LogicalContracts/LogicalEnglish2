@@ -925,10 +925,12 @@ convert_why(repeated_group(N, Node), KB, JSON) :- !,
     convert_why(Node, KB, JSON0),
     put_dict(_{repeated: true, repeatedCount: N}, JSON0, JSON).
 % A subtree that is a variant of one already shown elsewhere in the tree: render
-% only its root, tagged repeated (no count). Node already has empty children.
-convert_why(repeated_ref(Node), KB, JSON) :- !,
+% only its root, tagged repeated (no count) and carrying repeatedOf — the tree-path
+% of the full original it stands in for, so the client can navigate to it. Node
+% already has empty children.
+convert_why(repeated_ref(Node, OrigPath), KB, JSON) :- !,
     convert_why(Node, KB, JSON0),
-    put_dict(_{repeated: true}, JSON0, JSON).
+    put_dict(_{repeated: true, repeatedOf: OrigPath}, JSON0, JSON).
 convert_why(success(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     is_naf_goal(Goal, Naf),
@@ -1059,52 +1061,69 @@ why_struct_sig(Other, other_sig(Other)).
 %   Collapses subtrees that repeat ACROSS the explanation (not just among
 %   siblings): walking pre-order, the first occurrence of a (non-leaf) subtree is
 %   kept in full and each later occurrence — anywhere else in the forest — becomes
-%   a root-only repeated_ref/1 marker (rendered repeated, WITHOUT a count). Two
+%   a root-only repeated_ref/2 marker (rendered repeated, WITHOUT a count, but
+%   carrying the original's tree-path for "go to" navigation). Two
 %   subtrees count as the same when their goal-structure signatures are variants.
 %   Leaves are never collapsed (a one-line node is not worth a marker).
 mark_cross_tree_repeats(Grouped, Marked) :-
-    mctr(Grouped, [], _Seen, Marked).
+    % Thread each node's CLIENT tree-path ("1.2.3") so a proxy can name the path of
+    % the original it stands in for; the client mirrors this numbering when it
+    % renders, so the path resolves directly to the original node's element.
+    (   is_list(Grouped)
+    ->  mctr_list(Grouped, '', 1, [], _Seen, Marked)
+    ;   mctr(Grouped, '1', [], _Seen, Marked)
+    ).
 
-mctr(Whys, SeenIn, SeenOut, Marked) :-
+% mctr(+Node, +Path, +SeenIn, -SeenOut, -Marked): Seen maps each kept subtree's
+% repeat-key to the Path of its first (full) occurrence.
+mctr(Whys, Path, SeenIn, SeenOut, Marked) :-
     is_list(Whys), !,
-    mctr_list(Whys, SeenIn, SeenOut, Marked).
-mctr(repeated_group(N, Node), SeenIn, SeenOut, Out) :- !,
+    mctr_list(Whys, Path, 1, SeenIn, SeenOut, Marked).
+mctr(repeated_group(N, Node), Path, SeenIn, SeenOut, Out) :- !,
     node_repeat_key(Node, Key),
-    (   memberchk(Key, SeenIn)
-    ->  root_only_marker(Node, Out), SeenOut = SeenIn
-    ;   mctr_keep_children(Node, [Key|SeenIn], SeenOut, Node1),
+    (   memberchk(Key-OrigPath, SeenIn)
+    ->  root_only_marker(Node, OrigPath, Out), SeenOut = SeenIn
+    ;   mctr_keep_children(Node, Path, [Key-Path|SeenIn], SeenOut, Node1),
         Out = repeated_group(N, Node1)
     ).
-mctr(Node, SeenIn, SeenOut, Out) :-
+mctr(Node, Path, SeenIn, SeenOut, Out) :-
     why_node(Node, _, _, _, _, Children), !,
     (   Children == []
     ->  Out = Node, SeenOut = SeenIn                 % leaf: keep as-is, do not register
     ;   node_repeat_key(Node, Key),
-        (   memberchk(Key, SeenIn)
-        ->  root_only_marker(Node, Out), SeenOut = SeenIn
-        ;   mctr_keep_children(Node, [Key|SeenIn], SeenOut, Out)
+        (   memberchk(Key-OrigPath, SeenIn)
+        ->  root_only_marker(Node, OrigPath, Out), SeenOut = SeenIn
+        ;   mctr_keep_children(Node, Path, [Key-Path|SeenIn], SeenOut, Out)
         )
     ).
-mctr(Other, Seen, Seen, Other).
+mctr(Other, _Path, Seen, Seen, Other).
 
-mctr_list([], Seen, Seen, []).
-mctr_list([W|Ws], SeenIn, SeenOut, [M|Ms]) :-
-    mctr(W, SeenIn, Seen1, M),
-    mctr_list(Ws, Seen1, SeenOut, Ms).
+mctr_list([], _Path, _I, Seen, Seen, []).
+mctr_list([W|Ws], Path, I, SeenIn, SeenOut, [M|Ms]) :-
+    child_path(Path, I, CPath),
+    mctr(W, CPath, SeenIn, Seen1, M),
+    I1 is I + 1,
+    mctr_list(Ws, Path, I1, Seen1, SeenOut, Ms).
 
 % Keep a node (its first occurrence): recurse into its children, threading Seen.
-mctr_keep_children(Node, SeenIn, SeenOut, Out) :-
+mctr_keep_children(Node, Path, SeenIn, SeenOut, Out) :-
     why_node(Node, Type, Goal, Range, LE, Children),
-    mctr_list(Children, SeenIn, SeenOut, MarkedChildren),
+    mctr_list(Children, Path, 1, SeenIn, SeenOut, MarkedChildren),
     rebuild_why_node(Type, Goal, Range, LE, MarkedChildren, Out).
+
+% child_path(+ParentPath, +Index1, -ChildPath): the client's 1-indexed tree path.
+child_path('', I, P) :- !, atom_number(P, I).
+child_path(Parent, I, P) :- format(atom(P), '~w.~w', [Parent, I]).
 
 % A variant-insensitive key for a subtree (numbervars-canonicalised signature).
 node_repeat_key(Node, Key) :-
     why_struct_sig(Node, Sig),
     copy_term(Sig, C), numbervars(C, 0, _), term_to_atom(C, Key).
 
-% A root-only copy of Node (children removed), wrapped as a repeated_ref/1 marker.
-root_only_marker(Node, repeated_ref(RootOnly)) :-
+% A root-only copy of Node (children removed), wrapped as a repeated_ref/2 marker
+% that also carries OrigPath — the client tree-path of the full original it stands
+% in for, so the UI can offer "go to" navigation.
+root_only_marker(Node, OrigPath, repeated_ref(RootOnly, OrigPath)) :-
     why_node(Node, Type, Goal, Range, LE, _),
     rebuild_why_node(Type, Goal, Range, LE, [], RootOnly).
 

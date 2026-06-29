@@ -429,11 +429,19 @@
         .tree-label.success { color: #89d185; }
         .tree-label.failure { color: #f48771; }
         .tree-label.unknown { color: #e2b93d; }
-        /* A repeated sub-explanation: collapsed to its root, shown muted/italic. */
-        .tree-label.repeated { color: #b18cd9; font-style: italic; }
-        .tree-label.repeated .tree-text::after {
+        /* A repeated sub-explanation: italic distinguishes it; it keeps its
+           success/failure/unknown colour. The ↩ navigation marker shows only on the
+           ones that actually have a full expansion to jump to (.navigable). */
+        .tree-label.repeated { font-style: italic; }
+        .tree-label.repeated.navigable .tree-text::after {
             content: ' ↩';
             opacity: 0.7;
+        }
+        /* Flash applied when "Go to full sub-explanation" navigates to the original. */
+        .tree-label.explanation-highlight {
+            background: rgba(177, 140, 217, 0.35);
+            border-radius: 3px;
+            transition: background 0.3s ease;
         }
 
         .tree-children {
@@ -876,6 +884,7 @@
 
     <!-- Context Menu for Explanations -->
     <div id="explanation-context-menu" class="context-menu">
+        <div class="dropdown-item" id="menu-goto-original" style="padding: 5px 15px; font-size: 12px; display: none;">Go to full sub-explanation</div>
         <div class="dropdown-item" id="menu-copy-explanation" style="padding: 5px 15px; font-size: 12px;">Copy Explanation</div>
     </div>
 
