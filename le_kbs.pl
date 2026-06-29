@@ -1115,7 +1115,22 @@ parse_custom_facts(KB, Text, Terms) :-
     ( phrase(le_grammar:kb_items(Items), Tokens) -> true ; Items = [] ),
     findall(D, KB:le_dict(D), Dicts),
     le_grammar:prepare_templates(Dicts, Templates),
-    maplist(item_to_term(Templates), Items, Terms).
+    % Custom facts ARE scenario facts: use the scenario second pass so a definite
+    % phrase like "the UK" stays a concrete individual. The regular KB pass would
+    % treat it as an anaphoric variable, silently dropping the value (so editing
+    % such an argument would have no effect).
+    maplist(scenario_item_to_term(Templates, KB), Items, Terms).
+
+scenario_item_to_term(Templates, M, Item, Term) :-
+    ( le_grammar:second_pass_scenario_item_with_module(Templates, M, Item, NewItem) ->
+        clause_item_to_term(NewItem, Term)
+    ; Item = Term ).
+
+clause_item_to_term(clause(Head, true, _, _, _), Head) :- !.
+clause_item_to_term(clause(Head, Body, _, _, _), (Head :- Body)) :- !.
+clause_item_to_term(clause(Head, true, _, _), Head) :- !.
+clause_item_to_term(clause(Head, Body, _, _), (Head :- Body)) :- !.
+clause_item_to_term(Other, Other).
 
 %!  parse_custom_query(+KB:atom, +Text:string, -Goal:term) is det.
 %

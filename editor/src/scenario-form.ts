@@ -1,0 +1,195 @@
+// Reusable scenario "fact form": a vertical sequence of editable template rows,
+// shared by the Scenario Editor window and the Scenario Variations window. Each row
+// renders one of the program's templates with its literal words as labels and its
+// placeholders as hint-text input fields; non-template lines are preserved read-only;
+// "<query> expects answers …" test directives are set aside and written back as
+// comments. The host window supplies the DOM containers and an onChange callback.
+
+import {
+    splitTemplate, matchFact, fillTemplate, parseTemplateDefs, parseScenarioBlocks
+} from './le-templates';
+
+interface Row {
+    templateLabel: string | null;   // null => a preserved (non-template) line
+    values: string[];
+    raw: string;
+}
+
+// "X is a / an TYPE" type assertions are valid scenario facts but aren't declared
+// templates; include them so such facts load as editable rows.
+const SYSTEM_TYPE = ['*a thing* is a *type*', '*a thing* is an *type*'];
+
+// A scenario "test" line: "<query> expects answers [...] (and unknowns [...])".
+export const isTestDirective = (fact: string) => /\bexpects?\s+answers?\b/i.test(fact);
+
+export interface ScenarioFormOptions {
+    source: string;                 // LE source, for templates + which templates are used
+    rowsEl: HTMLElement;            // container the rows are rendered into
+    addSelect: HTMLSelectElement;   // the "Add fact" template picker
+    btnAdd: HTMLButtonElement;      // the "Add" button
+    onChange?: () => void;          // fired on any edit (add/remove/field change)
+}
+
+export class ScenarioForm {
+    readonly templates: string[];        // all templates (for recognising facts)
+    readonly addableTemplates: string[]; // those offered in the Add menu
+    testLines: string[] = [];            // tests from the loaded scenario, kept as comments
+    private rows: Row[] = [];
+    private opts: ScenarioFormOptions;
+
+    constructor(opts: ScenarioFormOptions) {
+        this.opts = opts;
+        const defs = parseTemplateDefs(opts.source);
+        this.templates = [...defs.map(d => d.label), ...SYSTEM_TYPE];
+
+        // Addable = templates declared "; undefined" (scenario element) or already used
+        // by some scenario; plus a type assertion if one is used. Conclusions excluded.
+        const used = new Set<string>();
+        for (const b of parseScenarioBlocks(opts.source)) {
+            for (const f of b.facts) { const m = matchFact(f, this.templates); if (m) used.add(m.label); }
+        }
+        const seen = new Set<string>();
+        const addable: string[] = [];
+        for (const d of defs) {
+            if ((d.isUndefined || used.has(d.label)) && !seen.has(d.label)) { seen.add(d.label); addable.push(d.label); }
+        }
+        for (const t of SYSTEM_TYPE) {
+            if (used.has(t) && !seen.has(t)) { seen.add(t); addable.push(t); }
+        }
+        this.addableTemplates = addable;
+
+        opts.addSelect.innerHTML = '';
+        for (const label of addable) {
+            const o = document.createElement('option');
+            o.value = label;
+            o.textContent = label.replace(/\*/g, '');   // show placeholders without the markers
+            opts.addSelect.appendChild(o);
+        }
+        opts.btnAdd.addEventListener('click', () => {
+            const val = opts.addSelect.value;
+            if (!val) return;
+            this.rows.push({ templateLabel: val, values: [], raw: '' });
+            this.changed();
+            this.render();
+            (opts.rowsEl.lastElementChild as HTMLElement | null)?.querySelector('input')?.focus();
+        });
+    }
+
+    private changed() { this.opts.onChange?.(); }
+
+    // Load a scenario's facts: template instances become editable rows, "expects
+    // answers" tests are kept aside, everything else is preserved read-only.
+    loadFacts(facts: string[]) {
+        this.rows = [];
+        this.testLines = [];
+        for (const fact of facts) {
+            if (isTestDirective(fact)) { this.testLines.push(fact); continue; }
+            const m = matchFact(fact, this.templates);
+            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '' });
+            else this.rows.push({ templateLabel: null, values: [], raw: fact });
+        }
+        this.render();
+    }
+
+    clear() {
+        this.rows = [];
+        this.testLines = [];
+        this.render();
+    }
+
+    // --- Rendering -------------------------------------------------------------
+    render() {
+        const rowsEl = this.opts.rowsEl;
+        rowsEl.innerHTML = '';
+        if (this.rows.length === 0) {
+            const hint = document.createElement('div');
+            hint.className = 'empty-hint';
+            hint.textContent = 'No facts yet — pick a template below and click “Add”.';
+            rowsEl.appendChild(hint);
+            return;
+        }
+        this.rows.forEach((row, idx) => rowsEl.appendChild(this.renderRow(row, idx)));
+    }
+
+    private sizeField(input: HTMLInputElement) {
+        const n = Math.max((input.value || input.placeholder).length + 1, 6);
+        input.size = Math.min(n, 80);
+    }
+
+    private renderRow(row: Row, idx: number): HTMLElement {
+        const el = document.createElement('div');
+        el.className = 'fact-row';
+
+        if (row.templateLabel === null) {
+            const span = document.createElement('span');
+            span.className = 'preserved';
+            span.textContent = row.raw;
+            span.title = 'This line matches no template — edit it in the main editor';
+            el.appendChild(span);
+        } else {
+            const segs = splitTemplate(row.templateLabel);
+            let fieldIdx = 0;
+            for (const seg of segs) {
+                if (seg.kind === 'literal') {
+                    const span = document.createElement('span');
+                    span.className = 'word';
+                    span.textContent = seg.text;
+                    el.appendChild(span);
+                } else {
+                    const fi = fieldIdx++;
+                    const input = document.createElement('input');
+                    input.type = 'text';
+                    input.className = 'field';
+                    input.placeholder = seg.text;      // hint text = the LE variable
+                    input.title = seg.text;
+                    input.value = row.values[fi] ?? '';
+                    this.sizeField(input);
+                    input.addEventListener('input', () => {
+                        row.values[fi] = input.value;
+                        this.sizeField(input);
+                        this.changed();
+                    });
+                    el.appendChild(input);
+                }
+            }
+        }
+
+        const tools = document.createElement('div');
+        tools.className = 'row-tools';
+        const del = document.createElement('button');
+        del.textContent = '✕';
+        del.title = 'Delete';
+        del.addEventListener('click', () => { this.rows.splice(idx, 1); this.changed(); this.render(); });
+        tools.appendChild(del);
+        el.appendChild(tools);
+        return el;
+    }
+
+    // --- Producing text --------------------------------------------------------
+    private factText(row: Row): string {
+        if (row.templateLabel === null) return row.raw.trim().replace(/\.\s*$/, '').trim();
+        return fillTemplate(row.templateLabel, row.values);
+    }
+
+    // Each fact's text (no trailing period), skipping wholly-empty rows.
+    factLines(): string[] {
+        return this.rows.map(r => this.factText(r)).filter(t => !!t);
+    }
+
+    // The facts as runnable LE text (each terminated by "."), for use as a custom
+    // scenario. Tests are NOT included (they are not facts).
+    factsText(): string {
+        return this.factLines().map(t => `${t}.`).join('\n');
+    }
+
+    // A full "scenario <name> is:" block; tests are appended commented-out.
+    blockText(name: string): string {
+        const lines = [`scenario ${name} is:`];
+        for (const t of this.factLines()) lines.push(`    ${t}.`);
+        if (this.testLines.length) {
+            lines.push(`    % tests (review and uncomment to re-enable):`);
+            for (const t of this.testLines) lines.push(`    % ${t}.`);
+        }
+        return lines.join('\n');
+    }
+}
