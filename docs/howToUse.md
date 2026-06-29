@@ -42,6 +42,35 @@ As you type, the editor performs real-time verification:
 3.  **Select Query:** Select a query defined in your code (e.g., `query(one, ...)`).
 4.  **Execute:** Click the **Query** button.
 
+## The Scenario Editor
+
+A scenario is a named set of facts your queries run against. The **Scenario Editor** lets you build and edit these scenarios as **fill-in-the-blank forms** instead of typing the facts by hand, so you never have to remember a template's exact wording. Open it from **Edit → Edit Scenarios…**; it opens in a separate window.
+
+### Layout
+
+*   **Top:** a **Scenario** picker — choose **New…** to start a fresh scenario, or pick an existing one to load it for editing — and a **Name** field (the scenario's name in your program).
+*   **Middle:** a vertical list of the scenario's facts, one per row.
+*   **Bottom:** an **Add fact** picker, and the **Copy** / **Insert into Editor** buttons.
+
+### Editing facts
+
+Each fact is shown as one row built from a template: the template's fixed words are plain **labels**, and each placeholder is an editable **field**. For the template `*a person* is born in *a place* on *a date*` a fact reads:
+
+> `[a person]` is born in `[a place]` on `[a date]`
+
+Only the placeholders are editable — you can't accidentally break the surrounding wording. Each field's **hint text** is the template variable it stands for (e.g. *a person*), and fields grow to fit their contents. Loading an existing scenario fills the fields in automatically by recognising each fact's template.
+
+*   **Add a fact:** pick a template from the **Add fact** menu and click **+ Add**, then fill in the fields. The menu lists only templates that make sense as scenario facts: those declared **`; undefined`** (a.k.a. *scenario element*) and those already used by some scenario. Plain "*X* is a *type*" assertions are also supported.
+*   **Delete a fact:** click the **✕** on its row.
+*   **Lines that match no template** (for example an `… expects answers …` directive) are shown greyed-out and read-only so they are preserved; edit those in the main editor. Comments (`%`) are ignored.
+
+### Saving your work
+
+*   **Copy:** copies the whole scenario block (`scenario <name> is:` followed by its facts) to the clipboard, ready to paste anywhere.
+*   **Insert into Editor:** writes the scenario back into the main editor — **replacing** the scenario you loaded, or **appending** a new one — and closes the Scenario Editor window.
+
+The Scenario Editor does not itself check your Logical English: as with any edit, the **final syntax check happens on the server** the next time the editor loads the module, and any problems are reported as usual. If you try to close the window with unsaved changes (not yet copied or inserted), it asks you to confirm first.
+
 ## Explanations and Navigation
 
 Once a query is executed:
