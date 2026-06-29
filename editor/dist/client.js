@@ -39842,6 +39842,7 @@ async function start() {
   const explanationContextMenu = document.getElementById("explanation-context-menu");
   const menuCopyExplanation = document.getElementById("menu-copy-explanation");
   const menuGotoOriginal = document.getElementById("menu-goto-original");
+  const answerTooltip = document.getElementById("answer-tooltip");
   let currentAnswerToCopy = "";
   let currentWhyToCopy = null;
   let lastWhy = null;
@@ -39871,6 +39872,43 @@ async function start() {
     }
   };
   const explanationExpansion = /* @__PURE__ */ new WeakMap();
+  const attachAnswerTooltip = (item, unknowns) => {
+    item.addEventListener("mouseenter", (e) => {
+      const title = document.createElement("div");
+      title.className = "tooltip-title";
+      title.textContent = unknowns.length === 1 ? "Unknown goal:" : `${unknowns.length} unknown goals:`;
+      answerTooltip.innerHTML = "";
+      answerTooltip.appendChild(title);
+      unknowns.forEach((u) => {
+        const line = document.createElement("div");
+        line.className = "tooltip-unknown";
+        line.textContent = u;
+        answerTooltip.appendChild(line);
+      });
+      answerTooltip.style.display = "block";
+      positionAnswerTooltip(e);
+    });
+    item.addEventListener("mousemove", (e) => {
+      if (answerTooltip.style.display === "block") {
+        positionAnswerTooltip(e);
+      }
+    });
+    item.addEventListener("mouseleave", () => {
+      answerTooltip.style.display = "none";
+    });
+  };
+  const positionAnswerTooltip = (e) => {
+    const offset = 12;
+    let x2 = e.clientX + offset;
+    let y2 = e.clientY + offset;
+    const rect = answerTooltip.getBoundingClientRect();
+    if (x2 + rect.width > window.innerWidth)
+      x2 = e.clientX - rect.width - offset;
+    if (y2 + rect.height > window.innerHeight)
+      y2 = e.clientY - rect.height - offset;
+    answerTooltip.style.left = `${Math.max(0, x2)}px`;
+    answerTooltip.style.top = `${Math.max(0, y2)}px`;
+  };
   document.addEventListener("click", () => {
     answerContextMenu.style.display = "none";
     explanationContextMenu.style.display = "none";
@@ -40351,6 +40389,7 @@ async function start() {
     pendingAnswerIndex = null;
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
+    answerTooltip.style.display = "none";
     showInterruptSoon();
     try {
       const runAnsweringQuery = () => fetch("/leapi", {
@@ -40390,6 +40429,15 @@ async function start() {
           const item = document.createElement("div");
           item.className = "answer-item";
           item.textContent = result.answer;
+          const unknowns = Array.isArray(result.unknowns) ? result.unknowns : [];
+          if (unknowns.length > 0) {
+            item.classList.add("has-unknowns");
+            const marker = document.createElement("span");
+            marker.className = "unknowns-marker";
+            marker.textContent = "?";
+            item.appendChild(marker);
+            attachAnswerTooltip(item, unknowns);
+          }
           item.addEventListener("click", () => {
             document.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
             item.classList.add("selected");

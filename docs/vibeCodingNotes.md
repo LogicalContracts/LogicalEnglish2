@@ -1803,5 +1803,20 @@ The "Add a fact" menu should contain only the following templates:
 - those currently used in some scenario
 other templates should NOT be in the menu
 
+## Unknowns bindings
+If a query answer has unknowns (non empty list in third argument of explain/4 or i/4), these should be rendered in a tooltip in the answer. 
+
+## Scenario Variations
+New feature: a new window "Scenario Variations", which will allow the user to pick a scenario, alter it and instantly run one or more queries on it. It will be invoked by an additional button "Variations", between "Query" and "Trace", and open in a new window tab. 
+The Scenario Variations window will consider the invocation URL to obtain optional parameters (see below), and will have the following elements, top to bottom, reusing existing components whenever possible:
+- Title "Scenario variations for <KB_NAME>"
+- A scenario picker, identical to the one in the Query panel; preselected with the scenario that was selected in the Query Panel (if any)
+- A component identical to the body od the existing Scenario Editor, so the user can alter or add facts; no "Insert into Editor" button, but there should be a "Copy Scenario" (copies the scenario text to clipboard)
+- A sequence of zero or more queries; there should be a "Add Query" button allowing the user to pick one of the queries defined in the program; like scenario facts, queries should have a remove button (close box)
+-  Under each query header, expression(name), a component identical to the body of the existent Query panel: a list of answers side by side with the explanation of the selected answer, navigating to the editor source code
+-  A Query button, which executes ALL queries in the above list; it will be disabled after query execution, and be re-enabled only when the user edits something (query list, scenarion fact)
+
+As the user edits the query list or the selected scenario, the URL is to change to include the changes, so the user can share what he's doing (just like with the editor) with other users; so there should be a query string param "scenarioText" to cater for scenario variations, a queries param etc
+
 
 ## TBD

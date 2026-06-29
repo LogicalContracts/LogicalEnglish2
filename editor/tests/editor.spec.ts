@@ -278,4 +278,50 @@ test.describe('Logical English Editor', () => {
     await page.click('#explanations-cancel');
     await expect(modal).not.toBeVisible();
   });
+
+  test('answer with unknown goals shows them in a tooltip', async ({ page }) => {
+    test.setTimeout(60000);
+
+    // 1. Open the "unknowns" example from the server
+    await page.click('text=File');
+    await page.click('#menu-open-server');
+    const exampleItem = page.locator('#example-list .dropdown-item', { hasText: /^unknowns$/ });
+    await expect(exampleItem).toBeVisible();
+    await exampleItem.click();
+    await expect(page.locator('#filename-display')).toHaveText('unknowns.le');
+
+    // 2. Wait for the module to load (scenario dropdown populated)
+    await expect(async () => {
+      const count = await page.locator('#scenario-select option').count();
+      expect(count).toBeGreaterThan(1);
+    }).toPass({ timeout: 10000 });
+
+    // 3. Select scenario "one" and query "one"
+    await page.selectOption('#scenario-select', 'one');
+    await page.selectOption('#query-select', 'one');
+
+    // 4. Run the query
+    await page.click('#btn-query');
+
+    // 5. The answer with an unknown goal ("alice becomes rich") is marked
+    const aliceAnswer = page.locator('#answers-list .answer-item', { hasText: /alice becomes rich/ });
+    await expect(aliceAnswer).toBeVisible();
+    await expect(aliceAnswer).toHaveClass(/has-unknowns/);
+
+    // 6. The answer without unknowns ("bob becomes rich") is not marked
+    const bobAnswer = page.locator('#answers-list .answer-item', { hasText: /bob becomes rich/ });
+    await expect(bobAnswer).toBeVisible();
+    await expect(bobAnswer).not.toHaveClass(/has-unknowns/);
+
+    // 7. Hovering the marked answer reveals a tooltip with the unknown goal
+    const tooltip = page.locator('#answer-tooltip');
+    await expect(tooltip).toBeHidden();
+    await aliceAnswer.hover();
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toContainText('alice knows that 42 will win the lottery');
+
+    // 8. Moving the mouse away hides the tooltip
+    await bobAnswer.hover();
+    await expect(tooltip).toBeHidden();
+  });
 });
