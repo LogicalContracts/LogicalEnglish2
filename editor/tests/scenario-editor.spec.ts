@@ -12,7 +12,7 @@ const SEED = {
         '',
         'scenario alice is:',
         '% from the claim',                       // column-0 comment INSIDE the scenario
-        '    John is born in the UK on 2021-10-09.',
+        '    John is born in the UK on 2021-10-09. % an INLINE comment after the fact',
         '    Alice is the mother of John.',
         '    this wall is green.',                // would mis-split to ["th","wall is green"] without \\b
         '    John is a british citizen.',         // a type assertion ("is a TYPE")
