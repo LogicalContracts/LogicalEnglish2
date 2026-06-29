@@ -197,6 +197,8 @@ function initScenarioEditor(data) {
   let rows = [];
   let loadedName = "";
   let dirty = false;
+  let testLines = [];
+  const isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
   picker.innerHTML = "";
   const newOpt = document.createElement("option");
   newOpt.value = "__new__";
@@ -231,8 +233,13 @@ function initScenarioEditor(data) {
     loadedName = block ? block.name : "";
     nameInput.value = block ? block.name : "";
     rows = [];
+    testLines = [];
     if (block) {
       for (const fact of block.facts) {
+        if (isTestDirective(fact)) {
+          testLines.push(fact);
+          continue;
+        }
         const m = matchFact(fact, templates);
         if (m)
           rows.push({ templateLabel: m.label, values: m.values, raw: "" });
@@ -242,12 +249,14 @@ function initScenarioEditor(data) {
     }
     render();
     dirty = false;
-    setStatus(block ? `Loaded scenario "${name}"` : "");
+    const note = testLines.length ? ` (${testLines.length} test line${testLines.length > 1 ? "s" : ""} kept as comments)` : "";
+    setStatus(block ? `Loaded scenario "${name}"${note}` : "");
   }
   function newScenario() {
     loadedName = "";
     nameInput.value = "";
     rows = [];
+    testLines = [];
     render();
     dirty = false;
     setStatus("New scenario");
@@ -325,6 +334,11 @@ function initScenarioEditor(data) {
       if (!text)
         continue;
       lines.push(`    ${text}.`);
+    }
+    if (testLines.length) {
+      lines.push(`    % tests (review and uncomment to re-enable):`);
+      for (const t of testLines)
+        lines.push(`    % ${t}.`);
     }
     return lines.join("\n");
   }

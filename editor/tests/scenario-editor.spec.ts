@@ -40,14 +40,16 @@ test.describe('Scenario Editor', () => {
         await expect(picker.locator('option')).toHaveCount(2);
         await expect(picker.locator('option', { hasText: 'alice' })).toHaveCount(1);
 
-        // Load the scenario. Comments are SKIPPED (not rows). Four facts remain:
-        // born, mother, "is in", "is a british citizen", and the expects-answers line.
+        // Load the scenario. Comments are SKIPPED and the "expects answers" TEST line is
+        // set aside (kept as a comment on save), leaving four editable rows: born,
+        // mother, the colour fact and the type assertion.
         await picker.selectOption('alice');
         await expect(page.locator('#scenario-name')).toHaveValue('alice');
         const rows = page.locator('.fact-row');
-        await expect(rows).toHaveCount(5);
-        // The "%" comment is not shown anywhere.
+        await expect(rows).toHaveCount(4);
+        // The "%" comment and the test line are not shown anywhere.
         await expect(page.locator('.preserved', { hasText: '% from the claim' })).toHaveCount(0);
+        await expect(page.locator('.fact-row', { hasText: 'expects answers' })).toHaveCount(0);
 
         // Row 0: only the PLACEHOLDERS are editable — "John is born in the UK on
         // 2021-10-09" -> three fields, with "is born in"/"on" as plain labels.
@@ -70,10 +72,6 @@ test.describe('Scenario Editor', () => {
         await expect(typeFields.nth(0)).toHaveValue('John');
         await expect(typeFields.nth(1)).toHaveValue('british citizen');
 
-        // The expects-answers line matches no template -> preserved read-only.
-        await expect(rows.nth(4).locator('.preserved')).toHaveText('one expects answers ["yes"]');
-        await expect(rows.nth(4).locator('input')).toHaveCount(0);
-
         // The "Add fact" menu: no free-text; only undefined templates + those used by a
         // scenario (incl. the "is a TYPE" assertion since it is used); not conclusions.
         const addOptions = page.locator('#add-template option');
@@ -88,7 +86,7 @@ test.describe('Scenario Editor', () => {
         await fields.nth(1).fill('the United Kingdom');
         await page.locator('#add-template').selectOption({ label: 'a person is the mother of a person' });
         await page.locator('#btn-add').click();
-        await expect(page.locator('.fact-row')).toHaveCount(6);
+        await expect(page.locator('.fact-row')).toHaveCount(5);
 
         // Copy builds the scenario block; verify its text on the clipboard.
         await page.locator('#btn-copy').click();
@@ -97,8 +95,10 @@ test.describe('Scenario Editor', () => {
         expect(copied).toContain('John is born in the United Kingdom on 2021-10-09.');
         expect(copied).toContain('this wall is green.');
         expect(copied).toContain('John is a british citizen.');
-        expect(copied).toContain('one expects answers ["yes"].');
-        expect(copied).not.toContain('% from the claim');     // comment skipped entirely
+        // The test line is written back COMMENTED OUT (not as an active fact).
+        expect(copied).toContain('% one expects answers ["yes"].');
+        expect(copied).not.toContain('    one expects answers');   // i.e. not an uncommented fact
+        expect(copied).not.toContain('% from the claim');          // comment skipped entirely
     });
 
     test('Insert into Editor replaces the scenario in the document', async ({ context }) => {

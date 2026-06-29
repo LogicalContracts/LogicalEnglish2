@@ -62,7 +62,8 @@ Only the placeholders are editable — you can't accidentally break the surround
 
 *   **Add a fact:** pick a template from the **Add fact** menu and click **+ Add**, then fill in the fields. The menu lists only templates that make sense as scenario facts: those declared **`; undefined`** (a.k.a. *scenario element*) and those already used by some scenario. Plain "*X* is a *type*" assertions are also supported.
 *   **Delete a fact:** click the **✕** on its row.
-*   **Lines that match no template** (for example an `… expects answers …` directive) are shown greyed-out and read-only so they are preserved; edit those in the main editor. Comments (`%`) are ignored.
+*   **Test lines** (`… expects answers …`) are too complex for this form, so they are not shown. They are kept aside and written back **commented out** (so your saved scenario is valid); review and re-enable them in the main editor.
+*   **Other lines that match no template** are shown greyed-out and read-only so they are preserved; edit those in the main editor. Comments (`%`) are ignored.
 
 ### Saving your work
 
