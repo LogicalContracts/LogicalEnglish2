@@ -1573,9 +1573,46 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const menuCopyAnswer = document.getElementById('menu-copy-answer')!;
     const explanationContextMenu = document.getElementById('explanation-context-menu')!;
     const menuCopyExplanation = document.getElementById('menu-copy-explanation')!;
+    const menuGotoOriginal = document.getElementById('menu-goto-original')!;
     let currentAnswerToCopy = '';
     let currentWhyToCopy: any = null;
     let lastWhy: any = null;
+    // For a "repeated" proxy node (a sub-explanation shown elsewhere in full), the
+    // tree-path of that full original, so the context menu can navigate to it.
+    let currentRepeatedOf: string | null = null;
+    // Maps each rendered node's tree-path ("1.2.3") to its DOM container, and the
+    // current answer's expansion state — both rebuilt on every renderExplanation —
+    // so "Go to full sub-explanation" can reveal and highlight the original.
+    let pathToContainer = new Map<string, HTMLElement>();
+    let currentExpansion: Map<string, boolean> | null = null;
+    // Literal -> tree-path of the FIRST occurrence shown WITH its full subtree. Lets
+    // a repeated leaf (e.g. a sibling-grouped "a payment under this policy [N
+    // repeated]") navigate to wherever that goal is actually expanded, even when the
+    // backend only marked one explicit cross-tree proxy.
+    let fullByLiteral = new Map<string, string>();
+
+    // Reveal a (possibly collapsed) node by expanding every ancestor subtree, then
+    // scroll it into view and flash it.
+    const revealAndHighlight = (container: HTMLElement) => {
+        let el: HTMLElement | null = container;
+        while (el && el !== explanationTree) {
+            const parent = el.parentElement as HTMLElement | null;
+            if (parent && parent.classList.contains('tree-children')) {
+                parent.style.display = 'block';
+                const ownerLabel = parent.previousElementSibling as HTMLElement | null;
+                ownerLabel?.querySelector('.tree-toggle') && (ownerLabel.querySelector('.tree-toggle')!.textContent = '-');
+                const ownerPath = (parent.parentElement as HTMLElement | null)?.dataset.path;
+                if (ownerPath) currentExpansion?.set(ownerPath, true);
+            }
+            el = el.parentElement;
+        }
+        container.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        const label = container.querySelector(':scope > .tree-label') as HTMLElement | null;
+        if (label) {
+            label.classList.add('explanation-highlight');
+            setTimeout(() => label.classList.remove('explanation-highlight'), 2200);
+        }
+    };
     // Per-answer expansion state, kept in memory only (no local/session storage).
     // Keyed by the answer's `why` object; maps each node's tree path ("1.2.3") to
     // whether it is expanded, so toggles persist when switching between answers.
@@ -1592,6 +1629,15 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             navigator.clipboard.writeText(currentAnswerToCopy);
         }
         answerContextMenu.style.display = 'none';
+    });
+
+    menuGotoOriginal.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (currentRepeatedOf) {
+            const target = pathToContainer.get(currentRepeatedOf);
+            if (target) revealAndHighlight(target);
+        }
+        explanationContextMenu.style.display = 'none';
     });
 
     const explanationToText = (node: any, depth: number = 0, prefix: string = ''): string => {
@@ -1640,7 +1686,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         if (showHierarchicalNumbering && prefix && depth > 0) {
             text = `${prefix} ${text}`;
         }
-        const color = node.repeated ? '#b18cd9' : (node.type === 'failure' ? '#f48771' : (node.type === 'unknown' ? '#e2b93d' : '#89d185'));
+        const color = node.type === 'failure' ? '#f48771' : (node.type === 'unknown' ? '#e2b93d' : '#89d185');
 
         let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
         if (node.children) {
@@ -1677,6 +1723,8 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
     const renderExplanation = (why: any) => {
         lastWhy = why;
         explanationTree.innerHTML = '';
+        pathToContainer = new Map<string, HTMLElement>();
+        fullByLiteral = new Map<string, string>();
         if (!why) return;
 
         // Recover (or start) the in-memory expansion state for this answer.
@@ -1692,36 +1740,77 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
         } else {
             expansion = new Map<string, boolean>();
         }
+        currentExpansion = expansion;
 
         explanationTree.oncontextmenu = (e) => {
             if (e.target === explanationTree) {
                 e.preventDefault();
                 currentWhyToCopy = why;
+                currentRepeatedOf = null;
+                menuGotoOriginal.style.display = 'none';
                 explanationContextMenu.style.display = 'block';
                 explanationContextMenu.style.left = `${e.clientX}px`;
                 explanationContextMenu.style.top = `${e.clientY}px`;
             }
         };
 
+        // Repeated labels, marked after the whole tree is rendered (once
+        // fullByLiteral is complete) so only the ones that actually have somewhere to
+        // go show the navigation affordance.
+        const repeatedLabels: { label: HTMLElement, node: any, prefix: string }[] = [];
+
+        // The tree-path a repeated node should navigate to (its full expansion), or
+        // null if there is none — the backend's cross-tree link when present, else
+        // the first place this same goal is shown WITH its subtree (by literal). A
+        // repeated LEAF whose goal is never expanded anywhere has no target.
+        const navTargetFor = (node: any, prefix: string): string | null => {
+            if (!node || !node.repeated) return null;
+            let target: string | null = null;
+            if (typeof node.repeatedOf === 'string') {
+                target = node.repeatedOf;
+            } else if ((!node.children || node.children.length === 0) && typeof node.literal === 'string') {
+                target = fullByLiteral.get(node.literal) ?? null;
+            }
+            return (target && target !== prefix) ? target : null;
+        };
+
         const createNode = (node: any, depth: number, prefix: string = ''): HTMLElement => {
             const container = document.createElement('div');
             container.className = 'tree-node';
+            container.dataset.path = prefix;
+            pathToContainer.set(prefix, container);
 
             const label = document.createElement('div');
             label.className = `tree-label ${node.type || 'success'}`;
-            if (node.type === 'unknown') {
-                label.title = 'This condition could not be proven true or false, but was assumed true because it matches an "unknown" template.';
+
+            const hasChildren = node.children && node.children.length > 0;
+            // Remember the first place each goal is shown WITH its subtree, so a later
+            // repeated leaf with the same goal can navigate here.
+            if (hasChildren && typeof node.literal === 'string' && !fullByLiteral.has(node.literal)) {
+                fullByLiteral.set(node.literal, prefix);
+            }
+
+            // Tooltip: describe the node's type (and, for repeated nodes, the repeat
+            // info already shown), composed into one line.
+            const titleParts: string[] = [];
+            if (node.type === 'failure') {
+                titleParts.push('Failed: this condition could not be proven');
+            } else if (node.type === 'unknown') {
+                titleParts.push('Unknown: could not be proven true or false, but was assumed true because it matches an "unknown" template');
+            } else {
+                titleParts.push(node.naf === true ? 'Succeeded: this negative condition holds (the inner statement could not be proven)' : 'Succeeded: this condition was proven');
             }
             if (node.repeated) {
                 label.classList.add('repeated');
+                repeatedLabels.push({ label, node, prefix });
                 const repCount = node.repeatedCount;
-                label.title = (typeof repCount === 'number' && repCount > 1)
-                    ? `${repCount} repeated sub-explanations`
-                    : 'Repeated sub-explanation';
+                // A leaf has no sub-explanation, so call its repeats "occurrences".
+                const noun = hasChildren ? 'sub-explanation' : 'occurrence';
+                titleParts.push((typeof repCount === 'number' && repCount > 1)
+                    ? `${repCount} repeated ${noun}s`
+                    : `Repeated ${noun}`);
             }
-
-            
-            const hasChildren = node.children && node.children.length > 0;
+            label.title = titleParts.join(' · ');
             // Expansion: use the remembered state for this node path if present,
             // otherwise the default (top two levels expanded).
             const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix)! : (depth < 2);
@@ -1745,6 +1834,10 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 e.preventDefault();
                 e.stopPropagation();
                 currentWhyToCopy = node;
+                // Offer "Go to" only when this repeated node actually has a full
+                // expansion elsewhere (see navTargetFor).
+                currentRepeatedOf = navTargetFor(node, prefix);
+                menuGotoOriginal.style.display = currentRepeatedOf ? 'block' : 'none';
                 explanationContextMenu.style.display = 'block';
                 explanationContextMenu.style.left = `${e.clientX}px`;
                 explanationContextMenu.style.top = `${e.clientY}px`;
@@ -1798,6 +1891,16 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             why.forEach((w, index) => explanationTree.appendChild(createNode(w, 0, (index + 1).toString())));
         } else {
             explanationTree.appendChild(createNode(why, 0, "1"));
+        }
+
+        // Now the whole tree (and fullByLiteral) is built: mark the repeated nodes
+        // that actually have a full expansion to jump to, so only those show the ↩
+        // affordance. A leaf repeat with no expansion anywhere stays plain italic.
+        for (const { label, node, prefix } of repeatedLabels) {
+            if (navTargetFor(node, prefix)) {
+                label.classList.add('navigable');
+                label.title = `${label.title} · right-click → "Go to full sub-explanation"`;
+            }
         }
     };
 

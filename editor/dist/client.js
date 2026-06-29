@@ -39775,9 +39775,35 @@ async function start() {
   const menuCopyAnswer = document.getElementById("menu-copy-answer");
   const explanationContextMenu = document.getElementById("explanation-context-menu");
   const menuCopyExplanation = document.getElementById("menu-copy-explanation");
+  const menuGotoOriginal = document.getElementById("menu-goto-original");
   let currentAnswerToCopy = "";
   let currentWhyToCopy = null;
   let lastWhy = null;
+  let currentRepeatedOf = null;
+  let pathToContainer = /* @__PURE__ */ new Map();
+  let currentExpansion = null;
+  let fullByLiteral = /* @__PURE__ */ new Map();
+  const revealAndHighlight = (container3) => {
+    let el = container3;
+    while (el && el !== explanationTree) {
+      const parent4 = el.parentElement;
+      if (parent4 && parent4.classList.contains("tree-children")) {
+        parent4.style.display = "block";
+        const ownerLabel = parent4.previousElementSibling;
+        ownerLabel?.querySelector(".tree-toggle") && (ownerLabel.querySelector(".tree-toggle").textContent = "-");
+        const ownerPath = parent4.parentElement?.dataset.path;
+        if (ownerPath)
+          currentExpansion?.set(ownerPath, true);
+      }
+      el = el.parentElement;
+    }
+    container3.scrollIntoView({ block: "center", behavior: "smooth" });
+    const label = container3.querySelector(":scope > .tree-label");
+    if (label) {
+      label.classList.add("explanation-highlight");
+      setTimeout(() => label.classList.remove("explanation-highlight"), 2200);
+    }
+  };
   const explanationExpansion = /* @__PURE__ */ new WeakMap();
   document.addEventListener("click", () => {
     answerContextMenu.style.display = "none";
@@ -39789,6 +39815,15 @@ async function start() {
       navigator.clipboard.writeText(currentAnswerToCopy);
     }
     answerContextMenu.style.display = "none";
+  });
+  menuGotoOriginal.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (currentRepeatedOf) {
+      const target = pathToContainer.get(currentRepeatedOf);
+      if (target)
+        revealAndHighlight(target);
+    }
+    explanationContextMenu.style.display = "none";
   });
   const explanationToText = (node, depth = 0, prefix = "") => {
     if (Array.isArray(node)) {
@@ -39832,7 +39867,7 @@ async function start() {
     if (showHierarchicalNumbering && prefix && depth > 0) {
       text = `${prefix} ${text}`;
     }
-    const color = node.repeated ? "#b18cd9" : node.type === "failure" ? "#f48771" : node.type === "unknown" ? "#e2b93d" : "#89d185";
+    const color = node.type === "failure" ? "#f48771" : node.type === "unknown" ? "#e2b93d" : "#89d185";
     let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
     if (node.children) {
       node.children.forEach((child, index) => {
@@ -39862,6 +39897,8 @@ async function start() {
   const renderExplanation = (why) => {
     lastWhy = why;
     explanationTree.innerHTML = "";
+    pathToContainer = /* @__PURE__ */ new Map();
+    fullByLiteral = /* @__PURE__ */ new Map();
     if (!why)
       return;
     let expansion;
@@ -39876,29 +39913,57 @@ async function start() {
     } else {
       expansion = /* @__PURE__ */ new Map();
     }
+    currentExpansion = expansion;
     explanationTree.oncontextmenu = (e) => {
       if (e.target === explanationTree) {
         e.preventDefault();
         currentWhyToCopy = why;
+        currentRepeatedOf = null;
+        menuGotoOriginal.style.display = "none";
         explanationContextMenu.style.display = "block";
         explanationContextMenu.style.left = `${e.clientX}px`;
         explanationContextMenu.style.top = `${e.clientY}px`;
       }
     };
+    const repeatedLabels = [];
+    const navTargetFor = (node, prefix) => {
+      if (!node || !node.repeated)
+        return null;
+      let target = null;
+      if (typeof node.repeatedOf === "string") {
+        target = node.repeatedOf;
+      } else if ((!node.children || node.children.length === 0) && typeof node.literal === "string") {
+        target = fullByLiteral.get(node.literal) ?? null;
+      }
+      return target && target !== prefix ? target : null;
+    };
     const createNode = (node, depth, prefix = "") => {
       const container3 = document.createElement("div");
       container3.className = "tree-node";
+      container3.dataset.path = prefix;
+      pathToContainer.set(prefix, container3);
       const label = document.createElement("div");
       label.className = `tree-label ${node.type || "success"}`;
-      if (node.type === "unknown") {
-        label.title = 'This condition could not be proven true or false, but was assumed true because it matches an "unknown" template.';
+      const hasChildren = node.children && node.children.length > 0;
+      if (hasChildren && typeof node.literal === "string" && !fullByLiteral.has(node.literal)) {
+        fullByLiteral.set(node.literal, prefix);
+      }
+      const titleParts = [];
+      if (node.type === "failure") {
+        titleParts.push("Failed: this condition could not be proven");
+      } else if (node.type === "unknown") {
+        titleParts.push('Unknown: could not be proven true or false, but was assumed true because it matches an "unknown" template');
+      } else {
+        titleParts.push(node.naf === true ? "Succeeded: this negative condition holds (the inner statement could not be proven)" : "Succeeded: this condition was proven");
       }
       if (node.repeated) {
         label.classList.add("repeated");
+        repeatedLabels.push({ label, node, prefix });
         const repCount = node.repeatedCount;
-        label.title = typeof repCount === "number" && repCount > 1 ? `${repCount} repeated sub-explanations` : "Repeated sub-explanation";
+        const noun = hasChildren ? "sub-explanation" : "occurrence";
+        titleParts.push(typeof repCount === "number" && repCount > 1 ? `${repCount} repeated ${noun}s` : `Repeated ${noun}`);
       }
-      const hasChildren = node.children && node.children.length > 0;
+      label.title = titleParts.join(" \xB7 ");
       const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix) : depth < 2;
       if (hasChildren) {
         const toggle = document.createElement("span");
@@ -39918,6 +39983,8 @@ async function start() {
         e.preventDefault();
         e.stopPropagation();
         currentWhyToCopy = node;
+        currentRepeatedOf = navTargetFor(node, prefix);
+        menuGotoOriginal.style.display = currentRepeatedOf ? "block" : "none";
         explanationContextMenu.style.display = "block";
         explanationContextMenu.style.left = `${e.clientX}px`;
         explanationContextMenu.style.top = `${e.clientY}px`;
@@ -39967,6 +40034,12 @@ async function start() {
       why.forEach((w, index) => explanationTree.appendChild(createNode(w, 0, (index + 1).toString())));
     } else {
       explanationTree.appendChild(createNode(why, 0, "1"));
+    }
+    for (const { label, node, prefix } of repeatedLabels) {
+      if (navTargetFor(node, prefix)) {
+        label.classList.add("navigable");
+        label.title = `${label.title} \xB7 right-click \u2192 "Go to full sub-explanation"`;
+      }
     }
   };
   const debugPanel = document.getElementById("debug-panel");

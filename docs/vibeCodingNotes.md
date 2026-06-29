@@ -1746,6 +1746,19 @@ This may imply keeping solution bindings even for goals that eventually failed, 
 
 ### Multiple attacks to negation
 In example examples/moreExamples/testing/p_with_negation.le , the failure of r requires the failure of both u and w. So the correct proof solution should have two links from "it is not the case that r", one to rule "r if u", the other to rule "r if w". Because the success of either of these would "attack" the NAF conclusion "it is not the case that r". In other words, a "it is not the case that X" condition in a node can admit multiple links to rules, all with matching head X
+
+### forall with multiple cases
+In example examples/moreExamples/testing/happpy_dragon.le , scenario mary, query happy, the Proof Game for answer 2 is wrong. The explanation is correct:
+
+alice is happy
+  alice is a dragon
+  for all cases in which alice is a parent of a dragon
+    for case alice is a parent of bob
+    it is true that bob is healthy
+    for case alice is a parent of mary
+    it is true that mary is healthy
+
+...BUT the proof game solution is not showing the second case ("alice is a parent of mary", ...). All cases must be shown. 
   
 ## Multilingual
 
@@ -1763,5 +1776,10 @@ Again, for now produce just the implementation plan with design issues to be res
 ## Home page cleanup
 Our home page is growing with many examples, so please make the example folders (sub dirs) collapsable/expandable, and remember the expanded/collapsed state in LocalStorage. Also provide a way to open the page fully expanded, perhaps with an optional query string param
 
+## Scenario colouring
+In example examples/moreExamples/insureLE2/testing/hiscoxclaim1.le some facts are not correctly coloured. For example in line 308 only "the individual" should be coloured as LE Variable/Argument - NOT "working"
+
+## Repeated explanations
+In example examples/testing/hiscoxclaim1.le scenario zero, query 1, we have a big  explanation (failure) tree, a good case for "Hide repeated explanations". Now, each node shown as a proxy for its repetitions needs to let the user navigate to the actual instance of the node that has its full subtree ; so please add a contextual menu item to these nodes which lets the user navigate to / select the node with expanded subtree (in other words, the original explanation node that was repeated)
 
 ## TBD
