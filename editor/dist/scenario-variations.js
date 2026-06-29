@@ -134,12 +134,23 @@ function parseScenarioBlocks(source) {
   }
   return blocks;
 }
+function stripInlineComment(line) {
+  let inStr = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"')
+      inStr = !inStr;
+    else if (c === "%" && !inStr)
+      return line.slice(0, i);
+  }
+  return line;
+}
 function splitFacts(bodyLines) {
   const facts = [];
   let cur = "";
   for (const raw of bodyLines) {
-    const t = raw.trim();
-    if (t === "" || t.startsWith("%"))
+    const t = stripInlineComment(raw).trim();
+    if (t === "")
       continue;
     cur = cur ? cur + " " + t : t;
     if (t.endsWith(".")) {

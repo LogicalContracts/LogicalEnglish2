@@ -183,12 +183,27 @@ export function parseScenarioBlocks(source: string): ScenarioBlock[] {
     return blocks;
 }
 
+// Drop a Logical English line comment (`%` to end of line). A `%` inside a
+// double-quoted string is literal, not a comment. Single quotes are NOT tracked,
+// since apostrophes ("John's") are common in plain text.
+function stripInlineComment(line: string): string {
+    let inStr = false;
+    for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') inStr = !inStr;
+        else if (c === '%' && !inStr) return line.slice(0, i);
+    }
+    return line;
+}
+
 function splitFacts(bodyLines: string[]): string[] {
     const facts: string[] = [];
     let cur = '';
     for (const raw of bodyLines) {
-        const t = raw.trim();
-        if (t === '' || t.startsWith('%')) continue;   // skip blank lines and comments
+        // Strip any trailing "% comment" first — a full-line comment then becomes
+        // empty, and an inline comment no longer leaks into the last field.
+        const t = stripInlineComment(raw).trim();
+        if (t === '') continue;
         cur = cur ? cur + ' ' + t : t;
         if (t.endsWith('.')) {
             facts.push(cur.replace(/\.\s*$/, '').trim());
