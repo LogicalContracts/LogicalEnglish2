@@ -7902,6 +7902,71 @@ var leMonarchTokens = {
   }
 };
 
+// src/le-templates.ts
+function parseScenarioBlocks(source) {
+  const blocks = [];
+  const lines = source.split("\n");
+  const offsets = [];
+  let off = 0;
+  for (const ln of lines) {
+    offsets.push(off);
+    off += ln.length + 1;
+  }
+  const headerRe = /^scenario\s+(.+?)\s+is\s*:/i;
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(headerRe);
+    if (!m)
+      continue;
+    const name = m[1].trim();
+    const start2 = offsets[i];
+    const bodyLines = [];
+    let j = i + 1;
+    let lastContent = i;
+    while (j < lines.length) {
+      const ln = lines[j];
+      const t = ln.trim();
+      if (t === "") {
+        bodyLines.push(ln);
+        j++;
+        continue;
+      }
+      if (t.startsWith("%")) {
+        bodyLines.push(ln);
+        lastContent = j;
+        j++;
+        continue;
+      }
+      if (/^\s/.test(ln)) {
+        bodyLines.push(ln);
+        lastContent = j;
+        j++;
+        continue;
+      }
+      break;
+    }
+    const end = offsets[lastContent] + lines[lastContent].length;
+    blocks.push({ name, start: start2, end, facts: splitFacts(bodyLines) });
+  }
+  return blocks;
+}
+function splitFacts(bodyLines) {
+  const facts = [];
+  let cur = "";
+  for (const raw of bodyLines) {
+    const t = raw.trim();
+    if (t === "" || t.startsWith("%"))
+      continue;
+    cur = cur ? cur + " " + t : t;
+    if (t.endsWith(".")) {
+      facts.push(cur.replace(/\.\s*$/, "").trim());
+      cur = "";
+    }
+  }
+  if (cur.trim())
+    facts.push(cur.replace(/\.\s*$/, "").trim());
+  return facts;
+}
+
 // node_modules/cytoscape/dist/cytoscape.esm.mjs
 function _arrayLikeToArray(r, a) {
   (null == a || a > r.length) && (a = r.length);
@@ -38366,6 +38431,7 @@ cytoscape2.stylesheet = cytoscape2.Stylesheet = _Stylesheet;
 var import_cytoscape_fcose = __toESM(require_cytoscape_fcose());
 cytoscape2.use(import_cytoscape_fcose.default);
 var graphChannel = new BroadcastChannel("le-graph-sync");
+var scenarioChannel = new BroadcastChannel("le-scenario-editor");
 async function start() {
   if (typeof monaco === "undefined") {
     console.error("Monaco not loaded");
@@ -40502,6 +40568,45 @@ async function start() {
       }
     }
   });
+  document.getElementById("menu-scenario-editor")?.addEventListener("click", async () => {
+    const data4 = { source: editor.getValue() };
+    localStorage.setItem("le_scenario_editor_data", JSON.stringify(data4));
+    const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
+    window.open(`scenario-editor.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
+  });
+  scenarioChannel.onmessage = (event3) => {
+    const msg = event3.data;
+    if (!msg || msg.type !== "insert-scenario" || typeof msg.blockText !== "string")
+      return;
+    const model2 = editor.getModel();
+    if (!model2)
+      return;
+    const source = editor.getValue();
+    const blocks = parseScenarioBlocks(source);
+    const target = msg.replaceName ? blocks.find((b) => b.name === msg.replaceName) : null;
+    let startOff, endOff, text;
+    if (target) {
+      startOff = target.start;
+      endOff = target.end;
+      text = msg.blockText;
+    } else {
+      const last2 = blocks.length ? blocks[blocks.length - 1] : null;
+      const insertAt = last2 ? last2.end : source.length;
+      const before = source.slice(0, insertAt).replace(/\s*$/, "");
+      startOff = insertAt;
+      endOff = insertAt;
+      text = (before.length ? "\n\n" : "") + msg.blockText + "\n";
+    }
+    const startPos = model2.getPositionAt(startOff);
+    const endPos = model2.getPositionAt(endOff);
+    const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
+    editor.executeEdits("scenario-editor", [{ range, text, forceMoveMarkers: true }]);
+    const newEndPos = model2.getPositionAt(startOff + text.length);
+    editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
+    editor.revealRangeInCenter(range);
+    editor.focus();
+    isLoaded = false;
+  };
   const assistantInput = document.getElementById("assistant-input");
   const btnAssistantSend = document.getElementById("btn-assistant-send");
   const assistantHistory = document.getElementById("assistant-history");

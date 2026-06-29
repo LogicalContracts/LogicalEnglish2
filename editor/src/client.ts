@@ -1,4 +1,5 @@
 import { leLanguageConfiguration, leMonarchTokens } from './le-language';
+import { parseScenarioBlocks } from './le-templates';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 
@@ -8,6 +9,8 @@ declare var monaco: any;
 
 // Communication with Graph Window
 const graphChannel = new BroadcastChannel('le-graph-sync');
+// Communication with the Scenario Editor window.
+const scenarioChannel = new BroadcastChannel('le-scenario-editor');
 
     async function start() {
         if (typeof monaco === 'undefined') {
@@ -1312,7 +1315,7 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
                 lastIssues = res.issues || [];
                 lastLoadError = '';
                 includedResources = res.included_resources || [];
-                
+
                 kbModuleDisplay.textContent = `KB: ${res.kb || 'unknown'}`;
                 sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
                 
@@ -2426,6 +2429,58 @@ const graphChannel = new BroadcastChannel('le-graph-sync');
             }
         }
     });
+
+    // --- Scenario Editor window ----------------------------------------------
+    // Open a separate window that edits scenarios as template-instance forms. It
+    // needs the program's templates (to build the form fields) and the current
+    // source (to list/parse existing scenarios); both are pure client data.
+    document.getElementById('menu-scenario-editor')?.addEventListener('click', async () => {
+        // The window parses templates and scenarios straight from the source.
+        const data = { source: editor.getValue() };
+        localStorage.setItem('le_scenario_editor_data', JSON.stringify(data));
+        const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
+                             document.body.className.includes('hc-theme') ? 'hc-theme' : '';
+        window.open(`scenario-editor.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
+    });
+
+    // Apply a scenario block sent back from the Scenario Editor window: replace the
+    // named scenario in place when it still exists, otherwise append after the last
+    // scenario (or at the end of the document). The Prolog side re-checks syntax on
+    // the next load.
+    scenarioChannel.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg || msg.type !== 'insert-scenario' || typeof msg.blockText !== 'string') return;
+        const model = editor.getModel();
+        if (!model) return;
+        const source = editor.getValue();
+        const blocks = parseScenarioBlocks(source);
+        const target = msg.replaceName ? blocks.find(b => b.name === msg.replaceName) : null;
+
+        let startOff: number, endOff: number, text: string;
+        if (target) {
+            startOff = target.start;
+            endOff = target.end;
+            text = msg.blockText;
+        } else {
+            // Append: after the last scenario block, else at end of document.
+            const last = blocks.length ? blocks[blocks.length - 1] : null;
+            const insertAt = last ? last.end : source.length;
+            const before = source.slice(0, insertAt).replace(/\s*$/, '');
+            startOff = insertAt;
+            endOff = insertAt;
+            text = (before.length ? '\n\n' : '') + msg.blockText + '\n';
+        }
+        const startPos = model.getPositionAt(startOff);
+        const endPos = model.getPositionAt(endOff);
+        const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
+        editor.executeEdits('scenario-editor', [{ range, text, forceMoveMarkers: true }]);
+        // Reveal and select the inserted block so the user sees the change land.
+        const newEndPos = model.getPositionAt(startOff + text.length);
+        editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
+        editor.revealRangeInCenter(range);
+        editor.focus();
+        isLoaded = false;   // source changed: force a re-load (and Prolog syntax check) next query
+    };
 
     // Assistant Logic
     const assistantInput = document.getElementById('assistant-input') as HTMLInputElement;

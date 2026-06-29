@@ -1782,4 +1782,26 @@ In example examples/moreExamples/insureLE2/testing/hiscoxclaim1.le some facts ar
 ## Repeated explanations
 In example examples/testing/hiscoxclaim1.le scenario zero, query 1, we have a big  explanation (failure) tree, a good case for "Hide repeated explanations". Now, each node shown as a proxy for its repetitions needs to let the user navigate to the actual instance of the node that has its full subtree ; so please add a contextual menu item to these nodes which lets the user navigate to / select the node with expanded subtree (in other words, the original explanation node that was repeated)
 
+## Scenario editor
+We need a separate window to create and edit scenarios for the current LE program, invokable from a new "Edit" menu item. Each scenario should be editable via a vertical sequence of "editable templates", constructed as follows. For a LE template (say) "*a person* is born in *a place* on *a date*", the UI should consist in a row with labels and fields:
+    <a person field> is born in <a place field> on <a date field>
+Each field should have hint text with the variable in the LE template (for example "a person", etc)
+At the top of this window we should have a menu picker for declared scenarios in the Le program (picking one loads that scenario into this windos), plus an entry for "New". At the bottom two buttons: "Copy" (to the clipboard) and "Insert into Editor" (replaces selected scenario with the new version, or appends to the end of scenarios). Attempting to close the window prior to copying to clipboard or inserting change into the editor should warn (ask for confirmation to) the user
+
+This is mostly a client UI implementation, final LE syntax check (after editor update/insertion) always happens at the Prolog side
+
+### Tweaks
+A few changes please:
+- In each line we do NOT want the full template instance to be editable, only the placeholders; so for eample in "John is born in the UK on 2021-10-09" (citizenship example), there should be 3 fields and 2 intermediate labels ("is born in", "on") :  *a person* is born in *a place* on *a date*
+- At the botto in the "Add fact" menu: no "(free text)" option; this is strictly templateç-driven
+- No need for a theme picker; we simply use what the editor has determined
+
+Clicking "Insert into Editor" should close the window. no need for the "move up" / "move down" arrow buttons
+
+The "Add a fact" menu should contain only the following templates:
+- those declared as (propositional) "undefined"
+- those currently used in some scenario
+other templates should NOT be in the menu
+
+
 ## TBD

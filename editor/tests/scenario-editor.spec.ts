@@ -1,0 +1,134 @@
+import { test, expect } from '@playwright/test';
+
+// Seeds the Scenario Editor's localStorage data, then opens the window directly.
+const SEED = {
+    source: [
+        'the templates are:',
+        '    *a person* is born in *a place* on *a date*.',
+        '    *a person* is the mother of *a person*.',
+        '    *a thing* is *a colour*.',
+        '    *a person* has passed the test; undefined.',
+        '    *a person* acquires citizenship on *a date*.',
+        '',
+        'scenario alice is:',
+        '% from the claim',                       // column-0 comment INSIDE the scenario
+        '    John is born in the UK on 2021-10-09.',
+        '    Alice is the mother of John.',
+        '    this wall is green.',                // would mis-split to ["th","wall is green"] without \\b
+        '    John is a british citizen.',         // a type assertion ("is a TYPE")
+        '    one expects answers ["yes"].',
+        '',
+        'query one is:',
+        '    which person is born in which place on which date.',
+    ].join('\n'),
+};
+
+test.describe('Scenario Editor', () => {
+    test('loads a scenario into editable template rows and builds correct text', async ({ page, context }) => {
+        await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+
+        // Same origin as scenario-editor.html, so localStorage carries over.
+        await page.goto('index.html');
+        await page.evaluate((seed) => {
+            localStorage.setItem('le_scenario_editor_data', JSON.stringify(seed));
+        }, SEED);
+
+        await page.goto('scenario-editor.html');
+
+        // Picker offers "New…" plus the declared scenario.
+        const picker = page.locator('#scenario-picker');
+        await expect(picker.locator('option')).toHaveCount(2);
+        await expect(picker.locator('option', { hasText: 'alice' })).toHaveCount(1);
+
+        // Load the scenario. Comments are SKIPPED (not rows). Four facts remain:
+        // born, mother, "is in", "is a british citizen", and the expects-answers line.
+        await picker.selectOption('alice');
+        await expect(page.locator('#scenario-name')).toHaveValue('alice');
+        const rows = page.locator('.fact-row');
+        await expect(rows).toHaveCount(5);
+        // The "%" comment is not shown anywhere.
+        await expect(page.locator('.preserved', { hasText: '% from the claim' })).toHaveCount(0);
+
+        // Row 0: only the PLACEHOLDERS are editable — "John is born in the UK on
+        // 2021-10-09" -> three fields, with "is born in"/"on" as plain labels.
+        const fields = rows.nth(0).locator('input.field');
+        await expect(fields).toHaveCount(3);
+        await expect(rows.nth(0).locator('.word').nth(0)).toHaveText('is born in');
+        await expect(fields.nth(0)).toHaveValue('John');
+        await expect(fields.nth(1)).toHaveValue('the UK');
+        await expect(fields.nth(2)).toHaveValue('2021-10-09');
+        await expect(fields.nth(0)).toHaveAttribute('placeholder', 'a person');   // hint = LE variable
+
+        // Row 2: the literal "is" must NOT match inside "th-is" — word boundaries give
+        // ["this wall","green"], not ["th","wall is green"].
+        const inFields = rows.nth(2).locator('input.field');
+        await expect(inFields.nth(0)).toHaveValue('this wall');
+        await expect(inFields.nth(1)).toHaveValue('green');
+
+        // Row 3: a type assertion "John is a british citizen" loads as an editable row.
+        const typeFields = rows.nth(3).locator('input.field');
+        await expect(typeFields.nth(0)).toHaveValue('John');
+        await expect(typeFields.nth(1)).toHaveValue('british citizen');
+
+        // The expects-answers line matches no template -> preserved read-only.
+        await expect(rows.nth(4).locator('.preserved')).toHaveText('one expects answers ["yes"]');
+        await expect(rows.nth(4).locator('input')).toHaveCount(0);
+
+        // The "Add fact" menu: no free-text; only undefined templates + those used by a
+        // scenario (incl. the "is a TYPE" assertion since it is used); not conclusions.
+        const addOptions = page.locator('#add-template option');
+        await expect(page.locator('#add-template option', { hasText: '(free text)' })).toHaveCount(0);
+        await expect(addOptions).toHaveCount(5);
+        await expect(page.locator('#add-template option', { hasText: 'has passed the test' })).toHaveCount(1); // undefined
+        await expect(page.locator('#add-template option', { hasText: 'a thing is a colour' })).toHaveCount(1);  // used
+        await expect(page.locator('#add-template option', { hasText: 'a thing is a type' })).toHaveCount(1);     // type assertion, used
+        await expect(page.locator('#add-template option', { hasText: 'acquires citizenship' })).toHaveCount(0);  // conclusion, excluded
+
+        // Edit a field, then add a new fact via the template picker.
+        await fields.nth(1).fill('the United Kingdom');
+        await page.locator('#add-template').selectOption({ label: 'a person is the mother of a person' });
+        await page.locator('#btn-add').click();
+        await expect(page.locator('.fact-row')).toHaveCount(6);
+
+        // Copy builds the scenario block; verify its text on the clipboard.
+        await page.locator('#btn-copy').click();
+        const copied = await page.evaluate(() => navigator.clipboard.readText());
+        expect(copied).toContain('scenario alice is:');
+        expect(copied).toContain('John is born in the United Kingdom on 2021-10-09.');
+        expect(copied).toContain('this wall is green.');
+        expect(copied).toContain('John is a british citizen.');
+        expect(copied).toContain('one expects answers ["yes"].');
+        expect(copied).not.toContain('% from the claim');     // comment skipped entirely
+    });
+
+    test('Insert into Editor replaces the scenario in the document', async ({ context }) => {
+        // The real editor, seeded with the program via the URL text param.
+        const editorPage = await context.newPage();
+        await editorPage.goto('index.html?text=' + encodeURIComponent(SEED.source));
+        await expect.poll(() =>
+            editorPage.evaluate(() => (window as any).monaco?.editor?.getModels?.()[0]?.getValue() || '')
+        ).toContain('scenario alice is:');
+
+        // The Scenario Editor window, same origin, seeded with the same source.
+        const sePage = await context.newPage();
+        await sePage.goto('index.html');
+        await sePage.evaluate((seed) =>
+            localStorage.setItem('le_scenario_editor_data', JSON.stringify(seed)), SEED);
+        await sePage.goto('scenario-editor.html');
+        await sePage.locator('#scenario-picker').selectOption('alice');
+        // Edit the "place" field of the born fact (the first row with fields).
+        await sePage.locator('.fact-row', { has: sePage.locator('input.field') })
+            .first().locator('input.field').nth(1).fill('the United Kingdom');
+        await sePage.locator('#btn-insert').click();
+
+        // The editor document now reflects the replaced scenario (via the channel).
+        await expect.poll(() =>
+            editorPage.evaluate(() => (window as any).monaco.editor.getModels()[0].getValue())
+        ).toContain('John is born in the United Kingdom on 2021-10-09.');
+        // The other fact is preserved and there is still exactly one alice scenario.
+        const finalText: string = await editorPage.evaluate(() =>
+            (window as any).monaco.editor.getModels()[0].getValue());
+        expect(finalText).toContain('Alice is the mother of John.');
+        expect(finalText.match(/scenario alice is:/g)?.length).toBe(1);
+    });
+});
