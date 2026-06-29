@@ -230,10 +230,12 @@ Requires a prior `load` call to obtain `sessionModule`.
 
 ```json
 { 
-  "results": [ { "answer": "<answer string>", "why": <explanation> }, ... ],
+  "results": [ { "answer": "<answer string>", "unknowns": ["<unknown goal>", ...], "why": <explanation> }, ... ],
   "result": "ok" 
 }
 ```
+
+Each result's `unknowns` lists the unknown goals (the non-empty third argument of `i/4`) associated with that answer, rendered as Logical English template instances. The editor shows them in a tooltip on the answer. The list is empty when the answer has no unknown goals.
 
 If no answers are found, a negative explanation is returned in the `why` field of the top-level object.
 

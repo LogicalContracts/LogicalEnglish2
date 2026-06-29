@@ -1577,6 +1577,7 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
     const explanationContextMenu = document.getElementById('explanation-context-menu')!;
     const menuCopyExplanation = document.getElementById('menu-copy-explanation')!;
     const menuGotoOriginal = document.getElementById('menu-goto-original')!;
+    const answerTooltip = document.getElementById('answer-tooltip')!;
     let currentAnswerToCopy = '';
     let currentWhyToCopy: any = null;
     let lastWhy: any = null;
@@ -1620,6 +1621,47 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
     // Keyed by the answer's `why` object; maps each node's tree path ("1.2.3") to
     // whether it is expanded, so toggles persist when switching between answers.
     const explanationExpansion = new WeakMap<object, Map<string, boolean>>();
+
+    // Show the unknown goals associated with an answer (the non-empty third
+    // argument of i/4) in a tooltip that follows the hovered answer item. Each
+    // unknown is rendered by the server as a Logical English template instance.
+    const attachAnswerTooltip = (item: HTMLElement, unknowns: string[]) => {
+        item.addEventListener('mouseenter', (e) => {
+            const title = document.createElement('div');
+            title.className = 'tooltip-title';
+            title.textContent = unknowns.length === 1
+                ? 'Unknown goal:'
+                : `${unknowns.length} unknown goals:`;
+            answerTooltip.innerHTML = '';
+            answerTooltip.appendChild(title);
+            unknowns.forEach((u) => {
+                const line = document.createElement('div');
+                line.className = 'tooltip-unknown';
+                line.textContent = u;
+                answerTooltip.appendChild(line);
+            });
+            answerTooltip.style.display = 'block';
+            positionAnswerTooltip(e as MouseEvent);
+        });
+        item.addEventListener('mousemove', (e) => {
+            if (answerTooltip.style.display === 'block') {
+                positionAnswerTooltip(e as MouseEvent);
+            }
+        });
+        item.addEventListener('mouseleave', () => {
+            answerTooltip.style.display = 'none';
+        });
+    };
+    const positionAnswerTooltip = (e: MouseEvent) => {
+        const offset = 12;
+        let x = e.clientX + offset;
+        let y = e.clientY + offset;
+        const rect = answerTooltip.getBoundingClientRect();
+        if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - offset;
+        if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - offset;
+        answerTooltip.style.left = `${Math.max(0, x)}px`;
+        answerTooltip.style.top = `${Math.max(0, y)}px`;
+    };
 
     document.addEventListener('click', () => {
         answerContextMenu.style.display = 'none';
@@ -2187,6 +2229,7 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
 
         answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
         explanationTree.innerHTML = '';
+        answerTooltip.style.display = 'none';
         showInterruptSoon();
 
         try {
@@ -2231,6 +2274,15 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
                     const item = document.createElement('div');
                     item.className = 'answer-item';
                     item.textContent = result.answer;
+                    const unknowns: string[] = Array.isArray(result.unknowns) ? result.unknowns : [];
+                    if (unknowns.length > 0) {
+                        item.classList.add('has-unknowns');
+                        const marker = document.createElement('span');
+                        marker.className = 'unknowns-marker';
+                        marker.textContent = '\u003f';  // '?' marks an answer with unknown goals
+                        item.appendChild(marker);
+                        attachAnswerTooltip(item, unknowns);
+                    }
                     item.addEventListener('click', () => {
                         document.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
                         item.classList.add('selected');

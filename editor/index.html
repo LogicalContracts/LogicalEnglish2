@@ -393,6 +393,41 @@
         .light-theme .answer-item.selected {
             color: black;
         }
+        .answer-item.has-unknowns {
+            font-style: italic;
+        }
+        .answer-item .unknowns-marker {
+            margin-left: 4px;
+            font-style: normal;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        #answer-tooltip {
+            position: fixed;
+            display: none;
+            max-width: 420px;
+            max-height: 60vh;
+            overflow-y: auto;
+            background: var(--dropdown-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 10px;
+            font-size: 12px;
+            z-index: 3000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            pointer-events: none;
+            white-space: normal;
+        }
+        #answer-tooltip .tooltip-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            opacity: 0.85;
+        }
+        #answer-tooltip .tooltip-unknown {
+            padding: 2px 0;
+            line-height: 1.35;
+        }
         .tree-node {
             margin-left: 20px;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -883,6 +918,9 @@
     <div id="answer-context-menu" class="context-menu">
         <div class="dropdown-item" id="menu-copy-answer" style="padding: 5px 15px; font-size: 12px;">Copy Answer</div>
     </div>
+
+    <!-- Tooltip showing the unknown goals associated with an answer -->
+    <div id="answer-tooltip"></div>
 
     <!-- Context Menu for Explanations -->
     <div id="explanation-context-menu" class="context-menu">

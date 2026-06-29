@@ -643,10 +643,11 @@ run_answering_query(SM, Query, KB, Response) :-
     % A query can have several proofs of the SAME answer (e.g. an 'or' whose
     % branches both hold). Collect them keyed by (answer string + unknowns) and
     % keep only the first of each, so the same answer is not listed repeatedly.
-    findall((AnswerStr-UnknownsKey)-_{answer: AnswerStr, why: JSONWhy}, (
+    findall((AnswerStr-UnknownsKey)-_{answer: AnswerStr, unknowns: JSONUnknowns, why: JSONWhy}, (
             query(SM, Query, Instance, Us, Why),
             canonical_string(Instance, AnswerStr),
             convert_why_deduped(Why, KB, JSONWhy),
+            convert_unknowns_to_le(KB, Us, JSONUnknowns),
             ( copy_term(Us, UsC), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' ),
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
         ), KeyedResults),
@@ -1157,6 +1158,24 @@ convert_binding(Name=Val, Name-JSONVal) :-
 convert_unknown(KB, Goal, _{goal: GoalStr, module: KBStr}) :-
     term_string(Goal, GoalStr),
     ( atom(KB) -> KBStr = KB; term_string(KB, KBStr)).
+
+%!  convert_unknowns_to_le(+KB, +Unknowns:list, -LEStrings:list(string)) is det.
+%
+%   Render each unknown goal (from the third argument of i/4 or explain/4) as a
+%   Logical English template instance string, so the client can show it in a
+%   tooltip on the corresponding answer. Falls back to the raw Prolog term when
+%   no KB/template is available or rendering fails.
+convert_unknowns_to_le(KB, Unknowns, LEStrings) :-
+    maplist(convert_unknown_to_le(KB), Unknowns, LEStrings).
+
+convert_unknown_to_le(KB, U, LEString) :-
+    (   KB \== none,
+        catch(item_to_instance(KB, U, Tokens), _, fail),
+        flatten(Tokens, FlatTokens),
+        catch(canonical_string(FlatTokens, Atom), _, fail)
+    ->  atom_string(Atom, LEString)
+    ;   term_string(U, LEString)
+    ).
 
 handle_get_prolog(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
