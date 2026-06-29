@@ -326,7 +326,9 @@
             resize: vertical;
             min-height: 60px;
         }
-        #btn-query {
+        /* The Query-panel action buttons (Query, Variations, Trace, Proof Game) all
+           share one consistent look. */
+        .query-action {
             background-color: #0e639c;
             color: white;
             border: none;
@@ -335,13 +337,16 @@
             font-size: 12px;
             border-radius: 2px;
         }
-        #btn-query:hover {
+        .query-action:hover {
             background-color: #1177bb;
         }
-        #btn-query:disabled {
+        .query-action:disabled {
             background-color: var(--item-hover-bg);
             color: #888;
             cursor: not-allowed;
+        }
+        .query-action + .query-action {
+            margin-left: 5px;
         }
         #results-area {
             flex-grow: 1;
@@ -741,9 +746,10 @@
                                 <option value="">Select a query...</option>
                             </select>
                         </div>
-                        <button id="btn-query">Query</button>
-                        <button id="btn-trace" style="margin-left: 5px;">Trace</button>
-                        <button id="btn-proof-game" style="margin-left: 5px; background-color: #4caf50;">Proof Game</button>
+                        <button id="btn-query" class="query-action">Query</button>
+                        <button id="btn-variations" class="query-action">Variations</button>
+                        <button id="btn-trace" class="query-action">Trace</button>
+                        <button id="btn-proof-game" class="query-action">Proof Game</button>
                         <button id="btn-interrupt-query" style="margin-left: 5px; background-color: #b71c1c; display: none; cursor: pointer;">Interrupt</button>
                     </div>
                     <div id="custom-scenario-container" class="custom-input-container">

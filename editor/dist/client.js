@@ -7967,6 +7967,382 @@ function splitFacts(bodyLines) {
   return facts;
 }
 
+// src/explanation-view.ts
+var activeView = null;
+var menusWired = false;
+function wireMenus(m) {
+  if (menusWired)
+    return;
+  menusWired = true;
+  document.addEventListener("click", () => {
+    m.answerContextMenu.style.display = "none";
+    m.explanationContextMenu.style.display = "none";
+  });
+  m.menuCopyAnswer.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (activeView && activeView.currentAnswerToCopy)
+      navigator.clipboard.writeText(activeView.currentAnswerToCopy);
+    m.answerContextMenu.style.display = "none";
+  });
+  m.menuGotoOriginal.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.gotoOriginal();
+    m.explanationContextMenu.style.display = "none";
+  });
+  m.menuCopyExplanation.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.copyExplanation();
+    m.explanationContextMenu.style.display = "none";
+  });
+}
+var ExplanationView = class {
+  currentAnswerToCopy = "";
+  o;
+  m;
+  lastWhy = null;
+  currentRepeatedOf = null;
+  pathToContainer = /* @__PURE__ */ new Map();
+  currentExpansion = null;
+  fullByLiteral = /* @__PURE__ */ new Map();
+  // Per-answer expansion state (keyed by the answer's `why` object), so toggles
+  // persist when switching between answers.
+  expansionStore = /* @__PURE__ */ new WeakMap();
+  constructor(opts) {
+    this.o = opts;
+    this.m = opts.menus;
+    wireMenus(opts.menus);
+  }
+  failedNodePrefix() {
+    return this.o.failedNodePrefix?.() ?? "x ";
+  }
+  hierarchical() {
+    return this.o.hierarchicalNumbering?.() ?? false;
+  }
+  clear() {
+    this.o.answersList.innerHTML = "";
+    this.o.explanationTree.innerHTML = "";
+    this.lastWhy = null;
+  }
+  rerender() {
+    if (this.lastWhy)
+      this.renderExplanation(this.lastWhy);
+  }
+  // e.g. after a preference change
+  showMessage(text) {
+    this.o.answersList.textContent = text;
+    this.o.explanationTree.innerHTML = "";
+  }
+  // Render the answer list of an `answeringQuery` response and auto-select one.
+  // Handles the success (results), failure (why), interrupted and error cases.
+  showResults(res, selectIndex = 0) {
+    const answersList = this.o.answersList;
+    answersList.innerHTML = "";
+    this.o.explanationTree.innerHTML = "";
+    this.m.answerTooltip.style.display = "none";
+    if (res && res.results && res.results.length > 0) {
+      const target = Math.min(Math.max(selectIndex, 0), res.results.length - 1);
+      res.results.forEach((result, index) => {
+        const item = document.createElement("div");
+        item.className = "answer-item";
+        item.textContent = result.answer;
+        const unknowns = Array.isArray(result.unknowns) ? result.unknowns : [];
+        if (unknowns.length > 0) {
+          item.classList.add("has-unknowns");
+          const marker = document.createElement("span");
+          marker.className = "unknowns-marker";
+          marker.textContent = "?";
+          item.appendChild(marker);
+          this.attachAnswerTooltip(item, unknowns);
+        }
+        item.addEventListener("click", () => {
+          answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
+          item.classList.add("selected");
+          this.renderExplanation(result.why);
+          this.o.onSelectAnswer?.(index + 1);
+        });
+        item.addEventListener("contextmenu", (e) => this.answerMenu(e, result.answer));
+        answersList.appendChild(item);
+        if (index === target)
+          item.click();
+      });
+    } else if (res && res.why) {
+      const item = document.createElement("div");
+      item.className = "answer-item failure selected";
+      item.style.color = "#f48771";
+      item.textContent = "No answers (false)";
+      item.addEventListener("click", () => {
+        answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
+        item.classList.add("selected");
+        this.renderExplanation(res.why);
+      });
+      item.addEventListener("contextmenu", (e) => this.answerMenu(e, "No answers (false)"));
+      answersList.appendChild(item);
+      this.renderExplanation(res.why);
+    } else if (res && res.interrupted) {
+      answersList.textContent = "Query interrupted.";
+    } else if (res && res.error) {
+      answersList.textContent = "Error: " + res.error;
+    } else {
+      answersList.textContent = "No results returned.";
+    }
+  }
+  answerMenu(e, answer) {
+    e.preventDefault();
+    activeView = this;
+    this.currentAnswerToCopy = answer;
+    this.m.answerContextMenu.style.display = "block";
+    this.m.answerContextMenu.style.left = `${e.clientX}px`;
+    this.m.answerContextMenu.style.top = `${e.clientY}px`;
+  }
+  // --- Unknown-goal tooltip --------------------------------------------------
+  attachAnswerTooltip(item, unknowns) {
+    const tip = this.m.answerTooltip;
+    item.addEventListener("mouseenter", (e) => {
+      const title = document.createElement("div");
+      title.className = "tooltip-title";
+      title.textContent = unknowns.length === 1 ? "Unknown goal:" : `${unknowns.length} unknown goals:`;
+      tip.innerHTML = "";
+      tip.appendChild(title);
+      unknowns.forEach((u) => {
+        const line = document.createElement("div");
+        line.className = "tooltip-unknown";
+        line.textContent = u;
+        tip.appendChild(line);
+      });
+      tip.style.display = "block";
+      this.positionTooltip(e);
+    });
+    item.addEventListener("mousemove", (e) => {
+      if (tip.style.display === "block")
+        this.positionTooltip(e);
+    });
+    item.addEventListener("mouseleave", () => {
+      tip.style.display = "none";
+    });
+  }
+  positionTooltip(e) {
+    const tip = this.m.answerTooltip;
+    const offset = 12;
+    let x2 = e.clientX + offset, y2 = e.clientY + offset;
+    const rect = tip.getBoundingClientRect();
+    if (x2 + rect.width > window.innerWidth)
+      x2 = e.clientX - rect.width - offset;
+    if (y2 + rect.height > window.innerHeight)
+      y2 = e.clientY - rect.height - offset;
+    tip.style.left = `${Math.max(0, x2)}px`;
+    tip.style.top = `${Math.max(0, y2)}px`;
+  }
+  // --- Copy / navigate context-menu actions ----------------------------------
+  gotoOriginal() {
+    if (this.currentRepeatedOf) {
+      const target = this.pathToContainer.get(this.currentRepeatedOf);
+      if (target)
+        this.revealAndHighlight(target);
+    }
+  }
+  copyExplanation() {
+    if (!this.lastWhy)
+      return;
+    const text = this.explanationToText(this.lastWhy, 0, "");
+    const html = this.explanationToHtml(this.lastWhy, 0, "");
+    try {
+      navigator.clipboard.write([new ClipboardItem({
+        "text/plain": new Blob([text], { type: "text/plain" }),
+        "text/html": new Blob([html], { type: "text/html" })
+      })]);
+    } catch {
+      navigator.clipboard.writeText(text);
+    }
+  }
+  explanationToText(node, depth = 0, prefix = "") {
+    if (Array.isArray(node))
+      return node.map((n, i) => this.explanationToText(n, depth, (i + 1).toString())).join("");
+    const indent = "  ".repeat(depth);
+    let text = node && typeof node === "object" ? node.literal ?? "" : node;
+    if (node.type === "failure")
+      text = `${this.failedNodePrefix()}${text}`;
+    if (node.repeated) {
+      const c = node.repeatedCount;
+      text = typeof c === "number" && c > 1 ? `${text} [${c} repeated sub-explanations]` : `${text} [Repeated sub-explanation]`;
+    }
+    if (this.hierarchical() && prefix && depth > 0)
+      text = `${prefix} ${text}`;
+    let result = `${indent}${text}
+`;
+    if (node.children)
+      node.children.forEach((child, i) => result += this.explanationToText(child, depth + 1, prefix ? `${prefix}.${i + 1}` : `${i + 1}`));
+    return result;
+  }
+  explanationToHtml(node, depth = 0, prefix = "") {
+    if (Array.isArray(node))
+      return node.map((n, i) => this.explanationToHtml(n, depth, (i + 1).toString())).join("");
+    const indent = "&nbsp;&nbsp;".repeat(depth);
+    let text = node && typeof node === "object" ? node.literal ?? "" : node;
+    if (node.type === "failure")
+      text = `${this.failedNodePrefix()}${text}`;
+    if (node.repeated) {
+      const c = node.repeatedCount;
+      text = typeof c === "number" && c > 1 ? `${text} [${c} repeated sub-explanations]` : `${text} [Repeated sub-explanation]`;
+    }
+    if (this.hierarchical() && prefix && depth > 0)
+      text = `${prefix} ${text}`;
+    const color = node.type === "failure" ? "#f48771" : node.type === "unknown" ? "#e2b93d" : "#89d185";
+    let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
+    if (node.children)
+      node.children.forEach((child, i) => result += this.explanationToHtml(child, depth + 1, prefix ? `${prefix}.${i + 1}` : `${i + 1}`));
+    return result;
+  }
+  revealAndHighlight(container2) {
+    const tree = this.o.explanationTree;
+    let el = container2;
+    while (el && el !== tree) {
+      const parent4 = el.parentElement;
+      if (parent4 && parent4.classList.contains("tree-children")) {
+        parent4.style.display = "block";
+        const ownerLabel = parent4.previousElementSibling;
+        const toggle = ownerLabel?.querySelector(".tree-toggle");
+        if (toggle)
+          toggle.textContent = "-";
+        const ownerPath = parent4.parentElement?.dataset.path;
+        if (ownerPath)
+          this.currentExpansion?.set(ownerPath, true);
+      }
+      el = el.parentElement;
+    }
+    container2.scrollIntoView({ block: "center", behavior: "smooth" });
+    const label = container2.querySelector(":scope > .tree-label");
+    if (label) {
+      label.classList.add("explanation-highlight");
+      setTimeout(() => label.classList.remove("explanation-highlight"), 2200);
+    }
+  }
+  // --- The explanation tree --------------------------------------------------
+  renderExplanation(why) {
+    activeView = this;
+    const tree = this.o.explanationTree;
+    this.lastWhy = why;
+    tree.innerHTML = "";
+    this.pathToContainer = /* @__PURE__ */ new Map();
+    this.fullByLiteral = /* @__PURE__ */ new Map();
+    if (!why)
+      return;
+    let expansion;
+    if (why !== null && typeof why === "object") {
+      expansion = this.expansionStore.get(why) || /* @__PURE__ */ new Map();
+      this.expansionStore.set(why, expansion);
+    } else {
+      expansion = /* @__PURE__ */ new Map();
+    }
+    this.currentExpansion = expansion;
+    tree.oncontextmenu = (e) => {
+      if (e.target === tree) {
+        e.preventDefault();
+        activeView = this;
+        this.currentRepeatedOf = null;
+        this.m.menuGotoOriginal.style.display = "none";
+        this.m.explanationContextMenu.style.display = "block";
+        this.m.explanationContextMenu.style.left = `${e.clientX}px`;
+        this.m.explanationContextMenu.style.top = `${e.clientY}px`;
+      }
+    };
+    const repeatedLabels = [];
+    const navTargetFor = (node, prefix) => {
+      if (!node || !node.repeated)
+        return null;
+      let target = null;
+      if (typeof node.repeatedOf === "string")
+        target = node.repeatedOf;
+      else if ((!node.children || node.children.length === 0) && typeof node.literal === "string") {
+        target = this.fullByLiteral.get(node.literal) ?? null;
+      }
+      return target && target !== prefix ? target : null;
+    };
+    const createNode = (node, depth, prefix = "") => {
+      const container2 = document.createElement("div");
+      container2.className = "tree-node";
+      container2.dataset.path = prefix;
+      this.pathToContainer.set(prefix, container2);
+      const label = document.createElement("div");
+      label.className = `tree-label ${node.type || "success"}`;
+      const hasChildren = node.children && node.children.length > 0;
+      if (hasChildren && typeof node.literal === "string" && !this.fullByLiteral.has(node.literal)) {
+        this.fullByLiteral.set(node.literal, prefix);
+      }
+      const titleParts = [];
+      if (node.type === "failure")
+        titleParts.push("Failed: this condition could not be proven");
+      else if (node.type === "unknown")
+        titleParts.push('Unknown: could not be proven true or false, but was assumed true because it matches an "unknown" template');
+      else
+        titleParts.push(node.naf === true ? "Succeeded: this negative condition holds (the inner statement could not be proven)" : "Succeeded: this condition was proven");
+      if (node.repeated) {
+        label.classList.add("repeated");
+        repeatedLabels.push({ label, node, prefix });
+        const c = node.repeatedCount;
+        const noun = hasChildren ? "sub-explanation" : "occurrence";
+        titleParts.push(typeof c === "number" && c > 1 ? `${c} repeated ${noun}s` : `Repeated ${noun}`);
+      }
+      label.title = titleParts.join(" \xB7 ");
+      const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix) : depth < 2;
+      if (hasChildren) {
+        const toggle = document.createElement("span");
+        toggle.className = "tree-toggle";
+        toggle.textContent = isExpandedNow ? "-" : "+";
+        label.appendChild(toggle);
+      }
+      const textEl = document.createElement("span");
+      textEl.className = "tree-text";
+      let labelText = node && typeof node === "object" ? node.literal ?? "" : node;
+      if (this.hierarchical() && prefix && depth > 0)
+        labelText = `${prefix} ${labelText}`;
+      textEl.textContent = labelText;
+      label.appendChild(textEl);
+      label.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeView = this;
+        this.currentRepeatedOf = navTargetFor(node, prefix);
+        this.m.menuGotoOriginal.style.display = this.currentRepeatedOf ? "block" : "none";
+        this.m.explanationContextMenu.style.display = "block";
+        this.m.explanationContextMenu.style.left = `${e.clientX}px`;
+        this.m.explanationContextMenu.style.top = `${e.clientY}px`;
+      });
+      if (node.start !== void 0 && node.end !== void 0) {
+        textEl.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this.o.onNavigate?.(node.start, node.end);
+        });
+      }
+      container2.appendChild(label);
+      if (hasChildren) {
+        const childrenContainer = document.createElement("div");
+        childrenContainer.className = "tree-children";
+        childrenContainer.style.display = isExpandedNow ? "block" : "none";
+        label.querySelector(".tree-toggle")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const newExpanded = childrenContainer.style.display === "none";
+          childrenContainer.style.display = newExpanded ? "block" : "none";
+          e.target.textContent = newExpanded ? "-" : "+";
+          expansion.set(prefix, newExpanded);
+        });
+        node.children.forEach((child, index) => childrenContainer.appendChild(createNode(child, depth + 1, prefix ? `${prefix}.${index + 1}` : `${index + 1}`)));
+        container2.appendChild(childrenContainer);
+      }
+      return container2;
+    };
+    if (Array.isArray(why))
+      why.forEach((w, index) => tree.appendChild(createNode(w, 0, (index + 1).toString())));
+    else
+      tree.appendChild(createNode(why, 0, "1"));
+    for (const { label, node, prefix } of repeatedLabels) {
+      if (navTargetFor(node, prefix)) {
+        label.classList.add("navigable");
+        label.title = `${label.title} \xB7 right-click \u2192 "Go to full sub-explanation"`;
+      }
+    }
+  }
+};
+
 // node_modules/cytoscape/dist/cytoscape.esm.mjs
 function _arrayLikeToArray(r, a) {
   (null == a || a > r.length) && (a = r.length);
@@ -38572,6 +38948,8 @@ async function start() {
   let pendingAnswerIndex = null;
   let sessionModule = null;
   let includedResources = [];
+  let lastKb = "";
+  let lastQueries = [];
   let loadTimeout = null;
   let availableModels = [];
   let serverKeys = [];
@@ -39037,9 +39415,7 @@ async function start() {
     if (numberingCheck) {
       numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
     }
-    if (lastWhy) {
-      renderExplanation(lastWhy);
-    }
+    explView.rerender();
   });
   const setFontSize = (size3) => {
     editor.updateOptions({ fontSize: size3 });
@@ -39628,6 +40004,8 @@ async function start() {
         anotherScenarioOption.value = "___custom___";
         anotherScenarioOption.textContent = "Another...";
         scenarioSelect.appendChild(anotherScenarioOption);
+        lastKb = res.kb || "";
+        lastQueries = Array.isArray(res.queries) ? res.queries : [];
         querySelect.innerHTML = '<option value="">Select a query...</option>';
         if (res.queries) {
           res.queries.forEach((q) => {
@@ -39837,315 +40215,30 @@ async function start() {
   });
   const answersList = document.getElementById("answers-list");
   const explanationTree = document.getElementById("explanation-tree");
-  const answerContextMenu = document.getElementById("answer-context-menu");
-  const menuCopyAnswer = document.getElementById("menu-copy-answer");
-  const explanationContextMenu = document.getElementById("explanation-context-menu");
-  const menuCopyExplanation = document.getElementById("menu-copy-explanation");
-  const menuGotoOriginal = document.getElementById("menu-goto-original");
-  const answerTooltip = document.getElementById("answer-tooltip");
-  let currentAnswerToCopy = "";
-  let currentWhyToCopy = null;
-  let lastWhy = null;
-  let currentRepeatedOf = null;
-  let pathToContainer = /* @__PURE__ */ new Map();
-  let currentExpansion = null;
-  let fullByLiteral = /* @__PURE__ */ new Map();
-  const revealAndHighlight = (container3) => {
-    let el = container3;
-    while (el && el !== explanationTree) {
-      const parent4 = el.parentElement;
-      if (parent4 && parent4.classList.contains("tree-children")) {
-        parent4.style.display = "block";
-        const ownerLabel = parent4.previousElementSibling;
-        ownerLabel?.querySelector(".tree-toggle") && (ownerLabel.querySelector(".tree-toggle").textContent = "-");
-        const ownerPath = parent4.parentElement?.dataset.path;
-        if (ownerPath)
-          currentExpansion?.set(ownerPath, true);
-      }
-      el = el.parentElement;
-    }
-    container3.scrollIntoView({ block: "center", behavior: "smooth" });
-    const label = container3.querySelector(":scope > .tree-label");
-    if (label) {
-      label.classList.add("explanation-highlight");
-      setTimeout(() => label.classList.remove("explanation-highlight"), 2200);
-    }
-  };
-  const explanationExpansion = /* @__PURE__ */ new WeakMap();
-  const attachAnswerTooltip = (item, unknowns) => {
-    item.addEventListener("mouseenter", (e) => {
-      const title = document.createElement("div");
-      title.className = "tooltip-title";
-      title.textContent = unknowns.length === 1 ? "Unknown goal:" : `${unknowns.length} unknown goals:`;
-      answerTooltip.innerHTML = "";
-      answerTooltip.appendChild(title);
-      unknowns.forEach((u) => {
-        const line = document.createElement("div");
-        line.className = "tooltip-unknown";
-        line.textContent = u;
-        answerTooltip.appendChild(line);
-      });
-      answerTooltip.style.display = "block";
-      positionAnswerTooltip(e);
-    });
-    item.addEventListener("mousemove", (e) => {
-      if (answerTooltip.style.display === "block") {
-        positionAnswerTooltip(e);
-      }
-    });
-    item.addEventListener("mouseleave", () => {
-      answerTooltip.style.display = "none";
-    });
-  };
-  const positionAnswerTooltip = (e) => {
-    const offset = 12;
-    let x2 = e.clientX + offset;
-    let y2 = e.clientY + offset;
-    const rect = answerTooltip.getBoundingClientRect();
-    if (x2 + rect.width > window.innerWidth)
-      x2 = e.clientX - rect.width - offset;
-    if (y2 + rect.height > window.innerHeight)
-      y2 = e.clientY - rect.height - offset;
-    answerTooltip.style.left = `${Math.max(0, x2)}px`;
-    answerTooltip.style.top = `${Math.max(0, y2)}px`;
-  };
-  document.addEventListener("click", () => {
-    answerContextMenu.style.display = "none";
-    explanationContextMenu.style.display = "none";
+  const explView = new ExplanationView({
+    answersList,
+    explanationTree,
+    menus: {
+      answerContextMenu: document.getElementById("answer-context-menu"),
+      menuCopyAnswer: document.getElementById("menu-copy-answer"),
+      explanationContextMenu: document.getElementById("explanation-context-menu"),
+      menuCopyExplanation: document.getElementById("menu-copy-explanation"),
+      menuGotoOriginal: document.getElementById("menu-goto-original"),
+      answerTooltip: document.getElementById("answer-tooltip")
+    },
+    failedNodePrefix: () => failedNodePrefix,
+    hierarchicalNumbering: () => showHierarchicalNumbering,
+    onNavigate: (start2, end) => {
+      const model2 = editor.getModel();
+      const startPos = model2.getPositionAt(start2);
+      const endPos = model2.getPositionAt(end);
+      const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
+      editor.setSelection(range);
+      editor.revealRangeInCenter(range);
+      editor.focus();
+    },
+    onSelectAnswer: (index) => setAnswerInUrl(index)
   });
-  menuCopyAnswer.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (currentAnswerToCopy) {
-      navigator.clipboard.writeText(currentAnswerToCopy);
-    }
-    answerContextMenu.style.display = "none";
-  });
-  menuGotoOriginal.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (currentRepeatedOf) {
-      const target = pathToContainer.get(currentRepeatedOf);
-      if (target)
-        revealAndHighlight(target);
-    }
-    explanationContextMenu.style.display = "none";
-  });
-  const explanationToText = (node, depth = 0, prefix = "") => {
-    if (Array.isArray(node)) {
-      return node.map((n, index) => explanationToText(n, depth, (index + 1).toString())).join("");
-    }
-    const indent = "  ".repeat(depth);
-    let text = node && typeof node === "object" ? node.literal ?? "" : node;
-    if (node.type === "failure") {
-      text = `${failedNodePrefix}${text}`;
-    }
-    if (node.repeated) {
-      const repCount = node.repeatedCount;
-      text = typeof repCount === "number" && repCount > 1 ? `${text} [${repCount} repeated sub-explanations]` : `${text} [Repeated sub-explanation]`;
-    }
-    if (showHierarchicalNumbering && prefix && depth > 0) {
-      text = `${prefix} ${text}`;
-    }
-    let result = `${indent}${text}
-`;
-    if (node.children) {
-      node.children.forEach((child, index) => {
-        const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
-        result += explanationToText(child, depth + 1, childPrefix);
-      });
-    }
-    return result;
-  };
-  const explanationToHtml = (node, depth = 0, prefix = "") => {
-    if (Array.isArray(node)) {
-      return node.map((n, index) => explanationToHtml(n, depth, (index + 1).toString())).join("");
-    }
-    const indent = "&nbsp;&nbsp;".repeat(depth);
-    let text = node && typeof node === "object" ? node.literal ?? "" : node;
-    if (node.type === "failure") {
-      text = `${failedNodePrefix}${text}`;
-    }
-    if (node.repeated) {
-      const repCount = node.repeatedCount;
-      text = typeof repCount === "number" && repCount > 1 ? `${text} [${repCount} repeated sub-explanations]` : `${text} [Repeated sub-explanation]`;
-    }
-    if (showHierarchicalNumbering && prefix && depth > 0) {
-      text = `${prefix} ${text}`;
-    }
-    const color = node.type === "failure" ? "#f48771" : node.type === "unknown" ? "#e2b93d" : "#89d185";
-    let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
-    if (node.children) {
-      node.children.forEach((child, index) => {
-        const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
-        result += explanationToHtml(child, depth + 1, childPrefix);
-      });
-    }
-    return result;
-  };
-  menuCopyExplanation.addEventListener("click", (e) => {
-    e.stopPropagation();
-    if (lastWhy) {
-      const text = explanationToText(lastWhy, 0, "");
-      const html = explanationToHtml(lastWhy, 0, "");
-      try {
-        const clipboardItem = new ClipboardItem({
-          "text/plain": new Blob([text], { type: "text/plain" }),
-          "text/html": new Blob([html], { type: "text/html" })
-        });
-        navigator.clipboard.write([clipboardItem]);
-      } catch (err) {
-        navigator.clipboard.writeText(text);
-      }
-    }
-    explanationContextMenu.style.display = "none";
-  });
-  const renderExplanation = (why) => {
-    lastWhy = why;
-    explanationTree.innerHTML = "";
-    pathToContainer = /* @__PURE__ */ new Map();
-    fullByLiteral = /* @__PURE__ */ new Map();
-    if (!why)
-      return;
-    let expansion;
-    if (why !== null && typeof why === "object") {
-      const existing = explanationExpansion.get(why);
-      if (existing) {
-        expansion = existing;
-      } else {
-        expansion = /* @__PURE__ */ new Map();
-        explanationExpansion.set(why, expansion);
-      }
-    } else {
-      expansion = /* @__PURE__ */ new Map();
-    }
-    currentExpansion = expansion;
-    explanationTree.oncontextmenu = (e) => {
-      if (e.target === explanationTree) {
-        e.preventDefault();
-        currentWhyToCopy = why;
-        currentRepeatedOf = null;
-        menuGotoOriginal.style.display = "none";
-        explanationContextMenu.style.display = "block";
-        explanationContextMenu.style.left = `${e.clientX}px`;
-        explanationContextMenu.style.top = `${e.clientY}px`;
-      }
-    };
-    const repeatedLabels = [];
-    const navTargetFor = (node, prefix) => {
-      if (!node || !node.repeated)
-        return null;
-      let target = null;
-      if (typeof node.repeatedOf === "string") {
-        target = node.repeatedOf;
-      } else if ((!node.children || node.children.length === 0) && typeof node.literal === "string") {
-        target = fullByLiteral.get(node.literal) ?? null;
-      }
-      return target && target !== prefix ? target : null;
-    };
-    const createNode = (node, depth, prefix = "") => {
-      const container3 = document.createElement("div");
-      container3.className = "tree-node";
-      container3.dataset.path = prefix;
-      pathToContainer.set(prefix, container3);
-      const label = document.createElement("div");
-      label.className = `tree-label ${node.type || "success"}`;
-      const hasChildren = node.children && node.children.length > 0;
-      if (hasChildren && typeof node.literal === "string" && !fullByLiteral.has(node.literal)) {
-        fullByLiteral.set(node.literal, prefix);
-      }
-      const titleParts = [];
-      if (node.type === "failure") {
-        titleParts.push("Failed: this condition could not be proven");
-      } else if (node.type === "unknown") {
-        titleParts.push('Unknown: could not be proven true or false, but was assumed true because it matches an "unknown" template');
-      } else {
-        titleParts.push(node.naf === true ? "Succeeded: this negative condition holds (the inner statement could not be proven)" : "Succeeded: this condition was proven");
-      }
-      if (node.repeated) {
-        label.classList.add("repeated");
-        repeatedLabels.push({ label, node, prefix });
-        const repCount = node.repeatedCount;
-        const noun = hasChildren ? "sub-explanation" : "occurrence";
-        titleParts.push(typeof repCount === "number" && repCount > 1 ? `${repCount} repeated ${noun}s` : `Repeated ${noun}`);
-      }
-      label.title = titleParts.join(" \xB7 ");
-      const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix) : depth < 2;
-      if (hasChildren) {
-        const toggle = document.createElement("span");
-        toggle.className = "tree-toggle";
-        toggle.textContent = isExpandedNow ? "-" : "+";
-        label.appendChild(toggle);
-      }
-      const text = document.createElement("span");
-      text.className = "tree-text";
-      let labelText = node && typeof node === "object" ? node.literal ?? "" : node;
-      if (showHierarchicalNumbering && prefix && depth > 0) {
-        labelText = `${prefix} ${labelText}`;
-      }
-      text.textContent = labelText;
-      label.appendChild(text);
-      label.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        currentWhyToCopy = node;
-        currentRepeatedOf = navTargetFor(node, prefix);
-        menuGotoOriginal.style.display = currentRepeatedOf ? "block" : "none";
-        explanationContextMenu.style.display = "block";
-        explanationContextMenu.style.left = `${e.clientX}px`;
-        explanationContextMenu.style.top = `${e.clientY}px`;
-      });
-      if (node.start !== void 0 && node.end !== void 0) {
-        text.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const startPos = editor.getModel().getPositionAt(node.start);
-          const endPos = editor.getModel().getPositionAt(node.end);
-          editor.setSelection(new monaco.Range(
-            startPos.lineNumber,
-            startPos.column,
-            endPos.lineNumber,
-            endPos.column
-          ));
-          editor.revealRangeInCenter(new monaco.Range(
-            startPos.lineNumber,
-            startPos.column,
-            endPos.lineNumber,
-            endPos.column
-          ));
-          editor.focus();
-        });
-      }
-      container3.appendChild(label);
-      if (hasChildren) {
-        const childrenContainer = document.createElement("div");
-        childrenContainer.className = "tree-children";
-        childrenContainer.style.display = isExpandedNow ? "block" : "none";
-        label.querySelector(".tree-toggle")?.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const isExpanded = childrenContainer.style.display !== "none";
-          const newExpanded = !isExpanded;
-          childrenContainer.style.display = newExpanded ? "block" : "none";
-          e.target.textContent = newExpanded ? "-" : "+";
-          expansion.set(prefix, newExpanded);
-        });
-        node.children.forEach((child, index) => {
-          const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
-          childrenContainer.appendChild(createNode(child, depth + 1, childPrefix));
-        });
-        container3.appendChild(childrenContainer);
-      }
-      return container3;
-    };
-    if (Array.isArray(why)) {
-      why.forEach((w, index) => explanationTree.appendChild(createNode(w, 0, (index + 1).toString())));
-    } else {
-      explanationTree.appendChild(createNode(why, 0, "1"));
-    }
-    for (const { label, node, prefix } of repeatedLabels) {
-      if (navTargetFor(node, prefix)) {
-        label.classList.add("navigable");
-        label.title = `${label.title} \xB7 right-click \u2192 "Go to full sub-explanation"`;
-      }
-    }
-  };
   const debugPanel = document.getElementById("debug-panel");
   const debugStack = document.getElementById("debug-stack");
   const debugVariables = document.getElementById("debug-variables");
@@ -40389,7 +40482,6 @@ async function start() {
     pendingAnswerIndex = null;
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
-    answerTooltip.style.display = "none";
     showInterruptSoon();
     try {
       const runAnsweringQuery = () => fetch("/leapi", {
@@ -40416,73 +40508,17 @@ async function start() {
           res = await runAnsweringQuery();
         }
       }
-      answersList.innerHTML = "";
-      if (res && res.results && res.results.length > 0) {
-        let target = 0;
-        if (wantAnswer !== null) {
-          if (wantAnswer >= 0 && wantAnswer < res.results.length)
-            target = wantAnswer;
-          else
-            showModal(`Answer ${wantAnswer + 1} does not exist \u2014 the query has ${res.results.length} answer(s) in this scenario.`, "No such answer");
-        }
-        res.results.forEach((result, index) => {
-          const item = document.createElement("div");
-          item.className = "answer-item";
-          item.textContent = result.answer;
-          const unknowns = Array.isArray(result.unknowns) ? result.unknowns : [];
-          if (unknowns.length > 0) {
-            item.classList.add("has-unknowns");
-            const marker = document.createElement("span");
-            marker.className = "unknowns-marker";
-            marker.textContent = "?";
-            item.appendChild(marker);
-            attachAnswerTooltip(item, unknowns);
-          }
-          item.addEventListener("click", () => {
-            document.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
-            item.classList.add("selected");
-            renderExplanation(result.why);
-            setAnswerInUrl(index + 1);
-          });
-          item.addEventListener("contextmenu", (e) => {
-            e.preventDefault();
-            currentAnswerToCopy = result.answer;
-            answerContextMenu.style.display = "block";
-            answerContextMenu.style.left = `${e.clientX}px`;
-            answerContextMenu.style.top = `${e.clientY}px`;
-          });
-          answersList.appendChild(item);
-          if (index === target)
-            item.click();
-        });
-      } else if (res && res.why) {
-        if (wantAnswer !== null)
+      const nResults = res && res.results ? res.results.length : 0;
+      let target = 0;
+      if (wantAnswer !== null) {
+        if (nResults > 0 && wantAnswer >= 0 && wantAnswer < nResults)
+          target = wantAnswer;
+        else if (nResults > 0)
+          showModal(`Answer ${wantAnswer + 1} does not exist \u2014 the query has ${nResults} answer(s) in this scenario.`, "No such answer");
+        else if (res && res.why)
           showModal("The query has no answers (it is false in this scenario), so there is no answer to select.", "No such answer");
-        const item = document.createElement("div");
-        item.className = "answer-item failure selected";
-        item.style.color = "#f48771";
-        item.textContent = "No answers (false)";
-        item.addEventListener("click", () => {
-          document.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
-          item.classList.add("selected");
-          renderExplanation(res.why);
-        });
-        item.addEventListener("contextmenu", (e) => {
-          e.preventDefault();
-          currentAnswerToCopy = "No answers (false)";
-          answerContextMenu.style.display = "block";
-          answerContextMenu.style.left = `${e.clientX}px`;
-          answerContextMenu.style.top = `${e.clientY}px`;
-        });
-        answersList.appendChild(item);
-        renderExplanation(res.why);
-      } else if (res && res.interrupted) {
-        answersList.textContent = "Query interrupted.";
-      } else if (res && res.error) {
-        answersList.textContent = "Error: " + res.error;
-      } else {
-        answersList.textContent = "No results returned.";
       }
+      explView.showResults(res, target);
     } catch (err) {
       answersList.textContent = "Error executing query.";
       console.error(err);
@@ -40621,6 +40657,24 @@ async function start() {
     localStorage.setItem("le_scenario_editor_data", JSON.stringify(data4));
     const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
     window.open(`scenario-editor.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
+  });
+  document.getElementById("btn-variations")?.addEventListener("click", async () => {
+    if (!isLoaded) {
+      const ok = await loadModule();
+      if (!ok)
+        return;
+    }
+    const data4 = {
+      source: editor.getValue(),
+      sessionModule,
+      kbName: lastKb,
+      queries: lastQueries.map((q) => ({ name: q.name, label: q.le || q.template })),
+      selectedScenario: scenarioSelect.value === "___custom___" ? "" : scenarioSelect.value,
+      selectedQuery: querySelect.value === "___custom___" ? "" : querySelect.value
+    };
+    localStorage.setItem("le_scenario_variations_data", JSON.stringify(data4));
+    const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
+    window.open(`scenario-variations.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
   });
   scenarioChannel.onmessage = (event3) => {
     const msg = event3.data;

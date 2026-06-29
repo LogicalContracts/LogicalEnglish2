@@ -498,7 +498,7 @@ handle_explain(Dict, Response) :-
                     query(SM, Query, Instance, Us, Why),
                     canonical_string(Instance, AnswerStr),
                     convert_why_deduped(Why, KB, JSONWhy),
-                    ( copy_term(Us, UsC), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' )
+                    ( copy_term(Us, UsC, _), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' )
                 ), Keyed),
             dedup_keep_first(Keyed, Results),
             Response = _{results: Results}
@@ -648,7 +648,7 @@ run_answering_query(SM, Query, KB, Response) :-
             canonical_string(Instance, AnswerStr),
             convert_why_deduped(Why, KB, JSONWhy),
             convert_unknowns_to_le(KB, Us, JSONUnknowns),
-            ( copy_term(Us, UsC), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' ),
+            ( copy_term(Us, UsC, _), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' ),
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
         ), KeyedResults),
     dedup_keep_first(KeyedResults, Results),
@@ -1119,7 +1119,9 @@ child_path(Parent, I, P) :- format(atom(P), '~w.~w', [Parent, I]).
 % A variant-insensitive key for a subtree (numbervars-canonicalised signature).
 node_repeat_key(Node, Key) :-
     why_struct_sig(Node, Sig),
-    copy_term(Sig, C), numbervars(C, 0, _), term_to_atom(C, Key).
+    % copy_term/3 strips attributes (custom-scenario facts can carry attributed
+    % variables, on which numbervars/4 would throw a type error).
+    copy_term(Sig, C, _), numbervars(C, 0, _), term_to_atom(C, Key).
 
 % A root-only copy of Node (children removed), wrapped as a repeated_ref/2 marker
 % that also carries OrigPath — the client tree-path of the full original it stands

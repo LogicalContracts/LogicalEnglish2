@@ -152,127 +152,106 @@ function splitFacts(bodyLines) {
   return facts;
 }
 
-// src/scenario-editor.ts
-var CHANNEL = "le-scenario-editor";
-function initScenarioEditor(data) {
-  const source = data.source || "";
-  const defs = parseTemplateDefs(source);
-  const SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
-  const templates = [...defs.map((d) => d.label), ...SYSTEM_TYPE];
-  const blocks = parseScenarioBlocks(source);
-  const blockByName = /* @__PURE__ */ new Map();
-  blocks.forEach((b) => blockByName.set(b.name, b));
-  const usedLabels = /* @__PURE__ */ new Set();
-  for (const block of blocks) {
-    for (const fact of block.facts) {
-      const mm = matchFact(fact, templates);
-      if (mm)
-        usedLabels.add(mm.label);
-    }
-  }
-  const seen = /* @__PURE__ */ new Set();
-  const addableTemplates = [];
-  for (const d of defs) {
-    if ((d.isUndefined || usedLabels.has(d.label)) && !seen.has(d.label)) {
-      seen.add(d.label);
-      addableTemplates.push(d.label);
-    }
-  }
-  for (const t of SYSTEM_TYPE) {
-    if (usedLabels.has(t) && !seen.has(t)) {
-      seen.add(t);
-      addableTemplates.push(t);
-    }
-  }
-  const channel = new BroadcastChannel(CHANNEL);
-  const $ = (id) => document.getElementById(id);
-  const picker = $("scenario-picker");
-  const nameInput = $("scenario-name");
-  const rowsEl = $("rows");
-  const addSelect = $("add-template");
-  const btnAdd = $("btn-add");
-  const btnCopy = $("btn-copy");
-  const btnInsert = $("btn-insert");
-  const statusEl = $("status");
-  let rows = [];
-  let loadedName = "";
-  let dirty = false;
-  let testLines = [];
-  const isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
-  picker.innerHTML = "";
-  const newOpt = document.createElement("option");
-  newOpt.value = "__new__";
-  newOpt.textContent = "New\u2026";
-  picker.appendChild(newOpt);
-  blocks.forEach((b) => {
-    const o = document.createElement("option");
-    o.value = b.name;
-    o.textContent = b.name;
-    picker.appendChild(o);
-  });
-  addSelect.innerHTML = "";
-  addableTemplates.forEach((label) => {
-    const o = document.createElement("option");
-    o.value = label;
-    o.textContent = label.replace(/\*/g, "");
-    addSelect.appendChild(o);
-  });
-  function markDirty() {
-    dirty = true;
-    setStatus("Unsaved changes");
-  }
-  function setStatus(text) {
-    statusEl.textContent = text;
-  }
-  function sizeField(input) {
-    const n = Math.max((input.value || input.placeholder).length + 1, 6);
-    input.size = Math.min(n, 80);
-  }
-  function loadScenario(name) {
-    const block = blockByName.get(name);
-    loadedName = block ? block.name : "";
-    nameInput.value = block ? block.name : "";
-    rows = [];
-    testLines = [];
-    if (block) {
-      for (const fact of block.facts) {
-        if (isTestDirective(fact)) {
-          testLines.push(fact);
-          continue;
-        }
-        const m = matchFact(fact, templates);
+// src/scenario-form.ts
+var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
+var isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
+var ScenarioForm = class {
+  templates;
+  // all templates (for recognising facts)
+  addableTemplates;
+  // those offered in the Add menu
+  testLines = [];
+  // tests from the loaded scenario, kept as comments
+  rows = [];
+  opts;
+  constructor(opts) {
+    this.opts = opts;
+    const defs = parseTemplateDefs(opts.source);
+    this.templates = [...defs.map((d) => d.label), ...SYSTEM_TYPE];
+    const used = /* @__PURE__ */ new Set();
+    for (const b of parseScenarioBlocks(opts.source)) {
+      for (const f of b.facts) {
+        const m = matchFact(f, this.templates);
         if (m)
-          rows.push({ templateLabel: m.label, values: m.values, raw: "" });
-        else
-          rows.push({ templateLabel: null, values: [], raw: fact });
+          used.add(m.label);
       }
     }
-    render();
-    dirty = false;
-    const note = testLines.length ? ` (${testLines.length} test line${testLines.length > 1 ? "s" : ""} kept as comments)` : "";
-    setStatus(block ? `Loaded scenario "${name}"${note}` : "");
+    const seen = /* @__PURE__ */ new Set();
+    const addable = [];
+    for (const d of defs) {
+      if ((d.isUndefined || used.has(d.label)) && !seen.has(d.label)) {
+        seen.add(d.label);
+        addable.push(d.label);
+      }
+    }
+    for (const t of SYSTEM_TYPE) {
+      if (used.has(t) && !seen.has(t)) {
+        seen.add(t);
+        addable.push(t);
+      }
+    }
+    this.addableTemplates = addable;
+    opts.addSelect.innerHTML = "";
+    for (const label of addable) {
+      const o = document.createElement("option");
+      o.value = label;
+      o.textContent = label.replace(/\*/g, "");
+      opts.addSelect.appendChild(o);
+    }
+    opts.btnAdd.addEventListener("click", () => {
+      const val = opts.addSelect.value;
+      if (!val)
+        return;
+      this.rows.push({ templateLabel: val, values: [], raw: "" });
+      this.changed();
+      this.render();
+      opts.rowsEl.lastElementChild?.querySelector("input")?.focus();
+    });
   }
-  function newScenario() {
-    loadedName = "";
-    nameInput.value = "";
-    rows = [];
-    testLines = [];
-    render();
-    dirty = false;
-    setStatus("New scenario");
+  changed() {
+    this.opts.onChange?.();
   }
-  function render() {
+  // Load a scenario's facts: template instances become editable rows, "expects
+  // answers" tests are kept aside, everything else is preserved read-only.
+  loadFacts(facts) {
+    this.rows = [];
+    this.testLines = [];
+    for (const fact of facts) {
+      if (isTestDirective(fact)) {
+        this.testLines.push(fact);
+        continue;
+      }
+      const m = matchFact(fact, this.templates);
+      if (m)
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "" });
+      else
+        this.rows.push({ templateLabel: null, values: [], raw: fact });
+    }
+    this.render();
+  }
+  clear() {
+    this.rows = [];
+    this.testLines = [];
+    this.render();
+  }
+  // --- Rendering -------------------------------------------------------------
+  render() {
+    const rowsEl = this.opts.rowsEl;
     rowsEl.innerHTML = "";
-    if (rows.length === 0) {
+    if (this.rows.length === 0) {
       const hint = document.createElement("div");
       hint.className = "empty-hint";
       hint.textContent = "No facts yet \u2014 pick a template below and click \u201CAdd\u201D.";
       rowsEl.appendChild(hint);
       return;
     }
-    rows.forEach((row, idx) => rowsEl.appendChild(renderRow(row, idx)));
+    this.rows.forEach((row, idx) => rowsEl.appendChild(this.renderRow(row, idx)));
   }
-  function renderRow(row, idx) {
+  sizeField(input) {
+    const n = Math.max((input.value || input.placeholder).length + 1, 6);
+    input.size = Math.min(n, 80);
+  }
+  renderRow(row, idx) {
     const el = document.createElement("div");
     el.className = "fact-row";
     if (row.templateLabel === null) {
@@ -298,11 +277,11 @@ function initScenarioEditor(data) {
           input.placeholder = seg.text;
           input.title = seg.text;
           input.value = row.values[fi] ?? "";
-          sizeField(input);
+          this.sizeField(input);
           input.addEventListener("input", () => {
             row.values[fi] = input.value;
-            sizeField(input);
-            markDirty();
+            this.sizeField(input);
+            this.changed();
           });
           el.appendChild(input);
         }
@@ -314,33 +293,97 @@ function initScenarioEditor(data) {
     del.textContent = "\u2715";
     del.title = "Delete";
     del.addEventListener("click", () => {
-      rows.splice(idx, 1);
-      markDirty();
-      render();
+      this.rows.splice(idx, 1);
+      this.changed();
+      this.render();
     });
     tools.appendChild(del);
     el.appendChild(tools);
     return el;
   }
-  function factText(row) {
+  // --- Producing text --------------------------------------------------------
+  factText(row) {
     if (row.templateLabel === null)
       return row.raw.trim().replace(/\.\s*$/, "").trim();
     return fillTemplate(row.templateLabel, row.values);
   }
-  function buildBlockText(name) {
+  // Each fact's text (no trailing period), skipping wholly-empty rows.
+  factLines() {
+    return this.rows.map((r) => this.factText(r)).filter((t) => !!t);
+  }
+  // The facts as runnable LE text (each terminated by "."), for use as a custom
+  // scenario. Tests are NOT included (they are not facts).
+  factsText() {
+    return this.factLines().map((t) => `${t}.`).join("\n");
+  }
+  // A full "scenario <name> is:" block; tests are appended commented-out.
+  blockText(name) {
     const lines = [`scenario ${name} is:`];
-    for (const row of rows) {
-      const text = factText(row);
-      if (!text)
-        continue;
-      lines.push(`    ${text}.`);
-    }
-    if (testLines.length) {
+    for (const t of this.factLines())
+      lines.push(`    ${t}.`);
+    if (this.testLines.length) {
       lines.push(`    % tests (review and uncomment to re-enable):`);
-      for (const t of testLines)
+      for (const t of this.testLines)
         lines.push(`    % ${t}.`);
     }
     return lines.join("\n");
+  }
+};
+
+// src/scenario-editor.ts
+var CHANNEL = "le-scenario-editor";
+function initScenarioEditor(data) {
+  const source = data.source || "";
+  const blocks = parseScenarioBlocks(source);
+  const blockByName = /* @__PURE__ */ new Map();
+  blocks.forEach((b) => blockByName.set(b.name, b));
+  const channel = new BroadcastChannel(CHANNEL);
+  const $ = (id) => document.getElementById(id);
+  const picker = $("scenario-picker");
+  const nameInput = $("scenario-name");
+  const statusEl = $("status");
+  let loadedName = "";
+  let dirty = false;
+  function setStatus(text) {
+    statusEl.textContent = text;
+  }
+  function markDirty() {
+    dirty = true;
+    setStatus("Unsaved changes");
+  }
+  const form = new ScenarioForm({
+    source,
+    rowsEl: $("rows"),
+    addSelect: $("add-template"),
+    btnAdd: $("btn-add"),
+    onChange: markDirty
+  });
+  picker.innerHTML = "";
+  const newOpt = document.createElement("option");
+  newOpt.value = "__new__";
+  newOpt.textContent = "New\u2026";
+  picker.appendChild(newOpt);
+  blocks.forEach((b) => {
+    const o = document.createElement("option");
+    o.value = b.name;
+    o.textContent = b.name;
+    picker.appendChild(o);
+  });
+  function loadScenario(name) {
+    const block = blockByName.get(name);
+    loadedName = block ? block.name : "";
+    nameInput.value = block ? block.name : "";
+    form.loadFacts(block ? block.facts : []);
+    dirty = false;
+    const n = form.testLines.length;
+    setStatus(block ? `Loaded scenario "${name}"${n ? ` (${n} test line${n > 1 ? "s" : ""} kept as comments)` : ""}` : "");
+  }
+  function newScenario() {
+    loadedName = "";
+    nameInput.value = "";
+    form.clear();
+    dirty = false;
+    setStatus("New scenario");
   }
   function requireName() {
     const name = nameInput.value.trim();
@@ -356,21 +399,11 @@ function initScenarioEditor(data) {
     }
     return name;
   }
-  btnAdd.addEventListener("click", () => {
-    const val = addSelect.value;
-    if (!val)
-      return;
-    rows.push({ templateLabel: val, values: [], raw: "" });
-    markDirty();
-    render();
-    const last = rowsEl.lastElementChild;
-    last?.querySelector("input")?.focus();
-  });
-  btnCopy.addEventListener("click", async () => {
+  document.getElementById("btn-copy").addEventListener("click", async () => {
     const name = requireName();
     if (!name)
       return;
-    const text = buildBlockText(name);
+    const text = form.blockText(name);
     try {
       await navigator.clipboard.writeText(text);
       dirty = false;
@@ -381,12 +414,11 @@ function initScenarioEditor(data) {
       setStatus("Copied");
     }
   });
-  btnInsert.addEventListener("click", () => {
+  document.getElementById("btn-insert").addEventListener("click", () => {
     const name = requireName();
     if (!name)
       return;
-    const blockText = buildBlockText(name);
-    channel.postMessage({ type: "insert-scenario", name, blockText, replaceName: loadedName });
+    channel.postMessage({ type: "insert-scenario", name, blockText: form.blockText(name), replaceName: loadedName });
     dirty = false;
     setStatus("Inserted into editor");
     setTimeout(() => window.close(), 100);

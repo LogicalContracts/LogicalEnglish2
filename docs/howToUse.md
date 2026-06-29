@@ -72,6 +72,23 @@ Only the placeholders are editable — you can't accidentally break the surround
 
 The Scenario Editor does not itself check your Logical English: as with any edit, the **final syntax check happens on the server** the next time the editor loads the module, and any problems are reported as usual. If you try to close the window with unsaved changes (not yet copied or inserted), it asks you to confirm first.
 
+## Scenario Variations
+
+The **Scenario Variations** window lets you take a scenario, **alter it**, and immediately run one or more queries against the variation — without touching your program. It is ideal for "what-if" exploration ("what if Alice were *not* a citizen?"). Open it with the **Variations** button in the **Query** tab (between **Query** and **Trace**); it opens in a separate window, preselected with whatever scenario was chosen in the Query tab.
+
+### Layout
+
+*   **Scenario picker** (top): choose which scenario to start from, or `(empty)` to build one from scratch.
+*   **Scenario facts:** the same fill-in-the-blank form as the [Scenario Editor](#the-scenario-editor) — edit the placeholder fields, delete facts, or **Add fact** from a template. **Copy Scenario** puts the resulting `scenario … is:` block on the clipboard.
+*   **Queries:** a list of the queries to run. Use **Add Query** to add one of your program's queries; each query has a close box (✕) to remove it.
+*   **Query** button (bottom): runs **all** the listed queries against the current (altered) facts. Under each query you get the familiar **answers + explanation** view — including unknown-goal tooltips and clickable explanation nodes, which **reveal the matching source in the main editor window**.
+
+### Running and sharing
+
+Click **Query** to run everything. The button then disables itself and re-enables only when you change something (an edit to the facts, or to the query list), so you always know whether the results below are current.
+
+As you edit, the window keeps its **URL in sync** — the altered scenario, the query list and the program are all encoded in the address. Copy that URL to **share exactly what you are exploring** with someone else, just like sharing a program from the editor.
+
 ## Explanations and Navigation
 
 Once a query is executed:

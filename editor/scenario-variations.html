@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LE Scenario Variations</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e; --text-color: #d4d4d4; --header-bg: #333;
+            --border-color: #444; --dropdown-bg: #2d2d2d; --item-hover-bg: #444;
+            --panel-bg: #252526; --input-bg: #3c3c3c; --input-text: #ccc;
+            --input-border: #555; --tree-hover-bg: #37373d; --answer-selected-bg: #094771;
+            --field-bg: #2d2d30; --muted: #888; --accent: #0e639c;
+        }
+        body.light-theme {
+            --bg-color: #ffffff; --text-color: #000000; --header-bg: #f3f3f3;
+            --border-color: #cccccc; --dropdown-bg: #ffffff; --item-hover-bg: #e8e8e8;
+            --panel-bg: #f3f3f3; --input-bg: #ffffff; --input-text: #333;
+            --input-border: #cccccc; --tree-hover-bg: #e8e8e8; --answer-selected-bg: #add6ff;
+            --field-bg: #eef3f8; --muted: #666;
+        }
+        body.hc-theme {
+            --bg-color: #000000; --text-color: #ffffff; --header-bg: #000000;
+            --border-color: #ffffff; --dropdown-bg: #000000; --item-hover-bg: #ffffff;
+            --panel-bg: #000000; --input-bg: #000000; --input-text: #ffffff;
+            --input-border: #ffffff; --tree-hover-bg: #333; --answer-selected-bg: #ffffff;
+            --field-bg: #111; --muted: #ccc;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            background: var(--bg-color); color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px; display: flex; flex-direction: column;
+        }
+        header {
+            background: var(--header-bg); border-bottom: 1px solid var(--border-color);
+            padding: 10px 16px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+        }
+        header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+        header label { color: var(--muted); margin-right: 4px; }
+        select, input[type="text"], button {
+            background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border);
+            border-radius: 4px; padding: 5px 8px; font-size: 14px; font-family: inherit;
+        }
+        button { cursor: pointer; }
+        button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+        button:hover { filter: brightness(1.1); }
+        button:disabled { opacity: 0.5; cursor: default; filter: none; }
+        #main { flex: 1; overflow: auto; padding: 16px; }
+        .section-title { font-size: 11px; color: var(--muted); font-weight: bold; text-transform: uppercase; margin: 0 0 8px; }
+        section { margin-bottom: 22px; }
+        /* --- scenario fact rows (shared with the Scenario Editor) --- */
+        #rows { display: flex; flex-direction: column; gap: 8px; }
+        .fact-row {
+            display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+            background: var(--panel-bg); border: 1px solid var(--border-color);
+            border-radius: 6px; padding: 8px 10px;
+        }
+        .fact-row .word { white-space: nowrap; }
+        .fact-row input.field { background: var(--field-bg); min-width: 90px; width: auto; }
+        .fact-row .preserved { flex: 1; min-width: 220px; color: var(--muted); font-style: italic; }
+        .row-tools { margin-left: auto; display: flex; gap: 4px; }
+        .row-tools button { padding: 2px 8px; background: transparent; border-color: var(--input-border); color: var(--muted); }
+        .row-tools button:hover { color: var(--text-color); }
+        .empty-hint { color: var(--muted); font-style: italic; padding: 10px 0; }
+        #add-bar, #add-query-bar { margin-top: 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        #add-template, #add-query { min-width: 280px; max-width: 520px; }
+        .spacer { flex: 1; }
+        /* --- query cards --- */
+        .query-card { border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 12px; overflow: hidden; }
+        .query-header {
+            display: flex; align-items: center; gap: 8px; padding: 6px 10px;
+            background: var(--header-bg); border-bottom: 1px solid var(--border-color);
+        }
+        .query-header .query-name { font-weight: 600; }
+        .query-header .query-remove {
+            margin-left: auto; padding: 2px 8px; background: transparent;
+            border-color: var(--input-border); color: var(--muted);
+        }
+        .results-area { display: flex; min-height: 140px; }
+        .answers-panel { width: 38%; min-width: 160px; padding: 8px; overflow: auto; border-right: 1px solid var(--border-color); }
+        .explanation-panel { flex: 1; padding: 8px; overflow: auto; }
+        .panel-label { font-size: 11px; color: var(--muted); font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        /* --- answers + explanation (copied from the editor) --- */
+        .answer-item { padding: 5px 8px; cursor: pointer; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; color: var(--text-color); }
+        .answer-item:hover { background-color: var(--tree-hover-bg); }
+        .answer-item.selected { background-color: var(--answer-selected-bg); color: white; }
+        .light-theme .answer-item.selected { color: black; }
+        .answer-item.has-unknowns { font-style: italic; }
+        .answer-item .unknowns-marker { margin-left: 4px; font-style: normal; font-size: 11px; opacity: 0.8; }
+        #answer-tooltip {
+            position: fixed; display: none; max-width: 420px; max-height: 60vh; overflow-y: auto;
+            background: var(--dropdown-bg); color: var(--text-color); border: 1px solid var(--border-color);
+            border-radius: 4px; padding: 8px 10px; font-size: 12px; z-index: 3000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.5); pointer-events: none; white-space: normal;
+        }
+        #answer-tooltip .tooltip-title { font-weight: bold; margin-bottom: 4px; opacity: 0.85; }
+        #answer-tooltip .tooltip-unknown { padding: 2px 0; line-height: 1.35; }
+        .tree-node { margin-left: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; }
+        .tree-label { display: flex; align-items: center; padding: 2px 4px; border-radius: 3px; cursor: pointer; color: var(--text-color); }
+        .tree-label:hover { background-color: var(--tree-hover-bg); }
+        .tree-toggle { width: 12px; height: 12px; display: inline-flex; align-items: center; justify-content: center; font-family: monospace; font-size: 10px; border: 1px solid #666; border-radius: 2px; cursor: pointer; user-select: none; margin-right: 5px; }
+        .tree-toggle:hover { background-color: var(--item-hover-bg); }
+        .tree-label.success { color: #89d185; }
+        .tree-label.failure { color: #f48771; }
+        .tree-label.unknown { color: #e2b93d; }
+        .tree-label.repeated { font-style: italic; }
+        .tree-label.repeated.navigable .tree-text::after { content: ' ↩'; opacity: 0.7; }
+        .tree-label.explanation-highlight { background: rgba(177, 140, 217, 0.35); border-radius: 3px; transition: background 0.3s ease; }
+        .tree-children { border-left: 1px solid var(--border-color); margin-top: 2px; }
+        .context-menu { display: none; position: fixed; background: var(--dropdown-bg); border: 1px solid var(--border-color); z-index: 2000; box-shadow: 0 2px 5px rgba(0,0,0,0.5); border-radius: 3px; min-width: 120px; padding: 4px 0; color: var(--text-color); }
+        .dropdown-item { padding: 5px 15px; font-size: 12px; cursor: pointer; white-space: nowrap; }
+        .dropdown-item:hover { background-color: #094771; color: white; }
+        footer {
+            background: var(--header-bg); border-top: 1px solid var(--border-color);
+            padding: 10px 16px; display: flex; gap: 10px; align-items: center;
+        }
+        #status { color: var(--muted); font-size: 12px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="title">Scenario Variations</h1>
+        <span style="margin-left:auto;"><label for="scenario-picker">Scenario</label>
+            <select id="scenario-picker"></select></span>
+    </header>
+
+    <div id="main">
+        <section>
+            <div class="section-title">Scenario facts</div>
+            <div id="rows"></div>
+            <div id="add-bar">
+                <label for="add-template">Add fact</label>
+                <select id="add-template"></select>
+                <button id="btn-add">+ Add</button>
+                <span class="spacer"></span>
+                <button id="btn-copy-scenario">Copy Scenario</button>
+            </div>
+        </section>
+
+        <section>
+            <div class="section-title">Queries</div>
+            <div id="query-list"></div>
+            <div id="add-query-bar">
+                <label for="add-query">Add query</label>
+                <select id="add-query"></select>
+                <button id="btn-add-query">+ Add Query</button>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <span id="status"></span>
+        <span class="spacer"></span>
+        <button id="btn-run" class="primary">Query</button>
+    </footer>
+
+    <!-- Shared context menus + unknown-goals tooltip for the explanation view -->
+    <div id="answer-context-menu" class="context-menu">
+        <div class="dropdown-item" id="menu-copy-answer">Copy Answer</div>
+    </div>
+    <div id="answer-tooltip"></div>
+    <div id="explanation-context-menu" class="context-menu">
+        <div class="dropdown-item" id="menu-goto-original" style="display: none;">Go to full sub-explanation</div>
+        <div class="dropdown-item" id="menu-copy-explanation">Copy Explanation</div>
+    </div>
+
+    <script>
+        const theme = new URLSearchParams(window.location.search).get('theme');
+        if (theme) document.body.classList.add(theme);
+    </script>
+    <script type="module">
+        const v = Date.now();
+        import(`./dist/scenario-variations.js?v=${v}`).then(m => m.initScenarioVariations());
+    </script>
+</body>
+</html>

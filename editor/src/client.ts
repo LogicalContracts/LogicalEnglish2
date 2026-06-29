@@ -1,5 +1,6 @@
 import { leLanguageConfiguration, leMonarchTokens } from './le-language';
 import { parseScenarioBlocks } from './le-templates';
+import { ExplanationView } from './explanation-view';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 
@@ -169,6 +170,8 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
         let pendingAnswerIndex: number | null = null;
         let sessionModule: string | null = null;
         let includedResources: any[] = [];
+        let lastKb = '';
+        let lastQueries: any[] = [];
         let loadTimeout: any = null;
         let availableModels: any[] = [];
         let serverKeys: string[] = [];
@@ -688,9 +691,7 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
             numberingCheck.style.visibility = showHierarchicalNumbering ? 'visible' : 'hidden';
         }
         // Re-render current explanation if any
-        if (lastWhy) {
-            renderExplanation(lastWhy);
-        }
+        explView.rerender();
     });
 
     const setFontSize = (size: number) => {
@@ -1341,6 +1342,10 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
                 anotherScenarioOption.textContent = 'Another...';
                 scenarioSelect.appendChild(anotherScenarioOption);
                 
+                // Remember the KB name and query list for the Scenario Variations window.
+                lastKb = res.kb || '';
+                lastQueries = Array.isArray(res.queries) ? res.queries : [];
+
                 // Populate queries
                 querySelect.innerHTML = '<option value="">Select a query...</option>';
                 if (res.queries) {
@@ -1572,382 +1577,34 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
 
     const answersList = document.getElementById('answers-list')!;
     const explanationTree = document.getElementById('explanation-tree')!;
-    const answerContextMenu = document.getElementById('answer-context-menu')!;
-    const menuCopyAnswer = document.getElementById('menu-copy-answer')!;
-    const explanationContextMenu = document.getElementById('explanation-context-menu')!;
-    const menuCopyExplanation = document.getElementById('menu-copy-explanation')!;
-    const menuGotoOriginal = document.getElementById('menu-goto-original')!;
-    const answerTooltip = document.getElementById('answer-tooltip')!;
-    let currentAnswerToCopy = '';
-    let currentWhyToCopy: any = null;
-    let lastWhy: any = null;
-    // For a "repeated" proxy node (a sub-explanation shown elsewhere in full), the
-    // tree-path of that full original, so the context menu can navigate to it.
-    let currentRepeatedOf: string | null = null;
-    // Maps each rendered node's tree-path ("1.2.3") to its DOM container, and the
-    // current answer's expansion state — both rebuilt on every renderExplanation —
-    // so "Go to full sub-explanation" can reveal and highlight the original.
-    let pathToContainer = new Map<string, HTMLElement>();
-    let currentExpansion: Map<string, boolean> | null = null;
-    // Literal -> tree-path of the FIRST occurrence shown WITH its full subtree. Lets
-    // a repeated leaf (e.g. a sibling-grouped "a payment under this policy [N
-    // repeated]") navigate to wherever that goal is actually expanded, even when the
-    // backend only marked one explicit cross-tree proxy.
-    let fullByLiteral = new Map<string, string>();
 
-    // Reveal a (possibly collapsed) node by expanding every ancestor subtree, then
-    // scroll it into view and flash it.
-    const revealAndHighlight = (container: HTMLElement) => {
-        let el: HTMLElement | null = container;
-        while (el && el !== explanationTree) {
-            const parent = el.parentElement as HTMLElement | null;
-            if (parent && parent.classList.contains('tree-children')) {
-                parent.style.display = 'block';
-                const ownerLabel = parent.previousElementSibling as HTMLElement | null;
-                ownerLabel?.querySelector('.tree-toggle') && (ownerLabel.querySelector('.tree-toggle')!.textContent = '-');
-                const ownerPath = (parent.parentElement as HTMLElement | null)?.dataset.path;
-                if (ownerPath) currentExpansion?.set(ownerPath, true);
-            }
-            el = el.parentElement;
-        }
-        container.scrollIntoView({ block: 'center', behavior: 'smooth' });
-        const label = container.querySelector(':scope > .tree-label') as HTMLElement | null;
-        if (label) {
-            label.classList.add('explanation-highlight');
-            setTimeout(() => label.classList.remove('explanation-highlight'), 2200);
-        }
-    };
-    // Per-answer expansion state, kept in memory only (no local/session storage).
-    // Keyed by the answer's `why` object; maps each node's tree path ("1.2.3") to
-    // whether it is expanded, so toggles persist when switching between answers.
-    const explanationExpansion = new WeakMap<object, Map<string, boolean>>();
-
-    // Show the unknown goals associated with an answer (the non-empty third
-    // argument of i/4) in a tooltip that follows the hovered answer item. Each
-    // unknown is rendered by the server as a Logical English template instance.
-    const attachAnswerTooltip = (item: HTMLElement, unknowns: string[]) => {
-        item.addEventListener('mouseenter', (e) => {
-            const title = document.createElement('div');
-            title.className = 'tooltip-title';
-            title.textContent = unknowns.length === 1
-                ? 'Unknown goal:'
-                : `${unknowns.length} unknown goals:`;
-            answerTooltip.innerHTML = '';
-            answerTooltip.appendChild(title);
-            unknowns.forEach((u) => {
-                const line = document.createElement('div');
-                line.className = 'tooltip-unknown';
-                line.textContent = u;
-                answerTooltip.appendChild(line);
-            });
-            answerTooltip.style.display = 'block';
-            positionAnswerTooltip(e as MouseEvent);
-        });
-        item.addEventListener('mousemove', (e) => {
-            if (answerTooltip.style.display === 'block') {
-                positionAnswerTooltip(e as MouseEvent);
-            }
-        });
-        item.addEventListener('mouseleave', () => {
-            answerTooltip.style.display = 'none';
-        });
-    };
-    const positionAnswerTooltip = (e: MouseEvent) => {
-        const offset = 12;
-        let x = e.clientX + offset;
-        let y = e.clientY + offset;
-        const rect = answerTooltip.getBoundingClientRect();
-        if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - offset;
-        if (y + rect.height > window.innerHeight) y = e.clientY - rect.height - offset;
-        answerTooltip.style.left = `${Math.max(0, x)}px`;
-        answerTooltip.style.top = `${Math.max(0, y)}px`;
-    };
-
-    document.addEventListener('click', () => {
-        answerContextMenu.style.display = 'none';
-        explanationContextMenu.style.display = 'none';
+    // The answers + explanation view (Query panel body), now a reusable component
+    // shared with the Scenario Variations window. Source navigation selects the range
+    // in this editor; answer selection keeps the URL's `answer` param in sync.
+    const explView = new ExplanationView({
+        answersList,
+        explanationTree,
+        menus: {
+            answerContextMenu: document.getElementById('answer-context-menu')!,
+            menuCopyAnswer: document.getElementById('menu-copy-answer')!,
+            explanationContextMenu: document.getElementById('explanation-context-menu')!,
+            menuCopyExplanation: document.getElementById('menu-copy-explanation')!,
+            menuGotoOriginal: document.getElementById('menu-goto-original')!,
+            answerTooltip: document.getElementById('answer-tooltip')!,
+        },
+        failedNodePrefix: () => failedNodePrefix,
+        hierarchicalNumbering: () => showHierarchicalNumbering,
+        onNavigate: (start: number, end: number) => {
+            const model = editor.getModel();
+            const startPos = model.getPositionAt(start);
+            const endPos = model.getPositionAt(end);
+            const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
+            editor.setSelection(range);
+            editor.revealRangeInCenter(range);
+            editor.focus();
+        },
+        onSelectAnswer: (index: number) => setAnswerInUrl(index),
     });
-
-    menuCopyAnswer.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentAnswerToCopy) {
-            navigator.clipboard.writeText(currentAnswerToCopy);
-        }
-        answerContextMenu.style.display = 'none';
-    });
-
-    menuGotoOriginal.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentRepeatedOf) {
-            const target = pathToContainer.get(currentRepeatedOf);
-            if (target) revealAndHighlight(target);
-        }
-        explanationContextMenu.style.display = 'none';
-    });
-
-    const explanationToText = (node: any, depth: number = 0, prefix: string = ''): string => {
-        if (Array.isArray(node)) {
-            return node.map((n, index) => explanationToText(n, depth, (index + 1).toString())).join('');
-        }
-        const indent = '  '.repeat(depth);
-        let text = (node && typeof node === "object") ? (node.literal ?? "") : node;
-        if (node.type === 'failure') {
-            text = `${failedNodePrefix}${text}`;
-        }
-        if (node.repeated) {
-            const repCount = node.repeatedCount;
-            text = (typeof repCount === 'number' && repCount > 1)
-                ? `${text} [${repCount} repeated sub-explanations]`
-                : `${text} [Repeated sub-explanation]`;
-        }
-        if (showHierarchicalNumbering && prefix && depth > 0) {
-            text = `${prefix} ${text}`;
-        }
-        let result = `${indent}${text}\n`;
-        if (node.children) {
-            node.children.forEach((child: any, index: number) => {
-                const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
-                result += explanationToText(child, depth + 1, childPrefix);
-            });
-        }
-        return result;
-    };
-
-    const explanationToHtml = (node: any, depth: number = 0, prefix: string = ''): string => {
-        if (Array.isArray(node)) {
-            return node.map((n, index) => explanationToHtml(n, depth, (index + 1).toString())).join('');
-        }
-        const indent = '&nbsp;&nbsp;'.repeat(depth);
-        let text = (node && typeof node === "object") ? (node.literal ?? "") : node;
-        if (node.type === 'failure') {
-            text = `${failedNodePrefix}${text}`;
-        }
-        if (node.repeated) {
-            const repCount = node.repeatedCount;
-            text = (typeof repCount === 'number' && repCount > 1)
-                ? `${text} [${repCount} repeated sub-explanations]`
-                : `${text} [Repeated sub-explanation]`;
-        }
-        if (showHierarchicalNumbering && prefix && depth > 0) {
-            text = `${prefix} ${text}`;
-        }
-        const color = node.type === 'failure' ? '#f48771' : (node.type === 'unknown' ? '#e2b93d' : '#89d185');
-
-        let result = `<div style="color: ${color}; font-family: monospace; white-space: nowrap;">${indent}${text}</div>`;
-        if (node.children) {
-            node.children.forEach((child: any, index: number) => {
-                const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
-                result += explanationToHtml(child, depth + 1, childPrefix);
-            });
-        }
-        return result;
-    };
-
-    menuCopyExplanation.addEventListener('click', (e) => {
-        e.stopPropagation();
-        // Always copy the WHOLE explanation tree (all sibling subtrees), not just
-        // the right-clicked node.
-        if (lastWhy) {
-            const text = explanationToText(lastWhy, 0, "");
-            const html = explanationToHtml(lastWhy, 0, "");
-            
-            try {
-                const clipboardItem = new ClipboardItem({
-                    'text/plain': new Blob([text], { type: 'text/plain' }),
-                    'text/html': new Blob([html], { type: 'text/html' })
-                });
-                navigator.clipboard.write([clipboardItem]);
-            } catch (err) {
-                // Fallback for browsers that don't support ClipboardItem or have issues
-                navigator.clipboard.writeText(text);
-            }
-        }
-        explanationContextMenu.style.display = 'none';
-    });
-
-    const renderExplanation = (why: any) => {
-        lastWhy = why;
-        explanationTree.innerHTML = '';
-        pathToContainer = new Map<string, HTMLElement>();
-        fullByLiteral = new Map<string, string>();
-        if (!why) return;
-
-        // Recover (or start) the in-memory expansion state for this answer.
-        let expansion: Map<string, boolean>;
-        if (why !== null && typeof why === 'object') {
-            const existing = explanationExpansion.get(why);
-            if (existing) {
-                expansion = existing;
-            } else {
-                expansion = new Map<string, boolean>();
-                explanationExpansion.set(why, expansion);
-            }
-        } else {
-            expansion = new Map<string, boolean>();
-        }
-        currentExpansion = expansion;
-
-        explanationTree.oncontextmenu = (e) => {
-            if (e.target === explanationTree) {
-                e.preventDefault();
-                currentWhyToCopy = why;
-                currentRepeatedOf = null;
-                menuGotoOriginal.style.display = 'none';
-                explanationContextMenu.style.display = 'block';
-                explanationContextMenu.style.left = `${e.clientX}px`;
-                explanationContextMenu.style.top = `${e.clientY}px`;
-            }
-        };
-
-        // Repeated labels, marked after the whole tree is rendered (once
-        // fullByLiteral is complete) so only the ones that actually have somewhere to
-        // go show the navigation affordance.
-        const repeatedLabels: { label: HTMLElement, node: any, prefix: string }[] = [];
-
-        // The tree-path a repeated node should navigate to (its full expansion), or
-        // null if there is none — the backend's cross-tree link when present, else
-        // the first place this same goal is shown WITH its subtree (by literal). A
-        // repeated LEAF whose goal is never expanded anywhere has no target.
-        const navTargetFor = (node: any, prefix: string): string | null => {
-            if (!node || !node.repeated) return null;
-            let target: string | null = null;
-            if (typeof node.repeatedOf === 'string') {
-                target = node.repeatedOf;
-            } else if ((!node.children || node.children.length === 0) && typeof node.literal === 'string') {
-                target = fullByLiteral.get(node.literal) ?? null;
-            }
-            return (target && target !== prefix) ? target : null;
-        };
-
-        const createNode = (node: any, depth: number, prefix: string = ''): HTMLElement => {
-            const container = document.createElement('div');
-            container.className = 'tree-node';
-            container.dataset.path = prefix;
-            pathToContainer.set(prefix, container);
-
-            const label = document.createElement('div');
-            label.className = `tree-label ${node.type || 'success'}`;
-
-            const hasChildren = node.children && node.children.length > 0;
-            // Remember the first place each goal is shown WITH its subtree, so a later
-            // repeated leaf with the same goal can navigate here.
-            if (hasChildren && typeof node.literal === 'string' && !fullByLiteral.has(node.literal)) {
-                fullByLiteral.set(node.literal, prefix);
-            }
-
-            // Tooltip: describe the node's type (and, for repeated nodes, the repeat
-            // info already shown), composed into one line.
-            const titleParts: string[] = [];
-            if (node.type === 'failure') {
-                titleParts.push('Failed: this condition could not be proven');
-            } else if (node.type === 'unknown') {
-                titleParts.push('Unknown: could not be proven true or false, but was assumed true because it matches an "unknown" template');
-            } else {
-                titleParts.push(node.naf === true ? 'Succeeded: this negative condition holds (the inner statement could not be proven)' : 'Succeeded: this condition was proven');
-            }
-            if (node.repeated) {
-                label.classList.add('repeated');
-                repeatedLabels.push({ label, node, prefix });
-                const repCount = node.repeatedCount;
-                // A leaf has no sub-explanation, so call its repeats "occurrences".
-                const noun = hasChildren ? 'sub-explanation' : 'occurrence';
-                titleParts.push((typeof repCount === 'number' && repCount > 1)
-                    ? `${repCount} repeated ${noun}s`
-                    : `Repeated ${noun}`);
-            }
-            label.title = titleParts.join(' · ');
-            // Expansion: use the remembered state for this node path if present,
-            // otherwise the default (top two levels expanded).
-            const isExpandedNow = expansion.has(prefix) ? expansion.get(prefix)! : (depth < 2);
-            if (hasChildren) {
-                const toggle = document.createElement('span');
-                toggle.className = 'tree-toggle';
-                toggle.textContent = isExpandedNow ? '-' : '+';
-                label.appendChild(toggle);
-            }
-
-            const text = document.createElement('span');
-            text.className = 'tree-text';
-            let labelText = (node && typeof node === "object") ? (node.literal ?? "") : node;
-            if (showHierarchicalNumbering && prefix && depth > 0) {
-                labelText = `${prefix} ${labelText}`;
-            }
-            text.textContent = labelText;
-            label.appendChild(text);
-            
-            label.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                currentWhyToCopy = node;
-                // Offer "Go to" only when this repeated node actually has a full
-                // expansion elsewhere (see navTargetFor).
-                currentRepeatedOf = navTargetFor(node, prefix);
-                menuGotoOriginal.style.display = currentRepeatedOf ? 'block' : 'none';
-                explanationContextMenu.style.display = 'block';
-                explanationContextMenu.style.left = `${e.clientX}px`;
-                explanationContextMenu.style.top = `${e.clientY}px`;
-            });
-
-            if (node.start !== undefined && node.end !== undefined) {
-                text.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const startPos = editor.getModel().getPositionAt(node.start);
-                    const endPos = editor.getModel().getPositionAt(node.end);
-                    editor.setSelection(new monaco.Range(
-                        startPos.lineNumber, startPos.column,
-                        endPos.lineNumber, endPos.column
-                    ));
-                    editor.revealRangeInCenter(new monaco.Range(
-                        startPos.lineNumber, startPos.column,
-                        endPos.lineNumber, endPos.column
-                    ));
-                    editor.focus();
-                });
-            }
-
-            container.appendChild(label);
-
-            if (hasChildren) {
-                const childrenContainer = document.createElement('div');
-                childrenContainer.className = 'tree-children';
-                childrenContainer.style.display = isExpandedNow ? 'block' : 'none';
-
-                label.querySelector('.tree-toggle')?.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const isExpanded = childrenContainer.style.display !== 'none';
-                    const newExpanded = !isExpanded;
-                    childrenContainer.style.display = newExpanded ? 'block' : 'none';
-                    (e.target as HTMLElement).textContent = newExpanded ? '-' : '+';
-                    // Remember this node's expansion state for the current answer.
-                    expansion.set(prefix, newExpanded);
-                });
-
-                node.children.forEach((child: any, index: number) => {
-                    const childPrefix = prefix ? `${prefix}.${index + 1}` : `${index + 1}`;
-                    childrenContainer.appendChild(createNode(child, depth + 1, childPrefix));
-                });
-                container.appendChild(childrenContainer);
-            }
-
-            return container;
-        };
-
-        if (Array.isArray(why)) {
-            why.forEach((w, index) => explanationTree.appendChild(createNode(w, 0, (index + 1).toString())));
-        } else {
-            explanationTree.appendChild(createNode(why, 0, "1"));
-        }
-
-        // Now the whole tree (and fullByLiteral) is built: mark the repeated nodes
-        // that actually have a full expansion to jump to, so only those show the ↩
-        // affordance. A leaf repeat with no expansion anywhere stays plain italic.
-        for (const { label, node, prefix } of repeatedLabels) {
-            if (navTargetFor(node, prefix)) {
-                label.classList.add('navigable');
-                label.title = `${label.title} · right-click → "Go to full sub-explanation"`;
-            }
-        }
-    };
 
     const debugPanel = document.getElementById('debug-panel')!;
     const debugStack = document.getElementById('debug-stack')!;
@@ -2229,7 +1886,6 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
 
         answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
         explanationTree.innerHTML = '';
-        answerTooltip.style.display = 'none';
         showInterruptSoon();
 
         try {
@@ -2261,71 +1917,16 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
                 }
             }
 
-            answersList.innerHTML = '';
-            if (res && res.results && res.results.length > 0) {
-                // Which answer to auto-select: the one asked for by `answer` (if in
-                // range), otherwise the first.
-                let target = 0;
-                if (wantAnswer !== null) {
-                    if (wantAnswer >= 0 && wantAnswer < res.results.length) target = wantAnswer;
-                    else showModal(`Answer ${wantAnswer + 1} does not exist — the query has ${res.results.length} answer(s) in this scenario.`, 'No such answer');
-                }
-                res.results.forEach((result: any, index: number) => {
-                    const item = document.createElement('div');
-                    item.className = 'answer-item';
-                    item.textContent = result.answer;
-                    const unknowns: string[] = Array.isArray(result.unknowns) ? result.unknowns : [];
-                    if (unknowns.length > 0) {
-                        item.classList.add('has-unknowns');
-                        const marker = document.createElement('span');
-                        marker.className = 'unknowns-marker';
-                        marker.textContent = '\u003f';  // '?' marks an answer with unknown goals
-                        item.appendChild(marker);
-                        attachAnswerTooltip(item, unknowns);
-                    }
-                    item.addEventListener('click', () => {
-                        document.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
-                        item.classList.add('selected');
-                        renderExplanation(result.why);
-                        setAnswerInUrl(index + 1);   // keep the URL pointing at the viewed answer
-                    });
-                    item.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        currentAnswerToCopy = result.answer;
-                        answerContextMenu.style.display = 'block';
-                        answerContextMenu.style.left = `${e.clientX}px`;
-                        answerContextMenu.style.top = `${e.clientY}px`;
-                    });
-                    answersList.appendChild(item);
-                    if (index === target) item.click(); // Select the target (default: first)
-                });
-            } else if (res && res.why) {
-                if (wantAnswer !== null) showModal('The query has no answers (it is false in this scenario), so there is no answer to select.', 'No such answer');
-                const item = document.createElement('div');
-                item.className = 'answer-item failure selected';
-                item.style.color = '#f48771';
-                item.textContent = 'No answers (false)';
-                item.addEventListener('click', () => {
-                    document.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
-                    item.classList.add('selected');
-                    renderExplanation(res.why);
-                });
-                item.addEventListener('contextmenu', (e) => {
-                    e.preventDefault();
-                    currentAnswerToCopy = 'No answers (false)';
-                    answerContextMenu.style.display = 'block';
-                    answerContextMenu.style.left = `${e.clientX}px`;
-                    answerContextMenu.style.top = `${e.clientY}px`;
-                });
-                answersList.appendChild(item);
-                renderExplanation(res.why);
-            } else if (res && res.interrupted) {
-                answersList.textContent = 'Query interrupted.';
-            } else if (res && res.error) {
-                answersList.textContent = 'Error: ' + res.error;
-            } else {
-                answersList.textContent = 'No results returned.';
+            // Which answer to auto-select: the one asked for by `answer` (if in
+            // range), otherwise the first. Warn if the requested one does not exist.
+            const nResults = (res && res.results) ? res.results.length : 0;
+            let target = 0;
+            if (wantAnswer !== null) {
+                if (nResults > 0 && wantAnswer >= 0 && wantAnswer < nResults) target = wantAnswer;
+                else if (nResults > 0) showModal(`Answer ${wantAnswer + 1} does not exist — the query has ${nResults} answer(s) in this scenario.`, 'No such answer');
+                else if (res && res.why) showModal('The query has no answers (it is false in this scenario), so there is no answer to select.', 'No such answer');
             }
+            explView.showResults(res, target);
         } catch (err) {
             answersList.textContent = 'Error executing query.';
             console.error(err);
@@ -2493,6 +2094,25 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
         const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                              document.body.className.includes('hc-theme') ? 'hc-theme' : '';
         window.open(`scenario-editor.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
+    });
+
+    // --- Scenario Variations window ------------------------------------------
+    // Pick/alter a scenario and run queries against the variation, in a separate
+    // window. Reuses this editor's session; navigation messages flow back here.
+    document.getElementById('btn-variations')?.addEventListener('click', async () => {
+        if (!isLoaded) { const ok = await loadModule(); if (!ok) return; }
+        const data = {
+            source: editor.getValue(),
+            sessionModule,
+            kbName: lastKb,
+            queries: lastQueries.map((q: any) => ({ name: q.name, label: q.le || q.template })),
+            selectedScenario: scenarioSelect.value === '___custom___' ? '' : scenarioSelect.value,
+            selectedQuery: querySelect.value === '___custom___' ? '' : querySelect.value,
+        };
+        localStorage.setItem('le_scenario_variations_data', JSON.stringify(data));
+        const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
+                             document.body.className.includes('hc-theme') ? 'hc-theme' : '';
+        window.open(`scenario-variations.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
     });
 
     // Apply a scenario block sent back from the Scenario Editor window: replace the
