@@ -755,20 +755,30 @@ async function initScenarioVariations() {
   const url = new URLSearchParams(location.search);
   const ls = JSON.parse(localStorage.getItem("le_scenario_variations_data") || "{}");
   let source = url.get("text") || ls.source || "";
-  let sessionModule = ls.sessionModule || null;
   let kbName = ls.kbName || "";
   let queryDefs = Array.isArray(ls.queries) ? ls.queries : [];
-  if (source && (!sessionModule || queryDefs.length === 0)) {
-    const r = await leapi({ operation: "load", le: source });
-    if (r && r.sessionModule) {
-      sessionModule = r.sessionModule;
-      if (!kbName)
-        kbName = r.kb || "";
-      if (queryDefs.length === 0 && Array.isArray(r.queries)) {
-        queryDefs = r.queries.map((q) => ({ name: q.name, label: q.le || q.template }));
-      }
+  let sessionModule = null;
+  let sessionLoad = null;
+  function startSessionLoad() {
+    if (!sessionLoad) {
+      sessionLoad = (source ? leapi({ operation: "load", le: source }) : Promise.resolve(null)).then((r) => {
+        if (r && r.sessionModule) {
+          sessionModule = r.sessionModule;
+          if (!kbName)
+            kbName = r.kb || "";
+          if (queryDefs.length === 0 && Array.isArray(r.queries)) {
+            queryDefs = r.queries.map((q) => ({ name: q.name, label: q.le || q.template }));
+          }
+        }
+      }).catch(() => {
+      });
     }
+    return sessionLoad;
   }
+  if (queryDefs.length === 0 && source)
+    await startSessionLoad();
+  else
+    startSessionLoad();
   const blocks = parseScenarioBlocks(source);
   const blockByName = new Map(blocks.map((b) => [b.name, b]));
   const scenarioNames = Array.isArray(ls.scenarios) && ls.scenarios.length ? ls.scenarios : blocks.map((b) => b.name);
@@ -889,12 +899,8 @@ async function initScenarioVariations() {
   async function ensureSession() {
     if (sessionModule)
       return true;
-    const r = await leapi({ operation: "load", le: source });
-    if (r && r.sessionModule) {
-      sessionModule = r.sessionModule;
-      return true;
-    }
-    return false;
+    await startSessionLoad();
+    return !!sessionModule;
   }
   async function runOne(entry) {
     entry.view.showMessage("Running\u2026");
@@ -909,6 +915,7 @@ async function initScenarioVariations() {
     let res = await leapi(reqBody());
     if (res && res.session_expired) {
       sessionModule = null;
+      sessionLoad = null;
       if (await ensureSession())
         res = await leapi(reqBody());
     }

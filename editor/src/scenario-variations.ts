@@ -10,7 +10,6 @@ import { ExplanationView, MenuEls } from './explanation-view';
 
 interface VariationsData {
     source?: string;
-    sessionModule?: string;
     kbName?: string;
     queries?: { name: string; label?: string }[];
     scenarios?: string[];
@@ -35,21 +34,36 @@ export async function initScenarioVariations() {
 
     // Program text: from the URL (shared link) or localStorage (opened from editor).
     let source = url.get('text') || ls.source || '';
-    let sessionModule: string | null = ls.sessionModule || null;
     let kbName = ls.kbName || '';
     let queryDefs: { name: string; label?: string }[] = Array.isArray(ls.queries) ? ls.queries : [];
 
-    // A shared link carries only the text — load it to get a session, queries and KB.
-    if (source && (!sessionModule || queryDefs.length === 0)) {
-        const r = await leapi({ operation: 'load', le: source });
-        if (r && r.sessionModule) {
-            sessionModule = r.sessionModule;
-            if (!kbName) kbName = r.kb || '';
-            if (queryDefs.length === 0 && Array.isArray(r.queries)) {
-                queryDefs = r.queries.map((q: any) => ({ name: q.name, label: q.le || q.template }));
-            }
+    // This window keeps its OWN reasoning session, independent of the editor's. The
+    // editor reloading its module (or its session being reclaimed) must never break
+    // the variation being explored here, so we deliberately do NOT reuse the editor's
+    // sessionModule — we load our own from the program text.
+    let sessionModule: string | null = null;
+    let sessionLoad: Promise<void> | null = null;
+    function startSessionLoad(): Promise<void> {
+        if (!sessionLoad) {
+            sessionLoad = (source ? leapi({ operation: 'load', le: source }) : Promise.resolve(null))
+                .then((r: any) => {
+                    if (r && r.sessionModule) {
+                        sessionModule = r.sessionModule;
+                        if (!kbName) kbName = r.kb || '';
+                        if (queryDefs.length === 0 && Array.isArray(r.queries)) {
+                            queryDefs = r.queries.map((q: any) => ({ name: q.name, label: q.le || q.template }));
+                        }
+                    }
+                })
+                .catch(() => { /* reported when the user actually runs a query */ });
         }
+        return sessionLoad;
     }
+    // A shared link carries only the text, so we must load to discover the queries;
+    // otherwise we render immediately and load the session in the background, so it is
+    // ready by the time the user runs a query.
+    if (queryDefs.length === 0 && source) await startSessionLoad();
+    else startSessionLoad();
 
     const blocks = parseScenarioBlocks(source);
     const blockByName = new Map(blocks.map(b => [b.name, b]));
@@ -175,9 +189,8 @@ export async function initScenarioVariations() {
 
     async function ensureSession(): Promise<boolean> {
         if (sessionModule) return true;
-        const r = await leapi({ operation: 'load', le: source });
-        if (r && r.sessionModule) { sessionModule = r.sessionModule; return true; }
-        return false;
+        await startSessionLoad();          // awaits the in-flight load (or starts one)
+        return !!sessionModule;
     }
 
     async function runOne(entry: QueryCard) {
@@ -191,8 +204,9 @@ export async function initScenarioVariations() {
             hideRepeated: (localStorage.getItem('le-hide-repeated-explanations') ?? 'true') === 'true',
         });
         let res = await leapi(reqBody());
-        if (res && res.session_expired) {            // session reclaimed — reload and retry once
+        if (res && res.session_expired) {            // our session was reclaimed (idle) — load a fresh one and retry once
             sessionModule = null;
+            sessionLoad = null;
             if (await ensureSession()) res = await leapi(reqBody());
         }
         entry.view.showResults(res);

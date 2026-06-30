@@ -2098,12 +2098,12 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
 
     // --- Scenario Variations window ------------------------------------------
     // Pick/alter a scenario and run queries against the variation, in a separate
-    // window. Reuses this editor's session; navigation messages flow back here.
+    // window. The window establishes its OWN server session from this source (so the
+    // editor reloading never breaks it); navigation messages flow back here.
     document.getElementById('btn-variations')?.addEventListener('click', async () => {
         if (!isLoaded) { const ok = await loadModule(); if (!ok) return; }
         const data = {
             source: editor.getValue(),
-            sessionModule,
             kbName: lastKb,
             queries: lastQueries.map((q: any) => ({ name: q.name, label: q.le || q.template })),
             selectedScenario: scenarioSelect.value === '___custom___' ? '' : scenarioSelect.value,

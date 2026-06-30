@@ -77,6 +77,37 @@ test.describe('Scenario Variations', () => {
         expect(copied).toContain('is born in');
     });
 
+    test('uses its own session, distinct from the editor Query panel', async ({ page }) => {
+        test.setTimeout(60000);
+        let winSession = '';
+        let edSession = '';
+        const v = await openVariations(page);
+
+        const grab = (r: any, set: (s: string) => void) => {
+            if (r.url().includes('/leapi') && r.method() === 'POST') {
+                try {
+                    const d = JSON.parse(r.postData() || '{}');
+                    if (d.operation === 'answeringQuery' && d.sessionModule) set(d.sessionModule);
+                } catch { /* ignore */ }
+            }
+        };
+        v.on('request', (r) => grab(r, (s) => (winSession = s)));
+        page.on('request', (r) => grab(r, (s) => (edSession = s)));
+
+        // Run a query in the variations window…
+        await v.locator('#btn-run').click();
+        await expect(v.locator('.query-card .answer-item').first()).toBeVisible({ timeout: 30000 });
+        // …and one in the editor's Query panel (scenario/query already selected).
+        await page.locator('#btn-query').click();
+        await expect(page.locator('#answers-list .answer-item').first()).toBeVisible({ timeout: 30000 });
+
+        // Each ran against its own session, so the editor reloading or its session being
+        // reclaimed cannot break the variations window.
+        expect(winSession).toBeTruthy();
+        expect(edSession).toBeTruthy();
+        expect(winSession).not.toBe(edSession);
+    });
+
     test('Add Query and remove a query card', async ({ page }) => {
         test.setTimeout(60000);
         const v = await openVariations(page);
