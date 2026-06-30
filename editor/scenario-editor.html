@@ -98,7 +98,12 @@
             width: auto;
         }
         .fact-row .preserved { flex: 1; min-width: 220px; color: var(--muted); font-style: italic; }
-        .row-tools { margin-left: auto; display: flex; gap: 4px; }
+        .row-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+        .row-tools .assume {
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: 11px; color: var(--muted); cursor: pointer; white-space: nowrap;
+        }
+        .fact-row.assumed input.field { font-style: italic; opacity: 0.7; }
         .row-tools button {
             padding: 2px 8px;
             line-height: 1.2;
