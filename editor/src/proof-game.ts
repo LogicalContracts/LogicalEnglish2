@@ -1914,4 +1914,29 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
 
         AreaExtensions.zoomAt(area, editor.getNodes());
     });
+
+    // Test-only hook (enabled by a localStorage flag the e2e sets before opening the
+    // window). Exposes the node graph so a test can build connections and assert
+    // completeness — the proof-game canvas is otherwise impractical to drive. No-op in
+    // normal use.
+    try {
+        if (localStorage.getItem('le_pg_test') === '1') {
+            (window as any).__pgTest = {
+                gameData,
+                updateUnification,
+                nodes: () => editor.getNodes().map((n: any) => ({
+                    id: n.id, kind: n.constructor.name, label: n.label ?? '', complete: !!n.complete,
+                })),
+                connect: (sourceId: string, targetId: string, targetInput: string) =>
+                    editor.addConnection(new ClassicPreset.Connection(
+                        editor.getNode(sourceId) as any, 'out', editor.getNode(targetId) as any, targetInput)),
+                disconnect: (sourceId: string, targetId: string, targetInput: string) => {
+                    const c = editor.getConnections().find((x: any) =>
+                        x.source === sourceId && x.target === targetId && x.targetInput === targetInput);
+                    return c ? editor.removeConnection(c.id) : Promise.resolve(undefined);
+                },
+                complete: (id: string) => !!(editor.getNode(id) as any)?.complete,
+            };
+        }
+    } catch { /* localStorage unavailable */ }
 }
