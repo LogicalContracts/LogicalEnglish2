@@ -166,6 +166,7 @@ function splitFacts(bodyLines) {
 // src/scenario-form.ts
 var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
 var isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
+var UNKNOWN_PREFIX = /^it is (?:unknown|assumed|assumable) whether\s+/i;
 var ScenarioForm = class {
   templates;
   // all templates (for recognising facts)
@@ -213,10 +214,10 @@ var ScenarioForm = class {
       const val = opts.addSelect.value;
       if (!val)
         return;
-      this.rows.push({ templateLabel: val, values: [], raw: "" });
+      this.rows.push({ templateLabel: val, values: [], raw: "", assumed: false });
       this.changed();
       this.render();
-      opts.rowsEl.lastElementChild?.querySelector("input")?.focus();
+      opts.rowsEl.lastElementChild?.querySelector("input.field")?.focus();
     });
   }
   changed() {
@@ -232,11 +233,13 @@ var ScenarioForm = class {
         this.testLines.push(fact);
         continue;
       }
-      const m = matchFact(fact, this.templates);
+      const assumed = UNKNOWN_PREFIX.test(fact);
+      const inner = assumed ? fact.replace(UNKNOWN_PREFIX, "") : fact;
+      const m = matchFact(inner, this.templates);
       if (m)
-        this.rows.push({ templateLabel: m.label, values: m.values, raw: "" });
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed });
       else
-        this.rows.push({ templateLabel: null, values: [], raw: fact });
+        this.rows.push({ templateLabel: null, values: [], raw: inner, assumed });
     }
     this.render();
   }
@@ -265,6 +268,9 @@ var ScenarioForm = class {
   renderRow(row, idx) {
     const el = document.createElement("div");
     el.className = "fact-row";
+    if (row.assumed)
+      el.classList.add("assumed");
+    const fieldInputs = [];
     if (row.templateLabel === null) {
       const span = document.createElement("span");
       span.className = "preserved";
@@ -288,6 +294,7 @@ var ScenarioForm = class {
           input.placeholder = seg.text;
           input.title = seg.text;
           input.value = row.values[fi] ?? "";
+          input.disabled = row.assumed;
           this.sizeField(input);
           input.addEventListener("input", () => {
             row.values[fi] = input.value;
@@ -295,11 +302,27 @@ var ScenarioForm = class {
             this.changed();
           });
           el.appendChild(input);
+          fieldInputs.push(input);
         }
       }
     }
     const tools = document.createElement("div");
     tools.className = "row-tools";
+    const assume = document.createElement("label");
+    assume.className = "assume";
+    assume.title = "if checked, fact is assumed, unknown";
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = row.assumed;
+    check.addEventListener("change", () => {
+      row.assumed = check.checked;
+      fieldInputs.forEach((inp) => inp.disabled = row.assumed);
+      el.classList.toggle("assumed", row.assumed);
+      this.changed();
+    });
+    assume.appendChild(check);
+    assume.appendChild(document.createTextNode(" Assume"));
+    tools.appendChild(assume);
     const del = document.createElement("button");
     del.textContent = "\u2715";
     del.title = "Delete";
@@ -314,9 +337,10 @@ var ScenarioForm = class {
   }
   // --- Producing text --------------------------------------------------------
   factText(row) {
-    if (row.templateLabel === null)
-      return row.raw.trim().replace(/\.\s*$/, "").trim();
-    return fillTemplate(row.templateLabel, row.values);
+    const base = row.templateLabel === null ? row.raw.trim().replace(/\.\s*$/, "").trim() : fillTemplate(row.templateLabel, row.values);
+    if (!base)
+      return "";
+    return row.assumed ? `it is unknown whether ${base}` : base;
   }
   // Each fact's text (no trailing period), skipping wholly-empty rows.
   factLines() {

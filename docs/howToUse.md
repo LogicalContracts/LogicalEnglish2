@@ -84,6 +84,7 @@ Only the placeholders are editable — you can't accidentally break the surround
 
 *   **Add a fact:** pick a template from the **Add fact** menu and click **+ Add**, then fill in the fields. The menu lists only templates that make sense as scenario facts: those declared **`; undefined`** (a.k.a. *scenario element*) and those already used by some scenario. Plain "*X* is a *type*" assertions are also supported.
 *   **Delete a fact:** click the **✕** on its row.
+*   **Assume (unknown):** each row has an **Assume** checkbox on the right. Tick it to mark the fact *unknown* — the fact is written back with the `it is unknown whether …` prefix and its fields become read-only while assumed. A fact the program already declares unknown loads with **Assume** pre-checked; untick it to turn it back into an ordinary fact.
 *   **Test lines** (`… expects answers …`) are too complex for this form, so they are not shown. They are kept aside and written back **commented out** (so your saved scenario is valid); review and re-enable them in the main editor.
 *   **Other lines that match no template** are shown greyed-out and read-only so they are preserved; edit those in the main editor. Comments (`%`) are ignored.
 
@@ -101,7 +102,7 @@ The **Scenario Variations** window lets you take a scenario, **alter it**, and i
 ### Layout
 
 *   **Scenario picker** (top): choose which scenario to start from, or `(empty)` to build one from scratch.
-*   **Scenario facts:** the same fill-in-the-blank form as the [Scenario Editor](#the-scenario-editor) — edit the placeholder fields, delete facts, or **Add fact** from a template. **Copy Scenario** puts the resulting `scenario … is:` block on the clipboard.
+*   **Scenario facts:** the same fill-in-the-blank form as the [Scenario Editor](#the-scenario-editor) — edit the placeholder fields, delete facts, **Add fact** from a template, or tick **Assume** to run a fact as *unknown*. **Copy Scenario** puts the resulting `scenario … is:` block on the clipboard.
 *   **Queries:** a list of the queries to run. Use **Add Query** to add one of your program's queries; each query has a close box (✕) to remove it.
 *   **Query** button (bottom): runs **all** the listed queries against the current (altered) facts. Under each query you get the familiar **answers + explanation** view — including unknown-goal tooltips and clickable explanation nodes, which **reveal the matching source in the main editor window**.
 

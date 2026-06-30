@@ -13,6 +13,7 @@ interface Row {
     templateLabel: string | null;   // null => a preserved (non-template) line
     values: string[];
     raw: string;
+    assumed: boolean;               // "it is unknown whether <fact>" (Assume checkbox)
 }
 
 // "X is a / an TYPE" type assertions are valid scenario facts but aren't declared
@@ -21,6 +22,10 @@ const SYSTEM_TYPE = ['*a thing* is a *type*', '*a thing* is an *type*'];
 
 // A scenario "test" line: "<query> expects answers [...] (and unknowns [...])".
 export const isTestDirective = (fact: string) => /\bexpects?\s+answers?\b/i.test(fact);
+
+// An "unknown" (assumable) scenario fact: "it is unknown whether <fact>". LE also
+// accepts the "assumed"/"assumable" synonyms.
+const UNKNOWN_PREFIX = /^it is (?:unknown|assumed|assumable) whether\s+/i;
 
 export interface ScenarioFormOptions {
     source: string;                 // LE source, for templates + which templates are used
@@ -68,10 +73,10 @@ export class ScenarioForm {
         opts.btnAdd.addEventListener('click', () => {
             const val = opts.addSelect.value;
             if (!val) return;
-            this.rows.push({ templateLabel: val, values: [], raw: '' });
+            this.rows.push({ templateLabel: val, values: [], raw: '', assumed: false });
             this.changed();
             this.render();
-            (opts.rowsEl.lastElementChild as HTMLElement | null)?.querySelector('input')?.focus();
+            (opts.rowsEl.lastElementChild as HTMLElement | null)?.querySelector('input.field')?.focus();
         });
     }
 
@@ -84,9 +89,12 @@ export class ScenarioForm {
         this.testLines = [];
         for (const fact of facts) {
             if (isTestDirective(fact)) { this.testLines.push(fact); continue; }
-            const m = matchFact(fact, this.templates);
-            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '' });
-            else this.rows.push({ templateLabel: null, values: [], raw: fact });
+            // A fact the program declares unknown loads with "Assume" pre-checked.
+            const assumed = UNKNOWN_PREFIX.test(fact);
+            const inner = assumed ? fact.replace(UNKNOWN_PREFIX, '') : fact;
+            const m = matchFact(inner, this.templates);
+            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '', assumed });
+            else this.rows.push({ templateLabel: null, values: [], raw: inner, assumed });
         }
         this.render();
     }
@@ -119,7 +127,9 @@ export class ScenarioForm {
     private renderRow(row: Row, idx: number): HTMLElement {
         const el = document.createElement('div');
         el.className = 'fact-row';
+        if (row.assumed) el.classList.add('assumed');
 
+        const fieldInputs: HTMLInputElement[] = [];
         if (row.templateLabel === null) {
             const span = document.createElement('span');
             span.className = 'preserved';
@@ -143,6 +153,7 @@ export class ScenarioForm {
                     input.placeholder = seg.text;      // hint text = the LE variable
                     input.title = seg.text;
                     input.value = row.values[fi] ?? '';
+                    input.disabled = row.assumed;      // assumed facts are not editable
                     this.sizeField(input);
                     input.addEventListener('input', () => {
                         row.values[fi] = input.value;
@@ -150,12 +161,32 @@ export class ScenarioForm {
                         this.changed();
                     });
                     el.appendChild(input);
+                    fieldInputs.push(input);
                 }
             }
         }
 
         const tools = document.createElement('div');
         tools.className = 'row-tools';
+
+        // "Assume" — mark the fact unknown ("it is unknown whether …"); its fields
+        // then become read-only.
+        const assume = document.createElement('label');
+        assume.className = 'assume';
+        assume.title = 'if checked, fact is assumed, unknown';
+        const check = document.createElement('input');
+        check.type = 'checkbox';
+        check.checked = row.assumed;
+        check.addEventListener('change', () => {
+            row.assumed = check.checked;
+            fieldInputs.forEach(inp => inp.disabled = row.assumed);
+            el.classList.toggle('assumed', row.assumed);
+            this.changed();
+        });
+        assume.appendChild(check);
+        assume.appendChild(document.createTextNode(' Assume'));
+        tools.appendChild(assume);
+
         const del = document.createElement('button');
         del.textContent = '✕';
         del.title = 'Delete';
@@ -167,8 +198,11 @@ export class ScenarioForm {
 
     // --- Producing text --------------------------------------------------------
     private factText(row: Row): string {
-        if (row.templateLabel === null) return row.raw.trim().replace(/\.\s*$/, '').trim();
-        return fillTemplate(row.templateLabel, row.values);
+        const base = row.templateLabel === null
+            ? row.raw.trim().replace(/\.\s*$/, '').trim()
+            : fillTemplate(row.templateLabel, row.values);
+        if (!base) return '';
+        return row.assumed ? `it is unknown whether ${base}` : base;
     }
 
     // Each fact's text (no trailing period), skipping wholly-empty rows.

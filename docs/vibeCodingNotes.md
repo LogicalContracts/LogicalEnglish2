@@ -1818,5 +1818,7 @@ The Scenario Variations window will consider the invocation URL to obtain option
 
 As the user edits the query list or the selected scenario, the URL is to change to include the changes, so the user can share what he's doing (just like with the editor) with other users; so there should be a query string param "scenarioText" to cater for scenario variations, a queries param etc
 
+Each scenario fact should have a checkbox "Assume" to its right (tooltip "if checked, fact is assumed, unknown"); while checked, the fact fields are no longer editable, and the fact scenario sent to the server should be preceded by "it is unknown whether". If the LE program defines the scenario fact unknown, the checkbox should be checked (and the user can uncheck it). 
+
 
 ## TBD

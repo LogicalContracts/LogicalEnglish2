@@ -23,6 +23,20 @@ const SEED = {
     ].join('\n'),
 };
 
+// A program whose scenario declares one fact unknown ("it is unknown whether …")
+// and one plain fact — for the Assume checkbox.
+const SEED_ASSUME = {
+    source: [
+        'the templates are:',
+        '    *a person* is happy.',
+        '    *a person* likes *a thing*.',
+        '',
+        'scenario s is:',
+        '    it is unknown whether Bob is happy.',
+        '    Alice likes chocolate.',
+    ].join('\n'),
+};
+
 test.describe('Scenario Editor', () => {
     test('loads a scenario into editable template rows and builds correct text', async ({ page, context }) => {
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
@@ -130,5 +144,47 @@ test.describe('Scenario Editor', () => {
             (window as any).monaco.editor.getModels()[0].getValue());
         expect(finalText).toContain('Alice is the mother of John.');
         expect(finalText.match(/scenario alice is:/g)?.length).toBe(1);
+    });
+
+    test('Assume checkbox marks a fact unknown ("it is unknown whether …")', async ({ page, context }) => {
+        await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+        await page.goto('index.html');
+        await page.evaluate((seed) =>
+            localStorage.setItem('le_scenario_editor_data', JSON.stringify(seed)), SEED_ASSUME);
+        await page.goto('scenario-editor.html');
+        await page.locator('#scenario-picker').selectOption('s');
+
+        const rows = page.locator('.fact-row');
+        await expect(rows).toHaveCount(2);
+
+        // Row 0 ("it is unknown whether Bob is happy") loads with Assume pre-checked and
+        // its field disabled — but still showing the parsed value "Bob".
+        const unknownRow = rows.nth(0);
+        await expect(unknownRow.locator('.assume input[type=checkbox]')).toBeChecked();
+        await expect(unknownRow.locator('input.field')).toBeDisabled();
+        await expect(unknownRow.locator('input.field')).toHaveValue('Bob');
+
+        // Row 1 ("Alice likes chocolate") is a plain editable fact.
+        const plainRow = rows.nth(1);
+        await expect(plainRow.locator('.assume input[type=checkbox]')).not.toBeChecked();
+        await expect(plainRow.locator('input.field').first()).toBeEnabled();
+
+        // Check Assume on the plain fact: its fields become read-only.
+        await plainRow.locator('.assume input[type=checkbox]').check();
+        await expect(plainRow.locator('input.field').first()).toBeDisabled();
+
+        // Copy: both facts are now written with the "it is unknown whether" prefix.
+        await page.locator('#btn-copy').click();
+        const copied = await page.evaluate(() => navigator.clipboard.readText());
+        expect(copied).toContain('it is unknown whether Bob is happy.');
+        expect(copied).toContain('it is unknown whether Alice likes chocolate.');
+
+        // Uncheck Assume on row 0: the field is editable again and the prefix is gone.
+        await unknownRow.locator('.assume input[type=checkbox]').uncheck();
+        await expect(unknownRow.locator('input.field')).toBeEnabled();
+        await page.locator('#btn-copy').click();
+        const copied2 = await page.evaluate(() => navigator.clipboard.readText());
+        expect(copied2).toContain('Bob is happy.');
+        expect(copied2).not.toContain('it is unknown whether Bob is happy.');
     });
 });
