@@ -125940,6 +125940,32 @@ async function initProofGame(container, gameData) {
     }
     index.zoomAt(area, editor.getNodes());
   });
+  try {
+    if (localStorage.getItem("le_pg_test") === "1") {
+      window.__pgTest = {
+        gameData,
+        updateUnification,
+        nodes: () => editor.getNodes().map((n2) => ({
+          id: n2.id,
+          kind: n2.constructor.name,
+          label: n2.label ?? "",
+          complete: !!n2.complete
+        })),
+        connect: (sourceId, targetId, targetInput) => editor.addConnection(new classic.Connection(
+          editor.getNode(sourceId),
+          "out",
+          editor.getNode(targetId),
+          targetInput
+        )),
+        disconnect: (sourceId, targetId, targetInput) => {
+          const c2 = editor.getConnections().find((x2) => x2.source === sourceId && x2.target === targetId && x2.targetInput === targetInput);
+          return c2 ? editor.removeConnection(c2.id) : Promise.resolve(void 0);
+        },
+        complete: (id) => !!editor.getNode(id)?.complete
+      };
+    }
+  } catch {
+  }
 }
 export {
   initProofGame
