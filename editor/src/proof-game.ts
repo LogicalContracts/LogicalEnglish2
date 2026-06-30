@@ -669,7 +669,43 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     const area = new AreaPlugin<Schemes, AreaExtra>(container);
     const connection = new ConnectionPlugin<Schemes, AreaExtra>();
     const render = new ReactPlugin<Schemes, AreaExtra>({ createRoot });
-    const sessionModule = gameData.sessionModule;
+
+    // This window runs its OWN reasoning session, independent of the editor's, so the
+    // editor reloading its module (or its session being reclaimed) never breaks the
+    // game. We load it from the program source and re-assert the game-node terms via
+    // getGameData (whose rule/fact ids are regenerated deterministically, so they
+    // match the ids already rendered from gameData).
+    let sessionModule: string | null = null;
+    let sessionReady: Promise<boolean> | null = null;
+
+    const leapi = (body: any) => fetch('/leapi', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+    }).then(r => r.json()).catch(() => null);
+
+    async function establishSession(): Promise<boolean> {
+        const source = (gameData as any).source;
+        const req = (gameData as any).request;
+        if (!source || !req) {
+            // No source to load our own session — fall back to the editor's (legacy).
+            sessionModule = gameData.sessionModule || null;
+            return !!sessionModule;
+        }
+        const r = await leapi({ token: 'myToken123', operation: 'load', le: source });
+        if (!(r && r.sessionModule)) return false;
+        sessionModule = r.sessionModule;
+        gameData.sessionModule = sessionModule;
+        req.sessionModule = sessionModule;
+        const g = await leapi(req);                 // assert the game-node terms here
+        return !!(g && g.gameData && !g.session_expired);
+    }
+    // Awaitable gate: returns once our session exists (loads it on first need).
+    function ensureSession(): Promise<boolean> {
+        if (sessionModule) return Promise.resolve(true);
+        if (!sessionReady) sessionReady = establishSession();
+        return sessionReady;
+    }
+    ensureSession();   // kick off the load in the background (UI renders meanwhile)
 
     // Clone-tool state (wired further below; declared here so the answer picker can
     // refresh the tool's visibility when the chosen answer changes).
@@ -698,16 +734,13 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             select.addEventListener('change', async () => {
                 const idx = parseInt(select.value);
                 try {
+                    await ensureSession();   // our session (req.sessionModule is kept current)
                     const req = gameData.request
                         ? { ...gameData.request }
                         : JSON.parse(localStorage.getItem('le_proof_game_request') || 'null');
                     if (!req) { console.error('No stored request to switch answers'); return; }
                     req.answerIndex = idx;
-                    const res = await fetch('/leapi', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(req)
-                    }).then(r => r.json());
+                    const res = await leapi(req);
                     if (res && res.gameData && res.gameData.explanation !== undefined) {
                         // Swap in the new answer's spine; the rules/facts/nodes are
                         // answer-independent and stay as they are.
@@ -1199,11 +1232,15 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         const req = (gameData as any).request;
         if (!req) return false;
         try {
-            const res = await fetch('/leapi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(req)
-            }).then(r => r.json());
+            req.sessionModule = sessionModule;
+            const res = await leapi(req);
+            // Our session was reclaimed for being idle — establish a fresh one (which
+            // re-asserts the game-node terms as part of getGameData).
+            if (res && res.session_expired) {
+                sessionModule = null;
+                sessionReady = null;
+                return await ensureSession();
+            }
             return !!(res && res.gameData && !res.session_expired);
         } catch {
             return false;
@@ -1297,18 +1334,15 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }).filter(e => e !== null);
 
         try {
-            const response = await fetch('/leapi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token: 'myToken123',
-                    operation: 'unifyGameNodes',
-                    sessionModule: sessionModule,
-                    nodes: nodeSpecs,
-                    edges: edges
-                })
+            await ensureSession();   // make sure our own session exists before unifying
+            const res = await leapi({
+                token: 'myToken123',
+                operation: 'unifyGameNodes',
+                sessionModule: sessionModule,
+                nodes: nodeSpecs,
+                edges: edges
             });
-            const res = await response.json();
+            if (!res) return;
             // A newer unification round has superseded this one; drop the stale reply.
             if (mySeq !== unifySeq) return;
 

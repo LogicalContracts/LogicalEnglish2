@@ -2047,6 +2047,9 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
                     detailedFailures: detailedFailures,
                     hideRepeated: hideRepeatedExplanations
                 };
+                // The program source, so the game window can establish its OWN session
+                // (independent of this editor's) rather than reusing sessionModule.
+                res.gameData.source = text;
                 localStorage.setItem('le_proof_game_data', JSON.stringify(res.gameData));
                 const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                                      document.body.className.includes('hc-theme') ? 'hc-theme' : '';

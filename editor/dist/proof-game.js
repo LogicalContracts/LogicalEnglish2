@@ -124912,7 +124912,37 @@ async function initProofGame(container, gameData) {
   const area = new AreaPlugin(container);
   const connection = new ConnectionPlugin();
   const render2 = new ReactPlugin({ createRoot: import_client.createRoot });
-  const sessionModule = gameData.sessionModule;
+  let sessionModule = null;
+  let sessionReady = null;
+  const leapi = (body) => fetch("/leapi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  }).then((r2) => r2.json()).catch(() => null);
+  async function establishSession() {
+    const source = gameData.source;
+    const req = gameData.request;
+    if (!source || !req) {
+      sessionModule = gameData.sessionModule || null;
+      return !!sessionModule;
+    }
+    const r2 = await leapi({ token: "myToken123", operation: "load", le: source });
+    if (!(r2 && r2.sessionModule))
+      return false;
+    sessionModule = r2.sessionModule;
+    gameData.sessionModule = sessionModule;
+    req.sessionModule = sessionModule;
+    const g2 = await leapi(req);
+    return !!(g2 && g2.gameData && !g2.session_expired);
+  }
+  function ensureSession() {
+    if (sessionModule)
+      return Promise.resolve(true);
+    if (!sessionReady)
+      sessionReady = establishSession();
+    return sessionReady;
+  }
+  ensureSession();
   let cloneMode = false;
   let refreshCloneToolVisibility = () => {
   };
@@ -124933,17 +124963,14 @@ async function initProofGame(container, gameData) {
       select.addEventListener("change", async () => {
         const idx = parseInt(select.value);
         try {
+          await ensureSession();
           const req = gameData.request ? { ...gameData.request } : JSON.parse(localStorage.getItem("le_proof_game_request") || "null");
           if (!req) {
             console.error("No stored request to switch answers");
             return;
           }
           req.answerIndex = idx;
-          const res = await fetch("/leapi", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(req)
-          }).then((r2) => r2.json());
+          const res = await leapi(req);
           if (res && res.gameData && res.gameData.explanation !== void 0) {
             gameData.explanation = res.gameData.explanation;
             gameData.answerIndex = idx;
@@ -125361,11 +125388,13 @@ async function initProofGame(container, gameData) {
     if (!req)
       return false;
     try {
-      const res = await fetch("/leapi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(req)
-      }).then((r2) => r2.json());
+      req.sessionModule = sessionModule;
+      const res = await leapi(req);
+      if (res && res.session_expired) {
+        sessionModule = null;
+        sessionReady = null;
+        return await ensureSession();
+      }
       return !!(res && res.gameData && !res.session_expired);
     } catch {
       return false;
@@ -125428,18 +125457,16 @@ async function initProofGame(container, gameData) {
       return edge;
     }).filter((e) => e !== null);
     try {
-      const response = await fetch("/leapi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: "myToken123",
-          operation: "unifyGameNodes",
-          sessionModule,
-          nodes: nodeSpecs,
-          edges
-        })
+      await ensureSession();
+      const res = await leapi({
+        token: "myToken123",
+        operation: "unifyGameNodes",
+        sessionModule,
+        nodes: nodeSpecs,
+        edges
       });
-      const res = await response.json();
+      if (!res)
+        return;
       if (mySeq !== unifySeq)
         return;
       if (res.status === "ok") {

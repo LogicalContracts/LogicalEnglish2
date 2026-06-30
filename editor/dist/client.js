@@ -40627,6 +40627,7 @@ async function start() {
           detailedFailures,
           hideRepeated: hideRepeatedExplanations
         };
+        res.gameData.source = text;
         localStorage.setItem("le_proof_game_data", JSON.stringify(res.gameData));
         const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
         window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
