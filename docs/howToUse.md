@@ -2,6 +2,28 @@
 
 The Logical English (LE) web application is a simple IDE designed for developing, testing, and debugging Logical English programs.
 
+## Contents
+
+- [Getting Started](#getting-started)
+- [File Operations](#file-operations)
+    - [Opening and Saving](#opening-and-saving)
+    - [Saving via URL (Quick Save)](#saving-via-url-quick-save)
+- [Writing Logic and Issue Reporting](#writing-logic-and-issue-reporting)
+- [Running Queries](#running-queries)
+- [The Scenario Editor](#the-scenario-editor)
+    - [Layout](#layout)
+    - [Editing facts](#editing-facts)
+    - [Saving your work](#saving-your-work)
+- [Scenario Variations](#scenario-variations)
+    - [Layout](#layout-1)
+    - [Running and sharing](#running-and-sharing)
+- [Explanations and Navigation](#explanations-and-navigation)
+    - [Reading the Explanation Tree](#reading-the-explanation-tree)
+    - [Repeated Sub-explanations](#repeated-sub-explanations)
+    - [The Explanation Context Menu](#the-explanation-context-menu)
+    - [Explanation Preferences](#explanation-preferences)
+- [Advanced Features](#advanced-features)
+
 ## Getting Started
 
 1.  **Open the Editor:** Navigate to the editor URL (e.g., `http://localhost:3050/editor/`).
