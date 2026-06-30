@@ -747,6 +747,10 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                         gameData.explanation = res.gameData.explanation;
                         gameData.answerIndex = idx;
                         refreshCloneToolVisibility();
+                        // The required forall case count is answer-specific, so the
+                        // completion verdict can change — re-validate against the new
+                        // spine rather than leaving a stale green/red.
+                        checkCompletion();
                     }
                 } catch (err) {
                     console.error('Answer switch failed:', err);
@@ -1027,12 +1031,20 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                             for (const cc of consConns) if (!isComplete(cc.source)) return false;
                             const range = node.bodyRanges[i];
                             const need = range ? expForallCaseCount(range.start, range.end) : -1;
-                            if (need > 0) {
-                                // All cases must be shown (one condition + one consequence each).
-                                if (condConns.length < need || consConns.length < need) return false;
-                            } else if (consConns.length === 0) {
-                                return false;
-                            }
+                            // Reaching here means real cases are connected (not the
+                            // single-FAIL vacuous proof). If the SELECTED answer proves
+                            // this universal VACUOUSLY (need === 0, e.g. the picker shows
+                            // "bob is happy" — bob has no children — while the user is
+                            // building alice's proof), those cases belong to a different
+                            // binding and do not establish this answer.
+                            if (need === 0) return false;
+                            // Each connected case (a condition) needs its OWN proven
+                            // consequent, so a universal over several cases ("alice is a
+                            // parent of bob" AND "alice is a parent of mary") is NOT
+                            // satisfied by proving the consequent for just one of them.
+                            if (consConns.length < condConns.length) return false;
+                            // And every case the selected answer records must be shown.
+                            if (need > 0 && (condConns.length < need || consConns.length < need)) return false;
                             condConns.forEach(c => markFragment(c.source));
                             consConns.forEach(c => markFragment(c.source));
                         }
