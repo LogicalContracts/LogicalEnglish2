@@ -40677,7 +40677,6 @@ async function start() {
     }
     const data4 = {
       source: editor.getValue(),
-      sessionModule,
       kbName: lastKb,
       queries: lastQueries.map((q) => ({ name: q.name, label: q.le || q.template })),
       selectedScenario: scenarioSelect.value === "___custom___" ? "" : scenarioSelect.value,
