@@ -124975,6 +124975,7 @@ async function initProofGame(container, gameData) {
             gameData.explanation = res.gameData.explanation;
             gameData.answerIndex = idx;
             refreshCloneToolVisibility();
+            checkCompletion();
           }
         } catch (err) {
           console.error("Answer switch failed:", err);
@@ -125224,12 +125225,12 @@ async function initProofGame(container, gameData) {
                   return false;
               const range = node2.bodyRanges[i2];
               const need = range ? expForallCaseCount(range.start, range.end) : -1;
-              if (need > 0) {
-                if (condConns.length < need || consConns.length < need)
-                  return false;
-              } else if (consConns.length === 0) {
+              if (need === 0)
                 return false;
-              }
+              if (consConns.length < condConns.length)
+                return false;
+              if (need > 0 && (condConns.length < need || consConns.length < need))
+                return false;
               condConns.forEach((c2) => markFragment(c2.source));
               consConns.forEach((c2) => markFragment(c2.source));
             }
