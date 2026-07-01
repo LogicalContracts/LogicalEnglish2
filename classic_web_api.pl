@@ -706,7 +706,7 @@ reason_roots(KB, [R|Rs], I, Und, W0, W, C0, C) :-
 
 % reason_collect(+KB, +Node, +Path, +Understood, -SubtreeWeight, +Cand0, -Cand): the
 % subtree's weight, accumulating a Weight-(Text-Path) candidate for Node and every
-% descendant. A transparent (auto-named rule) node adds no intrinsic weight and no
+% descendant. A transparent (failed clause-attempt) node adds no intrinsic weight and no
 % candidate; an Understood node's subtree is skipped entirely (weight 0, no candidates).
 reason_collect(KB, Node, Path, Und, W, Cand0, Cand) :-
     (   memberchk(Path, Und) ->
@@ -752,16 +752,12 @@ reason_children(KB, [Ch|Chs], PP, I, Und, S0, S, C0, C) :-
     I1 is I + 1,
     reason_children(KB, Chs, PP, I1, Und, S1, S, C1, C).
 
-% transparent_rule_node(+KB, +Node, +Children): the node was proven by a rule (its
-% source range names a clause) whose id is auto-generated (not "rule <name>"), so it
-% is treated as a pass-through for the strongest-reason heuristic.
-transparent_rule_node(KB, Node, Children) :-
-    Children \== [],
-    KB \== none,
-    get_dict(start, Node, S), get_dict(end, Node, E),
-    catch(KB:le_source_info(_, S, E, RuleID), _, fail),
-    !,
-    \+ le_kbs:user_rule_name(RuleID).
+% transparent_rule_node(+KB, +Node, +Children): a "failed clause attempt" node — the
+% extra structural node under a failed goal, one per clause whose head matched (marked
+% `ruleAttempt` in convert_why/3). These are pass-throughs for the important-reason
+% heuristic: no intrinsic weight and never chosen themselves.
+transparent_rule_node(_KB, Node, _Children) :-
+    get_dict(ruleAttempt, Node, true).
 
 % Integer sort key: minimise |2*NodeWeight - TotalWeight| (i.e. |NodeWeight - W/2|),
 % then prefer the larger subtree (NegW ascending = Weight descending). NegW must be
@@ -1170,6 +1166,15 @@ convert_why(success(Goal, Ref, LE, Children), KB, JSON) :- !,
     ->  JSON = _{type: "success", literal: LE, start: Start, end: End, naf: Naf, children: JSONChildren}
     ;   JSON = _{type: "success", literal: LE, naf: Naf, children: JSONChildren}
     ).
+% A "failed clause attempt" node (rule_attempt): one per clause whose head matched the
+% failed goal (detailed failure explanations). Marked `ruleAttempt` so the important
+% reason treats these extra structural nodes as transparent.
+convert_why(failure(rule_attempt(_), range(Start, End), LE, Children), KB, JSON) :- !,
+    maplist(convert_why_child(KB), Children, JSONChildren),
+    JSON = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren, ruleAttempt: true}.
+convert_why(failure(rule_attempt(_), _Ref, LE, Children), KB, JSON) :- !,
+    maplist(convert_why_child(KB), Children, JSONChildren),
+    JSON = _{type: "failure", literal: LE, children: JSONChildren, ruleAttempt: true}.
 convert_why(failure(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     JSON = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren}.

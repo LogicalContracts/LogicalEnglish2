@@ -16,8 +16,6 @@
 
 leaf(Lit, _{literal:Lit, children:[]}).
 node(Lit, Children, _{literal:Lit, children:Children}).
-% A node carrying a source range, so it can be tied to a rule via le_source_info.
-node_at(Lit, S, E, Children, _{literal:Lit, start:S, end:E, children:Children}).
 
 % No KB (none) => no node is transparent (every node keeps its intrinsic weight).
 :- begin_tests(strongest_reason).
@@ -70,38 +68,43 @@ test(failed_naf_node_drops_its_prefix) :-
     classic_web_api:strongest_reason(T, none, R, _),
     assertion(R == "bob smokes").
 
+test(weightier_internal_node_beats_leaves) :-
+    % Like citizenship trust_harry: a root with four children, one of which is derived
+    % (weight 2). That weightier internal node — not a leaf — is the important reason.
+    leaf("l1", L1), leaf("l2", L2), leaf("l3", L3), leaf("says", Says),
+    node("Harry is the father of John", [Says], Father),   % weight 2
+    node("root", [L1, L2, Father, L3], T),
+    classic_web_api:strongest_reason(T, none, R, _),
+    assertion(R == "Harry is the father of John").
+
 :- end_tests(strongest_reason).
 
-% With a KB, a node whose source range names an AUTO-generated rule is transparent
-% (no intrinsic weight, never the strongest reason); an explicitly named rule counts.
+% A "failed clause attempt" node (marked `ruleAttempt` — one per clause whose head
+% matched a failed goal) is transparent: no intrinsic weight, never the strongest reason.
 :- begin_tests(strongest_reason_transparency).
 
-% A tree where the auto-named rule node "M" (range 10-20) sits at ~half the weight:
-%   root "R" (named rule, 30-40) -> [ M(auto rule,10-20) -> [m1,m2], x1, x2 ]
-% Weights (M transparent): m1=m2=x1=x2=1, M=2 (no +1), R=1+2+1+1=5. W=5.
+ra_node(Lit, Children, _{literal:Lit, type:"failure", ruleAttempt:true, children:Children}).
+
+% root "R" -> [ M (a failed clause-attempt over [m1,m2]), x1, x2 ]. With M transparent
+% its weight is 2 (no +1) and it is not a candidate.
 tree(T) :-
     leaf("m1", M1), leaf("m2", M2), leaf("x1", X1), leaf("x2", X2),
-    node_at("M-auto", 10, 20, [M1, M2], M),
-    node_at("R-named", 30, 40, [M, X1, X2], T).
+    ra_node("rule-attempt", [M1, M2], M),
+    node("R", [M, X1, X2], T).
 
-test(auto_named_rule_node_is_transparent, [setup(setup_kb), cleanup(cleanup_kb)]) :-
-    tree(T),
-    classic_web_api:strongest_reason(T, tkb, R, _),
-    % M would be closest to W/2 but is transparent, so it is never chosen.
-    assertion(R \== "M-auto"),
-    assertion(memberchk(R, ["m1", "m2", "x1", "x2"])).
-
-test(without_kb_the_same_node_would_win) :-
-    % Contrast: treated as an ordinary node (no KB), M IS the strongest reason.
+test(rule_attempt_node_is_transparent) :-
     tree(T),
     classic_web_api:strongest_reason(T, none, R, _),
-    assertion(R == "M-auto").
+    assertion(R \== "rule-attempt"),
+    assertion(memberchk(R, ["m1", "m2", "x1", "x2"])).
 
-setup_kb :-
-    assertz(tkb:le_source_info(r_auto, 10, 20, 'rule_10')),   % auto-generated id
-    assertz(tkb:le_source_info(r_named, 30, 40, myrule)).      % explicit name
-cleanup_kb :-
-    retractall(tkb:le_source_info(_, _, _, _)).
+test(without_the_marker_the_node_would_win) :-
+    % Same shape but M is an ordinary node (weight 3) — it IS the important reason.
+    leaf("m1", M1), leaf("m2", M2), leaf("x1", X1), leaf("x2", X2),
+    node("plain", [M1, M2], M),
+    node("R", [M, X1, X2], T),
+    classic_web_api:strongest_reason(T, none, R, _),
+    assertion(R == "plain").
 
 :- end_tests(strongest_reason_transparency).
 
