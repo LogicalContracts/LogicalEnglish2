@@ -107,7 +107,18 @@ export async function initScenarioVariations() {
         answerTooltip: $('answer-tooltip'),
         titleMenu: $('explanation-title-menu'),
         menuShowStrongest: $('menu-show-strongest'),
+        menuExplanationDrill: $('menu-explanation-drill'),
     };
+    const openDrill = (w: any) => {
+        if (!sessionModule) return;
+        localStorage.setItem('le_explanation_drill_data', JSON.stringify({ sessionModule, kbName, why: w }));
+        const theme = document.body.className.match(/(light|hc)-theme/)?.[0] || '';
+        window.open(`explanation-drill.html?theme=${theme}&v=${Date.now()}`, '_blank');
+    };
+    // A drill opened from THIS window highlights source via us; relay it on to the editor.
+    window.addEventListener('message', (e) => {
+        if (e.data && e.data.type === 'le-highlight') window.opener?.postMessage(e.data, '*');
+    });
     const failedNodePrefix = () => localStorage.getItem('le-failed-node-prefix') ?? 'x ';
     const hierarchical = () => localStorage.getItem('le-hierarchical-numbering') === 'true';
     const navigate = (start: number, end: number) => {
@@ -160,6 +171,7 @@ export async function initScenarioVariations() {
             answersList, explanationTree, menus, failedNodePrefix,
             explanationTitle: eTitle,
             hierarchicalNumbering: hierarchical, onNavigate: navigate,
+            onOpenDrill: openDrill,
         });
         const entry: QueryCard = { name, card, view };
         remove.addEventListener('click', () => {

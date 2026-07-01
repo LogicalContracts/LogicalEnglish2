@@ -7995,6 +7995,11 @@ function wireMenus(m) {
     activeView?.showStrongestReason();
     m.titleMenu.style.display = "none";
   });
+  m.menuExplanationDrill.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.openDrill();
+    m.titleMenu.style.display = "none";
+  });
   m.menuCopyAnswer.addEventListener("click", (e) => {
     e.stopPropagation();
     if (activeView && activeView.currentAnswerToCopy)
@@ -8032,10 +8037,11 @@ var ExplanationView = class {
     this.m = opts.menus;
     wireMenus(opts.menus);
     opts.explanationTitle?.addEventListener("contextmenu", (e) => {
-      if (!this.currentStrongestPath)
+      if (!this.lastWhy)
         return;
       e.preventDefault();
       activeView = this;
+      this.m.menuShowStrongest.style.display = this.currentStrongestPath ? "" : "none";
       this.m.titleMenu.style.display = "block";
       this.m.titleMenu.style.left = `${e.clientX}px`;
       this.m.titleMenu.style.top = `${e.clientY}px`;
@@ -8079,6 +8085,11 @@ var ExplanationView = class {
       el.removeAttribute("title");
       el.classList.remove("has-reason");
     }
+  }
+  // Open the Explanation Drill for the current answer's explanation.
+  openDrill() {
+    if (this.lastWhy)
+      this.o.onOpenDrill?.(this.lastWhy);
   }
   // Expand the tree to the strongest-reason node, open it one level, and flash it.
   showStrongestReason() {
@@ -40304,7 +40315,17 @@ async function start() {
       menuGotoOriginal: document.getElementById("menu-goto-original"),
       answerTooltip: document.getElementById("answer-tooltip"),
       titleMenu: document.getElementById("explanation-title-menu"),
-      menuShowStrongest: document.getElementById("menu-show-strongest")
+      menuShowStrongest: document.getElementById("menu-show-strongest"),
+      menuExplanationDrill: document.getElementById("menu-explanation-drill")
+    },
+    onOpenDrill: (why) => {
+      if (!sessionModule) {
+        showModal("Load the module and run a query first.", "Explanation Drill");
+        return;
+      }
+      localStorage.setItem("le_explanation_drill_data", JSON.stringify({ sessionModule, kbName: lastKb, why }));
+      const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
+      window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
     },
     failedNodePrefix: () => failedNodePrefix,
     hierarchicalNumbering: () => showHierarchicalNumbering,
@@ -40729,7 +40750,8 @@ async function start() {
           endPos.lineNumber,
           endPos.column
         ));
-        editor.focus();
+        if (!event3.data.noFocus)
+          editor.focus();
       }
     }
   });

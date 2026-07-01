@@ -104,3 +104,34 @@ cleanup_kb :-
     retractall(tkb:le_source_info(_, _, _, _)).
 
 :- end_tests(strongest_reason_transparency).
+
+% The Explanation Drill state machine: repeatedly ask about the strongest reason within
+% TOP (ignoring UNDERSTOOD), "yes" removes it, "not yet" descends into it.
+:- begin_tests(explanation_drill).
+
+% root(7): a(3){a1,a2}, b(1), c(2){c1}.
+dtree(_{literal:"root", children:[
+    _{literal:"a", children:[_{literal:"a1",children:[]}, _{literal:"a2",children:[]}]},
+    _{literal:"b", children:[]},
+    _{literal:"c", children:[_{literal:"c1",children:[]}]}]}).
+
+pending_path(Answers, Path) :-
+    dtree(T),
+    classic_web_api:drill_loop(none, T, Answers, "", [], [], _Qs, _Top, _Und, Pending),
+    ( Pending == null -> Path = done ; get_dict(path, Pending, Path) ).
+
+test(first_question_is_strongest) :- pending_path([], P), assertion(P == "1.1").
+test(yes_moves_to_next_region) :- pending_path(["yes"], P), assertion(P == "1.3").
+test(not_yet_descends_into_node) :- pending_path(["not_yet"], P), assertion(P == "1.1.1").
+test(all_understood_terminates) :- pending_path(["yes","yes","yes"], P), assertion(P == done).
+
+test(understood_and_questions_tracked) :-
+    dtree(T),
+    classic_web_api:drill_loop(none, T, ["not_yet","yes"], "", [], [], Qs, Top, Und, _P),
+    % Descended into "a" (1.1), then understood "a1" (1.1.1).
+    assertion(Top == "1.1"),
+    assertion(Und == ["1.1.1"]),
+    maplist([Q,P]>>get_dict(path, Q, P), Qs, Paths),
+    assertion(Paths == ["1.1", "1.1.1"]).
+
+:- end_tests(explanation_drill).

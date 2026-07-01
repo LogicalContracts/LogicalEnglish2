@@ -1,0 +1,138 @@
+// Explanation Drill window. A non-modal helper that walks the user through the
+// explanation as a "suspects tree": it repeatedly asks about the strongest reason
+// within the current region ("Understood?"); answering "Yes" removes that subtree,
+// "Not yet" descends into it. The state machine (TOP / UNDERSTOOD) lives on the Prolog
+// side; this window keeps the ordered answers and the initial node count, renders the
+// questions with retained Yes / Not-yet state, a progress bar, and highlights each
+// question's source in the editor that opened it.
+
+interface DrillData {
+    sessionModule?: string;
+    kbName?: string;
+    why?: any;
+}
+
+interface Question { path: string; text: string; start: number; end: number; answer?: string; }
+interface DrillResponse {
+    ok?: boolean; error?: string; session_expired?: boolean;
+    initialCount?: number; progress?: number;
+    questions?: Question[]; pending?: Question | null; topPath?: string;
+}
+
+const TOKEN = 'myToken123';
+
+export async function initExplanationDrill() {
+    const $ = (id: string) => document.getElementById(id)!;
+    const ls: DrillData = JSON.parse(localStorage.getItem('le_explanation_drill_data') || '{}');
+    const sessionModule = ls.sessionModule || '';
+    const why = ls.why;
+
+    ($('title') as HTMLElement).textContent = `Explanation Drill${ls.kbName ? ` — ${ls.kbName}` : ''}`;
+
+    let answers: string[] = [];   // "yes" | "not_yet", in order
+    let initialCount = 0;         // total node weight (kept on the window)
+    let sentWhy = false;          // the tree is uploaded once; kept in the session after
+
+    const setStatus = (t: string) => { $('status').textContent = t; };
+
+    async function drill(): Promise<DrillResponse> {
+        const body: any = { token: TOKEN, operation: 'explanationDrill', sessionModule, answers };
+        if (!sentWhy) body.why = why;   // upload the tree on the first call only
+        const res: DrillResponse = await fetch('/leapi', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+        }).then(r => r.json()).catch(() => ({ error: 'network' }));
+        if (res && res.ok) sentWhy = true;
+        return res;
+    }
+
+    // Highlight a node's source in the opener's editor WITHOUT stealing focus.
+    function highlight(q: Question | null | undefined) {
+        if (!q || q.start < 0) return;
+        window.opener?.postMessage({ type: 'le-highlight', loc: { start: q.start, end: q.end }, noFocus: true }, '*');
+    }
+
+    // Clicking answer `val` on the question at index `i`. On the pending question this
+    // appends; on an answered one it changes it (dropping any later answers), and
+    // clicking the already-selected answer clears it back to "no answer".
+    function answer(i: number, val: string) {
+        if (i < answers.length && answers[i] === val) answers = answers.slice(0, i);
+        else answers = answers.slice(0, i).concat([val]);
+        refresh();
+    }
+
+    function questionCard(q: Question, i: number, isPending: boolean, isTopFinal: boolean): HTMLElement {
+        const card = document.createElement('div');
+        card.className = 'q-card' + (isTopFinal ? ' top-final' : '');
+
+        const node = document.createElement('div');
+        node.className = 'q-node';
+        node.textContent = q.text;
+        card.appendChild(node);
+
+        const row = document.createElement('div');
+        row.className = 'q-row';
+        const label = document.createElement('span');
+        label.className = 'q-label';
+        label.textContent = 'Understood?';
+        row.appendChild(label);
+
+        const mkBtn = (val: 'yes' | 'not_yet', text: string) => {
+            const b = document.createElement('button');
+            b.className = `q-btn ${val === 'yes' ? 'yes' : 'notyet'}` + (q.answer === val ? ' on' : '');
+            b.textContent = text;
+            b.addEventListener('click', () => answer(i, val));
+            return b;
+        };
+        row.appendChild(mkBtn('yes', 'Yes'));
+        row.appendChild(mkBtn('not_yet', 'Not yet'));
+        card.appendChild(row);
+        return card;
+    }
+
+    function render(res: DrillResponse) {
+        const container = $('questions');
+        container.innerHTML = '';
+        const questions = res.questions || [];
+        const pending = res.pending || null;
+
+        questions.forEach((q, i) => {
+            const isTopFinal = !pending && q.path === res.topPath;
+            container.appendChild(questionCard(q, i, false, isTopFinal));
+        });
+        if (pending) {
+            container.appendChild(questionCard(pending, questions.length, true, false));
+        }
+
+        // Progress bar.
+        if (typeof res.initialCount === 'number' && res.initialCount > 0) initialCount = res.initialCount;
+        const progress = res.progress || 0;
+        const pct = initialCount > 0 ? Math.round((progress / initialCount) * 100) : 0;
+        ($('progress-fill') as HTMLElement).style.width = `${pct}%`;
+        $('progress-label').textContent = `${progress} of ${initialCount} understood`;
+
+        // Final message when the drill is complete.
+        const final = $('final');
+        if (!pending) {
+            final.style.display = '';
+            final.textContent = 'Nothing else to show. Feel free to alter your choices above.';
+            // Keep the source of the deepest (TOP) question in view.
+            highlight(questions.find(q => q.path === res.topPath) || questions[questions.length - 1]);
+            setStatus('Done');
+        } else {
+            final.style.display = 'none';
+            highlight(pending);   // reveal the current question's source
+            setStatus('Answer the highlighted question, or revise an earlier one.');
+        }
+    }
+
+    async function refresh() {
+        const res = await drill();
+        if (res && res.session_expired) { setStatus('The session has expired — reopen the Explanation Drill.'); return; }
+        if (!res || !res.ok) { setStatus('Error: ' + ((res && res.error) || 'no response')); return; }
+        render(res);
+    }
+
+    if (!why || !sessionModule) { setStatus('No explanation to drill.'); return; }
+    refresh();
+}

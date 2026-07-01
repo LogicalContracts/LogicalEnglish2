@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explanation Drill</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e; --text-color: #d4d4d4; --header-bg: #333;
+            --border-color: #444; --panel-bg: #252526; --muted: #888; --accent: #0e639c;
+            --card-bg: #2d2d30; --yes: #4caf50; --notyet: #b18cd9; --track: #3a3a3a;
+        }
+        body.light-theme {
+            --bg-color: #ffffff; --text-color: #000000; --header-bg: #f3f3f3;
+            --border-color: #cccccc; --panel-bg: #f3f3f3; --muted: #666; --accent: #0e639c;
+            --card-bg: #f6f8fa; --track: #e2e2e2;
+        }
+        body.hc-theme {
+            --bg-color: #000000; --text-color: #ffffff; --header-bg: #000000;
+            --border-color: #ffffff; --panel-bg: #000000; --muted: #ccc; --accent: #1177bb;
+            --card-bg: #111; --track: #333;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; }
+        body {
+            background: var(--bg-color); color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14px; display: flex; flex-direction: column;
+        }
+        header {
+            background: var(--header-bg); border-bottom: 1px solid var(--border-color);
+            padding: 12px 16px;
+        }
+        header h1 { font-size: 15px; margin: 0 0 8px; font-weight: 600; }
+        /* Progress bar */
+        #progress-track {
+            height: 14px; background: var(--track); border-radius: 8px; overflow: hidden;
+            position: relative; box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+        }
+        #progress-fill {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            border-radius: 8px; transition: width 0.4s ease;
+        }
+        #progress-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+        #drill { flex: 1; overflow: auto; padding: 16px; }
+        .q-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
+        }
+        .q-card.top-final { outline: 2px solid var(--notyet); }
+        .q-node { font-size: 15px; margin-bottom: 8px; }
+        .q-row { display: flex; align-items: center; gap: 10px; }
+        .q-row .q-label { color: var(--muted); }
+        .q-btn {
+            border: 1px solid var(--border-color); background: transparent; color: var(--text-color);
+            border-radius: 6px; padding: 4px 14px; cursor: pointer; font-size: 13px; font-family: inherit;
+        }
+        .q-btn:hover { filter: brightness(1.15); }
+        .q-btn.yes.on { background: var(--yes); color: #fff; border-color: var(--yes); }
+        .q-btn.notyet.on { background: var(--notyet); color: #fff; border-color: var(--notyet); }
+        #final { color: var(--muted); font-style: italic; padding: 8px 2px; }
+        #status { color: var(--muted); font-size: 12px; padding: 8px 16px; border-top: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="title">Explanation Drill</h1>
+        <div id="progress-track"><div id="progress-fill"></div></div>
+        <div id="progress-label"></div>
+    </header>
+    <div id="drill">
+        <div id="questions"></div>
+        <div id="final" style="display:none;"></div>
+    </div>
+    <div id="status"></div>
+
+    <script>
+        const theme = new URLSearchParams(window.location.search).get('theme');
+        if (theme) document.body.classList.add(theme);
+    </script>
+    <script type="module">
+        const v = Date.now();
+        import(`./dist/explanation-drill.js?v=${v}`).then(m => m.initExplanationDrill());
+    </script>
+</body>
+</html>
