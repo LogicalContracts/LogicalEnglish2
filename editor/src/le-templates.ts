@@ -59,10 +59,16 @@ export function parseTemplateDefs(source: string): TemplateDef[] {
             const isUndefined = /\b(undefined|scenario\s+element)\b/i.test(annotation);
             const main = (semi >= 0 ? t.slice(0, semi) : t).replace(/[.,]\s*$/, '').trim();
             if (main.includes('*')) defs.push({ label: main, isUndefined });
-            const opp = annotation.match(/opposite:\s*(.+)/i);
+            const opp = annotation.match(/opposite:\s*([^;]+)/i);
             if (opp) {
                 const o = opp[1].replace(/[.,;]\s*$/, '').trim();
                 if (o.includes('*')) defs.push({ label: o, isUndefined });
+            }
+            // Each "; synonym <template>" registers an equivalent surface form so
+            // scenario facts written either way are recognised as the same template.
+            for (const sm of annotation.matchAll(/\bsynonym\s+([^;]+)/gi)) {
+                const s = sm[1].replace(/[.,;]\s*$/, '').trim();
+                if (s.includes('*')) defs.push({ label: s, isUndefined });
             }
         }
     }

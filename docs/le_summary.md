@@ -55,6 +55,10 @@ Templates map natural language sentences to Prolog predicates.
 ### Template additions (after `;`)
 A template definition can be followed by one or more additions, each introduced by `;`:
 - `; opposite: <template>` — declares the negation form, used for negative heads and for negation in proofs.
+- `; synonym <template>` — declares an **equivalent surface form**. The synonym maps to the **same** Prolog predicate as the main template, so facts, rule heads, rule bodies and queries may be written with either form interchangeably. Several `; synonym ...` additions may be chained. Its `*variables*` are matched **positionally** to the main template's, so both forms must list their arguments in the same order.
+  - Example: `*a payment* is in respect of *a claim*; synonym *a payment* covers *a claim*.` — writing `p covers c` is the same fact as `p is in respect of c`.
+  - **Rendering:** the main (first) form is used by default. In explanations, a node is rendered with the form actually used at its source location (the surface form of the clause that proves it); a query renders its answers with the form used in the query.
+  - **Restriction:** a template with a synonym **cannot carry any other addition** (`defines global`, `opposite`, `prepositional`, `unknown`, `undefined`); doing so raises a `synonym_with_other_additions` error.
 - `; defines global <name>; defines global <name2>...` — declares a global abbreviation.
 - `; prepositional` — marks a **prepositional** template (see §2.1).
 - `; unknown` — marks the template as **assumable** (abducible): matching goals that cannot be proven are assumed true and reported as unknowns. The synonyms `; assumed` and `; assumable` are accepted and mean the same thing.
