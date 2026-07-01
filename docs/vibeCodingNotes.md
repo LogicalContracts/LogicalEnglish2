@@ -1820,5 +1820,39 @@ As the user edits the query list or the selected scenario, the URL is to change 
 
 Each scenario fact should have a checkbox "Assume" to its right (tooltip "if checked, fact is assumed, unknown"); while checked, the fact fields are no longer editable, and the fact scenario sent to the server should be preceded by "it is unknown whether". If the LE program defines the scenario fact unknown, the checkbox should be checked (and the user can uncheck it). 
 
+## Strongest explanation
+We now want to give the user the "strongest reason" supporting an answer, a kind of terse explanation summary. For this we'll use an heuristic based on tree weights of the explanation tree (with repetitions removed if the user so preferred), as follows:
+- for an explanation subtree, success or failure, its weight is 1 + sum of weights of children; in other words, weight = descendent node count
+- consider the explanation tree's full weight W. The "strongest reason" is the node whose weight is closer to W/2
+The strongest reason is to be determnined on the Prolog side, and will appear only as a tooltip over the "EXPLANATION" explanation title
+
+rule nodes are to have intrinsic weight only when the rule has an explicit name; otherwise rule nodes are to be "transparent" for determination of the strongest reason. 
+failed nodes, if chosen as strongest reason, should be rendered with the prefix "it is not the case that "; try to do this reusing existing code if possible, to avoid pasting that string all over our code
+When a failed node is a NAF (ergo has the form "it is not the case that X"), instead of adding another duplicated prefix... remove it! The node should be rendered simply as "X" (for strongest reason; no changes to the tree rendering)
+
+Add to the "EXPLANATION" title a contextual menu item "Show strongest reason", which expands the explanation tree and selects the "strongest explanation" node (and expands it one level)
+
+Sorry but let's rename "Strongest Reason" to "Important reason". And "Variations" to "Scenario Variations". And add descriptive tooltips to this button, as well as to "Proof Game"
+
+## Explanation drill
+Let's now implement a new nonmodal window, "Explanation Drill", invoked from a contextual menu item on the "EXPLANATION" title, where the user will answer a sequence of simple yes/no questions to help him find an interesting, fulfilling reason for the answer, and also to help him understand the explanation. 
+This dialog is based on the explanation tree (ignoring some nodes as indicated above for the weights determination), considered as a "suspects tree" (more on this later) and goes on like this:
+
+1) start with the explanation tree root as the top suspect TOP, and an empty list of UNDERSTOOD nodes; these mean subtrees "virtually removed" from the TOP tree. Remember the INITIAL_NOT_UNDERSTOOD_YET_NODES_COUNT, which is the weight of TOP.
+2) find the strongest reason node S in the subtree for TOP, as done above, BUT ignoring all subtrees of nodes in UNDERSTOOD; render it and follow it by the question "Understood ?", with buttons for "Yes" and "Not yet"
+2.1) if the user answers "Yes", add S to UNDERSTOOD, and continue at step 2
+2.2) if the user answers "Not yet", set TOP to S, and continue at step 2
+3) If S==TOP, add neither node nor question, just highlight the question for node TOP, and a final message "Nothing else to show. Feel free to alter your choices above"
+
+The Yes/Not Yet buttons should retain state, meaning for each question there are 3 possible exclusive answers: no answer at all; Yes pressed; or "Not Yet" pressed.
+If the user changes a previous answer, alter UNDERSTOOD and/or TOP, and continue at 2; so the user may be questioned about more nodes
+
+TOP and UNDERSTOOD should be kept in the LE session on the Prolog side, INITIAL_NOT_UNDERSTOOD_YET_NODES_COUNT probably on the window.
+
+As each question is added to the window, corresponding to a node in the explanation tree being questioned about, select the source code in the editor (but keeping the focus on the Drill window). 
+
+Also display some cute progress bar at the top, sized to INITIAL_NOT_UNDERSTOOD_YET_NODES_COUNT. As user answers comes in, sum the tree weights of all UNDERSTOOD nodes, and that's the progress to render in the bar.
+
+Add some close boxes to the answers (meaning, delete); when deleting an answer, keep the other answers and recompute a next question, but only if the user has answered all questions left. In the progress bar remove the counts, which may confuse the user; just put a single label... "Progress"; no percentage either
 
 ## TBD

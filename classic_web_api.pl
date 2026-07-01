@@ -157,6 +157,7 @@ handle_operation(Dict, Response) :-
               Response = _{error: "Could not build the Proof Game for this query (no rules/facts extracted, or the session was reclaimed). Please reload and try again.", gameDataError: true}
             )
         ; Op == "unifyGameNodes" -> handle_unify_game_nodes(Dict, Response)
+        ; Op == "explanationDrill" -> handle_explanation_drill(Dict, Response)
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
@@ -685,30 +686,34 @@ run_answering_query(SM, Query, KB, Response) :-
 %   the client renders the tree — so the client can reveal and highlight that node.
 strongest_reason(JSONWhy, KB, Reason, Path) :-
     ( is_list(JSONWhy) -> Roots = JSONWhy ; Roots = [JSONWhy] ),
-    reason_roots(KB, Roots, 1, 0, W, [], Candidates),
+    reason_roots(KB, Roots, 1, [], 0, W, [], Candidates),
     (   Candidates == [] -> Reason = "", Path = ""
     ;   maplist(reason_score(W), Candidates, Scored),
         sort(0, @=<, Scored, [_-(Best-Path)|_]),
         ( string(Best) -> Reason = Best ; term_string(Best, Reason) )
     ).
 
-% reason_roots(+KB, +Roots, +Index, +W0, -W, +Cand0, -Cand): process each root, giving
-% it its 1-based path, and summing subtree weights into the total W.
-reason_roots(_, [], _, W, W, C, C).
-reason_roots(KB, [R|Rs], I, W0, W, C0, C) :-
+% reason_roots(+KB, +Roots, +Index, +Understood, +W0, -W, +Cand0, -Cand): process each
+% root, giving it its 1-based path, and summing subtree weights into the total W.
+% Nodes whose path is in Understood (and their subtrees) are treated as removed.
+reason_roots(_, [], _, _, W, W, C, C).
+reason_roots(KB, [R|Rs], I, Und, W0, W, C0, C) :-
     number_string(I, IS),
-    reason_collect(KB, R, IS, WR, C0, C1),
+    reason_collect(KB, R, IS, Und, WR, C0, C1),
     W1 is W0 + WR,
     I1 is I + 1,
-    reason_roots(KB, Rs, I1, W1, W, C1, C).
+    reason_roots(KB, Rs, I1, Und, W1, W, C1, C).
 
-% reason_collect(+KB, +Node, +Path, -SubtreeWeight, +Cand0, -Cand): the subtree's
-% weight, accumulating a Weight-(Text-Path) candidate for Node and every descendant. A
-% transparent (auto-named rule) node adds no intrinsic weight and no candidate.
-reason_collect(KB, Node, Path, W, Cand0, Cand) :-
-    (   is_dict(Node) ->
+% reason_collect(+KB, +Node, +Path, +Understood, -SubtreeWeight, +Cand0, -Cand): the
+% subtree's weight, accumulating a Weight-(Text-Path) candidate for Node and every
+% descendant. A transparent (auto-named rule) node adds no intrinsic weight and no
+% candidate; an Understood node's subtree is skipped entirely (weight 0, no candidates).
+reason_collect(KB, Node, Path, Und, W, Cand0, Cand) :-
+    (   memberchk(Path, Und) ->
+            W = 0, Cand = Cand0
+    ;   is_dict(Node) ->
             ( get_dict(children, Node, Children), is_list(Children) -> true ; Children = [] ),
-            reason_children(KB, Children, Path, 1, 0, SumC, Cand0, Cand1),
+            reason_children(KB, Children, Path, 1, Und, 0, SumC, Cand0, Cand1),
             (   transparent_rule_node(KB, Node, Children) ->
                     W = SumC, Cand = Cand1
             ;   W is SumC + 1,
@@ -737,15 +742,15 @@ negate_literal(Lit, Negated) :-
     ->  Negated = Rest
     ;   string_concat(PrefixS, LitS, Negated)       % plain -> add the prefix
     ).
-% reason_children(+KB, +Children, +ParentPath, +Index, +Sum0, -Sum, +Cand0, -Cand):
+% reason_children(+KB, +Children, +ParentPath, +Index, +Understood, +Sum0, -Sum, +Cand0, -Cand):
 % each child gets path "ParentPath.Index" (1-based), matching the client's rendering.
-reason_children(_, [], _, _, S, S, C, C).
-reason_children(KB, [Ch|Chs], PP, I, S0, S, C0, C) :-
+reason_children(_, [], _, _, _, S, S, C, C).
+reason_children(KB, [Ch|Chs], PP, I, Und, S0, S, C0, C) :-
     format(string(ChildPath), "~w.~w", [PP, I]),
-    reason_collect(KB, Ch, ChildPath, WC, C0, C1),
+    reason_collect(KB, Ch, ChildPath, Und, WC, C0, C1),
     S1 is S0 + WC,
     I1 is I + 1,
-    reason_children(KB, Chs, PP, I1, S1, S, C1, C).
+    reason_children(KB, Chs, PP, I1, Und, S1, S, C1, C).
 
 % transparent_rule_node(+KB, +Node, +Children): the node was proven by a rule (its
 % source range names a clause) whose id is auto-generated (not "rule <name>"), so it
@@ -764,6 +769,121 @@ transparent_rule_node(KB, Node, Children) :-
 reason_score(Wtotal, W-Value, (D - NegW) - Value) :-
     D is abs(2 * W - Wtotal),
     NegW is -W.
+
+% ==== Explanation Drill ===================================================
+% The "suspects tree" drill: repeatedly find the strongest reason S within the current
+% TOP subtree (ignoring UNDERSTOOD subtrees), ask "Understood?", and either mark S
+% understood (Yes) or descend into it (Not yet). TOP is a tree path; "" means the whole
+% forest.
+
+% strongest_within(+Why, +KB, +TopPath, +Understood, -SPath, -SText, -TopWeight)
+% The strongest reason within the TopPath subtree, ignoring Understood subtrees.
+% TopWeight is that subtree's (Understood-reduced) weight. Fails if there is no
+% candidate (everything understood).
+strongest_within(Why, KB, "", Und, SPath, SText, SWeight, W) :- !,
+    ( is_list(Why) -> Roots = Why ; Roots = [Why] ),
+    reason_roots(KB, Roots, 1, Und, 0, W, [], Candidates),
+    best_reason_candidate(Candidates, W, SPath, SText, SWeight).
+strongest_within(Why, KB, TopPath, Und, SPath, SText, SWeight, W) :-
+    node_at_path(Why, TopPath, TopNode),
+    reason_collect(KB, TopNode, TopPath, Und, W, [], Candidates),
+    best_reason_candidate(Candidates, W, SPath, SText, SWeight).
+
+best_reason_candidate(Candidates, W, SPath, SText, SWeight) :-
+    Candidates \== [],
+    maplist(reason_score(W), Candidates, Scored),
+    sort(0, @=<, Scored, [_-(Best-SPath)|_]),
+    ( string(Best) -> SText = Best ; term_string(Best, SText) ),
+    once(member(SWeight-(_-SPath), Candidates)).
+
+% drill_next(+Why, +KB, +Top, +Und, -SPath, -SText): the next question node — the
+% strongest reason S within Top, but only when S is a PROPER sub-region (its weight is
+% less than the whole region's), so the drill can actually descend. Fails at the
+% terminal step (S is the whole remaining region, or nothing is left).
+drill_next(Why, KB, Top, Und, SPath, SText) :-
+    strongest_within(Why, KB, Top, Und, SPath, SText, SWeight, W),
+    SWeight < W.
+
+% subtree_weight(+KB, +Why, +Path, +Understood, -W): the (Understood-reduced) weight of
+% the subtree at Path ("" = whole forest).
+subtree_weight(KB, Why, "", Und, W) :- !,
+    ( is_list(Why) -> Roots = Why ; Roots = [Why] ),
+    reason_roots(KB, Roots, 1, Und, 0, W, [], _).
+subtree_weight(KB, Why, Path, Und, W) :-
+    node_at_path(Why, Path, Node),
+    reason_collect(KB, Node, Path, Und, W, [], _).
+
+% node_at_path(+Why, +Path, -Node): the JSON node at tree path "1.2.3".
+node_at_path(Why, Path, Node) :-
+    split_string(Path, ".", "", Parts),
+    maplist(number_string, [I0|Is], Parts),
+    ( is_list(Why) -> Roots = Why ; Roots = [Why] ),
+    nth1(I0, Roots, Root),
+    node_at_path_(Is, Root, Node).
+node_at_path_([], Node, Node).
+node_at_path_([I|Is], Node, Out) :-
+    get_dict(children, Node, Children),
+    nth1(I, Children, Child),
+    node_at_path_(Is, Child, Out).
+
+node_range(Node, S, E) :- ( get_dict(start, Node, S), get_dict(end, Node, E) -> true ; S = -1, E = -1 ).
+
+% question_dict(+Why, +Path, +Text, +Answer, -Q): a question card for the client.
+question_dict(Why, Path, Text, Answer, _{path: Path, text: Text, start: S, end: E, answer: Answer}) :-
+    node_at_path(Why, Path, Node), node_range(Node, S, E).
+
+% drill_loop(+KB, +Why, +Answers, +Top, +Und, +QAcc, -Questions, -TopF, -UndF, -Pending)
+% Replays the answers from Top/Und, accumulating question cards and finally computing
+% the pending (next unanswered) question, or null when the drill is complete.
+drill_loop(KB, Why, [], Top, Und, QAcc, Questions, Top, Und, Pending) :- !,
+    reverse(QAcc, Questions),
+    (   drill_next(Why, KB, Top, Und, SPath, SText)
+    ->  node_at_path(Why, SPath, SNode), node_range(SNode, St, En),
+        Pending = _{path: SPath, text: SText, start: St, end: En}
+    ;   Pending = null
+    ).
+drill_loop(KB, Why, [A|As], Top, Und, QAcc, Questions, TopF, UndF, Pending) :-
+    (   drill_next(Why, KB, Top, Und, SPath, SText)
+    ->  question_dict(Why, SPath, SText, A, Q),
+        ( A == "yes"     -> Top1 = Top,   Und1 = [SPath|Und]
+        ; A == "not_yet" -> Top1 = SPath, Und1 = Und
+        ;                   Top1 = Top,   Und1 = Und ),
+        drill_loop(KB, Why, As, Top1, Und1, [Q|QAcc], Questions, TopF, UndF, Pending)
+    ;   % A terminal step was reached but stale answers remain — ignore them.
+        reverse(QAcc, Questions), TopF = Top, UndF = Und, Pending = null
+    ).
+
+% handle_explanation_drill(+Dict, -Response): drive the Explanation Drill. The tree is
+% sent (as `why`) on the first call and kept in the session; `answers` is the ordered
+% list of the user's "yes"/"not_yet" replies. TOP and UNDERSTOOD are recomputed by
+% replay and kept in the session (drill_state/2).
+handle_explanation_drill(Dict, _{error: "Session expired", session_expired: true}) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    \+ valid_session(SM), !.
+handle_explanation_drill(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    dynamic(SM:drill_why/1), dynamic(SM:drill_state/2),
+    ( get_dict(why, Dict, Why0), Why0 \== null ->
+        retractall(SM:drill_why(_)), assertz(SM:drill_why(Why0)), Why = Why0
+    ; ( SM:drill_why(Why) -> true ; Why = null )
+    ),
+    ( get_dict(answers, Dict, As), is_list(As) -> Answers = As ; Answers = [] ),
+    (   Why == null -> Response = _{error: "No explanation to drill"}
+    ;   drill_loop(KB, Why, Answers, "", [], [], Questions, TopF, UndF, Pending),
+        subtree_weight(KB, Why, "", [], Initial),
+        foldl(drill_progress(KB, Why), UndF, 0, Progress),
+        retractall(SM:drill_state(_, _)),
+        assertz(SM:drill_state(TopF, UndF)),
+        Response = _{ok: true, initialCount: Initial, progress: Progress,
+                     questions: Questions, pending: Pending, topPath: TopF}
+    ).
+
+% Sum of the weights of the understood subtrees (disjoint, so no double counting).
+drill_progress(KB, Why, Path, A, B) :- subtree_weight(KB, Why, Path, [], W), B is A + W.
 
 % dedup_keep_first(+KeyedPairs, -Values): the first Value for each distinct Key,
 % preserving order.

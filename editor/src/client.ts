@@ -1594,6 +1594,14 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
             answerTooltip: document.getElementById('answer-tooltip')!,
             titleMenu: document.getElementById('explanation-title-menu')!,
             menuShowStrongest: document.getElementById('menu-show-strongest')!,
+            menuExplanationDrill: document.getElementById('menu-explanation-drill')!,
+        },
+        onOpenDrill: (why: any) => {
+            if (!sessionModule) { showModal('Load the module and run a query first.', 'Explanation Drill'); return; }
+            localStorage.setItem('le_explanation_drill_data', JSON.stringify({ sessionModule, kbName: lastKb, why }));
+            const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
+                                 document.body.className.includes('hc-theme') ? 'hc-theme' : '';
+            window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
         },
         failedNodePrefix: () => failedNodePrefix,
         hierarchicalNumbering: () => showHierarchicalNumbering,
@@ -2084,7 +2092,8 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
                     startPos.lineNumber, startPos.column,
                     endPos.lineNumber, endPos.column
                 ));
-                editor.focus();
+                // The Explanation Drill highlights without stealing focus from its window.
+                if (!event.data.noFocus) editor.focus();
             }
         }
     });

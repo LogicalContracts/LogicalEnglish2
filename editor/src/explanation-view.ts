@@ -12,8 +12,9 @@ export interface MenuEls {
     menuCopyExplanation: HTMLElement;
     menuGotoOriginal: HTMLElement;
     answerTooltip: HTMLElement;
-    titleMenu: HTMLElement;          // context menu for the EXPLANATION title
-    menuShowStrongest: HTMLElement;  // its "Show strongest reason" item
+    titleMenu: HTMLElement;             // context menu for the EXPLANATION title
+    menuShowStrongest: HTMLElement;     // its "Show important reason" item
+    menuExplanationDrill: HTMLElement;  // its "Explanation Drill…" item
 }
 
 export interface ExplanationViewOptions {
@@ -25,6 +26,7 @@ export interface ExplanationViewOptions {
     hierarchicalNumbering?: () => boolean; // show "1.2.3" path numbers
     onNavigate?: (start: number, end: number) => void;   // a node was clicked -> reveal source
     onSelectAnswer?: (index: number) => void;            // an answer was selected (1-based)
+    onOpenDrill?: (why: any) => void;                    // open the Explanation Drill for a `why`
 }
 
 let activeView: ExplanationView | null = null;
@@ -42,6 +44,11 @@ function wireMenus(m: MenuEls) {
     m.menuShowStrongest.addEventListener('click', (e) => {
         e.stopPropagation();
         activeView?.showStrongestReason();
+        m.titleMenu.style.display = 'none';
+    });
+    m.menuExplanationDrill.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeView?.openDrill();
         m.titleMenu.style.display = 'none';
     });
     m.menuCopyAnswer.addEventListener('click', (e) => {
@@ -81,12 +88,13 @@ export class ExplanationView {
         this.o = opts;
         this.m = opts.menus;
         wireMenus(opts.menus);
-        // Right-click the EXPLANATION title -> "Show strongest reason" (only offered
-        // when there is one for the current answer).
+        // Right-click the EXPLANATION title -> title menu (shown whenever there is an
+        // explanation). "Show important reason" appears only when there is one.
         opts.explanationTitle?.addEventListener('contextmenu', (e) => {
-            if (!this.currentStrongestPath) return;
+            if (!this.lastWhy) return;
             e.preventDefault();
             activeView = this;
+            this.m.menuShowStrongest.style.display = this.currentStrongestPath ? '' : 'none';
             this.m.titleMenu.style.display = 'block';
             this.m.titleMenu.style.left = `${(e as MouseEvent).clientX}px`;
             this.m.titleMenu.style.top = `${(e as MouseEvent).clientY}px`;
@@ -110,6 +118,11 @@ export class ExplanationView {
         const r = (reason || '').trim();
         if (r) { el.title = `Important reason: ${r}`; el.classList.add('has-reason'); }
         else { el.removeAttribute('title'); el.classList.remove('has-reason'); }
+    }
+
+    // Open the Explanation Drill for the current answer's explanation.
+    openDrill() {
+        if (this.lastWhy) this.o.onOpenDrill?.(this.lastWhy);
     }
 
     // Expand the tree to the strongest-reason node, open it one level, and flash it.

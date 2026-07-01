@@ -382,6 +382,11 @@ function wireMenus(m) {
     activeView?.showStrongestReason();
     m.titleMenu.style.display = "none";
   });
+  m.menuExplanationDrill.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.openDrill();
+    m.titleMenu.style.display = "none";
+  });
   m.menuCopyAnswer.addEventListener("click", (e) => {
     e.stopPropagation();
     if (activeView && activeView.currentAnswerToCopy)
@@ -419,10 +424,11 @@ var ExplanationView = class {
     this.m = opts.menus;
     wireMenus(opts.menus);
     opts.explanationTitle?.addEventListener("contextmenu", (e) => {
-      if (!this.currentStrongestPath)
+      if (!this.lastWhy)
         return;
       e.preventDefault();
       activeView = this;
+      this.m.menuShowStrongest.style.display = this.currentStrongestPath ? "" : "none";
       this.m.titleMenu.style.display = "block";
       this.m.titleMenu.style.left = `${e.clientX}px`;
       this.m.titleMenu.style.top = `${e.clientY}px`;
@@ -466,6 +472,11 @@ var ExplanationView = class {
       el.removeAttribute("title");
       el.classList.remove("has-reason");
     }
+  }
+  // Open the Explanation Drill for the current answer's explanation.
+  openDrill() {
+    if (this.lastWhy)
+      this.o.onOpenDrill?.(this.lastWhy);
   }
   // Expand the tree to the strongest-reason node, open it one level, and flash it.
   showStrongestReason() {
@@ -884,8 +895,20 @@ async function initScenarioVariations() {
     menuGotoOriginal: $("menu-goto-original"),
     answerTooltip: $("answer-tooltip"),
     titleMenu: $("explanation-title-menu"),
-    menuShowStrongest: $("menu-show-strongest")
+    menuShowStrongest: $("menu-show-strongest"),
+    menuExplanationDrill: $("menu-explanation-drill")
   };
+  const openDrill = (w) => {
+    if (!sessionModule)
+      return;
+    localStorage.setItem("le_explanation_drill_data", JSON.stringify({ sessionModule, kbName, why: w }));
+    const theme = document.body.className.match(/(light|hc)-theme/)?.[0] || "";
+    window.open(`explanation-drill.html?theme=${theme}&v=${Date.now()}`, "_blank");
+  };
+  window.addEventListener("message", (e) => {
+    if (e.data && e.data.type === "le-highlight")
+      window.opener?.postMessage(e.data, "*");
+  });
   const failedNodePrefix = () => localStorage.getItem("le-failed-node-prefix") ?? "x ";
   const hierarchical = () => localStorage.getItem("le-hierarchical-numbering") === "true";
   const navigate = (start, end) => {
@@ -934,7 +957,8 @@ async function initScenarioVariations() {
       failedNodePrefix,
       explanationTitle: eTitle,
       hierarchicalNumbering: hierarchical,
-      onNavigate: navigate
+      onNavigate: navigate,
+      onOpenDrill: openDrill
     });
     const entry = { name, card, view };
     remove.addEventListener("click", () => {

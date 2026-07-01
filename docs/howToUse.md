@@ -21,6 +21,7 @@ The Logical English (LE) web application is a simple IDE designed for developing
     - [Running and sharing](#running-and-sharing)
   - [Explanations and Navigation](#explanations-and-navigation)
     - [Reading the Explanation Tree](#reading-the-explanation-tree)
+    - [The Explanation Drill](#the-explanation-drill)
     - [Repeated Sub-explanations](#repeated-sub-explanations)
     - [The Explanation Context Menu](#the-explanation-context-menu)
     - [Explanation Preferences](#explanation-preferences)
@@ -130,6 +131,17 @@ Once a query is executed:
 *   **Expand / collapse:** Nodes with sub-steps show a `-`/`+` toggle; the top two levels are expanded by default. Expansion state is remembered per answer while you switch between answers.
 *   **Hierarchical numbering:** Turn on **Misc → Hierarchical Numbering** to prefix each node with its position in the tree (e.g. `1.2.3`).
 *   **Important reason:** hover the **EXPLANATION** title (shown underlined when available) for a one-line summary of the selected answer. It reflects the tree as displayed (so it honours your repeated-sub-explanations preference). Right-click the title and choose **Show important reason** to expand the tree to that node and flash it.
+
+### The Explanation Drill
+
+The **Explanation Drill** is a separate, non-modal window that walks you through an answer's explanation as a guided sequence of yes/no questions — to help you find, and understand, the reason that matters to you. Open it by right-clicking the **EXPLANATION** title and choosing **Explanation Drill…**.
+
+It treats the explanation as a "suspects tree" and, at each step, shows the **important reason** of the current region and asks **"Understood?"**:
+
+*   **Yes** — you understand that part; it is set aside and the drill moves on to the next most important reason of what remains.
+*   **Not yet** — you want to dig deeper; the drill descends into that reason and asks about *its* most important part.
+
+Every question keeps its answer (Yes / Not yet / unanswered), so you can revise an earlier one at any time — the drill re-questions from there. A **progress bar** at the top fills as you mark parts understood, and each question **highlights its source** in the main editor (without taking focus away from the drill). When there is nothing left to break down, it says *"Nothing else to show."*
 
 ### Repeated Sub-explanations
 
