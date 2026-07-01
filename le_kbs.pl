@@ -736,7 +736,7 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range = range(Start, End); Range = Ref),
-    ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
+    ( (KB \== none, item_to_instance_ranged(KB, Goal, Range, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref), Range, LE, ChildrenOut)) :- !,
     % An intermediate "failed rule" node (detailed failure explanations): label it
@@ -756,7 +756,7 @@ postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenO
     ( Goal0 = le_at(Goal, Start, End) -> Range = range(Start, End)
     ; Goal = Goal0, ( find_first_range(Goal, SM, KB, Range) -> true ; Range = none )
     ),
-    ( (KB \== none, item_to_instance(KB, Goal, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
+    ( (KB \== none, item_to_instance_ranged(KB, Goal, Range, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
@@ -961,6 +961,44 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
     ).
+
+%!  item_to_instance_ranged(+KBmodule, +Head, +Range, -WordsAndVars) is det.
+%
+%   Like item_to_instance/3, but Range (range(Start,End) or another Ref) is the
+%   source location the goal was written at. When a synonym surface form was
+%   recorded there (see le_grammar:maybe_record_synonym_use/5), render with that
+%   form; otherwise fall back to the main template. This is how explanations show
+%   a goal with the alternative wording actually used in the source.
+item_to_instance_ranged(KBmodule, Head, range(Start, End), WordsAndVars) :-
+    integer(Start),
+    KBmodule \== none,
+    KBmodule:le_synonym_at(Start, End, Skel),
+    item_to_instance_with_skeleton(KBmodule, Head, Skel, WordsAndVars),
+    !.
+item_to_instance_ranged(KBmodule, Head, _Range, WordsAndVars) :-
+    item_to_instance(KBmodule, Head, WordsAndVars).
+
+% Render Head using the KB template whose words match Skel (a synonym form).
+item_to_instance_with_skeleton(KBmodule, Head, Skel, WordsAndVars) :-
+    copy_term(Head, HeadCopy),
+    HeadCopy =.. [Functor|HeadArgs],
+    ( KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _))
+    ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _))
+    ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0)) ),
+    same_length(Args, HeadArgs),
+    synonym_skeleton(WordsAndVars0, DictSkel),
+    DictSkel == Skel,
+    Args = HeadArgs,
+    check_types(NTs),
+    !,
+    maplist(maybe_transform_value(KBmodule), WordsAndVars0, WordsAndVars1),
+    maplist(fill_variable_name(NTs), WordsAndVars1, WordsAndVars2),
+    flatten(WordsAndVars2, WordsAndVars).
+
+% synonym_skeleton(+WordsAndVars, -Skeleton): variables -> '$v', atoms kept. Must
+% match le_grammar's wv_skeleton so recorded and candidate forms compare equal.
+synonym_skeleton([], []).
+synonym_skeleton([X|Xs], [S|Ss]) :- ( var(X) -> S = '$v' ; S = X ), synonym_skeleton(Xs, Ss).
 
 % global_template_name(+KBmodule, +Functor, -GlobalName): the (first) global name
 % declared with "defines global" for the template whose predicate is Functor.
@@ -1174,6 +1212,11 @@ is_system_predicate(le_unknown/1).
 % Per-rule map of explicit source variable identifiers (e.g. X, Y), keyed by
 % rule ID, recorded at parse time so the Proof Game can show variable names.
 is_system_predicate(le_var_names/2).
+% Per-use-site record that a goal at source range Start-End was written with a
+% synonym surface form (Skeleton = its word pattern, arg positions as '$v'). Lets
+% explanations render the goal with the form actually written, rather than the
+% main template. Populated at parse time by le_grammar:maybe_record_synonym_use/5.
+is_system_predicate(le_synonym_at/3).
 
 
 collect_and_assert_types(M) :-

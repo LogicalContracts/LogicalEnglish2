@@ -509,25 +509,49 @@ template(Dicts) -->
     template_instance(Tokens),
     { Tokens = [First|_], get_token_start(First, Start), last(Tokens, Last), get_token_end(Last, End) },
     { process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) },
-    template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, NamesTypes, FunctorArgs, Start, End),
+    template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NamesTypes, FunctorArgs, Start, End),
     { validate_prepositional_template(Prep, FunctorArgs, WordsAndVars, Start, End) },
+    { validate_synonym_template(Synonyms, Globals, Opposite, Prep, Unknown, Start, End) },
     { MainDict = dict(FunctorArgs, NamesTypes, WordsAndVars, Start, End, Globals, Opposite, Prep, Unknown),
       (   nonvar(Opposite), nonvar(OppositeWV) ->
           MainLit =.. FunctorArgs,
           Opposite =.. [OppF | OppArgs],
           OppFA = [OppF | OppArgs],
           OppositeDict = dict(OppFA, NamesTypes, OppositeWV, Start, End, Globals, MainLit, Prep, Unknown),
-          Dicts = [MainDict, OppositeDict]
-      ;   Dicts = [MainDict]
-      )
+          BaseDicts = [MainDict, OppositeDict]
+      ;   BaseDicts = [MainDict]
+      ),
+      % Each synonym becomes an extra dict with the SAME FunctorArgs (so its surface
+      % form parses to the same literal). Copy each so its variables are independent.
+      findall(SynDict,
+              ( member(SynWV, Synonyms),
+                copy_term(dict(FunctorArgs, NamesTypes, SynWV), dict(SynFA, SynNTs, SynWVc)),
+                SynDict = dict(SynFA, SynNTs, SynWVc, Start, End, [], _, _, _) ),
+              SynDicts),
+      append(BaseDicts, SynDicts, Dicts)
     }.
 
-template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, NTs, FunctorArgs, TStart, TEnd) -->
+% A template with a synonym must not carry any other addition (defines global,
+% opposite, prepositional, unknown, undefined). Report an issue if it does; the
+% synonym dicts are still produced so the surface forms remain usable.
+validate_synonym_template([], _, _, _, _, _, _) :- !.
+validate_synonym_template(Synonyms, Globals, Opposite, Prep, Unknown, Start, End) :-
+    Synonyms \== [],
+    ( Globals \== [] ; nonvar(Opposite) ; nonvar(Prep) ; nonvar(Unknown) ),
+    !,
+    ( le_kbs:current_compiling_module(M), M \== (-) ->
+        assertz(M:le_issue(error, synonym_with_other_additions,
+            "A template with a synonym cannot have other additions (defines global, opposite, prepositional, unknown, undefined).",
+            "Split the synonym into its own template, or remove the other additions.", Start, End))
+    ;   true ).
+validate_synonym_template(_, _, _, _, _, _, _).
+
+template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd) -->
     t(punctuation(';', _)),
     (   t(word(defines)), t(word(global)) ->
         template_instance(Tokens),
         { reconstruct_name(Tokens, G) },
-        template_additions(Gs, Opposite, OppositeWV, Prep, Unknown, NTs, FunctorArgs, TStart, TEnd),
+        template_additions(Gs, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd),
         { Globals = [G|Gs] }
     ;   t(word(opposite)) ->
         template_instance(OppositeTokens0),
@@ -538,18 +562,29 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, NTs, FunctorArg
         % Unify variables by position so main args and opposite args share Prolog vars.
         { FunctorArgs = [_|Args], OppositeFunctorArgs = [OppF|OppArgs], unify_args(Args, OppArgs) },
         { Opposite =.. [OppF | OppArgs] },
-        template_additions(Globals, _, _, Prep, Unknown, NTs, FunctorArgs, TStart, TEnd)
+        template_additions(Globals, _, _, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
+    ;   t(word(synonym)) ->
+        % A synonym maps a second surface form to the SAME predicate. Parse the
+        % alternative template and unify its arguments (by position) with the main
+        % template's so they share Prolog variables; its words become an extra dict
+        % with the main FunctorArgs. Several synonyms may be chained.
+        template_instance(SynonymTokens0),
+        { (SynonymTokens0 = [punct(':', _)|SynRest] -> SynonymTokens = SynRest ; SynonymTokens = SynonymTokens0) },
+        { process_template(SynonymTokens, SynonymFunctorArgs, _SynNTs, SynonymWV) },
+        { FunctorArgs = [_|Args2], SynonymFunctorArgs = [_|SynArgs], unify_args(Args2, SynArgs) },
+        template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Syns, NTs, FunctorArgs, TStart, TEnd),
+        { Synonyms = [SynonymWV|Syns] }
     ;   t(word(prepositional)) ->
         { Prep = prepositional },
-        template_additions(Globals, Opposite, OppositeWV, _, Unknown, NTs, FunctorArgs, TStart, TEnd)
+        template_additions(Globals, Opposite, OppositeWV, _, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   unknown_keyword ->
         { Unknown = unknown },
-        template_additions(Globals, Opposite, OppositeWV, Prep, _, NTs, FunctorArgs, TStart, TEnd)
+        template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   undefined_keyword ->
         { Unknown = scenario_element },
-        template_additions(Globals, Opposite, OppositeWV, Prep, _, NTs, FunctorArgs, TStart, TEnd)
+        template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ).
-template_additions([], _, _, _, _, _, _, _, _) --> [].
+template_additions([], _, _, _, _, [], _, _, _, _) --> [].
 
 % unknown_keyword matches the marker declaring a template (or fact) as
 % assumable/abducible. Accepts 'unknown' and its synonyms 'assumed' and
@@ -1296,7 +1331,8 @@ second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End
 second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( le_kbs:do_log -> maplist(extract_simple_word, Head, Words), print_message(informational,'Processing rule: ~w~n' - [Words]); true),
-    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->
+    (   parse_literal(Head, Templates, [], VM1, NewHead, HeadInst, true) ->
+        maybe_record_synonym_use(Templates, NewHead, HeadInst, Start, End),
         (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->
             ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true),
             collect_extra_goals(VMOut, ExtraGoals),
@@ -1404,10 +1440,11 @@ second_pass_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewB
 
 second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     format(atom(ActualID), 'rule_~w', [Start]),
-    (   parse_literal(Head, Templates, [], VMOut, NewHead, _, true) ->  
+    (   parse_literal(Head, Templates, [], VMOut, NewHead, HeadInst, true) ->
+        maybe_record_synonym_use(Templates, NewHead, HeadInst, Start, End),
         collect_extra_goals(VMOut, ExtraGoals),
         ( ExtraGoals == [] -> NewBody = true ; list_to_conj(ExtraGoals, NewBody) )
-        ;   
+        ;
         NewHead = unknown_template(Head),
         NewBody = true
     ).
@@ -1503,9 +1540,10 @@ second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut5, NewBody)
     ).
 
-second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
+second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
-    ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
+    ( parse_literal(Head, Templates, [], VM1, NewHead, HeadInst, true) ->
+        maybe_record_synonym_use(M, Templates, NewHead, HeadInst, Start, End),
         parse_body(BodyTokens, Indent, Templates, VM1, VMOut6, Body0),
         collect_extra_goals(VMOut6, ExtraGoals),
         ( ExtraGoals == [] -> NewBody = Body0 ; append(ExtraGoals, [Body0], AllGoals), list_to_conj(AllGoals, NewBody) )
@@ -1513,13 +1551,14 @@ second_pass_scenario_item(Templates, rule(Head, BodyTokens, Indent, Start, End, 
         NewHead = unknown_template(Head, Start, End), 
         parse_body(BodyTokens, Indent, Templates, [], _VMOut7, NewBody)
     ).
-second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
+second_pass_scenario_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), M) :-
     % Scenario facts parse with the 'indefinite' policy: an indefinite determiner
     % ("a damage", "a burst pipe") introduces a typed variable, while a definite
     % phrase ("the repair cost") stays a concrete individual. The resulting
     % variables are constrained by a TypesRestriction body so the fact only
     % applies to arguments of the proper type.
-    ( parse_literal(Head, Templates, [], VMOut8, NewHead, _, indefinite) ->
+    ( parse_literal(Head, Templates, [], VMOut8, NewHead, HeadInst, indefinite) ->
+        maybe_record_synonym_use(M, Templates, NewHead, HeadInst, Start, End),
         collect_extra_goals(VMOut8, ExtraGoals),
         build_type_restriction(NewHead, Templates, TypeRestriction),
         ( TypeRestriction == true -> Goals = ExtraGoals ; append(ExtraGoals, [TypeRestriction], Goals) ),
@@ -1695,6 +1734,75 @@ extract_words_to_value(Words, Value, VMIn, VMOut, AllowVars) :-
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal, Instance) :-
     parse_literal(Tokens, Templates, VMIn, VMOut, Literal, Instance, true).
+
+%!  maybe_record_synonym_use(+Templates, +Literal, +Instance, +Start, +End) is det.
+%
+%   If the goal Literal was written (at source range Start-End) with a SYNONYM
+%   surface form rather than its main template, record it so explanations can later
+%   render the goal with the form actually written. Instance is the matched
+%   template's words with this goal's argument variables in place; comparing its
+%   word skeleton (arg positions blanked to '$v') against the main template's tells
+%   us whether a synonym was used. A no-op when the main form was used, when there
+%   are no alternative forms, or when not compiling a KB module.
+maybe_record_synonym_use(Templates, Literal, Instance, Start, End) :-
+    ( le_kbs:current_compiling_module(M), M \== (-), nonvar(M) -> true ; M = (-) ),
+    maybe_record_synonym_use(M, Templates, Literal, Instance, Start, End).
+
+% Explicit-module variant, for the (later) scenario second pass where the current
+% compiling module is no longer set but the target module is passed in.
+maybe_record_synonym_use(M, Templates, Literal, Instance, Start, End) :-
+    (   nonvar(M), M \== (-),
+        nonvar(Literal), is_list(Instance),
+        functor(Literal, F, A),
+        primary_template_wv(Templates, F, A, PrimaryWV),
+        wv_skeleton_with_args(Instance, Literal, InstanceSkel),
+        wv_skeleton(PrimaryWV, PrimarySkel),
+        InstanceSkel \== PrimarySkel
+    ->  ( M:le_synonym_at(Start, End, InstanceSkel) -> true
+        ; assertz(M:le_synonym_at(Start, End, InstanceSkel)) )
+    ;   true
+    ).
+
+% The MAIN template's WordsAndVars for predicate F/A, from the in-memory template
+% list. A synonym dict shares the main's FunctorArgs but keeps the synonym's own
+% words, so the main is the dict whose OWN words derive the functor F (default
+% rendering, item_to_instance, likewise uses this first/main dict).
+primary_template_wv(Templates, F, A, WV) :-
+    once(( member(Dict, Templates),
+           dict_fa_wv(Dict, [F|Args], WV0),
+           length(Args, A),
+           wv_functor(WV0, F) )),
+    WV = WV0.
+
+dict_fa_wv(dict(FA, _, WV, _, _, _, _, _, _, _), FA, WV) :- !.
+dict_fa_wv(dict(FA, _, WV, _, _, _, _, _, _), FA, WV) :- !.
+dict_fa_wv(dict(FA, _, WV, _, _, _, _), FA, WV) :- !.
+dict_fa_wv(dict(FA, _, WV), FA, WV).
+
+% wv_functor(+WordsAndVars, -Functor): the functor derived from the literal words
+% (the atoms), joined with '_' — matching extract_functor/2 over the template.
+wv_functor(WV, Functor) :-
+    include(atom, WV, Words),
+    Words \== [],
+    atomic_list_concat(Words, '_', Functor).
+
+% wv_skeleton(+WordsAndVars, -Skeleton): each variable becomes '$v', each atom is
+% kept, so two surface forms compare equal iff they share the same words in the
+% same layout.
+wv_skeleton([], []).
+wv_skeleton([X|Xs], [S|Ss]) :- ( var(X) -> S = '$v' ; S = X ), wv_skeleton(Xs, Ss).
+
+% Like wv_skeleton but for a matched Instance whose argument slots hold Literal's
+% arguments (possibly bound to constants): those positions are blanked to '$v' too.
+wv_skeleton_with_args(Instance, Literal, Skel) :-
+    Literal =.. [_|Args],
+    maplist(skeleton_elem(Args), Instance, Skel).
+
+skeleton_elem(Args, X, '$v') :- ( var(X) ; member_eq(X, Args) ), !.
+skeleton_elem(_, X, X).
+
+member_eq(X, [Y|_]) :- X == Y, !.
+member_eq(X, [_|Ys]) :- member_eq(X, Ys).
 
 parse_literal(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars) :-
     exclude(is_indent_or_comment, Tokens, CleanTokens),
@@ -2071,8 +2179,9 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             % Inline negation: "it is not the case that <goal>" all on one line.
             % Unambiguous because the negation has a single condition (the rest of
             % the line), so the goal need not be on a nested line.
-            parse_literal(GoalTokens, Templates, VMIn, VMOut, GoalLit, _),
+            parse_literal(GoalTokens, Templates, VMIn, VMOut, GoalLit, NafInstance),
             tokens_range(GoalTokens, GStart, GEnd),
+            maybe_record_synonym_use(Templates, GoalLit, NafInstance, GStart, GEnd),
             Logic0 = not(le_at(GoalLit, GStart, GEnd)),
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
@@ -2088,7 +2197,7 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             Logic0 =.. [Op, [each|ElementList], Goal, ResultList],
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
-        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, _Instance) ->
+        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, LitInstance) ->
             collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals),
             % A global ("defines global") abbreviation contributes a goal that
             % BINDS the global's variable, so it must run immediately BEFORE the
@@ -2103,7 +2212,10 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             length(LiteralExtraGoals, NumNew),
             remove_leading_extra_goals(VM1, NumNew, VM2),
             fold_nodes(Logic0, Children, Templates, VM2, VMOut, Logic1),
-            ( (Tokens \== [], tokens_range(Tokens, Start, End)) -> Logic = le_at(Logic1, Start, End) ; Logic = Logic1 )
+            ( (Tokens \== [], tokens_range(Tokens, Start, End)) ->
+                  maybe_record_synonym_use(Templates, Literal, LitInstance, Start, End),
+                  Logic = le_at(Logic1, Start, End)
+              ;   Logic = Logic1 )
         ; Children == [], parse_inline_connective(Tokens, Templates, VMIn, VMOut, Logic0) ->
             % A single-line body with top-level inline 'and'/'or' connectives,
             % e.g. "p if q and r." — split into conjuncts/disjuncts.

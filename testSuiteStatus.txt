@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 90
-Total tests:     282
-Passed:          282
+Files processed: 91
+Total tests:     286
+Passed:          286
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -36,6 +36,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/subset.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/synonyms.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error

@@ -1,0 +1,49 @@
+the target language is: prolog.
+
+% Demonstrates the ';synonym' template addition. A template may declare one (or
+% more) equivalent surface forms after '; synonym'; every form maps to the SAME
+% Prolog predicate, so facts, rule heads, rule bodies and queries may be written
+% with the main form or any synonym interchangeably. Explanations render the main
+% (first) form by default.
+%
+% To simplify things, a template with a synonym cannot carry any other addition.
+
+the templates are:
+    *a person* is happy; synonym *a person* is content.
+    *a person* deserves a reward; synonym *a person* earns a prize.
+    *a person* is rich; undefined.
+    *a person* is loved; undefined.
+
+the knowledge base synonyms includes:
+    A person is happy
+        if the person is rich.
+
+    % head written with the 'is content' synonym — same predicate as 'is happy'
+    A person is content
+        if the person is loved.
+
+    % body written with the 'is content' synonym
+    A person deserves a reward
+        if the person is content.
+
+scenario friends is:
+    alice is rich.
+    bob is loved.
+    dave is content.                       % scenario fact written with a synonym
+    % Each query renders its answers with the surface form used in the query itself.
+    happy expects answers ["alice is happy", "bob is happy", "dave is happy"].
+    content expects answers ["alice is content", "bob is content", "dave is content"].
+    reward expects answers ["alice deserves a reward", "bob deserves a reward", "dave deserves a reward"].
+    prize expects answers ["alice earns a prize", "bob earns a prize", "dave earns a prize"].
+
+query happy is:
+    which person is happy.
+
+query content is:
+    which person is content.
+
+query reward is:
+    which person deserves a reward.
+
+query prize is:
+    which person earns a prize.
