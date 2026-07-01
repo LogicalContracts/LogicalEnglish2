@@ -284,9 +284,10 @@ item_to_typed_instance(KBmodule, le_at(Goal, _, _), WordsAndVars) :- !,
     item_to_typed_instance(KBmodule, Goal, WordsAndVars).
 item_to_typed_instance(_KBmodule, var(Name, Value), [var(Name, Value)]) :- !.
 item_to_typed_instance(KBmodule, not(Goal), WordsAndVars) :- !,
+    negation_words(Neg),
     ( item_to_typed_instance(KBmodule, Goal, GoalLE) ->
-        WordsAndVars = [it, is, not, the, case, that | GoalLE]
-    ; WordsAndVars = [it, is, not, the, case, that, Goal] ).
+        append(Neg, GoalLE, WordsAndVars)
+    ; append(Neg, [Goal], WordsAndVars) ).
 item_to_typed_instance(KBmodule, and(A, B), WordsAndVars) :- !,
     ( item_to_typed_instance(KBmodule, A, ALE), item_to_typed_instance(KBmodule, B, BLE) ->
         append(ALE, [and | BLE], WordsAndVars)

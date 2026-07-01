@@ -643,10 +643,11 @@ run_answering_query(SM, Query, KB, Response) :-
     % A query can have several proofs of the SAME answer (e.g. an 'or' whose
     % branches both hold). Collect them keyed by (answer string + unknowns) and
     % keep only the first of each, so the same answer is not listed repeatedly.
-    findall((AnswerStr-UnknownsKey)-_{answer: AnswerStr, unknowns: JSONUnknowns, why: JSONWhy}, (
+    findall((AnswerStr-UnknownsKey)-_{answer: AnswerStr, unknowns: JSONUnknowns, why: JSONWhy, strongestReason: Reason, strongestReasonPath: ReasonPath}, (
             query(SM, Query, Instance, Us, Why),
             canonical_string(Instance, AnswerStr),
             convert_why_deduped(Why, KB, JSONWhy),
+            strongest_reason(JSONWhy, KB, Reason, ReasonPath),
             convert_unknowns_to_le(KB, Us, JSONUnknowns),
             ( copy_term(Us, UsC, _), numbervars(UsC, 0, _), term_to_atom(UsC, UnknownsKey) -> true ; UnknownsKey = '?' ),
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
@@ -661,10 +662,108 @@ run_answering_query(SM, Query, KB, Response) :-
         print_message(informational, 'No answers found, generating negative explanation'),
         (   query_explain(SM, Query, _Instance, _Unknowns, Why) ->
                 convert_why_deduped(Why, KB, JSONWhy),
-                Response = _{results: [], why: JSONWhy, result: "ok"}
+                strongest_reason(JSONWhy, KB, Reason, ReasonPath),
+                Response = _{results: [], why: JSONWhy, strongestReason: Reason, strongestReasonPath: ReasonPath, result: "ok"}
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
     ).
+
+%!  strongest_reason(+JSONWhy, +KB, -Reason:string) is det.
+%
+%   A terse "strongest reason" summarising an explanation: the literal of the node
+%   whose subtree weight — its descendant-node count (1 + sum of children weights) —
+%   is closest to half the whole tree's weight W. On a tie the larger subtree wins.
+%   Reason is "" when there is no explanation. JSONWhy is exactly what was sent to
+%   the client (already collapsed when the user hides repeated sub-explanations), so
+%   the summary matches what is displayed.
+%
+%   A node proven by a rule carries intrinsic weight (and is itself a candidate) ONLY
+%   when the rule has an explicit name; a node from an auto-named rule is
+%   "transparent" — it contributes no weight of its own and cannot be the strongest
+%   reason — so anonymous derivation steps do not dominate the summary.
+%   Path is the winning node's tree path ("1.2.3", 1-based) — computed exactly like
+%   the client renders the tree — so the client can reveal and highlight that node.
+strongest_reason(JSONWhy, KB, Reason, Path) :-
+    ( is_list(JSONWhy) -> Roots = JSONWhy ; Roots = [JSONWhy] ),
+    reason_roots(KB, Roots, 1, 0, W, [], Candidates),
+    (   Candidates == [] -> Reason = "", Path = ""
+    ;   maplist(reason_score(W), Candidates, Scored),
+        sort(0, @=<, Scored, [_-(Best-Path)|_]),
+        ( string(Best) -> Reason = Best ; term_string(Best, Reason) )
+    ).
+
+% reason_roots(+KB, +Roots, +Index, +W0, -W, +Cand0, -Cand): process each root, giving
+% it its 1-based path, and summing subtree weights into the total W.
+reason_roots(_, [], _, W, W, C, C).
+reason_roots(KB, [R|Rs], I, W0, W, C0, C) :-
+    number_string(I, IS),
+    reason_collect(KB, R, IS, WR, C0, C1),
+    W1 is W0 + WR,
+    I1 is I + 1,
+    reason_roots(KB, Rs, I1, W1, W, C1, C).
+
+% reason_collect(+KB, +Node, +Path, -SubtreeWeight, +Cand0, -Cand): the subtree's
+% weight, accumulating a Weight-(Text-Path) candidate for Node and every descendant. A
+% transparent (auto-named rule) node adds no intrinsic weight and no candidate.
+reason_collect(KB, Node, Path, W, Cand0, Cand) :-
+    (   is_dict(Node) ->
+            ( get_dict(children, Node, Children), is_list(Children) -> true ; Children = [] ),
+            reason_children(KB, Children, Path, 1, 0, SumC, Cand0, Cand1),
+            (   transparent_rule_node(KB, Node, Children) ->
+                    W = SumC, Cand = Cand1
+            ;   W is SumC + 1,
+                node_reason_text(Node, Text),
+                Cand = [W-(Text-Path)|Cand1]
+            )
+    ;   W = 1, Cand = [1-(""-Path)|Cand0]
+    ).
+
+% node_reason_text(+Node, -Text): the node's literal, negated when the node is a
+% failure, so a chosen failed condition reads naturally as a reason. Negating toggles
+% the LE negation phrase: a plain "X" gains "it is not the case that "; a NAF literal
+% "it is not the case that X" drops it back to "X" (rather than double-prefixing).
+node_reason_text(Node, Text) :-
+    ( get_dict(literal, Node, Lit) -> true ; Lit = "" ),
+    ( get_dict(type, Node, "failure") -> negate_literal(Lit, Text) ; Text = Lit ).
+
+% negate_literal(+Lit, -Negated): the LE negation of a literal, reusing the single
+% negation phrase (le_kbs:negation_words/1).
+negate_literal(Lit, Negated) :-
+    negation_words(Ws),
+    atomic_list_concat(Ws, ' ', Phrase),
+    string_concat(Phrase, " ", PrefixS),            % "it is not the case that "
+    atom_string(Lit, LitS),
+    (   string_concat(PrefixS, Rest, LitS)          % already NAF -> strip the prefix
+    ->  Negated = Rest
+    ;   string_concat(PrefixS, LitS, Negated)       % plain -> add the prefix
+    ).
+% reason_children(+KB, +Children, +ParentPath, +Index, +Sum0, -Sum, +Cand0, -Cand):
+% each child gets path "ParentPath.Index" (1-based), matching the client's rendering.
+reason_children(_, [], _, _, S, S, C, C).
+reason_children(KB, [Ch|Chs], PP, I, S0, S, C0, C) :-
+    format(string(ChildPath), "~w.~w", [PP, I]),
+    reason_collect(KB, Ch, ChildPath, WC, C0, C1),
+    S1 is S0 + WC,
+    I1 is I + 1,
+    reason_children(KB, Chs, PP, I1, S1, S, C1, C).
+
+% transparent_rule_node(+KB, +Node, +Children): the node was proven by a rule (its
+% source range names a clause) whose id is auto-generated (not "rule <name>"), so it
+% is treated as a pass-through for the strongest-reason heuristic.
+transparent_rule_node(KB, Node, Children) :-
+    Children \== [],
+    KB \== none,
+    get_dict(start, Node, S), get_dict(end, Node, E),
+    catch(KB:le_source_info(_, S, E, RuleID), _, fail),
+    !,
+    \+ le_kbs:user_rule_name(RuleID).
+
+% Integer sort key: minimise |2*NodeWeight - TotalWeight| (i.e. |NodeWeight - W/2|),
+% then prefer the larger subtree (NegW ascending = Weight descending). NegW must be
+% the *evaluated* integer -W, not the term -(W), for numeric ordering.
+reason_score(Wtotal, W-Value, (D - NegW) - Value) :-
+    D is abs(2 * W - Wtotal),
+    NegW is -W.
 
 % dedup_keep_first(+KeyedPairs, -Values): the first Value for each distinct Key,
 % preserving order.

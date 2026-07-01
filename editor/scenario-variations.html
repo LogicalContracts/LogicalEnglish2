@@ -84,6 +84,7 @@
         .answers-panel { width: 38%; min-width: 160px; padding: 8px; overflow: auto; border-right: 1px solid var(--border-color); }
         .explanation-panel { flex: 1; padding: 8px; overflow: auto; }
         .panel-label { font-size: 11px; color: var(--muted); font-weight: bold; text-transform: uppercase; margin-bottom: 5px; }
+        .panel-label.has-reason { cursor: help; text-decoration: underline dotted; }
         /* --- answers + explanation (copied from the editor) --- */
         .answer-item { padding: 5px 8px; cursor: pointer; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; color: var(--text-color); }
         .answer-item:hover { background-color: var(--tree-hover-bg); }
@@ -166,6 +167,9 @@
     <div id="explanation-context-menu" class="context-menu">
         <div class="dropdown-item" id="menu-goto-original" style="display: none;">Go to full sub-explanation</div>
         <div class="dropdown-item" id="menu-copy-explanation">Copy Explanation</div>
+    </div>
+    <div id="explanation-title-menu" class="context-menu">
+        <div class="dropdown-item" id="menu-show-strongest">Show important reason</div>
     </div>
 
     <script>

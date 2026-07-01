@@ -13,7 +13,7 @@
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
     topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
-    le_examples_dir/1]).
+    le_examples_dir/1, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -767,6 +767,13 @@ postprocess_why(Other, _, Other).
 % 'rule_<pos>' id.
 user_rule_name(RuleID) :- atom(RuleID), RuleID \== '', \+ atom_concat('rule_', _, RuleID).
 
+%!  negation_words(-Words:list) is det.
+%
+%   The Logical English phrase for negation-as-failure, as a word list. Single source
+%   of truth so the phrase is not pasted in every place that renders "it is not the
+%   case that <goal>".
+negation_words([it, is, not, the, case, that]).
+
 % rule_head_text(+Ref, +SM, +KB, -HeadStr): the LE text of the head of the clause
 % referenced by Ref (in the session or KB module).
 rule_head_text(Ref, SM, KB, HeadStr) :-
@@ -901,8 +908,9 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
         flatten([ResultName, is, the, average, of, each, VarName, such, that], WordsAndVars)
-    ;   Head = not(Goal) -> 
-        ( item_to_instance(KBmodule, Goal, GoalLE) -> WordsAndVars = [it, is, not, the, case, that | GoalLE]; WordsAndVars = [it, is, not, the, case, that, Goal])
+    ;   Head = not(Goal) ->
+        negation_words(Neg),
+        ( item_to_instance(KBmodule, Goal, GoalLE) -> append(Neg, GoalLE, WordsAndVars); append(Neg, [Goal], WordsAndVars))
     ;   Head = forall(Cond, Cons) ->
         ( item_to_instance(KBmodule, Cond, CondLE), item_to_instance(KBmodule, Cons, ConsLE) ->
             append([for, all, cases, in, which | CondLE], [it, is, the, case, that | ConsLE], WordsAndVars)
