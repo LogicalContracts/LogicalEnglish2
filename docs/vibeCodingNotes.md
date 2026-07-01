@@ -1862,5 +1862,6 @@ In the citizenship.le example, scenario trust_harry query one, the "important re
 In the Explanation Drill, please use "Accept?" instead of "Understood?". 
 Also make sure the Drill window is using its own LE session, as an user complained about an expired session.
 And please make sure questions are not repeated; the TOP node has an implict "Not yet" answer.
+If the user clicks on a card for a question in the Explanation Drill, select its source code in the editor
 
 ## TBD

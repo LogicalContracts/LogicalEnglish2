@@ -128,6 +128,17 @@ test(yes_moves_to_next_region) :- pending_path(["yes"], P), assertion(P == "1.3"
 test(not_yet_descends_into_node) :- pending_path(["not_yet"], P), assertion(P == "1.1.1").
 test(all_understood_terminates) :- pending_path(["yes","yes","yes"], P), assertion(P == done).
 
+test(tree_root_is_never_offered) :-
+    % A forest [r1(3){a,b}, r2(1)]: all four nodes tie on distance, so without excluding
+    % the roots the heavier root r1 would be the first question. The roots (the goals
+    % being explained) must never be offered — only their descendants (a/b).
+    leaf("a", A), leaf("b", B), leaf("r2", R2),
+    node("r1", [A, B], R1),
+    classic_web_api:drill_loop(none, [R1, R2], [], "", [], [], _Qs, _Top, _Und, Pending),
+    Pending \== null,
+    get_dict(text, Pending, T),
+    assertion(memberchk(T, ["a", "b"])).
+
 test(understood_and_questions_tracked) :-
     dtree(T),
     classic_web_api:drill_loop(none, T, ["not_yet","yes"], "", [], [], Qs, Top, Und, _P),

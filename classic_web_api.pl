@@ -778,7 +778,10 @@ reason_score(Wtotal, W-Value, (D - NegW) - Value) :-
 % candidate (everything understood).
 strongest_within(Why, KB, "", Und, SPath, SText, SWeight, W) :- !,
     ( is_list(Why) -> Roots = Why ; Roots = [Why] ),
-    reason_roots(KB, Roots, 1, Und, 0, W, [], Candidates),
+    reason_roots(KB, Roots, 1, Und, 0, W, [], Candidates0),
+    % The tree root(s) — the goal(s) being explained — are never offered as a question
+    % (that is what the drill is explaining); only their descendants are candidates.
+    exclude(candidate_is_root, Candidates0, Candidates),
     best_reason_candidate(Candidates, W, SPath, SText, SWeight).
 strongest_within(Why, KB, TopPath, Und, SPath, SText, SWeight, W) :-
     node_at_path(Why, TopPath, TopNode),
@@ -789,6 +792,8 @@ strongest_within(Why, KB, TopPath, Und, SPath, SText, SWeight, W) :-
     best_reason_candidate(Candidates, W, SPath, SText, SWeight).
 
 candidate_at_path(Path, _-(_-P)) :- P == Path.
+% A top-level root path has no "." (e.g. "1", "2"), unlike a descendant ("1.2").
+candidate_is_root(_-(_-P)) :- \+ sub_string(P, _, _, _, ".").
 
 best_reason_candidate(Candidates, W, SPath, SText, SWeight) :-
     Candidates \== [],

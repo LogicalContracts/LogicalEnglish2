@@ -155,6 +155,22 @@ test.describe('Explanation Drill', () => {
         await expect(drill.locator('.q-del')).toHaveCount(before - 1);
     });
 
+    test('clicking a card selects its source in the editor', async ({ page }) => {
+        test.setTimeout(60000);
+        const drill = await openDrill(page);
+        // Clear the editor selection so we can prove the click is what sets it.
+        await page.evaluate(() => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            ed.setSelection(new (window as any).monaco.Range(1, 1, 1, 1));
+        });
+        expect(await page.evaluate(() => (window as any).monaco.editor.getEditors()[0].getSelection().isEmpty())).toBe(true);
+
+        // Click the question card (its text) — the editor selects that node's source.
+        await drill.locator('.q-card').first().locator('.q-node').click();
+        await expect.poll(() => page.evaluate(() =>
+            !(window as any).monaco.editor.getEditors()[0].getSelection().isEmpty())).toBe(true);
+    });
+
     test('uses its own session, distinct from the editor', async ({ page }) => {
         test.setTimeout(60000);
         const grab = (r: any, op: string, set: (s: string) => void) => {
