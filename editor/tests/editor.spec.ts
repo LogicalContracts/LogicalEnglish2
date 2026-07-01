@@ -37,47 +37,43 @@ test.describe('Logical English Editor', () => {
   });
 
   test('should switch themes', async ({ page }) => {
-    // Open Misc menu
-    await page.click('text=Misc');
-    // Select Light theme
-    await page.click('#theme-light');
-    await expect(page.locator('body')).toHaveClass(/light-theme/);
+    const body = page.locator('body');
+    // The Misc menu's handlers are wired during app init, so an early click can be
+    // dropped. Retry Misc -> theme item until the theme actually applies (the dark theme
+    // adds no class of its own — it just clears the others).
+    const pickTheme = async (itemId: string, assertApplied: () => Promise<void>) => {
+      await expect(async () => {
+        await page.click('text=Misc');
+        await page.click(itemId);
+        await assertApplied();
+      }).toPass();
+    };
 
-    // Select High Contrast theme
-    await page.click('text=Misc');
-    await page.click('#theme-hc');
-    await expect(page.locator('body')).toHaveClass(/hc-theme/);
-
-    // Back to Dark
-    await page.click('text=Misc');
-    await page.click('#theme-dark');
-    await expect(page.locator('body')).not.toHaveClass(/light-theme/);
-    await expect(page.locator('body')).not.toHaveClass(/hc-theme/);
+    await pickTheme('#theme-light', () => expect(body).toHaveClass(/light-theme/, { timeout: 1000 }));
+    await pickTheme('#theme-hc', () => expect(body).toHaveClass(/hc-theme/, { timeout: 1000 }));
+    await pickTheme('#theme-dark', async () => {
+      await expect(body).not.toHaveClass(/light-theme/, { timeout: 1000 });
+      await expect(body).not.toHaveClass(/hc-theme/, { timeout: 1000 });
+    });
   });
 
   test('should navigate between bottom panels', async ({ page }) => {
     await expect(page.locator('#container')).toBeVisible();
-    
-    // Graph tab
-    const graphTabButton = page.locator('.tab', { hasText: 'Graph' });
-    await expect(graphTabButton).toBeVisible();
-    await graphTabButton.click();
-    await expect(page.locator('#graph-tab')).toBeVisible();
-    await expect(page.locator('#query-tab')).not.toBeVisible();
 
-    // Assistant tab
-    const assistantTabButton = page.locator('.tab', { hasText: 'LE Assistant' });
-    await expect(assistantTabButton).toBeVisible();
-    await assistantTabButton.click();
-    await expect(page.locator('#assistant-tab')).toBeVisible();
-    await expect(page.locator('#graph-tab')).not.toBeVisible();
-
-    // Query tab
-    const queryTabButton = page.locator('.tab', { hasText: 'Query' });
-    await expect(queryTabButton).toBeVisible();
-    await queryTabButton.click();
-    await expect(page.locator('#query-tab')).toBeVisible();
-    await expect(page.locator('#assistant-tab')).not.toBeVisible();
+    // The tab click handlers are wired late during app init (after the Monaco editor is
+    // created), so an early click can be dropped. Retry the click until the tab switches.
+    const switchTo = async (label: string, tabId: string, hiddenId: string) => {
+      const btn = page.locator('.tab', { hasText: label });
+      await expect(btn).toBeVisible();
+      await expect(async () => {
+        await btn.click();
+        await expect(page.locator(tabId)).toBeVisible({ timeout: 1000 });
+      }).toPass();
+      await expect(page.locator(hiddenId)).not.toBeVisible();
+    };
+    await switchTo('Graph', '#graph-tab', '#query-tab');
+    await switchTo('LE Assistant', '#assistant-tab', '#graph-tab');
+    await switchTo('Query', '#query-tab', '#assistant-tab');
   });
 
   test('tolerates extra spaces in section headers when highlighting', async ({ page }) => {
@@ -330,37 +326,29 @@ test.describe('Logical English Editor', () => {
   });
 
   test('should configure explanations preferences', async ({ page }) => {
-    // 1. Open Misc menu
-    await page.click('text=Misc');
-
-    // 2. Click Preferences... under EXPLANATIONS
-    await page.click('#menu-explanations');
-
-    // 3. Verify modal is visible
     const modal = page.locator('#explanations-modal');
-    await expect(modal).toBeVisible();
-
-    // 4. Verify default prefix is "x "
     const prefixInput = page.locator('#failed-prefix-input');
+
+    // The Misc menu's handlers are wired during app init, so an early click can be
+    // dropped. Retry Misc -> Preferences… until the modal actually opens.
+    const openPreferences = async () => {
+      await expect(async () => {
+        await page.click('text=Misc');
+        await page.click('#menu-explanations');
+        await expect(modal).toBeVisible({ timeout: 1000 });
+      }).toPass();
+    };
+
+    // Default prefix is "x "; change it to "[FAIL] " and save.
+    await openPreferences();
     await expect(prefixInput).toHaveValue('x ');
-
-    // 5. Change prefix to "[FAIL] "
     await prefixInput.fill('[FAIL] ');
-
-    // 6. Click Save
     await page.click('#explanations-save');
-
-    // 7. Verify modal is closed
     await expect(modal).not.toBeVisible();
 
-    // 8. Open Misc menu again and click Preferences...
-    await page.click('text=Misc');
-    await page.click('#menu-explanations');
-
-    // 9. Verify custom prefix is loaded
+    // Reopen: the custom prefix persisted. Cancel out.
+    await openPreferences();
     await expect(prefixInput).toHaveValue('[FAIL] ');
-
-    // 10. Click Cancel
     await page.click('#explanations-cancel');
     await expect(modal).not.toBeVisible();
   });
