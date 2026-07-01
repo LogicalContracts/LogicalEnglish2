@@ -94,6 +94,7 @@ export async function initScenarioVariations() {
         rowsEl: $('rows'),
         addSelect: $('add-template') as HTMLSelectElement,
         btnAdd: $('btn-add') as HTMLButtonElement,
+        assumeTitle: 'Consider this unknown, and assume it to be true',
         onChange: () => { markStale(); syncUrl(); },
     });
 

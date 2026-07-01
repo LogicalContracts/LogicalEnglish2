@@ -167,6 +167,7 @@ function splitFacts(bodyLines) {
 var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
 var isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
 var UNKNOWN_PREFIX = /^it is (?:unknown|assumed|assumable) whether\s+/i;
+var DEFAULT_ASSUME_TITLE = "if checked, fact is assumed, unknown";
 var ScenarioForm = class {
   templates;
   // all templates (for recognising facts)
@@ -310,7 +311,7 @@ var ScenarioForm = class {
     tools.className = "row-tools";
     const assume = document.createElement("label");
     assume.className = "assume";
-    assume.title = "if checked, fact is assumed, unknown";
+    assume.title = this.opts.assumeTitle || DEFAULT_ASSUME_TITLE;
     const check = document.createElement("input");
     check.type = "checkbox";
     check.checked = row.assumed;

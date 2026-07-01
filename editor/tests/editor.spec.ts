@@ -1,5 +1,18 @@
 import { test, expect } from '@playwright/test';
 
+// Open File -> "Open copy from server…" and pick the example matching `name`. The menu
+// handlers are wired late during app init, so an early click can be dropped; retry the
+// File -> menu-open-server sequence until the example list actually appears, then click.
+async function openFromServer(page: any, name: RegExp) {
+  const item = page.locator('#example-list .dropdown-item', { hasText: name });
+  await expect(async () => {
+    await page.click('text=File');
+    await page.click('#menu-open-server');
+    await expect(item).toBeVisible({ timeout: 1000 });
+  }).toPass();
+  await item.click();
+}
+
 // A program whose "alice is happy" answer has an internal "for all cases …" node as
 // its strongest reason (used to test the one-level expansion).
 const HAPPY_DRAGON = `the target language is: prolog.
@@ -114,14 +127,8 @@ test.describe('Logical English Editor', () => {
   test('citizenship example integration test', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this complex test
 
-    // 1. Open "File" -> "Open copy from server..."
-    await page.click('text=File');
-    await page.click('#menu-open-server');
-
-    // 2. Wait for the modal and click "citizenship"
-    const exampleItem = page.locator('#example-list .dropdown-item', { hasText: /^citizenship$/ });
-    await expect(exampleItem).toBeVisible();
-    await exampleItem.click();
+    // 1. Open "File" -> "Open copy from server..." and pick "citizenship"
+    await openFromServer(page, /^citizenship$/);
 
     // 3. Wait for the editor to load the content
     // We can check if the filename display updated
@@ -249,14 +256,8 @@ test.describe('Logical English Editor', () => {
   test('payg example integration test', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this complex test
 
-    // 1. Open "File" -> "Open copy from server..."
-    await page.click('text=File');
-    await page.click('#menu-open-server');
-
-    // 2. Wait for the modal and click "payg"
-    const exampleItem = page.locator('#example-list .dropdown-item', { hasText: /^payg$/ });
-    await expect(exampleItem).toBeVisible();
-    await exampleItem.click();
+    // 1. Open "File" -> "Open copy from server..." and pick "payg"
+    await openFromServer(page, /^payg$/);
 
     // 3. Wait for the editor to load the content (payg.le now lives under tax/)
     await expect(page.locator('#filename-display')).toHaveText('tax/payg.le');
@@ -292,11 +293,7 @@ test.describe('Logical English Editor', () => {
     test.setTimeout(60000);
 
     // 1. Open the 'nonterminating' example from the server
-    await page.click('text=File');
-    await page.click('#menu-open-server');
-    const exampleItem = page.locator('#example-list .dropdown-item', { hasText: /^nonterminating$/ });
-    await expect(exampleItem).toBeVisible();
-    await exampleItem.click();
+    await openFromServer(page, /^nonterminating$/);
     // nonterminating.le now lives under testing/
     await expect(page.locator('#filename-display')).toHaveText('testing/nonterminating.le');
 
@@ -357,11 +354,7 @@ test.describe('Logical English Editor', () => {
     test.setTimeout(60000);
 
     // 1. Open the "unknowns" example from the server
-    await page.click('text=File');
-    await page.click('#menu-open-server');
-    const exampleItem = page.locator('#example-list .dropdown-item', { hasText: /^unknowns$/ });
-    await expect(exampleItem).toBeVisible();
-    await exampleItem.click();
+    await openFromServer(page, /^unknowns$/);
     await expect(page.locator('#filename-display')).toHaveText('unknowns.le');
 
     // 2. Wait for the module to load (scenario dropdown populated)
