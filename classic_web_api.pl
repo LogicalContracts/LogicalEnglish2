@@ -782,8 +782,13 @@ strongest_within(Why, KB, "", Und, SPath, SText, SWeight, W) :- !,
     best_reason_candidate(Candidates, W, SPath, SText, SWeight).
 strongest_within(Why, KB, TopPath, Und, SPath, SText, SWeight, W) :-
     node_at_path(Why, TopPath, TopNode),
-    reason_collect(KB, TopNode, TopPath, Und, W, [], Candidates),
+    reason_collect(KB, TopNode, TopPath, Und, W, [], Candidates0),
+    % The TOP node already has an implicit "Not yet" (we drilled into it), so it is not
+    % offered again — only its descendants are candidates. W still spans the whole region.
+    exclude(candidate_at_path(TopPath), Candidates0, Candidates),
     best_reason_candidate(Candidates, W, SPath, SText, SWeight).
+
+candidate_at_path(Path, _-(_-P)) :- P == Path.
 
 best_reason_candidate(Candidates, W, SPath, SText, SWeight) :-
     Candidates \== [],

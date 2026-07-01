@@ -899,9 +899,7 @@ async function initScenarioVariations() {
     menuExplanationDrill: $("menu-explanation-drill")
   };
   const openDrill = (w) => {
-    if (!sessionModule)
-      return;
-    localStorage.setItem("le_explanation_drill_data", JSON.stringify({ sessionModule, kbName, why: w }));
+    localStorage.setItem("le_explanation_drill_data", JSON.stringify({ source, sessionModule, kbName, why: w }));
     const theme = document.body.className.match(/(light|hc)-theme/)?.[0] || "";
     window.open(`explanation-drill.html?theme=${theme}&v=${Date.now()}`, "_blank");
   };

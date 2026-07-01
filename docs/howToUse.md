@@ -136,7 +136,7 @@ Once a query is executed:
 
 The **Explanation Drill** is a separate, non-modal window that walks you through an answer's explanation as a guided sequence of yes/no questions — to help you find, and understand, the reason that matters to you. Open it by right-clicking the **EXPLANATION** title and choosing **Explanation Drill…**.
 
-It treats the explanation as a "suspects tree" and, at each step, shows the **important reason** of the current region and asks **"Understood?"**:
+It treats the explanation as a "suspects tree" and, at each step, shows the **important reason** of the current region and asks **"Accept?"**:
 
 *   **Yes** — you understand that part; it is set aside and the drill moves on to the next most important reason of what remains.
 *   **Not yet** — you want to dig deeper; the drill descends into that reason and asks about *its* most important part.

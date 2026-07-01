@@ -7,7 +7,8 @@
 // question's source in the editor that opened it.
 
 interface DrillData {
-    sessionModule?: string;
+    source?: string;        // the program, so the window loads its own session
+    sessionModule?: string; // legacy fallback
     kbName?: string;
     why?: any;
 }
@@ -21,10 +22,15 @@ interface DrillResponse {
 
 const TOKEN = 'myToken123';
 
+const leapi = (body: any) => fetch('/leapi', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: TOKEN, ...body }),
+}).then(r => r.json()).catch(() => null);
+
 export async function initExplanationDrill() {
     const $ = (id: string) => document.getElementById(id)!;
     const ls: DrillData = JSON.parse(localStorage.getItem('le_explanation_drill_data') || '{}');
-    const sessionModule = ls.sessionModule || '';
+    const source = ls.source || '';
     const why = ls.why;
 
     ($('title') as HTMLElement).textContent = `Explanation Drill${ls.kbName ? ` — ${ls.kbName}` : ''}`;
@@ -38,15 +44,39 @@ export async function initExplanationDrill() {
     let initialCount = 0;         // total node weight (kept on the window)
     let sentWhy = false;          // the tree is uploaded once; kept in the session after
 
+    // This window runs its OWN reasoning session (loaded from the program source), so
+    // the editor's session expiring/reloading never breaks the drill.
+    let sessionModule: string | null = null;
+    let sessionLoad: Promise<void> | null = null;
+    function startSessionLoad(): Promise<void> {
+        if (!sessionLoad) {
+            sessionLoad = (source ? leapi({ operation: 'load', le: source }) : Promise.resolve(null))
+                .then((r: any) => { if (r && r.sessionModule) sessionModule = r.sessionModule; })
+                .catch(() => { /* reported on the next drill call */ });
+        }
+        return sessionLoad;
+    }
+    async function ensureSession(): Promise<boolean> {
+        if (sessionModule) return true;
+        await startSessionLoad();
+        if (!sessionModule && ls.sessionModule) sessionModule = ls.sessionModule;   // legacy fallback
+        return !!sessionModule;
+    }
+
     const setStatus = (t: string) => { $('status').textContent = t; };
 
     async function drill(): Promise<DrillResponse> {
-        const body: any = { token: TOKEN, operation: 'explanationDrill', sessionModule, answers };
-        if (!sentWhy) body.why = why;   // upload the tree on the first call only
-        const res: DrillResponse = await fetch('/leapi', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-        }).then(r => r.json()).catch(() => ({ error: 'network' }));
+        if (!(await ensureSession())) return { error: 'Could not load the program on the server.' };
+        const req = () => {
+            const b: any = { operation: 'explanationDrill', sessionModule, answers };
+            if (!sentWhy) b.why = why;   // upload the tree once; it is kept in our session
+            return b;
+        };
+        let res: DrillResponse = await leapi(req()) || { error: 'network' };
+        if (res && res.session_expired) {          // our session was reclaimed — reload and resend the tree
+            sessionModule = null; sessionLoad = null; sentWhy = false;
+            if (await ensureSession()) res = await leapi(req()) || { error: 'network' };
+        }
         if (res && res.ok) sentWhy = true;
         return res;
     }
@@ -98,7 +128,7 @@ export async function initExplanationDrill() {
         row.className = 'q-row';
         const label = document.createElement('span');
         label.className = 'q-label';
-        label.textContent = 'Understood?';
+        label.textContent = 'Accept?';
         row.appendChild(label);
 
         const mkBtn = (val: 'yes' | 'not_yet', text: string) => {
@@ -157,6 +187,7 @@ export async function initExplanationDrill() {
         render(res);
     }
 
-    if (!why || !sessionModule) { setStatus('No explanation to drill.'); return; }
+    if (!why) { setStatus('No explanation to drill.'); return; }
+    startSessionLoad();   // establish our own session in the background
     refresh();
 }

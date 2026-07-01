@@ -1853,7 +1853,14 @@ As each question is added to the window, corresponding to a node in the explanat
 
 Also display some cute progress bar at the top, sized to INITIAL_NOT_UNDERSTOOD_YET_NODES_COUNT. As user answers comes in, sum the tree weights of all UNDERSTOOD nodes, and that's the progress to render in the bar.
 
-Add some close boxes to the answers (meaning, delete); when deleting an answer, keep the other answers and recompute a next question, but only if the user has answered all questions left. In the progress bar remove the counts, which may confuse the user; just put a single label... "Progress"; no percentage eitherh
-Add a title/message above the drill questions and below the progress bar: "Understanding why <explanation tree root>:"
+Add some close boxes to the answers (meaning, delete); when deleting an answer, keep the other answers and recompute a next question, but only if the user has answered all questions left. In the progress bar remove the counts, which may confuse the user; just put a single label... "Progress"; no percentage either
+One more thing: add a title/message above the drill questions and below the progress bar: "Understanding why <explanation tree root>:"
+
+In the citizenship.le example, scenario trust_harry query one, the "important reason" is wrong; it should be "Harry is the father of John", not a leaf node. When computing the "middle node" dividing tree weights rounding should be towards weighter nodes, not leaves
+
+### Bug fixes
+In the Explanation Drill, please use "Accept?" instead of "Understood?". 
+Also make sure the Drill window is using its own LE session, as an user complained about an expired session.
+And please make sure questions are not repeated; the TOP node has an implict "Not yet" answer.
 
 ## TBD

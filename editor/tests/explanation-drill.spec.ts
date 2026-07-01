@@ -154,4 +154,24 @@ test.describe('Explanation Drill', () => {
         ]);
         await expect(drill.locator('.q-del')).toHaveCount(before - 1);
     });
+
+    test('uses its own session, distinct from the editor', async ({ page }) => {
+        test.setTimeout(60000);
+        const grab = (r: any, op: string, set: (s: string) => void) => {
+            if (r.url().includes('/leapi') && r.method() === 'POST') {
+                try { const d = JSON.parse(r.postData() || '{}'); if (d.operation === op && d.sessionModule) set(d.sessionModule); } catch { /* ignore */ }
+            }
+        };
+        let editorSession = '';
+        page.on('request', (r: any) => grab(r, 'answeringQuery', (s) => (editorSession = s)));
+        const drill = await openDrill(page);
+        let drillSession = '';
+        drill.on('request', (r: any) => grab(r, 'explanationDrill', (s) => (drillSession = s)));
+
+        // Trigger a further drill request so we capture the drill's session module.
+        await answerLast(drill, 'yes');
+        expect(editorSession).toBeTruthy();
+        await expect.poll(() => drillSession).not.toBe('');
+        expect(drillSession).not.toBe(editorSession);
+    });
 });

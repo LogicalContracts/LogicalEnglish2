@@ -1598,7 +1598,8 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
         },
         onOpenDrill: (why: any) => {
             if (!sessionModule) { showModal('Load the module and run a query first.', 'Explanation Drill'); return; }
-            localStorage.setItem('le_explanation_drill_data', JSON.stringify({ sessionModule, kbName: lastKb, why }));
+            // Pass the program so the drill window can run its OWN independent session.
+            localStorage.setItem('le_explanation_drill_data', JSON.stringify({ source: editor.getValue(), sessionModule, kbName: lastKb, why }));
             const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                                  document.body.className.includes('hc-theme') ? 'hc-theme' : '';
             window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');

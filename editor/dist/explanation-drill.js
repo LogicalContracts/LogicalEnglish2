@@ -1,9 +1,14 @@
 // src/explanation-drill.ts
 var TOKEN = "myToken123";
+var leapi = (body) => fetch("/leapi", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ token: TOKEN, ...body })
+}).then((r) => r.json()).catch(() => null);
 async function initExplanationDrill() {
   const $ = (id) => document.getElementById(id);
   const ls = JSON.parse(localStorage.getItem("le_explanation_drill_data") || "{}");
-  const sessionModule = ls.sessionModule || "";
+  const source = ls.source || "";
   const why = ls.why;
   $("title").textContent = `Explanation Drill${ls.kbName ? ` \u2014 ${ls.kbName}` : ""}`;
   const root = Array.isArray(why) ? why[0] : why;
@@ -12,18 +17,46 @@ async function initExplanationDrill() {
   let answers = [];
   let initialCount = 0;
   let sentWhy = false;
+  let sessionModule = null;
+  let sessionLoad = null;
+  function startSessionLoad() {
+    if (!sessionLoad) {
+      sessionLoad = (source ? leapi({ operation: "load", le: source }) : Promise.resolve(null)).then((r) => {
+        if (r && r.sessionModule)
+          sessionModule = r.sessionModule;
+      }).catch(() => {
+      });
+    }
+    return sessionLoad;
+  }
+  async function ensureSession() {
+    if (sessionModule)
+      return true;
+    await startSessionLoad();
+    if (!sessionModule && ls.sessionModule)
+      sessionModule = ls.sessionModule;
+    return !!sessionModule;
+  }
   const setStatus = (t) => {
     $("status").textContent = t;
   };
   async function drill() {
-    const body = { token: TOKEN, operation: "explanationDrill", sessionModule, answers };
-    if (!sentWhy)
-      body.why = why;
-    const res = await fetch("/leapi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    }).then((r) => r.json()).catch(() => ({ error: "network" }));
+    if (!await ensureSession())
+      return { error: "Could not load the program on the server." };
+    const req = () => {
+      const b = { operation: "explanationDrill", sessionModule, answers };
+      if (!sentWhy)
+        b.why = why;
+      return b;
+    };
+    let res = await leapi(req()) || { error: "network" };
+    if (res && res.session_expired) {
+      sessionModule = null;
+      sessionLoad = null;
+      sentWhy = false;
+      if (await ensureSession())
+        res = await leapi(req()) || { error: "network" };
+    }
     if (res && res.ok)
       sentWhy = true;
     return res;
@@ -65,7 +98,7 @@ async function initExplanationDrill() {
     row.className = "q-row";
     const label = document.createElement("span");
     label.className = "q-label";
-    label.textContent = "Understood?";
+    label.textContent = "Accept?";
     row.appendChild(label);
     const mkBtn = (val, text) => {
       const b = document.createElement("button");
@@ -121,10 +154,11 @@ async function initExplanationDrill() {
     }
     render(res);
   }
-  if (!why || !sessionModule) {
+  if (!why) {
     setStatus("No explanation to drill.");
     return;
   }
+  startSessionLoad();
   refresh();
 }
 export {
