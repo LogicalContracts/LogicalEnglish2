@@ -38,6 +38,27 @@ async function openDrillFrom(page: any, opened: () => Promise<void>): Promise<an
     return drill;
 }
 
+// Drill happy_dragon's "alice is happy" answer (its strongest reason is an internal
+// "for all cases …" node, so "Not yet" can descend).
+const openHappyDrill = (page: any) => openDrillFrom(page, async () => {
+    await page.goto('index.html?text=' + encodeURIComponent(HAPPY_DRAGON));
+    await page.waitForTimeout(800);
+    await page.locator('#scenario-select').hover();
+    await expect.poll(() => page.locator('#scenario-select option').count(), { timeout: 20000 }).toBeGreaterThan(1);
+    await page.selectOption('#scenario-select', 'mary');
+    await page.selectOption('#query-select', 'happy');
+    await page.click('#btn-query');
+    await page.locator('#answers-list .answer-item', { hasText: 'alice is happy' }).click();
+});
+
+// Click the given answer on the last (pending) question and wait for the round-trip.
+async function answerLast(drill: any, cls: 'yes' | 'notyet') {
+    await Promise.all([
+        drill.waitForResponse((r: any) => r.url().includes('/leapi')),
+        drill.locator('.q-card').last().locator(`.q-btn.${cls}`).click(),
+    ]);
+}
+
 // Load citizenship, run query "one" against "alice", select the answer, then open the
 // Explanation Drill from the EXPLANATION title context menu. Returns the drill popup.
 async function openDrill(page: any): Promise<any> {
@@ -69,11 +90,13 @@ test.describe('Explanation Drill', () => {
         test.setTimeout(60000);
         const drill = await openDrill(page);
 
-        // The first question and a sized progress bar are shown.
+        // The first question and the progress bar (a plain "Progress" label) are shown,
+        // under a title naming the goal being explained.
         await expect(drill.locator('.q-card .q-node')).not.toBeEmpty();
         await expect(drill.locator('.q-card .q-btn.yes')).toBeVisible();
         await expect(drill.locator('.q-card .q-btn.notyet')).toBeVisible();
-        await expect(drill.locator('#progress-label')).toHaveText(/\d+ of \d+ understood/);
+        await expect(drill.locator('#progress-label')).toHaveText('Progress');
+        await expect(drill.locator('#drill-title')).toHaveText(/^Understanding why .+:$/);
 
         // Opening a question highlights its source in the editor (without stealing focus).
         expect(await page.evaluate(() => {
@@ -97,25 +120,11 @@ test.describe('Explanation Drill', () => {
 
     test('"Not yet" descends, and changing an answer re-questions', async ({ page }) => {
         test.setTimeout(60000);
-        // happy_dragon's "alice is happy" has an internal "for all cases …" node as its
-        // strongest reason, which "Not yet" can descend into.
-        const drill = await openDrillFrom(page, async () => {
-            await page.goto('index.html?text=' + encodeURIComponent(HAPPY_DRAGON));
-            await page.waitForTimeout(800);
-            await page.locator('#scenario-select').hover();
-            await expect.poll(() => page.locator('#scenario-select option').count(), { timeout: 20000 }).toBeGreaterThan(1);
-            await page.selectOption('#scenario-select', 'mary');
-            await page.selectOption('#query-select', 'happy');
-            await page.click('#btn-query');
-            await page.locator('#answers-list .answer-item', { hasText: 'alice is happy' }).click();
-        });
+        const drill = await openHappyDrill(page);
 
         // "Not yet" on the first question descends into it — a new question appears and
         // the first card retains its "Not yet" state.
-        await Promise.all([
-            drill.waitForResponse((r: any) => r.url().includes('/leapi')),
-            drill.locator('.q-card').first().locator('.q-btn.notyet').click(),
-        ]);
+        await answerLast(drill, 'notyet');
         await expect(drill.locator('.q-card')).toHaveCount(2);
         await expect(drill.locator('.q-card').first().locator('.q-btn.notyet.on')).toBeVisible();
 
@@ -127,5 +136,22 @@ test.describe('Explanation Drill', () => {
         ]);
         await expect(drill.locator('.q-card').first().locator('.q-btn.yes.on')).toBeVisible();
         await expect(drill.locator('.q-card').first().locator('.q-btn.notyet.on')).toHaveCount(0);
+    });
+
+    test('a ✕ deletes a question, keeping the others', async ({ page }) => {
+        test.setTimeout(60000);
+        const drill = await openHappyDrill(page);
+        // Build up two answered questions (descend, then understand a case).
+        await answerLast(drill, 'notyet');
+        await answerLast(drill, 'yes');
+        const before = await drill.locator('.q-del').count();   // one ✕ per answered question
+        expect(before).toBeGreaterThanOrEqual(2);
+
+        // Delete the first question: one fewer answered question, the drill re-derives.
+        await Promise.all([
+            drill.waitForResponse((r: any) => r.url().includes('/leapi')),
+            drill.locator('.q-del').first().click(),
+        ]);
+        await expect(drill.locator('.q-del')).toHaveCount(before - 1);
     });
 });

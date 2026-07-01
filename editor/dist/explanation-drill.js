@@ -6,6 +6,9 @@ async function initExplanationDrill() {
   const sessionModule = ls.sessionModule || "";
   const why = ls.why;
   $("title").textContent = `Explanation Drill${ls.kbName ? ` \u2014 ${ls.kbName}` : ""}`;
+  const root = Array.isArray(why) ? why[0] : why;
+  const rootLiteral = root && root.literal ? String(root.literal) : "this answer";
+  $("drill-title").textContent = `Understanding why ${rootLiteral}:`;
   let answers = [];
   let initialCount = 0;
   let sentWhy = false;
@@ -37,9 +40,23 @@ async function initExplanationDrill() {
       answers = answers.slice(0, i).concat([val]);
     refresh();
   }
+  function deleteQuestion(i) {
+    if (i < 0 || i >= answers.length)
+      return;
+    answers = answers.slice(0, i).concat(answers.slice(i + 1));
+    refresh();
+  }
   function questionCard(q, i, isPending, isTopFinal) {
     const card = document.createElement("div");
     card.className = "q-card" + (isTopFinal ? " top-final" : "");
+    if (!isPending) {
+      const del = document.createElement("button");
+      del.className = "q-del";
+      del.textContent = "\u2715";
+      del.title = "Delete this question";
+      del.addEventListener("click", () => deleteQuestion(i));
+      card.appendChild(del);
+    }
     const node = document.createElement("div");
     node.className = "q-node";
     node.textContent = q.text;
@@ -79,7 +96,7 @@ async function initExplanationDrill() {
     const progress = res.progress || 0;
     const pct = initialCount > 0 ? Math.round(progress / initialCount * 100) : 0;
     $("progress-fill").style.width = `${pct}%`;
-    $("progress-label").textContent = `${progress} of ${initialCount} understood`;
+    $("progress-label").textContent = "Progress";
     const final = $("final");
     if (!pending) {
       final.style.display = "";

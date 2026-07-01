@@ -141,7 +141,7 @@ It treats the explanation as a "suspects tree" and, at each step, shows the **im
 *   **Yes** — you understand that part; it is set aside and the drill moves on to the next most important reason of what remains.
 *   **Not yet** — you want to dig deeper; the drill descends into that reason and asks about *its* most important part.
 
-Every question keeps its answer (Yes / Not yet / unanswered), so you can revise an earlier one at any time — the drill re-questions from there. A **progress bar** at the top fills as you mark parts understood, and each question **highlights its source** in the main editor (without taking focus away from the drill). When there is nothing left to break down, it says *"Nothing else to show."*
+The window is headed by *"Understanding why …:"* (the goal being explained) and a **progress bar** that fills as you mark parts understood. Every question keeps its answer (Yes / Not yet / unanswered), so you can revise an earlier one at any time — the drill re-questions from there. Each question also has a **✕** to delete it: that answer is dropped, the others are kept, and the drill re-derives what to ask next. Each question **highlights its source** in the main editor (without taking focus away from the drill). When there is nothing left to break down, it says *"Nothing else to show."*
 
 ### Repeated Sub-explanations
 

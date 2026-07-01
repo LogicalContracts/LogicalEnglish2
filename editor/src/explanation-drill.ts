@@ -29,6 +29,11 @@ export async function initExplanationDrill() {
 
     ($('title') as HTMLElement).textContent = `Explanation Drill${ls.kbName ? ` — ${ls.kbName}` : ''}`;
 
+    // "Understanding why <explanation tree root>:" — the goal being explained.
+    const root = Array.isArray(why) ? why[0] : why;
+    const rootLiteral = (root && root.literal) ? String(root.literal) : 'this answer';
+    $('drill-title').textContent = `Understanding why ${rootLiteral}:`;
+
     let answers: string[] = [];   // "yes" | "not_yet", in order
     let initialCount = 0;         // total node weight (kept on the window)
     let sentWhy = false;          // the tree is uploaded once; kept in the session after
@@ -53,17 +58,36 @@ export async function initExplanationDrill() {
     }
 
     // Clicking answer `val` on the question at index `i`. On the pending question this
-    // appends; on an answered one it changes it (dropping any later answers), and
-    // clicking the already-selected answer clears it back to "no answer".
+    // appends; on an answered one it changes it (dropping any later answers, since they
+    // were about nodes chosen under the old answer), and clicking the already-selected
+    // answer clears it back to "no answer".
     function answer(i: number, val: string) {
         if (i < answers.length && answers[i] === val) answers = answers.slice(0, i);
         else answers = answers.slice(0, i).concat([val]);
         refresh();
     }
 
+    // Delete an answered question (its ✕): drop just that answer and KEEP the rest, then
+    // let the drill re-derive the remaining questions and the next one.
+    function deleteQuestion(i: number) {
+        if (i < 0 || i >= answers.length) return;
+        answers = answers.slice(0, i).concat(answers.slice(i + 1));
+        refresh();
+    }
+
     function questionCard(q: Question, i: number, isPending: boolean, isTopFinal: boolean): HTMLElement {
         const card = document.createElement('div');
         card.className = 'q-card' + (isTopFinal ? ' top-final' : '');
+
+        // Answered questions carry a ✕ to delete them (keeping the other answers).
+        if (!isPending) {
+            const del = document.createElement('button');
+            del.className = 'q-del';
+            del.textContent = '✕';
+            del.title = 'Delete this question';
+            del.addEventListener('click', () => deleteQuestion(i));
+            card.appendChild(del);
+        }
 
         const node = document.createElement('div');
         node.className = 'q-node';
@@ -104,12 +128,12 @@ export async function initExplanationDrill() {
             container.appendChild(questionCard(pending, questions.length, true, false));
         }
 
-        // Progress bar.
+        // Progress bar — a plain visual fill, no counts or percentage (just a label).
         if (typeof res.initialCount === 'number' && res.initialCount > 0) initialCount = res.initialCount;
         const progress = res.progress || 0;
         const pct = initialCount > 0 ? Math.round((progress / initialCount) * 100) : 0;
         ($('progress-fill') as HTMLElement).style.width = `${pct}%`;
-        $('progress-label').textContent = `${progress} of ${initialCount} understood`;
+        $('progress-label').textContent = 'Progress';
 
         // Final message when the drill is complete.
         const final = $('final');
