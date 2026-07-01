@@ -63,9 +63,14 @@ async function answerLast(drill: any, cls: 'yes' | 'notyet') {
 // Explanation Drill from the EXPLANATION title context menu. Returns the drill popup.
 async function openDrill(page: any): Promise<any> {
     await page.goto('index.html');
-    await page.click('text=File');
-    await page.click('#menu-open-server');
-    await page.locator('#example-list .dropdown-item', { hasText: /^citizenship$/ }).click();
+    // The menu handlers are wired late during init; retry until the example list appears.
+    const item = page.locator('#example-list .dropdown-item', { hasText: /^citizenship$/ });
+    await expect(async () => {
+        await page.click('text=File');
+        await page.click('#menu-open-server');
+        await expect(item).toBeVisible({ timeout: 1000 });
+    }).toPass();
+    await item.click();
     await expect(page.locator('#filename-display')).toHaveText('citizenship.le');
     await expect(async () => {
         expect(await page.locator('#scenario-select option').count()).toBeGreaterThan(1);

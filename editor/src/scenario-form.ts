@@ -33,7 +33,11 @@ export interface ScenarioFormOptions {
     addSelect: HTMLSelectElement;   // the "Add fact" template picker
     btnAdd: HTMLButtonElement;      // the "Add" button
     onChange?: () => void;          // fired on any edit (add/remove/field change)
+    assumeTitle?: string;           // tooltip for the "Assume" checkbox (host-specific)
 }
+
+// Default tooltip for the "Assume" checkbox; hosts may override via ScenarioFormOptions.
+const DEFAULT_ASSUME_TITLE = 'if checked, fact is assumed, unknown';
 
 export class ScenarioForm {
     readonly templates: string[];        // all templates (for recognising facts)
@@ -173,7 +177,7 @@ export class ScenarioForm {
         // then become read-only.
         const assume = document.createElement('label');
         assume.className = 'assume';
-        assume.title = 'if checked, fact is assumed, unknown';
+        assume.title = this.opts.assumeTitle || DEFAULT_ASSUME_TITLE;
         const check = document.createElement('input');
         check.type = 'checkbox';
         check.checked = row.assumed;
