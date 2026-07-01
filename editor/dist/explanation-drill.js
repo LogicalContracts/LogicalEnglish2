@@ -82,12 +82,17 @@ async function initExplanationDrill() {
   function questionCard(q, i, isPending, isTopFinal) {
     const card = document.createElement("div");
     card.className = "q-card" + (isTopFinal ? " top-final" : "");
+    card.title = "Click to show this in the editor";
+    card.addEventListener("click", () => highlight(q));
     if (!isPending) {
       const del = document.createElement("button");
       del.className = "q-del";
       del.textContent = "\u2715";
       del.title = "Delete this question";
-      del.addEventListener("click", () => deleteQuestion(i));
+      del.addEventListener("click", (e) => {
+        e.stopPropagation();
+        deleteQuestion(i);
+      });
       card.appendChild(del);
     }
     const node = document.createElement("div");
@@ -104,7 +109,10 @@ async function initExplanationDrill() {
       const b = document.createElement("button");
       b.className = `q-btn ${val === "yes" ? "yes" : "notyet"}` + (q.answer === val ? " on" : "");
       b.textContent = text;
-      b.addEventListener("click", () => answer(i, val));
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        answer(i, val);
+      });
       return b;
     };
     row.appendChild(mkBtn("yes", "Yes"));

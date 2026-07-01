@@ -108,6 +108,9 @@ export async function initExplanationDrill() {
     function questionCard(q: Question, i: number, isPending: boolean, isTopFinal: boolean): HTMLElement {
         const card = document.createElement('div');
         card.className = 'q-card' + (isTopFinal ? ' top-final' : '');
+        // Clicking a card selects its source in the editor (keeping focus on the drill).
+        card.title = 'Click to show this in the editor';
+        card.addEventListener('click', () => highlight(q));
 
         // Answered questions carry a ✕ to delete them (keeping the other answers).
         if (!isPending) {
@@ -115,7 +118,7 @@ export async function initExplanationDrill() {
             del.className = 'q-del';
             del.textContent = '✕';
             del.title = 'Delete this question';
-            del.addEventListener('click', () => deleteQuestion(i));
+            del.addEventListener('click', (e) => { e.stopPropagation(); deleteQuestion(i); });
             card.appendChild(del);
         }
 
@@ -135,7 +138,7 @@ export async function initExplanationDrill() {
             const b = document.createElement('button');
             b.className = `q-btn ${val === 'yes' ? 'yes' : 'notyet'}` + (q.answer === val ? ' on' : '');
             b.textContent = text;
-            b.addEventListener('click', () => answer(i, val));
+            b.addEventListener('click', (e) => { e.stopPropagation(); answer(i, val); });
             return b;
         };
         row.appendChild(mkBtn('yes', 'Yes'));

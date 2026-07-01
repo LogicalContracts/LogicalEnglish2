@@ -46,10 +46,11 @@
         #drill { flex: 1; overflow: auto; padding: 16px; }
         #drill-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
         .q-card {
-            position: relative;
+            position: relative; cursor: pointer;
             background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 8px; padding: 12px 14px; margin-bottom: 10px;
         }
+        .q-card:hover { border-color: var(--accent); }
         .q-card.top-final { outline: 2px solid var(--notyet); }
         .q-del {
             position: absolute; top: 6px; right: 8px;
