@@ -40323,7 +40323,7 @@ async function start() {
         showModal("Load the module and run a query first.", "Explanation Drill");
         return;
       }
-      localStorage.setItem("le_explanation_drill_data", JSON.stringify({ sessionModule, kbName: lastKb, why }));
+      localStorage.setItem("le_explanation_drill_data", JSON.stringify({ source: editor.getValue(), sessionModule, kbName: lastKb, why }));
       const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
       window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
     },
