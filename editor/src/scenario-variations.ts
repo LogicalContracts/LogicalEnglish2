@@ -105,6 +105,8 @@ export async function initScenarioVariations() {
         menuCopyExplanation: $('menu-copy-explanation'),
         menuGotoOriginal: $('menu-goto-original'),
         answerTooltip: $('answer-tooltip'),
+        titleMenu: $('explanation-title-menu'),
+        menuShowStrongest: $('menu-show-strongest'),
     };
     const failedNodePrefix = () => localStorage.getItem('le-failed-node-prefix') ?? 'x ';
     const hierarchical = () => localStorage.getItem('le-hierarchical-numbering') === 'true';
@@ -144,7 +146,10 @@ export async function initScenarioVariations() {
         aPanel.appendChild(answersList);
         const ePanel = document.createElement('div');
         ePanel.className = 'explanation-panel';
-        ePanel.innerHTML = '<div class="panel-label">Explanation</div>';
+        const eTitle = document.createElement('div');
+        eTitle.className = 'panel-label';
+        eTitle.textContent = 'Explanation';
+        ePanel.appendChild(eTitle);
         const explanationTree = document.createElement('div');
         ePanel.appendChild(explanationTree);
         area.appendChild(aPanel);
@@ -153,6 +158,7 @@ export async function initScenarioVariations() {
 
         const view = new ExplanationView({
             answersList, explanationTree, menus, failedNodePrefix,
+            explanationTitle: eTitle,
             hierarchicalNumbering: hierarchical, onNavigate: navigate,
         });
         const entry: QueryCard = { name, card, view };

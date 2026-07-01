@@ -375,6 +375,12 @@ function wireMenus(m) {
   document.addEventListener("click", () => {
     m.answerContextMenu.style.display = "none";
     m.explanationContextMenu.style.display = "none";
+    m.titleMenu.style.display = "none";
+  });
+  m.menuShowStrongest.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.showStrongestReason();
+    m.titleMenu.style.display = "none";
   });
   m.menuCopyAnswer.addEventListener("click", (e) => {
     e.stopPropagation();
@@ -402,6 +408,9 @@ var ExplanationView = class {
   pathToContainer = /* @__PURE__ */ new Map();
   currentExpansion = null;
   fullByLiteral = /* @__PURE__ */ new Map();
+  // Tree path ("1.2.3") of the selected answer's strongest-reason node, for the
+  // "Show strongest reason" action.
+  currentStrongestPath = null;
   // Per-answer expansion state (keyed by the answer's `why` object), so toggles
   // persist when switching between answers.
   expansionStore = /* @__PURE__ */ new WeakMap();
@@ -409,6 +418,15 @@ var ExplanationView = class {
     this.o = opts;
     this.m = opts.menus;
     wireMenus(opts.menus);
+    opts.explanationTitle?.addEventListener("contextmenu", (e) => {
+      if (!this.currentStrongestPath)
+        return;
+      e.preventDefault();
+      activeView = this;
+      this.m.titleMenu.style.display = "block";
+      this.m.titleMenu.style.left = `${e.clientX}px`;
+      this.m.titleMenu.style.top = `${e.clientY}px`;
+    });
   }
   failedNodePrefix() {
     return this.o.failedNodePrefix?.() ?? "x ";
@@ -420,6 +438,7 @@ var ExplanationView = class {
     this.o.answersList.innerHTML = "";
     this.o.explanationTree.innerHTML = "";
     this.lastWhy = null;
+    this.setStrongestReason();
   }
   rerender() {
     if (this.lastWhy)
@@ -429,6 +448,47 @@ var ExplanationView = class {
   showMessage(text) {
     this.o.answersList.textContent = text;
     this.o.explanationTree.innerHTML = "";
+    this.setStrongestReason();
+  }
+  // Record the selected answer's "strongest reason" (a terse summary computed on the
+  // Prolog side): shown as a tooltip on the EXPLANATION title and revealable via its
+  // context menu. `path` is that node's tree path ("1.2.3"). Cleared when there is none.
+  setStrongestReason(reason, path) {
+    this.currentStrongestPath = reason && path ? path : null;
+    const el = this.o.explanationTitle;
+    if (!el)
+      return;
+    const r = (reason || "").trim();
+    if (r) {
+      el.title = `Important reason: ${r}`;
+      el.classList.add("has-reason");
+    } else {
+      el.removeAttribute("title");
+      el.classList.remove("has-reason");
+    }
+  }
+  // Expand the tree to the strongest-reason node, open it one level, and flash it.
+  showStrongestReason() {
+    if (!this.currentStrongestPath)
+      return;
+    const container = this.pathToContainer.get(this.currentStrongestPath);
+    if (!container)
+      return;
+    this.expandOneLevel(container);
+    this.revealAndHighlight(container);
+  }
+  // Open a node's immediate children (one level), if it has any.
+  expandOneLevel(container) {
+    const children = container.querySelector(":scope > .tree-children");
+    if (!children)
+      return;
+    children.style.display = "block";
+    const toggle = container.querySelector(":scope > .tree-label > .tree-toggle");
+    if (toggle)
+      toggle.textContent = "-";
+    const path = container.dataset.path;
+    if (path)
+      this.currentExpansion?.set(path, true);
   }
   // Render the answer list of an `answeringQuery` response and auto-select one.
   // Handles the success (results), failure (why), interrupted and error cases.
@@ -456,6 +516,7 @@ var ExplanationView = class {
           answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
           item.classList.add("selected");
           this.renderExplanation(result.why);
+          this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
           this.o.onSelectAnswer?.(index + 1);
         });
         item.addEventListener("contextmenu", (e) => this.answerMenu(e, result.answer));
@@ -472,16 +533,21 @@ var ExplanationView = class {
         answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
         item.classList.add("selected");
         this.renderExplanation(res.why);
+        this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
       });
       item.addEventListener("contextmenu", (e) => this.answerMenu(e, "No answers (false)"));
       answersList.appendChild(item);
       this.renderExplanation(res.why);
+      this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
     } else if (res && res.interrupted) {
       answersList.textContent = "Query interrupted.";
+      this.setStrongestReason();
     } else if (res && res.error) {
       answersList.textContent = "Error: " + res.error;
+      this.setStrongestReason();
     } else {
       answersList.textContent = "No results returned.";
+      this.setStrongestReason();
     }
   }
   answerMenu(e, answer) {
@@ -816,7 +882,9 @@ async function initScenarioVariations() {
     explanationContextMenu: $("explanation-context-menu"),
     menuCopyExplanation: $("menu-copy-explanation"),
     menuGotoOriginal: $("menu-goto-original"),
-    answerTooltip: $("answer-tooltip")
+    answerTooltip: $("answer-tooltip"),
+    titleMenu: $("explanation-title-menu"),
+    menuShowStrongest: $("menu-show-strongest")
   };
   const failedNodePrefix = () => localStorage.getItem("le-failed-node-prefix") ?? "x ";
   const hierarchical = () => localStorage.getItem("le-hierarchical-numbering") === "true";
@@ -850,7 +918,10 @@ async function initScenarioVariations() {
     aPanel.appendChild(answersList);
     const ePanel = document.createElement("div");
     ePanel.className = "explanation-panel";
-    ePanel.innerHTML = '<div class="panel-label">Explanation</div>';
+    const eTitle = document.createElement("div");
+    eTitle.className = "panel-label";
+    eTitle.textContent = "Explanation";
+    ePanel.appendChild(eTitle);
     const explanationTree = document.createElement("div");
     ePanel.appendChild(explanationTree);
     area.appendChild(aPanel);
@@ -861,6 +932,7 @@ async function initScenarioVariations() {
       explanationTree,
       menus,
       failedNodePrefix,
+      explanationTitle: eTitle,
       hierarchicalNumbering: hierarchical,
       onNavigate: navigate
     });

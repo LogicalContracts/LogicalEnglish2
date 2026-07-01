@@ -4,25 +4,27 @@ The Logical English (LE) web application is a simple IDE designed for developing
 
 ## Contents
 
-- [Getting Started](#getting-started)
-- [File Operations](#file-operations)
+- [How to use the Logical English 2 web application](#how-to-use-the-logical-english-2-web-application)
+  - [Contents](#contents)
+  - [Getting Started](#getting-started)
+  - [File Operations](#file-operations)
     - [Opening and Saving](#opening-and-saving)
     - [Saving via URL (Quick Save)](#saving-via-url-quick-save)
-- [Writing Logic and Issue Reporting](#writing-logic-and-issue-reporting)
-- [Running Queries](#running-queries)
-- [The Scenario Editor](#the-scenario-editor)
+  - [Writing Logic and Issue Reporting](#writing-logic-and-issue-reporting)
+  - [Running Queries](#running-queries)
+  - [The Scenario Editor](#the-scenario-editor)
     - [Layout](#layout)
     - [Editing facts](#editing-facts)
     - [Saving your work](#saving-your-work)
-- [Scenario Variations](#scenario-variations)
+  - [Scenario Variations](#scenario-variations)
     - [Layout](#layout-1)
     - [Running and sharing](#running-and-sharing)
-- [Explanations and Navigation](#explanations-and-navigation)
+  - [Explanations and Navigation](#explanations-and-navigation)
     - [Reading the Explanation Tree](#reading-the-explanation-tree)
     - [Repeated Sub-explanations](#repeated-sub-explanations)
     - [The Explanation Context Menu](#the-explanation-context-menu)
     - [Explanation Preferences](#explanation-preferences)
-- [Advanced Features](#advanced-features)
+  - [Advanced Features](#advanced-features)
 
 ## Getting Started
 
@@ -97,7 +99,7 @@ The Scenario Editor does not itself check your Logical English: as with any edit
 
 ## Scenario Variations
 
-The **Scenario Variations** window lets you take a scenario, **alter it**, and immediately run one or more queries against the variation — without touching your program. It is ideal for "what-if" exploration ("what if Alice were *not* a citizen?"). Open it with the **Variations** button in the **Query** tab (between **Query** and **Trace**); it opens in a separate window, preselected with whatever scenario was chosen in the Query tab.
+The **Scenario Variations** window lets you take a scenario, **alter it**, and immediately run one or more queries against the variation — without touching your program. It is ideal for "what-if" exploration ("what if Alice were *not* a citizen?"). Open it with the **Scenario Variations** button in the **Query** tab (between **Query** and **Trace**); it opens in a separate window, preselected with whatever scenario was chosen in the Query tab.
 
 ### Layout
 
@@ -127,6 +129,7 @@ Once a query is executed:
 *   **Type tooltips:** Hover over any node to see a description of its status (e.g. "Succeeded: this condition was proven", "Failed: this condition could not be proven"). A negated condition that holds reads "Succeeded: this negative condition holds (the inner statement could not be proven)".
 *   **Expand / collapse:** Nodes with sub-steps show a `-`/`+` toggle; the top two levels are expanded by default. Expansion state is remembered per answer while you switch between answers.
 *   **Hierarchical numbering:** Turn on **Misc → Hierarchical Numbering** to prefix each node with its position in the tree (e.g. `1.2.3`).
+*   **Important reason:** hover the **EXPLANATION** title (shown underlined when available) for a one-line summary of the selected answer. It reflects the tree as displayed (so it honours your repeated-sub-explanations preference). Right-click the title and choose **Show important reason** to expand the tree to that node and flash it.
 
 ### Repeated Sub-explanations
 

@@ -12,12 +12,15 @@ export interface MenuEls {
     menuCopyExplanation: HTMLElement;
     menuGotoOriginal: HTMLElement;
     answerTooltip: HTMLElement;
+    titleMenu: HTMLElement;          // context menu for the EXPLANATION title
+    menuShowStrongest: HTMLElement;  // its "Show strongest reason" item
 }
 
 export interface ExplanationViewOptions {
     answersList: HTMLElement;
     explanationTree: HTMLElement;
     menus: MenuEls;
+    explanationTitle?: HTMLElement;        // the "EXPLANATION" label — hosts the strongest-reason tooltip
     failedNodePrefix?: () => string;       // prefix for failed nodes when copying
     hierarchicalNumbering?: () => boolean; // show "1.2.3" path numbers
     onNavigate?: (start: number, end: number) => void;   // a node was clicked -> reveal source
@@ -34,6 +37,12 @@ function wireMenus(m: MenuEls) {
     document.addEventListener('click', () => {
         m.answerContextMenu.style.display = 'none';
         m.explanationContextMenu.style.display = 'none';
+        m.titleMenu.style.display = 'none';
+    });
+    m.menuShowStrongest.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeView?.showStrongestReason();
+        m.titleMenu.style.display = 'none';
     });
     m.menuCopyAnswer.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -61,6 +70,9 @@ export class ExplanationView {
     private pathToContainer = new Map<string, HTMLElement>();
     private currentExpansion: Map<string, boolean> | null = null;
     private fullByLiteral = new Map<string, string>();
+    // Tree path ("1.2.3") of the selected answer's strongest-reason node, for the
+    // "Show strongest reason" action.
+    private currentStrongestPath: string | null = null;
     // Per-answer expansion state (keyed by the answer's `why` object), so toggles
     // persist when switching between answers.
     private expansionStore = new WeakMap<object, Map<string, boolean>>();
@@ -69,14 +81,56 @@ export class ExplanationView {
         this.o = opts;
         this.m = opts.menus;
         wireMenus(opts.menus);
+        // Right-click the EXPLANATION title -> "Show strongest reason" (only offered
+        // when there is one for the current answer).
+        opts.explanationTitle?.addEventListener('contextmenu', (e) => {
+            if (!this.currentStrongestPath) return;
+            e.preventDefault();
+            activeView = this;
+            this.m.titleMenu.style.display = 'block';
+            this.m.titleMenu.style.left = `${(e as MouseEvent).clientX}px`;
+            this.m.titleMenu.style.top = `${(e as MouseEvent).clientY}px`;
+        });
     }
 
     private failedNodePrefix(): string { return this.o.failedNodePrefix?.() ?? 'x '; }
     private hierarchical(): boolean { return this.o.hierarchicalNumbering?.() ?? false; }
 
-    clear() { this.o.answersList.innerHTML = ''; this.o.explanationTree.innerHTML = ''; this.lastWhy = null; }
+    clear() { this.o.answersList.innerHTML = ''; this.o.explanationTree.innerHTML = ''; this.lastWhy = null; this.setStrongestReason(); }
     rerender() { if (this.lastWhy) this.renderExplanation(this.lastWhy); }   // e.g. after a preference change
-    showMessage(text: string) { this.o.answersList.textContent = text; this.o.explanationTree.innerHTML = ''; }
+    showMessage(text: string) { this.o.answersList.textContent = text; this.o.explanationTree.innerHTML = ''; this.setStrongestReason(); }
+
+    // Record the selected answer's "strongest reason" (a terse summary computed on the
+    // Prolog side): shown as a tooltip on the EXPLANATION title and revealable via its
+    // context menu. `path` is that node's tree path ("1.2.3"). Cleared when there is none.
+    private setStrongestReason(reason?: string, path?: string) {
+        this.currentStrongestPath = (reason && path) ? path : null;
+        const el = this.o.explanationTitle;
+        if (!el) return;
+        const r = (reason || '').trim();
+        if (r) { el.title = `Important reason: ${r}`; el.classList.add('has-reason'); }
+        else { el.removeAttribute('title'); el.classList.remove('has-reason'); }
+    }
+
+    // Expand the tree to the strongest-reason node, open it one level, and flash it.
+    showStrongestReason() {
+        if (!this.currentStrongestPath) return;
+        const container = this.pathToContainer.get(this.currentStrongestPath);
+        if (!container) return;
+        this.expandOneLevel(container);      // reveal the node's own direct children too
+        this.revealAndHighlight(container);
+    }
+
+    // Open a node's immediate children (one level), if it has any.
+    private expandOneLevel(container: HTMLElement) {
+        const children = container.querySelector(':scope > .tree-children') as HTMLElement | null;
+        if (!children) return;
+        children.style.display = 'block';
+        const toggle = container.querySelector(':scope > .tree-label > .tree-toggle');
+        if (toggle) toggle.textContent = '-';
+        const path = container.dataset.path;
+        if (path) this.currentExpansion?.set(path, true);
+    }
 
     // Render the answer list of an `answeringQuery` response and auto-select one.
     // Handles the success (results), failure (why), interrupted and error cases.
@@ -105,6 +159,7 @@ export class ExplanationView {
                     answersList.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
                     item.classList.add('selected');
                     this.renderExplanation(result.why);
+                    this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
                     this.o.onSelectAnswer?.(index + 1);
                 });
                 item.addEventListener('contextmenu', (e) => this.answerMenu(e as MouseEvent, result.answer));
@@ -120,16 +175,21 @@ export class ExplanationView {
                 answersList.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
                 item.classList.add('selected');
                 this.renderExplanation(res.why);
+                this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
             });
             item.addEventListener('contextmenu', (e) => this.answerMenu(e as MouseEvent, 'No answers (false)'));
             answersList.appendChild(item);
             this.renderExplanation(res.why);
+            this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
         } else if (res && res.interrupted) {
             answersList.textContent = 'Query interrupted.';
+            this.setStrongestReason();
         } else if (res && res.error) {
             answersList.textContent = 'Error: ' + res.error;
+            this.setStrongestReason();
         } else {
             answersList.textContent = 'No results returned.';
+            this.setStrongestReason();
         }
     }
 

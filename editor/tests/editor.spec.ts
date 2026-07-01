@@ -1,5 +1,31 @@
 import { test, expect } from '@playwright/test';
 
+// A program whose "alice is happy" answer has an internal "for all cases …" node as
+// its strongest reason (used to test the one-level expansion).
+const HAPPY_DRAGON = `the target language is: prolog.
+the templates are:
+*a creature* is a parent of *a dragon*.
+*a creature* is healthy.
+*a creature* is happy.
+*a creature* is a dragon.
+the knowledge base d includes:
+A creature is happy
+    if the creature is a dragon
+    and for all cases in which
+	    the creature is a parent of an other creature
+		it is the case that
+		the other creature is healthy.
+scenario mary is:
+	bob is a dragon.
+	alice is a dragon.
+	alice is a parent of bob.
+	alice is a parent of mary.
+	mary is a dragon.
+	mary is healthy.
+	bob is healthy.
+query happy is:
+	which dragon is happy.`;
+
 test.describe('Logical English Editor', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./index.html');
@@ -118,7 +144,16 @@ test.describe('Logical English Editor', () => {
     // 6. Select first query (index 1)
     await page.selectOption('#query-select', { index: 1 });
 
-    // 7. Hit Query button
+    // 7. Hit Query button (capture the answer's strongest-reason path from the response)
+    let strongestPath = '';
+    page.on('response', async (r) => {
+      if (!r.url().includes('/leapi')) return;
+      try {
+        const b = await r.json();
+        const p = b?.results?.[0]?.strongestReasonPath;
+        if (p) strongestPath = p;
+      } catch { /* not JSON */ }
+    });
     await page.click('#btn-query');
 
     // 8. Verify presence of Answers
@@ -127,7 +162,21 @@ test.describe('Logical English Editor', () => {
 
     // 9. Click answer (it's clicked by default, but let's be explicit)
     await firstAnswer.click();
-    
+
+    // The EXPLANATION title carries the selected answer's "important reason" as a
+    // hover tooltip (computed on the Prolog side).
+    const explTitle = page.locator('#explanation-title');
+    await expect(explTitle).toHaveClass(/has-reason/);
+    await expect(explTitle).toHaveAttribute('title', /^Important reason: .+/);
+
+    // Its context menu "Show important reason" expands the tree to that node (the path
+    // returned by the server) and flashes it.
+    await expect.poll(() => strongestPath).not.toBe('');
+    await explTitle.click({ button: 'right' });
+    await page.click('#menu-show-strongest');
+    const strongestNode = page.locator(`#explanation-tree .tree-node[data-path="${strongestPath}"] > .tree-label`);
+    await expect(strongestNode).toHaveClass(/explanation-highlight/);
+
     // 10. In the explanation click a node to select a rule in the editor
     // Wait for explanation tree to populate
     const treeLabel = page.locator('#explanation-tree .tree-label span:not(.tree-toggle)').first();
@@ -162,6 +211,43 @@ test.describe('Logical English Editor', () => {
 
     // Go to Assistant tab
     await page.click('text=LE Assistant');
+  });
+
+  test('Show strongest reason expands the node one level', async ({ page }) => {
+    test.setTimeout(60000);
+    let alicePath = '';
+    page.on('response', async (r) => {
+      if (!r.url().includes('/leapi')) return;
+      try {
+        const b = await r.json();
+        const a = (b?.results || []).find((x: any) => x.answer === 'alice is happy');
+        if (a?.strongestReasonPath) alicePath = a.strongestReasonPath;
+      } catch { /* not JSON */ }
+    });
+
+    await page.goto('index.html?text=' + encodeURIComponent(HAPPY_DRAGON));
+    await page.waitForTimeout(800);
+    await page.locator('#scenario-select').hover();   // triggers the module load
+    await expect.poll(() => page.locator('#scenario-select option').count(), { timeout: 20000 }).toBeGreaterThan(1);
+    await page.selectOption('#scenario-select', 'mary');
+    await page.selectOption('#query-select', 'happy');
+    await page.click('#btn-query');
+
+    // The "alice is happy" answer's strongest reason is a "for all cases …" node.
+    await page.locator('#answers-list .answer-item', { hasText: 'alice is happy' }).click();
+    await expect.poll(() => alicePath).not.toBe('');
+
+    const node = page.locator(`#explanation-tree .tree-node[data-path="${alicePath}"]`);
+    const children = node.locator(':scope > .tree-children');
+    await expect(children).toBeVisible();   // it is a non-leaf node
+
+    // Collapse it, then jump back via the menu: it must re-expand one level and flash.
+    await node.locator(':scope > .tree-label > .tree-toggle').click();
+    await expect(children).toBeHidden();
+    await page.locator('#explanation-title').click({ button: 'right' });
+    await page.click('#menu-show-strongest');
+    await expect(children).toBeVisible();
+    await expect(node.locator(':scope > .tree-label')).toHaveClass(/explanation-highlight/);
   });
 
   test('payg example integration test', async ({ page }) => {

@@ -1584,6 +1584,7 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
     const explView = new ExplanationView({
         answersList,
         explanationTree,
+        explanationTitle: document.getElementById('explanation-title') || undefined,
         menus: {
             answerContextMenu: document.getElementById('answer-context-menu')!,
             menuCopyAnswer: document.getElementById('menu-copy-answer')!,
@@ -1591,6 +1592,8 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
             menuCopyExplanation: document.getElementById('menu-copy-explanation')!,
             menuGotoOriginal: document.getElementById('menu-goto-original')!,
             answerTooltip: document.getElementById('answer-tooltip')!,
+            titleMenu: document.getElementById('explanation-title-menu')!,
+            menuShowStrongest: document.getElementById('menu-show-strongest')!,
         },
         failedNodePrefix: () => failedNodePrefix,
         hierarchicalNumbering: () => showHierarchicalNumbering,

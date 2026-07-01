@@ -377,6 +377,8 @@
             overflow-y: auto;
             padding: 10px;
         }
+        /* The EXPLANATION title carries the "important reason" as a hover tooltip. */
+        #explanation-title.has-reason { cursor: help; text-decoration: underline dotted; }
         .answer-item {
             padding: 5px 8px;
             cursor: pointer;
@@ -747,9 +749,9 @@
                             </select>
                         </div>
                         <button id="btn-query" class="query-action">Query</button>
-                        <button id="btn-variations" class="query-action">Variations</button>
+                        <button id="btn-variations" class="query-action" title="Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window">Scenario Variations</button>
                         <button id="btn-trace" class="query-action">Trace</button>
-                        <button id="btn-proof-game" class="query-action">Proof Game</button>
+                        <button id="btn-proof-game" class="query-action" title="Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules">Proof Game</button>
                         <button id="btn-interrupt-query" style="margin-left: 5px; background-color: #b71c1c; display: none; cursor: pointer;">Interrupt</button>
                     </div>
                     <div id="custom-scenario-container" class="custom-input-container">
@@ -769,7 +771,7 @@
                 </div>
                 <div id="results-resizer"></div>
                 <div id="explanation-panel">
-                    <div style="font-size: 11px; color: #888; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Explanation</div>
+                    <div id="explanation-title" style="font-size: 11px; color: #888; margin-bottom: 5px; font-weight: bold; text-transform: uppercase;">Explanation</div>
                     <div id="explanation-tree"></div>
                 </div>
                 <pre id="results-display"></pre>
@@ -932,6 +934,11 @@
     <div id="explanation-context-menu" class="context-menu">
         <div class="dropdown-item" id="menu-goto-original" style="padding: 5px 15px; font-size: 12px; display: none;">Go to full sub-explanation</div>
         <div class="dropdown-item" id="menu-copy-explanation" style="padding: 5px 15px; font-size: 12px;">Copy Explanation</div>
+    </div>
+
+    <!-- Context Menu for the EXPLANATION title -->
+    <div id="explanation-title-menu" class="context-menu">
+        <div class="dropdown-item" id="menu-show-strongest" style="padding: 5px 15px; font-size: 12px;">Show important reason</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
