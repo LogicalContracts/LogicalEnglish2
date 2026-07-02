@@ -1864,4 +1864,40 @@ Also make sure the Drill window is using its own LE session, as an user complain
 And please make sure questions are not repeated; the TOP node has an implict "Not yet" answer.
 If the user clicks on a card for a question in the Explanation Drill, select its source code in the editor
 
+## Synonyms
+Now for a new template addition, 'synonym', wich lets a template indicate one more equivalent forms. For example:
+
+*a payment* in respect of *a claim*; synonym *a payment* is in respect of *a claim*.
+
+This means that the same PROLOG literal may be mappable to from several templates. The "first" (non synonymous) template determines the literal name.
+Whenever it is necessary to obtain a template instance from a PROLOG literal:
+- if we have source code location, if possible use the template alternative in the source
+- else use the first (non synonym) template
+
+To simplify things, a template with a synonym cannot have other additions (except synonym).
+Implement this and create a simple example moreExamples/synonyms.le with expected answers
+
+## Tutorial for example X
+An user will be learning to use our system focused on X, which is close to his heart; and specifically its scenario zero and mainly query 1, and perhaps another illustrative query too - take a look at all of them and choose. 
+Write a 5-15 page (shorter is better) tutorial docs/tutorial1/introduction.md covering:
+- How to query
+- Look at a scenario in the editor. How to use Scenario Variations, with a couple queries, including tweaking some facts (assuming them for example) to make the query true; looking at the unknowns in the answer
+- How to look at Explanations; recommend "Hide repeated explanations" etc
+- Explanation Drill
+Take some screenshots with Playwright and illustrate the tutorial with them; store the images in docs/tutorial1.
+Be objective and to the point, but you're allowed to use some humour...
+
+## Extended tutorial
+Write a docs/tutorial0/IntroToLE2.md tutorial, introducing Logical English as described in docs/le_summary.md via 3 examples: tea_party.le, happy_dragon.le and citizenship.le. And progressively introduce our environmental tools. Include screenshots taken with Playwright, using theme "Light", and store the images in docs/tutorial0.
+Refer specific documentation as needed in https://github.com/LogicalContracts/LogicalEnglish2/tree/main/docs , and examples in https://le2.logicalcontracts.com, where our system is running for the public (a clone of this repo)
+
+Write 10-20 pages (shorter is better) covering:
+- Language basics
+- How to query
+- Look at a scenario in the editor. How to use Scenario Variations, with a couple queries, including tweaking some facts (assuming them for example) to make the query true; looking at the unknowns in the answer (later in the tutorial)
+- How to look at Explanations; recommend "Hide repeated explanations" etc
+- Explanation Drill
+Be objective and to the point, but you're allowed to use some humour...
+
 ## TBD
+Large queries mess with the Query panel UI. For example insureLE2/testing/hiscoxhappypath.le, scenario zero query 1, the query picker menu becomes so wide that the buttons may be pushed off screen. Truncate queries to a maximum of 70 chars, suffix "...(QueryNumber)", and show the full query as a tooltip
