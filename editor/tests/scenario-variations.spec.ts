@@ -108,21 +108,26 @@ test.describe('Scenario Variations', () => {
         expect(winSession).not.toBe(edSession);
     });
 
-    test('Add Query and remove a query card', async ({ page }) => {
+    test('Add Query excludes already-added queries', async ({ page }) => {
         test.setTimeout(60000);
         const v = await openVariations(page);
 
-        // One query was seeded; add a second of the same query, then remove both.
+        // Citizenship has a single query 'one', already seeded — so the Add Query
+        // picker offers nothing and is disabled (a query can't be added twice).
         await expect(v.locator('.query-card')).toHaveCount(1);
-        await v.locator('#add-query').selectOption('one');
-        await v.locator('#btn-add-query').click();
-        await expect(v.locator('.query-card')).toHaveCount(2);
-        expect(new URL(v.url()).searchParams.get('queries')).toBe('one,one');
+        await expect(v.locator('#add-query option')).toHaveCount(0);
+        await expect(v.locator('#btn-add-query')).toBeDisabled();
 
-        await v.locator('.query-card .query-remove').first().click();
-        await expect(v.locator('.query-card')).toHaveCount(1);
+        // Removing the query frees it up: the picker offers it again and can re-add it.
         await v.locator('.query-card .query-remove').first().click();
         await expect(v.locator('.query-card')).toHaveCount(0);
         expect(new URL(v.url()).searchParams.get('queries')).toBe('');
+        await expect(v.locator('#btn-add-query')).toBeEnabled();
+        await expect(v.locator('#add-query option')).toHaveCount(1);
+
+        await v.locator('#add-query').selectOption('one');
+        await v.locator('#btn-add-query').click();
+        await expect(v.locator('.query-card')).toHaveCount(1);
+        expect(new URL(v.url()).searchParams.get('queries')).toBe('one');
     });
 });
