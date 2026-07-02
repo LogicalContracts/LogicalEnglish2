@@ -971,22 +971,33 @@ async function initScenarioVariations() {
       if (i >= 0)
         queryCards.splice(i, 1);
       card.remove();
+      refreshAddQueryOptions();
       markStale();
       syncUrl();
     });
     queryCards.push(entry);
     queryListEl.appendChild(card);
+    refreshAddQueryOptions();
     return entry;
   }
   const addQuerySelect = $("add-query");
-  addQuerySelect.innerHTML = "";
-  queryDefs.forEach((q) => {
-    const o = document.createElement("option");
-    o.value = q.name;
-    o.textContent = q.label ? `${q.label} (${q.name})` : q.name;
-    addQuerySelect.appendChild(o);
-  });
-  $("btn-add-query").addEventListener("click", () => {
+  const btnAddQuery = $("btn-add-query");
+  function refreshAddQueryOptions() {
+    const used = new Set(queryCards.map((q) => q.name));
+    const available = queryDefs.filter((q) => !used.has(q.name));
+    addQuerySelect.innerHTML = "";
+    available.forEach((q) => {
+      const o = document.createElement("option");
+      o.value = q.name;
+      o.textContent = q.label ? `${q.label} (${q.name})` : q.name;
+      addQuerySelect.appendChild(o);
+    });
+    const none = available.length === 0;
+    addQuerySelect.disabled = none;
+    btnAddQuery.disabled = none;
+  }
+  refreshAddQueryOptions();
+  btnAddQuery.addEventListener("click", () => {
     const name = addQuerySelect.value;
     if (!name)
       return;
@@ -1075,7 +1086,7 @@ async function initScenarioVariations() {
     loadScenarioFromPicker();
   }
   const initialQueries = urlQueries !== null ? urlQueries.split(",").map((s) => s.trim()).filter(Boolean) : ls.selectedQuery ? [ls.selectedQuery] : [];
-  initialQueries.forEach((n) => addQueryCard(n));
+  [...new Set(initialQueries)].forEach((n) => addQueryCard(n));
   syncUrl();
   setStatus("Ready");
 }

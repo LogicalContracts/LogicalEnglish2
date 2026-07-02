@@ -179,23 +179,35 @@ export async function initScenarioVariations() {
             const i = queryCards.indexOf(entry);
             if (i >= 0) queryCards.splice(i, 1);
             card.remove();
+            refreshAddQueryOptions();
             markStale(); syncUrl();
         });
         queryCards.push(entry);
         queryListEl.appendChild(card);
+        refreshAddQueryOptions();
         return entry;
     }
 
     // --- Add Query picker ------------------------------------------------------
+    // Offer only queries not already added; disable the picker once all are in.
     const addQuerySelect = $('add-query') as HTMLSelectElement;
-    addQuerySelect.innerHTML = '';
-    queryDefs.forEach(q => {
-        const o = document.createElement('option');
-        o.value = q.name;
-        o.textContent = q.label ? `${q.label} (${q.name})` : q.name;
-        addQuerySelect.appendChild(o);
-    });
-    $('btn-add-query').addEventListener('click', () => {
+    const btnAddQuery = $('btn-add-query') as HTMLButtonElement;
+    function refreshAddQueryOptions() {
+        const used = new Set(queryCards.map(q => q.name));
+        const available = queryDefs.filter(q => !used.has(q.name));
+        addQuerySelect.innerHTML = '';
+        available.forEach(q => {
+            const o = document.createElement('option');
+            o.value = q.name;
+            o.textContent = q.label ? `${q.label} (${q.name})` : q.name;
+            addQuerySelect.appendChild(o);
+        });
+        const none = available.length === 0;
+        addQuerySelect.disabled = none;
+        btnAddQuery.disabled = none;
+    }
+    refreshAddQueryOptions();
+    btnAddQuery.addEventListener('click', () => {
         const name = addQuerySelect.value;
         if (!name) return;
         addQueryCard(name);
@@ -282,7 +294,8 @@ export async function initScenarioVariations() {
     const initialQueries = urlQueries !== null
         ? urlQueries.split(',').map(s => s.trim()).filter(Boolean)
         : (ls.selectedQuery ? [ls.selectedQuery] : []);
-    initialQueries.forEach(n => addQueryCard(n));
+    // Add each query at most once, even if a shared URL lists it twice.
+    [...new Set(initialQueries)].forEach(n => addQueryCard(n));
 
     syncUrl();
     setStatus('Ready');
