@@ -26,17 +26,26 @@ tools as we go. By the end you will be able to write LE, query it, poke at
 
 ## Contents
 
-1. [The editor at a glance](#1-the-editor-at-a-glance)
-2. [Example 1 — `tea_party`: language basics](#2-example-1--tea_party-language-basics)
-3. [Running a query](#3-running-a-query)
-4. [Reading explanations](#4-reading-explanations)
-5. [Example 2 — `happy_dragon`: negation and "for all cases"](#5-example-2--happy_dragon-negation-and-for-all-cases)
-6. [Example 3 — `citizenship`: a real little rulebook](#6-example-3--citizenship-a-real-little-rulebook)
-7. [Scenario Variations: playing "what if"](#7-scenario-variations-playing-what-if)
-8. [Unknowns: assuming your way to an answer](#8-unknowns-assuming-your-way-to-an-answer)
-9. [Why *not*? Failure explanations](#9-why-not-failure-explanations)
-10. [Explanation preferences and the Explanation Drill](#10-explanation-preferences-and-the-explanation-drill)
-11. [Where to go next](#11-where-to-go-next)
+- [A Gentle Introduction to Logical English 2](#a-gentle-introduction-to-logical-english-2)
+  - [Contents](#contents)
+  - [1. The editor at a glance](#1-the-editor-at-a-glance)
+  - [2. Example 1 — `tea_party`: language basics](#2-example-1--tea_party-language-basics)
+    - [Templates — teaching LE your vocabulary](#templates--teaching-le-your-vocabulary)
+    - [Facts](#facts)
+    - [Rules](#rules)
+    - [Negation](#negation)
+    - [Scenarios and queries](#scenarios-and-queries)
+  - [3. Running a query](#3-running-a-query)
+  - [4. Reading explanations](#4-reading-explanations)
+  - [5. Example 2 — `happy_dragon`: negation and "for all cases"](#5-example-2--happy_dragon-negation-and-for-all-cases)
+  - [6. Example 3 — `citizenship`: a real little rulebook](#6-example-3--citizenship-a-real-little-rulebook)
+  - [7. Scenario Variations: playing "what if"](#7-scenario-variations-playing-what-if)
+  - [8. Unknowns: assuming your way to an answer](#8-unknowns-assuming-your-way-to-an-answer)
+  - [9. Why *not*? Failure explanations](#9-why-not-failure-explanations)
+  - [10. Explanation preferences and the Explanation Drill](#10-explanation-preferences-and-the-explanation-drill)
+    - [Preferences](#preferences)
+    - [The Explanation Drill](#the-explanation-drill)
+  - [11. Where to go next](#11-where-to-go-next)
 
 ---
 
@@ -144,12 +153,12 @@ mad hatter is a lofty creature.
 doormouse is a lowly creature.
 ```
 
-`mad hatter` and `doormouse` are constants (lowercase names are fine as constants).
+`mad hatter` and `doormouse` are constants (lowercase names are fine as constants too).
 
 ### Rules
 
 A **rule** is `Head if Body.` The body is a list of conditions joined by `and`
-(a new line at the same indentation also means "and"). Indentation carries meaning
+(a new line at the same indentation also means "and") and other connectives. Indentation carries meaning
 in LE, so line things up:
 
 ```le
@@ -159,7 +168,7 @@ a creature is punished with banishment if
 	and the creature is a lowly creature.
 ```
 
-Read it aloud — it *is* the reading. Note that `the creature` reuses the variable
+Note that `the creature` reuses the variable
 introduced by `a creature`: same words ⇒ same individual, throughout a rule.
 
 ### Negation
@@ -228,7 +237,7 @@ panel on the right draws the reasoning as a tree:
 
 ![Explanation tree for 'doormouse is punished with banishment'](04-explanation-tree.png)
 
-Each node is one condition, colour‑coded by status:
+Each tree node is one condition, colour‑coded by status:
 
 - **green** — proven true;
 - **red** — could not be proven;
@@ -284,7 +293,7 @@ Run scenario `smoky` with query `which dragon is happy (happy)`, then click
 ![happy_dragon answers with a 'for all cases' explanation node](06-happy-dragon-answers.png)
 
 Both `bob` and `alice` are happy. Alice's explanation contains a **for all cases in
-which alice is a parent of a dragon** node, expanding to the one case that matters
+which alice is a parent of a dragon** tree node, expanding to the one case that matters
 (alice is a parent of bob) and confirming bob is healthy. The universal became a
 concrete, checkable list — which is exactly what makes LE explanations pleasant to
 read.
@@ -385,7 +394,7 @@ and re‑run:
 
 Three things changed:
 
-1. The assumed fact's fields go **read‑only** — it's no longer a plain fact but an
+1. The assumed fact's fields become **non editable** — it's no longer a plain fact but an
    *assumption*. Behind the scenes this rewrites it as
    *"it is unknown whether Alice is a British citizen on 2021‑10‑09."*
 2. The answer is still there, but now carries a **`?`** marker — it holds *only under
@@ -398,6 +407,8 @@ citizenship — provided Alice is indeed a citizen, which we're currently assumi
 The amber nodes are precisely the open questions your conclusion still depends on.
 Hover an answer's marker (or check the tree's amber nodes) to see the list of
 unknowns it rests on.
+
+In addition to scenario facts, templates can also be declared assumable.
 
 ---
 
@@ -434,8 +445,8 @@ Open **Misc → EXPLANATIONS → Preferences…**:
   trees especially — repeat the same sub‑proof many times. This collapses each repeat
   to a single italic line tagged with its occurrence count, so you see the *shape* of
   the reasoning instead of a wall of duplicates.
-- **Detailed failure explanations (per‑rule nodes):** when on, a failed goal proven
-  by several rules shows one node per rule. Thorough, but slower — off by default.
+- **Detailed failure explanations (per‑rule nodes):** when on, a failed goal trying
+   several rules shows one node per rule. Thorough, but slower — off by default.
 - **Prefix for failed nodes:** text prepended to failed nodes when you **Copy
   Explanation** (handy when pasting into somewhere that loses the colours).
 
@@ -462,8 +473,7 @@ At each step it shows the **most important reason** of what's left and asks
 
 A progress bar fills as you accept parts, each question highlights its source in the
 editor, and you can revise any earlier answer (or **✕** a question) at any time. When
-there's nothing left to break down, it says *"Nothing else to show."* It's the
-fastest way to get from a big proof to the single fact you actually cared about.
+there's nothing left to break down, it says *"Nothing else to show."* It's a systematic way to narrow a big proof down to the single intermediate fact that explains it better.
 
 ---
 
