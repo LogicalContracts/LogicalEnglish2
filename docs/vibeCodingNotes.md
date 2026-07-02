@@ -1899,5 +1899,34 @@ Write 10-20 pages (shorter is better) covering:
 - Explanation Drill
 Be objective and to the point, but you're allowed to use some humour...
 
+### Reaction to reviewer comments
+Following are some comments to docs/tutorial0/IntroToLE2.md by a senior reviewer; quotes from the tutorial are indented, his comments not.
+Improve the document accordingly.
+
+    Negation    LE does negation‑as‑failure with it is not the case that.
+    The negated goal goes on its own indented line beneath it:
+
+	it is prohibited that a creature attends a tea party if
+		it is not the case that
+		it is approved that the creature attends the tea party
+
+This would be a good place to explain the use of 'that' for propositional attitudes, in relation to the templates.
+
+    Load happy_dragon. It's short but introduces two ideas: negation feeding into a conclusion,
+
+Not quite right. Negation feeding into a conclusion was introduced in the previous section.
+
+    and universal quantification.
+
+Better perhaps call this "'forall' conditions".
+
+    The program also shows off meta‑templates — sentences that take other sentences as arguments:
+
+This can be moved forward to the prohibited, tea party example, and perhaps mentioned again here.
+
+Missing the promised explanation of 'assumables'.
+
+
+
 ## TBD
 Large queries mess with the Query panel UI. For example insureLE2/testing/hiscoxhappypath.le, scenario zero query 1, the query picker menu becomes so wide that the buttons may be pushed off screen. Truncate queries to a maximum of 70 chars, suffix "...(QueryNumber)", and show the full query as a tooltip
