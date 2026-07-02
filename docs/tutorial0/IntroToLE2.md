@@ -33,11 +33,11 @@ tools as we go. By the end you will be able to write LE, query it, poke at
     - [Templates — teaching LE your vocabulary](#templates--teaching-le-your-vocabulary)
     - [Facts](#facts)
     - [Rules](#rules)
-    - [Negation](#negation)
+    - [Negation, and sentences about sentences](#negation-and-sentences-about-sentences)
     - [Scenarios and queries](#scenarios-and-queries)
   - [3. Running a query](#3-running-a-query)
   - [4. Reading explanations](#4-reading-explanations)
-  - [5. Example 2 — `happy_dragon`: negation and "for all cases"](#5-example-2--happy_dragon-negation-and-for-all-cases)
+  - [5. Example 2 — `happy_dragon`: "for all cases"](#5-example-2--happy_dragon-for-all-cases)
   - [6. Example 3 — `citizenship`: a real little rulebook](#6-example-3--citizenship-a-real-little-rulebook)
   - [7. Scenario Variations: playing "what if"](#7-scenario-variations-playing-what-if)
   - [8. Unknowns: assuming your way to an answer](#8-unknowns-assuming-your-way-to-an-answer)
@@ -171,7 +171,7 @@ a creature is punished with banishment if
 Note that `the creature` reuses the variable
 introduced by `a creature`: same words ⇒ same individual, throughout a rule.
 
-### Negation
+### Negation, and sentences about sentences
 
 LE does negation‑as‑failure with **`it is not the case that`**. The negated goal
 goes on its own indented line beneath it:
@@ -184,6 +184,23 @@ it is prohibited that a creature attends a tea party if
 
 In English: attending the tea party is prohibited *unless* it was approved. (There's
 also an `unless` keyword that does the same job inline — see the language reference.)
+
+Now look closely at the two templates this rule leans on:
+
+```le
+it is prohibited that *an eventuality*.
+it is approved that *an eventuality*.
+```
+
+The starred slot `*an eventuality*` is not a creature or a date — its value is *another
+whole sentence*. The little word **`that`** is what lets one sentence be *about*
+another: `it is approved that (the creature attends the tea party)` embeds the sentence
+`the creature attends the tea party` as the argument of `it is approved that …`.
+Templates that take a sentence where you would otherwise expect a thing are called
+**meta‑templates**, and `that` is the join. They are how LE expresses *propositional
+attitudes* — prohibition, approval, belief, saying: all the "someone holds that
+⟨sentence⟩" constructions of ordinary legal and everyday language. We'll meet another
+one (`… says that …`) in the citizenship example.
 
 ### Scenarios and queries
 
@@ -257,10 +274,11 @@ Two handy moves:
 
 ---
 
-## 5. Example 2 — `happy_dragon`: negation and "for all cases"
+## 5. Example 2 — `happy_dragon`: "for all cases"
 
-Load `happy_dragon`. It's short but introduces two ideas: negation feeding into a
-conclusion, and **universal quantification**.
+Load `happy_dragon`. It's short, and its job is to introduce one genuinely new
+idea — **`forall` conditions** (universal quantification) — while giving the negation
+we met at the tea party a second airing in a fresh setting.
 
 ![happy_dragon.le in the editor](05-happy-dragon-editor.png)
 
@@ -278,10 +296,13 @@ A creature is happy
 		the other creature is healthy.
 ```
 
-- **Healthy** uses negation: a dragon is healthy if it does *not* smoke.
-- **Happy** uses **`for all cases in which … it is the case that …`**: a dragon is
-  happy when *every* one of its children is healthy. A dragon with no children is
-  happy vacuously — the universal is satisfied when there's nothing to check.
+- **Healthy** reuses the negation from §2 (`it is not the case that`): a dragon is
+  healthy if it does *not* smoke — nothing new here, just the same construct feeding a
+  different conclusion.
+- **Happy** is where the new idea lives: **`for all cases in which … it is the case
+  that …`**. A dragon is happy when *every* one of its children is healthy. A dragon
+  with no children is happy vacuously — the universal is satisfied when there's nothing
+  to check.
 
 Also note `an other creature`: the qualifier **other** makes it a *distinct*
 `creature` variable from `the creature`, so a dragon isn't accidentally required to
@@ -325,8 +346,9 @@ UK. This one rule mixes `and`/`or` and shares the variable `an other person` acr
 the parent conditions — the same parent must satisfy both the "is a parent" and the
 "citizen/settled" parts.
 
-The program also shows off **meta‑templates** — sentences that take other sentences
-as arguments:
+The program uses another **meta‑template** — the same "sentence about a sentence"
+idea we met with `it is approved that …` back at the tea party (§2). This time the
+propositional attitude is *saying*:
 
 ```le
 a person is the father of an other person
@@ -335,8 +357,10 @@ if a third person says
     and the third person is qualified to determine fatherhood.
 ```
 
-`says that …` lets one fact be *about* another sentence. And dates
-(`2021-10-09`) are first‑class values you can compare with `after`/`before`.
+`… says that …` again uses `that` to let one fact be *about* another sentence: a third
+person's *saying* that someone is the father — together with their being qualified to
+determine fatherhood — is what makes the fatherhood hold. And dates (`2021-10-09`) are
+first‑class values you can compare with `after`/`before`.
 
 Run scenario `alice` with query `one` and click the answer:
 
@@ -408,7 +432,29 @@ The amber nodes are precisely the open questions your conclusion still depends o
 Hover an answer's marker (or check the tree's amber nodes) to see the list of
 unknowns it rests on.
 
-In addition to scenario facts, templates can also be declared assumable.
+**Assuming a whole predicate, not just a fact.** Ticking **Assume** turns one
+*particular* fact into an unknown. Sometimes, though, an entire *kind* of fact is
+inherently uncertain, and you want every goal of that shape to be assumable whenever it
+can't be proven. For that you mark the **template** itself, adding `; assumable`
+(equivalently `; unknown` or `; assumed`) after its declaration:
+
+```le
+the templates are:
+*a person* is a British citizen on *a date*; assumable.
+```
+
+Now *any* "… is a British citizen on …" goal the reasoner cannot prove is
+automatically treated as unknown and assumed true — no per‑fact ticking needed — and
+every answer that relied on it comes back with the same `?` marker and amber node we
+saw above. It's the difference between "assume *this* fact" (the checkbox) and "treat
+*this whole predicate* as open" (the template addition). You can still pin a single
+instance, in the knowledge base or a scenario, with `it is unknown whether …`:
+
+```le
+it is unknown whether Alice is a British citizen on 2021-10-09.
+```
+
+(See `; unknown` in the [language reference](https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/le_summary.md) for the full story.)
 
 ---
 
