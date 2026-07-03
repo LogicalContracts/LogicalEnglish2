@@ -1635,7 +1635,10 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
     const debugStatus = document.getElementById('debug-status')!;
     const debugContinue = document.getElementById('debug-continue') as HTMLButtonElement;
     const debugStep = document.getElementById('debug-step') as HTMLButtonElement;
+    const debugStop = document.getElementById('debug-stop') as HTMLButtonElement;
     const debugClose = document.getElementById('debug-panel-close')!;
+    let debugFrames: any[] = [];        // last stackTrace frames (DAP order: [0]=current/deepest)
+    let debugSelectedFrameId = 1;       // frame whose variables are shown
     const debugHeader = document.getElementById('debug-panel-header')!;
 
     let dapSocket: WebSocket | null = null;
@@ -1671,6 +1674,7 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
         debugVariables.innerHTML = '';
         debugContinue.disabled = false;
         debugStep.disabled = false;
+        debugStop.disabled = false;
 
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = `${protocol}//${window.location.host}/dap?sessionModule=${sessionModule}`;
@@ -1704,12 +1708,14 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
                 debugStatus.textContent = 'Query finished.';
                 debugContinue.disabled = true;
                 debugStep.disabled = true;
+                debugStop.disabled = true;
                 debugDecorations = editor.deltaDecorations(debugDecorations, []);
             }).catch(err => {
                 console.error('Debug query failed', err);
                 debugStatus.textContent = 'Query failed.';
                 debugContinue.disabled = true;
                 debugStep.disabled = true;
+                debugStop.disabled = true;
                 debugDecorations = editor.deltaDecorations(debugDecorations, []);
             });
         };
@@ -1720,16 +1726,13 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
             if (msg.type === 'event' && msg.event === 'stopped') {
                 debugStatus.textContent = `Stopped: ${msg.body.reason}`;
                 sendDapRequest('stackTrace', { threadId: 1 });
-                sendDapRequest('scopes', { frameId: 1 });
             } else if (msg.type === 'response' && msg.success) {
                 if (msg.command === 'stackTrace') {
-                    renderStack(msg.body.stackFrames);
-                    if (msg.body.stackFrames.length > 0) {
-                        const f = msg.body.stackFrames[0];
-                        const pos = f.offset !== undefined ? editor.getModel().getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
-                        editor.revealLineInCenter(pos.lineNumber);
-                        editor.setPosition(pos);
-                    }
+                    debugFrames = msg.body.stackFrames || [];
+                    renderStack(debugFrames);
+                    // Auto-select the current (deepest) frame: highlight its source
+                    // span and show its variables.
+                    if (debugFrames.length > 0) selectFrame(debugFrames[0].id);
                 } else if (msg.command === 'scopes') {
                     if (msg.body.scopes && msg.body.scopes.length > 0) {
                         sendDapRequest('variables', { variablesReference: msg.body.scopes[0].variablesReference });
@@ -1746,21 +1749,26 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
             debugStatus.textContent = 'Debugger disconnected.';
             debugContinue.disabled = true;
             debugStep.disabled = true;
+                debugStop.disabled = true;
             debugDecorations = editor.deltaDecorations(debugDecorations, []);
         };
     };
 
+    // The frames arrive innermost-first (DAP order). We render them TOP-DOWN — the
+    // root query at the top, the goal executing right now at the bottom — mirroring
+    // top-down LE/Prolog execution.
     const renderStack = (frames: any[]) => {
         debugStack.innerHTML = '';
         const model = editor.getModel();
-        const newDecorations: any[] = [];
 
-        frames.forEach((f, index) => {
+        [...frames].reverse().forEach((f) => {
             const div = document.createElement('div');
-            div.className = 'stack-frame' + (index === 0 ? ' current' : '');
-            
+            div.className = 'stack-frame';
+            div.dataset.frameId = String(f.id);
+            if (f.id === 1) div.classList.add('executing');   // deepest = current goal
+
             const pos = f.offset !== undefined ? model.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
-            
+
             const nameSpan = document.createElement('span');
             nameSpan.className = 'stack-frame-name';
             nameSpan.textContent = f.name;
@@ -1770,42 +1778,70 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
             sourceSpan.className = 'stack-frame-source';
             sourceSpan.textContent = `${f.source.name}:${pos.lineNumber}`;
             div.appendChild(sourceSpan);
-            
-            if (index === 0 && f.offset !== undefined) {
-                // Highlight the top frame
-                newDecorations.push({
-                    range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1),
-                    options: {
-                        isWholeLine: true,
-                        className: 'debug-line-highlight',
-                        glyphMarginClassName: 'debug-anchor-glyph'
-                    }
-                });
-            }
 
-            div.onclick = () => {
-                // Highlight line in editor
-                editor.revealLineInCenter(pos.lineNumber);
-                editor.setPosition(pos);
-                editor.focus();
-                
-                // Update selection in stack panel
-                document.querySelectorAll('.stack-frame').forEach(el => el.classList.remove('current'));
-                div.classList.add('current');
-            };
+            div.onclick = () => selectFrame(f.id);
             debugStack.appendChild(div);
         });
+    };
 
-        debugDecorations = editor.deltaDecorations(debugDecorations, newDecorations);
+    // Highlight a frame's exact source span in the editor and reveal it.
+    const highlightFrameRange = (f: any) => {
+        const model = editor.getModel();
+        if (!f || f.offset === undefined) {
+            debugDecorations = editor.deltaDecorations(debugDecorations, []);
+            return;
+        }
+        const start = model.getPositionAt(f.offset);
+        const hasSpan = f.endOffset !== undefined && f.endOffset > f.offset;
+        const end = hasSpan ? model.getPositionAt(f.endOffset) : start;
+        const range = new monaco.Range(start.lineNumber, start.column, end.lineNumber, end.column);
+        editor.revealRangeInCenterIfOutsideViewport(range);
+        debugDecorations = editor.deltaDecorations(debugDecorations, [
+            {
+                range: new monaco.Range(start.lineNumber, 1, start.lineNumber, 1),
+                options: { isWholeLine: true, className: 'debug-line-highlight', glyphMarginClassName: 'debug-anchor-glyph' }
+            },
+            ...(hasSpan ? [{
+                range,
+                options: { className: 'debug-range-highlight', inlineClassName: 'debug-range-highlight' }
+            }] : [])
+        ]);
+    };
+
+    // Select a stack frame: mark it, highlight its source, and load its variables.
+    const selectFrame = (frameId: number) => {
+        debugSelectedFrameId = frameId;
+        const f = debugFrames.find(fr => fr.id === frameId);
+        document.querySelectorAll('.stack-frame').forEach(el => {
+            el.classList.toggle('selected', (el as HTMLElement).dataset.frameId === String(frameId));
+        });
+        if (f) highlightFrameRange(f);
+        sendDapRequest('scopes', { frameId });
     };
 
     const renderVariables = (vars: any[]) => {
         debugVariables.innerHTML = '';
+        if (!vars || vars.length === 0) {
+            const empty = document.createElement('div');
+            empty.style.padding = '4px 6px';
+            empty.style.color = '#888';
+            empty.textContent = 'No variables for this call.';
+            debugVariables.appendChild(empty);
+            return;
+        }
         vars.forEach(v => {
             const div = document.createElement('div');
             div.style.padding = '2px 5px';
             div.style.fontFamily = 'monospace';
-            div.textContent = `${v.name}: ${v.value}`;
+            const name = document.createElement('span');
+            name.className = 'debug-var-name';
+            name.textContent = v.name;
+            const val = document.createElement('span');
+            const unbound = v.value === '(unbound)';
+            val.className = unbound ? 'debug-var-unbound' : 'debug-var-value';
+            val.textContent = unbound ? ' = ?' : ` = ${v.value}`;
+            div.appendChild(name);
+            div.appendChild(val);
             debugVariables.appendChild(div);
         });
     };
@@ -1814,6 +1850,14 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
 
     debugContinue.onclick = () => sendDapRequest('continue', { threadId: 1 });
     debugStep.onclick = () => sendDapRequest('stepIn', { threadId: 1 });
+    debugStop.onclick = () => {
+        sendDapRequest('disconnect', {});
+        debugStatus.textContent = 'Trace stopped.';
+        debugContinue.disabled = true;
+        debugStep.disabled = true;
+                debugStop.disabled = true;
+        debugDecorations = editor.deltaDecorations(debugDecorations, []);
+    };
     debugClose.onclick = () => {
         debugPanel.style.display = 'none';
         debugDecorations = editor.deltaDecorations(debugDecorations, []);

@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 92
-Total tests:     287
-Passed:          287
+Files processed: 93
+Total tests:     288
+Passed:          288
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -89,6 +89,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/testing/tea_party2.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/template_folding.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/trace_sample.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error

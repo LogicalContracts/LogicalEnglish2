@@ -92,9 +92,13 @@ solve(G, SM, KM, Anc, D, ParentID, Us, Whys) :-
         (   SM:debug_mode
 
         ->  dap_server:dap_tracer_hook(call, SM, G, MyID, Anc, D),
+            % Soft cut (*->) so backtracking into alternative solutions is preserved
+            % while tracing: the exit port fires for EACH solution, so a user can step
+            % through every answer, not only the first. (A plain -> would commit to the
+            % first solution and make only the first answer traceable.)
             (   catch(solve_real(G, SM, KM, Anc, D, MyID, Us, Whys), E,
                       (dap_server:dap_tracer_hook(exception(E), SM, G, MyID, Anc, D), throw(E)))
-            ->  (succeeded(MyID) -> true ; assertz(succeeded(MyID))),
+            *-> (succeeded(MyID) -> true ; assertz(succeeded(MyID))),
                 note_solved(MyID, G),
                 dap_server:dap_tracer_hook(exit, SM, G, MyID, Anc, D)
             ;   dap_server:dap_tracer_hook(fail, SM, G, MyID, Anc, D),
@@ -184,10 +188,14 @@ solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
     % one is a subset of family two" true when Bob ∈ family one but Bob ∉ family two.)
     % Each ok case keeps the *instantiated* condition and consequent together with
     % their derivations, so the explanation can pair them up per case.
+    % Keep the forall itself on the ancestor stack while its condition and
+    % consequent are solved, so the "for all cases in which …" frame stays visible
+    % in the debugger instead of vanishing while its sub-goals run.
+    ForallAnc = [forall(Cond, Cons) | Anc],
     findall(Case,
-        ( solve(Cond, SM, KM, Anc, D1, CondID, UsC, WhysCond),
+        ( solve(Cond, SM, KM, ForallAnc, D1, CondID, UsC, WhysCond),
           ( UsC == []
-            -> ( solve(Cons, SM, KM, Anc, D1, MyID, [], WhysCons)
+            -> ( solve(Cons, SM, KM, ForallAnc, D1, MyID, [], WhysCons)
                  -> Case = ok(Cond, WhysCond, Cons, WhysCons)
                  ;  Case = consequent_failed )
             ;  Case = unknown_condition(Cond, WhysCond)

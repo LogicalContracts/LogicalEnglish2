@@ -49,6 +49,19 @@ the knowledge base test includes:
 query long is:
     which person is a very important and highly distinguished long-standing member of the committee.`;
 
+// A small program with a rule, so tracing it produces a multi-level call stack.
+const TRACE_PROG = `the target language is: prolog.
+the templates are:
+    *a person* is happy.
+    *a person* is rich.
+the knowledge base t includes:
+    A person is happy
+        if the person is rich.
+scenario s is:
+    alice is rich.
+query happy is:
+    which person is happy.`;
+
 test.describe('Logical English Editor', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./index.html');
@@ -57,6 +70,49 @@ test.describe('Logical English Editor', () => {
   test('should load the editor', async ({ page }) => {
     await expect(page.locator('#container')).toBeVisible();
     await expect(page.locator('h1')).toContainText('LE Editor');
+  });
+
+  test('LE Debugger: trace shows a top-down call stack, variables, and stops', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.goto('index.html?text=' + encodeURIComponent(TRACE_PROG));
+    await page.waitForFunction(() =>
+      typeof (window as any).monaco !== 'undefined' &&
+      (window as any).monaco.languages.getLanguages().some((l: any) => l.id === 'le')
+    );
+    await page.waitForTimeout(800);
+    await page.locator('#scenario-select').hover();
+    await expect.poll(() => page.locator('#query-select option').count(), { timeout: 30000 }).toBeGreaterThan(1);
+    await page.selectOption('#scenario-select', 's');
+    await page.selectOption('#query-select', 'happy');
+
+    // Elaborate button tooltips.
+    await expect(page.locator('#debug-step')).toHaveAttribute('title', /advance one step/i);
+    await expect(page.locator('#debug-continue')).toHaveAttribute('title', /next answer/i);
+    await expect(page.locator('#debug-stop')).toHaveAttribute('title', /end the trace/i);
+
+    await page.click('#btn-trace');
+    await expect(page.locator('#debug-panel')).toBeVisible();
+
+    const frames = page.locator('#debug-stack .stack-frame');
+    await expect.poll(() => frames.count(), { timeout: 30000 }).toBeGreaterThan(0);
+
+    // Step a few times to descend into the rule (best-effort — grows the stack).
+    for (let i = 0; i < 4 && (await frames.count()) < 2; i++) {
+      await page.click('#debug-step');
+      await page.waitForTimeout(400);
+    }
+
+    // Top-down ordering: the executing (deepest) goal is the LAST frame (bottom),
+    // not the first — the root query sits at the top.
+    const n = await frames.count();
+    await expect(frames.nth(n - 1)).toHaveClass(/executing/);
+
+    // The VARIABLES panel shows the current call's variables (or a placeholder).
+    await expect(page.locator('#debug-variables')).not.toBeEmpty();
+
+    // Stop detaches the debugger.
+    await page.click('#debug-stop');
+    await expect(page.locator('#debug-status')).toContainText('stopped', { ignoreCase: true });
   });
 
   test('truncates a long query in the picker and keeps the full text as a tooltip', async ({ page }) => {
