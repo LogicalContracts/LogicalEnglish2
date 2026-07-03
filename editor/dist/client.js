@@ -40100,7 +40100,15 @@ async function start() {
             const option = document.createElement("option");
             option.value = q.name;
             const label = q.le || q.template;
-            option.textContent = q.name ? `${label} (${q.name})` : label;
+            const full = q.name ? `${label} (${q.name})` : label;
+            const MAX_QUERY_LABEL = 70;
+            if (label.length > MAX_QUERY_LABEL) {
+              const suffix = q.name ? `...(${q.name})` : "...";
+              option.textContent = label.slice(0, MAX_QUERY_LABEL).trimEnd() + suffix;
+            } else {
+              option.textContent = full;
+            }
+            option.title = full;
             option.dataset.template = q.template;
             querySelect.appendChild(option);
           });

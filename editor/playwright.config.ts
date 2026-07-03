@@ -5,7 +5,12 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  // All tests hit ONE shared Prolog server (see webServer below). The heaviest
+  // operations (payg / happy_dragon "for all cases" queries, explanation renders)
+  // overwhelm it beyond ~2 concurrent requests, so a fully-parallel local run (one
+  // worker per core) is flaky. Cap local workers at 2 for a reliable `run_tests.sh`;
+  // CI runs serially (workers: 1) with retries.
+  workers: process.env.CI ? 1 : 2,
   reporter: 'html',
   // All tests share one Prolog server, so under parallel load the heaviest
   // operations (e.g. the payg query + explanation render) can take longer than
