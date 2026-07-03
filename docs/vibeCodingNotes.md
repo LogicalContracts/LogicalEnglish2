@@ -1957,5 +1957,19 @@ Tests: added testing/test_prep_fold.pl (compact-folded answer; rule-head textual
 
 Your two mid-flight notes are both honored: explanations keep their structure, and the previously-unfolded explanation nodes now fold too.
 
-## TBD
-Large queries mess with the Query panel UI. For example insureLE2/testing/hiscoxhappypath.le, scenario zero query 1, the query picker menu becomes so wide that the buttons may be pushed off screen. Truncate queries to a maximum of 70 chars, suffix "...(QueryNumber)", and show the full query as a tooltip
+## Large queries
+Large queries mess with the Query panel UI. Sometimes the query picker menu becomes so wide that the buttons may be pushed off screen. Truncate queries in the menu to a maximum of 70 chars, suffix "...(QueryNumber)", and show the full query as a tooltip
+
+## Trace
+The "Trace" experience in window "LE Debugger" is not good enough:
+- Source highlighting is CALLincorrect many times
+- Let's show the call stack top-bottom, in the spirit for top down LE/Prolog execution
+- "VARIABLES" seems useless as it is: vara appear always unbound, and then disappear; insetad we want the VARIABLES column to show the vars of the call on the same line, over time. So for example a top call var may be bound as a result of some call several levels deep stepping (and all vars in calls in between of course), reflecting unification
+- "for all cases in which" calls disappear while their condition and consequent execute, confusing the user
+- Apparently only the first answer is traceable
+- Add more ellaborate tooltips to the buttons
+
+## Paper appendix
+docs/papers/LE2paperDraft.md was written before a number of system improvements. Write a docs/papers/LE2paperAppendix.md  describing major LE features added since the paper was written.
+
+I think some of the items in docs/papers/LE2paperAppendix.md are proprietary (if they depend on code in le_extensions.pl). Just add a "not in open source version" warning to those

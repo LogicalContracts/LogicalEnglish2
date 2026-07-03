@@ -564,10 +564,27 @@
             color: var(--text-color);
         }
         .debug-line-highlight {
-            background-color: rgba(255, 255, 0, 0.2);
-            border: 1px solid yellow;
+            background-color: rgba(255, 255, 0, 0.12);
             display: block;
         }
+        /* Precise highlight of the exact source span of the current goal. */
+        .debug-range-highlight {
+            background-color: rgba(255, 235, 59, 0.35);
+            border-radius: 2px;
+        }
+        /* The deepest frame — the goal actually executing right now. */
+        .stack-frame.executing {
+            background-color: #3a3d1a;
+            border-left: 3px solid #ffeb3b;
+        }
+        /* The frame the user has selected to inspect in the VARIABLES panel. */
+        .stack-frame.selected {
+            background-color: #094771;
+            border-left: 3px solid #4fc1ff;
+        }
+        .debug-var-name { color: #9cdcfe; }
+        .debug-var-value { color: #ce9178; }
+        .debug-var-unbound { color: #888; font-style: italic; }
         .debug-anchor-glyph {
             background: #ffff00;
             width: 10px !important;
@@ -704,9 +721,10 @@
         <div class="panel-header" id="debug-panel-header">
             <h3 style="margin: 0; font-size: 14px;">LE Debugger</h3>
             <div style="display: flex; gap: 10px; align-items: center;">
-                <button id="debug-continue" title="Continue (F5)" style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Continue</button>
-                <button id="debug-step" title="Step In (F11)" style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Step</button>
-                <span id="debug-panel-close" style="cursor: pointer; font-size: 18px;">&times;</span>
+                <button id="debug-step" title="Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Step</button>
+                <button id="debug-continue" title="Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Continue</button>
+                <button id="debug-stop" title="Stop — end the trace and detach the debugger. The query keeps running to completion in the background." style="background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); border-radius: 3px; padding: 2px 8px; cursor: pointer; font-size: 11px;">Stop</button>
+                <span id="debug-panel-close" title="Close this panel" style="cursor: pointer; font-size: 18px;">&times;</span>
             </div>
         </div>
         <div style="display: flex; flex-grow: 1; overflow: hidden;">

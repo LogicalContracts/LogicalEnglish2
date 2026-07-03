@@ -20,10 +20,22 @@
 :- dynamic breakpoint/2. % Module, Line
 :- dynamic stopped_state/5. % ID, Goal, SM, Anc, Depth
 
+% Test seam: when dap_test_capture is set, the tracer records each stop as
+% dap_test_stop(Port, Goal, Anc) and auto-continues (no websocket), so the trace
+% behaviour can be checked from a plunit test. Never set in production.
+:- dynamic dap_test_capture/0.
+:- dynamic dap_test_stop/3.
+
 % Enable DAP debugging
 :- debug(dap).
 
 % Tracer hook — runs in interpreter thread
+dap_tracer_hook(Port, SM, Goal, ID, Anc, Depth) :-
+    dap_test_capture, !,
+    ( should_stop(Port, SM, Goal, ID, Anc, Depth)
+    ->  assertz(dap_test_stop(Port, Goal, Anc))
+    ;   true
+    ).
 dap_tracer_hook(Port, SM, Goal, ID, Anc, Depth) :-
     catch(
         (   should_stop(Port, SM, Goal, ID, Anc, Depth)
@@ -207,18 +219,31 @@ handle_command(SM, stackTrace, _Dict, _{
         Frames = [], Count = 0
     ).
 
-handle_command(_SM, scopes, _Dict, _{
+% Scopes for a frame: one "Local" scope whose variablesReference is the frame's
+% own index (echoed from the request), so `variables` can report that frame's args.
+handle_command(_SM, scopes, Dict, _{
     scopes: [
-        _{ name: "Local", variablesReference: 1, expensive: false }
+        _{ name: "Local", variablesReference: Ref, expensive: false }
     ]
-}).
+}) :-
+    (   get_dict(arguments, Dict, Args), get_dict(frameId, Args, FrameId), integer(FrameId)
+    ->  Ref = FrameId
+    ;   Ref = 1
+    ).
 
-handle_command(SM, variables, _Dict, _{
+handle_command(SM, variables, Dict, _{
     variables: Vars
 }) :-
-    (   stopped_state(_ID, Goal, SM, _Anc, _Depth)
-    ->  term_variables(Goal, Variables),
-        maplist(var_to_dap, Variables, Vars)
+    (   get_dict(arguments, Dict, VArgs), get_dict(variablesReference, VArgs, Ref0),
+        ( integer(Ref0) -> Ref = Ref0 ; atom_number(Ref0, Ref) )
+    ->  true
+    ;   Ref = 1
+    ),
+    (   stopped_state(_ID, Goal, SM, Anc, _Depth)
+    ->  ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+        FrameGoals = [Goal | Anc],
+        ( nth1(Ref, FrameGoals, FG) -> true ; FG = Goal ),
+        frame_variables(KB, FG, Vars)
     ;   Vars = []
     ).
 
@@ -243,98 +268,106 @@ handle_command(SM, disconnect, _Dict, _{}) :-
 verify_breakpoint(_Path, BP, _{verified: true, line: Line}) :-
     get_dict(line, BP, Line).
 
-build_frames(ID, Goal, SM, Anc, Frames) :-
-    build_frame(ID, Goal, SM, CurrentFrame),
-    findall(AncFrame, (member(AGoal, Anc), build_anc_frame(SM, AGoal, AncFrame)), AncFrames),
-    Frames = [CurrentFrame | AncFrames].
+% The call-stack frames, ordered innermost-first (DAP convention): the current
+% goal is frame 1, its caller frame 2, ... the root query last. The UI renders them
+% top-down (root at the top). Each frame's variablesReference equals its 1-based
+% index, so the variables request can resolve which frame's variables to report.
+build_frames(_ID, Goal, SM, Anc, Frames) :-
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    FrameGoals = [Goal | Anc],
+    findall(Frame,
+            ( nth1(Idx, FrameGoals, FG), build_one_frame(Idx, FG, SM, KB, Frame) ),
+            Frames).
 
-build_frame(ID, Goal, SM, Frame) :-
-    (   catch(build_frame_unsafe(ID, Goal, SM, Frame), E, (debug(dap, 'build_frame_unsafe failed: ~w', [E]), fail))
+build_one_frame(Idx, FG, SM, KB, Frame) :-
+    (   catch(build_one_frame_unsafe(Idx, FG, SM, KB, Frame), E,
+              (debug(dap, 'build_one_frame failed: ~w', [E]), fail))
     ->  true
-    ;   term_string(Goal, Name),
-        Frame = _{
-            id: ID,
-            name: Name,
-            offset: 0,
-            column: 1,
-            source: _{ name: "prolog", path: "/main.le" }
-        }
+    ;   term_string(FG, Name),
+        Frame = _{ id: Idx, name: Name, offset: 0, endOffset: 0, column: 1,
+                   variablesReference: Idx, source: _{ name: "prolog", path: "/main.le" } }
     ).
 
-build_frame_unsafe(ID, Goal, SM, _{
-    id: ID,
+build_one_frame_unsafe(Idx, FG, SM, KB, _{
+    id: Idx,
     name: Name,
     offset: Offset,
+    endOffset: EndOffset,
     column: 1,
+    variablesReference: Idx,
     source: _{ name: SourceName, path: "/main.le" }
 }) :-
-    (   SM:le_kb_module_fact(KB), KB \== none
-    ->  (   le_kbs:item_to_instance(KB, Goal, Tokens)
-        ->  le_kbs:canonical_string(Tokens, Name)
-        ;   term_string(Goal, Name)
-        ),
-        (   current_predicate(KB:le_kb/1), KB:le_kb(KBName)
-        ->  ( atom(KBName) -> atom_concat(KBName, '.le', SourceName) ; SourceName = KBName )
-        ;   SourceName = "document.le"
-        )
-    ;   term_string(Goal, Name),
-        SourceName = "prolog"
-    ),
-    (   find_offset_for_goal(Goal, SM, Offset)
-    ->  true
-    ;   Offset = 0
+    frame_name(KB, FG, Name),
+    frame_source_name(KB, SourceName),
+    frame_offsets(FG, SM, KB, Offset, EndOffset).
+
+frame_name(KB, FG, Name) :-
+    (   KB \== none, le_kbs:item_to_instance(KB, FG, Tokens)
+    ->  le_kbs:canonical_string(Tokens, Name)
+    ;   term_string(FG, Name)
     ).
 
-build_anc_frame(SM, Goal, Frame) :-
-    (   catch(build_anc_frame_unsafe(SM, Goal, Frame), _, fail)
-    ->  true
-    ;   term_string(Goal, Name),
-        Frame = _{
-            id: 0,
-            name: Name,
-            offset: 0,
-            column: 1,
-            source: _{ name: "prolog", path: "/main.le" }
-        }
+frame_source_name(KB, SourceName) :-
+    (   KB \== none, current_predicate(KB:le_kb/1), KB:le_kb(KBName)
+    ->  ( atom(KBName) -> atom_concat(KBName, '.le', SourceName) ; SourceName = KBName )
+    ;   SourceName = "document.le"
     ).
 
-build_anc_frame_unsafe(SM, Goal, _{
-    id: 0, % Placeholder
-    name: Name,
-    offset: Offset,
-    column: 1,
-    source: _{ name: SourceName, path: "/main.le" }
-}) :-
-    (   SM:le_kb_module_fact(KB), KB \== none
-    ->  (   le_kbs:item_to_instance(KB, Goal, Tokens)
-        ->  le_kbs:canonical_string(Tokens, Name)
-        ;   term_string(Goal, Name)
-        ),
-        (   current_predicate(KB:le_kb/1), KB:le_kb(KBName)
-        ->  ( atom(KBName) -> atom_concat(KBName, '.le', SourceName) ; SourceName = KBName )
-        ;   SourceName = "document.le"
-        )
-    ;   term_string(Goal, Name),
-        SourceName = "prolog"
-    ),
-    (   find_offset_for_goal(Goal, SM, Offset)
+% A goal wrapped as le_at(_, Start, End) carries its CALL-SITE source range, which
+% is what we want to highlight (where the goal is written in the rule/query). Bare
+% goals fall back to the range of the clause that would prove them.
+frame_offsets(le_at(_, Start, End), _SM, _KB, Start, End) :- !.
+frame_offsets(Goal, SM, KB, Offset, EndOffset) :-
+    (   ( clause(SM:Goal, _, Ref) ; (KB \== none, clause(KB:Goal, _, Ref)) ),
+        ( SM:le_source_info(Ref, Offset, EndOffset, _)
+        ; KB \== none, KB:le_source_info(Ref, Offset, EndOffset, _) )
     ->  true
-    ;   Offset = 0
+    ;   Offset = 0, EndOffset = 0
     ).
 
-find_offset_for_goal(Goal, SM, Offset) :-
-    (   SM:le_kb_module_fact(KB), KB \== none
-    ->  (   (clause(SM:Goal, _, Ref) ; clause(KB:Goal, _, Ref)),
-            (SM:le_source_info(Ref, Offset, _, _) ; KB:le_source_info(Ref, Offset, _, _))
-        ->  true
-        ;   Offset = 0
-        )
-    ;   Offset = 0
+% frame_variables(+KB, +FrameGoal, -Vars): the goal's arguments as name/value
+% pairs, named by their template variable type ("a payment", "a claim") and valued
+% by their CURRENT binding (rendered in LE). Because the frame goals hold the live
+% reasoner variables, a variable shown here becomes bound as deeper steps unify it.
+frame_variables(KB, FG0, Vars) :-
+    ( FG0 = le_at(FG, _, _) -> true ; FG = FG0 ),
+    ( goal_arg_bindings(KB, FG, Vars) -> true ; Vars = [] ).
+
+goal_arg_bindings(KB, FG, Vars) :-
+    callable(FG),
+    FG =.. [F | Args], Args \== [],
+    (   KB \== none,
+        KB:le_dict(dict([F | Formal], NTs, _, _, _, _, _)),
+        same_length(Formal, Args)
+    ->  copy_term(Formal-NTs, FormalC-NTsC),
+        maplist(arg_name_from_nt(NTsC), FormalC, Names),
+        FormalC = Args,                       % bind formals to actuals (names kept)
+        maplist(arg_dap_entry(KB), Names, Args, Vars)
+    ;   findall(V,
+                ( nth1(I, Args, A), format(atom(N), 'argument ~w', [I]), arg_dap_entry(KB, N, A, V) ),
+                Vars)
     ).
 
-var_to_dap(Var, _{ name: Name, value: Value, variablesReference: 0 }) :-
-    (   var_property(Var, name(Name))
-    ->  true
-    ;   format(atom(Name), 'Var', [])
-    ),
-    term_string(Var, Value).
+arg_name_from_nt(NTsC, FVar, Name) :-
+    (   member(V - Type, NTsC), V == FVar, atom(Type)
+    ->  type_with_article(Type, Name)
+    ;   Name = 'a value'
+    ).
+
+type_with_article(Type, Name) :-
+    atom_codes(Type, [C | _]),
+    ( memberchk(C, [0'a,0'e,0'i,0'o,0'u,0'A,0'E,0'I,0'O,0'U]) -> Art = an ; Art = a ),
+    format(atom(Name), '~w ~w', [Art, Type]).
+
+arg_dap_entry(KB, Name, Value, _{ name: Name, value: Str, variablesReference: 0 }) :-
+    (   var(Value)
+    ->  Str = "(unbound)"
+    ;   atom(Value)
+    ->  atom_string(Value, Str)          % render 'this payment' without quotes
+    ;   string(Value)
+    ->  Str = Value
+    ;   KB \== none, compound(Value), \+ is_list(Value),
+        catch(le_kbs:item_to_instance(KB, Value, Toks), _, fail)
+    ->  le_kbs:canonical_string(Toks, Str)
+    ;   term_string(Value, Str)
+    ).

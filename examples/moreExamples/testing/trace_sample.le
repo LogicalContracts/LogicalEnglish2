@@ -1,0 +1,34 @@
+the target language is: prolog.
+
+% Small fixture for the debugger/trace tests: a query with SEVERAL answers (so all
+% answers must be traceable) and a rule using "for all cases in which" (so the
+% forall must stay on the call stack while its condition/consequent run).
+
+the templates are:
+    *a person* is happy.
+    *a person* is rich.
+    *a person* has *a friend*.
+    *a person* is friendly.
+
+the knowledge base trace includes:
+    A person is happy
+        if the person is rich.
+
+    A person is friendly
+        if for all cases in which
+            the person has a friend
+        it is the case that
+            the friend is rich.
+
+scenario s is:
+    alice is rich.
+    bob is rich.
+    alice has bob.
+    happy expects answers ["alice is happy", "bob is happy"].
+    friendly expects answers ["alice is friendly"].
+
+query happy is:
+    which person is happy.
+
+query friendly is:
+    which person is friendly.

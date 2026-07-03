@@ -40,6 +40,12 @@ test_suite_fixture('examples/moreExamples/tax/payg.le',
                    'editor/tests/editor.spec.ts').
 test_suite_fixture('examples/moreExamples/testing/nonterminating.le',
                    'editor/tests/editor.spec.ts').
+test_suite_fixture('examples/moreExamples/synonyms.le',
+                   'testing/test_synonyms.pl').
+test_suite_fixture('examples/moreExamples/testing/template_folding.le',
+                   'testing/test_prep_fold.pl').
+test_suite_fixture('examples/moreExamples/testing/trace_sample.le',
+                   'testing/test_dap_trace.pl').
 
 :- begin_tests(fixtures_integrity).
 

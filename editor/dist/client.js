@@ -40354,7 +40354,10 @@ async function start() {
   const debugStatus = document.getElementById("debug-status");
   const debugContinue = document.getElementById("debug-continue");
   const debugStep = document.getElementById("debug-step");
+  const debugStop = document.getElementById("debug-stop");
   const debugClose = document.getElementById("debug-panel-close");
+  let debugFrames = [];
+  let debugSelectedFrameId = 1;
   const debugHeader = document.getElementById("debug-panel-header");
   let dapSocket = null;
   let dapSeq = 1;
@@ -40387,6 +40390,7 @@ async function start() {
     debugVariables.innerHTML = "";
     debugContinue.disabled = false;
     debugStep.disabled = false;
+    debugStop.disabled = false;
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
     const wsUrl = `${protocol}//${window.location.host}/dap?sessionModule=${sessionModule}`;
     if (dapSocket)
@@ -40416,12 +40420,14 @@ async function start() {
         debugStatus.textContent = "Query finished.";
         debugContinue.disabled = true;
         debugStep.disabled = true;
+        debugStop.disabled = true;
         debugDecorations = editor.deltaDecorations(debugDecorations, []);
       }).catch((err) => {
         console.error("Debug query failed", err);
         debugStatus.textContent = "Query failed.";
         debugContinue.disabled = true;
         debugStep.disabled = true;
+        debugStop.disabled = true;
         debugDecorations = editor.deltaDecorations(debugDecorations, []);
       });
     };
@@ -40431,16 +40437,12 @@ async function start() {
       if (msg.type === "event" && msg.event === "stopped") {
         debugStatus.textContent = `Stopped: ${msg.body.reason}`;
         sendDapRequest("stackTrace", { threadId: 1 });
-        sendDapRequest("scopes", { frameId: 1 });
       } else if (msg.type === "response" && msg.success) {
         if (msg.command === "stackTrace") {
-          renderStack(msg.body.stackFrames);
-          if (msg.body.stackFrames.length > 0) {
-            const f = msg.body.stackFrames[0];
-            const pos = f.offset !== void 0 ? editor.getModel().getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
-            editor.revealLineInCenter(pos.lineNumber);
-            editor.setPosition(pos);
-          }
+          debugFrames = msg.body.stackFrames || [];
+          renderStack(debugFrames);
+          if (debugFrames.length > 0)
+            selectFrame(debugFrames[0].id);
         } else if (msg.command === "scopes") {
           if (msg.body.scopes && msg.body.scopes.length > 0) {
             sendDapRequest("variables", { variablesReference: msg.body.scopes[0].variablesReference });
@@ -40456,16 +40458,19 @@ async function start() {
       debugStatus.textContent = "Debugger disconnected.";
       debugContinue.disabled = true;
       debugStep.disabled = true;
+      debugStop.disabled = true;
       debugDecorations = editor.deltaDecorations(debugDecorations, []);
     };
   };
   const renderStack = (frames) => {
     debugStack.innerHTML = "";
     const model2 = editor.getModel();
-    const newDecorations = [];
-    frames.forEach((f, index) => {
+    [...frames].reverse().forEach((f) => {
       const div = document.createElement("div");
-      div.className = "stack-frame" + (index === 0 ? " current" : "");
+      div.className = "stack-frame";
+      div.dataset.frameId = String(f.id);
+      if (f.id === 1)
+        div.classList.add("executing");
       const pos = f.offset !== void 0 ? model2.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
       const nameSpan = document.createElement("span");
       nameSpan.className = "stack-frame-name";
@@ -40475,40 +40480,79 @@ async function start() {
       sourceSpan.className = "stack-frame-source";
       sourceSpan.textContent = `${f.source.name}:${pos.lineNumber}`;
       div.appendChild(sourceSpan);
-      if (index === 0 && f.offset !== void 0) {
-        newDecorations.push({
-          range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1),
-          options: {
-            isWholeLine: true,
-            className: "debug-line-highlight",
-            glyphMarginClassName: "debug-anchor-glyph"
-          }
-        });
-      }
-      div.onclick = () => {
-        editor.revealLineInCenter(pos.lineNumber);
-        editor.setPosition(pos);
-        editor.focus();
-        document.querySelectorAll(".stack-frame").forEach((el) => el.classList.remove("current"));
-        div.classList.add("current");
-      };
+      div.onclick = () => selectFrame(f.id);
       debugStack.appendChild(div);
     });
-    debugDecorations = editor.deltaDecorations(debugDecorations, newDecorations);
+  };
+  const highlightFrameRange = (f) => {
+    const model2 = editor.getModel();
+    if (!f || f.offset === void 0) {
+      debugDecorations = editor.deltaDecorations(debugDecorations, []);
+      return;
+    }
+    const start2 = model2.getPositionAt(f.offset);
+    const hasSpan = f.endOffset !== void 0 && f.endOffset > f.offset;
+    const end = hasSpan ? model2.getPositionAt(f.endOffset) : start2;
+    const range = new monaco.Range(start2.lineNumber, start2.column, end.lineNumber, end.column);
+    editor.revealRangeInCenterIfOutsideViewport(range);
+    debugDecorations = editor.deltaDecorations(debugDecorations, [
+      {
+        range: new monaco.Range(start2.lineNumber, 1, start2.lineNumber, 1),
+        options: { isWholeLine: true, className: "debug-line-highlight", glyphMarginClassName: "debug-anchor-glyph" }
+      },
+      ...hasSpan ? [{
+        range,
+        options: { className: "debug-range-highlight", inlineClassName: "debug-range-highlight" }
+      }] : []
+    ]);
+  };
+  const selectFrame = (frameId) => {
+    debugSelectedFrameId = frameId;
+    const f = debugFrames.find((fr) => fr.id === frameId);
+    document.querySelectorAll(".stack-frame").forEach((el) => {
+      el.classList.toggle("selected", el.dataset.frameId === String(frameId));
+    });
+    if (f)
+      highlightFrameRange(f);
+    sendDapRequest("scopes", { frameId });
   };
   const renderVariables = (vars) => {
     debugVariables.innerHTML = "";
+    if (!vars || vars.length === 0) {
+      const empty2 = document.createElement("div");
+      empty2.style.padding = "4px 6px";
+      empty2.style.color = "#888";
+      empty2.textContent = "No variables for this call.";
+      debugVariables.appendChild(empty2);
+      return;
+    }
     vars.forEach((v) => {
       const div = document.createElement("div");
       div.style.padding = "2px 5px";
       div.style.fontFamily = "monospace";
-      div.textContent = `${v.name}: ${v.value}`;
+      const name = document.createElement("span");
+      name.className = "debug-var-name";
+      name.textContent = v.name;
+      const val = document.createElement("span");
+      const unbound = v.value === "(unbound)";
+      val.className = unbound ? "debug-var-unbound" : "debug-var-value";
+      val.textContent = unbound ? " = ?" : ` = ${v.value}`;
+      div.appendChild(name);
+      div.appendChild(val);
       debugVariables.appendChild(div);
     });
   };
   btnTrace.addEventListener("click", startTrace);
   debugContinue.onclick = () => sendDapRequest("continue", { threadId: 1 });
   debugStep.onclick = () => sendDapRequest("stepIn", { threadId: 1 });
+  debugStop.onclick = () => {
+    sendDapRequest("disconnect", {});
+    debugStatus.textContent = "Trace stopped.";
+    debugContinue.disabled = true;
+    debugStep.disabled = true;
+    debugStop.disabled = true;
+    debugDecorations = editor.deltaDecorations(debugDecorations, []);
+  };
   debugClose.onclick = () => {
     debugPanel.style.display = "none";
     debugDecorations = editor.deltaDecorations(debugDecorations, []);
