@@ -1926,7 +1926,36 @@ This can be moved forward to the prohibited, tea party example, and perhaps ment
 
 Missing the promised explanation of 'assumables'.
 
+## Folding prepositional additions
+The answer to query 1 scenario zero in examples/moreExamples/insureLE2/testing/hiscoxhappypath.le, shown in the Query panel as "true and we will make this payment and this payment in respect of this claim and this payment under this policy", reveals the need for a couple fixes and an improvement on the Prolog side, in this order:
+1) The initial 'true and ' is redundant
+2) "we will make this payment under this policy in respect of this claim" is the head of the rule at line 99, whose PROLOG equivalent starts with: "we_will_make(A) :-and(le_at(in_respect_of(A, B), 7986, 8007),and(le_at(under(A, 'this policy'), 7968, 7985),..." ; in_respect_of(..) and under(...) should switch positions, to reflect the textual ordering of the corresponding templates 
+3) "we will make this payment and this payment in respect of this claim and this payment under this policy" is the "unfolded" (via prepositional templates) of "we will make this payment under this policy in respect of this claim"; users prefer seeing this more compact form. Suggestion: add some answer pre-rendering postprocessing to detect patterns of consecutive prepositional templates; perhaps use the DCG in reverse..?? Just a wild thought.
 
+explanations are fine as they are
+Ooops... actually explanation nodes that use this "unfolded" form should be folded too; the tree structure remains intact,
+  that's what I meant
+
+### Opus 4.8 response
+Root insight: the answer (from Items) and the explanation (from solving Goal) render independently. Both flow through item_to_instance/3, so a single rendering fix there fixes the answer and the explanation nodes — without changing tree structure, exactly as you clarified.
+
+Issues 1 & 3 — drop true and, and fold prepositional chains (le_kbs.pl):
+Added fold_prep_chain/3 (+ helpers) and wired it into item_to_instance's and/2 branch. When a goal is a main literal conjoined with prepositional-template goals sharing its subject, it re-folds into the compact sentence and drops true conjuncts. So the answer went from
+true and we will make this payment and this payment in respect of this claim and this payment under this policy
+to
+we will make this payment under this policy in respect of this claim.
+The same folding applies to explanation nodes (e.g. the it is not the case that we will not make… node), tree structure untouched.
+
+The phrases are ordered by their le_at source positions, so the folded text is always in the order the user wrote them.
+
+(One subtle bug fixed along the way: detecting a prepositional template must compare the Prep field with ==, not unify it — unifying binds the unbound Prep slot of non-prepositional templates and matches everything.)
+
+Issue 2 — compiled rule-head ordering (le_grammar.pl):
+Prepositional chain goals are collected reverse-textual. Added order_extra_goals_by_source/2, applied where a rule head's / query's extra goals are folded into the body, to sort them by source position when they all carry ranges (left untouched when defines global goals are present). The rule at line 99 now compiles as we_will_make(A) :- under(A,…) and in_respect_of(A,…) and …, and the explanation shows under this policy before in respect of this claim.
+
+Tests: added testing/test_prep_fold.pl (compact-folded answer; rule-head textual order). Full suite green — unit + LE examples + 42 e2e. Nothing committed.
+
+Your two mid-flight notes are both honored: explanations keep their structure, and the previously-unfolded explanation nodes now fold too.
 
 ## TBD
 Large queries mess with the Query panel UI. For example insureLE2/testing/hiscoxhappypath.le, scenario zero query 1, the query picker menu becomes so wide that the buttons may be pushed off screen. Truncate queries to a maximum of 70 chars, suffix "...(QueryNumber)", and show the full query as a tooltip
