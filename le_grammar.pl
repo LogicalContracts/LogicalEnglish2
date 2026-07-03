@@ -1335,7 +1335,8 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clau
         maybe_record_synonym_use(Templates, NewHead, HeadInst, Start, End),
         (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, Body0) ->
             ( le_kbs:do_log -> print_message(informational,'  Rule succeeded~n'); true),
-            collect_extra_goals(VMOut, ExtraGoals),
+            collect_extra_goals(VMOut, ExtraGoals0),
+            order_extra_goals_by_source(ExtraGoals0, ExtraGoals),
             % Constrain each head variable to the type named by that variable, so
             % rules sharing a functor but with differently-typed heads (e.g.
             % "a payment in respect of a claim if ..." vs "an amount in respect of
@@ -1467,6 +1468,25 @@ collect_extra_goals(VM, Goals) :-
 collect_extra_goals_acc([], []).
 collect_extra_goals_acc([extra_goal(G)|Rest], [G|Gs]) :- !, collect_extra_goals_acc(Rest, Gs).
 collect_extra_goals_acc([_|Rest], Gs) :- collect_extra_goals_acc(Rest, Gs).
+
+%!  order_extra_goals_by_source(+Goals, -Ordered) is det.
+%
+%   Prepositional chain goals are collected (via the var-map) in reverse of the
+%   order the phrases were written. When every extra goal carries a le_at source
+%   range (i.e. they are all prepositional-chain goals), reorder them by that range
+%   so the compiled body reflects the textual order — e.g. for "we will make a
+%   payment under this policy in respect of a claim", the `under` goal precedes the
+%   `in respect of` goal. When any goal lacks a range (e.g. a "defines global"
+%   binding), the collected order is kept unchanged.
+order_extra_goals_by_source(Goals, Ordered) :-
+    (   maplist(extra_goal_source_key, Goals, Keys)
+    ->  pairs_keys_values(Pairs, Keys, Goals),
+        keysort(Pairs, Sorted),
+        pairs_values(Sorted, Ordered)
+    ;   Ordered = Goals
+    ).
+
+extra_goal_source_key(le_at(_, Start, _), Start).
 
 %!  collect_literal_extra_goals(+VM1, +VMIn, -LiteralExtraGoals) is det.
 %
@@ -1627,7 +1647,8 @@ second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, _M) :
         Item = query_body(BodyGoal, BodyTokens, Start, End)
     ;   query_literal_tokens(BodyTokens, LiteralTokens),
         parse_literal(LiteralTokens, Templates, [], VMOut9, NewHead0, Instance, true)
-    ->  collect_extra_goals(VMOut9, ExtraGoals),
+    ->  collect_extra_goals(VMOut9, ExtraGoals0),
+        order_extra_goals_by_source(ExtraGoals0, ExtraGoals),
         ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) ),
         Item = query_clause(NewHead, LiteralTokens, Instance, Start, End)
     ;   Item = query_clause(unknown_template(BodyTokens, Start, End), BodyTokens, BodyTokens, Start, End)
@@ -1644,7 +1665,8 @@ second_pass_query_item(Templates, fact(Head, Start, End), Item, _M) :-
     (   parse_query_body(Head, Templates, BodyGoal)
     ->  Item = query_body(BodyGoal, Head, Start, End)
     ;   parse_literal(Head, Templates, [], VMOut9, NewHead0, Instance, true)
-    ->  collect_extra_goals(VMOut9, ExtraGoals),
+    ->  collect_extra_goals(VMOut9, ExtraGoals0),
+        order_extra_goals_by_source(ExtraGoals0, ExtraGoals),
         ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) ),
         Item = query_clause(NewHead, Head, Instance, Start, End)
     ;   Item = query_clause(unknown_template(Head, Start, End), Head, Head, Start, End)

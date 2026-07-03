@@ -1,0 +1,29 @@
+the target language is: prolog.
+
+% Minimal reproduction of prepositional-chain answer folding and ordering.
+% - "we will make *a payment*" is a normal template.
+% - "under" and "in respect of" are prepositional, so a chained instance
+%   ("we will make ... under ... in respect of ...") compiles to a main literal
+%   plus one prepositional goal per phrase.
+% Query 1 exercises: (1) no leading "true and", (2) the rule head's prepositional
+% goals compile in textual order (under before in respect of), (3) the answer is
+% re-folded into the compact sentence rather than the unfolded conjunction.
+
+the templates are:
+    we will make *a payment*.
+    *a payment* under *a policy*; prepositional.
+    *a payment* in respect of *a claim*; prepositional.
+    *a payment* is valid.
+
+the knowledge base folding includes:
+    we will make a payment under this policy in respect of a claim
+        if the payment is valid.
+
+scenario zero is:
+    this payment is valid.
+    this payment under this policy.
+    this payment in respect of this claim.
+    1 expects answers ["we will make this payment under this policy in respect of this claim"].
+
+query 1 is:
+    we will make which payment under this policy in respect of this claim.

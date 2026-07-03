@@ -937,8 +937,11 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ; WordsAndVars = [it, is, true, that, Cons])
     ;   Head == it_is_the_case ->
         WordsAndVars = [it, is, the, case, that]
-    ;   Head = and(A, B) -> 
-        ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) -> 
+    ;   Head = and(A, B) ->
+        (   fold_prep_chain(KBmodule, Head, Folded) -> WordsAndVars = Folded
+        ;   A == true -> item_to_instance(KBmodule, B, WordsAndVars)
+        ;   B == true -> item_to_instance(KBmodule, A, WordsAndVars)
+        ;   item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) ->
             append(ALE, [and | BLE], WordsAndVars)
         ; WordsAndVars = [A, and, B])
     ;   Head = or(A, B) -> 
@@ -999,6 +1002,79 @@ item_to_instance_with_skeleton(KBmodule, Head, Skel, WordsAndVars) :-
 % match le_grammar's wv_skeleton so recorded and candidate forms compare equal.
 synonym_skeleton([], []).
 synonym_skeleton([X|Xs], [S|Ss]) :- ( var(X) -> S = '$v' ; S = X ), synonym_skeleton(Xs, Ss).
+
+%!  fold_prep_chain(+KBmodule, +Goal, -Tokens) is semidet.
+%
+%   Re-folds the "unfolded" prepositional-chain form of a goal back into the
+%   compact single sentence the user wrote. A prepositional template used in a
+%   chain (e.g. "we will make *a payment* under *a policy* in respect of *a
+%   claim*") is compiled into a conjunction of a main literal (we_will_make/1) plus
+%   one prepositional goal per phrase (under/2, in_respect_of/2). Rendering that
+%   conjunction directly gives the verbose "... and this payment under this policy
+%   and this payment in respect of this claim"; this predicate instead renders the
+%   main literal followed by each prepositional PHRASE (its template words after the
+%   omitted leading argument), in source order. Fails (so the caller renders the
+%   goal normally) unless the goal really is a main literal plus prepositional goals
+%   that all share the main literal's first argument.
+fold_prep_chain(KBmodule, Goal, Tokens) :-
+    KBmodule \== none,
+    ( Goal = and(_, _) ; Goal = (_ , _) ),
+    answer_conjuncts(Goal, [Main0 | Preps0]),
+    Preps0 \== [],
+    unwrap_le_at_all(Main0, Main),
+    callable(Main), \+ prep_goal(KBmodule, Main),
+    Main =.. [_ | MainArgs], MainArgs = [Subject | _],
+    maplist(positioned_prep(KBmodule, Subject), Preps0, Positioned),
+    sort(1, @=<, Positioned, Sorted),
+    item_to_instance(KBmodule, Main, MainTokens),
+    findall(Phrase, ( member(_-PG, Sorted), prep_phrase(KBmodule, PG, Phrase) ), PhraseLists),
+    length(PhraseLists, NP), length(Preps0, NP),   % every prep folded, else fail
+    append([MainTokens | PhraseLists], Tokens).
+
+% Flatten an and/','-tree into conjuncts, dropping `true` and unwrapping a le_at
+% that only groups a conjunction (leaf goals keep their le_at for source position).
+answer_conjuncts(true, []) :- !.
+answer_conjuncts(and(A, B), Cs) :- !, answer_conjuncts(A, CA), answer_conjuncts(B, CB), append(CA, CB, Cs).
+answer_conjuncts((A , B), Cs) :- !, answer_conjuncts(A, CA), answer_conjuncts(B, CB), append(CA, CB, Cs).
+answer_conjuncts(le_at(G, S, E), Cs) :- !,
+    ( (G = and(_, _) ; G = (_ , _)) -> answer_conjuncts(G, Cs) ; Cs = [le_at(G, S, E)] ).
+answer_conjuncts(G, [G]).
+
+unwrap_le_at_all(le_at(G, _, _), Out) :- !, unwrap_le_at_all(G, Out).
+unwrap_le_at_all(G, G).
+
+% positioned_prep(+KB, +Subject, +Conjunct, -Start-PrepGoal): a conjunct that is a
+% prepositional goal sharing Subject as its first argument, paired with its source
+% start (from its le_at wrapper, else 0) so folded phrases can be source-ordered.
+positioned_prep(KBmodule, Subject, Conjunct, Start-PG) :-
+    ( Conjunct = le_at(PG, Start, _) -> true ; PG = Conjunct, Start = 0 ),
+    prep_goal(KBmodule, PG),
+    PG =.. [_ | [First | _]],
+    First == Subject.
+
+% prep_goal(+KB, +Goal): Goal's functor/arity is a prepositional template. The Prep
+% field is checked with ==, NOT unified — unifying would bind the (unbound) Prep slot
+% of a non-prepositional template and match everything.
+prep_goal(KBmodule, Goal) :-
+    callable(Goal),
+    Goal =.. [F | Args], Args \== [],
+    once(( KBmodule:le_dict(dict([F | FormalArgs], _, _, _, _, Prep, _)),
+           Prep == prepositional,
+           same_length(FormalArgs, Args) )).
+
+% prep_phrase(+KB, +PrepGoal, -Phrase): the prepositional template's words AFTER its
+% omitted leading argument, with the remaining argument(s) rendered — e.g.
+% under(P, 'this policy') -> [under, this, policy].
+prep_phrase(KBmodule, PrepGoal, Phrase) :-
+    PrepGoal =.. [F | Args],
+    once(( KBmodule:le_dict(dict([F | FormalArgs], NTs, [_Leading | RestWV], _, _, Prep, _)),
+           Prep == prepositional,
+           same_length(FormalArgs, Args) )),
+    copy_term(fa(FormalArgs, NTs, RestWV), fa(FormalArgsC, NTsC, RestWVC)),
+    FormalArgsC = Args,
+    maplist(maybe_transform_value(KBmodule), RestWVC, RestWV1),
+    maplist(fill_variable_name(NTsC), RestWV1, RestWV2),
+    flatten(RestWV2, Phrase).
 
 % global_template_name(+KBmodule, +Functor, -GlobalName): the (first) global name
 % declared with "defines global" for the template whose predicate is Functor.
