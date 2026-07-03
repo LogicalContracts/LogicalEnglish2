@@ -130,4 +130,52 @@ test.describe('Scenario Variations', () => {
         await expect(v.locator('.query-card')).toHaveCount(1);
         expect(new URL(v.url()).searchParams.get('queries')).toBe('one');
     });
+
+    test('Patch scenario / Assume fact from explanation nodes', async ({ page }) => {
+        test.setTimeout(60000);
+        const v = await openVariations(page);
+
+        // Run query "one" against scenario "alice" — it succeeds, so the explanation
+        // is a tree of green (succeeded) nodes.
+        await v.locator('#btn-run').click();
+        await expect(v.locator('.query-card .answer-item').first()).toContainText(
+            'John acquires British citizenship', { timeout: 30000 });
+
+        const rowsBefore = await v.locator('.fact-row').count();
+        await expect(v.locator('.fact-row', { hasText: 'is the mother of' })).toHaveCount(1);
+
+        // Right-click the succeeded "Alice is the mother of John" node: the menu offers
+        // "Patch scenario — delete this fact" but NOT "Assume fact" (succeeded node).
+        const motherNode = v.locator('.query-card .tree-label', { hasText: 'is the mother of' }).first();
+        await motherNode.click({ button: 'right' });
+        const patch = v.locator('#menu-patch-scenario');
+        await expect(patch).toBeVisible();
+        await expect(patch).toHaveText(/delete this fact/);
+        await expect(v.locator('#menu-assume-fact')).toBeHidden();
+
+        // Deleting removes the matching scenario fact row AND auto-re-runs the query:
+        // without the mother (and no father) fact, John no longer acquires citizenship,
+        // so the query now fails — a red (failed) node — with no manual Query click.
+        await patch.click();
+        await expect(v.locator('.fact-row', { hasText: 'is the mother of' })).toHaveCount(0);
+        await expect(v.locator('.fact-row')).toHaveCount(rowsBefore - 1);
+        await expect(v.locator('.query-card .answer-item.failure')).toContainText(
+            'No answers', { timeout: 30000 });
+
+        // Right-click the failed node: the menu offers "Patch scenario — add this fact"
+        // AND "Assume fact" (both, for a failed node).
+        const failNode = v.locator('.query-card .tree-label.failure').first();
+        await failNode.click({ button: 'right' });
+        await expect(patch).toHaveText(/add this fact/);
+        const assume = v.locator('#menu-assume-fact');
+        await expect(assume).toBeVisible();
+
+        // "Assume fact" adds the fact as an assumed unknown, selects (highlights) the
+        // new row, and auto-re-runs the query.
+        await assume.click();
+        const assumedRow = v.locator('.fact-row.assumed');
+        await expect(assumedRow).toHaveCount(1);
+        await expect(assumedRow).toHaveClass(/selected/);
+        await expect(v.locator('#status')).toContainText('Ran', { timeout: 30000 });
+    });
 });

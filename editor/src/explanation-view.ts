@@ -15,6 +15,8 @@ export interface MenuEls {
     titleMenu: HTMLElement;             // context menu for the EXPLANATION title
     menuShowStrongest: HTMLElement;     // its "Show important reason" item
     menuExplanationDrill: HTMLElement;  // its "Explanation Drill…" item
+    menuPatchScenario?: HTMLElement;    // node menu: add (failed) / delete (succeeded) the fact
+    menuAssumeFact?: HTMLElement;       // node menu (failed only): assume the fact unknown+true
 }
 
 export interface ExplanationViewOptions {
@@ -27,6 +29,11 @@ export interface ExplanationViewOptions {
     onNavigate?: (start: number, end: number) => void;   // a node was clicked -> reveal source
     onSelectAnswer?: (index: number) => void;            // an answer was selected (1-based)
     onOpenDrill?: (why: any) => void;                    // open the Explanation Drill for a `why`
+    // Scenario Variations only: patch the scenario from a tree node. onPatchScenario
+    // adds the node's fact when it failed / removes it when it succeeded; onAssumeFact
+    // (failed nodes) adds it as an assumed unknown. Absent => the items are not shown.
+    onPatchScenario?: (node: any) => void;
+    onAssumeFact?: (node: any) => void;
 }
 
 let activeView: ExplanationView | null = null;
@@ -66,10 +73,22 @@ function wireMenus(m: MenuEls) {
         activeView?.copyExplanation();
         m.explanationContextMenu.style.display = 'none';
     });
+    m.menuPatchScenario?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeView?.patchCurrentNode();
+        m.explanationContextMenu.style.display = 'none';
+    });
+    m.menuAssumeFact?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeView?.assumeCurrentNode();
+        m.explanationContextMenu.style.display = 'none';
+    });
 }
 
 export class ExplanationView {
     currentAnswerToCopy = '';
+    // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
+    private currentMenuNode: any = null;
     private o: ExplanationViewOptions;
     private m: MenuEls;
     private lastWhy: any = null;
@@ -247,6 +266,29 @@ export class ExplanationView {
         tip.style.top = `${Math.max(0, y)}px`;
     }
 
+    // --- Patch-scenario context-menu actions (Scenario Variations only) --------
+    patchCurrentNode() { if (this.currentMenuNode) this.o.onPatchScenario?.(this.currentMenuNode); }
+    assumeCurrentNode() { if (this.currentMenuNode) this.o.onAssumeFact?.(this.currentMenuNode); }
+
+    // Show/label the node-specific menu items for the right-clicked node (or hide
+    // them when there is no node, e.g. a background right-click). "Patch scenario"
+    // adds the fact for a failed node and deletes it for a succeeded one; "Assume
+    // fact" is offered only for failed nodes.
+    private updateNodeMenuItems(node: any) {
+        this.currentMenuNode = node;
+        const isFailure = node?.type === 'failure';
+        const patch = this.m.menuPatchScenario;
+        if (patch) {
+            const show = !!(node && this.o.onPatchScenario);
+            patch.style.display = show ? 'block' : 'none';
+            if (show) patch.textContent = isFailure
+                ? 'Patch scenario — add this fact'
+                : 'Patch scenario — delete this fact';
+        }
+        const assume = this.m.menuAssumeFact;
+        if (assume) assume.style.display = (node && isFailure && this.o.onAssumeFact) ? 'block' : 'none';
+    }
+
     // --- Copy / navigate context-menu actions ----------------------------------
     gotoOriginal() {
         if (this.currentRepeatedOf) {
@@ -348,6 +390,7 @@ export class ExplanationView {
                 activeView = this;
                 this.currentRepeatedOf = null;
                 this.m.menuGotoOriginal.style.display = 'none';
+                this.updateNodeMenuItems(null);
                 this.m.explanationContextMenu.style.display = 'block';
                 this.m.explanationContextMenu.style.left = `${(e as MouseEvent).clientX}px`;
                 this.m.explanationContextMenu.style.top = `${(e as MouseEvent).clientY}px`;
@@ -414,6 +457,7 @@ export class ExplanationView {
                 activeView = this;
                 this.currentRepeatedOf = navTargetFor(node, prefix);
                 this.m.menuGotoOriginal.style.display = this.currentRepeatedOf ? 'block' : 'none';
+                this.updateNodeMenuItems(node);
                 this.m.explanationContextMenu.style.display = 'block';
                 this.m.explanationContextMenu.style.left = `${(e as MouseEvent).clientX}px`;
                 this.m.explanationContextMenu.style.top = `${(e as MouseEvent).clientY}px`;

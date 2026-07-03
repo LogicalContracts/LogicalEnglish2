@@ -200,11 +200,69 @@ export class ScenarioForm {
         return el;
     }
 
-    // --- Producing text --------------------------------------------------------
-    private factText(row: Row): string {
-        const base = row.templateLabel === null
+    // --- Patching from an explanation node -------------------------------------
+    // A fact's surface text as compared for add/remove (no "it is unknown whether"
+    // prefix, no trailing period): the raw line, or the template filled with values.
+    private factBase(row: Row): string {
+        return row.templateLabel === null
             ? row.raw.trim().replace(/\.\s*$/, '').trim()
             : fillTemplate(row.templateLabel, row.values);
+    }
+
+    private static norm(text: string): string {
+        return text.trim().replace(/\.\s*$/, '').replace(/\s+/g, ' ').trim().toLowerCase();
+    }
+
+    // Add a scenario fact from an explanation node's surface text (the LE literal).
+    // If the fact is already present, only its "assumed" flag is updated. `assumed`
+    // adds it as "it is unknown whether …" — the equivalent of the Assume checkbox.
+    // Returns false if the text was empty (nothing done).
+    addFact(text: string, assumed = false): boolean {
+        const base = (text || '').trim().replace(/\.\s*$/, '').trim();
+        if (!base) return false;
+        const key = ScenarioForm.norm(base);
+        const existing = this.rows.find(r => ScenarioForm.norm(this.factBase(r)) === key);
+        let idx: number;
+        if (existing) {
+            existing.assumed = assumed;
+            idx = this.rows.indexOf(existing);
+        } else {
+            const m = matchFact(base, this.templates);
+            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '', assumed });
+            else this.rows.push({ templateLabel: null, values: [], raw: base, assumed });
+            idx = this.rows.length - 1;
+        }
+        this.changed();
+        this.render();
+        this.selectRow(idx);
+        return true;
+    }
+
+    // Highlight, reveal and focus a row (used after adding a fact from a tree node).
+    private selectRow(idx: number) {
+        const rowEl = this.opts.rowsEl.children[idx] as HTMLElement | undefined;
+        if (!rowEl) return;
+        this.opts.rowsEl.querySelectorAll('.fact-row.selected').forEach(e => e.classList.remove('selected'));
+        rowEl.classList.add('selected');
+        rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        (rowEl.querySelector('input.field') as HTMLInputElement | null)?.focus();
+    }
+
+    // Remove every scenario fact whose surface text matches `text` (ignoring an
+    // "it is unknown whether" prefix). Returns how many rows were removed.
+    removeFact(text: string): number {
+        const key = ScenarioForm.norm((text || '').trim().replace(/\.\s*$/, '').trim());
+        if (!key) return 0;
+        const before = this.rows.length;
+        this.rows = this.rows.filter(r => ScenarioForm.norm(this.factBase(r)) !== key);
+        const removed = before - this.rows.length;
+        if (removed > 0) { this.changed(); this.render(); }
+        return removed;
+    }
+
+    // --- Producing text --------------------------------------------------------
+    private factText(row: Row): string {
+        const base = this.factBase(row);
         if (!base) return '';
         return row.assumed ? `it is unknown whether ${base}` : base;
     }

@@ -63,6 +63,7 @@
         .row-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
         .row-tools .assume { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--muted); cursor: pointer; white-space: nowrap; }
         .fact-row.assumed input.field { font-style: italic; opacity: 0.7; }
+        .fact-row.selected { border-color: var(--answer-selected-bg); box-shadow: 0 0 0 1px var(--answer-selected-bg); }
         .row-tools button { padding: 2px 8px; background: transparent; border-color: var(--input-border); color: var(--muted); }
         .row-tools button:hover { color: var(--text-color); }
         .empty-hint { color: var(--muted); font-style: italic; padding: 10px 0; }
@@ -166,6 +167,8 @@
     <div id="answer-tooltip"></div>
     <div id="explanation-context-menu" class="context-menu">
         <div class="dropdown-item" id="menu-goto-original" style="display: none;">Go to full sub-explanation</div>
+        <div class="dropdown-item" id="menu-patch-scenario" style="display: none;">Patch scenario</div>
+        <div class="dropdown-item" id="menu-assume-fact" style="display: none;">Assume fact</div>
         <div class="dropdown-item" id="menu-copy-explanation">Copy Explanation</div>
     </div>
     <div id="explanation-title-menu" class="context-menu">

@@ -173,7 +173,7 @@ var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
 var isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
 var UNKNOWN_PREFIX = /^it is (?:unknown|assumed|assumable) whether\s+/i;
 var DEFAULT_ASSUME_TITLE = "if checked, fact is assumed, unknown";
-var ScenarioForm = class {
+var ScenarioForm = class _ScenarioForm {
   templates;
   // all templates (for recognising facts)
   addableTemplates;
@@ -341,9 +341,70 @@ var ScenarioForm = class {
     el.appendChild(tools);
     return el;
   }
+  // --- Patching from an explanation node -------------------------------------
+  // A fact's surface text as compared for add/remove (no "it is unknown whether"
+  // prefix, no trailing period): the raw line, or the template filled with values.
+  factBase(row) {
+    return row.templateLabel === null ? row.raw.trim().replace(/\.\s*$/, "").trim() : fillTemplate(row.templateLabel, row.values);
+  }
+  static norm(text) {
+    return text.trim().replace(/\.\s*$/, "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+  // Add a scenario fact from an explanation node's surface text (the LE literal).
+  // If the fact is already present, only its "assumed" flag is updated. `assumed`
+  // adds it as "it is unknown whether …" — the equivalent of the Assume checkbox.
+  // Returns false if the text was empty (nothing done).
+  addFact(text, assumed = false) {
+    const base = (text || "").trim().replace(/\.\s*$/, "").trim();
+    if (!base)
+      return false;
+    const key = _ScenarioForm.norm(base);
+    const existing = this.rows.find((r) => _ScenarioForm.norm(this.factBase(r)) === key);
+    let idx;
+    if (existing) {
+      existing.assumed = assumed;
+      idx = this.rows.indexOf(existing);
+    } else {
+      const m = matchFact(base, this.templates);
+      if (m)
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed });
+      else
+        this.rows.push({ templateLabel: null, values: [], raw: base, assumed });
+      idx = this.rows.length - 1;
+    }
+    this.changed();
+    this.render();
+    this.selectRow(idx);
+    return true;
+  }
+  // Highlight, reveal and focus a row (used after adding a fact from a tree node).
+  selectRow(idx) {
+    const rowEl = this.opts.rowsEl.children[idx];
+    if (!rowEl)
+      return;
+    this.opts.rowsEl.querySelectorAll(".fact-row.selected").forEach((e) => e.classList.remove("selected"));
+    rowEl.classList.add("selected");
+    rowEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    rowEl.querySelector("input.field")?.focus();
+  }
+  // Remove every scenario fact whose surface text matches `text` (ignoring an
+  // "it is unknown whether" prefix). Returns how many rows were removed.
+  removeFact(text) {
+    const key = _ScenarioForm.norm((text || "").trim().replace(/\.\s*$/, "").trim());
+    if (!key)
+      return 0;
+    const before = this.rows.length;
+    this.rows = this.rows.filter((r) => _ScenarioForm.norm(this.factBase(r)) !== key);
+    const removed = before - this.rows.length;
+    if (removed > 0) {
+      this.changed();
+      this.render();
+    }
+    return removed;
+  }
   // --- Producing text --------------------------------------------------------
   factText(row) {
-    const base = row.templateLabel === null ? row.raw.trim().replace(/\.\s*$/, "").trim() : fillTemplate(row.templateLabel, row.values);
+    const base = this.factBase(row);
     if (!base)
       return "";
     return row.assumed ? `it is unknown whether ${base}` : base;
@@ -409,9 +470,21 @@ function wireMenus(m) {
     activeView?.copyExplanation();
     m.explanationContextMenu.style.display = "none";
   });
+  m.menuPatchScenario?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.patchCurrentNode();
+    m.explanationContextMenu.style.display = "none";
+  });
+  m.menuAssumeFact?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.assumeCurrentNode();
+    m.explanationContextMenu.style.display = "none";
+  });
 }
 var ExplanationView = class {
   currentAnswerToCopy = "";
+  // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
+  currentMenuNode = null;
   o;
   m;
   lastWhy = null;
@@ -613,6 +686,33 @@ var ExplanationView = class {
     tip.style.left = `${Math.max(0, x)}px`;
     tip.style.top = `${Math.max(0, y)}px`;
   }
+  // --- Patch-scenario context-menu actions (Scenario Variations only) --------
+  patchCurrentNode() {
+    if (this.currentMenuNode)
+      this.o.onPatchScenario?.(this.currentMenuNode);
+  }
+  assumeCurrentNode() {
+    if (this.currentMenuNode)
+      this.o.onAssumeFact?.(this.currentMenuNode);
+  }
+  // Show/label the node-specific menu items for the right-clicked node (or hide
+  // them when there is no node, e.g. a background right-click). "Patch scenario"
+  // adds the fact for a failed node and deletes it for a succeeded one; "Assume
+  // fact" is offered only for failed nodes.
+  updateNodeMenuItems(node) {
+    this.currentMenuNode = node;
+    const isFailure = node?.type === "failure";
+    const patch = this.m.menuPatchScenario;
+    if (patch) {
+      const show = !!(node && this.o.onPatchScenario);
+      patch.style.display = show ? "block" : "none";
+      if (show)
+        patch.textContent = isFailure ? "Patch scenario \u2014 add this fact" : "Patch scenario \u2014 delete this fact";
+    }
+    const assume = this.m.menuAssumeFact;
+    if (assume)
+      assume.style.display = node && isFailure && this.o.onAssumeFact ? "block" : "none";
+  }
   // --- Copy / navigate context-menu actions ----------------------------------
   gotoOriginal() {
     if (this.currentRepeatedOf) {
@@ -721,6 +821,7 @@ var ExplanationView = class {
         activeView = this;
         this.currentRepeatedOf = null;
         this.m.menuGotoOriginal.style.display = "none";
+        this.updateNodeMenuItems(null);
         this.m.explanationContextMenu.style.display = "block";
         this.m.explanationContextMenu.style.left = `${e.clientX}px`;
         this.m.explanationContextMenu.style.top = `${e.clientY}px`;
@@ -784,6 +885,7 @@ var ExplanationView = class {
         activeView = this;
         this.currentRepeatedOf = navTargetFor(node, prefix);
         this.m.menuGotoOriginal.style.display = this.currentRepeatedOf ? "block" : "none";
+        this.updateNodeMenuItems(node);
         this.m.explanationContextMenu.style.display = "block";
         this.m.explanationContextMenu.style.left = `${e.clientX}px`;
         this.m.explanationContextMenu.style.top = `${e.clientY}px`;
@@ -903,7 +1005,31 @@ async function initScenarioVariations() {
     answerTooltip: $("answer-tooltip"),
     titleMenu: $("explanation-title-menu"),
     menuShowStrongest: $("menu-show-strongest"),
-    menuExplanationDrill: $("menu-explanation-drill")
+    menuExplanationDrill: $("menu-explanation-drill"),
+    menuPatchScenario: $("menu-patch-scenario"),
+    menuAssumeFact: $("menu-assume-fact")
+  };
+  const nodeFactText = (node) => node && typeof node.literal === "string" ? node.literal.trim() : "";
+  const onPatchScenario = (node) => {
+    const fact = nodeFactText(node);
+    if (!fact)
+      return;
+    if (node.type === "failure") {
+      form.addFact(fact, false);
+      setStatus(`Added to scenario: ${fact}`);
+    } else {
+      const removed = form.removeFact(fact);
+      setStatus(removed > 0 ? `Deleted from scenario: ${fact}` : `No matching scenario fact to delete: ${fact}`);
+    }
+    void runAll();
+  };
+  const onAssumeFact = (node) => {
+    const fact = nodeFactText(node);
+    if (!fact)
+      return;
+    form.addFact(fact, true);
+    setStatus(`Assuming (unknown, true) in scenario: ${fact}`);
+    void runAll();
   };
   const openDrill = (w) => {
     localStorage.setItem("le_explanation_drill_data", JSON.stringify({ source, sessionModule, kbName, why: w }));
@@ -963,7 +1089,9 @@ async function initScenarioVariations() {
       explanationTitle: eTitle,
       hierarchicalNumbering: hierarchical,
       onNavigate: navigate,
-      onOpenDrill: openDrill
+      onOpenDrill: openDrill,
+      onPatchScenario,
+      onAssumeFact
     });
     const entry = { name, card, view };
     remove.addEventListener("click", () => {
@@ -1033,7 +1161,7 @@ async function initScenarioVariations() {
     }
     entry.view.showResults(res);
   }
-  btnRun.addEventListener("click", async () => {
+  async function runAll() {
     if (queryCards.length === 0) {
       setStatus("Add a query first.");
       return;
@@ -1047,7 +1175,8 @@ async function initScenarioVariations() {
     for (const entry of queryCards)
       await runOne(entry);
     setStatus(`Ran ${queryCards.length} quer${queryCards.length > 1 ? "ies" : "y"}`);
-  });
+  }
+  btnRun.addEventListener("click", runAll);
   $("btn-copy-scenario").addEventListener("click", async () => {
     const name = picker.value || "variation";
     const text = form.blockText(name);
