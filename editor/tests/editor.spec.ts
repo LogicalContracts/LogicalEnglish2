@@ -39,6 +39,16 @@ scenario mary is:
 query happy is:
 	which dragon is happy.`;
 
+// A program whose query renders to well over 70 characters, to exercise the query
+// picker's truncation.
+const LONG_QUERY = `the target language is: prolog.
+the templates are:
+    *a person* is a very important and highly distinguished long-standing member of the committee.
+the knowledge base test includes:
+    alice is a very important and highly distinguished long-standing member of the committee.
+query long is:
+    which person is a very important and highly distinguished long-standing member of the committee.`;
+
 test.describe('Logical English Editor', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('./index.html');
@@ -47,6 +57,30 @@ test.describe('Logical English Editor', () => {
   test('should load the editor', async ({ page }) => {
     await expect(page.locator('#container')).toBeVisible();
     await expect(page.locator('h1')).toContainText('LE Editor');
+  });
+
+  test('truncates a long query in the picker and keeps the full text as a tooltip', async ({ page }) => {
+    test.setTimeout(60000);
+    await page.goto('index.html?text=' + encodeURIComponent(LONG_QUERY));
+    // Wait until the 'le' Monarch language is registered (the app has initialised).
+    await page.waitForFunction(() =>
+      typeof (window as any).monaco !== 'undefined' &&
+      (window as any).monaco.languages.getLanguages().some((l: any) => l.id === 'le')
+    );
+    await page.waitForTimeout(800);
+    await page.locator('#scenario-select').hover();   // triggers the module load
+    await expect.poll(() => page.locator('#query-select option').count(), { timeout: 30000 }).toBeGreaterThan(1);
+
+    const option = page.locator('#query-select option', { hasText: '...(long)' });
+    await expect(option).toHaveCount(1);
+    const text = (await option.textContent()) || '';
+    const suffix = '...(long)';
+    expect(text.endsWith(suffix)).toBe(true);
+    expect(text.length).toBeLessThanOrEqual(70 + suffix.length);
+    // The full, untruncated query is preserved as the option's tooltip.
+    const title = (await option.getAttribute('title')) || '';
+    expect(title.length).toBeGreaterThan(70);
+    expect(title).toContain('member of the committee');
   });
 
   test('should switch themes', async ({ page }) => {

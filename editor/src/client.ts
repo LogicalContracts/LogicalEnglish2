@@ -1354,7 +1354,18 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
                         // q is now an object with name, template, and le
                         option.value = q.name;
                         const label = q.le || q.template;
-                        option.textContent = q.name ? `${label} (${q.name})` : label;
+                        const full = q.name ? `${label} (${q.name})` : label;
+                        // Long queries make the picker so wide it pushes the panel
+                        // buttons off screen: truncate the query text to 70 chars,
+                        // suffix "...(name)", and keep the full text as a tooltip.
+                        const MAX_QUERY_LABEL = 70;
+                        if (label.length > MAX_QUERY_LABEL) {
+                            const suffix = q.name ? `...(${q.name})` : '...';
+                            option.textContent = label.slice(0, MAX_QUERY_LABEL).trimEnd() + suffix;
+                        } else {
+                            option.textContent = full;
+                        }
+                        option.title = full;
                         option.dataset.template = q.template;
                         querySelect.appendChild(option);
                     });
