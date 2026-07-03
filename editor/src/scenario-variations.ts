@@ -136,6 +136,10 @@ export async function initScenarioVariations() {
         setStatus(`Assuming (unknown, true) in scenario: ${fact}`);
         void runAll();
     };
+    // "Delete this fact" is offered only on a succeeded node that is an actual scenario
+    // fact; "add"/"assume" only on a failed node whose literal is a real template.
+    const canDeleteScenarioFact = (node: any) => form.hasFact(nodeFactText(node));
+    const canAddScenarioFact = (node: any) => form.matchesTemplate(nodeFactText(node));
     const openDrill = (w: any) => {
         // The drill runs its own session from the program source (independent of ours).
         localStorage.setItem('le_explanation_drill_data', JSON.stringify({ source, sessionModule, kbName, why: w }));
@@ -199,6 +203,7 @@ export async function initScenarioVariations() {
             explanationTitle: eTitle,
             hierarchicalNumbering: hierarchical, onNavigate: navigate,
             onOpenDrill: openDrill, onPatchScenario, onAssumeFact,
+            canDeleteScenarioFact, canAddScenarioFact,
         });
         const entry: QueryCard = { name, card, view };
         remove.addEventListener('click', () => {

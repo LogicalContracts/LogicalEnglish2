@@ -34,6 +34,11 @@ export interface ExplanationViewOptions {
     // (failed nodes) adds it as an assumed unknown. Absent => the items are not shown.
     onPatchScenario?: (node: any) => void;
     onAssumeFact?: (node: any) => void;
+    // Gate the node menu items: "delete this fact" is offered on a succeeded node only
+    // when it corresponds to a current scenario fact; "add this fact" / "Assume fact"
+    // on a failed node only when its literal is a real template. Absent => always show.
+    canDeleteScenarioFact?: (node: any) => boolean;
+    canAddScenarioFact?: (node: any) => boolean;
 }
 
 let activeView: ExplanationView | null = null;
@@ -277,16 +282,25 @@ export class ExplanationView {
     private updateNodeMenuItems(node: any) {
         this.currentMenuNode = node;
         const isFailure = node?.type === 'failure';
+        let showPatch = false, patchLabel = '';
+        if (node && this.o.onPatchScenario) {
+            if (isFailure) {
+                showPatch = this.o.canAddScenarioFact ? this.o.canAddScenarioFact(node) : true;
+                patchLabel = 'Patch scenario — add this fact';
+            } else {
+                showPatch = this.o.canDeleteScenarioFact ? this.o.canDeleteScenarioFact(node) : true;
+                patchLabel = 'Patch scenario — delete this fact';
+            }
+        }
         const patch = this.m.menuPatchScenario;
         if (patch) {
-            const show = !!(node && this.o.onPatchScenario);
-            patch.style.display = show ? 'block' : 'none';
-            if (show) patch.textContent = isFailure
-                ? 'Patch scenario — add this fact'
-                : 'Patch scenario — delete this fact';
+            patch.style.display = showPatch ? 'block' : 'none';
+            if (showPatch) patch.textContent = patchLabel;
         }
+        const showAssume = !!(node && isFailure && this.o.onAssumeFact
+            && (this.o.canAddScenarioFact ? this.o.canAddScenarioFact(node) : true));
         const assume = this.m.menuAssumeFact;
-        if (assume) assume.style.display = (node && isFailure && this.o.onAssumeFact) ? 'block' : 'none';
+        if (assume) assume.style.display = showAssume ? 'block' : 'none';
     }
 
     // --- Copy / navigate context-menu actions ----------------------------------
