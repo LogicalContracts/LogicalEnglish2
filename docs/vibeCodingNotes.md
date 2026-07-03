@@ -1973,3 +1973,12 @@ The "Trace" experience in window "LE Debugger" is not good enough:
 docs/papers/LE2paperDraft.md was written before a number of system improvements. Write a docs/papers/LE2paperAppendix.md  describing major LE features added since the paper was written.
 
 I think some of the items in docs/papers/LE2paperAppendix.md are proprietary (if they depend on code in le_extensions.pl). Just add a "not in open source version" warning to those
+
+## Patching scenario variations
+In Scenario Variations, in red (failed) nodes in the explanation and green(succeeded), let the user Right click and and have a menu item for "Patch scenario"; if chosen this resp. adds a match scenario fact, or deletes it; for red (failed) nodes, add also an "Assume fact", the equivalent of clicking the assume checkbox.
+Furthermore, select the fact (if added), and automatically re-run the Query
+
+on example citizenship.le, scenario alice_harry, query one, in Scenario Variations if I select a (green) fact in the        
+  explanation tree and "Patch Scenario - Delete Fact", the fact is not deleted from theSCENARIOS FACTS list. Also only        
+  explanation nodes matching scenario facts should have the menu item active. And when you delete a scenario fact, reexecute  
+  the Query immediately                                                                                                       

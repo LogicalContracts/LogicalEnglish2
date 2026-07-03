@@ -178,4 +178,38 @@ test.describe('Scenario Variations', () => {
         await expect(assumedRow).toHaveClass(/selected/);
         await expect(v.locator('#status')).toContainText('Ran', { timeout: 30000 });
     });
+
+    test('Delete matches date facts and skips derived nodes (alice_harry)', async ({ page }) => {
+        test.setTimeout(60000);
+        const v = await openVariations(page);
+
+        // Switch to alice_harry, whose proof of "one" mixes date-bearing scenario facts
+        // (born/settled) with a rule-derived node ("Harry is the father of John").
+        await v.selectOption('#scenario-picker', 'alice_harry');
+        await expect(v.locator('.fact-row', { hasText: 'is born in' })).toHaveCount(1);
+        await v.locator('#btn-run').click();
+        await expect(v.locator('.query-card .answer-item').first()).toContainText(
+            'John acquires British citizenship', { timeout: 30000 });
+
+        const patch = v.locator('#menu-patch-scenario');
+
+        // The rule-derived "Harry is the father of John" node is green but is NOT a
+        // scenario fact, so it offers no "delete this fact".
+        const derived = v.locator('.query-card .tree-text').filter({ hasText: /^Harry is the father of John$/ }).first();
+        await derived.click({ button: 'right' });
+        await expect(patch).toBeHidden();
+        await page.keyboard.press('Escape');
+
+        // The date-bearing scenario fact "John is born in the UK on 2021-10-09" renders in
+        // the explanation as "…2021-10-9T0:0:0.0"; delete must still match it (date-tolerant)
+        // and, being required for citizenship, its removal auto-re-runs the query to failure.
+        const bornNode = v.locator('.query-card .tree-text').filter({ hasText: /is born in the UK/ }).first();
+        await bornNode.click({ button: 'right' });
+        await expect(patch).toBeVisible();
+        await expect(patch).toHaveText(/delete this fact/);
+        await patch.click();
+        await expect(v.locator('.fact-row', { hasText: 'is born in' })).toHaveCount(0);
+        await expect(v.locator('.query-card .answer-item.failure')).toContainText(
+            'No answers', { timeout: 30000 });
+    });
 });

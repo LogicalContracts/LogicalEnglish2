@@ -209,8 +209,29 @@ export class ScenarioForm {
             : fillTemplate(row.templateLabel, row.values);
     }
 
+    // Normalise a fact's text for add/remove comparison. Besides trimming, dropping a
+    // trailing period and collapsing whitespace, it canonicalises date tokens so a
+    // scenario fact written "2021-10-09" matches the explanation's rendered
+    // "2021-10-9T0:0:0.0" (same calendar date, different surface form).
     private static norm(text: string): string {
-        return text.trim().replace(/\.\s*$/, '').replace(/\s+/g, ' ').trim().toLowerCase();
+        let s = text.trim().replace(/\.\s*$/, '').replace(/\s+/g, ' ').trim().toLowerCase();
+        s = s.replace(/\b(\d{1,4})-(\d{1,2})-(\d{1,2})(t[\d:.]*)?/g,
+            (_m, y, mo, d) => `${+y}-${+mo}-${+d}`);
+        return s;
+    }
+
+    // Does a scenario fact matching `text` currently exist? (date-tolerant)
+    hasFact(text: string): boolean {
+        const key = ScenarioForm.norm((text || '').trim().replace(/\.\s*$/, '').trim());
+        if (!key) return false;
+        return this.rows.some(r => ScenarioForm.norm(this.factBase(r)) === key);
+    }
+
+    // Is `text` a sensible scenario fact to add — i.e. does it instantiate one of the
+    // program's templates? (Compound/negated explanation literals do not.)
+    matchesTemplate(text: string): boolean {
+        const base = (text || '').trim().replace(/\.\s*$/, '').trim();
+        return !!base && !!matchFact(base, this.templates);
     }
 
     // Add a scenario fact from an explanation node's surface text (the LE literal).

@@ -8248,16 +8248,26 @@ var ExplanationView = class {
   updateNodeMenuItems(node) {
     this.currentMenuNode = node;
     const isFailure = node?.type === "failure";
+    let showPatch = false, patchLabel = "";
+    if (node && this.o.onPatchScenario) {
+      if (isFailure) {
+        showPatch = this.o.canAddScenarioFact ? this.o.canAddScenarioFact(node) : true;
+        patchLabel = "Patch scenario \u2014 add this fact";
+      } else {
+        showPatch = this.o.canDeleteScenarioFact ? this.o.canDeleteScenarioFact(node) : true;
+        patchLabel = "Patch scenario \u2014 delete this fact";
+      }
+    }
     const patch = this.m.menuPatchScenario;
     if (patch) {
-      const show2 = !!(node && this.o.onPatchScenario);
-      patch.style.display = show2 ? "block" : "none";
-      if (show2)
-        patch.textContent = isFailure ? "Patch scenario \u2014 add this fact" : "Patch scenario \u2014 delete this fact";
+      patch.style.display = showPatch ? "block" : "none";
+      if (showPatch)
+        patch.textContent = patchLabel;
     }
+    const showAssume = !!(node && isFailure && this.o.onAssumeFact && (this.o.canAddScenarioFact ? this.o.canAddScenarioFact(node) : true));
     const assume = this.m.menuAssumeFact;
     if (assume)
-      assume.style.display = node && isFailure && this.o.onAssumeFact ? "block" : "none";
+      assume.style.display = showAssume ? "block" : "none";
   }
   // --- Copy / navigate context-menu actions ----------------------------------
   gotoOriginal() {
