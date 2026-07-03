@@ -109,6 +109,32 @@ export async function initScenarioVariations() {
         titleMenu: $('explanation-title-menu'),
         menuShowStrongest: $('menu-show-strongest'),
         menuExplanationDrill: $('menu-explanation-drill'),
+        menuPatchScenario: $('menu-patch-scenario'),
+        menuAssumeFact: $('menu-assume-fact'),
+    };
+    // Patch the shared scenario form from a right-clicked explanation node. A failed
+    // node's fact is added (so a re-run can prove it); a succeeded node's fact is
+    // deleted; "Assume fact" (failed nodes) adds it as an assumed unknown. Editing the
+    // form marks the run stale, so the user re-runs with the Query button.
+    const nodeFactText = (node: any): string => (node && typeof node.literal === 'string' ? node.literal.trim() : '');
+    const onPatchScenario = (node: any) => {
+        const fact = nodeFactText(node);
+        if (!fact) return;
+        if (node.type === 'failure') {
+            form.addFact(fact, false);        // selects the added row
+            setStatus(`Added to scenario: ${fact}`);
+        } else {
+            const removed = form.removeFact(fact);
+            setStatus(removed > 0 ? `Deleted from scenario: ${fact}` : `No matching scenario fact to delete: ${fact}`);
+        }
+        void runAll();                        // re-run so the effect of the patch is visible
+    };
+    const onAssumeFact = (node: any) => {
+        const fact = nodeFactText(node);
+        if (!fact) return;
+        form.addFact(fact, true);             // selects the added row
+        setStatus(`Assuming (unknown, true) in scenario: ${fact}`);
+        void runAll();
     };
     const openDrill = (w: any) => {
         // The drill runs its own session from the program source (independent of ours).
@@ -172,7 +198,7 @@ export async function initScenarioVariations() {
             answersList, explanationTree, menus, failedNodePrefix,
             explanationTitle: eTitle,
             hierarchicalNumbering: hierarchical, onNavigate: navigate,
-            onOpenDrill: openDrill,
+            onOpenDrill: openDrill, onPatchScenario, onAssumeFact,
         });
         const entry: QueryCard = { name, card, view };
         remove.addEventListener('click', () => {
@@ -243,7 +269,7 @@ export async function initScenarioVariations() {
         entry.view.showResults(res);
     }
 
-    btnRun.addEventListener('click', async () => {
+    async function runAll() {
         if (queryCards.length === 0) { setStatus('Add a query first.'); return; }
         if (!(await ensureSession())) { setStatus('Could not load the program on the server.'); return; }
         btnRun.disabled = true;
@@ -251,7 +277,8 @@ export async function initScenarioVariations() {
         // Sequential: each query re-applies the custom scenario to the session.
         for (const entry of queryCards) await runOne(entry);
         setStatus(`Ran ${queryCards.length} quer${queryCards.length > 1 ? 'ies' : 'y'}`);
-    });
+    }
+    btnRun.addEventListener('click', runAll);
 
     // --- Copy Scenario ---------------------------------------------------------
     $('btn-copy-scenario').addEventListener('click', async () => {

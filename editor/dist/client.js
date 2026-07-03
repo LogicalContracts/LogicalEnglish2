@@ -8016,9 +8016,21 @@ function wireMenus(m) {
     activeView?.copyExplanation();
     m.explanationContextMenu.style.display = "none";
   });
+  m.menuPatchScenario?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.patchCurrentNode();
+    m.explanationContextMenu.style.display = "none";
+  });
+  m.menuAssumeFact?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.assumeCurrentNode();
+    m.explanationContextMenu.style.display = "none";
+  });
 }
 var ExplanationView = class {
   currentAnswerToCopy = "";
+  // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
+  currentMenuNode = null;
   o;
   m;
   lastWhy = null;
@@ -8220,6 +8232,33 @@ var ExplanationView = class {
     tip.style.left = `${Math.max(0, x2)}px`;
     tip.style.top = `${Math.max(0, y2)}px`;
   }
+  // --- Patch-scenario context-menu actions (Scenario Variations only) --------
+  patchCurrentNode() {
+    if (this.currentMenuNode)
+      this.o.onPatchScenario?.(this.currentMenuNode);
+  }
+  assumeCurrentNode() {
+    if (this.currentMenuNode)
+      this.o.onAssumeFact?.(this.currentMenuNode);
+  }
+  // Show/label the node-specific menu items for the right-clicked node (or hide
+  // them when there is no node, e.g. a background right-click). "Patch scenario"
+  // adds the fact for a failed node and deletes it for a succeeded one; "Assume
+  // fact" is offered only for failed nodes.
+  updateNodeMenuItems(node) {
+    this.currentMenuNode = node;
+    const isFailure = node?.type === "failure";
+    const patch = this.m.menuPatchScenario;
+    if (patch) {
+      const show2 = !!(node && this.o.onPatchScenario);
+      patch.style.display = show2 ? "block" : "none";
+      if (show2)
+        patch.textContent = isFailure ? "Patch scenario \u2014 add this fact" : "Patch scenario \u2014 delete this fact";
+    }
+    const assume = this.m.menuAssumeFact;
+    if (assume)
+      assume.style.display = node && isFailure && this.o.onAssumeFact ? "block" : "none";
+  }
   // --- Copy / navigate context-menu actions ----------------------------------
   gotoOriginal() {
     if (this.currentRepeatedOf) {
@@ -8328,6 +8367,7 @@ var ExplanationView = class {
         activeView = this;
         this.currentRepeatedOf = null;
         this.m.menuGotoOriginal.style.display = "none";
+        this.updateNodeMenuItems(null);
         this.m.explanationContextMenu.style.display = "block";
         this.m.explanationContextMenu.style.left = `${e.clientX}px`;
         this.m.explanationContextMenu.style.top = `${e.clientY}px`;
@@ -8391,6 +8431,7 @@ var ExplanationView = class {
         activeView = this;
         this.currentRepeatedOf = navTargetFor(node, prefix);
         this.m.menuGotoOriginal.style.display = this.currentRepeatedOf ? "block" : "none";
+        this.updateNodeMenuItems(node);
         this.m.explanationContextMenu.style.display = "block";
         this.m.explanationContextMenu.style.left = `${e.clientX}px`;
         this.m.explanationContextMenu.style.top = `${e.clientY}px`;
