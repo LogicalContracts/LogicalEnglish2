@@ -23,6 +23,7 @@ interface QRow {
     raw: string;                    // the text when templateLabel === null
     negated: boolean;               // "it is not the case that <condition>"
     connective: Connective;         // how this row joins to the PREVIOUS one (row 0: ignored)
+    indent: number;                 // indentation level — expresses and/or scoping in LE
 }
 
 export function initQueryEditor(data: QueryEditorData) {
@@ -64,7 +65,9 @@ export function initQueryEditor(data: QueryEditorData) {
     ($('btn-add') as HTMLButtonElement).addEventListener('click', () => {
         const val = addSelect.value;
         if (!val) return;
-        rows.push({ templateLabel: val, values: [], raw: '', negated: false, connective: 'and' });
+        // A new condition continues at the indentation of the one above it.
+        const indent = rows.length ? rows[rows.length - 1].indent : 0;
+        rows.push({ templateLabel: val, values: [], raw: '', negated: false, connective: 'and', indent });
         markDirty();
         render();
         (rowsEl.lastElementChild?.querySelector('input.field, input.raw') as HTMLInputElement | null)?.focus();
@@ -83,26 +86,53 @@ export function initQueryEditor(data: QueryEditorData) {
         picker.appendChild(o);
     });
 
+    // --- Indentation (and/or scoping) ------------------------------------------
+    // Width of a line's leading whitespace, tabs counted as 4 columns.
+    function leadWidth(s: string): number {
+        let w = 0;
+        for (const ch of s) { if (ch === ' ') w++; else if (ch === '\t') w += 4; else break; }
+        return w;
+    }
+    // Keep the indent levels well-formed: row 0 at level 0, and no row deeper than one
+    // level below the row above it (so the outline never skips a level).
+    function normalizeIndents() {
+        let prev = -1;
+        for (const r of rows) { r.indent = Math.max(0, Math.min(r.indent, prev + 1)); prev = r.indent; }
+    }
+
     // --- Parsing an existing query body into rows ------------------------------
-    // Best-effort: split the body on top-level " and "/" or ", strip any leading
-    // "it is not the case that", and match each part to a template. If EVERY part
-    // matches, use those structured rows; otherwise keep the whole body as ONE
-    // free-text row so a complex query (or a value containing "and"/"or") is never
-    // mangled — the user can still edit it.
-    function parseBody(body: string): QRow[] {
-        if (!body.trim()) return [];
-        const toks = body.split(/\s+(and|or)\s+/i);   // ["a","and","b","or","c"]
-        const parts: { connective: Connective; text: string }[] = [{ connective: 'and', text: toks[0] }];
-        for (let i = 1; i < toks.length; i += 2) {
-            parts.push({ connective: toks[i].toLowerCase() as Connective, text: toks[i + 1] ?? '' });
+    // Best-effort. Group the body's lines into conditions (a new condition begins on
+    // the first line or on a line starting with a connective; other lines continue the
+    // current condition), read the connective and the indentation level of each, and
+    // match each to a template. If EVERY condition matches, use those structured rows;
+    // otherwise keep the whole body as ONE free-text row so a complex query (or a value
+    // containing "and"/"or") is never mangled — the user can still edit it.
+    function parseBody(bodyLines: string[]): QRow[] {
+        if (bodyLines.length === 0) return [];
+        interface Cond { width: number; connective: Connective; text: string; }
+        const conds: Cond[] = [];
+        for (const raw of bodyLines) {
+            const trimmed = raw.trim();
+            const cm = trimmed.match(/^(and|or)\b\s*/i);
+            if (conds.length === 0) {
+                conds.push({ width: leadWidth(raw), connective: 'and', text: trimmed });
+            } else if (cm) {
+                conds.push({ width: leadWidth(raw), connective: cm[1].toLowerCase() as Connective, text: trimmed.slice(cm[0].length) });
+            } else {
+                conds[conds.length - 1].text += ' ' + trimmed;   // continuation
+            }
         }
+        conds[conds.length - 1].text = conds[conds.length - 1].text.replace(/\.\s*$/, '').trim();
+        // Map the distinct indentation widths to levels 0,1,2,…
+        const widths = [...new Set(conds.map(c => c.width))].sort((a, b) => a - b);
+        const wholeBody = bodyLines.map(l => l.trim()).join(' ').replace(/\.\s*$/, '').trim();
         const parsed: QRow[] = [];
-        for (const p of parts) {
-            const negated = NEG_PREFIX.test(p.text);
-            const inner = negated ? p.text.replace(NEG_PREFIX, '').trim() : p.text.trim();
+        for (const c of conds) {
+            const negated = NEG_PREFIX.test(c.text);
+            const inner = negated ? c.text.replace(NEG_PREFIX, '').trim() : c.text.trim();
             const m = matchFact(inner, templates);
-            if (!m) return [{ templateLabel: null, values: [], raw: body.trim(), negated: false, connective: 'and' }];
-            parsed.push({ templateLabel: m.label, values: m.values, raw: '', negated, connective: p.connective });
+            if (!m) return [{ templateLabel: null, values: [], raw: wholeBody, negated: false, connective: 'and', indent: 0 }];
+            parsed.push({ templateLabel: m.label, values: m.values, raw: '', negated, connective: c.connective, indent: widths.indexOf(c.width) });
         }
         return parsed;
     }
@@ -111,7 +141,8 @@ export function initQueryEditor(data: QueryEditorData) {
         const block = blockByName.get(name);
         loadedName = block ? block.name : '';
         nameInput.value = block ? block.name : '';
-        rows = block ? parseBody(block.body) : [];
+        rows = block ? parseBody(block.bodyLines) : [];
+        normalizeIndents();
         dirty = false;
         render();
         setStatus(block ? `Loaded query "${name}"` : '');
@@ -143,10 +174,41 @@ export function initQueryEditor(data: QueryEditorData) {
         rows.forEach((row, idx) => rowsEl.appendChild(renderRow(row, idx)));
     }
 
+    function indentRow(idx: number, delta: number) {
+        rows[idx].indent = Math.max(0, rows[idx].indent + delta);
+        normalizeIndents();
+        markDirty();
+        render();
+    }
+
     function renderRow(row: QRow, idx: number): HTMLElement {
         const el = document.createElement('div');
         el.className = 'fact-row';
         if (row.negated) el.classList.add('negated');
+        // Visual feedback for the and/or scoping: shift the row right by its level.
+        el.style.marginLeft = `${row.indent * 28}px`;
+        if (row.indent > 0) el.classList.add('indented');
+
+        // Indent / unindent controls (immediate). Can only go one level deeper than
+        // the row above, and not below level 0.
+        const maxIndent = idx > 0 ? rows[idx - 1].indent + 1 : 0;
+        const indentTools = document.createElement('div');
+        indentTools.className = 'indent-tools';
+        const outdent = document.createElement('button');
+        outdent.className = 'indent-btn';
+        outdent.textContent = '⇤';
+        outdent.title = 'Unindent (widen this condition’s scope)';
+        outdent.disabled = row.indent === 0;
+        outdent.addEventListener('click', () => indentRow(idx, -1));
+        const indent = document.createElement('button');
+        indent.className = 'indent-btn';
+        indent.textContent = '⇥';
+        indent.title = 'Indent (nest this condition to bind tighter)';
+        indent.disabled = row.indent >= maxIndent;
+        indent.addEventListener('click', () => indentRow(idx, +1));
+        indentTools.appendChild(outdent);
+        indentTools.appendChild(indent);
+        el.appendChild(indentTools);
 
         // Connective linking this row to the previous one (not on the first row).
         if (idx > 0) {
@@ -253,20 +315,22 @@ export function initQueryEditor(data: QueryEditorData) {
         if (!base) return '';
         return row.negated ? `it is not the case that ${base}` : base;
     }
-    // The body lines (each condition, prefixed by its connective except the first),
-    // skipping wholly-empty conditions.
+    // The body lines: each non-empty condition, indented per its level (4 spaces base
+    // + 4 per level) and prefixed by its connective (except the first). The trailing
+    // period terminates the whole statement.
     function bodyLines(): string[] {
         const out: string[] = [];
         rows.forEach((row) => {
             const c = condText(row);
             if (!c) return;
-            out.push(out.length === 0 ? c : `${row.connective} ${c}`);
+            const conn = out.length === 0 ? '' : `${row.connective} `;
+            out.push(`${' '.repeat(4 + row.indent * 4)}${conn}${c}`);
         });
         return out;
     }
     function blockText(name: string): string {
         const lines = bodyLines();
-        const body = lines.length ? lines.map(l => `    ${l}`).join('\n') : '    ';
+        const body = lines.length ? lines.join('\n') : '    ';
         return `query ${name} is:\n${body}.`;
     }
 

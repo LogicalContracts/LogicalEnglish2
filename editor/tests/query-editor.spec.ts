@@ -125,6 +125,54 @@ test.describe('Query Editor', () => {
         expect(copied).toBe('query teste is:\n    a person is the father of a person.');
     });
 
+    test('indent/unindent scopes conditions and round-trips through the text', async ({ page, context }) => {
+        await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+        await page.goto('index.html');
+        await page.evaluate((seed) => localStorage.setItem('le_query_editor_data', JSON.stringify(seed)), SEED);
+        await page.goto('query-editor.html');
+        await page.locator('#query-name').fill('q');
+
+        // Three conditions: happy AND rich OR likes chocolate, with the OR nested one
+        // level deeper so it scopes under "rich".
+        await page.locator('#add-template').selectOption({ label: 'a person is happy' });
+        await page.locator('#btn-add').click();
+        await page.locator('.fact-row').nth(0).locator('input.field').fill('a person');
+
+        await page.locator('#add-template').selectOption({ label: 'a person is rich' });
+        await page.locator('#btn-add').click();
+        await page.locator('.fact-row').nth(1).locator('input.field').fill('the person');
+
+        await page.locator('#add-template').selectOption({ label: 'a person likes a thing' });
+        await page.locator('#btn-add').click();
+        const row3 = page.locator('.fact-row').nth(2);
+        await row3.locator('input.field').nth(0).fill('the person');
+        await row3.locator('input.field').nth(1).fill('chocolate');
+        await row3.locator('select.connective').selectOption('or');
+
+        // Row 0 cannot indent; indent row 3 once (nest it under "rich").
+        await expect(page.locator('.fact-row').nth(0).locator('.indent-btn').first()).toBeDisabled();
+        await row3.locator('.indent-btn').nth(1).click();   // the ⇥ (indent) button
+        await expect(page.locator('.fact-row').nth(2)).toHaveClass(/indented/);
+
+        await page.locator('#btn-copy').click();
+        const copied = await page.evaluate(() => navigator.clipboard.readText());
+        expect(copied).toBe(
+            'query q is:\n' +
+            '    a person is happy\n' +
+            '    and the person is rich\n' +
+            '        or the person likes chocolate.'
+        );
+
+        // Round-trip: an indented query loads back with the same nesting.
+        const src = SEED.source + '\n\n' + copied;
+        await page.evaluate((s) => localStorage.setItem('le_query_editor_data', JSON.stringify({ source: s })), src);
+        await page.goto('query-editor.html');
+        await page.locator('#query-picker').selectOption('q');
+        await expect(page.locator('.fact-row')).toHaveCount(3);
+        await expect(page.locator('.fact-row').nth(2)).toHaveClass(/indented/);
+        await expect(page.locator('.fact-row').nth(1)).not.toHaveClass(/indented/);
+    });
+
     test('Insert into Editor replaces the query in the document', async ({ context }) => {
         // The real editor, seeded with the program via the URL text param.
         const editorPage = await context.newPage();

@@ -225,23 +225,24 @@ export function parseScenarioBlocks(source: string): ScenarioBlock[] {
 
 export interface QueryBlock {
     name: string;
-    start: number;   // char offset of the "query ..." header
-    end: number;     // char offset just past the block's last non-blank line
-    body: string;    // the query body statement, comments stripped, no trailing period
+    start: number;      // char offset of the "query ..." header
+    end: number;        // char offset just past the block's last non-blank line
+    body: string;       // the query body statement, comments stripped, no trailing period
+    bodyLines: string[]; // the body's lines, comments stripped, LEADING indentation kept
+                         // (so and/or scoping can be recovered), blank lines removed
 }
 
 // Parse all "query <name> is:" blocks from LE source. A query's body is a single
-// statement (a condition, possibly joined by and/or); we return it as one string
-// with comments stripped and the trailing period removed.
+// statement (conditions joined by and/or). `body` is the whole thing on one line;
+// `bodyLines` keeps each line with its indentation so the Query Editor can recover
+// the and/or scoping the indentation expresses.
 export function parseQueryBlocks(source: string): QueryBlock[] {
     return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map(b => {
-        const body = b.bodyLines
-            .map(l => stripInlineComment(l).trim())
-            .filter(t => t !== '')
-            .join(' ')
-            .replace(/\.\s*$/, '')
-            .trim();
-        return { name: b.name, start: b.start, end: b.end, body };
+        const bodyLines = b.bodyLines
+            .map(l => stripInlineComment(l).replace(/\s+$/, ''))   // keep leading indent, drop trailing
+            .filter(l => l.trim() !== '');
+        const body = bodyLines.map(l => l.trim()).join(' ').replace(/\.\s*$/, '').trim();
+        return { name: b.name, start: b.start, end: b.end, body, bodyLines };
     });
 }
 
