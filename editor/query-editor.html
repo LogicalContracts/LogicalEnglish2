@@ -93,6 +93,14 @@
             border-radius: 6px;
             padding: 8px 10px;
         }
+        .fact-row.indented { border-left: 3px solid var(--accent); }
+        .indent-tools { display: inline-flex; gap: 2px; margin-right: 2px; }
+        .indent-btn {
+            padding: 2px 6px; line-height: 1.1; background: transparent;
+            border-color: var(--input-border); color: var(--muted);
+        }
+        .indent-btn:hover:not(:disabled) { color: var(--text-color); }
+        .indent-btn:disabled { opacity: 0.35; cursor: default; }
         .fact-row .word { white-space: nowrap; }
         .fact-row input.field, .fact-row input.raw {
             background: var(--field-bg);
@@ -149,7 +157,7 @@
     </header>
 
     <div id="main">
-        <div id="join-hint">Conditions are combined top to bottom — pick <b>and</b> / <b>or</b> before each one (<b>and</b> by default). Tick <b>not</b> to negate a condition.</div>
+        <div id="join-hint">Conditions are combined top to bottom — pick <b>and</b> / <b>or</b> before each one (<b>and</b> by default). Tick <b>not</b> to negate a condition. Use <b>⇥</b> / <b>⇤</b> to indent a condition, which nests it (binds tighter) for and/or scoping.</div>
         <div id="rows"></div>
         <div id="add-bar">
             <label for="add-template">Add condition</label>

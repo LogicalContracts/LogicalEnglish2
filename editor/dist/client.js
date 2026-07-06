@@ -7953,8 +7953,9 @@ function parseScenarioBlocks(source) {
 }
 function parseQueryBlocks(source) {
   return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map((b) => {
-    const body = b.bodyLines.map((l) => stripInlineComment(l).trim()).filter((t) => t !== "").join(" ").replace(/\.\s*$/, "").trim();
-    return { name: b.name, start: b.start, end: b.end, body };
+    const bodyLines = b.bodyLines.map((l) => stripInlineComment(l).replace(/\s+$/, "")).filter((l) => l.trim() !== "");
+    const body = bodyLines.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
+    return { name: b.name, start: b.start, end: b.end, body, bodyLines };
   });
 }
 function stripInlineComment(line) {

@@ -143,8 +143,9 @@ function scanBlocks(source, headerRe) {
 }
 function parseQueryBlocks(source) {
   return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map((b) => {
-    const body = b.bodyLines.map((l) => stripInlineComment(l).trim()).filter((t) => t !== "").join(" ").replace(/\.\s*$/, "").trim();
-    return { name: b.name, start: b.start, end: b.end, body };
+    const bodyLines = b.bodyLines.map((l) => stripInlineComment(l).replace(/\s+$/, "")).filter((l) => l.trim() !== "");
+    const body = bodyLines.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
+    return { name: b.name, start: b.start, end: b.end, body, bodyLines };
   });
 }
 function stripInlineComment(line) {
@@ -197,7 +198,8 @@ function initQueryEditor(data) {
     const val = addSelect.value;
     if (!val)
       return;
-    rows.push({ templateLabel: val, values: [], raw: "", negated: false, connective: "and" });
+    const indent = rows.length ? rows[rows.length - 1].indent : 0;
+    rows.push({ templateLabel: val, values: [], raw: "", negated: false, connective: "and", indent });
     markDirty();
     render();
     rowsEl.lastElementChild?.querySelector("input.field, input.raw")?.focus();
@@ -213,22 +215,51 @@ function initQueryEditor(data) {
     o.textContent = b.name;
     picker.appendChild(o);
   });
-  function parseBody(body) {
-    if (!body.trim())
-      return [];
-    const toks = body.split(/\s+(and|or)\s+/i);
-    const parts = [{ connective: "and", text: toks[0] }];
-    for (let i = 1; i < toks.length; i += 2) {
-      parts.push({ connective: toks[i].toLowerCase(), text: toks[i + 1] ?? "" });
+  function leadWidth(s) {
+    let w = 0;
+    for (const ch of s) {
+      if (ch === " ")
+        w++;
+      else if (ch === "	")
+        w += 4;
+      else
+        break;
     }
+    return w;
+  }
+  function normalizeIndents() {
+    let prev = -1;
+    for (const r of rows) {
+      r.indent = Math.max(0, Math.min(r.indent, prev + 1));
+      prev = r.indent;
+    }
+  }
+  function parseBody(bodyLines2) {
+    if (bodyLines2.length === 0)
+      return [];
+    const conds = [];
+    for (const raw of bodyLines2) {
+      const trimmed = raw.trim();
+      const cm = trimmed.match(/^(and|or)\b\s*/i);
+      if (conds.length === 0) {
+        conds.push({ width: leadWidth(raw), connective: "and", text: trimmed });
+      } else if (cm) {
+        conds.push({ width: leadWidth(raw), connective: cm[1].toLowerCase(), text: trimmed.slice(cm[0].length) });
+      } else {
+        conds[conds.length - 1].text += " " + trimmed;
+      }
+    }
+    conds[conds.length - 1].text = conds[conds.length - 1].text.replace(/\.\s*$/, "").trim();
+    const widths = [...new Set(conds.map((c) => c.width))].sort((a, b) => a - b);
+    const wholeBody = bodyLines2.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
     const parsed = [];
-    for (const p of parts) {
-      const negated = NEG_PREFIX.test(p.text);
-      const inner = negated ? p.text.replace(NEG_PREFIX, "").trim() : p.text.trim();
+    for (const c of conds) {
+      const negated = NEG_PREFIX.test(c.text);
+      const inner = negated ? c.text.replace(NEG_PREFIX, "").trim() : c.text.trim();
       const m = matchFact(inner, templates);
       if (!m)
-        return [{ templateLabel: null, values: [], raw: body.trim(), negated: false, connective: "and" }];
-      parsed.push({ templateLabel: m.label, values: m.values, raw: "", negated, connective: p.connective });
+        return [{ templateLabel: null, values: [], raw: wholeBody, negated: false, connective: "and", indent: 0 }];
+      parsed.push({ templateLabel: m.label, values: m.values, raw: "", negated, connective: c.connective, indent: widths.indexOf(c.width) });
     }
     return parsed;
   }
@@ -236,7 +267,8 @@ function initQueryEditor(data) {
     const block = blockByName.get(name);
     loadedName = block ? block.name : "";
     nameInput.value = block ? block.name : "";
-    rows = block ? parseBody(block.body) : [];
+    rows = block ? parseBody(block.bodyLines) : [];
+    normalizeIndents();
     dirty = false;
     render();
     setStatus(block ? `Loaded query "${name}"` : "");
@@ -264,11 +296,38 @@ function initQueryEditor(data) {
     }
     rows.forEach((row, idx) => rowsEl.appendChild(renderRow(row, idx)));
   }
+  function indentRow(idx, delta) {
+    rows[idx].indent = Math.max(0, rows[idx].indent + delta);
+    normalizeIndents();
+    markDirty();
+    render();
+  }
   function renderRow(row, idx) {
     const el = document.createElement("div");
     el.className = "fact-row";
     if (row.negated)
       el.classList.add("negated");
+    el.style.marginLeft = `${row.indent * 28}px`;
+    if (row.indent > 0)
+      el.classList.add("indented");
+    const maxIndent = idx > 0 ? rows[idx - 1].indent + 1 : 0;
+    const indentTools = document.createElement("div");
+    indentTools.className = "indent-tools";
+    const outdent = document.createElement("button");
+    outdent.className = "indent-btn";
+    outdent.textContent = "\u21E4";
+    outdent.title = "Unindent (widen this condition\u2019s scope)";
+    outdent.disabled = row.indent === 0;
+    outdent.addEventListener("click", () => indentRow(idx, -1));
+    const indent = document.createElement("button");
+    indent.className = "indent-btn";
+    indent.textContent = "\u21E5";
+    indent.title = "Indent (nest this condition to bind tighter)";
+    indent.disabled = row.indent >= maxIndent;
+    indent.addEventListener("click", () => indentRow(idx, 1));
+    indentTools.appendChild(outdent);
+    indentTools.appendChild(indent);
+    el.appendChild(indentTools);
     if (idx > 0) {
       const conn = document.createElement("select");
       conn.className = "connective";
@@ -388,13 +447,14 @@ function initQueryEditor(data) {
       const c = condText(row);
       if (!c)
         return;
-      out.push(out.length === 0 ? c : `${row.connective} ${c}`);
+      const conn = out.length === 0 ? "" : `${row.connective} `;
+      out.push(`${" ".repeat(4 + row.indent * 4)}${conn}${c}`);
     });
     return out;
   }
   function blockText(name) {
     const lines = bodyLines();
-    const body = lines.length ? lines.map((l) => `    ${l}`).join("\n") : "    ";
+    const body = lines.length ? lines.join("\n") : "    ";
     return `query ${name} is:
 ${body}.`;
   }
