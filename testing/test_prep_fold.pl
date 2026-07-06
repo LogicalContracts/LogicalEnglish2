@@ -50,4 +50,12 @@ test(rule_head_prep_goals_in_textual_order) :-
     functor(First, F, _),
     assertion(F == under).
 
+% "; composite" is accepted as a synonym for "; prepositional": the template's dict
+% carries the prepositional marker just the same.
+test(composite_is_synonym_for_prepositional) :-
+    Text = "the templates are:\n    *a payment* under *a policy*; composite.\n",
+    le_kbs:load_text(Text, KB),
+    once(KB:le_dict(dict([under|_], _, _, _, _, Prep, _))),
+    assertion(Prep == prepositional).
+
 :- end_tests(prep_fold).

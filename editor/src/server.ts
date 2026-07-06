@@ -74,6 +74,14 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
 
     const text = document.getText();
     const templates = getTemplates(text);
+    // Character ranges of the template-declaration sections ("the templates are:",
+    // etc.). Instance colouring must never touch a declaration line — those are the
+    // templates themselves, coloured uniformly by the Monaco grammar. Variable-bearing
+    // declarations are already skipped (their line contains '*'), but a no-variable
+    // template (e.g. "you give us prompt notice … under this policy …") has no '*', so
+    // without this a looser "… under …" template would paint just "under" inside it.
+    const declSections = templateDeclarationRanges(text);
+    const inDeclaration = (offset: number) => declSections.some(r => offset >= r.start && offset < r.end);
     const tokens: { start: number, length: number, typeIndex: number }[] = [];
 
     // 1. Find all template instances, most specific (longest) template first. A
@@ -118,6 +126,8 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
                 let lineEnd = text.indexOf('\n', matchStart);
                 if (lineEnd < 0) lineEnd = text.length;
                 if (text.slice(lineStart, lineEnd).includes('*')) continue;
+                // Inside a template-declaration section: not an instance, leave it be.
+                if (inDeclaration(matchStart)) continue;
                 // A more specific template already owns this span — leave it be.
                 if (overlapsClaimed(matchStart, matchEnd)) continue;
                 claimedSpans.push({ start: matchStart, end: matchEnd });
@@ -295,6 +305,23 @@ interface Template {
     label: string;
     insertText: string;
     detail: string;
+}
+
+// Character ranges (start..end offsets) of each template-declaration section body —
+// the lines between a "the templates/predicates/fluents/events are:" header and the
+// next section header. Used to keep instance colouring out of declaration lines.
+function templateDeclarationRanges(text: string): { start: number, end: number }[] {
+    const ranges: { start: number, end: number }[] = [];
+    const sectionHeaderRegex = /^the[ \t]+(knowledge[ \t]+base|scenario|query|ontology|predicates|templates|fluents|events|target[ \t]+language)/im;
+    const templateHeaderRegex = /the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/gi;
+    let match;
+    while ((match = templateHeaderRegex.exec(text)) !== null) {
+        const start = match.index + match[0].length;
+        const nextSectionMatch = text.substring(start).match(sectionHeaderRegex);
+        const end = nextSectionMatch ? start + (nextSectionMatch.index ?? 0) : text.length;
+        ranges.push({ start, end });
+    }
+    return ranges;
 }
 
 function getTemplates(text: string): Template[] {

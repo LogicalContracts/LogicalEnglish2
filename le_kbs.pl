@@ -735,8 +735,17 @@ postprocess_why(repeated_group(N, Why), SM, repeated_group(N, WhyOut)) :- !,
 postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
-    ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range = range(Start, End); Range = Ref),
-    ( (KB \== none, item_to_instance_ranged(KB, Goal, Range, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
+    ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range0 = range(Start, End); Range0 = Ref),
+    ( (KB \== none, item_to_instance_ranged(KB, Goal, Range0, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
+    % A condition the user explicitly assumed in THIS scenario ("it is unknown
+    % whether …", e.g. the Assume checkbox) is shown as an assumption (unknown /
+    % yellow) EVEN when it was independently provable — reflecting the "consider this
+    % unknown" intent. Display-only: the actual answers and unknowns list (from i/4)
+    % are unchanged, so KB-level unknowns and the "definite proof wins" rule still hold.
+    ( is_session_assumption(SM, Goal)
+    -> ( Range0 = range(RS, RE) -> Range = unknown(RS, RE) ; Range = unknown )
+    ;  Range = Range0
+    ),
     maplist(postprocess_why_child(SM), Children, ChildrenOut).
 postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref), Range, LE, ChildrenOut)) :- !,
     % An intermediate "failed rule" node (detailed failure explanations): label it
@@ -795,6 +804,17 @@ find_first_range(Goal, SM, KB, range(Start, End)) :-
 
 postprocess_why_child(SM, Child, ChildOut) :-
     postprocess_why(Child, SM, ChildOut).
+
+%!  is_session_assumption(+SM, +Goal) is semidet.
+%
+%   True when Goal corresponds to a condition the user explicitly assumed in the
+%   current scenario — i.e. a SESSION-level le_unknown/1 clause matches it ("it is
+%   unknown whether …"). A type-guard goal le_type_check(Arg, Type) (rendered
+%   "Arg is a Type") is assumed via the equivalent is_a(Arg, Type) fact. Scoped to
+%   the session module only, so KB-level unknowns keep their fallback semantics.
+is_session_assumption(SM, Goal0) :-
+    ( Goal0 = le_type_check(Arg, Type) -> Probe = is_a(Arg, Type) ; Probe = Goal0 ),
+    \+ \+ catch(clause(SM:le_unknown(Probe), _), _, fail).
 
 ensure_tokens(Template, Tokens) :-
     is_list(Template), !, Tokens = Template.

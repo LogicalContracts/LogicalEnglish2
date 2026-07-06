@@ -261,9 +261,9 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
     (   D > 100 -> throw('Tried to solve too deep') ; true % Depth limit
     ),
 
-    (   is_built_in(G) ->  
+    (   is_built_in(G) ->
             call_reasoner_built_in(G, SM), Us = [], Ref = built_in, WhysBody = []
-        ; G = is_a(X, Z) ->  
+        ; G = is_a(X, Z) ->
             D1 is D + 1,
             (   X == Z -> Us = [], WhysBody = [success(G, identity, [])]
             ;   get_clause(is_a(X, Z), SM, KM, Body, Ref),
