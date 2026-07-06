@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 93
-Total tests:     288
-Passed:          288
+Files processed: 95
+Total tests:     290
+Passed:          290
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -78,6 +78,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/tax/sbppxml1.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/tax/small_business.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/apostrophe.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/testing/assumed_coloring.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/testing/citizenship_buggy.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/citizenship_premier.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/forall_vacuous.le: 1 Pass, 0 Fail, 0 Error
@@ -102,5 +103,6 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
 -------------
 

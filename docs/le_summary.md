@@ -60,7 +60,7 @@ A template definition can be followed by one or more additions, each introduced 
   - **Rendering:** the main (first) form is used by default. In explanations, a node is rendered with the form actually used at its source location (the surface form of the clause that proves it); a query renders its answers with the form used in the query.
   - **Restriction:** a template with a synonym **cannot carry any other addition** (`defines global`, `opposite`, `prepositional`, `unknown`, `undefined`); doing so raises a `synonym_with_other_additions` error.
 - `; defines global <name>; defines global <name2>...` — declares a global abbreviation.
-- `; prepositional` — marks a **prepositional** template (see §2.1).
+- `; prepositional` — marks a **prepositional** template (see §2.1). The synonym `; composite` is accepted and means the same thing.
 - `; unknown` — marks the template as **assumable** (abducible): matching goals that cannot be proven are assumed true and reported as unknowns. The synonyms `; assumed` and `; assumable` are accepted and mean the same thing.
 - `; undefined` — marks the template as a **scenario element**: its facts are expected to appear only in scenarios, never as facts or rule heads in the knowledge base. The synonym `; scenario element` (two words) is also accepted. Effect on verification:
   - The `undefined_predicate` warning is **suppressed** for this template (even though no KB clause exists for it).

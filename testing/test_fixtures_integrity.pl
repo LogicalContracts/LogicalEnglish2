@@ -46,6 +46,8 @@ test_suite_fixture('examples/moreExamples/testing/template_folding.le',
                    'testing/test_prep_fold.pl').
 test_suite_fixture('examples/moreExamples/testing/trace_sample.le',
                    'testing/test_dap_trace.pl').
+test_suite_fixture('examples/moreExamples/testing/assumed_coloring.le',
+                   'testing/test_assumed_coloring.pl').
 
 :- begin_tests(fixtures_integrity).
 

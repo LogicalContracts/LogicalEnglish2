@@ -8630,6 +8630,8 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
     return { data: [] };
   const text = document.getText();
   const templates = getTemplates(text);
+  const declSections = templateDeclarationRanges(text);
+  const inDeclaration = (offset) => declSections.some((r) => offset >= r.start && offset < r.end);
   const tokens = [];
   const sortedTemplates = [...templates].sort((a, b) => b.label.length - a.label.length);
   const claimedSpans = [];
@@ -8661,6 +8663,8 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
         if (lineEnd < 0)
           lineEnd = text.length;
         if (text.slice(lineStart, lineEnd).includes("*"))
+          continue;
+        if (inDeclaration(matchStart))
           continue;
         if (overlapsClaimed(matchStart, matchEnd))
           continue;
@@ -8809,6 +8813,19 @@ async function validateTextDocument(textDocument) {
     }
   }
   connection.sendDiagnostics({ uri: textDocument.uri, diagnostics });
+}
+function templateDeclarationRanges(text) {
+  const ranges = [];
+  const sectionHeaderRegex = /^the[ \t]+(knowledge[ \t]+base|scenario|query|ontology|predicates|templates|fluents|events|target[ \t]+language)/im;
+  const templateHeaderRegex = /the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/gi;
+  let match;
+  while ((match = templateHeaderRegex.exec(text)) !== null) {
+    const start = match.index + match[0].length;
+    const nextSectionMatch = text.substring(start).match(sectionHeaderRegex);
+    const end = nextSectionMatch ? start + (nextSectionMatch.index ?? 0) : text.length;
+    ranges.push({ start, end });
+  }
+  return ranges;
 }
 function getTemplates(text) {
   const templates = [];

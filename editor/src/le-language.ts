@@ -89,7 +89,7 @@ export const leMonarchTokens = {
             // before the keyword.header rule sees the bare word 'scenario'.
             [/scenario\s+element/, 'keyword.addition'],
             [/defines\s+global/, 'keyword.addition'],
-            [/\b(opposite|prepositional|assumable|assumed|unknown|undefined)\b/, 'keyword.addition'],
+            [/\b(opposite|prepositional|composite|assumable|assumed|unknown|undefined)\b/, 'keyword.addition'],
             [/the[ \t]+knowledge[ \t]+base|the[ \t]+contract|scenario|query|the[ \t]+ontology|the[ \t]+target[ \t]+language/, { token: 'keyword.header', next: '@pop' }],
             [/\*[^*]+\*/, 'variable'],
             [/%.*$/, 'comment'],

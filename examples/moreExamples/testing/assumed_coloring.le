@@ -1,0 +1,28 @@
+the target language is: prolog.
+
+% Regression fixture: colouring user-assumed conditions in explanations.
+% "alice is happy" is derivable (the rule proves it from "alice is nice"), so it
+% normally shows as a proven (green) node. When a scenario ASSUMES it ("it is
+% unknown whether alice is happy"), the explanation must show that node as an
+% assumption (unknown / yellow) EVEN THOUGH it is provable — reflecting the Assume
+% checkbox's "consider this unknown, and assume it true". This is display-only: the
+% answers and the unknowns list are unchanged (the rule still proves it).
+
+the templates are:
+    *a person* is happy.
+    *a person* is nice.
+
+the knowledge base assumed_coloring includes:
+    a person is happy if the person is nice.
+
+scenario derived is:
+    alice is nice.
+    happy expects answers ["alice is happy"] and unknowns [].
+
+scenario assumed is:
+    alice is nice.
+    it is unknown whether alice is happy.
+    happy expects answers ["alice is happy"] and unknowns [].
+
+query happy is:
+    which person is happy.

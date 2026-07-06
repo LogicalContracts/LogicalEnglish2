@@ -574,7 +574,7 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         { FunctorArgs = [_|Args2], SynonymFunctorArgs = [_|SynArgs], unify_args(Args2, SynArgs) },
         template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Syns, NTs, FunctorArgs, TStart, TEnd),
         { Synonyms = [SynonymWV|Syns] }
-    ;   t(word(prepositional)) ->
+    ;   prepositional_keyword ->
         { Prep = prepositional },
         template_additions(Globals, Opposite, OppositeWV, _, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   unknown_keyword ->
@@ -585,6 +585,12 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ).
 template_additions([], _, _, _, _, [], _, _, _, _) --> [].
+
+% prepositional_keyword matches the marker declaring a template prepositional (a
+% chainable phrase constraining a variable). Accepts 'prepositional' and its
+% synonym 'composite'; both map to the same downstream 'prepositional' semantics.
+prepositional_keyword --> t(word(prepositional)).
+prepositional_keyword --> t(word(composite)).
 
 % unknown_keyword matches the marker declaring a template (or fact) as
 % assumable/abducible. Accepts 'unknown' and its synonyms 'assumed' and
