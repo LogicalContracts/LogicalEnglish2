@@ -93,7 +93,7 @@ function fillTemplate(label, values) {
   const out = segs.map((s) => s.kind === "field" ? values[fi++] ?? "" : s.text).join(" ");
   return out.replace(/\s+/g, " ").trim();
 }
-function parseScenarioBlocks(source) {
+function scanBlocks(source, headerRe) {
   const blocks = [];
   const lines = source.split("\n");
   const offsets = [];
@@ -102,7 +102,6 @@ function parseScenarioBlocks(source) {
     offsets.push(off);
     off += ln.length + 1;
   }
-  const headerRe = /^scenario\s+(.+?)\s+is\s*:/i;
   for (let i = 0; i < lines.length; i++) {
     const m = lines[i].match(headerRe);
     if (!m)
@@ -135,9 +134,12 @@ function parseScenarioBlocks(source) {
       break;
     }
     const end = offsets[lastContent] + lines[lastContent].length;
-    blocks.push({ name, start, end, facts: splitFacts(bodyLines) });
+    blocks.push({ name, start, end, bodyLines });
   }
   return blocks;
+}
+function parseScenarioBlocks(source) {
+  return scanBlocks(source, /^scenario\s+(.+?)\s+is\s*:/i).map((b) => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
 }
 function stripInlineComment(line) {
   let inStr = false;

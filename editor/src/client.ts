@@ -1,5 +1,5 @@
 import { leLanguageConfiguration, leMonarchTokens } from './le-language';
-import { parseScenarioBlocks } from './le-templates';
+import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
 import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
@@ -12,6 +12,8 @@ declare var monaco: any;
 const graphChannel = new BroadcastChannel('le-graph-sync');
 // Communication with the Scenario Editor window.
 const scenarioChannel = new BroadcastChannel('le-scenario-editor');
+// Communication with the Query Editor window.
+const queryChannel = new BroadcastChannel('le-query-editor');
 
     async function start() {
         if (typeof monaco === 'undefined') {
@@ -2167,6 +2169,18 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
         window.open(`scenario-editor.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
     });
 
+    // --- Query Editor window -------------------------------------------------
+    // Open a separate window that builds/edits queries from template instances joined
+    // by the basic connectives. Like the Scenario Editor it parses templates and
+    // existing queries straight from the source (pure client data).
+    document.getElementById('menu-query-editor')?.addEventListener('click', async () => {
+        const data = { source: editor.getValue() };
+        localStorage.setItem('le_query_editor_data', JSON.stringify(data));
+        const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
+                             document.body.className.includes('hc-theme') ? 'hc-theme' : '';
+        window.open(`query-editor.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
+    });
+
     // --- Scenario Variations window ------------------------------------------
     // Pick/alter a scenario and run queries against the variation, in a separate
     // window. The window establishes its OWN server session from this source (so the
@@ -2218,6 +2232,43 @@ const scenarioChannel = new BroadcastChannel('le-scenario-editor');
         const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
         editor.executeEdits('scenario-editor', [{ range, text, forceMoveMarkers: true }]);
         // Reveal and select the inserted block so the user sees the change land.
+        const newEndPos = model.getPositionAt(startOff + text.length);
+        editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
+        editor.revealRangeInCenter(range);
+        editor.focus();
+        isLoaded = false;   // source changed: force a re-load (and Prolog syntax check) next query
+    };
+
+    // Apply a query block sent back from the Query Editor window: replace the named
+    // query in place when it still exists, otherwise append after the last query (or
+    // at the end of the document). The Prolog side re-checks syntax on the next load.
+    queryChannel.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg || msg.type !== 'insert-query' || typeof msg.blockText !== 'string') return;
+        const model = editor.getModel();
+        if (!model) return;
+        const source = editor.getValue();
+        const blocks = parseQueryBlocks(source);
+        const target = msg.replaceName ? blocks.find(b => b.name === msg.replaceName) : null;
+
+        let startOff: number, endOff: number, text: string;
+        if (target) {
+            startOff = target.start;
+            endOff = target.end;
+            text = msg.blockText;
+        } else {
+            // Append: after the last query block, else at end of document.
+            const last = blocks.length ? blocks[blocks.length - 1] : null;
+            const insertAt = last ? last.end : source.length;
+            const before = source.slice(0, insertAt).replace(/\s*$/, '');
+            startOff = insertAt;
+            endOff = insertAt;
+            text = (before.length ? '\n\n' : '') + msg.blockText + '\n';
+        }
+        const startPos = model.getPositionAt(startOff);
+        const endPos = model.getPositionAt(endOff);
+        const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
+        editor.executeEdits('query-editor', [{ range, text, forceMoveMarkers: true }]);
         const newEndPos = model.getPositionAt(startOff + text.length);
         editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
         editor.revealRangeInCenter(range);

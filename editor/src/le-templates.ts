@@ -153,17 +153,24 @@ export interface ScenarioBlock {
     facts: string[]; // each fact's text, without its trailing period
 }
 
-// Parse all "scenario <name> is:" blocks from LE source. A block's body is the run
-// of indented (or blank) lines following the header, up to the next non-indented
-// line. Facts are the body's "."-terminated statements (a fact may span lines).
-export function parseScenarioBlocks(source: string): ScenarioBlock[] {
-    const blocks: ScenarioBlock[] = [];
+interface RawBlock {
+    name: string;
+    start: number;
+    end: number;
+    bodyLines: string[];
+}
+
+// Scan "<keyword> <name> is:" blocks (e.g. "scenario ..." or "query ...") from LE
+// source. A block's body is the run of indented (or blank) lines following the
+// header, up to the next non-indented line. Shared by parseScenarioBlocks and
+// parseQueryBlocks so both delimit blocks identically.
+function scanBlocks(source: string, headerRe: RegExp): RawBlock[] {
+    const blocks: RawBlock[] = [];
     const lines = source.split('\n');
     const offsets: number[] = [];
     let off = 0;
     for (const ln of lines) { offsets.push(off); off += ln.length + 1; }
 
-    const headerRe = /^scenario\s+(.+?)\s+is\s*:/i;
     for (let i = 0; i < lines.length; i++) {
         const m = lines[i].match(headerRe);
         if (!m) continue;
@@ -184,9 +191,38 @@ export function parseScenarioBlocks(source: string): ScenarioBlock[] {
             break;
         }
         const end = offsets[lastContent] + lines[lastContent].length;
-        blocks.push({ name, start, end, facts: splitFacts(bodyLines) });
+        blocks.push({ name, start, end, bodyLines });
     }
     return blocks;
+}
+
+// Parse all "scenario <name> is:" blocks from LE source. Facts are the body's
+// "."-terminated statements (a fact may span lines).
+export function parseScenarioBlocks(source: string): ScenarioBlock[] {
+    return scanBlocks(source, /^scenario\s+(.+?)\s+is\s*:/i)
+        .map(b => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
+}
+
+export interface QueryBlock {
+    name: string;
+    start: number;   // char offset of the "query ..." header
+    end: number;     // char offset just past the block's last non-blank line
+    body: string;    // the query body statement, comments stripped, no trailing period
+}
+
+// Parse all "query <name> is:" blocks from LE source. A query's body is a single
+// statement (a condition, possibly joined by and/or); we return it as one string
+// with comments stripped and the trailing period removed.
+export function parseQueryBlocks(source: string): QueryBlock[] {
+    return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map(b => {
+        const body = b.bodyLines
+            .map(l => stripInlineComment(l).trim())
+            .filter(t => t !== '')
+            .join(' ')
+            .replace(/\.\s*$/, '')
+            .trim();
+        return { name: b.name, start: b.start, end: b.end, body };
+    });
 }
 
 // Drop a Logical English line comment (`%` to end of line). A `%` inside a
