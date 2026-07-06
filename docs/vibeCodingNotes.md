@@ -1982,3 +1982,6 @@ on example citizenship.le, scenario alice_harry, query one, in Scenario Variatio
   explanation tree and "Patch Scenario - Delete Fact", the fact is not deleted from theSCENARIOS FACTS list. Also only        
   explanation nodes matching scenario facts should have the menu item active. And when you delete a scenario fact, reexecute  
   the Query immediately                                                                                                       
+
+## Queries Editor
+Similarly to the Scenario Editor, and similar look and feel, make a Query Editor that lets the user edit or create a query, by selecting templates and the basic connectives (and, or, it is not the case); then either copy it or insert into the editor. It does not have to support the full LE (body conditions) syntax, to stay simple

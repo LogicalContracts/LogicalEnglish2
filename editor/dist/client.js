@@ -7903,7 +7903,7 @@ var leMonarchTokens = {
 };
 
 // src/le-templates.ts
-function parseScenarioBlocks(source) {
+function scanBlocks(source, headerRe) {
   const blocks = [];
   const lines = source.split("\n");
   const offsets = [];
@@ -7912,7 +7912,6 @@ function parseScenarioBlocks(source) {
     offsets.push(off);
     off += ln.length + 1;
   }
-  const headerRe = /^scenario\s+(.+?)\s+is\s*:/i;
   for (let i = 0; i < lines.length; i++) {
     const m = lines[i].match(headerRe);
     if (!m)
@@ -7945,9 +7944,18 @@ function parseScenarioBlocks(source) {
       break;
     }
     const end = offsets[lastContent] + lines[lastContent].length;
-    blocks.push({ name, start: start2, end, facts: splitFacts(bodyLines) });
+    blocks.push({ name, start: start2, end, bodyLines });
   }
   return blocks;
+}
+function parseScenarioBlocks(source) {
+  return scanBlocks(source, /^scenario\s+(.+?)\s+is\s*:/i).map((b) => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
+}
+function parseQueryBlocks(source) {
+  return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map((b) => {
+    const body = b.bodyLines.map((l) => stripInlineComment(l).trim()).filter((t) => t !== "").join(" ").replace(/\.\s*$/, "").trim();
+    return { name: b.name, start: b.start, end: b.end, body };
+  });
 }
 function stripInlineComment(line) {
   let inStr = false;
@@ -38947,6 +38955,7 @@ var import_cytoscape_fcose = __toESM(require_cytoscape_fcose());
 cytoscape2.use(import_cytoscape_fcose.default);
 var graphChannel = new BroadcastChannel("le-graph-sync");
 var scenarioChannel = new BroadcastChannel("le-scenario-editor");
+var queryChannel = new BroadcastChannel("le-query-editor");
 async function start() {
   if (typeof monaco === "undefined") {
     console.error("Monaco not loaded");
@@ -40864,6 +40873,12 @@ async function start() {
     const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
     window.open(`scenario-editor.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
   });
+  document.getElementById("menu-query-editor")?.addEventListener("click", async () => {
+    const data4 = { source: editor.getValue() };
+    localStorage.setItem("le_query_editor_data", JSON.stringify(data4));
+    const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
+    window.open(`query-editor.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
+  });
   document.getElementById("btn-variations")?.addEventListener("click", async () => {
     if (!isLoaded) {
       const ok = await loadModule();
@@ -40908,6 +40923,39 @@ async function start() {
     const endPos = model2.getPositionAt(endOff);
     const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
     editor.executeEdits("scenario-editor", [{ range, text, forceMoveMarkers: true }]);
+    const newEndPos = model2.getPositionAt(startOff + text.length);
+    editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
+    editor.revealRangeInCenter(range);
+    editor.focus();
+    isLoaded = false;
+  };
+  queryChannel.onmessage = (event3) => {
+    const msg = event3.data;
+    if (!msg || msg.type !== "insert-query" || typeof msg.blockText !== "string")
+      return;
+    const model2 = editor.getModel();
+    if (!model2)
+      return;
+    const source = editor.getValue();
+    const blocks = parseQueryBlocks(source);
+    const target = msg.replaceName ? blocks.find((b) => b.name === msg.replaceName) : null;
+    let startOff, endOff, text;
+    if (target) {
+      startOff = target.start;
+      endOff = target.end;
+      text = msg.blockText;
+    } else {
+      const last2 = blocks.length ? blocks[blocks.length - 1] : null;
+      const insertAt = last2 ? last2.end : source.length;
+      const before = source.slice(0, insertAt).replace(/\s*$/, "");
+      startOff = insertAt;
+      endOff = insertAt;
+      text = (before.length ? "\n\n" : "") + msg.blockText + "\n";
+    }
+    const startPos = model2.getPositionAt(startOff);
+    const endPos = model2.getPositionAt(endOff);
+    const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
+    editor.executeEdits("query-editor", [{ range, text, forceMoveMarkers: true }]);
     const newEndPos = model2.getPositionAt(startOff + text.length);
     editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
     editor.revealRangeInCenter(range);
