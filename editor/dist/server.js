@@ -8638,8 +8638,35 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   const overlapsClaimed = (s, e) => claimedSpans.some((c) => s < c.end && e > c.start);
   for (const template of sortedTemplates) {
     const parts = template.label.split(/\*[^*]+\*/);
-    if (parts.length < 2)
+    if (parts.length < 2) {
+      const lit = parts[0].trim();
+      if (!lit)
+        continue;
+      const litRegex = lit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
+      try {
+        const regex = new RegExp("\\b" + litRegex + "\\b", "gi");
+        let match;
+        while ((match = regex.exec(text)) !== null) {
+          const matchStart = match.index;
+          const matchEnd = matchStart + match[0].length;
+          const lineStart = text.lastIndexOf("\n", matchStart) + 1;
+          let lineEnd = text.indexOf("\n", matchStart);
+          if (lineEnd < 0)
+            lineEnd = text.length;
+          if (text.slice(lineStart, lineEnd).includes("*"))
+            continue;
+          if (inDeclaration(matchStart))
+            continue;
+          if (overlapsClaimed(matchStart, matchEnd))
+            continue;
+          claimedSpans.push({ start: matchStart, end: matchEnd });
+          tokens.push({ start: matchStart, length: match[0].length, typeIndex: 6 });
+        }
+      } catch (e) {
+        console.error("Regex error for no-variable template:", template.label, e);
+      }
       continue;
+    }
     const regexParts = parts.map((p) => p.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
     let regexStr = "";
     for (let i = 0; i < regexParts.length; i++) {
@@ -8816,7 +8843,7 @@ async function validateTextDocument(textDocument) {
 }
 function templateDeclarationRanges(text) {
   const ranges = [];
-  const sectionHeaderRegex = /^the[ \t]+(knowledge[ \t]+base|scenario|query|ontology|predicates|templates|fluents|events|target[ \t]+language)/im;
+  const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
   const templateHeaderRegex = /the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/gi;
   let match;
   while ((match = templateHeaderRegex.exec(text)) !== null) {
@@ -8829,7 +8856,7 @@ function templateDeclarationRanges(text) {
 }
 function getTemplates(text) {
   const templates = [];
-  const sectionHeaderRegex = /^the[ \t]+(knowledge[ \t]+base|scenario|query|ontology|predicates|templates|fluents|events|target[ \t]+language)/im;
+  const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
   const templateHeaderRegex = /the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/gi;
   let match;
   while ((match = templateHeaderRegex.exec(text)) !== null) {

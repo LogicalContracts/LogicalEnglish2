@@ -115,6 +115,32 @@ test.describe('Scenario Editor', () => {
         expect(copied).not.toContain('% from the claim');          // comment skipped entirely
     });
 
+    test('a no-variable template fact loads as a zero-field row (no spurious fields)', async ({ page }) => {
+        // A propositional template that also happens to contain "under" — the same word
+        // a looser "*x* under *y*" template would split on. It must load as ONE row with
+        // NO input fields, not a row split into two fields around "under".
+        const seed = {
+            source: [
+                'the templates are:',
+                '    *a payment* under *a policy*; prepositional.',
+                '    you give us prompt notice under this policy.',
+                '',
+                'scenario s is:',
+                '    you give us prompt notice under this policy.',
+            ].join('\n'),
+        };
+        await page.goto('index.html');
+        await page.evaluate((s) => localStorage.setItem('le_scenario_editor_data', JSON.stringify(s)), seed);
+        await page.goto('scenario-editor.html');
+
+        await page.locator('#scenario-picker').selectOption('s');
+        const rows = page.locator('.fact-row');
+        await expect(rows).toHaveCount(1);
+        // Zero editable fields — the whole no-variable template is plain words.
+        await expect(rows.nth(0).locator('input.field')).toHaveCount(0);
+        await expect(rows.nth(0)).toContainText('you give us prompt notice under this policy');
+    });
+
     test('Insert into Editor replaces the scenario in the document', async ({ context }) => {
         // The real editor, seeded with the program via the URL text param.
         const editorPage = await context.newPage();

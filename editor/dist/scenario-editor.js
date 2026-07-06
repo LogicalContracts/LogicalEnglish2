@@ -18,7 +18,7 @@ function splitTemplate(label) {
 }
 function parseTemplateDefs(source) {
   const defs = [];
-  const sectionHeader = /^the\s+(knowledge\s+base|scenario|query|ontology|predicates|templates|fluents|events|target\s+language)/im;
+  const sectionHeader = /^(?:the\s+knowledge\s+base|the\s+contract|the\s+ontology|the\s+predicates|the\s+templates|the\s+fluents|the\s+events|the\s+target\s+language|scenario|query)\b/im;
   const templateHeader = /the\s+(predicates|templates|fluents|events)\s+are\s*:/gi;
   let m;
   while ((m = templateHeader.exec(source)) !== null) {
@@ -33,17 +33,17 @@ function parseTemplateDefs(source) {
       const annotation = semi >= 0 ? t.slice(semi + 1) : "";
       const isUndefined = /\b(undefined|scenario\s+element)\b/i.test(annotation);
       const main = (semi >= 0 ? t.slice(0, semi) : t).replace(/[.,]\s*$/, "").trim();
-      if (main.includes("*"))
+      if (main)
         defs.push({ label: main, isUndefined });
       const opp = annotation.match(/opposite:\s*([^;]+)/i);
       if (opp) {
         const o = opp[1].replace(/[.,;]\s*$/, "").trim();
-        if (o.includes("*"))
+        if (o)
           defs.push({ label: o, isUndefined });
       }
       for (const sm of annotation.matchAll(/\bsynonym\s+([^;]+)/gi)) {
         const s = sm[1].replace(/[.,;]\s*$/, "").trim();
-        if (s.includes("*"))
+        if (s)
           defs.push({ label: s, isUndefined });
       }
     }
@@ -76,8 +76,17 @@ function literalLength(label) {
 }
 function matchFact(fact, templates) {
   const f = fact.trim().replace(/\.\s*$/, "");
+  const norm = (s) => s.replace(/\s+/g, " ").trim().toLowerCase();
+  const fNorm = norm(f);
   const sorted = [...templates].sort((a, b) => literalLength(b) - literalLength(a));
   for (const label of sorted) {
+    const segs = splitTemplate(label);
+    if (!segs.some((s) => s.kind === "field")) {
+      const lit = segs.map((s) => s.text).join(" ");
+      if (norm(lit) === fNorm)
+        return { label, values: [] };
+      continue;
+    }
     const re = templateRegex(label);
     if (!re)
       continue;

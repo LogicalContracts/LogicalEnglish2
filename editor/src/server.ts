@@ -97,7 +97,36 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
 
     for (const template of sortedTemplates) {
         const parts = template.label.split(/\*[^*]+\*/);
-        if (parts.length < 2) continue;
+        if (parts.length < 2) {
+            // A no-variable ("propositional") template has no arguments: match its
+            // whole literal as one instance and colour the entire span uniformly as a
+            // template word. Without this the base grammar is left to paint the line,
+            // and it emphasises only some words (e.g. the preposition "under") — an
+            // inconsistent look — while a looser "*x* under *y*" template could also
+            // claim a fragment inside it. Skip declaration lines (handled below).
+            const lit = parts[0].trim();
+            if (!lit) continue;
+            const litRegex = lit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
+            try {
+                const regex = new RegExp('\\b' + litRegex + '\\b', 'gi');
+                let match;
+                while ((match = regex.exec(text)) !== null) {
+                    const matchStart = match.index;
+                    const matchEnd = matchStart + match[0].length;
+                    const lineStart = text.lastIndexOf('\n', matchStart) + 1;
+                    let lineEnd = text.indexOf('\n', matchStart);
+                    if (lineEnd < 0) lineEnd = text.length;
+                    if (text.slice(lineStart, lineEnd).includes('*')) continue;   // a template definition line
+                    if (inDeclaration(matchStart)) continue;
+                    if (overlapsClaimed(matchStart, matchEnd)) continue;
+                    claimedSpans.push({ start: matchStart, end: matchEnd });
+                    tokens.push({ start: matchStart, length: match[0].length, typeIndex: 6 }); // templateWord
+                }
+            } catch (e) {
+                console.error('Regex error for no-variable template:', template.label, e);
+            }
+            continue;
+        }
 
         const regexParts = parts.map(p => p.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'));
         
@@ -312,7 +341,7 @@ interface Template {
 // next section header. Used to keep instance colouring out of declaration lines.
 function templateDeclarationRanges(text: string): { start: number, end: number }[] {
     const ranges: { start: number, end: number }[] = [];
-    const sectionHeaderRegex = /^the[ \t]+(knowledge[ \t]+base|scenario|query|ontology|predicates|templates|fluents|events|target[ \t]+language)/im;
+    const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
     const templateHeaderRegex = /the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/gi;
     let match;
     while ((match = templateHeaderRegex.exec(text)) !== null) {
@@ -326,7 +355,7 @@ function templateDeclarationRanges(text: string): { start: number, end: number }
 
 function getTemplates(text: string): Template[] {
     const templates: Template[] = [];
-    const sectionHeaderRegex = /^the[ \t]+(knowledge[ \t]+base|scenario|query|ontology|predicates|templates|fluents|events|target[ \t]+language)/im;
+    const sectionHeaderRegex = /^(?:the[ \t]+knowledge[ \t]+base|the[ \t]+contract|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language|scenario|query)\b/im;
     const templateHeaderRegex = /the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/gi;
     
     let match;
