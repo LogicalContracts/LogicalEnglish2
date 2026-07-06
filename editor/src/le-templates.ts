@@ -44,7 +44,10 @@ export interface TemplateDef {
 // form is registered as its own template.
 export function parseTemplateDefs(source: string): TemplateDef[] {
     const defs: TemplateDef[] = [];
-    const sectionHeader = /^the\s+(knowledge\s+base|scenario|query|ontology|predicates|templates|fluents|events|target\s+language)/im;
+    // A section header ends the templates section. "scenario"/"query" take NO "the"
+    // (e.g. "scenario alice is:"), unlike the others — getting this wrong lets the
+    // parser read scenario facts as (no-variable) templates.
+    const sectionHeader = /^(?:the\s+knowledge\s+base|the\s+contract|the\s+ontology|the\s+predicates|the\s+templates|the\s+fluents|the\s+events|the\s+target\s+language|scenario|query)\b/im;
     const templateHeader = /the\s+(predicates|templates|fluents|events)\s+are\s*:/gi;
     let m: RegExpExecArray | null;
     while ((m = templateHeader.exec(source)) !== null) {
@@ -57,18 +60,22 @@ export function parseTemplateDefs(source: string): TemplateDef[] {
             const semi = t.indexOf(';');
             const annotation = semi >= 0 ? t.slice(semi + 1) : '';
             const isUndefined = /\b(undefined|scenario\s+element)\b/i.test(annotation);
+            // Include no-variable ("propositional") templates too — they have no
+            // *...* fields but are real templates. Recognising them lets a fact/query
+            // that IS one match it exactly (a zero-field row) instead of being
+            // mis-matched to a looser variable template that splits it on a preposition.
             const main = (semi >= 0 ? t.slice(0, semi) : t).replace(/[.,]\s*$/, '').trim();
-            if (main.includes('*')) defs.push({ label: main, isUndefined });
+            if (main) defs.push({ label: main, isUndefined });
             const opp = annotation.match(/opposite:\s*([^;]+)/i);
             if (opp) {
                 const o = opp[1].replace(/[.,;]\s*$/, '').trim();
-                if (o.includes('*')) defs.push({ label: o, isUndefined });
+                if (o) defs.push({ label: o, isUndefined });
             }
             // Each "; synonym <template>" registers an equivalent surface form so
             // scenario facts written either way are recognised as the same template.
             for (const sm of annotation.matchAll(/\bsynonym\s+([^;]+)/gi)) {
                 const s = sm[1].replace(/[.,;]\s*$/, '').trim();
-                if (s.includes('*')) defs.push({ label: s, isUndefined });
+                if (s) defs.push({ label: s, isUndefined });
             }
         }
     }
@@ -125,8 +132,21 @@ export interface FactMatch {
 // always happens on the Prolog side.
 export function matchFact(fact: string, templates: string[]): FactMatch | null {
     const f = fact.trim().replace(/\.\s*$/, '');
+    const norm = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+    const fNorm = norm(f);
+    // Most specific (most literal characters) first, so a no-variable template — all
+    // literal, hence the longest — is tried before any looser variable template that
+    // might otherwise split it on a preposition.
     const sorted = [...templates].sort((a, b) => literalLength(b) - literalLength(a));
     for (const label of sorted) {
+        const segs = splitTemplate(label);
+        if (!segs.some(s => s.kind === 'field')) {
+            // A no-variable template: it matches only a fact equal to its literal
+            // (whitespace/case-insensitive), yielding a zero-field row.
+            const lit = segs.map(s => s.text).join(' ');
+            if (norm(lit) === fNorm) return { label, values: [] };
+            continue;
+        }
         const re = templateRegex(label);
         if (!re) continue;
         const m = re.exec(f);
