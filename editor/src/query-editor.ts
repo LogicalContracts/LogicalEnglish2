@@ -6,6 +6,10 @@
 // the clipboard; the final LE syntax check happens on the Prolog side on reload.
 
 import { parseTemplateDefs, parseQueryBlocks, QueryBlock, splitTemplate, matchFact } from './le-templates';
+import { openNlInput } from './nl-input';
+
+// Sentinel value for the "Write it in English…" entry in the Add picker.
+const WRITE_IN_ENGLISH = '__write_in_english__';
 
 interface QueryEditorData { source?: string; }
 
@@ -61,10 +65,15 @@ export function initQueryEditor(data: QueryEditorData) {
         o.textContent = label.replace(/\*/g, '');   // show placeholders without the markers
         addSelect.appendChild(o);
     }
+    const nlOpt = document.createElement('option');
+    nlOpt.value = WRITE_IN_ENGLISH;
+    nlOpt.textContent = 'Write it in English';
+    addSelect.appendChild(nlOpt);
 
     ($('btn-add') as HTMLButtonElement).addEventListener('click', () => {
         const val = addSelect.value;
         if (!val) return;
+        if (val === WRITE_IN_ENGLISH) { writeInEnglish(); return; }
         // A new condition continues at the indentation of the one above it.
         const indent = rows.length ? rows[rows.length - 1].indent : 0;
         rows.push({ templateLabel: val, values: [], raw: '', negated: false, connective: 'and', indent });
@@ -72,6 +81,28 @@ export function initQueryEditor(data: QueryEditorData) {
         render();
         (rowsEl.lastElementChild?.querySelector('input.field, input.raw') as HTMLInputElement | null)?.focus();
     });
+
+    // Open the NL modal and APPEND the generated conditions to the query being built.
+    function writeInEnglish() {
+        openNlInput({
+            kind: 'query',
+            source,
+            title: 'Add conditions — write it in English',
+            instruction: 'Type one or more sentences describing the query to build (a question, and its conditions). '
+                + 'The query must respect the predicates (templates) already in your program; if you need to expand '
+                + 'these first, use the editor or the LE Assistant.',
+            placeholder: 'e.g. which person is happy and is not the brother of Bob',
+            onResult: (leText) => {
+                const lines = leText.split(/\r?\n/).filter(l => l.trim() !== '');
+                const added = parseBody(lines);
+                rows.push(...added);
+                normalizeIndents();
+                markDirty();
+                render();
+                setStatus(`Added ${added.length} condition${added.length === 1 ? '' : 's'} from English`);
+            },
+        });
+    }
 
     // --- Query picker ----------------------------------------------------------
     picker.innerHTML = '';

@@ -183,6 +183,7 @@ function splitFacts(bodyLines) {
 var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
 var isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
 var UNKNOWN_PREFIX = /^it is (?:unknown|assumed|assumable) whether\s+/i;
+var WRITE_IN_ENGLISH = "__write_in_english__";
 var DEFAULT_ASSUME_TITLE = "if checked, fact is assumed, unknown";
 var ScenarioForm = class _ScenarioForm {
   templates;
@@ -227,10 +228,20 @@ var ScenarioForm = class _ScenarioForm {
       o.textContent = label.replace(/\*/g, "");
       opts.addSelect.appendChild(o);
     }
+    if (opts.onWriteInEnglish) {
+      const o = document.createElement("option");
+      o.value = WRITE_IN_ENGLISH;
+      o.textContent = "Write it in English";
+      opts.addSelect.appendChild(o);
+    }
     opts.btnAdd.addEventListener("click", () => {
       const val = opts.addSelect.value;
       if (!val)
         return;
+      if (val === WRITE_IN_ENGLISH) {
+        this.opts.onWriteInEnglish?.();
+        return;
+      }
       this.rows.push({ templateLabel: val, values: [], raw: "", assumed: false });
       this.changed();
       this.render();

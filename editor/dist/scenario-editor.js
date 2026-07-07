@@ -183,6 +183,7 @@ function splitFacts(bodyLines) {
 var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
 var isTestDirective = (fact) => /\bexpects?\s+answers?\b/i.test(fact);
 var UNKNOWN_PREFIX = /^it is (?:unknown|assumed|assumable) whether\s+/i;
+var WRITE_IN_ENGLISH = "__write_in_english__";
 var DEFAULT_ASSUME_TITLE = "if checked, fact is assumed, unknown";
 var ScenarioForm = class _ScenarioForm {
   templates;
@@ -227,10 +228,20 @@ var ScenarioForm = class _ScenarioForm {
       o.textContent = label.replace(/\*/g, "");
       opts.addSelect.appendChild(o);
     }
+    if (opts.onWriteInEnglish) {
+      const o = document.createElement("option");
+      o.value = WRITE_IN_ENGLISH;
+      o.textContent = "Write it in English";
+      opts.addSelect.appendChild(o);
+    }
     opts.btnAdd.addEventListener("click", () => {
       const val = opts.addSelect.value;
       if (!val)
         return;
+      if (val === WRITE_IN_ENGLISH) {
+        this.opts.onWriteInEnglish?.();
+        return;
+      }
       this.rows.push({ templateLabel: val, values: [], raw: "", assumed: false });
       this.changed();
       this.render();
@@ -465,6 +476,205 @@ var ScenarioForm = class _ScenarioForm {
   }
 };
 
+// src/nl-input.ts
+var TOKEN = "myToken123";
+function assistantModel() {
+  return localStorage.getItem("le-assistant-model") || "";
+}
+function assistantKeys() {
+  return {
+    openai: localStorage.getItem("le-openai-key"),
+    anthropic: localStorage.getItem("le-anthropic-key"),
+    google: localStorage.getItem("le-google-key"),
+    groq: localStorage.getItem("le-groq-key"),
+    together: localStorage.getItem("le-together-key")
+  };
+}
+function ensureStyles() {
+  if (document.getElementById("nl-input-styles"))
+    return;
+  const style = document.createElement("style");
+  style.id = "nl-input-styles";
+  style.textContent = `
+        .nl-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
+            align-items: center; justify-content: center; z-index: 1000; }
+        .nl-dialog { background: var(--panel-bg, #252526); color: var(--text-color, #d4d4d4);
+            border: 1px solid var(--border-color, #444); border-radius: 8px; width: min(640px, 92vw);
+            max-height: 90vh; overflow: auto; padding: 18px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        .nl-dialog h2 { margin: 0 0 8px 0; font-size: 16px; }
+        .nl-instruction { color: var(--muted, #888); font-size: 12px; margin: 0 0 12px 0; line-height: 1.5; }
+        .nl-dialog textarea { width: 100%; min-height: 96px; resize: vertical; font-family: inherit;
+            font-size: 14px; background: var(--field-bg, #2d2d30); color: var(--input-text, #d4d4d4);
+            border: 1px solid var(--input-border, #555); border-radius: 4px; padding: 8px; box-sizing: border-box; }
+        .nl-status { font-size: 12px; margin: 10px 0 0 0; min-height: 16px; white-space: pre-line; }
+        .nl-status.error { color: #f48771; }
+        .nl-status.warn { color: #e2b93d; }
+        .nl-actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 14px; }
+        .nl-actions .spacer { flex: 1; }
+        .nl-model { color: var(--muted, #888); font-size: 11px; }
+        .nl-dialog button { background: var(--input-bg, #3c3c3c); color: var(--input-text, #d4d4d4);
+            border: 1px solid var(--input-border, #555); border-radius: 4px; padding: 6px 12px; font: inherit; cursor: pointer; }
+        .nl-dialog button.primary { background: var(--accent, #0e639c); color: #fff; border-color: var(--accent, #0e639c); }
+        .nl-dialog button:disabled { opacity: 0.5; cursor: default; }
+    `;
+  document.head.appendChild(style);
+}
+function openNlInput(opts) {
+  ensureStyles();
+  const overlay = document.createElement("div");
+  overlay.className = "nl-overlay";
+  const dialog = document.createElement("div");
+  dialog.className = "nl-dialog";
+  overlay.appendChild(dialog);
+  const h = document.createElement("h2");
+  h.textContent = opts.title;
+  const instr = document.createElement("p");
+  instr.className = "nl-instruction";
+  instr.textContent = opts.instruction;
+  const textarea = document.createElement("textarea");
+  textarea.placeholder = opts.placeholder || "Type your sentence(s) here\u2026";
+  const status = document.createElement("div");
+  status.className = "nl-status";
+  const actions = document.createElement("div");
+  actions.className = "nl-actions";
+  const model = assistantModel();
+  const modelLabel = document.createElement("span");
+  modelLabel.className = "nl-model";
+  modelLabel.textContent = model ? `Model: ${model}` : "No model configured";
+  const spacer = document.createElement("span");
+  spacer.className = "spacer";
+  const cancel = document.createElement("button");
+  cancel.textContent = "Cancel";
+  const regenerate = document.createElement("button");
+  regenerate.textContent = "Regenerate";
+  regenerate.style.display = "none";
+  const generate = document.createElement("button");
+  generate.className = "primary";
+  generate.textContent = "Generate";
+  actions.appendChild(modelLabel);
+  actions.appendChild(spacer);
+  actions.appendChild(cancel);
+  actions.appendChild(regenerate);
+  actions.appendChild(generate);
+  dialog.appendChild(h);
+  dialog.appendChild(instr);
+  dialog.appendChild(textarea);
+  dialog.appendChild(status);
+  dialog.appendChild(actions);
+  document.body.appendChild(overlay);
+  setTimeout(() => textarea.focus(), 0);
+  const close = () => {
+    overlay.remove();
+    document.removeEventListener("keydown", onKey);
+  };
+  const onKey = (e) => {
+    if (e.key === "Escape")
+      close();
+    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      generate.click();
+    }
+  };
+  document.addEventListener("keydown", onKey);
+  cancel.addEventListener("click", close);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay)
+      close();
+  });
+  if (!model) {
+    status.className = "nl-status warn";
+    status.textContent = "Configure an LLM model first: in the main editor, Misc \u2192 API Keys\u2026";
+    generate.disabled = true;
+  }
+  let primaryMode = "generate";
+  let pendingLe = "";
+  function toGenerateMode() {
+    primaryMode = "generate";
+    generate.textContent = "Generate";
+    regenerate.style.display = "none";
+  }
+  textarea.addEventListener("input", () => {
+    if (primaryMode === "insert")
+      toGenerateMode();
+  });
+  async function run() {
+    const sentence = textarea.value.trim();
+    if (!sentence) {
+      textarea.focus();
+      return;
+    }
+    if (!assistantModel())
+      return;
+    generate.disabled = true;
+    cancel.disabled = true;
+    regenerate.disabled = true;
+    status.className = "nl-status";
+    status.textContent = "Generating and verifying\u2026";
+    const templates = [...new Set(parseTemplateDefs(opts.source).map((d) => d.label))];
+    try {
+      const res = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: TOKEN,
+          operation: "nl_to_le",
+          kind: opts.kind,
+          sentence,
+          templates,
+          content: opts.source,
+          // the program, for baseline-diff verification
+          model: assistantModel(),
+          api_keys: assistantKeys()
+        })
+      }).then((r) => r.json());
+      generate.disabled = false;
+      cancel.disabled = false;
+      regenerate.disabled = false;
+      if (res && res.result === "ok" && typeof res.le === "string" && res.le.trim()) {
+        const warnings = Array.isArray(res.warnings) ? res.warnings : [];
+        if (warnings.length === 0) {
+          opts.onResult(res.le);
+          close();
+        } else {
+          pendingLe = res.le;
+          primaryMode = "insert";
+          generate.textContent = "Insert anyway";
+          regenerate.style.display = "";
+          status.className = "nl-status warn";
+          status.textContent = `Verification found ${warnings.length} new issue${warnings.length === 1 ? "" : "s"} vs. your program:
+` + warnings.map((w) => `\u2022 ${w}`).join("\n") + "\nYou can insert it anyway, or rephrase and regenerate.";
+        }
+      } else if (res && res.result === "ok") {
+        toGenerateMode();
+        status.className = "nl-status warn";
+        status.textContent = "The model returned nothing that matches your templates. Try rephrasing.";
+      } else {
+        toGenerateMode();
+        status.className = "nl-status error";
+        status.textContent = "Error: " + (res && res.error || "the LLM request failed.");
+      }
+    } catch {
+      generate.disabled = false;
+      cancel.disabled = false;
+      regenerate.disabled = false;
+      toGenerateMode();
+      status.className = "nl-status error";
+      status.textContent = "Could not reach the server.";
+    }
+  }
+  generate.addEventListener("click", () => {
+    if (primaryMode === "insert") {
+      opts.onResult(pendingLe);
+      close();
+    } else
+      run();
+  });
+  regenerate.addEventListener("click", run);
+}
+function splitStatements(leText) {
+  return leText.split(/\.(?=\s|$)/).map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+}
+
 // src/scenario-editor.ts
 var CHANNEL = "le-scenario-editor";
 function initScenarioEditor(data) {
@@ -491,7 +701,19 @@ function initScenarioEditor(data) {
     rowsEl: $("rows"),
     addSelect: $("add-template"),
     btnAdd: $("btn-add"),
-    onChange: markDirty
+    onChange: markDirty,
+    onWriteInEnglish: () => openNlInput({
+      kind: "facts",
+      source,
+      title: "Add facts \u2014 write it in English",
+      instruction: "Type one or more sentences describing precise facts to be added to the scenario. The facts must respect the predicates (templates) already in your program; if you need to expand these first, use the editor or the LE Assistant.",
+      placeholder: "e.g. Alice is the mother of John, and John was born in the UK on 2021-10-09.",
+      onResult: (leText) => {
+        const facts = splitStatements(leText);
+        facts.forEach((f) => form.addFact(f));
+        setStatus(`Added ${facts.length} fact${facts.length === 1 ? "" : "s"} from English`);
+      }
+    })
   });
   picker.innerHTML = "";
   const newOpt = document.createElement("option");
