@@ -43,7 +43,7 @@ function ensureStyles() {
         .nl-dialog { background: var(--panel-bg, #252526); color: var(--text-color, #d4d4d4);
             border: 1px solid var(--border-color, #444); border-radius: 8px; width: min(640px, 92vw);
             max-height: 90vh; overflow: auto; padding: 18px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-        .nl-dialog h2 { margin: 0 0 8px 0; font-size: 16px; }
+        .nl-dialog h2 { margin: 0 0 8px 0; font-size: 16px; cursor: move; user-select: none; }
         .nl-instruction { color: var(--muted, #888); font-size: 12px; margin: 0 0 12px 0; line-height: 1.5; }
         .nl-dialog textarea { width: 100%; min-height: 96px; resize: vertical; font-family: inherit;
             font-size: 14px; background: var(--field-bg, #2d2d30); color: var(--input-text, #d4d4d4);
@@ -60,6 +60,33 @@ function ensureStyles() {
         .nl-dialog button:disabled { opacity: 0.5; cursor: default; }
     `;
     document.head.appendChild(style);
+}
+
+// Let the user drag `box` around by grabbing `handle`. The box stays flex-centred by
+// the overlay; dragging applies a translate offset on top of that centre position.
+function makeDraggable(box: HTMLElement, handle: HTMLElement) {
+    let dx = 0, dy = 0;                    // current offset from the centred position
+    let startX = 0, startY = 0, ox = 0, oy = 0, dragging = false;
+    const onMove = (e: MouseEvent) => {
+        if (!dragging) return;
+        dx = ox + (e.clientX - startX);
+        dy = oy + (e.clientY - startY);
+        box.style.transform = `translate(${dx}px, ${dy}px)`;
+    };
+    const onUp = () => {
+        dragging = false;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.body.style.userSelect = '';
+    };
+    handle.addEventListener('mousedown', (e) => {
+        dragging = true;
+        startX = e.clientX; startY = e.clientY; ox = dx; oy = dy;
+        document.body.style.userSelect = 'none';
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+        e.preventDefault();
+    });
 }
 
 export function openNlInput(opts: NlInputOptions): void {
@@ -109,6 +136,7 @@ export function openNlInput(opts: NlInputOptions): void {
     dialog.appendChild(status);
     dialog.appendChild(actions);
     document.body.appendChild(overlay);
+    makeDraggable(dialog, h);   // drag the dialog by its title bar
     setTimeout(() => textarea.focus(), 0);
 
     const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
