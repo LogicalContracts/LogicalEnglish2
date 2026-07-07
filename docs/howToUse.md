@@ -15,7 +15,9 @@ The Logical English (LE) web application is a simple IDE designed for developing
   - [The Scenario Editor](#the-scenario-editor)
     - [Layout](#layout)
     - [Editing facts](#editing-facts)
+    - [Write it in English (LLM-assisted)](#write-it-in-english-llm-assisted)
     - [Saving your work](#saving-your-work)
+  - [The Query Editor](#the-query-editor)
   - [Scenario Variations](#scenario-variations)
     - [Layout](#layout-1)
     - [Running and sharing](#running-and-sharing)
@@ -91,12 +93,34 @@ Only the placeholders are editable — you can't accidentally break the surround
 *   **Test lines** (`… expects answers …`) are too complex for this form, so they are not shown. They are kept aside and written back **commented out** (so your saved scenario is valid); review and re-enable them in the main editor.
 *   **Other lines that match no template** are shown greyed-out and read-only so they are preserved; edit those in the main editor. Comments (`%`) are ignored.
 
+### Write it in English (LLM-assisted)
+
+Instead of picking a template, choose **Write it in English** (the last entry in the **Add fact** menu) to add facts by describing them in plain language. A dialog opens; type one or more sentences describing precise facts, and an LLM turns them into Logical English facts that use **your program's existing templates**, adding them as ordinary editable rows.
+
+*   **Respects your templates.** The model only fills in the templates you already have — it won't invent predicates. It also normalises wording and tense (e.g. "Miguel *was* born in Portugal" → `Miguel is born in Portugal on a date`) and, where the sentence leaves a placeholder unspecified, keeps the placeholder's own words (like `a date`) for you to fill in. If you need new predicates first, add them in the main editor or with the **LE Assistant**.
+*   **You need an LLM configured** — the same model and API keys as the LE Assistant. Set them in the main editor under **Misc → API Keys…**; the dialog shows which model it will use, or a hint if none is set.
+*   **Verified before it's added.** The proposed facts are checked against your program (baseline-diffed, so only *new* problems count). If the result verifies clean it is added straight away; if it introduces new issues you are **warned** but can still **Insert anyway**, or rephrase and **Regenerate**.
+
 ### Saving your work
 
 *   **Copy:** copies the whole scenario block (`scenario <name> is:` followed by its facts) to the clipboard, ready to paste anywhere.
 *   **Insert into Editor:** writes the scenario back into the main editor — **replacing** the scenario you loaded, or **appending** a new one — and closes the Scenario Editor window.
 
 The Scenario Editor does not itself check your Logical English: as with any edit, the **final syntax check happens on the server** the next time the editor loads the module, and any problems are reported as usual. If you try to close the window with unsaved changes (not yet copied or inserted), it asks you to confirm first.
+
+## The Query Editor
+
+The **Query Editor** builds and edits queries the same way the Scenario Editor builds scenarios — as fill-in-the-blank rows instead of hand-typed syntax. Open it from **Edit → Edit Queries…**; it opens in a separate window. Pick **New…** to start a fresh query or an existing query to load it, and give it a **Name**.
+
+A query is a list of **conditions**, each an instance of one of your templates (fill in its placeholder fields, or type `which person` to ask for a value to return). You control how they combine:
+
+*   **Add condition:** pick a template and click **+ Add**, then fill in the fields. Each condition after the first has an **and / or** selector before it (**and** by default), so a sequence like *A and B or C* reads top to bottom.
+*   **Negate** a condition with its **not** checkbox — it is written as `it is not the case that …`.
+*   **Indent** (⇥ / ⇤) a condition to **nest** it, which reflects the intended **and/or scoping** (a more-indented condition binds tighter), exactly as Logical English uses indentation.
+*   **Write it in English:** the last entry in the **Add condition** menu opens the same LLM-assisted dialog as the Scenario Editor — describe the query in plain language and its conditions are generated (and verified) from your templates and appended. See [Write it in English](#write-it-in-english-llm-assisted).
+*   **Copy** puts the `query <name> is:` block on the clipboard; **Insert into Editor** writes it back — **replacing** the query you loaded or **appending** a new one.
+
+The Query Editor keeps things simple and does not cover the full LE body-condition syntax (nested groups, aggregates, etc.); use the main editor for those. As with the Scenario Editor, the **final syntax check happens on the server** when the module next loads.
 
 ## Scenario Variations
 

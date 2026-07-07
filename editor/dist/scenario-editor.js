@@ -501,7 +501,7 @@ function ensureStyles() {
         .nl-dialog { background: var(--panel-bg, #252526); color: var(--text-color, #d4d4d4);
             border: 1px solid var(--border-color, #444); border-radius: 8px; width: min(640px, 92vw);
             max-height: 90vh; overflow: auto; padding: 18px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-        .nl-dialog h2 { margin: 0 0 8px 0; font-size: 16px; }
+        .nl-dialog h2 { margin: 0 0 8px 0; font-size: 16px; cursor: move; user-select: none; }
         .nl-instruction { color: var(--muted, #888); font-size: 12px; margin: 0 0 12px 0; line-height: 1.5; }
         .nl-dialog textarea { width: 100%; min-height: 96px; resize: vertical; font-family: inherit;
             font-size: 14px; background: var(--field-bg, #2d2d30); color: var(--input-text, #d4d4d4);
@@ -518,6 +518,34 @@ function ensureStyles() {
         .nl-dialog button:disabled { opacity: 0.5; cursor: default; }
     `;
   document.head.appendChild(style);
+}
+function makeDraggable(box, handle) {
+  let dx = 0, dy = 0;
+  let startX = 0, startY = 0, ox = 0, oy = 0, dragging = false;
+  const onMove = (e) => {
+    if (!dragging)
+      return;
+    dx = ox + (e.clientX - startX);
+    dy = oy + (e.clientY - startY);
+    box.style.transform = `translate(${dx}px, ${dy}px)`;
+  };
+  const onUp = () => {
+    dragging = false;
+    document.removeEventListener("mousemove", onMove);
+    document.removeEventListener("mouseup", onUp);
+    document.body.style.userSelect = "";
+  };
+  handle.addEventListener("mousedown", (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    ox = dx;
+    oy = dy;
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    e.preventDefault();
+  });
 }
 function openNlInput(opts) {
   ensureStyles();
@@ -562,6 +590,7 @@ function openNlInput(opts) {
   dialog.appendChild(status);
   dialog.appendChild(actions);
   document.body.appendChild(overlay);
+  makeDraggable(dialog, h);
   setTimeout(() => textarea.focus(), 0);
   const close = () => {
     overlay.remove();
