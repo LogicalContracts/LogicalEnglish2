@@ -1685,6 +1685,12 @@ second_pass_query_item(Templates, fact(Head, Start, End), Item, _M) :-
 % which preserves the exact instance tokens for the answer. parse_body handles the
 % multi-line form; parse_inline_body the single-line "a and b" form.
 parse_query_body(Tokens, Templates, Goal) :-
+    % A single complete template instance takes priority over a connective-based
+    % reading. Templates may legitimately contain words like "for", "or", "and"
+    % and "under" (e.g. "*an amount* for all relevant claims or losses covered
+    % under *a section* ..."); without this guard parse_body would mistake those
+    % words for a for/or/under body structure and split the template apart.
+    \+ single_template_query(Tokens, Templates),
     % Baseline indent = that of the body's continuation lines (the first indent
     % token), mirroring the N a rule passes to parse_body — needed so that, e.g.,
     % the goal under "it is not the case that" nests correctly.
@@ -1694,6 +1700,57 @@ parse_query_body(Tokens, Templates, Goal) :-
     ;   catch(parse_inline_body(Tokens, Templates, [], _, G2), _, fail), has_query_connective(G2)
     ->  Goal = G2
     ).
+
+% single_template_query(+Tokens, +Templates): the query body, taken whole, is a
+% single instance of ONE defined template (matched directly, without prepositional
+% chaining). Used to veto connective parsing so a template whose fixed words happen
+% to include connective-like words ("for", "or", "under", ...) is not torn apart.
+%
+% Only a *direct* single-template match qualifies: a chained match (a main template
+% plus one or more prepositional phrases, e.g. "we will make X under Y in respect of
+% Z") must keep the connective/body path so its prepositional goals are captured and
+% folded — it is not a single template.
+single_template_query(Tokens, Templates) :-
+    query_literal_tokens(Tokens, LiteralTokens),
+    exclude(is_indent_or_comment, LiteralTokens, CleanTokens),
+    % Reject a prepositional chain (a main template plus one or more prepositional
+    % phrases): match_template_with_chaining only succeeds when such a chain exists,
+    % and those chains must stay on the connective/body path so their prepositional
+    % goals are folded into the rendered answer.
+    \+ catch(match_template_with_chaining(CleanTokens, Templates, [], _, _, _, true, 0), _, fail),
+    maplist(extract_simple_word, CleanTokens, Words),
+    % Some ONE template matches the whole body directly, and the body contains no
+    % genuine body-level connective (and / or / "it is not the case that" / "for all
+    % cases ...") that the template does not itself carry as fixed words. A free
+    % connective means the single-template match could only succeed by swallowing it
+    % into a variable — the query is really a multi-condition body, so leave it alone.
+    member(dict(FunctorArgs, _NTs, WordsAndVars, _S, _E, NIW, _G, _O, _P, _U), Templates),
+    \+ (FunctorArgs = [le_is|_]),
+    contains_subsequence(NIW, Words),
+    % The template's fixed words are the non-variable atoms of its pattern (NIW drops
+    % "ignorable" words like "and"/"or", so it can't tell a fixed "or" from a
+    % connective one — WordsAndVars keeps them).
+    include(atom, WordsAndVars, FixedWords),
+    \+ body_has_free_connective(Words, FixedWords),
+    copy_term(WordsAndVars, WordsAndVarsCopy),
+    catch(match_instance_to_template(CleanTokens, WordsAndVarsCopy, [], _, Templates, true, 0), _, fail),
+    !.
+
+% body_has_free_connective(+Words, +FixedWords): the body word list contains a
+% body-level connective keyword/phrase that is NOT among the matched template's fixed
+% words. Such a connective would have to be captured inside a template variable for a
+% single-template match to succeed, which means the query is a genuine multi-
+% condition body (and / or / negation / for-all) rather than one template instance.
+body_has_free_connective(Words, FixedWords) :-
+    (   member(and, Words),    \+ memberchk(and, FixedWords)
+    ;   member(or, Words),     \+ memberchk(or, FixedWords)
+    ;   member(unless, Words), \+ memberchk(unless, FixedWords)
+    ;   contig_subseq([not, the, case], Words), \+ contig_subseq([not, the, case], FixedWords)
+    ;   contig_subseq([for, all, cases], Words), \+ contig_subseq([for, all, cases], FixedWords)
+    ), !.
+
+% contig_subseq(+Sub, +List): Sub occurs as a contiguous block within List.
+contig_subseq(Sub, List) :- append(_, Tail, List), append(Sub, _, Tail), !.
 
 has_query_connective(le_at(G, _, _)) :- !, has_query_connective(G).
 has_query_connective(and(_, _)).
