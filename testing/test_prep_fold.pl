@@ -58,4 +58,35 @@ test(composite_is_synonym_for_prepositional) :-
     once(KB:le_dict(dict([under|_], _, _, _, _, Prep, _))),
     assertion(Prep == prepositional).
 
+% A query that is a single template whose fixed words happen to contain the
+% connective-like words "for", "or" and "under" must be parsed as that ONE template
+% instance — not torn apart into a for(...)/or(...)/under(...) body structure.
+% (Regression: hiscoxhappypath.le query "relevant".)
+test(single_template_query_with_connective_words_is_not_split) :-
+    Text = "the templates are:\n    \c
+            *an amount* for all relevant claims or losses covered under *a section*.\n\c
+            query q is:\n    \c
+            which amount for all relevant claims or losses covered under which section.\n",
+    le_kbs:load_text(Text, KB),
+    once(KB:query_info(q, Goal, _)),
+    functor(Goal, F, _),
+    assertion(F == for_all_relevant_claims_or_losses_covered_under).
+
+% The single-template preference must NOT swallow a genuine body-level connective:
+% a query mixing a template with "and" / "it is not the case that" stays a
+% multi-condition body. (Regression: tea_party3.le query "not_punishment", where the
+% "*a creature* attends *an event*" template would otherwise greedily capture the
+% trailing "... and it is not the case that ...".)
+test(query_with_free_connective_stays_a_body) :-
+    Text = "the templates are:\n    \c
+            *a creature* attends *an event*.\n    \c
+            *a creature* is punished with *a sanction*.\n\c
+            query q is:\n    \c
+            which creature attends the tea party and it is not the case that \c
+            the creature is punished with a sanction.\n",
+    le_kbs:load_text(Text, KB),
+    once(KB:query_info(q, Goal, _)),
+    functor(Goal, F, _),
+    assertion(F == and).
+
 :- end_tests(prep_fold).
