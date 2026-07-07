@@ -81,8 +81,10 @@ test.describe('Query Editor', () => {
         // New query, named "q".
         await page.locator('#query-name').fill('q');
 
-        // The Add picker offers every declared template (placeholders shown bare).
-        await expect(page.locator('#add-template option')).toHaveCount(3);
+        // The Add picker offers every declared template (placeholders shown bare),
+        // plus the "Write it in English…" entry.
+        await expect(page.locator('#add-template option')).toHaveCount(4);
+        await expect(page.locator('#add-template option', { hasText: 'Write it in English' })).toHaveCount(1);
 
         // Condition 1: "which person is happy".
         await page.locator('#add-template').selectOption({ label: 'a person is happy' });
@@ -171,6 +173,51 @@ test.describe('Query Editor', () => {
         await expect(page.locator('.fact-row')).toHaveCount(3);
         await expect(page.locator('.fact-row').nth(2)).toHaveClass(/indented/);
         await expect(page.locator('.fact-row').nth(1)).not.toHaveClass(/indented/);
+    });
+
+    test('Write it in English… appends query conditions from the LLM', async ({ page, context }) => {
+        await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+        const seed = {
+            source: [
+                'the templates are:',
+                '    *a person* is happy.',
+                '    *a person* is the brother of *a person*.',
+            ].join('\n'),
+        };
+        await page.goto('index.html');
+        await page.evaluate((s) => {
+            localStorage.setItem('le_query_editor_data', JSON.stringify(s));
+            localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');
+        }, seed);
+        await page.route('**/leapi', async (route) => {
+            const body = JSON.parse(route.request().postData() || '{}');
+            if (body.operation === 'nl_to_le') {
+                expect(body.kind).toBe('query');
+                await route.fulfill({ status: 200, contentType: 'application/json',
+                    body: JSON.stringify({ result: 'ok',
+                        le: 'which person is happy\nand it is not the case that the person is the brother of Bob.' }) });
+            } else { await route.continue(); }
+        });
+        await page.goto('query-editor.html');
+        await page.fill('#query-name', 'q');
+
+        await page.selectOption('#add-template', '__write_in_english__');
+        await page.click('#btn-add');
+        await expect(page.locator('.nl-dialog')).toBeVisible();
+        await page.fill('.nl-dialog textarea', 'which person is happy and is not the brother of Bob');
+        await page.click('.nl-dialog button.primary');
+
+        await expect(page.locator('.nl-dialog')).toHaveCount(0);
+        await expect(page.locator('.fact-row')).toHaveCount(2);
+        await expect(page.locator('.fact-row').nth(1).locator('.neg-phrase')).toHaveText('it is not the case that');
+
+        await page.click('#btn-copy');
+        const copied = await page.evaluate(() => navigator.clipboard.readText());
+        expect(copied).toBe(
+            'query q is:\n' +
+            '    which person is happy\n' +
+            '    and it is not the case that the person is the brother of Bob.'
+        );
     });
 
     test('Insert into Editor replaces the query in the document', async ({ context }) => {

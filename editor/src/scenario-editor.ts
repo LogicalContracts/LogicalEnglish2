@@ -5,6 +5,7 @@
 
 import { parseScenarioBlocks, ScenarioBlock } from './le-templates';
 import { ScenarioForm } from './scenario-form';
+import { openNlInput, splitStatements } from './nl-input';
 
 interface ScenarioEditorData { source?: string; }
 
@@ -36,6 +37,20 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         addSelect: $('add-template') as HTMLSelectElement,
         btnAdd: $('btn-add') as HTMLButtonElement,
         onChange: markDirty,
+        onWriteInEnglish: () => openNlInput({
+            kind: 'facts',
+            source,
+            title: 'Add facts — write it in English',
+            instruction: 'Type one or more sentences describing precise facts to be added to the scenario. '
+                + 'The facts must respect the predicates (templates) already in your program; if you need to '
+                + 'expand these first, use the editor or the LE Assistant.',
+            placeholder: 'e.g. Alice is the mother of John, and John was born in the UK on 2021-10-09.',
+            onResult: (leText) => {
+                const facts = splitStatements(leText);
+                facts.forEach(f => form.addFact(f));
+                setStatus(`Added ${facts.length} fact${facts.length === 1 ? '' : 's'} from English`);
+            },
+        }),
     });
 
     // --- Scenario picker -------------------------------------------------------

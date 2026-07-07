@@ -28,6 +28,7 @@
 :- use_module(le_assistant).
 :- use_module(dap_server).
 :- use_module(llm/llm_client, [llm_list_models/1]).
+:- use_module(nl_to_le, [english_to_le/8]).
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_rest_example_details/1]).
 :- use_module(le_users).
 :- use_module(restricted_paths).
@@ -171,6 +172,7 @@ handle_operation(Dict, Response) :-
         ; Op == "assistant_status" -> handle_assistant_status(Dict, Response)
         ; Op == "assistant_interrupt" -> handle_assistant_interrupt(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
+        ; Op == "nl_to_le" -> handle_nl_to_le(Dict, Response)
         ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)
         ; Op == "graph" -> handle_graph(Dict, Response)
         ; Response = _{error: "Unknown operation"}
@@ -455,6 +457,57 @@ handle_list_models(_Dict, Response) :-
     maplist(row_to_dict, Rows, Models),
     findall(P, (member(P, [openai, groq, anthropic, together, gemini]), catch(llm_client:api_key(P, _), _, fail)), ServerKeys),
     Response = _{models: Models, server_keys: ServerKeys}.
+
+%!  handle_nl_to_le(+Dict, -Response) is det.
+%
+%   The "Write it in English…" endpoint: a one-shot, synchronous LLM conversion of
+%   an English sentence into Logical English facts (kind "facts") or a query body
+%   (kind "query"), respecting the program's templates. The heavy lifting is the
+%   documented predicate nl_to_le:english_to_le/8, which also VERIFIES the fragment
+%   against the program and reports any NEW issues it introduces (baseline-diffed).
+%   This handler only unpacks the request, resolves the API key (client-supplied
+%   api_keys first, then the provider env var) and shapes the JSON. Request fields:
+%   sentence, kind, templates (list of label strings), content (the program source,
+%   for verification), model, api_keys. Response: {result:"ok", le:"<LE text>",
+%   warnings:[<message>...]} (warnings empty when it verified clean) or
+%   {result:"error", error:"<message>"}.
+handle_nl_to_le(Dict, Response) :-
+    ( get_dict(sentence, Dict, Sentence) -> true ; Sentence = "" ),
+    ( get_dict(kind, Dict, "query") -> Kind = query ; Kind = facts ),
+    ( get_dict(templates, Dict, Templates) -> true ; Templates = [] ),
+    ( get_dict(content, Dict, Program) -> true ; Program = "" ),
+    ( get_dict(model, Dict, Model), Model \== "", Model \== null -> true ; Model = "openai/gpt-oss-120b" ),
+    ( get_dict(api_keys, Dict, Keys) -> true ; Keys = _{} ),
+    nl_le_api_key(Model, Keys, Key),
+    ( Key == "" -> Options = [] ; Options = [api_key(Key)] ),
+    % Recover with `true` (not `fail`) so a thrown error leaves Err bound and the
+    % catch still succeeds; then distinguish success (Err unbound) from an error.
+    (   catch(english_to_le(Kind, Sentence, Templates, Program, Model, Options, LEText, NewIssues), Err, true)
+    ->  (   nonvar(Err)
+        ->  message_to_string(Err, EMsg), Response = _{result: "error", error: EMsg}
+        ;   maplist(nl_issue_message, NewIssues, Warnings),
+            Response = _{result: "ok", le: LEText, warnings: Warnings}
+        )
+    ;   Response = _{result: "error", error: "LLM request failed"}
+    ).
+
+% nl_issue_message(+Issue, -Msg): a "[severity] message" string for a verification
+% issue, for the client's warning list.
+nl_issue_message(Issue, Msg) :-
+    ( get_dict(severity, Issue, Sev) -> true ; Sev = "warning" ),
+    ( get_dict(message, Issue, M) -> true ; M = "issue" ),
+    format(string(Msg), "[~w] ~w", [Sev, M]).
+
+% nl_le_api_key(+Model, +Keys, -Key): the API key for Model — a client-supplied key
+% for the model's provider if present, else the provider's env var (via llm_client),
+% else "" (english_to_le then falls back to the provider env var itself).
+nl_le_api_key(Model, Keys, Key) :-
+    ( llm_client:llm_model(Model, Provider0, _) -> true ; Provider0 = openai ),
+    ( Provider0 == gemini -> KeyProv = google ; KeyProv = Provider0 ),
+    (   get_dict(KeyProv, Keys, K), K \== null, K \== ""
+    ->  Key = K
+    ;   catch(llm_client:api_key(Provider0, Key), _, Key = "")
+    ).
 
 handle_is_a_hierarchy(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),

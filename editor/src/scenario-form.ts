@@ -34,7 +34,13 @@ export interface ScenarioFormOptions {
     btnAdd: HTMLButtonElement;      // the "Add" button
     onChange?: () => void;          // fired on any edit (add/remove/field change)
     assumeTitle?: string;           // tooltip for the "Assume" checkbox (host-specific)
+    // When set, an extra "Write it in English…" entry is added to the Add picker; the
+    // host opens the NL modal and later calls addFact() with the generated facts.
+    onWriteInEnglish?: () => void;
 }
+
+// Sentinel value for the "Write it in English…" entry in the Add picker.
+export const WRITE_IN_ENGLISH = '__write_in_english__';
 
 // Default tooltip for the "Assume" checkbox; hosts may override via ScenarioFormOptions.
 const DEFAULT_ASSUME_TITLE = 'if checked, fact is assumed, unknown';
@@ -74,9 +80,16 @@ export class ScenarioForm {
             o.textContent = label.replace(/\*/g, '');   // show placeholders without the markers
             opts.addSelect.appendChild(o);
         }
+        if (opts.onWriteInEnglish) {
+            const o = document.createElement('option');
+            o.value = WRITE_IN_ENGLISH;
+            o.textContent = 'Write it in English';
+            opts.addSelect.appendChild(o);
+        }
         opts.btnAdd.addEventListener('click', () => {
             const val = opts.addSelect.value;
             if (!val) return;
+            if (val === WRITE_IN_ENGLISH) { this.opts.onWriteInEnglish?.(); return; }
             this.rows.push({ templateLabel: val, values: [], raw: '', assumed: false });
             this.changed();
             this.render();

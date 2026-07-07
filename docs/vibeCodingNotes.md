@@ -1985,3 +1985,28 @@ on example citizenship.le, scenario alice_harry, query one, in Scenario Variatio
 
 ## Queries Editor
 Similarly to the Scenario Editor, and similar look and feel, make a Query Editor that lets the user edit or create a query, by selecting templates and the basic connectives (and, or, it is not the case); then either copy it or insert into the editor. It does not have to support the full LE (body conditions) syntax, to stay simple
+
+## LLM-assisted scenarios and queries
+Let's add LLM-assisted, natural language input:
+- Scenario Editor
+In the "Add fact ..." menu add a last option "Write it in English...", which opens up a modal dialog where the user can type a sentence with one or more facts to add to the scenario. Provide a simple instruction at the top of the dialog, along the lines of "Type one or more sentences describing precise facts to be added to the scenario. The facts must respect to predicates (templates) already in your program; if you need to expand these first use the editor or the LE Assistant.".
+When closing the dialog the fact(s) are added to the scenario in the Scenario Editor
+
+- Query Editor
+Similarly, in the "Add condition ..." menu add a last option "Write it in English...". Same experience as above (and try to reuse code), except that the output of the dialog is a query, to append to the query being built in the Query Editor
+
+The user needs to have some LLM configured, same as for LE Assistant
+
+To test the above use openai/gpt-oss-120b via groq , GROQ_API_KEY=.... (do not store this key in any file!).
+
+### tweaks
+First, remove the "..." in both "Write it in English..." menu items.
+
+Second, english_to_le(...) needs to verify the program (with the proposed additional scenario facts or query fragment) , using a simplified variant of the LE Assistant's Light Mode.
+First we  make a call to verify/2 with the program in the state prior to scenario/query Editor invovation, to obtain a baseline, "pre existing issues"; then after each agent_loop we only care about NEW issues versus that baseline. For Query/Scenarion generation, we'll use a hardwired max of 2 agent_loops. If any new issues remain after these loops, WARN the user, but let him still insert the resulting facts/query into the editor if he so choses.
+The LE program resulting from these agent_loops will be discarded: we'll only retain the new scenarion facts or query.
+
+Something seems wrong with "Write in english" in Scenario Editor. With citizenship.le tried to add a fact "Miguel was    
+  born in Portugal" but got an error: " The model returned nothing that matches your templates. Try rephrasing.". this with 
+  Model: openai/gpt-oss-120b. With Model: zai-org/GLM-5.2 it worked fine. I think the other model should still deal with    
+  this example, not refuse it                                                                                               

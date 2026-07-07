@@ -90,7 +90,9 @@ test.describe('Scenario Editor', () => {
         // scenario (incl. the "is a TYPE" assertion since it is used); not conclusions.
         const addOptions = page.locator('#add-template option');
         await expect(page.locator('#add-template option', { hasText: '(free text)' })).toHaveCount(0);
-        await expect(addOptions).toHaveCount(5);
+        // 5 templates + the "Write it in English…" entry.
+        await expect(addOptions).toHaveCount(6);
+        await expect(page.locator('#add-template option', { hasText: 'Write it in English' })).toHaveCount(1);
         await expect(page.locator('#add-template option', { hasText: 'has passed the test' })).toHaveCount(1); // undefined
         await expect(page.locator('#add-template option', { hasText: 'a thing is a colour' })).toHaveCount(1);  // used
         await expect(page.locator('#add-template option', { hasText: 'a thing is a type' })).toHaveCount(1);     // type assertion, used
@@ -139,6 +141,83 @@ test.describe('Scenario Editor', () => {
         // Zero editable fields — the whole no-variable template is plain words.
         await expect(rows.nth(0).locator('input.field')).toHaveCount(0);
         await expect(rows.nth(0)).toContainText('you give us prompt notice under this policy');
+    });
+
+    test('Write it in English… adds facts from the LLM', async ({ page }) => {
+        const seed = {
+            source: [
+                'the templates are:',
+                '    *a person* is happy.',
+                '    *a person* is the mother of *a person*.',
+            ].join('\n'),
+        };
+        await page.goto('index.html');
+        await page.evaluate((s) => {
+            localStorage.setItem('le_scenario_editor_data', JSON.stringify(s));
+            localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');   // as if configured via API Keys…
+        }, seed);
+        // Mock the nl_to_le backend (no real LLM/key needed).
+        await page.route('**/leapi', async (route) => {
+            const body = JSON.parse(route.request().postData() || '{}');
+            if (body.operation === 'nl_to_le') {
+                expect(body.kind).toBe('facts');
+                expect(body.templates).toContain('*a person* is happy');
+                await route.fulfill({ status: 200, contentType: 'application/json',
+                    body: JSON.stringify({ result: 'ok', le: 'Alice is happy.\nAlice is the mother of John.' }) });
+            } else { await route.continue(); }
+        });
+        await page.goto('scenario-editor.html');
+        await page.fill('#scenario-name', 'nl');
+
+        // Pick "Write it in English…" and Add → the modal opens.
+        await page.selectOption('#add-template', '__write_in_english__');
+        await page.click('#btn-add');
+        await expect(page.locator('.nl-dialog')).toBeVisible();
+        await page.fill('.nl-dialog textarea', 'Alice is happy and she is the mother of John');
+        await page.click('.nl-dialog button.primary');
+
+        // The modal closes and the two generated facts load as editable rows.
+        await expect(page.locator('.nl-dialog')).toHaveCount(0);
+        await expect(page.locator('.fact-row')).toHaveCount(2);
+        await expect(page.locator('.fact-row').nth(0)).toContainText('is happy');
+        await expect(page.locator('.fact-row').nth(1)).toContainText('is the mother of');
+    });
+
+    test('Write it in English… warns on new issues but still lets you insert', async ({ page }) => {
+        const seed = { source: 'the templates are:\n    *a person* is happy.\n' };
+        await page.goto('index.html');
+        await page.evaluate((s) => {
+            localStorage.setItem('le_scenario_editor_data', JSON.stringify(s));
+            localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');
+        }, seed);
+        // Mock a verified-with-issues response (as the backend's baseline-diff would return).
+        await page.route('**/leapi', async (route) => {
+            const body = JSON.parse(route.request().postData() || '{}');
+            if (body.operation === 'nl_to_le') {
+                expect(typeof body.content).toBe('string');   // program is sent for verification
+                await route.fulfill({ status: 200, contentType: 'application/json',
+                    body: JSON.stringify({ result: 'ok', le: 'Alice is happy.',
+                        warnings: ['[warning] Missing template for \'Bob likes chocolate\''] }) });
+            } else { await route.continue(); }
+        });
+        await page.goto('scenario-editor.html');
+        await page.fill('#scenario-name', 'nl');
+        await page.selectOption('#add-template', '__write_in_english__');
+        await page.click('#btn-add');
+        await page.fill('.nl-dialog textarea', 'Alice is happy and Bob likes chocolate');
+        await page.click('.nl-dialog button.primary');
+
+        // The dialog stays open with a warning, and the primary button becomes "Insert anyway".
+        await expect(page.locator('.nl-dialog')).toBeVisible();
+        await expect(page.locator('.nl-status.warn')).toContainText('1 new issue');
+        await expect(page.locator('.nl-status.warn')).toContainText('Missing template');
+        await expect(page.locator('.nl-dialog button.primary')).toHaveText('Insert anyway');
+
+        // Insert anyway → the fact is added and the dialog closes.
+        await page.click('.nl-dialog button.primary');
+        await expect(page.locator('.nl-dialog')).toHaveCount(0);
+        await expect(page.locator('.fact-row')).toHaveCount(1);
+        await expect(page.locator('.fact-row').nth(0)).toContainText('is happy');
     });
 
     test('Insert into Editor replaces the scenario in the document', async ({ context }) => {
