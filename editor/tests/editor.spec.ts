@@ -214,6 +214,44 @@ test.describe('Logical English Editor', () => {
     expect(bodyTokens.some((t: string) => t.includes('templateword'))).toBeFalsy();
   });
 
+  test('colours template addition keywords (incl. synonym)', async ({ page }) => {
+    // Regression: the "; synonym ..." addition keyword must be highlighted like the
+    // other addition keywords (opposite, prepositional, ...), not as plain text.
+    await expect(page.locator('#container')).toBeVisible();
+    await page.waitForFunction(() =>
+      typeof (window as any).monaco !== 'undefined' &&
+      (window as any).monaco.languages.getLanguages().some((l: any) => l.id === 'le')
+    );
+
+    const additionTokenTypes = await page.evaluate(() => {
+      const src =
+        'the templates are:\n' +
+        '    *a person* is happy; synonym *a person* is content.\n' +
+        '    *a person* is a citizen; opposite *a person* is not a citizen.\n' +
+        '    *a payment* under *a policy*; prepositional.\n';
+      const lines = (window as any).monaco.editor.tokenize(src, 'le');
+      // For each addition keyword, find the token whose type is keyword.addition and
+      // whose text at its offset is the keyword.
+      const textLines = src.split('\n');
+      const typeAt = (lineIdx: number, word: string) => {
+        const toks = lines[lineIdx];
+        const col = textLines[lineIdx].indexOf(word);
+        let type = 'none';
+        for (const t of toks) if (t.offset <= col) type = t.type;
+        return type;
+      };
+      return {
+        synonym: typeAt(1, 'synonym'),
+        opposite: typeAt(2, 'opposite'),
+        prepositional: typeAt(3, 'prepositional'),
+      };
+    });
+
+    expect(additionTokenTypes.synonym).toContain('keyword.addition');
+    expect(additionTokenTypes.opposite).toContain('keyword.addition');
+    expect(additionTokenTypes.prepositional).toContain('keyword.addition');
+  });
+
   test('citizenship example integration test', async ({ page }) => {
     test.setTimeout(60000); // Increase timeout for this complex test
 
