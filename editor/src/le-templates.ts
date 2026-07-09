@@ -102,7 +102,12 @@ function templateRegex(label: string): RegExp | null {
         // Word-boundary the literal so a literal word ("is", "for") matches a WHOLE
         // word, not a substring inside a field value ("th-is", "terror-is-m"). \b is
         // anchored to the first/last word character of the literal.
-        const lit = escapeRegex(s.text).replace(/\s+/g, '\\s+');
+        // A literal comma must match a GRAMMATICAL comma, never a thousands
+        // separator: in "is 10,000,000, in the aggregate" the template's comma
+        // must take the LAST comma (followed by a space), not the number's
+        // (followed by a digit) — otherwise the lazy fields split the number
+        // (amount "10", qualifier "000,000, in the aggregate").
+        const lit = escapeRegex(s.text).replace(/\s+/g, '\\s+').replace(/,/g, ',(?!\\d)');
         const lb = /^\w/.test(s.text) ? '\\b' : '';
         const rb = /\w$/.test(s.text) ? '\\b' : '';
         return lb + lit + rb;
@@ -163,7 +168,9 @@ export function fillTemplate(label: string, values: string[]): string {
     const out = segs
         .map(s => (s.kind === 'field' ? (values[fi++] ?? '') : s.text))
         .join(' ');
-    return out.replace(/\s+/g, ' ').trim();
+    // Attach grammatical commas to the preceding word ("10,000,000, in the
+    // aggregate", not "10,000,000 , in the aggregate").
+    return out.replace(/\s+/g, ' ').replace(/\s+,/g, ',').trim();
 }
 
 export interface ScenarioBlock {

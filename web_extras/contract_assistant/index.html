@@ -71,6 +71,7 @@
           <label class="field"><span>Branches (W)</span><input type="number" id="adv-w" min="1" max="5"></label>
           <label class="field"><span>Repair iterations</span><input type="number" id="adv-repairs" min="0" max="10"></label>
           <label class="field"><span>Max minutes</span><input type="number" id="adv-minutes" min="1" max="600"></label>
+          <label class="field"><span>Max completion tokens per LLM call</span><input type="number" id="adv-maxtokens" min="1000" max="64000" placeholder="16000"></label>
         </div>
         <div class="row">
           <label class="field"><span>Interrogation probes (0 = off; preset default if empty)</span><input type="number" id="feat-probes" min="0" max="20"></label>
@@ -100,7 +101,8 @@
   <!-- ============================== RUN ============================== -->
   <section id="screen-run" class="screen hidden">
     <div class="card">
-      <h2 id="run-title">Generating&hellip;</h2>
+      <h2 id="run-title">Generating&hellip; <span id="run-elapsed" class="elapsed"></span></h2>
+      <div id="run-summary" class="hint"></div>
       <div class="stagebar">
         <div id="stage-fill" class="stagebar-fill"></div>
         <span id="stage-label">starting</span>
@@ -109,7 +111,8 @@
       <pre id="log" class="log"></pre>
       <div class="actions">
         <button id="btn-cancel" class="danger">Cancel</button>
-        <span class="hint">This may take many minutes. You can close this tab: the job keeps its link (the URL) and this page reattaches to it.</span>
+        <button id="btn-run-back" class="hidden">New conversion</button>
+        <span class="hint" id="run-hint">This may take many minutes. You can close this tab: the job keeps its link (the URL) and this page reattaches to it.</span>
       </div>
     </div>
   </section>

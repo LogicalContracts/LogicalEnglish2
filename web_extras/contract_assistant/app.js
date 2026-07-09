@@ -148,6 +148,7 @@ async function start() {
             features: collectFeatures(),
             target: $('target').value.trim()
         };
+        if ($('adv-maxtokens').value !== '') payload.max_tokens = Number($('adv-maxtokens').value);
         if ($('file-schedule').files.length)
             payload.schedule = await fileToUpload($('file-schedule').files[0]);
         payload.cases = await Promise.all(Array.from($('file-cases').files).map(fileToUpload));
@@ -169,12 +170,44 @@ function attach(job) {
     logSince = 0;
     $('log').textContent = '';
     $('branches').innerHTML = '';
+    $('run-title').textContent = 'Generating\u2026';
+    $('btn-cancel').disabled = false;
+    $('btn-run-back').classList.add('hidden');
     show('run');
     poll(job);
     pollTimer = setInterval(() => poll(job), 2000);
 }
 
 const STAGE_MAX = 6;
+
+function fmtElapsed(sec) {
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+    const mm = String(m).padStart(2, '0'), ss = String(s).padStart(2, '0');
+    return h > 0 ? `${h}:${mm}:${ss}` : `${m}:${ss}`;
+}
+
+// The user's choices and the elapsed time, echoed by every status poll (so a
+// reloaded tab shows them too).
+function renderRunHeader(data) {
+    if (typeof data.elapsed === 'number')
+        $('run-elapsed').textContent = `\u2014 ${fmtElapsed(data.elapsed)} elapsed`;
+    const c = data.config || {};
+    if (c.model) {
+        const bits = [
+            `model ${c.model}`,
+            c.judge_model && c.judge_model !== c.model ? `judge ${c.judge_model}` : null,
+            `K=${c.k} W=${c.w} repairs=${c.repairs}`,
+            `probes ${c.probes}`,
+            `holdout ${c.holdout}`,
+            c.paraphrase === true ? 'paraphrase check' : null,
+            c.clausewise === true ? 'clause-wise' : null,
+            c.diff_repairs === false ? 'full-file repairs' : 'diff repairs',
+            `max ${c.minutes} min`,
+            `${c.max_tokens} tokens/call`
+        ].filter(Boolean);
+        $('run-summary').textContent = bits.join(' \u00b7 ');
+    }
+}
 
 async function poll(job) {
     let data;
@@ -191,6 +224,7 @@ async function poll(job) {
     }
     $('stage-label').textContent = `Stage ${data.stage}/${STAGE_MAX}: ${data.stage_label}`;
     $('stage-fill').style.width = `${Math.round(100 * data.stage / STAGE_MAX)}%`;
+    renderRunHeader(data);
     if (data.log && data.log.length) {
         $('log').textContent += data.log.join('\n') + '\n';
         $('log').scrollTop = $('log').scrollHeight;
@@ -201,12 +235,9 @@ async function poll(job) {
         stopPolling();
         showResult(job);
     } else if (data.status === 'error') {
-        stopPolling();
-        $('run-title').textContent = 'Failed';
-        $('log').textContent += '\nJob failed: ' + (data.error || 'unknown error') + '\n';
+        terminalRun('Failed', 'Job failed: ' + (data.error || 'unknown error'));
     } else if (data.status === 'interrupted') {
-        stopPolling();
-        $('run-title').textContent = 'Cancelled';
+        terminalRun('Cancelled', '');
     }
 }
 
@@ -226,9 +257,31 @@ function stopPolling() {
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
 }
 
+// The job is over (failed or cancelled): Cancel can do nothing any more.
+function terminalRun(title, logLine) {
+    stopPolling();
+    $('run-title').textContent = title;
+    if (logLine) {
+        $('log').textContent += '\n' + logLine + '\n';
+        $('log').scrollTop = $('log').scrollHeight;
+    }
+    $('btn-cancel').disabled = true;
+    $('btn-run-back').classList.remove('hidden');
+}
+
 async function cancel() {
     const job = location.hash.slice(1);
-    if (job) await leapi('contract_interrupt', { job });
+    if (!job) return;
+    const resp = await leapi('contract_interrupt', { job });
+    if (resp && resp.ok === false) {
+        // Nothing to interrupt: the job already ended. Say so instead of
+        // silently ignoring the click.
+        $('log').textContent += '\n' + (resp.error || 'The job is not running.') + '\n';
+        $('btn-cancel').disabled = true;
+        $('btn-run-back').classList.remove('hidden');
+    } else {
+        $('run-hint').textContent = 'Cancelling\u2026 the job stops at the next step boundary (an in-flight LLM call finishes first).';
+    }
 }
 
 // ------------------------------ result screen -------------------------------
@@ -320,6 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('btn-download').addEventListener('click', downloadResult);
     $('btn-editor').addEventListener('click', openInEditor);
     $('btn-again').addEventListener('click', () => { location.hash = ''; show('setup'); $('btn-start').disabled = false; });
+    $('btn-run-back').addEventListener('click', () => { location.hash = ''; show('setup'); $('btn-start').disabled = false; });
 
     // Reattach to a running job after a reload: the job ID lives in the hash.
     const job = location.hash.slice(1);
