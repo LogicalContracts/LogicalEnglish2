@@ -207,6 +207,35 @@ test(unapplied_edit_block_never_becomes_the_program) :-
     le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, _How),
     assertion(NewText == "the original program").
 
+% A reply that elides sections ("% ... (all rules and templates)") must never
+% replace the program: the previous iteration is kept.
+test(elided_program_never_replaces_the_text) :-
+    Config = _{features: _{diff_repairs: true}},
+    Reply = "```le\n% ... (all rules and templates)\n\nscenario case1 is:\n    the claim occurs on 2026-02-12.\n```\n",
+    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, How),
+    assertion(NewText == "the original program"),
+    assertion(sub_string(How, _, _, _, "elided")).
+
+% A scenarios-only program (rules and templates elided) must be flagged as an
+% error even though it has (failing) test expectations.
+test(scenarios_only_program_is_an_error) :-
+    verify_le_text("% ... elided\n\nscenario one is:\n    bob is healthy.\n    who expects answers [].\n", V),
+    assertion(V.errors >= 1),
+    assertion((member(I, V.issues), get_dict(type, I, "empty_program"))).
+
+% Asterisked variables outside the templates section are always a mistake and
+% must be reported as an error (arithmetic "X * Y" is not confused for one).
+test(asterisks_outside_templates_flagged) :-
+    verify_le_text("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n\nthe knowledge base t includes:\n\nfluffy is happy.\n\nscenario one is:\n    *the claim* is happy.\n", V),
+    assertion((member(I, V.issues), get_dict(type, I, "asterisks_outside_templates"))).
+
+test(arithmetic_star_is_not_flagged) :-
+    good_program(P),
+    string_concat(P, "\nan amount X is the answer if X is equal to 2 * 3.\n", _),
+    % simpler: scan directly
+    assertion(\+ le_contract_assistant:asterisks_outside_templates(
+        "the templates are:\n    *a person* is happy.\nthe knowledge base t includes:\nthe result R is ok if R is equal to 2 * 3.\n", _)).
+
 % 3/6 tests passing must beat 0/2: net evidence, not raw failure counts.
 test(rank_prefers_net_test_evidence) :-
     S1 = _{errors: 0, warnings: 3, tests_passed: 3, tests_failed: 3, test_details: [], summary: "b1"},

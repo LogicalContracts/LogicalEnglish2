@@ -145,10 +145,47 @@ llm_request(Model, Query, Answer, Options) :-
     ;   api_key(Provider, Key)
     ),
     % Remove api_key option from Options before building body
-    select_option(api_key(_), Options, CleanOptions, Options),
+    select_option(api_key(_), Options, CleanOptions0, Options),
+    % reasoning(minimal) is provider-agnostic: translate it into the
+    % provider's own dialect (or drop it where unsupported) instead of
+    % forwarding it verbatim.
+    (   select_option(reasoning(Level), CleanOptions0, CleanOptions1)
+    ->  reasoning_fields(Provider, APIModel, Level, RFields),
+        append(CleanOptions1, RFields, CleanOptions)
+    ;   CleanOptions = CleanOptions0
+    ),
     build_body(Provider, APIModel, Messages, CleanOptions, BodyPairs),
     call_api(Provider, BaseURL, Key, BodyPairs, RawJSON),
     extract_answer(Provider, RawJSON, Answer).
+
+%!  reasoning_fields(+Provider, +APIModel, +Level, -ExtraOptions) is det.
+%
+%   How to ask each provider's models to think less. Only level `minimal` is
+%   mapped for now. Where a provider would reject the parameter (or thinking
+%   is off by default), the option is dropped rather than risking a 400.
+%   - OpenAI-compatible reasoning models take reasoning_effort.
+%   - Together serves GLM/Qwen-style models via vLLM, whose chat templates
+%     take chat_template_kwargs.enable_thinking.
+%   - Anthropic thinking is off unless explicitly enabled: nothing to do.
+reasoning_fields(groq, Model, minimal, Fields) :- !,
+    (   reasoning_effort_model(Model)
+    ->  Fields = [reasoning_effort(low)]
+    ;   Fields = []
+    ).
+reasoning_fields(openai, Model, minimal, Fields) :- !,
+    (   reasoning_effort_model(Model)
+    ->  Fields = [reasoning_effort(low)]
+    ;   Fields = []
+    ).
+reasoning_fields(gemini, _Model, minimal, [reasoning_effort(low)]) :- !.
+reasoning_fields(together, _Model, minimal,
+                 [chat_template_kwargs(_{enable_thinking: false})]) :- !.
+reasoning_fields(_, _, _, []).
+
+reasoning_effort_model(Model) :-
+    atom_string(M, Model),
+    member(Prefix, ['o1', 'o3', 'o4', 'gpt-5', 'openai/gpt-oss', 'gpt-oss', 'qwen', 'Qwen', 'deepseek', 'moonshotai/kimi']),
+    sub_atom(M, 0, _, _, Prefix), !.
 
 
 % ═══════════════════════════════════════════════════════════════════

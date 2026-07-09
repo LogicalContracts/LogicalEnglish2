@@ -90,6 +90,7 @@ async function loadModels() {
             const input = document.createElement('input');
             input.type = 'password';
             input.id = `key-${p}`;
+            input.title = `${p} API key — kept only in this browser's localStorage (shared with the LE editor) and sent only with your requests. Not needed for providers the server already has a key for.`;
             input.value = localStorage.getItem(`le-${p}-key`) || '';
             input.addEventListener('change', () => localStorage.setItem(`le-${p}-key`, input.value));
             label.appendChild(input);
@@ -149,6 +150,7 @@ async function start() {
             target: $('target').value.trim()
         };
         if ($('adv-maxtokens').value !== '') payload.max_tokens = Number($('adv-maxtokens').value);
+        if ($('adv-reasoning').value !== '') payload.reasoning = $('adv-reasoning').value;
         if ($('file-schedule').files.length)
             payload.schedule = await fileToUpload($('file-schedule').files[0]);
         payload.cases = await Promise.all(Array.from($('file-cases').files).map(fileToUpload));
@@ -205,9 +207,11 @@ function renderRunHeader(data) {
             c.clausewise === true ? 'clause-wise' : null,
             c.diff_repairs === false ? 'full-file repairs' : 'diff repairs',
             `max ${c.minutes} min`,
-            `${c.max_tokens} tokens/call`
+            `${c.max_tokens} tokens/call`,
+            c.reasoning === 'minimal' ? 'minimal reasoning' : null
         ].filter(Boolean);
         $('run-summary').textContent = bits.join(' \u00b7 ');
+        $('run-summary').title = 'Your choices for this job, echoed by the server with every status poll (so they survive a page reload).';
     }
 }
 
@@ -300,6 +304,12 @@ async function showResult(job) {
     $('result-ledger').textContent = data.ledger || '(no ledger)';
     const scores = $('scores');
     scores.innerHTML = '';
+    if (data.final_score) {
+        const el = document.createElement('div');
+        el.className = 'branch winner';
+        el.innerHTML = `<b>Delivered program</b><br><small>${data.final_score.summary || ''}</small>`;
+        scores.appendChild(el);
+    }
     for (const s of data.scores || []) {
         const el = document.createElement('div');
         el.className = 'branch' + (s.branch === data.winner ? ' winner' : '');
