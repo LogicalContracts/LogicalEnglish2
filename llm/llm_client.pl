@@ -305,15 +305,57 @@ extract_answer(anthropic, Response, Answer) :- !,
 
 % OpenAI-compatible (OpenAI, Groq, Gemini, Together):
 %   { choices: [ { message: { content: "..." } } ] }
+% Reasoning models (GLM, DeepSeek-R1 style) complicate this: the visible
+% answer may follow a <think>...</think> block inside content, or content may
+% be empty/unclosed because the whole completion budget went to reasoning
+% (finish_reason "length"). The latter is reported as a distinct
+% llm_truncated error so callers can give the right advice (RAISE max_tokens).
 extract_answer(_Provider, Response, Answer) :-
-    (   is_dict(Response) ->  
+    (   is_dict(Response) ->
             Response.choices = [First|_],
-            Answer = First.message.content
-        ; 
+            Message = First.message,
+            ( get_dict(content, Message, Raw0) -> true ; Raw0 = "" ),
+            ( get_dict(finish_reason, First, FinishReason) -> true ; FinishReason = none )
+        ;
         Response = json(RList),
         member(choices=[json(C0)|_], RList),
         member(message=json(M0), C0),
-        member(content=Answer, M0)
+        ( member(content=Raw0, M0) -> true ; Raw0 = "" ),
+        ( member(finish_reason=FinishReason, C0) -> true ; FinishReason = none )
+    ),
+    ( Raw0 == null -> Raw = "" ; Raw0 = '@'(null) -> Raw = "" ; Raw = Raw0 ),
+    strip_think_block(Raw, Answer0),
+    (   empty_text(Answer0),
+        truncated_finish(FinishReason)
+    ->  throw(error(llm_truncated(max_tokens),
+                    context(llm_client,
+                            "The model hit max_tokens while still reasoning (finish_reason=length): no visible answer was produced. Raise max_tokens, or use a less reasoning-heavy model.")))
+    ;   Answer = Answer0
+    ).
+
+truncated_finish(FR) :- ( FR == "length" ; FR == length ; FR == "max_tokens" ; FR == 'MAX_TOKENS' ), !.
+
+empty_text(T) :-
+    ( T == "" ; T == '' ), !.
+empty_text(T) :-
+    atom_string(A, T), normalize_space(atom(N), A), N == ''.
+
+%!  strip_think_block(+Raw, -Out) is det.
+%
+%   Drops a <think>...</think> reasoning block, keeping what follows the LAST
+%   closing tag. An opened but never-closed block means the reply is all
+%   reasoning: no visible answer.
+strip_think_block(Raw, Out) :-
+    atom_string(RA, Raw),
+    (   sub_atom(RA, _, _, _, '<think>')
+    ->  atomic_list_concat(Parts, '</think>', RA),
+        (   Parts = [_]
+        ->  Out = ""
+        ;   last(Parts, LastA),
+            atom_string(LastA, S1),
+            split_string(S1, "", " \t\n\r", [Out])
+        )
+    ;   Out = Raw
     ).
 
 

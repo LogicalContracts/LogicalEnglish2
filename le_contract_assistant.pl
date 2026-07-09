@@ -353,8 +353,12 @@ friendly_error(error(contract_assistant_error(llm_failed(Purpose, ES)), _), Msg)
     format(string(Msg), "the LLM call for '~w' failed after retries: ~w", [Purpose, ES]).
 friendly_error(error(contract_assistant_error(empty_reply(Purpose, Model)), _), Msg) :- !,
     format(string(Msg),
-           "the model returned EMPTY content for '~w' (model ~w), repeatedly. This usually means the model spent its whole completion budget on internal reasoning, or the provider's reply format is not understood. Try a different model, or lower Max completion tokens (Advanced).",
+           "the model returned EMPTY content for '~w' (model ~w), repeatedly. This usually means the model spent its whole completion budget on internal reasoning, or the provider's reply format is not understood. RAISE Max completion tokens (Advanced) to give the reasoning room to finish, or pick a less reasoning-heavy model.",
            [Purpose, Model]).
+friendly_error(error(contract_assistant_error(llm_truncated(Purpose, Model)), _), Msg) :- !,
+    format(string(Msg),
+           "the model (~w) hit the completion-token limit while still reasoning during '~w', producing no visible answer. RAISE Max completion tokens (Advanced), reduce the input (set a Target section!), or pick a less reasoning-heavy model.",
+           [Model, Purpose]).
 friendly_error(error(contract_assistant_error(M), _), Msg) :- !,
     term_string(M, Msg).
 friendly_error(E, Msg) :- term_string(E, Msg).
@@ -1015,6 +1019,9 @@ llm_outcome(ok(Reply0), JobID, Config, Purpose, Model, Messages, Opts, Attempt, 
         string_length(Reply0, RL),
         ca_emit(JobID, "LLM reply (~w): ~w chars"-[Purpose, RL])
     ).
+llm_outcome(err(error(llm_truncated(_), _)), JobID, _Config, Purpose, Model, _Messages, _Opts, _Attempt, _Reply) :- !,
+    ca_emit(JobID, "LLM call (~w) was truncated: the model spent its whole completion budget reasoning"-[Purpose]),
+    throw(error(contract_assistant_error(llm_truncated(Purpose, Model)), _)).
 llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     (   transient_llm_error(E),
         Attempt < 4,
