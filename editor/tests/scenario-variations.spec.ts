@@ -212,4 +212,57 @@ test.describe('Scenario Variations', () => {
         await expect(v.locator('.query-card .answer-item.failure')).toContainText(
             'No answers', { timeout: 30000 });
     });
+
+    // Regression: a template with a literal comma ("… is *an amount*, *a qualifier*, as
+    // stated …") must not split a thousands-separated number at its first comma. The
+    // amount field must show the whole "10,000,000" and the qualifier "in the
+    // aggregate" — not amount "10" / qualifier "000,000, in the aggregate".
+    test('grouped numbers are not split at the template comma', async ({ page }) => {
+        test.setTimeout(60000);
+        const program = [
+            'the target language is: prolog.',
+            '',
+            'the templates are:',
+            '    the limit of indemnity for *a section* is *an amount*, *a qualifier*, as stated in your schedule.',
+            '    *an amount* is the answer.',
+            '',
+            'the knowledge base limits includes:',
+            '',
+            'an amount X is the answer if the limit of indemnity for a section is the amount X, a qualifier, as stated in your schedule.',
+            '',
+            'scenario zero is:',
+            '    the limit of indemnity for this section is 10,000,000, in the aggregate, as stated in your schedule.',
+            '',
+            'query answer is:',
+            '    which amount is the answer.',
+            ''
+        ].join('\n');
+        await page.goto('index.html?text=' + encodeURIComponent(program));
+        // A ?text= load has no proactive module load; hovering the scenario picker
+        // triggers it (mouseenter -> loadModule).
+        await expect(page.locator('#scenario-select')).toBeVisible();
+        await page.hover('#scenario-select');
+        await expect(async () => {
+            await page.hover('#scenario-select');
+            expect(await page.locator('#scenario-select option').count()).toBeGreaterThan(1);
+        }).toPass({ timeout: 15000 });
+        await page.selectOption('#scenario-select', 'zero');
+        await page.selectOption('#query-select', 'answer');
+        const [v] = await Promise.all([
+            page.waitForEvent('popup'),
+            page.click('#btn-variations'),
+        ]);
+        await v.waitForLoadState();
+
+        const fields = v.locator('.fact-row input.field');
+        await expect(fields.first()).toBeVisible();
+        await expect(fields.nth(0)).toHaveValue('this section');
+        await expect(fields.nth(1)).toHaveValue('10,000,000');
+        await expect(fields.nth(2)).toHaveValue('in the aggregate');
+
+        // And the un-edited fact still round-trips: the query answers 10000000.
+        await v.locator('#btn-run').click();
+        await expect(v.locator('.query-card .answer-item').first()).toContainText(
+            '10000000 is the answer', { timeout: 30000 });
+    });
 });

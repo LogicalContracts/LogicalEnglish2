@@ -60,7 +60,7 @@ function templateRegex(label) {
   const pieces = segs.map((s) => {
     if (s.kind === "field")
       return "(.+?)";
-    const lit = escapeRegex(s.text).replace(/\s+/g, "\\s+");
+    const lit = escapeRegex(s.text).replace(/\s+/g, "\\s+").replace(/,/g, ",(?!\\d)");
     const lb = /^\w/.test(s.text) ? "\\b" : "";
     const rb = /\w$/.test(s.text) ? "\\b" : "";
     return lb + lit + rb;

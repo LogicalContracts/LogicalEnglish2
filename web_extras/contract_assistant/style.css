@@ -85,6 +85,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .branch .state { color: var(--muted); }
 .branch.winner { border-color: var(--ok); }
 .branch.warn { border-color: var(--err); }
+.elapsed { font-size: 14px; font-weight: 400; color: var(--muted); }
+#run-summary { margin: 2px 0 8px; }
 .reports { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
 .checks label { display: block; margin: 6px 0; font-size: 14px; }
 

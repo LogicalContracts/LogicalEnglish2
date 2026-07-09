@@ -77,6 +77,22 @@ test(extract_le_code_unfenced) :-
     extract_le_code("no fences here", Code),
     assertion(Code == "no fences here").
 
+% Models often emit a small preamble fence before the real program: the
+% largest fence must win, and an explicit ```le tag must win over size.
+test(extract_le_code_largest_fence) :-
+    extract_le_code("intro\n```\n% short header comment\n```\nmiddle\n```\nthe much much much longer program body.\n```\n", Code),
+    assertion(Code == "the much much much longer program body.\n").
+
+test(extract_le_code_le_tag_wins) :-
+    extract_le_code("```\nthe much much much longer other block here.\n```\n```le\nshort program.\n```\n", Code),
+    assertion(Code == "short program.\n").
+
+% A comments-only "program" must be flagged as an error, not score clean.
+test(verify_le_text_flags_empty_program) :-
+    verify_le_text("% just a header comment\n% and nothing else\n", V),
+    assertion(V.errors >= 1),
+    assertion((member(I, V.issues), get_dict(type, I, "empty_program"))).
+
 test(verify_le_text_counts) :-
     good_program(P),
     verify_le_text(P, V),
@@ -166,6 +182,45 @@ test(parse_stability_line) :-
     parse_stability("blah\nSTABILITY: 83%\nrest", N),
     assertion(N =:= 83).
 
+test(parse_stability_bold_and_spaced) :-
+    parse_stability("**STABILITY: 38 %**", N),
+    assertion(N =:= 38).
+
+% Policy wordings often start sections with a bare title line (no markdown
+% heading), listing the titles in an initial TOC bullet list. The slicer must
+% find such sections — with apostrophe-tolerant matching — and stop them at
+% the next TOC title or level-1 heading.
+test(target_slice_from_toc_titles) :-
+    Text = "Guide\n\n- General terms\n- Employers’ liability\n- Property\n\nGeneral terms\n\ngeneral stuff here\n\nEmployers’ liability\n\nEL CONTENT LINE\n\n# Unrelated heading section\n\nUNRELATED CONTENT\n\nProperty\n\nPROPERTY CONTENT\n",
+    segment_markdown(Text, Secs),
+    le_contract_assistant:target_slice(Text, Secs, "Employers' liability", toc_test_job, Slice),
+    assertion(sub_string(Slice, _, _, _, "EL CONTENT LINE")),
+    assertion(sub_string(Slice, _, _, _, "general stuff here")),
+    assertion(\+ sub_string(Slice, _, _, _, "UNRELATED CONTENT")),
+    assertion(\+ sub_string(Slice, _, _, _, "PROPERTY CONTENT")).
+
+% An unapplied SEARCH/REPLACE block (even inside a fence) must never become
+% the program text.
+test(unapplied_edit_block_never_becomes_the_program) :-
+    Config = _{features: _{diff_repairs: true}},
+    Reply = "```\n<<<<<<< SEARCH\ndoes not exist in the program\n=======\nreplacement\n>>>>>>> REPLACE\n```\n",
+    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, _How),
+    assertion(NewText == "the original program").
+
+% 3/6 tests passing must beat 0/2: net evidence, not raw failure counts.
+test(rank_prefers_net_test_evidence) :-
+    S1 = _{errors: 0, warnings: 3, tests_passed: 3, tests_failed: 3, test_details: [], summary: "b1"},
+    S2 = _{errors: 0, warnings: 2, tests_passed: 0, tests_failed: 2, test_details: [], summary: "b2"},
+    le_contract_assistant:select_winner(job, [branch(1, "aaa", S1), branch(2, "bbb", S2)], Winner),
+    Winner = branch(WIdx, _, _),
+    assertion(WIdx =:= 1).
+
+test(transient_errors_classified) :-
+    assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(503, x), c))),
+    assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(429, x), c))),
+    assertion(\+ le_contract_assistant:transient_llm_error(error(llm_api_error(401, x), c))),
+    assertion(le_contract_assistant:transient_llm_error(error(socket_error(a, b), c))).
+
 :- end_tests(contract_assistant_features).
 
 % Hook whose repair answers with a SEARCH/REPLACE edit instead of a full
@@ -192,6 +247,23 @@ hook_full(vocabulary_paraphrase, _, "*a person* is happy. % from paraphrase") :-
 hook_full(paraphrase_compare, _, "STABILITY: 83%\nMissing from B: none\n") :- !.
 hook_full(ledger, _, "LEDGER") :- !.
 hook_full(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hook whose ledger call returns empty content (reasoning models can exhaust
+% their output budget before emitting text): the result must explain that
+% instead of carrying a blank ledger.
+hook_empty_ledger(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_empty_ledger(architecture, _, "one branch") :- !.
+hook_empty_ledger(draft(_), _, Reply) :- !, good_program(P), fence(P, Reply).
+hook_empty_ledger(ledger, _, "  \n ") :- !.
+hook_empty_ledger(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hook whose draft never becomes a working program: with the repair budget at
+% zero the winner keeps its errors, so the ledger must be skipped (the hook
+% has no ledger clause: calling it would throw).
+hook_broken(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_broken(architecture, _, "one branch") :- !.
+hook_broken(draft(_), _, "```\n% only a comment, no program\n```\n") :- !.
+hook_broken(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
 % Hook producing one DISAGREEING probe, with adjudication repairs disabled:
 % the probes must be reverted and reported as open disagreements.
@@ -248,6 +320,43 @@ test(holdout_probe_and_paraphrase,
     Paraphrase = Result.paraphrase,
     assertion(Paraphrase.enabled == true),
     assertion(Paraphrase.stability =:= 83).
+
+test(ledger_skipped_when_winner_is_broken,
+     [setup(hook_setup(user:hook_broken)), cleanup(hook_cleanup)]) :-
+    good_wording(W),
+    Config = _{wording: _{name: "contract.md", text: W},
+               cases: [_{name: "case1.md", text: "Case 1."}],
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5, repairs: 0}},
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    Ledger = Result.ledger,
+    assertion(sub_string(Ledger, _, _, _, "skipped")),
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.errors >= 1).
+
+test(status_reports_config_and_elapsed,
+     [setup(hook_setup(user:hook_good)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    atom_string(JobID, JobStr),
+    handle_contract_status(_{job: JobStr, since: 0}, Status),
+    C = Status.config,
+    assertion(C.model == "stub-model"),
+    assertion(C.k =:= 1),
+    E = Status.elapsed,
+    assertion(number(E)),
+    !.
+
+test(empty_ledger_reply_is_explained,
+     [setup(hook_setup(user:hook_empty_ledger)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    Ledger = Result.ledger,
+    assertion(sub_string(Ledger, _, _, _, "empty ledger reply")).
 
 test(disagreeing_probe_is_reverted_and_reported,
      [setup(hook_setup(user:hook_disagree)), cleanup(hook_cleanup)]) :-

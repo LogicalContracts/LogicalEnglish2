@@ -60,7 +60,7 @@ function templateRegex(label) {
   const pieces = segs.map((s) => {
     if (s.kind === "field")
       return "(.+?)";
-    const lit = escapeRegex(s.text).replace(/\s+/g, "\\s+");
+    const lit = escapeRegex(s.text).replace(/\s+/g, "\\s+").replace(/,/g, ",(?!\\d)");
     const lb = /^\w/.test(s.text) ? "\\b" : "";
     const rb = /\w$/.test(s.text) ? "\\b" : "";
     return lb + lit + rb;
@@ -100,7 +100,7 @@ function fillTemplate(label, values) {
   const segs = splitTemplate(label);
   let fi = 0;
   const out = segs.map((s) => s.kind === "field" ? values[fi++] ?? "" : s.text).join(" ");
-  return out.replace(/\s+/g, " ").trim();
+  return out.replace(/\s+/g, " ").replace(/\s+,/g, ",").trim();
 }
 function scanBlocks(source, headerRe) {
   const blocks = [];

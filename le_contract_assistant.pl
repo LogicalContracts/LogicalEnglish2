@@ -93,8 +93,10 @@ handle_contract_status(Dict, Response) :-
         sort(branch, @=<, Branches0, Branches),
         findall(L, (ca_log(JobID, S, L), S >= Since), LogLines),
         ( ca_logseq(JobID, Next) -> true ; Next = 0 ),
+        job_config_summary(JobID, Summary, Elapsed),
         Response0 = _{status: StatusStr, stage: StageIdx, stage_label: StageLabel,
-                      branches: Branches, log: LogLines, next_seq: Next},
+                      branches: Branches, log: LogLines, next_seq: Next,
+                      config: Summary, elapsed: Elapsed},
         ( ErrorMsg == none -> Response = Response0
         ; Response = Response0.put(error, ErrorMsg) )
     ;   Response = _{error: "Unknown job"}
@@ -116,6 +118,22 @@ handle_contract_interrupt(Dict, Response) :-
         asserta(ca_status(JobID, interrupt_requested)),
         Response = _{ok: true}
     ;   Response = _{ok: false, error: "Job is not running"}
+    ).
+
+% What the user chose, echoed with every status poll so the Run screen can
+% show it even after a page reload, plus the elapsed wall-clock seconds.
+job_config_summary(JobID, Summary, Elapsed) :-
+    (   ca_config(JobID, C)
+    ->  F = C.features,
+        Summary = _{model: C.model, judge_model: C.judge_model,
+                    k: C.k, w: C.w, repairs: C.repairs, minutes: C.minutes,
+                    max_tokens: C.max_tokens,
+                    probes: F.probes, holdout: F.holdout,
+                    paraphrase: F.paraphrase, clausewise: F.clausewise,
+                    diff_repairs: F.diff_repairs},
+        get_time(Now), Elapsed0 is Now - C.started,
+        Elapsed is round(Elapsed0)
+    ;   Summary = _{}, Elapsed = 0
     ).
 
 status_string(running, "running", none) :- !.
@@ -164,10 +182,13 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
     ( get_dict(budget, Dict, B), is_dict(B) -> true ; B = _{} ),
     budget_params(B, Preset, K, W, Repairs, Minutes),
     features_params(Dict, Preset, Features),
+    ( get_dict(max_tokens, Dict, MT0), number(MT0), MT0 > 0 -> MaxTokens = MT0
+    ; MaxTokens = 16000 ),
     get_time(Now), Deadline is Now + Minutes * 60,
     Config = _{model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
-               deadline: Deadline, features: Features,
+               minutes: Minutes, started: Now,
+               deadline: Deadline, features: Features, max_tokens: MaxTokens,
                wording: WordingFile, schedule: ScheduleFile, cases: CaseFiles}.
 
 %!  budget_params(+BudgetDict, -Preset, -K, -W, -Repairs, -Minutes) is det.
@@ -322,11 +343,21 @@ run_contract_pipeline(JobID) :-
         ->  ca_emit(JobID, "Job interrupted by user"-[]),
             retractall(ca_status(JobID, _)),
             asserta(ca_status(JobID, interrupted))
-        ;   term_string(Error, EStr),
+        ;   friendly_error(Error, EStr),
             ca_emit(JobID, "Job failed: ~w"-[EStr]),
             retractall(ca_status(JobID, _)),
             asserta(ca_status(JobID, finished(error(EStr))))
         )).
+
+friendly_error(error(contract_assistant_error(llm_failed(Purpose, ES)), _), Msg) :- !,
+    format(string(Msg), "the LLM call for '~w' failed after retries: ~w", [Purpose, ES]).
+friendly_error(error(contract_assistant_error(empty_reply(Purpose, Model)), _), Msg) :- !,
+    format(string(Msg),
+           "the model returned EMPTY content for '~w' (model ~w), repeatedly. This usually means the model spent its whole completion budget on internal reasoning, or the provider's reply format is not understood. Try a different model, or lower Max completion tokens (Advanced).",
+           [Purpose, Model]).
+friendly_error(error(contract_assistant_error(M), _), Msg) :- !,
+    term_string(M, Msg).
+friendly_error(E, Msg) :- term_string(E, Msg).
 
 pipeline_stages(JobID) :-
     ca_config(JobID, Config),
@@ -454,6 +485,8 @@ run_branch(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     ),
     branch_artifact_name(Idx, draft, DraftName),
     save_text_artifact(JobID, DraftName, Draft0),
+    string_length(Draft0, DraftLen),
+    ca_emit(JobID, "Branch ~w: draft extracted (~w chars)"-[Idx, DraftLen]),
     repair_loop(JobID, Config, Idx, Draft0, 0, none, Repaired, Score0),
     holdout_extend(JobID, Config, Ctx, Idx, Repaired, Score0, Final, Score),
     branch_artifact_name(Idx, final, FinalName),
@@ -595,13 +628,21 @@ apply_repair_reply(Config, Reply, OldText, NewText, How) :-
         (   Applied > 0
         ->  NewText = Text1,
             format(string(How), "applied ~w edit(s), ~w did not match", [Applied, Failed])
-        ;   first_fenced_block(Reply, Full)
+        ;   first_fenced_block(Reply, Full),
+            \+ contains_edit_markers(Full)
         ->  NewText = Full, How = "edits did not match; used the full program from the reply"
         ;   NewText = OldText, How = "no edit matched and no full program given; text unchanged"
         )
-    ;   extract_le_code(Reply, NewText),
-        How = "replaced the full program"
+    ;   extract_le_code(Reply, NewText0),
+        % An unapplied edit block must never masquerade as the program.
+        (   contains_edit_markers(NewText0)
+        ->  NewText = OldText, How = "reply contained only unapplied edit blocks; text unchanged"
+        ;   NewText = NewText0, How = "replaced the full program"
+        )
     ).
+
+contains_edit_markers(Text) :-
+    sub_string(Text, _, _, _, "<<<<<<< SEARCH").
 
 %!  extract_search_replace(+Reply, -Edits:list(edit(Search, Replace))) is det.
 %
@@ -643,9 +684,9 @@ best_of(cand(T0, V0, S0), cand(T1, V1, S1), Best) :-
     verify_rank(V1, T1, R1),
     ( R1 @< R0 -> Best = cand(T1, V1, S1) ; Best = cand(T0, V0, S0) ).
 
-verify_rank(V, Text, rank(V.errors, NoTests, V.tests_failed, NegPassed, V.warnings, Len)) :-
+verify_rank(V, Text, rank(V.errors, NoTests, Net, V.tests_failed, V.warnings, Len)) :-
     ( V.tests_passed + V.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
-    NegPassed is -V.tests_passed,
+    Net is V.tests_failed - V.tests_passed,
     string_length(Text, Len).
 
 best_result(cand(Text, V, Summary), Text, Score) :-
@@ -663,13 +704,16 @@ select_winner(_JobID, Branches, Winner) :-
     map_list_to_pairs(branch_rank, Branches, Ranked),
     keysort(Ranked, [_-Winner|_]).
 
-% Rank tuple, lexicographic (the plan's fitness function): fewer errors, fewer
-% held-out failures (blind evaluation ranks above development tests), fewer
-% failed tests, MORE passed tests, fewer warnings, smaller program.
-branch_rank(branch(_, Text, S), rank(S.errors, NoTests, HF, S.tests_failed, NegPassed, S.warnings, Len)) :-
+% Rank tuple, lexicographic (the plan's fitness function): fewer errors; must
+% have tests at all; fewer held-out failures (blind evaluation ranks above
+% development tests); better NET test evidence (failed - passed: a program
+% with 3/6 passing must beat one with 0/2 — comparing raw failure counts
+% would reward dropping scenarios); then fewer failures, fewer warnings,
+% smaller program.
+branch_rank(branch(_, Text, S), rank(S.errors, NoTests, HF, Net, S.tests_failed, S.warnings, Len)) :-
     HF = S.get(holdout_failed, 0),
     ( S.tests_passed + S.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
-    NegPassed is -S.tests_passed,
+    Net is S.tests_failed - S.tests_passed,
     string_length(Text, Len).
 
 % ----------------------- Differential interrogation --------------------------
@@ -717,10 +761,13 @@ interrogate(JobID, Config, Ctx, Text0, Text, Report) :-
         ;   FinalMerged = Merged, VF = V1
         ),
         probe_delta(V0, VF, AgreedF, DisagreedF),
-        (   ( DisagreedF =:= 0, VF.errors =< V0.errors )
+        (   ( DisagreedF =:= 0, AgreedF > 0, VF.errors =< V0.errors )
         ->  Text = FinalMerged,
             open_disagreements(VF, V0, Open),
             ca_emit(JobID, "Interrogation: all probes agree; probes kept as regression scenarios"-[])
+        ;   DisagreedF =:= 0
+        ->  Text = Text0, Open = [],
+            ca_emit(JobID, "Interrogation: the probes yielded no evaluable tests; probes NOT kept"-[])
         ;   Text = Text0,
             open_disagreements(VF, V0, Open),
             ca_emit(JobID, "Interrogation: ~w open disagreement(s); probes NOT kept (see report)"-[DisagreedF])
@@ -802,10 +849,23 @@ take_digits(_, []).
 ledger_for(JobID, Config, WordingSlice, WinnerText, Ledger) :-
     (   deadline_exceeded(Config)
     ->  Ledger = "(ledger skipped: budget exhausted)"
+    ;   verify_le_text(WinnerText, VW),
+        VW.errors > 0
+    ->  Ledger = "(ledger skipped: the winning program still has errors — see the scores and the run log; there is nothing sound to audit yet)",
+        ca_emit(JobID, "Ledger skipped: the winning program still has errors"-[])
     ;   catch(
-            stage_llm(JobID, Config, ledger, 'stage6_ledger',
-                      [materials-WordingSlice, program-WinnerText],
-                      [temperature(0)], Ledger),
+            ( stage_llm(JobID, Config, ledger, 'stage6_ledger',
+                        [materials-WordingSlice, program-WinnerText],
+                        [temperature(0)], Ledger0),
+              % Reasoning models can spend the whole completion budget on
+              % reasoning and return empty content; say so instead of showing
+              % the user a blank ledger.
+              (   normalize_space(string(Norm), Ledger0), Norm == ""
+              ->  ca_emit(JobID, "Ledger: the judge model returned an empty reply"-[]),
+                  Ledger = "(the judge model returned an empty ledger reply — it likely spent its whole output budget before emitting text; pick a different judge model in Setup, or rerun)"
+              ;   Ledger = Ledger0
+              )
+            ),
             E,
             ( term_string(E, ES),
               format(atom(Ledger), "(ledger failed: ~w)", [ES]) ))
@@ -845,9 +905,32 @@ verify_le_text_(Text, V) :-
     partition(is_pass, TestResults, Passes, Fails),
     length(Passes, NPassed), length(Fails, NFailed),
     maplist(test_detail, TestResults, Details),
-    V = _{errors: NErrors, warnings: NWarnings,
+    (   NPassed + NFailed =:= 0,
+        \+ kb_has_substance(KB)
+    ->  NErrors1 is NErrors + 1,
+        EmptyIssue = _{severity: "error", type: "empty_program",
+                       message: "The program contains no templates, rules, facts or scenarios (comments only?). Output the FULL Logical English program."},
+        Issues1 = [EmptyIssue|Issues]
+    ;   NErrors1 = NErrors, Issues1 = Issues
+    ),
+    V = _{errors: NErrors1, warnings: NWarnings,
           tests_passed: NPassed, tests_failed: NFailed,
-          issues: Issues, test_details: Details}.
+          issues: Issues1, test_details: Details}.
+
+% A knowledge base with actual content: at least one user clause (rule or
+% fact) or one user-declared template. Imported predicates and the system
+% templates that load_text always asserts do not count.
+kb_has_substance(KB) :-
+    current_predicate(KB:F/A),
+    \+ le_kbs:is_system_predicate(F/A),
+    \+ sub_atom(F, 0, 3, _, le_),   % le_issue/5 and other engine metadata
+    functor(H, F, A),
+    \+ predicate_property(KB:H, imported_from(_)),
+    clause(KB:H, _), !.
+kb_has_substance(KB) :-
+    current_predicate(KB:le_dict/1),
+    KB:le_dict(D),
+    \+ le_system_templates:le_system_template(D), !.
 
 partition_severity(Issues, NErrors, NWarnings) :-
     partition([I]>>(get_dict(severity, I, "error")), Issues, Es, Ws),
@@ -897,14 +980,71 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
     (   ca_llm_hook(Hook)
     ->  call(Hook, Purpose, Messages, Reply)
     ;   resolve_model(Purpose, Config, Model, Key),
-        append(Options, [api_key(Key), max_tokens(16000)], Opts),
-        catch(
-            llm_client:llm_request(Model, Messages, Reply, Opts),
-            E,
-            ( term_string(E, ES),
-              ca_emit(JobID, "LLM call failed (~w): ~w"-[Purpose, ES]),
-              throw(error(contract_assistant_error(llm_failed(Purpose, ES)), _)) ))
+        MT = Config.max_tokens,
+        append(Options, [api_key(Key), max_tokens(MT)], Opts),
+        llm_try(JobID, Config, Purpose, Model, Messages, Opts, 1, Reply)
     ).
+
+% Transient provider failures (503 Service unavailable, 429 rate limit,
+% dropped sockets) must not kill a many-minute job on its first call: retry
+% with backoff, up to 3 times, respecting the deadline and interrupts.
+llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    catch(
+        ( llm_client:llm_request(Model, Messages, Reply0, Opts),
+          Outcome = ok(Reply0) ),
+        E,
+        Outcome = err(E)),
+    llm_outcome(Outcome, JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply).
+
+% An EMPTY reply is a failure, not a result: models that spend their whole
+% completion budget on internal reasoning (or whose reply format is not
+% understood) return empty content, and letting "" cascade through the
+% pipeline produces an empty program with clean-looking scores.
+llm_outcome(ok(Reply0), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    (   normalize_space(string(Norm), Reply0), Norm == ""
+    ->  (   Attempt < 3, \+ deadline_exceeded(Config)
+        ->  ca_emit(JobID, "LLM call (~w) returned EMPTY content (attempt ~w); retrying"-[Purpose, Attempt]),
+            sleep(3),
+            ca_check_alive(JobID),
+            Attempt1 is Attempt + 1,
+            llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt1, Reply)
+        ;   ca_emit(JobID, "LLM call (~w) returned empty content repeatedly; giving up"-[Purpose]),
+            throw(error(contract_assistant_error(empty_reply(Purpose, Model)), _))
+        )
+    ;   Reply = Reply0,
+        string_length(Reply0, RL),
+        ca_emit(JobID, "LLM reply (~w): ~w chars"-[Purpose, RL])
+    ).
+llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    (   transient_llm_error(E),
+        Attempt < 4,
+        \+ deadline_exceeded(Config)
+    ->  retry_delay(Attempt, Delay),
+        short_error(E, Short),
+        ca_emit(JobID, "LLM call (~w) failed transiently (attempt ~w: ~w); retrying in ~ws"-[Purpose, Attempt, Short, Delay]),
+        sleep(Delay),
+        ca_check_alive(JobID),
+        Attempt1 is Attempt + 1,
+        llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt1, Reply)
+    ;   term_string(E, ES),
+        ca_emit(JobID, "LLM call failed (~w): ~w"-[Purpose, ES]),
+        throw(error(contract_assistant_error(llm_failed(Purpose, ES)), _))
+    ).
+
+transient_llm_error(error(llm_api_error(Status, _), _)) :-
+    integer(Status),
+    ( Status >= 500 ; Status =:= 429 ), !.
+transient_llm_error(error(socket_error(_, _), _)) :- !.
+transient_llm_error(error(timeout_error(_, _), _)) :- !.
+transient_llm_error(error(io_error(_, _), _)).
+
+retry_delay(1, 3).
+retry_delay(2, 8).
+retry_delay(_, 20).
+
+short_error(error(llm_api_error(Status, _), _), Short) :- !,
+    format(atom(Short), "HTTP ~w", [Status]).
+short_error(E, Short) :- E =.. [F|_], term_string(F, Short).
 
 % Judging/merging purposes use the judge model; everything else the main one.
 resolve_model(Purpose, Config, Model, Key) :-
@@ -971,13 +1111,52 @@ le_syntax_summary(Text) :-
 
 %!  extract_le_code(+Reply, -Code) is det.
 %
-%   Pulls the first fenced code block out of an LLM reply; if there is no
-%   fence, the whole reply is taken as code.
+%   Pulls the program out of an LLM reply: the ```le-tagged fence if there is
+%   one, otherwise the LARGEST fenced block (models often emit a small
+%   preamble fence — e.g. a header comment — before the real program), and
+%   with no fence at all the whole reply.
 extract_le_code(Reply, Code) :-
-    (   first_fenced_block(Reply, Code0)
+    (   extract_tagged_block(Reply, le, Code0)
     ->  Code = Code0
+    ;   findall(B, any_fenced_block(Reply, B), Blocks),
+        Blocks \== []
+    ->  largest_block(Blocks, Code)
     ;   Code = Reply
     ).
+
+% All fenced blocks of the reply, in order.
+any_fenced_block(Reply, Block) :-
+    fenced_blocks(Reply, Blocks),
+    member(Block, Blocks).
+
+fenced_blocks(Reply, Blocks) :-
+    atom_string(RA, Reply),
+    atomic_list_concat(Chunks, '```', RA),
+    ( Chunks = [_|Rest] -> odd_chunks(Rest, Blocks0) ; Blocks0 = [] ),
+    findall(B, ( member(C, Blocks0), strip_fence_info_line(C, B) ), Blocks).
+
+% After splitting on ``` the fence contents are chunks 1, 3, 5, ...
+odd_chunks([Content|Rest], [Content|Bs]) :- !, even_chunks(Rest, Bs).
+odd_chunks([], []).
+even_chunks([_|Rest], Bs) :- !, odd_chunks(Rest, Bs).
+even_chunks([], []).
+
+% Drop the info line ("le", "prolog", ...) that follows the opening fence.
+strip_fence_info_line(Chunk, Block) :-
+    atom_string(CA, Chunk),
+    (   sub_atom(CA, NL, 1, _, '\n')
+    ->  After is NL + 1,
+        sub_atom(CA, After, _, 0, BA),
+        atom_string(BA, Block)
+    ;   Block = ""
+    ).
+
+largest_block(Blocks, Largest) :-
+    map_list_to_pairs(block_size, Blocks, Pairs),
+    keysort(Pairs, Sorted),
+    last(Sorted, _-Largest).
+
+block_size(B, L) :- string_length(B, L).
 
 first_fenced_block(Reply, Block) :-
     sub_string(Reply, Open, 3, _, "```"), !,
@@ -1044,15 +1223,13 @@ heading_sections([], _, []).
 %   plus any "general" sections (general terms/conditions/exclusions are
 %   incorporated by reference into every section). Otherwise the full wording.
 target_slice(Text, _, none, _, Text) :- !.
-target_slice(Text, Sections, Target, JobID, Slice) :-
-    string_lower(Target, TL),
-    findall(S, ( member(S, Sections), string_lower(S.title, STL),
-                 sub_string(STL, _, _, _, TL) ), Matches),
+target_slice(Text, Sections0, Target, JobID, Slice) :-
+    augment_sections_with_toc(Text, Sections0, Sections),
+    findall(S, ( member(S, Sections), title_contains(S.title, Target) ), Matches),
     (   Matches == []
-    ->  ca_emit(JobID, "Target section '~w' not found; using the full wording"-[Target]),
+    ->  ca_emit(JobID, "Target section '~w' not found (neither as a heading nor as a table-of-contents section title); using the full wording"-[Target]),
         Slice = Text
-    ;   findall(G, ( member(G, Sections), string_lower(G.title, GTL),
-                     sub_string(GTL, _, _, _, "general") ), Generals),
+    ;   findall(G, ( member(G, Sections), title_contains(G.title, "general") ), Generals),
         append(Generals, Matches, Wanted0),
         sort(start_line, @<, Wanted0, Wanted),
         split_string(Text, "\n", "", Lines),
@@ -1064,6 +1241,63 @@ target_slice(Text, Sections, Target, JobID, Slice) :-
         length(Wanted, NW),
         ca_emit(JobID, "Sliced wording to ~w sections matching '~w' (+ general terms)"-[NW, Target])
     ).
+
+% Case-insensitive containment, tolerant of typographic vs straight
+% apostrophes ("Employers' liability" must match "Employers’ liability").
+title_contains(Title, Needle) :-
+    normalize_title(Title, TN),
+    normalize_title(Needle, NN),
+    sub_atom(TN, _, _, _, NN).
+
+normalize_title(S, N) :-
+    string_lower(S, L0),
+    atom_string(A0, L0),
+    atomic_list_concat(P1, '’', A0), atomic_list_concat(P1, '\'', A1),
+    normalize_space(atom(N), A1).
+
+%!  augment_sections_with_toc(+Text, +Sections0, -Sections) is det.
+%
+%   Policy wordings often list their major sections in an initial
+%   table-of-contents bullet list ("Guide to sections") and then start each
+%   section with the bare title on a plain line — no markdown heading — so
+%   heading-based segmentation misses them (the Hiscox examplePolicy.md does
+%   exactly this). Every non-heading line whose text equals a TOC bullet is
+%   treated as a level-1 section start; such a section ends at the next
+%   TOC-derived start (its markdown-heading subsections stay inside it).
+augment_sections_with_toc(Text, Sections0, Sections) :-
+    split_string(Text, "\n", "\r", Lines),
+    length(Lines, NL),
+    findall(TN, ( nth1(I, Lines, L), I =< 200,
+                  string_concat("- ", T0, L),
+                  normalize_title(T0, TN), TN \== '' ),
+            Toc0),
+    sort(Toc0, Toc),
+    Toc \== [],
+    findall(J-Title, ( nth1(J, Lines, L),
+                       \+ string_concat("- ", _, L),
+                       \+ heading_line(L, _, _),
+                       normalize_space(string(T1), L), T1 \== "",
+                       normalize_title(T1, TN), memberchk(TN, Toc),
+                       Title = T1 ),
+            Starts0),
+    Starts0 \== [],
+    !,
+    msort(Starts0, Starts),
+    % A TOC-derived section also ends at the next level-1 markdown heading:
+    % the following major section may announce itself either way.
+    findall(H, ( member(S, Sections0), S.level =:= 1, H = S.start_line ), H1s0),
+    msort(H1s0, H1s),
+    toc_sections(Starts, H1s, NL, TocSections),
+    append(Sections0, TocSections, All0),
+    sort(start_line, @<, All0, Sections).
+augment_sections_with_toc(_, Sections, Sections).
+
+toc_sections([J-T|Rest], H1s, NL, [_{level: 1, title: T, start_line: J, end_line: End}|Ss]) :-
+    ( Rest = [J2-_|_] -> NextToc = J2 ; NextToc = NL + 1 ),
+    ( member(H, H1s), H > J -> NextH1 = H ; NextH1 = NL + 1 ),
+    End is min(NextToc, NextH1) - 1,
+    toc_sections(Rest, H1s, NL, Ss).
+toc_sections([], _, _, []).
 
 section_lines(Lines, Sec, Part) :-
     findall(L, ( between(Sec.start_line, Sec.end_line, I), nth1(I, Lines, L) ), Ls),
@@ -1099,7 +1333,17 @@ ca_emit(JobID, Fmt-Args) :-
           Seq1 is Seq + 1,
           assertz(ca_logseq(JobID, Seq1)),
           assertz(ca_log(JobID, Seq, Line)) )),
+    append_job_log(JobID, Line),
     print_message(informational, format("[contract_assistant ~w] ~w", [JobID, Line])).
+
+% Mirror the log into <jobdir>/job.log so post-mortems survive the process.
+append_job_log(JobID, Line) :-
+    catch(
+        ( job_dir(JobID, Dir),
+          atomic_list_concat([Dir, '/job.log'], File),
+          setup_call_cleanup(open(File, append, S, [encoding(utf8)]),
+                             format(S, "~w~n", [Line]), close(S)) ),
+        _, true).
 
 ca_check_alive(JobID) :-
     ( ca_status(JobID, interrupt_requested) -> throw(contract_interrupt) ; true ).
