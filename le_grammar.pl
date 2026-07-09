@@ -457,11 +457,51 @@ get_token_end(T, End) :-
 templates(AllDicts) -->
     \+ next_section_start,
     template(TDicts), !,
-    ( (t(punct('.')) ; t(punct(','))) -> ( templates(MoreDicts) | { MoreDicts = [] })
-    ; warn_truncated_template(TDicts), { MoreDicts = [] }
-    ),
-    { append(TDicts, MoreDicts, AllDicts) }.
+    (   (t(punct('.')) ; t(punct(',')))
+    ->  ( templates(MoreDicts) | { MoreDicts = [] } ),
+        { append(TDicts, MoreDicts, AllDicts) }
+    ;   reserved_word_template_error(TDicts)
+    ->  % recover: drop the truncated template, parse the rest of the section
+        ( templates(AllDicts) | { AllDicts = [] } )
+    ;   warn_truncated_template(TDicts), { AllDicts = TDicts }
+    ).
 templates([]) --> [].
+
+% A parsed template is not followed by its '.'/',' terminator and the next token
+% is one of the reserved words that end a template instance (if, unless, either,
+% only if, any of, all of, expects): the template was silently cut off at that
+% word. Without recovery the remainder of the templates section is lost too, so
+% missing_template errors then surface on unrelated templates further down.
+% Report a targeted error at the offending template, skip to the end of its
+% line, and let the rest of the section parse. The truncated template itself is
+% dropped, so the rule or fact using the full sentence is flagged as missing its
+% template rather than silently matching a cut-off one.
+reserved_word_template_error(TDicts) -->
+    any_indent,
+    reserved_template_truncator(Word, WEnd),
+    { ( TDicts = [dict(_, _, _, TStart, _, _, _, _, _) | _] -> true ; TStart = WEnd ),
+      ( le_kbs:current_compiling_module(M), M \== (-)
+      ->  format(atom(Desc),
+            "Reserved word '~w' in template: a template cannot contain '~w'; the template is cut off at that point",
+            [Word, Word]),
+          assertz(M:le_issue(error, reserved_word_in_template, Desc,
+                    "Reword the template so it does not contain the reserved word.",
+                    TStart, WEnd))
+      ;   true
+      ) },
+    skip_to_period.
+
+reserved_template_truncator('only if', End) --> t(word(only, _)), t(word(if, loc(_, End))), !.
+reserved_template_truncator('any of', End)  --> t(word(any, _)), t(word(of, loc(_, End))), !.
+reserved_template_truncator('all of', End)  --> t(word(all, _)), t(word(of, loc(_, End))), !.
+reserved_template_truncator(W, End) -->
+    t(word(W, loc(_, End))), { memberchk(W, [if, unless, either, expects]) }.
+
+% Skip everything up to and including the next '.', so the templates section can
+% continue after a truncated template line.
+skip_to_period --> [punctuation('.', _)], !.
+skip_to_period --> [_], !, skip_to_period.
+skip_to_period --> [].
 
 % A template was parsed but is not followed by a '.'/',' terminator: if what
 % follows is a section keyword (scenario, query, the knowledge base, ...) on a
