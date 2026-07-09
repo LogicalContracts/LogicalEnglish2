@@ -26,6 +26,7 @@
 :- use_module(le_system_templates).
 :- use_module(le_graph).
 :- use_module(le_assistant).
+:- use_module(le_contract_assistant).
 :- use_module(dap_server).
 :- use_module(llm/llm_client, [llm_list_models/1]).
 :- use_module(nl_to_le, [english_to_le/8]).
@@ -171,6 +172,10 @@ handle_operation(Dict, Response) :-
             )
         ; Op == "assistant_status" -> handle_assistant_status(Dict, Response)
         ; Op == "assistant_interrupt" -> handle_assistant_interrupt(Dict, Response)
+        ; Op == "contract_start" -> handle_contract_start(Dict, Response)
+        ; Op == "contract_status" -> handle_contract_status(Dict, Response)
+        ; Op == "contract_result" -> handle_contract_result(Dict, Response)
+        ; Op == "contract_interrupt" -> handle_contract_interrupt(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
         ; Op == "nl_to_le" -> handle_nl_to_le(Dict, Response)
         ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)

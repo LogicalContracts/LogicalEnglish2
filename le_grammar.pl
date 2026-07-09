@@ -1398,7 +1398,11 @@ second_pass_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clau
         ;
         ( le_kbs:do_log -> print_message(informational,'  Rule head failed to match template~n'); true),
         NewHead = unknown_template(Head),
-        ( parse_body(BodyTokens, _Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
+        % The rule's own Indent must be passed here: an unbound indent ends up
+        % in line/2 terms and crashes take_nested_hierarchy's M > N, aborting
+        % the WHOLE parse ("Parsing failed") instead of leaving a tidy
+        % missing_template report for this one rule.
+        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, NewBody) -> true; NewBody = true)
     ).
 
 %!  head_var_type_checks(+HeadLiteral, +VM, +Templates, -Checks) is det.

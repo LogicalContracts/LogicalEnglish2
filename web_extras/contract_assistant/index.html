@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LE Contract Assistant</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>LE Contract Assistant</h1>
+  <p class="subtitle">Contract wording + schedule + cases &rarr; a tested Logical English knowledge base</p>
+</header>
+
+<main>
+  <!-- ============================= SETUP ============================= -->
+  <section id="screen-setup" class="screen">
+    <div class="card">
+      <h2>1. Documents</h2>
+      <p class="hint">Markdown or plain text preferred; Word (.docx) and PDF are converted on the server.</p>
+      <div class="uploads">
+        <label class="upload required">
+          <span class="upload-title">Contract wording <em>(required)</em></span>
+          <input type="file" id="file-wording" accept=".md,.txt,.le,.markdown,.docx,.doc,.pdf">
+          <span class="upload-name" id="name-wording">no file selected</span>
+        </label>
+        <label class="upload">
+          <span class="upload-title">Schedule</span>
+          <input type="file" id="file-schedule" accept=".md,.txt,.markdown,.docx,.doc,.pdf">
+          <span class="upload-name" id="name-schedule">no file selected</span>
+        </label>
+        <label class="upload">
+          <span class="upload-title">Cases / claims <em>(one or more)</em></span>
+          <input type="file" id="file-cases" accept=".md,.txt,.markdown,.docx,.doc,.pdf" multiple>
+          <span class="upload-name" id="name-cases">no files selected</span>
+        </label>
+      </div>
+      <label class="field">
+        <span>Target section (optional; e.g. <code>Employers' liability</code> — slices a long wording)</span>
+        <input type="text" id="target" placeholder="leave empty to use the whole wording">
+      </label>
+    </div>
+
+    <div class="card">
+      <h2>2. Model</h2>
+      <div class="row">
+        <label class="field grow">
+          <span>Model</span>
+          <select id="model"></select>
+        </label>
+        <label class="field grow">
+          <span>Judge model (consensus &amp; ledger)</span>
+          <select id="judge-model"></select>
+        </label>
+      </div>
+      <div id="keys"></div>
+      <p class="hint">Keys are kept in your browser (localStorage), shared with the LE editor, and sent only with your requests.</p>
+    </div>
+
+    <div class="card">
+      <h2>3. Effort budget</h2>
+      <div class="row presets">
+        <label><input type="radio" name="preset" value="draft" checked> <b>Draft</b><br><small>1 vocabulary sample, 1 branch, ~15 min</small></label>
+        <label><input type="radio" name="preset" value="standard"> <b>Standard</b><br><small>3-sample consensus, 2 branches, ~45 min</small></label>
+        <label><input type="radio" name="preset" value="thorough"> <b>Thorough</b><br><small>5-sample consensus, 3 branches, ~2 h</small></label>
+      </div>
+      <details>
+        <summary>Advanced</summary>
+        <div class="row">
+          <label class="field"><span>Vocabulary samples (K)</span><input type="number" id="adv-k" min="1" max="9"></label>
+          <label class="field"><span>Branches (W)</span><input type="number" id="adv-w" min="1" max="5"></label>
+          <label class="field"><span>Repair iterations</span><input type="number" id="adv-repairs" min="0" max="10"></label>
+          <label class="field"><span>Max minutes</span><input type="number" id="adv-minutes" min="1" max="600"></label>
+        </div>
+        <div class="row">
+          <label class="field"><span>Interrogation probes (0 = off; preset default if empty)</span><input type="number" id="feat-probes" min="0" max="20"></label>
+          <label class="field"><span>Held-out case scoring</span>
+            <select id="feat-holdout">
+              <option value="">auto (needs 2+ cases)</option>
+              <option value="true">on</option>
+              <option value="false">off</option>
+            </select>
+          </label>
+        </div>
+        <div class="row checks">
+          <label><input type="checkbox" id="feat-interrogation-repair" checked> Adjudicate probe disagreements (repair rounds)</label>
+          <label><input type="checkbox" id="feat-paraphrase"> Paraphrase-invariance check (informational, expensive)</label>
+          <label><input type="checkbox" id="feat-clausewise"> Clause-wise drafting with live ledger (experimental)</label>
+          <label><input type="checkbox" id="feat-diff" checked> Diff-based repairs (full-program fallback)</label>
+        </div>
+      </details>
+    </div>
+
+    <div class="actions">
+      <button id="btn-start" class="primary" disabled>Generate Logical English</button>
+      <span id="setup-error" class="error"></span>
+    </div>
+  </section>
+
+  <!-- ============================== RUN ============================== -->
+  <section id="screen-run" class="screen hidden">
+    <div class="card">
+      <h2 id="run-title">Generating&hellip;</h2>
+      <div class="stagebar">
+        <div id="stage-fill" class="stagebar-fill"></div>
+        <span id="stage-label">starting</span>
+      </div>
+      <div id="branches" class="branches"></div>
+      <pre id="log" class="log"></pre>
+      <div class="actions">
+        <button id="btn-cancel" class="danger">Cancel</button>
+        <span class="hint">This may take many minutes. You can close this tab: the job keeps its link (the URL) and this page reattaches to it.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================= RESULT ============================ -->
+  <section id="screen-result" class="screen hidden">
+    <div class="card">
+      <h2 id="result-title">Result</h2>
+      <div id="scores" class="scores"></div>
+      <div id="reports" class="reports"></div>
+      <div class="actions">
+        <button id="btn-copy" class="primary">Copy</button>
+        <button id="btn-download">Download .le</button>
+        <button id="btn-editor">Open in editor</button>
+        <button id="btn-again">New conversion</button>
+        <span id="result-note" class="hint"></span>
+      </div>
+      <h3>Logical English</h3>
+      <pre id="result-le" class="code"></pre>
+      <h3>Coverage ledger</h3>
+      <pre id="result-ledger" class="code"></pre>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <a href="/editor/index.html">LE editor</a> &middot;
+  <span>LE Contract Assistant</span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
