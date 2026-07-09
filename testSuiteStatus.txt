@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 95
-Total tests:     290
-Passed:          290
+Files processed: 97
+Total tests:     303
+Passed:          303
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -97,6 +97,8 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/employersLiability2.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/employersLiability3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error

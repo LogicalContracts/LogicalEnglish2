@@ -170,7 +170,9 @@ function attach(job) {
     logSince = 0;
     $('log').textContent = '';
     $('branches').innerHTML = '';
-    $('run-title').textContent = 'Generating\u2026';
+    $('run-title-text').textContent = 'Generating\u2026';
+    $('run-elapsed').textContent = '';
+    $('run-summary').textContent = '';
     $('btn-cancel').disabled = false;
     $('btn-run-back').classList.add('hidden');
     show('run');
@@ -218,13 +220,13 @@ async function poll(job) {
     }
     if (data.error && data.status === undefined) {
         stopPolling();
-        $('run-title').textContent = 'Error';
+        $('run-title-text').textContent = 'Error';
         $('log').textContent += '\n' + data.error;
         return;
     }
     $('stage-label').textContent = `Stage ${data.stage}/${STAGE_MAX}: ${data.stage_label}`;
     $('stage-fill').style.width = `${Math.round(100 * data.stage / STAGE_MAX)}%`;
-    renderRunHeader(data);
+    try { renderRunHeader(data); } catch (e) { console.error('run header render failed', e); }
     if (data.log && data.log.length) {
         $('log').textContent += data.log.join('\n') + '\n';
         $('log').scrollTop = $('log').scrollHeight;
@@ -260,7 +262,7 @@ function stopPolling() {
 // The job is over (failed or cancelled): Cancel can do nothing any more.
 function terminalRun(title, logLine) {
     stopPolling();
-    $('run-title').textContent = title;
+    $('run-title-text').textContent = title;
     if (logLine) {
         $('log').textContent += '\n' + logLine + '\n';
         $('log').scrollTop = $('log').scrollHeight;
@@ -289,7 +291,7 @@ async function cancel() {
 async function showResult(job) {
     const data = await leapi('contract_result', { job });
     if (data.error) {
-        $('run-title').textContent = 'Error';
+        $('run-title-text').textContent = 'Error';
         $('log').textContent += '\n' + data.error;
         return;
     }
