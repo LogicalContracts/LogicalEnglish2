@@ -1,0 +1,100 @@
+:root {
+    --bg: #f5f6f8; --card: #ffffff; --ink: #1c2430; --muted: #5b6674;
+    --accent: #2456c8; --accent-ink: #ffffff; --border: #d9dee5;
+    --ok: #1c7d3c; --err: #b3261e; --log-bg: #101418; --log-ink: #d6e0ea;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #12161b; --card: #1a2027; --ink: #e4e9ef; --muted: #9aa6b3;
+        --accent: #6d9bff; --accent-ink: #0c1220; --border: #2c353f;
+        --ok: #62c37f; --err: #ff8a80; --log-bg: #0b0e11; --log-ink: #c5d1dc;
+    }
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+header { padding: 24px 32px 8px; }
+header h1 { margin: 0 0 4px; font-size: 24px; }
+.subtitle { margin: 0; color: var(--muted); }
+main { max-width: 980px; margin: 0 auto; padding: 16px 24px 48px; }
+footer { text-align: center; color: var(--muted); padding: 16px; }
+footer a { color: var(--accent); }
+
+.card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 18px 22px; margin: 14px 0;
+}
+.card h2 { margin: 0 0 10px; font-size: 17px; }
+.hint { color: var(--muted); font-size: 13px; }
+.error { color: var(--err); }
+.hidden { display: none; }
+
+.uploads { display: flex; gap: 14px; flex-wrap: wrap; }
+.upload {
+    flex: 1 1 260px; border: 1.5px dashed var(--border); border-radius: 8px;
+    padding: 12px 14px; cursor: pointer; display: block;
+}
+.upload:hover { border-color: var(--accent); }
+.upload-title { display: block; font-weight: 600; margin-bottom: 6px; }
+.upload-title em { color: var(--muted); font-weight: 400; font-style: normal; font-size: 12px; }
+.upload-name { display: block; color: var(--muted); font-size: 12px; margin-top: 6px; overflow-wrap: anywhere; }
+
+.field { display: block; margin: 10px 0; }
+.field span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 3px; }
+.field input, .field select {
+    width: 100%; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px;
+    background: var(--bg); color: var(--ink); font: inherit;
+}
+.row { display: flex; gap: 14px; flex-wrap: wrap; }
+.row .field { flex: 1 1 160px; }
+.grow { flex-grow: 1; }
+.presets label {
+    flex: 1 1 180px; border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; cursor: pointer;
+}
+.presets small { color: var(--muted); }
+details summary { cursor: pointer; color: var(--muted); margin: 8px 0; }
+
+.actions { display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+button {
+    padding: 9px 16px; border-radius: 7px; border: 1px solid var(--border);
+    background: var(--card); color: var(--ink); font: inherit; cursor: pointer;
+}
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button.danger { color: var(--err); border-color: var(--err); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.stagebar {
+    position: relative; height: 30px; border: 1px solid var(--border);
+    border-radius: 7px; overflow: hidden; margin: 10px 0;
+}
+.stagebar-fill {
+    position: absolute; inset: 0 auto 0 0; width: 0%;
+    background: color-mix(in srgb, var(--accent) 25%, transparent);
+    transition: width 0.6s;
+}
+.stagebar span { position: relative; line-height: 30px; padding-left: 12px; font-size: 13px; }
+
+.branches, .scores { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+.branch {
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;
+    min-width: 180px; font-size: 13px;
+}
+.branch .state { color: var(--muted); }
+.branch.winner { border-color: var(--ok); }
+.branch.warn { border-color: var(--err); }
+.reports { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+.checks label { display: block; margin: 6px 0; font-size: 14px; }
+
+.log {
+    background: var(--log-bg); color: var(--log-ink); border-radius: 8px;
+    padding: 12px 14px; height: 260px; overflow: auto; font: 12px/1.5 ui-monospace, monospace;
+    white-space: pre-wrap;
+}
+.code {
+    background: var(--log-bg); color: var(--log-ink); border-radius: 8px;
+    padding: 12px 14px; max-height: 480px; overflow: auto;
+    font: 13px/1.5 ui-monospace, monospace; white-space: pre-wrap;
+}

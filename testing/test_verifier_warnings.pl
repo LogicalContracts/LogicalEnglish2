@@ -33,6 +33,18 @@ test(clean_templates_are_not_flagged) :-
     le_kbs:load_text(Text, M),
     assertion(\+ M:le_issue(_, reserved_word_in_template, _, _, _, _)).
 
+% Regression: a rule whose HEAD matches no template used to crash the whole
+% parse ("Parsing failed", instantiation error in take_nested_hierarchy) when
+% its body was multi-line, because second_pass_item passed an unbound indent
+% to parse_body. It must instead yield per-sentence missing_template issues.
+test(unmatched_head_with_multiline_body_does_not_abort_parse) :-
+    Text = "the contract states that:\nthe policy conditions are satisfied for a claim\n    if the premium has been paid for the claim\n    and the claim was notified within 30 days of the date of loss.\n",
+    le_kbs:load_text(Text, M),
+    findall(Ty, M:le_issue(error, Ty, _, _, _, _), Types),
+    assertion(memberchk(missing_template, Types)),
+    aggregate_all(count, M:le_issue(error, missing_template, _, _, _, _), N),
+    assertion(N >= 3).
+
 :- end_tests(reserved_word_in_template).
 
 :- begin_tests(single_variable_scenario_fact).

@@ -1,0 +1,327 @@
+/* LE Contract Assistant UI. Talks to the /leapi operations
+   contract_start / contract_status / contract_result / contract_interrupt
+   (see le_contract_assistant.pl). No build step. */
+
+const TOKEN = 'myToken123';
+const TEXT_EXTS = ['md', 'txt', 'le', 'text', 'markdown'];
+const PROVIDERS = ['openai', 'anthropic', 'groq', 'together', 'gemini'];
+
+const $ = (id) => document.getElementById(id);
+let pollTimer = null;
+let logSince = 0;
+let result = null;
+
+// ------------------------------- helpers ------------------------------------
+
+async function leapi(operation, payload) {
+    const response = await fetch('/leapi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({ token: TOKEN, operation }, payload))
+    });
+    if (!response.ok) throw new Error(`Server error ${response.status}`);
+    return response.json();
+}
+
+function show(screen) {
+    for (const s of ['setup', 'run', 'result'])
+        $('screen-' + s).classList.toggle('hidden', s !== screen);
+}
+
+function ext(name) {
+    const m = /\.([A-Za-z0-9]+)$/.exec(name || '');
+    return m ? m[1].toLowerCase() : '';
+}
+
+function fileToUpload(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        if (TEXT_EXTS.includes(ext(file.name))) {
+            reader.onload = () => resolve({ name: file.name, text: reader.result });
+            reader.onerror = reject;
+            reader.readAsText(file);
+        } else {
+            reader.onload = () => {
+                const b64 = btoa(String.fromCharCode(...new Uint8Array(reader.result)));
+                resolve({ name: file.name, data: b64 });
+            };
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        }
+    });
+}
+
+// ------------------------------- setup screen -------------------------------
+
+function wireUploads() {
+    const nameFor = (input, span, none) => {
+        const files = Array.from(input.files || []);
+        span.textContent = files.length ? files.map(f => f.name).join(', ') : none;
+        $('btn-start').disabled = !$('file-wording').files.length;
+    };
+    $('file-wording').addEventListener('change', () => nameFor($('file-wording'), $('name-wording'), 'no file selected'));
+    $('file-schedule').addEventListener('change', () => nameFor($('file-schedule'), $('name-schedule'), 'no file selected'));
+    $('file-cases').addEventListener('change', () => nameFor($('file-cases'), $('name-cases'), 'no files selected'));
+}
+
+async function loadModels() {
+    try {
+        const data = await leapi('list_models', {});
+        const models = data.models || [];
+        const serverKeys = data.server_keys || [];
+        for (const sel of [$('model'), $('judge-model')]) {
+            sel.innerHTML = '';
+            for (const m of models) {
+                const opt = document.createElement('option');
+                opt.value = m.short;
+                opt.textContent = `${m.short} (${m.provider})`;
+                sel.appendChild(opt);
+            }
+        }
+        // Key inputs for providers without a server-side key, prefilled from
+        // localStorage (same names the editor uses: le-<provider>-key).
+        const keysDiv = $('keys');
+        keysDiv.innerHTML = '';
+        for (const p of PROVIDERS) {
+            if (serverKeys.includes(p)) continue;
+            const label = document.createElement('label');
+            label.className = 'field';
+            label.innerHTML = `<span>${p} API key</span>`;
+            const input = document.createElement('input');
+            input.type = 'password';
+            input.id = `key-${p}`;
+            input.value = localStorage.getItem(`le-${p}-key`) || '';
+            input.addEventListener('change', () => localStorage.setItem(`le-${p}-key`, input.value));
+            label.appendChild(input);
+            keysDiv.appendChild(label);
+        }
+        const preferred = localStorage.getItem('le-assistant-model');
+        if (preferred) { $('model').value = preferred; $('judge-model').value = preferred; }
+    } catch (e) {
+        $('setup-error').textContent = 'Could not load the model list: ' + e.message;
+    }
+}
+
+function collectBudget() {
+    const preset = document.querySelector('input[name=preset]:checked').value;
+    const budget = { preset };
+    for (const [id, key] of [['adv-k', 'k'], ['adv-w', 'w'], ['adv-repairs', 'repairs'], ['adv-minutes', 'minutes']]) {
+        const v = $(id).value;
+        if (v !== '') budget[key] = Number(v);
+    }
+    return budget;
+}
+
+function collectFeatures() {
+    const features = {};
+    if ($('feat-probes').value !== '') features.probes = Number($('feat-probes').value);
+    if ($('feat-holdout').value !== '') features.holdout = $('feat-holdout').value === 'true';
+    features.interrogation_repair = $('feat-interrogation-repair').checked;
+    // Checkboxes whose unchecked state is the preset default are only sent when
+    // they deviate from it, so presets keep working.
+    if ($('feat-paraphrase').checked) features.paraphrase = true;
+    if ($('feat-clausewise').checked) features.clausewise = true;
+    if (!$('feat-diff').checked) features.diff_repairs = false;
+    return features;
+}
+
+function collectKeys() {
+    const keys = {};
+    for (const p of PROVIDERS) {
+        const input = $(`key-${p}`);
+        if (input && input.value) keys[p] = input.value;
+    }
+    return keys;
+}
+
+async function start() {
+    $('btn-start').disabled = true;
+    $('setup-error').textContent = '';
+    try {
+        const wording = await fileToUpload($('file-wording').files[0]);
+        const payload = {
+            wording,
+            model: $('model').value,
+            judge_model: $('judge-model').value,
+            api_keys: collectKeys(),
+            budget: collectBudget(),
+            features: collectFeatures(),
+            target: $('target').value.trim()
+        };
+        if ($('file-schedule').files.length)
+            payload.schedule = await fileToUpload($('file-schedule').files[0]);
+        payload.cases = await Promise.all(Array.from($('file-cases').files).map(fileToUpload));
+
+        const data = await leapi('contract_start', payload);
+        if (data.error) throw new Error(data.error);
+        localStorage.setItem('le-assistant-model', $('model').value);
+        attach(data.job);
+    } catch (e) {
+        $('setup-error').textContent = e.message;
+        $('btn-start').disabled = false;
+    }
+}
+
+// -------------------------------- run screen --------------------------------
+
+function attach(job) {
+    location.hash = job;
+    logSince = 0;
+    $('log').textContent = '';
+    $('branches').innerHTML = '';
+    show('run');
+    poll(job);
+    pollTimer = setInterval(() => poll(job), 2000);
+}
+
+const STAGE_MAX = 6;
+
+async function poll(job) {
+    let data;
+    try {
+        data = await leapi('contract_status', { job, since: logSince });
+    } catch (e) {
+        return; // transient network error: keep polling
+    }
+    if (data.error && data.status === undefined) {
+        stopPolling();
+        $('run-title').textContent = 'Error';
+        $('log').textContent += '\n' + data.error;
+        return;
+    }
+    $('stage-label').textContent = `Stage ${data.stage}/${STAGE_MAX}: ${data.stage_label}`;
+    $('stage-fill').style.width = `${Math.round(100 * data.stage / STAGE_MAX)}%`;
+    if (data.log && data.log.length) {
+        $('log').textContent += data.log.join('\n') + '\n';
+        $('log').scrollTop = $('log').scrollHeight;
+        logSince = data.next_seq;
+    }
+    renderBranches(data.branches || []);
+    if (data.status === 'finished') {
+        stopPolling();
+        showResult(job);
+    } else if (data.status === 'error') {
+        stopPolling();
+        $('run-title').textContent = 'Failed';
+        $('log').textContent += '\nJob failed: ' + (data.error || 'unknown error') + '\n';
+    } else if (data.status === 'interrupted') {
+        stopPolling();
+        $('run-title').textContent = 'Cancelled';
+    }
+}
+
+function renderBranches(branches) {
+    const div = $('branches');
+    div.innerHTML = '';
+    for (const b of branches) {
+        const card = document.createElement('div');
+        card.className = 'branch';
+        card.innerHTML = `<b>Branch ${b.branch}</b> <span class="state">${b.state || ''}</span><br>` +
+            (b.summary ? `<small>${b.summary}${b.iteration !== undefined ? ` (iteration ${b.iteration})` : ''}</small>` : '');
+        div.appendChild(card);
+    }
+}
+
+function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+async function cancel() {
+    const job = location.hash.slice(1);
+    if (job) await leapi('contract_interrupt', { job });
+}
+
+// ------------------------------ result screen -------------------------------
+
+async function showResult(job) {
+    const data = await leapi('contract_result', { job });
+    if (data.error) {
+        $('run-title').textContent = 'Error';
+        $('log').textContent += '\n' + data.error;
+        return;
+    }
+    result = data;
+    $('result-le').textContent = data.le || '';
+    $('result-ledger').textContent = data.ledger || '(no ledger)';
+    const scores = $('scores');
+    scores.innerHTML = '';
+    for (const s of data.scores || []) {
+        const el = document.createElement('div');
+        el.className = 'branch' + (s.branch === data.winner ? ' winner' : '');
+        const holdout = (s.holdout_passed !== undefined && (s.holdout_passed + s.holdout_failed) > 0)
+            ? `<br><small>held-out: ${s.holdout_passed}/${s.holdout_passed + s.holdout_failed}</small>` : '';
+        el.innerHTML = `<b>Branch ${s.branch}${s.branch === data.winner ? ' — winner' : ''}</b><br><small>${s.summary || ''}</small>${holdout}`;
+        scores.appendChild(el);
+    }
+    renderReports(data);
+    show('result');
+}
+
+function renderReports(data) {
+    const div = $('reports');
+    div.innerHTML = '';
+    const inter = data.interrogation;
+    if (inter && inter.enabled) {
+        const el = document.createElement('div');
+        el.className = 'branch' + (inter.disagreed > 0 ? ' warn' : ' winner');
+        let open = '';
+        if (inter.disagreed > 0 && (inter.open || []).length) {
+            open = '<br><small>Open disagreements (twin wrong, or contract ambiguous):</small>' +
+                (inter.open || []).map(o =>
+                    `<br><small>• ${o.query} / ${o.scenario}: expected ${o.expected}, got ${o.actual}</small>`).join('');
+        }
+        el.innerHTML = `<b>Interrogation</b><br><small>${inter.agreed} probe(s) agree, ${inter.disagreed} disagree` +
+            `${inter.initially_disagreed > inter.disagreed ? ` (${inter.initially_disagreed - inter.disagreed} adjudicated)` : ''}</small>${open}`;
+        div.appendChild(el);
+    }
+    const para = data.paraphrase;
+    if (para && para.enabled) {
+        const el = document.createElement('div');
+        el.className = 'branch' + (para.stability >= 70 ? ' winner' : ' warn');
+        el.innerHTML = `<b>Paraphrase invariance</b><br><small>stability ${para.stability}%</small>`;
+        el.title = para.report || '';
+        div.appendChild(el);
+    }
+}
+
+function copyResult() {
+    navigator.clipboard.writeText(result.le).then(
+        () => { $('result-note').textContent = 'Copied.'; },
+        () => { $('result-note').textContent = 'Copy failed — select the text manually.'; });
+}
+
+function downloadResult() {
+    const blob = new Blob([result.le], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = result.filename || 'contract.le';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function openInEditor() {
+    // The editor accepts initial content via the ?text= URL parameter.
+    const url = '/editor/index.html?text=' + encodeURIComponent(result.le);
+    if (url.length > 60000) {
+        $('result-note').textContent = 'Program too large for a URL — use Download and open the file in the editor.';
+        return;
+    }
+    window.open(url, '_blank');
+}
+
+// --------------------------------- wiring -----------------------------------
+
+document.addEventListener('DOMContentLoaded', () => {
+    wireUploads();
+    loadModels();
+    $('btn-start').addEventListener('click', start);
+    $('btn-cancel').addEventListener('click', cancel);
+    $('btn-copy').addEventListener('click', copyResult);
+    $('btn-download').addEventListener('click', downloadResult);
+    $('btn-editor').addEventListener('click', openInEditor);
+    $('btn-again').addEventListener('click', () => { location.hash = ''; show('setup'); $('btn-start').disabled = false; });
+
+    // Reattach to a running job after a reload: the job ID lives in the hash.
+    const job = location.hash.slice(1);
+    if (job) attach(job);
+});
