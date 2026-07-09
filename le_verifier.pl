@@ -26,6 +26,7 @@ check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
 check_issue(KB, Issue) :- failed_test(KB, Issue).
 check_issue(KB, Issue) :- redefined_system_template(KB, Issue).
 check_issue(KB, Issue) :- single_variable_fact(KB, Issue).
+check_issue(KB, Issue) :- single_variable_scenario_fact(KB, Issue).
 
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
@@ -363,6 +364,34 @@ single_variable_fact(KB, issue(single_variable_fact, Description, Fix, Start, En
     format(atom(Description), "Fact '~w' introduces a variable rather than naming an individual, so it holds for everything", [Text]),
     Fix = "use a proper name (e.g. 'fluffy') or 'any' for the individual; if you really mean 'every ...', write it as a rule.",
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
+
+% --- 8a. Scenario fact with a single, likely-accidental variable ---
+% The same trap as single_variable_fact, but inside a scenario. There the
+% articles behave differently from the knowledge base: "the individual is happy"
+% names the constant 'the individual' (safe), but "a person is happy" quietly
+% introduces a *variable*, so the scenario fact holds for every person. Such a
+% fact compiles to a clause whose body is just the type check, and scenario
+% facts are stored as terms inside scenario/2 rather than as KB clauses, so the
+% check above does not see them. Rules and unknown facts (whose bodies contain
+% more than type checks) are skipped.
+single_variable_scenario_fact(KB, issue(single_variable_fact, Description, Fix, Start, End)) :-
+    current_predicate(KB:scenario/2),
+    KB:scenario(Name, Terms),
+    member(fact_with_source(Term, Start, End), Terms),
+    (   Term = (Head :- Body)
+    ->  body_only_type_checks(Body)
+    ;   Head = Term
+    ),
+    compound(Head),
+    Head \= unknown_template(_),
+    term_variables(Head, [_]),
+    fact_le_text(KB, Head, Text),
+    format(atom(Description), "Fact '~w' in scenario '~w' introduces a variable ('a/an/some ...') rather than naming an individual, so it holds for everything", [Text, Name]),
+    Fix = "name the individual (a proper name like 'fluffy', or 'the ...', which is a constant in a scenario); if you really mean 'every ...', write it as a rule in the knowledge base.".
+
+body_only_type_checks((A, B)) :- !, body_only_type_checks(A), body_only_type_checks(B).
+body_only_type_checks(le_type_check(_, _)).
+body_only_type_checks(true).
 
 % Render a fact head as readable LE text, falling back to the raw term.
 fact_le_text(KB, Head, Text) :-
