@@ -80,3 +80,7 @@ what is the close-out amount).
   variable match a constant; use the constant directly in the rule.
 - Facts (schedule data) go in the knowledge-base or annex sections, BEFORE the
   scenarios and queries — never between or after them.
+- NEVER elide content with placeholders like `% ... (all rules and templates)`
+  or "rest unchanged". Every reply that carries the program must contain the
+  COMPLETE program, from the header comment to the last query. An elided
+  program is rejected outright.

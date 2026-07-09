@@ -127,7 +127,7 @@ job_config_summary(JobID, Summary, Elapsed) :-
     ->  F = C.features,
         Summary = _{model: C.model, judge_model: C.judge_model,
                     k: C.k, w: C.w, repairs: C.repairs, minutes: C.minutes,
-                    max_tokens: C.max_tokens,
+                    max_tokens: C.max_tokens, reasoning: C.reasoning,
                     probes: F.probes, holdout: F.holdout,
                     paraphrase: F.paraphrase, clausewise: F.clausewise,
                     diff_repairs: F.diff_repairs},
@@ -184,10 +184,13 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
     features_params(Dict, Preset, Features),
     ( get_dict(max_tokens, Dict, MT0), number(MT0), MT0 > 0 -> MaxTokens = MT0
     ; MaxTokens = 16000 ),
+    ( get_dict(reasoning, Dict, R0), atom_string(Reasoning0, R0),
+      memberchk(Reasoning0, [default, minimal]) -> Reasoning = Reasoning0
+    ; Reasoning = default ),
     get_time(Now), Deadline is Now + Minutes * 60,
     Config = _{model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
-               minutes: Minutes, started: Now,
+               minutes: Minutes, started: Now, reasoning: Reasoning,
                deadline: Deadline, features: Features, max_tokens: MaxTokens,
                wording: WordingFile, schedule: ScheduleFile, cases: CaseFiles}.
 
@@ -357,7 +360,7 @@ friendly_error(error(contract_assistant_error(empty_reply(Purpose, Model)), _), 
            [Purpose, Model]).
 friendly_error(error(contract_assistant_error(llm_truncated(Purpose, Model)), _), Msg) :- !,
     format(string(Msg),
-           "the model (~w) hit the completion-token limit while still reasoning during '~w', producing no visible answer. RAISE Max completion tokens (Advanced), reduce the input (set a Target section!), or pick a less reasoning-heavy model.",
+           "the model (~w) hit the completion-token limit while still reasoning during '~w', even after being asked to think less (reasoning: minimal). RAISE Max completion tokens (Advanced), reduce the input (set a Target section), or pick a less reasoning-heavy model.",
            [Model, Purpose]).
 friendly_error(error(contract_assistant_error(M), _), Msg) :- !,
     term_string(M, Msg).
@@ -407,8 +410,14 @@ pipeline_stages(JobID) :-
     ledger_for(JobID, Config, WordingSlice, WText, Ledger),
     findall(SD, (member(branch(I, _, S), Branches), SD = S.put(branch, I)), AllScores),
     save_text_artifact(JobID, 'winner.le', WText),
+    % The delivered program may differ from the branch final (interrogation can
+    % adopt adjudication repairs): report ITS verification as the final score.
+    verify_le_text(WText, VFinal),
+    score_summary(VFinal, SummaryFinal),
+    branch_score(VFinal, SummaryFinal, FinalScore),
+    ca_emit(JobID, "Delivered program: ~w"-[SummaryFinal]),
     Result = _{le: WText, filename: "contract.le", winner: WIdx,
-               scores: AllScores, ledger: Ledger,
+               scores: AllScores, final_score: FinalScore, ledger: Ledger,
                interrogation: Interrogation, paraphrase: Paraphrase},
     save_json_artifact(JobID, 'scores.json',
                        _{winner: WIdx, scores: AllScores,
@@ -633,20 +642,35 @@ apply_repair_reply(Config, Reply, OldText, NewText, How) :-
         ->  NewText = Text1,
             format(string(How), "applied ~w edit(s), ~w did not match", [Applied, Failed])
         ;   first_fenced_block(Reply, Full),
-            \+ contains_edit_markers(Full)
+            \+ contains_edit_markers(Full),
+            \+ contains_elision_marker(Full)
         ->  NewText = Full, How = "edits did not match; used the full program from the reply"
-        ;   NewText = OldText, How = "no edit matched and no full program given; text unchanged"
+        ;   NewText = OldText, How = "no usable edit or full program in the reply; text unchanged"
         )
     ;   extract_le_code(Reply, NewText0),
-        % An unapplied edit block must never masquerade as the program.
+        % An unapplied edit block, or a program with elided ("% ...")
+        % sections, must never masquerade as the program.
         (   contains_edit_markers(NewText0)
         ->  NewText = OldText, How = "reply contained only unapplied edit blocks; text unchanged"
+        ;   contains_elision_marker(NewText0)
+        ->  NewText = OldText, How = "reply elided sections with '% ...'; text unchanged"
         ;   NewText = NewText0, How = "replaced the full program"
         )
     ).
 
 contains_edit_markers(Text) :-
     sub_string(Text, _, _, _, "<<<<<<< SEARCH").
+
+% "% ... (all rules and templates)"-style placeholders: the model elided
+% content instead of outputting the full program. Accepting such a reply as a
+% full replacement amputates the program.
+contains_elision_marker(Text) :-
+    ( sub_string(Text, _, _, _, "\n% ...")
+    ; sub_string(Text, 0, _, _, "% ...")
+    ; sub_string(Text, _, _, _, "\n...\n")
+    ; sub_string(Text, _, _, _, "rest unchanged")
+    ; sub_string(Text, _, _, _, "as before)")
+    ), !.
 
 %!  extract_search_replace(+Reply, -Edits:list(edit(Search, Replace))) is det.
 %
@@ -909,17 +933,65 @@ verify_le_text_(Text, V) :-
     partition(is_pass, TestResults, Passes, Fails),
     length(Passes, NPassed), length(Fails, NFailed),
     maplist(test_detail, TestResults, Details),
-    (   NPassed + NFailed =:= 0,
-        \+ kb_has_substance(KB)
-    ->  NErrors1 is NErrors + 1,
+    (   \+ kb_has_substance(KB)
+    ->  E1 is NErrors + 1,
         EmptyIssue = _{severity: "error", type: "empty_program",
-                       message: "The program contains no templates, rules, facts or scenarios (comments only?). Output the FULL Logical English program."},
+                       message: "The program contains no templates, rules or facts (scenarios alone decide nothing). Output the FULL Logical English program — never elide sections with '% ...' placeholders."},
         Issues1 = [EmptyIssue|Issues]
-    ;   NErrors1 = NErrors, Issues1 = Issues
+    ;   E1 = NErrors, Issues1 = Issues
+    ),
+    (   asterisks_outside_templates(Text, NBadLines)
+    ->  NErrors1 is E1 + 1,
+        format(string(AMsg),
+               "Asterisked *variables* appear OUTSIDE the templates section (~w line(s)). In rules, facts, scenarios and queries write plain phrases ('a claim', 'the claim', 'which claim'), never *asterisks*.",
+               [NBadLines]),
+        AsteriskIssue = _{severity: "error", type: "asterisks_outside_templates", message: AMsg},
+        Issues2 = [AsteriskIssue|Issues1]
+    ;   NErrors1 = E1, Issues2 = Issues1
     ),
     V = _{errors: NErrors1, warnings: NWarnings,
           tests_passed: NPassed, tests_failed: NFailed,
-          issues: Issues1, test_details: Details}.
+          issues: Issues2, test_details: Details}.
+
+%!  asterisks_outside_templates(+Text, -NLines) is semidet.
+%
+%   True (with a line count) when *variable* markers appear outside the
+%   templates/predicates sections — always a mistake that quietly turns
+%   scenario constants into variables or breaks rule parsing. Adjacency
+%   distinguishes markers (*a claim*) from multiplication (X * Y).
+asterisks_outside_templates(Text, NLines) :-
+    split_string(Text, "\n", "", Lines),
+    foldl(asterisk_line_check, Lines, out-0, _-NLines),
+    NLines > 0.
+
+asterisk_line_check(Line, In0-N0, In-N) :-
+    normalize_space(string(T), Line),
+    (   T == "" -> In = In0, N = N0
+    ;   string_concat("%", _, T) -> In = In0, N = N0
+    ;   string_concat(_, ":", T)     % a section header line
+    ->  N = N0,
+        (   ( sub_string(T, _, _, _, "templates are")
+            ; sub_string(T, _, _, _, "predicates are")
+            ; sub_string(T, _, _, _, "fluents are")
+            ; sub_string(T, _, _, _, "events are") )
+        ->  In = in
+        ;   In = out
+        )
+    ;   In0 == out, has_asterisk_variable(T)
+    ->  In = In0, N is N0 + 1
+    ;   In = In0, N = N0
+    ).
+
+% A '*' immediately followed by a non-space, with a later '*' immediately
+% preceded by a non-space: an *asterisked phrase*, not arithmetic.
+has_asterisk_variable(T) :-
+    sub_string(T, B, 1, _, "*"),
+    B1 is B + 1,
+    sub_string(T, B1, 1, _, C1), C1 \== " ",
+    sub_string(T, B2, 1, _, "*"), B2 > B1,
+    B3 is B2 - 1,
+    sub_string(T, B3, 1, _, C2), C2 \== " ",
+    !.
 
 % A knowledge base with actual content: at least one user clause (rule or
 % fact) or one user-declared template. Imported predicates and the system
@@ -985,7 +1057,11 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
     ->  call(Hook, Purpose, Messages, Reply)
     ;   resolve_model(Purpose, Config, Model, Key),
         MT = Config.max_tokens,
-        append(Options, [api_key(Key), max_tokens(MT)], Opts),
+        (   Config.reasoning == minimal
+        ->  Extra = [api_key(Key), max_tokens(MT), reasoning(minimal)]
+        ;   Extra = [api_key(Key), max_tokens(MT)]
+        ),
+        append(Options, Extra, Opts),
         llm_try(JobID, Config, Purpose, Model, Messages, Opts, 1, Reply)
     ).
 
@@ -1019,8 +1095,19 @@ llm_outcome(ok(Reply0), JobID, Config, Purpose, Model, Messages, Opts, Attempt, 
         string_length(Reply0, RL),
         ca_emit(JobID, "LLM reply (~w): ~w chars"-[Purpose, RL])
     ).
+% The model spent its whole completion budget reasoning. Deterministic, so a
+% plain retry is pointless — but asking it to THINK LESS is not: retry once
+% with reasoning(minimal). Only if the minimal-reasoning call also drowns in
+% thought does the job fail.
+llm_outcome(err(error(llm_truncated(_), _)), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    \+ memberchk(reasoning(_), Opts),
+    \+ deadline_exceeded(Config),
+    !,
+    ca_emit(JobID, "LLM call (~w) was truncated mid-reasoning; retrying with minimal reasoning"-[Purpose]),
+    ca_check_alive(JobID),
+    llm_try(JobID, Config, Purpose, Model, Messages, [reasoning(minimal)|Opts], Attempt, Reply).
 llm_outcome(err(error(llm_truncated(_), _)), JobID, _Config, Purpose, Model, _Messages, _Opts, _Attempt, _Reply) :- !,
-    ca_emit(JobID, "LLM call (~w) was truncated: the model spent its whole completion budget reasoning"-[Purpose]),
+    ca_emit(JobID, "LLM call (~w) was truncated even with minimal reasoning"-[Purpose]),
     throw(error(contract_assistant_error(llm_truncated(Purpose, Model)), _)).
 llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     (   transient_llm_error(E),

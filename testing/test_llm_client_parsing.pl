@@ -45,3 +45,35 @@ test(empty_content_with_stop_is_just_empty) :-
     assertion(A == "").
 
 :- end_tests(llm_reply_extraction).
+
+% The provider-agnostic reasoning(minimal) option translates into each
+% provider's own dialect — and is dropped where it would be rejected.
+:- begin_tests(llm_reasoning_control).
+
+test(together_uses_chat_template_kwargs) :-
+    llm_client:reasoning_fields(together, 'zai-org/GLM-5.2', minimal, F),
+    F = [chat_template_kwargs(D)],
+    get_dict(enable_thinking, D, ET),
+    assertion(ET == false).
+
+test(groq_reasoning_model_uses_effort) :-
+    llm_client:reasoning_fields(groq, 'openai/gpt-oss-120b', minimal, F),
+    assertion(F == [reasoning_effort(low)]).
+
+test(groq_plain_model_gets_nothing) :-
+    llm_client:reasoning_fields(groq, 'llama-3.3-70b-versatile', minimal, F),
+    assertion(F == []).
+
+test(openai_plain_model_gets_nothing) :-
+    llm_client:reasoning_fields(openai, 'gpt-4o', minimal, F),
+    assertion(F == []).
+
+test(openai_reasoning_model_uses_effort) :-
+    llm_client:reasoning_fields(openai, 'gpt-5.2', minimal, F),
+    assertion(F == [reasoning_effort(low)]).
+
+test(anthropic_no_op) :-
+    llm_client:reasoning_fields(anthropic, 'claude-sonnet', minimal, F),
+    assertion(F == []).
+
+:- end_tests(llm_reasoning_control).
