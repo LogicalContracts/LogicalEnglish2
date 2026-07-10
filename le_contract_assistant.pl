@@ -435,7 +435,7 @@ pipeline_stages(JobID) :-
           ( term_string(PErr, PErrS),
             ca_emit(JobID, "Paraphrase check aborted (~w)"-[PErrS]),
             Paraphrase = _{enabled: false, note: PErrS} )),
-    ledger_for(JobID, Config1, WordingSlice, WText, Ledger),
+    ledger_for(JobID, Config1, WordingSlice, WText, Ledger0),
     findall(SD, (member(branch(I, _, S), Branches), SD = S.put(branch, I)), AllScores),
     save_text_artifact(JobID, 'winner.le', WText),
     % The delivered program may differ from the branch final (interrogation can
@@ -444,6 +444,9 @@ pipeline_stages(JobID) :-
     score_summary(VFinal, SummaryFinal),
     branch_score(VFinal, SummaryFinal, FinalScore),
     ca_emit(JobID, "Delivered program: ~w"-[SummaryFinal]),
+    technicalities(JobID, Config1, WIdx, SummaryFinal, Interrogation, Paraphrase, Tech),
+    string_concat(Ledger0, Tech, Ledger),
+    save_text_artifact(JobID, 'ledger.md', Ledger),
     Result = _{le: WText, filename: "contract.le", winner: WIdx,
                scores: AllScores, final_score: FinalScore, ledger: Ledger,
                interrogation: Interrogation, paraphrase: Paraphrase},
@@ -1023,6 +1026,57 @@ first_integer(Cs, N) :-
 
 take_digits([C|Cs], [C|Ds]) :- code_type(C, digit), !, take_digits(Cs, Ds).
 take_digits(_, []).
+
+%!  technicalities(+JobID, +Config, +WinnerIdx, +DeliveredSummary,
+%!                  +Interrogation, +Paraphrase, -Text) is det.
+%
+%   A deterministic provenance block appended to the coverage ledger: model
+%   and judge, search parameters, resolved completion limit, run date and
+%   elapsed time, per-branch outcomes, auto-tunings applied, and the
+%   delivered program's verification summary.
+technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase, Text) :-
+    F = Config.features,
+    format_time(string(Date), '%Y-%m-%d %H:%M', Config.started),
+    get_time(Now), El is round(Now - Config.started),
+    Min is El // 60, Sec is El mod 60,
+    format(string(Elapsed), "~w:~|~`0t~w~2+", [Min, Sec]),
+    ( Config.judge_model == Config.model -> Judge = "same" ; Judge = Config.judge_model ),
+    ( Config.mt_mode == auto -> MTNote = " (auto-calibrated)" ; MTNote = " (user-set)" ),
+    ( F.diff_repairs == true -> RepairStyle = diff ; RepairStyle = "full-file" ),
+    findall(BLine,
+            ( ca_branch(JobID, BIdx, Info), integer(BIdx),
+              ( BIdx =:= WIdx -> Mark = " \u2190 winner" ; Mark = "" ),
+              ( get_dict(summary, Info, BSum) -> true ; BSum = Info.get(state, "?") ),
+              format(string(BLine), "  - branch ~w: ~w~w", [BIdx, BSum, Mark]) ),
+            BLines0),
+    msort(BLines0, BLines),
+    atomic_list_concat(BLines, "\n", BranchBlock),
+    findall(TLine,
+            ( ca_tune(JobID, Tune),
+              (   Tune == reasoning_minimal
+              ->  TLine = "  - minimal reasoning enabled after a truncated call"
+              ;   Tune = max_tokens(N)
+              ->  format(string(TLine), "  - completion limit raised to ~w after truncation", [N])
+              ) ),
+            TLines),
+    ( TLines == [] -> TuneBlock = "  - none" ; atomic_list_concat(TLines, "\n", TuneBlock) ),
+    (   get_dict(enabled, Interrogation, true)
+    ->  format(string(ILine), "~w probe test(s) agree, ~w disagree",
+               [Interrogation.get(agreed, 0), Interrogation.get(disagreed, 0)])
+    ;   ILine = "off"
+    ),
+    (   get_dict(enabled, Paraphrase, true)
+    ->  format(string(PLine), "stability ~w%", [Paraphrase.get(stability, -1)])
+    ;   PLine = "off"
+    ),
+    format(string(Text),
+"\n\n---\n\n## Technicalities\n\n- Generated: ~w (job ~w)\n- Model: ~w \u00b7 judge: ~w\n- Search: K=~w vocabulary samples \u00b7 W=~w branches \u00b7 repair patience ~w \u00b7 probes ~w \u00b7 holdout ~w\n- Options: ~w repairs \u00b7 reasoning ~w \u00b7 clause-wise ~w \u00b7 paraphrase ~w\n- Completion limit: ~w tokens/call~w \u00b7 budget ~w min \u00b7 elapsed ~w\n- Target section: ~w\n- Branches:\n~w\n- Auto-tuning during the run:\n~w\n- Interrogation: ~w \u00b7 Paraphrase: ~w\n- Delivered program: ~w\n",
+           [Date, JobID, Config.model, Judge,
+            Config.k, Config.w, Config.repairs, F.probes, F.holdout,
+            RepairStyle, Config.reasoning, F.clausewise, F.paraphrase,
+            Config.max_tokens, MTNote, Config.minutes, Elapsed,
+            Config.target,
+            BranchBlock, TuneBlock, ILine, PLine, DeliveredSummary]).
 
 ledger_for(JobID, Config, WordingSlice, WinnerText, Ledger) :-
     (   deadline_exceeded(Config)

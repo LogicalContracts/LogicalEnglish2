@@ -127,7 +127,13 @@ test(happy_path_produces_result,
     assertion(Score.tests_passed =:= 1),
     assertion(Score.errors =:= 0),
     Ledger = Result.ledger,
-    assertion(sub_string(Ledger, _, _, _, "LEDGER")).
+    assertion(sub_string(Ledger, _, _, _, "LEDGER")),
+    % ... followed by the deterministic provenance block.
+    assertion(sub_string(Ledger, _, _, _, "## Technicalities")),
+    assertion(sub_string(Ledger, _, _, _, "stub-model")),
+    assertion(sub_string(Ledger, _, _, _, "branch 1")),
+    assertion(sub_string(Ledger, _, _, _, "winner")),
+    assertion(sub_string(Ledger, _, _, _, "Delivered program")).
 
 test(repair_loop_fixes_failing_test,
      [setup(hook_setup(user:hook_repair)), cleanup(hook_cleanup)]) :-
