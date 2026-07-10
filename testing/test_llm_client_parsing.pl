@@ -77,3 +77,34 @@ test(anthropic_no_op) :-
     assertion(F == []).
 
 :- end_tests(llm_reasoning_control).
+
+% OpenAI renamed max_tokens to max_completion_tokens, and its reasoning models
+% (gpt-5*, o-series) reject non-default temperature: the body builder must
+% translate/drop accordingly — and leave other providers untouched.
+:- begin_tests(llm_openai_body).
+
+test(openai_translates_max_tokens_and_drops_temperature_for_reasoning) :-
+    llm_client:build_body(openai, 'gpt-5.5',
+                          [_{role: user, content: "hi"}],
+                          [max_tokens(100), temperature(0.2)], B),
+    assertion(B.max_completion_tokens =:= 100),
+    assertion(\+ get_dict(max_tokens, B, _)),
+    assertion(\+ get_dict(temperature, B, _)).
+
+test(openai_keeps_temperature_for_plain_models) :-
+    llm_client:build_body(openai, 'gpt-4o',
+                          [_{role: user, content: "hi"}],
+                          [max_tokens(100), temperature(0.2)], B),
+    assertion(B.max_completion_tokens =:= 100),
+    assertion(\+ get_dict(max_tokens, B, _)),
+    assertion(B.temperature =:= 0.2).
+
+test(other_providers_keep_max_tokens) :-
+    llm_client:build_body(groq, 'openai/gpt-oss-120b',
+                          [_{role: user, content: "hi"}],
+                          [max_tokens(100), temperature(0.2)], B),
+    assertion(B.max_tokens =:= 100),
+    assertion(\+ get_dict(max_completion_tokens, B, _)),
+    assertion(B.temperature =:= 0.2).
+
+:- end_tests(llm_openai_body).

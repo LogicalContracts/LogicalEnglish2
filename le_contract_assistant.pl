@@ -493,7 +493,7 @@ probe_max_tokens(Model, Key, MT, Accepted) :-
               Accepted = MT ),
             error(llm_api_error(400, Body), _),
             (   term_string(Body, BS),
-                ( sub_string(BS, _, _, _, "max_tokens") ; sub_string(BS, _, _, _, "max tokens") ; sub_string(BS, _, _, _, "context") )
+                ( sub_string(BS, _, _, _, "max_tokens") ; sub_string(BS, _, _, _, "max tokens") ; sub_string(BS, _, _, _, "completion_tokens") ; sub_string(BS, _, _, _, "context") )
             ->  MT2 is MT // 2,
                 probe_max_tokens(Model, Key, MT2, Accepted)
             ;   Accepted = MT    % a 400 about something else: leave as configured
@@ -537,7 +537,7 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
     findall(Sample,
             ( member(I, Ks),
               ca_check_alive(JobID),
-              Temp is 0.15 + 0.2 * (I - 1),
+              Temp is 0.05 + 0.2 * (I - 1),
               ca_emit(JobID, "Vocabulary sample ~w/~w (temperature ~2f)"-[I, K, Temp]),
               stage_llm(JobID, Config, vocabulary, 'stage1_vocabulary',
                         [materials-Materials], [temperature(Temp)], Sample)
@@ -559,9 +559,10 @@ architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches) :-
             ( nth1(I, Angles, Angle),
               ca_check_alive(JobID),
               ca_emit(JobID, "Architecture sketch ~w/~w (~w)"-[I, W, Angle]),
+              Temp is 0.05 + 0.1 * (I - 1),
               stage_llm(JobID, Config, architecture, 'stage1_architecture',
                         [materials-Materials, vocabulary-Vocabulary, angle-Angle],
-                        [temperature(0.3)], Sketch)
+                        [temperature(Temp)], Sketch)
             ),
             Sketches).
 
@@ -583,14 +584,14 @@ run_branch(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     ->  clausewise_draft(JobID, Config, Ctx, Idx, Sketch, Draft0)
     ;   stage_llm(JobID, Config, draft(Idx), 'stage2_draft',
                   [materials-Ctx.materials, vocabulary-Ctx.vocabulary, architecture-Sketch],
-                  [temperature(0.2)], DraftReply),
+                  [temperature(0.05)], DraftReply),
         extract_le_code(DraftReply, Draft0)
     ),
     branch_artifact_name(Idx, draft, DraftName),
     save_text_artifact(JobID, DraftName, Draft0),
     string_length(Draft0, DraftLen),
     ca_emit(JobID, "Branch ~w: draft extracted (~w chars)"-[Idx, DraftLen]),
-    repair_loop(JobID, Config, Idx, Draft0, 0, none, Repaired, Score0),
+    repair_loop(JobID, Config, Idx, Draft0, 0, none, 0, Repaired, Score0),
     holdout_extend(JobID, Config, Ctx, Idx, Repaired, Score0, Final, Score),
     branch_artifact_name(Idx, final, FinalName),
     save_text_artifact(JobID, FinalName, Final),
@@ -624,7 +625,7 @@ clausewise_draft(JobID, Config, Ctx, Idx, Sketch, Draft) :-
     stage_llm(JobID, Config, finalize(Idx), 'stage2_finalize',
               [program-Program1, schedule-Ctx.schedule, cases-CasesBlock,
                vocabulary-Ctx.vocabulary],
-              [temperature(0.2)], Reply),
+              [temperature(0.05)], Reply),
     extract_le_code(Reply, Draft),
     reverse(LedgerLines, Ordered),
     atomic_list_concat(Ordered, "\n", LiveLedger),
@@ -637,7 +638,7 @@ clausewise_block(JobID, Config, Ctx, Idx, Sketch, NB, Block, Prog0-Led0-I, Prog-
     stage_llm(JobID, Config, clause(Idx, I), 'stage2_clause',
               [program-Prog0, clause-Block, vocabulary-Ctx.vocabulary,
                architecture-Sketch],
-              [temperature(0.2)], Reply),
+              [temperature(0.05)], Reply),
     (   extract_tagged_block(Reply, le, Prog1) -> Prog = Prog1
     ;   extract_le_code(Reply, Prog)
     ),
@@ -686,23 +687,40 @@ holdout_extend(JobID, Config, Ctx, Idx, Text, Score0, Final, Score) :-
     Score = Score1.put(_{holdout_passed: HP, holdout_failed: HF}),
     ca_emit(JobID, "Branch ~w held-out: ~w passed, ~w failed"-[Idx, HP, HF]).
 
-%!  repair_loop(+JobID, +Config, +Idx, +Text, +Iter, +Best0, -Final, -Score)
+%!  repair_loop(+JobID, +Config, +Idx, +Text, +Iter, +Best0, +Streak, -Final, -Score)
 %
 %   Iterates verify -> feedback -> LLM repair. Keeps the best-ranked version
 %   seen so far (a repair can make things worse) and returns that one when
 %   the loop ends without reaching a clean program.
-repair_loop(JobID, Config, Idx, Text, Iter, Best0, Final, Score) :-
+%
+%   The loop is progress-aware, not a fixed count: Config.repairs is the
+%   PATIENCE — how many consecutive non-improving iterations are tolerated —
+%   and iterating continues while repairs keep improving the rank, up to a
+%   hard cap of max(3 x patience, 8) and always within the wall-clock budget.
+%   (A fixed count wasted the budget: a Draft run would stop after 2 rounds
+%   with 51 errors and 14 of its 15 minutes unused.)
+repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
     verify_le_text(Text, V),
     score_summary(V, Summary),
     ca_set_branch(JobID, Idx, _{state: "repairing", iteration: Iter, summary: Summary,
                                 errors: V.errors, warnings: V.warnings,
                                 tests_passed: V.tests_passed, tests_failed: V.tests_failed}),
     ca_emit(JobID, "Branch ~w iteration ~w: ~w"-[Idx, Iter, Summary]),
-    best_of(Best0, cand(Text, V, Summary), Best),
+    Cand = cand(Text, V, Summary),
+    best_of(Best0, Cand, Best),
+    (   ( Best0 == none ; Best == Cand )
+    ->  Streak = 0                       % first iteration, or rank improved
+    ;   Streak is Streak0 + 1
+    ),
+    Patience = Config.repairs,
+    HardCap is max(3 * Patience, 8),
     (   ( V.errors =:= 0, V.tests_failed =:= 0, V.tests_passed > 0 )
     ->  Final = Text, branch_score(V, Summary, Score)
-    ;   Iter >= Config.repairs
-    ->  ca_emit(JobID, "Branch ~w: repair budget exhausted, keeping the best iteration"-[Idx]),
+    ;   Streak >= Patience
+    ->  ca_emit(JobID, "Branch ~w: no improvement in ~w consecutive repair round(s), keeping the best iteration"-[Idx, Streak]),
+        best_result(Best, Final, Score)
+    ;   Iter >= HardCap
+    ->  ca_emit(JobID, "Branch ~w: hard repair cap (~w) reached, keeping the best iteration"-[Idx, HardCap]),
         best_result(Best, Final, Score)
     ;   deadline_exceeded(Config)
     ->  ca_emit(JobID, "Branch ~w: wall-clock budget exhausted, keeping the best iteration"-[Idx]),
@@ -721,7 +739,7 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Final, Score) :-
         ->  apply_repair_reply(Config, R, Text, Text1, How),
             ca_emit(JobID, "Branch ~w repair ~w: ~w"-[Idx, Iter, How]),
             Iter1 is Iter + 1,
-            repair_loop(JobID, Config, Idx, Text1, Iter1, Best, Final, Score)
+            repair_loop(JobID, Config, Idx, Text1, Iter1, Best, Streak, Final, Score)
         ;   ca_emit(JobID, "Branch ~w: repair call failed; keeping the best iteration"-[Idx]),
             best_result(Best, Final, Score)
         )
@@ -872,7 +890,7 @@ interrogate(JobID, Config, Ctx, Text0, Text, Report) :-
         verify_le_text(Text0, V0),   % cached load: cheap despite the re-verify above
         stage_llm(JobID, Config, probes, 'probe_scenarios',
                   [materials-Ctx.materials, program-Text0, count-P],
-                  [temperature(0.4)], Reply),
+                  [temperature(0.2)], Reply),
         extract_le_code(Reply, ProbeBlock),
         format(string(Merged), "~w\n\n% ── Interrogation probes (LLM reading of the contract) ──\n\n~w\n",
                [Text0, ProbeBlock]),
@@ -885,7 +903,7 @@ interrogate(JobID, Config, Ctx, Text0, Text, Report) :-
         ;   Config.features.interrogation_repair == true,
             \+ deadline_exceeded(Config)
         ->  ca_emit(JobID, "Interrogation: adjudicating ~w disagreement(s)"-[Disagreed0]),
-            repair_loop(JobID, Config, probes, Merged, 0, none, FinalMerged, _),
+            repair_loop(JobID, Config, probes, Merged, 0, none, 0, FinalMerged, _),
             verify_le_text(FinalMerged, VF)
         ;   FinalMerged = Merged, VF = V1
         ),
@@ -945,7 +963,7 @@ paraphrase_check(JobID, Config, Ctx, Report) :-
     ;   ca_check_alive(JobID),
         ca_emit(JobID, "Paraphrase-invariance check: rewriting the wording"-[]),
         stage_llm(JobID, Config, paraphrase, 'paraphrase',
-                  [wording-Ctx.wording], [temperature(0.7)], PText),
+                  [wording-Ctx.wording], [temperature(0.6)], PText),
         stage_llm(JobID, Config, vocabulary_paraphrase, 'stage1_vocabulary',
                   [materials-PText], [temperature(0.2)], Sample),
         stage_llm(JobID, Config, paraphrase_compare, 'paraphrase_compare',

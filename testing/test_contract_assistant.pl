@@ -327,6 +327,23 @@ hook_probes_die(probes, _, _) :- !,
 hook_probes_die(ledger, _, "LEDGER") :- !.
 hook_probes_die(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
+% Stateful hook proving the progress-aware repair loop: the draft fails two
+% tests; repair 1 fixes one (improvement -> streak resets); repairs 2 and 3
+% return the same program (no improvement) until the patience of 2 stops the
+% loop. With the old fixed count of 2 the third repair call never happened.
+:- dynamic progress_repair_calls/1.
+progress_prog_fail2("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"wrong one\"].\n\nscenario two is:\n    carol is healthy.\n    who expects answers [\"wrong two\"].\n\nquery who is:\n    which person is happy.\n").
+progress_prog_fail1("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n\nscenario two is:\n    carol is healthy.\n    who expects answers [\"wrong two\"].\n\nquery who is:\n    which person is happy.\n").
+
+hook_progress(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_progress(architecture, _, "one branch") :- !.
+hook_progress(draft(_), _, Reply) :- !, progress_prog_fail2(P), fence(P, Reply).
+hook_progress(repair(_, _), _, Reply) :- !,
+    retract(progress_repair_calls(N)), N1 is N + 1, assertz(progress_repair_calls(N1)),
+    progress_prog_fail1(P), fence(P, Reply).
+hook_progress(ledger, _, "LEDGER") :- !.
+hook_progress(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
 % Hook producing one DISAGREEING probe, with adjudication repairs disabled:
 % the probes must be reverted and reported as open disagreements.
 hook_disagree(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
@@ -446,6 +463,27 @@ test(dead_probe_generation_never_kills_the_job,
     Interrogation = Result.interrogation,
     Aborted = Interrogation.aborted,
     assertion(sub_string(Aborted, _, _, _, "llm_truncated")).
+
+% The repair loop extends beyond the patience count while iterations improve:
+% with patience 2, an improving repair resets the streak, so a third repair
+% call happens before two consecutive non-improving rounds stop the loop.
+test(repair_loop_extends_while_improving,
+     [setup(( hook_setup(user:hook_progress),
+              retractall(user:progress_repair_calls(_)),
+              assertz(user:progress_repair_calls(0)) )),
+      cleanup(( hook_cleanup, retractall(user:progress_repair_calls(_)) ))]) :-
+    start_config(Config0),
+    Config = Config0.put(budget, _{preset: "draft", minutes: 5, repairs: 2}),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    progress_prog_fail1(P),
+    assertion(Result.le == P),                    % the improved iteration won
+    user:progress_repair_calls(N),
+    assertion(N =:= 3),                           % patience 2 alone would stop at 2
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.tests_passed =:= 1),
+    assertion(Score.tests_failed =:= 1).
 
 % The elapsed clock freezes when the job reaches a terminal state.
 test(elapsed_stops_at_job_end,

@@ -69,7 +69,7 @@
         <div class="row">
           <label class="field" title="How many independent vocabulary (template inventory) samples to draw, at varied temperatures, before a judge merges them by consensus. Vocabulary present in most samples is kept; stragglers must justify themselves with a contract quote. More samples = more stable vocabulary, more cost."><span>Vocabulary samples (K)</span><input type="number" id="adv-k" min="1" max="9"></label>
           <label class="field" title="How many alternative architectures (ways of decomposing the contract: entitlement-style, obligation-style, computation-style...) to draft and repair in parallel. The branch with the best objective score wins."><span>Branches (W)</span><input type="number" id="adv-w" min="1" max="5"></label>
-          <label class="field" title="Maximum verify-and-repair rounds per branch: each round feeds the verifier's errors and the failing scenario tests back to the model. The best-scoring iteration is kept, even if a later repair makes things worse."><span>Repair iterations</span><input type="number" id="adv-repairs" min="0" max="10"></label>
+          <label class="field" title="Repair PATIENCE: how many consecutive non-improving verify-and-repair rounds are tolerated. While rounds keep improving the program, repairing continues — up to a hard cap of 3x this value (min 8) and always within the minute budget. The best-scoring iteration is kept, even if a later repair makes things worse."><span>Repair patience</span><input type="number" id="adv-repairs" min="0" max="10"></label>
           <label class="field" title="Wall-clock budget for the whole job. As the deadline nears, optional work is pruned (remaining repairs, probes, paraphrase check) so the job still finishes with what it has."><span>Max minutes</span><input type="number" id="adv-minutes" min="1" max="600"></label>
           <label class="field" title="Completion-token cap per LLM call (default 16000). RAISE it for reasoning-heavy models — they need room to finish thinking before emitting the answer — and for drafts of large sections. Calls that die of reasoning exhaustion are detected and retried with minimal reasoning."><span>Max completion tokens per LLM call</span><input type="number" id="adv-maxtokens" min="1000" max="64000" placeholder="16000"></label>
           <label class="field"><span>Reasoning effort (for thinking models)</span>
@@ -128,6 +128,7 @@
   <section id="screen-result" class="screen hidden">
     <div class="card">
       <h2 id="result-title">Result</h2>
+      <div id="result-summary" class="hint" title="The configuration this job ran with, and its total runtime."></div>
       <div id="scores" class="scores" title="'Delivered program' is the verification of the exact text below (after interrogation); the branch cards show each raced architecture's final score. Held-out results are blind-evaluation scores."></div>
       <div id="reports" class="reports" title="Interrogation: how many contract-derived probe tests agree with the program; open disagreements mean the twin is wrong or the contract is ambiguous. Paraphrase: vocabulary stability under rewording."></div>
       <div class="actions">
