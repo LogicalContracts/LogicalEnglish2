@@ -251,12 +251,31 @@ build_body(anthropic, APIModel, Messages, Options, Body) :- !,
     dict_pairs(Extra, _, OptionPairs),
     Body = Body0.put(Extra).
 
+build_body(openai, APIModel, Messages, Options, Body) :- !,
+    % Newer OpenAI models (gpt-5*, o-series) reject max_tokens: the parameter
+    % was renamed max_completion_tokens (which all current chat models accept).
+    (   select_option(max_tokens(MT), Options, Options1)
+    ->  Options2 = [max_completion_tokens(MT)|Options1]
+    ;   Options2 = Options
+    ),
+    % ... and the reasoning models also reject any non-default temperature.
+    (   reasoning_effort_model(APIModel)
+    ->  exclude(is_temperature_option, Options2, Options3)
+    ;   Options3 = Options2
+    ),
+    Body0 = _{model:APIModel, messages:Messages},
+    option_pairs(Options3, [], OptionPairs),
+    dict_pairs(Extra, _, OptionPairs),
+    Body = Body0.put(Extra).
+
 build_body(_Provider, APIModel, Messages, Options, Body) :-
-    % OpenAI-compatible: OpenAI, Groq, Gemini, Together …
+    % OpenAI-compatible: Groq, Gemini, Together …
     Body0 = _{model:APIModel, messages:Messages},
     option_pairs(Options, [], OptionPairs),
     dict_pairs(Extra, _, OptionPairs),
     Body = Body0.put(Extra).
+
+is_temperature_option(temperature(_)).
 
 % Pull the system message out of the list for Anthropic
 extract_system(Messages, System, Rest) :-

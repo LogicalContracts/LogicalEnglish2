@@ -92,8 +92,20 @@ async function loadModels() {
             input.id = `key-${p}`;
             input.title = `${p} API key — kept only in this browser's localStorage (shared with the LE editor) and sent only with your requests. Not needed for providers the server already has a key for.`;
             input.value = localStorage.getItem(`le-${p}-key`) || '';
-            input.addEventListener('change', () => localStorage.setItem(`le-${p}-key`, input.value));
+            const warn = document.createElement('span');
+            warn.className = 'error';
+            warn.style.fontSize = '12px';
+            const check = () => {
+                const looks = keyLooksLike(input.value);
+                warn.textContent = (looks && looks !== p)
+                    ? `\u26a0 this looks like a ${looks} key (${input.value.slice(0, 7)}\u2026), not an ${p} key`
+                    : '';
+            };
+            input.addEventListener('change', () => { localStorage.setItem(`le-${p}-key`, input.value); check(); });
+            input.addEventListener('input', check);
+            check();   // stale localStorage values get flagged on load
             label.appendChild(input);
+            label.appendChild(warn);
             keysDiv.appendChild(label);
         }
         const preferred = localStorage.getItem('le-assistant-model');
@@ -124,6 +136,16 @@ function collectFeatures() {
     if ($('feat-clausewise').checked) features.clausewise = true;
     if (!$('feat-diff').checked) features.diff_repairs = false;
     return features;
+}
+
+// Which provider a key's prefix belongs to (null when unrecognised).
+function keyLooksLike(v) {
+    if (!v) return null;
+    if (v.startsWith('sk-ant-')) return 'anthropic';
+    if (v.startsWith('gsk_')) return 'groq';
+    if (v.startsWith('AIza')) return 'gemini';
+    if (v.startsWith('sk-')) return 'openai';
+    return null;
 }
 
 function collectKeys() {
@@ -192,25 +214,31 @@ function fmtElapsed(sec) {
 
 // The user's choices and the elapsed time, echoed by every status poll (so a
 // reloaded tab shows them too).
+let lastRunHeader = null;   // last {config, elapsed} seen — shown on the Result screen too
+
+function summaryBits(c) {
+    return [
+        `model ${c.model}`,
+        c.judge_model && c.judge_model !== c.model ? `judge ${c.judge_model}` : null,
+        `K=${c.k} W=${c.w} repairs=${c.repairs}`,
+        `probes ${c.probes}`,
+        `holdout ${c.holdout}`,
+        c.paraphrase === true ? 'paraphrase check' : null,
+        c.clausewise === true ? 'clause-wise' : null,
+        c.diff_repairs === false ? 'full-file repairs' : 'diff repairs',
+        `max ${c.minutes} min`,
+        `${c.max_tokens} tokens/call`,
+        c.reasoning === 'minimal' ? 'minimal reasoning' : null
+    ].filter(Boolean);
+}
+
 function renderRunHeader(data) {
     if (typeof data.elapsed === 'number')
         $('run-elapsed').textContent = `\u2014 ${fmtElapsed(data.elapsed)} elapsed`;
     const c = data.config || {};
     if (c.model) {
-        const bits = [
-            `model ${c.model}`,
-            c.judge_model && c.judge_model !== c.model ? `judge ${c.judge_model}` : null,
-            `K=${c.k} W=${c.w} repairs=${c.repairs}`,
-            `probes ${c.probes}`,
-            `holdout ${c.holdout}`,
-            c.paraphrase === true ? 'paraphrase check' : null,
-            c.clausewise === true ? 'clause-wise' : null,
-            c.diff_repairs === false ? 'full-file repairs' : 'diff repairs',
-            `max ${c.minutes} min`,
-            `${c.max_tokens} tokens/call`,
-            c.reasoning === 'minimal' ? 'minimal reasoning' : null
-        ].filter(Boolean);
-        $('run-summary').textContent = bits.join(' \u00b7 ');
+        lastRunHeader = { config: c, elapsed: data.elapsed };
+        $('run-summary').textContent = summaryBits(c).join(' \u00b7 ');
         $('run-summary').title = 'Your choices for this job, echoed by the server with every status poll (so they survive a page reload).';
     }
 }
@@ -300,6 +328,12 @@ async function showResult(job) {
         return;
     }
     result = data;
+    if (lastRunHeader && lastRunHeader.config) {
+        const bits = summaryBits(lastRunHeader.config);
+        if (typeof lastRunHeader.elapsed === 'number')
+            bits.push(`finished in ${fmtElapsed(lastRunHeader.elapsed)}`);
+        $('result-summary').textContent = bits.join(' \u00b7 ');
+    }
     $('result-le').textContent = data.le || '';
     $('result-ledger').textContent = data.ledger || '(no ledger)';
     const scores = $('scores');
