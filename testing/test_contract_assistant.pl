@@ -244,11 +244,24 @@ test(rank_prefers_net_test_evidence) :-
     Winner = branch(WIdx, _, _),
     assertion(WIdx =:= 1).
 
+% A 43-error program passing 16/18 tests must beat a clean-verifying program
+% with NO scenarios at all (which demonstrates nothing).
+test(rank_prefers_tested_over_untested_clean) :-
+    S1 = _{errors: 43, warnings: 24, tests_passed: 16, tests_failed: 2, test_details: [], summary: "tested"},
+    S2 = _{errors: 0, warnings: 0, tests_passed: 0, tests_failed: 0, test_details: [], summary: "untested"},
+    le_contract_assistant:select_winner(job, [branch(1, "aaa", S1), branch(2, "bbb", S2)], Winner),
+    Winner = branch(WIdx, _, _),
+    assertion(WIdx =:= 1).
+
 test(transient_errors_classified) :-
     assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(503, x), c))),
     assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(429, x), c))),
     assertion(\+ le_contract_assistant:transient_llm_error(error(llm_api_error(401, x), c))),
-    assertion(le_contract_assistant:transient_llm_error(error(socket_error(a, b), c))).
+    assertion(le_contract_assistant:transient_llm_error(error(socket_error(a, b), c))),
+    % A hung call (killed by the 15-min wall limit) and a socket inactivity
+    % timeout are retried like any provider hiccup.
+    assertion(le_contract_assistant:transient_llm_error(time_limit_exceeded)),
+    assertion(le_contract_assistant:transient_llm_error(error(timeout_error(read, s), c))).
 
 :- end_tests(contract_assistant_features).
 
@@ -293,6 +306,26 @@ hook_broken(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
 hook_broken(architecture, _, "one branch") :- !.
 hook_broken(draft(_), _, "```\n% only a comment, no program\n```\n") :- !.
 hook_broken(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hook whose repair calls always die (e.g. reasoning truncation after all
+% retries): the branch must keep its best iteration instead of aborting.
+hook_repair_dies(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_repair_dies(architecture, _, "one branch") :- !.
+hook_repair_dies(draft(_), _, Reply) :- !, broken_program(P), fence(P, Reply).
+hook_repair_dies(repair(_, _), _, _) :- !,
+    throw(error(contract_assistant_error(llm_truncated(repair, stub)), _)).
+hook_repair_dies(ledger, _, "LEDGER") :- !.
+hook_repair_dies(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hook whose probe generation dies: interrogation must degrade to a report
+% note, never fail the job.
+hook_probes_die(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_probes_die(architecture, _, "one branch") :- !.
+hook_probes_die(draft(_), _, Reply) :- !, good_program(P), fence(P, Reply).
+hook_probes_die(probes, _, _) :- !,
+    throw(error(contract_assistant_error(llm_truncated(probes, stub)), _)).
+hook_probes_die(ledger, _, "LEDGER") :- !.
+hook_probes_die(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
 % Hook producing one DISAGREEING probe, with adjudication repairs disabled:
 % the probes must be reverted and reported as open disagreements.
@@ -386,6 +419,43 @@ test(empty_ledger_reply_is_explained,
     le_contract_assistant:ca_result(JobID, Result),
     Ledger = Result.ledger,
     assertion(sub_string(Ledger, _, _, _, "empty ledger reply")).
+
+% A repair call dying (truncation after retries) must not abort the branch:
+% the best iteration (here the broken-but-tested draft) is kept, and the job
+% finishes with a result.
+test(dead_repair_call_keeps_best_iteration,
+     [setup(hook_setup(user:hook_repair_dies)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    broken_program(P),
+    assertion(Result.le == P).
+
+% Probe generation dying must degrade interrogation to a report note — the
+% winner (16/18-style hard-won program) is delivered untouched.
+test(dead_probe_generation_never_kills_the_job,
+     [setup(hook_setup(user:hook_probes_die)), cleanup(hook_cleanup)]) :-
+    start_config(Config0),
+    Config = Config0.put(features, _{probes: 2}),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    good_program(P),
+    assertion(Result.le == P),
+    Interrogation = Result.interrogation,
+    Aborted = Interrogation.aborted,
+    assertion(sub_string(Aborted, _, _, _, "llm_truncated")).
+
+% The elapsed clock freezes when the job reaches a terminal state.
+test(elapsed_stops_at_job_end,
+     [setup(hook_setup(user:hook_good)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:job_config_summary(JobID, _, E1),
+    sleep(1.2),
+    le_contract_assistant:job_config_summary(JobID, _, E2),
+    assertion(E1 =:= E2).
 
 test(disagreeing_probe_is_reverted_and_reported,
      [setup(hook_setup(user:hook_disagree)), cleanup(hook_cleanup)]) :-

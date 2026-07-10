@@ -292,6 +292,7 @@ call_api(anthropic, BaseURL, Key, Body, Response) :- !,
             Response,
             [ json_object(dict),
               status_code(Code),
+              timeout(600),
               request_header('x-api-key'=KeyStr),
               request_header('anthropic-version'='2023-06-01')
             ]),
@@ -309,6 +310,7 @@ call_api(_Provider, BaseURL, Key, Body, Response) :-
             Response,
             [ json_object(dict),
               status_code(Code),
+              timeout(600),
               request_header('Authorization'=Auth)
             ]),
         E, handle_http_error(E)
