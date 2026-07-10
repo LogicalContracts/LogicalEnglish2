@@ -173,8 +173,10 @@ reasoning_fields(groq, Model, minimal, Fields) :- !,
     ;   Fields = []
     ).
 reasoning_fields(openai, Model, minimal, Fields) :- !,
-    (   reasoning_effort_model(Model)
-    ->  Fields = [reasoning_effort(low)]
+    (   atom_string(M, Model), sub_atom(M, 0, _, _, 'gpt-5')
+    ->  Fields = [reasoning_effort(minimal)]   % gpt-5* accepts "minimal"
+    ;   reasoning_effort_model(Model)
+    ->  Fields = [reasoning_effort(low)]       % o-series knows only low/medium/high
     ;   Fields = []
     ).
 reasoning_fields(gemini, _Model, minimal, [reasoning_effort(low)]) :- !.
