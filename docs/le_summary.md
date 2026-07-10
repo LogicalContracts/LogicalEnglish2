@@ -26,6 +26,8 @@ This document provides a summary of the Logical English constructs supported by 
   - [12. Testing and Expectations](#12-testing-and-expectations)
   - [13. System Predicates](#13-system-predicates)
   - [14. Included Resources](#14-included-resources)
+  - [15. LE Extensions](#15-le-extensions)
+  - [16. Humanizing LE](#16-humanizing-le)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -311,3 +313,152 @@ Logical English programs can include other LE programs using the `includes these
   ```
 - **Resources:** Can be relative file paths (e.g., `royal_family`) or URLs (e.g., `https://le2.logicalcontracts.com/source/royal_family`). The `.le` extension is implicit.
 - **Behavior:** The included rules, facts, templates, and ontology are added to the local KB module and used during reasoning. Scenarios and queries from included resources are ignored.
+
+## 15. LE Extensions
+Features beyond the core constructs summarised above. Some are implemented in
+the core grammar but were previously undocumented; the ones marked
+**[requires le_extensions.pl]** are gated on the proprietary `le_extensions.pl`
+module (installed as a symlink next to the LE2 sources — see the InsurLE2
+README) and are unavailable without it.
+
+### 15.1 `only if` rules (necessary conditions)
+`Head only if Body.` states that Body is a **necessary** condition for Head —
+the contrapositive rule. It compiles to *"opposite-of-Head if it is not the
+case that Body"*:
+- If Head's template declares an `; opposite:` form, that form is the derived
+  rule's conclusion — so the program can literally conclude
+  `we will not pay X` when a payment precondition fails.
+- Without a declared opposite, the conclusion is the plain negation of Head.
+```le
+the templates are:
+    I will marry *a woman*; opposite I will not marry *a woman*.
+    I love *a woman*.
+
+I will marry a woman if the woman is "Alice".   % sufficient condition
+I will marry a woman only if I love the woman.  % necessary condition:
+                                                % I will not marry W if
+                                                % it is not the case that I love W
+```
+Ordinary `if` rules give sufficient conditions; `only if` rules act as
+constraints producing negative conclusions. See
+`examples/moreExamples/only_if.le`.
+
+### 15.2 `which` relative clauses **[requires le_extensions.pl]**
+`which` continues a condition with a subordinate clause about the **last
+variable** of the preceding condition, avoiding a re-named repetition:
+```le
+a person is an ancestor of a descendant if
+    the person is a parent of a child
+    which is an ancestor of the descendant.
+```
+(`which` = `the child`.) In **rule heads and facts** ("big conclusions"), the
+head keeps only the part before the first `which`; each `which` clause becomes
+a body condition:
+```le
+we will cover a cost
+    which is in respect of a damage
+    which is caused by a burst pipe
+if it is not the case that
+    the damage is caused by wear and tear or negligence.
+```
+parses as head `we will cover a cost` with the two `which` clauses as extra
+conditions. A standalone fact with `which` clauses becomes a rule the same
+way.
+
+### 15.3 `unless` inside rule bodies **[requires le_extensions.pl]**
+The core forms are `Head if Body unless Condition.` (§4) and
+`Head unless Body.` (≡ `Head if it is not the case that Body`). The extension
+also allows `unless` (or `and unless`) **within** a body, either inline or
+governing an indented block — equivalent to
+`and it is not the case that <the negated conditions>`:
+```le
+we will pay a claim if
+    the claim is covered
+    and unless
+        the claim is fraudulent
+        and the fraud is proven.
+```
+
+### 15.4 Grouped alternatives: `either:` / `any of:` / `at least one of:` / `all of:` **[requires le_extensions.pl]**
+A body line consisting of one of these connectives groups its indented
+children: `either`, `any of` and `at least one of` OR the children together;
+`all of` groups them conjunctively (useful inside an `or` block).
+
+### 15.5 Rule labels and numbered rule bodies **[numbering requires le_extensions.pl]**
+A rule may be labelled: `rule <name>: Head if ...` — the label becomes the
+rule's ID (visible in `le_source_element/3` and `le_source_info/4`, §13).
+With the extension, a rule body introduced by `if:` may be written as a
+numbered outline mirroring a statute or contract clause:
+```le
+rule jd:
+an A has a relevant asset a B if:
+1. the A is affiliated with a C; and
+2. the C is connected to a D; and
+3. the D owns the B; and
+4. either:
+4.1. the B is used in the business of the A; or
+4.2. all of:
+4.2.1. the A is connected to an E; and
+4.2.2. the B is used in the business of the E.
+```
+Each numbered condition is addressable by its hierarchical designator through
+`le_source_element(RuleID, Designator, Goal)` — e.g. goal 4.2.1 of rule `jd` —
+which supports clause-level traceability to the source text. See
+`examples/moreExamples/numbering_test.le`.
+
+### 15.6 Embedded Prolog goals **[resolution requires le_extensions.pl]**
+A body condition of the form `prolog <goal>` (parenthesise conjunctions:
+`prolog (g1, g2)`) calls raw Prolog. LE variables are referenced inside the
+goal as `the <name>` phrases, `*a name*` markers, or ALL-CAPS ids, and are
+bound to the goal's results; the system predicates of §13 are commonly used:
+```le
+an id has designator a d if
+    prolog (le_my_kb(KB), KB:le_source_element(the id, the d, the g)).
+```
+See `examples/moreExamples/prolog_call.le` and `rule_id_test.le`.
+
+### 15.7 Prepositional chaining **[requires le_extensions.pl]**
+The `; prepositional` template marker and its chained usage are described in
+§2.1; note that the *chaining* itself (omitting the leading argument so one
+sentence expands into a conjunction of conditions) is resolved by the
+extensions module.
+
+## 16. Humanizing LE
+LE programs are read by lawyers and domain experts more often than they are
+written. These guidelines use the features above to keep programs close to
+natural prose:
+
+- **Use `only if` for necessary conditions.** Policy text says "we will pay
+  only if the premium has been paid" — write exactly that, and declare the
+  natural `; opposite:` form so the derived negative conclusion reads as the
+  drafter would say it (`we will not pay ...`).
+- **Use prepositional additions to chain within one sentence.** Declare
+  `; prepositional` for relations that read as prepositional phrases, so a
+  condition can flow as `we will make a payment under this policy in respect
+  of a claim` instead of three stilted sentences repeating the subject.
+- **Use `which` to continue a thought.** `a parent of a child which is an
+  ancestor of the descendant` avoids inventing and repeating a second
+  variable name.
+- **Use `unless` for exceptions.** `unless the claim is fraudulent` reads far
+  better than `and it is not the case that the claim is fraudulent` when the
+  source text frames it as an exception.
+- **Use `either:` / `any of:` blocks** for enumerated alternatives instead of
+  deeply nested `or` lines — especially when the source text is itself a
+  list.
+- **Mirror the source document's structure**: name rules with `rule <label>:`
+  after the clause they encode, use numbered bodies when the clause is a
+  numbered list, group rules with `section ... is:` / the annexes header, and
+  cite the clause in a `%` comment. Traceability is readability.
+- **Declare `; synonym:` surface forms** so facts, scenario lines and queries
+  can each use the phrasing most natural in their context — explanations
+  render each occurrence in the surface form it was written in.
+- **Keep template wording close to the source text**, letting the ignorable
+  words (a/an/the/is/are...) carry the grammar; prefer several short,
+  structured templates over one long sentence-sized predicate that hides its
+  logical parts.
+- **Mark epistemic status** with `; assumable` (expert judgment) and
+  `; undefined` (case data): readers immediately see which leaves are
+  evidence, which are judgment calls, and which are derived.
+- **Name individuals meaningfully**: determiner-free, descriptive constants
+  (`claim one`, `wrist injury`, `United Kingdom`) — they appear verbatim in
+  answers and explanations.

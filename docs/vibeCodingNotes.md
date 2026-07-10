@@ -2010,3 +2010,21 @@ Something seems wrong with "Write in english" in Scenario Editor. With citizensh
   born in Portugal" but got an error: " The model returned nothing that matches your templates. Try rephrasing.". this with 
   Model: openai/gpt-oss-120b. With Model: zai-org/GLM-5.2 it worked fine. I think the other model should still deal with    
   this example, not refuse it                                                                                               
+
+
+## More warnings
+Add a couple more warnings:
+- a template containing the word if ("we would have covered your liability if you had caused *a loss*") silently corrupts
+parsing of the templates section and the errors then surface on other, unrelated templates. Add a targeted verifier error ("reserved word in template"). 
+
+- argument constants starting with the (e.g. the United Kingdom) parse as fresh variables — the verifier warns for KB facts but not for scenario facts
+
+## More LE doc
+I think docs/le_summary.md needs a new section "LE Extensions" describing features not yet summarised, namely 'only if' rules,    
+'which', and possibly others gated by depending on the proprietary le_extensions.pl. And another short section at the end "Humanizing 
+LE", with guidelines to use some LE features to make the progranm easier to read by humans, such as: use 'only if' or 'unless' when appropriate;   use prepositional additions; others you think of                                                                                      
+
+
+## TBD
+Mermaid diagrams?
+Debug source graph
