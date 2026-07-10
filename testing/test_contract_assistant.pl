@@ -258,10 +258,12 @@ test(transient_errors_classified) :-
     assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(429, x), c))),
     assertion(\+ le_contract_assistant:transient_llm_error(error(llm_api_error(401, x), c))),
     assertion(le_contract_assistant:transient_llm_error(error(socket_error(a, b), c))),
-    % A hung call (killed by the 15-min wall limit) and a socket inactivity
-    % timeout are retried like any provider hiccup.
+    % A hung call (killed by the 15-min wall limit), a socket inactivity
+    % timeout, and a dropped TLS connection are retried like any provider
+    % hiccup.
     assertion(le_contract_assistant:transient_llm_error(time_limit_exceeded)),
-    assertion(le_contract_assistant:transient_llm_error(error(timeout_error(read, s), c))).
+    assertion(le_contract_assistant:transient_llm_error(error(timeout_error(read, s), c))),
+    assertion(le_contract_assistant:transient_llm_error(error(llm_http_error(error(ssl_error(x, y, z, w), ctx)), c))).
 
 :- end_tests(contract_assistant_features).
 
@@ -343,6 +345,16 @@ hook_progress(repair(_, _), _, Reply) :- !,
     progress_prog_fail1(P), fence(P, Reply).
 hook_progress(ledger, _, "LEDGER") :- !.
 hook_progress(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hook where branch 1's draft dies but branch 2's succeeds: one dead branch
+% must not kill the job.
+hook_branch1_dies(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_branch1_dies(architecture, _, "a branch") :- !.
+hook_branch1_dies(draft(1), _, _) :- !,
+    throw(error(contract_assistant_error(llm_truncated(draft, stub)), _)).
+hook_branch1_dies(draft(2), _, Reply) :- !, good_program(P), fence(P, Reply).
+hook_branch1_dies(ledger, _, "LEDGER") :- !.
+hook_branch1_dies(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
 % Hook producing one DISAGREEING probe, with adjudication repairs disabled:
 % the probes must be reverted and reported as open disagreements.
@@ -484,6 +496,19 @@ test(repair_loop_extends_while_improving,
     Scores = Result.scores, Scores = [Score],
     assertion(Score.tests_passed =:= 1),
     assertion(Score.tests_failed =:= 1).
+
+% One branch dying (draft truncation after all retries) must not kill the
+% job when a sibling branch delivers.
+test(dead_branch_does_not_kill_the_job,
+     [setup(hook_setup(user:hook_branch1_dies)), cleanup(hook_cleanup)]) :-
+    start_config(Config0),
+    Config = Config0.put(budget, _{preset: "draft", minutes: 5, w: 2}),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    good_program(P),
+    assertion(Result.le == P),
+    assertion(Result.winner =:= 2).
 
 % The elapsed clock freezes when the job reaches a terminal state.
 test(elapsed_stops_at_job_end,

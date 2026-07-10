@@ -68,8 +68,12 @@ test(openai_plain_model_gets_nothing) :-
     llm_client:reasoning_fields(openai, 'gpt-4o', minimal, F),
     assertion(F == []).
 
-test(openai_reasoning_model_uses_effort) :-
+test(openai_gpt5_uses_effort_minimal) :-
     llm_client:reasoning_fields(openai, 'gpt-5.2', minimal, F),
+    assertion(F == [reasoning_effort(minimal)]).
+
+test(openai_o_series_uses_effort_low) :-
+    llm_client:reasoning_fields(openai, 'o3-mini', minimal, F),
     assertion(F == [reasoning_effort(low)]).
 
 test(anthropic_no_op) :-

@@ -185,8 +185,10 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
     ( get_dict(budget, Dict, B), is_dict(B) -> true ; B = _{} ),
     budget_params(B, Preset, K, W, Repairs, Minutes),
     features_params(Dict, Preset, Features),
-    ( get_dict(max_tokens, Dict, MT0), number(MT0), MT0 > 0 -> MaxTokens = MT0
-    ; MaxTokens = 16000 ),
+    (   get_dict(max_tokens, Dict, MT0), number(MT0), MT0 > 0
+    ->  MaxTokens = MT0, MTMode = fixed
+    ;   MaxTokens = 16000, MTMode = auto      % resolved by calibration
+    ),
     ( get_dict(reasoning, Dict, R0), atom_string(Reasoning0, R0),
       memberchk(Reasoning0, [default, minimal]) -> Reasoning = Reasoning0
     ; Reasoning = default ),
@@ -194,7 +196,8 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
     Config = _{model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
                minutes: Minutes, started: Now, reasoning: Reasoning,
-               deadline: Deadline, features: Features, max_tokens: MaxTokens,
+               deadline: Deadline, features: Features,
+               max_tokens: MaxTokens, mt_mode: MTMode, max_tokens_cap: MaxTokens,
                wording: WordingFile, schedule: ScheduleFile, cases: CaseFiles}.
 
 %!  budget_params(+BudgetDict, -Preset, -K, -W, -Repairs, -Minutes) is det.
@@ -404,8 +407,13 @@ pipeline_stages(JobID) :-
     numlist(1, NBranches, Idxs),
     pairs_keys_values(Pairs, Idxs, Sketches),
     (   NBranches =:= 1
-    ->  maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches)
-    ;   concurrent_maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches)
+    ->  maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches0)
+    ;   concurrent_maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches0)
+    ),
+    exclude(=(failed(_)), Branches0, Branches),
+    (   Branches == []
+    ->  throw(error(contract_assistant_error("every branch failed — see the run log for the per-branch errors"), _))
+    ;   true
     ),
 
     % ---- Stage 6: score, select, interrogate, ledger
@@ -473,14 +481,28 @@ calibrate_max_tokens(JobID, Config, Config1) :-
 
 calibrate_max_tokens_(JobID, Config, Config1) :-
     resolve_model(draft(0), Config, Model, Key),
-    MT = Config.max_tokens,
-    probe_max_tokens(Model, Key, MT, Accepted),
-    (   Accepted =:= MT
-    ->  Config1 = Config
-    ;   ca_emit(JobID, "Calibration: the provider caps completion at ~w tokens (requested ~w); using ~w for this job"-[Accepted, MT, Accepted]),
-        Config1 = Config.put(max_tokens, Accepted),
+    (   Config.mt_mode == auto
+    ->  % Nobody should have to guess a completion limit: probe the provider's
+        % real cap from a generous ladder and use it (billing is per token
+        % PRODUCED, so a high cap costs nothing until a call needs the room —
+        % and a reasoning model that needs it fails without it).
+        member(Candidate, [65536, 32768, 16384, 8192]),
+        probe_max_tokens(Model, Key, Candidate, Accepted),
+        Accepted =:= Candidate,
+        !,
+        ca_emit(JobID, "Calibration: completion-token limit auto-set to ~w (largest the provider accepts, up to 65536)"-[Accepted]),
+        Config1 = Config.put(_{max_tokens: Accepted, max_tokens_cap: Accepted}),
         retractall(ca_config(JobID, _)),
         assertz(ca_config(JobID, Config1))
+    ;   MT = Config.max_tokens,
+        probe_max_tokens(Model, Key, MT, Accepted),
+        (   Accepted =:= MT
+        ->  Config1 = Config
+        ;   ca_emit(JobID, "Calibration: the provider caps completion at ~w tokens (requested ~w); using ~w for this job"-[Accepted, MT, Accepted]),
+            Config1 = Config.put(_{max_tokens: Accepted, max_tokens_cap: Accepted}),
+            retractall(ca_config(JobID, _)),
+            assertz(ca_config(JobID, Config1))
+        )
     ).
 
 probe_max_tokens(Model, Key, MT, Accepted) :-
@@ -577,7 +599,16 @@ architecture_angles([
 
 % --------------------- Stages 2-5: draft and repair --------------------------
 
-run_branch(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
+run_branch(JobID, Config, Ctx, Idx-Sketch, Out) :-
+    catch(
+        run_branch_(JobID, Config, Ctx, Idx-Sketch, Out),
+        error(contract_assistant_error(BErr), _),
+        ( term_string(BErr, BErrS),
+          ca_emit(JobID, "Branch ~w FAILED (~w); the other branches continue"-[Idx, BErrS]),
+          ca_set_branch(JobID, Idx, _{state: "failed", summary: BErrS}),
+          Out = failed(Idx) )).
+
+run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     ca_set_branch(JobID, Idx, _{state: "drafting"}),
     ca_check_alive(JobID),
     (   Config.features.clausewise == true
@@ -1175,7 +1206,7 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
     (   ca_llm_hook(Hook)
     ->  call(Hook, Purpose, Messages, Reply)
     ;   resolve_model(Purpose, Config, Model, Key),
-        MT = Config.max_tokens,
+        ( ca_tune(JobID, max_tokens(MT)) -> true ; MT = Config.max_tokens ),
         (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
         ->  Extra = [api_key(Key), max_tokens(MT), reasoning(minimal)]
         ;   Extra = [api_key(Key), max_tokens(MT)]
@@ -1233,8 +1264,22 @@ llm_outcome(err(error(llm_truncated(_), _)), JobID, Config, Purpose, Model, Mess
     ),
     ca_check_alive(JobID),
     llm_try(JobID, Config, Purpose, Model, Messages, [reasoning(minimal)|Opts], Attempt, Reply).
+llm_outcome(err(error(llm_truncated(_), _)), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    % Minimal reasoning was not enough: give the call the provider's full
+    % completion cap (sticky for the rest of the job) before giving up.
+    Cap = Config.max_tokens_cap,
+    select_option(max_tokens(Cur), Opts, Opts1),
+    Cur < Cap,
+    \+ deadline_exceeded(Config),
+    !,
+    ca_emit(JobID, "LLM call (~w) still truncated; raising the completion limit to ~w (provider cap) for the rest of the job"-[Purpose, Cap]),
+    (   ca_tune(JobID, max_tokens(_)) -> true
+    ;   assertz(ca_tune(JobID, max_tokens(Cap)))
+    ),
+    ca_check_alive(JobID),
+    llm_try(JobID, Config, Purpose, Model, Messages, [max_tokens(Cap)|Opts1], Attempt, Reply).
 llm_outcome(err(error(llm_truncated(_), _)), JobID, _Config, Purpose, Model, _Messages, _Opts, _Attempt, _Reply) :- !,
-    ca_emit(JobID, "LLM call (~w) was truncated even with minimal reasoning"-[Purpose]),
+    ca_emit(JobID, "LLM call (~w) was truncated even with minimal reasoning at the provider's completion cap"-[Purpose]),
     throw(error(contract_assistant_error(llm_truncated(Purpose, Model)), _)).
 llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     (   transient_llm_error(E),
@@ -1256,6 +1301,7 @@ transient_llm_error(error(llm_api_error(Status, _), _)) :-
     integer(Status),
     ( Status >= 500 ; Status =:= 429 ), !.
 transient_llm_error(time_limit_exceeded) :- !.
+transient_llm_error(error(llm_http_error(_), _)) :- !.   % dropped TLS/socket, DNS blips
 transient_llm_error(error(timeout_error(_, _), _)) :- !.
 transient_llm_error(error(socket_error(_, _), _)) :- !.
 transient_llm_error(error(io_error(_, _), _)).
