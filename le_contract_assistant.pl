@@ -68,6 +68,8 @@
 :- dynamic ca_logseq/2.      % JobID, NextSeq
 :- dynamic ca_branch/3.      % JobID, BranchIndex, InfoDict
 :- dynamic ca_result/2.      % JobID, ResultDict
+:- dynamic ca_ended/2.       % JobID, EndTime (job reached a terminal state)
+:- dynamic ca_tune/2.        % JobID, Tuning (e.g. reasoning_minimal) — set on the fly
 :- dynamic ca_llm_hook/1.    % Closure for tests: call(Closure, Purpose, Messages, Reply)
 
 % ============================= HTTP-facing handlers ==========================
@@ -131,7 +133,8 @@ job_config_summary(JobID, Summary, Elapsed) :-
                     probes: F.probes, holdout: F.holdout,
                     paraphrase: F.paraphrase, clausewise: F.clausewise,
                     diff_repairs: F.diff_repairs},
-        get_time(Now), Elapsed0 is Now - C.started,
+        ( ca_ended(JobID, End) -> T = End ; get_time(T) ),
+        Elapsed0 is T - C.started,
         Elapsed is round(Elapsed0)
     ;   Summary = _{}, Elapsed = 0
     ).
@@ -350,7 +353,10 @@ run_contract_pipeline(JobID) :-
             ca_emit(JobID, "Job failed: ~w"-[EStr]),
             retractall(ca_status(JobID, _)),
             asserta(ca_status(JobID, finished(error(EStr))))
-        )).
+        )),
+    get_time(End),
+    retractall(ca_ended(JobID, _)),
+    assertz(ca_ended(JobID, End)).
 
 friendly_error(error(contract_assistant_error(llm_failed(Purpose, ES)), _), Msg) :- !,
     format(string(Msg), "the LLM call for '~w' failed after retries: ~w", [Purpose, ES]).
@@ -381,11 +387,13 @@ pipeline_stages(JobID) :-
     length(Sections, NSections), length(CaseTexts, NCases), length(HeldCases, NHeld),
     ca_emit(JobID, "Materials assembled (~w sections, ~w cases, ~w held out)"-[NSections, NCases, NHeld]),
 
+    calibrate_and_estimate(JobID, Config, Materials, Config1),
+
     % ---- Stage 1: vocabulary consensus + architectures
     ca_set_stage(JobID, 1, "Vocabulary & architectures"),
-    vocabulary_consensus(JobID, Config, Materials, Vocabulary),
+    vocabulary_consensus(JobID, Config1, Materials, Vocabulary),
     save_text_artifact(JobID, 'vocabulary.md', Vocabulary),
-    architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches),
+    architecture_sketches(JobID, Config1, Materials, Vocabulary, Sketches),
 
     % ---- Stages 2-5: per-branch draft + repair + blind held-out evaluation
     ca_set_stage(JobID, 2, "Drafting & repairing branches"),
@@ -396,8 +404,8 @@ pipeline_stages(JobID) :-
     numlist(1, NBranches, Idxs),
     pairs_keys_values(Pairs, Idxs, Sketches),
     (   NBranches =:= 1
-    ->  maplist(run_branch(JobID, Config, Ctx), Pairs, Branches)
-    ;   concurrent_maplist(run_branch(JobID, Config, Ctx), Pairs, Branches)
+    ->  maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches)
+    ;   concurrent_maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches)
     ),
 
     % ---- Stage 6: score, select, interrogate, ledger
@@ -405,9 +413,21 @@ pipeline_stages(JobID) :-
     select_winner(JobID, Branches, Winner),
     Winner = branch(WIdx, WText0, WScore),
     ca_emit(JobID, "Winner: branch ~w (~w)"-[WIdx, WScore.summary]),
-    interrogate(JobID, Config, Ctx, WText0, WText, Interrogation),
-    paraphrase_check(JobID, Config, Ctx, Paraphrase),
-    ledger_for(JobID, Config, WordingSlice, WText, Ledger),
+    % Enhancement stages must never destroy a finished winner: an LLM failure
+    % here degrades to a note in the report, not a failed job.
+    catch(interrogate(JobID, Config1, Ctx, WText0, WText, Interrogation),
+          error(contract_assistant_error(IErr), _),
+          ( term_string(IErr, IErrS),
+            ca_emit(JobID, "Interrogation aborted (~w); keeping the winner as-is"-[IErrS]),
+            WText = WText0,
+            Interrogation = _{enabled: true, aborted: IErrS,
+                              agreed: 0, disagreed: 0, initially_disagreed: 0, open: []} )),
+    catch(paraphrase_check(JobID, Config1, Ctx, Paraphrase),
+          error(contract_assistant_error(PErr), _),
+          ( term_string(PErr, PErrS),
+            ca_emit(JobID, "Paraphrase check aborted (~w)"-[PErrS]),
+            Paraphrase = _{enabled: false, note: PErrS} )),
+    ledger_for(JobID, Config1, WordingSlice, WText, Ledger),
     findall(SD, (member(branch(I, _, S), Branches), SD = S.put(branch, I)), AllScores),
     save_text_artifact(JobID, 'winner.le', WText),
     % The delivered program may differ from the branch final (interrogation can
@@ -424,6 +444,76 @@ pipeline_stages(JobID) :-
                          interrogation: Interrogation, paraphrase: Paraphrase}),
     retractall(ca_result(JobID, _)),
     assertz(ca_result(JobID, Result)).
+
+%!  calibrate_and_estimate(+JobID, +Config, +Materials, -Config1) is det.
+%
+%   One cheap look before spending real money:
+%   - CALIBRATE the completion-token cap: a trivial request at the configured
+%     max_tokens; if the provider rejects it (400 naming max_tokens/context),
+%     halve and retry until accepted, and use the discovered cap for the whole
+%     job. Providers that silently clamp keep the configured value.
+%   - ESTIMATE the effort from the materials size and the K/W/repairs/probes
+%     settings, and say so in the log — including a warning when the minute
+%     budget is clearly too small for the expected number of calls.
+%   Skipped when the LLM is stubbed (offline tests).
+calibrate_and_estimate(JobID, Config, Materials, Config1) :-
+    (   ca_llm_hook(_)
+    ->  Config1 = Config
+    ;   calibrate_max_tokens(JobID, Config, Config1),
+        effort_estimate(JobID, Config1, Materials)
+    ).
+
+% Calibration is best-effort: any probe failure (unknown model, bad key,
+% outage) keeps the configured value — the real pipeline stages will surface
+% the real error with proper retries and messages.
+calibrate_max_tokens(JobID, Config, Config1) :-
+    catch(calibrate_max_tokens_(JobID, Config, Config1),
+          _,
+          Config1 = Config).
+
+calibrate_max_tokens_(JobID, Config, Config1) :-
+    resolve_model(draft(0), Config, Model, Key),
+    MT = Config.max_tokens,
+    probe_max_tokens(Model, Key, MT, Accepted),
+    (   Accepted =:= MT
+    ->  Config1 = Config
+    ;   ca_emit(JobID, "Calibration: the provider caps completion at ~w tokens (requested ~w); using ~w for this job"-[Accepted, MT, Accepted]),
+        Config1 = Config.put(max_tokens, Accepted),
+        retractall(ca_config(JobID, _)),
+        assertz(ca_config(JobID, Config1))
+    ).
+
+probe_max_tokens(Model, Key, MT, Accepted) :-
+    (   MT < 2000
+    ->  Accepted = MT     % below this, calibration is moot
+    ;   catch(
+            ( llm_client:llm_request(Model,
+                  [_{role: user, content: "Reply with exactly: OK"}],
+                  _, [api_key(Key), max_tokens(MT)]),
+              Accepted = MT ),
+            error(llm_api_error(400, Body), _),
+            (   term_string(Body, BS),
+                ( sub_string(BS, _, _, _, "max_tokens") ; sub_string(BS, _, _, _, "max tokens") ; sub_string(BS, _, _, _, "context") )
+            ->  MT2 is MT // 2,
+                probe_max_tokens(Model, Key, MT2, Accepted)
+            ;   Accepted = MT    % a 400 about something else: leave as configured
+            ))
+    ).
+
+effort_estimate(JobID, Config, Materials) :-
+    string_length(Materials, Chars),
+    InTokens is Chars // 4,
+    K = Config.k, W = Config.w, R = Config.repairs,
+    P = Config.features.probes,
+    ( K > 1 -> Merge = 1 ; Merge = 0 ),
+    ( P > 0 -> Probing = 2 + R ; Probing = 0 ),
+    Calls is K + Merge + W + W * (1 + R) + Probing + 2,
+    EstMinutes is max(1, (Calls * 45) // 60),   % ~45s per call, order of magnitude
+    ca_emit(JobID, "Effort estimate: ~w tokens of materials per call, ~~~w LLM calls, roughly ~w min with a mid-speed model (budget: ~w min)"-[InTokens, Calls, EstMinutes, Config.minutes]),
+    (   EstMinutes > Config.minutes
+    ->  ca_emit(JobID, "NOTE: the minute budget looks tight for these settings; the job will prune repairs/probes as the deadline nears (consider the Draft preset or more minutes)"-[])
+    ;   true
+    ).
 
 %!  holdout_split(+Config, +CaseTexts, -DevCases, -HeldCases) is det.
 %
@@ -619,12 +709,22 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Final, Score) :-
         best_result(Best, Final, Score)
     ;   ca_check_alive(JobID),
         format_verify_feedback(V, Feedback),
-        stage_llm(JobID, Config, repair(Idx, Iter), 'stage5_repair',
-                  [program-Text, feedback-Feedback], [temperature(0)], Reply),
-        apply_repair_reply(Config, Reply, Text, Text1, How),
-        ca_emit(JobID, "Branch ~w repair ~w: ~w"-[Idx, Iter, How]),
-        Iter1 is Iter + 1,
-        repair_loop(JobID, Config, Idx, Text1, Iter1, Best, Final, Score)
+        % A failed repair call (truncation, provider outage after retries)
+        % must not abort the branch — the best iteration so far is a result.
+        catch(
+            ( stage_llm(JobID, Config, repair(Idx, Iter), 'stage5_repair',
+                        [program-Text, feedback-Feedback], [temperature(0)], Reply),
+              Next = reply(Reply) ),
+            error(contract_assistant_error(_), _),
+            Next = failed),
+        (   Next = reply(R)
+        ->  apply_repair_reply(Config, R, Text, Text1, How),
+            ca_emit(JobID, "Branch ~w repair ~w: ~w"-[Idx, Iter, How]),
+            Iter1 is Iter + 1,
+            repair_loop(JobID, Config, Idx, Text1, Iter1, Best, Final, Score)
+        ;   ca_emit(JobID, "Branch ~w: repair call failed; keeping the best iteration"-[Idx]),
+            best_result(Best, Final, Score)
+        )
     ).
 
 %!  apply_repair_reply(+Config, +Reply, +OldText, -NewText, -How) is det.
@@ -712,7 +812,7 @@ best_of(cand(T0, V0, S0), cand(T1, V1, S1), Best) :-
     verify_rank(V1, T1, R1),
     ( R1 @< R0 -> Best = cand(T1, V1, S1) ; Best = cand(T0, V0, S0) ).
 
-verify_rank(V, Text, rank(V.errors, NoTests, Net, V.tests_failed, V.warnings, Len)) :-
+verify_rank(V, Text, rank(NoTests, V.errors, Net, V.tests_failed, V.warnings, Len)) :-
     ( V.tests_passed + V.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
     Net is V.tests_failed - V.tests_passed,
     string_length(Text, Len).
@@ -732,13 +832,14 @@ select_winner(_JobID, Branches, Winner) :-
     map_list_to_pairs(branch_rank, Branches, Ranked),
     keysort(Ranked, [_-Winner|_]).
 
-% Rank tuple, lexicographic (the plan's fitness function): fewer errors; must
-% have tests at all; fewer held-out failures (blind evaluation ranks above
-% development tests); better NET test evidence (failed - passed: a program
-% with 3/6 passing must beat one with 0/2 — comparing raw failure counts
-% would reward dropping scenarios); then fewer failures, fewer warnings,
-% smaller program.
-branch_rank(branch(_, Text, S), rank(S.errors, NoTests, HF, Net, S.tests_failed, S.warnings, Len)) :-
+% Rank tuple, lexicographic (the plan's fitness function): having tests AT ALL
+% comes first (a clean-verifying program with no scenarios demonstrates
+% nothing and must not beat an erroneous one that passes 16/18 tests); then
+% fewer errors; fewer held-out failures (blind evaluation ranks above
+% development tests); better NET test evidence (failed - passed: 3/6 passing
+% must beat 0/2 — raw failure counts would reward dropping scenarios); then
+% fewer failures, fewer warnings, smaller program.
+branch_rank(branch(_, Text, S), rank(NoTests, S.errors, HF, Net, S.tests_failed, S.warnings, Len)) :-
     HF = S.get(holdout_failed, 0),
     ( S.tests_passed + S.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
     Net is S.tests_failed - S.tests_passed,
@@ -1057,7 +1158,7 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
     ->  call(Hook, Purpose, Messages, Reply)
     ;   resolve_model(Purpose, Config, Model, Key),
         MT = Config.max_tokens,
-        (   Config.reasoning == minimal
+        (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
         ->  Extra = [api_key(Key), max_tokens(MT), reasoning(minimal)]
         ;   Extra = [api_key(Key), max_tokens(MT)]
         ),
@@ -1070,7 +1171,8 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
 % with backoff, up to 3 times, respecting the deadline and interrupts.
 llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     catch(
-        ( llm_client:llm_request(Model, Messages, Reply0, Opts),
+        ( call_with_time_limit(900,
+              llm_client:llm_request(Model, Messages, Reply0, Opts)),
           Outcome = ok(Reply0) ),
         E,
         Outcome = err(E)),
@@ -1104,6 +1206,13 @@ llm_outcome(err(error(llm_truncated(_), _)), JobID, Config, Purpose, Model, Mess
     \+ deadline_exceeded(Config),
     !,
     ca_emit(JobID, "LLM call (~w) was truncated mid-reasoning; retrying with minimal reasoning"-[Purpose]),
+    % ... and remember: from now on EVERY call of this job starts with minimal
+    % reasoning, instead of paying for one doomed full-reasoning attempt each.
+    (   ca_tune(JobID, reasoning_minimal)
+    ->  true
+    ;   assertz(ca_tune(JobID, reasoning_minimal)),
+        ca_emit(JobID, "Auto-tuning: all subsequent calls use minimal reasoning"-[])
+    ),
     ca_check_alive(JobID),
     llm_try(JobID, Config, Purpose, Model, Messages, [reasoning(minimal)|Opts], Attempt, Reply).
 llm_outcome(err(error(llm_truncated(_), _)), JobID, _Config, Purpose, Model, _Messages, _Opts, _Attempt, _Reply) :- !,
@@ -1128,8 +1237,9 @@ llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Repl
 transient_llm_error(error(llm_api_error(Status, _), _)) :-
     integer(Status),
     ( Status >= 500 ; Status =:= 429 ), !.
-transient_llm_error(error(socket_error(_, _), _)) :- !.
+transient_llm_error(time_limit_exceeded) :- !.
 transient_llm_error(error(timeout_error(_, _), _)) :- !.
+transient_llm_error(error(socket_error(_, _), _)) :- !.
 transient_llm_error(error(io_error(_, _), _)).
 
 retry_delay(1, 3).
@@ -1138,6 +1248,7 @@ retry_delay(_, 20).
 
 short_error(error(llm_api_error(Status, _), _), Short) :- !,
     format(atom(Short), "HTTP ~w", [Status]).
+short_error(time_limit_exceeded, 'call hung, killed after 15 min') :- !.
 short_error(E, Short) :- E =.. [F|_], term_string(F, Short).
 
 % Judging/merging purposes use the judge model; everything else the main one.
