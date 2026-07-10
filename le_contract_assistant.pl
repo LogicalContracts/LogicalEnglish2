@@ -1311,7 +1311,9 @@ prompt_text(Name, Text) :-
 le_syntax_summary(Text) :-
     (   exists_file('docs/le_summary.md') -> read_file_to_string('docs/le_summary.md', Text, [])
     ;   exists_file('../docs/le_summary.md') -> read_file_to_string('../docs/le_summary.md', Text, [])
-    ;   Text = ""
+    ;   % Without the syntax reference every generated program would be
+        % garbage in mysterious ways: fail loudly, like a missing stage prompt.
+        throw(error(contract_assistant_error(missing_syntax_summary('docs/le_summary.md')), _))
     ).
 
 %!  extract_le_code(+Reply, -Code) is det.
