@@ -404,11 +404,12 @@ local_resource_allowed(Abs, Base) :-
     ).
 
 fetch_resource_kind(le_url(URL), _Id, Resource, M, Sections) :-
-    (   catch(fetch_url(URL, Text), _, fail)
+    catch(fetch_url(URL, Text), FetchErr, true),
+    (   var(FetchErr)
     ->  include_resource_text(Text, URL, M, Sections),
         count_rules_and_templates(Sections, RuleCount, TemplateCount),
         assertz(M:le_resource_stats(Resource, RuleCount, TemplateCount))
-    ;   format(atom(Desc), "Failed to fetch URL: ~w", [URL]),
+    ;   fetch_error_desc(URL, FetchErr, Desc),
         (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
         Sections = []
     ).
@@ -428,9 +429,10 @@ fetch_resource_kind(le_file(File), _Id, Resource, M, Sections) :-
         Sections = []
     ).
 fetch_resource_kind(pl_url(URL), Id, Resource, M, []) :-
-    (   catch(fetch_url(URL, Text), _, fail)
+    catch(fetch_url(URL, Text), FetchErr, true),
+    (   var(FetchErr)
     ->  load_prolog_resource(Id, text(Text), M, Resource)
-    ;   format(atom(Desc), "Failed to fetch URL: ~w", [URL]),
+    ;   fetch_error_desc(URL, FetchErr, Desc),
         (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true)
     ).
 fetch_resource_kind(pl_file(File), Id, Resource, M, []) :-
@@ -569,6 +571,10 @@ parse_resource_text(Text, M, FilteredMergedSections) :-
 
 is_scenario_or_query(scenario(_, _, _, _)).
 is_scenario_or_query(query(_, _, _, _)).
+
+fetch_error_desc(URL, Err, Desc) :-
+    term_string(Err, ES),
+    format(atom(Desc), "Failed to fetch URL ~w: ~w", [URL, ES]).
 
 fetch_url(URL, Text) :-
     setup_call_cleanup(

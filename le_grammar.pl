@@ -333,9 +333,30 @@ peek_next_section_start(Tokens, Tokens) :-
 
 resource_item(Resource) -->
     resource_tokens(Tokens),
-    { reconstruct_name(Tokens, ResourceStr),
-      % Remove any trailing spaces
-      normalize_space(atom(Resource), ResourceStr) }.
+    { reconstruct_resource_name(Tokens, Resource) }.
+
+%!  reconstruct_resource_name(+Tokens, -Resource) is det.
+%
+%   A resource identifier (URL or file path) contains no internal spaces, but
+%   the tokenizer splits it at digit<->letter and punctuation boundaries (a
+%   UUID like 89d78cb0 becomes number(89), word(d78cb0)). Reconstruct it from
+%   the tokens' SOURCE POSITIONS: emit each token's text directly when it abuts
+%   the previous one (prev end == next start), inserting a single space only
+%   across a genuine source gap. This preserves the exact URL/path.
+reconstruct_resource_name(Tokens, Resource) :-
+    reconstruct_resource_parts(Tokens, none, Parts),
+    atomic_list_concat(Parts, '', Joined),
+    normalize_space(atom(Resource), Joined).
+
+reconstruct_resource_parts([], _, []).
+reconstruct_resource_parts([T|Ts], Prev, Parts) :-
+    extract_simple_word(T, W),
+    get_token_start(T, Start),
+    get_token_end(T, End),
+    ( ( Prev = prev(PrevEnd), integer(PrevEnd), integer(Start), Start > PrevEnd )
+    -> Parts = [' ', W | Rest]
+    ;  Parts = [W | Rest] ),
+    reconstruct_resource_parts(Ts, prev(End), Rest).
 
 resource_tokens([T]) -->
     [T], { \+ is_punctuation(T, ','), \+ is_punctuation(T, '.') }.

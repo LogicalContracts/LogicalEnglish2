@@ -4,6 +4,17 @@
 
 :- use_module('../le_kbs').
 :- use_module('../le_verifier').
+:- use_module('../le_grammar').
+:- use_module('../tokenizer').
+
+% Reconstruct the single resource of a one-resource includes-section.
+parse_single_resource(ResourceLiteral, Got) :-
+    format(atom(Src),
+        "the knowledge base k includes these resources:\n    ~w.\n\nthe templates are:\n    *a thing* is ok.\n",
+        [ResourceLiteral]),
+    tokenizer:tokenize(Src, Toks),
+    phrase(le_grammar:doc(Secs), Toks),
+    member(resources(_, [Got], _, _), Secs).
 
 tmp_dir(Dir) :-
     tmp_file(le_plres, Base),
@@ -25,6 +36,31 @@ test(postcodes_example_all_pass) :-
 :- end_tests(prolog_resource_example).
 
 % ── Loading, sandboxing, directives, cycles, depth, paths ────────────────────
+% Resource-name reconstruction must preserve URLs/paths exactly. The tokenizer
+% splits digit<->letter boundaries, so a UUID in a URL (89d78cb0-7d73-...) used
+% to come back with spurious spaces ("89 d78cb0-7 d73-..."), breaking the fetch.
+:- begin_tests(resource_name_parsing).
+
+test(url_with_uuid_preserved) :-
+    parse_single_resource(
+        'http://localhost:8080/pub/89d78cb0-7d73-11f1-9b0d-27da04e3cb2f.pl', Got),
+    assertion(Got == 'http://localhost:8080/pub/89d78cb0-7d73-11f1-9b0d-27da04e3cb2f.pl').
+
+test(plain_url_preserved) :-
+    parse_single_resource(
+        'https://raw.githubusercontent.com/mcalejo/LogicalEnglish2/main/examples/moreExamples/royal_family', Got),
+    assertion(Got == 'https://raw.githubusercontent.com/mcalejo/LogicalEnglish2/main/examples/moreExamples/royal_family').
+
+test(local_path_preserved) :-
+    parse_single_resource('examples/moreExamples/testing/citizenship_premier', Got),
+    assertion(Got == 'examples/moreExamples/testing/citizenship_premier').
+
+test(pl_extension_preserved) :-
+    parse_single_resource('postcodes_facts.pl', Got),
+    assertion(Got == 'postcodes_facts.pl').
+
+:- end_tests(resource_name_parsing).
+
 :- begin_tests(prolog_resources).
 
 % A minimal facts .pl + thin layer + main program, all in a temp dir.
