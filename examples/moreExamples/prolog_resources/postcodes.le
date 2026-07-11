@@ -1,0 +1,46 @@
+% Main program: includes the thin LE layer, which transitively includes the
+% Prolog facts file (postcodes.le -> postcodes_layer.le -> postcodes_facts.pl).
+% The rules below reason in pure LE on top of the Prolog-backed relations.
+
+the knowledge base postcodes includes these resources:
+    postcodes_layer.
+
+the templates are:
+    *a postcode* is Scottish.
+    *a postcode* and *an other postcode* are in the same country.
+
+the knowledge base postcodes includes:
+
+a postcode is Scottish if
+    the postcode is in the country scotland.
+
+a first postcode and a second postcode are in the same country if
+    the first postcode is in the country a country
+    and the second postcode is in the country the country.
+
+scenario test is:
+    which_region expects answers ["eh1 is in edinburgh"].
+    which_country expects answers ["eh1 is in the country scotland"].
+    scots expects answers ["eh1 is Scottish", "eh8 is Scottish"].
+    same_country expects answers ["ec1a and w1 are in the same country"].
+    cross_country expects answers [].
+
+% A postcode-backed lookup (Prolog fact via the thin layer):
+query which_region is:
+    eh1 is in which region.
+
+% A two-hop lookup (postcode -> region -> country) through the Prolog helper:
+query which_country is:
+    eh1 is in the country which country.
+
+% Pure-LE reasoning on top of the Prolog relation:
+query scots is:
+    which postcode is Scottish.
+
+% Two specific London postcodes share a country (succeeds, no free variables):
+query same_country is:
+    ec1a and w1 are in the same country.
+
+% A London and an Edinburgh postcode do NOT (expected: no answers):
+query cross_country is:
+    ec1a and eh1 are in the same country.

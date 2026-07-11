@@ -1,0 +1,26 @@
+% A thin Logical English layer over a Prolog facts file. It (a) includes the
+% .pl resource — note the explicit .pl extension, and that includes are
+% transitive, so a program that includes THIS file also gets the facts — and
+% (b) exposes the Prolog predicates to LE through templates whose rules have
+% `prolog` bodies.
+
+the knowledge base postcodes_layer includes these resources:
+    postcodes_facts.pl.
+
+the templates are:
+    *a postcode* is in *a region*.
+    *a region* is in *a country*.
+    *a postcode* is in the country *a country*.
+
+the knowledge base postcodes_layer includes:
+
+% Bridge rules: each LE sentence delegates to the corresponding Prolog goal.
+% LE variables are written as "the <name>" phrases inside the prolog call.
+a postcode is in a region if
+    prolog postcode_region(the postcode, the region).
+
+a region is in a country if
+    prolog region_country(the region, the country).
+
+a postcode is in the country a country if
+    prolog postcode_country(the postcode, the country).

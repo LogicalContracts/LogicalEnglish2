@@ -565,9 +565,25 @@ handle_explain(Dict, Response) :-
         destroySession(SM)
     ).
 
+% The include base for editor text: the directory of the example it came from
+% (field 'source', a name relative to the examples dir, possibly with a
+% subpath), so relative include resources resolve against the example's own
+% location. Absent/unknown source keeps the default (cwd) base.
+load_base_of(Dict, Base) :-
+    (   get_dict(source, Dict, Src), Src \== "", Src \== null,
+        atom_string(SrcA, Src),
+        le_examples_dir(Dir),
+        atomic_list_concat([Dir, '/', SrcA], Full),
+        file_directory_name(Full, BaseDir),
+        exists_directory(BaseDir)
+    ->  Base = BaseDir
+    ;   Base = (-)
+    ).
+
 handle_load(Dict, Response) :-
     (   get_dict(le, Dict, Doc) ->  
-        ( catch(le_kbs:load_text(Doc, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load_text failed")), fail)
+        load_base_of(Dict, Base),
+        ( catch(le_kbs:load_text(Doc, Base, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load_text failed")), fail)
         ;   
         get_dict(file, Dict, File),
         le_examples_dir(Dir),

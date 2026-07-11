@@ -313,6 +313,25 @@ Logical English programs can include other LE programs using the `includes these
   ```
 - **Resources:** Can be relative file paths (e.g., `royal_family`) or URLs (e.g., `https://le2.logicalcontracts.com/source/royal_family`). The `.le` extension is implicit.
 - **Behavior:** The included rules, facts, templates, and ontology are added to the local KB module and used during reasoning. Scenarios and queries from included resources are ignored.
+- **Transitivity:** Includes are followed transitively, up to a depth cap (Prolog flag `le_include_max_depth`, default 5). Repeated resources and cycles are detected and skipped; each resource path is resolved **relative to the including file's own location** (URL directory or file directory).
+- **Local-path restriction:** a local (file) resource may only be included when it lives under the including file's directory tree, or is a world-readable server file allowed by `restricted_paths`. External `http(s)` URLs are unrestricted.
+
+### 14.1 Prolog resources (`.pl`)
+A resource named with an explicit `.pl` extension (file or URL) is a **Prolog resource** — a way to back an LE knowledge base with a Prolog facts/predicates file (e.g. a large lookup table) exposed through a *thin LE layer*: a few templates plus rules with `prolog` bodies (§15.6). The main program includes the layer, and the layer includes the `.pl`:
+```le
+% layer.le
+the knowledge base layer includes these resources:
+    postcodes_facts.pl.
+the templates are:
+    *a postcode* is in *a region*.
+the knowledge base layer includes:
+    a postcode is in a region if
+        prolog postcode_region(the postcode, the region).
+```
+- **Loading is assert-only** (never `consult`): clause terms are asserted into a dedicated, content-addressed cache module that reasoning sessions import. The only directives honoured at load time are `dynamic/1`, `discontiguous/1` and `use_module(library(...))`; a `:- module(...)` directive is stripped (with a warning) and its clauses load anyway; every other directive is skipped with a warning. So a remote `.pl` cannot execute code merely by being included.
+- **Runtime safety:** every `prolog` body goal is checked by `library(sandbox)` before it runs (LE's own read-only metadata predicates are whitelisted). Trusted installations can disable the check with the flag `le_sandbox_prolog` set to `false`.
+- **Caching:** a file `.pl` reloads when its modification time changes; a URL `.pl` is fetched once per server run — so editing the LE program does not re-load a large facts file.
+- See `examples/moreExamples/prolog_resources/` (postcodes: main → thin layer → facts `.pl`).
 
 ## 15. LE Extensions
 Features beyond the core constructs summarised above. Some are implemented in

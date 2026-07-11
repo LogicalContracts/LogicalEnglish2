@@ -2026,5 +2026,12 @@ LE", with guidelines to use some LE features to make the progranm easier to read
 
 
 ## TBD
+the example-listing endpoint reloads the
+  error-carrying insurance examples on every call (they never cache), so it takes 41s regardless, exceeding the test's 30s HTTP limit.
+
+Links to LE docs
+Mobile UI... query and scenario oriented
+    pick subset of examples... or straight URL: /executive?program=xxx
+    
 Mermaid diagrams?
 Debug source graph

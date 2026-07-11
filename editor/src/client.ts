@@ -1307,7 +1307,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 body: JSON.stringify({
                     token: 'myToken123',
                     operation: 'load',
-                    le: editor.getValue()
+                    le: editor.getValue(),
+                    // The example this text came from, so the server resolves
+                    // relative include resources against the example's folder.
+                    source: new URLSearchParams(window.location.search).get('example') || ''
                 })
             });
             const res = await response.json();
