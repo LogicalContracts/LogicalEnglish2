@@ -3,7 +3,7 @@ the templates are:
     *a person* is a royal supporter of *a player*.
 
 the knowledge base citizenship_including includes these resources:
-    examples/moreExamples/testing/citizenship_premier,
+    testing/citizenship_premier,
     https://raw.githubusercontent.com/mcalejo/LogicalEnglish2/main/examples/moreExamples/royal_family.
 
 the knowledge base citizenship_including includes:
