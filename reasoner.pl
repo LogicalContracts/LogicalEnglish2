@@ -641,6 +641,14 @@ is_built_in(le_is_in(_, _)).
 is_built_in(equal_to(_, _)).
 
 call_reasoner_built_in(prolog_call(G), SM) :- !,
+    % Every `prolog` body goal must pass library(sandbox)'s safe_goal/1 before
+    % running (flag le_sandbox_prolog, default true): together with the
+    % assert-only loading of included .pl resources this is what makes remote
+    % Prolog inclusion safe. LE's own metadata predicates are declared safe
+    % below; a goal whose analysis needs bindings not yet available (the
+    % dynamic-module idiom "le_my_kb(KM), KM:le_kb(X)") is allowed through and
+    % its module-qualified part is checked at call time, when KM is bound.
+    %
     % Resolve the goal in the first module context that yields a solution and
     % commit to it (soft-cut), so we don't re-enumerate the same solutions in
     % each fallback context (which would return duplicate answers).
@@ -649,11 +657,15 @@ call_reasoner_built_in(prolog_call(G), SM) :- !,
     % interrupt and time limits — MUST propagate, not be swallowed (which would
     % otherwise restart a looping goal in the next context).
     (   compound(G), G = M:Goal
-    ->  M:call(Goal)
-    ;   catch(SM:call(G), error(existence_error(procedure, _), _), fail) *-> true
-    ;   catch(le_kbs:call(G), error(existence_error(procedure, _), _), fail) *-> true
-    ;   SM:call(G)
+    ->  check_safe_prolog(M:Goal),
+        M:call(Goal)
+    ;   check_safe_prolog(SM:G),
+        (   catch(SM:call(G), error(existence_error(procedure, _), _), fail) *-> true
+        ;   catch(le_kbs:call(G), error(existence_error(procedure, _), _), fail) *-> true
+        ;   SM:call(G)
+        )
     ).
+
 call_reasoner_built_in(le_at(G, _, _), SM) :- !, call_reasoner_built_in(G, SM).
 call_reasoner_built_in(le_known(X), _) :- !, ground(X).
 call_reasoner_built_in(le_equal_to(X, Y), _) :- !, X = Y.
@@ -747,3 +759,72 @@ next_id(ID) :-
     retract(counter(ID)),
     NextID is ID + 1,
     assertz(counter(NextID)).
+
+% ── Sandboxing of `prolog` body goals ────────────────────────────────────────
+
+:- use_module(library(sandbox), []).
+
+:- dynamic safe_prolog_cached/1.
+
+%!  check_safe_prolog(+Goal) is det.
+%
+%   Throws error(le_unsafe_prolog_goal(G), ...) when library(sandbox) rejects
+%   the goal; succeeds otherwise. Verdicts are cached per goal skeleton.
+%   An instantiation error from the ANALYSIS (a module or goal part unknown
+%   until run time) lets the goal through: its qualified sub-goals are checked
+%   again, bound, when they reach the M:Goal branch above.
+check_safe_prolog(_) :-
+    current_prolog_flag(le_sandbox_prolog, false), !.
+check_safe_prolog(Goal) :-
+    goal_skeleton(Goal, Skel),
+    ( safe_prolog_cached(Skel) -> true
+    ; catch(le_safe_goal(Goal), Error, true),
+      (   var(Error)
+      ->  assertz(safe_prolog_cached(Skel))
+      ;   Error = error(instantiation_error, _)
+      ->  true                       % analysable only at run time
+      ;   Error = error(existence_error(procedure, _), _)
+      ->  true                       % undefined here: execution will raise it properly
+      ;   term_string(Error, ES),
+          format(atom(Msg), "prolog goal blocked by the sandbox: ~w (~w). Set the le_sandbox_prolog flag to false only on fully trusted installations.", [Goal, ES]),
+          throw(error(le_unsafe_prolog_goal(Goal), context(reasoner, Msg)))
+      )
+    ).
+
+goal_skeleton(Goal, Skel) :-
+    copy_term(Goal, C, _),      % /3 strips attributes (LE vars carry 'when')
+    numbervars(C, 0, _),
+    variant_sha1(C, Skel).
+
+% Structural pre-check: recurse over control constructs and module
+% qualifications ourselves, approve LE's metadata predicates by functor (they
+% are read-only lookups, legitimately called against dynamic modules — a shape
+% sandbox's static declarations cannot express), and hand every other leaf to
+% sandbox:safe_goal/1.
+le_safe_goal(G) :- var(G), !, throw(error(instantiation_error, _)).
+le_safe_goal(_:G) :- !, le_safe_goal(G).
+le_safe_goal((A, B)) :- !, le_safe_goal(A), le_safe_goal(B).
+le_safe_goal((A ; B)) :- !, le_safe_goal(A), le_safe_goal(B).
+le_safe_goal((A -> B)) :- !, le_safe_goal(A), le_safe_goal(B).
+le_safe_goal((A *-> B)) :- !, le_safe_goal(A), le_safe_goal(B).
+le_safe_goal(\+ A) :- !, le_safe_goal(A).
+le_safe_goal(G) :-
+    functor(G, F, A),
+    le_metadata_predicate(F/A), !.
+le_safe_goal(G) :-
+    sandbox:safe_goal(G).
+
+% Read-only LE metadata lookups, callable from `prolog` bodies against any
+% KB/session module.
+le_metadata_predicate(le_my_kb/1).
+le_metadata_predicate(le_my_id/1).
+le_metadata_predicate(le_kb/1).
+le_metadata_predicate(le_dict/1).
+le_metadata_predicate(le_type/1).
+le_metadata_predicate(is_a/2).
+le_metadata_predicate(le_source_element/3).
+le_metadata_predicate(le_source_info/4).
+le_metadata_predicate(le_source_section/2).
+le_metadata_predicate(scenario/2).
+le_metadata_predicate(query_info/3).
+le_metadata_predicate(le_expected/4).

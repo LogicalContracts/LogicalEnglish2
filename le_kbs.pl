@@ -5,7 +5,7 @@
     about loaded KBs. It acts as the main interface for managing LE programs.
 */
 
-:- module(le_kbs, [load/2, load_text/2, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
+:- module(le_kbs, [load/2, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
@@ -147,6 +147,13 @@ edit(LEfilePath) :-
 %   The section that rules are currently being assigned to while processing a
 %   knowledge base. Defaults to 'main' and is changed by section markers.
 :- thread_local current_section/1.
+% Include machinery state (per load): the base directory/URL of the file
+% currently being included (for relative resource resolution), the include
+% depth, and the set of canonical resource ids already loaded (cycle guard).
+:- thread_local le_include_base/1, le_include_depth/1, le_include_seen/1.
+% Cache of loaded Prolog resources: canonical id -> cache module + stamp
+% (file modification time, or the atom url for one-per-server-run caching).
+:- dynamic plres_cache/3.
 
 
 %!  load(+FilePath:atom, -Module:atom) is det.
@@ -162,18 +169,37 @@ load(FilePath, NewModule) :-
     with_mutex(NewModule, load_sync(NewModule, FilePath)).
 
 load_sync(NewModule, FilePath) :-
-    load_common_sync(NewModule, parse_le_file(FilePath, doc(Sections), NewModule), Sections, "parse_le_file failed for ~w" - [FilePath]).
+    absolute_file_name(FilePath, Abs),
+    file_directory_name(Abs, Dir),
+    setup_call_cleanup(
+        ( retractall(le_include_base(_)), assertz(le_include_base(Dir)) ),
+        load_common_sync(NewModule, parse_le_file(FilePath, doc(Sections), NewModule), Sections, "parse_le_file failed for ~w" - [FilePath]),
+        retractall(le_include_base(_))).
 
 %!  load_text(+Text:string, -Module:atom) is det.
 %
 %   Loads Logical English source text into a new generated Module.
 load_text(Text, NewModule) :-
-    (   var(NewModule) ->  
-        variant_sha1(Text, Hash),
+    load_text(Text, (-), NewModule).
+
+%!  load_text(+Text, +Base, -NewModule) is det.
+%
+%   As load_text/2, but resolves relative include resources against Base (a
+%   directory), so text loaded from the editor for a known example still finds
+%   the example's sibling resources. Base = '-' keeps the default (cwd).
+load_text(Text, Base, NewModule) :-
+    (   var(NewModule) ->
+        variant_sha1([Text, Base], Hash),
         atom_concat(m, Hash, NewModule)
     ;   true
     ),
-    with_mutex(NewModule, load_text_sync(NewModule, Text)).
+    (   Base == (-)
+    ->  with_mutex(NewModule, load_text_sync(NewModule, Text))
+    ;   setup_call_cleanup(
+            ( retractall(le_include_base(_)), assertz(le_include_base(Base)) ),
+            with_mutex(NewModule, load_text_sync(NewModule, Text)),
+            retractall(le_include_base(_)))
+    ).
 
 load_text_sync(NewModule, Text) :-
     load_common_sync(NewModule, parse_le_text(Text, doc(Sections), NewModule), Sections, "Parsing failed. Check for malformed sections or characters.").
@@ -284,9 +310,32 @@ process_section_acc(unknown_section(Tokens, Start, End), M) :-
     format(atom(Desc), "Unknown or malformed section starting with: ~w", [Name]),
     assertz(M:le_issue(error, unknown_section, Desc, Start, End)).
 
+%!  fetch_resources(+Sections, -MergedSections, +M) is det.
+%
+%   Loads the resources named in a document's "includes these resources:"
+%   section. .le resources (the default; the extension is implicit) merge
+%   their templates/rules/ontology into the KB; resources named with an
+%   explicit .pl extension are Prolog resources: their clauses are loaded
+%   (assert-only, sandboxed — see load_prolog_resource/4) into a cache module
+%   that reasoning sessions import.
+%
+%   Includes are transitive with a depth cap (prolog flag
+%   le_include_max_depth, default 5), a cycle/duplicate guard on canonical
+%   resource ids, and RELATIVE resolution against the including file's
+%   directory or URL. This entry point initialises that state when it is the
+%   top-level call of a load (nested calls arrive via parse_resource_text
+%   with the state already set).
 fetch_resources(Sections, MergedSections, M) :-
     (   member(resources(_, Resources, _, _), Sections)
-    ->  fetch_all_resources(Resources, M, IncludedSections),
+    ->  (   le_include_depth(_)
+        ->  fetch_all_resources(Resources, M, IncludedSections)      % nested
+        ;   setup_call_cleanup(
+                ( assertz(le_include_depth(0)),
+                  retractall(le_include_seen(_)) ),
+                fetch_all_resources(Resources, M, IncludedSections),
+                ( retractall(le_include_depth(_)),
+                  retractall(le_include_seen(_)) ))
+        ),
         append(IncludedSections, Sections, MergedSections)
     ;   MergedSections = Sections
     ).
@@ -297,28 +346,212 @@ fetch_all_resources([R|Rs], M, AllSections) :-
     fetch_all_resources(Rs, M, RestSections),
     append(Sections, RestSections, AllSections).
 
+include_max_depth(Max) :-
+    ( current_prolog_flag(le_include_max_depth, Max0), integer(Max0) -> Max = Max0 ; Max = 5 ).
+
+current_include_base(Base) :-
+    ( le_include_base(Base0) -> Base = Base0
+    ; working_directory(Base, Base) ).
+
 fetch_resource(Resource, M, Sections) :-
-    (   sub_atom(Resource, 0, _, _, 'http://') ; sub_atom(Resource, 0, _, _, 'https://') )
-    ->  atom_concat(Resource, '.le', URL),
-        (   catch(fetch_url(URL, Text), _, fail)
-        ->  parse_resource_text(Text, M, Sections),
-            count_rules_and_templates(Sections, RuleCount, TemplateCount),
-            assertz(M:le_resource_stats(Resource, RuleCount, TemplateCount))
-        ;   format(atom(Desc), "Failed to fetch URL: ~w", [URL]),
-            (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
+    current_include_base(Base),
+    resolve_resource(Resource, Base, Kind, Id),
+    (   le_include_seen(Id)
+    ->  Sections = []                       % already loaded (diamond or cycle)
+    ;   le_include_depth(Depth),
+        include_max_depth(Max),
+        (   Depth >= Max
+        ->  format(atom(Desc), "Include too deep (max ~w): ~w", [Max, Resource]),
+            (nonvar(M) -> assertz(M:le_issue(error, include_too_deep, Desc, "Flatten the include chain, or raise the le_include_max_depth flag.", 0, 0)) ; true),
             Sections = []
+        ;   assertz(le_include_seen(Id)),
+            fetch_resource_kind(Kind, Id, Resource, M, Sections)
         )
-    ;   % local file
-        atom_concat(Resource, '.le', File),
-        (   exists_file(File)
-        ->  read_file_to_string(File, Text, []),
-            parse_resource_text(Text, M, Sections),
-            count_rules_and_templates(Sections, RuleCount, TemplateCount),
-            assertz(M:le_resource_stats(Resource, RuleCount, TemplateCount))
-        ;   format(atom(Desc), "Resource not found: ~w", [Resource]),
-            (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
-            Sections = []
-        ).
+    ).
+
+%!  resolve_resource(+Resource, +Base, -Kind, -Id) is det.
+%
+%   Kind: le_url(URL) | le_file(AbsPath) | pl_url(URL) | pl_file(AbsPath).
+%   Id is the canonical identity used for the seen-set and the .pl cache.
+resolve_resource(Resource, Base, Kind, Id) :-
+    (   is_url(Resource)
+    ->  Full = Resource
+    ;   is_url(Base)
+    ->  uri_resolve(Resource, Base, Full)            % relative to including URL
+    ;   absolute_file_name(Resource, Full, [relative_to(Base)])
+    ),
+    (   sub_atom(Full, _, 3, 0, '.pl')
+    ->  ( is_url(Full) -> Kind = pl_url(Full) ; Kind = pl_file(Full) ),
+        Id = Full
+    ;   atom_concat(Full, '.le', WithExt),
+        ( is_url(Full) -> Kind = le_url(WithExt) ; Kind = le_file(WithExt) ),
+        Id = WithExt
+    ).
+
+is_url(A) :- atom(A), ( sub_atom(A, 0, _, _, 'http://') ; sub_atom(A, 0, _, _, 'https://') ), !.
+
+% Local resources are restricted: a file may be included when it lives under
+% the including file's own directory tree, or when it is a world-readable
+% server file (under the working directory and not role-gated in
+% restricted_paths). External URLs are unrestricted by design.
+local_resource_allowed(Abs, Base) :-
+    ( is_url(Base) -> working_directory(BaseDir, BaseDir) ; BaseDir = Base ),
+    (   sub_atom(Abs, 0, _, _, BaseDir)
+    ->  true
+    ;   working_directory(CWD, CWD),
+        sub_atom(Abs, 0, _, _, CWD),
+        catch(restricted_paths:is_path_allowed(Abs, []), _, fail)
+    ).
+
+fetch_resource_kind(le_url(URL), _Id, Resource, M, Sections) :-
+    (   catch(fetch_url(URL, Text), _, fail)
+    ->  include_resource_text(Text, URL, M, Sections),
+        count_rules_and_templates(Sections, RuleCount, TemplateCount),
+        assertz(M:le_resource_stats(Resource, RuleCount, TemplateCount))
+    ;   format(atom(Desc), "Failed to fetch URL: ~w", [URL]),
+        (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
+        Sections = []
+    ).
+fetch_resource_kind(le_file(File), _Id, Resource, M, Sections) :-
+    current_include_base(Base),
+    (   \+ local_resource_allowed(File, Base)
+    ->  format(atom(Desc), "Resource path not allowed: ~w", [Resource]),
+        (nonvar(M) -> assertz(M:le_issue(error, restricted_resource, Desc, "Local includes must live under the including file's directory or in a world-readable server path.", 0, 0)) ; true),
+        Sections = []
+    ;   exists_file(File)
+    ->  read_file_to_string(File, Text, []),
+        include_resource_text(Text, File, M, Sections),
+        count_rules_and_templates(Sections, RuleCount, TemplateCount),
+        assertz(M:le_resource_stats(Resource, RuleCount, TemplateCount))
+    ;   format(atom(Desc), "Resource not found: ~w", [Resource]),
+        (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
+        Sections = []
+    ).
+fetch_resource_kind(pl_url(URL), Id, Resource, M, []) :-
+    (   catch(fetch_url(URL, Text), _, fail)
+    ->  load_prolog_resource(Id, text(Text), M, Resource)
+    ;   format(atom(Desc), "Failed to fetch URL: ~w", [URL]),
+        (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true)
+    ).
+fetch_resource_kind(pl_file(File), Id, Resource, M, []) :-
+    current_include_base(Base),
+    (   \+ local_resource_allowed(File, Base)
+    ->  format(atom(Desc), "Resource path not allowed: ~w", [Resource]),
+        (nonvar(M) -> assertz(M:le_issue(error, restricted_resource, Desc, "Local includes must live under the including file's directory or in a world-readable server path.", 0, 0)) ; true)
+    ;   exists_file(File)
+    ->  load_prolog_resource(Id, file(File), M, Resource)
+    ;   format(atom(Desc), "Resource not found: ~w", [Resource]),
+        (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true)
+    ).
+
+% Parse an included .le with the include state advanced: depth+1 and the base
+% rebased to the included file's own location, so ITS relative includes
+% resolve against it.
+include_resource_text(Text, IdOrPath, M, Sections) :-
+    ( is_url(IdOrPath) -> resource_base_of_url(IdOrPath, NewBase)
+    ; file_directory_name(IdOrPath, NewBase) ),
+    le_include_depth(Depth), Depth1 is Depth + 1,
+    ( le_include_base(OldBase) -> true ; working_directory(OldBase, OldBase) ),
+    setup_call_cleanup(
+        ( retractall(le_include_base(_)), assertz(le_include_base(NewBase)),
+          retractall(le_include_depth(_)), assertz(le_include_depth(Depth1)) ),
+        parse_resource_text(Text, M, Sections),
+        ( retractall(le_include_base(_)), assertz(le_include_base(OldBase)),
+          retractall(le_include_depth(_)), assertz(le_include_depth(Depth)) )).
+
+resource_base_of_url(URL, Base) :-
+    ( sub_atom(URL, B, _, _, '/'), \+ (sub_atom(URL, B2, _, _, '/'), B2 > B)
+    -> sub_atom(URL, 0, B, _, Base0), atom_concat(Base0, '/', Base)
+    ;  Base = URL ).
+
+%!  load_prolog_resource(+Id, +Source, +M, +ResourceName) is det.
+%
+%   Loads a .pl resource into a stable, content-addressed cache module
+%   (plres_<hash of Id>) and records it in the KB as
+%   le_prolog_resource(CacheModule, Id) so createSession/2 can import it into
+%   reasoning sessions (where `prolog` bodies run).
+%
+%   Loading is ASSERT-ONLY, never consult: clause terms are asserted; the only
+%   directives honoured are dynamic/1, discontiguous/1 and
+%   use_module(library(Lib)) for atomic library names (system libraries are
+%   trusted code; arbitrary file paths are not). A module/2 directive is
+%   stripped with a warning — the clauses load into the cache module
+%   regardless. Anything else (initialization/1, arbitrary goals, ...) is
+%   skipped with a warning: a remote .pl must not execute code at load time.
+%   Runtime safety is enforced separately: every `prolog` body goal passes
+%   library(sandbox)'s safe_goal/1 in the reasoner.
+%
+%   Caching: a file resource reloads when its modification time changes; a
+%   URL resource is fetched once per server run.
+load_prolog_resource(Id, Source, M, ResourceName) :-
+    variant_sha1(Id, Hash),
+    atom_concat(plres_, Hash, Cache),
+    resource_stamp(Source, Stamp),
+    (   plres_cache(Id, Cache, Stamp)
+    ->  Loaded = cached
+    ;   forall(current_predicate(Cache:F/A), abolish(Cache:F/A)),
+        retractall(plres_cache(Id, _, _)),
+        (   catch(load_pl_source(Source, Cache, M, Counts), LoadErr,
+                  ( term_string(LoadErr, ES),
+                    format(atom(Desc), "Error loading Prolog resource ~w: ~w", [ResourceName, ES]),
+                    (nonvar(M) -> assertz(M:le_issue(error, missing_resource, Desc, "", 0, 0)) ; true),
+                    fail ))
+        ->  assertz(plres_cache(Id, Cache, Stamp)),
+            Loaded = Counts
+        ;   Loaded = failed
+        )
+    ),
+    (   Loaded == failed
+    ->  true
+    ;   ( current_predicate(M:le_prolog_resource/2), M:le_prolog_resource(Cache, Id) -> true
+        ; assertz(M:le_prolog_resource(Cache, Id)) ),
+        (   Loaded = counts(Facts, Rules)
+        ->  assertz(M:le_resource_stats(ResourceName, Rules, Facts))
+        ;   assertz(M:le_resource_stats(ResourceName, cached, cached))
+        )
+    ).
+
+resource_stamp(file(File), mtime(T)) :- !, time_file(File, T).
+resource_stamp(text(_), url).
+
+load_pl_source(file(File), Cache, M, Counts) :- !,
+    setup_call_cleanup(open(File, read, In, [encoding(utf8)]),
+                       load_pl_stream(In, Cache, M, 0-0, Counts),
+                       close(In)).
+load_pl_source(text(Text), Cache, M, Counts) :-
+    setup_call_cleanup(open_string(Text, In),
+                       load_pl_stream(In, Cache, M, 0-0, Counts),
+                       close(In)).
+
+load_pl_stream(In, Cache, M, F0-R0, Counts) :-
+    read_term(In, Term, [module(Cache)]),
+    (   Term == end_of_file
+    ->  Counts = counts(F0, R0)
+    ;   Term = (:- Directive)
+    ->  handle_pl_directive(Directive, Cache, M),
+        load_pl_stream(In, Cache, M, F0-R0, Counts)
+    ;   Term = (_ :- _)
+    ->  assertz(Cache:Term),
+        R1 is R0 + 1,
+        load_pl_stream(In, Cache, M, F0-R1, Counts)
+    ;   assertz(Cache:Term),
+        F1 is F0 + 1,
+        load_pl_stream(In, Cache, M, F1-R0, Counts)
+    ).
+
+handle_pl_directive(dynamic(Spec), Cache, _M) :- !, Cache:dynamic(Spec).
+handle_pl_directive(discontiguous(Spec), Cache, _M) :- !, Cache:discontiguous(Spec).
+handle_pl_directive(module(Name, _Exports), _Cache, M) :- !,
+    format(atom(Desc), "module directive (:- module(~w, ...)) in a Prolog resource is stripped: the clauses load into the resource's cache module", [Name]),
+    (nonvar(M) -> assertz(M:le_issue(warning, module_directive_stripped, Desc, "Remove the module directive, or ignore this warning.", 0, 0)) ; true).
+handle_pl_directive(use_module(library(Lib)), Cache, M) :- atom(Lib), !,
+    catch(Cache:use_module(library(Lib)), E,
+          ( term_string(E, ES),
+            format(atom(Desc), "use_module(library(~w)) failed: ~w", [Lib, ES]),
+            (nonvar(M) -> assertz(M:le_issue(warning, skipped_directive, Desc, "", 0, 0)) ; true) )).
+handle_pl_directive(D, _Cache, M) :-
+    format(atom(Desc), "Directive skipped in Prolog resource (not on the safe whitelist): :- ~w", [D]),
+    (nonvar(M) -> assertz(M:le_issue(warning, skipped_directive, Desc, "Only dynamic, discontiguous and use_module(library(...)) run at load time.", 0, 0)) ; true).
 
 count_rules_and_templates(Sections, RuleCount, TemplateCount) :-
     findall(1, (member(kb(_, Content, _, _), Sections), member(rule(_,_,_,_,_,_), Content)), Rules),
@@ -446,6 +679,13 @@ createSession(KBmodule, SessionModule) :-
     % same mutex the reaper uses, so maybe_destroy_kb/1 reliably sees this new
     % session as a live reference and will not reclaim a shared KB module out
     % from under a session that is still being created.
+    % Prolog resources included by the KB become visible to `prolog` bodies
+    % (which the reasoner runs as SessionModule:call/1) via import links.
+    (   current_predicate(KBmodule:le_prolog_resource/2)
+    ->  forall(KBmodule:le_prolog_resource(Cache, _),
+               add_import_module(SessionModule, Cache, end))
+    ;   true
+    ),
     get_time(Now),
     with_mutex(le_sessions, (
         assertz(SessionModule:le_kb_module_fact(KBmodule)),
@@ -1313,6 +1553,10 @@ is_system_predicate(le_var_names/2).
 % explanations render the goal with the form actually written, rather than the
 % main template. Populated at parse time by le_grammar:maybe_record_synonym_use/5.
 is_system_predicate(le_synonym_at/3).
+% Include bookkeeping (see fetch_resources/3 and load_prolog_resource/4).
+is_system_predicate(le_included_resource/3).
+is_system_predicate(le_resource_stats/3).
+is_system_predicate(le_prolog_resource/2).
 
 
 collect_and_assert_types(M) :-

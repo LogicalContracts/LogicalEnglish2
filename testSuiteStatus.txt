@@ -40,6 +40,8 @@ Detailed File Summary:
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/prolog_resources/postcodes.le: 5 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/prolog_resources/postcodes_layer.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/amazing_animals.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/behaviourist_fox.le: 3 Pass, 0 Fail, 0 Error
