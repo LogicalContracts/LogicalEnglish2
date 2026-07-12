@@ -37,6 +37,12 @@ body {
 .topbar .back { font-size: 22px; line-height: 1; padding: 4px 6px; }
 .topbar .back[hidden], .topbar .full[hidden] { display: none; }
 .topbar .full { font-size: 14px; opacity: .9; }
+/* Login/logout affordance, top-right. On narrow phones the email is hidden to
+   keep the bar tidy; the Login/Logout link always shows. */
+.topbar .auth { font-size: 13px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.topbar .auth .email { opacity: .9; overflow: hidden; text-overflow: ellipsis; max-width: 42vw; }
+.topbar .auth a { text-decoration: underline; }
+@media (max-width: 420px) { .topbar .auth .email { display: none; } }
 
 main { max-width: 720px; margin: 0 auto; padding: 16px 14px calc(28px + var(--safe-bottom)); }
 .screen.hidden { display: none; }
