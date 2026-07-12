@@ -112,15 +112,17 @@ async function loadProgram(name) {
     scSel.innerHTML = '<option value="">(no scenario)</option>' +
         scenarios.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
 
-    // Queries.
-    const queries = (data.queries || []).map(q => q.name);
+    // Queries: the option value is the query's name (stable, used in the URL),
+    // but what the user sees is the query text itself.
+    const queries = programQueries.map(q => q.name);
     const qSel = $('query-select');
     if (!queries.length) {
-        qSel.innerHTML = '<option value="">(this program defines no questions)</option>';
+        qSel.innerHTML = '<option value="">(this program defines no queries)</option>';
         $('answers').innerHTML = '';
         return;
     }
-    qSel.innerHTML = queries.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+    qSel.innerHTML = programQueries.map(q =>
+        `<option value="${esc(q.name)}">${esc(q.label)}</option>`).join('');
     $('tool-variations').hidden = false;
 
     // Preselect: the URL param wins; otherwise default to the FIRST named
@@ -168,7 +170,7 @@ function renderAnswers(data) {
     if (data.error) { box.innerHTML = `<div class="status">${esc(data.error)}</div>`; return; }
     const results = data.results || [];
     if (!results.length) {
-        box.innerHTML = '<div class="answer none"><div class="answer-head">No — no answers for this question.</div></div>';
+        box.innerHTML = '<div class="answer none"><div class="answer-head">No — no answers for this query.</div></div>';
         return;
     }
     box.innerHTML = results.map((r, i) => {
