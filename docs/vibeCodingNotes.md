@@ -2024,14 +2024,22 @@ I think docs/le_summary.md needs a new section "LE Extensions" describing featur
 'which', and possibly others gated by depending on the proprietary le_extensions.pl. And another short section at the end "Humanizing 
 LE", with guidelines to use some LE features to make the progranm easier to read by humans, such as: use 'only if' or 'unless' when appropriate;   use prepositional additions; others you think of                                                                                      
 
+## User docs
+ We need links to these user documentation resources:
+- https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/tutorial0/IntroToLE2.md
+- https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/howToUse.md
+- https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/le_summary.md
+
+In the landing page it can be direct links, with a short summary for each;  in the editor, use a new Help menu
+
+Take a quick read of each and decide on the best order
 
 ## TBD
 the example-listing endpoint reloads the
   error-carrying insurance examples on every call (they never cache), so it takes 41s regardless, exceeding the test's 30s HTTP limit.
 
-Links to LE docs
 Mobile UI... query and scenario oriented
     pick subset of examples... or straight URL: /executive?program=xxx
-    
+
 Mermaid diagrams?
 Debug source graph

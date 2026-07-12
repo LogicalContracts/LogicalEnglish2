@@ -47,6 +47,7 @@
 :- http_handler(root(verify), handle_rest_verify, [method(post)]).
 :- http_handler(root(example_details), handle_rest_example_details, [method(post)]).
 :- http_handler(root('source/'), handle_source, [prefix]).
+:- http_handler('/docs/', handle_docs, [prefix]).
 :- http_handler('/dap', dap_websocket_handler, []).
 :- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
 :- http_handler('/web_extras/', http_reply_from_files('web_extras', []), [prefix]).
@@ -243,6 +244,27 @@ handle_landing_page(Request) :-
                     ul(ExampleItems)
                 ]),
                 li(a(href('https://github.com/mcalejo/LogicalEnglish2'), 'GitHub Repository'))
+            ]),
+            h2('Documentation'),
+            ul([
+                li([
+                    a([href('/docs/tutorial0/IntroToLE2'), target('_blank')],
+                      'A Gentle Introduction to Logical English 2'),
+                    br([]),
+                    small('Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.')
+                ]),
+                li([
+                    a([href('/docs/howToUse'), target('_blank')],
+                      'How to use the LE2 web application'),
+                    br([]),
+                    small('The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.')
+                ]),
+                li([
+                    a([href('/docs/le_summary'), target('_blank')],
+                      'Logical English syntax summary'),
+                    br([]),
+                    small('The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.')
+                ])
             ]),
             h2('Test Suite'),
             form([action('/'), method('get')], [
@@ -1551,6 +1573,41 @@ is_interesting_term(Head) :-
     %   to the enclosing le_kb/1 fact, whose range spans the whole knowledge base.
     ;   member(F/N, [is_a/2, le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3, le_expected/3])
     ).
+%!  handle_docs(+Request) is det.
+%
+%   Serves the repository's own user documentation, rendered cleanly (no repo
+%   chrome), from the docs/ tree:
+%   - a request for an EXISTING file under docs/ (an image, or a raw .md that
+%     the viewer fetches) is served directly;
+%   - a request for a doc NAME (e.g. /docs/tutorial0/IntroToLE2, where
+%     docs/tutorial0/IntroToLE2.md exists) returns the Markdown viewer shell,
+%     which fetches that same path + ".md" and renders it client-side.
+%   The rendered page sits at the same path depth as its .md source, so the
+%   document's relative image references resolve to the right files under docs/.
+%   Path traversal outside docs/ is refused.
+handle_docs(Request) :-
+    member(path(Path), Request),
+    atom_concat('/docs/', Rel0, Path),
+    ( sub_atom(Rel0, _, _, 0, '/') -> atom_concat(Rel, '/', Rel0 ) ; Rel = Rel0 ),
+    docs_dir(DocsDir),
+    (   safe_docs_path(DocsDir, Rel, AbsFile), exists_file(AbsFile)
+    ->  http_reply_file(AbsFile, [unsafe(true)], Request)   % image, or raw .md; safe_docs_path already vetted it
+    ;   atom_concat(Rel, '.md', RelMd),
+        safe_docs_path(DocsDir, RelMd, AbsMd), exists_file(AbsMd)
+    ->  http_reply_file('web_extras/docsview/viewer.html', [mime_type(text/html)], Request)
+    ;   throw(http_reply(not_found(Path)))
+    ).
+
+docs_dir(Dir) :- absolute_file_name('docs', Dir, [file_type(directory), access(read)]).
+
+% The requested relative path resolves to a file strictly inside DocsDir
+% (rejects '..' escapes).
+safe_docs_path(DocsDir, Rel, Abs) :-
+    Rel \== '',
+    catch(absolute_file_name(Rel, Abs, [relative_to(DocsDir)]), _, fail),
+    atom_concat(DocsDir, '/', DocsPrefix),
+    sub_atom(Abs, 0, _, _, DocsPrefix).
+
 handle_source(Request) :-
     member(path(Path), Request),
     atom_concat('/source/', ExamplePath, Path),
