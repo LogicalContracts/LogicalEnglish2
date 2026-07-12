@@ -272,7 +272,9 @@ list_examples_with_summaries(Dir, Prefix, UserRoles, Examples) :-
         atomic_list_concat([Dir, F], FullPath),
         restricted_paths:is_path_allowed(FullPath, UserRoles),
         atom_concat(Prefix, Base, ExPath),
-        ( catch(le_kbs:load(FullPath, KB), _, fail) ->
+        % skip_tests: the listing only needs each KB loaded for its summary;
+        % running the KBs' embedded tests here would take tens of seconds.
+        ( catch(le_kbs:load(FullPath, KB, [skip_tests]), _, fail) ->
             le_kbs:kbSummary(KB, Summary)
         ; Summary = "No summary available"
         )

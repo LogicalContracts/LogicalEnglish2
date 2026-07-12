@@ -5,7 +5,7 @@
     rules without variables, and other potential issues.
 */
 
-:- module(le_verifier, [verify/2, print_issue/1, is_intensional/3, find_in_body/2]).
+:- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2]).
 
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2]).
 :- use_module(le_system_templates, [le_system_template/1]).
@@ -14,19 +14,29 @@
 %
 %   Performs load-time verifications on a Logical English knowledge base.
 verify(KB, Issues) :-
-    ( setof(Issue, check_issue(KB, Issue), Issues) -> true; Issues = []).
+    verify(KB, [], Issues).
 
-check_issue(KB, Issue) :- missing_template(KB, Issue).
-check_issue(KB, Issue) :- undefined_predicate(KB, Issue).
-check_issue(KB, Issue) :- suspicious_is_a(KB, Issue).
-check_issue(KB, Issue) :- defined_scenario_element(KB, Issue).
-check_issue(KB, Issue) :- untested_predicate(KB, Issue).
-check_issue(KB, Issue) :- rule_without_variables(KB, Issue).
-check_issue(KB, Issue) :- facts_rules_ratio(KB, Issue).
-check_issue(KB, Issue) :- failed_test(KB, Issue).
-check_issue(KB, Issue) :- redefined_system_template(KB, Issue).
-check_issue(KB, Issue) :- single_variable_fact(KB, Issue).
-check_issue(KB, Issue) :- single_variable_scenario_fact(KB, Issue).
+%!  verify(+KBModule:atom, +Options:list, -Issues:list) is det.
+%
+%   As verify/2. With Option skip_tests, the expected-answer tests embedded in
+%   the KB are not run (the failed_test check is skipped): running them means
+%   answering every test query, which can take tens of seconds on large KBs —
+%   far too slow for callers that only need the cheap static checks, such as
+%   the example-listing endpoints.
+verify(KB, Options, Issues) :-
+    ( setof(Issue, check_issue(KB, Options, Issue), Issues) -> true; Issues = []).
+
+check_issue(KB, _, Issue) :- missing_template(KB, Issue).
+check_issue(KB, _, Issue) :- undefined_predicate(KB, Issue).
+check_issue(KB, _, Issue) :- suspicious_is_a(KB, Issue).
+check_issue(KB, _, Issue) :- defined_scenario_element(KB, Issue).
+check_issue(KB, _, Issue) :- untested_predicate(KB, Issue).
+check_issue(KB, _, Issue) :- rule_without_variables(KB, Issue).
+check_issue(KB, _, Issue) :- facts_rules_ratio(KB, Issue).
+check_issue(KB, Options, Issue) :- \+ memberchk(skip_tests, Options), failed_test(KB, Issue).
+check_issue(KB, _, Issue) :- redefined_system_template(KB, Issue).
+check_issue(KB, _, Issue) :- single_variable_fact(KB, Issue).
+check_issue(KB, _, Issue) :- single_variable_scenario_fact(KB, Issue).
 
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
