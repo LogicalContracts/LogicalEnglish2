@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0e639c">
+<title>Logical English</title>
+<link rel="stylesheet" href="/web_extras/executive/style.css">
+</head>
+<body>
+<header class="topbar">
+    <a class="back" id="back-link" href="/executive" title="Choose a program" aria-label="Choose a program">&#8592;</a>
+    <h1 id="title">Logical English</h1>
+</header>
+
+<main id="app">
+    <!-- ============ Menu: choose a program ============ -->
+    <section id="screen-menu" class="screen">
+        <p class="lead">Choose a program to explore.</p>
+        <input type="search" id="menu-filter" placeholder="Filter…" autocomplete="off" aria-label="Filter programs">
+        <ul id="menu-list" class="menu-list"><li class="hint">Loading…</li></ul>
+    </section>
+
+    <!-- ============ Program: pick scenario + query, run ============ -->
+    <section id="screen-program" class="screen hidden">
+        <div id="program-issues" class="issues" hidden></div>
+
+        <label class="field">
+            <span>Scenario</span>
+            <select id="scenario-select"></select>
+        </label>
+
+        <button type="button" id="tool-variations" class="secondary" hidden>Scenario Variations</button>
+
+        <label class="field">
+            <span>Question</span>
+            <select id="query-select"></select>
+        </label>
+
+        <div id="answers" class="answers" aria-live="polite"></div>
+    </section>
+</main>
+
+<script src="/web_extras/executive/app.js"></script>
+</body>
+</html>

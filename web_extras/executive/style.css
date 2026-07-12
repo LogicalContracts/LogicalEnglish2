@@ -1,0 +1,131 @@
+:root {
+    --bg: #ffffff; --ink: #17202a; --muted: #5b6674; --accent: #0e639c;
+    --accent-ink: #ffffff; --border: #e2e6ea; --card: #f7f9fb;
+    --ok: #1c7d3c; --ok-bg: #e9f6ee; --unknown: #9a6a00; --unknown-bg: #fbf3e2;
+    --fail: #b3261e; --fail-bg: #fbeceb;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #12161b; --ink: #e4e9ef; --muted: #9aa6b3; --accent: #4f9bff;
+        --accent-ink: #0b1220; --border: #2a323b; --card: #1a2027;
+        --ok: #62c37f; --ok-bg: #16261b; --unknown: #d8a13a; --unknown-bg: #2a2314;
+        --fail: #ff8a80; --fail-bg: #2a1817;
+    }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { font-size: 17px; }
+body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
+}
+
+/* Sticky top bar with safe-area padding for notched phones */
+.topbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; gap: 12px;
+    padding: calc(10px + var(--safe-top)) 14px 10px;
+    background: var(--accent); color: var(--accent-ink);
+}
+.topbar h1 {
+    flex: 1; margin: 0; font-size: 18px; font-weight: 600;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.topbar a { color: var(--accent-ink); text-decoration: none; font-size: 16px; }
+.topbar .back { font-size: 22px; line-height: 1; padding: 4px 6px; }
+.topbar .back[hidden], .topbar .full[hidden] { display: none; }
+.topbar .full { font-size: 14px; opacity: .9; }
+
+main { max-width: 720px; margin: 0 auto; padding: 16px 14px calc(28px + var(--safe-bottom)); }
+.screen.hidden { display: none; }
+.lead { color: var(--muted); margin: 4px 0 14px; }
+.hint { color: var(--muted); }
+
+/* Program menu */
+#menu-filter {
+    width: 100%; padding: 12px 14px; margin-bottom: 12px;
+    font-size: 16px; border: 1px solid var(--border); border-radius: 10px;
+    background: var(--card); color: var(--ink);
+}
+.menu-list { list-style: none; margin: 0; padding: 0; }
+.menu-list li.item {
+    border: 1px solid var(--border); border-radius: 12px; margin-bottom: 10px;
+    background: var(--card);
+}
+.menu-list li.item a {
+    display: block; padding: 16px; color: var(--ink); text-decoration: none;
+    font-size: 17px; font-weight: 500;
+}
+.menu-list li.item a:active { background: var(--border); border-radius: 12px; }
+.menu-list li.item small { display: block; color: var(--muted); font-weight: 400; font-size: 13px; margin-top: 2px; }
+.menu-list li.hint { padding: 16px 4px; }
+
+/* Form controls — large tap targets */
+.field { display: block; margin: 0 0 16px; }
+.field > span { display: block; font-size: 14px; color: var(--muted); margin-bottom: 6px; }
+select {
+    width: 100%; padding: 13px 14px; font-size: 16px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--card); color: var(--ink); appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+                      linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%;
+    background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+}
+button.primary {
+    width: 100%; padding: 15px; font-size: 17px; font-weight: 600;
+    border: none; border-radius: 12px; background: var(--accent); color: var(--accent-ink);
+    cursor: pointer;
+}
+button.primary:disabled { opacity: .5; }
+button.primary:active:not(:disabled) { filter: brightness(0.92); }
+
+/* Secondary action (Scenario Variations): a full-width outlined tap target,
+   sitting between the scenario and question pickers. */
+button.secondary {
+    width: 100%; margin: -4px 0 16px; padding: 12px; font-size: 15px; font-weight: 500;
+    border: 1px solid var(--accent); border-radius: 12px;
+    background: transparent; color: var(--accent); cursor: pointer;
+}
+button.secondary[hidden] { display: none; }
+button.secondary:active { background: var(--card); }
+button.secondary:disabled { opacity: .5; }
+
+/* Issues (load-time) */
+.issues {
+    border: 1px solid var(--fail); background: var(--fail-bg); color: var(--fail);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 14px; font-size: 14px;
+}
+.issues ul { margin: 6px 0 0; padding-left: 18px; }
+
+/* Answers */
+.answers { margin-top: 20px; }
+.answers .status { color: var(--muted); text-align: center; padding: 20px; }
+.answer {
+    border: 1px solid var(--border); border-left: 4px solid var(--ok);
+    border-radius: 12px; margin-bottom: 12px; overflow: hidden; background: var(--card);
+}
+.answer.none { border-left-color: var(--fail); }
+.answer-head {
+    display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+    cursor: pointer; font-size: 16px; font-weight: 500;
+}
+.answer-head .chev { color: var(--muted); transition: transform .15s; font-size: 13px; }
+.answer.open .answer-head .chev { transform: rotate(90deg); }
+.answer .unknowns { font-size: 13px; color: var(--unknown); font-weight: 400; }
+.answer-why { display: none; padding: 4px 16px 14px; border-top: 1px solid var(--border); }
+.answer.open .answer-why { display: block; }
+
+/* Explanation tree — indented, no library */
+.tree, .tree ul { list-style: none; margin: 0; padding: 0; }
+.tree ul { margin-left: 16px; border-left: 1px solid var(--border); padding-left: 12px; }
+.tree li { margin: 7px 0; font-size: 14px; }
+.tree .lit { display: inline-block; }
+.tree li.t-success > .lit::before { content: "✓ "; color: var(--ok); }
+.tree li.t-unknown > .lit::before { content: "? "; color: var(--unknown); }
+.tree li.t-failure > .lit::before { content: "✗ "; color: var(--fail); }
+.tree li.t-unknown > .lit { color: var(--unknown); }
+.tree li.t-failure > .lit { color: var(--fail); }
+.repeated { color: var(--muted); font-size: 12px; }

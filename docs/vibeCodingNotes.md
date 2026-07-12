@@ -2034,6 +2034,19 @@ In the landing page it can be direct links, with a short summary for each;  in t
 
 Take a quick read of each and decide on the best order
 
+## Executive page
+We need a new minimalist entry point into the LE2 UI, for people that just want to use an existing program by querying it, picking scenarios, and eventually also using scenario variations and query editor. They may eventually look at some rules in the editor, probably not... and never edit them. 
+
+AND it should be targetting mobile devices.
+
+The entrypoint should be /executive?program=... , optionally with scenario and query parameters too. Without params it should present a simple menu to choose an example (all in the system; we may restrict later but not now)
+
+Let me know if you need to discuss alternatives, otherwise just do it. Try not to depend on additional software components, I'm hoping CSS will suffice...
+
+Remove link to Editor, and add links to Scenario Variations and Query Editor, making sure  these render reasonably on
+  
+Put "Scenario Variations" between scenario picker and question picker. Remove "Query" button, queries should auto-run when scenario or query 
+
 ## TBD
 the example-listing endpoint reloads the
   error-carrying insurance examples on every call (they never cache), so it takes 41s regardless, exceeding the test's 30s HTTP limit.
