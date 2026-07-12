@@ -41,6 +41,7 @@
 :- http_handler(root(.), handle_landing_page, []).
 :- http_handler(root(login), handle_login, []).
 :- http_handler(root(logout), handle_logout, []).
+:- http_handler(root(whoami), handle_whoami, [method(get)]).
 :- http_handler(root(mcp), handle_mcp, []).
 :- http_handler(root(list_examples), handle_rest_list_examples, [method(get)]).
 :- http_handler(root(query), handle_rest_query, [method(post)]).
@@ -282,22 +283,51 @@ handle_landing_page(Request) :-
         ]
     ).
 
+%!  handle_whoami(+Request) is det.
+%
+%   Reports the current session's login state as JSON, so client-rendered
+%   pages (e.g. the Executive view) can show the same "Logged in as … /
+%   Login" affordance the server-rendered landing page has. The session
+%   cookie is shared same-origin.
+handle_whoami(_Request) :-
+    (   http_in_session(_SessionId), http_session_data(user(Email, _Roles))
+    ->  atom_string(Email, EmailStr),
+        Response = _{loggedIn: true, email: EmailStr}
+    ;   Response = _{loggedIn: false, email: null}
+    ),
+    reply_json_dict(Response).
+
+% A safe post-login/logout redirect target: only a local path (leading '/',
+% and not a protocol-relative '//...'), else the landing page. Prevents an
+% open redirect via the 'return' parameter.
+safe_return(Request, Target) :-
+    (   catch(http_parameters(Request, [return(Ret, [default('')])]), _, Ret = ''),
+        Ret \== '',
+        sub_atom(Ret, 0, 1, _, '/'),
+        \+ sub_atom(Ret, 0, 2, _, '//')
+    ->  Target = Ret
+    ;   Target = '/'
+    ).
+
 handle_login(Request) :-
     (   member(method(post), Request)
-    ->  http_parameters(Request, [email(Email, []), password(Password, [])]),
+    ->  http_parameters(Request, [email(Email, []), password(Password, []), return(Ret, [default('/')])]),
         (   authenticate_le_user(Email, Password, Roles)
         ->  http_session_assert(user(Email, Roles)),
-            http_redirect(moved, '/', Request)
+            ( sub_atom(Ret, 0, 1, _, '/'), \+ sub_atom(Ret, 0, 2, _, '//') -> Target = Ret ; Target = '/' ),
+            http_redirect(moved, Target, Request)
         ;   reply_html_page(
                 [title('Login Failed')],
                 [h1('Login Failed'), p('Invalid email or password.'), a(href('/login'), 'Try again')]
             )
         )
-    ;   reply_html_page(
+    ;   safe_return(Request, Ret),
+        reply_html_page(
             [title('Login')],
             [
                 h1('Login'),
                 form([action('/login'), method('post')], [
+                    input([type(hidden), name(return), value(Ret)]),
                     p(['Email: ', input([type(text), name(email)])]),
                     p(['Password: ', input([type(password), name(password)])]),
                     p(input([type(submit), value('Login')]))
@@ -311,7 +341,8 @@ handle_logout(Request) :-
     ->  http_session_retractall(user(_, _))
     ;   true
     ),
-    http_redirect(moved, '/', Request).
+    safe_return(Request, Target),
+    http_redirect(moved, Target, Request).
 
 %!  landing_folders_script(-JS:atom) is det.
 %

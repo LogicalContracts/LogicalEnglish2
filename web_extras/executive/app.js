@@ -23,6 +23,18 @@ function esc(s) {
     return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
 
+// Top-right login/logout, mirroring the landing page. The session cookie is
+// shared same-origin; /whoami reports the current user.
+async function renderAuth() {
+    try {
+        const me = await (await fetch('/whoami')).json();
+        const ret = encodeURIComponent(location.pathname + location.search);
+        $('auth').innerHTML = me.loggedIn
+            ? `<span class="email">${esc(me.email)}</span><a href="/logout?return=${ret}">Logout</a>`
+            : `<a href="/login?return=${ret}">Login</a>`;
+    } catch { $('auth').innerHTML = ''; }
+}
+
 let session = null;      // current session module
 let programName = null;  // current program's example name
 let programSource = '';  // its LE source text (for the tool popups)
@@ -238,5 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
     $('query-select').addEventListener('change', runQuery);
     // Back/forward navigation between menu and programs.
     window.addEventListener('popstate', route);
+    renderAuth();
     route();
 });

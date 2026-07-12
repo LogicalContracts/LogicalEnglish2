@@ -5,6 +5,14 @@ import { test, expect, devices } from '@playwright/test';
 test.use({ ...devices['iPhone 13'] });
 
 test.describe('Executive view', () => {
+    test('shows the login affordance top-right', async ({ page }) => {
+        await page.goto('/executive?program=citizenship');
+        // Anonymous session: a Login link that returns to this page.
+        const login = page.locator('#auth a', { hasText: 'Login' });
+        await expect(login).toBeVisible();
+        await expect(login).toHaveAttribute('href', /\/login\?return=/);
+    });
+
     test('menu lists programs and filters', async ({ page }) => {
         await page.goto('/executive');
         await expect(page.locator('#screen-menu')).toBeVisible();
