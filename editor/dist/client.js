@@ -39075,6 +39075,7 @@ async function start() {
   }
   let currentFileName = initialFilename;
   let fileHandle = null;
+  let currentBaseUrl = null;
   const filenameDisplay = document.getElementById("filename-display");
   if (filenameDisplay) {
     filenameDisplay.textContent = currentFileName;
@@ -39316,10 +39317,86 @@ async function start() {
     editor.setValue("");
     currentFileName = "document.le";
     fileHandle = null;
+    currentBaseUrl = null;
     updateSaveMenu();
     if (filenameDisplay)
       filenameDisplay.textContent = currentFileName;
     isDirty = false;
+  });
+  const urlModal = document.getElementById("new-from-url-modal");
+  const urlInput = document.getElementById("new-from-url-input");
+  const urlError = document.getElementById("new-from-url-error");
+  const urlLoadBtn = document.getElementById("new-from-url-load");
+  const closeUrlModal = () => {
+    if (urlModal)
+      urlModal.style.display = "none";
+  };
+  const showUrlError = (msg) => {
+    if (urlError) {
+      urlError.textContent = msg;
+      urlError.style.display = "block";
+    }
+  };
+  document.getElementById("menu-new-from-url")?.addEventListener("click", () => {
+    if (isDirty && !confirm("You have unsaved changes. Load from URL anyway?"))
+      return;
+    if (urlError)
+      urlError.style.display = "none";
+    if (urlModal)
+      urlModal.style.display = "flex";
+    urlInput?.focus();
+    urlInput?.select();
+  });
+  document.getElementById("new-from-url-close")?.addEventListener("click", closeUrlModal);
+  document.getElementById("new-from-url-cancel")?.addEventListener("click", closeUrlModal);
+  const loadFromUrl = async () => {
+    const raw = (urlInput?.value || "").trim();
+    if (!raw) {
+      showUrlError("Please enter a URL.");
+      return;
+    }
+    let url;
+    try {
+      url = new URL(raw);
+    } catch {
+      showUrlError("That is not a valid URL.");
+      return;
+    }
+    const prevLabel = urlLoadBtn.textContent;
+    urlLoadBtn.disabled = true;
+    urlLoadBtn.textContent = "Loading\u2026";
+    if (urlError)
+      urlError.style.display = "none";
+    try {
+      const resp = await fetch(raw, { redirect: "follow" });
+      if (!resp.ok)
+        throw new Error(`server returned ${resp.status} ${resp.statusText}`);
+      const content = await resp.text();
+      editor.setValue(content);
+      const seg = url.pathname.split("/").filter(Boolean).pop() || "document.le";
+      currentFileName = /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + ".le";
+      fileHandle = null;
+      currentBaseUrl = raw.slice(0, raw.length - url.pathname.split("/").pop().length);
+      if (filenameDisplay)
+        filenameDisplay.textContent = currentFileName;
+      isDirty = false;
+      updateSaveMenu();
+      closeUrlModal();
+    } catch (err) {
+      showUrlError(
+        `Could not fetch the URL: ${err.message}. If it is on another site, that site must allow cross-origin requests (CORS).`
+      );
+    } finally {
+      urlLoadBtn.disabled = false;
+      urlLoadBtn.textContent = prevLabel;
+    }
+  };
+  urlLoadBtn?.addEventListener("click", loadFromUrl);
+  urlInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      loadFromUrl();
+    }
   });
   const fileInput = document.getElementById("file-input");
   document.getElementById("menu-open")?.addEventListener("click", async () => {
@@ -39338,6 +39415,7 @@ async function start() {
         const content = await file.text();
         fileHandle = handle;
         currentFileName = file.name;
+        currentBaseUrl = null;
         if (filenameDisplay)
           filenameDisplay.textContent = currentFileName;
         editor.setValue(content);
@@ -39358,6 +39436,7 @@ async function start() {
       return;
     currentFileName = file.name;
     fileHandle = null;
+    currentBaseUrl = null;
     updateSaveMenu();
     if (filenameDisplay)
       filenameDisplay.textContent = currentFileName;
@@ -40125,7 +40204,10 @@ async function start() {
           le: editor.getValue(),
           // The example this text came from, so the server resolves
           // relative include resources against the example's folder.
-          source: new URLSearchParams(window.location.search).get("example") || ""
+          source: new URLSearchParams(window.location.search).get("example") || "",
+          // If the document was fetched from a URL, its base URL, so
+          // relative includes resolve against the remote location.
+          base: currentBaseUrl || ""
         })
       });
       const res = await response.json();
