@@ -17,16 +17,16 @@ test.describe('Executive view', () => {
         for (const t of await items.allTextContents()) expect(t).toContain('citizenship');
     });
 
-    test('changing scenario auto-runs the query and shows the explanation', async ({ page }) => {
+    test('opens on the first scenario and auto-runs, with the explanation', async ({ page }) => {
         await page.goto('/executive?program=citizenship');
         await expect(page.locator('#screen-program')).toBeVisible();
         await expect(page.locator('#title')).toHaveText('citizenship');
 
-        // There is no Run button; results appear on selection change.
+        // There is no Run button; the first scenario is pre-selected and the
+        // query runs on load (no user interaction required).
         await expect(page.locator('#run-btn')).toHaveCount(0);
-        await expect(page.locator('#scenario-select option[value="alice"]')).toHaveCount(1);
+        await expect(page.locator('#scenario-select')).toHaveValue('alice');
 
-        await page.selectOption('#scenario-select', 'alice');
         const answer = page.locator('.answer .answer-text').first();
         await expect(answer).toBeVisible({ timeout: 30000 });
         await expect(answer).toContainText('John acquires British citizenship');

@@ -111,9 +111,13 @@ async function loadProgram(name) {
     qSel.innerHTML = queries.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
     $('tool-variations').hidden = false;
 
-    // Preselect from URL params (deep links).
+    // Preselect: the URL param wins; otherwise default to the FIRST named
+    // scenario (rather than "(no scenario)") so the program opens on a concrete,
+    // meaningful example. Setting .value programmatically fires no 'change'
+    // event, so the explicit runQuery() below is what runs it.
     const p = params();
     if (p.get('scenario') && scenarios.includes(p.get('scenario'))) scSel.value = p.get('scenario');
+    else if (scenarios.length) scSel.value = scenarios[0];
     if (p.get('query') && queries.includes(p.get('query'))) qSel.value = p.get('query');
 
     // No Run button: run for the current selection now, and on every change.
