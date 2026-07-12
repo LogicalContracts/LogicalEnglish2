@@ -7,6 +7,7 @@ The Logical English (LE) web application is a simple IDE designed for developing
 - [How to use the Logical English 2 web application](#how-to-use-the-logical-english-2-web-application)
   - [Contents](#contents)
   - [Getting Started](#getting-started)
+  - [Executive Mode (run a program without editing)](#executive-mode-run-a-program-without-editing)
   - [File Operations](#file-operations)
     - [Opening and Saving](#opening-and-saving)
     - [Saving via URL (Quick Save)](#saving-via-url-quick-save)
@@ -36,6 +37,30 @@ The Logical English (LE) web application is a simple IDE designed for developing
     *   **Top:** Header with filename and module information.
     *   **Middle:** Monaco-based code editor with syntax highlighting and error reporting.
     *   **Bottom:** Multi-tab panel for Queries, Graphs, and the LE Assistant.
+
+## Executive Mode (run a program without editing)
+
+For people who just want to **use** an existing program — ask questions of it and
+try different scenarios — rather than write or edit rules, there is a minimalist,
+mobile-friendly entry point at **`/executive`** (e.g.
+`http://localhost:3050/executive`).
+
+- **Choose a program.** Opening `/executive` with no parameters shows a filterable
+  list of the available example programs; tap one to open it.
+- **Pick a scenario and a question.** The program screen has just two dropdowns —
+  **Scenario** (the named scenarios in the program, or *(no scenario)*) and
+  **Question** (the program's queries). There is no "run" button: the query runs
+  automatically whenever you change either dropdown, and the answers appear below.
+- **See why.** Each answer is a card; tap it to expand its explanation as an
+  indented tree (green ✓ for what held, with any assumed *unknowns* noted).
+- **Explore variations.** A **Scenario Variations** button between the two
+  dropdowns opens the full [Scenario Variations](#scenario-variations) window on
+  the same program, for altering facts and comparing outcomes.
+
+Everything is driven by the URL, so results are shareable and bookmarkable:
+`/executive?program=<name>`, optionally with `&scenario=<name>` and
+`&query=<name>`. A link that names all three runs the query immediately on load.
+The view is read-only — it never edits the program.
 
 ## File Operations
 
