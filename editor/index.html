@@ -123,6 +123,12 @@
             cursor: pointer;
             white-space: nowrap;
         }
+        /* Anchor menu items (e.g. Help links) inherit the menu look, not link styling. */
+        a.dropdown-item {
+            display: block;
+            color: inherit;
+            text-decoration: none;
+        }
         .dropdown-item:hover {
             background-color: #094771;
             color: white;
@@ -698,6 +704,15 @@
                 <div class="dropdown-divider"></div>
                 <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">EXPLANATIONS</div>
                 <div class="dropdown-item" id="menu-explanations">Preferences...</div>
+            </div>
+        </div>
+        <div class="menu-item">
+            Help
+            <div class="dropdown">
+                <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">DOCUMENTATION</div>
+                <a class="dropdown-item" href="/docs/tutorial0/IntroToLE2" target="_blank" rel="noopener" title="A hands-on tutorial: write, query and debug three small LE programs.">Introduction to Logical English (tutorial)</a>
+                <a class="dropdown-item" href="/docs/howToUse" target="_blank" rel="noopener" title="The editor manual: files, queries, scenario/query editors, explanations.">Using this editor (manual)</a>
+                <a class="dropdown-item" href="/docs/le_summary" target="_blank" rel="noopener" title="The language reference: every LE construct.">Logical English syntax (reference)</a>
             </div>
         </div>
         <input type="file" id="file-input" accept=".le" style="display: none;">

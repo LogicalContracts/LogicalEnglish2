@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logical English — Documentation</title>
+<script src="/web_extras/docsview/marked.min.js"></script>
+<style>
+:root {
+    --bg: #ffffff; --ink: #1c2430; --muted: #5b6674; --accent: #0e639c;
+    --border: #e2e6ea; --code-bg: #f5f6f8; --code-ink: #2a2f36;
+}
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #14181d; --ink: #dbe2ea; --muted: #97a3b0; --accent: #6db3ff;
+        --border: #2a323b; --code-bg: #1c2229; --code-ink: #d6e0ea;
+    }
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+header.docbar {
+    position: sticky; top: 0; z-index: 5;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 10px 24px; display: flex; align-items: center; gap: 16px;
+}
+header.docbar a { color: var(--accent); text-decoration: none; font-size: 14px; }
+header.docbar .spacer { flex: 1; }
+main { max-width: 860px; margin: 0 auto; padding: 24px 24px 64px; }
+main img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; }
+main h1, main h2, main h3 { line-height: 1.25; }
+main h1 { font-size: 30px; margin-top: 0; }
+main h2 { font-size: 23px; margin-top: 2em; border-bottom: 1px solid var(--border); padding-bottom: .2em; }
+main h3 { font-size: 19px; margin-top: 1.6em; }
+main a { color: var(--accent); }
+main code {
+    background: var(--code-bg); color: var(--code-ink);
+    padding: .12em .4em; border-radius: 4px;
+    font: 0.88em ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+main pre {
+    background: var(--code-bg); color: var(--code-ink);
+    padding: 14px 16px; border-radius: 8px; overflow-x: auto;
+}
+main pre code { background: none; padding: 0; }
+main blockquote {
+    margin: 1em 0; padding: .4em 1em; border-left: 3px solid var(--accent);
+    color: var(--muted); background: var(--code-bg); border-radius: 0 6px 6px 0;
+}
+main table { border-collapse: collapse; margin: 1em 0; display: block; overflow-x: auto; }
+main th, main td { border: 1px solid var(--border); padding: 6px 12px; text-align: left; }
+main th { background: var(--code-bg); }
+main hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+#status { color: var(--muted); padding: 24px; }
+</style>
+</head>
+<body>
+<header class="docbar">
+    <a href="/">&larr; Logical English</a>
+    <a href="/editor/index.html">Editor</a>
+    <span class="spacer"></span>
+    <a id="source-link" href="#" target="_blank" rel="noopener">View source on GitHub ↗</a>
+</header>
+<main id="content"><p id="status">Loading documentation…</p></main>
+<script>
+(async function () {
+    // The rendered doc lives at this page's own URL; the raw Markdown is the
+    // same path + ".md". Relative images therefore resolve correctly against
+    // the page URL (e.g. /docs/tutorial0/IntroToLE2 -> its screenshots at
+    // /docs/tutorial0/<img>.png), served by the same /docs route.
+    const path = location.pathname.replace(/\/+$/, '');
+    const mdUrl = path + '.md';
+    const gh = 'https://github.com/LogicalContracts/LogicalEnglish2/blob/main'
+             + path.replace(/^\/docs/, '/docs') + '.md';
+    document.getElementById('source-link').href = gh;
+
+    try {
+        const resp = await fetch(mdUrl);
+        if (!resp.ok) throw new Error(resp.status + ' ' + resp.statusText);
+        const md = await resp.text();
+        const title = (md.match(/^#\s+(.+)$/m) || [])[1];
+        if (title) document.title = title + ' — Logical English';
+        marked.setOptions({ gfm: true, breaks: false });
+        document.getElementById('content').innerHTML = marked.parse(md);
+    } catch (e) {
+        document.getElementById('content').innerHTML =
+            '<p id="status">Could not load this document (' + e.message + '). '
+            + 'You can read it <a href="' + gh + '">on GitHub</a>.</p>';
+    }
+})();
+</script>
+</body>
+</html>
