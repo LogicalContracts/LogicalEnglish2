@@ -480,7 +480,9 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
         file_name_extension(Base, le, F),
         atom_concat(Prefix, Base, ExPath),
         directory_file_path(Dir, F, Path),
-        ( catch(le_kbs:load(Path, KB), _, fail) ->
+        % skip_tests: the listing only needs each KB loaded for its summary;
+        % running the KBs' embedded tests here would take tens of seconds.
+        ( catch(le_kbs:load(Path, KB, [skip_tests]), _, fail) ->
             le_kbs:kbSummary(KB, Summary)
         ; Summary = "Failed to load summary"
         )

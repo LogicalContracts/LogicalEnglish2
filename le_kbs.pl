@@ -5,7 +5,7 @@
     about loaded KBs. It acts as the main interface for managing LE programs.
 */
 
-:- module(le_kbs, [load/2, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
+:- module(le_kbs, [load/2, load/3, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
@@ -24,7 +24,7 @@
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
 :- use_module(reasoner).
-:- use_module(le_verifier, [verify/2, find_in_body/2]).
+:- use_module(le_verifier, [verify/2, verify/3, find_in_body/2]).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -160,20 +160,28 @@ edit(LEfilePath) :-
 %
 %   Loads a Logical English file from FilePath into a new generated Module.
 load(FilePath, NewModule) :-
-    (   var(NewModule) ->  
+    load(FilePath, NewModule, []).
+
+%!  load(+FilePath:atom, -Module:atom, +Options:list) is det.
+%
+%   As load/2. With Option skip_tests, verification does not run the KB's
+%   embedded expected-answer tests (see le_verifier:verify/3) — for callers
+%   like the example listings, which only need the KB loaded, not tested.
+load(FilePath, NewModule, Options) :-
+    (   var(NewModule) ->
         time_file(FilePath, Time),
         variant_sha1([FilePath, Time], Hash),
         atom_concat(m, Hash, NewModule)
     ;   true
     ),
-    with_mutex(NewModule, load_sync(NewModule, FilePath)).
+    with_mutex(NewModule, load_sync(NewModule, FilePath, Options)).
 
-load_sync(NewModule, FilePath) :-
+load_sync(NewModule, FilePath, Options) :-
     absolute_file_name(FilePath, Abs),
     file_directory_name(Abs, Dir),
     setup_call_cleanup(
         ( retractall(le_include_base(_)), assertz(le_include_base(Dir)) ),
-        load_common_sync(NewModule, parse_le_file(FilePath, doc(Sections), NewModule), Sections, "parse_le_file failed for ~w" - [FilePath]),
+        load_common_sync(NewModule, parse_le_file(FilePath, doc(Sections), NewModule), Sections, "parse_le_file failed for ~w" - [FilePath], Options),
         retractall(le_include_base(_))).
 
 %!  load_text(+Text:string, -Module:atom) is det.
@@ -202,15 +210,21 @@ load_text(Text, Base, NewModule) :-
     ).
 
 load_text_sync(NewModule, Text) :-
-    load_common_sync(NewModule, parse_le_text(Text, doc(Sections), NewModule), Sections, "Parsing failed. Check for malformed sections or characters.").
+    load_common_sync(NewModule, parse_le_text(Text, doc(Sections), NewModule), Sections, "Parsing failed. Check for malformed sections or characters.", []).
 
-load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg) :-
+load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
     (   current_module(NewModule),
         current_predicate(NewModule:le_source_info/4),
         % Already built and error-free: reuse it. (Checking for the *clause* — not
         % just the predicate, which is always declared dynamic — so a clean KB is
         % actually cached instead of being reparsed and re-verified every load.)
-        \+ ( current_predicate(NewModule:le_issue/6), NewModule:le_issue(error, _, _, _, _, _) )
+        \+ ( current_predicate(NewModule:le_issue/6), NewModule:le_issue(error, _, _, _, _, _) ),
+        % A module verified with skip_tests lacks failed_test issues, so it only
+        % satisfies loads that also skip them; a full load rebuilds it.
+        (   memberchk(skip_tests, Options)
+        ->  true
+        ;   \+ current_predicate(NewModule:le_tests_skipped/0)
+        )
     ->  true
     ;   % Ensure we start with a clean module
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
@@ -228,7 +242,12 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg) :-
             forall(member(S, Sections), process_section(S, NewModule)),
             findall(D, le_system_template(D), SysDicts),
             forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
-            (   catch(le_verifier:verify(NewModule, Issues), EV, (print_message(error, EV), Issues = [])) -> 
+            (   memberchk(skip_tests, Options)
+            ->  VerifyOptions = [skip_tests],
+                assertz(NewModule:le_tests_skipped)
+            ;   VerifyOptions = []
+            ),
+            (   catch(le_verifier:verify(NewModule, VerifyOptions, Issues), EV, (print_message(error, EV), Issues = [])) ->
                 forall(member(issue(Type, Desc, Fix, Start, End), Issues), (
                     (Type == missing_template -> Severity = error; Severity = warning),
                     assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
