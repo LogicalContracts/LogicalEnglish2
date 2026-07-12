@@ -570,7 +570,11 @@ handle_explain(Dict, Response) :-
 % subpath), so relative include resources resolve against the example's own
 % location. Absent/unknown source keeps the default (cwd) base.
 load_base_of(Dict, Base) :-
-    (   get_dict(source, Dict, Src), Src \== "", Src \== null,
+    (   get_dict(base, Dict, B), B \== "", B \== null,
+        atom_string(BA, B),
+        ( sub_atom(BA, 0, _, _, 'http://') ; sub_atom(BA, 0, _, _, 'https://') )
+    ->  Base = BA                       % document fetched from a URL: its base URL
+    ;   get_dict(source, Dict, Src), Src \== "", Src \== null,
         atom_string(SrcA, Src),
         le_examples_dir(Dir),
         atomic_list_concat([Dir, '/', SrcA], Full),

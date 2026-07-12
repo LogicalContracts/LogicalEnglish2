@@ -651,6 +651,7 @@
             File
             <div class="dropdown">
                 <div class="dropdown-item" id="menu-new">New</div>
+                <div class="dropdown-item" id="menu-new-from-url">New from URL...</div>
                 <div class="dropdown-item" id="menu-open">Open...</div>
                 <div class="dropdown-item" id="menu-open-server">Open copy from server...</div>
                 <div class="dropdown-divider"></div>
@@ -847,6 +848,29 @@
     </div>
 
     <!-- Modal for API Keys & Assistant Settings -->
+    <!-- Modal for New from URL -->
+    <div id="new-from-url-modal" class="modal-overlay">
+        <div class="modal-content" style="width: 480px;">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 16px;">New from URL</h3>
+                <span id="new-from-url-close" style="cursor: pointer; font-size: 20px;">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="control-group" style="flex-direction: column; align-items: flex-start;">
+                    <label for="new-from-url-input">URL of a Logical English program:</label>
+                    <input type="url" id="new-from-url-input" placeholder="https://example.com/program.le"
+                        style="width: 100%; background: var(--input-bg); color: var(--input-text); border: 1px solid var(--input-border); padding: 6px; border-radius: 3px;">
+                </div>
+                <p style="font-size: 11px; color: #888; margin: 0;">The document is fetched and loaded into the editor. Its <code>includes these resources:</code> with relative paths resolve against the URL's location.</p>
+                <p id="new-from-url-error" class="error" style="font-size: 12px; color: #e06c75; margin: 0; display: none;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="new-from-url-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
+                <button id="new-from-url-load" style="background: #0e639c; color: #fff; border: none; border-radius: 3px; padding: 5px 15px; cursor: pointer;">Load</button>
+            </div>
+        </div>
+    </div>
+
     <div id="api-keys-modal" class="modal-overlay">
         <div class="modal-content" style="width: 450px;">
             <div class="modal-header">

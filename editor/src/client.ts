@@ -145,6 +145,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         let currentFileName = initialFilename;
         let fileHandle: any = null;
+        // When the current document was fetched from a URL, its directory — sent
+        // to the server so the program's relative `includes these resources:`
+        // resolve against the URL's location. Cleared on New/Open (local files).
+        let currentBaseUrl: string | null = null;
         const filenameDisplay = document.getElementById('filename-display');
         if (filenameDisplay) {
             filenameDisplay.textContent = currentFileName;
@@ -421,9 +425,72 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         editor.setValue('');
         currentFileName = 'document.le';
         fileHandle = null;
+        currentBaseUrl = null;
         updateSaveMenu();
         if (filenameDisplay) filenameDisplay.textContent = currentFileName;
         isDirty = false;
+    });
+
+    // New from URL: fetch an LE program from a URL and load it into the editor.
+    const urlModal = document.getElementById('new-from-url-modal');
+    const urlInput = document.getElementById('new-from-url-input') as HTMLInputElement;
+    const urlError = document.getElementById('new-from-url-error');
+    const urlLoadBtn = document.getElementById('new-from-url-load') as HTMLButtonElement;
+
+    const closeUrlModal = () => { if (urlModal) urlModal.style.display = 'none'; };
+    const showUrlError = (msg: string) => {
+        if (urlError) { urlError.textContent = msg; urlError.style.display = 'block'; }
+    };
+
+    document.getElementById('menu-new-from-url')?.addEventListener('click', () => {
+        if (isDirty && !confirm('You have unsaved changes. Load from URL anyway?')) return;
+        if (urlError) urlError.style.display = 'none';
+        if (urlModal) urlModal.style.display = 'flex';
+        urlInput?.focus();
+        urlInput?.select();
+    });
+    document.getElementById('new-from-url-close')?.addEventListener('click', closeUrlModal);
+    document.getElementById('new-from-url-cancel')?.addEventListener('click', closeUrlModal);
+
+    const loadFromUrl = async () => {
+        const raw = (urlInput?.value || '').trim();
+        if (!raw) { showUrlError('Please enter a URL.'); return; }
+        let url: URL;
+        try { url = new URL(raw); }
+        catch { showUrlError('That is not a valid URL.'); return; }
+
+        const prevLabel = urlLoadBtn.textContent;
+        urlLoadBtn.disabled = true;
+        urlLoadBtn.textContent = 'Loading…';
+        if (urlError) urlError.style.display = 'none';
+        try {
+            const resp = await fetch(raw, { redirect: 'follow' });
+            if (!resp.ok) throw new Error(`server returned ${resp.status} ${resp.statusText}`);
+            const content = await resp.text();
+
+            editor.setValue(content);
+            // Filename from the URL's last path segment (default document.le).
+            const seg = url.pathname.split('/').filter(Boolean).pop() || 'document.le';
+            currentFileName = /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + '.le';
+            fileHandle = null;                 // remote: no local write-back handle
+            // Base = the URL up to its last '/', so relative includes resolve.
+            currentBaseUrl = raw.slice(0, raw.length - url.pathname.split('/').pop()!.length);
+            if (filenameDisplay) filenameDisplay.textContent = currentFileName;
+            isDirty = false;
+            updateSaveMenu();
+            closeUrlModal();
+        } catch (err: any) {
+            showUrlError(
+                `Could not fetch the URL: ${err.message}. ` +
+                `If it is on another site, that site must allow cross-origin requests (CORS).`);
+        } finally {
+            urlLoadBtn.disabled = false;
+            urlLoadBtn.textContent = prevLabel;
+        }
+    };
+    urlLoadBtn?.addEventListener('click', loadFromUrl);
+    urlInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); loadFromUrl(); }
     });
 
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
@@ -444,6 +511,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 
                 fileHandle = handle;
                 currentFileName = file.name;
+                currentBaseUrl = null;
                 if (filenameDisplay) filenameDisplay.textContent = currentFileName;
                 editor.setValue(content);
                 isDirty = false;
@@ -463,6 +531,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (!file) return;
         currentFileName = file.name;
         fileHandle = null; // Traditional input doesn't give us a handle we can write back to
+        currentBaseUrl = null;
         updateSaveMenu();
         if (filenameDisplay) filenameDisplay.textContent = currentFileName;
         const reader = new FileReader();
@@ -1310,7 +1379,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     le: editor.getValue(),
                     // The example this text came from, so the server resolves
                     // relative include resources against the example's folder.
-                    source: new URLSearchParams(window.location.search).get('example') || ''
+                    source: new URLSearchParams(window.location.search).get('example') || '',
+                    // If the document was fetched from a URL, its base URL, so
+                    // relative includes resolve against the remote location.
+                    base: currentBaseUrl || ''
                 })
             });
             const res = await response.json();
