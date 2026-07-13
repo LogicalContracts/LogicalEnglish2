@@ -2048,11 +2048,6 @@ Remove link to Editor, and add links to Scenario Variations and Query Editor, ma
 Put "Scenario Variations" between scenario picker and question picker. Remove "Query" button, queries should auto-run when scenario or query 
 
 ## TBD
-the example-listing endpoint reloads the
-  error-carrying insurance examples on every call (they never cache), so it takes 41s regardless, exceeding the test's 30s HTTP limit.
-
-Mobile UI... query and scenario oriented
-    pick subset of examples... or straight URL: /executive?program=xxx
 
 Mermaid diagrams?
 Debug source graph

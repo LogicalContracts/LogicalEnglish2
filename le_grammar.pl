@@ -1329,13 +1329,16 @@ second_pass_section(_, _, S, S). % Keep other sections as is
 is_section_marker(section_marker(_, _, _)).
 
 second_pass_ontology_item_with_module(Templates, M, Item, NewItem) :-
-    second_pass_ontology_item(Templates, Item, NewItem, M).
+    second_pass_ontology_item(Templates, Item, NewItem, M),
+    check_stray_asterisks(Item, NewItem, M).
 
 second_pass_scenario_item_with_module(Templates, M, Item, NewItem) :-
-    second_pass_scenario_item(Templates, Item, NewItem, M).
+    second_pass_scenario_item(Templates, Item, NewItem, M),
+    check_stray_asterisks(Item, NewItem, M).
 
 second_pass_query_item_with_module(Templates, M, Item, NewItem) :-
-    second_pass_query_item(Templates, Item, NewItem, M).
+    second_pass_query_item(Templates, Item, NewItem, M),
+    check_stray_asterisks(Item, NewItem, M).
 
 second_pass_content(Items, Templates, NewItems, M) :-
     ( le_kbs:do_log -> length(Items, L), print_message(informational,'Second pass content: ~w items~n' - [L]); true),
@@ -1344,6 +1347,55 @@ second_pass_content(Items, Templates, NewItems, M) :-
 second_pass_item_with_module(Templates, M, Item, NewItem) :-
     ( second_pass_item_extension(Templates, Item, NewItem, M) -> true
     ; second_pass_item(Templates, Item, NewItem, M)
+    ),
+    check_stray_asterisks(Item, NewItem, M).
+
+%!  check_stray_asterisks(+Item, +NewItem, +M) is det.
+%
+%   Outside the templates sections, '*' is only valid as multiplication inside an
+%   arithmetic expression. A '*' anywhere else (e.g. the typo "a claim*") is
+%   silently swallowed into a variable name, detaching the variable from its
+%   other occurrences ("the claim" no longer refers to it) and corrupting its
+%   type — so flag it as a syntax error. Detection: count the '*' tokens in the
+%   source Item and the '*'/2 (multiplication) subterms in the compiled NewItem;
+%   any excess token is stray. Located at the first '*' token when none were
+%   multiplications, otherwise at the last one (a stray '*' typically trails the
+%   sentence, while multiplications sit mid-expression).
+check_stray_asterisks(Item, NewItem, M) :-
+    (   nonvar(M), M \== (-),
+        asterisk_token_locs(Item, Locs),
+        Locs \== [],
+        mult_use_count(NewItem, NMult),
+        length(Locs, NTok),
+        NTok > NMult
+    ->  ( NMult =:= 0 -> Locs = [loc(S, E)|_] ; last(Locs, loc(S, E)) ),
+        Desc = "Stray '*': outside the templates section, '*' is only valid as multiplication inside an arithmetic expression.",
+        assertz(M:le_issue(error, stray_asterisk, Desc, "Remove the '*'.", S, E))
+    ;   true
+    ).
+
+% All source locations of '*' punctuation tokens anywhere in Term, in textual order.
+asterisk_token_locs(Term, Locs) :-
+    findall(loc(S, E), asterisk_token_loc(Term, S, E), Locs).
+
+asterisk_token_loc(Term, S, E) :-
+    compound(Term),
+    (   (Term = punctuation('*', loc(S, E)) ; Term = punct('*', loc(S, E)))
+    ->  true
+    ;   arg(_, Term, Arg),
+        asterisk_token_loc(Arg, S, E)
+    ).
+
+% Number of multiplication ('*'/2) subterms in the compiled item.
+mult_use_count(Term, N) :-
+    findall(x, mult_subterm(Term), Xs),
+    length(Xs, N).
+
+mult_subterm(Term) :-
+    compound(Term),
+    (   functor(Term, '*', 2)
+    ;   arg(_, Term, Arg),
+        mult_subterm(Arg)
     ).
 
 second_pass_item(Templates, rule(Head, only_if(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
