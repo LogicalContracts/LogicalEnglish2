@@ -995,8 +995,21 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             )
     ).
 
-postprocess_why(repeated_group(N, Why), SM, repeated_group(N, WhyOut)) :- !,
-    postprocess_why(Why, SM, WhyOut).
+postprocess_why(repeated_group(N, Why), SM, Out) :- !,
+    postprocess_why(Why, SM, WhyOut),
+    ( WhyOut == omitted -> Out = omitted ; Out = repeated_group(N, WhyOut) ).
+% A successful type guard (le_type_check, rendered "X is a Y") is kept in the
+% explanation only when it actually says something: the type membership is
+% derivable from is_a facts, or the user explicitly assumed it. The guard is
+% lenient — it also succeeds when nothing at all is known about X's type — and
+% in that case reporting "X is a Y" as true would be unfounded, so the node is
+% omitted (the parent drops it via postprocess_why_children/3).
+postprocess_why(success(Goal0, _Ref, _Children), SM, omitted) :-
+    ( Goal0 = le_at(G, _, _) -> true ; G = Goal0 ),
+    G = le_type_check(Arg, Type),
+    \+ is_session_assumption(SM, G),
+    \+ type_check_founded(SM, Arg, Type),
+    !.
 postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, ChildrenOut)) :- !,
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
@@ -1011,7 +1024,7 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     -> ( Range0 = range(RS, RE) -> Range = unknown(RS, RE) ; Range = unknown )
     ;  Range = Range0
     ),
-    maplist(postprocess_why_child(SM), Children, ChildrenOut).
+    postprocess_why_children(SM, Children, ChildrenOut).
 postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref), Range, LE, ChildrenOut)) :- !,
     % An intermediate "failed rule" node (detailed failure explanations): label it
     % with the rule's head and point its range at the whole rule for navigation.
@@ -1024,18 +1037,33 @@ postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref), Range
     ; rule_head_text(Ref, SM, KB, HeadStr) -> format(atom(LE), 'rule: ~w', [HeadStr])
     ; RuleID \== '' -> format(atom(LE), 'rule ~w', [RuleID])
     ; LE = "failed rule" ),
-    maplist(postprocess_why_child(SM), Children, ChildrenOut).
+    postprocess_why_children(SM, Children, ChildrenOut).
 postprocess_why(failure(Goal0, Children), SM, failure(Goal, Range, LE, ChildrenOut)) :- !,
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( Goal0 = le_at(Goal, Start, End) -> Range = range(Start, End)
     ; Goal = Goal0, ( find_first_range(Goal, SM, KB, Range) -> true ; Range = none )
     ),
     ( (KB \== none, item_to_instance_ranged(KB, Goal, Range, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
-    maplist(postprocess_why_child(SM), Children, ChildrenOut).
+    postprocess_why_children(SM, Children, ChildrenOut).
 postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
-    maplist(postprocess_why_child(SM), Whys, WhysOut).
+    postprocess_why_children(SM, Whys, WhysOut).
 postprocess_why(Other, _, Other).
+
+% Postprocess a sibling list, dropping the nodes postprocessing omitted.
+postprocess_why_children(SM, Children, ChildrenOut) :-
+    maplist(postprocess_why_child(SM), Children, ChildrenOut0),
+    exclude(==(omitted), ChildrenOut0, ChildrenOut).
+
+%!  type_check_founded(+SM, +Arg, +Type) is semidet.
+%
+%   The type membership tested by a le_type_check guard is actually derivable:
+%   Arg is bound and is_a facts (in the session or its KB module) establish that
+%   it is of Type.
+type_check_founded(SM, Arg, Type) :-
+    nonvar(Arg),
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    catch(reasoner:type_compatible(Arg, Type, SM, KB), _, fail).
 
 % A user-given rule name (from "rule <name>:"), as opposed to an auto-generated
 % 'rule_<pos>' id.
