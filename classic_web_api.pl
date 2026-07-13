@@ -199,7 +199,8 @@ handle_graph(Dict, Response) :-
 % --- Landing Page ---
 
 handle_landing_page(Request) :-
-    http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)])]),
+    http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)]),
+                              dir(DirParam0, [optional(true), default('')])]),
     (   http_in_session(_SessionId),
         http_session_data(user(Email, Roles))
     ->  UserEmail = Email, UserRoles = Roles
@@ -214,7 +215,24 @@ handle_landing_page(Request) :-
     ->  AuthLink = a(href('/login'), '[Login]')
     ;   AuthLink = a(href('/logout'), '[Logout]')
     ),
-    le_examples_dir(Dir), landing_example_items(Dir, UserRoles, ExampleItems),
+    le_examples_dir(Dir),
+    % ?dir=<subdir> focuses the example list on one example subdirectory (e.g.
+    % /?dir=abduction, /?dir=insureLE2/testing) — for sharable links into a
+    % group of examples. An unknown (or access-restricted) directory falls back
+    % to the full list with a note; restricted directories are reported exactly
+    % like missing ones, so the parameter cannot probe their existence.
+    normalize_dir_param(DirParam0, DirParam),
+    (   DirParam == '' ->
+        landing_example_items(Dir, UserRoles, ExampleItems),
+        FocusNote = ''
+    ;   safe_example_subdir(DirParam, Dir, SubDirPath, UserRoles) ->
+        atom_concat(DirParam, '/', Prefix),
+        landing_example_items(SubDirPath, Prefix, UserRoles, ExampleItems),
+        FocusNote = span([' showing ', b([DirParam, '/']), ' ', a(href('/'), '[show all]')])
+    ;   landing_example_items(Dir, UserRoles, ExampleItems),
+        format(atom(NotFoundMsg), ' Example directory \'~w\' not found.', [DirParam]),
+        FocusNote = span(style('color: red;'), NotFoundMsg)
+    ),
     build_info(BuildInfo),
     landing_folders_script(FolderScript),
     reply_html_page(
@@ -243,6 +261,7 @@ handle_landing_page(Request) :-
                         a([href('#'), id('le-collapse-all')], 'collapse all'),
                         ')'
                     ]),
+                    FocusNote,
                     ul(ExampleItems)
                 ]),
                 li([
@@ -393,6 +412,33 @@ landing_folders_script('(function(){
   if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
   else { init(); }
 })();').
+
+%!  normalize_dir_param(+DirParam0:atom, -DirParam:atom) is det.
+%
+%   Strips any trailing '/'s from the landing page's ?dir= value, so
+%   ?dir=abduction/ and ?dir=abduction are equivalent.
+normalize_dir_param(D0, D) :-
+    (   sub_atom(D0, Prefix, 1, 0, '/'), Prefix > 0
+    ->  sub_atom(D0, 0, Prefix, 1, D1),
+        normalize_dir_param(D1, D)
+    ;   D0 == '/' -> D = ''
+    ;   D = D0
+    ).
+
+%!  safe_example_subdir(+DirParam:atom, +BaseDir:atom, -SubDirPath:atom, +UserRoles:list) is semidet.
+%
+%   DirParam names an existing, access-allowed subdirectory of the examples
+%   BaseDir. Only plain relative paths are accepted: every '/'-separated
+%   component must be non-empty and not start with '.' — which rejects
+%   absolute paths and the '.'/'..' components that could escape BaseDir, and
+%   keeps hidden directories unaddressable.
+safe_example_subdir(DirParam, BaseDir, SubDirPath, UserRoles) :-
+    atomic_list_concat(Parts, '/', DirParam),
+    Parts \== [],
+    forall(member(P, Parts), (P \== '', \+ sub_atom(P, 0, 1, _, '.'))),
+    directory_file_path(BaseDir, DirParam, SubDirPath),
+    exists_directory(SubDirPath),
+    is_path_allowed(SubDirPath, UserRoles).
 
 %!  landing_example_items(+Dir:atom, +UserRoles:list, -Items:list) is det.
 %

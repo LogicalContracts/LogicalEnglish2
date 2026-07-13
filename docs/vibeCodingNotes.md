@@ -2047,6 +2047,11 @@ Remove link to Editor, and add links to Scenario Variations and Query Editor, ma
   
 Put "Scenario Variations" between scenario picker and question picker. Remove "Query" button, queries should auto-run when scenario or query 
 
+## Abduction examples
+Slides 24 and 25 of '/.../Downloads/PEG Lisbon 2026.pdf' show two ideas for examples of abductive reasoning. Please read the
+whole presentation, then turn them into working LE examples at examples/moreExamples/abduction , and after that try to come up with
+a more complex (third) example. Although LE has no integrity constraints, it does have unknowns...
+
 ## TBD
 
 Mermaid diagrams?

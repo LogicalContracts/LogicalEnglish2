@@ -1,0 +1,41 @@
+% Origin: Kowalski & Calejo, "Teaching Logical Thinking through Logic
+% Programming using Logical English, Argumentation Games and Animation",
+% PEG Lisbon 2026, slide 24: "Abduction can be used to explain observations."
+%
+% The observation "the grass is wet" is the query/goal. The two candidate
+% causes are open (abducible) predicates, declared "; assumable": since they
+% cannot be proved, each is ASSUMED in order to make the goal true, and is
+% returned as an unknown. So the query yields two alternative explanations,
+% one per answer:
+%     the grass is wet, assuming: it rained.
+%     the grass is wet, assuming: the sprinkler was on.
+% Read each answer together with its unknowns as a conditional answer
+% (slide 26): "the grass is wet IF it rained".
+%
+% Verification carries two inherent "rule without variables" warnings: the
+% slide's beliefs are genuinely propositional, so these are expected.
+
+the target language is: prolog.
+
+the templates are:
+    the grass is wet.
+    it rained; assumable.
+    the sprinkler was on; assumable.
+
+the knowledge base wet grass includes:
+
+the grass is wet if it rained.
+
+the grass is wet if the sprinkler was on.
+
+scenario observation is:
+    explain expects answers [
+        "the grass is wet",
+        "the grass is wet"
+    ] and unknowns [
+        "it rained",
+        "the sprinkler was on"
+    ].
+
+query explain is:
+    the grass is wet.
