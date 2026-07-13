@@ -32,6 +32,13 @@ The Logical English (LE) web application is a simple IDE designed for developing
 
 ## Getting Started
 
+The landing page (`/`) lists all the example programs, grouped in collapsible
+folders. Its URL takes two optional parameters, handy for sharable links:
+*   `?dir=<subdirectory>` focuses the list on one example subdirectory (e.g.
+    `/?dir=abduction`, or nested, `/?dir=insureLE2/testing`), with a
+    "[show all]" link back to the full list.
+*   `?expand=all` opens all the folders.
+
 1.  **Open the Editor:** Navigate to the editor URL (e.g., `http://localhost:3050/editor/`).
 2.  **The Interface:**
     *   **Top:** Header with filename and module information.

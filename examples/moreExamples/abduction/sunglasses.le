@@ -1,0 +1,33 @@
+% Origin: Kowalski & Calejo, "Teaching Logical Thinking through Logic
+% Programming using Logical English, Argumentation Games and Animation",
+% PEG Lisbon 2026, slide 25: "Abduction can be used to generate plans to
+% achieve goals."
+%
+% The goal "alice likes you" is achieved by assuming the open (abducible)
+% action "you wears sunglasses" — abduction as planning: the unknowns of the
+% answer are the actions the plan requires. Read the answer with its unknowns
+% as a conditional answer (slide 26): "alice likes you IF you wears
+% sunglasses".
+
+the target language is: prolog.
+
+the templates are:
+    *a person* likes *a person*.
+    *a person* looks cool.
+    *a person* wears sunglasses; assumable.
+
+the knowledge base sunglasses includes:
+
+alice likes a person if the person looks cool.
+
+a person looks cool if the person wears sunglasses.
+
+scenario planning is:
+    plan expects answers [
+        "alice likes you"
+    ] and unknowns [
+        "you wears sunglasses"
+    ].
+
+query plan is:
+    alice likes you.

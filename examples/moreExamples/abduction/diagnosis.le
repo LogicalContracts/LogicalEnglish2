@@ -1,0 +1,90 @@
+% A more complex abduction example, combining the ideas of PEG Lisbon 2026
+% slides 24-26 and 28: differential diagnosis with several observations,
+% several candidate causes, and constraint-style elimination of candidates.
+%
+% The candidate diseases are open (abducible): "*a person* has *a disease*"
+% is declared "; assumable", so diseases are ASSUMED in order to explain the
+% observed symptoms, and each answer's unknowns are one candidate diagnosis.
+% The conjunctive observation "bob exhibits fever and bob exhibits rash" has
+% four abductive explanations — including the single-cause one, {measles},
+% which explains BOTH symptoms.
+%
+% Logical English has no integrity constraints, but the effect of slide 28's
+% passive constraint ("it is not the case that the sprinkler was on if the
+% sprinkler is broken") is obtained here with negation as failure over closed
+% (scenario) facts: the rules that blame measles are guarded by "it is not
+% the case that the person is immune to measles". In the checkup scenario
+% nothing establishes immunity, so the guard succeeds and measles stays a
+% candidate; in the vaccinated scenario the fact "bob is vaccinated against
+% measles" derives immunity, the guard fails, and every explanation that
+% assumes measles is eliminated — only {flu, food allergy} survives.
+% (Note that negation attacks ASSUMPTIONS too: since the diseases are
+% assumable, a guard such as "it is not the case that the person has measles"
+% would never succeed. The guard must test a CLOSED predicate, which is why
+% immunity is derived from the vaccination facts.)
+
+the target language is: prolog.
+
+the templates are:
+    *a person* exhibits *a symptom*.
+    *a person* has *a disease*; assumable.
+    *a person* is immune to *a disease*.
+    *a person* is vaccinated against *a disease*.
+
+the knowledge base diagnosis includes:
+
+a person exhibits fever if
+    the person has flu.
+
+a person exhibits fever if
+    the person has measles
+    and it is not the case that the person is immune to measles.
+
+a person exhibits rash if
+    the person has measles
+    and it is not the case that the person is immune to measles.
+
+a person exhibits rash if
+    the person has food allergy.
+
+a person is immune to a disease if
+    the person is vaccinated against the disease.
+
+scenario checkup is:
+    diagnose expects answers [
+        "bob exhibits fever and bob exhibits rash",
+        "bob exhibits fever and bob exhibits rash",
+        "bob exhibits fever and bob exhibits rash",
+        "bob exhibits fever and bob exhibits rash"
+    ] and unknowns [
+        "bob has flu",
+        "bob has measles",
+        "bob has food allergy"
+    ].
+    fever expects answers [
+        "bob exhibits fever",
+        "bob exhibits fever"
+    ] and unknowns [
+        "bob has flu",
+        "bob has measles"
+    ].
+
+scenario vaccinated is:
+    bob is vaccinated against measles.
+    diagnose expects answers [
+        "bob exhibits fever and bob exhibits rash"
+    ] and unknowns [
+        "bob has flu",
+        "bob has food allergy"
+    ].
+    fever expects answers [
+        "bob exhibits fever"
+    ] and unknowns [
+        "bob has flu"
+    ].
+
+query diagnose is:
+    bob exhibits fever and bob exhibits rash.
+
+query fever is:
+    bob exhibits fever.
