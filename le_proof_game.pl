@@ -69,22 +69,36 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             functor(Head, F, N),
             clause(KB:Head, true, Ref),
             KB:le_source_info(Ref, Start, End, ID),
-            \+ member(ID, [template, template_unknown, ontology, session_fact])
+            \+ member(ID, [template, template_unknown, ontology, session_fact]),
+            Kind = fact
         ;   SM \== none,
             current_predicate(SM:F/N),
             \+ le_kbs:is_system_predicate(F/N),
             functor(Head, F, N),
             clause(SM:Head, true, Ref),
-            SM:le_source_info(Ref, Start, End, session_fact)
+            SM:le_source_info(Ref, Start, End, session_fact),
+            Kind = fact
+        ;   % Abducible (assumable) predicates: each le_unknown clause — from an
+            % "; assumable" template or an "it is unknown whether ..." item — yields
+            % an ASSUMPTION card. It plays like a fact (its head unifies with a
+            % condition) but is marked so the game renders it as an assumption: it
+            % cannot be proved, only assumed (the basis of abductive answers).
+            member(M, [KB, SM]),
+            M \== none,
+            catch(current_predicate(M:le_unknown/1), _, fail),
+            clause(M:le_unknown(Head), _UnkBody, Ref),
+            M:le_source_info(Ref, Start, End, _AnyID),
+            Kind = assumption
         ),
-        next_game_node_id(SM, fact, NodeId),
+        next_game_node_id(SM, Kind, NodeId),
         game_var_ids(Head, VarIds),
         literal_to_game(KB, Head, VarIds, [], [], _Seen, FactLE, FactTokens),
         ( SM \== none ->
-            assertz(SM:game_node_term(NodeId, fact, term(Head, [], VarIds, [])))
+            assertz(SM:game_node_term(NodeId, Kind, term(Head, [], VarIds, [])))
         ; true ),
+        ( Kind == assumption -> Assumed = true ; Assumed = false ),
         FactDict = _{ id: NodeId, fact: FactLE, factTokens: FactTokens,
-                      start: Start, end: End }
+                      start: Start, end: End, assumed: Assumed }
     ), Facts),
     ( SM \== none ->
         game_var_ids(Query, QVarIds),

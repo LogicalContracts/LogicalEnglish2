@@ -116,13 +116,19 @@ class FactNode extends ClassicPreset.Node {
     public tokens: any[];
     public complete: boolean = false;
     public failing: boolean = false;
-    
-    constructor(public label: string, public color: string, templateId: string, tokens: any[], sourceLoc?: { start: number, end: number }) {
+    // An ASSUMPTION card (an abducible predicate declared "; assumable", or an
+    // "it is unknown whether ..." scenario item): plays like a fact — its head
+    // satisfies a matching condition — but is rendered distinctly, because it is
+    // not proved, only assumed (the basis of abductive answers).
+    public assumed: boolean = false;
+
+    constructor(public label: string, public color: string, templateId: string, tokens: any[], sourceLoc?: { start: number, end: number }, assumed: boolean = false) {
         super(label);
         this.type = 'fact';
         this.templateId = templateId;
         this.tokens = tokens;
         this.sourceLoc = sourceLoc;
+        this.assumed = assumed;
         this.addOutput('out', new ClassicPreset.Output(new ClassicPreset.Socket('socket')));
     }
     type: string;
@@ -453,9 +459,16 @@ function CustomNode(props: any) {
         const textColor = isAdultMode ? '#fff' : 'transparent';
         data.width = 220;
         data.height = 60;
-        
+
+        // An assumption card is fact-like but dashed amber: it is not a proved
+        // fact, it is ASSUMED (abduction) — the dashing signals the tentativeness.
+        const isAssumption = data.type === 'fact' && data.assumed;
+        const restBorder = isAssumption
+            ? '2px dashed #e2b93d'
+            : (isAdultMode ? '1px solid #444' : '2px solid transparent');
+
         return React.createElement('div', {
-            className: `le-node ${data.type}-node ${data.selected ? 'selected' : ''} ${data.clash ? 'clash' : ''} ${data.complete ? 'complete' : ''}`,
+            className: `le-node ${data.type}-node ${isAssumption ? 'assumption-node' : ''} ${data.selected ? 'selected' : ''} ${data.clash ? 'clash' : ''} ${data.complete ? 'complete' : ''}`,
             style: {
                 background: bgColor,
                 color: textColor,
@@ -464,12 +477,17 @@ function CustomNode(props: any) {
                 width: '200px',
                 textAlign: 'center',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
-                border: data.selected ? '2px solid #0e639c' : (data.clash ? '2px solid #f44336' : (data.complete ? '2px solid #2e7d32' : (isAdultMode ? '1px solid #444' : '2px solid transparent'))),
+                border: data.selected ? '2px solid #0e639c' : (data.clash ? '2px solid #f44336' : (data.complete ? '2px solid #2e7d32' : restBorder)),
                 position: 'relative'
             },
-            title: !isAdultMode ? labelText : ''
+            title: !isAdultMode
+                ? labelText
+                : (isAssumption ? 'Assumption: this cannot be proved — connecting it ASSUMES it is true' : '')
         },
             isAdultMode ? labelText : '',
+            isAssumption && isAdultMode && React.createElement('div', {
+                style: { fontSize: '10px', fontStyle: 'italic', color: '#e2b93d', marginTop: '2px' }
+            }, 'assumed'),
             data.type === 'fact' && React.createElement('div', {
                 style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
             }, React.createElement(RefSocket, {
@@ -1546,7 +1564,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     currentX = startX;
     if (gameData.facts) {
         for (const fact of gameData.facts) {
-            const factNode = new FactNode(fact.fact, '#4caf50', fact.id, fact.factTokens, { start: fact.start, end: fact.end });
+            const factNode = new FactNode(fact.fact, '#4caf50', fact.id, fact.factTokens, { start: fact.start, end: fact.end }, !!fact.assumed);
             await editor.addNode(factNode);
             await area.translate(factNode.id, { x: currentX, y: factY });
             currentX += 250;
@@ -1591,7 +1609,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     async function cloneNode(orig: any) {
         let clone: any = null;
         if (orig instanceof RuleNode) clone = new RuleNode(orig.rule, orig.sourceLoc);
-        else if (orig instanceof FactNode) clone = new FactNode(orig.label, orig.color, orig.templateId, orig.tokens, orig.sourceLoc);
+        else if (orig instanceof FactNode) clone = new FactNode(orig.label, orig.color, orig.templateId, orig.tokens, orig.sourceLoc, orig.assumed);
         if (!clone) return null;
         await editor.addNode(clone);
         const pos = area.nodeViews.get(orig.id)?.position || { x: 100, y: 100 };
@@ -1720,11 +1738,25 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 && (n as any).sourceLoc?.end === expNode.end);
         }
 
-        // Connect a positive (rule/fact) explanation node into a target input,
-        // then recurse into its body.
+        // An "unknown" explanation node is a goal that was ASSUMED (abduction).
+        // Its range points at the body condition it satisfied — not at any card —
+        // so match an unused ASSUMPTION card by text instead: the card's variable
+        // tokens act as wildcards, so a generic abducible ("a person owns a thing")
+        // matches the bound instance in the explanation ("john owns the beetle").
+        function matchAssumption(expNode: any): any {
+            const lit = String(expNode.literal || '').trim();
+            return nodes.find(n => {
+                if (usedNodes.has(n.id) || !(n instanceof FactNode) || !(n as any).assumed) return false;
+                const re = templateToRegex(getPredicateTemplate((n as any).tokens));
+                return re ? re.test(lit) : (n as any).label === lit;
+            });
+        }
+
+        // Connect a positive (rule/fact/assumption) explanation node into a target
+        // input, then recurse into its body.
         async function connectNode(expNode: any, targetNodeId: string, targetInputKey: string) {
             if (!expNode || !hasInput(targetNodeId, targetInputKey)) return;
-            const match = matchNode(expNode);
+            const match = expNode.type === 'unknown' ? matchAssumption(expNode) : matchNode(expNode);
             if (!match) return;
             usedNodes.add(match.id);
             await editor.addConnection(new ClassicPreset.Connection(
@@ -1926,6 +1958,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 updateUnification,
                 nodes: () => editor.getNodes().map((n: any) => ({
                     id: n.id, kind: n.constructor.name, label: n.label ?? '', complete: !!n.complete,
+                    assumed: !!n.assumed,
                 })),
                 connect: (sourceId: string, targetId: string, targetInput: string) =>
                     editor.addConnection(new ClassicPreset.Connection(
