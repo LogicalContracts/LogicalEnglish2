@@ -2052,6 +2052,10 @@ Slides 24 and 25 of '/.../Downloads/PEG Lisbon 2026.pdf' show two ideas for exam
 whole presentation, then turn them into working LE examples at examples/moreExamples/abduction , and after that try to come up with
 a more complex (third) example. Although LE has no integrity constraints, it does have unknowns...
 
+## Permission buglet
+If you try to open a restricted LE example (requiring user authentication), the editor opens silently an empty program. Instead there should be an error message and redirect to login page
+
+ 
 ## TBD
 
 Mermaid diagrams?

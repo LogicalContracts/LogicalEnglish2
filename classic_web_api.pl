@@ -521,11 +521,20 @@ handle_examples(Dict, Response) :-
     get_dict(file, Dict, FileName),
     le_examples_dir(Dir),
     atomic_list_concat([Dir, '/', FileName], Path0),
-    (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
+    (   http_in_session(_SessionId), http_session_data(user(_, Roles))
+    ->  UserRoles = Roles, LoggedIn = true
+    ;   UserRoles = [], LoggedIn = false
+    ),
     (   is_path_allowed(Path0, UserRoles)
     ->  ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),
         ( exists_file(Path) -> read_file_to_string(Path, Doc, []), Response = _{document: Doc}; Response = _{answer: "File not found", details: Path, document: ""})
-    ;   Response = _{error: "Access denied"}
+    ;   % A restricted example. Tell an anonymous user that logging in may grant
+        % access (loginRequired sends the editor to /login); a user who IS logged
+        % in simply lacks the required role, so a login redirect would only confuse.
+        (   LoggedIn == false
+        ->  Response = _{error: "Access denied: this example requires login", loginRequired: true}
+        ;   Response = _{error: "Access denied: your account does not have access to this example"}
+        )
     ).
 
 handle_list_examples(_Dict, Response) :-

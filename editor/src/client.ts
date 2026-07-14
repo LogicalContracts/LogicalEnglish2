@@ -116,6 +116,18 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const filenameParam = params.get('filename');
         const lineParam = params.get('line');
 
+        // A failed example fetch (restricted or missing) must not silently leave
+        // an empty editor: surface the server's message and, when the server says
+        // login is required (a restricted example, no user logged in), send the
+        // user to the login page — returning to this URL after they log in.
+        function reportExampleLoadError(data: any) {
+            alert(data?.error || data?.answer || 'Failed to load example from server.');
+            if (data?.loginRequired) {
+                window.location.href = '/login?return='
+                    + encodeURIComponent(window.location.pathname + window.location.search);
+            }
+        }
+
         if (textParam) {
             initialValue = textParam;
         } else if (exampleParam) {
@@ -130,7 +142,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     })
                 });
                 const data = await response.json();
-                if (data.document) {
+                if (data.error || data.answer) {
+                    reportExampleLoadError(data);
+                } else if (data.document) {
                     initialValue = data.document;
                     initialFilename = exampleParam + '.le';
                 }
@@ -703,6 +717,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 })
             });
             const data = await response.json();
+            if (data.error || data.answer) {
+                // Restricted (or missing) example: report it — and redirect to
+                // login when that could grant access — instead of doing nothing.
+                reportExampleLoadError(data);
+                return;
+            }
             if (data.document !== undefined) {
                 editor.setValue(data.document);
                 currentFileName = name + '.le';
