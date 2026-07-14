@@ -39048,6 +39048,12 @@ async function start() {
   const exampleParam = params.get("example");
   const filenameParam = params.get("filename");
   const lineParam = params.get("line");
+  function reportExampleLoadError(data4) {
+    alert(data4?.error || data4?.answer || "Failed to load example from server.");
+    if (data4?.loginRequired) {
+      window.location.href = "/login?return=" + encodeURIComponent(window.location.pathname + window.location.search);
+    }
+  }
   if (textParam) {
     initialValue = textParam;
   } else if (exampleParam) {
@@ -39062,7 +39068,9 @@ async function start() {
         })
       });
       const data4 = await response.json();
-      if (data4.document) {
+      if (data4.error || data4.answer) {
+        reportExampleLoadError(data4);
+      } else if (data4.document) {
         initialValue = data4.document;
         initialFilename = exampleParam + ".le";
       }
@@ -39595,6 +39603,10 @@ async function start() {
         })
       });
       const data4 = await response.json();
+      if (data4.error || data4.answer) {
+        reportExampleLoadError(data4);
+        return;
+      }
       if (data4.document !== void 0) {
         editor.setValue(data4.document);
         currentFileName = name + ".le";
