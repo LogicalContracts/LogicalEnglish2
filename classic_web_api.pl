@@ -1153,7 +1153,9 @@ handle_get_game_data(Dict, Response) :-
             % Up to 25 answers (findnsols's first batch; avoids enumerating a
             % pathologically large or non-terminating answer set).
             ( findnsols(25, ALE-AWhy,
-                  ( query(SM, AnswerQuery, TI, _, AWhy), le_kbs:canonical_string(TI, ALE) ),
+                  ( query(SM, AnswerQuery, TI, AUs, AWhy),
+                    le_kbs:canonical_string(TI, ALE0),
+                    answer_label_with_assumptions(KB, ALE0, AUs, ALE) ),
                   Pairs0)
               -> true ; Pairs0 = [] ),
             answers_dedup(Pairs0, Answers),
@@ -1186,6 +1188,17 @@ game_answer_query(SM, Dict, Query, AnswerQuery) :-
     ;   get_dict(query, Dict, QNameStr), atom_string(QName, QNameStr),
         AnswerQuery = QName
     ).
+
+% answer_label_with_assumptions(+KB, +AnswerLE, +Unknowns, -Label): an answer that
+% holds only by ASSUMING its unknowns (abduction) is labelled with them, e.g.
+% "the grass is wet, assuming it rained". Distinct abductive explanations of the
+% same answer would otherwise carry identical labels and collapse in
+% answers_dedup, hiding the answer picker (and the alternative explanations).
+answer_label_with_assumptions(_KB, ALE, [], ALE) :- !.
+answer_label_with_assumptions(KB, ALE0, Us, Label) :-
+    convert_unknowns_to_le(KB, Us, LEs),
+    atomic_list_concat(LEs, ' and ', UsText),
+    format(string(Label), "~w, assuming ~w", [ALE0, UsText]).
 
 % answers_dedup(+LabelWhyPairs, -Unique): the first explanation for each distinct
 % answer label, preserving order.

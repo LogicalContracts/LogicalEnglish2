@@ -124355,7 +124355,7 @@ function explanationNeedsCloning(explanation, rules, facts) {
   return false;
 }
 var FactNode = class extends classic.Node {
-  constructor(label, color, templateId, tokens, sourceLoc) {
+  constructor(label, color, templateId, tokens, sourceLoc, assumed = false) {
     super(label);
     this.label = label;
     this.color = color;
@@ -124363,6 +124363,7 @@ var FactNode = class extends classic.Node {
     this.templateId = templateId;
     this.tokens = tokens;
     this.sourceLoc = sourceLoc;
+    this.assumed = assumed;
     this.addOutput("out", new classic.Output(new classic.Socket("socket")));
   }
   width = 220;
@@ -124372,6 +124373,11 @@ var FactNode = class extends classic.Node {
   tokens;
   complete = false;
   failing = false;
+  // An ASSUMPTION card (an abducible predicate declared "; assumable", or an
+  // "it is unknown whether ..." scenario item): plays like a fact — its head
+  // satisfies a matching condition — but is rendered distinctly, because it is
+  // not proved, only assumed (the basis of abductive answers).
+  assumed = false;
   type;
 };
 var QueryNode = class extends classic.Node {
@@ -124703,10 +124709,12 @@ function CustomNode(props) {
     const textColor = isAdultMode ? "#fff" : "transparent";
     data.width = 220;
     data.height = 60;
+    const isAssumption = data.type === "fact" && data.assumed;
+    const restBorder = isAssumption ? "2px dashed #e2b93d" : isAdultMode ? "1px solid #444" : "2px solid transparent";
     return React2.createElement(
       "div",
       {
-        className: `le-node ${data.type}-node ${data.selected ? "selected" : ""} ${data.clash ? "clash" : ""} ${data.complete ? "complete" : ""}`,
+        className: `le-node ${data.type}-node ${isAssumption ? "assumption-node" : ""} ${data.selected ? "selected" : ""} ${data.clash ? "clash" : ""} ${data.complete ? "complete" : ""}`,
         style: {
           background: bgColor,
           color: textColor,
@@ -124715,12 +124723,15 @@ function CustomNode(props) {
           width: "200px",
           textAlign: "center",
           boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
-          border: data.selected ? "2px solid #0e639c" : data.clash ? "2px solid #f44336" : data.complete ? "2px solid #2e7d32" : isAdultMode ? "1px solid #444" : "2px solid transparent",
+          border: data.selected ? "2px solid #0e639c" : data.clash ? "2px solid #f44336" : data.complete ? "2px solid #2e7d32" : restBorder,
           position: "relative"
         },
-        title: !isAdultMode ? labelText : ""
+        title: !isAdultMode ? labelText : isAssumption ? "Assumption: this cannot be proved \u2014 connecting it ASSUMES it is true" : ""
       },
       isAdultMode ? labelText : "",
+      isAssumption && isAdultMode && React2.createElement("div", {
+        style: { fontSize: "10px", fontStyle: "italic", color: "#e2b93d", marginTop: "2px" }
+      }, "assumed"),
       data.type === "fact" && React2.createElement("div", {
         style: { position: "absolute", left: "50%", top: "0px", transform: "translate(-50%, -50%)" }
       }, React2.createElement(RefSocket2, {
@@ -125628,7 +125639,7 @@ async function initProofGame(container, gameData) {
   currentX = startX;
   if (gameData.facts) {
     for (const fact of gameData.facts) {
-      const factNode = new FactNode(fact.fact, "#4caf50", fact.id, fact.factTokens, { start: fact.start, end: fact.end });
+      const factNode = new FactNode(fact.fact, "#4caf50", fact.id, fact.factTokens, { start: fact.start, end: fact.end }, !!fact.assumed);
       await editor.addNode(factNode);
       await area.translate(factNode.id, { x: currentX, y: factY });
       currentX += 250;
@@ -125664,7 +125675,7 @@ async function initProofGame(container, gameData) {
     if (orig instanceof RuleNode)
       clone = new RuleNode(orig.rule, orig.sourceLoc);
     else if (orig instanceof FactNode)
-      clone = new FactNode(orig.label, orig.color, orig.templateId, orig.tokens, orig.sourceLoc);
+      clone = new FactNode(orig.label, orig.color, orig.templateId, orig.tokens, orig.sourceLoc, orig.assumed);
     if (!clone)
       return null;
     await editor.addNode(clone);
@@ -125763,10 +125774,19 @@ async function initProofGame(container, gameData) {
     function matchNode(expNode) {
       return nodes2.find((n2) => !usedNodes.has(n2.id) && (n2 instanceof RuleNode || n2 instanceof FactNode) && n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end);
     }
+    function matchAssumption(expNode) {
+      const lit = String(expNode.literal || "").trim();
+      return nodes2.find((n2) => {
+        if (usedNodes.has(n2.id) || !(n2 instanceof FactNode) || !n2.assumed)
+          return false;
+        const re2 = templateToRegex(getPredicateTemplate(n2.tokens));
+        return re2 ? re2.test(lit) : n2.label === lit;
+      });
+    }
     async function connectNode(expNode, targetNodeId, targetInputKey) {
       if (!expNode || !hasInput(targetNodeId, targetInputKey))
         return;
-      const match2 = matchNode(expNode);
+      const match2 = expNode.type === "unknown" ? matchAssumption(expNode) : matchNode(expNode);
       if (!match2)
         return;
       usedNodes.add(match2.id);
@@ -125949,7 +125969,8 @@ async function initProofGame(container, gameData) {
           id: n2.id,
           kind: n2.constructor.name,
           label: n2.label ?? "",
-          complete: !!n2.complete
+          complete: !!n2.complete,
+          assumed: !!n2.assumed
         })),
         connect: (sourceId, targetId, targetInput) => editor.addConnection(new classic.Connection(
           editor.getNode(sourceId),

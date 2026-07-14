@@ -199,3 +199,61 @@ test(two_rules_into_one_negation_unifies) :-
     assertion(get_dict(status, Response, "ok")).
 
 :- end_tests(proof_game_naf_multi_rule).
+
+% --- Abduction: assumable predicates become ASSUMPTION cards -------------------
+% In examples/moreExamples/abduction/grass_is_wet.le the two candidate causes are
+% "; assumable" templates with no facts at all: the game must offer each as an
+% assumption card (assumed: true) that satisfies the rule condition it matches,
+% so the abductive proof (query -> rule -> assumption) can be completed.
+
+grass_session(KB, SM, Goal) :-
+    le_kbs:load('examples/moreExamples/abduction/grass_is_wet.le', KB),
+    le_kbs:createSession(KB, SM),
+    KB:query_info(explain, Goal, _).
+
+:- begin_tests(proof_game_abduction).
+
+% Each "; assumable" template yields an assumption card, marked assumed.
+test(assumables_become_assumption_cards) :-
+    grass_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, _Rules, Facts, _QT),
+    findall(T, ( member(F, Facts), get_dict(assumed, F, true), get_dict(fact, F, T) ), Ts),
+    msort(Ts, Sorted),
+    assertion(Sorted == ["it rained", "the sprinkler was on"]).
+
+% Ordinary facts stay unmarked (assumed: false).
+test(plain_facts_are_not_marked_assumed) :-
+    happy_dragon_session(KB, SM),
+    ( KB:query_info(happy, Goal, _) -> true ; Goal = _ ),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, _Rules, Facts, _QT),
+    forall(member(F, Facts), get_dict(assumed, F, false)).
+
+% The abductive proof fragment — the query, the rule "the grass is wet if it
+% rained", and the ASSUMPTION card "it rained" on its condition — unifies ok.
+test(assumption_satisfies_rule_condition) :-
+    grass_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, Facts, _QT),
+    once(( member(R, Rules), get_dict(body, R, ["it rained"]), get_dict(id, R, RainRule) )),
+    once(( member(F, Facts), get_dict(fact, F, "it rained"), get_dict(id, F, RainCard) )),
+    Nodes = [ _{instanceId:"q1", templateId:"query"},
+              _{instanceId:"wet", templateId:RainRule},
+              _{instanceId:"rained", templateId:RainCard} ],
+    Edges = [ _{child:"wet", parent:"q1", bodyIndex:0},
+              _{child:"rained", parent:"wet", bodyIndex:0} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, Edges, Response),
+    assertion(get_dict(status, Response, "ok")).
+
+% An assumption card on a condition of a DIFFERENT predicate clashes like any
+% mismatched fact ("the sprinkler was on" cannot satisfy "it rained").
+test(mismatched_assumption_clashes) :-
+    grass_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, Facts, _QT),
+    once(( member(R, Rules), get_dict(body, R, ["it rained"]), get_dict(id, R, RainRule) )),
+    once(( member(F, Facts), get_dict(fact, F, "the sprinkler was on"), get_dict(id, F, SprinklerCard) )),
+    Nodes = [ _{instanceId:"wet", templateId:RainRule},
+              _{instanceId:"sprinkler", templateId:SprinklerCard} ],
+    Edges = [ _{child:"sprinkler", parent:"wet", bodyIndex:0} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, Edges, Response),
+    assertion(get_dict(status, Response, "clash")).
+
+:- end_tests(proof_game_abduction).

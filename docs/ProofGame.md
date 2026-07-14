@@ -51,6 +51,7 @@ guide use `examples/moreExamples/happy_dragon.le`.
 | **Query card** (top) | The question to answer, e.g. *"which dragon is happy"* | Has one socket underneath, waiting for the rule or fact that answers it. |
 | **Rule card** | A rule from the knowledge base: a **head** on top and one **condition** box per body condition underneath | Its head plugs **upward** into whatever it helps prove; each condition has a socket that must be filled. |
 | **Fact card** | A plain fact from the scenario or knowledge base | Plugs upward to satisfy a condition. Facts have no conditions of their own — they are where a branch of the proof ends. |
+| **Assumption card** (dashed amber border) | An **assumable** statement — a template declared `; assumable`, or an *"it is unknown whether …"* scenario item | Plays like a fact, but it is not *proved* — connecting it **assumes** it is true. This is how the game handles **abduction**: explaining an observation by assuming a candidate cause (e.g. *"the grass is wet"* because — assumed — *"it rained"*). |
 | **FAIL card** (a red stop sign) | "This does not hold" | Used to satisfy a **negation** — an *"it is not the case that …"* condition. |
 
 **Connections** are arrows. You make one by dragging from a card's **output**
@@ -155,6 +156,12 @@ have very different proofs. When there is more than one answer, an **"Answer to
 prove"** dropdown appears in the toolbar. Pick the answer you want the class to work
 on.
 
+An answer that holds only by **assuming** something (see the Assumption card) is
+labelled with its assumptions — e.g. in `examples/moreExamples/abduction/grass_is_wet.le`
+the picker offers *"the grass is wet, assuming it rained"* and *"the grass is wet,
+assuming the sprinkler was on"*: two alternative **explanations** of the same
+observation, each with its own proof to build.
+
 For example, in `happy_dragon.le`:
 
 - **"bob is happy"** is true *vacuously* — bob is a parent of no one, so the
@@ -234,6 +241,9 @@ A 30–40 minute session with `happy_dragon.le`:
 - **Proof tree** — query at the top, rules in the middle, facts at the bottom.
 - **Negation as failure** — something counts as "not true" precisely when every
   attempt to prove it **fails**.
+- **Assumption / abduction** — an assumable statement cannot be proved, only
+  **assumed**; using one explains an observation by a hypothesis ("the grass is
+  wet **if we assume** it rained").
 - **Failing mode** — a rule shown in dark red because it is being used to explain a
   failure rather than a success.
 - **"for all cases"** — a claim that must hold for every relevant case.

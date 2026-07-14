@@ -42,6 +42,34 @@ scenario mary is:
 query happy is:
 	which dragon is happy.`;
 
+// Abduction (grass_is_wet): the two candidate causes are "; assumable" — there
+// are no facts at all, so each answer holds only by ASSUMING one of them.
+const GRASS_WET = `the target language is: prolog.
+
+the templates are:
+    the grass is wet.
+    it rained; assumable.
+    the sprinkler was on; assumable.
+
+the knowledge base wet grass includes:
+
+the grass is wet if it rained.
+
+the grass is wet if the sprinkler was on.
+
+scenario observation is:
+    explain expects answers [
+        "the grass is wet",
+        "the grass is wet"
+    ] and unknowns [
+        "it rained",
+        "the sprinkler was on"
+    ].
+
+query explain is:
+    the grass is wet.
+`;
+
 // Open the editor with a program, load the module, select scenario/query, then open
 // the Proof Game (with the test hook enabled). Returns the popup page.
 async function openGame(page: any, source: string, scenario: string, query: string): Promise<any> {
@@ -135,5 +163,38 @@ test.describe('Proof Game', () => {
             await t.updateUnification();
         }, ids.rule);
         expect(await complete(popup, ids.rule)).toBe(false);
+    });
+
+    // Regression: for an abductive example (no facts, only "; assumable" causes),
+    // Show Proof used to assemble the query and rule but could not finish — there
+    // was no card for the assumed goal, so the proof never turned green. Now each
+    // abducible is an ASSUMPTION card, Show Proof wires it in, and the answer
+    // picker distinguishes the two explanations by what they assume.
+    test('an abductive proof completes via an assumption card', async ({ page }) => {
+        test.setTimeout(60000);
+        const popup = await openGame(page, GRASS_WET, 'observation', 'explain');
+
+        // Both abductive answers are offered, labelled by their assumptions.
+        await expect(popup.locator('#answer-picker')).toBeVisible();
+        await expect(popup.locator('#answer-select option')).toHaveText([
+            'the grass is wet, assuming it rained',
+            'the grass is wet, assuming the sprinkler was on',
+        ]);
+
+        // Each abducible is on the board as an assumption card.
+        const assumedLabels = await popup.evaluate(() =>
+            (window as any).__pgTest.nodes().filter((n: any) => n.assumed).map((n: any) => n.label).sort());
+        expect(assumedLabels).toEqual(['it rained', 'the sprinkler was on']);
+
+        // Show Proof (accepting its confirm dialog) must reach a COMPLETE (green)
+        // proof: query -> "the grass is wet if it rained" -> assumed "it rained".
+        popup.on('dialog', (d: any) => d.accept());
+        await popup.click('#btn-show');
+        await expect.poll(() => popup.evaluate(() => {
+            const t = (window as any).__pgTest;
+            return t.nodes().find((n: any) => n.kind === 'QueryNode').complete;
+        }), { timeout: 20000 }).toBe(true);
+        expect(await popup.evaluate(() =>
+            (window as any).__pgTest.nodes().find((n: any) => n.label === 'it rained').complete)).toBe(true);
     });
 });
