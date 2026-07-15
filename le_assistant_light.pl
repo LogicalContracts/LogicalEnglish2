@@ -274,8 +274,10 @@ list_examples_with_summaries(Dir, Prefix, UserRoles, Examples) :-
         atom_concat(Prefix, Base, ExPath),
         % skip_tests: the listing only needs each KB loaded for its summary;
         % running the KBs' embedded tests here would take tens of seconds.
-        ( catch(le_kbs:load(FullPath, KB, [skip_tests]), _, fail) ->
-            le_kbs:kbSummary(KB, Summary)
+        % kb_summary_safe holds a module reference while summarizing, so a
+        % concurrent session teardown cannot reclaim the KB module mid-read.
+        ( le_kbs:kb_summary_safe(FullPath, [skip_tests], Summary0) ->
+            Summary = Summary0
         ; Summary = "No summary available"
         )
     ), DirectExamples),

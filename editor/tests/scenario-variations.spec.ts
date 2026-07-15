@@ -16,14 +16,14 @@ async function openVariations(page: any): Promise<any> {
             await page.click('text=File');
             await page.click('#menu-open-server');
         }
-        await expect(item).toBeVisible({ timeout: 5000 });
-    }).toPass({ timeout: 45000 });
+        await expect(item).toBeVisible({ timeout: 10000 });
+    }).toPass({ timeout: 90000 });
     await item.click();
     await expect(page.locator('#filename-display')).toHaveText('citizenship.le');
     // Module loads proactively: scenario-select gains options.
     await expect(async () => {
         expect(await page.locator('#scenario-select option').count()).toBeGreaterThan(1);
-    }).toPass({ timeout: 20000 });
+    }).toPass({ timeout: 45000 });
     // Preselect scenario "alice" and query "one" so the window seeds them.
     await page.selectOption('#scenario-select', 'alice');
     await page.selectOption('#query-select', 'one');
@@ -37,7 +37,7 @@ async function openVariations(page: any): Promise<any> {
 
 test.describe('Scenario Variations', () => {
     test('alter a scenario and run a query against the variation', async ({ page, context }) => {
-        test.setTimeout(120000);
+        test.setTimeout(180000);
         await context.grantPermissions(['clipboard-read', 'clipboard-write']);
         const v = await openVariations(page);
 
@@ -57,7 +57,7 @@ test.describe('Scenario Variations', () => {
         // Run: the query's answers + explanation appear in the card.
         await v.locator('#btn-run').click();
         const answer = v.locator('.query-card .answer-item').first();
-        await expect(answer).toBeVisible({ timeout: 30000 });
+        await expect(answer).toBeVisible({ timeout: 60000 });
         await expect(answer).toContainText('John acquires British citizenship');
         await expect(v.locator('.query-card .tree-label').first()).toBeVisible();
 
@@ -71,7 +71,7 @@ test.describe('Scenario Variations', () => {
         await expect(v.locator('#btn-run')).toBeEnabled();
         await v.locator('#btn-run').click();
         const failure = v.locator('.query-card .answer-item.failure');
-        await expect(failure).toBeVisible({ timeout: 30000 });
+        await expect(failure).toBeVisible({ timeout: 60000 });
         await expect(failure).toContainText('No answers');
 
         // The URL captures the variation for sharing.
@@ -88,7 +88,7 @@ test.describe('Scenario Variations', () => {
     });
 
     test('uses its own session, distinct from the editor Query panel', async ({ page }) => {
-        test.setTimeout(120000);
+        test.setTimeout(180000);
         let winSession = '';
         let edSession = '';
         const v = await openVariations(page);
@@ -106,10 +106,10 @@ test.describe('Scenario Variations', () => {
 
         // Run a query in the variations window…
         await v.locator('#btn-run').click();
-        await expect(v.locator('.query-card .answer-item').first()).toBeVisible({ timeout: 30000 });
+        await expect(v.locator('.query-card .answer-item').first()).toBeVisible({ timeout: 60000 });
         // …and one in the editor's Query panel (scenario/query already selected).
         await page.locator('#btn-query').click();
-        await expect(page.locator('#answers-list .answer-item').first()).toBeVisible({ timeout: 30000 });
+        await expect(page.locator('#answers-list .answer-item').first()).toBeVisible({ timeout: 60000 });
 
         // Each ran against its own session, so the editor reloading or its session being
         // reclaimed cannot break the variations window.
@@ -119,7 +119,7 @@ test.describe('Scenario Variations', () => {
     });
 
     test('Add Query excludes already-added queries', async ({ page }) => {
-        test.setTimeout(120000);
+        test.setTimeout(180000);
         const v = await openVariations(page);
 
         // Citizenship has a single query 'one', already seeded — so the Add Query
@@ -142,14 +142,14 @@ test.describe('Scenario Variations', () => {
     });
 
     test('Patch scenario / Assume fact from explanation nodes', async ({ page }) => {
-        test.setTimeout(120000);
+        test.setTimeout(180000);
         const v = await openVariations(page);
 
         // Run query "one" against scenario "alice" — it succeeds, so the explanation
         // is a tree of green (succeeded) nodes.
         await v.locator('#btn-run').click();
         await expect(v.locator('.query-card .answer-item').first()).toContainText(
-            'John acquires British citizenship', { timeout: 30000 });
+            'John acquires British citizenship', { timeout: 60000 });
 
         const rowsBefore = await v.locator('.fact-row').count();
         await expect(v.locator('.fact-row', { hasText: 'is the mother of' })).toHaveCount(1);
@@ -170,7 +170,7 @@ test.describe('Scenario Variations', () => {
         await expect(v.locator('.fact-row', { hasText: 'is the mother of' })).toHaveCount(0);
         await expect(v.locator('.fact-row')).toHaveCount(rowsBefore - 1);
         await expect(v.locator('.query-card .answer-item.failure')).toContainText(
-            'No answers', { timeout: 30000 });
+            'No answers', { timeout: 60000 });
 
         // Right-click the failed node: the menu offers "Patch scenario — add this fact"
         // AND "Assume fact" (both, for a failed node).
@@ -186,11 +186,11 @@ test.describe('Scenario Variations', () => {
         const assumedRow = v.locator('.fact-row.assumed');
         await expect(assumedRow).toHaveCount(1);
         await expect(assumedRow).toHaveClass(/selected/);
-        await expect(v.locator('#status')).toContainText('Ran', { timeout: 30000 });
+        await expect(v.locator('#status')).toContainText('Ran', { timeout: 60000 });
     });
 
     test('Delete matches date facts and skips derived nodes (alice_harry)', async ({ page }) => {
-        test.setTimeout(120000);
+        test.setTimeout(180000);
         const v = await openVariations(page);
 
         // Switch to alice_harry, whose proof of "one" mixes date-bearing scenario facts
@@ -199,7 +199,7 @@ test.describe('Scenario Variations', () => {
         await expect(v.locator('.fact-row', { hasText: 'is born in' })).toHaveCount(1);
         await v.locator('#btn-run').click();
         await expect(v.locator('.query-card .answer-item').first()).toContainText(
-            'John acquires British citizenship', { timeout: 30000 });
+            'John acquires British citizenship', { timeout: 60000 });
 
         const patch = v.locator('#menu-patch-scenario');
 
@@ -220,7 +220,7 @@ test.describe('Scenario Variations', () => {
         await patch.click();
         await expect(v.locator('.fact-row', { hasText: 'is born in' })).toHaveCount(0);
         await expect(v.locator('.query-card .answer-item.failure')).toContainText(
-            'No answers', { timeout: 30000 });
+            'No answers', { timeout: 60000 });
     });
 
 });

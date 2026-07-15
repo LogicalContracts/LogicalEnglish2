@@ -451,10 +451,17 @@ call_tool("get_example_details", Args, Result) :-
     examples_dir(Dir),
     atom_concat(Dir, ExampleName, Path0),
     (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
+    % Read the metadata under a module reference (and retry if the module was
+    % reclaimed between load and reference) — same race as the listing above.
+    % The goal is explicitly mcp-qualified: relying on compile-time
+    % meta-argument qualification across the explicit le_kbs: call proved
+    % fragile (the goal ran in the wrong module and the catch masked it).
+    between(1, 3, _),
     le_kbs:load(Path, KB),
-    le_kbs:get_kb_metadata(KB, Metadata),
-    ( current_predicate(KB:scenario/2) -> findall(_{name: Name}, KB:scenario(Name, _), Scenarios); Scenarios = []),
-    Result = Metadata.put(_{scenarios: Scenarios}).
+    (   catch(le_kbs:with_kb_reference(KB, mcp:example_details_result(KB, Result0)), _, fail)
+    ->  !, Result = Result0
+    ;   fail
+    ).
 
 call_tool("query", Args, Result) :-
     le_tools:le_tool_query(Args, Result).
@@ -466,6 +473,11 @@ call_tool(ToolName, _Args, Result) :-
     format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
     format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify.", [ToolName]),
     Result = _{error: Msg}.
+
+example_details_result(KB, Result) :-
+    le_kbs:get_kb_metadata(KB, Metadata),
+    ( current_predicate(KB:scenario/2) -> findall(_{name: Name}, KB:scenario(Name, _), Scenarios); Scenarios = []),
+    Result = Metadata.put(_{scenarios: Scenarios}).
 
 %!  list_examples_with_summaries(+Dir:atom, +Prefix:atom, -Examples:list) is det.
 %
@@ -482,8 +494,12 @@ list_examples_with_summaries(Dir, Prefix, Examples) :-
         directory_file_path(Dir, F, Path),
         % skip_tests: the listing only needs each KB loaded for its summary;
         % running the KBs' embedded tests here would take tens of seconds.
-        ( catch(le_kbs:load(Path, KB, [skip_tests]), _, fail) ->
-            le_kbs:kbSummary(KB, Summary)
+        % kb_summary_safe holds a module reference while summarizing, so a
+        % concurrent request's session teardown cannot reclaim (abolish) the KB
+        % module mid-read — that race surfaced as existence_error(le_dict/1)
+        % 500s under parallel e2e load.
+        ( le_kbs:kb_summary_safe(Path, [skip_tests], Summary0) ->
+            Summary = Summary0
         ; Summary = "Failed to load summary"
         )
     ), DirectExamples),
