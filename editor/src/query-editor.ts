@@ -6,6 +6,7 @@
 // the clipboard; the final LE syntax check happens on the Prolog side on reload.
 
 import { parseTemplateDefs, parseQueryBlocks, QueryBlock, splitTemplate, matchFact } from './le-templates';
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 import { openNlInput } from './nl-input';
 
 // Sentinel value for the "Write it in English…" entry in the Add picker.
@@ -55,7 +56,7 @@ export function initQueryEditor(data: QueryEditorData) {
     let rows: QRow[] = [];
 
     const setStatus = (text: string) => { statusEl.textContent = text; };
-    const markDirty = () => { dirty = true; setStatus('Unsaved changes'); };
+    const markDirty = () => { dirty = true; setStatus(t('Unsaved changes')); };
 
     // --- Template Add picker ---------------------------------------------------
     addSelect.innerHTML = '';
@@ -67,7 +68,7 @@ export function initQueryEditor(data: QueryEditorData) {
     }
     const nlOpt = document.createElement('option');
     nlOpt.value = WRITE_IN_ENGLISH;
-    nlOpt.textContent = 'Write it in English';
+    nlOpt.textContent = t('Write it in English');
     addSelect.appendChild(nlOpt);
 
     ($('btn-add') as HTMLButtonElement).addEventListener('click', () => {
@@ -108,7 +109,7 @@ export function initQueryEditor(data: QueryEditorData) {
     picker.innerHTML = '';
     const newOpt = document.createElement('option');
     newOpt.value = '__new__';
-    newOpt.textContent = 'New…';
+    newOpt.textContent = t('New…');
     picker.appendChild(newOpt);
     blocks.forEach(b => {
         const o = document.createElement('option');
@@ -184,7 +185,7 @@ export function initQueryEditor(data: QueryEditorData) {
         rows = [];
         dirty = false;
         render();
-        setStatus('New query');
+        setStatus(t('New query'));
     }
 
     // --- Rendering -------------------------------------------------------------
@@ -198,7 +199,7 @@ export function initQueryEditor(data: QueryEditorData) {
         if (rows.length === 0) {
             const hint = document.createElement('div');
             hint.className = 'empty-hint';
-            hint.textContent = 'No conditions yet — pick a template below and click “Add”.';
+            hint.textContent = t('No conditions yet — pick a template below and click “Add”.');
             rowsEl.appendChild(hint);
             return;
         }
@@ -227,14 +228,14 @@ export function initQueryEditor(data: QueryEditorData) {
         indentTools.className = 'indent-tools';
         const outdent = document.createElement('button');
         outdent.className = 'indent-btn';
-        outdent.textContent = '⇤';
-        outdent.title = 'Unindent (widen this condition’s scope)';
+        outdent.textContent = t('⇤');
+        outdent.title = t('Unindent (widen this condition’s scope)');
         outdent.disabled = row.indent === 0;
         outdent.addEventListener('click', () => indentRow(idx, -1));
         const indent = document.createElement('button');
         indent.className = 'indent-btn';
-        indent.textContent = '⇥';
-        indent.title = 'Indent (nest this condition to bind tighter)';
+        indent.textContent = t('⇥');
+        indent.title = t('Indent (nest this condition to bind tighter)');
         indent.disabled = row.indent >= maxIndent;
         indent.addEventListener('click', () => indentRow(idx, +1));
         indentTools.appendChild(outdent);
@@ -263,7 +264,7 @@ export function initQueryEditor(data: QueryEditorData) {
         if (row.negated) {
             const neg = document.createElement('span');
             neg.className = 'neg-phrase';
-            neg.textContent = 'it is not the case that';
+            neg.textContent = t('it is not the case that');
             el.appendChild(neg);
         }
 
@@ -272,7 +273,7 @@ export function initQueryEditor(data: QueryEditorData) {
             input.type = 'text';
             input.className = 'raw';
             input.value = row.raw;
-            input.placeholder = 'condition';
+            input.placeholder = t('condition');
             input.size = Math.min(Math.max(row.raw.length + 1, 20), 80);
             input.addEventListener('input', () => { row.raw = input.value; input.size = Math.min(Math.max(input.value.length + 1, 20), 80); markDirty(); });
             el.appendChild(input);
@@ -306,7 +307,7 @@ export function initQueryEditor(data: QueryEditorData) {
         // "not" — wrap this condition in "it is not the case that …".
         const negLabel = document.createElement('label');
         negLabel.className = 'negate';
-        negLabel.title = 'Wrap this condition in "it is not the case that …"';
+        negLabel.title = t('Wrap this condition in "it is not the case that …"');
         const check = document.createElement('input');
         check.type = 'checkbox';
         check.checked = row.negated;
@@ -316,8 +317,8 @@ export function initQueryEditor(data: QueryEditorData) {
         tools.appendChild(negLabel);
 
         const del = document.createElement('button');
-        del.textContent = '✕';
-        del.title = 'Delete condition';
+        del.textContent = t('✕');
+        del.title = t('Delete condition');
         del.addEventListener('click', () => { rows.splice(idx, 1); markDirty(); render(); });
         tools.appendChild(del);
 
@@ -368,9 +369,9 @@ export function initQueryEditor(data: QueryEditorData) {
     // Returns the trimmed name, or null (with an alert) when it is missing/invalid.
     function requireName(): string | null {
         const name = nameInput.value.trim();
-        if (!name) { alert('Please give the query a name.'); nameInput.focus(); return null; }
-        if (/\s/.test(name)) { alert('A query name must be a single word or number (no spaces).'); nameInput.focus(); return null; }
-        if (bodyLines().length === 0) { alert('Add at least one condition to the query.'); return null; }
+        if (!name) { alert(t('Please give the query a name.')); nameInput.focus(); return null; }
+        if (/\s/.test(name)) { alert(t('A query name must be a single word or number (no spaces).')); nameInput.focus(); return null; }
+        if (bodyLines().length === 0) { alert(t('Add at least one condition to the query.')); return null; }
         return name;
     }
 
@@ -381,10 +382,10 @@ export function initQueryEditor(data: QueryEditorData) {
         const text = blockText(name);
         try {
             await navigator.clipboard.writeText(text);
-            dirty = false; setStatus('Copied to clipboard');
+            dirty = false; setStatus(t('Copied to clipboard'));
         } catch {
-            window.prompt('Copy the query text:', text);
-            dirty = false; setStatus('Copied');
+            window.prompt(t('Copy the query text:'), text);
+            dirty = false; setStatus(t('Copied'));
         }
     });
 
@@ -393,12 +394,12 @@ export function initQueryEditor(data: QueryEditorData) {
         if (!name) return;
         channel.postMessage({ type: 'insert-query', name, blockText: blockText(name), replaceName: loadedName });
         dirty = false;   // suppresses the close warning
-        setStatus('Inserted into editor');
+        setStatus(t('Inserted into editor'));
         setTimeout(() => window.close(), 100);   // once the message has been dispatched
     });
 
     picker.addEventListener('change', () => {
-        if (dirty && !confirm('Discard unsaved changes and load the selected query?')) {
+        if (dirty && !confirm(t('Discard unsaved changes and load the selected query?'))) {
             picker.value = loadedName || '__new__';
             return;
         }
@@ -415,4 +416,14 @@ export function initQueryEditor(data: QueryEditorData) {
     // --- Boot ------------------------------------------------------------------
     picker.value = '__new__';
     newQuery();
+}
+
+
+// UI chrome i18n: translate this page's static chrome and carry the UI
+// language on /leapi calls (see src/i18n.ts).
+installLeApiLang();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => applyI18nDom());
+} else {
+    applyI18nDom();
 }

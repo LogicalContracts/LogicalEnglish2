@@ -7,6 +7,7 @@
 // form rows. No LLM plumbing lives here beyond the one POST.
 
 import { parseTemplateDefs } from './le-templates';
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 
 const TOKEN = 'myToken123';
 
@@ -117,13 +118,13 @@ export function openNlInput(opts: NlInputOptions): void {
     const spacer = document.createElement('span');
     spacer.className = 'spacer';
     const cancel = document.createElement('button');
-    cancel.textContent = 'Cancel';
+    cancel.textContent = t('Cancel');
     const regenerate = document.createElement('button');
-    regenerate.textContent = 'Regenerate';
+    regenerate.textContent = t('Regenerate');
     regenerate.style.display = 'none';   // shown only after a warned result
     const generate = document.createElement('button');
     generate.className = 'primary';
-    generate.textContent = 'Generate';
+    generate.textContent = t('Generate');
     actions.appendChild(modelLabel);
     actions.appendChild(spacer);
     actions.appendChild(cancel);
@@ -151,7 +152,7 @@ export function openNlInput(opts: NlInputOptions): void {
 
     if (!model) {
         status.className = 'nl-status warn';
-        status.textContent = 'Configure an LLM model first: in the main editor, Misc → API Keys…';
+        status.textContent = t('Configure an LLM model first: in the main editor, Misc → API Keys…');
         generate.disabled = true;
     }
 
@@ -162,7 +163,7 @@ export function openNlInput(opts: NlInputOptions): void {
     let pendingLe = '';
     function toGenerateMode() {
         primaryMode = 'generate';
-        generate.textContent = 'Generate';
+        generate.textContent = t('Generate');
         regenerate.style.display = 'none';
     }
     textarea.addEventListener('input', () => { if (primaryMode === 'insert') toGenerateMode(); });
@@ -173,7 +174,7 @@ export function openNlInput(opts: NlInputOptions): void {
         if (!assistantModel()) return;
         generate.disabled = true; cancel.disabled = true; regenerate.disabled = true;
         status.className = 'nl-status';
-        status.textContent = 'Generating and verifying…';
+        status.textContent = t('Generating and verifying…');
         const templates = [...new Set(parseTemplateDefs(opts.source).map(d => d.label))];
         try {
             const res = await fetch('/leapi', {
@@ -200,7 +201,7 @@ export function openNlInput(opts: NlInputOptions): void {
                     // Verified with new issues: warn, but let the user insert anyway.
                     pendingLe = res.le;
                     primaryMode = 'insert';
-                    generate.textContent = 'Insert anyway';
+                    generate.textContent = t('Insert anyway');
                     regenerate.style.display = '';
                     status.className = 'nl-status warn';
                     status.textContent =
@@ -211,17 +212,17 @@ export function openNlInput(opts: NlInputOptions): void {
             } else if (res && res.result === 'ok') {
                 toGenerateMode();
                 status.className = 'nl-status warn';
-                status.textContent = 'The model returned nothing that matches your templates. Try rephrasing.';
+                status.textContent = t('The model returned nothing that matches your templates. Try rephrasing.');
             } else {
                 toGenerateMode();
                 status.className = 'nl-status error';
-                status.textContent = 'Error: ' + ((res && res.error) || 'the LLM request failed.');
+                status.textContent = t('Error: ') + ((res && res.error) || 'the LLM request failed.');
             }
         } catch {
             generate.disabled = false; cancel.disabled = false; regenerate.disabled = false;
             toGenerateMode();
             status.className = 'nl-status error';
-            status.textContent = 'Could not reach the server.';
+            status.textContent = t('Could not reach the server.');
         }
     }
     generate.addEventListener('click', () => {

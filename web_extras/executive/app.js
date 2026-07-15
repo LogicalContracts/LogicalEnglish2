@@ -4,8 +4,30 @@
 const TOKEN = 'myToken123';
 const $ = (id) => document.getElementById(id);
 
+// ---- minimal UI i18n (shared catalog; see i18n/ui.csv) ---------------------
+const UI_LANG = (document.cookie.match(/(?:^|; )le_ui_lang=([a-z]{2})/) || [])[1] || 'en';
+let UI_CATALOG = {};
+const t = (s) => (UI_LANG !== 'en' && UI_CATALOG[s]) || s;
+async function initI18n() {
+    if (UI_LANG === 'en') return;
+    try {
+        const data = await (await fetch('/web_extras/executive/i18n-ui.json')).json();
+        UI_CATALOG = (data.ui && data.ui[UI_LANG]) || {};
+        // static chrome
+        document.querySelectorAll('button, label span, .lead, .hint, h1, [title], [placeholder], [aria-label]')
+            .forEach(el => {
+                if (el.childElementCount === 0 && el.textContent && UI_CATALOG[el.textContent.trim()])
+                    el.textContent = t(el.textContent.trim());
+                for (const attr of ['title', 'placeholder', 'aria-label']) {
+                    const v = el.getAttribute && el.getAttribute(attr);
+                    if (v && UI_CATALOG[v.trim()]) el.setAttribute(attr, t(v.trim()));
+                }
+            });
+    } catch (e) { /* stay English */ }
+}
+
 async function leapi(operation, payload) {
-    const resp = await fetch('/leapi', {
+    const resp = await fetch(UI_LANG === 'en' ? '/leapi' : '/leapi?lang=' + UI_LANG, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.assign({ token: TOKEN, operation }, payload))
@@ -30,8 +52,8 @@ async function renderAuth() {
         const me = await (await fetch('/whoami')).json();
         const ret = encodeURIComponent(location.pathname + location.search);
         $('auth').innerHTML = me.loggedIn
-            ? `<span class="email">${esc(me.email)}</span><a href="/logout?return=${ret}">Logout</a>`
-            : `<a href="/login?return=${ret}">Login</a>`;
+            ? `<span class="email">${esc(me.email)}</span><a href="/logout?return=${ret}">${esc(t('Logout'))}</a>`
+            : `<a href="/login?return=${ret}">${esc(t('Login'))}</a>`;
     } catch { $('auth').innerHTML = ''; }
 }
 
@@ -245,7 +267,8 @@ function route() {
     else renderMenu();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await initI18n();
     $('tool-variations').addEventListener('click', openScenarioVariations);
     // No Run button: a change of scenario or question re-runs the query.
     $('scenario-select').addEventListener('change', runQuery);

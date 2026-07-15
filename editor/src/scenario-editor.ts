@@ -4,6 +4,7 @@
 // reloads.
 
 import { parseScenarioBlocks, ScenarioBlock } from './le-templates';
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 import { ScenarioForm } from './scenario-form';
 import { openNlInput, splitStatements } from './nl-input';
 
@@ -29,7 +30,7 @@ export function initScenarioEditor(data: ScenarioEditorData) {
     let dirty = false;      // edited since the last Copy / Insert (drives the close warning)
 
     function setStatus(text: string) { statusEl.textContent = text; }
-    function markDirty() { dirty = true; setStatus('Unsaved changes'); }
+    function markDirty() { dirty = true; setStatus(t('Unsaved changes')); }
 
     const form = new ScenarioForm({
         source,
@@ -57,7 +58,7 @@ export function initScenarioEditor(data: ScenarioEditorData) {
     picker.innerHTML = '';
     const newOpt = document.createElement('option');
     newOpt.value = '__new__';
-    newOpt.textContent = 'New…';
+    newOpt.textContent = t('New…');
     picker.appendChild(newOpt);
     blocks.forEach(b => {
         const o = document.createElement('option');
@@ -80,14 +81,14 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         nameInput.value = '';
         form.clear();
         dirty = false;
-        setStatus('New scenario');
+        setStatus(t('New scenario'));
     }
 
     // Returns the trimmed name, or null (with an alert) when it is missing/invalid.
     function requireName(): string | null {
         const name = nameInput.value.trim();
-        if (!name) { alert('Please give the scenario a name.'); nameInput.focus(); return null; }
-        if (/\s/.test(name)) { alert('A scenario name must be a single word (no spaces).'); nameInput.focus(); return null; }
+        if (!name) { alert(t('Please give the scenario a name.')); nameInput.focus(); return null; }
+        if (/\s/.test(name)) { alert(t('A scenario name must be a single word (no spaces).')); nameInput.focus(); return null; }
         return name;
     }
 
@@ -98,10 +99,10 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         const text = form.blockText(name);
         try {
             await navigator.clipboard.writeText(text);
-            dirty = false; setStatus('Copied to clipboard');
+            dirty = false; setStatus(t('Copied to clipboard'));
         } catch {
-            window.prompt('Copy the scenario text:', text);
-            dirty = false; setStatus('Copied');
+            window.prompt(t('Copy the scenario text:'), text);
+            dirty = false; setStatus(t('Copied'));
         }
     });
 
@@ -110,12 +111,12 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         if (!name) return;
         channel.postMessage({ type: 'insert-scenario', name, blockText: form.blockText(name), replaceName: loadedName });
         dirty = false;   // suppresses the close warning
-        setStatus('Inserted into editor');
+        setStatus(t('Inserted into editor'));
         setTimeout(() => window.close(), 100);   // once the message has been dispatched
     });
 
     picker.addEventListener('change', () => {
-        if (dirty && !confirm('Discard unsaved changes and load the selected scenario?')) {
+        if (dirty && !confirm(t('Discard unsaved changes and load the selected scenario?'))) {
             picker.value = loadedName || '__new__';
             return;
         }
@@ -132,4 +133,14 @@ export function initScenarioEditor(data: ScenarioEditorData) {
     // --- Boot ------------------------------------------------------------------
     picker.value = '__new__';
     newScenario();
+}
+
+
+// UI chrome i18n: translate this page's static chrome and carry the UI
+// language on /leapi calls (see src/i18n.ts).
+installLeApiLang();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => applyI18nDom());
+} else {
+    applyI18nDom();
 }

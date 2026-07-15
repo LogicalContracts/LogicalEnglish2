@@ -5,6 +5,7 @@
 // (scenario / scenarioText / queries, plus the program text) so it can be shared.
 
 import { parseScenarioBlocks } from './le-templates';
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 import { ScenarioForm } from './scenario-form';
 import { ExplanationView, MenuEls } from './explanation-view';
 
@@ -76,7 +77,7 @@ export async function initScenarioVariations() {
     picker.innerHTML = '';
     const emptyOpt = document.createElement('option');
     emptyOpt.value = '';
-    emptyOpt.textContent = '(empty)';
+    emptyOpt.textContent = t('(empty)');
     picker.appendChild(emptyOpt);
     scenarioNames.forEach(n => {
         const o = document.createElement('option');
@@ -175,8 +176,8 @@ export async function initScenarioVariations() {
         header.appendChild(nameEl);
         const remove = document.createElement('button');
         remove.className = 'query-remove';
-        remove.textContent = '✕';
-        remove.title = 'Remove query';
+        remove.textContent = t('✕');
+        remove.title = t('Remove query');
         header.appendChild(remove);
         card.appendChild(header);
 
@@ -191,7 +192,7 @@ export async function initScenarioVariations() {
         ePanel.className = 'explanation-panel';
         const eTitle = document.createElement('div');
         eTitle.className = 'panel-label';
-        eTitle.textContent = 'Explanation';
+        eTitle.textContent = t('Explanation');
         ePanel.appendChild(eTitle);
         const explanationTree = document.createElement('div');
         ePanel.appendChild(explanationTree);
@@ -276,10 +277,10 @@ export async function initScenarioVariations() {
     }
 
     async function runAll() {
-        if (queryCards.length === 0) { setStatus('Add a query first.'); return; }
-        if (!(await ensureSession())) { setStatus('Could not load the program on the server.'); return; }
+        if (queryCards.length === 0) { setStatus(t('Add a query first.')); return; }
+        if (!(await ensureSession())) { setStatus(t('Could not load the program on the server.')); return; }
         btnRun.disabled = true;
-        setStatus('Running queries…');
+        setStatus(t('Running queries…'));
         // Sequential: each query re-applies the custom scenario to the session.
         for (const entry of queryCards) await runOne(entry);
         setStatus(`Ran ${queryCards.length} quer${queryCards.length > 1 ? 'ies' : 'y'}`);
@@ -290,8 +291,8 @@ export async function initScenarioVariations() {
     $('btn-copy-scenario').addEventListener('click', async () => {
         const name = picker.value || 'variation';
         const text = form.blockText(name);
-        try { await navigator.clipboard.writeText(text); setStatus('Scenario copied to clipboard'); }
-        catch { window.prompt('Copy the scenario text:', text); }
+        try { await navigator.clipboard.writeText(text); setStatus(t('Scenario copied to clipboard')); }
+        catch { window.prompt(t('Copy the scenario text:'), text); }
     });
 
     // --- URL sync (for sharing) ------------------------------------------------
@@ -331,5 +332,15 @@ export async function initScenarioVariations() {
     [...new Set(initialQueries)].forEach(n => addQueryCard(n));
 
     syncUrl();
-    setStatus('Ready');
+    setStatus(t('Ready'));
+}
+
+
+// UI chrome i18n: translate this page's static chrome and carry the UI
+// language on /leapi calls (see src/i18n.ts).
+installLeApiLang();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => applyI18nDom());
+} else {
+    applyI18nDom();
 }

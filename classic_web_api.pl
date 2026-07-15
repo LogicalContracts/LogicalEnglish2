@@ -122,7 +122,36 @@ prolog:message(error(le_server_error(port_in_use(Port)), _)) -->
     [ 'Cannot start LE API server: port ~w is already in use.'-[Port], nl,
       'Another server is already listening there; stop it (or pick another port) first.'-[] ].
 
+%!  set_request_language(+Request) is det.
+%
+%   Sets the active (message/UI) language for this API request from the ?lang=
+%   query parameter, when present and registered. The program's OWN language
+%   still governs parsing (parse_le_tokens re-detects it), per decision O-6.
+set_request_language(Request) :-
+    (   catch(http_parameters(Request, [lang(Lang, [optional(true), default('')])]), _, Lang = ''),
+        Lang \== '',
+        le_i18n:known_language(Lang)
+    ->  le_i18n:set_le_language(Lang)
+    ;   true
+    ).
+
+%!  set_cookie_language(+Request) is det.
+%
+%   Sets the active language from the le_ui_lang cookie (used by the
+%   server-rendered landing and /login pages — decision O-13).
+set_cookie_language(Request) :-
+    (   member(cookie(Cookies), Request),
+        memberchk(le_ui_lang=Lang, Cookies),
+        le_i18n:known_language(Lang)
+    ->  le_i18n:set_le_language(Lang)
+    ;   le_i18n:set_le_language(default)
+    ).
+
+% Shorthand used by the server-rendered pages below.
+uit(Key, Text) :- le_i18n:ui_text(Key, Text).
+
 handle_leapi(Request) :-
+    set_request_language(Request),
     http_read_json_dict(Request, Dict),
     (   validate_token(Dict) ->  
             get_dict(operation, Dict, Op),
@@ -200,6 +229,7 @@ handle_graph(Dict, Response) :-
 % --- Landing Page ---
 
 handle_landing_page(Request) :-
+    set_cookie_language(Request),
     http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)]),
                               dir(DirParam0, [optional(true), default('')])]),
     (   http_in_session(_SessionId),
@@ -213,8 +243,10 @@ handle_landing_page(Request) :-
     ;   TestHtml = []
     ),
     (   UserEmail == 'anonymous'
-    ->  AuthLink = a(href('/login'), '[Login]')
-    ;   AuthLink = a(href('/logout'), '[Logout]')
+    ->  uit('Login', LoginTxt), format(atom(LoginLbl), '[~w]', [LoginTxt]),
+        AuthLink = a(href('/login'), LoginLbl)
+    ;   uit('Logout', LogoutTxt), format(atom(LogoutLbl), '[~w]', [LogoutTxt]),
+        AuthLink = a(href('/logout'), LogoutLbl)
     ),
     le_examples_dir(Dir),
     % ?dir=<subdir> focuses the example list on one example subdirectory (e.g.
@@ -236,6 +268,24 @@ handle_landing_page(Request) :-
     ),
     build_info(BuildInfo),
     landing_folders_script(FolderScript),
+    uit('Logged in as: ', LoggedInAs),
+    uit('Edit and Query: ', EditAndQuery),
+    uit('[New Document]', NewDocument),
+    uit('expand all', ExpandAll),
+    uit('collapse all', CollapseAll),
+    uit('Just run a program: ', JustRun),
+    uit('[Executive view]', ExecutiveView),
+    uit('A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.', ExecBlurb),
+    uit('GitHub Repository', GitHubRepo),
+    uit('Documentation', DocumentationTxt),
+    uit('A Gentle Introduction to Logical English 2', IntroTxt),
+    uit('Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.', IntroBlurb),
+    uit('How to use the LE2 web application', HowToTxt),
+    uit('The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.', HowToBlurb),
+    uit('Logical English syntax summary', SyntaxTxt),
+    uit('The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.', SyntaxBlurb),
+    uit('Test Suite', TestSuiteTxt),
+    uit('Run All Tests', RunAllTests),
     reply_html_page(
         [title('Logical English 2.0'),
          % Collapsible example folders: open/closed state per folder is remembered
@@ -245,59 +295,59 @@ handle_landing_page(Request) :-
          script([type('text/javascript')], FolderScript)],
         [
             div([style('float: right; padding: 10px;')], [
-                span(['Logged in as: ', b(UserEmail), ' ']),
+                span([LoggedInAs, b(UserEmail), ' ']),
                 AuthLink
             ]),
             h1('Logical English 2.0'),
             p(small(['Build: ', BuildInfo])),
             ul([
                 li([
-                    b('Edit and Query: '),
-                    a(href('/editor/index.html'), '[New Document]'),
+                    b(EditAndQuery),
+                    a(href('/editor/index.html'), NewDocument),
                     ' ',
                     span([id('le-folder-controls'), style('display:none;')], [
                         '(',
-                        a([href('#'), id('le-expand-all')], 'expand all'),
+                        a([href('#'), id('le-expand-all')], ExpandAll),
                         ' · ',
-                        a([href('#'), id('le-collapse-all')], 'collapse all'),
+                        a([href('#'), id('le-collapse-all')], CollapseAll),
                         ')'
                     ]),
                     FocusNote,
                     ul(ExampleItems)
                 ]),
                 li([
-                    b('Just run a program: '),
-                    a(href('/executive'), '[Executive view]'),
+                    b(JustRun),
+                    a(href('/executive'), ExecutiveView),
                     br([]),
-                    small('A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.')
+                    small(ExecBlurb)
                 ]),
-                li(a(href('https://github.com/mcalejo/LogicalEnglish2'), 'GitHub Repository'))
+                li(a(href('https://github.com/mcalejo/LogicalEnglish2'), GitHubRepo))
             ]),
-            h2('Documentation'),
+            h2(DocumentationTxt),
             ul([
                 li([
                     a([href('/docs/tutorial0/IntroToLE2'), target('_blank')],
-                      'A Gentle Introduction to Logical English 2'),
+                      IntroTxt),
                     br([]),
-                    small('Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.')
+                    small(IntroBlurb)
                 ]),
                 li([
                     a([href('/docs/howToUse'), target('_blank')],
-                      'How to use the LE2 web application'),
+                      HowToTxt),
                     br([]),
-                    small('The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.')
+                    small(HowToBlurb)
                 ]),
                 li([
                     a([href('/docs/le_summary'), target('_blank')],
-                      'Logical English syntax summary'),
+                      SyntaxTxt),
                     br([]),
-                    small('The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.')
+                    small(SyntaxBlurb)
                 ])
             ]),
-            h2('Test Suite'),
+            h2(TestSuiteTxt),
             form([action('/'), method('get')], [
                 input([type(hidden), name(run_tests), value(true)]),
-                input([type(submit), value('Run All Tests')])
+                input([type(submit), value(RunAllTests)])
             ]),
             div(TestHtml)
         ]
@@ -330,27 +380,34 @@ safe_return(Request, Target) :-
     ).
 
 handle_login(Request) :-
+    set_cookie_language(Request),
     (   member(method(post), Request)
     ->  http_parameters(Request, [email(Email, []), password(Password, []), return(Ret, [default('/')])]),
         (   authenticate_le_user(Email, Password, Roles)
         ->  http_session_assert(user(Email, Roles)),
             ( sub_atom(Ret, 0, 1, _, '/'), \+ sub_atom(Ret, 0, 2, _, '//') -> Target = Ret ; Target = '/' ),
             http_redirect(moved, Target, Request)
-        ;   reply_html_page(
-                [title('Login Failed')],
-                [h1('Login Failed'), p('Invalid email or password.'), a(href('/login'), 'Try again')]
+        ;   uit('Login Failed', LoginFailed),
+            uit('Invalid email or password.', InvalidCreds),
+            uit('Try again', TryAgain),
+            reply_html_page(
+                [title(LoginFailed)],
+                [h1(LoginFailed), p(InvalidCreds), a(href('/login'), TryAgain)]
             )
         )
     ;   safe_return(Request, Ret),
+        uit('Login', LoginTxt),
+        uit('Email: ', EmailLbl),
+        uit('Password: ', PasswordLbl),
         reply_html_page(
-            [title('Login')],
+            [title(LoginTxt)],
             [
-                h1('Login'),
+                h1(LoginTxt),
                 form([action('/login'), method('post')], [
                     input([type(hidden), name(return), value(Ret)]),
-                    p(['Email: ', input([type(text), name(email)])]),
-                    p(['Password: ', input([type(password), name(password)])]),
-                    p(input([type(submit), value('Login')]))
+                    p([EmailLbl, input([type(text), name(email)])]),
+                    p([PasswordLbl, input([type(password), name(password)])]),
+                    p(input([type(submit), value(LoginTxt)]))
                 ])
             ]
         )

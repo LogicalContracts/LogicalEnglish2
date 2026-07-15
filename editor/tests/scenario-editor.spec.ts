@@ -157,7 +157,7 @@ test.describe('Scenario Editor', () => {
             localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');   // as if configured via API Keys…
         }, seed);
         // Mock the nl_to_le backend (no real LLM/key needed).
-        await page.route('**/leapi', async (route) => {
+        await page.route('**/leapi*', async (route) => {
             const body = JSON.parse(route.request().postData() || '{}');
             if (body.operation === 'nl_to_le') {
                 expect(body.kind).toBe('facts');
@@ -191,7 +191,7 @@ test.describe('Scenario Editor', () => {
             localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');
         }, seed);
         // Mock a verified-with-issues response (as the backend's baseline-diff would return).
-        await page.route('**/leapi', async (route) => {
+        await page.route('**/leapi*', async (route) => {
             const body = JSON.parse(route.request().postData() || '{}');
             if (body.operation === 'nl_to_le') {
                 expect(typeof body.content).toBe('string');   // program is sent for verification

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 import { NodeEditor, GetSchemes, ClassicPreset } from 'rete';
 import { AreaPlugin, AreaExtensions } from 'rete-area-plugin';
 import { ConnectionPlugin, Presets as ConnectionPresets } from 'rete-connection-plugin';
@@ -1448,7 +1449,7 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                     if (recovered) { updateUnification(true); return; }
                     if (!sessionLostNotified) {
                         sessionLostNotified = true;
-                        alert('The Proof Game session has expired. Please reopen the Proof Game from the editor to continue.');
+                        alert(t('The Proof Game session has expired. Please reopen the Proof Game from the editor to continue.'));
                     }
                 }
             }
@@ -1698,11 +1699,11 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     // Show proof logic
     document.getElementById('btn-show')?.addEventListener('click', async () => {
         if (!gameData.explanation) {
-            alert("No proof found for this query.");
+            alert(t("No proof found for this query."));
             return;
         }
         
-        if (!confirm("Are you sure you want to miss the excitement of finding the proof yourself?")) {
+        if (!confirm(t("Are you sure you want to miss the excitement of finding the proof yourself?"))) {
             return;
         }
 
@@ -1972,4 +1973,14 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             };
         }
     } catch { /* localStorage unavailable */ }
+}
+
+
+// UI chrome i18n: translate this page's static chrome and carry the UI
+// language on /leapi calls (see src/i18n.ts).
+installLeApiLang();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => applyI18nDom());
+} else {
+    applyI18nDom();
 }
