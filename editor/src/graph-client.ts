@@ -16,6 +16,7 @@ const graphSearch = document.getElementById('graph-search') as HTMLInputElement;
 const tooltip = document.getElementById('tooltip')!;
 const contextMenu = document.getElementById('context-menu')!;
 const ctxLayoutFromHere = document.getElementById('ctx-layout-from-here')!;
+const ctxCopyNode = document.getElementById('ctx-copy-node')!;
 const ctxCopyUrl = document.getElementById('ctx-copy-url')!;
 
 // Navigation buttons
@@ -30,6 +31,44 @@ const visibilityCheckboxes = document.querySelectorAll('.checkbox-item input[typ
 let sessionModule: string | null = null;
 let rawGraphData: { nodes: any[], edges: any[] } | null = null;
 const graphChannel = new BroadcastChannel('le-graph-sync');
+
+// --- View preferences, persisted in LocalStorage -------------------------------
+// Layout algorithm, direction, and the selected layers (node/edge type
+// checkboxes) survive across graph windows, so the view opens the way the user
+// last configured it.
+const PREF_LAYOUT = 'le-graph-layout';
+const PREF_DIRECTION = 'le-graph-direction';
+const PREF_LAYERS = 'le-graph-layers';
+
+function restorePreferences() {
+    const layout = localStorage.getItem(PREF_LAYOUT);
+    if (layout && Array.from(layoutSelect.options).some(o => o.value === layout)) {
+        layoutSelect.value = layout;
+    }
+    const direction = localStorage.getItem(PREF_DIRECTION);
+    if (direction && Array.from(directionSelect.options).some(o => o.value === direction)) {
+        directionSelect.value = direction;
+    }
+    try {
+        const layers = JSON.parse(localStorage.getItem(PREF_LAYERS) || 'null');
+        if (layers && typeof layers === 'object') {
+            visibilityCheckboxes.forEach(cb => {
+                const t = cb.dataset.type || '';
+                if (t in layers) cb.checked = !!layers[t];
+            });
+        }
+    } catch { /* corrupt preference: keep the defaults */ }
+}
+
+function savePreferences() {
+    localStorage.setItem(PREF_LAYOUT, layoutSelect.value);
+    localStorage.setItem(PREF_DIRECTION, directionSelect.value);
+    const layers: { [t: string]: boolean } = {};
+    visibilityCheckboxes.forEach(cb => { layers[cb.dataset.type || ''] = cb.checked; });
+    localStorage.setItem(PREF_LAYERS, JSON.stringify(layers));
+}
+
+restorePreferences();
 
 const getThemeStyles = (theme: string) => {
     const isLight = theme === 'le-theme-light';
@@ -203,6 +242,17 @@ ctxLayoutFromHere.addEventListener('click', () => {
     }
 });
 
+// Copy the node's text (its label — the LE sentence, template, or name) so it
+// can be pasted into the editor, a document, or a chat.
+ctxCopyNode.addEventListener('click', () => {
+    if (rightClickedNode) {
+        const label = rightClickedNode.data('label') || rightClickedNode.id();
+        navigator.clipboard.writeText(String(label)).then(() => {
+            alert('Node copied to clipboard');
+        });
+    }
+});
+
 ctxCopyUrl.addEventListener('click', () => {
     if (rightClickedNode) {
         const url = new URL(window.location.href);
@@ -300,13 +350,13 @@ async function refreshGraph() {
             cy.elements().remove();
             cy.add(data.nodes);
             cy.add(data.edges);
-            
+
+            // One deterministic sequence: filter to the selected layers, then lay
+            // out the visible elements once. (A second, deferred layout used to
+            // race the initial one, so the view sometimes settled on a layout
+            // computed from a stale visible set — "fewer layers than selected".)
             applyFilters();
-            
-            // Force a layout run after a short delay to ensure elements are ready
-            setTimeout(() => {
-                runLayout();
-            }, 100);
+            runLayout();
         }
     } catch (err) {
         console.error('Failed to refresh graph', err);
@@ -444,6 +494,8 @@ graphChannel.onmessage = (event) => {
                 if (titleEl) titleEl.textContent = `Graph View for ${data.filename}`;
             }
             if (data.isLoaded) {
+                // refreshGraph already filters and lays out; only the ?focus=
+                // deep link needs handling afterwards.
                 refreshGraph().then(() => {
                     const urlParams = new URLSearchParams(window.location.search);
                     const focusId = urlParams.get('focus');
@@ -454,8 +506,6 @@ graphChannel.onmessage = (event) => {
                             node.addClass('focused');
                             cy.animate({ center: { eles: node } }, { duration: 500 });
                         }
-                    } else {
-                        runLayout(); // Ensure layout runs after initial load
                     }
                 });
             }
@@ -500,12 +550,15 @@ function focusNodeAtOffset(offset: number) {
 
 // Event Listeners
 btnRefreshGraph.addEventListener('click', refreshGraph);
-layoutSelect.addEventListener('change', runLayout);
-directionSelect.addEventListener('change', runLayout);
-scenarioSelect.addEventListener('change', applyFilters);
+layoutSelect.addEventListener('change', () => { savePreferences(); runLayout(); });
+directionSelect.addEventListener('change', () => { savePreferences(); runLayout(); });
+scenarioSelect.addEventListener('change', () => { applyFilters(); runLayout(); });
 
+// A layer toggle must re-run the layout: nodes that were hidden during the
+// last layout have no meaningful positions, so merely showing them would pile
+// them up unpositioned.
 visibilityCheckboxes.forEach(cb => {
-    cb.addEventListener('change', applyFilters);
+    cb.addEventListener('change', () => { savePreferences(); applyFilters(); runLayout(); });
 });
 
 btnZoomIn.addEventListener('click', () => cy.zoom(cy.zoom() * 1.2));
@@ -537,6 +590,23 @@ graphSearch.addEventListener('input', () => {
 window.addEventListener('resize', () => {
     cy.resize();
 });
+
+// Test-only hook (enabled by a localStorage flag the e2e sets before opening
+// the window): exposes the cytoscape instance so tests can assert on rendered
+// nodes/visibility. No-op in normal use.
+try {
+    if (localStorage.getItem('le_graph_test') === '1') {
+        (window as any).__graphTest = {
+            cy,
+            nodes: () => cy.nodes().map((n: any) => ({
+                id: n.id(), type: n.data('type'), label: n.data('label') || '',
+                visible: n.style('display') !== 'none',
+            })),
+            refreshGraph,
+            rightClicked: () => rightClickedNode && rightClickedNode.data('label'),
+        };
+    }
+} catch { /* localStorage unavailable */ }
 
 // Request initial state
 graphChannel.postMessage({ type: 'request-state' });

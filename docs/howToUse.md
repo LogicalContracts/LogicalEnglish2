@@ -43,7 +43,7 @@ folders. Its URL takes two optional parameters, handy for sharable links:
 2.  **The Interface:**
     *   **Top:** Header with filename and module information.
     *   **Middle:** Monaco-based code editor with syntax highlighting and error reporting.
-    *   **Bottom:** Multi-tab panel for Queries, Graphs, and the LE Assistant.
+    *   **Bottom:** Multi-tab panel for Queries and the LE Assistant.
 
 ## Executive Mode (run a program without editing)
 
@@ -224,6 +224,6 @@ Open **Misc → EXPLANATIONS → Preferences...** to configure:
 
 ## Advanced Features
 
-*   **Graph View:** The **Graph** tab visualizes the dependencies between your rules and templates.
+*   **Source Graph:** **Misc → View Source Graph** opens, in a new browser tab, an interactive graph of the program: templates, rules, facts, scenarios, types and queries as nodes, with their uses/depends-on/negates/is-a relationships as edges. A sidebar selects the layout algorithm, its direction, and which layers (node and edge types) to show — these preferences persist across sessions. Clicking a node highlights its source text back in the editor (and the editor caret focuses the corresponding node); right-clicking a node offers **Copy Node** (copies its text to the clipboard), **Copy URL** (a shareable link focusing that node) and **Redraw from here**.
 *   **LE Assistant:** Use the **LE Assistant** tab to ask questions about your code or request help with drafting new rules.
 *   **Debugger:** Right-click in the editor and select **See PROLOG** to view the translated logic, or use the **Trace** button in the Query tab for step-by-step execution.

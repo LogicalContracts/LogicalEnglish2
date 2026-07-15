@@ -41,14 +41,21 @@ The server is responsible for resolving designators, dependency edges, and type 
 - **Compound nodes** for KB and Scenario containment.
 - **Classes**: `.focused`, `.dimmed`, `.error`, `.warning`, `.path` for highlighting.
 
+## Opening
+The graph opens in its own browser tab from **Misc → View Source Graph** (or the editor's context menu). It talks to the editor over a BroadcastChannel for state, theme, and caret/selection sync.
+
 ## Interaction
 - **Click node** → editor reveals and highlights `[start, end]` range; node gets `.focused`.
 - **Editor caret move** → graph focuses node whose source range contains the offset.
 - **Hover edge** → tooltip with edge type and source rule designator.
-- **Filter panel** — toggle node/edge types to display; collapse compounds; show/hide negation edges.
+- **Filter panel** — toggle node/edge types to display; collapse compounds; show/hide negation edges. The layout algorithm, direction, and selected layers persist in LocalStorage, and toggling a layer re-runs the layout (newly shown nodes need positions).
 - **Search** — by template pattern, rule designator, or type name; results highlight and pan.
 - **Neighborhood query** — right-click node → "show dependents" / "show dependencies" / "show full chain".
+- **Copy Node** — right-click node → copies the node's text (LE sentence / template / name) to the clipboard.
 - **Copy URL** - from any visible element, allowing another user to display the same graph with that element focused
+
+## Exclusions
+Bookkeeping clauses never appear as nodes: `le_kb/1` and the expected-answer test records (`le_expected/N`, from "expects answers" scenario items).
 
 ## Out of Scope (of this v1)
 Proof-tree visualization, runtime query evaluation traces, multi-KB cross-references, editing from the graph.

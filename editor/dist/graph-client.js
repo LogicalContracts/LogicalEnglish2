@@ -139315,6 +139315,7 @@ var graphSearch = document.getElementById("graph-search");
 var tooltip = document.getElementById("tooltip");
 var contextMenu = document.getElementById("context-menu");
 var ctxLayoutFromHere = document.getElementById("ctx-layout-from-here");
+var ctxCopyNode = document.getElementById("ctx-copy-node");
 var ctxCopyUrl = document.getElementById("ctx-copy-url");
 var btnZoomIn = document.getElementById("btn-zoom-in");
 var btnZoomOut = document.getElementById("btn-zoom-out");
@@ -139324,6 +139325,40 @@ var visibilityCheckboxes = document.querySelectorAll('.checkbox-item input[type=
 var sessionModule = null;
 var rawGraphData = null;
 var graphChannel = new BroadcastChannel("le-graph-sync");
+var PREF_LAYOUT = "le-graph-layout";
+var PREF_DIRECTION = "le-graph-direction";
+var PREF_LAYERS = "le-graph-layers";
+function restorePreferences() {
+  const layout4 = localStorage.getItem(PREF_LAYOUT);
+  if (layout4 && Array.from(layoutSelect.options).some((o) => o.value === layout4)) {
+    layoutSelect.value = layout4;
+  }
+  const direction = localStorage.getItem(PREF_DIRECTION);
+  if (direction && Array.from(directionSelect.options).some((o) => o.value === direction)) {
+    directionSelect.value = direction;
+  }
+  try {
+    const layers = JSON.parse(localStorage.getItem(PREF_LAYERS) || "null");
+    if (layers && typeof layers === "object") {
+      visibilityCheckboxes.forEach((cb) => {
+        const t = cb.dataset.type || "";
+        if (t in layers)
+          cb.checked = !!layers[t];
+      });
+    }
+  } catch {
+  }
+}
+function savePreferences() {
+  localStorage.setItem(PREF_LAYOUT, layoutSelect.value);
+  localStorage.setItem(PREF_DIRECTION, directionSelect.value);
+  const layers = {};
+  visibilityCheckboxes.forEach((cb) => {
+    layers[cb.dataset.type || ""] = cb.checked;
+  });
+  localStorage.setItem(PREF_LAYERS, JSON.stringify(layers));
+}
+restorePreferences();
 var getThemeStyles = (theme) => {
   const isLight = theme === "le-theme-light";
   const isHC = theme === "hc-black";
@@ -139488,6 +139523,14 @@ ctxLayoutFromHere.addEventListener("click", () => {
     }).run();
   }
 });
+ctxCopyNode.addEventListener("click", () => {
+  if (rightClickedNode) {
+    const label = rightClickedNode.data("label") || rightClickedNode.id();
+    navigator.clipboard.writeText(String(label)).then(() => {
+      alert("Node copied to clipboard");
+    });
+  }
+});
 ctxCopyUrl.addEventListener("click", () => {
   if (rightClickedNode) {
     const url = new URL(window.location.href);
@@ -139586,9 +139629,7 @@ async function refreshGraph() {
       cy.add(data4.nodes);
       cy.add(data4.edges);
       applyFilters();
-      setTimeout(() => {
-        runLayout();
-      }, 100);
+      runLayout();
     }
   } catch (err) {
     console.error("Failed to refresh graph", err);
@@ -139710,8 +139751,6 @@ graphChannel.onmessage = (event3) => {
               node.addClass("focused");
               cy.animate({ center: { eles: node } }, { duration: 500 });
             }
-          } else {
-            runLayout();
           }
         });
       }
@@ -139751,11 +139790,24 @@ function focusNodeAtOffset(offset) {
   }
 }
 btnRefreshGraph.addEventListener("click", refreshGraph);
-layoutSelect.addEventListener("change", runLayout);
-directionSelect.addEventListener("change", runLayout);
-scenarioSelect.addEventListener("change", applyFilters);
+layoutSelect.addEventListener("change", () => {
+  savePreferences();
+  runLayout();
+});
+directionSelect.addEventListener("change", () => {
+  savePreferences();
+  runLayout();
+});
+scenarioSelect.addEventListener("change", () => {
+  applyFilters();
+  runLayout();
+});
 visibilityCheckboxes.forEach((cb) => {
-  cb.addEventListener("change", applyFilters);
+  cb.addEventListener("change", () => {
+    savePreferences();
+    applyFilters();
+    runLayout();
+  });
 });
 btnZoomIn.addEventListener("click", () => cy.zoom(cy.zoom() * 1.2));
 btnZoomOut.addEventListener("click", () => cy.zoom(cy.zoom() * 0.8));
@@ -139780,6 +139832,22 @@ graphSearch.addEventListener("input", () => {
 window.addEventListener("resize", () => {
   cy.resize();
 });
+try {
+  if (localStorage.getItem("le_graph_test") === "1") {
+    window.__graphTest = {
+      cy,
+      nodes: () => cy.nodes().map((n) => ({
+        id: n.id(),
+        type: n.data("type"),
+        label: n.data("label") || "",
+        visible: n.style("display") !== "none"
+      })),
+      refreshGraph,
+      rightClicked: () => rightClickedNode && rightClickedNode.data("label")
+    };
+  }
+} catch {
+}
 graphChannel.postMessage({ type: "request-state" });
 /*! Bundled license information:
 
