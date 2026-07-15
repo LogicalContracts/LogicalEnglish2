@@ -15,6 +15,7 @@
 
 :- use_module(tokenizer, [tokenize/2, tokenize_file/2, tokens_to_string/2]).
 :- use_module(le_system_templates).
+:- use_module(le_i18n).
 :- use_module(library(dcg/basics)).
 
 :- thread_local current_token_pos/1.
@@ -738,9 +739,9 @@ extract_var_info_from_words(Words, Name, Type) :-
     ( Words = [Art | Rest], Rest \== [], is_article(Art) -> atomic_list_concat(Rest, ' ', Type); atomic_list_concat(Words, ' ', Type)),
     Name = Type.
 
-is_article(A) :- memberchk(A, [a, an, the, some, 'A', 'An', 'The', 'Some']).
+is_article(A) :- le_i18n:class_member(article, A).
 
-is_ignorable(W) :- memberchk(W, [a, an, the, are, was, were, has, have, had, do, does, did, been]).
+is_ignorable(W) :- le_i18n:class_member(ignorable, W).
 
 % template_instance(Tokens) parses a sequence of tokens that form a template instance.
 template_instance([P|Ps]) -->
@@ -884,7 +885,7 @@ is_id(W) :- atom(W), atom_length(W, 1), is_upper_atom(W).
 is_id(W) :- atom(W), atom_length(W, L), L =< 6, is_all_caps(W), \+ (W == 'UK').
 is_id(W) :- atom(W), atom_length(W, L), L =< 3, is_proper_name_atom(W).
 
-is_reserved(W) :- member(W, [says, that, if, and, or, unless]).
+is_reserved(W) :- le_i18n:class_member(reserved, W).
 
 extract_id(Words, Name) :-
     \+ (member(W, Words), is_reserved(W)),
@@ -926,7 +927,7 @@ extract_var_name(Words, Name) :-
 allow_var_name(true, Words, Name) :- extract_var_name(Words, Name).
 allow_var_name(indefinite, Words, Name) :- \+ definite_phrase(Words), extract_var_name(Words, Name).
 
-definite_phrase([Art | _]) :- memberchk(Art, [the, 'The']).
+definite_phrase([Art | _]) :- le_i18n:class_member(definite_article, Art).
 
 unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
     unify_with_vmap_extension(Name, Var, VMIn, VMOut, IsVar), !.
@@ -1063,9 +1064,7 @@ strip_leading_qualifiers(Words, Words).
 %   Words that may precede a noun to distinguish several variables of the same
 %   type (e.g. "a first person" vs "a second person") without forming part of
 %   the type itself.
-is_var_qualifier(W) :-
-    memberchk(W, [first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth,
-                  other, another, new, previous, next, current, last, same, original, single, given]).
+is_var_qualifier(W) :- le_i18n:class_member(qualifier, W).
 
 extract_value(var(Words, _), Val, VMIn, VMOut, Templates, AllowVars) :- !,
     extract_value(var(Words), Val, VMIn, VMOut, Templates, AllowVars).
@@ -1134,24 +1133,33 @@ match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
 %   says_that(C, is_the_father_of(A, B)). Non-meta candidates still follow on
 %   backtracking, so nothing that parsed before becomes unparseable.
 candidate_template(Templates, Words, Dict) :-
+    % Fetch the active language's meta-marker word list ONCE per call: this
+    % predicate scans every template, and a per-word lexicon lookup here is a
+    % measurable parse-time regression on large programs.
+    le_i18n:class_word_list(meta_marker, Ms),
     (   member(Dict, Templates),
         Dict = dict(_, _, WV, _, _, NIW, _, _, _, _),
-        meta_template_wv(WV),
+        meta_template_wv(WV, Ms),
         contains_subsequence(NIW, Words)
     ;   member(Dict, Templates),
         Dict = dict(_, _, WV, _, _, NIW, _, _, _, _),
-        \+ meta_template_wv(WV),
+        \+ meta_template_wv(WV, Ms),
         contains_subsequence(NIW, Words)
     ).
 
 %!  meta_template_wv(+WV) is semidet.
 %
 %   The template's word list has a META slot: a variable immediately preceded by
-%   a meta marker word (see is_meta_prev/1).
+%   a meta marker word (a word of the meta_marker lexicon class, see
+%   is_meta_prev/1).
 meta_template_wv(WV) :-
-    append(_, [W, V|_], WV),
-    atom(W), is_meta_prev(W),
-    var(V), !.
+    le_i18n:class_word_list(meta_marker, Ms),
+    meta_template_wv(WV, Ms).
+
+meta_template_wv([W, V|_], Ms) :-
+    atom(W), memberchk(W, Ms), var(V), !.
+meta_template_wv([_|T], Ms) :-
+    meta_template_wv(T, Ms).
 
 match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars) :-
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, 0).
@@ -1214,8 +1222,7 @@ match_instance_to_template_acc(Instance, [T|Ts], VMIn, VMOut, Templates, AllowVa
 %
 %   True when the template constant just consumed marks the following variable as
 %   a meta-variable (an embedded eventuality/clause).
-is_meta_prev(that).
-is_meta_prev(says).
+is_meta_prev(W) :- le_i18n:class_member(meta_marker, W).
 
 %!  extract_template_var(+Parts, -Value, +VMIn, -VMOut, +Templates, +AllowVars, +Depth, +Meta) is semidet.
 %
@@ -1333,7 +1340,8 @@ template_priority(dict(FA, _, WordsAndVars, _, _, _, _, _, _, _), Priority-Score
 
 is_meta_template(dict(_, _, WordsAndVars, _, _, _, _, _, _)) :-
     member(W, WordsAndVars),
-    (W == that ; W == says).
+    atom(W),
+    is_meta_prev(W).
 
 get_dicts(predicates(Ds), Ds).
 get_dicts(templates(Ds), Ds).

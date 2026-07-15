@@ -1,32 +1,42 @@
 /** <module> Logical English System Templates
-    
-    This module defines the built-in system templates for Logical English.
-    These include comparison operators, assignment, and other core
-    language constructs.
+
+    This module defines the built-in system templates for Logical English:
+    comparison operators, assignment, and other core language constructs.
+
+    The word-based surface phrases (e.g. "is equal to", "é igual a") live in
+    i18n/system_templates.csv, one column per language; this module builds the
+    template dicts for the ACTIVE language (see le_i18n). Symbolic operator
+    templates (>=, <=, =, ...) are language-neutral and stay defined here.
 */
 
 :- module(le_system_templates, [le_system_template/1]).
 
+:- use_module(le_i18n).
+
 % le_system_template(dict(FunctorArgs, NamesTypes, WordsAndVars))
 
-le_system_template(dict([le_equal_to, V1, V2], [V1-any, V2-any], [V1, is, equal, to, V2])).
-le_system_template(dict([le_not_equal_to, V1, V2], [V1-any, V2-any], [V1, is, not, equal, to, V2])).
-le_system_template(dict([le_not_equal_to, V1, V2], [V1-any, V2-any], [V1, is, different, from, V2])).
-le_system_template(dict([le_ge, V1, V2], [V1-number, V2-number], [V1, is, greater, than, or, equal, to, V2])).
-le_system_template(dict([le_le, V1, V2], [V1-number, V2-number], [V1, is, less, than, or, equal, to, V2])).
-le_system_template(dict([le_gt, V1, V2], [V1-number, V2-number], [V1, is, greater, than, V2])).
-le_system_template(dict([le_lt, V1, V2], [V1-number, V2-number], [V1, is, less, than, V2])).
-le_system_template(dict([le_ge, V1, V2], [V1-date, V2-date], [V1, is, after, or, equal, to, V2])).
-le_system_template(dict([le_le, V1, V2], [V1-date, V2-date], [V1, is, before, or, equal, to, V2])).
-le_system_template(dict([le_gt, V1, V2], [V1-date, V2-date], [V1, is, after, V2])).
-le_system_template(dict([le_lt, V1, V2], [V1-date, V2-date], [V1, is, before, V2])).
+% Word-based templates, from i18n/system_templates.csv for the active language.
+le_system_template(dict(FunctorArgs, NTs, WV)) :-
+    le_i18n:system_template_row(Functor, Types, Parts),
+    build_sys_dict(Functor, Types, Parts, FunctorArgs, NTs, WV).
+
+% Symbolic operator templates (language-neutral).
 le_system_template(dict([le_ge, V1, V2], [V1-number, V2-number], [V1, '>=', V2])).
 le_system_template(dict([le_le, V1, V2], [V1-number, V2-number], [V1, '<=', V2])).
 le_system_template(dict([le_le, V1, V2], [V1-number, V2-number], [V1, '=<', V2])).
 le_system_template(dict([le_gt, V1, V2], [V1-number, V2-number], [V1, '>', V2])).
 le_system_template(dict([le_lt, V1, V2], [V1-number, V2-number], [V1, '<', V2])).
-le_system_template(dict([le_known, V], [V-any], [V, is, known])).
 le_system_template(dict([le_assign, V1, V2], [V1-any, V2-any], [V1, '=', V2])).
-le_system_template(dict([le_is, V1, V2], [V1-any, V2-any], [V1, is, V2])).
-le_system_template(dict([le_is_in, V1, V2], [V1-any, V2-list], [V1, is, in, V2])).
-le_system_template(dict([le_is_days_after, V1, V2, V3], [V1-date, V2-number, V3-date], [V1, is, V2, days, after, V3])).
+
+%!  build_sys_dict(+Functor, +Types, +Parts, -FunctorArgs, -NTs, -WV) is det.
+%
+%   Builds a template dict from a CSV row: Types gives the argument types (and
+%   arity), Parts is the surface phrase where slot(N) marks the N-th argument.
+build_sys_dict(Functor, Types, Parts, [Functor|Args], NTs, WV) :-
+    length(Types, N),
+    length(Args, N),
+    pairs_keys_values(NTs, Args, Types),
+    maplist(part_to_wv(Args), Parts, WV).
+
+part_to_wv(Args, slot(N), V) :- !, nth1(N, Args, V).
+part_to_wv(_, Word, Word).
