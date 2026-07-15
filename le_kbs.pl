@@ -7,7 +7,7 @@
 
 :- module(le_kbs, [load/2, load/3, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
-    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1,
+    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
@@ -1163,6 +1163,19 @@ or_render_word(W) :-
 copula_render_word(W) :-
     ( le_i18n:kw_main_words(copula, [W]) -> true ; W = is ).
 
+%!  text_language(+Text, -Lang) is det.
+%
+%   The language an LE source text declares in its first statement (en when no
+%   registered opener matches — decision O-1). Only the head of the text is
+%   tokenized.
+text_language(Text, Lang) :-
+    (   catch(( sub_string(Text, 0, 500, _, Head0) -> true ; Head0 = Text ), _, Head0 = Text),
+        catch(tokenizer:tokenize(Head0, Tokens), _, fail),
+        le_i18n:detect_language_tokens(Tokens, Lang0)
+    ->  Lang = Lang0
+    ;   Lang = en
+    ).
+
 %!  ensure_kb_language(+KBmodule) is det.
 %
 %   Sets the active language (for keyword rendering and messages) from the
@@ -1682,9 +1695,11 @@ fill_type(V-Type) :-
 %   Returns a short string summarizing the KB and its top predicates.
 kbSummary(KB, Summary) :-
     (current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true ; KBName = KB),
+    ensure_kb_language(KB),
     topPredicates(KB, TopPreds),
     atomic_list_concat(TopPreds, '; ', PredsStr),
-    format(string(Summary), "KB: ~w. Top predicates: ~w", [KBName, PredsStr]).
+    le_i18n:le_msg(kb_summary, [kb-KBName, predicates-PredsStr], SummaryAtom),
+    atom_string(SummaryAtom, Summary).
 
 %!  parse_custom_facts(+KB:atom, +Text:string, -Terms:list) is det.
 %

@@ -196,6 +196,11 @@ get_key_for_model(Model, Keys, Key) :-
 %
 %   Assembles the system prompt by inlining instructions, syntax, and examples.
 assemble_system_prompt(Program, UserRoles, SystemPrompt) :-
+    % The prompt assets follow the PROGRAM's language (its opener statement);
+    % an empty/undeclared program follows the request's UI language (O-6).
+    ( le_kbs:text_language(Program, ProgLang), ProgLang \== en -> true
+    ; le_i18n:le_active_language(ProgLang) ),
+    le_i18n:set_le_language(ProgLang),
     load_agent_template(_ResourceMap, InstructionBody0),
     % Replace positional placeholders in InstructionBody0 if any
     catch(
@@ -204,11 +209,9 @@ assemble_system_prompt(Program, UserRoles, SystemPrompt) :-
         InstructionBody = InstructionBody0
     ),
     
-    % Load LE syntax summary
-    ( exists_file('docs/le_summary.md') -> 
-        read_file_to_string('docs/le_summary.md', SyntaxSummary, [])
-    ; read_file_to_string('../docs/le_summary.md', SyntaxSummary, [])
-    ),
+    % Load LE syntax summary (the active language's variant when present)
+    le_i18n:localized_asset('docs/le_summary', md, SummaryPath),
+    read_file_to_string(SummaryPath, SyntaxSummary, []),
     
     % Load curated examples
     load_curated_examples(UserRoles, ExamplesStr),
@@ -216,19 +219,36 @@ assemble_system_prompt(Program, UserRoles, SystemPrompt) :-
     % Get tool specification
     tool_specification(ToolSpec),
     
+    % Output-language directive (a no-op line for English)
+    language_directive(LangDirective),
+
     % Assemble everything
     format(string(SystemPrompt),
-           "~w\n\n## Logical English Syntax Summary\n~w\n\n## Curated Examples\n~w\n\n~w\n\n## Your Program\n```\n~w\n```\n",
-           [InstructionBody, SyntaxSummary, ExamplesStr, ToolSpec, Program]).
+           "~w~w\n\n## Logical English Syntax Summary\n~w\n\n## Curated Examples\n~w\n\n~w\n\n## Your Program\n```\n~w\n```\n",
+           [InstructionBody, LangDirective, SyntaxSummary, ExamplesStr, ToolSpec, Program]).
+
+%!  language_directive(-Directive) is det.
+%
+%   An explicit output-language instruction for non-English programs: respond
+%   and write LE in the program's language, with its keyword set.
+language_directive(Directive) :-
+    le_i18n:le_active_language(Lang),
+    (   Lang == en
+    ->  Directive = ""
+    ;   ( le_i18n:language_param(Lang, english_name, Name) -> true ; Name = Lang ),
+        ( le_i18n:language_autonym(Lang, Autonym) -> true ; Autonym = Name ),
+        ( le_i18n:language_opener(Lang, OpenerWords), atomic_list_concat(OpenerWords, ' ', Opener) -> true ; Opener = '' ),
+        format(string(Directive),
+               "\n\n## Output language\nThe program is written in ~w (~w). Write ALL Logical English you produce in ~w, using the ~w keyword set shown in the syntax summary below; the program's first statement must be `~w: prolog.`. Respond to the user in ~w.\n",
+               [Name, Autonym, Name, Name, Opener, Name])
+    ).
 
 %!  load_agent_template(-ResourceMap, -InstructionBody) is det.
 %
 %   Loads and parses the AGENTS_LE_template.md file.
 load_agent_template(ResourceMap, InstructionBody) :-
-    ( exists_file('AGENTS_LE_template.md') -> 
-        read_file_to_string('AGENTS_LE_template.md', Template, [])
-    ; read_file_to_string('../AGENTS_LE_template.md', Template, [])
-    ),
+    le_i18n:localized_asset('AGENTS_LE_template', md, TemplatePath),
+    read_file_to_string(TemplatePath, Template, []),
     (   sub_string(Template, 0, 3, _, "---")
     ->  sub_string(Template, 3, _, _, Rest),
         sub_string(Rest, BeforeDash, 3, AfterDash, "---"),
@@ -294,6 +314,24 @@ list_examples_with_summaries(Dir, Prefix, UserRoles, Examples) :-
     append(SubExamplesLists, SubExamplesFlat),
     append(DirectExamples, SubExamplesFlat, Examples).
 
+load_curated_examples(_UserRoles, ExamplesStr) :-
+    % Non-English languages use their own example tree (examples/<lang>/).
+    le_i18n:le_active_language(Lang),
+    Lang \== en,
+    atomic_list_concat([examples, /, Lang], LangDir),
+    exists_directory(LangDir),
+    !,
+    atomic_list_concat([LangDir, '/'], LangDirSlash),
+    directory_files(LangDir, Files0),
+    include([F]>>sub_atom(F, _, _, 0, '.le'), Files0, Files),
+    msort(Files, Sorted),
+    findall(Block,
+            ( member(F, Sorted),
+              atomic_list_concat([LangDirSlash, F], Path),
+              catch(read_file_to_string(Path, Content, []), _, fail),
+              format(string(Block), "### Example: ~w\n```le\n~w\n```\n", [F, Content]) ),
+            Blocks),
+    atomic_list_concat(Blocks, "\n", ExamplesStr).
 load_curated_examples(UserRoles, ExamplesStr) :-
     le_kbs:le_examples_dir(ExDir),
     atomic_list_concat([ExDir, '/'], DirSlash),
