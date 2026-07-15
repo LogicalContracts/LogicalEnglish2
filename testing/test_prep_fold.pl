@@ -90,3 +90,54 @@ test(query_with_free_connective_stays_a_body) :-
     assertion(F == and).
 
 :- end_tests(prep_fold).
+
+% --- Definite "this <type>" anchors for prepositional chains -------------------
+% "we will make this payment under this policy." — 'this payment' is a constant,
+% so the under-chain used to find no anchor variable, chaining failed, and the
+% whole phrase was absorbed into the head argument as a compound term:
+%     we_will_make(under('this payment','this policy'))
+% A definite phrase followed by a prepositional chain describes the entity the
+% chain constrains, so it lifts into a shared variable (lift_this_anchors/7):
+%     we_will_make(P) :- under(P, 'this policy')
+
+strip_le_at_local(le_at(G, _, _), Out) :- !, strip_le_at_local(G, Out).
+strip_le_at_local(G, G).
+
+:- begin_tests(prep_this_anchor).
+
+test(this_phrase_lifts_into_chain_anchor) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*; prepositional.\n\nthe contract states that:\n\nwe will make this payment under this policy.\n",
+    le_kbs:load_text(Text, KB),
+    once(( clause(KB:we_will_make(P), Body0), Body0 \== true )),
+    strip_le_at_local(Body0, Body),
+    assertion(var(P)),
+    assertion(Body == under(P, 'this policy')).
+
+% Without a chain the definite phrase keeps denoting the constant individual.
+test(this_phrase_without_chain_stays_constant) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*; prepositional.\n\nthe contract states that:\n\nwe will make this payment.\n",
+    le_kbs:load_text(Text, KB),
+    assertion(clause(KB:we_will_make('this payment'), true)).
+
+% An indefinite anchor ("a payment") keeps working as before, through the
+% ordinary variable lookup.
+test(indefinite_anchor_still_chains) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*; prepositional.\n\nthe contract states that:\n\nwe will make a payment under this policy.\n",
+    le_kbs:load_text(Text, KB),
+    once(( clause(KB:we_will_make(P), Body0), Body0 \== true )),
+    strip_le_at_local(Body0, Body),
+    assertion(var(P)),
+    assertion(Body == under(P, 'this policy')).
+
+% A multi-step chain shares the ONE lifted variable across all chained goals.
+test(lifted_anchor_shared_across_chain) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*; prepositional.\n    *a payment* in respect of *a claim*; prepositional.\n\nthe contract states that:\n\nwe will make this payment under this policy in respect of this claim.\n",
+    le_kbs:load_text(Text, KB),
+    once(( clause(KB:we_will_make(P), Body0), Body0 \== true )),
+    assertion(var(P)),
+    Body0 = and(G1a, G2a),
+    strip_le_at_local(G1a, G1), strip_le_at_local(G2a, G2),
+    msort([G1, G2], Goals),
+    assertion(Goals == [in_respect_of(P, 'this claim'), under(P, 'this policy')]).
+
+:- end_tests(prep_this_anchor).
