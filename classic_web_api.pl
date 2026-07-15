@@ -590,8 +590,12 @@ handle_examples(Dict, Response) :-
         % access (loginRequired sends the editor to /login); a user who IS logged
         % in simply lacks the required role, so a login redirect would only confuse.
         (   LoggedIn == false
-        ->  Response = _{error: "Access denied: this example requires login", loginRequired: true}
-        ;   Response = _{error: "Access denied: your account does not have access to this example"}
+        ->  le_i18n:le_msg(access_denied_login, [], DeniedLoginMsg),
+            atom_string(DeniedLoginMsg, DeniedLoginStr),
+            Response = _{error: DeniedLoginStr, loginRequired: true}
+        ;   le_i18n:le_msg(access_denied_role, [], DeniedRoleMsg),
+            atom_string(DeniedRoleMsg, DeniedRoleStr),
+            Response = _{error: DeniedRoleStr}
         )
     ).
 

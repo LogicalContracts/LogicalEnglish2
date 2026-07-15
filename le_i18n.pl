@@ -23,7 +23,8 @@
     known_language/1,           % ?Lang
     language_autonym/2,         % ?Lang, ?Autonym
     language_opener/2,          % ?Lang, ?OpenerWords:list(atom)
-    language_param/3,           % +Lang, +Param, -Value  (decimal_sep|thousands_sep|list_sep|status)
+    language_param/3,           % +Lang, +Param, -Value  (decimal_sep|thousands_sep|list_sep|status|english_name)
+    localized_asset/3,          % +BaseNoExt, +Ext, -Path (active-language file variant)
     detect_language_tokens/2,   % +Tokens, -Lang
     % grammar keywords (i18n/keywords.csv)
     kw_synonym_words/2,         % +Key, -Words:list(atom)   (nondet, active language)
@@ -138,6 +139,32 @@ skip_noise_tokens([indent(_, _)|Ts], Out) :- !, skip_noise_tokens(Ts, Out).
 skip_noise_tokens([line_comment(_, _)|Ts], Out) :- !, skip_noise_tokens(Ts, Out).
 skip_noise_tokens([multi_comment(_, _)|Ts], Out) :- !, skip_noise_tokens(Ts, Out).
 skip_noise_tokens(Ts, Ts).
+
+%!  localized_asset(+BaseNoExt, +Ext, -Path) is det.
+%
+%   Path of the active language's variant of a text asset: for language L
+%   (other than en), Base.L.Ext when that file exists (also trying a '../'
+%   prefix, mirroring how the assistants locate their assets), else Base.Ext
+%   (again trying '../' when needed). E.g. localized_asset('docs/le_summary',
+%   md, P) gives 'docs/le_summary.pt.md' for Portuguese when present.
+localized_asset(Base, Ext, Path) :-
+    le_active_language(Lang),
+    (   Lang \== en,
+        atomic_list_concat([Base, '.', Lang, '.', Ext], Localized),
+        first_existing([Localized], P0)
+    ->  Path = P0
+    ;   atomic_list_concat([Base, '.', Ext], Plain),
+        first_existing([Plain], P1)
+    ->  Path = P1
+    ;   atomic_list_concat([Base, '.', Ext], Path)
+    ).
+
+first_existing(Bases, Path) :-
+    member(B, Bases),
+    ( exists_file(B) -> Path = B
+    ; atom_concat('../', B, Up), exists_file(Up) -> Path = Up
+    ),
+    !.
 
 % ---------------------------------------------------------------------------
 % Keywords
@@ -422,9 +449,11 @@ load_language_row(Header, Row) :-
     cell_value(Row, Header, thousands_sep, Thou),
     cell_value(Row, Header, list_sep, ListSep),
     cell_value(Row, Header, status, Status),
+    cell_value(Row, Header, english_name, EnglishName),
     assertz(lang_entry(Code, [autonym-Autonym, opener-OpenerWords,
                               decimal_sep-Dec, thousands_sep-Thou,
-                              list_sep-ListSep, status-Status])).
+                              list_sep-ListSep, status-Status,
+                              english_name-EnglishName])).
 
 % --- keywords.csv ---
 load_keywords_csv(Dir) :-

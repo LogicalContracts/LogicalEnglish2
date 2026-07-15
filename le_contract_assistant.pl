@@ -54,6 +54,7 @@
 ]).
 
 :- use_module(library(http/json)).
+:- use_module(le_i18n).
 :- use_module(library(base64)).
 :- use_module(library(process)).
 :- use_module(library(uuid)).
@@ -1427,11 +1428,26 @@ prompt_text(Name, Text) :-
     ).
 
 le_syntax_summary(Text) :-
-    (   exists_file('docs/le_summary.md') -> read_file_to_string('docs/le_summary.md', Text, [])
-    ;   exists_file('../docs/le_summary.md') -> read_file_to_string('../docs/le_summary.md', Text, [])
+    % The active language's variant (docs/le_summary.<lang>.md) when present;
+    % see set_request_language/1 — the request's ?lang= parameter selects it.
+    le_i18n:localized_asset('docs/le_summary', md, Path),
+    (   exists_file(Path) -> read_file_to_string(Path, Text0, [])
     ;   % Without the syntax reference every generated program would be
         % garbage in mysterious ways: fail loudly, like a missing stage prompt.
-        throw(error(contract_assistant_error(missing_syntax_summary('docs/le_summary.md')), _))
+        throw(error(contract_assistant_error(missing_syntax_summary(Path)), _))
+    ),
+    contract_language_directive(Directive),
+    format(string(Text), "~w~w", [Directive, Text0]).
+
+% An explicit output-language directive prepended to the syntax summary for
+% non-English target languages.
+contract_language_directive(Directive) :-
+    le_i18n:le_active_language(Lang),
+    (   Lang == en
+    ->  Directive = ""
+    ;   ( le_i18n:language_param(Lang, english_name, Name) -> true ; Name = Lang ),
+        ( le_i18n:language_opener(Lang, OpenerWords), atomic_list_concat(OpenerWords, ' ', Opener) -> true ; Opener = '' ),
+        format(string(Directive), "IMPORTANT: write the Logical English program in ~w, using the ~w keyword set summarised below. The program's first statement must be `~w: prolog.`~n~n", [Name, Name, Opener])
     ).
 
 %!  extract_le_code(+Reply, -Code) is det.

@@ -25,7 +25,8 @@
 :- module(nl_to_le, [ english_to_le/8 ]).
 
 :- use_module(llm/llm_client).
-:- use_module(le_kbs, [load_text/2]).
+:- use_module(le_i18n).
+:- use_module(le_kbs, [load_text/2, text_language/2]).
 :- use_module(le_verifier, [verify/2]).
 :- use_module(library(lists)).
 :- use_module(library(apply)).
@@ -61,6 +62,10 @@ nl_check_name('nl__editor_check__').
 %   @throws error(type_error(nl_kind, Kind), _) if Kind is neither facts nor query.
 %   Errors from the LLM call propagate from llm_client unchanged.
 english_to_le(Kind, Sentence, Templates, Program, Model, Options, LEText, NewIssues) :-
+    % The fragment must be written in the PROGRAM's language: its keyword set
+    % drives both the prompt's connective words and the verification parse.
+    text_language(Program, ProgLang),
+    le_i18n:set_le_language(ProgLang),
     must_be_kind(Kind),
     to_string(Program, ProgramS),
     to_string(Sentence, SentenceS),
@@ -214,14 +219,31 @@ to_string(_, "").
 system_prompt(Kind, Templates, Prompt) :-
     templates_block(Templates, TemplatesText),
     kind_rules(Kind, Rules),
+    language_note(LangNote),
     format(string(Prompt),
-        "You translate English into Logical English (LE).~n~n~w~n~nKeep each template's fixed words EXACTLY, adjusting the sentence's wording and tense to fit them (e.g. 'was born' becomes the template's 'is born'). Replace each *...* placeholder with the matching value from the sentence. If the sentence does NOT give a value for some placeholder, keep the placeholder's own words in its place (for example write 'a date' where no date is stated) — do NOT invent a specific value, and do NOT drop the placeholder. Do not use predicates or wording that is not in a template below. Output plain text only — no Markdown, no code fences, no commentary.~n~nTemplates (each *...* is a placeholder to fill):~n~w",
-        [Rules, TemplatesText]).
+        "You translate a natural-language sentence into Logical English (LE).~w~n~n~w~n~nKeep each template's fixed words EXACTLY, adjusting the sentence's wording and tense to fit them (e.g. 'was born' becomes the template's 'is born'). Replace each *...* placeholder with the matching value from the sentence. If the sentence does NOT give a value for some placeholder, keep the placeholder's own words in its place (for example write 'a date' where no date is stated) — do NOT invent a specific value, and do NOT drop the placeholder. Do not use predicates or wording that is not in a template below. Output plain text only — no Markdown, no code fences, no commentary.~n~nTemplates (each *...* is a placeholder to fill):~n~w",
+        [LangNote, Rules, TemplatesText]).
 
-kind_rules(facts,
-    "Produce Logical English FACTS. Output one fact per line, each ending with a period. Match the sentence to the CLOSEST applicable template(s), even if it does not spell out every placeholder or phrases things differently. If the sentence expresses several facts, output several lines. Only output nothing if no template below is relevant to the sentence at all.").
-kind_rules(query,
-    "Produce a Logical English QUERY BODY: one or more conditions, each based on the CLOSEST applicable template below, joined by 'and' or 'or' (put the connective at the start of each line after the first). Negate a condition by prefixing 'it is not the case that'. To ask for a value to be returned, put 'which' before a placeholder's noun (e.g. 'which person is happy'). Put each condition on its own line, and indent a condition further than the previous one to nest it for tighter and/or scoping. End the whole body with a single period. Do NOT output a 'query ... is:' header.").
+% language_note(-Note): output-language directive for non-English programs.
+language_note(Note) :-
+    le_i18n:le_active_language(Lang),
+    (   Lang == en
+    ->  Note = ""
+    ;   ( le_i18n:language_param(Lang, english_name, Name) -> true ; Name = Lang ),
+        format(string(Note), " The program and its templates are written in ~w: write the LE output in ~w, keeping each template's ~w words exactly.", [Name, Name, Name])
+    ).
+
+% The connective words quoted in the kind rules come from the program
+% language's lexicon (and/or, negation, which), so the instructions match what
+% the verifying parser will accept.
+kind_rules(facts, Rules) :-
+    format(string(Rules), "Produce Logical English FACTS. Output one fact per line, each ending with a period. Match the sentence to the CLOSEST applicable template(s), even if it does not spell out every placeholder or phrases things differently. If the sentence expresses several facts, output several lines. Only output nothing if no template below is relevant to the sentence at all.", []).
+kind_rules(query, Rules) :-
+    ( le_i18n:kw_main_words(and, [AndW]) -> true ; AndW = and ),
+    ( le_i18n:kw_main_words(or, [OrW]) -> true ; OrW = or ),
+    ( le_i18n:kw_main_words(not_the_case, NafWords), atomic_list_concat(NafWords, ' ', Naf) -> true ; Naf = 'it is not the case that' ),
+    ( le_i18n:class_word_list(wh_var, [Wh|_]) -> true ; Wh = which ),
+    format(string(Rules), "Produce a Logical English QUERY BODY: one or more conditions, each based on the CLOSEST applicable template below, joined by '~w' or '~w' (put the connective at the start of each line after the first). Negate a condition by prefixing '~w'. To ask for a value to be returned, put '~w' before a placeholder's noun. Put each condition on its own line, and indent a condition further than the previous one to nest it for tighter and/or scoping. End the whole body with a single period. Do NOT output a query header.", [AndW, OrW, Naf, Wh]).
 
 templates_block(Templates, Text) :-
     ( Templates == [] ->
