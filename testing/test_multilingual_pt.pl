@@ -83,3 +83,50 @@ test(en_number_rendering_unchanged) :-
     A == '1.5'.
 
 :- end_tests(multilingual_pt).
+
+% --- Phase 5 languages (es/fr/it): detection + lexicon spot checks -----------
+:- begin_tests(multilingual_es_fr_it).
+
+test(detect_es) :-
+    tokenizer:tokenize("el lenguaje objetivo es: prolog.", Ts),
+    le_i18n:detect_language_tokens(Ts, es).
+
+test(detect_fr) :-
+    tokenizer:tokenize("la langue cible est: prolog.", Ts),
+    le_i18n:detect_language_tokens(Ts, fr).
+
+test(detect_it) :-
+    tokenizer:tokenize("il linguaggio obiettivo è: prolog.", Ts),
+    le_i18n:detect_language_tokens(Ts, it).
+
+test(es_keywords) :-
+    le_i18n:with_le_language(es, (
+        le_i18n:kw_synonym_words(if, [si]),
+        le_i18n:class_member(article, una),
+        le_i18n:kw_synonym_words(forall, [para, todos, los, casos, en, que])
+    )).
+
+test(fr_keywords) :-
+    le_i18n:with_le_language(fr, (
+        le_i18n:kw_synonym_words(if, [si]),
+        le_i18n:class_member(article, une),
+        le_i18n:kw_synonym_words(not_the_case, [il, est, faux, que])
+    )).
+
+test(it_keywords) :-
+    le_i18n:with_le_language(it, (
+        le_i18n:kw_synonym_words(if, [se]),
+        le_i18n:class_member(article, una),
+        le_i18n:kw_synonym_words(forall, [per, tutti, i, casi, in, cui])
+    )).
+
+test(es_system_template, [nondet]) :-
+    le_i18n:with_le_language(es,
+        ( le_system_templates:le_system_template(dict([le_gt, _, _], _, WV)),
+          include(atom, WV, Words),
+          Words == [es, superior, a] )).
+
+test(language_flag_reset_after_suite) :-
+    le_i18n:set_le_language(default).
+
+:- end_tests(multilingual_es_fr_it).

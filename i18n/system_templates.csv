@@ -1,15 +1,15 @@
 functor,types,en,pt,es,fr,it
-le_equal_to,any any,{1} is equal to {2},{1} é igual a {2},,,
-le_not_equal_to,any any,{1} is not equal to {2}|{1} is different from {2},{1} não é igual a {2}|{1} é diferente de {2},,,
-le_ge,number number,{1} is greater than or equal to {2},{1} é superior ou igual a {2},,,
-le_le,number number,{1} is less than or equal to {2},{1} é inferior ou igual a {2},,,
-le_gt,number number,{1} is greater than {2},{1} é superior a {2},,,
-le_lt,number number,{1} is less than {2},{1} é inferior a {2},,,
-le_ge,date date,{1} is after or equal to {2},{1} é posterior ou igual a {2},,,
-le_le,date date,{1} is before or equal to {2},{1} é anterior ou igual a {2},,,
-le_gt,date date,{1} is after {2},{1} é posterior a {2},,,
-le_lt,date date,{1} is before {2},{1} é anterior a {2},,,
-le_known,any,{1} is known,{1} é conhecido|{1} é conhecida,,,
-le_is,any any,{1} is {2},{1} é {2},,,
-le_is_in,any list,{1} is in {2},{1} está em {2},,,
-le_is_days_after,date number date,{1} is {2} days after {3},{1} é {2} dias depois de {3},,,
+le_equal_to,any any,{1} is equal to {2},{1} é igual a {2},{1} es igual a {2},{1} est égal à {2}|{1} est égale à {2},{1} è uguale a {2}
+le_not_equal_to,any any,{1} is not equal to {2}|{1} is different from {2},{1} não é igual a {2}|{1} é diferente de {2},{1} no es igual a {2}|{1} es diferente de {2},{1} est différent de {2}|{1} est différente de {2},{1} non è uguale a {2}|{1} è diverso da {2}|{1} è diversa da {2}
+le_ge,number number,{1} is greater than or equal to {2},{1} é superior ou igual a {2},{1} es superior o igual a {2},{1} est supérieur ou égal à {2}|{1} est supérieure ou égale à {2},{1} è superiore o uguale a {2}
+le_le,number number,{1} is less than or equal to {2},{1} é inferior ou igual a {2},{1} es inferior o igual a {2},{1} est inférieur ou égal à {2}|{1} est inférieure ou égale à {2},{1} è inferiore o uguale a {2}
+le_gt,number number,{1} is greater than {2},{1} é superior a {2},{1} es superior a {2},{1} est supérieur à {2}|{1} est supérieure à {2},{1} è superiore a {2}
+le_lt,number number,{1} is less than {2},{1} é inferior a {2},{1} es inferior a {2},{1} est inférieur à {2}|{1} est inférieure à {2},{1} è inferiore a {2}
+le_ge,date date,{1} is after or equal to {2},{1} é posterior ou igual a {2},{1} es posterior o igual a {2},{1} est postérieur ou égal à {2}|{1} est postérieure ou égale à {2},{1} è posteriore o uguale a {2}
+le_le,date date,{1} is before or equal to {2},{1} é anterior ou igual a {2},{1} es anterior o igual a {2},{1} est antérieur ou égal à {2}|{1} est antérieure ou égale à {2},{1} è anteriore o uguale a {2}
+le_gt,date date,{1} is after {2},{1} é posterior a {2},{1} es posterior a {2},{1} est postérieur à {2}|{1} est postérieure à {2},{1} è posteriore a {2}
+le_lt,date date,{1} is before {2},{1} é anterior a {2},{1} es anterior a {2},{1} est antérieur à {2}|{1} est antérieure à {2},{1} è anteriore a {2}
+le_known,any,{1} is known,{1} é conhecido|{1} é conhecida,{1} es conocido|{1} es conocida,{1} est connu|{1} est connue,{1} è noto|{1} è nota
+le_is,any any,{1} is {2},{1} é {2},{1} es {2},{1} est {2},{1} è {2}
+le_is_in,any list,{1} is in {2},{1} está em {2},{1} está en {2},{1} est dans {2},{1} è in {2}
+le_is_days_after,date number date,{1} is {2} days after {3},{1} é {2} dias depois de {3},{1} es {2} días después de {3},{1} est {2} jours après {3},{1} è {2} giorni dopo {3}

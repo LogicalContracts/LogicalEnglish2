@@ -26,7 +26,10 @@ The three suites it wraps (also runnable directly):
   `:- begin_tests(Name). ... :- end_tests(Name).` and `testing/run_tests.sh unit` picks them up.
   Use `:- use_module('../le_kbs').` (the module is one level up from `testing/`).
 - **Logical English example tests:** `SWIPL -g "use_module(le_kbs), runTests, halt."`
-  (single LE test: `SWIPL -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le.tests', R), print_test_result(R), halt."`)
+  (single LE test: `SWIPL -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le', R), print_test_result(R), halt."`
+  — tests are embedded in scenarios via `expects answers`; separate `.le.tests`
+  files are no longer used. Non-English example trees live under
+  `examples/<lang>/` (e.g. `examples/pt/`) and are run by the same suite.)
 - **Editor E2E (Playwright):** `cd editor && npm run test:e2e` (add `-- --headed` to run visibly).
 
 Other Prolog/editor commands:
@@ -59,3 +62,12 @@ any changes. Do NOT commit your changes to git.
 ## Naming Conventions
 - Prolog: `snake_case` for predicates, `CamelCase` for variables.
 - LE Functors: `snake_case` derived from template words (e.g., `is_born_in_on`).
+
+## Multilingual LE
+Every natural-language surface (grammar keywords, system templates,
+diagnostics, UI strings) lives in the CSV dictionaries under `i18n/` — see
+`i18n/README.md`. A program declares its language in its first statement
+(`the target language is: prolog.` / `a linguagem alvo é: prolog.` / ...).
+Never hardcode keyword or message strings in code: add rows/columns to the
+CSVs and look them up through `le_i18n.pl` (backend) or `editor/src/i18n.ts`
+(editor; tables generated at build time).

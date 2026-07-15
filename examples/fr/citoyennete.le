@@ -1,0 +1,46 @@
+% Traduction française de l'exemple classique de citoyenneté britannique (Français Logique).
+la langue cible est: prolog.
+
+les modèles sont:
+*une personne* acquiert la citoyenneté britannique à *une date*.
+*une personne* naît à *un lieu* le *une date*,
+*une date* est postérieure à la date de référence,
+*une personne* est la mère de *une personne*,
+*une personne* est le père de *une personne*,
+*une personne* est citoyenne britannique à *une date*,
+*une personne* est résidente au Royaume-Uni à *une date*,
+*une personne* dit que *une phrase*,
+*une personne* est qualifiée pour déterminer la paternité.
+
+la base de connaissances citoyennete comprend:
+
+une personne acquiert la citoyenneté britannique à une date
+si la personne naît à le Royaume-Uni le la date
+	et la date est postérieure à la date de référence
+	et une autre personne est la mère de la personne
+    	ou la autre personne est le père de la personne
+	et la autre personne est citoyenne britannique à la date
+    	ou la autre personne est résidente au Royaume-Uni à la date.
+
+une personne est le père de une autre personne
+si une troisième personne dit
+    que la personne est le père de la autre personne
+    et la troisième personne est qualifiée pour déterminer la paternité.
+
+scénario alice est:
+    John naît à le Royaume-Uni le 2021-10-09.
+	2021-10-09 est postérieure à la date de référence.
+	Alice est la mère de John.
+	Alice est citoyenne britannique à 2021-10-09.
+    un attend réponses ["John acquiert la citoyenneté britannique à 2021-10-9T0:0:0.0"].
+
+scénario harry est:
+	John naît à le Royaume-Uni le 2021-10-09.
+	2021-10-09 est postérieure à la date de référence.
+	Harry dit que Harry est le père de John.
+	Harry est qualifiée pour déterminer la paternité.
+	Harry est résidente au Royaume-Uni à 2021-10-09.
+    un attend réponses ["John acquiert la citoyenneté britannique à 2021-10-9T0:0:0.0"].
+
+requête un est:
+    quelle personne acquiert la citoyenneté britannique à quelle date.
