@@ -7,7 +7,7 @@
 
 :- module(le_kbs, [load/2, load/3, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
-    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1,
+    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1,
     run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
@@ -23,6 +23,7 @@
 :- use_module(le_grammar).
 :- use_module(tokenizer).
 :- use_module(le_system_templates).
+:- use_module(le_i18n).
 :- use_module(reasoner).
 :- use_module(le_verifier, [verify/2, verify/3, find_in_body/2]).
 :- use_module(library(uuid)).
@@ -690,6 +691,7 @@ set_id_from_ref(Ref, M) :-
 %
 %   Creates a new reasoning session module for the given KB module.
 createSession(KBmodule, SessionModule) :-
+    ensure_kb_language(KBmodule),
     uuid(UUID),
     atom_concat(s, UUID, SessionModule),
     % Use add_import_module to make all exported predicates of le_kbs 
@@ -1134,12 +1136,53 @@ type_check_founded(SM, Arg, Type) :-
 % 'rule_<pos>' id.
 user_rule_name(RuleID) :- atom(RuleID), RuleID \== '', \+ atom_concat('rule_', _, RuleID).
 
+%!  aggregate_render_words(+Op, -Words) is det.
+%
+%   The words rendered between an aggregate's result and element variables:
+%   "is the <op> of each" in English, from the aggregate lexicon keys.
+aggregate_render_words(Op, Words) :-
+    ( le_i18n:kw_main_words(is_the, IsThe) -> true ; IsThe = [is, the] ),
+    ( le_i18n:kw_main_words(Op, OpWords) -> true ; OpWords = [Op] ),
+    ( le_i18n:kw_main_words(of_each, OfEach) -> true ; OfEach = [of, each] ),
+    append([IsThe, OpWords, OfEach], Words).
+
+forall_render_words(Words) :-
+    ( le_i18n:kw_main_words(forall, Words) -> true
+    ; Words = [for, all, cases, in, which] ).
+
+it_the_case_render_words(Words) :-
+    ( le_i18n:kw_main_words(it_the_case, Words) -> true
+    ; Words = [it, is, the, case, that] ).
+
+and_render_word(W) :-
+    ( le_i18n:kw_main_words(and, [W]) -> true ; W = and ).
+
+or_render_word(W) :-
+    ( le_i18n:kw_main_words(or, [W]) -> true ; W = or ).
+
+copula_render_word(W) :-
+    ( le_i18n:kw_main_words(copula, [W]) -> true ; W = is ).
+
+%!  ensure_kb_language(+KBmodule) is det.
+%
+%   Sets the active language (for keyword rendering and messages) from the
+%   language recorded in the KB module at parse time. A no-op for modules
+%   parsed before language support or for 'none'.
+ensure_kb_language(KBmodule) :-
+    (   atom(KBmodule), KBmodule \== none,
+        catch(KBmodule:le_lang(Lang), _, fail)
+    ->  le_i18n:set_le_language(Lang)
+    ;   true
+    ).
+
 %!  negation_words(-Words:list) is det.
 %
 %   The Logical English phrase for negation-as-failure, as a word list. Single source
 %   of truth so the phrase is not pasted in every place that renders "it is not the
 %   case that <goal>".
-negation_words([it, is, not, the, case, that]).
+negation_words(Words) :-
+    ( le_i18n:kw_main_words(not_the_case, Words) -> true
+    ; Words = [it, is, not, the, case, that] ).
 
 % rule_head_text(+Ref, +SM, +KB, -HeadStr): the LE text of the head of the clause
 % referenced by Ref (in the session or KB module).
@@ -1259,80 +1302,99 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
     (   Head = is_a(Type, SuperType) ->
         maybe_transform_value(KBmodule, Type, TypeI),
         maybe_transform_value(KBmodule, SuperType, SuperTypeI),
-        flatten([TypeI, is, a, SuperTypeI], WordsAndVars)
+        ( le_i18n:kw_main_words(is_a, IsAWords) -> true ; IsAWords = [is, a] ),
+        flatten([TypeI, IsAWords, SuperTypeI], WordsAndVars)
     ;   Head = le_type_check(Arg, Type) ->
         % A type-restriction goal renders like the type assertion it checks:
         % le_type_check('this payment', payment) -> "this payment is a payment".
         maybe_transform_value(KBmodule, Arg, ArgI),
-        ( atom(Type), atom_codes(Type, [C|_]), memberchk(C, [97,101,105,111,117,65,69,73,79,85]) -> Art = an ; Art = a ),
-        flatten([ArgI, is, Art, Type], WordsAndVars)
+        le_i18n:indefinite_isa_words(Type, IsaWords),
+        flatten([ArgI, IsaWords, Type], WordsAndVars)
     ;   Head = sum([each, Var], _Goal, [Result]) ->
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
-        flatten([ResultName, is, the, sum, of, each, VarName, such, that], WordsAndVars)
-    ;   Head = count([each, Var], _Goal, [Result]) -> 
+        aggregate_render_words(sum, OpWords),
+        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
+        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
+    ;   Head = count([each, Var], _Goal, [Result]) ->
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
-        flatten([ResultName, is, the, count, of, each, VarName, such, that], WordsAndVars)
-    ;   Head = min([each, Var], _Goal, [Result]) -> 
+        aggregate_render_words(count, OpWords),
+        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
+        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
+    ;   Head = min([each, Var], _Goal, [Result]) ->
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
-        flatten([ResultName, is, the, minimum, of, each, VarName, such, that], WordsAndVars)
-    ;   Head = max([each, Var], _Goal, [Result]) -> 
+        aggregate_render_words(min, OpWords),
+        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
+        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
+    ;   Head = max([each, Var], _Goal, [Result]) ->
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
-        flatten([ResultName, is, the, maximum, of, each, VarName, such, that], WordsAndVars)
-    ;   Head = average([each, Var], _Goal, [Result]) -> 
+        aggregate_render_words(max, OpWords),
+        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
+        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
+    ;   Head = average([each, Var], _Goal, [Result]) ->
         extract_name(Var, VarName),
         extract_name(Result, ResultName),
-        flatten([ResultName, is, the, average, of, each, VarName, such, that], WordsAndVars)
+        aggregate_render_words(average, OpWords),
+        ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
+        flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
     ;   Head = not(Goal) ->
         negation_words(Neg),
         ( item_to_instance(KBmodule, Goal, GoalLE) -> append(Neg, GoalLE, WordsAndVars); append(Neg, [Goal], WordsAndVars))
     ;   Head = forall(Cond, Cons) ->
+        forall_render_words(ForallWords), it_the_case_render_words(ItCaseWords),
         ( item_to_instance(KBmodule, Cond, CondLE), item_to_instance(KBmodule, Cons, ConsLE) ->
-            append([for, all, cases, in, which | CondLE], [it, is, the, case, that | ConsLE], WordsAndVars)
-        ; WordsAndVars = [for, all, cases, in, which, Cond, it, is, the, case, that, Cons])
+            append(ForallWords, CondLE, FW1), append(ItCaseWords, ConsLE, IW1),
+            append(FW1, IW1, WordsAndVars)
+        ; append(ForallWords, [Cond|ItCaseWords], FW2), append(FW2, [Cons], WordsAndVars))
     ;   % Pseudo-goals used by the reasoner to render a forall explanation as a
         % nested branch (see solve_real_actual/8 for forall in reasoner.pl). The
         % condition is now a separate child branch, so the header carries no
         % condition; the for_all_cases(Cond) form is kept for compatibility.
         Head == for_all_cases ->
-        WordsAndVars = [for, all, cases, in, which]
+        forall_render_words(WordsAndVars)
     ;   Head = for_all_cases(Cond) ->
+        forall_render_words(ForallWords1),
         ( item_to_instance(KBmodule, Cond, CondLE) ->
-            WordsAndVars = [for, all, cases, in, which | CondLE]
-        ; WordsAndVars = [for, all, cases, in, which, Cond])
+            append(ForallWords1, CondLE, WordsAndVars)
+        ; append(ForallWords1, [Cond], WordsAndVars))
     ;   % One universal case: the instantiated condition being considered.
         Head = for_case(Cond) ->
+        ( le_i18n:kw_main_words(for_case, ForCase) -> true ; ForCase = [for, case] ),
         ( item_to_instance(KBmodule, Cond, CondLE) ->
-            WordsAndVars = [for, case | CondLE]
-        ; WordsAndVars = [for, case, Cond])
+            append(ForCase, CondLE, WordsAndVars)
+        ; append(ForCase, [Cond], WordsAndVars))
     ;   % One universal case: the consequent that holds for that case.
         Head = it_is_true_that(Cons) ->
+        ( le_i18n:kw_main_words(it_is_true_that, TrueThat) -> true ; TrueThat = [it, is, true, that] ),
         ( item_to_instance(KBmodule, Cons, ConsLE) ->
-            WordsAndVars = [it, is, true, that | ConsLE]
-        ; WordsAndVars = [it, is, true, that, Cons])
+            append(TrueThat, ConsLE, WordsAndVars)
+        ; append(TrueThat, [Cons], WordsAndVars))
     ;   Head == it_is_the_case ->
-        WordsAndVars = [it, is, the, case, that]
+        it_the_case_render_words(WordsAndVars)
     ;   Head = and(A, B) ->
         (   fold_prep_chain(KBmodule, Head, Folded) -> WordsAndVars = Folded
         ;   A == true -> item_to_instance(KBmodule, B, WordsAndVars)
         ;   B == true -> item_to_instance(KBmodule, A, WordsAndVars)
         ;   item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) ->
-            append(ALE, [and | BLE], WordsAndVars)
-        ; WordsAndVars = [A, and, B])
+            and_render_word(AndW),
+            append(ALE, [AndW | BLE], WordsAndVars)
+        ; and_render_word(AndW), WordsAndVars = [A, AndW, B])
     ;   Head = or(A, B) -> 
-        ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) -> 
-            append(ALE, [or | BLE], WordsAndVars)
-        ; WordsAndVars = [A, or, B])
+        ( item_to_instance(KBmodule, A, ALE), item_to_instance(KBmodule, B, BLE) ->
+            or_render_word(OrW),
+            append(ALE, [OrW | BLE], WordsAndVars)
+        ; or_render_word(OrW), WordsAndVars = [A, OrW, B])
     ;   % A "defines global" template's goal renders by its global name, e.g.
         % "the period of insurance is 123" rather than "our period of insurance
         % is 123" — matching how the global reads at its use sites.
         Head =.. [Functor, Value],
         global_template_name(KBmodule, Functor, GlobalName) ->
         maybe_transform_value(KBmodule, Value, ValueI),
-        flatten([GlobalName, is, ValueI], WordsAndVars)
+        copula_render_word(Cop),
+        flatten([GlobalName, Cop, ValueI], WordsAndVars)
     ;   copy_term(Head, HeadCopy),
         (   (KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _, _, _, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0, _)) ; KBmodule:le_dict(dict([Functor|Args], NTs, WordsAndVars0))), HeadCopy =.. [Functor|Args],
             check_types(NTs)

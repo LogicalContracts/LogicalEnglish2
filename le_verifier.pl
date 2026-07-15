@@ -7,7 +7,8 @@
 
 :- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2]).
 
-:- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2]).
+:- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2, ensure_kb_language/1]).
+:- use_module(le_i18n).
 :- use_module(le_system_templates, [le_system_template/1]).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
@@ -24,6 +25,7 @@ verify(KB, Issues) :-
 %   far too slow for callers that only need the cheap static checks, such as
 %   the example-listing endpoints.
 verify(KB, Options, Issues) :-
+    ensure_kb_language(KB),
     ( setof(Issue, check_issue(KB, Options, Issue), Issues) -> true; Issues = []).
 
 check_issue(KB, _, Issue) :- missing_template(KB, Issue).
@@ -45,7 +47,7 @@ missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
     ;   current_predicate(KB:F/A), functor(Head, F, A), clause(KB:Head, Body, Ref), find_in_body(Body, unknown_template(Tokens))
     ),
     le_grammar:reconstruct_name(Tokens, Name),
-    format(atom(Description), "Missing template for '~w'", [Name]),
+    le_i18n:le_msg(missing_template_desc, [name-Name], Description),
     tokens_to_template_hypothesis(Tokens, Hypothesis),
     format(atom(Fix), "~w.", [Hypothesis]),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
@@ -111,8 +113,8 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     % Suppress for predicates declared as scenario elements — those are
     % intentionally undefined in the KB; they live only in scenarios.
     \+ is_scenario_element_functor(KB, FL, AL),
-    format(atom(Description), "Undefined predicate '~w/~w'", [FL, AL]),
-    Fix = "add a rule defining the predicate, or add fact sentences for it in the relevant scenarios.",
+    le_i18n:le_msg(undefined_predicate_desc, [functor-FL, arity-AL], Description),
+    le_i18n:le_msg(undefined_predicate_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % --- 2a. Suspicious "is a" (predicate absorbed into a constant type) ---
@@ -131,10 +133,8 @@ suspicious_is_a(KB, issue(suspicious_is_a, Description, Fix, Start, End)) :-
     ( Lit = Head ; find_in_body(Body, Lit) ),
     nonvar(Lit), Lit = is_a(_, Type),
     suspicious_type_phrase(Type, Phrase),
-    format(atom(Description),
-        "\"... is a ~w\" matches no declared template; it was read as a bare is-a statement with the constant type '~w'. A template was probably intended.",
-        [Phrase, Phrase]),
-    Fix = "Declare a template for this sentence, using *variables* for its arguments, instead of relying on the generic \"is a\" form.",
+    le_i18n:le_msg(suspicious_is_a_desc, [phrase-Phrase], Description),
+    le_i18n:le_msg(suspicious_is_a_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % suspicious_type_phrase(+Type, -Phrase): Type is a constant (atom/string) made of
@@ -147,8 +147,7 @@ suspicious_type_phrase(Type, Phrase) :-
     member(W, Words), W \== '', downcase_atom(W, WL), connective_word(WL), !.
 
 connective_word(W) :-
-    memberchk(W, [a, an, the, in, on, at, to, from, of, by, for, with, between,
-                  and, or, is, are, was, were, that, than, as, into, over, under, within]).
+    le_i18n:class_member(connective_heuristic, W).
 
 % --- 2b. Defined scenario element ---
 % Fires when a predicate declared 'undefined' (scenario element) has a fact or
@@ -160,8 +159,8 @@ defined_scenario_element(KB, issue(defined_scenario_element, Description, Fix, S
     functor(Head, F, A),
     current_predicate(KB:F/A),
     clause(KB:Head, _, Ref),
-    format(atom(Description), "Predicate '~w/~w' is declared 'undefined' (scenario element) but has a definition in the knowledge base", [F, A]),
-    Fix = "remove the fact or rule from the knowledge base, or remove the 'undefined'/'scenario element' annotation from the template.",
+    le_i18n:le_msg(defined_scenario_element_desc, [functor-F, arity-A], Description),
+    le_i18n:le_msg(defined_scenario_element_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 %!  is_scenario_element_functor(+KB, ?F, ?A) is nondet.
@@ -234,8 +233,8 @@ untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-
     \+ predicate_property(KB:G, imported_from(_)),
     is_intensional(KB, F, A),
     \+ is_reachable_from_query(KB, F, A),
-    format(atom(Description), "This predicate is not tested by any query: '~w/~w'", [F, A]),
-    Fix = "add a query that exercises the predicate, and add expected answers to the .le.tests file or using 'expects answers' in a scenario.".
+    le_i18n:le_msg(untested_predicate_desc, [functor-F, arity-A], Description),
+    le_i18n:le_msg(untested_predicate_fix, [], Fix).
 
 is_intensional(KB, F, A) :-
     functor(G, F, A),
@@ -267,8 +266,8 @@ rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start
     Body \== true,
     ground(Head),
     ground(Body),
-    format(atom(Description), "Rule without variables: ~w if ~w", [Head, Body]),
-    Fix = "move the concrete data into a scenario; rules should use variables.",
+    le_i18n:le_msg(rule_without_variables_desc, [head-Head, body-Body], Description),
+    le_i18n:le_msg(rule_without_variables_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % --- 5. Facts/Rules ratio ---
@@ -277,15 +276,15 @@ facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
     Rules == 0,
     count_facts(KB, Facts),
     Facts > 0,
-    Description = "Missing rules: the program contains only facts and no rules.",
-    Fix = "add rules that derive conclusions from the facts.".
+    le_i18n:le_msg(missing_rules_desc, [], Description),
+    le_i18n:le_msg(missing_rules_fix, [], Fix).
 facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
     count_rules(KB, Rules),
     Rules > 0,
     count_facts(KB, Facts),
     Facts > Rules * 5,
-    format(atom(Description), "Too many facts: facts (~w) outnumber rules (~w) by more than 5:1.", [Facts, Rules]),
-    Fix = "add rules that derive conclusions from the facts.".
+    le_i18n:le_msg(too_many_facts_desc, [facts-Facts, rules-Rules], Description),
+    le_i18n:le_msg(too_many_facts_fix, [], Fix).
 
 % --- 6. Failed tests ---
 failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
@@ -294,14 +293,14 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     run_one_test(KB, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), Result),
     Result \= pass(_, _),
     (   Result = fail(_, _, Expected, Actual) ->
-        format(atom(Description), "Test failed for query '~w' in scenario '~w'.~nExpected: ~w~nActual: ~w", [QueryName, ScenarioName, Expected, Actual])
+        le_i18n:le_msg(failed_test_desc, [query-QueryName, scenario-ScenarioName, expected-Expected, actual-Actual], Description)
     ;   Result = fail(_, _, Expected, Actual, ExpectedU, ActualU) ->
-        format(atom(Description), "Test failed for query '~w' in scenario '~w'.~nExpected: ~w~nActual: ~w~nExpected Unknowns: ~w~nActual Unknowns: ~w", [QueryName, ScenarioName, Expected, Actual, ExpectedU, ActualU])
+        le_i18n:le_msg(failed_test_unknowns_desc, [query-QueryName, scenario-ScenarioName, expected-Expected, actual-Actual, expected_unknowns-ExpectedU, actual_unknowns-ActualU], Description)
     ;   Result = error(_, _, Error) ->
-        format(atom(Description), "Test error for query '~w' in scenario '~w': ~w", [QueryName, ScenarioName, Error])
-    ;   format(atom(Description), "Test failed for query '~w' in scenario '~w'", [QueryName, ScenarioName])
+        le_i18n:le_msg(failed_test_error_desc, [query-QueryName, scenario-ScenarioName, error-Error], Description)
+    ;   le_i18n:le_msg(failed_test_plain_desc, [query-QueryName, scenario-ScenarioName], Description)
     ),
-    Fix = "check the logic of your rules or the facts in the scenario.",
+    le_i18n:le_msg(failed_test_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % --- 7. Redefined system template ---
@@ -322,8 +321,8 @@ redefined_system_template(KB, issue(redefined_system_template, Description, Fix,
     % Get source info
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0),
     canonical_string(WV, TemplateStr),
-    format(atom(Description), "Template '~w' redefines a similar system template and there are no rules for it", [TemplateStr]),
-    Fix = "Either change the template slightly or add some rules".
+    le_i18n:le_msg(redefined_system_template_desc, [template-TemplateStr], Description),
+    le_i18n:le_msg(redefined_system_template_fix, [], Fix).
 
 templates_match(WV1, WV2) :-
     length(WV1, L), length(WV2, L),
@@ -372,8 +371,8 @@ single_variable_fact(KB, issue(single_variable_fact, Description, Fix, Start, En
     clause(KB:Head, true, Ref),
     term_variables(Head, [_]),
     fact_le_text(KB, Head, Text),
-    format(atom(Description), "Fact '~w' introduces a variable rather than naming an individual, so it holds for everything", [Text]),
-    Fix = "use a proper name (e.g. 'fluffy') or 'any' for the individual; if you really mean 'every ...', write it as a rule.",
+    le_i18n:le_msg(single_variable_fact_desc, [text-Text], Description),
+    le_i18n:le_msg(single_variable_fact_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
 
 % --- 8a. Scenario fact with a single, likely-accidental variable ---
@@ -397,8 +396,8 @@ single_variable_scenario_fact(KB, issue(single_variable_fact, Description, Fix, 
     Head \= unknown_template(_),
     term_variables(Head, [_]),
     fact_le_text(KB, Head, Text),
-    format(atom(Description), "Fact '~w' in scenario '~w' introduces a variable ('a/an/some ...') rather than naming an individual, so it holds for everything", [Text, Name]),
-    Fix = "name the individual (a proper name like 'fluffy', or 'the ...', which is a constant in a scenario); if you really mean 'every ...', write it as a rule in the knowledge base.".
+    le_i18n:le_msg(single_variable_scenario_fact_desc, [text-Text, scenario-Name], Description),
+    le_i18n:le_msg(single_variable_scenario_fact_fix, [], Fix).
 
 body_only_type_checks((A, B)) :- !, body_only_type_checks(A), body_only_type_checks(B).
 body_only_type_checks(le_type_check(_, _)).
@@ -440,10 +439,8 @@ unmarked_meta_template(KB, issue(unmarked_meta_template, Description, Fix, Start
     \+ template_meta_slot(KB, LF, LA, I),
     fact_le_text(KB, Arg, ArgText),
     fact_le_text(KB, Lit, LitText),
-    format(atom(Description),
-        "In '~w', the value '~w' is itself a template instance (a compound term) — it seems you want to use a meta-template here",
-        [LitText, ArgText]),
-    Fix = "if so, make sure to precede the meta variable by 'that' in the template; if the value should instead be atomic, declare explicit types (or mark the inner template as prepositional) so the phrase is not absorbed into the argument.",
+    le_i18n:le_msg(unmarked_meta_template_desc, [literal-LitText, arg-ArgText], Description),
+    le_i18n:le_msg(unmarked_meta_template_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % An argument that is an instance of a user-declared template (not data such as
@@ -488,7 +485,7 @@ template_meta_slot(KB, F, A, I) :-
     append(_, [PrevWord, Slot | _], WV),
     Slot == V,
     atom(PrevWord),
-    memberchk(PrevWord, [that, says]), !.
+    le_grammar:is_meta_prev(PrevWord), !.
 
 % --- Printing ---
 print_issues(Issues) :-
