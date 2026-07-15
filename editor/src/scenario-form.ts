@@ -1,3 +1,4 @@
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 // Reusable scenario "fact form": a vertical sequence of editable template rows,
 // shared by the Scenario Editor window and the Scenario Variations window. Each row
 // renders one of the program's templates with its literal words as labels and its
@@ -83,7 +84,7 @@ export class ScenarioForm {
         if (opts.onWriteInEnglish) {
             const o = document.createElement('option');
             o.value = WRITE_IN_ENGLISH;
-            o.textContent = 'Write it in English';
+            o.textContent = t('Write it in English');
             opts.addSelect.appendChild(o);
         }
         opts.btnAdd.addEventListener('click', () => {
@@ -129,7 +130,7 @@ export class ScenarioForm {
         if (this.rows.length === 0) {
             const hint = document.createElement('div');
             hint.className = 'empty-hint';
-            hint.textContent = 'No facts yet — pick a template below and click “Add”.';
+            hint.textContent = t('No facts yet — pick a template below and click “Add”.');
             rowsEl.appendChild(hint);
             return;
         }
@@ -151,7 +152,7 @@ export class ScenarioForm {
             const span = document.createElement('span');
             span.className = 'preserved';
             span.textContent = row.raw;
-            span.title = 'This line matches no template — edit it in the main editor';
+            span.title = t('This line matches no template — edit it in the main editor');
             el.appendChild(span);
         } else {
             const segs = splitTemplate(row.templateLabel);
@@ -205,8 +206,8 @@ export class ScenarioForm {
         tools.appendChild(assume);
 
         const del = document.createElement('button');
-        del.textContent = '✕';
-        del.title = 'Delete';
+        del.textContent = t('✕');
+        del.title = t('Delete');
         del.addEventListener('click', () => { this.rows.splice(idx, 1); this.changed(); this.render(); });
         tools.appendChild(del);
         el.appendChild(tools);

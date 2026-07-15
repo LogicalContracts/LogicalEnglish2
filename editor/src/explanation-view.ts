@@ -6,6 +6,7 @@
 // interacted with (activeView).
 
 import { explanationToMermaid } from './mermaid-export';
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 
 export interface MenuEls {
     answerContextMenu: HTMLElement;
@@ -172,7 +173,7 @@ export class ExplanationView {
         if (!children) return;
         children.style.display = 'block';
         const toggle = container.querySelector(':scope > .tree-label > .tree-toggle');
-        if (toggle) toggle.textContent = '-';
+        if (toggle) toggle.textContent = t('-');
         const path = container.dataset.path;
         if (path) this.currentExpansion?.set(path, true);
     }
@@ -196,7 +197,7 @@ export class ExplanationView {
                     item.classList.add('has-unknowns');
                     const marker = document.createElement('span');
                     marker.className = 'unknowns-marker';
-                    marker.textContent = '?';
+                    marker.textContent = t('?');
                     item.appendChild(marker);
                     this.attachAnswerTooltip(item, unknowns);
                 }
@@ -215,7 +216,7 @@ export class ExplanationView {
             const item = document.createElement('div');
             item.className = 'answer-item failure selected';
             item.style.color = '#f48771';
-            item.textContent = 'No answers (false)';
+            item.textContent = t('No answers (false)');
             item.addEventListener('click', () => {
                 answersList.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
                 item.classList.add('selected');
@@ -227,13 +228,13 @@ export class ExplanationView {
             this.renderExplanation(res.why);
             this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
         } else if (res && res.interrupted) {
-            answersList.textContent = 'Query interrupted.';
+            answersList.textContent = t('Query interrupted.');
             this.setStrongestReason();
         } else if (res && res.error) {
-            answersList.textContent = 'Error: ' + res.error;
+            answersList.textContent = t('Error: ') + res.error;
             this.setStrongestReason();
         } else {
-            answersList.textContent = 'No results returned.';
+            answersList.textContent = t('No results returned.');
             this.setStrongestReason();
         }
     }
@@ -380,7 +381,7 @@ export class ExplanationView {
                 parent.style.display = 'block';
                 const ownerLabel = parent.previousElementSibling as HTMLElement | null;
                 const toggle = ownerLabel?.querySelector('.tree-toggle');
-                if (toggle) toggle.textContent = '-';
+                if (toggle) toggle.textContent = t('-');
                 const ownerPath = (parent.parentElement as HTMLElement | null)?.dataset.path;
                 if (ownerPath) this.currentExpansion?.set(ownerPath, true);
             }

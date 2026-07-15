@@ -13,6 +13,8 @@ import {
 } from 'vscode-languageserver/browser';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { detectProgramLanguage, kwTable } from './i18n';
+import { languages } from './generated/i18nData';
 import { tokenize, TokenType, Token } from './tokenizer';
 
 const messageReader = new BrowserMessageReader(self);
@@ -429,15 +431,23 @@ connection.onCompletion((params) => {
     const text = document ? document.getText() : '';
     const templates = getTemplates(text);
     
+    // Section completions in the program's own language (detected from its
+    // opener statement), generated from the shared lexicon.
+    const compLang = detectProgramLanguage(text);
+    const K = kwTable(compLang);
+    const phrase = (key: string, fallback: string) =>
+        (K[key] && K[key][0]) ? K[key][0].join(' ') : fallback;
+    const markerIs = phrase('marker_is', 'is');
+    const opener = languages.find(l => l.code === compLang)?.opener ?? 'the target language is';
     const sectionCompletions = [
-        { label: 'the knowledge base includes:', kind: 14 },
-        { label: 'the contract states that:', kind: 14 },
-        { label: 'scenario is:', kind: 14 },
-        { label: 'query is:', kind: 14 },
-        { label: 'the predicates are:', kind: 14 },
-        { label: 'the templates are:', kind: 14 },
-        { label: 'the ontology is:', kind: 14 },
-        { label: 'the target language is: prolog.', kind: 14 }
+        { label: `${phrase('kb_open', 'the knowledge base')} ${phrase('kb_include', 'includes')}:`, kind: 14 },
+        { label: `${phrase('contract_open', 'the contract')} ${phrase('contract_states', 'states that')}:`, kind: 14 },
+        { label: `${phrase('scenario', 'scenario')} ${markerIs}:`, kind: 14 },
+        { label: `${phrase('query', 'query')} ${markerIs}:`, kind: 14 },
+        { label: `${phrase('predicates', 'the predicates are')}:`, kind: 14 },
+        { label: `${phrase('templates', 'the templates are')}:`, kind: 14 },
+        { label: `${phrase('ontology', 'the ontology is')}:`, kind: 14 },
+        { label: `${opener}: prolog.`, kind: 14 }
     ];
 
     const templateCompletions = templates.map(t => ({

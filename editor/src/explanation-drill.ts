@@ -1,3 +1,4 @@
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 // Explanation Drill window. A non-modal helper that walks the user through the
 // explanation as a "suspects tree": it repeatedly asks about the strongest reason
 // within the current region ("Understood?"); answering "Yes" removes that subtree,
@@ -109,15 +110,15 @@ export async function initExplanationDrill() {
         const card = document.createElement('div');
         card.className = 'q-card' + (isTopFinal ? ' top-final' : '');
         // Clicking a card selects its source in the editor (keeping focus on the drill).
-        card.title = 'Click to show this in the editor';
+        card.title = t('Click to show this in the editor');
         card.addEventListener('click', () => highlight(q));
 
         // Answered questions carry a ✕ to delete them (keeping the other answers).
         if (!isPending) {
             const del = document.createElement('button');
             del.className = 'q-del';
-            del.textContent = '✕';
-            del.title = 'Delete this question';
+            del.textContent = t('✕');
+            del.title = t('Delete this question');
             del.addEventListener('click', (e) => { e.stopPropagation(); deleteQuestion(i); });
             card.appendChild(del);
         }
@@ -131,7 +132,7 @@ export async function initExplanationDrill() {
         row.className = 'q-row';
         const label = document.createElement('span');
         label.className = 'q-label';
-        label.textContent = 'Accept?';
+        label.textContent = t('Accept?');
         row.appendChild(label);
 
         const mkBtn = (val: 'yes' | 'not_yet', text: string) => {
@@ -166,31 +167,41 @@ export async function initExplanationDrill() {
         const progress = res.progress || 0;
         const pct = initialCount > 0 ? Math.round((progress / initialCount) * 100) : 0;
         ($('progress-fill') as HTMLElement).style.width = `${pct}%`;
-        $('progress-label').textContent = 'Progress';
+        $('progress-label').textContent = t('Progress');
 
         // Final message when the drill is complete.
         const final = $('final');
         if (!pending) {
             final.style.display = '';
-            final.textContent = 'Nothing else to show. Feel free to alter your choices above.';
+            final.textContent = t('Nothing else to show. Feel free to alter your choices above.');
             // Keep the source of the deepest (TOP) question in view.
             highlight(questions.find(q => q.path === res.topPath) || questions[questions.length - 1]);
-            setStatus('Done');
+            setStatus(t('Done'));
         } else {
             final.style.display = 'none';
             highlight(pending);   // reveal the current question's source
-            setStatus('Answer the highlighted question, or revise an earlier one.');
+            setStatus(t('Answer the highlighted question, or revise an earlier one.'));
         }
     }
 
     async function refresh() {
         const res = await drill();
-        if (res && res.session_expired) { setStatus('The session has expired — reopen the Explanation Drill.'); return; }
-        if (!res || !res.ok) { setStatus('Error: ' + ((res && res.error) || 'no response')); return; }
+        if (res && res.session_expired) { setStatus(t('The session has expired — reopen the Explanation Drill.')); return; }
+        if (!res || !res.ok) { setStatus(t('Error: ') + ((res && res.error) || 'no response')); return; }
         render(res);
     }
 
-    if (!why) { setStatus('No explanation to drill.'); return; }
+    if (!why) { setStatus(t('No explanation to drill.')); return; }
     startSessionLoad();   // establish our own session in the background
     refresh();
+}
+
+
+// UI chrome i18n: translate this page's static chrome and carry the UI
+// language on /leapi calls (see src/i18n.ts).
+installLeApiLang();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => applyI18nDom());
+} else {
+    applyI18nDom();
 }

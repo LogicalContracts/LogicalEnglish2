@@ -189,7 +189,7 @@ test.describe('Query Editor', () => {
             localStorage.setItem('le_query_editor_data', JSON.stringify(s));
             localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');
         }, seed);
-        await page.route('**/leapi', async (route) => {
+        await page.route('**/leapi*', async (route) => {
             const body = JSON.parse(route.request().postData() || '{}');
             if (body.operation === 'nl_to_le') {
                 expect(body.kind).toBe('query');

@@ -1,4 +1,5 @@
 import cytoscape from 'cytoscape';
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 import fcose from 'cytoscape-fcose';
 import dagre from 'cytoscape-dagre';
 import elk from 'cytoscape-elk';
@@ -250,7 +251,7 @@ ctxCopyNode.addEventListener('click', () => {
     if (rightClickedNode) {
         const label = rightClickedNode.data('label') || rightClickedNode.id();
         navigator.clipboard.writeText(String(label)).then(() => {
-            alert('Node copied to clipboard');
+            alert(t('Node copied to clipboard'));
         });
     }
 });
@@ -260,7 +261,7 @@ ctxCopyUrl.addEventListener('click', () => {
         const url = new URL(window.location.href);
         url.searchParams.set('focus', rightClickedNode.id());
         navigator.clipboard.writeText(url.toString()).then(() => {
-            alert('URL copied to clipboard');
+            alert(t('URL copied to clipboard'));
         });
     }
 });
@@ -567,7 +568,7 @@ function visibleGraphAsMermaid(): string {
 btnRefreshGraph.addEventListener('click', refreshGraph);
 btnCopyMermaid.addEventListener('click', () => {
     navigator.clipboard.writeText(visibleGraphAsMermaid()).then(() => {
-        alert('Mermaid diagram copied to clipboard');
+        alert(t('Mermaid diagram copied to clipboard'));
     });
 });
 layoutSelect.addEventListener('change', () => { savePreferences(); runLayout(); });
@@ -631,3 +632,13 @@ try {
 
 // Request initial state
 graphChannel.postMessage({ type: 'request-state' });
+
+
+// UI chrome i18n: translate this page's static chrome and carry the UI
+// language on /leapi calls (see src/i18n.ts).
+installLeApiLang();
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => applyI18nDom());
+} else {
+    applyI18nDom();
+}

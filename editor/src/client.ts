@@ -1,4 +1,5 @@
-import { leLanguageConfiguration, leMonarchTokens } from './le-language';
+import { leLanguageConfiguration, leMonarchTokens, buildLeMonarchTokens } from './le-language';
+import { t, applyI18nDom, installLeApiLang, buildLanguageMenuItems, detectProgramLanguage, targetLanguageStatement, uiLang, setUiLang } from './i18n';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
 
@@ -19,7 +20,24 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         monaco.languages.register({ id: 'le' });
         monaco.languages.setLanguageConfiguration('le', leLanguageConfiguration);
-        monaco.languages.setMonarchTokensProvider('le', leMonarchTokens);
+        // The Monarch keyword tables are per program language (generated from
+        // the shared lexicon); re-registered whenever the open program's first
+        // statement declares a different language (O-6: the program's own
+        // declaration governs, the UI selector only sets the default).
+        let monarchLang = 'en';
+        monaco.languages.setMonarchTokensProvider('le', buildLeMonarchTokens(monarchLang));
+        const syncEditorLanguage = (text: string) => {
+            const lang = detectProgramLanguage(text);
+            if (lang !== monarchLang) {
+                monarchLang = lang;
+                monaco.languages.setMonarchTokensProvider('le', buildLeMonarchTokens(lang));
+            }
+        };
+        // UI chrome language: selector menu, API language parameter, DOM pass.
+        installLeApiLang();
+        applyI18nDom();
+        const langMenu = document.getElementById('language-menu-items');
+        if (langMenu) buildLanguageMenuItems(langMenu);
 
         const issueFixes = new Map<string, string>();
         const getMarkerKey = (marker: any) => {
@@ -260,7 +278,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 const params = new URLSearchParams(window.location.search);
                 const example = params.get('example');
                 if (!example) {
-                    alert('Copy URL is only available for existing examples.');
+                    alert(t('Copy URL is only available for existing examples.'));
                     return;
                 }
 
@@ -294,7 +312,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 }
 
                 if (!sessionModule) {
-                    alert('Please wait for the module to load.');
+                    alert(t('Please wait for the module to load.'));
                     return;
                 }
 
@@ -354,7 +372,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 }
 
                 if (!sessionModule) {
-                    alert('Please wait for the module to load.');
+                    alert(t('Please wait for the module to load.'));
                     return;
                 }
 
@@ -381,7 +399,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         prologCopy.onclick = () => {
             navigator.clipboard.writeText(prologContent.textContent || '');
             const originalText = prologCopy.textContent;
-            prologCopy.textContent = 'Copied!';
+            prologCopy.textContent = t('Copied!');
             setTimeout(() => {
                 prologCopy.textContent = originalText;
             }, 2000);
@@ -420,7 +438,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     // Update Save As label for browsers without File System Access API
     if (!('showSaveFilePicker' in window) && menuSaveAs) {
-        menuSaveAs.textContent = 'Download';
+        menuSaveAs.textContent = t('Download');
     }
 
     const updateSaveMenu = () => {
@@ -431,8 +449,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     // Menu Actions
     document.getElementById('menu-new')?.addEventListener('click', () => {
-        if (isDirty && !confirm('You have unsaved changes. Create new file anyway?')) return;
-        editor.setValue('');
+        if (isDirty && !confirm(t('You have unsaved changes. Create new file anyway?'))) return;
+        editor.setValue(uiLang() === 'en' ? '' : targetLanguageStatement() + '\n\n');
         currentFileName = 'document.le';
         fileHandle = null;
         currentBaseUrl = null;
@@ -453,7 +471,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     };
 
     document.getElementById('menu-new-from-url')?.addEventListener('click', () => {
-        if (isDirty && !confirm('You have unsaved changes. Load from URL anyway?')) return;
+        if (isDirty && !confirm(t('You have unsaved changes. Load from URL anyway?'))) return;
         if (urlError) urlError.style.display = 'none';
         if (urlModal) urlModal.style.display = 'flex';
         urlInput?.focus();
@@ -471,7 +489,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         const prevLabel = urlLoadBtn.textContent;
         urlLoadBtn.disabled = true;
-        urlLoadBtn.textContent = 'Loading…';
+        urlLoadBtn.textContent = t('Loading…');
         if (urlError) urlError.style.display = 'none';
         try {
             const resp = await fetch(raw, { redirect: 'follow' });
@@ -505,7 +523,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     document.getElementById('menu-open')?.addEventListener('click', async () => {
-        if (isDirty && !confirm('You have unsaved changes. Open another file anyway?')) return;
+        if (isDirty && !confirm(t('You have unsaved changes. Open another file anyway?'))) return;
         
         if ('showOpenFilePicker' in window) {
             try {
@@ -639,7 +657,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     });
 
     document.getElementById('menu-open-server')?.addEventListener('click', async () => {
-        if (isDirty && !confirm('You have unsaved changes. Open from server anyway?')) return;
+        if (isDirty && !confirm(t('You have unsaved changes. Open from server anyway?'))) return;
         
         if (modalOverlay) modalOverlay.style.display = 'flex';
         if (exampleList) exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Loading examples...</div>';
@@ -746,7 +764,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 sessionModuleDisplay.textContent = '';
             }
         } catch (err) {
-            alert('Failed to load example from server.');
+            alert(t('Failed to load example from server.'));
             console.error('Failed to load example', err);
         }
     }
@@ -860,7 +878,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     const serverKey = data.server_keys.includes(k === 'google' ? 'gemini' : k);
                     if (serverKey && input) {
                         input.disabled = true;
-                        input.placeholder = 'Provided by server';
+                        input.placeholder = t('Provided by server');
                         // Add a note if not already there
                         let note = input.parentElement?.querySelector('.server-key-note');
                         if (!note) {
@@ -869,7 +887,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                             note.style.fontSize = '10px';
                             note.style.color = '#89d185';
                             note.style.marginTop = '2px';
-                            note.textContent = 'This key is provided by the server environment.';
+                            note.textContent = t('This key is provided by the server environment.');
                             input.parentElement?.appendChild(note);
                         }
                     } else if (input) {
@@ -1162,7 +1180,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (isLoaded || isLoading) return true;
         isLoading = true;
         
-        resultsDisplay.textContent = 'Loading module on server...';
+        resultsDisplay.textContent = t('Loading module on server...');
         try {
             const response = await fetch('/leapi', {
                 method: 'POST',
@@ -1210,7 +1228,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 }
                 const anotherScenarioOption = document.createElement('option');
                 anotherScenarioOption.value = '___custom___';
-                anotherScenarioOption.textContent = 'Another...';
+                anotherScenarioOption.textContent = t('Another...');
                 scenarioSelect.appendChild(anotherScenarioOption);
                 
                 // Remember the KB name and query list for the Scenario Variations window.
@@ -1243,7 +1261,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 }
                 const anotherQueryOption = document.createElement('option');
                 anotherQueryOption.value = '___custom___';
-                anotherQueryOption.textContent = 'Another...';
+                anotherQueryOption.textContent = t('Another...');
                 querySelect.appendChild(anotherQueryOption);
                 
                 if (res.issues) {
@@ -1252,12 +1270,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     updateMarkers([]);
                 }
 
-                resultsDisplay.textContent = 'Results';
+                resultsDisplay.textContent = t('Results');
                 isLoading = false;
                 return true;
             } else {
                 lastLoadError = res?.error || 'Unknown error';
-                resultsDisplay.textContent = 'Error loading module: ' + lastLoadError;
+                resultsDisplay.textContent = t('Error loading module: ') + lastLoadError;
                 isLoading = false;
                 updateMarkers([]);
                 return false;
@@ -1285,7 +1303,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         p.textContent = message;
         p.style.cssText = 'font-size:13px;line-height:1.5;white-space:pre-wrap;margin-bottom:16px;';
         const btn = document.createElement('button');
-        btn.textContent = 'OK';
+        btn.textContent = t('OK');
         btn.style.cssText = 'float:right;padding:6px 16px;background:#0e639c;color:#fff;border:none;border-radius:4px;cursor:pointer;';
         const close = () => overlay.remove();
         btn.addEventListener('click', close);
@@ -1541,7 +1559,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const customQuery = query === '___custom___' ? customQueryText.value : null;
 
         debugPanel.style.display = 'flex';
-        debugStatus.textContent = 'Connecting to debugger...';
+        debugStatus.textContent = t('Connecting to debugger...');
         debugStack.innerHTML = '';
         debugVariables.innerHTML = '';
         debugContinue.disabled = false;
@@ -1555,7 +1573,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         dapSocket = new WebSocket(wsUrl);
 
         dapSocket.onopen = () => {
-            debugStatus.textContent = 'Debugger connected. Initializing...';
+            debugStatus.textContent = t('Debugger connected. Initializing...');
             sendDapRequest('initialize', { adapterID: 'le-debug' });
             sendDapRequest('launch', {});
             
@@ -1577,14 +1595,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 })
             }).then(res => res.json()).then(data => {
                 console.log('Debug query finished', data);
-                debugStatus.textContent = 'Query finished.';
+                debugStatus.textContent = t('Query finished.');
                 debugContinue.disabled = true;
                 debugStep.disabled = true;
                 debugStop.disabled = true;
                 debugDecorations = editor.deltaDecorations(debugDecorations, []);
             }).catch(err => {
                 console.error('Debug query failed', err);
-                debugStatus.textContent = 'Query failed.';
+                debugStatus.textContent = t('Query failed.');
                 debugContinue.disabled = true;
                 debugStep.disabled = true;
                 debugStop.disabled = true;
@@ -1618,7 +1636,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         };
 
         dapSocket.onclose = () => {
-            debugStatus.textContent = 'Debugger disconnected.';
+            debugStatus.textContent = t('Debugger disconnected.');
             debugContinue.disabled = true;
             debugStep.disabled = true;
                 debugStop.disabled = true;
@@ -1697,7 +1715,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             const empty = document.createElement('div');
             empty.style.padding = '4px 6px';
             empty.style.color = '#888';
-            empty.textContent = 'No variables for this call.';
+            empty.textContent = t('No variables for this call.');
             debugVariables.appendChild(empty);
             return;
         }
@@ -1724,7 +1742,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     debugStep.onclick = () => sendDapRequest('stepIn', { threadId: 1 });
     debugStop.onclick = () => {
         sendDapRequest('disconnect', {});
-        debugStatus.textContent = 'Trace stopped.';
+        debugStatus.textContent = t('Trace stopped.');
         debugContinue.disabled = true;
         debugStep.disabled = true;
                 debugStop.disabled = true;
@@ -1788,12 +1806,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     };
     btnInterruptQuery.addEventListener('click', () => {
         btnInterruptQuery.disabled = true;
-        btnInterruptQuery.textContent = 'Interrupting…';
+        btnInterruptQuery.textContent = t('Interrupting…');
         fetch('/leapi', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token: 'myToken123', operation: 'interruptQuery', sessionModule: sessionModule })
-        }).catch(() => {}).finally(() => { btnInterruptQuery.textContent = 'Interrupt'; });
+        }).catch(() => {}).finally(() => { btnInterruptQuery.textContent = t('Interrupt'); });
     });
 
     btnQuery.addEventListener('click', async () => {
@@ -1809,12 +1827,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const customQuery = query === '___custom___' ? customQueryText.value : null;
 
         if (!query) {
-            resultsDisplay.textContent = 'Please select a query.';
+            resultsDisplay.textContent = t('Please select a query.');
             return;
         }
         
         if (query === '___custom___' && !customQuery) {
-            resultsDisplay.textContent = 'Please enter a custom query.';
+            resultsDisplay.textContent = t('Please enter a custom query.');
             return;
         }
         
@@ -1867,7 +1885,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
             explView.showResults(res, target);
         } catch (err) {
-            answersList.textContent = 'Error executing query.';
+            answersList.textContent = t('Error executing query.');
             console.error(err);
         } finally {
             hideInterrupt();
@@ -1889,7 +1907,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const customQuery = query === '___custom___' ? customQueryText.value : null;
 
         if (!query) {
-            alert('Please select a query for the Proof Game.');
+            alert(t('Please select a query for the Proof Game.'));
             return;
         }
         
@@ -1994,13 +2012,13 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                                      document.body.className.includes('hc-theme') ? 'hc-theme' : '';
                 window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
             } else if (res && res.error) {
-                alert('Could not open the Proof Game:\n\n' + res.error);
+                alert(t('Could not open the Proof Game:\n\n') + res.error);
             } else {
-                alert('Failed to get game data from server.');
+                alert(t('Failed to get game data from server.'));
             }
         } catch (err) {
             console.error(err);
-            alert('Error connecting to server for game data.');
+            alert(t('Error connecting to server for game data.'));
         }
     });
 
@@ -2214,7 +2232,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             detailsEl.style.paddingTop = '5px';
 
             const summary = document.createElement('summary');
-            summary.textContent = 'System Logs (stderr)';
+            summary.textContent = t('System Logs (stderr)');
             summary.style.cursor = 'pointer';
             summary.style.opacity = '0.6';
             summary.style.outline = 'none';
@@ -2269,7 +2287,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         btnAssistantSend.disabled = true;
         btnAssistantInterrupt.style.display = 'inline-block';
         assistantProgress.style.display = 'block';
-        assistantProgressText.textContent = 'Starting...';
+        assistantProgressText.textContent = t('Starting...');
         assistantStartTime = Date.now();
 
         const apiKeys = {
@@ -2471,7 +2489,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         }
     });
 
+    syncEditorLanguage(editor.getValue());
     editor.onDidChangeModelContent(() => {
+        syncEditorLanguage(editor.getValue());
         isDirty = true;
         if (isLoaded) {
             isLoaded = false;

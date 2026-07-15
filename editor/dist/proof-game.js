@@ -1049,14 +1049,14 @@ var require_OverloadYield = __commonJS({
 // node_modules/@babel/runtime/helpers/regeneratorDefine.js
 var require_regeneratorDefine = __commonJS({
   "node_modules/@babel/runtime/helpers/regeneratorDefine.js"(exports, module) {
-    function _regeneratorDefine(e, r2, n2, t2) {
+    function _regeneratorDefine(e, r2, n2, t3) {
       var i2 = Object.defineProperty;
       try {
         i2({}, "", {});
       } catch (e2) {
         i2 = 0;
       }
-      module.exports = _regeneratorDefine = function regeneratorDefine(e2, r3, n3, t3) {
+      module.exports = _regeneratorDefine = function regeneratorDefine(e2, r3, n3, t4) {
         function o(r4, n4) {
           _regeneratorDefine(e2, r4, function(e3) {
             return this._invoke(r4, n4, e3);
@@ -1064,11 +1064,11 @@ var require_regeneratorDefine = __commonJS({
         }
         r3 ? i2 ? i2(e2, r3, {
           value: n3,
-          enumerable: !t3,
-          configurable: !t3,
-          writable: !t3
+          enumerable: !t4,
+          configurable: !t4,
+          writable: !t4
         }) : e2[r3] = n3 : (o("next", 0), o("throw", 1), o("return", 2));
-      }, module.exports.__esModule = true, module.exports["default"] = module.exports, _regeneratorDefine(e, r2, n2, t2);
+      }, module.exports.__esModule = true, module.exports["default"] = module.exports, _regeneratorDefine(e, r2, n2, t3);
     }
     module.exports = _regeneratorDefine, module.exports.__esModule = true, module.exports["default"] = module.exports;
   }
@@ -1079,7 +1079,7 @@ var require_regenerator = __commonJS({
   "node_modules/@babel/runtime/helpers/regenerator.js"(exports, module) {
     var regeneratorDefine = require_regeneratorDefine();
     function _regenerator() {
-      var e, t2, r2 = "function" == typeof Symbol ? Symbol : {}, n2 = r2.iterator || "@@iterator", o = r2.toStringTag || "@@toStringTag";
+      var e, t3, r2 = "function" == typeof Symbol ? Symbol : {}, n2 = r2.iterator || "@@iterator", o = r2.toStringTag || "@@toStringTag";
       function i2(r3, n3, o2, i3) {
         var c3 = n3 && n3.prototype instanceof Generator ? n3 : Generator, u3 = Object.create(c3.prototype);
         return regeneratorDefine(u3, "_invoke", function(r4, n4, o3) {
@@ -1089,13 +1089,13 @@ var require_regenerator = __commonJS({
             v: e,
             a: d2,
             f: d2.bind(e, 4),
-            d: function d3(t3, r5) {
-              return i4 = t3, c4 = 0, u4 = e, G2.n = r5, a2;
+            d: function d3(t4, r5) {
+              return i4 = t4, c4 = 0, u4 = e, G2.n = r5, a2;
             }
           };
           function d2(r5, n5) {
-            for (c4 = r5, u4 = n5, t2 = 0; !y && f3 && !o4 && t2 < p2.length; t2++) {
-              var o4, i5 = p2[t2], d3 = G2.p, l2 = i5[2];
+            for (c4 = r5, u4 = n5, t3 = 0; !y && f3 && !o4 && t3 < p2.length; t3++) {
+              var o4, i5 = p2[t3], d3 = G2.p, l2 = i5[2];
               r5 > 3 ? (o4 = l2 === n5) && (u4 = i5[(c4 = i5[4]) ? 5 : (c4 = 3, 3)], i5[4] = i5[5] = e) : i5[0] <= d3 && ((o4 = r5 < 2 && d3 < i5[1]) ? (c4 = 0, G2.v = n5, G2.n = i5[1]) : d3 < l2 && (o4 = r5 < 3 || i5[0] > n5 || n5 > l2) && (i5[4] = r5, i5[5] = n5, G2.n = l2, c4 = 0));
             }
             if (o4 || r5 > 1)
@@ -1105,29 +1105,29 @@ var require_regenerator = __commonJS({
           return function(o4, p3, l2) {
             if (f3 > 1)
               throw TypeError("Generator is already running");
-            for (y && 1 === p3 && d2(p3, l2), c4 = p3, u4 = l2; (t2 = c4 < 2 ? e : u4) || !y; ) {
+            for (y && 1 === p3 && d2(p3, l2), c4 = p3, u4 = l2; (t3 = c4 < 2 ? e : u4) || !y; ) {
               i4 || (c4 ? c4 < 3 ? (c4 > 1 && (G2.n = -1), d2(c4, u4)) : G2.n = u4 : G2.v = u4);
               try {
                 if (f3 = 2, i4) {
-                  if (c4 || (o4 = "next"), t2 = i4[o4]) {
-                    if (!(t2 = t2.call(i4, u4)))
+                  if (c4 || (o4 = "next"), t3 = i4[o4]) {
+                    if (!(t3 = t3.call(i4, u4)))
                       throw TypeError("iterator result is not an object");
-                    if (!t2.done)
-                      return t2;
-                    u4 = t2.value, c4 < 2 && (c4 = 0);
+                    if (!t3.done)
+                      return t3;
+                    u4 = t3.value, c4 < 2 && (c4 = 0);
                   } else
-                    1 === c4 && (t2 = i4["return"]) && t2.call(i4), c4 < 2 && (u4 = TypeError("The iterator does not provide a '" + o4 + "' method"), c4 = 1);
+                    1 === c4 && (t3 = i4["return"]) && t3.call(i4), c4 < 2 && (u4 = TypeError("The iterator does not provide a '" + o4 + "' method"), c4 = 1);
                   i4 = e;
-                } else if ((t2 = (y = G2.n < 0) ? u4 : r4.call(n4, G2)) !== a2)
+                } else if ((t3 = (y = G2.n < 0) ? u4 : r4.call(n4, G2)) !== a2)
                   break;
-              } catch (t3) {
-                i4 = e, c4 = 1, u4 = t3;
+              } catch (t4) {
+                i4 = e, c4 = 1, u4 = t4;
               } finally {
                 f3 = 1;
               }
             }
             return {
-              value: t2,
+              value: t3,
               done: y
             };
           };
@@ -1140,10 +1140,10 @@ var require_regenerator = __commonJS({
       }
       function GeneratorFunctionPrototype() {
       }
-      t2 = Object.getPrototypeOf;
-      var c2 = [][n2] ? t2(t2([][n2]())) : (regeneratorDefine(t2 = {}, n2, function() {
+      t3 = Object.getPrototypeOf;
+      var c2 = [][n2] ? t3(t3([][n2]())) : (regeneratorDefine(t3 = {}, n2, function() {
         return this;
-      }), t2), u2 = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c2);
+      }), t3), u2 = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c2);
       function f2(e2) {
         return Object.setPrototypeOf ? Object.setPrototypeOf(e2, GeneratorFunctionPrototype) : (e2.__proto__ = GeneratorFunctionPrototype, regeneratorDefine(e2, o, "GeneratorFunction")), e2.prototype = Object.create(u2), e2;
       }
@@ -1167,30 +1167,30 @@ var require_regeneratorAsyncIterator = __commonJS({
   "node_modules/@babel/runtime/helpers/regeneratorAsyncIterator.js"(exports, module) {
     var OverloadYield = require_OverloadYield();
     var regeneratorDefine = require_regeneratorDefine();
-    function AsyncIterator(t2, e) {
+    function AsyncIterator(t3, e) {
       function n2(r3, o, i2, f2) {
         try {
-          var c2 = t2[r3](o), u2 = c2.value;
-          return u2 instanceof OverloadYield ? e.resolve(u2.v).then(function(t3) {
-            n2("next", t3, i2, f2);
-          }, function(t3) {
-            n2("throw", t3, i2, f2);
-          }) : e.resolve(u2).then(function(t3) {
-            c2.value = t3, i2(c2);
-          }, function(t3) {
-            return n2("throw", t3, i2, f2);
+          var c2 = t3[r3](o), u2 = c2.value;
+          return u2 instanceof OverloadYield ? e.resolve(u2.v).then(function(t4) {
+            n2("next", t4, i2, f2);
+          }, function(t4) {
+            n2("throw", t4, i2, f2);
+          }) : e.resolve(u2).then(function(t4) {
+            c2.value = t4, i2(c2);
+          }, function(t4) {
+            return n2("throw", t4, i2, f2);
           });
-        } catch (t3) {
-          f2(t3);
+        } catch (t4) {
+          f2(t4);
         }
       }
       var r2;
       this.next || (regeneratorDefine(AsyncIterator.prototype), regeneratorDefine(AsyncIterator.prototype, "function" == typeof Symbol && Symbol.asyncIterator || "@asyncIterator", function() {
         return this;
-      })), regeneratorDefine(this, "_invoke", function(t3, o, i2) {
+      })), regeneratorDefine(this, "_invoke", function(t4, o, i2) {
         function f2() {
           return new e(function(e2, r3) {
-            n2(t3, i2, e2, r3);
+            n2(t4, i2, e2, r3);
           });
         }
         return r2 = r2 ? r2.then(f2, f2) : f2();
@@ -1205,8 +1205,8 @@ var require_regeneratorAsyncGen = __commonJS({
   "node_modules/@babel/runtime/helpers/regeneratorAsyncGen.js"(exports, module) {
     var regenerator = require_regenerator();
     var regeneratorAsyncIterator = require_regeneratorAsyncIterator();
-    function _regeneratorAsyncGen(r2, e, t2, o, n2) {
-      return new regeneratorAsyncIterator(regenerator().w(r2, e, t2, o), n2 || Promise);
+    function _regeneratorAsyncGen(r2, e, t3, o, n2) {
+      return new regeneratorAsyncIterator(regenerator().w(r2, e, t3, o), n2 || Promise);
     }
     module.exports = _regeneratorAsyncGen, module.exports.__esModule = true, module.exports["default"] = module.exports;
   }
@@ -1216,8 +1216,8 @@ var require_regeneratorAsyncGen = __commonJS({
 var require_regeneratorAsync = __commonJS({
   "node_modules/@babel/runtime/helpers/regeneratorAsync.js"(exports, module) {
     var regeneratorAsyncGen = require_regeneratorAsyncGen();
-    function _regeneratorAsync(n2, e, r2, t2, o) {
-      var a2 = regeneratorAsyncGen(n2, e, r2, t2, o);
+    function _regeneratorAsync(n2, e, r2, t3, o) {
+      var a2 = regeneratorAsyncGen(n2, e, r2, t3, o);
       return a2.next().then(function(n3) {
         return n3.done ? n3.value : a2.next();
       });
@@ -1231,12 +1231,12 @@ var require_regeneratorKeys = __commonJS({
   "node_modules/@babel/runtime/helpers/regeneratorKeys.js"(exports, module) {
     function _regeneratorKeys(e) {
       var n2 = Object(e), r2 = [];
-      for (var t2 in n2)
-        r2.unshift(t2);
+      for (var t3 in n2)
+        r2.unshift(t3);
       return function e2() {
         for (; r2.length; )
-          if ((t2 = r2.pop()) in n2)
-            return e2.value = t2, e2.done = false, e2;
+          if ((t3 = r2.pop()) in n2)
+            return e2.value = t3, e2.done = false, e2;
         return e2.done = true, e2;
       };
     }
@@ -1265,9 +1265,9 @@ var require_regeneratorValues = __commonJS({
     var _typeof2 = require_typeof()["default"];
     function _regeneratorValues(e) {
       if (null != e) {
-        var t2 = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r2 = 0;
-        if (t2)
-          return t2.call(e);
+        var t3 = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r2 = 0;
+        if (t3)
+          return t3.call(e);
         if ("function" == typeof e.next)
           return e;
         if (!isNaN(e.length))
@@ -1298,10 +1298,10 @@ var require_regeneratorRuntime = __commonJS({
     var regeneratorValues = require_regeneratorValues();
     function _regeneratorRuntime7() {
       "use strict";
-      var r2 = regenerator(), e = r2.m(_regeneratorRuntime7), t2 = (Object.getPrototypeOf ? Object.getPrototypeOf(e) : e.__proto__).constructor;
+      var r2 = regenerator(), e = r2.m(_regeneratorRuntime7), t3 = (Object.getPrototypeOf ? Object.getPrototypeOf(e) : e.__proto__).constructor;
       function n2(r3) {
         var e2 = "function" == typeof r3 && r3.constructor;
-        return !!e2 && (e2 === t2 || "GeneratorFunction" === (e2.displayName || e2.name));
+        return !!e2 && (e2 === t3 || "GeneratorFunction" === (e2.displayName || e2.name));
       }
       var o = {
         "throw": 1,
@@ -1310,25 +1310,25 @@ var require_regeneratorRuntime = __commonJS({
         "continue": 3
       };
       function a2(r3) {
-        var e2, t3;
+        var e2, t4;
         return function(n3) {
           e2 || (e2 = {
             stop: function stop() {
-              return t3(n3.a, 2);
+              return t4(n3.a, 2);
             },
             "catch": function _catch() {
               return n3.v;
             },
             abrupt: function abrupt(r4, e3) {
-              return t3(n3.a, o[r4], e3);
+              return t4(n3.a, o[r4], e3);
             },
             delegateYield: function delegateYield(r4, o2, a3) {
-              return e2.resultName = o2, t3(n3.d, regeneratorValues(r4), a3);
+              return e2.resultName = o2, t4(n3.d, regeneratorValues(r4), a3);
             },
             finish: function finish(r4) {
-              return t3(n3.f, r4);
+              return t4(n3.f, r4);
             }
-          }, t3 = function t4(r4, _t, o2) {
+          }, t4 = function t5(r4, _t, o2) {
             n3.p = e2.prev, n3.n = e2.next;
             try {
               return r4(_t, o2);
@@ -1345,8 +1345,8 @@ var require_regeneratorRuntime = __commonJS({
       }
       return (module.exports = _regeneratorRuntime7 = function _regeneratorRuntime8() {
         return {
-          wrap: function wrap(e2, t3, n3, o2) {
-            return r2.w(a2(e2), t3, n3, o2 && o2.reverse());
+          wrap: function wrap(e2, t4, n3, o2) {
+            return r2.w(a2(e2), t4, n3, o2 && o2.reverse());
           },
           isGeneratorFunction: n2,
           mark: r2.m,
@@ -1354,8 +1354,8 @@ var require_regeneratorRuntime = __commonJS({
             return new OverloadYield(r3, e2);
           },
           AsyncIterator: regeneratorAsyncIterator,
-          async: function async(r3, e2, t3, o2, u2) {
-            return (n2(e2) ? regeneratorAsyncGen : regeneratorAsync)(a2(r3), e2, t3, o2, u2);
+          async: function async(r3, e2, t4, o2, u2) {
+            return (n2(e2) ? regeneratorAsyncGen : regeneratorAsync)(a2(r3), e2, t4, o2, u2);
           },
           keys: regeneratorKeys,
           values: regeneratorValues
@@ -1666,7 +1666,7 @@ var require_elk_api = __commonJS({
     })(function() {
       var define2, module2, exports2;
       return (/* @__PURE__ */ function() {
-        function r2(e, n2, t2) {
+        function r2(e, n2, t3) {
           function o(i3, f2) {
             if (!n2[i3]) {
               if (!e[i3]) {
@@ -1682,12 +1682,12 @@ var require_elk_api = __commonJS({
               e[i3][0].call(p2.exports, function(r3) {
                 var n3 = e[i3][1][r3];
                 return o(n3 || r3);
-              }, p2, p2.exports, r2, e, n2, t2);
+              }, p2, p2.exports, r2, e, n2, t3);
             }
             return n2[i3].exports;
           }
-          for (var u2 = "function" == typeof __require && __require, i2 = 0; i2 < t2.length; i2++)
-            o(t2[i2]);
+          for (var u2 = "function" == typeof __require && __require, i2 = 0; i2 < t3.length; i2++)
+            o(t3[i2]);
           return o;
         }
         return r2;
@@ -1710,29 +1710,29 @@ var require_elk_api = __commonJS({
             throw new TypeError("Cannot call a class as a function");
         }
         function _defineProperties2(e, r2) {
-          for (var t2 = 0; t2 < r2.length; t2++) {
-            var o = r2[t2];
+          for (var t3 = 0; t3 < r2.length; t3++) {
+            var o = r2[t3];
             o.enumerable = o.enumerable || false, o.configurable = true, "value" in o && (o.writable = true), Object.defineProperty(e, _toPropertyKey(o.key), o);
           }
         }
-        function _createClass2(e, r2, t2) {
-          return r2 && _defineProperties2(e.prototype, r2), t2 && _defineProperties2(e, t2), Object.defineProperty(e, "prototype", { writable: false }), e;
+        function _createClass2(e, r2, t3) {
+          return r2 && _defineProperties2(e.prototype, r2), t3 && _defineProperties2(e, t3), Object.defineProperty(e, "prototype", { writable: false }), e;
         }
-        function _toPropertyKey(t2) {
-          var i2 = _toPrimitive(t2, "string");
+        function _toPropertyKey(t3) {
+          var i2 = _toPrimitive(t3, "string");
           return "symbol" == _typeof2(i2) ? i2 : i2 + "";
         }
-        function _toPrimitive(t2, r2) {
-          if ("object" != _typeof2(t2) || !t2)
-            return t2;
-          var e = t2[Symbol.toPrimitive];
+        function _toPrimitive(t3, r2) {
+          if ("object" != _typeof2(t3) || !t3)
+            return t3;
+          var e = t3[Symbol.toPrimitive];
           if (void 0 !== e) {
-            var i2 = e.call(t2, r2 || "default");
+            var i2 = e.call(t3, r2 || "default");
             if ("object" != _typeof2(i2))
               return i2;
             throw new TypeError("@@toPrimitive must return a primitive value.");
           }
-          return ("string" === r2 ? String : Number)(t2);
+          return ("string" === r2 ? String : Number)(t3);
         }
         var ELK2 = exports3["default"] = /* @__PURE__ */ function() {
           function ELK3() {
@@ -14443,7 +14443,7 @@ var require_elk_worker_min = __commonJS({
     }
     function chd() {
       _gd();
-      return WC(OC(t2, 1), kue, 299, 0, [$gd, Zgd, Ygd, Wgd, Vgd, Xgd]);
+      return WC(OC(t22, 1), kue, 299, 0, [$gd, Zgd, Ygd, Wgd, Vgd, Xgd]);
     }
     function Qld() {
       Lld();
@@ -15881,7 +15881,7 @@ var require_elk_worker_min = __commonJS({
     }
     function ehd() {
       ehd = ndb;
-      dhd = gs((_gd(), WC(OC(t2, 1), kue, 299, 0, [$gd, Zgd, Ygd, Wgd, Vgd, Xgd])));
+      dhd = gs((_gd(), WC(OC(t22, 1), kue, 299, 0, [$gd, Zgd, Ygd, Wgd, Vgd, Xgd])));
     }
     function Sld() {
       Sld = ndb;
@@ -63195,7 +63195,7 @@ var require_elk_worker_min = __commonJS({
       new iqd();
       ihd = new pEd(sxe, null);
       jhd = new nEd(EEe);
-      qhd = (_gd(), Drb($gd, WC(OC(t2, 1), kue, 299, 0, [Wgd])));
+      qhd = (_gd(), Drb($gd, WC(OC(t22, 1), kue, 299, 0, [Wgd])));
       phd = new pEd(FBe, qhd);
       rhd = new pEd(sBe, (Ndb(), false));
       thd = (ojd(), mjd);
@@ -82224,7 +82224,7 @@ var require_elk_worker_min = __commonJS({
     var Ygd;
     var Zgd;
     var $gd;
-    var t2 = Aeb(xEe, "ContentAlignment", 299, MI, chd, bhd);
+    var t22 = Aeb(xEe, "ContentAlignment", 299, MI, chd, bhd);
     var dhd;
     mdb(689, 1, lxe, hjd);
     _2.tf = function ijd(a10) {
@@ -82233,7 +82233,7 @@ var require_elk_worker_min = __commonJS({
       mdd(a10, new ied(yed(xed(zed(red(sed(wed(ted(ued(new Aed(), tBe), ""), "Alignment"), "Alignment of the selected node relative to other nodes; the exact meaning depends on the used algorithm."), hhd), Oed), q2), Crb(Ded))));
       mdd(a10, new ied(yed(xed(zed(sed(wed(ted(ued(new Aed(), sxe), ""), "Aspect Ratio"), "The desired aspect ratio of the drawing, that is the quotient of width by height."), Ned), LI), Crb(Eed))));
       mdd(a10, new ied(yed(xed(zed(sed(wed(ted(ued(new Aed(), EEe), ""), "Bend Points"), "A fixed list of bend points for the edge. This is used by the 'Fixed Layout' algorithm to specify a pre-defined routing for an edge. The vector chain must include the source point, any bend points, and the target point, so it must have at least two points."), Red), n2), Crb(Bed))));
-      mdd(a10, new ied(yed(xed(zed(red(sed(wed(ted(ued(new Aed(), FBe), ""), "Content Alignment"), "Specifies how the content of a node are aligned. Each node can individually control the alignment of its contents. I.e. if a node should be aligned top left in its parent node, the parent node should specify that option."), qhd), Ped), t2), Crb(Eed))));
+      mdd(a10, new ied(yed(xed(zed(red(sed(wed(ted(ued(new Aed(), FBe), ""), "Content Alignment"), "Specifies how the content of a node are aligned. Each node can individually control the alignment of its contents. I.e. if a node should be aligned top left in its parent node, the parent node should specify that option."), qhd), Ped), t22), Crb(Eed))));
       mdd(a10, new ied(yed(xed(zed(red(sed(wed(ted(ued(new Aed(), sBe), ""), "Debug Mode"), "Whether additional debug information shall be generated."), (Ndb(), false)), Med), GI), Crb(Eed))));
       mdd(a10, new ied(yed(xed(zed(red(sed(wed(ted(ued(new Aed(), wBe), ""), "Direction"), "Overall direction of edges: horizontal (right / left) or vertical (down / up)."), thd), Oed), v2), Crb(Eed))));
       mdd(a10, new ied(yed(xed(zed(red(sed(wed(ted(ued(new Aed(), PAe), ""), "Edge Routing"), "What kind of edge routing style should be applied for the content of a parent node. Algorithms may also set this option to single edges in order to mark them as splines. The bend point list of edges with this option set to SPLINES must be interpreted as control points for a piecewise cubic spline."), yhd), Oed), y2), Crb(Eed))));
@@ -96335,43 +96335,43 @@ var require_main = __commonJS({
       }, _typeof2(o);
     }
     function _defineProperties2(e, r2) {
-      for (var t2 = 0; t2 < r2.length; t2++) {
-        var o = r2[t2];
+      for (var t3 = 0; t3 < r2.length; t3++) {
+        var o = r2[t3];
         o.enumerable = o.enumerable || false, o.configurable = true, "value" in o && (o.writable = true), Object.defineProperty(e, _toPropertyKey(o.key), o);
       }
     }
-    function _createClass2(e, r2, t2) {
-      return r2 && _defineProperties2(e.prototype, r2), t2 && _defineProperties2(e, t2), Object.defineProperty(e, "prototype", { writable: false }), e;
+    function _createClass2(e, r2, t3) {
+      return r2 && _defineProperties2(e.prototype, r2), t3 && _defineProperties2(e, t3), Object.defineProperty(e, "prototype", { writable: false }), e;
     }
-    function _toPropertyKey(t2) {
-      var i2 = _toPrimitive(t2, "string");
+    function _toPropertyKey(t3) {
+      var i2 = _toPrimitive(t3, "string");
       return "symbol" == _typeof2(i2) ? i2 : i2 + "";
     }
-    function _toPrimitive(t2, r2) {
-      if ("object" != _typeof2(t2) || !t2)
-        return t2;
-      var e = t2[Symbol.toPrimitive];
+    function _toPrimitive(t3, r2) {
+      if ("object" != _typeof2(t3) || !t3)
+        return t3;
+      var e = t3[Symbol.toPrimitive];
       if (void 0 !== e) {
-        var i2 = e.call(t2, r2 || "default");
+        var i2 = e.call(t3, r2 || "default");
         if ("object" != _typeof2(i2))
           return i2;
         throw new TypeError("@@toPrimitive must return a primitive value.");
       }
-      return ("string" === r2 ? String : Number)(t2);
+      return ("string" === r2 ? String : Number)(t3);
     }
     function _classCallCheck2(a2, n2) {
       if (!(a2 instanceof n2))
         throw new TypeError("Cannot call a class as a function");
     }
-    function _callSuper7(t2, o, e) {
-      return o = _getPrototypeOf2(o), _possibleConstructorReturn2(t2, _isNativeReflectConstruct7() ? Reflect.construct(o, e || [], _getPrototypeOf2(t2).constructor) : o.apply(t2, e));
+    function _callSuper7(t3, o, e) {
+      return o = _getPrototypeOf2(o), _possibleConstructorReturn2(t3, _isNativeReflectConstruct7() ? Reflect.construct(o, e || [], _getPrototypeOf2(t3).constructor) : o.apply(t3, e));
     }
-    function _possibleConstructorReturn2(t2, e) {
+    function _possibleConstructorReturn2(t3, e) {
       if (e && ("object" == _typeof2(e) || "function" == typeof e))
         return e;
       if (void 0 !== e)
         throw new TypeError("Derived constructors may only return object or undefined");
-      return _assertThisInitialized2(t2);
+      return _assertThisInitialized2(t3);
     }
     function _assertThisInitialized2(e) {
       if (void 0 === e)
@@ -96380,28 +96380,28 @@ var require_main = __commonJS({
     }
     function _isNativeReflectConstruct7() {
       try {
-        var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+        var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
         }));
-      } catch (t3) {
+      } catch (t4) {
       }
       return (_isNativeReflectConstruct7 = function _isNativeReflectConstruct8() {
-        return !!t2;
+        return !!t3;
       })();
     }
-    function _getPrototypeOf2(t2) {
-      return _getPrototypeOf2 = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function(t3) {
-        return t3.__proto__ || Object.getPrototypeOf(t3);
-      }, _getPrototypeOf2(t2);
+    function _getPrototypeOf2(t3) {
+      return _getPrototypeOf2 = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function(t4) {
+        return t4.__proto__ || Object.getPrototypeOf(t4);
+      }, _getPrototypeOf2(t3);
     }
-    function _inherits2(t2, e) {
+    function _inherits2(t3, e) {
       if ("function" != typeof e && null !== e)
         throw new TypeError("Super expression must either be null or a function");
-      t2.prototype = Object.create(e && e.prototype, { constructor: { value: t2, writable: true, configurable: true } }), Object.defineProperty(t2, "prototype", { writable: false }), e && _setPrototypeOf2(t2, e);
+      t3.prototype = Object.create(e && e.prototype, { constructor: { value: t3, writable: true, configurable: true } }), Object.defineProperty(t3, "prototype", { writable: false }), e && _setPrototypeOf2(t3, e);
     }
-    function _setPrototypeOf2(t2, e) {
-      return _setPrototypeOf2 = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(t3, e2) {
-        return t3.__proto__ = e2, t3;
-      }, _setPrototypeOf2(t2, e);
+    function _setPrototypeOf2(t3, e) {
+      return _setPrototypeOf2 = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(t4, e2) {
+        return t4.__proto__ = e2, t4;
+      }, _setPrototypeOf2(t3, e);
     }
     var ELK2 = require_elk_api()["default"];
     var ELKNode = /* @__PURE__ */ function(_ELK) {
@@ -97369,9 +97369,9 @@ var require_react_dom_client_development = __commonJS({
                 if ("string" === typeof entry.name) {
                   var JSCompiler_temp_const = info;
                   a: {
-                    var name = entry.name, env = entry.env, location = entry.debugLocation;
-                    if (null != location) {
-                      var childStack = formatOwnerStack(location), idx = childStack.lastIndexOf("\n"), lastLine = -1 === idx ? childStack : childStack.slice(idx + 1);
+                    var name = entry.name, env = entry.env, location2 = entry.debugLocation;
+                    if (null != location2) {
+                      var childStack = formatOwnerStack(location2), idx = childStack.lastIndexOf("\n"), lastLine = -1 === idx ? childStack : childStack.slice(idx + 1);
                       if (-1 !== lastLine.indexOf(name)) {
                         var JSCompiler_inline_result = "\n" + lastLine;
                         break a;
@@ -116886,20 +116886,410 @@ var require_client = __commonJS({
 // src/proof-game.ts
 var React2 = __toESM(require_react());
 
+// src/generated/i18nData.ts
+var uiCatalog = {
+  "en": {},
+  "pt": {
+    "+ Add": "+ Adicionar",
+    "+ Add Query": "+ Adicionar consulta",
+    "A hands-on tutorial: write, query and debug three small LE programs.": "Um tutorial pr\xE1tico: escrever, consultar e depurar tr\xEAs pequenos programas LE.",
+    "API Keys &amp; Assistant Settings": "Chaves de API e defini\xE7\xF5es do Assistente",
+    "API Keys &amp; Assistant Settings...": "Chaves de API e defini\xE7\xF5es do Assistente...",
+    "Add condition": "Adicionar condi\xE7\xE3o",
+    "Add fact": "Adicionar facto",
+    "Add query": "Adicionar consulta",
+    "Anthropic API Key:": "Chave de API Anthropic:",
+    "Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')": "Pe\xE7a ao assistente (p.ex., 'Corrige a indenta\xE7\xE3o', 'Esbo\xE7a um programa para...')",
+    "Assistant Max Steps (1-50):": "Passos m\xE1ximos do Assistente (1-50):",
+    "Assistant Model:": "Modelo do Assistente:",
+    "Assume fact": "Assumir facto",
+    "Auto Layout": "Arranjo autom\xE1tico",
+    "Cancel": "Cancelar",
+    "Center": "Centrar",
+    "Choose a program": "Escolha um programa",
+    "Choose a program to explore.": "Escolha um programa para explorar.",
+    "Circle": "C\xEDrculo",
+    "Clone Tool": "Ferramenta de clonagem",
+    "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Ferramenta de clonagem: clique num n\xF3 para o duplicar (necess\xE1rio quando a prova usa a mesma regra mais de uma vez)",
+    "Close this panel": "Fechar este painel",
+    "Collapse All": "Recolher tudo",
+    "Continue": "Continuar",
+    "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) \u2014 retoma a execu\xE7\xE3o at\xE9 encontrar a pr\xF3xima resposta (ou a consulta terminar). Se restarem solu\xE7\xF5es, avan\xE7ar/continuar de novo explora-as.",
+    "Copy": "Copiar",
+    "Copy Answer": "Copiar resposta",
+    "Copy Explanation": "Copiar explica\xE7\xE3o",
+    "Copy Mermaid": "Copiar Mermaid",
+    "Copy Node": "Copiar n\xF3",
+    "Copy Scenario": "Copiar cen\xE1rio",
+    "Copy URL": "Copiar URL",
+    "Copy as Mermaid diagram": "Copiar como diagrama Mermaid",
+    "Copy the visible graph as a Mermaid diagram (text), pasteable into GitHub, Obsidian, mermaid.live\u2026": "Copiar o grafo vis\xEDvel como diagrama Mermaid (texto), col\xE1vel no GitHub, Obsidian, mermaid.live\u2026",
+    "Custom Query:": "Consulta personalizada:",
+    "Custom Scenario Facts:": "Factos de cen\xE1rio personalizados:",
+    "Cut": "Cortar",
+    "Dagre (Hierarchical)": "Dagre (hier\xE1rquico)",
+    "Dark": "Escuro",
+    "Dark Theme": "Tema escuro",
+    "Detailed failure explanations (per-rule nodes)": "Explica\xE7\xF5es de falha detalhadas (n\xF3s por regra)",
+    "Direction": "Dire\xE7\xE3o",
+    "ELK (Layered)": "ELK (em camadas)",
+    "Edge Types": "Tipos de arestas",
+    "Edit": "Editar",
+    "Edit Queries\u2026": "Editar consultas\u2026",
+    "Edit Scenarios\u2026": "Editar cen\xE1rios\u2026",
+    "Enter facts here...": "Escreva factos aqui...",
+    "Enter query here...": "Escreva a consulta aqui...",
+    "Expand All": "Expandir tudo",
+    "Explanation Drill": "Explora\xE7\xE3o da explica\xE7\xE3o",
+    "Explanation Drill\u2026": "Explora\xE7\xE3o da explica\xE7\xE3o\u2026",
+    "Explanations Preferences": "Prefer\xEAncias das explica\xE7\xF5es",
+    "File": "Ficheiro",
+    "Filter programs": "Filtrar programas",
+    "Filter\u2026": "Filtrar\u2026",
+    "Find": "Procurar",
+    "Fit View": "Ajustar vista",
+    "Fit to Screen": "Ajustar ao ecr\xE3",
+    "Go to full sub-explanation": "Ir para a sub-explica\xE7\xE3o completa",
+    "Google API Key:": "Chave de API Google:",
+    "Grid": "Grelha",
+    "Groq API Key:": "Chave de API Groq:",
+    "Help": "Ajuda",
+    "Hide repeated explanations": "Ocultar explica\xE7\xF5es repetidas",
+    "High Contrast": "Alto contraste",
+    "Home": "In\xEDcio",
+    "Horizontal (L\u2192R)": "Horizontal (E\u2192D)",
+    "Insert into Editor": "Inserir no editor",
+    "Interrupt": "Interromper",
+    "Introduction to Logical English (tutorial)": "Introdu\xE7\xE3o ao Logical English (tutorial)",
+    "Keys and preferences are stored in your browser's local storage.": "As chaves e prefer\xEAncias ficam guardadas no armazenamento local do seu navegador.",
+    "LE Debugger": "Depurador LE",
+    "LE Proof Game": "Jogo da Prova LE",
+    "Large": "Grande",
+    "Layout": "Arranjo",
+    "Light": "Claro",
+    "Light Mode": "Modo leve",
+    "Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).": "O Modo leve corre um ciclo Prolog r\xE1pido em processo. Desmarque para o Modo profundo (agente opencode completo com ficheiros/web/terminal).",
+    "Light Theme": "Tema claro",
+    "Load": "Carregar",
+    "Loading models...": "A carregar modelos...",
+    "Logical English": "Logical English",
+    "Logical English syntax (reference)": "Sintaxe do Logical English (refer\xEAncia)",
+    "Medium": "M\xE9dio",
+    "Misc": "Diversos",
+    "Name": "Nome",
+    "New": "Novo",
+    "New from URL": "Novo a partir de URL",
+    "New from URL...": "Novo a partir de URL...",
+    "Node Types": "Tipos de n\xF3s",
+    "None": "Nenhum",
+    "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Varia\xE7\xF5es de Cen\xE1rio: altere o cen\xE1rio selecionado e corra uma ou mais consultas sobre a varia\xE7\xE3o, numa janela separada",
+    "Open copy from server...": "Abrir c\xF3pia do servidor...",
+    "Open from Server": "Abrir do servidor",
+    "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Abrir o Jogo da Prova: construa interativamente uma prova da consulta selecionada ligando os seus factos e regras",
+    "Open...": "Abrir...",
+    "OpenAI API Key:": "Chave de API OpenAI:",
+    "PROLOG Equivalent": "Equivalente PROLOG",
+    "Paste": "Colar",
+    "Patch scenario": "Ajustar cen\xE1rio",
+    "Predicates Legend": "Legenda de predicados",
+    "Preferences...": "Prefer\xEAncias...",
+    "Prefix for failed nodes:": "Prefixo para n\xF3s falhados:",
+    "Proof Game": "Jogo da Prova",
+    "Query": "Consulta",
+    "Query Editor": "Editor de consultas",
+    "Query:": "Consulta:",
+    "Redraw from here": "Redesenhar a partir daqui",
+    "Refresh": "Atualizar",
+    "Replace": "Substituir",
+    "Save": "Guardar",
+    "Save As...": "Guardar como...",
+    "Scenario": "Cen\xE1rio",
+    "Scenario Editor": "Editor de cen\xE1rios",
+    "Scenario Variations": "Varia\xE7\xF5es de cen\xE1rio",
+    "Scenario:": "Cen\xE1rio:",
+    "Search nodes...": "Procurar n\xF3s...",
+    "Select a query...": "Selecione uma consulta...",
+    "Select a scenario...": "Selecione um cen\xE1rio...",
+    "Send": "Enviar",
+    "Send command to the LE Assistant": "Enviar comando ao Assistente LE",
+    "Show Proof": "Mostrar prova",
+    "Show important reason": "Mostrar raz\xE3o importante",
+    "Small": "Pequeno",
+    "Step": "Avan\xE7ar",
+    "Step (F11) \u2014 advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avan\xE7ar (F11) \u2014 avan\xE7a um passo at\xE9 ao pr\xF3ximo objetivo a provar. A pilha de chamadas e o painel VARI\xC1VEIS atualizam-se com a nova posi\xE7\xE3o e as liga\xE7\xF5es feitas at\xE9 a\xED.",
+    "Stop": "Parar",
+    "Stop \u2014 end the trace and detach the debugger. The query keeps running to completion in the background.": "Parar \u2014 termina o rastreio e desliga o depurador. A consulta continua a correr at\xE9 ao fim em segundo plano.",
+    "The editor manual: files, queries, scenario/query editors, explanations.": "O manual do editor: ficheiros, consultas, editores de cen\xE1rios/consultas, explica\xE7\xF5es.",
+    "The language reference: every LE construct.": "A refer\xEAncia da linguagem: todas as constru\xE7\xF5es LE.",
+    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Este prefixo \xE9 anteposto aos n\xF3s falhados ao copiar explica\xE7\xF5es para texto simples ou HTML.",
+    "Together API Key:": "Chave de API Together:",
+    "Trace": "Rastrear",
+    "Type Hierarchy": "Hierarquia de tipos",
+    "URL of a Logical English program:": "URL de um programa Logical English:",
+    "Using this editor (manual)": "Usar este editor (manual)",
+    "Vertical (T\u2192B)": "Vertical (C\u2192B)",
+    "View Source Graph": "Ver grafo do programa",
+    "Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab": "Visualizar os modelos, regras, factos, cen\xE1rios e consultas do programa como um grafo de depend\xEAncias, num novo separador",
+    "When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).": "Quando ativo (predefini\xE7\xE3o), uma sub-explica\xE7\xE3o que ocorre v\xE1rias vezes numa explica\xE7\xE3o \xE9 mostrada uma vez com a sua contagem. Desative para ver todas as ocorr\xEAncias por extenso (\xE1rvores maiores).",
+    "When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.": "Quando ativo, um predicado falhado com v\xE1rias regras mostra um n\xF3 interm\xE9dio por regra (naveg\xE1vel at\xE9 \xE0 regra), com os sub-objetivos falhados por baixo. Mais lento; desativado por predefini\xE7\xE3o.",
+    "Zoom In": "Ampliar",
+    "Zoom Out": "Reduzir",
+    "and": "e",
+    "fCoSE (Default)": "fCoSE (predefini\xE7\xE3o)",
+    "not": "n\xE3o",
+    "or": "ou",
+    "query name": "nome da consulta",
+    "scenario name": "nome do cen\xE1rio",
+    "Are you sure you want to miss the excitement of finding the proof yourself?": "Tem a certeza de que quer perder a emo\xE7\xE3o de encontrar a prova por si mesmo?",
+    "No proof found for this query.": "Nenhuma prova encontrada para esta consulta.",
+    "(empty)": "(vazio)",
+    "A query name must be a single word or number (no spaces).": "O nome de uma consulta tem de ser uma \xFAnica palavra ou n\xFAmero (sem espa\xE7os).",
+    "A scenario name must be a single word (no spaces).": "O nome de um cen\xE1rio tem de ser uma \xFAnica palavra (sem espa\xE7os).",
+    "Accept?": "Aceitar?",
+    "Add a query first.": "Adicione primeiro uma consulta.",
+    "Add at least one condition to the query.": "Adicione pelo menos uma condi\xE7\xE3o \xE0 consulta.",
+    "Another...": "Outra...",
+    "Answer the highlighted question, or revise an earlier one.": "Responda \xE0 pergunta destacada, ou reveja uma anterior.",
+    "Click to show this in the editor": "Clique para mostrar no editor",
+    "Configure an LLM model first: in the main editor, Misc \u2192 API Keys\u2026": "Configure primeiro um modelo LLM: no editor principal, Diversos \u2192 Chaves de API\u2026",
+    "Connecting to debugger...": "A ligar ao depurador...",
+    "Copied to clipboard": "Copiado para a \xE1rea de transfer\xEAncia",
+    "Copied!": "Copiado!",
+    "Copied": "Copiado",
+    "Copy URL is only available for existing examples.": "Copiar URL s\xF3 est\xE1 dispon\xEDvel para exemplos existentes.",
+    "Copy the query text:": "Copie o texto da consulta:",
+    "Copy the scenario text:": "Copie o texto do cen\xE1rio:",
+    "Could not load the program on the server.": "N\xE3o foi poss\xEDvel carregar o programa no servidor.",
+    "Could not reach the server.": "N\xE3o foi poss\xEDvel contactar o servidor.",
+    "Debugger connected. Initializing...": "Depurador ligado. A inicializar...",
+    "Debugger disconnected.": "Depurador desligado.",
+    "Delete condition": "Eliminar condi\xE7\xE3o",
+    "Delete this question": "Eliminar esta pergunta",
+    "Delete": "Eliminar",
+    "Discard unsaved changes and load the selected query?": "Descartar altera\xE7\xF5es n\xE3o guardadas e carregar a consulta selecionada?",
+    "Discard unsaved changes and load the selected scenario?": "Descartar altera\xE7\xF5es n\xE3o guardadas e carregar o cen\xE1rio selecionado?",
+    "Done": "Conclu\xEDdo",
+    "Download": "Transferir",
+    "Error connecting to server for game data.": "Erro ao ligar ao servidor para obter os dados do jogo.",
+    "Error executing query.": "Erro ao executar a consulta.",
+    "Error loading module: ": "Erro ao carregar o m\xF3dulo: ",
+    "Error: ": "Erro: ",
+    "Explanation": "Explica\xE7\xE3o",
+    "Failed to get game data from server.": "Falha ao obter os dados do jogo do servidor.",
+    "Failed to load example from server.": "Falha ao carregar o exemplo do servidor.",
+    "Generate": "Gerar",
+    "Generating and verifying\u2026": "A gerar e verificar\u2026",
+    "Indent (nest this condition to bind tighter)": "Indentar (aninhar esta condi\xE7\xE3o para ligar mais estreitamente)",
+    "Insert anyway": "Inserir mesmo assim",
+    "Inserted into editor": "Inserido no editor",
+    "Interrupting\u2026": "A interromper\u2026",
+    "Loading module on server...": "A carregar o m\xF3dulo no servidor...",
+    "Loading\u2026": "A carregar\u2026",
+    "Mermaid diagram copied to clipboard": "Diagrama Mermaid copiado para a \xE1rea de transfer\xEAncia",
+    "New query": "Nova consulta",
+    "New scenario": "Novo cen\xE1rio",
+    "New\u2026": "Novo\u2026",
+    "No answers (false)": "Sem respostas (falso)",
+    "No conditions yet \u2014 pick a template below and click \u201CAdd\u201D.": "Ainda sem condi\xE7\xF5es \u2014 escolha um modelo abaixo e clique em \u201CAdicionar\u201D.",
+    "No explanation to drill.": "Nenhuma explica\xE7\xE3o para explorar.",
+    "No facts yet \u2014 pick a template below and click \u201CAdd\u201D.": "Ainda sem factos \u2014 escolha um modelo abaixo e clique em \u201CAdicionar\u201D.",
+    "No model configured": "Nenhum modelo configurado",
+    "No results returned.": "Nenhum resultado devolvido.",
+    "No variables for this call.": "Sem vari\xE1veis nesta chamada.",
+    "Node copied to clipboard": "N\xF3 copiado para a \xE1rea de transfer\xEAncia",
+    "Nothing else to show. Feel free to alter your choices above.": "Nada mais a mostrar. Pode alterar as escolhas acima.",
+    "Please enter a custom query.": "Introduza uma consulta personalizada.",
+    "Please give the query a name.": "D\xEA um nome \xE0 consulta.",
+    "Please give the scenario a name.": "D\xEA um nome ao cen\xE1rio.",
+    "Please select a query for the Proof Game.": "Selecione uma consulta para o Jogo da Prova.",
+    "Please select a query.": "Selecione uma consulta.",
+    "Please wait for the module to load.": "Aguarde o carregamento do m\xF3dulo.",
+    "Progress": "Progresso",
+    "Query failed.": "A consulta falhou.",
+    "Query finished.": "Consulta terminada.",
+    "Query interrupted.": "Consulta interrompida.",
+    "Ready": "Pronto",
+    "Regenerate": "Regenerar",
+    "Remove query": "Remover consulta",
+    "Results": "Resultados",
+    "Running queries\u2026": "A correr consultas\u2026",
+    "Scenario copied to clipboard": "Cen\xE1rio copiado para a \xE1rea de transfer\xEAncia",
+    "Write it in English": "Escreva em Portugu\xEAs",
+    "Write it in English\u2026": "Escreva em Portugu\xEAs\u2026",
+    "You have unsaved changes. Create new file anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Criar um ficheiro novo mesmo assim?",
+    "You have unsaved changes. Load from URL anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Carregar do URL mesmo assim?",
+    "You have unsaved changes. Open another file anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Abrir outro ficheiro mesmo assim?",
+    "You have unsaved changes. Open from server anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Abrir do servidor mesmo assim?",
+    "the LLM request failed.": "o pedido ao LLM falhou.",
+    "Important reason: ": "Raz\xE3o importante: ",
+    "repeated sub-explanations": "sub-explica\xE7\xF5es repetidas",
+    "assumed": "assumido",
+    "FAIL": "FALHA",
+    "STOP": "PARAR",
+    "Unindent": "Desindentar",
+    "Language": "L\xEDngua",
+    "Answers": "Respostas",
+    "Unknowns": "Desconhecidos",
+    "Scenarios": "Cen\xE1rios",
+    "Queries": "Consultas",
+    "Templates": "Modelos",
+    "Run": "Correr",
+    "Back": "Voltar",
+    "Question": "Pergunta",
+    "Logged in as: ": "Sess\xE3o iniciada como: ",
+    "Login": "Iniciar sess\xE3o",
+    "Logout": "Terminar sess\xE3o",
+    "Login Failed": "Falha no in\xEDcio de sess\xE3o",
+    "Invalid email or password.": "Email ou palavra-passe inv\xE1lidos.",
+    "Try again": "Tentar novamente",
+    "Edit and Query: ": "Editar e consultar: ",
+    "[New Document]": "[Novo documento]",
+    "expand all": "expandir tudo",
+    "collapse all": "recolher tudo",
+    "[show all]": "[mostrar tudo]",
+    "Just run a program: ": "Apenas correr um programa: ",
+    "[Executive view]": "[Vista executiva]",
+    "A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer \u2014 no editing.": "Uma forma minimalista e amiga do telem\xF3vel de escolher um programa, um cen\xE1rio e uma pergunta, e ver a resposta \u2014 sem edi\xE7\xE3o.",
+    "GitHub Repository": "Reposit\xF3rio GitHub",
+    "Documentation": "Documenta\xE7\xE3o",
+    "A Gentle Introduction to Logical English 2": "Uma introdu\xE7\xE3o suave ao Logical English 2",
+    "How to use the LE2 web application": "Como usar a aplica\xE7\xE3o web LE2",
+    "Logical English syntax summary": "Resumo da sintaxe do Logical English",
+    "Test Suite": "Bateria de testes",
+    "Run All Tests": "Correr todos os testes",
+    "Email: ": "Email: ",
+    "Password: ": "Palavra-passe: ",
+    "Start here: a hands-on tutorial that builds three small programs \u2014 a tea party, a flying dragon, and a slice of British nationality law \u2014 teaching how to write, query and debug LE in the editor.": "Comece aqui: um tutorial pr\xE1tico que constr\xF3i tr\xEAs pequenos programas \u2014 uma festa de ch\xE1, um drag\xE3o voador e um peda\xE7o da lei de nacionalidade brit\xE2nica \u2014 ensinando a escrever, consultar e depurar LE no editor.",
+    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cen\xE1rios e consultas, varia\xE7\xF5es de cen\xE1rio e a leitura das \xE1rvores de explica\xE7\xE3o.",
+    "The language reference: every construct \u2014 templates, rules, operators, aggregates, variables and types, dates, ontology, extensions \u2014 for looking things up as you write.": "A refer\xEAncia da linguagem: todas as constru\xE7\xF5es \u2014 modelos, regras, operadores, agrega\xE7\xF5es, vari\xE1veis e tipos, datas, ontologia, extens\xF5es \u2014 para consultar enquanto escreve."
+  },
+  "es": {},
+  "fr": {},
+  "it": {}
+};
+var languages = [
+  {
+    "code": "en",
+    "autonym": "Logical English",
+    "opener": "the target language is",
+    "decimalSep": ".",
+    "thousandsSep": ",",
+    "listSep": ",",
+    "status": "core"
+  },
+  {
+    "code": "pt",
+    "autonym": "Portugu\xEAs L\xF3gico",
+    "opener": "a linguagem alvo \xE9",
+    "decimalSep": ",",
+    "thousandsSep": ".",
+    "listSep": ",",
+    "status": "pilot"
+  }
+];
+
+// src/i18n.ts
+var STORAGE_KEY = "le-ui-lang";
+function uiLang() {
+  try {
+    const l2 = localStorage.getItem(STORAGE_KEY);
+    if (l2 && languages.some((x2) => x2.code === l2))
+      return l2;
+  } catch (e) {
+  }
+  return "en";
+}
+function t(key) {
+  const lang = uiLang();
+  if (lang === "en")
+    return key;
+  const cat = uiCatalog[lang];
+  return cat && cat[key] || key;
+}
+var AUTO_SELECTOR = [
+  "button",
+  "label",
+  "option",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "th",
+  "summary",
+  "legend",
+  ".dropdown-item",
+  ".menu-item",
+  "[data-i18n]"
+].join(",");
+function translateFirstTextNode(el) {
+  for (const node2 of Array.from(el.childNodes)) {
+    if (node2.nodeType === Node.TEXT_NODE) {
+      const raw = node2.textContent ?? "";
+      const trimmed = raw.trim();
+      if (trimmed) {
+        const tr = t(trimmed);
+        if (tr !== trimmed)
+          node2.textContent = raw.replace(trimmed, tr);
+        return;
+      }
+    }
+  }
+}
+function applyI18nDom(root = document) {
+  if (uiLang() === "en")
+    return;
+  root.querySelectorAll(AUTO_SELECTOR).forEach((el) => translateFirstTextNode(el));
+  root.querySelectorAll("[title]").forEach((el) => {
+    const v2 = el.getAttribute("title");
+    if (v2) {
+      const tr = t(v2.trim());
+      if (tr !== v2.trim())
+        el.setAttribute("title", tr);
+    }
+  });
+  root.querySelectorAll("[placeholder]").forEach((el) => {
+    const v2 = el.getAttribute("placeholder");
+    if (v2) {
+      const tr = t(v2.trim());
+      if (tr !== v2.trim())
+        el.setAttribute("placeholder", tr);
+    }
+  });
+}
+function installLeApiLang() {
+  if (uiLang() === "en")
+    return;
+  const origFetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    try {
+      const url = typeof input === "string" ? input : input.url ?? String(input);
+      if (/^\/(leapi|query|verify|list_examples|example_details)\b/.test(url) && !/[?&]lang=/.test(url)) {
+        const sep = url.includes("?") ? "&" : "?";
+        const newUrl = `${url}${sep}lang=${encodeURIComponent(uiLang())}`;
+        if (typeof input === "string")
+          return origFetch(newUrl, init);
+        return origFetch(new Request(newUrl, input), init);
+      }
+    } catch (e) {
+    }
+    return origFetch(input, init);
+  };
+}
+
 // node_modules/@babel/runtime/helpers/esm/asyncToGenerator.js
-function asyncGeneratorStep(n2, t2, e, r2, o, a2, c2) {
+function asyncGeneratorStep(n2, t3, e, r2, o, a2, c2) {
   try {
     var i2 = n2[a2](c2), u2 = i2.value;
   } catch (n3) {
     return void e(n3);
   }
-  i2.done ? t2(u2) : Promise.resolve(u2).then(r2, o);
+  i2.done ? t3(u2) : Promise.resolve(u2).then(r2, o);
 }
 function _asyncToGenerator(n2) {
   return function() {
-    var t2 = this, e = arguments;
+    var t3 = this, e = arguments;
     return new Promise(function(r2, o) {
-      var a2 = n2.apply(t2, e);
+      var a2 = n2.apply(t3, e);
       function _next(n3) {
         asyncGeneratorStep(a2, r2, o, _next, _throw, "next", n3);
       }
@@ -116928,34 +117318,34 @@ function _typeof(o) {
 }
 
 // node_modules/@babel/runtime/helpers/esm/toPrimitive.js
-function toPrimitive(t2, r2) {
-  if ("object" != _typeof(t2) || !t2)
-    return t2;
-  var e = t2[Symbol.toPrimitive];
+function toPrimitive(t3, r2) {
+  if ("object" != _typeof(t3) || !t3)
+    return t3;
+  var e = t3[Symbol.toPrimitive];
   if (void 0 !== e) {
-    var i2 = e.call(t2, r2 || "default");
+    var i2 = e.call(t3, r2 || "default");
     if ("object" != _typeof(i2))
       return i2;
     throw new TypeError("@@toPrimitive must return a primitive value.");
   }
-  return ("string" === r2 ? String : Number)(t2);
+  return ("string" === r2 ? String : Number)(t3);
 }
 
 // node_modules/@babel/runtime/helpers/esm/toPropertyKey.js
-function toPropertyKey(t2) {
-  var i2 = toPrimitive(t2, "string");
+function toPropertyKey(t3) {
+  var i2 = toPrimitive(t3, "string");
   return "symbol" == _typeof(i2) ? i2 : i2 + "";
 }
 
 // node_modules/@babel/runtime/helpers/esm/createClass.js
 function _defineProperties(e, r2) {
-  for (var t2 = 0; t2 < r2.length; t2++) {
-    var o = r2[t2];
+  for (var t3 = 0; t3 < r2.length; t3++) {
+    var o = r2[t3];
     o.enumerable = o.enumerable || false, o.configurable = true, "value" in o && (o.writable = true), Object.defineProperty(e, toPropertyKey(o.key), o);
   }
 }
-function _createClass(e, r2, t2) {
-  return r2 && _defineProperties(e.prototype, r2), t2 && _defineProperties(e, t2), Object.defineProperty(e, "prototype", {
+function _createClass(e, r2, t3) {
+  return r2 && _defineProperties(e.prototype, r2), t3 && _defineProperties(e, t3), Object.defineProperty(e, "prototype", {
     writable: false
   }), e;
 }
@@ -116968,60 +117358,60 @@ function _assertThisInitialized(e) {
 }
 
 // node_modules/@babel/runtime/helpers/esm/possibleConstructorReturn.js
-function _possibleConstructorReturn(t2, e) {
+function _possibleConstructorReturn(t3, e) {
   if (e && ("object" == _typeof(e) || "function" == typeof e))
     return e;
   if (void 0 !== e)
     throw new TypeError("Derived constructors may only return object or undefined");
-  return _assertThisInitialized(t2);
+  return _assertThisInitialized(t3);
 }
 
 // node_modules/@babel/runtime/helpers/esm/getPrototypeOf.js
-function _getPrototypeOf(t2) {
-  return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function(t3) {
-    return t3.__proto__ || Object.getPrototypeOf(t3);
-  }, _getPrototypeOf(t2);
+function _getPrototypeOf(t3) {
+  return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function(t4) {
+    return t4.__proto__ || Object.getPrototypeOf(t4);
+  }, _getPrototypeOf(t3);
 }
 
 // node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js
-function _setPrototypeOf(t2, e) {
-  return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(t3, e2) {
-    return t3.__proto__ = e2, t3;
-  }, _setPrototypeOf(t2, e);
+function _setPrototypeOf(t3, e) {
+  return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function(t4, e2) {
+    return t4.__proto__ = e2, t4;
+  }, _setPrototypeOf(t3, e);
 }
 
 // node_modules/@babel/runtime/helpers/esm/inherits.js
-function _inherits(t2, e) {
+function _inherits(t3, e) {
   if ("function" != typeof e && null !== e)
     throw new TypeError("Super expression must either be null or a function");
-  t2.prototype = Object.create(e && e.prototype, {
+  t3.prototype = Object.create(e && e.prototype, {
     constructor: {
-      value: t2,
+      value: t3,
       writable: true,
       configurable: true
     }
-  }), Object.defineProperty(t2, "prototype", {
+  }), Object.defineProperty(t3, "prototype", {
     writable: false
-  }), e && _setPrototypeOf(t2, e);
+  }), e && _setPrototypeOf(t3, e);
 }
 
 // node_modules/@babel/runtime/helpers/esm/defineProperty.js
-function _defineProperty(e, r2, t2) {
+function _defineProperty(e, r2, t3) {
   return (r2 = toPropertyKey(r2)) in e ? Object.defineProperty(e, r2, {
-    value: t2,
+    value: t3,
     enumerable: true,
     configurable: true,
     writable: true
-  }) : e[r2] = t2, e;
+  }) : e[r2] = t3, e;
 }
 
 // node_modules/rete/rete.esm.js
 var import_regenerator = __toESM(require_regenerator2());
 function _createForOfIteratorHelper$1(r2, e) {
-  var t2 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (!t2) {
-    if (Array.isArray(r2) || (t2 = _unsupportedIterableToArray$1(r2)) || e && r2 && "number" == typeof r2.length) {
-      t2 && (r2 = t2);
+  var t3 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (!t3) {
+    if (Array.isArray(r2) || (t3 = _unsupportedIterableToArray$1(r2)) || e && r2 && "number" == typeof r2.length) {
+      t3 && (r2 = t3);
       var _n = 0, F2 = function F3() {
       };
       return { s: F2, n: function n2() {
@@ -117034,15 +117424,15 @@ function _createForOfIteratorHelper$1(r2, e) {
   }
   var o, a2 = true, u2 = false;
   return { s: function s() {
-    t2 = t2.call(r2);
+    t3 = t3.call(r2);
   }, n: function n2() {
-    var r3 = t2.next();
+    var r3 = t3.next();
     return a2 = r3.done, r3;
   }, e: function e2(r3) {
     u2 = true, o = r3;
   }, f: function f2() {
     try {
-      a2 || null == t2["return"] || t2["return"]();
+      a2 || null == t3["return"] || t3["return"]();
     } finally {
       if (u2)
         throw o;
@@ -117053,8 +117443,8 @@ function _unsupportedIterableToArray$1(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray$1(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray$1(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray$1(r2, a2) : void 0;
   }
 }
 function _arrayLikeToArray$1(r2, a2) {
@@ -117187,10 +117577,10 @@ var Scope = /* @__PURE__ */ function() {
   }]);
 }();
 function _createForOfIteratorHelper(r2, e) {
-  var t2 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (!t2) {
-    if (Array.isArray(r2) || (t2 = _unsupportedIterableToArray(r2)) || e && r2 && "number" == typeof r2.length) {
-      t2 && (r2 = t2);
+  var t3 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (!t3) {
+    if (Array.isArray(r2) || (t3 = _unsupportedIterableToArray(r2)) || e && r2 && "number" == typeof r2.length) {
+      t3 && (r2 = t3);
       var _n = 0, F2 = function F3() {
       };
       return { s: F2, n: function n2() {
@@ -117203,15 +117593,15 @@ function _createForOfIteratorHelper(r2, e) {
   }
   var o, a2 = true, u2 = false;
   return { s: function s() {
-    t2 = t2.call(r2);
+    t3 = t3.call(r2);
   }, n: function n2() {
-    var r3 = t2.next();
+    var r3 = t3.next();
     return a2 = r3.done, r3;
   }, e: function e2(r3) {
     u2 = true, o = r3;
   }, f: function f2() {
     try {
-      a2 || null == t2["return"] || t2["return"]();
+      a2 || null == t3["return"] || t3["return"]();
     } finally {
       if (u2)
         throw o;
@@ -117222,8 +117612,8 @@ function _unsupportedIterableToArray(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray(r2, a2) : void 0;
   }
 }
 function _arrayLikeToArray(r2, a2) {
@@ -117232,17 +117622,17 @@ function _arrayLikeToArray(r2, a2) {
     n2[e] = r2[e];
   return n2;
 }
-function _callSuper$1(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct$1() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper$1(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct$1() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct$1() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct$1 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var NodeEditor = /* @__PURE__ */ function(_Scope) {
@@ -117598,17 +117988,17 @@ function getUID() {
   });
   return hexPairs.join("");
 }
-function _callSuper(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var Socket = /* @__PURE__ */ _createClass(
@@ -117717,16 +118107,16 @@ var InputControl = /* @__PURE__ */ function(_Control) {
     }
   }]);
 }(Control);
-var Node = /* @__PURE__ */ function() {
-  function Node3(label) {
-    _classCallCheck(this, Node3);
+var Node2 = /* @__PURE__ */ function() {
+  function Node4(label) {
+    _classCallCheck(this, Node4);
     _defineProperty(this, "inputs", {});
     _defineProperty(this, "outputs", {});
     _defineProperty(this, "controls", {});
     this.label = label;
     this.id = getUID();
   }
-  return _createClass(Node3, [{
+  return _createClass(Node4, [{
     key: "hasInput",
     value: function hasInput(key) {
       return Object.prototype.hasOwnProperty.call(this.inputs, key);
@@ -117831,7 +118221,7 @@ var classic = /* @__PURE__ */ Object.freeze({
   Output,
   Control,
   InputControl,
-  Node,
+  Node: Node2,
   Connection
 });
 
@@ -117863,8 +118253,8 @@ function _unsupportedIterableToArray2(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray2(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray2(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray2(r2, a2) : void 0;
   }
 }
 
@@ -118005,22 +118395,22 @@ function getBoundingBox$1(rects) {
   };
 }
 function ownKeys$4(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread$4(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys$4(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys$4(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys$4(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys$4(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
@@ -118425,17 +118815,17 @@ var Area = /* @__PURE__ */ function() {
     }
   }]);
 }();
-function _callSuper$12(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct$12() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper$12(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct$12() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct$12() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct$12 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var BaseAreaPlugin = /* @__PURE__ */ function(_Scope) {
@@ -118490,22 +118880,22 @@ var ElementsHolder = /* @__PURE__ */ function() {
   }]);
 }();
 function ownKeys$3(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread$3(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys$3(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys$3(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys$3(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys$3(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
@@ -118694,22 +119084,22 @@ function simpleNodesOrder(base) {
   });
 }
 function ownKeys$2(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread$2(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys$2(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys$2(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys$2(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys$2(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
@@ -119163,22 +119553,22 @@ function showInputControl(area, visible) {
   });
 }
 function ownKeys$1(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread$1(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys$1(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys$1(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys$1(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys$1(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
@@ -119262,37 +119652,37 @@ var index = /* @__PURE__ */ Object.freeze({
   zoomAt
 });
 function ownKeys(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
 }
-function _callSuper2(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct2() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper2(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct2() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct2() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct2 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var AreaPlugin = /* @__PURE__ */ function(_BaseAreaPlugin) {
@@ -119661,18 +120051,18 @@ var AreaPlugin = /* @__PURE__ */ function(_BaseAreaPlugin) {
 }(BaseAreaPlugin);
 
 // node_modules/@babel/runtime/helpers/esm/superPropBase.js
-function _superPropBase(t2, o) {
-  for (; !{}.hasOwnProperty.call(t2, o) && null !== (t2 = _getPrototypeOf(t2)); )
+function _superPropBase(t3, o) {
+  for (; !{}.hasOwnProperty.call(t3, o) && null !== (t3 = _getPrototypeOf(t3)); )
     ;
-  return t2;
+  return t3;
 }
 
 // node_modules/@babel/runtime/helpers/esm/get.js
 function _get() {
-  return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function(e, t2, r2) {
-    var p2 = _superPropBase(e, t2);
+  return _get = "undefined" != typeof Reflect && Reflect.get ? Reflect.get.bind() : function(e, t3, r2) {
+    var p2 = _superPropBase(e, t3);
     if (p2) {
-      var n2 = Object.getOwnPropertyDescriptor(p2, t2);
+      var n2 = Object.getOwnPropertyDescriptor(p2, t3);
       return n2.get ? n2.get.call(arguments.length < 3 ? e : r2) : n2.value;
     }
   }, _get.apply(null, arguments);
@@ -119689,22 +120079,22 @@ function _arrayWithHoles(r2) {
 
 // node_modules/@babel/runtime/helpers/esm/iterableToArrayLimit.js
 function _iterableToArrayLimit(r2, l2) {
-  var t2 = null == r2 ? null : "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (null != t2) {
+  var t3 = null == r2 ? null : "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (null != t3) {
     var e, n2, i2, u2, a2 = [], f2 = true, o = false;
     try {
-      if (i2 = (t2 = t2.call(r2)).next, 0 === l2) {
-        if (Object(t2) !== t2)
+      if (i2 = (t3 = t3.call(r2)).next, 0 === l2) {
+        if (Object(t3) !== t3)
           return;
         f2 = false;
       } else
-        for (; !(f2 = (e = i2.call(t2)).done) && (a2.push(e.value), a2.length !== l2); f2 = true)
+        for (; !(f2 = (e = i2.call(t3)).done) && (a2.push(e.value), a2.length !== l2); f2 = true)
           ;
     } catch (r3) {
       o = true, n2 = r3;
     } finally {
       try {
-        if (!f2 && null != t2["return"] && (u2 = t2["return"](), Object(u2) !== u2))
+        if (!f2 && null != t3["return"] && (u2 = t3["return"](), Object(u2) !== u2))
           return;
       } finally {
         if (o)
@@ -119727,22 +120117,22 @@ function _slicedToArray(r2, e) {
 
 // node_modules/rete-connection-plugin/rete-connection-plugin.esm.js
 function ownKeys2(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread2(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys2(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys2(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys2(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys2(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
@@ -119811,10 +120201,10 @@ function createPseudoconnection(extra) {
   };
 }
 function _createForOfIteratorHelper$12(r2, e) {
-  var t2 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (!t2) {
-    if (Array.isArray(r2) || (t2 = _unsupportedIterableToArray$12(r2)) || e && r2 && "number" == typeof r2.length) {
-      t2 && (r2 = t2);
+  var t3 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (!t3) {
+    if (Array.isArray(r2) || (t3 = _unsupportedIterableToArray$12(r2)) || e && r2 && "number" == typeof r2.length) {
+      t3 && (r2 = t3);
       var _n = 0, F2 = function F3() {
       };
       return { s: F2, n: function n2() {
@@ -119827,15 +120217,15 @@ function _createForOfIteratorHelper$12(r2, e) {
   }
   var o, a2 = true, u2 = false;
   return { s: function s() {
-    t2 = t2.call(r2);
+    t3 = t3.call(r2);
   }, n: function n2() {
-    var r3 = t2.next();
+    var r3 = t3.next();
     return a2 = r3.done, r3;
   }, e: function e2(r3) {
     u2 = true, o = r3;
   }, f: function f2() {
     try {
-      a2 || null == t2["return"] || t2["return"]();
+      a2 || null == t3["return"] || t3["return"]();
     } finally {
       if (u2)
         throw o;
@@ -119846,8 +120236,8 @@ function _unsupportedIterableToArray$12(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray$12(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray$12(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray$12(r2, a2) : void 0;
   }
 }
 function _arrayLikeToArray$12(r2, a2) {
@@ -119954,17 +120344,17 @@ function syncConnections(sockets, editor) {
     }
   };
 }
-function _callSuper$13(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct$13() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper$13(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct$13() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct$13() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct$13 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var Picked = /* @__PURE__ */ function(_State) {
@@ -120279,10 +120669,10 @@ var index2 = /* @__PURE__ */ Object.freeze({
   classic: classic2
 });
 function _createForOfIteratorHelper2(r2, e) {
-  var t2 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (!t2) {
-    if (Array.isArray(r2) || (t2 = _unsupportedIterableToArray3(r2)) || e && r2 && "number" == typeof r2.length) {
-      t2 && (r2 = t2);
+  var t3 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (!t3) {
+    if (Array.isArray(r2) || (t3 = _unsupportedIterableToArray3(r2)) || e && r2 && "number" == typeof r2.length) {
+      t3 && (r2 = t3);
       var _n = 0, F2 = function F3() {
       };
       return { s: F2, n: function n2() {
@@ -120295,15 +120685,15 @@ function _createForOfIteratorHelper2(r2, e) {
   }
   var o, a2 = true, u2 = false;
   return { s: function s() {
-    t2 = t2.call(r2);
+    t3 = t3.call(r2);
   }, n: function n2() {
-    var r3 = t2.next();
+    var r3 = t3.next();
     return a2 = r3.done, r3;
   }, e: function e2(r3) {
     u2 = true, o = r3;
   }, f: function f2() {
     try {
-      a2 || null == t2["return"] || t2["return"]();
+      a2 || null == t3["return"] || t3["return"]();
     } finally {
       if (u2)
         throw o;
@@ -120314,8 +120704,8 @@ function _unsupportedIterableToArray3(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray3(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray3(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray3(r2, a2) : void 0;
   }
 }
 function _arrayLikeToArray3(r2, a2) {
@@ -120324,23 +120714,23 @@ function _arrayLikeToArray3(r2, a2) {
     n2[e] = r2[e];
   return n2;
 }
-function _callSuper3(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct3() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper3(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct3() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct3() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct3 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
-function _superPropGet(t2, e, o, r2) {
-  var p2 = _get(_getPrototypeOf(1 & r2 ? t2.prototype : t2), e, o);
-  return 2 & r2 && "function" == typeof p2 ? function(t3) {
-    return p2.apply(o, t3);
+function _superPropGet(t3, e, o, r2) {
+  var p2 = _get(_getPrototypeOf(1 & r2 ? t3.prototype : t3), e, o);
+  return 2 & r2 && "function" == typeof p2 ? function(t4) {
+    return p2.apply(o, t4);
   } : p2;
 }
 var ConnectionPlugin = /* @__PURE__ */ function(_Scope) {
@@ -120810,17 +121200,17 @@ var BaseSocketPosition = /* @__PURE__ */ function() {
     }
   }]);
 }();
-function _callSuper4(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct4() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper4(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct4() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct4() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct4 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var DOMSocketPosition = /* @__PURE__ */ function(_BaseSocketPosition) {
@@ -120881,10 +121271,10 @@ function getDOMSocketPosition(props) {
 }
 
 // node_modules/@babel/runtime/helpers/esm/taggedTemplateLiteral.js
-function _taggedTemplateLiteral(e, t2) {
-  return t2 || (t2 = e.slice(0)), Object.freeze(Object.defineProperties(e, {
+function _taggedTemplateLiteral(e, t3) {
+  return t3 || (t3 = e.slice(0)), Object.freeze(Object.defineProperties(e, {
     raw: {
-      value: Object.freeze(t2)
+      value: Object.freeze(t3)
     }
   }));
 }
@@ -121480,24 +121870,24 @@ var h = "/*!sc*/\n";
 var d = "undefined" != typeof window && "undefined" != typeof document;
 function p(e) {
   if ("undefined" != typeof process && void 0 !== process.env) {
-    const t2 = process.env[e];
-    if (void 0 !== t2 && "" !== t2)
-      return "false" !== t2;
+    const t3 = process.env[e];
+    if (void 0 !== t3 && "" !== t3)
+      return "false" !== t3;
   }
 }
 var f = Boolean("boolean" == typeof SC_DISABLE_SPEEDY ? SC_DISABLE_SPEEDY : null !== (i = null !== (r = p("REACT_APP_SC_DISABLE_SPEEDY")) && void 0 !== r ? r : p("SC_DISABLE_SPEEDY")) && void 0 !== i ? i : "undefined" != typeof process && void 0 !== process.env && true);
 var m = "sc-keyframes-";
 var g = true ? { 1: "Cannot create styled-component for component: %s.\n\n", 2: "Can't collect styles once you've consumed a `ServerStyleSheet`'s styles! `ServerStyleSheet` is a one off instance for each server-side render cycle.\n\n- Are you trying to reuse it across renders?\n- Are you accidentally calling collectStyles twice?\n\n", 3: "Streaming SSR is only supported in a Node.js environment; Please do not try to call this method in the browser.\n\n", 4: "The `StyleSheetManager` expects a valid target or sheet prop!\n\n- Does this error occur on the client and is your target falsy?\n- Does this error occur on the server and is the sheet falsy?\n\n", 5: "The clone method cannot be used on the client!\n\n- Are you running in a client-like environment on the server?\n- Are you trying to run SSR on the client?\n\n", 6: "Trying to insert a new style tag, but the given Node is unmounted!\n\n- Are you using a custom target that isn't mounted?\n- Does your document not have a valid head element?\n- Have you accidentally removed a style tag manually?\n\n", 7: 'ThemeProvider: Please return an object from your "theme" prop function, e.g.\n\n```js\ntheme={() => ({})}\n```\n\n', 8: 'ThemeProvider: Please make your "theme" prop an object.\n\n', 9: "Missing document `<head>`\n\n", 10: "Cannot find a StyleSheet instance. Usually this happens if there are multiple copies of styled-components loaded at once. Check out this issue for how to troubleshoot and fix the common cases where this situation can happen: https://github.com/styled-components/styled-components/issues/1941#issuecomment-417862021\n\n", 11: "_This error was replaced with a dev-time warning, it will be deleted for v4 final._ [createGlobalStyle] received children which will not be rendered. Please use the component without passing children elements.\n\n", 12: "It seems you are interpolating a keyframe declaration (%s) into an untagged string. Please wrap your string in the css\\`\\` helper which ensures the styles are injected correctly. See https://styled-components.com/docs/api#css\n\n", 13: "%s is not a styled component and cannot be referred to via component selector. See https://styled-components.com/docs/advanced#referring-to-other-components for more details.\n\n", 14: 'ThemeProvider: "theme" prop is required.\n\n', 15: "A stylis plugin has been supplied that is not named. We need a name for each plugin to be able to prevent styling collisions between different stylis configurations within the same app. Before you pass your plugin to `<StyleSheetManager stylisPlugins={[]}>`, please make sure each plugin is uniquely-named, e.g.\n\n```js\nObject.defineProperty(importedPlugin, 'name', { value: 'some-unique-name' });\n```\n\n", 16: "Reached the limit of how many styled components may be created at group %s.\nYou may only create up to 1,073,741,824 components. If you're creating components dynamically,\nas for instance in your render method then you may be running into this limitation.\n\n", 17: "CSSStyleSheet could not be found on HTMLStyleElement.\nHas styled-components' style tag been unmounted or altered by another script?\n\n", 18: "Accessing `useTheme` hook outside of a `<ThemeProvider>` element.\n\n```jsx\nimport { useTheme } from 'styled-components';\nexport function StyledCompoent({ children }) {\n  const theme = useTheme();\n  return <div style={{ width: theme.sizes.full }}>{children}</div>;\n}\n\nimport { StyledComponent } from './StyledComponent';\nimport { theme } from './theme';\nexport function App() {\n  return (\n    <ThemeProvider theme={theme}>\n      <StyledComponent />\n    </ThemeProvider>\n  );\n}\n```\n\nIf you need access to the theme in an uncertain composition scenario, `React.useContext(ThemeContext)` will not emit an error if there is no `ThemeProvider` ancestor.\n" } : {};
-function v(e, ...t2) {
-  return false ? new Error(`An error occurred. See https://github.com/styled-components/styled-components/blob/main/packages/styled-components/src/utils/errors.md#${e} for more information.${t2.length > 0 ? ` Args: ${t2.join(", ")}` : ""}`) : new Error(function(...e2) {
-    let t3 = e2[0];
+function v(e, ...t3) {
+  return false ? new Error(`An error occurred. See https://github.com/styled-components/styled-components/blob/main/packages/styled-components/src/utils/errors.md#${e} for more information.${t3.length > 0 ? ` Args: ${t3.join(", ")}` : ""}`) : new Error(function(...e2) {
+    let t4 = e2[0];
     const n2 = [];
-    for (let t4 = 1, o = e2.length; t4 < o; t4 += 1)
-      n2.push(e2[t4]);
+    for (let t5 = 1, o = e2.length; t5 < o; t5 += 1)
+      n2.push(e2[t5]);
     return n2.forEach((e3) => {
-      t3 = t3.replace(/%[a-z]/, e3);
-    }), t3;
-  }(g[e], ...t2).trim());
+      t4 = t4.replace(/%[a-z]/, e3);
+    }), t4;
+  }(g[e], ...t3).trim());
 }
 var S = 1 << 30;
 var b = /* @__PURE__ */ new Map();
@@ -121508,14 +121898,14 @@ var C = (e) => {
     return b.get(e);
   for (; w.has(N); )
     N++;
-  const t2 = N++;
-  if ((0 | t2) < 0 || t2 > S)
-    throw v(16, `${t2}`);
-  return b.set(e, t2), w.set(t2, e), t2;
+  const t3 = N++;
+  if ((0 | t3) < 0 || t3 > S)
+    throw v(16, `${t3}`);
+  return b.set(e, t3), w.set(t3, e), t3;
 };
 var O = (e) => w.get(e);
-var E = (e, t2) => {
-  N = t2 + 1, b.set(e, t2), w.set(t2, e);
+var E = (e, t3) => {
+  N = t3 + 1, b.set(e, t3), w.set(t3, e);
 };
 var A = /invalid hook call/i;
 var P = /* @__PURE__ */ new Set();
@@ -121528,8 +121918,8 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
 `, s = console.error;
     try {
       let e2 = true;
-      console.error = (t2, ...n3) => {
-        A.test(t2) ? (e2 = false, P.delete(o)) : s(t2, ...n3);
+      console.error = (t3, ...n3) => {
+        A.test(t3) ? (e2 = false, P.delete(o)) : s(t3, ...n3);
       }, "function" == typeof import_react.default.useState && import_react.default.useState(null), e2 && !P.has(o) && (console.warn(o), P.add(o));
     } catch (e2) {
       A.test(e2.message) && P.delete(o);
@@ -121540,8 +121930,8 @@ See https://styled-components.com/docs/basics#define-styled-components-outside-o
 };
 var I = Object.freeze([]);
 var $ = Object.freeze({});
-function R(e, t2, n2 = $) {
-  return e.theme !== n2.theme && e.theme || t2 || n2.theme;
+function R(e, t3, n2 = $) {
+  return e.theme !== n2.theme && e.theme || t3 || n2.theme;
 }
 var j = /[!"#$%&'()*+,./:;<=>?@[\\\]^`{|}~-]+/g;
 var x = /(^-|-$)/g;
@@ -121551,16 +121941,16 @@ function T(e) {
 var k = /(a)(d)/gi;
 var D = (e) => String.fromCharCode(e + (e > 25 ? 39 : 97));
 function V(e) {
-  let t2, n2 = "";
-  for (t2 = Math.abs(e); t2 > 52; t2 = t2 / 52 | 0)
-    n2 = D(t2 % 52) + n2;
-  return (D(t2 % 52) + n2).replace(k, "$1-$2");
+  let t3, n2 = "";
+  for (t3 = Math.abs(e); t3 > 52; t3 = t3 / 52 | 0)
+    n2 = D(t3 % 52) + n2;
+  return (D(t3 % 52) + n2).replace(k, "$1-$2");
 }
 var M = 5381;
-var G = (e, t2) => {
-  let n2 = t2.length;
+var G = (e, t3) => {
+  let n2 = t3.length;
   for (; n2; )
-    e = 33 * e ^ t2.charCodeAt(--n2);
+    e = 33 * e ^ t3.charCodeAt(--n2);
   return e;
 };
 var F = (e) => G(M, e);
@@ -121583,8 +121973,8 @@ var U = { name: true, length: true, prototype: true, caller: true, callee: true,
 var J = { $$typeof: true, compare: true, defaultProps: true, displayName: true, propTypes: true, type: true };
 var X = { [H]: { $$typeof: true, render: true, defaultProps: true, displayName: true, propTypes: true }, [q]: J };
 function K(e) {
-  return ("type" in (t2 = e) && t2.type.$$typeof) === q ? J : "$$typeof" in e ? X[e.$$typeof] : Y;
-  var t2;
+  return ("type" in (t3 = e) && t3.type.$$typeof) === q ? J : "$$typeof" in e ? X[e.$$typeof] : Y;
+  var t3;
 }
 var Q = Object.defineProperty;
 var Z = Object.getOwnPropertyNames;
@@ -121592,15 +121982,15 @@ var ee = Object.getOwnPropertySymbols;
 var te = Object.getOwnPropertyDescriptor;
 var ne = Object.getPrototypeOf;
 var oe = Object.prototype;
-function se(e, t2, n2) {
-  if ("string" != typeof t2) {
-    const o = ne(t2);
+function se(e, t3, n2) {
+  if ("string" != typeof t3) {
+    const o = ne(t3);
     o && o !== oe && se(e, o, n2);
-    const s = Z(t2).concat(ee(t2)), r2 = K(e), i2 = K(t2);
+    const s = Z(t3).concat(ee(t3)), r2 = K(e), i2 = K(t3);
     for (let o2 = 0; o2 < s.length; ++o2) {
       const c2 = s[o2];
       if (!(c2 in U || n2 && n2[c2] || i2 && c2 in i2 || r2 && c2 in r2)) {
-        const n3 = te(t2, c2);
+        const n3 = te(t3, c2);
         try {
           Q(e, c2, n3);
         } catch (e2) {
@@ -121617,28 +122007,28 @@ var ie = Symbol.for("react.forward_ref");
 function ce(e) {
   return null != e && ("object" == typeof e || "function" == typeof e) && e.$$typeof === ie && "styledComponentId" in e;
 }
-function ae(e, t2) {
-  return e && t2 ? e + " " + t2 : e || t2 || "";
+function ae(e, t3) {
+  return e && t3 ? e + " " + t3 : e || t3 || "";
 }
-function le(e, t2) {
-  return e.join(t2 || "");
+function le(e, t3) {
+  return e.join(t3 || "");
 }
 function ue(e) {
   return null !== e && "object" == typeof e && e.constructor.name === Object.name && !("props" in e && e.$$typeof);
 }
-function he(e, t2, n2 = false) {
+function he(e, t3, n2 = false) {
   if (!n2 && !ue(e) && !Array.isArray(e))
-    return t2;
-  if (Array.isArray(t2))
-    for (let n3 = 0; n3 < t2.length; n3++)
-      e[n3] = he(e[n3], t2[n3]);
-  else if (ue(t2))
-    for (const n3 in t2)
-      e[n3] = he(e[n3], t2[n3]);
+    return t3;
+  if (Array.isArray(t3))
+    for (let n3 = 0; n3 < t3.length; n3++)
+      e[n3] = he(e[n3], t3[n3]);
+  else if (ue(t3))
+    for (const n3 in t3)
+      e[n3] = he(e[n3], t3[n3]);
   return e;
 }
-function de(e, t2) {
-  Object.defineProperty(e, "toString", { value: t2 });
+function de(e, t3) {
+  Object.defineProperty(e, "toString", { value: t3 });
 }
 var pe = class {
   constructor(e) {
@@ -121647,48 +122037,48 @@ var pe = class {
   indexOfGroup(e) {
     if (e === this._cGroup)
       return this._cIndex;
-    let t2 = this._cIndex;
+    let t3 = this._cIndex;
     if (e > this._cGroup)
       for (let n2 = this._cGroup; n2 < e; n2++)
-        t2 += this.groupSizes[n2];
+        t3 += this.groupSizes[n2];
     else
       for (let n2 = this._cGroup - 1; n2 >= e; n2--)
-        t2 -= this.groupSizes[n2];
-    return this._cGroup = e, this._cIndex = t2, t2;
+        t3 -= this.groupSizes[n2];
+    return this._cGroup = e, this._cIndex = t3, t3;
   }
-  insertRules(e, t2) {
+  insertRules(e, t3) {
     if (e >= this.groupSizes.length) {
-      const t3 = this.groupSizes, n3 = t3.length;
+      const t4 = this.groupSizes, n3 = t4.length;
       let o2 = n3;
       for (; e >= o2; )
         if (o2 <<= 1, o2 < 0)
           throw v(16, `${e}`);
-      this.groupSizes = new Uint32Array(o2), this.groupSizes.set(t3), this.length = o2;
+      this.groupSizes = new Uint32Array(o2), this.groupSizes.set(t4), this.length = o2;
       for (let e2 = n3; e2 < o2; e2++)
         this.groupSizes[e2] = 0;
     }
     let n2 = this.indexOfGroup(e + 1), o = 0;
-    for (let s = 0, r2 = t2.length; s < r2; s++)
-      this.tag.insertRule(n2, t2[s]) && (this.groupSizes[e]++, n2++, o++);
+    for (let s = 0, r2 = t3.length; s < r2; s++)
+      this.tag.insertRule(n2, t3[s]) && (this.groupSizes[e]++, n2++, o++);
     o > 0 && this._cGroup > e && (this._cIndex += o);
   }
   clearGroup(e) {
     if (e < this.length) {
-      const t2 = this.groupSizes[e], n2 = this.indexOfGroup(e), o = n2 + t2;
+      const t3 = this.groupSizes[e], n2 = this.indexOfGroup(e), o = n2 + t3;
       this.groupSizes[e] = 0;
       for (let e2 = n2; e2 < o; e2++)
         this.tag.deleteRule(n2);
-      t2 > 0 && this._cGroup > e && (this._cIndex -= t2);
+      t3 > 0 && this._cGroup > e && (this._cIndex -= t3);
     }
   }
   getGroup(e) {
-    let t2 = "";
+    let t3 = "";
     if (e >= this.length || 0 === this.groupSizes[e])
-      return t2;
+      return t3;
     const n2 = this.groupSizes[e], o = this.indexOfGroup(e), s = o + n2;
     for (let e2 = o; e2 < s; e2++)
-      t2 += this.tag.getRule(e2) + h;
-    return t2;
+      t3 += this.tag.getRule(e2) + h;
+    return t3;
   }
 };
 var fe = `style[${c}][${l}="${u}"]`;
@@ -121700,37 +122090,37 @@ var ge = (e) => {
   if (ye(e))
     return e;
   if ("getRootNode" in e) {
-    const t2 = e.getRootNode();
-    if (ye(t2))
-      return t2;
+    const t3 = e.getRootNode();
+    if (ye(t3))
+      return t3;
   }
   return document;
 };
-var ve = (e, t2, n2) => {
+var ve = (e, t3, n2) => {
   const o = n2.split(",");
   let s;
   for (let n3 = 0, r2 = o.length; n3 < r2; n3++)
-    (s = o[n3]) && e.registerName(t2, s);
+    (s = o[n3]) && e.registerName(t3, s);
 };
-var Se = (e, t2) => {
+var Se = (e, t3) => {
   var n2;
-  const o = (null !== (n2 = t2.textContent) && void 0 !== n2 ? n2 : "").split(h), s = [];
-  for (let t3 = 0, n3 = o.length; t3 < n3; t3++) {
-    const n4 = o[t3].trim();
+  const o = (null !== (n2 = t3.textContent) && void 0 !== n2 ? n2 : "").split(h), s = [];
+  for (let t4 = 0, n3 = o.length; t4 < n3; t4++) {
+    const n4 = o[t4].trim();
     if (!n4)
       continue;
     const r2 = n4.match(me);
     if (r2) {
-      const t4 = 0 | parseInt(r2[1], 10), n5 = r2[2];
-      0 !== t4 && (E(n5, t4), ve(e, n5, r2[3]), e.getTag().insertRules(t4, s)), s.length = 0;
+      const t5 = 0 | parseInt(r2[1], 10), n5 = r2[2];
+      0 !== t5 && (E(n5, t5), ve(e, n5, r2[3]), e.getTag().insertRules(t5, s)), s.length = 0;
     } else
       s.push(n4);
   }
 };
 var be = (e) => {
-  const t2 = ge(e.options.target).querySelectorAll(fe);
-  for (let n2 = 0, o = t2.length; n2 < o; n2++) {
-    const o2 = t2[n2];
+  const t3 = ge(e.options.target).querySelectorAll(fe);
+  for (let n2 = 0, o = t3.length; n2 < o; n2++) {
+    const o2 = t3[n2];
     o2 && o2.getAttribute(c) !== a && (Se(e, o2), o2.parentNode && o2.parentNode.removeChild(o2));
   }
 };
@@ -121742,39 +122132,39 @@ function Ne() {
     const e = document.head.querySelector('meta[property="csp-nonce"]');
     if (e)
       return we = e.nonce || e.getAttribute("content") || void 0;
-    const t2 = document.head.querySelector('meta[name="sc-nonce"]');
-    if (t2)
-      return we = t2.getAttribute("content") || void 0;
+    const t3 = document.head.querySelector('meta[name="sc-nonce"]');
+    if (t3)
+      return we = t3.getAttribute("content") || void 0;
   }
   return we = "undefined" != typeof __webpack_nonce__ ? __webpack_nonce__ : void 0;
 }
-var Ce = (e, t2) => {
+var Ce = (e, t3) => {
   const n2 = document.head, o = e || n2, s = document.createElement("style"), r2 = ((e2) => {
-    const t3 = Array.from(e2.querySelectorAll(`style[${c}]`));
-    return t3[t3.length - 1];
+    const t4 = Array.from(e2.querySelectorAll(`style[${c}]`));
+    return t4[t4.length - 1];
   })(o), i2 = void 0 !== r2 ? r2.nextSibling : null;
   s.setAttribute(c, a), s.setAttribute(l, u);
-  const h2 = t2 || Ne();
+  const h2 = t3 || Ne();
   return h2 && s.setAttribute("nonce", h2), o.insertBefore(s, i2), s;
 };
 var Oe = class {
-  constructor(e, t2) {
-    this.element = Ce(e, t2), this.element.appendChild(document.createTextNode("")), this.sheet = ((e2) => {
-      var t3;
+  constructor(e, t3) {
+    this.element = Ce(e, t3), this.element.appendChild(document.createTextNode("")), this.sheet = ((e2) => {
+      var t4;
       if (e2.sheet)
         return e2.sheet;
-      const n2 = null !== (t3 = e2.getRootNode().styleSheets) && void 0 !== t3 ? t3 : document.styleSheets;
-      for (let t4 = 0, o = n2.length; t4 < o; t4++) {
-        const o2 = n2[t4];
+      const n2 = null !== (t4 = e2.getRootNode().styleSheets) && void 0 !== t4 ? t4 : document.styleSheets;
+      for (let t5 = 0, o = n2.length; t5 < o; t5++) {
+        const o2 = n2[t5];
         if (o2.ownerNode === e2)
           return o2;
       }
       throw v(17);
     })(this.element), this.length = 0;
   }
-  insertRule(e, t2) {
+  insertRule(e, t3) {
     try {
-      return this.sheet.insertRule(t2, e), this.length++, true;
+      return this.sheet.insertRule(t3, e), this.length++, true;
     } catch (e2) {
       return false;
     }
@@ -121783,17 +122173,17 @@ var Oe = class {
     this.sheet.deleteRule(e), this.length--;
   }
   getRule(e) {
-    const t2 = this.sheet.cssRules[e];
-    return t2 && t2.cssText ? t2.cssText : "";
+    const t3 = this.sheet.cssRules[e];
+    return t3 && t3.cssText ? t3.cssText : "";
   }
 };
 var Ee = class {
-  constructor(e, t2) {
-    this.element = Ce(e, t2), this.nodes = this.element.childNodes, this.length = 0;
+  constructor(e, t3) {
+    this.element = Ce(e, t3), this.nodes = this.element.childNodes, this.length = 0;
   }
-  insertRule(e, t2) {
+  insertRule(e, t3) {
     if (e <= this.length && e >= 0) {
-      const n2 = document.createTextNode(t2);
+      const n2 = document.createTextNode(t3);
       return this.element.insertBefore(n2, this.nodes[e] || null), this.length++, true;
     }
     return false;
@@ -121811,9 +122201,9 @@ var _e = class __e {
   static registerId(e) {
     return C(e);
   }
-  constructor(e = $, t2 = {}, n2) {
-    this.options = Object.assign(Object.assign({}, Pe), e), this.gs = t2, this.keyframeIds = /* @__PURE__ */ new Set(), this.names = new Map(n2), this.server = !!e.isServer, !this.server && d && Ae && (Ae = false, be(this)), de(this, () => ((e2) => {
-      const t3 = e2.getTag(), { length: n3 } = t3;
+  constructor(e = $, t3 = {}, n2) {
+    this.options = Object.assign(Object.assign({}, Pe), e), this.gs = t3, this.keyframeIds = /* @__PURE__ */ new Set(), this.names = new Map(n2), this.server = !!e.isServer, !this.server && d && Ae && (Ae = false, be(this)), de(this, () => ((e2) => {
+      const t4 = e2.getTag(), { length: n3 } = t4;
       let o = "";
       for (let s = 0; s < n3; s++) {
         const n4 = O(s);
@@ -121822,7 +122212,7 @@ var _e = class __e {
         const r2 = e2.names.get(n4);
         if (void 0 === r2 || !r2.size)
           continue;
-        const i2 = t3.getGroup(s);
+        const i2 = t4.getGroup(s);
         if (0 === i2.length)
           continue;
         const a2 = c + ".g" + s + '[id="' + n4 + '"]';
@@ -121837,28 +122227,28 @@ var _e = class __e {
   rehydrate() {
     !this.server && d && be(this);
   }
-  reconstructWithOptions(e, t2 = true) {
-    const n2 = new __e(Object.assign(Object.assign({}, this.options), e), this.gs, t2 && this.names || void 0);
+  reconstructWithOptions(e, t3 = true) {
+    const n2 = new __e(Object.assign(Object.assign({}, this.options), e), this.gs, t3 && this.names || void 0);
     return n2.keyframeIds = new Set(this.keyframeIds), !this.server && d && e.target !== this.options.target && ge(this.options.target) !== ge(e.target) && be(n2), n2;
   }
   allocateGSInstance(e) {
     return this.gs[e] = (this.gs[e] || 0) + 1;
   }
   getTag() {
-    return this.tag || (this.tag = (e = (({ useCSSOMInjection: e2, target: t2, nonce: n2 }) => e2 ? new Oe(t2, n2) : new Ee(t2, n2))(this.options), new pe(e)));
+    return this.tag || (this.tag = (e = (({ useCSSOMInjection: e2, target: t3, nonce: n2 }) => e2 ? new Oe(t3, n2) : new Ee(t3, n2))(this.options), new pe(e)));
     var e;
   }
-  hasNameForId(e, t2) {
+  hasNameForId(e, t3) {
     var n2, o;
-    return null !== (o = null === (n2 = this.names.get(e)) || void 0 === n2 ? void 0 : n2.has(t2)) && void 0 !== o && o;
+    return null !== (o = null === (n2 = this.names.get(e)) || void 0 === n2 ? void 0 : n2.has(t3)) && void 0 !== o && o;
   }
-  registerName(e, t2) {
+  registerName(e, t3) {
     C(e), e.startsWith(m) && this.keyframeIds.add(e);
     const n2 = this.names.get(e);
-    n2 ? n2.add(t2) : this.names.set(e, /* @__PURE__ */ new Set([t2]));
+    n2 ? n2.add(t3) : this.names.set(e, /* @__PURE__ */ new Set([t3]));
   }
-  insertRules(e, t2, n2) {
-    this.registerName(e, t2), this.getTag().insertRules(C(e), n2);
+  insertRules(e, t3, n2) {
+    this.registerName(e, t3), this.getTag().insertRules(C(e), n2);
   }
   clearNames(e) {
     this.names.has(e) && this.names.get(e).clear();
@@ -121872,19 +122262,19 @@ var _e = class __e {
 };
 var Ie = /* @__PURE__ */ new WeakSet();
 var $e = { animationIterationCount: 1, aspectRatio: 1, borderImageOutset: 1, borderImageSlice: 1, borderImageWidth: 1, columnCount: 1, columns: 1, flex: 1, flexGrow: 1, flexShrink: 1, gridRow: 1, gridRowEnd: 1, gridRowSpan: 1, gridRowStart: 1, gridColumn: 1, gridColumnEnd: 1, gridColumnSpan: 1, gridColumnStart: 1, fontWeight: 1, lineHeight: 1, opacity: 1, order: 1, orphans: 1, scale: 1, tabSize: 1, widows: 1, zIndex: 1, zoom: 1, WebkitLineClamp: 1, fillOpacity: 1, floodOpacity: 1, stopOpacity: 1, strokeDasharray: 1, strokeDashoffset: 1, strokeMiterlimit: 1, strokeOpacity: 1, strokeWidth: 1 };
-function Re(e, t2) {
-  return null == t2 || "boolean" == typeof t2 || "" === t2 ? "" : "number" != typeof t2 || 0 === t2 || e in $e || e.startsWith("--") ? String(t2).trim() : t2 + "px";
+function Re(e, t3) {
+  return null == t3 || "boolean" == typeof t3 || "" === t3 ? "" : "number" != typeof t3 || 0 === t3 || e in $e || e.startsWith("--") ? String(t3).trim() : t3 + "px";
 }
 var je = 47;
 function xe(e) {
   if (45 === e.charCodeAt(0) && 45 === e.charCodeAt(1))
     return e;
-  let t2 = "";
+  let t3 = "";
   for (let n2 = 0; n2 < e.length; n2++) {
     const o = e.charCodeAt(n2);
-    t2 += o >= 65 && o <= 90 ? "-" + String.fromCharCode(o + 32) : e[n2];
+    t3 += o >= 65 && o <= 90 ? "-" + String.fromCharCode(o + 32) : e[n2];
   }
-  return t2.startsWith("ms-") ? "-" + t2 : t2;
+  return t3.startsWith("ms-") ? "-" + t3 : t3;
 }
 var Te = Symbol.for("sc-keyframes");
 function ke(e) {
@@ -121899,16 +122289,16 @@ function Ge(e) {
   return e.$$typeof === Me;
 }
 function Fe(e) {
-  const t2 = e.$$id, n2 = (t2 && t2.includes("#") ? t2.split("#").pop() : t2) || e.name || "unknown";
+  const t3 = e.$$id, n2 = (t3 && t3.includes("#") ? t3.split("#").pop() : t3) || e.name || "unknown";
   console.warn(`Interpolating a client component (${n2}) as a selector is not supported in server components. The component selector pattern requires access to the component's internal class name, which is not available across the server/client boundary. Use a plain CSS class selector instead.`);
 }
-function ze(e, t2) {
+function ze(e, t3) {
   for (const n2 in e) {
     const o = e[n2];
-    e.hasOwnProperty(n2) && !Ve(o) && (Array.isArray(o) && Ie.has(o) || re(o) ? t2.push(xe(n2) + ":", o, ";") : ue(o) ? (t2.push(n2 + " {"), ze(o, t2), t2.push("}")) : t2.push(xe(n2) + ": " + Re(n2, o) + ";"));
+    e.hasOwnProperty(n2) && !Ve(o) && (Array.isArray(o) && Ie.has(o) || re(o) ? t3.push(xe(n2) + ":", o, ";") : ue(o) ? (t3.push(n2 + " {"), ze(o, t3), t3.push("}")) : t3.push(xe(n2) + ": " + Re(n2, o) + ";"));
   }
 }
-function We(e, t2, n2, o, s = []) {
+function We(e, t3, n2, o, s = []) {
   if (Ve(e))
     return s;
   const r2 = typeof e;
@@ -121917,26 +122307,26 @@ function We(e, t2, n2, o, s = []) {
   if ("function" === r2) {
     if (Ge(e))
       return Fe(e), s;
-    if (De(e) && t2) {
-      const r3 = e(t2);
-      return "object" != typeof r3 || Array.isArray(r3) || ke(r3) || ue(r3) || null === r3 || console.error(`${W(e)} is not a styled component and cannot be referred to via component selector. See https://styled-components.com/docs/advanced#referring-to-other-components for more details.`), We(r3, t2, n2, o, s);
+    if (De(e) && t3) {
+      const r3 = e(t3);
+      return "object" != typeof r3 || Array.isArray(r3) || ke(r3) || ue(r3) || null === r3 || console.error(`${W(e)} is not a styled component and cannot be referred to via component selector. See https://styled-components.com/docs/advanced#referring-to-other-components for more details.`), We(r3, t3, n2, o, s);
     }
     return s.push(e), s;
   }
   if (Array.isArray(e)) {
     for (let r3 = 0; r3 < e.length; r3++)
-      We(e[r3], t2, n2, o, s);
+      We(e[r3], t3, n2, o, s);
     return s;
   }
   return ce(e) ? (s.push(`.${e.styledComponentId}`), s) : ke(e) ? (n2 ? (e.inject(n2, o), s.push(e.getName(o))) : s.push(e), s) : Ge(e) ? (Fe(e), s) : ue(e) ? e.toString !== Object.prototype.toString ? (s.push(e.toString()), s) : (ze(e, s), s) : (s.push(e.toString()), s);
 }
 var Le = F(u);
 var Be = class {
-  constructor(e, t2, n2) {
-    this.rules = e, this.componentId = t2, this.baseHash = G(Le, t2), this.baseStyle = n2, _e.registerId(t2);
+  constructor(e, t3, n2) {
+    this.rules = e, this.componentId = t3, this.baseHash = G(Le, t3), this.baseStyle = n2, _e.registerId(t3);
   }
-  generateAndInjectStyles(e, t2, n2) {
-    let o = this.baseStyle ? this.baseStyle.generateAndInjectStyles(e, t2, n2) : "";
+  generateAndInjectStyles(e, t3, n2) {
+    let o = this.baseStyle ? this.baseStyle.generateAndInjectStyles(e, t3, n2) : "";
     {
       let s = "";
       for (let o2 = 0; o2 < this.rules.length; o2++) {
@@ -121946,9 +122336,9 @@ var Be = class {
         else if (r2)
           if (De(r2)) {
             const o3 = r2(e);
-            "string" == typeof o3 ? s += o3 : null != o3 && false !== o3 && ("object" != typeof o3 || Array.isArray(o3) || ke(o3) || ue(o3) || console.error(`${W(r2)} is not a styled component and cannot be referred to via component selector. See https://styled-components.com/docs/advanced#referring-to-other-components for more details.`), s += le(We(o3, e, t2, n2)));
+            "string" == typeof o3 ? s += o3 : null != o3 && false !== o3 && ("object" != typeof o3 || Array.isArray(o3) || ke(o3) || ue(o3) || console.error(`${W(r2)} is not a styled component and cannot be referred to via component selector. See https://styled-components.com/docs/advanced#referring-to-other-components for more details.`), s += le(We(o3, e, t3, n2)));
           } else
-            s += le(We(r2, e, t2, n2));
+            s += le(We(r2, e, t3, n2));
       }
       if (s) {
         this.dynamicNameCache || (this.dynamicNameCache = /* @__PURE__ */ new Map());
@@ -121961,9 +122351,9 @@ var Be = class {
           }
           this.dynamicNameCache.set(e2, r2);
         }
-        if (!t2.hasNameForId(this.componentId, r2)) {
+        if (!t3.hasNameForId(this.componentId, r2)) {
           const e3 = n2(s, "." + r2, void 0, this.componentId);
-          t2.insertRules(this.componentId, r2, e3);
+          t3.insertRules(this.componentId, r2, e3);
         }
         o = ae(o, r2);
       }
@@ -121972,16 +122362,16 @@ var Be = class {
   }
 };
 var qe = /&/g;
-function He(e, t2) {
+function He(e, t3) {
   let n2 = 0;
-  for (; --t2 >= 0 && 92 === e.charCodeAt(t2); )
+  for (; --t3 >= 0 && 92 === e.charCodeAt(t3); )
     n2++;
   return !(1 & ~n2);
 }
 function Ye(e) {
-  const t2 = e.length;
+  const t3 = e.length;
   let n2 = "", o = 0, s = 0, r2 = 0, i2 = false, c2 = false;
-  for (let a2 = 0; a2 < t2; a2++) {
+  for (let a2 = 0; a2 < t3; a2++) {
     const l2 = e.charCodeAt(a2);
     if (0 !== r2 || i2 || l2 !== je || 42 !== e.charCodeAt(a2 + 1))
       if (i2)
@@ -121994,13 +122384,13 @@ function Ye(e) {
             if (s--, s < 0) {
               c2 = true;
               let n3 = a2 + 1;
-              for (; n3 < t2; ) {
-                const t3 = e.charCodeAt(n3);
-                if (59 === t3 || 10 === t3)
+              for (; n3 < t3; ) {
+                const t4 = e.charCodeAt(n3);
+                if (59 === t4 || 10 === t4)
                   break;
                 n3++;
               }
-              n3 < t2 && 59 === e.charCodeAt(n3) && n3++, s = 0, a2 = n3 - 1, o = n3;
+              n3 < t3 && 59 === e.charCodeAt(n3) && n3++, s = 0, a2 = n3 - 1, o = n3;
               continue;
             }
             0 === s && (n2 += e.substring(o, a2 + 1), o = a2 + 1);
@@ -122011,60 +122401,60 @@ function Ye(e) {
     else
       i2 = true, a2++;
   }
-  return c2 || 0 !== s || 0 !== r2 ? (o < t2 && 0 === s && 0 === r2 && (n2 += e.substring(o)), n2) : e;
+  return c2 || 0 !== s || 0 !== r2 ? (o < t3 && 0 === s && 0 === r2 && (n2 += e.substring(o)), n2) : e;
 }
-function Ue(e, t2) {
-  const n2 = t2 + " ", o = "," + n2;
+function Ue(e, t3) {
+  const n2 = t3 + " ", o = "," + n2;
   for (let s = 0; s < e.length; s++) {
     const r2 = e[s];
     if ("rule" === r2.type) {
       r2.value = (n2 + r2.value).replaceAll(",", o);
-      const e2 = r2.props, t3 = [];
+      const e2 = r2.props, t4 = [];
       for (let o2 = 0; o2 < e2.length; o2++)
-        t3[o2] = n2 + e2[o2];
-      r2.props = t3;
+        t4[o2] = n2 + e2[o2];
+      r2.props = t4;
     }
-    Array.isArray(r2.children) && "@keyframes" !== r2.type && Ue(r2.children, t2);
+    Array.isArray(r2.children) && "@keyframes" !== r2.type && Ue(r2.children, t3);
   }
   return e;
 }
-function Je({ options: e = $, plugins: t2 = I } = $) {
+function Je({ options: e = $, plugins: t3 = I } = $) {
   let n2, s, r2;
-  const i2 = (e2, t3, o) => o.startsWith(s) && o.endsWith(s) && o.replaceAll(s, "").length > 0 ? `.${n2}` : e2, c2 = t2.slice();
+  const i2 = (e2, t4, o) => o.startsWith(s) && o.endsWith(s) && o.replaceAll(s, "").length > 0 ? `.${n2}` : e2, c2 = t3.slice();
   c2.push((e2) => {
     e2.type === RULESET && e2.value.includes("&") && (r2 || (r2 = new RegExp(`\\${s}\\b`, "g")), e2.props[0] = e2.props[0].replace(qe, s).replace(r2, i2));
   }), e.prefix && c2.push(prefixer), c2.push(stringify);
   let a2 = [];
-  const l2 = middleware(c2.concat(rulesheet((e2) => a2.push(e2)))), u2 = (t3, i3 = "", c3 = "", u3 = "&") => {
+  const l2 = middleware(c2.concat(rulesheet((e2) => a2.push(e2)))), u2 = (t4, i3 = "", c3 = "", u3 = "&") => {
     n2 = u3, s = i3, r2 = void 0;
     const h3 = function(e2) {
-      const t4 = -1 !== e2.indexOf("//"), n3 = -1 !== e2.indexOf("}");
-      if (!t4 && !n3)
+      const t5 = -1 !== e2.indexOf("//"), n3 = -1 !== e2.indexOf("}");
+      if (!t5 && !n3)
         return e2;
-      if (!t4)
+      if (!t5)
         return Ye(e2);
       const o = e2.length;
       let s2 = "", r3 = 0, i4 = 0, c4 = 0, a3 = 0, l3 = 0, u4 = false;
       for (; i4 < o; ) {
-        const t5 = e2.charCodeAt(i4);
-        if (34 !== t5 && 39 !== t5 || He(e2, i4))
+        const t6 = e2.charCodeAt(i4);
+        if (34 !== t6 && 39 !== t6 || He(e2, i4))
           if (0 === c4)
-            if (t5 === je && i4 + 1 < o && 42 === e2.charCodeAt(i4 + 1)) {
+            if (t6 === je && i4 + 1 < o && 42 === e2.charCodeAt(i4 + 1)) {
               for (i4 += 2; i4 + 1 < o && (42 !== e2.charCodeAt(i4) || e2.charCodeAt(i4 + 1) !== je); )
                 i4++;
               i4 += 2;
-            } else if (40 !== t5)
-              if (41 !== t5)
+            } else if (40 !== t6)
+              if (41 !== t6)
                 if (a3 > 0)
                   i4++;
-                else if (42 === t5 && i4 + 1 < o && e2.charCodeAt(i4 + 1) === je)
+                else if (42 === t6 && i4 + 1 < o && e2.charCodeAt(i4 + 1) === je)
                   s2 += e2.substring(r3, i4), i4 += 2, r3 = i4, u4 = true;
-                else if (t5 === je && i4 + 1 < o && e2.charCodeAt(i4 + 1) === je) {
+                else if (t6 === je && i4 + 1 < o && e2.charCodeAt(i4 + 1) === je) {
                   for (s2 += e2.substring(r3, i4); i4 < o && 10 !== e2.charCodeAt(i4); )
                     i4++;
                   r3 = i4, u4 = true;
                 } else
-                  123 === t5 ? l3++ : 125 === t5 && l3--, i4++;
+                  123 === t6 ? l3++ : 125 === t6 && l3--, i4++;
               else
                 a3 > 0 && a3--, i4++;
             else
@@ -122072,16 +122462,16 @@ function Je({ options: e = $, plugins: t2 = I } = $) {
           else
             i4++;
         else
-          0 === c4 ? c4 = t5 : c4 === t5 && (c4 = 0), i4++;
+          0 === c4 ? c4 = t6 : c4 === t6 && (c4 = 0), i4++;
       }
       return u4 ? (r3 < o && (s2 += e2.substring(r3)), 0 === l3 ? s2 : Ye(s2)) : 0 === l3 ? e2 : Ye(e2);
-    }(t3);
+    }(t4);
     let d3 = compile(c3 || i3 ? c3 + " " + i3 + " { " + h3 + " }" : h3);
     return e.namespace && (d3 = Ue(d3, e.namespace)), a2 = [], serialize(d3, l2), a2;
   }, h2 = e;
   let d2 = M;
-  for (let e2 = 0; e2 < t2.length; e2++)
-    t2[e2].name || v(15), d2 = G(d2, t2[e2].name);
+  for (let e2 = 0; e2 < t3.length; e2++)
+    t3[e2].name || v(15), d2 = G(d2, t3[e2].name);
   return (null == h2 ? void 0 : h2.namespace) && (d2 = G(d2, h2.namespace)), (null == h2 ? void 0 : h2.prefix) && (d2 = G(d2, "p")), u2.hash = d2 !== M ? d2.toString() : "", u2;
 }
 var Xe = new _e();
@@ -122095,11 +122485,11 @@ var nt = import_react.default.createContext(void 0);
 var ot = nt.Consumer;
 var it = Object.prototype.hasOwnProperty;
 var ct = {};
-function at(e, t2) {
+function at(e, t3) {
   const n2 = "string" != typeof e ? "sc" : T(e);
   ct[n2] = (ct[n2] || 0) + 1;
   const o = n2 + "-" + z(u + n2 + ct[n2]);
-  return t2 ? t2 + "-" + o : o;
+  return t3 ? t3 + "-" + o : o;
 }
 var lt;
 function ut(o, s, r2) {
@@ -122108,8 +122498,8 @@ function ut(o, s, r2) {
   if (i2 && c2.shouldForwardProp) {
     const e = c2.shouldForwardProp;
     if (s.shouldForwardProp) {
-      const t2 = s.shouldForwardProp;
-      f2 = (n2, o2) => e(n2, o2) && t2(n2, o2);
+      const t3 = s.shouldForwardProp;
+      f2 = (n2, o2) => e(n2, o2) && t3(n2, o2);
     } else
       f2 = e;
   }
@@ -122122,8 +122512,8 @@ function ut(o, s, r2) {
       let y2, g3;
       {
         const e = import_react.default.useRef(null), n2 = e.current;
-        if (null !== n2 && n2[1] === m3 && n2[2] === p3.styleSheet && n2[3] === p3.stylis && n2[7] === c3 && function(e2, t2, n3) {
-          const o4 = e2, s4 = t2;
+        if (null !== n2 && n2[1] === m3 && n2[2] === p3.styleSheet && n2[3] === p3.stylis && n2[7] === c3 && function(e2, t3, n3) {
+          const o4 = e2, s4 = t3;
           let r4 = 0;
           for (const e3 in s4)
             if (it.call(s4, e3) && (r4++, o4[e3] !== s4[e3]))
@@ -122132,14 +122522,14 @@ function ut(o, s, r2) {
         }(n2[0], s3, n2[4]))
           y2 = n2[5], g3 = n2[6];
         else {
-          y2 = function(e2, t2, n4) {
-            const o4 = Object.assign(Object.assign({}, t2), { className: void 0, theme: n4 }), s4 = e2.length > 1;
+          y2 = function(e2, t3, n4) {
+            const o4 = Object.assign(Object.assign({}, t3), { className: void 0, theme: n4 }), s4 = e2.length > 1;
             for (let n5 = 0; n5 < e2.length; n5++) {
               const r4 = e2[n5], i4 = re(r4) ? r4(s4 ? Object.assign({}, o4) : o4) : r4;
               for (const e3 in i4)
-                "className" === e3 ? o4.className = ae(o4.className, i4[e3]) : "style" === e3 ? o4.style = Object.assign(Object.assign({}, o4.style), i4[e3]) : e3 in t2 && void 0 === t2[e3] || (o4[e3] = i4[e3]);
+                "className" === e3 ? o4.className = ae(o4.className, i4[e3]) : "style" === e3 ? o4.style = Object.assign(Object.assign({}, o4.style), i4[e3]) : e3 in t3 && void 0 === t3[e3] || (o4[e3] = i4[e3]);
             }
-            return "className" in t2 && "string" == typeof t2.className && (o4.className = ae(o4.className, t2.className)), o4;
+            return "className" in t3 && "string" == typeof t3.className && (o4.className = ae(o4.className, t3.className)), o4;
           }(i3, s3, m3), g3 = function(e2, n4, o4, s4) {
             const r4 = e2.generateAndInjectStyles(n4, o4, s4);
             return import_react.default.useDebugValue && import_react.default.useDebugValue(r4), r4;
@@ -122151,10 +122541,10 @@ function ut(o, s, r2) {
         }
       }
       o3.warnTooManyClasses && o3.warnTooManyClasses(g3);
-      const v2 = y2.as || h3, S2 = function(t2, n2, o4, s4) {
+      const v2 = y2.as || h3, S2 = function(t3, n2, o4, s4) {
         const r4 = {};
-        for (const i4 in t2)
-          void 0 === t2[i4] || "$" === i4[0] || "as" === i4 || "theme" === i4 && t2.theme === o4 || ("forwardedAs" === i4 ? r4.as = t2.forwardedAs : s4 && !s4(i4, n2) || (r4[i4] = t2[i4], s4 || false || isPropValid(i4) || (lt || (lt = /* @__PURE__ */ new Set())).has(i4) || !L(n2) || n2.includes("-") || (lt.add(i4), console.warn(`styled-components: it looks like an unknown prop "${i4}" is being sent through to the DOM, which will likely trigger a React console error. If you would like automatic filtering of unknown props, you can opt-into that behavior via \`<StyleSheetManager shouldForwardProp={...}>\` (connect an API like \`@emotion/is-prop-valid\`) or consider using transient props (\`$\` prefix for automatic filtering.)`))));
+        for (const i4 in t3)
+          void 0 === t3[i4] || "$" === i4[0] || "as" === i4 || "theme" === i4 && t3.theme === o4 || ("forwardedAs" === i4 ? r4.as = t3.forwardedAs : s4 && !s4(i4, n2) || (r4[i4] = t3[i4], s4 || false || isPropValid(i4) || (lt || (lt = /* @__PURE__ */ new Set())).has(i4) || !L(n2) || n2.includes("-") || (lt.add(i4), console.warn(`styled-components: it looks like an unknown prop "${i4}" is being sent through to the DOM, which will likely trigger a React console error. If you would like automatic filtering of unknown props, you can opt-into that behavior via \`<StyleSheetManager shouldForwardProp={...}>\` (connect an API like \`@emotion/is-prop-valid\`) or consider using transient props (\`$\` prefix for automatic filtering.)`))));
         return r4;
       }(y2, v2, m3, f3);
       let b2 = ae(l3, u3);
@@ -122166,15 +122556,15 @@ function ut(o, s, r2) {
   return g2.attrs = p2, g2.componentStyle = m2, g2.displayName = h2, g2.shouldForwardProp = f2, g2.foldedComponentIds = i2 ? ae(c2.foldedComponentIds, c2.styledComponentId) : "", g2.styledComponentId = d2, g2.target = i2 ? c2.target : o, Object.defineProperty(g2, "defaultProps", { get() {
     return this._foldedDefaultProps;
   }, set(e) {
-    this._foldedDefaultProps = i2 ? function(e2, ...t2) {
-      for (const n2 of t2)
+    this._foldedDefaultProps = i2 ? function(e2, ...t3) {
+      for (const n2 of t3)
         he(e2, n2, true);
       return e2;
     }({}, c2.defaultProps, e) : e;
-  } }), _(h2, d2), g2.warnTooManyClasses = /* @__PURE__ */ ((e, t2) => {
+  } }), _(h2, d2), g2.warnTooManyClasses = /* @__PURE__ */ ((e, t3) => {
     let n2 = {}, o2 = false;
     return (s2) => {
-      !o2 && (n2[s2] = true, Object.keys(n2).length >= 200) && (console.warn(`Over 200 classes were generated for component ${e}${t2 ? ` with the id of "${t2}"` : ""}.
+      !o2 && (n2[s2] = true, Object.keys(n2).length >= 200) && (console.warn(`Over 200 classes were generated for component ${e}${t3 ? ` with the id of "${t3}"` : ""}.
 Consider using the attrs method, together with a style object for frequently changed styles.
 Example:
   const Component = styled.div.attrs(props => ({
@@ -122188,24 +122578,24 @@ Example:
   })(h2, d2), de(g2, () => `.${g2.styledComponentId}`), a2 && se(g2, o, { attrs: true, componentStyle: true, displayName: true, foldedComponentIds: true, shouldForwardProp: true, styledComponentId: true, target: true }), g2;
 }
 var ht = /* @__PURE__ */ new Set(["a", "abbr", "address", "area", "article", "aside", "audio", "b", "bdi", "bdo", "blockquote", "body", "button", "br", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "main", "map", "mark", "menu", "meter", "nav", "object", "ol", "optgroup", "option", "output", "p", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "search", "section", "select", "slot", "small", "span", "strong", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "tr", "u", "ul", "var", "video", "wbr", "circle", "clipPath", "defs", "ellipse", "feBlend", "feColorMatrix", "feComponentTransfer", "feComposite", "feConvolveMatrix", "feDiffuseLighting", "feDisplacementMap", "feDistantLight", "feDropShadow", "feFlood", "feFuncA", "feFuncB", "feFuncG", "feFuncR", "feGaussianBlur", "feImage", "feMerge", "feMergeNode", "feMorphology", "feOffset", "fePointLight", "feSpecularLighting", "feSpotLight", "feTile", "feTurbulence", "filter", "foreignObject", "g", "image", "line", "linearGradient", "marker", "mask", "path", "pattern", "polygon", "polyline", "radialGradient", "rect", "stop", "svg", "switch", "symbol", "text", "textPath", "tspan", "use"]);
-function dt(e, t2) {
+function dt(e, t3) {
   const n2 = [e[0]];
-  for (let o = 0, s = t2.length; o < s; o += 1)
-    n2.push(t2[o], e[o + 1]);
+  for (let o = 0, s = t3.length; o < s; o += 1)
+    n2.push(t3[o], e[o + 1]);
   return n2;
 }
 var pt = (e) => (Ie.add(e), e);
-function ft(e, ...t2) {
+function ft(e, ...t3) {
   if (re(e) || ue(e))
-    return pt(We(dt(I, [e, ...t2])));
+    return pt(We(dt(I, [e, ...t3])));
   const n2 = e;
-  return 0 === t2.length && 1 === n2.length && "string" == typeof n2[0] ? We(n2) : pt(We(dt(n2, t2)));
+  return 0 === t3.length && 1 === n2.length && "string" == typeof n2[0] ? We(n2) : pt(We(dt(n2, t3)));
 }
-function mt(e, t2, n2 = $) {
-  if (!t2)
-    throw v(1, t2);
-  const o = (o2, ...s) => e(t2, n2, ft(o2, ...s));
-  return o.attrs = (o2) => mt(e, t2, Object.assign(Object.assign({}, n2), { attrs: Array.prototype.concat(n2.attrs, o2).filter(Boolean) })), o.withConfig = (o2) => mt(e, t2, Object.assign(Object.assign({}, n2), o2)), o;
+function mt(e, t3, n2 = $) {
+  if (!t3)
+    throw v(1, t3);
+  const o = (o2, ...s) => e(t3, n2, ft(o2, ...s));
+  return o.attrs = (o2) => mt(e, t3, Object.assign(Object.assign({}, n2), { attrs: Array.prototype.concat(n2.attrs, o2).filter(Boolean) })), o.withConfig = (o2) => mt(e, t3, Object.assign(Object.assign({}, n2), o2)), o;
 }
 var yt = (e) => mt(ut, e);
 var gt = yt;
@@ -122224,9 +122614,9 @@ var jt = `style[${c}]`;
 function _extends() {
   return _extends = Object.assign ? Object.assign.bind() : function(n2) {
     for (var e = 1; e < arguments.length; e++) {
-      var t2 = arguments[e];
-      for (var r2 in t2)
-        ({}).hasOwnProperty.call(t2, r2) && (n2[r2] = t2[r2]);
+      var t3 = arguments[e];
+      for (var r2 in t3)
+        ({}).hasOwnProperty.call(t3, r2) && (n2[r2] = t3[r2]);
     }
     return n2;
   }, _extends.apply(null, arguments);
@@ -122236,25 +122626,25 @@ function _extends() {
 function _objectWithoutPropertiesLoose(r2, e) {
   if (null == r2)
     return {};
-  var t2 = {};
+  var t3 = {};
   for (var n2 in r2)
     if ({}.hasOwnProperty.call(r2, n2)) {
       if (-1 !== e.indexOf(n2))
         continue;
-      t2[n2] = r2[n2];
+      t3[n2] = r2[n2];
     }
-  return t2;
+  return t3;
 }
 
 // node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js
-function _objectWithoutProperties(e, t2) {
+function _objectWithoutProperties(e, t3) {
   if (null == e)
     return {};
-  var o, r2, i2 = _objectWithoutPropertiesLoose(e, t2);
+  var o, r2, i2 = _objectWithoutPropertiesLoose(e, t3);
   if (Object.getOwnPropertySymbols) {
     var n2 = Object.getOwnPropertySymbols(e);
     for (r2 = 0; r2 < n2.length; r2++)
-      o = n2[r2], -1 === t2.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i2[o] = e[o]);
+      o = n2[r2], -1 === t3.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i2[o] = e[o]);
   }
   return i2;
 }
@@ -122417,10 +122807,10 @@ function Connection3(props) {
   }));
 }
 function _createForOfIteratorHelper$13(r2, e) {
-  var t2 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (!t2) {
-    if (Array.isArray(r2) || (t2 = _unsupportedIterableToArray$13(r2)) || e && r2 && "number" == typeof r2.length) {
-      t2 && (r2 = t2);
+  var t3 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (!t3) {
+    if (Array.isArray(r2) || (t3 = _unsupportedIterableToArray$13(r2)) || e && r2 && "number" == typeof r2.length) {
+      t3 && (r2 = t3);
       var _n = 0, F2 = function F3() {
       };
       return { s: F2, n: function n2() {
@@ -122433,15 +122823,15 @@ function _createForOfIteratorHelper$13(r2, e) {
   }
   var o, a2 = true, u2 = false;
   return { s: function s() {
-    t2 = t2.call(r2);
+    t3 = t3.call(r2);
   }, n: function n2() {
-    var r3 = t2.next();
+    var r3 = t3.next();
     return a2 = r3.done, r3;
   }, e: function e2(r3) {
     u2 = true, o = r3;
   }, f: function f2() {
     try {
-      a2 || null == t2["return"] || t2["return"]();
+      a2 || null == t3["return"] || t3["return"]();
     } finally {
       if (u2)
         throw o;
@@ -122452,8 +122842,8 @@ function _unsupportedIterableToArray$13(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray$13(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray$13(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray$13(r2, a2) : void 0;
   }
 }
 function _arrayLikeToArray$13(r2, a2) {
@@ -122498,22 +122888,22 @@ function findReactRoot(element) {
   }
 }
 function ownKeys$12(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread$12(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys$12(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys$12(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys$12(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys$12(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
@@ -122691,7 +123081,7 @@ function sortByIndex(entries) {
     return ai - bi;
   });
 }
-function Node2(props) {
+function Node3(props) {
   var inputs = Object.entries(props.data.inputs);
   var outputs = Object.entries(props.data.outputs);
   var controls = Object.entries(props.data.controls);
@@ -122782,7 +123172,7 @@ function setup$3(props) {
     render: function render2(context, plugin) {
       if (context.data.type === "node") {
         var parent = plugin.parentScope();
-        var Component = node2 ? node2(context.data) : Node2;
+        var Component = node2 ? node2(context.data) : Node3;
         return Component && /* @__PURE__ */ React.createElement(Component, {
           data: context.data.payload,
           emit: function emit(data) {
@@ -122873,7 +123263,7 @@ var index$4 = /* @__PURE__ */ Object.freeze({
   useConnection,
   Control: Control3,
   InputControl: Control3,
-  Node: Node2,
+  Node: Node3,
   NodeStyles,
   RefControl,
   RefSocket,
@@ -123285,10 +123675,10 @@ var index3 = /* @__PURE__ */ Object.freeze({
   reroute: index$1
 });
 function _createForOfIteratorHelper3(r2, e) {
-  var t2 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (!t2) {
-    if (Array.isArray(r2) || (t2 = _unsupportedIterableToArray4(r2)) || e && r2 && "number" == typeof r2.length) {
-      t2 && (r2 = t2);
+  var t3 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (!t3) {
+    if (Array.isArray(r2) || (t3 = _unsupportedIterableToArray4(r2)) || e && r2 && "number" == typeof r2.length) {
+      t3 && (r2 = t3);
       var _n = 0, F2 = function F3() {
       };
       return { s: F2, n: function n2() {
@@ -123301,15 +123691,15 @@ function _createForOfIteratorHelper3(r2, e) {
   }
   var o, a2 = true, u2 = false;
   return { s: function s() {
-    t2 = t2.call(r2);
+    t3 = t3.call(r2);
   }, n: function n2() {
-    var r3 = t2.next();
+    var r3 = t3.next();
     return a2 = r3.done, r3;
   }, e: function e2(r3) {
     u2 = true, o = r3;
   }, f: function f2() {
     try {
-      a2 || null == t2["return"] || t2["return"]();
+      a2 || null == t3["return"] || t3["return"]();
     } finally {
       if (u2)
         throw o;
@@ -123320,8 +123710,8 @@ function _unsupportedIterableToArray4(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray4(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray4(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray4(r2, a2) : void 0;
   }
 }
 function _arrayLikeToArray4(r2, a2) {
@@ -123331,43 +123721,43 @@ function _arrayLikeToArray4(r2, a2) {
   return n2;
 }
 function ownKeys3(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread3(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys3(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys3(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys3(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys3(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
 }
-function _callSuper5(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct5() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper5(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct5() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct5() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct5 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
-function _superPropGet2(t2, o, e, r2) {
-  var p2 = _get(_getPrototypeOf(1 & r2 ? t2.prototype : t2), o, e);
-  return 2 & r2 && "function" == typeof p2 ? function(t3) {
-    return p2.apply(e, t3);
+function _superPropGet2(t3, o, e, r2) {
+  var p2 = _get(_getPrototypeOf(1 & r2 ? t3.prototype : t3), o, e);
+  return 2 & r2 && "function" == typeof p2 ? function(t4) {
+    return p2.apply(e, t4);
   } : p2;
 }
 var ReactPlugin = /* @__PURE__ */ function(_Scope) {
@@ -123482,17 +123872,17 @@ var Applier = /* @__PURE__ */ function() {
     }
   }]);
 }();
-function _callSuper$2(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct$2() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper$2(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct$2() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct$2() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct$2 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var StandardApplier = /* @__PURE__ */ function(_Applier) {
@@ -123630,18 +124020,18 @@ var AnimationSystem = /* @__PURE__ */ function() {
       var entries = Array.from(this.activeAnimations.entries());
       entries.forEach(function(_ref) {
         var _ref2 = _slicedToArray(_ref, 2), key = _ref2[0], _ref2$ = _ref2[1], startTime = _ref2$.startTime, duration = _ref2$.duration, cb = _ref2$.cb, done = _ref2$.done;
-        var t2 = (Date.now() - startTime) / duration;
-        if (t2 >= 1)
-          t2 = 1;
-        if (t2 < 0 || t2 >= 1) {
+        var t3 = (Date.now() - startTime) / duration;
+        if (t3 >= 1)
+          t3 = 1;
+        if (t3 < 0 || t3 >= 1) {
           _this.activeAnimations["delete"](key);
-          if (t2 >= 1) {
+          if (t3 >= 1) {
             cb(1);
             done(true);
           }
           return;
         }
-        cb(t2);
+        cb(t3);
       });
       this.frameId = requestAnimationFrame(function() {
         _this.start();
@@ -123662,8 +124052,8 @@ var AnimationSystem = /* @__PURE__ */ function() {
                   _this2.activeAnimations.set(id, {
                     startTime,
                     duration,
-                    cb: function cb(t2) {
-                      return void tick(t2);
+                    cb: function cb(t3) {
+                      return void tick(t3);
                     },
                     done
                   });
@@ -123695,43 +124085,43 @@ var AnimationSystem = /* @__PURE__ */ function() {
   }]);
 }();
 function ownKeys$13(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread$13(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys$13(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys$13(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys$13(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys$13(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
 }
-function _callSuper$14(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct$14() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper$14(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct$14() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct$14() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct$14 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
-function _superPropGet3(t2, e, o, r2) {
-  var p2 = _get(_getPrototypeOf(1 & r2 ? t2.prototype : t2), e, o);
-  return 2 & r2 && "function" == typeof p2 ? function(t3) {
-    return p2.apply(o, t3);
+function _superPropGet3(t3, e, o, r2) {
+  var p2 = _get(_getPrototypeOf(1 & r2 ? t3.prototype : t3), e, o);
+  return 2 & r2 && "function" == typeof p2 ? function(t4) {
+    return p2.apply(o, t4);
   } : p2;
 }
 var TransitionApplier = /* @__PURE__ */ function(_StandardApplier) {
@@ -123742,8 +124132,8 @@ var TransitionApplier = /* @__PURE__ */ function(_StandardApplier) {
     _defineProperty(_this, "animation", new AnimationSystem());
     _this.props = props;
     _this.duration = typeof (props === null || props === void 0 ? void 0 : props.duration) !== "undefined" ? props.duration : 2e3;
-    _this.timingFunction = typeof (props === null || props === void 0 ? void 0 : props.timingFunction) !== "undefined" ? props.timingFunction : function(t2) {
-      return t2;
+    _this.timingFunction = typeof (props === null || props === void 0 ? void 0 : props.timingFunction) !== "undefined" ? props.timingFunction : function(t3) {
+      return t3;
     };
     _this.animation.start();
     return _this;
@@ -123751,8 +124141,8 @@ var TransitionApplier = /* @__PURE__ */ function(_StandardApplier) {
   _inherits(TransitionApplier2, _StandardApplier);
   return _createClass(TransitionApplier2, [{
     key: "applyTiming",
-    value: function applyTiming(from2, to, t2) {
-      var k2 = this.timingFunction(t2);
+    value: function applyTiming(from2, to, t3) {
+      var k2 = this.timingFunction(t3);
       return from2 * (1 - k2) + to * k2;
     }
   }, {
@@ -123777,12 +124167,12 @@ var TransitionApplier = /* @__PURE__ */ function(_StandardApplier) {
                   height: node2.height
                 };
                 _context.next = 6;
-                return this.animation.add(this.duration, "".concat(id, "_resize"), function(t2) {
+                return this.animation.add(this.duration, "".concat(id, "_resize"), function(t3) {
                   var _this2$props;
-                  var currentWidth = _this2.applyTiming(previous.width, width, t2);
-                  var currentHeight = _this2.applyTiming(previous.height, height, t2);
+                  var currentWidth = _this2.applyTiming(previous.width, width, t3);
+                  var currentHeight = _this2.applyTiming(previous.height, height, t3);
                   if ((_this2$props = _this2.props) !== null && _this2$props !== void 0 && _this2$props.onTick) {
-                    _this2.props.onTick(t2);
+                    _this2.props.onTick(t3);
                   }
                   return _superPropGet3(TransitionApplier2, "resizeNode", _this2, 3)([id, currentWidth, currentHeight]);
                 });
@@ -123818,12 +124208,12 @@ var TransitionApplier = /* @__PURE__ */ function(_StandardApplier) {
               case 3:
                 previous = _objectSpread$13({}, view.position);
                 _context2.next = 6;
-                return this.animation.add(this.duration, "".concat(id, "_translate"), function(t2) {
+                return this.animation.add(this.duration, "".concat(id, "_translate"), function(t3) {
                   var _this3$props;
-                  var currentX = _this3.applyTiming(previous.x, x2, t2);
-                  var currentY = _this3.applyTiming(previous.y, y, t2);
+                  var currentX = _this3.applyTiming(previous.x, x2, t3);
+                  var currentY = _this3.applyTiming(previous.y, y, t3);
                   if ((_this3$props = _this3.props) !== null && _this3$props !== void 0 && _this3$props.onTick) {
-                    _this3.props.onTick(t2);
+                    _this3.props.onTick(t3);
                   }
                   return _superPropGet3(TransitionApplier2, "translateNode", _this3, 3)([id, currentX, currentY]);
                 });
@@ -123935,31 +124325,31 @@ var index4 = /* @__PURE__ */ Object.freeze({
   classic: index$12
 });
 function ownKeys4(e, r2) {
-  var t2 = Object.keys(e);
+  var t3 = Object.keys(e);
   if (Object.getOwnPropertySymbols) {
     var o = Object.getOwnPropertySymbols(e);
     r2 && (o = o.filter(function(r3) {
       return Object.getOwnPropertyDescriptor(e, r3).enumerable;
-    })), t2.push.apply(t2, o);
+    })), t3.push.apply(t3, o);
   }
-  return t2;
+  return t3;
 }
 function _objectSpread4(e) {
   for (var r2 = 1; r2 < arguments.length; r2++) {
-    var t2 = null != arguments[r2] ? arguments[r2] : {};
-    r2 % 2 ? ownKeys4(Object(t2), true).forEach(function(r3) {
-      _defineProperty(e, r3, t2[r3]);
-    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t2)) : ownKeys4(Object(t2)).forEach(function(r3) {
-      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t2, r3));
+    var t3 = null != arguments[r2] ? arguments[r2] : {};
+    r2 % 2 ? ownKeys4(Object(t3), true).forEach(function(r3) {
+      _defineProperty(e, r3, t3[r3]);
+    }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t3)) : ownKeys4(Object(t3)).forEach(function(r3) {
+      Object.defineProperty(e, r3, Object.getOwnPropertyDescriptor(t3, r3));
     });
   }
   return e;
 }
 function _createForOfIteratorHelper4(r2, e) {
-  var t2 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
-  if (!t2) {
-    if (Array.isArray(r2) || (t2 = _unsupportedIterableToArray5(r2)) || e && r2 && "number" == typeof r2.length) {
-      t2 && (r2 = t2);
+  var t3 = "undefined" != typeof Symbol && r2[Symbol.iterator] || r2["@@iterator"];
+  if (!t3) {
+    if (Array.isArray(r2) || (t3 = _unsupportedIterableToArray5(r2)) || e && r2 && "number" == typeof r2.length) {
+      t3 && (r2 = t3);
       var _n = 0, F2 = function F3() {
       };
       return { s: F2, n: function n2() {
@@ -123972,15 +124362,15 @@ function _createForOfIteratorHelper4(r2, e) {
   }
   var o, a2 = true, u2 = false;
   return { s: function s() {
-    t2 = t2.call(r2);
+    t3 = t3.call(r2);
   }, n: function n2() {
-    var r3 = t2.next();
+    var r3 = t3.next();
     return a2 = r3.done, r3;
   }, e: function e2(r3) {
     u2 = true, o = r3;
   }, f: function f2() {
     try {
-      a2 || null == t2["return"] || t2["return"]();
+      a2 || null == t3["return"] || t3["return"]();
     } finally {
       if (u2)
         throw o;
@@ -123991,8 +124381,8 @@ function _unsupportedIterableToArray5(r2, a2) {
   if (r2) {
     if ("string" == typeof r2)
       return _arrayLikeToArray5(r2, a2);
-    var t2 = {}.toString.call(r2).slice(8, -1);
-    return "Object" === t2 && r2.constructor && (t2 = r2.constructor.name), "Map" === t2 || "Set" === t2 ? Array.from(r2) : "Arguments" === t2 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t2) ? _arrayLikeToArray5(r2, a2) : void 0;
+    var t3 = {}.toString.call(r2).slice(8, -1);
+    return "Object" === t3 && r2.constructor && (t3 = r2.constructor.name), "Map" === t3 || "Set" === t3 ? Array.from(r2) : "Arguments" === t3 || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t3) ? _arrayLikeToArray5(r2, a2) : void 0;
   }
 }
 function _arrayLikeToArray5(r2, a2) {
@@ -124001,17 +124391,17 @@ function _arrayLikeToArray5(r2, a2) {
     n2[e] = r2[e];
   return n2;
 }
-function _callSuper6(t2, o, e) {
-  return o = _getPrototypeOf(o), _possibleConstructorReturn(t2, _isNativeReflectConstruct6() ? Reflect.construct(o, e || [], _getPrototypeOf(t2).constructor) : o.apply(t2, e));
+function _callSuper6(t3, o, e) {
+  return o = _getPrototypeOf(o), _possibleConstructorReturn(t3, _isNativeReflectConstruct6() ? Reflect.construct(o, e || [], _getPrototypeOf(t3).constructor) : o.apply(t3, e));
 }
 function _isNativeReflectConstruct6() {
   try {
-    var t2 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+    var t3 = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
     }));
-  } catch (t3) {
+  } catch (t4) {
   }
   return (_isNativeReflectConstruct6 = function _isNativeReflectConstruct7() {
-    return !!t2;
+    return !!t3;
   })();
 }
 var AutoArrangePlugin = /* @__PURE__ */ function(_Scope) {
@@ -124290,7 +124680,7 @@ var templateColors = /* @__PURE__ */ new Map();
 function getPredicateTemplate(tokens) {
   if (!tokens || tokens.length === 0)
     return "";
-  return tokens.map((t2) => t2.kind === "var" ? "*" : t2.text).join(" ");
+  return tokens.map((t3) => t3.kind === "var" ? "*" : t3.text).join(" ");
 }
 function templateToRegex(template) {
   if (!template)
@@ -124475,7 +124865,7 @@ var RuleNode = class extends classic.Node {
 function renderTokens(tokens) {
   if (!tokens)
     return "";
-  return tokens.map((t2) => t2.text).join(" ");
+  return tokens.map((t3) => t3.text).join(" ");
 }
 function CustomNode(props) {
   const { data, emit } = props;
@@ -124997,24 +125387,24 @@ async function initProofGame(container, gameData) {
   templateColors.clear();
   const predicateTemplates = /* @__PURE__ */ new Set();
   if (gameData.queryTokens) {
-    const t2 = getPredicateTemplate(gameData.queryTokens);
-    if (t2)
-      predicateTemplates.add(t2);
+    const t3 = getPredicateTemplate(gameData.queryTokens);
+    if (t3)
+      predicateTemplates.add(t3);
   } else if (gameData.query) {
     predicateTemplates.add(gameData.query);
   }
   if (gameData.rules) {
     for (const rule of gameData.rules) {
       if (rule.headTokens) {
-        const t2 = getPredicateTemplate(rule.headTokens);
-        if (t2)
-          predicateTemplates.add(t2);
+        const t3 = getPredicateTemplate(rule.headTokens);
+        if (t3)
+          predicateTemplates.add(t3);
       }
       if (rule.bodyTokens) {
         for (const tokens of rule.bodyTokens) {
-          const t2 = getPredicateTemplate(tokens);
-          if (t2)
-            predicateTemplates.add(t2);
+          const t3 = getPredicateTemplate(tokens);
+          if (t3)
+            predicateTemplates.add(t3);
         }
       }
     }
@@ -125022,9 +125412,9 @@ async function initProofGame(container, gameData) {
   if (gameData.facts) {
     for (const fact of gameData.facts) {
       if (fact.factTokens) {
-        const t2 = getPredicateTemplate(fact.factTokens);
-        if (t2)
-          predicateTemplates.add(t2);
+        const t3 = getPredicateTemplate(fact.factTokens);
+        if (t3)
+          predicateTemplates.add(t3);
       }
     }
   }
@@ -125551,7 +125941,7 @@ async function initProofGame(container, gameData) {
           }
           if (!sessionLostNotified) {
             sessionLostNotified = true;
-            alert("The Proof Game session has expired. Please reopen the Proof Game from the editor to continue.");
+            alert(t("The Proof Game session has expired. Please reopen the Proof Game from the editor to continue."));
           }
         }
       }
@@ -125603,7 +125993,7 @@ async function initProofGame(container, gameData) {
   area.use(arrange);
   const arrangeApplier = new index$22.TransitionApplier({
     duration: 500,
-    timingFunction: (t2) => t2
+    timingFunction: (t3) => t3
   });
   editor.addPipe((context) => {
     if (context.type === "connectioncreated" || context.type === "connectionremoved") {
@@ -125749,10 +126139,10 @@ async function initProofGame(container, gameData) {
   });
   document.getElementById("btn-show")?.addEventListener("click", async () => {
     if (!gameData.explanation) {
-      alert("No proof found for this query.");
+      alert(t("No proof found for this query."));
       return;
     }
-    if (!confirm("Are you sure you want to miss the excitement of finding the proof yourself?")) {
+    if (!confirm(t("Are you sure you want to miss the excitement of finding the proof yourself?"))) {
       return;
     }
     const existingConnections = editor.getConnections();
@@ -125987,6 +126377,12 @@ async function initProofGame(container, gameData) {
     }
   } catch {
   }
+}
+installLeApiLang();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => applyI18nDom());
+} else {
+  applyI18nDom();
 }
 export {
   initProofGame

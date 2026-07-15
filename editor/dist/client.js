@@ -1,3 +1,2194 @@
+// src/generated/i18nData.ts
+var keywords = {
+  "en": {
+    "kb_open": [
+      [
+        "the",
+        "knowledge",
+        "base"
+      ]
+    ],
+    "kb_include": [
+      [
+        "includes"
+      ]
+    ],
+    "contract_open": [
+      [
+        "the",
+        "contract"
+      ]
+    ],
+    "contract_states": [
+      [
+        "states",
+        "that"
+      ]
+    ],
+    "resources_include": [
+      [
+        "includes",
+        "these",
+        "resources"
+      ]
+    ],
+    "scenario": [
+      [
+        "scenario"
+      ]
+    ],
+    "query": [
+      [
+        "query"
+      ]
+    ],
+    "ontology": [
+      [
+        "the",
+        "ontology",
+        "is"
+      ]
+    ],
+    "predicates": [
+      [
+        "the",
+        "predicates",
+        "are"
+      ]
+    ],
+    "templates": [
+      [
+        "the",
+        "templates",
+        "are"
+      ]
+    ],
+    "fluents": [
+      [
+        "the",
+        "fluents",
+        "are"
+      ]
+    ],
+    "events": [
+      [
+        "the",
+        "events",
+        "are"
+      ]
+    ],
+    "meta_target": [
+      [
+        "the",
+        "target",
+        "language",
+        "is"
+      ]
+    ],
+    "marker": [
+      [
+        "section"
+      ]
+    ],
+    "marker_is": [
+      [
+        "is"
+      ]
+    ],
+    "annexes": [
+      [
+        "the",
+        "annexes",
+        "to",
+        "the",
+        "knowledge",
+        "base",
+        "are"
+      ],
+      [
+        "the",
+        "annexes",
+        "to",
+        "the",
+        "contract",
+        "are"
+      ]
+    ],
+    "guard": [
+      [
+        "the",
+        "predicates"
+      ],
+      [
+        "the",
+        "knowledge"
+      ],
+      [
+        "the",
+        "templates"
+      ],
+      [
+        "the",
+        "contract"
+      ],
+      [
+        "the",
+        "ontology"
+      ],
+      [
+        "the",
+        "fluents"
+      ],
+      [
+        "the",
+        "events"
+      ],
+      [
+        "the",
+        "target"
+      ],
+      [
+        "scenario"
+      ],
+      [
+        "query"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicates"
+      ],
+      [
+        "knowledge"
+      ],
+      [
+        "templates"
+      ],
+      [
+        "contract"
+      ],
+      [
+        "ontology"
+      ],
+      [
+        "fluents"
+      ],
+      [
+        "events"
+      ],
+      [
+        "target"
+      ]
+    ],
+    "expects": [
+      [
+        "expects"
+      ]
+    ],
+    "answers": [
+      [
+        "answers"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "and",
+        "unknowns"
+      ]
+    ],
+    "rule": [
+      [
+        "rule"
+      ]
+    ],
+    "if": [
+      [
+        "if"
+      ]
+    ],
+    "only_if": [
+      [
+        "only",
+        "if"
+      ]
+    ],
+    "unless": [
+      [
+        "unless"
+      ]
+    ],
+    "and_unless": [
+      [
+        "and",
+        "unless"
+      ]
+    ],
+    "and": [
+      [
+        "and"
+      ]
+    ],
+    "or": [
+      [
+        "or"
+      ]
+    ],
+    "either": [
+      [
+        "either"
+      ]
+    ],
+    "any_of": [
+      [
+        "any",
+        "of"
+      ]
+    ],
+    "all_of": [
+      [
+        "all",
+        "of"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "at",
+        "least",
+        "one",
+        "of"
+      ]
+    ],
+    "one": [
+      [
+        "one"
+      ]
+    ],
+    "of": [
+      [
+        "of"
+      ]
+    ],
+    "all": [
+      [
+        "all"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "it",
+        "is",
+        "not",
+        "the",
+        "case",
+        "that"
+      ],
+      [
+        "not",
+        "the",
+        "case",
+        "that"
+      ]
+    ],
+    "forall": [
+      [
+        "for",
+        "all",
+        "cases",
+        "in",
+        "which"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "it",
+        "is",
+        "the",
+        "case",
+        "that"
+      ]
+    ],
+    "for_case": [
+      [
+        "for",
+        "case"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "it",
+        "is",
+        "true",
+        "that"
+      ]
+    ],
+    "it_is": [
+      [
+        "it",
+        "is"
+      ]
+    ],
+    "whether": [
+      [
+        "whether"
+      ]
+    ],
+    "defines_global": [
+      [
+        "defines",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "opposite"
+      ]
+    ],
+    "synonym": [
+      [
+        "synonym"
+      ]
+    ],
+    "prepositional": [
+      [
+        "prepositional"
+      ],
+      [
+        "composite"
+      ]
+    ],
+    "unknown": [
+      [
+        "assumable"
+      ],
+      [
+        "unknown"
+      ],
+      [
+        "assumed"
+      ]
+    ],
+    "undefined": [
+      [
+        "scenario",
+        "element"
+      ],
+      [
+        "undefined"
+      ]
+    ],
+    "article": [
+      [
+        "some"
+      ],
+      [
+        "the"
+      ],
+      [
+        "an"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "ignorable": [
+      [
+        "were"
+      ],
+      [
+        "have"
+      ],
+      [
+        "does"
+      ],
+      [
+        "been"
+      ],
+      [
+        "the"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "has"
+      ],
+      [
+        "had"
+      ],
+      [
+        "did"
+      ],
+      [
+        "an"
+      ],
+      [
+        "do"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "unless"
+      ],
+      [
+        "says"
+      ],
+      [
+        "that"
+      ],
+      [
+        "and"
+      ],
+      [
+        "if"
+      ],
+      [
+        "or"
+      ]
+    ],
+    "qualifier": [
+      [
+        "previous"
+      ],
+      [
+        "original"
+      ],
+      [
+        "seventh"
+      ],
+      [
+        "another"
+      ],
+      [
+        "current"
+      ],
+      [
+        "second"
+      ],
+      [
+        "fourth"
+      ],
+      [
+        "eighth"
+      ],
+      [
+        "single"
+      ],
+      [
+        "first"
+      ],
+      [
+        "third"
+      ],
+      [
+        "fifth"
+      ],
+      [
+        "sixth"
+      ],
+      [
+        "ninth"
+      ],
+      [
+        "tenth"
+      ],
+      [
+        "other"
+      ],
+      [
+        "given"
+      ],
+      [
+        "next"
+      ],
+      [
+        "last"
+      ],
+      [
+        "same"
+      ],
+      [
+        "new"
+      ]
+    ],
+    "copula": [
+      [
+        "were"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "is"
+      ]
+    ],
+    "definite_article": [
+      [
+        "the"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "this"
+      ]
+    ],
+    "each": [
+      [
+        "each"
+      ]
+    ],
+    "wh_var": [
+      [
+        "which"
+      ],
+      [
+        "what"
+      ]
+    ],
+    "who": [
+      [
+        "who"
+      ]
+    ],
+    "what": [
+      [
+        "what"
+      ]
+    ],
+    "when": [
+      [
+        "when"
+      ]
+    ],
+    "where": [
+      [
+        "where"
+      ]
+    ],
+    "which": [
+      [
+        "which"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "that"
+      ],
+      [
+        "says"
+      ]
+    ],
+    "that": [
+      [
+        "that"
+      ]
+    ],
+    "is_a": [
+      [
+        "is",
+        "an"
+      ],
+      [
+        "is",
+        "of"
+      ],
+      [
+        "is",
+        "a"
+      ]
+    ],
+    "sum": [
+      [
+        "sum"
+      ]
+    ],
+    "count": [
+      [
+        "count"
+      ]
+    ],
+    "average": [
+      [
+        "average"
+      ]
+    ],
+    "min": [
+      [
+        "minimum"
+      ],
+      [
+        "min"
+      ]
+    ],
+    "max": [
+      [
+        "maximum"
+      ],
+      [
+        "max"
+      ]
+    ],
+    "is_the": [
+      [
+        "is",
+        "the"
+      ]
+    ],
+    "of_each": [
+      [
+        "of",
+        "each"
+      ]
+    ],
+    "such_that": [
+      [
+        "such",
+        "that"
+      ]
+    ],
+    "assuming": [
+      [
+        "assuming"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "and"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "the"
+      ],
+      [
+        "an"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "between"
+      ],
+      [
+        "within"
+      ],
+      [
+        "under"
+      ],
+      [
+        "from"
+      ],
+      [
+        "with"
+      ],
+      [
+        "were"
+      ],
+      [
+        "that"
+      ],
+      [
+        "than"
+      ],
+      [
+        "into"
+      ],
+      [
+        "over"
+      ],
+      [
+        "the"
+      ],
+      [
+        "for"
+      ],
+      [
+        "and"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "an"
+      ],
+      [
+        "in"
+      ],
+      [
+        "on"
+      ],
+      [
+        "at"
+      ],
+      [
+        "to"
+      ],
+      [
+        "of"
+      ],
+      [
+        "by"
+      ],
+      [
+        "or"
+      ],
+      [
+        "is"
+      ],
+      [
+        "as"
+      ],
+      [
+        "a"
+      ]
+    ]
+  },
+  "pt": {
+    "kb_open": [
+      [
+        "a",
+        "base",
+        "de",
+        "conhecimento"
+      ]
+    ],
+    "kb_include": [
+      [
+        "inclui"
+      ]
+    ],
+    "contract_open": [
+      [
+        "o",
+        "contrato"
+      ]
+    ],
+    "contract_states": [
+      [
+        "estabelece",
+        "que"
+      ]
+    ],
+    "resources_include": [
+      [
+        "inclui",
+        "estes",
+        "recursos"
+      ]
+    ],
+    "scenario": [
+      [
+        "cen\xE1rio"
+      ]
+    ],
+    "query": [
+      [
+        "consulta"
+      ]
+    ],
+    "ontology": [
+      [
+        "a",
+        "ontologia",
+        "\xE9"
+      ]
+    ],
+    "predicates": [
+      [
+        "os",
+        "predicados",
+        "s\xE3o"
+      ]
+    ],
+    "templates": [
+      [
+        "os",
+        "modelos",
+        "s\xE3o"
+      ]
+    ],
+    "fluents": [
+      [
+        "os",
+        "fluentes",
+        "s\xE3o"
+      ]
+    ],
+    "events": [
+      [
+        "os",
+        "eventos",
+        "s\xE3o"
+      ]
+    ],
+    "meta_target": [
+      [
+        "a",
+        "linguagem",
+        "alvo",
+        "\xE9"
+      ]
+    ],
+    "marker": [
+      [
+        "sec\xE7\xE3o"
+      ],
+      [
+        "se\xE7\xE3o"
+      ]
+    ],
+    "marker_is": [
+      [
+        "\xE9"
+      ]
+    ],
+    "annexes": [
+      [
+        "os",
+        "anexos",
+        "\xE0",
+        "base",
+        "de",
+        "conhecimento",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "anexos",
+        "ao",
+        "contrato",
+        "s\xE3o"
+      ]
+    ],
+    "guard": [
+      [
+        "a",
+        "base",
+        "de",
+        "conhecimento"
+      ],
+      [
+        "os",
+        "predicados",
+        "s\xE3o"
+      ],
+      [
+        "a",
+        "linguagem",
+        "alvo"
+      ],
+      [
+        "os",
+        "fluentes",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "modelos",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "eventos",
+        "s\xE3o"
+      ],
+      [
+        "a",
+        "ontologia",
+        "\xE9"
+      ],
+      [
+        "o",
+        "contrato"
+      ],
+      [
+        "consulta"
+      ],
+      [
+        "cen\xE1rio"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicados"
+      ],
+      [
+        "ontologia"
+      ],
+      [
+        "linguagem"
+      ],
+      [
+        "contrato"
+      ],
+      [
+        "fluentes"
+      ],
+      [
+        "modelos"
+      ],
+      [
+        "eventos"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "espera"
+      ]
+    ],
+    "answers": [
+      [
+        "respostas"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "e",
+        "desconhecidos"
+      ]
+    ],
+    "rule": [
+      [
+        "regra"
+      ]
+    ],
+    "if": [
+      [
+        "se"
+      ]
+    ],
+    "only_if": [
+      [
+        "somente",
+        "se"
+      ],
+      [
+        "apenas",
+        "se"
+      ]
+    ],
+    "unless": [
+      [
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "salvo",
+        "se"
+      ]
+    ],
+    "and_unless": [
+      [
+        "e",
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "e",
+        "salvo",
+        "se"
+      ]
+    ],
+    "and": [
+      [
+        "e"
+      ]
+    ],
+    "or": [
+      [
+        "ou"
+      ]
+    ],
+    "either": [
+      [
+        "uma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "um",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "any_of": [
+      [
+        "alguma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "algum",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "all_of": [
+      [
+        "todas",
+        "as",
+        "seguintes"
+      ],
+      [
+        "todos",
+        "os",
+        "seguintes"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "pelo",
+        "menos",
+        "uma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "pelo",
+        "menos",
+        "um",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "one": [
+      [
+        "uma"
+      ],
+      [
+        "um"
+      ]
+    ],
+    "of": [
+      [
+        "de"
+      ]
+    ],
+    "all": [
+      [
+        "todas"
+      ],
+      [
+        "todos"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "n\xE3o",
+        "se",
+        "verifica",
+        "que"
+      ],
+      [
+        "n\xE3o",
+        "\xE9",
+        "o",
+        "caso",
+        "que"
+      ]
+    ],
+    "forall": [
+      [
+        "para",
+        "todos",
+        "os",
+        "casos",
+        "em",
+        "que"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "verifica-se",
+        "que"
+      ],
+      [
+        "\xE9",
+        "o",
+        "caso",
+        "que"
+      ]
+    ],
+    "for_case": [
+      [
+        "para",
+        "o",
+        "caso"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "\xE9",
+        "verdade",
+        "que"
+      ]
+    ],
+    "it_is": [
+      [
+        "\xE9"
+      ]
+    ],
+    "whether": [
+      [
+        "se"
+      ]
+    ],
+    "defines_global": [
+      [
+        "define",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "oposto"
+      ]
+    ],
+    "synonym": [
+      [
+        "sin\xF3nimo"
+      ],
+      [
+        "sin\xF4nimo"
+      ]
+    ],
+    "prepositional": [
+      [
+        "preposicional"
+      ],
+      [
+        "composto"
+      ],
+      [
+        "composta"
+      ]
+    ],
+    "unknown": [
+      [
+        "desconhecido"
+      ],
+      [
+        "desconhecida"
+      ],
+      [
+        "assum\xEDvel"
+      ],
+      [
+        "assumido"
+      ],
+      [
+        "assumida"
+      ]
+    ],
+    "undefined": [
+      [
+        "elemento",
+        "de",
+        "cen\xE1rio"
+      ],
+      [
+        "indefinido"
+      ],
+      [
+        "indefinida"
+      ]
+    ],
+    "article": [
+      [
+        "alguma"
+      ],
+      [
+        "algum"
+      ],
+      [
+        "umas"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "uns"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "ignorable": [
+      [
+        "tinham"
+      ],
+      [
+        "foram"
+      ],
+      [
+        "tinha"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "sido"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "foi"
+      ],
+      [
+        "tem"
+      ],
+      [
+        "t\xEAm"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "diz"
+      ],
+      [
+        "que"
+      ],
+      [
+        "se"
+      ],
+      [
+        "ou"
+      ],
+      [
+        "e"
+      ]
+    ],
+    "qualifier": [
+      [
+        "primeiro"
+      ],
+      [
+        "primeira"
+      ],
+      [
+        "terceiro"
+      ],
+      [
+        "terceira"
+      ],
+      [
+        "anterior"
+      ],
+      [
+        "original"
+      ],
+      [
+        "segundo"
+      ],
+      [
+        "segunda"
+      ],
+      [
+        "pr\xF3ximo"
+      ],
+      [
+        "pr\xF3xima"
+      ],
+      [
+        "quarto"
+      ],
+      [
+        "quarta"
+      ],
+      [
+        "quinto"
+      ],
+      [
+        "quinta"
+      ],
+      [
+        "s\xE9timo"
+      ],
+      [
+        "s\xE9tima"
+      ],
+      [
+        "oitavo"
+      ],
+      [
+        "oitava"
+      ],
+      [
+        "d\xE9cimo"
+      ],
+      [
+        "d\xE9cima"
+      ],
+      [
+        "\xFAltimo"
+      ],
+      [
+        "\xFAltima"
+      ],
+      [
+        "sexto"
+      ],
+      [
+        "sexta"
+      ],
+      [
+        "outro"
+      ],
+      [
+        "outra"
+      ],
+      [
+        "atual"
+      ],
+      [
+        "mesmo"
+      ],
+      [
+        "mesma"
+      ],
+      [
+        "\xFAnico"
+      ],
+      [
+        "\xFAnica"
+      ],
+      [
+        "nono"
+      ],
+      [
+        "nona"
+      ],
+      [
+        "novo"
+      ],
+      [
+        "nova"
+      ],
+      [
+        "dado"
+      ],
+      [
+        "dada"
+      ]
+    ],
+    "copula": [
+      [
+        "estavam"
+      ],
+      [
+        "estava"
+      ],
+      [
+        "foram"
+      ],
+      [
+        "est\xE3o"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "est\xE1"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "foi"
+      ],
+      [
+        "\xE9"
+      ]
+    ],
+    "definite_article": [
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "este"
+      ],
+      [
+        "esta"
+      ],
+      [
+        "esse"
+      ],
+      [
+        "essa"
+      ]
+    ],
+    "each": [
+      [
+        "cada"
+      ]
+    ],
+    "wh_var": [
+      [
+        "quais"
+      ],
+      [
+        "qual"
+      ]
+    ],
+    "who": [
+      [
+        "quem"
+      ]
+    ],
+    "what": [
+      [
+        "qu\xEA"
+      ]
+    ],
+    "when": [
+      [
+        "quando"
+      ]
+    ],
+    "where": [
+      [
+        "onde"
+      ]
+    ],
+    "which": [
+      [
+        "quais"
+      ],
+      [
+        "qual"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "que"
+      ],
+      [
+        "diz"
+      ]
+    ],
+    "that": [
+      [
+        "que"
+      ]
+    ],
+    "is_a": [
+      [
+        "\xE9",
+        "uma"
+      ],
+      [
+        "\xE9",
+        "um"
+      ],
+      [
+        "\xE9",
+        "de"
+      ]
+    ],
+    "sum": [
+      [
+        "soma"
+      ]
+    ],
+    "count": [
+      [
+        "contagem"
+      ]
+    ],
+    "average": [
+      [
+        "m\xE9dia"
+      ]
+    ],
+    "min": [
+      [
+        "m\xEDnimo"
+      ],
+      [
+        "m\xEDn"
+      ]
+    ],
+    "max": [
+      [
+        "m\xE1ximo"
+      ],
+      [
+        "m\xE1x"
+      ]
+    ],
+    "is_the": [
+      [
+        "\xE9",
+        "a"
+      ],
+      [
+        "\xE9",
+        "o"
+      ]
+    ],
+    "of_each": [
+      [
+        "de",
+        "cada"
+      ]
+    ],
+    "such_that": [
+      [
+        "tais",
+        "que"
+      ],
+      [
+        "tal",
+        "que"
+      ]
+    ],
+    "assuming": [
+      [
+        "assumindo"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "e"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "uma"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "dentro"
+      ],
+      [
+        "entre"
+      ],
+      [
+        "sobre"
+      ],
+      [
+        "para"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "como"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "nos"
+      ],
+      [
+        "nas"
+      ],
+      [
+        "dos"
+      ],
+      [
+        "das"
+      ],
+      [
+        "por"
+      ],
+      [
+        "com"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "que"
+      ],
+      [
+        "sob"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "em"
+      ],
+      [
+        "no"
+      ],
+      [
+        "na"
+      ],
+      [
+        "de"
+      ],
+      [
+        "do"
+      ],
+      [
+        "da"
+      ],
+      [
+        "ou"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ],
+      [
+        "e"
+      ],
+      [
+        "\xE9"
+      ]
+    ]
+  },
+  "es": {},
+  "fr": {},
+  "it": {}
+};
+var uiCatalog = {
+  "en": {},
+  "pt": {
+    "+ Add": "+ Adicionar",
+    "+ Add Query": "+ Adicionar consulta",
+    "A hands-on tutorial: write, query and debug three small LE programs.": "Um tutorial pr\xE1tico: escrever, consultar e depurar tr\xEAs pequenos programas LE.",
+    "API Keys &amp; Assistant Settings": "Chaves de API e defini\xE7\xF5es do Assistente",
+    "API Keys &amp; Assistant Settings...": "Chaves de API e defini\xE7\xF5es do Assistente...",
+    "Add condition": "Adicionar condi\xE7\xE3o",
+    "Add fact": "Adicionar facto",
+    "Add query": "Adicionar consulta",
+    "Anthropic API Key:": "Chave de API Anthropic:",
+    "Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')": "Pe\xE7a ao assistente (p.ex., 'Corrige a indenta\xE7\xE3o', 'Esbo\xE7a um programa para...')",
+    "Assistant Max Steps (1-50):": "Passos m\xE1ximos do Assistente (1-50):",
+    "Assistant Model:": "Modelo do Assistente:",
+    "Assume fact": "Assumir facto",
+    "Auto Layout": "Arranjo autom\xE1tico",
+    "Cancel": "Cancelar",
+    "Center": "Centrar",
+    "Choose a program": "Escolha um programa",
+    "Choose a program to explore.": "Escolha um programa para explorar.",
+    "Circle": "C\xEDrculo",
+    "Clone Tool": "Ferramenta de clonagem",
+    "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Ferramenta de clonagem: clique num n\xF3 para o duplicar (necess\xE1rio quando a prova usa a mesma regra mais de uma vez)",
+    "Close this panel": "Fechar este painel",
+    "Collapse All": "Recolher tudo",
+    "Continue": "Continuar",
+    "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) \u2014 retoma a execu\xE7\xE3o at\xE9 encontrar a pr\xF3xima resposta (ou a consulta terminar). Se restarem solu\xE7\xF5es, avan\xE7ar/continuar de novo explora-as.",
+    "Copy": "Copiar",
+    "Copy Answer": "Copiar resposta",
+    "Copy Explanation": "Copiar explica\xE7\xE3o",
+    "Copy Mermaid": "Copiar Mermaid",
+    "Copy Node": "Copiar n\xF3",
+    "Copy Scenario": "Copiar cen\xE1rio",
+    "Copy URL": "Copiar URL",
+    "Copy as Mermaid diagram": "Copiar como diagrama Mermaid",
+    "Copy the visible graph as a Mermaid diagram (text), pasteable into GitHub, Obsidian, mermaid.live\u2026": "Copiar o grafo vis\xEDvel como diagrama Mermaid (texto), col\xE1vel no GitHub, Obsidian, mermaid.live\u2026",
+    "Custom Query:": "Consulta personalizada:",
+    "Custom Scenario Facts:": "Factos de cen\xE1rio personalizados:",
+    "Cut": "Cortar",
+    "Dagre (Hierarchical)": "Dagre (hier\xE1rquico)",
+    "Dark": "Escuro",
+    "Dark Theme": "Tema escuro",
+    "Detailed failure explanations (per-rule nodes)": "Explica\xE7\xF5es de falha detalhadas (n\xF3s por regra)",
+    "Direction": "Dire\xE7\xE3o",
+    "ELK (Layered)": "ELK (em camadas)",
+    "Edge Types": "Tipos de arestas",
+    "Edit": "Editar",
+    "Edit Queries\u2026": "Editar consultas\u2026",
+    "Edit Scenarios\u2026": "Editar cen\xE1rios\u2026",
+    "Enter facts here...": "Escreva factos aqui...",
+    "Enter query here...": "Escreva a consulta aqui...",
+    "Expand All": "Expandir tudo",
+    "Explanation Drill": "Explora\xE7\xE3o da explica\xE7\xE3o",
+    "Explanation Drill\u2026": "Explora\xE7\xE3o da explica\xE7\xE3o\u2026",
+    "Explanations Preferences": "Prefer\xEAncias das explica\xE7\xF5es",
+    "File": "Ficheiro",
+    "Filter programs": "Filtrar programas",
+    "Filter\u2026": "Filtrar\u2026",
+    "Find": "Procurar",
+    "Fit View": "Ajustar vista",
+    "Fit to Screen": "Ajustar ao ecr\xE3",
+    "Go to full sub-explanation": "Ir para a sub-explica\xE7\xE3o completa",
+    "Google API Key:": "Chave de API Google:",
+    "Grid": "Grelha",
+    "Groq API Key:": "Chave de API Groq:",
+    "Help": "Ajuda",
+    "Hide repeated explanations": "Ocultar explica\xE7\xF5es repetidas",
+    "High Contrast": "Alto contraste",
+    "Home": "In\xEDcio",
+    "Horizontal (L\u2192R)": "Horizontal (E\u2192D)",
+    "Insert into Editor": "Inserir no editor",
+    "Interrupt": "Interromper",
+    "Introduction to Logical English (tutorial)": "Introdu\xE7\xE3o ao Logical English (tutorial)",
+    "Keys and preferences are stored in your browser's local storage.": "As chaves e prefer\xEAncias ficam guardadas no armazenamento local do seu navegador.",
+    "LE Debugger": "Depurador LE",
+    "LE Proof Game": "Jogo da Prova LE",
+    "Large": "Grande",
+    "Layout": "Arranjo",
+    "Light": "Claro",
+    "Light Mode": "Modo leve",
+    "Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).": "O Modo leve corre um ciclo Prolog r\xE1pido em processo. Desmarque para o Modo profundo (agente opencode completo com ficheiros/web/terminal).",
+    "Light Theme": "Tema claro",
+    "Load": "Carregar",
+    "Loading models...": "A carregar modelos...",
+    "Logical English": "Logical English",
+    "Logical English syntax (reference)": "Sintaxe do Logical English (refer\xEAncia)",
+    "Medium": "M\xE9dio",
+    "Misc": "Diversos",
+    "Name": "Nome",
+    "New": "Novo",
+    "New from URL": "Novo a partir de URL",
+    "New from URL...": "Novo a partir de URL...",
+    "Node Types": "Tipos de n\xF3s",
+    "None": "Nenhum",
+    "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Varia\xE7\xF5es de Cen\xE1rio: altere o cen\xE1rio selecionado e corra uma ou mais consultas sobre a varia\xE7\xE3o, numa janela separada",
+    "Open copy from server...": "Abrir c\xF3pia do servidor...",
+    "Open from Server": "Abrir do servidor",
+    "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Abrir o Jogo da Prova: construa interativamente uma prova da consulta selecionada ligando os seus factos e regras",
+    "Open...": "Abrir...",
+    "OpenAI API Key:": "Chave de API OpenAI:",
+    "PROLOG Equivalent": "Equivalente PROLOG",
+    "Paste": "Colar",
+    "Patch scenario": "Ajustar cen\xE1rio",
+    "Predicates Legend": "Legenda de predicados",
+    "Preferences...": "Prefer\xEAncias...",
+    "Prefix for failed nodes:": "Prefixo para n\xF3s falhados:",
+    "Proof Game": "Jogo da Prova",
+    "Query": "Consulta",
+    "Query Editor": "Editor de consultas",
+    "Query:": "Consulta:",
+    "Redraw from here": "Redesenhar a partir daqui",
+    "Refresh": "Atualizar",
+    "Replace": "Substituir",
+    "Save": "Guardar",
+    "Save As...": "Guardar como...",
+    "Scenario": "Cen\xE1rio",
+    "Scenario Editor": "Editor de cen\xE1rios",
+    "Scenario Variations": "Varia\xE7\xF5es de cen\xE1rio",
+    "Scenario:": "Cen\xE1rio:",
+    "Search nodes...": "Procurar n\xF3s...",
+    "Select a query...": "Selecione uma consulta...",
+    "Select a scenario...": "Selecione um cen\xE1rio...",
+    "Send": "Enviar",
+    "Send command to the LE Assistant": "Enviar comando ao Assistente LE",
+    "Show Proof": "Mostrar prova",
+    "Show important reason": "Mostrar raz\xE3o importante",
+    "Small": "Pequeno",
+    "Step": "Avan\xE7ar",
+    "Step (F11) \u2014 advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avan\xE7ar (F11) \u2014 avan\xE7a um passo at\xE9 ao pr\xF3ximo objetivo a provar. A pilha de chamadas e o painel VARI\xC1VEIS atualizam-se com a nova posi\xE7\xE3o e as liga\xE7\xF5es feitas at\xE9 a\xED.",
+    "Stop": "Parar",
+    "Stop \u2014 end the trace and detach the debugger. The query keeps running to completion in the background.": "Parar \u2014 termina o rastreio e desliga o depurador. A consulta continua a correr at\xE9 ao fim em segundo plano.",
+    "The editor manual: files, queries, scenario/query editors, explanations.": "O manual do editor: ficheiros, consultas, editores de cen\xE1rios/consultas, explica\xE7\xF5es.",
+    "The language reference: every LE construct.": "A refer\xEAncia da linguagem: todas as constru\xE7\xF5es LE.",
+    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Este prefixo \xE9 anteposto aos n\xF3s falhados ao copiar explica\xE7\xF5es para texto simples ou HTML.",
+    "Together API Key:": "Chave de API Together:",
+    "Trace": "Rastrear",
+    "Type Hierarchy": "Hierarquia de tipos",
+    "URL of a Logical English program:": "URL de um programa Logical English:",
+    "Using this editor (manual)": "Usar este editor (manual)",
+    "Vertical (T\u2192B)": "Vertical (C\u2192B)",
+    "View Source Graph": "Ver grafo do programa",
+    "Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab": "Visualizar os modelos, regras, factos, cen\xE1rios e consultas do programa como um grafo de depend\xEAncias, num novo separador",
+    "When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).": "Quando ativo (predefini\xE7\xE3o), uma sub-explica\xE7\xE3o que ocorre v\xE1rias vezes numa explica\xE7\xE3o \xE9 mostrada uma vez com a sua contagem. Desative para ver todas as ocorr\xEAncias por extenso (\xE1rvores maiores).",
+    "When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.": "Quando ativo, um predicado falhado com v\xE1rias regras mostra um n\xF3 interm\xE9dio por regra (naveg\xE1vel at\xE9 \xE0 regra), com os sub-objetivos falhados por baixo. Mais lento; desativado por predefini\xE7\xE3o.",
+    "Zoom In": "Ampliar",
+    "Zoom Out": "Reduzir",
+    "and": "e",
+    "fCoSE (Default)": "fCoSE (predefini\xE7\xE3o)",
+    "not": "n\xE3o",
+    "or": "ou",
+    "query name": "nome da consulta",
+    "scenario name": "nome do cen\xE1rio",
+    "Are you sure you want to miss the excitement of finding the proof yourself?": "Tem a certeza de que quer perder a emo\xE7\xE3o de encontrar a prova por si mesmo?",
+    "No proof found for this query.": "Nenhuma prova encontrada para esta consulta.",
+    "(empty)": "(vazio)",
+    "A query name must be a single word or number (no spaces).": "O nome de uma consulta tem de ser uma \xFAnica palavra ou n\xFAmero (sem espa\xE7os).",
+    "A scenario name must be a single word (no spaces).": "O nome de um cen\xE1rio tem de ser uma \xFAnica palavra (sem espa\xE7os).",
+    "Accept?": "Aceitar?",
+    "Add a query first.": "Adicione primeiro uma consulta.",
+    "Add at least one condition to the query.": "Adicione pelo menos uma condi\xE7\xE3o \xE0 consulta.",
+    "Another...": "Outra...",
+    "Answer the highlighted question, or revise an earlier one.": "Responda \xE0 pergunta destacada, ou reveja uma anterior.",
+    "Click to show this in the editor": "Clique para mostrar no editor",
+    "Configure an LLM model first: in the main editor, Misc \u2192 API Keys\u2026": "Configure primeiro um modelo LLM: no editor principal, Diversos \u2192 Chaves de API\u2026",
+    "Connecting to debugger...": "A ligar ao depurador...",
+    "Copied to clipboard": "Copiado para a \xE1rea de transfer\xEAncia",
+    "Copied!": "Copiado!",
+    "Copied": "Copiado",
+    "Copy URL is only available for existing examples.": "Copiar URL s\xF3 est\xE1 dispon\xEDvel para exemplos existentes.",
+    "Copy the query text:": "Copie o texto da consulta:",
+    "Copy the scenario text:": "Copie o texto do cen\xE1rio:",
+    "Could not load the program on the server.": "N\xE3o foi poss\xEDvel carregar o programa no servidor.",
+    "Could not reach the server.": "N\xE3o foi poss\xEDvel contactar o servidor.",
+    "Debugger connected. Initializing...": "Depurador ligado. A inicializar...",
+    "Debugger disconnected.": "Depurador desligado.",
+    "Delete condition": "Eliminar condi\xE7\xE3o",
+    "Delete this question": "Eliminar esta pergunta",
+    "Delete": "Eliminar",
+    "Discard unsaved changes and load the selected query?": "Descartar altera\xE7\xF5es n\xE3o guardadas e carregar a consulta selecionada?",
+    "Discard unsaved changes and load the selected scenario?": "Descartar altera\xE7\xF5es n\xE3o guardadas e carregar o cen\xE1rio selecionado?",
+    "Done": "Conclu\xEDdo",
+    "Download": "Transferir",
+    "Error connecting to server for game data.": "Erro ao ligar ao servidor para obter os dados do jogo.",
+    "Error executing query.": "Erro ao executar a consulta.",
+    "Error loading module: ": "Erro ao carregar o m\xF3dulo: ",
+    "Error: ": "Erro: ",
+    "Explanation": "Explica\xE7\xE3o",
+    "Failed to get game data from server.": "Falha ao obter os dados do jogo do servidor.",
+    "Failed to load example from server.": "Falha ao carregar o exemplo do servidor.",
+    "Generate": "Gerar",
+    "Generating and verifying\u2026": "A gerar e verificar\u2026",
+    "Indent (nest this condition to bind tighter)": "Indentar (aninhar esta condi\xE7\xE3o para ligar mais estreitamente)",
+    "Insert anyway": "Inserir mesmo assim",
+    "Inserted into editor": "Inserido no editor",
+    "Interrupting\u2026": "A interromper\u2026",
+    "Loading module on server...": "A carregar o m\xF3dulo no servidor...",
+    "Loading\u2026": "A carregar\u2026",
+    "Mermaid diagram copied to clipboard": "Diagrama Mermaid copiado para a \xE1rea de transfer\xEAncia",
+    "New query": "Nova consulta",
+    "New scenario": "Novo cen\xE1rio",
+    "New\u2026": "Novo\u2026",
+    "No answers (false)": "Sem respostas (falso)",
+    "No conditions yet \u2014 pick a template below and click \u201CAdd\u201D.": "Ainda sem condi\xE7\xF5es \u2014 escolha um modelo abaixo e clique em \u201CAdicionar\u201D.",
+    "No explanation to drill.": "Nenhuma explica\xE7\xE3o para explorar.",
+    "No facts yet \u2014 pick a template below and click \u201CAdd\u201D.": "Ainda sem factos \u2014 escolha um modelo abaixo e clique em \u201CAdicionar\u201D.",
+    "No model configured": "Nenhum modelo configurado",
+    "No results returned.": "Nenhum resultado devolvido.",
+    "No variables for this call.": "Sem vari\xE1veis nesta chamada.",
+    "Node copied to clipboard": "N\xF3 copiado para a \xE1rea de transfer\xEAncia",
+    "Nothing else to show. Feel free to alter your choices above.": "Nada mais a mostrar. Pode alterar as escolhas acima.",
+    "Please enter a custom query.": "Introduza uma consulta personalizada.",
+    "Please give the query a name.": "D\xEA um nome \xE0 consulta.",
+    "Please give the scenario a name.": "D\xEA um nome ao cen\xE1rio.",
+    "Please select a query for the Proof Game.": "Selecione uma consulta para o Jogo da Prova.",
+    "Please select a query.": "Selecione uma consulta.",
+    "Please wait for the module to load.": "Aguarde o carregamento do m\xF3dulo.",
+    "Progress": "Progresso",
+    "Query failed.": "A consulta falhou.",
+    "Query finished.": "Consulta terminada.",
+    "Query interrupted.": "Consulta interrompida.",
+    "Ready": "Pronto",
+    "Regenerate": "Regenerar",
+    "Remove query": "Remover consulta",
+    "Results": "Resultados",
+    "Running queries\u2026": "A correr consultas\u2026",
+    "Scenario copied to clipboard": "Cen\xE1rio copiado para a \xE1rea de transfer\xEAncia",
+    "Write it in English": "Escreva em Portugu\xEAs",
+    "Write it in English\u2026": "Escreva em Portugu\xEAs\u2026",
+    "You have unsaved changes. Create new file anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Criar um ficheiro novo mesmo assim?",
+    "You have unsaved changes. Load from URL anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Carregar do URL mesmo assim?",
+    "You have unsaved changes. Open another file anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Abrir outro ficheiro mesmo assim?",
+    "You have unsaved changes. Open from server anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Abrir do servidor mesmo assim?",
+    "the LLM request failed.": "o pedido ao LLM falhou.",
+    "Important reason: ": "Raz\xE3o importante: ",
+    "repeated sub-explanations": "sub-explica\xE7\xF5es repetidas",
+    "assumed": "assumido",
+    "FAIL": "FALHA",
+    "STOP": "PARAR",
+    "Unindent": "Desindentar",
+    "Language": "L\xEDngua",
+    "Answers": "Respostas",
+    "Unknowns": "Desconhecidos",
+    "Scenarios": "Cen\xE1rios",
+    "Queries": "Consultas",
+    "Templates": "Modelos",
+    "Run": "Correr",
+    "Back": "Voltar",
+    "Question": "Pergunta",
+    "Logged in as: ": "Sess\xE3o iniciada como: ",
+    "Login": "Iniciar sess\xE3o",
+    "Logout": "Terminar sess\xE3o",
+    "Login Failed": "Falha no in\xEDcio de sess\xE3o",
+    "Invalid email or password.": "Email ou palavra-passe inv\xE1lidos.",
+    "Try again": "Tentar novamente",
+    "Edit and Query: ": "Editar e consultar: ",
+    "[New Document]": "[Novo documento]",
+    "expand all": "expandir tudo",
+    "collapse all": "recolher tudo",
+    "[show all]": "[mostrar tudo]",
+    "Just run a program: ": "Apenas correr um programa: ",
+    "[Executive view]": "[Vista executiva]",
+    "A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer \u2014 no editing.": "Uma forma minimalista e amiga do telem\xF3vel de escolher um programa, um cen\xE1rio e uma pergunta, e ver a resposta \u2014 sem edi\xE7\xE3o.",
+    "GitHub Repository": "Reposit\xF3rio GitHub",
+    "Documentation": "Documenta\xE7\xE3o",
+    "A Gentle Introduction to Logical English 2": "Uma introdu\xE7\xE3o suave ao Logical English 2",
+    "How to use the LE2 web application": "Como usar a aplica\xE7\xE3o web LE2",
+    "Logical English syntax summary": "Resumo da sintaxe do Logical English",
+    "Test Suite": "Bateria de testes",
+    "Run All Tests": "Correr todos os testes",
+    "Email: ": "Email: ",
+    "Password: ": "Palavra-passe: ",
+    "Start here: a hands-on tutorial that builds three small programs \u2014 a tea party, a flying dragon, and a slice of British nationality law \u2014 teaching how to write, query and debug LE in the editor.": "Comece aqui: um tutorial pr\xE1tico que constr\xF3i tr\xEAs pequenos programas \u2014 uma festa de ch\xE1, um drag\xE3o voador e um peda\xE7o da lei de nacionalidade brit\xE2nica \u2014 ensinando a escrever, consultar e depurar LE no editor.",
+    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cen\xE1rios e consultas, varia\xE7\xF5es de cen\xE1rio e a leitura das \xE1rvores de explica\xE7\xE3o.",
+    "The language reference: every construct \u2014 templates, rules, operators, aggregates, variables and types, dates, ontology, extensions \u2014 for looking things up as you write.": "A refer\xEAncia da linguagem: todas as constru\xE7\xF5es \u2014 modelos, regras, operadores, agrega\xE7\xF5es, vari\xE1veis e tipos, datas, ontologia, extens\xF5es \u2014 para consultar enquanto escreve."
+  },
+  "es": {},
+  "fr": {},
+  "it": {}
+};
+var languages = [
+  {
+    "code": "en",
+    "autonym": "Logical English",
+    "opener": "the target language is",
+    "decimalSep": ".",
+    "thousandsSep": ",",
+    "listSep": ",",
+    "status": "core"
+  },
+  {
+    "code": "pt",
+    "autonym": "Portugu\xEAs L\xF3gico",
+    "opener": "a linguagem alvo \xE9",
+    "decimalSep": ",",
+    "thousandsSep": ".",
+    "listSep": ",",
+    "status": "pilot"
+  }
+];
+
+// src/i18n.ts
+var STORAGE_KEY = "le-ui-lang";
+var COOKIE_KEY = "le_ui_lang";
+function uiLang() {
+  try {
+    const l = localStorage.getItem(STORAGE_KEY);
+    if (l && languages.some((x) => x.code === l))
+      return l;
+  } catch (e) {
+  }
+  return "en";
+}
+function setUiLang(lang) {
+  try {
+    localStorage.setItem(STORAGE_KEY, lang);
+  } catch (e) {
+  }
+  document.cookie = `${COOKIE_KEY}=${lang};path=/;max-age=31536000;SameSite=Lax`;
+}
+function t(key) {
+  const lang = uiLang();
+  if (lang === "en")
+    return key;
+  const cat = uiCatalog[lang];
+  return cat && cat[key] || key;
+}
+function detectProgramLanguage(text) {
+  const lines = text.split("\n");
+  let firstStatement = "";
+  let inBlockComment = false;
+  for (const line of lines) {
+    let s = line.trim();
+    if (inBlockComment) {
+      const end = s.indexOf("*/");
+      if (end === -1)
+        continue;
+      s = s.slice(end + 2).trim();
+      inBlockComment = false;
+    }
+    if (s.startsWith("/*")) {
+      const end = s.indexOf("*/");
+      if (end === -1) {
+        inBlockComment = true;
+        continue;
+      }
+      s = s.slice(end + 2).trim();
+    }
+    if (!s || s.startsWith("%"))
+      continue;
+    firstStatement = s;
+    break;
+  }
+  const norm = firstStatement.toLowerCase().replace(/\s+/g, " ");
+  for (const info of languages) {
+    if (info.opener && norm.startsWith(info.opener.toLowerCase()))
+      return info.code;
+  }
+  return "en";
+}
+function targetLanguageStatement(lang) {
+  const code = lang ?? uiLang();
+  const info = languages.find((x) => x.code === code) ?? languages.find((x) => x.code === "en");
+  return `${info ? info.opener : "the target language is"}: prolog.`;
+}
+function kwTable(lang) {
+  return keywords[lang] ?? keywords["en"];
+}
+var AUTO_SELECTOR = [
+  "button",
+  "label",
+  "option",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "th",
+  "summary",
+  "legend",
+  ".dropdown-item",
+  ".menu-item",
+  "[data-i18n]"
+].join(",");
+function translateFirstTextNode(el) {
+  for (const node of Array.from(el.childNodes)) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const raw = node.textContent ?? "";
+      const trimmed = raw.trim();
+      if (trimmed) {
+        const tr = t(trimmed);
+        if (tr !== trimmed)
+          node.textContent = raw.replace(trimmed, tr);
+        return;
+      }
+    }
+  }
+}
+function applyI18nDom(root = document) {
+  if (uiLang() === "en")
+    return;
+  root.querySelectorAll(AUTO_SELECTOR).forEach((el) => translateFirstTextNode(el));
+  root.querySelectorAll("[title]").forEach((el) => {
+    const v = el.getAttribute("title");
+    if (v) {
+      const tr = t(v.trim());
+      if (tr !== v.trim())
+        el.setAttribute("title", tr);
+    }
+  });
+  root.querySelectorAll("[placeholder]").forEach((el) => {
+    const v = el.getAttribute("placeholder");
+    if (v) {
+      const tr = t(v.trim());
+      if (tr !== v.trim())
+        el.setAttribute("placeholder", tr);
+    }
+  });
+}
+function installLeApiLang() {
+  if (uiLang() === "en")
+    return;
+  const origFetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    try {
+      const url = typeof input === "string" ? input : input.url ?? String(input);
+      if (/^\/(leapi|query|verify|list_examples|example_details)\b/.test(url) && !/[?&]lang=/.test(url)) {
+        const sep = url.includes("?") ? "&" : "?";
+        const newUrl = `${url}${sep}lang=${encodeURIComponent(uiLang())}`;
+        if (typeof input === "string")
+          return origFetch(newUrl, init);
+        return origFetch(new Request(newUrl, input), init);
+      }
+    } catch (e) {
+    }
+    return origFetch(input, init);
+  };
+}
+function buildLanguageMenuItems(container) {
+  const current = uiLang();
+  for (const info of languages) {
+    const item = document.createElement("div");
+    item.className = "dropdown-item";
+    item.textContent = (info.code === current ? "\u2713 " : "") + (info.autonym || info.code);
+    item.addEventListener("click", () => {
+      setUiLang(info.code);
+      location.reload();
+    });
+    container.appendChild(item);
+  }
+}
+
 // src/le-language.ts
 var leLanguageConfiguration = {
   comments: {
@@ -26,87 +2217,138 @@ var leLanguageConfiguration = {
     { open: "*", close: "*" }
   ]
 };
-var leMonarchTokens = {
-  tokenizer: {
-    root: [
-      // Section headers
-      [/the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/, { token: "keyword.header", next: "@templates" }],
-      [/the[ \t]+knowledge[ \t]+base|the[ \t]+contract|scenario|query|the[ \t]+ontology|the[ \t]+target[ \t]+language/, "keyword.header"],
-      // Structural Keywords
-      [/\b(includes\s+these\s+resources|includes|if|either|any\s+of|all\s+of|unless|for\s+all\s+cases\s+in\s+which|it\s+is\s+the\s+case\s+that|it\s+is\s+not\s+the\s+case\s+that|not\s+the\s+case\s+that|it\s+is\s+(?:unknown|assumed|assumable)\s+whether|says\s+that|sum|count|average|min|max|such\s+that)\b/, "keyword"],
-      [/^\s*(and|or)\b/, "keyword"],
-      [/\b(which|what)\s+[a-zA-Z]\w*/, "variable"],
-      [/\bexpects answers\b/, "keyword.expects"],
-      // Template words (verbs followed by articles/prepositions)
-      // This prevents "is a parent" from matching the variable rule for "a parent"
-      [/\b(is|are|was|were|has|have|had|does|do|did)\s+(a|an|the|of|in|on|at|to|from|for|with|by)\b/, "templateWord"],
-      // Variables (a/an/the/each/some/which/what + word(s))
-      [/\b(a|an|the|each|some|which|what)\s+(?:(?:other|another|third|fourth|fifth)\s+)?([a-zA-Z]\w*)\b/, "variable"],
-      // Standalone Template words
-      [/\b(is|are|was|were|has|have|had|does|do|did|should|must|can|could|may|might|will|would|says|said|that)\b/, "templateWord"],
-      [/\b(of|in|on|at|to|from|for|with|by|about|between|through|during|before|after|above|below|under|over|again|further|then|there)\b/, "templateWord"],
-      // Standalone IDs / Variables (Capitalized)
-      [/\b[A-Z][A-Z0-9_]*\b/, "variable"],
-      // Variables in *...*
-      [/\*[^*]+\*/, "variable"],
-      // Catch-all for words to prevent partial keyword matching. A word may
-      // include a single apostrophe (e.g. "employers'", "don't") so a lone
-      // apostrophe does not start a string and mis-colour the rest of the line.
-      [/[a-zA-Z_]\w*(?:'\w*)?/, "text"],
-      // Strings
-      [/"([^"\\]|\\.)*$/, "string.invalid"],
-      // non-teminated string
-      [/'([^'\\]|\\.)*$/, "string.invalid"],
-      // non-teminated string
-      [/"/, { token: "string.quote", bracket: "@open", next: "@string_double" }],
-      [/'/, { token: "string.quote", bracket: "@open", next: "@string_single" }],
-      // Dates (must precede the looser number rule, else "2021-10-09" is
-      // tokenised as "2021" + stray "-10-09").
-      [/\d{4}-\d{2}-\d{2}/, "number.date"],
-      // Numbers
-      [/\d+(\.\d+)?/, "number"],
-      // Comments
-      [/%.*$/, "comment"],
-      [/\/\*/, "comment", "@comment"],
-      // Punctuation
-      [/[{}()\[\]]/, "@brackets"],
-      [/[<>!=]=?/, "operator"],
-      [/[.,:]/, "delimiter"]
-    ],
-    templates: [
-      // Template additions must come first so 'scenario element' is matched
-      // before the keyword.header rule sees the bare word 'scenario'.
-      [/scenario\s+element/, "keyword.addition"],
-      [/defines\s+global/, "keyword.addition"],
-      [/\b(opposite|synonym|prepositional|composite|assumable|assumed|unknown|undefined)\b/, "keyword.addition"],
-      [/the[ \t]+knowledge[ \t]+base|the[ \t]+contract|scenario|query|the[ \t]+ontology|the[ \t]+target[ \t]+language/, { token: "keyword.header", next: "@pop" }],
-      [/\*[^*]+\*/, "variable"],
-      [/%.*$/, "comment"],
-      [/\/\*/, "comment", "@comment"],
-      [/[.,;]/, "delimiter"],
-      [/\b(is|are|has|have|was|were|been|does|do|did)\b/, "text"],
-      [/[a-zA-Z_]\w*(?:'\w*)?/, "text"],
-      [/./, "text"]
-    ],
-    comment: [
-      [/[^\/*]+/, "comment"],
-      [/\/\*/, "comment", "@push"],
-      // nested comment
-      ["\\*/", "comment", "@pop"],
-      [/[\/*]/, "comment"]
-    ],
-    string_double: [
-      [/[^\\"]+/, "string"],
-      [/\\./, "string.escape"],
-      [/"/, { token: "string.quote", bracket: "@close", next: "@pop" }]
-    ],
-    string_single: [
-      [/[^\\']+/, "string"],
-      [/\\./, "string.escape"],
-      [/'/, { token: "string.quote", bracket: "@close", next: "@pop" }]
-    ]
+function esc(w) {
+  return w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function phraseRe(words2) {
+  return words2.map(esc).join("[ \\t]+");
+}
+function alt(table, keys) {
+  const phrases = [];
+  for (const key of keys) {
+    for (const syn of table[key] ?? [])
+      phrases.push(syn);
   }
-};
+  phrases.sort((a, b) => b.join(" ").length - a.join(" ").length);
+  return phrases.map(phraseRe).join("|");
+}
+function words(table, keys) {
+  const ws = /* @__PURE__ */ new Set();
+  for (const key of keys) {
+    for (const syn of table[key] ?? []) {
+      if (syn.length === 1)
+        ws.add(syn[0]);
+    }
+  }
+  return [...ws].sort((a, b) => b.length - a.length).map(esc).join("|");
+}
+function buildLeMonarchTokens(lang) {
+  const T = kwTable(lang);
+  const W = "[A-Za-z\xC0-\xD6\xD8-\xF6\xF8-\xFF0-9_]";
+  const b = (re) => `(?<!${W})(?:${re})(?!${W})`;
+  const headers = alt(T, ["kb_open", "contract_open", "scenario", "query", "ontology", "meta_target"]);
+  const templateHeaders = alt(T, ["predicates", "templates", "fluents", "events"]);
+  const structural = alt(T, [
+    "resources_include",
+    "kb_include",
+    "if",
+    "only_if",
+    "either",
+    "any_of",
+    "all_of",
+    "at_least_one_of",
+    "unless",
+    "and_unless",
+    "forall",
+    "it_the_case",
+    "not_the_case",
+    "such_that",
+    "sum",
+    "count",
+    "average",
+    "min",
+    "max",
+    "marker"
+  ]);
+  const expects = alt(T, ["expects"]) && `(?:${alt(T, ["expects"])})[ \\t]+(?:${alt(T, ["answers"])})`;
+  const andOr = words(T, ["and", "or"]);
+  const articles = words(T, ["article", "each", "wh_var"]);
+  const qualifiers = words(T, ["qualifier"]);
+  const copulas = words(T, ["copula", "ignorable", "meta_marker", "that"]);
+  const preps = words(T, ["connective_heuristic", "of"]);
+  const additions = alt(T, ["defines_global", "opposite", "synonym", "prepositional", "unknown", "undefined"]);
+  return {
+    tokenizer: {
+      root: [
+        // Section headers
+        [new RegExp(`(?:${templateHeaders}):`), { token: "keyword.header", next: "@templates" }],
+        [new RegExp(b(headers)), "keyword.header"],
+        // Structural keywords
+        [new RegExp(b(structural)), "keyword"],
+        [new RegExp(`^\\s*(?:${andOr})(?!${W})`), "keyword"],
+        [new RegExp(b(expects)), "keyword.expects"],
+        // Template words (copula followed by article/preposition) —
+        // prevents "is a parent" matching the variable rule
+        [new RegExp(`${b(copulas)}[ \\t]+${b(preps)}`), "templateWord"],
+        // Variables (article/each/which + optional qualifier + word)
+        [new RegExp(`${b(articles)}[ \\t]+(?:(?:${qualifiers})[ \\t]+)?(${W}+)(?!${W})`), "variable"],
+        // Standalone template words
+        [new RegExp(b(copulas)), "templateWord"],
+        [new RegExp(b(preps)), "templateWord"],
+        // Standalone IDs / Variables (Capitalized)
+        [/\b[A-Z][A-Z0-9_]*\b/, "variable"],
+        // Variables in *...*
+        [/\*[^*]+\*/, "variable"],
+        // Catch-all for words (may include a single apostrophe)
+        [new RegExp(`${W}+(?:'${W}*)?`), "text"],
+        // Strings
+        [/"([^"\\]|\\.)*$/, "string.invalid"],
+        [/'([^'\\]|\\.)*$/, "string.invalid"],
+        [/"/, { token: "string.quote", bracket: "@open", next: "@string_double" }],
+        [/'/, { token: "string.quote", bracket: "@open", next: "@string_single" }],
+        // Dates before numbers
+        [/\d{4}-\d{2}-\d{2}/, "number.date"],
+        // Numbers (both . and , accepted as decimal separator visually)
+        [/\d+([.,]\d+)?/, "number"],
+        // Comments
+        [/%.*$/, "comment"],
+        [/\/\*/, "comment", "@comment"],
+        // Punctuation
+        [/[{}()\[\]]/, "@brackets"],
+        [/[<>!=]=?/, "operator"],
+        [/[.,:]/, "delimiter"]
+      ],
+      templates: [
+        [new RegExp(b(additions)), "keyword.addition"],
+        [new RegExp(b(headers)), { token: "keyword.header", next: "@pop" }],
+        [/\*[^*]+\*/, "variable"],
+        [/%.*$/, "comment"],
+        [/\/\*/, "comment", "@comment"],
+        [/[.,;]/, "delimiter"],
+        [new RegExp(b(copulas)), "text"],
+        [new RegExp(`${W}+(?:'${W}*)?`), "text"],
+        [/./, "text"]
+      ],
+      comment: [
+        [/[^\/*]+/, "comment"],
+        [/\/\*/, "comment", "@push"],
+        ["\\*/", "comment", "@pop"],
+        [/[\/*]/, "comment"]
+      ],
+      string_double: [
+        [/[^\\"]+/, "string"],
+        [/\\./, "string.escape"],
+        [/"/, { token: "string.quote", bracket: "@close", next: "@pop" }]
+      ],
+      string_single: [
+        [/[^\\']+/, "string"],
+        [/\\./, "string.escape"],
+        [/'/, { token: "string.quote", bracket: "@close", next: "@pop" }]
+      ]
+    }
+  };
+}
+var leMonarchTokens = buildLeMonarchTokens("en");
 
 // src/le-templates.ts
 function scanBlocks(source, headerRe) {
@@ -129,13 +2371,13 @@ function scanBlocks(source, headerRe) {
     let lastContent = i;
     while (j < lines.length) {
       const ln = lines[j];
-      const t = ln.trim();
-      if (t === "") {
+      const t2 = ln.trim();
+      if (t2 === "") {
         bodyLines.push(ln);
         j++;
         continue;
       }
-      if (t.startsWith("%")) {
+      if (t2.startsWith("%")) {
         bodyLines.push(ln);
         lastContent = j;
         j++;
@@ -179,11 +2421,11 @@ function splitFacts(bodyLines) {
   const facts = [];
   let cur = "";
   for (const raw of bodyLines) {
-    const t = stripInlineComment(raw).trim();
-    if (t === "")
+    const t2 = stripInlineComment(raw).trim();
+    if (t2 === "")
       continue;
-    cur = cur ? cur + " " + t : t;
-    if (t.endsWith(".")) {
+    cur = cur ? cur + " " + t2 : t2;
+    if (t2.endsWith(".")) {
       facts.push(cur.replace(/\.\s*$/, "").trim());
       cur = "";
     }
@@ -194,7 +2436,7 @@ function splitFacts(bodyLines) {
 }
 
 // src/mermaid-export.ts
-function esc(label) {
+function esc2(label) {
   return String(label ?? "").replace(/"/g, "#quot;").replace(/\s+/g, " ").trim();
 }
 function explanationToMermaid(why) {
@@ -208,7 +2450,7 @@ function explanationToMermaid(why) {
       label += typeof c === "number" && c > 1 ? ` (${c} repeated sub-explanations)` : " (repeated)";
     }
     const cls = node?.type === "failure" ? "failure" : node?.type === "unknown" ? "unknown" : "success";
-    lines.push(`    ${id}["${esc(label)}"]:::${cls}`);
+    lines.push(`    ${id}["${esc2(label)}"]:::${cls}`);
     if (parentId)
       lines.push(`    ${parentId} --> ${id}`);
     (node?.children ?? []).forEach((child) => emit(child, id));
@@ -368,7 +2610,7 @@ var ExplanationView = class {
     children.style.display = "block";
     const toggle = container.querySelector(":scope > .tree-label > .tree-toggle");
     if (toggle)
-      toggle.textContent = "-";
+      toggle.textContent = t("-");
     const path = container.dataset.path;
     if (path)
       this.currentExpansion?.set(path, true);
@@ -391,7 +2633,7 @@ var ExplanationView = class {
           item.classList.add("has-unknowns");
           const marker = document.createElement("span");
           marker.className = "unknowns-marker";
-          marker.textContent = "?";
+          marker.textContent = t("?");
           item.appendChild(marker);
           this.attachAnswerTooltip(item, unknowns);
         }
@@ -411,7 +2653,7 @@ var ExplanationView = class {
       const item = document.createElement("div");
       item.className = "answer-item failure selected";
       item.style.color = "#f48771";
-      item.textContent = "No answers (false)";
+      item.textContent = t("No answers (false)");
       item.addEventListener("click", () => {
         answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
         item.classList.add("selected");
@@ -423,13 +2665,13 @@ var ExplanationView = class {
       this.renderExplanation(res.why);
       this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
     } else if (res && res.interrupted) {
-      answersList.textContent = "Query interrupted.";
+      answersList.textContent = t("Query interrupted.");
       this.setStrongestReason();
     } else if (res && res.error) {
-      answersList.textContent = "Error: " + res.error;
+      answersList.textContent = t("Error: ") + res.error;
       this.setStrongestReason();
     } else {
-      answersList.textContent = "No results returned.";
+      answersList.textContent = t("No results returned.");
       this.setStrongestReason();
     }
   }
@@ -593,7 +2835,7 @@ var ExplanationView = class {
         const ownerLabel = parent.previousElementSibling;
         const toggle = ownerLabel?.querySelector(".tree-toggle");
         if (toggle)
-          toggle.textContent = "-";
+          toggle.textContent = t("-");
         const ownerPath = parent.parentElement?.dataset.path;
         if (ownerPath)
           this.currentExpansion?.set(ownerPath, true);
@@ -747,7 +2989,20 @@ async function start() {
   }
   monaco.languages.register({ id: "le" });
   monaco.languages.setLanguageConfiguration("le", leLanguageConfiguration);
-  monaco.languages.setMonarchTokensProvider("le", leMonarchTokens);
+  let monarchLang = "en";
+  monaco.languages.setMonarchTokensProvider("le", buildLeMonarchTokens(monarchLang));
+  const syncEditorLanguage = (text) => {
+    const lang = detectProgramLanguage(text);
+    if (lang !== monarchLang) {
+      monarchLang = lang;
+      monaco.languages.setMonarchTokensProvider("le", buildLeMonarchTokens(lang));
+    }
+  };
+  installLeApiLang();
+  applyI18nDom();
+  const langMenu = document.getElementById("language-menu-items");
+  if (langMenu)
+    buildLanguageMenuItems(langMenu);
   const issueFixes = /* @__PURE__ */ new Map();
   const getMarkerKey = (marker) => {
     return `${marker.startLineNumber}:${marker.startColumn}:${marker.message}`;
@@ -958,7 +3213,7 @@ async function start() {
       const params2 = new URLSearchParams(window.location.search);
       const example = params2.get("example");
       if (!example) {
-        alert("Copy URL is only available for existing examples.");
+        alert(t("Copy URL is only available for existing examples."));
         return;
       }
       const position = ed.getPosition();
@@ -986,7 +3241,7 @@ async function start() {
         await loadModule();
       }
       if (!sessionModule) {
-        alert("Please wait for the module to load.");
+        alert(t("Please wait for the module to load."));
         return;
       }
       try {
@@ -1041,7 +3296,7 @@ async function start() {
         await loadModule();
       }
       if (!sessionModule) {
-        alert("Please wait for the module to load.");
+        alert(t("Please wait for the module to load."));
         return;
       }
       const url = `hierarchy.html?sessionModule=${sessionModule}`;
@@ -1063,7 +3318,7 @@ async function start() {
   prologCopy.onclick = () => {
     navigator.clipboard.writeText(prologContent.textContent || "");
     const originalText = prologCopy.textContent;
-    prologCopy.textContent = "Copied!";
+    prologCopy.textContent = t("Copied!");
     setTimeout(() => {
       prologCopy.textContent = originalText;
     }, 2e3);
@@ -1095,7 +3350,7 @@ async function start() {
   const menuSave = document.getElementById("menu-save");
   const menuSaveAs = document.getElementById("menu-save-as");
   if (!("showSaveFilePicker" in window) && menuSaveAs) {
-    menuSaveAs.textContent = "Download";
+    menuSaveAs.textContent = t("Download");
   }
   const updateSaveMenu = () => {
     if (menuSave) {
@@ -1103,9 +3358,9 @@ async function start() {
     }
   };
   document.getElementById("menu-new")?.addEventListener("click", () => {
-    if (isDirty && !confirm("You have unsaved changes. Create new file anyway?"))
+    if (isDirty && !confirm(t("You have unsaved changes. Create new file anyway?")))
       return;
-    editor.setValue("");
+    editor.setValue(uiLang() === "en" ? "" : targetLanguageStatement() + "\n\n");
     currentFileName = "document.le";
     fileHandle = null;
     currentBaseUrl = null;
@@ -1129,7 +3384,7 @@ async function start() {
     }
   };
   document.getElementById("menu-new-from-url")?.addEventListener("click", () => {
-    if (isDirty && !confirm("You have unsaved changes. Load from URL anyway?"))
+    if (isDirty && !confirm(t("You have unsaved changes. Load from URL anyway?")))
       return;
     if (urlError)
       urlError.style.display = "none";
@@ -1155,7 +3410,7 @@ async function start() {
     }
     const prevLabel = urlLoadBtn.textContent;
     urlLoadBtn.disabled = true;
-    urlLoadBtn.textContent = "Loading\u2026";
+    urlLoadBtn.textContent = t("Loading\u2026");
     if (urlError)
       urlError.style.display = "none";
     try {
@@ -1191,7 +3446,7 @@ async function start() {
   });
   const fileInput = document.getElementById("file-input");
   document.getElementById("menu-open")?.addEventListener("click", async () => {
-    if (isDirty && !confirm("You have unsaved changes. Open another file anyway?"))
+    if (isDirty && !confirm(t("You have unsaved changes. Open another file anyway?")))
       return;
     if ("showOpenFilePicker" in window) {
       try {
@@ -1314,7 +3569,7 @@ async function start() {
       closeModal();
   });
   document.getElementById("menu-open-server")?.addEventListener("click", async () => {
-    if (isDirty && !confirm("You have unsaved changes. Open from server anyway?"))
+    if (isDirty && !confirm(t("You have unsaved changes. Open from server anyway?")))
       return;
     if (modalOverlay)
       modalOverlay.style.display = "flex";
@@ -1412,7 +3667,7 @@ async function start() {
         sessionModuleDisplay.textContent = "";
       }
     } catch (err) {
-      alert("Failed to load example from server.");
+      alert(t("Failed to load example from server."));
       console.error("Failed to load example", err);
     }
   }
@@ -1509,7 +3764,7 @@ async function start() {
           const serverKey = data.server_keys.includes(k === "google" ? "gemini" : k);
           if (serverKey && input) {
             input.disabled = true;
-            input.placeholder = "Provided by server";
+            input.placeholder = t("Provided by server");
             let note = input.parentElement?.querySelector(".server-key-note");
             if (!note) {
               note = document.createElement("div");
@@ -1517,7 +3772,7 @@ async function start() {
               note.style.fontSize = "10px";
               note.style.color = "#89d185";
               note.style.marginTop = "2px";
-              note.textContent = "This key is provided by the server environment.";
+              note.textContent = t("This key is provided by the server environment.");
               input.parentElement?.appendChild(note);
             }
           } else if (input) {
@@ -1616,7 +3871,7 @@ async function start() {
   tabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       const target = tab.getAttribute("data-tab");
-      tabs.forEach((t) => t.classList.remove("active"));
+      tabs.forEach((t2) => t2.classList.remove("active"));
       tabContents.forEach((c) => c.classList.remove("active"));
       tab.classList.add("active");
       document.getElementById(target)?.classList.add("active");
@@ -1778,7 +4033,7 @@ async function start() {
     if (isLoaded || isLoading)
       return true;
     isLoading = true;
-    resultsDisplay.textContent = "Loading module on server...";
+    resultsDisplay.textContent = t("Loading module on server...");
     try {
       const response = await fetch("/leapi", {
         method: "POST",
@@ -1821,7 +4076,7 @@ async function start() {
         }
         const anotherScenarioOption = document.createElement("option");
         anotherScenarioOption.value = "___custom___";
-        anotherScenarioOption.textContent = "Another...";
+        anotherScenarioOption.textContent = t("Another...");
         scenarioSelect.appendChild(anotherScenarioOption);
         lastKb = res.kb || "";
         lastQueries = Array.isArray(res.queries) ? res.queries : [];
@@ -1846,19 +4101,19 @@ async function start() {
         }
         const anotherQueryOption = document.createElement("option");
         anotherQueryOption.value = "___custom___";
-        anotherQueryOption.textContent = "Another...";
+        anotherQueryOption.textContent = t("Another...");
         querySelect.appendChild(anotherQueryOption);
         if (res.issues) {
           updateMarkers(res.issues);
         } else {
           updateMarkers([]);
         }
-        resultsDisplay.textContent = "Results";
+        resultsDisplay.textContent = t("Results");
         isLoading = false;
         return true;
       } else {
         lastLoadError = res?.error || "Unknown error";
-        resultsDisplay.textContent = "Error loading module: " + lastLoadError;
+        resultsDisplay.textContent = t("Error loading module: ") + lastLoadError;
         isLoading = false;
         updateMarkers([]);
         return false;
@@ -1884,7 +4139,7 @@ async function start() {
     p.textContent = message;
     p.style.cssText = "font-size:13px;line-height:1.5;white-space:pre-wrap;margin-bottom:16px;";
     const btn = document.createElement("button");
-    btn.textContent = "OK";
+    btn.textContent = t("OK");
     btn.style.cssText = "float:right;padding:6px 16px;background:#0e639c;color:#fff;border:none;border-radius:4px;cursor:pointer;";
     const close = () => overlay.remove();
     btn.addEventListener("click", close);
@@ -2117,7 +4372,7 @@ async function start() {
     const customScenario = scenario === "___custom___" ? customScenarioText.value : null;
     const customQuery = query === "___custom___" ? customQueryText.value : null;
     debugPanel.style.display = "flex";
-    debugStatus.textContent = "Connecting to debugger...";
+    debugStatus.textContent = t("Connecting to debugger...");
     debugStack.innerHTML = "";
     debugVariables.innerHTML = "";
     debugContinue.disabled = false;
@@ -2129,7 +4384,7 @@ async function start() {
       dapSocket.close();
     dapSocket = new WebSocket(wsUrl);
     dapSocket.onopen = () => {
-      debugStatus.textContent = "Debugger connected. Initializing...";
+      debugStatus.textContent = t("Debugger connected. Initializing...");
       sendDapRequest("initialize", { adapterID: "le-debug" });
       sendDapRequest("launch", {});
       fetch("/leapi", {
@@ -2149,14 +4404,14 @@ async function start() {
         })
       }).then((res) => res.json()).then((data) => {
         console.log("Debug query finished", data);
-        debugStatus.textContent = "Query finished.";
+        debugStatus.textContent = t("Query finished.");
         debugContinue.disabled = true;
         debugStep.disabled = true;
         debugStop.disabled = true;
         debugDecorations = editor.deltaDecorations(debugDecorations, []);
       }).catch((err) => {
         console.error("Debug query failed", err);
-        debugStatus.textContent = "Query failed.";
+        debugStatus.textContent = t("Query failed.");
         debugContinue.disabled = true;
         debugStep.disabled = true;
         debugStop.disabled = true;
@@ -2187,7 +4442,7 @@ async function start() {
       }
     };
     dapSocket.onclose = () => {
-      debugStatus.textContent = "Debugger disconnected.";
+      debugStatus.textContent = t("Debugger disconnected.");
       debugContinue.disabled = true;
       debugStep.disabled = true;
       debugStop.disabled = true;
@@ -2254,7 +4509,7 @@ async function start() {
       const empty = document.createElement("div");
       empty.style.padding = "4px 6px";
       empty.style.color = "#888";
-      empty.textContent = "No variables for this call.";
+      empty.textContent = t("No variables for this call.");
       debugVariables.appendChild(empty);
       return;
     }
@@ -2279,7 +4534,7 @@ async function start() {
   debugStep.onclick = () => sendDapRequest("stepIn", { threadId: 1 });
   debugStop.onclick = () => {
     sendDapRequest("disconnect", {});
-    debugStatus.textContent = "Trace stopped.";
+    debugStatus.textContent = t("Trace stopped.");
     debugContinue.disabled = true;
     debugStep.disabled = true;
     debugStop.disabled = true;
@@ -2335,14 +4590,14 @@ async function start() {
   };
   btnInterruptQuery.addEventListener("click", () => {
     btnInterruptQuery.disabled = true;
-    btnInterruptQuery.textContent = "Interrupting\u2026";
+    btnInterruptQuery.textContent = t("Interrupting\u2026");
     fetch("/leapi", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: "myToken123", operation: "interruptQuery", sessionModule })
     }).catch(() => {
     }).finally(() => {
-      btnInterruptQuery.textContent = "Interrupt";
+      btnInterruptQuery.textContent = t("Interrupt");
     });
   });
   btnQuery.addEventListener("click", async () => {
@@ -2356,11 +4611,11 @@ async function start() {
     const customScenario = scenario === "___custom___" ? customScenarioText.value : null;
     const customQuery = query === "___custom___" ? customQueryText.value : null;
     if (!query) {
-      resultsDisplay.textContent = "Please select a query.";
+      resultsDisplay.textContent = t("Please select a query.");
       return;
     }
     if (query === "___custom___" && !customQuery) {
-      resultsDisplay.textContent = "Please enter a custom query.";
+      resultsDisplay.textContent = t("Please enter a custom query.");
       return;
     }
     const wantAnswer = pendingAnswerIndex;
@@ -2405,7 +4660,7 @@ async function start() {
       }
       explView.showResults(res, target);
     } catch (err) {
-      answersList.textContent = "Error executing query.";
+      answersList.textContent = t("Error executing query.");
       console.error(err);
     } finally {
       hideInterrupt();
@@ -2423,7 +4678,7 @@ async function start() {
     const customScenario = scenario === "___custom___" ? customScenarioText.value : null;
     const customQuery = query === "___custom___" ? customQueryText.value : null;
     if (!query) {
-      alert("Please select a query for the Proof Game.");
+      alert(t("Please select a query for the Proof Game."));
       return;
     }
     try {
@@ -2506,13 +4761,13 @@ async function start() {
         const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
         window.open(`proof-game.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
       } else if (res && res.error) {
-        alert("Could not open the Proof Game:\n\n" + res.error);
+        alert(t("Could not open the Proof Game:\n\n") + res.error);
       } else {
-        alert("Failed to get game data from server.");
+        alert(t("Failed to get game data from server."));
       }
     } catch (err) {
       console.error(err);
-      alert("Error connecting to server for game data.");
+      alert(t("Error connecting to server for game data."));
     }
   });
   window.addEventListener("message", (event) => {
@@ -2692,7 +4947,7 @@ async function start() {
       detailsEl.style.borderTop = "1px solid rgba(255,255,255,0.1)";
       detailsEl.style.paddingTop = "5px";
       const summary = document.createElement("summary");
-      summary.textContent = "System Logs (stderr)";
+      summary.textContent = t("System Logs (stderr)");
       summary.style.cursor = "pointer";
       summary.style.opacity = "0.6";
       summary.style.outline = "none";
@@ -2738,7 +4993,7 @@ async function start() {
     btnAssistantSend.disabled = true;
     btnAssistantInterrupt.style.display = "inline-block";
     assistantProgress.style.display = "block";
-    assistantProgressText.textContent = "Starting...";
+    assistantProgressText.textContent = t("Starting...");
     assistantStartTime = Date.now();
     const apiKeys = {
       openai: localStorage.getItem("le-openai-key"),
@@ -2920,7 +5175,9 @@ async function start() {
       text: model.getValue()
     }
   });
+  syncEditorLanguage(editor.getValue());
   editor.onDidChangeModelContent(() => {
+    syncEditorLanguage(editor.getValue());
     isDirty = true;
     if (isLoaded) {
       isLoaded = false;

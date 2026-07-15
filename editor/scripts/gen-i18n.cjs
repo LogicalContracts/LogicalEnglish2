@@ -154,5 +154,9 @@ export function keywordPhrases(lang: string, key: string): string[] {
 
 fs.mkdirSync(outDir, { recursive: true });
 fs.writeFileSync(outFile, body);
+
+// JSON catalog for pages that are served without bundling (Executive view).
+const jsonOut = path.join(repoRoot, 'web_extras', 'executive', 'i18n-ui.json');
+fs.writeFileSync(jsonOut, JSON.stringify({ ui, languages }, null, 1));
 console.log(`gen-i18n: wrote ${path.relative(process.cwd(), outFile)} ` +
     `(${Object.keys(keywordCategories).length} keys, langs: ${kwLangs.join(', ')})`);

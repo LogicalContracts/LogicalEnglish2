@@ -1,3 +1,4 @@
+import { t, applyI18nDom, installLeApiLang } from './i18n';
 // Mermaid text generation for LE artefacts: explanation trees ("Copy as
 // Mermaid diagram" in the explanation context menu) and the source graph
 // ("Copy Mermaid" in the graph window). Pure string builders — no DOM, no

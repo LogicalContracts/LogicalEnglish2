@@ -3361,9 +3361,9 @@ var init_main = __esm({
       FoldingRange3.is = is;
     })(FoldingRange || (FoldingRange = {}));
     (function(DiagnosticRelatedInformation2) {
-      function create(location, message) {
+      function create(location2, message) {
         return {
-          location,
+          location: location2,
           message
         };
       }
@@ -4382,8 +4382,8 @@ var init_main = __esm({
         return Is.defined(candidate) && Is.string(candidate.uri) && (Is.undefined(candidate.languageId) || Is.string(candidate.languageId)) && Is.uinteger(candidate.lineCount) && Is.func(candidate.getText) && Is.func(candidate.positionAt) && Is.func(candidate.offsetAt) ? true : false;
       }
       TextDocument3.is = is;
-      function applyEdits(document, edits) {
-        let text = document.getText();
+      function applyEdits(document2, edits) {
+        let text = document2.getText();
         let sortedEdits = mergeSort2(edits, (a, b) => {
           let diff = a.range.start.line - b.range.start.line;
           if (diff === 0) {
@@ -4394,8 +4394,8 @@ var init_main = __esm({
         let lastModifiedOffset = text.length;
         for (let i = sortedEdits.length - 1; i >= 0; i--) {
           let e = sortedEdits[i];
-          let startOffset = document.offsetAt(e.range.start);
-          let endOffset = document.offsetAt(e.range.end);
+          let startOffset = document2.offsetAt(e.range.start);
+          let endOffset = document2.offsetAt(e.range.end);
           if (endOffset <= lastModifiedOffset) {
             text = text.substring(0, startOffset) + e.newText + text.substring(endOffset, text.length);
           } else {
@@ -5195,8 +5195,8 @@ var require_protocol_notebook = __commonJS({
     })(ExecutionSummary || (exports.ExecutionSummary = ExecutionSummary = {}));
     var NotebookCell;
     (function(NotebookCell2) {
-      function create(kind, document) {
-        return { kind, document };
+      function create(kind, document2) {
+        return { kind, document: document2 };
       }
       NotebookCell2.create = create;
       function is(value) {
@@ -6367,9 +6367,9 @@ var require_textDocuments = __commonJS({
         const disposables = [];
         disposables.push(connection2.onDidOpenTextDocument((event) => {
           const td = event.textDocument;
-          const document = this._configuration.create(td.uri, td.languageId, td.version, td.text);
-          this._syncedDocuments.set(td.uri, document);
-          const toFire = Object.freeze({ document });
+          const document2 = this._configuration.create(td.uri, td.languageId, td.version, td.text);
+          this._syncedDocuments.set(td.uri, document2);
+          const toFire = Object.freeze({ document: document2 });
           this._onDidOpen.fire(toFire);
           this._onDidChangeContent.fire(toFire);
         }));
@@ -7862,9 +7862,9 @@ var require_server = __commonJS({
       const client = factories && factories.client ? new (factories.client(RemoteClientImpl))() : new RemoteClientImpl();
       const remoteWindow = factories && factories.window ? new (factories.window(RemoteWindowImpl))() : new RemoteWindowImpl();
       const workspace = factories && factories.workspace ? new (factories.workspace(RemoteWorkspaceImpl))() : new RemoteWorkspaceImpl();
-      const languages = factories && factories.languages ? new (factories.languages(LanguagesImpl))() : new LanguagesImpl();
+      const languages2 = factories && factories.languages ? new (factories.languages(LanguagesImpl))() : new LanguagesImpl();
       const notebooks = factories && factories.notebooks ? new (factories.notebooks(NotebooksImpl))() : new NotebooksImpl();
-      const allRemotes = [logger, tracer, telemetry, client, remoteWindow, workspace, languages, notebooks];
+      const allRemotes = [logger, tracer, telemetry, client, remoteWindow, workspace, languages2, notebooks];
       function asPromise(value) {
         if (value instanceof Promise) {
           return value;
@@ -7934,7 +7934,7 @@ var require_server = __commonJS({
           return workspace;
         },
         get languages() {
-          return languages;
+          return languages2;
         },
         get notebooks() {
           return notebooks;
@@ -8374,17 +8374,17 @@ var TextDocument2;
     return new FullTextDocument2(uri, languageId, version, content);
   }
   TextDocument3.create = create;
-  function update(document, changes, version) {
-    if (document instanceof FullTextDocument2) {
-      document.update(changes, version);
-      return document;
+  function update(document2, changes, version) {
+    if (document2 instanceof FullTextDocument2) {
+      document2.update(changes, version);
+      return document2;
     } else {
       throw new Error("TextDocument.update: document must be created by TextDocument.create");
     }
   }
   TextDocument3.update = update;
-  function applyEdits(document, edits) {
-    const text = document.getText();
+  function applyEdits(document2, edits) {
+    const text = document2.getText();
     const sortedEdits = mergeSort(edits.map(getWellformedEdit), (a, b) => {
       const diff = a.range.start.line - b.range.start.line;
       if (diff === 0) {
@@ -8395,7 +8395,7 @@ var TextDocument2;
     let lastModifiedOffset = 0;
     const spans = [];
     for (const e of sortedEdits) {
-      const startOffset = document.offsetAt(e.range.start);
+      const startOffset = document2.offsetAt(e.range.start);
       if (startOffset < lastModifiedOffset) {
         throw new Error("Overlapping edit");
       } else if (startOffset > lastModifiedOffset) {
@@ -8404,7 +8404,7 @@ var TextDocument2;
       if (e.newText.length) {
         spans.push(e.newText);
       }
-      lastModifiedOffset = document.offsetAt(e.range.end);
+      lastModifiedOffset = document2.offsetAt(e.range.end);
     }
     spans.push(text.substr(lastModifiedOffset));
     return spans.join("");
@@ -8470,6 +8470,1820 @@ function getWellformedEdit(textEdit) {
   }
   return textEdit;
 }
+
+// src/generated/i18nData.ts
+var keywords = {
+  "en": {
+    "kb_open": [
+      [
+        "the",
+        "knowledge",
+        "base"
+      ]
+    ],
+    "kb_include": [
+      [
+        "includes"
+      ]
+    ],
+    "contract_open": [
+      [
+        "the",
+        "contract"
+      ]
+    ],
+    "contract_states": [
+      [
+        "states",
+        "that"
+      ]
+    ],
+    "resources_include": [
+      [
+        "includes",
+        "these",
+        "resources"
+      ]
+    ],
+    "scenario": [
+      [
+        "scenario"
+      ]
+    ],
+    "query": [
+      [
+        "query"
+      ]
+    ],
+    "ontology": [
+      [
+        "the",
+        "ontology",
+        "is"
+      ]
+    ],
+    "predicates": [
+      [
+        "the",
+        "predicates",
+        "are"
+      ]
+    ],
+    "templates": [
+      [
+        "the",
+        "templates",
+        "are"
+      ]
+    ],
+    "fluents": [
+      [
+        "the",
+        "fluents",
+        "are"
+      ]
+    ],
+    "events": [
+      [
+        "the",
+        "events",
+        "are"
+      ]
+    ],
+    "meta_target": [
+      [
+        "the",
+        "target",
+        "language",
+        "is"
+      ]
+    ],
+    "marker": [
+      [
+        "section"
+      ]
+    ],
+    "marker_is": [
+      [
+        "is"
+      ]
+    ],
+    "annexes": [
+      [
+        "the",
+        "annexes",
+        "to",
+        "the",
+        "knowledge",
+        "base",
+        "are"
+      ],
+      [
+        "the",
+        "annexes",
+        "to",
+        "the",
+        "contract",
+        "are"
+      ]
+    ],
+    "guard": [
+      [
+        "the",
+        "predicates"
+      ],
+      [
+        "the",
+        "knowledge"
+      ],
+      [
+        "the",
+        "templates"
+      ],
+      [
+        "the",
+        "contract"
+      ],
+      [
+        "the",
+        "ontology"
+      ],
+      [
+        "the",
+        "fluents"
+      ],
+      [
+        "the",
+        "events"
+      ],
+      [
+        "the",
+        "target"
+      ],
+      [
+        "scenario"
+      ],
+      [
+        "query"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicates"
+      ],
+      [
+        "knowledge"
+      ],
+      [
+        "templates"
+      ],
+      [
+        "contract"
+      ],
+      [
+        "ontology"
+      ],
+      [
+        "fluents"
+      ],
+      [
+        "events"
+      ],
+      [
+        "target"
+      ]
+    ],
+    "expects": [
+      [
+        "expects"
+      ]
+    ],
+    "answers": [
+      [
+        "answers"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "and",
+        "unknowns"
+      ]
+    ],
+    "rule": [
+      [
+        "rule"
+      ]
+    ],
+    "if": [
+      [
+        "if"
+      ]
+    ],
+    "only_if": [
+      [
+        "only",
+        "if"
+      ]
+    ],
+    "unless": [
+      [
+        "unless"
+      ]
+    ],
+    "and_unless": [
+      [
+        "and",
+        "unless"
+      ]
+    ],
+    "and": [
+      [
+        "and"
+      ]
+    ],
+    "or": [
+      [
+        "or"
+      ]
+    ],
+    "either": [
+      [
+        "either"
+      ]
+    ],
+    "any_of": [
+      [
+        "any",
+        "of"
+      ]
+    ],
+    "all_of": [
+      [
+        "all",
+        "of"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "at",
+        "least",
+        "one",
+        "of"
+      ]
+    ],
+    "one": [
+      [
+        "one"
+      ]
+    ],
+    "of": [
+      [
+        "of"
+      ]
+    ],
+    "all": [
+      [
+        "all"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "it",
+        "is",
+        "not",
+        "the",
+        "case",
+        "that"
+      ],
+      [
+        "not",
+        "the",
+        "case",
+        "that"
+      ]
+    ],
+    "forall": [
+      [
+        "for",
+        "all",
+        "cases",
+        "in",
+        "which"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "it",
+        "is",
+        "the",
+        "case",
+        "that"
+      ]
+    ],
+    "for_case": [
+      [
+        "for",
+        "case"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "it",
+        "is",
+        "true",
+        "that"
+      ]
+    ],
+    "it_is": [
+      [
+        "it",
+        "is"
+      ]
+    ],
+    "whether": [
+      [
+        "whether"
+      ]
+    ],
+    "defines_global": [
+      [
+        "defines",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "opposite"
+      ]
+    ],
+    "synonym": [
+      [
+        "synonym"
+      ]
+    ],
+    "prepositional": [
+      [
+        "prepositional"
+      ],
+      [
+        "composite"
+      ]
+    ],
+    "unknown": [
+      [
+        "assumable"
+      ],
+      [
+        "unknown"
+      ],
+      [
+        "assumed"
+      ]
+    ],
+    "undefined": [
+      [
+        "scenario",
+        "element"
+      ],
+      [
+        "undefined"
+      ]
+    ],
+    "article": [
+      [
+        "some"
+      ],
+      [
+        "the"
+      ],
+      [
+        "an"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "ignorable": [
+      [
+        "were"
+      ],
+      [
+        "have"
+      ],
+      [
+        "does"
+      ],
+      [
+        "been"
+      ],
+      [
+        "the"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "has"
+      ],
+      [
+        "had"
+      ],
+      [
+        "did"
+      ],
+      [
+        "an"
+      ],
+      [
+        "do"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "unless"
+      ],
+      [
+        "says"
+      ],
+      [
+        "that"
+      ],
+      [
+        "and"
+      ],
+      [
+        "if"
+      ],
+      [
+        "or"
+      ]
+    ],
+    "qualifier": [
+      [
+        "previous"
+      ],
+      [
+        "original"
+      ],
+      [
+        "seventh"
+      ],
+      [
+        "another"
+      ],
+      [
+        "current"
+      ],
+      [
+        "second"
+      ],
+      [
+        "fourth"
+      ],
+      [
+        "eighth"
+      ],
+      [
+        "single"
+      ],
+      [
+        "first"
+      ],
+      [
+        "third"
+      ],
+      [
+        "fifth"
+      ],
+      [
+        "sixth"
+      ],
+      [
+        "ninth"
+      ],
+      [
+        "tenth"
+      ],
+      [
+        "other"
+      ],
+      [
+        "given"
+      ],
+      [
+        "next"
+      ],
+      [
+        "last"
+      ],
+      [
+        "same"
+      ],
+      [
+        "new"
+      ]
+    ],
+    "copula": [
+      [
+        "were"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "is"
+      ]
+    ],
+    "definite_article": [
+      [
+        "the"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "this"
+      ]
+    ],
+    "each": [
+      [
+        "each"
+      ]
+    ],
+    "wh_var": [
+      [
+        "which"
+      ],
+      [
+        "what"
+      ]
+    ],
+    "who": [
+      [
+        "who"
+      ]
+    ],
+    "what": [
+      [
+        "what"
+      ]
+    ],
+    "when": [
+      [
+        "when"
+      ]
+    ],
+    "where": [
+      [
+        "where"
+      ]
+    ],
+    "which": [
+      [
+        "which"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "that"
+      ],
+      [
+        "says"
+      ]
+    ],
+    "that": [
+      [
+        "that"
+      ]
+    ],
+    "is_a": [
+      [
+        "is",
+        "an"
+      ],
+      [
+        "is",
+        "of"
+      ],
+      [
+        "is",
+        "a"
+      ]
+    ],
+    "sum": [
+      [
+        "sum"
+      ]
+    ],
+    "count": [
+      [
+        "count"
+      ]
+    ],
+    "average": [
+      [
+        "average"
+      ]
+    ],
+    "min": [
+      [
+        "minimum"
+      ],
+      [
+        "min"
+      ]
+    ],
+    "max": [
+      [
+        "maximum"
+      ],
+      [
+        "max"
+      ]
+    ],
+    "is_the": [
+      [
+        "is",
+        "the"
+      ]
+    ],
+    "of_each": [
+      [
+        "of",
+        "each"
+      ]
+    ],
+    "such_that": [
+      [
+        "such",
+        "that"
+      ]
+    ],
+    "assuming": [
+      [
+        "assuming"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "and"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "the"
+      ],
+      [
+        "an"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "between"
+      ],
+      [
+        "within"
+      ],
+      [
+        "under"
+      ],
+      [
+        "from"
+      ],
+      [
+        "with"
+      ],
+      [
+        "were"
+      ],
+      [
+        "that"
+      ],
+      [
+        "than"
+      ],
+      [
+        "into"
+      ],
+      [
+        "over"
+      ],
+      [
+        "the"
+      ],
+      [
+        "for"
+      ],
+      [
+        "and"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "an"
+      ],
+      [
+        "in"
+      ],
+      [
+        "on"
+      ],
+      [
+        "at"
+      ],
+      [
+        "to"
+      ],
+      [
+        "of"
+      ],
+      [
+        "by"
+      ],
+      [
+        "or"
+      ],
+      [
+        "is"
+      ],
+      [
+        "as"
+      ],
+      [
+        "a"
+      ]
+    ]
+  },
+  "pt": {
+    "kb_open": [
+      [
+        "a",
+        "base",
+        "de",
+        "conhecimento"
+      ]
+    ],
+    "kb_include": [
+      [
+        "inclui"
+      ]
+    ],
+    "contract_open": [
+      [
+        "o",
+        "contrato"
+      ]
+    ],
+    "contract_states": [
+      [
+        "estabelece",
+        "que"
+      ]
+    ],
+    "resources_include": [
+      [
+        "inclui",
+        "estes",
+        "recursos"
+      ]
+    ],
+    "scenario": [
+      [
+        "cen\xE1rio"
+      ]
+    ],
+    "query": [
+      [
+        "consulta"
+      ]
+    ],
+    "ontology": [
+      [
+        "a",
+        "ontologia",
+        "\xE9"
+      ]
+    ],
+    "predicates": [
+      [
+        "os",
+        "predicados",
+        "s\xE3o"
+      ]
+    ],
+    "templates": [
+      [
+        "os",
+        "modelos",
+        "s\xE3o"
+      ]
+    ],
+    "fluents": [
+      [
+        "os",
+        "fluentes",
+        "s\xE3o"
+      ]
+    ],
+    "events": [
+      [
+        "os",
+        "eventos",
+        "s\xE3o"
+      ]
+    ],
+    "meta_target": [
+      [
+        "a",
+        "linguagem",
+        "alvo",
+        "\xE9"
+      ]
+    ],
+    "marker": [
+      [
+        "sec\xE7\xE3o"
+      ],
+      [
+        "se\xE7\xE3o"
+      ]
+    ],
+    "marker_is": [
+      [
+        "\xE9"
+      ]
+    ],
+    "annexes": [
+      [
+        "os",
+        "anexos",
+        "\xE0",
+        "base",
+        "de",
+        "conhecimento",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "anexos",
+        "ao",
+        "contrato",
+        "s\xE3o"
+      ]
+    ],
+    "guard": [
+      [
+        "a",
+        "base",
+        "de",
+        "conhecimento"
+      ],
+      [
+        "os",
+        "predicados",
+        "s\xE3o"
+      ],
+      [
+        "a",
+        "linguagem",
+        "alvo"
+      ],
+      [
+        "os",
+        "fluentes",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "modelos",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "eventos",
+        "s\xE3o"
+      ],
+      [
+        "a",
+        "ontologia",
+        "\xE9"
+      ],
+      [
+        "o",
+        "contrato"
+      ],
+      [
+        "consulta"
+      ],
+      [
+        "cen\xE1rio"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicados"
+      ],
+      [
+        "ontologia"
+      ],
+      [
+        "linguagem"
+      ],
+      [
+        "contrato"
+      ],
+      [
+        "fluentes"
+      ],
+      [
+        "modelos"
+      ],
+      [
+        "eventos"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "espera"
+      ]
+    ],
+    "answers": [
+      [
+        "respostas"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "e",
+        "desconhecidos"
+      ]
+    ],
+    "rule": [
+      [
+        "regra"
+      ]
+    ],
+    "if": [
+      [
+        "se"
+      ]
+    ],
+    "only_if": [
+      [
+        "somente",
+        "se"
+      ],
+      [
+        "apenas",
+        "se"
+      ]
+    ],
+    "unless": [
+      [
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "salvo",
+        "se"
+      ]
+    ],
+    "and_unless": [
+      [
+        "e",
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "e",
+        "salvo",
+        "se"
+      ]
+    ],
+    "and": [
+      [
+        "e"
+      ]
+    ],
+    "or": [
+      [
+        "ou"
+      ]
+    ],
+    "either": [
+      [
+        "uma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "um",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "any_of": [
+      [
+        "alguma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "algum",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "all_of": [
+      [
+        "todas",
+        "as",
+        "seguintes"
+      ],
+      [
+        "todos",
+        "os",
+        "seguintes"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "pelo",
+        "menos",
+        "uma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "pelo",
+        "menos",
+        "um",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "one": [
+      [
+        "uma"
+      ],
+      [
+        "um"
+      ]
+    ],
+    "of": [
+      [
+        "de"
+      ]
+    ],
+    "all": [
+      [
+        "todas"
+      ],
+      [
+        "todos"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "n\xE3o",
+        "se",
+        "verifica",
+        "que"
+      ],
+      [
+        "n\xE3o",
+        "\xE9",
+        "o",
+        "caso",
+        "que"
+      ]
+    ],
+    "forall": [
+      [
+        "para",
+        "todos",
+        "os",
+        "casos",
+        "em",
+        "que"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "verifica-se",
+        "que"
+      ],
+      [
+        "\xE9",
+        "o",
+        "caso",
+        "que"
+      ]
+    ],
+    "for_case": [
+      [
+        "para",
+        "o",
+        "caso"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "\xE9",
+        "verdade",
+        "que"
+      ]
+    ],
+    "it_is": [
+      [
+        "\xE9"
+      ]
+    ],
+    "whether": [
+      [
+        "se"
+      ]
+    ],
+    "defines_global": [
+      [
+        "define",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "oposto"
+      ]
+    ],
+    "synonym": [
+      [
+        "sin\xF3nimo"
+      ],
+      [
+        "sin\xF4nimo"
+      ]
+    ],
+    "prepositional": [
+      [
+        "preposicional"
+      ],
+      [
+        "composto"
+      ],
+      [
+        "composta"
+      ]
+    ],
+    "unknown": [
+      [
+        "desconhecido"
+      ],
+      [
+        "desconhecida"
+      ],
+      [
+        "assum\xEDvel"
+      ],
+      [
+        "assumido"
+      ],
+      [
+        "assumida"
+      ]
+    ],
+    "undefined": [
+      [
+        "elemento",
+        "de",
+        "cen\xE1rio"
+      ],
+      [
+        "indefinido"
+      ],
+      [
+        "indefinida"
+      ]
+    ],
+    "article": [
+      [
+        "alguma"
+      ],
+      [
+        "algum"
+      ],
+      [
+        "umas"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "uns"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "ignorable": [
+      [
+        "tinham"
+      ],
+      [
+        "foram"
+      ],
+      [
+        "tinha"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "sido"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "foi"
+      ],
+      [
+        "tem"
+      ],
+      [
+        "t\xEAm"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "diz"
+      ],
+      [
+        "que"
+      ],
+      [
+        "se"
+      ],
+      [
+        "ou"
+      ],
+      [
+        "e"
+      ]
+    ],
+    "qualifier": [
+      [
+        "primeiro"
+      ],
+      [
+        "primeira"
+      ],
+      [
+        "terceiro"
+      ],
+      [
+        "terceira"
+      ],
+      [
+        "anterior"
+      ],
+      [
+        "original"
+      ],
+      [
+        "segundo"
+      ],
+      [
+        "segunda"
+      ],
+      [
+        "pr\xF3ximo"
+      ],
+      [
+        "pr\xF3xima"
+      ],
+      [
+        "quarto"
+      ],
+      [
+        "quarta"
+      ],
+      [
+        "quinto"
+      ],
+      [
+        "quinta"
+      ],
+      [
+        "s\xE9timo"
+      ],
+      [
+        "s\xE9tima"
+      ],
+      [
+        "oitavo"
+      ],
+      [
+        "oitava"
+      ],
+      [
+        "d\xE9cimo"
+      ],
+      [
+        "d\xE9cima"
+      ],
+      [
+        "\xFAltimo"
+      ],
+      [
+        "\xFAltima"
+      ],
+      [
+        "sexto"
+      ],
+      [
+        "sexta"
+      ],
+      [
+        "outro"
+      ],
+      [
+        "outra"
+      ],
+      [
+        "atual"
+      ],
+      [
+        "mesmo"
+      ],
+      [
+        "mesma"
+      ],
+      [
+        "\xFAnico"
+      ],
+      [
+        "\xFAnica"
+      ],
+      [
+        "nono"
+      ],
+      [
+        "nona"
+      ],
+      [
+        "novo"
+      ],
+      [
+        "nova"
+      ],
+      [
+        "dado"
+      ],
+      [
+        "dada"
+      ]
+    ],
+    "copula": [
+      [
+        "estavam"
+      ],
+      [
+        "estava"
+      ],
+      [
+        "foram"
+      ],
+      [
+        "est\xE3o"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "est\xE1"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "foi"
+      ],
+      [
+        "\xE9"
+      ]
+    ],
+    "definite_article": [
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "este"
+      ],
+      [
+        "esta"
+      ],
+      [
+        "esse"
+      ],
+      [
+        "essa"
+      ]
+    ],
+    "each": [
+      [
+        "cada"
+      ]
+    ],
+    "wh_var": [
+      [
+        "quais"
+      ],
+      [
+        "qual"
+      ]
+    ],
+    "who": [
+      [
+        "quem"
+      ]
+    ],
+    "what": [
+      [
+        "qu\xEA"
+      ]
+    ],
+    "when": [
+      [
+        "quando"
+      ]
+    ],
+    "where": [
+      [
+        "onde"
+      ]
+    ],
+    "which": [
+      [
+        "quais"
+      ],
+      [
+        "qual"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "que"
+      ],
+      [
+        "diz"
+      ]
+    ],
+    "that": [
+      [
+        "que"
+      ]
+    ],
+    "is_a": [
+      [
+        "\xE9",
+        "uma"
+      ],
+      [
+        "\xE9",
+        "um"
+      ],
+      [
+        "\xE9",
+        "de"
+      ]
+    ],
+    "sum": [
+      [
+        "soma"
+      ]
+    ],
+    "count": [
+      [
+        "contagem"
+      ]
+    ],
+    "average": [
+      [
+        "m\xE9dia"
+      ]
+    ],
+    "min": [
+      [
+        "m\xEDnimo"
+      ],
+      [
+        "m\xEDn"
+      ]
+    ],
+    "max": [
+      [
+        "m\xE1ximo"
+      ],
+      [
+        "m\xE1x"
+      ]
+    ],
+    "is_the": [
+      [
+        "\xE9",
+        "a"
+      ],
+      [
+        "\xE9",
+        "o"
+      ]
+    ],
+    "of_each": [
+      [
+        "de",
+        "cada"
+      ]
+    ],
+    "such_that": [
+      [
+        "tais",
+        "que"
+      ],
+      [
+        "tal",
+        "que"
+      ]
+    ],
+    "assuming": [
+      [
+        "assumindo"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "e"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "uma"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "dentro"
+      ],
+      [
+        "entre"
+      ],
+      [
+        "sobre"
+      ],
+      [
+        "para"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "como"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "nos"
+      ],
+      [
+        "nas"
+      ],
+      [
+        "dos"
+      ],
+      [
+        "das"
+      ],
+      [
+        "por"
+      ],
+      [
+        "com"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "que"
+      ],
+      [
+        "sob"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "em"
+      ],
+      [
+        "no"
+      ],
+      [
+        "na"
+      ],
+      [
+        "de"
+      ],
+      [
+        "do"
+      ],
+      [
+        "da"
+      ],
+      [
+        "ou"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ],
+      [
+        "e"
+      ],
+      [
+        "\xE9"
+      ]
+    ]
+  },
+  "es": {},
+  "fr": {},
+  "it": {}
+};
+var languages = [
+  {
+    "code": "en",
+    "autonym": "Logical English",
+    "opener": "the target language is",
+    "decimalSep": ".",
+    "thousandsSep": ",",
+    "listSep": ",",
+    "status": "core"
+  },
+  {
+    "code": "pt",
+    "autonym": "Portugu\xEAs L\xF3gico",
+    "opener": "a linguagem alvo \xE9",
+    "decimalSep": ",",
+    "thousandsSep": ".",
+    "listSep": ",",
+    "status": "pilot"
+  }
+];
+
+// src/i18n.ts
+function detectProgramLanguage(text) {
+  const lines = text.split("\n");
+  let firstStatement = "";
+  let inBlockComment = false;
+  for (const line of lines) {
+    let s = line.trim();
+    if (inBlockComment) {
+      const end = s.indexOf("*/");
+      if (end === -1)
+        continue;
+      s = s.slice(end + 2).trim();
+      inBlockComment = false;
+    }
+    if (s.startsWith("/*")) {
+      const end = s.indexOf("*/");
+      if (end === -1) {
+        inBlockComment = true;
+        continue;
+      }
+      s = s.slice(end + 2).trim();
+    }
+    if (!s || s.startsWith("%"))
+      continue;
+    firstStatement = s;
+    break;
+  }
+  const norm = firstStatement.toLowerCase().replace(/\s+/g, " ");
+  for (const info of languages) {
+    if (info.opener && norm.startsWith(info.opener.toLowerCase()))
+      return info.code;
+  }
+  return "en";
+}
+function kwTable(lang) {
+  return keywords[lang] ?? keywords["en"];
+}
+var AUTO_SELECTOR = [
+  "button",
+  "label",
+  "option",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "th",
+  "summary",
+  "legend",
+  ".dropdown-item",
+  ".menu-item",
+  "[data-i18n]"
+].join(",");
 
 // src/tokenizer.ts
 function lineEndFrom(text, from) {
@@ -8625,10 +10439,10 @@ connection.onInitialize((params) => {
   };
 });
 connection.onRequest("textDocument/semanticTokens/full", (params) => {
-  const document = documents.get(params.textDocument.uri);
-  if (!document)
+  const document2 = documents.get(params.textDocument.uri);
+  if (!document2)
     return { data: [] };
-  const text = document.getText();
+  const text = document2.getText();
   const templates = getTemplates(text);
   const declSections = templateDeclarationRanges(text);
   const inDeclaration = (offset) => declSections.some((r) => offset >= r.start && offset < r.end);
@@ -8743,7 +10557,7 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   let lastLine = 0;
   let lastChar = 0;
   for (const token of uniqueTokens) {
-    const pos = document.positionAt(token.start);
+    const pos = document2.positionAt(token.start);
     const line = pos.line;
     const char = pos.character;
     const deltaLine = line - lastLine;
@@ -8755,10 +10569,10 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
   return { data };
 });
 connection.onRequest("textDocument/foldingRange", (params) => {
-  const document = documents.get(params.textDocument.uri);
-  if (!document)
+  const document2 = documents.get(params.textDocument.uri);
+  if (!document2)
     return null;
-  const text = document.getText();
+  const text = document2.getText();
   const lines = text.split("\n");
   const foldingRanges = [];
   const sectionHeaderRegex = /^\s*(the[ \t]+knowledge[ \t]+base|the[ \t]+contract|scenario|query|the[ \t]+ontology|the[ \t]+predicates|the[ \t]+templates|the[ \t]+fluents|the[ \t]+events|the[ \t]+target[ \t]+language)/i;
@@ -8914,18 +10728,23 @@ function getTemplates(text) {
   return [...templates, ...systemTemplates];
 }
 connection.onCompletion((params) => {
-  const document = documents.get(params.textDocument.uri);
-  const text = document ? document.getText() : "";
+  const document2 = documents.get(params.textDocument.uri);
+  const text = document2 ? document2.getText() : "";
   const templates = getTemplates(text);
+  const compLang = detectProgramLanguage(text);
+  const K = kwTable(compLang);
+  const phrase = (key, fallback) => K[key] && K[key][0] ? K[key][0].join(" ") : fallback;
+  const markerIs = phrase("marker_is", "is");
+  const opener = languages.find((l) => l.code === compLang)?.opener ?? "the target language is";
   const sectionCompletions = [
-    { label: "the knowledge base includes:", kind: 14 },
-    { label: "the contract states that:", kind: 14 },
-    { label: "scenario is:", kind: 14 },
-    { label: "query is:", kind: 14 },
-    { label: "the predicates are:", kind: 14 },
-    { label: "the templates are:", kind: 14 },
-    { label: "the ontology is:", kind: 14 },
-    { label: "the target language is: prolog.", kind: 14 }
+    { label: `${phrase("kb_open", "the knowledge base")} ${phrase("kb_include", "includes")}:`, kind: 14 },
+    { label: `${phrase("contract_open", "the contract")} ${phrase("contract_states", "states that")}:`, kind: 14 },
+    { label: `${phrase("scenario", "scenario")} ${markerIs}:`, kind: 14 },
+    { label: `${phrase("query", "query")} ${markerIs}:`, kind: 14 },
+    { label: `${phrase("predicates", "the predicates are")}:`, kind: 14 },
+    { label: `${phrase("templates", "the templates are")}:`, kind: 14 },
+    { label: `${phrase("ontology", "the ontology is")}:`, kind: 14 },
+    { label: `${opener}: prolog.`, kind: 14 }
   ];
   const templateCompletions = templates.map((t) => ({
     label: t.label,
@@ -8933,7 +10752,7 @@ connection.onCompletion((params) => {
     insertText: t.insertText,
     detail: t.detail
   }));
-  const keywords = [
+  const keywords2 = [
     { label: "if", kind: 14 },
     { label: "and", kind: 14 },
     { label: "or", kind: 14 },
@@ -8947,14 +10766,14 @@ connection.onCompletion((params) => {
     { label: "sum", kind: 14 },
     { label: "count", kind: 14 }
   ];
-  return [...sectionCompletions, ...templateCompletions, ...keywords];
+  return [...sectionCompletions, ...templateCompletions, ...keywords2];
 });
 connection.onHover((params) => {
-  const document = documents.get(params.textDocument.uri);
-  if (!document)
+  const document2 = documents.get(params.textDocument.uri);
+  if (!document2)
     return null;
-  const text = document.getText();
-  const offset = document.offsetAt(params.position);
+  const text = document2.getText();
+  const offset = document2.offsetAt(params.position);
   const tokens = tokenize(text);
   const token = tokens.find((t) => t.start <= offset && t.end >= offset);
   if (token) {
@@ -9007,9 +10826,9 @@ connection.onHover((params) => {
       switch (token.type) {
         case 1 /* Word */:
           const word = String(token.value);
-          const keywords = ["includes", "if", "and", "or", "either", "any of", "all of", "unless", "which", "sum", "count", "average", "min", "max", "is", "are", "a", "an", "the", "such that"];
+          const keywords2 = ["includes", "if", "and", "or", "either", "any of", "all of", "unless", "which", "sum", "count", "average", "min", "max", "is", "are", "a", "an", "the", "such that"];
           const headers = ["knowledge", "base", "scenario", "query", "ontology", "predicates", "templates", "fluents", "events", "target", "language"];
-          if (keywords.includes(word.toLowerCase())) {
+          if (keywords2.includes(word.toLowerCase())) {
             leType = "Logical Keyword";
             description = `The keyword \`${word}\` is used to define the logical structure of rules.`;
           } else if (headers.includes(word.toLowerCase())) {
