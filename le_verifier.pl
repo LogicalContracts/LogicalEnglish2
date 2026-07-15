@@ -37,6 +37,7 @@ check_issue(KB, Options, Issue) :- \+ memberchk(skip_tests, Options), failed_tes
 check_issue(KB, _, Issue) :- redefined_system_template(KB, Issue).
 check_issue(KB, _, Issue) :- single_variable_fact(KB, Issue).
 check_issue(KB, _, Issue) :- single_variable_scenario_fact(KB, Issue).
+check_issue(KB, _, Issue) :- unmarked_meta_template(KB, Issue).
 
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
@@ -411,6 +412,84 @@ fact_le_text(KB, Head, Text) :-
     ;   term_string(Head, Text)
     ).
 
+% --- 9. Compound argument in a non-meta template slot ---
+% When a sentence spans several templates that are NOT declared prepositional,
+% the recursive parse can quietly swallow the tail of the sentence into a
+% template slot as a COMPOUND term built from another template — e.g. with the
+% templates "we will make *a payment*" and "*a payment* under *a policy*", the
+% fact "we will make this payment under this policy" parses as
+% we_will_make(under('this payment','this policy')), whereas the author almost
+% certainly expected an atomic payment. Embedding a literal in a slot is only
+% natural for a META-template, whose slot is, by convention, immediately
+% preceded by the word 'that' (or 'says'). So warn whenever a head or body
+% literal of a user template carries an embedded-template argument in a slot
+% that is not marked that way.
+unmarked_meta_template(KB, issue(unmarked_meta_template, Description, Fix, Start, End)) :-
+    current_predicate(KB:F/A),
+    \+ is_system_predicate(F/A),
+    functor(Head, F, A),
+    \+ predicate_property(KB:Head, imported_from(_)),
+    clause(KB:Head, Body, Ref),
+    ( Lit = Head ; find_in_body(Body, Lit) ),
+    nonvar(Lit),
+    compound(Lit),
+    functor(Lit, LF, LA),
+    user_template_functor(KB, LF, LA),
+    arg(I, Lit, Arg),
+    embedded_template_instance(KB, Arg),
+    \+ template_meta_slot(KB, LF, LA, I),
+    fact_le_text(KB, Arg, ArgText),
+    fact_le_text(KB, Lit, LitText),
+    format(atom(Description),
+        "In '~w', the value '~w' is itself a template instance (a compound term) — it seems you want to use a meta-template here",
+        [LitText, ArgText]),
+    Fix = "if so, make sure to precede the meta variable by 'that' in the template; if the value should instead be atomic, declare explicit types (or mark the inner template as prepositional) so the phrase is not absorbed into the argument.",
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% An argument that is an instance of a user-declared template (not data such as
+% a date or a list): the tell-tale of an embedded literal in the slot.
+embedded_template_instance(KB, Arg) :-
+    compound(Arg),
+    \+ is_list(Arg),
+    Arg \= date(_),
+    Arg \= date(_, _, _),
+    functor(Arg, AF, AN),
+    user_template_functor(KB, AF, AN).
+
+%!  user_template_functor(+KB, +F, +A) is semidet.
+%
+%   F/A is the functor of a template the user declared (KB:le_dict holds only
+%   user templates; system templates live in le_system_templates).
+user_template_functor(KB, F, A) :-
+    current_predicate(KB:le_dict/1),
+    clause(KB:le_dict(Dict), true),
+    dict_fa_wv(Dict, [F|Args], _),
+    length(Args, A), !.
+
+% dict_fa_wv(+Dict, -FunctorArgs, -WordsAndVars): destructure the stored le_dict
+% across its historical layouts. FunctorArgs and WordsAndVars share variables.
+dict_fa_wv(dict(FA, _, WV, _, _, _, _), FA, WV).
+dict_fa_wv(dict(FA, _, WV, _, _, _), FA, WV).
+dict_fa_wv(dict(FA, _, WV, _, _), FA, WV).
+dict_fa_wv(dict(FA, _, WV, _), FA, WV).
+dict_fa_wv(dict(FA, _, WV), FA, WV).
+
+%!  template_meta_slot(+KB, +F, +A, +I) is semidet.
+%
+%   The I-th slot of some template for F/A is a META-variable: in the template's
+%   word list the slot is immediately preceded by 'that' (or 'says'), so an
+%   embedded literal is its intended value (see le_grammar:is_meta_prev/1).
+template_meta_slot(KB, F, A, I) :-
+    current_predicate(KB:le_dict/1),
+    clause(KB:le_dict(Dict), true),
+    dict_fa_wv(Dict, [F|Args], WV),
+    length(Args, A),
+    nth1(I, Args, V),
+    append(_, [PrevWord, Slot | _], WV),
+    Slot == V,
+    atom(PrevWord),
+    memberchk(PrevWord, [that, says]), !.
+
 % --- Printing ---
 print_issues(Issues) :-
     forall(member(Issue, Issues), print_issue(Issue)).
@@ -422,8 +501,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template]) },
     [ '~w: ~w' - [Type, Msg] ].
