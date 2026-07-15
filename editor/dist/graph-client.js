@@ -90738,7 +90738,7 @@ var require_elk_bundled = __commonJS({
             };
             var NW = sfb(zBe, "BreakingPointProcessor", 1545);
             feb(1546, 1, nwe, dsc);
-            _.Mb = function esc(a) {
+            _.Mb = function esc2(a) {
               return Krc(RD(a, 10));
             };
             var LW = sfb(zBe, "BreakingPointProcessor/0methodref$isEnd$Type", 1546);
@@ -139303,11 +139303,66 @@ cytoscape2.stylesheet = cytoscape2.Stylesheet = _Stylesheet;
 var import_cytoscape_fcose = __toESM(require_cytoscape_fcose());
 var import_cytoscape_dagre = __toESM(require_cytoscape_dagre());
 var import_cytoscape_elk = __toESM(require_cytoscape_elk());
+
+// src/mermaid-export.ts
+function esc(label) {
+  return String(label ?? "").replace(/"/g, "#quot;").replace(/\s+/g, " ").trim();
+}
+function nodeStatement(id2, node) {
+  const label = esc(node.label || node.id);
+  switch (node.type) {
+    case "template":
+      return `${id2}(["${label}"]):::template`;
+    case "fact":
+      return `${id2}("${label}"):::fact`;
+    case "type":
+      return `${id2}{"${label}"}:::type`;
+    case "query":
+      return `${id2}{{"${label}"}}:::query`;
+    case "rule":
+      return `${id2}["${label}"]:::rule`;
+    default:
+      return `${id2}["${label}"]`;
+  }
+}
+function graphToMermaid(nodes3, edges3, direction = "LR") {
+  const lines = [`flowchart ${direction}`];
+  const idOf = /* @__PURE__ */ new Map();
+  nodes3.forEach((node, i) => idOf.set(node.id, `n${i}`));
+  const parents2 = new Set(nodes3.filter((n) => n.parent && idOf.has(n.parent)).map((n) => n.parent));
+  const topLevel = nodes3.filter((n) => !parents2.has(n.id) && !(n.parent && idOf.has(n.parent)));
+  const childrenOf = (pid) => nodes3.filter((n) => n.parent === pid);
+  for (const node of topLevel)
+    lines.push(`    ${nodeStatement(idOf.get(node.id), node)}`);
+  for (const node of nodes3.filter((n) => parents2.has(n.id))) {
+    lines.push(`    subgraph ${idOf.get(node.id)}["${esc(node.label || node.id)}"]`);
+    for (const child of childrenOf(node.id))
+      lines.push(`        ${nodeStatement(idOf.get(child.id), child)}`);
+    lines.push("    end");
+  }
+  for (const e of edges3) {
+    const s = idOf.get(e.source), t = idOf.get(e.target);
+    if (!s || !t || e.type === "scopes")
+      continue;
+    const label = esc((e.type || "").replace(/-/g, " "));
+    const arrow = e.type === "depends-on" ? "-.->" : "-->";
+    lines.push(label ? `    ${s} ${arrow}|${label}| ${t}` : `    ${s} ${arrow} ${t}`);
+  }
+  lines.push("    classDef template fill:#fff3e0,stroke:#ffb74d,color:#5d4037");
+  lines.push("    classDef rule fill:#fff8ef,stroke:#ffb74d,color:#5d4037");
+  lines.push("    classDef fact fill:#388e3c,stroke:#2e7d32,color:#ffffff");
+  lines.push("    classDef type fill:#6a1b9a,stroke:#4a148c,color:#ffffff");
+  lines.push("    classDef query fill:#c62828,stroke:#8e0000,color:#ffffff");
+  return lines.join("\n");
+}
+
+// src/graph-client.ts
 cytoscape2.use(import_cytoscape_fcose.default);
 cytoscape2.use(import_cytoscape_dagre.default);
 cytoscape2.use(import_cytoscape_elk.default);
 var graphContainer = document.getElementById("graph-container");
 var btnRefreshGraph = document.getElementById("btn-refresh-graph");
+var btnCopyMermaid = document.getElementById("btn-copy-mermaid");
 var layoutSelect = document.getElementById("layout-select");
 var directionSelect = document.getElementById("direction-select");
 var scenarioSelect = document.getElementById("scenario-select");
@@ -139789,7 +139844,26 @@ function focusNodeAtOffset(offset) {
     }
   }
 }
+function visibleGraphAsMermaid() {
+  const nodes3 = cy.nodes(":visible").map((n) => ({
+    id: n.id(),
+    type: n.data("type"),
+    label: n.data("label") || n.id(),
+    parent: n.data("parent")
+  }));
+  const edges3 = cy.edges(":visible").map((e) => ({
+    source: e.data("source"),
+    target: e.data("target"),
+    type: e.data("type")
+  }));
+  return graphToMermaid(nodes3, edges3, directionSelect.value === "TB" ? "TD" : "LR");
+}
 btnRefreshGraph.addEventListener("click", refreshGraph);
+btnCopyMermaid.addEventListener("click", () => {
+  navigator.clipboard.writeText(visibleGraphAsMermaid()).then(() => {
+    alert("Mermaid diagram copied to clipboard");
+  });
+});
 layoutSelect.addEventListener("change", () => {
   savePreferences();
   runLayout();
@@ -139843,7 +139917,8 @@ try {
         visible: n.style("display") !== "none"
       })),
       refreshGraph,
-      rightClicked: () => rightClickedNode && rightClickedNode.data("label")
+      rightClicked: () => rightClickedNode && rightClickedNode.data("label"),
+      mermaid: () => visibleGraphAsMermaid()
     };
   }
 } catch {

@@ -5,11 +5,14 @@
 // shared context menus are wired once per window and act on whichever view was last
 // interacted with (activeView).
 
+import { explanationToMermaid } from './mermaid-export';
+
 export interface MenuEls {
     answerContextMenu: HTMLElement;
     menuCopyAnswer: HTMLElement;
     explanationContextMenu: HTMLElement;
     menuCopyExplanation: HTMLElement;
+    menuCopyMermaid: HTMLElement;       // "Copy as Mermaid diagram"
     menuGotoOriginal: HTMLElement;
     answerTooltip: HTMLElement;
     titleMenu: HTMLElement;             // context menu for the EXPLANATION title
@@ -76,6 +79,11 @@ function wireMenus(m: MenuEls) {
     m.menuCopyExplanation.addEventListener('click', (e) => {
         e.stopPropagation();
         activeView?.copyExplanation();
+        m.explanationContextMenu.style.display = 'none';
+    });
+    m.menuCopyMermaid.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeView?.copyExplanationMermaid();
         m.explanationContextMenu.style.display = 'none';
     });
     m.menuPatchScenario?.addEventListener('click', (e) => {
@@ -322,6 +330,13 @@ export class ExplanationView {
         } catch {
             navigator.clipboard.writeText(text);
         }
+    }
+
+    // Copy the current explanation as a Mermaid flowchart (text), pasteable
+    // into GitHub, Obsidian, docs and chats that render Mermaid.
+    copyExplanationMermaid() {
+        if (!this.lastWhy) return;
+        navigator.clipboard.writeText(explanationToMermaid(this.lastWhy));
     }
 
     private explanationToText(node: any, depth = 0, prefix = ''): string {

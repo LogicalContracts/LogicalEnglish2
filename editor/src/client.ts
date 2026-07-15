@@ -1472,6 +1472,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             menuCopyAnswer: document.getElementById('menu-copy-answer')!,
             explanationContextMenu: document.getElementById('explanation-context-menu')!,
             menuCopyExplanation: document.getElementById('menu-copy-explanation')!,
+            menuCopyMermaid: document.getElementById('menu-copy-mermaid')!,
             menuGotoOriginal: document.getElementById('menu-goto-original')!,
             answerTooltip: document.getElementById('answer-tooltip')!,
             titleMenu: document.getElementById('explanation-title-menu')!,

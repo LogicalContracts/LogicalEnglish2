@@ -104,6 +104,7 @@ export async function initScenarioVariations() {
         menuCopyAnswer: $('menu-copy-answer'),
         explanationContextMenu: $('explanation-context-menu'),
         menuCopyExplanation: $('menu-copy-explanation'),
+        menuCopyMermaid: $('menu-copy-mermaid'),
         menuGotoOriginal: $('menu-goto-original'),
         answerTooltip: $('answer-tooltip'),
         titleMenu: $('explanation-title-menu'),
