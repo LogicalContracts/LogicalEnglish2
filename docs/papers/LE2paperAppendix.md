@@ -147,7 +147,21 @@ prove the goal and then building out the reasons it fails, condition by
 condition, until every branch bottoms out in a FAIL leaf. This lets a
 learner experience directly the asymmetry between positive proof (one way
 to succeed suffices) and negation as failure (every way must fail) that
-the paper's justification trees can only report. Supporting affordances
+the paper's justification trees can only report.
+
+The game also covers **abduction**, building on the assumables of §A.2:
+an assumable statement appears as an **Assumption card** with a dashed
+amber border, which plays like a fact but is *assumed* rather than
+proved — connecting it makes the assumption explicit. An answer that
+holds only under assumptions is labelled with them in the "Answer to
+prove" picker, so a query like *"the grass is wet"* offers *"…assuming
+it rained"* and *"…assuming the sprinkler was on"* as two alternative
+**explanations** of the same observation, each with its own proof to
+build. A small library of abductive examples supports this
+(`examples/moreExamples/abduction`: wet grass, sunglasses, and a
+fault-diagnosis case, with a teacher-facing README).
+
+Supporting affordances
 include a per-predicate colour legend, a **Child Mode** that hides all
 text so that only the coloured shape of a proof remains (for younger
 learners or for emphasising structure over wording), a **Clone Tool** for
@@ -185,28 +199,102 @@ or already used in a scenario, plus plain `is a` assertions), supports an
 **Assume** checkbox to write a fact back as unknown, and preserves
 comments, test lines, and unrecognised lines rather than discarding them.
 
+**Query Editor.** Queries can be built the same way. The Query Editor
+renders a query as a list of fill-in-the-blank conditions, each an
+instance of one of the program's templates; conditions are combined with
+per-row **and/or** selectors, negated with a **not** checkbox (written
+back as `it is not the case that …`), and nested by indenting rows —
+reflecting LE's indentation-based and/or scoping. The result can be
+copied to the clipboard or inserted into the program, replacing the
+query it was loaded from or appending a new one. It deliberately does
+not cover the full body-condition syntax (aggregates, deeply nested
+groups); the main editor remains available for those.
+
+**"Write it in English" — LLM-assisted input.** Both the Scenario Editor
+and the Query Editor offer a *Write it in English* entry in their
+add-fact / add-condition menus: the user types one or more plain-language
+sentences and an LLM turns them into Logical English facts or query
+conditions that use **the program's existing templates** — the model
+fills templates in, normalising wording and tense, but does not invent
+predicates. The proposed LE is verified against the program before it is
+added, baseline-diffed so that only *new* issues count; if problems are
+introduced the user is warned but may still insert (or rephrase and
+regenerate). This uses the same model configuration as the LE Assistant
+and gives a much narrower, safer entry point for natural-language input
+than free-form program generation.
+
 **Scenario Variations.** A closely related but distinct tool lets a user
 take a scenario, *alter* it, and immediately run one or more queries
 against the variation without touching the program — the "what-if"
 workflow ("what if Alice were *not* a citizen?"). It reuses the Scenario
 Editor's form for the facts, lets the user assemble a list of queries to
 run together, and shows the familiar answers-plus-explanation view under
-each, with clickable nodes that navigate back to the source. Both the
-altered scenario and the query list are encoded in the window's URL, so a
-particular exploration can be shared by copying a link.
+each, with clickable nodes that navigate back to the source. The
+explanation now feeds back into the scenario: right-clicking a node lets
+the user **patch the variation from the explanation itself** — deleting
+the scenario fact behind a succeeded node, or adding (or assuming as
+unknown) the missing fact behind a failed one — with the queries re-run
+immediately, closing the what-if loop without ever leaving the
+explanation. Both the altered scenario and the query list are encoded in
+the window's URL, so a particular exploration can be shared by copying a
+link.
+
+**Executive mode.** A new, deliberately minimalist entry point at
+`/executive` serves people who want to *use* an existing program — ask
+its questions of its scenarios — without ever editing rules. It is
+mobile-friendly and read-only: a filterable list of programs, then just
+two dropdowns, **Scenario** and **Question**, with the query re-run
+automatically whenever either changes; each answer is a card that expands
+into an indented explanation tree (assumed unknowns noted), and a button
+opens the full Scenario Variations window on the same program. The whole
+state — program, scenario, query — lives in the URL, so a link can put a
+non-technical reader directly in front of a running query; the page
+honours the same user authentication as the editor. Where the paper's IDE
+addresses the *author* of an LE document, Executive mode addresses its
+*consumer*.
+
+**Interactive debugger.** The paper describes LE2's Debug Adapter
+Protocol (DAP) server as having an operational tracer but a client-facing
+surface "still being stabilised". That surface has since stabilised
+inside the editor itself: an **LE Debugger** panel steps through a
+query's proof with Step/Continue/Stop controls, shows the call stack
+top-down (root query at the top, the goal executing now at the bottom,
+mirroring top-down LE/Prolog execution), highlights the exact source span
+of the current goal in the editor, and renders each frame's variables as
+they become bound — so a binding made deep in the proof is seen
+propagating to the ancestor goals, making unification observable over
+time. Multiple answers can be traced by continuing past the first.
 
 **Sharing via URL.** More broadly, the editor keeps the current program
 in the URL (a `text` parameter), and `example`, `query` and `answer` URL
 parameters allow a link to open a specific example, pre-select a query,
-or target a specific answer. Together with the Variations URLs, this
-makes "send someone exactly what I am looking at" a first-class
-operation.
+or target a specific answer; the landing page takes `dir` and `expand`
+parameters to focus its example list on one subdirectory or open all its
+folders. Together with the Variations and Executive URLs, this makes
+"send someone exactly what I am looking at" a first-class operation. In
+the other direction, **New from URL** loads an LE program *from* a link:
+the editor fetches the document and resolves its relative
+`includes these resources:` references against the URL's location, so a
+program published anywhere on the web can be opened, and its resources
+found, in one step.
+
+**Help menu and user documentation.** The editor has gained a Help menu
+whose entries — an introductory LE2 tutorial, a how-to-use guide for the
+web application, and the language reference — open in an in-application
+Markdown viewer, with the same links offered on the landing page. The
+language reference itself has grown sections on LE extensions and on
+*humanising* LE — guidelines for using constructs such as `only if`,
+`unless` and prepositional additions to make programs read more
+naturally.
 
 **Multi-user deployment.** The hosted service has gained user accounts
 and authentication, with per-user isolation building on the isolated
 reasoning sessions the paper describes; proprietary examples have been
 separated from the open example set, and session handling has been
-hardened against expiry and cross-session leakage.
+hardened against expiry and cross-session leakage. Attempting to open a
+restricted example without the required credentials now produces an
+explicit error and a redirect to the login page rather than failing
+silently.
 
 **LE Assistant refinements.** The in-document LLM assistant (§3.2) has
 gained a lighter-weight "light mode", explicit control over its agentic
@@ -259,6 +347,20 @@ explanations responsive on larger documents.
 checks, including a warning for facts or rules with a single variable and
 for suspicious `is …` templates, and stricter enforcement that scenarios
 appear at the end of a document and that their items end in periods.
+Several recent checks target failure modes that used to surface far from
+their cause. A reserved word inside a template (`if`, `unless`,
+`only if`, …) used to silently truncate the template and corrupt the
+parse of the whole templates section, with errors reported on unrelated
+templates; it is now a targeted error at the offending template. Scenario
+facts whose arguments begin with an indefinite article ("a person is a
+citizen") are warned about — they introduce a variable rather than name
+an individual, so the fact holds for everything — extending a check that
+previously covered only knowledge-base facts. And a sentence that chains
+several templates none of which is declared `; prepositional` — so that
+the tail of the sentence would silently parse as a compound term inside a
+template slot — now draws a warning, except in meta-template slots (those
+conventionally marked by a preceding *that* or *says*), whose own parsing
+has been made more robust.
 
 ## A.6 Summary
 
@@ -272,15 +374,22 @@ Relative to the paper, LE2 has:
   chaining excepted: it remains in the proprietary `le_extensions` module
   and is not part of the open-source version);
 - **added a major educational tool**, the Proof Game, that makes proof
-  construction, unification, quantification and negation-as-failure
-  manipulable rather than merely explained, together with a tutorial and
-  teaching examples;
-- **grown the IDE** with a form-based Scenario Editor, a "what-if"
-  Scenario Variations tool, richer URL-based sharing, and multi-user
-  authentication; and
+  construction, unification, quantification, negation-as-failure and
+  abduction manipulable rather than merely explained, together with a
+  tutorial, teaching examples, and a library of abductive examples;
+- **grown the IDE** with form-based Scenario and Query Editors,
+  LLM-assisted "Write it in English" input verified against the program's
+  own templates, a "what-if" Scenario Variations tool whose explanations
+  can patch the scenario in place, a read-only mobile-friendly Executive
+  mode for consumers of a program, an interactive in-editor debugger,
+  richer URL-based sharing (including loading programs *from* URLs), an
+  in-application documentation viewer, and multi-user authentication; and
 - **deepened explanation and verification**, especially for failure —
   detailed per-rule failure trees, repeated-subtree collapsing, the
-  important-reason summary, and the guided Explanation Drill.
+  important-reason summary, and the guided Explanation Drill — alongside
+  verifier checks that catch template-level mistakes (reserved words,
+  unintended template chaining, variable-introducing scenario facts) at
+  their source.
 
 None of these change the paper's central thesis — that LE2 consolidates
 the robustly useful core of LE into a self-contained, deployable,
