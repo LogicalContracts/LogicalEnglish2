@@ -24,6 +24,7 @@
 :- use_module(le_grammar).
 :- use_module(reasoner).
 :- use_module(le_system_templates).
+:- use_module(le_i18n).
 :- use_module(le_graph).
 :- use_module(le_assistant).
 :- use_module(le_contract_assistant).
@@ -1205,9 +1206,13 @@ game_answer_query(SM, Dict, Query, AnswerQuery) :-
 % answers_dedup, hiding the answer picker (and the alternative explanations).
 answer_label_with_assumptions(_KB, ALE, [], ALE) :- !.
 answer_label_with_assumptions(KB, ALE0, Us, Label) :-
+    le_kbs:ensure_kb_language(KB),
     convert_unknowns_to_le(KB, Us, LEs),
-    atomic_list_concat(LEs, ' and ', UsText),
-    format(string(Label), "~w, assuming ~w", [ALE0, UsText]).
+    ( le_i18n:kw_main_words(assuming_and, [AndW]) -> true ; AndW = and ),
+    format(atom(AndSep), ' ~w ', [AndW]),
+    atomic_list_concat(LEs, AndSep, UsText),
+    ( le_i18n:kw_main_words(assuming, AssumingWords) -> atomic_list_concat(AssumingWords, ' ', Assuming) ; Assuming = assuming ),
+    format(string(Label), "~w, ~w ~w", [ALE0, Assuming, UsText]).
 
 % answers_dedup(+LabelWhyPairs, -Unique): the first explanation for each distinct
 % answer label, preserving order.

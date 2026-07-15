@@ -95,8 +95,17 @@ parse_le_text(Text, Doc) :-
 %   Performs a second pass to resolve templates and variables.
 parse_le_tokens(Tokens, doc(NewSections), M) :-
     ( le_kbs:do_log -> print_message(informational,'Parsing LE tokens...~n'); true),
-    (   phrase(doc(Sections), Tokens) ->  true 
-        ;   
+    % Detect the program's language from its first statement (the opener
+    % declared in i18n/languages.csv, e.g. "the target language is" /
+    % "a linguagem alvo é"). Per O-1: when no opener matches, default to
+    % English. The active language drives every kw//1 terminal below.
+    ( le_i18n:detect_language_tokens(Tokens, Lang) -> true ; Lang = en ),
+    le_i18n:set_le_language(Lang),
+    ( nonvar(M), M \== (-) ->
+        retractall(M:le_lang(_)), assertz(M:le_lang(Lang))
+    ; true ),
+    (   phrase(doc(Sections), Tokens) ->  true
+        ;
         print_message(error, "DCG phrase(doc(Sections), Tokens) failed"),
         fail
     ),
@@ -113,8 +122,9 @@ check_scenario_before_rules(Sections, M) :-
         ( nth1(_, Sections, scenario(Name, _, Start, End)),
           once((member(Other, Sections), is_rule_bearing_section(Other), section_start(Other, StartOther), StartOther > Start))
         ),
-        ( format(atom(Desc), "Scenario '~w' defined before rules in knowledge base", [Name]),
-          (nonvar(M) -> assertz(M:le_issue(error, scenario_before_rules, Desc, "Move the scenario after the rules.", Start, End)) ; true)
+        ( le_i18n:le_msg(scenario_before_rules_desc, [name-Name], Desc),
+          le_i18n:le_msg(scenario_before_rules_fix, [], Fix),
+          (nonvar(M) -> assertz(M:le_issue(error, scenario_before_rules, Desc, Fix, Start, End)) ; true)
         )
     ).
 
@@ -135,10 +145,79 @@ section_start(events(_), 0).
 % be wrongly flagged as appearing before a later scenario's rule.
 is_rule_bearing_section(kb(_, Content, _, _)) :- member(Item, Content), is_rule_item(Item).
 is_rule_bearing_section(unknown_section(Tokens, _, _)) :-
-    ( member(word(if, _), Tokens) ; member(word(unless, _), Tokens) ).
+    member(word(W, _), Tokens),
+    ( le_i18n:class_member(if, W) ; le_i18n:class_member(unless, W) ), !.
 
 is_rule_item(rule(_, _, _, _, _, _)).
 is_rule_item(fact(_, _, _)).
+
+% ---------------------------------------------------------------------------
+% Lexicon-driven keyword terminals
+%
+% The DCG below matches keywords through kw//1 and friends rather than inline
+% English atoms: the surface words come from i18n/keywords.csv for the ACTIVE
+% language (set from the program's first statement), so the grammar STRUCTURE
+% is shared across languages and only the terminals are data-driven.
+% ---------------------------------------------------------------------------
+
+%!  kw(+Key)// is nondet.
+%
+%   Matches one synonym (a word sequence, longest first) of keyword Key in the
+%   active language, skipping indents/comments between words like t//1 does.
+kw(Key) -->
+    { le_i18n:kw_synonym_words(Key, Words) },
+    kw_words(Words).
+
+kw_words([]) --> [].
+kw_words([W|Ws]) --> t(word(W)), kw_words(Ws).
+
+%!  kw_start(+Key, -Start)// is nondet.
+%
+%   As kw//1, also returning the source start of the first word.
+kw_start(Key, Start) -->
+    { le_i18n:kw_synonym_words(Key, Words), Words = [W0|Ws] },
+    t(word(W0, loc(Start, _))),
+    kw_words(Ws).
+
+%!  kw_loc(+Key, -Start, -End)// is nondet.
+%
+%   As kw//1, also returning the full source range of the matched phrase.
+kw_loc(Key, Start, End) -->
+    { le_i18n:kw_synonym_words(Key, Words) },
+    (   { Words = [W] }
+    ->  t(word(W, loc(Start, End)))
+    ;   { Words = [W0|Ws] },
+        t(word(W0, loc(Start, _))),
+        kw_words_end(Ws, End)
+    ).
+
+kw_words_end([W], End) --> !, t(word(W, loc(_, End))).
+kw_words_end([W|Ws], End) --> t(word(W)), kw_words_end(Ws, End).
+
+%!  kw_words_eq(+Key, +Atoms) is semidet.
+%
+%   Atoms (a full word list) is exactly one synonym of Key in the active
+%   language. Non-DCG counterpart of kw//1 for token-list checks.
+kw_words_eq(Key, Atoms) :-
+    le_i18n:kw_synonym_words(Key, Words),
+    Words == Atoms, !.
+
+%!  match_word_prefix(+Words, +Tokens, -Rest) is semidet.
+%
+%   Tokens starts with word tokens spelling Words; Rest is what follows.
+match_word_prefix([], Rest, Rest).
+match_word_prefix([W|Ws], [word(W0, _)|Ts], Rest) :-
+    W0 == W,
+    match_word_prefix(Ws, Ts, Rest).
+
+%!  tokens_match_words(+Tokens, +Words) is semidet.
+%
+%   The token list spells exactly the given word list.
+tokens_match_words([], []).
+tokens_match_words([T|Ts], [W|Ws]) :-
+    extract_simple_word(T, W0),
+    W0 == W,
+    tokens_match_words(Ts, Ws).
 
 % DCG for Logical English
 % doc(Sections) parses the entire document into a list of sections.
@@ -150,25 +229,25 @@ sections([]) --> [].
 
 % section(resources(...)) parses a resources inclusion section.
 section(resources(Name, Resources, Start, End)) -->
-    any_indent, t(word(the, loc(Start, _))), t(word(knowledge)), t(word(base)), kb_name_tokens(Tokens), t(word(includes)), t(word(these)), t(word(resources)), t(punctuation(':', _)),
+    any_indent, kw_start(kb_open, Start), kb_name_tokens(Tokens), kw(resources_include), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     resource_list(Resources, End).
 
 section(resources(Name, Resources, Start, End)) -->
-    any_indent, t(word(the, loc(Start, _))), t(word(contract)), kb_name_tokens_contract(Tokens), t(word(includes)), t(word(these)), t(word(resources)), t(punctuation(':', _)),
+    any_indent, kw_start(contract_open, Start), kb_name_tokens(Tokens), kw(resources_include), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     resource_list(Resources, End).
 
 % section(kb(...)) parses a knowledge base section.
-section(kb(Name, Content, Start, End)) --> 
-    any_indent, t(word(the, loc(Start, _))), t(word(knowledge)), t(word(base)), kb_name_tokens(Tokens), t(word(includes)), t(punctuation(':', _)),
+section(kb(Name, Content, Start, End)) -->
+    any_indent, kw_start(kb_open, Start), kb_name_tokens(Tokens), kw(kb_include), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     { ( le_kbs:do_log -> print_message(informational,'Parsing KB: ~w~n' - [Name]); true) },
     kb_content(Content, End),
     { ( le_kbs:do_log -> print_message(informational,'Finished KB: ~w~n' - [Name]); true) }.
 
-section(kb(Name, Content, Start, End)) --> 
-    any_indent, t(word(the, loc(Start, _))), t(word(contract)), kb_name_tokens_contract(Tokens), t(word(states)), t(word(that)), t(punctuation(':', _)),
+section(kb(Name, Content, Start, End)) -->
+    any_indent, kw_start(contract_open, Start), kb_name_tokens_contract(Tokens), kw(contract_states), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     { ( le_kbs:do_log -> print_message(informational,'Parsing KB (contract): ~w~n' - [Name]); true) },
     kb_content(Content, End),
@@ -180,17 +259,16 @@ section(kb(Name, Content, Start, End)) -->
 % clear syntactic error instead of silently starting a bogus query section that
 % swallows the real queries.
 section(misplaced_expectation(Start, End)) -->
-    any_indent, t(word(Kw, loc(Start, _))), { member(Kw, [query, scenario]) },
+    any_indent, t(word(Kw, loc(Start, _))),
+    { ( le_i18n:class_member(query, Kw) -> true ; le_i18n:class_member(scenario, Kw) ) },
     section_name_tokens(NameTokens),
-    t(word(expects)), t(word(answers)),
+    kw(expects), kw(answers),
     t(punctuation('[')), list_elements(_), t(punctuation(']')),
-    (   t(word(and)), t(word(unknowns)), t(punctuation('[')), list_elements(_), t(punctuation(']')) -> [] ; [] ),
+    (   kw(and_unknowns), t(punctuation('[')), list_elements(_), t(punctuation(']')) -> [] ; [] ),
     (   any_indent, t(punctuation('.', loc(_, End))) -> [] ; { get_token_pos(End) } ),
     {   reconstruct_name(NameTokens, Name),
-        format(atom(Desc),
-            "Misplaced '~w' before an expectation. An expectation belongs to a scenario; write \"~w expects answers [...]\" without the leading '~w'.",
-            [Kw, Name, Kw]),
-        format(atom(Fix), "Remove the leading '~w' from this line.", [Kw]),
+        le_i18n:le_msg(misplaced_expectation_desc, [kw-Kw, name-Name], Desc),
+        le_i18n:le_msg(misplaced_expectation_fix, [kw-Kw], Fix),
         ( le_kbs:current_compiling_module(M), nonvar(M)
           -> assertz(M:le_issue(error, misplaced_expectation, Desc, Fix, Start, End))
           ;  true )
@@ -198,7 +276,7 @@ section(misplaced_expectation(Start, End)) -->
 
 % section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
-    any_indent, t(word(scenario, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
+    any_indent, kw_start(scenario, Start), section_name_tokens(Tokens), kw(marker_is), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     kb_content(Content, End).
 
@@ -207,40 +285,45 @@ section(scenario(Name, Content, Start, End)) -->
 % and / or / "it is not the case that …" / "for all cases …" — not just a single
 % template instance. The whole body is one raw item, parsed in the second pass.
 section(query(Name, [query_raw(BodyTokens, BStart, End)], Start, End)) -->
-    any_indent, t(word(query, loc(Start, _))), section_name_tokens(Tokens), t(word(is)), t(punctuation(':', _)),
+    any_indent, kw_start(query, Start), section_name_tokens(Tokens), kw(marker_is), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     body(BodyTokens, End),
     { ( body_first_start(BodyTokens, BStart) -> true ; BStart = Start ) }.
 
 % section(ontology(...)) parses an ontology section.
 section(ontology(Content, Start, End)) -->
-    any_indent, t(word(the, loc(Start, _))), t(word(ontology)), t(word(is)), t(punctuation(':', _)),
+    any_indent, kw_start(ontology, Start), t(punctuation(':', _)),
     kb_content(Content, End).
 
 % section(predicates(...)) parses a predicates declaration section.
 section(predicates(Dicts)) -->
-    any_indent, t(word(the, _)), t(word(predicates)), t(word(are)), t(punctuation(':', _)),
+    any_indent, kw(predicates), t(punctuation(':', _)),
     templates(Dicts).
 
 % section(templates(...)) parses a templates declaration section.
 section(templates(Dicts)) -->
-    any_indent, t(word(the, _)), t(word(templates)), t(word(are)), t(punctuation(':', _)),
+    any_indent, kw(templates), t(punctuation(':', _)),
     templates(Dicts).
 
 % section(fluents(...)) parses a fluents declaration section.
 section(fluents(Dicts)) -->
-    any_indent, t(word(the, _)), t(word(fluents)), t(word(are)), t(punctuation(':', _)),
+    any_indent, kw(fluents), t(punctuation(':', _)),
     templates(Dicts).
 
 % section(events(...)) parses an events declaration section.
 section(events(Dicts)) -->
-    any_indent, t(word(the, _)), t(word(events)), t(word(are)), t(punctuation(':', _)),
+    any_indent, kw(events), t(punctuation(':', _)),
     templates(Dicts).
 
-% section(meta(...)) parses a meta-information section (e.g., target language).
-section(meta(Dicts)) -->
-    any_indent, t(word(the, _)), t(word(target)), t(word(language)), t(word(is)), t(punctuation(':', _)), t(word(prolog)), t(punctuation('.', _)),
-    { Dicts = [] }.
+% section(meta(...)) parses a meta-information section (the target-language
+% opener; its phrase per language comes from i18n/languages.csv).
+section(meta([])) -->
+    any_indent,
+    { le_i18n:le_active_language(Lang),
+      ( le_i18n:language_opener(Lang, OpenerWords) -> true
+      ; le_i18n:language_opener(en, OpenerWords) ) },
+    kw_words(OpenerWords),
+    t(punctuation(':', _)), t(word(prolog)), t(punctuation('.', _)).
 
 % section(unknown_section(...)) is a fallback for unrecognized sections.
 section(unknown_section(Tokens, Start, End)) -->
@@ -256,14 +339,14 @@ body_first_start([T|_], S) :- get_token_start(T, S).
 
 % kb_name_tokens(Tokens) consumes tokens until the 'includes' keyword.
 kb_name_tokens([T|Ts]) -->
-    \+ t(word(includes)),
+    \+ kw(kb_include),
     t(T), !,
     kb_name_tokens(Ts).
 kb_name_tokens([]) --> [].
 
-% kb_name_tokens_contract(Tokens) consumes tokens until the 'states' keyword.
+% kb_name_tokens_contract(Tokens) consumes tokens until the 'states that' keyword.
 kb_name_tokens_contract([T|Ts]) -->
-    \+ t(word(states)),
+    \+ kw(contract_states),
     t(T), !,
     kb_name_tokens_contract(Ts).
 kb_name_tokens_contract([]) --> [].
@@ -274,9 +357,9 @@ kb_name_tokens_contract([]) --> [].
 % prefixed with a section keyword (e.g. "query one expects answers [...]") would
 % greedily swallow the rest of the document, including the real queries.
 section_name_tokens([T|Ts]) -->
-    \+ t(word(is)),
+    \+ kw(marker_is),
     \+ t(punctuation(':', _)),
-    \+ t(word(expects)),
+    \+ kw(expects),
     \+ t(punctuation('.', _)),
     t(T), !,
     section_name_tokens(Ts).
@@ -284,7 +367,7 @@ section_name_tokens([]) --> [].
 
 % query_name_tokens(Tokens) consumes tokens until 'expects'.
 query_name_tokens([T|Ts]) -->
-    \+ t(word(expects)),
+    \+ kw(expects),
     \+ t(punctuation('.')),
     t(T),
     !,
@@ -312,16 +395,11 @@ consume_until_next_section([T|Ts]) -->
 consume_until_next_section([]) --> [].
 
 % next_section_start matches the beginning of any Logical English section.
-next_section_start --> any_indent, t(word(the, _)), t(word(knowledge)).
-next_section_start --> any_indent, t(word(the, _)), t(word(contract)).
-next_section_start --> any_indent, t(word(scenario, _)).
-next_section_start --> any_indent, t(word(query, _)).
-next_section_start --> any_indent, t(word(the, _)), t(word(ontology)).
-next_section_start --> any_indent, t(word(the, _)), t(word(predicates)).
-next_section_start --> any_indent, t(word(the, _)), t(word(templates)).
-next_section_start --> any_indent, t(word(the, _)), t(word(fluents)).
-next_section_start --> any_indent, t(word(the, _)), t(word(events)).
-next_section_start --> any_indent, t(word(the, _)), t(word(target)).
+% The per-language guard prefixes live under the 'guard' key in
+% i18n/keywords.csv (for English: "the knowledge", "the contract", "scenario",
+% "query", "the ontology", "the predicates", "the templates", "the fluents",
+% "the events", "the target").
+next_section_start --> any_indent, kw(guard).
 
 resource_list([R|Rs], End) -->
     any_indent, resource_item(R),
@@ -386,33 +464,32 @@ kb_items([]) --> [].
 % section Name until the next marker (recorded via le_source_section/2). Rules
 % before any marker, or in a KB with no markers, belong to section 'main'.
 kb_item(section_marker(Name, Start, End)) -->
-    t(word(section, loc(Start, _))), section_name_tokens(Tokens), { Tokens \== [] },
-    t(word(is)), t(punctuation(':', loc(_, End))),
+    kw_start(marker, Start), section_name_tokens(Tokens), { Tokens \== [] },
+    kw(marker_is), t(punctuation(':', loc(_, End))),
     { reconstruct_name(Tokens, Name) }.
 % Shorthand for "section annexes is:": "the annexes to the contract are:"
 % (synonym: "the annexes to the knowledge base are:").
 kb_item(section_marker(annexes, Start, End)) -->
-    t(word(the, loc(Start, _))), t(word(annexes)), t(word(to)), t(word(the)),
-    ( t(word(contract)) ; t(word(knowledge)), t(word(base)) ),
-    t(word(are)), t(punctuation(':', loc(_, End))).
+    kw_start(annexes, Start), t(punctuation(':', loc(_, End))).
 
 % kb_item(expected(QueryName, Answers, Unknowns, Start, End)) parses "QueryName expects answers [Answers] and unknowns [Unknowns]."
 kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
     query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
     { Tokens = [First|_], get_token_start(First, Start) },
-    t(word(expects)), t(word(answers)),
+    kw(expects), kw(answers),
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
-    (   t(word(and)), t(word(unknowns)), t(punctuation('[')), list_elements(Unknowns), t(punctuation(']'))
+    (   kw(and_unknowns), t(punctuation('[')), list_elements(Unknowns), t(punctuation(']'))
     ->  []
     ;   { Unknowns = [] }
     ),
     (   (any_indent, t(punctuation('.' , loc(_, End))))
     ->  []
-    ;   { 
+    ;   {
           le_kbs:current_compiling_module(M),
           get_token_pos(Pos),
-          format(atom(Desc), "Missing trailing dot for 'expects answers' in scenario", []),
-          (nonvar(M) -> assertz(M:le_issue(error, missing_trailing_dot, Desc, "Add a dot at the end of the line.", Start, Pos)) ; true),
+          le_i18n:le_msg(missing_trailing_dot_desc, [], Desc),
+          le_i18n:le_msg(missing_trailing_dot_fix, [], Fix),
+          (nonvar(M) -> assertz(M:le_issue(error, missing_trailing_dot, Desc, Fix, Start, Pos)) ; true),
           End = Pos
         }
     ).
@@ -420,19 +497,19 @@ kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
 
 % kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
-    t(word(rule)), !, (t(word(ID)) | t(number(ID))), t(punctuation(':')),
+    kw(rule), !, (t(word(ID)) | t(number(ID))), t(punctuation(':')),
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
-    any_indent(N), 
-    (   t(word(if)), t(punctuation(':')) ->
+    any_indent(N),
+    (   kw(if), t(punctuation(':')) ->
         numbered_body(Body, End)
-    ;   t(word(if, _)) ->
-        body(Body, End)
-    ;   t(word(only)), t(word(if)) ->
+    ;   kw(only_if) ->
         body(Body0, End), { Body = only_if(Body0) }
-    ;   t(word(unless)), t(punctuation(':')) ->
+    ;   kw(if) ->
+        body(Body, End)
+    ;   kw(unless), t(punctuation(':')) ->
         numbered_body(Body0, End), { Body = unless(Body0) }
-    ;   t(word(unless, _)) ->
+    ;   kw(unless) ->
         body(Body0, End), { Body = unless(Body0) }
     ),
     { Indent = N }.
@@ -440,23 +517,23 @@ kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
-    any_indent(N), 
-    (   t(word(if)), t(punctuation(':')) ->
+    any_indent(N),
+    (   kw(if), t(punctuation(':')) ->
         numbered_body(Body, End)
-    ;   t(word(if, _)) ->
-        body(Body, End)
-    ;   t(word(only)), t(word(if)) ->
+    ;   kw(only_if) ->
         body(Body0, End), { Body = only_if(Body0) }
-    ;   t(word(unless)), t(punctuation(':')) ->
+    ;   kw(if) ->
+        body(Body, End)
+    ;   kw(unless), t(punctuation(':')) ->
         numbered_body(Body0, End), { Body = unless(Body0) }
-    ;   t(word(unless, _)) ->
+    ;   kw(unless) ->
         body(Body0, End), { Body = unless(Body0) }
     ),
     { Indent = N, ID = _ }.
 
 % kb_item(unknown_fact(Head, Start, End)) parses "it is unknown whether <template instance>."
 kb_item(unknown_fact(Head, Start, End)) -->
-    t(word(it)), t(word(is)), unknown_keyword, t(word(whether)),
+    kw(it_is), unknown_keyword, kw(whether),
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
@@ -503,21 +580,29 @@ reserved_word_template_error(TDicts) -->
     reserved_template_truncator(Word, WEnd),
     { ( TDicts = [dict(_, _, _, TStart, _, _, _, _, _) | _] -> true ; TStart = WEnd ),
       ( le_kbs:current_compiling_module(M), M \== (-)
-      ->  format(atom(Desc),
-            "Reserved word '~w' in template: a template cannot contain '~w'; the template is cut off at that point",
-            [Word, Word]),
-          assertz(M:le_issue(error, reserved_word_in_template, Desc,
-                    "Reword the template so it does not contain the reserved word.",
-                    TStart, WEnd))
+      ->  le_i18n:le_msg(reserved_word_in_template_desc, [word-Word], Desc),
+          le_i18n:le_msg(reserved_word_in_template_fix, [], Fix),
+          assertz(M:le_issue(error, reserved_word_in_template, Desc, Fix, TStart, WEnd))
       ;   true
       ) },
     skip_to_period.
 
-reserved_template_truncator('only if', End) --> t(word(only, _)), t(word(if, loc(_, End))), !.
-reserved_template_truncator('any of', End)  --> t(word(any, _)), t(word(of, loc(_, End))), !.
-reserved_template_truncator('all of', End)  --> t(word(all, _)), t(word(of, loc(_, End))), !.
+reserved_template_truncator(Phrase, End) -->
+    { member(Key, [only_if, any_of, all_of]),
+      le_i18n:kw_synonym_words(Key, Words) },
+    kw_words_end_open(Words, End), !,
+    { atomic_list_concat(Words, ' ', Phrase) }.
 reserved_template_truncator(W, End) -->
-    t(word(W, loc(_, End))), { memberchk(W, [if, unless, either, expects]) }.
+    t(word(W, loc(_, End))),
+    { ( le_i18n:class_member(if, W)
+      ; le_i18n:class_member(unless, W)
+      ; le_i18n:class_member(either, W)
+      ; le_i18n:class_member(expects, W)
+      ), ! }.
+
+% Like kw_words_end//2 but also accepts a single-word phrase without a cut.
+kw_words_end_open([W], End) --> t(word(W, loc(_, End))).
+kw_words_end_open([W|Ws], End) --> { Ws \== [] }, t(word(W)), kw_words_end_open(Ws, End).
 
 % Skip everything up to and including the next '.', so the templates section can
 % continue after a truncated template line.
@@ -534,11 +619,9 @@ warn_truncated_template(TDicts, S, S) :-
     (   reserved_word_truncation(S, Word, DotEnd),
         TDicts = [dict(_, _, _, TStart, _, _, _, _, _) | _]
     ->  ( le_kbs:current_compiling_module(M), M \== (-)
-        ->  format(atom(Desc),
-              "Template contains the reserved word '~w', which cuts it off. Section keywords (scenario, query, the knowledge base, the ontology, ...) cannot appear inside a template.",
-              [Word]),
-            assertz(M:le_issue(warning, reserved_word_in_template, Desc,
-                               "Reword the template so it does not use the reserved word.", TStart, DotEnd))
+        ->  le_i18n:le_msg(reserved_word_in_template_section_desc, [word-Word], Desc),
+            le_i18n:le_msg(reserved_word_in_template_section_fix, [], Fix),
+            assertz(M:le_issue(warning, reserved_word_in_template, Desc, Fix, TStart, DotEnd))
         ;   true )
     ;   true
     ).
@@ -553,10 +636,11 @@ reserved_word_truncation(Tokens0, Word, DotEnd) :-
 skip_indents([indent(_, _) | T], T2) :- !, skip_indents(T, T2).
 skip_indents(T, T).
 
-section_keyword_head([word(scenario, _) | _], scenario) :- !.
-section_keyword_head([word(query, _) | _], query) :- !.
-section_keyword_head([word(the, _), word(KW, _) | _], KW) :-
-    memberchk(KW, [knowledge, contract, ontology, predicates, templates, fluents, events, target]).
+section_keyword_head([word(W, _) | _], W) :- le_i18n:class_member(scenario, W), !.
+section_keyword_head([word(W, _) | _], W) :- le_i18n:class_member(query, W), !.
+section_keyword_head([word(A, _), word(KW, _) | _], KW) :-
+    le_i18n:class_member(definite_article, A),
+    le_i18n:class_member(reserved_word, KW).
 
 period_before_colon([punctuation('.', loc(_, E)) | _], E) :- !.
 period_before_colon([punctuation(':', _) | _], _) :- !, fail.
@@ -602,20 +686,20 @@ validate_synonym_template(Synonyms, Globals, Opposite, Prep, Unknown, Start, End
     ( Globals \== [] ; nonvar(Opposite) ; nonvar(Prep) ; nonvar(Unknown) ),
     !,
     ( le_kbs:current_compiling_module(M), M \== (-) ->
-        assertz(M:le_issue(error, synonym_with_other_additions,
-            "A template with a synonym cannot have other additions (defines global, opposite, prepositional, unknown, undefined).",
-            "Split the synonym into its own template, or remove the other additions.", Start, End))
+        le_i18n:le_msg(synonym_with_other_additions_desc, [], Desc),
+        le_i18n:le_msg(synonym_with_other_additions_fix, [], Fix),
+        assertz(M:le_issue(error, synonym_with_other_additions, Desc, Fix, Start, End))
     ;   true ).
 validate_synonym_template(_, _, _, _, _, _, _).
 
 template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd) -->
     t(punctuation(';', _)),
-    (   t(word(defines)), t(word(global)) ->
+    (   kw(defines_global) ->
         template_instance(Tokens),
         { reconstruct_name(Tokens, G) },
         template_additions(Gs, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd),
         { Globals = [G|Gs] }
-    ;   t(word(opposite)) ->
+    ;   kw(opposite) ->
         template_instance(OppositeTokens0),
         % The colon written after 'opposite:' is captured as a punct token here;
         % strip it before processing so it doesn't show up in WordsAndVars.
@@ -625,7 +709,7 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         { FunctorArgs = [_|Args], OppositeFunctorArgs = [OppF|OppArgs], unify_args(Args, OppArgs) },
         { Opposite =.. [OppF | OppArgs] },
         template_additions(Globals, _, _, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
-    ;   t(word(synonym)) ->
+    ;   kw(synonym) ->
         % A synonym maps a second surface form to the SAME predicate. Parse the
         % alternative template and unify its arguments (by position) with the main
         % template's so they share Prolog variables; its words become an extra dict
@@ -649,24 +733,21 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
 template_additions([], _, _, _, _, [], _, _, _, _) --> [].
 
 % prepositional_keyword matches the marker declaring a template prepositional (a
-% chainable phrase constraining a variable). Accepts 'prepositional' and its
-% synonym 'composite'; both map to the same downstream 'prepositional' semantics.
-prepositional_keyword --> t(word(prepositional)).
-prepositional_keyword --> t(word(composite)).
+% chainable phrase constraining a variable). English accepts 'prepositional' and
+% its synonym 'composite'; both map to the same downstream 'prepositional'
+% semantics. The surface words come from the 'prepositional' lexicon key.
+prepositional_keyword --> kw(prepositional).
 
 % unknown_keyword matches the marker declaring a template (or fact) as
-% assumable/abducible. Accepts 'unknown' and its synonyms 'assumed' and
+% assumable/abducible. English accepts 'unknown' and its synonyms 'assumed' and
 % 'assumable'; all map to the same downstream 'unknown' semantics.
-unknown_keyword --> t(word(unknown)).
-unknown_keyword --> t(word(assumed)).
-unknown_keyword --> t(word(assumable)).
+unknown_keyword --> kw(unknown).
 
 % undefined_keyword marks a template as a scenario element: facts matching it
 % are expected only in scenarios, never defined in the knowledge base. The
 % verifier will suppress 'undefined_predicate' warnings for it and instead warn
 % if it appears as a fact or rule head in the knowledge base.
-undefined_keyword --> t(word(undefined)).
-undefined_keyword --> t(word(scenario)), t(word(element)).
+undefined_keyword --> kw(undefined).
 
 
 % validate_prepositional_template(+Prep, +FunctorArgs, +WordsAndVars, +Start, +End)
@@ -676,12 +757,14 @@ validate_prepositional_template(prepositional, [_Functor|Args], WordsAndVars, St
     ( le_kbs:current_compiling_module(M) -> true ; M = (-) ),
     length(Args, N),
     (   N == 2 -> true
-    ;   format(atom(Desc), "A prepositional template must have exactly two arguments (found ~w)", [N]),
-        (M \== (-) -> assertz(M:le_issue(error, prepositional_arity, Desc, "Use exactly two *variables* in the template.", Start, End)) ; true)
+    ;   le_i18n:le_msg(prepositional_arity_desc, [n-N], Desc),
+        le_i18n:le_msg(prepositional_arity_fix, [], Fix),
+        (M \== (-) -> assertz(M:le_issue(error, prepositional_arity, Desc, Fix, Start, End)) ; true)
     ),
     (   WordsAndVars = [V|_], var(V) -> true
-    ;   Desc2 = "A prepositional template must start with an argument (its first token must be a *variable*)",
-        (M \== (-) -> assertz(M:le_issue(error, prepositional_first_arg, Desc2, "Move the *variable* to the very beginning of the template.", Start, End)) ; true)
+    ;   le_i18n:le_msg(prepositional_first_arg_desc, [], Desc2),
+        le_i18n:le_msg(prepositional_first_arg_fix, [], Fix2),
+        (M \== (-) -> assertz(M:le_issue(error, prepositional_first_arg, Desc2, Fix2, Start, End)) ; true)
     ).
 validate_prepositional_template(_, _, _, _, _).
 
@@ -697,10 +780,10 @@ process_template(Tokens, FunctorArgs, NamesTypes, WordsAndVars) :-
     ).
 
 is_a_taxonomy_template(WordsAndVars, Args, Type, SuperType) :-
-    (   WordsAndVars = [Type, is, a, SuperType]
-    ;   WordsAndVars = [Type, is, an, SuperType]
-    ;   WordsAndVars = [Type, is, of, SuperType]
-    ),
+    WordsAndVars = [Type | Rest],
+    le_i18n:kw_synonym_words(is_a, IsAWords),
+    append(Prefix, [SuperType], Rest),
+    Prefix == IsAWords,
     member_var(Type, Args),
     member_var(SuperType, Args).
 
@@ -803,20 +886,20 @@ body_tokens([]) --> [].
 body_token(T) --> [T].
 
 % is_terminator matches tokens that end a template instance (period, comma, or 'if').
-is_terminator --> any_indent, t(word(only)), t(word(if, _)).
+is_terminator --> any_indent, kw(only_if).
 is_terminator --> any_indent, t(punctuation(';', _)).
-is_terminator --> any_indent, t(word(if)), t(punctuation(':', _)).
-is_terminator --> any_indent, t(word(unless)), t(punctuation(':', _)).
+is_terminator --> any_indent, kw(if), t(punctuation(':', _)).
+is_terminator --> any_indent, kw(unless), t(punctuation(':', _)).
 is_terminator --> any_indent, t(punctuation('.', _)), peek_terminator.
 is_terminator --> any_indent, t(punctuation(',', _)), { \+ get_allow_commas(true) }.
 is_terminator --> any_indent, t(punctuation(',', _)), peek_terminator.
-is_terminator --> any_indent, t(word(if, _)).
-is_terminator --> any_indent, t(word(unless, _)).
-is_terminator --> any_indent, t(word(either, _)).
-is_terminator --> any_indent, t(word(any, _)), t(word(of, _)).
-is_terminator --> any_indent, t(word(all, _)), t(word(of, _)).
-is_terminator --> any_indent, t(word(and, _)), t(word(unless, _)).
-is_terminator --> any_indent, t(word(expects, _)).
+is_terminator --> any_indent, kw(if).
+is_terminator --> any_indent, kw(unless).
+is_terminator --> any_indent, kw(either).
+is_terminator --> any_indent, kw(any_of).
+is_terminator --> any_indent, kw(all_of).
+is_terminator --> any_indent, kw(and_unless).
+is_terminator --> any_indent, kw(expects).
 
 peek_terminator, [T] --> [T], { is_indent_or_comment(T) }, !.
 peek_terminator --> eos.
@@ -894,24 +977,32 @@ extract_id(Words, Name) :-
 extract_var_name(Words, Name) :-
     extract_var_name_extension(Words, Name), !.
 extract_var_name(Words, Name) :-
-    (   Words = [Art | Rest], Rest \== [], is_article(Art) ->  
+    (   Words = [Art | Rest], Rest \== [], is_article(Art) ->
             length(Rest, L), L =< 5,
             extract_id(Rest, Name)
-        ; Words = [each | Rest], Rest \== [] ->  
+        ; Words = [W1 | Rest], Rest \== [], le_i18n:class_member(each, W1) ->
             length(Rest, L), L =< 5,
             extract_id(Rest, Name)
-        ; Words = [which | Rest], Rest \== [] ->  
+        ; Words = [W1 | Rest], Rest \== [], le_i18n:class_member(wh_var, W1) ->
             length(Rest, L), L =< 5,
             extract_id(Rest, Name)
-        ; Words = [what | Rest], Rest \== [] ->  
-            length(Rest, L), L =< 5,
-            extract_id(Rest, Name)
-        ; Words = [who] -> Name = 'Who'
-        ; Words = [what] -> Name = 'What'
-        ; Words = [when] -> Name = 'When'
-        ; Words = [where] -> Name = 'Where'
+        ; Words = [W], wh_pronoun(W) -> capitalize_atom(W, Name)
         ; Words = [W], is_id(W) -> Name = W
     ).
+
+% A standalone interrogative pronoun usable as a variable ("who", "what",
+% "when", "where" in English); its capitalised surface becomes the variable
+% name ('Who', 'What', ...), whatever the language.
+wh_pronoun(W) :-
+    (   le_i18n:class_member(who, W)
+    ;   le_i18n:class_member(what, W)
+    ;   le_i18n:class_member(when, W)
+    ;   le_i18n:class_member(where, W)
+    ), !.
+
+capitalize_atom(W, Cap) :-
+    atom_codes(W, [C|Cs]),
+    ( code_type(C, lower(U)) -> atom_codes(Cap, [U|Cs]) ; Cap = W ).
 
 %!  allow_var_name(+Mode, +Words, -Name) is semidet.
 %
@@ -1409,8 +1500,9 @@ check_stray_asterisks(Item, NewItem, M) :-
         length(Locs, NTok),
         NTok > NMult
     ->  ( NMult =:= 0 -> Locs = [loc(S, E)|_] ; last(Locs, loc(S, E)) ),
-        Desc = "Stray '*': outside the templates section, '*' is only valid as multiplication inside an arithmetic expression.",
-        assertz(M:le_issue(error, stray_asterisk, Desc, "Remove the '*'.", S, E))
+        le_i18n:le_msg(stray_asterisk_desc, [], Desc),
+        le_i18n:le_msg(stray_asterisk_fix, [], Fix),
+        assertz(M:le_issue(error, stray_asterisk, Desc, Fix, S, E))
     ;   true
     ).
 
@@ -1899,12 +1991,33 @@ single_template_query(Tokens, Templates) :-
 % single-template match to succeed, which means the query is a genuine multi-
 % condition body (and / or / negation / for-all) rather than one template instance.
 body_has_free_connective(Words, FixedWords) :-
-    (   member(and, Words),    \+ memberchk(and, FixedWords)
-    ;   member(or, Words),     \+ memberchk(or, FixedWords)
-    ;   member(unless, Words), \+ memberchk(unless, FixedWords)
-    ;   contig_subseq([not, the, case], Words), \+ contig_subseq([not, the, case], FixedWords)
-    ;   contig_subseq([for, all, cases], Words), \+ contig_subseq([for, all, cases], FixedWords)
+    (   member(W, Words), le_i18n:class_member(and, W), \+ memberchk(W, FixedWords)
+    ;   member(W, Words), le_i18n:class_member(or, W), \+ memberchk(W, FixedWords)
+    ;   member(W, Words), le_i18n:class_member(unless, W), \+ memberchk(W, FixedWords)
+    ;   naf_marker_subseq(Sub), contig_subseq(Sub, Words), \+ contig_subseq(Sub, FixedWords)
+    ;   forall_marker_subseq(Sub), contig_subseq(Sub, Words), \+ contig_subseq(Sub, FixedWords)
     ), !.
+
+% The distinctive inner words of a negation phrase (English: [not, the, case]
+% from "it is not the case that") — each synonym minus a leading pronoun+copula
+% and the trailing meta marker, falling back to the whole phrase when short.
+naf_marker_subseq(Sub) :-
+    le_i18n:kw_synonym_words(not_the_case, Words),
+    marker_core(Words, Sub).
+
+% The distinctive prefix of a for-all phrase (English: [for, all, cases]).
+forall_marker_subseq(Sub) :-
+    le_i18n:kw_synonym_words(forall, Words),
+    ( length(Sub, 3), append(Sub, _, Words) -> true ; Sub = Words ).
+
+marker_core(Words, Core) :-
+    length(Words, L),
+    (   L =< 3 -> Core = Words
+    ;   append(Core0, [Last], Words),
+        ( le_i18n:class_member(meta_marker, Last) -> ToTrim = Core0 ; ToTrim = Words ),
+        length(ToTrim, TL),
+        ( TL > 3 -> N is TL - 3, length(Drop, N), append(Drop, Core, ToTrim) ; Core = ToTrim )
+    ).
 
 % contig_subseq(+Sub, +List): Sub occurs as a contiguous block within List.
 contig_subseq(Sub, List) :- append(_, Tail, List), append(Sub, _, Tail), !.
@@ -1942,14 +2055,17 @@ match_is_a(Parts, Type, SuperType, VMIn, VMOut, AllowVars) :-
 match_is_a(Parts, Type, SuperType, TypeAtom, SuperTypeAtom, VMIn, VMOut, AllowVars) :-
     maplist(extract_simple_word, Parts, Words),
     once((
-        append(TypeWords, [is, a | SuperTypeWords], Words)
-    ;   append(TypeWords, [is, an | SuperTypeWords], Words)
-    ;   append(TypeWords, [is, of | SuperTypeWords], Words)
+        le_i18n:kw_synonym_words(is_a, IsAWords),
+        append(TypeWords, Tail, Words),
+        append(IsAWords, SuperTypeWords, Tail)
     )),
     TypeWords \== [], SuperTypeWords \== [],
-    % Find the corresponding tokens for TypeWords and SuperTypeWords
-    append(TypeTokens, [Is, A | SuperTypeTokens], Parts),
-    extract_simple_word(Is, is), (extract_simple_word(A, a) ; extract_simple_word(A, an) ; extract_simple_word(A, of)),
+    % Find the corresponding tokens for TypeWords and SuperTypeWords: the word
+    % list is elementwise-derived from Parts, so the split positions coincide.
+    length(TypeWords, TL), length(TypeTokens, TL),
+    length(IsAWords, IL), length(MidTokens, IL),
+    append(TypeTokens, MidPlus, Parts),
+    append(MidTokens, SuperTypeTokens, MidPlus),
     !,
     extract_value_from_parts(TypeTokens, Type, VMIn, VM1, [], false, AllowVars, 0),
     extract_name_type(TypeWords, TypeAtom, _),
@@ -2069,7 +2185,10 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
         Instance = WordsAndVarsCopy,
         ( post_parse_literal_hook(WordsAndVarsCopy, Literal, VMOut0, VMOut) -> true ; VMOut = VMOut0 ) -> true
         ;
-        match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) -> Literal = is_a(Type, SuperType), Instance = [Type, is, a, SuperType]
+        match_is_a(Tokens, Type, SuperType, VMIn, VMOut, AllowVars) ->
+        Literal = is_a(Type, SuperType),
+        ( le_i18n:kw_main_words(is_a, IsAWords) -> true ; IsAWords = [is, a] ),
+        append([Type|IsAWords], [SuperType], Instance)
         ;
         % Fallback to le_is
         member(dict([le_is, V1, V2], _NTs2, WordsAndVars, _Start2, _End2, _NIW2, _Globals2, _Opposite2, _Prep2, _Unknown2), Templates),
@@ -2266,7 +2385,8 @@ inline_segments([T|Ts], [[T|Seg]|Segs]) :-
     inline_segments(Rest, Segs).
 
 take_until_connective([], [], []).
-take_until_connective([word(W, L)|Ts], [], [word(W, L)|Ts]) :- (W == and ; W == or), !.
+take_until_connective([word(W, L)|Ts], [], [word(W, L)|Ts]) :-
+    ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) ), !.
 take_until_connective([T|Ts], [T|Seg], Rest) :- take_until_connective(Ts, Seg, Rest).
 
 tokens_to_lines(Tokens, DefaultIndent, Lines) :-
@@ -2276,21 +2396,23 @@ tokens_to_lines_acc([], _, Acc, Lines) :- reverse(Acc, Lines).
 tokens_to_lines_acc([indent(N, _)|Ts], DefaultIndent, Acc, Lines) :- !,
     get_line_tokens(Ts, LineTokens, Rest),
     (   LineTokens == [] -> tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
-        ;   
-        LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc] ->  
+        ;
+        LineTokens = [word(That, _)|_], le_i18n:class_member(that, That),
+        Acc = [line(PrevN, PrevTokens)|RestAcc] ->
         append(PrevTokens, LineTokens, NewPrevTokens),
         tokens_to_lines_acc(Rest, DefaultIndent, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
-        ;   
+        ;
         tokens_to_lines_acc(Rest, DefaultIndent, [line(N, LineTokens)|Acc], Lines)
     ).
 tokens_to_lines_acc(Ts, DefaultIndent, Acc, Lines) :-
     get_line_tokens(Ts, LineTokens, Rest),
     (   LineTokens == [] -> tokens_to_lines_acc(Rest, DefaultIndent, Acc, Lines)
-        ;   
-        LineTokens = [word(that, _)|_], Acc = [line(PrevN, PrevTokens)|RestAcc] ->  
+        ;
+        LineTokens = [word(That, _)|_], le_i18n:class_member(that, That),
+        Acc = [line(PrevN, PrevTokens)|RestAcc] ->
         append(PrevTokens, LineTokens, NewPrevTokens),
         tokens_to_lines_acc(Rest, DefaultIndent, [line(PrevN, NewPrevTokens)|RestAcc], Lines)
-        ;   
+        ;
         tokens_to_lines_acc(Rest, DefaultIndent, [line(DefaultIndent, LineTokens)|Acc], Lines)
     ).
 
@@ -2355,7 +2477,8 @@ absorb_trailing_dangling_that(Nested, Remaining, Nested, Remaining).
 ends_with_that(Tokens) :-
     drop_trailing_comments(Tokens, Stripped),
     Stripped \== [],
-    last(Stripped, word(that, _)).
+    last(Stripped, word(That, _)),
+    le_i18n:class_member(that, That).
 
 take_nested_hierarchy([line(M, Tokens)|Lines], N, [line(M, Tokens)|Nested], Remaining) :-
     M > N, !,
@@ -2379,8 +2502,11 @@ strip_op(Tokens, Op, RestTokens) :-
     strip_leading_op(Tokens, Op, Tokens1),
     strip_trailing_conjunction(Tokens1, RestTokens).
 
-strip_leading_op([word(if, _)|Rest], and, Rest) :- !.
-strip_leading_op([word(Op, _)|Rest], Op, Rest) :- (Op == and ; Op == or), !.
+strip_leading_op([word(W, _)|Rest], Op, Rest) :-
+    (   le_i18n:class_member(if, W) -> Op = and
+    ;   le_i18n:class_member(and, W) -> Op = and
+    ;   le_i18n:class_member(or, W) -> Op = or
+    ), !.
 strip_leading_op(Tokens, and, Tokens).
 
 % Strip a trailing "and" or "or" used as a line continuation marker. Don't strip
@@ -2389,7 +2515,7 @@ strip_trailing_conjunction(Tokens, Stripped) :-
     drop_trailing_comments(Tokens, Tokens1),
     Tokens1 \== [],
     last(Tokens1, word(W, _)),
-    (W == and ; W == or),
+    ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) ),
     append(Stripped, [word(W, _)], Tokens1),
     Stripped \== [], !.
 strip_trailing_conjunction(Tokens, Stripped) :-
@@ -2477,16 +2603,35 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ( le_kbs:do_log -> print_message(informational,'  Node succeeded: ~w~n' - [Logic]); true).
 
 
+% is_aggregate(+Tokens, -Op, -ElementTokens, -ResultTokens): matches
+% "<result> is the <op> of each <element> such that" (with each phrase piece —
+% "is the", the operator word, "of each", "such that" — coming from the
+% aggregate lexicon keys). Op is the CANONICAL operator (sum/count/average/
+% min/max — the reasoner's functor), whatever the surface language.
 is_aggregate(Tokens, Op, ElementTokens, ResultTokens) :-
     Tokens = [_, _, _, _, _, _, _, _ | _],
-    last(Tokens, word(that, _)),
-    append(Rest, [word(such, _), word(that, _)], Tokens),
+    % Cheap guard (this runs on every body line): the line must END with the
+    % last word of a "such that" phrase.
+    last(Tokens, LastTok),
+    extract_simple_word(LastTok, LastW),
+    le_i18n:kw_synonym_words(such_that, SuchThat),
+    last(SuchThat, LastW),
+    length(SuchThat, SK), length(SuchTokens, SK),
+    append(Rest, SuchTokens, Tokens),
+    tokens_match_words(SuchTokens, SuchThat),
     member(Op, [sum, count, average, min, max]),
-    append(ResultTokens, [word(is, _), word(the, _), word(Op, _), word(of, _), word(each, _)|ElementTokens], Rest),
+    le_i18n:kw_synonym_words(Op, OpWords),
+    le_i18n:kw_synonym_words(is_the, IsThe),
+    le_i18n:kw_synonym_words(of_each, OfEach),
+    append([IsThe, OpWords, OfEach], MidWords),
+    length(MidWords, ML), length(MidTokens, ML),
+    append(ResultTokens, MidPlus, Rest),
+    append(MidTokens, ElementTokens, MidPlus),
+    tokens_match_words(MidTokens, MidWords),
     !.
 
 build_aggregate_list(Tokens, VMIn, VMOut, List) :-
-    ( Tokens = [word(and, _)|Rest] -> TokensToUse = Rest; TokensToUse = Tokens),
+    ( Tokens = [word(W, _)|Rest], le_i18n:class_member(and, W) -> TokensToUse = Rest; TokensToUse = Tokens),
     maplist(extract_simple_word, TokensToUse, Words),
     (   extract_var_name(Words, Name) -> true
     ;   extract_id(Words, Name) -> true
@@ -2496,10 +2641,14 @@ build_aggregate_list(Tokens, VMIn, VMOut, List) :-
     List = [var(Name, Var)].
 
 is_forall(Tokens) :-
-    maplist(extract_word_atom, Tokens, Atoms),
-    (   Atoms = [for, all, cases, in, which]
-    ;   Atoms = [and, for, all, cases, in, which]
-    ).
+    maplist(extract_word_atom, Tokens, Atoms0),
+    optional_leading_and(Atoms0, Atoms),
+    kw_words_eq(forall, Atoms).
+
+% optional_leading_and(+Atoms0, -Atoms): strips a leading 'and' connective
+% (in the active language) when present; also yields the untouched list.
+optional_leading_and(Atoms, Atoms).
+optional_leading_and([W|Rest], Rest) :- le_i18n:class_member(and, W).
 
 % Split the children of a "for all cases in which" node into the condition
 % nodes and the consequence nodes, divided by the "it is the case that" marker.
@@ -2539,18 +2688,16 @@ flatten_forall_nodes([node(N, Tokens, Children)|Rest], Flat) :-
     append([node(N, Tokens, [])|FlatChildren], FlatRest, Flat).
 
 is_it_the_case(Tokens) :-
-    maplist(extract_word_atom, Tokens, Atoms),
-    (   Atoms = [it, is, the, case, that]
-    ;   Atoms = [and, it, is, the, case, that]
-    ).
+    maplist(extract_word_atom, Tokens, Atoms0),
+    optional_leading_and(Atoms0, Atoms),
+    kw_words_eq(it_the_case, Atoms).
 
 is_not_the_case(Tokens) :-
     maplist(extract_word_atom, Tokens, Atoms),
-    (   Atoms = [it, is, not, the, case, that]
-    ;   Atoms = [not, the, case, that]
-    ;   Atoms = [unless]
-    ;   Atoms = [and, unless]
-    ).
+    (   kw_words_eq(not_the_case, Atoms)
+    ;   kw_words_eq(unless, Atoms)
+    ;   kw_words_eq(and_unless, Atoms)
+    ), !.
 
 % inline_naf_goal(+Tokens, -GoalTokens): when Tokens are "it is not the case that
 % <goal>" (or "not the case that <goal>") with the goal on the SAME line, GoalTokens
@@ -2559,8 +2706,10 @@ inline_naf_goal(Tokens, GoalTokens) :-
     naf_prefix_tokens(Tokens, GoalTokens),
     GoalTokens \== [].
 
-naf_prefix_tokens([word(it, _), word(is, _), word(not, _), word(the, _), word(case, _), word(that, _) | Rest], Rest) :- !.
-naf_prefix_tokens([word(not, _), word(the, _), word(case, _), word(that, _) | Rest], Rest).
+naf_prefix_tokens(Tokens, Rest) :-
+    le_i18n:kw_synonym_words(not_the_case, Words),   % longest synonyms first
+    match_word_prefix(Words, Tokens, Rest),
+    !.
 
 extract_word_atom(word(A, _), A) :- !.
 extract_word_atom(punctuation(P, _), P) :- !.

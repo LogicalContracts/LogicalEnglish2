@@ -28,6 +28,8 @@
     % grammar keywords (i18n/keywords.csv)
     kw_synonym_words/2,         % +Key, -Words:list(atom)   (nondet, active language)
     kw_synonym_words/3,         % +Lang, +Key, -Words
+    kw_main_words/2,            % +Key, -Words (the principal/longest synonym)
+    indefinite_isa_words/2,     % +Noun, -Words ("is a"/"is an" rendering hook)
     kw_category_key/2,          % ?Category, ?Key
     class_member/2,             % +Class, +Word  (single-word class membership, active language)
     class_member/3,             % +Lang, +Class, +Word
@@ -156,6 +158,33 @@ kw_synonym_words(Lang, Key, Words) :-
     ;   kw_syn(en, _, Key, Words)
     ).
 
+%!  indefinite_isa_words(+Noun, -Words) is det.
+%
+%   The words linking a value to its type when RENDERING "X is a <Noun>" text
+%   (le_type_check goals, hypothesised templates). Per-language hook (§3.3 of
+%   the multilingual plan): English chooses a/an phonologically; other
+%   languages fall back to their principal is-a phrase — refine per language
+%   as morphology support lands (O-8: minimal for now).
+indefinite_isa_words(Noun, Words) :-
+    le_active_language(Lang),
+    indefinite_isa_words(Lang, Noun, Words).
+
+indefinite_isa_words(en, Noun, [is, Art]) :-
+    !,
+    ( atom(Noun), atom_codes(Noun, [C|_]), memberchk(C, `aeiouAEIOU`)
+    -> Art = an
+    ;  Art = a
+    ).
+indefinite_isa_words(_, _, Words) :-
+    ( kw_main_words(is_a, Words) -> true ; Words = [is, a] ).
+
+%!  kw_main_words(+Key, -Words) is semidet.
+%
+%   The principal surface form of Key in the active language (the longest
+%   synonym — the fully-spelled-out phrase). Used when GENERATING text.
+kw_main_words(Key, Words) :-
+    once(kw_synonym_words(Key, Words)).
+
 kw_category_key(Category, Key) :-
     distinct(Category-Key, kw_syn(_, Category, Key, _)).
 
@@ -180,6 +209,7 @@ class_member(Lang, Class, Word) :-
     class_word(Lang, Class, Word).
 
 cap_allowed(article).
+cap_allowed(article_narrow).
 cap_allowed(definite_article).
 
 initial_upper(Word, Upper) :-
@@ -414,12 +444,12 @@ load_keyword_row(Header, Langs, Row) :-
            ( cell_value(Row, Header, Lang, Cell),
              ( Cell == '' -> true
              ; split_synonyms(Cell, Syns),
-               % longest synonyms first, so e.g. "it is not the case that" is
-               % tried before "not the case that" wherever order matters
-               map_list_to_pairs(phrase_length_key, Syns, Pairs),
+               % longest synonyms first (stable for equal lengths), so e.g.
+               % "it is not the case that" is tried before "not the case that"
+               % wherever order matters
+               map_list_to_pairs(phrase_neg_length_key, Syns, Pairs),
                keysort(Pairs, SortedPairs),
-               reverse(SortedPairs, RevPairs),
-               pairs_values(RevPairs, Ordered),
+               pairs_values(SortedPairs, Ordered),
                forall(member(Words, Ordered),
                       ( assertz(kw_syn(Lang, Category, Key, Words)),
                         ( Words = [OneWord]
@@ -428,7 +458,7 @@ load_keyword_row(Header, Langs, Row) :-
                       ))
              ))).
 
-phrase_length_key(Words, L) :- length(Words, L).
+phrase_neg_length_key(Words, NL) :- length(Words, L), NL is -L.
 
 split_synonyms(Cell, Syns) :-
     atomic_list_concat(Alts, '|', Cell),
