@@ -40,6 +40,27 @@ Detailed File Summary:
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/employersLiability-GLM5.2.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/employersLiability-gpt-5.5.le: 47 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/employersLiability-gpt-oss-120.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/employersLiability2.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/employersLiability3.le: 7 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/prolog_resources/postcodes.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/prolog_resources/postcodes_layer.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
@@ -93,26 +114,5 @@ Detailed File Summary:
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/template_folding.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/trace_sample.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability-GLM5.2.le: 6 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability-gpt-5.5.le: 47 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability-gpt-oss-120.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability2.le: 6 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability3.le: 7 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
 -------------
 
