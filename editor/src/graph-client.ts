@@ -2,6 +2,7 @@ import cytoscape from 'cytoscape';
 import fcose from 'cytoscape-fcose';
 import dagre from 'cytoscape-dagre';
 import elk from 'cytoscape-elk';
+import { graphToMermaid } from './mermaid-export';
 
 cytoscape.use(fcose);
 cytoscape.use(dagre);
@@ -9,6 +10,7 @@ cytoscape.use(elk);
 
 const graphContainer = document.getElementById('graph-container')!;
 const btnRefreshGraph = document.getElementById('btn-refresh-graph')!;
+const btnCopyMermaid = document.getElementById('btn-copy-mermaid')!;
 const layoutSelect = document.getElementById('layout-select') as HTMLSelectElement;
 const directionSelect = document.getElementById('direction-select') as HTMLSelectElement;
 const scenarioSelect = document.getElementById('scenario-select') as HTMLSelectElement;
@@ -548,8 +550,26 @@ function focusNodeAtOffset(offset: number) {
     }
 }
 
+// The VISIBLE graph (current layers + scenario filter) as Mermaid text, so the
+// export matches what is on screen; direction follows the Direction selector.
+function visibleGraphAsMermaid(): string {
+    const nodes = cy.nodes(':visible').map((n: any) => ({
+        id: n.id(), type: n.data('type'), label: n.data('label') || n.id(),
+        parent: n.data('parent'),
+    }));
+    const edges = cy.edges(':visible').map((e: any) => ({
+        source: e.data('source'), target: e.data('target'), type: e.data('type'),
+    }));
+    return graphToMermaid(nodes, edges, directionSelect.value === 'TB' ? 'TD' : 'LR');
+}
+
 // Event Listeners
 btnRefreshGraph.addEventListener('click', refreshGraph);
+btnCopyMermaid.addEventListener('click', () => {
+    navigator.clipboard.writeText(visibleGraphAsMermaid()).then(() => {
+        alert('Mermaid diagram copied to clipboard');
+    });
+});
 layoutSelect.addEventListener('change', () => { savePreferences(); runLayout(); });
 directionSelect.addEventListener('change', () => { savePreferences(); runLayout(); });
 scenarioSelect.addEventListener('change', () => { applyFilters(); runLayout(); });
@@ -604,6 +624,7 @@ try {
             })),
             refreshGraph,
             rightClicked: () => rightClickedNode && rightClickedNode.data('label'),
+            mermaid: () => visibleGraphAsMermaid(),
         };
     }
 } catch { /* localStorage unavailable */ }

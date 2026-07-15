@@ -476,6 +476,33 @@ var ScenarioForm = class _ScenarioForm {
   }
 };
 
+// src/mermaid-export.ts
+function esc(label) {
+  return String(label ?? "").replace(/"/g, "#quot;").replace(/\s+/g, " ").trim();
+}
+function explanationToMermaid(why) {
+  const lines = ["flowchart TD"];
+  let n = 0;
+  const emit = (node, parentId) => {
+    const id = `e${++n}`;
+    let label = node && typeof node === "object" ? node.literal ?? "" : node;
+    if (node?.repeated) {
+      const c = node.repeatedCount;
+      label += typeof c === "number" && c > 1 ? ` (${c} repeated sub-explanations)` : " (repeated)";
+    }
+    const cls = node?.type === "failure" ? "failure" : node?.type === "unknown" ? "unknown" : "success";
+    lines.push(`    ${id}["${esc(label)}"]:::${cls}`);
+    if (parentId)
+      lines.push(`    ${parentId} --> ${id}`);
+    (node?.children ?? []).forEach((child) => emit(child, id));
+  };
+  (Array.isArray(why) ? why : [why]).forEach((w) => emit(w, null));
+  lines.push("    classDef success fill:#e7f6e7,stroke:#2e7d32,color:#1b5e20");
+  lines.push("    classDef failure fill:#fdecea,stroke:#c62828,color:#b71c1c");
+  lines.push("    classDef unknown fill:#fff8e1,stroke:#e2a93d,color:#7a5d00");
+  return lines.join("\n");
+}
+
 // src/explanation-view.ts
 var activeView = null;
 var menusWired = false;
@@ -512,6 +539,11 @@ function wireMenus(m) {
   m.menuCopyExplanation.addEventListener("click", (e) => {
     e.stopPropagation();
     activeView?.copyExplanation();
+    m.explanationContextMenu.style.display = "none";
+  });
+  m.menuCopyMermaid.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.copyExplanationMermaid();
     m.explanationContextMenu.style.display = "none";
   });
   m.menuPatchScenario?.addEventListener("click", (e) => {
@@ -789,6 +821,13 @@ var ExplanationView = class {
       navigator.clipboard.writeText(text);
     }
   }
+  // Copy the current explanation as a Mermaid flowchart (text), pasteable
+  // into GitHub, Obsidian, docs and chats that render Mermaid.
+  copyExplanationMermaid() {
+    if (!this.lastWhy)
+      return;
+    navigator.clipboard.writeText(explanationToMermaid(this.lastWhy));
+  }
   explanationToText(node, depth = 0, prefix = "") {
     if (Array.isArray(node))
       return node.map((n, i) => this.explanationToText(n, depth, (i + 1).toString())).join("");
@@ -1055,6 +1094,7 @@ async function initScenarioVariations() {
     menuCopyAnswer: $("menu-copy-answer"),
     explanationContextMenu: $("explanation-context-menu"),
     menuCopyExplanation: $("menu-copy-explanation"),
+    menuCopyMermaid: $("menu-copy-mermaid"),
     menuGotoOriginal: $("menu-goto-original"),
     answerTooltip: $("answer-tooltip"),
     titleMenu: $("explanation-title-menu"),

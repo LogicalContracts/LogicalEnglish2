@@ -212,6 +212,7 @@ Large success — and especially failure — trees often contain the same sub-ex
 Right-click in the explanation tree for:
 
 *   **Copy Explanation:** Copies the whole tree (all sibling subtrees) to the clipboard as both plain text and HTML, ready to paste into a document.
+*   **Copy as Mermaid diagram:** Copies the whole tree as a [Mermaid](https://mermaid.js.org) flowchart (text), ready to paste anywhere Mermaid is rendered — GitHub, Obsidian, Notion, mermaid.live — with succeeded, failed and assumed (unknown) nodes in the tree's green/red/amber. Also available in the Scenario Variations explanation menu.
 *   **Go to full sub-explanation:** Shown only on a repeated node that has a full copy elsewhere (see above).
 
 ### Explanation Preferences
@@ -224,6 +225,6 @@ Open **Misc → EXPLANATIONS → Preferences...** to configure:
 
 ## Advanced Features
 
-*   **Source Graph:** **Misc → View Source Graph** opens, in a new browser tab, an interactive graph of the program: templates, rules, facts, scenarios, types and queries as nodes, with their uses/depends-on/negates/is-a relationships as edges. A sidebar selects the layout algorithm, its direction, and which layers (node and edge types) to show — these preferences persist across sessions. Clicking a node highlights its source text back in the editor (and the editor caret focuses the corresponding node); right-clicking a node offers **Copy Node** (copies its text to the clipboard), **Copy URL** (a shareable link focusing that node) and **Redraw from here**.
+*   **Source Graph:** **Misc → View Source Graph** opens, in a new browser tab, an interactive graph of the program: templates, rules, facts, scenarios, types and queries as nodes, with their uses/depends-on/negates/is-a relationships as edges. A sidebar selects the layout algorithm, its direction, and which layers (node and edge types) to show — these preferences persist across sessions. Clicking a node highlights its source text back in the editor (and the editor caret focuses the corresponding node); right-clicking a node offers **Copy Node** (copies its text to the clipboard), **Copy URL** (a shareable link focusing that node) and **Redraw from here**. The **Copy Mermaid** toolbar button copies the *visible* graph (the current layers and scenario filter, in the selected direction) as a [Mermaid](https://mermaid.js.org) flowchart — scenarios become subgraphs around their facts — ready to paste into GitHub, Obsidian, or any Mermaid renderer.
 *   **LE Assistant:** Use the **LE Assistant** tab to ask questions about your code or request help with drafting new rules.
 *   **Debugger:** Right-click in the editor and select **See PROLOG** to view the translated logic, or use the **Trace** button in the Query tab for step-by-step execution.
