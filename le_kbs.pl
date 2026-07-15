@@ -12,7 +12,7 @@
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    topPredicates/2, kbSummary/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
+    topPredicates/2, kbSummary/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
     le_examples_dir/1, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
@@ -848,10 +848,14 @@ is_generated_kb_module(M) :-
 %   liveness check and the abolish run under the le_sessions mutex so a session
 %   being registered concurrently (createSession asserts le_kb_module_fact and
 %   then note_session_use) is reliably seen as a live reference, and the abolish
-%   cannot interleave with a registry update.
+%   cannot interleave with a registry update. A module held by a sessionless
+%   reader (with_kb_reference/2, e.g. the example listings summarizing every KB)
+%   is likewise left intact — abolishing it mid-read made the reader crash with
+%   existence_error(le_dict/1).
 maybe_destroy_kb(KBmodule) :-
     with_mutex(le_sessions, (
         (   is_generated_kb_module(KBmodule),
+            \+ kb_module_in_use(KBmodule),
             \+ ( session_last_used(SM, _),
                  SM \== KBmodule,
                  catch(SM:le_kb_module_fact(KBmodule), _, fail) )
@@ -860,6 +864,67 @@ maybe_destroy_kb(KBmodule) :-
         ;   true
         )
     )).
+
+% One fact per active reader of a KB module (duplicates act as a ref-count);
+% guarded by the le_sessions mutex, the same one maybe_destroy_kb reclaims under.
+:- dynamic kb_module_in_use/1.
+
+%!  with_kb_reference(+KB:atom, :Goal) is semidet.
+%
+%   Runs Goal while holding a liveness reference on KB, so maybe_destroy_kb/1
+%   cannot reclaim (abolish) the module mid-Goal. For readers that inspect a KB
+%   module without owning a session — e.g. kbSummary over every example — whose
+%   modules are otherwise reclaimable the moment any concurrent request tears
+%   down a session that shared them.
+:- meta_predicate with_kb_reference(+, 0).
+with_kb_reference(KB, Goal) :-
+    setup_call_cleanup(
+        with_mutex(le_sessions, assertz(kb_module_in_use(KB))),
+        Goal,
+        with_mutex(le_sessions, once(retract(kb_module_in_use(KB))))
+    ).
+
+%!  kb_summary_safe(+Path:atom, +Options:list, -Summary) is semidet.
+%
+%   load/3 + kbSummary/2, reclaim-safe and cached: the summary runs under
+%   with_kb_reference/2 (with a retry, because the module can still be
+%   reclaimed in the gap between load/3 returning and the reference being
+%   registered — the next load/3 rebuilds it), and the result is cached by the
+%   file's modification time. Bulk listings (landing page, MCP, REST) request
+%   every example's summary and each one costs a full KB load, while the result
+%   only changes when the file does; the compute runs under a mutex so two
+%   concurrent listings do the expensive pass ONCE between them (the second
+%   gets cache hits) instead of doubling the load on the shared server. Fails —
+%   never throws — when the KB cannot be loaded or summarized (also cached, so
+%   a broken example is not re-parsed on every listing), letting callers
+%   degrade per example instead of failing the whole request.
+kb_summary_safe(Path, Options, Summary) :-
+    catch(absolute_file_name(Path, Abs), _, fail),
+    catch(time_file(Abs, Time), _, fail),
+    (   kb_summary_cache(Abs, Time, Cached)
+    ->  Cached \== failed, Summary = Cached
+    ;   with_mutex(kb_summary_cache,
+            (   kb_summary_cache(Abs, Time, Cached2)   % filled while we waited
+            ->  Result = Cached2
+            ;   ( kb_summary_compute(Path, Options, Summary0)
+                -> Result = Summary0 ; Result = failed ),
+                retractall(kb_summary_cache(Abs, _, _)),
+                assertz(kb_summary_cache(Abs, Time, Result))
+            )),
+        Result \== failed,
+        Summary = Result
+    ).
+
+% Cached summaries keyed by absolute path + modification time (cf. plres_cache).
+:- dynamic kb_summary_cache/3.
+
+kb_summary_compute(Path, Options, Summary) :-
+    between(1, 3, _),
+    catch(load(Path, KB, Options), _, fail),
+    (   catch(with_kb_reference(KB, kbSummary(KB, Summary0)), _, fail)
+    ->  !, Summary = Summary0
+    ;   fail
+    ).
 
 %!  reap_idle_sessions is det.
 %

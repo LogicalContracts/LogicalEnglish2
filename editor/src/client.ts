@@ -635,6 +635,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     modalOverlay?.addEventListener('click', (e) => {
         if (e.target === modalOverlay) closeModal();
     });
+    // Escape closes the modal — without this, a user (or an e2e retry loop)
+    // whose example fetch failed had no keyboard way out, and the overlay
+    // blocked reopening the File menu to retry.
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalOverlay && modalOverlay.style.display !== 'none') closeModal();
+    });
 
     document.getElementById('menu-open-server')?.addEventListener('click', async () => {
         if (isDirty && !confirm('You have unsaved changes. Open from server anyway?')) return;
@@ -698,6 +704,11 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                         exampleList.appendChild(makeItem(ex, name, true));
                     });
                 });
+            } else if (exampleList) {
+                // An error reply (no `examples`) used to leave "Loading
+                // examples..." up forever; show the failure instead.
+                exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';
+                console.error('list_examples returned no examples', data);
             }
         } catch (err) {
             if (exampleList) exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';

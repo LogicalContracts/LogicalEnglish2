@@ -39526,6 +39526,10 @@ async function start() {
     if (e.target === modalOverlay)
       closeModal();
   });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && modalOverlay && modalOverlay.style.display !== "none")
+      closeModal();
+  });
   document.getElementById("menu-open-server")?.addEventListener("click", async () => {
     if (isDirty && !confirm("You have unsaved changes. Open from server anyway?"))
       return;
@@ -39584,6 +39588,9 @@ async function start() {
             exampleList.appendChild(makeItem(ex, name, true));
           });
         });
+      } else if (exampleList) {
+        exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #f44;">Failed to load examples.</div>';
+        console.error("list_examples returned no examples", data4);
       }
     } catch (err) {
       if (exampleList)

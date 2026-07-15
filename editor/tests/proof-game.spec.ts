@@ -90,15 +90,28 @@ const complete = (popup: any, id: string) => popup.evaluate((i: string) => (wind
 
 test.describe('Proof Game', () => {
     test('uses its own session, distinct from the editor', async ({ page }) => {
-        test.setTimeout(60000);
+        test.setTimeout(180000);
         await page.goto('index.html');
+        // The examples dropdown populates from a server fetch that can be slow
+        // (or fail once) when the shared Prolog server is under parallel-test
+        // load; if the item has not appeared, close and reopen the menu to
+        // retry the fetch — same pattern as scenario-variations' openVariations.
+        const item = page.locator('#example-list .dropdown-item', { hasText: /^citizenship$/ });
         await page.click('text=File');
         await page.click('#menu-open-server');
-        await page.locator('#example-list .dropdown-item', { hasText: /^citizenship$/ }).click();
+        await expect(async () => {
+            if (!(await item.isVisible())) {
+                await page.keyboard.press('Escape');
+                await page.click('text=File');
+                await page.click('#menu-open-server');
+            }
+            await expect(item).toBeVisible({ timeout: 10000 });
+        }).toPass({ timeout: 90000 });
+        await item.click();
         await expect(page.locator('#filename-display')).toHaveText('citizenship.le');
         await expect(async () => {
             expect(await page.locator('#scenario-select option').count()).toBeGreaterThan(1);
-        }).toPass({ timeout: 10000 });
+        }).toPass({ timeout: 45000 });
         await page.selectOption('#scenario-select', 'alice');
         await page.selectOption('#query-select', 'one');
 
