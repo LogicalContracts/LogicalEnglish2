@@ -1115,11 +1115,43 @@ transform_instance(Instance, Templates, VMIn, VMOut, Transformed, AllowVars, Dep
 
 match_template(Instance, Templates, VMIn, VMOut, Literal, AllowVars, Depth) :-
     maplist(extract_simple_word, Instance, Words),
-    member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown), Templates),
+    candidate_template(Templates, Words, dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown)),
     copy_term(dict(FunctorArgs, WordsAndVars, NIW), dict(FunctorArgsCopy, WordsAndVarsCopy, NIWCopy)),
     contains_subsequence(NIWCopy, Words),
     match_instance_to_template(Instance, WordsAndVarsCopy, VMIn, VMOut, Templates, AllowVars, Depth),
     Literal =.. FunctorArgsCopy.
+
+%!  candidate_template(+Templates, +Words, -Dict) is nondet.
+%
+%   Enumerates the templates whose fixed words all occur (in order) in Words —
+%   META templates first, then the rest, each group in the usual specificity
+%   order. A meta template's 'that'/'says'-marked slot is, by the LE convention,
+%   the LAST slot and swallows the remainder of the sentence, so when such a
+%   template matches it must be tried as the OUTER literal. Trying a wordier
+%   template first would let it absorb the meta phrase into an ordinary slot —
+%   e.g. "a third person says that the person is the father of the other person"
+%   used to parse as is_the_father_of(says_that(C, 'the person'), B) instead of
+%   says_that(C, is_the_father_of(A, B)). Non-meta candidates still follow on
+%   backtracking, so nothing that parsed before becomes unparseable.
+candidate_template(Templates, Words, Dict) :-
+    (   member(Dict, Templates),
+        Dict = dict(_, _, WV, _, _, NIW, _, _, _, _),
+        meta_template_wv(WV),
+        contains_subsequence(NIW, Words)
+    ;   member(Dict, Templates),
+        Dict = dict(_, _, WV, _, _, NIW, _, _, _, _),
+        \+ meta_template_wv(WV),
+        contains_subsequence(NIW, Words)
+    ).
+
+%!  meta_template_wv(+WV) is semidet.
+%
+%   The template's word list has a META slot: a variable immediately preceded by
+%   a meta marker word (see is_meta_prev/1).
+meta_template_wv(WV) :-
+    append(_, [W, V|_], WV),
+    atom(W), is_meta_prev(W),
+    var(V), !.
 
 match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars) :-
     match_instance_to_template(Instance, WordsAndVars, VMIn, VMOut, Templates, AllowVars, 0).
@@ -2019,9 +2051,10 @@ parse_literal_real(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars)
         % leading argument bound to a type-compatible variable from the previous part.
         match_template_with_chaining(Tokens, Templates, VMIn, VMOut, Literal, Instance, AllowVars, 0) -> true
         ;
-        member(dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown), Templates),
+        % Meta templates first (see candidate_template/3): a 'that'-marked slot
+        % must be the outer literal, not get absorbed into another template's slot.
+        candidate_template(Templates, Words, dict(FunctorArgs, _NTs, WordsAndVars, _Start, _End, _NIW, _Globals, _Opposite, _Prep, _Unknown)),
         \+ (FunctorArgs = [le_is|_]),
-        contains_subsequence(NIW, Words),
         copy_term(dict(FunctorArgs, WordsAndVars), dict(FunctorArgsCopy, WordsAndVarsCopy)),
         match_instance_to_template(Tokens, WordsAndVarsCopy, VMIn, VMOut0, Templates, AllowVars, 0),
         Literal =.. FunctorArgsCopy,

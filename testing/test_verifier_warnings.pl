@@ -67,3 +67,41 @@ test(ground_scenario_facts_are_not_flagged) :-
     assertion(\+ member(issue(single_variable_fact, _, _, _, _), Issues)).
 
 :- end_tests(single_variable_scenario_fact).
+
+:- begin_tests(unmarked_meta_template).
+
+% Chained non-prepositional templates absorb the tail of the sentence into a
+% slot as a COMPOUND term (we_will_make(under('this payment','this policy'))),
+% which the author of atomic payments/policies does not expect. The verifier
+% must point at the likely intent: a meta-template ('that' before the slot).
+test(compound_slot_without_that_is_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*.\n\nthe knowledge base fat includes:\n\nwe will make this payment under this policy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion((member(issue(unmarked_meta_template, D, _, _, _), Issues),
+               sub_atom(D, _, _, _, 'meta-template'))).
+
+% A genuine meta-template — the slot preceded by 'that' — legitimately holds an
+% embedded literal and must NOT be flagged.
+test(that_marked_meta_slot_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    it is prohibited that *an eventuality*.\n    *a person* smokes.\n\nthe knowledge base meta includes:\n\nit is prohibited that a person smokes.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unmarked_meta_template, _, _, _, _), Issues)).
+
+% Atomic facts through the same templates carry no embedded term: no warning.
+test(atomic_fact_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*.\n\nthe knowledge base thin includes:\n\nwe will make this payment.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unmarked_meta_template, _, _, _, _), Issues)).
+
+% The intended prepositional design — inner template marked '; prepositional' —
+% turns the chain into extra body conditions, not a compound argument: no warning.
+test(prepositional_chain_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*; prepositional.\n\nthe knowledge base prep includes:\n\nwe will make a payment\n    if the payment under a policy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unmarked_meta_template, _, _, _, _), Issues)).
+
+:- end_tests(unmarked_meta_template).
