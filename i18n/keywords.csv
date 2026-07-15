@@ -1,78 +1,78 @@
 category,key,en,pt,es,fr,it
-section,kb_open,the knowledge base,a base de conhecimento,,,
-section,kb_include,includes,inclui,,,
-section,contract_open,the contract,o contrato,,,
-section,contract_states,states that,estabelece que,,,
-section,resources_include,includes these resources,inclui estes recursos,,,
-section,scenario,scenario,cenário,,,
-section,query,query,consulta,,,
-section,ontology,the ontology is,a ontologia é,,,
-section,predicates,the predicates are,os predicados são,,,
-section,templates,the templates are,os modelos são,,,
-section,fluents,the fluents are,os fluentes são,,,
-section,events,the events are,os eventos são,,,
-section,meta_target,the target language is,a linguagem alvo é,,,
-section,marker,section,secção|seção,,,
-section,marker_is,is,é,,,
-section,annexes,the annexes to the contract are|the annexes to the knowledge base are,os anexos ao contrato são|os anexos à base de conhecimento são,,,
-section,guard,the knowledge|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the target,a base de conhecimento|o contrato|cenário|consulta|a ontologia é|os predicados são|os modelos são|os fluentes são|os eventos são|a linguagem alvo,,,
-section,reserved_word,knowledge|contract|ontology|predicates|templates|fluents|events|target,base|contrato|ontologia|predicados|modelos|fluentes|eventos|linguagem,,,
-expect,expects,expects,espera,,,
-expect,answers,answers,respostas,,,
-expect,and_unknowns,and unknowns,e desconhecidos,,,
-rule,rule,rule,regra,,,
-rule,if,if,se,,,
-rule,only_if,only if,apenas se|somente se,,,
-rule,unless,unless,a menos que|salvo se,,,
-rule,and_unless,and unless,e a menos que|e salvo se,,,
-connective,and,and,e,,,
-connective,or,or,ou,,,
-connective,either,either,uma das seguintes|um dos seguintes,,,
-connective,any_of,any of,alguma das seguintes|algum dos seguintes,,,
-connective,all_of,all of,todas as seguintes|todos os seguintes,,,
-connective,at_least_one_of,at least one of,pelo menos uma das seguintes|pelo menos um dos seguintes,,,
-connective,one,one,uma|um,,,
-connective,of,of,de,,,
-connective,all,all,todas|todos,,,
-naf,not_the_case,it is not the case that|not the case that,não é o caso que|não se verifica que,,,
-forall,forall,for all cases in which,para todos os casos em que,,,
-forall,it_the_case,it is the case that,é o caso que|verifica-se que,,,
-forall,for_case,for case,para o caso,,,
-forall,it_is_true_that,it is true that,é verdade que,,,
-unknown,it_is,it is,é,,,
-unknown,whether,whether,se,,,
-template_addition,defines_global,defines global,define global,,,
-template_addition,opposite,opposite,oposto,,,
-template_addition,synonym,synonym,sinónimo|sinônimo,,,
-template_addition,prepositional,prepositional|composite,preposicional|composto|composta,,,
-template_addition,unknown,unknown|assumed|assumable,desconhecido|desconhecida|assumido|assumida|assumível,,,
-template_addition,undefined,undefined|scenario element,indefinido|indefinida|elemento de cenário,,,
-class,article,a|an|the|some,um|uma|o|a|os|as|uns|umas|algum|alguma,,,
-class,ignorable,a|an|the|are|was|were|has|have|had|do|does|did|been,um|uma|o|a|os|as|são|era|eram|foi|foram|tem|têm|tinha|tinham|sido,,,
-class,reserved,says|that|if|and|or|unless,diz|que|se|e|ou,,,
-class,qualifier,first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|other|another|new|previous|next|current|last|same|original|single|given,primeiro|primeira|segundo|segunda|terceiro|terceira|quarto|quarta|quinto|quinta|sexto|sexta|sétimo|sétima|oitavo|oitava|nono|nona|décimo|décima|outro|outra|novo|nova|anterior|próximo|próxima|atual|último|última|mesmo|mesma|original|único|única|dado|dada,,,
-class,copula,is|are|was|were,é|são|era|eram|foi|foram|está|estão|estava|estavam,,,
-class,definite_article,the,o|a|os|as,,,
-class,determiner_definite,this,este|esta|esse|essa,,,
-class,each,each,cada,,,
-class,wh_var,which|what,qual|quais,,,
-class,who,who,quem,,,
-class,what,what,quê,,,
-class,when,when,quando,,,
-class,where,where,onde,,,
-class,which,which,qual|quais,,,
-class,meta_marker,that|says,que|diz,,,
-class,that,that,que,,,
-isa,is_a,is a|is an|is of,é um|é uma|é de,,,
-aggregate,sum,sum,soma,,,
-aggregate,count,count,contagem,,,
-aggregate,average,average,média,,,
-aggregate,min,minimum|min,mínimo|mín,,,
-aggregate,max,maximum|max,máximo|máx,,,
-aggregate,is_the,is the,é a|é o,,,
-aggregate,of_each,of each,de cada,,,
-aggregate,such_that,such that,tal que|tais que,,,
-answer,assuming,assuming,assumindo,,,
-answer,assuming_and,and,e,,,
-class,article_narrow,a|an|the,um|uma|o|a|os|as,,,
-class,connective_heuristic,a|an|the|in|on|at|to|from|of|by|for|with|between|and|or|is|are|was|were|that|than|as|into|over|under|within,um|uma|o|a|os|as|em|no|na|nos|nas|para|de|do|da|dos|das|por|com|entre|e|ou|é|são|era|eram|que|como|sob|sobre|dentro,,,
+section,kb_open,the knowledge base,a base de conhecimento,la base de conocimiento,la base de connaissances,la base di conoscenza
+section,kb_include,includes,inclui,incluye,comprend|inclut,include
+section,contract_open,the contract,o contrato,el contrato,le contrat,il contratto
+section,contract_states,states that,estabelece que,establece que,stipule que,stabilisce che
+section,resources_include,includes these resources,inclui estes recursos,incluye estos recursos,comprend ces ressources|inclut ces ressources,include queste risorse
+section,scenario,scenario,cenário,escenario,scénario,scenario
+section,query,query,consulta,consulta,requête,interrogazione
+section,ontology,the ontology is,a ontologia é,la ontología es,la taxonomie est,la tassonomia è
+section,predicates,the predicates are,os predicados são,los predicados son,les prédicats sont,i predicati sono
+section,templates,the templates are,os modelos são,las plantillas son,les modèles sont,i modelli sono
+section,fluents,the fluents are,os fluentes são,los fluentes son,les fluents sont,i fluenti sono
+section,events,the events are,os eventos são,los eventos son,les événements sont,gli eventi sono
+section,meta_target,the target language is,a linguagem alvo é,el lenguaje objetivo es,la langue cible est,il linguaggio obiettivo è
+section,marker,section,secção|seção,sección,section,sezione
+section,marker_is,is,é,es,est,è
+section,annexes,the annexes to the contract are|the annexes to the knowledge base are,os anexos ao contrato são|os anexos à base de conhecimento são,los anexos al contrato son|los anexos a la base de conocimiento son,les annexes au contrat sont|les annexes à la base de connaissances sont,gli allegati al contratto sono|gli allegati alla base di conoscenza sono
+section,guard,the knowledge|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the target,a base de conhecimento|o contrato|cenário|consulta|a ontologia é|os predicados são|os modelos são|os fluentes são|os eventos são|a linguagem alvo,la base de conocimiento|el contrato|escenario|consulta|la ontología es|los predicados son|las plantillas son|los fluentes son|los eventos son|el lenguaje objetivo,la base de connaissances|le contrat|scénario|requête|la taxonomie est|les prédicats sont|les modèles sont|les fluents sont|les événements sont|la langue cible,la base di conoscenza|il contratto|scenario|interrogazione|la tassonomia è|i predicati sono|i modelli sono|i fluenti sono|gli eventi sono|il linguaggio obiettivo
+section,reserved_word,knowledge|contract|ontology|predicates|templates|fluents|events|target,base|contrato|ontologia|predicados|modelos|fluentes|eventos|linguagem,base|contrato|ontología|predicados|plantillas|fluentes|eventos|lenguaje,base|contrat|taxonomie|prédicats|modèles|fluents|événements|langue,base|contratto|tassonomia|predicati|modelli|fluenti|eventi|linguaggio
+expect,expects,expects,espera,espera,attend,attende
+expect,answers,answers,respostas,respuestas,réponses,risposte
+expect,and_unknowns,and unknowns,e desconhecidos,y desconocidos,et inconnues|et inconnus,e sconosciuti|e sconosciute
+rule,rule,rule,regra,regla,règle,regola
+rule,if,if,se,si,si,se
+rule,only_if,only if,apenas se|somente se,solo si|sólo si,seulement si|uniquement si,solo se|soltanto se
+rule,unless,unless,a menos que|salvo se,a menos que|salvo que,à moins que|sauf si,a meno che|salvo che
+rule,and_unless,and unless,e a menos que|e salvo se,y a menos que|y salvo que,et à moins que|et sauf si,e a meno che|e salvo che
+connective,and,and,e,y,et,e
+connective,or,or,ou,o,ou,o|oppure
+connective,either,either,uma das seguintes|um dos seguintes,una de las siguientes|uno de los siguientes,une des suivantes|un des suivants,una delle seguenti|uno dei seguenti
+connective,any_of,any of,alguma das seguintes|algum dos seguintes,alguna de las siguientes|alguno de los siguientes,une quelconque des suivantes|un quelconque des suivants,qualcuna delle seguenti|qualcuno dei seguenti
+connective,all_of,all of,todas as seguintes|todos os seguintes,todas las siguientes|todos los siguientes,toutes les suivantes|tous les suivants,tutte le seguenti|tutti i seguenti
+connective,at_least_one_of,at least one of,pelo menos uma das seguintes|pelo menos um dos seguintes,al menos una de las siguientes|al menos uno de los siguientes,au moins une des suivantes|au moins un des suivants,almeno una delle seguenti|almeno uno dei seguenti
+connective,one,one,uma|um,una|uno,une|un,una|uno
+connective,of,of,de,de,de,di
+connective,all,all,todas|todos,todas|todos,toutes|tous,tutte|tutti
+naf,not_the_case,it is not the case that|not the case that,não é o caso que|não se verifica que,no es el caso que|no se cumple que,il est faux que|il est exclu que,non è il caso che|non risulta che
+forall,forall,for all cases in which,para todos os casos em que,para todos los casos en que,pour tous les cas où,per tutti i casi in cui
+forall,it_the_case,it is the case that,é o caso que|verifica-se que,es el caso que|se cumple que,il est le cas que,è il caso che|risulta che
+forall,for_case,for case,para o caso,para el caso,pour le cas,per il caso
+forall,it_is_true_that,it is true that,é verdade que,es verdad que,il est vrai que,è vero che
+unknown,it_is,it is,é,es,il est,è
+unknown,whether,whether,se,si,si,se
+template_addition,defines_global,defines global,define global,define global,définit global,definisce globale
+template_addition,opposite,opposite,oposto,opuesto,opposé,opposto
+template_addition,synonym,synonym,sinónimo|sinônimo,sinónimo,synonyme,sinonimo
+template_addition,prepositional,prepositional|composite,preposicional|composto|composta,preposicional|compuesto|compuesta,prépositionnel|prépositionnelle|composé|composée,preposizionale|composto|composta
+template_addition,unknown,unknown|assumed|assumable,desconhecido|desconhecida|assumido|assumida|assumível,desconocido|desconocida|asumido|asumida|asumible,inconnu|inconnue|supposé|supposée|supposable,sconosciuto|sconosciuta|assunto|assunta|assumibile
+template_addition,undefined,undefined|scenario element,indefinido|indefinida|elemento de cenário,indefinido|indefinida|elemento de escenario,indéfini|indéfinie|élément de scénario,indefinito|indefinita|elemento di scenario
+class,article,a|an|the|some,um|uma|o|a|os|as|uns|umas|algum|alguma,un|una|el|la|los|las|unos|unas|algún|alguna,un|une|le|la|les|quelque,un|una|uno|il|lo|la|i|gli|le|qualche
+class,ignorable,a|an|the|are|was|were|has|have|had|do|does|did|been,um|uma|o|a|os|as|são|era|eram|foi|foram|tem|têm|tinha|tinham|sido,un|una|el|la|los|las|son|era|eran|fue|fueron|tiene|tienen|tenía|tenían|sido,un|une|le|la|les|sont|était|étaient|fut|furent|a|ont|avait|avaient|été,un|una|uno|il|lo|la|i|gli|le|sono|era|erano|fu|furono|ha|hanno|aveva|avevano|stato|stata
+class,reserved,says|that|if|and|or|unless,diz|que|se|e|ou,dice|que|si|y|o,dit|que|si|et|ou,dice|che|se|e|o
+class,qualifier,first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|other|another|new|previous|next|current|last|same|original|single|given,primeiro|primeira|segundo|segunda|terceiro|terceira|quarto|quarta|quinto|quinta|sexto|sexta|sétimo|sétima|oitavo|oitava|nono|nona|décimo|décima|outro|outra|novo|nova|anterior|próximo|próxima|atual|último|última|mesmo|mesma|original|único|única|dado|dada,primero|primera|segundo|segunda|tercero|tercera|cuarto|cuarta|quinto|quinta|sexto|sexta|séptimo|séptima|octavo|octava|noveno|novena|décimo|décima|otro|otra|nuevo|nueva|anterior|próximo|próxima|siguiente|actual|último|última|mismo|misma|original|único|única|dado|dada,premier|première|deuxième|second|seconde|troisième|quatrième|cinquième|sixième|septième|huitième|neuvième|dixième|autre|nouveau|nouvelle|précédent|précédente|prochain|prochaine|suivant|suivante|actuel|actuelle|dernier|dernière|même|original|originale|unique|donné|donnée,primo|prima|secondo|seconda|terzo|terza|quarto|quarta|quinto|quinta|sesto|sesta|settimo|settima|ottavo|ottava|nono|nona|decimo|decima|altro|altra|nuovo|nuova|precedente|prossimo|prossima|successivo|successiva|attuale|ultimo|ultima|stesso|stessa|originale|unico|unica
+class,copula,is|are|was|were,é|são|era|eram|foi|foram|está|estão|estava|estavam,es|son|era|eran|fue|fueron|está|están|estaba|estaban,est|sont|était|étaient|fut|furent,è|sono|era|erano|fu|furono|sta|stanno
+class,definite_article,the,o|a|os|as,el|la|los|las,le|la|les,il|lo|la|i|gli|le
+class,determiner_definite,this,este|esta|esse|essa,este|esta|ese|esa,ce|cette|cet,questo|questa|quel|quella
+class,each,each,cada,cada,chaque,ogni|ciascun|ciascuna
+class,wh_var,which|what,qual|quais,cuál|cuáles|qué,quel|quelle|quels|quelles,quale|quali
+class,who,who,quem,quién,qui,chi
+class,what,what,quê,qué,quoi,cosa
+class,when,when,quando,cuándo,quand,quando
+class,where,where,onde,dónde,où,dove
+class,which,which,qual|quais,cuál|cuáles,quel|quelle|quels|quelles,quale|quali
+class,meta_marker,that|says,que|diz,que|dice,que|dit,che|dice
+class,that,that,que,que,que,che
+isa,is_a,is a|is an|is of,é um|é uma|é de,es un|es una|es de,est un|est une|est de,è un|è una|è uno|è di
+aggregate,sum,sum,soma,suma,somme,somma
+aggregate,count,count,contagem,recuento|cuenta,compte|nombre,conteggio|conto
+aggregate,average,average,média,promedio|media,moyenne,media
+aggregate,min,minimum|min,mínimo|mín,mínimo|mín,minimum|min,minimo|min
+aggregate,max,maximum|max,máximo|máx,máximo|máx,maximum|max,massimo|max
+aggregate,is_the,is the,é a|é o,es la|es el,est la|est le,è la|è il
+aggregate,of_each,of each,de cada,de cada,de chaque,di ogni|di ciascun
+aggregate,such_that,such that,tal que|tais que,tal que|tales que,tel que|telle que|tels que,tale che|tali che
+answer,assuming,assuming,assumindo,asumiendo|suponiendo,en supposant|supposant,assumendo|supponendo
+answer,assuming_and,and,e,y,et,e
+class,article_narrow,a|an|the,um|uma|o|a|os|as,un|una|el|la|los|las,un|une|le|la|les,un|una|uno|il|lo|la|i|gli|le
+class,connective_heuristic,a|an|the|in|on|at|to|from|of|by|for|with|between|and|or|is|are|was|were|that|than|as|into|over|under|within,um|uma|o|a|os|as|em|no|na|nos|nas|para|de|do|da|dos|das|por|com|entre|e|ou|é|são|era|eram|que|como|sob|sobre|dentro,un|una|el|la|los|las|en|del|al|para|de|por|con|entre|y|o|es|son|era|eran|que|como|sobre|bajo|dentro,un|une|le|la|les|dans|en|au|aux|du|des|pour|de|par|avec|entre|et|ou|est|sont|était|étaient|que|comme|sous|sur,un|una|uno|il|lo|la|i|gli|le|in|nel|nella|per|di|del|della|da|con|tra|fra|e|o|è|sono|era|erano|che|come|sotto|sopra|dentro

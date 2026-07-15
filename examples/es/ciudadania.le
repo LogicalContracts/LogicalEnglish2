@@ -1,0 +1,46 @@
+% Traducción española del ejemplo clásico de ciudadanía británica (Español Lógico).
+el lenguaje objetivo es: prolog.
+
+las plantillas son:
+*una persona* adquiere ciudadanía británica en *una fecha*.
+*una persona* nació en *un lugar* en *una fecha*,
+*una fecha* es posterior al inicio de vigencia,
+*una persona* es la madre de *una persona*,
+*una persona* es el padre de *una persona*,
+*una persona* es ciudadana británica en *una fecha*,
+*una persona* es residente en el Reino Unido en *una fecha*,
+*una persona* dice que *una frase*,
+*una persona* está calificada para determinar paternidad.
+
+la base de conocimiento ciudadania incluye:
+
+una persona adquiere ciudadanía británica en una fecha
+si la persona nació en el Reino Unido en la fecha
+	y la fecha es posterior al inicio de vigencia
+	y una otra persona es la madre de la persona
+    	o la otra persona es el padre de la persona
+	y la otra persona es ciudadana británica en la fecha
+    	o la otra persona es residente en el Reino Unido en la fecha.
+
+una persona es el padre de una otra persona
+si una tercera persona dice
+    que la persona es el padre de la otra persona
+    y la tercera persona está calificada para determinar paternidad.
+
+escenario alicia es:
+    John nació en el Reino Unido en 2021-10-09.
+	2021-10-09 es posterior al inicio de vigencia.
+	Alicia es la madre de John.
+	Alicia es ciudadana británica en 2021-10-09.
+    uno espera respuestas ["John adquiere ciudadanía británica en 2021-10-9T0:0:0.0"].
+
+escenario harry es:
+	John nació en el Reino Unido en 2021-10-09.
+	2021-10-09 es posterior al inicio de vigencia.
+	Harry dice que Harry es el padre de John.
+	Harry está calificada para determinar paternidad.
+	Harry es residente en el Reino Unido en 2021-10-09.
+    uno espera respuestas ["John adquiere ciudadanía británica en 2021-10-9T0:0:0.0"].
+
+consulta uno es:
+    cuál persona adquiere ciudadanía británica en cuál fecha.

@@ -1,0 +1,46 @@
+% Traduzione italiana dell'esempio classico di cittadinanza britannica (Italiano Logico).
+il linguaggio obiettivo è: prolog.
+
+i modelli sono:
+*una persona* acquisisce la cittadinanza britannica in *una data*.
+*una persona* nasce in *un luogo* in *una data*,
+*una data* è posteriore alla data di riferimento,
+*una persona* è la madre di *una persona*,
+*una persona* è il padre di *una persona*,
+*una persona* è cittadina britannica in *una data*,
+*una persona* è residente nel Regno Unito in *una data*,
+*una persona* dice che *una frase*,
+*una persona* è qualificata per determinare la paternità.
+
+la base di conoscenza cittadinanza include:
+
+una persona acquisisce la cittadinanza britannica in una data
+se la persona nasce in il Regno Unito in la data
+	e la data è posteriore alla data di riferimento
+	e una altra persona è la madre di la persona
+    	o la altra persona è il padre di la persona
+	e la altra persona è cittadina britannica in la data
+    	o la altra persona è residente nel Regno Unito in la data.
+
+una persona è il padre di una altra persona
+se una terza persona dice
+    che la persona è il padre di la altra persona
+    e la terza persona è qualificata per determinare la paternità.
+
+scenario alice è:
+    John nasce in il Regno Unito in 2021-10-09.
+	2021-10-09 è posteriore alla data di riferimento.
+	Alice è la madre di John.
+	Alice è cittadina britannica in 2021-10-09.
+    uno attende risposte ["John acquisisce la cittadinanza britannica in 2021-10-9T0:0:0.0"].
+
+scenario harry è:
+	John nasce in il Regno Unito in 2021-10-09.
+	2021-10-09 è posteriore alla data di riferimento.
+	Harry dice che Harry è il padre di John.
+	Harry è qualificata per determinare la paternità.
+	Harry è residente nel Regno Unito in 2021-10-09.
+    uno attende risposte ["John acquisisce la cittadinanza britannica in 2021-10-9T0:0:0.0"].
+
+interrogazione uno è:
+    quale persona acquisisce la cittadinanza britannica in quale data.

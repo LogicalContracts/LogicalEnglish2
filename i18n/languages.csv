@@ -1,3 +1,6 @@
 code,autonym,opener,decimal_sep,thousands_sep,list_sep,status,english_name
 en,Logical English,the target language is,.,",",",",core,English
 pt,Português Lógico,a linguagem alvo é,",",.,",",pilot,Portuguese
+es,Español Lógico,el lenguaje objetivo es,",",.,",",draft,Spanish
+fr,Français Logique,la langue cible est,",",.,",",draft,French
+it,Italiano Logico,il linguaggio obiettivo è,",",.,",",draft,Italian

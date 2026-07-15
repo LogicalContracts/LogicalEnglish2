@@ -1,6 +1,7 @@
 # Multilingual Logical English — Implementation Plan
 
-**Status:** Design draft. No code yet. This document evaluates the difficulty of
+**Status:** IMPLEMENTED (2026-07-15) — all phases executed; see Appendix B
+for the implementation record. Originally: design draft. This document evaluates the difficulty of
 turning Logical English (LE) into a multilingual family — *Português Lógico*,
 *Español Lógico*, *Français Logique*, *Italiano Logico*, … — and proposes a
 phased implementation, calling out the design decisions that need resolving
@@ -655,3 +656,63 @@ draft and 2026-07-15, and where this revision absorbs them:
 
 Pre-June surface the original inventory missed, also folded in: `section <name>
 is:` / `the annexes to the contract|knowledge base are:` markers (§1.1).
+
+
+---
+
+## Appendix B — Implementation record (2026-07-15)
+
+All phases were implemented, in order, each gated on green suites (unit plunit
++ LE examples + chromium e2e):
+
+- **Phase 0** (`Phase 0: i18n foundations` commit): `i18n/` CSV dictionaries
+  (keywords, system_templates, messages, ui, languages), the `le_i18n.pl`
+  loader/lexicon API (self-contained, consumable from extension repos), and
+  the editor build codegen (`editor/scripts/gen-i18n.cjs` →
+  `src/generated/i18nData.ts` + a JSON catalog for unbundled pages). English
+  parity proven (371/371 example tests). A parse-time performance regression
+  on the hot `is_ignorable`/meta-marker paths was found and fixed by
+  materializing per-language word sets and fetching the meta-marker list once
+  per candidate scan.
+- **Phase 1**: first-statement language detection in `parse_le_tokens` (O-1:
+  default English), `M:le_lang/1` recorded per KB, thread-active language
+  (O-2), every grammar terminal lexicalized through `kw//1`/`kw_start//2`/
+  `kw_loc//3`, extension surface in InsurLE2's `le_extensions.pl` lexicalized
+  (copulas, `this`-anchors via `definite_anchor_phrase/2`, which/unless/
+  either/any-of), verifier + grammar + API messages through the
+  named-placeholder catalog (O-5), rendering words (negation, forall,
+  aggregates, connectives, is-a) from the lexicon with an
+  `indefinite_isa_words/2` article hook (O-8: minimal).
+- **Phase 2 (Portuguese pilot)**: full pt columns; locale-aware tokenizer
+  (O-3 option B: digit-adjacent comma = decimal, dot-grouped thousands, list
+  commas take a space; `tokenize/4` + retokenization after detection);
+  localized number RENDERING; O-14 resolved by exempting `le_*` system
+  templates from meta priority and using 'é superior/inferior a' comparisons;
+  `examples/pt/` (citizenship incl. 'diz que' meta-templates; aggregates +
+  comma decimals + negation + forall; prepositional/composto chains with
+  'este' anchors and answer folding; abduction + synonyms + 'a menos que') —
+  all green; `runTests` and `testing/run_tests.sh` cover `examples/<lang>/`
+  trees; plunit suite `testing/test_multilingual_pt.pl`.
+- **Phase 3**: `editor/src/i18n.ts` runtime (t() keyed by canonical English
+  string, DOM pass, localStorage+cookie preference), language selector in the
+  Misc menu, per-language Monarch tables BUILT from the shared lexicon
+  (duplicate keyword table deleted; O-6 honored: program language drives
+  highlighting/parsing, selector drives chrome/new files), `?lang=` on
+  `/leapi`, server-rendered landing + `/login` localized from ui.csv via the
+  `le_ui_lang` cookie (O-13), Executive view via a JSON catalog; e2e spec
+  `tests/i18n-ui.spec.ts`.
+- **Phase 4**: `docs/le_summary.pt.md` + `AGENTS_LE_template.pt.md`;
+  `le_i18n:localized_asset/3`; the Assistant, "Write it in English…"
+  (→ "Escreva em Português…") and the Contract Assistant select localized
+  assets and carry output-language directives; nl_to_le prompt connectives
+  come from the lexicon; kbSummary/access messages localized.
+- **Phase 5**: es/fr/it columns across all CSVs (keywords/system templates/
+  messages/ui) + language registry rows (status: draft), citizenship example
+  per language (`examples/es|fr|it/`), plunit + suite coverage. 391/391 LE
+  example tests across the five languages.
+
+Notes for future work: French/Italian elision (l'/n') is avoided in keyword
+phrases rather than handled by the tokenizer (the apostrophe hook of §3.3
+remains open); `docs/le_summary.<lang>.md` exists only for pt (es/fr/it fall
+back to English); es/fr/it examples and keyword columns are first-stab
+machine translations pending native review (§3.8 step 4).

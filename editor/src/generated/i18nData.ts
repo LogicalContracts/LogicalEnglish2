@@ -1740,9 +1740,2944 @@ export const keywords: Record<string, KeywordTable> = {
       ]
     ]
   },
-  "es": {},
-  "fr": {},
-  "it": {}
+  "es": {
+    "kb_open": [
+      [
+        "la",
+        "base",
+        "de",
+        "conocimiento"
+      ]
+    ],
+    "kb_include": [
+      [
+        "incluye"
+      ]
+    ],
+    "contract_open": [
+      [
+        "el",
+        "contrato"
+      ]
+    ],
+    "contract_states": [
+      [
+        "establece",
+        "que"
+      ]
+    ],
+    "resources_include": [
+      [
+        "incluye",
+        "estos",
+        "recursos"
+      ]
+    ],
+    "scenario": [
+      [
+        "escenario"
+      ]
+    ],
+    "query": [
+      [
+        "consulta"
+      ]
+    ],
+    "ontology": [
+      [
+        "la",
+        "ontología",
+        "es"
+      ]
+    ],
+    "predicates": [
+      [
+        "los",
+        "predicados",
+        "son"
+      ]
+    ],
+    "templates": [
+      [
+        "las",
+        "plantillas",
+        "son"
+      ]
+    ],
+    "fluents": [
+      [
+        "los",
+        "fluentes",
+        "son"
+      ]
+    ],
+    "events": [
+      [
+        "los",
+        "eventos",
+        "son"
+      ]
+    ],
+    "meta_target": [
+      [
+        "el",
+        "lenguaje",
+        "objetivo",
+        "es"
+      ]
+    ],
+    "marker": [
+      [
+        "sección"
+      ]
+    ],
+    "marker_is": [
+      [
+        "es"
+      ]
+    ],
+    "annexes": [
+      [
+        "los",
+        "anexos",
+        "a",
+        "la",
+        "base",
+        "de",
+        "conocimiento",
+        "son"
+      ],
+      [
+        "los",
+        "anexos",
+        "al",
+        "contrato",
+        "son"
+      ]
+    ],
+    "guard": [
+      [
+        "la",
+        "base",
+        "de",
+        "conocimiento"
+      ],
+      [
+        "el",
+        "lenguaje",
+        "objetivo"
+      ],
+      [
+        "los",
+        "predicados",
+        "son"
+      ],
+      [
+        "las",
+        "plantillas",
+        "son"
+      ],
+      [
+        "los",
+        "fluentes",
+        "son"
+      ],
+      [
+        "la",
+        "ontología",
+        "es"
+      ],
+      [
+        "los",
+        "eventos",
+        "son"
+      ],
+      [
+        "el",
+        "contrato"
+      ],
+      [
+        "escenario"
+      ],
+      [
+        "consulta"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicados"
+      ],
+      [
+        "plantillas"
+      ],
+      [
+        "ontología"
+      ],
+      [
+        "contrato"
+      ],
+      [
+        "fluentes"
+      ],
+      [
+        "lenguaje"
+      ],
+      [
+        "eventos"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "espera"
+      ]
+    ],
+    "answers": [
+      [
+        "respuestas"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "y",
+        "desconocidos"
+      ]
+    ],
+    "rule": [
+      [
+        "regla"
+      ]
+    ],
+    "if": [
+      [
+        "si"
+      ]
+    ],
+    "only_if": [
+      [
+        "solo",
+        "si"
+      ],
+      [
+        "sólo",
+        "si"
+      ]
+    ],
+    "unless": [
+      [
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "salvo",
+        "que"
+      ]
+    ],
+    "and_unless": [
+      [
+        "y",
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "y",
+        "salvo",
+        "que"
+      ]
+    ],
+    "and": [
+      [
+        "y"
+      ]
+    ],
+    "or": [
+      [
+        "o"
+      ]
+    ],
+    "either": [
+      [
+        "una",
+        "de",
+        "las",
+        "siguientes"
+      ],
+      [
+        "uno",
+        "de",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "any_of": [
+      [
+        "alguna",
+        "de",
+        "las",
+        "siguientes"
+      ],
+      [
+        "alguno",
+        "de",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "all_of": [
+      [
+        "todas",
+        "las",
+        "siguientes"
+      ],
+      [
+        "todos",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "al",
+        "menos",
+        "una",
+        "de",
+        "las",
+        "siguientes"
+      ],
+      [
+        "al",
+        "menos",
+        "uno",
+        "de",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "one": [
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ]
+    ],
+    "of": [
+      [
+        "de"
+      ]
+    ],
+    "all": [
+      [
+        "todas"
+      ],
+      [
+        "todos"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "no",
+        "es",
+        "el",
+        "caso",
+        "que"
+      ],
+      [
+        "no",
+        "se",
+        "cumple",
+        "que"
+      ]
+    ],
+    "forall": [
+      [
+        "para",
+        "todos",
+        "los",
+        "casos",
+        "en",
+        "que"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "es",
+        "el",
+        "caso",
+        "que"
+      ],
+      [
+        "se",
+        "cumple",
+        "que"
+      ]
+    ],
+    "for_case": [
+      [
+        "para",
+        "el",
+        "caso"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "es",
+        "verdad",
+        "que"
+      ]
+    ],
+    "it_is": [
+      [
+        "es"
+      ]
+    ],
+    "whether": [
+      [
+        "si"
+      ]
+    ],
+    "defines_global": [
+      [
+        "define",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "opuesto"
+      ]
+    ],
+    "synonym": [
+      [
+        "sinónimo"
+      ]
+    ],
+    "prepositional": [
+      [
+        "preposicional"
+      ],
+      [
+        "compuesto"
+      ],
+      [
+        "compuesta"
+      ]
+    ],
+    "unknown": [
+      [
+        "desconocido"
+      ],
+      [
+        "desconocida"
+      ],
+      [
+        "asumible"
+      ],
+      [
+        "asumido"
+      ],
+      [
+        "asumida"
+      ]
+    ],
+    "undefined": [
+      [
+        "elemento",
+        "de",
+        "escenario"
+      ],
+      [
+        "indefinido"
+      ],
+      [
+        "indefinida"
+      ]
+    ],
+    "article": [
+      [
+        "alguna"
+      ],
+      [
+        "algún"
+      ],
+      [
+        "unos"
+      ],
+      [
+        "unas"
+      ],
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "ignorable": [
+      [
+        "fueron"
+      ],
+      [
+        "tienen"
+      ],
+      [
+        "tenían"
+      ],
+      [
+        "tiene"
+      ],
+      [
+        "tenía"
+      ],
+      [
+        "eran"
+      ],
+      [
+        "sido"
+      ],
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "son"
+      ],
+      [
+        "era"
+      ],
+      [
+        "fue"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "reserved": [
+      [
+        "dice"
+      ],
+      [
+        "que"
+      ],
+      [
+        "si"
+      ],
+      [
+        "y"
+      ],
+      [
+        "o"
+      ]
+    ],
+    "qualifier": [
+      [
+        "siguiente"
+      ],
+      [
+        "anterior"
+      ],
+      [
+        "original"
+      ],
+      [
+        "primero"
+      ],
+      [
+        "primera"
+      ],
+      [
+        "segundo"
+      ],
+      [
+        "segunda"
+      ],
+      [
+        "tercero"
+      ],
+      [
+        "tercera"
+      ],
+      [
+        "séptimo"
+      ],
+      [
+        "séptima"
+      ],
+      [
+        "próximo"
+      ],
+      [
+        "próxima"
+      ],
+      [
+        "cuarto"
+      ],
+      [
+        "cuarta"
+      ],
+      [
+        "quinto"
+      ],
+      [
+        "quinta"
+      ],
+      [
+        "octavo"
+      ],
+      [
+        "octava"
+      ],
+      [
+        "noveno"
+      ],
+      [
+        "novena"
+      ],
+      [
+        "décimo"
+      ],
+      [
+        "décima"
+      ],
+      [
+        "actual"
+      ],
+      [
+        "último"
+      ],
+      [
+        "última"
+      ],
+      [
+        "sexto"
+      ],
+      [
+        "sexta"
+      ],
+      [
+        "nuevo"
+      ],
+      [
+        "nueva"
+      ],
+      [
+        "mismo"
+      ],
+      [
+        "misma"
+      ],
+      [
+        "único"
+      ],
+      [
+        "única"
+      ],
+      [
+        "otro"
+      ],
+      [
+        "otra"
+      ],
+      [
+        "dado"
+      ],
+      [
+        "dada"
+      ]
+    ],
+    "copula": [
+      [
+        "estaban"
+      ],
+      [
+        "fueron"
+      ],
+      [
+        "estaba"
+      ],
+      [
+        "están"
+      ],
+      [
+        "eran"
+      ],
+      [
+        "está"
+      ],
+      [
+        "son"
+      ],
+      [
+        "era"
+      ],
+      [
+        "fue"
+      ],
+      [
+        "es"
+      ]
+    ],
+    "definite_article": [
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "este"
+      ],
+      [
+        "esta"
+      ],
+      [
+        "ese"
+      ],
+      [
+        "esa"
+      ]
+    ],
+    "each": [
+      [
+        "cada"
+      ]
+    ],
+    "wh_var": [
+      [
+        "cuáles"
+      ],
+      [
+        "cuál"
+      ],
+      [
+        "qué"
+      ]
+    ],
+    "who": [
+      [
+        "quién"
+      ]
+    ],
+    "what": [
+      [
+        "qué"
+      ]
+    ],
+    "when": [
+      [
+        "cuándo"
+      ]
+    ],
+    "where": [
+      [
+        "dónde"
+      ]
+    ],
+    "which": [
+      [
+        "cuáles"
+      ],
+      [
+        "cuál"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "dice"
+      ],
+      [
+        "que"
+      ]
+    ],
+    "that": [
+      [
+        "que"
+      ]
+    ],
+    "is_a": [
+      [
+        "es",
+        "una"
+      ],
+      [
+        "es",
+        "un"
+      ],
+      [
+        "es",
+        "de"
+      ]
+    ],
+    "sum": [
+      [
+        "suma"
+      ]
+    ],
+    "count": [
+      [
+        "recuento"
+      ],
+      [
+        "cuenta"
+      ]
+    ],
+    "average": [
+      [
+        "promedio"
+      ],
+      [
+        "media"
+      ]
+    ],
+    "min": [
+      [
+        "mínimo"
+      ],
+      [
+        "mín"
+      ]
+    ],
+    "max": [
+      [
+        "máximo"
+      ],
+      [
+        "máx"
+      ]
+    ],
+    "is_the": [
+      [
+        "es",
+        "la"
+      ],
+      [
+        "es",
+        "el"
+      ]
+    ],
+    "of_each": [
+      [
+        "de",
+        "cada"
+      ]
+    ],
+    "such_that": [
+      [
+        "tales",
+        "que"
+      ],
+      [
+        "tal",
+        "que"
+      ]
+    ],
+    "assuming": [
+      [
+        "suponiendo"
+      ],
+      [
+        "asumiendo"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "y"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "dentro"
+      ],
+      [
+        "entre"
+      ],
+      [
+        "sobre"
+      ],
+      [
+        "para"
+      ],
+      [
+        "eran"
+      ],
+      [
+        "como"
+      ],
+      [
+        "bajo"
+      ],
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "del"
+      ],
+      [
+        "por"
+      ],
+      [
+        "con"
+      ],
+      [
+        "son"
+      ],
+      [
+        "era"
+      ],
+      [
+        "que"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ],
+      [
+        "en"
+      ],
+      [
+        "al"
+      ],
+      [
+        "de"
+      ],
+      [
+        "es"
+      ],
+      [
+        "y"
+      ],
+      [
+        "o"
+      ]
+    ]
+  },
+  "fr": {
+    "kb_open": [
+      [
+        "la",
+        "base",
+        "de",
+        "connaissances"
+      ]
+    ],
+    "kb_include": [
+      [
+        "comprend"
+      ],
+      [
+        "inclut"
+      ]
+    ],
+    "contract_open": [
+      [
+        "le",
+        "contrat"
+      ]
+    ],
+    "contract_states": [
+      [
+        "stipule",
+        "que"
+      ]
+    ],
+    "resources_include": [
+      [
+        "comprend",
+        "ces",
+        "ressources"
+      ],
+      [
+        "inclut",
+        "ces",
+        "ressources"
+      ]
+    ],
+    "scenario": [
+      [
+        "scénario"
+      ]
+    ],
+    "query": [
+      [
+        "requête"
+      ]
+    ],
+    "ontology": [
+      [
+        "la",
+        "taxonomie",
+        "est"
+      ]
+    ],
+    "predicates": [
+      [
+        "les",
+        "prédicats",
+        "sont"
+      ]
+    ],
+    "templates": [
+      [
+        "les",
+        "modèles",
+        "sont"
+      ]
+    ],
+    "fluents": [
+      [
+        "les",
+        "fluents",
+        "sont"
+      ]
+    ],
+    "events": [
+      [
+        "les",
+        "événements",
+        "sont"
+      ]
+    ],
+    "meta_target": [
+      [
+        "la",
+        "langue",
+        "cible",
+        "est"
+      ]
+    ],
+    "marker": [
+      [
+        "section"
+      ]
+    ],
+    "marker_is": [
+      [
+        "est"
+      ]
+    ],
+    "annexes": [
+      [
+        "les",
+        "annexes",
+        "à",
+        "la",
+        "base",
+        "de",
+        "connaissances",
+        "sont"
+      ],
+      [
+        "les",
+        "annexes",
+        "au",
+        "contrat",
+        "sont"
+      ]
+    ],
+    "guard": [
+      [
+        "la",
+        "base",
+        "de",
+        "connaissances"
+      ],
+      [
+        "les",
+        "événements",
+        "sont"
+      ],
+      [
+        "les",
+        "prédicats",
+        "sont"
+      ],
+      [
+        "la",
+        "taxonomie",
+        "est"
+      ],
+      [
+        "les",
+        "modèles",
+        "sont"
+      ],
+      [
+        "les",
+        "fluents",
+        "sont"
+      ],
+      [
+        "la",
+        "langue",
+        "cible"
+      ],
+      [
+        "le",
+        "contrat"
+      ],
+      [
+        "scénario"
+      ],
+      [
+        "requête"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "événements"
+      ],
+      [
+        "taxonomie"
+      ],
+      [
+        "prédicats"
+      ],
+      [
+        "contrat"
+      ],
+      [
+        "modèles"
+      ],
+      [
+        "fluents"
+      ],
+      [
+        "langue"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "attend"
+      ]
+    ],
+    "answers": [
+      [
+        "réponses"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "et",
+        "inconnues"
+      ],
+      [
+        "et",
+        "inconnus"
+      ]
+    ],
+    "rule": [
+      [
+        "règle"
+      ]
+    ],
+    "if": [
+      [
+        "si"
+      ]
+    ],
+    "only_if": [
+      [
+        "uniquement",
+        "si"
+      ],
+      [
+        "seulement",
+        "si"
+      ]
+    ],
+    "unless": [
+      [
+        "à",
+        "moins",
+        "que"
+      ],
+      [
+        "sauf",
+        "si"
+      ]
+    ],
+    "and_unless": [
+      [
+        "et",
+        "à",
+        "moins",
+        "que"
+      ],
+      [
+        "et",
+        "sauf",
+        "si"
+      ]
+    ],
+    "and": [
+      [
+        "et"
+      ]
+    ],
+    "or": [
+      [
+        "ou"
+      ]
+    ],
+    "either": [
+      [
+        "une",
+        "des",
+        "suivantes"
+      ],
+      [
+        "un",
+        "des",
+        "suivants"
+      ]
+    ],
+    "any_of": [
+      [
+        "une",
+        "quelconque",
+        "des",
+        "suivantes"
+      ],
+      [
+        "un",
+        "quelconque",
+        "des",
+        "suivants"
+      ]
+    ],
+    "all_of": [
+      [
+        "toutes",
+        "les",
+        "suivantes"
+      ],
+      [
+        "tous",
+        "les",
+        "suivants"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "au",
+        "moins",
+        "une",
+        "des",
+        "suivantes"
+      ],
+      [
+        "au",
+        "moins",
+        "un",
+        "des",
+        "suivants"
+      ]
+    ],
+    "one": [
+      [
+        "une"
+      ],
+      [
+        "un"
+      ]
+    ],
+    "of": [
+      [
+        "de"
+      ]
+    ],
+    "all": [
+      [
+        "toutes"
+      ],
+      [
+        "tous"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "il",
+        "est",
+        "exclu",
+        "que"
+      ],
+      [
+        "il",
+        "est",
+        "faux",
+        "que"
+      ]
+    ],
+    "forall": [
+      [
+        "pour",
+        "tous",
+        "les",
+        "cas",
+        "où"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "il",
+        "est",
+        "le",
+        "cas",
+        "que"
+      ]
+    ],
+    "for_case": [
+      [
+        "pour",
+        "le",
+        "cas"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "il",
+        "est",
+        "vrai",
+        "que"
+      ]
+    ],
+    "it_is": [
+      [
+        "il",
+        "est"
+      ]
+    ],
+    "whether": [
+      [
+        "si"
+      ]
+    ],
+    "defines_global": [
+      [
+        "définit",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "opposé"
+      ]
+    ],
+    "synonym": [
+      [
+        "synonyme"
+      ]
+    ],
+    "prepositional": [
+      [
+        "prépositionnelle"
+      ],
+      [
+        "prépositionnel"
+      ],
+      [
+        "composée"
+      ],
+      [
+        "composé"
+      ]
+    ],
+    "unknown": [
+      [
+        "supposable"
+      ],
+      [
+        "inconnue"
+      ],
+      [
+        "supposée"
+      ],
+      [
+        "inconnu"
+      ],
+      [
+        "supposé"
+      ]
+    ],
+    "undefined": [
+      [
+        "élément",
+        "de",
+        "scénario"
+      ],
+      [
+        "indéfinie"
+      ],
+      [
+        "indéfini"
+      ]
+    ],
+    "article": [
+      [
+        "quelque"
+      ],
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "ignorable": [
+      [
+        "étaient"
+      ],
+      [
+        "avaient"
+      ],
+      [
+        "furent"
+      ],
+      [
+        "était"
+      ],
+      [
+        "avait"
+      ],
+      [
+        "sont"
+      ],
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "fut"
+      ],
+      [
+        "ont"
+      ],
+      [
+        "été"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "dit"
+      ],
+      [
+        "que"
+      ],
+      [
+        "si"
+      ],
+      [
+        "et"
+      ],
+      [
+        "ou"
+      ]
+    ],
+    "qualifier": [
+      [
+        "précédente"
+      ],
+      [
+        "troisième"
+      ],
+      [
+        "quatrième"
+      ],
+      [
+        "cinquième"
+      ],
+      [
+        "précédent"
+      ],
+      [
+        "prochaine"
+      ],
+      [
+        "originale"
+      ],
+      [
+        "première"
+      ],
+      [
+        "deuxième"
+      ],
+      [
+        "septième"
+      ],
+      [
+        "huitième"
+      ],
+      [
+        "neuvième"
+      ],
+      [
+        "nouvelle"
+      ],
+      [
+        "prochain"
+      ],
+      [
+        "suivante"
+      ],
+      [
+        "actuelle"
+      ],
+      [
+        "dernière"
+      ],
+      [
+        "original"
+      ],
+      [
+        "premier"
+      ],
+      [
+        "seconde"
+      ],
+      [
+        "sixième"
+      ],
+      [
+        "dixième"
+      ],
+      [
+        "nouveau"
+      ],
+      [
+        "suivant"
+      ],
+      [
+        "dernier"
+      ],
+      [
+        "second"
+      ],
+      [
+        "actuel"
+      ],
+      [
+        "unique"
+      ],
+      [
+        "donnée"
+      ],
+      [
+        "autre"
+      ],
+      [
+        "donné"
+      ],
+      [
+        "même"
+      ]
+    ],
+    "copula": [
+      [
+        "étaient"
+      ],
+      [
+        "furent"
+      ],
+      [
+        "était"
+      ],
+      [
+        "sont"
+      ],
+      [
+        "est"
+      ],
+      [
+        "fut"
+      ]
+    ],
+    "definite_article": [
+      [
+        "les"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "cette"
+      ],
+      [
+        "cet"
+      ],
+      [
+        "ce"
+      ]
+    ],
+    "each": [
+      [
+        "chaque"
+      ]
+    ],
+    "wh_var": [
+      [
+        "quelles"
+      ],
+      [
+        "quelle"
+      ],
+      [
+        "quels"
+      ],
+      [
+        "quel"
+      ]
+    ],
+    "who": [
+      [
+        "qui"
+      ]
+    ],
+    "what": [
+      [
+        "quoi"
+      ]
+    ],
+    "when": [
+      [
+        "quand"
+      ]
+    ],
+    "where": [
+      [
+        "où"
+      ]
+    ],
+    "which": [
+      [
+        "quelles"
+      ],
+      [
+        "quelle"
+      ],
+      [
+        "quels"
+      ],
+      [
+        "quel"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "que"
+      ],
+      [
+        "dit"
+      ]
+    ],
+    "that": [
+      [
+        "que"
+      ]
+    ],
+    "is_a": [
+      [
+        "est",
+        "une"
+      ],
+      [
+        "est",
+        "un"
+      ],
+      [
+        "est",
+        "de"
+      ]
+    ],
+    "sum": [
+      [
+        "somme"
+      ]
+    ],
+    "count": [
+      [
+        "compte"
+      ],
+      [
+        "nombre"
+      ]
+    ],
+    "average": [
+      [
+        "moyenne"
+      ]
+    ],
+    "min": [
+      [
+        "minimum"
+      ],
+      [
+        "min"
+      ]
+    ],
+    "max": [
+      [
+        "maximum"
+      ],
+      [
+        "max"
+      ]
+    ],
+    "is_the": [
+      [
+        "est",
+        "la"
+      ],
+      [
+        "est",
+        "le"
+      ]
+    ],
+    "of_each": [
+      [
+        "de",
+        "chaque"
+      ]
+    ],
+    "such_that": [
+      [
+        "telle",
+        "que"
+      ],
+      [
+        "tels",
+        "que"
+      ],
+      [
+        "tel",
+        "que"
+      ]
+    ],
+    "assuming": [
+      [
+        "en",
+        "supposant"
+      ],
+      [
+        "supposant"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "et"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "étaient"
+      ],
+      [
+        "entre"
+      ],
+      [
+        "était"
+      ],
+      [
+        "comme"
+      ],
+      [
+        "dans"
+      ],
+      [
+        "pour"
+      ],
+      [
+        "avec"
+      ],
+      [
+        "sont"
+      ],
+      [
+        "sous"
+      ],
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "aux"
+      ],
+      [
+        "des"
+      ],
+      [
+        "par"
+      ],
+      [
+        "est"
+      ],
+      [
+        "que"
+      ],
+      [
+        "sur"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ],
+      [
+        "en"
+      ],
+      [
+        "au"
+      ],
+      [
+        "du"
+      ],
+      [
+        "de"
+      ],
+      [
+        "et"
+      ],
+      [
+        "ou"
+      ]
+    ]
+  },
+  "it": {
+    "kb_open": [
+      [
+        "la",
+        "base",
+        "di",
+        "conoscenza"
+      ]
+    ],
+    "kb_include": [
+      [
+        "include"
+      ]
+    ],
+    "contract_open": [
+      [
+        "il",
+        "contratto"
+      ]
+    ],
+    "contract_states": [
+      [
+        "stabilisce",
+        "che"
+      ]
+    ],
+    "resources_include": [
+      [
+        "include",
+        "queste",
+        "risorse"
+      ]
+    ],
+    "scenario": [
+      [
+        "scenario"
+      ]
+    ],
+    "query": [
+      [
+        "interrogazione"
+      ]
+    ],
+    "ontology": [
+      [
+        "la",
+        "tassonomia",
+        "è"
+      ]
+    ],
+    "predicates": [
+      [
+        "i",
+        "predicati",
+        "sono"
+      ]
+    ],
+    "templates": [
+      [
+        "i",
+        "modelli",
+        "sono"
+      ]
+    ],
+    "fluents": [
+      [
+        "i",
+        "fluenti",
+        "sono"
+      ]
+    ],
+    "events": [
+      [
+        "gli",
+        "eventi",
+        "sono"
+      ]
+    ],
+    "meta_target": [
+      [
+        "il",
+        "linguaggio",
+        "obiettivo",
+        "è"
+      ]
+    ],
+    "marker": [
+      [
+        "sezione"
+      ]
+    ],
+    "marker_is": [
+      [
+        "è"
+      ]
+    ],
+    "annexes": [
+      [
+        "gli",
+        "allegati",
+        "alla",
+        "base",
+        "di",
+        "conoscenza",
+        "sono"
+      ],
+      [
+        "gli",
+        "allegati",
+        "al",
+        "contratto",
+        "sono"
+      ]
+    ],
+    "guard": [
+      [
+        "il",
+        "linguaggio",
+        "obiettivo"
+      ],
+      [
+        "la",
+        "base",
+        "di",
+        "conoscenza"
+      ],
+      [
+        "i",
+        "predicati",
+        "sono"
+      ],
+      [
+        "la",
+        "tassonomia",
+        "è"
+      ],
+      [
+        "gli",
+        "eventi",
+        "sono"
+      ],
+      [
+        "interrogazione"
+      ],
+      [
+        "i",
+        "modelli",
+        "sono"
+      ],
+      [
+        "i",
+        "fluenti",
+        "sono"
+      ],
+      [
+        "il",
+        "contratto"
+      ],
+      [
+        "scenario"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "tassonomia"
+      ],
+      [
+        "linguaggio"
+      ],
+      [
+        "contratto"
+      ],
+      [
+        "predicati"
+      ],
+      [
+        "modelli"
+      ],
+      [
+        "fluenti"
+      ],
+      [
+        "eventi"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "attende"
+      ]
+    ],
+    "answers": [
+      [
+        "risposte"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "e",
+        "sconosciuti"
+      ],
+      [
+        "e",
+        "sconosciute"
+      ]
+    ],
+    "rule": [
+      [
+        "regola"
+      ]
+    ],
+    "if": [
+      [
+        "se"
+      ]
+    ],
+    "only_if": [
+      [
+        "soltanto",
+        "se"
+      ],
+      [
+        "solo",
+        "se"
+      ]
+    ],
+    "unless": [
+      [
+        "a",
+        "meno",
+        "che"
+      ],
+      [
+        "salvo",
+        "che"
+      ]
+    ],
+    "and_unless": [
+      [
+        "e",
+        "a",
+        "meno",
+        "che"
+      ],
+      [
+        "e",
+        "salvo",
+        "che"
+      ]
+    ],
+    "and": [
+      [
+        "e"
+      ]
+    ],
+    "or": [
+      [
+        "oppure"
+      ],
+      [
+        "o"
+      ]
+    ],
+    "either": [
+      [
+        "una",
+        "delle",
+        "seguenti"
+      ],
+      [
+        "uno",
+        "dei",
+        "seguenti"
+      ]
+    ],
+    "any_of": [
+      [
+        "qualcuna",
+        "delle",
+        "seguenti"
+      ],
+      [
+        "qualcuno",
+        "dei",
+        "seguenti"
+      ]
+    ],
+    "all_of": [
+      [
+        "tutte",
+        "le",
+        "seguenti"
+      ],
+      [
+        "tutti",
+        "i",
+        "seguenti"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "almeno",
+        "una",
+        "delle",
+        "seguenti"
+      ],
+      [
+        "almeno",
+        "uno",
+        "dei",
+        "seguenti"
+      ]
+    ],
+    "one": [
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ]
+    ],
+    "of": [
+      [
+        "di"
+      ]
+    ],
+    "all": [
+      [
+        "tutte"
+      ],
+      [
+        "tutti"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "non",
+        "è",
+        "il",
+        "caso",
+        "che"
+      ],
+      [
+        "non",
+        "risulta",
+        "che"
+      ]
+    ],
+    "forall": [
+      [
+        "per",
+        "tutti",
+        "i",
+        "casi",
+        "in",
+        "cui"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "è",
+        "il",
+        "caso",
+        "che"
+      ],
+      [
+        "risulta",
+        "che"
+      ]
+    ],
+    "for_case": [
+      [
+        "per",
+        "il",
+        "caso"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "è",
+        "vero",
+        "che"
+      ]
+    ],
+    "it_is": [
+      [
+        "è"
+      ]
+    ],
+    "whether": [
+      [
+        "se"
+      ]
+    ],
+    "defines_global": [
+      [
+        "definisce",
+        "globale"
+      ]
+    ],
+    "opposite": [
+      [
+        "opposto"
+      ]
+    ],
+    "synonym": [
+      [
+        "sinonimo"
+      ]
+    ],
+    "prepositional": [
+      [
+        "preposizionale"
+      ],
+      [
+        "composto"
+      ],
+      [
+        "composta"
+      ]
+    ],
+    "unknown": [
+      [
+        "sconosciuto"
+      ],
+      [
+        "sconosciuta"
+      ],
+      [
+        "assumibile"
+      ],
+      [
+        "assunto"
+      ],
+      [
+        "assunta"
+      ]
+    ],
+    "undefined": [
+      [
+        "elemento",
+        "di",
+        "scenario"
+      ],
+      [
+        "indefinito"
+      ],
+      [
+        "indefinita"
+      ]
+    ],
+    "article": [
+      [
+        "qualche"
+      ],
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "ignorable": [
+      [
+        "avevano"
+      ],
+      [
+        "furono"
+      ],
+      [
+        "erano"
+      ],
+      [
+        "hanno"
+      ],
+      [
+        "aveva"
+      ],
+      [
+        "stato"
+      ],
+      [
+        "stata"
+      ],
+      [
+        "sono"
+      ],
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "era"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "fu"
+      ],
+      [
+        "ha"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "reserved": [
+      [
+        "dice"
+      ],
+      [
+        "che"
+      ],
+      [
+        "se"
+      ],
+      [
+        "e"
+      ],
+      [
+        "o"
+      ]
+    ],
+    "qualifier": [
+      [
+        "precedente"
+      ],
+      [
+        "successivo"
+      ],
+      [
+        "successiva"
+      ],
+      [
+        "originale"
+      ],
+      [
+        "prossimo"
+      ],
+      [
+        "prossima"
+      ],
+      [
+        "secondo"
+      ],
+      [
+        "seconda"
+      ],
+      [
+        "settimo"
+      ],
+      [
+        "settima"
+      ],
+      [
+        "attuale"
+      ],
+      [
+        "quarto"
+      ],
+      [
+        "quarta"
+      ],
+      [
+        "quinto"
+      ],
+      [
+        "quinta"
+      ],
+      [
+        "ottavo"
+      ],
+      [
+        "ottava"
+      ],
+      [
+        "decimo"
+      ],
+      [
+        "decima"
+      ],
+      [
+        "ultimo"
+      ],
+      [
+        "ultima"
+      ],
+      [
+        "stesso"
+      ],
+      [
+        "stessa"
+      ],
+      [
+        "primo"
+      ],
+      [
+        "prima"
+      ],
+      [
+        "terzo"
+      ],
+      [
+        "terza"
+      ],
+      [
+        "sesto"
+      ],
+      [
+        "sesta"
+      ],
+      [
+        "altro"
+      ],
+      [
+        "altra"
+      ],
+      [
+        "nuovo"
+      ],
+      [
+        "nuova"
+      ],
+      [
+        "unico"
+      ],
+      [
+        "unica"
+      ],
+      [
+        "nono"
+      ],
+      [
+        "nona"
+      ]
+    ],
+    "copula": [
+      [
+        "furono"
+      ],
+      [
+        "stanno"
+      ],
+      [
+        "erano"
+      ],
+      [
+        "sono"
+      ],
+      [
+        "era"
+      ],
+      [
+        "sta"
+      ],
+      [
+        "fu"
+      ],
+      [
+        "è"
+      ]
+    ],
+    "definite_article": [
+      [
+        "gli"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "questo"
+      ],
+      [
+        "questa"
+      ],
+      [
+        "quella"
+      ],
+      [
+        "quel"
+      ]
+    ],
+    "each": [
+      [
+        "ciascuna"
+      ],
+      [
+        "ciascun"
+      ],
+      [
+        "ogni"
+      ]
+    ],
+    "wh_var": [
+      [
+        "quale"
+      ],
+      [
+        "quali"
+      ]
+    ],
+    "who": [
+      [
+        "chi"
+      ]
+    ],
+    "what": [
+      [
+        "cosa"
+      ]
+    ],
+    "when": [
+      [
+        "quando"
+      ]
+    ],
+    "where": [
+      [
+        "dove"
+      ]
+    ],
+    "which": [
+      [
+        "quale"
+      ],
+      [
+        "quali"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "dice"
+      ],
+      [
+        "che"
+      ]
+    ],
+    "that": [
+      [
+        "che"
+      ]
+    ],
+    "is_a": [
+      [
+        "è",
+        "una"
+      ],
+      [
+        "è",
+        "uno"
+      ],
+      [
+        "è",
+        "un"
+      ],
+      [
+        "è",
+        "di"
+      ]
+    ],
+    "sum": [
+      [
+        "somma"
+      ]
+    ],
+    "count": [
+      [
+        "conteggio"
+      ],
+      [
+        "conto"
+      ]
+    ],
+    "average": [
+      [
+        "media"
+      ]
+    ],
+    "min": [
+      [
+        "minimo"
+      ],
+      [
+        "min"
+      ]
+    ],
+    "max": [
+      [
+        "massimo"
+      ],
+      [
+        "max"
+      ]
+    ],
+    "is_the": [
+      [
+        "è",
+        "la"
+      ],
+      [
+        "è",
+        "il"
+      ]
+    ],
+    "of_each": [
+      [
+        "di",
+        "ciascun"
+      ],
+      [
+        "di",
+        "ogni"
+      ]
+    ],
+    "such_that": [
+      [
+        "tale",
+        "che"
+      ],
+      [
+        "tali",
+        "che"
+      ]
+    ],
+    "assuming": [
+      [
+        "supponendo"
+      ],
+      [
+        "assumendo"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "e"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "dentro"
+      ],
+      [
+        "nella"
+      ],
+      [
+        "della"
+      ],
+      [
+        "erano"
+      ],
+      [
+        "sotto"
+      ],
+      [
+        "sopra"
+      ],
+      [
+        "sono"
+      ],
+      [
+        "come"
+      ],
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "nel"
+      ],
+      [
+        "per"
+      ],
+      [
+        "del"
+      ],
+      [
+        "con"
+      ],
+      [
+        "tra"
+      ],
+      [
+        "fra"
+      ],
+      [
+        "era"
+      ],
+      [
+        "che"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "in"
+      ],
+      [
+        "di"
+      ],
+      [
+        "da"
+      ],
+      [
+        "i"
+      ],
+      [
+        "e"
+      ],
+      [
+        "o"
+      ],
+      [
+        "è"
+      ]
+    ]
+  }
 } as const;
 
 /** Category of each keyword key (section, connective, class, ...). */
@@ -2103,9 +5038,828 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cenários e consultas, variações de cenário e a leitura das árvores de explicação.",
     "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "A referência da linguagem: todas as construções — modelos, regras, operadores, agregações, variáveis e tipos, datas, ontologia, extensões — para consultar enquanto escreve."
   },
-  "es": {},
-  "fr": {},
-  "it": {}
+  "es": {
+    "+ Add": "+ Añadir",
+    "+ Add Query": "+ Añadir consulta",
+    "A hands-on tutorial: write, query and debug three small LE programs.": "Un tutorial práctico: escribir, consultar y depurar tres pequeños programas LE.",
+    "API Keys &amp; Assistant Settings": "Claves de API y configuración del Asistente",
+    "API Keys &amp; Assistant Settings...": "Claves de API y configuración del Asistente...",
+    "Add condition": "Añadir condición",
+    "Add fact": "Añadir hecho",
+    "Add query": "Añadir consulta",
+    "Anthropic API Key:": "Clave de API Anthropic:",
+    "Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')": "Pida al asistente (p. ej., 'Corrige la indentación', 'Esboza un programa para...')",
+    "Assistant Max Steps (1-50):": "Pasos máximos del Asistente (1-50):",
+    "Assistant Model:": "Modelo del Asistente:",
+    "Assume fact": "Asumir hecho",
+    "Auto Layout": "Disposición automática",
+    "Cancel": "Cancelar",
+    "Center": "Centrar",
+    "Choose a program": "Elija un programa",
+    "Choose a program to explore.": "Elija un programa para explorar.",
+    "Circle": "Círculo",
+    "Clone Tool": "Herramienta de clonación",
+    "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Herramienta de clonación: haga clic en un nodo para duplicarlo (necesario cuando la prueba usa la misma regla más de una vez)",
+    "Close this panel": "Cerrar este panel",
+    "Collapse All": "Contraer todo",
+    "Continue": "Continuar",
+    "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) — reanuda la ejecución hasta encontrar la siguiente respuesta (o hasta que la consulta termine). Si quedan más soluciones, avanzar/continuar de nuevo las explora.",
+    "Copy": "Copiar",
+    "Copy Answer": "Copiar respuesta",
+    "Copy Explanation": "Copiar explicación",
+    "Copy Mermaid": "Copiar Mermaid",
+    "Copy Node": "Copiar nodo",
+    "Copy Scenario": "Copiar escenario",
+    "Copy URL": "Copiar URL",
+    "Copy as Mermaid diagram": "Copiar como diagrama Mermaid",
+    "Copy the visible graph as a Mermaid diagram (text), pasteable into GitHub, Obsidian, mermaid.live…": "Copiar el grafo visible como diagrama Mermaid (texto), pegable en GitHub, Obsidian, mermaid.live…",
+    "Custom Query:": "Consulta personalizada:",
+    "Custom Scenario Facts:": "Hechos de escenario personalizados:",
+    "Cut": "Cortar",
+    "Dagre (Hierarchical)": "Dagre (jerárquico)",
+    "Dark": "Oscuro",
+    "Dark Theme": "Tema oscuro",
+    "Detailed failure explanations (per-rule nodes)": "Explicaciones de fallo detalladas (nodos por regla)",
+    "Direction": "Dirección",
+    "ELK (Layered)": "ELK (por capas)",
+    "Edge Types": "Tipos de aristas",
+    "Edit": "Editar",
+    "Edit Queries…": "Editar consultas…",
+    "Edit Scenarios…": "Editar escenarios…",
+    "Enter facts here...": "Escriba los hechos aquí...",
+    "Enter query here...": "Escriba la consulta aquí...",
+    "Expand All": "Expandir todo",
+    "Explanation Drill": "Exploración de la explicación",
+    "Explanation Drill…": "Exploración de la explicación…",
+    "Explanations Preferences": "Preferencias de las explicaciones",
+    "File": "Archivo",
+    "Filter programs": "Filtrar programas",
+    "Filter…": "Filtrar…",
+    "Find": "Buscar",
+    "Fit View": "Ajustar vista",
+    "Fit to Screen": "Ajustar a la pantalla",
+    "Go to full sub-explanation": "Ir a la subexplicación completa",
+    "Google API Key:": "Clave de API Google:",
+    "Grid": "Cuadrícula",
+    "Groq API Key:": "Clave de API Groq:",
+    "Help": "Ayuda",
+    "Hide repeated explanations": "Ocultar explicaciones repetidas",
+    "High Contrast": "Alto contraste",
+    "Home": "Inicio",
+    "Horizontal (L→R)": "Horizontal (I→D)",
+    "Insert into Editor": "Insertar en el editor",
+    "Interrupt": "Interrumpir",
+    "Introduction to Logical English (tutorial)": "Introducción a Logical English (tutorial)",
+    "Keys and preferences are stored in your browser's local storage.": "Las claves y preferencias se guardan en el almacenamiento local de su navegador.",
+    "LE Debugger": "Depurador LE",
+    "LE Proof Game": "Juego de la Prueba LE",
+    "Large": "Grande",
+    "Layout": "Disposición",
+    "Light": "Claro",
+    "Light Mode": "Modo ligero",
+    "Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).": "El Modo ligero ejecuta un bucle Prolog rápido en proceso. Desmarque para el Modo profundo (agente opencode completo con herramientas de archivos/web/terminal).",
+    "Light Theme": "Tema claro",
+    "Load": "Cargar",
+    "Loading models...": "Cargando modelos...",
+    "Logical English": "Logical English",
+    "Logical English syntax (reference)": "Sintaxis de Logical English (referencia)",
+    "Medium": "Mediano",
+    "Misc": "Varios",
+    "Name": "Nombre",
+    "New": "Nuevo",
+    "New from URL": "Nuevo desde URL",
+    "New from URL...": "Nuevo desde URL...",
+    "Node Types": "Tipos de nodos",
+    "None": "Ninguno",
+    "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Variaciones de escenario: modifique el escenario seleccionado y ejecute una o más consultas sobre la variación, en una ventana separada",
+    "Open copy from server...": "Abrir copia del servidor...",
+    "Open from Server": "Abrir del servidor",
+    "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Abrir el Juego de la Prueba: construya interactivamente una prueba de la consulta seleccionada conectando sus hechos y reglas",
+    "Open...": "Abrir...",
+    "OpenAI API Key:": "Clave de API OpenAI:",
+    "PROLOG Equivalent": "Equivalente PROLOG",
+    "Paste": "Pegar",
+    "Patch scenario": "Ajustar escenario",
+    "Predicates Legend": "Leyenda de predicados",
+    "Preferences...": "Preferencias...",
+    "Prefix for failed nodes:": "Prefijo para nodos fallidos:",
+    "Proof Game": "Juego de la Prueba",
+    "Query": "Consulta",
+    "Query Editor": "Editor de consultas",
+    "Query:": "Consulta:",
+    "Redraw from here": "Redibujar desde aquí",
+    "Refresh": "Actualizar",
+    "Replace": "Reemplazar",
+    "Save": "Guardar",
+    "Save As...": "Guardar como...",
+    "Scenario": "Escenario",
+    "Scenario Editor": "Editor de escenarios",
+    "Scenario Variations": "Variaciones de escenario",
+    "Scenario:": "Escenario:",
+    "Search nodes...": "Buscar nodos...",
+    "Select a query...": "Seleccione una consulta...",
+    "Select a scenario...": "Seleccione un escenario...",
+    "Send": "Enviar",
+    "Send command to the LE Assistant": "Enviar comando al Asistente LE",
+    "Show Proof": "Mostrar prueba",
+    "Show important reason": "Mostrar razón importante",
+    "Small": "Pequeño",
+    "Step": "Avanzar",
+    "Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avanzar (F11) — avanza un paso hasta el siguiente objetivo a probar. La pila de llamadas y el panel VARIABLES se actualizan para mostrar la nueva posición y las ligaduras hechas hasta el momento.",
+    "Stop": "Parar",
+    "Stop — end the trace and detach the debugger. The query keeps running to completion in the background.": "Parar — termina el rastreo y desconecta el depurador. La consulta sigue ejecutándose hasta el final en segundo plano.",
+    "The editor manual: files, queries, scenario/query editors, explanations.": "El manual del editor: archivos, consultas, editores de escenarios/consultas, explicaciones.",
+    "The language reference: every LE construct.": "La referencia del lenguaje: todas las construcciones LE.",
+    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Este prefijo se antepone a los nodos fallidos al copiar explicaciones a texto plano o HTML.",
+    "Together API Key:": "Clave de API Together:",
+    "Trace": "Rastrear",
+    "Type Hierarchy": "Jerarquía de tipos",
+    "URL of a Logical English program:": "URL de un programa Logical English:",
+    "Using this editor (manual)": "Usar este editor (manual)",
+    "Vertical (T→B)": "Vertical (A→B)",
+    "View Source Graph": "Ver grafo del programa",
+    "Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab": "Visualizar las plantillas, reglas, hechos, escenarios y consultas del programa como un grafo de dependencias, en una nueva pestaña del navegador",
+    "When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).": "Cuando está activo (opción predeterminada), una subexplicación que aparece varias veces en una explicación de éxito o de fallo se muestra una vez y se etiqueta con su recuento. Desactívelo para ver todas las apariciones completas (árboles más grandes).",
+    "When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.": "Cuando está activo, un predicado fallido con varias reglas muestra un nodo intermedio por regla (navegable hasta esa regla), con los subobjetivos fallidos de cada regla debajo. Más lento; desactivado de forma predeterminada.",
+    "Zoom In": "Acercar",
+    "Zoom Out": "Alejar",
+    "and": "y",
+    "fCoSE (Default)": "fCoSE (predeterminado)",
+    "not": "no",
+    "or": "o",
+    "query name": "nombre de la consulta",
+    "scenario name": "nombre del escenario",
+    "Are you sure you want to miss the excitement of finding the proof yourself?": "¿Está seguro de que quiere perderse la emoción de encontrar la prueba usted mismo?",
+    "No proof found for this query.": "No se encontró ninguna prueba para esta consulta.",
+    "(empty)": "(vacío)",
+    "A query name must be a single word or number (no spaces).": "El nombre de una consulta debe ser una sola palabra o número (sin espacios).",
+    "A scenario name must be a single word (no spaces).": "El nombre de un escenario debe ser una sola palabra (sin espacios).",
+    "Accept?": "¿Aceptar?",
+    "Add a query first.": "Añada primero una consulta.",
+    "Add at least one condition to the query.": "Añada al menos una condición a la consulta.",
+    "Another...": "Otra...",
+    "Answer the highlighted question, or revise an earlier one.": "Responda a la pregunta destacada, o revise una anterior.",
+    "Click to show this in the editor": "Haga clic para mostrarlo en el editor",
+    "Configure an LLM model first: in the main editor, Misc → API Keys…": "Configure primero un modelo LLM: en el editor principal, Varios → Claves de API…",
+    "Connecting to debugger...": "Conectando al depurador...",
+    "Copied to clipboard": "Copiado al portapapeles",
+    "Copied!": "¡Copiado!",
+    "Copied": "Copiado",
+    "Copy URL is only available for existing examples.": "Copiar URL solo está disponible para ejemplos existentes.",
+    "Copy the query text:": "Copie el texto de la consulta:",
+    "Copy the scenario text:": "Copie el texto del escenario:",
+    "Could not load the program on the server.": "No se pudo cargar el programa en el servidor.",
+    "Could not reach the server.": "No se pudo contactar con el servidor.",
+    "Debugger connected. Initializing...": "Depurador conectado. Inicializando...",
+    "Debugger disconnected.": "Depurador desconectado.",
+    "Delete condition": "Eliminar condición",
+    "Delete this question": "Eliminar esta pregunta",
+    "Delete": "Eliminar",
+    "Discard unsaved changes and load the selected query?": "¿Descartar los cambios no guardados y cargar la consulta seleccionada?",
+    "Discard unsaved changes and load the selected scenario?": "¿Descartar los cambios no guardados y cargar el escenario seleccionado?",
+    "Done": "Concluido",
+    "Download": "Descargar",
+    "Error connecting to server for game data.": "Error al conectar con el servidor para obtener los datos del juego.",
+    "Error executing query.": "Error al ejecutar la consulta.",
+    "Error loading module: ": "Error al cargar el módulo: ",
+    "Error: ": "Error: ",
+    "Explanation": "Explicación",
+    "Failed to get game data from server.": "No se pudieron obtener los datos del juego del servidor.",
+    "Failed to load example from server.": "No se pudo cargar el ejemplo del servidor.",
+    "Generate": "Generar",
+    "Generating and verifying…": "Generando y verificando…",
+    "Indent (nest this condition to bind tighter)": "Indentar (anidar esta condición para que ligue más estrechamente)",
+    "Insert anyway": "Insertar de todos modos",
+    "Inserted into editor": "Insertado en el editor",
+    "Interrupting…": "Interrumpiendo…",
+    "Loading module on server...": "Cargando el módulo en el servidor...",
+    "Loading…": "Cargando…",
+    "Mermaid diagram copied to clipboard": "Diagrama Mermaid copiado al portapapeles",
+    "New query": "Nueva consulta",
+    "New scenario": "Nuevo escenario",
+    "New…": "Nuevo…",
+    "No answers (false)": "Sin respuestas (falso)",
+    "No conditions yet — pick a template below and click “Add”.": "Aún sin condiciones — elija una plantilla abajo y haga clic en “Añadir”.",
+    "No explanation to drill.": "Ninguna explicación para explorar.",
+    "No facts yet — pick a template below and click “Add”.": "Aún sin hechos — elija una plantilla abajo y haga clic en “Añadir”.",
+    "No model configured": "Ningún modelo configurado",
+    "No results returned.": "No se devolvió ningún resultado.",
+    "No variables for this call.": "Sin variables en esta llamada.",
+    "Node copied to clipboard": "Nodo copiado al portapapeles",
+    "Nothing else to show. Feel free to alter your choices above.": "Nada más que mostrar. Puede modificar sus elecciones de arriba.",
+    "Please enter a custom query.": "Introduzca una consulta personalizada.",
+    "Please give the query a name.": "Dé un nombre a la consulta.",
+    "Please give the scenario a name.": "Dé un nombre al escenario.",
+    "Please select a query for the Proof Game.": "Seleccione una consulta para el Juego de la Prueba.",
+    "Please select a query.": "Seleccione una consulta.",
+    "Please wait for the module to load.": "Espere a que se cargue el módulo.",
+    "Progress": "Progreso",
+    "Query failed.": "La consulta falló.",
+    "Query finished.": "Consulta terminada.",
+    "Query interrupted.": "Consulta interrumpida.",
+    "Ready": "Listo",
+    "Regenerate": "Regenerar",
+    "Remove query": "Quitar consulta",
+    "Results": "Resultados",
+    "Running queries…": "Ejecutando consultas…",
+    "Scenario copied to clipboard": "Escenario copiado al portapapeles",
+    "Write it in English": "Escríbalo en español",
+    "Write it in English…": "Escríbalo en español…",
+    "You have unsaved changes. Create new file anyway?": "Tiene cambios no guardados. ¿Crear un archivo nuevo de todos modos?",
+    "You have unsaved changes. Load from URL anyway?": "Tiene cambios no guardados. ¿Cargar desde URL de todos modos?",
+    "You have unsaved changes. Open another file anyway?": "Tiene cambios no guardados. ¿Abrir otro archivo de todos modos?",
+    "You have unsaved changes. Open from server anyway?": "Tiene cambios no guardados. ¿Abrir del servidor de todos modos?",
+    "the LLM request failed.": "la solicitud al LLM falló.",
+    "Important reason: ": "Razón importante: ",
+    "repeated sub-explanations": "subexplicaciones repetidas",
+    "assumed": "asumido",
+    "FAIL": "FALLO",
+    "STOP": "PARAR",
+    "Unindent": "Desindentar",
+    "Language": "Idioma",
+    "Answers": "Respuestas",
+    "Unknowns": "Desconocidos",
+    "Scenarios": "Escenarios",
+    "Queries": "Consultas",
+    "Templates": "Plantillas",
+    "Run": "Ejecutar",
+    "Back": "Volver",
+    "Question": "Pregunta",
+    "Logged in as: ": "Sesión iniciada como: ",
+    "Login": "Iniciar sesión",
+    "Logout": "Cerrar sesión",
+    "Login Failed": "Error al iniciar sesión",
+    "Invalid email or password.": "Correo electrónico o contraseña no válidos.",
+    "Try again": "Intentar de nuevo",
+    "Edit and Query: ": "Editar y consultar: ",
+    "[New Document]": "[Nuevo documento]",
+    "expand all": "expandir todo",
+    "collapse all": "contraer todo",
+    "[show all]": "[mostrar todo]",
+    "Just run a program: ": "Solo ejecutar un programa: ",
+    "[Executive view]": "[Vista ejecutiva]",
+    "A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.": "Una forma minimalista y apta para el móvil de elegir un programa, un escenario y una pregunta, y ver la respuesta — sin edición.",
+    "GitHub Repository": "Repositorio GitHub",
+    "Documentation": "Documentación",
+    "A Gentle Introduction to Logical English 2": "Una introducción amable a Logical English 2",
+    "How to use the LE2 web application": "Cómo usar la aplicación web LE2",
+    "Logical English syntax summary": "Resumen de la sintaxis de Logical English",
+    "Test Suite": "Batería de pruebas",
+    "Run All Tests": "Ejecutar todas las pruebas",
+    "Email: ": "Email: ",
+    "Password: ": "Contraseña: ",
+    "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.": "Empiece aquí: un tutorial práctico que construye tres pequeños programas — una fiesta del té, un dragón volador y un fragmento de la ley de nacionalidad británica — enseñando a escribir, consultar y depurar LE en el editor.",
+    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "El manual del editor: abrir y guardar archivos, ejecutar consultas, los editores de escenarios y consultas, variaciones de escenario y la lectura de los árboles de explicación.",
+    "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La referencia del lenguaje: todas las construcciones — plantillas, reglas, operadores, agregaciones, variables y tipos, fechas, ontología, extensiones — para consultar mientras escribe."
+  },
+  "fr": {
+    "+ Add": "+ Ajouter",
+    "+ Add Query": "+ Ajouter une requête",
+    "A hands-on tutorial: write, query and debug three small LE programs.": "Un tutoriel pratique : écrire, interroger et déboguer trois petits programmes LE.",
+    "API Keys &amp; Assistant Settings": "Clés d'API et paramètres de l'Assistant",
+    "API Keys &amp; Assistant Settings...": "Clés d'API et paramètres de l'Assistant...",
+    "Add condition": "Ajouter une condition",
+    "Add fact": "Ajouter un fait",
+    "Add query": "Ajouter une requête",
+    "Anthropic API Key:": "Clé d'API Anthropic :",
+    "Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')": "Demandez à l'assistant (p. ex., « Corrige l'indentation », « Rédige un programme pour... »)",
+    "Assistant Max Steps (1-50):": "Étapes maximales de l'Assistant (1-50) :",
+    "Assistant Model:": "Modèle de l'Assistant :",
+    "Assume fact": "Supposer le fait",
+    "Auto Layout": "Disposition automatique",
+    "Cancel": "Annuler",
+    "Center": "Centrer",
+    "Choose a program": "Choisissez un programme",
+    "Choose a program to explore.": "Choisissez un programme à explorer.",
+    "Circle": "Cercle",
+    "Clone Tool": "Outil de clonage",
+    "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Outil de clonage : cliquez sur un nœud pour le dupliquer (nécessaire quand la preuve utilise la même règle plus d'une fois)",
+    "Close this panel": "Fermer ce panneau",
+    "Collapse All": "Tout replier",
+    "Continue": "Continuer",
+    "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuer (F5) — reprend l'exécution jusqu'à ce que la prochaine réponse soit trouvée (ou que la requête se termine). S'il reste des solutions, avancer/continuer de nouveau les explore.",
+    "Copy": "Copier",
+    "Copy Answer": "Copier la réponse",
+    "Copy Explanation": "Copier l'explication",
+    "Copy Mermaid": "Copier Mermaid",
+    "Copy Node": "Copier le nœud",
+    "Copy Scenario": "Copier le scénario",
+    "Copy URL": "Copier l'URL",
+    "Copy as Mermaid diagram": "Copier comme diagramme Mermaid",
+    "Copy the visible graph as a Mermaid diagram (text), pasteable into GitHub, Obsidian, mermaid.live…": "Copier le graphe visible comme diagramme Mermaid (texte), collable dans GitHub, Obsidian, mermaid.live…",
+    "Custom Query:": "Requête personnalisée :",
+    "Custom Scenario Facts:": "Faits de scénario personnalisés :",
+    "Cut": "Couper",
+    "Dagre (Hierarchical)": "Dagre (hiérarchique)",
+    "Dark": "Sombre",
+    "Dark Theme": "Thème sombre",
+    "Detailed failure explanations (per-rule nodes)": "Explications d'échec détaillées (nœuds par règle)",
+    "Direction": "Direction",
+    "ELK (Layered)": "ELK (en couches)",
+    "Edge Types": "Types d'arêtes",
+    "Edit": "Modifier",
+    "Edit Queries…": "Modifier les requêtes…",
+    "Edit Scenarios…": "Modifier les scénarios…",
+    "Enter facts here...": "Saisissez les faits ici...",
+    "Enter query here...": "Saisissez la requête ici...",
+    "Expand All": "Tout déplier",
+    "Explanation Drill": "Exploration de l'explication",
+    "Explanation Drill…": "Exploration de l'explication…",
+    "Explanations Preferences": "Préférences des explications",
+    "File": "Fichier",
+    "Filter programs": "Filtrer les programmes",
+    "Filter…": "Filtrer…",
+    "Find": "Rechercher",
+    "Fit View": "Ajuster la vue",
+    "Fit to Screen": "Ajuster à l'écran",
+    "Go to full sub-explanation": "Aller à la sous-explication complète",
+    "Google API Key:": "Clé d'API Google :",
+    "Grid": "Grille",
+    "Groq API Key:": "Clé d'API Groq :",
+    "Help": "Aide",
+    "Hide repeated explanations": "Masquer les explications répétées",
+    "High Contrast": "Contraste élevé",
+    "Home": "Accueil",
+    "Horizontal (L→R)": "Horizontal (G→D)",
+    "Insert into Editor": "Insérer dans l'éditeur",
+    "Interrupt": "Interrompre",
+    "Introduction to Logical English (tutorial)": "Introduction au Logical English (tutoriel)",
+    "Keys and preferences are stored in your browser's local storage.": "Les clés et les préférences sont conservées dans le stockage local de votre navigateur.",
+    "LE Debugger": "Débogueur LE",
+    "LE Proof Game": "Jeu de la preuve LE",
+    "Large": "Grand",
+    "Layout": "Disposition",
+    "Light": "Clair",
+    "Light Mode": "Mode léger",
+    "Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).": "Le Mode léger exécute une boucle Prolog rapide en interne. Décochez pour le Mode profond (agent opencode complet avec outils fichiers/web/terminal).",
+    "Light Theme": "Thème clair",
+    "Load": "Charger",
+    "Loading models...": "Chargement des modèles...",
+    "Logical English": "Logical English",
+    "Logical English syntax (reference)": "Syntaxe du Logical English (référence)",
+    "Medium": "Moyen",
+    "Misc": "Divers",
+    "Name": "Nom",
+    "New": "Nouveau",
+    "New from URL": "Nouveau à partir d'une URL",
+    "New from URL...": "Nouveau à partir d'une URL...",
+    "Node Types": "Types de nœuds",
+    "None": "Aucun",
+    "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Ouvrir les Variations de scénario : modifiez le scénario sélectionné et exécutez une ou plusieurs requêtes sur la variation, dans une fenêtre séparée",
+    "Open copy from server...": "Ouvrir une copie du serveur...",
+    "Open from Server": "Ouvrir depuis le serveur",
+    "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Ouvrir le Jeu de la preuve : construisez interactivement une preuve de la requête sélectionnée en reliant ses faits et ses règles",
+    "Open...": "Ouvrir...",
+    "OpenAI API Key:": "Clé d'API OpenAI :",
+    "PROLOG Equivalent": "Équivalent PROLOG",
+    "Paste": "Coller",
+    "Patch scenario": "Ajuster le scénario",
+    "Predicates Legend": "Légende des prédicats",
+    "Preferences...": "Préférences...",
+    "Prefix for failed nodes:": "Préfixe pour les nœuds en échec :",
+    "Proof Game": "Jeu de la preuve",
+    "Query": "Requête",
+    "Query Editor": "Éditeur de requêtes",
+    "Query:": "Requête :",
+    "Redraw from here": "Redessiner à partir d'ici",
+    "Refresh": "Actualiser",
+    "Replace": "Remplacer",
+    "Save": "Enregistrer",
+    "Save As...": "Enregistrer sous...",
+    "Scenario": "Scénario",
+    "Scenario Editor": "Éditeur de scénarios",
+    "Scenario Variations": "Variations de scénario",
+    "Scenario:": "Scénario :",
+    "Search nodes...": "Rechercher des nœuds...",
+    "Select a query...": "Sélectionnez une requête...",
+    "Select a scenario...": "Sélectionnez un scénario...",
+    "Send": "Envoyer",
+    "Send command to the LE Assistant": "Envoyer la commande à l'Assistant LE",
+    "Show Proof": "Montrer la preuve",
+    "Show important reason": "Montrer la raison importante",
+    "Small": "Petit",
+    "Step": "Avancer",
+    "Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avancer (F11) — avance d'un pas jusqu'au prochain objectif à prouver. La pile d'appels et le panneau VARIABLES se mettent à jour pour montrer la nouvelle position et les liaisons établies jusque-là.",
+    "Stop": "Arrêter",
+    "Stop — end the trace and detach the debugger. The query keeps running to completion in the background.": "Arrêter — termine le traçage et détache le débogueur. La requête continue de s'exécuter jusqu'au bout en arrière-plan.",
+    "The editor manual: files, queries, scenario/query editors, explanations.": "Le manuel de l'éditeur : fichiers, requêtes, éditeurs de scénarios/requêtes, explications.",
+    "The language reference: every LE construct.": "La référence du langage : toutes les constructions LE.",
+    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Ce préfixe est ajouté devant les nœuds en échec lors de la copie des explications en texte brut ou en HTML.",
+    "Together API Key:": "Clé d'API Together :",
+    "Trace": "Tracer",
+    "Type Hierarchy": "Hiérarchie de types",
+    "URL of a Logical English program:": "URL d'un programme Logical English :",
+    "Using this editor (manual)": "Utiliser cet éditeur (manuel)",
+    "Vertical (T→B)": "Vertical (H→B)",
+    "View Source Graph": "Voir le graphe du programme",
+    "Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab": "Visualiser les modèles, règles, faits, scénarios et requêtes du programme sous forme de graphe de dépendances, dans un nouvel onglet du navigateur",
+    "When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).": "Quand elle est activée (par défaut), une sous-explication qui apparaît plusieurs fois dans une explication de succès ou d'échec est montrée une seule fois avec son nombre d'occurrences. Désactivez pour voir chaque occurrence en entier (arbres plus grands).",
+    "When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.": "Quand elle est activée, un prédicat en échec avec plusieurs règles montre un nœud intermédiaire par règle (navigable vers cette règle), avec les sous-objectifs en échec de chaque règle en dessous. Plus lent ; désactivé par défaut.",
+    "Zoom In": "Zoom avant",
+    "Zoom Out": "Zoom arrière",
+    "and": "et",
+    "fCoSE (Default)": "fCoSE (par défaut)",
+    "not": "non",
+    "or": "ou",
+    "query name": "nom de la requête",
+    "scenario name": "nom du scénario",
+    "Are you sure you want to miss the excitement of finding the proof yourself?": "Êtes-vous sûr de vouloir manquer le plaisir de trouver la preuve vous-même ?",
+    "No proof found for this query.": "Aucune preuve trouvée pour cette requête.",
+    "(empty)": "(vide)",
+    "A query name must be a single word or number (no spaces).": "Le nom d'une requête doit être un seul mot ou un nombre (sans espaces).",
+    "A scenario name must be a single word (no spaces).": "Le nom d'un scénario doit être un seul mot (sans espaces).",
+    "Accept?": "Accepter ?",
+    "Add a query first.": "Ajoutez d'abord une requête.",
+    "Add at least one condition to the query.": "Ajoutez au moins une condition à la requête.",
+    "Another...": "Une autre...",
+    "Answer the highlighted question, or revise an earlier one.": "Répondez à la question mise en évidence, ou révisez une question antérieure.",
+    "Click to show this in the editor": "Cliquez pour l'afficher dans l'éditeur",
+    "Configure an LLM model first: in the main editor, Misc → API Keys…": "Configurez d'abord un modèle LLM : dans l'éditeur principal, Divers → Clés d'API…",
+    "Connecting to debugger...": "Connexion au débogueur...",
+    "Copied to clipboard": "Copié dans le presse-papiers",
+    "Copied!": "Copié !",
+    "Copied": "Copié",
+    "Copy URL is only available for existing examples.": "Copier l'URL n'est disponible que pour les exemples existants.",
+    "Copy the query text:": "Copiez le texte de la requête :",
+    "Copy the scenario text:": "Copiez le texte du scénario :",
+    "Could not load the program on the server.": "Impossible de charger le programme sur le serveur.",
+    "Could not reach the server.": "Impossible de joindre le serveur.",
+    "Debugger connected. Initializing...": "Débogueur connecté. Initialisation...",
+    "Debugger disconnected.": "Débogueur déconnecté.",
+    "Delete condition": "Supprimer la condition",
+    "Delete this question": "Supprimer cette question",
+    "Delete": "Supprimer",
+    "Discard unsaved changes and load the selected query?": "Abandonner les modifications non enregistrées et charger la requête sélectionnée ?",
+    "Discard unsaved changes and load the selected scenario?": "Abandonner les modifications non enregistrées et charger le scénario sélectionné ?",
+    "Done": "Terminé",
+    "Download": "Télécharger",
+    "Error connecting to server for game data.": "Erreur de connexion au serveur pour obtenir les données du jeu.",
+    "Error executing query.": "Erreur lors de l'exécution de la requête.",
+    "Error loading module: ": "Erreur lors du chargement du module : ",
+    "Error: ": "Erreur : ",
+    "Explanation": "Explication",
+    "Failed to get game data from server.": "Échec de l'obtention des données du jeu depuis le serveur.",
+    "Failed to load example from server.": "Échec du chargement de l'exemple depuis le serveur.",
+    "Generate": "Générer",
+    "Generating and verifying…": "Génération et vérification…",
+    "Indent (nest this condition to bind tighter)": "Indenter (imbriquer cette condition pour une liaison plus étroite)",
+    "Insert anyway": "Insérer quand même",
+    "Inserted into editor": "Inséré dans l'éditeur",
+    "Interrupting…": "Interruption…",
+    "Loading module on server...": "Chargement du module sur le serveur...",
+    "Loading…": "Chargement…",
+    "Mermaid diagram copied to clipboard": "Diagramme Mermaid copié dans le presse-papiers",
+    "New query": "Nouvelle requête",
+    "New scenario": "Nouveau scénario",
+    "New…": "Nouveau…",
+    "No answers (false)": "Pas de réponses (faux)",
+    "No conditions yet — pick a template below and click “Add”.": "Pas encore de conditions — choisissez un modèle ci-dessous et cliquez sur « Ajouter ».",
+    "No explanation to drill.": "Aucune explication à explorer.",
+    "No facts yet — pick a template below and click “Add”.": "Pas encore de faits — choisissez un modèle ci-dessous et cliquez sur « Ajouter ».",
+    "No model configured": "Aucun modèle configuré",
+    "No results returned.": "Aucun résultat renvoyé.",
+    "No variables for this call.": "Pas de variables pour cet appel.",
+    "Node copied to clipboard": "Nœud copié dans le presse-papiers",
+    "Nothing else to show. Feel free to alter your choices above.": "Rien d'autre à montrer. Vous pouvez modifier vos choix ci-dessus.",
+    "Please enter a custom query.": "Veuillez saisir une requête personnalisée.",
+    "Please give the query a name.": "Veuillez donner un nom à la requête.",
+    "Please give the scenario a name.": "Veuillez donner un nom au scénario.",
+    "Please select a query for the Proof Game.": "Veuillez sélectionner une requête pour le Jeu de la preuve.",
+    "Please select a query.": "Veuillez sélectionner une requête.",
+    "Please wait for the module to load.": "Veuillez attendre le chargement du module.",
+    "Progress": "Progression",
+    "Query failed.": "La requête a échoué.",
+    "Query finished.": "Requête terminée.",
+    "Query interrupted.": "Requête interrompue.",
+    "Ready": "Prêt",
+    "Regenerate": "Régénérer",
+    "Remove query": "Retirer la requête",
+    "Results": "Résultats",
+    "Running queries…": "Exécution des requêtes…",
+    "Scenario copied to clipboard": "Scénario copié dans le presse-papiers",
+    "Write it in English": "Écrivez-le en français",
+    "Write it in English…": "Écrivez-le en français…",
+    "You have unsaved changes. Create new file anyway?": "Vous avez des modifications non enregistrées. Créer un nouveau fichier quand même ?",
+    "You have unsaved changes. Load from URL anyway?": "Vous avez des modifications non enregistrées. Charger depuis l'URL quand même ?",
+    "You have unsaved changes. Open another file anyway?": "Vous avez des modifications non enregistrées. Ouvrir un autre fichier quand même ?",
+    "You have unsaved changes. Open from server anyway?": "Vous avez des modifications non enregistrées. Ouvrir depuis le serveur quand même ?",
+    "the LLM request failed.": "la demande au LLM a échoué.",
+    "Important reason: ": "Raison importante : ",
+    "repeated sub-explanations": "sous-explications répétées",
+    "assumed": "supposé",
+    "FAIL": "ÉCHEC",
+    "STOP": "ARRÊT",
+    "Unindent": "Désindenter",
+    "Language": "Langue",
+    "Answers": "Réponses",
+    "Unknowns": "Inconnus",
+    "Scenarios": "Scénarios",
+    "Queries": "Requêtes",
+    "Templates": "Modèles",
+    "Run": "Exécuter",
+    "Back": "Retour",
+    "Question": "Question",
+    "Logged in as: ": "Connecté en tant que : ",
+    "Login": "Se connecter",
+    "Logout": "Se déconnecter",
+    "Login Failed": "Échec de la connexion",
+    "Invalid email or password.": "Email ou mot de passe invalide.",
+    "Try again": "Réessayer",
+    "Edit and Query: ": "Modifier et interroger : ",
+    "[New Document]": "[Nouveau document]",
+    "expand all": "tout déplier",
+    "collapse all": "tout replier",
+    "[show all]": "[tout montrer]",
+    "Just run a program: ": "Exécuter simplement un programme : ",
+    "[Executive view]": "[Vue exécutive]",
+    "A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.": "Une façon minimaliste et adaptée au mobile de choisir un programme, un scénario et une question, et de voir la réponse — sans édition.",
+    "GitHub Repository": "Dépôt GitHub",
+    "Documentation": "Documentation",
+    "A Gentle Introduction to Logical English 2": "Une introduction en douceur au Logical English 2",
+    "How to use the LE2 web application": "Comment utiliser l'application web LE2",
+    "Logical English syntax summary": "Résumé de la syntaxe du Logical English",
+    "Test Suite": "Suite de tests",
+    "Run All Tests": "Exécuter tous les tests",
+    "Email: ": "Email : ",
+    "Password: ": "Mot de passe : ",
+    "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.": "Commencez ici : un tutoriel pratique qui construit trois petits programmes — une fête du thé, un dragon volant et un morceau de la loi sur la nationalité britannique — et apprend à écrire, interroger et déboguer LE dans l'éditeur.",
+    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Le manuel de l'éditeur : ouvrir et enregistrer des fichiers, exécuter des requêtes, les éditeurs de scénarios et de requêtes, les variations de scénario et la lecture des arbres d'explication.",
+    "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La référence du langage : toutes les constructions — modèles, règles, opérateurs, agrégats, variables et types, dates, ontologie, extensions — à consulter pendant que vous écrivez."
+  },
+  "it": {
+    "+ Add": "+ Aggiungi",
+    "+ Add Query": "+ Aggiungi interrogazione",
+    "A hands-on tutorial: write, query and debug three small LE programs.": "Un tutorial pratico: scrivere, interrogare ed eseguire il debug di tre piccoli programmi LE.",
+    "API Keys &amp; Assistant Settings": "Chiavi API e impostazioni dell'Assistente",
+    "API Keys &amp; Assistant Settings...": "Chiavi API e impostazioni dell'Assistente...",
+    "Add condition": "Aggiungi condizione",
+    "Add fact": "Aggiungi fatto",
+    "Add query": "Aggiungi interrogazione",
+    "Anthropic API Key:": "Chiave API Anthropic:",
+    "Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')": "Chiedi all'assistente (es., 'Correggi l'indentazione', 'Abbozza un programma per...')",
+    "Assistant Max Steps (1-50):": "Passi massimi dell'Assistente (1-50):",
+    "Assistant Model:": "Modello dell'Assistente:",
+    "Assume fact": "Assumi fatto",
+    "Auto Layout": "Disposizione automatica",
+    "Cancel": "Annulla",
+    "Center": "Centra",
+    "Choose a program": "Scegli un programma",
+    "Choose a program to explore.": "Scegli un programma da esplorare.",
+    "Circle": "Cerchio",
+    "Clone Tool": "Strumento di clonazione",
+    "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Strumento di clonazione: fai clic su un nodo per duplicarlo (necessario quando la prova usa la stessa regola più di una volta)",
+    "Close this panel": "Chiudi questo pannello",
+    "Collapse All": "Comprimi tutto",
+    "Continue": "Continua",
+    "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continua (F5) — riprende l'esecuzione fino a trovare la prossima risposta (o fino al termine dell'interrogazione). Se restano altre soluzioni, avanzare/continuare di nuovo le esplora.",
+    "Copy": "Copia",
+    "Copy Answer": "Copia risposta",
+    "Copy Explanation": "Copia spiegazione",
+    "Copy Mermaid": "Copia Mermaid",
+    "Copy Node": "Copia nodo",
+    "Copy Scenario": "Copia scenario",
+    "Copy URL": "Copia URL",
+    "Copy as Mermaid diagram": "Copia come diagramma Mermaid",
+    "Copy the visible graph as a Mermaid diagram (text), pasteable into GitHub, Obsidian, mermaid.live…": "Copia il grafo visibile come diagramma Mermaid (testo), incollabile in GitHub, Obsidian, mermaid.live…",
+    "Custom Query:": "Interrogazione personalizzata:",
+    "Custom Scenario Facts:": "Fatti di scenario personalizzati:",
+    "Cut": "Taglia",
+    "Dagre (Hierarchical)": "Dagre (gerarchico)",
+    "Dark": "Scuro",
+    "Dark Theme": "Tema scuro",
+    "Detailed failure explanations (per-rule nodes)": "Spiegazioni di fallimento dettagliate (nodi per regola)",
+    "Direction": "Direzione",
+    "ELK (Layered)": "ELK (a livelli)",
+    "Edge Types": "Tipi di archi",
+    "Edit": "Modifica",
+    "Edit Queries…": "Modifica interrogazioni…",
+    "Edit Scenarios…": "Modifica scenari…",
+    "Enter facts here...": "Inserisci i fatti qui...",
+    "Enter query here...": "Inserisci l'interrogazione qui...",
+    "Expand All": "Espandi tutto",
+    "Explanation Drill": "Esplorazione della spiegazione",
+    "Explanation Drill…": "Esplorazione della spiegazione…",
+    "Explanations Preferences": "Preferenze delle spiegazioni",
+    "File": "File",
+    "Filter programs": "Filtra programmi",
+    "Filter…": "Filtra…",
+    "Find": "Trova",
+    "Fit View": "Adatta vista",
+    "Fit to Screen": "Adatta allo schermo",
+    "Go to full sub-explanation": "Vai alla sotto-spiegazione completa",
+    "Google API Key:": "Chiave API Google:",
+    "Grid": "Griglia",
+    "Groq API Key:": "Chiave API Groq:",
+    "Help": "Aiuto",
+    "Hide repeated explanations": "Nascondi spiegazioni ripetute",
+    "High Contrast": "Alto contrasto",
+    "Home": "Home",
+    "Horizontal (L→R)": "Orizzontale (S→D)",
+    "Insert into Editor": "Inserisci nell'editor",
+    "Interrupt": "Interrompi",
+    "Introduction to Logical English (tutorial)": "Introduzione al Logical English (tutorial)",
+    "Keys and preferences are stored in your browser's local storage.": "Le chiavi e le preferenze sono salvate nell'archiviazione locale del tuo browser.",
+    "LE Debugger": "Debugger LE",
+    "LE Proof Game": "Gioco della Prova LE",
+    "Large": "Grande",
+    "Layout": "Disposizione",
+    "Light": "Chiaro",
+    "Light Mode": "Modalità leggera",
+    "Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).": "La Modalità leggera esegue un ciclo Prolog rapido in-process. Deseleziona per la Modalità profonda (agente opencode completo con strumenti file/web/shell).",
+    "Light Theme": "Tema chiaro",
+    "Load": "Carica",
+    "Loading models...": "Caricamento dei modelli...",
+    "Logical English": "Logical English",
+    "Logical English syntax (reference)": "Sintassi del Logical English (riferimento)",
+    "Medium": "Medio",
+    "Misc": "Varie",
+    "Name": "Nome",
+    "New": "Nuovo",
+    "New from URL": "Nuovo da URL",
+    "New from URL...": "Nuovo da URL...",
+    "Node Types": "Tipi di nodi",
+    "None": "Nessuno",
+    "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Apri Variazioni di Scenario: modifica lo scenario selezionato ed esegui una o più interrogazioni sulla variazione, in una finestra separata",
+    "Open copy from server...": "Apri copia dal server...",
+    "Open from Server": "Apri dal server",
+    "Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules": "Apri il Gioco della Prova: costruisci interattivamente una prova dell'interrogazione selezionata collegando i suoi fatti e le sue regole",
+    "Open...": "Apri...",
+    "OpenAI API Key:": "Chiave API OpenAI:",
+    "PROLOG Equivalent": "Equivalente PROLOG",
+    "Paste": "Incolla",
+    "Patch scenario": "Aggiusta scenario",
+    "Predicates Legend": "Legenda dei predicati",
+    "Preferences...": "Preferenze...",
+    "Prefix for failed nodes:": "Prefisso per i nodi falliti:",
+    "Proof Game": "Gioco della Prova",
+    "Query": "Interrogazione",
+    "Query Editor": "Editor delle interrogazioni",
+    "Query:": "Interrogazione:",
+    "Redraw from here": "Ridisegna da qui",
+    "Refresh": "Aggiorna",
+    "Replace": "Sostituisci",
+    "Save": "Salva",
+    "Save As...": "Salva come...",
+    "Scenario": "Scenario",
+    "Scenario Editor": "Editor degli scenari",
+    "Scenario Variations": "Variazioni di scenario",
+    "Scenario:": "Scenario:",
+    "Search nodes...": "Cerca nodi...",
+    "Select a query...": "Seleziona un'interrogazione...",
+    "Select a scenario...": "Seleziona uno scenario...",
+    "Send": "Invia",
+    "Send command to the LE Assistant": "Invia comando all'Assistente LE",
+    "Show Proof": "Mostra prova",
+    "Show important reason": "Mostra ragione importante",
+    "Small": "Piccolo",
+    "Step": "Avanza",
+    "Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.": "Avanza (F11) — avanza di un passo fino al prossimo obiettivo da provare. La pila delle chiamate e il pannello VARIABILI si aggiornano mostrando la nuova posizione e le associazioni fatte finora.",
+    "Stop": "Ferma",
+    "Stop — end the trace and detach the debugger. The query keeps running to completion in the background.": "Ferma — termina il tracciamento e scollega il debugger. L'interrogazione continua a essere eseguita fino al termine in background.",
+    "The editor manual: files, queries, scenario/query editors, explanations.": "Il manuale dell'editor: file, interrogazioni, editor di scenari/interrogazioni, spiegazioni.",
+    "The language reference: every LE construct.": "Il riferimento del linguaggio: tutti i costrutti LE.",
+    "This prefix is prepended to failed nodes when copying explanations to plain text or HTML.": "Questo prefisso viene anteposto ai nodi falliti quando si copiano le spiegazioni in testo semplice o HTML.",
+    "Together API Key:": "Chiave API Together:",
+    "Trace": "Traccia",
+    "Type Hierarchy": "Gerarchia dei tipi",
+    "URL of a Logical English program:": "URL di un programma Logical English:",
+    "Using this editor (manual)": "Usare questo editor (manuale)",
+    "Vertical (T→B)": "Verticale (A→B)",
+    "View Source Graph": "Visualizza grafo del programma",
+    "Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab": "Visualizza i modelli, le regole, i fatti, gli scenari e le interrogazioni del programma come grafo delle dipendenze, in una nuova scheda del browser",
+    "When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).": "Quando attivo (impostazione predefinita), una sotto-spiegazione che ricorre più volte in una spiegazione di successo o di fallimento viene mostrata una volta sola con il suo conteggio. Disattiva per vedere ogni occorrenza per esteso (alberi più grandi).",
+    "When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.": "Quando attivo, un predicato fallito con più regole mostra un nodo intermedio per regola (navigabile fino a quella regola), con i sotto-obiettivi falliti di ciascuna regola al di sotto. Più lento; disattivato per impostazione predefinita.",
+    "Zoom In": "Ingrandisci",
+    "Zoom Out": "Riduci",
+    "and": "e",
+    "fCoSE (Default)": "fCoSE (predefinito)",
+    "not": "non",
+    "or": "o",
+    "query name": "nome dell'interrogazione",
+    "scenario name": "nome dello scenario",
+    "Are you sure you want to miss the excitement of finding the proof yourself?": "Sei sicuro di voler perdere l'emozione di trovare la prova da solo?",
+    "No proof found for this query.": "Nessuna prova trovata per questa interrogazione.",
+    "(empty)": "(vuoto)",
+    "A query name must be a single word or number (no spaces).": "Il nome di un'interrogazione deve essere una singola parola o un numero (senza spazi).",
+    "A scenario name must be a single word (no spaces).": "Il nome di uno scenario deve essere una singola parola (senza spazi).",
+    "Accept?": "Accettare?",
+    "Add a query first.": "Aggiungi prima un'interrogazione.",
+    "Add at least one condition to the query.": "Aggiungi almeno una condizione all'interrogazione.",
+    "Another...": "Un'altra...",
+    "Answer the highlighted question, or revise an earlier one.": "Rispondi alla domanda evidenziata, o rivedi una precedente.",
+    "Click to show this in the editor": "Fai clic per mostrarlo nell'editor",
+    "Configure an LLM model first: in the main editor, Misc → API Keys…": "Configura prima un modello LLM: nell'editor principale, Varie → Chiavi API…",
+    "Connecting to debugger...": "Connessione al debugger...",
+    "Copied to clipboard": "Copiato negli appunti",
+    "Copied!": "Copiato!",
+    "Copied": "Copiato",
+    "Copy URL is only available for existing examples.": "Copia URL è disponibile solo per gli esempi esistenti.",
+    "Copy the query text:": "Copia il testo dell'interrogazione:",
+    "Copy the scenario text:": "Copia il testo dello scenario:",
+    "Could not load the program on the server.": "Impossibile caricare il programma sul server.",
+    "Could not reach the server.": "Impossibile contattare il server.",
+    "Debugger connected. Initializing...": "Debugger connesso. Inizializzazione...",
+    "Debugger disconnected.": "Debugger disconnesso.",
+    "Delete condition": "Elimina condizione",
+    "Delete this question": "Elimina questa domanda",
+    "Delete": "Elimina",
+    "Discard unsaved changes and load the selected query?": "Scartare le modifiche non salvate e caricare l'interrogazione selezionata?",
+    "Discard unsaved changes and load the selected scenario?": "Scartare le modifiche non salvate e caricare lo scenario selezionato?",
+    "Done": "Fatto",
+    "Download": "Scarica",
+    "Error connecting to server for game data.": "Errore di connessione al server per i dati del gioco.",
+    "Error executing query.": "Errore nell'esecuzione dell'interrogazione.",
+    "Error loading module: ": "Errore nel caricamento del modulo: ",
+    "Error: ": "Errore: ",
+    "Explanation": "Spiegazione",
+    "Failed to get game data from server.": "Impossibile ottenere i dati del gioco dal server.",
+    "Failed to load example from server.": "Impossibile caricare l'esempio dal server.",
+    "Generate": "Genera",
+    "Generating and verifying…": "Generazione e verifica in corso…",
+    "Indent (nest this condition to bind tighter)": "Indenta (annida questa condizione per legarla più strettamente)",
+    "Insert anyway": "Inserisci comunque",
+    "Inserted into editor": "Inserito nell'editor",
+    "Interrupting…": "Interruzione in corso…",
+    "Loading module on server...": "Caricamento del modulo sul server...",
+    "Loading…": "Caricamento…",
+    "Mermaid diagram copied to clipboard": "Diagramma Mermaid copiato negli appunti",
+    "New query": "Nuova interrogazione",
+    "New scenario": "Nuovo scenario",
+    "New…": "Nuovo…",
+    "No answers (false)": "Nessuna risposta (falso)",
+    "No conditions yet — pick a template below and click “Add”.": "Ancora nessuna condizione — scegli un modello qui sotto e fai clic su “Aggiungi”.",
+    "No explanation to drill.": "Nessuna spiegazione da esplorare.",
+    "No facts yet — pick a template below and click “Add”.": "Ancora nessun fatto — scegli un modello qui sotto e fai clic su “Aggiungi”.",
+    "No model configured": "Nessun modello configurato",
+    "No results returned.": "Nessun risultato restituito.",
+    "No variables for this call.": "Nessuna variabile per questa chiamata.",
+    "Node copied to clipboard": "Nodo copiato negli appunti",
+    "Nothing else to show. Feel free to alter your choices above.": "Nient'altro da mostrare. Puoi modificare le scelte qui sopra.",
+    "Please enter a custom query.": "Inserisci un'interrogazione personalizzata.",
+    "Please give the query a name.": "Dai un nome all'interrogazione.",
+    "Please give the scenario a name.": "Dai un nome allo scenario.",
+    "Please select a query for the Proof Game.": "Seleziona un'interrogazione per il Gioco della Prova.",
+    "Please select a query.": "Seleziona un'interrogazione.",
+    "Please wait for the module to load.": "Attendi il caricamento del modulo.",
+    "Progress": "Avanzamento",
+    "Query failed.": "L'interrogazione è fallita.",
+    "Query finished.": "Interrogazione terminata.",
+    "Query interrupted.": "Interrogazione interrotta.",
+    "Ready": "Pronto",
+    "Regenerate": "Rigenera",
+    "Remove query": "Rimuovi interrogazione",
+    "Results": "Risultati",
+    "Running queries…": "Esecuzione delle interrogazioni…",
+    "Scenario copied to clipboard": "Scenario copiato negli appunti",
+    "Write it in English": "Scrivilo in italiano",
+    "Write it in English…": "Scrivilo in italiano…",
+    "You have unsaved changes. Create new file anyway?": "Hai modifiche non salvate. Creare comunque un nuovo file?",
+    "You have unsaved changes. Load from URL anyway?": "Hai modifiche non salvate. Caricare comunque dall'URL?",
+    "You have unsaved changes. Open another file anyway?": "Hai modifiche non salvate. Aprire comunque un altro file?",
+    "You have unsaved changes. Open from server anyway?": "Hai modifiche non salvate. Aprire comunque dal server?",
+    "the LLM request failed.": "la richiesta al LLM è fallita.",
+    "Important reason: ": "Ragione importante: ",
+    "repeated sub-explanations": "sotto-spiegazioni ripetute",
+    "assumed": "assunto",
+    "FAIL": "FALLITO",
+    "STOP": "STOP",
+    "Unindent": "Deindenta",
+    "Language": "Lingua",
+    "Answers": "Risposte",
+    "Unknowns": "Sconosciuti",
+    "Scenarios": "Scenari",
+    "Queries": "Interrogazioni",
+    "Templates": "Modelli",
+    "Run": "Esegui",
+    "Back": "Indietro",
+    "Question": "Domanda",
+    "Logged in as: ": "Accesso effettuato come: ",
+    "Login": "Accedi",
+    "Logout": "Esci",
+    "Login Failed": "Accesso non riuscito",
+    "Invalid email or password.": "Email o password non validi.",
+    "Try again": "Riprova",
+    "Edit and Query: ": "Modifica e interroga: ",
+    "[New Document]": "[Nuovo documento]",
+    "expand all": "espandi tutto",
+    "collapse all": "comprimi tutto",
+    "[show all]": "[mostra tutto]",
+    "Just run a program: ": "Esegui solo un programma: ",
+    "[Executive view]": "[Vista esecutiva]",
+    "A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.": "Un modo minimalista e adatto ai dispositivi mobili per scegliere un programma, uno scenario e una domanda, e vedere la risposta — senza modifiche.",
+    "GitHub Repository": "Repository GitHub",
+    "Documentation": "Documentazione",
+    "A Gentle Introduction to Logical English 2": "Un'introduzione delicata al Logical English 2",
+    "How to use the LE2 web application": "Come usare l'applicazione web LE2",
+    "Logical English syntax summary": "Riepilogo della sintassi del Logical English",
+    "Test Suite": "Suite di test",
+    "Run All Tests": "Esegui tutti i test",
+    "Email: ": "Email: ",
+    "Password: ": "Password: ",
+    "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.": "Comincia qui: un tutorial pratico che costruisce tre piccoli programmi — una festa del tè, un drago volante e uno scorcio della legge sulla nazionalità britannica — insegnando a scrivere, interrogare ed eseguire il debug di LE nell'editor.",
+    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Il manuale dell'editor: aprire e salvare file, eseguire interrogazioni, gli editor di scenari e interrogazioni, le variazioni di scenario e la lettura degli alberi di spiegazione.",
+    "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "Il riferimento del linguaggio: tutti i costrutti — modelli, regole, operatori, aggregati, variabili e tipi, date, ontologia, estensioni — da consultare mentre scrivi."
+  }
 } as const;
 
 export interface LanguageInfo {
@@ -2137,6 +5891,33 @@ export const languages: LanguageInfo[] = [
     "thousandsSep": ".",
     "listSep": ",",
     "status": "pilot"
+  },
+  {
+    "code": "es",
+    "autonym": "Español Lógico",
+    "opener": "el lenguaje objetivo es",
+    "decimalSep": ",",
+    "thousandsSep": ".",
+    "listSep": ",",
+    "status": "draft"
+  },
+  {
+    "code": "fr",
+    "autonym": "Français Logique",
+    "opener": "la langue cible est",
+    "decimalSep": ",",
+    "thousandsSep": ".",
+    "listSep": ",",
+    "status": "draft"
+  },
+  {
+    "code": "it",
+    "autonym": "Italiano Logico",
+    "opener": "il linguaggio obiettivo è",
+    "decimalSep": ",",
+    "thousandsSep": ".",
+    "listSep": ",",
+    "status": "draft"
   }
 ] as const;
 

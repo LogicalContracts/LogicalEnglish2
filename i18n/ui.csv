@@ -1,273 +1,273 @@
 key,en,pt,es,fr,it
-+ Add,,+ Adicionar,,,
-+ Add Query,,+ Adicionar consulta,,,
-"A hands-on tutorial: write, query and debug three small LE programs.",,"Um tutorial prático: escrever, consultar e depurar três pequenos programas LE.",,,
-API Keys &amp; Assistant Settings,,Chaves de API e definições do Assistente,,,
-API Keys &amp; Assistant Settings...,,Chaves de API e definições do Assistente...,,,
-Add condition,,Adicionar condição,,,
-Add fact,,Adicionar facto,,,
-Add query,,Adicionar consulta,,,
-Anthropic API Key:,,Chave de API Anthropic:,,,
-"Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')",,"Peça ao assistente (p.ex., 'Corrige a indentação', 'Esboça um programa para...')",,,
-Assistant Max Steps (1-50):,,Passos máximos do Assistente (1-50):,,,
-Assistant Model:,,Modelo do Assistente:,,,
-Assume fact,,Assumir facto,,,
-Auto Layout,,Arranjo automático,,,
-Cancel,,Cancelar,,,
-Center,,Centrar,,,
-Choose a program,,Escolha um programa,,,
-Choose a program to explore.,,Escolha um programa para explorar.,,,
-Circle,,Círculo,,,
-Clone Tool,,Ferramenta de clonagem,,,
-Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once),,Ferramenta de clonagem: clique num nó para o duplicar (necessário quando a prova usa a mesma regra mais de uma vez),,,
-Close this panel,,Fechar este painel,,,
-Collapse All,,Recolher tudo,,,
-Continue,,Continuar,,,
-"Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.",,"Continuar (F5) — retoma a execução até encontrar a próxima resposta (ou a consulta terminar). Se restarem soluções, avançar/continuar de novo explora-as.",,,
-Copy,,Copiar,,,
-Copy Answer,,Copiar resposta,,,
-Copy Explanation,,Copiar explicação,,,
-Copy Mermaid,,Copiar Mermaid,,,
-Copy Node,,Copiar nó,,,
-Copy Scenario,,Copiar cenário,,,
-Copy URL,,Copiar URL,,,
-Copy as Mermaid diagram,,Copiar como diagrama Mermaid,,,
-"Copy the visible graph as a Mermaid diagram (text), pasteable into GitHub, Obsidian, mermaid.live…",,"Copiar o grafo visível como diagrama Mermaid (texto), colável no GitHub, Obsidian, mermaid.live…",,,
-Custom Query:,,Consulta personalizada:,,,
-Custom Scenario Facts:,,Factos de cenário personalizados:,,,
-Cut,,Cortar,,,
-Dagre (Hierarchical),,Dagre (hierárquico),,,
-Dark,,Escuro,,,
-Dark Theme,,Tema escuro,,,
-Detailed failure explanations (per-rule nodes),,Explicações de falha detalhadas (nós por regra),,,
-Direction,,Direção,,,
-ELK (Layered),,ELK (em camadas),,,
-Edge Types,,Tipos de arestas,,,
-Edit,,Editar,,,
-Edit Queries…,,Editar consultas…,,,
-Edit Scenarios…,,Editar cenários…,,,
-Enter facts here...,,Escreva factos aqui...,,,
-Enter query here...,,Escreva a consulta aqui...,,,
-Expand All,,Expandir tudo,,,
-Explanation Drill,,Exploração da explicação,,,
-Explanation Drill…,,Exploração da explicação…,,,
-Explanations Preferences,,Preferências das explicações,,,
-File,,Ficheiro,,,
-Filter programs,,Filtrar programas,,,
-Filter…,,Filtrar…,,,
-Find,,Procurar,,,
-Fit View,,Ajustar vista,,,
-Fit to Screen,,Ajustar ao ecrã,,,
-Go to full sub-explanation,,Ir para a sub-explicação completa,,,
-Google API Key:,,Chave de API Google:,,,
-Grid,,Grelha,,,
-Groq API Key:,,Chave de API Groq:,,,
-Help,,Ajuda,,,
-Hide repeated explanations,,Ocultar explicações repetidas,,,
-High Contrast,,Alto contraste,,,
-Home,,Início,,,
-Horizontal (L→R),,Horizontal (E→D),,,
-Insert into Editor,,Inserir no editor,,,
-Interrupt,,Interromper,,,
-Introduction to Logical English (tutorial),,Introdução ao Logical English (tutorial),,,
-Keys and preferences are stored in your browser's local storage.,,As chaves e preferências ficam guardadas no armazenamento local do seu navegador.,,,
-LE Debugger,,Depurador LE,,,
-LE Proof Game,,Jogo da Prova LE,,,
-Large,,Grande,,,
-Layout,,Arranjo,,,
-Light,,Claro,,,
-Light Mode,,Modo leve,,,
-"Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).",,O Modo leve corre um ciclo Prolog rápido em processo. Desmarque para o Modo profundo (agente opencode completo com ficheiros/web/terminal).,,,
-Light Theme,,Tema claro,,,
-Load,,Carregar,,,
-Loading models...,,A carregar modelos...,,,
-Logical English,,Logical English,,,
-Logical English syntax (reference),,Sintaxe do Logical English (referência),,,
-Medium,,Médio,,,
-Misc,,Diversos,,,
-Name,,Nome,,,
-New,,Novo,,,
-New from URL,,Novo a partir de URL,,,
-New from URL...,,Novo a partir de URL...,,,
-Node Types,,Tipos de nós,,,
-None,,Nenhum,,,
-"Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window",,"Abrir Variações de Cenário: altere o cenário selecionado e corra uma ou mais consultas sobre a variação, numa janela separada",,,
-Open copy from server...,,Abrir cópia do servidor...,,,
-Open from Server,,Abrir do servidor,,,
-Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules,,Abrir o Jogo da Prova: construa interativamente uma prova da consulta selecionada ligando os seus factos e regras,,,
-Open...,,Abrir...,,,
-OpenAI API Key:,,Chave de API OpenAI:,,,
-PROLOG Equivalent,,Equivalente PROLOG,,,
-Paste,,Colar,,,
-Patch scenario,,Ajustar cenário,,,
-Predicates Legend,,Legenda de predicados,,,
-Preferences...,,Preferências...,,,
-Prefix for failed nodes:,,Prefixo para nós falhados:,,,
-Proof Game,,Jogo da Prova,,,
-Query,,Consulta,,,
-Query Editor,,Editor de consultas,,,
-Query:,,Consulta:,,,
-Redraw from here,,Redesenhar a partir daqui,,,
-Refresh,,Atualizar,,,
-Replace,,Substituir,,,
-Save,,Guardar,,,
-Save As...,,Guardar como...,,,
-Scenario,,Cenário,,,
-Scenario Editor,,Editor de cenários,,,
-Scenario Variations,,Variações de cenário,,,
-Scenario:,,Cenário:,,,
-Search nodes...,,Procurar nós...,,,
-Select a query...,,Selecione uma consulta...,,,
-Select a scenario...,,Selecione um cenário...,,,
-Send,,Enviar,,,
-Send command to the LE Assistant,,Enviar comando ao Assistente LE,,,
-Show Proof,,Mostrar prova,,,
-Show important reason,,Mostrar razão importante,,,
-Small,,Pequeno,,,
-Step,,Avançar,,,
-Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.,,Avançar (F11) — avança um passo até ao próximo objetivo a provar. A pilha de chamadas e o painel VARIÁVEIS atualizam-se com a nova posição e as ligações feitas até aí.,,,
-Stop,,Parar,,,
-Stop — end the trace and detach the debugger. The query keeps running to completion in the background.,,Parar — termina o rastreio e desliga o depurador. A consulta continua a correr até ao fim em segundo plano.,,,
-"The editor manual: files, queries, scenario/query editors, explanations.",,"O manual do editor: ficheiros, consultas, editores de cenários/consultas, explicações.",,,
-The language reference: every LE construct.,,A referência da linguagem: todas as construções LE.,,,
-This prefix is prepended to failed nodes when copying explanations to plain text or HTML.,,Este prefixo é anteposto aos nós falhados ao copiar explicações para texto simples ou HTML.,,,
-Together API Key:,,Chave de API Together:,,,
-Trace,,Rastrear,,,
-Type Hierarchy,,Hierarquia de tipos,,,
-URL of a Logical English program:,,URL de um programa Logical English:,,,
-Using this editor (manual),,Usar este editor (manual),,,
-Vertical (T→B),,Vertical (C→B),,,
-View Source Graph,,Ver grafo do programa,,,
-"Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab",,"Visualizar os modelos, regras, factos, cenários e consultas do programa como um grafo de dependências, num novo separador",,,
-"When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).",,"Quando ativo (predefinição), uma sub-explicação que ocorre várias vezes numa explicação é mostrada uma vez com a sua contagem. Desative para ver todas as ocorrências por extenso (árvores maiores).",,,
-"When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.",,"Quando ativo, um predicado falhado com várias regras mostra um nó intermédio por regra (navegável até à regra), com os sub-objetivos falhados por baixo. Mais lento; desativado por predefinição.",,,
-Zoom In,,Ampliar,,,
-Zoom Out,,Reduzir,,,
-and,,e,,,
-fCoSE (Default),,fCoSE (predefinição),,,
-not,,não,,,
-or,,ou,,,
-query name,,nome da consulta,,,
-scenario name,,nome do cenário,,,
-Are you sure you want to miss the excitement of finding the proof yourself?,,Tem a certeza de que quer perder a emoção de encontrar a prova por si mesmo?,,,
-No proof found for this query.,,Nenhuma prova encontrada para esta consulta.,,,
-(empty),,(vazio),,,
-A query name must be a single word or number (no spaces).,,O nome de uma consulta tem de ser uma única palavra ou número (sem espaços).,,,
-A scenario name must be a single word (no spaces).,,O nome de um cenário tem de ser uma única palavra (sem espaços).,,,
-Accept?,,Aceitar?,,,
-Add a query first.,,Adicione primeiro uma consulta.,,,
-Add at least one condition to the query.,,Adicione pelo menos uma condição à consulta.,,,
-Another...,,Outra...,,,
-"Answer the highlighted question, or revise an earlier one.",,"Responda à pergunta destacada, ou reveja uma anterior.",,,
-Click to show this in the editor,,Clique para mostrar no editor,,,
-"Configure an LLM model first: in the main editor, Misc → API Keys…",,"Configure primeiro um modelo LLM: no editor principal, Diversos → Chaves de API…",,,
-Connecting to debugger...,,A ligar ao depurador...,,,
-Copied to clipboard,,Copiado para a área de transferência,,,
-Copied!,,Copiado!,,,
-Copied,,Copiado,,,
-Copy URL is only available for existing examples.,,Copiar URL só está disponível para exemplos existentes.,,,
-Copy the query text:,,Copie o texto da consulta:,,,
-Copy the scenario text:,,Copie o texto do cenário:,,,
-Could not load the program on the server.,,Não foi possível carregar o programa no servidor.,,,
-Could not reach the server.,,Não foi possível contactar o servidor.,,,
-Debugger connected. Initializing...,,Depurador ligado. A inicializar...,,,
-Debugger disconnected.,,Depurador desligado.,,,
-Delete condition,,Eliminar condição,,,
-Delete this question,,Eliminar esta pergunta,,,
-Delete,,Eliminar,,,
-Discard unsaved changes and load the selected query?,,Descartar alterações não guardadas e carregar a consulta selecionada?,,,
-Discard unsaved changes and load the selected scenario?,,Descartar alterações não guardadas e carregar o cenário selecionado?,,,
-Done,,Concluído,,,
-Download,,Transferir,,,
-Error connecting to server for game data.,,Erro ao ligar ao servidor para obter os dados do jogo.,,,
-Error executing query.,,Erro ao executar a consulta.,,,
-Error loading module: ,,Erro ao carregar o módulo: ,,,
-Error: ,,Erro: ,,,
-Explanation,,Explicação,,,
-Failed to get game data from server.,,Falha ao obter os dados do jogo do servidor.,,,
-Failed to load example from server.,,Falha ao carregar o exemplo do servidor.,,,
-Generate,,Gerar,,,
-Generating and verifying…,,A gerar e verificar…,,,
-Indent (nest this condition to bind tighter),,Indentar (aninhar esta condição para ligar mais estreitamente),,,
-Insert anyway,,Inserir mesmo assim,,,
-Inserted into editor,,Inserido no editor,,,
-Interrupting…,,A interromper…,,,
-Loading module on server...,,A carregar o módulo no servidor...,,,
-Loading…,,A carregar…,,,
-Mermaid diagram copied to clipboard,,Diagrama Mermaid copiado para a área de transferência,,,
-New query,,Nova consulta,,,
-New scenario,,Novo cenário,,,
-New…,,Novo…,,,
-No answers (false),,Sem respostas (falso),,,
-No conditions yet — pick a template below and click “Add”.,,Ainda sem condições — escolha um modelo abaixo e clique em “Adicionar”.,,,
-No explanation to drill.,,Nenhuma explicação para explorar.,,,
-No facts yet — pick a template below and click “Add”.,,Ainda sem factos — escolha um modelo abaixo e clique em “Adicionar”.,,,
-No model configured,,Nenhum modelo configurado,,,
-No results returned.,,Nenhum resultado devolvido.,,,
-No variables for this call.,,Sem variáveis nesta chamada.,,,
-Node copied to clipboard,,Nó copiado para a área de transferência,,,
-Nothing else to show. Feel free to alter your choices above.,,Nada mais a mostrar. Pode alterar as escolhas acima.,,,
-Please enter a custom query.,,Introduza uma consulta personalizada.,,,
-Please give the query a name.,,Dê um nome à consulta.,,,
-Please give the scenario a name.,,Dê um nome ao cenário.,,,
-Please select a query for the Proof Game.,,Selecione uma consulta para o Jogo da Prova.,,,
-Please select a query.,,Selecione uma consulta.,,,
-Please wait for the module to load.,,Aguarde o carregamento do módulo.,,,
-Progress,,Progresso,,,
-Query failed.,,A consulta falhou.,,,
-Query finished.,,Consulta terminada.,,,
-Query interrupted.,,Consulta interrompida.,,,
-Ready,,Pronto,,,
-Regenerate,,Regenerar,,,
-Remove query,,Remover consulta,,,
-Results,,Resultados,,,
-Running queries…,,A correr consultas…,,,
-Scenario copied to clipboard,,Cenário copiado para a área de transferência,,,
-Write it in English,,Escreva em Português,,,
-Write it in English…,,Escreva em Português…,,,
-You have unsaved changes. Create new file anyway?,,Tem alterações não guardadas. Criar um ficheiro novo mesmo assim?,,,
-You have unsaved changes. Load from URL anyway?,,Tem alterações não guardadas. Carregar do URL mesmo assim?,,,
-You have unsaved changes. Open another file anyway?,,Tem alterações não guardadas. Abrir outro ficheiro mesmo assim?,,,
-You have unsaved changes. Open from server anyway?,,Tem alterações não guardadas. Abrir do servidor mesmo assim?,,,
-the LLM request failed.,,o pedido ao LLM falhou.,,,
-Important reason: ,,Razão importante: ,,,
-repeated sub-explanations,,sub-explicações repetidas,,,
-assumed,,assumido,,,
-FAIL,,FALHA,,,
-STOP,,PARAR,,,
-Unindent,,Desindentar,,,
-Language,,Língua,,,
-Answers,,Respostas,,,
-Unknowns,,Desconhecidos,,,
-Scenarios,,Cenários,,,
-Queries,,Consultas,,,
-Templates,,Modelos,,,
-Run,,Correr,,,
-Back,,Voltar,,,
-Question,,Pergunta,,,
-Logged in as: ,,Sessão iniciada como: ,,,
-Login,,Iniciar sessão,,,
-Logout,,Terminar sessão,,,
-Login Failed,,Falha no início de sessão,,,
-Invalid email or password.,,Email ou palavra-passe inválidos.,,,
-Try again,,Tentar novamente,,,
-Edit and Query: ,,Editar e consultar: ,,,
-[New Document],,[Novo documento],,,
-expand all,,expandir tudo,,,
-collapse all,,recolher tudo,,,
-[show all],,[mostrar tudo],,,
-Just run a program: ,,Apenas correr um programa: ,,,
-[Executive view],,[Vista executiva],,,
-"A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.",,"Uma forma minimalista e amiga do telemóvel de escolher um programa, um cenário e uma pergunta, e ver a resposta — sem edição.",,,
-GitHub Repository,,Repositório GitHub,,,
-Documentation,,Documentação,,,
-A Gentle Introduction to Logical English 2,,Uma introdução suave ao Logical English 2,,,
-How to use the LE2 web application,,Como usar a aplicação web LE2,,,
-Logical English syntax summary,,Resumo da sintaxe do Logical English,,,
-Test Suite,,Bateria de testes,,,
-Run All Tests,,Correr todos os testes,,,
-Email: ,,Email: ,,,
-Password: ,,Palavra-passe: ,,,
-"Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.",,"Comece aqui: um tutorial prático que constrói três pequenos programas — uma festa de chá, um dragão voador e um pedaço da lei de nacionalidade britânica — ensinando a escrever, consultar e depurar LE no editor.",,,
-"The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.",,"O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cenários e consultas, variações de cenário e a leitura das árvores de explicação.",,,
-"The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.",,"A referência da linguagem: todas as construções — modelos, regras, operadores, agregações, variáveis e tipos, datas, ontologia, extensões — para consultar enquanto escreve.",,,
++ Add,,+ Adicionar,+ Añadir,+ Ajouter,+ Aggiungi
++ Add Query,,+ Adicionar consulta,+ Añadir consulta,+ Ajouter une requête,+ Aggiungi interrogazione
+"A hands-on tutorial: write, query and debug three small LE programs.",,"Um tutorial prático: escrever, consultar e depurar três pequenos programas LE.","Un tutorial práctico: escribir, consultar y depurar tres pequeños programas LE.","Un tutoriel pratique : écrire, interroger et déboguer trois petits programmes LE.","Un tutorial pratico: scrivere, interrogare ed eseguire il debug di tre piccoli programmi LE."
+API Keys &amp; Assistant Settings,,Chaves de API e definições do Assistente,Claves de API y configuración del Asistente,Clés d'API et paramètres de l'Assistant,Chiavi API e impostazioni dell'Assistente
+API Keys &amp; Assistant Settings...,,Chaves de API e definições do Assistente...,Claves de API y configuración del Asistente...,Clés d'API et paramètres de l'Assistant...,Chiavi API e impostazioni dell'Assistente...
+Add condition,,Adicionar condição,Añadir condición,Ajouter une condition,Aggiungi condizione
+Add fact,,Adicionar facto,Añadir hecho,Ajouter un fait,Aggiungi fatto
+Add query,,Adicionar consulta,Añadir consulta,Ajouter une requête,Aggiungi interrogazione
+Anthropic API Key:,,Chave de API Anthropic:,Clave de API Anthropic:,Clé d'API Anthropic :,Chiave API Anthropic:
+"Ask the assistant (e.g., 'Fix indentation', 'Draft a program for...')",,"Peça ao assistente (p.ex., 'Corrige a indentação', 'Esboça um programa para...')","Pida al asistente (p. ej., 'Corrige la indentación', 'Esboza un programa para...')","Demandez à l'assistant (p. ex., « Corrige l'indentation », « Rédige un programme pour... »)","Chiedi all'assistente (es., 'Correggi l'indentazione', 'Abbozza un programma per...')"
+Assistant Max Steps (1-50):,,Passos máximos do Assistente (1-50):,Pasos máximos del Asistente (1-50):,Étapes maximales de l'Assistant (1-50) :,Passi massimi dell'Assistente (1-50):
+Assistant Model:,,Modelo do Assistente:,Modelo del Asistente:,Modèle de l'Assistant :,Modello dell'Assistente:
+Assume fact,,Assumir facto,Asumir hecho,Supposer le fait,Assumi fatto
+Auto Layout,,Arranjo automático,Disposición automática,Disposition automatique,Disposizione automatica
+Cancel,,Cancelar,Cancelar,Annuler,Annulla
+Center,,Centrar,Centrar,Centrer,Centra
+Choose a program,,Escolha um programa,Elija un programa,Choisissez un programme,Scegli un programma
+Choose a program to explore.,,Escolha um programa para explorar.,Elija un programa para explorar.,Choisissez un programme à explorer.,Scegli un programma da esplorare.
+Circle,,Círculo,Círculo,Cercle,Cerchio
+Clone Tool,,Ferramenta de clonagem,Herramienta de clonación,Outil de clonage,Strumento di clonazione
+Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once),,Ferramenta de clonagem: clique num nó para o duplicar (necessário quando a prova usa a mesma regra mais de uma vez),Herramienta de clonación: haga clic en un nodo para duplicarlo (necesario cuando la prueba usa la misma regla más de una vez),Outil de clonage : cliquez sur un nœud pour le dupliquer (nécessaire quand la preuve utilise la même règle plus d'une fois),Strumento di clonazione: fai clic su un nodo per duplicarlo (necessario quando la prova usa la stessa regola più di una volta)
+Close this panel,,Fechar este painel,Cerrar este panel,Fermer ce panneau,Chiudi questo pannello
+Collapse All,,Recolher tudo,Contraer todo,Tout replier,Comprimi tutto
+Continue,,Continuar,Continuar,Continuer,Continua
+"Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.",,"Continuar (F5) — retoma a execução até encontrar a próxima resposta (ou a consulta terminar). Se restarem soluções, avançar/continuar de novo explora-as.","Continuar (F5) — reanuda la ejecución hasta encontrar la siguiente respuesta (o hasta que la consulta termine). Si quedan más soluciones, avanzar/continuar de nuevo las explora.","Continuer (F5) — reprend l'exécution jusqu'à ce que la prochaine réponse soit trouvée (ou que la requête se termine). S'il reste des solutions, avancer/continuer de nouveau les explore.","Continua (F5) — riprende l'esecuzione fino a trovare la prossima risposta (o fino al termine dell'interrogazione). Se restano altre soluzioni, avanzare/continuare di nuovo le esplora."
+Copy,,Copiar,Copiar,Copier,Copia
+Copy Answer,,Copiar resposta,Copiar respuesta,Copier la réponse,Copia risposta
+Copy Explanation,,Copiar explicação,Copiar explicación,Copier l'explication,Copia spiegazione
+Copy Mermaid,,Copiar Mermaid,Copiar Mermaid,Copier Mermaid,Copia Mermaid
+Copy Node,,Copiar nó,Copiar nodo,Copier le nœud,Copia nodo
+Copy Scenario,,Copiar cenário,Copiar escenario,Copier le scénario,Copia scenario
+Copy URL,,Copiar URL,Copiar URL,Copier l'URL,Copia URL
+Copy as Mermaid diagram,,Copiar como diagrama Mermaid,Copiar como diagrama Mermaid,Copier comme diagramme Mermaid,Copia come diagramma Mermaid
+"Copy the visible graph as a Mermaid diagram (text), pasteable into GitHub, Obsidian, mermaid.live…",,"Copiar o grafo visível como diagrama Mermaid (texto), colável no GitHub, Obsidian, mermaid.live…","Copiar el grafo visible como diagrama Mermaid (texto), pegable en GitHub, Obsidian, mermaid.live…","Copier le graphe visible comme diagramme Mermaid (texte), collable dans GitHub, Obsidian, mermaid.live…","Copia il grafo visibile come diagramma Mermaid (testo), incollabile in GitHub, Obsidian, mermaid.live…"
+Custom Query:,,Consulta personalizada:,Consulta personalizada:,Requête personnalisée :,Interrogazione personalizzata:
+Custom Scenario Facts:,,Factos de cenário personalizados:,Hechos de escenario personalizados:,Faits de scénario personnalisés :,Fatti di scenario personalizzati:
+Cut,,Cortar,Cortar,Couper,Taglia
+Dagre (Hierarchical),,Dagre (hierárquico),Dagre (jerárquico),Dagre (hiérarchique),Dagre (gerarchico)
+Dark,,Escuro,Oscuro,Sombre,Scuro
+Dark Theme,,Tema escuro,Tema oscuro,Thème sombre,Tema scuro
+Detailed failure explanations (per-rule nodes),,Explicações de falha detalhadas (nós por regra),Explicaciones de fallo detalladas (nodos por regla),Explications d'échec détaillées (nœuds par règle),Spiegazioni di fallimento dettagliate (nodi per regola)
+Direction,,Direção,Dirección,Direction,Direzione
+ELK (Layered),,ELK (em camadas),ELK (por capas),ELK (en couches),ELK (a livelli)
+Edge Types,,Tipos de arestas,Tipos de aristas,Types d'arêtes,Tipi di archi
+Edit,,Editar,Editar,Modifier,Modifica
+Edit Queries…,,Editar consultas…,Editar consultas…,Modifier les requêtes…,Modifica interrogazioni…
+Edit Scenarios…,,Editar cenários…,Editar escenarios…,Modifier les scénarios…,Modifica scenari…
+Enter facts here...,,Escreva factos aqui...,Escriba los hechos aquí...,Saisissez les faits ici...,Inserisci i fatti qui...
+Enter query here...,,Escreva a consulta aqui...,Escriba la consulta aquí...,Saisissez la requête ici...,Inserisci l'interrogazione qui...
+Expand All,,Expandir tudo,Expandir todo,Tout déplier,Espandi tutto
+Explanation Drill,,Exploração da explicação,Exploración de la explicación,Exploration de l'explication,Esplorazione della spiegazione
+Explanation Drill…,,Exploração da explicação…,Exploración de la explicación…,Exploration de l'explication…,Esplorazione della spiegazione…
+Explanations Preferences,,Preferências das explicações,Preferencias de las explicaciones,Préférences des explications,Preferenze delle spiegazioni
+File,,Ficheiro,Archivo,Fichier,File
+Filter programs,,Filtrar programas,Filtrar programas,Filtrer les programmes,Filtra programmi
+Filter…,,Filtrar…,Filtrar…,Filtrer…,Filtra…
+Find,,Procurar,Buscar,Rechercher,Trova
+Fit View,,Ajustar vista,Ajustar vista,Ajuster la vue,Adatta vista
+Fit to Screen,,Ajustar ao ecrã,Ajustar a la pantalla,Ajuster à l'écran,Adatta allo schermo
+Go to full sub-explanation,,Ir para a sub-explicação completa,Ir a la subexplicación completa,Aller à la sous-explication complète,Vai alla sotto-spiegazione completa
+Google API Key:,,Chave de API Google:,Clave de API Google:,Clé d'API Google :,Chiave API Google:
+Grid,,Grelha,Cuadrícula,Grille,Griglia
+Groq API Key:,,Chave de API Groq:,Clave de API Groq:,Clé d'API Groq :,Chiave API Groq:
+Help,,Ajuda,Ayuda,Aide,Aiuto
+Hide repeated explanations,,Ocultar explicações repetidas,Ocultar explicaciones repetidas,Masquer les explications répétées,Nascondi spiegazioni ripetute
+High Contrast,,Alto contraste,Alto contraste,Contraste élevé,Alto contrasto
+Home,,Início,Inicio,Accueil,Home
+Horizontal (L→R),,Horizontal (E→D),Horizontal (I→D),Horizontal (G→D),Orizzontale (S→D)
+Insert into Editor,,Inserir no editor,Insertar en el editor,Insérer dans l'éditeur,Inserisci nell'editor
+Interrupt,,Interromper,Interrumpir,Interrompre,Interrompi
+Introduction to Logical English (tutorial),,Introdução ao Logical English (tutorial),Introducción a Logical English (tutorial),Introduction au Logical English (tutoriel),Introduzione al Logical English (tutorial)
+Keys and preferences are stored in your browser's local storage.,,As chaves e preferências ficam guardadas no armazenamento local do seu navegador.,Las claves y preferencias se guardan en el almacenamiento local de su navegador.,Les clés et les préférences sont conservées dans le stockage local de votre navigateur.,Le chiavi e le preferenze sono salvate nell'archiviazione locale del tuo browser.
+LE Debugger,,Depurador LE,Depurador LE,Débogueur LE,Debugger LE
+LE Proof Game,,Jogo da Prova LE,Juego de la Prueba LE,Jeu de la preuve LE,Gioco della Prova LE
+Large,,Grande,Grande,Grand,Grande
+Layout,,Arranjo,Disposición,Disposition,Disposizione
+Light,,Claro,Claro,Clair,Chiaro
+Light Mode,,Modo leve,Modo ligero,Mode léger,Modalità leggera
+"Light Mode runs a fast, in-process Prolog loop. Uncheck for Deep Mode (full opencode agent with file/web/shell tools).",,O Modo leve corre um ciclo Prolog rápido em processo. Desmarque para o Modo profundo (agente opencode completo com ficheiros/web/terminal).,El Modo ligero ejecuta un bucle Prolog rápido en proceso. Desmarque para el Modo profundo (agente opencode completo con herramientas de archivos/web/terminal).,Le Mode léger exécute une boucle Prolog rapide en interne. Décochez pour le Mode profond (agent opencode complet avec outils fichiers/web/terminal).,La Modalità leggera esegue un ciclo Prolog rapido in-process. Deseleziona per la Modalità profonda (agente opencode completo con strumenti file/web/shell).
+Light Theme,,Tema claro,Tema claro,Thème clair,Tema chiaro
+Load,,Carregar,Cargar,Charger,Carica
+Loading models...,,A carregar modelos...,Cargando modelos...,Chargement des modèles...,Caricamento dei modelli...
+Logical English,,Logical English,Logical English,Logical English,Logical English
+Logical English syntax (reference),,Sintaxe do Logical English (referência),Sintaxis de Logical English (referencia),Syntaxe du Logical English (référence),Sintassi del Logical English (riferimento)
+Medium,,Médio,Mediano,Moyen,Medio
+Misc,,Diversos,Varios,Divers,Varie
+Name,,Nome,Nombre,Nom,Nome
+New,,Novo,Nuevo,Nouveau,Nuovo
+New from URL,,Novo a partir de URL,Nuevo desde URL,Nouveau à partir d'une URL,Nuovo da URL
+New from URL...,,Novo a partir de URL...,Nuevo desde URL...,Nouveau à partir d'une URL...,Nuovo da URL...
+Node Types,,Tipos de nós,Tipos de nodos,Types de nœuds,Tipi di nodi
+None,,Nenhum,Ninguno,Aucun,Nessuno
+"Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window",,"Abrir Variações de Cenário: altere o cenário selecionado e corra uma ou mais consultas sobre a variação, numa janela separada","Abrir Variaciones de escenario: modifique el escenario seleccionado y ejecute una o más consultas sobre la variación, en una ventana separada","Ouvrir les Variations de scénario : modifiez le scénario sélectionné et exécutez une ou plusieurs requêtes sur la variation, dans une fenêtre séparée","Apri Variazioni di Scenario: modifica lo scenario selezionato ed esegui una o più interrogazioni sulla variazione, in una finestra separata"
+Open copy from server...,,Abrir cópia do servidor...,Abrir copia del servidor...,Ouvrir une copie du serveur...,Apri copia dal server...
+Open from Server,,Abrir do servidor,Abrir del servidor,Ouvrir depuis le serveur,Apri dal server
+Open the Proof Game: interactively build a proof of the selected query by connecting its facts and rules,,Abrir o Jogo da Prova: construa interativamente uma prova da consulta selecionada ligando os seus factos e regras,Abrir el Juego de la Prueba: construya interactivamente una prueba de la consulta seleccionada conectando sus hechos y reglas,Ouvrir le Jeu de la preuve : construisez interactivement une preuve de la requête sélectionnée en reliant ses faits et ses règles,Apri il Gioco della Prova: costruisci interattivamente una prova dell'interrogazione selezionata collegando i suoi fatti e le sue regole
+Open...,,Abrir...,Abrir...,Ouvrir...,Apri...
+OpenAI API Key:,,Chave de API OpenAI:,Clave de API OpenAI:,Clé d'API OpenAI :,Chiave API OpenAI:
+PROLOG Equivalent,,Equivalente PROLOG,Equivalente PROLOG,Équivalent PROLOG,Equivalente PROLOG
+Paste,,Colar,Pegar,Coller,Incolla
+Patch scenario,,Ajustar cenário,Ajustar escenario,Ajuster le scénario,Aggiusta scenario
+Predicates Legend,,Legenda de predicados,Leyenda de predicados,Légende des prédicats,Legenda dei predicati
+Preferences...,,Preferências...,Preferencias...,Préférences...,Preferenze...
+Prefix for failed nodes:,,Prefixo para nós falhados:,Prefijo para nodos fallidos:,Préfixe pour les nœuds en échec :,Prefisso per i nodi falliti:
+Proof Game,,Jogo da Prova,Juego de la Prueba,Jeu de la preuve,Gioco della Prova
+Query,,Consulta,Consulta,Requête,Interrogazione
+Query Editor,,Editor de consultas,Editor de consultas,Éditeur de requêtes,Editor delle interrogazioni
+Query:,,Consulta:,Consulta:,Requête :,Interrogazione:
+Redraw from here,,Redesenhar a partir daqui,Redibujar desde aquí,Redessiner à partir d'ici,Ridisegna da qui
+Refresh,,Atualizar,Actualizar,Actualiser,Aggiorna
+Replace,,Substituir,Reemplazar,Remplacer,Sostituisci
+Save,,Guardar,Guardar,Enregistrer,Salva
+Save As...,,Guardar como...,Guardar como...,Enregistrer sous...,Salva come...
+Scenario,,Cenário,Escenario,Scénario,Scenario
+Scenario Editor,,Editor de cenários,Editor de escenarios,Éditeur de scénarios,Editor degli scenari
+Scenario Variations,,Variações de cenário,Variaciones de escenario,Variations de scénario,Variazioni di scenario
+Scenario:,,Cenário:,Escenario:,Scénario :,Scenario:
+Search nodes...,,Procurar nós...,Buscar nodos...,Rechercher des nœuds...,Cerca nodi...
+Select a query...,,Selecione uma consulta...,Seleccione una consulta...,Sélectionnez une requête...,Seleziona un'interrogazione...
+Select a scenario...,,Selecione um cenário...,Seleccione un escenario...,Sélectionnez un scénario...,Seleziona uno scenario...
+Send,,Enviar,Enviar,Envoyer,Invia
+Send command to the LE Assistant,,Enviar comando ao Assistente LE,Enviar comando al Asistente LE,Envoyer la commande à l'Assistant LE,Invia comando all'Assistente LE
+Show Proof,,Mostrar prova,Mostrar prueba,Montrer la preuve,Mostra prova
+Show important reason,,Mostrar razão importante,Mostrar razón importante,Montrer la raison importante,Mostra ragione importante
+Small,,Pequeno,Pequeño,Petit,Piccolo
+Step,,Avançar,Avanzar,Avancer,Avanza
+Step (F11) — advance one step to the next goal being proved. The call stack and the VARIABLES panel update to show the new position and any bindings made so far.,,Avançar (F11) — avança um passo até ao próximo objetivo a provar. A pilha de chamadas e o painel VARIÁVEIS atualizam-se com a nova posição e as ligações feitas até aí.,Avanzar (F11) — avanza un paso hasta el siguiente objetivo a probar. La pila de llamadas y el panel VARIABLES se actualizan para mostrar la nueva posición y las ligaduras hechas hasta el momento.,Avancer (F11) — avance d'un pas jusqu'au prochain objectif à prouver. La pile d'appels et le panneau VARIABLES se mettent à jour pour montrer la nouvelle position et les liaisons établies jusque-là.,Avanza (F11) — avanza di un passo fino al prossimo obiettivo da provare. La pila delle chiamate e il pannello VARIABILI si aggiornano mostrando la nuova posizione e le associazioni fatte finora.
+Stop,,Parar,Parar,Arrêter,Ferma
+Stop — end the trace and detach the debugger. The query keeps running to completion in the background.,,Parar — termina o rastreio e desliga o depurador. A consulta continua a correr até ao fim em segundo plano.,Parar — termina el rastreo y desconecta el depurador. La consulta sigue ejecutándose hasta el final en segundo plano.,Arrêter — termine le traçage et détache le débogueur. La requête continue de s'exécuter jusqu'au bout en arrière-plan.,Ferma — termina il tracciamento e scollega il debugger. L'interrogazione continua a essere eseguita fino al termine in background.
+"The editor manual: files, queries, scenario/query editors, explanations.",,"O manual do editor: ficheiros, consultas, editores de cenários/consultas, explicações.","El manual del editor: archivos, consultas, editores de escenarios/consultas, explicaciones.","Le manuel de l'éditeur : fichiers, requêtes, éditeurs de scénarios/requêtes, explications.","Il manuale dell'editor: file, interrogazioni, editor di scenari/interrogazioni, spiegazioni."
+The language reference: every LE construct.,,A referência da linguagem: todas as construções LE.,La referencia del lenguaje: todas las construcciones LE.,La référence du langage : toutes les constructions LE.,Il riferimento del linguaggio: tutti i costrutti LE.
+This prefix is prepended to failed nodes when copying explanations to plain text or HTML.,,Este prefixo é anteposto aos nós falhados ao copiar explicações para texto simples ou HTML.,Este prefijo se antepone a los nodos fallidos al copiar explicaciones a texto plano o HTML.,Ce préfixe est ajouté devant les nœuds en échec lors de la copie des explications en texte brut ou en HTML.,Questo prefisso viene anteposto ai nodi falliti quando si copiano le spiegazioni in testo semplice o HTML.
+Together API Key:,,Chave de API Together:,Clave de API Together:,Clé d'API Together :,Chiave API Together:
+Trace,,Rastrear,Rastrear,Tracer,Traccia
+Type Hierarchy,,Hierarquia de tipos,Jerarquía de tipos,Hiérarchie de types,Gerarchia dei tipi
+URL of a Logical English program:,,URL de um programa Logical English:,URL de un programa Logical English:,URL d'un programme Logical English :,URL di un programma Logical English:
+Using this editor (manual),,Usar este editor (manual),Usar este editor (manual),Utiliser cet éditeur (manuel),Usare questo editor (manuale)
+Vertical (T→B),,Vertical (C→B),Vertical (A→B),Vertical (H→B),Verticale (A→B)
+View Source Graph,,Ver grafo do programa,Ver grafo del programa,Voir le graphe du programme,Visualizza grafo del programma
+"Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab",,"Visualizar os modelos, regras, factos, cenários e consultas do programa como um grafo de dependências, num novo separador","Visualizar las plantillas, reglas, hechos, escenarios y consultas del programa como un grafo de dependencias, en una nueva pestaña del navegador","Visualiser les modèles, règles, faits, scénarios et requêtes du programme sous forme de graphe de dépendances, dans un nouvel onglet du navigateur","Visualizza i modelli, le regole, i fatti, gli scenari e le interrogazioni del programma come grafo delle dipendenze, in una nuova scheda del browser"
+"When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).",,"Quando ativo (predefinição), uma sub-explicação que ocorre várias vezes numa explicação é mostrada uma vez com a sua contagem. Desative para ver todas as ocorrências por extenso (árvores maiores).","Cuando está activo (opción predeterminada), una subexplicación que aparece varias veces en una explicación de éxito o de fallo se muestra una vez y se etiqueta con su recuento. Desactívelo para ver todas las apariciones completas (árboles más grandes).","Quand elle est activée (par défaut), une sous-explication qui apparaît plusieurs fois dans une explication de succès ou d'échec est montrée une seule fois avec son nombre d'occurrences. Désactivez pour voir chaque occurrence en entier (arbres plus grands).","Quando attivo (impostazione predefinita), una sotto-spiegazione che ricorre più volte in una spiegazione di successo o di fallimento viene mostrata una volta sola con il suo conteggio. Disattiva per vedere ogni occorrenza per esteso (alberi più grandi)."
+"When on, a failed predicate with several rules shows an intermediate node per rule (navigable to that rule), with each rule's failed sub-goals beneath it. Slower; off by default.",,"Quando ativo, um predicado falhado com várias regras mostra um nó intermédio por regra (navegável até à regra), com os sub-objetivos falhados por baixo. Mais lento; desativado por predefinição.","Cuando está activo, un predicado fallido con varias reglas muestra un nodo intermedio por regla (navegable hasta esa regla), con los subobjetivos fallidos de cada regla debajo. Más lento; desactivado de forma predeterminada.","Quand elle est activée, un prédicat en échec avec plusieurs règles montre un nœud intermédiaire par règle (navigable vers cette règle), avec les sous-objectifs en échec de chaque règle en dessous. Plus lent ; désactivé par défaut.","Quando attivo, un predicato fallito con più regole mostra un nodo intermedio per regola (navigabile fino a quella regola), con i sotto-obiettivi falliti di ciascuna regola al di sotto. Più lento; disattivato per impostazione predefinita."
+Zoom In,,Ampliar,Acercar,Zoom avant,Ingrandisci
+Zoom Out,,Reduzir,Alejar,Zoom arrière,Riduci
+and,,e,y,et,e
+fCoSE (Default),,fCoSE (predefinição),fCoSE (predeterminado),fCoSE (par défaut),fCoSE (predefinito)
+not,,não,no,non,non
+or,,ou,o,ou,o
+query name,,nome da consulta,nombre de la consulta,nom de la requête,nome dell'interrogazione
+scenario name,,nome do cenário,nombre del escenario,nom du scénario,nome dello scenario
+Are you sure you want to miss the excitement of finding the proof yourself?,,Tem a certeza de que quer perder a emoção de encontrar a prova por si mesmo?,¿Está seguro de que quiere perderse la emoción de encontrar la prueba usted mismo?,Êtes-vous sûr de vouloir manquer le plaisir de trouver la preuve vous-même ?,Sei sicuro di voler perdere l'emozione di trovare la prova da solo?
+No proof found for this query.,,Nenhuma prova encontrada para esta consulta.,No se encontró ninguna prueba para esta consulta.,Aucune preuve trouvée pour cette requête.,Nessuna prova trovata per questa interrogazione.
+(empty),,(vazio),(vacío),(vide),(vuoto)
+A query name must be a single word or number (no spaces).,,O nome de uma consulta tem de ser uma única palavra ou número (sem espaços).,El nombre de una consulta debe ser una sola palabra o número (sin espacios).,Le nom d'une requête doit être un seul mot ou un nombre (sans espaces).,Il nome di un'interrogazione deve essere una singola parola o un numero (senza spazi).
+A scenario name must be a single word (no spaces).,,O nome de um cenário tem de ser uma única palavra (sem espaços).,El nombre de un escenario debe ser una sola palabra (sin espacios).,Le nom d'un scénario doit être un seul mot (sans espaces).,Il nome di uno scenario deve essere una singola parola (senza spazi).
+Accept?,,Aceitar?,¿Aceptar?,Accepter ?,Accettare?
+Add a query first.,,Adicione primeiro uma consulta.,Añada primero una consulta.,Ajoutez d'abord une requête.,Aggiungi prima un'interrogazione.
+Add at least one condition to the query.,,Adicione pelo menos uma condição à consulta.,Añada al menos una condición a la consulta.,Ajoutez au moins une condition à la requête.,Aggiungi almeno una condizione all'interrogazione.
+Another...,,Outra...,Otra...,Une autre...,Un'altra...
+"Answer the highlighted question, or revise an earlier one.",,"Responda à pergunta destacada, ou reveja uma anterior.","Responda a la pregunta destacada, o revise una anterior.","Répondez à la question mise en évidence, ou révisez une question antérieure.","Rispondi alla domanda evidenziata, o rivedi una precedente."
+Click to show this in the editor,,Clique para mostrar no editor,Haga clic para mostrarlo en el editor,Cliquez pour l'afficher dans l'éditeur,Fai clic per mostrarlo nell'editor
+"Configure an LLM model first: in the main editor, Misc → API Keys…",,"Configure primeiro um modelo LLM: no editor principal, Diversos → Chaves de API…","Configure primero un modelo LLM: en el editor principal, Varios → Claves de API…","Configurez d'abord un modèle LLM : dans l'éditeur principal, Divers → Clés d'API…","Configura prima un modello LLM: nell'editor principale, Varie → Chiavi API…"
+Connecting to debugger...,,A ligar ao depurador...,Conectando al depurador...,Connexion au débogueur...,Connessione al debugger...
+Copied to clipboard,,Copiado para a área de transferência,Copiado al portapapeles,Copié dans le presse-papiers,Copiato negli appunti
+Copied!,,Copiado!,¡Copiado!,Copié !,Copiato!
+Copied,,Copiado,Copiado,Copié,Copiato
+Copy URL is only available for existing examples.,,Copiar URL só está disponível para exemplos existentes.,Copiar URL solo está disponible para ejemplos existentes.,Copier l'URL n'est disponible que pour les exemples existants.,Copia URL è disponibile solo per gli esempi esistenti.
+Copy the query text:,,Copie o texto da consulta:,Copie el texto de la consulta:,Copiez le texte de la requête :,Copia il testo dell'interrogazione:
+Copy the scenario text:,,Copie o texto do cenário:,Copie el texto del escenario:,Copiez le texte du scénario :,Copia il testo dello scenario:
+Could not load the program on the server.,,Não foi possível carregar o programa no servidor.,No se pudo cargar el programa en el servidor.,Impossible de charger le programme sur le serveur.,Impossibile caricare il programma sul server.
+Could not reach the server.,,Não foi possível contactar o servidor.,No se pudo contactar con el servidor.,Impossible de joindre le serveur.,Impossibile contattare il server.
+Debugger connected. Initializing...,,Depurador ligado. A inicializar...,Depurador conectado. Inicializando...,Débogueur connecté. Initialisation...,Debugger connesso. Inizializzazione...
+Debugger disconnected.,,Depurador desligado.,Depurador desconectado.,Débogueur déconnecté.,Debugger disconnesso.
+Delete condition,,Eliminar condição,Eliminar condición,Supprimer la condition,Elimina condizione
+Delete this question,,Eliminar esta pergunta,Eliminar esta pregunta,Supprimer cette question,Elimina questa domanda
+Delete,,Eliminar,Eliminar,Supprimer,Elimina
+Discard unsaved changes and load the selected query?,,Descartar alterações não guardadas e carregar a consulta selecionada?,¿Descartar los cambios no guardados y cargar la consulta seleccionada?,Abandonner les modifications non enregistrées et charger la requête sélectionnée ?,Scartare le modifiche non salvate e caricare l'interrogazione selezionata?
+Discard unsaved changes and load the selected scenario?,,Descartar alterações não guardadas e carregar o cenário selecionado?,¿Descartar los cambios no guardados y cargar el escenario seleccionado?,Abandonner les modifications non enregistrées et charger le scénario sélectionné ?,Scartare le modifiche non salvate e caricare lo scenario selezionato?
+Done,,Concluído,Concluido,Terminé,Fatto
+Download,,Transferir,Descargar,Télécharger,Scarica
+Error connecting to server for game data.,,Erro ao ligar ao servidor para obter os dados do jogo.,Error al conectar con el servidor para obtener los datos del juego.,Erreur de connexion au serveur pour obtenir les données du jeu.,Errore di connessione al server per i dati del gioco.
+Error executing query.,,Erro ao executar a consulta.,Error al ejecutar la consulta.,Erreur lors de l'exécution de la requête.,Errore nell'esecuzione dell'interrogazione.
+Error loading module: ,,Erro ao carregar o módulo: ,Error al cargar el módulo: ,Erreur lors du chargement du module : ,Errore nel caricamento del modulo: 
+Error: ,,Erro: ,Error: ,Erreur : ,Errore: 
+Explanation,,Explicação,Explicación,Explication,Spiegazione
+Failed to get game data from server.,,Falha ao obter os dados do jogo do servidor.,No se pudieron obtener los datos del juego del servidor.,Échec de l'obtention des données du jeu depuis le serveur.,Impossibile ottenere i dati del gioco dal server.
+Failed to load example from server.,,Falha ao carregar o exemplo do servidor.,No se pudo cargar el ejemplo del servidor.,Échec du chargement de l'exemple depuis le serveur.,Impossibile caricare l'esempio dal server.
+Generate,,Gerar,Generar,Générer,Genera
+Generating and verifying…,,A gerar e verificar…,Generando y verificando…,Génération et vérification…,Generazione e verifica in corso…
+Indent (nest this condition to bind tighter),,Indentar (aninhar esta condição para ligar mais estreitamente),Indentar (anidar esta condición para que ligue más estrechamente),Indenter (imbriquer cette condition pour une liaison plus étroite),Indenta (annida questa condizione per legarla più strettamente)
+Insert anyway,,Inserir mesmo assim,Insertar de todos modos,Insérer quand même,Inserisci comunque
+Inserted into editor,,Inserido no editor,Insertado en el editor,Inséré dans l'éditeur,Inserito nell'editor
+Interrupting…,,A interromper…,Interrumpiendo…,Interruption…,Interruzione in corso…
+Loading module on server...,,A carregar o módulo no servidor...,Cargando el módulo en el servidor...,Chargement du module sur le serveur...,Caricamento del modulo sul server...
+Loading…,,A carregar…,Cargando…,Chargement…,Caricamento…
+Mermaid diagram copied to clipboard,,Diagrama Mermaid copiado para a área de transferência,Diagrama Mermaid copiado al portapapeles,Diagramme Mermaid copié dans le presse-papiers,Diagramma Mermaid copiato negli appunti
+New query,,Nova consulta,Nueva consulta,Nouvelle requête,Nuova interrogazione
+New scenario,,Novo cenário,Nuevo escenario,Nouveau scénario,Nuovo scenario
+New…,,Novo…,Nuevo…,Nouveau…,Nuovo…
+No answers (false),,Sem respostas (falso),Sin respuestas (falso),Pas de réponses (faux),Nessuna risposta (falso)
+No conditions yet — pick a template below and click “Add”.,,Ainda sem condições — escolha um modelo abaixo e clique em “Adicionar”.,Aún sin condiciones — elija una plantilla abajo y haga clic en “Añadir”.,Pas encore de conditions — choisissez un modèle ci-dessous et cliquez sur « Ajouter ».,Ancora nessuna condizione — scegli un modello qui sotto e fai clic su “Aggiungi”.
+No explanation to drill.,,Nenhuma explicação para explorar.,Ninguna explicación para explorar.,Aucune explication à explorer.,Nessuna spiegazione da esplorare.
+No facts yet — pick a template below and click “Add”.,,Ainda sem factos — escolha um modelo abaixo e clique em “Adicionar”.,Aún sin hechos — elija una plantilla abajo y haga clic en “Añadir”.,Pas encore de faits — choisissez un modèle ci-dessous et cliquez sur « Ajouter ».,Ancora nessun fatto — scegli un modello qui sotto e fai clic su “Aggiungi”.
+No model configured,,Nenhum modelo configurado,Ningún modelo configurado,Aucun modèle configuré,Nessun modello configurato
+No results returned.,,Nenhum resultado devolvido.,No se devolvió ningún resultado.,Aucun résultat renvoyé.,Nessun risultato restituito.
+No variables for this call.,,Sem variáveis nesta chamada.,Sin variables en esta llamada.,Pas de variables pour cet appel.,Nessuna variabile per questa chiamata.
+Node copied to clipboard,,Nó copiado para a área de transferência,Nodo copiado al portapapeles,Nœud copié dans le presse-papiers,Nodo copiato negli appunti
+Nothing else to show. Feel free to alter your choices above.,,Nada mais a mostrar. Pode alterar as escolhas acima.,Nada más que mostrar. Puede modificar sus elecciones de arriba.,Rien d'autre à montrer. Vous pouvez modifier vos choix ci-dessus.,Nient'altro da mostrare. Puoi modificare le scelte qui sopra.
+Please enter a custom query.,,Introduza uma consulta personalizada.,Introduzca una consulta personalizada.,Veuillez saisir une requête personnalisée.,Inserisci un'interrogazione personalizzata.
+Please give the query a name.,,Dê um nome à consulta.,Dé un nombre a la consulta.,Veuillez donner un nom à la requête.,Dai un nome all'interrogazione.
+Please give the scenario a name.,,Dê um nome ao cenário.,Dé un nombre al escenario.,Veuillez donner un nom au scénario.,Dai un nome allo scenario.
+Please select a query for the Proof Game.,,Selecione uma consulta para o Jogo da Prova.,Seleccione una consulta para el Juego de la Prueba.,Veuillez sélectionner une requête pour le Jeu de la preuve.,Seleziona un'interrogazione per il Gioco della Prova.
+Please select a query.,,Selecione uma consulta.,Seleccione una consulta.,Veuillez sélectionner une requête.,Seleziona un'interrogazione.
+Please wait for the module to load.,,Aguarde o carregamento do módulo.,Espere a que se cargue el módulo.,Veuillez attendre le chargement du module.,Attendi il caricamento del modulo.
+Progress,,Progresso,Progreso,Progression,Avanzamento
+Query failed.,,A consulta falhou.,La consulta falló.,La requête a échoué.,L'interrogazione è fallita.
+Query finished.,,Consulta terminada.,Consulta terminada.,Requête terminée.,Interrogazione terminata.
+Query interrupted.,,Consulta interrompida.,Consulta interrumpida.,Requête interrompue.,Interrogazione interrotta.
+Ready,,Pronto,Listo,Prêt,Pronto
+Regenerate,,Regenerar,Regenerar,Régénérer,Rigenera
+Remove query,,Remover consulta,Quitar consulta,Retirer la requête,Rimuovi interrogazione
+Results,,Resultados,Resultados,Résultats,Risultati
+Running queries…,,A correr consultas…,Ejecutando consultas…,Exécution des requêtes…,Esecuzione delle interrogazioni…
+Scenario copied to clipboard,,Cenário copiado para a área de transferência,Escenario copiado al portapapeles,Scénario copié dans le presse-papiers,Scenario copiato negli appunti
+Write it in English,,Escreva em Português,Escríbalo en español,Écrivez-le en français,Scrivilo in italiano
+Write it in English…,,Escreva em Português…,Escríbalo en español…,Écrivez-le en français…,Scrivilo in italiano…
+You have unsaved changes. Create new file anyway?,,Tem alterações não guardadas. Criar um ficheiro novo mesmo assim?,Tiene cambios no guardados. ¿Crear un archivo nuevo de todos modos?,Vous avez des modifications non enregistrées. Créer un nouveau fichier quand même ?,Hai modifiche non salvate. Creare comunque un nuovo file?
+You have unsaved changes. Load from URL anyway?,,Tem alterações não guardadas. Carregar do URL mesmo assim?,Tiene cambios no guardados. ¿Cargar desde URL de todos modos?,Vous avez des modifications non enregistrées. Charger depuis l'URL quand même ?,Hai modifiche non salvate. Caricare comunque dall'URL?
+You have unsaved changes. Open another file anyway?,,Tem alterações não guardadas. Abrir outro ficheiro mesmo assim?,Tiene cambios no guardados. ¿Abrir otro archivo de todos modos?,Vous avez des modifications non enregistrées. Ouvrir un autre fichier quand même ?,Hai modifiche non salvate. Aprire comunque un altro file?
+You have unsaved changes. Open from server anyway?,,Tem alterações não guardadas. Abrir do servidor mesmo assim?,Tiene cambios no guardados. ¿Abrir del servidor de todos modos?,Vous avez des modifications non enregistrées. Ouvrir depuis le serveur quand même ?,Hai modifiche non salvate. Aprire comunque dal server?
+the LLM request failed.,,o pedido ao LLM falhou.,la solicitud al LLM falló.,la demande au LLM a échoué.,la richiesta al LLM è fallita.
+Important reason: ,,Razão importante: ,Razón importante: ,Raison importante : ,Ragione importante: 
+repeated sub-explanations,,sub-explicações repetidas,subexplicaciones repetidas,sous-explications répétées,sotto-spiegazioni ripetute
+assumed,,assumido,asumido,supposé,assunto
+FAIL,,FALHA,FALLO,ÉCHEC,FALLITO
+STOP,,PARAR,PARAR,ARRÊT,STOP
+Unindent,,Desindentar,Desindentar,Désindenter,Deindenta
+Language,,Língua,Idioma,Langue,Lingua
+Answers,,Respostas,Respuestas,Réponses,Risposte
+Unknowns,,Desconhecidos,Desconocidos,Inconnus,Sconosciuti
+Scenarios,,Cenários,Escenarios,Scénarios,Scenari
+Queries,,Consultas,Consultas,Requêtes,Interrogazioni
+Templates,,Modelos,Plantillas,Modèles,Modelli
+Run,,Correr,Ejecutar,Exécuter,Esegui
+Back,,Voltar,Volver,Retour,Indietro
+Question,,Pergunta,Pregunta,Question,Domanda
+Logged in as: ,,Sessão iniciada como: ,Sesión iniciada como: ,Connecté en tant que : ,Accesso effettuato come: 
+Login,,Iniciar sessão,Iniciar sesión,Se connecter,Accedi
+Logout,,Terminar sessão,Cerrar sesión,Se déconnecter,Esci
+Login Failed,,Falha no início de sessão,Error al iniciar sesión,Échec de la connexion,Accesso non riuscito
+Invalid email or password.,,Email ou palavra-passe inválidos.,Correo electrónico o contraseña no válidos.,Email ou mot de passe invalide.,Email o password non validi.
+Try again,,Tentar novamente,Intentar de nuevo,Réessayer,Riprova
+Edit and Query: ,,Editar e consultar: ,Editar y consultar: ,Modifier et interroger : ,Modifica e interroga: 
+[New Document],,[Novo documento],[Nuevo documento],[Nouveau document],[Nuovo documento]
+expand all,,expandir tudo,expandir todo,tout déplier,espandi tutto
+collapse all,,recolher tudo,contraer todo,tout replier,comprimi tutto
+[show all],,[mostrar tudo],[mostrar todo],[tout montrer],[mostra tutto]
+Just run a program: ,,Apenas correr um programa: ,Solo ejecutar un programa: ,Exécuter simplement un programme : ,Esegui solo un programma: 
+[Executive view],,[Vista executiva],[Vista ejecutiva],[Vue exécutive],[Vista esecutiva]
+"A minimalist, mobile-friendly way to pick a program, choose a scenario and question, and see the answer — no editing.",,"Uma forma minimalista e amiga do telemóvel de escolher um programa, um cenário e uma pergunta, e ver a resposta — sem edição.","Una forma minimalista y apta para el móvil de elegir un programa, un escenario y una pregunta, y ver la respuesta — sin edición.","Une façon minimaliste et adaptée au mobile de choisir un programme, un scénario et une question, et de voir la réponse — sans édition.","Un modo minimalista e adatto ai dispositivi mobili per scegliere un programma, uno scenario e una domanda, e vedere la risposta — senza modifiche."
+GitHub Repository,,Repositório GitHub,Repositorio GitHub,Dépôt GitHub,Repository GitHub
+Documentation,,Documentação,Documentación,Documentation,Documentazione
+A Gentle Introduction to Logical English 2,,Uma introdução suave ao Logical English 2,Una introducción amable a Logical English 2,Une introduction en douceur au Logical English 2,Un'introduzione delicata al Logical English 2
+How to use the LE2 web application,,Como usar a aplicação web LE2,Cómo usar la aplicación web LE2,Comment utiliser l'application web LE2,Come usare l'applicazione web LE2
+Logical English syntax summary,,Resumo da sintaxe do Logical English,Resumen de la sintaxis de Logical English,Résumé de la syntaxe du Logical English,Riepilogo della sintassi del Logical English
+Test Suite,,Bateria de testes,Batería de pruebas,Suite de tests,Suite di test
+Run All Tests,,Correr todos os testes,Ejecutar todas las pruebas,Exécuter tous les tests,Esegui tutti i test
+Email: ,,Email: ,Email: ,Email : ,Email: 
+Password: ,,Palavra-passe: ,Contraseña: ,Mot de passe : ,Password: 
+"Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.",,"Comece aqui: um tutorial prático que constrói três pequenos programas — uma festa de chá, um dragão voador e um pedaço da lei de nacionalidade britânica — ensinando a escrever, consultar e depurar LE no editor.","Empiece aquí: un tutorial práctico que construye tres pequeños programas — una fiesta del té, un dragón volador y un fragmento de la ley de nacionalidad británica — enseñando a escribir, consultar y depurar LE en el editor.","Commencez ici : un tutoriel pratique qui construit trois petits programmes — une fête du thé, un dragon volant et un morceau de la loi sur la nationalité britannique — et apprend à écrire, interroger et déboguer LE dans l'éditeur.","Comincia qui: un tutorial pratico che costruisce tre piccoli programmi — una festa del tè, un drago volante e uno scorcio della legge sulla nazionalità britannica — insegnando a scrivere, interrogare ed eseguire il debug di LE nell'editor."
+"The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.",,"O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cenários e consultas, variações de cenário e a leitura das árvores de explicação.","El manual del editor: abrir y guardar archivos, ejecutar consultas, los editores de escenarios y consultas, variaciones de escenario y la lectura de los árboles de explicación.","Le manuel de l'éditeur : ouvrir et enregistrer des fichiers, exécuter des requêtes, les éditeurs de scénarios et de requêtes, les variations de scénario et la lecture des arbres d'explication.","Il manuale dell'editor: aprire e salvare file, eseguire interrogazioni, gli editor di scenari e interrogazioni, le variazioni di scenario e la lettura degli alberi di spiegazione."
+"The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.",,"A referência da linguagem: todas as construções — modelos, regras, operadores, agregações, variáveis e tipos, datas, ontologia, extensões — para consultar enquanto escreve.","La referencia del lenguaje: todas las construcciones — plantillas, reglas, operadores, agregaciones, variables y tipos, fechas, ontología, extensiones — para consultar mientras escribe.","La référence du langage : toutes les constructions — modèles, règles, opérateurs, agrégats, variables et types, dates, ontologie, extensions — à consulter pendant que vous écrivez.","Il riferimento del linguaggio: tutti i costrutti — modelli, regole, operatori, aggregati, variabili e tipi, date, ontologia, estensioni — da consultare mentre scrivi."
