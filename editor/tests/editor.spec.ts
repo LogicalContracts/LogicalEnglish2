@@ -174,8 +174,7 @@ test.describe('Logical English Editor', () => {
       }).toPass();
       await expect(page.locator(hiddenId)).not.toBeVisible();
     };
-    await switchTo('Graph', '#graph-tab', '#query-tab');
-    await switchTo('LE Assistant', '#assistant-tab', '#graph-tab');
+    await switchTo('LE Assistant', '#assistant-tab', '#query-tab');
     await switchTo('Query', '#query-tab', '#assistant-tab');
   });
 
@@ -335,10 +334,6 @@ test.describe('Logical English Editor', () => {
     });
     
     expect(selectionInfo.some((s: any) => !s.isEmpty)).toBe(true);
-
-    // Go to Graph tab
-    await page.click('text=Graph');
-    await page.waitForTimeout(2000); // Wait for graph to render
 
     // Go to Assistant tab
     await page.click('text=LE Assistant');

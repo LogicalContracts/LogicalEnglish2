@@ -1,10 +1,6 @@
 import { leLanguageConfiguration, leMonarchTokens } from './le-language';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
-import cytoscape from 'cytoscape';
-import fcose from 'cytoscape-fcose';
-
-cytoscape.use(fcose);
 
 declare var monaco: any;
 
@@ -981,157 +977,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             tabContents.forEach(c => c.classList.remove('active'));
             tab.classList.add('active');
             document.getElementById(target!)?.classList.add('active');
-            
-            if (target === 'graph-tab') {
-                refreshGraph();
-            }
         });
     });
 
-    // Graph Logic
-    const graphContainer = document.getElementById('graph-container')!;
-    const btnRefreshGraph = document.getElementById('btn-refresh-graph')!;
-    const layoutSelect = document.getElementById('layout-select') as HTMLSelectElement;
-    const checkShowTypes = document.getElementById('check-show-types') as HTMLInputElement;
-
-    let cy = cytoscape({
-        container: graphContainer,
-        style: [
-            {
-                selector: 'node',
-                style: {
-                    'label': 'data(label)',
-                    'color': '#fff',
-                    'text-valign': 'center',
-                    'text-halign': 'center',
-                    'font-size': '14px',
-                    'background-color': '#666',
-                    'width': 'label',
-                    'height': 'label',
-                    'padding': '20px',
-                    'shape': 'round-rectangle',
-                    'text-wrap': 'wrap',
-                    'text-max-width': '450px',
-                    'text-justification': 'center'
-                }
-            },
-            {
-                selector: 'node[type="kb"]',
-                style: {
-                    'background-color': '#2d2d2d',
-                    'border-width': 2,
-                    'border-color': '#4fc1ff',
-                    'shape': 'rectangle',
-                    'text-valign': 'top'
-                }
-            },
-            {
-                selector: 'node[type="scenario"]',
-                style: {
-                    'background-color': '#3c3c3c',
-                    'border-width': 1,
-                    'border-color': '#89d185',
-                    'shape': 'rectangle',
-                    'text-valign': 'top'
-                }
-            },
-            {
-                selector: 'node[type="template"]',
-                style: {
-                    'background-color': '#795e26',
-                    'shape': 'round-rectangle',
-                    'border-width': 1,
-                    'border-color': '#ffb74d'
-                }
-            },
-            {
-                selector: 'node[type="rule"]',
-                style: {
-                    'background-color': '#795e26',
-                    'shape': 'round-rectangle',
-                    'border-width': 1,
-                    'border-color': '#ffb74d',
-                    'font-size': '14px'
-                }
-            },
-            {
-                selector: 'node[type="fact"]',
-                style: {
-                    'background-color': '#388e3c'
-                }
-            },
-            {
-                selector: 'node[type="type"]',
-                style: {
-                    'background-color': '#6a1b9a',
-                    'shape': 'diamond'
-                }
-            },
-            {
-                selector: 'node[type="query"]',
-                style: {
-                    'background-color': '#c62828',
-                    'shape': 'hexagon'
-                }
-            },
-            {
-                selector: 'edge',
-                style: {
-                    'width': 2,
-                    'line-color': '#444',
-                    'target-arrow-color': '#444',
-                    'target-arrow-shape': 'triangle',
-                    'curve-style': 'bezier',
-                    'label': 'data(type)',
-                    'font-size': '8px',
-                    'color': '#aaa',
-                    'text-rotation': 'autorotate',
-                    'text-margin-y': -10
-                }
-            },
-            {
-                selector: 'edge[type="uses"]',
-                style: { 'line-color': '#569cd6', 'target-arrow-color': '#569cd6' }
-            },
-            {
-                selector: 'edge[type="depends-on"]',
-                style: { 'line-color': '#4fc1ff', 'target-arrow-color': '#4fc1ff', 'line-style': 'dashed' }
-            },
-            {
-                selector: 'edge[type="negates"]',
-                style: { 'line-color': '#f48771', 'target-arrow-color': '#f48771' }
-            },
-            {
-                selector: 'edge[type="is-a"]',
-                style: { 'line-color': '#b5cea8', 'target-arrow-color': '#b5cea8' }
-            },
-            {
-                selector: '.focused',
-                style: {
-                    'border-width': 4,
-                    'border-color': '#ffeb3b',
-                    'line-color': '#ffeb3b',
-                    'target-arrow-color': '#ffeb3b'
-                }
-            },
-            {
-                selector: '.dimmed',
-                style: {
-                    'opacity': 0.2
-                }
-            }
-        ]
-    });
-
-    cy.on('tap', 'node', (evt) => {
-        const node = evt.target;
-        const source = node.data('source') || node.scratch('source');
-        if (source && source.start !== undefined && source.end !== undefined) {
-            (window as any).selectRange(source.start, source.end);
-        }
-    });
-
-    // Communication with Graph Window
+    // Source Graph: rendered in its own browser tab (graph.html / graph-client.ts),
+    // opened from Misc > View Source Graph or the editor context menu. The editor
+    // talks to it over the le-graph-sync BroadcastChannel (state, theme, caret focus).
     function sendStateToGraph() {
         graphChannel.postMessage({
             type: 'init-state',
@@ -1156,120 +1007,32 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     editor.onDidChangeCursorPosition((e: any) => {
         const model = editor.getModel();
         const offset = model.getOffsetAt(e.position);
-        
-        // Sync local graph tab
-        syncGraphFocus(offset);
-        
-        // Sync external graph window
+        // Keep the graph window's focused node in sync with the caret.
         graphChannel.postMessage({
             type: 'focus-offset',
             data: { offset }
         });
     });
 
-    function syncGraphFocus(offset: number) {
-        const nodes = cy.nodes();
-        let bestNode: any = null;
-        let minRange = Infinity;
-
-        nodes.forEach((node: any) => {
-            const source = node.data('source') || node.scratch('source');
-            if (source && source.start <= offset && source.end >= offset) {
-                const range = source.end - source.start;
-                if (range < minRange) {
-                    minRange = range;
-                    bestNode = node;
-                }
-            }
-        });
-
-        if (bestNode) {
-            cy.nodes().removeClass('focused');
-            bestNode.addClass('focused');
+    // Open the Source Graph in a new browser tab, loading the module first so
+    // the graph has something to render when it asks for the editor's state.
+    async function openSourceGraph() {
+        if (!isLoaded && !isLoading) {
+            await loadModule();
         }
+        window.open('graph.html', '_blank');
     }
 
     editor.addAction({
         id: 'open-graph-window',
-        label: 'Open Graph in New Window',
+        label: 'View Source Graph',
         contextMenuGroupId: 'navigation',
         contextMenuOrder: 1.8,
-        run: () => {
-            window.open('graph.html', 'le-graph', 'width=1000,height=800');
-        }
+        run: () => { openSourceGraph(); }
     });
 
-    async function refreshGraph() {
-        if (!isLoaded && !isLoading) {
-            await loadModule();
-        }
-        if (!sessionModule) return;
-
-        try {
-            const response = await fetch('/leapi', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token: 'myToken123',
-                    operation: 'graph',
-                    sessionModule: sessionModule
-                })
-            });
-            const data = await response.json();
-            if (data.nodes && data.edges) {
-                let nodes = data.nodes;
-                if (!checkShowTypes.checked) {
-                    nodes = nodes.filter((n: any) => n.data.type !== 'type');
-                }
-                
-                cy.elements().remove();
-                cy.add(nodes);
-                cy.add(data.edges);
-                
-                const layoutName = layoutSelect.value;
-                cy.layout({ 
-                    name: layoutName,
-                    animate: true,
-                    nodeDimensionsIncludeLabels: true,
-                    // fCoSE specific options
-                    padding: 30,
-                    randomize: true,
-                    idealEdgeLength: 100,
-                    nodeRepulsion: 4500
-                } as any).run();
-            }
-        } catch (err) {
-            console.error('Failed to refresh graph', err);
-        }
-    }
-
-    btnRefreshGraph.addEventListener('click', refreshGraph);
-    layoutSelect.addEventListener('change', refreshGraph);
-    checkShowTypes.addEventListener('change', refreshGraph);
-
-    document.getElementById('btn-open-graph-window')?.addEventListener('click', () => {
-        window.open('graph.html', 'le-graph', 'width=1000,height=800');
-    });
-
-    const graphSearch = document.getElementById('graph-search') as HTMLInputElement;
-    graphSearch.addEventListener('input', () => {
-        const term = graphSearch.value.toLowerCase();
-        if (!term) {
-            cy.elements().removeClass('dimmed').removeClass('focused');
-            return;
-        }
-
-        const matches = cy.elements().filter((ele: any) => {
-            const label = ele.data('label') || '';
-            return label.toLowerCase().includes(term);
-        });
-
-        cy.elements().addClass('dimmed');
-        matches.removeClass('dimmed').addClass('focused');
-        
-        if (matches.length > 0) {
-            cy.animate({ center: { eles: matches } }, { duration: 500 });
-        }
+    document.getElementById('menu-view-source-graph')?.addEventListener('click', () => {
+        openSourceGraph();
     });
 
     document.getElementById('menu-fold-all')?.addEventListener('click', () => {

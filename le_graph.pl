@@ -44,8 +44,10 @@ node(KB, _{data: Data}) :-
     KB:le_source_info(Ref, Start, End, RID),
     \+ member(RID, [template, ontology, session_fact, none]),
     ( catch(clause(KB:Head, Body, Ref), _, fail) -> true ; Head = unknown, Body = true ),
-    % Exclude system facts
-    \+ (Body == true, (Head = le_kb(_) ; Head = le_expected(_,_,_))),
+    % Exclude bookkeeping facts: le_kb/1 and the expected-answer test records
+    % (le_expected of ANY arity — matching only /3 used to leak the /4 records
+    % into the graph as bogus "le_expected(...)" fact nodes).
+    \+ (Body == true, ( Head = le_kb(_) ; functor(Head, le_expected, _) )),
     ( Head = scenario(SName, _) -> 
         format(atom(SID), 'scenario_~w', [SName]),
         Data = _{id: SID, type: "scenario", label: SName, source: _{start: Start, end: End}}

@@ -2055,8 +2055,22 @@ a more complex (third) example. Although LE has no integrity constraints, it doe
 ## Permission buglet
 If you try to open a restricted LE example (requiring user authentication), the editor opens silently an empty program. Instead there should be an error message and redirect to login page
 
+## Undeclared meta templates
+Example insureLE2/testing/fatconclusions.le has templates which lead to unexpected PROLOG equivalents in the facts on lines 10-16: 
+variables get bound to compound terms, whereas the user would expect payments, policies and claims to be atomic. Although the user 
+should probably define these as explicit types, we should warn the user that he is NOT using meta-templates (for which it would be 
+natural to get such commpund terms). So when parsing a rule, if applying a template leads immediately to a compound term (because of
+the recursive parsing of the rule body), IF the template does not hava "that" immediately before the bound variable, issue a new 
+warning, e.g. "it seems you want to use a meta-template here, if so make sure to precede the meta variable by 'that'"
+After you do this please give me all the new warnings for the LE test suite, if any, so I can eyeball them
+
+## Debugging source graph
+Remove the Graph tab, and add instead a "View Source Graph" item to the "Misc" menu,  opening a new browser tab (window). 
+Update the documentation. 
+Make sure it renders correctly with the selected layout algorithm and selected layers (node and edge types), as sometimes it opens with less layers than selected. The preference for these should persist in LocalStorage, not sure that's already being done.
+Let the user Copy any node to the clipboard, with a contextual menu
+I see le_expected(...) facts in scenarios, these should not appear in the source graph
  
 ## TBD
-
 Mermaid diagrams?
 Debug source graph
