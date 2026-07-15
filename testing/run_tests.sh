@@ -101,7 +101,13 @@ if [ "$run_le" -eq 1 ]; then
   # (as runTests/0 does) and exits non-zero if any example test fails or errors.
   if "$SWIPL" -q -l le_kbs.pl -g "
       le_kbs:le_examples_dir(Dir),
-      le_kbs:runTestsInDir(Dir, Results),
+      le_kbs:runTestsInDir(Dir, Results0),
+      findall(R, ( le_i18n:known_language(Lang), Lang \\== en,
+                   atomic_list_concat([examples, /, Lang], LangDir),
+                   exists_directory(LangDir),
+                   le_kbs:runTestsInDir(LangDir, Rs), member(R, Rs) ),
+              LangResults),
+      append(Results0, LangResults, Results),
       le_kbs:print_test_summary(Results),
       setup_call_cleanup(open('testSuiteStatus.txt', write, S),
                          with_output_to(S, le_kbs:print_test_summary(Results)),
