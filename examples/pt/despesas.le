@@ -1,0 +1,60 @@
+% Exemplo em Português Lógico: agregações, números com vírgula decimal,
+% negação e quantificação universal.
+a linguagem alvo é: prolog.
+
+os modelos são:
+*uma pessoa* gastou *um montante* em *uma coisa*.
+*uma pessoa* tem despesa total *um montante*.
+*uma pessoa* é gastadora.
+*uma pessoa* é poupada.
+*uma pessoa* aprova *uma compra*.
+*uma compra* é essencial.
+
+a base de conhecimento despesas inclui:
+
+uma pessoa tem despesa total um montante
+se a pessoa gastou um valor em uma coisa
+   e o montante é a soma de cada quantia tal que
+      a pessoa gastou a quantia em uma outra coisa.
+
+uma pessoa é gastadora
+se a pessoa tem despesa total um montante
+   e o montante é superior a 100.
+
+uma pessoa é poupada
+se a pessoa tem despesa total um montante
+   e não é o caso que
+      a pessoa é gastadora.
+
+uma pessoa aprova uma compra
+se a pessoa gastou um valor em a compra
+   e para todos os casos em que
+      a compra é essencial
+      é o caso que
+      a pessoa gastou 1,5 em a compra.
+
+cenário maria é:
+    maria gastou 99,5 em livros.
+    maria gastou 1,25 em pão.
+    total espera respostas ["maria tem despesa total 100,75"].
+    quem_gasta espera respostas ["maria é gastadora"].
+    poupados espera respostas [].
+
+cenário joão é:
+    joão gastou 1,5 em o pão.
+    o pão é essencial.
+    total espera respostas ["joão tem despesa total 1,5"].
+    poupados espera respostas ["joão é poupada"].
+    aprovações espera respostas ["joão aprova o pão"].
+
+consulta total é:
+    qual pessoa tem despesa total qual montante.
+
+consulta quem_gasta é:
+    qual pessoa é gastadora.
+
+consulta poupados é:
+    qual pessoa é poupada.
+
+consulta aprovações é:
+    qual pessoa aprova qual compra.

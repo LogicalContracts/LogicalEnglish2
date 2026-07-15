@@ -1,0 +1,38 @@
+% Exemplo em Português Lógico: abdução (modelos assumíveis), respostas com
+% desconhecidos, sinónimos de modelos e regras com "a menos que".
+a linguagem alvo é: prolog.
+
+os modelos são:
+    *uma pessoa* sabe que *um número* vai sair na lotaria; desconhecido.
+    *uma pessoa* fica rica.
+    *uma pessoa* aposta em *um número* a tempo; sinónimo: *uma pessoa* joga *um número* a tempo.
+    *uma pessoa* está falida.
+    *uma pessoa* pode celebrar.
+
+a base de conhecimento desconhecidos inclui:
+
+uma pessoa fica rica
+se a pessoa sabe que um número vai sair na lotaria
+   e a pessoa aposta em o número a tempo.
+
+uma pessoa pode celebrar
+se a pessoa fica rica
+   a menos que a pessoa está falida.
+
+cenário um é:
+    alice aposta em 42 a tempo.
+    bob joga 7 a tempo.
+    bob sabe que 7 vai sair na lotaria.
+    ricos espera respostas ["alice fica rica", "bob fica rica"] e desconhecidos ["alice sabe que 42 vai sair na lotaria"].
+    festas espera respostas ["alice pode celebrar", "bob pode celebrar"] e desconhecidos ["alice sabe que 42 vai sair na lotaria"].
+
+cenário dois é:
+    alice aposta em 42 a tempo.
+    alice está falida.
+    festas espera respostas [] e desconhecidos [].
+
+consulta ricos é:
+    qual pessoa fica rica.
+
+consulta festas é:
+    qual pessoa pode celebrar.

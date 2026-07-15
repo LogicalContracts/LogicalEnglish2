@@ -1,0 +1,23 @@
+% Reprodução em Português Lógico da dobragem de cadeias preposicionais
+% (template_folding.le): modelos preposicionais/compostos, âncoras "este <tipo>"
+% e a re-dobragem da resposta na frase compacta.
+a linguagem alvo é: prolog.
+
+os modelos são:
+    faremos *um pagamento*.
+    *um pagamento* ao abrigo de *uma apólice*; preposicional.
+    *um pagamento* relativo a *um sinistro*; composto.
+    *um pagamento* é válido.
+
+a base de conhecimento dobragem inclui:
+    faremos um pagamento ao abrigo de esta apólice relativo a um sinistro
+        se o pagamento é válido.
+
+cenário zero é:
+    este pagamento é válido.
+    este pagamento ao abrigo de esta apólice.
+    este pagamento relativo a este sinistro.
+    1 espera respostas ["faremos este pagamento ao abrigo de esta apólice relativo a este sinistro"].
+
+consulta 1 é:
+    faremos qual pagamento ao abrigo de esta apólice relativo a este sinistro.

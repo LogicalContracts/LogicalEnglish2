@@ -582,7 +582,7 @@ count_rules_and_templates(Sections, RuleCount, TemplateCount) :-
     length(Templates, TemplateCount).
 
 parse_resource_text(Text, M, FilteredMergedSections) :-
-    tokenizer:tokenize(Text, Tokens),
+    tokenizer:tokenize_lang(Text, Tokens),
     (   phrase(le_grammar:doc(Sections), Tokens)
     ->  fetch_resources(Sections, MergedSections, M),
         exclude(is_scenario_or_query, MergedSections, FilteredMergedSections)
@@ -1221,7 +1221,7 @@ ensure_tokens(Template, Tokens) :-
     is_list(Template), !, Tokens = Template.
 ensure_tokens(Template, Tokens) :-
     (atom(Template) ; string(Template)), !,
-    tokenize(Template, RawTokens),
+    tokenizer:tokenize_lang(Template, RawTokens),
     exclude(is_noise_token, RawTokens, Tokens).
 
 is_noise_token(indent(_, _)).
@@ -1267,8 +1267,8 @@ token_to_atom(word(W, _), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(word(W), Atom) :- !, (var(W) -> Atom = '_' ; Atom = W).
 token_to_atom(var(Words), Atom) :- !, 
     ( var(Words) -> Atom = '_'; is_list(Words) -> (maplist(token_to_atom, Words, Atoms), atomic_list_concat(Atoms, ' ', Atom)); atom_string(Atom, Words)).
-token_to_atom(number(N, _), Atom) :- !, (var(N) -> Atom = '0' ; atom_number(Atom, N)).
-token_to_atom(number(N), Atom) :- !, (var(N) -> Atom = '0' ; atom_number(Atom, N)).
+token_to_atom(number(N, _), Atom) :- !, (var(N) -> Atom = '0' ; number_locale_atom(N, Atom)).
+token_to_atom(number(N), Atom) :- !, (var(N) -> Atom = '0' ; number_locale_atom(N, Atom)).
 token_to_atom(string(S, _), Atom) :- !, (string(S) -> atom_string(Atom, S) ; atom(S) -> Atom = S ; term_to_atom(S, Atom)).
 token_to_atom(punctuation(P, _), P) :- !.
 token_to_atom(punctuation(P), P) :- !.
@@ -1278,10 +1278,28 @@ token_to_atom(date(date(Y,M,D), _), Atom) :- !,
     ( number(Y), number(M), number(D) -> format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]); Atom = 'date').
 token_to_atom(date(Y,M,D), Atom) :- !,
     ( number(Y), number(M), number(D) -> format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]); Atom = 'date').
+token_to_atom(N, Atom) :- number(N), !, number_locale_atom(N, Atom).
 token_to_atom(S, Atom) :- string(S), !, atom_string(Atom, S).
 token_to_atom(A, Atom) :- atom(A), !, 
     ( (A \== '_', sub_atom(A, _, _, _, '_')) -> re_replace("_"/g, " ", A, Atom); Atom = A).
 token_to_atom(X, Atom) :- term_to_atom(X, Atom).
+
+%!  number_locale_atom(+N:number, -Atom) is det.
+%
+%   Renders a number using the active language's decimal separator (English:
+%   '1.5'; Portuguese and friends: '1,5'). No thousands grouping is added, in
+%   either language, mirroring the previous English behavior.
+number_locale_atom(N, Atom) :-
+    atom_number(Atom0, N),
+    (   le_i18n:le_active_language(Lang),
+        Lang \== en,
+        catch(le_i18n:language_param(Lang, decimal_sep, Dec), _, fail),
+        Dec \== '.', Dec \== '',
+        sub_atom(Atom0, _, _, _, '.')
+    ->  atomic_list_concat(Parts, '.', Atom0),
+        atomic_list_concat(Parts, Dec, Atom)
+    ;   Atom = Atom0
+    ).
 
 %!  item_to_instance(+KBmodule:atom, +Head:term, -WordsAndVars:list) is det.
 %
@@ -1672,7 +1690,7 @@ kbSummary(KB, Summary) :-
 %
 %   Parses a string of Logical English facts using the templates in the KB.
 parse_custom_facts(KB, Text, Terms) :-
-    tokenize(Text, Tokens),
+    tokenizer:tokenize_lang(Text, Tokens),
     le_grammar:set_token_pos(0),
     ( phrase(le_grammar:kb_items(Items), Tokens) -> true ; Items = [] ),
     findall(D, KB:le_dict(D), Dicts),
@@ -1698,7 +1716,7 @@ clause_item_to_term(Other, Other).
 %
 %   Parses a Logical English query string using the templates in the KB.
 parse_custom_query(KB, Text, Goal) :-
-    tokenize(Text, Tokens),
+    tokenizer:tokenize_lang(Text, Tokens),
     le_grammar:set_token_pos(0),
     (   parse_query_to_goal(KB, Tokens, Goal, _Instance) -> true
     ;   format(string(Error), "Query does not match any template: ~w", [Text]),
@@ -1884,7 +1902,18 @@ runTestsFor(LEFile, Result) :-
 %
 %   Runs all tests in the default examples directory and prints a summary.
 runTests :-
-    le_examples_dir(Dir), runTestsInDir(Dir, Results),
+    le_examples_dir(Dir), runTestsInDir(Dir, Results0),
+    % Per-language example trees (O-7 layout A): examples/<lang>/ for every
+    % language registered in i18n/languages.csv beyond English (whose tree is
+    % the main examples directory).
+    findall(R,
+            ( le_i18n:known_language(Lang), Lang \== en,
+              atomic_list_concat([examples, /, Lang], LangDir),
+              exists_directory(LangDir),
+              runTestsInDir(LangDir, Rs),
+              member(R, Rs) ),
+            LangResults),
+    append(Results0, LangResults, Results),
     print_test_summary(Results),
     setup_call_cleanup(open('testSuiteStatus.txt', write, Stream), with_output_to(Stream, print_test_summary(Results)), close(Stream)),
     forall(member(R, Results), print_test_result(R)).

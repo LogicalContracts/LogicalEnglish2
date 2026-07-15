@@ -74,11 +74,11 @@ with_allow_commas(Val, DCGGoal, StateIn, StateOut) :-
 %
 %   Tokenizes and parses a Logical English file.
 parse_le_file(FilePath, Doc, M) :-
-    tokenize_file(FilePath, Tokens),
-    parse_le_tokens(Tokens, Doc, M).
+    read_file_to_string(FilePath, Text, []),
+    parse_le_text(Text, Doc, M).
 
 parse_le_text(Text, Doc, M) :-
-    tokenize(Text, Tokens),
+    tokenize_for_language(Text, Tokens),
     parse_le_tokens(Tokens, Doc, M).
 
 
@@ -86,8 +86,26 @@ parse_le_text(Text, Doc, M) :-
 %
 %   Tokenizes and parses Logical English source text.
 parse_le_text(Text, Doc) :-
-    tokenize(Text, Tokens),
+    tokenize_for_language(Text, Tokens),
     parse_le_tokens(Tokens, Doc).
+
+%!  tokenize_for_language(+Text, -Tokens) is det.
+%
+%   Tokenizes Text respecting the number locale of the language its first
+%   statement declares: a first pass with the default (English/ISO) locale is
+%   enough to read the opener; when the declared language uses different
+%   number separators (e.g. Portuguese "1.234,56"), the text is re-tokenized
+%   with that locale.
+tokenize_for_language(Text, Tokens) :-
+    tokenize(Text, Tokens0),
+    (   le_i18n:detect_language_tokens(Tokens0, Lang),
+        le_i18n:language_param(Lang, decimal_sep, Dec),
+        le_i18n:language_param(Lang, thousands_sep, Thou),
+        Dec \== '', Thou \== '',
+        \+ (Dec == '.', Thou == ',')
+    ->  tokenizer:tokenize(Text, Dec, Thou, Tokens)
+    ;   Tokens = Tokens0
+    ).
 
 %!  parse_le_tokens(+Tokens:list, -Doc:term) is det.
 %
@@ -1229,14 +1247,24 @@ candidate_template(Templates, Words, Dict) :-
     % measurable parse-time regression on large programs.
     le_i18n:class_word_list(meta_marker, Ms),
     (   member(Dict, Templates),
-        Dict = dict(_, _, WV, _, _, NIW, _, _, _, _),
+        Dict = dict(FA, _, WV, _, _, NIW, _, _, _, _),
+        \+ system_template_fa(FA),
         meta_template_wv(WV, Ms),
         contains_subsequence(NIW, Words)
     ;   member(Dict, Templates),
-        Dict = dict(_, _, WV, _, _, NIW, _, _, _, _),
-        \+ meta_template_wv(WV, Ms),
+        Dict = dict(FA, _, WV, _, _, NIW, _, _, _, _),
+        \+ ( \+ system_template_fa(FA), meta_template_wv(WV, Ms) ),
         contains_subsequence(NIW, Words)
     ).
+
+% A built-in (le_-prefixed) template. System templates never get META parse
+% priority: in Romance languages the meta marker 'que' also occurs in ordinary
+% comparison phrasings, and giving built-ins meta priority would reorder the
+% whole template list (O-14 guard; a no-op for English, whose system templates
+% contain no meta markers).
+system_template_fa([F|_]) :-
+    atom(F),
+    sub_atom(F, 0, 3, _, le_).
 
 %!  meta_template_wv(+WV) is semidet.
 %
@@ -1429,7 +1457,8 @@ template_priority(dict(FA, _, WordsAndVars, _, _, _, _, _, _, _), Priority-Score
     ).
 
 
-is_meta_template(dict(_, _, WordsAndVars, _, _, _, _, _, _)) :-
+is_meta_template(dict(FA, _, WordsAndVars, _, _, _, _, _, _)) :-
+    \+ system_template_fa(FA),
     member(W, WordsAndVars),
     atom(W),
     is_meta_prev(W).

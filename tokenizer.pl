@@ -6,9 +6,18 @@
     back into a string.
 */
 
-:- module(tokenizer,[tokenize/2, tokenize_file/2, tokens_to_string/2]).
+:- module(tokenizer,[tokenize/2, tokenize/4, tokenize_lang/2, tokenize_file/2, tokens_to_string/2]).
 
 :- use_module(library(dcg/basics)).
+
+% Number-locale state for the current tokenization run: the decimal separator
+% and thousands separator codes (English: '.' and ','; Portuguese/Spanish/
+% French/Italian: ',' and '.'). Set by tokenize/4; plain tokenize/2 uses the
+% English/ISO defaults, so existing callers are unaffected.
+:- thread_local current_num_seps/2.
+
+num_seps(Dec, Thou) :-
+    ( current_num_seps(D, T) -> Dec = D, Thou = T ; Dec = 0'., Thou = 0', ).
 
 %!  tokenize_file(+File:atom, -Tokens:list) is det.
 %
@@ -19,10 +28,41 @@ tokenize_file(File,Tokens) :-
 
 %!  tokenize(+String:string, -Tokens:list) is det.
 %
-%   Converts a string into a list of Logical English tokens.
+%   Converts a string into a list of Logical English tokens, using the
+%   English/ISO number locale ('.' decimal point, ',' thousands separator).
 tokenize(String, Tokens) :-
+    tokenize(String, '.', ',', Tokens).
+
+%!  tokenize(+String, +DecimalSep:atom, +ThousandsSep:atom, -Tokens) is det.
+%
+%   As tokenize/2 with an explicit number locale. In comma-decimal languages
+%   (pt/es/fr/it: DecimalSep = ',', ThousandsSep = '.') a comma DIRECTLY
+%   between digits is a decimal separator ("o custo é 1,5") — so list and
+%   argument commas there should be followed by a space ("[1, 5]"). A '.'
+%   thousands separator groups exactly three digits ("1.234.567"), never
+%   clashing with the sentence-final full stop (which is not digit-digit).
+tokenize(String, DecSep, ThouSep, Tokens) :-
+    atom_codes(DecSep, [DecCode]),
+    atom_codes(ThouSep, [ThouCode]),
     string_codes(String, Codes),
-    phrase(tokens(0, 1, Tokens), Codes).
+    setup_call_cleanup(
+        ( retractall(current_num_seps(_, _)),
+          assertz(current_num_seps(DecCode, ThouCode)) ),
+        phrase(tokens(0, 1, Tokens), Codes),
+        retractall(current_num_seps(_, _))
+    ).
+
+%!  tokenize_lang(+String, -Tokens) is det.
+%
+%   Tokenizes with the number locale of the ACTIVE language (le_i18n).
+tokenize_lang(String, Tokens) :-
+    (   catch(le_i18n:le_active_language(Lang), _, fail),
+        catch(le_i18n:language_param(Lang, decimal_sep, Dec), _, fail),
+        catch(le_i18n:language_param(Lang, thousands_sep, Thou), _, fail),
+        Dec \== '', Thou \== ''
+    ->  tokenize(String, Dec, Thou, Tokens)
+    ;   tokenize(String, Tokens)
+    ).
 
 %!  tokens_to_string(+Tokens:list, -String:string) is det.
 %
@@ -170,7 +210,8 @@ token_match(Idx, number(N, loc(Idx, End)), End) -->
     digits_strict(Lead),
     thousands_groups(GroupCodes, SepCount),
     { append(Lead, GroupCodes, IntCodes) },
-    (   (".", digits_strict(Fraction)) ->
+    { num_seps(DecCode, _) },
+    (   decimal_part(DecCode, Fraction) ->
         { append(IntCodes, [0'.|Fraction], AllCodes),
           number_codes(N, AllCodes),
           length(IntCodes, IL), length(Fraction, FL),
@@ -181,6 +222,7 @@ token_match(Idx, number(N, loc(Idx, End)), End) -->
           End is Idx + IL + SepCount }
     ).
 
+
 % Word
 token_match(Idx, word(A, loc(Idx, End)), End) -->
     [C], { code_type(C, alpha) }, !,
@@ -188,6 +230,12 @@ token_match(Idx, word(A, loc(Idx, End)), End) -->
     { atom_codes(A, [C|Rest]),
       length([C|Rest], L),
       End is Idx + L }.
+
+% decimal_part(+DecCode, -Fraction): the decimal separator directly followed
+% by digits.
+decimal_part(DecCode, Fraction) -->
+    [DecCode],
+    digits_strict(Fraction).
 
 % --- Helpers ---
 
@@ -219,7 +267,8 @@ thousands_groups(Codes, Count) -->
 thousands_groups([], 0) --> [].
 
 thousand_group([D1,D2,D3]) -->
-    ",", digit_code(D1), digit_code(D2), digit_code(D3),
+    { num_seps(_, ThouCode) },
+    [ThouCode], digit_code(D1), digit_code(D2), digit_code(D3),
     not_followed_by_digit.
 
 digit_code(C) --> [C], { code_type(C, digit) }.

@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 105
-Total tests:     371
-Passed:          371
+Files processed: 109
+Total tests:     385
+Passed:          385
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -114,5 +114,9 @@ Detailed File Summary:
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/template_folding.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/trace_sample.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error
+  [PASS] examples/pt/dobragem.le: 1 Pass, 0 Fail, 0 Error
 -------------
 

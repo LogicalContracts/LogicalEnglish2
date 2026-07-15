@@ -1,0 +1,65 @@
+% Tradução portuguesa do exemplo clássico de cidadania britânica (British Nationality Act).
+% Portuguese translation of the classic citizenship.le example, used to test Português Lógico.
+a linguagem alvo é: prolog.
+
+os modelos são:
+*uma pessoa* adquire cidadania britânica em *uma data*.
+*uma pessoa* nasceu em *um lugar* em *uma data*,
+*uma data* é posterior ao início de vigência,
+*uma pessoa* é a mãe de *uma pessoa*,
+*uma pessoa* é o pai de *uma pessoa*,
+*uma pessoa* é cidadã britânica em *uma data*,
+*uma pessoa* é residente no Reino Unido em *uma data*,
+*uma pessoa* diz que *uma frase*,
+*uma pessoa* é qualificada para determinar paternidade.
+
+a base de conhecimento cidadania inclui:
+
+uma pessoa adquire cidadania britânica em uma data
+se a pessoa nasceu em o Reino Unido em a data
+	e a data é posterior ao início de vigência
+	e uma outra pessoa é a mãe de a pessoa
+    	ou a outra pessoa é o pai de a pessoa
+	e a outra pessoa é cidadã britânica em a data
+    	ou a outra pessoa é residente no Reino Unido em a data.
+
+uma pessoa é o pai de uma outra pessoa
+se uma terceira pessoa diz
+    que a pessoa é o pai de a outra pessoa
+    e a terceira pessoa é qualificada para determinar paternidade.
+
+uma pessoa X é o pai de uma pessoa Y
+    se X diz que X é o pai de Y.
+
+cenário alice é:
+    John nasceu em o Reino Unido em 2021-10-09.
+	2021-10-09 é posterior ao início de vigência.
+	Alice é a mãe de John.
+	Alice é cidadã britânica em 2021-10-09.
+    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+
+cenário harry é:
+	John nasceu em o Reino Unido em 2021-10-09.
+	2021-10-09 é posterior ao início de vigência.
+	Harry é o pai de John.
+	Harry é residente no Reino Unido em 2021-10-09.
+    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+
+cenário confia_harry é:
+	John nasceu em o Reino Unido em 2021-10-09.
+	2021-10-09 é posterior ao início de vigência.
+	Harry diz que Harry é o pai de John.
+	Harry é residente no Reino Unido em 2021-10-09.
+    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+
+cenário alice_harry é:
+	John nasceu em o Reino Unido em 2021-10-09.
+	2021-10-09 é posterior ao início de vigência.
+	Alice é a mãe de John.
+	Alice diz que Harry é o pai de John.
+    Alice é qualificada para determinar paternidade.
+	Harry é residente no Reino Unido em 2021-10-09.
+    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+
+consulta um é:
+    qual pessoa adquire cidadania britânica em qual data.
