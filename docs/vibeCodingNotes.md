@@ -2081,9 +2081,11 @@ We ned a new /multilingual entrypoint, which lets the user pick one of the suppo
 Don't commit to git.
 
 OK, now please remove the LANGUAGE items from the "Misc" menu, to avoid confusion (Language UI different from the language in the program being edited). The preferred language cookie should be set only by the landing page (both /multilingual and the standard landing page / )
-
+The "Home" button at top of editor should return to the proper landing page
+Also, the LE Assistant always greets with "Hello! I am your Logical English Assistant. How can I help you today?", needs to be translated; ditto for the progress messages "Calling LLM (step N)", "I have updated the editor content with the changes.", "Requested completed in NN seconds"
 
 ## TBD
 Contracções (numa, desta, ..)
 Logical English for German (Logisches Deutsch)
-Blockly
+Blockly ??
+wasm
