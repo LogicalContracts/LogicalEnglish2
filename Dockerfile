@@ -29,6 +29,9 @@ WORKDIR /app
 # Copy the Prolog source files and examples into the container
 COPY *.pl ./
 COPY *.db ./
+# i18n CSV dictionaries: read by le_i18n.pl at load time AND by the editor
+# build below (scripts/gen-i18n.cjs generates the TS tables from them)
+COPY i18n/ ./i18n/
 COPY examples/ ./examples/
 COPY llm/ ./llm/
 COPY editor/ ./editor/
