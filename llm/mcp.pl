@@ -448,8 +448,10 @@ call_tool("list_examples", _Args, Result) :-
 
 call_tool("get_example_details", Args, Result) :-
     get_dict(example_name, Args, ExampleName),
-    examples_dir(Dir),
-    atom_concat(Dir, ExampleName, Path0),
+    % le_example_relpath also resolves per-language names ('pt/cidadania' ->
+    % examples/pt/cidadania); relative paths are fine, the server runs from
+    % the repo root.
+    le_kbs:le_example_relpath(ExampleName, Path0),
     (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
     % Read the metadata under a module reference (and retry if the module was
     % reclaimed between load and reference) — same race as the listing above.

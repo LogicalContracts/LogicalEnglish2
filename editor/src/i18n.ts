@@ -7,14 +7,16 @@
  * the key itself, so untranslated strings degrade gracefully.
  *
  * The UI language is a user preference (localStorage + cookie, so the
- * server-rendered landing/login pages can honor it too). Per decision O-6 it
- * governs chrome, the default language of NEW programs and the Assistant; a
- * loaded program's own language always governs parsing.
+ * server-rendered /login page can honor it too). It is set ONLY by the
+ * /multilingual pages — ?lang=X sets X, their back-to-English link resets
+ * to English; there is no in-editor selector, to avoid confusion with the
+ * language of the program being edited. Per decision O-6 it governs chrome,
+ * the default language of NEW programs and the Assistant; a loaded
+ * program's own language always governs parsing.
  */
 import { uiCatalog, languages, keywords, keywordPhrases, LanguageInfo } from './generated/i18nData';
 
 const STORAGE_KEY = 'le-ui-lang';
-const COOKIE_KEY = 'le_ui_lang';
 
 export function uiLang(): string {
     try {
@@ -22,12 +24,6 @@ export function uiLang(): string {
         if (l && languages.some(x => x.code === l)) return l;
     } catch (e) { /* no storage (tests) */ }
     return 'en';
-}
-
-export function setUiLang(lang: string): void {
-    try { localStorage.setItem(STORAGE_KEY, lang); } catch (e) { /* ignore */ }
-    // Cookie for the server-rendered pages (landing, /login) — decision O-13.
-    document.cookie = `${COOKIE_KEY}=${lang};path=/;max-age=31536000;SameSite=Lax`;
 }
 
 export function languageList(): LanguageInfo[] {
@@ -161,25 +157,3 @@ export function installLeApiLang(): void {
     }) as typeof window.fetch;
 }
 
-// ---------------------------------------------------------------------------
-// Language selector
-// ---------------------------------------------------------------------------
-
-/**
- * Populate a dropdown container with one item per registered language; the
- * active one is marked. Selecting an item stores the preference and reloads
- * the page (the whole chrome re-renders in the new language).
- */
-export function buildLanguageMenuItems(container: Element): void {
-    const current = uiLang();
-    for (const info of languages) {
-        const item = document.createElement('div');
-        item.className = 'dropdown-item';
-        item.textContent = (info.code === current ? '✓ ' : '') + (info.autonym || info.code);
-        item.addEventListener('click', () => {
-            setUiLang(info.code);
-            location.reload();
-        });
-        container.appendChild(item);
-    }
-}

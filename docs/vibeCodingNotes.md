@@ -2070,6 +2070,20 @@ Update the documentation.
 Make sure it renders correctly with the selected layout algorithm and selected layers (node and edge types), as sometimes it opens with less layers than selected. The preference for these should persist in LocalStorage, not sure that's already being done.
 Let the user Copy any node to the clipboard, with a contextual menu
 I see le_expected(...) facts in scenarios, these should not appear in the source graph
- 
+
+## Multilingual
+You can only access and change files in LogicalEnglish2/ and InsurLE2/.
+Please execute the full plan in LogicalEnglish2/docs/MultilingualLEplan.md
+You can commit changes after each phase, but don't bother me until you're done, I trust your choices :-)
+
+### Follow up
+We ned a new /multilingual entrypoint, which lets the user pick one of the supported languages - Português Lógico, etc. - (or determined that from a querystring param), then presents a landing page circumscribed to that language: only examples in that language, all UI in that language. Include a link back to the standard Logical English page (in English).
+Don't commit to git.
+
+OK, now please remove the LANGUAGE items from the "Misc" menu, to avoid confusion (Language UI different from the language in the program being edited). The preferred language cookie should be set only by the landing page (both /multilingual and the standard landing page / )
+
+
 ## TBD
-Multilingual...
+Contracções (numa, desta, ..)
+Logical English for German (Logisches Deutsch)
+Blockly

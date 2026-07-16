@@ -1,5 +1,5 @@
 import { leLanguageConfiguration, leMonarchTokens, buildLeMonarchTokens } from './le-language';
-import { t, applyI18nDom, installLeApiLang, buildLanguageMenuItems, detectProgramLanguage, targetLanguageStatement, uiLang, setUiLang } from './i18n';
+import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, targetLanguageStatement, uiLang } from './i18n';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
 
@@ -33,11 +33,18 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 monaco.languages.setMonarchTokensProvider('le', buildLeMonarchTokens(lang));
             }
         };
-        // UI chrome language: selector menu, API language parameter, DOM pass.
+        // UI chrome language: API language parameter and DOM pass. The
+        // preference itself is set only by the /multilingual pages (?lang=X
+        // sets X, their back-to-English link resets it) — there is no
+        // in-editor selector, to avoid confusion with the language of the
+        // program being edited. The Home link accordingly returns to the
+        // landing page that matches the active UI language.
         installLeApiLang();
         applyI18nDom();
-        const langMenu = document.getElementById('language-menu-items');
-        if (langMenu) buildLanguageMenuItems(langMenu);
+        const homeLink = document.querySelector('a.home-link');
+        if (homeLink && uiLang() !== 'en') {
+            homeLink.setAttribute('href', `/multilingual?lang=${encodeURIComponent(uiLang())}`);
+        }
 
         const issueFixes = new Map<string, string>();
         const getMarkerKey = (marker: any) => {
@@ -2376,9 +2383,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
                     if (newContent && newContent !== editor.getValue()) {
                         editor.setValue(newContent);
-                        addChatMessage('assistant', 'I have updated the editor content with the changes.');
+                        addChatMessage('assistant', t('I have updated the editor content with the changes.'));
                     }
-                    addChatMessage('assistant', `_Request completed in ${duration} seconds._`);
+                    addChatMessage('assistant', `_${t('Request completed in {n} seconds.').replace('{n}', String(duration))}_`);
                     finishAssistantRequest();
                 }
             } else {
@@ -2408,7 +2415,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             });
             const data = await response.json();
             if (data.result === 'ok') {
-                addChatMessage('assistant', `_Request interrupted by user after ${duration} seconds._`);
+                addChatMessage('assistant', `_${t('Request interrupted by user after {n} seconds.').replace('{n}', String(duration))}_`);
             }
         } catch (err) {
             console.error('Interrupt error:', err);

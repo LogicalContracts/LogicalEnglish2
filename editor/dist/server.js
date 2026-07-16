@@ -3361,9 +3361,9 @@ var init_main = __esm({
       FoldingRange3.is = is;
     })(FoldingRange || (FoldingRange = {}));
     (function(DiagnosticRelatedInformation2) {
-      function create(location2, message) {
+      function create(location, message) {
         return {
-          location: location2,
+          location,
           message
         };
       }

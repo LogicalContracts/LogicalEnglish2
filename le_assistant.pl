@@ -206,7 +206,12 @@ handle_assistant_command(Dict, Response) :-
         get_next_id(ID),
         format(string(JobID), "job_~w", [ID]),
         (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
-        thread_create(le_assistant_light:run_light_assistant_thread(JobID, Command, Content, Model, APIKeys, UserRoles, MaxSteps), ThreadID, [detached(true)]),
+        % The job thread inherits the request's UI language (thread-local, set
+        % from ?lang= by set_request_language), so its progress messages come
+        % out localized.
+        le_i18n:le_active_language(UILang),
+        thread_create(le_i18n:with_le_language(UILang,
+                le_assistant_light:run_light_assistant_thread(JobID, Command, Content, Model, APIKeys, UserRoles, MaxSteps)), ThreadID, [detached(true)]),
         asserta(assistant_job(JobID, ThreadID)),
         Response = _{
             result: ok,
