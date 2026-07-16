@@ -12,6 +12,7 @@
 
 :- use_module(library(http/http_json)).
 :- use_module(le_assistant).
+:- use_module(le_i18n).
 :- use_module(le_tools).
 :- use_module(llm/llm_client).
 :- use_module(restricted_paths).
@@ -72,8 +73,10 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, LastVerifyStatus, MaxSte
         ),
         % Get API key
         get_key_for_model(Model, Keys, Key),
-        % Call LLM
-        format(string(ProgressMsg), "Calling LLM (step ~w)...\n", [Step]),
+        % Call LLM (progress messages are user-visible: localized via the
+        % messages.csv catalog, in the language inherited from the request)
+        le_i18n:le_msg(assistant_calling_llm, [step-Step], CallingMsg),
+        format(string(ProgressMsg), "~w\n", [CallingMsg]),
         assertz(le_assistant:assistant_job_output(JobID, stdout, ProgressMsg)),
         catch(
             llm_client:llm_request(Model, Messages, Reply, [api_key(Key), max_tokens(4096)]),
@@ -97,7 +100,9 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, LastVerifyStatus, MaxSte
                     FinalExplanation = "The program was verified successfully with no issues.",
                     FinalProgram = Program
                 ;   % Run verify tool
-                    assertz(le_assistant:assistant_job_output(JobID, stdout, "Running verification...\n")),
+                    le_i18n:le_msg(assistant_running_verification, [], VerifyingMsg),
+                    format(string(VerifyingLine), "~w\n", [VerifyingMsg]),
+                    assertz(le_assistant:assistant_job_output(JobID, stdout, VerifyingLine)),
                     le_tools:le_tool_verify(Program, VerifyResult),
                     % Format result as string to append to messages
                     with_output_to(string(ResultStr), json_write_dict(current_output, VerifyResult, [width(0)])),
@@ -126,7 +131,9 @@ agent_loop(JobID, Model, Keys, Messages, Program, Step, LastVerifyStatus, MaxSte
                     FinalExplanation = "The program was verified successfully with no issues.",
                     FinalProgram = Program
                 ;   % Run query tool
-                    assertz(le_assistant:assistant_job_output(JobID, stdout, "Running query...\n")),
+                    le_i18n:le_msg(assistant_running_query, [], QueryingMsg),
+                    format(string(QueryingLine), "~w\n", [QueryingMsg]),
+                    assertz(le_assistant:assistant_job_output(JobID, stdout, QueryingLine)),
                     % We need to pass program_text to le_tool_query
                     QueryArgs = ActionDict.put(program_text, Program),
                     le_tools:le_tool_query(QueryArgs, QueryResult),

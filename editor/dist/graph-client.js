@@ -136513,10 +136513,10 @@ var Atlas = /* @__PURE__ */ function() {
         throw new Error("can't draw, atlas is locked");
       var texSize = this.texSize, texRows = this.texRows, texHeight = this.texHeight;
       var _this$getScale = this.getScale(bb), scale2 = _this$getScale.scale, texW = _this$getScale.texW, texH = _this$getScale.texH;
-      var drawAt = function drawAt2(location2, canvas) {
+      var drawAt = function drawAt2(location, canvas) {
         if (doDrawing && canvas) {
           var context = canvas.context;
-          var x2 = location2.x, row = location2.row;
+          var x2 = location.x, row = location.row;
           var xOffset = x2;
           var yOffset = texHeight * row;
           context.save();
@@ -139568,6 +139568,13 @@ var uiCatalog = {
     "A Gentle Introduction to Logical English 2": "Uma introdu\xE7\xE3o suave ao Logical English 2",
     "How to use the LE2 web application": "Como usar a aplica\xE7\xE3o web LE2",
     "Logical English syntax summary": "Resumo da sintaxe do Logical English",
+    "Hello! I am your Logical English Assistant. How can I help you today?": "Ol\xE1! Sou o seu Assistente de Logical English. Como posso ajudar hoje?",
+    "I have updated the editor content with the changes.": "Atualizei o conte\xFAdo do editor com as altera\xE7\xF5es.",
+    "Request completed in {n} seconds.": "Pedido conclu\xEDdo em {n} segundos.",
+    "Request interrupted by user after {n} seconds.": "Pedido interrompido pelo utilizador ap\xF3s {n} segundos.",
+    "Other languages: ": "Outras l\xEDnguas: ",
+    "Logical English (in English)": "Logical English (em ingl\xEAs)",
+    "Choose a language: ": "Escolha uma l\xEDngua: ",
     "Test Suite": "Bateria de testes",
     "Run All Tests": "Correr todos os testes",
     "Email: ": "Email: ",
@@ -139842,6 +139849,13 @@ var uiCatalog = {
     "A Gentle Introduction to Logical English 2": "Una introducci\xF3n amable a Logical English 2",
     "How to use the LE2 web application": "C\xF3mo usar la aplicaci\xF3n web LE2",
     "Logical English syntax summary": "Resumen de la sintaxis de Logical English",
+    "Hello! I am your Logical English Assistant. How can I help you today?": "\xA1Hola! Soy su Asistente de Logical English. \xBFC\xF3mo puedo ayudarle hoy?",
+    "I have updated the editor content with the changes.": "He actualizado el contenido del editor con los cambios.",
+    "Request completed in {n} seconds.": "Solicitud completada en {n} segundos.",
+    "Request interrupted by user after {n} seconds.": "Solicitud interrumpida por el usuario despu\xE9s de {n} segundos.",
+    "Other languages: ": "Otros idiomas: ",
+    "Logical English (in English)": "Logical English (en ingl\xE9s)",
+    "Choose a language: ": "Elija un idioma: ",
     "Test Suite": "Bater\xEDa de pruebas",
     "Run All Tests": "Ejecutar todas las pruebas",
     "Email: ": "Email: ",
@@ -140116,6 +140130,13 @@ var uiCatalog = {
     "A Gentle Introduction to Logical English 2": "Une introduction en douceur au Logical English 2",
     "How to use the LE2 web application": "Comment utiliser l'application web LE2",
     "Logical English syntax summary": "R\xE9sum\xE9 de la syntaxe du Logical English",
+    "Hello! I am your Logical English Assistant. How can I help you today?": "Bonjour ! Je suis votre Assistant Logical English. Comment puis-je vous aider aujourd'hui ?",
+    "I have updated the editor content with the changes.": "J'ai mis \xE0 jour le contenu de l'\xE9diteur avec les modifications.",
+    "Request completed in {n} seconds.": "Requ\xEAte termin\xE9e en {n} secondes.",
+    "Request interrupted by user after {n} seconds.": "Requ\xEAte interrompue par l'utilisateur apr\xE8s {n} secondes.",
+    "Other languages: ": "Autres langues : ",
+    "Logical English (in English)": "Logical English (en anglais)",
+    "Choose a language: ": "Choisissez une langue : ",
     "Test Suite": "Suite de tests",
     "Run All Tests": "Ex\xE9cuter tous les tests",
     "Email: ": "Email : ",
@@ -140390,6 +140411,13 @@ var uiCatalog = {
     "A Gentle Introduction to Logical English 2": "Un'introduzione delicata al Logical English 2",
     "How to use the LE2 web application": "Come usare l'applicazione web LE2",
     "Logical English syntax summary": "Riepilogo della sintassi del Logical English",
+    "Hello! I am your Logical English Assistant. How can I help you today?": "Ciao! Sono il tuo Assistente di Logical English. Come posso aiutarti oggi?",
+    "I have updated the editor content with the changes.": "Ho aggiornato il contenuto dell'editor con le modifiche.",
+    "Request completed in {n} seconds.": "Richiesta completata in {n} secondi.",
+    "Request interrupted by user after {n} seconds.": "Richiesta interrotta dall'utente dopo {n} secondi.",
+    "Other languages: ": "Altre lingue: ",
+    "Logical English (in English)": "Logical English (in inglese)",
+    "Choose a language: ": "Scegli una lingua: ",
     "Test Suite": "Suite di test",
     "Run All Tests": "Esegui tutti i test",
     "Email: ": "Email: ",

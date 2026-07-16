@@ -51,6 +51,7 @@
 :- http_handler(root('source/'), handle_source, [prefix]).
 :- http_handler('/docs/', handle_docs, [prefix]).
 :- http_handler('/executive', handle_executive, []).
+:- http_handler('/multilingual', handle_multilingual, []).
 :- http_handler('/dap', dap_websocket_handler, []).
 :- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
 :- http_handler('/web_extras/', http_reply_from_files('web_extras', []), [prefix]).
@@ -125,20 +126,23 @@ prolog:message(error(le_server_error(port_in_use(Port)), _)) -->
 %!  set_request_language(+Request) is det.
 %
 %   Sets the active (message/UI) language for this API request from the ?lang=
-%   query parameter, when present and registered. The program's OWN language
+%   query parameter, when present and registered — else back to the default:
+%   HTTP worker threads are pooled, so leaving the previous request's language
+%   in place would leak it into unrelated requests. The program's OWN language
 %   still governs parsing (parse_le_tokens re-detects it), per decision O-6.
 set_request_language(Request) :-
     (   catch(http_parameters(Request, [lang(Lang, [optional(true), default('')])]), _, Lang = ''),
         Lang \== '',
         le_i18n:known_language(Lang)
     ->  le_i18n:set_le_language(Lang)
-    ;   true
+    ;   le_i18n:set_le_language(default)
     ).
 
 %!  set_cookie_language(+Request) is det.
 %
 %   Sets the active language from the le_ui_lang cookie (used by the
-%   server-rendered landing and /login pages — decision O-13).
+%   server-rendered /login page — decision O-13; the landing pages render in
+%   a fixed language and SET the cookie instead).
 set_cookie_language(Request) :-
     (   member(cookie(Cookies), Request),
         memberchk(le_ui_lang=Lang, Cookies),
@@ -229,7 +233,10 @@ handle_graph(Dict, Response) :-
 % --- Landing Page ---
 
 handle_landing_page(Request) :-
-    set_cookie_language(Request),
+    % The standard landing page IS the English page: it always renders in
+    % English. It does NOT touch the UI-language preference — only the
+    % /multilingual pages set it (their back-to-English link resets it).
+    le_i18n:set_le_language(default),
     http_parameters(Request, [run_tests(RunTests, [boolean, optional(true), default(false)]),
                               dir(DirParam0, [optional(true), default('')])]),
     (   http_in_session(_SessionId),
@@ -543,6 +550,173 @@ landing_example_items(Dir, Prefix, UserRoles, Items) :-
     pairs_values(SubDirSorted, SubDirItems),
     append(DirectItems, SubDirItems, Items).
 
+% --- Multilingual entry point (/multilingual) ---
+
+%!  handle_multilingual(+Request) is det.
+%
+%   The multilingual entry point. With ?lang=<code> naming a registered
+%   non-English language that has an examples/<lang>/ tree, serves a landing
+%   page circumscribed to that language (examples from its tree only, chrome
+%   strings in that language). Without a usable lang parameter it serves a
+%   language picker; ?lang=en goes back to the standard (English) landing page.
+handle_multilingual(Request) :-
+    catch(http_parameters(Request, [lang(Lang, [optional(true), default('')])]), _, Lang = ''),
+    (   Lang == en
+    ->  http_redirect(moved_temporary, '/', Request)
+    ;   language_examples_dir(Lang, LangDir)
+    ->  multilingual_landing_page(Lang, LangDir)
+    ;   multilingual_picker_page
+    ).
+
+%!  multilingual_picker_page is det.
+%
+%   Language chooser: one link per registered non-English language with an
+%   examples/<lang>/ tree, each shown by its autonym. Rendered neutrally in
+%   English; it sets no language preference on load, but its back-to-English
+%   link resets the preference like the per-language pages' one.
+multilingual_picker_page :-
+    le_i18n:set_le_language(default),
+    findall(li(a(href(Url), Autonym)), (
+        language_examples_dir(Lang, _),
+        le_i18n:language_autonym(Lang, Autonym),
+        format(atom(Url), '/multilingual?lang=~w', [Lang])
+    ), LangItems),
+    ui_lang_pref_script('', PrefScript),
+    reply_html_page(
+        [title('Logical English — Multilingual'),
+         script([type('text/javascript')], PrefScript)],
+        [
+            h1('Logical English — Multilingual'),
+            p(b('Choose a language: ')),
+            ul(LangItems),
+            p(a([href('/'), id('le-back-english')], 'Logical English (in English)'))
+        ]
+    ).
+
+%!  multilingual_landing_page(+Lang:atom, +LangDir:atom) is det.
+%
+%   The landing page circumscribed to one language: only the examples of the
+%   examples/<Lang>/ tree, all chrome strings in Lang. Visiting it also makes
+%   Lang the UI-language preference (localStorage + cookie, decision O-13),
+%   so the editor pages linked from here render in Lang too; clicking the
+%   back link to the standard (English) landing page resets the preference
+%   to English (the standard page itself never touches it).
+multilingual_landing_page(Lang, LangDir) :-
+    le_i18n:set_le_language(Lang),
+    (   http_in_session(_SessionId),
+        http_session_data(user(Email, Roles))
+    ->  UserEmail = Email, UserRoles = Roles
+    ;   UserEmail = 'anonymous', UserRoles = []
+    ),
+    (   UserEmail == 'anonymous'
+    ->  uit('Login', LoginTxt), format(atom(LoginLbl), '[~w]', [LoginTxt]),
+        AuthLink = a(href('/login'), LoginLbl)
+    ;   uit('Logout', LogoutTxt), format(atom(LogoutLbl), '[~w]', [LogoutTxt]),
+        AuthLink = a(href('/logout'), LogoutLbl)
+    ),
+    le_i18n:language_autonym(Lang, Autonym),
+    format(atom(Title), '~w 2.0', [Autonym]),
+    atom_concat(Lang, '/', Prefix),
+    landing_example_items(LangDir, Prefix, UserRoles, ExampleItems),
+    build_info(BuildInfo),
+    landing_folders_script(FolderScript),
+    ui_lang_pref_script(Lang, PrefScript),
+    % The syntax summary, when a translation exists (docs/le_summary.<lang>.md).
+    (   atomic_list_concat(['docs/le_summary.', Lang, '.md'], SummaryFile),
+        exists_file(SummaryFile)
+    ->  uit('Documentation', DocumentationTxt),
+        uit('Logical English syntax summary', SyntaxTxt),
+        uit('The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.', SyntaxBlurb),
+        format(atom(SummaryUrl), '/docs/le_summary.~w', [Lang]),
+        DocsSection = [h2(DocumentationTxt),
+                       ul([li([a([href(SummaryUrl), target('_blank')], SyntaxTxt),
+                               br([]),
+                               small(SyntaxBlurb)])])]
+    ;   DocsSection = []
+    ),
+    % Links to the other per-language landing pages.
+    findall([' ', a(href(Url), OtherAutonym)], (
+        language_examples_dir(L, _),
+        L \== Lang,
+        le_i18n:language_autonym(L, OtherAutonym),
+        format(atom(Url), '/multilingual?lang=~w', [L])
+    ), OtherLinkParts),
+    append(OtherLinkParts, OtherLangLinks),
+    uit('Logged in as: ', LoggedInAs),
+    uit('Edit and Query: ', EditAndQuery),
+    uit('[New Document]', NewDocument),
+    uit('expand all', ExpandAll),
+    uit('collapse all', CollapseAll),
+    uit('Other languages: ', OtherLangsTxt),
+    uit('Logical English (in English)', BackTxt),
+    append([
+        [
+            div([style('float: right; padding: 10px;')], [
+                span([LoggedInAs, b(UserEmail), ' ']),
+                AuthLink
+            ]),
+            h1(Title),
+            p(small(['Build: ', BuildInfo])),
+            ul([
+                li([
+                    b(EditAndQuery),
+                    a(href('/editor/index.html'), NewDocument),
+                    ' ',
+                    span([id('le-folder-controls'), style('display:none;')], [
+                        '(',
+                        a([href('#'), id('le-expand-all')], ExpandAll),
+                        ' · ',
+                        a([href('#'), id('le-collapse-all')], CollapseAll),
+                        ')'
+                    ]),
+                    ul(ExampleItems)
+                ])
+            ])
+        ],
+        DocsSection,
+        [
+            p([b(OtherLangsTxt) | OtherLangLinks]),
+            p(a([href('/'), id('le-back-english')], BackTxt))
+        ]
+    ], Body),
+    reply_html_page(
+        [title(Title),
+         style('li.le-folder-item { list-style: none; } \c
+                details.le-folder > summary { cursor: pointer; }'),
+         script([type('text/javascript')], FolderScript),
+         script([type('text/javascript')], PrefScript)],
+        Body
+    ).
+
+%!  ui_lang_pref_script(+Lang:atom, -JS:atom) is det.
+%
+%   Client-side script for the /multilingual pages — the ONLY places that set
+%   the UI-language preference (the editor's localStorage key plus the
+%   le_ui_lang cookie the server-rendered /login page reads). When Lang is
+%   non-empty (a per-language landing page) it stores Lang on load; in every
+%   case it wires the back-to-English link to reset the preference to English
+%   (the standard landing page itself never touches the preference). Same
+%   conventions as landing_folders_script (verbatim script content: no "//"
+%   comments, no "</" sequence).
+ui_lang_pref_script(Lang, JS) :-
+    (   Lang == ''
+    ->  SetNow = ''
+    ;   format(atom(SetNow), '  setLang("~w");~n', [Lang])
+    ),
+    format(atom(JS), '(function(){
+  "use strict";
+  function setLang(l){
+    try { window.localStorage.setItem("le-ui-lang", l); } catch (e) {}
+    document.cookie = "le_ui_lang=" + l + ";path=/;max-age=31536000;SameSite=Lax";
+  }
+~wfunction init(){
+    var back = document.getElementById("le-back-english");
+    if (back) back.addEventListener("click", function(){ setLang("en"); });
+  }
+  if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", init); }
+  else { init(); }
+})();', [SetNow]).
+
 format_test_results(Results, UserRoles, [h3('Test Results'), table([border(1), cellpadding(5)], [
     tr([th('File'), th('Pass'), th('Fail'), th('Error'), th('Status')])
     | TableRows
@@ -577,8 +751,7 @@ result_to_row(UserRoles, test_file(File, FileResults), tr([
 
 handle_examples(Dict, Response) :-
     get_dict(file, Dict, FileName),
-    le_examples_dir(Dir),
-    atomic_list_concat([Dir, '/', FileName], Path0),
+    le_example_relpath(FileName, Path0),
     (   http_in_session(_SessionId), http_session_data(user(_, Roles))
     ->  UserRoles = Roles, LoggedIn = true
     ;   UserRoles = [], LoggedIn = false
@@ -603,7 +776,20 @@ handle_list_examples(_Dict, Response) :-
     le_examples_dir(Dir),
     atomic_list_concat([Dir, '/'], DirSlash),
     (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
-    list_examples_in_dir(DirSlash, '', UserRoles, Examples),
+    list_examples_in_dir(DirSlash, '', UserRoles, StandardExamples),
+    % When the request carries a non-English UI language (?lang=, added by the
+    % editor's fetch hook and applied by set_request_language), that language's
+    % own example tree (examples/<lang>/) is listed too, ahead of the standard
+    % tree, as '<lang>/<name>' entries — the same names le_example_relpath
+    % resolves when one is opened.
+    (   le_i18n:le_active_language(Lang),
+        language_examples_dir(Lang, LangDir)
+    ->  atomic_list_concat([LangDir, '/'], LangDirSlash),
+        atomic_list_concat([Lang, '/'], LangPrefix),
+        list_examples_in_dir(LangDirSlash, LangPrefix, UserRoles, LangExamples)
+    ;   LangExamples = []
+    ),
+    append(LangExamples, StandardExamples, Examples),
     Response = _{examples: Examples}.
 
 %!  list_examples_in_dir(+Dir:atom, +Prefix:atom, +UserRoles:list, -Examples:list) is det.
@@ -752,9 +938,7 @@ load_base_of(Dict, Base) :-
         ( sub_atom(BA, 0, _, _, 'http://') ; sub_atom(BA, 0, _, _, 'https://') )
     ->  Base = BA                       % document fetched from a URL: its base URL
     ;   get_dict(source, Dict, Src), Src \== "", Src \== null,
-        atom_string(SrcA, Src),
-        le_examples_dir(Dir),
-        atomic_list_concat([Dir, '/', SrcA], Full),
+        le_example_relpath(Src, Full),
         file_directory_name(Full, BaseDir),
         exists_directory(BaseDir)
     ->  Base = BaseDir
@@ -767,8 +951,7 @@ handle_load(Dict, Response) :-
         ( catch(le_kbs:load_text(Doc, Base, KB), E1, (print_message(error, E1), fail)) -> Language = le; print_message(error, le_api_error(load, "le_kbs:load_text failed")), fail)
         ;   
         get_dict(file, Dict, File),
-        le_examples_dir(Dir),
-        atomic_list_concat([Dir, '/', File], Path0),
+        le_example_relpath(File, Path0),
         (   http_in_session(_SessionId), http_session_data(user(_, Roles)) -> UserRoles = Roles ; UserRoles = [] ),
         (   is_path_allowed(Path0, UserRoles)
         ->  ( exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', PathLE), exists_file(PathLE) -> Path = PathLE; Path = Path0),

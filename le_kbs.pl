@@ -13,7 +13,7 @@
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
     topPredicates/2, kbSummary/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
-    le_examples_dir/1, negation_words/1, user_rule_name/1]).
+    le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -35,6 +35,34 @@
 %
 %   Returns the base directory for Logical English examples.
 le_examples_dir('examples/moreExamples').
+
+%!  language_examples_dir(?Lang:atom, -Dir:atom) is nondet.
+%
+%   Dir is the per-language example tree examples/<Lang> (O-7 layout A) of a
+%   registered non-English language, when that tree exists.
+language_examples_dir(Lang, Dir) :-
+    le_i18n:known_language(Lang),
+    Lang \== en,
+    atom_concat('examples/', Lang, Dir),
+    exists_directory(Dir).
+
+%!  le_example_relpath(+Name, -Path:atom) is det.
+%
+%   Resolves an example name as used by the web API/MCP — relative to the
+%   examples directory, e.g. 'citizenship' or 'tax/vat' (no extension
+%   handling) — to a repo-relative file path. A name whose first path
+%   component is a registered non-English language code with an
+%   examples/<Lang>/ tree resolves into that tree instead:
+%   'pt/cidadania' -> 'examples/pt/cidadania'.
+le_example_relpath(Name0, Path) :-
+    ( atom(Name0) -> Name = Name0 ; atom_string(Name, Name0) ),
+    (   sub_atom(Name, Before, _, _, '/'),
+        sub_atom(Name, 0, Before, _, Lang),
+        language_examples_dir(Lang, _)
+    ->  atom_concat('examples/', Name, Path)
+    ;   le_examples_dir(Dir),
+        atomic_list_concat([Dir, '/', Name], Path)
+    ).
 
 :- (exists_file('le_extensions.pl') -> use_module('le_extensions') ; true).
 

@@ -113,8 +113,10 @@ le_tool_query(Args, Result) :-
     ( get_dict(scenario_name, Args, ScenarioName) -> true ; ScenarioName = "" ),
     ( get_dict(facts, Args, Facts) -> true ; Facts = "" ),
     (   ExampleName \== "" ->
-        examples_dir(Dir),
-        atom_concat(Dir, ExampleName, Path0),
+        % le_example_relpath also resolves per-language names ('pt/cidadania'
+        % -> examples/pt/cidadania); relative paths are fine, the server runs
+        % from the repo root.
+        le_kbs:le_example_relpath(ExampleName, Path0),
         (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
         le_kbs:load(Path, KB)
     ;   ProgramText \== "" ->
@@ -140,13 +142,6 @@ le_tool_query(Args, Result) :-
         ),
         le_kbs:destroySession(SM)
     ).
-
-examples_dir(AbsDir) :-
-    working_directory(CWD, CWD),
-    % Remove trailing slash from CWD if present
-    ( sub_atom(CWD, _, 1, 0, '/') -> sub_atom(CWD, 0, _, 1, CWD0) ; CWD0 = CWD ),
-    le_kbs:le_examples_dir(ExDir),
-    format(atom(AbsDir), "~w/~w/", [CWD0, ExDir]).
 
 run_query(SM, QueryStr, KB, Result) :-
     findall(_{answer: AnswerStr, explanation: JSONWhy}, (
