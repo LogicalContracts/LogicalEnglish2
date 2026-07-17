@@ -7,7 +7,8 @@ import { t, applyI18nDom, installLeApiLang } from './i18n';
 // comments. The host window supplies the DOM containers and an onChange callback.
 
 import {
-    splitTemplate, matchFact, fillTemplate, parseTemplateDefs, parseScenarioBlocks
+    splitTemplate, matchFact, fillTemplate, parseTemplateDefs, parseScenarioBlocks,
+    blockHeader, unknownWhetherPrefix, testDirectiveRe, unknownPrefixRe
 } from './le-templates';
 
 interface Row {
@@ -21,12 +22,14 @@ interface Row {
 // templates; include them so such facts load as editable rows.
 const SYSTEM_TYPE = ['*a thing* is a *type*', '*a thing* is an *type*'];
 
-// A scenario "test" line: "<query> expects answers [...] (and unknowns [...])".
-export const isTestDirective = (fact: string) => /\bexpects?\s+answers?\b/i.test(fact);
+// A scenario "test" line: "<query> expects answers [...] (and unknowns [...])" —
+// recognised in every registered language ("… espera respuestas […]").
+export const isTestDirective = (fact: string) => testDirectiveRe().test(fact);
 
-// An "unknown" (assumable) scenario fact: "it is unknown whether <fact>". LE also
-// accepts the "assumed"/"assumable" synonyms.
-const UNKNOWN_PREFIX = /^it is (?:unknown|assumed|assumable) whether\s+/i;
+// An "unknown" (assumable) scenario fact: "it is unknown whether <fact>" (LE
+// also accepts the "assumed"/"assumable" synonyms), in every registered
+// language ("es desconocido si <fact>").
+const UNKNOWN_PREFIX = unknownPrefixRe();
 
 export interface ScenarioFormOptions {
     source: string;                 // LE source, for templates + which templates are used
@@ -299,7 +302,8 @@ export class ScenarioForm {
     private factText(row: Row): string {
         const base = this.factBase(row);
         if (!base) return '';
-        return row.assumed ? `it is unknown whether ${base}` : base;
+        // The "it is unknown whether" prefix in the program's own language.
+        return row.assumed ? `${unknownWhetherPrefix(this.opts.source)}${base}` : base;
     }
 
     // Each fact's text (no trailing period), skipping wholly-empty rows.
@@ -313,9 +317,10 @@ export class ScenarioForm {
         return this.factLines().map(t => `${t}.`).join('\n');
     }
 
-    // A full "scenario <name> is:" block; tests are appended commented-out.
+    // A full "scenario <name> is:" block (header in the program's own
+    // language); tests are appended commented-out.
     blockText(name: string): string {
-        const lines = [`scenario ${name} is:`];
+        const lines = [blockHeader(this.opts.source, 'scenario', name)];
         for (const t of this.factLines()) lines.push(`    ${t}.`);
         if (this.testLines.length) {
             lines.push(`    % tests (review and uncomment to re-enable):`);

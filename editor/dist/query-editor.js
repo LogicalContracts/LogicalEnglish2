@@ -1,166 +1,4678 @@
-// src/le-templates.ts
-function splitTemplate(label) {
-  const segs = [];
-  const re = /\*([^*]+)\*/g;
-  let last = 0;
-  let m;
-  while ((m = re.exec(label)) !== null) {
-    const lit = label.slice(last, m.index).trim();
-    if (lit)
-      segs.push({ kind: "literal", text: lit });
-    segs.push({ kind: "field", text: m[1].trim() });
-    last = m.index + m[0].length;
-  }
-  const tail = label.slice(last).trim();
-  if (tail)
-    segs.push({ kind: "literal", text: tail });
-  return segs;
-}
-function parseTemplateDefs(source) {
-  const defs = [];
-  const sectionHeader = /^(?:the\s+knowledge\s+base|the\s+contract|the\s+ontology|the\s+predicates|the\s+templates|the\s+fluents|the\s+events|the\s+target\s+language|scenario|query)\b/im;
-  const templateHeader = /the\s+(predicates|templates|fluents|events)\s+are\s*:/gi;
-  let m;
-  while ((m = templateHeader.exec(source)) !== null) {
-    const remaining = source.substring(m.index + m[0].length);
-    const next = remaining.match(sectionHeader);
-    const sectionText = next ? remaining.substring(0, next.index) : remaining;
-    for (const line of sectionText.split("\n")) {
-      const t2 = line.trim();
-      if (!t2 || t2.startsWith("%"))
-        continue;
-      const semi = t2.indexOf(";");
-      const annotation = semi >= 0 ? t2.slice(semi + 1) : "";
-      const isUndefined = /\b(undefined|scenario\s+element)\b/i.test(annotation);
-      const main = (semi >= 0 ? t2.slice(0, semi) : t2).replace(/[.,]\s*$/, "").trim();
-      if (main)
-        defs.push({ label: main, isUndefined });
-      const opp = annotation.match(/opposite:\s*([^;]+)/i);
-      if (opp) {
-        const o = opp[1].replace(/[.,;]\s*$/, "").trim();
-        if (o)
-          defs.push({ label: o, isUndefined });
-      }
-      for (const sm of annotation.matchAll(/\bsynonym\s+([^;]+)/gi)) {
-        const s = sm[1].replace(/[.,;]\s*$/, "").trim();
-        if (s)
-          defs.push({ label: s, isUndefined });
-      }
-    }
-  }
-  return defs;
-}
-function escapeRegex(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-function templateRegex(label) {
-  const segs = splitTemplate(label);
-  if (!segs.some((s) => s.kind === "field"))
-    return null;
-  const pieces = segs.map((s) => {
-    if (s.kind === "field")
-      return "(.+?)";
-    const lit = escapeRegex(s.text).replace(/\s+/g, "\\s+").replace(/,/g, ",(?!\\d)");
-    const lb = /^\w/.test(s.text) ? "\\b" : "";
-    const rb = /\w$/.test(s.text) ? "\\b" : "";
-    return lb + lit + rb;
-  });
-  try {
-    return new RegExp("^\\s*" + pieces.join("\\s*") + "\\s*$", "i");
-  } catch {
-    return null;
-  }
-}
-function literalLength(label) {
-  return splitTemplate(label).filter((s) => s.kind === "literal").reduce((n, s) => n + s.text.length, 0);
-}
-function matchFact(fact, templates) {
-  const f = fact.trim().replace(/\.\s*$/, "");
-  const norm = (s) => s.replace(/\s+/g, " ").trim().toLowerCase();
-  const fNorm = norm(f);
-  const sorted = [...templates].sort((a, b) => literalLength(b) - literalLength(a));
-  for (const label of sorted) {
-    const segs = splitTemplate(label);
-    if (!segs.some((s) => s.kind === "field")) {
-      const lit = segs.map((s) => s.text).join(" ");
-      if (norm(lit) === fNorm)
-        return { label, values: [] };
-      continue;
-    }
-    const re = templateRegex(label);
-    if (!re)
-      continue;
-    const m = re.exec(f);
-    if (m)
-      return { label, values: m.slice(1).map((v) => (v || "").trim()) };
-  }
-  return null;
-}
-function scanBlocks(source, headerRe) {
-  const blocks = [];
-  const lines = source.split("\n");
-  const offsets = [];
-  let off = 0;
-  for (const ln of lines) {
-    offsets.push(off);
-    off += ln.length + 1;
-  }
-  for (let i = 0; i < lines.length; i++) {
-    const m = lines[i].match(headerRe);
-    if (!m)
-      continue;
-    const name = m[1].trim();
-    const start = offsets[i];
-    const bodyLines = [];
-    let j = i + 1;
-    let lastContent = i;
-    while (j < lines.length) {
-      const ln = lines[j];
-      const t2 = ln.trim();
-      if (t2 === "") {
-        bodyLines.push(ln);
-        j++;
-        continue;
-      }
-      if (t2.startsWith("%")) {
-        bodyLines.push(ln);
-        lastContent = j;
-        j++;
-        continue;
-      }
-      if (/^\s/.test(ln)) {
-        bodyLines.push(ln);
-        lastContent = j;
-        j++;
-        continue;
-      }
-      break;
-    }
-    const end = offsets[lastContent] + lines[lastContent].length;
-    blocks.push({ name, start, end, bodyLines });
-  }
-  return blocks;
-}
-function parseQueryBlocks(source) {
-  return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map((b) => {
-    const bodyLines = b.bodyLines.map((l) => stripInlineComment(l).replace(/\s+$/, "")).filter((l) => l.trim() !== "");
-    const body = bodyLines.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
-    return { name: b.name, start: b.start, end: b.end, body, bodyLines };
-  });
-}
-function stripInlineComment(line) {
-  let inStr = false;
-  for (let i = 0; i < line.length; i++) {
-    const c = line[i];
-    if (c === '"')
-      inStr = !inStr;
-    else if (c === "%" && !inStr)
-      return line.slice(0, i);
-  }
-  return line;
-}
-
 // src/generated/i18nData.ts
+var keywords = {
+  "en": {
+    "kb_open": [
+      [
+        "the",
+        "knowledge",
+        "base"
+      ]
+    ],
+    "kb_include": [
+      [
+        "includes"
+      ]
+    ],
+    "contract_open": [
+      [
+        "the",
+        "contract"
+      ]
+    ],
+    "contract_states": [
+      [
+        "states",
+        "that"
+      ]
+    ],
+    "resources_include": [
+      [
+        "includes",
+        "these",
+        "resources"
+      ]
+    ],
+    "scenario": [
+      [
+        "scenario"
+      ]
+    ],
+    "query": [
+      [
+        "query"
+      ]
+    ],
+    "ontology": [
+      [
+        "the",
+        "ontology",
+        "is"
+      ]
+    ],
+    "predicates": [
+      [
+        "the",
+        "predicates",
+        "are"
+      ]
+    ],
+    "templates": [
+      [
+        "the",
+        "templates",
+        "are"
+      ]
+    ],
+    "fluents": [
+      [
+        "the",
+        "fluents",
+        "are"
+      ]
+    ],
+    "events": [
+      [
+        "the",
+        "events",
+        "are"
+      ]
+    ],
+    "meta_target": [
+      [
+        "the",
+        "target",
+        "language",
+        "is"
+      ]
+    ],
+    "marker": [
+      [
+        "section"
+      ]
+    ],
+    "marker_is": [
+      [
+        "is"
+      ]
+    ],
+    "annexes": [
+      [
+        "the",
+        "annexes",
+        "to",
+        "the",
+        "knowledge",
+        "base",
+        "are"
+      ],
+      [
+        "the",
+        "annexes",
+        "to",
+        "the",
+        "contract",
+        "are"
+      ]
+    ],
+    "guard": [
+      [
+        "the",
+        "predicates"
+      ],
+      [
+        "the",
+        "knowledge"
+      ],
+      [
+        "the",
+        "templates"
+      ],
+      [
+        "the",
+        "contract"
+      ],
+      [
+        "the",
+        "ontology"
+      ],
+      [
+        "the",
+        "fluents"
+      ],
+      [
+        "the",
+        "events"
+      ],
+      [
+        "the",
+        "target"
+      ],
+      [
+        "scenario"
+      ],
+      [
+        "query"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicates"
+      ],
+      [
+        "knowledge"
+      ],
+      [
+        "templates"
+      ],
+      [
+        "contract"
+      ],
+      [
+        "ontology"
+      ],
+      [
+        "fluents"
+      ],
+      [
+        "events"
+      ],
+      [
+        "target"
+      ]
+    ],
+    "expects": [
+      [
+        "expects"
+      ]
+    ],
+    "answers": [
+      [
+        "answers"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "and",
+        "unknowns"
+      ]
+    ],
+    "rule": [
+      [
+        "rule"
+      ]
+    ],
+    "if": [
+      [
+        "if"
+      ]
+    ],
+    "only_if": [
+      [
+        "only",
+        "if"
+      ]
+    ],
+    "unless": [
+      [
+        "unless"
+      ]
+    ],
+    "and_unless": [
+      [
+        "and",
+        "unless"
+      ]
+    ],
+    "and": [
+      [
+        "and"
+      ]
+    ],
+    "or": [
+      [
+        "or"
+      ]
+    ],
+    "either": [
+      [
+        "either"
+      ]
+    ],
+    "any_of": [
+      [
+        "any",
+        "of"
+      ]
+    ],
+    "all_of": [
+      [
+        "all",
+        "of"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "at",
+        "least",
+        "one",
+        "of"
+      ]
+    ],
+    "one": [
+      [
+        "one"
+      ]
+    ],
+    "of": [
+      [
+        "of"
+      ]
+    ],
+    "all": [
+      [
+        "all"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "it",
+        "is",
+        "not",
+        "the",
+        "case",
+        "that"
+      ],
+      [
+        "not",
+        "the",
+        "case",
+        "that"
+      ]
+    ],
+    "forall": [
+      [
+        "for",
+        "all",
+        "cases",
+        "in",
+        "which"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "it",
+        "is",
+        "the",
+        "case",
+        "that"
+      ]
+    ],
+    "for_case": [
+      [
+        "for",
+        "case"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "it",
+        "is",
+        "true",
+        "that"
+      ]
+    ],
+    "it_is": [
+      [
+        "it",
+        "is"
+      ]
+    ],
+    "whether": [
+      [
+        "whether"
+      ]
+    ],
+    "defines_global": [
+      [
+        "defines",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "opposite"
+      ]
+    ],
+    "synonym": [
+      [
+        "synonym"
+      ]
+    ],
+    "prepositional": [
+      [
+        "prepositional"
+      ],
+      [
+        "composite"
+      ]
+    ],
+    "unknown": [
+      [
+        "assumable"
+      ],
+      [
+        "unknown"
+      ],
+      [
+        "assumed"
+      ]
+    ],
+    "undefined": [
+      [
+        "scenario",
+        "element"
+      ],
+      [
+        "undefined"
+      ]
+    ],
+    "article": [
+      [
+        "some"
+      ],
+      [
+        "the"
+      ],
+      [
+        "an"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "ignorable": [
+      [
+        "were"
+      ],
+      [
+        "have"
+      ],
+      [
+        "does"
+      ],
+      [
+        "been"
+      ],
+      [
+        "the"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "has"
+      ],
+      [
+        "had"
+      ],
+      [
+        "did"
+      ],
+      [
+        "an"
+      ],
+      [
+        "do"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "unless"
+      ],
+      [
+        "says"
+      ],
+      [
+        "that"
+      ],
+      [
+        "and"
+      ],
+      [
+        "if"
+      ],
+      [
+        "or"
+      ]
+    ],
+    "qualifier": [
+      [
+        "previous"
+      ],
+      [
+        "original"
+      ],
+      [
+        "seventh"
+      ],
+      [
+        "another"
+      ],
+      [
+        "current"
+      ],
+      [
+        "second"
+      ],
+      [
+        "fourth"
+      ],
+      [
+        "eighth"
+      ],
+      [
+        "single"
+      ],
+      [
+        "first"
+      ],
+      [
+        "third"
+      ],
+      [
+        "fifth"
+      ],
+      [
+        "sixth"
+      ],
+      [
+        "ninth"
+      ],
+      [
+        "tenth"
+      ],
+      [
+        "other"
+      ],
+      [
+        "given"
+      ],
+      [
+        "next"
+      ],
+      [
+        "last"
+      ],
+      [
+        "same"
+      ],
+      [
+        "new"
+      ]
+    ],
+    "copula": [
+      [
+        "were"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "is"
+      ]
+    ],
+    "definite_article": [
+      [
+        "the"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "this"
+      ]
+    ],
+    "each": [
+      [
+        "each"
+      ]
+    ],
+    "wh_var": [
+      [
+        "which"
+      ],
+      [
+        "what"
+      ]
+    ],
+    "who": [
+      [
+        "who"
+      ]
+    ],
+    "what": [
+      [
+        "what"
+      ]
+    ],
+    "when": [
+      [
+        "when"
+      ]
+    ],
+    "where": [
+      [
+        "where"
+      ]
+    ],
+    "which": [
+      [
+        "which"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "that"
+      ],
+      [
+        "says"
+      ]
+    ],
+    "that": [
+      [
+        "that"
+      ]
+    ],
+    "is_a": [
+      [
+        "is",
+        "an"
+      ],
+      [
+        "is",
+        "of"
+      ],
+      [
+        "is",
+        "a"
+      ]
+    ],
+    "sum": [
+      [
+        "sum"
+      ]
+    ],
+    "count": [
+      [
+        "count"
+      ]
+    ],
+    "average": [
+      [
+        "average"
+      ]
+    ],
+    "min": [
+      [
+        "minimum"
+      ],
+      [
+        "min"
+      ]
+    ],
+    "max": [
+      [
+        "maximum"
+      ],
+      [
+        "max"
+      ]
+    ],
+    "is_the": [
+      [
+        "is",
+        "the"
+      ]
+    ],
+    "of_each": [
+      [
+        "of",
+        "each"
+      ]
+    ],
+    "such_that": [
+      [
+        "such",
+        "that"
+      ]
+    ],
+    "assuming": [
+      [
+        "assuming"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "and"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "the"
+      ],
+      [
+        "an"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "between"
+      ],
+      [
+        "within"
+      ],
+      [
+        "under"
+      ],
+      [
+        "from"
+      ],
+      [
+        "with"
+      ],
+      [
+        "were"
+      ],
+      [
+        "that"
+      ],
+      [
+        "than"
+      ],
+      [
+        "into"
+      ],
+      [
+        "over"
+      ],
+      [
+        "the"
+      ],
+      [
+        "for"
+      ],
+      [
+        "and"
+      ],
+      [
+        "are"
+      ],
+      [
+        "was"
+      ],
+      [
+        "an"
+      ],
+      [
+        "in"
+      ],
+      [
+        "on"
+      ],
+      [
+        "at"
+      ],
+      [
+        "to"
+      ],
+      [
+        "of"
+      ],
+      [
+        "by"
+      ],
+      [
+        "or"
+      ],
+      [
+        "is"
+      ],
+      [
+        "as"
+      ],
+      [
+        "a"
+      ]
+    ]
+  },
+  "pt": {
+    "kb_open": [
+      [
+        "a",
+        "base",
+        "de",
+        "conhecimento"
+      ]
+    ],
+    "kb_include": [
+      [
+        "inclui"
+      ]
+    ],
+    "contract_open": [
+      [
+        "o",
+        "contrato"
+      ]
+    ],
+    "contract_states": [
+      [
+        "estabelece",
+        "que"
+      ]
+    ],
+    "resources_include": [
+      [
+        "inclui",
+        "estes",
+        "recursos"
+      ]
+    ],
+    "scenario": [
+      [
+        "cen\xE1rio"
+      ]
+    ],
+    "query": [
+      [
+        "consulta"
+      ]
+    ],
+    "ontology": [
+      [
+        "a",
+        "ontologia",
+        "\xE9"
+      ]
+    ],
+    "predicates": [
+      [
+        "os",
+        "predicados",
+        "s\xE3o"
+      ]
+    ],
+    "templates": [
+      [
+        "os",
+        "modelos",
+        "s\xE3o"
+      ]
+    ],
+    "fluents": [
+      [
+        "os",
+        "fluentes",
+        "s\xE3o"
+      ]
+    ],
+    "events": [
+      [
+        "os",
+        "eventos",
+        "s\xE3o"
+      ]
+    ],
+    "meta_target": [
+      [
+        "a",
+        "linguagem",
+        "alvo",
+        "\xE9"
+      ]
+    ],
+    "marker": [
+      [
+        "sec\xE7\xE3o"
+      ],
+      [
+        "se\xE7\xE3o"
+      ]
+    ],
+    "marker_is": [
+      [
+        "\xE9"
+      ]
+    ],
+    "annexes": [
+      [
+        "os",
+        "anexos",
+        "\xE0",
+        "base",
+        "de",
+        "conhecimento",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "anexos",
+        "ao",
+        "contrato",
+        "s\xE3o"
+      ]
+    ],
+    "guard": [
+      [
+        "a",
+        "base",
+        "de",
+        "conhecimento"
+      ],
+      [
+        "os",
+        "predicados",
+        "s\xE3o"
+      ],
+      [
+        "a",
+        "linguagem",
+        "alvo"
+      ],
+      [
+        "os",
+        "fluentes",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "modelos",
+        "s\xE3o"
+      ],
+      [
+        "os",
+        "eventos",
+        "s\xE3o"
+      ],
+      [
+        "a",
+        "ontologia",
+        "\xE9"
+      ],
+      [
+        "o",
+        "contrato"
+      ],
+      [
+        "consulta"
+      ],
+      [
+        "cen\xE1rio"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicados"
+      ],
+      [
+        "ontologia"
+      ],
+      [
+        "linguagem"
+      ],
+      [
+        "contrato"
+      ],
+      [
+        "fluentes"
+      ],
+      [
+        "modelos"
+      ],
+      [
+        "eventos"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "espera"
+      ]
+    ],
+    "answers": [
+      [
+        "respostas"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "e",
+        "desconhecidos"
+      ]
+    ],
+    "rule": [
+      [
+        "regra"
+      ]
+    ],
+    "if": [
+      [
+        "se"
+      ]
+    ],
+    "only_if": [
+      [
+        "somente",
+        "se"
+      ],
+      [
+        "apenas",
+        "se"
+      ]
+    ],
+    "unless": [
+      [
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "salvo",
+        "se"
+      ]
+    ],
+    "and_unless": [
+      [
+        "e",
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "e",
+        "salvo",
+        "se"
+      ]
+    ],
+    "and": [
+      [
+        "e"
+      ]
+    ],
+    "or": [
+      [
+        "ou"
+      ]
+    ],
+    "either": [
+      [
+        "uma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "um",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "any_of": [
+      [
+        "alguma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "algum",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "all_of": [
+      [
+        "todas",
+        "as",
+        "seguintes"
+      ],
+      [
+        "todos",
+        "os",
+        "seguintes"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "pelo",
+        "menos",
+        "uma",
+        "das",
+        "seguintes"
+      ],
+      [
+        "pelo",
+        "menos",
+        "um",
+        "dos",
+        "seguintes"
+      ]
+    ],
+    "one": [
+      [
+        "uma"
+      ],
+      [
+        "um"
+      ]
+    ],
+    "of": [
+      [
+        "de"
+      ]
+    ],
+    "all": [
+      [
+        "todas"
+      ],
+      [
+        "todos"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "n\xE3o",
+        "se",
+        "verifica",
+        "que"
+      ],
+      [
+        "n\xE3o",
+        "\xE9",
+        "o",
+        "caso",
+        "que"
+      ]
+    ],
+    "forall": [
+      [
+        "para",
+        "todos",
+        "os",
+        "casos",
+        "em",
+        "que"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "verifica-se",
+        "que"
+      ],
+      [
+        "\xE9",
+        "o",
+        "caso",
+        "que"
+      ]
+    ],
+    "for_case": [
+      [
+        "para",
+        "o",
+        "caso"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "\xE9",
+        "verdade",
+        "que"
+      ]
+    ],
+    "it_is": [
+      [
+        "\xE9"
+      ]
+    ],
+    "whether": [
+      [
+        "se"
+      ]
+    ],
+    "defines_global": [
+      [
+        "define",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "oposto"
+      ]
+    ],
+    "synonym": [
+      [
+        "sin\xF3nimo"
+      ],
+      [
+        "sin\xF4nimo"
+      ]
+    ],
+    "prepositional": [
+      [
+        "preposicional"
+      ],
+      [
+        "composto"
+      ],
+      [
+        "composta"
+      ]
+    ],
+    "unknown": [
+      [
+        "desconhecido"
+      ],
+      [
+        "desconhecida"
+      ],
+      [
+        "assum\xEDvel"
+      ],
+      [
+        "assumido"
+      ],
+      [
+        "assumida"
+      ]
+    ],
+    "undefined": [
+      [
+        "elemento",
+        "de",
+        "cen\xE1rio"
+      ],
+      [
+        "indefinido"
+      ],
+      [
+        "indefinida"
+      ]
+    ],
+    "article": [
+      [
+        "alguma"
+      ],
+      [
+        "algum"
+      ],
+      [
+        "umas"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "uns"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "ignorable": [
+      [
+        "tinham"
+      ],
+      [
+        "foram"
+      ],
+      [
+        "tinha"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "sido"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "foi"
+      ],
+      [
+        "tem"
+      ],
+      [
+        "t\xEAm"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "diz"
+      ],
+      [
+        "que"
+      ],
+      [
+        "se"
+      ],
+      [
+        "ou"
+      ],
+      [
+        "e"
+      ]
+    ],
+    "qualifier": [
+      [
+        "primeiro"
+      ],
+      [
+        "primeira"
+      ],
+      [
+        "terceiro"
+      ],
+      [
+        "terceira"
+      ],
+      [
+        "anterior"
+      ],
+      [
+        "original"
+      ],
+      [
+        "segundo"
+      ],
+      [
+        "segunda"
+      ],
+      [
+        "pr\xF3ximo"
+      ],
+      [
+        "pr\xF3xima"
+      ],
+      [
+        "quarto"
+      ],
+      [
+        "quarta"
+      ],
+      [
+        "quinto"
+      ],
+      [
+        "quinta"
+      ],
+      [
+        "s\xE9timo"
+      ],
+      [
+        "s\xE9tima"
+      ],
+      [
+        "oitavo"
+      ],
+      [
+        "oitava"
+      ],
+      [
+        "d\xE9cimo"
+      ],
+      [
+        "d\xE9cima"
+      ],
+      [
+        "\xFAltimo"
+      ],
+      [
+        "\xFAltima"
+      ],
+      [
+        "sexto"
+      ],
+      [
+        "sexta"
+      ],
+      [
+        "outro"
+      ],
+      [
+        "outra"
+      ],
+      [
+        "atual"
+      ],
+      [
+        "mesmo"
+      ],
+      [
+        "mesma"
+      ],
+      [
+        "\xFAnico"
+      ],
+      [
+        "\xFAnica"
+      ],
+      [
+        "nono"
+      ],
+      [
+        "nona"
+      ],
+      [
+        "novo"
+      ],
+      [
+        "nova"
+      ],
+      [
+        "dado"
+      ],
+      [
+        "dada"
+      ]
+    ],
+    "copula": [
+      [
+        "estavam"
+      ],
+      [
+        "estava"
+      ],
+      [
+        "foram"
+      ],
+      [
+        "est\xE3o"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "est\xE1"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "foi"
+      ],
+      [
+        "\xE9"
+      ]
+    ],
+    "definite_article": [
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "este"
+      ],
+      [
+        "esta"
+      ],
+      [
+        "esse"
+      ],
+      [
+        "essa"
+      ]
+    ],
+    "each": [
+      [
+        "cada"
+      ]
+    ],
+    "wh_var": [
+      [
+        "quais"
+      ],
+      [
+        "qual"
+      ]
+    ],
+    "who": [
+      [
+        "quem"
+      ]
+    ],
+    "what": [
+      [
+        "qu\xEA"
+      ]
+    ],
+    "when": [
+      [
+        "quando"
+      ]
+    ],
+    "where": [
+      [
+        "onde"
+      ]
+    ],
+    "which": [
+      [
+        "quais"
+      ],
+      [
+        "qual"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "que"
+      ],
+      [
+        "diz"
+      ]
+    ],
+    "that": [
+      [
+        "que"
+      ]
+    ],
+    "is_a": [
+      [
+        "\xE9",
+        "uma"
+      ],
+      [
+        "\xE9",
+        "um"
+      ],
+      [
+        "\xE9",
+        "de"
+      ]
+    ],
+    "sum": [
+      [
+        "soma"
+      ]
+    ],
+    "count": [
+      [
+        "contagem"
+      ]
+    ],
+    "average": [
+      [
+        "m\xE9dia"
+      ]
+    ],
+    "min": [
+      [
+        "m\xEDnimo"
+      ],
+      [
+        "m\xEDn"
+      ]
+    ],
+    "max": [
+      [
+        "m\xE1ximo"
+      ],
+      [
+        "m\xE1x"
+      ]
+    ],
+    "is_the": [
+      [
+        "\xE9",
+        "a"
+      ],
+      [
+        "\xE9",
+        "o"
+      ]
+    ],
+    "of_each": [
+      [
+        "de",
+        "cada"
+      ]
+    ],
+    "such_that": [
+      [
+        "tais",
+        "que"
+      ],
+      [
+        "tal",
+        "que"
+      ]
+    ],
+    "assuming": [
+      [
+        "assumindo"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "e"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "uma"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "dentro"
+      ],
+      [
+        "entre"
+      ],
+      [
+        "sobre"
+      ],
+      [
+        "para"
+      ],
+      [
+        "eram"
+      ],
+      [
+        "como"
+      ],
+      [
+        "uma"
+      ],
+      [
+        "nos"
+      ],
+      [
+        "nas"
+      ],
+      [
+        "dos"
+      ],
+      [
+        "das"
+      ],
+      [
+        "por"
+      ],
+      [
+        "com"
+      ],
+      [
+        "s\xE3o"
+      ],
+      [
+        "era"
+      ],
+      [
+        "que"
+      ],
+      [
+        "sob"
+      ],
+      [
+        "um"
+      ],
+      [
+        "os"
+      ],
+      [
+        "as"
+      ],
+      [
+        "em"
+      ],
+      [
+        "no"
+      ],
+      [
+        "na"
+      ],
+      [
+        "de"
+      ],
+      [
+        "do"
+      ],
+      [
+        "da"
+      ],
+      [
+        "ou"
+      ],
+      [
+        "o"
+      ],
+      [
+        "a"
+      ],
+      [
+        "e"
+      ],
+      [
+        "\xE9"
+      ]
+    ]
+  },
+  "es": {
+    "kb_open": [
+      [
+        "la",
+        "base",
+        "de",
+        "conocimiento"
+      ]
+    ],
+    "kb_include": [
+      [
+        "incluye"
+      ]
+    ],
+    "contract_open": [
+      [
+        "el",
+        "contrato"
+      ]
+    ],
+    "contract_states": [
+      [
+        "establece",
+        "que"
+      ]
+    ],
+    "resources_include": [
+      [
+        "incluye",
+        "estos",
+        "recursos"
+      ]
+    ],
+    "scenario": [
+      [
+        "escenario"
+      ]
+    ],
+    "query": [
+      [
+        "consulta"
+      ]
+    ],
+    "ontology": [
+      [
+        "la",
+        "ontolog\xEDa",
+        "es"
+      ]
+    ],
+    "predicates": [
+      [
+        "los",
+        "predicados",
+        "son"
+      ]
+    ],
+    "templates": [
+      [
+        "las",
+        "plantillas",
+        "son"
+      ]
+    ],
+    "fluents": [
+      [
+        "los",
+        "fluentes",
+        "son"
+      ]
+    ],
+    "events": [
+      [
+        "los",
+        "eventos",
+        "son"
+      ]
+    ],
+    "meta_target": [
+      [
+        "el",
+        "lenguaje",
+        "objetivo",
+        "es"
+      ]
+    ],
+    "marker": [
+      [
+        "secci\xF3n"
+      ]
+    ],
+    "marker_is": [
+      [
+        "es"
+      ]
+    ],
+    "annexes": [
+      [
+        "los",
+        "anexos",
+        "a",
+        "la",
+        "base",
+        "de",
+        "conocimiento",
+        "son"
+      ],
+      [
+        "los",
+        "anexos",
+        "al",
+        "contrato",
+        "son"
+      ]
+    ],
+    "guard": [
+      [
+        "la",
+        "base",
+        "de",
+        "conocimiento"
+      ],
+      [
+        "el",
+        "lenguaje",
+        "objetivo"
+      ],
+      [
+        "los",
+        "predicados",
+        "son"
+      ],
+      [
+        "las",
+        "plantillas",
+        "son"
+      ],
+      [
+        "los",
+        "fluentes",
+        "son"
+      ],
+      [
+        "la",
+        "ontolog\xEDa",
+        "es"
+      ],
+      [
+        "los",
+        "eventos",
+        "son"
+      ],
+      [
+        "el",
+        "contrato"
+      ],
+      [
+        "escenario"
+      ],
+      [
+        "consulta"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "predicados"
+      ],
+      [
+        "plantillas"
+      ],
+      [
+        "ontolog\xEDa"
+      ],
+      [
+        "contrato"
+      ],
+      [
+        "fluentes"
+      ],
+      [
+        "lenguaje"
+      ],
+      [
+        "eventos"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "espera"
+      ]
+    ],
+    "answers": [
+      [
+        "respuestas"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "y",
+        "desconocidos"
+      ]
+    ],
+    "rule": [
+      [
+        "regla"
+      ]
+    ],
+    "if": [
+      [
+        "si"
+      ]
+    ],
+    "only_if": [
+      [
+        "solo",
+        "si"
+      ],
+      [
+        "s\xF3lo",
+        "si"
+      ]
+    ],
+    "unless": [
+      [
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "salvo",
+        "que"
+      ]
+    ],
+    "and_unless": [
+      [
+        "y",
+        "a",
+        "menos",
+        "que"
+      ],
+      [
+        "y",
+        "salvo",
+        "que"
+      ]
+    ],
+    "and": [
+      [
+        "y"
+      ]
+    ],
+    "or": [
+      [
+        "o"
+      ]
+    ],
+    "either": [
+      [
+        "una",
+        "de",
+        "las",
+        "siguientes"
+      ],
+      [
+        "uno",
+        "de",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "any_of": [
+      [
+        "alguna",
+        "de",
+        "las",
+        "siguientes"
+      ],
+      [
+        "alguno",
+        "de",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "all_of": [
+      [
+        "todas",
+        "las",
+        "siguientes"
+      ],
+      [
+        "todos",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "al",
+        "menos",
+        "una",
+        "de",
+        "las",
+        "siguientes"
+      ],
+      [
+        "al",
+        "menos",
+        "uno",
+        "de",
+        "los",
+        "siguientes"
+      ]
+    ],
+    "one": [
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ]
+    ],
+    "of": [
+      [
+        "de"
+      ]
+    ],
+    "all": [
+      [
+        "todas"
+      ],
+      [
+        "todos"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "no",
+        "es",
+        "el",
+        "caso",
+        "que"
+      ],
+      [
+        "no",
+        "se",
+        "cumple",
+        "que"
+      ]
+    ],
+    "forall": [
+      [
+        "para",
+        "todos",
+        "los",
+        "casos",
+        "en",
+        "que"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "es",
+        "el",
+        "caso",
+        "que"
+      ],
+      [
+        "se",
+        "cumple",
+        "que"
+      ]
+    ],
+    "for_case": [
+      [
+        "para",
+        "el",
+        "caso"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "es",
+        "verdad",
+        "que"
+      ]
+    ],
+    "it_is": [
+      [
+        "es"
+      ]
+    ],
+    "whether": [
+      [
+        "si"
+      ]
+    ],
+    "defines_global": [
+      [
+        "define",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "opuesto"
+      ]
+    ],
+    "synonym": [
+      [
+        "sin\xF3nimo"
+      ]
+    ],
+    "prepositional": [
+      [
+        "preposicional"
+      ],
+      [
+        "compuesto"
+      ],
+      [
+        "compuesta"
+      ]
+    ],
+    "unknown": [
+      [
+        "desconocido"
+      ],
+      [
+        "desconocida"
+      ],
+      [
+        "asumible"
+      ],
+      [
+        "asumido"
+      ],
+      [
+        "asumida"
+      ]
+    ],
+    "undefined": [
+      [
+        "elemento",
+        "de",
+        "escenario"
+      ],
+      [
+        "indefinido"
+      ],
+      [
+        "indefinida"
+      ]
+    ],
+    "article": [
+      [
+        "alguna"
+      ],
+      [
+        "alg\xFAn"
+      ],
+      [
+        "unos"
+      ],
+      [
+        "unas"
+      ],
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "ignorable": [
+      [
+        "fueron"
+      ],
+      [
+        "tienen"
+      ],
+      [
+        "ten\xEDan"
+      ],
+      [
+        "tiene"
+      ],
+      [
+        "ten\xEDa"
+      ],
+      [
+        "eran"
+      ],
+      [
+        "sido"
+      ],
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "son"
+      ],
+      [
+        "era"
+      ],
+      [
+        "fue"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "reserved": [
+      [
+        "dice"
+      ],
+      [
+        "que"
+      ],
+      [
+        "si"
+      ],
+      [
+        "y"
+      ],
+      [
+        "o"
+      ]
+    ],
+    "qualifier": [
+      [
+        "siguiente"
+      ],
+      [
+        "anterior"
+      ],
+      [
+        "original"
+      ],
+      [
+        "primero"
+      ],
+      [
+        "primera"
+      ],
+      [
+        "segundo"
+      ],
+      [
+        "segunda"
+      ],
+      [
+        "tercero"
+      ],
+      [
+        "tercera"
+      ],
+      [
+        "s\xE9ptimo"
+      ],
+      [
+        "s\xE9ptima"
+      ],
+      [
+        "pr\xF3ximo"
+      ],
+      [
+        "pr\xF3xima"
+      ],
+      [
+        "cuarto"
+      ],
+      [
+        "cuarta"
+      ],
+      [
+        "quinto"
+      ],
+      [
+        "quinta"
+      ],
+      [
+        "octavo"
+      ],
+      [
+        "octava"
+      ],
+      [
+        "noveno"
+      ],
+      [
+        "novena"
+      ],
+      [
+        "d\xE9cimo"
+      ],
+      [
+        "d\xE9cima"
+      ],
+      [
+        "actual"
+      ],
+      [
+        "\xFAltimo"
+      ],
+      [
+        "\xFAltima"
+      ],
+      [
+        "sexto"
+      ],
+      [
+        "sexta"
+      ],
+      [
+        "nuevo"
+      ],
+      [
+        "nueva"
+      ],
+      [
+        "mismo"
+      ],
+      [
+        "misma"
+      ],
+      [
+        "\xFAnico"
+      ],
+      [
+        "\xFAnica"
+      ],
+      [
+        "otro"
+      ],
+      [
+        "otra"
+      ],
+      [
+        "dado"
+      ],
+      [
+        "dada"
+      ]
+    ],
+    "copula": [
+      [
+        "estaban"
+      ],
+      [
+        "fueron"
+      ],
+      [
+        "estaba"
+      ],
+      [
+        "est\xE1n"
+      ],
+      [
+        "eran"
+      ],
+      [
+        "est\xE1"
+      ],
+      [
+        "son"
+      ],
+      [
+        "era"
+      ],
+      [
+        "fue"
+      ],
+      [
+        "es"
+      ]
+    ],
+    "definite_article": [
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "este"
+      ],
+      [
+        "esta"
+      ],
+      [
+        "ese"
+      ],
+      [
+        "esa"
+      ]
+    ],
+    "each": [
+      [
+        "cada"
+      ]
+    ],
+    "wh_var": [
+      [
+        "cu\xE1les"
+      ],
+      [
+        "cu\xE1l"
+      ],
+      [
+        "qu\xE9"
+      ]
+    ],
+    "who": [
+      [
+        "qui\xE9n"
+      ]
+    ],
+    "what": [
+      [
+        "qu\xE9"
+      ]
+    ],
+    "when": [
+      [
+        "cu\xE1ndo"
+      ]
+    ],
+    "where": [
+      [
+        "d\xF3nde"
+      ]
+    ],
+    "which": [
+      [
+        "cu\xE1les"
+      ],
+      [
+        "cu\xE1l"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "dice"
+      ],
+      [
+        "que"
+      ]
+    ],
+    "that": [
+      [
+        "que"
+      ]
+    ],
+    "is_a": [
+      [
+        "es",
+        "una"
+      ],
+      [
+        "es",
+        "un"
+      ],
+      [
+        "es",
+        "de"
+      ]
+    ],
+    "sum": [
+      [
+        "suma"
+      ]
+    ],
+    "count": [
+      [
+        "recuento"
+      ],
+      [
+        "cuenta"
+      ]
+    ],
+    "average": [
+      [
+        "promedio"
+      ],
+      [
+        "media"
+      ]
+    ],
+    "min": [
+      [
+        "m\xEDnimo"
+      ],
+      [
+        "m\xEDn"
+      ]
+    ],
+    "max": [
+      [
+        "m\xE1ximo"
+      ],
+      [
+        "m\xE1x"
+      ]
+    ],
+    "is_the": [
+      [
+        "es",
+        "la"
+      ],
+      [
+        "es",
+        "el"
+      ]
+    ],
+    "of_each": [
+      [
+        "de",
+        "cada"
+      ]
+    ],
+    "such_that": [
+      [
+        "tales",
+        "que"
+      ],
+      [
+        "tal",
+        "que"
+      ]
+    ],
+    "assuming": [
+      [
+        "suponiendo"
+      ],
+      [
+        "asumiendo"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "y"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "dentro"
+      ],
+      [
+        "entre"
+      ],
+      [
+        "sobre"
+      ],
+      [
+        "para"
+      ],
+      [
+        "eran"
+      ],
+      [
+        "como"
+      ],
+      [
+        "bajo"
+      ],
+      [
+        "una"
+      ],
+      [
+        "los"
+      ],
+      [
+        "las"
+      ],
+      [
+        "del"
+      ],
+      [
+        "por"
+      ],
+      [
+        "con"
+      ],
+      [
+        "son"
+      ],
+      [
+        "era"
+      ],
+      [
+        "que"
+      ],
+      [
+        "un"
+      ],
+      [
+        "el"
+      ],
+      [
+        "la"
+      ],
+      [
+        "en"
+      ],
+      [
+        "al"
+      ],
+      [
+        "de"
+      ],
+      [
+        "es"
+      ],
+      [
+        "y"
+      ],
+      [
+        "o"
+      ]
+    ]
+  },
+  "fr": {
+    "kb_open": [
+      [
+        "la",
+        "base",
+        "de",
+        "connaissances"
+      ]
+    ],
+    "kb_include": [
+      [
+        "comprend"
+      ],
+      [
+        "inclut"
+      ]
+    ],
+    "contract_open": [
+      [
+        "le",
+        "contrat"
+      ]
+    ],
+    "contract_states": [
+      [
+        "stipule",
+        "que"
+      ]
+    ],
+    "resources_include": [
+      [
+        "comprend",
+        "ces",
+        "ressources"
+      ],
+      [
+        "inclut",
+        "ces",
+        "ressources"
+      ]
+    ],
+    "scenario": [
+      [
+        "sc\xE9nario"
+      ]
+    ],
+    "query": [
+      [
+        "requ\xEAte"
+      ]
+    ],
+    "ontology": [
+      [
+        "la",
+        "taxonomie",
+        "est"
+      ]
+    ],
+    "predicates": [
+      [
+        "les",
+        "pr\xE9dicats",
+        "sont"
+      ]
+    ],
+    "templates": [
+      [
+        "les",
+        "mod\xE8les",
+        "sont"
+      ]
+    ],
+    "fluents": [
+      [
+        "les",
+        "fluents",
+        "sont"
+      ]
+    ],
+    "events": [
+      [
+        "les",
+        "\xE9v\xE9nements",
+        "sont"
+      ]
+    ],
+    "meta_target": [
+      [
+        "la",
+        "langue",
+        "cible",
+        "est"
+      ]
+    ],
+    "marker": [
+      [
+        "section"
+      ]
+    ],
+    "marker_is": [
+      [
+        "est"
+      ]
+    ],
+    "annexes": [
+      [
+        "les",
+        "annexes",
+        "\xE0",
+        "la",
+        "base",
+        "de",
+        "connaissances",
+        "sont"
+      ],
+      [
+        "les",
+        "annexes",
+        "au",
+        "contrat",
+        "sont"
+      ]
+    ],
+    "guard": [
+      [
+        "la",
+        "base",
+        "de",
+        "connaissances"
+      ],
+      [
+        "les",
+        "\xE9v\xE9nements",
+        "sont"
+      ],
+      [
+        "les",
+        "pr\xE9dicats",
+        "sont"
+      ],
+      [
+        "la",
+        "taxonomie",
+        "est"
+      ],
+      [
+        "les",
+        "mod\xE8les",
+        "sont"
+      ],
+      [
+        "les",
+        "fluents",
+        "sont"
+      ],
+      [
+        "la",
+        "langue",
+        "cible"
+      ],
+      [
+        "le",
+        "contrat"
+      ],
+      [
+        "sc\xE9nario"
+      ],
+      [
+        "requ\xEAte"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "\xE9v\xE9nements"
+      ],
+      [
+        "taxonomie"
+      ],
+      [
+        "pr\xE9dicats"
+      ],
+      [
+        "contrat"
+      ],
+      [
+        "mod\xE8les"
+      ],
+      [
+        "fluents"
+      ],
+      [
+        "langue"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "attend"
+      ]
+    ],
+    "answers": [
+      [
+        "r\xE9ponses"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "et",
+        "inconnues"
+      ],
+      [
+        "et",
+        "inconnus"
+      ]
+    ],
+    "rule": [
+      [
+        "r\xE8gle"
+      ]
+    ],
+    "if": [
+      [
+        "si"
+      ]
+    ],
+    "only_if": [
+      [
+        "uniquement",
+        "si"
+      ],
+      [
+        "seulement",
+        "si"
+      ]
+    ],
+    "unless": [
+      [
+        "\xE0",
+        "moins",
+        "que"
+      ],
+      [
+        "sauf",
+        "si"
+      ]
+    ],
+    "and_unless": [
+      [
+        "et",
+        "\xE0",
+        "moins",
+        "que"
+      ],
+      [
+        "et",
+        "sauf",
+        "si"
+      ]
+    ],
+    "and": [
+      [
+        "et"
+      ]
+    ],
+    "or": [
+      [
+        "ou"
+      ]
+    ],
+    "either": [
+      [
+        "une",
+        "des",
+        "suivantes"
+      ],
+      [
+        "un",
+        "des",
+        "suivants"
+      ]
+    ],
+    "any_of": [
+      [
+        "une",
+        "quelconque",
+        "des",
+        "suivantes"
+      ],
+      [
+        "un",
+        "quelconque",
+        "des",
+        "suivants"
+      ]
+    ],
+    "all_of": [
+      [
+        "toutes",
+        "les",
+        "suivantes"
+      ],
+      [
+        "tous",
+        "les",
+        "suivants"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "au",
+        "moins",
+        "une",
+        "des",
+        "suivantes"
+      ],
+      [
+        "au",
+        "moins",
+        "un",
+        "des",
+        "suivants"
+      ]
+    ],
+    "one": [
+      [
+        "une"
+      ],
+      [
+        "un"
+      ]
+    ],
+    "of": [
+      [
+        "de"
+      ]
+    ],
+    "all": [
+      [
+        "toutes"
+      ],
+      [
+        "tous"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "il",
+        "est",
+        "exclu",
+        "que"
+      ],
+      [
+        "il",
+        "est",
+        "faux",
+        "que"
+      ]
+    ],
+    "forall": [
+      [
+        "pour",
+        "tous",
+        "les",
+        "cas",
+        "o\xF9"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "il",
+        "est",
+        "le",
+        "cas",
+        "que"
+      ]
+    ],
+    "for_case": [
+      [
+        "pour",
+        "le",
+        "cas"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "il",
+        "est",
+        "vrai",
+        "que"
+      ]
+    ],
+    "it_is": [
+      [
+        "il",
+        "est"
+      ]
+    ],
+    "whether": [
+      [
+        "si"
+      ]
+    ],
+    "defines_global": [
+      [
+        "d\xE9finit",
+        "global"
+      ]
+    ],
+    "opposite": [
+      [
+        "oppos\xE9"
+      ]
+    ],
+    "synonym": [
+      [
+        "synonyme"
+      ]
+    ],
+    "prepositional": [
+      [
+        "pr\xE9positionnelle"
+      ],
+      [
+        "pr\xE9positionnel"
+      ],
+      [
+        "compos\xE9e"
+      ],
+      [
+        "compos\xE9"
+      ]
+    ],
+    "unknown": [
+      [
+        "supposable"
+      ],
+      [
+        "inconnue"
+      ],
+      [
+        "suppos\xE9e"
+      ],
+      [
+        "inconnu"
+      ],
+      [
+        "suppos\xE9"
+      ]
+    ],
+    "undefined": [
+      [
+        "\xE9l\xE9ment",
+        "de",
+        "sc\xE9nario"
+      ],
+      [
+        "ind\xE9finie"
+      ],
+      [
+        "ind\xE9fini"
+      ]
+    ],
+    "article": [
+      [
+        "quelque"
+      ],
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "ignorable": [
+      [
+        "\xE9taient"
+      ],
+      [
+        "avaient"
+      ],
+      [
+        "furent"
+      ],
+      [
+        "\xE9tait"
+      ],
+      [
+        "avait"
+      ],
+      [
+        "sont"
+      ],
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "fut"
+      ],
+      [
+        "ont"
+      ],
+      [
+        "\xE9t\xE9"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "reserved": [
+      [
+        "dit"
+      ],
+      [
+        "que"
+      ],
+      [
+        "si"
+      ],
+      [
+        "et"
+      ],
+      [
+        "ou"
+      ]
+    ],
+    "qualifier": [
+      [
+        "pr\xE9c\xE9dente"
+      ],
+      [
+        "troisi\xE8me"
+      ],
+      [
+        "quatri\xE8me"
+      ],
+      [
+        "cinqui\xE8me"
+      ],
+      [
+        "pr\xE9c\xE9dent"
+      ],
+      [
+        "prochaine"
+      ],
+      [
+        "originale"
+      ],
+      [
+        "premi\xE8re"
+      ],
+      [
+        "deuxi\xE8me"
+      ],
+      [
+        "septi\xE8me"
+      ],
+      [
+        "huiti\xE8me"
+      ],
+      [
+        "neuvi\xE8me"
+      ],
+      [
+        "nouvelle"
+      ],
+      [
+        "prochain"
+      ],
+      [
+        "suivante"
+      ],
+      [
+        "actuelle"
+      ],
+      [
+        "derni\xE8re"
+      ],
+      [
+        "original"
+      ],
+      [
+        "premier"
+      ],
+      [
+        "seconde"
+      ],
+      [
+        "sixi\xE8me"
+      ],
+      [
+        "dixi\xE8me"
+      ],
+      [
+        "nouveau"
+      ],
+      [
+        "suivant"
+      ],
+      [
+        "dernier"
+      ],
+      [
+        "second"
+      ],
+      [
+        "actuel"
+      ],
+      [
+        "unique"
+      ],
+      [
+        "donn\xE9e"
+      ],
+      [
+        "autre"
+      ],
+      [
+        "donn\xE9"
+      ],
+      [
+        "m\xEAme"
+      ]
+    ],
+    "copula": [
+      [
+        "\xE9taient"
+      ],
+      [
+        "furent"
+      ],
+      [
+        "\xE9tait"
+      ],
+      [
+        "sont"
+      ],
+      [
+        "est"
+      ],
+      [
+        "fut"
+      ]
+    ],
+    "definite_article": [
+      [
+        "les"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "cette"
+      ],
+      [
+        "cet"
+      ],
+      [
+        "ce"
+      ]
+    ],
+    "each": [
+      [
+        "chaque"
+      ]
+    ],
+    "wh_var": [
+      [
+        "quelles"
+      ],
+      [
+        "quelle"
+      ],
+      [
+        "quels"
+      ],
+      [
+        "quel"
+      ]
+    ],
+    "who": [
+      [
+        "qui"
+      ]
+    ],
+    "what": [
+      [
+        "quoi"
+      ]
+    ],
+    "when": [
+      [
+        "quand"
+      ]
+    ],
+    "where": [
+      [
+        "o\xF9"
+      ]
+    ],
+    "which": [
+      [
+        "quelles"
+      ],
+      [
+        "quelle"
+      ],
+      [
+        "quels"
+      ],
+      [
+        "quel"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "que"
+      ],
+      [
+        "dit"
+      ]
+    ],
+    "that": [
+      [
+        "que"
+      ]
+    ],
+    "is_a": [
+      [
+        "est",
+        "une"
+      ],
+      [
+        "est",
+        "un"
+      ],
+      [
+        "est",
+        "de"
+      ]
+    ],
+    "sum": [
+      [
+        "somme"
+      ]
+    ],
+    "count": [
+      [
+        "compte"
+      ],
+      [
+        "nombre"
+      ]
+    ],
+    "average": [
+      [
+        "moyenne"
+      ]
+    ],
+    "min": [
+      [
+        "minimum"
+      ],
+      [
+        "min"
+      ]
+    ],
+    "max": [
+      [
+        "maximum"
+      ],
+      [
+        "max"
+      ]
+    ],
+    "is_the": [
+      [
+        "est",
+        "la"
+      ],
+      [
+        "est",
+        "le"
+      ]
+    ],
+    "of_each": [
+      [
+        "de",
+        "chaque"
+      ]
+    ],
+    "such_that": [
+      [
+        "telle",
+        "que"
+      ],
+      [
+        "tels",
+        "que"
+      ],
+      [
+        "tel",
+        "que"
+      ]
+    ],
+    "assuming": [
+      [
+        "en",
+        "supposant"
+      ],
+      [
+        "supposant"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "et"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "\xE9taient"
+      ],
+      [
+        "entre"
+      ],
+      [
+        "\xE9tait"
+      ],
+      [
+        "comme"
+      ],
+      [
+        "dans"
+      ],
+      [
+        "pour"
+      ],
+      [
+        "avec"
+      ],
+      [
+        "sont"
+      ],
+      [
+        "sous"
+      ],
+      [
+        "une"
+      ],
+      [
+        "les"
+      ],
+      [
+        "aux"
+      ],
+      [
+        "des"
+      ],
+      [
+        "par"
+      ],
+      [
+        "est"
+      ],
+      [
+        "que"
+      ],
+      [
+        "sur"
+      ],
+      [
+        "un"
+      ],
+      [
+        "le"
+      ],
+      [
+        "la"
+      ],
+      [
+        "en"
+      ],
+      [
+        "au"
+      ],
+      [
+        "du"
+      ],
+      [
+        "de"
+      ],
+      [
+        "et"
+      ],
+      [
+        "ou"
+      ]
+    ]
+  },
+  "it": {
+    "kb_open": [
+      [
+        "la",
+        "base",
+        "di",
+        "conoscenza"
+      ]
+    ],
+    "kb_include": [
+      [
+        "include"
+      ]
+    ],
+    "contract_open": [
+      [
+        "il",
+        "contratto"
+      ]
+    ],
+    "contract_states": [
+      [
+        "stabilisce",
+        "che"
+      ]
+    ],
+    "resources_include": [
+      [
+        "include",
+        "queste",
+        "risorse"
+      ]
+    ],
+    "scenario": [
+      [
+        "scenario"
+      ]
+    ],
+    "query": [
+      [
+        "interrogazione"
+      ]
+    ],
+    "ontology": [
+      [
+        "la",
+        "tassonomia",
+        "\xE8"
+      ]
+    ],
+    "predicates": [
+      [
+        "i",
+        "predicati",
+        "sono"
+      ]
+    ],
+    "templates": [
+      [
+        "i",
+        "modelli",
+        "sono"
+      ]
+    ],
+    "fluents": [
+      [
+        "i",
+        "fluenti",
+        "sono"
+      ]
+    ],
+    "events": [
+      [
+        "gli",
+        "eventi",
+        "sono"
+      ]
+    ],
+    "meta_target": [
+      [
+        "il",
+        "linguaggio",
+        "obiettivo",
+        "\xE8"
+      ]
+    ],
+    "marker": [
+      [
+        "sezione"
+      ]
+    ],
+    "marker_is": [
+      [
+        "\xE8"
+      ]
+    ],
+    "annexes": [
+      [
+        "gli",
+        "allegati",
+        "alla",
+        "base",
+        "di",
+        "conoscenza",
+        "sono"
+      ],
+      [
+        "gli",
+        "allegati",
+        "al",
+        "contratto",
+        "sono"
+      ]
+    ],
+    "guard": [
+      [
+        "il",
+        "linguaggio",
+        "obiettivo"
+      ],
+      [
+        "la",
+        "base",
+        "di",
+        "conoscenza"
+      ],
+      [
+        "i",
+        "predicati",
+        "sono"
+      ],
+      [
+        "la",
+        "tassonomia",
+        "\xE8"
+      ],
+      [
+        "gli",
+        "eventi",
+        "sono"
+      ],
+      [
+        "interrogazione"
+      ],
+      [
+        "i",
+        "modelli",
+        "sono"
+      ],
+      [
+        "i",
+        "fluenti",
+        "sono"
+      ],
+      [
+        "il",
+        "contratto"
+      ],
+      [
+        "scenario"
+      ]
+    ],
+    "reserved_word": [
+      [
+        "tassonomia"
+      ],
+      [
+        "linguaggio"
+      ],
+      [
+        "contratto"
+      ],
+      [
+        "predicati"
+      ],
+      [
+        "modelli"
+      ],
+      [
+        "fluenti"
+      ],
+      [
+        "eventi"
+      ],
+      [
+        "base"
+      ]
+    ],
+    "expects": [
+      [
+        "attende"
+      ]
+    ],
+    "answers": [
+      [
+        "risposte"
+      ]
+    ],
+    "and_unknowns": [
+      [
+        "e",
+        "sconosciuti"
+      ],
+      [
+        "e",
+        "sconosciute"
+      ]
+    ],
+    "rule": [
+      [
+        "regola"
+      ]
+    ],
+    "if": [
+      [
+        "se"
+      ]
+    ],
+    "only_if": [
+      [
+        "soltanto",
+        "se"
+      ],
+      [
+        "solo",
+        "se"
+      ]
+    ],
+    "unless": [
+      [
+        "a",
+        "meno",
+        "che"
+      ],
+      [
+        "salvo",
+        "che"
+      ]
+    ],
+    "and_unless": [
+      [
+        "e",
+        "a",
+        "meno",
+        "che"
+      ],
+      [
+        "e",
+        "salvo",
+        "che"
+      ]
+    ],
+    "and": [
+      [
+        "e"
+      ]
+    ],
+    "or": [
+      [
+        "oppure"
+      ],
+      [
+        "o"
+      ]
+    ],
+    "either": [
+      [
+        "una",
+        "delle",
+        "seguenti"
+      ],
+      [
+        "uno",
+        "dei",
+        "seguenti"
+      ]
+    ],
+    "any_of": [
+      [
+        "qualcuna",
+        "delle",
+        "seguenti"
+      ],
+      [
+        "qualcuno",
+        "dei",
+        "seguenti"
+      ]
+    ],
+    "all_of": [
+      [
+        "tutte",
+        "le",
+        "seguenti"
+      ],
+      [
+        "tutti",
+        "i",
+        "seguenti"
+      ]
+    ],
+    "at_least_one_of": [
+      [
+        "almeno",
+        "una",
+        "delle",
+        "seguenti"
+      ],
+      [
+        "almeno",
+        "uno",
+        "dei",
+        "seguenti"
+      ]
+    ],
+    "one": [
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ]
+    ],
+    "of": [
+      [
+        "di"
+      ]
+    ],
+    "all": [
+      [
+        "tutte"
+      ],
+      [
+        "tutti"
+      ]
+    ],
+    "not_the_case": [
+      [
+        "non",
+        "\xE8",
+        "il",
+        "caso",
+        "che"
+      ],
+      [
+        "non",
+        "risulta",
+        "che"
+      ]
+    ],
+    "forall": [
+      [
+        "per",
+        "tutti",
+        "i",
+        "casi",
+        "in",
+        "cui"
+      ]
+    ],
+    "it_the_case": [
+      [
+        "\xE8",
+        "il",
+        "caso",
+        "che"
+      ],
+      [
+        "risulta",
+        "che"
+      ]
+    ],
+    "for_case": [
+      [
+        "per",
+        "il",
+        "caso"
+      ]
+    ],
+    "it_is_true_that": [
+      [
+        "\xE8",
+        "vero",
+        "che"
+      ]
+    ],
+    "it_is": [
+      [
+        "\xE8"
+      ]
+    ],
+    "whether": [
+      [
+        "se"
+      ]
+    ],
+    "defines_global": [
+      [
+        "definisce",
+        "globale"
+      ]
+    ],
+    "opposite": [
+      [
+        "opposto"
+      ]
+    ],
+    "synonym": [
+      [
+        "sinonimo"
+      ]
+    ],
+    "prepositional": [
+      [
+        "preposizionale"
+      ],
+      [
+        "composto"
+      ],
+      [
+        "composta"
+      ]
+    ],
+    "unknown": [
+      [
+        "sconosciuto"
+      ],
+      [
+        "sconosciuta"
+      ],
+      [
+        "assumibile"
+      ],
+      [
+        "assunto"
+      ],
+      [
+        "assunta"
+      ]
+    ],
+    "undefined": [
+      [
+        "elemento",
+        "di",
+        "scenario"
+      ],
+      [
+        "indefinito"
+      ],
+      [
+        "indefinita"
+      ]
+    ],
+    "article": [
+      [
+        "qualche"
+      ],
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "ignorable": [
+      [
+        "avevano"
+      ],
+      [
+        "furono"
+      ],
+      [
+        "erano"
+      ],
+      [
+        "hanno"
+      ],
+      [
+        "aveva"
+      ],
+      [
+        "stato"
+      ],
+      [
+        "stata"
+      ],
+      [
+        "sono"
+      ],
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "era"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "fu"
+      ],
+      [
+        "ha"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "reserved": [
+      [
+        "dice"
+      ],
+      [
+        "che"
+      ],
+      [
+        "se"
+      ],
+      [
+        "e"
+      ],
+      [
+        "o"
+      ]
+    ],
+    "qualifier": [
+      [
+        "precedente"
+      ],
+      [
+        "successivo"
+      ],
+      [
+        "successiva"
+      ],
+      [
+        "originale"
+      ],
+      [
+        "prossimo"
+      ],
+      [
+        "prossima"
+      ],
+      [
+        "secondo"
+      ],
+      [
+        "seconda"
+      ],
+      [
+        "settimo"
+      ],
+      [
+        "settima"
+      ],
+      [
+        "attuale"
+      ],
+      [
+        "quarto"
+      ],
+      [
+        "quarta"
+      ],
+      [
+        "quinto"
+      ],
+      [
+        "quinta"
+      ],
+      [
+        "ottavo"
+      ],
+      [
+        "ottava"
+      ],
+      [
+        "decimo"
+      ],
+      [
+        "decima"
+      ],
+      [
+        "ultimo"
+      ],
+      [
+        "ultima"
+      ],
+      [
+        "stesso"
+      ],
+      [
+        "stessa"
+      ],
+      [
+        "primo"
+      ],
+      [
+        "prima"
+      ],
+      [
+        "terzo"
+      ],
+      [
+        "terza"
+      ],
+      [
+        "sesto"
+      ],
+      [
+        "sesta"
+      ],
+      [
+        "altro"
+      ],
+      [
+        "altra"
+      ],
+      [
+        "nuovo"
+      ],
+      [
+        "nuova"
+      ],
+      [
+        "unico"
+      ],
+      [
+        "unica"
+      ],
+      [
+        "nono"
+      ],
+      [
+        "nona"
+      ]
+    ],
+    "copula": [
+      [
+        "furono"
+      ],
+      [
+        "stanno"
+      ],
+      [
+        "erano"
+      ],
+      [
+        "sono"
+      ],
+      [
+        "era"
+      ],
+      [
+        "sta"
+      ],
+      [
+        "fu"
+      ],
+      [
+        "\xE8"
+      ]
+    ],
+    "definite_article": [
+      [
+        "gli"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "determiner_definite": [
+      [
+        "questo"
+      ],
+      [
+        "questa"
+      ],
+      [
+        "quella"
+      ],
+      [
+        "quel"
+      ]
+    ],
+    "each": [
+      [
+        "ciascuna"
+      ],
+      [
+        "ciascun"
+      ],
+      [
+        "ogni"
+      ]
+    ],
+    "wh_var": [
+      [
+        "quale"
+      ],
+      [
+        "quali"
+      ]
+    ],
+    "who": [
+      [
+        "chi"
+      ]
+    ],
+    "what": [
+      [
+        "cosa"
+      ]
+    ],
+    "when": [
+      [
+        "quando"
+      ]
+    ],
+    "where": [
+      [
+        "dove"
+      ]
+    ],
+    "which": [
+      [
+        "quale"
+      ],
+      [
+        "quali"
+      ]
+    ],
+    "meta_marker": [
+      [
+        "dice"
+      ],
+      [
+        "che"
+      ]
+    ],
+    "that": [
+      [
+        "che"
+      ]
+    ],
+    "is_a": [
+      [
+        "\xE8",
+        "una"
+      ],
+      [
+        "\xE8",
+        "uno"
+      ],
+      [
+        "\xE8",
+        "un"
+      ],
+      [
+        "\xE8",
+        "di"
+      ]
+    ],
+    "sum": [
+      [
+        "somma"
+      ]
+    ],
+    "count": [
+      [
+        "conteggio"
+      ],
+      [
+        "conto"
+      ]
+    ],
+    "average": [
+      [
+        "media"
+      ]
+    ],
+    "min": [
+      [
+        "minimo"
+      ],
+      [
+        "min"
+      ]
+    ],
+    "max": [
+      [
+        "massimo"
+      ],
+      [
+        "max"
+      ]
+    ],
+    "is_the": [
+      [
+        "\xE8",
+        "la"
+      ],
+      [
+        "\xE8",
+        "il"
+      ]
+    ],
+    "of_each": [
+      [
+        "di",
+        "ciascun"
+      ],
+      [
+        "di",
+        "ogni"
+      ]
+    ],
+    "such_that": [
+      [
+        "tale",
+        "che"
+      ],
+      [
+        "tali",
+        "che"
+      ]
+    ],
+    "assuming": [
+      [
+        "supponendo"
+      ],
+      [
+        "assumendo"
+      ]
+    ],
+    "assuming_and": [
+      [
+        "e"
+      ]
+    ],
+    "article_narrow": [
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "i"
+      ]
+    ],
+    "connective_heuristic": [
+      [
+        "dentro"
+      ],
+      [
+        "nella"
+      ],
+      [
+        "della"
+      ],
+      [
+        "erano"
+      ],
+      [
+        "sotto"
+      ],
+      [
+        "sopra"
+      ],
+      [
+        "sono"
+      ],
+      [
+        "come"
+      ],
+      [
+        "una"
+      ],
+      [
+        "uno"
+      ],
+      [
+        "gli"
+      ],
+      [
+        "nel"
+      ],
+      [
+        "per"
+      ],
+      [
+        "del"
+      ],
+      [
+        "con"
+      ],
+      [
+        "tra"
+      ],
+      [
+        "fra"
+      ],
+      [
+        "era"
+      ],
+      [
+        "che"
+      ],
+      [
+        "un"
+      ],
+      [
+        "il"
+      ],
+      [
+        "lo"
+      ],
+      [
+        "la"
+      ],
+      [
+        "le"
+      ],
+      [
+        "in"
+      ],
+      [
+        "di"
+      ],
+      [
+        "da"
+      ],
+      [
+        "i"
+      ],
+      [
+        "e"
+      ],
+      [
+        "o"
+      ],
+      [
+        "\xE8"
+      ]
+    ]
+  }
+};
 var uiCatalog = {
   "en": {},
   "pt": {
@@ -1335,6 +5847,11 @@ var languages = [
     "status": "draft"
   }
 ];
+function keywordPhrases(lang, key) {
+  const table = keywords[lang] ?? keywords["en"];
+  const syns = table[key] ?? keywords["en"]?.[key] ?? [];
+  return syns.map((words) => words.join(" "));
+}
 
 // src/i18n.ts
 var STORAGE_KEY = "le-ui-lang";
@@ -1353,6 +5870,42 @@ function t(key) {
     return key;
   const cat = uiCatalog[lang];
   return cat && cat[key] || key;
+}
+function detectProgramLanguage(text) {
+  const lines = text.split("\n");
+  let firstStatement = "";
+  let inBlockComment = false;
+  for (const line of lines) {
+    let s = line.trim();
+    if (inBlockComment) {
+      const end = s.indexOf("*/");
+      if (end === -1)
+        continue;
+      s = s.slice(end + 2).trim();
+      inBlockComment = false;
+    }
+    if (s.startsWith("/*")) {
+      const end = s.indexOf("*/");
+      if (end === -1) {
+        inBlockComment = true;
+        continue;
+      }
+      s = s.slice(end + 2).trim();
+    }
+    if (!s || s.startsWith("%"))
+      continue;
+    firstStatement = s;
+    break;
+  }
+  const norm = firstStatement.toLowerCase().replace(/\s+/g, " ");
+  for (const info of languages) {
+    if (info.opener && norm.startsWith(info.opener.toLowerCase()))
+      return info.code;
+  }
+  return "en";
+}
+function kwPhrases(lang, key) {
+  return keywordPhrases(lang, key);
 }
 var AUTO_SELECTOR = [
   "button",
@@ -1422,6 +5975,197 @@ function installLeApiLang() {
     }
     return origFetch(input, init);
   };
+}
+
+// src/le-templates.ts
+function kwAltFor(langs, key) {
+  const phrases = /* @__PURE__ */ new Set();
+  for (const l of langs)
+    for (const p of kwPhrases(l, key))
+      if (p)
+        phrases.add(p);
+  return [...phrases].sort((a, b) => b.length - a.length).map((p) => escapeRegex(p).replace(/\s+/g, "\\s+")).join("|");
+}
+function kwAlt(source, key) {
+  return kwAltFor([detectProgramLanguage(source), "en"], key);
+}
+function blockHeader(source, key, name) {
+  const lang = detectProgramLanguage(source);
+  const kw = kwPhrases(lang, key)[0] || key;
+  const is = kwPhrases(lang, "marker_is")[0] || "is";
+  return `${kw} ${name} ${is}:`;
+}
+function blockHeaderRe(source, key) {
+  return new RegExp(
+    `^(?:${kwAlt(source, key)})\\s+(.+?)\\s+(?:${kwAlt(source, "marker_is")})\\s*:`,
+    "i"
+  );
+}
+function splitTemplate(label) {
+  const segs = [];
+  const re = /\*([^*]+)\*/g;
+  let last = 0;
+  let m;
+  while ((m = re.exec(label)) !== null) {
+    const lit = label.slice(last, m.index).trim();
+    if (lit)
+      segs.push({ kind: "literal", text: lit });
+    segs.push({ kind: "field", text: m[1].trim() });
+    last = m.index + m[0].length;
+  }
+  const tail = label.slice(last).trim();
+  if (tail)
+    segs.push({ kind: "literal", text: tail });
+  return segs;
+}
+function parseTemplateDefs(source) {
+  const defs = [];
+  const sectionHeader = new RegExp(`^(?:${kwAlt(source, "guard")})(?=[\\s:]|$)`, "im");
+  const templateHeader = new RegExp(
+    `(?:${["predicates", "templates", "fluents", "events"].map((k) => kwAlt(source, k)).join("|")})\\s*:`,
+    "gi"
+  );
+  const undefinedMarker = new RegExp(`(?:^|\\s)(?:${kwAlt(source, "undefined")})(?!\\p{L})`, "iu");
+  const oppositeMarker = new RegExp(`(?:${kwAlt(source, "opposite")})\\s*:\\s*([^;]+)`, "iu");
+  const synonymMarker = new RegExp(`(?:^|\\s)(?:${kwAlt(source, "synonym")})\\s+([^;]+)`, "giu");
+  let m;
+  while ((m = templateHeader.exec(source)) !== null) {
+    const remaining = source.substring(m.index + m[0].length);
+    const next = remaining.match(sectionHeader);
+    const sectionText = next ? remaining.substring(0, next.index) : remaining;
+    for (const line of sectionText.split("\n")) {
+      const t2 = line.trim();
+      if (!t2 || t2.startsWith("%"))
+        continue;
+      const semi = t2.indexOf(";");
+      const annotation = semi >= 0 ? t2.slice(semi + 1) : "";
+      const isUndefined = undefinedMarker.test(annotation);
+      const main = (semi >= 0 ? t2.slice(0, semi) : t2).replace(/[.,]\s*$/, "").trim();
+      if (main)
+        defs.push({ label: main, isUndefined });
+      const opp = annotation.match(oppositeMarker);
+      if (opp) {
+        const o = opp[1].replace(/[.,;]\s*$/, "").trim();
+        if (o)
+          defs.push({ label: o, isUndefined });
+      }
+      for (const sm of annotation.matchAll(synonymMarker)) {
+        const s = sm[1].replace(/[.,;]\s*$/, "").trim();
+        if (s)
+          defs.push({ label: s, isUndefined });
+      }
+    }
+  }
+  return defs;
+}
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function templateRegex(label) {
+  const segs = splitTemplate(label);
+  if (!segs.some((s) => s.kind === "field"))
+    return null;
+  const pieces = segs.map((s) => {
+    if (s.kind === "field")
+      return "(.+?)";
+    const lit = escapeRegex(s.text).replace(/\s+/g, "\\s+").replace(/,/g, ",(?!\\d)");
+    const lb = /^\w/.test(s.text) ? "\\b" : "";
+    const rb = /\w$/.test(s.text) ? "\\b" : "";
+    return lb + lit + rb;
+  });
+  try {
+    return new RegExp("^\\s*" + pieces.join("\\s*") + "\\s*$", "i");
+  } catch {
+    return null;
+  }
+}
+function literalLength(label) {
+  return splitTemplate(label).filter((s) => s.kind === "literal").reduce((n, s) => n + s.text.length, 0);
+}
+function matchFact(fact, templates) {
+  const f = fact.trim().replace(/\.\s*$/, "");
+  const norm = (s) => s.replace(/\s+/g, " ").trim().toLowerCase();
+  const fNorm = norm(f);
+  const sorted = [...templates].sort((a, b) => literalLength(b) - literalLength(a));
+  for (const label of sorted) {
+    const segs = splitTemplate(label);
+    if (!segs.some((s) => s.kind === "field")) {
+      const lit = segs.map((s) => s.text).join(" ");
+      if (norm(lit) === fNorm)
+        return { label, values: [] };
+      continue;
+    }
+    const re = templateRegex(label);
+    if (!re)
+      continue;
+    const m = re.exec(f);
+    if (m)
+      return { label, values: m.slice(1).map((v) => (v || "").trim()) };
+  }
+  return null;
+}
+function scanBlocks(source, headerRe) {
+  const blocks = [];
+  const lines = source.split("\n");
+  const offsets = [];
+  let off = 0;
+  for (const ln of lines) {
+    offsets.push(off);
+    off += ln.length + 1;
+  }
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(headerRe);
+    if (!m)
+      continue;
+    const name = m[1].trim();
+    const start = offsets[i];
+    const bodyLines = [];
+    let j = i + 1;
+    let lastContent = i;
+    while (j < lines.length) {
+      const ln = lines[j];
+      const t2 = ln.trim();
+      if (t2 === "") {
+        bodyLines.push(ln);
+        j++;
+        continue;
+      }
+      if (t2.startsWith("%")) {
+        bodyLines.push(ln);
+        lastContent = j;
+        j++;
+        continue;
+      }
+      if (/^\s/.test(ln)) {
+        bodyLines.push(ln);
+        lastContent = j;
+        j++;
+        continue;
+      }
+      break;
+    }
+    const end = offsets[lastContent] + lines[lastContent].length;
+    blocks.push({ name, start, end, bodyLines });
+  }
+  return blocks;
+}
+function parseQueryBlocks(source) {
+  return scanBlocks(source, blockHeaderRe(source, "query")).map((b) => {
+    const bodyLines = b.bodyLines.map((l) => stripInlineComment(l).replace(/\s+$/, "")).filter((l) => l.trim() !== "");
+    const body = bodyLines.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
+    return { name: b.name, start: b.start, end: b.end, body, bodyLines };
+  });
+}
+function stripInlineComment(line) {
+  let inStr = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"')
+      inStr = !inStr;
+    else if (c === "%" && !inStr)
+      return line.slice(0, i);
+  }
+  return line;
 }
 
 // src/nl-input.ts
@@ -1971,7 +6715,7 @@ function initQueryEditor(data) {
   function blockText(name) {
     const lines = bodyLines();
     const body = lines.length ? lines.join("\n") : "    ";
-    return `query ${name} is:
+    return `${blockHeader(source, "query", name)}
 ${body}.`;
   }
   function requireName() {

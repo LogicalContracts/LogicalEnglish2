@@ -5847,6 +5847,11 @@ var languages = [
     "status": "draft"
   }
 ];
+function keywordPhrases(lang, key) {
+  const table = keywords[lang] ?? keywords["en"];
+  const syns = table[key] ?? keywords["en"]?.[key] ?? [];
+  return syns.map((words2) => words2.join(" "));
+}
 
 // src/i18n.ts
 var STORAGE_KEY = "le-ui-lang";
@@ -5903,6 +5908,9 @@ function targetLanguageStatement(lang) {
   const code = lang ?? uiLang();
   const info = languages.find((x) => x.code === code) ?? languages.find((x) => x.code === "en");
   return `${info ? info.opener : "the target language is"}: prolog.`;
+}
+function kwPhrases(lang, key) {
+  return keywordPhrases(lang, key);
 }
 function kwTable(lang) {
   return keywords[lang] ?? keywords["en"];
@@ -6139,6 +6147,26 @@ function buildLeMonarchTokens(lang) {
 var leMonarchTokens = buildLeMonarchTokens("en");
 
 // src/le-templates.ts
+function kwAltFor(langs, key) {
+  const phrases = /* @__PURE__ */ new Set();
+  for (const l of langs)
+    for (const p of kwPhrases(l, key))
+      if (p)
+        phrases.add(p);
+  return [...phrases].sort((a, b) => b.length - a.length).map((p) => escapeRegex(p).replace(/\s+/g, "\\s+")).join("|");
+}
+function kwAlt(source, key) {
+  return kwAltFor([detectProgramLanguage(source), "en"], key);
+}
+function blockHeaderRe(source, key) {
+  return new RegExp(
+    `^(?:${kwAlt(source, key)})\\s+(.+?)\\s+(?:${kwAlt(source, "marker_is")})\\s*:`,
+    "i"
+  );
+}
+function escapeRegex(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 function scanBlocks(source, headerRe) {
   const blocks = [];
   const lines = source.split("\n");
@@ -6185,10 +6213,10 @@ function scanBlocks(source, headerRe) {
   return blocks;
 }
 function parseScenarioBlocks(source) {
-  return scanBlocks(source, /^scenario\s+(.+?)\s+is\s*:/i).map((b) => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
+  return scanBlocks(source, blockHeaderRe(source, "scenario")).map((b) => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
 }
 function parseQueryBlocks(source) {
-  return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map((b) => {
+  return scanBlocks(source, blockHeaderRe(source, "query")).map((b) => {
     const bodyLines = b.bodyLines.map((l) => stripInlineComment(l).replace(/\s+$/, "")).filter((l) => l.trim() !== "");
     const body = bodyLines.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
     return { name: b.name, start: b.start, end: b.end, body, bodyLines };

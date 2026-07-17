@@ -19,12 +19,24 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
     retractall(CounterM:game_node_counter(_)),
     assertz(CounterM:game_node_counter(0)),
     findall(RuleDict, (
-        current_predicate(KB:F/N),
-        \+ le_kbs:is_system_predicate(F/N),
-        functor(Head, F, N),
-        clause(KB:Head, Body, Ref),
-        KB:le_source_info(Ref, Start, End, ID),
-        \+ member(ID, [template, template_unknown, ontology, session_fact]),
+        (   current_predicate(KB:F/N),
+            \+ le_kbs:is_system_predicate(F/N),
+            functor(Head, F, N),
+            clause(KB:Head, Body, Ref),
+            KB:le_source_info(Ref, Start, End, ID),
+            \+ member(ID, [template, template_unknown, ontology, session_fact])
+        ;   % A scenario element may be a RULE, not just a fact (e.g. "a thing
+            % belongs to a set if prolog member(...)"). Those clauses live in
+            % the session module, tagged session_fact; without this branch a
+            % scenario rule never became a card, leaving its proofs unplayable.
+            SM \== none,
+            current_predicate(SM:F/N),
+            \+ le_kbs:is_system_predicate(F/N),
+            functor(Head, F, N),
+            clause(SM:Head, Body, Ref),
+            SM:le_source_info(Ref, Start, End, ID),
+            ID == session_fact
+        ),
         Body \== true,
         comma_list(Body, BodyList),
         flatten_body(BodyList, FlatBodyList),
