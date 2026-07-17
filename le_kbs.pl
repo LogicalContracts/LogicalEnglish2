@@ -1927,7 +1927,13 @@ runTestsInDir(Dir, Results) :-
 %   Runs all tests associated with a specific Logical English file.
 runTestsFor(LEFile, Result) :-
     print_message(informational,"Running tests for ~w"-[LEFile]),
-    (   catch(call_with_time_limit(5, load(LEFile, KBmodule)), E, (format('Error loading ~w: ~w~n', [LEFile, E]), fail)) ->  
+    % skip_tests: run_one_test below runs every embedded test itself, so
+    % letting load-time verification run them too would execute the whole
+    % suite TWICE per file (for the largest example that alone is ~24s). The
+    % 30s limit still catches runaway loads while leaving headroom for big
+    % programs (the largest takes ~4.5s to parse+verify on a warm machine,
+    % more under suite load — the old 5s limit made it flaky).
+    (   catch(call_with_time_limit(30, load(LEFile, KBmodule, [skip_tests])), E, (format('Error loading ~w: ~w~n', [LEFile, E]), fail)) ->
         atom_concat(LEFile, '.tests', TestsFile),
         (   exists_file(TestsFile) ->  
             setup_call_cleanup(open(TestsFile, read, Stream), read_tests(Stream, LegacyTests), close(Stream))
