@@ -23,6 +23,10 @@ escenario hechos es:
 	Alicia pertenece a la familia uno.
    
 	Alicia pertenece a la familia dos.
+	subconjunto espera respuestas [
+		"la familia uno es un subconjunto de la familia uno",
+		"la familia dos es un subconjunto de la familia uno",
+		"la familia dos es un subconjunto de la familia dos"].
       
 consulta subconjunto es:
  	cuál conjunto es un subconjunto de cuál otro conjunto.
@@ -30,6 +34,10 @@ consulta subconjunto es:
 escenario listas es:
 	[Alicia, Roberto] es un conjunto.
 	[Alicia] es un conjunto.
+	subconjunto espera respuestas [
+		"[Alicia Roberto] es un subconjunto de [Alicia Roberto]",
+		"[Alicia] es un subconjunto de [Alicia Roberto]",
+		"[Alicia] es un subconjunto de [Alicia]"].
 
 	una cosa pertenece a un conjunto
     si prolog member(la cosa, el conjunto).
