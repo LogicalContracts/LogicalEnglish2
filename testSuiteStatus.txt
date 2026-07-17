@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 112
-Total tests:     391
-Passed:          391
+Files processed: 113
+Total tests:     393
+Passed:          393
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -119,6 +119,7 @@ Detailed File Summary:
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/dobragem.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/es/ciudadania.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/es/conjuntos.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/fr/citoyennete.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/it/cittadinanza.le: 2 Pass, 0 Fail, 0 Error
 -------------
