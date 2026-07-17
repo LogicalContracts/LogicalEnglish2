@@ -5,7 +5,7 @@
 // it stays a simple, flat list of conditions. Results are sent back to the editor or
 // the clipboard; the final LE syntax check happens on the Prolog side on reload.
 
-import { parseTemplateDefs, parseQueryBlocks, QueryBlock, splitTemplate, matchFact } from './le-templates';
+import { parseTemplateDefs, parseQueryBlocks, QueryBlock, splitTemplate, matchFact, blockHeader } from './le-templates';
 import { t, applyI18nDom, installLeApiLang } from './i18n';
 import { openNlInput } from './nl-input';
 
@@ -363,7 +363,8 @@ export function initQueryEditor(data: QueryEditorData) {
     function blockText(name: string): string {
         const lines = bodyLines();
         const body = lines.length ? lines.join('\n') : '    ';
-        return `query ${name} is:\n${body}.`;
+        // Header in the program's own language ("consulta <name> es:", …).
+        return `${blockHeader(source, 'query', name)}\n${body}.`;
     }
 
     // Returns the trimmed name, or null (with an alert) when it is missing/invalid.

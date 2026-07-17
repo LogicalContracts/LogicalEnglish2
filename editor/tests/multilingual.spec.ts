@@ -47,6 +47,29 @@ test.describe('/multilingual entry point', () => {
         await expect(page.locator('a.home-link')).toHaveAttribute('href', '/multilingual?lang=pt');
     });
 
+    // Scenario/query blocks are recognised in the program's own language (the
+    // client-side block parsers used to be English-only, so a Spanish program's
+    // scenarios never reached the Scenario Variations window).
+    test('Spanish scenarios are recognised in Scenario Variations', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.goto('/editor/index.html?example=es/conjuntos&scenario=hechos&query=subconjunto');
+        await expect(page.locator('#filename-display')).toHaveText('es/conjuntos.le');
+        await expect(async () => {
+            expect(await page.locator('#scenario-select option').count()).toBeGreaterThan(2);
+        }).toPass({ timeout: 45000 });
+        await expect(page.locator('#scenario-select')).toHaveValue('hechos');
+        await expect(page.locator('#query-select')).toHaveValue('subconjunto');
+        const [v] = await Promise.all([
+            page.waitForEvent('popup'),
+            page.click('#btn-variations'),
+        ]);
+        await v.waitForLoadState();
+        // Both es scenarios are listed, the selected one preloaded as fact rows.
+        await expect(v.locator('#scenario-picker')).toHaveValue('hechos');
+        await expect(v.locator('#scenario-picker option', { hasText: 'listas' })).toHaveCount(1);
+        await expect(v.locator('.fact-row .word', { hasText: 'pertenece a' }).first()).toBeVisible();
+    });
+
     test('back link resets the preference to English', async ({ page }) => {
         await page.goto('/multilingual?lang=pt');
         await page.click('#le-back-english');

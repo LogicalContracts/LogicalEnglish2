@@ -833,6 +833,8 @@ process_template_parts([date(D, _)|Ps], Args, NTs, [D|WVs]) :-
     !, process_template_parts(Ps, Args, NTs, WVs).
 process_template_parts([string(S, _)|Ps], Args, NTs, [S|WVs]) :-
     !, process_template_parts(Ps, Args, NTs, WVs).
+process_template_parts([list(_, _)|Ps], [V|Args], [V-list|NTs], [V|WVs]) :-
+    !, process_template_parts(Ps, Args, NTs, WVs).
 process_template_parts([list(_)|Ps], [V|Args], [V-list|NTs], [V|WVs]) :-
     !, process_template_parts(Ps, Args, NTs, WVs).
 
@@ -864,7 +866,12 @@ template_instance_part(number(N, Loc)) --> t(number(N, Loc)).
 template_instance_part(date(D, Loc)) --> t(date(D, Loc)).
 template_instance_part(string(S, Loc)) --> t(quoteString(S, Loc)).
 template_instance_part(string(S, Loc)) --> t(doubleQuoteString(S, Loc)).
-template_instance_part(list(L)) --> t(punct('[')), list_elements(L), t(punct(']')).
+% A list part carries its source location like every other part — without it,
+% an item STARTING with a list (e.g. the fact "[Alice, Bob] is a set.") got
+% Start = 0, which downstream (addSessionFact) means "no source info", so such
+% scenario facts lost their source ranges and e.g. never appeared as Proof
+% Game cards.
+template_instance_part(list(L, loc(Start, End))) --> t(punct('[', loc(Start, _))), list_elements(L), t(punct(']', loc(_, End))).
 template_instance_part(expr(E)) --> t(punct('(')), template_instance(E), t(punct(')')).
 template_instance_part(punct(P, Loc)) --> t(punctuation(P, Loc)), { \+ member(P, ['[', ']', '(', ')']) }.
 template_instance_part(punct('(', Loc)) --> t(punctuation('(', Loc)).
@@ -1120,6 +1127,7 @@ extract_simple_value(date(D), D).
 extract_simple_value(indent(_, _), '').
 extract_simple_value(line_comment(_, _), '').
 extract_simple_value(multi_comment(_, _), '').
+extract_simple_value(list(_, _), '[]').
 extract_simple_value(list(_), '[]').
 extract_simple_value(expr(_), '()').
 extract_simple_value(var(Words, _), Atom) :- !, atomic_list_concat(Words, ' ', Atom).
@@ -1199,6 +1207,8 @@ extract_value(number(N), N, VM, VM, _, _).
 extract_value(date(D), D, VM, VM, _, _).
 extract_value(string(S), S, VM, VM, _, _).
 extract_value(punct(P), P, VM, VM, _, _).
+extract_value(list(L, _), TransformedL, VMIn, VMOut, Templates, AllowVars) :- !,
+    transform_list(L, Templates, VMIn, VMOut, TransformedL, AllowVars).
 extract_value(list(L), TransformedL, VMIn, VMOut, Templates, AllowVars) :-
     transform_list(L, Templates, VMIn, VMOut, TransformedL, AllowVars).
 extract_value(expr(E), TransformedE, VMIn, VMOut, Templates, AllowVars) :-

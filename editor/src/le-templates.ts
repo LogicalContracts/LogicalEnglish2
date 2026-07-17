@@ -3,6 +3,86 @@
 // Editor window (scenario-editor.ts, to build form rows from templates and to load
 // an existing scenario's facts back into rows).
 
+import { detectProgramLanguage, kwPhrases, languageList } from './i18n';
+
+// --- Multilingual keywords ---------------------------------------------------
+// The block/section keywords ("scenario", "the templates are", "is", …) come
+// from the shared i18n keyword tables — never hardcode them (a Spanish program
+// says "escenario listas es:"). Parsing accepts the program's own language
+// (detected from its opener statement) plus English; generation (writing a
+// block back) uses the program's language only.
+
+// Regex alternation of a keyword's phrases in the given languages, longest
+// first, each phrase's spaces matching any whitespace run.
+function kwAltFor(langs: string[], key: string): string {
+    const phrases = new Set<string>();
+    for (const l of langs) for (const p of kwPhrases(l, key)) if (p) phrases.add(p);
+    return [...phrases]
+        .sort((a, b) => b.length - a.length)
+        .map(p => escapeRegex(p).replace(/\s+/g, '\\s+'))
+        .join('|');
+}
+
+// Program language + English fallback.
+function kwAlt(source: string, key: string): string {
+    return kwAltFor([detectProgramLanguage(source), 'en'], key);
+}
+
+// Every registered language — for recognisers that have no program text at
+// hand (or must survive a source whose opener is still being typed).
+function kwAltAll(key: string): string {
+    return kwAltFor(languageList().map(l => l.code), key);
+}
+
+// A scenario "test" line in any language: "<query> expects answers [...]".
+let testDirectiveReCache: RegExp | null = null;
+export function testDirectiveRe(): RegExp {
+    if (!testDirectiveReCache) {
+        testDirectiveReCache = new RegExp(
+            `(?:^|\\s)(?:${kwAltAll('expects')})\\s+(?:${kwAltAll('answers')})(?!\\p{L})`, 'iu');
+    }
+    return testDirectiveReCache;
+}
+
+// The "it is unknown whether " prefix of an assumable scenario fact, in any
+// language (LE also accepts the "assumed"/"assumable" synonyms).
+let unknownPrefixReCache: RegExp | null = null;
+export function unknownPrefixRe(): RegExp {
+    if (!unknownPrefixReCache) {
+        unknownPrefixReCache = new RegExp(
+            `^(?:${kwAltAll('it_is')})\\s+(?:${kwAltAll('unknown')})\\s+(?:${kwAltAll('whether')})\\s+`, 'iu');
+    }
+    return unknownPrefixReCache;
+}
+
+// The header line for writing a "<scenario|query> <name> is:" block back into
+// the program, in the program's own language.
+export function blockHeader(source: string, key: 'scenario' | 'query', name: string): string {
+    const lang = detectProgramLanguage(source);
+    const kw = kwPhrases(lang, key)[0] || key;
+    const is = kwPhrases(lang, 'marker_is')[0] || 'is';
+    return `${kw} ${name} ${is}:`;
+}
+
+// The "it is unknown whether " prefix for writing an assumed fact back, in the
+// program's own language. kwPhrases sorts synonyms longest-first, which for
+// the 'unknown' key would pick English "assumable"; the canonical English word
+// is "unknown", so prefer it when present.
+export function unknownWhetherPrefix(source: string): string {
+    const lang = detectProgramLanguage(source);
+    const first = (key: string, fallback: string) => kwPhrases(lang, key)[0] || fallback;
+    const unknowns = kwPhrases(lang, 'unknown');
+    const unknown = unknowns.includes('unknown') ? 'unknown' : (unknowns[0] || 'unknown');
+    return `${first('it_is', 'it is')} ${unknown} ${first('whether', 'whether')} `;
+}
+
+// Header regex for a "<scenario|query> <name> <is>:" block in the program's
+// own language (plus English).
+function blockHeaderRe(source: string, key: 'scenario' | 'query'): RegExp {
+    return new RegExp(
+        `^(?:${kwAlt(source, key)})\\s+(.+?)\\s+(?:${kwAlt(source, 'marker_is')})\\s*:`, 'i');
+}
+
 export interface TemplateSegment {
     kind: 'literal' | 'field';
     // For a literal: the literal words. For a field: the placeholder name (e.g.
@@ -44,11 +124,18 @@ export interface TemplateDef {
 // form is registered as its own template.
 export function parseTemplateDefs(source: string): TemplateDef[] {
     const defs: TemplateDef[] = [];
-    // A section header ends the templates section. "scenario"/"query" take NO "the"
+    // A section header ends the templates section (the 'guard' keyword row lists
+    // each language's section-opening phrases). "scenario"/"query" take NO "the"
     // (e.g. "scenario alice is:"), unlike the others — getting this wrong lets the
-    // parser read scenario facts as (no-variable) templates.
-    const sectionHeader = /^(?:the\s+knowledge\s+base|the\s+contract|the\s+ontology|the\s+predicates|the\s+templates|the\s+fluents|the\s+events|the\s+target\s+language|scenario|query)\b/im;
-    const templateHeader = /the\s+(predicates|templates|fluents|events)\s+are\s*:/gi;
+    // parser read scenario facts as (no-variable) templates. `(?=[\s:]|$)` rather
+    // than \b: several non-English phrases end in accented letters ("a ontologia
+    // é"), which JS's ASCII-only \b would refuse to bound.
+    const sectionHeader = new RegExp(`^(?:${kwAlt(source, 'guard')})(?=[\\s:]|$)`, 'im');
+    const templateHeader = new RegExp(
+        `(?:${['predicates', 'templates', 'fluents', 'events'].map(k => kwAlt(source, k)).join('|')})\\s*:`, 'gi');
+    const undefinedMarker = new RegExp(`(?:^|\\s)(?:${kwAlt(source, 'undefined')})(?!\\p{L})`, 'iu');
+    const oppositeMarker = new RegExp(`(?:${kwAlt(source, 'opposite')})\\s*:\\s*([^;]+)`, 'iu');
+    const synonymMarker = new RegExp(`(?:^|\\s)(?:${kwAlt(source, 'synonym')})\\s+([^;]+)`, 'giu');
     let m: RegExpExecArray | null;
     while ((m = templateHeader.exec(source)) !== null) {
         const remaining = source.substring(m.index + m[0].length);
@@ -59,21 +146,21 @@ export function parseTemplateDefs(source: string): TemplateDef[] {
             if (!t || t.startsWith('%')) continue;
             const semi = t.indexOf(';');
             const annotation = semi >= 0 ? t.slice(semi + 1) : '';
-            const isUndefined = /\b(undefined|scenario\s+element)\b/i.test(annotation);
+            const isUndefined = undefinedMarker.test(annotation);
             // Include no-variable ("propositional") templates too — they have no
             // *...* fields but are real templates. Recognising them lets a fact/query
             // that IS one match it exactly (a zero-field row) instead of being
             // mis-matched to a looser variable template that splits it on a preposition.
             const main = (semi >= 0 ? t.slice(0, semi) : t).replace(/[.,]\s*$/, '').trim();
             if (main) defs.push({ label: main, isUndefined });
-            const opp = annotation.match(/opposite:\s*([^;]+)/i);
+            const opp = annotation.match(oppositeMarker);
             if (opp) {
                 const o = opp[1].replace(/[.,;]\s*$/, '').trim();
                 if (o) defs.push({ label: o, isUndefined });
             }
             // Each "; synonym <template>" registers an equivalent surface form so
             // scenario facts written either way are recognised as the same template.
-            for (const sm of annotation.matchAll(/\bsynonym\s+([^;]+)/gi)) {
+            for (const sm of annotation.matchAll(synonymMarker)) {
                 const s = sm[1].replace(/[.,;]\s*$/, '').trim();
                 if (s) defs.push({ label: s, isUndefined });
             }
@@ -223,10 +310,11 @@ function scanBlocks(source: string, headerRe: RegExp): RawBlock[] {
     return blocks;
 }
 
-// Parse all "scenario <name> is:" blocks from LE source. Facts are the body's
+// Parse all "scenario <name> is:" blocks from LE source (in the program's own
+// language — "escenario listas es:" works too). Facts are the body's
 // "."-terminated statements (a fact may span lines).
 export function parseScenarioBlocks(source: string): ScenarioBlock[] {
-    return scanBlocks(source, /^scenario\s+(.+?)\s+is\s*:/i)
+    return scanBlocks(source, blockHeaderRe(source, 'scenario'))
         .map(b => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
 }
 
@@ -244,7 +332,7 @@ export interface QueryBlock {
 // `bodyLines` keeps each line with its indentation so the Query Editor can recover
 // the and/or scoping the indentation expresses.
 export function parseQueryBlocks(source: string): QueryBlock[] {
-    return scanBlocks(source, /^query\s+(.+?)\s+is\s*:/i).map(b => {
+    return scanBlocks(source, blockHeaderRe(source, 'query')).map(b => {
         const bodyLines = b.bodyLines
             .map(l => stripInlineComment(l).replace(/\s+$/, ''))   // keep leading indent, drop trailing
             .filter(l => l.trim() !== '');
