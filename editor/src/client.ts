@@ -765,8 +765,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 
                 // Reset loading state for the new file
                 isLoaded = false;
-                scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
-                querySelect.innerHTML = '<option value="">Select a query...</option>';
+                scenarioSelect.innerHTML = `<option value="">${t('[Empty Scenario]')}</option>`;
+                querySelect.innerHTML = `<option value="">${t('Select a query...')}</option>`;
                 kbModuleDisplay.textContent = '';
                 sessionModuleDisplay.textContent = '';
             }
@@ -1222,7 +1222,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 });
 
                 // Populate scenarios
-                scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
+                scenarioSelect.innerHTML = `<option value="">${t('[Empty Scenario]')}</option>`;
                 if (res.examples) {
                     res.examples.forEach((ex: any) => {
                         if (ex.name) {
@@ -1243,7 +1243,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 lastQueries = Array.isArray(res.queries) ? res.queries : [];
 
                 // Populate queries
-                querySelect.innerHTML = '<option value="">Select a query...</option>';
+                querySelect.innerHTML = `<option value="">${t('Select a query...')}</option>`;
                 if (res.queries) {
                     res.queries.forEach((q: any) => {
                         const option = document.createElement('option');
@@ -2502,8 +2502,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         isDirty = true;
         if (isLoaded) {
             isLoaded = false;
-            scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
-            querySelect.innerHTML = '<option value="">Select a query...</option>';
+            scenarioSelect.innerHTML = `<option value="">${t('[Empty Scenario]')}</option>`;
+            querySelect.innerHTML = `<option value="">${t('Select a query...')}</option>`;
         }
         
         // Debounced proactive load
