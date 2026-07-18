@@ -4915,6 +4915,7 @@ var uiCatalog = {
     "Unindent": "Desindentar",
     "Language": "L\xEDngua",
     "Answers": "Respostas",
+    "[Empty Scenario]": "[Cen\xE1rio vazio]",
     "Unknowns": "Desconhecidos",
     "Scenarios": "Cen\xE1rios",
     "Queries": "Consultas",
@@ -5196,6 +5197,7 @@ var uiCatalog = {
     "Unindent": "Desindentar",
     "Language": "Idioma",
     "Answers": "Respuestas",
+    "[Empty Scenario]": "[Escenario vac\xEDo]",
     "Unknowns": "Desconocidos",
     "Scenarios": "Escenarios",
     "Queries": "Consultas",
@@ -5477,6 +5479,7 @@ var uiCatalog = {
     "Unindent": "D\xE9sindenter",
     "Language": "Langue",
     "Answers": "R\xE9ponses",
+    "[Empty Scenario]": "[Sc\xE9nario vide]",
     "Unknowns": "Inconnus",
     "Scenarios": "Sc\xE9narios",
     "Queries": "Requ\xEAtes",
@@ -5758,6 +5761,7 @@ var uiCatalog = {
     "Unindent": "Deindenta",
     "Language": "Lingua",
     "Answers": "Risposte",
+    "[Empty Scenario]": "[Scenario vuoto]",
     "Unknowns": "Sconosciuti",
     "Scenarios": "Scenari",
     "Queries": "Interrogazioni",
@@ -7478,8 +7482,8 @@ async function start() {
           filenameDisplay.textContent = currentFileName;
         isDirty = false;
         isLoaded = false;
-        scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
-        querySelect.innerHTML = '<option value="">Select a query...</option>';
+        scenarioSelect.innerHTML = `<option value="">${t("[Empty Scenario]")}</option>`;
+        querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
         kbModuleDisplay.textContent = "";
         sessionModuleDisplay.textContent = "";
       }
@@ -7880,7 +7884,7 @@ async function start() {
           type: "module-loaded",
           data: { sessionModule }
         });
-        scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
+        scenarioSelect.innerHTML = `<option value="">${t("[Empty Scenario]")}</option>`;
         if (res.examples) {
           res.examples.forEach((ex) => {
             if (ex.name) {
@@ -7897,7 +7901,7 @@ async function start() {
         scenarioSelect.appendChild(anotherScenarioOption);
         lastKb = res.kb || "";
         lastQueries = Array.isArray(res.queries) ? res.queries : [];
-        querySelect.innerHTML = '<option value="">Select a query...</option>';
+        querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
         if (res.queries) {
           res.queries.forEach((q) => {
             const option = document.createElement("option");
@@ -8998,8 +9002,8 @@ async function start() {
     isDirty = true;
     if (isLoaded) {
       isLoaded = false;
-      scenarioSelect.innerHTML = '<option value="">[Empty Scenario]</option>';
-      querySelect.innerHTML = '<option value="">Select a query...</option>';
+      scenarioSelect.innerHTML = `<option value="">${t("[Empty Scenario]")}</option>`;
+      querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
     }
     if (loadTimeout)
       clearTimeout(loadTimeout);

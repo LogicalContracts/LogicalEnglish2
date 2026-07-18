@@ -14,6 +14,10 @@ test.describe('UI language', () => {
         await page.goto('/editor/index.html');
         await expect(page.locator('#menu-save-as')).toHaveText('Guardar como...');
         await expect(page.locator('#btn-query')).toHaveText('Consulta');
+        // The Query panel's ANSWERS/EXPLANATION titles (uppercased by CSS) are
+        // localized too.
+        await expect(page.locator('#explanation-title')).toHaveText('Explicação');
+        await expect(page.locator('#answers-panel > div').first()).toHaveText('Respostas');
         // The assistant greeting is localized too.
         await expect(page.locator('#assistant-history .chat-message').first())
             .toHaveText('Olá! Sou o seu Assistente de Logical English. Como posso ajudar hoje?');
