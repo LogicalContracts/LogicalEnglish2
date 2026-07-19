@@ -212,6 +212,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         let sessionModule: string | null = null;
         let includedResources: any[] = [];
         let lastKb = '';
+        // Per-fact images ("<fact>; image \"URL\".") from the last load's
+        // metadata: [{start, end, url}], keyed by the fact's source range.
+        // Handed to the Bento Box window, which renders them in the leaves.
+        let lastFactImages: any[] = [];
+        // Template image additions ("; image \"URL\"" on a no-variable
+        // template): [{literal, url}] — the Bento Box's fallback when a fact
+        // carries no image of its own.
+        let lastTemplateImages: any[] = [];
         let lastQueries: any[] = [];
         let loadTimeout: any = null;
         let availableModels: any[] = [];
@@ -1240,6 +1248,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 
                 // Remember the KB name and query list for the Scenario Variations window.
                 lastKb = res.kb || '';
+                lastFactImages = Array.isArray(res.fact_images) ? res.fact_images : [];
+                lastTemplateImages = Array.isArray(res.template_images) ? res.template_images : [];
                 lastQueries = Array.isArray(res.queries) ? res.queries : [];
 
                 // Populate queries
@@ -1506,7 +1516,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             menuBentoBox: document.getElementById('menu-bento-box') || undefined,
         },
         onOpenBento: (why: any, answer: string) => {
-            localStorage.setItem('le_bento_box_data', JSON.stringify({ kbName: lastKb, answer, why }));
+            localStorage.setItem('le_bento_box_data', JSON.stringify({ kbName: lastKb, answer, why, factImages: lastFactImages, templateImages: lastTemplateImages }));
             const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                                  document.body.className.includes('hc-theme') ? 'hc-theme' : '';
             window.open(`bento-box.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');

@@ -1294,6 +1294,23 @@ function initBentoBox() {
   const light = document.body.classList.contains("light-theme");
   const boxByPath = /* @__PURE__ */ new Map();
   let seq = 0;
+  const factImages = Array.isArray(data.factImages) ? data.factImages : [];
+  const templateImages = Array.isArray(data.templateImages) ? data.templateImages : [];
+  function imageFor(node) {
+    if (typeof node.start === "number" && typeof node.end === "number" && node.end > node.start) {
+      for (const fi of factImages) {
+        if (node.start >= fi.start && node.end <= fi.end)
+          return fi.url;
+      }
+    }
+    const lit = node.literal ? String(node.literal) : "";
+    if (lit) {
+      const ti = templateImages.find((x) => x.literal === lit);
+      if (ti)
+        return ti.url;
+    }
+    return null;
+  }
   function weight(node) {
     const kids = node.children || [];
     if (!kids.length)
@@ -1342,7 +1359,22 @@ function initBentoBox() {
     if (failed) {
     } else if (!kids.length) {
       el.classList.add("leaf");
-      el.textContent = literal;
+      const url = imageFor(node);
+      if (url) {
+        el.classList.add("has-image");
+        const img = document.createElement("img");
+        img.className = "bento-img";
+        img.src = url;
+        img.alt = literal;
+        img.addEventListener("error", () => {
+          img.remove();
+          el.classList.remove("has-image");
+          el.textContent = literal;
+        });
+        el.appendChild(img);
+      } else {
+        el.textContent = literal;
+      }
     } else {
       kids.forEach((k, i) => render(k, el, depth + 1, `${path}.${i + 1}`));
     }

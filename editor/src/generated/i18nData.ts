@@ -760,6 +760,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "a"
       ]
+    ],
+    "image": [
+      [
+        "image"
+      ]
     ]
   },
   "pt": {
@@ -1738,6 +1743,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "é"
       ]
+    ],
+    "image": [
+      [
+        "imagem"
+      ]
     ]
   },
   "es": {
@@ -2715,6 +2725,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "o"
       ]
+    ],
+    "image": [
+      [
+        "imagen"
+      ]
     ]
   },
   "fr": {
@@ -3658,6 +3673,11 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "ou"
+      ]
+    ],
+    "image": [
+      [
+        "image"
       ]
     ]
   },
@@ -4676,6 +4696,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "è"
       ]
+    ],
+    "image": [
+      [
+        "immagine"
+      ]
     ]
   }
 } as const;
@@ -4758,7 +4783,8 @@ export const keywordCategories: Record<string, string> = {
   "assuming": "answer",
   "assuming_and": "answer",
   "article_narrow": "class",
-  "connective_heuristic": "class"
+  "connective_heuristic": "class",
+  "image": "fact_addition"
 } as const;
 
 /** UI chrome strings per language, keyed by the canonical English string. */

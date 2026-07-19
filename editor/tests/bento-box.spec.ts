@@ -54,4 +54,33 @@ test.describe('Bento Box', () => {
             })
         ).toBe(true);
     });
+
+    // Scenario fact image additions ("<fact>; image \"URL\".") become the leaf
+    // compartments' content. Only the img elements' src attributes are asserted
+    // (not actual loading), so the test needs no network access.
+    test('fact image additions render in the leaves', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.goto('index.html?example=sequencer&scenario=groovebox&query=design');
+        await expect(page.locator('#filename-display')).toHaveText('sequencer.le');
+        await page.click('#btn-query');
+        const answer = page.locator('.answer-item').first();
+        await expect(answer).toBeVisible({ timeout: 45000 });
+        await answer.click({ button: 'right' });
+        const [bento] = await Promise.all([
+            page.waitForEvent('popup'),
+            page.click('#menu-bento-box'),
+        ]);
+        await bento.waitForLoadState();
+        await expect(bento.locator('.bento-box').first()).toBeVisible();
+        // 8 annotated facts (run button, tempo dial, 4 pads, fader, filter
+        // knob) + 1 template image ("the power is on" — a no-variable
+        // template's addition, used as the fallback for its plain fact).
+        await expect(bento.locator('img.bento-img')).toHaveCount(9);
+        expect(await bento.locator('img.bento-img').first().getAttribute('src'))
+            .toContain('upload.wikimedia.org');
+        // The template-image leaf: its fact has no image of its own.
+        await expect(bento.locator('.bento-box.leaf.has-image[title*="the power is on"] img')).toHaveCount(1);
+        // Un-annotated leaves (the panel facts) still show their text.
+        await expect(bento.locator('.bento-box.leaf', { hasText: 'is a panel of' }).first()).toBeVisible();
+    });
 });

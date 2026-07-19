@@ -754,6 +754,11 @@ var keywords = {
       [
         "a"
       ]
+    ],
+    "image": [
+      [
+        "image"
+      ]
     ]
   },
   "pt": {
@@ -1732,6 +1737,11 @@ var keywords = {
       [
         "\xE9"
       ]
+    ],
+    "image": [
+      [
+        "imagem"
+      ]
     ]
   },
   "es": {
@@ -2709,6 +2719,11 @@ var keywords = {
       [
         "o"
       ]
+    ],
+    "image": [
+      [
+        "imagen"
+      ]
     ]
   },
   "fr": {
@@ -3652,6 +3667,11 @@ var keywords = {
       ],
       [
         "ou"
+      ]
+    ],
+    "image": [
+      [
+        "image"
       ]
     ]
   },
@@ -4669,6 +4689,11 @@ var keywords = {
       ],
       [
         "\xE8"
+      ]
+    ],
+    "image": [
+      [
+        "immagine"
       ]
     ]
   }
@@ -7006,6 +7031,8 @@ async function start() {
   let sessionModule = null;
   let includedResources = [];
   let lastKb = "";
+  let lastFactImages = [];
+  let lastTemplateImages = [];
   let lastQueries = [];
   let loadTimeout = null;
   let availableModels = [];
@@ -7940,6 +7967,8 @@ async function start() {
         anotherScenarioOption.textContent = t("Another...");
         scenarioSelect.appendChild(anotherScenarioOption);
         lastKb = res.kb || "";
+        lastFactImages = Array.isArray(res.fact_images) ? res.fact_images : [];
+        lastTemplateImages = Array.isArray(res.template_images) ? res.template_images : [];
         lastQueries = Array.isArray(res.queries) ? res.queries : [];
         querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
         if (res.queries) {
@@ -8176,7 +8205,7 @@ async function start() {
       menuBentoBox: document.getElementById("menu-bento-box") || void 0
     },
     onOpenBento: (why, answer) => {
-      localStorage.setItem("le_bento_box_data", JSON.stringify({ kbName: lastKb, answer, why }));
+      localStorage.setItem("le_bento_box_data", JSON.stringify({ kbName: lastKb, answer, why, factImages: lastFactImages, templateImages: lastTemplateImages }));
       const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
       window.open(`bento-box.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
     },

@@ -18,10 +18,15 @@ interface WhyNode {
     children?: WhyNode[];
 }
 
+interface FactImage { start: number; end: number; url: string; }
+interface TemplateImage { literal: string; url: string; }
+
 interface BentoData {
     kbName?: string;
     answer?: string;
     why?: any;            // a WhyNode or an array of them
+    factImages?: FactImage[];      // "<fact>; image \"URL\"." additions, by source range
+    templateImages?: TemplateImage[];  // no-variable template additions, by canonical literal
 }
 
 // Unique, well-spread hues: successive nodes advance by the golden angle.
@@ -52,6 +57,25 @@ export function initBentoBox() {
     const light = document.body.classList.contains('light-theme');
     const boxByPath = new Map<string, HTMLElement>();
     let seq = 0;   // hue index, DFS order
+
+    // The image for a node: the one attached to its source fact (matched by
+    // the fact's range), else — the fallback — the one attached to its
+    // (no-variable) template, matched by the literal's canonical text.
+    const factImages: FactImage[] = Array.isArray(data.factImages) ? data.factImages : [];
+    const templateImages: TemplateImage[] = Array.isArray(data.templateImages) ? data.templateImages : [];
+    function imageFor(node: WhyNode): string | null {
+        if (typeof node.start === 'number' && typeof node.end === 'number' && node.end > node.start) {
+            for (const fi of factImages) {
+                if (node.start >= fi.start && node.end <= fi.end) return fi.url;
+            }
+        }
+        const lit = node.literal ? String(node.literal) : '';
+        if (lit) {
+            const ti = templateImages.find(x => x.literal === lit);
+            if (ti) return ti.url;
+        }
+        return null;
+    }
 
     // How many leaves a subtree holds — a compartment's share of the tray.
     function weight(node: WhyNode): number {
@@ -110,7 +134,22 @@ export function initBentoBox() {
             // sub-derivations) are not shown.
         } else if (!kids.length) {
             el.classList.add('leaf');
-            el.textContent = literal;
+            const url = imageFor(node);
+            if (url) {
+                // The image addition is the compartment's content, scaled
+                // proportionally to touch the box (no padding); the literal
+                // stays available as the tooltip. If the image fails to load,
+                // fall back to the text.
+                el.classList.add('has-image');
+                const img = document.createElement('img');
+                img.className = 'bento-img';
+                img.src = url;
+                img.alt = literal;
+                img.addEventListener('error', () => { img.remove(); el.classList.remove('has-image'); el.textContent = literal; });
+                el.appendChild(img);
+            } else {
+                el.textContent = literal;
+            }
         } else {
             kids.forEach((k, i) => render(k, el, depth + 1, `${path}.${i + 1}`));
         }

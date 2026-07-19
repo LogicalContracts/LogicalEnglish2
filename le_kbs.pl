@@ -1676,7 +1676,28 @@ get_kb_metadata(KB, Metadata) :-
         ), IncludedResources)
     ;   IncludedResources = []
     ),
-    Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios, included_resources: IncludedResources }.
+    % Per-fact images ("<fact>; image "URL"."), keyed by the fact's source
+    % range — the same range its explanation nodes carry, which is how the
+    % Bento Box window matches a leaf to its image.
+    (   current_predicate(KB:le_fact_image/3)
+    ->  findall(_{start: IS, end: IE, url: IU}, KB:le_fact_image(IS, IE, IU), FactImages)
+    ;   FactImages = []
+    ),
+    % Template images (no-variable templates only), keyed by the template's
+    % canonical rendering — the very text an explanation leaf for that literal
+    % carries, which is how the Bento Box matches them.
+    (   current_predicate(KB:le_template_image/2)
+    ->  findall(_{literal: TLit, url: TU}, (
+            KB:le_template_image(TF, TU),
+            (   catch(item_to_instance(KB, TF, TToks), _, fail),
+                canonical_string(TToks, TLitA)
+            ->  atom_string(TLitA, TLit)
+            ;   term_string(TF, TLit)
+            )
+        ), TemplateImages)
+    ;   TemplateImages = []
+    ),
+    Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios, included_resources: IncludedResources, fact_images: FactImages, template_images: TemplateImages }.
 
 %!  topPredicates(+KB:atom, -TopPreds:list) is det.
 %
@@ -1794,6 +1815,12 @@ is_system_predicate(le_var_names/2).
 % explanations render the goal with the form actually written, rather than the
 % main template. Populated at parse time by le_grammar:maybe_record_synonym_use/5.
 is_system_predicate(le_synonym_at/3).
+% Per-fact image addition ("<fact>; image "URL"."), keyed by the fact's source
+% range; recorded at parse time, rendered by the Bento Box.
+is_system_predicate(le_fact_image/3).
+% Per-template image addition (no-variable templates only), keyed by functor;
+% the Bento Box falls back to it when a fact carries no image of its own.
+is_system_predicate(le_template_image/2).
 % Include bookkeeping (see fetch_resources/3 and load_prolog_resource/4).
 is_system_predicate(le_included_resource/3).
 is_system_predicate(le_resource_stats/3).

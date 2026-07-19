@@ -17,6 +17,7 @@
 :- use_module(le_system_templates).
 :- use_module(le_i18n).
 :- use_module(library(dcg/basics)).
+:- use_module(library(uri)).
 
 :- thread_local current_token_pos/1.
 
@@ -556,6 +557,19 @@ kb_item(unknown_fact(Head, Start, End)) -->
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
 
+% kb_item(fact_image(...)) parses a fact carrying an image addition:
+%     <fact>; image "https://…".
+% The template instance stops at ';' (is_terminator), so the addition parses
+% cleanly after it. The image is meant for GROUND scenario facts (rendered by
+% the Bento Box); the second pass validates and stores it — a non-ground fact
+% or an ill-formed URL yields a warning instead.
+kb_item(fact_image(Head, URL, UStart, UEnd, Start, End)) -->
+    template_instance(Head),
+    { Head = [First|_], get_token_start(First, Start) },
+    any_indent, t(punct(';')), kw(image),
+    ( t(doubleQuoteString(URL, loc(UStart, UEnd))) | t(quoteString(URL, loc(UStart, UEnd))) ),
+    any_indent, t(punctuation('.', loc(_, End))).
+
 % kb_item(fact(Head, Start, End)) parses a Logical English fact (Head.).
 kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
@@ -747,8 +761,38 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
     ;   undefined_keyword ->
         { Unknown = scenario_element },
         template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
+    ;   kw(image) ->
+        % "; image "URL"" on a TEMPLATE: only meaningful on a no-variable
+        % (propositional) template — its single ground literal then renders as
+        % that image in the Bento Box (a fallback when the scenario fact
+        % carries no image of its own). A template with variables gets a
+        % warning and the image is dropped.
+        ( t(doubleQuoteString(URL, loc(UStart, UEnd))) | t(quoteString(URL, loc(UStart, UEnd))) ),
+        { record_template_image(FunctorArgs, URL, UStart, UEnd) },
+        template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ).
 template_additions([], _, _, _, _, [], _, _, _, _) --> [].
+
+%!  record_template_image(+FunctorArgs, +URL, +UStart, +UEnd) is det.
+%
+%   Stores le_template_image(Functor, URL) for a no-variable template with a
+%   well-formed http(s) URL; otherwise asserts a warning and drops the image.
+record_template_image(FunctorArgs, URL0, UStart, UEnd) :-
+    (   \+ ( le_kbs:current_compiling_module(M), M \== (-) ) -> true
+    ;   le_kbs:current_compiling_module(M),
+        (   FunctorArgs = [_|Args], Args \== []
+        ->  le_i18n:le_msg(image_template_vars_desc, [], Desc),
+            le_i18n:le_msg(image_template_vars_fix, [], Fix),
+            assertz(M:le_issue(warning, image_template_vars, Desc, Fix, UStart, UEnd))
+        ;   \+ well_formed_image_url(URL0)
+        ->  le_i18n:le_msg(image_bad_url_desc, [url-URL0], Desc),
+            le_i18n:le_msg(image_bad_url_fix, [], Fix),
+            assertz(M:le_issue(warning, image_bad_url, Desc, Fix, UStart, UEnd))
+        ;   FunctorArgs = [F],
+            atom_string(URL, URL0),
+            assertz(M:le_template_image(F, URL))
+        )
+    ).
 
 % prepositional_keyword matches the marker declaring a template prepositional (a
 % chainable phrase constraining a variable). English accepts 'prepositional' and
@@ -1569,6 +1613,48 @@ mult_subterm(Term) :-
         mult_subterm(Arg)
     ).
 
+% An image addition on a RULE ("… if <body>; image "URL"."): images can only
+% annotate facts. The body-token scan strips the addition, warns, and the rule
+% compiles normally without it. Placed before the rule clauses so it runs
+% first; the memberchk guard keeps the common (no ';') case cheap.
+second_pass_item(Templates, rule(Head, Body0, Indent, Start, End, ID), NewItem, M) :-
+    rule_body_wrapper(Body0, Tokens, Wrapper),
+    memberchk(punctuation(';', _), Tokens),
+    strip_trailing_image_tokens(Tokens, CleanTokens, IStart, IEnd),
+    !,
+    (   ( var(M) ; M == (-) ) -> true
+    ;   le_i18n:le_msg(image_on_rule_desc, [], Desc),
+        le_i18n:le_msg(image_on_rule_fix, [], Fix),
+        assertz(M:le_issue(warning, image_on_rule, Desc, Fix, IStart, IEnd))
+    ),
+    rule_body_wrapper(Body1, CleanTokens, Wrapper),
+    second_pass_item(Templates, rule(Head, Body1, Indent, Start, End, ID), NewItem, M).
+
+% rule_body_wrapper(?Body, ?Tokens, ?Wrapper): a rule body is its token list,
+% possibly inside an only_if/unless/numbered wrapper. Bidirectional, so the
+% image check can unwrap and rebuild.
+rule_body_wrapper(only_if(T), T, only_if) :- !.
+rule_body_wrapper(unless(T), T, unless) :- !.
+rule_body_wrapper(numbered(T), T, numbered) :- !.
+rule_body_wrapper(T, T, none) :- is_list(T).
+
+% strip_trailing_image_tokens(+Tokens, -Clean, -IStart, -IEnd): Tokens end in
+% "; image "URL"" (ignoring indentation/comments); Clean is Tokens without it,
+% IStart-IEnd the addition's source range.
+strip_trailing_image_tokens(Tokens, Clean, IStart, IEnd) :-
+    append(Clean, [punctuation(';', loc(IStart, _)) | Rest0], Tokens),
+    skip_noise(Rest0, [word(W, _) | Rest1]),
+    le_i18n:kw_synonym_words(image, [W]),
+    skip_noise(Rest1, [StrTok | Rest2]),
+    ( StrTok = doubleQuoteString(_, loc(_, IEnd)) ; StrTok = quoteString(_, loc(_, IEnd)) ),
+    skip_noise(Rest2, []),
+    !.
+
+skip_noise([indent(_, _)|Ts], Out) :- !, skip_noise(Ts, Out).
+skip_noise([line_comment(_, _)|Ts], Out) :- !, skip_noise(Ts, Out).
+skip_noise([multi_comment(_, _)|Ts], Out) :- !, skip_noise(Ts, Out).
+skip_noise(Ts, Ts).
+
 second_pass_item(Templates, rule(Head, only_if(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     (   parse_literal(Head, Templates, [], VM1, HeadLiteral, _, true) ->
@@ -1744,6 +1830,46 @@ second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Sta
         NewBody = true
     ).
 
+% A fact with an image addition ("<fact>; image "URL"."): compile the fact
+% exactly as a plain fact, then validate and record the image against the
+% fact's source range (the same range its explanation nodes carry, which is
+% how the Bento Box finds it).
+second_pass_item(Templates, fact_image(Head, URL, UStart, UEnd, Start, End), NewItem, M) :-
+    second_pass_item(Templates, fact(Head, Start, End), NewItem, M),
+    record_fact_image(M, NewItem, URL, UStart, UEnd, Start, End).
+
+%!  record_fact_image(+M, +CompiledFact, +URL, +UStart, +UEnd, +Start, +End) is det.
+%
+%   Stores le_fact_image(Start, End, URL) in M for a GROUND fact with a
+%   well-formed absolute http(s) URL; otherwise asserts a warning and drops
+%   the image. An unparsable fact (unknown_template) already got its own
+%   error — the image is silently dropped then.
+record_fact_image(M, Item, URL0, UStart, UEnd, Start, End) :-
+    (   ( var(M) ; M == (-) ) -> true
+    ;   Item = clause(NewHead, _, _, _, _),
+        compound(NewHead), functor(NewHead, unknown_template, _) -> true
+    ;   Item = clause(NewHead, _, _, _, _),
+        \+ ground(NewHead)
+    ->  le_i18n:le_msg(image_nonground_desc, [], Desc),
+        le_i18n:le_msg(image_nonground_fix, [], Fix),
+        assertz(M:le_issue(warning, image_nonground, Desc, Fix, UStart, UEnd))
+    ;   \+ well_formed_image_url(URL0)
+    ->  le_i18n:le_msg(image_bad_url_desc, [url-URL0], Desc),
+        le_i18n:le_msg(image_bad_url_fix, [], Fix),
+        assertz(M:le_issue(warning, image_bad_url, Desc, Fix, UStart, UEnd))
+    ;   atom_string(URL, URL0),
+        assertz(M:le_fact_image(Start, End, URL))
+    ).
+
+% An absolute http(s) URL with a host.
+well_formed_image_url(URL0) :-
+    atom_string(URL, URL0),
+    catch(uri_components(URL, Components), _, fail),
+    uri_data(scheme, Components, Scheme),
+    memberchk(Scheme, [http, https]),
+    uri_data(authority, Components, Authority),
+    atom(Authority), Authority \== ''.
+
 % is_global_extra_goal(+Templates, +Goal) is semidet.
 %
 %   True when Goal was introduced by a "defines global" abbreviation: its functor
@@ -1918,6 +2044,12 @@ literal_arg_types(Literal, Templates, ArgTypes) :-
 
 arg_type(NTs, Arg, FormalArg, Arg-Type) :-
     ( member(K-T, NTs), K == FormalArg -> Type = T ; Type = any ).
+
+% A scenario fact with an image addition: compile as a plain scenario fact,
+% then validate and record the image (see record_fact_image/7).
+second_pass_scenario_item(Templates, fact_image(Head, URL, UStart, UEnd, Start, End), NewItem, M) :-
+    second_pass_scenario_item(Templates, fact(Head, Start, End), NewItem, M),
+    record_fact_image(M, NewItem, URL, UStart, UEnd, Start, End).
 
 second_pass_scenario_item(Templates, unknown_fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
     (   parse_literal(Head, Templates, [], VMOut, Literal, _, true) ->  
