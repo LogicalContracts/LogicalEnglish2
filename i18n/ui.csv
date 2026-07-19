@@ -239,6 +239,12 @@ Unindent,,Desindentar,Desindentar,Désindenter,Deindenta
 Language,,Língua,Idioma,Langue,Lingua
 Answers,,Respostas,Respuestas,Réponses,Risposte
 [Empty Scenario],,[Cenário vazio],[Escenario vacío],[Scénario vide],[Scenario vuoto]
+Bento Box,,Caixa Bento,Caja Bento,Boîte Bento,Bento Box
+Bento Box…,,Caixa Bento…,Caja Bento…,Boîte Bento…,Bento Box…
+"Render this answer's explanation as nested bento compartments, in a separate window",,"Apresenta a explicação desta resposta como compartimentos bento aninhados, numa janela separada","Presenta la explicación de esta respuesta como compartimentos bento anidados, en una ventana separada","Présente l'explication de cette réponse sous forme de compartiments bento imbriqués, dans une fenêtre séparée","Presenta la spiegazione di questa risposta come scomparti bento annidati, in una finestra separata"
+Legend,,Legenda,Leyenda,Légende,Legenda
+Click a box to highlight its source in the editor.,,Clique numa caixa para realçar a sua origem no editor.,Haga clic en una caja para resaltar su origen en el editor.,Cliquez sur une boîte pour mettre en évidence sa source dans l'éditeur.,Fai clic su una scatola per evidenziare la sua origine nell'editor.
+No explanation to display.,,Sem explicação para mostrar.,No hay explicación que mostrar.,Aucune explication à afficher.,Nessuna spiegazione da mostrare.
 Unknowns,,Desconhecidos,Desconocidos,Inconnus,Sconosciuti
 Scenarios,,Cenários,Escenarios,Scénarios,Scenari
 Queries,,Consultas,Consultas,Requêtes,Interrogazioni

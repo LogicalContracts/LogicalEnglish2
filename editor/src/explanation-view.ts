@@ -11,6 +11,7 @@ import { t, applyI18nDom, installLeApiLang } from './i18n';
 export interface MenuEls {
     answerContextMenu: HTMLElement;
     menuCopyAnswer: HTMLElement;
+    menuBentoBox?: HTMLElement;         // answer menu: "Bento Box…" (main editor only)
     explanationContextMenu: HTMLElement;
     menuCopyExplanation: HTMLElement;
     menuCopyMermaid: HTMLElement;       // "Copy as Mermaid diagram"
@@ -33,6 +34,7 @@ export interface ExplanationViewOptions {
     onNavigate?: (start: number, end: number) => void;   // a node was clicked -> reveal source
     onSelectAnswer?: (index: number) => void;            // an answer was selected (1-based)
     onOpenDrill?: (why: any) => void;                    // open the Explanation Drill for a `why`
+    onOpenBento?: (why: any, answer: string) => void;    // open the Bento Box for an answer's `why`
     // Scenario Variations only: patch the scenario from a tree node. onPatchScenario
     // adds the node's fact when it failed / removes it when it succeeded; onAssumeFact
     // (failed nodes) adds it as an assumed unknown. Absent => the items are not shown.
@@ -72,6 +74,11 @@ function wireMenus(m: MenuEls) {
         if (activeView && activeView.currentAnswerToCopy) navigator.clipboard.writeText(activeView.currentAnswerToCopy);
         m.answerContextMenu.style.display = 'none';
     });
+    m.menuBentoBox?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeView?.openBento();
+        m.answerContextMenu.style.display = 'none';
+    });
     m.menuGotoOriginal.addEventListener('click', (e) => {
         e.stopPropagation();
         activeView?.gotoOriginal();
@@ -103,6 +110,8 @@ export class ExplanationView {
     currentAnswerToCopy = '';
     // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
     private currentMenuNode: any = null;
+    // The `why` of the answer last right-clicked, target of the Bento Box item.
+    private currentMenuWhy: any = null;
     private o: ExplanationViewOptions;
     private m: MenuEls;
     private lastWhy: any = null;
@@ -208,7 +217,7 @@ export class ExplanationView {
                     this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
                     this.o.onSelectAnswer?.(index + 1);
                 });
-                item.addEventListener('contextmenu', (e) => this.answerMenu(e as MouseEvent, result.answer));
+                item.addEventListener('contextmenu', (e) => this.answerMenu(e as MouseEvent, result.answer, result.why));
                 answersList.appendChild(item);
                 if (index === target) item.click();
             });
@@ -223,7 +232,7 @@ export class ExplanationView {
                 this.renderExplanation(res.why);
                 this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
             });
-            item.addEventListener('contextmenu', (e) => this.answerMenu(e as MouseEvent, 'No answers (false)'));
+            item.addEventListener('contextmenu', (e) => this.answerMenu(e as MouseEvent, 'No answers (false)', res.why));
             answersList.appendChild(item);
             this.renderExplanation(res.why);
             this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
@@ -239,13 +248,23 @@ export class ExplanationView {
         }
     }
 
-    private answerMenu(e: MouseEvent, answer: string) {
+    private answerMenu(e: MouseEvent, answer: string, why?: any) {
         e.preventDefault();
         activeView = this;
         this.currentAnswerToCopy = answer;
+        this.currentMenuWhy = why ?? null;
+        // "Bento Box…" only where a host handles it (main editor) and the answer
+        // carries an explanation.
+        const bento = this.m.menuBentoBox;
+        if (bento) bento.style.display = (this.o.onOpenBento && why) ? 'block' : 'none';
         this.m.answerContextMenu.style.display = 'block';
         this.m.answerContextMenu.style.left = `${e.clientX}px`;
         this.m.answerContextMenu.style.top = `${e.clientY}px`;
+    }
+
+    // Open the Bento Box window for the right-clicked answer's explanation.
+    openBento() {
+        if (this.currentMenuWhy) this.o.onOpenBento?.(this.currentMenuWhy, this.currentAnswerToCopy);
     }
 
     // --- Unknown-goal tooltip --------------------------------------------------

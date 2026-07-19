@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 113
-Total tests:     393
-Passed:          393
+Files processed: 114
+Total tests:     394
+Passed:          394
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -33,6 +33,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/royal_family.le: 8 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rule_id_test.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/scenario_element_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/sequencer.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/subset.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_onto.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/sum_simple.le: 1 Pass, 0 Fail, 0 Error

@@ -42,4 +42,22 @@ test(scenario_facts_and_rules_become_game_cards) :-
         ),
         le_kbs:destroySession(SM)).
 
+% The session scans above must only touch the session's OWN clauses:
+% current_predicate(SM:F/N) also enumerates le_kbs predicates once SM's import
+% table has resolved them (which depends on request history), and clause/3 on
+% an imported static procedure throws permission_error — seen as "Could not
+% open the Proof Game" for ordinary examples. Resolve an import first, then
+% extract: it must neither throw nor lose the scenario's cards.
+test(extraction_survives_resolved_imports) :-
+    le_kbs:load('examples/moreExamples/citizenship.le', KB),
+    le_kbs:createSession(KB, SM),
+    setup_call_cleanup(true,
+        ( le_kbs:setScenarion(SM, alice),
+          SM:le_examples_dir(_),
+          le_proof_game:extract_rules_and_facts(KB, SM, is_a(_, _), Rules, Facts, _),
+          Rules \== [],
+          Facts \== []
+        ),
+        le_kbs:destroySession(SM)).
+
 :- end_tests(scenario_multilingual).
