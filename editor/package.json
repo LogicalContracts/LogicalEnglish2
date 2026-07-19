@@ -20,6 +20,7 @@
     "layout-base": "^2.0.1",
     "monaco-editor": "^0.45.0",
     "monaco-languageclient": "^7.0.1",
+    "qrcode-generator": "^2.0.4",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "rete": "^2.0.6",
