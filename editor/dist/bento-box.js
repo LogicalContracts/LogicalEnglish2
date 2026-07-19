@@ -1270,203 +1270,114 @@ function applyI18nDom(root = document) {
     }
   });
 }
-function installLeApiLang() {
-  if (uiLang() === "en")
-    return;
-  const origFetch = window.fetch.bind(window);
-  window.fetch = (input, init) => {
-    try {
-      const url = typeof input === "string" ? input : input.url ?? String(input);
-      if (/^\/(leapi|query|verify|list_examples|example_details)\b/.test(url) && !/[?&]lang=/.test(url)) {
-        const sep = url.includes("?") ? "&" : "?";
-        const newUrl = `${url}${sep}lang=${encodeURIComponent(uiLang())}`;
-        if (typeof input === "string")
-          return origFetch(newUrl, init);
-        return origFetch(new Request(newUrl, input), init);
-      }
-    } catch (e) {
-    }
-    return origFetch(input, init);
-  };
-}
 
-// src/explanation-drill.ts
-var TOKEN = "myToken123";
-var leapi = (body) => fetch("/leapi", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ token: TOKEN, ...body })
-}).then((r) => r.json()).catch(() => null);
-async function initExplanationDrill() {
+// src/bento-box.ts
+var GOLDEN_ANGLE = 137.508;
+function hue(index) {
+  return index * GOLDEN_ANGLE % 360;
+}
+function initBentoBox() {
   const $ = (id) => document.getElementById(id);
-  const ls = JSON.parse(localStorage.getItem("le_explanation_drill_data") || "{}");
-  const source = ls.source || "";
-  const why = ls.why;
-  $("title").textContent = `Explanation Drill${ls.kbName ? ` \u2014 ${ls.kbName}` : ""}`;
-  const root = Array.isArray(why) ? why[0] : why;
-  const rootLiteral = root && root.literal ? String(root.literal) : "this answer";
-  $("drill-title").textContent = `Understanding why ${rootLiteral}:`;
-  let answers = [];
-  let initialCount = 0;
-  let sentWhy = false;
-  let sessionModule = null;
-  let sessionLoad = null;
-  function startSessionLoad() {
-    if (!sessionLoad) {
-      sessionLoad = (source ? leapi({ operation: "load", le: source }) : Promise.resolve(null)).then((r) => {
-        if (r && r.sessionModule)
-          sessionModule = r.sessionModule;
-      }).catch(() => {
-      });
-    }
-    return sessionLoad;
-  }
-  async function ensureSession() {
-    if (sessionModule)
-      return true;
-    await startSessionLoad();
-    if (!sessionModule && ls.sessionModule)
-      sessionModule = ls.sessionModule;
-    return !!sessionModule;
-  }
-  const setStatus = (t2) => {
-    $("status").textContent = t2;
-  };
-  async function drill() {
-    if (!await ensureSession())
-      return { error: "Could not load the program on the server." };
-    const req = () => {
-      const b = { operation: "explanationDrill", sessionModule, answers };
-      if (!sentWhy)
-        b.why = why;
-      return b;
-    };
-    let res = await leapi(req()) || { error: "network" };
-    if (res && res.session_expired) {
-      sessionModule = null;
-      sessionLoad = null;
-      sentWhy = false;
-      if (await ensureSession())
-        res = await leapi(req()) || { error: "network" };
-    }
-    if (res && res.ok)
-      sentWhy = true;
-    return res;
-  }
-  function highlight(q) {
-    if (!q || q.start < 0)
-      return;
-    window.opener?.postMessage({ type: "le-highlight", loc: { start: q.start, end: q.end }, noFocus: true }, "*");
-  }
-  function answer(i, val) {
-    if (i < answers.length && answers[i] === val)
-      answers = answers.slice(0, i);
-    else
-      answers = answers.slice(0, i).concat([val]);
-    refresh();
-  }
-  function deleteQuestion(i) {
-    if (i < 0 || i >= answers.length)
-      return;
-    answers = answers.slice(0, i).concat(answers.slice(i + 1));
-    refresh();
-  }
-  function questionCard(q, i, isPending, isTopFinal) {
-    const card = document.createElement("div");
-    card.className = "q-card" + (isTopFinal ? " top-final" : "");
-    card.title = t("Click to show this in the editor");
-    card.addEventListener("click", () => highlight(q));
-    if (!isPending) {
-      const del = document.createElement("button");
-      del.className = "q-del";
-      del.textContent = t("\u2715");
-      del.title = t("Delete this question");
-      del.addEventListener("click", (e) => {
-        e.stopPropagation();
-        deleteQuestion(i);
-      });
-      card.appendChild(del);
-    }
-    const node = document.createElement("div");
-    node.className = "q-node";
-    node.textContent = q.text;
-    card.appendChild(node);
-    const row = document.createElement("div");
-    row.className = "q-row";
-    const label = document.createElement("span");
-    label.className = "q-label";
-    label.textContent = t("Accept?");
-    row.appendChild(label);
-    const mkBtn = (val, text) => {
-      const b = document.createElement("button");
-      b.className = `q-btn ${val === "yes" ? "yes" : "notyet"}` + (q.answer === val ? " on" : "");
-      b.textContent = text;
-      b.addEventListener("click", (e) => {
-        e.stopPropagation();
-        answer(i, val);
-      });
-      return b;
-    };
-    row.appendChild(mkBtn("yes", "Yes"));
-    row.appendChild(mkBtn("not_yet", "Not yet"));
-    card.appendChild(row);
-    return card;
-  }
-  function render(res) {
-    const container = $("questions");
-    container.innerHTML = "";
-    const questions = res.questions || [];
-    const pending = res.pending || null;
-    questions.forEach((q, i) => {
-      const isTopFinal = !pending && q.path === res.topPath;
-      container.appendChild(questionCard(q, i, false, isTopFinal));
-    });
-    if (pending) {
-      container.appendChild(questionCard(pending, questions.length, true, false));
-    }
-    if (typeof res.initialCount === "number" && res.initialCount > 0)
-      initialCount = res.initialCount;
-    const progress = res.progress || 0;
-    const pct = initialCount > 0 ? Math.round(progress / initialCount * 100) : 0;
-    $("progress-fill").style.width = `${pct}%`;
-    $("progress-label").textContent = t("Progress");
-    const final = $("final");
-    if (!pending) {
-      final.style.display = "";
-      final.textContent = t("Nothing else to show. Feel free to alter your choices above.");
-      highlight(questions.find((q) => q.path === res.topPath) || questions[questions.length - 1]);
-      setStatus(t("Done"));
-    } else {
-      final.style.display = "none";
-      highlight(pending);
-      setStatus(t("Answer the highlighted question, or revise an earlier one."));
-    }
-  }
-  async function refresh() {
-    const res = await drill();
-    if (res && res.session_expired) {
-      setStatus(t("The session has expired \u2014 reopen the Explanation Drill."));
-      return;
-    }
-    if (!res || !res.ok) {
-      setStatus(t("Error: ") + (res && res.error || "no response"));
-      return;
-    }
-    render(res);
-  }
-  if (!why) {
-    setStatus(t("No explanation to drill."));
+  applyI18nDom();
+  const data = JSON.parse(localStorage.getItem("le_bento_box_data") || "{}");
+  $("title").textContent = `${t("Bento Box")}${data.kbName ? ` \u2014 ${data.kbName}` : ""}`;
+  document.title = `${t("Bento Box")}${data.kbName ? ` \u2014 ${data.kbName}` : ""}`;
+  $("answer").textContent = data.answer || "";
+  const roots = Array.isArray(data.why) ? data.why : data.why ? [data.why] : [];
+  const tray = $("tray");
+  const legendRows = $("legend-rows");
+  if (!roots.length) {
+    tray.textContent = t("No explanation to display.");
+    tray.style.color = "#d4d4d4";
     return;
   }
-  startSessionLoad();
-  refresh();
-}
-installLeApiLang();
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => applyI18nDom());
-} else {
-  applyI18nDom();
+  const light = document.body.classList.contains("light-theme");
+  const boxByPath = /* @__PURE__ */ new Map();
+  let seq = 0;
+  function weight(node) {
+    const kids = node.children || [];
+    if (!kids.length)
+      return 1;
+    return kids.reduce((s, k) => s + weight(k), 0);
+  }
+  function markerFor(node) {
+    if (node.type === "failure")
+      return "x ";
+    if (node.type === "unknown")
+      return "? ";
+    return "";
+  }
+  function render(node, parent, depth, path) {
+    const el = document.createElement("div");
+    el.className = "bento-box";
+    el.dataset.path = path;
+    const kids = node.children || [];
+    const failed = node.type === "failure";
+    const assumed = node.type === "unknown";
+    const h = hue(seq++);
+    const fill = light ? `hsl(${h}, 62%, 86%)` : `hsl(${h}, 42%, 26%)`;
+    const edge = light ? `hsl(${h}, 55%, 55%)` : `hsl(${h}, 55%, 48%)`;
+    el.style.background = fill;
+    el.style.borderColor = edge;
+    el.style.flexGrow = String(weight(node));
+    el.style.flexBasis = "0";
+    el.style.flexDirection = depth % 2 === 0 ? "row" : "column";
+    if (failed)
+      el.classList.add("failed");
+    if (assumed)
+      el.classList.add("assumed");
+    const literal = node.literal ? String(node.literal) : "";
+    if (literal)
+      el.title = `${path}  ${markerFor(node)}${literal}`;
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      flash(el);
+      if (typeof node.start === "number" && typeof node.end === "number" && node.end > node.start) {
+        window.opener?.postMessage({ type: "le-highlight", loc: { start: node.start, end: node.end }, noFocus: true }, "*");
+      }
+    });
+    parent.appendChild(el);
+    boxByPath.set(path, el);
+    addLegendRow(node, path, failed ? "" : fill, failed ? "" : edge);
+    if (failed) {
+    } else if (!kids.length) {
+      el.classList.add("leaf");
+      el.textContent = literal;
+    } else {
+      kids.forEach((k, i) => render(k, el, depth + 1, `${path}.${i + 1}`));
+    }
+  }
+  function addLegendRow(node, path, fill, edge) {
+    const row = document.createElement("div");
+    row.className = "legend-row";
+    if (node.type === "failure")
+      row.classList.add("failed");
+    if (node.type === "unknown")
+      row.classList.add("assumed");
+    const swatch = document.createElement("span");
+    swatch.className = "legend-swatch";
+    swatch.style.background = fill || "var(--empty-bg)";
+    swatch.style.borderColor = edge || "#000";
+    if (node.type === "unknown")
+      swatch.style.borderStyle = "dashed";
+    const pathEl = document.createElement("span");
+    pathEl.className = "legend-path";
+    pathEl.textContent = path;
+    const text = document.createElement("span");
+    text.className = "legend-text";
+    text.textContent = `${markerFor(node)}${node.literal ? String(node.literal) : ""}`;
+    row.append(swatch, pathEl, text);
+    row.addEventListener("mouseenter", () => boxByPath.get(path)?.classList.add("flash"));
+    row.addEventListener("mouseleave", () => boxByPath.get(path)?.classList.remove("flash"));
+    row.addEventListener("click", () => boxByPath.get(path)?.dispatchEvent(new MouseEvent("click")));
+    legendRows.appendChild(row);
+  }
+  function flash(el) {
+    el.classList.add("flash");
+    setTimeout(() => el.classList.remove("flash"), 400);
+  }
+  roots.forEach((r, i) => render(r, tray, 0, String(i + 1)));
 }
 export {
-  initExplanationDrill
+  initBentoBox
 };

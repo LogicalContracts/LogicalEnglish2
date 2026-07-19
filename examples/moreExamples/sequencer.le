@@ -1,0 +1,75 @@
+the target language is: prolog.
+
+% =============================================================================
+% A miniature DESIGN GRAMMAR: the front panel of a step sequencer.
+%
+% The knowledge base states what any playable step sequencer needs — a
+% transport, a rhythm grid, a sound shaper — and the scenario lays out one
+% concrete design, "my groovebox". Run query `design`, then right-click the
+% answer and choose "Bento Box…": the explanation renders as the instrument
+% itself — the outer box is the sequencer, the compartments are its panels,
+% and the leaves are the knobs, buttons, pads and faders.
+%
+% Experiment: delete a control from the scenario (the design breaks — dark
+% space where the panel was), move a knob to another panel, or add a rule for
+% a panel of your own invention.
+% =============================================================================
+
+the templates are:
+    *a device* is a playable step sequencer,
+    *a device* has a working transport,
+    *a device* has a rhythm grid,
+    *a device* has a sound shaper,
+    *a panel* is a panel of *a device*,
+    *a control* is a button on *a panel*,
+    *a control* is a knob on *a panel*,
+    *a control* is a pad on *a panel*,
+    *a control* is a slider on *a panel*.
+
+the knowledge base sequencer includes:
+
+a device is a playable step sequencer
+    if the device has a working transport
+    and the device has a rhythm grid
+    and the device has a sound shaper.
+
+% To start, stop and set the pace: a button and a tempo knob together on one panel.
+a device has a working transport
+    if a panel is a panel of the device
+    and a control is a button on the panel
+    and an other control is a knob on the panel.
+
+% To write the rhythm: a row of pads on one panel.
+a device has a rhythm grid
+    if a panel is a panel of the device
+    and pad one is a pad on the panel
+    and pad two is a pad on the panel
+    and pad three is a pad on the panel
+    and pad four is a pad on the panel.
+
+% To shape the sound: a fader for loudness and a knob for tone, side by side.
+a device has a sound shaper
+    if a panel is a panel of the device
+    and a control is a slider on the panel
+    and an other control is a knob on the panel.
+
+scenario groovebox is:
+    transport strip is a panel of my groovebox.
+    step grid is a panel of my groovebox.
+    mixer strip is a panel of my groovebox.
+
+    run button is a button on transport strip.
+    tempo dial is a knob on transport strip.
+
+    pad one is a pad on step grid.
+    pad two is a pad on step grid.
+    pad three is a pad on step grid.
+    pad four is a pad on step grid.
+
+    volume fader is a slider on mixer strip.
+    filter knob is a knob on mixer strip.
+
+    design expects answers ["my groovebox is a playable step sequencer"].
+
+query design is:
+    which device is a playable step sequencer.

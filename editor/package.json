@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "gen-i18n": "node scripts/gen-i18n.cjs",
-    "build": "node scripts/gen-i18n.cjs && esbuild src/client.ts --bundle --outfile=dist/client.js --format=esm && esbuild src/server.ts --bundle --outfile=dist/server.js --format=esm && esbuild src/graph-client.ts --bundle --outfile=dist/graph-client.js --format=esm && esbuild src/proof-game.ts --bundle --outfile=dist/proof-game.js --format=esm && esbuild src/scenario-editor.ts --bundle --outfile=dist/scenario-editor.js --format=esm && esbuild src/query-editor.ts --bundle --outfile=dist/query-editor.js --format=esm && esbuild src/scenario-variations.ts --bundle --outfile=dist/scenario-variations.js --format=esm && esbuild src/explanation-drill.ts --bundle --outfile=dist/explanation-drill.js --format=esm",
+    "build": "node scripts/gen-i18n.cjs && esbuild src/client.ts --bundle --outfile=dist/client.js --format=esm && esbuild src/server.ts --bundle --outfile=dist/server.js --format=esm && esbuild src/graph-client.ts --bundle --outfile=dist/graph-client.js --format=esm && esbuild src/proof-game.ts --bundle --outfile=dist/proof-game.js --format=esm && esbuild src/scenario-editor.ts --bundle --outfile=dist/scenario-editor.js --format=esm && esbuild src/query-editor.ts --bundle --outfile=dist/query-editor.js --format=esm && esbuild src/scenario-variations.ts --bundle --outfile=dist/scenario-variations.js --format=esm && esbuild src/explanation-drill.ts --bundle --outfile=dist/explanation-drill.js --format=esm && esbuild src/bento-box.ts --bundle --outfile=dist/bento-box.js --format=esm",
     "start": "serve .",
     "test:e2e": "playwright test"
   },

@@ -4916,6 +4916,12 @@ var uiCatalog = {
     "Language": "L\xEDngua",
     "Answers": "Respostas",
     "[Empty Scenario]": "[Cen\xE1rio vazio]",
+    "Bento Box": "Caixa Bento",
+    "Bento Box\u2026": "Caixa Bento\u2026",
+    "Render this answer's explanation as nested bento compartments, in a separate window": "Apresenta a explica\xE7\xE3o desta resposta como compartimentos bento aninhados, numa janela separada",
+    "Legend": "Legenda",
+    "Click a box to highlight its source in the editor.": "Clique numa caixa para real\xE7ar a sua origem no editor.",
+    "No explanation to display.": "Sem explica\xE7\xE3o para mostrar.",
     "Unknowns": "Desconhecidos",
     "Scenarios": "Cen\xE1rios",
     "Queries": "Consultas",
@@ -5198,6 +5204,12 @@ var uiCatalog = {
     "Language": "Idioma",
     "Answers": "Respuestas",
     "[Empty Scenario]": "[Escenario vac\xEDo]",
+    "Bento Box": "Caja Bento",
+    "Bento Box\u2026": "Caja Bento\u2026",
+    "Render this answer's explanation as nested bento compartments, in a separate window": "Presenta la explicaci\xF3n de esta respuesta como compartimentos bento anidados, en una ventana separada",
+    "Legend": "Leyenda",
+    "Click a box to highlight its source in the editor.": "Haga clic en una caja para resaltar su origen en el editor.",
+    "No explanation to display.": "No hay explicaci\xF3n que mostrar.",
     "Unknowns": "Desconocidos",
     "Scenarios": "Escenarios",
     "Queries": "Consultas",
@@ -5480,6 +5492,12 @@ var uiCatalog = {
     "Language": "Langue",
     "Answers": "R\xE9ponses",
     "[Empty Scenario]": "[Sc\xE9nario vide]",
+    "Bento Box": "Bo\xEEte Bento",
+    "Bento Box\u2026": "Bo\xEEte Bento\u2026",
+    "Render this answer's explanation as nested bento compartments, in a separate window": "Pr\xE9sente l'explication de cette r\xE9ponse sous forme de compartiments bento imbriqu\xE9s, dans une fen\xEAtre s\xE9par\xE9e",
+    "Legend": "L\xE9gende",
+    "Click a box to highlight its source in the editor.": "Cliquez sur une bo\xEEte pour mettre en \xE9vidence sa source dans l'\xE9diteur.",
+    "No explanation to display.": "Aucune explication \xE0 afficher.",
     "Unknowns": "Inconnus",
     "Scenarios": "Sc\xE9narios",
     "Queries": "Requ\xEAtes",
@@ -5762,6 +5780,12 @@ var uiCatalog = {
     "Language": "Lingua",
     "Answers": "Risposte",
     "[Empty Scenario]": "[Scenario vuoto]",
+    "Bento Box": "Bento Box",
+    "Bento Box\u2026": "Bento Box\u2026",
+    "Render this answer's explanation as nested bento compartments, in a separate window": "Presenta la spiegazione di questa risposta come scomparti bento annidati, in una finestra separata",
+    "Legend": "Legenda",
+    "Click a box to highlight its source in the editor.": "Fai clic su una scatola per evidenziare la sua origine nell'editor.",
+    "No explanation to display.": "Nessuna spiegazione da mostrare.",
     "Unknowns": "Sconosciuti",
     "Scenarios": "Scenari",
     "Queries": "Interrogazioni",
@@ -6577,6 +6601,11 @@ function wireMenus(m) {
       navigator.clipboard.writeText(activeView.currentAnswerToCopy);
     m.answerContextMenu.style.display = "none";
   });
+  m.menuBentoBox?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    activeView?.openBento();
+    m.answerContextMenu.style.display = "none";
+  });
   m.menuGotoOriginal.addEventListener("click", (e) => {
     e.stopPropagation();
     activeView?.gotoOriginal();
@@ -6607,6 +6636,8 @@ var ExplanationView = class {
   currentAnswerToCopy = "";
   // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
   currentMenuNode = null;
+  // The `why` of the answer last right-clicked, target of the Bento Box item.
+  currentMenuWhy = null;
   o;
   m;
   lastWhy = null;
@@ -6731,7 +6762,7 @@ var ExplanationView = class {
           this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
           this.o.onSelectAnswer?.(index + 1);
         });
-        item.addEventListener("contextmenu", (e) => this.answerMenu(e, result.answer));
+        item.addEventListener("contextmenu", (e) => this.answerMenu(e, result.answer, result.why));
         answersList.appendChild(item);
         if (index === target)
           item.click();
@@ -6747,7 +6778,7 @@ var ExplanationView = class {
         this.renderExplanation(res.why);
         this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
       });
-      item.addEventListener("contextmenu", (e) => this.answerMenu(e, "No answers (false)"));
+      item.addEventListener("contextmenu", (e) => this.answerMenu(e, "No answers (false)", res.why));
       answersList.appendChild(item);
       this.renderExplanation(res.why);
       this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
@@ -6762,13 +6793,22 @@ var ExplanationView = class {
       this.setStrongestReason();
     }
   }
-  answerMenu(e, answer) {
+  answerMenu(e, answer, why) {
     e.preventDefault();
     activeView = this;
     this.currentAnswerToCopy = answer;
+    this.currentMenuWhy = why ?? null;
+    const bento = this.m.menuBentoBox;
+    if (bento)
+      bento.style.display = this.o.onOpenBento && why ? "block" : "none";
     this.m.answerContextMenu.style.display = "block";
     this.m.answerContextMenu.style.left = `${e.clientX}px`;
     this.m.answerContextMenu.style.top = `${e.clientY}px`;
+  }
+  // Open the Bento Box window for the right-clicked answer's explanation.
+  openBento() {
+    if (this.currentMenuWhy)
+      this.o.onOpenBento?.(this.currentMenuWhy, this.currentAnswerToCopy);
   }
   // --- Unknown-goal tooltip --------------------------------------------------
   attachAnswerTooltip(item, unknowns) {

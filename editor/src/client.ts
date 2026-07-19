@@ -1503,6 +1503,13 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             titleMenu: document.getElementById('explanation-title-menu')!,
             menuShowStrongest: document.getElementById('menu-show-strongest')!,
             menuExplanationDrill: document.getElementById('menu-explanation-drill')!,
+            menuBentoBox: document.getElementById('menu-bento-box') || undefined,
+        },
+        onOpenBento: (why: any, answer: string) => {
+            localStorage.setItem('le_bento_box_data', JSON.stringify({ kbName: lastKb, answer, why }));
+            const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
+                                 document.body.className.includes('hc-theme') ? 'hc-theme' : '';
+            window.open(`bento-box.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
         },
         onOpenDrill: (why: any) => {
             if (!sessionModule) { showModal('Load the module and run a query first.', 'Explanation Drill'); return; }

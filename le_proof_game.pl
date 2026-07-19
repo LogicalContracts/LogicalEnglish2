@@ -33,6 +33,13 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             current_predicate(SM:F/N),
             \+ le_kbs:is_system_predicate(F/N),
             functor(Head, F, N),
+            % Only the session's OWN asserted clauses: current_predicate also
+            % enumerates predicates le_kbs exports once the module's import
+            % table has resolved them (which depends on request history), and
+            % clause/3 on such an imported static procedure throws
+            % permission_error(access, private_procedure, clause/3).
+            \+ predicate_property(SM:Head, imported_from(_)),
+            predicate_property(SM:Head, dynamic),
             clause(SM:Head, Body, Ref),
             SM:le_source_info(Ref, Start, End, ID),
             ID == session_fact
@@ -87,6 +94,9 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             current_predicate(SM:F/N),
             \+ le_kbs:is_system_predicate(F/N),
             functor(Head, F, N),
+            % See the rules pass: never clause/3 an import resolved into SM.
+            \+ predicate_property(SM:Head, imported_from(_)),
+            predicate_property(SM:Head, dynamic),
             clause(SM:Head, true, Ref),
             SM:le_source_info(Ref, Start, End, session_fact),
             Kind = fact
