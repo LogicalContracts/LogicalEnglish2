@@ -24,12 +24,14 @@ the templates are:
     *a control* is a button on *a panel*,
     *a control* is a knob on *a panel*,
     *a control* is a pad on *a panel*,
-    *a control* is a slider on *a panel*.
+    *a control* is a slider on *a panel*,
+    the power is on; image "https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Twemoji12_1f50c.svg/500px-Twemoji12_1f50c.svg.png".
 
 the knowledge base sequencer includes:
 
 a device is a playable step sequencer
-    if the device has a working transport
+    if the power is on
+    and the device has a working transport
     and the device has a rhythm grid
     and the device has a sound shaper.
 
@@ -53,21 +55,24 @@ a device has a sound shaper
     and a control is a slider on the panel
     and an other control is a knob on the panel.
 
+% A scenario fact may carry an image addition — `; image "https://…"` — shown
+% in place of the fact's text in the Bento Box (photos below: Wikimedia Commons).
 scenario groovebox is:
+    the power is on.
     transport strip is a panel of my groovebox.
     step grid is a panel of my groovebox.
     mixer strip is a panel of my groovebox.
 
-    run button is a button on transport strip.
-    tempo dial is a knob on transport strip.
+    run button is a button on transport strip; image "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Twemoji12_25b6.svg/500px-Twemoji12_25b6.svg.png".
+    tempo dial is a knob on transport strip; image "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Volume_control_knob_on_Optonica_SM-3636_audio_amplifier_%28by_Sharp%29_%28cropped%29.jpg/500px-Volume_control_knob_on_Optonica_SM-3636_audio_amplifier_%28by_Sharp%29_%28cropped%29.jpg".
 
-    pad one is a pad on step grid.
-    pad two is a pad on step grid.
-    pad three is a pad on step grid.
-    pad four is a pad on step grid.
+    pad one is a pad on step grid; image "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Twemoji12_1f941.svg/500px-Twemoji12_1f941.svg.png".
+    pad two is a pad on step grid; image "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Twemoji12_1f941.svg/500px-Twemoji12_1f941.svg.png".
+    pad three is a pad on step grid; image "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Twemoji12_1f941.svg/500px-Twemoji12_1f941.svg.png".
+    pad four is a pad on step grid; image "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Twemoji12_1f941.svg/500px-Twemoji12_1f941.svg.png".
 
-    volume fader is a slider on mixer strip.
-    filter knob is a knob on mixer strip.
+    volume fader is a slider on mixer strip; image "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Twemoji12_1f39a.svg/500px-Twemoji12_1f39a.svg.png".
+    filter knob is a knob on mixer strip; image "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Twemoji12_1f39b.svg/500px-Twemoji12_1f39b.svg.png".
 
     design expects answers ["my groovebox is a playable step sequencer"].
 

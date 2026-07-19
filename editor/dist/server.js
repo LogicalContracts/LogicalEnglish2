@@ -9227,6 +9227,11 @@ var keywords = {
       [
         "a"
       ]
+    ],
+    "image": [
+      [
+        "image"
+      ]
     ]
   },
   "pt": {
@@ -10205,6 +10210,11 @@ var keywords = {
       [
         "\xE9"
       ]
+    ],
+    "image": [
+      [
+        "imagem"
+      ]
     ]
   },
   "es": {
@@ -11182,6 +11192,11 @@ var keywords = {
       [
         "o"
       ]
+    ],
+    "image": [
+      [
+        "imagen"
+      ]
     ]
   },
   "fr": {
@@ -12125,6 +12140,11 @@ var keywords = {
       ],
       [
         "ou"
+      ]
+    ],
+    "image": [
+      [
+        "image"
       ]
     ]
   },
@@ -13142,6 +13162,11 @@ var keywords = {
       ],
       [
         "\xE8"
+      ]
+    ],
+    "image": [
+      [
+        "immagine"
       ]
     ]
   }

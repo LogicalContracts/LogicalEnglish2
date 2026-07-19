@@ -2084,6 +2084,22 @@ OK, now please remove the LANGUAGE items from the "Misc" menu, to avoid confusio
 The "Home" button at top of editor should return to the proper landing page
 Also, the LE Assistant always greets with "Hello! I am your Logical English Assistant. How can I help you today?", needs to be translated; ditto for the progress messages "Calling LLM (step N)", "I have updated the editor content with the changes.", "Requested completed in NN seconds"
 
+## Bento Box
+Let's add a "Bento Box" feature to display an answer. People have tried to use logic grammars to generate design structures rendere as Bento boxes, and we want to let LE authors (designers or children...) experiment.
+It should take the explanation tree supporting an answer, and render it as "nested boxes", with the rule matching the root node being the outer box, its body conditions determining boxes within the outer box, etc., in a separate window.
+Like in the Proof game, we need some unique colouring for each node (box), and a legend. Also look at https://www.mockplus.com/blog/post/bento-box-design and https://justbento.com/handbook/bento-basics/bento-box-review-idea-bento-box-may-just-be-ideal-bento-box for inspiration of alternative ways to render boxes and their ultimate content (which will be the leaves in our explanation/proof tree). Pick something you like.
+Negation (failed nodes) for now are to be represented as empty dark space.
+Let's also show literals as tooltips as we hover the box.
+Clicking boxes should highlight the node (source code) in the editor
+oh, and wire it into the answer contextual menu    
+
+## images
+Let's introduce a simple "scenario fact addition": any scenario fact can end  with ";" and have an addition 'image URL'. Non ground facts or rules or ill-formed URL should constitute a warning. For now these images are to be used in the Bento box rendering.
+Please find a few nice images on the web and use them in the sequencer example
+I need you to find other images, only the tempo dial is good. Images need to be "2 dimensional", meaning, a flat object so it fits visually well in a Bento Box. also resize the images proportionally to touch the closest limits of its box - no padding around the image if we can avoit it
+
+Another feature: let's make 'image' also an addition to templates. A template must have no variables for an image addition to be acceptbale (warn otherwise). So the Bento box will use these image URLs for rendering toom, as an alternative to scenarion images.
+
 ## TBD
 Contracções (numa, desta, ..)
 Logical English for German (Logisches Deutsch)
