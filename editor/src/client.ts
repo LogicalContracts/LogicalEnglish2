@@ -1,5 +1,7 @@
 import { leLanguageConfiguration, leMonarchTokens, buildLeMonarchTokens } from './le-language';
 import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, targetLanguageStatement, uiLang } from './i18n';
+import { buildShareUrl, decompressFromParam, fragmentParam } from './share-url';
+import qrcode from 'qrcode-generator';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
 
@@ -149,7 +151,19 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
         }
 
-        if (textParam) {
+        // A #lzp= fragment carries a compressed program (see share-url.ts, the
+        // QR-code feature); it takes precedence over a ?text= parameter.
+        const lzpParam = fragmentParam();
+        if (lzpParam) {
+            try {
+                initialValue = await decompressFromParam(lzpParam);
+            } catch (err) {
+                console.error('Failed to decompress #lzp URL fragment', err);
+            }
+        }
+        if (initialValue) {
+            // already set from the fragment
+        } else if (textParam) {
             initialValue = textParam;
         } else if (exampleParam) {
             try {
@@ -494,6 +508,38 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     });
     document.getElementById('new-from-url-close')?.addEventListener('click', closeUrlModal);
     document.getElementById('new-from-url-cancel')?.addEventListener('click', closeUrlModal);
+
+    // "QR code…": the current document as a scannable URL. A server example
+    // keeps its plain parameterized URL; an edited document travels compressed
+    // in the #lzp fragment (share-url.ts). A URL past QR_URL_MAX is refused
+    // with an explanation: QR codes top out at 2953 bytes, and long before
+    // that they become too dense to scan reliably from a screen.
+    const QR_URL_MAX = 1500;
+    const qrModal = document.getElementById('qr-modal');
+    const closeQrModal = () => { if (qrModal) qrModal.style.display = 'none'; };
+    document.getElementById('qr-modal-close')?.addEventListener('click', closeQrModal);
+    qrModal?.addEventListener('click', (e) => { if (e.target === qrModal) closeQrModal(); });
+    document.getElementById('qr-copy-url')?.addEventListener('click', () => {
+        const u = document.getElementById('qr-url')?.textContent || '';
+        if (u) navigator.clipboard.writeText(u);
+    });
+    document.getElementById('menu-qr-code')?.addEventListener('click', async () => {
+        const url = await buildShareUrl(editor.getValue());
+        if (url.length > QR_URL_MAX) {
+            showModal(
+                t('The URL is too long for a QR code ({n} characters; the limit is {max}). Shorten the program, or save it as a server example and share its example URL instead.')
+                    .replace('{n}', String(url.length)).replace('{max}', String(QR_URL_MAX)),
+                t('QR code'));
+            return;
+        }
+        const qr = qrcode(0, 'M');
+        qr.addData(url);
+        qr.make();
+        (document.getElementById('qr-image') as HTMLImageElement).src = qr.createDataURL(4, 8);
+        const urlEl = document.getElementById('qr-url');
+        if (urlEl) urlEl.textContent = url;
+        if (qrModal) qrModal.style.display = 'flex';
+    });
 
     const loadFromUrl = async () => {
         const raw = (urlInput?.value || '').trim();

@@ -663,6 +663,8 @@
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item" id="menu-save" style="display: none;">Save</div>
                 <div class="dropdown-item" id="menu-save-as">Save As...</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" id="menu-qr-code" title="Show a QR code that opens this document (with its selected scenario and query)">QR code…</div>
             </div>
         </div>
         <div class="menu-item">
@@ -840,6 +842,23 @@
 
     <!-- Modal for API Keys & Assistant Settings -->
     <!-- Modal for New from URL -->
+    <div id="qr-modal" class="modal-overlay">
+        <div class="modal-content" style="width: 420px;">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 16px;">QR code</h3>
+                <span id="qr-modal-close" style="cursor: pointer; font-size: 20px;">&times;</span>
+            </div>
+            <div class="modal-body" style="text-align: center;">
+                <img id="qr-image" alt="QR code" style="width: 320px; max-width: 100%; image-rendering: pixelated; background: #fff; border-radius: 6px;">
+                <p data-i18n style="font-size: 12px; color: #888; margin: 8px 0 4px;">Scan to open this document.</p>
+                <p id="qr-url" style="font-size: 10px; color: #666; margin: 0; word-break: break-all; max-height: 60px; overflow: auto; user-select: all;"></p>
+            </div>
+            <div class="modal-footer">
+                <button id="qr-copy-url" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Copy URL</button>
+            </div>
+        </div>
+    </div>
+
     <div id="new-from-url-modal" class="modal-overlay">
         <div class="modal-content" style="width: 480px;">
             <div class="modal-header">
