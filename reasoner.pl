@@ -474,14 +474,7 @@ solve_rule_body(Body, SM, KM, Anc, D, MyID, Ref, Us, WhysBody) :-
 build_failure_tree(ID, Whys) :-
     (   success_in_not(ID, Whys) -> true
     ;   succeeded(ID) -> Whys = []
-    ;   % Per-rule failure nodes (only present when detailed failures are on).
-        findall(failed_rule(Ref, ClauseWhys),
-                ( called_clause(ID, ClauseID, Ref),
-                  clause_failure_children(ClauseID, ClauseWhys) ),
-                RuleNodes),
-        % Direct subgoal failures (the default path, and non-rule calls).
-        clause_failure_children(ID, DirectWhys),
-        combine_clause_children(RuleNodes, DirectWhys, AllWhys),
+    ;   failure_children(ID, AllWhys),
         (   called(_PID, ID, Term)
         ->  (   (AllWhys = [failure(Term2, Children)], variant_or_le_at_variant(Term, Term2))
             ->  Whys = [failure(Term, Children)] % Collapse pass-through
@@ -490,6 +483,20 @@ build_failure_tree(ID, Whys) :-
         ;   Whys = AllWhys
         )
     ).
+
+%!  failure_children(+ID, -AllWhys)
+%
+%   The failure subtrees of the calls made under ID: per-rule failure nodes
+%   (only present when detailed failures are on) plus the direct subgoal
+%   failures (the default path, and non-rule calls). Shared by
+%   build_failure_tree/2 and the choice-point display below.
+failure_children(ID, AllWhys) :-
+    findall(failed_rule(Ref, ClauseWhys),
+            ( called_clause(ID, ClauseID, Ref),
+              clause_failure_children(ClauseID, ClauseWhys) ),
+            RuleNodes),
+    clause_failure_children(ID, DirectWhys),
+    combine_clause_children(RuleNodes, DirectWhys, AllWhys).
 
 % Collect and group the failure subtrees of the calls made directly under ID.
 clause_failure_children(ID, Grouped) :-
@@ -502,17 +509,33 @@ clause_failure_children(ID, Grouped) :-
 %  - a FAILED child contributes its own failure subtree;
 %  - a child that SUCCEEDED but whose call was NON-GROUND is a choice point that
 %    may have other solutions, each potentially explaining the failure, so the
-%    succeeded condition itself is shown;
+%    succeeded condition itself is shown — together with WHY it could produce
+%    no other solution (see choice_failure_children/2);
 %  - a GROUND success is deterministic and irrelevant to the failure — omitted.
 child_failure_or_choice(CID, _Goal, W) :-
     \+ succeeded(CID), !,
     build_failure_tree(CID, Ws), member(W, Ws).
-child_failure_or_choice(CID, le_at(G, S, E), success(GShown, range(S, E), [])) :-
+child_failure_or_choice(CID, le_at(G, S, E), success(GShown, range(S, E), Kids)) :-
     succeeded(CID), \+ ground(G), !,
-    choice_binding(CID, le_at(G, S, E), le_at(GShown, _, _)).
-child_failure_or_choice(CID, Goal, success(GShown, nonground_success, [])) :-
+    choice_binding(CID, le_at(G, S, E), le_at(GShown, _, _)),
+    choice_failure_children(CID, Kids).
+child_failure_or_choice(CID, Goal, success(GShown, nonground_success, Kids)) :-
     succeeded(CID), \+ ground(Goal),
-    choice_binding(CID, Goal, GShown).
+    choice_binding(CID, Goal, GShown),
+    choice_failure_children(CID, Kids).
+
+%!  choice_failure_children(+CID, -Kids)
+%
+%   Why the succeeded choice point CID yielded no OTHER solution: the failure
+%   subtrees of its exhausted alternative branches — the ones backtracked into
+%   after a later condition failed. Those branches' own succeeded-but-non-ground
+%   conditions are shown too (the bindings they committed to are what made the
+%   later goals fail), while their ground successes stay omitted as usual.
+%   Without this, a failure explanation stopped at the bare succeeded choice
+%   ("we will make previous payment") and never showed the candidate rule whose
+%   near-miss — e.g. one retracted scenario fact — is the real story.
+choice_failure_children(CID, Kids) :-
+    failure_children(CID, Kids).
 
 % note_solved(+CID, +Goal): snapshot a subgoal's bindings AT SUCCESS time. The
 % call-time record (called/3) freezes a choice point before unification fills it
