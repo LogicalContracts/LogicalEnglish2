@@ -11,6 +11,10 @@ test.describe('Bento Box', () => {
         test.setTimeout(120000);
         await page.goto('index.html?example=happy_dragon&scenario=smoky&query=happy');
         await expect(page.locator('#filename-display')).toHaveText('happy_dragon.le');
+        // Wait until the URL's scenario/query selections applied (the module
+        // load can be slow on a cold server) — clicking Query before that
+        // queries an empty selection.
+        await expect(page.locator('#query-select')).toHaveValue('happy', { timeout: 45000 });
 
         await page.click('#btn-query');
         const answer = page.locator('.answer-item').first();
@@ -62,6 +66,7 @@ test.describe('Bento Box', () => {
         test.setTimeout(120000);
         await page.goto('index.html?example=sequencer&scenario=groovebox&query=design');
         await expect(page.locator('#filename-display')).toHaveText('sequencer.le');
+        await expect(page.locator('#query-select')).toHaveValue('design', { timeout: 45000 });
         await page.click('#btn-query');
         const answer = page.locator('.answer-item').first();
         await expect(answer).toBeVisible({ timeout: 45000 });
