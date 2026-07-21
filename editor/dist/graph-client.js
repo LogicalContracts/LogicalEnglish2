@@ -139595,7 +139595,9 @@ var uiCatalog = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cen\xE1rios e consultas, varia\xE7\xF5es de cen\xE1rio e a leitura das \xE1rvores de explica\xE7\xE3o.",
     "The language reference: every construct \u2014 templates, rules, operators, aggregates, variables and types, dates, ontology, extensions \u2014 for looking things up as you write.": "A refer\xEAncia da linguagem: todas as constru\xE7\xF5es \u2014 modelos, regras, operadores, agrega\xE7\xF5es, vari\xE1veis e tipos, datas, ontologia, extens\xF5es \u2014 para consultar enquanto escreve.",
     "Larger important reasons": "Raz\xF5es importantes mais amplas",
-    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Quando ativo, a raz\xE3o importante de uma consulta falhada enumera todas as condi\xE7\xF5es falhadas mais profundas ("n\xE3o \xE9 o caso que X, nem que Y, nem que Z"), truncada ap\xF3s a terceira, em vez de apenas a primeira.'
+    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Quando ativo, a raz\xE3o importante de uma consulta falhada enumera todas as condi\xE7\xF5es falhadas mais profundas ("n\xE3o \xE9 o caso que X, nem que Y, nem que Z"), truncada ap\xF3s a terceira, em vez de apenas a primeira.',
+    "Always show engine choice": "Mostrar sempre a escolha do motor",
+    "Show engine choice only for non-Prolog": "Mostrar a escolha do motor apenas para n\xE3o-Prolog"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -139890,7 +139892,9 @@ var uiCatalog = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "El manual del editor: abrir y guardar archivos, ejecutar consultas, los editores de escenarios y consultas, variaciones de escenario y la lectura de los \xE1rboles de explicaci\xF3n.",
     "The language reference: every construct \u2014 templates, rules, operators, aggregates, variables and types, dates, ontology, extensions \u2014 for looking things up as you write.": "La referencia del lenguaje: todas las construcciones \u2014 plantillas, reglas, operadores, agregaciones, variables y tipos, fechas, ontolog\xEDa, extensiones \u2014 para consultar mientras escribe.",
     "Larger important reasons": "Razones importantes m\xE1s amplias",
-    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Cuando est\xE1 activo, la raz\xF3n importante de una consulta fallida enumera todas las condiciones fallidas m\xE1s profundas ("no es el caso que X, ni que Y, ni que Z"), truncada tras la tercera, en lugar de solo la primera.'
+    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Cuando est\xE1 activo, la raz\xF3n importante de una consulta fallida enumera todas las condiciones fallidas m\xE1s profundas ("no es el caso que X, ni que Y, ni que Z"), truncada tras la tercera, en lugar de solo la primera.',
+    "Always show engine choice": "Mostrar siempre la elecci\xF3n del motor",
+    "Show engine choice only for non-Prolog": "Mostrar la elecci\xF3n del motor solo para no-Prolog"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -140185,7 +140189,9 @@ var uiCatalog = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Le manuel de l'\xE9diteur : ouvrir et enregistrer des fichiers, ex\xE9cuter des requ\xEAtes, les \xE9diteurs de sc\xE9narios et de requ\xEAtes, les variations de sc\xE9nario et la lecture des arbres d'explication.",
     "The language reference: every construct \u2014 templates, rules, operators, aggregates, variables and types, dates, ontology, extensions \u2014 for looking things up as you write.": "La r\xE9f\xE9rence du langage : toutes les constructions \u2014 mod\xE8les, r\xE8gles, op\xE9rateurs, agr\xE9gats, variables et types, dates, ontologie, extensions \u2014 \xE0 consulter pendant que vous \xE9crivez.",
     "Larger important reasons": "Raisons importantes \xE9largies",
-    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': "Quand elle est activ\xE9e, la raison importante d'une requ\xEAte en \xE9chec liste toutes les conditions en \xE9chec les plus profondes (\xAB il n'est pas le cas que X, ni que Y, ni que Z \xBB), tronqu\xE9e apr\xE8s la troisi\xE8me, au lieu de seulement la premi\xE8re."
+    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': "Quand elle est activ\xE9e, la raison importante d'une requ\xEAte en \xE9chec liste toutes les conditions en \xE9chec les plus profondes (\xAB il n'est pas le cas que X, ni que Y, ni que Z \xBB), tronqu\xE9e apr\xE8s la troisi\xE8me, au lieu de seulement la premi\xE8re.",
+    "Always show engine choice": "Toujours afficher le choix du moteur",
+    "Show engine choice only for non-Prolog": "Afficher le choix du moteur uniquement pour non-Prolog"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -140480,7 +140486,9 @@ var uiCatalog = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Il manuale dell'editor: aprire e salvare file, eseguire interrogazioni, gli editor di scenari e interrogazioni, le variazioni di scenario e la lettura degli alberi di spiegazione.",
     "The language reference: every construct \u2014 templates, rules, operators, aggregates, variables and types, dates, ontology, extensions \u2014 for looking things up as you write.": "Il riferimento del linguaggio: tutti i costrutti \u2014 modelli, regole, operatori, aggregati, variabili e tipi, date, ontologia, estensioni \u2014 da consultare mentre scrivi.",
     "Larger important reasons": "Motivi importanti pi\xF9 ampi",
-    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': `Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite pi\xF9 profonde ("non \xE8 il caso che X, n\xE9 che Y, n\xE9 che Z"), troncato dopo il terzo, invece del solo primo.`
+    'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': `Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite pi\xF9 profonde ("non \xE8 il caso che X, n\xE9 che Y, n\xE9 che Z"), troncato dopo il terzo, invece del solo primo.`,
+    "Always show engine choice": "Mostra sempre la scelta del motore",
+    "Show engine choice only for non-Prolog": "Mostra la scelta del motore solo per non-Prolog"
   }
 };
 var languages = [

@@ -1,5 +1,5 @@
 import { leLanguageConfiguration, leMonarchTokens, buildLeMonarchTokens } from './le-language';
-import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, targetLanguageStatement, uiLang } from './i18n';
+import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, detectTargetLanguage, targetLanguageStatement, uiLang } from './i18n';
 import { buildShareUrl, decompressFromParam, fragmentParam } from './share-url';
 import qrcode from 'qrcode-generator';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
@@ -1179,6 +1179,51 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // Once the user (or a URL param) picks an engine explicitly, a program's
     // declared target must not silently override it.
     let engineUserSet = false;
+
+    // --- Engine-picker visibility preference (Misc menu) ---------------------
+    // LE is Prolog-biased, so the engine picker is clutter for most programs.
+    // 'always' (default) shows it for every program; 'nonprolog' shows it only
+    // when the loaded program's target language is not prolog (or a non-prolog
+    // engine is currently active, so a pinned/chosen engine is never hidden).
+    // Persisted in localStorage.
+    const engineControl = document.getElementById('engine-control') as HTMLElement | null;
+    let enginePickerMode: 'always' | 'nonprolog' =
+        localStorage.getItem('le-engine-picker-mode') === 'nonprolog' ? 'nonprolog' : 'always';
+    let currentTargetLanguage = 'prolog';
+    function applyEnginePickerVisibility() {
+        if (!engineControl) return;
+        const active = engineSelect ? engineSelect.value : 'prolog';
+        const show = enginePickerMode === 'always'
+            || currentTargetLanguage !== 'prolog'
+            || active !== 'prolog';
+        engineControl.style.display = show ? '' : 'none';
+    }
+    function updateEnginePickerChecks() {
+        const a = document.getElementById('engine-always-check');
+        const n = document.getElementById('engine-nonprolog-check');
+        if (a) a.style.visibility = enginePickerMode === 'always' ? 'visible' : 'hidden';
+        if (n) n.style.visibility = enginePickerMode === 'nonprolog' ? 'visible' : 'hidden';
+    }
+    function setEnginePickerMode(mode: 'always' | 'nonprolog') {
+        enginePickerMode = mode;
+        localStorage.setItem('le-engine-picker-mode', mode);
+        updateEnginePickerChecks();
+        applyEnginePickerVisibility();
+    }
+    document.getElementById('menu-engine-always')?.addEventListener('click', () => setEnginePickerMode('always'));
+    document.getElementById('menu-engine-nonprolog')?.addEventListener('click', () => setEnginePickerMode('nonprolog'));
+    // Track the declared target language from the editor text directly, so the
+    // picker reflects the preference immediately (the module otherwise loads
+    // lazily, e.g. on mouse-enter, which would delay the update). The load handler
+    // still refines it from the authoritative server `res.target`.
+    function refreshEnginePickerTarget() {
+        try { currentTargetLanguage = detectTargetLanguage(editor.getValue()); }
+        catch { currentTargetLanguage = 'prolog'; }
+        applyEnginePickerVisibility();
+    }
+    editor.onDidChangeModelContent(() => refreshEnginePickerTarget());
+    updateEnginePickerChecks();
+    refreshEnginePickerTarget();
     const btnQuery = document.getElementById('btn-query') as HTMLButtonElement;
     const btnTrace = document.getElementById('btn-trace') as HTMLButtonElement;
     const resultsDisplay = document.getElementById('results-display') as HTMLPreElement;
@@ -1235,6 +1280,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             engineUserSet = true;
             updateQueryButtonState();
             updateUrlSelection();
+            applyEnginePickerVisibility();
         });
     }
 
@@ -1356,6 +1402,11 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                         updateUrlSelection();
                     }
                 }
+
+                // Engine-picker visibility tracks the program's declared target
+                // language (see the 'nonprolog' preference in the Misc menu).
+                currentTargetLanguage = (typeof res.target === 'string') ? res.target : 'prolog';
+                applyEnginePickerVisibility();
                 
                 graphChannel.postMessage({
                     type: 'module-loaded',
@@ -1507,6 +1558,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (engineParam && engineSelect) {
             selectIfPresent(engineSelect, engineParam);
             updateQueryButtonState();
+            applyEnginePickerVisibility();   // a pinned non-prolog engine must stay visible
         }
         // `answer` runs the (just-selected) query and selects the answer with the
         // given 1-based order, so its explanation is shown. Requires scenario+query.

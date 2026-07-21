@@ -5083,7 +5083,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cenários e consultas, variações de cenário e a leitura das árvores de explicação.",
     "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "A referência da linguagem: todas as construções — modelos, regras, operadores, agregações, variáveis e tipos, datas, ontologia, extensões — para consultar enquanto escreve.",
     "Larger important reasons": "Razões importantes mais amplas",
-    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando ativo, a razão importante de uma consulta falhada enumera todas as condições falhadas mais profundas (\"não é o caso que X, nem que Y, nem que Z\"), truncada após a terceira, em vez de apenas a primeira."
+    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando ativo, a razão importante de uma consulta falhada enumera todas as condições falhadas mais profundas (\"não é o caso que X, nem que Y, nem que Z\"), truncada após a terceira, em vez de apenas a primeira.",
+    "Always show engine choice": "Mostrar sempre a escolha do motor",
+    "Show engine choice only for non-Prolog": "Mostrar a escolha do motor apenas para não-Prolog"
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -5378,7 +5380,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "El manual del editor: abrir y guardar archivos, ejecutar consultas, los editores de escenarios y consultas, variaciones de escenario y la lectura de los árboles de explicación.",
     "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La referencia del lenguaje: todas las construcciones — plantillas, reglas, operadores, agregaciones, variables y tipos, fechas, ontología, extensiones — para consultar mientras escribe.",
     "Larger important reasons": "Razones importantes más amplias",
-    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Cuando está activo, la razón importante de una consulta fallida enumera todas las condiciones fallidas más profundas (\"no es el caso que X, ni que Y, ni que Z\"), truncada tras la tercera, en lugar de solo la primera."
+    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Cuando está activo, la razón importante de una consulta fallida enumera todas las condiciones fallidas más profundas (\"no es el caso que X, ni que Y, ni que Z\"), truncada tras la tercera, en lugar de solo la primera.",
+    "Always show engine choice": "Mostrar siempre la elección del motor",
+    "Show engine choice only for non-Prolog": "Mostrar la elección del motor solo para no-Prolog"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -5673,7 +5677,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Le manuel de l'éditeur : ouvrir et enregistrer des fichiers, exécuter des requêtes, les éditeurs de scénarios et de requêtes, les variations de scénario et la lecture des arbres d'explication.",
     "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La référence du langage : toutes les constructions — modèles, règles, opérateurs, agrégats, variables et types, dates, ontologie, extensions — à consulter pendant que vous écrivez.",
     "Larger important reasons": "Raisons importantes élargies",
-    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quand elle est activée, la raison importante d'une requête en échec liste toutes les conditions en échec les plus profondes (« il n'est pas le cas que X, ni que Y, ni que Z »), tronquée après la troisième, au lieu de seulement la première."
+    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quand elle est activée, la raison importante d'une requête en échec liste toutes les conditions en échec les plus profondes (« il n'est pas le cas que X, ni que Y, ni que Z »), tronquée après la troisième, au lieu de seulement la première.",
+    "Always show engine choice": "Toujours afficher le choix du moteur",
+    "Show engine choice only for non-Prolog": "Afficher le choix du moteur uniquement pour non-Prolog"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -5968,7 +5974,9 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Il manuale dell'editor: aprire e salvare file, eseguire interrogazioni, gli editor di scenari e interrogazioni, le variazioni di scenario e la lettura degli alberi di spiegazione.",
     "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "Il riferimento del linguaggio: tutti i costrutti — modelli, regole, operatori, aggregati, variabili e tipi, date, ontologia, estensioni — da consultare mentre scrivi.",
     "Larger important reasons": "Motivi importanti più ampi",
-    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite più profonde (\"non è il caso che X, né che Y, né che Z\"), troncato dopo il terzo, invece del solo primo."
+    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite più profonde (\"non è il caso che X, né che Y, né che Z\"), troncato dopo il terzo, invece del solo primo.",
+    "Always show engine choice": "Mostra sempre la scelta del motore",
+    "Show engine choice only for non-Prolog": "Mostra la scelta del motore solo per non-Prolog"
   }
 } as const;
 
