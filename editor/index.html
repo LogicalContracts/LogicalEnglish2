@@ -702,6 +702,16 @@
                     Hierarchical Numbering
                 </div>
                 <div class="dropdown-divider"></div>
+                <div style="padding: 8px 15px; font-weight: bold; font-size: 11px; color: #888;">ENGINE PICKER</div>
+                <div class="dropdown-item" id="menu-engine-always" title="Always show the Prolog / s(CASP) engine picker next to the query.">
+                    <span id="engine-always-check" style="margin-right: 5px; visibility: hidden;">✓</span>
+                    Always show engine choice
+                </div>
+                <div class="dropdown-item" id="menu-engine-nonprolog" title="Show the engine picker only when the loaded program declares a target language other than Prolog.">
+                    <span id="engine-nonprolog-check" style="margin-right: 5px; visibility: hidden;">✓</span>
+                    Show engine choice only for non-Prolog
+                </div>
+                <div class="dropdown-divider"></div>
                 <div class="dropdown-item" id="menu-view-source-graph" title="Visualize the program's templates, rules, facts, scenarios and queries as a dependency graph, in a new browser tab">View Source Graph</div>
                 <div class="dropdown-divider"></div>
                 <div class="dropdown-item" id="menu-api-keys">API Keys &amp; Assistant Settings...</div>
@@ -786,7 +796,7 @@
                                 <option value="">Select a query...</option>
                             </select>
                         </div>
-                        <div class="control-group">
+                        <div class="control-group" id="engine-control">
                             <label for="engine-select" title="Which reasoning engine answers the query. Prolog is the default; s(CASP) adds stable-model semantics, constructive negation, constraint answers and abduction.">Engine:</label>
                             <select id="engine-select">
                                 <option value="prolog">Prolog</option>

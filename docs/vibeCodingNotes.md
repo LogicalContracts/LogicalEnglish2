@@ -2110,7 +2110,7 @@ Also, I guess you know that the language of scasp's syntax is  a subset of Prolo
 Please check that at least we get a reasonable error if users try to use "or" 
 
 LE is a Prolog-biased system, so let's hide the engine picker for most cases and unclutter the UI a bit:
-- add a preference to the Misc menu: "Always show engine choice" / "Show engine choice only for non-Prolog", localStorage persistent
+- add a preference to the Misc menu: "Always show engine choice" (initial default) / "Show engine choice only for non-Prolog", localStorage persistent
 - If the user prefers the second case, show the engine picker only of the program as a target language different from prolog
 
 ## Better "important reason"

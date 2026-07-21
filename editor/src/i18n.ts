@@ -72,6 +72,44 @@ export function detectProgramLanguage(text: string): string {
     return 'en';
 }
 
+/**
+ * The execution target a program declares in its first statement
+ * ("the target language is: prolog" -> 'prolog', "... : scasp" -> 'scasp').
+ * The target VALUE is language-neutral; comments are skipped, and it defaults to
+ * 'prolog' when there is no recognised target-language declaration. Used to decide
+ * engine-picker visibility from the editor text alone, without a server round-trip.
+ */
+export function detectTargetLanguage(text: string): string {
+    const lines = text.split('\n');
+    let firstStatement = '';
+    let inBlockComment = false;
+    for (const line of lines) {
+        let s = line.trim();
+        if (inBlockComment) {
+            const end = s.indexOf('*/');
+            if (end === -1) continue;
+            s = s.slice(end + 2).trim();
+            inBlockComment = false;
+        }
+        if (s.startsWith('/*')) {
+            const end = s.indexOf('*/');
+            if (end === -1) { inBlockComment = true; continue; }
+            s = s.slice(end + 2).trim();
+        }
+        if (!s || s.startsWith('%')) continue;
+        firstStatement = s;
+        break;
+    }
+    const norm = firstStatement.toLowerCase().replace(/\s+/g, ' ');
+    for (const info of languages) {
+        if (info.opener && norm.startsWith(info.opener.toLowerCase())) {
+            const m = firstStatement.match(/:\s*(\w+)/);   // "<opener>: <target>."
+            return m ? m[1].toLowerCase() : 'prolog';
+        }
+    }
+    return 'prolog';
+}
+
 /** The opener statement for new programs in the given (or UI) language. */
 export function targetLanguageStatement(lang?: string): string {
     const code = lang ?? uiLang();
