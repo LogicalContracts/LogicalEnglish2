@@ -169,4 +169,70 @@ scasp_answer_strings(M, [answer(_, Goal, _, _)|T], [S|R]) :-
     ; term_string(Goal, S) ),
     scasp_answer_strings(M, T, R).
 
+% --- OR handling: s(CASP) forbids ;/2 in a body ---
+
+or_program(T) :-
+    T = "the target language is: scasp.
+the predicates are:
+    *a person* is happy.
+    *a person* is rich.
+    *a person* is famous.
+    *a person* is content.
+the knowledge base ortest includes:
+    a person is happy if
+        the person is rich
+        or the person is famous.
+    a person is content if
+        it is not the case that
+            the person is rich
+            or the person is famous.
+scenario s is:
+    alice is rich.
+query happy is:
+    which person is happy.".
+
+% A positive `or` is DNF-expanded into one clause per disjunct; no ;/2 survives
+% and no issue is raised.
+test(or_positive_dnf_expands, [condition(le_scasp_available)]) :-
+    or_program(T), load_text(T, M),
+    le_scasp_program_text(M, Text, Issues),
+    assertion(Issues == []),
+    assertion(\+ sub_string(Text, _, _, _, ";")),
+    % is_happy got two clauses, one per disjunct.
+    findall(x, sub_string(Text, _, _, _, "is_happy("), Occurrences),
+    length(Occurrences, N),
+    assertion(N >= 3).   % #pred + two rule heads
+
+% An `or` under a negation is De Morgan'd to `not .. , not ..` (sound for default
+% negation), so it stays legal s(CASP) and runs without a raw permission_error.
+test(or_under_negation_demorgan, [condition(le_scasp_available)]) :-
+    or_program(T), load_text(T, M),
+    le_scasp_program_text(M, Text, _Issues),
+    assertion(\+ sub_string(Text, _, _, _, ";")),
+    catch(le_scasp_query(M, s, is_content(_P), [time_limit(30)], _Answers, QIssues),
+          Err, true),
+    assertion(var(Err)),                           % no raw permission_error escapes
+    assertion(\+ memberchk(le_scasp_issue(unsupported_construct, _, _), QIssues)).
+
+% Double negation cannot be expressed in this s(CASP): a targeted, non-crashing
+% issue is reported instead of emitting an illegal program.
+test(double_negation_reports_issue, [condition(le_scasp_available)]) :-
+    load_text("the target language is: scasp.
+the predicates are:
+    *a person* is safe.
+    *a person* is risky.
+    *a person* is insured.
+the knowledge base dneg includes:
+    a person is safe if
+        it is not the case that
+            the person is risky
+            and it is not the case that the person is insured.
+scenario s is:
+    alice is risky.
+query safe is:
+    which person is safe.", M),
+    le_scasp_program_text(M, _Text, Issues),
+    ( memberchk(le_scasp_issue(untranslatable_rule, _, Msg), Issues) -> true ; Msg = "" ),
+    assertion(sub_string(Msg, _, _, _, "double negation")).
+
 :- end_tests(scasp).
