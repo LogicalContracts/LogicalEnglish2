@@ -23,6 +23,13 @@ RUN apt-get update && apt-get install -y curl git gnupg && \
     npm install -g opencode-ai mcp-remote && \
     rm -rf /var/lib/apt/lists/*
 
+# Install the s(CASP) pack so the second execution engine (le_scasp.pl) is
+# available on the server. Without this, "See s(CASP)" / the s(CASP) engine
+# report "The s(CASP) engine is not installed on this server." Fail the build
+# (rather than the running server) if the install or a smoke check does not work.
+RUN swipl -q -g "pack_install(scasp, [interactive(false)])" -t halt && \
+    swipl -q -g "( exists_source(library(scasp)) -> halt(0) ; halt(1) )"
+
 # Set the working directory in the container
 WORKDIR /app
 

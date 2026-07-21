@@ -2100,6 +2100,15 @@ I need you to find other images, only the tempo dial is good. Images need to be 
 
 Another feature: let's make 'image' also an addition to templates. A template must have no variables for an image addition to be acceptbale (warn otherwise). So the Bento box will use these image URLs for rendering toom, as an alternative to scenarion images.
 
+## s(CASP) issues
+I got this running with our fly.io container:
+Error: The s(CASP) engine is not installed on this server.
+
+Please check that s(CASP) is added to the "vanilla" SWI-Prolog already there
+
+Also, I guess you know that the language of scasp's syntax is  a subset of Prolog's that does not allow for OR in the rules. Are we checking that in LE2? 
+Please check that at least we get a reasonable error if users try to use "or" 
+
 
 
 

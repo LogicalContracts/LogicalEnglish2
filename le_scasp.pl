@@ -223,12 +223,20 @@ opposite_constraints(KB, Lines) :-
 
 emit_rules(_KB, [], [], []).
 emit_rules(KB, [rule(ID,_S,_E,Head,Body)|T], Lines, Issues) :-
-    ( catch(lower_body(KB, ID, Body, SBody, BIssues), _, fail) ->
-        % s(CASP) forbids ;/2 in a clause body: DNF-expand into one clause per
-        % conjunction (each printed whole so head/body variables correspond).
-        body_to_dnf(SBody, Conjs),
-        maplist(clause_line(Head), Conjs, RLines),
-        Lines0 = RLines, Issues0 = BIssues
+    ( catch(lower_body(KB, ID, Body, SBody, BIssues), Err, true) ->
+        ( var(Err) ->
+            % s(CASP) forbids ;/2 in a clause body: DNF-expand into one clause
+            % per conjunction (each printed whole so head/body vars correspond).
+            body_to_dnf(SBody, Conjs),
+            maplist(clause_line(Head), Conjs, RLines),
+            Lines0 = RLines, Issues0 = BIssues
+        ; Err = le_scasp_untranslatable(Msg) ->
+            % A construct we recognise but cannot express in s(CASP) (e.g. double
+            % negation): report a targeted issue rather than crashing the runner.
+            Lines0 = [], Issues0 = [le_scasp_issue(untranslatable_rule, ID, Msg)]
+        ; Lines0 = [],
+          Issues0 = [le_scasp_issue(untranslatable_rule, ID, "rule body could not be lowered to s(CASP)")]
+        )
     ;   Lines0 = [],
         Issues0 = [le_scasp_issue(untranslatable_rule, ID, "rule body could not be lowered to s(CASP)")]
     ),
@@ -291,8 +299,24 @@ lower_body(KB, ID, or(A,B), (SA;SB), Is) :- !,
     lower_body(KB, ID, A, SA, Ia), lower_body(KB, ID, B, SB, Ib), append(Ia, Ib, Is).
 lower_body(KB, ID, (A;B), (SA;SB), Is) :- !,
     lower_body(KB, ID, A, SA, Ia), lower_body(KB, ID, B, SB, Ib), append(Ia, Ib, Is).
-lower_body(KB, ID, not(G), not SG, Is) :- !, lower_body(KB, ID, G, SG, Is).
+lower_body(KB, ID, not(G), NegBody, Is) :- !,
+    lower_body(KB, ID, G, SG, Is),
+    demorgan_negate(SG, NegBody).
 lower_body(_KB, _ID, Leaf, SLeaf, Is) :- lower_leaf(Leaf, SLeaf, Is).
+
+% demorgan_negate(+Body, -Negated): push a negation inward so that no ;/2 or
+% conjunction survives directly under a not/1 — s(CASP) accepts only
+% `not <literal>` in a body (it rejects `not (a;b)`, `not (a,b)` and `not not a`).
+% De Morgan turns disjunction into conjunction and vice-versa; this is sound for
+% default negation (`not (A or B)` ≡ `not A and not B`). Any ;/2 it introduces
+% sits in a positive position and is lifted afterwards by body_to_dnf. Double
+% negation cannot be expressed in this s(CASP), so it aborts the rule with a
+% clear message (caught by emit_rules and reported as an issue).
+demorgan_negate((A;B), (NA,NB)) :- !, demorgan_negate(A, NA), demorgan_negate(B, NB).
+demorgan_negate((A,B), (NA;NB)) :- !, demorgan_negate(A, NA), demorgan_negate(B, NB).
+demorgan_negate(not _, _) :- !,
+    throw(le_scasp_untranslatable("double negation (\"it is not the case that ... it is not the case that ...\") is not supported by s(CASP); run this query with the Prolog engine")).
+demorgan_negate(G, not G).
 
 % lower_leaf(+Leaf, -SLeaf, -Issues): lower a single goal.
 lower_leaf(le_ge(X,Y), (X #>= Y), []) :- !.
@@ -395,9 +419,26 @@ scasp_clear_unit(_Unit).      % placeholder; temporary module GC handled by SWI
 run_models(Unit, Goal, TL, Max, Answers, Issues) :-
     catch(
         call_with_time_limit(TL, collect_models(Unit, Goal, Max, Answers)),
-        time_limit_exceeded,
-        ( Answers = [], Issues0 = [le_scasp_issue(timeout, unknown, "s(CASP) query exceeded its time budget")] )),
+        Error,
+        run_models_recover(Error, Answers, Issues0)),
     ( var(Issues0) -> Issues = [] ; Issues = Issues0 ).
+
+% run_models_recover(+Error, -Answers, -Issues): turn a raw s(CASP) execution
+% failure into a user-facing issue instead of letting it escape (which would
+% surface as an HTTP 500). Constructs s(CASP) cannot run — e.g. a ;/2 or a
+% conjunction the emitter did not lift out from under a negation — throw a
+% permission_error/determinism_error here; report them as an unsupported
+% construct and fall back to the Prolog engine. Genuinely unexpected errors are
+% re-thrown so real bugs are not masked.
+run_models_recover(time_limit_exceeded, [],
+    [le_scasp_issue(timeout, unknown, "s(CASP) query exceeded its time budget")]) :- !.
+run_models_recover(error(permission_error(scasp, _, _), _), [],
+    [le_scasp_issue(unsupported_construct, unknown,
+        "this program uses a construct s(CASP) cannot execute (for example \"or\" inside a negation); run this query with the Prolog engine")]) :- !.
+run_models_recover(error(determinism_error(_,_,_,_), _), [],
+    [le_scasp_issue(unsupported_construct, unknown,
+        "this program uses a construct s(CASP) cannot execute; run this query with the Prolog engine")]) :- !.
+run_models_recover(Error, _, _) :- throw(Error).
 
 collect_models(Unit, Goal, Max, Answers) :-
     % Pair each query variable with a name BEFORE solving; scasp binds the vars
