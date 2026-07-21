@@ -16,8 +16,11 @@
 # Use the official SWI-Prolog image as the base
 FROM swipl:latest
 
-# Install Node.js, git, and opencode
-RUN apt-get update && apt-get install -y curl git gnupg && \
+# Install Node.js, git, opencode, and make. `make` is needed by the s(CASP)
+# pack's build step below (its Makefile drives SWI-Prolog itself — it compiles a
+# scasp CLI/qlf, no C toolchain — but pack_install fails outright if make is
+# absent).
+RUN apt-get update && apt-get install -y curl git gnupg make && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g opencode-ai mcp-remote && \
