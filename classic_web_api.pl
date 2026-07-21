@@ -1031,6 +1031,14 @@ handle_answering_query(Dict, Response) :-
     retractall(SM:detailed_failures),
     (   get_dict(detailedFailures, Dict, true) -> assertz(SM:detailed_failures); true),
 
+    % "Larger important reasons": for a FAILED query, render ALL of the deepest
+    % failure nodes (up to three) as the important reason, not just the first.
+    % ON by default (the client sends it explicitly); disabled only when the
+    % request explicitly sets it false. Set/cleared per query.
+    dynamic(SM:larger_important_reasons/0),
+    retractall(SM:larger_important_reasons),
+    (   get_dict(largerImportantReasons, Dict, false) -> true ; assertz(SM:larger_important_reasons) ),
+
     % Repeated sub-explanations are collapsed by default; the client can ask to
     % see them in full (hideRepeated:false). Set per query on this worker thread.
     ( get_dict(hideRepeated, Dict, false) -> set_show_repeated_explanations(true) ; set_show_repeated_explanations(false) ),
@@ -1107,7 +1115,14 @@ run_answering_query(SM, Query, KB, Response) :-
         print_message(informational, 'No answers found, generating negative explanation'),
         (   query_explain(SM, Query, _Instance, _Unknowns, Why) ->
                 convert_why_deduped(Why, KB, JSONWhy),
-                strongest_reason(JSONWhy, KB, Reason, ReasonPath),
+                % For a FAILED query, the important reason is the deepest failure
+                % node(s) in the tree; fall back to the weight-based heuristic only
+                % when the explanation has no failure node. The "larger important
+                % reasons" preference lists all deepest failures, not just the first.
+                ( larger_important_reasons_on(SM) -> Larger = true ; Larger = false ),
+                (   important_reason_failed(JSONWhy, Larger, Reason, ReasonPath) -> true
+                ;   strongest_reason(JSONWhy, KB, Reason, ReasonPath)
+                ),
                 Response = _{results: [], why: JSONWhy, strongestReason: Reason, strongestReasonPath: ReasonPath, result: "ok"}
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
@@ -1136,6 +1151,119 @@ strongest_reason(JSONWhy, KB, Reason, Path) :-
         sort(0, @=<, Scored, [_-(Best-Path)|_]),
         ( string(Best) -> Reason = Best ; term_string(Best, Reason) )
     ).
+
+%!  larger_important_reasons_on(+SM) is semidet.
+%   True when the session requested the "larger important reasons" preference.
+larger_important_reasons_on(SM) :- catch(SM:larger_important_reasons, _, fail).
+
+%!  important_reason_failed(+JSONWhy, +Larger:boolean, -Reason:string, -Path:string) is semidet.
+%
+%   Special case of the "important reason" for a FAILED query (zero answers): the
+%   LEAF failure nodes of the tree — the terminal failed conditions, reached by
+%   descending only through FAILED nodes (zero-answer nodes). Success / choice-point
+%   subtrees are never entered, so an exhausted alternative under a goal that DID
+%   succeed is not treated as a reason. Per-rule wrapper (ruleAttempt) nodes are
+%   depth-transparent and type-restriction guard (typeCheck) nodes are skipped, so
+%   the choice is stable across the "detailed failures" preference. A leaf failure
+%   has no failed condition beneath it, so leaves are never ancestors of one
+%   another (they may sit at different depths — that is fine).
+%
+%   With Larger == false, the reason is the single DEEPEST leaf (ties at the same
+%   depth broken by pre-order). With Larger == true ("larger important reasons"
+%   preference), it lists ALL leaf failures in pre-order, rendered "it is not the
+%   case that X, nor Y, nor Z" and truncated after the third. Path is the first
+%   listed leaf's 1-based tree path ("1.2.3"), computed as the client renders it.
+%
+%   Fails when the tree has no failure node at all, so the caller falls back to the
+%   weight-based strongest_reason/4.
+important_reason_failed(JSONWhy, Larger, Reason, Path) :-
+    ( is_list(JSONWhy) -> Roots = JSONWhy ; Roots = [JSONWhy] ),
+    collect_leaf_failures(Roots, 1, "", 0, Leaves),
+    Leaves \== [],
+    (   Larger == true
+    ->  Leaves = [fnode(_, Path, _)|_],                 % first leaf's path (pre-order)
+        findall(N, member(fnode(_, _, N), Leaves), Nodes),
+        larger_reason_text(Nodes, Reason)
+    ;   findall(D, member(fnode(D, _, _), Leaves), Depths),
+        max_list(Depths, MaxDepth),
+        once(member(fnode(MaxDepth, Path, Node), Leaves)),   % deepest leaf, first in pre-order
+        important_node_text(Node, Reason)
+    ).
+
+% larger_reason_text(+Nodes, -Reason): "it is not the case that X, nor Y, nor Z"
+% over at most the first three deepest failures. A single negation phrase leads the
+% list; subsequent conditions have their own (redundant) negation phrase stripped.
+% A trailing "…" marks that more failures were truncated.
+larger_reason_text(Nodes, Reason) :-
+    length(Nodes, Total),
+    ( Total > 3 -> length(Take, 3), append(Take, _, Nodes) ; Take = Nodes ),
+    Take = [First|Rest],
+    important_node_text(First, FirstText),
+    foldl(append_nor_phrase, Rest, FirstText, Joined),
+    ( Total > 3 -> string_concat(Joined, ", …", Reason) ; Reason = Joined ).
+
+% append_nor_phrase(+Node, +Acc, -Out): Acc followed by ", nor that <positive
+% form>", where the positive form is the node's reason with the leading negation
+% phrase stripped (the shared "it is not the case that" already opens the list).
+append_nor_phrase(Node, Acc, Out) :-
+    important_node_text(Node, T),
+    strip_naf_prefix(T, S),
+    format(string(Out), "~w, nor that ~w", [Acc, S]).
+
+% strip_naf_prefix(+Text, -Stripped): drop a leading LE negation phrase ("it is not
+% the case that ") when present; otherwise Stripped is Text (as a string).
+strip_naf_prefix(Text, Stripped) :-
+    negation_words(Ws), atomic_list_concat(Ws, ' ', Phrase),
+    string_concat(Phrase, " ", Prefix),
+    atom_string(Text, TextS),
+    ( string_concat(Prefix, Rest, TextS) -> Stripped = Rest ; Stripped = TextS ).
+
+% collect_leaf_failures(+Nodes, +Index, +ParentPath, +Depth, -Leaves): the LEAF
+% failure nodes of the forest, in pre-order, each as fnode(Depth, Path, Node).
+% Descent enters ONLY failed nodes (and depth-transparent ruleAttempt wrappers):
+% success / choice-point / unknown subtrees are never entered, so an exhausted
+% alternative under a goal that succeeded is not a candidate. A failure node is a
+% LEAF (candidate) when it has no candidate failure beneath it; type-restriction
+% guards (typeCheck) are never candidates. Index is the 1-based sibling position
+% (every sibling advances it, matching reason_children/9), so paths line up with
+% the client's rendering; ParentPath is "" for the roots.
+collect_leaf_failures([], _, _, _, []).
+collect_leaf_failures([N|Ns], I, PP, Depth, Leaves) :-
+    node_child_path(PP, I, Path),
+    ( is_dict(N) -> node_leaf_failures(N, Path, Depth, Here) ; Here = [] ),
+    I1 is I + 1,
+    collect_leaf_failures(Ns, I1, PP, Depth, Rest),
+    append(Here, Rest, Leaves).
+
+% node_leaf_failures(+Node, +Path, +Depth, -Here): the leaf failures contributed by
+% Node's subtree. A ruleAttempt wrapper is depth-transparent (children keep this
+% node's depth) and never a candidate — so the reason is the same whether or not
+% "Detailed failure explanations" is on. A non-guard failure node whose failed
+% descendants yield no leaves is itself the leaf. Success / unknown / typeCheck
+% nodes contribute nothing and are not entered.
+node_leaf_failures(N, Path, Depth, Here) :-
+    ( get_dict(children, N, Ch), is_list(Ch) -> true ; Ch = [] ),
+    (   get_dict(ruleAttempt, N, true)
+    ->  collect_leaf_failures(Ch, 1, Path, Depth, Here)
+    ;   get_dict(type, N, "failure"), \+ get_dict(typeCheck, N, true)
+    ->  Depth1 is Depth + 1,
+        collect_leaf_failures(Ch, 1, Path, Depth1, ChildLeaves),
+        ( ChildLeaves == [] -> Here = [fnode(Depth, Path, N)] ; Here = ChildLeaves )
+    ;   Here = []
+    ).
+
+node_child_path("", I, Path) :- !, number_string(I, Path).
+node_child_path(PP, I, Path) :- format(string(Path), "~w.~w", [PP, I]).
+
+% important_node_text(+Node, -Text): a failed condition reads as its negation
+% ("it is not the case that ..."), matching node_reason_text/2; a rule-head
+% (ruleAttempt) node keeps its "rule ..." label as-is (unnegated).
+important_node_text(Node, Text) :-
+    (   get_dict(ruleAttempt, Node, true)
+    ->  ( get_dict(literal, Node, T0) -> true ; T0 = "" )
+    ;   node_reason_text(Node, T0)
+    ),
+    ( string(T0) -> Text = T0 ; term_string(T0, Text) ).
 
 % reason_roots(+KB, +Roots, +Index, +Understood, +W0, -W, +Cand0, -Cand): process each
 % root, giving it its 1-based path, and summing subtree weights into the total W.
@@ -1646,17 +1774,29 @@ convert_why(failure(rule_attempt(_), range(Start, End), LE, Children), KB, JSON)
 convert_why(failure(rule_attempt(_), _Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     JSON = _{type: "failure", literal: LE, children: JSONChildren, ruleAttempt: true}.
-convert_why(failure(_Goal, range(Start, End), LE, Children), KB, JSON) :- !,
+convert_why(failure(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    JSON = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren}.
-convert_why(failure(_Goal, _Ref, LE, Children), KB, JSON) :- !,
+    JSON0 = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren},
+    add_type_check_flag(Goal, JSON0, JSON).
+convert_why(failure(Goal, _Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    JSON = _{type: "failure", literal: LE, children: JSONChildren}.
+    JSON0 = _{type: "failure", literal: LE, children: JSONChildren},
+    add_type_check_flag(Goal, JSON0, JSON).
 convert_why(Whys, KB, JSON) :-
     is_list(Whys), !,
     maplist(convert_why_child(KB), Whys, JSON).
 convert_why(Other, _, JSON) :-
     term_string(Other, JSON).
+
+% add_type_check_flag(+Goal, +JSON0, -JSON): tag a failure node as `typeCheck` when
+% its goal is a type-restriction guard (le_type_check(Arg,Type), rendered "Arg is a
+% Type"). The important-reason heuristic for failed queries skips these synthetic
+% guard nodes when choosing the deepest failure (they are not substantive reasons).
+add_type_check_flag(Goal, JSON0, JSON) :-
+    ( is_type_check_goal(Goal) -> put_dict(_{typeCheck: true}, JSON0, JSON) ; JSON = JSON0 ).
+
+is_type_check_goal(le_at(G, _, _)) :- !, is_type_check_goal(G).
+is_type_check_goal(le_type_check(_, _)).
 
 convert_why_child(KB, Child, JSON) :-
     convert_why(Child, KB, JSON).

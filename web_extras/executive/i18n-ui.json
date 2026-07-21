@@ -292,7 +292,9 @@
    "Password: ": "Palavra-passe: ",
    "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.": "Comece aqui: um tutorial prático que constrói três pequenos programas — uma festa de chá, um dragão voador e um pedaço da lei de nacionalidade britânica — ensinando a escrever, consultar e depurar LE no editor.",
    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "O manual do editor: abrir e guardar ficheiros, correr consultas, os editores de cenários e consultas, variações de cenário e a leitura das árvores de explicação.",
-   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "A referência da linguagem: todas as construções — modelos, regras, operadores, agregações, variáveis e tipos, datas, ontologia, extensões — para consultar enquanto escreve."
+   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "A referência da linguagem: todas as construções — modelos, regras, operadores, agregações, variáveis e tipos, datas, ontologia, extensões — para consultar enquanto escreve.",
+   "Larger important reasons": "Razões importantes mais amplas",
+   "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando ativo, a razão importante de uma consulta falhada enumera todas as condições falhadas mais profundas (\"não é o caso que X, nem que Y, nem que Z\"), truncada após a terceira, em vez de apenas a primeira."
   },
   "es": {
    "+ Add": "+ Añadir",
@@ -585,7 +587,9 @@
    "Password: ": "Contraseña: ",
    "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.": "Empiece aquí: un tutorial práctico que construye tres pequeños programas — una fiesta del té, un dragón volador y un fragmento de la ley de nacionalidad británica — enseñando a escribir, consultar y depurar LE en el editor.",
    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "El manual del editor: abrir y guardar archivos, ejecutar consultas, los editores de escenarios y consultas, variaciones de escenario y la lectura de los árboles de explicación.",
-   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La referencia del lenguaje: todas las construcciones — plantillas, reglas, operadores, agregaciones, variables y tipos, fechas, ontología, extensiones — para consultar mientras escribe."
+   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La referencia del lenguaje: todas las construcciones — plantillas, reglas, operadores, agregaciones, variables y tipos, fechas, ontología, extensiones — para consultar mientras escribe.",
+   "Larger important reasons": "Razones importantes más amplias",
+   "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Cuando está activo, la razón importante de una consulta fallida enumera todas las condiciones fallidas más profundas (\"no es el caso que X, ni que Y, ni que Z\"), truncada tras la tercera, en lugar de solo la primera."
   },
   "fr": {
    "+ Add": "+ Ajouter",
@@ -878,7 +882,9 @@
    "Password: ": "Mot de passe : ",
    "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.": "Commencez ici : un tutoriel pratique qui construit trois petits programmes — une fête du thé, un dragon volant et un morceau de la loi sur la nationalité britannique — et apprend à écrire, interroger et déboguer LE dans l'éditeur.",
    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Le manuel de l'éditeur : ouvrir et enregistrer des fichiers, exécuter des requêtes, les éditeurs de scénarios et de requêtes, les variations de scénario et la lecture des arbres d'explication.",
-   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La référence du langage : toutes les constructions — modèles, règles, opérateurs, agrégats, variables et types, dates, ontologie, extensions — à consulter pendant que vous écrivez."
+   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "La référence du langage : toutes les constructions — modèles, règles, opérateurs, agrégats, variables et types, dates, ontologie, extensions — à consulter pendant que vous écrivez.",
+   "Larger important reasons": "Raisons importantes élargies",
+   "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quand elle est activée, la raison importante d'une requête en échec liste toutes les conditions en échec les plus profondes (« il n'est pas le cas que X, ni que Y, ni que Z »), tronquée après la troisième, au lieu de seulement la première."
   },
   "it": {
    "+ Add": "+ Aggiungi",
@@ -1171,7 +1177,9 @@
    "Password: ": "Password: ",
    "Start here: a hands-on tutorial that builds three small programs — a tea party, a flying dragon, and a slice of British nationality law — teaching how to write, query and debug LE in the editor.": "Comincia qui: un tutorial pratico che costruisce tre piccoli programmi — una festa del tè, un drago volante e uno scorcio della legge sulla nazionalità britannica — insegnando a scrivere, interrogare ed eseguire il debug di LE nell'editor.",
    "The editor manual: opening and saving files, running queries, the scenario and query editors, scenario variations, and reading the explanation trees.": "Il manuale dell'editor: aprire e salvare file, eseguire interrogazioni, gli editor di scenari e interrogazioni, le variazioni di scenario e la lettura degli alberi di spiegazione.",
-   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "Il riferimento del linguaggio: tutti i costrutti — modelli, regole, operatori, aggregati, variabili e tipi, date, ontologia, estensioni — da consultare mentre scrivi."
+   "The language reference: every construct — templates, rules, operators, aggregates, variables and types, dates, ontology, extensions — for looking things up as you write.": "Il riferimento del linguaggio: tutti i costrutti — modelli, regole, operatori, aggregati, variabili e tipi, date, ontologia, estensioni — da consultare mentre scrivi.",
+   "Larger important reasons": "Motivi importanti più ampi",
+   "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite più profonde (\"non è il caso che X, né che Y, né che Z\"), troncato dopo il terzo, invece del solo primo."
   }
  },
  "languages": [

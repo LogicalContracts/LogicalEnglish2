@@ -2109,8 +2109,19 @@ Please check that s(CASP) is added to the "vanilla" SWI-Prolog already there
 Also, I guess you know that the language of scasp's syntax is  a subset of Prolog's that does not allow for OR in the rules. Are we checking that in LE2? 
 Please check that at least we get a reasonable error if users try to use "or" 
 
+LE is a Prolog-biased system, so let's hide the engine picker for most cases and unclutter the UI a bit:
+- add a preference to the Misc menu: "Always show engine choice" / "Show engine choice only for non-Prolog", localStorage persistent
+- If the user prefers the second case, show the engine picker only of the program as a target language different from prolog
 
+## Better "important reason"
+We need a special case added to the determination of the explanation node for "Show important reason", for failed queries. 
+Consider the first (going down the explanation tree as it is rendered) failed node, with zero answers. If it is a rule head, try to find a deeper (under that rule head) failed node with zero answers, otherwise return the node with the rule head. 
+In summary, return as "important reason" the deepest failed node with zero answers; if more than one such node exists with the same depth (distance from explanation tree root) chose the first
+If no failed node exists with zero answers, revert to the default mechanism based on tree weights. Again, this is only for failed queries.
+And exclude type guard nodes
 
+Let's refine the "important reason" for failures, tweaking the heuristic you just implemented. Instead of returning the deepest failed node... return all of them (notice that they cannot be ancestor of each other), and render the lot with "it is not the case that X, nor Y, nor..."; truncate after the third.
+Make this refinement a new preferfence in the explanations preferences panel, "larger important reasons".
 
 ## TBD
 Contracções (numa, desta, ..)
