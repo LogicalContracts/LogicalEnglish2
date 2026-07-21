@@ -1688,16 +1688,22 @@ second_pass_item(Templates, rule(Head, only_if(BodyTokens), Indent, Start, End, 
 
 second_pass_item(Templates, rule(Head, unless(BodyTokens), Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
-    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->  
-        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, SubBody) ->  
+    (   parse_literal(Head, Templates, [], VM1, NewHead, _, true) ->
+        (   parse_body(BodyTokens, Indent, Templates, VM1, VMOut, SubBody) ->
             collect_extra_goals(VMOut, ExtraGoals),
-            ( ExtraGoals == [] -> NewBody = not(SubBody) ; append(ExtraGoals, [not(SubBody)], AllGoals), list_to_conj(AllGoals, NewBody) )
-            ;   
+            % Wrap the "unless" negation in an le_at spanning the whole rule, so the
+            % negation node in a failure explanation carries a source range (and
+            % navigates to the unless rule) — mirroring how an explicit "it is not
+            % the case that ..." is compiled (parse_node/6). Without this the bare
+            % not/1 has no range and the node points nowhere.
+            NegGoal = le_at(not(SubBody), Start, End),
+            ( ExtraGoals == [] -> NewBody = NegGoal ; append(ExtraGoals, [NegGoal], AllGoals), list_to_conj(AllGoals, NewBody) )
+            ;
             NewBody = true % Fallback
         )
-        ;   
+        ;
         NewHead = unknown_template(Head),
-        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, SubBody) -> NewBody = not(SubBody); NewBody = true)
+        ( parse_body(BodyTokens, Indent, Templates, [], _VMOut, SubBody) -> NewBody = le_at(not(SubBody), Start, End); NewBody = true)
     ).
 
 second_pass_item(Templates, rule(Head, numbered(BodyTokens), _Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), M) :-
@@ -1958,6 +1964,30 @@ list_to_conj([G], G) :- !.
 list_to_conj([G|Gs], and(G, Rest)) :- list_to_conj(Gs, Rest).
 list_to_conj([], true).
 
+% Set (per worker thread) only while parse_query_body/3 builds a QUERY goal, so
+% parse_node/6 can order a prepositional chain's constraint goals BEFORE the main
+% verb (constraints-first). Rule bodies parse with the flag absent and keep their
+% constraints AFTER the literal (see parse_node/6). Thread-local: queries run on
+% per-request worker threads.
+:- thread_local in_query_body_parse/0.
+
+%!  query_chain_goal(+ExtraGoals, +MainGoal, -Goal) is det.
+%
+%   Assemble a prepositional-chain query goal ("we will make X under this policy
+%   in respect of this claim") with the prepositional constraint goals BEFORE the
+%   main-verb goal, mirroring how a RULE head compiles its prepositional goals to
+%   the front of the body (see second_pass_item/4). Solving the constraints first
+%   binds the shared variables (e.g. the claim in "... in respect of this claim")
+%   before the main predicate is proven, so its rule bodies run with those
+%   bindings injected. Main-verb-first instead lets the main predicate pick an
+%   unrelated witness for those variables (e.g. a different claim), which then
+%   pollutes the failure explanation. ExtraGoals are already in textual (source)
+%   order via order_extra_goals_by_source/2.
+query_chain_goal([], MainGoal, MainGoal) :- !.
+query_chain_goal(ExtraGoals, MainGoal, Goal) :-
+    append(ExtraGoals, [MainGoal], AllGoals),
+    list_to_conj(AllGoals, Goal).
+
 
 second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Start, End, _ID), _M) :-
     (   match_is_a(Head, _, _, TypeAtom, SuperTypeAtom, [], _VMOut1, false) ->
@@ -2085,7 +2115,7 @@ second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, _M) :
         parse_literal(LiteralTokens, Templates, [], VMOut9, NewHead0, Instance, true)
     ->  collect_extra_goals(VMOut9, ExtraGoals0),
         order_extra_goals_by_source(ExtraGoals0, ExtraGoals),
-        ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) ),
+        query_chain_goal(ExtraGoals, NewHead0, NewHead),
         Item = query_clause(NewHead, LiteralTokens, Instance, Start, End)
     ;   Item = query_clause(unknown_template(BodyTokens, Start, End), BodyTokens, BodyTokens, Start, End)
     ).
@@ -2103,7 +2133,7 @@ second_pass_query_item(Templates, fact(Head, Start, End), Item, _M) :-
     ;   parse_literal(Head, Templates, [], VMOut9, NewHead0, Instance, true)
     ->  collect_extra_goals(VMOut9, ExtraGoals0),
         order_extra_goals_by_source(ExtraGoals0, ExtraGoals),
-        ( ExtraGoals == [] -> NewHead = NewHead0 ; list_to_conj([NewHead0 | ExtraGoals], NewHead) ),
+        query_chain_goal(ExtraGoals, NewHead0, NewHead),
         Item = query_clause(NewHead, Head, Instance, Start, End)
     ;   Item = query_clause(unknown_template(Head, Start, End), Head, Head, Start, End)
     ).
@@ -2125,11 +2155,16 @@ parse_query_body(Tokens, Templates, Goal) :-
     % token), mirroring the N a rule passes to parse_body — needed so that, e.g.,
     % the goal under "it is not the case that" nests correctly.
     ( member(indent(BaseIndent, _), Tokens) -> true ; BaseIndent = 0 ),
-    (   catch(parse_body(Tokens, BaseIndent, Templates, [], _, G), _, fail), has_query_connective(G)
-    ->  Goal = G
-    ;   catch(parse_inline_body(Tokens, Templates, [], _, G2), _, fail), has_query_connective(G2)
-    ->  Goal = G2
-    ).
+    % Mark this as query parsing so a prepositional chain folds constraints-first
+    % (parse_node/6), binding shared variables before the main verb is proven.
+    setup_call_cleanup(
+        assertz(in_query_body_parse),
+        (   catch(parse_body(Tokens, BaseIndent, Templates, [], _, G), _, fail), has_query_connective(G)
+        ->  Goal = G
+        ;   catch(parse_inline_body(Tokens, Templates, [], _, G2), _, fail), has_query_connective(G2)
+        ->  Goal = G2
+        ),
+        retractall(in_query_body_parse)).
 
 % single_template_query(+Tokens, +Templates): the query body, taken whole, is a
 % single instance of ONE defined template (matched directly, without prepositional
@@ -2755,7 +2790,16 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             % constrain a variable the literal itself introduces, so they stay
             % AFTER it (preserving the previous behaviour for them).
             partition(is_global_extra_goal(Templates), LiteralExtraGoals, GlobalGoals, OtherGoals),
-            append(GlobalGoals, [Literal | OtherGoals], OrderedGoals),
+            (   in_query_body_parse
+            ->  % In a QUERY, the prepositional constraints run BEFORE the main
+                % literal, so they bind the shared variables (e.g. the claim in
+                % "we will make X in respect of THIS claim") before the main
+                % predicate is proven — otherwise it picks an unrelated witness for
+                % them, polluting the failure explanation.
+                append(GlobalGoals, OtherGoals, PreGoals),
+                append(PreGoals, [Literal], OrderedGoals)
+            ;   append(GlobalGoals, [Literal | OtherGoals], OrderedGoals)
+            ),
             (   OrderedGoals = [SingleGoal] -> Logic0 = SingleGoal
             ;   list_to_conj(OrderedGoals, Logic0)
             ),

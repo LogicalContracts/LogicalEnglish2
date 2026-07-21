@@ -1535,7 +1535,12 @@ synonym_skeleton([X|Xs], [S|Ss]) :- ( var(X) -> S = '$v' ; S = X ), synonym_skel
 fold_prep_chain(KBmodule, Goal, Tokens) :-
     KBmodule \== none,
     ( Goal = and(_, _) ; Goal = (_ , _) ),
-    answer_conjuncts(Goal, [Main0 | Preps0]),
+    answer_conjuncts(Goal, Conjuncts),
+    % Split into the single non-prepositional main literal and the prepositional
+    % conjuncts, wherever the main sits: a QUERY solves the prepositional
+    % constraints first, so the main verb may be the LAST conjunct rather than the
+    % first (see query_chain_goal/3 and parse_node/6 in le_grammar.pl).
+    select_main_literal(KBmodule, Conjuncts, Main0, Preps0),
     Preps0 \== [],
     unwrap_le_at_all(Main0, Main),
     callable(Main), \+ prep_goal(KBmodule, Main),
@@ -1546,6 +1551,21 @@ fold_prep_chain(KBmodule, Goal, Tokens) :-
     findall(Phrase, ( member(_-PG, Sorted), prep_phrase(KBmodule, PG, Phrase) ), PhraseLists),
     length(PhraseLists, NP), length(Preps0, NP),   % every prep folded, else fail
     append([MainTokens | PhraseLists], Tokens).
+
+% select_main_literal(+KB, +Conjuncts, -Main, -Preps): split a prepositional
+% chain's conjuncts into the single non-prepositional main literal and the
+% prepositional conjuncts, regardless of the main's position in the list. Commits
+% to the first non-prepositional conjunct as the main (a well-formed chain has
+% exactly one); the surrounding conjuncts stay in Preps in their original order
+% (fold_prep_chain re-sorts them by source position anyway).
+select_main_literal(KBmodule, Conjuncts, Main, Preps) :-
+    select_main_literal_(KBmodule, Conjuncts, Main, Preps), !.
+select_main_literal_(KBmodule, [C | Rest], Main, Preps) :-
+    unwrap_le_at_all(C, CU),
+    (   callable(CU), \+ prep_goal(KBmodule, CU)
+    ->  Main = C, Preps = Rest
+    ;   Preps = [C | Preps0], select_main_literal_(KBmodule, Rest, Main, Preps0)
+    ).
 
 % Flatten an and/','-tree into conjuncts, dropping `true` and unwrapping a le_at
 % that only groups a conjunction (leaf goals keep their le_at for source position).

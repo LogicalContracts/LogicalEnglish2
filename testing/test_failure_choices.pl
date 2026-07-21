@@ -97,4 +97,81 @@ test(failed_condition_still_reported) :-
         ),
         le_kbs:destroySession(SM)).
 
+% --- A prepositional-chain query solves its constraints before the main verb ---
+% "we will make WHICH payment under this policy in respect of THIS claim" must not
+% explore an UNRELATED claim in its failure explanation: the prepositional
+% constraint (in respect of this claim) is solved before we_will_make/1, so the
+% main verb cannot pick a different payment/claim witness. Regression for the
+% query reorder in le_grammar.pl (query_chain_goal/3 + parse_node/6) and the
+% source-order answer folding in le_kbs.pl (select_main_literal/4).
+prep_program("the target language is: prolog.
+the templates are:
+    we will make *a payment*.
+    *a payment* under *a policy*; prepositional.
+    *a payment* in respect of *a claim*; prepositional.
+    *a claim* is approved.
+the knowledge base k includes:
+    we will make a payment under this policy in respect of a claim
+        if the claim is approved.
+scenario s is:
+    this payment under this policy.
+    this payment in respect of this claim.
+    other payment under this policy.
+    other payment in respect of other claim.
+query q is:
+    we will make which payment under this policy in respect of this claim.").
+
+test(prep_chain_query_does_not_leak_other_claim) :-
+    prep_program(P),
+    le_kbs:load_text(P, KB),
+    le_kbs:createSession(KB, SM),
+    setup_call_cleanup(true,
+        ( le_kbs:setScenarion(SM, s),
+          \+ le_kbs:query(SM, q, _, _, _),
+          le_kbs:query_explain(SM, q, _, _, Why),
+          term_to_atom(Why, WhyAtom),
+          % The failure is about THIS claim not being approved; the decoy
+          % "other claim" must never appear.
+          assertion(\+ sub_atom(WhyAtom, _, _, _, 'other claim')),
+          assertion(sub_atom(WhyAtom, _, _, _, 'this claim'))
+        ),
+        le_kbs:destroySession(SM)).
+
+% --- An "unless" rule's negation carries a navigable source range ---
+% The compiled `not/1` used to be bare (no le_at wrapper), so the negation node
+% in a failure explanation had range `none` and navigated nowhere. It is now
+% wrapped with the rule's span (le_grammar.pl, unless clause of second_pass_item).
+unless_program("the target language is: prolog.
+the templates are:
+    *a person* is covered,
+    *a person* is eligible,
+    *a person* is excluded,
+    *a person* notifies.
+the knowledge base k includes:
+    a person is covered if
+        the person is eligible
+        and the person is excluded.
+    a person is excluded unless the person notifies.
+scenario s is:
+    alice is eligible.
+    it is assumable whether alice notifies.
+query q is:
+    alice is covered.").
+
+test(unless_negation_node_has_range) :-
+    unless_program(P),
+    le_kbs:load_text(P, KB),
+    le_kbs:createSession(KB, SM),
+    setup_call_cleanup(true,
+        ( le_kbs:setScenarion(SM, s),
+          \+ le_kbs:query(SM, q, _, _, _),
+          le_kbs:query_explain(SM, q, _, _, Why),
+          ( is_list(Why) -> member(Root, Why) ; Root = Why ),
+          find_node(Root, failure(_, Range, LE, _)),
+          le_contains(LE, notifies),
+          le_contains(LE, 'not the case'),
+          assertion(Range = range(_, _))
+        ),
+        le_kbs:destroySession(SM)).
+
 :- end_tests(failure_choices).
