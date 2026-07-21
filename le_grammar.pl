@@ -335,14 +335,18 @@ section(events(Dicts)) -->
     templates(Dicts).
 
 % section(meta(...)) parses a meta-information section (the target-language
-% opener; its phrase per language comes from i18n/languages.csv).
-section(meta([])) -->
+% opener; its phrase per language comes from i18n/languages.csv). The declared
+% execution target (an atom from le_allowed_target/1) is captured so the loader
+% can select the backend; an unrecognised target makes this rule fail, falling
+% back to unknown_section as before.
+section(meta(Target)) -->
     any_indent,
     { le_i18n:le_active_language(Lang),
       ( le_i18n:language_opener(Lang, OpenerWords) -> true
       ; le_i18n:language_opener(en, OpenerWords) ) },
     kw_words(OpenerWords),
-    t(punctuation(':', _)), t(word(prolog)), t(punctuation('.', _)).
+    t(punctuation(':', _)), t(word(Target)), { le_allowed_target(Target) },
+    t(punctuation('.', _)).
 
 % section(unknown_section(...)) is a fallback for unrecognized sections.
 section(unknown_section(Tokens, Start, End)) -->
@@ -350,6 +354,12 @@ section(unknown_section(Tokens, Start, End)) -->
     consume_until_next_section(Ts),
     { append([T], Ts, Tokens) },
     { last(Tokens, Last), ( get_token_end(Last, End) -> true ; End = Start) }.
+
+% le_allowed_target(?Target) enumerates the execution backends a program may
+% declare via the target-language opener line (kept out of the section/3 DCG
+% clauses so they stay contiguous).
+le_allowed_target(prolog).
+le_allowed_target(scasp).
 
 % body_first_start(+BodyTokens, -Start): source start of a query body (its first
 % non-indent token), used for the query item's location.
@@ -1521,7 +1531,7 @@ get_dicts(predicates(Ds), Ds).
 get_dicts(templates(Ds), Ds).
 get_dicts(fluents(Ds), Ds).
 get_dicts(events(Ds), Ds).
-get_dicts(meta(Ds), Ds).
+get_dicts(meta(_), []).       % meta carries the target atom, not user dicts
 get_dicts(_, []).
 
 second_pass_section(Templates, M, kb(Name, Content, Start, End), kb(Name, NewContent, Start, End)) :-

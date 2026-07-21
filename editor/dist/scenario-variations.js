@@ -6790,7 +6790,16 @@ var ExplanationView = class {
       res.results.forEach((result, index) => {
         const item = document.createElement("div");
         item.className = "answer-item";
-        item.textContent = result.answer;
+        if (result.modelCount && result.modelCount > 1 && result.modelIndex) {
+          const badge = document.createElement("span");
+          badge.className = "model-badge";
+          badge.textContent = `world ${result.modelIndex} of ${result.modelCount}`;
+          badge.style.cssText = "font-size:10px;text-transform:uppercase;opacity:0.65;margin-right:6px;";
+          item.appendChild(badge);
+          item.appendChild(document.createTextNode(result.answer));
+        } else {
+          item.textContent = result.answer;
+        }
         const unknowns = Array.isArray(result.unknowns) ? result.unknowns : [];
         if (unknowns.length > 0) {
           item.classList.add("has-unknowns");

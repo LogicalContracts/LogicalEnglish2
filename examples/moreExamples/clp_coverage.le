@@ -1,0 +1,11 @@
+the target language is: scasp.
+
+the predicates are:
+    a claim of *an amount* is covered.
+
+the knowledge base clp includes:
+    a claim of an amount is covered
+        if the amount is greater than 25000.
+
+query covered is:
+    a claim of which amount is covered.

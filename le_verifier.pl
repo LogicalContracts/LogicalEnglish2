@@ -10,6 +10,7 @@
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2, ensure_kb_language/1]).
 :- use_module(le_i18n).
 :- use_module(le_system_templates, [le_system_template/1]).
+:- use_module(le_scasp, []).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
 %
@@ -40,6 +41,34 @@ check_issue(KB, _, Issue) :- redefined_system_template(KB, Issue).
 check_issue(KB, _, Issue) :- single_variable_fact(KB, Issue).
 check_issue(KB, _, Issue) :- single_variable_scenario_fact(KB, Issue).
 check_issue(KB, _, Issue) :- unmarked_meta_template(KB, Issue).
+check_issue(KB, _, Issue) :- non_stratified(KB, Issue).
+
+% --- Stratification (loops through negation) ---
+% Reuse the s(CASP) dependency-graph analysis: a cycle through a `not` edge means
+% the program is not stratified. Advisory — s(CASP) handles such programs under
+% stable-model semantics, so we point the user at that engine rather than error.
+non_stratified(KB, issue(non_stratified, Description, "", Start, End)) :-
+    catch(le_scasp:le_scasp_stratification(KB, Cycles), _, fail),
+    Cycles \== [],
+    member(Cycle, Cycles),
+    cycle_names(Cycle, NamesAtom),
+    le_i18n:le_msg(non_stratified_desc, [name-NamesAtom], Description),
+    ( cycle_source(KB, Cycle, Start, End) -> true ; Start = 0, End = 0 ).
+
+% cycle_names(+Cycle:list(F/A), -Atom): a readable "p, q and r" list of the
+% predicate names in the negation cycle.
+cycle_names(Cycle, Atom) :-
+    findall(N, ( member(F/_, Cycle), N = F ), Ns0),
+    sort(Ns0, Ns),
+    atomic_list_concat(Ns, ', ', Atom).
+
+% cycle_source(+KB, +Cycle, -Start, -End): the source span of a rule defining one
+% of the cycle's predicates, so the issue anchors into the editor.
+cycle_source(KB, Cycle, Start, End) :-
+    member(F/A, Cycle),
+    functor(Head, F, A),
+    KB:le_source_info(Ref, Start, End, _),
+    clause(KB:Head, Body, Ref), Body \== true, !.
 
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
@@ -260,15 +289,31 @@ is_reachable(KB, Goal, F, A, Anc) :-
 
 % --- 4. Rule without variables ---
 rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start, End)) :-
-    current_predicate(KB:F/A), functor(Head, F, A),
-    \+ predicate_property(KB:Head, imported_from(_)),
-    clause(KB:Head, Body, Ref),
-    Body \== true,
-    ground(Head),
-    ground(Body),
+    % Suppress this warning for a wholly propositional program: if EVERY rule is
+    % ground it is obviously propositional by design, so flagging each rule is
+    % just noise (e.g. abduction/planning KBs whose beliefs are propositional).
+    \+ all_rules_ground(KB),
+    ground_rule(KB, Head, Body, Ref),
     le_i18n:le_msg(rule_without_variables_desc, [head-Head, body-Body], Description),
     le_i18n:le_msg(rule_without_variables_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% a_rule(+KB, -Head, -Body, -Ref): a user rule (a clause with a real body, not an
+% imported/system predicate).
+a_rule(KB, Head, Body, Ref) :-
+    current_predicate(KB:F/A), functor(Head, F, A),
+    \+ predicate_property(KB:Head, imported_from(_)),
+    clause(KB:Head, Body, Ref),
+    Body \== true.
+
+ground_rule(KB, Head, Body, Ref) :-
+    a_rule(KB, Head, Body, Ref), ground(Head), ground(Body).
+
+% all_rules_ground(+KB): the program has at least one rule and every rule is
+% ground (propositional).
+all_rules_ground(KB) :-
+    once(a_rule(KB, _, _, _)),
+    \+ ( a_rule(KB, H, B, _), \+ ( ground(H), ground(B) ) ).
 
 % --- 5. Facts/Rules ratio ---
 facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-

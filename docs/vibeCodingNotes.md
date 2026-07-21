@@ -2100,8 +2100,12 @@ I need you to find other images, only the tempo dial is good. Images need to be 
 
 Another feature: let's make 'image' also an addition to templates. A template must have no variables for an image addition to be acceptbale (warn otherwise). So the Bento box will use these image URLs for rendering toom, as an alternative to scenarion images.
 
+
+
+
 ## TBD
 Contracções (numa, desta, ..)
 Logical English for German (Logisches Deutsch)
 Blockly ??
 wasm
+server logs, grafana??

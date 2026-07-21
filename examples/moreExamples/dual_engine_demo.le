@@ -1,0 +1,21 @@
+the target language is: prolog.
+
+the predicates are:
+    *a proposal* is on the agenda.
+    *a proposal* is accepted.
+    *a proposal* is rejected.
+
+the knowledge base standoff includes:
+    a proposal is accepted if
+        the proposal is on the agenda
+        and it is not the case that the proposal is rejected.
+
+    a proposal is rejected if
+        the proposal is on the agenda
+        and it is not the case that the proposal is accepted.
+
+scenario tabled is:
+    the budget is on the agenda.
+
+query outcome is:
+    which proposal is accepted.

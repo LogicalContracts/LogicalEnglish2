@@ -26,6 +26,7 @@
 :- use_module(le_system_templates).
 :- use_module(le_i18n).
 :- use_module(le_graph).
+:- use_module(le_scasp).
 :- use_module(le_assistant).
 :- use_module(le_contract_assistant).
 :- use_module(dap_server).
@@ -200,6 +201,8 @@ handle_operation(Dict, Response) :-
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
+        ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
+        ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
         ; Op == "assistant_command" -> 
             ( catch(handle_assistant_command(Dict, Response), E_Asst, (print_message(error, E_Asst), fail)) -> true ; 
               ( print_message(error, le_api_error(assistant_command, "handle_assistant_command failed")), 
@@ -963,12 +966,15 @@ handle_load(Dict, Response) :-
         )
     ),
     ( catch(createSession(KB, SM), E4, (print_message(error, E4), fail)) -> true; print_message(error, le_api_error(load, "createSession failed")), fail),
-    (   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), fail)) ->  
+    (   catch(get_kb_metadata(KB, Metadata), E5, (print_message(error, E5), fail)) ->
         findall(_{severity: Sev, type: Type, message: Msg, fix: Fix, start: Start, end: End}, KB:le_issue(Sev, Type, Msg, Fix, Start, End), Issues),
+        % The declared execution target (`the target language is: …`) so the client
+        % can pre-select the matching engine.
+        le_kbs:kb_target_language(KB, Target),
         Response = Metadata.put(_{
             sessionModule: SM,
             language: Language,
-            target: prolog,
+            target: Target,
             issues: Issues
         }),
         print_message(informational, le_api_info(loaded(KB, SM)))
@@ -1881,6 +1887,137 @@ handle_get_prolog(Dict, Response) :-
       ; Response = _{error: "No term found at this position"}
       )
     ).
+
+% handle_get_scasp(+Dict, -Response): render the whole KB as an s(CASP) program
+% for the "See s(CASP)" panel (s(CASP) is a whole-program transformation, unlike
+% "See PROLOG" which shows one clause), together with any compile-time issues.
+handle_get_scasp(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    ( KB == none -> Response = _{error: "No KB loaded"}
+    ; \+ le_scasp:le_scasp_available -> Response = _{error: "The s(CASP) engine is not installed on this server."}
+    ; le_scasp:le_scasp_program_text(KB, Text, Issues),
+      maplist(scasp_issue_json, Issues, JIssues),
+      Response = _{scasp: Text, issues: JIssues}
+    ).
+
+scasp_issue_json(le_scasp_issue(Kind, ID, Msg), _{kind: KindS, ruleId: IDS, message: MsgS}) :-
+    to_str(Kind, KindS), to_str(ID, IDS), to_str(Msg, MsgS).
+to_str(X, S) :- ( string(X) -> S = X ; term_string(X, S) ).
+
+% handle_scasp_query(+Dict, -Response): run a query under the s(CASP) engine for a
+% scenario, returning one result per stable model (model grouping, §5a) with the
+% answer sentence, the normalised justification tree, and any assumption set.
+handle_scasp_query(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    ( KB == none -> Response = _{error: "No KB loaded"}
+    ; \+ le_scasp:le_scasp_available -> Response = _{error: "The s(CASP) engine is not installed on this server."}
+    ; scasp_query_goal(KB, Dict, Goal, GoalErr),
+      ( nonvar(GoalErr) -> Response = _{error: GoalErr}
+      ; scasp_scenario_name(Dict, ScenarioName),
+        option_time_limit(Dict, TL),
+        le_scasp:le_scasp_query(KB, ScenarioName, Goal, [time_limit(TL)], Answers, Issues),
+        maplist(scasp_issue_json, Issues, JIssues),
+        % s(CASP) enumerates a stable model for every truth assignment of the
+        % *unused* abducibles, so the same "possible world" (same answer + same
+        % assumption set) can recur many times. Collapse to distinct worlds, then
+        % number them (mirrors the Prolog path's answer dedup).
+        scasp_answers_json(KB, Answers, Results0),
+        scasp_dedup_results(Results0, Distinct),
+        length(Distinct, ModelCount),
+        number_results(Distinct, 1, ModelCount, Results),
+        Response = _{results: Results, modelCount: ModelCount, issues: JIssues, result: "ok", engine: "scasp"}
+      )
+    ).
+
+% Resolve the query goal from a named query or a custom query string.
+scasp_query_goal(KB, Dict, Goal, _Err) :-
+    get_dict(customQuery, Dict, CustomQuery), CustomQuery \== null, !,
+    catch(parse_custom_query(KB, CustomQuery, Goal), error(le_parse_error(Msg), _), throw(scasp_goal_err(Msg))),
+    ( var(Goal) -> true ; true ).
+scasp_query_goal(KB, Dict, Goal, Err) :-
+    get_dict(query, Dict, QName0),
+    ( ( atom(QName0) ; string(QName0) ), atom_string(QName, QName0),
+      catch(KB:query_info(QName, Goal, _), _, fail)
+    -> true
+    ; Err = "Unknown query for the s(CASP) engine"
+    ).
+
+scasp_scenario_name(Dict, Name) :-
+    ( get_dict(scenario, Dict, S), (atom(S);string(S)), S \== "", \+ sub_atom(S, _, _, _, '(')
+    -> atom_string(Name, S)
+    ; Name = none
+    ).
+
+option_time_limit(Dict, TL) :-
+    ( get_dict(timeLimit, Dict, TL0), number(TL0) -> TL = TL0 ; TL = 10 ).
+
+% scasp_answers_json(+KB, +Answers, -Results): one result card per model (without
+% the model index/count yet — those are assigned after dedup).
+scasp_answers_json(_, [], []).
+scasp_answers_json(KB, [answer(Bindings, GoalInstance, _Model, Tree)|T], [R|RT]) :-
+    % Render the answer sentence. When the goal is non-ground, lower any CLP
+    % constraints into an LE phrase ("any amount greater than 25000") — the §5b
+    % symbolic-answer feature — and expose whether the answer is symbolic.
+    ( ground(GoalInstance)
+    ->  render_le(KB, GoalInstance, AnswerStr), Symbolic = false, Constraints = []
+    ;   le_scasp:le_scasp_symbolic_goal(KB, GoalInstance, Display, Constraints0),
+        render_le(KB, Display, AnswerStr),
+        Symbolic = true,
+        maplist(to_str, Constraints0, Constraints)
+    ),
+    le_scasp:le_scasp_tree_json(KB, Tree, [], JSONWhy),
+    le_scasp:le_scasp_assumptions(KB, Tree, Assumptions0),
+    maplist(to_str, Assumptions0, Assumptions),
+    scasp_bindings_json(Bindings, JBindings),
+    % Surface the abduction set through the SAME `unknowns` channel the Prolog
+    % engine uses, so the existing amber "?" marker + tooltip renders it (§5c)
+    % with no editor changes; keep `assumptions` too for explicitness.
+    R = _{answer: AnswerStr, why: JSONWhy, bindings: JBindings,
+          unknowns: Assumptions, assumptions: Assumptions,
+          symbolic: Symbolic, constraints: Constraints},
+    scasp_answers_json(KB, T, RT).
+
+% scasp_dedup_results(+Results, -Distinct): keep the first result of each distinct
+% "possible world" — same answer sentence and same (order-insensitive) assumption
+% set. Preserves order.
+scasp_dedup_results(Results, Distinct) :-
+    scasp_dedup_results(Results, [], Distinct).
+scasp_dedup_results([], _, []).
+scasp_dedup_results([R|T], Seen, Out) :-
+    result_key(R, Key),
+    ( memberchk(Key, Seen)
+    -> scasp_dedup_results(T, Seen, Out)
+    ;  Out = [R|Out1], scasp_dedup_results(T, [Key|Seen], Out1)
+    ).
+
+result_key(R, Answer-SortedAssumptions) :-
+    get_dict(answer, R, Answer),
+    ( get_dict(assumptions, R, As) -> sort(As, SortedAssumptions) ; SortedAssumptions = [] ).
+
+% number_results(+Results, +Index, +Count, -Numbered): stamp 1-based
+% modelIndex/modelCount so the client can show "Model i of n".
+number_results([], _, _, []).
+number_results([R0|T], I, Count, [R|RT]) :-
+    R = R0.put(modelIndex, I).put(modelCount, Count),
+    I1 is I + 1,
+    number_results(T, I1, Count, RT).
+
+render_le(KB, Term, Str) :-
+    ( catch((le_kbs:item_to_instance(KB, Term, Toks), le_kbs:canonical_string(Toks, Str)), _, fail)
+    -> true ; term_string(Term, Str) ).
+
+% scasp_bindings_json(+Pairs, -Dict): the Name=Value binding list rendered as a
+% JSON object {Name: "ValueString"} (=/2 compounds are not JSON-encodable, and a
+% value may be non-ground/constraint, so stringify it).
+scasp_bindings_json(Bindings, Dict) :-
+    findall(Name-VS, ( member(Name=V, Bindings), term_string(V, VS) ), Pairs),
+    dict_pairs(Dict, _, Pairs).
 
 find_clause_at_pos(KB, Pos, Clause) :-
     findall(range(Len, Ref), (
