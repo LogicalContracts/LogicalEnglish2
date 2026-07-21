@@ -1,0 +1,60 @@
+% A multi-model abduction example, richer than grass_is_wet / sunglasses.
+%
+% "the loan is approved" can hold in several ways: creditworthiness has two
+% independent routes (a good credit score OR a guarantor) and so does collateral
+% (owning property OR a large deposit). Each base condition is OPEN (abducible),
+% so s(CASP) ASSUMES a minimal set to justify approval — yielding one stable
+% model ("possible world") per combination, each with its own assumption set.
+% The guard "it is not the case that the applicant is bankrupt" is a constructive
+% negation: in the s(CASP) justification it is a *proved* sub-tree, not a bare
+% absence. The `bankrupt` scenario closes every world (the loan is refused).
+
+the target language is: scasp.
+
+the predicates are:
+    the loan is approved.
+    the applicant is creditworthy.
+    the applicant has collateral.
+    the applicant has a good credit score; assumable.
+    the applicant has a guarantor; assumable.
+    the applicant owns property; assumable.
+    the applicant has a large deposit; assumable.
+    the applicant is bankrupt.
+
+the knowledge base loan includes:
+
+the loan is approved if
+    the applicant is creditworthy
+    and the applicant has collateral
+    and it is not the case that the applicant is bankrupt.
+
+the applicant is creditworthy if
+    the applicant has a good credit score.
+
+the applicant is creditworthy if
+    the applicant has a guarantor.
+
+the applicant has collateral if
+    the applicant owns property.
+
+the applicant has collateral if
+    the applicant has a large deposit.
+
+scenario application is:
+    approval expects answers [
+        "the loan is approved",
+        "the loan is approved",
+        "the loan is approved",
+        "the loan is approved"
+    ] and unknowns [
+        "the applicant has a good credit score",
+        "the applicant has a guarantor",
+        "the applicant has a large deposit",
+        "the applicant owns property"
+    ].
+
+scenario bankrupt is:
+    the applicant is bankrupt.
+
+query approval is:
+    the loan is approved.

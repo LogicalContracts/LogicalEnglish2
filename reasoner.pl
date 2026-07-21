@@ -848,6 +848,7 @@ le_metadata_predicate(is_a/2).
 le_metadata_predicate(le_source_element/3).
 le_metadata_predicate(le_source_info/4).
 le_metadata_predicate(le_source_section/2).
+le_metadata_predicate(le_target_language/1).
 le_metadata_predicate(scenario/2).
 le_metadata_predicate(query_info/3).
 le_metadata_predicate(le_expected/4).

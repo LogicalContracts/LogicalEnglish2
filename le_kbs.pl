@@ -8,7 +8,7 @@
 :- module(le_kbs, [load/2, load/3, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
     runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
-    run_one_test/3, le_my_id/1, le_my_kb/1, set_id_from_ref/2,
+    run_one_test/3, le_my_id/1, le_my_kb/1, kb_target_language/2, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
@@ -286,7 +286,11 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
             % Report ALL issues
             (   current_predicate(NewModule:le_issue/6)
             ->  forall(NewModule:le_issue(Severity, Type, Desc, _Fix, Start, End),
-                       print_message(Severity, Type - [Desc, Start, End]))
+                       % A real format string consuming its args (the previous
+                       % `Type - [Desc,Start,End]` used the Type atom as the format
+                       % string, which threw "too many arguments"). Desc is an
+                       % argument, so a literal ~ in it is not re-interpreted.
+                       print_message(Severity, 'LE ~w: ~w (chars ~w-~w)' - [Type, Desc, Start, End]))
             ;   true
             )
         ;   % Parsing failed
@@ -346,7 +350,10 @@ process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assert_dic
 process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
-process_section_acc(meta(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+process_section_acc(meta(Target), M) :-
+    ( atom(Target) -> assertz(M:le_target_language(Target))
+    ; forall(member(D, Target), assert_dict_with_source(D, M))
+    ).
 
 % A misplaced expectation (e.g. "query one expects answers [...]"): the syntactic
 % error was already recorded by the grammar during parsing, so nothing more to do.
@@ -693,6 +700,16 @@ le_my_kb(KB) :-
     ( le_kb_module(K), K \== none -> KB = K
     ; current_predicate(le_kb_module_fact/1) -> le_kb_module_fact(KB)
     ; context_module(KB)
+    ).
+
+%!  kb_target_language(+Module:atom, -Target:atom) is det.
+%
+%   The execution backend a KB/session module declared via its target-language
+%   opener line (an atom from le_grammar:le_allowed_target/1). Defaults to
+%   `prolog` when the program declares nothing.
+kb_target_language(Module, Target) :-
+    ( catch(Module:le_target_language(T), _, fail) -> Target = T
+    ; Target = prolog
     ).
 
 %!  set_kb_module(+KB:atom) is det.

@@ -8217,7 +8217,16 @@ var ExplanationView = class {
       res.results.forEach((result, index) => {
         const item = document.createElement("div");
         item.className = "answer-item";
-        item.textContent = result.answer;
+        if (result.modelCount && result.modelCount > 1 && result.modelIndex) {
+          const badge = document.createElement("span");
+          badge.className = "model-badge";
+          badge.textContent = `world ${result.modelIndex} of ${result.modelCount}`;
+          badge.style.cssText = "font-size:10px;text-transform:uppercase;opacity:0.65;margin-right:6px;";
+          item.appendChild(badge);
+          item.appendChild(document.createTextNode(result.answer));
+        } else {
+          item.textContent = result.answer;
+        }
         const unknowns = Array.isArray(result.unknowns) ? result.unknowns : [];
         if (unknowns.length > 0) {
           item.classList.add("has-unknowns");
@@ -8874,6 +8883,45 @@ async function start() {
         }
       } catch (err) {
         console.error("Failed to get PROLOG:", err);
+      }
+    }
+  });
+  editor.addAction({
+    id: "see-scasp",
+    label: "See s(CASP)",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.6,
+    run: async (ed) => {
+      if (!isLoaded && !isLoading) {
+        await loadModule();
+      }
+      if (!sessionModule) {
+        alert(t("Please wait for the module to load."));
+        return;
+      }
+      try {
+        const response = await fetch("/leapi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: "myToken123",
+            operation: "getScasp",
+            sessionModule
+          })
+        });
+        const data = await response.json();
+        if (data.scasp !== void 0) {
+          let content = data.scasp;
+          if (Array.isArray(data.issues) && data.issues.length > 0) {
+            const lines = data.issues.map((i) => `% [${i.kind}] ${i.message}`);
+            content += "\n\n% ---- s(CASP) compile-time issues ----\n" + lines.join("\n");
+          }
+          showPrologPanel(content);
+        } else if (data.error) {
+          alert(data.error);
+        }
+      } catch (err) {
+        console.error("Failed to get s(CASP):", err);
       }
     }
   });
@@ -9578,6 +9626,8 @@ async function start() {
   });
   const scenarioSelect = document.getElementById("scenario-select");
   const querySelect = document.getElementById("query-select");
+  const engineSelect = document.getElementById("engine-select");
+  let engineUserSet = false;
   const btnQuery = document.getElementById("btn-query");
   const btnTrace = document.getElementById("btn-trace");
   const resultsDisplay = document.getElementById("results-display");
@@ -9597,6 +9647,11 @@ async function start() {
       url.searchParams.set("query", q);
     else
       url.searchParams.delete("query");
+    const eng = engineSelect ? engineSelect.value : "prolog";
+    if (eng && eng !== "prolog")
+      url.searchParams.set("engine", eng);
+    else
+      url.searchParams.delete("engine");
     url.searchParams.delete("answer");
     window.history.replaceState({}, "", url.toString());
   }
@@ -9615,6 +9670,13 @@ async function start() {
     updateQueryButtonState();
     updateUrlSelection();
   });
+  if (engineSelect) {
+    engineSelect.addEventListener("change", () => {
+      engineUserSet = true;
+      updateQueryButtonState();
+      updateUrlSelection();
+    });
+  }
   const kbModuleDisplay = document.getElementById("kb-module-display");
   const sessionModuleDisplay = document.getElementById("session-module-display");
   const updateQueryButtonState = () => {
@@ -9627,8 +9689,15 @@ async function start() {
     const querySelected = querySelect.value !== "";
     const disabled = hasErrors || !querySelected;
     btnQuery.disabled = disabled;
-    if (btnTrace)
-      btnTrace.disabled = disabled;
+    const scaspEngine = !!engineSelect && engineSelect.value === "scasp";
+    if (btnTrace) {
+      btnTrace.disabled = disabled || scaspEngine;
+      if (scaspEngine && !disabled) {
+        btnTrace.title = "Trace is only available with the Prolog engine; use the s(CASP) explanation tree instead.";
+      }
+    }
+    if (scaspEngine && !disabled)
+      return;
     if (hasErrors) {
       const title = "Cannot query while there are errors in the document";
       btnQuery.title = title;
@@ -9705,6 +9774,14 @@ async function start() {
         includedResources = res.included_resources || [];
         kbModuleDisplay.textContent = `KB: ${res.kb || "unknown"}`;
         sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
+        if (engineSelect && !engineUserSet) {
+          const urlEngine = new URLSearchParams(window.location.search).get("engine");
+          if (!urlEngine && (res.target === "prolog" || res.target === "scasp")) {
+            engineSelect.value = res.target;
+            updateQueryButtonState();
+            updateUrlSelection();
+          }
+        }
         graphChannel.postMessage({
           type: "module-loaded",
           data: { sessionModule }
@@ -9834,6 +9911,11 @@ async function start() {
     if (queryParam && !selectIfPresent(querySelect, queryParam)) {
       showModal(`Query "${queryParam}" does not exist in this document.`, "Unknown query");
       return;
+    }
+    const engineParam = p.get("engine");
+    if (engineParam && engineSelect) {
+      selectIfPresent(engineSelect, engineParam);
+      updateQueryButtonState();
     }
     const answerParam = p.get("answer");
     if (answerParam) {
@@ -10277,21 +10359,32 @@ async function start() {
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
     showInterruptSoon();
+    const engine = engineSelect ? engineSelect.value : "prolog";
     try {
       const runAnsweringQuery = () => fetch("/leapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: "myToken123",
-          operation: "answeringQuery",
-          sessionModule,
-          query,
-          scenario,
-          customScenario,
-          customQuery,
-          detailedFailures,
-          hideRepeated: hideRepeatedExplanations
-        })
+        body: JSON.stringify(
+          engine === "scasp" ? {
+            token: "myToken123",
+            operation: "scaspQuery",
+            sessionModule,
+            query,
+            scenario,
+            customScenario,
+            customQuery
+          } : {
+            token: "myToken123",
+            operation: "answeringQuery",
+            sessionModule,
+            query,
+            scenario,
+            customScenario,
+            customQuery,
+            detailedFailures,
+            hideRepeated: hideRepeatedExplanations
+          }
+        )
       }).then((r) => r.json());
       let res = await runAnsweringQuery();
       if (res && res.session_expired) {

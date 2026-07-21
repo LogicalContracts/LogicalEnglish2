@@ -786,6 +786,13 @@
                                 <option value="">Select a query...</option>
                             </select>
                         </div>
+                        <div class="control-group">
+                            <label for="engine-select" title="Which reasoning engine answers the query. Prolog is the default; s(CASP) adds stable-model semantics, constructive negation, constraint answers and abduction.">Engine:</label>
+                            <select id="engine-select">
+                                <option value="prolog">Prolog</option>
+                                <option value="scasp">s(CASP)</option>
+                            </select>
+                        </div>
                         <button id="btn-query" class="query-action">Query</button>
                         <button id="btn-variations" class="query-action" title="Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window">Scenario Variations</button>
                         <button id="btn-trace" class="query-action">Trace</button>

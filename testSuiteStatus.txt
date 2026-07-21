@@ -1,9 +1,9 @@
 
 Test Summary:
 -------------
-Files processed: 114
-Total tests:     394
-Passed:          394
+Files processed: 117
+Total tests:     395
+Passed:          395
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -16,7 +16,9 @@ Detailed File Summary:
   [PASS] examples/moreExamples/cgt_assets.le: 21 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/citizenship_including.le: 1 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/clp_coverage.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/dates.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/dual_engine_demo.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/ecommerce.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/enclosure.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/error.le: 0 Pass, 0 Fail, 0 Error
@@ -114,6 +116,7 @@ Detailed File Summary:
   [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error

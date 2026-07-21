@@ -12,8 +12,9 @@
 % Read each answer together with its unknowns as a conditional answer
 % (slide 26): "the grass is wet IF it rained".
 %
-% Verification carries two inherent "rule without variables" warnings: the
-% slide's beliefs are genuinely propositional, so these are expected.
+% The beliefs here are genuinely propositional; the verifier no longer flags
+% "rule without variables" when EVERY rule in a program is ground, so a wholly
+% propositional KB like this one loads without that noise.
 
 the target language is: prolog.
 

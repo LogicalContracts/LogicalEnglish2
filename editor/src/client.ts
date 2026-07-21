@@ -369,6 +369,48 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         });
 
         editor.addAction({
+            id: 'see-scasp',
+            label: 'See s(CASP)',
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 1.6,
+            run: async (ed: any) => {
+                if (!isLoaded && !isLoading) {
+                    await loadModule();
+                }
+                if (!sessionModule) {
+                    alert(t('Please wait for the module to load.'));
+                    return;
+                }
+                try {
+                    const response = await fetch('/leapi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: 'myToken123',
+                            operation: 'getScasp',
+                            sessionModule: sessionModule
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.scasp !== undefined) {
+                        // s(CASP) is a whole-program transformation; show the full
+                        // generated program plus any compile-time issues.
+                        let content = data.scasp;
+                        if (Array.isArray(data.issues) && data.issues.length > 0) {
+                            const lines = data.issues.map((i: any) => `% [${i.kind}] ${i.message}`);
+                            content += '\n\n% ---- s(CASP) compile-time issues ----\n' + lines.join('\n');
+                        }
+                        showPrologPanel(content);
+                    } else if (data.error) {
+                        alert(data.error);
+                    }
+                } catch (err) {
+                    console.error('Failed to get s(CASP):', err);
+                }
+            }
+        });
+
+        editor.addAction({
             id: 'le-toggle-line-comment',
             label: 'Toggle Line Comment',
             keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Slash],
@@ -1126,6 +1168,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // Query Panel Logic
     const scenarioSelect = document.getElementById('scenario-select') as HTMLSelectElement;
     const querySelect = document.getElementById('query-select') as HTMLSelectElement;
+    const engineSelect = document.getElementById('engine-select') as HTMLSelectElement | null;
+    // Once the user (or a URL param) picks an engine explicitly, a program's
+    // declared target must not silently override it.
+    let engineUserSet = false;
     const btnQuery = document.getElementById('btn-query') as HTMLButtonElement;
     const btnTrace = document.getElementById('btn-trace') as HTMLButtonElement;
     const resultsDisplay = document.getElementById('results-display') as HTMLPreElement;
@@ -1146,6 +1192,11 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         else url.searchParams.delete('scenario');
         if (q && q !== '___custom___') url.searchParams.set('query', q);
         else url.searchParams.delete('query');
+        // Engine is part of the shareable state (WP5); omit it for the default so
+        // existing links stay clean.
+        const eng = engineSelect ? engineSelect.value : 'prolog';
+        if (eng && eng !== 'prolog') url.searchParams.set('engine', eng);
+        else url.searchParams.delete('engine');
         // A change of scenario/query invalidates a previously selected answer; it is
         // re-added when an answer is selected after the query is (re-)run.
         url.searchParams.delete('answer');
@@ -1172,6 +1223,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         updateUrlSelection();
     });
 
+    if (engineSelect) {
+        engineSelect.addEventListener('change', () => {
+            engineUserSet = true;
+            updateQueryButtonState();
+            updateUrlSelection();
+        });
+    }
+
     const kbModuleDisplay = document.getElementById('kb-module-display')!;
     const sessionModuleDisplay = document.getElementById('session-module-display')!;
 
@@ -1188,8 +1247,17 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const disabled = hasErrors || !querySelected;
         
         btnQuery.disabled = disabled;
-        if (btnTrace) btnTrace.disabled = disabled;
-        
+        // Trace is Prolog-only (WP5e): the s(CASP) justification tree supersedes
+        // step tracing, so grey the button out under the s(CASP) engine.
+        const scaspEngine = !!engineSelect && engineSelect.value === 'scasp';
+        if (btnTrace) {
+            btnTrace.disabled = disabled || scaspEngine;
+            if (scaspEngine && !disabled) {
+                btnTrace.title = 'Trace is only available with the Prolog engine; use the s(CASP) explanation tree instead.';
+            }
+        }
+        if (scaspEngine && !disabled) return;
+
         if (hasErrors) {
             const title = 'Cannot query while there are errors in the document';
             btnQuery.title = title;
@@ -1269,6 +1337,18 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
                 kbModuleDisplay.textContent = `KB: ${res.kb || 'unknown'}`;
                 sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
+
+                // Pre-select the engine from the program's declared target
+                // (`the target language is: …`), unless the user already chose one
+                // or the URL pins `engine` (which applyUrlSelection restores).
+                if (engineSelect && !engineUserSet) {
+                    const urlEngine = new URLSearchParams(window.location.search).get('engine');
+                    if (!urlEngine && (res.target === 'prolog' || res.target === 'scasp')) {
+                        engineSelect.value = res.target;
+                        updateQueryButtonState();
+                        updateUrlSelection();
+                    }
+                }
                 
                 graphChannel.postMessage({
                     type: 'module-loaded',
@@ -1413,6 +1493,13 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (queryParam && !selectIfPresent(querySelect, queryParam)) {
             showModal(`Query "${queryParam}" does not exist in this document.`, 'Unknown query');
             return;
+        }
+        // Restore the engine choice (WP5) so a shared link pins program + scenario
+        // + query + engine.
+        const engineParam = p.get('engine');
+        if (engineParam && engineSelect) {
+            selectIfPresent(engineSelect, engineParam);
+            updateQueryButtonState();
         }
         // `answer` runs the (just-selected) query and selects the answer with the
         // given 1-based order, so its explanation is shown. Requires scenario+query.
@@ -1915,21 +2002,38 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         explanationTree.innerHTML = '';
         showInterruptSoon();
 
+        // Engine selector (WP5): Prolog (default) or s(CASP). The s(CASP) path
+        // hits a different endpoint but returns the same {results:[{answer, why}]}
+        // shape, so the explanation view renders it unchanged; each result is one
+        // stable model (model grouping reads naturally as one answer card each).
+        const engine = engineSelect ? engineSelect.value : 'prolog';
+
         try {
             const runAnsweringQuery = () => fetch('/leapi', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    token: 'myToken123',
-                    operation: 'answeringQuery',
-                    sessionModule: sessionModule,
-                    query: query,
-                    scenario: scenario,
-                    customScenario: customScenario,
-                    customQuery: customQuery,
-                    detailedFailures: detailedFailures,
-                    hideRepeated: hideRepeatedExplanations
-                })
+                body: JSON.stringify(
+                    engine === 'scasp'
+                    ? {
+                        token: 'myToken123',
+                        operation: 'scaspQuery',
+                        sessionModule: sessionModule,
+                        query: query,
+                        scenario: scenario,
+                        customScenario: customScenario,
+                        customQuery: customQuery
+                    }
+                    : {
+                        token: 'myToken123',
+                        operation: 'answeringQuery',
+                        sessionModule: sessionModule,
+                        query: query,
+                        scenario: scenario,
+                        customScenario: customScenario,
+                        customQuery: customQuery,
+                        detailedFailures: detailedFailures,
+                        hideRepeated: hideRepeatedExplanations
+                    })
             }).then(r => r.json());
 
             let res = await runAnsweringQuery();
