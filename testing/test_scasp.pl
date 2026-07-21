@@ -214,10 +214,7 @@ test(or_under_negation_demorgan, [condition(le_scasp_available)]) :-
     assertion(var(Err)),                           % no raw permission_error escapes
     assertion(\+ memberchk(le_scasp_issue(unsupported_construct, _, _), QIssues)).
 
-% Double negation cannot be expressed in this s(CASP): a targeted, non-crashing
-% issue is reported instead of emitting an illegal program.
-test(double_negation_reports_issue, [condition(le_scasp_available)]) :-
-    load_text("the target language is: scasp.
+dneg_program("the target language is: scasp.
 the predicates are:
     *a person* is safe.
     *a person* is risky.
@@ -230,9 +227,23 @@ the knowledge base dneg includes:
 scenario s is:
     alice is risky.
 query safe is:
-    which person is safe.", M),
+    which person is safe.").
+
+% Double negation cannot be expressed in this s(CASP): a targeted, non-crashing
+% issue is reported instead of emitting an illegal program.
+test(double_negation_reports_issue, [condition(le_scasp_available)]) :-
+    dneg_program(T), load_text(T, M),
     le_scasp_program_text(M, _Text, Issues),
     ( memberchk(le_scasp_issue(untranslatable_rule, _, Msg), Issues) -> true ; Msg = "" ),
-    assertion(sub_string(Msg, _, _, _, "double negation")).
+    % Msg comes from i18n (an atom); the English text names the double negation.
+    assertion(sub_atom_icasechk(Msg, _, "double negation")).
+
+% le_scasp_issue messages are localized through i18n/messages.csv: under the
+% Portuguese active language the same issue reads in Portuguese ("negação").
+test(issue_message_localized, [condition(le_scasp_available)]) :-
+    dneg_program(T), load_text(T, M),
+    le_i18n:with_le_language(pt, le_scasp:le_scasp_program_text(M, _Text, Issues)),
+    ( memberchk(le_scasp_issue(untranslatable_rule, _, Msg), Issues) -> true ; Msg = "" ),
+    assertion(sub_atom_icasechk(Msg, _, "negação")).
 
 :- end_tests(scasp).
