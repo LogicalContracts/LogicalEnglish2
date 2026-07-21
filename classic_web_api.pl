@@ -1897,15 +1897,18 @@ handle_get_scasp(Dict, Response) :-
     le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
     ( KB == none -> Response = _{error: "No KB loaded"}
-    ; \+ le_scasp:le_scasp_available -> Response = _{error: "The s(CASP) engine is not installed on this server."}
-    ; le_scasp:le_scasp_program_text(KB, Text, Issues),
-      maplist(scasp_issue_json, Issues, JIssues),
-      Response = _{scasp: Text, issues: JIssues}
+    ; le_kbs:ensure_kb_language(KB),
+      ( \+ le_scasp:le_scasp_available ->
+          le_i18n:le_msg(scasp_engine_not_installed, [], M), Response = _{error: M}
+      ; le_scasp:le_scasp_program_text(KB, Text, Issues),
+        maplist(scasp_issue_json, Issues, JIssues),
+        Response = _{scasp: Text, issues: JIssues}
+      )
     ).
 
 scasp_issue_json(le_scasp_issue(Kind, ID, Msg), _{kind: KindS, ruleId: IDS, message: MsgS}) :-
     to_str(Kind, KindS), to_str(ID, IDS), to_str(Msg, MsgS).
-to_str(X, S) :- ( string(X) -> S = X ; term_string(X, S) ).
+to_str(X, S) :- ( string(X) -> S = X ; atom(X) -> atom_string(X, S) ; term_string(X, S) ).
 
 % handle_scasp_query(+Dict, -Response): run a query under the s(CASP) engine for a
 % scenario, returning one result per stable model (model grouping, §5a) with the
@@ -1916,8 +1919,10 @@ handle_scasp_query(Dict, Response) :-
     le_kbs:note_session_use(SM),
     ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
     ( KB == none -> Response = _{error: "No KB loaded"}
-    ; \+ le_scasp:le_scasp_available -> Response = _{error: "The s(CASP) engine is not installed on this server."}
-    ; scasp_query_goal(KB, Dict, Goal, GoalErr),
+    ; le_kbs:ensure_kb_language(KB),
+      ( \+ le_scasp:le_scasp_available ->
+        le_i18n:le_msg(scasp_engine_not_installed, [], M), Response = _{error: M}
+      ; scasp_query_goal(KB, Dict, Goal, GoalErr),
       ( nonvar(GoalErr) -> Response = _{error: GoalErr}
       ; scasp_scenario_name(Dict, ScenarioName),
         option_time_limit(Dict, TL),
@@ -1933,6 +1938,7 @@ handle_scasp_query(Dict, Response) :-
         number_results(Distinct, 1, ModelCount, Results),
         Response = _{results: Results, modelCount: ModelCount, issues: JIssues, result: "ok", engine: "scasp"}
       )
+    )
     ).
 
 % Resolve the query goal from a named query or a custom query string.

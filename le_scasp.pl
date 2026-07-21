@@ -35,6 +35,20 @@
 :- use_module(library(option)).
 :- use_module(library(pairs)).
 :- use_module(library(error)).
+:- use_module(le_i18n).
+
+%!  scasp_msg(+Key, +Pairs, -Text) is det.
+%
+%   The natural-language text of an s(CASP) issue, looked up in the active
+%   language from i18n/messages.csv (English fallback). All user-facing issue
+%   strings go through here rather than being hardcoded — see i18n/README.md.
+scasp_msg(Key, Pairs, Text) :- le_i18n:le_msg(Key, Pairs, Text).
+
+%!  scasp_issue(+Kind, +RuleID, +Key, +Pairs, -Issue) is det.
+%
+%   Build an le_scasp_issue/3 whose message is the i18n text for Key.
+scasp_issue(Kind, RuleID, Key, Pairs, le_scasp_issue(Kind, RuleID, Msg)) :-
+    scasp_msg(Key, Pairs, Msg).
 
 % library(scasp) is an optional pack; guard its presence so LE keeps working
 % (Prolog-only) when it is not installed.
@@ -230,15 +244,15 @@ emit_rules(KB, [rule(ID,_S,_E,Head,Body)|T], Lines, Issues) :-
             body_to_dnf(SBody, Conjs),
             maplist(clause_line(Head), Conjs, RLines),
             Lines0 = RLines, Issues0 = BIssues
-        ; Err = le_scasp_untranslatable(Msg) ->
+        ; Err = le_scasp_untranslatable(Key) ->
             % A construct we recognise but cannot express in s(CASP) (e.g. double
             % negation): report a targeted issue rather than crashing the runner.
-            Lines0 = [], Issues0 = [le_scasp_issue(untranslatable_rule, ID, Msg)]
+            Lines0 = [], scasp_issue(untranslatable_rule, ID, Key, [], I), Issues0 = [I]
         ; Lines0 = [],
-          Issues0 = [le_scasp_issue(untranslatable_rule, ID, "rule body could not be lowered to s(CASP)")]
+          scasp_issue(untranslatable_rule, ID, scasp_untranslatable_rule, [], I), Issues0 = [I]
         )
     ;   Lines0 = [],
-        Issues0 = [le_scasp_issue(untranslatable_rule, ID, "rule body could not be lowered to s(CASP)")]
+        scasp_issue(untranslatable_rule, ID, scasp_untranslatable_rule, [], I), Issues0 = [I]
     ),
     emit_rules(KB, T, LT, IT),
     append(Lines0, LT, Lines),
@@ -315,7 +329,7 @@ lower_body(_KB, _ID, Leaf, SLeaf, Is) :- lower_leaf(Leaf, SLeaf, Is).
 demorgan_negate((A;B), (NA,NB)) :- !, demorgan_negate(A, NA), demorgan_negate(B, NB).
 demorgan_negate((A,B), (NA;NB)) :- !, demorgan_negate(A, NA), demorgan_negate(B, NB).
 demorgan_negate(not _, _) :- !,
-    throw(le_scasp_untranslatable("double negation (\"it is not the case that ... it is not the case that ...\") is not supported by s(CASP); run this query with the Prolog engine")).
+    throw(le_scasp_untranslatable(scasp_double_negation)).
 demorgan_negate(G, not G).
 
 % lower_leaf(+Leaf, -SLeaf, -Issues): lower a single goal.
@@ -326,18 +340,19 @@ lower_leaf(le_lt(X,Y), (X #< Y),  []) :- !.
 lower_leaf(le_equal_to(X,Y), (X #= Y), []) :- number_ish(X,Y), !.
 lower_leaf(le_equal_to(X,Y), (X = Y), []) :- !.
 lower_leaf(le_not_equal_to(X,Y), (X #<> Y), []) :- number_ish(X,Y), !.
-lower_leaf(le_not_equal_to(_,_), true, [le_scasp_issue(term_disequality, unknown, "non-numeric `is different from` is not lowered to s(CASP)")]) :- !.
+lower_leaf(le_not_equal_to(_,_), true, [I]) :- scasp_issue(term_disequality, unknown, scasp_term_disequality, [], I), !.
 lower_leaf(le_is(X,Y), (X #= Y), []) :- arithmetic_term(Y), !.
 lower_leaf(le_is(X,Y), (X = Y), []) :- !.
 lower_leaf(le_assign(X,Y), (X #= Y), []) :- arithmetic_term(Y), !.
 lower_leaf(le_assign(X,Y), (X = Y), []) :- !.
-lower_leaf(le_known(X), scasp_known(X), [le_scasp_issue(unsupported_known, unknown, "`is known` is approximated")]) :- !.
-lower_leaf(prolog_call(_), true, [le_scasp_issue(prolog_goal, unknown, "`prolog` goals are not supported by s(CASP); this program is Prolog-only")]) :- !.
-lower_leaf(le_is_in(_,_), true, [le_scasp_issue(list_membership, unknown, "`is in` (list membership) is not lowered to s(CASP)")]) :- !.
-lower_leaf(le_is_days_after(_,_,_), true, [le_scasp_issue(date_arithmetic, unknown, "date arithmetic is not supported by s(CASP)")]) :- !.
-lower_leaf(Aggr, true, [le_scasp_issue(aggregate, unknown, "aggregates are not supported by s(CASP); run this query with the Prolog engine")]) :-
-    reasoner:is_aggregate(Aggr, _, _, _, _), !.
-lower_leaf(for_all_cases(_), true, [le_scasp_issue(universal, unknown, "universal quantification (for all cases) is not lowered to s(CASP)")]) :- !.
+lower_leaf(le_known(X), scasp_known(X), [I]) :- scasp_issue(unsupported_known, unknown, scasp_unsupported_known, [], I), !.
+lower_leaf(prolog_call(_), true, [I]) :- scasp_issue(prolog_goal, unknown, scasp_prolog_goal, [], I), !.
+lower_leaf(le_is_in(_,_), true, [I]) :- scasp_issue(list_membership, unknown, scasp_list_membership, [], I), !.
+lower_leaf(le_is_days_after(_,_,_), true, [I]) :- scasp_issue(date_arithmetic, unknown, scasp_date_arithmetic, [], I), !.
+lower_leaf(Aggr, true, [I]) :-
+    reasoner:is_aggregate(Aggr, _, _, _, _), !,
+    scasp_issue(aggregate, unknown, scasp_aggregate, [], I).
+lower_leaf(for_all_cases(_), true, [I]) :- scasp_issue(universal, unknown, scasp_universal, [], I), !.
 lower_leaf(Leaf, Leaf, []).      % user domain predicate: pass through
 
 number_ish(X, Y) :- ( number(X) ; number(Y) ), !.
@@ -377,7 +392,7 @@ le_scasp_query(KBModule, ScenarioName, Goal, Options, Answers, Issues) :-
         run_models(Unit, Goal, TL, Max, Answers, RIssues),
         cleanup_scasp_unit(Unit, File)),
     append(PIssues, RIssues, Issues).
-le_scasp_query(_, _, _, _, [], [le_scasp_issue(no_pack, unknown, "s(CASP) pack not installed")]).
+le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
 
 % scenario_facts(+KB, +Name, +Options, -Facts): ground fact terms for the scenario.
 scenario_facts(_KB, _Name, Options, Facts) :-
@@ -430,14 +445,12 @@ run_models(Unit, Goal, TL, Max, Answers, Issues) :-
 % permission_error/determinism_error here; report them as an unsupported
 % construct and fall back to the Prolog engine. Genuinely unexpected errors are
 % re-thrown so real bugs are not masked.
-run_models_recover(time_limit_exceeded, [],
-    [le_scasp_issue(timeout, unknown, "s(CASP) query exceeded its time budget")]) :- !.
-run_models_recover(error(permission_error(scasp, _, _), _), [],
-    [le_scasp_issue(unsupported_construct, unknown,
-        "this program uses a construct s(CASP) cannot execute (for example \"or\" inside a negation); run this query with the Prolog engine")]) :- !.
-run_models_recover(error(determinism_error(_,_,_,_), _), [],
-    [le_scasp_issue(unsupported_construct, unknown,
-        "this program uses a construct s(CASP) cannot execute; run this query with the Prolog engine")]) :- !.
+run_models_recover(time_limit_exceeded, [], [I]) :- !,
+    scasp_issue(timeout, unknown, scasp_timeout, [], I).
+run_models_recover(error(permission_error(scasp, _, _), _), [], [I]) :- !,
+    scasp_issue(unsupported_construct, unknown, scasp_unsupported_construct, [], I).
+run_models_recover(error(determinism_error(_,_,_,_), _), [], [I]) :- !,
+    scasp_issue(unsupported_construct, unknown, scasp_unsupported_construct, [], I).
 run_models_recover(Error, _, _) :- throw(Error).
 
 collect_models(Unit, Goal, Max, Answers) :-
@@ -757,8 +770,8 @@ canonical_cycle(Cycle, Canon) :-
 
 :- if(\+ current_predicate(have_scasp/0)).
 % Stubs so the file compiles without the pack; runtime entries fail cleanly.
-le_scasp_program_text(_, "", [le_scasp_issue(no_pack, unknown, "s(CASP) pack not installed")]).
-le_scasp_query(_, _, _, _, [], [le_scasp_issue(no_pack, unknown, "s(CASP) pack not installed")]).
+le_scasp_program_text(_, "", [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
+le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
 le_scasp_tree_json(_, _, _, _{type:"unknown", literal:"s(CASP) not installed", children:[]}).
 le_scasp_stratification(_, []).
 :- endif.
