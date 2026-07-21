@@ -266,6 +266,7 @@ export async function initScenarioVariations() {
             customScenario: form.factsText(),
             detailedFailures: localStorage.getItem('le-detailed-failures') === 'true',
             hideRepeated: (localStorage.getItem('le-hide-repeated-explanations') ?? 'true') === 'true',
+            largerImportantReasons: (localStorage.getItem('le-larger-important-reasons') ?? 'true') === 'true',
         });
         let res = await leapi(reqBody());
         if (res && res.session_expired) {            // our session was reclaimed (idle) — load a fresh one and retry once

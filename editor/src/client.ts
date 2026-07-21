@@ -209,6 +209,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         let failedNodePrefix = localStorage.getItem('le-failed-node-prefix') ?? 'x ';
         let detailedFailures = localStorage.getItem('le-detailed-failures') === 'true';
         let hideRepeatedExplanations = (localStorage.getItem('le-hide-repeated-explanations') ?? 'true') === 'true';
+        let largerImportantReasons = (localStorage.getItem('le-larger-important-reasons') ?? 'true') === 'true';
         
         const numberingCheck = document.getElementById('hierarchical-numbering-check');
         if (numberingCheck) {
@@ -1054,12 +1055,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     const failedPrefixInput = document.getElementById('failed-prefix-input') as HTMLInputElement;
     const detailedFailuresInput = document.getElementById('detailed-failures-input') as HTMLInputElement;
     const hideRepeatedInput = document.getElementById('hide-repeated-input') as HTMLInputElement;
+    const largerReasonsInput = document.getElementById('larger-important-reasons-input') as HTMLInputElement;
 
     const openExplanationsModal = () => {
         if (explanationsModal && failedPrefixInput) {
             failedPrefixInput.value = failedNodePrefix;
             if (detailedFailuresInput) detailedFailuresInput.checked = detailedFailures;
             if (hideRepeatedInput) hideRepeatedInput.checked = hideRepeatedExplanations;
+            if (largerReasonsInput) largerReasonsInput.checked = largerImportantReasons;
             explanationsModal.style.display = 'flex';
         }
     };
@@ -1083,6 +1086,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (hideRepeatedInput) {
             hideRepeatedExplanations = hideRepeatedInput.checked;
             localStorage.setItem('le-hide-repeated-explanations', hideRepeatedExplanations.toString());
+        }
+        if (largerReasonsInput) {
+            largerImportantReasons = largerReasonsInput.checked;
+            localStorage.setItem('le-larger-important-reasons', largerImportantReasons.toString());
         }
         closeExplanationsModal();
     });
@@ -1748,7 +1755,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     customQuery: customQuery,
                     debug: true,
                     detailedFailures: detailedFailures,
-                    hideRepeated: hideRepeatedExplanations
+                    hideRepeated: hideRepeatedExplanations,
+                    largerImportantReasons: largerImportantReasons
                 })
             }).then(res => res.json()).then(data => {
                 console.log('Debug query finished', data);
@@ -2032,7 +2040,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                         customScenario: customScenario,
                         customQuery: customQuery,
                         detailedFailures: detailedFailures,
-                        hideRepeated: hideRepeatedExplanations
+                        hideRepeated: hideRepeatedExplanations,
+                        largerImportantReasons: largerImportantReasons
                     })
             }).then(r => r.json());
 
@@ -2099,7 +2108,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     customScenario: customScenario,
                     customQuery: customQuery,
                     detailedFailures: detailedFailures,
-                    hideRepeated: hideRepeatedExplanations
+                    hideRepeated: hideRepeatedExplanations,
+                    largerImportantReasons: largerImportantReasons
                 })
             }).then(r => r.json());
 
@@ -2176,7 +2186,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     customScenario: customScenario,
                     customQuery: customQuery,
                     detailedFailures: detailedFailures,
-                    hideRepeated: hideRepeatedExplanations
+                    hideRepeated: hideRepeatedExplanations,
+                    largerImportantReasons: largerImportantReasons
                 };
                 // The program source, so the game window can establish its OWN session
                 // (independent of this editor's) rather than reusing sessionModule.

@@ -957,6 +957,11 @@
                     <label for="hide-repeated-input" style="margin: 0;">Hide repeated explanations</label>
                 </div>
                 <p style="font-size: 11px; color: #888; margin: 0; margin-top: 6px;">When on (the default), a sub-explanation that occurs several times in a success or failure explanation is shown once and tagged with its count. Turn off to see every occurrence in full (larger trees).</p>
+                <div class="control-group" style="flex-direction: row; align-items: center; margin-top: 12px;">
+                    <input type="checkbox" id="larger-important-reasons-input" style="margin-right: 6px;">
+                    <label for="larger-important-reasons-input" style="margin: 0;">Larger important reasons</label>
+                </div>
+                <p style="font-size: 11px; color: #888; margin: 0; margin-top: 6px;">When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.</p>
             </div>
             <div class="modal-footer">
                 <button id="explanations-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Cancel</button>
