@@ -2643,20 +2643,23 @@ lines_to_tree(_Tokens, Lines, Templates, VMIn, VMOut, Tree) :-
     hierarchy_to_logic(Hierarchy, Templates, VMIn, VMOut, Tree).
 
 % The "chain anchor" is the indentation of the FIRST line at a given sibling
-% level. A later sibling that is written at a SHALLOWER indent than the anchor
-% (inconsistent indentation we tolerate — e.g. a meta connective such as "it is
-% not the case that" outdented to column 0 while the surrounding conjuncts sit at
-% column 4, with its own argument nested deeper still) is misindented: its
-% children must still be captured relative to the chain level, not its own lower
-% column, so a following conjunct that RETURNS to the chain level stays a sibling
-% rather than being swallowed as the connective's second argument.
+% level. A META CONNECTIVE (a line ending in "that", such as "it is not the case
+% that") that is written at a SHALLOWER indent than the anchor — outdented to
+% column 0 while the surrounding conjuncts sit at column 4, with its own argument
+% nested deeper still — is misindented: its children must be captured relative to
+% the chain level, not its own lower column, so a following conjunct that RETURNS
+% to the chain level stays a sibling rather than being swallowed as the
+% connective's second argument (hiscoxhappypath.le's "... fulfills all the
+% general conditions"). The gate on ends_with_that/1 keeps ordinary and/or
+% branches untouched: a shallower "or" alternative followed by its own deeper
+% "and" conjunct (tax/gst.le) must still nest that conjunct under itself.
 lines_to_hierarchy(Lines, Nodes) :-
     ( Lines = [line(Anchor, _)|_] -> true ; Anchor = 0 ),
     lines_to_hierarchy_(Lines, Anchor, Nodes).
 
 lines_to_hierarchy_([], _, []).
 lines_to_hierarchy_([line(N, Tokens)|Lines], Anchor, [node(N, Tokens, Children)|RestNodes]) :-
-    ( N < Anchor -> Threshold = Anchor ; Threshold = N ),
+    ( N < Anchor, ends_with_that(Tokens) -> Threshold = Anchor ; Threshold = N ),
     take_nested_hierarchy(Lines, Threshold, Nested0, Remaining00),
     % If the deepest trailing line of this node's subtree is itself a dangling
     % meta connective ("... that" with no argument nested under it) whose
