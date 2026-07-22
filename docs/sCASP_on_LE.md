@@ -23,6 +23,31 @@ companion. The whole backend lives in **`le_scasp.pl`**, with web plumbing in
 
 ---
 
+## Contents
+
+- [1. Choosing the engine](#1-choosing-the-engine)
+- [2. Architecture](#2-architecture)
+  - [Runner (Mode A)](#runner-mode-a)
+- [3. Traceability — click-to-source](#3-traceability--click-to-source)
+- [4. LE construct → s(CASP) mapping](#4-le-construct--scasp-mapping)
+  - [Constraints are relational, not functional](#constraints-are-relational-not-functional)
+  - [DNF clause-splitting](#dnf-clause-splitting)
+- [5. Answers: constraints, multiple models, abduction](#5-answers-constraints-multiple-models-abduction)
+  - [Constraint / symbolic answers (§5b)](#constraint--symbolic-answers-5b)
+  - [Multiple models — "possible worlds" (§5a)](#multiple-models--possible-worlds-5a)
+  - [Abduction — assumption sets (§5c)](#abduction--assumption-sets-5c)
+- [6. Explanations](#6-explanations)
+- [7. Negation: De Morgan normalisation](#7-negation-de-morgan-normalisation)
+- [8. Unsupported constructs → issues (errors)](#8-unsupported-constructs--issues-errors)
+- [9. Stratification check (verifier)](#9-stratification-check-verifier)
+- [10. Testing](#10-testing)
+- [11. Guidance: which engine, when](#11-guidance-which-engine-when)
+- [12. Current status and known limitations](#12-current-status-and-known-limitations)
+  - [Forward compatibility (browser)](#forward-compatibility-browser)
+- [13. Code map](#13-code-map)
+
+---
+
 ## 1. Choosing the engine
 
 There are three ways the engine is selected, in increasing precedence:
