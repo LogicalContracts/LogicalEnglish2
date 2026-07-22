@@ -174,4 +174,54 @@ test(unless_negation_node_has_range) :-
         ),
         le_kbs:destroySession(SM)).
 
+% --- An outdented negation connective does not swallow a following conjunct ---
+% "... if C and it is not the case that (A) and B" where "it is not the case
+% that" sits at a SHALLOWER indent than the rule's conjunct chain and B is
+% outdented back to the chain level: B must parse as a POSITIVE top-level
+% conjunct (a sibling of the negation), not as the negation's second argument.
+% Regression for the chain-anchor threshold in lines_to_hierarchy
+% (le_grammar.pl); mirrors hiscoxhappypath.le's trailing "... fulfills all the
+% general conditions of this policy" (rule at line 96/110), whose success
+% subtree used to be missing because it was hidden inside not(A and B) and A
+% (short-circuit) failed before B was ever evaluated.
+neg_scope_program("the target language is: prolog.
+the templates are:
+    *a person* is covered,
+    *a person* qualifies,
+    *a person* is barred,
+    *a person* is verified.
+the knowledge base k includes:
+    a person is covered
+    if the person qualifies
+and it is not the case that
+        the person is barred
+    and the person is verified.
+scenario s is:
+    alice qualifies.
+    alice is verified.
+query q is:
+    which person is covered.").
+
+test(outdented_negation_does_not_swallow_following_conjunct) :-
+    neg_scope_program(P),
+    le_kbs:load_text(P, KB),
+    le_kbs:createSession(KB, SM),
+    setup_call_cleanup(true,
+        ( le_kbs:setScenarion(SM, s),
+          le_kbs:query(SM, q, _, _, Why),
+          ( is_list(Why) -> member(Root, Why) ; Root = Why ),
+          Root = success(_, _, RootLE, Kids),
+          le_contains(RootLE, 'is covered'),
+          % B ("... is verified") is a DIRECT child of the rule head — a
+          % top-level conjunct proven on its own, i.e. a sibling of the negation.
+          assertion(( member(K, Kids), K = success(_, _, VLE, _),
+                      le_contains(VLE, verified) )),
+          % The negation node carries ONLY its own single argument; it must not
+          % have absorbed B ("verified") as a second conjunct.
+          assertion(( member(K2, Kids), K2 = success(_, _, NegLE, _),
+                      le_contains(NegLE, 'not the case'),
+                      \+ le_contains(NegLE, verified) ))
+        ),
+        le_kbs:destroySession(SM)).
+
 :- end_tests(failure_choices).
