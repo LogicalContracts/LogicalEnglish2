@@ -45,7 +45,17 @@ tools as we go. By the end you will be able to write LE, query it, poke at
   - [10. Explanation preferences and the Explanation Drill](#10-explanation-preferences-and-the-explanation-drill)
     - [Preferences](#preferences)
     - [The Explanation Drill](#the-explanation-drill)
-  - [11. Where to go next](#11-where-to-go-next)
+  - [What's new since the summer](#whats-new-since-the-summer)
+  - [11. The important reason of an explanation](#11-the-important-reason-of-an-explanation)
+  - [12. Bento Box: an explanation as nested boxes](#12-bento-box-an-explanation-as-nested-boxes)
+  - [13. The LE Assistant (Light): drafting with an LLM](#13-the-le-assistant-light-drafting-with-an-llm)
+  - [14. A second engine: s(CASP)](#14-a-second-engine-scasp)
+    - [Seeing the generated s(CASP)](#seeing-the-generated-scasp)
+    - [Answers that are *constraints*](#answers-that-are-constraints)
+    - [Several possible worlds, and what each assumes](#several-possible-worlds-and-what-each-assumes)
+    - [Which engine, when](#which-engine-when)
+  - [15. Sharing a program: QR codes](#15-sharing-a-program-qr-codes)
+  - [16. Where to go next](#16-where-to-go-next)
 
 ---
 
@@ -523,16 +533,214 @@ there's nothing left to break down, it says *"Nothing else to show."* It's a sys
 
 ---
 
-## 11. Where to go next
+## What's new since the summer
+
+The five sections that follow cover capabilities added after this tutorial's
+first draft. They build on everything above — same programs, same editor — so you
+can try each on an example you already know.
+
+- **§11 The important reason** — the one node that best explains an answer.
+- **§12 Bento Box** — the explanation tree drawn as nested boxes.
+- **§13 The LE Assistant (Light)** — write and fix LE by asking an LLM, in‑panel.
+- **§14 s(CASP)** — a second reasoning engine, with constraint answers and
+  multiple "possible worlds".
+- **§15 QR codes** — put a whole program (or a link to one) on a phone.
+
+---
+
+## 11. The important reason of an explanation
+
+A big proof has many true nodes, but usually *one* of them is the crux — the
+intermediate fact that most explains why the answer holds (or, for a failure, the
+condition whose absence sank it). LE computes this **important reason** for every
+answer and offers two ways to see it.
+
+Run `citizenship` with scenario `alice`, query `one`, and click the answer. The
+**EXPLANATION** title now carries the reason as a tooltip (its dotted underline is
+the hint) — and **right‑click the title** for the action:
+
+![The EXPLANATION title menu with 'Show important reason'](19-important-reason.png)
+
+Choose **Show important reason** and the tree expands straight to that node, opens
+it one level, and flashes it — no hunting through forty green lines. This is the
+same notion the **Explanation Drill** (§10) walks you through step by step; here it
+is a single jump to the headline.
+
+Two preferences (Misc → **EXPLANATIONS → Preferences…**) shape it:
+
+- **Larger important reasons** (*on by default*): for a *failed* query, instead of a
+  single deepest culprit it lists all the equally‑deep dead ends as
+  *"it is not the case that X, nor that Y, nor that Z"* (truncated after the third).
+  One glance at everything you'd need to fix.
+- The reason is deliberately **invariant** to the "Detailed failure explanations"
+  setting — turning per‑rule nodes on or off never changes *which* fact is called
+  the important one.
+
+---
+
+## 12. Bento Box: an explanation as nested boxes
+
+The tree is not the only way to read a proof. **Bento Box** draws the same
+explanation as a set of *nested compartments*: the outer box is the rule that
+proved the answer, the boxes inside it are that rule's conditions, and the
+innermost leaves are the facts. It turns "how does this proof decompose?" into a
+picture you take in at a glance.
+
+Load `happy_dragon` (scenario `smoky`, query `happy`), run it, then **right‑click
+an answer → Bento Box…**. A new window opens:
+
+![The Bento Box view of 'bob is happy', with a colour legend](20-bento-box.png)
+
+- Each compartment has its own colour, keyed to the **Legend** on the right (with
+  the same hierarchical numbers as §10's numbering).
+- **Hover** a box for its sentence; **click** it to highlight the source rule/fact
+  back in the editor — exactly like clicking a tree node.
+- A **failed** or vacuous branch is an empty dark compartment. Here the *"for all
+  cases in which bob is a parent of a dragon"* box is dark because bob has no
+  dragon children — the universal held vacuously, so there was nothing to draw
+  inside it.
+
+Bento Box is especially good for showing *shape* — how much of an answer rests on
+one fat rule versus many small ones.
+
+---
+
+## 13. The LE Assistant (Light): drafting with an LLM
+
+You don't have to write every template and rule by hand. The **LE Assistant** tab
+(next to **Query**) is a chat panel where you ask, in plain English, for the change
+you want — *"add a rule…", "fix this warning", "why does scenario 2 fail?"* — and an
+LLM edits the program for you, **running the LE verifier and queries in the loop**
+so what it hands back actually parses and runs.
+
+There are two modes, chosen by the **Light / Deep** checkbox: **Deep** spawns the
+full external agent (file system, web, the works); **Light** — the default — is a
+small in‑process loop that only edits your program and calls `verify` / `query`.
+Light is fast and needs nothing installed.
+
+Pick a model in **Misc → API Keys…** (the same dialog holds your provider keys; the
+public server may already supply one, so you often need no key at all). Then type a
+request and **Send**. Here, starting from a two‑rule dragon program, the request was
+*"add a rule that a creature is fierce if it is a dragon, with the template it needs,
+and a query for it"*:
+
+![The LE Assistant (Light) after adding a 'fierce' rule, template and query](15-assistant-light.png)
+
+Behind the scenes the assistant took a few turns — edit the program, run the
+verifier, notice the new predicate wasn't tested, add a query, verify again, finish
+— and then applied the result to the editor (*"I have updated the editor content
+with the changes."*). Notice it did exactly what was asked: a `*a creature* is
+fierce` template, the rule, **and** a `q_fierce` query, all wired up and verified in
+about three seconds. You stay in control: it's your editor buffer, so **Edit → Undo**
+reverts any change you don't like.
+
+> The Assistant is an accelerator, not an oracle — always read what it wrote. But for
+> boilerplate (templates, scaffolding a scenario, echoing a rule in a new shape) it
+> removes most of the typing.
+
+---
+
+## 14. A second engine: s(CASP)
+
+Everything so far ran on LE's **Prolog** engine. LE can also execute the *same
+program* under **s(CASP)** — a goal‑directed Answer Set Programming engine — which
+brings three things Prolog can't: answers that are **constraints**, **several
+stable models** ("possible worlds") for one query, and **abduction** ("what would
+have to be true?"). A program says which engine it prefers in its first line
+(`the target language is: scasp.`), and an **Engine** dropdown in the Query tab lets
+you switch by hand. (For Prolog‑only programs the picker can be hidden entirely —
+Misc → *Show engine choice only for non‑Prolog*.)
+
+### Seeing the generated s(CASP)
+
+LE compiles a *separate* s(CASP) program from your rules. **Right‑click the editor →
+See s(CASP)** shows it:
+
+![The generated s(CASP) program for clp_coverage](16-scasp-program.png)
+
+Two things to notice in the output: each LE template becomes a **`#pred`** directive
+carrying its English sentence (so s(CASP)'s own explanations read in your domain
+language), and the comparison `the amount is greater than 25000` is lowered to the
+**constraint** `#>(A, 25000)` — not a test on a fixed number. That last point is the
+key to the next feature.
+
+### Answers that are *constraints*
+
+Because comparisons become constraints, s(CASP) can answer a query **with no concrete
+scenario at all**. Load `clp_coverage` (it declares `scasp`, so the engine
+pre‑selects), pick the `covered` query — no scenario — and hit **Query**:
+
+![A symbolic s(CASP) answer: any amount greater than 25000](17-scasp-constraint.png)
+
+The answer is not a value but a *phrase*: **"a claim of any amount greater than
+25000 is covered."** You asked "which amounts are covered?" and got the condition
+itself, rendered through the template. This is how you ask *"under what circumstances
+would this hold?"* directly.
+
+### Several possible worlds, and what each assumes
+
+When a program has *assumable* facts (§8's `; assumable`), one query can be true in
+**several different ways**. s(CASP) enumerates them as distinct **models**. Here a
+loan‑approval program (several assumable applicant attributes) is queried under
+s(CASP):
+
+![Multiple s(CASP) models labelled 'world 1 of 4', with assumption tooltips](18-scasp-worlds.png)
+
+- The answers pane groups results as **"world 1 of 4", "world 2 of 4", …** — one card
+  per genuinely distinct world.
+- Each carries the familiar **`?`** marker: it holds *under assumptions*. Hover it (or
+  read the amber nodes in the tree) to see the **assumption set** — e.g. *"2 unknown
+  goals: the applicant owns property, the applicant has a good credit score."* That is
+  abduction: the engine tells you what it *had to assume* to make the loan approve, and
+  a different world assumes something different.
+
+Negation is richer too: where Prolog shows a failed `not` as a red absence, s(CASP)
+*proves* the negation and shows why the inner goal fails, rule by rule.
+
+### Which engine, when
+
+Keep **Prolog** as the default — it is faster and handles aggregates, `prolog` goals
+and large fact sets. Reach for **s(CASP)** when you want constraint answers, "what
+must be assumed" questions, multiple possible worlds, or a program that loops through
+negation (where Prolog may misbehave and the editor will warn you). If s(CASP) can't
+express something (aggregates, dates, …) it says so and points you back to Prolog.
+The full story is in
+[`docs/sCASP_on_LE.md`](https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/sCASP_on_LE.md).
+
+---
+
+## 15. Sharing a program: QR codes
+
+We've already met two ways to share: an **example URL** (`?example=…&scenario=…`)
+and a Scenario Variations link (§7). For handing a program to someone on a phone —
+in a talk, a classroom, across a desk — there's **File → QR code…**:
+
+![The QR code dialog for happy_dragon](21-qr-code.png)
+
+Scanning it opens the exact program, scenario and query in the recipient's browser.
+A server example travels as its short parameterized URL; an **edited, unsaved**
+document is compressed straight into the link (a `#lzp=` fragment the editor
+inflates on load), so even a program that lives nowhere but your editor is
+shareable. If a document is too big to fit a scannable code, the dialog says so
+rather than producing an unreadable one — reach for **File → Save** and share the
+server link instead.
+
+---
+
+## 16. Where to go next
 
 You now know enough to be dangerous:
 
 - **Templates** declare your vocabulary; **facts** and **rules** (`Head if Body`) say
   what's true; **`and` / `or` / `it is not the case that` / `for all cases in which`**
   build the logic; **scenarios** supply situations; **queries** ask questions.
-- The **Query** tab runs them; **explanations** show why; **Scenario Variations** let
-  you explore "what if"; **Assume** reasons under uncertainty (amber = unknown); and
+- The **Query** tab runs them; **explanations** show why (as a tree, as the
+  **important reason**, or as a **Bento Box**); **Scenario Variations** let you
+  explore "what if"; **Assume** reasons under uncertainty (amber = unknown); and
   failure trees tell you what's missing.
+- The **LE Assistant (Light)** drafts and fixes LE for you; the **s(CASP)** engine
+  adds constraint answers and multiple possible worlds; **QR codes** hand a program
+  to a phone.
 
 From here:
 
@@ -540,8 +748,9 @@ From here:
   for the parts we skipped: aggregates (`sum`, `count`, …), the taxonomy/`is a`
   hierarchy, arithmetic, synonyms, prepositional templates and included resources.
 - Read the [editor manual](https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/howToUse.md)
-  for the Scenario Editor, the Graph view, the **Trace** debugger and the LE
-  Assistant.
+  for the Scenario Editor, the Graph view and the **Trace** debugger, and
+  [`docs/sCASP_on_LE.md`](https://github.com/LogicalContracts/LogicalEnglish2/blob/main/docs/sCASP_on_LE.md)
+  for the full dual‑engine story.
 - Browse the [examples](https://github.com/LogicalContracts/LogicalEnglish2/tree/main/examples/moreExamples)
   — `citizenship_including`, `royal_family`, `subset`, the `tax/` set — and open any
   of them straight from the running system at
