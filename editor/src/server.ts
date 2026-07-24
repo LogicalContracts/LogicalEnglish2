@@ -130,15 +130,27 @@ connection.onRequest('textDocument/semanticTokens/full', (params) => {
             continue;
         }
 
-        const regexParts = parts.map(p => p.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+'));
-        
+        // Build the match regex from the literal parts and the argument slots
+        // between them. Respect each part's ACTUAL leading/trailing whitespace: a
+        // separator that starts (or ends) with punctuation abuts its neighbouring
+        // argument with no space — e.g. "*an amount*, *a qualifier*" matches
+        // "10,000,000, in the aggregate" where the amount ends right at the comma.
+        // Forcing `\s+` around a trimmed part would wrongly require a space before
+        // the comma and fail the whole instance (leaving it to the Monarch grammar,
+        // which then mis-colours "in" as a preposition).
         let regexStr = '';
-        for (let i = 0; i < regexParts.length; i++) {
+        for (let i = 0; i < parts.length; i++) {
+            const raw = parts[i];
+            const core = raw.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\s+/g, '\\s+');
             if (i > 0) {
                 regexStr += '(' + argPattern + ')';
+                // whitespace between the preceding argument and this literal
+                if (core) regexStr += /^\s/.test(raw) ? '\\s+' : '\\s*';
             }
-            if (regexParts[i]) {
-                regexStr += (i > 0 ? '\\s+' : '') + regexParts[i] + (i < regexParts.length - 1 ? '\\s+' : '');
+            if (core) {
+                regexStr += core;
+                // whitespace between this literal and the following argument
+                if (i < parts.length - 1) regexStr += /\s$/.test(raw) ? '\\s+' : '\\s*';
             }
         }
         

@@ -13468,14 +13468,19 @@ connection.onRequest("textDocument/semanticTokens/full", (params) => {
       }
       continue;
     }
-    const regexParts = parts.map((p) => p.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+"));
     let regexStr = "";
-    for (let i = 0; i < regexParts.length; i++) {
+    for (let i = 0; i < parts.length; i++) {
+      const raw = parts[i];
+      const core = raw.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\s+/g, "\\s+");
       if (i > 0) {
         regexStr += "(" + argPattern + ")";
+        if (core)
+          regexStr += /^\s/.test(raw) ? "\\s+" : "\\s*";
       }
-      if (regexParts[i]) {
-        regexStr += (i > 0 ? "\\s+" : "") + regexParts[i] + (i < regexParts.length - 1 ? "\\s+" : "");
+      if (core) {
+        regexStr += core;
+        if (i < parts.length - 1)
+          regexStr += /\s$/.test(raw) ? "\\s+" : "\\s*";
       }
     }
     try {
