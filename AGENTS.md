@@ -31,6 +31,12 @@ The three suites it wraps (also runnable directly):
   files are no longer used. Non-English example trees live under
   `examples/<lang>/` (e.g. `examples/pt/`) and are run by the same suite.)
 - **Editor E2E (Playwright):** `cd editor && npm run test:e2e` (add `-- --headed` to run visibly).
+  Browsers are pinned to this project: `test:e2e` runs with `PLAYWRIGHT_BROWSERS_PATH=0`
+  (browsers live in `editor/node_modules`, not the shared `~/Library/Caches/ms-playwright`),
+  and `pretest:e2e` reinstalls them if missing. This isolates us from other repos on the
+  machine whose newer Playwright would otherwise garbage-collect our browser builds. Always
+  invoke via `npm run test:e2e`; a bare `npx playwright test` would fall back to the shared
+  cache and can fail with "Executable doesn't exist".
 
 Other Prolog/editor commands:
 - Verify LE file: `SWIPL -g "use_module(le_kbs), verify('examples/moreExamples/citizenship.le'), halt."`
