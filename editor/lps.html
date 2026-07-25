@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logical English → LPS</title>
+<link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css">
+<style>
+  :root {
+    --bg: #1e1e1e; --text: #d4d4d4; --header: #333; --line: #444;
+    --dim: #9aa0a6; --err: #f87171; --warn: #fbbf24; --ok: #4ade80;
+    --accent: #7cc4ff; --panel: #252526;
+  }
+  .light-theme {
+    --bg: #fff; --text: #111; --header: #f3f3f3; --line: #ddd;
+    --dim: #6b7280; --panel: #f9fafb;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; height: 100vh; display: flex; flex-direction: column;
+         font: 14px/1.5 system-ui, sans-serif; background: var(--bg); color: var(--text); }
+  header { display: flex; gap: .75rem; align-items: center; padding: .5rem .9rem;
+           background: var(--header); border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 1rem; margin: 0; font-weight: 600; }
+  #status { color: var(--dim); font-size: .85rem; }
+  #endpoints { margin-left: auto; color: var(--dim); font-size: .75rem; font-family: ui-monospace, monospace; }
+  main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; min-height: 0; }
+  .left, .right { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+  .left { border-right: 1px solid var(--line); }
+  #editor { flex: 1; min-height: 0; }
+  #diags { max-height: 9rem; overflow: auto; border-top: 1px solid var(--line);
+           font-family: ui-monospace, monospace; font-size: .78rem; }
+  .diag { padding: .2rem .6rem; cursor: pointer; border-bottom: 1px solid var(--line); }
+  .diag.error { color: var(--err); } .diag.warning { color: var(--warn); }
+  .tabs { display: flex; gap: .25rem; padding: .5rem .75rem 0; border-bottom: 1px solid var(--line); }
+  button, select { background: var(--panel); color: var(--text); border: 1px solid var(--line);
+                   border-radius: 6px; padding: .3rem .7rem; font: inherit; cursor: pointer; }
+  .tabs button.on { color: var(--accent); border-bottom-color: var(--bg); }
+  .scrub { display: flex; gap: .5rem; align-items: center; padding: .4rem .75rem;
+           border-bottom: 1px solid var(--line); }
+  .scrub input[type=range] { flex: 1; }
+  .pane { display: none; flex: 1; overflow: auto; padding: .75rem; min-height: 0; }
+  .pane.on { display: block; }
+  .empty { color: var(--dim); font-style: italic; }
+  table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+  th, td { text-align: left; padding: .2rem .5rem; border-bottom: 1px solid var(--line); }
+  .mono, pre { font-family: ui-monospace, monospace; font-size: .8rem; }
+  pre { white-space: pre-wrap; }
+  .opts { display: flex; gap: 1rem; padding-bottom: .5rem; color: var(--dim); font-size: .8rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Logical English → LPS</h1>
+  <select id="mode" title="Which language the editor is in. `le` is Logical English, parsed by LE2; `lps` is LPS external syntax, which goes straight to the LPS engine.">
+    <option value="le">le — Logical English</option>
+    <option value="lps">lps — LPS external syntax</option>
+  </select>
+  <button id="run">compile &amp; run</button>
+  <span id="status">ready</span>
+  <span id="endpoints"></span>
+</header>
+<main>
+  <section class="left">
+    <div id="editor"></div>
+    <div id="diags"></div>
+  </section>
+  <section class="right">
+    <div class="tabs">
+      <button data-pane="timeline" class="on">timeline</button>
+      <button data-pane="changes">state changes</button>
+      <button data-pane="automaton">state transitions</button>
+      <button data-pane="internal">internal syntax</button>
+    </div>
+    <div class="scrub">
+      <input type="range" id="cycle" min="0" max="0" value="0">
+      <span id="cyclab">cycle 0</span>
+    </div>
+    <div class="pane on" id="pane-timeline"><p class="empty">Compile and run to see the timeline.</p></div>
+    <div class="pane" id="pane-changes"></div>
+    <div class="pane" id="pane-automaton">
+      <div class="opts">
+        <label><input type="checkbox" id="absnum"> abstract numbers</label>
+        <label><input type="checkbox" id="nonrefl"> hide self-loops</label>
+      </div>
+      <div id="dfa"></div>
+    </div>
+    <div class="pane" id="pane-internal"><pre id="internal"></pre></div>
+  </section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+<script type="module">
+  require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+  require(['vs/editor/editor.main'], async function () {
+      await import(`./dist/lps-view.js?v=${Date.now()}`);
+      window.startLpsView();
+  });
+</script>
+</body>
+</html>

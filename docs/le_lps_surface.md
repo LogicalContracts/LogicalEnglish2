@@ -380,7 +380,14 @@ term by term.
 | `life.le` | intensional fluents over a grid — the stress case |
 
 All fifteen translate, and their expectations are checked by
-`testing/lps_test.pl`. Thirteen also *run* to `success` under LPS(2)
+`testing/lps_test.pl`. Thirteen also survive the **round trip** —
+`LE → internal → LE → internal`, with the two internal forms `variant/2`-equal
+term by term (`testing/lps_roundtrip.pl`, and `le_lps_write.pl` for what that
+does and does not claim). The two that do not are `delivery_delay.le` and
+`loan_agreement.le`, both for the same reason and both listed in the test with
+it: a calendar date appears as a *constant* (`2018-04-01`), and a date constant
+has no LE surface form of its own, so the writer cannot put it back.
+ Thirteen also *run* to `success` under LPS(2)
 (`./lps run examples/lps/NAME.le` with `LPS_LE2_DIR` set). The two that do not:
 
 - `prospective_goat.le` ends in `failure` — and so does the original
