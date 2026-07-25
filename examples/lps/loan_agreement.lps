@@ -1,0 +1,12 @@
+% Companion file to loan_agreement.le (docs/le_lps_surface.md §7): the
+% real-time settings and the calendar library. Not statements about the loan.
+
+:- include(system('date_utils.pl')).     % gives us end_of_day(Date)
+
+simulatedRealTimeBeginning('2014-05-31').
+simulatedRealTimePerCycle(RTPC) :- minCycleTime(RTPC).
+
+maxRealTime(189216000).                  % six years, the statute of limitations
+minCycleTime(21600).                     % four cycles per calendar day
+
+prolog_events [end_of_day(_)].

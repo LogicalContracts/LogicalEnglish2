@@ -1,0 +1,49 @@
+the target language is: lps.
+
+% The canonical "contract" shape: an obligation that fires on a transfer.
+% Source: legacy_lps1/examples/CLOUT_workshop/bankTransfer.pl
+
+the maximum time is 10.
+
+the actions are:
+    *a payer* transfers *an amount* to *a payee*; known as transfer.
+
+the fluents are:
+    the balance of *a person* is *an amount*; known as balance.
+
+the knowledge base bank transfer includes:
+
+initially the balance of bob is 0
+    and the balance of fariba is 100.
+
+if fariba transfers an amount to bob from a first time to a second time
+    and the balance of bob is a second amount at the second time
+    and the second amount >= 10
+then bob transfers 10 to fariba from the second time to a third time.
+
+if bob transfers an amount to fariba from a first time to a second time
+    and the balance of fariba is a second amount at the second time
+    and the second amount >= 20
+then fariba transfers 20 to bob from the second time to a third time.
+
+when a payer transfers an amount to a payee
+then the balance of the payee that is a number becomes the number + the amount
+    and the balance of the payer that is a second number becomes the second number - the amount.
+
+it must not be true that
+    a payer transfers an amount to a payee from a first time to a second time
+    and the balance of the payer is a second amount at the first time
+    and the second amount < the amount.
+
+it must not be true that
+    a payer transfers an amount to a payee from a first time to a second time
+    and the payer transfers a second amount to a second payee from the first time to the second time
+    and the payee is different from the second payee.
+
+it must not be true that
+    a payer transfers an amount to a payee from a first time to a second time
+    and a second payer transfers a second amount to the payee from the first time to the second time
+    and the payer is different from the second payer.
+
+scenario one is:
+    fariba transfers 10 to bob from 1 to 2.

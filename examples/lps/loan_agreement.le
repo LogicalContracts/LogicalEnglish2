@@ -1,0 +1,101 @@
+the target language is: lps.
+
+% A simplified loan agreement: real time, calendar dates, and a legal text
+% behind every rule.
+% Source: legacy_lps1/examples/CLOUT_workshop/loanAgreementPostConditionsRT*.pl,
+% after Flood and Goodenough, "Contract as automaton".
+%
+% This is the first third of that contract -- request, advance, the annual
+% payments and the potential default -- which is what exercises the constructs
+% this program is here for. The real-time settings and the end_of_day poll live
+% in the companion file loan_agreement.lps (docs/le_lps_surface.md §7).
+
+the maximum time is 3200.
+
+the prolog events are:
+    the day ends on *a date*; known as end_of_day.
+
+the events are:
+    *a person* requests *an amount*; known as request.
+    *a person* advances *an amount*; known as advance.
+    *a payer* pays *an amount* to *a payee*; known as pay.
+    *a person* notifies *a requirement*; known as notify.
+
+the actions are:
+    legal action is taken against *a person*; known as legal_action_against.
+    the contract is cancelled; known as cancel.
+    *a person* is in potential default; known as potential_default.
+
+the fluents are:
+    *a person* requested *an amount* on *a date*; known as requested.
+    *a person* advanced *an amount* on *a date*; known as advanced.
+    *a payer* paid *an amount* to *a payee* on *a date*; known as paid.
+    *a person* was notified of *a requirement* on *a date*; known as notified.
+    the assets exceed the liabilities; known as exceed_assets_liabilities.
+    *a requirement* is in potential default; known as potential_defaulted.
+    *a requirement* has been cured; known as cured.
+
+the templates are:
+    the current date is *a date*; known as real_date.
+
+the knowledge base loan agreement includes:
+
+initially the assets exceed the liabilities.
+
+% Clause 1. The borrower requests the advance, and the lender makes it.
+
+when a person requests an amount
+    and the current date is a date
+then the person requested the amount on the date.
+
+when a person advances an amount
+    and the current date is a date
+then the person advanced the amount on the date.
+
+when a payer pays an amount to a payee
+    and the current date is a date
+then the payer paid the amount to the payee on the date.
+
+when a person notifies a requirement
+    and the current date is a date
+then the person was notified of the requirement on the date.
+
+% Clause 2. If the borrower has not requested by the agreed date, the contract
+% is cancelled.
+
+if the day ends on 2014-06-01 to a first time
+    and it is not the case that borrower requested 1000 on 2014-06-01 at the first time
+then the contract is cancelled from the first time to a second time.
+
+% Clause 3. If the lender has not advanced by the agreed date, the borrower may
+% take legal action.
+
+if the day ends on 2014-06-01 to a first time
+    and borrower requested 1000 on 2014-06-01 at the first time
+    and it is not the case that lender advanced 1000 on 2014-06-01 at the first time
+then legal action is taken against lender from the first time to a second time.
+
+% Clause 4. A missed annual payment is a potential default.
+
+if the day ends on 2015-06-01 to a first time
+    and it is not the case that borrower paid 550 to lender on 2015-06-01 at the first time
+then borrower is in potential default from the first time to a second time.
+
+if the day ends on 2016-06-01 to a first time
+    and it is not the case that borrower paid 525 to lender on 2016-06-01 at the first time
+then borrower is in potential default from the first time to a second time.
+
+when a person is in potential default
+then the person is in potential default.
+
+% Clause 5. A representation that ceases to hold, and is not cured, is a
+% default in its own right.
+
+it must not be true that
+    a payer pays an amount to a payee from a first time to a second time
+    and the amount < 0.
+
+scenario one is:
+    borrower requests 1000 from 3 to 4.
+    lender advances 1000 from 6 to 7.
+    borrower pays 550 to lender from 1460 to 1461.

@@ -1,0 +1,80 @@
+the target language is: lps.
+
+% The third LE1 specimen, re-expressed in LE2 idiom.
+% Source: legacy_lps1/examples/CLOUT_workshop/RockPaperScissorsEthereumFEn.pl
+% Covers: prolog events, a composite event (l_events), an intensional fluent
+% (l_int) with an aggregate.
+%
+% The Ethereum bridge itself -- e_transaction, e_getBalance, e_sendTransaction,
+% lps_my_account -- is external Prolog, so it lives in the companion file
+% rock_paper_scissors_ethereum.lps (docs/le_lps_surface.md §7).
+
+the maximum time is 120.
+
+the prolog events are:
+    *an address* sends *an input* worth *an amount* to *a second address*; known as e_transaction.
+
+the actions are:
+    *a player* pays *a prize*; known as pay.
+
+the fluents are:
+    the game is over; known as gameOver.
+    *a player* has played *a choice*; known as played.
+    the reward is *a number*; known as reward.
+    the players are *a number*; known as num_players.
+
+the templates are:
+    *a choice* beats *another choice*.
+    *an address* is my account; known as lps_my_account.
+    the balance of *an address* is *a value*; known as e_getBalance.
+    *an address* sends *a prize* to *a player* as *a payment*; known as e_sendTransaction.
+    *a payment* has a receipt; known as e_existsTransactionReceipt.
+
+the knowledge base rock paper scissors ethereum includes:
+
+scissors beats paper.
+paper beats rock.
+rock beats scissors.
+
+when an address sends an input worth an amount to a second address
+    and the second address is my account
+    and the amount > 0
+    and it is not the case that the address has played a second choice
+then the address has played the input.
+
+the reward is a number at a time if
+    an address is my account
+    and the balance of the address is a value
+    and the number is 0.9 * the value.
+
+the players are a number at a time if
+    the number is the count of each a player
+        such that the player has played a value at the time.
+
+it must not be true that
+    the players are a number at a time
+    and the number > 2.
+
+a player pays a prize from a first time to a second time if
+    an address is my account
+    and the address sends the prize to the player as a payment
+    and the payment has a receipt at the second time.
+
+if a first player has played a first choice at a first time
+    and a second player has played a second choice at the first time
+    and the first player is different from the second player
+    and the first choice beats the second choice
+    and it is not the case that the game is over at the first time
+then initiate the game is over from the first time to a second time
+    and the reward is a prize at the first time
+    and the first player pays the prize from the first time to a second time.
+
+if a first player has played a first choice at a first time
+    and a second player has played the first choice at the first time
+    and the first player is different from the second player
+    and it is not the case that the game is over at the first time
+then initiate the game is over from the first time to a second time
+    and the reward is a prize at the first time
+    and a number is the prize / 2
+    and the first player pays the number from the first time to a second time
+    and the second player pays the number from the first time to the second time.

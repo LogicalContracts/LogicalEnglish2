@@ -1,0 +1,65 @@
+the target language is: lps.
+
+% Concurrent actions, and a precondition over a set of them.
+% Source: legacy_lps1/examples/CLOUT_workshop/diningPhilosophers.pl
+
+the maximum time is 7.
+
+the events are:
+    *a philosopher* dines; known as dine.
+
+the actions are:
+    *a philosopher* picks up *a fork*; known as pickup.
+    *a philosopher* puts down *a fork*; known as putdown.
+
+the fluents are:
+    *a fork* is available; known as available.
+
+the templates are:
+    *a person* is a philosopher.
+    *a first fork* and *a second fork* are the forks of *a philosopher*; known as adjacent.
+
+the knowledge base dining philosophers includes:
+
+initially fork1 is available
+    and fork2 is available
+    and fork3 is available
+    and fork4 is available
+    and fork5 is available.
+
+socrates is a philosopher.
+plato is a philosopher.
+aristotle is a philosopher.
+hume is a philosopher.
+kant is a philosopher.
+
+fork1 and fork2 are the forks of socrates.
+fork2 and fork3 are the forks of plato.
+fork3 and fork4 are the forks of aristotle.
+fork4 and fork5 are the forks of hume.
+fork5 and fork1 are the forks of kant.
+
+if a person is a philosopher
+then the person dines from a first time to a second time.
+
+a philosopher dines from a first time to a third time if
+    a first fork and a second fork are the forks of the philosopher
+    and the philosopher picks up the first fork from the first time to a second time
+    and the philosopher picks up the second fork from the first time to the second time
+    and the philosopher puts down the first fork from the second time to the third time
+    and the philosopher puts down the second fork from the second time to the third time.
+
+when a philosopher picks up a fork
+then it is not the case that the fork is available.
+
+when a philosopher puts down a fork
+then the fork is available.
+
+it must not be true that
+    a philosopher picks up a fork from a first time to a second time
+    and it is not the case that the fork is available at the first time.
+
+it must not be true that
+    a philosopher picks up a fork from a first time to a second time
+    and a second philosopher picks up the fork from the first time to the second time
+    and the philosopher is different from the second philosopher.

@@ -1,0 +1,40 @@
+the target language is: lps.
+
+% Timeless-heavy, almost no state: the constraints do the work.
+% Source: legacy_lps1/examples/CLOUT_workshop/mapColouring.pl
+
+the maximum time is 5.
+
+the actions are:
+    *a country* is painted *a colour*; known as paint.
+
+the templates are:
+    *a place* is a country.
+    *a shade* is a colour.
+    *a first place* borders *a second place*; known as adjacent.
+
+the knowledge base map colouring includes:
+
+iz is a country.
+oz is a country.
+az is a country.
+uz is a country.
+
+red is a colour.
+yellow is a colour.
+blue is a colour.
+
+az borders iz.
+az borders oz.
+iz borders oz.
+iz borders uz.
+oz borders uz.
+
+if a place is a country
+then a shade is a colour
+    and the place is painted the shade from a first time to a second time.
+
+it must not be true that
+    a place is painted a shade from a first time to a second time
+    and the place borders a second place
+    and the second place is painted the shade from the first time to the second time.

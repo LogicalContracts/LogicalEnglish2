@@ -1,0 +1,68 @@
+the target language is: lps.
+
+% Conway's Game of Life: intensional fluents over a grid, recomputed every
+% cycle. The stress case.
+% Source: legacy_lps1/examples/CLOUT_workshop/life.pl
+%
+% The grid and the neighbour arithmetic are Prolog -- findall over a list of
+% offsets -- and live in the companion file life.lps
+% (docs/le_lps_surface.md §7).
+
+the maximum time is 8.
+
+the actions are:
+    *a cell* dies; known as die.
+    *a cell* comes alive; known as live.
+
+the fluents are:
+    *a cell* is alive; known as alive.
+
+the templates are:
+    *a cell* is on the grid; known as cell.
+    the neighbours of *a cell* are *a list*; known as adjacent.
+    *a number* of *a list* are alive; known as countLivingNeighbors.
+    *a cell* has *a number* living neighbours; known as aliveNeighbors.
+
+the knowledge base life includes:
+
+initially 2-3 is alive
+    and 3-3 is alive
+    and 4-3 is alive.
+
+a cell has a number living neighbours at a time if
+    the neighbours of the cell are a list
+    and the number of the list are alive at the time.
+
+0 of an empty list are alive at a time if
+    the empty list is equal to [].
+
+a number of a list are alive at a time if
+    the list is equal to [a cell | a rest]
+    and the cell is alive at the time
+    and a second number of the rest are alive at the time
+    and the number is the second number + 1.
+
+a number of a list are alive at a time if
+    the list is equal to [a cell | a rest]
+    and it is not the case that the cell is alive at the time
+    and the number of the rest are alive at the time.
+
+if a cell is alive at a first time
+    and the cell has a number living neighbours at the first time
+    and the number < 2
+then the cell dies from the first time to a second time.
+
+if a cell is alive at a first time
+    and the cell has a number living neighbours at the first time
+    and the number > 3
+then the cell dies from the first time to a second time.
+
+if a cell is on the grid
+    and the cell has 3 living neighbours at a first time
+then the cell comes alive from the first time to a second time.
+
+when a cell comes alive
+then the cell is alive.
+
+when a cell dies
+then it is not the case that the cell is alive.

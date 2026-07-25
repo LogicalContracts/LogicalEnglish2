@@ -1,0 +1,32 @@
+the target language is: lps.
+
+% The smallest interesting reactive rule.
+% Source: legacy_lps1/examples/CLOUT_workshop/fireSimple.pl
+
+the maximum time is 5.
+
+the events are:
+    the fire is dealt with; known as deal_with_fire.
+
+the actions are:
+    the fire is eliminated; known as eliminate.
+    everybody escapes; known as escape.
+
+the fluents are:
+    there is a fire; known as fire.
+
+the knowledge base fire includes:
+
+initially there is a fire.
+
+if there is a fire at a first time
+then the fire is dealt with from the first time to a second time.
+
+the fire is dealt with from a first time to a second time if
+    the fire is eliminated from the first time to the second time.
+
+the fire is dealt with from a first time to a second time if
+    everybody escapes from the first time to the second time.
+
+when the fire is eliminated
+then it is not the case that there is a fire.

@@ -1,0 +1,10 @@
+% Companion file to delivery_delay.le (docs/le_lps_surface.md §7): the
+% real-time plumbing. Dates and clock arithmetic are library work, not
+% statements about the contract.
+
+:- include(system('date_utils.pl')).
+
+simulatedRealTimeBeginning('2018-04-01').
+simulatedRealTimePerCycle(21600).       % one cycle = a quarter of a day
+
+prolog_events [end_of_day(_)].

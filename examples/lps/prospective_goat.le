@@ -1,0 +1,92 @@
+the target language is: lps.
+
+% The acceptance test for this surface language (docs/le_lps_surface.md §5):
+% the *prospective* integrity constraint, about the state a crossing would
+% produce rather than about any state that exists.
+%
+% Source: legacy_lps1/examples/forTesting/prospectiveGoat.pl
+%
+%   false loc(goat,L) at T, loc(wolf,L) at T, not loc(farmer,L) at T,
+%         row(_,_) to T.
+
+the maximum time is 10.
+
+the events are:
+    *an object* is moved to *a place*; known as makeLoc.
+
+the actions are:
+    the farmer rows from *a first place* to *a second place*; known as row.
+    *an object* is carried from *a first place* to *a second place*; known as transport.
+
+the fluents are:
+    *an object* is at *a place*; known as loc.
+
+the knowledge base prospective goat includes:
+
+initially the wolf is at south
+    and the goat is at south
+    and the cabbage is at south
+    and the farmer is at south.
+
+if an object is at south at a first time
+    and the object is different from the farmer
+then the object is moved to north from a second time to a third time.
+
+an object is moved to a first place from a first time to a third time if
+    the object is different from the farmer
+    and the object is at a second place at the first time
+    and the first place is different from the second place
+    and the farmer is moved to the second place from the first time to a second time
+    and the farmer rows from the second place to the first place from the second time to the third time
+    and the object is carried from the second place to the first place from the second time to the third time.
+
+the farmer is moved to a first place from a first time to a second time if
+    the farmer is at a second place at the first time
+    and the first place is different from the second place
+    and the farmer rows from the second place to the first place from the first time to the second time.
+
+the farmer is moved to a first place from a first time to a second time if
+    the farmer is at a second place at the first time
+    and the first place is different from the second place
+    and an object is at the second place at the first time
+    and the object is carried from the second place to the first place from the first time to the second time
+    and the farmer rows from the second place to the first place from the first time to the second time.
+
+an object is moved to a place from a first time to the first time if
+    the object is at the place at the first time.
+
+when an object is carried from a first place to a second place
+then the object is at the second place.
+
+when an object is carried from a first place to a second place
+then it is not the case that the object is at the first place.
+
+when the farmer rows from a first place to a second place
+then the farmer is at the second place.
+
+when the farmer rows from a first place to a second place
+then it is not the case that the farmer is at the first place.
+
+it must not be true that
+    a first object is carried from a first place to a second place from a first time to a second time
+    and a second object is carried from the first place to the second place from the first time to the second time
+    and the first object is different from the second object.
+
+it must not be true that
+    the farmer rows from south to north from a first time to a second time
+    and the farmer rows from north to south from the first time to the second time.
+
+% The prospective form. "to a time" with no "from": a crossing whose end is
+% the moment being constrained, and whose start is not mentioned.
+
+it must not be true that
+    the farmer rows from a first place to a second place to a time
+    and the goat is at a place at the time
+    and the wolf is at the place at the time
+    and it is not the case that the farmer is at the place at the time.
+
+it must not be true that
+    the farmer rows from a first place to a second place to a time
+    and the goat is at a place at the time
+    and the cabbage is at the place at the time
+    and it is not the case that the farmer is at the place at the time.

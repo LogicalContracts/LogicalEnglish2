@@ -1,0 +1,12 @@
+% Companion file to life.le (docs/le_lps_surface.md §7): the grid and the
+% neighbour arithmetic. findall/3 over a list of offsets is not English.
+
+cell(X, Y) :-
+	Range = [1,2,3,4,5,6,7,8,9,10],
+	member(X, Range), member(Y, Range).
+
+adjacent(X-Y, L) :-
+	findall(Ax-Ay,
+		( member(Dx, [-1,0,1]), member(Dy, [-1,0,1]), \+ (Dx =:= 0, Dy =:= 0),
+		  Ax is X + Dx, Ay is Y + Dy ),
+		L).
