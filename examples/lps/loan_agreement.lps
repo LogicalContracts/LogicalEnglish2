@@ -8,5 +8,3 @@ simulatedRealTimePerCycle(RTPC) :- minCycleTime(RTPC).
 
 maxRealTime(189216000).                  % six years, the statute of limitations
 minCycleTime(21600).                     % four cycles per calendar day
-
-prolog_events [end_of_day(_)].

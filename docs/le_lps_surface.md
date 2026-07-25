@@ -180,7 +180,7 @@ consequent says how the state changes.
 
 ```
     when a player inputs a choice and an amount
-        and the amount is greater than 0
+        and the amount > 0
     then the player has played the choice.
 ```
 → `initiated(happens(inputs(P,C,A), T1, T2), played(P,C), [A > 0]).`
@@ -193,7 +193,7 @@ consequent says how the state changes.
 
 ```
     when a player inputs a choice and an amount
-    then the reward that is a number becomes the number plus the amount.
+    then the reward that is a number becomes number + amount.
 ```
 → `updated(happens(inputs(P,C,A), T1, T2), reward(N), N-N2, [N2 is N + A]).`
 
@@ -254,7 +254,7 @@ declared an event or action must use `from … to …`.
 ```
     it must not be true that
         a player inputs a choice and an amount from a first time to a second time
-        and the amount is at most 0.
+        and the amount <= 0.
 ```
 → `d_pre([happens(inputs(P,C,A), T1, T2), A =< 0]).`
 
@@ -379,6 +379,19 @@ term by term.
 | `delivery_delay.le` | deadlines and elapsed time |
 | `life.le` | intensional fluents over a grid — the stress case |
 
+All fifteen translate, and their expectations are checked by
+`testing/lps_test.pl`. Thirteen also *run* to `success` under LPS(2)
+(`./lps run examples/lps/NAME.le` with `LPS_LE2_DIR` set). The two that do not:
+
+- `prospective_goat.le` ends in `failure` — and so does the original
+  `legacy_lps1/examples/forTesting/prospectiveGoat.pl` under the same engine.
+  Agreeing with the source is the point.
+- `rock_paper_scissors_minimal.le` ends in `failure` where the original ends in
+  `terminated(unknown)`. The original has one rule this version does not —
+  `If a number is sent to some body from T1 to T2 then lps_terminate from T2 to
+  T3` — and `lps_terminate` is a system action with no English form. Rather
+  than invent one, the difference is recorded here.
+
 ---
 
 ## 7. What is out of scope, and why
@@ -396,6 +409,24 @@ Stated rather than worked around, per §I.9.6.
   domain.
 - **Real-time settings other than the three in §2.** `simulatedRealTime*` are
   test-harness knobs.
+- **`lps_terminate` and the other system actions.** They are instructions to
+  the engine, not statements about the domain. See the note on
+  `rock_paper_scissors_minimal.le` in §6.
+
+Two further limits are LE2's, not LPS's, and are worth knowing before writing a
+program:
+
+- **Arithmetic operands must be bare variable names.** `a total = price + tax`,
+  not `a total = the price + the tax` — which is how LE2's expression parser
+  has always worked (`examples/moreExamples/numbers.le`). Comparisons are
+  written symbolically (`the amount >= 10`); the spelled-out
+  `is greater than or equal to` is ambiguous against `is greater than` in
+  LE2's template matcher and matches the shorter one.
+- **A template may not contain a section keyword** — `contract`, `knowledge`,
+  `templates`, `fluents`, `events`, `actions`, `predicates`, `ontology`,
+  `target` — because LE2 reads one as the start of a new section and reports
+  the template as truncated. `the lender calls off the loan`, not `the lender
+  cancels the contract`.
 
 The companion-file rule is: `foo.le` and `foo.lps` compile together, `.le`
 first, and the `.lps` half is ordinary LPS external syntax with an ordinary

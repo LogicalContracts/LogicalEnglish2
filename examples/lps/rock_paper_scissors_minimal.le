@@ -30,14 +30,14 @@ when a player inputs a choice and a value
 then the player has played the choice.
 
 when a player inputs a choice and a value
-then the reward that is a number becomes the number + the value.
+then the reward that is a number becomes number + value.
 
 when a prize is sent to a player
-then the reward that is a number becomes the number - the prize.
+then the reward that is a number becomes number - prize.
 
 it must not be true that
     a player inputs a choice and a value from a first time to a second time
-    and the value is less than or equal to 0.
+    and the value <= 0.
 
 it must not be true that
     a player inputs a first choice and a value from a first time to a second time
@@ -46,7 +46,7 @@ it must not be true that
 it must not be true that
     a prize is sent to a player from a first time to a second time
     and the reward is a number at the second time
-    and the number is less than 0.
+    and the number < 0.
 
 if a first player has played a first choice at a first time
     and a second player has played a second choice at the first time
@@ -61,7 +61,7 @@ if a first player has played a choice at a first time
     and the first player is different from the second player
     and the reward is a first number at the first time
     and the first number is different from 0
-then a second number is the first number / 2
+then a second number = first number / 2
     and the second number is sent to the first player from the first time to a second time
     and the second number is sent to the second player from the first time to a third time.
 

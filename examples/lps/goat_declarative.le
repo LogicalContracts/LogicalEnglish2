@@ -11,7 +11,7 @@ the target language is: lps.
 the maximum time is 10.
 
 the actions are:
-    the farmer rows from *a first place* to *a second place*; known as row.
+    farmer rows from *a first place* to *a second place*; known as row.
     *an object* is carried from *a first place* to *a second place*; known as transport.
 
 the fluents are:
@@ -19,10 +19,10 @@ the fluents are:
 
 the knowledge base goat declarative includes:
 
-initially the wolf is at south
-    and the goat is at south
-    and the cabbage is at south
-    and the farmer is at south.
+initially wolf is at south
+    and goat is at south
+    and cabbage is at south
+    and farmer is at south.
 
 when an object is carried from a first place to a second place
 then the object is at the second place.
@@ -30,11 +30,11 @@ then the object is at the second place.
 when an object is carried from a first place to a second place
 then it is not the case that the object is at the first place.
 
-when the farmer rows from a first place to a second place
-then the farmer is at the second place.
+when farmer rows from a first place to a second place
+then farmer is at the second place.
 
-when the farmer rows from a first place to a second place
-then it is not the case that the farmer is at the first place.
+when farmer rows from a first place to a second place
+then it is not the case that farmer is at the first place.
 
 it must not be true that
     a first object is carried from a first place to a second place from a first time to a second time
@@ -42,39 +42,39 @@ it must not be true that
     and the first object is different from the second object.
 
 it must not be true that
-    the farmer rows from south to north from a first time to a second time
-    and the farmer rows from north to south from the first time to the second time.
+    farmer rows from south to north from a first time to a second time
+    and farmer rows from north to south from the first time to the second time.
 
 it must not be true that
-    the farmer rows from a first place to a second place to a time
-    and the goat is at a place at the time
-    and the wolf is at the place at the time
-    and it is not the case that the farmer is at the place at the time.
+    farmer rows from a first place to a second place to a time
+    and goat is at a place at the time
+    and wolf is at the place at the time
+    and it is not the case that farmer is at the place at the time.
 
 it must not be true that
-    the farmer rows from a first place to a second place to a time
-    and the goat is at a place at the time
-    and the cabbage is at the place at the time
-    and it is not the case that the farmer is at the place at the time.
+    farmer rows from a first place to a second place to a time
+    and goat is at a place at the time
+    and cabbage is at the place at the time
+    and it is not the case that farmer is at the place at the time.
 
 % the farmer is not cargo
 it must not be true that
-    the farmer is carried from a first place to a second place from a first time to a second time.
+    farmer is carried from a first place to a second place from a first time to a second time.
 
 % applicability
 it must not be true that
     an object is carried from a first place to a second place from a first time to a second time
-    and it is not the case that the farmer is at the first place at the first time.
+    and it is not the case that farmer is at the first place at the first time.
 
 it must not be true that
     an object is carried from a first place to a second place from a first time to a second time
-    and it is not the case that the farmer rows from the first place to the second place from the first time to the second time.
+    and it is not the case that farmer rows from the first place to the second place from the first time to the second time.
 
 it must not be true that
-    the farmer rows from a first place to a second place from a first time to a second time
-    and it is not the case that the farmer is at the first place at the first time.
+    farmer rows from a first place to a second place from a first time to a second time
+    and it is not the case that farmer is at the first place at the first time.
 
-the goal is that the wolf is at north
-    and the goat is at north
-    and the cabbage is at north
-    and the farmer is at north.
+the goal is that wolf is at north
+    and goat is at north
+    and cabbage is at north
+    and farmer is at north.

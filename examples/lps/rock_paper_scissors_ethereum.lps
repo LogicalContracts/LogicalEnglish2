@@ -10,3 +10,8 @@ e_getBalance('0xLPS', 2000).
 e_sendTransaction(_From, _To, _Prize, payment1).
 
 e_existsTransactionReceipt(payment1).
+
+% The chain itself, stubbed: one transaction, so the program has something to
+% react to off-chain.
+e_transaction('0xbob', rock, 1000, '0xLPS').
+e_transaction('0xalice', paper, 1000, '0xLPS').

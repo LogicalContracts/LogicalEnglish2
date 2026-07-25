@@ -27,8 +27,8 @@ if bob transfers an amount to fariba from a first time to a second time
 then fariba transfers 20 to bob from the second time to a third time.
 
 when a payer transfers an amount to a payee
-then the balance of the payee that is a number becomes the number + the amount
-    and the balance of the payer that is a second number becomes the second number - the amount.
+then the balance of the payee that is a number becomes number + amount
+    and the balance of the payer that is a second number becomes second number - amount.
 
 it must not be true that
     a payer transfers an amount to a payee from a first time to a second time

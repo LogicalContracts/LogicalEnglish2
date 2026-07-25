@@ -348,8 +348,27 @@ process_section_acc(resources(_, Resources, Start, End), M) :-
 
 process_section_acc(predicates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
 process_section_acc(templates(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
-process_section_acc(fluents(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
-process_section_acc(events(Dicts), M) :- forall(member(D, Dicts), assert_dict_with_source(D, M)).
+process_section_acc(fluents(Dicts), M) :- assert_role_dicts(Dicts, fluent, M).
+process_section_acc(events(Dicts), M) :- assert_role_dicts(Dicts, event, M).
+process_section_acc(actions(Dicts), M) :- assert_role_dicts(Dicts, action, M).
+process_section_acc(prolog_events(Dicts), M) :- assert_role_dicts(Dicts, prolog_event, M).
+%!  assert_role_dicts(+Dicts, +Role, +M) is det.
+%
+%   A declaration section that also confers an LPS role. The templates are
+%   asserted exactly as `the templates are:` asserts them — the section is an
+%   ordinary template section for every purpose except the one extra fact.
+assert_role_dicts(Dicts, Role, M) :-
+    forall(member(D, Dicts),
+           ( assert_dict_with_source(D, M),
+             D =.. [dict, [F|Args]|_],
+             length(Args, N),
+             ( M:le_lps_role(F/N, Role) -> true ; assertz(M:le_lps_role(F/N, Role)) )
+           )).
+
+process_section_acc(lps_setting(Key, Value, Start, End), M) :-
+    assertz(M:le_lps_item(setting, Key-Value, Key), Ref),
+    assertz(M:le_source_info(Ref, Start, End, Key)).
+
 process_section_acc(meta(Target), M) :-
     ( atom(Target) -> assertz(M:le_target_language(Target))
     ; forall(member(D, Target), assert_dict_with_source(D, M))
@@ -666,6 +685,17 @@ assert_dict_with_source(dict(FA, NTs, WV), M) :-
 process_item(section_marker(Name, _Start, _End), _M) :-
     retractall(current_section(_)),
     assertz(current_section(Name)).
+
+%  An LPS sentence. Stored, not asserted as a clause: a reactive rule has no
+%  head, an integrity constraint has no conclusion, and neither is anything the
+%  LE reasoner could call. le_lps.pl reads these back.
+process_item(lps(Kind, Payload, Start, End, ID), M) :-
+    !,
+    ( var(ID) -> format(atom(ActualID), 'lps_~w', [Start]) ; ActualID = ID ),
+    assertz(M:le_lps_item(Kind, Payload, ActualID), Ref),
+    assertz(M:le_source_info(Ref, Start, End, ActualID)),
+    ( current_section(Section) -> true ; Section = main ),
+    assertz(M:le_source_section(Section, ActualID)).
 
 process_item(clause(Head, _Body, _Start, _End, _ID), _M) :-
     functor(Head, F, N),
@@ -1862,6 +1892,14 @@ is_system_predicate(le_template_image/2).
 is_system_predicate(le_included_resource/3).
 is_system_predicate(le_resource_stats/3).
 is_system_predicate(le_prolog_resource/2).
+% LPS target (docs/le_lps_surface.md). le_lps_role/2 says which declaration
+% section a predicate was declared in — fluent, event, action or prolog_event —
+% which is what decides holds/2 versus happens/3 downstream. le_lps_functor/2
+% is the `; known as f` binding. le_lps_item/3 is one LPS sentence, still
+% uninterpreted: le_lps.pl is the only module that knows what they mean.
+is_system_predicate(le_lps_role/2).
+is_system_predicate(le_lps_functor/2).
+is_system_predicate(le_lps_item/3).
 
 
 collect_and_assert_types(M) :-

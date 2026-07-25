@@ -45,11 +45,11 @@ then the address has played the input.
 the reward is a number at a time if
     an address is my account
     and the balance of the address is a value
-    and the number is 0.9 * the value.
+    and the number = 0.9 * value.
 
 the players are a number at a time if
-    the number is the count of each a player
-        such that the player has played a value at the time.
+    the number is the count of each a player such that
+        the player has played a value at the time.
 
 it must not be true that
     the players are a number at a time
@@ -75,6 +75,6 @@ if a first player has played a first choice at a first time
     and it is not the case that the game is over at the first time
 then initiate the game is over from the first time to a second time
     and the reward is a prize at the first time
-    and a number is the prize / 2
+    and a number = prize / 2
     and the first player pays the number from the first time to a second time
     and the second player pays the number from the first time to the second time.

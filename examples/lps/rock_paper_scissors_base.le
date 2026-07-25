@@ -35,18 +35,18 @@ when a player inputs a choice and a value
 then the player has played the choice.
 
 the players are a number at a time if
-    the number is the count of each a player
-        such that the player has played a value at the time.
+    the number is the count of each a player such that
+        the player has played a value at the time.
 
 it must not be true that
     the players are a number at a time
     and the number > 2.
 
 when a player inputs a choice and a value
-then the reward that is a number becomes the number + the value.
+then the reward that is a number becomes number + value.
 
 when a player gets a prize
-then the reward that is a number becomes the number - the prize.
+then the reward that is a number becomes number - prize.
 
 if a first player has played a first choice at a first time
     and a second player has played a second choice at the first time
@@ -63,7 +63,7 @@ if a first player has played a first choice at a first time
     and it is not the case that the game is over at the first time
 then initiate the game is over from the first time to a fourth time
     and the reward is a prize at the first time
-    and a number is the prize / 2
+    and a number = prize / 2
     and the first player gets the number from the first time to a second time
     and the second player gets the number from the first time to the second time.
 
