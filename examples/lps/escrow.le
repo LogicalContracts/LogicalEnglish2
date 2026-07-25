@@ -1,0 +1,73 @@
+the target language is: lps.
+
+% Multi-party obligations: buyer, seller and an escrow agent.
+% Source: legacy_lps1/examples/CLOUT_workshop/Escrow.pl
+% Covers: several events, guarded causal laws, the "to a time" suffix on an
+% event that has already been observed (§3.1).
+
+the maximum time is 10.
+
+the events are:
+    *a buyer* opens an escrow with *a seller* for *a value*; known as create_escrow.
+    *a buyer* deposits *a value*; known as deposit.
+    *a buyer* receives the goods; known as received_goods.
+    *a buyer* accepts the goods; known as accept_goods.
+    *a buyer* rejects the goods; known as reject_goods.
+
+the actions are:
+    shipping is authorised; known as authorise_shipping.
+    *a party* is paid *a value*; known as pay.
+
+the fluents are:
+    *a buyer* has an escrow with *a seller* for *a value*; known as escrow.
+    the balance of *an entity* is *a value*; known as balance.
+
+the knowledge base escrow includes:
+
+when a buyer opens an escrow with a seller for a value
+    and it is not the case that a second buyer has an escrow with a second seller for a second value
+then the buyer has an escrow with the seller for the value.
+
+when a buyer deposits a value
+    and the buyer has an escrow with a seller for the value
+then the balance of the buyer is the value.
+
+it must not be true that
+    a buyer deposits a value from a first time to a second time
+    and the balance of the buyer is a second value at the first time.
+
+it must not be true that
+    a buyer deposits a value from a first time to a second time
+    and a second buyer has an escrow with a seller for a second value at the first time
+    and the buyer is different from the second buyer.
+
+it must not be true that
+    a buyer deposits a value from a first time to a second time
+    and it is not the case that the buyer has an escrow with a seller for a second value at the first time.
+
+if a buyer deposits a value from a first time to a second time
+then shipping is authorised from the second time to a third time.
+
+if a buyer receives the goods from a first time to a second time
+    and the buyer accepts the goods to a third time
+    and the buyer has an escrow with a seller for a value at the third time
+then the seller is paid the value from the third time to a fourth time.
+
+if a buyer receives the goods from a first time to a second time
+    and the buyer rejects the goods to a third time
+    and the buyer has an escrow with a seller for a value at the third time
+then the buyer is paid the value from the third time to a fourth time.
+
+when a party is paid a value
+    and the balance of an entity is the value
+then it is not the case that the balance of the entity is the value.
+
+it must not be true that
+    a party is paid a value from a first time to a second time
+    and it is not the case that the balance of an entity is the value at the first time.
+
+scenario one is:
+    bob opens an escrow with miguel for 1600 from 0 to 1.
+    bob deposits 1600 from 1 to 2.
+    bob receives the goods from 4 to 5.
+    bob rejects the goods from 6 to 7.

@@ -1,0 +1,57 @@
+the target language is: lps.
+
+% Two agents disagreeing about the lights.
+% Source: legacy_lps1/examples/CLOUT_workshop/badlight.pl
+%
+% The 2-D visual mapping is NOT in this language (docs/le_lps_surface.md
+% §3.10): display/2 is a property list of shapes and coordinates and reads no
+% better in English than in Prolog. It lives in the companion file
+% badlight.lps, which compiles together with this one.
+
+the maximum time is 12.
+
+the actions are:
+    *a person* switches the light in *a room* *a setting*; known as switch.
+    *a person* goes to *a room*; known as goto.
+
+the fluents are:
+    the light in *a room* is *a setting*; known as light.
+    *a person* is in *a room*; known as location.
+
+the knowledge base badlight includes:
+
+initially the light in livingroom is off
+    and the light in kitchen is on
+    and the light in bedroom is on
+    and the light in bathroom is on
+    and bob is in livingroom
+    and dad is in kitchen.
+
+if bob is in a room at a first time
+    and the light in the room is off at the first time
+then bob switches the light in the room on from the first time to a second time.
+
+if the light in a room is on at a first time
+    and dad is in the room at the first time
+then dad switches the light in the room off from the first time to a second time.
+
+if the light in a room is on at a first time
+    and it is not the case that dad is in the room at the first time
+then dad goes to the room from a second time to a third time.
+
+when a person switches the light in a room a setting
+then the light in the room is the setting.
+
+when a person switches the light in a room a setting
+then it is not the case that the light in the room is a second setting.
+
+when a person goes to a room
+then the person is in the room.
+
+when a person goes to a room
+then it is not the case that the person is in a second room.
+
+it must not be true that
+    dad goes to a room from a first time to a second time
+    and dad goes to a second room from the first time to the second time
+    and the room is different from the second room.

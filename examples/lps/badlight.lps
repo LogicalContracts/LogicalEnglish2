@@ -1,0 +1,22 @@
+% Companion file to badlight.le (docs/le_lps_surface.md §3.10, §7).
+% The visual mapping, in LPS external syntax: display/2 is a property list of
+% shapes, colours and coordinates, and rendering it in English buys nothing.
+
+display(light(Room, on),
+	[type:ellipse, point:[X, 20], size:[60, 40], fillColor:yellow, label:Room]) :-
+	room_x(Room, X).
+
+display(light(Room, off),
+	[type:ellipse, point:[X, 20], size:[60, 40], fillColor:darkGray, label:Room]) :-
+	room_x(Room, X).
+
+display(location(Person, Room),
+	[type:star, center:[CX, 90], points:5, radius1:6, radius2:12,
+	 fillColor:Colour, label:Person]) :-
+	room_x(Room, X), CX is X + 30,
+	(Person = bob -> Colour = blue ; Colour = red).
+
+room_x(livingroom, 0).
+room_x(kitchen,   70).
+room_x(bedroom,  140).
+room_x(bathroom, 210).

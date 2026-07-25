@@ -1,0 +1,71 @@
+the target language is: lps.
+
+% The first of the three LE1 specimens, re-expressed in LE2 idiom.
+% Source: legacy_lps1/examples/CLOUT_workshop/RockPaperScissors-Minimal-en.pl
+
+the maximum time is 5.
+
+the events are:
+    *a player* inputs *a choice* and *a value*; known as inputs.
+
+the actions are:
+    *a prize* is sent to *a winner*; known as send.
+
+the fluents are:
+    the reward is *an amount*; known as reward.
+    *a player* has played *a choice*; known as played.
+
+the templates are:
+    *a choice* beats *another choice*.
+
+the knowledge base rock paper scissors minimal includes:
+
+initially the reward is 0.
+
+scissors beats paper.
+paper beats rock.
+rock beats scissors.
+
+when a player inputs a choice and a value
+then the player has played the choice.
+
+when a player inputs a choice and a value
+then the reward that is a number becomes the number + the value.
+
+when a prize is sent to a player
+then the reward that is a number becomes the number - the prize.
+
+it must not be true that
+    a player inputs a choice and a value from a first time to a second time
+    and the value is less than or equal to 0.
+
+it must not be true that
+    a player inputs a first choice and a value from a first time to a second time
+    and the player has played a second choice at the first time.
+
+it must not be true that
+    a prize is sent to a player from a first time to a second time
+    and the reward is a number at the second time
+    and the number is less than 0.
+
+if a first player has played a first choice at a first time
+    and a second player has played a second choice at the first time
+    and the first player is different from the second player
+    and the first choice beats the second choice
+    and the reward is a number at the first time
+    and the number is different from 0
+then the number is sent to the first player from the first time to a second time.
+
+if a first player has played a choice at a first time
+    and a second player has played the choice at the first time
+    and the first player is different from the second player
+    and the reward is a first number at the first time
+    and the first number is different from 0
+then a second number is the first number / 2
+    and the second number is sent to the first player from the first time to a second time
+    and the second number is sent to the second player from the first time to a third time.
+
+scenario one is:
+    miguel inputs paper and 1000 from 2 to 3.
+    fariba inputs rock and 1000 from 2 to 3.
+    bob inputs rock and 1000 from 3 to 4.

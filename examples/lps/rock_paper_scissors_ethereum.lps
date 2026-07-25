@@ -1,0 +1,12 @@
+% Companion file to rock_paper_scissors_ethereum.le
+% (docs/le_lps_surface.md §7): the Ethereum bridge, which is external Prolog
+% and has no business being written in English. Stubbed here so the program
+% compiles and runs off-chain.
+
+lps_my_account('0xLPS').
+
+e_getBalance('0xLPS', 2000).
+
+e_sendTransaction(_From, _To, _Prize, payment1).
+
+e_existsTransactionReceipt(payment1).

@@ -1,0 +1,81 @@
+the target language is: lps.
+
+% Late Delivery and Penalty (Accord Project). Deadlines and elapsed time.
+% Source: legacy_lps1/examples/CLOUT_workshop/deliveryDelay.pl
+%
+% "In case of delayed delivery the Seller shall pay to the Buyer for every day
+%  of delay a penalty amounting to 20% of the total value of the Equipment
+%  whose delivery has been delayed. The total amount of penalty shall not
+%  exceed 50% of that value. If the delay is more than four days, the Buyer is
+%  entitled to terminate this Contract."
+%
+% The real-time plumbing -- simulatedRealTimeBeginning/1, the end_of_day poll
+% and real_date_add/3 -- is external Prolog and lives in the companion file
+% delivery_delay.lps (docs/le_lps_surface.md §7).
+
+the maximum time is 32.
+
+the prolog events are:
+    the day ends on *a date*; known as end_of_day.
+
+the events are:
+    *an order* is delivered; known as deliver.
+
+the actions are:
+    *an order* is terminated; known as terminate_order.
+
+the fluents are:
+    *an order* has been delivered; known as delivered.
+    the penalty on *an order* is *an amount*; known as penalty.
+    *an order* is under force majeure; known as force_majeure.
+    *an order* has been cancelled; known as terminated.
+
+the templates are:
+    the seller of *an order* is *a person*.
+    the buyer of *an order* is *a person*.
+    the latest delivery date of *an order* is *a date*.
+    the total value of *an order* is *an amount*.
+    the penalty percentage of *an order* is *a rate*.
+    the penalty cap of *an order* is *a rate*.
+    *a first date* is *a number* days after *a second date*; known as real_date_add.
+
+the knowledge base delivery delay includes:
+
+initially the penalty on mydelivery is 0.0.
+
+the seller of mydelivery is bob.
+the buyer of mydelivery is alex.
+the latest delivery date of mydelivery is 2018-04-01.
+the total value of mydelivery is 100.
+the penalty percentage of mydelivery is 0.20.
+the penalty cap of mydelivery is 0.50.
+
+when the day ends on a second date
+    and the latest delivery date of an order is a first date
+    and it is not the case that the order has been delivered
+    and the second date is a delay days after the first date
+    and it is not the case that the order is under force majeure
+    and it is not the case that the order has been cancelled
+    and the total value of the order is a value
+    and the penalty percentage of the order is a rate
+    and the penalty cap of the order is a cap rate
+    and a new penalty is the rate * the value * (the delay + 1)
+    and a cap is the cap rate * the value
+    and the new penalty is less than or equal to the cap
+then the penalty on the order that is an old penalty becomes the new penalty.
+
+when an order is delivered
+then the order has been delivered.
+
+if the day ends on a second date to a first time
+    and the latest delivery date of an order is a first date
+    and it is not the case that the order has been delivered at the first time
+    and the second date is a delay days after the first date
+    and the delay > 4
+then the order is terminated from the first time to a second time.
+
+when an order is terminated
+then the order has been cancelled.
+
+scenario one is:
+    mydelivery is delivered from 12 to 13.
