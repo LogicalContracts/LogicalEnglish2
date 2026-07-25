@@ -13,25 +13,25 @@ the actions are:
     *a philosopher* puts down *a fork*; known as putdown.
 
 the fluents are:
-    *a fork* is available; known as available.
+    *a fork* lies free; known as available.
 
 the templates are:
-    *a person* is a philosopher.
+    *a person* philosophises.
     *a first fork* and *a second fork* are the forks of *a philosopher*; known as adjacent.
 
 the knowledge base dining philosophers includes:
 
-initially fork1 is available
-    and fork2 is available
-    and fork3 is available
-    and fork4 is available
-    and fork5 is available.
+initially fork1 lies free
+    and fork2 lies free
+    and fork3 lies free
+    and fork4 lies free
+    and fork5 lies free.
 
-socrates is a philosopher.
-plato is a philosopher.
-aristotle is a philosopher.
-hume is a philosopher.
-kant is a philosopher.
+socrates philosophises.
+plato philosophises.
+aristotle philosophises.
+hume philosophises.
+kant philosophises.
 
 fork1 and fork2 are the forks of socrates.
 fork2 and fork3 are the forks of plato.
@@ -39,7 +39,7 @@ fork3 and fork4 are the forks of aristotle.
 fork4 and fork5 are the forks of hume.
 fork5 and fork1 are the forks of kant.
 
-if a person is a philosopher
+if a person philosophises
 then the person dines from a first time to a second time.
 
 a philosopher dines from a first time to a third time if
@@ -50,14 +50,14 @@ a philosopher dines from a first time to a third time if
     and the philosopher puts down the second fork from the second time to the third time.
 
 when a philosopher picks up a fork
-then it is not the case that the fork is available.
+then it is not the case that the fork lies free.
 
 when a philosopher puts down a fork
-then the fork is available.
+then the fork lies free.
 
 it must not be true that
     a philosopher picks up a fork from a first time to a second time
-    and it is not the case that the fork is available at the first time.
+    and it is not the case that the fork lies free at the first time.
 
 it must not be true that
     a philosopher picks up a fork from a first time to a second time

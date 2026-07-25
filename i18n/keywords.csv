@@ -11,12 +11,14 @@ section,predicates,the predicates are,os predicados são,los predicados son,les 
 section,templates,the templates are,os modelos são,las plantillas son,les modèles sont,i modelli sono
 section,fluents,the fluents are,os fluentes são,los fluentes son,les fluents sont,i fluenti sono
 section,events,the events are,os eventos são,los eventos son,les événements sont,gli eventi sono
+section,actions,the actions are,as ações são,las acciones son,les actions sont,le azioni sono
+section,prolog_events,the prolog events are,os eventos prolog são,los eventos prolog son,les événements prolog sont,gli eventi prolog sono
 section,meta_target,the target language is,a linguagem alvo é,el lenguaje objetivo es,la langue cible est,il linguaggio obiettivo è
 section,marker,section,secção|seção,sección,section,sezione
 section,marker_is,is,é,es,est,è
 section,annexes,the annexes to the contract are|the annexes to the knowledge base are,os anexos ao contrato são|os anexos à base de conhecimento são,los anexos al contrato son|los anexos a la base de conocimiento son,les annexes au contrat sont|les annexes à la base de connaissances sont,gli allegati al contratto sono|gli allegati alla base di conoscenza sono
-section,guard,the knowledge|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the target,a base de conhecimento|o contrato|cenário|consulta|a ontologia é|os predicados são|os modelos são|os fluentes são|os eventos são|a linguagem alvo,la base de conocimiento|el contrato|escenario|consulta|la ontología es|los predicados son|las plantillas son|los fluentes son|los eventos son|el lenguaje objetivo,la base de connaissances|le contrat|scénario|requête|la taxonomie est|les prédicats sont|les modèles sont|les fluents sont|les événements sont|la langue cible,la base di conoscenza|il contratto|scenario|interrogazione|la tassonomia è|i predicati sono|i modelli sono|i fluenti sono|gli eventi sono|il linguaggio obiettivo
-section,reserved_word,knowledge|contract|ontology|predicates|templates|fluents|events|target,base|contrato|ontologia|predicados|modelos|fluentes|eventos|linguagem,base|contrato|ontología|predicados|plantillas|fluentes|eventos|lenguaje,base|contrat|taxonomie|prédicats|modèles|fluents|événements|langue,base|contratto|tassonomia|predicati|modelli|fluenti|eventi|linguaggio
+section,guard,the knowledge|the contract|scenario|query|the ontology|the predicates|the templates|the fluents|the events|the actions|the prolog|the target,a base de conhecimento|o contrato|cenário|consulta|a ontologia é|os predicados são|os modelos são|os fluentes são|os eventos são|as ações são|os eventos prolog|a linguagem alvo,la base de conocimiento|el contrato|escenario|consulta|la ontología es|los predicados son|las plantillas son|los fluentes son|los eventos son|las acciones son|los eventos prolog|el lenguaje objetivo,la base de connaissances|le contrat|scénario|requête|la taxonomie est|les prédicats sont|les modèles sont|les fluents sont|les événements sont|les actions sont|les événements prolog|la langue cible,la base di conoscenza|il contratto|scenario|interrogazione|la tassonomia è|i predicati sono|i modelli sono|i fluenti sono|gli eventi sono|le azioni sono|gli eventi prolog|il linguaggio obiettivo
+section,reserved_word,knowledge|contract|ontology|predicates|templates|fluents|events|actions|prolog|target,base|contrato|ontologia|predicados|modelos|fluentes|eventos|linguagem,base|contrato|ontología|predicados|plantillas|fluentes|eventos|lenguaje,base|contrat|taxonomie|prédicats|modèles|fluents|événements|langue,base|contratto|tassonomia|predicati|modelli|fluenti|eventi|linguaggio
 expect,expects,expects,espera,espera,attend,attende
 expect,answers,answers,respostas,respuestas,réponses,risposte
 expect,and_unknowns,and unknowns,e desconhecidos,y desconocidos,et inconnues|et inconnus,e sconosciuti|e sconosciute
@@ -41,6 +43,7 @@ forall,for_case,for case,para o caso,para el caso,pour le cas,per il caso
 forall,it_is_true_that,it is true that,é verdade que,es verdad que,il est vrai que,è vero che
 unknown,it_is,it is,é,es,il est,è
 unknown,whether,whether,se,si,si,se
+template_addition,known_as,known as,conhecido como,conocido como,connu comme,noto come
 template_addition,defines_global,defines global,define global,define global,définit global,definisce globale
 template_addition,opposite,opposite,oposto,opuesto,opposé,opposto
 template_addition,synonym,synonym,sinónimo|sinônimo,sinónimo,synonyme,sinonimo
@@ -77,3 +80,19 @@ answer,assuming_and,and,e,y,et,e
 class,article_narrow,a|an|the,um|uma|o|a|os|as,un|una|el|la|los|las,un|une|le|la|les,un|una|uno|il|lo|la|i|gli|le
 class,connective_heuristic,a|an|the|in|on|at|to|from|of|by|for|with|between|and|or|is|are|was|were|that|than|as|into|over|under|within,um|uma|o|a|os|as|em|no|na|nos|nas|para|de|do|da|dos|das|por|com|entre|e|ou|é|são|era|eram|que|como|sob|sobre|dentro,un|una|el|la|los|las|en|del|al|para|de|por|con|entre|y|o|es|son|era|eran|que|como|sobre|bajo|dentro,un|une|le|la|les|dans|en|au|aux|du|des|pour|de|par|avec|entre|et|ou|est|sont|était|étaient|que|comme|sous|sur,un|una|uno|il|lo|la|i|gli|le|in|nel|nella|per|di|del|della|da|con|tra|fra|e|o|è|sono|era|erano|che|come|sotto|sopra|dentro
 fact_addition,image,image,imagem,imagen,image,immagine
+lps,lps_when,when,quando,cuando,quand,quando
+lps,lps_then,then,então,entonces,alors,allora
+lps,lps_if,if,se,si,si,se
+lps,lps_initially,initially,inicialmente,inicialmente,initialement,inizialmente
+lps,lps_must_not,it must not be true that,não pode ser verdade que,no puede ser cierto que,il ne doit pas être vrai que,non deve essere vero che
+lps,lps_goal,the goal is that,o objetivo é que,el objetivo es que,le but est que,l'obiettivo è che
+lps,lps_initiate,initiate,iniciar,iniciar,initier,iniziare
+lps,lps_terminate,terminate,terminar,terminar,terminer,terminare
+lps,lps_that_is,that is,que é,que es,qui est,che è
+lps,lps_becomes,becomes,torna-se,se convierte en,devient,diventa
+lps,lps_at,at,em,en,à,a
+lps,lps_from,from,de,desde,de,da
+lps,lps_to,to,até,hasta,jusqu'à,fino a
+lps,lps_max_time,the maximum time is,o tempo máximo é,el tiempo máximo es,le temps maximum est,il tempo massimo è
+lps,lps_max_real_time,the maximum real time is,o tempo real máximo é,el tiempo real máximo es,le temps réel maximum est,il tempo reale massimo è
+lps,lps_min_cycle_time,the minimum cycle time is,o tempo mínimo de ciclo é,el tiempo mínimo de ciclo es,le temps de cycle minimum est,il tempo minimo di ciclo è

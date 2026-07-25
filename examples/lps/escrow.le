@@ -15,7 +15,7 @@ the events are:
     *a buyer* rejects the goods; known as reject_goods.
 
 the actions are:
-    shipping is authorised; known as authorise_shipping.
+    the escrow agent authorises shipping; known as authorise_shipping.
     *a party* is paid *a value*; known as pay.
 
 the fluents are:
@@ -46,7 +46,7 @@ it must not be true that
     and it is not the case that the buyer has an escrow with a seller for a second value at the first time.
 
 if a buyer deposits a value from a first time to a second time
-then shipping is authorised from the second time to a third time.
+then the escrow agent authorises shipping from the second time to a third time.
 
 if a buyer receives the goods from a first time to a second time
     and the buyer accepts the goods to a third time

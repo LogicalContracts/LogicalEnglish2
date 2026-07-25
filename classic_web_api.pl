@@ -27,6 +27,7 @@
 :- use_module(le_i18n).
 :- use_module(le_graph).
 :- use_module(le_scasp).
+:- use_module(le_lps).
 :- use_module(le_assistant).
 :- use_module(le_contract_assistant).
 :- use_module(dap_server).
@@ -202,6 +203,7 @@ handle_operation(Dict, Response) :-
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
+        ; Op == "getLps" -> handle_get_lps(Dict, Response)
         ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
         ; Op == "assistant_command" -> 
             ( catch(handle_assistant_command(Dict, Response), E_Asst, (print_message(error, E_Asst), fail)) -> true ; 
@@ -2031,6 +2033,32 @@ handle_get_prolog(Dict, Response) :-
 % handle_get_scasp(+Dict, -Response): render the whole KB as an s(CASP) program
 % for the "See s(CASP)" panel (s(CASP) is a whole-program transformation, unlike
 % "See PROLOG" which shows one clause), together with any compile-time issues.
+%!  handle_get_lps(+Dict, -Response) is det.
+%
+%   docs/le_lps_interface.md §3.1: translate a Logical English document to LPS
+%   internal syntax, and answer with the §2 object
+%   `{lps, provenance, issues}`.
+%
+%   Two request forms. With `le` (the document text) the whole thing is done
+%   here and the provenance carries real line and column numbers. With only
+%   `sessionModule` the already-loaded KB is translated, but the source text is
+%   not available, so the provenance list comes back empty — which the contract
+%   allows ("Entries may be missing"), and which is why the editor always sends
+%   the text.
+handle_get_lps(Dict, Response) :-
+    (   get_dict(le, Dict, Doc)
+    ->  le_lps:le_lps_text(Doc, Text, Prov, Issues)
+    ;   get_dict(sessionModule, Dict, SMStr),
+        atom_string(SM, SMStr),
+        le_kbs:note_session_use(SM),
+        ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+        KB \== none,
+        le_lps:le_lps_module(KB, "", Text, Prov, Issues)
+    ),
+    !,
+    le_lps:le_lps_dict(Text, Prov, Issues, Response).
+handle_get_lps(_, _{error: "getLps needs either the document text (le) or a loaded sessionModule"}).
+
 handle_get_scasp(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),

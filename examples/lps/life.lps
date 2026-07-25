@@ -1,7 +1,9 @@
-% Companion file to life.le (docs/le_lps_surface.md §7): the grid and the
-% neighbour arithmetic. findall/3 over a list of offsets is not English.
+% Companion file to life.le (docs/le_lps_surface.md §7): the grid, the
+% neighbour offsets and the list recursion that counts living neighbours.
+% findall/3 over a list of offsets, and a three-clause recursion over a list,
+% are not English and gain nothing from being written as if they were.
 
-cell(X, Y) :-
+cell(X-Y) :-
 	Range = [1,2,3,4,5,6,7,8,9,10],
 	member(X, Range), member(Y, Range).
 
@@ -10,3 +12,11 @@ adjacent(X-Y, L) :-
 		( member(Dx, [-1,0,1]), member(Dy, [-1,0,1]), \+ (Dx =:= 0, Dy =:= 0),
 		  Ax is X + Dx, Ay is Y + Dy ),
 		L).
+
+countLivingNeighbors(0, []) at _.
+
+countLivingNeighbors(N, [X-Y|Cells]) at T if
+	X-Y at T, countLivingNeighbors(N1, Cells) at T, N is N1 + 1.
+
+countLivingNeighbors(N, [X-Y|Cells]) at T if
+	not (X-Y) at T, countLivingNeighbors(N, Cells) at T.

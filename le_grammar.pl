@@ -34,6 +34,27 @@ set_token_pos(Pos) :-
 get_token_pos(Pos) :-
     ( current_token_pos(P) -> Pos = P; Pos = 0).
 
+:- thread_local current_le_target/1.
+
+%!  set_le_target(+Target:atom) is det.
+%
+%   Records the target language declared by the document being parsed, so the
+%   DCG can offer target-specific sentence forms. Reset by parse_le_tokens/3.
+set_le_target(Target) :-
+    retractall(current_le_target(_)),
+    assertz(current_le_target(Target)).
+
+%!  le_target(-Target:atom) is det.
+%
+%   The target of the document being parsed; `prolog` when none was declared.
+le_target(Target) :-
+    ( current_le_target(T) -> Target = T ; Target = prolog ).
+
+%!  lps_target is semidet.
+%
+%   True while parsing a document that declared `the target language is: lps.`
+lps_target :- current_le_target(lps).
+
 :- thread_local current_allow_commas/1.
 
 %!  set_allow_commas(+Val:boolean) is det.
@@ -120,6 +141,7 @@ parse_le_tokens(Tokens, doc(NewSections), M) :-
     % English. The active language drives every kw//1 terminal below.
     ( le_i18n:detect_language_tokens(Tokens, Lang) -> true ; Lang = en ),
     le_i18n:set_le_language(Lang),
+    retractall(current_le_target(_)),
     ( nonvar(M), M \== (-) ->
         retractall(M:le_lang(_)), assertz(M:le_lang(Lang))
     ; true ),
@@ -157,6 +179,9 @@ section_start(templates(_), 0).
 section_start(predicates(_), 0).
 section_start(fluents(_), 0).
 section_start(events(_), 0).
+section_start(actions(_), 0).
+section_start(prolog_events(_), 0).
+section_start(lps_setting(_, _, S, _), S).
 
 % Only KNOWLEDGE BASE rules count for the "scenario before rules" ordering check.
 % Scenarios (and queries) may legitimately contain their own local rules, so they
@@ -334,6 +359,20 @@ section(events(Dicts)) -->
     any_indent, kw(events), t(punctuation(':', _)),
     templates(Dicts).
 
+% section(actions(...)) and section(prolog_events(...)) are the two declaration
+% sections LPS needs and plain LE has no use for (docs/le_lps_surface.md §2).
+% LPS distinguishes ACTIONS, which the agent performs and whose preconditions
+% are checked, from EVENTS, which happen to it; that distinction is
+% load-bearing in the engine and cannot be inferred from use. Both are ordinary
+% template sections — only the role differs, and le_kbs records it.
+section(actions(Dicts)) -->
+    any_indent, kw(actions), t(punctuation(':', _)),
+    templates(Dicts).
+
+section(prolog_events(Dicts)) -->
+    any_indent, kw(prolog_events), t(punctuation(':', _)),
+    templates(Dicts).
+
 % section(meta(...)) parses a meta-information section (the target-language
 % opener; its phrase per language comes from i18n/languages.csv). The declared
 % execution target (an atom from le_allowed_target/1) is captured so the loader
@@ -346,7 +385,24 @@ section(meta(Target)) -->
       ; le_i18n:language_opener(en, OpenerWords) ) },
     kw_words(OpenerWords),
     t(punctuation(':', _)), t(word(Target)), { le_allowed_target(Target) },
-    t(punctuation('.', _)).
+    t(punctuation('.', _)),
+    %  The declared target is needed DURING the parse, not only after it: the
+    %  LPS sentence forms (kb_item(lps_*)) are gated on it so that a plain-LE
+    %  document keeps exactly the grammar it has today. The declaration is the
+    %  first section, so by the time any rule is read the flag is set.
+    { set_le_target(Target) }.
+
+% section(lps_setting(...)) parses one of the LPS run-length settings, which
+% are written at the top level of a document rather than inside a knowledge
+% base -- they are about the run, not about the domain.
+section(lps_setting(Key, Value, Start, End)) -->
+    { lps_target },
+    any_indent, { member(Key-Kw, [maxTime-lps_max_time,
+                                  maxRealTime-lps_max_real_time,
+                                  minCycleTime-lps_min_cycle_time]) },
+    kw_start(Kw, Start),
+    t(number(Value)),
+    any_indent, t(punctuation('.', loc(_, End))).
 
 % section(unknown_section(...)) is a fallback for unrecognized sections.
 section(unknown_section(Tokens, Start, End)) -->
@@ -360,6 +416,9 @@ section(unknown_section(Tokens, Start, End)) -->
 % clauses so they stay contiguous).
 le_allowed_target(prolog).
 le_allowed_target(scasp).
+% LPS: the document is a reactive program, not a query-answering knowledge
+% base. See docs/le_lps_surface.md and le_lps.pl.
+le_allowed_target(lps).
 
 % body_first_start(+BodyTokens, -Start): source start of a query body (its first
 % non-indent token), used for the query item's location.
@@ -523,6 +582,75 @@ kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
         }
     ).
 
+
+% ---------------------------------------------------------------------------
+% LPS sentence forms (docs/le_lps_surface.md §3).
+%
+% Every one of these is gated on `lps_target`, so a plain-LE document keeps
+% exactly the grammar it has today: none of these clauses can even be tried.
+% They come BEFORE kb_item(rule(...)) because each starts with a keyword that
+% would otherwise be read as the first word of a template instance.
+%
+% None of them interprets anything. The antecedent and consequent are captured
+% as token lists and handed to the ordinary second-pass body parser, so `and`,
+% `or`, `it is not the case that`, aggregates and indentation all behave as
+% they do everywhere else. What the temporal suffixes mean, and which literal
+% is a fluent and which an event, is settled later still — in le_lps.pl, which
+% is the only module that knows anything about LPS.
+% ---------------------------------------------------------------------------
+
+% "when <antecedent> then <consequent>." — a causal law.
+kb_item(lps_rule(when, Ante, Cons, Indent, Start, End)) -->
+    { lps_target },
+    any_indent(Indent), kw_start(lps_when, Start), !,
+    lps_antecedent(Ante),
+    kw(lps_then),
+    body(Cons, End).
+
+% "if <antecedent> then <consequent>." — a reactive rule.
+kb_item(lps_rule(if, Ante, Cons, Indent, Start, End)) -->
+    { lps_target },
+    any_indent(Indent), kw_start(lps_if, Start),
+    lps_antecedent(Ante),
+    kw(lps_then), !,
+    body(Cons, End).
+
+% "it must not be true that <conditions>." — an integrity constraint.
+kb_item(lps_denial(Body, Indent, Start, End)) -->
+    { lps_target },
+    any_indent(Indent), kw_start(lps_must_not, Start), !,
+    body(Body, End).
+
+% "initially <fluents>." — the initial state.
+kb_item(lps_initially(Body, Indent, Start, End)) -->
+    { lps_target },
+    any_indent(Indent), kw_start(lps_initially, Start), !,
+    body(Body, End).
+
+% "the goal is that <fluents>." — a planning goal.
+kb_item(lps_goal(Body, Indent, Start, End)) -->
+    { lps_target },
+    any_indent(Indent), kw_start(lps_goal, Start), !,
+    body(Body, End).
+
+% "the maximum time is N." and its two real-time siblings.
+kb_item(lps_setting(Key, Value, Start, End)) -->
+    { lps_target },
+    any_indent, { member(Key-Kw, [maxTime-lps_max_time,
+                                  maxRealTime-lps_max_real_time,
+                                  minCycleTime-lps_min_cycle_time]) },
+    kw_start(Kw, Start), !,
+    t(number(Value)),
+    any_indent, t(punctuation('.', loc(_, End))).
+
+% The antecedent of a when/if: every token up to the `then` that starts a line
+% (or follows the antecedent inline). `then` cannot appear inside a template
+% instance — it is a reserved word in every language column of keywords.csv —
+% so this needs no lookahead beyond the keyword itself.
+lps_antecedent([T|Ts]) --> \+ lps_then_ahead, \+ is_body_terminator, body_token(T), !, lps_antecedent(Ts).
+lps_antecedent([]) --> [].
+
+lps_then_ahead --> any_indent, kw(lps_then).
 
 % kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
@@ -771,6 +899,15 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
     ;   undefined_keyword ->
         { Unknown = scenario_element },
         template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
+    ;   kw(known_as) ->
+        % "; known as played" binds this template to an LPS functor
+        % (docs/le_lps_surface.md §2). The generated internal syntax, the
+        % timeline lanes, the state-transitions diagram and any companion .lps
+        % file all name the predicate, so the author needs to be able to
+        % choose it rather than accept LE2's derived `has_played`.
+        t(word(Functor)),
+        { record_template_functor(FunctorArgs, Functor, TStart, TEnd) },
+        template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   kw(image) ->
         % "; image "URL"" on a TEMPLATE: only meaningful on a no-variable
         % (propositional) template — its single ground literal then renders as
@@ -782,6 +919,26 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ).
 template_additions([], _, _, _, _, [], _, _, _, _) --> [].
+
+%!  record_template_functor(+FunctorArgs, +Functor, +TStart, +TEnd) is det.
+%
+%   Records `; known as f` for the template whose derived functor is the head
+%   of FunctorArgs. Recorded as a fact in the compiling module rather than
+%   carried in the dict, so that nothing about the dict's shape — which nine
+%   other predicates destructure — has to change for a target-specific
+%   annotation.
+record_template_functor(FunctorArgs, Functor, TStart, TEnd) :-
+    (   le_kbs:current_compiling_module(M), M \== (-)
+    ->  FunctorArgs = [Derived|Args],
+        length(Args, Arity),
+        (   le_grammar:lps_target
+        ->  assertz(M:le_lps_functor(Derived/Arity, Functor))
+        ;   le_i18n:le_msg(known_as_not_lps_desc, [], Desc),
+            le_i18n:le_msg(known_as_not_lps_fix, [], Fix),
+            assertz(M:le_issue(warning, known_as_not_lps, Desc, Fix, TStart, TEnd))
+        )
+    ;   true
+    ).
 
 %!  record_template_image(+FunctorArgs, +URL, +UStart, +UEnd) is det.
 %
@@ -1531,6 +1688,8 @@ get_dicts(predicates(Ds), Ds).
 get_dicts(templates(Ds), Ds).
 get_dicts(fluents(Ds), Ds).
 get_dicts(events(Ds), Ds).
+get_dicts(actions(Ds), Ds).
+get_dicts(prolog_events(Ds), Ds).
 get_dicts(meta(_), []).       % meta carries the target atom, not user dicts
 get_dicts(_, []).
 
@@ -1557,7 +1716,12 @@ second_pass_ontology_item_with_module(Templates, M, Item, NewItem) :-
     check_stray_asterisks(Item, NewItem, M).
 
 second_pass_scenario_item_with_module(Templates, M, Item, NewItem) :-
-    second_pass_scenario_item(Templates, Item, NewItem, M),
+    %  The extension is tried here too, not only in a knowledge base: under the
+    %  LPS target a scenario is a list of timed observations, and its facts
+    %  carry the temporal suffix that plain LE has no use for.
+    ( second_pass_item_extension(Templates, Item, NewItem, M) -> true
+    ; second_pass_scenario_item(Templates, Item, NewItem, M)
+    ),
     check_stray_asterisks(Item, NewItem, M).
 
 second_pass_query_item_with_module(Templates, M, Item, NewItem) :-
