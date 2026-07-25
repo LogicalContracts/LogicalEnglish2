@@ -81,12 +81,19 @@ export function buildLeMonarchTokens(lang: string): any {
     const b = (re: string) => `(?<!${W})(?:${re})(?!${W})`;
 
     const headers = alt(T, ['kb_open', 'contract_open', 'scenario', 'query', 'ontology', 'meta_target']);
-    const templateHeaders = alt(T, ['predicates', 'templates', 'fluents', 'events']);
+    const templateHeaders = alt(T, ['predicates', 'templates', 'fluents', 'events', 'actions', 'prolog_events']);
     const structural = alt(T, [
         'resources_include', 'kb_include', 'if', 'only_if', 'either', 'any_of',
         'all_of', 'at_least_one_of', 'unless', 'and_unless', 'forall',
         'it_the_case', 'not_the_case', 'such_that', 'sum', 'count', 'average',
         'min', 'max', 'marker',
+        // LPS (docs/le_lps_surface.md §3): the sentence forms a document with
+        // "the target language is: lps." adds. Highlighting them in a plain-LE
+        // document is harmless -- they read as ordinary template instances --
+        // which is the argument for one .le extension rather than two.
+        'lps_when', 'lps_then', 'lps_if', 'lps_initially', 'lps_must_not',
+        'lps_goal', 'lps_initiate', 'lps_terminate', 'lps_becomes',
+        'lps_max_time', 'lps_max_real_time', 'lps_min_cycle_time',
     ]);
     const expects = alt(T, ['expects']) && `(?:${alt(T, ['expects'])})[ \\t]+(?:${alt(T, ['answers'])})`;
     const andOr = words(T, ['and', 'or']);
@@ -94,7 +101,7 @@ export function buildLeMonarchTokens(lang: string): any {
     const qualifiers = words(T, ['qualifier']);
     const copulas = words(T, ['copula', 'ignorable', 'meta_marker', 'that']);
     const preps = words(T, ['connective_heuristic', 'of']);
-    const additions = alt(T, ['defines_global', 'opposite', 'synonym', 'prepositional', 'unknown', 'undefined']);
+    const additions = alt(T, ['defines_global', 'opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as']);
 
     return {
         tokenizer: {
