@@ -643,15 +643,6 @@ kb_item(lps_setting(Key, Value, Start, End)) -->
     t(number(Value)),
     any_indent, t(punctuation('.', loc(_, End))).
 
-% The antecedent of a when/if: every token up to the `then` that starts a line
-% (or follows the antecedent inline). `then` cannot appear inside a template
-% instance — it is a reserved word in every language column of keywords.csv —
-% so this needs no lookahead beyond the keyword itself.
-lps_antecedent([T|Ts]) --> \+ lps_then_ahead, \+ is_body_terminator, body_token(T), !, lps_antecedent(Ts).
-lps_antecedent([]) --> [].
-
-lps_then_ahead --> any_indent, kw(lps_then).
-
 % kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
     kw(rule), !, (t(word(ID)) | t(number(ID))), t(punctuation(':')),
@@ -713,6 +704,15 @@ kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
+
+% The antecedent of a when/if: every token up to the `then` that starts a line
+% (or follows the antecedent inline). `then` cannot appear inside a template
+% instance — it is a reserved word in every language column of keywords.csv —
+% so this needs no lookahead beyond the keyword itself.
+lps_antecedent([T|Ts]) --> \+ lps_then_ahead, \+ is_body_terminator, body_token(T), !, lps_antecedent(Ts).
+lps_antecedent([]) --> [].
+
+lps_then_ahead --> any_indent, kw(lps_then).
 
 get_token_start(T, Start) :-
     ( T =.. [_, _, loc(Start, _)] -> true; T =.. [_, loc(Start, _)] -> true; Start = 0).
