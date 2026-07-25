@@ -57,6 +57,24 @@ scasp_issue(Kind, RuleID, Key, Pairs, le_scasp_issue(Kind, RuleID, Msg)) :-
 :- use_module(library(scasp/human), []).
 have_scasp.
 :- else.
+% Without the pack, library(scasp)'s operators do not exist — and this file is
+% written in them: `X #>= Y`, `not X`. Eleven clauses of the emitter and the
+% normaliser then fail to READ, which is why a server with no s(CASP) installed
+% printed eleven syntax errors at load and four discontiguous warnings (the
+% unparsed clauses split their predicates in two).
+%
+% Declaring the operators here makes the file parse either way. The clauses
+% still never run — le_scasp_available/0 is false without have_scasp/0, and
+% every entry point checks it — so this changes what the reader accepts, not
+% what the module does. SWI operators declared inside a module are local to it,
+% so nothing outside le_scasp sees them.
+:- op(700, xfx, #=).
+:- op(700, xfx, #<>).
+:- op(700, xfx, #<).
+:- op(700, xfx, #>).
+:- op(700, xfx, #=<).
+:- op(700, xfx, #>=).
+:- op(900, fy, not).
 :- endif.
 
 %!  le_scasp_available is semidet.
@@ -770,6 +788,14 @@ canonical_cycle(Cycle, Canon) :-
 
 :- if(\+ current_predicate(have_scasp/0)).
 % Stubs so the file compiles without the pack; runtime entries fail cleanly.
+% They are deliberately at the END of the file, far from the real clauses of
+% the same predicates, so declare that: the discontiguity is intentional, and
+% without this the loader warns four times on every start of a server that has
+% no s(CASP) installed.
+:- discontiguous le_scasp_program_text/3.
+:- discontiguous le_scasp_query/6.
+:- discontiguous le_scasp_tree_json/4.
+:- discontiguous le_scasp_stratification/2.
 le_scasp_program_text(_, "", [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
 le_scasp_query(_, _, _, _, [], [I]) :- scasp_issue(no_pack, unknown, scasp_engine_not_installed, [], I).
 le_scasp_tree_json(_, _, _, _{type:"unknown", literal:"s(CASP) not installed", children:[]}).

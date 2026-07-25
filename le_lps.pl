@@ -715,12 +715,6 @@ lower(KB, Agg, Ctx, goals(Out), Is) :-
 	ctx_time(Ctx, T),
 	aggregate_goal(Op, Elem, Inner, Result, T, Out).
 
-%   LE wraps an aggregate's element and result as var(Name, Var); the name is
-%   for explanations and has no place in a program.
-agg_var([var(_, V)], V) :- !.
-agg_var([X], X) :- !.
-agg_var(Xs, Xs).
-
 %   A conjunction or disjunction that survived flattening -- which happens when
 %   a nested `or` branch sits under a conjunct. Kept as a term rather than
 %   flattened into the surrounding list, because the two are not the same.
@@ -741,6 +735,12 @@ lower(KB, G, Ctx, Out, []) :-
 	->  lps_literal(Role, G, Ctx, Out)
 	;   rename(G, Out)
 	).
+
+%   LE wraps an aggregate's element and result as var(Name, Var); the name is
+%   for explanations and has no place in a program.
+agg_var([var(_, V)], V) :- !.
+agg_var([X], X) :- !.
+agg_var(Xs, Xs).
 
 lower_all(_, [], _, [], []).
 lower_all(KB, [G|Gs], Ctx, Out, Issues) :-
