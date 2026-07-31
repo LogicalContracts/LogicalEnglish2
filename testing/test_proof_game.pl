@@ -20,6 +20,8 @@
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
 :- use_module('../le_proof_game').
+:- use_module('../le_verifier').
+:- use_module('../reasoner').
 
 % The "Alice is happy" rule node extracted for the `happy` query.
 happy_rule(Rule) :-
@@ -257,3 +259,67 @@ test(mismatched_assumption_clashes) :-
     assertion(get_dict(status, Response, "clash")).
 
 :- end_tests(proof_game_abduction).
+
+% --- Building the game after a query has already run -------------------------
+% Answering a query ends in postprocess_why -> find_first_range/4, which calls
+% `SM:clause(Skeleton, _, Ref)` for a goal whose predicate the module does not
+% define. Resolving that unknown procedure pulls the BUILT-IN clause/3 into the
+% module's import table, and from then on current_predicate(M:F/N) enumerates
+% clause/3 itself — so every "enumerate the predicates, then inspect their
+% clauses" walk hits clause(M:clause(_,_,_), B, R) and throws
+% permission_error(access, private_procedure, clause/3).
+%
+% That is why the Proof Game worked on a freshly loaded session and died as soon
+% as the user had run their query, which is the normal order in the editor.
+
+% Reproduces the resolution exactly as query/5 does, without depending on which
+% example happens to take that path.
+resolve_clause_into_modules(KB, SM) :-
+    ignore(catch(le_kbs:find_first_range(no_such_predicate_xyz(_), SM, KB, _), _, true)),
+    assertion(( current_predicate(SM:F/N), F/N == clause/3 )).
+
+:- begin_tests(proof_game_after_query).
+
+test(extract_survives_resolved_clause_3) :-
+    grass_session(KB, SM, Goal),
+    resolve_clause_into_modules(KB, SM),
+    catch(le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, Facts, _QT),
+          E, ( print_message(error, E), fail )),
+    assertion(Rules \== []),
+    assertion(Facts \== []),
+    le_kbs:destroySession(SM).
+
+% The guard must not throw cards away: same game before and after.
+test(extract_is_unchanged_by_resolved_clause_3) :-
+    grass_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules0, Facts0, _),
+    length(Rules0, NR0), length(Facts0, NF0),
+    resolve_clause_into_modules(KB, SM),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules1, Facts1, _),
+    length(Rules1, NR1), length(Facts1, NF1),
+    assertion(NR0 == NR1),
+    assertion(NF0 == NF1),
+    le_kbs:destroySession(SM).
+
+% The same trap bit every KB walk that enumerates predicates and then inspects
+% their clauses, not just the game's.
+test(kb_walks_survive_resolved_clause_3) :-
+    grass_session(KB, SM, Goal),
+    resolve_clause_into_modules(KB, SM),
+    catch(le_verifier:verify(KB, [skip_tests], _), E1, (print_message(error, E1), fail)),
+    catch(le_kbs:topPredicates(KB, _), E2, (print_message(error, E2), fail)),
+    catch(le_kbs:kbSummary(KB, _), E3, (print_message(error, E3), fail)),
+    Goal = Goal,
+    le_kbs:destroySession(SM).
+
+% count_rules/count_facts used to count le_kbs's OWN clauses, imported into the
+% KB module, as the program's rules — 75-odd phantom rules, which silently
+% disabled the missing_rules and too_many_facts checks.
+test(rule_and_fact_counts_are_the_programs_own) :-
+    le_kbs:load('examples/moreExamples/testing/citizenship_premier.le', KB, [skip_tests]),
+    le_verifier:count_rules(KB, Rules),
+    le_verifier:count_facts(KB, Facts),
+    assertion(Rules == 1),
+    assertion(Facts < 20).
+
+:- end_tests(proof_game_after_query).

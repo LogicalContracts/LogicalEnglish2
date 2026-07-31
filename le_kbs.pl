@@ -12,7 +12,7 @@
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
-    topPredicates/2, kbSummary/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
+    topPredicates/2, kbSummary/2, kb_own_predicate/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
     le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
@@ -1814,7 +1814,7 @@ topPredicates(KB, TopPreds) :-
         current_predicate(KB:F/A),
         \+ is_system_predicate(F/A),
         functor(G, F, A),
-        \+ predicate_property(KB:G, imported_from(_)),
+        kb_own_predicate(KB, G),
         le_verifier:is_intensional(KB, F, A),
         \+ is_used_by_other_rules(KB, F, A)
     ), Preds),
@@ -1826,6 +1826,7 @@ is_used_by_other_rules(KB, F, A) :-
     F2/A2 \== F/A,
     \+ is_system_predicate(F2/A2),
     functor(G2, F2, A2),
+    kb_own_predicate(KB, G2),
     KB:clause(G2, Body),
     le_verifier:find_in_body(Body, Literal),
     functor(Literal, F, A).
@@ -1939,6 +1940,25 @@ is_system_predicate(le_prolog_resource/2).
 is_system_predicate(le_lps_role/2).
 is_system_predicate(le_lps_functor/2).
 is_system_predicate(le_lps_item/3).
+
+%!  kb_own_predicate(+M:atom, +Head:callable) is semidet.
+%
+%   Head's predicate is one that module M actually defines, so clause/2,3 may
+%   inspect it. Guard every `current_predicate(M:F/A), functor(Head,F,A),
+%   clause(M:Head, ...)` walk with this.
+%
+%   Enumerating current_predicate(M:F/A) with F and A UNBOUND does not yield
+%   only a module's own predicates: it also yields whatever the module's import
+%   table has RESOLVED, and resolution is lazy — it happens the first time a
+%   predicate is called through that module. Answering a query calls
+%   `SM:clause(...)` and `KM:clause(...)` (reasoner.pl:275, 475), which resolves
+%   the built-in clause/3 into the session and KB modules. From then on the
+%   enumeration offers `clause/3` itself, and `clause(M:clause(_,_,_), B, R)`
+%   throws permission_error(access, private_procedure, clause/3). That is why
+%   these walks worked on a freshly loaded KB and blew up once a query had run.
+kb_own_predicate(M, Head) :-
+    \+ predicate_property(M:Head, imported_from(_)),
+    predicate_property(M:Head, dynamic).
 
 
 collect_and_assert_types(M) :-
