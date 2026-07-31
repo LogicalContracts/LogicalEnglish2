@@ -211,3 +211,61 @@ test.describe('Proof Game', () => {
             (window as any).__pgTest.nodes().find((n: any) => n.label === 'it rained').complete)).toBe(true);
     });
 });
+
+// A prepositional CHAIN query — "we will make which payment under this policy in
+// respect of this claim" — is a CONJUNCTION of three goals. The query node used
+// to carry the whole conjunction on one socket, which no card can unify with, so
+// the game showed everything red and Show Proof wired only the first conjunct.
+const CHAIN_QUERY = `the target language is: prolog.
+
+the templates are:
+    we will make *a payment*.
+    *a payment* under *a policy*; prepositional.
+    *a payment* in respect of *a claim*; prepositional.
+    *a payment* is valid.
+
+the knowledge base chain includes:
+    we will make a payment under this policy in respect of a claim
+        if the payment is valid.
+
+scenario zero is:
+    this payment is valid.
+    this payment under this policy.
+    this payment in respect of this claim.
+
+query one is:
+    we will make which payment under this policy in respect of this claim.
+`;
+
+test.describe('Proof Game — conjunctive query', () => {
+    test('Show Proof completes a prepositional-chain query', async ({ page }) => {
+        test.setTimeout(90000);
+        const popup = await openGame(page, CHAIN_QUERY, 'zero', 'one');
+
+        // One socket per conjunct, not a single 'in'.
+        const queryInputs = await popup.evaluate(() => {
+            const q = (window as any).__pgTest.nodes().find((n: any) => n.kind === 'QueryNode');
+            return q ? q.inputs : [];
+        });
+        expect(queryInputs).toEqual(['in-0', 'in-1', 'in-2']);
+
+        popup.on('dialog', (d: any) => d.accept());
+        await popup.click('#btn-show');
+
+        // Every conjunct gets wired, and the proof is accepted (no clash).
+        await expect.poll(async () => popup.evaluate(() => {
+            const cs = (window as any).__pgTest.connections();
+            const q = (window as any).__pgTest.nodes().find((n: any) => n.kind === 'QueryNode');
+            return cs.filter((c: any) => c.target === q.id).length;
+        }), { timeout: 30000 }).toBe(3);
+
+        await expect.poll(async () => popup.evaluate(() =>
+            (window as any).__pgTest.nodes().some((n: any) => n.clash)
+        ), { timeout: 30000 }).toBe(false);
+
+        await expect.poll(async () => popup.evaluate(() => {
+            const q = (window as any).__pgTest.nodes().find((n: any) => n.kind === 'QueryNode');
+            return !!q && q.complete;
+        }), { timeout: 30000 }).toBe(true);
+    });
+});

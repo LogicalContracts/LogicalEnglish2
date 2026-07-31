@@ -323,3 +323,165 @@ test(rule_and_fact_counts_are_the_programs_own) :-
     assertion(Facts < 20).
 
 :- end_tests(proof_game_after_query).
+
+% --- A conjunctive query needs one socket per conjunct -----------------------
+% "we will make which payment under this policy in respect of this claim" is a
+% prepositional CHAIN: it compiles to we_will_make(P) and under(P, …) and
+% in_respect_of(P, …). The query node used to carry that WHOLE conjunction as one
+% condition, and no card head can unify with an and/2 — so every link into the
+% query clashed (the game showed all red) and Show Proof could only ever wire the
+% first conjunct. Uses examples/moreExamples/testing/template_folding.le.
+
+folding_query_session(KB, SM, Goal) :-
+    le_kbs:load('examples/moreExamples/testing/template_folding.le', KB, [skip_tests]),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, zero),
+    KB:query_info(1, Goal, _).
+
+:- begin_tests(proof_game_conjunctive_query).
+
+test(query_node_exposes_one_condition_per_conjunct) :-
+    folding_query_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, _, _, _),
+    SM:game_node_term(query, query, term(_, Conds, _, _)),
+    assertion(length(Conds, 3)),
+    le_proof_game:query_condition_cards(KB, SM, Cards),
+    assertion(Cards.conditions == ["a payment in respect of this claim",
+                                   "the payment under this policy",
+                                   "we will make the payment"]),
+    le_kbs:destroySession(SM).
+
+% A single-goal query keeps the one plain socket it has always had: conditions
+% is empty, so the client draws the node exactly as before.
+test(single_goal_query_keeps_the_plain_socket) :-
+    grass_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, _, _, _),
+    SM:game_node_term(query, query, term(_, Conds, _, _)),
+    assertion(length(Conds, 1)),
+    le_proof_game:query_condition_cards(KB, SM, Cards),
+    assertion(Cards.conditions == []),
+    le_kbs:destroySession(SM).
+
+% The whole chain proof unifies: a card on each of the query's three sockets,
+% and the rule's own body satisfied. This is what Show Proof now builds.
+test(the_whole_chain_proof_unifies) :-
+    folding_query_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, Facts, _),
+    once(( member(R, Rules), get_dict(head, R, "we will make a payment"), get_dict(id, R, RuleId) )),
+    once(( member(F1, Facts), get_dict(fact, F1, "this payment in respect of this claim"), get_dict(id, F1, InResp) )),
+    once(( member(F2, Facts), get_dict(fact, F2, "this payment is valid"), get_dict(id, F2, Valid) )),
+    once(( member(F3, Facts), get_dict(fact, F3, "this payment under this policy"), get_dict(id, F3, Under) )),
+    Nodes = [ _{instanceId:"q",   templateId:"query"},
+              _{instanceId:"r",   templateId:RuleId},
+              _{instanceId:"f1",  templateId:InResp},
+              _{instanceId:"f2",  templateId:Valid},
+              _{instanceId:"f3",  templateId:Under},
+              _{instanceId:"f1b", templateId:InResp},
+              _{instanceId:"f3b", templateId:Under} ],
+    Edges = [ _{child:"f1",  parent:"q", bodyIndex:0},
+              _{child:"f3",  parent:"q", bodyIndex:1},
+              _{child:"r",   parent:"q", bodyIndex:2},
+              _{child:"f3b", parent:"r", bodyIndex:0},
+              _{child:"f1b", parent:"r", bodyIndex:1},
+              _{child:"f2",  parent:"r", bodyIndex:2} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, Edges, Response),
+    assertion(get_dict(status, Response, "ok")),
+    le_kbs:destroySession(SM).
+
+% A card that does not match the conjunct it is plugged into still clashes — the
+% split must not make the query socket accept anything.
+test(a_wrong_card_on_a_conjunct_clashes) :-
+    folding_query_session(KB, SM, Goal),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, _, Facts, _),
+    once(( member(F, Facts), get_dict(fact, F, "this payment is valid"), get_dict(id, F, Valid) )),
+    Nodes = [ _{instanceId:"q", templateId:"query"},
+              _{instanceId:"f", templateId:Valid} ],
+    % "this payment is valid" cannot satisfy "… in respect of this claim"
+    Edges = [ _{child:"f", parent:"q", bodyIndex:0} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, Edges, Response),
+    assertion(get_dict(status, Response, "clash")),
+    le_kbs:destroySession(SM).
+
+% --- Negated chains and type guards -----------------------------------------
+
+% "it is not the case that <prepositional chain>" negates a CONJUNCTION, so the
+% card the player links satisfies one part of it; the rest are constraints on the
+% same variables. Before, a negated chain could not be satisfied at all.
+test(a_card_satisfies_a_negated_chain) :-
+    Text = "the target language is: prolog.
+
+the templates are:
+    we will pay *a claim*.
+    we will refuse *a claim*.
+    *a claim* under *a policy*; prepositional.
+    *a claim* is late.
+
+the knowledge base negchain includes:
+    we will pay a claim
+        if it is not the case that
+            we will refuse the claim under this policy.
+
+    we will refuse a claim under this policy
+        if the claim is late.
+
+scenario one is:
+    claim one is late.
+
+query one is:
+    we will pay which claim.
+",
+    le_kbs:load_text(Text, KB),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, one),
+    KB:query_info(one, Goal, _),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, _, _),
+    once(( member(R, Rules), get_dict(bodyNaf, R, [_|_]), get_dict(id, R, PayId),
+           get_dict(bodyNaf, R, [NafIdx|_]) )),
+    once(( member(R2, Rules), get_dict(id, R2, RefuseId), R2.id \== PayId,
+           sub_string(R2.head, _, _, _, "refuse") )),
+    Nodes = [ _{instanceId:"p", templateId:PayId}, _{instanceId:"c", templateId:RefuseId} ],
+    Edges = [ _{child:"c", parent:"p", bodyIndex:NafIdx} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, Edges, Response),
+    assertion(get_dict(status, Response, "ok")),
+    le_kbs:destroySession(SM).
+
+% A le_type_check guard is engine-checked, not played: it is reported so the UI
+% can draw it without a socket and count it satisfied. It STAYS in the body list
+% so the indices still line up with the explanation's children and with
+% apply_edges/2. Before, its unfillable socket made the rule uncompletable.
+test(type_guards_are_marked_not_removed) :-
+    Text = "the target language is: prolog.
+
+the templates are:
+    *a payment* in respect of *a claim*; composite.
+    *a payment* is in respect of *a claim*.
+    *an amount* in respect of *a claim*; composite.
+    *an amount* is in respect of *a claim*.
+    we will settle *a claim*.
+
+the knowledge base guards includes:
+    a payment in respect of a claim
+        if the payment is in respect of the claim.
+
+    we will settle a claim
+        if a payment in respect of the claim.
+
+scenario one is:
+    p1 is in respect of claim one.
+
+query one is:
+    we will settle which claim.
+",
+    le_kbs:load_text(Text, KB),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, one),
+    KB:query_info(one, Goal, _),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, _, _),
+    once(( member(R, Rules), get_dict(bodyTypeCheck, R, [_|_]) )),
+    assertion(R.bodyTypeCheck == [0]),
+    % kept in the body, so every index still lines up
+    length(R.body, N), length(R.bodyRanges, N),
+    assertion(N == 2),
+    le_kbs:destroySession(SM).
+
+:- end_tests(proof_game_conjunctive_query).

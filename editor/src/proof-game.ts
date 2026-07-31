@@ -145,13 +145,51 @@ class QueryNode extends ClassicPreset.Node {
     // Once the query is connected to a proof its variables get bound, so show the
     // bound answer (e.g. "bob is happy") rather than the interrogative label.
     public bound: boolean = false;
-    
-    constructor(public label: string, public color: string) {
+    // A CONJUNCTIVE query — a prepositional chain like "we will make which payment
+    // under this policy in respect of this claim", or an explicit `and` — has to
+    // prove several goals, exactly as a rule has to prove several body conditions.
+    // It therefore gets one socket per conjunct and renders like a rule (`rule` is
+    // the same shape a RuleNode takes). With a single goal `rule` stays null and
+    // the node keeps the one plain 'in' socket it has always had.
+    public rule: any = null;
+    public bodyTokens: any[][] = [];
+    public bodyNaf: number[] = [];
+    public bodyForall: any[] = [];
+    public bodyRanges: any[] = [];
+    public bodyTypeCheck: number[] = [];
+    public bodyNafInner: any[] = [];
+    public forallIndexSet: Set<number> = new Set();
+
+    constructor(public label: string, public color: string, conds?: any) {
         super(label);
         this.type = 'query';
-        this.addInput('in', new ClassicPreset.Input(new ClassicPreset.Socket('query-socket')));
+        const body: string[] = (conds && Array.isArray(conds.body)) ? conds.body : [];
+        if (body.length < 2) {
+            this.addInput('in', new ClassicPreset.Input(new ClassicPreset.Socket('query-socket')));
+            return;
+        }
+        this.bodyTokens = Array.isArray(conds.bodyTokens) ? conds.bodyTokens : [];
+        this.bodyNaf = Array.isArray(conds.bodyNaf) ? conds.bodyNaf : [];
+        this.bodyForall = Array.isArray(conds.bodyForall) ? conds.bodyForall : [];
+        this.bodyRanges = Array.isArray(conds.bodyRanges) ? conds.bodyRanges : [];
+        this.forallIndexSet = new Set(this.bodyForall.map((m: any) => m.index));
+        this.rule = { head: label, body, bodyForall: this.bodyForall };
+        const socket = new ClassicPreset.Socket('query-socket');
+        body.forEach((_cond: string, i: number) => {
+            if (this.forallIndexSet.has(i)) {
+                this.addInput(`in-${i}-0`, new ClassicPreset.Input(socket, undefined, true));
+                this.addInput(`in-${i}-1`, new ClassicPreset.Input(socket, undefined, true));
+            } else if (this.bodyNaf.includes(i)) {
+                this.addInput(`in-${i}`, new ClassicPreset.Input(socket, undefined, true));
+            } else {
+                this.addInput(`in-${i}`, new ClassicPreset.Input(socket));
+            }
+        });
     }
     type: string;
+    forallMeta(i: number): any {
+        return this.bodyForall.find((m: any) => m.index === i);
+    }
 }
 
 class FailNode extends ClassicPreset.Node {
@@ -181,6 +219,9 @@ class RuleNode extends ClassicPreset.Node {
     public bodyNaf: number[];
     public bodyForall: any[];
     public bodyRanges: any[];
+    // Body conditions that are engine-checked TYPE GUARDS (le_type_check), not
+    // goals the player proves: they get no socket and count as already satisfied.
+    public bodyTypeCheck: number[];
     public forallIndexSet: Set<number>;
     public clash: boolean = false;
     public complete: boolean = false;
@@ -206,13 +247,16 @@ class RuleNode extends ClassicPreset.Node {
         this.bodyNaf = Array.isArray(rule.bodyNaf) ? rule.bodyNaf : [];
         this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
         this.bodyRanges = Array.isArray(rule.bodyRanges) ? rule.bodyRanges : [];
+        this.bodyTypeCheck = Array.isArray(rule.bodyTypeCheck) ? rule.bodyTypeCheck : [];
         this.forallIndexSet = new Set(this.bodyForall.map((m: any) => m.index));
         this.sourceLoc = sourceLoc;
         const socket = new ClassicPreset.Socket('socket');
         this.addOutput('out', new ClassicPreset.Output(socket));
         if (rule.body) {
             rule.body.forEach((_cond: string, i: number) => {
-                if (this.forallIndexSet.has(i)) {
+                if (this.bodyTypeCheck.includes(i)) {
+                    // no socket: nothing can be linked to a type guard
+                } else if (this.forallIndexSet.has(i)) {
                     // A "for all cases in which <Cond> it is the case that <Cons>"
                     // condition exposes two sub-sockets: -0 for the Cond, -1 for
                     // the Cons. A universal can have SEVERAL witnessing cases (alice
@@ -287,7 +331,10 @@ function CustomNode(props: any) {
         );
     }
 
-    if (data.type === 'rule') {
+    // A conjunctive query node carries a rule-shaped `rule` and renders through
+    // this same branch: label on top, one socket per conjunct below.
+    if (data.type === 'rule' || (data.type === 'query' && data.rule)) {
+        const isQueryNode = data.type === 'query';
         const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
         const headPredicateColor = templateColors.get(headTemplate) || '#ff9800';
         // Child Mode hides text, so a node's FILL is its only predicate cue and must
@@ -308,9 +355,11 @@ function CustomNode(props: any) {
         data.width = nodeWidth;
         data.height = bodyCount > 0 ? 180 : 80;
         
-        const headText = (data.failing && data.boundHead)
-            ? data.boundHead
-            : (renderTokens(data.headTokens) || data.rule.head);
+        const headText = isQueryNode
+            ? (data.bound ? (renderTokens(data.tokens) || data.label) : (data.label || renderTokens(data.tokens)))
+            : ((data.failing && data.boundHead)
+                ? data.boundHead
+                : (renderTokens(data.headTokens) || data.rule.head));
 
         return React.createElement('div', {
             className: `le-node rule-node ${data.selected ? 'selected' : ''} ${data.clash ? 'clash' : ''} ${data.complete ? 'complete' : ''}`,
@@ -343,7 +392,7 @@ function CustomNode(props: any) {
                 title: !isAdultMode ? headText : ''
             }, 
                 isAdultMode ? headText : '',
-                React.createElement('div', {
+                !isQueryNode && React.createElement('div', {
                     style: { position: 'absolute', left: '50%', top: '0px', transform: 'translate(-50%, -50%)' }
                 }, React.createElement(RefSocket, {
                     style: SOCKET_HIT_STYLE, name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
@@ -355,10 +404,11 @@ function CustomNode(props: any) {
             }, data.rule.body.map((cond: string, i: number) => {
                 const isForall = data.forallIndexSet && data.forallIndexSet.has(i);
                 const isNaf = Array.isArray(data.bodyNaf) && data.bodyNaf.includes(i);
+                const isTypeGuard = Array.isArray(data.bodyTypeCheck) && data.bodyTypeCheck.includes(i);
                 const condText = (data.failing && data.boundBody && data.boundBody[i])
                     ? data.boundBody[i]
-                    : (renderTokens(data.bodyTokens[i]) || cond);
-                const condTemplate = getPredicateTemplate(data.bodyTokens[i]) || cond;
+                    : (renderTokens(data.bodyTokens?.[i]) || cond);
+                const condTemplate = getPredicateTemplate(data.bodyTokens?.[i]) || cond;
                 const condPredicateColor = templateColors.get(condTemplate) || '#ffeb3b';
                 // Child Mode: predicate-coloured fill (legend); completion shown by glow.
                 const bodyColor = isAdultMode ? (data.complete ? '#81c784' : '#333') : condPredicateColor;
@@ -409,10 +459,12 @@ function CustomNode(props: any) {
                         textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.3)',
                         border: isAdultMode ? (isNaf ? '1px dashed #e57373' : '1px solid #444') : 'none'
                     },
-                    title: !isAdultMode ? condText : (isNaf ? 'negation: connect the rule that would prove it, or a FAIL node' : '')
+                    title: !isAdultMode ? condText
+                        : (isTypeGuard ? 'checked automatically: nothing to connect'
+                        : (isNaf ? 'negation: connect the rule that would prove it, or a FAIL node' : ''))
                 },
                     isAdultMode ? condText : '',
-                    React.createElement('div', {
+                    !isTypeGuard && React.createElement('div', {
                         style: { position: 'absolute', left: '50%', bottom: '0px', transform: 'translate(-50%, 50%)' }
                     }, React.createElement(RefSocket, {
                         style: SOCKET_HIT_STYLE, name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: `in-${i}`, payload: data.inputs[`in-${i}`]?.socket
@@ -495,7 +547,7 @@ function CustomNode(props: any) {
                 style: SOCKET_HIT_STYLE, name: 'output-socket', emit, side: 'output', nodeId: data.id, socketKey: 'out', payload: data.outputs['out']?.socket
             })),
 
-            data.type === 'query' && React.createElement('div', {
+            data.type === 'query' && !data.rule && React.createElement('div', {
                 style: { position: 'absolute', left: '50%', bottom: '0px', transform: 'translate(-50%, 50%)' }
             }, React.createElement(RefSocket, {
                 style: SOCKET_HIT_STYLE, name: 'input-socket', emit, side: 'input', nodeId: data.id, socketKey: 'in', payload: data.inputs['in']?.socket
@@ -969,12 +1021,29 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         function failureGoalMatches(sourceNodeIds: string[], expFail: any): boolean {
             if (!expFail) return false;
             const provRules = rulesProving(expFail.literal, gameData.rules || []);
-            if (provRules.length === 0) {
-                // Leaf failure (nothing could prove it): a single FAIL node represents it.
+            const failChildren = (expFail.children || []).filter((c: any) => c.type === 'failure');
+            // Leaf failure: a single FAIL node represents it. The test must be the
+            // SAME one buildFailure uses to place that FAIL — nothing could prove
+            // the goal, OR nothing below it failed. Checking only provRules made
+            // the validator reject a leaf the builder had just created, because
+            // rulesProving matches on rendered text and a long literal can
+            // accidentally match a loose head template ("*a payment* under *a
+            // policy*" matches any sentence containing " under ").
+            if (provRules.length === 0 || failChildren.length === 0) {
                 return sourceNodeIds.length === 1
                     && (editor.getNode(sourceNodeIds[0]) instanceof FailNode);
             }
-            const failChildren = (expFail.children || []).filter((c: any) => c.type === 'failure');
+            // A negated prepositional chain ("it is not the case that we will not
+            // make the payment under this policy in respect of the claim") fails
+            // through a child that is the chain's MAIN literal — the same goal
+            // restated, which the builder wires on the SAME socket. Validate
+            // against that child, or this would demand a rule instance where the
+            // proof correctly has none. Must mirror buildFailure exactly.
+            const sameGoalChild = failChildren.find((c: any) => provRules.some((r: any) => {
+                const re = templateToRegex(getPredicateTemplate(r.headTokens));
+                return re && re.test(c.literal || '');
+            }));
+            if (sameGoalChild) return failureGoalMatches(sourceNodeIds, sameGoalChild);
             const covered = new Set<string>();
             for (const sourceId of sourceNodeIds) {
                 const node = editor.getNode(sourceId) as any;
@@ -1023,15 +1092,31 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             if (node instanceof FailNode) return true;
 
             if (node instanceof QueryNode) {
+                // A CONJUNCTIVE query has one socket per conjunct and is complete
+                // only when EVERY one of them is proved — the same rule as a rule
+                // body. Checking a single connection (as this used to) called the
+                // proof done as soon as any one conjunct was wired.
+                if (node.rule) return bodyComplete(node);
                 const conn = connections.find(c => c.target === nodeId);
                 if (!conn) return false;
                 return isComplete(conn.source);
             }
 
-            if (node instanceof RuleNode) {
+            if (node instanceof RuleNode) return bodyComplete(node);
+
+            return false;
+        }
+
+        // Every body condition of a rule — or every conjunct of a conjunctive
+        // query — proved. Both carry the same `rule`/bodyNaf/bodyRanges shape.
+        function bodyComplete(node: any): boolean {
+            const nodeId = node.id;
+            {
                 const bodyCount = node.rule.body ? node.rule.body.length : 0;
                 for (let i = 0; i < bodyCount; i++) {
-                    if (node.forallIndexSet.has(i)) {
+                    if (Array.isArray(node.bodyTypeCheck) && node.bodyTypeCheck.includes(i)) {
+                        continue;   // engine-checked type guard: nothing to connect
+                    } else if (node.forallIndexSet.has(i)) {
                         // The condition socket decides which: a FAIL means the
                         // universal is VACUOUS (no cases) and the consequence is not
                         // required; anything else is a witnessing CASE, which must be
@@ -1094,8 +1179,6 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 }
                 return true;
             }
-
-            return false;
         }
 
         const complete = isComplete(queryNode.id);
@@ -1539,7 +1622,13 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
     
     // Add Query Node
     if (gameData.query) {
-        const queryNode = new QueryNode(gameData.query, '#2196f3');
+        const queryNode = new QueryNode(gameData.query, '#2196f3', {
+            body: gameData.queryConditions,
+            bodyTokens: gameData.queryConditionTokens,
+            bodyNaf: gameData.queryNaf,
+            bodyForall: gameData.queryForall,
+            bodyRanges: gameData.queryRanges
+        });
         queryNode.tokens = gameData.queryTokens || [];
         await editor.addNode(queryNode);
         await area.translate(queryNode.id, { x: currentX, y: queryY });
@@ -1717,8 +1806,14 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         const queryNode = nodes.find(n => n instanceof QueryNode);
         if (!queryNode) return;
 
-        const explanation = Array.isArray(gameData.explanation) ? gameData.explanation[0] : gameData.explanation;
-        if (!explanation) return;
+        // A conjunctive query has one explanation per conjunct, in goal order —
+        // the same order as the query node's sockets. Taking only [0] (as this
+        // used to) left every other conjunct unproved, and connected the one it
+        // did take to a socket carrying the WHOLE conjunction, which clashed.
+        const explanations = Array.isArray(gameData.explanation)
+            ? gameData.explanation
+            : [gameData.explanation];
+        if (!explanations.length || !explanations[0]) return;
 
         const usedNodes = new Set<string>();
 
@@ -1732,11 +1827,29 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         }
 
         // The rule/fact game node whose source range matches an explanation node.
+        // Search the LIVE node list, not the snapshot taken before wiring started,
+        // so clones made along the way are found too.
         function matchNode(expNode: any): any {
-            return nodes.find(n => !usedNodes.has(n.id)
+            return editor.getNodes().find(n => !usedNodes.has(n.id)
                 && (n instanceof RuleNode || n instanceof FactNode)
                 && (n as any).sourceLoc?.start === expNode.start
                 && (n as any).sourceLoc?.end === expNode.end);
+        }
+
+        // As matchNode, but CLONES the card when every instance of it is already
+        // in use. One proof legitimately needs the same card more than once — a
+        // prepositional chain proves "the payment under this policy" both as a
+        // conjunct of the query and again as a condition of the rule whose head
+        // carries that chain. Without the clone, matchNode found nothing and
+        // connectNode gave up silently, leaving the proof visibly unfinished.
+        async function acquireMatchingInstance(expNode: any): Promise<any> {
+            const free = matchNode(expNode);
+            if (free) return free;
+            const taken = editor.getNodes().find(n =>
+                (n instanceof RuleNode || n instanceof FactNode)
+                && (n as any).sourceLoc?.start === expNode.start
+                && (n as any).sourceLoc?.end === expNode.end);
+            return taken ? await cloneNode(taken) : null;
         }
 
         // An "unknown" explanation node is a goal that was ASSUMED (abduction).
@@ -1757,7 +1870,9 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         // input, then recurse into its body.
         async function connectNode(expNode: any, targetNodeId: string, targetInputKey: string) {
             if (!expNode || !hasInput(targetNodeId, targetInputKey)) return;
-            const match = expNode.type === 'unknown' ? matchAssumption(expNode) : matchNode(expNode);
+            const match = expNode.type === 'unknown'
+                ? matchAssumption(expNode)
+                : await acquireMatchingInstance(expNode);
             if (!match) return;
             usedNodes.add(match.id);
             await editor.addConnection(new ClassicPreset.Connection(
@@ -1829,6 +1944,24 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             // Each failure child is the failing body condition of one proving rule
             // (identified by which rule's body-condition range it matches).
             for (const expChild of failChildren) {
+                // ... EXCEPT when the child is the same goal restated. A negated
+                // prepositional chain — "it is not the case that we will not make
+                // the payment under this policy in respect of the claim" — fails
+                // through a child that is the chain's MAIN literal ("we will not
+                // make the payment"), carrying the range of the first rule that
+                // could prove it. Range-matching read that as a body condition of
+                // that rule and wired the rule into ITSELF, one bogus nesting
+                // level that could never unify. A child whose literal a rule HEAD
+                // proves is the same goal one step down, so it belongs on the same
+                // socket, not inside a rule instance.
+                const sameGoal = provRules.some((r: any) => {
+                    const re = templateToRegex(getPredicateTemplate(r.headTokens));
+                    return re && re.test(expChild.literal || '');
+                });
+                if (sameGoal) {
+                    await buildFailure(expChild, parentNodeId, inputKey);
+                    continue;
+                }
                 const rule = provRules.find((r: any) =>
                     (r.bodyRanges || []).some((br: any) => br.start === expChild.start && br.end === expChild.end));
                 if (!rule) continue;
@@ -1847,7 +1980,19 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
         async function connectRuleBody(expNode: any, ruleNode: any) {
             const children = expNode.children || [];
             for (let i = 0; i < children.length; i++) {
-                const child = children[i];
+                await connectCondition(children[i], ruleNode, i);
+            }
+        }
+
+        // The query node's conjuncts are conditions in exactly the same sense, so
+        // they go through the same wiring.
+        async function connectQueryCondition(expNode: any, queryNode: any, i: number) {
+            await connectCondition(expNode, queryNode, i);
+        }
+
+        // One condition (of a rule body, or of a conjunctive query) at index i.
+        async function connectCondition(child: any, ruleNode: any, i: number) {
+            {
                 if (ruleNode.forallIndexSet && ruleNode.forallIndexSet.has(i)) {
                     // child is the "for all cases" node; connect EVERY case's
                     // condition (sub 0) and consequence (sub 1) sub-proof — a universal
@@ -1875,7 +2020,13 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             }
         }
 
-        await connectNode(explanation, queryNode.id, 'in');
+        if ((queryNode as QueryNode).rule) {
+            for (let i = 0; i < explanations.length; i++) {
+                await connectQueryCondition(explanations[i], queryNode as QueryNode, i);
+            }
+        } else {
+            await connectNode(explanations[0], queryNode.id, 'in');
+        }
         updateConnectionLabels();
         updateFailingLabels();
 
@@ -1959,7 +2110,13 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
                 updateUnification,
                 nodes: () => editor.getNodes().map((n: any) => ({
                     id: n.id, kind: n.constructor.name, label: n.label ?? '', complete: !!n.complete,
-                    assumed: !!n.assumed,
+                    assumed: !!n.assumed, clash: !!n.clash,
+                    templateId: n.templateId, inputs: Object.keys(n.inputs || {}),
+                    start: n.sourceLoc?.start, end: n.sourceLoc?.end,
+                    head: n.rule?.head,
+                })),
+                connections: () => editor.getConnections().map((c: any) => ({
+                    source: c.source, target: c.target, targetInput: c.targetInput,
                 })),
                 connect: (sourceId: string, targetId: string, targetInput: string) =>
                     editor.addConnection(new ClassicPreset.Connection(
