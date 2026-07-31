@@ -1560,8 +1560,17 @@ handle_get_game_data(Dict, Response) :-
                 print_message(informational, 'Proof Game: Found explanation for query')
             ),
             findall(AL, member(AL-_, Answers), AnswerLabels),
+            % A conjunctive query (a prepositional chain, or an explicit `and`)
+            % needs one socket per conjunct, exactly as a rule needs one per body
+            % condition; empty for a single-goal query.
+            le_proof_game:query_condition_cards(KB, SM, QCards),
             Response = _{gameData: _{rules: Rules, facts: ExtractedFacts, query: QueryLE,
                                      queryTokens: QueryTokens, sessionModule: SMStr,
+                                     queryConditions: QCards.conditions,
+                                     queryConditionTokens: QCards.conditionTokens,
+                                     queryRanges: QCards.conditionRanges,
+                                     queryNaf: QCards.conditionNaf,
+                                     queryForall: QCards.conditionForall,
                                      explanation: JSONWhy, answers: AnswerLabels,
                                      answerIndex: SelIdx}, result: "ok"}
         )

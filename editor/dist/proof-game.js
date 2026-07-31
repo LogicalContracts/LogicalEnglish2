@@ -125709,12 +125709,33 @@ var FactNode = class extends classic.Node {
   type;
 };
 var QueryNode = class extends classic.Node {
-  constructor(label, color) {
+  constructor(label, color, conds) {
     super(label);
     this.label = label;
     this.color = color;
     this.type = "query";
-    this.addInput("in", new classic.Input(new classic.Socket("query-socket")));
+    const body = conds && Array.isArray(conds.body) ? conds.body : [];
+    if (body.length < 2) {
+      this.addInput("in", new classic.Input(new classic.Socket("query-socket")));
+      return;
+    }
+    this.bodyTokens = Array.isArray(conds.bodyTokens) ? conds.bodyTokens : [];
+    this.bodyNaf = Array.isArray(conds.bodyNaf) ? conds.bodyNaf : [];
+    this.bodyForall = Array.isArray(conds.bodyForall) ? conds.bodyForall : [];
+    this.bodyRanges = Array.isArray(conds.bodyRanges) ? conds.bodyRanges : [];
+    this.forallIndexSet = new Set(this.bodyForall.map((m2) => m2.index));
+    this.rule = { head: label, body, bodyForall: this.bodyForall };
+    const socket = new classic.Socket("query-socket");
+    body.forEach((_cond, i2) => {
+      if (this.forallIndexSet.has(i2)) {
+        this.addInput(`in-${i2}-0`, new classic.Input(socket, void 0, true));
+        this.addInput(`in-${i2}-1`, new classic.Input(socket, void 0, true));
+      } else if (this.bodyNaf.includes(i2)) {
+        this.addInput(`in-${i2}`, new classic.Input(socket, void 0, true));
+      } else {
+        this.addInput(`in-${i2}`, new classic.Input(socket));
+      }
+    });
   }
   width = 220;
   height = 60;
@@ -125725,7 +125746,24 @@ var QueryNode = class extends classic.Node {
   // Once the query is connected to a proof its variables get bound, so show the
   // bound answer (e.g. "bob is happy") rather than the interrogative label.
   bound = false;
+  // A CONJUNCTIVE query — a prepositional chain like "we will make which payment
+  // under this policy in respect of this claim", or an explicit `and` — has to
+  // prove several goals, exactly as a rule has to prove several body conditions.
+  // It therefore gets one socket per conjunct and renders like a rule (`rule` is
+  // the same shape a RuleNode takes). With a single goal `rule` stays null and
+  // the node keeps the one plain 'in' socket it has always had.
+  rule = null;
+  bodyTokens = [];
+  bodyNaf = [];
+  bodyForall = [];
+  bodyRanges = [];
+  bodyTypeCheck = [];
+  bodyNafInner = [];
+  forallIndexSet = /* @__PURE__ */ new Set();
   type;
+  forallMeta(i2) {
+    return this.bodyForall.find((m2) => m2.index === i2);
+  }
 };
 var FailNode = class extends classic.Node {
   constructor(label, color) {
@@ -125754,13 +125792,15 @@ var RuleNode = class extends classic.Node {
     this.bodyNaf = Array.isArray(rule.bodyNaf) ? rule.bodyNaf : [];
     this.bodyForall = Array.isArray(rule.bodyForall) ? rule.bodyForall : [];
     this.bodyRanges = Array.isArray(rule.bodyRanges) ? rule.bodyRanges : [];
+    this.bodyTypeCheck = Array.isArray(rule.bodyTypeCheck) ? rule.bodyTypeCheck : [];
     this.forallIndexSet = new Set(this.bodyForall.map((m2) => m2.index));
     this.sourceLoc = sourceLoc;
     const socket = new classic.Socket("socket");
     this.addOutput("out", new classic.Output(socket));
     if (rule.body) {
       rule.body.forEach((_cond, i2) => {
-        if (this.forallIndexSet.has(i2)) {
+        if (this.bodyTypeCheck.includes(i2)) {
+        } else if (this.forallIndexSet.has(i2)) {
           this.addInput(`in-${i2}-0`, new classic.Input(socket, void 0, true));
           this.addInput(`in-${i2}-1`, new classic.Input(socket, void 0, true));
         } else if (this.bodyNaf.includes(i2)) {
@@ -125780,6 +125820,9 @@ var RuleNode = class extends classic.Node {
   bodyNaf;
   bodyForall;
   bodyRanges;
+  // Body conditions that are engine-checked TYPE GUARDS (le_type_check), not
+  // goals the player proves: they get no socket and count as already satisfied.
+  bodyTypeCheck;
   forallIndexSet;
   clash = false;
   complete = false;
@@ -125850,7 +125893,8 @@ function CustomNode(props) {
       }))
     );
   }
-  if (data.type === "rule") {
+  if (data.type === "rule" || data.type === "query" && data.rule) {
+    const isQueryNode = data.type === "query";
     const headTemplate = getPredicateTemplate(data.headTokens) || data.rule.head;
     const headPredicateColor = templateColors.get(headTemplate) || "#ff9800";
     const headColor = data.clash ? "#f44336" : isAdultMode ? data.complete ? "#4caf50" : data.failing ? "#7a2e2e" : "#333" : headPredicateColor;
@@ -125859,7 +125903,7 @@ function CustomNode(props) {
     const nodeWidth = Math.max(220, bodyCount * 220);
     data.width = nodeWidth;
     data.height = bodyCount > 0 ? 180 : 80;
-    const headText = data.failing && data.boundHead ? data.boundHead : renderTokens(data.headTokens) || data.rule.head;
+    const headText = isQueryNode ? data.bound ? renderTokens(data.tokens) || data.label : data.label || renderTokens(data.tokens) : data.failing && data.boundHead ? data.boundHead : renderTokens(data.headTokens) || data.rule.head;
     return React2.createElement(
       "div",
       {
@@ -125895,7 +125939,7 @@ function CustomNode(props) {
           title: !isAdultMode ? headText : ""
         },
         isAdultMode ? headText : "",
-        React2.createElement("div", {
+        !isQueryNode && React2.createElement("div", {
           style: { position: "absolute", left: "50%", top: "0px", transform: "translate(-50%, -50%)" }
         }, React2.createElement(RefSocket2, {
           style: SOCKET_HIT_STYLE,
@@ -125912,8 +125956,9 @@ function CustomNode(props) {
       }, data.rule.body.map((cond, i2) => {
         const isForall = data.forallIndexSet && data.forallIndexSet.has(i2);
         const isNaf = Array.isArray(data.bodyNaf) && data.bodyNaf.includes(i2);
-        const condText = data.failing && data.boundBody && data.boundBody[i2] ? data.boundBody[i2] : renderTokens(data.bodyTokens[i2]) || cond;
-        const condTemplate = getPredicateTemplate(data.bodyTokens[i2]) || cond;
+        const isTypeGuard = Array.isArray(data.bodyTypeCheck) && data.bodyTypeCheck.includes(i2);
+        const condText = data.failing && data.boundBody && data.boundBody[i2] ? data.boundBody[i2] : renderTokens(data.bodyTokens?.[i2]) || cond;
+        const condTemplate = getPredicateTemplate(data.bodyTokens?.[i2]) || cond;
         const condPredicateColor = templateColors.get(condTemplate) || "#ffeb3b";
         const bodyColor = isAdultMode ? data.complete ? "#81c784" : "#333" : condPredicateColor;
         if (isForall) {
@@ -125978,10 +126023,10 @@ function CustomNode(props) {
               boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
               border: isAdultMode ? isNaf ? "1px dashed #e57373" : "1px solid #444" : "none"
             },
-            title: !isAdultMode ? condText : isNaf ? "negation: connect the rule that would prove it, or a FAIL node" : ""
+            title: !isAdultMode ? condText : isTypeGuard ? "checked automatically: nothing to connect" : isNaf ? "negation: connect the rule that would prove it, or a FAIL node" : ""
           },
           isAdultMode ? condText : "",
-          React2.createElement("div", {
+          !isTypeGuard && React2.createElement("div", {
             style: { position: "absolute", left: "50%", bottom: "0px", transform: "translate(-50%, 50%)" }
           }, React2.createElement(RefSocket2, {
             style: SOCKET_HIT_STYLE,
@@ -126071,7 +126116,7 @@ function CustomNode(props) {
         socketKey: "out",
         payload: data.outputs["out"]?.socket
       })),
-      data.type === "query" && React2.createElement("div", {
+      data.type === "query" && !data.rule && React2.createElement("div", {
         style: { position: "absolute", left: "50%", bottom: "0px", transform: "translate(-50%, 50%)" }
       }, React2.createElement(RefSocket2, {
         style: SOCKET_HIT_STYLE,
@@ -126485,10 +126530,16 @@ async function initProofGame(container, gameData) {
       if (!expFail)
         return false;
       const provRules = rulesProving(expFail.literal, gameData.rules || []);
-      if (provRules.length === 0) {
+      const failChildren = (expFail.children || []).filter((c2) => c2.type === "failure");
+      if (provRules.length === 0 || failChildren.length === 0) {
         return sourceNodeIds.length === 1 && editor.getNode(sourceNodeIds[0]) instanceof FailNode;
       }
-      const failChildren = (expFail.children || []).filter((c2) => c2.type === "failure");
+      const sameGoalChild = failChildren.find((c2) => provRules.some((r2) => {
+        const re2 = templateToRegex(getPredicateTemplate(r2.headTokens));
+        return re2 && re2.test(c2.literal || "");
+      }));
+      if (sameGoalChild)
+        return failureGoalMatches(sourceNodeIds, sameGoalChild);
       const covered = /* @__PURE__ */ new Set();
       for (const sourceId of sourceNodeIds) {
         const node2 = editor.getNode(sourceId);
@@ -126540,15 +126591,25 @@ async function initProofGame(container, gameData) {
       if (node2 instanceof FailNode)
         return true;
       if (node2 instanceof QueryNode) {
+        if (node2.rule)
+          return bodyComplete(node2);
         const conn = connections.find((c2) => c2.target === nodeId);
         if (!conn)
           return false;
         return isComplete(conn.source);
       }
-      if (node2 instanceof RuleNode) {
+      if (node2 instanceof RuleNode)
+        return bodyComplete(node2);
+      return false;
+    }
+    function bodyComplete(node2) {
+      const nodeId = node2.id;
+      {
         const bodyCount = node2.rule.body ? node2.rule.body.length : 0;
         for (let i2 = 0; i2 < bodyCount; i2++) {
-          if (node2.forallIndexSet.has(i2)) {
+          if (Array.isArray(node2.bodyTypeCheck) && node2.bodyTypeCheck.includes(i2)) {
+            continue;
+          } else if (node2.forallIndexSet.has(i2)) {
             const condConns = connections.filter((c2) => c2.target === nodeId && c2.targetInput === `in-${i2}-0`);
             if (condConns.length === 0)
               return false;
@@ -126596,7 +126657,6 @@ async function initProofGame(container, gameData) {
         }
         return true;
       }
-      return false;
     }
     const complete = isComplete(queryNode.id);
     nodes2.forEach((n2) => {
@@ -126946,7 +127006,13 @@ async function initProofGame(container, gameData) {
   const ruleY = 250;
   const queryY = 50;
   if (gameData.query) {
-    const queryNode = new QueryNode(gameData.query, "#2196f3");
+    const queryNode = new QueryNode(gameData.query, "#2196f3", {
+      body: gameData.queryConditions,
+      bodyTokens: gameData.queryConditionTokens,
+      bodyNaf: gameData.queryNaf,
+      bodyForall: gameData.queryForall,
+      bodyRanges: gameData.queryRanges
+    });
     queryNode.tokens = gameData.queryTokens || [];
     await editor.addNode(queryNode);
     await area.translate(queryNode.id, { x: currentX, y: queryY });
@@ -127091,8 +127157,8 @@ async function initProofGame(container, gameData) {
     const queryNode = nodes2.find((n2) => n2 instanceof QueryNode);
     if (!queryNode)
       return;
-    const explanation = Array.isArray(gameData.explanation) ? gameData.explanation[0] : gameData.explanation;
-    if (!explanation)
+    const explanations = Array.isArray(gameData.explanation) ? gameData.explanation : [gameData.explanation];
+    if (!explanations.length || !explanations[0])
       return;
     const usedNodes = /* @__PURE__ */ new Set();
     function hasInput(nodeId, key) {
@@ -127100,7 +127166,14 @@ async function initProofGame(container, gameData) {
       return !!(n2 && n2.inputs && n2.inputs[key]);
     }
     function matchNode(expNode) {
-      return nodes2.find((n2) => !usedNodes.has(n2.id) && (n2 instanceof RuleNode || n2 instanceof FactNode) && n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end);
+      return editor.getNodes().find((n2) => !usedNodes.has(n2.id) && (n2 instanceof RuleNode || n2 instanceof FactNode) && n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end);
+    }
+    async function acquireMatchingInstance(expNode) {
+      const free = matchNode(expNode);
+      if (free)
+        return free;
+      const taken = editor.getNodes().find((n2) => (n2 instanceof RuleNode || n2 instanceof FactNode) && n2.sourceLoc?.start === expNode.start && n2.sourceLoc?.end === expNode.end);
+      return taken ? await cloneNode(taken) : null;
     }
     function matchAssumption(expNode) {
       const lit = String(expNode.literal || "").trim();
@@ -127114,7 +127187,7 @@ async function initProofGame(container, gameData) {
     async function connectNode(expNode, targetNodeId, targetInputKey) {
       if (!expNode || !hasInput(targetNodeId, targetInputKey))
         return;
-      const match2 = expNode.type === "unknown" ? matchAssumption(expNode) : matchNode(expNode);
+      const match2 = expNode.type === "unknown" ? matchAssumption(expNode) : await acquireMatchingInstance(expNode);
       if (!match2)
         return;
       usedNodes.add(match2.id);
@@ -127185,6 +127258,14 @@ async function initProofGame(container, gameData) {
         return;
       }
       for (const expChild of failChildren) {
+        const sameGoal = provRules.some((r2) => {
+          const re2 = templateToRegex(getPredicateTemplate(r2.headTokens));
+          return re2 && re2.test(expChild.literal || "");
+        });
+        if (sameGoal) {
+          await buildFailure(expChild, parentNodeId, inputKey);
+          continue;
+        }
         const rule = provRules.find((r2) => (r2.bodyRanges || []).some((br) => br.start === expChild.start && br.end === expChild.end));
         if (!rule)
           continue;
@@ -127206,7 +127287,14 @@ async function initProofGame(container, gameData) {
     async function connectRuleBody(expNode, ruleNode) {
       const children = expNode.children || [];
       for (let i2 = 0; i2 < children.length; i2++) {
-        const child = children[i2];
+        await connectCondition(children[i2], ruleNode, i2);
+      }
+    }
+    async function connectQueryCondition(expNode, queryNode2, i2) {
+      await connectCondition(expNode, queryNode2, i2);
+    }
+    async function connectCondition(child, ruleNode, i2) {
+      {
         if (ruleNode.forallIndexSet && ruleNode.forallIndexSet.has(i2)) {
           const subs = child && child.children || [];
           const condExps = subs.filter((s) => typeof s.literal === "string" && s.literal.startsWith("for case"));
@@ -127230,7 +127318,13 @@ async function initProofGame(container, gameData) {
         }
       }
     }
-    await connectNode(explanation, queryNode.id, "in");
+    if (queryNode.rule) {
+      for (let i2 = 0; i2 < explanations.length; i2++) {
+        await connectQueryCondition(explanations[i2], queryNode, i2);
+      }
+    } else {
+      await connectNode(explanations[0], queryNode.id, "in");
+    }
     updateConnectionLabels();
     updateFailingLabels();
     const proofTreeNodes = /* @__PURE__ */ new Set();
@@ -127298,7 +127392,18 @@ async function initProofGame(container, gameData) {
           kind: n2.constructor.name,
           label: n2.label ?? "",
           complete: !!n2.complete,
-          assumed: !!n2.assumed
+          assumed: !!n2.assumed,
+          clash: !!n2.clash,
+          templateId: n2.templateId,
+          inputs: Object.keys(n2.inputs || {}),
+          start: n2.sourceLoc?.start,
+          end: n2.sourceLoc?.end,
+          head: n2.rule?.head
+        })),
+        connections: () => editor.getConnections().map((c2) => ({
+          source: c2.source,
+          target: c2.target,
+          targetInput: c2.targetInput
         })),
         connect: (sourceId, targetId, targetInput) => editor.addConnection(new classic.Connection(
           editor.getNode(sourceId),

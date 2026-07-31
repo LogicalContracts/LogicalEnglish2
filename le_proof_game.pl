@@ -1,5 +1,6 @@
 :- module(le_proof_game, [
     extract_rules_and_facts/6,
+    query_condition_cards/3,
     unify_game_nodes/5,
     game_var_ids/2
 ]).
@@ -73,6 +74,11 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
         findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
+        % Type guards are checked by the engine, not played: they get no socket
+        % and count as already satisfied (see is_type_guard/1). They STAY in the
+        % body list so its indices keep lining up with the explanation's children
+        % and with apply_edges/2.
+        findall(TI, (nth0(TI, FlatBodyList, TCond), is_type_guard(TCond)), TypeCheckIndices),
         % For each "for all cases in which <Cond> it is the case that <Cons>" body
         % condition, expose its two sub-conditions so the UI can offer a separate
         % link target (sub-socket) for each (sub 0 = Cond, sub 1 = Cons).
@@ -91,6 +97,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         RuleDict = _{ id: NodeId, head: HeadLE, headTokens: HeadTokens,
                       body: BodyLEs, bodyTokens: BodyTokensList,
                       bodyNaf: NafIndices, bodyForall: ForallMeta,
+                      bodyTypeCheck: TypeCheckIndices,
                       bodyRanges: BodyRanges,
                       start: Start, end: End }
     ), Rules),
@@ -134,14 +141,72 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         FactDict = _{ id: NodeId, fact: FactLE, factTokens: FactTokens,
                       start: Start, end: End, assumed: Assumed }
     ), Facts),
+    query_conjuncts(Query, QConds),
     ( SM \== none ->
         game_var_ids(Query, QVarIds),
-        assertz(SM:game_node_term(query, query, term(Query, [Query], QVarIds, [])))
+        assertz(SM:game_node_term(query, query, term(Query, QConds, QVarIds, [])))
     ; true ),
     ( KB \== none ->
         game_var_ids(Query, QVarIds2),
         literal_to_game(KB, Query, QVarIds2, [], [], _Seen2, _QueryLE, QueryTokens)
     ; QueryTokens = [_{kind: "word", text: Query}] ).
+
+%!  query_conjuncts(+Query, -Conjuncts:list) is det.
+%
+%   The query goal's TOP-LEVEL conjuncts, one per thing that has to be proved —
+%   the query's equivalent of a rule's body conditions.
+%
+%   A query is often a conjunction: a prepositional chain such as "we will make
+%   which payment under this policy in respect of this claim" compiles to
+%   we_will_make(P) and under(P, …) and in_respect_of(P, …), and a query body may
+%   also be written with explicit `and`. Treating that whole conjunction as ONE
+%   condition (as this used to) made the game unplayable and unwinnable: no card
+%   head can unify with an and/2, so every link into the query clashed, and Show
+%   Proof could wire only one of the conjuncts.
+%
+%   `true` conjuncts are dropped — the body parser emits a leading one — and a
+%   goal that is not a conjunction stays a one-element list, so a single-literal
+%   query behaves exactly as before.
+query_conjuncts(Query, Conjuncts) :-
+    flatten_body([Query], Flat0),
+    exclude(is_true_conjunct, Flat0, Conjuncts0),
+    ( Conjuncts0 == [] -> Conjuncts = [Query] ; Conjuncts = Conjuncts0 ).
+
+is_true_conjunct(C) :- strip_le_at(C, true).
+
+%!  is_type_guard(+Cond) is semidet.
+%
+%   A le_type_check/2 goal: the guard the compiler adds at an argument position
+%   where several same-functor templates could apply ("*a payment* is part of *a
+%   claim*" vs "*a loss* is part of *a claim*"). It is not something the player
+%   proves — there is no card that can satisfy it, and it renders as the bare
+%   "_ is a payment" — so a rule carrying one showed a socket that could never be
+%   filled, and its proof could never be completed.
+is_type_guard(Cond) :- strip_le_at(Cond, le_type_check(_, _)).
+
+%!  query_condition_cards(+KB, +SM, -Cards:dict) is det.
+%
+%   How the query node should be drawn: one socket per top-level conjunct, the
+%   query's equivalent of a rule's body conditions. Call after
+%   extract_rules_and_facts/6, which is what records the query's game term.
+%
+%   Cards.conditions is [] for a single-goal query, so the client keeps the plain
+%   one-socket query node it has always drawn; only a conjunctive query grows the
+%   extra sockets.
+query_condition_cards(KB, SM, Cards) :-
+    (   SM \== none,
+        SM:game_node_term(query, query, term(_Query, QConds, VarIds, NameMap)),
+        QConds = [_, _ | _]                      % 2+ conjuncts: worth splitting
+    ->  body_list_to_game(KB, QConds, VarIds, NameMap, [], _Seen, LEs, TokensList),
+        body_ranges(QConds, Ranges),
+        findall(I, ( nth0(I, QConds, C), is_naf_condition(C) ), Nafs),
+        forall_meta_list(KB, QConds, VarIds, NameMap, ForallMeta),
+        Cards = _{ conditions: LEs, conditionTokens: TokensList,
+                   conditionRanges: Ranges, conditionNaf: Nafs,
+                   conditionForall: ForallMeta }
+    ;   Cards = _{ conditions: [], conditionTokens: [],
+                   conditionRanges: [], conditionNaf: [], conditionForall: [] }
+    ).
 
 %!  unify_game_nodes(+KB, +SM, +NodeSpecs, +Edges, -Response) is det.
 unify_game_nodes(KB, SM, NodeSpecs, Edges, Response) :-
@@ -281,6 +346,16 @@ naf_inner_goal(not(Inner0), Inner) :- strip_le_at(Inner0, Inner).
 
 unify_condition(Head, le_at(Cond, _, _)) :- !, unify_condition(Head, Cond).
 unify_condition(Head, or(A, B)) :- !,
+    ( unify_condition(Head, A) ; unify_condition(Head, B) ).
+% A negated goal can be a CONJUNCTION: "it is not the case that we will not make
+% the payment under this policy in respect of the claim" is a prepositional
+% chain, which compiles to we_will_not_make(P) and under(P, …) and
+% in_respect_of(P, …). The card the player links is the one whose head is a part
+% of that chain — its other conjuncts are constraints on the same variables,
+% which the surrounding links bind. Without this a negated chain could never be
+% satisfied, so the whole proof clashed. (A positive condition is never an and/2:
+% flatten_body/2 has already split those.)
+unify_condition(Head, and(A, B)) :- !,
     ( unify_condition(Head, A) ; unify_condition(Head, B) ).
 unify_condition(Head, Cond) :- Head = Cond.
 

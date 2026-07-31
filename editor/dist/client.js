@@ -77,6 +77,21 @@ var keywords = {
         "are"
       ]
     ],
+    "actions": [
+      [
+        "the",
+        "actions",
+        "are"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "the",
+        "prolog",
+        "events",
+        "are"
+      ]
+    ],
     "meta_target": [
       [
         "the",
@@ -141,7 +156,15 @@ var keywords = {
       ],
       [
         "the",
+        "actions"
+      ],
+      [
+        "the",
         "events"
+      ],
+      [
+        "the",
+        "prolog"
       ],
       [
         "the",
@@ -174,7 +197,13 @@ var keywords = {
         "fluents"
       ],
       [
+        "actions"
+      ],
+      [
         "events"
+      ],
+      [
+        "prolog"
       ],
       [
         "target"
@@ -330,6 +359,12 @@ var keywords = {
     "whether": [
       [
         "whether"
+      ]
+    ],
+    "known_as": [
+      [
+        "known",
+        "as"
       ]
     ],
     "defines_global": [
@@ -759,6 +794,106 @@ var keywords = {
       [
         "image"
       ]
+    ],
+    "lps_when": [
+      [
+        "when"
+      ]
+    ],
+    "lps_then": [
+      [
+        "then"
+      ]
+    ],
+    "lps_if": [
+      [
+        "if"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "initially"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "it",
+        "must",
+        "not",
+        "be",
+        "true",
+        "that"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "the",
+        "goal",
+        "is",
+        "that"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "initiate"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminate"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "that",
+        "is"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "becomes"
+      ]
+    ],
+    "lps_at": [
+      [
+        "at"
+      ]
+    ],
+    "lps_from": [
+      [
+        "from"
+      ]
+    ],
+    "lps_to": [
+      [
+        "to"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "the",
+        "maximum",
+        "time",
+        "is"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "the",
+        "maximum",
+        "real",
+        "time",
+        "is"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "the",
+        "minimum",
+        "cycle",
+        "time",
+        "is"
+      ]
     ]
   },
   "pt": {
@@ -839,6 +974,21 @@ var keywords = {
         "s\xE3o"
       ]
     ],
+    "actions": [
+      [
+        "as",
+        "a\xE7\xF5es",
+        "s\xE3o"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "os",
+        "eventos",
+        "prolog",
+        "s\xE3o"
+      ]
+    ],
     "meta_target": [
       [
         "a",
@@ -891,6 +1041,11 @@ var keywords = {
         "s\xE3o"
       ],
       [
+        "os",
+        "eventos",
+        "prolog"
+      ],
+      [
         "a",
         "linguagem",
         "alvo"
@@ -914,6 +1069,11 @@ var keywords = {
         "a",
         "ontologia",
         "\xE9"
+      ],
+      [
+        "as",
+        "a\xE7\xF5es",
+        "s\xE3o"
       ],
       [
         "o",
@@ -1154,6 +1314,12 @@ var keywords = {
     "whether": [
       [
         "se"
+      ]
+    ],
+    "known_as": [
+      [
+        "conhecido",
+        "como"
       ]
     ],
     "defines_global": [
@@ -1742,6 +1908,106 @@ var keywords = {
       [
         "imagem"
       ]
+    ],
+    "lps_when": [
+      [
+        "quando"
+      ]
+    ],
+    "lps_then": [
+      [
+        "ent\xE3o"
+      ]
+    ],
+    "lps_if": [
+      [
+        "se"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "inicialmente"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "n\xE3o",
+        "pode",
+        "ser",
+        "verdade",
+        "que"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "o",
+        "objetivo",
+        "\xE9",
+        "que"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "iniciar"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminar"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "que",
+        "\xE9"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "torna-se"
+      ]
+    ],
+    "lps_at": [
+      [
+        "em"
+      ]
+    ],
+    "lps_from": [
+      [
+        "de"
+      ]
+    ],
+    "lps_to": [
+      [
+        "at\xE9"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "o",
+        "tempo",
+        "m\xE1ximo",
+        "\xE9"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "o",
+        "tempo",
+        "real",
+        "m\xE1ximo",
+        "\xE9"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "o",
+        "tempo",
+        "m\xEDnimo",
+        "de",
+        "ciclo",
+        "\xE9"
+      ]
     ]
   },
   "es": {
@@ -1822,6 +2088,21 @@ var keywords = {
         "son"
       ]
     ],
+    "actions": [
+      [
+        "las",
+        "acciones",
+        "son"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "los",
+        "eventos",
+        "prolog",
+        "son"
+      ]
+    ],
     "meta_target": [
       [
         "el",
@@ -1883,7 +2164,17 @@ var keywords = {
       ],
       [
         "los",
+        "eventos",
+        "prolog"
+      ],
+      [
+        "los",
         "fluentes",
+        "son"
+      ],
+      [
+        "las",
+        "acciones",
         "son"
       ],
       [
@@ -2142,6 +2433,12 @@ var keywords = {
     "whether": [
       [
         "si"
+      ]
+    ],
+    "known_as": [
+      [
+        "conocido",
+        "como"
       ]
     ],
     "defines_global": [
@@ -2724,6 +3021,108 @@ var keywords = {
       [
         "imagen"
       ]
+    ],
+    "lps_when": [
+      [
+        "cuando"
+      ]
+    ],
+    "lps_then": [
+      [
+        "entonces"
+      ]
+    ],
+    "lps_if": [
+      [
+        "si"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "inicialmente"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "no",
+        "puede",
+        "ser",
+        "cierto",
+        "que"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "el",
+        "objetivo",
+        "es",
+        "que"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "iniciar"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminar"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "que",
+        "es"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "se",
+        "convierte",
+        "en"
+      ]
+    ],
+    "lps_at": [
+      [
+        "en"
+      ]
+    ],
+    "lps_from": [
+      [
+        "desde"
+      ]
+    ],
+    "lps_to": [
+      [
+        "hasta"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "el",
+        "tiempo",
+        "m\xE1ximo",
+        "es"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "el",
+        "tiempo",
+        "real",
+        "m\xE1ximo",
+        "es"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "el",
+        "tiempo",
+        "m\xEDnimo",
+        "de",
+        "ciclo",
+        "es"
+      ]
     ]
   },
   "fr": {
@@ -2812,6 +3211,21 @@ var keywords = {
         "sont"
       ]
     ],
+    "actions": [
+      [
+        "les",
+        "actions",
+        "sont"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "les",
+        "\xE9v\xE9nements",
+        "prolog",
+        "sont"
+      ]
+    ],
     "meta_target": [
       [
         "la",
@@ -2859,6 +3273,11 @@ var keywords = {
       [
         "les",
         "\xE9v\xE9nements",
+        "prolog"
+      ],
+      [
+        "les",
+        "\xE9v\xE9nements",
         "sont"
       ],
       [
@@ -2879,6 +3298,11 @@ var keywords = {
       [
         "les",
         "fluents",
+        "sont"
+      ],
+      [
+        "les",
+        "actions",
         "sont"
       ],
       [
@@ -3128,6 +3552,12 @@ var keywords = {
     "whether": [
       [
         "si"
+      ]
+    ],
+    "known_as": [
+      [
+        "connu",
+        "comme"
       ]
     ],
     "defines_global": [
@@ -3673,6 +4103,108 @@ var keywords = {
       [
         "image"
       ]
+    ],
+    "lps_when": [
+      [
+        "quand"
+      ]
+    ],
+    "lps_then": [
+      [
+        "alors"
+      ]
+    ],
+    "lps_if": [
+      [
+        "si"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "initialement"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "il",
+        "ne",
+        "doit",
+        "pas",
+        "\xEAtre",
+        "vrai",
+        "que"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "le",
+        "but",
+        "est",
+        "que"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "initier"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminer"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "qui",
+        "est"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "devient"
+      ]
+    ],
+    "lps_at": [
+      [
+        "\xE0"
+      ]
+    ],
+    "lps_from": [
+      [
+        "de"
+      ]
+    ],
+    "lps_to": [
+      [
+        "jusqu'\xE0"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "le",
+        "temps",
+        "maximum",
+        "est"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "le",
+        "temps",
+        "r\xE9el",
+        "maximum",
+        "est"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "le",
+        "temps",
+        "de",
+        "cycle",
+        "minimum",
+        "est"
+      ]
     ]
   },
   "it": {
@@ -3753,6 +4285,21 @@ var keywords = {
         "sono"
       ]
     ],
+    "actions": [
+      [
+        "le",
+        "azioni",
+        "sono"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "gli",
+        "eventi",
+        "prolog",
+        "sono"
+      ]
+    ],
     "meta_target": [
       [
         "il",
@@ -3802,6 +4349,11 @@ var keywords = {
         "conoscenza"
       ],
       [
+        "gli",
+        "eventi",
+        "prolog"
+      ],
+      [
         "i",
         "predicati",
         "sono"
@@ -3827,6 +4379,11 @@ var keywords = {
       [
         "i",
         "fluenti",
+        "sono"
+      ],
+      [
+        "le",
+        "azioni",
         "sono"
       ],
       [
@@ -4069,6 +4626,12 @@ var keywords = {
     "whether": [
       [
         "se"
+      ]
+    ],
+    "known_as": [
+      [
+        "noto",
+        "come"
       ]
     ],
     "defines_global": [
@@ -4694,6 +5257,106 @@ var keywords = {
     "image": [
       [
         "immagine"
+      ]
+    ],
+    "lps_when": [
+      [
+        "quando"
+      ]
+    ],
+    "lps_then": [
+      [
+        "allora"
+      ]
+    ],
+    "lps_if": [
+      [
+        "se"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "inizialmente"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "non",
+        "deve",
+        "essere",
+        "vero",
+        "che"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "l'obiettivo",
+        "\xE8",
+        "che"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "iniziare"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminare"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "che",
+        "\xE8"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "diventa"
+      ]
+    ],
+    "lps_at": [
+      [
+        "a"
+      ]
+    ],
+    "lps_from": [
+      [
+        "da"
+      ]
+    ],
+    "lps_to": [
+      [
+        "fino",
+        "a"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "il",
+        "tempo",
+        "massimo",
+        "\xE8"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "il",
+        "tempo",
+        "reale",
+        "massimo",
+        "\xE8"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "il",
+        "tempo",
+        "minimo",
+        "di",
+        "ciclo",
+        "\xE8"
       ]
     ]
   }
@@ -6167,7 +6830,7 @@ function buildLeMonarchTokens(lang) {
   const W = "[A-Za-z\xC0-\xD6\xD8-\xF6\xF8-\xFF0-9_]";
   const b = (re) => `(?<!${W})(?:${re})(?!${W})`;
   const headers = alt(T, ["kb_open", "contract_open", "scenario", "query", "ontology", "meta_target"]);
-  const templateHeaders = alt(T, ["predicates", "templates", "fluents", "events"]);
+  const templateHeaders = alt(T, ["predicates", "templates", "fluents", "events", "actions", "prolog_events"]);
   const structural = alt(T, [
     "resources_include",
     "kb_include",
@@ -6188,7 +6851,23 @@ function buildLeMonarchTokens(lang) {
     "average",
     "min",
     "max",
-    "marker"
+    "marker",
+    // LPS (docs/le_lps_surface.md §3): the sentence forms a document with
+    // "the target language is: lps." adds. Highlighting them in a plain-LE
+    // document is harmless -- they read as ordinary template instances --
+    // which is the argument for one .le extension rather than two.
+    "lps_when",
+    "lps_then",
+    "lps_if",
+    "lps_initially",
+    "lps_must_not",
+    "lps_goal",
+    "lps_initiate",
+    "lps_terminate",
+    "lps_becomes",
+    "lps_max_time",
+    "lps_max_real_time",
+    "lps_min_cycle_time"
   ]);
   const expects = alt(T, ["expects"]) && `(?:${alt(T, ["expects"])})[ \\t]+(?:${alt(T, ["answers"])})`;
   const andOr = words(T, ["and", "or"]);
@@ -6196,7 +6875,7 @@ function buildLeMonarchTokens(lang) {
   const qualifiers = words(T, ["qualifier"]);
   const copulas = words(T, ["copula", "ignorable", "meta_marker", "that"]);
   const preps = words(T, ["connective_heuristic", "of"]);
-  const additions = alt(T, ["defines_global", "opposite", "synonym", "prepositional", "unknown", "undefined"]);
+  const additions = alt(T, ["defines_global", "opposite", "synonym", "prepositional", "unknown", "undefined", "known_as"]);
   return {
     tokenizer: {
       root: [

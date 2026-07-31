@@ -83,6 +83,21 @@ export const keywords: Record<string, KeywordTable> = {
         "are"
       ]
     ],
+    "actions": [
+      [
+        "the",
+        "actions",
+        "are"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "the",
+        "prolog",
+        "events",
+        "are"
+      ]
+    ],
     "meta_target": [
       [
         "the",
@@ -147,7 +162,15 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "the",
+        "actions"
+      ],
+      [
+        "the",
         "events"
+      ],
+      [
+        "the",
+        "prolog"
       ],
       [
         "the",
@@ -180,7 +203,13 @@ export const keywords: Record<string, KeywordTable> = {
         "fluents"
       ],
       [
+        "actions"
+      ],
+      [
         "events"
+      ],
+      [
+        "prolog"
       ],
       [
         "target"
@@ -336,6 +365,12 @@ export const keywords: Record<string, KeywordTable> = {
     "whether": [
       [
         "whether"
+      ]
+    ],
+    "known_as": [
+      [
+        "known",
+        "as"
       ]
     ],
     "defines_global": [
@@ -765,6 +800,106 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "image"
       ]
+    ],
+    "lps_when": [
+      [
+        "when"
+      ]
+    ],
+    "lps_then": [
+      [
+        "then"
+      ]
+    ],
+    "lps_if": [
+      [
+        "if"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "initially"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "it",
+        "must",
+        "not",
+        "be",
+        "true",
+        "that"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "the",
+        "goal",
+        "is",
+        "that"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "initiate"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminate"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "that",
+        "is"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "becomes"
+      ]
+    ],
+    "lps_at": [
+      [
+        "at"
+      ]
+    ],
+    "lps_from": [
+      [
+        "from"
+      ]
+    ],
+    "lps_to": [
+      [
+        "to"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "the",
+        "maximum",
+        "time",
+        "is"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "the",
+        "maximum",
+        "real",
+        "time",
+        "is"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "the",
+        "minimum",
+        "cycle",
+        "time",
+        "is"
+      ]
     ]
   },
   "pt": {
@@ -845,6 +980,21 @@ export const keywords: Record<string, KeywordTable> = {
         "são"
       ]
     ],
+    "actions": [
+      [
+        "as",
+        "ações",
+        "são"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "os",
+        "eventos",
+        "prolog",
+        "são"
+      ]
+    ],
     "meta_target": [
       [
         "a",
@@ -897,6 +1047,11 @@ export const keywords: Record<string, KeywordTable> = {
         "são"
       ],
       [
+        "os",
+        "eventos",
+        "prolog"
+      ],
+      [
         "a",
         "linguagem",
         "alvo"
@@ -920,6 +1075,11 @@ export const keywords: Record<string, KeywordTable> = {
         "a",
         "ontologia",
         "é"
+      ],
+      [
+        "as",
+        "ações",
+        "são"
       ],
       [
         "o",
@@ -1160,6 +1320,12 @@ export const keywords: Record<string, KeywordTable> = {
     "whether": [
       [
         "se"
+      ]
+    ],
+    "known_as": [
+      [
+        "conhecido",
+        "como"
       ]
     ],
     "defines_global": [
@@ -1748,6 +1914,106 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "imagem"
       ]
+    ],
+    "lps_when": [
+      [
+        "quando"
+      ]
+    ],
+    "lps_then": [
+      [
+        "então"
+      ]
+    ],
+    "lps_if": [
+      [
+        "se"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "inicialmente"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "não",
+        "pode",
+        "ser",
+        "verdade",
+        "que"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "o",
+        "objetivo",
+        "é",
+        "que"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "iniciar"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminar"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "que",
+        "é"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "torna-se"
+      ]
+    ],
+    "lps_at": [
+      [
+        "em"
+      ]
+    ],
+    "lps_from": [
+      [
+        "de"
+      ]
+    ],
+    "lps_to": [
+      [
+        "até"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "o",
+        "tempo",
+        "máximo",
+        "é"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "o",
+        "tempo",
+        "real",
+        "máximo",
+        "é"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "o",
+        "tempo",
+        "mínimo",
+        "de",
+        "ciclo",
+        "é"
+      ]
     ]
   },
   "es": {
@@ -1828,6 +2094,21 @@ export const keywords: Record<string, KeywordTable> = {
         "son"
       ]
     ],
+    "actions": [
+      [
+        "las",
+        "acciones",
+        "son"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "los",
+        "eventos",
+        "prolog",
+        "son"
+      ]
+    ],
     "meta_target": [
       [
         "el",
@@ -1889,7 +2170,17 @@ export const keywords: Record<string, KeywordTable> = {
       ],
       [
         "los",
+        "eventos",
+        "prolog"
+      ],
+      [
+        "los",
         "fluentes",
+        "son"
+      ],
+      [
+        "las",
+        "acciones",
         "son"
       ],
       [
@@ -2148,6 +2439,12 @@ export const keywords: Record<string, KeywordTable> = {
     "whether": [
       [
         "si"
+      ]
+    ],
+    "known_as": [
+      [
+        "conocido",
+        "como"
       ]
     ],
     "defines_global": [
@@ -2730,6 +3027,108 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "imagen"
       ]
+    ],
+    "lps_when": [
+      [
+        "cuando"
+      ]
+    ],
+    "lps_then": [
+      [
+        "entonces"
+      ]
+    ],
+    "lps_if": [
+      [
+        "si"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "inicialmente"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "no",
+        "puede",
+        "ser",
+        "cierto",
+        "que"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "el",
+        "objetivo",
+        "es",
+        "que"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "iniciar"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminar"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "que",
+        "es"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "se",
+        "convierte",
+        "en"
+      ]
+    ],
+    "lps_at": [
+      [
+        "en"
+      ]
+    ],
+    "lps_from": [
+      [
+        "desde"
+      ]
+    ],
+    "lps_to": [
+      [
+        "hasta"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "el",
+        "tiempo",
+        "máximo",
+        "es"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "el",
+        "tiempo",
+        "real",
+        "máximo",
+        "es"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "el",
+        "tiempo",
+        "mínimo",
+        "de",
+        "ciclo",
+        "es"
+      ]
     ]
   },
   "fr": {
@@ -2818,6 +3217,21 @@ export const keywords: Record<string, KeywordTable> = {
         "sont"
       ]
     ],
+    "actions": [
+      [
+        "les",
+        "actions",
+        "sont"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "les",
+        "événements",
+        "prolog",
+        "sont"
+      ]
+    ],
     "meta_target": [
       [
         "la",
@@ -2865,6 +3279,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "les",
         "événements",
+        "prolog"
+      ],
+      [
+        "les",
+        "événements",
         "sont"
       ],
       [
@@ -2885,6 +3304,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "les",
         "fluents",
+        "sont"
+      ],
+      [
+        "les",
+        "actions",
         "sont"
       ],
       [
@@ -3134,6 +3558,12 @@ export const keywords: Record<string, KeywordTable> = {
     "whether": [
       [
         "si"
+      ]
+    ],
+    "known_as": [
+      [
+        "connu",
+        "comme"
       ]
     ],
     "defines_global": [
@@ -3679,6 +4109,108 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "image"
       ]
+    ],
+    "lps_when": [
+      [
+        "quand"
+      ]
+    ],
+    "lps_then": [
+      [
+        "alors"
+      ]
+    ],
+    "lps_if": [
+      [
+        "si"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "initialement"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "il",
+        "ne",
+        "doit",
+        "pas",
+        "être",
+        "vrai",
+        "que"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "le",
+        "but",
+        "est",
+        "que"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "initier"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminer"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "qui",
+        "est"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "devient"
+      ]
+    ],
+    "lps_at": [
+      [
+        "à"
+      ]
+    ],
+    "lps_from": [
+      [
+        "de"
+      ]
+    ],
+    "lps_to": [
+      [
+        "jusqu'à"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "le",
+        "temps",
+        "maximum",
+        "est"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "le",
+        "temps",
+        "réel",
+        "maximum",
+        "est"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "le",
+        "temps",
+        "de",
+        "cycle",
+        "minimum",
+        "est"
+      ]
     ]
   },
   "it": {
@@ -3759,6 +4291,21 @@ export const keywords: Record<string, KeywordTable> = {
         "sono"
       ]
     ],
+    "actions": [
+      [
+        "le",
+        "azioni",
+        "sono"
+      ]
+    ],
+    "prolog_events": [
+      [
+        "gli",
+        "eventi",
+        "prolog",
+        "sono"
+      ]
+    ],
     "meta_target": [
       [
         "il",
@@ -3808,6 +4355,11 @@ export const keywords: Record<string, KeywordTable> = {
         "conoscenza"
       ],
       [
+        "gli",
+        "eventi",
+        "prolog"
+      ],
+      [
         "i",
         "predicati",
         "sono"
@@ -3833,6 +4385,11 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "i",
         "fluenti",
+        "sono"
+      ],
+      [
+        "le",
+        "azioni",
         "sono"
       ],
       [
@@ -4075,6 +4632,12 @@ export const keywords: Record<string, KeywordTable> = {
     "whether": [
       [
         "se"
+      ]
+    ],
+    "known_as": [
+      [
+        "noto",
+        "come"
       ]
     ],
     "defines_global": [
@@ -4701,6 +5264,106 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "immagine"
       ]
+    ],
+    "lps_when": [
+      [
+        "quando"
+      ]
+    ],
+    "lps_then": [
+      [
+        "allora"
+      ]
+    ],
+    "lps_if": [
+      [
+        "se"
+      ]
+    ],
+    "lps_initially": [
+      [
+        "inizialmente"
+      ]
+    ],
+    "lps_must_not": [
+      [
+        "non",
+        "deve",
+        "essere",
+        "vero",
+        "che"
+      ]
+    ],
+    "lps_goal": [
+      [
+        "l'obiettivo",
+        "è",
+        "che"
+      ]
+    ],
+    "lps_initiate": [
+      [
+        "iniziare"
+      ]
+    ],
+    "lps_terminate": [
+      [
+        "terminare"
+      ]
+    ],
+    "lps_that_is": [
+      [
+        "che",
+        "è"
+      ]
+    ],
+    "lps_becomes": [
+      [
+        "diventa"
+      ]
+    ],
+    "lps_at": [
+      [
+        "a"
+      ]
+    ],
+    "lps_from": [
+      [
+        "da"
+      ]
+    ],
+    "lps_to": [
+      [
+        "fino",
+        "a"
+      ]
+    ],
+    "lps_max_time": [
+      [
+        "il",
+        "tempo",
+        "massimo",
+        "è"
+      ]
+    ],
+    "lps_max_real_time": [
+      [
+        "il",
+        "tempo",
+        "reale",
+        "massimo",
+        "è"
+      ]
+    ],
+    "lps_min_cycle_time": [
+      [
+        "il",
+        "tempo",
+        "minimo",
+        "di",
+        "ciclo",
+        "è"
+      ]
     ]
   }
 } as const;
@@ -4719,6 +5382,8 @@ export const keywordCategories: Record<string, string> = {
   "templates": "section",
   "fluents": "section",
   "events": "section",
+  "actions": "section",
+  "prolog_events": "section",
   "meta_target": "section",
   "marker": "section",
   "marker_is": "section",
@@ -4749,6 +5414,7 @@ export const keywordCategories: Record<string, string> = {
   "it_is_true_that": "forall",
   "it_is": "unknown",
   "whether": "unknown",
+  "known_as": "template_addition",
   "defines_global": "template_addition",
   "opposite": "template_addition",
   "synonym": "template_addition",
@@ -4784,7 +5450,23 @@ export const keywordCategories: Record<string, string> = {
   "assuming_and": "answer",
   "article_narrow": "class",
   "connective_heuristic": "class",
-  "image": "fact_addition"
+  "image": "fact_addition",
+  "lps_when": "lps",
+  "lps_then": "lps",
+  "lps_if": "lps",
+  "lps_initially": "lps",
+  "lps_must_not": "lps",
+  "lps_goal": "lps",
+  "lps_initiate": "lps",
+  "lps_terminate": "lps",
+  "lps_that_is": "lps",
+  "lps_becomes": "lps",
+  "lps_at": "lps",
+  "lps_from": "lps",
+  "lps_to": "lps",
+  "lps_max_time": "lps",
+  "lps_max_real_time": "lps",
+  "lps_min_cycle_time": "lps"
 } as const;
 
 /** UI chrome strings per language, keyed by the canonical English string. */
