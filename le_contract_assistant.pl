@@ -43,7 +43,10 @@
 
     For tests, the LLM can be stubbed by asserting ca_llm_hook/1 with a closure
     called as call(Closure, Purpose, Messages, ReplyText), and jobs can be run
-    synchronously with start_contract_job/3 option sync(true).
+    synchronously with start_contract_job/3 option sync(true). One level lower,
+    ca_raw_hook/1 (called as call(Closure, Model, Messages, Options, Reply))
+    replaces the provider call itself, to exercise the retry/auto-tuning
+    ladder of llm_outcome/9.
 */
 
 :- module(le_contract_assistant, [
@@ -83,6 +86,7 @@
 :- dynamic ca_ended/2.       % JobID, EndTime (job reached a terminal state)
 :- dynamic ca_tune/2.        % JobID, Tuning (e.g. reasoning_minimal) — set on the fly
 :- dynamic ca_llm_hook/1.    % Closure for tests: call(Closure, Purpose, Messages, Reply)
+:- dynamic ca_raw_hook/1.    % Closure for tests: call(Closure, Model, Messages, Opts, Reply)
 
 % ============================= HTTP-facing handlers ==========================
 % All four take the /leapi request dict and produce a JSON-able response dict.
@@ -774,7 +778,8 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
             ( member(I, Ks),
               ca_check_alive(JobID),
               Temp is 0.05 + 0.2 * (I - 1),
-              ca_emit(JobID, "Vocabulary sample ~w/~w (temperature ~2f)"-[I, K, Temp]),
+              sampling_note(JobID, Temp, Note),
+              ca_emit(JobID, "Vocabulary sample ~w/~w (~w)"-[I, K, Note]),
               stage_llm(JobID, Config, vocabulary, 'stage1_vocabulary',
                         [existing-Existing, materials-Materials],
                         [temperature(Temp)], Sample)
@@ -786,6 +791,14 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
         atomic_list_concat(Samples, "\n\n===== NEXT SAMPLE =====\n\n", Joined),
         stage_llm(JobID, Config, vocabulary_merge, 'stage1_merge',
                   [existing-Existing, samples-Joined], [temperature(0)], Vocabulary)
+    ).
+
+% What makes this sample differ from its siblings — a temperature, or (once
+% the provider has refused one) the model's own sampling.
+sampling_note(JobID, Temp, Note) :-
+    (   ca_tune(JobID, no_temperature)
+    ->  Note = "provider default sampling"
+    ;   format(string(Note), "temperature ~2f", [Temp])
     ).
 
 architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches) :-
@@ -1278,6 +1291,8 @@ technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase,
             ( ca_tune(JobID, Tune),
               (   Tune == reasoning_minimal
               ->  TLine = "  - minimal reasoning enabled after a truncated call"
+              ;   Tune == no_temperature
+              ->  TLine = "  - temperature dropped: the provider rejects it for this model (samples varied by the model's own sampling instead)"
               ;   Tune = max_tokens(N)
               ->  format(string(TLine), "  - completion limit raised to ~w after truncation", [N])
               ) ),
@@ -1493,26 +1508,49 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
     (   ca_llm_hook(Hook)
     ->  call(Hook, Purpose, Messages, Reply)
     ;   resolve_model(Purpose, Config, Model, Key),
-        ( ca_tune(JobID, max_tokens(MT)) -> true ; MT = Config.max_tokens ),
-        (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
-        ->  Extra = [api_key(Key), max_tokens(MT), reasoning(minimal)]
-        ;   Extra = [api_key(Key), max_tokens(MT)]
-        ),
-        append(Options, Extra, Opts),
+        stage_options(JobID, Config, Key, Options, Opts),
         llm_try(JobID, Config, Purpose, Model, Messages, Opts, 1, Reply)
     ).
+
+%!  stage_options(+JobID, +Config, +Key, +Options, -Opts) is det.
+%
+%   The stage's own options (temperature...) plus the job-wide ones, honouring
+%   the auto-tunings discovered during the run: a raised completion limit,
+%   minimal reasoning, and a temperature the provider refuses to hear about
+%   (see the temperature clause of llm_outcome/9).
+stage_options(JobID, Config, Key, Options, Opts) :-
+    ( ca_tune(JobID, max_tokens(MT)) -> true ; MT = Config.max_tokens ),
+    (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
+    ->  Extra = [api_key(Key), max_tokens(MT), reasoning(minimal)]
+    ;   Extra = [api_key(Key), max_tokens(MT)]
+    ),
+    ( ca_tune(JobID, no_temperature) -> drop_temperature(Options, Options1) ; Options1 = Options ),
+    append(Options1, Extra, Opts).
+
+drop_temperature(Opts0, Opts) :-
+    exclude(is_temperature_option, Opts0, Opts).
+
+is_temperature_option(temperature(_)).
 
 % Transient provider failures (503 Service unavailable, 429 rate limit,
 % dropped sockets) must not kill a many-minute job on its first call: retry
 % with backoff, up to 3 times, respecting the deadline and interrupts.
 llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     catch(
-        ( call_with_time_limit(900,
-              llm_client:llm_request(Model, Messages, Reply0, Opts)),
+        ( llm_raw(Model, Messages, Opts, Reply0),
           Outcome = ok(Reply0) ),
         E,
         Outcome = err(E)),
     llm_outcome(Outcome, JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply).
+
+% The one place that actually talks to a provider — and the seam the retry
+% tests replace (ca_raw_hook/1) to exercise this ladder offline.
+llm_raw(Model, Messages, Opts, Reply) :-
+    (   ca_raw_hook(Hook)
+    ->  call(Hook, Model, Messages, Opts, Reply)
+    ;   call_with_time_limit(900,
+            llm_client:llm_request(Model, Messages, Reply, Opts))
+    ).
 
 % An EMPTY reply is a failure, not a result: models that spend their whole
 % completion budget on internal reasoning (or whose reply format is not
@@ -1533,6 +1571,27 @@ llm_outcome(ok(Reply0), JobID, Config, Purpose, Model, Messages, Opts, Attempt, 
         string_length(Reply0, RL),
         ca_emit(JobID, "LLM reply (~w): ~w chars"-[Purpose, RL])
     ).
+% Not every provider lets you set the temperature: several current models
+% accept only their default and reject the parameter outright (HTTP 400
+% "temperature is not supported with this model", "Only the default (1) ...").
+% The pipeline uses temperature to VARY its samples, not to be exact, and such
+% models sample nondeterministically anyway — so drop the parameter and call
+% again, K times as before. Sticky for the rest of the job: one rejection is
+% enough to learn it.
+llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    temperature_rejected(E),
+    memberchk(temperature(_), Opts),
+    \+ deadline_exceeded(Config),
+    !,
+    ca_emit(JobID, "LLM call (~w): the provider rejects the temperature parameter for ~w; retrying without it"-[Purpose, Model]),
+    (   ca_tune(JobID, no_temperature)
+    ->  true
+    ;   assertz(ca_tune(JobID, no_temperature)),
+        ca_emit(JobID, "Auto-tuning: temperature dropped for the rest of the job — the samples that varied by temperature now vary by the model's own sampling"-[])
+    ),
+    ca_check_alive(JobID),
+    drop_temperature(Opts, Opts1),
+    llm_try(JobID, Config, Purpose, Model, Messages, Opts1, Attempt, Reply).
 % The model spent its whole completion budget reasoning. Deterministic, so a
 % plain retry is pointless — but asking it to THINK LESS is not: retry once
 % with reasoning(minimal). Only if the minimal-reasoning call also drowns in
@@ -1583,6 +1642,18 @@ llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Repl
         ca_emit(JobID, "LLM call failed (~w): ~w"-[Purpose, ES]),
         throw(error(contract_assistant_error(llm_failed(Purpose, ES)), _))
     ).
+
+%!  temperature_rejected(+Error) is semidet.
+%
+%   A parameter rejection naming `temperature`: the provider refuses the
+%   sampling temperature for this model (OpenAI answers 400, others 422).
+%   Anything else about a 400 is a real error and must not be swallowed.
+temperature_rejected(error(llm_api_error(Status, Body), _)) :-
+    integer(Status),
+    memberchk(Status, [400, 422]),
+    term_string(Body, BS0),
+    string_lower(BS0, BS),
+    sub_string(BS, _, _, _, "temperature").
 
 transient_llm_error(error(llm_api_error(Status, _), _)) :-
     integer(Status),
