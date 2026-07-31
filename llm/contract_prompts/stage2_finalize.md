@@ -12,3 +12,4 @@ The rules of the computable twin are drafted (program below). Finish it:
 
 Keep every existing rule and comment. Output exactly one fenced code block
 containing the FULL completed program.
+{{existing}}

@@ -28,6 +28,11 @@ function show(screen) {
         $('screen-' + s).classList.toggle('hidden', s !== screen);
 }
 
+// LE source lines end up inside innerHTML (the reports) — escape them.
+function esc(s) {
+    return String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+}
+
 function ext(name) {
     const m = /\.([A-Za-z0-9]+)$/.exec(name || '');
     return m ? m[1].toLowerCase() : '';
@@ -58,10 +63,76 @@ function wireUploads() {
         const files = Array.from(input.files || []);
         span.textContent = files.length ? files.map(f => f.name).join(', ') : none;
         $('btn-start').disabled = !$('file-wording').files.length;
+        scheduleEstimate();
     };
     $('file-wording').addEventListener('change', () => nameFor($('file-wording'), $('name-wording'), 'no file selected'));
     $('file-schedule').addEventListener('change', () => nameFor($('file-schedule'), $('name-schedule'), 'no file selected'));
     $('file-cases').addEventListener('change', () => nameFor($('file-cases'), $('name-cases'), 'no files selected'));
+}
+
+// ------------------------------- cost estimate ------------------------------
+// The server prices the chosen configuration (llm_prices.pl + the pipeline's
+// call plan); the client only has to say how much material it will carry.
+
+function inputChars() {
+    let chars = existingCode().length;
+    const inputs = [$('file-wording'), $('file-schedule'), $('file-cases')];
+    for (const input of inputs)
+        for (const f of Array.from(input.files || [])) chars += f.size;
+    return chars;
+}
+
+function existingCode() {
+    return ($('existing-code').value || '').trim();
+}
+
+let estimateTimer = null;
+let estimateSeq = 0;
+
+function scheduleEstimate() {
+    if (estimateTimer) clearTimeout(estimateTimer);
+    estimateTimer = setTimeout(runEstimate, 400);
+}
+
+async function runEstimate() {
+    const box = $('cost'), value = $('cost-value');
+    const chars = inputChars();
+    if (!$('file-wording').files.length && !chars) {
+        box.classList.add('unknown');
+        value.textContent = 'choose a wording file to estimate';
+        return;
+    }
+    const seq = ++estimateSeq;
+    let data;
+    try {
+        data = await leapi('contract_cost_estimate', {
+            model: $('model').value,
+            judge_model: $('judge-model').value,
+            budget: collectBudget(),
+            features: collectFeatures(),
+            input_chars: chars
+        });
+    } catch (e) {
+        if (seq !== estimateSeq) return;
+        box.classList.add('unknown');
+        value.textContent = 'unavailable (' + e.message + ')';
+        return;
+    }
+    if (seq !== estimateSeq) return;   // a newer estimate is already on its way
+    if (data.error || !data.priced) {
+        box.classList.add('unknown');
+        value.textContent = data.error || data.note || 'unavailable for this model';
+        // The server fetches the price table in the background when it starts:
+        // right after a restart it may not be there yet, so look again.
+        if (data.note && data.note.includes('not loaded')) setTimeout(scheduleEstimate, 5000);
+        return;
+    }
+    box.classList.remove('unknown');
+    const cost = data.cost_usd < 0.01 ? 'under $0.01' : '≈ $' + data.cost_usd.toFixed(2);
+    value.innerHTML = `<b>${cost}</b> <span class="cost-detail">upper estimate · ` +
+        `~${data.calls} LLM calls · ~${data.input_tokens_per_call.toLocaleString()} tokens in / ` +
+        `${data.output_tokens_per_call.toLocaleString()} out per call` +
+        `${data.note ? ' · ' + esc(data.note) : ''}</span>`;
 }
 
 async function loadModels() {
@@ -110,6 +181,7 @@ async function loadModels() {
         }
         const preferred = localStorage.getItem('le-assistant-model');
         if (preferred) { $('model').value = preferred; $('judge-model').value = preferred; }
+        scheduleEstimate();   // prices depend on the models just selected
     } catch (e) {
         $('setup-error').textContent = 'Could not load the model list: ' + e.message;
     }
@@ -169,7 +241,8 @@ async function start() {
             api_keys: collectKeys(),
             budget: collectBudget(),
             features: collectFeatures(),
-            target: $('target').value.trim()
+            target: $('target').value.trim(),
+            existing_code: existingCode()
         };
         if ($('adv-maxtokens').value !== '') payload.max_tokens = Number($('adv-maxtokens').value);
         if ($('adv-reasoning').value !== '') payload.reasoning = $('adv-reasoning').value;
@@ -228,7 +301,9 @@ function summaryBits(c) {
         c.diff_repairs === false ? 'full-file repairs' : 'diff repairs',
         `max ${c.minutes} min`,
         `${c.max_tokens} tokens/call`,
-        c.reasoning === 'minimal' ? 'minimal reasoning' : null
+        c.reasoning === 'minimal' ? 'minimal reasoning' : null,
+        c.existing_chars ? `${c.existing_chars} chars of existing LE code` : null,
+        typeof c.cost_usd === 'number' ? `est. cost ≤ $${c.cost_usd.toFixed(2)}` : null
     ].filter(Boolean);
 }
 
@@ -373,6 +448,20 @@ function renderReports(data) {
             `${inter.initially_disagreed > inter.disagreed ? ` (${inter.initially_disagreed - inter.disagreed} adjudicated)` : ''}</small>${open}`;
         div.appendChild(el);
     }
+    const existing = data.existing_code;
+    if (existing && existing.enabled) {
+        const el = document.createElement('div');
+        el.className = 'branch' + (existing.percent >= 100 ? ' winner' : ' warn');
+        const missing = (existing.missing || []).length
+            ? '<br><small>Missing (first few):</small>' +
+              existing.missing.map(m => `<br><small>• ${esc(m)}</small>`).join('')
+            : '';
+        el.innerHTML = `<b>Existing LE code</b><br><small>${existing.kept}/${existing.lines} supplied line(s) kept ` +
+            `(${existing.percent}%)</small>${missing}`;
+        el.title = 'How much of the Logical English you pasted appears verbatim in the delivered program. ' +
+            'Lines the model re-worded or re-indented count as missing even when their meaning survived — check them.';
+        div.appendChild(el);
+    }
     const para = data.paraphrase;
     if (para && para.enabled) {
         const el = document.createElement('div');
@@ -410,9 +499,37 @@ function openInEditor() {
 
 // --------------------------------- wiring -----------------------------------
 
+// Everything the estimate depends on: the models, the effort settings, and
+// the amount of material (files are handled in wireUploads).
+function wireEstimate() {
+    const ids = ['model', 'judge-model', 'adv-k', 'adv-w', 'adv-repairs', 'feat-probes'];
+    for (const id of ids) $(id).addEventListener('change', scheduleEstimate);
+    for (const radio of document.querySelectorAll('input[name=preset]'))
+        radio.addEventListener('change', scheduleEstimate);
+}
+
+// The existing-code box: a live line count, and a re-estimate (the code is
+// sent with every call, so it costs tokens).
+function wireExistingCode() {
+    const area = $('existing-code');
+    const note = $('existing-note');
+    const update = () => {
+        const code = existingCode();
+        const lines = code ? code.split('\n').filter(l => l.trim() && !l.trim().startsWith('%')).length : 0;
+        note.textContent = code
+            ? `${lines} significant line(s), ${code.length} characters — sent with every LLM call and required to survive into the program.`
+            : '';
+        scheduleEstimate();
+    };
+    area.addEventListener('input', update);
+    update();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     wireUploads();
     loadModels();
+    wireEstimate();
+    wireExistingCode();
     $('btn-start').addEventListener('click', start);
     $('btn-cancel').addEventListener('click', cancel);
     $('btn-copy').addEventListener('click', copyResult);

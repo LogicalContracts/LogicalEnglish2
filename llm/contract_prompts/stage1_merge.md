@@ -15,3 +15,4 @@ vocabulary samples for the same contract (separated by `===== NEXT SAMPLE
 
 Output format: one fenced code block, template lines and `%` comments only,
 as they would appear inside `the templates are:`.
+{{existing}}

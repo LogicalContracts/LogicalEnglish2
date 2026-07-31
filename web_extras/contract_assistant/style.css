@@ -43,10 +43,23 @@ footer a { color: var(--accent); }
 
 .field { display: block; margin: 10px 0; }
 .field span { display: block; font-size: 13px; color: var(--muted); margin-bottom: 3px; }
-.field input, .field select {
+.field input, .field select, .field textarea {
     width: 100%; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px;
     background: var(--bg); color: var(--ink); font: inherit;
 }
+.field textarea {
+    font: 13px/1.5 ui-monospace, monospace; resize: vertical; min-height: 90px;
+    white-space: pre; overflow-wrap: normal; overflow-x: auto;
+}
+
+/* Estimated spend, shown next to the effort presets it depends on. */
+.cost {
+    border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;
+    margin-bottom: 10px; font-size: 14px;
+}
+.cost b { font-size: 16px; }
+.cost .cost-detail { color: var(--muted); font-size: 12px; }
+.cost.unknown { color: var(--muted); }
 .row { display: flex; gap: 14px; flex-wrap: wrap; }
 .row .field { flex: 1 1 160px; }
 .grow { flex-grow: 1; }

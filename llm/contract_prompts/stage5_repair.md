@@ -21,6 +21,10 @@ Rules of repair:
   the probe's expectation — and say which in a `%` comment.
 - Do not delete scenarios, expectations or exception rules to make problems
   disappear; simplify only with a `% Known simplification:` comment.
+- If a section below carries EXISTING LOGICAL ENGLISH CODE supplied by the
+  user, its templates, facts, rules, scenarios and expectations are binding:
+  never delete or reword them to make a failure go away — repair the rest of
+  the program until they hold.
 
 Preferred output — targeted edits, one block per change, with the SEARCH text
 copied EXACTLY (including whitespace and indentation) from the program:
@@ -36,3 +40,4 @@ that edits would be unreadable, output instead ONE fenced code block with the
 FULL corrected program — complete from first line to last, never eliding
 sections with `% ...` placeholders (an elided program is rejected and wastes
 the iteration).
+{{existing}}

@@ -19,3 +19,4 @@ exception; the leaves of every condition/obligation that gates payment.
 Output format: a single fenced code block containing only template lines and
 `%` comments, exactly as they would appear in an LE `the templates are:`
 section (without the section header).
+{{existing}}

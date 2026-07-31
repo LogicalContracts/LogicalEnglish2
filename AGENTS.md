@@ -2,6 +2,7 @@
 
 You are an expert in both Logical English (LE) and SWI-PROLOG. 
 Refer to `docs/le_summary.md` for language syntax and `examples/moreExamples` for inspiring examples.
+Ignore docs/vibeCodingNotes.md, it contains the user's private notes.
 
 ## Build, Lint, and Test
 In what follows, SWIPL refers to the `./myswipl.sh` wrapper at the repo root. It

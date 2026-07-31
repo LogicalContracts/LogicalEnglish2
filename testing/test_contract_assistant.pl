@@ -372,6 +372,26 @@ hook_disagree(probes, _, Reply) :- !,
 hook_disagree(ledger, _, "LEDGER") :- !.
 hook_disagree(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
+% Existing user-supplied LE code: every prompt that writes or repairs the
+% program must carry it, and the delivered program must still contain it. The
+% hook records which purposes saw the binding block.
+:- dynamic saw_existing/1.
+
+existing_fixture("the templates are:\n    *a person* is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n").
+
+hook_existing(Purpose, Messages, Reply) :-
+    ( Messages = [_{role: system, content: Sys}|_],
+      sub_string(Sys, _, _, _, "EXISTING LOGICAL ENGLISH CODE"),
+      sub_string(Sys, _, _, _, "bob is healthy")
+    -> assertz(saw_existing(Purpose))
+    ;  true ),
+    hook_good(Purpose, Messages, Reply).
+
+existing_config(Config) :-
+    start_config(Config0),
+    existing_fixture(E),
+    Config = Config0.put(existing_code, E).
+
 two_case_config(Features, Config) :-
     good_wording(W),
     Config = _{wording: _{name: "contract.md", text: W},
@@ -525,6 +545,62 @@ test(elapsed_stops_at_job_end,
     sleep(1.2),
     le_contract_assistant:job_config_summary(JobID, _, E2),
     assertion(E1 =:= E2).
+
+% The pasted code reaches the vocabulary, architecture and draft prompts, and
+% the delivered program is checked against it (good_program contains the
+% fixture's template and scenario lines, so coverage is 100%).
+test(existing_code_reaches_the_prompts_and_is_checked,
+     [setup(( hook_setup(user:hook_existing), retractall(user:saw_existing(_)) )),
+      cleanup(( hook_cleanup, retractall(user:saw_existing(_)) ))]) :-
+    existing_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    assertion(user:saw_existing(vocabulary)),
+    assertion(user:saw_existing(architecture)),
+    assertion(user:saw_existing(draft(1))),
+    le_contract_assistant:ca_result(JobID, Result),
+    E = Result.existing_code,
+    assertion(E.enabled == true),
+    assertion(E.lines =:= 5),
+    assertion(E.kept =:= 5),
+    assertion(E.percent =:= 100),
+    % ... and it is echoed by the status poll, so the Run screen can show it
+    atom_string(JobID, JobStr),
+    handle_contract_status(_{job: JobStr}, Status),
+    assertion(Status.config.existing_chars > 0),
+    !.
+
+% No existing code: the prompts must not carry the block, and the report says
+% the check does not apply.
+test(without_existing_code_nothing_is_injected,
+     [setup(( hook_setup(user:hook_existing), retractall(user:saw_existing(_)) )),
+      cleanup(( hook_cleanup, retractall(user:saw_existing(_)) ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(\+ user:saw_existing(_)),
+    le_contract_assistant:ca_result(JobID, Result),
+    E = Result.existing_code,
+    assertion(E.enabled == false).
+
+% A program that dropped one of the user's lines must be reported as such,
+% ignoring comments and re-indentation.
+test(existing_coverage_counts_missing_lines) :-
+    Config = _{existing: "% a comment\nthe templates are:\n    *a person* is healthy.\n    *a person* is rich.\n"},
+    le_contract_assistant:existing_coverage(
+        Config, "the templates are:\n*a person* is healthy.\n", R),
+    assertion(R.lines =:= 3),
+    assertion(R.kept =:= 2),
+    assertion(R.percent =:= 67),
+    assertion(R.missing == ["*a person* is rich."]).
+
+% Blank or whitespace-only input is no input.
+test(blank_existing_code_is_none) :-
+    le_contract_assistant:existing_code(_{existing_code: "   \n  "}, E1),
+    assertion(E1 == none),
+    le_contract_assistant:existing_code(_{}, E2),
+    assertion(E2 == none),
+    le_contract_assistant:existing_code(_{existing_code: "a person is happy."}, E3),
+    assertion(E3 == "a person is happy.").
 
 test(disagreeing_probe_is_reverted_and_reported,
      [setup(hook_setup(user:hook_disagree)), cleanup(hook_cleanup)]) :-
