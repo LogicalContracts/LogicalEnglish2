@@ -112,7 +112,7 @@ if [ "$run_le" -eq 1 ]; then
       setup_call_cleanup(open('testSuiteStatus.txt', write, S),
                          with_output_to(S, le_kbs:print_test_summary(Results)),
                          close(S)),
-      findall(1, (member(test_file(_,FR),Results), member(fail(_,_,_,_),FR)), Fs),
+      findall(1, (member(test_file(_,FR),Results), member(R,FR), le_kbs:is_failure(R)), Fs),
       findall(1, (member(test_file(_,FR),Results), member(error(_,_,_),FR)),  Es),
       length(Fs, NF), length(Es, NE),
       ( NF =:= 0, NE =:= 0 -> halt(0) ; halt(1) )

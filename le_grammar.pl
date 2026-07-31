@@ -306,7 +306,7 @@ section(misplaced_expectation(Start, End)) -->
     any_indent, t(word(Kw, loc(Start, _))),
     { ( le_i18n:class_member(query, Kw) -> true ; le_i18n:class_member(scenario, Kw) ) },
     section_name_tokens(NameTokens),
-    kw(expects), kw(answers),
+    kw(expects), ( kw(answers) -> [] ; [] ),
     t(punctuation('[')), list_elements(_), t(punctuation(']')),
     (   kw(and_unknowns), t(punctuation('[')), list_elements(_), t(punctuation(']')) -> [] ; [] ),
     (   any_indent, t(punctuation('.', loc(_, End))) -> [] ; { get_token_pos(End) } ),
@@ -561,10 +561,14 @@ kb_item(section_marker(annexes, Start, End)) -->
     kw_start(annexes, Start), t(punctuation(':', loc(_, End))).
 
 % kb_item(expected(QueryName, Answers, Unknowns, Start, End)) parses "QueryName expects answers [Answers] and unknowns [Unknowns]."
+% The 'answers' word is optional: "QueryName expects [Answers]" means the same
+% thing, and reads better for a numbered query. Without this, such a line
+% matched no kb_item at all and the whole tail of the scenario was swallowed by
+% the unknown_section fallback — the expectation just never ran.
 kb_item(expected(QueryName, Answers, Unknowns, Start, End)) -->
     query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
     { Tokens = [First|_], get_token_start(First, Start) },
-    kw(expects), kw(answers),
+    kw(expects), ( kw(answers) -> [] ; [] ),
     t(punctuation('[')), list_elements(Answers), t(punctuation(']')),
     (   kw(and_unknowns), t(punctuation('[')), list_elements(Unknowns), t(punctuation(']'))
     ->  []

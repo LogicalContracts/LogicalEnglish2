@@ -35,7 +35,7 @@ Sections define the context of the code. Each section header ends with a colon `
 - **Included Resources:** `the knowledge base <name> includes these resources:` or `the contract <name> includes these resources:` (Used to include other LE files or URLs. Must precede the main knowledge base header).
 - **Knowledge Base:** `the knowledge base <name> includes:` or `the contract <name> states that:`
 - **Scenario:** `scenario <name> is:` (Used for defining facts for a specific test case)
-  - Can include expectations: `<QueryName> expects answers [<List of Strings>] and unknowns [<List of Strings>].`
+  - Can include expectations: `<QueryName> expects answers [<List of Strings>] and unknowns [<List of Strings>].` (the word `answers` may be omitted)
 - **Query:** `query <name> is:` (Used for defining the goals to be proven). The
   body of a query may be a **full body expression — just like a rule body** — not
   only a single template instance: it can combine conditions with `and`, `or`,
@@ -278,12 +278,15 @@ Logical English supports meta-predicates that can take other sentences as argume
 
 ## 12. Testing and Expectations
 Scenarios can define expected results for queries, which are used by the test runner.
-- **Syntax:** `<QueryName> expects answers ["Answer 1", "Answer 2"] and unknowns ["Unknown 1"].` (The `and unknowns [...]` part is optional).
+- **Syntax:** `<QueryName> expects answers ["Answer 1", "Answer 2"] and unknowns ["Unknown 1"].` (The `and unknowns [...]` part is optional, and so is the word `answers`).
+- The expectation names the query directly — it must **not** be prefixed with
+  `query` (a leading section keyword is reported as a misplaced expectation).
 - **Example:**
   ```le
   scenario alice is:
       John is born in the UK on 2021-10-09.
-      query one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"] and unknowns ["John is a good person"].
+      one expects answers ["John acquires British citizenship on 2021-10-9T0:0:0.0"] and unknowns ["John is a good person"].
+      two expects ["John is a British citizen"].
   ```
 
 ## 13. System Predicates

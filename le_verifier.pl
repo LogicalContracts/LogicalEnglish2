@@ -32,6 +32,7 @@ verify(KB, Options, Issues) :-
 check_issue(KB, _, Issue) :- missing_template(KB, Issue).
 check_issue(KB, _, Issue) :- undefined_predicate(KB, Issue).
 check_issue(KB, _, Issue) :- suspicious_is_a(KB, Issue).
+check_issue(KB, _, Issue) :- suspicious_is(KB, Issue).
 check_issue(KB, _, Issue) :- defined_scenario_element(KB, Issue).
 check_issue(KB, _, Issue) :- untested_predicate(KB, Issue).
 check_issue(KB, _, Issue) :- rule_without_variables(KB, Issue).
@@ -164,6 +165,28 @@ suspicious_is_a(KB, issue(suspicious_is_a, Description, Fix, Start, End)) :-
     suspicious_type_phrase(Type, Phrase),
     le_i18n:le_msg(suspicious_is_a_desc, [phrase-Phrase], Description),
     le_i18n:le_msg(suspicious_is_a_fix, [], Fix),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% --- 2a-bis. Suspicious "is" (predicate absorbed into a constant value) ---
+% The same trap as suspicious_is_a, one template over. The generic "*X* is *Y*"
+% fallback (le_is/2) is tried last by parse_literal_real/7, so any "... is ..."
+% sentence whose intended template was never matched lands there instead of
+% being reported as a missing template — and a single differing word is enough
+% to miss. "the loss is not part of another claim different from the single
+% claim", against a template declared as "... is not part of an OTHER claim
+% ...", compiles to le_is(Loss, 'not part of another claim different from the
+% single claim'): a goal that can never succeed, silently making the enclosing
+% rule unprovable. Same tell-tale sign as the is-a case: a multi-word constant
+% full of connectives is a swallowed predicate, not a value.
+suspicious_is(KB, issue(suspicious_is, Description, Fix, Start, End)) :-
+    current_predicate(KB:F/A),
+    functor(Head, F, A),
+    clause(KB:Head, Body, Ref),
+    ( Lit = Head ; find_in_body(Body, Lit) ),
+    nonvar(Lit), Lit = le_is(_, Value),
+    suspicious_type_phrase(Value, Phrase),
+    le_i18n:le_msg(suspicious_is_desc, [phrase-Phrase], Description),
+    le_i18n:le_msg(suspicious_is_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
 
 % suspicious_type_phrase(+Type, -Phrase): Type is a constant (atom/string) made of

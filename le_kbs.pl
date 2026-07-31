@@ -378,11 +378,29 @@ process_section_acc(meta(Target), M) :-
 % error was already recorded by the grammar during parsing, so nothing more to do.
 process_section_acc(misplaced_expectation(_Start, _End), _M).
 
+% An unrecognised or malformed section. The fallback section/3 clause also fires
+% on the stray indentation between two real sections, which carries no text and
+% is not something the author can act on — only sections with actual words are
+% worth reporting.
 process_section_acc(unknown_section(Tokens, Start, End), M) :-
-    le_grammar:reconstruct_name(Tokens, FullName),
-    ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
-    format(atom(Desc), "Unknown or malformed section starting with: ~w", [Name]),
-    assertz(M:le_issue(error, unknown_section, Desc, Start, End)).
+    (   has_reportable_content(Tokens)
+    ->  le_grammar:reconstruct_name(Tokens, FullName),
+        ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
+        le_i18n:le_msg(unknown_section_desc, [name-Name], Desc),
+        le_i18n:le_msg(unknown_section_fix, [], Fix),
+        % le_issue/6 — every reader (verify/1, load/3, the web API, le_tools)
+        % matches on that arity, so an le_issue/5 here would be asserted and
+        % then silently ignored.
+        assertz(M:le_issue(error, unknown_section, Desc, Fix, Start, End))
+    ;   true
+    ).
+
+% has_reportable_content(+Tokens): the token list holds something other than
+% indentation and comments.
+has_reportable_content(Tokens) :-
+    member(T, Tokens),
+    \+ le_grammar:is_indent_or_comment(T),
+    !.
 
 %!  fetch_resources(+Sections, -MergedSections, +M) is det.
 %
@@ -1575,10 +1593,11 @@ fold_prep_chain(KBmodule, Goal, Tokens) :-
     unwrap_le_at_all(Main0, Main),
     callable(Main), \+ prep_goal(KBmodule, Main),
     Main =.. [_ | MainArgs], MainArgs = [Subject | _],
-    maplist(positioned_prep(KBmodule, Subject), Preps0, Positioned),
+    maplist(positioned_prep(KBmodule), Preps0, Positioned),
     sort(1, @=<, Positioned, Sorted),
+    chain_prep_goals(Sorted, [Subject], PrepGoals),
     item_to_instance(KBmodule, Main, MainTokens),
-    findall(Phrase, ( member(_-PG, Sorted), prep_phrase(KBmodule, PG, Phrase) ), PhraseLists),
+    findall(Phrase, ( member(PG, PrepGoals), prep_phrase(KBmodule, PG, Phrase) ), PhraseLists),
     length(PhraseLists, NP), length(Preps0, NP),   % every prep folded, else fail
     append([MainTokens | PhraseLists], Tokens).
 
@@ -1609,14 +1628,34 @@ answer_conjuncts(G, [G]).
 unwrap_le_at_all(le_at(G, _, _), Out) :- !, unwrap_le_at_all(G, Out).
 unwrap_le_at_all(G, G).
 
-% positioned_prep(+KB, +Subject, +Conjunct, -Start-PrepGoal): a conjunct that is a
-% prepositional goal sharing Subject as its first argument, paired with its source
-% start (from its le_at wrapper, else 0) so folded phrases can be source-ordered.
-positioned_prep(KBmodule, Subject, Conjunct, Start-PG) :-
+% positioned_prep(+KB, +Conjunct, -Start-PrepGoal): a conjunct that is a
+% prepositional goal, paired with its source start (from its le_at wrapper, else
+% 0) so folded phrases can be source-ordered.
+positioned_prep(KBmodule, Conjunct, Start-PG) :-
     ( Conjunct = le_at(PG, Start, _) -> true ; PG = Conjunct, Start = 0 ),
-    prep_goal(KBmodule, PG),
-    PG =.. [_ | [First | _]],
-    First == Subject.
+    prep_goal(KBmodule, PG).
+
+%!  chain_prep_goals(+SortedPreps:list, +InScope:list, -PrepGoals:list) is semidet.
+%
+%   Walks the source-ordered prepositional goals of one sentence, checking that
+%   each hangs off a value the sentence has already named: the main literal's
+%   subject, or a value introduced by an earlier phrase. A chain is TRANSITIVE —
+%   in "we will make *a payment* under *a policy* in respect of *a claim*
+%   against *a person*", `against` attaches to the CLAIM the previous phrase
+%   introduced, not to the payment. Requiring every phrase to share the main
+%   subject (as this used to) rejected such a sentence, and the answer then fell
+%   back to the generic conjunction rendering — "previous claim against person
+%   two and we will make previous payment under this policy in respect of
+%   previous claim" instead of the sentence the user wrote.
+chain_prep_goals([], _, []).
+chain_prep_goals([_-PG | Rest], InScope, [PG | Gs]) :-
+    PG =.. [_, First | Others],
+    member_eq(First, InScope),
+    append(InScope, Others, InScope1),
+    chain_prep_goals(Rest, InScope1, Gs).
+
+member_eq(X, [Y | _]) :- X == Y, !.
+member_eq(X, [_ | Ys]) :- member_eq(X, Ys).
 
 % prep_goal(+KB, +Goal): Goal's functor/arity is a prepositional template. The Prep
 % field is checked with ==, NOT unified — unifying would bind the (unbound) Prep slot
@@ -2069,16 +2108,24 @@ runTests :-
     setup_call_cleanup(open('testSuiteStatus.txt', write, Stream), with_output_to(Stream, print_test_summary(Results)), close(Stream)),
     forall(member(R, Results), print_test_result(R)).
 
+% is_failure(+Result): run_one_test returns fail/6 when it has unknowns to
+% report and fail/4 otherwise. Counting only fail/4 (as this summary used to)
+% dropped every ordinary failing test from the totals, so a file whose only
+% result was a failure printed "0 Pass, 0 Fail, 0 Error" and was labelled
+% [NONE] rather than [FAIL].
+is_failure(fail(_,_,_,_)).
+is_failure(fail(_,_,_,_,_,_)).
+
 print_test_summary(Results) :-
     findall(P, (member(test_file(_, FileResults), Results), member(pass(_,_), FileResults), P = 1), Passes),
-    findall(F, (member(test_file(_, FileResults), Results), member(fail(_,_,_,_), FileResults), F = 1), Fails),
+    findall(F, (member(test_file(_, FileResults), Results), member(R, FileResults), is_failure(R), F = 1), Fails),
     findall(E, (member(test_file(_, FileResults), Results), member(error(_,_,_), FileResults), E = 1), Errs),
     length(Results, FileCount), length(Passes, PassCount), length(Fails, FailCount), length(Errs, ErrCount),
     Total is PassCount + FailCount + ErrCount,
     format('~nTest Summary:~n-------------~nFiles processed: ~w~nTotal tests:     ~w~nPassed:          ~w~nFailed:          ~w~nErrors/Timeouts: ~w~n-------------~n~nDetailed File Summary:~n', [FileCount, Total, PassCount, FailCount, ErrCount]),
     forall(member(test_file(File, FileResults), Results),
            (   findall(1, member(pass(_,_), FileResults), PFile),
-               findall(1, member(fail(_,_,_,_), FileResults), FFile),
+               findall(1, (member(R, FileResults), is_failure(R)), FFile),
                findall(1, member(error(_,_,_), FileResults), EFile),
                length(PFile, PC), length(FFile, FC), length(EFile, EC),
                ( (FC > 0 ; EC > 0) -> Status = '[FAIL]' ; (PC == 0, FC == 0, EC == 0) -> Status = '[NONE]' ; Status = '[PASS]' ),

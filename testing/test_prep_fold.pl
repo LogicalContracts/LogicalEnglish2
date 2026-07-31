@@ -103,6 +103,25 @@ test(query_with_free_connective_stays_a_body) :-
 strip_le_at_local(le_at(G, _, _), Out) :- !, strip_le_at_local(G, Out).
 strip_le_at_local(G, G).
 
+% A TRANSITIVE chain: "against" hangs off the CLAIM introduced by the previous
+% phrase, not off the payment the sentence started with. Folding used to require
+% every phrase to share the main literal's subject, so this sentence fell back to
+% the generic conjunction rendering ("previous claim against person two and we
+% will make ...") and an expectation written as the sentence itself could never
+% match.
+transitive_chain_text(
+    "the target language is: prolog.\n\nthe templates are:\n    we will make *a payment*.\n    *a payment* under *a policy*; prepositional.\n    *a payment* in respect of *a claim*; prepositional.\n    *a claim* against *a person*; prepositional.\n    *a payment* is valid.\n\nthe knowledge base chain includes:\n    we will make a payment under this policy in respect of a claim against a person\n        if the payment is valid.\n\nscenario zero is:\n    this payment is valid.\n    this payment under this policy.\n    this payment in respect of this claim.\n    this claim against bob.\n\nquery 1 is:\n    we will make which payment under this policy in respect of which claim against which person.\n").
+
+transitive_chain_answer(Answer) :-
+    transitive_chain_text(Text),
+    le_kbs:load_text(Text, KB),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, zero),
+    once(le_kbs:query(SM, '1', Instance, _U, _W)),
+    le_kbs:canonical_string(Instance, A),
+    atom_string(A, Answer),
+    le_kbs:destroySession(SM).
+
 :- begin_tests(prep_this_anchor).
 
 test(this_phrase_lifts_into_chain_anchor) :-
@@ -139,5 +158,12 @@ test(lifted_anchor_shared_across_chain) :-
     strip_le_at_local(G1a, G1), strip_le_at_local(G2a, G2),
     msort([G1, G2], Goals),
     assertion(Goals == [in_respect_of(P, 'this claim'), under(P, 'this policy')]).
+
+% The answer to a transitively chained query renders as the one sentence the
+% user wrote, in source order — not as a conjunction with the off-subject phrase
+% hoisted to the front.
+test(transitive_chain_answer_is_folded) :-
+    transitive_chain_answer(Answer),
+    assertion(Answer == "we will make this payment under this policy in respect of this claim against bob").
 
 :- end_tests(prep_this_anchor).
