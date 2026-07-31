@@ -84,6 +84,7 @@ llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'htt
 % https://platform.claude.com/docs/en/about-claude/models/overview
 %  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/5.
 llm_model_entry('claude-haiku-4-5-20251001', anthropic, 'claude-haiku-4-5-20251001', 'https://api.anthropic.com/v1').
+llm_model_entry('claude-opus-5', anthropic, 'claude-opus-5', 'https://api.anthropic.com/v1').
 % llm_model_entry('claude',     anthropic, 'claude-haiku-4-5-20251001',     'https://api.anthropic.com/v1').
 
 %% Together AI  ─────────────────────────────────────────────────────
@@ -352,16 +353,38 @@ check_status(Code, Response) :-
 % 7.  RESPONSE PARSING
 % ═══════════════════════════════════════════════════════════════════
 
-% Anthropic: { content: [ { text: "..." } ] }
+% Anthropic: { content: [ <block>, ... ], stop_reason: "..." }
+%
+% The content is a LIST OF BLOCKS, and the visible answer is not necessarily
+% the first one: thinking models put `{type:"thinking", thinking:"...",
+% signature:"..."}` (or a redacted_thinking block) ahead of the text, so
+% reading content[0].text blows up with existence_error(key, text, ...).
+% Keep every text block, in order; a reply with none is either an answer that
+% drowned in reasoning (stop_reason "max_tokens" -> the same llm_truncated
+% error the OpenAI-compatible branch raises) or simply empty.
 extract_answer(anthropic, Response, Answer) :- !,
-    (   is_dict(Response) ->  
-            Response.content = [First|_],
-            Answer = First.text
-        ; 
-        Response = json(RList),
-        member(content=[json(C0)|_], RList),
-        member(text=Answer, C0)
+    (   is_dict(Response)
+    ->  ( get_dict(content, Response, Blocks) -> true ; Blocks = [] ),
+        ( get_dict(stop_reason, Response, Stop) -> true ; Stop = none )
+    ;   Response = json(RList),
+        ( member(content=Blocks, RList) -> true ; Blocks = [] ),
+        ( member(stop_reason=Stop, RList) -> true ; Stop = none )
+    ),
+    findall(T, ( member(B, Blocks), block_text(B, T) ), Texts),
+    atomic_list_concat(Texts, '\n', AnswerAtom),
+    atom_string(AnswerAtom, Answer0),
+    (   empty_text(Answer0),
+        truncated_finish(Stop)
+    ->  throw(error(llm_truncated(max_tokens),
+                    context(llm_client,
+                            "The model hit max_tokens while still thinking (stop_reason=max_tokens): no text block was produced. Raise max_tokens, or use a less reasoning-heavy model.")))
+    ;   Answer = Answer0
     ).
+
+% The text of one Anthropic content block; fails for thinking, redacted
+% thinking and tool-use blocks, which carry no `text` key.
+block_text(Block, Text) :- is_dict(Block), !, get_dict(text, Block, Text).
+block_text(json(Pairs), Text) :- memberchk(text=Text, Pairs).
 
 % OpenAI-compatible (OpenAI, Groq, Gemini, Together):
 %   { choices: [ { message: { content: "..." } } ] }

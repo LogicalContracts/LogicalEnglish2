@@ -44,6 +44,42 @@ test(empty_content_with_stop_is_just_empty) :-
     llm_client:extract_answer(together, R, A),
     assertion(A == "").
 
+% Anthropic's Messages API returns a LIST of content blocks. Thinking models
+% put a thinking block (no `text` key) first, which used to crash the parser
+% with existence_error(key, text, ...).
+test(anthropic_plain_text_block) :-
+    R = _{content: [_{type: "text", text: "the answer"}], stop_reason: "end_turn"},
+    llm_client:extract_answer(anthropic, R, A),
+    assertion(A == "the answer").
+
+test(anthropic_thinking_block_before_text) :-
+    R = _{content: [_{type: "thinking", thinking: "long reasoning", signature: "abc"},
+                    _{type: "text", text: "the answer"}],
+          stop_reason: "end_turn"},
+    llm_client:extract_answer(anthropic, R, A),
+    assertion(A == "the answer").
+
+test(anthropic_several_text_blocks_are_joined) :-
+    R = _{content: [_{type: "text", text: "part one"},
+                    _{type: "text", text: "part two"}],
+          stop_reason: "end_turn"},
+    llm_client:extract_answer(anthropic, R, A),
+    assertion(A == "part one\npart two").
+
+% Only thinking, and the budget ran out: the same truncation error the
+% OpenAI-compatible branch raises, so callers can raise max_tokens.
+test(anthropic_thinking_only_at_max_tokens_is_truncated_error) :-
+    R = _{content: [_{type: "thinking", thinking: "and on and on", signature: "abc"}],
+          stop_reason: "max_tokens"},
+    catch(llm_client:extract_answer(anthropic, R, _), error(llm_truncated(_), _), Caught = true),
+    assertion(Caught == true).
+
+test(anthropic_thinking_only_with_normal_stop_is_empty) :-
+    R = _{content: [_{type: "thinking", thinking: "hmm", signature: "abc"}],
+          stop_reason: "end_turn"},
+    llm_client:extract_answer(anthropic, R, A),
+    assertion(A == "").
+
 :- end_tests(llm_reply_extraction).
 
 % The provider-agnostic reasoning(minimal) option translates into each

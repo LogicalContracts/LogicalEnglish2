@@ -171,6 +171,20 @@ test(unknown_job_is_reported) :-
 
 % --------------------- feature tests: diff repairs ----------------------------
 
+% A provider that refuses the temperature parameter (400 naming it) until the
+% assistant stops sending it. Counts its calls, so the test can prove the same
+% model was simply called again.
+:- dynamic temp_calls/1.
+
+raw_hook_refuses_temperature(_Model, _Messages, Opts, Reply) :-
+    ( retract(temp_calls(N0)) -> true ; N0 = 0 ),
+    N is N0 + 1, assertz(temp_calls(N)),
+    (   memberchk(temperature(_), Opts)
+    ->  throw(error(llm_api_error(400,
+            "{\"error\":{\"message\":\"Unsupported value: 'temperature' does not support 0.05 with this model. Only the default (1) is supported.\",\"param\":\"temperature\"}}"), c))
+    ;   Reply = "the answer"
+    ).
+
 :- begin_tests(contract_assistant_features).
 
 test(extract_search_replace_two_blocks) :-
@@ -258,6 +272,61 @@ test(rank_prefers_tested_over_untested_clean) :-
     le_contract_assistant:select_winner(job, [branch(1, "aaa", S1), branch(2, "bbb", S2)], Winner),
     Winner = branch(WIdx, _, _),
     assertion(WIdx =:= 1).
+
+% Providers that only accept their default temperature answer 400/422 naming
+% the parameter; anything else about a 400 must stay a real error.
+test(temperature_rejection_classified) :-
+    OpenAI = "{\"error\":{\"message\":\"Unsupported value: 'temperature' does not support 0.05 with this model. Only the default (1) is supported.\",\"param\":\"temperature\"}}",
+    assertion(le_contract_assistant:temperature_rejected(error(llm_api_error(400, OpenAI), c))),
+    assertion(le_contract_assistant:temperature_rejected(
+        error(llm_api_error(422, "temperature is not supported with this model"), c))),
+    assertion(\+ le_contract_assistant:temperature_rejected(
+        error(llm_api_error(400, "invalid api key"), c))),
+    assertion(\+ le_contract_assistant:temperature_rejected(
+        error(llm_api_error(503, "temperature"), c))),
+    % ... and it is not mistaken for a transient failure worth plain retries
+    assertion(\+ le_contract_assistant:transient_llm_error(error(llm_api_error(400, OpenAI), c))).
+
+% Once a provider has refused it, every later call of the job goes out without
+% a temperature — the samples then vary by the model's own sampling.
+test(no_temperature_tuning_strips_the_option,
+     [cleanup(retractall(le_contract_assistant:ca_tune(temp_job, _)))]) :-
+    Config = _{max_tokens: 4096, reasoning: default},
+    le_contract_assistant:stage_options(temp_job, Config, "KEY",
+                                        [temperature(0.4)], Opts0),
+    assertion(memberchk(temperature(0.4), Opts0)),
+    assertz(le_contract_assistant:ca_tune(temp_job, no_temperature)),
+    le_contract_assistant:stage_options(temp_job, Config, "KEY",
+                                        [temperature(0.4)], Opts1),
+    assertion(\+ memberchk(temperature(_), Opts1)),
+    assertion(memberchk(max_tokens(4096), Opts1)),
+    assertion(memberchk(api_key("KEY"), Opts1)),
+    % the log stops promising a temperature it no longer sends
+    le_contract_assistant:sampling_note(temp_job, 0.25, Note),
+    assertion(sub_string(Note, _, _, _, "default sampling")).
+
+% The whole ladder, offline: the first call carries a temperature and is
+% refused; the assistant drops it and calls the SAME model again, which
+% answers. Nothing propagates to the caller but the reply.
+test(temperature_rejection_is_retried_without_it,
+     [setup(( retractall(user:temp_calls(_)),
+              retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_refuses_temperature)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(user:temp_calls(_)),
+                retractall(le_contract_assistant:ca_tune(temp_retry_job, _)),
+                retractall(le_contract_assistant:ca_log(temp_retry_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(temp_retry_job, _)) ))]) :-
+    get_time(Now), Deadline is Now + 600,
+    Config = _{deadline: Deadline, max_tokens: 4096, max_tokens_cap: 4096,
+               reasoning: default},
+    le_contract_assistant:llm_try(temp_retry_job, Config, vocabulary, 'a-model',
+                                  [_{role: user, content: "hi"}],
+                                  [temperature(0.05), max_tokens(4096)], 1, Reply),
+    assertion(Reply == "the answer"),
+    user:temp_calls(Calls),
+    assertion(Calls =:= 2),                                   % refused, then retried
+    assertion(le_contract_assistant:ca_tune(temp_retry_job, no_temperature)).
 
 test(transient_errors_classified) :-
     assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(503, x), c))),
