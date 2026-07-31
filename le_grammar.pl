@@ -2886,10 +2886,55 @@ take_nested_hierarchy([line(M, Tokens)|Lines], N, [line(M, Tokens)|Nested], Rema
 take_nested_hierarchy(Lines, _, [], Lines).
 
 hierarchy_to_logic([], _, VM, VM, true) :- !.
-hierarchy_to_logic([node(_, Tokens, Children)|RestNodes], Templates, VMIn, VMOut, Logic) :-
+hierarchy_to_logic(Nodes0, Templates, VMIn, VMOut, Logic) :-
+    adopt_orphan_forall_markers(Nodes0, [node(_, Tokens, Children)|RestNodes]),
     strip_op(Tokens, _Op, RestTokens),
     parse_node(RestTokens, Children, Templates, VMIn, VM1, FirstLogic),
     fold_nodes(FirstLogic, RestNodes, Templates, VM1, VMOut, Logic).
+
+%!  adopt_orphan_forall_markers(+Nodes:list, -Nodes1:list) is det.
+%
+%   Re-parents an "it is the case that" marker that indentation stranded as a
+%   SIBLING of its forall instead of a child of it.
+%
+%   A forall written on the same line as `if` — "... if for all cases in which"
+%   — takes the indentation of the `if`, so a marker written at that same
+%   indentation becomes the forall's sibling. split_forall_children/3 then finds
+%   no marker anywhere in the subtree, the forall silently gets `true` for its
+%   consequent, and the marker line goes on to parse as a literal of its own
+%   (the generic "*X* is *Y*" fallback: le_is(it, 'the case that')). The rule
+%   compiles without complaint and means something quite different from what it
+%   says.
+%
+%   Nothing but a preceding forall can own that marker, so adopt it. When the
+%   marker carries its consequent as its own children, only the marker moves;
+%   when it does not, the consequent is whatever follows, so the rest of the
+%   siblings move with it — matching what split_forall_children_direct/3 already
+%   does for a marker that IS a direct child.
+adopt_orphan_forall_markers([], []).
+adopt_orphan_forall_markers([node(Id, Tokens, Children), Marker | Rest], [node(Id, Tokens, Children1) | Rest1]) :-
+    node_is_forall(Tokens),
+    \+ subtree_has_marker(Children),
+    Marker = node(_, MTokens, MChildren),
+    node_is_marker(MTokens),
+    !,
+    (   MChildren == []
+    ->  append(Children, [Marker | Rest], Children1), Rest1 = []
+    ;   append(Children, [Marker], Children1),
+        adopt_orphan_forall_markers(Rest, Rest1)
+    ).
+adopt_orphan_forall_markers([Node | Rest], [Node | Rest1]) :-
+    adopt_orphan_forall_markers(Rest, Rest1).
+
+% The node-level tests carry the leading connective ('if'/'and'/'or') that
+% parse_node strips, so strip it here too before matching the keyword.
+node_is_forall(Tokens) :- strip_op(Tokens, _, T), is_forall(T).
+node_is_marker(Tokens) :- strip_op(Tokens, _, T), is_it_the_case(T).
+
+subtree_has_marker(Nodes) :-
+    member(node(_, Tokens, Children), Nodes),
+    ( node_is_marker(Tokens) -> true ; subtree_has_marker(Children) ),
+    !.
 
 fold_nodes(Acc, [], _, VM, VM, Acc).
 fold_nodes(Acc, [node(_, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic) :-

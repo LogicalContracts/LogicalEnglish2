@@ -3,6 +3,10 @@ the target language is: prolog.
 % Small fixture for the debugger/trace tests: a query with SEVERAL answers (so all
 % answers must be traceable) and a rule using "for all cases in which" (so the
 % forall must stay on the call stack while its condition/consequent run).
+%
+% "the person has a friend" leads the friendly rule so the person is BOUND before
+% the universal runs: a forall on its own is a test, not a generator, and would
+% otherwise leave the person unbound (and hold vacuously for anyone friendless).
 
 the templates are:
     *a person* is happy.
@@ -15,7 +19,8 @@ the knowledge base trace includes:
         if the person is rich.
 
     A person is friendly
-        if for all cases in which
+        if the person has a friend
+        and for all cases in which
             the person has a friend
         it is the case that
             the friend is rich.
