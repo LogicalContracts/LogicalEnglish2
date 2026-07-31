@@ -42,7 +42,17 @@
     </div>
 
     <div class="card">
-      <h2>2. Model</h2>
+      <h2>2. Existing LE code <em>(optional)</em></h2>
+      <p class="hint">Logical English you have already written — templates, scenarios with their <code>expects answers</code> lines, rules, facts, or any combination. It is treated as binding: the generated program must contain it and stay coherent with it, so the twin lines up with the program you started. Leave empty if you have none.</p>
+      <label class="field" title="Pasted here, this code is injected into every prompt that writes or repairs the program: templates must be reused verbatim, your scenarios and their expected answers are kept exactly as written and the rules are made to satisfy them, and any conflict with the contract is flagged in a comment instead of being silently resolved. After the run, the result screen reports how much of it survived into the delivered program.">
+        <span>Paste templates, scenarios, expected answers and/or rules</span>
+        <textarea id="existing-code" rows="8" spellcheck="false" placeholder="the templates are:&#10;    *a claim* is covered under the liability section.&#10;&#10;scenario claim one is:&#10;    ...&#10;    coverage expects answers [&quot;claim one is covered under the liability section&quot;]."></textarea>
+      </label>
+      <span id="existing-note" class="hint"></span>
+    </div>
+
+    <div class="card">
+      <h2>3. Model</h2>
       <div class="row">
         <label class="field grow" title="The model that writes the vocabulary samples, architecture sketches, drafts and repairs — the quality of the result is mostly this model's quality. Reasoning-heavy models may need Reasoning effort: minimal or a higher completion-token cap (Advanced).">
           <span>Model</span>
@@ -58,7 +68,8 @@
     </div>
 
     <div class="card">
-      <h2>3. Effort budget</h2>
+      <h2>4. Effort budget</h2>
+      <div id="cost" class="cost" title="A rough, deliberately HIGH estimate of what this configuration will spend on LLM calls: the expected number of calls times the tokens each carries (your documents and existing code, plus the house style and LE syntax summary sent with every call), priced with LiteLLM's public per-token table (fetched when the server started). Repairs are counted generously, whole-program outputs are assumed, and a safety factor covers reasoning tokens and retries — the real bill is normally lower. Nothing here is a quote: your provider's invoice is what counts.">Cost estimate: <span id="cost-value">choose a wording file to estimate</span></div>
       <div class="row presets">
         <label title="Fastest and cheapest: one vocabulary sample, one architecture branch, 2 repair rounds, no interrogation probes. Good for a first look at a new contract or model."><input type="radio" name="preset" value="draft" checked> <b>Draft</b><br><small>1 vocabulary sample, 1 branch, ~15 min</small></label>
         <label title="3 vocabulary samples merged by a consensus judge, 2 architecture branches raced in parallel, 3 repair rounds each, 4 interrogation probes on the winner."><input type="radio" name="preset" value="standard"> <b>Standard</b><br><small>3-sample consensus, 2 branches, ~45 min</small></label>

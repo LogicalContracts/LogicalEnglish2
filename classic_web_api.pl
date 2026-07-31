@@ -32,6 +32,7 @@
 :- use_module(le_contract_assistant).
 :- use_module(dap_server).
 :- use_module(llm/llm_client, [llm_list_models/1]).
+:- use_module(llm/llm_prices, [llm_prices_start/0]).
 :- use_module(nl_to_le, [english_to_le/8]).
 :- use_module(llm/mcp, [handle_mcp/1, handle_rest_list_examples/1, handle_rest_query/1, handle_rest_verify/1, handle_rest_example_details/1]).
 :- use_module(le_users).
@@ -78,6 +79,9 @@ start_api_server(Port) :-
     ;   true
     ),
     load_build_info,
+    % Per-token model prices (LiteLLM's public table) for the Contract
+    % Assistant's cost estimates: cached copy now, refresh in the background.
+    llm_prices_start,
     % Reclaim reasoning-session modules abandoned by the editor (reload on edit,
     % tab close, ...) so they don't accumulate in memory over time.
     le_kbs:start_session_reaper,
@@ -218,6 +222,7 @@ handle_operation(Dict, Response) :-
         ; Op == "contract_status" -> handle_contract_status(Dict, Response)
         ; Op == "contract_result" -> handle_contract_result(Dict, Response)
         ; Op == "contract_interrupt" -> handle_contract_interrupt(Dict, Response)
+        ; Op == "contract_cost_estimate" -> handle_contract_estimate(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
         ; Op == "nl_to_le" -> handle_nl_to_le(Dict, Response)
         ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)

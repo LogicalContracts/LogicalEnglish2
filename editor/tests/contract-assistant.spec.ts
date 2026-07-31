@@ -34,6 +34,22 @@ test.describe('Contract Assistant UI', () => {
         await expect(page.locator('#btn-start')).toBeDisabled();
     });
 
+    // The optional "Existing LE code" box (group 2) counts what was pasted and
+    // triggers a cost estimate; the cost line lives with the effort budget.
+    test('existing LE code box and cost estimate render', async ({ page }) => {
+        await page.goto('/web_extras/contract_assistant/index.html');
+        const area = page.locator('#existing-code');
+        await expect(area).toBeVisible();
+        await expect(page.locator('#existing-note')).toHaveText('');
+        await area.fill('the templates are:\n    *a person* is happy.\n% a comment line\n');
+        await expect(page.locator('#existing-note')).toContainText('2 significant line(s)');
+
+        // The cost line is present and says something (an unpriced model or a
+        // price table that could not be fetched still produces a message).
+        await expect(page.locator('#cost')).toBeVisible();
+        await expect(page.locator('#cost-value')).not.toBeEmpty();
+    });
+
     // Regression: the Run screen must keep showing the scrolling log, the elapsed
     // time and the choices summary on every poll (a title rewrite once destroyed
     // the elapsed span, and the resulting render error killed the log updates).

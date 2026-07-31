@@ -26,3 +26,4 @@ For expected-answer strings, render numbers without thousands separators
 
 Output exactly one fenced code block containing the full program and nothing
 else.
+{{existing}}

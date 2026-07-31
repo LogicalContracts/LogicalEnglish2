@@ -28,10 +28,18 @@
     thorough); every feature is individually switchable through the request's
     `features` dict (see features_params/3).
 
+    The user may supply EXISTING LE CODE (templates, scenarios with expected
+    answers, rules — any combination): a fragment the generated program must
+    contain and stay coherent with, so the twin aligns with a program the user
+    has already started. It is injected into every drafting/repair prompt and
+    its survival in the delivered program is checked and reported.
+
     Jobs run in a background thread; progress is polled through the /leapi
     operations contract_start / contract_status / contract_result /
     contract_interrupt (see classic_web_api.pl), same conventions as the LE
-    Assistant. The web UI lives in web_extras/contract_assistant/.
+    Assistant; contract_cost_estimate prices a configuration before it runs
+    (prices from llm/llm_prices.pl). The web UI lives in
+    web_extras/contract_assistant/.
 
     For tests, the LLM can be stubbed by asserting ca_llm_hook/1 with a closure
     called as call(Closure, Purpose, Messages, ReplyText), and jobs can be run
@@ -43,6 +51,8 @@
     handle_contract_status/2,
     handle_contract_result/2,
     handle_contract_interrupt/2,
+    handle_contract_estimate/2,
+    cost_estimate/2,
     start_contract_job/3,
     run_contract_pipeline/1,
     segment_markdown/2,
@@ -61,6 +71,7 @@
 :- use_module(le_kbs).
 :- use_module(le_verifier).
 :- use_module(llm/llm_client).
+:- use_module(llm/llm_prices).
 
 :- dynamic ca_status/2.      % JobID, running | finished(ok) | finished(error(Msg)) | interrupted | interrupt_requested
 :- dynamic ca_config/2.      % JobID, ConfigDict (normalised)
@@ -123,17 +134,44 @@ handle_contract_interrupt(Dict, Response) :-
     ;   Response = _{ok: false, error: "Job is not running"}
     ).
 
+%!  handle_contract_estimate(+Dict, -Response) is det.
+%
+%   Prices a configuration BEFORE it runs, for the Setup screen: same request
+%   fields as contract_start (model, judge_model, budget, features) plus
+%   `input_chars` — the total size of the materials the user has selected
+%   (documents + existing LE code). Never throws: an unknown model or a price
+%   table that has not loaded yet comes back as priced:false.
+handle_contract_estimate(Dict, Response) :-
+    catch(once(contract_cost_estimate(Dict, Response)),
+          Error,
+          ( term_string(Error, EStr), Response = _{error: EStr} )).
+
+contract_cost_estimate(Dict, Est) :-
+    ( get_dict(model, Dict, M0), M0 \== "", M0 \== null -> Model = M0 ; Model = "claude-sonnet" ),
+    ( get_dict(judge_model, Dict, J0), J0 \== "", J0 \== null -> Judge = J0 ; Judge = Model ),
+    ( get_dict(budget, Dict, B), is_dict(B) -> true ; B = _{} ),
+    budget_params(B, Preset, K, W, Repairs, _Minutes),
+    features_params(Dict, Preset, Features),
+    ( get_dict(input_chars, Dict, IC), number(IC) -> Chars = IC ; Chars = 0 ),
+    cost_estimate(_{model: Model, judge_model: Judge, k: K, w: W,
+                    repairs: Repairs, probes: Features.probes,
+                    input_chars: Chars},
+                  Est).
+
 % What the user chose, echoed with every status poll so the Run screen can
 % show it even after a page reload, plus the elapsed wall-clock seconds.
 job_config_summary(JobID, Summary, Elapsed) :-
     (   ca_config(JobID, C)
     ->  F = C.features,
+        ( C.existing == none -> ExistingChars = 0 ; string_length(C.existing, ExistingChars) ),
         Summary = _{model: C.model, judge_model: C.judge_model,
                     k: C.k, w: C.w, repairs: C.repairs, minutes: C.minutes,
                     max_tokens: C.max_tokens, reasoning: C.reasoning,
                     probes: F.probes, holdout: F.holdout,
                     paraphrase: F.paraphrase, clausewise: F.clausewise,
-                    diff_repairs: F.diff_repairs},
+                    diff_repairs: F.diff_repairs,
+                    existing_chars: ExistingChars,
+                    cost_usd: C.get(est_cost, null)},
         ( ca_ended(JobID, End) -> T = End ; get_time(T) ),
         Elapsed0 is T - C.started,
         Elapsed is round(Elapsed0)
@@ -193,13 +231,28 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
     ( get_dict(reasoning, Dict, R0), atom_string(Reasoning0, R0),
       memberchk(Reasoning0, [default, minimal]) -> Reasoning = Reasoning0
     ; Reasoning = default ),
+    existing_code(Dict, Existing),
     get_time(Now), Deadline is Now + Minutes * 60,
     Config = _{model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
                minutes: Minutes, started: Now, reasoning: Reasoning,
-               deadline: Deadline, features: Features,
+               deadline: Deadline, features: Features, existing: Existing,
                max_tokens: MaxTokens, mt_mode: MTMode, max_tokens_cap: MaxTokens,
                wording: WordingFile, schedule: ScheduleFile, cases: CaseFiles}.
+
+%!  existing_code(+RequestDict, -Existing) is det.
+%
+%   The optional `existing_code` field: Logical English the user has already
+%   written (templates, scenarios with their expected answers, rules — any
+%   combination) which the generated program must incorporate. Blank input is
+%   `none`.
+existing_code(Dict, Existing) :-
+    (   get_dict(existing_code, Dict, E0), E0 \== null,
+        ( string(E0) ; atom(E0) ),
+        normalize_space(string(Norm), E0), Norm \== ""
+    ->  atom_string(E0, Existing)
+    ;   Existing = none
+    ).
 
 %!  budget_params(+BudgetDict, -Preset, -K, -W, -Repairs, -Minutes) is det.
 %
@@ -390,6 +443,7 @@ pipeline_stages(JobID) :-
     materials_block(WordingSlice, ScheduleText, DevCases, Materials),
     length(Sections, NSections), length(CaseTexts, NCases), length(HeldCases, NHeld),
     ca_emit(JobID, "Materials assembled (~w sections, ~w cases, ~w held out)"-[NSections, NCases, NHeld]),
+    note_existing_code(JobID, Config),
 
     calibrate_and_estimate(JobID, Config, Materials, Config1),
 
@@ -445,15 +499,23 @@ pipeline_stages(JobID) :-
     score_summary(VFinal, SummaryFinal),
     branch_score(VFinal, SummaryFinal, FinalScore),
     ca_emit(JobID, "Delivered program: ~w"-[SummaryFinal]),
-    technicalities(JobID, Config1, WIdx, SummaryFinal, Interrogation, Paraphrase, Tech),
+    existing_coverage(Config1, WText, ExistingReport),
+    (   ExistingReport.enabled == true
+    ->  ca_emit(JobID, "Existing LE code: ~w of ~w supplied line(s) present in the delivered program (~w%)"-[ExistingReport.kept, ExistingReport.lines, ExistingReport.percent])
+    ;   true
+    ),
+    technicalities(JobID, Config1, WIdx, SummaryFinal, Interrogation, Paraphrase,
+                   ExistingReport, Tech),
     string_concat(Ledger0, Tech, Ledger),
     save_text_artifact(JobID, 'ledger.md', Ledger),
     Result = _{le: WText, filename: "contract.le", winner: WIdx,
                scores: AllScores, final_score: FinalScore, ledger: Ledger,
-               interrogation: Interrogation, paraphrase: Paraphrase},
+               interrogation: Interrogation, paraphrase: Paraphrase,
+               existing_code: ExistingReport},
     save_json_artifact(JobID, 'scores.json',
                        _{winner: WIdx, scores: AllScores,
-                         interrogation: Interrogation, paraphrase: Paraphrase}),
+                         interrogation: Interrogation, paraphrase: Paraphrase,
+                         existing_code: ExistingReport}),
     retractall(ca_result(JobID, _)),
     assertz(ca_result(JobID, Result)).
 
@@ -464,15 +526,17 @@ pipeline_stages(JobID) :-
 %     max_tokens; if the provider rejects it (400 naming max_tokens/context),
 %     halve and retry until accepted, and use the discovered cap for the whole
 %     job. Providers that silently clamp keep the configured value.
-%   - ESTIMATE the effort from the materials size and the K/W/repairs/probes
-%     settings, and say so in the log — including a warning when the minute
-%     budget is clearly too small for the expected number of calls.
+%   - ESTIMATE the effort AND the cost from the materials size and the
+%     K/W/repairs/probes settings, and say so in the log — including a warning
+%     when the minute budget is clearly too small for the expected number of
+%     calls. The cost estimate is kept in the config so status polls (and the
+%     technicalities block) can show it.
 %   Skipped when the LLM is stubbed (offline tests).
-calibrate_and_estimate(JobID, Config, Materials, Config1) :-
+calibrate_and_estimate(JobID, Config, Materials, Config2) :-
     (   ca_llm_hook(_)
-    ->  Config1 = Config
+    ->  Config2 = Config
     ;   calibrate_max_tokens(JobID, Config, Config1),
-        effort_estimate(JobID, Config1, Materials)
+        effort_estimate(JobID, Config1, Materials, Config2)
     ).
 
 % Calibration is best-effort: any probe failure (unknown model, bad key,
@@ -526,19 +590,104 @@ probe_max_tokens(Model, Key, MT, Accepted) :-
             ))
     ).
 
-effort_estimate(JobID, Config, Materials) :-
-    string_length(Materials, Chars),
+effort_estimate(JobID, Config, Materials, Config1) :-
+    string_length(Materials, MChars),
+    ( Config.existing == none -> EChars = 0 ; string_length(Config.existing, EChars) ),
+    Chars is MChars + EChars,
     InTokens is Chars // 4,
-    K = Config.k, W = Config.w, R = Config.repairs,
-    P = Config.features.probes,
-    ( K > 1 -> Merge = 1 ; Merge = 0 ),
-    ( P > 0 -> Probing = 2 + R ; Probing = 0 ),
-    Calls is K + Merge + W + W * (1 + R) + Probing + 2,
+    cost_estimate(_{model: Config.model, judge_model: Config.judge_model,
+                    k: Config.k, w: Config.w, repairs: Config.repairs,
+                    probes: Config.features.probes, input_chars: Chars},
+                  Est),
+    Calls = Est.calls,
     EstMinutes is max(1, (Calls * 45) // 60),   % ~45s per call, order of magnitude
     ca_emit(JobID, "Effort estimate: ~w tokens of materials per call, ~~~w LLM calls, roughly ~w min with a mid-speed model (budget: ~w min)"-[InTokens, Calls, EstMinutes, Config.minutes]),
+    (   Est.priced == true
+    ->  format_cost(Est.cost_usd, CostS),
+        ca_emit(JobID, "Cost estimate: about ~w for the whole job (upper estimate, ~w tokens in / ~w out per call; prices from the LiteLLM table)"-[CostS, Est.input_tokens_per_call, Est.output_tokens_per_call]),
+        Config1 = Config.put(est_cost, Est.cost_usd),
+        retractall(ca_config(JobID, _)),
+        assertz(ca_config(JobID, Config1))
+    ;   ca_emit(JobID, "Cost estimate: unavailable (~w)"-[Est.note]),
+        Config1 = Config
+    ),
     (   EstMinutes > Config.minutes
     ->  ca_emit(JobID, "NOTE: the minute budget looks tight for these settings; the job will prune repairs/probes as the deadline nears (consider the Draft preset or more minutes)"-[])
     ;   true
+    ).
+
+%!  cost_estimate(+P:dict, -Est:dict) is det.
+%
+%   What this configuration will cost in LLM calls, in US dollars. P carries
+%   model, judge_model, k, w, repairs, probes and input_chars (the size of
+%   everything the model will be shown: documents plus any existing LE code).
+%
+%   Deliberately rough — 10% is plenty — and deliberately biased UPWARDS, so
+%   the number the user sees is not exceeded in practice:
+%   - the repair loop is counted at 1.5x its patience (it keeps going while it
+%     improves), not at the patience itself;
+%   - every call is charged the FULL materials as input, although repairs and
+%     later stages send less;
+%   - output is charged as a whole program per call;
+%   - reasoning tokens (billed as output, invisible in the reply) and retries
+%     are covered by a final safety factor;
+%   - when a model matches several providers in the price table, the dearest
+%     is used (see llm_prices.pl).
+cost_estimate(P, Est) :-
+    call_plan(P.k, P.w, P.repairs, P.probes, MainCalls, JudgeCalls),
+    Calls is MainCalls + JudgeCalls,
+    prompt_overhead_tokens(Overhead),
+    MatTokens is round(P.input_chars / 4),
+    InTok is Overhead + MatTokens,
+    OutTok is min(16000, max(2500, MatTokens // 2)),
+    Base = _{calls: Calls, input_tokens_per_call: InTok,
+             output_tokens_per_call: OutTok},
+    (   catch(llm_price(P.model, MIn, MOut), _, fail)
+    ->  (   P.judge_model == P.model
+        ->  JIn = MIn, JOut = MOut, Note = ""
+        ;   catch(llm_price(P.judge_model, JIn, JOut), _, fail)
+        ->  Note = ""
+        ;   JIn = MIn, JOut = MOut,
+            format(string(Note), "no price for the judge model ~w; charged at the main model's rate", [P.judge_model])
+        ),
+        Raw is MainCalls * (InTok * MIn + OutTok * MOut)
+             + JudgeCalls * (InTok * JIn + OutTok * JOut),
+        Cost is ceiling(Raw * 1.25 * 100) / 100.0,   % conservative, rounded up to the cent
+        Est = Base.put(_{priced: true, cost_usd: Cost, currency: "USD", note: Note})
+    ;   llm_prices_status(S),
+        (   S.loaded == true
+        ->  format(string(N), "no price listed for model ~w", [P.model])
+        ;   N = "the model price table has not loaded yet"
+        ),
+        Est = Base.put(_{priced: false, cost_usd: null, currency: "USD", note: N})
+    ).
+
+%!  call_plan(+K, +W, +Repairs, +Probes, -MainCalls, -JudgeCalls) is det.
+%
+%   How many LLM calls the pipeline makes, split by which model pays for them
+%   (the judge model writes the vocabulary consensus and the ledger).
+call_plan(K, W, R, P, MainCalls, JudgeCalls) :-
+    ( K > 1 -> Merge = 1 ; Merge = 0 ),
+    ( number(P), P > 0 -> Probing = 2 + R ; Probing = 0 ),
+    RepairRounds is max(R, (3 * R + 1) // 2),
+    MainCalls is K + W + W * (1 + RepairRounds) + Probing + 1,
+    JudgeCalls is Merge + 1.
+
+% Every call carries the house style and the LE syntax summary in its system
+% prompt: measure them rather than guessing.
+prompt_overhead_tokens(T) :-
+    ( catch(prompt_text(house_style, H), _, fail) -> true ; H = "" ),
+    ( catch(le_syntax_summary(S), _, fail) -> true ; S = "" ),
+    string_length(H, HL), string_length(S, SL),
+    T is (HL + SL) // 4 + 400.        % + the stage prompt itself
+
+%!  format_cost(+USD, -String) is det.
+format_cost(C, S) :-
+    (   number(C), C < 0.01
+    ->  S = "less than $0.01"
+    ;   number(C)
+    ->  format(string(S), "$~2f", [C])
+    ;   S = "an unknown amount"
     ).
 
 %!  holdout_split(+Config, +CaseTexts, -DevCases, -HeldCases) is det.
@@ -555,10 +704,71 @@ holdout_split(Config, CaseTexts, DevCases, HeldCases) :-
         DevCases = [First], HeldCases = Rest
     ).
 
+% --------------------------- Existing LE code --------------------------------
+% Optional user-supplied Logical English (templates, scenarios with expected
+% answers, rules — any combination) that the generated program must contain:
+% the user's way of forcing the twin to align with a program they have already
+% started. It is injected into every prompt that writes or repairs the program
+% (as the {{existing}} slot), and what became of it is checked and reported.
+
+note_existing_code(_JobID, Config) :- Config.existing == none, !.
+note_existing_code(JobID, Config) :-
+    Text = Config.existing,
+    string_length(Text, Chars),
+    existing_lines(Text, Lines), length(Lines, NLines),
+    save_text_artifact(JobID, 'existing.le', Text),
+    ca_emit(JobID, "Existing LE code supplied: ~w chars, ~w significant line(s) — the program must incorporate them"-[Chars, NLines]).
+
+%!  existing_block(+Config, -Block) is det.
+%
+%   The prompt fragment substituted for {{existing}}: empty when the user
+%   supplied nothing, so the prompts read naturally in both cases.
+existing_block(Config, Block) :-
+    (   Config.existing == none
+    ->  Block = ""
+    ;   format(string(Block),
+"\n\n## EXISTING LOGICAL ENGLISH CODE (supplied by the user — binding)\n\nThe user has already written the Logical English below. It is not a\nsuggestion: the program you produce MUST be a coherent whole that contains\nit.\n\n- Reuse these templates VERBATIM (same words, same argument order, same\n  epistemic markers); never rename, re-word or duplicate them under another\n  phrasing. Add new templates only for what is missing.\n- Keep the given scenarios, their facts and their `expects answers` lines\n  EXACTLY as written: they are the user's ground truth, and the rules must be\n  written so that these expectations hold. If an expectation seems to\n  contradict the contract, keep it and flag the conflict in a\n  `% Conflict with clause ...:` comment — never silently change or drop it.\n- Keep the given rules and facts, adapting only what the contract clearly\n  contradicts, and say so in a `%` comment.\n- Everything else you write must fit this vocabulary and these conventions.\n\n```le\n~w\n```\n",
+               [Config.existing])
+    ).
+
+%!  existing_coverage(+Config, +Program, -Report:dict) is det.
+%
+%   How much of the user's code survived into the delivered program: the
+%   fraction of its significant lines (comments and blank lines ignored,
+%   whitespace normalised) that appear in the program. Purely informational —
+%   an LLM may legitimately re-indent or reword a line — but a low number is
+%   exactly what the user wants to be told about.
+existing_coverage(Config, _Program, _{enabled: false}) :- Config.existing == none, !.
+existing_coverage(Config, Program, Report) :-
+    existing_lines(Config.existing, Wanted),
+    existing_lines(Program, Have),
+    partition([L]>>memberchk(L, Have), Wanted, Kept, Missing),
+    length(Wanted, N), length(Kept, K),
+    ( N =:= 0 -> Pct = 100 ; Pct is round(100 * K / N) ),
+    first_n(5, Missing, Shown),
+    Report = _{enabled: true, lines: N, kept: K, percent: Pct, missing: Shown}.
+
+first_n(N, List, Prefix) :-
+    length(List, Len),
+    Take is min(N, Len),
+    length(Prefix, Take),
+    append(Prefix, _, List).
+
+% Significant lines of an LE fragment: no blanks, no comment lines, whitespace
+% normalised so indentation changes do not count as a loss.
+existing_lines(Text, Lines) :-
+    split_string(Text, "\n", "", Raw),
+    findall(L, ( member(R, Raw),
+                 normalize_space(string(L), R),
+                 L \== "",
+                 \+ string_concat("%", _, L) ),
+            Lines).
+
 % ------------------------- Stage 1: vocabulary -------------------------------
 
 vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
     K = Config.k,
+    existing_block(Config, Existing),
     numlist(1, K, Ks),
     findall(Sample,
             ( member(I, Ks),
@@ -566,7 +776,8 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
               Temp is 0.05 + 0.2 * (I - 1),
               ca_emit(JobID, "Vocabulary sample ~w/~w (temperature ~2f)"-[I, K, Temp]),
               stage_llm(JobID, Config, vocabulary, 'stage1_vocabulary',
-                        [materials-Materials], [temperature(Temp)], Sample)
+                        [existing-Existing, materials-Materials],
+                        [temperature(Temp)], Sample)
             ),
             Samples),
     (   Samples = [Vocabulary]
@@ -574,11 +785,12 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
     ;   ca_emit(JobID, "Merging ~w vocabulary samples (consensus)"-[K]),
         atomic_list_concat(Samples, "\n\n===== NEXT SAMPLE =====\n\n", Joined),
         stage_llm(JobID, Config, vocabulary_merge, 'stage1_merge',
-                  [samples-Joined], [temperature(0)], Vocabulary)
+                  [existing-Existing, samples-Joined], [temperature(0)], Vocabulary)
     ).
 
 architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches) :-
     W = Config.w,
+    existing_block(Config, Existing),
     architecture_angles(Angles0),
     length(Angles, W), append(Angles, _, Angles0),
     findall(Sketch,
@@ -587,7 +799,8 @@ architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches) :-
               ca_emit(JobID, "Architecture sketch ~w/~w (~w)"-[I, W, Angle]),
               Temp is 0.05 + 0.1 * (I - 1),
               stage_llm(JobID, Config, architecture, 'stage1_architecture',
-                        [materials-Materials, vocabulary-Vocabulary, angle-Angle],
+                        [existing-Existing, materials-Materials,
+                         vocabulary-Vocabulary, angle-Angle],
                         [temperature(Temp)], Sketch)
             ),
             Sketches).
@@ -617,8 +830,10 @@ run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     ca_check_alive(JobID),
     (   Config.features.clausewise == true
     ->  clausewise_draft(JobID, Config, Ctx, Idx, Sketch, Draft0)
-    ;   stage_llm(JobID, Config, draft(Idx), 'stage2_draft',
-                  [materials-Ctx.materials, vocabulary-Ctx.vocabulary, architecture-Sketch],
+    ;   existing_block(Config, Existing),
+        stage_llm(JobID, Config, draft(Idx), 'stage2_draft',
+                  [existing-Existing, materials-Ctx.materials,
+                   vocabulary-Ctx.vocabulary, architecture-Sketch],
                   [temperature(0.05)], DraftReply),
         extract_le_code(DraftReply, Draft0)
     ),
@@ -657,9 +872,10 @@ clausewise_draft(JobID, Config, Ctx, Idx, Sketch, Draft) :-
     findall(CB, ( nth1(I, Ctx.dev_cases, CT),
                   format(string(CB), "### CASE ~w\n\n~w", [I, CT]) ), CBs),
     atomic_list_concat(CBs, "\n\n", CasesBlock),
+    existing_block(Config, Existing),
     stage_llm(JobID, Config, finalize(Idx), 'stage2_finalize',
-              [program-Program1, schedule-Ctx.schedule, cases-CasesBlock,
-               vocabulary-Ctx.vocabulary],
+              [existing-Existing, program-Program1, schedule-Ctx.schedule,
+               cases-CasesBlock, vocabulary-Ctx.vocabulary],
               [temperature(0.05)], Reply),
     extract_le_code(Reply, Draft),
     reverse(LedgerLines, Ordered),
@@ -670,9 +886,10 @@ clausewise_draft(JobID, Config, Ctx, Idx, Sketch, Draft) :-
 clausewise_block(JobID, Config, Ctx, Idx, Sketch, NB, Block, Prog0-Led0-I, Prog-Led-I1) :-
     ca_check_alive(JobID),
     ca_emit(JobID, "Branch ~w: clause block ~w/~w"-[Idx, I, NB]),
+    existing_block(Config, Existing),
     stage_llm(JobID, Config, clause(Idx, I), 'stage2_clause',
-              [program-Prog0, clause-Block, vocabulary-Ctx.vocabulary,
-               architecture-Sketch],
+              [existing-Existing, program-Prog0, clause-Block,
+               vocabulary-Ctx.vocabulary, architecture-Sketch],
               [temperature(0.05)], Reply),
     (   extract_tagged_block(Reply, le, Prog1) -> Prog = Prog1
     ;   extract_le_code(Reply, Prog)
@@ -764,9 +981,11 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
         format_verify_feedback(V, Feedback),
         % A failed repair call (truncation, provider outage after retries)
         % must not abort the branch — the best iteration so far is a result.
+        existing_block(Config, Existing),
         catch(
             ( stage_llm(JobID, Config, repair(Idx, Iter), 'stage5_repair',
-                        [program-Text, feedback-Feedback], [temperature(0)], Reply),
+                        [existing-Existing, program-Text, feedback-Feedback],
+                        [temperature(0)], Reply),
               Next = reply(Reply) ),
             error(contract_assistant_error(_), _),
             Next = failed),
@@ -999,8 +1218,9 @@ paraphrase_check(JobID, Config, Ctx, Report) :-
         ca_emit(JobID, "Paraphrase-invariance check: rewriting the wording"-[]),
         stage_llm(JobID, Config, paraphrase, 'paraphrase',
                   [wording-Ctx.wording], [temperature(0.6)], PText),
+        existing_block(Config, Existing),
         stage_llm(JobID, Config, vocabulary_paraphrase, 'stage1_vocabulary',
-                  [materials-PText], [temperature(0.2)], Sample),
+                  [existing-Existing, materials-PText], [temperature(0.2)], Sample),
         stage_llm(JobID, Config, paraphrase_compare, 'paraphrase_compare',
                   [vocabulary-Ctx.vocabulary, sample-Sample], [temperature(0)], CmpText),
         ( parse_stability(CmpText, N) -> true ; N = -1 ),
@@ -1029,13 +1249,15 @@ take_digits([C|Cs], [C|Ds]) :- code_type(C, digit), !, take_digits(Cs, Ds).
 take_digits(_, []).
 
 %!  technicalities(+JobID, +Config, +WinnerIdx, +DeliveredSummary,
-%!                  +Interrogation, +Paraphrase, -Text) is det.
+%!                  +Interrogation, +Paraphrase, +ExistingReport, -Text) is det.
 %
 %   A deterministic provenance block appended to the coverage ledger: model
 %   and judge, search parameters, resolved completion limit, run date and
-%   elapsed time, per-branch outcomes, auto-tunings applied, and the
-%   delivered program's verification summary.
-technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase, Text) :-
+%   elapsed time, estimated cost, per-branch outcomes, auto-tunings applied,
+%   what became of any user-supplied LE code, and the delivered program's
+%   verification summary.
+technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase,
+               ExistingReport, Text) :-
     F = Config.features,
     format_time(string(Date), '%Y-%m-%d %H:%M', Config.started),
     get_time(Now), El is round(Now - Config.started),
@@ -1070,13 +1292,23 @@ technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase,
     ->  format(string(PLine), "stability ~w%", [Paraphrase.get(stability, -1)])
     ;   PLine = "off"
     ),
+    (   get_dict(enabled, ExistingReport, true)
+    ->  format(string(ELine), "~w of ~w supplied line(s) present (~w%)",
+               [ExistingReport.kept, ExistingReport.lines, ExistingReport.percent])
+    ;   ELine = "none supplied"
+    ),
+    (   Cost = Config.get(est_cost), number(Cost)
+    ->  format_cost(Cost, CostS0),
+        format(string(CostS), "~w (estimated before the run, upper bound)", [CostS0])
+    ;   CostS = "not estimated"
+    ),
     format(string(Text),
-"\n\n---\n\n## Technicalities\n\n- Generated: ~w (job ~w)\n- Model: ~w \u00b7 judge: ~w\n- Search: K=~w vocabulary samples \u00b7 W=~w branches \u00b7 repair patience ~w \u00b7 probes ~w \u00b7 holdout ~w\n- Options: ~w repairs \u00b7 reasoning ~w \u00b7 clause-wise ~w \u00b7 paraphrase ~w\n- Completion limit: ~w tokens/call~w \u00b7 budget ~w min \u00b7 elapsed ~w\n- Target section: ~w\n- Branches:\n~w\n- Auto-tuning during the run:\n~w\n- Interrogation: ~w \u00b7 Paraphrase: ~w\n- Delivered program: ~w\n",
+"\n\n---\n\n## Technicalities\n\n- Generated: ~w (job ~w)\n- Model: ~w \u00b7 judge: ~w\n- Search: K=~w vocabulary samples \u00b7 W=~w branches \u00b7 repair patience ~w \u00b7 probes ~w \u00b7 holdout ~w\n- Options: ~w repairs \u00b7 reasoning ~w \u00b7 clause-wise ~w \u00b7 paraphrase ~w\n- Completion limit: ~w tokens/call~w \u00b7 budget ~w min \u00b7 elapsed ~w\n- LLM cost: ~w\n- Target section: ~w\n- Existing LE code: ~w\n- Branches:\n~w\n- Auto-tuning during the run:\n~w\n- Interrogation: ~w \u00b7 Paraphrase: ~w\n- Delivered program: ~w\n",
            [Date, JobID, Config.model, Judge,
             Config.k, Config.w, Config.repairs, F.probes, F.holdout,
             RepairStyle, Config.reasoning, F.clausewise, F.paraphrase,
             Config.max_tokens, MTNote, Config.minutes, Elapsed,
-            Config.target,
+            CostS, Config.target, ELine,
             BranchBlock, TuneBlock, ILine, PLine, DeliveredSummary]).
 
 ledger_for(JobID, Config, WordingSlice, WinnerText, Ledger) :-
