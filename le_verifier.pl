@@ -74,7 +74,8 @@ cycle_source(KB, Cycle, Start, End) :-
 % --- 1. Missing template ---
 missing_template(KB, issue(missing_template, Description, Fix, Start, End)) :-
     (   current_predicate(KB:unknown_template/1), clause(KB:unknown_template(Tokens), _, Ref)
-    ;   current_predicate(KB:F/A), functor(Head, F, A), clause(KB:Head, Body, Ref), find_in_body(Body, unknown_template(Tokens))
+    ;   current_predicate(KB:F/A), functor(Head, F, A), le_kbs:kb_own_predicate(KB, Head),
+        clause(KB:Head, Body, Ref), find_in_body(Body, unknown_template(Tokens))
     ),
     le_grammar:reconstruct_name(Tokens, Name),
     le_i18n:le_msg(missing_template_desc, [name-Name], Description),
@@ -159,6 +160,7 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
 suspicious_is_a(KB, issue(suspicious_is_a, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A),
     functor(Head, F, A),
+    le_kbs:kb_own_predicate(KB, Head),
     clause(KB:Head, Body, Ref),
     ( Lit = Head ; find_in_body(Body, Lit) ),
     nonvar(Lit), Lit = is_a(_, Type),
@@ -181,6 +183,7 @@ suspicious_is_a(KB, issue(suspicious_is_a, Description, Fix, Start, End)) :-
 suspicious_is(KB, issue(suspicious_is, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A),
     functor(Head, F, A),
+    le_kbs:kb_own_predicate(KB, Head),
     clause(KB:Head, Body, Ref),
     ( Lit = Head ; find_in_body(Body, Lit) ),
     nonvar(Lit), Lit = le_is(_, Value),
@@ -210,6 +213,7 @@ defined_scenario_element(KB, issue(defined_scenario_element, Description, Fix, S
     is_scenario_element_functor(KB, F, A),
     functor(Head, F, A),
     current_predicate(KB:F/A),
+    le_kbs:kb_own_predicate(KB, Head),
     clause(KB:Head, _, Ref),
     le_i18n:le_msg(defined_scenario_element_desc, [functor-F, arity-A], Description),
     le_i18n:le_msg(defined_scenario_element_fix, [], Fix),
@@ -264,6 +268,7 @@ is_defined_real(KB, Literal) :-
 safe_clause(KB, Literal) :-
     functor(Literal, F, A),
     current_predicate(KB:F/A),
+    le_kbs:kb_own_predicate(KB, Literal),
     clause(KB:Literal, _).
 
 safe_scenario_fact(KB, F, A) :-
@@ -290,6 +295,7 @@ untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-
 
 is_intensional(KB, F, A) :-
     functor(G, F, A),
+    le_kbs:kb_own_predicate(KB, G),
     KB:clause(G, Body),
     Body \== true, !.
 
@@ -307,6 +313,7 @@ is_reachable(KB, Goal, F, A, Anc) :-
     \+ member(F1/A1, Anc),
     functor(G1, F1, A1),
     current_predicate(KB:F1/A1),
+    le_kbs:kb_own_predicate(KB, G1),
     KB:clause(G1, Body),
     is_reachable(KB, Body, F, A, [F1/A1|Anc]).
 
@@ -409,6 +416,7 @@ count_rules(KB, Count) :-
         current_predicate(KB:F/A),
         \+ is_system_predicate(F/A),
         functor(Head, F, A),
+        le_kbs:kb_own_predicate(KB, Head),
         KB:clause(Head, Body),
         Body \== true
     ), L),
@@ -419,6 +427,7 @@ count_facts(KB, Count) :-
         current_predicate(KB:F/A),
         \+ is_system_predicate(F/A),
         functor(Head, F, A),
+        le_kbs:kb_own_predicate(KB, Head),
         KB:clause(Head, true)
     ), L1),
     length(L1, Count).

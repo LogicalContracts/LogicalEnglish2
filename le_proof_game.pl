@@ -11,6 +11,23 @@
 % stays thread-safe. For real sessions the counter is stored in the SM module.
 :- thread_local game_node_counter/1.
 
+%!  own_clauses(+Module, +Head) is semidet.
+%
+%   Head's predicate is one Module actually defines, so clause/3 may inspect it.
+%
+%   Enumerating current_predicate(M:F/N) with F and N unbound does NOT only
+%   yield a module's own predicates: it also yields anything the module's import
+%   table has RESOLVED, and resolution happens lazily, the first time a
+%   predicate is called through that module. Answering a query calls
+%   `SM:clause(...)` and `KM:clause(...)` (reasoner.pl), which resolves the
+%   built-in clause/3 into both modules — so from the second request onwards the
+%   enumeration offers `clause/3` itself, and `clause(M:clause(_,_,_), B, R)`
+%   throws permission_error(access, private_procedure, clause/3). That is why
+%   the Proof Game worked on a fresh session and failed once a query had run.
+own_clauses(M, Head) :-
+    \+ predicate_property(M:Head, imported_from(_)),
+    predicate_property(M:Head, dynamic).
+
 %!  extract_rules_and_facts(+KB, +SM, +Query, -Rules, -Facts, -QueryTokens) is det.
 extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
     ( SM \== none -> dynamic(SM:game_node_term/3), retractall(SM:game_node_term(_,_,_)) ; true ),
@@ -22,6 +39,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         (   current_predicate(KB:F/N),
             \+ le_kbs:is_system_predicate(F/N),
             functor(Head, F, N),
+            own_clauses(KB, Head),
             clause(KB:Head, Body, Ref),
             KB:le_source_info(Ref, Start, End, ID),
             \+ member(ID, [template, template_unknown, ontology, session_fact])
@@ -33,13 +51,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             current_predicate(SM:F/N),
             \+ le_kbs:is_system_predicate(F/N),
             functor(Head, F, N),
-            % Only the session's OWN asserted clauses: current_predicate also
-            % enumerates predicates le_kbs exports once the module's import
-            % table has resolved them (which depends on request history), and
-            % clause/3 on such an imported static procedure throws
-            % permission_error(access, private_procedure, clause/3).
-            \+ predicate_property(SM:Head, imported_from(_)),
-            predicate_property(SM:Head, dynamic),
+            own_clauses(SM, Head),
             clause(SM:Head, Body, Ref),
             SM:le_source_info(Ref, Start, End, ID),
             ID == session_fact
@@ -86,6 +98,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         (   current_predicate(KB:F/N),
             \+ le_kbs:is_system_predicate(F/N),
             functor(Head, F, N),
+            own_clauses(KB, Head),
             clause(KB:Head, true, Ref),
             KB:le_source_info(Ref, Start, End, ID),
             \+ member(ID, [template, template_unknown, ontology, session_fact]),
@@ -94,9 +107,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             current_predicate(SM:F/N),
             \+ le_kbs:is_system_predicate(F/N),
             functor(Head, F, N),
-            % See the rules pass: never clause/3 an import resolved into SM.
-            \+ predicate_property(SM:Head, imported_from(_)),
-            predicate_property(SM:Head, dynamic),
+            own_clauses(SM, Head),
             clause(SM:Head, true, Ref),
             SM:le_source_info(Ref, Start, End, session_fact),
             Kind = fact
@@ -108,6 +119,7 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
             member(M, [KB, SM]),
             M \== none,
             catch(current_predicate(M:le_unknown/1), _, fail),
+            own_clauses(M, le_unknown(_)),
             clause(M:le_unknown(Head), _UnkBody, Ref),
             M:le_source_info(Ref, Start, End, _AnyID),
             Kind = assumption
