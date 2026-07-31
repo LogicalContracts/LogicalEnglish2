@@ -2123,6 +2123,7 @@ And exclude type guard nodes
 Let's refine the "important reason" for failures, tweaking the heuristic you just implemented. Instead of returning the deepest failed node... return all of them (notice that they cannot be ancestor of each other), and render the lot with "it is not the case that X, nor Y, nor..."; truncate after the third.
 Make this refinement a new preferfence in the explanations preferences panel, "larger important reasons".
 
+
 ## TBD
 Contracções (numa, desta, ..)
 Logical English for German (Logisches Deutsch)

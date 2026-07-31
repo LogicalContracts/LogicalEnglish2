@@ -353,11 +353,43 @@ has_opposite(G, SM, KM, OppG) :-
 is_type_compatible(SM, KM, G) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, N),
-    ( (M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _, _)) ; M:le_dict(dict([F|FormalArgs], NTs, _))), length(FormalArgs, N) ->
-        G =.. [F|ActualArgs],
-        check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM)
-    ; true
+    findall(FormalArgs-NTs, candidate_dict(M, F, N, FormalArgs, NTs), Candidates),
+    (   Candidates == [] -> true
+    ;   G =.. [F|ActualArgs],
+        args_compatible_any(Candidates, ActualArgs, M, SM, KM)
     ).
+
+% candidate_dict(+M, +F, +N, -FormalArgs, -NTs): every declared template whose
+% predicate is F/N. Both the full dict/7 and the short dict/3 form are searched,
+% as before.
+candidate_dict(M, F, N, FormalArgs, NTs) :-
+    (   M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _, _))
+    ;   M:le_dict(dict([F|FormalArgs], NTs, _))
+    ),
+    length(FormalArgs, N).
+
+%!  args_compatible_any(+Candidates, +ActualArgs, +M, +SM, +KM) is semidet.
+%
+%   Several templates can share one functor and arity with DIFFERENT argument
+%   types — "*a payment* is part of *a claim*" and "*a loss* is part of *a
+%   claim*" both compile to is_part_of/2. Committing to the first declared one
+%   (as this used to) silently made every other unusable: a scenario fact stated
+%   through the second template was rejected by the first template's types, so a
+%   fact sitting right there in the session could not be proved. The goal is
+%   acceptable if ANY declared template accepts it.
+%
+%   With one candidate nothing changes — the per-argument `when(nonvar(...))`
+%   checks are attached exactly as before, so an argument is constrained the
+%   moment it binds. A disjunction cannot be decided argument by argument, so
+%   with several candidates the whole check waits until the arguments are
+%   ground and then tries each template in turn. That defers rejection rather
+%   than tightening it, which matches the deliberate leniency of this check.
+args_compatible_any([FormalArgs-NTs], ActualArgs, M, SM, KM) :- !,
+    check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM).
+args_compatible_any(Candidates, ActualArgs, M, SM, KM) :-
+    when(ground(ActualArgs),
+         once(( member(FormalArgs-NTs, Candidates),
+                check_args_compatibility(FormalArgs, ActualArgs, NTs, M, SM, KM) ))).
 
 check_args_compatibility([], [], _, _, _, _).
 check_args_compatibility([FA|FAs], [AA|AAs], NTs, M, SM, KM) :-
