@@ -130,6 +130,36 @@ query one is:
     which claim is settled.
 ").
 
+% A forall written on the `if` line takes the `if`'s indentation, so an
+% "it is the case that" marker at that same indentation is the forall's SIBLING,
+% not its child. The forall used to silently get `true` for its consequent and
+% the marker line went on to parse as a literal of its own.
+forall_marker_at_if_indent_text("the target language is: prolog.
+
+the templates are:
+    *a person* is friendly.
+    *a person* is rich.
+    *a person* has *a friend*.
+
+the knowledge base foralls includes:
+
+    A person is friendly
+        if the person has a friend
+        and for all cases in which
+            the person has a friend
+        it is the case that
+            the friend is rich.
+
+scenario one is:
+    alice has bob.
+    bob is rich.
+    carol has dave.
+    dave is poor.
+
+query one is:
+    which person is friendly.
+").
+
 :- begin_tests(silent_diagnostics).
 
 % --- 1. 'answers' is optional after 'expects' ---
@@ -208,5 +238,29 @@ test(second_template_of_same_functor_is_usable,
     assertion(reasoner:i(is_part_of('bodily injury', 'claim one'), SM, _, _)),
     assertion(reasoner:i(is_settled('claim one'), SM, _, _)),
     le_kbs:destroySession(SM).
+
+% --- 6. A stranded "it is the case that" marker is adopted by its forall ---
+
+test(forall_marker_at_if_indent_is_adopted,
+     [setup((forall_marker_at_if_indent_text(T), setup_le_text(forallmarker, T, Path))),
+      cleanup(delete_file(Path))]) :-
+    le_kbs:load(Path, M, [skip_tests]),
+    once(( clause(M:is_friendly(_), Body) )),
+    % the consequent is INSIDE the forall, not a sibling conjunct ...
+    assertion(( sub_term(S, Body), nonvar(S), S = forall(_, Cons), nonvar(Cons),
+                sub_term(C, Cons), nonvar(C), C = is_rich(_) )),
+    % ... and no le_is/2 was left behind by the marker line
+    assertion(\+ ( sub_term(L, Body), nonvar(L), L = le_is(_, _) )).
+
+% And it means what it says: only the person whose friends are ALL rich.
+test(forall_marker_at_if_indent_answers,
+     [setup((forall_marker_at_if_indent_text(T), setup_le_text(forallanswers, T, Path))),
+      cleanup(delete_file(Path))]) :-
+    le_kbs:load(Path, M, [skip_tests]),
+    le_kbs:createSession(M, SM),
+    le_kbs:setScenarion(SM, one),
+    findall(P, reasoner:i(is_friendly(P), SM, _, _), Ps),
+    le_kbs:destroySession(SM),
+    assertion(Ps == [alice]).
 
 :- end_tests(silent_diagnostics).
