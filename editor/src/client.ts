@@ -273,6 +273,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         (window as any).selectRange = (start: number, end: number) => {
             const model = editor.getModel();
+            // A jump from an explanation node, the graph or the proof game:
+            // where we were is worth remembering, so Go back returns there.
+            rememberJumpOrigin(editor);
             const startPos = model.getPositionAt(start);
             const endPos = model.getPositionAt(end);
             editor.setSelection(new monaco.Range(
@@ -459,7 +462,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         // per template. The cursor's line goes along with the offset because a
         // rule's range covers the whole rule — the line is what distinguishes
         // the head from a condition.
-        async function predicateAtCursor(ed: any): Promise<any | null> {
+        async function predicateAtCursor(ed: any, operation = 'predicateAt'): Promise<any | null> {
             if (!isLoaded && !isLoading) {
                 await loadModule();
             }
@@ -475,7 +478,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         token: 'myToken123',
-                        operation: 'predicateAt',
+                        operation: operation,
                         sessionModule: sessionModule,
                         position: model.getOffsetAt(position),
                         line: model.getLineContent(position.lineNumber)
@@ -483,12 +486,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 });
                 const data = await response.json();
                 if (data.error) {
-                    console.log('predicateAt:', data.error);
+                    console.log(operation + ':', data.error);
                     return null;
                 }
                 return data;
             } catch (err) {
-                console.error('predicateAt failed:', err);
+                console.error(operation + ' failed:', err);
                 return null;
             }
         }
@@ -528,7 +531,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         editor.addAction({
             id: 'le-fold-predicate-rules',
-            label: 'Fold all rules for this predicate',
+            label: t('Fold all rules for this predicate'),
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 1.9,
             run: (ed: any) => { foldPredicateRules(ed, true); }
@@ -536,15 +539,48 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         editor.addAction({
             id: 'le-unfold-predicate-rules',
-            label: 'Unfold all rules for this predicate',
+            label: t('Unfold all rules for this predicate'),
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 2.0,
             run: (ed: any) => { foldPredicateRules(ed, false); }
         });
 
+        // ---- navigation history --------------------------------------------
+        // Where the cursor was before each programmatic jump (Show definition,
+        // Show occurrences, a click in the explanation tree...), newest last —
+        // so "Go back" returns the way VS Code's Go Back does. Ordinary typing
+        // and cursor moves are NOT recorded: only jumps that moved the user
+        // somewhere they did not navigate to themselves.
+        const jumpHistory: { lineNumber: number, column: number }[] = [];
+        const JUMP_HISTORY_MAX = 50;
+
+        function rememberJumpOrigin(ed: any) {
+            const position = ed.getPosition();
+            if (!position) return;
+            const last = jumpHistory[jumpHistory.length - 1];
+            if (last && last.lineNumber === position.lineNumber && last.column === position.column) return;
+            jumpHistory.push({ lineNumber: position.lineNumber, column: position.column });
+            if (jumpHistory.length > JUMP_HISTORY_MAX) jumpHistory.shift();
+        }
+
+        // Jump to a line, flashing it so the move is visible even when the
+        // target was already on screen. The origin goes on the history stack,
+        // so Ctrl+- comes back here.
+        function jumpToLine(ed: any, lineNumber: number, column: number = 1) {
+            rememberJumpOrigin(ed);
+            ed.revealLineInCenter(lineNumber);
+            ed.setPosition({ lineNumber: lineNumber, column: column });
+            ed.focus();
+            const decorations = ed.deltaDecorations([], [{
+                range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+                options: { isWholeLine: true, className: 'le-definition-flash' }
+            }]);
+            setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
+        }
+
         editor.addAction({
             id: 'le-show-definition',
-            label: 'Show definition',
+            label: t('Show definition'),
             keybindings: [monaco.KeyCode.F12],
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 2.1,
@@ -562,16 +598,189 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     return;
                 }
                 const pos = model.getPositionAt(target);
-                ed.revealLineInCenter(pos.lineNumber);
-                ed.setPosition(pos);
+                jumpToLine(ed, pos.lineNumber, pos.column);
+            }
+        });
+
+        // ---- Show occurrences ----------------------------------------------
+        // Every place the predicate under the cursor is mentioned — its
+        // declaration, the rules and facts that define it, the conditions that
+        // use it, the scenario facts and the queries — listed in document order
+        // and navigable. The server (operation predicateOccurrences) finds them;
+        // the client turns each into a line.
+
+        const occurrencesModal = document.getElementById('occurrences-modal');
+        const occurrencesList = document.getElementById('occurrences-list');
+        const occurrencesSubtitle = document.getElementById('occurrences-subtitle');
+        const closeOccurrences = () => {
+            if (occurrencesModal) occurrencesModal.style.display = 'none';
+        };
+        document.getElementById('occurrences-close')?.addEventListener('click', closeOccurrences);
+        document.getElementById('occurrences-cancel')?.addEventListener('click', closeOccurrences);
+        occurrencesModal?.addEventListener('click', (e) => {
+            if (e.target === occurrencesModal) closeOccurrences();
+        });
+
+        // The words of a Logical English phrase, for comparing a rendered
+        // literal against a source line.
+        function leWords(text: string): string[] {
+            return text.toLowerCase().split(/[^0-9a-zà-öø-ÿA-ZÀ-ÖØ-Þ_]+/).filter(w => w.length > 0);
+        }
+
+        // A rule's source range covers the WHOLE rule (and a query's its whole
+        // section), so an occurrence inside one still has to be placed on the
+        // right line: the one whose words overlap the literal's rendering most.
+        // The head — or the `query ... is:` header — owns the first line, so the
+        // search starts below it. Everything else (a declaration, a rule head, a
+        // fact, a scenario fact) starts where its range starts.
+        function occurrenceLine(model: any, occ: any): number {
+            const first = model.getPositionAt(occ.start).lineNumber;
+            const last = Math.min(model.getPositionAt(occ.end).lineNumber, model.getLineCount());
+            const searches = (occ.kind === 'condition' || occ.kind === 'query');
+            if (!searches || last <= first) return first;
+            const words = leWords(occ.text || '');
+            if (words.length === 0) return first;
+            let best = first, bestScore = 0;
+            for (let line = first + 1; line <= last; line++) {
+                const lineWords = new Set(leWords(model.getLineContent(line)));
+                const score = words.filter(w => lineWords.has(w)).length;
+                if (score > bestScore) { bestScore = score; best = line; }
+            }
+            return best;
+        }
+
+        const OCCURRENCE_KIND_LABELS: { [kind: string]: string } = {
+            template: 'declaration',
+            fact: 'fact',
+            head: 'rule head',
+            condition: 'condition',
+            scenario: 'scenario fact',
+            query: 'query'
+        };
+
+        function showOccurrences(ed: any, data: any) {
+            if (!occurrencesModal || !occurrencesList) return;
+            const model = ed.getModel();
+            const rows: any[] = [];
+            const seen = new Set<string>();
+            for (const occ of (data.occurrences || [])) {
+                const line = occurrenceLine(model, occ);
+                // Two literals of one rule can land on the same line (`... if the
+                // person is rich and the person is rich`); one row is enough.
+                const key = `${line}|${occ.kind}|${occ.text}`;
+                if (seen.has(key)) continue;
+                seen.add(key);
+                rows.push({ occ, line });
+            }
+            rows.sort((a, b) => a.line - b.line);
+
+            if (occurrencesSubtitle) {
+                occurrencesSubtitle.textContent =
+                    `${data.le} — ` +
+                    t('{n} occurrence(s); click one to go to it').replace('{n}', String(rows.length));
+            }
+            occurrencesList.innerHTML = '';
+            rows.forEach((row, index) => {
+                const item = document.createElement('div');
+                item.className = 'occurrence-row';
+
+                const kind = document.createElement('span');
+                kind.className = 'occurrence-kind';
+                kind.textContent = t(OCCURRENCE_KIND_LABELS[row.occ.kind] || row.occ.kind);
+                item.appendChild(kind);
+
+                const lineNo = document.createElement('span');
+                lineNo.className = 'occurrence-line';
+                lineNo.textContent = String(row.line);
+                item.appendChild(lineNo);
+
+                // The source line as written, rather than the canonical
+                // rendering: that is what the user is looking for on screen.
+                const text = document.createElement('span');
+                text.className = 'occurrence-text';
+                text.textContent = model.getLineContent(row.line).trim() || row.occ.text || '';
+                item.appendChild(text);
+
+                if (row.occ.context) {
+                    const context = document.createElement('span');
+                    context.className = 'occurrence-context';
+                    context.textContent = row.occ.context;
+                    item.appendChild(context);
+                }
+
+                item.addEventListener('click', () => {
+                    closeOccurrences();
+                    jumpToLine(ed, row.line);
+                });
+                occurrencesList.appendChild(item);
+            });
+            occurrencesModal.style.display = 'flex';
+        }
+
+        // Escape closes it; the arrows walk the list and Enter goes there, so
+        // the whole thing is usable without the mouse.
+        document.addEventListener('keydown', (e) => {
+            // display is only ever 'flex' while the modal is up ('' means the
+            // stylesheet's display:none is still in force).
+            if (!occurrencesModal || occurrencesModal.style.display !== 'flex') return;
+            if (e.key === 'Escape') { closeOccurrences(); return; }
+            if (!occurrencesList) return;
+            const items = Array.from(occurrencesList.querySelectorAll('.occurrence-row')) as HTMLElement[];
+            if (items.length === 0) return;
+            const current = items.findIndex(i => i.classList.contains('selected'));
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                const next = e.key === 'ArrowDown'
+                    ? Math.min(current + 1, items.length - 1)
+                    : Math.max(current - 1, 0);
+                items.forEach(i => i.classList.remove('selected'));
+                items[next < 0 ? 0 : next].classList.add('selected');
+                items[next < 0 ? 0 : next].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter' && current >= 0) {
+                e.preventDefault();
+                items[current].click();
+            }
+        });
+
+        // VS Code's Go Back. Its Windows/Linux chord is Ctrl+Alt+-, its macOS
+        // one Ctrl+-; both are registered, because a browser may keep Ctrl+-
+        // for zooming out and never hand it to the page.
+        editor.addAction({
+            id: 'le-go-back',
+            label: t('Go back (to where you jumped from)'),
+            keybindings: [
+                monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus,
+                monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Minus
+            ],
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 2.3,
+            run: (ed: any) => {
+                const target = jumpHistory.pop();
+                if (!target) return;
+                const model = ed.getModel();
+                // The document may have shrunk since (an edit, or another file
+                // loaded): clamp rather than throw the position away.
+                const lineNumber = Math.min(target.lineNumber, model.getLineCount());
+                ed.revealLineInCenter(lineNumber);
+                ed.setPosition({ lineNumber: lineNumber, column: target.column });
                 ed.focus();
-                // a brief flash, so the jump is visible when the line was
-                // already on screen
-                const decorations = ed.deltaDecorations([], [{
-                    range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1),
-                    options: { isWholeLine: true, className: 'le-definition-flash' }
-                }]);
-                setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
+            }
+        });
+
+        editor.addAction({
+            id: 'le-show-occurrences',
+            label: t('Show occurrences'),
+            keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.F12],
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 2.2,
+            run: async (ed: any) => {
+                const data = await predicateAtCursor(ed, 'predicateOccurrences');
+                if (!data) return;
+                if (!data.occurrences || data.occurrences.length === 0) {
+                    alert(t('No occurrences found for') + ` "${data.le}"`);
+                    return;
+                }
+                showOccurrences(ed, data);
             }
         });
 

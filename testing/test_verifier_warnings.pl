@@ -169,4 +169,31 @@ test(template_used_only_in_a_query_is_not_flagged) :-
     le_verifier:verify(M, [skip_tests], Issues),
     assertion(\+ member(issue(unused_template, _, _, _, _), Issues)).
 
+% A general template shadowed by more specific ones reads as a false positive:
+% the program is full of sentences that LOOK like uses, but each matches a
+% longer template and so a different predicate. The warning is right; the fix
+% text has to say why, or the reader hunts a bug in the verifier.
+test(a_shadowed_template_says_which_templates_take_its_sentences) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a claim* is excluded from *a section*.\n    *a claim* is excluded from the liability section.\n    *a claim* is excluded from the liability section for fraud.\n\nthe knowledge base tiny includes:\n\na claim is excluded from the liability section\n    if the claim is excluded from the liability section for fraud.\n\nquery which is:\n    which claim is excluded from the liability section.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    member(issue(unused_template, Desc, Fix, _, _), Issues),
+    sub_string(Desc, _, _, _, "is excluded from *section*"),
+    !,
+    assertion(sub_string(Fix, _, _, _, "open with the same words")),
+    % the example is the CLOSEST shadowing template, not an arbitrary one
+    assertion(sub_string(Fix, _, _, _, "*claim* is excluded from the liability section'")),
+    assertion(sub_string(Fix, _, _, _, "2 other")).
+
+% An ordinary dead template — nothing else opens with its words — keeps the
+% plain advice, without a note about templates that do not exist.
+test(an_unshadowed_dead_template_keeps_the_plain_fix) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is quixotic.\n\nthe knowledge base tiny includes:\n\nbob is happy.\n\nquery who is:\n    which person is happy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    member(issue(unused_template, Desc, Fix, _, _), Issues),
+    sub_string(Desc, _, _, _, "quixotic"),
+    !,
+    assertion(\+ sub_string(Fix, _, _, _, "open with the same words")).
+
 :- end_tests(unused_template).

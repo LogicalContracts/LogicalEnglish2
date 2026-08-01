@@ -15,7 +15,18 @@ mechanical. Fix as many as you safely can, in this order of preference:
    turned a constant into a variable; use the constant.
 4. **Suspicious `is a` / missing template drift** — the sentence and its
    template drifted apart; align them.
-5. Anything else you can fix without changing behaviour.
+5. **Undefined predicate** — a rule asks about something no rule or fact
+   establishes. If the contract makes it a case datum, mark its template
+   `; undefined` and stop there. NEVER write a rule to define it away, least of
+   all one whose only condition is its own head — such rules are deleted
+   automatically before you see the program, and writing them wastes the round.
+6. Anything else you can fix without changing behaviour.
+
+A note on what reaches you: tautological rules, duplicated rules and the
+comments introducing them have already been removed mechanically, and templates
+that were only ever asked about have already been marked `; undefined`. What is
+left needs judgement — spend the round on that, not on re-doing the mechanical
+part.
 
 Hard rules:
 

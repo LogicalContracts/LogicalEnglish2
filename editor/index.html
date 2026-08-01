@@ -16,6 +16,41 @@
             from { background: rgba(90, 160, 255, 0.42); }
             to   { background: rgba(90, 160, 255, 0); }
         }
+        /* "Show occurrences" rows: a kind badge, the line number, and the
+           source line itself. The whole row is one click target. */
+        .occurrence-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .occurrence-row:hover, .occurrence-row.selected { background: var(--item-hover-bg); }
+        .occurrence-kind {
+            flex: 0 0 auto;
+            min-width: 78px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #9cdcfe;
+        }
+        .occurrence-line {
+            flex: 0 0 auto;
+            min-width: 46px;
+            text-align: right;
+            font-size: 12px;
+            color: #888;
+        }
+        .occurrence-text {
+            flex: 1 1 auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .occurrence-context { flex: 0 0 auto; color: #888; font-size: 11px; }
         :root {
             --bg-color: #1e1e1e;
             --text-color: #d4d4d4;
@@ -1007,6 +1042,23 @@
         </div>
     </div>
     
+    <!-- Modal for "Show occurrences": every place a predicate is mentioned,
+         each row jumping to its line in the editor. -->
+    <div id="occurrences-modal" class="modal-overlay">
+        <div class="modal-content" style="width: 680px; max-width: 92vw; max-height: 80vh;">
+            <div class="modal-header">
+                <h3 style="margin: 0; font-size: 16px;">Occurrences</h3>
+                <span id="occurrences-close" style="cursor: pointer; font-size: 20px;">&times;</span>
+            </div>
+            <div id="occurrences-subtitle" style="padding: 10px 15px 0; font-size: 12px; color: #888;"></div>
+            <div id="occurrences-list" style="padding: 10px; overflow-y: auto; flex-grow: 1;">
+            </div>
+            <div class="modal-footer">
+                <button id="occurrences-cancel" style="background: var(--item-hover-bg); color: var(--text-color); border: 1px solid var(--input-border); border-radius: 3px; padding: 5px 15px; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Context Menu for Answers -->
     <div id="answer-context-menu" class="context-menu">
         <div class="dropdown-item" id="menu-copy-answer" style="padding: 5px 15px; font-size: 12px;">Copy Answer</div>
