@@ -2294,7 +2294,7 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
     (   ca_llm_hook(Hook)
     ->  call(Hook, Purpose, Messages, Reply)
     ;   resolve_model(Purpose, Config, Model, Key),
-        stage_options(JobID, Config, Key, Options, Opts),
+        stage_options(JobID, Config, Purpose, Key, Options, Opts),
         llm_try(JobID, Config, Purpose, Model, Messages, Opts, 1, Reply)
     ).
 
@@ -2304,8 +2304,11 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
 %   the auto-tunings discovered during the run: a raised completion limit,
 %   minimal reasoning, and a temperature the provider refuses to hear about
 %   (see the temperature clause of llm_outcome/9).
-stage_options(JobID, Config, Key, Options, Opts) :-
-    ( ca_tune(JobID, max_tokens(MT)) -> true ; MT = Config.max_tokens ),
+stage_options(JobID, Config, Purpose, Key, Options, Opts) :-
+    (   ca_tune(JobID, max_tokens(MT))     % learned during the run: it wins
+    ->  true
+    ;   purpose_max_tokens(Purpose, Config, MT)
+    ),
     call_timeout(Config, T),
     (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
     ->  Extra = [api_key(Key), max_tokens(MT), timeout(T), reasoning(minimal)]
@@ -2318,6 +2321,40 @@ drop_temperature(Opts0, Opts) :-
     exclude(is_temperature_option, Opts0, Opts).
 
 is_temperature_option(temperature(_)).
+
+%!  purpose_max_tokens(+Purpose, +Config, -MT) is det.
+%
+%   Calibration finds the LARGEST completion the provider accepts. That is the
+%   right ceiling and the wrong request: at 65536 tokens a reasoning model can
+%   think for twenty minutes before it emits anything, and then EVERY call of a
+%   45-minute job times out — observed with an open-weights model whose
+%   materials were only 4k tokens, so size was not the problem. A stage that
+%   writes a template inventory or an architecture sketch cannot need a whole
+%   program's worth of tokens; a stage that writes a program gets the ceiling.
+%   If a small stage ever proves it needs more, the truncation ladder raises
+%   the cap for the rest of the job (ca_tune/2), which is exactly its job.
+purpose_max_tokens(Purpose, Config, MT) :-
+    Cap = Config.max_tokens,
+    (   small_output_purpose(Purpose)
+    ->  small_output_tokens(Small),
+        MT is min(Small, Cap)
+    ;   MT = Cap
+    ).
+
+% A few thousand tokens of prose or a scenario block — never a program. (The
+% largest vocabulary reply seen in the field was ~17k characters, about a third
+% of this.)
+small_output_tokens(16384).
+
+small_output_purpose(vocabulary).
+small_output_purpose(vocabulary_merge).
+small_output_purpose(vocabulary_paraphrase).
+small_output_purpose(architecture).
+small_output_purpose(ledger).
+small_output_purpose(paraphrase).
+small_output_purpose(paraphrase_compare).
+small_output_purpose(probes).
+small_output_purpose(holdout(_, _)).
 
 % Transient provider failures (503 Service unavailable, 429 rate limit,
 % dropped sockets) must not kill a many-minute job on its first call: retry
@@ -2471,6 +2508,43 @@ llm_outcome(err(error(llm_truncated(_), _)), JobID, Config, Purpose, Model, Mess
 llm_outcome(err(error(llm_truncated(_), _)), JobID, _Config, Purpose, Model, _Messages, _Opts, _Attempt, _Reply) :- !,
     ca_emit(JobID, "LLM call (~w) was truncated even with minimal reasoning at the provider's completion cap"-[Purpose]),
     throw(error(contract_assistant_error(llm_truncated(Purpose, Model)), _)).
+% A provider that accepts the request and then sends NOTHING for a whole
+% timeout, on a prompt of a few thousand tokens, is almost always a reasoning
+% model thinking past the deadline: the same failure as a truncated reply,
+% arriving as silence instead of a truncation flag. Retrying the identical
+% request just buys another silence — asking it to think less does not. (The
+% one call that ever came back from such a model in the field did so
+% immediately after this switch, reached by the truncation ladder by luck.)
+llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    silent_provider_error(E),
+    \+ memberchk(reasoning(_), Opts),
+    \+ deadline_exceeded(Config),
+    !,
+    ca_emit(JobID, "LLM call (~w): ~w went silent for the whole timeout; retrying with minimal reasoning"-[Purpose, Model]),
+    (   ca_tune(JobID, reasoning_minimal)
+    ->  true
+    ;   assertz(ca_tune(JobID, reasoning_minimal)),
+        ca_emit(JobID, "Auto-tuning: all subsequent calls use minimal reasoning"-[])
+    ),
+    ca_check_alive(JobID),
+    refresh_timeout(Config, Opts, Opts1),
+    llm_try(JobID, Config, Purpose, Model, Messages, [reasoning(minimal)|Opts1], Attempt, Reply).
+% Still silent with minimal reasoning: cut the completion budget too, so the
+% model cannot spend the timeout generating. Sticky, like the other tunings.
+llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    silent_provider_error(E),
+    small_output_tokens(Small),
+    select_option(max_tokens(Cur), Opts, Opts1),
+    Cur > Small,
+    \+ deadline_exceeded(Config),
+    !,
+    ca_emit(JobID, "LLM call (~w): still silent; cutting the completion budget from ~w to ~w tokens for the rest of the job"-[Purpose, Cur, Small]),
+    (   ca_tune(JobID, max_tokens(_)) -> true
+    ;   assertz(ca_tune(JobID, max_tokens(Small)))
+    ),
+    ca_check_alive(JobID),
+    refresh_timeout(Config, [max_tokens(Small)|Opts1], Opts2),
+    llm_try(JobID, Config, Purpose, Model, Messages, Opts2, Attempt, Reply).
 llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     (   transient_llm_error(E),
         max_attempts(Config, E, MaxAttempts),
@@ -2495,7 +2569,8 @@ llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Repl
         ->  ca_emit(JobID, "LLM call failed (~w) and the ~w-minute budget is exhausted, so it was not retried: ~w"-[Purpose, Config.minutes, ES])
         ;   silent_provider_error(E)
         ->  ( memberchk(timeout(T), Opts) -> true ; llm_socket_timeout(T) ),
-            ca_emit(JobID, "LLM call failed (~w): ~w accepted the request and then sent nothing, on ~w attempts of up to ~ws each. That is a provider or model-speed problem, not a problem with your documents — try another model, or raise Max minutes so each attempt may wait longer."-[Purpose, Model, Attempt, T])
+            ( memberchk(max_tokens(MTUsed), Opts) -> true ; MTUsed = Config.max_tokens ),
+            ca_emit(JobID, "LLM call failed (~w): ~w accepted the request and then sent nothing, on ~w attempts of up to ~ws each — including attempts with minimal reasoning and a ~w-token completion budget. Nothing here can make a provider answer: use another model. (Raising Max minutes only lengthens each wait.)"-[Purpose, Model, Attempt, T, MTUsed])
         ;   transient_llm_error(E)
         ->  ca_emit(JobID, "LLM call failed (~w) after ~w attempts: ~w"-[Purpose, Attempt, ES])
         ;   ca_emit(JobID, "LLM call failed (~w): ~w"-[Purpose, ES])

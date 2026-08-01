@@ -57,14 +57,35 @@ vocab_config(Config) :-
 
 :- dynamic silent_calls/1.
 
-% A provider that goes silent once (a read timeout, exactly the shape seen in
-% the field) and answers on the retry.
-raw_hook_silent_once(_Model, _Messages, _Opts, Reply) :-
+% A provider that fails once the cheap way (503) and answers on the retry.
+% Silence is deliberately NOT used here: it takes the auto-tuning path instead
+% of the plain ladder (see silence_switches_the_job_to_minimal_reasoning).
+raw_hook_flaky_once(_Model, _Messages, _Opts, Reply) :-
     ( retract(user:silent_calls(N0)) -> true ; N0 = 0 ),
     N is N0 + 1, assertz(user:silent_calls(N)),
     (   N =:= 1
-    ->  throw(error(llm_http_error(error(timeout_error(read, s), context(x, y))), context(llm_client, "HTTP request failed")))
+    ->  throw(error(llm_api_error(503, "service unavailable"), context(llm_client, "HTTP request failed")))
     ;   Reply = "the answer"
+    ).
+
+:- dynamic silent_until_minimal/1.
+
+% A provider that answers only once the request stops asking for reasoning —
+% the shape of the open-weights model that went silent on every call.
+raw_hook_silent_until_minimal(_Model, _Messages, Opts, Reply) :-
+    ( retract(user:silent_until_minimal(N0)) -> true ; N0 = 0 ),
+    N is N0 + 1, assertz(user:silent_until_minimal(N)),
+    (   memberchk(reasoning(minimal), Opts)
+    ->  Reply = "the answer"
+    ;   throw(error(llm_http_error(error(timeout_error(read, s), context(x, y))), context(llm_client, "HTTP request failed")))
+    ).
+
+% ... and one that stays silent until the completion budget is cut as well.
+raw_hook_silent_until_small_budget(_Model, _Messages, Opts, Reply) :-
+    (   memberchk(reasoning(minimal), Opts),
+        memberchk(max_tokens(MT), Opts), MT =< 16384
+    ->  Reply = "the answer"
+    ;   throw(error(llm_http_error(error(timeout_error(read, s), context(x, y))), context(llm_client, "HTTP request failed")))
     ).
 
 start_config(Config) :-
@@ -476,11 +497,11 @@ test(temperature_rejection_classified) :-
 test(no_temperature_tuning_strips_the_option,
      [cleanup(retractall(le_contract_assistant:ca_tune(temp_job, _)))]) :-
     Config = _{max_tokens: 4096, reasoning: default},
-    le_contract_assistant:stage_options(temp_job, Config, "KEY",
+    le_contract_assistant:stage_options(temp_job, Config, draft(1), "KEY",
                                         [temperature(0.4)], Opts0),
     assertion(memberchk(temperature(0.4), Opts0)),
     assertz(le_contract_assistant:ca_tune(temp_job, no_temperature)),
-    le_contract_assistant:stage_options(temp_job, Config, "KEY",
+    le_contract_assistant:stage_options(temp_job, Config, draft(1), "KEY",
                                         [temperature(0.4)], Opts1),
     assertion(\+ memberchk(temperature(_), Opts1)),
     assertion(memberchk(max_tokens(4096), Opts1)),
@@ -944,7 +965,7 @@ test(long_generations_get_a_long_timeout) :-
     assertion(W > T),
     get_time(Now), Deadline is Now + 120*60,
     Config = _{max_tokens: 4096, reasoning: default, minutes: 120, deadline: Deadline},
-    le_contract_assistant:stage_options(no_job, Config, "KEY", [temperature(0.1)], Opts),
+    le_contract_assistant:stage_options(no_job, Config, draft(1), "KEY", [temperature(0.1)], Opts),
     assertion(memberchk(timeout(T), Opts)).
 
 % ... but a SHORT job may not hand a single call the whole ceiling. A provider
@@ -1034,11 +1055,12 @@ test(losing_every_vocabulary_sample_ends_the_job,
 % The retry log must be self-consistent: attempt 1 waits 3s, and the line says
 % how many attempts this error is worth. A field log showed "attempt 1 ...
 % retrying in 20s", which this pairing makes impossible — if it recurs, the
-% running build is not this code.
+% running build is not this code. (A 503 comes back at once, so the plain
+% ladder is what handles it.)
 test(the_retry_log_line_pairs_the_attempt_with_its_delay,
      [setup(( retractall(user:silent_calls(_)),
               retractall(le_contract_assistant:ca_raw_hook(_)),
-              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_silent_once)) )),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_flaky_once)) )),
       cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
                 retractall(user:silent_calls(_)),
                 retractall(le_contract_assistant:ca_log(silent_job, _, _)),
@@ -1053,6 +1075,73 @@ test(the_retry_log_line_pairs_the_attempt_with_its_delay,
     Lines = [Line|_], !,
     assertion(sub_string(Line, _, _, _, "attempt 1 of 4")),
     assertion(sub_string(Line, _, _, _, "retrying in 3s")).
+
+% Silence is the same failure as a truncated reply — the model is thinking past
+% the timeout — so it gets the same answer: think less. Retrying the identical
+% request only buys another silence, and every call of a 45-minute job then
+% times out even with a 4k-token prompt.
+test(silence_switches_the_job_to_minimal_reasoning,
+     [setup(( retractall(user:silent_until_minimal(_)),
+              retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_silent_until_minimal)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(user:silent_until_minimal(_)),
+                retractall(le_contract_assistant:ca_tune(silent_job2, _)),
+                retractall(le_contract_assistant:ca_log(silent_job2, _, _)),
+                retractall(le_contract_assistant:ca_logseq(silent_job2, _)) ))]) :-
+    get_time(Now), Deadline is Now + 45*60,
+    Config = _{deadline: Deadline, minutes: 45, max_tokens: 65536,
+               max_tokens_cap: 65536, reasoning: default},
+    le_contract_assistant:llm_try(silent_job2, Config, vocabulary, 'a-model',
+                                  [_{role: user, content: "hi"}],
+                                  [max_tokens(65536), timeout(450)], 1, Reply),
+    assertion(Reply == "the answer"),
+    user:silent_until_minimal(Calls),
+    assertion(Calls =:= 2),                        % silent once, then answered
+    % sticky: the rest of the job does not pay for the same discovery again
+    assertion(le_contract_assistant:ca_tune(silent_job2, reasoning_minimal)).
+
+% If minimal reasoning is not enough, the completion budget is cut too — a
+% model cannot spend a timeout generating tokens it was never allowed.
+test(persistent_silence_cuts_the_completion_budget,
+     [setup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_silent_until_small_budget)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(le_contract_assistant:ca_tune(silent_job3, _)),
+                retractall(le_contract_assistant:ca_log(silent_job3, _, _)),
+                retractall(le_contract_assistant:ca_logseq(silent_job3, _)) ))]) :-
+    get_time(Now), Deadline is Now + 45*60,
+    Config = _{deadline: Deadline, minutes: 45, max_tokens: 65536,
+               max_tokens_cap: 65536, reasoning: default},
+    le_contract_assistant:llm_try(silent_job3, Config, vocabulary, 'a-model',
+                                  [_{role: user, content: "hi"}],
+                                  [max_tokens(65536), timeout(450)], 1, Reply),
+    assertion(Reply == "the answer"),
+    assertion(le_contract_assistant:ca_tune(silent_job3, max_tokens(16384))).
+
+% Calibration finds the largest completion the provider ACCEPTS; asking for it
+% on a stage that writes a paragraph is what let a reasoning model think for
+% twenty minutes. Small stages get a small budget; a program-writing stage
+% still gets the ceiling.
+test(small_stages_do_not_ask_for_a_whole_programs_worth_of_tokens,
+     [cleanup(retractall(le_contract_assistant:ca_tune(mt_job, _)))]) :-
+    get_time(Now), Deadline is Now + 45*60,
+    Config = _{max_tokens: 65536, max_tokens_cap: 65536, reasoning: default,
+               minutes: 45, deadline: Deadline},
+    le_contract_assistant:stage_options(mt_job, Config, vocabulary, "KEY", [], VocabOpts),
+    assertion(memberchk(max_tokens(16384), VocabOpts)),
+    le_contract_assistant:stage_options(mt_job, Config, architecture, "KEY", [], ArchOpts),
+    assertion(memberchk(max_tokens(16384), ArchOpts)),
+    le_contract_assistant:stage_options(mt_job, Config, draft(1), "KEY", [], DraftOpts),
+    assertion(memberchk(max_tokens(65536), DraftOpts)),
+    % a cap BELOW the small budget is not raised to it
+    Small = Config.put(_{max_tokens: 4096, max_tokens_cap: 4096}),
+    le_contract_assistant:stage_options(mt_job, Small, vocabulary, "KEY", [], SmallOpts),
+    assertion(memberchk(max_tokens(4096), SmallOpts)),
+    % ... and a cap learned during the run still wins over both
+    assertz(le_contract_assistant:ca_tune(mt_job, max_tokens(32768))),
+    le_contract_assistant:stage_options(mt_job, Config, vocabulary, "KEY", [], TunedOpts),
+    assertion(memberchk(max_tokens(32768), TunedOpts)).
 
 % ---- the deterministic clean-up pass (no LLM) --------------------------------
 

@@ -1,10 +1,10 @@
 
 Test Summary:
 -------------
-Files processed: 115
-Total tests:     394
-Passed:          394
-Failed:          0
+Files processed: 114
+Total tests:     338
+Passed:          337
+Failed:          1
 Errors/Timeouts: 0
 -------------
 
@@ -102,15 +102,14 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability-gpt-5.5.le: 47 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability2.le: 6 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/employersLiability3.le: 7 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 2 Pass, 0 Fail, 0 Error
+  [FAIL] examples/moreExamples/insureLE2/testing/policy-GLM-5.2.le: 1 Pass, 1 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
