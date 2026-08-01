@@ -75,7 +75,7 @@ function wireUploads() {
 // call plan); the client only has to say how much material it will carry.
 
 function inputChars() {
-    let chars = existingCode().length;
+    let chars = existingCode().length + instructions().length;
     const inputs = [$('file-wording'), $('file-schedule'), $('file-cases')];
     for (const input of inputs)
         for (const f of Array.from(input.files || [])) chars += f.size;
@@ -84,6 +84,10 @@ function inputChars() {
 
 function existingCode() {
     return ($('existing-code').value || '').trim();
+}
+
+function instructions() {
+    return ($('instructions').value || '').trim();
 }
 
 let estimateTimer = null;
@@ -200,6 +204,7 @@ function collectBudget() {
 function collectFeatures() {
     const features = {};
     if ($('feat-probes').value !== '') features.probes = Number($('feat-probes').value);
+    if ($('feat-polish').value !== '') features.polish = Number($('feat-polish').value);
     if ($('feat-holdout').value !== '') features.holdout = $('feat-holdout').value === 'true';
     features.interrogation_repair = $('feat-interrogation-repair').checked;
     // Checkboxes whose unchecked state is the preset default are only sent when
@@ -242,7 +247,8 @@ async function start() {
             budget: collectBudget(),
             features: collectFeatures(),
             target: $('target').value.trim(),
-            existing_code: existingCode()
+            existing_code: existingCode(),
+            instructions: instructions()
         };
         if ($('adv-maxtokens').value !== '') payload.max_tokens = Number($('adv-maxtokens').value);
         if ($('adv-reasoning').value !== '') payload.reasoning = $('adv-reasoning').value;
@@ -303,6 +309,8 @@ function summaryBits(c) {
         `${c.max_tokens} tokens/call`,
         c.reasoning === 'minimal' ? 'minimal reasoning' : null,
         c.existing_chars ? `${c.existing_chars} chars of existing LE code` : null,
+        c.has_instructions ? 'additional instructions' : null,
+        c.polish ? `polish ${c.polish}` : null,
         typeof c.cost_usd === 'number' ? `est. cost ≤ $${c.cost_usd.toFixed(2)}` : null
     ].filter(Boolean);
 }
@@ -502,7 +510,7 @@ function openInEditor() {
 // Everything the estimate depends on: the models, the effort settings, and
 // the amount of material (files are handled in wireUploads).
 function wireEstimate() {
-    const ids = ['model', 'judge-model', 'adv-k', 'adv-w', 'adv-repairs', 'feat-probes'];
+    const ids = ['model', 'judge-model', 'adv-k', 'adv-w', 'adv-repairs', 'feat-probes', 'feat-polish'];
     for (const id of ids) $(id).addEventListener('change', scheduleEstimate);
     for (const radio of document.querySelectorAll('input[name=preset]'))
         radio.addEventListener('change', scheduleEstimate);
@@ -523,6 +531,19 @@ function wireExistingCode() {
     };
     area.addEventListener('input', update);
     update();
+
+    // The instructions ride along with every call, so they cost tokens too.
+    const ins = $('instructions');
+    const insNote = $('instructions-note');
+    const insUpdate = () => {
+        const text = instructions();
+        insNote.textContent = text
+            ? `${text.length} characters — sent with every drafting and repair call.`
+            : '';
+        scheduleEstimate();
+    };
+    ins.addEventListener('input', insUpdate);
+    insUpdate();
 }
 
 document.addEventListener('DOMContentLoaded', () => {

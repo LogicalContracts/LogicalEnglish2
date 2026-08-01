@@ -17,3 +17,4 @@ Produce, as markdown:
 Stay within the vocabulary; if a skeleton needs a template that is missing,
 list it explicitly under "Additional templates required".
 {{existing}}
+{{instructions}}

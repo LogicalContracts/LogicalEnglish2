@@ -191,6 +191,32 @@ test(extract_search_replace_two_blocks) :-
     extract_search_replace("x\n<<<<<<< SEARCH\nfoo\n=======\nbar\n>>>>>>> REPLACE\nmid\n<<<<<<< SEARCH\na\nb\n=======\nc\n>>>>>>> REPLACE\n", Edits),
     assertion(Edits == [edit("foo", "bar"), edit("a\nb", "c")]).
 
+% A reply that runs several edits together under ONE '<<<<<<< SEARCH' header
+% (a real GLM-5.2 failure mode). Pairing every separator with every terminator
+% used to yield N*(N+1)/2 edits, each spanning most of the reply — enough to
+% blow the 1 Gb stack inside findall/3 and kill a 30-minute job.
+test(extract_search_replace_runaway_is_linear) :-
+    numlist(1, 300, Ns),
+    findall(S, ( member(I, Ns),
+                 format(string(S), "old text ~w\n=======\nnew text ~w\n>>>>>>> REPLACE\n", [I, I]) ),
+            Parts),
+    atomics_to_string(["<<<<<<< SEARCH\n"|Parts], Reply),
+    extract_search_replace(Reply, Edits, Malformed),
+    assertion(Edits == [edit("old text 1", "new text 1")]),
+    assertion(Malformed =:= 299).
+
+% A block the model never terminated must not swallow the well-formed one
+% that follows it.
+test(extract_search_replace_resyncs_after_malformed) :-
+    extract_search_replace("<<<<<<< SEARCH\nlost\n<<<<<<< SEARCH\nfoo\n=======\nbar\n>>>>>>> REPLACE\n", Edits),
+    assertion(Edits == [edit("foo", "bar")]).
+
+% CRLF replies: without normalisation every SEARCH text ends in a stray '\r'
+% and nothing ever matches the (LF) program.
+test(extract_search_replace_crlf) :-
+    extract_search_replace("<<<<<<< SEARCH\r\nfoo\r\n=======\r\nbar\r\n>>>>>>> REPLACE\r\n", Edits),
+    assertion(Edits == [edit("foo", "bar")]).
+
 test(extract_tagged_blocks) :-
     Reply = "text\n```le\nPROGRAM\n```\nmore\n```ledger\nLINES\n```\n",
     extract_tagged_block(Reply, le, P),
@@ -275,6 +301,70 @@ test(rank_prefers_tested_over_untested_clean) :-
 
 % Providers that only accept their default temperature answer 400/422 naming
 % the parameter; anything else about a 400 must stay a real error.
+% Scenarios are fact patterns: with no case supplied the drafting prompt must
+% forbid inventing them, and the user's instructions are the only way to ask.
+test(scenario_policy_forbids_invention_when_no_case_is_supplied) :-
+    le_contract_assistant:scenarios_block(_{existing: none}, 0, B),
+    assertion(sub_string(B, _, _, _, "NO case was supplied")),
+    assertion(sub_string(B, _, _, _, "write NO scenarios")),
+    assertion(sub_string(B, _, _, _, "Do NOT invent extra scenarios")),
+    assertion(sub_string(B, _, _, _, "ADDITIONAL INSTRUCTIONS")).
+
+test(scenario_policy_counts_the_supplied_cases) :-
+    le_contract_assistant:scenarios_block(_{existing: none}, 3, B),
+    assertion(sub_string(B, _, _, _, "one scenario per supplied case (3 supplied)")).
+
+test(instructions_block_is_empty_without_instructions) :-
+    le_contract_assistant:instructions_block(_{instructions: none}, B),
+    assertion(B == "").
+
+test(instructions_reach_the_prompt) :-
+    le_contract_assistant:instructions_block(_{instructions: "Please add boundary scenarios."}, B),
+    assertion(sub_string(B, _, _, _, "ADDITIONAL INSTRUCTIONS FROM THE USER")),
+    assertion(sub_string(B, _, _, _, "Please add boundary scenarios.")),
+    le_contract_assistant:build_messages('stage2_draft',
+        [existing-"", instructions-B, scenarios-"", materials-"M",
+         vocabulary-"V", architecture-"A"],
+        [_{role: system, content: Sys}|_]),
+    assertion(sub_string(Sys, _, _, _, "Please add boundary scenarios.")).
+
+% A target names a section AND its subsections — not the section up to its own
+% first subsection, and not the rest of the document.
+target_doc("# Guide\n\n## General terms\n\ngeneral stuff\n\n# Employers liability\n\nEL INTRO\n\n## What is covered\n\nEL COVERED\n\n# Property definitions\n\nPROPERTY STUFF\n\n# Motor\n\nMOTOR STUFF\n").
+
+test(plain_target_takes_the_section_with_its_subsections) :-
+    target_doc(D), segment_markdown(D, Secs),
+    le_contract_assistant:target_slice(D, Secs, "Employers liability", tjob, Slice),
+    assertion(sub_string(Slice, _, _, _, "EL INTRO")),
+    assertion(sub_string(Slice, _, _, _, "EL COVERED")),        % subsection kept
+    assertion(sub_string(Slice, _, _, _, "general stuff")),     % general terms added
+    assertion(\+ sub_string(Slice, _, _, _, "PROPERTY STUFF")), % next section not swallowed
+    assertion(\+ sub_string(Slice, _, _, _, "MOTOR STUFF")).
+
+test(range_target_is_exclusive_by_default) :-
+    target_doc(D), segment_markdown(D, Secs),
+    le_contract_assistant:target_slice(D, Secs,
+        "from Employers liability until Property definitions", tjob, Slice),
+    assertion(sub_string(Slice, _, _, _, "EL COVERED")),
+    assertion(\+ sub_string(Slice, _, _, _, "PROPERTY STUFF")),
+    assertion(\+ sub_string(Slice, _, _, _, "general stuff")).  % a range is taken literally
+
+test(range_target_can_be_inclusive) :-
+    target_doc(D), segment_markdown(D, Secs),
+    le_contract_assistant:target_slice(D, Secs,
+        "from Employers liability until Property definitions (inclusive)", tjob, Slice),
+    assertion(sub_string(Slice, _, _, _, "PROPERTY STUFF")),
+    assertion(\+ sub_string(Slice, _, _, _, "MOTOR STUFF")).
+
+test(target_expressions_are_parsed) :-
+    le_contract_assistant:parse_target("from A until B", S1),
+    assertion(S1 == range("A", "B", false)),
+    le_contract_assistant:parse_target("from A to B (inclusive)", S2),
+    assertion(S2 == range("A", "B", true)),
+    % a title that merely contains "to" is not a range
+    le_contract_assistant:parse_target("Guide to sections", S3),
+    assertion(S3 == section("Guide to sections")).
+
 test(temperature_rejection_classified) :-
     OpenAI = "{\"error\":{\"message\":\"Unsupported value: 'temperature' does not support 0.05 with this model. Only the default (1) is supported.\",\"param\":\"temperature\"}}",
     assertion(le_contract_assistant:temperature_rejected(error(llm_api_error(400, OpenAI), c))),
@@ -430,6 +520,54 @@ hook_branch1_dies(draft(1), _, _) :- !,
 hook_branch1_dies(draft(2), _, Reply) :- !, good_program(P), fence(P, Reply).
 hook_branch1_dies(ledger, _, "LEDGER") :- !.
 hook_branch1_dies(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hook where EVERY branch's draft dies (e.g. the provider times out on a big
+% wording). The job must end as an error, not hang: with two dead branches the
+% old filter kept one `failed(_)` term, select_winner/3 had nothing to rank, and
+% the pipeline failed silently with the job still marked "running".
+hook_all_branches_die(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_all_branches_die(architecture, _, "a branch") :- !.
+hook_all_branches_die(draft(_), _, _) :- !,
+    throw(error(contract_assistant_error(llm_failed(draft, "read timeout")), _)).
+hook_all_branches_die(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+
+% A program that is RIGHT but not CLEAN: same as good_program plus a template
+% nothing uses (the verifier's unused_template warning). The repair loop stops
+% at "right"; the polish rounds are what remove the warning.
+warnish_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    *a cost* is a cost; undefined.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n\nquery who is:\n    which person is happy.\n").
+
+:- dynamic polish_calls/1.
+bump_polish :- ( retract(polish_calls(N)) -> true ; N = 0 ), N1 is N + 1, assertz(polish_calls(N1)).
+
+% Polish that works: the dead template is dropped, nothing else changes.
+hook_polish(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_polish(architecture, _, "one branch") :- !.
+hook_polish(draft(_), _, Reply) :- !, warnish_program(P), fence(P, Reply).
+hook_polish(polish(_, _), _, Reply) :- !, bump_polish, good_program(P), fence(P, Reply).
+hook_polish(ledger, _, "LEDGER") :- !.
+hook_polish(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Polish that would break a passing test: it must be thrown away.
+hook_polish_breaks(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_polish_breaks(architecture, _, "one branch") :- !.
+hook_polish_breaks(draft(_), _, Reply) :- !, warnish_program(P), fence(P, Reply).
+hook_polish_breaks(polish(_, _), _, Reply) :- !, bump_polish, broken_program(P), fence(P, Reply).
+hook_polish_breaks(ledger, _, "LEDGER") :- !.
+hook_polish_breaks(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% A program with BOTH a stubborn failing expectation and a dead template.
+stubborn_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    *a cost* is a cost; undefined.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"alice is happy\"].\n\nquery who is:\n    which person is happy.\n").
+
+% Same, with the dead template gone (what the polish round returns).
+stubborn_clean_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"alice is happy\"].\n\nquery who is:\n    which person is happy.\n").
+
+hook_polish_stubborn(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_polish_stubborn(architecture, _, "one branch") :- !.
+hook_polish_stubborn(draft(_), _, Reply) :- !, stubborn_program(P), fence(P, Reply).
+hook_polish_stubborn(polish(_, _), _, Reply) :- !, bump_polish, stubborn_clean_program(P), fence(P, Reply).
+hook_polish_stubborn(ledger, _, "LEDGER") :- !.
+hook_polish_stubborn(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
 % Hook producing one DISAGREEING probe, with adjudication repairs disabled:
 % the probes must be reverted and reported as open disagreements.
@@ -670,6 +808,102 @@ test(blank_existing_code_is_none) :-
     assertion(E2 == none),
     le_contract_assistant:existing_code(_{existing_code: "a person is happy."}, E3),
     assertion(E3 == "a person is happy.").
+
+% Every branch dead: the job ends as an error the UI can show, and never stays
+% "running" (which is what made a real job poll forever).
+test(all_branches_dead_ends_the_job,
+     [setup(hook_setup(user:hook_all_branches_die)), cleanup(hook_cleanup)]) :-
+    start_config(Config0),
+    Config = Config0.put(budget, _{preset: "draft", minutes: 5, w: 2}),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_status(JobID, Status),
+    assertion(Status = finished(error(_))),
+    Status = finished(error(Msg)),
+    assertion(sub_string(Msg, _, _, _, "every branch failed")),
+    atom_string(JobID, JobStr),
+    handle_contract_status(_{job: JobStr}, S),
+    assertion(S.status == "error"),
+    !.
+
+% The safety net under it: a pipeline that FAILS (rather than throwing) must
+% still end the job. Here the job id has no config, so pipeline_stages/1 fails
+% on its very first goal.
+test(pipeline_failure_never_leaves_a_job_running,
+     [cleanup(( retractall(le_contract_assistant:ca_status(ghost_job, _)),
+                retractall(le_contract_assistant:ca_log(ghost_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(ghost_job, _)),
+                retractall(le_contract_assistant:ca_ended(ghost_job, _)) ))]) :-
+    asserta(le_contract_assistant:ca_status(ghost_job, running)),
+    le_contract_assistant:run_contract_pipeline(ghost_job),
+    le_contract_assistant:ca_status(ghost_job, Status),
+    assertion(Status = finished(error(_))),
+    Status = finished(error(Msg)),
+    assertion(sub_string(Msg, _, _, _, "bug in the assistant")).
+
+% The socket timeout the assistant asks for must be generous enough for a whole
+% wording in and a whole program out — and the wall-clock guard looser still,
+% or it fires first and hides the real error.
+test(long_generations_get_a_long_timeout) :-
+    le_contract_assistant:llm_socket_timeout(T),
+    le_contract_assistant:llm_wall_limit(W),
+    assertion(T >= 900),
+    assertion(W > T),
+    Config = _{max_tokens: 4096, reasoning: default},
+    le_contract_assistant:stage_options(no_job, Config, "KEY", [temperature(0.1)], Opts),
+    assertion(memberchk(timeout(T), Opts)).
+
+% Once the program is right, the polish rounds clean the warnings — here the
+% dead template goes and the delivered program is the clean one.
+test(polish_removes_warnings_once_the_program_is_right,
+     [setup(( hook_setup(user:hook_polish), retractall(user:polish_calls(_)) )),
+      cleanup(( hook_cleanup, retractall(user:polish_calls(_)) ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    good_program(P),
+    assertion(Result.le == P),
+    user:polish_calls(N), assertion(N >= 1),
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.warnings =:= 0),
+    assertion(Score.tests_passed =:= 1).
+
+% A polish round that costs a passing test is rejected: the verified program
+% survives with its warnings.
+test(polish_that_breaks_a_test_is_rejected,
+     [setup(( hook_setup(user:hook_polish_breaks), retractall(user:polish_calls(_)) )),
+      cleanup(( hook_cleanup, retractall(user:polish_calls(_)) ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    warnish_program(P),
+    assertion(Result.le == P),
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.tests_passed =:= 1),
+    assertion(Score.tests_failed =:= 0),
+    assertion(Score.warnings >= 1).
+
+% A stubborn failing test does not block the clean-up: the repair loop gave up
+% on it, but the dead template still goes — and the failing test is never
+% offered to the polish round as something to "fix".
+test(polish_runs_even_when_a_test_is_still_failing,
+     [setup(( hook_setup(user:hook_polish_stubborn), retractall(user:polish_calls(_)) )),
+      cleanup(( hook_cleanup, retractall(user:polish_calls(_)) ))]) :-
+    start_config(Config0),
+    Config = Config0.put(budget, _{preset: "draft", minutes: 5, repairs: 0}),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    user:polish_calls(N), assertion(N >= 1),
+    le_contract_assistant:ca_result(JobID, Result),
+    stubborn_clean_program(P),
+    assertion(Result.le == P).
+
+test(failing_tests_are_not_offered_to_the_polish_round) :-
+    broken_program(P),
+    verify_le_text(P, V),
+    assertion(V.warnings >= 1),                       % the failed test IS a warning
+    le_contract_assistant:polishable_warnings(V, N, _),
+    assertion(N =:= 0).                               % ... but not a polishable one
 
 test(disagreeing_probe_is_reverted_and_reported,
      [setup(hook_setup(user:hook_disagree)), cleanup(hook_cleanup)]) :-

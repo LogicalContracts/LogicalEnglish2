@@ -105,3 +105,68 @@ test(prepositional_chain_is_not_flagged) :-
     assertion(\+ member(issue(unmarked_meta_template, _, _, _, _), Issues)).
 
 :- end_tests(unmarked_meta_template).
+
+% ---------------------------------------------------------------------------
+% A predicate no query reaches is named by its TEMPLATE (the reader never wrote
+% `is_happy/1`) and reported AT its first rule head, not at offset 0.
+:- begin_tests(untested_predicate_reporting).
+
+untested_program("the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nquery who is:\n    which person is healthy.\n").
+
+test(named_by_its_template_not_by_functor_arity) :-
+    untested_program(Text),
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    member(issue(untested_predicate, Desc, _, _, _), Issues),
+    assertion(sub_string(Desc, _, _, _, "is happy")),
+    assertion(\+ sub_string(Desc, _, _, _, "is_happy")),
+    assertion(\+ sub_string(Desc, _, _, _, "/1")).
+
+test(reported_at_the_rule_head) :-
+    untested_program(Text),
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    member(issue(untested_predicate, _, _, Start, End), Issues),
+    assertion(Start > 0),
+    assertion(End > Start),
+    % the range starts at the rule, not at the template declaration
+    sub_string(Text, Start, 20, _, Head),
+    assertion(Head == "a person is happy if").
+
+:- end_tests(untested_predicate_reporting).
+
+% ---------------------------------------------------------------------------
+% Dead vocabulary: a template nothing uses. Generated programs are full of them
+% ("*a cost* is a cost; undefined." that no rule ever consults).
+:- begin_tests(unused_template).
+
+test(template_used_nowhere_is_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a cost* is a cost; undefined.\n\nthe knowledge base tiny includes:\n\nbob is happy.\n\nquery who is:\n    which person is happy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    member(issue(unused_template, Desc, _, Start, _), Issues),
+    assertion(sub_string(Desc, _, _, _, "is a cost")),
+    assertion(Start > 0).
+
+test(template_used_in_a_rule_body_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unused_template, _, _, _, _), Issues)).
+
+% Facts supplied by a scenario are a use — this is the whole point of an
+% `; undefined` template.
+test(template_used_only_in_a_scenario_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy; undefined.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unused_template, _, _, _, _), Issues)).
+
+% ... and so is being asked about in a query.
+test(template_used_only_in_a_query_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy; undefined.\n\nthe knowledge base tiny includes:\n\nbob is happy.\n\nquery who is:\n    which person is healthy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unused_template, _, _, _, _), Issues)).
+
+:- end_tests(unused_template).

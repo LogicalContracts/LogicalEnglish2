@@ -206,6 +206,7 @@ handle_operation(Dict, Response) :-
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
+        ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
         ; Op == "getLps" -> handle_get_lps(Dict, Response)
         ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
@@ -2206,6 +2207,106 @@ render_le(KB, Term, Str) :-
 scasp_bindings_json(Bindings, Dict) :-
     findall(Name-VS, ( member(Name=V, Bindings), term_string(V, VS) ), Pairs),
     dict_pairs(Dict, _, Pairs).
+
+%!  handle_predicate_at(+Dict, -Response) is det.
+%
+%   Which predicate is under the cursor, and where everything about it lives.
+%   Feeds the editor's "Show definition" and "Fold/Unfold all rules" actions:
+%
+%       {le: "*a claim* is covered under *a section*", functor: ..., arity: ...,
+%        template: {start, end},          % the declaration, when there is one
+%        rules: [{start, end}, ...]}      % every rule/fact with that head
+%
+%   Request: sessionModule, position (character offset) and — optionally but
+%   usefully — line, the text of the cursor's line. A rule's source range covers
+%   the whole rule, so the offset alone cannot say whether the cursor is on the
+%   head or on one of the conditions; the line text picks the literal out of the
+%   ones that rule actually contains.
+handle_predicate_at(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    (   KB == none
+    ->  Response = _{error: "No KB loaded"}
+    ;   get_dict(position, Dict, Pos),
+        ( get_dict(line, Dict, Line0) -> true ; Line0 = "" ),
+        (   predicate_at_pos(KB, Pos, Line0, F, A)
+        ->  predicate_places(KB, F, A, Response)
+        ;   Response = _{error: "No predicate at this position"}
+        )
+    ).
+
+%!  predicate_at_pos(+KB, +Pos, +Line, -F, -A) is semidet.
+predicate_at_pos(KB, Pos, Line, F, A) :-
+    % on a template declaration: that template's predicate
+    (   template_at_pos(KB, Pos, F0, A0)
+    ->  F = F0, A = A0
+    ;   find_clause_at_pos(KB, Pos, Clause),
+        clause_literals(Clause, Literals),
+        Literals \== [],
+        best_literal_for_line(KB, Literals, Line, Literal),
+        functor(Literal, F, A)
+    ).
+
+template_at_pos(KB, Pos, F, A) :-
+    current_predicate(KB:le_source_info/4),
+    KB:le_source_info(Ref, Start, End, template),
+    Pos >= Start, Pos =< End,
+    catch(clause(KB:le_dict(D), true, Ref), _, fail),
+    D =.. [dict, [F|Args]|_],
+    length(Args, A), !.
+
+clause_literals((Head :- Body), [Head|Ls]) :- !,
+    findall(L, le_verifier:find_in_body(Body, L), Ls).
+clause_literals(Head, [Head]).
+
+%!  best_literal_for_line(+KB, +Literals, +Line, -Literal) is det.
+%
+%   The literal of this rule whose Logical English rendering shares the most
+%   words with the cursor's line; the head when nothing matches (an empty line,
+%   or a cursor parked on `if`).
+best_literal_for_line(_KB, [Head|_], Line, Head) :-
+    normalize_space(string(L), Line), L == "", !.
+best_literal_for_line(KB, Literals, Line, Best) :-
+    string_lower(Line, Lower),
+    split_string(Lower, " \t.,;()", " \t.,;()", Words0),
+    exclude(==(""), Words0, Words),
+    map_list_to_pairs(literal_overlap(KB, Words), Literals, Scored),
+    keysort(Scored, [Score-Best0|_]),      % scores are negative: most overlap sorts first
+    ( Score < 0 -> Best = Best0 ; Literals = [Head|_], Best = Head ),
+    !.
+
+literal_overlap(KB, Words, Literal, Neg) :-
+    (   catch(le_kbs:item_to_instance(KB, Literal, Tokens), _, fail),
+        le_kbs:canonical_string(Tokens, Str)
+    ->  true
+    ;   term_string(Literal, Str)
+    ),
+    string_lower(Str, LStr),
+    split_string(LStr, " \t.,;()*", " \t.,;()*", LWords0),
+    exclude(==(""), LWords0, LWords),
+    include([W]>>memberchk(W, Words), LWords, Shared),
+    length(Shared, N),
+    Neg is -N.          % negative so that keysort puts the best overlap first
+
+%!  predicate_places(+KB, +F, +A, -Response:dict) is det.
+predicate_places(KB, F, A, Response) :-
+    ( le_kbs:template_of(KB, F, A, TDict, Label) -> true ; TDict = none, format(string(Label), "~w/~w", [F, A]) ),
+    functor(Head, F, A),
+    findall(_{start: S, end: E},
+            ( le_kbs:kb_own_predicate(KB, Head),
+              clause(KB:Head, _, Ref),
+              clause(KB:le_source_info(Ref, S, E, _), true) ),
+            Rules0),
+    sort(Rules0, Rules),
+    (   TDict \== none,
+        KB:le_source_info(TRef, TS, TE, template),
+        catch(clause(KB:le_dict(TDict), true, TRef), _, fail)
+    ->  Response = _{le: Label, functor: F, arity: A, rules: Rules,
+                     template: _{start: TS, end: TE}}
+    ;   Response = _{le: Label, functor: F, arity: A, rules: Rules}
+    ).
 
 find_clause_at_pos(KB, Pos, Clause) :-
     findall(range(Len, Ref), (

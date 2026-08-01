@@ -32,11 +32,12 @@ what is the close-out amount).
   - derived notion → defined by rules, no marker.
 - **Traceability.** Every rule carries a `%` comment citing the clause or
   heading of the contract it encodes.
-- **Scenarios and tests.** Each case becomes a `scenario <name> is:` section
-  with facts only from case-datum templates, plus embedded expectations:
-  `<queryname> expects answers ["..."].` (no leading `query` keyword). Include
-  adversarial variants that flip one decisive fact and expect the flipped
-  outcome.
+- **Scenarios and tests.** A supplied case becomes a `scenario <name> is:`
+  section with facts only from case-datum templates, plus embedded
+  expectations: `<queryname> expects answers ["..."].` (no leading `query`
+  keyword). Never invent a scenario the user did not supply or ask for — see
+  the SCENARIOS section of your task, which says exactly which scenarios are
+  permitted for this job.
 
 ## Hard constraints (violations break the parser)
 
