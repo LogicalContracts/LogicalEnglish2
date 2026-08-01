@@ -79,6 +79,18 @@ what is the close-out amount).
   line with a period before the `if`.
 - Do not invent identity facts (`vet fees is equal to vet fees.`) to make a
   variable match a constant; use the constant directly in the rule.
+- **Never write a rule whose only condition is its own head** to silence an
+  "undefined predicate" warning. This is worthless and will be deleted:
+  ```
+  % WRONG — a tautology that defines nothing
+  a claim is a claim for court attendance compensation
+      if the claim is a claim for court attendance compensation.
+  ```
+  If a predicate is asked about but nothing in the contract establishes it, it
+  is a **case datum**: mark its template `; undefined` (see Epistemic classes)
+  and leave it to the scenarios. One word on the declaration, no rule at all.
+  The same goes for "default-false" rules of any shape: a predicate with no
+  rule is already false, so writing one that cannot succeed adds nothing.
 - Facts (schedule data) go in the knowledge-base or annex sections, BEFORE the
   scenarios and queries — never between or after them.
 - NEVER elide content with placeholders like `% ... (all rules and templates)`

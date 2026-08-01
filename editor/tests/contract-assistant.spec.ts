@@ -76,4 +76,32 @@ test.describe('Contract Assistant UI', () => {
         // ... and the log survived the terminal transition (regression guard).
         await expect(page.locator('#log')).toContainText('Vocabulary sample');
     });
+
+    // A job outlives the tab that started it, so the Setup screen lists the
+    // jobs this browser started: closing the window must not lose a run.
+    test('recent runs list recovers a job after the tab is closed', async ({ page, request }) => {
+        test.setTimeout(60000);
+        const job = await startFailingJob(request);
+        await page.goto('/web_extras/contract_assistant/index.html#' + job);
+        await expect(page.locator('#run-title-text')).toHaveText('Failed', { timeout: 30000 });
+
+        // Back to Setup: the job is listed with its state.
+        await page.locator('#btn-run-back').click();
+        const row = page.locator('.recent-row').first();
+        await expect(page.locator('#recent-card')).toBeVisible();
+        await expect(row).toContainText('failed');
+
+        // A brand-new page load (no hash — the tab was closed) still lists it,
+        // and opening it from there reattaches to the same job.
+        await page.goto('/web_extras/contract_assistant/index.html');
+        await expect(page.locator('#recent-card')).toBeVisible();
+        await page.locator('.recent-row .recent-open').first().click();
+        await expect(page).toHaveURL(new RegExp('#' + job + '$'));
+        await expect(page.locator('#log')).toContainText('Stage', { timeout: 20000 });
+
+        // Forget removes it from the list (the list is this browser's only).
+        await page.locator('#btn-run-back').click();
+        await page.locator('.recent-row .recent-forget').first().click();
+        await expect(page.locator('#recent-card')).toBeHidden();
+    });
 });

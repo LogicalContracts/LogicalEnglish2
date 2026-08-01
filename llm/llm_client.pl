@@ -94,6 +94,7 @@ llm_model_entry('claude-opus-5', anthropic, 'claude-opus-5', 'https://api.anthro
 llm_model_entry('MiniMaxAI/MiniMax-M2.7',          together, 'MiniMaxAI/MiniMax-M2.7', 'https://api.together.xyz/v1').
 llm_model_entry('deepseek-ai/DeepSeek-V4-Pro',          together, 'deepseek-ai/DeepSeek-V4-Pro', 'https://api.together.xyz/v1').
 llm_model_entry('zai-org/GLM-5.2',          together, 'zai-org/GLM-5.2', 'https://api.together.xyz/v1').
+llm_model_entry('moonshotai/Kimi-K3',          together, 'moonshotai/Kimi-K3', 'https://api.together.xyz/v1').
 
 %% Google Gemini  (OpenAI-compatible endpoint) ──────────────────────
 % cf. https://ai.google.dev/gemini-api/docs/models

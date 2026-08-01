@@ -207,6 +207,7 @@ handle_operation(Dict, Response) :-
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
         ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
+        ; Op == "predicateOccurrences" -> handle_predicate_occurrences(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
         ; Op == "getLps" -> handle_get_lps(Dict, Response)
         ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
@@ -2307,6 +2308,127 @@ predicate_places(KB, F, A, Response) :-
                      template: _{start: TS, end: TE}}
     ;   Response = _{le: Label, functor: F, arity: A, rules: Rules}
     ).
+
+%!  handle_predicate_occurrences(+Dict, -Response) is det.
+%
+%   Every place the predicate under the cursor is mentioned — not just where it
+%   is defined. Feeds the editor's "Show occurrences" action:
+%
+%       {le: "*a claim* is covered under *a section*", functor: ..., arity: ...,
+%        occurrences: [{start, end, kind, context, text}, ...]}
+%
+%   `kind` is one of template | fact | head | condition | scenario | query, and
+%   `text` is the Logical English rendering of the literal found there. A rule's
+%   source range covers the whole rule, so the client uses `text` to land on the
+%   right LINE inside it (the head and a condition share the rule's range).
+%   Same request fields as predicateAt: sessionModule, position and line.
+handle_predicate_occurrences(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( SM:le_kb_module_fact(KB) -> true ; KB = none ),
+    (   KB == none
+    ->  Response = _{error: "No KB loaded"}
+    ;   get_dict(position, Dict, Pos),
+        ( get_dict(line, Dict, Line0) -> true ; Line0 = "" ),
+        (   predicate_at_pos(KB, Pos, Line0, F, A)
+        ->  predicate_occurrences(KB, F, A, Response)
+        ;   Response = _{error: "No predicate at this position"}
+        )
+    ).
+
+%!  predicate_occurrences(+KB, +F, +A, -Response:dict) is det.
+%
+%   One pass over le_source_info/4: every asserted item carries its source
+%   range, and the term behind the reference says what kind of item it is.
+predicate_occurrences(KB, F, A, Response) :-
+    ( le_kbs:template_of(KB, F, A, _, Label) -> true ; format(string(Label), "~w/~w", [F, A]) ),
+    findall(S-Occ, occurrence_of(KB, F, A, S, Occ), Pairs0),
+    keysort(Pairs0, Pairs),
+    pairs_values(Pairs, Occs0),
+    % The same literal can be reached twice (a rule reasserted, a duplicated
+    % scenario fact); identical entries would just be repeated rows.
+    remove_duplicates_stable(Occs0, Occs),
+    Response = _{le: Label, functor: F, arity: A, occurrences: Occs}.
+
+%!  occurrence_of(+KB, +F, +A, -Start, -Occurrence:dict) is nondet.
+occurrence_of(KB, F, A, Start, Occ) :-
+    current_predicate(KB:le_source_info/4),
+    KB:le_source_info(Ref, Start, End, ID),
+    Ref \== none,
+    catch(clause(KB:Item, Body, Ref), _, fail),
+    item_occurrence(KB, F, A, Item, Body, ID, Start, End, Occ).
+
+% The declaration itself.
+item_occurrence(KB, F, A, le_dict(D), _Body, _ID, Start, End, Occ) :- !,
+    D =.. [dict, [F|Args]|_],
+    length(Args, A),
+    ( le_kbs:template_of(KB, F, A, _, Text) -> true ; format(string(Text), "~w/~w", [F, A]) ),
+    occurrence(Start, End, template, "", Text, Occ).
+
+% A scenario: its facts carry their own source ranges, so point at the fact.
+item_occurrence(KB, F, A, scenario(Name, Facts), _Body, _ID, _S, _E, Occ) :- !,
+    member(fact_with_source(Fact, FS, FE), Facts),
+    functor(Fact, F, A),
+    render_le(KB, Fact, Text),
+    context_name(Name, Context),
+    occurrence(FS, FE, scenario, Context, Text, Occ).
+
+% A query body: like a rule body, any of its conditions may be the predicate.
+item_occurrence(KB, F, A, query_info(Name, Goal, _), _Body, _ID, Start, End, Occ) :- !,
+    body_literal(Goal, Literal),
+    functor(Literal, F, A),
+    render_le(KB, Literal, Text),
+    context_name(Name, Context),
+    occurrence(Start, End, query, Context, Text, Occ).
+
+% Everything else that is not a clause of the user's program.
+item_occurrence(_KB, _F, _A, Item, _Body, _ID, _S, _E, _Occ) :-
+    functor(Item, IF, IN),
+    memberchk(IF/IN, [le_kb/1, le_expected/4, le_included_resource/3, ontology/1,
+                      le_lps_item/3, le_lps_role/2, le_source_section/2, le_issue/6]),
+    !,
+    fail.
+
+% A rule or a fact: the head, then every condition of the body.
+item_occurrence(KB, F, A, Head, Body, ID, Start, End, Occ) :-
+    is_interesting_term(Head),
+    rule_context(KB, ID, Context),
+    (   functor(Head, F, A),
+        render_le(KB, Head, Text),
+        ( Body == true -> Kind = fact ; Kind = head ),
+        occurrence(Start, End, Kind, Context, Text, Occ)
+    ;   Body \== true,
+        body_literal(Body, Literal),
+        functor(Literal, F, A),
+        render_le(KB, Literal, Text),
+        occurrence(Start, End, condition, Context, Text, Occ)
+    ).
+
+body_literal(Body, Literal) :- le_verifier:find_in_body(Body, Literal).
+
+% The `context` of an occurrence is a NAME, never a word: the client shows it
+% beside the row, and its kind badge already says what the row is. A rule is
+% named by its section, when the program bothers to name one (rules default to
+% section `main`); § keeps a section name from reading like a scenario's.
+rule_context(KB, ID, Context) :-
+    (   atom(ID),
+        current_predicate(KB:le_source_section/2),
+        KB:le_source_section(Section, ID),
+        Section \== main
+    ->  format(string(Context), "§ ~w", [Section])
+    ;   Context = ""
+    ).
+
+context_name(Name, Context) :- format(string(Context), "~w", [Name]).
+
+occurrence(Start, End, Kind, Context, Text, _{start: Start, end: End, kind: Kind,
+                                              context: Context, text: Text}).
+
+remove_duplicates_stable([], []).
+remove_duplicates_stable([H|T], [H|R]) :-
+    exclude(==(H), T, T1),
+    remove_duplicates_stable(T1, R).
 
 find_clause_at_pos(KB, Pos, Clause) :-
     findall(range(Len, Ref), (

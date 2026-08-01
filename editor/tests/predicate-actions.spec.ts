@@ -102,4 +102,103 @@ test.describe('predicate actions', () => {
         });
         expect(after).toEqual([false, false]);
     });
+
+    // "Show occurrences" lists every mention of the predicate — its
+    // declaration, the rules that define it, the conditions that use it, the
+    // scenario facts and the queries — and each row jumps to its line.
+    test('Show occurrences lists every mention and navigates to it', async ({ page }) => {
+        test.setTimeout(90000);
+        await page.goto('/editor/index.html?text=' + encodeURIComponent(PROGRAM));
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        await page.waitForTimeout(4000);
+
+        // cursor on the head of the first "is happy" rule (line 10)
+        await page.evaluate(() => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            ed.setPosition({ lineNumber: 10, column: 3 });
+        });
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('le-show-occurrences').run(ed);
+        });
+
+        const modal = page.locator('#occurrences-modal');
+        await expect(modal).toBeVisible({ timeout: 20000 });
+        const rows = page.locator('#occurrences-list .occurrence-row');
+        // declaration (line 4), the two rule heads (10, 13) and the query (20)
+        await expect(rows).toHaveCount(4);
+        await expect(page.locator('#occurrences-subtitle')).toContainText('is happy');
+        const lines = await page.locator('#occurrences-list .occurrence-line').allTextContents();
+        expect(lines).toEqual(['4', '10', '13', '20']);
+        const kinds = await page.locator('#occurrences-list .occurrence-kind').allTextContents();
+        expect(kinds).toEqual(['declaration', 'rule head', 'rule head', 'query']);
+
+        // clicking a row closes the list and goes to that line
+        await rows.nth(3).click();
+        await expect(modal).toBeHidden();
+        const after = await page.evaluate(() => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            return ed.getPosition().lineNumber;
+        });
+        expect(after).toBe(20);
+    });
+
+    // A condition lives inside a rule whose source range covers the whole rule,
+    // so the occurrence has to resolve to the condition's OWN line.
+    test('Show occurrences resolves a condition to its own line', async ({ page }) => {
+        test.setTimeout(90000);
+        await page.goto('/editor/index.html?text=' + encodeURIComponent(PROGRAM));
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        await page.waitForTimeout(4000);
+
+        // cursor on the "is rich" condition (line 14)
+        await page.evaluate(() => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            ed.setPosition({ lineNumber: 14, column: 20 });
+        });
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('le-show-occurrences').run(ed);
+        });
+        await expect(page.locator('#occurrences-modal')).toBeVisible({ timeout: 20000 });
+        const lines = await page.locator('#occurrences-list .occurrence-line').allTextContents();
+        // declaration (6), and the conditions of the two rules (14 and 17) —
+        // NOT the rule heads on lines 13 and 16
+        expect(lines).toEqual(['6', '14', '17']);
+        const kinds = await page.locator('#occurrences-list .occurrence-kind').allTextContents();
+        expect(kinds).toEqual(['declaration', 'condition', 'condition']);
+    });
+
+    // Go back (Ctrl+-) returns to where a jump started.
+    test('Go back returns to the line the jump started from', async ({ page }) => {
+        test.setTimeout(90000);
+        await page.goto('/editor/index.html?text=' + encodeURIComponent(PROGRAM));
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        await page.waitForTimeout(4000);
+
+        await page.evaluate(() => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            ed.setPosition({ lineNumber: 11, column: 20 });   // "is healthy" condition
+        });
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('le-show-definition').run(ed);
+        });
+        await page.waitForTimeout(2500);
+        expect(await page.evaluate(() => (window as any).monaco.editor.getEditors()[0].getPosition().lineNumber)).toBe(16);
+
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('le-go-back').run(ed);
+        });
+        expect(await page.evaluate(() => (window as any).monaco.editor.getEditors()[0].getPosition().lineNumber)).toBe(11);
+
+        // The history is a stack, not a toggle: a second Go back with nothing
+        // left on it leaves the cursor where it is.
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('le-go-back').run(ed);
+        });
+        expect(await page.evaluate(() => (window as any).monaco.editor.getEditors()[0].getPosition().lineNumber)).toBe(11);
+    });
 });

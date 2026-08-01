@@ -15,6 +15,12 @@
 <main>
   <!-- ============================= SETUP ============================= -->
   <section id="screen-setup" class="screen">
+    <div class="card hidden" id="recent-card">
+      <h2>Your recent runs</h2>
+      <p class="hint">Jobs started from this browser. A run keeps going on the server after you close the tab &mdash; open it again here to watch it, cancel it, or collect its result. The list is kept in this browser only (localStorage); the server forgets a job when it restarts.</p>
+      <div id="recent-list"></div>
+    </div>
+
     <div class="card">
       <h2>1. Documents</h2>
       <p class="hint">Markdown or plain text preferred; Word (.docx) and PDF are converted on the server.</p>
@@ -69,7 +75,7 @@
         </label>
       </div>
       <div id="keys"></div>
-      <p class="hint">Keys are kept in your browser (localStorage), shared with the LE editor, and sent only with your requests.</p>
+      <p class="hint">A key field appears above only for the provider of the model(s) you picked, and only when this server has no key of its own for it. Keys are kept in your browser (localStorage) and sent only with your requests; they are the same ones as in the LE editor's <em>Misc ▸ API Keys &amp; Assistant Settings…</em> dialog, so you can set them once in either place.</p>
     </div>
 
     <div class="card">

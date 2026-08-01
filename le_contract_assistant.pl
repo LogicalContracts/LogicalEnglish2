@@ -130,6 +130,8 @@ handle_contract_status(Dict, Response) :-
                       config: Summary, elapsed: Elapsed},
         ( ErrorMsg == none -> Response = Response0
         ; Response = Response0.put(error, ErrorMsg) )
+    ;   disk_status(JobID, Since, Response)
+    ->  true
     ;   Response = _{error: "Unknown job"}
     ).
 
@@ -139,8 +141,88 @@ handle_contract_result(Dict, Response) :-
     ->  Response = Result
     ;   ca_status(JobID, _)
     ->  Response = _{error: "Job has no result (yet)"}
+    ;   disk_result(JobID, Result)
+    ->  Response = Result
     ;   Response = _{error: "Unknown job"}
     ).
+
+% ---------------------- Recovery after a server restart ----------------------
+% The dynamic facts above live in memory only, so a restart would otherwise
+% throw away a run that cost an hour of LLM calls. Everything needed to serve
+% it again is in <jobdir>/ (winner.le, ledger.md, scores.json, job.log), so a
+% job the process no longer knows is answered from disk.
+
+%!  valid_job_id(+JobID) is semidet.
+%
+%   Job IDs reach us from the browser and end up in a path, so only the shape
+%   start_contract_job_/3 mints is accepted: caj_ + UUID characters.
+valid_job_id(JobID) :-
+    atom(JobID),
+    atom_concat(caj_, UUID, JobID),
+    atom_length(UUID, Len), Len > 0, Len =< 40,
+    forall(sub_atom(UUID, _, 1, _, C),
+           ( char_type(C, alnum) ; C == '-' )).
+
+job_artifact(JobID, Name, File) :-
+    valid_job_id(JobID),
+    job_dir(JobID, Dir),
+    exists_directory(Dir),
+    atomic_list_concat([Dir, '/', Name], File).
+
+read_job_artifact(JobID, Name, Text) :-
+    job_artifact(JobID, Name, File),
+    exists_file(File),
+    read_file_to_string(File, Text, [encoding(utf8)]).
+
+%!  disk_status(+JobID, +Since, -Response) is semidet.
+%
+%   The status of a job this process never ran: finished if it left a program
+%   behind, dead otherwise (the server went down mid-run — nothing resumes it).
+%   The log comes from job.log in one go, so the client asks for it once.
+disk_status(JobID, Since, Response) :-
+    job_artifact(JobID, 'job.log', _),
+    (   read_job_artifact(JobID, 'job.log', LogText)
+    ->  split_string(LogText, "\n", "", Lines0),
+        exclude(==(""), Lines0, Lines)
+    ;   Lines = []
+    ),
+    ( Since =:= 0 -> LogLines = Lines ; LogLines = [] ),
+    length(Lines, NLines),
+    (   read_job_artifact(JobID, 'winner.le', _)
+    ->  Response = _{status: "finished", stage: 6,
+                     stage_label: "recovered from disk (the server has restarted since this run)",
+                     branches: [], log: LogLines, next_seq: NLines,
+                     config: _{}, elapsed: 0}
+    ;   Response = _{status: "error", stage: 0,
+                     stage_label: "lost",
+                     error: "The server restarted while this job was running, so it was not finished. Its log is below; start a new run.",
+                     branches: [], log: LogLines, next_seq: NLines,
+                     config: _{}, elapsed: 0}
+    ).
+
+%!  disk_result(+JobID, -Result) is semidet.
+%
+%   Rebuilds the result dict of a finished job from its artifacts. scores.json
+%   carries the reports; a missing or damaged one costs only the extra detail.
+disk_result(JobID, Result) :-
+    read_job_artifact(JobID, 'winner.le', LE),
+    ( read_job_artifact(JobID, 'ledger.md', Ledger) -> true ; Ledger = "" ),
+    (   job_artifact(JobID, 'scores.json', ScoresFile),
+        exists_file(ScoresFile),
+        catch(setup_call_cleanup(open(ScoresFile, read, S, [encoding(utf8)]),
+                                 json_read_dict(S, Scores),
+                                 close(S)),
+              _, fail)
+    ->  true
+    ;   Scores = _{}
+    ),
+    Result0 = _{le: LE, filename: "contract.le", ledger: Ledger,
+                winner: Scores.get(winner, 0),
+                scores: Scores.get(scores, []),
+                interrogation: Scores.get(interrogation, _{enabled: false}),
+                paraphrase: Scores.get(paraphrase, _{enabled: false}),
+                existing_code: Scores.get(existing_code, _{enabled: false})},
+    Result = Result0.put(recovered, true).
 
 handle_contract_interrupt(Dict, Response) :-
     get_dict(job, Dict, JobStr), atom_string(JobID, JobStr),
@@ -647,7 +729,10 @@ probe_max_tokens(Model, Key, MT, Accepted) :-
     ;   catch(
             ( llm_client:llm_request(Model,
                   [_{role: user, content: "Reply with exactly: OK"}],
-                  _, [api_key(Key), max_tokens(MT)]),
+                  % A two-token request: if the provider has not answered in two
+                  % minutes it is not going to, and calibration must not spend
+                  % the job's minutes finding that out (the default is ten).
+                  _, [api_key(Key), max_tokens(MT), timeout(120)]),
               Accepted = MT ),
             error(llm_api_error(400, Body), _),
             (   term_string(Body, BS),
@@ -867,6 +952,13 @@ existing_lines(Text, Lines) :-
 
 % ------------------------- Stage 1: vocabulary -------------------------------
 
+%!  vocabulary_consensus(+JobID, +Config, +Materials, -Vocabulary) is det.
+%
+%   K samples, merged. A sample that FAILS is not fatal: the whole point of
+%   drawing K of them is that they are independent, and a flaky provider that
+%   drops one call must not throw away the ones that worked (a job with K=5 has
+%   died on the second sample with a first sample already in hand). Only the
+%   loss of every sample ends the job.
 vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
     K = Config.k,
     existing_block(Config, Existing),
@@ -878,20 +970,42 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
               Temp is 0.05 + 0.2 * (I - 1),
               sampling_note(JobID, Temp, Note),
               ca_emit(JobID, "Vocabulary sample ~w/~w (~w)"-[I, K, Note]),
-              stage_llm(JobID, Config, vocabulary, 'stage1_vocabulary',
-                        [existing-Existing, instructions-Instructions,
-                         materials-Materials],
-                        [temperature(Temp)], Sample)
+              catch(stage_llm(JobID, Config, vocabulary, 'stage1_vocabulary',
+                              [existing-Existing, instructions-Instructions,
+                               materials-Materials],
+                              [temperature(Temp)], Sample),
+                    error(contract_assistant_error(SErr), _),
+                    ( short_stage_error(SErr, SShort),
+                      ca_emit(JobID, "Vocabulary sample ~w/~w failed (~w); continuing with the samples that worked"-[I, K, SShort]),
+                      fail ))
             ),
             Samples),
-    (   Samples = [Vocabulary]
+    (   Samples == []
+    ->  throw(error(contract_assistant_error("every vocabulary sample failed — see the run log for the per-sample errors"), _))
+    ;   Samples = [Vocabulary]
     ->  true
-    ;   ca_emit(JobID, "Merging ~w vocabulary samples (consensus)"-[K]),
+    ;   length(Samples, NS),
+        ( NS < K -> ca_emit(JobID, "~w of ~w vocabulary samples usable"-[NS, K]) ; true ),
+        ca_emit(JobID, "Merging ~w vocabulary samples (consensus)"-[NS]),
         atomic_list_concat(Samples, "\n\n===== NEXT SAMPLE =====\n\n", Joined),
         stage_llm(JobID, Config, vocabulary_merge, 'stage1_merge',
                   [existing-Existing, instructions-Instructions, samples-Joined],
                   [temperature(0)], Vocabulary)
     ).
+
+% The one-line form of a stage error, for a log line that says what was lost
+% without repeating a 300-character provider trace.
+short_stage_error(llm_failed(_, ES), Short) :- !, first_chars(ES, 120, Short).
+short_stage_error(empty_reply(_, Model), Short) :- !,
+    format(string(Short), "empty reply from ~w", [Model]).
+short_stage_error(llm_truncated(_, Model), Short) :- !,
+    format(string(Short), "truncated reply from ~w", [Model]).
+short_stage_error(E, Short) :- term_string(E, S), first_chars(S, 120, Short).
+
+first_chars(S0, N, S) :-
+    term_string(S0, Str),
+    string_length(Str, L),
+    ( L =< N -> S = Str ; sub_string(Str, 0, N, _, Cut), string_concat(Cut, "…", S) ).
 
 % What makes this sample differ from its siblings — a temperature, or (once
 % the provider has refused one) the model's own sampling.
@@ -907,17 +1021,27 @@ architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches) :-
     instructions_block(Config, Instructions),
     architecture_angles(Angles0),
     length(Angles, W), append(Angles, _, Angles0),
+    % As with the samples: one sketch lost to a flaky provider costs a branch,
+    % not the job. Losing all of them is a real failure.
     findall(Sketch,
             ( nth1(I, Angles, Angle),
               ca_check_alive(JobID),
               ca_emit(JobID, "Architecture sketch ~w/~w (~w)"-[I, W, Angle]),
               Temp is 0.05 + 0.1 * (I - 1),
-              stage_llm(JobID, Config, architecture, 'stage1_architecture',
-                        [existing-Existing, instructions-Instructions,
-                         materials-Materials, vocabulary-Vocabulary, angle-Angle],
-                        [temperature(Temp)], Sketch)
+              catch(stage_llm(JobID, Config, architecture, 'stage1_architecture',
+                              [existing-Existing, instructions-Instructions,
+                               materials-Materials, vocabulary-Vocabulary, angle-Angle],
+                              [temperature(Temp)], Sketch),
+                    error(contract_assistant_error(SErr), _),
+                    ( short_stage_error(SErr, SShort),
+                      ca_emit(JobID, "Architecture sketch ~w/~w failed (~w); continuing with the sketches that worked"-[I, W, SShort]),
+                      fail ))
             ),
-            Sketches).
+            Sketches),
+    (   Sketches == []
+    ->  throw(error(contract_assistant_error("every architecture sketch failed — see the run log for the per-sketch errors"), _))
+    ;   true
+    ).
 
 % Rotating decomposition angles for the beam (pattern library of the plan).
 architecture_angles([
@@ -960,7 +1084,10 @@ run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     string_length(Draft0, DraftLen),
     ca_emit(JobID, "Branch ~w: draft extracted (~w chars)"-[Idx, DraftLen]),
     repair_loop(JobID, Config, Idx, Draft0, 0, none, 0, Repaired0, _),
-    polish_loop(JobID, Config, Idx, Repaired0, 0, Repaired, Score0),
+    % Free, deterministic clean-up first, so the polish rounds spend their LLM
+    % calls on warnings that actually need judgement.
+    prune_pass(JobID, Config, Idx, Repaired0, Pruned),
+    polish_loop(JobID, Config, Idx, Pruned, 0, Repaired, Score0),
     holdout_extend(JobID, Config, Ctx, Idx, Repaired, Score0, Final, Score),
     branch_artifact_name(Idx, final, FinalName),
     save_text_artifact(JobID, FinalName, Final),
@@ -1127,6 +1254,372 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
             best_result(Best, Final, Score)
         )
     ).
+
+% ==================== Deterministic clean-up (no LLM call) ===================
+%
+% Some warnings need no judgement, and paying a polish round for them is slower
+% AND less reliable than doing them here. Asked to silence an
+% `undefined_predicate`, a drafting model has been observed inventing
+%
+%     a claim is a claim for court attendance compensation
+%         if the claim is a claim for court attendance compensation
+%         and the claim is a claim for court attendance compensation.
+%
+% under a comment announcing "default-false rules": a tautology that means
+% nothing, cannot succeed, and silences the warning. The model spends tokens
+% writing it and the reader spends attention discarding it.
+%
+% This pass removes that kind of rule outright, before the polish rounds see
+% the program, and never calls an LLM. Everything it deletes is decided from
+% the parsed program, and the result is verified: if the pruned program is
+% worse by any measure, the original is kept (prune_accepted/2).
+
+%!  prune_pass(+JobID, +Config, +Idx, +Text0, -Text) is det.
+prune_pass(JobID, Config, Idx, Text0, Text) :-
+    catch(prune_program(Config, Text0, Text1, Report), Error,
+          ( term_string(Error, EStr),
+            ca_emit(JobID, "Branch ~w: clean-up pass skipped (~w)"-[Idx, EStr]),
+            Report = none, Text1 = Text0 )),
+    (   Report == none
+    ->  Text = Text0
+    ;   Report.deleted =:= 0
+    ->  Text = Text0
+    ;   verify_le_text(Text0, V0),
+        verify_le_text(Text1, V1),
+        (   prune_accepted(V0, V1)
+        ->  ca_emit(JobID, "Branch ~w clean-up (no LLM call): removed ~w rule(s) — ~w"-[Idx, Report.deleted, Report.summary]),
+            Text = Text1
+        ;   ca_emit(JobID, "Branch ~w clean-up rejected: removing ~w rule(s) would have left ~w errors, ~w failing test(s); keeping the program"-[Idx, Report.deleted, V1.errors, V1.tests_failed]),
+            Text = Text0
+        )
+    ).
+
+%!  prune_accepted(+Before, +After) is semidet.
+%
+%   The same rules as a polish round, minus the "strictly fewer warnings"
+%   demand: deleting a tautology can leave the warning count unchanged (the
+%   predicate it pretended to define becomes undefined instead) and the program
+%   is still better off without the pretence.
+prune_accepted(V0, V1) :-
+    V1.errors =:= 0,
+    V1.tests_failed =< V0.tests_failed,
+    V1.tests_passed >= V0.tests_passed.
+
+%!  prune_program(+Config, +Text0, -Text, -Report) is det.
+%
+%   Report is _{deleted: N, tautologies: N1, duplicates: N2, untested: N3,
+%   summary: String}.
+prune_program(Config, Text0, Text, Report) :-
+    delete_junk_rules(Config, Text0, Text1, Reasons),
+    % Deleting a fake definition unmasks the warning it was hiding, so fix that
+    % properly in the same pass — otherwise the next polish round is invited to
+    % invent the tautology all over again.
+    mark_scenario_elements(Config, Text1, Text, Marked),
+    length(Reasons, N),
+    count_reason(Reasons, tautology, N1),
+    count_reason(Reasons, duplicate, N2),
+    count_reason(Reasons, untested, N3),
+    length(Marked, N4),
+    prune_summary(N1, N2, N3, N4, Summary),
+    Report = _{deleted: N, tautologies: N1, duplicates: N2, untested: N3,
+               marked_undefined: N4, summary: Summary}.
+
+delete_junk_rules(Config, Text0, Text, Reasons) :-
+    le_kbs:load_text(Text0, KB),
+    protected_lines(Config, Protected),
+    findall(Reason-(S-E),
+            ( prunable(KB, Reason, Ref),
+              clause(KB:le_source_info(Ref, S0, E, _), true),
+              \+ range_is_protected(Text0, S0, E, Protected),
+              extend_over_comment(Text0, S0, E, S) ),
+            Found0),
+    sort(2, @<, Found0, Found),         % one entry per source range
+    pairs_keys_values(Found, Reasons, Ranges),
+    delete_ranges(Text0, Ranges, Text1),
+    collapse_blank_runs(Text1, Text).
+
+%!  mark_scenario_elements(+Config, +Text0, -Text, -Marked) is det.
+%
+%   A predicate that rules ASK about but nothing in the program establishes is
+%   an `undefined_predicate` warning, and the LE answer to it is one word: mark
+%   its template `; undefined` (a scenario element), which says "this comes
+%   from the facts of a scenario" and is exactly what the reader needs to know.
+%   A drafting model told to clear the warning instead writes a rule that
+%   pretends to define it. Doing it here costs nothing and cannot be gamed.
+%
+%   Only untouched templates are marked: one that already carries an addition
+%   (`; opposite`, `; synonym`, `; prepositional`...) is left alone, because
+%   `undefined` does not combine with all of them.
+mark_scenario_elements(Config, Text0, Text, Marked) :-
+    le_kbs:load_text(Text0, KB),
+    protected_lines(Config, Protected),
+    findall(Label-(S-E),
+            ( needs_scenario_element_mark(KB, F, A),
+              le_kbs:template_of(KB, F, A, Dict, Label),
+              template_declaration_range(KB, Dict, S, E),
+              \+ range_is_protected(Text0, S, E, Protected),
+              markable_template_text(Text0, S, E) ),
+            Found0),
+    sort(2, @<, Found0, Found),
+    pairs_keys_values(Found, Marked, Ranges),
+    % Back to front, so the offsets still line up as the text grows.
+    sort(0, @>=, Ranges, Descending),
+    foldl(add_undefined_addition, Descending, Text0, Text).
+
+%!  needs_scenario_element_mark(+KB, -F, -A) is nondet.
+%
+%   Asked about by a rule, established by nothing: no rule head, no fact, no
+%   scenario fact (a scenario fact would already make it a scenario element in
+%   practice, and marking it then risks nothing but says nothing either).
+needs_scenario_element_mark(KB, F, A) :-
+    le_kbs:template_of(KB, F, A, _, _),
+    \+ le_kbs:is_system_predicate(F/A),
+    functor(Head, F, A),
+    \+ ( le_kbs:kb_own_predicate(KB, Head), clause(KB:Head, _) ),
+    \+ scenario_establishes(KB, F, A),
+    used_as_condition(KB, F, A).
+
+scenario_establishes(KB, F, A) :-
+    current_predicate(KB:scenario/2),
+    KB:scenario(_, Facts),
+    member(FactItem, Facts),
+    ( FactItem = fact_with_source(Fact, _, _) -> true ; Fact = FactItem ),
+    functor(Fact, F, A), !.
+
+used_as_condition(KB, F, A) :-
+    current_predicate(KB:le_source_info/4),
+    user_rule(KB, _, Body, _),
+    Body \== true,
+    le_verifier:find_in_body(Body, Literal),
+    functor(Literal, F, A), !.
+
+template_declaration_range(KB, Dict, S, E) :-
+    current_predicate(KB:le_source_info/4),
+    KB:le_source_info(Ref, S, E, template),
+    catch(clause(KB:le_dict(Dict), true, Ref), _, fail), !.
+
+%!  markable_template_text(+Text, +S, +E) is semidet.
+%
+%   The declaration is a plain `... .` with no additions of its own.
+markable_template_text(Text, S, E) :-
+    template_text(Text, S, E, Decl),
+    \+ sub_string(Decl, _, _, _, ";"),
+    sub_string(Decl, _, 1, 0, ".").
+
+template_text(Text, S, E, Decl) :-
+    L is E - S + 1,
+    string_length(Text, Len),
+    S >= 0, L > 0, S + L =< Len,
+    sub_string(Text, S, L, _, Decl).
+
+add_undefined_addition(S-E, In, Out) :-
+    (   template_text(In, S, E, Decl),
+        string_concat(Body, ".", Decl)
+    ->  string_concat(Body, "; undefined.", Marked),
+        After is E + 1,
+        sub_string(In, 0, S, _, Before),
+        sub_string(In, After, _, 0, Rest),
+        atomics_to_string([Before, Marked, Rest], Out)
+    ;   Out = In
+    ).
+
+atomics_to_string(List, S) :- atomic_list_concat(List, A), atom_string(A, S).
+
+count_reason(Reasons, Reason, N) :-
+    include(==(Reason), Reasons, Rs), length(Rs, N).
+
+prune_summary(N1, N2, N3, N4, Summary) :-
+    findall(Part,
+            ( member(Count-Word, [N1-"tautological", N2-"duplicate",
+                                  N3-"reached by no query"]),
+              Count > 0,
+              format(string(Part), "~w ~w", [Count, Word]) ),
+            Parts0),
+    (   N4 > 0
+    ->  format(string(MarkPart), "~w template(s) marked `; undefined`", [N4]),
+        append(Parts0, [MarkPart], Parts)
+    ;   Parts = Parts0
+    ),
+    ( Parts == [] -> Summary = "nothing" ; atomic_list_concat(Parts, ", ", Summary) ).
+
+%!  prunable(+KB, -Reason, -Ref) is nondet.
+%
+%   A clause that can go without asking anyone.
+%
+%   `tautology`: every condition of the rule is the head again, so the rule can
+%   never conclude anything the head did not already conclude.
+prunable(KB, tautology, Ref) :-
+    user_rule(KB, Head, Body, Ref),
+    Body \== true,
+    findall(L, le_verifier:find_in_body(Body, L), Ls),
+    Ls \== [],
+    forall(member(L, Ls), L =@= Head).
+%   `duplicate`: the same rule written twice; the first one stays.
+prunable(KB, duplicate, Ref) :-
+    user_rule(KB, Head, Body, Ref),
+    user_rule(KB, Head2, Body2, Ref2),
+    Ref2 \== Ref,
+    % Compared WITHOUT the le_at/3 source wrappers: the same rule written twice
+    % carries different offsets, and would otherwise never look identical.
+    strip_source_wrappers(Body, Plain),
+    strip_source_wrappers(Body2, Plain2),
+    (Head :- Plain) =@= (Head2 :- Plain2),
+    clause(KB:le_source_info(Ref, S, _, _), true),
+    clause(KB:le_source_info(Ref2, S2, _, _), true),
+    S2 < S.                           % keep the first occurrence
+%   `untested`: no query reaches this predicate, so no answer can depend on it.
+%   Off unless the caller asks for it (feature `prune_untested`).
+prunable(KB, untested, Ref) :-
+    prune_untested_enabled,
+    user_rule(KB, Head, _, Ref),
+    functor(Head, F, A),
+    \+ le_kbs:is_system_predicate(F/A),
+    \+ le_verifier:is_reachable_from_query(KB, F, A).
+
+%!  strip_source_wrappers(+Term, -Plain) is det.
+%
+%   Drops the le_at(Goal, Start, End) wrappers the parser adds, so two copies
+%   of the same rule compare equal.
+strip_source_wrappers(V, V) :- var(V), !.
+strip_source_wrappers(le_at(G, _, _), P) :- !, strip_source_wrappers(G, P).
+strip_source_wrappers(T, T) :- \+ compound(T), !.
+strip_source_wrappers(T, P) :-
+    T =.. [F|Args],
+    maplist(strip_source_wrappers, Args, Args1),
+    P =.. [F|Args1].
+
+%!  user_rule(+KB, -Head, -Body, -Ref) is nondet.
+%
+%   A clause of the user's program — not a template, scenario, query or any
+%   other bookkeeping term that le_source_info also indexes.
+user_rule(KB, Head, Body, Ref) :-
+    current_predicate(KB:le_source_info/4),
+    KB:le_source_info(Ref, _, _, _),
+    Ref \== none,
+    catch(clause(KB:Head, Body, Ref), _, fail),
+    functor(Head, F, A),
+    \+ memberchk(F/A, [le_kb/1, le_dict/1, ontology/1, scenario/2, query_info/3,
+                       le_expected/4, le_included_resource/3, le_lps_item/3,
+                       le_lps_role/2, le_source_section/2, le_issue/6]).
+
+%!  protected_lines(+Config, -Lines) is det.
+%
+%   The Logical English the USER supplied is binding: the program must contain
+%   it (existing_coverage/3 reports on exactly that), so no automatic clean-up
+%   may delete it, however unreachable it looks.
+protected_lines(Config, Lines) :-
+    (   is_dict(Config), Config.get(existing, none) \== none
+    ->  split_string(Config.existing, "\n", "", Raw),
+        findall(N, ( member(R, Raw), normalize_space(string(N), R), N \== "" ), Lines)
+    ;   Lines = []
+    ).
+
+range_is_protected(Text, S, E, Protected) :-
+    Protected \== [],
+    L is E - S + 1,
+    sub_string(Text, S, L, _, Chunk),
+    split_string(Chunk, "\n", "", Raw),
+    member(R, Raw),
+    normalize_space(string(N), R), N \== "",
+    memberchk(N, Protected), !.
+
+%!  extend_over_comment(+Text, +Start0, +End, -Start) is det.
+%
+%   A comment left pointing at a rule that is gone is worse than no comment:
+%   `% Default-false rules for cover-type predicates` above nothing at all
+%   still tells the reader those rules exist. So a deletion swallows the
+%   comment lines directly above it — but ONLY when the deleted rule was the
+%   last thing they introduce (the line after it is blank or the file ends),
+%   so a comment heading a group of rules survives losing one of them.
+extend_over_comment(Text, Start0, End, Start) :-
+    (   followed_by_blank(Text, End),
+        comment_block_start(Text, Start0, Start1)
+    ->  Start = Start1
+    ;   Start = Start0
+    ).
+
+followed_by_blank(Text, End) :-
+    string_length(Text, Len),
+    After is End + 1,
+    (   After >= Len
+    ->  true
+    ;   sub_string(Text, After, _, 0, Rest),
+        split_string(Rest, "\n", "", [Next|_]),
+        normalize_space(string(""), Next)
+    ).
+
+%!  comment_block_start(+Text, +Start0, -Start) is semidet.
+%
+%   Walks back over the contiguous comment lines immediately above Start0.
+%   Fails when there are none, so nothing is extended.
+comment_block_start(Text, Start0, Start) :-
+    previous_line(Text, Start0, PS, Line),
+    normalize_space(string(Trimmed), Line),
+    sub_string(Trimmed, 0, 1, _, "%"),
+    !,
+    ( comment_block_start(Text, PS, Start) -> true ; Start = PS ).
+
+%!  previous_line(+Text, +Pos, -LineStart, -Line) is semidet.
+%
+%   The line that ends just before Pos (which is itself a line start).
+previous_line(Text, Pos, LineStart, Line) :-
+    Pos > 0,
+    End is Pos - 1,                     % the newline that ends the line above
+    sub_string(Text, End, 1, _, "\n"),
+    sub_string(Text, 0, End, _, Head),
+    (   sub_string(Head, Before, 1, _, "\n"),
+        \+ ( sub_string(Head, Later, 1, _, "\n"), Later > Before )
+    ->  LineStart is Before + 1
+    ;   LineStart = 0
+    ),
+    Len is End - LineStart,
+    sub_string(Text, LineStart, Len, _, Line).
+
+%!  delete_ranges(+Text0, +Ranges, -Text) is det.
+%
+%   Ranges are INCLUSIVE character offsets and are applied back to front, so
+%   the earlier offsets stay valid as the text shrinks.
+delete_ranges(Text0, Ranges, Text) :-
+    sort(0, @>=, Ranges, Descending),
+    foldl(delete_range, Descending, Text0, Text).
+
+delete_range(S-E, In, Out) :-
+    string_length(In, Len),
+    S >= 0, S < Len,
+    After is min(E + 1, Len),
+    sub_string(In, 0, S, _, Before),
+    sub_string(In, After, _, 0, Rest),
+    string_concat(Before, Rest, Out).
+
+% Deleting a rule leaves the blank lines that surrounded it; three in a row
+% read as a missing section.
+collapse_blank_runs(Text0, Text) :-
+    split_string(Text0, "\n", "", Lines),
+    collapse_blanks(Lines, Kept),
+    atomic_list_concat(Kept, "\n", Atom),
+    atom_string(Atom, Text).
+
+collapse_blanks([], []).
+collapse_blanks([L|Ls], Out) :-
+    (   normalize_space(string(""), L)
+    ->  drop_blanks(Ls, Rest),
+        Out = [""|Out1],
+        collapse_blanks(Rest, Out1)
+    ;   Out = [L|Out1],
+        collapse_blanks(Ls, Out1)
+    ).
+
+drop_blanks([L|Ls], Rest) :- normalize_space(string(""), L), !, drop_blanks(Ls, Rest).
+drop_blanks(Ls, Ls).
+
+%!  prune_untested_enabled is semidet.
+%
+%   Deleting every rule no query reaches is a judgement about what the twin is
+%   FOR, not a clean-up: such a rule is dead for the queries at hand, but it is
+%   also the part of the wording that no supplied case happened to exercise.
+%   Off by default; the flag turns it on for a job.
+prune_untested_enabled :-
+    current_prolog_flag(ca_prune_untested, true).
 
 %!  polish_loop(+JobID, +Config, +Idx, +Text0, +Iter, -Text, -Score) is det.
 %
@@ -1813,7 +2306,7 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
 %   (see the temperature clause of llm_outcome/9).
 stage_options(JobID, Config, Key, Options, Opts) :-
     ( ca_tune(JobID, max_tokens(MT)) -> true ; MT = Config.max_tokens ),
-    llm_socket_timeout(T),
+    call_timeout(Config, T),
     (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
     ->  Extra = [api_key(Key), max_tokens(MT), timeout(T), reasoning(minimal)]
     ;   Extra = [api_key(Key), max_tokens(MT), timeout(T)]
@@ -1848,16 +2341,57 @@ llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
 %   retry budget and killed the branch.
 llm_socket_timeout(900).
 
-% ... and the wall-clock guard must be LOOSER than the socket timeout, or it
-% fires first and we never see the real error.
-llm_wall_limit(960).
+%!  call_timeout(+Config, -Seconds) is det.
+%
+%   The socket timeout ACTUALLY used for the next call: the ceiling above,
+%   lowered to fit the minute budget. A flat 15 minutes is wrong for a short
+%   job — a provider that accepts the connection and then says nothing costs
+%   15 minutes per attempt, and the three attempts of the retry ladder then eat
+%   a 45-minute budget whole, before the first stage has produced anything (the
+%   failure mode this predicate exists to prevent).
+%
+%   Two limits, whichever is tighter:
+%     - a sixth of the WHOLE budget, so no single call can dominate the job
+%       (45 min -> 7.5 min per attempt; three attempts and their backoff cost
+%       about half the budget instead of all of it),
+%     - half of what is LEFT, so a call started near the deadline cannot run
+%       far past it.
+%   Never below two minutes: below that even a healthy call would be killed.
+call_timeout(Config, Seconds) :-
+    llm_socket_timeout(Ceiling),
+    get_time(Now),
+    (   number(Config.get(deadline, none))
+    ->  Remaining is max(0, Config.deadline - Now)
+    ;   Remaining = Ceiling
+    ),
+    (   number(Config.get(minutes, none))
+    ->  Budget is Config.minutes * 60
+    ;   Budget is Ceiling * 6
+    ),
+    Share is min(Budget / 6, Remaining / 2),
+    Seconds is max(120, min(Ceiling, integer(truncate(Share)))).
+
+% The wall-clock guard must be LOOSER than the socket timeout, or it fires
+% first and we never see the real error.
+llm_wall_limit(Timeout, Wall) :- Wall is Timeout + 60.
+
+%!  refresh_timeout(+Config, +Opts0, -Opts) is det.
+%
+%   Recompute timeout/1 for a retry: what is left of the budget has shrunk
+%   since the options were built, and the next attempt must respect that.
+refresh_timeout(Config, Opts0, [timeout(T)|Opts1]) :-
+    call_timeout(Config, T),
+    exclude(is_timeout_option, Opts0, Opts1).
+
+is_timeout_option(timeout(_)).
 
 % The one place that actually talks to a provider — and the seam the retry
 % tests replace (ca_raw_hook/1) to exercise this ladder offline.
 llm_raw(Model, Messages, Opts, Reply) :-
     (   ca_raw_hook(Hook)
     ->  call(Hook, Model, Messages, Opts, Reply)
-    ;   llm_wall_limit(Wall),
+    ;   ( memberchk(timeout(T), Opts) -> true ; llm_socket_timeout(T) ),
+        llm_wall_limit(T, Wall),
         call_with_time_limit(Wall,
             llm_client:llm_request(Model, Messages, Reply, Opts))
     ).
@@ -1939,20 +2473,29 @@ llm_outcome(err(error(llm_truncated(_), _)), JobID, _Config, Purpose, Model, _Me
     throw(error(contract_assistant_error(llm_truncated(Purpose, Model)), _)).
 llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     (   transient_llm_error(E),
-        Attempt < 4,
+        max_attempts(Config, E, MaxAttempts),
+        Attempt < MaxAttempts,
         \+ deadline_exceeded(Config)
     ->  retry_delay(Attempt, Delay),
         short_error(E, Short),
-        ca_emit(JobID, "LLM call (~w) failed transiently (attempt ~w: ~w); retrying in ~ws"-[Purpose, Attempt, Short, Delay]),
+        % The budget left has shrunk, so the next attempt gets a fresh (shorter)
+        % timeout — otherwise a silent provider costs the same many minutes on
+        % every attempt and the ladder alone can consume the whole job.
+        refresh_timeout(Config, Opts, Opts1),
+        memberchk(timeout(T1), Opts1),
+        ca_emit(JobID, "LLM call (~w) failed transiently (attempt ~w of ~w: ~w); retrying in ~ws (next attempt waits at most ~ws)"-[Purpose, Attempt, MaxAttempts, Short, Delay, T1]),
         sleep(Delay),
         ca_check_alive(JobID),
         Attempt1 is Attempt + 1,
-        llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt1, Reply)
+        llm_try(JobID, Config, Purpose, Model, Messages, Opts1, Attempt1, Reply)
     ;   term_string(E, ES),
         % Say WHY we stopped: "failed" after a "retrying" line reads like the
         % retry ladder gave up on its own, when usually the minute budget ran out.
         (   transient_llm_error(E), deadline_exceeded(Config)
         ->  ca_emit(JobID, "LLM call failed (~w) and the ~w-minute budget is exhausted, so it was not retried: ~w"-[Purpose, Config.minutes, ES])
+        ;   silent_provider_error(E)
+        ->  ( memberchk(timeout(T), Opts) -> true ; llm_socket_timeout(T) ),
+            ca_emit(JobID, "LLM call failed (~w): ~w accepted the request and then sent nothing, on ~w attempts of up to ~ws each. That is a provider or model-speed problem, not a problem with your documents — try another model, or raise Max minutes so each attempt may wait longer."-[Purpose, Model, Attempt, T])
         ;   transient_llm_error(E)
         ->  ca_emit(JobID, "LLM call failed (~w) after ~w attempts: ~w"-[Purpose, Attempt, ES])
         ;   ca_emit(JobID, "LLM call failed (~w): ~w"-[Purpose, ES])
@@ -1981,13 +2524,49 @@ transient_llm_error(error(timeout_error(_, _), _)) :- !.
 transient_llm_error(error(socket_error(_, _), _)) :- !.
 transient_llm_error(error(io_error(_, _), _)).
 
+%!  silent_provider_error(+Error) is semidet.
+%
+%   A transient failure that cost a WHOLE timeout to discover: the provider
+%   accepted the request and then said nothing. Unlike a 503 or a rate limit —
+%   which come back in milliseconds and are worth several quick retries — each
+%   of these costs minutes, so they get a shorter ladder (see max_attempts/2).
+silent_provider_error(time_limit_exceeded) :- !.
+silent_provider_error(error(timeout_error(_, _), _)) :- !.
+silent_provider_error(error(llm_http_error(Inner), _)) :-
+    nonvar(Inner), Inner = error(timeout_error(_, _), _), !.
+
+%!  max_attempts(+Config, +Error, -Attempts) is det.
+%
+%   How many attempts this error is worth, given what is left of the budget.
+%   A quick failure (503, rate limit) is worth the full ladder: retrying costs
+%   milliseconds. A silent provider costs a WHOLE timeout per attempt, so it
+%   gets two — unless the budget can comfortably afford more, in which case
+%   there is no reason to give up early. A 120-minute job died 46 minutes in,
+%   with 74 minutes unused, because this was a flat 2.
+max_attempts(Config, E, Attempts) :-
+    (   silent_provider_error(E)
+    ->  ( room_for_long_attempts(Config) -> Attempts = 4 ; Attempts = 2 )
+    ;   Attempts = 4
+    ).
+
+%!  room_for_long_attempts(+Config) is semidet.
+%
+%   Enough budget left for another full-length attempt AND the work after it:
+%   three times the next timeout is the margin.
+room_for_long_attempts(Config) :-
+    number(Config.get(deadline, none)),
+    call_timeout(Config, T),
+    get_time(Now),
+    Remaining is Config.deadline - Now,
+    Remaining > 3 * T.
+
 retry_delay(1, 3).
 retry_delay(2, 8).
 retry_delay(_, 20).
 
 short_error(error(llm_api_error(Status, _), _), Short) :- !,
     format(atom(Short), "HTTP ~w", [Status]).
-short_error(time_limit_exceeded, 'call hung, killed after 15 min') :- !.
+short_error(time_limit_exceeded, 'the call hung and was killed') :- !.
 short_error(E, Short) :- E =.. [F|_], term_string(F, Short).
 
 % Judging/merging purposes use the judge model; everything else the main one.
@@ -2210,16 +2789,21 @@ target_slice(Text, Sections0, Target, JobID, Slice) :-
                 Parts),
         atomic_list_concat(Parts, "\n\n[...]\n\n", Slice),
         ca_emit(JobID, "Sliced wording to ~w"-[Note])
-    ;   ca_emit(JobID, "Target '~w' not found (neither as a heading nor as a table-of-contents section title); using the full wording"-[Target]),
+    ;   string_length(Text, TL), FullTokens is TL // 4,
+        ca_emit(JobID, "WARNING: target '~w' not found (neither as a heading nor as a table-of-contents section title), so the FULL wording goes into every call — about ~w tokens each, which costs proportionally more and is what makes slow models time out. Check the spelling, or name both ends ('from X until Y')."-[Target, FullTokens]),
         Slice = Text
     ).
 
 %!  parse_target(+Target, -Spec) is det.
 %
 %   `from A until B` / `from A to B`, with an optional `(inclusive)` /
-%   `(exclusive)` on B — anything else is a plain section title. Only a leading
-%   "from" turns a target into a range, so a section actually called "Guide to
-%   sections" still works.
+%   `(exclusive)` on B — anything else is a plain section title.
+%
+%   " to " needs the leading "from", because section titles contain it ("Guide
+%   to sections"); " until " does not, because they do not, and dropping the
+%   "from" is the obvious slip. Left unread, `A until B` becomes a section
+%   title that matches nothing, and the job silently carries the WHOLE wording
+%   into every call — which is how a 62k-token-per-call run timed out.
 parse_target(Target, Spec) :-
     normalize_space(string(T0), Target),
     string_lower(T0, Lower),
@@ -2229,6 +2813,9 @@ parse_target(Target, Spec) :-
         ;   split_on_marker(Rest, " to ", A, B0)
         ),
         end_boundary(B0, B, Inclusive),
+        Spec = range(A, B, Inclusive)
+    ;   split_on_marker(T0, " until ", A, B0)
+    ->  end_boundary(B0, B, Inclusive),
         Spec = range(A, B, Inclusive)
     ;   Spec = section(T0)
     ).

@@ -20,8 +20,10 @@ Choose a program to explore.,,Escolha um programa para explorar.,Elija un progra
 Circle,,Círculo,Círculo,Cercle,Cerchio
 Clone Tool,,Ferramenta de clonagem,Herramienta de clonación,Outil de clonage,Strumento di clonazione
 Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once),,Ferramenta de clonagem: clique num nó para o duplicar (necessário quando a prova usa a mesma regra mais de uma vez),Herramienta de clonación: haga clic en un nodo para duplicarlo (necesario cuando la prueba usa la misma regla más de una vez),Outil de clonage : cliquez sur un nœud pour le dupliquer (nécessaire quand la preuve utilise la même règle plus d'une fois),Strumento di clonazione: fai clic su un nodo per duplicarlo (necessario quando la prova usa la stessa regola più di una volta)
+Close,,Fechar,Cerrar,Fermer,Chiudi
 Close this panel,,Fechar este painel,Cerrar este panel,Fermer ce panneau,Chiudi questo pannello
 Collapse All,,Recolher tudo,Contraer todo,Tout replier,Comprimi tutto
+condition,,condição,condición,condition,condizione
 Continue,,Continuar,Continuar,Continuer,Continua
 "Continue (F5) — resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.",,"Continuar (F5) — retoma a execução até encontrar a próxima resposta (ou a consulta terminar). Se restarem soluções, avançar/continuar de novo explora-as.","Continuar (F5) — reanuda la ejecución hasta encontrar la siguiente respuesta (o hasta que la consulta termine). Si quedan más soluciones, avanzar/continuar de nuevo las explora.","Continuer (F5) — reprend l'exécution jusqu'à ce que la prochaine réponse soit trouvée (ou que la requête se termine). S'il reste des solutions, avancer/continuer de nouveau les explore.","Continua (F5) — riprende l'esecuzione fino a trovare la prossima risposta (o fino al termine dell'interrogazione). Se restano altre soluzioni, avanzare/continuare di nuovo le esplora."
 Copy,,Copiar,Copiar,Copier,Copia
@@ -39,6 +41,7 @@ Cut,,Cortar,Cortar,Couper,Taglia
 Dagre (Hierarchical),,Dagre (hierárquico),Dagre (jerárquico),Dagre (hiérarchique),Dagre (gerarchico)
 Dark,,Escuro,Oscuro,Sombre,Scuro
 Dark Theme,,Tema escuro,Tema oscuro,Thème sombre,Tema scuro
+declaration,,declaração,declaración,déclaration,dichiarazione
 Detailed failure explanations (per-rule nodes),,Explicações de falha detalhadas (nós por regra),Explicaciones de fallo detalladas (nodos por regla),Explications d'échec détaillées (nœuds par règle),Spiegazioni di fallimento dettagliate (nodi per regola)
 Direction,,Direção,Dirección,Direction,Direzione
 ELK (Layered),,ELK (em camadas),ELK (por capas),ELK (en couches),ELK (a livelli)
@@ -52,12 +55,15 @@ Expand All,,Expandir tudo,Expandir todo,Tout déplier,Espandi tutto
 Explanation Drill,,Exploração da explicação,Exploración de la explicación,Exploration de l'explication,Esplorazione della spiegazione
 Explanation Drill…,,Exploração da explicação…,Exploración de la explicación…,Exploration de l'explication…,Esplorazione della spiegazione…
 Explanations Preferences,,Preferências das explicações,Preferencias de las explicaciones,Préférences des explications,Preferenze delle spiegazioni
+fact,,facto,hecho,fait,fatto
 File,,Ficheiro,Archivo,Fichier,File
 Filter programs,,Filtrar programas,Filtrar programas,Filtrer les programmes,Filtra programmi
 Filter…,,Filtrar…,Filtrar…,Filtrer…,Filtra…
 Find,,Procurar,Buscar,Rechercher,Trova
 Fit View,,Ajustar vista,Ajustar vista,Ajuster la vue,Adatta vista
 Fit to Screen,,Ajustar ao ecrã,Ajustar a la pantalla,Ajuster à l'écran,Adatta allo schermo
+Fold all rules for this predicate,,Colapsar todas as regras deste predicado,Plegar todas las reglas de este predicado,Replier toutes les règles de ce prédicat,Comprimi tutte le regole di questo predicato
+Go back (to where you jumped from),,Voltar (para onde saltou),Volver (a donde saltó),Revenir (à l'endroit d'où vous avez sauté),Torna indietro (al punto da cui sei saltato)
 Go to full sub-explanation,,Ir para a sub-explicação completa,Ir a la subexplicación completa,Aller à la sous-explication complète,Vai alla sotto-spiegazione completa
 Google API Key:,,Chave de API Google:,Clave de API Google:,Clé d'API Google :,Chiave API Google:
 Grid,,Grelha,Cuadrícula,Grille,Griglia
@@ -89,8 +95,12 @@ Name,,Nome,Nombre,Nom,Nome
 New,,Novo,Nuevo,Nouveau,Nuovo
 New from URL,,Novo a partir de URL,Nuevo desde URL,Nouveau à partir d'une URL,Nuovo da URL
 New from URL...,,Novo a partir de URL...,Nuevo desde URL...,Nouveau à partir d'une URL...,Nuovo da URL...
+No definition found for,,Nenhuma definição encontrada para,No se encontró definición para,Aucune définition trouvée pour,Nessuna definizione trovata per
+No occurrences found for,,Nenhuma ocorrência encontrada para,No se encontraron apariciones de,Aucune occurrence trouvée pour,Nessuna occorrenza trovata per
+No rules for,,Sem regras para,Sin reglas para,Aucune règle pour,Nessuna regola per
 Node Types,,Tipos de nós,Tipos de nodos,Types de nœuds,Tipi di nodi
 None,,Nenhum,Ninguno,Aucun,Nessuno
+Occurrences,,Ocorrências,Apariciones,Occurrences,Occorrenze
 "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window",,"Abrir Variações de Cenário: altere o cenário selecionado e corra uma ou mais consultas sobre a variação, numa janela separada","Abrir Variaciones de escenario: modifique el escenario seleccionado y ejecute una o más consultas sobre la variación, en una ventana separada","Ouvrir les Variations de scénario : modifiez le scénario sélectionné et exécutez une ou plusieurs requêtes sur la variation, dans une fenêtre séparée","Apri Variazioni di Scenario: modifica lo scenario selezionato ed esegui una o più interrogazioni sulla variazione, in una finestra separata"
 Open copy from server...,,Abrir cópia do servidor...,Abrir copia del servidor...,Ouvrir une copie du serveur...,Apri copia dal server...
 Open from Server,,Abrir do servidor,Abrir del servidor,Ouvrir depuis le serveur,Apri dal server
@@ -105,15 +115,18 @@ Preferences...,,Preferências...,Preferencias...,Préférences...,Preferenze...
 Prefix for failed nodes:,,Prefixo para nós falhados:,Prefijo para nodos fallidos:,Préfixe pour les nœuds en échec :,Prefisso per i nodi falliti:
 Proof Game,,Jogo da Prova,Juego de la Prueba,Jeu de la preuve,Gioco della Prova
 Query,,Consulta,Consulta,Requête,Interrogazione
+query,,consulta,consulta,requête,interrogazione
 Query Editor,,Editor de consultas,Editor de consultas,Éditeur de requêtes,Editor delle interrogazioni
 Query:,,Consulta:,Consulta:,Requête :,Interrogazione:
 Redraw from here,,Redesenhar a partir daqui,Redibujar desde aquí,Redessiner à partir d'ici,Ridisegna da qui
 Refresh,,Atualizar,Actualizar,Actualiser,Aggiorna
 Replace,,Substituir,Reemplazar,Remplacer,Sostituisci
+rule head,,cabeça de regra,cabeza de regla,tête de règle,testa di regola
 Save,,Guardar,Guardar,Enregistrer,Salva
 Save As...,,Guardar como...,Guardar como...,Enregistrer sous...,Salva come...
 Scenario,,Cenário,Escenario,Scénario,Scenario
 Scenario Editor,,Editor de cenários,Editor de escenarios,Éditeur de scénarios,Editor degli scenari
+scenario fact,,facto de cenário,hecho de escenario,fait de scénario,fatto di scenario
 Scenario Variations,,Variações de cenário,Variaciones de escenario,Variations de scénario,Variazioni di scenario
 Scenario:,,Cenário:,Escenario:,Scénario :,Scenario:
 Search nodes...,,Procurar nós...,Buscar nodos...,Rechercher des nœuds...,Cerca nodi...
@@ -121,6 +134,8 @@ Select a query...,,Selecione uma consulta...,Seleccione una consulta...,Sélecti
 Select a scenario...,,Selecione um cenário...,Seleccione un escenario...,Sélectionnez un scénario...,Seleziona uno scenario...
 Send,,Enviar,Enviar,Envoyer,Invia
 Send command to the LE Assistant,,Enviar comando ao Assistente LE,Enviar comando al Asistente LE,Envoyer la commande à l'Assistant LE,Invia comando all'Assistente LE
+Show definition,,Mostrar definição,Mostrar definición,Afficher la définition,Mostra definizione
+Show occurrences,,Mostrar ocorrências,Mostrar apariciones,Afficher les occurrences,Mostra occorrenze
 Show Proof,,Mostrar prova,Mostrar prueba,Montrer la preuve,Mostra prova
 Show important reason,,Mostrar razão importante,Mostrar razón importante,Montrer la raison importante,Mostra ragione importante
 Small,,Pequeno,Pequeño,Petit,Piccolo
@@ -134,6 +149,7 @@ This prefix is prepended to failed nodes when copying explanations to plain text
 Together API Key:,,Chave de API Together:,Clave de API Together:,Clé d'API Together :,Chiave API Together:
 Trace,,Rastrear,Rastrear,Tracer,Traccia
 Type Hierarchy,,Hierarquia de tipos,Jerarquía de tipos,Hiérarchie de types,Gerarchia dei tipi
+Unfold all rules for this predicate,,Expandir todas as regras deste predicado,Desplegar todas las reglas de este predicado,Déplier toutes les règles de ce prédicat,Espandi tutte le regole di questo predicato
 URL of a Logical English program:,,URL de um programa Logical English:,URL de un programa Logical English:,URL d'un programme Logical English :,URL di un programma Logical English:
 Using this editor (manual),,Usar este editor (manual),Usar este editor (manual),Utiliser cet éditeur (manuel),Usare questo editor (manuale)
 Vertical (T→B),,Vertical (C→B),Vertical (A→B),Vertical (H→B),Verticale (A→B)
@@ -294,3 +310,4 @@ Larger important reasons,,Razões importantes mais amplas,Razones importantes m�
 "When on, the important reason for a failed query lists all of the deepest failed conditions (""it is not the case that X, nor that Y, nor that Z""), truncated after the third, instead of just the first.",,"Quando ativo, a razão importante de uma consulta falhada enumera todas as condições falhadas mais profundas (""não é o caso que X, nem que Y, nem que Z""), truncada após a terceira, em vez de apenas a primeira.","Cuando está activo, la razón importante de una consulta fallida enumera todas las condiciones fallidas más profundas (""no es el caso que X, ni que Y, ni que Z""), truncada tras la tercera, en lugar de solo la primera.","Quand elle est activée, la raison importante d'une requête en échec liste toutes les conditions en échec les plus profondes (« il n'est pas le cas que X, ni que Y, ni que Z »), tronquée après la troisième, au lieu de seulement la première.","Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite più profonde (""non è il caso che X, né che Y, né che Z""), troncato dopo il terzo, invece del solo primo."
 Always show engine choice,,Mostrar sempre a escolha do motor,Mostrar siempre la elección del motor,Toujours afficher le choix du moteur,Mostra sempre la scelta del motore
 Show engine choice only for non-Prolog,,Mostrar a escolha do motor apenas para não-Prolog,Mostrar la elección del motor solo para no-Prolog,Afficher le choix du moteur uniquement pour non-Prolog,Mostra la scelta del motore solo per non-Prolog
+{n} occurrence(s); click one to go to it,,{n} ocorrência(s); clique numa para ir até ela,{n} aparición(es); haga clic en una para ir a ella,{n} occurrence(s) ; cliquez sur une pour y aller,{n} occorrenza/e; fai clic su una per andarci

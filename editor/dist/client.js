@@ -5385,8 +5385,10 @@ var uiCatalog = {
     "Circle": "C\xEDrculo",
     "Clone Tool": "Ferramenta de clonagem",
     "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Ferramenta de clonagem: clique num n\xF3 para o duplicar (necess\xE1rio quando a prova usa a mesma regra mais de uma vez)",
+    "Close": "Fechar",
     "Close this panel": "Fechar este painel",
     "Collapse All": "Recolher tudo",
+    "condition": "condi\xE7\xE3o",
     "Continue": "Continuar",
     "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) \u2014 retoma a execu\xE7\xE3o at\xE9 encontrar a pr\xF3xima resposta (ou a consulta terminar). Se restarem solu\xE7\xF5es, avan\xE7ar/continuar de novo explora-as.",
     "Copy": "Copiar",
@@ -5404,6 +5406,7 @@ var uiCatalog = {
     "Dagre (Hierarchical)": "Dagre (hier\xE1rquico)",
     "Dark": "Escuro",
     "Dark Theme": "Tema escuro",
+    "declaration": "declara\xE7\xE3o",
     "Detailed failure explanations (per-rule nodes)": "Explica\xE7\xF5es de falha detalhadas (n\xF3s por regra)",
     "Direction": "Dire\xE7\xE3o",
     "ELK (Layered)": "ELK (em camadas)",
@@ -5417,12 +5420,15 @@ var uiCatalog = {
     "Explanation Drill": "Explora\xE7\xE3o da explica\xE7\xE3o",
     "Explanation Drill\u2026": "Explora\xE7\xE3o da explica\xE7\xE3o\u2026",
     "Explanations Preferences": "Prefer\xEAncias das explica\xE7\xF5es",
+    "fact": "facto",
     "File": "Ficheiro",
     "Filter programs": "Filtrar programas",
     "Filter\u2026": "Filtrar\u2026",
     "Find": "Procurar",
     "Fit View": "Ajustar vista",
     "Fit to Screen": "Ajustar ao ecr\xE3",
+    "Fold all rules for this predicate": "Colapsar todas as regras deste predicado",
+    "Go back (to where you jumped from)": "Voltar (para onde saltou)",
     "Go to full sub-explanation": "Ir para a sub-explica\xE7\xE3o completa",
     "Google API Key:": "Chave de API Google:",
     "Grid": "Grelha",
@@ -5454,8 +5460,12 @@ var uiCatalog = {
     "New": "Novo",
     "New from URL": "Novo a partir de URL",
     "New from URL...": "Novo a partir de URL...",
+    "No definition found for": "Nenhuma defini\xE7\xE3o encontrada para",
+    "No occurrences found for": "Nenhuma ocorr\xEAncia encontrada para",
+    "No rules for": "Sem regras para",
     "Node Types": "Tipos de n\xF3s",
     "None": "Nenhum",
+    "Occurrences": "Ocorr\xEAncias",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Varia\xE7\xF5es de Cen\xE1rio: altere o cen\xE1rio selecionado e corra uma ou mais consultas sobre a varia\xE7\xE3o, numa janela separada",
     "Open copy from server...": "Abrir c\xF3pia do servidor...",
     "Open from Server": "Abrir do servidor",
@@ -5470,15 +5480,18 @@ var uiCatalog = {
     "Prefix for failed nodes:": "Prefixo para n\xF3s falhados:",
     "Proof Game": "Jogo da Prova",
     "Query": "Consulta",
+    "query": "consulta",
     "Query Editor": "Editor de consultas",
     "Query:": "Consulta:",
     "Redraw from here": "Redesenhar a partir daqui",
     "Refresh": "Atualizar",
     "Replace": "Substituir",
+    "rule head": "cabe\xE7a de regra",
     "Save": "Guardar",
     "Save As...": "Guardar como...",
     "Scenario": "Cen\xE1rio",
     "Scenario Editor": "Editor de cen\xE1rios",
+    "scenario fact": "facto de cen\xE1rio",
     "Scenario Variations": "Varia\xE7\xF5es de cen\xE1rio",
     "Scenario:": "Cen\xE1rio:",
     "Search nodes...": "Procurar n\xF3s...",
@@ -5486,6 +5499,8 @@ var uiCatalog = {
     "Select a scenario...": "Selecione um cen\xE1rio...",
     "Send": "Enviar",
     "Send command to the LE Assistant": "Enviar comando ao Assistente LE",
+    "Show definition": "Mostrar defini\xE7\xE3o",
+    "Show occurrences": "Mostrar ocorr\xEAncias",
     "Show Proof": "Mostrar prova",
     "Show important reason": "Mostrar raz\xE3o importante",
     "Small": "Pequeno",
@@ -5499,6 +5514,7 @@ var uiCatalog = {
     "Together API Key:": "Chave de API Together:",
     "Trace": "Rastrear",
     "Type Hierarchy": "Hierarquia de tipos",
+    "Unfold all rules for this predicate": "Expandir todas as regras deste predicado",
     "URL of a Logical English program:": "URL de um programa Logical English:",
     "Using this editor (manual)": "Usar este editor (manual)",
     "Vertical (T\u2192B)": "Vertical (C\u2192B)",
@@ -5658,7 +5674,8 @@ var uiCatalog = {
     "Larger important reasons": "Raz\xF5es importantes mais amplas",
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Quando ativo, a raz\xE3o importante de uma consulta falhada enumera todas as condi\xE7\xF5es falhadas mais profundas ("n\xE3o \xE9 o caso que X, nem que Y, nem que Z"), truncada ap\xF3s a terceira, em vez de apenas a primeira.',
     "Always show engine choice": "Mostrar sempre a escolha do motor",
-    "Show engine choice only for non-Prolog": "Mostrar a escolha do motor apenas para n\xE3o-Prolog"
+    "Show engine choice only for non-Prolog": "Mostrar a escolha do motor apenas para n\xE3o-Prolog",
+    "{n} occurrence(s); click one to go to it": "{n} ocorr\xEAncia(s); clique numa para ir at\xE9 ela"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -5682,8 +5699,10 @@ var uiCatalog = {
     "Circle": "C\xEDrculo",
     "Clone Tool": "Herramienta de clonaci\xF3n",
     "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Herramienta de clonaci\xF3n: haga clic en un nodo para duplicarlo (necesario cuando la prueba usa la misma regla m\xE1s de una vez)",
+    "Close": "Cerrar",
     "Close this panel": "Cerrar este panel",
     "Collapse All": "Contraer todo",
+    "condition": "condici\xF3n",
     "Continue": "Continuar",
     "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuar (F5) \u2014 reanuda la ejecuci\xF3n hasta encontrar la siguiente respuesta (o hasta que la consulta termine). Si quedan m\xE1s soluciones, avanzar/continuar de nuevo las explora.",
     "Copy": "Copiar",
@@ -5701,6 +5720,7 @@ var uiCatalog = {
     "Dagre (Hierarchical)": "Dagre (jer\xE1rquico)",
     "Dark": "Oscuro",
     "Dark Theme": "Tema oscuro",
+    "declaration": "declaraci\xF3n",
     "Detailed failure explanations (per-rule nodes)": "Explicaciones de fallo detalladas (nodos por regla)",
     "Direction": "Direcci\xF3n",
     "ELK (Layered)": "ELK (por capas)",
@@ -5714,12 +5734,15 @@ var uiCatalog = {
     "Explanation Drill": "Exploraci\xF3n de la explicaci\xF3n",
     "Explanation Drill\u2026": "Exploraci\xF3n de la explicaci\xF3n\u2026",
     "Explanations Preferences": "Preferencias de las explicaciones",
+    "fact": "hecho",
     "File": "Archivo",
     "Filter programs": "Filtrar programas",
     "Filter\u2026": "Filtrar\u2026",
     "Find": "Buscar",
     "Fit View": "Ajustar vista",
     "Fit to Screen": "Ajustar a la pantalla",
+    "Fold all rules for this predicate": "Plegar todas las reglas de este predicado",
+    "Go back (to where you jumped from)": "Volver (a donde salt\xF3)",
     "Go to full sub-explanation": "Ir a la subexplicaci\xF3n completa",
     "Google API Key:": "Clave de API Google:",
     "Grid": "Cuadr\xEDcula",
@@ -5751,8 +5774,12 @@ var uiCatalog = {
     "New": "Nuevo",
     "New from URL": "Nuevo desde URL",
     "New from URL...": "Nuevo desde URL...",
+    "No definition found for": "No se encontr\xF3 definici\xF3n para",
+    "No occurrences found for": "No se encontraron apariciones de",
+    "No rules for": "Sin reglas para",
     "Node Types": "Tipos de nodos",
     "None": "Ninguno",
+    "Occurrences": "Apariciones",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Abrir Variaciones de escenario: modifique el escenario seleccionado y ejecute una o m\xE1s consultas sobre la variaci\xF3n, en una ventana separada",
     "Open copy from server...": "Abrir copia del servidor...",
     "Open from Server": "Abrir del servidor",
@@ -5767,15 +5794,18 @@ var uiCatalog = {
     "Prefix for failed nodes:": "Prefijo para nodos fallidos:",
     "Proof Game": "Juego de la Prueba",
     "Query": "Consulta",
+    "query": "consulta",
     "Query Editor": "Editor de consultas",
     "Query:": "Consulta:",
     "Redraw from here": "Redibujar desde aqu\xED",
     "Refresh": "Actualizar",
     "Replace": "Reemplazar",
+    "rule head": "cabeza de regla",
     "Save": "Guardar",
     "Save As...": "Guardar como...",
     "Scenario": "Escenario",
     "Scenario Editor": "Editor de escenarios",
+    "scenario fact": "hecho de escenario",
     "Scenario Variations": "Variaciones de escenario",
     "Scenario:": "Escenario:",
     "Search nodes...": "Buscar nodos...",
@@ -5783,6 +5813,8 @@ var uiCatalog = {
     "Select a scenario...": "Seleccione un escenario...",
     "Send": "Enviar",
     "Send command to the LE Assistant": "Enviar comando al Asistente LE",
+    "Show definition": "Mostrar definici\xF3n",
+    "Show occurrences": "Mostrar apariciones",
     "Show Proof": "Mostrar prueba",
     "Show important reason": "Mostrar raz\xF3n importante",
     "Small": "Peque\xF1o",
@@ -5796,6 +5828,7 @@ var uiCatalog = {
     "Together API Key:": "Clave de API Together:",
     "Trace": "Rastrear",
     "Type Hierarchy": "Jerarqu\xEDa de tipos",
+    "Unfold all rules for this predicate": "Desplegar todas las reglas de este predicado",
     "URL of a Logical English program:": "URL de un programa Logical English:",
     "Using this editor (manual)": "Usar este editor (manual)",
     "Vertical (T\u2192B)": "Vertical (A\u2192B)",
@@ -5955,7 +5988,8 @@ var uiCatalog = {
     "Larger important reasons": "Razones importantes m\xE1s amplias",
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Cuando est\xE1 activo, la raz\xF3n importante de una consulta fallida enumera todas las condiciones fallidas m\xE1s profundas ("no es el caso que X, ni que Y, ni que Z"), truncada tras la tercera, en lugar de solo la primera.',
     "Always show engine choice": "Mostrar siempre la elecci\xF3n del motor",
-    "Show engine choice only for non-Prolog": "Mostrar la elecci\xF3n del motor solo para no-Prolog"
+    "Show engine choice only for non-Prolog": "Mostrar la elecci\xF3n del motor solo para no-Prolog",
+    "{n} occurrence(s); click one to go to it": "{n} aparici\xF3n(es); haga clic en una para ir a ella"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -5979,8 +6013,10 @@ var uiCatalog = {
     "Circle": "Cercle",
     "Clone Tool": "Outil de clonage",
     "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Outil de clonage : cliquez sur un n\u0153ud pour le dupliquer (n\xE9cessaire quand la preuve utilise la m\xEAme r\xE8gle plus d'une fois)",
+    "Close": "Fermer",
     "Close this panel": "Fermer ce panneau",
     "Collapse All": "Tout replier",
+    "condition": "condition",
     "Continue": "Continuer",
     "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continuer (F5) \u2014 reprend l'ex\xE9cution jusqu'\xE0 ce que la prochaine r\xE9ponse soit trouv\xE9e (ou que la requ\xEAte se termine). S'il reste des solutions, avancer/continuer de nouveau les explore.",
     "Copy": "Copier",
@@ -5998,6 +6034,7 @@ var uiCatalog = {
     "Dagre (Hierarchical)": "Dagre (hi\xE9rarchique)",
     "Dark": "Sombre",
     "Dark Theme": "Th\xE8me sombre",
+    "declaration": "d\xE9claration",
     "Detailed failure explanations (per-rule nodes)": "Explications d'\xE9chec d\xE9taill\xE9es (n\u0153uds par r\xE8gle)",
     "Direction": "Direction",
     "ELK (Layered)": "ELK (en couches)",
@@ -6011,12 +6048,15 @@ var uiCatalog = {
     "Explanation Drill": "Exploration de l'explication",
     "Explanation Drill\u2026": "Exploration de l'explication\u2026",
     "Explanations Preferences": "Pr\xE9f\xE9rences des explications",
+    "fact": "fait",
     "File": "Fichier",
     "Filter programs": "Filtrer les programmes",
     "Filter\u2026": "Filtrer\u2026",
     "Find": "Rechercher",
     "Fit View": "Ajuster la vue",
     "Fit to Screen": "Ajuster \xE0 l'\xE9cran",
+    "Fold all rules for this predicate": "Replier toutes les r\xE8gles de ce pr\xE9dicat",
+    "Go back (to where you jumped from)": "Revenir (\xE0 l'endroit d'o\xF9 vous avez saut\xE9)",
     "Go to full sub-explanation": "Aller \xE0 la sous-explication compl\xE8te",
     "Google API Key:": "Cl\xE9 d'API Google :",
     "Grid": "Grille",
@@ -6048,8 +6088,12 @@ var uiCatalog = {
     "New": "Nouveau",
     "New from URL": "Nouveau \xE0 partir d'une URL",
     "New from URL...": "Nouveau \xE0 partir d'une URL...",
+    "No definition found for": "Aucune d\xE9finition trouv\xE9e pour",
+    "No occurrences found for": "Aucune occurrence trouv\xE9e pour",
+    "No rules for": "Aucune r\xE8gle pour",
     "Node Types": "Types de n\u0153uds",
     "None": "Aucun",
+    "Occurrences": "Occurrences",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Ouvrir les Variations de sc\xE9nario : modifiez le sc\xE9nario s\xE9lectionn\xE9 et ex\xE9cutez une ou plusieurs requ\xEAtes sur la variation, dans une fen\xEAtre s\xE9par\xE9e",
     "Open copy from server...": "Ouvrir une copie du serveur...",
     "Open from Server": "Ouvrir depuis le serveur",
@@ -6064,15 +6108,18 @@ var uiCatalog = {
     "Prefix for failed nodes:": "Pr\xE9fixe pour les n\u0153uds en \xE9chec :",
     "Proof Game": "Jeu de la preuve",
     "Query": "Requ\xEAte",
+    "query": "requ\xEAte",
     "Query Editor": "\xC9diteur de requ\xEAtes",
     "Query:": "Requ\xEAte :",
     "Redraw from here": "Redessiner \xE0 partir d'ici",
     "Refresh": "Actualiser",
     "Replace": "Remplacer",
+    "rule head": "t\xEAte de r\xE8gle",
     "Save": "Enregistrer",
     "Save As...": "Enregistrer sous...",
     "Scenario": "Sc\xE9nario",
     "Scenario Editor": "\xC9diteur de sc\xE9narios",
+    "scenario fact": "fait de sc\xE9nario",
     "Scenario Variations": "Variations de sc\xE9nario",
     "Scenario:": "Sc\xE9nario :",
     "Search nodes...": "Rechercher des n\u0153uds...",
@@ -6080,6 +6127,8 @@ var uiCatalog = {
     "Select a scenario...": "S\xE9lectionnez un sc\xE9nario...",
     "Send": "Envoyer",
     "Send command to the LE Assistant": "Envoyer la commande \xE0 l'Assistant LE",
+    "Show definition": "Afficher la d\xE9finition",
+    "Show occurrences": "Afficher les occurrences",
     "Show Proof": "Montrer la preuve",
     "Show important reason": "Montrer la raison importante",
     "Small": "Petit",
@@ -6093,6 +6142,7 @@ var uiCatalog = {
     "Together API Key:": "Cl\xE9 d'API Together :",
     "Trace": "Tracer",
     "Type Hierarchy": "Hi\xE9rarchie de types",
+    "Unfold all rules for this predicate": "D\xE9plier toutes les r\xE8gles de ce pr\xE9dicat",
     "URL of a Logical English program:": "URL d'un programme Logical English :",
     "Using this editor (manual)": "Utiliser cet \xE9diteur (manuel)",
     "Vertical (T\u2192B)": "Vertical (H\u2192B)",
@@ -6252,7 +6302,8 @@ var uiCatalog = {
     "Larger important reasons": "Raisons importantes \xE9largies",
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': "Quand elle est activ\xE9e, la raison importante d'une requ\xEAte en \xE9chec liste toutes les conditions en \xE9chec les plus profondes (\xAB il n'est pas le cas que X, ni que Y, ni que Z \xBB), tronqu\xE9e apr\xE8s la troisi\xE8me, au lieu de seulement la premi\xE8re.",
     "Always show engine choice": "Toujours afficher le choix du moteur",
-    "Show engine choice only for non-Prolog": "Afficher le choix du moteur uniquement pour non-Prolog"
+    "Show engine choice only for non-Prolog": "Afficher le choix du moteur uniquement pour non-Prolog",
+    "{n} occurrence(s); click one to go to it": "{n} occurrence(s) ; cliquez sur une pour y aller"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -6276,8 +6327,10 @@ var uiCatalog = {
     "Circle": "Cerchio",
     "Clone Tool": "Strumento di clonazione",
     "Clone tool: click a node to duplicate it (needed when the proof uses the same rule more than once)": "Strumento di clonazione: fai clic su un nodo per duplicarlo (necessario quando la prova usa la stessa regola pi\xF9 di una volta)",
+    "Close": "Chiudi",
     "Close this panel": "Chiudi questo pannello",
     "Collapse All": "Comprimi tutto",
+    "condition": "condizione",
     "Continue": "Continua",
     "Continue (F5) \u2014 resume running until the next answer is found (or the query finishes). If more solutions remain, stepping/continuing again explores them.": "Continua (F5) \u2014 riprende l'esecuzione fino a trovare la prossima risposta (o fino al termine dell'interrogazione). Se restano altre soluzioni, avanzare/continuare di nuovo le esplora.",
     "Copy": "Copia",
@@ -6295,6 +6348,7 @@ var uiCatalog = {
     "Dagre (Hierarchical)": "Dagre (gerarchico)",
     "Dark": "Scuro",
     "Dark Theme": "Tema scuro",
+    "declaration": "dichiarazione",
     "Detailed failure explanations (per-rule nodes)": "Spiegazioni di fallimento dettagliate (nodi per regola)",
     "Direction": "Direzione",
     "ELK (Layered)": "ELK (a livelli)",
@@ -6308,12 +6362,15 @@ var uiCatalog = {
     "Explanation Drill": "Esplorazione della spiegazione",
     "Explanation Drill\u2026": "Esplorazione della spiegazione\u2026",
     "Explanations Preferences": "Preferenze delle spiegazioni",
+    "fact": "fatto",
     "File": "File",
     "Filter programs": "Filtra programmi",
     "Filter\u2026": "Filtra\u2026",
     "Find": "Trova",
     "Fit View": "Adatta vista",
     "Fit to Screen": "Adatta allo schermo",
+    "Fold all rules for this predicate": "Comprimi tutte le regole di questo predicato",
+    "Go back (to where you jumped from)": "Torna indietro (al punto da cui sei saltato)",
     "Go to full sub-explanation": "Vai alla sotto-spiegazione completa",
     "Google API Key:": "Chiave API Google:",
     "Grid": "Griglia",
@@ -6345,8 +6402,12 @@ var uiCatalog = {
     "New": "Nuovo",
     "New from URL": "Nuovo da URL",
     "New from URL...": "Nuovo da URL...",
+    "No definition found for": "Nessuna definizione trovata per",
+    "No occurrences found for": "Nessuna occorrenza trovata per",
+    "No rules for": "Nessuna regola per",
     "Node Types": "Tipi di nodi",
     "None": "Nessuno",
+    "Occurrences": "Occorrenze",
     "Open Scenario Variations: alter the selected scenario and run one or more queries against the variation, in a separate window": "Apri Variazioni di Scenario: modifica lo scenario selezionato ed esegui una o pi\xF9 interrogazioni sulla variazione, in una finestra separata",
     "Open copy from server...": "Apri copia dal server...",
     "Open from Server": "Apri dal server",
@@ -6361,15 +6422,18 @@ var uiCatalog = {
     "Prefix for failed nodes:": "Prefisso per i nodi falliti:",
     "Proof Game": "Gioco della Prova",
     "Query": "Interrogazione",
+    "query": "interrogazione",
     "Query Editor": "Editor delle interrogazioni",
     "Query:": "Interrogazione:",
     "Redraw from here": "Ridisegna da qui",
     "Refresh": "Aggiorna",
     "Replace": "Sostituisci",
+    "rule head": "testa di regola",
     "Save": "Salva",
     "Save As...": "Salva come...",
     "Scenario": "Scenario",
     "Scenario Editor": "Editor degli scenari",
+    "scenario fact": "fatto di scenario",
     "Scenario Variations": "Variazioni di scenario",
     "Scenario:": "Scenario:",
     "Search nodes...": "Cerca nodi...",
@@ -6377,6 +6441,8 @@ var uiCatalog = {
     "Select a scenario...": "Seleziona uno scenario...",
     "Send": "Invia",
     "Send command to the LE Assistant": "Invia comando all'Assistente LE",
+    "Show definition": "Mostra definizione",
+    "Show occurrences": "Mostra occorrenze",
     "Show Proof": "Mostra prova",
     "Show important reason": "Mostra ragione importante",
     "Small": "Piccolo",
@@ -6390,6 +6456,7 @@ var uiCatalog = {
     "Together API Key:": "Chiave API Together:",
     "Trace": "Traccia",
     "Type Hierarchy": "Gerarchia dei tipi",
+    "Unfold all rules for this predicate": "Espandi tutte le regole di questo predicato",
     "URL of a Logical English program:": "URL di un programma Logical English:",
     "Using this editor (manual)": "Usare questo editor (manuale)",
     "Vertical (T\u2192B)": "Verticale (A\u2192B)",
@@ -6549,7 +6616,8 @@ var uiCatalog = {
     "Larger important reasons": "Motivi importanti pi\xF9 ampi",
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': `Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite pi\xF9 profonde ("non \xE8 il caso che X, n\xE9 che Y, n\xE9 che Z"), troncato dopo il terzo, invece del solo primo.`,
     "Always show engine choice": "Mostra sempre la scelta del motore",
-    "Show engine choice only for non-Prolog": "Mostra la scelta del motore solo per non-Prolog"
+    "Show engine choice only for non-Prolog": "Mostra la scelta del motore solo per non-Prolog",
+    "{n} occurrence(s); click one to go to it": "{n} occorrenza/e; fai clic su una per andarci"
   }
 };
 var languages = [
@@ -9527,6 +9595,7 @@ async function start() {
   });
   window.selectRange = (start2, end) => {
     const model2 = editor.getModel();
+    rememberJumpOrigin(editor);
     const startPos = model2.getPositionAt(start2);
     const endPos = model2.getPositionAt(end);
     editor.setSelection(new monaco.Range(
@@ -9693,7 +9762,7 @@ async function start() {
       window.open(url, "_blank", "width=800,height=600");
     }
   });
-  async function predicateAtCursor(ed) {
+  async function predicateAtCursor(ed, operation = "predicateAt") {
     if (!isLoaded && !isLoading) {
       await loadModule();
     }
@@ -9709,7 +9778,7 @@ async function start() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: "myToken123",
-          operation: "predicateAt",
+          operation,
           sessionModule,
           position: model2.getOffsetAt(position),
           line: model2.getLineContent(position.lineNumber)
@@ -9717,12 +9786,12 @@ async function start() {
       });
       const data = await response.json();
       if (data.error) {
-        console.log("predicateAt:", data.error);
+        console.log(operation + ":", data.error);
         return null;
       }
       return data;
     } catch (err) {
-      console.error("predicateAt failed:", err);
+      console.error(operation + " failed:", err);
       return null;
     }
   }
@@ -9757,7 +9826,7 @@ async function start() {
   }
   editor.addAction({
     id: "le-fold-predicate-rules",
-    label: "Fold all rules for this predicate",
+    label: t("Fold all rules for this predicate"),
     contextMenuGroupId: "navigation",
     contextMenuOrder: 1.9,
     run: (ed) => {
@@ -9766,16 +9835,40 @@ async function start() {
   });
   editor.addAction({
     id: "le-unfold-predicate-rules",
-    label: "Unfold all rules for this predicate",
+    label: t("Unfold all rules for this predicate"),
     contextMenuGroupId: "navigation",
     contextMenuOrder: 2,
     run: (ed) => {
       foldPredicateRules(ed, false);
     }
   });
+  const jumpHistory = [];
+  const JUMP_HISTORY_MAX = 50;
+  function rememberJumpOrigin(ed) {
+    const position = ed.getPosition();
+    if (!position)
+      return;
+    const last = jumpHistory[jumpHistory.length - 1];
+    if (last && last.lineNumber === position.lineNumber && last.column === position.column)
+      return;
+    jumpHistory.push({ lineNumber: position.lineNumber, column: position.column });
+    if (jumpHistory.length > JUMP_HISTORY_MAX)
+      jumpHistory.shift();
+  }
+  function jumpToLine(ed, lineNumber, column = 1) {
+    rememberJumpOrigin(ed);
+    ed.revealLineInCenter(lineNumber);
+    ed.setPosition({ lineNumber, column });
+    ed.focus();
+    const decorations = ed.deltaDecorations([], [{
+      range: new monaco.Range(lineNumber, 1, lineNumber, 1),
+      options: { isWholeLine: true, className: "le-definition-flash" }
+    }]);
+    setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
+  }
   editor.addAction({
     id: "le-show-definition",
-    label: "Show definition",
+    label: t("Show definition"),
     keybindings: [monaco.KeyCode.F12],
     contextMenuGroupId: "navigation",
     contextMenuOrder: 2.1,
@@ -9790,14 +9883,160 @@ async function start() {
         return;
       }
       const pos = model2.getPositionAt(target);
-      ed.revealLineInCenter(pos.lineNumber);
-      ed.setPosition(pos);
+      jumpToLine(ed, pos.lineNumber, pos.column);
+    }
+  });
+  const occurrencesModal = document.getElementById("occurrences-modal");
+  const occurrencesList = document.getElementById("occurrences-list");
+  const occurrencesSubtitle = document.getElementById("occurrences-subtitle");
+  const closeOccurrences = () => {
+    if (occurrencesModal)
+      occurrencesModal.style.display = "none";
+  };
+  document.getElementById("occurrences-close")?.addEventListener("click", closeOccurrences);
+  document.getElementById("occurrences-cancel")?.addEventListener("click", closeOccurrences);
+  occurrencesModal?.addEventListener("click", (e) => {
+    if (e.target === occurrencesModal)
+      closeOccurrences();
+  });
+  function leWords(text) {
+    return text.toLowerCase().split(/[^0-9a-zà-öø-ÿA-ZÀ-ÖØ-Þ_]+/).filter((w) => w.length > 0);
+  }
+  function occurrenceLine(model2, occ) {
+    const first = model2.getPositionAt(occ.start).lineNumber;
+    const last = Math.min(model2.getPositionAt(occ.end).lineNumber, model2.getLineCount());
+    const searches = occ.kind === "condition" || occ.kind === "query";
+    if (!searches || last <= first)
+      return first;
+    const words2 = leWords(occ.text || "");
+    if (words2.length === 0)
+      return first;
+    let best = first, bestScore = 0;
+    for (let line = first + 1; line <= last; line++) {
+      const lineWords = new Set(leWords(model2.getLineContent(line)));
+      const score = words2.filter((w) => lineWords.has(w)).length;
+      if (score > bestScore) {
+        bestScore = score;
+        best = line;
+      }
+    }
+    return best;
+  }
+  const OCCURRENCE_KIND_LABELS = {
+    template: "declaration",
+    fact: "fact",
+    head: "rule head",
+    condition: "condition",
+    scenario: "scenario fact",
+    query: "query"
+  };
+  function showOccurrences(ed, data) {
+    if (!occurrencesModal || !occurrencesList)
+      return;
+    const model2 = ed.getModel();
+    const rows = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const occ of data.occurrences || []) {
+      const line = occurrenceLine(model2, occ);
+      const key = `${line}|${occ.kind}|${occ.text}`;
+      if (seen.has(key))
+        continue;
+      seen.add(key);
+      rows.push({ occ, line });
+    }
+    rows.sort((a, b) => a.line - b.line);
+    if (occurrencesSubtitle) {
+      occurrencesSubtitle.textContent = `${data.le} \u2014 ` + t("{n} occurrence(s); click one to go to it").replace("{n}", String(rows.length));
+    }
+    occurrencesList.innerHTML = "";
+    rows.forEach((row, index) => {
+      const item = document.createElement("div");
+      item.className = "occurrence-row";
+      const kind = document.createElement("span");
+      kind.className = "occurrence-kind";
+      kind.textContent = t(OCCURRENCE_KIND_LABELS[row.occ.kind] || row.occ.kind);
+      item.appendChild(kind);
+      const lineNo = document.createElement("span");
+      lineNo.className = "occurrence-line";
+      lineNo.textContent = String(row.line);
+      item.appendChild(lineNo);
+      const text = document.createElement("span");
+      text.className = "occurrence-text";
+      text.textContent = model2.getLineContent(row.line).trim() || row.occ.text || "";
+      item.appendChild(text);
+      if (row.occ.context) {
+        const context = document.createElement("span");
+        context.className = "occurrence-context";
+        context.textContent = row.occ.context;
+        item.appendChild(context);
+      }
+      item.addEventListener("click", () => {
+        closeOccurrences();
+        jumpToLine(ed, row.line);
+      });
+      occurrencesList.appendChild(item);
+    });
+    occurrencesModal.style.display = "flex";
+  }
+  document.addEventListener("keydown", (e) => {
+    if (!occurrencesModal || occurrencesModal.style.display !== "flex")
+      return;
+    if (e.key === "Escape") {
+      closeOccurrences();
+      return;
+    }
+    if (!occurrencesList)
+      return;
+    const items = Array.from(occurrencesList.querySelectorAll(".occurrence-row"));
+    if (items.length === 0)
+      return;
+    const current = items.findIndex((i) => i.classList.contains("selected"));
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const next = e.key === "ArrowDown" ? Math.min(current + 1, items.length - 1) : Math.max(current - 1, 0);
+      items.forEach((i) => i.classList.remove("selected"));
+      items[next < 0 ? 0 : next].classList.add("selected");
+      items[next < 0 ? 0 : next].scrollIntoView({ block: "nearest" });
+    } else if (e.key === "Enter" && current >= 0) {
+      e.preventDefault();
+      items[current].click();
+    }
+  });
+  editor.addAction({
+    id: "le-go-back",
+    label: t("Go back (to where you jumped from)"),
+    keybindings: [
+      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Minus,
+      monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.Minus
+    ],
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 2.3,
+    run: (ed) => {
+      const target = jumpHistory.pop();
+      if (!target)
+        return;
+      const model2 = ed.getModel();
+      const lineNumber = Math.min(target.lineNumber, model2.getLineCount());
+      ed.revealLineInCenter(lineNumber);
+      ed.setPosition({ lineNumber, column: target.column });
       ed.focus();
-      const decorations = ed.deltaDecorations([], [{
-        range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1),
-        options: { isWholeLine: true, className: "le-definition-flash" }
-      }]);
-      setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
+    }
+  });
+  editor.addAction({
+    id: "le-show-occurrences",
+    label: t("Show occurrences"),
+    keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.F12],
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 2.2,
+    run: async (ed) => {
+      const data = await predicateAtCursor(ed, "predicateOccurrences");
+      if (!data)
+        return;
+      if (!data.occurrences || data.occurrences.length === 0) {
+        alert(t("No occurrences found for") + ` "${data.le}"`);
+        return;
+      }
+      showOccurrences(ed, data);
     }
   });
   const prologPanel = document.getElementById("prolog-panel");

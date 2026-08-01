@@ -339,8 +339,54 @@ unused_template(KB, issue(unused_template, Description, Fix, Start, End)) :-
     le_kbs:template_of(KB, F, A, Dict, Label),
     \+ template_used(KB, F, A),
     le_i18n:le_msg(unused_template_desc, [template-Label], Description),
-    le_i18n:le_msg(unused_template_fix, [], Fix),
+    unused_template_fix(KB, Label, Fix),
     template_source(KB, Dict, Start, End).
+
+%!  unused_template_fix(+KB, +Label, -Fix) is det.
+%
+%   "Never used" is easy to disbelieve when the program is full of sentences
+%   that LOOK like uses. They usually belong to a LONGER template declared in
+%   the same program — `*a claim* is excluded from *a section*` reads as unused
+%   while a dozen `*a claim* is excluded from the employers liability section
+%   for ...` templates carry all the traffic, because the parser matches the
+%   longest template. Say so, and name one, or the reader hunts a phantom bug.
+unused_template_fix(KB, Label, Fix) :-
+    (   shadowing_templates(KB, Label, [Example|Rest])
+    ->  length(Rest, N0), N is N0 + 1,
+        le_i18n:le_msg(unused_template_shadowed_fix,
+                       [count-N, example-Example], Fix)
+    ;   le_i18n:le_msg(unused_template_fix, [], Fix)
+    ).
+
+%!  shadowing_templates(+KB, +Label, -Labels) is det.
+%
+%   The USED templates that open with the same words as this one — the ones the
+%   sentences the reader is looking at actually match. Shortest first, so the
+%   example shown is the one closest to the template being explained.
+shadowing_templates(KB, Label, Labels) :-
+    template_prefix(Label, Prefix),
+    Prefix \== "",
+    findall(Len-Other,
+            ( le_kbs:template_of(KB, OF, OA, _, Other),
+              Other \== Label,
+              template_used(KB, OF, OA),
+              sub_string(Other, 0, _, _, Prefix),
+              string_length(Other, Len) ),
+            Pairs),
+    sort(Pairs, Sorted),
+    findall(L, member(_-L, Sorted), Labels),
+    Labels \== [].
+
+% What a template commits to before its SECOND argument place — the words a
+% longer template has to repeat to shadow it.
+% `*claim* is excluded from *section*` -> "*claim* is excluded from ".
+% A template with fewer than two arguments commits to all of itself.
+template_prefix(Label, Prefix) :-
+    findall(P, sub_string(Label, P, 1, _, "*"), Stars),
+    (   nth0(2, Stars, Third)
+    ->  sub_string(Label, 0, Third, _, Prefix)
+    ;   Prefix = Label
+    ).
 
 %!  template_used(+KB, +F, +A) is semidet.
 %

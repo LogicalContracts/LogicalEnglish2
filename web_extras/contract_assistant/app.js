@@ -4,7 +4,22 @@
 
 const TOKEN = 'myToken123';
 const TEXT_EXTS = ['md', 'txt', 'le', 'text', 'markdown'];
-const PROVIDERS = ['openai', 'anthropic', 'groq', 'together', 'gemini'];
+// The providers a model can belong to. `label` is what the user sees; `storage`
+// is the localStorage slot, kept identical to the LE editor's (which calls the
+// Gemini provider "google"); `wire` is the name the server's key_for_model/3
+// expects in api_keys (also "google" for Gemini).
+const PROVIDERS = {
+    openai:    { label: 'OpenAI',        storage: 'openai',    wire: 'openai' },
+    anthropic: { label: 'Anthropic',     storage: 'anthropic', wire: 'anthropic' },
+    groq:      { label: 'Groq',          storage: 'groq',      wire: 'groq' },
+    together:  { label: 'Together AI',   storage: 'together',  wire: 'together' },
+    gemini:    { label: 'Google Gemini', storage: 'google',    wire: 'google' }
+};
+
+// Filled by loadModels(): model short name -> provider, and the providers the
+// server already has a key for (those need no field here).
+let modelProviders = {};
+let serverKeys = [];
 
 const $ = (id) => document.getElementById(id);
 let pollTimer = null;
@@ -143,7 +158,9 @@ async function loadModels() {
     try {
         const data = await leapi('list_models', {});
         const models = data.models || [];
-        const serverKeys = data.server_keys || [];
+        serverKeys = data.server_keys || [];
+        modelProviders = {};
+        for (const m of models) modelProviders[m.short] = m.provider;
         for (const sel of [$('model'), $('judge-model')]) {
             sel.innerHTML = '';
             for (const m of models) {
@@ -153,41 +170,67 @@ async function loadModels() {
                 sel.appendChild(opt);
             }
         }
-        // Key inputs for providers without a server-side key, prefilled from
-        // localStorage (same names the editor uses: le-<provider>-key).
-        const keysDiv = $('keys');
-        keysDiv.innerHTML = '';
-        for (const p of PROVIDERS) {
-            if (serverKeys.includes(p)) continue;
-            const label = document.createElement('label');
-            label.className = 'field';
-            label.innerHTML = `<span>${p} API key</span>`;
-            const input = document.createElement('input');
-            input.type = 'password';
-            input.id = `key-${p}`;
-            input.title = `${p} API key — kept only in this browser's localStorage (shared with the LE editor) and sent only with your requests. Not needed for providers the server already has a key for.`;
-            input.value = localStorage.getItem(`le-${p}-key`) || '';
-            const warn = document.createElement('span');
-            warn.className = 'error';
-            warn.style.fontSize = '12px';
-            const check = () => {
-                const looks = keyLooksLike(input.value);
-                warn.textContent = (looks && looks !== p)
-                    ? `\u26a0 this looks like a ${looks} key (${input.value.slice(0, 7)}\u2026), not an ${p} key`
-                    : '';
-            };
-            input.addEventListener('change', () => { localStorage.setItem(`le-${p}-key`, input.value); check(); });
-            input.addEventListener('input', check);
-            check();   // stale localStorage values get flagged on load
-            label.appendChild(input);
-            label.appendChild(warn);
-            keysDiv.appendChild(label);
-        }
         const preferred = localStorage.getItem('le-assistant-model');
         if (preferred) { $('model').value = preferred; $('judge-model').value = preferred; }
+        renderKeys();         // only the selected models' providers need a key
         scheduleEstimate();   // prices depend on the models just selected
     } catch (e) {
         $('setup-error').textContent = 'Could not load the model list: ' + e.message;
+    }
+}
+
+// The providers this run will actually call: the main model's and the judge's.
+function selectedProviders() {
+    const ps = [];
+    for (const id of ['model', 'judge-model']) {
+        const p = modelProviders[$(id).value];
+        if (p && PROVIDERS[p] && !ps.includes(p)) ps.push(p);
+    }
+    return ps;
+}
+
+// One key field per provider of the models selected above, and only when the
+// server has no key of its own for it. Values are kept in this browser's
+// localStorage, in the same slots the LE editor's "API Keys & Assistant
+// Settings" dialog uses, so a key entered in either place works in both.
+function renderKeys() {
+    const keysDiv = $('keys');
+    keysDiv.innerHTML = '';
+    const providers = selectedProviders();
+    const fromServer = providers.filter(p => serverKeys.includes(p));
+    for (const p of providers) {
+        if (serverKeys.includes(p)) continue;
+        const info = PROVIDERS[p];
+        const label = document.createElement('label');
+        label.className = 'field';
+        label.innerHTML = `<span>${info.label} API key \u2014 for the model(s) selected above</span>`;
+        const input = document.createElement('input');
+        input.type = 'password';
+        input.id = `key-${p}`;
+        input.title = `Your own ${info.label} key, needed because this server has none for that provider. It is kept in this browser's localStorage (the same slot as the LE editor's "API Keys & Assistant Settings" dialog) and sent only with your requests.`;
+        input.value = localStorage.getItem(`le-${info.storage}-key`) || '';
+        const warn = document.createElement('span');
+        warn.className = 'error';
+        warn.style.fontSize = '12px';
+        const check = () => {
+            const looks = keyLooksLike(input.value);
+            warn.textContent = (looks && looks !== p)
+                ? `\u26a0 this looks like a ${PROVIDERS[looks].label} key (${input.value.slice(0, 7)}\u2026), not a ${info.label} key`
+                : '';
+        };
+        input.addEventListener('change', () => { localStorage.setItem(`le-${info.storage}-key`, input.value); check(); });
+        input.addEventListener('input', check);
+        check();   // stale localStorage values get flagged on load
+        label.appendChild(input);
+        label.appendChild(warn);
+        keysDiv.appendChild(label);
+    }
+    if (fromServer.length) {
+        const note = document.createElement('p');
+        note.className = 'hint';
+        const names = fromServer.map(p => PROVIDERS[p].label).join(' and ');
+        note.textContent = `${names}: this server has its own key \u2014 nothing to enter here.`;
+        keysDiv.appendChild(note);
     }
 }
 
@@ -225,11 +268,13 @@ function keyLooksLike(v) {
     return null;
 }
 
+// The keys the fields on screen carry, named the way the server's
+// key_for_model/3 expects them (Gemini's slot is called "google" there).
 function collectKeys() {
     const keys = {};
-    for (const p of PROVIDERS) {
+    for (const p of Object.keys(PROVIDERS)) {
         const input = $(`key-${p}`);
-        if (input && input.value) keys[p] = input.value;
+        if (input && input.value) keys[PROVIDERS[p].wire] = input.value;
     }
     return keys;
 }
@@ -259,6 +304,7 @@ async function start() {
         const data = await leapi('contract_start', payload);
         if (data.error) throw new Error(data.error);
         localStorage.setItem('le-assistant-model', $('model').value);
+        rememberJob(data.job);   // so a closed window can find its way back
         attach(data.job);
     } catch (e) {
         $('setup-error').textContent = e.message;
@@ -266,9 +312,137 @@ async function start() {
     }
 }
 
+// ------------------------------- recent runs --------------------------------
+// A job outlives the tab that started it: it runs on the server, and the only
+// handle on it is its ID. We keep the IDs this browser started in localStorage
+// so a closed (or crashed) window can pick a run back up — watch it, cancel it
+// or collect its result. Nothing but the ID leaves the browser, so one user's
+// list never shows another's runs.
+
+const RECENT_KEY = 'le-ca-jobs';
+const RECENT_MAX = 20;
+
+function recentJobs() {
+    try {
+        const raw = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+        return Array.isArray(raw) ? raw.filter(j => j && j.job) : [];
+    } catch (e) {
+        return [];   // corrupted entry: start over rather than break the page
+    }
+}
+
+function saveRecentJobs(jobs) {
+    try { localStorage.setItem(RECENT_KEY, JSON.stringify(jobs.slice(0, RECENT_MAX))); }
+    catch (e) { /* quota or private mode: recovery is best-effort */ }
+}
+
+// Called when a job is started here, and again when a URL with a job in its
+// hash is opened — an already-known job keeps the details it was stored with.
+function rememberJob(job) {
+    const jobs = recentJobs();
+    const known = jobs.find(j => j.job === job);
+    const wording = $('file-wording').files[0];
+    const entry = known || {
+        job,
+        started: new Date().toISOString(),
+        model: $('model').value,
+        wording: wording ? wording.name : ''
+    };
+    saveRecentJobs([entry].concat(jobs.filter(j => j.job !== job)));
+}
+
+function forgetJob(job) {
+    saveRecentJobs(recentJobs().filter(j => j.job !== job));
+    renderRecentJobs();
+}
+
+// Ask the server what became of each remembered job. `since` is set past the
+// end of the log so a status poll here carries no log lines.
+async function jobState(entry) {
+    try {
+        const data = await leapi('contract_status', { job: entry.job, since: Number.MAX_SAFE_INTEGER });
+        if (data.status === undefined) return { state: 'gone', detail: data.error || 'unknown job' };
+        return { state: data.status, detail: data.stage_label || '', elapsed: data.elapsed, config: data.config };
+    } catch (e) {
+        return { state: 'unreachable', detail: e.message };
+    }
+}
+
+const RECENT_LABEL = {
+    running: 'running',
+    finished: 'finished',
+    error: 'failed',
+    interrupted: 'cancelled',
+    gone: 'no longer on the server',
+    unreachable: 'server unreachable'
+};
+
+async function renderRecentJobs() {
+    const card = $('recent-card'), list = $('recent-list');
+    const entries = recentJobs();
+    card.classList.toggle('hidden', entries.length === 0);
+    if (!entries.length) { list.innerHTML = ''; return; }
+    const states = await Promise.all(entries.map(jobState));
+    list.innerHTML = '';
+    entries.forEach((entry, i) => {
+        const st = states[i];
+        const row = document.createElement('div');
+        row.className = 'recent-row';
+
+        const open = document.createElement('button');
+        open.type = 'button';
+        open.className = 'recent-open';
+        open.textContent = entry.wording || entry.job;
+        open.title = entry.job;
+        // A job the server has forgotten (restart, or a wiped jobs directory)
+        // can no longer be watched or collected — only removed from the list.
+        open.disabled = (st.state === 'gone');
+        open.addEventListener('click', () => attach(entry.job));
+        row.appendChild(open);
+
+        const state = document.createElement('span');
+        state.className = 'recent-state ' + (RECENT_LABEL[st.state] ? st.state : 'gone');
+        state.textContent = RECENT_LABEL[st.state] || st.state;
+        row.appendChild(state);
+
+        const meta = document.createElement('span');
+        meta.className = 'recent-meta';
+        const bits = [
+            entry.model ? `model ${entry.model}` : null,
+            typeof st.elapsed === 'number' ? `${fmtElapsed(st.elapsed)} elapsed` : null,
+            entry.started ? `started ${new Date(entry.started).toLocaleString()}` : null,
+            st.state === 'running' && st.detail ? st.detail : null
+        ].filter(Boolean);
+        meta.textContent = bits.join(' · ');
+        row.appendChild(meta);
+
+        const forget = document.createElement('button');
+        forget.type = 'button';
+        forget.className = 'recent-forget';
+        forget.textContent = 'Forget';
+        forget.title = st.state === 'running'
+            ? 'Removes it from this list only — the job keeps running on the server, and you lose the way back to it.'
+            : 'Remove from this list.';
+        forget.addEventListener('click', () => forgetJob(entry.job));
+        row.appendChild(forget);
+
+        list.appendChild(row);
+    });
+}
+
+// Back to Setup, from anywhere: the recent list is worth refreshing.
+function backToSetup() {
+    stopPolling();
+    location.hash = '';
+    show('setup');
+    $('btn-start').disabled = !$('file-wording').files.length;
+    renderRecentJobs();
+}
+
 // -------------------------------- run screen --------------------------------
 
 function attach(job) {
+    stopPolling();   // reattaching from the recent list must not leave a timer behind
     location.hash = job;
     logSince = 0;
     $('log').textContent = '';
@@ -416,6 +590,11 @@ async function showResult(job) {
         if (typeof lastRunHeader.elapsed === 'number')
             bits.push(`finished in ${fmtElapsed(lastRunHeader.elapsed)}`);
         $('result-summary').textContent = bits.join(' \u00b7 ');
+    } else if (data.recovered) {
+        // Rebuilt from the job's files because the server restarted after the
+        // run: the program and the ledger are intact, the settings are gone.
+        $('result-summary').textContent =
+            'Recovered from this job\u2019s files on the server \u2014 the server has restarted since the run, so its settings and timings are no longer available.';
     }
     $('result-le').textContent = data.le || '';
     $('result-ledger').textContent = data.ledger || '(no ledger)';
@@ -512,6 +691,8 @@ function openInEditor() {
 function wireEstimate() {
     const ids = ['model', 'judge-model', 'adv-k', 'adv-w', 'adv-repairs', 'feat-probes', 'feat-polish'];
     for (const id of ids) $(id).addEventListener('change', scheduleEstimate);
+    // Changing a model can change which provider's key is needed.
+    for (const id of ['model', 'judge-model']) $(id).addEventListener('change', renderKeys);
     for (const radio of document.querySelectorAll('input[name=preset]'))
         radio.addEventListener('change', scheduleEstimate);
 }
@@ -556,10 +737,12 @@ document.addEventListener('DOMContentLoaded', () => {
     $('btn-copy').addEventListener('click', copyResult);
     $('btn-download').addEventListener('click', downloadResult);
     $('btn-editor').addEventListener('click', openInEditor);
-    $('btn-again').addEventListener('click', () => { location.hash = ''; show('setup'); $('btn-start').disabled = false; });
-    $('btn-run-back').addEventListener('click', () => { location.hash = ''; show('setup'); $('btn-start').disabled = false; });
+    $('btn-again').addEventListener('click', backToSetup);
+    $('btn-run-back').addEventListener('click', backToSetup);
 
     // Reattach to a running job after a reload: the job ID lives in the hash.
+    // Without one, the Setup screen lists this browser's earlier jobs, so a
+    // window closed mid-run is not the end of that run.
     const job = location.hash.slice(1);
-    if (job) attach(job);
+    if (job) { rememberJob(job); attach(job); } else renderRecentJobs();
 });

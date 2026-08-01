@@ -113,3 +113,26 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     padding: 12px 14px; max-height: 480px; overflow: auto;
     font: 13px/1.5 ui-monospace, monospace; white-space: pre-wrap;
 }
+
+/* Recent runs (Setup screen): jobs this browser started, recoverable after
+   the tab is closed. */
+.recent-row {
+    display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+    border-top: 1px solid var(--border); padding: 8px 0;
+}
+.recent-row:first-child { border-top: none; }
+.recent-row .recent-open {
+    background: none; border: none; padding: 0; cursor: pointer;
+    color: var(--accent); font: inherit; font-weight: 600; text-align: left;
+}
+.recent-row .recent-open[disabled] { color: var(--muted); cursor: default; font-weight: 400; }
+.recent-row .recent-meta { color: var(--muted); font-size: 13px; }
+.recent-row .recent-forget {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    color: var(--muted); font: inherit; font-size: 13px; text-decoration: underline;
+}
+.recent-state { font-size: 13px; font-weight: 600; }
+.recent-state.running { color: var(--accent); }
+.recent-state.finished { color: var(--ok); }
+.recent-state.error, .recent-state.gone { color: var(--err); }
+.recent-state.interrupted { color: var(--muted); }

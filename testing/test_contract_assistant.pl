@@ -31,6 +31,42 @@ hook_repair(repair(_, _), _, Reply) :- !, good_program(P), fence(P, Reply).
 hook_repair(ledger, _, "LEDGER") :- !.
 hook_repair(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
+:- dynamic vocab_calls/1.
+
+% Sample 2 fails the way a silent provider fails (after the retry ladder has
+% given up); the others answer.
+hook_flaky_vocabulary(vocabulary, _, Reply) :- !,
+    ( retract(user:vocab_calls(N0)) -> true ; N0 = 0 ),
+    N is N0 + 1, assertz(user:vocab_calls(N)),
+    (   N =:= 2
+    ->  throw(error(contract_assistant_error(llm_failed(vocabulary, "provider sent nothing")), _))
+    ;   format(string(Reply), "vocabulary sample ~w", [N])
+    ).
+hook_flaky_vocabulary(vocabulary_merge, _, "merged vocabulary") :- !.
+hook_flaky_vocabulary(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+hook_all_vocabulary_fails(vocabulary, _, _) :- !,
+    throw(error(contract_assistant_error(llm_failed(vocabulary, "provider sent nothing")), _)).
+hook_all_vocabulary_fails(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+vocab_config(Config) :-
+    get_time(Now), Deadline is Now + 3600,
+    Config = _{k: 3, existing: none, deadline: Deadline, minutes: 60,
+               max_tokens: 4096, reasoning: default,
+               model: "stub-model", judge_model: "stub-model"}.
+
+:- dynamic silent_calls/1.
+
+% A provider that goes silent once (a read timeout, exactly the shape seen in
+% the field) and answers on the retry.
+raw_hook_silent_once(_Model, _Messages, _Opts, Reply) :-
+    ( retract(user:silent_calls(N0)) -> true ; N0 = 0 ),
+    N is N0 + 1, assertz(user:silent_calls(N)),
+    (   N =:= 1
+    ->  throw(error(llm_http_error(error(timeout_error(read, s), context(x, y))), context(llm_client, "HTTP request failed")))
+    ;   Reply = "the answer"
+    ).
+
 start_config(Config) :-
     good_wording(W),
     Config = _{wording: _{name: "contract.md", text: W},
@@ -166,6 +202,57 @@ test(unknown_job_is_reported) :-
     assertion(S.error == "Unknown job"),
     handle_contract_result(_{job: "nope"}, R),
     assertion(R.error == "Unknown job").
+
+% A finished job survives the process that ran it: the dynamic facts are gone
+% (as after a server restart) but the job directory still holds winner.le,
+% ledger.md and scores.json, so status and result are served from disk.
+test(finished_job_is_recovered_from_disk,
+     [setup(hook_setup(user:hook_good)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    atom_string(JobID, JobStr),
+    forget_job_in_memory(JobID),
+    handle_contract_status(_{job: JobStr, since: 0}, Status),
+    assertion(Status.status == "finished"),
+    assertion(Status.log \== []),
+    handle_contract_result(_{job: JobStr}, Result),
+    good_program(P),
+    assertion(Result.le == P),
+    assertion(Result.recovered == true),
+    !.
+
+% Same, for a job that was still running: nothing resumes it, and saying so
+% beats "Unknown job" (its log explains where the money went).
+test(interrupted_job_is_reported_as_lost,
+     [setup(hook_setup(user:hook_good)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    forget_job_in_memory(JobID),
+    le_contract_assistant:job_dir(JobID, Dir),
+    atomic_list_concat([Dir, '/winner.le'], Winner),
+    delete_file(Winner),
+    atom_string(JobID, JobStr),
+    handle_contract_status(_{job: JobStr, since: 0}, Status),
+    assertion(Status.status == "error"),
+    assertion(sub_string(Status.error, _, _, _, "restarted")),
+    !.
+
+% Job IDs come from the browser and end up in a path: only the minted shape is
+% accepted, so no request can read outside the jobs directory.
+test(job_id_from_the_browser_cannot_escape_the_jobs_directory) :-
+    forall(member(J, ["../../etc", "caj_../../etc/passwd", "caj_a/b", "caj_"]),
+           ( handle_contract_result(_{job: J}, R),
+             assertion(R.error == "Unknown job") )).
+
+forget_job_in_memory(JobID) :-
+    retractall(le_contract_assistant:ca_status(JobID, _)),
+    retractall(le_contract_assistant:ca_result(JobID, _)),
+    retractall(le_contract_assistant:ca_config(JobID, _)),
+    retractall(le_contract_assistant:ca_stage(JobID, _, _)),
+    retractall(le_contract_assistant:ca_branch(JobID, _, _)),
+    retractall(le_contract_assistant:ca_log(JobID, _, _)),
+    retractall(le_contract_assistant:ca_logseq(JobID, _)),
+    retractall(le_contract_assistant:ca_ended(JobID, _)).
 
 :- end_tests(contract_assistant_pipeline).
 
@@ -363,7 +450,14 @@ test(target_expressions_are_parsed) :-
     assertion(S2 == range("A", "B", true)),
     % a title that merely contains "to" is not a range
     le_contract_assistant:parse_target("Guide to sections", S3),
-    assertion(S3 == section("Guide to sections")).
+    assertion(S3 == section("Guide to sections")),
+    % ... but "until" is a range marker on its own: dropping the leading "from"
+    % is the obvious slip, and left unread it silently sends the WHOLE wording
+    % into every call (observed: 62k tokens per call, and a provider timeout).
+    le_contract_assistant:parse_target("Employers' liability until Property definitions", S4),
+    assertion(S4 == range("Employers' liability", "Property definitions", false)),
+    le_contract_assistant:parse_target("A until B (inclusive)", S5),
+    assertion(S5 == range("A", "B", true)).
 
 test(temperature_rejection_classified) :-
     OpenAI = "{\"error\":{\"message\":\"Unsupported value: 'temperature' does not support 0.05 with this model. Only the default (1) is supported.\",\"param\":\"temperature\"}}",
@@ -845,12 +939,247 @@ test(pipeline_failure_never_leaves_a_job_running,
 % or it fires first and hides the real error.
 test(long_generations_get_a_long_timeout) :-
     le_contract_assistant:llm_socket_timeout(T),
-    le_contract_assistant:llm_wall_limit(W),
+    le_contract_assistant:llm_wall_limit(T, W),
     assertion(T >= 900),
     assertion(W > T),
-    Config = _{max_tokens: 4096, reasoning: default},
+    get_time(Now), Deadline is Now + 120*60,
+    Config = _{max_tokens: 4096, reasoning: default, minutes: 120, deadline: Deadline},
     le_contract_assistant:stage_options(no_job, Config, "KEY", [temperature(0.1)], Opts),
     assertion(memberchk(timeout(T), Opts)).
+
+% ... but a SHORT job may not hand a single call the whole ceiling. A provider
+% that accepts the request and then goes silent costs a full timeout per
+% attempt: at 15 minutes each, the retry ladder alone consumed a 45-minute
+% budget before stage 1 produced anything (observed with a slow open-weights
+% model). No single call may take more than a sixth of the budget.
+test(a_short_budget_shortens_the_call_timeout) :-
+    get_time(Now), Deadline is Now + 45*60,
+    le_contract_assistant:call_timeout(_{minutes: 45, deadline: Deadline}, T),
+    assertion(T =:= 450),                       % a sixth of 45 minutes
+    le_contract_assistant:llm_socket_timeout(Ceiling),
+    assertion(T < Ceiling),
+    % four attempts of this length still leave time for the rest of the job
+    assertion(4 * T < 45 * 60).
+
+% Near the deadline the timeout shrinks again: a call started with two minutes
+% left must not run for seven.
+test(call_timeout_shrinks_as_the_deadline_nears) :-
+    get_time(Now), Deadline is Now + 300,
+    le_contract_assistant:call_timeout(_{minutes: 45, deadline: Deadline}, T),
+    assertion(T =< 150),
+    % ... but never below the floor, or healthy calls would be killed too
+    Deadline2 is Now + 10,
+    le_contract_assistant:call_timeout(_{minutes: 45, deadline: Deadline2}, T2),
+    assertion(T2 =:= 120).
+
+% A silent provider gets a shorter ladder than a 503 when the budget is TIGHT:
+% each of its attempts costs a whole timeout, while a rejected request comes
+% back at once.
+test(silent_providers_are_retried_less_when_the_budget_is_tight) :-
+    Silent = error(llm_http_error(error(timeout_error(read, s), context(x, y))), c),
+    assertion(le_contract_assistant:transient_llm_error(Silent)),
+    assertion(le_contract_assistant:silent_provider_error(Silent)),
+    get_time(Now), Deadline is Now + 600,          % ten minutes left
+    Config = _{minutes: 45, deadline: Deadline},
+    le_contract_assistant:max_attempts(Config, Silent, SilentAttempts),
+    assertion(SilentAttempts =:= 2),
+    RateLimit = error(llm_api_error(429, "slow down"), c),
+    assertion(\+ le_contract_assistant:silent_provider_error(RateLimit)),
+    le_contract_assistant:max_attempts(Config, RateLimit, RateAttempts),
+    assertion(RateAttempts > SilentAttempts).
+
+% ... but with the budget half unspent there is no reason to give up early: a
+% 120-minute job died 46 minutes in, with 74 minutes unused, because the ladder
+% was a flat two attempts.
+test(a_roomy_budget_keeps_the_full_retry_ladder) :-
+    Silent = error(llm_http_error(error(timeout_error(read, s), context(x, y))), c),
+    get_time(Now), Deadline is Now + 74*60,
+    Config = _{minutes: 120, deadline: Deadline},
+    assertion(le_contract_assistant:room_for_long_attempts(Config)),
+    le_contract_assistant:max_attempts(Config, Silent, Attempts),
+    assertion(Attempts =:= 4).
+
+% ---- one lost call must not lose the stage -----------------------------------
+
+% Drawing K independent samples is pointless if losing one throws away the
+% others: a K=5 job died on sample 2 with sample 1 already in hand.
+test(a_failed_vocabulary_sample_does_not_kill_the_job,
+     [setup(( retractall(user:vocab_calls(_)), hook_setup(user:hook_flaky_vocabulary) )),
+      cleanup(( hook_cleanup, retractall(user:vocab_calls(_)),
+                retractall(le_contract_assistant:ca_log(vocab_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(vocab_job, _)) ))]) :-
+    vocab_config(Config),
+    le_contract_assistant:vocabulary_consensus(vocab_job, Config, "materials", Vocabulary),
+    assertion(Vocabulary == "merged vocabulary"),
+    user:vocab_calls(Calls),
+    assertion(Calls =:= 3),               % all three were attempted
+    % and the log says which one was lost
+    findall(L, le_contract_assistant:ca_log(vocab_job, _, L), Lines),
+    assertion(( member(Line, Lines), sub_string(Line, _, _, _, "sample 2/3 failed") )),
+    assertion(( member(L2, Lines), sub_string(L2, _, _, _, "2 of 3 vocabulary samples usable") )).
+
+% Losing every sample IS fatal — with an error that says so, not the raw error
+% of whichever call happened to be last.
+test(losing_every_vocabulary_sample_ends_the_job,
+     [setup(hook_setup(user:hook_all_vocabulary_fails)),
+      cleanup(( hook_cleanup,
+                retractall(le_contract_assistant:ca_log(vocab_job2, _, _)),
+                retractall(le_contract_assistant:ca_logseq(vocab_job2, _)) ))]) :-
+    vocab_config(Config),
+    catch(le_contract_assistant:vocabulary_consensus(vocab_job2, Config, "materials", _),
+          error(contract_assistant_error(Msg), _),
+          true),
+    assertion(sub_string(Msg, _, _, _, "every vocabulary sample failed")).
+
+% The retry log must be self-consistent: attempt 1 waits 3s, and the line says
+% how many attempts this error is worth. A field log showed "attempt 1 ...
+% retrying in 20s", which this pairing makes impossible — if it recurs, the
+% running build is not this code.
+test(the_retry_log_line_pairs_the_attempt_with_its_delay,
+     [setup(( retractall(user:silent_calls(_)),
+              retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_silent_once)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(user:silent_calls(_)),
+                retractall(le_contract_assistant:ca_log(silent_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(silent_job, _)) ))]) :-
+    get_time(Now), Deadline is Now + 120*60,
+    Config = _{deadline: Deadline, minutes: 120, max_tokens: 4096, reasoning: default},
+    le_contract_assistant:llm_try(silent_job, Config, vocabulary, 'a-model',
+                                  [_{role: user, content: "hi"}],
+                                  [max_tokens(4096), timeout(900)], 1, Reply),
+    assertion(Reply == "the answer"),
+    findall(L, le_contract_assistant:ca_log(silent_job, _, L), Lines),
+    Lines = [Line|_], !,
+    assertion(sub_string(Line, _, _, _, "attempt 1 of 4")),
+    assertion(sub_string(Line, _, _, _, "retrying in 3s")).
+
+% ---- the deterministic clean-up pass (no LLM) --------------------------------
+
+junk_program("the target language is: prolog.
+
+the templates are:
+    *a person* is happy.
+    *a person* is rich.
+    *a person* is lucky.
+    *a claim* is a claim for court attendance compensation.
+
+the knowledge base tiny includes:
+
+a person is happy
+    if the person is rich.
+
+a person is happy
+    if the person is lucky.
+
+% Default-false rules for cover-type predicates
+a claim is a claim for court attendance compensation
+    if the claim is a claim for court attendance compensation
+    and the claim is a claim for court attendance compensation.
+
+bob is rich.
+
+scenario one is:
+    bob is rich.
+
+query who is:
+    which person is happy.
+").
+
+% The tautology a drafting model writes to silence a warning ('P if P and P')
+% is deleted without asking a model to do it — and the comment that announced
+% it goes too, or it is left pointing at nothing.
+test(clean_up_deletes_tautological_rules) :-
+    junk_program(P),
+    le_contract_assistant:prune_program(_{existing: none}, P, Text, Report),
+    assertion(Report.tautologies =:= 1),
+    assertion(\+ sub_string(Text, _, _, _, "if the claim is a claim for court attendance compensation")),
+    assertion(\+ sub_string(Text, _, _, _, "Default-false rules")),
+    % ... and nothing else was touched
+    assertion(sub_string(Text, _, _, _, "a person is happy\n    if the person is rich.")),
+    assertion(sub_string(Text, _, _, _, "a person is happy\n    if the person is lucky.")),
+    % the result still loads, with no errors and the same tests
+    le_contract_assistant:verify_le_text(P, V0),
+    le_contract_assistant:verify_le_text(Text, V1),
+    assertion(V1.errors =:= 0),
+    assertion(le_contract_assistant:prune_accepted(V0, V1)).
+
+% A self-recursive rule with a REAL condition is ordinary recursion, not junk.
+test(clean_up_keeps_recursion_with_a_real_condition) :-
+    Text0 = "the target language is: prolog.\n\nthe templates are:\n    *a person* is an ancestor of *a person*.\n    *a person* is a parent of *a person*.\n\nthe knowledge base tiny includes:\n\na person is an ancestor of an other person\n    if the person is a parent of the other person.\n\na person is an ancestor of an other person\n    if the person is a parent of a third person\n    and the third person is an ancestor of the other person.\n\nquery who is:\n    which person is an ancestor of which other person.\n",
+    le_contract_assistant:prune_program(_{existing: none}, Text0, Text, Report),
+    assertion(Report.deleted =:= 0),
+    assertion(sub_string(Text, _, _, _, "if the person is a parent of the other person.")),
+    assertion(sub_string(Text, _, _, _, "and the third person is an ancestor of the other person.")).
+
+% The same rule written twice: the first stays, the copy goes.
+test(clean_up_deletes_a_duplicated_rule) :-
+    Text0 = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is rich.\n\nthe knowledge base tiny includes:\n\na person is happy\n    if the person is rich.\n\na person is happy\n    if the person is rich.\n\nbob is rich.\n\nquery who is:\n    which person is happy.\n",
+    le_contract_assistant:prune_program(_{existing: none}, Text0, Text, Report),
+    assertion(Report.duplicates =:= 1),
+    aggregate_all(count, sub_string(Text, _, _, _, "if the person is rich."), N),
+    assertion(N =:= 1),
+    le_contract_assistant:verify_le_text(Text, V),
+    assertion(V.errors =:= 0).
+
+% The Logical English the USER supplied is binding — the program must contain
+% it — so the clean-up may never delete it, however redundant it looks.
+test(clean_up_never_deletes_supplied_code) :-
+    junk_program(P),
+    Existing = "a claim is a claim for court attendance compensation\n    if the claim is a claim for court attendance compensation\n    and the claim is a claim for court attendance compensation.",
+    le_contract_assistant:prune_program(_{existing: Existing}, P, Text, Report),
+    assertion(Report.deleted =:= 0),
+    assertion(sub_string(Text, _, _, _, "if the claim is a claim for court attendance compensation")).
+
+% Deleting the fake definition unmasks the warning it hid; the pass fixes that
+% the way Logical English does — `; undefined` on the template — instead of
+% leaving the next polish round to invent the tautology again.
+test(clean_up_marks_unestablished_predicates_as_scenario_elements) :-
+    Text0 = "the target language is: prolog.\n\nthe templates are:\n    *a claim* is covered.\n    *a claim* is a claim for court costs.\n\nthe knowledge base tiny includes:\n\na claim is covered\n    if the claim is a claim for court costs.\n\nquery which is:\n    which claim is covered.\n",
+    le_contract_assistant:prune_program(_{existing: none}, Text0, Text, Report),
+    assertion(Report.marked_undefined =:= 1),
+    assertion(sub_string(Text, _, _, _, "*a claim* is a claim for court costs; undefined.")),
+    % the head of a rule is established, so it is NOT marked
+    assertion(sub_string(Text, _, _, _, "*a claim* is covered.")),
+    le_contract_assistant:verify_le_text(Text, V),
+    assertion(V.errors =:= 0),
+    findall(T, ( member(I, V.issues), get_dict(type, I, T), T == "undefined_predicate" ), Undefined),
+    assertion(Undefined == []).
+
+% A template that already carries an addition is left alone: `undefined` does
+% not combine with all of them (a synonym may carry no other addition at all).
+test(clean_up_leaves_templates_that_already_have_additions) :-
+    Text0 = "the target language is: prolog.\n\nthe templates are:\n    *a claim* is covered.\n    *a payment* is for *a claim*; prepositional.\n\nthe knowledge base tiny includes:\n\na claim is covered\n    if a payment is for the claim.\n\nquery which is:\n    which claim is covered.\n",
+    le_contract_assistant:prune_program(_{existing: none}, Text0, Text, Report),
+    assertion(Report.marked_undefined =:= 0),
+    assertion(sub_string(Text, _, _, _, "; prepositional.")),
+    assertion(\+ sub_string(Text, _, _, _, "; undefined")).
+
+% Deleting every rule no query reaches is a judgement about what the twin is
+% for, so it is off unless the flag asks for it.
+test(untested_rules_are_pruned_only_behind_the_flag,
+     [cleanup(set_prolog_flag(ca_prune_untested, false))]) :-
+    Text0 = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is rich.\n    *a person* is spare.\n\nthe knowledge base tiny includes:\n\na person is happy\n    if the person is rich.\n\na person is spare\n    if the person is rich.\n\nbob is rich.\n\nquery who is:\n    which person is happy.\n",
+    set_prolog_flag(ca_prune_untested, false),
+    le_contract_assistant:prune_program(_{existing: none}, Text0, KeptText, Report0),
+    assertion(Report0.untested =:= 0),
+    assertion(sub_string(KeptText, _, _, _, "a person is spare")),
+    set_prolog_flag(ca_prune_untested, true),
+    le_contract_assistant:prune_program(_{existing: none}, Text0, PrunedText, Report1),
+    assertion(Report1.untested =:= 1),
+    assertion(\+ sub_string(PrunedText, _, _, _, "a person is spare\n    if")),
+    le_contract_assistant:verify_le_text(PrunedText, V),
+    assertion(V.errors =:= 0).
+
+% A retry recomputes the timeout from what is LEFT, replacing the stale one.
+test(retries_get_a_fresh_shorter_timeout) :-
+    get_time(Now), Deadline is Now + 300,
+    le_contract_assistant:refresh_timeout(_{minutes: 45, deadline: Deadline},
+                                          [timeout(900), max_tokens(4096)], Opts),
+    assertion(memberchk(max_tokens(4096), Opts)),
+    findall(T, member(timeout(T), Opts), Timeouts),
+    Timeouts = [Fresh],                  % exactly one: the stale 900 is gone
+    assertion(Fresh =< 150).
 
 % Once the program is right, the polish rounds clean the warnings — here the
 % dead template goes and the delivered program is the clean one.
