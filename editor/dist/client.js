@@ -9693,6 +9693,113 @@ async function start() {
       window.open(url, "_blank", "width=800,height=600");
     }
   });
+  async function predicateAtCursor(ed) {
+    if (!isLoaded && !isLoading) {
+      await loadModule();
+    }
+    if (!sessionModule) {
+      alert(t("Please wait for the module to load."));
+      return null;
+    }
+    const model2 = ed.getModel();
+    const position = ed.getPosition();
+    try {
+      const response = await fetch("/leapi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: "myToken123",
+          operation: "predicateAt",
+          sessionModule,
+          position: model2.getOffsetAt(position),
+          line: model2.getLineContent(position.lineNumber)
+        })
+      });
+      const data = await response.json();
+      if (data.error) {
+        console.log("predicateAt:", data.error);
+        return null;
+      }
+      return data;
+    } catch (err) {
+      console.error("predicateAt failed:", err);
+      return null;
+    }
+  }
+  function ruleHeadLines(ed, data) {
+    const model2 = ed.getModel();
+    const lines = (data.rules || []).map((r) => model2.getPositionAt(r.start).lineNumber);
+    return [...new Set(lines)].sort((a, b) => a - b);
+  }
+  async function foldPredicateRules(ed, fold) {
+    const data = await predicateAtCursor(ed);
+    if (!data)
+      return;
+    const lines = ruleHeadLines(ed, data);
+    if (lines.length === 0) {
+      alert(t("No rules for") + ` "${data.le}"`);
+      return;
+    }
+    const contrib = ed.getContribution("editor.contrib.folding");
+    const foldingModel = contrib && await contrib.getFoldingModel();
+    if (!foldingModel) {
+      ed.trigger("le", fold ? "editor.fold" : "editor.unfold", { selectionLines: lines });
+      return;
+    }
+    const toToggle = [];
+    for (const line of lines) {
+      const region = foldingModel.getRegionAtLine(line);
+      if (region && region.isCollapsed !== fold)
+        toToggle.push(region);
+    }
+    if (toToggle.length > 0)
+      foldingModel.toggleCollapseState(toToggle);
+  }
+  editor.addAction({
+    id: "le-fold-predicate-rules",
+    label: "Fold all rules for this predicate",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 1.9,
+    run: (ed) => {
+      foldPredicateRules(ed, true);
+    }
+  });
+  editor.addAction({
+    id: "le-unfold-predicate-rules",
+    label: "Unfold all rules for this predicate",
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 2,
+    run: (ed) => {
+      foldPredicateRules(ed, false);
+    }
+  });
+  editor.addAction({
+    id: "le-show-definition",
+    label: "Show definition",
+    keybindings: [monaco.KeyCode.F12],
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 2.1,
+    run: async (ed) => {
+      const data = await predicateAtCursor(ed);
+      if (!data)
+        return;
+      const model2 = ed.getModel();
+      const target = data.rules && data.rules.length > 0 ? data.rules[0].start : data.template ? data.template.start : null;
+      if (target === null) {
+        alert(t("No definition found for") + ` "${data.le}"`);
+        return;
+      }
+      const pos = model2.getPositionAt(target);
+      ed.revealLineInCenter(pos.lineNumber);
+      ed.setPosition(pos);
+      ed.focus();
+      const decorations = ed.deltaDecorations([], [{
+        range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1),
+        options: { isWholeLine: true, className: "le-definition-flash" }
+      }]);
+      setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
+    }
+  });
   const prologPanel = document.getElementById("prolog-panel");
   const prologContent = document.getElementById("prolog-content");
   const prologClose = document.getElementById("prolog-panel-close");

@@ -6,6 +6,16 @@
     <title>Logical English Editor</title>
     <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/editor/editor.main.min.css">
     <style>
+        /* "Show definition" flashes the line it jumped to, so the jump is
+           visible even when the target was already on screen. */
+        .le-definition-flash {
+            background: rgba(90, 160, 255, 0.28);
+            animation: le-definition-fade 1.2s ease-out forwards;
+        }
+        @keyframes le-definition-fade {
+            from { background: rgba(90, 160, 255, 0.42); }
+            to   { background: rgba(90, 160, 255, 0); }
+        }
         :root {
             --bg-color: #1e1e1e;
             --text-color: #d4d4d4;

@@ -14,8 +14,13 @@ A predicate is used in a rule body but is never defined — no rule has it as it
 
 ## This predicate is not tested by any query: '...'
 
-An intensional predicate (one defined by rules) is not reachable from any `query` in the program.  
-**Fix:** add a query that exercises the predicate, and add expected answers to the `.le.tests` file or using `expects answers` in a scenario.
+An intensional predicate (one defined by rules) is not reachable from any `query` in the program. The predicate is named by its template (`*a claim* is covered under *a section*`), and the warning is reported at its first rule head.  
+**Fix:** add a query that exercises the predicate, and add expected answers using `expects answers` in a scenario.
+
+## This template is never used: '...'
+
+A template is declared but appears nowhere else — no rule head, no rule condition, no fact, no scenario fact, no query. Dead vocabulary costs the reader attention and is never checked against a use; generated programs often invent leaf classifications (`*a cost* is a cost; undefined.`) that no rule consults.  
+**Fix:** delete the template, or use it.
 
 ## Test failed for query '...' in scenario '...'
 

@@ -35,9 +35,14 @@
           <span class="upload-name" id="name-cases">no files selected</span>
         </label>
       </div>
-      <label class="field" title="Names one section of the wording to convert. Matched against markdown headings AND table-of-contents titles (apostrophe-tolerant); the wording is sliced to that section plus the general terms. Strongly recommended for long documents — less input means better drafts and less reasoning.">
-        <span>Target section (optional; e.g. <code>Employers' liability</code> — slices a long wording)</span>
-        <input type="text" id="target" placeholder="leave empty to use the whole wording">
+      <label class="field" title="Which part of the wording to convert. A plain title takes that section AND its subsections, matched against markdown headings and table-of-contents titles (apostrophe-tolerant), plus the general terms. Policy wordings are often ill-formed markdown — missing headings, headings that are only bold text — so you can instead name both ends: 'from X until Y' takes everything between them and nothing else ('until Y' is exclusive; add '(inclusive)' to keep Y). Strongly recommended for long documents: less input means better drafts, less reasoning and a smaller bill.">
+        <span>Target section (optional — strongly recommended; naming both ends is the reliable form)</span>
+        <input type="text" id="target" placeholder="e.g. from Employers' liability until Property definitions">
+        <span class="hint" style="margin-top:6px">
+          <code>Employers' liability</code> — that section with its subsections, plus general terms ·
+          <code>from Employers' liability until Property definitions</code> — exactly that span ·
+          add <code>(inclusive)</code> to keep the closing section · empty = the whole wording
+        </span>
       </label>
     </div>
 
@@ -68,7 +73,17 @@
     </div>
 
     <div class="card">
-      <h2>4. Effort budget</h2>
+      <h2>4. Additional instructions <em>(optional)</em></h2>
+      <p class="hint">Anything you want to tell the assistant in your own words. These go into every prompt that writes or repairs the program, and they override the house defaults where they conflict.</p>
+      <label class="field" title="Free text, sent verbatim with every drafting and repair call. Use it to lift a default (the assistant writes NO scenarios beyond the cases you supply unless you ask here), to steer the modelling ('treat the excess as a per-claim deduction'), or to name a convention ('use British spelling in template words'). It cannot override the Logical English syntax rules.">
+        <span>e.g. “Please add boundary scenarios for the aggregate limit”, “ignore the cyber definitions”</span>
+        <textarea id="instructions" rows="4" placeholder="leave empty for the house defaults"></textarea>
+      </label>
+      <span id="instructions-note" class="hint"></span>
+    </div>
+
+    <div class="card">
+      <h2>5. Effort budget</h2>
       <div id="cost" class="cost" title="A rough, deliberately HIGH estimate of what this configuration will spend on LLM calls: the expected number of calls times the tokens each carries (your documents and existing code, plus the house style and LE syntax summary sent with every call), priced with LiteLLM's public per-token table (fetched when the server started). Repairs are counted generously, whole-program outputs are assumed, and a safety factor covers reasoning tokens and retries — the real bill is normally lower. Nothing here is a quote: your provider's invoice is what counts.">Cost estimate: <span id="cost-value">choose a wording file to estimate</span></div>
       <div class="row presets">
         <label title="Fastest and cheapest: one vocabulary sample, one architecture branch, 2 repair rounds, no interrogation probes. Good for a first look at a new contract or model."><input type="radio" name="preset" value="draft" checked> <b>Draft</b><br><small>1 vocabulary sample, 1 branch, ~15 min</small></label>
@@ -92,6 +107,7 @@
         </div>
         <div class="row">
           <label class="field" title="Differential interrogation: an LLM reading ONLY the contract invents this many edge-case scenarios (boundary dates, amounts at limits, role variations) with expected outcomes, and the generated program is confronted with them. Agreeing probes stay in the program as regression tests; disagreements are adjudicated and any survivors are reported as open disagreements — the twin is wrong or the contract is ambiguous."><span>Interrogation probes (0 = off; preset default if empty)</span><input type="number" id="feat-probes" min="0" max="20"></label>
+          <label class="field" title="After a branch verifies clean and all its scenario tests pass, how many extra rounds to spend removing WARNINGS — dead templates, rules no query reaches, accidental variables. A round is kept only if it reduces warnings without losing a test; 0 turns the clean-up off."><span>Warning clean-up rounds</span><input type="number" id="feat-polish" min="0" max="6"></label>
           <label class="field" title="With 2+ case files: the pipeline develops against the FIRST case only; the rest are kept blind, turned into test scenarios by a separate call after repairs finish, and scored. Held-out failures rank above ordinary test failures when choosing the winning branch — the guard against overfitting to the examples.">
             <span>Held-out case scoring</span>
             <select id="feat-holdout">

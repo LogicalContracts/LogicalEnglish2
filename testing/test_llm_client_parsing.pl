@@ -148,3 +148,31 @@ test(other_providers_keep_max_tokens) :-
     assertion(B.temperature =:= 0.2).
 
 :- end_tests(llm_openai_body).
+
+% api_key, timeout and reasoning are OURS: they must never reach the provider
+% as body fields. timeout(Seconds) governs how long the socket may stay silent
+% — big prompts with big completions need far more than the default.
+:- begin_tests(llm_request_options).
+
+test(timeout_is_taken_out_of_the_body) :-
+    llm_client:request_fields(groq, 'openai/gpt-oss-120b',
+                              [api_key(k), max_tokens(10), temperature(0.2), timeout(900)],
+                              Body, Timeout),
+    assertion(Timeout =:= 900),
+    assertion(\+ memberchk(timeout(_), Body)),
+    assertion(\+ memberchk(api_key(_), Body)),
+    assertion(memberchk(max_tokens(10), Body)),
+    assertion(memberchk(temperature(0.2), Body)).
+
+test(default_timeout_when_caller_says_nothing) :-
+    llm_client:request_fields(groq, 'llama-3.3-70b-versatile', [api_key(k)], Body, Timeout),
+    assertion(Timeout =:= 600),
+    assertion(Body == []).
+
+test(reasoning_is_translated_not_forwarded) :-
+    llm_client:request_fields(openai, 'gpt-5.5',
+                              [api_key(k), max_tokens(10), reasoning(minimal)], Body, _),
+    assertion(\+ memberchk(reasoning(_), Body)),
+    assertion(memberchk(reasoning_effort(minimal), Body)).
+
+:- end_tests(llm_request_options).

@@ -23,3 +23,4 @@ Output exactly two fenced blocks:
 <the ledger lines for this clause>
 ```
 {{existing}}
+{{instructions}}

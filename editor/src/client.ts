@@ -453,6 +453,128 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
         });
 
+        // ---- predicate-aware navigation and folding ------------------------
+        // Both actions need to know which predicate the cursor is on. The
+        // server knows: it has the parsed KB with a source range per rule and
+        // per template. The cursor's line goes along with the offset because a
+        // rule's range covers the whole rule — the line is what distinguishes
+        // the head from a condition.
+        async function predicateAtCursor(ed: any): Promise<any | null> {
+            if (!isLoaded && !isLoading) {
+                await loadModule();
+            }
+            if (!sessionModule) {
+                alert(t('Please wait for the module to load.'));
+                return null;
+            }
+            const model = ed.getModel();
+            const position = ed.getPosition();
+            try {
+                const response = await fetch('/leapi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: 'myToken123',
+                        operation: 'predicateAt',
+                        sessionModule: sessionModule,
+                        position: model.getOffsetAt(position),
+                        line: model.getLineContent(position.lineNumber)
+                    })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    console.log('predicateAt:', data.error);
+                    return null;
+                }
+                return data;
+            } catch (err) {
+                console.error('predicateAt failed:', err);
+                return null;
+            }
+        }
+
+        // Rule head lines (1-based) for a predicate, in document order.
+        function ruleHeadLines(ed: any, data: any): number[] {
+            const model = ed.getModel();
+            const lines = (data.rules || []).map((r: any) => model.getPositionAt(r.start).lineNumber);
+            return [...new Set<number>(lines)].sort((a, b) => a - b);
+        }
+
+        async function foldPredicateRules(ed: any, fold: boolean) {
+            const data = await predicateAtCursor(ed);
+            if (!data) return;
+            const lines = ruleHeadLines(ed, data);
+            if (lines.length === 0) {
+                alert(t('No rules for') + ` "${data.le}"`);
+                return;
+            }
+            // Drive the folding model rather than the fold/unfold actions:
+            // those act on the cursor's own region and ignore a list of lines,
+            // and toggling per region is idempotent (folding an already folded
+            // rule leaves it folded).
+            const contrib: any = ed.getContribution('editor.contrib.folding');
+            const foldingModel: any = contrib && await contrib.getFoldingModel();
+            if (!foldingModel) {
+                ed.trigger('le', fold ? 'editor.fold' : 'editor.unfold', { selectionLines: lines });
+                return;
+            }
+            const toToggle: any[] = [];
+            for (const line of lines) {
+                const region = foldingModel.getRegionAtLine(line);
+                if (region && region.isCollapsed !== fold) toToggle.push(region);
+            }
+            if (toToggle.length > 0) foldingModel.toggleCollapseState(toToggle);
+        }
+
+        editor.addAction({
+            id: 'le-fold-predicate-rules',
+            label: 'Fold all rules for this predicate',
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 1.9,
+            run: (ed: any) => { foldPredicateRules(ed, true); }
+        });
+
+        editor.addAction({
+            id: 'le-unfold-predicate-rules',
+            label: 'Unfold all rules for this predicate',
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 2.0,
+            run: (ed: any) => { foldPredicateRules(ed, false); }
+        });
+
+        editor.addAction({
+            id: 'le-show-definition',
+            label: 'Show definition',
+            keybindings: [monaco.KeyCode.F12],
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 2.1,
+            run: async (ed: any) => {
+                const data = await predicateAtCursor(ed);
+                if (!data) return;
+                const model = ed.getModel();
+                // the first rule that defines it; failing that, its template —
+                // a predicate with no rules is defined by its declaration
+                const target = (data.rules && data.rules.length > 0)
+                    ? data.rules[0].start
+                    : (data.template ? data.template.start : null);
+                if (target === null) {
+                    alert(t('No definition found for') + ` "${data.le}"`);
+                    return;
+                }
+                const pos = model.getPositionAt(target);
+                ed.revealLineInCenter(pos.lineNumber);
+                ed.setPosition(pos);
+                ed.focus();
+                // a brief flash, so the jump is visible when the line was
+                // already on screen
+                const decorations = ed.deltaDecorations([], [{
+                    range: new monaco.Range(pos.lineNumber, 1, pos.lineNumber, 1),
+                    options: { isWholeLine: true, className: 'le-definition-flash' }
+                }]);
+                setTimeout(() => ed.deltaDecorations(decorations, []), 1200);
+            }
+        });
+
         const prologPanel = document.getElementById('prolog-panel')!;
         const prologContent = document.getElementById('prolog-content')!;
         const prologClose = document.getElementById('prolog-panel-close')!;

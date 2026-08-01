@@ -17,6 +17,10 @@
       5. repair (per branch)   — verify/test loop; SEARCH/REPLACE diff edits
                                  with full-program fallback (feature
                                  `diff_repairs`); keeps the best iteration
+      5a. polish (per branch)  — once the program loads clean, bounded rounds
+                                 (feature `polish`) that remove WARNINGS — dead
+                                 templates, rules no query reaches — accepted
+                                 only when no test is lost
       5b. held-out evaluation  — blind scenarios for the held-out cases, scored
                                  above development tests in the fitness rank
       6. select & interrogate  — objective fitness; differential interrogation
@@ -27,6 +31,14 @@
     The search is scaled by the user's budget preset (draft / standard /
     thorough); every feature is individually switchable through the request's
     `features` dict (see features_params/3).
+
+    Two other things the user controls: ADDITIONAL INSTRUCTIONS (free text
+    carried into every drafting/repair prompt, overriding the house defaults)
+    and the TARGET, which is either a section title (that section and its
+    subsections, plus the general terms) or a range — `from A until B`, with an
+    optional `(inclusive)` — for the ill-formed markdown that policy wordings
+    are made of. Scenarios are never invented: exactly the supplied cases, plus
+    whatever the existing code brought, unless the instructions ask for more.
 
     The user may supply EXISTING LE CODE (templates, scenarios with expected
     answers, rules — any combination): a fragment the generated program must
@@ -62,6 +74,7 @@
     extract_le_code/2,
     extract_tagged_block/3,
     extract_search_replace/2,
+    extract_search_replace/3,
     parse_stability/2,
     verify_le_text/2
 ]).
@@ -168,6 +181,7 @@ job_config_summary(JobID, Summary, Elapsed) :-
     (   ca_config(JobID, C)
     ->  F = C.features,
         ( C.existing == none -> ExistingChars = 0 ; string_length(C.existing, ExistingChars) ),
+        ( C.get(instructions, none) == none -> HasInstructions = false ; HasInstructions = true ),
         Summary = _{model: C.model, judge_model: C.judge_model,
                     k: C.k, w: C.w, repairs: C.repairs, minutes: C.minutes,
                     max_tokens: C.max_tokens, reasoning: C.reasoning,
@@ -175,6 +189,8 @@ job_config_summary(JobID, Summary, Elapsed) :-
                     paraphrase: F.paraphrase, clausewise: F.clausewise,
                     diff_repairs: F.diff_repairs,
                     existing_chars: ExistingChars,
+                    has_instructions: HasInstructions,
+                    polish: F.get(polish, 0),
                     cost_usd: C.get(est_cost, null)},
         ( ca_ended(JobID, End) -> T = End ; get_time(T) ),
         Elapsed0 is T - C.started,
@@ -236,11 +252,13 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
       memberchk(Reasoning0, [default, minimal]) -> Reasoning = Reasoning0
     ; Reasoning = default ),
     existing_code(Dict, Existing),
+    free_text(instructions, Dict, Instructions),
     get_time(Now), Deadline is Now + Minutes * 60,
     Config = _{model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
                minutes: Minutes, started: Now, reasoning: Reasoning,
                deadline: Deadline, features: Features, existing: Existing,
+               instructions: Instructions,
                max_tokens: MaxTokens, mt_mode: MTMode, max_tokens_cap: MaxTokens,
                wording: WordingFile, schedule: ScheduleFile, cases: CaseFiles}.
 
@@ -250,12 +268,18 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
 %   written (templates, scenarios with their expected answers, rules — any
 %   combination) which the generated program must incorporate. Blank input is
 %   `none`.
-existing_code(Dict, Existing) :-
-    (   get_dict(existing_code, Dict, E0), E0 \== null,
-        ( string(E0) ; atom(E0) ),
-        normalize_space(string(Norm), E0), Norm \== ""
-    ->  atom_string(E0, Existing)
-    ;   Existing = none
+existing_code(Dict, Existing) :- free_text(existing_code, Dict, Existing).
+
+%!  free_text(+Field, +RequestDict, -Text) is det.
+%
+%   An optional free-text field of the request: the text, or `none` when it is
+%   absent or blank.
+free_text(Field, Dict, Text) :-
+    (   get_dict(Field, Dict, T0), T0 \== null,
+        ( string(T0) ; atom(T0) ),
+        normalize_space(string(Norm), T0), Norm \== ""
+    ->  atom_string(T0, Text)
+    ;   Text = none
     ).
 
 %!  budget_params(+BudgetDict, -Preset, -K, -W, -Repairs, -Minutes) is det.
@@ -290,6 +314,9 @@ preset_params(_,        1, 1, 2, 15).
 %     and expensive, hence off below thorough.
 %   - clausewise (false): clause-by-clause drafting with a live ledger; more
 %     calls and a fragile assembly, so off unless asked for.
+%   - polish (2-3): rounds spent cleaning WARNINGS once the program is right —
+%     dead templates, unreachable rules, accidental variables. A round is kept
+%     only if it reduces warnings without losing a test; 0 disables.
 features_params(Dict, Preset, Features) :-
     preset_features(Preset, F0),
     (   get_dict(features, Dict, FU0), is_dict(FU0)
@@ -301,11 +328,14 @@ features_params(Dict, Preset, Features) :-
     ).
 
 preset_features(draft,    _{probes: 0, interrogation_repair: true, holdout: auto,
-                            paraphrase: false, clausewise: false, diff_repairs: true}) :- !.
+                            paraphrase: false, clausewise: false, diff_repairs: true,
+                            polish: 2}) :- !.
 preset_features(standard, _{probes: 4, interrogation_repair: true, holdout: auto,
-                            paraphrase: false, clausewise: false, diff_repairs: true}) :- !.
+                            paraphrase: false, clausewise: false, diff_repairs: true,
+                            polish: 2}) :- !.
 preset_features(thorough, _{probes: 8, interrogation_repair: true, holdout: auto,
-                            paraphrase: true, clausewise: false, diff_repairs: true}) :- !.
+                            paraphrase: true, clausewise: false, diff_repairs: true,
+                            polish: 3}) :- !.
 preset_features(_, F) :- preset_features(draft, F).
 
 normalise_feature(V, V) :- number(V), !.
@@ -401,7 +431,14 @@ run_converter(Exe, Args) :-
 %   Runs the whole pipeline, updating status/log/branch dynamics as it goes.
 run_contract_pipeline(JobID) :-
     catch(
-        ( once(pipeline_stages(JobID)),
+        (   % A pipeline that FAILS (rather than throwing) used to kill the
+            % thread with the job still marked `running` — the UI then polled a
+            % dead job forever. Any failure is a bug, but it must still end the
+            % job.
+            (   once(pipeline_stages(JobID))
+            ->  true
+            ;   throw(error(contract_assistant_error(pipeline_failed), _))
+            ),
           retractall(ca_status(JobID, _)),
           asserta(ca_status(JobID, finished(ok)))
         ),
@@ -419,6 +456,8 @@ run_contract_pipeline(JobID) :-
     retractall(ca_ended(JobID, _)),
     assertz(ca_ended(JobID, End)).
 
+friendly_error(error(contract_assistant_error(pipeline_failed), _), Msg) :- !,
+    Msg = "the pipeline failed without an error message — this is a bug in the assistant, not in your materials. The run log above shows how far it got; the job's artifacts are on the server under contract_jobs/.".
 friendly_error(error(contract_assistant_error(llm_failed(Purpose, ES)), _), Msg) :- !,
     format(string(Msg), "the LLM call for '~w' failed after retries: ~w", [Purpose, ES]).
 friendly_error(error(contract_assistant_error(empty_reply(Purpose, Model)), _), Msg) :- !,
@@ -431,19 +470,40 @@ friendly_error(error(contract_assistant_error(llm_truncated(Purpose, Model)), _)
            [Model, Purpose]).
 friendly_error(error(contract_assistant_error(M), _), Msg) :- !,
     term_string(M, Msg).
-friendly_error(E, Msg) :- term_string(E, Msg).
+friendly_error(error(resource_error(What), _), Msg) :- !,
+    format(string(Msg),
+           "the assistant ran out of a Prolog resource (~w) while processing a model reply — this is a bug in the assistant, not in your materials. The run log above shows how far it got; the job's artifacts are on the server under contract_jobs/.",
+           [What]).
+% The catch-all: an unexpected exception carries a stack trace whose frames
+% quote their arguments, and one of those can be a 90 kB LLM reply. Cap it —
+% the log is read by a human in a browser.
+friendly_error(E, Msg) :- term_string(E, S), truncated(S, 600, Msg).
+
+truncated(S, Max, Out) :-
+    string_length(S, L),
+    (   L =< Max
+    ->  Out = S
+    ;   Keep is Max - 3,
+        sub_string(S, 0, Keep, _, Head),
+        string_concat(Head, "...", Out)
+    ).
 
 pipeline_stages(JobID) :-
-    ca_config(JobID, Config),
+    ca_config(JobID, Config0),
     % ---- Stage 0: ingest & segment
     ca_set_stage(JobID, 0, "Ingest & segment"),
-    read_text(Config.wording, WordingText),
+    read_text(Config0.wording, WordingText),
     segment_markdown(WordingText, Sections),
     save_json_artifact(JobID, 'sectionmap.json', _{sections: Sections}),
-    target_slice(WordingText, Sections, Config.target, JobID, WordingSlice),
-    ( Config.schedule == none -> ScheduleText = "" ; read_text(Config.schedule, ScheduleText) ),
-    findall(CT, (member(CF, Config.cases), read_text(CF, CT)), CaseTexts),
-    holdout_split(Config, CaseTexts, DevCases, HeldCases),
+    target_slice(WordingText, Sections, Config0.target, JobID, WordingSlice),
+    ( Config0.schedule == none -> ScheduleText = "" ; read_text(Config0.schedule, ScheduleText) ),
+    findall(CT, (member(CF, Config0.cases), read_text(CF, CT)), CaseTexts),
+    holdout_split(Config0, CaseTexts, DevCases, HeldCases),
+    % how many cases the drafting stages may write scenarios for — the repair
+    % prompt needs it too, so it lives in the config rather than in the loop
+    length(DevCases, NDevCases),
+    Config = Config0.put(n_dev_cases, NDevCases),
+    retractall(ca_config(JobID, _)), assertz(ca_config(JobID, Config)),
     materials_block(WordingSlice, ScheduleText, DevCases, Materials),
     length(Sections, NSections), length(CaseTexts, NCases), length(HeldCases, NHeld),
     ca_emit(JobID, "Materials assembled (~w sections, ~w cases, ~w held out)"-[NSections, NCases, NHeld]),
@@ -469,7 +529,11 @@ pipeline_stages(JobID) :-
     ->  maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches0)
     ;   concurrent_maplist(run_branch(JobID, Config1, Ctx), Pairs, Branches0)
     ),
-    exclude(=(failed(_)), Branches0, Branches),
+    % Keep the branches that DELIVERED. (Filtering with exclude(=(failed(_)),...)
+    % was a trap: the first unification binds the closure's variable, so with two
+    % dead branches the second one survived the filter, select_winner/3 then had
+    % nothing to rank, and the whole pipeline failed silently.)
+    include(is_live_branch, Branches0, Branches),
     (   Branches == []
     ->  throw(error(contract_assistant_error("every branch failed — see the run log for the per-branch errors"), _))
     ;   true
@@ -735,6 +799,39 @@ existing_block(Config, Block) :-
                [Config.existing])
     ).
 
+%!  instructions_block(+Config, -Block) is det.
+%
+%   The user's own additional instructions, verbatim, in every prompt that
+%   writes or repairs the program. They are the escape hatch from the house
+%   defaults (they can ask for extra scenarios, a particular decomposition, a
+%   naming convention) — so they come LAST in the prompt and say plainly that
+%   they win.
+instructions_block(Config, Block) :-
+    (   Config.get(instructions, none) == none
+    ->  Block = ""
+    ;   format(string(Block),
+"\n\n## ADDITIONAL INSTRUCTIONS FROM THE USER\n\nThese are the user's own instructions for this job. Where they conflict with a\ndefault above (but never with the Logical English syntax rules), FOLLOW THEM.\n\n~w\n",
+               [Config.instructions])
+    ).
+
+%!  scenarios_block(+Config, +NCases, -Block) is det.
+%
+%   Scenarios are FACT PATTERNS. Inventing one means inventing a case the user
+%   never described and then asserting what the contract does with it — so the
+%   default is: exactly the cases supplied, plus whatever scenarios came with
+%   the user's own LE code, and nothing else. (A drafting model left to itself
+%   produces a dozen plausible claims and their outcomes, which then read like
+%   findings.) The user's additional instructions can lift this.
+scenarios_block(Config, NCases, Block) :-
+    ( Config.existing == none -> Existing = "" ; Existing = " plus any scenario already present in the EXISTING LOGICAL ENGLISH CODE (kept verbatim)" ),
+    (   NCases =:= 0
+    ->  format(string(What), "NO case was supplied, so write NO scenarios at all~w", [Existing])
+    ;   format(string(What), "write EXACTLY one scenario per supplied case (~w supplied)~w", [NCases, Existing])
+    ),
+    format(string(Block),
+"\n\n## SCENARIOS — WHAT YOU MAY AND MAY NOT WRITE\n\n~w. Do NOT invent extra scenarios: no adversarial variants, no boundary cases,\nno \"illustrative\" claims. An invented scenario is a fact pattern the user never\ndescribed, together with an outcome nobody asked you to assert.\n\nThe only exception: if the ADDITIONAL INSTRUCTIONS section explicitly asks for\nmore scenarios, write those — and only those.\n\nThe queries themselves are NOT scenarios: write the queries the decision\nsurface needs, even when there are no scenarios to exercise them.\n",
+           [What]).
+
 %!  existing_coverage(+Config, +Program, -Report:dict) is det.
 %
 %   How much of the user's code survived into the delivered program: the
@@ -773,6 +870,7 @@ existing_lines(Text, Lines) :-
 vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
     K = Config.k,
     existing_block(Config, Existing),
+    instructions_block(Config, Instructions),
     numlist(1, K, Ks),
     findall(Sample,
             ( member(I, Ks),
@@ -781,7 +879,8 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
               sampling_note(JobID, Temp, Note),
               ca_emit(JobID, "Vocabulary sample ~w/~w (~w)"-[I, K, Note]),
               stage_llm(JobID, Config, vocabulary, 'stage1_vocabulary',
-                        [existing-Existing, materials-Materials],
+                        [existing-Existing, instructions-Instructions,
+                         materials-Materials],
                         [temperature(Temp)], Sample)
             ),
             Samples),
@@ -790,7 +889,8 @@ vocabulary_consensus(JobID, Config, Materials, Vocabulary) :-
     ;   ca_emit(JobID, "Merging ~w vocabulary samples (consensus)"-[K]),
         atomic_list_concat(Samples, "\n\n===== NEXT SAMPLE =====\n\n", Joined),
         stage_llm(JobID, Config, vocabulary_merge, 'stage1_merge',
-                  [existing-Existing, samples-Joined], [temperature(0)], Vocabulary)
+                  [existing-Existing, instructions-Instructions, samples-Joined],
+                  [temperature(0)], Vocabulary)
     ).
 
 % What makes this sample differ from its siblings — a temperature, or (once
@@ -804,6 +904,7 @@ sampling_note(JobID, Temp, Note) :-
 architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches) :-
     W = Config.w,
     existing_block(Config, Existing),
+    instructions_block(Config, Instructions),
     architecture_angles(Angles0),
     length(Angles, W), append(Angles, _, Angles0),
     findall(Sketch,
@@ -812,8 +913,8 @@ architecture_sketches(JobID, Config, Materials, Vocabulary, Sketches) :-
               ca_emit(JobID, "Architecture sketch ~w/~w (~w)"-[I, W, Angle]),
               Temp is 0.05 + 0.1 * (I - 1),
               stage_llm(JobID, Config, architecture, 'stage1_architecture',
-                        [existing-Existing, materials-Materials,
-                         vocabulary-Vocabulary, angle-Angle],
+                        [existing-Existing, instructions-Instructions,
+                         materials-Materials, vocabulary-Vocabulary, angle-Angle],
                         [temperature(Temp)], Sketch)
             ),
             Sketches).
@@ -844,8 +945,12 @@ run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     (   Config.features.clausewise == true
     ->  clausewise_draft(JobID, Config, Ctx, Idx, Sketch, Draft0)
     ;   existing_block(Config, Existing),
+        instructions_block(Config, Instructions),
+        length(Ctx.dev_cases, NCases),
+        scenarios_block(Config, NCases, Scenarios),
         stage_llm(JobID, Config, draft(Idx), 'stage2_draft',
-                  [existing-Existing, materials-Ctx.materials,
+                  [existing-Existing, instructions-Instructions, scenarios-Scenarios,
+                   materials-Ctx.materials,
                    vocabulary-Ctx.vocabulary, architecture-Sketch],
                   [temperature(0.05)], DraftReply),
         extract_le_code(DraftReply, Draft0)
@@ -854,13 +959,16 @@ run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     save_text_artifact(JobID, DraftName, Draft0),
     string_length(Draft0, DraftLen),
     ca_emit(JobID, "Branch ~w: draft extracted (~w chars)"-[Idx, DraftLen]),
-    repair_loop(JobID, Config, Idx, Draft0, 0, none, 0, Repaired, Score0),
+    repair_loop(JobID, Config, Idx, Draft0, 0, none, 0, Repaired0, _),
+    polish_loop(JobID, Config, Idx, Repaired0, 0, Repaired, Score0),
     holdout_extend(JobID, Config, Ctx, Idx, Repaired, Score0, Final, Score),
     branch_artifact_name(Idx, final, FinalName),
     save_text_artifact(JobID, FinalName, Final),
     ca_set_branch(JobID, Idx, _{state: "done", summary: Score.summary,
                                 errors: Score.errors, warnings: Score.warnings,
                                 tests_passed: Score.tests_passed, tests_failed: Score.tests_failed}).
+
+is_live_branch(branch(_, _, _)).
 
 branch_artifact_name(Idx, Kind, Name) :-
     atomic_list_concat([branch_, Idx, '_', Kind, '.le'], Name).
@@ -886,8 +994,12 @@ clausewise_draft(JobID, Config, Ctx, Idx, Sketch, Draft) :-
                   format(string(CB), "### CASE ~w\n\n~w", [I, CT]) ), CBs),
     atomic_list_concat(CBs, "\n\n", CasesBlock),
     existing_block(Config, Existing),
+    instructions_block(Config, Instructions),
+    length(Ctx.dev_cases, NCases),
+    scenarios_block(Config, NCases, Scenarios),
     stage_llm(JobID, Config, finalize(Idx), 'stage2_finalize',
-              [existing-Existing, program-Program1, schedule-Ctx.schedule,
+              [existing-Existing, instructions-Instructions, scenarios-Scenarios,
+               program-Program1, schedule-Ctx.schedule,
                cases-CasesBlock, vocabulary-Ctx.vocabulary],
               [temperature(0.05)], Reply),
     extract_le_code(Reply, Draft),
@@ -900,8 +1012,9 @@ clausewise_block(JobID, Config, Ctx, Idx, Sketch, NB, Block, Prog0-Led0-I, Prog-
     ca_check_alive(JobID),
     ca_emit(JobID, "Branch ~w: clause block ~w/~w"-[Idx, I, NB]),
     existing_block(Config, Existing),
+    instructions_block(Config, Instructions),
     stage_llm(JobID, Config, clause(Idx, I), 'stage2_clause',
-              [existing-Existing, program-Prog0, clause-Block,
+              [existing-Existing, instructions-Instructions, program-Prog0, clause-Block,
                vocabulary-Ctx.vocabulary, architecture-Sketch],
               [temperature(0.05)], Reply),
     (   extract_tagged_block(Reply, le, Prog1) -> Prog = Prog1
@@ -995,15 +1108,18 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
         % A failed repair call (truncation, provider outage after retries)
         % must not abort the branch — the best iteration so far is a result.
         existing_block(Config, Existing),
+        instructions_block(Config, Instructions),
+        scenarios_block(Config, Config.get(n_dev_cases, 0), Scenarios),
         catch(
             ( stage_llm(JobID, Config, repair(Idx, Iter), 'stage5_repair',
-                        [existing-Existing, program-Text, feedback-Feedback],
+                        [existing-Existing, instructions-Instructions,
+                         scenarios-Scenarios, program-Text, feedback-Feedback],
                         [temperature(0)], Reply),
               Next = reply(Reply) ),
             error(contract_assistant_error(_), _),
             Next = failed),
         (   Next = reply(R)
-        ->  apply_repair_reply(Config, R, Text, Text1, How),
+        ->  safe_apply_repair_reply(Config, R, Text, Text1, How),
             ca_emit(JobID, "Branch ~w repair ~w: ~w"-[Idx, Iter, How]),
             Iter1 is Iter + 1,
             repair_loop(JobID, Config, Idx, Text1, Iter1, Best, Streak, Final, Score)
@@ -1011,6 +1127,127 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
             best_result(Best, Final, Score)
         )
     ).
+
+%!  polish_loop(+JobID, +Config, +Idx, +Text0, +Iter, -Text, -Score) is det.
+%
+%   The repair loop stops as soon as the program is RIGHT: no errors, every
+%   scenario expectation passing. That leaves the warnings — dead templates,
+%   rules no query reaches, accidental variables — untouched, because nothing
+%   in the loop's stopping condition mentions them. On a big generated program
+%   that is dozens of trivially fixable warnings shipped to the user.
+%
+%   So: once the program is right, spend a few bounded rounds making it clean.
+%   A polish round is accepted ONLY if it keeps the program right (no errors,
+%   no failing test, no test lost) and strictly reduces the warning count;
+%   otherwise the previous text is kept. Feature `polish` is the round budget
+%   (0 disables).
+polish_loop(JobID, Config, Idx, Text0, Iter, Text, Score) :-
+    verify_le_text(Text0, V0),
+    score_summary(V0, Summary0),
+    branch_score(V0, Summary0, Score0),
+    Rounds = Config.features.get(polish, 0),
+    polishable_warnings(V0, NW0, _),
+    (   \+ polish_worthwhile(V0)
+    ->  Text = Text0, Score = Score0          % still broken: correctness first
+    ;   NW0 =:= 0
+    ->  Text = Text0, Score = Score0
+    ;   ( \+ number(Rounds) ; Iter >= Rounds )
+    ->  Text = Text0, Score = Score0
+    ;   deadline_exceeded(Config)
+    ->  ca_emit(JobID, "Branch ~w: budget exhausted, ~w warning(s) left unpolished"-[Idx, NW0]),
+        Text = Text0, Score = Score0
+    ;   ca_check_alive(JobID),
+        ca_emit(JobID, "Branch ~w polish ~w: ~w warning(s) to clean up"-[Idx, Iter, NW0]),
+        existing_block(Config, Existing),
+        instructions_block(Config, Instructions),
+        format_warning_feedback(V0, Feedback),
+        catch(
+            ( stage_llm(JobID, Config, polish(Idx, Iter), 'stage5_polish',
+                        [existing-Existing, instructions-Instructions,
+                         program-Text0, feedback-Feedback],
+                        [temperature(0)], Reply),
+              Next = reply(Reply) ),
+            error(contract_assistant_error(_), _),
+            Next = failed),
+        (   Next = reply(R)
+        ->  safe_apply_repair_reply(Config, R, Text0, Text1, How),
+            verify_le_text(Text1, V1),
+            (   polish_accepted(V0, V1)
+            ->  polishable_warnings(V1, NW1, _),
+                Cleaned is NW0 - NW1,
+                ca_emit(JobID, "Branch ~w polish ~w: ~w (~w warning(s) gone, ~w left)"-[Idx, Iter, How, Cleaned, NW1]),
+                Iter1 is Iter + 1,
+                polish_loop(JobID, Config, Idx, Text1, Iter1, Text, Score)
+            ;   ca_emit(JobID, "Branch ~w polish ~w rejected (would have left ~w errors, ~w passing / ~w failing tests, ~w warnings); keeping the verified program"-[Idx, Iter, V1.errors, V1.tests_passed, V1.tests_failed, V1.warnings]),
+                Text = Text0, Score = Score0
+            )
+        ;   ca_emit(JobID, "Branch ~w: polish call failed; keeping the verified program"-[Idx]),
+            Text = Text0, Score = Score0
+        )
+    ).
+
+%!  polish_worthwhile(+V) is semidet.
+%
+%   The program loads and is stable (no errors). Failing tests do NOT block the
+%   clean-up: when the repair loop has run out of patience with two stubborn
+%   expectations, the other 79 warnings are still worth removing — and
+%   polish_accepted/2 guarantees the stubborn tests cannot get worse.
+polish_worthwhile(V) :-
+    V.errors =:= 0.
+
+%!  polish_accepted(+Before, +After) is semidet.
+%
+%   Cleaner, and no worse in any way that matters.
+polish_accepted(V0, V1) :-
+    V1.errors =:= 0,
+    V1.tests_failed =< V0.tests_failed,
+    V1.tests_passed >= V0.tests_passed,
+    polishable_warnings(V0, NW0, _),
+    polishable_warnings(V1, NW1, _),
+    NW1 < NW0.
+
+%!  polishable_warnings(+V, -Count, -Lines) is det.
+%
+%   Warnings worth a polish round. A FAILING TEST is reported as a warning too,
+%   but the repair loop has already done what it could with those — listing them
+%   here would only invite the model to "fix" an expectation it was told not to
+%   touch.
+polishable_warnings(V, Count, Lines) :-
+    findall(L, ( member(I, V.issues),
+                 get_dict(severity, I, "warning"),
+                 get_dict(type, I, Type), Type \== "failed_test",
+                 format(string(L), "- [~w] ~w", [Type, I.message]) ),
+            Lines),
+    length(Lines, Count).
+
+%!  format_warning_feedback(+V, -Feedback) is det.
+%
+%   Only the warnings, grouped enough to be actionable and capped so a program
+%   with a hundred of them does not blow up the prompt.
+format_warning_feedback(V, Feedback) :-
+    polishable_warnings(V, N, Ls0),
+    first_n(60, Ls0, Ls),
+    atomic_list_concat(Ls, "\n", Body),
+    (   N > 60
+    ->  Rest is N - 60,
+        format(string(Feedback), "~w\n- ... and ~w more warning(s) of the same kinds", [Body, Rest])
+    ;   Feedback = Body
+    ).
+
+%!  safe_apply_repair_reply(+Config, +Reply, +OldText, -NewText, -How) is det.
+%
+%   A reply we cannot digest costs one round, never the job: a 30-minute run
+%   died with a stack overflow raised while parsing one malformed repair
+%   reply, throwing away five finished branches.
+safe_apply_repair_reply(Config, Reply, OldText, NewText, How) :-
+    catch(apply_repair_reply(Config, Reply, OldText, NewText, How),
+          E,
+          ( E == contract_interrupt
+          ->  throw(E)
+          ;   friendly_error(E, ES),
+              NewText = OldText,
+              format(string(How), "the reply could not be applied (~w); text unchanged", [ES])
+          )).
 
 %!  apply_repair_reply(+Config, +Reply, +OldText, -NewText, -How) is det.
 %
@@ -1020,12 +1257,13 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
 %   automatic fallback when no edit matches or the feature is off.
 apply_repair_reply(Config, Reply, OldText, NewText, How) :-
     (   Config.features.diff_repairs == true,
-        extract_search_replace(Reply, Edits),
+        extract_search_replace(Reply, Edits, Malformed),
         Edits \== []
     ->  apply_edits(Edits, OldText, Text1, Applied, Failed),
+        malformed_note(Malformed, Note),
         (   Applied > 0
         ->  NewText = Text1,
-            format(string(How), "applied ~w edit(s), ~w did not match", [Applied, Failed])
+            format(string(How), "applied ~w edit(s), ~w did not match~w", [Applied, Failed, Note])
         ;   first_fenced_block(Reply, Full),
             \+ contains_edit_markers(Full),
             \+ contains_elision_marker(Full)
@@ -1043,6 +1281,10 @@ apply_repair_reply(Config, Reply, OldText, NewText, How) :-
         )
     ).
 
+malformed_note(0, "") :- !.
+malformed_note(N, Note) :-
+    format(string(Note), ", ~w unterminated edit block(s) ignored", [N]).
+
 contains_edit_markers(Text) :-
     sub_string(Text, _, _, _, "<<<<<<< SEARCH").
 
@@ -1058,25 +1300,67 @@ contains_elision_marker(Text) :-
     ), !.
 
 %!  extract_search_replace(+Reply, -Edits:list(edit(Search, Replace))) is det.
+%!  extract_search_replace(+Reply, -Edits, -Malformed:integer) is det.
 %
 %   Parses blocks of the form
 %       <<<<<<< SEARCH\n <text> \n=======\n <text> \n>>>>>>> REPLACE
+%
+%   The scan is strictly left-to-right and deterministic: each block ends at
+%   the FIRST separator that follows it, and the next block is looked for
+%   after that. This matters because models do produce malformed replies —
+%   typically a run of '======='/'>>>>>>> REPLACE' pairs under a single
+%   '<<<<<<< SEARCH' header. Searching such a chunk nondeterministically
+%   pairs every separator with every terminator, so a reply with N stray
+%   pairs yields N*(N+1)/2 edits whose texts each span most of the reply:
+%   a 50 kB reply was enough to exhaust a 1 Gb stack inside findall/3.
+%   A block we cannot parse is skipped (and counted) rather than guessed at,
+%   and the scan resumes after its header so later well-formed blocks survive.
 extract_search_replace(Reply, Edits) :-
-    atom_string(RA, Reply),
-    atomic_list_concat(Chunks, '<<<<<<< SEARCH\n', RA),
-    Chunks = [_|Rest],
-    findall(edit(Search, Replace),
-            ( member(Chunk, Rest),
-              sub_atom(Chunk, B, _, _, '\n=======\n'),
-              sub_atom(Chunk, 0, B, _, Search0),
-              Mid is B + 9,
-              sub_atom(Chunk, Mid, _, 0, Tail),
-              sub_atom(Tail, RB, _, _, '\n>>>>>>> REPLACE'),
-              sub_atom(Tail, 0, RB, _, Replace0),
-              atom_string(Search0, Search),
-              atom_string(Replace0, Replace)
-            ),
-            Edits).
+    extract_search_replace(Reply, Edits, _).
+
+extract_search_replace(Reply, Edits, Malformed) :-
+    text_to_string(Reply, S0),
+    % CRLF replies would otherwise leave a stray '\r' at the end of every
+    % SEARCH text, and nothing would ever match.
+    split_string(S0, "\r", "", Parts),
+    atomics_to_string(Parts, S),
+    scan_search_replace(S, Edits),
+    % Every terminator we did not consume belonged to a block we could not
+    % parse — typically several edits run together under one header. Report
+    % them instead of dropping them silently.
+    aggregate_all(count, sub_string(S, _, _, _, "\n>>>>>>> REPLACE"), Terminators),
+    length(Edits, NEdits),
+    Malformed is max(0, Terminators - NEdits).
+
+scan_search_replace(S, Edits) :-
+    (   split_once(S, "<<<<<<< SEARCH", _, Rest0)
+    ->  skip_rest_of_line(Rest0, Rest),
+        (   split_once(Rest, "\n=======", Search, Mid0),
+            skip_rest_of_line(Mid0, Mid),
+            split_once(Mid, "\n>>>>>>> REPLACE", Replace, Tail),
+            Search \== "",         % an empty SEARCH would match anywhere
+            % A header inside either half means the model abandoned this block
+            % and started another: take the later one, not a text spanning both.
+            \+ contains_edit_markers(Search),
+            \+ contains_edit_markers(Replace)
+        ->  scan_search_replace(Tail, More),
+            Edits = [edit(Search, Replace)|More]
+        ;   scan_search_replace(Rest, Edits)   % resync on the next header
+        )
+    ;   Edits = []
+    ).
+
+%!  split_once(+String, +Sep, -Before, -After) is semidet.
+%
+%   First occurrence only, and no choicepoint left behind.
+split_once(S, Sep, Before, After) :-
+    sub_string(S, B, L, _, Sep), !,
+    sub_string(S, 0, B, _, Before),
+    A is B + L,
+    sub_string(S, A, _, 0, After).
+
+skip_rest_of_line(S, Rest) :-
+    ( split_once(S, "\n", _, Rest0) -> Rest = Rest0 ; Rest = "" ).
 
 apply_edits([], Text, Text, 0, 0).
 apply_edits([edit(Search, Replace)|Rest], Text0, Text, Applied, Failed) :-
@@ -1232,8 +1516,10 @@ paraphrase_check(JobID, Config, Ctx, Report) :-
         stage_llm(JobID, Config, paraphrase, 'paraphrase',
                   [wording-Ctx.wording], [temperature(0.6)], PText),
         existing_block(Config, Existing),
+        instructions_block(Config, Instructions),
         stage_llm(JobID, Config, vocabulary_paraphrase, 'stage1_vocabulary',
-                  [existing-Existing, materials-PText], [temperature(0.2)], Sample),
+                  [existing-Existing, instructions-Instructions, materials-PText],
+                  [temperature(0.2)], Sample),
         stage_llm(JobID, Config, paraphrase_compare, 'paraphrase_compare',
                   [vocabulary-Ctx.vocabulary, sample-Sample], [temperature(0)], CmpText),
         ( parse_stability(CmpText, N) -> true ; N = -1 ),
@@ -1279,6 +1565,12 @@ technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase,
     ( Config.judge_model == Config.model -> Judge = "same" ; Judge = Config.judge_model ),
     ( Config.mt_mode == auto -> MTNote = " (auto-calibrated)" ; MTNote = " (user-set)" ),
     ( F.diff_repairs == true -> RepairStyle = diff ; RepairStyle = "full-file" ),
+    (   Config.get(instructions, none) == none
+    ->  InstrLine = "none"
+    ;   normalize_space(string(InstrLine), Config.instructions)
+    ),
+    format(string(ScenLine), "~w supplied case(s); no scenario invented beyond them",
+           [Config.get(n_dev_cases, 0)]),
     findall(BLine,
             ( ca_branch(JobID, BIdx, Info), integer(BIdx),
               ( BIdx =:= WIdx -> Mark = " \u2190 winner" ; Mark = "" ),
@@ -1318,10 +1610,11 @@ technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase,
     ;   CostS = "not estimated"
     ),
     format(string(Text),
-"\n\n---\n\n## Technicalities\n\n- Generated: ~w (job ~w)\n- Model: ~w \u00b7 judge: ~w\n- Search: K=~w vocabulary samples \u00b7 W=~w branches \u00b7 repair patience ~w \u00b7 probes ~w \u00b7 holdout ~w\n- Options: ~w repairs \u00b7 reasoning ~w \u00b7 clause-wise ~w \u00b7 paraphrase ~w\n- Completion limit: ~w tokens/call~w \u00b7 budget ~w min \u00b7 elapsed ~w\n- LLM cost: ~w\n- Target section: ~w\n- Existing LE code: ~w\n- Branches:\n~w\n- Auto-tuning during the run:\n~w\n- Interrogation: ~w \u00b7 Paraphrase: ~w\n- Delivered program: ~w\n",
+"\n\n---\n\n## Technicalities\n\n- Generated: ~w (job ~w)\n- Model: ~w \u00b7 judge: ~w\n- Search: K=~w vocabulary samples \u00b7 W=~w branches \u00b7 repair patience ~w \u00b7 probes ~w \u00b7 holdout ~w\n- Options: ~w repairs \u00b7 reasoning ~w \u00b7 clause-wise ~w \u00b7 paraphrase ~w \u00b7 warning clean-up rounds ~w\n- Scenarios: ~w\n- Additional instructions: ~w\n- Completion limit: ~w tokens/call~w \u00b7 budget ~w min \u00b7 elapsed ~w\n- LLM cost: ~w\n- Target section: ~w\n- Existing LE code: ~w\n- Branches:\n~w\n- Auto-tuning during the run:\n~w\n- Interrogation: ~w \u00b7 Paraphrase: ~w\n- Delivered program: ~w\n",
            [Date, JobID, Config.model, Judge,
             Config.k, Config.w, Config.repairs, F.probes, F.holdout,
-            RepairStyle, Config.reasoning, F.clausewise, F.paraphrase,
+            RepairStyle, Config.reasoning, F.clausewise, F.paraphrase, F.get(polish, 0),
+            ScenLine, InstrLine,
             Config.max_tokens, MTNote, Config.minutes, Elapsed,
             CostS, Config.target, ELine,
             BranchBlock, TuneBlock, ILine, PLine, DeliveredSummary]).
@@ -1520,9 +1813,10 @@ stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
 %   (see the temperature clause of llm_outcome/9).
 stage_options(JobID, Config, Key, Options, Opts) :-
     ( ca_tune(JobID, max_tokens(MT)) -> true ; MT = Config.max_tokens ),
+    llm_socket_timeout(T),
     (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
-    ->  Extra = [api_key(Key), max_tokens(MT), reasoning(minimal)]
-    ;   Extra = [api_key(Key), max_tokens(MT)]
+    ->  Extra = [api_key(Key), max_tokens(MT), timeout(T), reasoning(minimal)]
+    ;   Extra = [api_key(Key), max_tokens(MT), timeout(T)]
     ),
     ( ca_tune(JobID, no_temperature) -> drop_temperature(Options, Options1) ; Options1 = Options ),
     append(Options1, Extra, Opts).
@@ -1543,12 +1837,28 @@ llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
         Outcome = err(E)),
     llm_outcome(Outcome, JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply).
 
+%!  llm_socket_timeout(-Seconds) is det.
+%
+%   How long a provider may stay silent before we give up on the socket. The
+%   default in llm_client is 10 minutes, which is fine for chat-sized calls and
+%   far too short here: a drafting call carries the whole wording (tens of
+%   thousands of tokens) and asks for a whole program back, and a thinking model
+%   sends nothing at all until it has finished. Ten-minute silences are normal;
+%   the previous default turned them into "transient" failures that then ate the
+%   retry budget and killed the branch.
+llm_socket_timeout(900).
+
+% ... and the wall-clock guard must be LOOSER than the socket timeout, or it
+% fires first and we never see the real error.
+llm_wall_limit(960).
+
 % The one place that actually talks to a provider — and the seam the retry
 % tests replace (ca_raw_hook/1) to exercise this ladder offline.
 llm_raw(Model, Messages, Opts, Reply) :-
     (   ca_raw_hook(Hook)
     ->  call(Hook, Model, Messages, Opts, Reply)
-    ;   call_with_time_limit(900,
+    ;   llm_wall_limit(Wall),
+        call_with_time_limit(Wall,
             llm_client:llm_request(Model, Messages, Reply, Opts))
     ).
 
@@ -1639,7 +1949,14 @@ llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Repl
         Attempt1 is Attempt + 1,
         llm_try(JobID, Config, Purpose, Model, Messages, Opts, Attempt1, Reply)
     ;   term_string(E, ES),
-        ca_emit(JobID, "LLM call failed (~w): ~w"-[Purpose, ES]),
+        % Say WHY we stopped: "failed" after a "retrying" line reads like the
+        % retry ladder gave up on its own, when usually the minute budget ran out.
+        (   transient_llm_error(E), deadline_exceeded(Config)
+        ->  ca_emit(JobID, "LLM call failed (~w) and the ~w-minute budget is exhausted, so it was not retried: ~w"-[Purpose, Config.minutes, ES])
+        ;   transient_llm_error(E)
+        ->  ca_emit(JobID, "LLM call failed (~w) after ~w attempts: ~w"-[Purpose, Attempt, ES])
+        ;   ca_emit(JobID, "LLM call failed (~w): ~w"-[Purpose, ES])
+        ),
         throw(error(contract_assistant_error(llm_failed(Purpose, ES)), _))
     ).
 
@@ -1866,24 +2183,128 @@ heading_sections([], _, []).
 %   If the user named a target section, slice the wording down to that section
 %   plus any "general" sections (general terms/conditions/exclusions are
 %   incorporated by reference into every section). Otherwise the full wording.
+%   Two forms of Target:
+%
+%     Employers' liability
+%         the section with that title AND ITS SUBSECTIONS — it ends at the next
+%         heading of the same or a higher level (or the next table-of-contents
+%         section), never at its own first subsection and never at the end of
+%         the document just because the author forgot a heading. The general
+%         terms are added, since they are incorporated by reference.
+%
+%     from Employers' liability until Property definitions
+%     from Employers' liability until Property definitions (inclusive)
+%         everything between those two titles, taken literally and with nothing
+%         added. For the ill-formed markdown that policy wordings are made of
+%         (missing headings, headings that are just bold text), naming both ends
+%         is the only reliable way to say what you mean. The end is exclusive
+%         unless `(inclusive)` says otherwise.
 target_slice(Text, _, none, _, Text) :- !.
 target_slice(Text, Sections0, Target, JobID, Slice) :-
     augment_sections_with_toc(Text, Sections0, Sections),
-    findall(S, ( member(S, Sections), title_contains(S.title, Target) ), Matches),
-    (   Matches == []
-    ->  ca_emit(JobID, "Target section '~w' not found (neither as a heading nor as a table-of-contents section title); using the full wording"-[Target]),
-        Slice = Text
-    ;   findall(G, ( member(G, Sections), title_contains(G.title, "general") ), Generals),
-        append(Generals, Matches, Wanted0),
-        sort(start_line, @<, Wanted0, Wanted),
-        split_string(Text, "\n", "", Lines),
-        findall(Part,
-                ( member(Sec, Wanted),
-                  section_lines(Lines, Sec, Part) ),
+    parse_target(Target, Spec),
+    (   target_lines(Spec, Sections, Text, JobID, Ranges, Note)
+    ->  split_string(Text, "\n", "", Lines),
+        findall(Part, ( member(From-To, Ranges),
+                        section_lines(Lines, _{start_line: From, end_line: To}, Part) ),
                 Parts),
         atomic_list_concat(Parts, "\n\n[...]\n\n", Slice),
-        length(Wanted, NW),
-        ca_emit(JobID, "Sliced wording to ~w sections matching '~w' (+ general terms)"-[NW, Target])
+        ca_emit(JobID, "Sliced wording to ~w"-[Note])
+    ;   ca_emit(JobID, "Target '~w' not found (neither as a heading nor as a table-of-contents section title); using the full wording"-[Target]),
+        Slice = Text
+    ).
+
+%!  parse_target(+Target, -Spec) is det.
+%
+%   `from A until B` / `from A to B`, with an optional `(inclusive)` /
+%   `(exclusive)` on B — anything else is a plain section title. Only a leading
+%   "from" turns a target into a range, so a section actually called "Guide to
+%   sections" still works.
+parse_target(Target, Spec) :-
+    normalize_space(string(T0), Target),
+    string_lower(T0, Lower),
+    (   sub_string(Lower, 0, 5, _, "from ")
+    ->  sub_string(T0, 5, _, 0, Rest),
+        (   split_on_marker(Rest, " until ", A, B0) -> true
+        ;   split_on_marker(Rest, " to ", A, B0)
+        ),
+        end_boundary(B0, B, Inclusive),
+        Spec = range(A, B, Inclusive)
+    ;   Spec = section(T0)
+    ).
+parse_target(Target, section(T)) :- normalize_space(string(T), Target).
+
+split_on_marker(Str, Marker, Left, Right) :-
+    string_lower(Str, Lower),
+    string_lower(Marker, LowerMarker),
+    sub_string(Lower, Before, Len, _, LowerMarker), !,
+    sub_string(Str, 0, Before, _, Left0),
+    After is Before + Len,
+    sub_string(Str, After, _, 0, Right0),
+    normalize_space(string(Left), Left0),
+    normalize_space(string(Right), Right0),
+    Left \== "", Right \== "".
+
+end_boundary(B0, B, Inclusive) :-
+    string_lower(B0, Lower),
+    (   sub_string(Lower, Before, _, 0, "(inclusive)")
+    ->  Inclusive = true, cut_at(B0, Before, B)
+    ;   sub_string(Lower, Before, _, 0, "(exclusive)")
+    ->  Inclusive = false, cut_at(B0, Before, B)
+    ;   Inclusive = false, B = B0
+    ).
+
+cut_at(Str, Before, Out) :-
+    sub_string(Str, 0, Before, _, S0),
+    normalize_space(string(Out), S0).
+
+%!  target_lines(+Spec, +Sections, +Text, +JobID, -Ranges, -Note) is semidet.
+target_lines(section(Title), Sections, _Text, _JobID, Ranges, Note) :-
+    findall(F-T, ( member(S, Sections), title_contains(S.title, Title),
+                   section_with_subsections(Sections, S, F, T) ), Matches),
+    Matches \== [],
+    findall(F-T, ( member(G, Sections), title_contains(G.title, "general"),
+                   section_with_subsections(Sections, G, F, T) ), Generals),
+    append(Generals, Matches, All0),
+    sort(All0, Ranges),
+    length(Ranges, N),
+    format(string(Note), "~w block(s) for '~w' (+ general terms), lines ~w",
+           [N, Title, Ranges]).
+target_lines(range(A, B, Inclusive), Sections, Text, _JobID, [From-To], Note) :-
+    member(SA, Sections), title_contains(SA.title, A),
+    From = SA.start_line,
+    (   member(SB, Sections), title_contains(SB.title, B), SB.start_line > From
+    ->  (   Inclusive == true
+        ->  section_with_subsections(Sections, SB, _, To)
+        ;   To is SB.start_line - 1
+        )
+    ;   % the closing title is missing (ill-formed document): stop at the end,
+        % but say so rather than pretending the boundary was found
+        split_string(Text, "\n", "", Lines), length(Lines, To)
+    ),
+    To >= From,
+    !,
+    ( Inclusive == true -> Kind = "inclusive" ; Kind = "exclusive" ),
+    format(string(Note), "lines ~w-~w: from '~w' until '~w' (~w)", [From, To, A, B, Kind]).
+
+%!  section_with_subsections(+Sections, +Sec, -From, -To) is det.
+%
+%   A section runs until the next heading of the SAME or a HIGHER level (a
+%   deeper heading is one of its own subsections). segment_markdown/2 stays flat
+%   on purpose — clause-wise drafting needs non-overlapping blocks — so the
+%   nesting is computed here, where it is wanted.
+section_with_subsections(Sections, Sec, From, To) :-
+    From = Sec.start_line,
+    Level = Sec.level,
+    findall(Start, ( member(S, Sections), S.start_line > From, S.level =< Level,
+                     Start = S.start_line ), Starts),
+    (   Starts == []
+    ->  % nothing of the same rank follows: this section owns the rest of the
+        % document (its own flat end would cut it at its first subsection)
+        findall(E, ( member(S, Sections), S.start_line >= From, E = S.end_line ), Ends),
+        max_list(Ends, To)
+    ;   min_list(Starts, NextStart),
+        To is NextStart - 1
     ).
 
 % Case-insensitive containment, tolerant of typographic vs straight

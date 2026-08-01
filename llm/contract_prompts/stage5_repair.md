@@ -35,9 +35,13 @@ copied EXACTLY (including whitespace and indentation) from the program:
 <replacement text>
 >>>>>>> REPLACE
 
-Use several blocks for several changes. Only if the changes are so extensive
+Use several blocks for several changes, and repeat all three markers —
+`<<<<<<< SEARCH`, `=======`, `>>>>>>> REPLACE` — in EVERY block: a block that
+reuses the previous header is dropped. Only if the changes are so extensive
 that edits would be unreadable, output instead ONE fenced code block with the
 FULL corrected program — complete from first line to last, never eliding
 sections with `% ...` placeholders (an elided program is rejected and wastes
 the iteration).
 {{existing}}
+{{scenarios}}
+{{instructions}}

@@ -11,7 +11,7 @@
     run_one_test/3, le_my_id/1, le_my_kb/1, kb_target_language/2, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
-    verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5,
+    verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5, template_of/5,
     topPredicates/2, kbSummary/2, kb_own_predicate/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
     le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, negation_words/1, user_rule_name/1]).
 
@@ -1344,6 +1344,35 @@ queryScenario(SessionModule, ScenarioName, Template, TemplateInstance, Unknowns,
     clearSession(SessionModule),
     setScenarion(SessionModule, ScenarioName),
     query(SessionModule, Template, TemplateInstance,Unknowns, Why).
+
+%!  template_of(+KB, ?F, ?A, -Dict, -Label:string) is nondet.
+%
+%   The USER-declared template for predicate F/A, and how it reads in Logical
+%   English with its argument places starred:
+%
+%       template_of(kb, is_covered_under, 2, _, "*a claim* is covered under *a section*")
+%
+%   System templates are excluded — they are not part of the author's
+%   vocabulary and naming them would only confuse a reader. Used wherever a
+%   predicate must be shown to a human (verifier issues, source graph): a
+%   reader of Logical English never wrote `is_covered_under/2` and should not
+%   have to recognise it.
+template_of(KB, F, A, Dict, Label) :-
+    current_predicate(KB:le_dict/1),
+    KB:le_dict(Dict),
+    (   Dict = dict(FA, NTs, WV, _, _, _, _) ; Dict = dict(FA, NTs, WV, _, _, _)
+    ;   Dict = dict(FA, NTs, WV, _, _)       ; Dict = dict(FA, NTs, WV, _)
+    ;   Dict = dict(FA, NTs, WV)
+    ),
+    \+ le_system_templates:le_system_template(dict(FA, NTs, WV)),
+    FA = [F|Args],
+    length(Args, A),
+    copy_term(NTs-WV, NTsC-WVC),
+    maplist(starred_type, NTsC),
+    canonical_string(WVC, Label).
+
+starred_type(V-Type) :-
+    ( atom(Type) -> format(atom(V), "*~w*", [Type]) ; V = '*variable*' ).
 
 %!  canonical_string(+Instance:list, -String:string) is det.
 %

@@ -43,6 +43,7 @@ check_issue(KB, _, Issue) :- single_variable_fact(KB, Issue).
 check_issue(KB, _, Issue) :- single_variable_scenario_fact(KB, Issue).
 check_issue(KB, _, Issue) :- unmarked_meta_template(KB, Issue).
 check_issue(KB, _, Issue) :- non_stratified(KB, Issue).
+check_issue(KB, _, Issue) :- unused_template(KB, Issue).
 
 % --- Stratification (loops through negation) ---
 % Reuse the s(CASP) dependency-graph analysis: a cycle through a `not` edge means
@@ -282,7 +283,11 @@ is_built_in_literal(L) :- reasoner:is_built_in(L).
 is_built_in_literal(says_that(_, _)).
 
 % --- 3. Untested predicate ---
-untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-
+%   Reported AT the first rule head that defines the predicate (these are
+%   intensional by construction, so there always is one) and named by its
+%   Logical English template, not by the Prolog functor/arity the reader never
+%   wrote.
+untested_predicate(KB, issue(untested_predicate, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A),
     functor(G, F, A),
     \+ is_system_predicate(F/A),
@@ -290,14 +295,86 @@ untested_predicate(KB, issue(untested_predicate, Description, Fix, 0, 0)) :-
     \+ predicate_property(KB:G, imported_from(_)),
     is_intensional(KB, F, A),
     \+ is_reachable_from_query(KB, F, A),
-    le_i18n:le_msg(untested_predicate_desc, [functor-F, arity-A], Description),
+    predicate_le_label(KB, F, A, Label),
+    first_rule_source(KB, F, A, Start, End),
+    le_i18n:le_msg(untested_predicate_desc, [template-Label], Description),
     le_i18n:le_msg(untested_predicate_fix, [], Fix).
+
+%!  predicate_le_label(+KB, +F, +A, -Label) is det.
+%
+%   The predicate as the author wrote it — its template, with the argument
+%   places starred (`*a claim* is covered under *a section*`). Falls back to
+%   functor/arity when no template can be found (imported or system predicates).
+predicate_le_label(KB, F, A, Label) :-
+    (   le_kbs:template_of(KB, F, A, _Dict, Label0)
+    ->  Label = Label0
+    ;   format(string(Label), "~w/~w", [F, A])
+    ).
+
+%!  first_rule_source(+KB, +F, +A, -Start, -End) is det.
+first_rule_source(KB, F, A, Start, End) :-
+    functor(Head, F, A),
+    (   le_kbs:kb_own_predicate(KB, Head),
+        clause(KB:Head, _, Ref),
+        clause(KB:le_source_info(Ref, Start0, End0, _), true)
+    ->  Start = Start0, End = End0
+    ;   Start = 0, End = 0
+    ).
 
 is_intensional(KB, F, A) :-
     functor(G, F, A),
     le_kbs:kb_own_predicate(KB, G),
     KB:clause(G, Body),
     Body \== true, !.
+
+% --- 3b. Unused template ---
+%
+% A template the program declares but never uses anywhere — no rule head, no
+% rule condition, no fact, no scenario fact, no query. It is dead vocabulary:
+% it costs the reader attention, it is never type-checked against a use, and
+% (when marked `undefined`) it invites a scenario that will never be read.
+% Generated programs are especially prone to it: a drafting model invents leaf
+% classifications like `*a cost* is a cost; undefined.` that no rule consults.
+unused_template(KB, issue(unused_template, Description, Fix, Start, End)) :-
+    le_kbs:template_of(KB, F, A, Dict, Label),
+    \+ template_used(KB, F, A),
+    le_i18n:le_msg(unused_template_desc, [template-Label], Description),
+    le_i18n:le_msg(unused_template_fix, [], Fix),
+    template_source(KB, Dict, Start, End).
+
+%!  template_used(+KB, +F, +A) is semidet.
+%
+%   Anywhere at all: as the head of a rule or fact, inside any rule body,
+%   inside a scenario's facts, or inside a query.
+template_used(KB, F, A) :-
+    functor(Head, F, A),
+    current_predicate(KB:F/A),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, _), !.
+template_used(KB, F, A) :-
+    current_predicate(KB:Other/OA),
+    \+ is_system_predicate(Other/OA),
+    functor(H, Other, OA),
+    le_kbs:kb_own_predicate(KB, H),
+    clause(KB:H, Body),
+    find_in_body(Body, Literal),
+    functor(Literal, F, A), !.
+template_used(KB, F, A) :-
+    safe_scenario_fact(KB, F, A), !.
+template_used(KB, F, A) :-
+    current_predicate(KB:query_info/3),
+    KB:query_info(_, Goal, _),
+    find_in_body(Goal, Literal),
+    functor(Literal, F, A), !.
+
+%!  template_source(+KB, +Dict, -Start, -End) is det.
+template_source(KB, Dict, Start, End) :-
+    (   current_predicate(KB:le_source_info/4),
+        KB:le_source_info(Ref, Start0, End0, template),
+        catch(clause(KB:le_dict(Dict), true, Ref), _, fail)
+    ->  Start = Start0, End = End0
+    ;   Start = 0, End = 0
+    ).
 
 is_reachable_from_query(KB, F, A) :-
     current_predicate(KB:query_info/3),

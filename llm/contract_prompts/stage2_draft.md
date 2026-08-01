@@ -12,10 +12,10 @@ The program must contain, in order:
 5. `the annexes to the contract are:` — derived notions, date/geography
    helpers, limit machinery;
 6. the schedule as facts (from the SCHEDULE material);
-7. one `scenario <name> is:` per case, with facts only from case-datum
-   templates and embedded expectations (`<queryname> expects answers [...]` —
-   remember: no leading `query` keyword on expectation lines);
-   plus at least one adversarial variant scenario per major exception;
+7. the scenarios permitted by the SCENARIOS section below — facts only from
+   case-datum templates, with embedded expectations
+   (`<queryname> expects answers [...]` — remember: no leading `query` keyword
+   on expectation lines);
 8. the queries (`query <name> is:` sections) used by the expectations —
    queries use plain `which` variables (`we will pay which amount for which
    claim.`), NEVER asterisks; asterisks appear only inside
@@ -27,3 +27,5 @@ For expected-answer strings, render numbers without thousands separators
 Output exactly one fenced code block containing the full program and nothing
 else.
 {{existing}}
+{{scenarios}}
+{{instructions}}

@@ -82,7 +82,7 @@ llm_model_entry('openai/gpt-oss-120b',      groq, 'openai/gpt-oss-120b',    'htt
 
 %% Anthropic  ───────────────────────────────────────────────────────
 % https://platform.claude.com/docs/en/about-claude/models/overview
-%  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/5.
+%  Native Messages API (NOT OpenAI-compat) – handled separately in call_api/6.
 llm_model_entry('claude-haiku-4-5-20251001', anthropic, 'claude-haiku-4-5-20251001', 'https://api.anthropic.com/v1').
 llm_model_entry('claude-opus-5', anthropic, 'claude-opus-5', 'https://api.anthropic.com/v1').
 % llm_model_entry('claude',     anthropic, 'claude-haiku-4-5-20251001',     'https://api.anthropic.com/v1').
@@ -145,19 +145,33 @@ llm_request(Model, Query, Answer, Options) :-
     ->  true
     ;   api_key(Provider, Key)
     ),
-    % Remove api_key option from Options before building body
-    select_option(api_key(_), Options, CleanOptions0, Options),
-    % reasoning(minimal) is provider-agnostic: translate it into the
-    % provider's own dialect (or drop it where unsupported) instead of
-    % forwarding it verbatim.
-    (   select_option(reasoning(Level), CleanOptions0, CleanOptions1)
-    ->  reasoning_fields(Provider, APIModel, Level, RFields),
-        append(CleanOptions1, RFields, CleanOptions)
-    ;   CleanOptions = CleanOptions0
-    ),
+    request_fields(Provider, APIModel, Options, CleanOptions, Timeout),
     build_body(Provider, APIModel, Messages, CleanOptions, BodyPairs),
-    call_api(Provider, BaseURL, Key, BodyPairs, RawJSON),
+    call_api(Provider, BaseURL, Key, BodyPairs, Timeout, RawJSON),
     extract_answer(Provider, RawJSON, Answer).
+
+%!  request_fields(+Provider, +APIModel, +Options, -BodyOptions, -Timeout) is det.
+%
+%   Splits the caller's options into what goes INTO the request body and what
+%   governs the HTTP call itself. Ours, never forwarded to the provider:
+%   - api_key(Key)      — sent as a header, not a field;
+%   - timeout(Seconds)  — how long the socket may stay silent. Default 10 min,
+%     which suits chat-sized calls; callers that send tens of thousands of
+%     tokens and ask for a whole document back (a thinking model then emits
+%     NOTHING until it is done) must ask for more.
+%   Translated, not forwarded:
+%   - reasoning(Level)  — becomes each provider's own dialect, or is dropped.
+request_fields(Provider, APIModel, Options, BodyOptions, Timeout) :-
+    select_option(api_key(_), Options, Options1, _),
+    (   select_option(reasoning(Level), Options1, Options2)
+    ->  reasoning_fields(Provider, APIModel, Level, RFields),
+        append(Options2, RFields, Options3)
+    ;   Options3 = Options1
+    ),
+    (   select_option(timeout(Timeout), Options3, BodyOptions)
+    ->  true
+    ;   BodyOptions = Options3, Timeout = 600
+    ).
 
 %!  reasoning_fields(+Provider, +APIModel, +Level, -ExtraOptions) is det.
 %
@@ -305,7 +319,7 @@ option_to_pair(Opt, Key-Val) :-
 %  to use the JSON plugin to write the dict as a JSON object.
 % ═══════════════════════════════════════════════════════════════════
 
-call_api(anthropic, BaseURL, Key, Body, Response) :- !,
+call_api(anthropic, BaseURL, Key, Body, Timeout, Response) :- !,
     atomic_list_concat([BaseURL, '/messages'], Endpoint),
     atom_string(Key, KeyStr),
     catch(
@@ -314,7 +328,7 @@ call_api(anthropic, BaseURL, Key, Body, Response) :- !,
             Response,
             [ json_object(dict),
               status_code(Code),
-              timeout(600),
+              timeout(Timeout),
               request_header('x-api-key'=KeyStr),
               request_header('anthropic-version'='2023-06-01')
             ]),
@@ -322,7 +336,7 @@ call_api(anthropic, BaseURL, Key, Body, Response) :- !,
     ),
     check_status(Code, Response).
 
-call_api(_Provider, BaseURL, Key, Body, Response) :-
+call_api(_Provider, BaseURL, Key, Body, Timeout, Response) :-
     atomic_list_concat([BaseURL, '/chat/completions'], Endpoint),
     atom_string(Key, KeyStr),
     atomic_list_concat(['Bearer ', KeyStr], Auth),
@@ -332,7 +346,7 @@ call_api(_Provider, BaseURL, Key, Body, Response) :-
             Response,
             [ json_object(dict),
               status_code(Code),
-              timeout(600),
+              timeout(Timeout),
               request_header('Authorization'=Auth)
             ]),
         E, handle_http_error(E)
@@ -381,11 +395,6 @@ extract_answer(anthropic, Response, Answer) :- !,
     ;   Answer = Answer0
     ).
 
-% The text of one Anthropic content block; fails for thinking, redacted
-% thinking and tool-use blocks, which carry no `text` key.
-block_text(Block, Text) :- is_dict(Block), !, get_dict(text, Block, Text).
-block_text(json(Pairs), Text) :- memberchk(text=Text, Pairs).
-
 % OpenAI-compatible (OpenAI, Groq, Gemini, Together):
 %   { choices: [ { message: { content: "..." } } ] }
 % Reasoning models (GLM, DeepSeek-R1 style) complicate this: the visible
@@ -415,6 +424,11 @@ extract_answer(_Provider, Response, Answer) :-
                             "The model hit max_tokens while still reasoning (finish_reason=length): no visible answer was produced. Raise max_tokens, or use a less reasoning-heavy model.")))
     ;   Answer = Answer0
     ).
+
+% The text of one Anthropic content block; fails for thinking, redacted
+% thinking and tool-use blocks, which carry no `text` key.
+block_text(Block, Text) :- is_dict(Block), !, get_dict(text, Block, Text).
+block_text(json(Pairs), Text) :- memberchk(text=Text, Pairs).
 
 truncated_finish(FR) :- ( FR == "length" ; FR == length ; FR == "max_tokens" ; FR == 'MAX_TOKENS' ), !.
 
