@@ -17,7 +17,25 @@ tar --exclude-from=.dockerignore -ch -f "$TARFILE" .
 # docker build --build-arg BUILD_INFO="${BUILD_INFO}" -t le2 - < "$TARFILE"
 CTXDIR=$(mktemp -d)
 tar -xf "$TARFILE" -C "$CTXDIR"
-trap "rm -rf $CTXDIR $TARFILE" EXIT
+
+# The context is a COPY (tar -h dereferenced the symlinked example trees), so a
+# directory that is unreadable or read-only in the linked repo arrives that way
+# here, and a plain `rm -rf` cannot unlink it. Left alone that fails the EXIT
+# trap, which (a) leaves a full copy of the context — proprietary examples
+# included — in /var/folders after every run, and (b) makes this script exit
+# non-zero after a perfectly good deploy. So: give the copy's directories back
+# their owner permissions before removing it, and never let the clean-up decide
+# the exit status.
+cleanup() {
+    status=$?
+    if [ -d "$CTXDIR" ]; then
+        chmod -R -N "$CTXDIR" 2>/dev/null || true          # macOS: drop inherited ACLs
+        find "$CTXDIR" -type d -exec chmod u+rwx {} + 2>/dev/null || true
+    fi
+    rm -rf "$CTXDIR" "$TARFILE" 2>/dev/null || true
+    exit $status
+}
+trap cleanup EXIT
 docker build --build-arg BUILD_INFO="${BUILD_INFO}" -t le2 "$CTXDIR"
 
 # commenting these out, now deploying to fly.io image repo directly instead:
