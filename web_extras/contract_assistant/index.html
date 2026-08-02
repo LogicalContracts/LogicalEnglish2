@@ -23,21 +23,21 @@
 
     <div class="card">
       <h2>1. Documents</h2>
-      <p class="hint">Markdown or plain text preferred; Word (.docx) and PDF are converted on the server.</p>
+      <p class="hint">Markdown or plain text preferred; Word (.docx) and PDF are converted on the server. Schedules and cases may also be structured data (.json, .csv), and either box takes several files — a JSON <em>array</em> of claims becomes one case, and one scenario, per element.</p>
       <div class="uploads">
         <label class="upload required" title="The normative text: the policy wording or contract terms. Required. Markdown/plain text parse best; Word and PDF are converted on the server (pandoc / textutil / pdftotext).">
           <span class="upload-title">Contract wording <em>(required)</em></span>
           <input type="file" id="file-wording" accept=".md,.txt,.le,.markdown,.docx,.doc,.pdf">
           <span class="upload-name" id="name-wording">no file selected</span>
         </label>
-        <label class="upload" title="The parameter document: limits, periods, elections (e.g. a policy schedule, an ISDA Schedule). Optional but strongly recommended — its rows become the data facts of the twin.">
-          <span class="upload-title">Schedule</span>
-          <input type="file" id="file-schedule" accept=".md,.txt,.markdown,.docx,.doc,.pdf">
-          <span class="upload-name" id="name-schedule">no file selected</span>
+        <label class="upload" title="The parameter document: limits, periods, elections (e.g. a policy schedule, an ISDA Schedule). Optional but strongly recommended — its rows become the data facts of the twin. Several files are allowed (a limits table plus an elections annex, say) and they can be structured data. A .json file holding an ARRAY of schedules is read entry by entry: a case that names one of them (same policyRef, id, …) carries that entry into its own scenario, so claims under different policies get different limits.">
+          <span class="upload-title">Schedule <em>(one or more)</em></span>
+          <input type="file" id="file-schedule" accept=".md,.txt,.markdown,.json,.csv,.tsv,.yaml,.yml,.docx,.doc,.pdf" multiple>
+          <span class="upload-name" id="name-schedule">no files selected</span>
         </label>
-        <label class="upload" title="Concrete cases the twin must decide (claims, disputes...). Each becomes a test scenario with expected outcomes. With two or more files, the later ones can be held out for blind evaluation (see Advanced).">
+        <label class="upload" title="Concrete cases the twin must decide (claims, disputes...). Each becomes ONE test scenario with expected outcomes. A .json file holding an array of claims is split: seventeen claims become seventeen cases, not one. Records of the same case in different files (claims.json and expected_outcomes.json, both keyed by claimRef) are merged, so the recorded outcome becomes that scenario's expectation. With two or more cases, the last quarter is held out for blind evaluation (see Advanced).">
           <span class="upload-title">Cases / claims <em>(one or more)</em></span>
-          <input type="file" id="file-cases" accept=".md,.txt,.markdown,.docx,.doc,.pdf" multiple>
+          <input type="file" id="file-cases" accept=".md,.txt,.markdown,.json,.csv,.tsv,.yaml,.yml,.docx,.doc,.pdf" multiple>
           <span class="upload-name" id="name-cases">no files selected</span>
         </label>
       </div>
@@ -114,7 +114,7 @@
         <div class="row">
           <label class="field" title="Differential interrogation: an LLM reading ONLY the contract invents this many edge-case scenarios (boundary dates, amounts at limits, role variations) with expected outcomes, and the generated program is confronted with them. Agreeing probes stay in the program as regression tests; disagreements are adjudicated and any survivors are reported as open disagreements — the twin is wrong or the contract is ambiguous."><span>Interrogation probes (0 = off; preset default if empty)</span><input type="number" id="feat-probes" min="0" max="20"></label>
           <label class="field" title="After a branch verifies clean and all its scenario tests pass, how many extra rounds to spend removing WARNINGS — dead templates, rules no query reaches, accidental variables. A round is kept only if it reduces warnings without losing a test; 0 turns the clean-up off."><span>Warning clean-up rounds</span><input type="number" id="feat-polish" min="0" max="6"></label>
-          <label class="field" title="With 2+ case files: the pipeline develops against the FIRST case only; the rest are kept blind, turned into test scenarios by a separate call after repairs finish, and scored. Held-out failures rank above ordinary test failures when choosing the winning branch — the guard against overfitting to the examples.">
+          <label class="field" title="With 2+ cases: the pipeline develops against all but the last quarter of them (at least one case is always held out); the held-out ones are kept blind, turned into test scenarios by a separate call after repairs finish, and scored. Held-out evidence ranks above ordinary test evidence when choosing the winning branch — the guard against overfitting to the examples.">
             <span>Held-out case scoring</span>
             <select id="feat-holdout">
               <option value="">auto (needs 2+ cases)</option>

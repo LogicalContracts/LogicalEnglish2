@@ -22,6 +22,14 @@ what is the close-out amount).
   `the schedule states a limit of *an amount*, *a basis*, for *a cover*.`
   with basis values like `in the aggregate`, `per claim`, `per person per day`,
   applied by a few generic rules — never one hand-written rule per limit row.
+- **A schedule belongs to its case.** When the cases refer to more than one
+  schedule (each claim naming the policy it arises under, and the case
+  material carrying that schedule entry with it), the parameters are NOT
+  global facts: each scenario states the parameters of ITS OWN schedule, using
+  the same templates, so two claims under different policies get different
+  limits and deductibles. Put in the knowledge base only what every case
+  shares — a statutory maximum, a nationwide table. With a single schedule and
+  cases that all sit under it, plain facts in the knowledge base are right.
 - **Dates are computed, not asserted.** Facts state `*a loss* occurs on
   *a date*.` and the period bounds; a rule derives "occurs during the period
   of insurance" with date comparisons (`is after or equal to`, ...).
@@ -32,12 +40,18 @@ what is the close-out amount).
   - derived notion → defined by rules, no marker.
 - **Traceability.** Every rule carries a `%` comment citing the clause or
   heading of the contract it encodes.
-- **Scenarios and tests.** A supplied case becomes a `scenario <name> is:`
-  section with facts only from case-datum templates, plus embedded
-  expectations: `<queryname> expects answers ["..."].` (no leading `query`
-  keyword). Never invent a scenario the user did not supply or ask for — see
-  the SCENARIOS section of your task, which says exactly which scenarios are
-  permitted for this job.
+- **Scenarios and tests.** EVERY supplied case becomes its own
+  `scenario <name> is:` section — one scenario per case, none merged, none
+  skipped — named after the case's own identifier where it has one
+  (`scenario SYN-01-C3 is:`, constants `claim SYN-01-C3`). Its facts come only
+  from case-datum templates and from the schedule entry the case refers to,
+  plus embedded expectations: `<queryname> expects answers ["..."].` (no
+  leading `query` keyword). A case that states its own expected outcome
+  (a decision, an amount payable, a reason) must have that outcome as its
+  expectation — that is the test the twin has to pass; never soften it to
+  match what your rules happen to produce. Never invent a scenario the user
+  did not supply or ask for — see the SCENARIOS section of your task, which
+  says exactly which scenarios are permitted for this job.
 
 ## Hard constraints (violations break the parser)
 

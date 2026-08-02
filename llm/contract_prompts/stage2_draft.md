@@ -11,9 +11,12 @@ The program must contain, in order:
    each rule preceded by a `%` comment citing its clause;
 5. `the annexes to the contract are:` — derived notions, date/geography
    helpers, limit machinery;
-6. the schedule as facts (from the SCHEDULE material);
-7. the scenarios permitted by the SCENARIOS section below — facts only from
-   case-datum templates, with embedded expectations
+6. the schedule as facts (from the SCHEDULE material) — but only the
+   parameters EVERY case shares; where the cases name different schedules,
+   each scenario carries its own (see the house style);
+7. the scenarios permitted by the SCENARIOS section below — one per case,
+   facts only from case-datum templates plus that case's own schedule
+   parameters, with embedded expectations
    (`<queryname> expects answers [...]` — remember: no leading `query` keyword
    on expectation lines);
 8. the queries (`query <name> is:` sections) used by the expectations —
@@ -23,6 +26,15 @@ The program must contain, in order:
 
 For expected-answer strings, render numbers without thousands separators
 (write `expects answers ["we will pay 18500 for claim one"]`).
+
+**Cover the whole of the wording you were given.** The twin is judged against
+a clause-by-clause coverage ledger, and a program that encodes one coverage
+section of a policy that has five is a failure however cleanly it verifies.
+Work through the material in order: the definitions that gate the peril, every
+coverage part and its sub-limits, the property-not-insured list, every
+exclusion, the conditions, and the loss-settlement rules. A clause you
+deliberately leave out belongs in the "Known simplifications" header comment,
+named — silence there reads as an oversight.
 
 Output exactly one fenced code block containing the full program and nothing
 else.

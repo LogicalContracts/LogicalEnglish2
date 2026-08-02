@@ -300,8 +300,8 @@ start_contract_job_(Dict, Options, JobID) :-
     uuid(UUID), atom_concat(caj_, UUID, JobID),
     job_dir(JobID, Dir),
     make_directory_path(Dir),
-    save_uploads(Dict, Dir, WordingFile, ScheduleFile, CaseFiles),
-    normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config),
+    save_uploads(Dict, Dir, WordingFile, ScheduleFiles, CaseFiles),
+    normalise_config(Dict, WordingFile, ScheduleFiles, CaseFiles, Config),
     retractall(ca_config(JobID, _)), assertz(ca_config(JobID, Config)),
     retractall(ca_logseq(JobID, _)), assertz(ca_logseq(JobID, 0)),
     asserta(ca_status(JobID, running)),
@@ -315,7 +315,7 @@ job_dir(JobID, Dir) :-
     ( getenv('LE_CONTRACT_JOBS_DIR', Base) -> true ; Base = 'contract_jobs' ),
     atomic_list_concat([Base, '/', JobID], Dir).
 
-normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
+normalise_config(Dict, WordingFile, ScheduleFiles, CaseFiles, Config) :-
     ( get_dict(model, Dict, Model0), Model0 \== "", Model0 \== null -> Model = Model0
     ; Model = "claude-sonnet" ),
     ( get_dict(judge_model, Dict, JM0), JM0 \== "", JM0 \== null -> JudgeModel = JM0
@@ -342,7 +342,7 @@ normalise_config(Dict, WordingFile, ScheduleFile, CaseFiles, Config) :-
                deadline: Deadline, features: Features, existing: Existing,
                instructions: Instructions,
                max_tokens: MaxTokens, mt_mode: MTMode, max_tokens_cap: MaxTokens,
-               wording: WordingFile, schedule: ScheduleFile, cases: CaseFiles}.
+               wording: WordingFile, schedule: ScheduleFiles, cases: CaseFiles}.
 
 %!  existing_code(+RequestDict, -Existing) is det.
 %
@@ -429,32 +429,49 @@ normalise_feature(V, V).
 % Uploads arrive inside the /leapi JSON: {name: "...", text: "..."} for text
 % files or {name: "...", data: "<base64>"} for binary (Word, PDF). Each is
 % stored under <jobdir>/sources/ and converted to a text/markdown twin.
+% `wording` is a single upload; `schedule` and `cases` each accept one upload
+% or a list of them.
 
-save_uploads(Dict, Dir, WordingFile, ScheduleFile, CaseFiles) :-
+save_uploads(Dict, Dir, WordingFile, ScheduleFiles, CaseFiles) :-
     atomic_list_concat([Dir, '/sources'], SrcDir),
     make_directory_path(SrcDir),
     ( get_dict(wording, Dict, WD), is_dict(WD)
     ->  save_one_upload(WD, SrcDir, wording, WordingFile)
     ;   throw(error(contract_assistant_error("A contract wording upload is required"), _))
     ),
-    ( get_dict(schedule, Dict, SD), is_dict(SD)
-    ->  save_one_upload(SD, SrcDir, schedule, ScheduleFile)
-    ;   ScheduleFile = none
+    save_upload_list(schedule, Dict, SrcDir, ScheduleFiles),
+    save_upload_list(cases, Dict, SrcDir, CaseFiles).
+
+%!  save_upload_list(+Field, +RequestDict, +SrcDir, -Files) is det.
+%
+%   An upload field that may be absent, a single {name: ..., text|data: ...}
+%   dict or a list of them: both the schedule and the cases accept several
+%   files (a schedule split over a limits table and an elections annex, for
+%   instance). Missing or malformed entries yield the empty list.
+save_upload_list(Field, Dict, SrcDir, Files) :-
+    (   get_dict(Field, Dict, U), U \== null
+    ->  ( is_list(U) -> Uploads = U ; is_dict(U) -> Uploads = [U] ; Uploads = [] )
+    ;   Uploads = []
     ),
-    ( get_dict(cases, Dict, Cases0), is_list(Cases0) -> Cases = Cases0 ; Cases = [] ),
-    findall(CF,
-            ( nth1(I, Cases, CD), is_dict(CD),
-              atomic_list_concat([case_, I], Tag),
-              save_one_upload(CD, SrcDir, Tag, CF)
+    upload_tag_stem(Field, Stem),
+    findall(F,
+            ( nth1(I, Uploads, UD), is_dict(UD),
+              atomic_list_concat([Stem, '_', I], Tag),
+              save_one_upload(UD, SrcDir, Tag, F)
             ),
-            CaseFiles).
+            Files).
+
+upload_tag_stem(cases, case) :- !.
+upload_tag_stem(Field, Field).
 
 save_one_upload(UD, SrcDir, Tag, TextFile) :-
     ( get_dict(name, UD, Name0) -> true ; Name0 = "upload" ),
     atom_string(NameA, Name0),
-    file_name_extension(_, Ext0, NameA),
+    file_base_name(NameA, BaseA),
+    file_name_extension(Stem0, Ext0, BaseA),
     ( Ext0 == '' -> Ext = md ; downcase_atom(Ext0, Ext) ),
-    atomic_list_concat([SrcDir, '/', Tag, '.', Ext], RawFile),
+    safe_stem(Stem0, Stem),
+    atomic_list_concat([SrcDir, '/', Tag, '-', Stem, '.', Ext], RawFile),
     (   get_dict(text, UD, Text), Text \== null
     ->  write_text_file(RawFile, Text)
     ;   get_dict(data, UD, B64), B64 \== null
@@ -462,6 +479,24 @@ save_one_upload(UD, SrcDir, Tag, TextFile) :-
     ;   throw(error(contract_assistant_error("Upload has neither text nor data"), _))
     ),
     ensure_text_file(RawFile, Ext, SrcDir, Tag, TextFile).
+
+%!  safe_stem(+Name, -Stem) is det.
+%
+%   The uploaded file name, reduced to something safe to paste into a path:
+%   lower case, only letters, digits, `_` and `-`, at most 40 characters. The
+%   stored name keeps the user's wording ("schedule_2-limits.json") — which is
+%   what the multi-file schedule header shows the model.
+safe_stem(Name, Stem) :-
+    downcase_atom(Name, Lower),
+    atom_chars(Lower, Cs0),
+    findall(C, ( member(C0, Cs0), ( safe_stem_char(C0) -> C = C0 ; C = '_' ) ), Cs1),
+    length(Cs1, N),
+    ( N =< 40 -> Cs = Cs1 ; length(Cs, 40), append(Cs, _, Cs1) ),
+    ( Cs == [] -> Stem = file ; atom_chars(Stem, Cs) ).
+
+safe_stem_char(C) :- char_type(C, alnum), char_code(C, Code), Code < 128.
+safe_stem_char('_').
+safe_stem_char('-').
 
 write_text_file(File, Text) :-
     setup_call_cleanup(open(File, write, S, [encoding(utf8)]),
@@ -477,11 +512,12 @@ decode_base64_to_file(B64, File) :-
 
 %!  ensure_text_file(+RawFile, +Ext, +SrcDir, +Tag, -TextFile) is det.
 %
-%   Text-ish files are used as they are; Word documents go through pandoc
-%   (falling back to macOS textutil), PDFs through pdftotext. This is the
-%   plan's sanctioned use of UNIX subprocesses.
+%   Text-ish files (including the structured ones — JSON, CSV — that a schedule
+%   or a batch of cases often arrives in) are used as they are; Word documents
+%   go through pandoc (falling back to macOS textutil), PDFs through pdftotext.
+%   This is the plan's sanctioned use of UNIX subprocesses.
 ensure_text_file(RawFile, Ext, _, _, RawFile) :-
-    memberchk(Ext, [md, txt, le, text, markdown]), !.
+    memberchk(Ext, [md, txt, le, text, markdown, json, csv, tsv, yaml, yml]), !.
 ensure_text_file(RawFile, docx, SrcDir, Tag, TextFile) :- !,
     atomic_list_concat([SrcDir, '/', Tag, '.converted.md'], TextFile),
     (   run_converter(path(pandoc), [RawFile, '-t', 'markdown', '-o', TextFile])
@@ -578,8 +614,11 @@ pipeline_stages(JobID) :-
     segment_markdown(WordingText, Sections),
     save_json_artifact(JobID, 'sectionmap.json', _{sections: Sections}),
     target_slice(WordingText, Sections, Config0.target, JobID, WordingSlice),
-    ( Config0.schedule == none -> ScheduleText = "" ; read_text(Config0.schedule, ScheduleText) ),
-    findall(CT, (member(CF, Config0.cases), read_text(CF, CT)), CaseTexts),
+    ( is_list(Config0.schedule) -> ScheduleFiles = Config0.schedule ; ScheduleFiles = [] ),
+    schedule_text(ScheduleFiles, ScheduleText),
+    % A JSON case file holds an ARRAY of cases: each element is one case, with
+    % the schedule entry it names attached to it (see case_texts/3).
+    case_texts(Config0.cases, ScheduleFiles, CaseTexts),
     holdout_split(Config0, CaseTexts, DevCases, HeldCases),
     % how many cases the drafting stages may write scenarios for — the repair
     % prompt needs it too, so it lives in the config rather than in the loop
@@ -588,7 +627,16 @@ pipeline_stages(JobID) :-
     retractall(ca_config(JobID, _)), assertz(ca_config(JobID, Config)),
     materials_block(WordingSlice, ScheduleText, DevCases, Materials),
     length(Sections, NSections), length(CaseTexts, NCases), length(HeldCases, NHeld),
-    ca_emit(JobID, "Materials assembled (~w sections, ~w cases, ~w held out)"-[NSections, NCases, NHeld]),
+    length(ScheduleFiles, NSched),
+    ca_emit(JobID, "Materials assembled (~w sections, ~w schedule file(s), ~w cases, ~w held out)"-
+                   [NSections, NSched, NCases, NHeld]),
+    % Every development case is a scenario the draft reply has to carry, and a
+    % reply cut off by the completion cap is the one failure the pipeline
+    % cannot repair its way out of. Say it before the money is spent.
+    (   NDevCases >= 8
+    ->  ca_emit(JobID, "Note: ~w development cases means ~w scenarios in every draft reply — if a draft comes back cut off, raise the completion-token cap or narrow the target section"-[NDevCases, NDevCases])
+    ;   true
+    ),
     note_existing_code(JobID, Config),
 
     calibrate_and_estimate(JobID, Config, Materials, Config1),
@@ -641,6 +689,13 @@ pipeline_stages(JobID) :-
             ca_emit(JobID, "Paraphrase check aborted (~w)"-[PErrS]),
             Paraphrase = _{enabled: false, note: PErrS} )),
     ledger_for(JobID, Config1, WordingSlice, WText, Ledger0),
+    ledger_coverage(Ledger0, NTodo, NRows),
+    (   NRows > 0
+    ->  Pct is round(100 * (NRows - NTodo) / NRows),
+        ca_emit(JobID, "Coverage ledger: ~w of ~w clause row(s) still TODO (~w% encoded or deliberately skipped)"-
+                       [NTodo, NRows, Pct])
+    ;   true
+    ),
     findall(SD, (member(branch(I, _, S), Branches), SD = S.put(branch, I)), AllScores),
     save_text_artifact(JobID, 'winner.le', WText),
     % The delivered program may differ from the branch final (interrogation can
@@ -845,16 +900,25 @@ format_cost(C, S) :-
 
 %!  holdout_split(+Config, +CaseTexts, -DevCases, -HeldCases) is det.
 %
-%   Held-out-case scoring (feature `holdout`): develop against the first case,
-%   keep the rest blind for evaluation. `auto`/true enable it when there are
-%   at least two cases; a single case is never held out.
+%   Held-out-case scoring (feature `holdout`): develop against most of the
+%   cases and keep the last quarter (at least one) blind for evaluation.
+%   `auto`/true enable it when there are at least two cases; a single case is
+%   never held out.
+%
+%   The split used to be "the first case develops, ALL the rest are blind",
+%   which was defensible when a case was a whole file and there were two of
+%   them. With a JSON claims file split into seventeen cases it starved the
+%   drafting stage of examples (one case, sixteen blind) and cost an LLM call
+%   per held-out case per branch.
 holdout_split(Config, CaseTexts, DevCases, HeldCases) :-
     H = Config.features.holdout,
     length(CaseTexts, N),
     (   ( H == false ; N < 2 )
     ->  DevCases = CaseTexts, HeldCases = []
-    ;   CaseTexts = [First|Rest],
-        DevCases = [First], HeldCases = Rest
+    ;   NHeld is max(1, N // 4),
+        NDev is N - NHeld,
+        length(DevCases, NDev),
+        append(DevCases, HeldCases, CaseTexts)
     ).
 
 % --------------------------- Existing LE code --------------------------------
@@ -911,10 +975,10 @@ scenarios_block(Config, NCases, Block) :-
     ( Config.existing == none -> Existing = "" ; Existing = " plus any scenario already present in the EXISTING LOGICAL ENGLISH CODE (kept verbatim)" ),
     (   NCases =:= 0
     ->  format(string(What), "NO case was supplied, so write NO scenarios at all~w", [Existing])
-    ;   format(string(What), "write EXACTLY one scenario per supplied case (~w supplied)~w", [NCases, Existing])
+    ;   format(string(What), "write EXACTLY one scenario per supplied case — ~w cases were supplied, so the program must contain ~w scenarios~w", [NCases, NCases, Existing])
     ),
     format(string(Block),
-"\n\n## SCENARIOS — WHAT YOU MAY AND MAY NOT WRITE\n\n~w. Do NOT invent extra scenarios: no adversarial variants, no boundary cases,\nno \"illustrative\" claims. An invented scenario is a fact pattern the user never\ndescribed, together with an outcome nobody asked you to assert.\n\nThe only exception: if the ADDITIONAL INSTRUCTIONS section explicitly asks for\nmore scenarios, write those — and only those.\n\nThe queries themselves are NOT scenarios: write the queries the decision\nsurface needs, even when there are no scenarios to exercise them.\n",
+"\n\n## SCENARIOS — WHAT YOU MAY AND MAY NOT WRITE\n\n~w. Each case in the CASES material is a case in its own right, however\nshort it looks, and gets its own scenario named after its identifier where it\nhas one (`scenario SYN-01-C3 is:`). Never merge two cases into one scenario and\nnever leave a case without one. Where a case carries the schedule entry it\nrefers to, that entry's parameters are facts of that scenario. Where a case\nstates its own expected outcome, that outcome IS the expectation.\n\nDo NOT invent extra scenarios: no adversarial variants, no boundary cases,\nno \"illustrative\" claims. An invented scenario is a fact pattern the user never\ndescribed, together with an outcome nobody asked you to assert.\n\nThe only exception: if the ADDITIONAL INSTRUCTIONS section explicitly asks for\nmore scenarios, write those — and only those.\n\nThe queries themselves are NOT scenarios: write the queries the decision\nsurface needs, even when there are no scenarios to exercise them.\n",
            [What]).
 
 %!  existing_coverage(+Config, +Program, -Report:dict) is det.
@@ -1077,7 +1141,14 @@ run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
                    materials-Ctx.materials,
                    vocabulary-Ctx.vocabulary, architecture-Sketch],
                   [temperature(0.05)], DraftReply),
-        extract_le_code(DraftReply, Draft0)
+        extract_le_code(DraftReply, Draft0),
+        % A draft cut off by the provider's completion cap has no earlier
+        % version to fall back on: say so, loudly, so the run log explains the
+        % half-a-contract the repair loop is about to work on.
+        (   unterminated_fence(DraftReply)
+        ->  ca_emit(JobID, "Branch ~w: WARNING — the draft reply was cut off mid-program (unterminated code fence). Raise the completion-token cap, or narrow the target section."-[Idx])
+        ;   true
+        )
     ),
     branch_artifact_name(Idx, draft, DraftName),
     save_text_artifact(JobID, DraftName, Draft0),
@@ -1759,20 +1830,59 @@ apply_repair_reply(Config, Reply, OldText, NewText, How) :-
             format(string(How), "applied ~w edit(s), ~w did not match~w", [Applied, Failed, Note])
         ;   first_fenced_block(Reply, Full),
             \+ contains_edit_markers(Full),
-            \+ contains_elision_marker(Full)
+            \+ contains_elision_marker(Full),
+            \+ amputates(Reply, OldText, Full, _)
         ->  NewText = Full, How = "edits did not match; used the full program from the reply"
+        ;   first_fenced_block(Reply, Full2), amputates(Reply, OldText, Full2, Why)
+        ->  NewText = OldText, How = Why
         ;   NewText = OldText, How = "no usable edit or full program in the reply; text unchanged"
         )
     ;   extract_le_code(Reply, NewText0),
-        % An unapplied edit block, or a program with elided ("% ...")
-        % sections, must never masquerade as the program.
+        % An unapplied edit block, a program with elided ("% ...") sections and
+        % a program that lost most of itself must never masquerade as the
+        % program.
         (   contains_edit_markers(NewText0)
         ->  NewText = OldText, How = "reply contained only unapplied edit blocks; text unchanged"
         ;   contains_elision_marker(NewText0)
         ->  NewText = OldText, How = "reply elided sections with '% ...'; text unchanged"
+        ;   amputates(Reply, OldText, NewText0, Why)
+        ->  NewText = OldText, How = Why
         ;   NewText = NewText0, How = "replaced the full program"
         )
     ).
+
+%!  amputates(+Reply, +OldText, +NewText, -Why) is semidet.
+%
+%   True when accepting NewText as the whole program would throw most of the
+%   program away. Two causes, both seen in one FEMA run: the provider's
+%   completion cap cut the reply off mid-program (its code fence never
+%   closes), and the model quietly rewrote a 52 kB program as an 8 kB sketch
+%   of it — no elision marker, no error, just a contract missing four of its
+%   five coverages, which then won the branch selection.
+%
+%   Small programs are exempt: an early draft legitimately doubles or halves.
+amputates(Reply, OldText, NewText, Why) :-
+    string_length(OldText, OldLen),
+    OldLen > 4000,
+    string_length(NewText, NewLen),
+    (   unterminated_fence(Reply)
+    ->  format(string(Why),
+               "reply was cut off mid-program (unterminated code fence, ~w of ~w chars); text unchanged",
+               [NewLen, OldLen])
+    ;   NewLen < 0.6 * OldLen
+    ->  Pct is round(100 * NewLen / OldLen),
+        format(string(Why),
+               "reply's program is only ~w% of the current one (~w of ~w chars) — treated as truncation, not repair; text unchanged",
+               [Pct, NewLen, OldLen])
+    ).
+
+% An odd number of ``` fences means the last one was never closed: the reply
+% stopped in the middle of the program.
+unterminated_fence(Reply) :-
+    atom_string(A, Reply),
+    atomic_list_concat(Chunks, '```', A),
+    length(Chunks, N),
+    N > 1, (N - 1) mod 2 =:= 1.
 
 malformed_note(0, "") :- !.
 malformed_note(N, Note) :-
@@ -1897,15 +2007,20 @@ select_winner(_JobID, Branches, Winner) :-
 % Rank tuple, lexicographic (the plan's fitness function): having tests AT ALL
 % comes first (a clean-verifying program with no scenarios demonstrates
 % nothing and must not beat an erroneous one that passes 16/18 tests); then
-% fewer errors; fewer held-out failures (blind evaluation ranks above
-% development tests); better NET test evidence (failed - passed: 3/6 passing
-% must beat 0/2 — raw failure counts would reward dropping scenarios); then
-% fewer failures, fewer warnings, smaller program.
-branch_rank(branch(_, Text, S), rank(NoTests, S.errors, HF, Net, S.tests_failed, S.warnings, Len)) :-
-    HF = S.get(holdout_failed, 0),
+% fewer errors; better NET held-out evidence (blind evaluation ranks above
+% development tests); then better NET development evidence (failed - passed:
+% 3/6 passing must beat 0/2); then fewer failures, fewer warnings, and — all
+% that being equal — the LARGER program, which encodes more of the contract.
+%
+% Both evidence terms are NET on purpose. Raw failure counts reward writing
+% fewer scenarios, and the held-out term used to be raw: an amputated branch
+% that wrote 2 blind tests and failed 1 outranked a complete one that wrote 7
+% and failed 2, and the 8 kB program was delivered instead of the 50 kB one.
+branch_rank(branch(_, Text, S), rank(NoTests, S.errors, HNet, Net, S.tests_failed, S.warnings, NegLen)) :-
+    HNet is S.get(holdout_failed, 0) - S.get(holdout_passed, 0),
     ( S.tests_passed + S.tests_failed =:= 0 -> NoTests = 1 ; NoTests = 0 ),
     Net is S.tests_failed - S.tests_passed,
-    string_length(Text, Len).
+    string_length(Text, Len), NegLen is -Len.
 
 % ----------------------- Differential interrogation --------------------------
 % Feature `probes` (count; 0 = off). The stone as oracle: an LLM reading only
@@ -2111,6 +2226,33 @@ technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase,
             Config.max_tokens, MTNote, Config.minutes, Elapsed,
             CostS, Config.target, ELine,
             BranchBlock, TuneBlock, ILine, PLine, DeliveredSummary]).
+
+%!  ledger_coverage(+Ledger, -Todo, -Rows) is det.
+%
+%   How much of the contract the ledger itself says is still missing: the
+%   clause rows of its coverage table whose status is TODO, out of all clause
+%   rows. A count, not a judgement — but a twin whose ledger is half TODO is a
+%   twin the user has to be told about, and that number was previously buried
+%   in a 350-line report nobody reads to the end.
+ledger_coverage(Ledger, Todo, Rows) :-
+    split_string(Ledger, "\n", " \t\r", Lines),
+    findall(L, ( member(L, Lines), string_concat("|", _, L), ledger_clause_row(L) ), Rows0),
+    length(Rows0, Rows),
+    findall(L, ( member(L, Rows0), sub_string(L, _, _, _, "TODO") ), Todos),
+    length(Todos, Todo).
+
+% A row of the coverage table that is about a clause: not the |---|---| rule,
+% not the header.
+ledger_clause_row(Line) :-
+    split_string(Line, "|", " ", Cells),
+    exclude(==(""), Cells, [First|_]),
+    \+ string_concat("---", _, First),
+    \+ separator_cells(Cells),
+    First \== "Clause".
+
+separator_cells(Cells) :-
+    forall(( member(C, Cells), C \== "" ),
+           forall(sub_string(C, _, 1, _, Ch), memberchk(Ch, ["-", ":"]))).
 
 ledger_for(JobID, Config, WordingSlice, WinnerText, Ledger) :-
     (   deadline_exceeded(Config)
@@ -3029,6 +3171,166 @@ toc_sections([], _, _, []).
 section_lines(Lines, Sec, Part) :-
     findall(L, ( between(Sec.start_line, Sec.end_line, I), nth1(I, Lines, L) ), Ls),
     atomic_list_concat(Ls, "\n", Part).
+
+%!  schedule_text(+Files, -Text) is det.
+%
+%   The schedule material handed to the model. No file gives the empty string
+%   (materials_block/4 turns that into "no schedule provided"); one file is used
+%   verbatim, as it always was; several are concatenated under a header naming
+%   each one — the stored name carries both the user's wording and the format,
+%   and a .json schedule reads very differently from a .md one.
+schedule_text([], "") :- !.
+schedule_text([File], Text) :- !, read_text(File, Text).
+schedule_text(Files, Text) :-
+    findall(B,
+            ( nth1(I, Files, F), read_text(F, T), file_base_name(F, Base),
+              format(string(B), "### SCHEDULE ~w (~w)\n\n~w", [I, Base, T]) ),
+            Bs),
+    atomic_list_concat(Bs, "\n\n", Text).
+
+% ------------------------- Structured (JSON) case files -----------------------
+% A .json case file is normally not ONE case: it is an ARRAY of them — a claims
+% file holding seventeen claims. Seventeen claims must become seventeen
+% scenarios, so the array is split, one case per element. Two more things come
+% out of the same reading:
+%
+%   - records of the SAME case spread over several files (claims.json and
+%     expected_outcomes.json, both keyed by "claimRef") are merged into one
+%     case, so the expected outcome travels with the claim it belongs to;
+%   - a case that NAMES a schedule (its "policyRef" is the key of an entry in
+%     schedules.json) carries that entry with it: the limits, deductibles and
+%     elections that decide the claim are per policy, so they belong in that
+%     claim's scenario rather than in one global set of facts.
+%
+% The linking field is discovered, not configured: a field whose name reads
+% like an identifier, or whose value identifies a record uniquely within its
+% own file. Anything that is not JSON, or JSON without a record array, stays
+% one case — the behaviour every non-structured upload had.
+
+%!  case_texts(+CaseFiles, +ScheduleFiles, -CaseTexts) is det.
+case_texts(CaseFiles, ScheduleFiles, CaseTexts) :-
+    findall(Rs, ( member(F, CaseFiles), file_records(F, Rs) ), RecordLists),
+    append(RecordLists, Records0),
+    merge_case_records(Records0, Records),
+    findall(Rs, ( member(F, ScheduleFiles), file_records(F, Rs) ), SchedLists),
+    append(SchedLists, Schedules),
+    findall(T, ( member(R, Records), case_record_text(R, Schedules, T) ), CaseTexts).
+
+%!  file_records(+File, -Records) is det.
+%
+%   The records of one uploaded file: `rec(Source, Dict)` per element of its
+%   JSON record array, or the single `text(Source, Text)` of anything else.
+file_records(File, Records) :-
+    read_text(File, Text),
+    file_base_name(File, Base),
+    (   json_record_array(File, Text, Dicts)
+    ->  findall(rec(Base, D), member(D, Dicts), Records)
+    ;   Records = [text(Base, Text)]
+    ).
+
+%!  json_record_array(+File, +Text, -Dicts) is semidet.
+%
+%   The array of records of a .json document: the document itself when it is a
+%   list of objects, else its longest list-of-objects field (so `{"claims":
+%   [...]}` and `{"note": "...", "outcomes": [...]}` both work).
+json_record_array(File, Text, Dicts) :-
+    file_name_extension(_, json, File),
+    catch(atom_json_dict(Text, Term, [value_string_as(string)]), _, fail),
+    record_array(Term, Dicts).
+
+record_array(List, List) :-
+    is_list(List), List \== [], forall(member(E, List), is_dict(E)), !.
+record_array(Dict, Best) :-
+    is_dict(Dict),
+    findall(N-V, ( get_dict(_, Dict, V), is_list(V), V \== [],
+                   forall(member(E, V), is_dict(E)), length(V, N) ),
+            Pairs),
+    Pairs \== [],
+    keysort(Pairs, Sorted), last(Sorted, _-Best).
+
+%!  merge_case_records(+Records, -Merged) is det.
+%
+%   Records from DIFFERENT files that share a linking field with the same
+%   value describe one case; `merged(Sources, Dict)` is that case. The first
+%   file's values win a conflict — the claim is the case, the outcome file
+%   only adds to it.
+merge_case_records(Records, Merged) :-
+    findall(S-Ks, ( setof(Src, D^member(rec(Src, D), Records), Sources),
+                    member(S, Sources), link_keys(S, Records, Ks) ),
+            KeyMap),
+    foldl(merge_one_record(KeyMap), Records, [], Rev),
+    reverse(Rev, Merged).
+
+merge_one_record(_, text(S, T), Acc, [text(S, T)|Acc]) :- !.
+merge_one_record(KeyMap, rec(S, D), Acc0, Acc) :-
+    (   select(merged(Sources, MD), Acc0, Rest),
+        \+ memberchk(S, Sources),
+        links_to(KeyMap, S, D, Sources, MD)
+    ->  Joined = D.put(MD),          % the earlier file wins a clash
+        Acc = [merged([S|Sources], Joined)|Rest]
+    ;   Acc = [merged([S], D)|Acc0]
+    ).
+
+links_to(KeyMap, S, D, Sources, MD) :-
+    memberchk(S-Keys, KeyMap), member(K, Keys),
+    member(S2, Sources), memberchk(S2-Keys2, KeyMap), memberchk(K, Keys2),
+    get_dict(K, D, V), get_dict(K, MD, V), !.
+
+%!  link_keys(+Source, +Records, -Keys) is det.
+%
+%   The fields of a file that can identify one of its records: a field present
+%   in every record with an atomic value, and either named like an identifier
+%   (…ref, …id, …no, …code, …key) or holding a value unique across the file's
+%   records. A one-record file has only the name rule to go on — with a single
+%   record every field is trivially "unique", which would link anything to
+%   anything.
+link_keys(Source, Records, Keys) :-
+    findall(D, member(rec(Source, D), Records), Ds),
+    Ds = [First|_], length(Ds, N),
+    findall(K,
+            ( dict_pairs(First, _, Pairs), member(K-_, Pairs),
+              forall(member(D, Ds), ( get_dict(K, D, V), atomic_field(V) )),
+              ( id_like_key(K)
+              ->  true
+              ;   N > 1,
+                  findall(V, ( member(D, Ds), get_dict(K, D, V) ), Vs),
+                  sort(Vs, Unique), length(Unique, N)
+              )
+            ),
+            Keys).
+
+atomic_field(V) :- ( string(V) ; atom(V) ; number(V) ), V \== "", V \== '', !.
+
+id_like_key(Key) :-
+    downcase_atom(Key, L),
+    member(Suffix, [ref, id, no, number, code, key]),
+    atom_concat(_, Suffix, L), !.
+
+%!  case_record_text(+Record, +Schedules, -Text) is det.
+case_record_text(text(_, Text), _, Text) :- !.
+case_record_text(merged(Sources, D), Schedules, Text) :-
+    reverse(Sources, InOrder),
+    atomic_list_concat(InOrder, ', ', SrcList),
+    json_pretty(D, Body),
+    findall(SB,
+            ( member(rec(SSrc, SD), Schedules), schedule_matches(D, Schedules, SSrc, SD),
+              json_pretty(SD, SBody),
+              format(string(SB),
+                     "\nThe schedule entry this case refers to (~w) — its parameters are\nfacts OF THIS CASE, and belong in this scenario:\n\n~w\n",
+                     [SSrc, SBody]) ),
+            SBs),
+    atomic_list_concat(SBs, "\n", SchedBlock),
+    format(string(Text), "(from ~w)\n\n~w\n~w", [SrcList, Body, SchedBlock]).
+
+% A schedule entry belongs to a case when they agree on one of the schedule
+% file's linking fields ("policyRef" here).
+schedule_matches(D, Schedules, SSrc, SD) :-
+    link_keys(SSrc, Schedules, Keys),
+    member(K, Keys),
+    get_dict(K, SD, V), get_dict(K, D, V), !.
+
+json_pretty(Dict, Text) :-
+    with_output_to(string(Text), json_write_dict(current_output, Dict, [width(76)])).
 
 materials_block(Wording, Schedule, CaseTexts, Materials) :-
     findall(CB, ( nth1(I, CaseTexts, CT),

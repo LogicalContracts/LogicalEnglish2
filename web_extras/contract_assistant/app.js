@@ -3,7 +3,9 @@
    (see le_contract_assistant.pl). No build step. */
 
 const TOKEN = 'myToken123';
-const TEXT_EXTS = ['md', 'txt', 'le', 'text', 'markdown'];
+// Read as text (anything else is sent base64 and converted on the server).
+// Structured schedules and case batches often arrive as .json or .csv.
+const TEXT_EXTS = ['md', 'txt', 'le', 'text', 'markdown', 'json', 'csv', 'tsv', 'yaml', 'yml'];
 // The providers a model can belong to. `label` is what the user sees; `storage`
 // is the localStorage slot, kept identical to the LE editor's (which calls the
 // Gemini provider "google"); `wire` is the name the server's key_for_model/3
@@ -81,7 +83,7 @@ function wireUploads() {
         scheduleEstimate();
     };
     $('file-wording').addEventListener('change', () => nameFor($('file-wording'), $('name-wording'), 'no file selected'));
-    $('file-schedule').addEventListener('change', () => nameFor($('file-schedule'), $('name-schedule'), 'no file selected'));
+    $('file-schedule').addEventListener('change', () => nameFor($('file-schedule'), $('name-schedule'), 'no files selected'));
     $('file-cases').addEventListener('change', () => nameFor($('file-cases'), $('name-cases'), 'no files selected'));
 }
 
@@ -297,8 +299,9 @@ async function start() {
         };
         if ($('adv-maxtokens').value !== '') payload.max_tokens = Number($('adv-maxtokens').value);
         if ($('adv-reasoning').value !== '') payload.reasoning = $('adv-reasoning').value;
-        if ($('file-schedule').files.length)
-            payload.schedule = await fileToUpload($('file-schedule').files[0]);
+        // Schedule and cases both take a list (the server also accepts a single
+        // upload dict for the schedule, as older clients sent it).
+        payload.schedule = await Promise.all(Array.from($('file-schedule').files).map(fileToUpload));
         payload.cases = await Promise.all(Array.from($('file-cases').files).map(fileToUpload));
 
         const data = await leapi('contract_start', payload);

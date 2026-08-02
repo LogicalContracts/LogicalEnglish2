@@ -164,6 +164,168 @@ test(verify_le_text_survives_garbage) :-
     assertion(is_dict(V)),
     assertion(V.tests_passed =:= 0).
 
+% ---- uploads: several schedule/case files, structured formats ----------------
+% A schedule can be split over several documents, and either a schedule or a
+% batch of cases often arrives as .json (or .csv) rather than prose. Both must
+% survive ingestion untouched — no converter, no dropped file.
+
+upload_dir(Dir) :-
+    tmp_file(casources, Dir), make_directory_path(Dir).
+
+test(uploads_take_several_schedules_and_structured_formats,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "policy.md", text: "# Tiny\n"},
+            schedule: [_{name: "limits.json", text: "{\"limit\": 1000}"},
+                       _{name: "elections.md", text: "Elections: none.\n"}],
+            cases: [_{name: "claims.json", text: "[{\"claim\": 1}]"},
+                    _{name: "case2.md", text: "Case 2.\n"}]},
+    le_contract_assistant:save_uploads(Req, Dir, Wording, Schedules, Cases),
+    assertion(exists_file(Wording)),
+    assertion(Schedules = [_, _]), assertion(Cases = [_, _]),
+    forall(member(F, [Wording|Schedules]), assertion(exists_file(F))),
+    forall(member(F, Cases), assertion(exists_file(F))),
+    % .json is text: kept as it is, never sent through pandoc/pdftotext
+    Schedules = [S1|_], Cases = [C1|_],
+    assertion(file_name_extension(_, json, S1)),
+    assertion(file_name_extension(_, json, C1)),
+    read_file_to_string(S1, S1Text, [encoding(utf8)]),
+    assertion(S1Text == "{\"limit\": 1000}"),
+    % the stored name keeps the user's, so a multi-file header can name it
+    file_base_name(S1, S1Base),
+    assertion(sub_atom(S1Base, _, _, _, limits)).
+
+% Older clients (and hand-written /leapi calls) send a single schedule dict.
+test(uploads_accept_a_single_schedule_dict,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "policy.md", text: "# Tiny\n"},
+            schedule: _{name: "schedule.md", text: "Limit: 1000.\n"}},
+    le_contract_assistant:save_uploads(Req, Dir, _, Schedules, Cases),
+    assertion(Schedules = [_]), assertion(Cases == []).
+
+% A hostile file name must not escape the job's sources directory.
+test(uploads_sanitise_the_file_name,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "../../etc/passwd.md", text: "# Tiny\n"}},
+    le_contract_assistant:save_uploads(Req, Dir, Wording, _, _),
+    atomic_list_concat([Dir, '/sources/'], Prefix),
+    assertion(atom_concat(Prefix, _, Wording)),
+    assertion(\+ sub_atom(Wording, _, _, _, '..')).
+
+% ---- structured cases: an array of claims is an array of CASES ---------------
+% A claims file with seventeen claims must become seventeen scenarios, each
+% carrying the schedule it names and the expected outcome recorded for it in a
+% second file. (Observed: the FEMA run treated claims.json as ONE case and
+% expected_outcomes.json as another, then held the second out — the delivered
+% program had a single invented scenario.)
+
+json_case_dir(Dir) :-
+    tmp_file(cacases, Dir), make_directory_path(Dir).
+
+write_json_file(Dir, Name, Text, Path) :-
+    atomic_list_concat([Dir, '/', Name], Path),
+    setup_call_cleanup(open(Path, write, S, [encoding(utf8)]),
+                       write(S, Text), close(S)).
+
+claims_json("{\"claims\": [
+   {\"claimRef\": \"C1\", \"policyRef\": \"P1\", \"facts\": \"water everywhere\"},
+   {\"claimRef\": \"C2\", \"policyRef\": \"P2\", \"facts\": \"a small puddle\"},
+   {\"claimRef\": \"C3\", \"policyRef\": \"P1\", \"facts\": \"mud\"}]}").
+
+outcomes_json("{\"note\": \"ground truth\", \"outcomes\": [
+   {\"claimRef\": \"C1\", \"decision\": \"pay\", \"totalPayable\": 46200},
+   {\"claimRef\": \"C2\", \"decision\": \"deny\", \"totalPayable\": 0},
+   {\"claimRef\": \"C3\", \"decision\": \"pay\", \"totalPayable\": 1500}]}").
+
+schedules_json("{\"schedules\": [
+   {\"policyRef\": \"P1\", \"buildingLimit\": 250000, \"deductible\": 2000},
+   {\"policyRef\": \"P2\", \"buildingLimit\": 120000, \"deductible\": 5000}]}").
+
+test(json_case_array_becomes_one_case_each_with_its_schedule_and_outcome,
+     [setup(json_case_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    claims_json(CJ), outcomes_json(OJ), schedules_json(SJ),
+    write_json_file(Dir, 'claims.json', CJ, Claims),
+    write_json_file(Dir, 'expected_outcomes.json', OJ, Outcomes),
+    write_json_file(Dir, 'schedules.json', SJ, Scheds),
+    le_contract_assistant:case_texts([Claims, Outcomes], [Scheds], Cases),
+    assertion(length(Cases, 3)),                       % three claims, not two files
+    Cases = [C1, C2, _],
+    % the claim and its recorded outcome are ONE case
+    assertion(sub_string(C1, _, _, _, "water everywhere")),
+    assertion(sub_string(C1, _, _, _, "46200")),
+    assertion(sub_string(C1, _, _, _, "claims.json, expected_outcomes.json")),
+    % ... carrying the schedule it names, and only that one
+    assertion(sub_string(C1, _, _, _, "250000")),
+    assertion(\+ sub_string(C1, _, _, _, "120000")),
+    assertion(sub_string(C2, _, _, _, "120000")),
+    assertion(\+ sub_string(C2, _, _, _, "250000")),
+    assertion(sub_string(C1, _, _, _, "belong in this scenario")).
+
+test(a_non_structured_case_file_is_still_one_case,
+     [setup(json_case_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    write_json_file(Dir, 'case.md', "Case 1: bob was healthy.", Case),
+    % ... and so is JSON that holds no array of records
+    write_json_file(Dir, 'meta.json', "{\"policy\": \"P1\", \"note\": \"x\"}", Meta),
+    le_contract_assistant:case_texts([Case, Meta], [], Cases),
+    assertion(length(Cases, 2)),
+    Cases = [C1, _],
+    assertion(C1 == "Case 1: bob was healthy.").
+
+% Only DIFFERENT files merge, and only on a field that identifies a record:
+% two claims of the same policy must not collapse into one case.
+test(records_of_the_same_file_never_merge,
+     [setup(json_case_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    claims_json(CJ),
+    write_json_file(Dir, 'claims.json', CJ, Claims),
+    le_contract_assistant:case_texts([Claims], [], Cases),
+    assertion(length(Cases, 3)).
+
+test(holdout_split_holds_out_a_quarter_of_the_cases) :-
+    numlist(1, 17, Ns),
+    findall(S, ( member(N, Ns), number_string(N, S) ), Cases),
+    le_contract_assistant:holdout_split(_{features: _{holdout: auto}}, Cases, Dev, Held),
+    length(Dev, NDev), length(Held, NHeld),
+    assertion(NDev =:= 13), assertion(NHeld =:= 4),
+    % the held-out ones are the last, and the two sets are the whole
+    assertion(append(Dev, Held, Cases)),
+    % ... and with two cases the split is still one and one
+    le_contract_assistant:holdout_split(_{features: _{holdout: auto}}, ["a", "b"], D2, H2),
+    assertion(D2 == ["a"]), assertion(H2 == ["b"]).
+
+test(scenario_policy_demands_one_scenario_per_case) :-
+    le_contract_assistant:scenarios_block(_{existing: none}, 17, B),
+    assertion(sub_string(B, _, _, _, "17 cases were supplied")),
+    assertion(sub_string(B, _, _, _, "must contain 17 scenarios")),
+    assertion(sub_string(B, _, _, _, "Never merge two cases")).
+
+% How much of the contract the ledger says is missing must be a number in the
+% run log, not a discovery the user makes on page nine of the report.
+test(ledger_coverage_counts_the_todo_rows) :-
+    L = "# Coverage Ledger\n\n| Clause | Status | Notes |\n|--------|--------|-------|\n| I.A | **TODO** | not encoded |\n| I.B | procedural — skipped | no decision content |\n| I.C | encoded | rule one |\n| II.A | **TODO** | not encoded |\n\n## Known simplifications\n\n% TODO: II.A\n",
+    le_contract_assistant:ledger_coverage(L, Todo, Rows),
+    assertion(Rows =:= 4),        % header and |---| rule excluded
+    assertion(Todo =:= 2).        % the prose TODO line is not a table row
+
+test(schedule_text_of_no_file_is_empty) :-
+    le_contract_assistant:schedule_text([], T),
+    assertion(T == "").
+
+test(schedule_text_joins_several_files_under_named_headers,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "policy.md", text: "# Tiny\n"},
+            schedule: [_{name: "limits.json", text: "{\"limit\": 1000}"},
+                       _{name: "elections.md", text: "Elections: none.\n"}]},
+    le_contract_assistant:save_uploads(Req, Dir, _, Schedules, _),
+    le_contract_assistant:schedule_text(Schedules, T),
+    assertion(sub_string(T, _, _, _, "{\"limit\": 1000}")),
+    assertion(sub_string(T, _, _, _, "Elections: none.")),
+    assertion(sub_string(T, _, _, _, "### SCHEDULE 1")),
+    assertion(sub_string(T, _, _, _, "### SCHEDULE 2")),
+    assertion(sub_string(T, _, _, _, "limits.json")),
+    % ... while a single schedule is still passed verbatim, as it always was
+    Schedules = [S1|_],
+    le_contract_assistant:schedule_text([S1], One),
+    assertion(One == "{\"limit\": 1000}").
+
 :- end_tests(contract_assistant_units).
 
 % ------------------------------ pipeline tests -------------------------------
@@ -370,6 +532,52 @@ test(elided_program_never_replaces_the_text) :-
     assertion(NewText == "the original program"),
     assertion(sub_string(How, _, _, _, "elided")).
 
+% A full-program reply that is a fraction of the program it would replace is a
+% truncation or a quiet rewrite, not a repair. Regression from a FEMA run: a
+% 52 kB program came back as 8 kB — no elision marker, no error — and four of
+% the policy's five coverages were simply gone.
+long_program(P) :-
+    numlist(1, 400, Ns),
+    findall(L, ( member(N, Ns),
+                 format(string(L), "a claim ~w is covered if the claim ~w is qualifying.", [N, N]) ),
+            Ls),
+    atomic_list_concat(Ls, "\n", P0), atom_string(P0, P).
+
+test(amputated_full_program_reply_never_replaces_the_text) :-
+    Config = _{features: _{diff_repairs: true}},
+    long_program(P),
+    Reply = "```le\nthe templates are:\n    *a claim* is covered.\n```\n",
+    le_contract_assistant:apply_repair_reply(Config, Reply, P, NewText, How),
+    assertion(NewText == P),
+    assertion(sub_string(How, _, _, _, "treated as truncation")).
+
+% Same guard for the reply the provider cut off mid-program: its code fence
+% never closes.
+test(truncated_full_program_reply_never_replaces_the_text) :-
+    Config = _{features: _{diff_repairs: true}},
+    long_program(P),
+    string_concat("```le\n", P, Head),
+    sub_string(Head, 0, 900, _, Reply),      % cut off: no closing fence
+    le_contract_assistant:apply_repair_reply(Config, Reply, P, NewText, How),
+    assertion(NewText == P),
+    assertion(sub_string(How, _, _, _, "cut off mid-program")).
+
+% ... while a full program of comparable size still replaces the text, and a
+% small program (an early draft) may still change freely.
+test(a_full_sized_full_program_reply_is_still_accepted) :-
+    Config = _{features: _{diff_repairs: true}},
+    long_program(P),
+    format(string(Reply), "```le\n~w\nand one more rule if it is so.\n```\n", [P]),
+    le_contract_assistant:apply_repair_reply(Config, Reply, P, NewText, How),
+    assertion(sub_string(NewText, _, _, _, "and one more rule")),
+    assertion(sub_string(How, _, _, _, "replaced the full program")).
+
+test(a_small_program_may_still_shrink) :-
+    Config = _{features: _{diff_repairs: true}},
+    Reply = "```le\nsmall.\n```\n",
+    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, _),
+    assertion(NewText == "small.\n").
+
 % A scenarios-only program (rules and templates elided) must be flagged as an
 % error even though it has (failing) test expectations.
 test(scenarios_only_program_is_an_error) :-
@@ -398,6 +606,20 @@ test(rank_prefers_net_test_evidence) :-
     Winner = branch(WIdx, _, _),
     assertion(WIdx =:= 1).
 
+% The held-out term is net too. Regression from a FEMA run: a branch that had
+% amputated itself to 8 kB wrote 2 blind tests and failed 1, the complete 50 kB
+% branch wrote 7 and failed 2 — and the raw failure count crowned the amputee.
+test(rank_prefers_net_holdout_evidence) :-
+    Big = _{errors: 0, warnings: 3, tests_passed: 7, tests_failed: 3, test_details: [],
+            holdout_passed: 5, holdout_failed: 2, summary: "complete"},
+    Small = _{errors: 0, warnings: 2, tests_passed: 2, tests_failed: 2, test_details: [],
+              holdout_passed: 1, holdout_failed: 1, summary: "amputated"},
+    le_contract_assistant:select_winner(job,
+        [branch(1, "a program of fifty thousand characters", Big),
+         branch(2, "a sketch", Small)], Winner),
+    Winner = branch(WIdx, _, _),
+    assertion(WIdx =:= 1).
+
 % A 43-error program passing 16/18 tests must beat a clean-verifying program
 % with NO scenarios at all (which demonstrates nothing).
 test(rank_prefers_tested_over_untested_clean) :-
@@ -420,7 +642,8 @@ test(scenario_policy_forbids_invention_when_no_case_is_supplied) :-
 
 test(scenario_policy_counts_the_supplied_cases) :-
     le_contract_assistant:scenarios_block(_{existing: none}, 3, B),
-    assertion(sub_string(B, _, _, _, "one scenario per supplied case (3 supplied)")).
+    assertion(sub_string(B, _, _, _, "one scenario per supplied case")),
+    assertion(sub_string(B, _, _, _, "3 cases were supplied")).
 
 test(instructions_block_is_empty_without_instructions) :-
     le_contract_assistant:instructions_block(_{instructions: none}, B),
@@ -714,6 +937,31 @@ existing_config(Config) :-
     existing_fixture(E),
     Config = Config0.put(existing_code, E).
 
+% Several schedule files, one of them structured (.json): both must reach the
+% drafting prompt, each under a header naming its file.
+:- dynamic saw_prompt/1.
+
+hook_schedules(Purpose, Messages, Reply) :-
+    (   Purpose = draft(_)
+    ->  findall(C, ( member(M, Messages), get_dict(content, M, C) ), Cs),
+        atomic_list_concat(Cs, "\n", Prompt),
+        assertz(saw_prompt(Prompt))
+    ;   true
+    ),
+    (   Purpose = holdout(_, _)
+    ->  fence("scenario held out case 101 is:\n    carol is healthy.\n    who expects answers [\"carol is happy\"].\n", Reply)
+    ;   hook_good(Purpose, Messages, Reply)
+    ).
+
+two_schedules_config(Config) :-
+    good_wording(W),
+    Config = _{wording: _{name: "contract.md", text: W},
+               schedule: [_{name: "limits.json", text: "{\"limit\": 1000}"},
+                          _{name: "elections.md", text: "Elections: none.\n"}],
+               cases: [_{name: "case1.md", text: "Case 1: bob was healthy."}],
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}}.
+
 two_case_config(Features, Config) :-
     good_wording(W),
     Config = _{wording: _{name: "contract.md", text: W},
@@ -774,6 +1022,59 @@ test(ledger_skipped_when_winner_is_broken,
     assertion(sub_string(Ledger, _, _, _, "skipped")),
     Scores = Result.scores, Scores = [Score],
     assertion(Score.errors >= 1).
+
+test(several_schedule_files_reach_the_drafting_prompt,
+     [setup(( retractall(user:saw_prompt(_)), hook_setup(user:hook_schedules) )),
+      cleanup(( retractall(user:saw_prompt(_)), hook_cleanup ))]) :-
+    two_schedules_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    user:saw_prompt(Sys),
+    assertion(sub_string(Sys, _, _, _, "{\"limit\": 1000}")),   % the .json, verbatim
+    assertion(sub_string(Sys, _, _, _, "Elections: none.")),
+    assertion(sub_string(Sys, _, _, _, "limits.json")),         % named in its header
+    !.
+
+% End to end: a JSON claims file is not one case, it is four, and the drafting
+% prompt is told to write one scenario for each — with the schedule each claim
+% names attached to it.
+json_cases_config(Config) :-
+    good_wording(W),
+    Claims = "{\"claims\": [
+       {\"claimRef\": \"C1\", \"policyRef\": \"P1\", \"facts\": \"bob was healthy\"},
+       {\"claimRef\": \"C2\", \"policyRef\": \"P2\", \"facts\": \"carol was healthy\"},
+       {\"claimRef\": \"C3\", \"policyRef\": \"P1\", \"facts\": \"dave was healthy\"},
+       {\"claimRef\": \"C4\", \"policyRef\": \"P2\", \"facts\": \"eve was healthy\"}]}",
+    Scheds = "{\"schedules\": [
+       {\"policyRef\": \"P1\", \"buildingLimit\": 250000},
+       {\"policyRef\": \"P2\", \"buildingLimit\": 120000}]}",
+    Config = _{wording: _{name: "contract.md", text: W},
+               schedule: [_{name: "schedules.json", text: Scheds}],
+               cases: [_{name: "claims.json", text: Claims}],
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}}.
+
+test(a_json_claims_array_becomes_one_case_per_claim_end_to_end,
+     [setup(( retractall(user:saw_prompt(_)), hook_setup(user:hook_schedules) )),
+      cleanup(( retractall(user:saw_prompt(_)), hook_cleanup ))]) :-
+    json_cases_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    % four claims, the last quarter held out: three development cases
+    le_contract_assistant:ca_config(JobID, C),
+    assertion(C.n_dev_cases =:= 3),
+    user:saw_prompt(Prompt),
+    assertion(sub_string(Prompt, _, _, _, "### CASE 3")),
+    assertion(\+ sub_string(Prompt, _, _, _, "### CASE 4")),   % the fourth is blind
+    assertion(sub_string(Prompt, _, _, _, "3 cases were supplied")),
+    % each case carries the schedule entry it names, and not the other one
+    atom_string(PromptA, Prompt),
+    atomic_list_concat(Chunks, '### CASE ', PromptA),
+    nth1(3, Chunks, Case2),                     % chunk 1 is everything before CASE 1
+    assertion(sub_atom(Case2, _, _, _, 'carol was healthy')),
+    assertion(sub_atom(Case2, _, _, _, '120000')),
+    assertion(\+ sub_atom(Case2, _, _, _, '250000')),
+    !.
 
 test(status_reports_config_and_elapsed,
      [setup(hook_setup(user:hook_good)), cleanup(hook_cleanup)]) :-
