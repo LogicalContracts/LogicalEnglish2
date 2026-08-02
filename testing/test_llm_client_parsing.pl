@@ -108,6 +108,15 @@ test(openai_gpt5_uses_effort_minimal) :-
     llm_client:reasoning_fields(openai, 'gpt-5.2', minimal, F),
     assertion(F == [reasoning_effort(minimal)]).
 
+% ... but gpt-5.5 dropped that level: asking for it is an HTTP 400 naming the
+% levels it does take ('none', 'low', 'medium', 'high', 'xhigh'), and "think as
+% little as possible" for this model means none. (Observed: a contract job that
+% the truncation ladder had switched to minimal reasoning lost every subsequent
+% call to that 400.)
+test(openai_gpt55_uses_effort_none) :-
+    llm_client:reasoning_fields(openai, 'gpt-5.5', minimal, F),
+    assertion(F == [reasoning_effort(none)]).
+
 test(openai_o_series_uses_effort_low) :-
     llm_client:reasoning_fields(openai, 'o3-mini', minimal, F),
     assertion(F == [reasoning_effort(low)]).
@@ -173,6 +182,15 @@ test(reasoning_is_translated_not_forwarded) :-
     llm_client:request_fields(openai, 'gpt-5.5',
                               [api_key(k), max_tokens(10), reasoning(minimal)], Body, _),
     assertion(\+ memberchk(reasoning(_), Body)),
-    assertion(memberchk(reasoning_effort(minimal), Body)).
+    assertion(memberchk(reasoning_effort(none), Body)).
+
+% An explicit reasoning_effort — what the contract assistant sends once a
+% provider has told it which levels it accepts — is passed through untouched,
+% and does not pick up a second one from the translation.
+test(explicit_reasoning_effort_is_forwarded_alone) :-
+    llm_client:request_fields(openai, 'gpt-5.5',
+                              [api_key(k), max_tokens(10), reasoning_effort(low)], Body, _),
+    include([O]>>(O = reasoning_effort(_)), Body, Efforts),
+    assertion(Efforts == [reasoning_effort(low)]).
 
 :- end_tests(llm_request_options).

@@ -455,6 +455,35 @@ raw_hook_refuses_temperature(_Model, _Messages, Opts, Reply) :-
     ;   Reply = "the answer"
     ).
 
+% A provider that knows `reasoning_effort` but not the level we send — gpt-5.5,
+% which dropped the "minimal" its predecessors accept — and names the levels it
+% does take. It answers as soon as one of those is used.
+:- dynamic effort_calls/2.
+
+raw_hook_refuses_minimal_effort(_Model, _Messages, Opts, Reply) :-
+    ( retract(effort_calls(N0, _)) -> true ; N0 = 0 ),
+    N is N0 + 1,
+    (   memberchk(reasoning_effort(Level), Opts)
+    ->  true
+    ;   memberchk(reasoning(Level), Opts)
+    ->  true
+    ;   Level = absent
+    ),
+    assertz(effort_calls(N, Level)),
+    (   memberchk(Level, [minimal, absent])
+    ->  throw(error(llm_api_error(400,
+            "{\"error\":{\"code\":\"unsupported_value\",\"message\":\"Unsupported value: 'reasoning_effort' does not support 'minimal' with this model. Supported values are: 'none', 'low', 'medium', 'high', and 'xhigh'.\",\"param\":\"reasoning_effort\"}}"), c))
+    ;   Reply = "the answer"
+    ).
+
+% ... and one that rejects the parameter without saying what it would accept.
+raw_hook_refuses_effort_silently(_Model, _Messages, Opts, Reply) :-
+    (   le_contract_assistant:asks_for_less_reasoning(Opts)
+    ->  throw(error(llm_api_error(400,
+            "{\"error\":{\"message\":\"Unsupported parameter: 'reasoning_effort' is not supported with this model.\",\"param\":\"reasoning_effort\"}}"), c))
+    ;   Reply = "the answer"
+    ).
+
 :- begin_tests(contract_assistant_features).
 
 test(extract_search_replace_two_blocks) :-
@@ -755,6 +784,78 @@ test(temperature_rejection_is_retried_without_it,
     user:temp_calls(Calls),
     assertion(Calls =:= 2),                                   % refused, then retried
     assertion(le_contract_assistant:ca_tune(temp_retry_job, no_temperature)).
+
+% A rejection of the reasoning LEVEL is classified apart from a rejection of
+% the temperature, and the levels the provider says it accepts are read off the
+% message. (The two must not be confused: an "unsupported value" message can
+% mention both parameters, and dropping the temperature would not have saved
+% the gpt-5.5 job — every call would still have 400ed.)
+test(reasoning_effort_rejection_classified) :-
+    E = error(llm_api_error(400, "{\"error\":{\"code\":\"unsupported_value\",\"message\":\"Unsupported value: 'reasoning_effort' does not support 'minimal' with this model. Supported values are: 'none', 'low', 'medium', 'high', and 'xhigh'.\",\"param\":\"reasoning_effort\"}}"), c),
+    assertion(le_contract_assistant:reasoning_effort_rejected(E, _)),
+    le_contract_assistant:reasoning_effort_rejected(E, Supported),
+    assertion(Supported == [none, low, medium, high, xhigh]),   % "minimal" is NOT offered
+    le_contract_assistant:cheapest_effort(Supported, Level),
+    assertion(Level == none),
+    assertion(\+ le_contract_assistant:temperature_rejected(E)),
+    % a plain temperature rejection is still one, and is not read as this
+    T = error(llm_api_error(400, "Unsupported value: 'temperature' does not support 0.05 with this model."), c),
+    assertion(le_contract_assistant:temperature_rejected(T)),
+    assertion(\+ le_contract_assistant:reasoning_effort_rejected(T, _)),
+    % ... and a rejection that names no levels parses as "none offered"
+    S = error(llm_api_error(400, "Unsupported parameter: 'reasoning_effort' is not supported with this model."), c),
+    le_contract_assistant:reasoning_effort_rejected(S, None),
+    assertion(None == []),
+    assertion(\+ le_contract_assistant:cheapest_effort(None, _)).
+
+% The whole ladder, offline: the job has been switched to minimal reasoning,
+% the provider refuses that level, and the assistant retries the SAME model at
+% the cheapest level it does accept — sticky, so the next call starts there.
+test(rejected_reasoning_level_is_retried_at_an_accepted_one,
+     [setup(( retractall(user:effort_calls(_, _)),
+              retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_refuses_minimal_effort)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(user:effort_calls(_, _)),
+                retractall(le_contract_assistant:ca_tune(effort_job, _)),
+                retractall(le_contract_assistant:ca_log(effort_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(effort_job, _)) ))]) :-
+    get_time(Now), Deadline is Now + 600,
+    Config = _{deadline: Deadline, max_tokens: 4096, max_tokens_cap: 4096,
+               reasoning: minimal},
+    le_contract_assistant:llm_try(effort_job, Config, architecture, 'gpt-5.5',
+                                  [_{role: user, content: "hi"}],
+                                  [reasoning(minimal), max_tokens(4096)], 1, Reply),
+    assertion(Reply == "the answer"),
+    user:effort_calls(Calls, LastLevel),
+    assertion(Calls =:= 2),                    % refused, then retried at a good level
+    assertion(LastLevel == none),
+    assertion(le_contract_assistant:ca_tune(effort_job, reasoning_effort(none))),
+    % ... and every later call of the job goes out at that level, with no
+    % second `reasoning` field beside it
+    le_contract_assistant:stage_options(effort_job, Config, draft(1), "KEY", [], Opts),
+    assertion(memberchk(reasoning_effort(none), Opts)),
+    assertion(\+ memberchk(reasoning(_), Opts)).
+
+% A provider that refuses the parameter without naming an alternative: drop it
+% and carry on, rather than failing the job.
+test(unusable_reasoning_parameter_is_dropped,
+     [setup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_refuses_effort_silently)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(le_contract_assistant:ca_tune(effort_drop_job, _)),
+                retractall(le_contract_assistant:ca_log(effort_drop_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(effort_drop_job, _)) ))]) :-
+    get_time(Now), Deadline is Now + 600,
+    Config = _{deadline: Deadline, max_tokens: 4096, max_tokens_cap: 4096,
+               reasoning: minimal},
+    le_contract_assistant:llm_try(effort_drop_job, Config, architecture, 'some-model',
+                                  [_{role: user, content: "hi"}],
+                                  [reasoning(minimal), max_tokens(4096)], 1, Reply),
+    assertion(Reply == "the answer"),
+    assertion(le_contract_assistant:ca_tune(effort_drop_job, no_reasoning)),
+    le_contract_assistant:stage_options(effort_drop_job, Config, draft(1), "KEY", [], Opts),
+    assertion(\+ le_contract_assistant:asks_for_less_reasoning(Opts)).
 
 test(transient_errors_classified) :-
     assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(503, x), c))),
