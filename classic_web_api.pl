@@ -2219,10 +2219,11 @@ scasp_bindings_json(Bindings, Dict) :-
 %        rules: [{start, end}, ...]}      % every rule/fact with that head
 %
 %   Request: sessionModule, position (character offset) and — optionally but
-%   usefully — line, the text of the cursor's line. A rule's source range covers
-%   the whole rule, so the offset alone cannot say whether the cursor is on the
-%   head or on one of the conditions; the line text picks the literal out of the
-%   ones that rule actually contains.
+%   usefully — line, the text of the cursor's line, and lineStart, that line's
+%   character offset. A rule's source range covers the whole rule, so the
+%   offset alone cannot say whether the cursor is on the head or on one of the
+%   conditions; lineStart settles it for the head line, and the line text picks
+%   the literal out of the ones that rule actually contains everywhere else.
 handle_predicate_at(Dict, Response) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
@@ -2232,23 +2233,50 @@ handle_predicate_at(Dict, Response) :-
     ->  Response = _{error: "No KB loaded"}
     ;   get_dict(position, Dict, Pos),
         ( get_dict(line, Dict, Line0) -> true ; Line0 = "" ),
-        (   predicate_at_pos(KB, Pos, Line0, F, A)
+        ( get_dict(lineStart, Dict, LS), integer(LS) -> LineStart = LS ; LineStart = none ),
+        (   predicate_at_pos(KB, Pos, Line0, LineStart, F, A)
         ->  predicate_places(KB, F, A, Response)
         ;   Response = _{error: "No predicate at this position"}
         )
     ).
 
 %!  predicate_at_pos(+KB, +Pos, +Line, -F, -A) is semidet.
+%!  predicate_at_pos(+KB, +Pos, +Line, +LineStart, -F, -A) is semidet.
 predicate_at_pos(KB, Pos, Line, F, A) :-
+    predicate_at_pos(KB, Pos, Line, none, F, A).
+
+predicate_at_pos(KB, Pos, Line, LineStart, F, A) :-
     % on a template declaration: that template's predicate
     (   template_at_pos(KB, Pos, F0, A0)
     ->  F = F0, A = A0
-    ;   find_clause_at_pos(KB, Pos, Clause),
+    ;   find_clause_at_pos(KB, Pos, Clause, Start, _End),
         clause_literals(Clause, Literals),
         Literals \== [],
-        best_literal_for_line(KB, Literals, Line, Literal),
+        (   on_head_line(Start, Line, LineStart)
+        ->  Literals = [Literal|_]
+        ;   best_literal_for_line(KB, Literals, Line, Literal)
+        ),
         functor(Literal, F, A)
     ).
+
+%!  on_head_line(+ClauseStart, +Line, +LineStart) is semidet.
+%
+%   The cursor sits on the line the rule STARTS on, so it is on the head — and
+%   the answer is the head's own predicate, whatever the conditions below say.
+%
+%   Word overlap alone gets this wrong whenever the head carries prepositional
+%   additions. `we will make a payment under this policy in respect of a claim`
+%   is the predicate `we will make *a payment*` folded with two composite
+%   templates, so the head literal renders as just "we will make a payment" —
+%   five words of the line — while a condition further down the rule
+%   ("*a payment* in respect of *a claim* fulfills all the general conditions
+%   of *a policy*") shares ten. Fold-all-rules then folded that condition's
+%   predicate instead of the rule the user was pointing at.
+on_head_line(Start, Line, LineStart) :-
+    integer(LineStart),
+    string_length(Line, Len),
+    Start >= LineStart,
+    Start =< LineStart + Len.
 
 template_at_pos(KB, Pos, F, A) :-
     current_predicate(KB:le_source_info/4),
@@ -2264,21 +2292,31 @@ clause_literals(Head, [Head]).
 
 %!  best_literal_for_line(+KB, +Literals, +Line, -Literal) is det.
 %
-%   The literal of this rule whose Logical English rendering shares the most
-%   words with the cursor's line; the head when nothing matches (an empty line,
-%   or a cursor parked on `if`).
+%   The literal of this rule whose Logical English rendering best matches the
+%   cursor's line; the head when nothing matches (an empty line, or a cursor
+%   parked on `if`).
+%
+%   "Best" is the FRACTION of the literal's own words the line contains, not
+%   the raw count of shared words: a long condition shares a dozen articles and
+%   prepositions with any line of the same rule and used to win on volume
+%   alone. Ties go to the head — a head whose words the line spells out in full
+%   is the rule's identity, and a condition that merely matches as well is no
+%   evidence against it — and then to the raw count.
 best_literal_for_line(_KB, [Head|_], Line, Head) :-
     normalize_space(string(L), Line), L == "", !.
-best_literal_for_line(KB, Literals, Line, Best) :-
+best_literal_for_line(KB, [Head|Rest], Line, Best) :-
     string_lower(Line, Lower),
     split_string(Lower, " \t.,;()", " \t.,;()", Words0),
     exclude(==(""), Words0, Words),
-    map_list_to_pairs(literal_overlap(KB, Words), Literals, Scored),
-    keysort(Scored, [Score-Best0|_]),      % scores are negative: most overlap sorts first
-    ( Score < 0 -> Best = Best0 ; Literals = [Head|_], Best = Head ),
+    literal_overlap(KB, Words, Head, score(HRatio, HShared)),
+    findall(score(R, 1, N)-L,
+            ( member(L, Rest), literal_overlap(KB, Words, L, score(R, N)) ),
+            Conditions),
+    keysort([score(HRatio, 0, HShared)-Head|Conditions], [Score-Best0|_]),
+    ( Score = score(NegRatio, _, _), NegRatio < 0 -> Best = Best0 ; Best = Head ),
     !.
 
-literal_overlap(KB, Words, Literal, Neg) :-
+literal_overlap(KB, Words, Literal, score(NegRatio, NegShared)) :-
     (   catch(le_kbs:item_to_instance(KB, Literal, Tokens), _, fail),
         le_kbs:canonical_string(Tokens, Str)
     ->  true
@@ -2288,8 +2326,9 @@ literal_overlap(KB, Words, Literal, Neg) :-
     split_string(LStr, " \t.,;()*", " \t.,;()*", LWords0),
     exclude(==(""), LWords0, LWords),
     include([W]>>memberchk(W, Words), LWords, Shared),
-    length(Shared, N),
-    Neg is -N.          % negative so that keysort puts the best overlap first
+    length(Shared, N), length(LWords, Total),
+    ( Total =:= 0 -> NegRatio = 0.0 ; NegRatio is -N / Total ),
+    NegShared is -N.    % negative so that keysort puts the best match first
 
 %!  predicate_places(+KB, +F, +A, -Response:dict) is det.
 predicate_places(KB, F, A, Response) :-
@@ -2331,7 +2370,8 @@ handle_predicate_occurrences(Dict, Response) :-
     ->  Response = _{error: "No KB loaded"}
     ;   get_dict(position, Dict, Pos),
         ( get_dict(line, Dict, Line0) -> true ; Line0 = "" ),
-        (   predicate_at_pos(KB, Pos, Line0, F, A)
+        ( get_dict(lineStart, Dict, LS), integer(LS) -> LineStart = LS ; LineStart = none ),
+        (   predicate_at_pos(KB, Pos, Line0, LineStart, F, A)
         ->  predicate_occurrences(KB, F, A, Response)
         ;   Response = _{error: "No predicate at this position"}
         )
@@ -2431,13 +2471,20 @@ remove_duplicates_stable([H|T], [H|R]) :-
     remove_duplicates_stable(T1, R).
 
 find_clause_at_pos(KB, Pos, Clause) :-
-    findall(range(Len, Ref), (
+    find_clause_at_pos(KB, Pos, Clause, _, _).
+
+%!  find_clause_at_pos(+KB, +Pos, -Clause, -Start, -End) is semidet.
+%
+%   ... and the source range the clause was found in, which is what tells the
+%   caller whether the cursor is on the head line (see on_head_line/3).
+find_clause_at_pos(KB, Pos, Clause, CStart, CEnd) :-
+    findall(range(Len, Ref, Start, End), (
         KB:le_source_info(Ref, Start, End, _),
         Pos >= Start, Pos =< End,
         Len is End - Start
     ), Ranges),
     sort(Ranges, SortedRanges),
-    member(range(_, Ref), SortedRanges),
+    member(range(_, Ref, CStart, CEnd), SortedRanges),
     clause(KB:Head, Body, Ref),
     (   Head = scenario(Name, Facts)
     ->  % Show just the scenario fact under the cursor rather than dumping the
