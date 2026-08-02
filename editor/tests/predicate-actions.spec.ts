@@ -201,4 +201,65 @@ test.describe('predicate actions', () => {
         });
         expect(await page.evaluate(() => (window as any).monaco.editor.getEditors()[0].getPosition().lineNumber)).toBe(11);
     });
+
+    // A head whose predicate carries prepositional additions ("we will make
+    // *a payment*" folded with the composite templates "*a payment* under
+    // *a policy*" and "*a payment* in respect of *a claim*"): the head literal
+    // is a fraction of the words on its own line, and Fold-all-rules used to
+    // fold whichever condition of the rule shared the most words with it.
+    const FOLD_PROGRAM = `the target language is: prolog.
+
+the templates are:
+    we will make *a payment* ; opposite: we will not make *a payment*.
+    *a payment* under *a policy*; composite.
+    *a payment* is under *a policy*.
+    *a payment* in respect of *a claim*; composite.
+    *a payment* is in respect of *a claim*.
+    *a claim* against *a person*; composite.
+    *a claim* is against *a person*.
+    *a payment* in respect of *a claim* fulfills all the general conditions of *a policy*.
+    *a claim* is covered by this section.
+    *a person* is an employee.
+
+the knowledge base tiny includes:
+
+we will make a payment under this policy in respect of a claim
+    if the claim is covered by this section
+    and the payment in respect of the claim fulfills all the general conditions of this policy.
+
+we will make a payment under this policy in respect of a claim against a person
+    if the person is an employee
+    and the payment in respect of the claim fulfills all the general conditions of this policy.
+
+query who is:
+    which payment is in respect of which claim.
+`;
+
+    test('Fold all rules works on a head with prepositional additions', async ({ page }) => {
+        test.setTimeout(90000);
+        await page.goto('/editor/index.html?text=' + encodeURIComponent(FOLD_PROGRAM));
+        await page.waitForSelector('.monaco-editor', { timeout: 30000 });
+        await page.waitForTimeout(4000);
+
+        // cursor on the first head (line 17), whose predicate also has the
+        // second, longer head (line 21)
+        await page.evaluate(() => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            ed.setPosition({ lineNumber: 17, column: 3 });
+        });
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            await ed.getAction('le-fold-predicate-rules').run(ed);
+        });
+        await page.waitForTimeout(2500);
+        const collapsed = await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            const fm: any = await (ed.getContribution('editor.contrib.folding') as any).getFoldingModel();
+            return [17, 21].map(l => {
+                const r = fm.getRegionAtLine(l);
+                return r ? r.isCollapsed : null;
+            });
+        });
+        expect(collapsed).toEqual([true, true]);
+    });
 });

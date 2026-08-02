@@ -9781,7 +9781,12 @@ async function start() {
           operation,
           sessionModule,
           position: model2.getOffsetAt(position),
-          line: model2.getLineContent(position.lineNumber)
+          line: model2.getLineContent(position.lineNumber),
+          // Where that line starts: a rule whose source range
+          // begins on this line is a rule the cursor is on the
+          // HEAD of, whatever words the conditions below share
+          // with it (see on_head_line/3 in classic_web_api.pl).
+          lineStart: model2.getOffsetAt({ lineNumber: position.lineNumber, column: 1 })
         })
       });
       const data = await response.json();
