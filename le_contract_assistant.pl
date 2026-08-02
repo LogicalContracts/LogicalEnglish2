@@ -2195,6 +2195,10 @@ technicalities(JobID, Config, WIdx, DeliveredSummary, Interrogation, Paraphrase,
               ->  TLine = "  - temperature dropped: the provider rejects it for this model (samples varied by the model's own sampling instead)"
               ;   Tune = max_tokens(N)
               ->  format(string(TLine), "  - completion limit raised to ~w after truncation", [N])
+              ;   Tune = reasoning_effort(L)
+              ->  format(string(TLine), "  - reasoning effort pinned to ~w: the provider rejected the level we asked for", [L])
+              ;   Tune == no_reasoning
+              ->  TLine = "  - reasoning parameter dropped: the provider named no level it would accept"
               ) ),
             TLines),
     ( TLines == [] -> TuneBlock = "  - none" ; atomic_list_concat(TLines, "\n", TuneBlock) ),
@@ -2452,9 +2456,14 @@ stage_options(JobID, Config, Purpose, Key, Options, Opts) :-
     ;   purpose_max_tokens(Purpose, Config, MT)
     ),
     call_timeout(Config, T),
-    (   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
-    ->  Extra = [api_key(Key), max_tokens(MT), timeout(T), reasoning(minimal)]
-    ;   Extra = [api_key(Key), max_tokens(MT), timeout(T)]
+    Base = [api_key(Key), max_tokens(MT), timeout(T)],
+    (   ca_tune(JobID, no_reasoning)          % the provider refused the parameter
+    ->  Extra = Base
+    ;   ca_tune(JobID, reasoning_effort(L))   % ... or refused the level we asked for
+    ->  Extra = [reasoning_effort(L)|Base]
+    ;   ( Config.reasoning == minimal ; ca_tune(JobID, reasoning_minimal) )
+    ->  Extra = [reasoning(minimal)|Base]
+    ;   Extra = Base
     ),
     ( ca_tune(JobID, no_temperature) -> drop_temperature(Options, Options1) ; Options1 = Options ),
     append(Options1, Extra, Opts).
@@ -2463,6 +2472,23 @@ drop_temperature(Opts0, Opts) :-
     exclude(is_temperature_option, Opts0, Opts).
 
 is_temperature_option(temperature(_)).
+
+drop_reasoning(Opts0, Opts) :-
+    exclude(is_reasoning_option, Opts0, Opts).
+
+is_reasoning_option(reasoning(_)).
+is_reasoning_option(reasoning_effort(_)).
+
+%!  asks_for_less_reasoning(+Opts) is semidet.
+%
+%   The request already tells the model to think less — either through our own
+%   `reasoning(minimal)` or through the explicit `reasoning_effort(Level)` a
+%   provider's rejection taught us to send. The truncation and silence ladders
+%   check this before adding `reasoning(minimal)`: sending both would translate
+%   to two `reasoning_effort` fields, and building the JSON body from duplicate
+%   keys throws.
+asks_for_less_reasoning(Opts) :-
+    ( memberchk(reasoning(_), Opts) -> true ; memberchk(reasoning_effort(_), Opts) ).
 
 %!  purpose_max_tokens(+Purpose, +Config, -MT) is det.
 %
@@ -2615,12 +2641,40 @@ llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Repl
     ca_check_alive(JobID),
     drop_temperature(Opts, Opts1),
     llm_try(JobID, Config, Purpose, Model, Messages, Opts1, Attempt, Reply).
+% The provider takes `reasoning_effort` but not the level we asked for (gpt-5.5
+% dropped "minimal"). It says which levels it does take: switch to the cheapest
+% of those and carry on — sticky, so one rejection costs one retry rather than
+% one per call. Without this, a job that the truncation ladder had switched to
+% minimal reasoning lost EVERY subsequent call to an HTTP 400.
+llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
+    reasoning_effort_rejected(E, Supported),
+    ( memberchk(reasoning(_), Opts) ; memberchk(reasoning_effort(_), Opts) ),
+    \+ deadline_exceeded(Config),
+    !,
+    drop_reasoning(Opts, Opts1),
+    (   cheapest_effort(Supported, Level)
+    ->  Opts2 = [reasoning_effort(Level)|Opts1],
+        Tune = reasoning_effort(Level),
+        format(string(Note), "reasoning effort ~w (the cheapest ~w accepts)", [Level, Model])
+    ;   Opts2 = Opts1,
+        Tune = no_reasoning,
+        Note = "no reasoning parameter at all"
+    ),
+    ca_emit(JobID, "LLM call (~w): ~w rejects the reasoning level we asked for; retrying with ~w"-[Purpose, Model, Note]),
+    (   ca_tune(JobID, Tune)
+    ->  true
+    ;   assertz(ca_tune(JobID, Tune)),
+        ca_emit(JobID, "Auto-tuning: the rest of the job uses ~w"-[Note])
+    ),
+    ca_check_alive(JobID),
+    llm_try(JobID, Config, Purpose, Model, Messages, Opts2, Attempt, Reply).
 % The model spent its whole completion budget reasoning. Deterministic, so a
 % plain retry is pointless — but asking it to THINK LESS is not: retry once
 % with reasoning(minimal). Only if the minimal-reasoning call also drowns in
 % thought does the job fail.
 llm_outcome(err(error(llm_truncated(_), _)), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
-    \+ memberchk(reasoning(_), Opts),
+    \+ asks_for_less_reasoning(Opts),
+    \+ ca_tune(JobID, no_reasoning),      % this provider has already refused it
     \+ deadline_exceeded(Config),
     !,
     ca_emit(JobID, "LLM call (~w) was truncated mid-reasoning; retrying with minimal reasoning"-[Purpose]),
@@ -2659,7 +2713,8 @@ llm_outcome(err(error(llm_truncated(_), _)), JobID, _Config, Purpose, Model, _Me
 % immediately after this switch, reached by the truncation ladder by luck.)
 llm_outcome(err(E), JobID, Config, Purpose, Model, Messages, Opts, Attempt, Reply) :-
     silent_provider_error(E),
-    \+ memberchk(reasoning(_), Opts),
+    \+ asks_for_less_reasoning(Opts),
+    \+ ca_tune(JobID, no_reasoning),
     \+ deadline_exceeded(Config),
     !,
     ca_emit(JobID, "LLM call (~w): ~w went silent for the whole timeout; retrying with minimal reasoning"-[Purpose, Model]),
@@ -2730,7 +2785,61 @@ temperature_rejected(error(llm_api_error(Status, Body), _)) :-
     memberchk(Status, [400, 422]),
     term_string(Body, BS0),
     string_lower(BS0, BS),
-    sub_string(BS, _, _, _, "temperature").
+    sub_string(BS, _, _, _, "temperature"),
+    \+ sub_string(BS, _, _, _, "reasoning_effort").
+
+%!  reasoning_effort_rejected(+Error, -Supported:list(atom)) is semidet.
+%
+%   A parameter rejection naming `reasoning_effort`: the provider knows the
+%   parameter but not the VALUE we sent. Observed with gpt-5.5, which dropped
+%   the "minimal" level its predecessors accept:
+%
+%       Unsupported value: 'reasoning_effort' does not support 'minimal' with
+%       this model. Supported values are: 'none', 'low', 'medium', 'high',
+%       and 'xhigh'.
+%
+%   Providers say which values they DO take, so Supported is parsed out of the
+%   message (empty when it says nothing useful) and the caller picks the
+%   cheapest one it recognises. This is what makes a model list that has gone
+%   stale cost one retry instead of the whole job: the truncation ladder had
+%   switched every call to minimal reasoning, and every call then 400ed.
+%   A 400/422 that names the parameter at all is about the parameter: whether
+%   it is the value or the field itself the provider objects to, our reasoning
+%   option is what has to change.
+reasoning_effort_rejected(error(llm_api_error(Status, Body), _), Supported) :-
+    integer(Status),
+    memberchk(Status, [400, 422]),
+    term_string(Body, BS0),
+    string_lower(BS0, BS),
+    sub_string(BS, _, _, _, "reasoning_effort"),
+    supported_efforts(BS, Supported).
+
+% The quoted values that follow "supported values are:".
+supported_efforts(Message, Supported) :-
+    (   sub_string(Message, Before, _, _, "supported values are")
+    ->  sub_string(Message, Before, _, 0, Tail),
+        findall(V, ( known_effort(V), quoted_in(Tail, V) ), Supported)
+    ;   Supported = []
+    ).
+
+quoted_in(Text, Value) :-
+    format(string(Quoted), "'~w'", [Value]),
+    sub_string(Text, _, _, _, Quoted), !.
+
+known_effort(none).
+known_effort(minimal).
+known_effort(low).
+known_effort(medium).
+known_effort(high).
+known_effort(xhigh).
+
+%!  cheapest_effort(+Supported, -Level) is semidet.
+%
+%   The least thinking the provider offers — the point of the retry is to spend
+%   FEWER reasoning tokens, not to find any value it accepts.
+cheapest_effort(Supported, Level) :-
+    member(Level, [none, minimal, low, medium]),
+    memberchk(Level, Supported), !.
 
 transient_llm_error(error(llm_api_error(Status, _), _)) :-
     integer(Status),

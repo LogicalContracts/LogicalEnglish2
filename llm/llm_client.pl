@@ -189,8 +189,19 @@ reasoning_fields(groq, Model, minimal, Fields) :- !,
     ;   Fields = []
     ).
 reasoning_fields(openai, Model, minimal, Fields) :- !,
-    (   atom_string(M, Model), sub_atom(M, 0, _, _, 'gpt-5')
-    ->  Fields = [reasoning_effort(minimal)]   % gpt-5* accepts "minimal"
+    atom_string(M, Model),
+    (   sub_atom(M, 0, _, _, 'gpt-5.5')
+    ->  % gpt-5.5 dropped the "minimal" its predecessors accept; its floor is
+        % "none" ("Unsupported value: 'reasoning_effort' does not support
+        % 'minimal' with this model. Supported values are: 'none', 'low',
+        % 'medium', 'high', and 'xhigh'." — an HTTP 400 that failed every call
+        % of a contract job once the truncation ladder had switched it to
+        % minimal). A model list can only ever be as fresh as its last edit, so
+        % the contract assistant also reads the accepted levels off such a
+        % rejection and retries; this keeps that from costing a round trip.
+        Fields = [reasoning_effort(none)]
+    ;   sub_atom(M, 0, _, _, 'gpt-5')
+    ->  Fields = [reasoning_effort(minimal)]   % gpt-5 / gpt-5-mini accept "minimal"
     ;   reasoning_effort_model(Model)
     ->  Fields = [reasoning_effort(low)]       % o-series knows only low/medium/high
     ;   Fields = []
