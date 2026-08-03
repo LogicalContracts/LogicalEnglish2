@@ -305,6 +305,115 @@ test(ledger_coverage_counts_the_todo_rows) :-
     assertion(Rows =:= 4),        % header and |---| rule excluded
     assertion(Todo =:= 2).        % the prose TODO line is not a table row
 
+% ---- mechanical de-duplication -----------------------------------------------
+% Models fed a JSON array of similar claims write a template per claim (GLM-5.2
+% produced pages of them). A repetition cannot change what the program decides,
+% so it goes without an LLM call and without a verification gate — but only a
+% real repetition: rules that share a head, and identical facts in DIFFERENT
+% scenarios, are meant.
+
+dup_program("the target language is: prolog.
+
+the templates are:
+    *a person* is happy.
+    *a person* is healthy.
+    *a person* is happy.
+    *a claim* involves a scenario tested of *a description*.
+    *a claim* involves a scenario tested of *a description*.
+
+the knowledge base tiny includes:
+
+a person is happy
+    if the person is healthy.
+
+a person is happy
+    if the person is healthy.
+
+bob is healthy.
+bob is healthy.
+
+query who is:
+    which person is happy.
+").
+
+test(duplicate_templates_rules_and_facts_are_removed) :-
+    dup_program(P),
+    le_contract_assistant:dedup_program(_{existing: none}, P, Text, Report),
+    assertion(Report.templates =:= 2),
+    assertion(Report.rules =:= 2),          % the repeated rule and the repeated fact
+    % one of each survives, in place
+    once(sub_string(Text, _, _, _, "*a person* is happy.")),
+    aggregate_all(count, sub_string(Text, _, _, _, "involves a scenario tested"), NT),
+    assertion(NT =:= 1),
+    aggregate_all(count, sub_string(Text, _, _, _, "bob is healthy."), NF),
+    assertion(NF =:= 1),
+    aggregate_all(count, sub_string(Text, _, _, _, "if the person is healthy."), NR),
+    assertion(NR =:= 1).
+
+% Two rules for one predicate share a head line, and two scenarios legitimately
+% state the same fact: neither is a duplicate.
+test(rules_sharing_a_head_and_per_scenario_facts_are_kept) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    *a person* is rich.\n\nthe knowledge base tiny includes:\n\na person is happy\n    if the person is healthy.\n\na person is happy\n    if the person is rich.\n\nscenario one is:\n    bob is healthy.\n\nscenario two is:\n    bob is healthy.\n\nquery who is:\n    which person is happy.\n",
+    le_contract_assistant:dedup_program(_{existing: none}, P, Text, Report),
+    assertion(Report.deleted =:= 0),
+    assertion(Text == P).
+
+% ---- a program with no rules is an ERROR, not a clean program ----------------
+% The FEMA run delivered a program whose knowledge base header read
+% "the knowledge base NFIP is:" instead of "... includes:". LE reported the
+% whole discarded knowledge base as ONE unknown_section, so the branch scored
+% "1 error" and won — with no rule in it and 0 of 17 tests passing.
+test(a_program_with_templates_but_no_rules_scores_an_error) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny is:\n\na person is happy\n    if the person is healthy.\n\nquery who is:\n    which person is happy.\n",
+    verify_le_text(P, V),
+    assertion((member(I, V.issues), get_dict(type, I, "no_rules"))),
+    assertion(V.errors >= 2),      % the unknown section AND the missing rules
+    % ... while a program that HAS a rule does not get it
+    Q = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny includes:\n\na person is happy\n    if the person is healthy.\n\nquery who is:\n    which person is happy.\n",
+    verify_le_text(Q, V2),
+    assertion(\+ (member(I2, V2.issues), get_dict(type, I2, "no_rules"))).
+
+% ---- a rewrite has to earn its place ----------------------------------------
+% Once a branch is within a few errors of loading, a whole new program is not a
+% repair: it is a fresh draft that throws away everything already working. One
+% run went 82 → 36 → 1 error and the next full-program reply put it back to 77.
+
+test(rewrite_policy_guards_only_when_the_program_is_close) :-
+    Diff = _{features: _{diff_repairs: true}},
+    le_contract_assistant:rewrite_policy(Diff, _{errors: 0}, P0),
+    assertion(P0 = guarded(_)),
+    le_contract_assistant:rewrite_policy(Diff, _{errors: 5}, P5),
+    assertion(P5 = guarded(_)),
+    % ... a program still far from loading may be rewritten freely
+    le_contract_assistant:rewrite_policy(Diff, _{errors: 40}, P40),
+    assertion(P40 == any),
+    % ... and with diff repairs off, the full program IS the mechanism
+    Full = _{features: _{diff_repairs: false}},
+    le_contract_assistant:rewrite_policy(Full, _{errors: 0}, PF),
+    assertion(PF == any).
+
+test(a_rewrite_that_verifies_worse_is_refused) :-
+    good_program(Good),
+    verify_le_text(Good, V),
+    Config = _{features: _{diff_repairs: true}},
+    worse_program(Worse),
+    fence(Worse, Reply),
+    le_contract_assistant:apply_repair_reply(Config, guarded(V), Reply, Good, NewText, How),
+    assertion(NewText == Good),
+    assertion(sub_string(How, _, _, _, "refused")).
+
+test(a_rewrite_that_verifies_better_is_used) :-
+    broken_program(Broken),          % 0 errors, but its one test fails
+    verify_le_text(Broken, V),
+    assertion(V.errors =:= 0),
+    assertion(V.tests_failed =:= 1),
+    Config = _{features: _{diff_repairs: true}},
+    good_program(Good),
+    fence(Good, Reply),
+    le_contract_assistant:apply_repair_reply(Config, guarded(V), Reply, Broken, NewText, How),
+    assertion(NewText == Good),
+    assertion(sub_string(How, _, _, _, "verifies better")).
+
 test(schedule_text_of_no_file_is_empty) :-
     le_contract_assistant:schedule_text([], T),
     assertion(T == "").
@@ -549,7 +658,7 @@ test(target_slice_from_toc_titles) :-
 test(unapplied_edit_block_never_becomes_the_program) :-
     Config = _{features: _{diff_repairs: true}},
     Reply = "```\n<<<<<<< SEARCH\ndoes not exist in the program\n=======\nreplacement\n>>>>>>> REPLACE\n```\n",
-    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, _How),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, "the original program", NewText, _How),
     assertion(NewText == "the original program").
 
 % A reply that elides sections ("% ... (all rules and templates)") must never
@@ -557,7 +666,7 @@ test(unapplied_edit_block_never_becomes_the_program) :-
 test(elided_program_never_replaces_the_text) :-
     Config = _{features: _{diff_repairs: true}},
     Reply = "```le\n% ... (all rules and templates)\n\nscenario case1 is:\n    the claim occurs on 2026-02-12.\n```\n",
-    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, How),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, "the original program", NewText, How),
     assertion(NewText == "the original program"),
     assertion(sub_string(How, _, _, _, "elided")).
 
@@ -576,7 +685,7 @@ test(amputated_full_program_reply_never_replaces_the_text) :-
     Config = _{features: _{diff_repairs: true}},
     long_program(P),
     Reply = "```le\nthe templates are:\n    *a claim* is covered.\n```\n",
-    le_contract_assistant:apply_repair_reply(Config, Reply, P, NewText, How),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, P, NewText, How),
     assertion(NewText == P),
     assertion(sub_string(How, _, _, _, "treated as truncation")).
 
@@ -587,7 +696,7 @@ test(truncated_full_program_reply_never_replaces_the_text) :-
     long_program(P),
     string_concat("```le\n", P, Head),
     sub_string(Head, 0, 900, _, Reply),      % cut off: no closing fence
-    le_contract_assistant:apply_repair_reply(Config, Reply, P, NewText, How),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, P, NewText, How),
     assertion(NewText == P),
     assertion(sub_string(How, _, _, _, "cut off mid-program")).
 
@@ -597,14 +706,14 @@ test(a_full_sized_full_program_reply_is_still_accepted) :-
     Config = _{features: _{diff_repairs: true}},
     long_program(P),
     format(string(Reply), "```le\n~w\nand one more rule if it is so.\n```\n", [P]),
-    le_contract_assistant:apply_repair_reply(Config, Reply, P, NewText, How),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, P, NewText, How),
     assertion(sub_string(NewText, _, _, _, "and one more rule")),
     assertion(sub_string(How, _, _, _, "replaced the full program")).
 
 test(a_small_program_may_still_shrink) :-
     Config = _{features: _{diff_repairs: true}},
     Reply = "```le\nsmall.\n```\n",
-    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, _),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, "the original program", NewText, _),
     assertion(NewText == "small.\n").
 
 % A scenarios-only program (rules and templates elided) must be flagged as an
@@ -896,6 +1005,31 @@ hook_full(paraphrase_compare, _, "STABILITY: 83%\nMissing from B: none\n") :- !.
 hook_full(ledger, _, "LEDGER") :- !.
 hook_full(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
+% Hook that answers a repair with a WHOLE PROGRAM twice: first a worse one
+% (which must be refused), then the right one (which must be accepted). It also
+% records the prompt of each repair round, so the test can check what the model
+% was shown after its rewrite was thrown away.
+:- dynamic saw_repair/2.
+
+worse_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy if healthy.\n").
+
+hook_rewrites(Purpose, Messages, Reply) :-
+    (   Purpose = repair(_, Iter)
+    ->  findall(C, ( member(M, Messages), get_dict(content, M, C) ), Cs),
+        atomic_list_concat(Cs, "\n", Prompt),
+        assertz(saw_repair(Iter, Prompt))
+    ;   true
+    ),
+    hook_rewrites_(Purpose, Reply).
+
+hook_rewrites_(vocabulary, "*a person* is happy. % vocabulary") :- !.
+hook_rewrites_(architecture, "one branch: happiness") :- !.
+hook_rewrites_(draft(_), Reply) :- !, broken_program(P), fence(P, Reply).
+hook_rewrites_(repair(_, 0), Reply) :- !, worse_program(P), fence(P, Reply).
+hook_rewrites_(repair(_, _), Reply) :- !, good_program(P), fence(P, Reply).
+hook_rewrites_(ledger, "LEDGER") :- !.
+hook_rewrites_(Purpose, _) :- throw(unexpected_llm_purpose(Purpose)).
+
 % Hook whose ledger call returns empty content (reasoning models can exhaust
 % their output budget before emitting text): the result must explain that
 % instead of carrying a blank ledger.
@@ -911,6 +1045,7 @@ hook_empty_ledger(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 hook_broken(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
 hook_broken(architecture, _, "one branch") :- !.
 hook_broken(draft(_), _, "```\n% only a comment, no program\n```\n") :- !.
+hook_broken(ledger, _, "| Clause | Status | Notes |\n|---|---|---|\n| I.A | **TODO** | nothing encoded |\n") :- !.
 hook_broken(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
 % Hook whose repair calls always die (e.g. reasoning truncation after all
@@ -1109,7 +1244,11 @@ test(holdout_probe_and_paraphrase,
     assertion(Paraphrase.enabled == true),
     assertion(Paraphrase.stability =:= 83).
 
-test(ledger_skipped_when_winner_is_broken,
+% A broken winner is exactly when the user most needs to know what the twin
+% covers, so the ledger is written anyway — under a banner saying the program
+% it audits does not load. (It used to say "(ledger skipped)", leaving the user
+% with a broken program and no map of it.)
+test(ledger_is_written_even_when_the_winner_is_broken,
      [setup(hook_setup(user:hook_broken)), cleanup(hook_cleanup)]) :-
     good_wording(W),
     Config = _{wording: _{name: "contract.md", text: W},
@@ -1120,7 +1259,9 @@ test(ledger_skipped_when_winner_is_broken,
     assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
     le_contract_assistant:ca_result(JobID, Result),
     Ledger = Result.ledger,
-    assertion(sub_string(Ledger, _, _, _, "skipped")),
+    assertion(sub_string(Ledger, _, _, _, "does not load cleanly")),
+    assertion(sub_string(Ledger, _, _, _, "**TODO**")),      % the audit itself
+    assertion(\+ sub_string(Ledger, _, _, _, "ledger skipped")),
     Scores = Result.scores, Scores = [Score],
     assertion(Score.errors >= 1).
 
@@ -1175,6 +1316,32 @@ test(a_json_claims_array_becomes_one_case_per_claim_end_to_end,
     assertion(sub_atom(Case2, _, _, _, 'carol was healthy')),
     assertion(sub_atom(Case2, _, _, _, '120000')),
     assertion(\+ sub_atom(Case2, _, _, _, '250000')),
+    !.
+
+% End to end: the refused rewrite does not become the base of the next round,
+% and the model is TOLD why — otherwise, at temperature 0, it sends the same
+% program again and the branch burns its patience on identical refusals.
+test(a_refused_rewrite_is_not_carried_forward_and_the_model_is_told,
+     [setup(( retractall(user:saw_repair(_, _)), hook_setup(user:hook_rewrites) )),
+      cleanup(( retractall(user:saw_repair(_, _)), hook_cleanup ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    % the second rewrite (the right program) was accepted, so the branch ends clean
+    good_program(Good),
+    assertion(Result.le == Good),
+    % round 1 was prompted with the program from round 0 — NOT the refused rewrite
+    user:saw_repair(1, Prompt1),
+    broken_program(Broken),
+    sub_string(Broken, _, _, _, "alice is happy"),
+    assertion(sub_string(Prompt1, _, _, _, "alice is happy")),
+    worse_program(Worse),
+    sub_string(Worse, _, _, _, "is happy if healthy"),
+    assertion(\+ sub_string(Prompt1, _, _, _, "is happy if healthy")),
+    % ... and it says why the previous reply was thrown away
+    assertion(sub_string(Prompt1, _, _, _, "REFUSED")),
+    assertion(sub_string(Prompt1, _, _, _, "SEARCH/REPLACE")),
     !.
 
 test(status_reports_config_and_elapsed,

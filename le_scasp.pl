@@ -158,6 +158,8 @@ le_builtin_functor(le_equal_to).
 le_builtin_functor(le_not_equal_to).
 le_builtin_functor(le_is_in).
 le_builtin_functor(le_is_days_after).
+le_builtin_functor(le_minimum).
+le_builtin_functor(le_maximum).
 le_builtin_functor(le_known).
 le_builtin_functor(prolog_call).
 le_builtin_functor(and).
@@ -367,6 +369,8 @@ lower_leaf(le_known(X), scasp_known(X), [I]) :- scasp_issue(unsupported_known, u
 lower_leaf(prolog_call(_), true, [I]) :- scasp_issue(prolog_goal, unknown, scasp_prolog_goal, [], I), !.
 lower_leaf(le_is_in(_,_), true, [I]) :- scasp_issue(list_membership, unknown, scasp_list_membership, [], I), !.
 lower_leaf(le_is_days_after(_,_,_), true, [I]) :- scasp_issue(date_arithmetic, unknown, scasp_date_arithmetic, [], I), !.
+lower_leaf(le_minimum(_,_,_), true, [I]) :- scasp_issue(min_max, unknown, scasp_min_max, [], I), !.
+lower_leaf(le_maximum(_,_,_), true, [I]) :- scasp_issue(min_max, unknown, scasp_min_max, [], I), !.
 lower_leaf(Aggr, true, [I]) :-
     reasoner:is_aggregate(Aggr, _, _, _, _), !,
     scasp_issue(aggregate, unknown, scasp_aggregate, [], I).

@@ -130,3 +130,72 @@ test(candidate_template_still_finds_the_matching_templates) :-
     assertion(\+ memberchk(is_covered_under, Functors)).
 
 :- end_tests(template_partition).
+
+% ---------------------------------------------------------------------------
+% The least of / the greater of. Models write `P = min(L, R)`, which parses as
+% an expression and then dies at solve time ("min(A,B)/0 is not a function"),
+% taking every scenario that reaches the rule with it. LE answers that with
+% system templates, not functions.
+
+:- begin_tests(min_max_templates).
+
+minmax_program("the target language is: prolog.
+
+the templates are:
+    the payment for *a claim* is *an amount*.
+    the top payment for *a claim* is *an amount*.
+    the limit for *a claim* is *an amount*.
+    the loss for *a claim* is *an amount*.
+
+the knowledge base tiny includes:
+
+the payment for a claim is an amount P
+    if the limit for the claim is an amount L
+    and the loss for the claim is an amount D
+    and the minimum of L and D is P.
+
+the top payment for a claim is an amount P
+    if the limit for the claim is an amount L
+    and the loss for the claim is an amount D
+    and the maximum of L and D is P.
+
+scenario one is:
+    the limit for claim one is 250000.
+    the loss for claim one is 48200.
+    pay expects answers [\"the payment for claim one is 48200\"].
+    top expects answers [\"the top payment for claim one is 250000\"].
+
+query pay is:
+    the payment for which claim is which amount.
+
+query top is:
+    the top payment for which claim is which amount.
+").
+
+test(minimum_and_maximum_are_system_templates) :-
+    minmax_program(P),
+    le_kbs:load_text(P, KB),
+    assertion(\+ KB:le_issue(error, _, _, _, _, _)),
+    assertion(KB:le_dict_fa(le_minimum, 3, _)),
+    assertion(KB:le_dict_fa(le_maximum, 3, _)).
+
+test(minimum_and_maximum_compute) :-
+    reasoner:le_minimum(250000, 48200, Min),
+    assertion(Min =:= 48200),
+    reasoner:le_maximum(250000, 48200, Max),
+    assertion(Max =:= 250000),
+    % usable as a test when the result is already bound
+    assertion(reasoner:le_minimum(3, 7, 3)),
+    assertion(\+ reasoner:le_minimum(3, 7, 7)),
+    % non-numbers do not throw, they fail
+    assertion(\+ reasoner:le_minimum(a, 7, _)).
+
+% End to end: the rules above answer their queries.
+test(a_program_using_them_passes_its_tests) :-
+    minmax_program(P),
+    le_kbs:load_text(P, KB),
+    findall(R, ( KB:le_expected(Q, S, A, U), le_kbs:run_one_test(KB, test(Q, S, A, U), R) ), Results),
+    assertion(length(Results, 2)),
+    forall(member(R, Results), assertion(\+ le_kbs:is_failure(R))).
+
+:- end_tests(min_max_templates).
