@@ -414,6 +414,153 @@ test(a_rewrite_that_verifies_better_is_used) :-
     assertion(NewText == Good),
     assertion(sub_string(How, _, _, _, "verifies better")).
 
+% ---- what ONE repair round is asked to fix -----------------------------------
+% Every issue used to go into every repair prompt: a branch at "0 errors, 59
+% warnings, 0/25 tests" produced 134 lines and 12 kB of complaint, identical
+% every round, and models answered it by rewriting the program. The prompt now
+% carries a working set — errors, then failing tests (spread over DIFFERENT
+% queries), then warnings — and says what it left out.
+
+feedback_fixture(V) :-
+    findall(_{severity: "warning", type: "unused_template", message: M},
+            ( between(1, 20, I), format(string(M), "unused ~w", [I]) ), Warnings),
+    findall(_{severity: "warning", type: "failed_test", message: "duplicate of a test line"},
+            member(_, [a, b, c]), Dups),
+    findall(_{status: "fail", query: Q, scenario: S, expected: "x", actual: "y"},
+            ( member(Q, ["pay", "cover", "total"]), between(1, 5, N),
+              format(string(S), "case ~w", [N]) ), Tests),
+    append(Warnings, Dups, Issues),
+    V = _{errors: 0, warnings: 23, tests_passed: 0, tests_failed: 15,
+          issues: Issues, test_details: Tests}.
+
+test(repair_feedback_is_a_working_set_not_everything) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    split_string(FB, "\n", "", Lines),
+    % 12 items at most, and a failing test costs three lines
+    length(Lines, NL),
+    assertion(NL < 45),
+    string_length(FB, Len),
+    assertion(Len < 3000).
+
+% Three examples per query, so the round sees three DIFFERENT bugs rather than
+% five copies of one.
+test(failing_tests_are_spread_over_different_queries) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    forall(member(Q, ["pay", "cover", "total"]),
+           ( format(string(Needle), "query '~w'", [Q]),
+             assertion(sub_string(FB, _, _, _, Needle)) )),
+    aggregate_all(count, sub_string(FB, _, _, _, "FAILED test: query 'pay'"), NPay),
+    assertion(NPay =< 3).
+
+% A failing test is reported twice by the verifier — as a failed_test warning
+% and in test_details. Only the readable one is listed.
+test(the_duplicate_failed_test_warning_is_not_listed) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(\+ sub_string(FB, _, _, _, "duplicate of a test line")).
+
+% What was left out is named, so a short list does not read as "nearly done".
+test(the_feedback_says_what_it_left_out) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "more not listed")),
+    assertion(sub_string(FB, _, _, _, "unused_template")),
+    assertion(sub_string(FB, _, _, _, "failing test(s) of query")).
+
+% Errors come first and crowd the rest out: a warning cannot matter while the
+% program does not load.
+test(errors_come_before_everything_else) :-
+    findall(_{severity: "error", type: "missing_template", message: M},
+            ( between(1, 20, I), format(string(M), "missing template ~w", [I]) ), Errors),
+    findall(_{severity: "warning", type: "unused_template", message: "unused"},
+            member(_, [a, b, c]), Ws),
+    append(Errors, Ws, Issues),
+    V = _{errors: 20, warnings: 3, tests_passed: 0, tests_failed: 1,
+          issues: Issues,
+          test_details: [_{status: "fail", query: "pay", scenario: "s", expected: "x", actual: "y"}]},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "missing template 1")),
+    % no warning line while the program does not load ...
+    assertion(\+ sub_string(FB, _, _, _, "[warning]")),
+    % ... though the closing line still says they are there
+    assertion(sub_string(FB, _, _, _, "unused_template")),
+    assertion(sub_string(FB, _, _, _, "missing_template")).
+
+test(a_clean_program_has_no_feedback) :-
+    V = _{errors: 0, warnings: 0, tests_passed: 3, tests_failed: 0,
+          issues: [], test_details: []},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(FB == "no issues").
+
+% A program with no expectations at all is still told so.
+test(a_program_without_tests_is_told) :-
+    V = _{errors: 0, warnings: 0, tests_passed: 0, tests_failed: 0,
+          issues: [], test_details: []},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "NO scenario expectations")).
+
+% The loop's bounds. The hard cap is a runaway guard, not a budget: a branch
+% was cut off at nine rounds, still improving, with 24 of its 45 minutes
+% unspent — and a round now covers at most twelve issues, so covering a program
+% with sixty of them simply takes more rounds.
+test(the_hard_repair_cap_leaves_room_for_progress) :-
+    forall(member(Preset, [draft, standard, thorough]),
+           ( le_contract_assistant:preset_params(Preset, _, _, Patience, _),
+             HardCap is max(4 * Patience, 16),
+             assertion(Patience >= 3),
+             assertion(HardCap >= 16) )).
+
+% The pre-run estimate has to price the loop it actually runs, or the number
+% shown before the money is spent is a fiction.
+test(the_cost_estimate_follows_the_repair_loop) :-
+    le_contract_assistant:call_plan(3, 2, 4, 4, Main, Judge),
+    Calls is Main + Judge,
+    % 2 branches x (1 draft + ~10 repair rounds) + samples + probes + ledger
+    assertion(Calls >= 30),
+    % ... and it still rises with patience
+    le_contract_assistant:call_plan(3, 2, 6, 4, Main2, Judge2),
+    Calls2 is Main2 + Judge2,
+    assertion(Calls2 > Calls).
+
+% An issue reaches the repair round with everything needed to act on it: WHERE
+% it is, the offending line (which is what a SEARCH block must match), and the
+% verifier's own remedy. All three used to be discarded — the round was told
+% "Missing template for '...'" and left to find it in 50 kB of program.
+test(an_issue_carries_its_line_source_and_fix) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    we cover *a claim* if it is valid.\n",
+    verify_le_text(P, V),
+    member(I, V.issues), get_dict(type, I, "reserved_word_in_template"), !,
+    assertion(I.line =:= 5),
+    assertion(sub_string(I.source, _, _, _, "we cover")),
+    assertion(I.fix \== ""),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "(line 5)")),
+    assertion(sub_string(FB, _, _, _, "in: we cover")),
+    assertion(sub_string(FB, _, _, _, "fix:")).
+
+% Messages are plain text: term_string/2 quoted every atom that needed quoting,
+% so each line arrived wrapped in quotes with its apostrophes escaped.
+test(issue_messages_are_not_prolog_quoted) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n\nthe knowledge base tiny includes:\n\nbob is happy.\n",
+    verify_le_text(P, V),
+    forall(member(I, V.issues),
+           ( assertion(\+ sub_string(I.message, 0, _, _, "'")),
+             assertion(\+ sub_string(I.message, _, _, _, "\\'")) )).
+
+% Errors get a bigger share of the working set than other kinds: they block the
+% load, and each now carries its own location, so five instances of one error
+% type are five repairs rather than one complaint five times.
+test(errors_get_a_bigger_share_of_the_working_set) :-
+    findall(_{severity: "error", type: "missing_template", message: M, fix: "declare it", line: I, source: "a line"},
+            ( between(1, 20, I), format(string(M), "missing template ~w", [I]) ), Issues),
+    V = _{errors: 20, warnings: 0, tests_passed: 0, tests_failed: 0,
+          issues: Issues, test_details: []},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    aggregate_all(count, sub_string(FB, _, _, _, "missing template "), N),
+    assertion(N >= 6).
+
 test(schedule_text_of_no_file_is_empty) :-
     le_contract_assistant:schedule_text([], T),
     assertion(T == "").
@@ -1005,6 +1152,30 @@ hook_full(paraphrase_compare, _, "STABILITY: 83%\nMissing from B: none\n") :- !.
 hook_full(ledger, _, "LEDGER") :- !.
 hook_full(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
+% A hook that raises something that is NOT a contract_assistant_error — a bug,
+% a library exception. One branch must not take the pipeline down with it.
+hook_odd_error(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_odd_error(architecture, _, "one branch") :- !.
+hook_odd_error(draft(_), _, _) :- !, throw(error(type_error(list, not_a_list), _)).
+hook_odd_error(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hooks for a provider that dies during the HELD-OUT evaluation — after the
+% branch has been drafted, repaired and polished. One dies on every held-out
+% call, the other only on the first.
+hook_holdout_dead(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_holdout_dead(architecture, _, "one branch") :- !.
+hook_holdout_dead(draft(_), _, Reply) :- !, good_program(P), fence(P, Reply).
+hook_holdout_dead(holdout(_, _), _, _) :- !,
+    throw(error(contract_assistant_error(llm_failed(holdout, "Service unavailable")), _)).
+hook_holdout_dead(ledger, _, "LEDGER") :- !.
+hook_holdout_dead(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+hook_holdout_flaky(holdout(_, 1), _, _) :- !,
+    throw(error(contract_assistant_error(llm_failed(holdout, "Service unavailable")), _)).
+hook_holdout_flaky(holdout(_, _), _, Reply) :- !,
+    fence("scenario held out case 202 is:\n    carol is healthy.\n    who expects answers [\"carol is happy\"].\n", Reply).
+hook_holdout_flaky(Purpose, Messages, Reply) :- hook_holdout_dead(Purpose, Messages, Reply).
+
 % Hook that answers a repair with a WHOLE PROGRAM twice: first a worse one
 % (which must be refused), then the right one (which must be accepted). It also
 % records the prompt of each repair round, so the test can check what the model
@@ -1342,6 +1513,63 @@ test(a_refused_rewrite_is_not_carried_forward_and_the_model_is_told,
     % ... and it says why the previous reply was thrown away
     assertion(sub_string(Prompt1, _, _, _, "REFUSED")),
     assertion(sub_string(Prompt1, _, _, _, "SEARCH/REPLACE")),
+    !.
+
+% A provider that dies during the held-out evaluation costs the EVALUATION, not
+% the branch. (Observed: two fully repaired and polished branches were thrown
+% away because the provider answered 503 to the first held-out call of each, and
+% the job then had no branch left to deliver — twenty-one minutes lost.)
+test(a_dead_provider_during_holdout_keeps_the_repaired_program,
+     [setup(hook_setup(user:hook_holdout_dead)), cleanup(hook_cleanup)]) :-
+    two_case_config(_{holdout: "auto"}, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    good_program(P),
+    assertion(Result.le == P),                       % the program survived
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.errors =:= 0),
+    assertion(Score.tests_passed =:= 1),
+    assertion(Score.holdout_passed =:= 0),           % simply unscored
+    assertion(Score.holdout_failed =:= 0),
+    !.
+
+% ... and when only SOME held-out calls fail, the rest are still scored.
+test(a_flaky_provider_during_holdout_scores_the_cases_that_worked,
+     [setup(hook_setup(user:hook_holdout_flaky)), cleanup(hook_cleanup)]) :-
+    good_wording(W),
+    Config = _{wording: _{name: "contract.md", text: W},
+               cases: [_{name: "case1.md", text: "Case 1: bob was healthy."},
+                       _{name: "case2.md", text: "Case 2: carol was healthy."},
+                       _{name: "case3.md", text: "Case 3: dave was healthy."},
+                       _{name: "case4.md", text: "Case 4: eve was healthy."},
+                       _{name: "case5.md", text: "Case 5: frank was healthy."},
+                       _{name: "case6.md", text: "Case 6: grace was healthy."},
+                       _{name: "case7.md", text: "Case 7: heidi was healthy."},
+                       _{name: "case8.md", text: "Case 8: ivan was healthy."}],
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    Scores = Result.scores, Scores = [Score],
+    % 8 cases -> 2 held out; the first held-out call dies, the second answers
+    Total is Score.holdout_passed + Score.holdout_failed,
+    assertion(Total >= 1),
+    assertion(sub_string(Result.le, _, _, _, "held out case 202")),
+    !.
+
+% An unexpected error inside a branch is reported as that branch failing, not
+% as an exception escaping into the pipeline (branches run concurrently: an
+% escape takes every other branch's finished program with it).
+test(an_unexpected_branch_error_does_not_escape,
+     [setup(hook_setup(user:hook_odd_error)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_status(JobID, Status),
+    assertion(Status = finished(error(_))),          % the job ends, tidily
+    findall(L, le_contract_assistant:ca_log(JobID, _, L), Lines),
+    assertion(( member(L, Lines), sub_string(L, _, _, _, "Branch 1 FAILED") )),
     !.
 
 test(status_reports_config_and_elapsed,
