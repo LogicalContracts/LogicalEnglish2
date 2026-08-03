@@ -66,6 +66,12 @@ what is the close-out amount).
 - Arithmetic variables must be short ALL-CAPS ids: `R = L - P` with variables
   introduced as `an amount R`. Descriptive phrases do not co-refer inside
   expressions.
+- **The least of / the greater of are TEMPLATES, not functions.** Settlement
+  wording is full of them, and LE has no `min`/`max` function: write
+  `and the minimum of L and R is P` / `and the maximum of A and B is G`, using
+  the system templates. `P = min(L, R)` parses and then dies at solve time with
+  "min(A,B)/0 is not a function" — every scenario that reaches such a rule
+  fails, which is how a program with one error can pass none of its tests.
 - A sum aggregate over an empty solution set yields 0 — rely on that for
   "no prior payments"; do not seed dummy facts.
 - Every sentence in a rule, fact or scenario must match a declared template

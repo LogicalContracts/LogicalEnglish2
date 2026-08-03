@@ -387,13 +387,37 @@ process_section_acc(unknown_section(Tokens, Start, End), M) :-
     ->  le_grammar:reconstruct_name(Tokens, FullName),
         ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
         le_i18n:le_msg(unknown_section_desc, [name-Name], Desc),
-        le_i18n:le_msg(unknown_section_fix, [], Fix),
+        % A near-miss header ("the knowledge base X is:") swallows everything
+        % under it as ONE unknown section — the rules simply vanish, and the
+        % generic "check the section header" says nothing about which word is
+        % wrong. Name the two headers that do work.
+        (   near_miss_kb_header(Tokens)
+        ->  le_i18n:le_msg(unknown_section_kb_fix, [], Fix)
+        ;   le_i18n:le_msg(unknown_section_fix, [], Fix)
+        ),
         % le_issue/6 — every reader (verify/1, load/3, the web API, le_tools)
         % matches on that arity, so an le_issue/5 here would be asserted and
         % then silently ignored.
         assertz(M:le_issue(error, unknown_section, Desc, Fix, Start, End))
     ;   true
     ).
+
+%!  near_miss_kb_header(+Tokens) is semidet.
+%
+%   The unknown section opens with the words of a knowledge-base header
+%   ("the knowledge base <name> ...") but never reached `includes:` — the
+%   spelling models get wrong most often, and the one that costs the whole
+%   knowledge base.
+near_miss_kb_header(Tokens) :-
+    token_words(Tokens, TWords),
+    ( le_i18n:kw_synonym_words(kb_open, Words)
+    ; le_i18n:kw_synonym_words(contract_open, Words) ),
+    append(Words, _, TWords), !.
+
+token_words(Tokens, Words) :-
+    findall(W, ( member(T, Tokens), le_grammar:extract_simple_word(T, W),
+                 atom(W), W \== '' ),          % indents render as the empty atom
+            Words).
 
 % has_reportable_content(+Tokens): the token list holds something other than
 % indentation and comments.

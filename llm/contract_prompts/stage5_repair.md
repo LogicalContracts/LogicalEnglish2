@@ -42,6 +42,14 @@ that edits would be unreadable, output instead ONE fenced code block with the
 FULL corrected program — complete from first line to last, never eliding
 sections with `% ...` placeholders (an elided program is rejected and wastes
 the iteration).
+
+**Once the program is close to loading (a handful of errors or fewer), a whole
+new program is not an option.** It is re-verified before it is accepted and
+kept only if it comes out strictly better than the one below; otherwise it is
+thrown away and the round is wasted. At that stage everything in the program
+already works except the few things FEEDBACK names — rewriting it discards
+every rule that verifies and every scenario that passes, to fix three lines.
+Send edits.
 {{existing}}
 {{scenarios}}
 {{instructions}}

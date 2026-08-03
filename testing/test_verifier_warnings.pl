@@ -45,6 +45,35 @@ test(unmatched_head_with_multiline_body_does_not_abort_parse) :-
     aggregate_all(count, M:le_issue(error, missing_template, _, _, _, _), N),
     assertion(N >= 3).
 
+% A SECTION KEYWORD is only a section keyword at the start of a line. "scenario"
+% (and "query", "the contract", ...) are ordinary words inside a template — a
+% claims file with a "scenarioTested" field leads models straight to templates
+% like this one, and every such template used to be cut in half and the rest of
+% the program reported as an unknown section.
+test(a_section_keyword_inside_a_template_is_ordinary_vocabulary) :-
+    Text = "the target language is: prolog.\n\nthe templates are:\n    *a claim* involves a scenario tested of *a description*.\n    *a claim* is answered by a query of *a name*.\n\nthe knowledge base tiny includes:\n\nclaim one involves a scenario tested of storm surge.\n\nquery who is:\n    which claim involves a scenario tested of which description.\n",
+    le_kbs:load_text(Text, M),
+    assertion(\+ M:le_issue(error, _, _, _, _, _)),
+    assertion(\+ M:le_issue(_, reserved_word_in_template, _, _, _, _)),
+    % the fact and the query are there, i.e. the section was not cut short
+    assertion(M:query_info(who, _, _)),
+    assertion(clause(M:involves_a_scenario_tested_of(_, _), _)).
+
+% ... but a section header that really does start a line still ends the section.
+test(a_section_keyword_starting_a_line_still_opens_a_section) :-
+    Text = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n\nscenario one is:\n    bob is happy.\n",
+    le_kbs:load_text(Text, M),
+    assertion(M:scenario(one, _)),
+    assertion(\+ M:le_issue(error, _, _, _, _, _)).
+
+% A near-miss knowledge-base header ("... is:" for "... includes:") discards
+% everything under it, so the fix line has to name the header that works.
+test(a_near_miss_kb_header_says_which_header_to_write) :-
+    Text = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny is:\n\na person is happy\n    if the person is healthy.\n",
+    le_kbs:load_text(Text, M),
+    M:le_issue(error, unknown_section, _, Fix, _, _),
+    assertion(sub_atom(Fix, _, _, _, 'includes:')).
+
 :- end_tests(reserved_word_in_template).
 
 :- begin_tests(single_variable_scenario_fact).

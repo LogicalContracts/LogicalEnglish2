@@ -388,6 +388,11 @@ preset_params(_,        1, 1, 2, 15).
 %   `features` dict. Defaults express confidence per the plan:
 %   - diff_repairs (true): repairs as SEARCH/REPLACE edits, full-program
 %     regeneration as automatic fallback.
+%   - max_rewrite_errors (5): while the program has at most this many errors, a
+%     full-program reply is re-verified and kept only if it comes out strictly
+%     better than the program it would replace (see rewrite_policy/3). Raise it
+%     to let rewrites through more freely; it has no effect with diff_repairs
+%     off, where the full program is the repair mechanism.
 %   - holdout (auto): with 2+ cases, develop against the first and score the
 %     rest blind; auto-disabled with a single case.
 %   - probes (per preset): differential interrogation probe count; 0 = off.
@@ -1154,7 +1159,7 @@ run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     save_text_artifact(JobID, DraftName, Draft0),
     string_length(Draft0, DraftLen),
     ca_emit(JobID, "Branch ~w: draft extracted (~w chars)"-[Idx, DraftLen]),
-    repair_loop(JobID, Config, Idx, Draft0, 0, none, 0, Repaired0, _),
+    repair_loop(JobID, Config, Idx, Draft0, 0, none, 0, "", Repaired0, _),
     % Free, deterministic clean-up first, so the polish rounds spend their LLM
     % calls on warnings that actually need judgement.
     prune_pass(JobID, Config, Idx, Repaired0, Pruned),
@@ -1263,11 +1268,21 @@ holdout_extend(JobID, Config, Ctx, Idx, Text, Score0, Final, Score) :-
     Score = Score1.put(_{holdout_passed: HP, holdout_failed: HF}),
     ca_emit(JobID, "Branch ~w held-out: ~w passed, ~w failed"-[Idx, HP, HF]).
 
-%!  repair_loop(+JobID, +Config, +Idx, +Text, +Iter, +Best0, +Streak, -Final, -Score)
+%!  repair_loop(+JobID, +Config, +Idx, +Text, +Iter, +Best0, +Streak, +Note, -Final, -Score)
 %
 %   Iterates verify -> feedback -> LLM repair. Keeps the best-ranked version
 %   seen so far (a repair can make things worse) and returns that one when
 %   the loop ends without reaching a clean program.
+%
+%   It also WORKS FROM that best version. A round whose result ranks worse used
+%   to become the base of every later round, so a branch that had reached one
+%   error spent the rest of its budget patching the 77-error rewrite that
+%   replaced it. Now the next prompt carries the best program, and says what
+%   happened to the attempt that was thrown away — otherwise the model, at
+%   temperature 0, would simply send it again.
+%
+%   Note is what to tell the model about the previous round (a refused rewrite);
+%   "" for the first iteration.
 %
 %   The loop is progress-aware, not a fixed count: Config.repairs is the
 %   PATIENCE — how many consecutive non-improving iterations are tolerated —
@@ -1275,7 +1290,7 @@ holdout_extend(JobID, Config, Ctx, Idx, Text, Score0, Final, Score) :-
 %   hard cap of max(3 x patience, 8) and always within the wall-clock budget.
 %   (A fixed count wasted the budget: a Draft run would stop after 2 rounds
 %   with 51 errors and 14 of its 15 minutes unused.)
-repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
+repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Note, Final, Score) :-
     verify_le_text(Text, V),
     score_summary(V, Summary),
     ca_set_branch(JobID, Idx, _{state: "repairing", iteration: Iter, summary: Summary,
@@ -1302,7 +1317,18 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
     ->  ca_emit(JobID, "Branch ~w: wall-clock budget exhausted, keeping the best iteration"-[Idx]),
         best_result(Best, Final, Score)
     ;   ca_check_alive(JobID),
-        format_verify_feedback(V, Feedback),
+        % Repair the BEST program known, not whatever the last round left.
+        (   Best = cand(BestText, BestV, _), BestText \== Text
+        ->  ca_emit(JobID, "Branch ~w: iteration ~w ranks worse than the best so far; continuing from the best version"-[Idx, Iter]),
+            format(string(Rewind),
+                   "\n\nYOUR PREVIOUS ATTEMPT WAS DISCARDED: it left the program with ~w error(s) and ~w failing test(s), worse than the version below. Do not send it again.\n",
+                   [V.errors, V.tests_failed]),
+            WorkText = BestText, WorkV = BestV
+        ;   Rewind = "", WorkText = Text, WorkV = V
+        ),
+        rewrite_policy(Config, WorkV, Policy),
+        format_verify_feedback(WorkV, Feedback0),
+        atomics_to_string([Note, Rewind, Feedback0], Feedback),
         % A failed repair call (truncation, provider outage after retries)
         % must not abort the branch — the best iteration so far is a result.
         existing_block(Config, Existing),
@@ -1311,20 +1337,41 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
         catch(
             ( stage_llm(JobID, Config, repair(Idx, Iter), 'stage5_repair',
                         [existing-Existing, instructions-Instructions,
-                         scenarios-Scenarios, program-Text, feedback-Feedback],
+                         scenarios-Scenarios, program-WorkText, feedback-Feedback],
                         [temperature(0)], Reply),
               Next = reply(Reply) ),
             error(contract_assistant_error(_), _),
             Next = failed),
         (   Next = reply(R)
-        ->  safe_apply_repair_reply(Config, R, Text, Text1, How),
+        ->  safe_apply_repair_reply(Config, Policy, R, WorkText, Text1, How),
             ca_emit(JobID, "Branch ~w repair ~w: ~w"-[Idx, Iter, How]),
+            refusal_note(How, WorkV, Note1),
+            dedup_pass(JobID, Config, Idx, Text1, Text2),
             Iter1 is Iter + 1,
-            repair_loop(JobID, Config, Idx, Text1, Iter1, Best, Streak, Final, Score)
+            repair_loop(JobID, Config, Idx, Text2, Iter1, Best, Streak, Note1, Final, Score)
         ;   ca_emit(JobID, "Branch ~w: repair call failed; keeping the best iteration"-[Idx]),
             best_result(Best, Final, Score)
         )
     ).
+
+%!  refusal_note(+How, +V, -Note) is det.
+%
+%   What the next prompt must say when this round's reply was thrown away for
+%   being a rewrite. Without it the model — asked the same question about the
+%   same program at temperature 0 — sends the same whole program again, and the
+%   branch burns its patience on identical refusals.
+refusal_note(How, V, Note) :-
+    (   sub_string(How, _, _, _, "refused")
+    ->  format(string(Note),
+"\n\nYOUR PREVIOUS REPLY WAS REFUSED. It replaced the whole program instead of editing it. The program below is ~w error(s) from loading cleanly, and a rewrite throws away everything that already works — every scenario, every rule that verifies. Reply with SEARCH/REPLACE edit blocks ONLY, one per thing you are fixing, each SEARCH copied EXACTLY from the program below. Do not output the program.\n",
+               [V.errors])
+    ;   Note = ""
+    ).
+
+atomics_to_string(Parts, String) :-
+    exclude(==(""), Parts, Kept),
+    atomic_list_concat(Kept, "", Joined),
+    atom_string(Joined, String).
 
 % ==================== Deterministic clean-up (no LLM call) ===================
 %
@@ -1344,6 +1391,127 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
 % the program, and never calls an LLM. Everything it deletes is decided from
 % the parsed program, and the result is verified: if the pruned program is
 % worse by any measure, the original is kept (prune_accepted/2).
+
+%!  dedup_pass(+JobID, +Config, +Idx, +Text0, -Text) is det.
+%
+%   Deletes what the program says twice — a template declared twice, a rule or
+%   fact written twice — after EVERY repair round, without an LLM call and
+%   without asking anyone.
+%
+%   Models fed a JSON array of seventeen similar claims write a template per
+%   claim: GLM-5.2 produced page after page of `*a claim* involves a scenario
+%   tested of *a description*` under different names. Duplicates cost tokens in
+%   every later prompt, pull the vocabulary apart (two templates for one
+%   predicate make its type ambiguous) and raise warning counts that the polish
+%   rounds then spend LLM calls on. Removing an exact repetition cannot change
+%   what the program decides, so this needs no verification gate: what stays is
+%   the FIRST occurrence, in its place.
+dedup_pass(JobID, Config, Idx, Text0, Text) :-
+    catch(dedup_program(Config, Text0, Text1, Report), Error,
+          ( term_string(Error, EStr),
+            ca_emit(JobID, "Branch ~w: de-duplication skipped (~w)"-[Idx, EStr]),
+            Report = none, Text1 = Text0 )),
+    (   Report == none ; Report.deleted =:= 0
+    ->  Text = Text0
+    ;   ca_emit(JobID, "Branch ~w: removed ~w duplicate declaration(s) (~w template(s), ~w rule(s)/fact(s))"-
+                       [Idx, Report.deleted, Report.templates, Report.rules]),
+        Text = Text1
+    ).
+
+%!  dedup_program(+Config, +Text0, -Text, -Report) is det.
+%
+%   Report is _{deleted: N, templates: N1, rules: N2}.
+dedup_program(Config, Text0, Text, Report) :-
+    le_kbs:load_text(Text0, KB),
+    protected_lines(Config, Protected),
+    findall(Kind-(S-E),
+            ( redundant_declaration(KB, Kind, Ref),
+              clause(KB:le_source_info(Ref, S0, E, _), true),
+              \+ range_is_protected(Text0, S0, E, Protected),
+              extend_over_comment(Text0, S0, E, S) ),
+            Found0),
+    sort(2, @<, Found0, Found),         % one entry per source range
+    pairs_keys_values(Found, Kinds, Ranges),
+    delete_ranges(Text0, Ranges, Text1),
+    collapse_blank_runs(Text1, Text2),
+    dedup_statement_lines(Text2, Text, NF),
+    length(Kinds, NC),
+    N is NC + NF,
+    count_reason(Kinds, template, N1),
+    count_reason(Kinds, rule, N2),
+    N2F is N2 + NF,
+    Report = _{deleted: N, templates: N1, rules: N2F}.
+
+%!  dedup_statement_lines(+Text0, -Text, -N) is det.
+%
+%   The same FACT written twice. The knowledge base stores it once — asserting
+%   `bob is healthy.` twice yields one clause — so the KB pass above cannot see
+%   the second line, but it is still there, still costing tokens in every later
+%   prompt.
+%
+%   Textual, and deliberately timid about it: only a line that is a COMPLETE
+%   statement (starts at column 0, ends with a period) is compared, and only
+%   against earlier such lines of the SAME section. That excludes the two cases
+%   where identical lines are meant: the head line of a rule (which does not end
+%   with a period — several rules legitimately share one head) and the facts of
+%   scenarios (indented, and each scenario states its own).
+dedup_statement_lines(Text0, Text, N) :-
+    split_string(Text0, "\n", "", Lines),
+    foldl(dedup_line, Lines, s([], [], 0), s(RevKept, _, N)),
+    reverse(RevKept, Kept),
+    atomic_list_concat(Kept, "\n", Joined),
+    atom_string(Joined, Text).      % the pipeline passes the program as a string
+
+dedup_line(Line, s(Kept, Seen, N), State) :-
+    (   section_header_line(Line)
+    ->  State = s([Line|Kept], [], N)          % a new section: forget what was seen
+    ;   complete_statement_line(Line, Norm)
+    ->  (   memberchk(Norm, Seen)
+        ->  N1 is N + 1, State = s(Kept, Seen, N1)
+        ;   State = s([Line|Kept], [Norm|Seen], N)
+        )
+    ;   State = s([Line|Kept], Seen, N)
+    ).
+
+% A section header: unindented and ending with ':' (`the knowledge base X
+% includes:`, `scenario one is:`, `query who is:`).
+section_header_line(Line) :-
+    \+ sub_string(Line, 0, 1, _, " "),
+    \+ sub_string(Line, 0, 1, _, "\t"),
+    normalize_space(string(T), Line),
+    T \== "",
+    string_concat(_, ":", T).
+
+% An unindented, non-comment line that ends a statement.
+complete_statement_line(Line, Norm) :-
+    \+ sub_string(Line, 0, 1, _, " "),
+    \+ sub_string(Line, 0, 1, _, "\t"),
+    normalize_space(string(Norm), Line),
+    Norm \== "",
+    \+ string_concat("%", _, Norm),
+    string_concat(_, ".", Norm).
+
+redundant_declaration(KB, template, Ref) :- duplicate_template(KB, Ref).
+redundant_declaration(KB, rule, Ref) :- prunable(KB, duplicate, Ref).
+
+%!  duplicate_template(+KB, -Ref) is nondet.
+%
+%   A template declared twice — same predicate, same surface words, same
+%   additions (`; undefined`, `; opposite`...). Compared as variants, since two
+%   declarations of one template parse to dicts with different variables. The
+%   EARLIEST declaration is the one that stays.
+duplicate_template(KB, Ref) :-
+    template_declaration(KB, Dict, Ref, S),
+    template_declaration(KB, Dict2, Ref2, S2),
+    Ref2 \== Ref,
+    S2 < S,
+    Dict =@= Dict2.
+
+template_declaration(KB, Dict, Ref, Start) :-
+    current_predicate(KB:le_source_info/4),
+    KB:le_source_info(Ref, Start, _, template),
+    Ref \== none,
+    catch(clause(KB:le_dict(Dict), true, Ref), _, fail).
 
 %!  prune_pass(+JobID, +Config, +Idx, +Text0, -Text) is det.
 prune_pass(JobID, Config, Idx, Text0, Text) :-
@@ -1734,7 +1902,7 @@ polish_loop(JobID, Config, Idx, Text0, Iter, Text, Score) :-
             error(contract_assistant_error(_), _),
             Next = failed),
         (   Next = reply(R)
-        ->  safe_apply_repair_reply(Config, R, Text0, Text1, How),
+        ->  safe_apply_repair_reply(Config, any, R, Text0, Text1, How),
             verify_le_text(Text1, V1),
             (   polish_accepted(V0, V1)
             ->  polishable_warnings(V1, NW1, _),
@@ -1798,13 +1966,13 @@ format_warning_feedback(V, Feedback) :-
     ;   Feedback = Body
     ).
 
-%!  safe_apply_repair_reply(+Config, +Reply, +OldText, -NewText, -How) is det.
+%!  safe_apply_repair_reply(+Config, +Policy, +Reply, +OldText, -NewText, -How)
 %
 %   A reply we cannot digest costs one round, never the job: a 30-minute run
 %   died with a stack overflow raised while parsing one malformed repair
 %   reply, throwing away five finished branches.
-safe_apply_repair_reply(Config, Reply, OldText, NewText, How) :-
-    catch(apply_repair_reply(Config, Reply, OldText, NewText, How),
+safe_apply_repair_reply(Config, Policy, Reply, OldText, NewText, How) :-
+    catch(apply_repair_reply(Config, Policy, Reply, OldText, NewText, How),
           E,
           ( E == contract_interrupt
           ->  throw(E)
@@ -1813,13 +1981,66 @@ safe_apply_repair_reply(Config, Reply, OldText, NewText, How) :-
               format(string(How), "the reply could not be applied (~w); text unchanged", [ES])
           )).
 
-%!  apply_repair_reply(+Config, +Reply, +OldText, -NewText, -How) is det.
+%!  rewrite_policy(+Config, +V, -Policy) is det.
+%
+%   Whether this round may accept a WHOLE NEW PROGRAM in place of edits.
+%
+%   Once a branch is within a few errors of loading, a rewrite is not a repair:
+%   it is a fresh draft that happens to be prompted with the old one, and it
+%   throws away everything that already works. Observed in one run: a branch
+%   went 82 → 36 → **1** error, and the next reply — a full program again —
+%   put it back to 77, then 21, then 18, and the four remaining rounds went on
+%   patching that instead of the version that was one error from clean.
+%
+%   So while the program is close (at most `max_rewrite_errors`, 5 by default)
+%   a rewrite has to EARN its place: `guarded(V)` carries the current
+%   verification, and a whole new program is accepted only if it verifies
+%   strictly better than the one it would replace (rewrite_accepted/4).
+%
+%   A guard rather than a refusal on purpose. A flat "edits only" rule
+%   deadlocks the loop for a model that cannot produce SEARCH/REPLACE blocks at
+%   all: every reply refused, no progress, patience spent on identical rounds.
+%   With the feature off the full program IS the repair mechanism, so the policy
+%   is `any` and nothing changes.
+rewrite_policy(Config, V, Policy) :-
+    (   Config.features.diff_repairs == true,
+        Floor = Config.features.get(max_rewrite_errors, 5),
+        V.errors =< Floor
+    ->  Policy = guarded(V)
+    ;   Policy = any
+    ).
+
+%!  rewrite_accepted(+V0, +OldText, +NewText, -How) is semidet.
+%
+%   The proposed whole program verifies strictly better than the current one,
+%   by the same rank the loop uses to keep its best iteration. Equal is not
+%   good enough: an equivalent rewrite is churn, and refusing it sends the model
+%   back for edits.
+rewrite_accepted(V0, OldText, NewText, How) :-
+    verify_le_text(NewText, V1),
+    verify_rank(V1, NewText, R1),
+    verify_rank(V0, OldText, R0),
+    R1 @< R0,
+    score_summary(V1, S1), score_summary(V0, S0),
+    format(string(How),
+           "the whole program in the reply verifies better (~w) than the one it replaces (~w), so it was used",
+           [S1, S0]).
+
+rewrite_refused(V0, OldText, NewText, How) :-
+    verify_le_text(NewText, V1),
+    score_summary(V1, S1), score_summary(V0, S0),
+    string_length(OldText, _),
+    format(string(How),
+           "reply rewrote the whole program instead of editing it, and the rewrite verifies no better (~w) than the program it would replace (~w); refused — text unchanged",
+           [S1, S0]).
+
+%!  apply_repair_reply(+Config, +Policy, +Reply, +OldText, -NewText, -How) is det.
 %
 %   Feature `diff_repairs` (default on): a repair reply may carry
 %   SEARCH/REPLACE edit blocks; matching edits are applied to the old text.
-%   A full fenced program (the old behaviour) is always accepted — it is the
-%   automatic fallback when no edit matches or the feature is off.
-apply_repair_reply(Config, Reply, OldText, NewText, How) :-
+%   A full fenced program is the automatic fallback when no edit matches or the
+%   feature is off — unless Policy is `edits_only` (see rewrite_policy/3).
+apply_repair_reply(Config, Policy, Reply, OldText, NewText, How) :-
     (   Config.features.diff_repairs == true,
         extract_search_replace(Reply, Edits, Malformed),
         Edits \== []
@@ -1828,6 +2049,14 @@ apply_repair_reply(Config, Reply, OldText, NewText, How) :-
         (   Applied > 0
         ->  NewText = Text1,
             format(string(How), "applied ~w edit(s), ~w did not match~w", [Applied, Failed, Note])
+        ;   Policy = guarded(V0), first_fenced_block(Reply, Full0),
+            \+ contains_edit_markers(Full0),
+            \+ contains_elision_marker(Full0),
+            \+ amputates(Reply, OldText, Full0, _)
+        ->  (   rewrite_accepted(V0, OldText, Full0, How)
+            ->  NewText = Full0
+            ;   NewText = OldText, rewrite_refused(V0, OldText, Full0, How)
+            )
         ;   first_fenced_block(Reply, Full),
             \+ contains_edit_markers(Full),
             \+ contains_elision_marker(Full),
@@ -1836,6 +2065,17 @@ apply_repair_reply(Config, Reply, OldText, NewText, How) :-
         ;   first_fenced_block(Reply, Full2), amputates(Reply, OldText, Full2, Why)
         ->  NewText = OldText, How = Why
         ;   NewText = OldText, How = "no usable edit or full program in the reply; text unchanged"
+        )
+    ;   Policy = guarded(V0), extract_search_replace(Reply, [], _),
+        extract_le_code(Reply, Whole),
+        \+ contains_edit_markers(Whole),
+        \+ contains_elision_marker(Whole),
+        \+ amputates(Reply, OldText, Whole, _)
+    ->  % Diff repairs are on, the model sent no edit block at all, and the
+        % program is close to clean: the rewrite has to earn its place.
+        (   rewrite_accepted(V0, OldText, Whole, How)
+        ->  NewText = Whole
+        ;   NewText = OldText, rewrite_refused(V0, OldText, Whole, How)
         )
     ;   extract_le_code(Reply, NewText0),
         % An unapplied edit block, a program with elided ("% ...") sections and
@@ -2062,7 +2302,7 @@ interrogate(JobID, Config, Ctx, Text0, Text, Report) :-
         ;   Config.features.interrogation_repair == true,
             \+ deadline_exceeded(Config)
         ->  ca_emit(JobID, "Interrogation: adjudicating ~w disagreement(s)"-[Disagreed0]),
-            repair_loop(JobID, Config, probes, Merged, 0, none, 0, FinalMerged, _),
+            repair_loop(JobID, Config, probes, Merged, 0, none, 0, "", FinalMerged, _),
             verify_le_text(FinalMerged, VF)
         ;   FinalMerged = Merged, VF = V1
         ),
@@ -2258,31 +2498,48 @@ separator_cells(Cells) :-
     forall(( member(C, Cells), C \== "" ),
            forall(sub_string(C, _, 1, _, Ch), memberchk(Ch, ["-", ":"]))).
 
+%!  ledger_for(+JobID, +Config, +WordingSlice, +WinnerText, -Ledger) is det.
+%
+%   The coverage ledger — one LLM call, and the only place the run says what of
+%   the contract the twin actually encodes. It is written even when the program
+%   still has errors: a clause-by-clause reading of a flawed program is exactly
+%   what tells the user whether the flaw is local or whether the twin is empty,
+%   and "(ledger skipped)" left them with a broken program and no map of it.
+%   Only an exhausted wall-clock budget skips it now, and then the run is over
+%   anyway.
 ledger_for(JobID, Config, WordingSlice, WinnerText, Ledger) :-
     (   deadline_exceeded(Config)
     ->  Ledger = "(ledger skipped: budget exhausted)"
-    ;   verify_le_text(WinnerText, VW),
-        VW.errors > 0
-    ->  Ledger = "(ledger skipped: the winning program still has errors — see the scores and the run log; there is nothing sound to audit yet)",
-        ca_emit(JobID, "Ledger skipped: the winning program still has errors"-[])
-    ;   catch(
-            ( stage_llm(JobID, Config, ledger, 'stage6_ledger',
-                        [materials-WordingSlice, program-WinnerText],
-                        [temperature(0)], Ledger0),
-              % Reasoning models can spend the whole completion budget on
-              % reasoning and return empty content; say so instead of showing
-              % the user a blank ledger.
-              (   normalize_space(string(Norm), Ledger0), Norm == ""
-              ->  ca_emit(JobID, "Ledger: the judge model returned an empty reply"-[]),
-                  Ledger = "(the judge model returned an empty ledger reply — it likely spent its whole output budget before emitting text; pick a different judge model in Setup, or rerun)"
-              ;   Ledger = Ledger0
-              )
-            ),
-            E,
-            ( term_string(E, ES),
-              format(atom(Ledger), "(ledger failed: ~w)", [ES]) ))
+    ;   ledger_call(JobID, Config, WordingSlice, WinnerText, Ledger0),
+        verify_le_text(WinnerText, VW),
+        (   VW.errors > 0
+        ->  ca_emit(JobID, "Ledger: the winning program still has ~w error(s); audited anyway"-[VW.errors]),
+            Total is VW.tests_passed + VW.tests_failed,
+            format(string(Ledger),
+"> **The program this ledger audits does not load cleanly: ~w error(s), ~w of ~w test(s) passing.**\n> Read \"encoded\" below as \"written down\", not as \"working\": fix the errors first\n> — the run log and the scores say what they are — then re-read this table.\n\n~w",
+                   [VW.errors, VW.tests_passed, Total, Ledger0])
+        ;   Ledger = Ledger0
+        )
     ),
     save_text_artifact(JobID, 'ledger.md', Ledger).
+
+ledger_call(JobID, Config, WordingSlice, WinnerText, Ledger) :-
+    catch(
+        ( stage_llm(JobID, Config, ledger, 'stage6_ledger',
+                    [materials-WordingSlice, program-WinnerText],
+                    [temperature(0)], Ledger0),
+          % Reasoning models can spend the whole completion budget on
+          % reasoning and return empty content; say so instead of showing
+          % the user a blank ledger.
+          (   normalize_space(string(Norm), Ledger0), Norm == ""
+          ->  ca_emit(JobID, "Ledger: the judge model returned an empty reply"-[]),
+              Ledger = "(the judge model returned an empty ledger reply — it likely spent its whole output budget before emitting text; pick a different judge model in Setup, or rerun)"
+          ;   Ledger = Ledger0
+          )
+        ),
+        E,
+        ( term_string(E, ES),
+          format(atom(Ledger), "(ledger failed: ~w)", [ES]) )).
 
 % ============================ Verification & scoring ==========================
 
@@ -2322,6 +2579,15 @@ verify_le_text_(Text, V) :-
         EmptyIssue = _{severity: "error", type: "empty_program",
                        message: "The program contains no templates, rules or facts (scenarios alone decide nothing). Output the FULL Logical English program — never elide sections with '% ...' placeholders."},
         Issues1 = [EmptyIssue|Issues]
+    ;   \+ kb_has_rules(KB)
+    ->  % Templates and scenarios but not one rule. Every query then has no
+        % answer, so this is worth an ERROR of its own: an "unknown section"
+        % swallowing the whole knowledge base counted as ONE error, which made
+        % a twin with no logic in it look nearly clean and win its branch.
+        E1 is NErrors + 1,
+        NoRules = _{severity: "error", type: "no_rules",
+                    message: "The program declares templates but contains NO RULES, so no query can have an answer. Check the knowledge base header: it must read `the knowledge base <name> includes:` or `the contract states that:` — `the knowledge base <name> is:` is not a section header, and everything under it is discarded."},
+        Issues1 = [NoRules|Issues]
     ;   E1 = NErrors, Issues1 = Issues
     ),
     (   asterisks_outside_templates(Text, NBadLines)
@@ -2391,6 +2657,19 @@ kb_has_substance(KB) :-
     current_predicate(KB:le_dict/1),
     KB:le_dict(D),
     \+ le_system_templates:le_system_template(D), !.
+
+%!  kb_has_rules(+KB) is semidet.
+%
+%   At least one user clause with a body — a rule, not just a fact. A twin that
+%   states only data decides nothing.
+kb_has_rules(KB) :-
+    current_predicate(KB:F/A),
+    \+ le_kbs:is_system_predicate(F/A),
+    \+ sub_atom(F, 0, 3, _, le_),
+    functor(H, F, A),
+    \+ predicate_property(KB:H, imported_from(_)),
+    clause(KB:H, Body),
+    Body \== true, !.
 
 partition_severity(Issues, NErrors, NWarnings) :-
     partition([I]>>(get_dict(severity, I, "error")), Issues, Es, Ws),

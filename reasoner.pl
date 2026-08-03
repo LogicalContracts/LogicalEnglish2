@@ -716,6 +716,8 @@ is_built_in(le_le(_, _)).
 is_built_in(le_gt(_, _)).
 is_built_in(le_lt(_, _)).
 is_built_in(le_is_days_after(_, _, _)).
+is_built_in(le_minimum(_, _, _)).
+is_built_in(le_maximum(_, _, _)).
 is_built_in(le_is_in(_, _)).
 is_built_in(equal_to(_, _)).
 
@@ -763,6 +765,8 @@ call_reasoner_built_in(le_le(X, Y), _) :- !, le_compare(=<, X, Y).
 call_reasoner_built_in(le_gt(X, Y), _) :- !, le_compare(>, X, Y).
 call_reasoner_built_in(le_lt(X, Y), _) :- !, le_compare(<, X, Y).
 call_reasoner_built_in(le_is_days_after(Later, Count, Before), _) :- !, le_is_days_after(Later, Count, Before).
+call_reasoner_built_in(le_minimum(X, Y, Z), _) :- !, le_minimum(X, Y, Z).
+call_reasoner_built_in(le_maximum(X, Y, Z), _) :- !, le_maximum(X, Y, Z).
 call_reasoner_built_in(equal_to(X, Y), _) :- !, equal_to(X, Y).
 call_reasoner_built_in(G, _) :- call(G).
 
@@ -777,8 +781,28 @@ le_compare(<, X, Y) :- !, X @< Y.
 
 equal_to(X, X).
 
+%!  le_minimum(+X, +Y, -Z) is semidet.
+%!  le_maximum(+X, +Y, -Z) is semidet.
+%
+%   "the minimum of *a number* and *an other number* is *a third number*" —
+%   the smaller (larger) of two numbers. Least of / greater of is everywhere in
+%   insurance and finance wording (a limit against a repair cost, an excess
+%   against a loss), and without a template for it models write `Z = min(X, Y)`
+%   — which is not an LE expression and dies at run time with "min(A,B)/0 is
+%   not a function". Both arguments must be numbers; the result is compared
+%   when it is already bound, so the goal can also be used as a test.
+le_minimum(X, Y, Z) :-
+    number(X), number(Y),
+    M is min(X, Y),
+    ( var(Z) -> Z = M ; number(Z), Z =:= M ).
+
+le_maximum(X, Y, Z) :-
+    number(X), number(Y),
+    M is max(X, Y),
+    ( var(Z) -> Z = M ; number(Z), Z =:= M ).
+
 le_is_days_after(Later, Count, Before) :-
-    nonvar(Before), nonvar(Count), !, 
+    nonvar(Before), nonvar(Count), !,
     le_date_stamp(Before, BeforeStamp),
     LaterStamp is Count*86400 + BeforeStamp,
     le_stamp_date(LaterStamp, Later).

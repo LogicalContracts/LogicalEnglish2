@@ -243,6 +243,13 @@ In an explanation tree, a type check renders like the assertion it verifies, e.g
   - `*V1* is *V2* days after *V3*` (for dates and numbers)
   - `*V1* is known`
   - `*V1* is in *V2*` (List membership)
+  - `the minimum of *V1* and *V2* is *V3*` (for numbers)
+  - `the maximum of *V1* and *V2* is *V3*` (for numbers)
+- **There are no `min`/`max` FUNCTIONS.** "The least of the limit and the repair
+  cost" is a condition, not an expression: write
+  `and the minimum of L and R is P`, never `and P = min(L, R)` — the latter
+  parses and then dies at solve time with "min(A,B)/0 is not a function". The
+  same goes for `max`.
 
 ### 7.1 Date Handling and Comparisons
 Dates are fully supported as a first-class type in Logical English:
