@@ -270,7 +270,7 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
             ) ->  
             forall(member(S, Sections), process_section(S, NewModule)),
             findall(D, le_system_template(D), SysDicts),
-            forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+            forall(member(D, SysDicts), assert_le_dict(NewModule, D)),
             (   memberchk(skip_tests, Options)
             ->  VerifyOptions = [skip_tests],
                 assertz(NewModule:le_tests_skipped)
@@ -675,8 +675,35 @@ fetch_url(URL, Text) :-
         close(In)
     ).
 
+%!  assert_le_dict(+M, +Dict) is det.
+%!  assert_le_dict(+M, +Dict, -Ref) is det.
+%
+%   Assert a template AND its lookup indexes. le_dict/1 carries the whole
+%   template in one compound, so first-argument indexing cannot tell two
+%   templates apart (they are all dict/7, or all dict/3 for the built-ins) and
+%   every lookup by predicate walks the entire templates section. That is what
+%   the verifier does for each literal it checks: on a 386-template program it
+%   was the most expensive thing in a load. le_dict_fa/3 keys the template by
+%   its own functor and arity, le_dict_opposite/3 by the functor of its
+%   `opposite:` — both indexed on the first argument, both written once.
+assert_le_dict(M, Dict) :- assert_le_dict(M, Dict, _).
+
+assert_le_dict(M, Dict, Ref) :-
+    assertz(M:le_dict(Dict), Ref),
+    (   arg(1, Dict, [F|Args]), atom(F), length(Args, A)
+    ->  assertz(M:le_dict_fa(F, A, Dict))
+    ;   true
+    ),
+    (   dict_opposite(Dict, Opposite), nonvar(Opposite),
+        functor(Opposite, OF, OA)
+    ->  assertz(M:le_dict_opposite(OF, OA, Dict))
+    ;   true
+    ).
+
+dict_opposite(dict(_, _, _, _, Opposite, _, _), Opposite).
+
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, Unknown), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)),
     (   Unknown == unknown ->
         Goal =.. FA,
@@ -685,19 +712,19 @@ assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, U
     ;   true
     ).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, Prep, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, _, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, _, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, _, _, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, _, _, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, [], _, _, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _, _))).
+    assert_le_dict(M, dict(FA, NTs, WV, [], _, _, _)).
 
 % A section marker switches the section that subsequent rules are recorded under.
 process_item(section_marker(Name, _Start, _End), _M) :-
@@ -1935,6 +1962,14 @@ is_system_predicate(le_expected/4).
 is_system_predicate(query_info/3).
 is_system_predicate(ontology/1).
 is_system_predicate(le_dict/1).
+% Functor/arity index over le_dict/1 (see assert_le_dict/3): every le_dict
+% clause has the SAME first-argument key — the compound dict/7 — so looking a
+% template up by its predicate is a scan of the whole templates section. The
+% verifier does exactly that, per literal.
+is_system_predicate(le_dict_fa/3).
+% ... and the same for the `opposite:` side of a template, which is looked up
+% by the opposite's own functor.
+is_system_predicate(le_dict_opposite/3).
 is_system_predicate(unknown_template/1).
 is_system_predicate(le_issue/6).
 is_system_predicate(le_kb_module_fact/1).
@@ -2009,7 +2044,7 @@ verify(LEfilePath) :-
     collect_and_assert_types(KBmodule),
     forall(member(S, Sections), process_section(S, KBmodule)),
     findall(D, le_system_template(D), SysDicts),
-    forall(member(D, SysDicts), assertz(KBmodule:le_dict(D))),
+    forall(member(D, SysDicts), assert_le_dict(KBmodule, D)),
     le_verifier:verify(KBmodule, Issues),
     forall(member(Issue, Issues), le_verifier:print_issue(Issue)),
     % Also report asserted issues

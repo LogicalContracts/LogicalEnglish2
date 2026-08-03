@@ -1471,16 +1471,41 @@ candidate_template(Templates, Words, Dict) :-
     % predicate scans every template, and a per-word lexicon lookup here is a
     % measurable parse-time regression on large programs.
     le_i18n:class_word_list(meta_marker, Ms),
-    (   member(Dict, Templates),
-        Dict = dict(FA, _, WV, _, _, NIW, _, _, _, _),
-        \+ system_template_fa(FA),
-        meta_template_wv(WV, Ms),
-        contains_subsequence(NIW, Words)
-    ;   member(Dict, Templates),
-        Dict = dict(FA, _, WV, _, _, NIW, _, _, _, _),
-        \+ ( \+ system_template_fa(FA), meta_template_wv(WV, Ms) ),
-        contains_subsequence(NIW, Words)
+    template_partition(Templates, Ms, Metas, Rest),
+    ( member(Dict, Metas) ; member(Dict, Rest) ),
+    Dict = dict(_FA, _NTs, _WV, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown),
+    contains_subsequence(NIW, Words).
+
+%!  template_partition(+Templates, +MetaMarkers, -Metas, -Rest) is det.
+%
+%   The meta templates and the others — computed ONCE per template list rather
+%   than once per sentence parsed.
+%
+%   The split itself is cheap; doing it per sentence is not. The meta test walks
+%   a template's whole word list, and the two branches this replaces ran it over
+%   every template twice: on a 386-template program with no meta template at all
+%   that was 3.5 million failing scans, a third of the parse time, for a
+%   partition that never changes while a section is being parsed.
+%
+%   The cache is the identity of the list: `prepare_templates/2` builds it once
+%   per section and the same term is then handed to every sentence, so `==`
+%   settles it by pointer in the hit case and a miss merely recomputes. It lives
+%   in a backtrackable global (per-thread, so the server's sessions cannot see
+%   each other's, and a value restored by backtracking is still a correct
+%   partition of whatever list it was computed from).
+template_partition(Templates, Ms, Metas, Rest) :-
+    (   catch(b_getval(le_template_partition, part(Cached, M0, R0)), _, fail),
+        Cached == Templates
+    ->  Metas = M0, Rest = R0
+    ;   partition(meta_candidate(Ms), Templates, Metas, Rest),
+        b_setval(le_template_partition, part(Templates, Metas, Rest))
     ).
+
+% A template that gets META parse priority: not a built-in, and its word list
+% has a marked slot.
+meta_candidate(Ms, dict(FA, _, WV, _, _, _, _, _, _, _)) :-
+    \+ system_template_fa(FA),
+    meta_template_wv(WV, Ms).
 
 % A built-in (le_-prefixed) template. System templates never get META parse
 % priority: in Romance languages the meta marker 'que' also occurs in ordinary
