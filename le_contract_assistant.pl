@@ -377,10 +377,10 @@ budget_params(B, Preset, K, W, Repairs, Minutes) :-
     ( get_dict(repairs, B, Repairs), number(Repairs) -> true ; Repairs = R0 ),
     ( get_dict(minutes, B, Minutes), number(Minutes) -> true ; Minutes = M0 ).
 
-preset_params(draft,    1, 1, 2, 15).
-preset_params(standard, 3, 2, 3, 45).
-preset_params(thorough, 5, 3, 4, 120).
-preset_params(_,        1, 1, 2, 15).
+preset_params(draft,    1, 1, 3, 15).
+preset_params(standard, 3, 2, 4, 45).
+preset_params(thorough, 5, 3, 5, 120).
+preset_params(_,        1, 1, 3, 15).
 
 %!  features_params(+RequestDict, +Preset, -Features:dict) is det.
 %
@@ -837,8 +837,9 @@ effort_estimate(JobID, Config, Materials, Config1) :-
 %
 %   Deliberately rough — 10% is plenty — and deliberately biased UPWARDS, so
 %   the number the user sees is not exceeded in practice:
-%   - the repair loop is counted at 1.5x its patience (it keeps going while it
-%     improves), not at the patience itself;
+%   - the repair loop is counted at 2.5x its patience (it keeps going while it
+%     improves, up to a hard cap of max(4 x patience, 16)), not at the patience
+%     itself;
 %   - every call is charged the FULL materials as input, although repairs and
 %     later stages send less;
 %   - output is charged as a whole program per call;
@@ -882,7 +883,7 @@ cost_estimate(P, Est) :-
 call_plan(K, W, R, P, MainCalls, JudgeCalls) :-
     ( K > 1 -> Merge = 1 ; Merge = 0 ),
     ( number(P), P > 0 -> Probing = 2 + R ; Probing = 0 ),
-    RepairRounds is max(R, (3 * R + 1) // 2),
+    RepairRounds is max(R, (5 * R + 1) // 2),
     MainCalls is K + W + W * (1 + RepairRounds) + Probing + 1,
     JudgeCalls is Merge + 1.
 
@@ -1123,14 +1124,25 @@ architecture_angles([
 
 % --------------------- Stages 2-5: draft and repair --------------------------
 
+%!  run_branch(+JobID, +Config, +Ctx, +Idx-Sketch, -Out) is det.
+%
+%   One branch, and whatever happens inside it stays inside it. Every error is
+%   caught, not just contract_assistant_error: branches run under
+%   concurrent_maplist, so anything that escapes one of them takes down the
+%   whole pipeline and every OTHER branch's finished program with it. The user's
+%   own interrupt is not an error and still propagates.
 run_branch(JobID, Config, Ctx, Idx-Sketch, Out) :-
     catch(
         run_branch_(JobID, Config, Ctx, Idx-Sketch, Out),
-        error(contract_assistant_error(BErr), _),
-        ( term_string(BErr, BErrS),
-          ca_emit(JobID, "Branch ~w FAILED (~w); the other branches continue"-[Idx, BErrS]),
-          ca_set_branch(JobID, Idx, _{state: "failed", summary: BErrS}),
-          Out = failed(Idx) )).
+        BErr0,
+        (   BErr0 == contract_interrupt
+        ->  throw(BErr0)
+        ;   ( BErr0 = error(contract_assistant_error(BErr), _) -> true ; BErr = BErr0 ),
+            friendly_error(BErr, BErrS),
+            ca_emit(JobID, "Branch ~w FAILED (~w); the other branches continue"-[Idx, BErrS]),
+            ca_set_branch(JobID, Idx, _{state: "failed", summary: BErrS}),
+            Out = failed(Idx)
+        )).
 
 run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     ca_set_branch(JobID, Idx, _{state: "drafting"}),
@@ -1164,7 +1176,15 @@ run_branch_(JobID, Config, Ctx, Idx-Sketch, branch(Idx, Final, Score)) :-
     % calls on warnings that actually need judgement.
     prune_pass(JobID, Config, Idx, Repaired0, Pruned),
     polish_loop(JobID, Config, Idx, Pruned, 0, Repaired, Score0),
-    holdout_extend(JobID, Config, Ctx, Idx, Repaired, Score0, Final, Score),
+    % The branch has a program by now. Nothing that follows may take it away:
+    % the held-out evaluation is a measurement, and a provider that dies during
+    % it leaves the program exactly as good as it was.
+    catch(holdout_extend(JobID, Config, Ctx, Idx, Repaired, Score0, Final, Score),
+          error(contract_assistant_error(HErr), _),
+          ( friendly_error(HErr, HErrS),
+            ca_emit(JobID, "Branch ~w: held-out evaluation abandoned (~w); keeping the repaired program"-[Idx, HErrS]),
+            Final = Repaired,
+            Score = Score0.put(_{holdout_passed: 0, holdout_failed: 0}) )),
     branch_artifact_name(Idx, final, FinalName),
     save_text_artifact(JobID, FinalName, Final),
     ca_set_branch(JobID, Idx, _{state: "done", summary: Score.summary,
@@ -1236,6 +1256,12 @@ branch_ledger_name(Idx, Name) :-
 % outcomes) from the case text and the contract — the repair loop never saw
 % these. The scenarios are appended, the program is re-verified, and the score
 % gains holdout_passed/holdout_failed, ranked ABOVE development test failures.
+%
+% This is an EVALUATION of a program that already exists. A provider failure
+% here must therefore cost the evaluation, never the program: a run once lost
+% two fully drafted, repaired and polished branches — twenty-one minutes of
+% work — because the provider answered 503 to the first held-out call of each,
+% and the job then had no branch left to deliver.
 
 holdout_extend(_JobID, _Config, Ctx, _Idx, Text, Score0, Text, Score) :-
     Ctx.held_cases == [], !,
@@ -1248,12 +1274,38 @@ holdout_extend(JobID, Config, Ctx, Idx, Text, Score0, Final, Score) :-
             ( nth1(I, Ctx.held_cases, CT),
               ca_check_alive(JobID),
               HoldIdx is 100 * Idx + I,   % scenario names must not collide
-              stage_llm(JobID, Config, holdout(Idx, I), 'holdout_scenarios',
-                        [program-Text, case-CT, casenumber-HoldIdx],
-                        [temperature(0)], Reply),
-              extract_le_code(Reply, Block)
+              holdout_block(JobID, Config, Idx, I, HoldIdx, Text, CT, Block)
             ),
             Blocks),
+    (   Blocks == []
+    ->  ca_emit(JobID, "Branch ~w: no held-out scenario could be written; keeping the repaired program, unscored on the held-out cases"-[Idx]),
+        Final = Text,
+        Score = Score0.put(_{holdout_passed: 0, holdout_failed: 0})
+    ;   ( length(Blocks, NB), NB < NH
+        ->  ca_emit(JobID, "Branch ~w: ~w of ~w held-out case(s) could not be written; scoring the rest"-[Idx, NH - NB, NH])
+        ;   true
+        ),
+        holdout_assemble(JobID, Idx, Text, Blocks, Score0, Final, Score)
+    ).
+
+%!  holdout_block(+JobID, +Config, +Idx, +I, +HoldIdx, +Text, +CaseText, -Block)
+%
+%   One held-out case's scenario. A provider failure costs THAT case — findall
+%   simply gets one solution fewer — and the branch is scored on the held-out
+%   cases that could be written. An interrupt is not an LLM failure and still
+%   propagates.
+holdout_block(JobID, Config, Idx, I, HoldIdx, Text, CT, Block) :-
+    catch(
+        ( stage_llm(JobID, Config, holdout(Idx, I), 'holdout_scenarios',
+                    [program-Text, case-CT, casenumber-HoldIdx],
+                    [temperature(0)], Reply),
+          extract_le_code(Reply, Block) ),
+        error(contract_assistant_error(HErr), _),
+        ( friendly_error(HErr, HErrS),
+          ca_emit(JobID, "Branch ~w: held-out case ~w skipped (~w)"-[Idx, I, HErrS]),
+          fail )).
+
+holdout_assemble(JobID, Idx, Text, Blocks, Score0, Final, Score) :-
     atomic_list_concat(Blocks, "\n\n", HoldBlock),
     format(string(Final), "~w\n\n% ── Held-out case scenarios (blind evaluation) ──\n\n~w\n",
            [Text, HoldBlock]),
@@ -1304,14 +1356,23 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Note, Final, Score) 
     ;   Streak is Streak0 + 1
     ),
     Patience = Config.repairs,
-    HardCap is max(3 * Patience, 8),
+    % The hard cap is a RUNAWAY GUARD, not a budget: the wall clock and the
+    % patience counter are what should end a branch. At 3x patience it was
+    % neither — a branch was cut off at nine rounds, still improving, with 24 of
+    % its 45 minutes unspent. It matters more now that each round is given a
+    % working set of at most twelve issues (format_verify_feedback/2) instead of
+    % everything at once: covering a program with sixty issues simply takes more
+    % rounds than covering one round's worth of them.
+    HardCap is max(4 * Patience, 16),
     (   ( V.errors =:= 0, V.tests_failed =:= 0, V.tests_passed > 0 )
     ->  Final = Text, branch_score(V, Summary, Score)
     ;   Streak >= Patience
     ->  ca_emit(JobID, "Branch ~w: no improvement in ~w consecutive repair round(s), keeping the best iteration"-[Idx, Streak]),
         best_result(Best, Final, Score)
     ;   Iter >= HardCap
-    ->  ca_emit(JobID, "Branch ~w: hard repair cap (~w) reached, keeping the best iteration"-[Idx, HardCap]),
+    ->  budget_left_minutes(Config, LeftMin),
+        ca_emit(JobID, "Branch ~w: hard repair cap (~w) reached with ~w min of budget left, keeping the best iteration~w"-
+                       [Idx, HardCap, LeftMin, " (raise Repair patience if it was still improving)"]),
         best_result(Best, Final, Score)
     ;   deadline_exceeded(Config)
     ->  ca_emit(JobID, "Branch ~w: wall-clock budget exhausted, keeping the best iteration"-[Idx]),
@@ -1367,11 +1428,6 @@ refusal_note(How, V, Note) :-
                [V.errors])
     ;   Note = ""
     ).
-
-atomics_to_string(Parts, String) :-
-    exclude(==(""), Parts, Kept),
-    atomic_list_concat(Kept, "", Joined),
-    atom_string(Joined, String).
 
 % ==================== Deterministic clean-up (no LLM call) ===================
 %
@@ -2561,9 +2617,19 @@ verify_le_text(Text, V) :-
 
 verify_le_text_(Text, V) :-
     le_kbs:load_text(Text, KB),
-    findall(_{severity: SevS, type: TypeS, message: MsgS},
-            ( KB:le_issue(Sev, Type, Msg, _Fix, _S, _E),
-              term_string(Sev, SevS), term_string(Type, TypeS), term_string(Msg, MsgS) ),
+    % Keep the verifier's FIX and the source RANGE. Both used to be dropped, so
+    % a repair round was told "Missing template for '...'" and nothing else — no
+    % line, no offending text, no remedy — and then asked for a SEARCH block
+    % copied exactly out of a 50 kB program. That is how rounds come back with
+    % edits that do not match and an unchanged error count.
+    split_string(Text, "\n", "", SrcLines),
+    line_start_offsets(SrcLines, Starts),
+    findall(_{severity: SevS, type: TypeS, message: MsgS,
+              fix: FixS, line: LineNo, source: SrcLine},
+            ( KB:le_issue(Sev, Type, Msg, Fix, S, _E),
+              term_string(Sev, SevS), term_string(Type, TypeS),
+              issue_text(Msg, MsgS), issue_text(Fix, FixS),
+              issue_location(Starts, SrcLines, S, LineNo, SrcLine) ),
             Issues),
     partition_severity(Issues, NErrors, NWarnings),
     (   current_predicate(KB:le_expected/4)
@@ -2658,6 +2724,41 @@ kb_has_substance(KB) :-
     KB:le_dict(D),
     \+ le_system_templates:le_system_template(D), !.
 
+%!  issue_text(+Term, -String) is det.
+%
+%   An issue's message or fix as PLAIN text. term_string/2 quotes an atom that
+%   needs quoting, so every message reached the prompt wrapped in quotes with
+%   its apostrophes backslash-escaped — noise in front of every single line.
+issue_text(T, S) :-
+    ( atomic(T) -> text_to_string(T, S) ; term_string(T, S) ).
+
+%!  line_start_offsets(+Lines, -Starts) is det.
+%!  issue_location(+Starts, +Lines, +Offset, -LineNo, -SourceLine) is det.
+%
+%   Where an issue is, in terms a repair can act on: the line number, and the
+%   line itself — which is what a SEARCH block has to match.
+line_start_offsets(Lines, Starts) :-
+    foldl([L, S0-Acc, S1-[S0|Acc]]>>( string_length(L, Len), S1 is S0 + Len + 1 ),
+          Lines, 0-[], _-Rev),
+    reverse(Rev, Starts).
+
+issue_location(Starts, Lines, Offset, LineNo, SourceLine) :-
+    (   integer(Offset), Offset >= 0
+    ->  offset_line_no(Starts, Offset, 1, 1, LineNo),
+        (   nth1(LineNo, Lines, L0)
+        ->  normalize_space(string(L1), L0), truncated(L1, 200, SourceLine)
+        ;   SourceLine = ""
+        )
+    ;   LineNo = 0, SourceLine = ""
+    ).
+
+offset_line_no([], _, _, Best, Best).
+offset_line_no([S|Ss], Offset, N, Best0, Best) :-
+    (   S =< Offset
+    ->  N1 is N + 1, offset_line_no(Ss, Offset, N1, N, Best)
+    ;   Best = Best0
+    ).
+
 %!  kb_has_rules(+KB) is semidet.
 %
 %   At least one user clause with a body — a rule, not just a fact. A twin that
@@ -2694,18 +2795,148 @@ score_summary(V, Summary) :-
     format(string(Summary), "~w errors, ~w warnings, ~w/~w tests passing",
            [V.errors, V.warnings, V.tests_passed, Total]).
 
+%!  format_verify_feedback(+V, -Feedback) is det.
+%
+%   What one repair round is asked to fix — a WORKING SET, not the whole truth.
+%
+%   It used to be every issue at every severity plus every failing test with its
+%   expected/actual strings, uncapped. A branch sitting at "0 errors, 59
+%   warnings, 0/25 tests" produced 134 lines and 12 kB of undifferentiated
+%   complaint, identical every round, in which the two or three things that
+%   actually blocked the program were indistinguishable from thirty repetitions
+%   of one warning. Models answered it by rewriting the program, and nine rounds
+%   later the syntax errors were still there.
+%
+%   So: errors before failing tests before warnings (a warning cannot matter
+%   while the program does not load); at most `feedback_type_cap` examples of any
+%   one issue type, since they repeat; `feedback_max_items` in all; and a closing
+%   line naming exactly what was left out, so the model knows the list is this
+%   round's work and not the program's full state. Nothing is lost by omitting
+%   it — the loop re-verifies every iteration, and what is still wrong comes
+%   back next round.
 format_verify_feedback(V, Feedback) :-
-    findall(L, ( member(I, V.issues),
-                 format(string(L), "- [~w] ~w", [I.severity, I.message]) ), ILs),
-    findall(L, ( member(T, V.test_details), T.status == "fail",
-                 format(string(L), "- FAILED test: query '~w' in scenario '~w'~n    expected: ~w~n    actual:   ~w",
-                        [T.query, T.scenario, T.expected, T.actual]) ), TLs),
-    append(ILs, TLs, Ls0),
-    (   V.tests_passed + V.tests_failed =:= 0
-    ->  append(Ls0, ["- The program has NO scenario expectations at all: every case must have a scenario with `<queryname> expects answers [...]` lines, plus adversarial variants. A twin without tests demonstrates nothing."], Ls)
-    ;   Ls = Ls0
+    feedback_items(V, Items0),
+    % While the program does not LOAD, a warning is not worth a line of the
+    % prompt: errors (and the tests they make meaningless) are the whole job.
+    % The deferred warnings are still counted in the closing line.
+    (   V.errors > 0
+    ->  partition([item(R, _, _)]>>(R < 3), Items0, Items, Deferred)
+    ;   Items = Items0, Deferred = []
     ),
+    select_feedback(Items, Shown, Omitted0),
+    append(Omitted0, Deferred, Omitted),
+    findall(L, member(item(_, _, L), Shown), Ls0),
+    (   V.tests_passed + V.tests_failed =:= 0
+    ->  append(Ls0, ["- The program has NO scenario expectations at all: every case must have a scenario with `<queryname> expects answers [...]` lines, plus adversarial variants. A twin without tests demonstrates nothing."], Ls1)
+    ;   Ls1 = Ls0
+    ),
+    omitted_note(Omitted, NoteLines),
+    append(Ls1, NoteLines, Ls),
     ( Ls == [] -> Feedback = "no issues" ; atomic_list_concat(Ls, "\n", Feedback) ).
+
+feedback_max_items(12).
+% Errors block the load, and each one now carries its own line and source text,
+% so several instances of one error type are several actionable repairs — not
+% the same complaint repeated.
+feedback_type_cap(_, 3).
+feedback_error_cap(6).
+
+%!  feedback_items(+V, -Items) is det.
+%
+%   item(Rank, Type, Line) in the order a repair should attend to them.
+feedback_items(V, Items) :-
+    findall(item(1, error(Type), L),
+            ( member(I, V.issues), get_dict(severity, I, "error"), issue_line(I, Type, L) ),
+            Errors),
+    % Keyed by QUERY, so the per-type cap spreads the examples over DIFFERENT
+    % failures instead of showing one bug nine times: `building_payment` failing
+    % in every scenario is one thing to fix, and the round learns more from
+    % three of those plus three of another query than from six of the first.
+    % `get_dict` inside the GOAL, never `T.query` in the template: functional
+    % dict notation in a findall template is hoisted out of the findall, where
+    % T is still unbound, and throws.
+    findall(item(2, test(Q), L),
+            ( member(T, V.test_details), T.status == "fail",
+              get_dict(query, T, Q), test_line(T, L) ),
+            Tests),
+    % A failing test is reported BOTH as a `failed_test` warning and in
+    % test_details; the dedicated line above carries the same content in a
+    % readable shape, so the warning copy is dropped (polishable_warnings/3
+    % does the same for the polish rounds).
+    findall(item(3, Type, L),
+            ( member(I, V.issues), get_dict(severity, I, "warning"),
+              get_dict(type, I, Ty0), Ty0 \== "failed_test",
+              issue_line(I, Type, L) ),
+            Warnings),
+    append([Errors, Tests, Warnings], Items).
+
+issue_line(I, Type, Line) :-
+    ( get_dict(type, I, Type) -> true ; Type = "issue" ),
+    truncated(I.message, 400, Msg),
+    (   get_dict(line, I, N), integer(N), N > 0
+    ->  format(string(Where), " (line ~w)", [N])
+    ;   Where = ""
+    ),
+    (   get_dict(source, I, Src), Src \== ""
+    ->  format(string(SrcPart), "~n    in: ~w", [Src])
+    ;   SrcPart = ""
+    ),
+    (   get_dict(fix, I, Fix), Fix \== "", Fix \== "''"
+    ->  truncated(Fix, 300, F), format(string(FixPart), "~n    fix: ~w", [F])
+    ;   FixPart = ""
+    ),
+    format(string(Line), "- [~w]~w ~w~w~w", [I.severity, Where, Msg, SrcPart, FixPart]).
+
+test_line(T, Line) :-
+    format(string(L0), "- FAILED test: query '~w' in scenario '~w'~n    expected: ~w~n    actual:   ~w",
+           [T.query, T.scenario, T.expected, T.actual]),
+    truncated(L0, 600, Line).
+
+%!  select_feedback(+Items, -Shown, -Omitted) is det.
+select_feedback(Items, Shown, Omitted) :-
+    feedback_max_items(Max),
+    select_feedback_(Items, [], 0, Max, Shown, Omitted).
+
+select_feedback_([], _, _, _, [], []).
+select_feedback_([item(R, Type, L)|Rest], Counts0, N, Max, Shown, Omitted) :-
+    (   N < Max,
+        ( memberchk(Type-C, Counts0) -> true ; C = 0 ),
+        ( Type = error(_) -> feedback_error_cap(Cap) ; feedback_type_cap(Type, Cap) ),
+        C < Cap
+    ->  C1 is C + 1,
+        ( selectchk(Type-C, Counts0, Counts1) -> true ; Counts1 = Counts0 ),
+        N1 is N + 1,
+        Shown = [item(R, Type, L)|Shown1],
+        select_feedback_(Rest, [Type-C1|Counts1], N1, Max, Shown1, Omitted)
+    ;   Omitted = [item(R, Type, L)|Omitted1],
+        select_feedback_(Rest, Counts0, N, Max, Shown, Omitted1)
+    ).
+
+%!  omitted_note(+Omitted, -Lines) is det.
+%
+%   What is NOT in the list, by kind and count. Without it the model reads a
+%   short list as "the program is nearly done" and stops looking.
+omitted_note([], []) :- !.
+omitted_note(Omitted, [Line]) :-
+    length(Omitted, N),
+    findall(Type, member(item(_, Type, _), Omitted), Types),
+    msort(Types, Sorted),
+    clumped(Sorted, Clumped),                       % Type-Count, one per kind
+    findall(C-T, member(T-C, Clumped), Counted),
+    sort(0, @>=, Counted, Ranked),                  % the commonest kinds first
+    findall(S, ( member(C, Ranked), C = Cn-T, feedback_type_name(T, TN),
+                 format(string(S), "~w ~w", [Cn, TN]) ),
+            Parts),
+    atomic_list_concat(Parts, ", ", Summary),
+    format(string(Line),
+           "- ... and ~w more not listed (~w). Fix what is above; the program is re-verified after every reply and whatever is still wrong will be listed next round.",
+           [N, Summary]).
+
+feedback_type_name(test(Q), Name) :- !,
+    format(string(Name), "failing test(s) of query '~w'", [Q]).
+feedback_type_name(error(T), Name) :- !,
+    format(string(Name), "~w error(s)", [T]).
+feedback_type_name(T, T).
 
 % ================================ LLM plumbing ================================
 
@@ -3767,6 +3998,16 @@ ca_check_alive(JobID) :-
 
 deadline_exceeded(Config) :-
     get_time(Now), Now > Config.deadline.
+
+%!  budget_left_minutes(+Config, -Minutes) is det.
+%
+%   Whole minutes of wall-clock budget still unspent — so a log line can say
+%   whether a branch stopped because it ran out of TIME or because it ran into
+%   a round count.
+budget_left_minutes(Config, Minutes) :-
+    get_time(Now),
+    Left is Config.deadline - Now,
+    Minutes is max(0, round(Left) // 60).
 
 save_text_artifact(JobID, Name, Text) :-
     job_dir(JobID, Dir),
