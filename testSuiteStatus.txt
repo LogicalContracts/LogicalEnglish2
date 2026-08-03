@@ -1,11 +1,11 @@
 
 Test Summary:
 -------------
-Files processed: 114
-Total tests:     338
-Passed:          337
-Failed:          1
-Errors/Timeouts: 0
+Files processed: 118
+Total tests:     448
+Passed:          402
+Failed:          45
+Errors/Timeouts: 1
 -------------
 
 Detailed File Summary:
@@ -111,6 +111,10 @@ Detailed File Summary:
   [FAIL] examples/moreExamples/insureLE2/testing/policy-GLM-5.2.le: 1 Pass, 1 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
+  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-4o.le: 0 Pass, 17 Fail, 0 Error
+  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-5.5.le: 45 Pass, 5 Fail, 1 Error
+  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-oss-120g.le: 0 Pass, 17 Fail, 0 Error
+  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-kimi-k3.le: 20 Pass, 5 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
