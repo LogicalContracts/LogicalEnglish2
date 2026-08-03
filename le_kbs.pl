@@ -2252,9 +2252,33 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUn
     createSession(KBmodule, SM),
     setup_call_cleanup(
         true,
-        run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result),
+        catch(run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result),
+              Error,
+              test_run_error(Error, QueryName, ScenarioName, Result)),
         destroySession(SM)
     ).
+
+%!  test_run_error(+Error, +QueryName, +ScenarioName, -Result) is det.
+%
+%   A test that RAISES is that test's error, not the run's. Only
+%   time_limit_exceeded was handled before, so anything else escaped
+%   run_one_test/3, escaped runTestsFor/2 and aborted the whole suite — every
+%   file after the offending one silently unrun. Machine-written programs reach
+%   the runner routinely and hit run-time errors no verifier can see: `Z =
+%   min(A, L)` (Logical English has no min function) throws inside a sum
+%   aggregate, mid-proof, with the whole reasoner stack on it.
+%
+%   Control exceptions are not test failures: SWI signals abort, halt and
+%   thread_exit as unwind/1 terms, and swallowing one would break Ctrl-C and
+%   halt/1. Those keep unwinding.
+test_run_error(Error, _, _, _) :-
+    nonvar(Error), Error = unwind(_), !,
+    throw(Error).
+test_run_error('$aborted', _, _, _) :- !, throw('$aborted').
+test_run_error(Error, QueryName, ScenarioName, error(QueryName, ScenarioName, Msg)) :-
+    term_string(Error, S0),
+    ( string_length(S0, L), L > 300 -> sub_string(S0, 0, 297, _, S1), string_concat(S1, "...", S) ; S = S0 ),
+    format(string(Msg), "Run-time error: ~w", [S]).
 
 run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result) :-
     (   setScenarion(SM, ScenarioName) ->
