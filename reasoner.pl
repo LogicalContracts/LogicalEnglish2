@@ -333,14 +333,18 @@ unwrap_le_at(G, G).
 case_proof([success(_, Ref, GrandChildren)], Ref, GrandChildren) :- !.
 case_proof(Whys, universal_case, Whys).
 
+% Both lookups go through the functor indexes (le_dict_fa/3, le_dict_opposite/3
+% — see assert_le_dict/3 in le_kbs): every le_dict/1 clause carries the same
+% first-argument key, so asking it for one template used to walk the whole
+% templates section, once per literal the verifier checks.
 has_opposite(G, SM, KM, OppG) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, A),
-    (   M:le_dict(dict([F|Args], _, _, _, Opposite, _, _)), length(Args, A), nonvar(Opposite) ->
+    (   dict_by_functor(M, F, A, dict([F|Args], _, _, _, Opposite, _, _)), nonvar(Opposite) ->
         % G is the main predicate
         G =.. [F | GArgs],
         copy_term(dict(Args, Opposite), dict(GArgs, OppG))
-    ;   M:le_dict(dict(FA, _, _, _, Opposite, _, _)), nonvar(Opposite), functor(Opposite, F, A) ->
+    ;   dict_by_opposite(M, F, A, dict(FA, _, _, _, Opposite, _, _)), nonvar(Opposite) ->
         % G is the opposite predicate
         Opposite =.. [F | OppArgs],
         G =.. [F | GArgs],
@@ -363,10 +367,30 @@ is_type_compatible(SM, KM, G) :-
 % predicate is F/N. Both the full dict/7 and the short dict/3 form are searched,
 % as before.
 candidate_dict(M, F, N, FormalArgs, NTs) :-
-    (   M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _, _))
-    ;   M:le_dict(dict([F|FormalArgs], NTs, _))
-    ),
-    length(FormalArgs, N).
+    (   dict_by_functor(M, F, N, dict([F|FormalArgs], NTs, _, _, _, _, _))
+    ;   dict_by_functor(M, F, N, dict([F|FormalArgs], NTs, _))
+    ).
+
+%!  dict_by_functor(+M, +F, +A, ?Dict) is nondet.
+%!  dict_by_opposite(+M, +F, +A, ?Dict) is nondet.
+%
+%   Templates by the predicate they declare, and by the predicate their
+%   `opposite:` declares. The indexes are written when the template is asserted
+%   (assert_le_dict/3); a KB loaded before they existed — or by a path that
+%   never built them — falls back to the scan, so nothing depends on them
+%   being there.
+dict_by_functor(M, F, A, Dict) :-
+    (   current_predicate(M:le_dict_fa/3)
+    ->  M:le_dict_fa(F, A, Dict)
+    ;   M:le_dict(Dict), arg(1, Dict, [F|Args]), length(Args, A)
+    ).
+
+dict_by_opposite(M, F, A, Dict) :-
+    (   current_predicate(M:le_dict_opposite/3)
+    ->  M:le_dict_opposite(F, A, Dict)
+    ;   M:le_dict(Dict), Dict = dict(_, _, _, _, Opposite, _, _),
+        nonvar(Opposite), functor(Opposite, F, A)
+    ).
 
 %!  args_compatible_any(+Candidates, +ActualArgs, +M, +SM, +KM) is semidet.
 %

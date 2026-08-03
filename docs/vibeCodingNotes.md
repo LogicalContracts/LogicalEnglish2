@@ -2123,6 +2123,64 @@ And exclude type guard nodes
 Let's refine the "important reason" for failures, tweaking the heuristic you just implemented. Instead of returning the deepest failed node... return all of them (notice that they cannot be ancestor of each other), and render the lot with "it is not the case that X, nor Y, nor..."; truncate after the third.
 Make this refinement a new preferfence in the explanations preferences panel, "larger important reasons".
 
+## Lousy run of LE Contract Assistant
+I executed now the LE contract Assistant but got low quality results which I want you to analyse.
+Inputs were examples/moreExamples/insurLE2/testing/fema/fema_F-122-Dwelling-SFIP_2021.md, with nearby files claims.json and expected_outcomes.json for claims, plus schedules.json. The resulting program was examples/moreExamples/insurLE2/testing/fema/fema-gpt-oss-120b.le , which has syntax errrors. 
+The coverage report was "skipped", see below.
+
+How was this possible, using a fast model, plenty of time budget to spare? And the cover ledger seems a margial effort versus the rest (?), so I think it should always be present, even if full of holes.
+
+This was shown at the end in the web UI:
+
+Result
+
+model openai/gpt-oss-120b · K=5 W=3 repairs=4 · probes 8 · holdout auto · paraphrase check · diff repairs · max 120 min · 65536 tokens/call · additional instructions · polish 3 · est. cost ≤ $0.62 · finished in 6:52
+Delivered program
+1 errors, 51 warnings, 0/17 tests passing
+Branch 1 — winner
+1 errors, 51 warnings, 0/17 tests passing; held-out: 0/4
+held-out: 0/4
+Branch 2
+45 errors, 76 warnings, 1/17 tests passing; held-out: 1/49
+held-out: 1/49
+Branch 3
+1 errors, 56 warnings, 0/17 tests passing; held-out: 0/4
+held-out: 0/4
+Paraphrase invariance
+stability 31%
+
+
+And this is the coverage ledger:
+(ledger skipped: the winning program still has errors — see the scores and the run log; there is nothing sound to audit yet)
+
+---
+
+Technicalities
+
+- Generated: 2026-08-03 00:06 (job caj_cceef308-8ec6-11f1-8756-7e6c0b0670f7)
+- Model: openai/gpt-oss-120b · judge: same
+- Search: K=5 vocabulary samples · W=3 branches · repair patience 4 · probes 8 · holdout auto
+- Options: diff repairs · reasoning default · clause-wise false · paraphrase true · warning clean-up rounds 3
+- Scenarios: 13 supplied case(s); no scenario invented beyond them
+- Additional instructions: expected_outcomes.json convey expected answers for claims.json
+- Completion limit: 65536 tokens/call (auto-calibrated) · budget 120 min · elapsed 6:52
+- LLM cost: $0.62 (estimated before the run, upper bound)
+- Target section: none
+- Existing LE code: none supplied
+- Branches:
+  - branch 1: 1 errors, 51 warnings, 0/17 tests passing; held-out: 0/4 ← winner
+  - branch 2: 45 errors, 76 warnings, 1/17 tests passing; held-out: 1/49
+  - branch 3: 1 errors, 56 warnings, 0/17 tests passing; held-out: 0/4
+- Auto-tuning during the run:
+  - none
+- Interrogation: off · Paraphrase: stability 31%
+- Delivered program: 1 errors, 51 warnings, 0/17 tests passing
+
+
+
+
+
+
 ## TBD
 In the editor, "Show s(CASP)" should appear only if the selected engine is s(CASP)
 Contracções (numa, desta, ..)
