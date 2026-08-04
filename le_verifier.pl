@@ -405,6 +405,14 @@ template_used(KB, F, A) :-
     clause(KB:H, Body),
     find_in_body(Body, Literal),
     functor(Literal, F, A), !.
+%   Used by an LPS sentence. An `lps`-target program's rules are not Prolog
+%   clauses — they are le_lps_item/3 payloads handed to the LPS2 engine — so
+%   the clause-walking cases above find nothing and every template in a
+%   perfectly ordinary LPS program is reported as dead vocabulary.
+template_used(KB, F, A) :-
+    current_predicate(KB:le_lps_item/3),
+    KB:le_lps_item(_, Payload, _),
+    contains_literal(Payload, F, A), !.
 template_used(KB, F, A) :-
     safe_scenario_fact(KB, F, A), !.
 template_used(KB, F, A) :-
@@ -412,6 +420,17 @@ template_used(KB, F, A) :-
     KB:query_info(_, Goal, _),
     find_in_body(Goal, Literal),
     functor(Literal, F, A), !.
+
+%!  contains_literal(+Term, +F, +A) is semidet.
+%
+%   Does this term mention F/A anywhere inside it? An LPS payload is a nest of
+%   `r/2`, `and/2`, `lps_at/2`, `le_at/3` and friends around the literals, and
+%   the only thing wanted here is whether the template appears at all.
+contains_literal(T, F, A) :-
+    compound(T),
+    (   functor(T, F, A)
+    ;   arg(_, T, Sub), contains_literal(Sub, F, A)
+    ), !.
 
 %!  template_source(+KB, +Dict, -Start, -End) is det.
 template_source(KB, Dict, Start, End) :-
@@ -469,7 +488,19 @@ all_rules_ground(KB) :-
     \+ ( a_rule(KB, H, B, _), \+ ( ground(H), ground(B) ) ).
 
 % --- 5. Facts/Rules ratio ---
+%
+% Not for every target. count_rules/2 counts Prolog clauses with bodies in the
+% KB's module, which is what `the target language is: prolog` produces. An
+% `lps` program asserts none: its rules become reactive_rule/2, updated/4 and
+% d_pre/1 facts handed to the LPS2 engine, so the heuristic sees a program of
+% facts alone and reports missing_rules on a program that is nothing but rules.
+% Same for too_many_facts, and for the same reason.
+counts_prolog_rules(KB) :-
+    le_kbs:kb_target_language(KB, Target),
+    memberchk(Target, [prolog, scasp]).
+
 facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
+    counts_prolog_rules(KB),
     count_rules(KB, Rules),
     Rules == 0,
     count_facts(KB, Facts),
@@ -477,6 +508,7 @@ facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
     le_i18n:le_msg(missing_rules_desc, [], Description),
     le_i18n:le_msg(missing_rules_fix, [], Fix).
 facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
+    counts_prolog_rules(KB),
     count_rules(KB, Rules),
     Rules > 0,
     count_facts(KB, Facts),
