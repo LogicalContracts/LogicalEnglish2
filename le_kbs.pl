@@ -13,6 +13,8 @@
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5, template_of/5,
     topPredicates/2, kbSummary/2, kb_own_predicate/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
+    maybe_destroy_kb/1, is_generated_kb_module/1,
+    le_network_allowed/0, set_le_network_allowed/1,
     le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
@@ -688,15 +690,44 @@ parse_resource_text(Text, M, FilteredMergedSections) :-
 is_scenario_or_query(scenario(_, _, _, _)).
 is_scenario_or_query(query(_, _, _, _)).
 
+fetch_error_desc(URL, error(permission_error(fetch, url, _), _), Desc) :-
+    !,
+    format(atom(Desc),
+           "Outbound network access is disabled: ~w was not fetched", [URL]).
 fetch_error_desc(URL, Err, Desc) :-
     term_string(Err, ES),
     format(atom(Desc), "Failed to fetch URL ~w: ~w", [URL, ES]).
 
+%!  le_network_allowed is semidet.
+%!  set_le_network_allowed(+Bool) is det.
+%
+%   Whether a document's URL-valued resources (`le_url`, `pl_url`) may be
+%   fetched. True by default, which is the behaviour every existing caller
+%   has had; an embedder that loads this library into a server of its own —
+%   LPS2's IDE, say — can turn it off so that opening someone's `.le` in an
+%   editor cannot make outbound requests on the author's behalf. A refused
+%   fetch raises permission_error/3, which fetch_resource_kind/5 already turns
+%   into an le_issue against the document.
+:- dynamic le_network_disabled/0.
+
+le_network_allowed :-
+    \+ le_network_disabled.
+
+set_le_network_allowed(Bool) :-
+    must_be(boolean, Bool),
+    (   Bool == true
+    ->  retractall(le_network_disabled)
+    ;   ( le_network_disabled -> true ; assertz(le_network_disabled) )
+    ).
+
 fetch_url(URL, Text) :-
-    setup_call_cleanup(
-        http_open(URL, In, []),
-        read_string(In, _, Text),
-        close(In)
+    (   le_network_allowed
+    ->  setup_call_cleanup(
+            http_open(URL, In, []),
+            read_string(In, _, Text),
+            close(In)
+        )
+    ;   throw(error(permission_error(fetch, url, URL), le_network_disabled))
     ).
 
 %!  assert_le_dict(+M, +Dict) is det.

@@ -64,6 +64,7 @@
     le_lps_json/1,               % +Path            (writes the §2 JSON object)
     le_lps_json_text/1,          % +LEText
     le_lps_dict/4,               % +Text, +Provenance, +Issues, -Dict
+    offset_line_col/4,           % +Text, +Offset, -Line, -Col  (for le_service.pl)
     lps_split_time/5             % for le_lps_write.pl and the tests
   ]).
 
