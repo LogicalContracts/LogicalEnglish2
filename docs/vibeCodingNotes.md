@@ -2124,11 +2124,17 @@ Let's refine the "important reason" for failures, tweaking the heuristic you jus
 Make this refinement a new preferfence in the explanations preferences panel, "larger important reasons".
 
 ## Lousy run of LE Contract Assistant
-I executed now the LE contract Assistant but got low quality results which I want you to analyse.
+First, a template should allow the word 'scenario' in it, for example "*a claim* involves a scenario tested of *a description*"; right now this causes a syntax error.
+
+Second, I ran the LE Contract Assistant and some dumb LLM (or not so dumb, actually: GLM-5.2 !) generated duplicated templates, apparently inspired by case data with many similar instances in a JSON array; this is dumb, duplicate templates should be simply mechanically removed after each iteration, ditto for facts and rules.
+
+Third, some LLMs are generating min(A,L) as a function, causing errors containing the string "`'min(A, L)'/0' is not a function". So add a system template  "the minimum of *X* and *Y* is *Z*" and corresponding Prolog predicate min(X,Y,Z). And edit prompts in LE Assistant and in LE Contract Assistant to use it.
+
+Finally: I executed now the LE contract Assistant but got low quality results which I want you to analyse.
 Inputs were examples/moreExamples/insurLE2/testing/fema/fema_F-122-Dwelling-SFIP_2021.md, with nearby files claims.json and expected_outcomes.json for claims, plus schedules.json. The resulting program was examples/moreExamples/insurLE2/testing/fema/fema-gpt-oss-120b.le , which has syntax errrors. 
 The coverage report was "skipped", see below.
 
-How was this possible, using a fast model, plenty of time budget to spare? And the cover ledger seems a margial effort versus the rest (?), so I think it should always be present, even if full of holes.
+How was this possible, syntax errors, using a fast model, with plenty of time budget to spare? And the cover ledger seems a marginal effort versus the rest (?), so I think it should always be present, even if full of holes.
 
 This was shown at the end in the web UI:
 
@@ -2177,8 +2183,16 @@ Technicalities
 - Delivered program: 1 errors, 51 warnings, 0/17 tests passing
 
 
+I see too many:
+"iteration N ranks worse than the best so far; continuing from the best version"
+Even when there are (say) errors to fix, for example this sequence:
+...
+Branch 2 iteration 2: 11 errors, 183 warnings, 0/15 tests passing
+Branch 2: iteration 2 ranks worse than the best so far; continuing from the best version
+...
 
-
+How is it possible that it didn't fix (say) 1 error, and improve the program??? Too many errors being submitted in the prompt? Are they going with the hints given by the LE parser and verifier?
+Or should the prompting be richer in terms of the LE syntax...?
 
 
 ## TBD
@@ -2186,5 +2200,5 @@ In the editor, "Show s(CASP)" should appear only if the selected engine is s(CAS
 Contracções (numa, desta, ..)
 Logical English for German (Logisches Deutsch)
 Blockly ??
-wasm
+wasm for embedable deployment
 server logs, grafana??

@@ -18,13 +18,16 @@
          kept; the caller may warn about, yet still use, a fragment with new issues.
 
     The single entry point is english_to_le/8. The Model id and Options are passed
-    straight to llm_client; if Options omits api_key(_), the provider env var (e.g.
-    GROQ_API_KEY) is used. Verification uses le_tools:le_tool_verify/2 in-process.
+    straight to the LLM client (llm/le_llm.pl chooses which); if Options omits
+    api_key(_), the provider env var (e.g. GROQ_API_KEY) is used. Verification uses le_tools:le_tool_verify/2 in-process.
 */
 
 :- module(nl_to_le, [ english_to_le/8 ]).
 
-:- use_module(llm/llm_client).
+%   Through the broker, not straight at llm_client: an embedder (LPS2) can
+%   substitute its own client, so English→LE uses the keys and the model
+%   registry the surrounding application already has. See llm/le_llm.pl.
+:- use_module(llm/le_llm).
 :- use_module(le_i18n).
 :- use_module(le_kbs, [load_text/2, text_language/2]).
 :- use_module(le_verifier, [verify/2]).
@@ -73,7 +76,7 @@ english_to_le(Kind, Sentence, Templates, Program, Model, Options, LEText, NewIss
     ensure_max_tokens(Options, Options1),
     system_prompt(Kind, Templates, System),
     Messages0 = [ _{role: system, content: System}, _{role: user, content: SentenceS} ],
-    llm_request(Model, Messages0, Raw0, Options1),
+    le_llm_request(Model, Messages0, Raw0, Options1),
     clean_reply(Raw0, LE0),
     MaxLoops = 2,
     refine(Kind, ProgramS, BaselineIssues, Model, Options1, Messages0, Raw0, LE0, MaxLoops, LEText, NewIssues).
@@ -97,7 +100,7 @@ refine(Kind, Program, Baseline, Model, Options, Messages, LastReply, LE, LoopsLe
             "Adding your output to the program produced these NEW problems:~n~w~n~nReturn a corrected version. Output ONLY the ~w, in the same plain-text format as before — no explanation, no code fences.",
             [IssuesText, Noun]),
         append(Messages, [ _{role: assistant, content: LastReply}, _{role: user, content: Feedback} ], Messages1),
-        llm_request(Model, Messages1, Raw1, Options),
+        le_llm_request(Model, Messages1, Raw1, Options),
         clean_reply(Raw1, LE1),
         L1 is LoopsLeft - 1,
         refine(Kind, Program, Baseline, Model, Options, Messages1, Raw1, LE1, L1, FinalLE, FinalNew)
