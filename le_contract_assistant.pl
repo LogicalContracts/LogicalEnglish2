@@ -1364,7 +1364,8 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Note, Final, Score) 
     % everything at once: covering a program with sixty issues simply takes more
     % rounds than covering one round's worth of them.
     HardCap is max(4 * Patience, 16),
-    (   ( V.errors =:= 0, V.tests_failed =:= 0, V.tests_passed > 0 )
+    modelling_warnings(V, NMW),
+    (   ( V.errors =:= 0, V.tests_failed =:= 0, V.tests_passed > 0, NMW =:= 0 )
     ->  Final = Text, branch_score(V, Summary, Score)
     ;   Streak >= Patience
     ->  ca_emit(JobID, "Branch ~w: no improvement in ~w consecutive repair round(s), keeping the best iteration"-[Idx, Streak]),
@@ -1378,6 +1379,10 @@ repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Note, Final, Score) 
     ->  ca_emit(JobID, "Branch ~w: wall-clock budget exhausted, keeping the best iteration"-[Idx]),
         best_result(Best, Final, Score)
     ;   ca_check_alive(JobID),
+        (   V.errors =:= 0, V.tests_failed =:= 0, V.tests_passed > 0, NMW > 0
+        ->  ca_emit(JobID, "Branch ~w: loads clean and every test passes, but ~w modelling warning(s) remain (data no rule reads, rules no query reaches); repairing on"-[Idx, NMW])
+        ;   true
+        ),
         % Repair the BEST program known, not whatever the last round left.
         (   Best = cand(BestText, BestV, _), BestText \== Text
         ->  ca_emit(JobID, "Branch ~w: iteration ~w ranks worse than the best so far; continuing from the best version"-[Idx, Iter]),
@@ -2863,12 +2868,65 @@ feedback_items(V, Items) :-
     % test_details; the dedicated line above carries the same content in a
     % readable shape, so the warning copy is dropped (polishable_warnings/3
     % does the same for the polish rounds).
+    %
+    % Then the warnings, in two ranks. A MODELLING warning says the program
+    % means something other than the contract does — a datum no rule reads, a
+    % rule no query reaches, a condition that cannot succeed — and a working set
+    % of twelve items must not spend its places on dead vocabulary while one of
+    % those is waiting (see modelling_warning/1).
     findall(item(3, Type, L),
             ( member(I, V.issues), get_dict(severity, I, "warning"),
               get_dict(type, I, Ty0), Ty0 \== "failed_test",
+              modelling_warning(Ty0),
               issue_line(I, Type, L) ),
-            Warnings),
-    append([Errors, Tests, Warnings], Items).
+            Modelling),
+    findall(item(4, Type, L),
+            ( member(I, V.issues), get_dict(severity, I, "warning"),
+              get_dict(type, I, Ty0), Ty0 \== "failed_test",
+              \+ modelling_warning(Ty0),
+              issue_line(I, Type, L) ),
+            Cosmetic),
+    append([Errors, Tests, Modelling, Cosmetic], Items).
+
+%!  modelling_warning(+Type) is semidet.
+%
+%   The warnings that are about MEANING, not tidiness. Each one is a way for a
+%   program to load cleanly, pass every test, and still not say what the
+%   contract says:
+%
+%   - unconsumed_facts: a limit, an excess or an exclusion is stated and no rule
+%     reads it, so the rules it should bound compute unbounded answers. (The
+%     warning this list was written for: a payment limit sat in a scenario in
+%     plain sight while the payment rules capped nothing.)
+%   - untested_predicate: a rule no query reaches decides nothing — it is either
+%     an unasked question or a rule the decision surface forgot to consult.
+%   - suspicious_is / suspicious_is_a: a whole predicate was swallowed into a
+%     constant, leaving a condition that can never succeed, silently making its
+%     rule unprovable.
+%   - unmarked_meta_template: the sentence parsed into a shape the author did
+%     not write, so the rule is about something else.
+%   - single_variable_fact: an article turned an individual into a universal —
+%     the fact holds of everyone.
+%
+%   The repair loop refuses to call a program finished while any of these is
+%   left (bounded by its patience), and one of them outranks every cosmetic
+%   warning in a round's working set. Everything else — dead vocabulary, ground
+%   rules, facts/rules ratios — is left to the polish rounds, which may not
+%   change what the program decides.
+modelling_warning("unconsumed_facts").
+modelling_warning("untested_predicate").
+modelling_warning("suspicious_is").
+modelling_warning("suspicious_is_a").
+modelling_warning("unmarked_meta_template").
+modelling_warning("single_variable_fact").
+
+%!  modelling_warnings(+V, -Count) is det.
+modelling_warnings(V, Count) :-
+    findall(1, ( member(I, V.issues),
+                 get_dict(severity, I, "warning"),
+                 get_dict(type, I, Ty), modelling_warning(Ty) ),
+            L),
+    length(L, Count).
 
 issue_line(I, Type, Line) :-
     ( get_dict(type, I, Type) -> true ; Type = "issue" ),

@@ -1239,6 +1239,24 @@ hook_probes_die(probes, _, _) :- !,
 hook_probes_die(ledger, _, "LEDGER") :- !.
 hook_probes_die(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
+% A program that loads, passes every test — and quietly ignores a payment
+% limit: `the payment limit is 150.` sits in the scenario and no rule reads it
+% (unconsumed_facts). Right and clean-looking, and wrong about the contract.
+:- dynamic modelling_repair_calls/1.
+limit_ignored_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    the payment limit is *an amount*.\n\nthe knowledge base tiny includes:\n\nthe payment limit is 150.\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n\nquery who is:\n    which person is happy.\n").
+% The same program with the limit actually consulted.
+limit_used_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    the payment limit is *an amount*.\n\nthe knowledge base tiny includes:\n\nthe payment limit is 150.\n\na person is happy\n    if the person is healthy\n    and the payment limit is an amount.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n\nquery who is:\n    which person is happy.\n").
+
+hook_modelling(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_modelling(architecture, _, "one branch") :- !.
+hook_modelling(draft(_), _, Reply) :- !, limit_ignored_program(P), fence(P, Reply).
+hook_modelling(repair(_, _), _, Reply) :- !,
+    ( retract(modelling_repair_calls(N)) -> true ; N = 0 ),
+    N1 is N + 1, assertz(modelling_repair_calls(N1)),
+    limit_used_program(P), fence(P, Reply).
+hook_modelling(ledger, _, "LEDGER") :- !.
+hook_modelling(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
 % Stateful hook proving the progress-aware repair loop: the draft fails two
 % tests; repair 1 fixes one (improvement -> streak resets); repairs 2 and 3
 % return the same program (no improvement) until the patience of 2 stops the
@@ -1624,6 +1642,34 @@ test(dead_probe_generation_never_kills_the_job,
 % The repair loop extends beyond the patience count while iterations improve:
 % with patience 2, an improving repair resets the streak, so a third repair
 % call happens before two consecutive non-improving rounds stop the loop.
+% "0 errors, all tests passing" is not enough to stop repairing when a
+% MODELLING warning is left: the draft states a payment limit no rule reads, so
+% the loop must spend a repair round on it instead of declaring victory — the
+% failure mode this gate exists for is a limit sitting in plain sight while the
+% rules ignore it and every test passes anyway.
+test(repair_continues_while_a_modelling_warning_remains,
+     [setup(( hook_setup(user:hook_modelling),
+              retractall(user:modelling_repair_calls(_)) )),
+      cleanup(( hook_cleanup, retractall(user:modelling_repair_calls(_)) ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    assertion(user:modelling_repair_calls(_)),      % it did not stop at "right"
+    le_contract_assistant:ca_result(JobID, Result),
+    limit_used_program(P),
+    assertion(Result.le == P).
+
+% ... and a COSMETIC warning does not hold the loop: a dead template is the
+% polish rounds' business, and repairing on for it would burn LLM calls on
+% tidiness (hook_polish's draft is right-but-not-clean and its repair purpose
+% throws, so reaching one would fail the job).
+test(repair_stops_for_a_cosmetic_warning,
+     [setup(( hook_setup(user:hook_polish), retractall(polish_calls(_)) )),
+      cleanup(( hook_cleanup, retractall(polish_calls(_)) ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))).
+
 test(repair_loop_extends_while_improving,
      [setup(( hook_setup(user:hook_progress),
               retractall(user:progress_repair_calls(_)),
