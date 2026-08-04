@@ -2194,6 +2194,10 @@ Branch 2: iteration 2 ranks worse than the best so far; continuing from the best
 How is it possible that it didn't fix (say) 1 error, and improve the program??? Too many errors being submitted in the prompt? Are they going with the hints given by the LE parser and verifier?
 Or should the prompting be richer in terms of the LE syntax...?
 
+# One more issue, Contract Assistant
+- In addition to unused_template, we need an additional warning: a template for which there are scenario facts, or facts, but no rule body uses it, nor is there a query using it.
+- The LE Contract Assistant must push harder for zero warnings, as some (namely the previous new issue type being added now) force "good invention" of rules. For example if a scenario fact is imposed by the user, that warning (if cleared) effectively forces some rule to use that scenario fact; ditto for a rule whose head is untested by any query (in other words, useless). I just encountered a situation where a limit for payments was being ignored even though sitting there in plain sight as a scenarion fact, so some rules handling payments ignored limits completely. So forcing zero warnings seems necessary. Should we increase patience...? Be more creative when successive changes do not improve the program (higher temperature, wild prompt variants?). Or should we add some "common sense" principles generic to most contracts, such as "statements of limits to payments in one part of the document may condition rules elsewhere in the document"... but this sounds a bit like those wild hoose chases so typical of symbolic AI...? Help!
+
 
 ## TBD
 In the editor, "Show s(CASP)" should appear only if the selected engine is s(CASP)

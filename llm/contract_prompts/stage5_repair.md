@@ -12,6 +12,17 @@ Rules of repair:
   reserved word entirely.
 - `single_variable_fact` warnings: replace the accidental variable with a
   constant (proper name, or drop the indefinite article).
+- `unconsumed_facts` warnings are the most serious warning here, and deleting
+  the facts is almost never the fix. The program STATES something — a limit, an
+  excess, a deductible, an exclusion, a notification deadline — and no rule
+  condition and no query ever reads it, so it changes no answer. A payment limit
+  of 150 per person per day sitting in a scenario while the payment rules cap
+  nothing is the exact bug this catches, and every test still passes because
+  nothing was ever going to read it. Go back to the contract wording, find the
+  rule the datum is supposed to constrain, and add the condition to that rule.
+  Only if the wording genuinely gives the datum no work to do may you delete it
+  — and then say so in a `% Known simplification:` comment. Facts inside
+  user-supplied scenarios and existing code must not be deleted at all.
 - Expected-answer strings must match the engine's rendering exactly — when a
   test failure shows an `actual` answer that is correct in substance, update
   the expectation to that exact string.

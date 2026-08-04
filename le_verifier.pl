@@ -44,6 +44,7 @@ check_issue(KB, _, Issue) :- single_variable_scenario_fact(KB, Issue).
 check_issue(KB, _, Issue) :- unmarked_meta_template(KB, Issue).
 check_issue(KB, _, Issue) :- non_stratified(KB, Issue).
 check_issue(KB, _, Issue) :- unused_template(KB, Issue).
+check_issue(KB, _, Issue) :- unconsumed_facts(KB, Issue).
 
 % --- Stratification (loops through negation) ---
 % Reuse the s(CASP) dependency-graph analysis: a cycle through a `not` edge means
@@ -432,6 +433,89 @@ contains_literal(T, F, A) :-
     ;   arg(_, T, Sub), contains_literal(Sub, F, A)
     ), !.
 
+% --- 3c. Facts nobody reads ---
+%
+% The template is not dead vocabulary — the program states FACTS through it, in
+% the knowledge base or in a scenario — but nothing ever reads them: no rule
+% condition mentions it and no query asks about it. Data nothing consults
+% changes no answer, so the fact is a statement the program silently ignores.
+%
+% This is the expensive half of `unused_template`. A dead template costs the
+% reader attention; an unread FACT costs a wrong decision: a payment limit, an
+% excess or an exclusion stated in a scenario and never consulted means the
+% rules that should have been bounded by it are computing unbounded answers,
+% and every test still passes because nothing was ever going to read it.
+%
+% Only EXTENSIONAL predicates are reported. A predicate with rules of its own
+% that no query reaches is already `untested_predicate`, which says the same
+% thing about a derivation rather than about data.
+unconsumed_facts(KB, issue(unconsumed_facts, Description, Fix, Start, End)) :-
+    le_kbs:template_of(KB, F, A, _Dict, Label),
+    once(template_data(KB, F, A, Where, Start, End)),
+    % `current_predicate` FIRST, always. is_intensional/3 probes the predicate
+    % with predicate_property/clause, and probing one the KB never defined —
+    % every `; undefined` template is one — creates it in the module, which
+    % breaks the reasoner's later rendering of that program. Templates with no
+    % predicate at all are extensional by definition anyway.
+    \+ ( current_predicate(KB:F/A), is_intensional(KB, F, A) ),
+    \+ template_consumed(KB, F, A),
+    unconsumed_facts_desc(Where, Label, Description),
+    le_i18n:le_msg(unconsumed_facts_fix, [], Fix).
+
+unconsumed_facts_desc(knowledge_base, Label, Description) :-
+    le_i18n:le_msg(unconsumed_facts_desc, [template-Label], Description).
+unconsumed_facts_desc(scenario(Name), Label, Description) :-
+    le_i18n:le_msg(unconsumed_scenario_facts_desc, [template-Label, scenario-Name],
+                   Description).
+
+%!  template_data(+KB, +F, +A, -Where, -Start, -End) is nondet.
+%
+%   The program states a fact through F/A: a knowledge-base fact (a clause with
+%   a `true` body) or a scenario fact. Where says which, and the source span
+%   anchors the warning at the ignored DATA — the sentence the reader wrote and
+%   believes is doing something — rather than at the template declaration.
+template_data(KB, F, A, knowledge_base, Start, End) :-
+    functor(Head, F, A),
+    current_predicate(KB:F/A),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, true, Ref),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
+template_data(KB, F, A, scenario(Name), Start, End) :-
+    current_predicate(KB:scenario/2),
+    KB:scenario(Name, Terms),
+    member(Item, Terms),
+    ( Item = fact_with_source(Term, Start, End) -> true ; Term = Item, Start = 0, End = 0 ),
+    ( Term = (Head :- _) -> true ; Head = Term ),
+    compound(Head),
+    functor(Head, F, A).
+
+%!  template_consumed(+KB, +F, +A) is semidet.
+%
+%   Something READS F/A: a rule condition, a query, or an LPS sentence. Note
+%   the asymmetry with template_used/3 — a fact or a rule HEAD is a use of the
+%   template but not a consumer of its facts, which is the whole point here.
+template_consumed(KB, F, A) :-
+    current_predicate(KB:Other/OA),
+    \+ is_system_predicate(Other/OA),
+    functor(H, Other, OA),
+    le_kbs:kb_own_predicate(KB, H),
+    clause(KB:H, Body),
+    Body \== true,
+    find_in_body(Body, Literal),
+    functor(Literal, F, A), !.
+template_consumed(KB, F, A) :-
+    current_predicate(KB:query_info/3),
+    KB:query_info(_, Goal, _),
+    find_in_body(Goal, Literal),
+    functor(Literal, F, A), !.
+%   An LPS program's rules are le_lps_item/3 payloads, not clauses, and the
+%   payload nests head and body together — so any mention counts, rather than
+%   reporting every fact template of a perfectly ordinary LPS program.
+template_consumed(KB, F, A) :-
+    current_predicate(KB:le_lps_item/3),
+    KB:le_lps_item(_, Payload, _),
+    contains_literal(Payload, F, A), !.
+
 %!  template_source(+KB, +Dict, -Start, -End) is det.
 template_source(KB, Dict, Start, End) :-
     (   current_predicate(KB:le_source_info/4),
@@ -730,8 +814,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
     [ '~w: ~w' - [Type, Msg] ].

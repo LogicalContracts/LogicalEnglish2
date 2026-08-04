@@ -226,3 +226,68 @@ test(an_unshadowed_dead_template_keeps_the_plain_fix) :-
     assertion(\+ sub_string(Fix, _, _, _, "open with the same words")).
 
 :- end_tests(unused_template).
+
+% ---------------------------------------------------------------------------
+% Facts nobody reads: the template is used — the program states data through it
+% — but no rule condition and no query ever consults that data. The motivating
+% case is a payment limit sitting in a scenario in plain sight while the rules
+% that should be bounded by it compute unbounded answers, with every test
+% passing because nothing was ever going to read it.
+:- begin_tests(unconsumed_facts).
+
+test(scenario_fact_no_rule_reads_is_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy; undefined.\n    the payment limit is *an amount*; undefined.\n\nthe knowledge base tiny includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    the payment limit is 500.\n\nquery who is:\n    which person is happy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    member(issue(unconsumed_facts, Desc, _, Start, End), Issues),
+    assertion(sub_string(Desc, _, _, _, "the payment limit is")),
+    assertion(sub_string(Desc, _, _, _, "one")),
+    % anchored at the ignored FACT, not at the template declaration
+    Len is End - Start,
+    sub_string(Text, Start, Len, _, Fact),
+    assertion(sub_string(Fact, _, _, _, "the payment limit is 500")).
+
+test(knowledge_base_fact_no_rule_reads_is_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    the excess is *an amount*.\n\nthe knowledge base tiny includes:\n\nbob is healthy.\nthe excess is 100.\n\na person is happy if the person is healthy.\n\nquery who is:\n    which person is happy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    member(issue(unconsumed_facts, Desc, _, _, _), Issues),
+    assertion(sub_string(Desc, _, _, _, "the excess is")).
+
+% A rule condition that reads the data is exactly what the warning asks for.
+test(fact_read_by_a_rule_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy; undefined.\n    the payment limit is *an amount*; undefined.\n\nthe knowledge base tiny includes:\n\na person is happy\n    if the person is healthy\n    and the payment limit is an amount.\n\nscenario one is:\n    bob is healthy.\n    the payment limit is 500.\n\nquery who is:\n    which person is happy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unconsumed_facts, _, _, _, _), Issues)).
+
+% ... and so is a query that asks about it directly.
+test(fact_asked_about_by_a_query_is_not_flagged) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    the excess is *an amount*.\n\nthe knowledge base tiny includes:\n\nbob is healthy.\nthe excess is 100.\n\na person is happy if the person is healthy.\n\nquery who is:\n    which person is happy.\n\nquery what is:\n    the excess is which amount.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(\+ member(issue(unconsumed_facts, _, _, _, _), Issues)).
+
+% A template with rules of its own that no query reaches is untested_predicate,
+% which says the same thing about a derivation. It must not be reported twice.
+test(an_intensional_predicate_is_left_to_untested_predicate) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    *a person* is rich.\n\nthe knowledge base tiny includes:\n\nbob is healthy.\nbob is rich.\na person is happy if the person is healthy.\n\nquery who is:\n    which person is happy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    % `is rich` has a fact and nothing reads it -> flagged; `is happy` has a
+    % rule and is reachable from the query -> not flagged either way
+    assertion((member(issue(unconsumed_facts, D, _, _, _), Issues),
+               sub_string(D, _, _, _, "is rich"))),
+    assertion(\+ (member(issue(unconsumed_facts, D2, _, _, _), Issues),
+                  sub_string(D2, _, _, _, "is happy"))).
+
+% A template with no facts at all is dead vocabulary — unused_template's job,
+% not this one's.
+test(a_template_without_facts_is_not_flagged_here) :-
+    Text = "the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a cost* is a cost; undefined.\n\nthe knowledge base tiny includes:\n\nbob is happy.\n\nquery who is:\n    which person is happy.\n",
+    le_kbs:load_text(Text, M),
+    le_verifier:verify(M, [skip_tests], Issues),
+    assertion(member(issue(unused_template, _, _, _, _), Issues)),
+    assertion(\+ member(issue(unconsumed_facts, _, _, _, _), Issues)).
+
+:- end_tests(unconsumed_facts).
