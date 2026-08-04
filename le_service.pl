@@ -89,6 +89,9 @@
     % — the same, shaped for JSON
     le_lexicon_dict/2,          % +Lang, -Dict
     le_analyse_dict/3,          % +LEText, +Options, -Dict
+    % — English in, Logical English out (loaded on first use)
+    le_english_to_le/8,         % +Kind, +Sentence, +Templates, +Program, +Model, +Options, -LEText, -Issues
+    set_le_llm_provider/1,      % +Module
     le_service_version/1        % -Version
   ]).
 
@@ -109,7 +112,9 @@
   ]).
 :- reexport(le_kbs, [
     le_network_allowed/0,
-    set_le_network_allowed/1
+    set_le_network_allowed/1,
+    le_issue_reporting/0,
+    set_le_issue_reporting/1
   ]).
 
 :- use_module(le_lps, [offset_line_col/4]).
@@ -135,7 +140,36 @@
 %   The version of the surface described in this module's header. An embedder
 %   that cares whether the LE2 checkout it loaded is new enough checks this;
 %   it moves when a predicate here changes shape, not when LE itself grows.
-le_service_version('1.0').
+le_service_version('1.1').
+
+
+		 /*******************************
+		 *   English → Logical English  *
+		 *******************************/
+
+%   The broker, not the client: an embedder that has its own LLM plumbing
+%   substitutes it and every LE feature that needs a model uses theirs.
+:- reexport(llm/le_llm, [set_le_llm_provider/1]).
+
+%!  le_english_to_le(+Kind, +Sentence, +Templates, +Program, +Model, +Options,
+%!                   -LEText, -NewIssues) is det.
+%
+%   nl_to_le:english_to_le/8, loaded on first use.
+%
+%   Lazily, because it is the one part of this surface that costs something to
+%   have: it pulls in the verifier's refinement loop and an HTTP client, and a
+%   program that never converts an English sentence should not pay for the
+%   possibility. Everything else here is already in memory by the time this
+%   module has loaded.
+le_english_to_le(Kind, Sentence, Templates, Program, Model, Options, LEText, NewIssues) :-
+    ensure_nl_to_le,
+    nl_to_le:english_to_le(Kind, Sentence, Templates, Program, Model, Options,
+                           LEText, NewIssues).
+
+ensure_nl_to_le :-
+    current_predicate(nl_to_le:english_to_le/8), !.
+ensure_nl_to_le :-
+    use_module(le2(nl_to_le), []).
 
 
 		 /*******************************

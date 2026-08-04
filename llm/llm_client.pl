@@ -67,6 +67,9 @@ llm_model_entry('gpt-4o-mini',       openai, 'gpt-4o-mini',       'https://api.o
 llm_model_entry('gpt-4-turbo',       openai, 'gpt-4-turbo',       'https://api.openai.com/v1').
 llm_model_entry('gpt-4',             openai, 'gpt-4',             'https://api.openai.com/v1').
 llm_model_entry('gpt-5.5',             openai, 'gpt-5.5',             'https://api.openai.com/v1').
+llm_model_entry('gpt-5.6-sol',             openai, 'gpt-5.6-sol',             'https://api.openai.com/v1').
+llm_model_entry('gpt-5.6-terra',             openai, 'gpt-5.6-terra',             'https://api.openai.com/v1').
+llm_model_entry('gpt-5.6-luna',             openai, 'gpt-5.6-luna',             'https://api.openai.com/v1').
 
 
 %% Groq  ────────────────────────────────────────────────────────────

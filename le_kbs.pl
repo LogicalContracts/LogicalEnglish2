@@ -15,12 +15,29 @@
     topPredicates/2, kbSummary/2, kb_own_predicate/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
     maybe_destroy_kb/1, is_generated_kb_module/1,
     le_network_allowed/0, set_le_network_allowed/1,
+    le_issue_reporting/0, set_le_issue_reporting/1,
     le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
 
 :- meta_predicate set_id_from_ref(+, +).
+
+/*  Where this repository is, as a search path.
+
+    Two things here used to be resolved against the *current working
+    directory*: the optional `le_extensions.pl`, and the `use_module(le_kbs)`
+    that every freshly created knowledge-base module runs at run time. Both
+    worked as long as LE2 was the process — its own server starts in its own
+    directory — and both failed the moment another program loaded LE2 as a
+    library, with `source_sink 'le_kbs' does not exist` and no document
+    parsing. `le_i18n:i18n_dir/1` already derived its own directory from
+    `module_property/2` for exactly this reason; this is the same idea as a
+    file-search path, so every relative reference in this file can use it.  */
+:- multifile user:file_search_path/2.
+:- prolog_load_context(directory, LEDir),
+   ( user:file_search_path(le2, LEDir) -> true
+   ; assertz(user:file_search_path(le2, LEDir)) ).
 
 :- use_module(le_grammar).
 :- use_module(tokenizer).
@@ -66,7 +83,10 @@ le_example_relpath(Name0, Path) :-
         atomic_list_concat([Dir, '/', Name], Path)
     ).
 
-:- (exists_file('le_extensions.pl') -> use_module('le_extensions') ; true).
+:- ( absolute_file_name(le2('le_extensions.pl'), F, [access(read), file_errors(fail)])
+   -> use_module(F)
+   ;  true
+   ).
 
 %!  is_a_hierarchy(+KBmodule, -Hierarchy) is det.
 %
@@ -259,7 +279,10 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
     ->  true
     ;   % Ensure we start with a clean module
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-        NewModule:use_module(le_kbs),
+        %  Absolute, via the le2 search path: this runs at *run* time, where
+        %  a bare `le_kbs` is resolved against the working directory and not
+        %  against this file's.
+        NewModule:use_module(le2(le_kbs)),
         forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
         assertz(NewModule:le_kb_module_fact(NewModule)),
         retractall(rule_counter(_)),
@@ -286,7 +309,7 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
             ;   true
             ),
             % Report ALL issues
-            (   current_predicate(NewModule:le_issue/6)
+            (   current_predicate(NewModule:le_issue/6), le_issue_reporting
             ->  forall(NewModule:le_issue(Severity, Type, Desc, _Fix, Start, End),
                        % A real format string consuming its args (the previous
                        % `Type - [Desc,Start,End]` used the Type atom as the format
@@ -718,6 +741,27 @@ set_le_network_allowed(Bool) :-
     (   Bool == true
     ->  retractall(le_network_disabled)
     ;   ( le_network_disabled -> true ; assertz(le_network_disabled) )
+    ).
+
+%!  le_issue_reporting is semidet.
+%!  set_le_issue_reporting(+Bool) is det.
+%
+%   Whether loading a document also *prints* its issues. True by default,
+%   which is what LE2's own command-line and server use have always done. An
+%   embedder gets every issue back as data — le_lps_text/4's fourth argument,
+%   le_analyse/3's `issues` — and printing them again puts a copy on its
+%   stderr, interleaved with its own output and out of order on a threaded
+%   server. So it can turn the printing off without losing anything.
+:- dynamic le_issues_unreported/0.
+
+le_issue_reporting :-
+    \+ le_issues_unreported.
+
+set_le_issue_reporting(Bool) :-
+    must_be(boolean, Bool),
+    (   Bool == true
+    ->  retractall(le_issues_unreported)
+    ;   ( le_issues_unreported -> true ; assertz(le_issues_unreported) )
     ).
 
 fetch_url(URL, Text) :-
