@@ -5,7 +5,8 @@
     rules without variables, and other potential issues.
 */
 
-:- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2]).
+:- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2,
+                        unmatched_sentences/3]).
 
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2, ensure_kb_language/1]).
 :- use_module(le_i18n).
@@ -45,6 +46,63 @@ check_issue(KB, _, Issue) :- unmarked_meta_template(KB, Issue).
 check_issue(KB, _, Issue) :- non_stratified(KB, Issue).
 check_issue(KB, _, Issue) :- unused_template(KB, Issue).
 check_issue(KB, _, Issue) :- unconsumed_facts(KB, Issue).
+
+%!  unmatched_sentences(+KB:atom, +Scope, -Occurrences:list) is det.
+%
+%   The sentences of KB's scenarios and queries that matched NO declared
+%   template. The parser does not reject them and does not warn: it parks them
+%   in the loaded knowledge base as `unknown_template(Tokens, Start, End)`
+%   terms, so a scenario fact or a query condition that says nothing at all
+%   reaches the reasoner, decides nothing, and is reported by nobody.
+%
+%   Scope selects what to look at: `all`, `scenario(Name)` or `query(Name)`.
+%   Occurrences are `unmatched(Where, Start, Text)`, Where being scenario(Name)
+%   or query(Name), Start the character offset in the source and Text the words
+%   as the author wrote them.
+%
+%   Deliberately NOT one of the check_issue/3 clauses of verify/2: turning this
+%   into a load-time issue would change the diagnostics of every existing
+%   document (and there are examples in this repository that would light up).
+%   The LLM-facing callers — the Contract Assistant and the English→Logical
+%   English conversion — ask for it explicitly, because for machine-written text
+%   it is the single most valuable check there is: it is exactly how a fragment
+%   that means nothing passes for a fragment that verifies clean.
+unmatched_sentences(KB, Scope, Occurrences) :-
+    findall(unmatched(scenario(Name), Start, Text),
+            ( scope_admits(Scope, scenario(Name)),
+              current_predicate(KB:scenario/2), KB:scenario(Name, Facts),
+              unknown_template_in(Facts, Start, Text) ),
+            Scenarios),
+    findall(unmatched(query(Name), Start, Text),
+            ( scope_admits(Scope, query(Name)),
+              current_predicate(KB:query_info/3), KB:query_info(Name, Goal, _),
+              unknown_template_in(Goal, Start, Text) ),
+            Queries),
+    append(Scenarios, Queries, All),
+    sort(All, Occurrences).
+
+scope_admits(all, _) :- !.
+scope_admits(Where, Where).
+
+%   A plain sub_term/2 walk is WRONG here: an unbound variable in a query goal
+%   unifies with the pattern, so every query with a variable in it reported an
+%   unmatched sentence at an unbound offset. Recurse explicitly and never match
+%   through a variable.
+unknown_template_in(Term, Start, Text) :-
+    nonvar(Term),
+    Term = unknown_template(Tokens, Start, _End),
+    integer(Start),
+    unmatched_tokens_text(Tokens, Text).
+unknown_template_in(Term, Start, Text) :-
+    compound(Term),
+    \+ ( nonvar(Term), Term = unknown_template(_, _, _) ),
+    arg(_, Term, Arg),
+    unknown_template_in(Arg, Start, Text).
+
+unmatched_tokens_text(Tokens, Text) :-
+    findall(W, ( member(T, Tokens), nonvar(T), T = word(W, _) ), Words),
+    atomic_list_concat(Words, ' ', Atom),
+    atom_string(Atom, Text).
 
 % --- Stratification (loops through negation) ---
 % Reuse the s(CASP) dependency-graph analysis: a cycle through a `not` edge means

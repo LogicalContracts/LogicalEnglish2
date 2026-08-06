@@ -75,11 +75,95 @@ function fileToUpload(file) {
 
 // ------------------------------- setup screen -------------------------------
 
+// --------------------------------- modes ------------------------------------
+// Three jobs share this screen: a whole program from a contract, ONE scenario
+// for a program the user already has, and ONE query for the same. The fragment
+// modes take a pasted program and a paragraph of English instead of documents,
+// and most of the search machinery (vocabulary samples, probes, held-out cases)
+// has nothing to act on, so those controls are hidden rather than left to
+// mislead. `contract-only` / `fragment-only` / `scenario-only` on an element is
+// all it takes to belong to a mode.
+
+function currentMode() {
+    const r = document.querySelector('input[name=mode]:checked');
+    return r ? r.value : 'contract';
+}
+
+function isFragmentMode() { return currentMode() !== 'contract'; }
+
+const MODE_TEXT = {
+    contract: {
+        subtitle: 'Contract wording + schedule + cases → a tested Logical English knowledge base',
+        start: 'Generate Logical English',
+        empty: 'choose a wording file to estimate'
+    },
+    scenario: {
+        subtitle: 'A situation in English + your Logical English program → one new scenario',
+        start: 'Generate the scenario',
+        empty: 'paste a program and some text to estimate'
+    },
+    query: {
+        subtitle: 'A question in English + your Logical English program → one new query',
+        start: 'Generate the query',
+        empty: 'paste a program and a question to estimate'
+    }
+};
+
+function applyMode() {
+    const mode = currentMode(), fragment = isFragmentMode();
+    for (const el of document.querySelectorAll('.contract-only'))
+        el.classList.toggle('hidden', fragment);
+    for (const el of document.querySelectorAll('.fragment-only'))
+        el.classList.toggle('hidden', !fragment);
+    for (const el of document.querySelectorAll('.scenario-only'))
+        el.classList.toggle('hidden', mode !== 'scenario');
+    const t = MODE_TEXT[mode];
+    $('subtitle').innerHTML = t.subtitle;
+    $('btn-start').textContent = t.start;
+    $('fragment-text-label').innerHTML = mode === 'query'
+        ? 'The question to convert <em>(required)</em>'
+        : 'The situation to convert <em>(required)</em>';
+    $('fragment-text').placeholder = mode === 'query'
+        ? 'e.g. Which claims are covered, and how much will we pay for each?'
+        : 'e.g. On 3 March 2026 a flood damaged the insured building; the repairs came to 46,200 and the policy excess is 2,000.';
+    refreshStartButton();
+    scheduleEstimate();
+}
+
+// Everything a run of this mode cannot start without.
+function refreshStartButton() {
+    $('btn-start').disabled = isFragmentMode()
+        ? !(fragmentProgram() && fragmentText())
+        : !$('file-wording').files.length;
+}
+
+function fragmentProgram() { return ($('fragment-program').value || '').trim(); }
+function fragmentText() { return ($('fragment-text').value || '').trim(); }
+function fragmentName() { return ($('fragment-name').value || '').trim(); }
+
+function wireModes() {
+    for (const r of document.querySelectorAll('input[name=mode]'))
+        r.addEventListener('change', applyMode);
+    const note = $('fragment-program-note');
+    const update = () => {
+        const p = fragmentProgram();
+        const lines = p ? p.split('\n').filter(l => l.trim() && !l.trim().startsWith('%')).length : 0;
+        note.textContent = p
+            ? `${lines} significant line(s), ${p.length} characters — sent with every call, and never modified.`
+            : '';
+        refreshStartButton();
+        scheduleEstimate();
+    };
+    $('fragment-program').addEventListener('input', update);
+    $('fragment-text').addEventListener('input', () => { refreshStartButton(); scheduleEstimate(); });
+    applyMode();
+}
+
 function wireUploads() {
     const nameFor = (input, span, none) => {
         const files = Array.from(input.files || []);
         span.textContent = files.length ? files.map(f => f.name).join(', ') : none;
-        $('btn-start').disabled = !$('file-wording').files.length;
+        refreshStartButton();
         scheduleEstimate();
     };
     $('file-wording').addEventListener('change', () => nameFor($('file-wording'), $('name-wording'), 'no file selected'));
@@ -92,6 +176,8 @@ function wireUploads() {
 // call plan); the client only has to say how much material it will carry.
 
 function inputChars() {
+    if (isFragmentMode())
+        return fragmentProgram().length + fragmentText().length + instructions().length;
     let chars = existingCode().length + instructions().length;
     const inputs = [$('file-wording'), $('file-schedule'), $('file-cases')];
     for (const input of inputs)
@@ -118,15 +204,18 @@ function scheduleEstimate() {
 async function runEstimate() {
     const box = $('cost'), value = $('cost-value');
     const chars = inputChars();
-    if (!$('file-wording').files.length && !chars) {
+    const ready = isFragmentMode() ? (fragmentProgram() && fragmentText())
+                                   : ($('file-wording').files.length || chars);
+    if (!ready) {
         box.classList.add('unknown');
-        value.textContent = 'choose a wording file to estimate';
+        value.textContent = MODE_TEXT[currentMode()].empty;
         return;
     }
     const seq = ++estimateSeq;
     let data;
     try {
         data = await leapi('contract_cost_estimate', {
+            mode: currentMode(),
             model: $('model').value,
             judge_model: $('judge-model').value,
             budget: collectBudget(),
@@ -248,6 +337,12 @@ function collectBudget() {
 
 function collectFeatures() {
     const features = {};
+    if (isFragmentMode()) {
+        if ($('feat-expectations').value !== '')
+            features.expectations = $('feat-expectations').value === 'true';
+        if (!$('feat-diff').checked) features.diff_repairs = false;
+        return features;
+    }
     if ($('feat-probes').value !== '') features.probes = Number($('feat-probes').value);
     if ($('feat-polish').value !== '') features.polish = Number($('feat-polish').value);
     if ($('feat-holdout').value !== '') features.holdout = $('feat-holdout').value === 'true';
@@ -285,24 +380,30 @@ async function start() {
     $('btn-start').disabled = true;
     $('setup-error').textContent = '';
     try {
-        const wording = await fileToUpload($('file-wording').files[0]);
         const payload = {
-            wording,
+            mode: currentMode(),
             model: $('model').value,
             judge_model: $('judge-model').value,
             api_keys: collectKeys(),
             budget: collectBudget(),
             features: collectFeatures(),
-            target: $('target').value.trim(),
-            existing_code: existingCode(),
             instructions: instructions()
         };
         if ($('adv-maxtokens').value !== '') payload.max_tokens = Number($('adv-maxtokens').value);
         if ($('adv-reasoning').value !== '') payload.reasoning = $('adv-reasoning').value;
-        // Schedule and cases both take a list (the server also accepts a single
-        // upload dict for the schedule, as older clients sent it).
-        payload.schedule = await Promise.all(Array.from($('file-schedule').files).map(fileToUpload));
-        payload.cases = await Promise.all(Array.from($('file-cases').files).map(fileToUpload));
+        if (isFragmentMode()) {
+            payload.program = fragmentProgram();
+            payload.text = fragmentText();
+            if (fragmentName()) payload.name = fragmentName();
+        } else {
+            payload.wording = await fileToUpload($('file-wording').files[0]);
+            payload.target = $('target').value.trim();
+            payload.existing_code = existingCode();
+            // Schedule and cases both take a list (the server also accepts a
+            // single upload dict for the schedule, as older clients sent it).
+            payload.schedule = await Promise.all(Array.from($('file-schedule').files).map(fileToUpload));
+            payload.cases = await Promise.all(Array.from($('file-cases').files).map(fileToUpload));
+        }
 
         const data = await leapi('contract_start', payload);
         if (data.error) throw new Error(data.error);
@@ -349,7 +450,10 @@ function rememberJob(job) {
         job,
         started: new Date().toISOString(),
         model: $('model').value,
-        wording: wording ? wording.name : ''
+        mode: currentMode(),
+        wording: isFragmentMode()
+            ? `one ${currentMode()}`
+            : (wording ? wording.name : '')
     };
     saveRecentJobs([entry].concat(jobs.filter(j => j.job !== job)));
 }
@@ -438,7 +542,7 @@ function backToSetup() {
     stopPolling();
     location.hash = '';
     show('setup');
-    $('btn-start').disabled = !$('file-wording').files.length;
+    refreshStartButton();
     renderRecentJobs();
 }
 
@@ -473,12 +577,14 @@ function fmtElapsed(sec) {
 let lastRunHeader = null;   // last {config, elapsed} seen — shown on the Result screen too
 
 function summaryBits(c) {
+    const fragment = c.mode && c.mode !== 'contract';
     return [
+        fragment ? `one ${c.mode} for a fixed program` : null,
         `model ${c.model}`,
         c.judge_model && c.judge_model !== c.model ? `judge ${c.judge_model}` : null,
-        `K=${c.k} W=${c.w} repairs=${c.repairs}`,
-        `probes ${c.probes}`,
-        `holdout ${c.holdout}`,
+        fragment ? `W=${c.w} repairs=${c.repairs}` : `K=${c.k} W=${c.w} repairs=${c.repairs}`,
+        fragment ? null : `probes ${c.probes}`,
+        fragment ? null : `holdout ${c.holdout}`,
         c.paraphrase === true ? 'paraphrase check' : null,
         c.clausewise === true ? 'clause-wise' : null,
         c.diff_repairs === false ? 'full-file repairs' : 'diff repairs',
@@ -599,6 +705,8 @@ async function showResult(job) {
         $('result-summary').textContent =
             'Recovered from this job\u2019s files on the server \u2014 the server has restarted since the run, so its settings and timings are no longer available.';
     }
+    const fragment = data.mode && data.mode !== 'contract';
+    $('result-title').textContent = fragment ? `Result — one ${data.mode}` : 'Result';
     $('result-le').textContent = data.le || '';
     $('result-ledger').textContent = data.ledger || '(no ledger)';
     const scores = $('scores');
@@ -606,15 +714,17 @@ async function showResult(job) {
     if (data.final_score) {
         const el = document.createElement('div');
         el.className = 'branch winner';
-        el.innerHTML = `<b>Delivered program</b><br><small>${data.final_score.summary || ''}</small>`;
+        el.innerHTML = `<b>Delivered ${fragment ? data.mode : 'program'}</b><br><small>${data.final_score.summary || ''}</small>`;
+        if (fragment) el.title = 'The verification of the block ALONE: the program it was written for is verified separately and its own issues are not counted here.';
         scores.appendChild(el);
     }
+    const attemptWord = fragment ? 'Attempt' : 'Branch';
     for (const s of data.scores || []) {
         const el = document.createElement('div');
         el.className = 'branch' + (s.branch === data.winner ? ' winner' : '');
         const holdout = (s.holdout_passed !== undefined && (s.holdout_passed + s.holdout_failed) > 0)
             ? `<br><small>held-out: ${s.holdout_passed}/${s.holdout_passed + s.holdout_failed}</small>` : '';
-        el.innerHTML = `<b>Branch ${s.branch}${s.branch === data.winner ? ' — winner' : ''}</b><br><small>${s.summary || ''}</small>${holdout}`;
+        el.innerHTML = `<b>${attemptWord} ${s.branch}${s.branch === data.winner ? ' — winner' : ''}</b><br><small>${s.summary || ''}</small>${holdout}`;
         scores.appendChild(el);
     }
     renderReports(data);
@@ -652,6 +762,22 @@ function renderReports(data) {
             'Lines the model re-worded or re-indented count as missing even when their meaning survived — check them.';
         div.appendChild(el);
     }
+    // What the program actually answers with the new block in it — the check no
+    // verifier performs, and the first thing worth knowing about a fragment.
+    const ex = data.exercise;
+    if (ex && ex.enabled) {
+        const el = document.createElement('div');
+        el.className = 'branch' + (ex.answered > 0 ? ' winner' : ' warn');
+        const rows = (ex.rows || []).map(r =>
+            `<br><small>• ${esc(r.query)} / ${esc(r.scenario)}: ${r.answers} answer(s)` +
+            (r.sample && r.sample.length ? ` — ${esc(r.sample.join('; '))}` : '') +
+            (r.error ? ` — ${esc(r.error)}` : '') + '</small>').join('');
+        el.innerHTML = `<b>Exercised against the program</b><br>` +
+            `<small>${ex.answered} of ${ex.total} combination(s) produce answers</small>${rows}`;
+        el.title = 'A new scenario is run against every query the program declares, and a new query against every ' +
+            'scenario it has. Nothing answering anywhere usually means the block is about something the program does not decide.';
+        div.appendChild(el);
+    }
     const para = data.paraphrase;
     if (para && para.enabled) {
         const el = document.createElement('div');
@@ -678,10 +804,14 @@ function downloadResult() {
 }
 
 function openInEditor() {
-    // The editor accepts initial content via the ?text= URL parameter.
-    const url = '/editor/index.html?text=' + encodeURIComponent(result.le);
+    // A fragment is not a program: on its own the editor would report a page of
+    // errors. Open it where it belongs — appended to the program it was written
+    // for, exactly as the job verified it.
+    const fragment = result.mode && result.mode !== 'contract';
+    const text = fragment ? `${fragmentProgram()}\n\n${result.le}` : result.le;
+    const url = '/editor/index.html?text=' + encodeURIComponent(text);
     if (url.length > 60000) {
-        $('result-note').textContent = 'Program too large for a URL — use Download and open the file in the editor.';
+        $('result-note').textContent = 'Too large for a URL — use Download and open the file in the editor.';
         return;
     }
     window.open(url, '_blank');
@@ -692,7 +822,8 @@ function openInEditor() {
 // Everything the estimate depends on: the models, the effort settings, and
 // the amount of material (files are handled in wireUploads).
 function wireEstimate() {
-    const ids = ['model', 'judge-model', 'adv-k', 'adv-w', 'adv-repairs', 'feat-probes', 'feat-polish'];
+    const ids = ['model', 'judge-model', 'adv-k', 'adv-w', 'adv-repairs', 'feat-probes',
+                 'feat-polish', 'feat-expectations'];
     for (const id of ids) $(id).addEventListener('change', scheduleEstimate);
     // Changing a model can change which provider's key is needed.
     for (const id of ['model', 'judge-model']) $(id).addEventListener('change', renderKeys);
@@ -731,6 +862,7 @@ function wireExistingCode() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    wireModes();
     wireUploads();
     loadModels();
     wireEstimate();

@@ -220,6 +220,38 @@ test.describe('Scenario Editor', () => {
         await expect(page.locator('.fact-row').nth(0)).toContainText('is happy');
     });
 
+    // An [error] means the generated text would not do what it says — a
+    // sentence matching no template, an asterisked phrase, a broken test of the
+    // program. The dialog says so in the error colour rather than filing it
+    // under "issues", while still letting the user insert it.
+    test('Write it in English… flags an error differently from a warning', async ({ page }) => {
+        const seed = { source: 'the templates are:\n    *a person* is happy.\n' };
+        await page.goto('index.html');
+        await page.evaluate((s) => {
+            localStorage.setItem('le_scenario_editor_data', JSON.stringify(s));
+            localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');
+        }, seed);
+        await page.route('**/leapi*', async (route) => {
+            const body = JSON.parse(route.request().postData() || '{}');
+            if (body.operation === 'nl_to_le') {
+                await route.fulfill({ status: 200, contentType: 'application/json',
+                    body: JSON.stringify({ result: 'ok', le: 'bob likes chocolate.',
+                        warnings: ['[error] line 1: \'bob likes chocolate\' matches NO declared template, so it states nothing'] }) });
+            } else { await route.continue(); }
+        });
+        await page.goto('scenario-editor.html');
+        await page.fill('#scenario-name', 'nl');
+        await page.selectOption('#add-template', '__write_in_english__');
+        await page.click('#btn-add');
+        await page.fill('.nl-dialog textarea', 'Bob likes chocolate');
+        await page.click('.nl-dialog button.primary');
+
+        await expect(page.locator('.nl-status.error')).toContainText('1 problem');
+        await expect(page.locator('.nl-status.error')).toContainText('matches NO declared template');
+        await expect(page.locator('.nl-status.error')).toContainText('rephrasing and regenerating');
+        await expect(page.locator('.nl-dialog button.primary')).toHaveText('Insert anyway');
+    });
+
     test('Insert into Editor replaces the scenario in the document', async ({ context }) => {
         // The real editor, seeded with the program via the URL text param.
         const editorPage = await context.newPage();

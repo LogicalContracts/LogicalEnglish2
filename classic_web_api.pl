@@ -865,18 +865,41 @@ handle_nl_to_le(Dict, Response) :-
     (   catch(english_to_le(Kind, Sentence, Templates, Program, Model, Options, LEText, NewIssues), Err, true)
     ->  (   nonvar(Err)
         ->  message_to_string(Err, EMsg), Response = _{result: "error", error: EMsg}
-        ;   maplist(nl_issue_message, NewIssues, Warnings),
+        ;   nl_issue_messages(NewIssues, Warnings),
             Response = _{result: "ok", le: LEText, warnings: Warnings}
         )
     ;   Response = _{result: "error", error: "LLM request failed"}
     ).
 
-% nl_issue_message(+Issue, -Msg): a "[severity] message" string for a verification
-% issue, for the client's warning list.
+% nl_issue_messages(+Issues, -Warnings): the issue list as display strings, in the
+% order english_to_le/8 ranked them (errors, then warnings that change what the
+% fragment means, then cosmetic ones) — so the first line of the dialog's warning
+% box is the one worth reading. Capped, because the box is a few lines tall and a
+% ranked list has said what matters by then.
+nl_issue_messages(Issues, Warnings) :-
+    length(Issues, N),
+    nl_max_warnings(Max),
+    (   N =< Max
+    ->  maplist(nl_issue_message, Issues, Warnings)
+    ;   length(Shown, Max), append(Shown, Rest, Issues),
+        maplist(nl_issue_message, Shown, Warnings0),
+        length(Rest, NRest),
+        format(string(More), "… and ~w more", [NRest]),
+        append(Warnings0, [More], Warnings)
+    ).
+
+nl_max_warnings(6).
+
+% nl_issue_message(+Issue, -Msg): a "[severity] (line N) message" string for a
+% verification issue, for the client's warning list. The line is a line of the
+% GENERATED text, which is what the user is looking at.
 nl_issue_message(Issue, Msg) :-
     ( get_dict(severity, Issue, Sev) -> true ; Sev = "warning" ),
     ( get_dict(message, Issue, M) -> true ; M = "issue" ),
-    format(string(Msg), "[~w] ~w", [Sev, M]).
+    (   get_dict(line, Issue, L), integer(L), L > 0
+    ->  format(string(Msg), "[~w] line ~w: ~w", [Sev, L, M])
+    ;   format(string(Msg), "[~w] ~w", [Sev, M])
+    ).
 
 % nl_le_api_key(+Model, +Keys, -Key): the API key for Model — a client-supplied key
 % for the model's provider if present, else the provider's env var (via llm_client),

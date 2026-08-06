@@ -9,7 +9,7 @@
 <body>
 <header>
   <h1>LE Contract Assistant</h1>
-  <p class="subtitle">Contract wording + schedule + cases &rarr; a tested Logical English knowledge base</p>
+  <p class="subtitle" id="subtitle">Contract wording + schedule + cases &rarr; a tested Logical English knowledge base</p>
 </header>
 
 <main>
@@ -22,6 +22,40 @@
     </div>
 
     <div class="card">
+      <h2>What to generate</h2>
+      <div class="row presets" id="mode-picker">
+        <label title="The whole job: a contract wording (plus its schedule and any concrete cases) becomes a complete, tested Logical English knowledge base — templates, rules, scenarios, queries — with a clause-by-clause coverage ledger."><input type="radio" name="mode" value="contract" checked> <b>A whole program</b><br><small>contract &rarr; templates, rules, scenarios, queries</small></label>
+        <label title="You already have a Logical English program you consider correct. Describe a situation in English and get ONE scenario block to add to it. The program is never modified: no template is declared, no rule is written."><input type="radio" name="mode" value="scenario"> <b>One scenario</b><br><small>a situation, for a program you already have</small></label>
+        <label title="You already have a Logical English program you consider correct. Ask a question in English and get ONE query block to add to it. The program is never modified."><input type="radio" name="mode" value="query"> <b>One query</b><br><small>a question, for a program you already have</small></label>
+      </div>
+      <p class="hint fragment-only hidden">The program you paste below is an <b>input only</b>: nothing this job produces will change it. If the text needs vocabulary the program does not declare, the assistant will not invent a template &mdash; it writes what it can and tells you, in a <code>%</code> comment on the block, exactly what it could not express.</p>
+    </div>
+
+    <div class="card fragment-only hidden">
+      <h2>1. The program, and the text to convert</h2>
+      <label class="field" title="The Logical English program the new block will be added to. It is treated as correct and is never modified — its templates are the vocabulary the block must use, its scenarios the conventions it must follow, and its passing tests must still pass with the block added.">
+        <span>Your Logical English program <em>(required)</em></span>
+        <textarea id="fragment-program" rows="12" spellcheck="false" placeholder="the target language is: prolog.&#10;&#10;the templates are:&#10;    *a claim* is covered under the liability section.&#10;    ..."></textarea>
+      </label>
+      <span id="fragment-program-note" class="hint"></span>
+      <label class="field" title="The English to convert: a description of a situation (scenario mode) or a question (query mode). Plain prose — the assistant matches it, sentence by sentence, against the templates the program declares.">
+        <span id="fragment-text-label">The text to convert <em>(required)</em></span>
+        <textarea id="fragment-text" rows="6" placeholder="e.g. On 3 March 2026 a flood damaged the insured building; the repairs came to 46,200 and the policy excess is 2,000."></textarea>
+      </label>
+      <div class="row">
+        <label class="field" title="The name of the block (`scenario <name> is:`). Must be one word, no spaces. Leave empty to let the assistant name it after the situation or the question."><span>Name <em>(optional)</em></span><input type="text" id="fragment-name" placeholder="auto"></label>
+        <label class="field scenario-only" title="Whether the generated scenario should end with `<queryname> expects answers [...]` lines. AUTO writes one only when your text states what the outcome should be — an expectation the text does not give is an assertion about what your program ought to decide, invented by a model. ALWAYS asks for one per relevant query; NEVER writes facts only.">
+          <span>Expected answers</span>
+          <select id="feat-expectations">
+            <option value="">auto — only when the text states an outcome</option>
+            <option value="true">always, where a query fits</option>
+            <option value="false">never — facts only</option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="card contract-only">
       <h2>1. Documents</h2>
       <p class="hint">Markdown or plain text preferred; Word (.docx) and PDF are converted on the server. Schedules and cases may also be structured data (.json, .csv), and either box takes several files — a JSON <em>array</em> of claims becomes one case, and one scenario, per element.</p>
       <div class="uploads">
@@ -52,7 +86,7 @@
       </label>
     </div>
 
-    <div class="card">
+    <div class="card contract-only">
       <h2>2. Existing LE code <em>(optional)</em></h2>
       <p class="hint">Logical English you have already written — templates, scenarios with their <code>expects answers</code> lines, rules, facts, or any combination. It is treated as binding: the generated program must contain it and stay coherent with it, so the twin lines up with the program you started. Leave empty if you have none.</p>
       <label class="field" title="Pasted here, this code is injected into every prompt that writes or repairs the program: templates must be reused verbatim, your scenarios and their expected answers are kept exactly as written and the rules are made to satisfy them, and any conflict with the contract is flagged in a comment instead of being silently resolved. After the run, the result screen reports how much of it survived into the delivered program.">
@@ -99,8 +133,8 @@
       <details>
         <summary>Advanced</summary>
         <div class="row">
-          <label class="field" title="How many independent vocabulary (template inventory) samples to draw, at varied temperatures, before a judge merges them by consensus. Vocabulary present in most samples is kept; stragglers must justify themselves with a contract quote. More samples = more stable vocabulary, more cost."><span>Vocabulary samples (K)</span><input type="number" id="adv-k" min="1" max="9"></label>
-          <label class="field" title="How many alternative architectures (ways of decomposing the contract: entitlement-style, obligation-style, computation-style...) to draft and repair in parallel. The branch with the best objective score wins."><span>Branches (W)</span><input type="number" id="adv-w" min="1" max="5"></label>
+          <label class="field contract-only" title="How many independent vocabulary (template inventory) samples to draw, at varied temperatures, before a judge merges them by consensus. Vocabulary present in most samples is kept; stragglers must justify themselves with a contract quote. More samples = more stable vocabulary, more cost."><span>Vocabulary samples (K)</span><input type="number" id="adv-k" min="1" max="9"></label>
+          <label class="field" title="How many independent attempts to draft and repair in parallel — alternative architectures in whole-program mode, alternative readings of the text in scenario/query mode. The best-scoring one wins."><span>Branches / attempts (W)</span><input type="number" id="adv-w" min="1" max="5"></label>
           <label class="field" title="Repair PATIENCE: how many consecutive non-improving verify-and-repair rounds are tolerated. While rounds keep improving the program, repairing continues — up to a hard cap of 4x this value (min 16) and always within the minute budget. The best-scoring iteration is kept, even if a later repair makes things worse."><span>Repair patience</span><input type="number" id="adv-repairs" min="0" max="10"></label>
           <label class="field" title="Wall-clock budget for the whole job. As the deadline nears, optional work is pruned (remaining repairs, probes, paraphrase check) so the job still finishes with what it has."><span>Max minutes</span><input type="number" id="adv-minutes" min="1" max="600"></label>
           <label class="field" title="Leave empty for AUTO: at job start a cheap probe discovers the largest completion limit the provider accepts (up to 65536) and uses it — billing is per token produced, so the headroom costs nothing until a call needs it. Set a number only to force a specific cap. Calls that still die of reasoning exhaustion are retried with minimal reasoning, then with the provider's full cap."><span>Max completion tokens per LLM call</span><input type="number" id="adv-maxtokens" min="1000" max="131072" placeholder="auto (calibrated at start)"></label>
@@ -112,9 +146,9 @@
           </label>
         </div>
         <div class="row">
-          <label class="field" title="Differential interrogation: an LLM reading ONLY the contract invents this many edge-case scenarios (boundary dates, amounts at limits, role variations) with expected outcomes, and the generated program is confronted with them. Agreeing probes stay in the program as regression tests; disagreements are adjudicated and any survivors are reported as open disagreements — the twin is wrong or the contract is ambiguous."><span>Interrogation probes (0 = off; preset default if empty)</span><input type="number" id="feat-probes" min="0" max="20"></label>
-          <label class="field" title="After a branch verifies clean and all its scenario tests pass, how many extra rounds to spend removing WARNINGS — dead templates, rules no query reaches, accidental variables. A round is kept only if it reduces warnings without losing a test; 0 turns the clean-up off."><span>Warning clean-up rounds</span><input type="number" id="feat-polish" min="0" max="6"></label>
-          <label class="field" title="With 2+ cases: the pipeline develops against all but the last quarter of them (at least one case is always held out); the held-out ones are kept blind, turned into test scenarios by a separate call after repairs finish, and scored. Held-out evidence ranks above ordinary test evidence when choosing the winning branch — the guard against overfitting to the examples.">
+          <label class="field contract-only" title="Differential interrogation: an LLM reading ONLY the contract invents this many edge-case scenarios (boundary dates, amounts at limits, role variations) with expected outcomes, and the generated program is confronted with them. Agreeing probes stay in the program as regression tests; disagreements are adjudicated and any survivors are reported as open disagreements — the twin is wrong or the contract is ambiguous."><span>Interrogation probes (0 = off; preset default if empty)</span><input type="number" id="feat-probes" min="0" max="20"></label>
+          <label class="field contract-only" title="After a branch verifies clean and all its scenario tests pass, how many extra rounds to spend removing WARNINGS — dead templates, rules no query reaches, accidental variables. A round is kept only if it reduces warnings without losing a test; 0 turns the clean-up off."><span>Warning clean-up rounds</span><input type="number" id="feat-polish" min="0" max="6"></label>
+          <label class="field contract-only" title="With 2+ cases: the pipeline develops against all but the last quarter of them (at least one case is always held out); the held-out ones are kept blind, turned into test scenarios by a separate call after repairs finish, and scored. Held-out evidence ranks above ordinary test evidence when choosing the winning branch — the guard against overfitting to the examples.">
             <span>Held-out case scoring</span>
             <select id="feat-holdout">
               <option value="">auto (needs 2+ cases)</option>
@@ -124,9 +158,9 @@
           </label>
         </div>
         <div class="row checks">
-          <label title="When a probe disagrees with the program, run adjudication repair rounds: the model must decide — citing the contract text — whether the rules or the probe's expectation are wrong, and fix that one. Off = disagreements are only reported."><input type="checkbox" id="feat-interrogation-repair" checked> Adjudicate probe disagreements (repair rounds)</label>
-          <label title="Rewrites the wording in different words, re-extracts a vocabulary from the paraphrase, and reports a stability %: how much of the agreed vocabulary survives a change of surface phrasing. A low score means the modelling leans on wording accidents. Never affects branch selection; costs a few extra LLM calls."><input type="checkbox" id="feat-paraphrase"> Paraphrase-invariance check (informational, expensive)</label>
-          <label title="Draft the rules clause-by-clause, building the coverage ledger as generation proceeds, then assemble schedule facts, scenarios and queries in a final call. More LLM calls and a more fragile assembly than whole-program drafting — experimental."><input type="checkbox" id="feat-clausewise"> Clause-wise drafting with live ledger (experimental)</label>
+          <label class="contract-only" title="When a probe disagrees with the program, run adjudication repair rounds: the model must decide — citing the contract text — whether the rules or the probe's expectation are wrong, and fix that one. Off = disagreements are only reported."><input type="checkbox" id="feat-interrogation-repair" checked> Adjudicate probe disagreements (repair rounds)</label>
+          <label class="contract-only" title="Rewrites the wording in different words, re-extracts a vocabulary from the paraphrase, and reports a stability %: how much of the agreed vocabulary survives a change of surface phrasing. A low score means the modelling leans on wording accidents. Never affects branch selection; costs a few extra LLM calls."><input type="checkbox" id="feat-paraphrase"> Paraphrase-invariance check (informational, expensive)</label>
+          <label class="contract-only" title="Draft the rules clause-by-clause, building the coverage ledger as generation proceeds, then assemble schedule facts, scenarios and queries in a final call. More LLM calls and a more fragile assembly than whole-program drafting — experimental."><input type="checkbox" id="feat-clausewise"> Clause-wise drafting with live ledger (experimental)</label>
           <label title="Repairs are requested as exact SEARCH/REPLACE edits — cheaper and less regression-prone than regenerating the whole program. A full-program reply is always accepted as fallback; unapplied edits or replies that elide sections ('% ...') never overwrite the program."><input type="checkbox" id="feat-diff" checked> Diff-based repairs (full-program fallback)</label>
         </div>
       </details>
