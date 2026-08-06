@@ -5,7 +5,25 @@
     Logical English knowledge base, as designed in
     InsurLE2/docs/policyToLEAssistant.md.
 
-    Pipeline (per that plan):
+    THREE JOBS, one apparatus. The request's `mode` field selects which:
+
+      - `contract` (the default, and the pipeline described below): materials
+        in, a whole tested program out.
+      - `scenario`: an English description of a situation, plus a Logical
+        English program the user already has and which is NEVER modified, in;
+        ONE `scenario ... is:` block out.
+      - `query`: the same, for a question; ONE `query ... is:` block out.
+
+    The fragment modes run fragment_stages/1 — see the section it heads for why
+    each surviving part of the apparatus still earns its place at that size, and
+    what is dropped. They exist because everything below (verify, rank the
+    issues by how much they change the meaning, repair, keep the best, say what
+    is NOT covered) is worth having for one scenario too. The Scenario Editor's
+    own one-shot conversion (nl_to_le.pl) is deliberately a different thing: one
+    call and a few seconds, no background job, always available; these modes are
+    the budgeted version, for when the block matters.
+
+    Pipeline for `contract` mode (per that plan):
       0. ingest & segment      — uploads to text (pandoc/textutil/pdftotext for
                                  Word/PDF), markdown segmentation, target slice;
                                  held-out split of the cases (feature `holdout`)
@@ -86,6 +104,7 @@
 :- use_module(library(uuid)).
 :- use_module(le_kbs).
 :- use_module(le_verifier).
+:- use_module(le_issue_feedback).
 :- use_module(llm/llm_client).
 :- use_module(llm/llm_prices).
 
@@ -216,7 +235,9 @@ disk_result(JobID, Result) :-
     ->  true
     ;   Scores = _{}
     ),
-    Result0 = _{le: LE, filename: "contract.le", ledger: Ledger,
+    Result0 = _{le: LE, ledger: Ledger,
+                filename: Scores.get(filename, "contract.le"),
+                mode: Scores.get(mode, "contract"),
                 winner: Scores.get(winner, 0),
                 scores: Scores.get(scores, []),
                 interrogation: Scores.get(interrogation, _{enabled: false}),
@@ -252,7 +273,8 @@ contract_cost_estimate(Dict, Est) :-
     budget_params(B, Preset, K, W, Repairs, _Minutes),
     features_params(Dict, Preset, Features),
     ( get_dict(input_chars, Dict, IC), number(IC) -> Chars = IC ; Chars = 0 ),
-    cost_estimate(_{model: Model, judge_model: Judge, k: K, w: W,
+    job_mode(Dict, Mode),
+    cost_estimate(_{mode: Mode, model: Model, judge_model: Judge, k: K, w: W,
                     repairs: Repairs, probes: Features.probes,
                     input_chars: Chars},
                   Est).
@@ -264,7 +286,8 @@ job_config_summary(JobID, Summary, Elapsed) :-
     ->  F = C.features,
         ( C.existing == none -> ExistingChars = 0 ; string_length(C.existing, ExistingChars) ),
         ( C.get(instructions, none) == none -> HasInstructions = false ; HasInstructions = true ),
-        Summary = _{model: C.model, judge_model: C.judge_model,
+        Summary = _{mode: C.get(mode, contract),
+                    model: C.model, judge_model: C.judge_model,
                     k: C.k, w: C.w, repairs: C.repairs, minutes: C.minutes,
                     max_tokens: C.max_tokens, reasoning: C.reasoning,
                     probes: F.probes, holdout: F.holdout,
@@ -300,8 +323,14 @@ start_contract_job_(Dict, Options, JobID) :-
     uuid(UUID), atom_concat(caj_, UUID, JobID),
     job_dir(JobID, Dir),
     make_directory_path(Dir),
-    save_uploads(Dict, Dir, WordingFile, ScheduleFiles, CaseFiles),
-    normalise_config(Dict, WordingFile, ScheduleFiles, CaseFiles, Config),
+    job_mode(Dict, Mode),
+    (   Mode == contract
+    ->  save_uploads(Dict, Dir, WordingFile, ScheduleFiles, CaseFiles),
+        TextFile = none
+    ;   save_fragment_uploads(Dict, Dir, WordingFile, TextFile),
+        ScheduleFiles = [], CaseFiles = []
+    ),
+    normalise_config(Mode, Dict, WordingFile, ScheduleFiles, CaseFiles, TextFile, Config),
     retractall(ca_config(JobID, _)), assertz(ca_config(JobID, Config)),
     retractall(ca_logseq(JobID, _)), assertz(ca_logseq(JobID, 0)),
     asserta(ca_status(JobID, running)),
@@ -315,7 +344,35 @@ job_dir(JobID, Dir) :-
     ( getenv('LE_CONTRACT_JOBS_DIR', Base) -> true ; Base = 'contract_jobs' ),
     atomic_list_concat([Base, '/', JobID], Dir).
 
-normalise_config(Dict, WordingFile, ScheduleFiles, CaseFiles, Config) :-
+%!  job_mode(+RequestDict, -Mode) is det.
+%
+%   Which of the three jobs this is:
+%
+%     - `contract`  (the default, and everything above): materials in, a whole
+%       tested Logical English program out;
+%     - `scenario`  : an English description of a situation in, ONE new
+%       `scenario ... is:` block out, to be added to a program the user already
+%       has and which is never modified;
+%     - `query`     : an English question in, ONE new `query ... is:` block out,
+%       likewise.
+%
+%   The fragment modes exist because the whole apparatus above — verify, rank
+%   the issues, repair, keep the best, say what is NOT covered — is worth having
+%   for one scenario too, and the Scenario Editor's own one-shot conversion
+%   (nl_to_le.pl) deliberately does not run a background job. An unknown value
+%   is the default rather than an error: an older client that sends none must
+%   keep working.
+job_mode(Dict, Mode) :-
+    (   get_dict(mode, Dict, M0), M0 \== null, ( string(M0) ; atom(M0) ),
+        atom_string(M, M0), memberchk(M, [contract, scenario, query])
+    ->  Mode = M
+    ;   Mode = contract
+    ).
+
+fragment_mode(scenario).
+fragment_mode(query).
+
+normalise_config(Mode, Dict, WordingFile, ScheduleFiles, CaseFiles, TextFile, Config) :-
     ( get_dict(model, Dict, Model0), Model0 \== "", Model0 \== null -> Model = Model0
     ; Model = "claude-sonnet" ),
     ( get_dict(judge_model, Dict, JM0), JM0 \== "", JM0 \== null -> JudgeModel = JM0
@@ -335,14 +392,48 @@ normalise_config(Dict, WordingFile, ScheduleFiles, CaseFiles, Config) :-
     ; Reasoning = default ),
     existing_code(Dict, Existing),
     free_text(instructions, Dict, Instructions),
+    fragment_program(Mode, Dict, Existing, Program),
+    fragment_source_text(Mode, Dict, TextFile, SourceText),
+    free_text(name, Dict, FragmentName),
     get_time(Now), Deadline is Now + Minutes * 60,
-    Config = _{model: Model, judge_model: JudgeModel, api_keys: Keys,
+    Config = _{mode: Mode, program: Program, source_text: SourceText,
+               fragment_name: FragmentName,
+               model: Model, judge_model: JudgeModel, api_keys: Keys,
                target: Target, k: K, w: W, repairs: Repairs,
                minutes: Minutes, started: Now, reasoning: Reasoning,
                deadline: Deadline, features: Features, existing: Existing,
                instructions: Instructions,
                max_tokens: MaxTokens, mt_mode: MTMode, max_tokens_cap: MaxTokens,
                wording: WordingFile, schedule: ScheduleFiles, cases: CaseFiles}.
+
+%!  fragment_program(+Mode, +RequestDict, +Existing, -Program) is det.
+%
+%   The Logical English program a fragment is written FOR. Unlike `existing_code`
+%   in contract mode — a fragment the generated program must grow around — this
+%   one is fixed: the job never changes a character of it, and the only output is
+%   the block to append. It comes from the request's `program` field, falling back
+%   to `existing_code` so a client that only knows the old field still works.
+fragment_program(contract, _, _, none) :- !.
+fragment_program(_, Dict, Existing, Program) :-
+    free_text(program, Dict, P0),
+    ( P0 \== none -> Program = P0 ; Program = Existing ),
+    (   Program == none
+    ->  throw(error(contract_assistant_error("This mode needs the Logical English program the new block will be added to: paste it into the Program field."), _))
+    ;   true
+    ).
+
+%!  fragment_source_text(+Mode, +RequestDict, +TextFile, -Text) is det.
+%
+%   The English to convert: the `text` field, or an uploaded text file.
+fragment_source_text(contract, _, _, none) :- !.
+fragment_source_text(_, Dict, TextFile, Text) :-
+    free_text(text, Dict, T0),
+    (   T0 \== none
+    ->  Text = T0
+    ;   TextFile \== none, exists_file(TextFile)
+    ->  read_text(TextFile, Text)
+    ;   throw(error(contract_assistant_error("This mode needs the English text to convert: type it in, or upload it as a file."), _))
+    ).
 
 %!  existing_code(+RequestDict, -Existing) is det.
 %
@@ -446,6 +537,24 @@ save_uploads(Dict, Dir, WordingFile, ScheduleFiles, CaseFiles) :-
     ),
     save_upload_list(schedule, Dict, SrcDir, ScheduleFiles),
     save_upload_list(cases, Dict, SrcDir, CaseFiles).
+
+%!  save_fragment_uploads(+RequestDict, +SrcDir0, -WordingFile, -TextFile) is det.
+%
+%   The uploads of a `scenario`/`query` job. Both are optional: the English to
+%   convert is normally typed into the request's `text` field, and the contract
+%   wording — which the fragment modes use only as background for judging what the
+%   text does and does not cover — is usually not supplied at all.
+save_fragment_uploads(Dict, Dir, WordingFile, TextFile) :-
+    atomic_list_concat([Dir, '/sources'], SrcDir),
+    make_directory_path(SrcDir),
+    (   get_dict(wording, Dict, WD), is_dict(WD)
+    ->  save_one_upload(WD, SrcDir, wording, WordingFile)
+    ;   WordingFile = none
+    ),
+    (   get_dict(text, Dict, TD), is_dict(TD)
+    ->  save_one_upload(TD, SrcDir, text, TextFile)
+    ;   TextFile = none
+    ).
 
 %!  save_upload_list(+Field, +RequestDict, +SrcDir, -Files) is det.
 %
@@ -558,7 +667,7 @@ run_contract_pipeline(JobID) :-
             % thread with the job still marked `running` — the UI then polled a
             % dead job forever. Any failure is a bug, but it must still end the
             % job.
-            (   once(pipeline_stages(JobID))
+            (   once(pipeline_for_mode(JobID))
             ->  true
             ;   throw(error(contract_assistant_error(pipeline_failed), _))
             ),
@@ -578,6 +687,15 @@ run_contract_pipeline(JobID) :-
     get_time(End),
     retractall(ca_ended(JobID, _)),
     assertz(ca_ended(JobID, End)).
+
+% The whole-contract pipeline, or the much shorter one that writes a single
+% scenario/query block for a program the user already has (fragment_stages/1).
+pipeline_for_mode(JobID) :-
+    ca_config(JobID, Config),
+    (   fragment_mode(Config.get(mode, contract))
+    ->  fragment_stages(JobID)
+    ;   pipeline_stages(JobID)
+    ).
 
 friendly_error(error(contract_assistant_error(pipeline_failed), _), Msg) :- !,
     Msg = "the pipeline failed without an error message — this is a bug in the assistant, not in your materials. The run log above shows how far it got; the job's artifacts are on the server under contract_jobs/.".
@@ -601,15 +719,6 @@ friendly_error(error(resource_error(What), _), Msg) :- !,
 % quote their arguments, and one of those can be a 90 kB LLM reply. Cap it —
 % the log is read by a human in a browser.
 friendly_error(E, Msg) :- term_string(E, S), truncated(S, 600, Msg).
-
-truncated(S, Max, Out) :-
-    string_length(S, L),
-    (   L =< Max
-    ->  Out = S
-    ;   Keep is Max - 3,
-        sub_string(S, 0, Keep, _, Head),
-        string_concat(Head, "...", Out)
-    ).
 
 pipeline_stages(JobID) :-
     ca_config(JobID, Config0),
@@ -729,6 +838,661 @@ pipeline_stages(JobID) :-
     retractall(ca_result(JobID, _)),
     assertz(ca_result(JobID, Result)).
 
+% ==================== Fragment modes: scenario / query =======================
+%
+% Same apparatus, much smaller target. The user has a Logical English program
+% they consider correct, and a paragraph of English: a situation to turn into
+% ONE scenario, or a question to turn into ONE query. The program is an input
+% and never an output — no template is added, no rule is touched — so everything
+% the whole-contract pipeline does to a program is done here to the BLOCK, with
+% the program supplying the vocabulary and the verification context.
+%
+% What carries over, and why each part still earns its place at this size:
+%
+%   - VERIFY THE SPLICE, REPORT THE DIFFERENCE. The block is appended to a
+%     throw-away copy of the program and the whole thing is verified; issues the
+%     program already had are subtracted, and line numbers are re-based onto the
+%     block, which is all the model ever sees (verify_fragment/3).
+%   - RANKED, CAPPED FEEDBACK, best-iteration-kept repair rounds: the same
+%     repair_loop discipline, because the failure modes are the same ones —
+%     a fact that quietly holds of everyone, a sentence that matches no template.
+%   - REGRESSION IS AN ERROR. The program is unchangeable, so a block that makes
+%     one of its passing tests fail is not a trade-off to weigh: it is wrong.
+%   - EXERCISE. A new scenario is run against every query the program has, and a
+%     new query against every scenario, and the answers are reported. A scenario
+%     no query can say anything about, or a query that answers nothing anywhere,
+%     is the commonest way for a fragment to be perfectly valid and useless.
+%   - A COVERAGE COMMENT, as the whole-contract runs get a coverage ledger: what
+%     of the supplied text the block does NOT represent, as `%` lines prepended
+%     to the block itself, so the limitation travels with the code.
+%
+% What does not carry over: vocabulary consensus and architecture sketches (the
+% vocabulary is given and there is nothing to decompose), the held-out split,
+% interrogation probes and the paraphrase check.
+
+fragment_kind_noun(scenario, "scenario").
+fragment_kind_noun(query, "query").
+
+fragment_stages(JobID) :-
+    ca_config(JobID, Config0),
+    Mode = Config0.mode,
+    fragment_kind_noun(Mode, Noun),
+
+    % ---- Stage 0: read, verify the given program, take the baseline
+    ca_set_stage(JobID, 0, "Reading the program and the text"),
+    Program = Config0.program,
+    SourceText = Config0.source_text,
+    save_text_artifact(JobID, 'program.le', Program),
+    save_text_artifact(JobID, 'source.txt', SourceText),
+    verify_le_text(Program, VBase),
+    score_summary(VBase, BaseSummary),
+    string_length(Program, PLen), string_length(SourceText, TLen),
+    ca_emit(JobID, "Given program: ~w chars, ~w"-[PLen, BaseSummary]),
+    ca_emit(JobID, "Text to convert: ~w chars"-[TLen]),
+    (   VBase.errors > 0
+    ->  ca_emit(JobID, "NOTE: the program you supplied does not load cleanly (~w error(s)). It is treated as correct and is never modified; its own issues are not counted against the new ~w, but they may hide problems in it."-[VBase.errors, Noun])
+    ;   true
+    ),
+    fragment_baseline(Program, VBase, Baseline),
+    Config1 = Config0.put(baseline, Baseline),
+    fragment_materials(Config1, Materials),
+    calibrate_and_estimate(JobID, Config1, Materials, Config2),
+
+    % ---- Stages 2-5: draft + repair, W independent attempts
+    ca_set_stage(JobID, 2, "Drafting & repairing"),
+    NBranches = Config2.w,
+    numlist(1, NBranches, Idxs),
+    (   NBranches =:= 1
+    ->  maplist(run_fragment_branch(JobID, Config2), Idxs, Branches0)
+    ;   concurrent_maplist(run_fragment_branch(JobID, Config2), Idxs, Branches0)
+    ),
+    include(is_live_branch, Branches0, Branches),
+    (   Branches == []
+    ->  throw(error(contract_assistant_error("every attempt failed — see the run log"), _))
+    ;   true
+    ),
+
+    % ---- Stage 6: select, exercise, coverage comment
+    ca_set_stage(JobID, 6, "Selection, exercise & coverage note"),
+    select_winner(JobID, Branches, branch(WIdx, WText, WScore)),
+    ca_emit(JobID, "Winner: attempt ~w (~w)"-[WIdx, WScore.summary]),
+    exercise_fragment(Config2, WText, Exercise),
+    report_exercise(JobID, Config2, Exercise),
+    % The coverage note is a comment: an LLM failure here costs the note, never
+    % the block that has already been written and verified.
+    catch(fragment_coverage_note(JobID, Config2, WText, Exercise, Note),
+          error(contract_assistant_error(NErr), _),
+          ( friendly_error(NErr, NErrS),
+            ca_emit(JobID, "Coverage note abandoned (~w); delivering the ~w without it"-[NErrS, Noun]),
+            format(string(Note), "% Coverage note unavailable: ~w~n", [NErrS]) )),
+    string_concat(Note, WText, Delivered),
+    save_text_artifact(JobID, 'winner.le', Delivered),
+    verify_fragment(Config2, Delivered, VFinal),
+    score_summary(VFinal, SummaryFinal),
+    branch_score(VFinal, SummaryFinal, FinalScore),
+    ca_emit(JobID, "Delivered ~w: ~w"-[Noun, SummaryFinal]),
+    findall(SD, (member(branch(I, _, S), Branches), SD = S.put(branch, I)), AllScores),
+    fragment_technicalities(JobID, Config2, WIdx, SummaryFinal, Exercise, Branches, Tech),
+    string_concat(Note, Tech, Ledger),
+    save_text_artifact(JobID, 'ledger.md', Ledger),
+    format(atom(FileName), "~w.le", [Mode]),
+    Result = _{le: Delivered, filename: FileName, mode: Mode, winner: WIdx,
+               scores: AllScores, final_score: FinalScore, ledger: Ledger,
+               exercise: Exercise,
+               interrogation: _{enabled: false}, paraphrase: _{enabled: false},
+               existing_code: _{enabled: false}},
+    save_json_artifact(JobID, 'scores.json',
+                       _{winner: WIdx, scores: AllScores, mode: Mode,
+                         filename: FileName, exercise: Exercise}),
+    retractall(ca_result(JobID, _)),
+    assertz(ca_result(JobID, Result)).
+
+%!  fragment_baseline(+Program, +V, -Baseline:dict) is det.
+%
+%   What is already true of the user's program, so that only what the BLOCK
+%   introduces is reported and scored: the signatures of its own issues, its line
+%   count (to re-base line numbers onto the block), every test it declares and the
+%   subset of those that pass today.
+fragment_baseline(Program, V, Baseline) :-
+    maplist(ca_issue_signature, V.issues, Sigs),
+    split_string(Program, "\n", "", Lines), length(Lines, NLines),
+    findall(Q-S, ( member(T, V.test_details), get_dict(query, T, Q), get_dict(scenario, T, S) ), Tests),
+    findall(Q-S, ( member(T, V.test_details), T.status == "pass",
+                   get_dict(query, T, Q), get_dict(scenario, T, S) ), Passing),
+    Baseline = _{sigs: Sigs, lines: NLines, tests: Tests, passing: Passing}.
+
+ca_issue_signature(I, sig(Type, Msg, Line)) :-
+    ( get_dict(type, I, Type) -> true ; Type = "" ),
+    ( get_dict(message, I, Msg) -> true ; Msg = "" ),
+    ( get_dict(line, I, Line) -> true ; Line = 0 ).
+
+%!  fragment_splice(+Config, +Fragment, -Full) is det.
+%
+%   The program with the block appended. The block is a complete section
+%   (`scenario x is:` / `query x is:`), and sections may follow the knowledge
+%   base in any order, so appending is all there is to it — and the program
+%   itself is copied, never edited.
+fragment_splice(Config, Fragment, Full) :-
+    format(string(Full), "~w~n~n~w~n", [Config.program, Fragment]).
+
+%!  verify_fragment(+Config, +Fragment, -V:dict) is det.
+%
+%   The verification of the SPLICE, reported as if the block were the whole
+%   program: baseline issues subtracted, line numbers re-based, the program's own
+%   tests separated from the block's, and a broken baseline test promoted to an
+%   error of its own. The result has exactly the shape verify_le_text/2 produces,
+%   which is what lets the ranking, the working-set feedback and the repair loop
+%   above be reused unchanged.
+verify_fragment(Config, Fragment, V) :-
+    Baseline = Config.baseline,
+    fragment_splice(Config, Fragment, Full),
+    verify_le_text(Full, V0),
+    exclude(fragment_in_baseline(Baseline.sigs), V0.issues, Issues0),
+    maplist(fragment_rebase_line(Baseline.lines), Issues0, Issues1),
+    fragment_shape_issues(Config, Fragment, ShapeIssues),
+    fragment_regressions(Baseline, V0, Regressions),
+    append([ShapeIssues, Regressions, Issues1], Issues),
+    partition_severity(Issues, NErrors, NWarnings),
+    % Only the tests the BLOCK brought: the program's own results are the
+    % program's business, and counting them would let a block ride on them.
+    % `get_dict` inside the goal, never `D.status` in a lambda: functional dict
+    % notation in a yall body is hoisted OUT of the lambda, where D is still
+    % unbound, and throws.
+    exclude(fragment_baseline_test(Baseline.tests), V0.test_details, Details),
+    include([D]>>get_dict(status, D, "pass"), Details, Passes),
+    include([D]>>get_dict(status, D, "fail"), Details, Fails),
+    length(Passes, NPassed), length(Fails, NFailed),
+    V = _{errors: NErrors, warnings: NWarnings,
+          tests_passed: NPassed, tests_failed: NFailed,
+          issues: Issues, test_details: Details}.
+
+fragment_in_baseline(Sigs, Issue) :-
+    ca_issue_signature(Issue, Sig),
+    memberchk(Sig, Sigs).
+
+fragment_baseline_test(Tests, Detail) :-
+    get_dict(query, Detail, Q), get_dict(scenario, Detail, S),
+    memberchk(Q-S, Tests).
+
+% Line numbers of the spliced program mean nothing to a model that only ever saw
+% its own block. Line 1 of the block is the line after the program and the blank
+% line the splice added.
+fragment_rebase_line(ProgramLines, I0, I) :-
+    (   get_dict(line, I0, N), integer(N), N > 0
+    ->  Rebased is N - ProgramLines - 1,
+        ( Rebased > 0 -> I = I0.put(line, Rebased) ; I = I0.put(line, 0) )
+    ;   I = I0
+    ).
+
+%!  fragment_regressions(+Baseline, +V0, -Issues) is det.
+%
+%   Tests of the user's program that passed before the block and do not pass with
+%   it. In contract mode a failing test is one signal among several; here the
+%   program is not ours to change, so breaking one of its tests is simply an
+%   error — and it is how a block whose lines escaped their own section (a
+%   mis-indented line, a second section header) announces itself.
+fragment_regressions(Baseline, V0, Issues) :-
+    findall(Q-S,
+            ( member(Q-S, Baseline.passing),
+              \+ ( member(D, V0.test_details), D.status == "pass",
+                   get_dict(query, D, Q), get_dict(scenario, D, S) ) ),
+            Broken),
+    maplist(fragment_regression_issue, Broken, Issues).
+
+fragment_regression_issue(Q-S, _{severity: "error", type: "regression", message: Msg,
+                                 fix: "Make sure every line belongs to the new block and states nothing about the rest of the program.",
+                                 line: 0, source: ""}) :-
+    format(string(Msg),
+           "Your block BREAKS a test that passes in the user's program: query '~w' in scenario '~w'. The program must not change behaviour — almost always this means a line escaped the new section and became a statement of the whole program.",
+           [Q, S]).
+
+%!  fragment_shape_issues(+Config, +Fragment, -Issues) is det.
+%
+%   "And nothing more." The reply must be ONE section of the requested kind and
+%   nothing else: no template declared, no rule written, no knowledge base opened.
+%   A model asked for a scenario against a vocabulary that does not quite fit will
+%   otherwise helpfully declare the template it wishes existed — which verifies
+%   beautifully and is not what was asked for, since the program is fixed and the
+%   user is going to paste this block into it.
+fragment_shape_issues(Config, Fragment, Issues) :-
+    Mode = Config.mode,
+    fragment_kind_noun(Mode, Noun),
+    split_string(Fragment, "\n", "\r", Lines),
+    fragment_block_count(Mode, Lines, NWanted),
+    findall(L, ( member(L0, Lines), forbidden_section_line(Mode, L0),
+                 normalize_space(string(L), L0) ), Forbidden),
+    (   NWanted =:= 0
+    ->  format(string(M0), "The reply contains no `~w <name> is:` section at all. Output exactly one, and nothing else.", [Mode]),
+        I0 = [_{severity: "error", type: "missing_block", message: M0,
+                fix: "", line: 0, source: ""}]
+    ;   NWanted > 1
+    ->  format(string(M1), "The reply contains ~w `~w ... is:` sections. Exactly one was asked for: merge them or drop the extras.", [NWanted, Mode]),
+        I0 = [_{severity: "error", type: "too_many_blocks", message: M1,
+                fix: "", line: 0, source: ""}]
+    ;   I0 = []
+    ),
+    findall(I,
+            ( member(F, Forbidden),
+              format(string(M), "'~w' opens a section other than the ~w. The program is FIXED: you may not declare templates, write rules or open a knowledge base — only the ~w block.", [F, Noun, Noun]),
+              I = _{severity: "error", type: "forbidden_section", message: M,
+                    fix: "Delete it and express the text with the templates the program already declares.",
+                    line: 0, source: F} ),
+            I1),
+    fragment_expectation_issues(Config, Lines, I2),
+    append([I0, I1, I2], Issues).
+
+% How many sections of the wanted kind the reply opens.
+fragment_block_count(Mode, Lines, N) :-
+    include(fragment_block_line(Mode), Lines, Matching),
+    length(Matching, N).
+
+fragment_block_line(Mode, Line) :-
+    normalize_space(string(T), Line),
+    section_opener_words(Mode, Words),
+    member(W, Words),
+    string_concat(W, Rest, T),
+    string_concat(" ", _, Rest),
+    sub_string(T, _, 1, 0, ":").
+
+% Any section header that is NOT the wanted kind: the other block kind is allowed
+% (a scenario may not open a query, but neither is a section of the program).
+forbidden_section_line(Mode, Line) :-
+    normalize_space(string(T), Line),
+    T \== "",
+    \+ string_concat("%", _, T),
+    sub_string(T, _, 1, 0, ":"),
+    forbidden_section_key(Mode, Key),
+    section_opener_words(Key, Words),
+    member(W, Words),
+    string_concat(W, _, T).
+
+forbidden_section_key(Mode, Key) :-
+    member(Key, [templates, predicates, fluents, events, actions, prolog_events,
+                 ontology, kb_open, contract_open, annexes, meta_target, scenario, query]),
+    Key \== Mode.
+
+% The section keywords of the ACTIVE language, every synonym, as strings.
+section_opener_words(Key, Words) :-
+    findall(S, ( le_i18n:kw_synonym_words(Key, Ws), Ws \== [],
+                 atomic_list_concat(Ws, ' ', A), atom_string(A, S) ),
+            Words0),
+    ( Words0 == [] -> atom_string(Key, S0), Words = [S0] ; sort(Words0, Words) ).
+
+%!  fragment_expectation_issues(+Config, +Lines, -Issues) is det.
+%
+%   The `expects answers` policy. A scenario whose text states an outcome should
+%   carry that outcome as an expectation — it is the only thing that makes the
+%   block testable, and the repair loop then has a real signal to work with. But
+%   an expectation the text does not state is an assertion about what the program
+%   ought to decide, invented by a model, and that is exactly what a user asking
+%   for "this situation, as a scenario" did not ask for. Feature `expectations`:
+%   `auto` (the default, decided by the prompt from the text), true, false.
+fragment_expectation_issues(Config, Lines, Issues) :-
+    (   Config.mode == scenario,
+        Config.features.get(expectations, auto) == false,
+        include(expectation_line, Lines, [_|_])
+    ->  Issues = [_{severity: "error", type: "unwanted_expectation",
+                    message: "This job was asked for facts only, but the block carries `expects answers` lines. Remove them.",
+                    fix: "", line: 0, source: ""}]
+    ;   Issues = []
+    ).
+
+% "<queryname> expects answers [...]" in the active language: the keyword set
+% spells `expects` and `answers` as two separate entries.
+expectation_line(Line) :-
+    normalize_space(string(T), Line),
+    ( le_i18n:kw_main_words(expects, [E|_]) -> true ; E = expects ),
+    ( le_i18n:kw_main_words(answers, [A|_]) -> true ; A = answers ),
+    format(string(Kw), "~w ~w", [E, A]),
+    sub_string(T, _, _, _, Kw).
+
+%!  fragment_materials(+Config, -Materials) is det.
+%
+%   Everything the drafting call is shown, as one block: the program (the whole
+%   of it — its templates are the vocabulary, its scenarios the house style, its
+%   queries what can be asked), the English text, and the contract wording when
+%   one was uploaded as background.
+fragment_materials(Config, Materials) :-
+    (   Config.wording == none
+    ->  Wording = ""
+    ;   read_text(Config.wording, W),
+        format(string(Wording), "\n\n### BACKGROUND — the contract wording (context only; the program below is what counts)\n\n~w", [W])
+    ),
+    format(string(Materials),
+           "### THE PROGRAM (fixed — read it, never change it)\n\n```le\n~w\n```\n\n### THE TEXT TO CONVERT\n\n~w~w",
+           [Config.program, Config.source_text, Wording]).
+
+%!  run_fragment_branch(+JobID, +Config, +Idx, -Out) is det.
+%
+%   One attempt: draft, then repair. Failures stay inside the attempt, as in
+%   run_branch/5 — with W above 1 the attempts run concurrently and one that dies
+%   must not take the others' finished blocks with it.
+run_fragment_branch(JobID, Config, Idx, Out) :-
+    catch(
+        run_fragment_branch_(JobID, Config, Idx, Out),
+        BErr0,
+        (   BErr0 == contract_interrupt
+        ->  throw(BErr0)
+        ;   ( BErr0 = error(contract_assistant_error(BErr), _) -> true ; BErr = BErr0 ),
+            friendly_error(BErr, BErrS),
+            ca_emit(JobID, "Attempt ~w FAILED (~w)"-[Idx, BErrS]),
+            ca_set_branch(JobID, Idx, _{state: "failed", summary: BErrS}),
+            Out = failed(Idx)
+        )).
+
+run_fragment_branch_(JobID, Config, Idx, branch(Idx, Final, Score)) :-
+    ca_set_branch(JobID, Idx, _{state: "drafting"}),
+    ca_check_alive(JobID),
+    fragment_prompt_name(Config.mode, PromptName),
+    fragment_slots(Config, Slots),
+    % Attempt 1 is deterministic; further attempts vary, so racing them is worth
+    % something (with W = 1 — the Draft preset — nothing is sampled at all).
+    ( Idx =:= 1 -> Temp = 0 ; Temp is 0.3 ),
+    stage_llm(JobID, Config, fragment_draft(Idx), fragment_style, PromptName,
+              Slots, [temperature(Temp)], Reply),
+    extract_le_code(Reply, Draft),
+    branch_artifact_name(Idx, draft, DraftName),
+    save_text_artifact(JobID, DraftName, Draft),
+    string_length(Draft, DraftLen),
+    ca_emit(JobID, "Attempt ~w: draft extracted (~w chars)"-[Idx, DraftLen]),
+    fragment_repair_loop(JobID, Config, Idx, Draft, 0, none, 0, Final, Score),
+    branch_artifact_name(Idx, final, FinalName),
+    save_text_artifact(JobID, FinalName, Final),
+    ca_set_branch(JobID, Idx, _{state: "done", summary: Score.summary,
+                                errors: Score.errors, warnings: Score.warnings,
+                                tests_passed: Score.tests_passed,
+                                tests_failed: Score.tests_failed}).
+
+fragment_prompt_name(scenario, 'fragment_scenario').
+fragment_prompt_name(query, 'fragment_query').
+
+fragment_slots(Config, [instructions-Instructions, expectations-Expectations,
+                        name-Name, materials-Materials]) :-
+    instructions_block(Config, Instructions),
+    expectations_block(Config, Expectations),
+    fragment_name_block(Config, Name),
+    fragment_materials(Config, Materials).
+
+expectations_block(Config, Block) :-
+    (   Config.mode \== scenario
+    ->  Block = "not applicable"
+    ;   Setting = Config.features.get(expectations, auto),
+        (   Setting == false
+        ->  Block = "Write NO `expects answers` line. Facts only."
+        ;   Setting == true
+        ->  Block = "End the scenario with one `<queryname> expects answers [\"...\"].` line for each of the program's queries whose outcome the text states or clearly implies. Use a query the program actually declares, and never invent an outcome the text does not give."
+        ;   Block = "If — and only if — the text states what the outcome should be (a decision, an amount, a reason), end the scenario with `<queryname> expects answers [\"...\"].` for the program query that answers it, using the exact string the engine would render. If the text states no outcome, write no expectation line at all: an invented expectation asserts what the program ought to decide, which nobody asked for."
+        )
+    ).
+
+fragment_name_block(Config, Block) :-
+    (   Config.get(fragment_name, none) == none
+    ->  format(string(Block), "Name it yourself: one word, no spaces, descriptive of the situation or the question.", [])
+    ;   format(string(Block), "Name it EXACTLY `~w`.", [Config.fragment_name])
+    ).
+
+%!  fragment_repair_loop(+JobID, +Config, +Idx, +Text, +Iter, +Best0, +Streak,
+%!                       -Final, -Score) is det.
+%
+%   verify -> ranked feedback -> repair, keeping the best iteration and working
+%   from it, exactly as repair_loop/10 does for a whole program. Two differences,
+%   both because the target is a block and not a program:
+%
+%   - what is verified is the SPLICE, diffed against the program's own issues
+%     (verify_fragment/3), so the model is told about its block and nothing else;
+%   - "done" cannot require passing tests. A scenario asked for facts only has no
+%     expectation to pass, and demanding one would spend every round of the
+%     budget on a program that is already right.
+fragment_repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Score) :-
+    verify_fragment(Config, Text, V),
+    score_summary(V, Summary),
+    ca_set_branch(JobID, Idx, _{state: "repairing", iteration: Iter, summary: Summary,
+                                errors: V.errors, warnings: V.warnings,
+                                tests_passed: V.tests_passed, tests_failed: V.tests_failed}),
+    ca_emit(JobID, "Attempt ~w iteration ~w: ~w"-[Idx, Iter, Summary]),
+    Cand = cand(Text, V, Summary),
+    best_of(Best0, Cand, Best),
+    ( ( Best0 == none ; Best == Cand ) -> Streak = 0 ; Streak is Streak0 + 1 ),
+    Patience = Config.repairs,
+    HardCap is max(2 * Patience, 6),
+    modelling_warnings(V, NMW),
+    (   ( V.errors =:= 0, V.tests_failed =:= 0, NMW =:= 0 )
+    ->  Final = Text, branch_score(V, Summary, Score)
+    ;   Streak >= Patience
+    ->  ca_emit(JobID, "Attempt ~w: no improvement in ~w consecutive round(s), keeping the best"-[Idx, Streak]),
+        best_result(Best, Final, Score)
+    ;   Iter >= HardCap
+    ->  ca_emit(JobID, "Attempt ~w: repair cap (~w) reached, keeping the best"-[Idx, HardCap]),
+        best_result(Best, Final, Score)
+    ;   deadline_exceeded(Config)
+    ->  ca_emit(JobID, "Attempt ~w: wall-clock budget exhausted, keeping the best"-[Idx]),
+        best_result(Best, Final, Score)
+    ;   ca_check_alive(JobID),
+        Best = cand(WorkText, WorkV, _),
+        (   WorkText \== Text
+        ->  ca_emit(JobID, "Attempt ~w: iteration ~w ranks worse than the best so far; continuing from the best version"-[Idx, Iter]),
+            Rewind = "\n\nYOUR PREVIOUS ATTEMPT WAS DISCARDED: it verified worse than the version below. Do not send it again.\n"
+        ;   Rewind = ""
+        ),
+        format_verify_feedback(WorkV, Feedback0),
+        atomics_to_string([Rewind, Feedback0], Feedback),
+        instructions_block(Config, Instructions),
+        expectations_block(Config, Expectations),
+        fragment_materials(Config, Materials),
+        fragment_kind_noun(Config.mode, Noun),
+        catch(
+            ( stage_llm(JobID, Config, fragment_repair(Idx, Iter), fragment_style,
+                        'fragment_repair',
+                        [instructions-Instructions, expectations-Expectations,
+                         kind-Noun, fragment-WorkText, feedback-Feedback,
+                         materials-Materials],
+                        [temperature(0)], Reply),
+              Next = reply(Reply) ),
+            error(contract_assistant_error(_), _),
+            Next = failed),
+        (   Next = reply(R)
+        ->  safe_apply_repair_reply(Config, any, R, WorkText, Text1, How),
+            ca_emit(JobID, "Attempt ~w repair ~w: ~w"-[Idx, Iter, How]),
+            Iter1 is Iter + 1,
+            fragment_repair_loop(JobID, Config, Idx, Text1, Iter1, Best, Streak, Final, Score)
+        ;   ca_emit(JobID, "Attempt ~w: repair call failed; keeping the best"-[Idx]),
+            best_result(Best, Final, Score)
+        )
+    ).
+
+% ------------------------- Exercising the fragment ---------------------------
+
+%!  exercise_fragment(+Config, +Fragment, -Report:dict) is det.
+%
+%   Run the block against the program: a new scenario against every query the
+%   program declares, a new query against every scenario it has. This is the
+%   check no verifier performs and the one a reader wants first — a scenario that
+%   no query can say anything about, or a query with no answer under any
+%   scenario, is syntactically perfect and tells nobody anything.
+%
+%   Purely observational: it never changes the block and never fails the job.
+exercise_fragment(Config, Fragment, Report) :-
+    (   catch(exercise_fragment_(Config, Fragment, R), _, fail)
+    ->  Report = R
+    ;   Report = _{enabled: false, rows: [], answered: 0, total: 0}
+    ).
+
+exercise_fragment_(Config, Fragment, Report) :-
+    fragment_splice(Config, Fragment, Full),
+    le_kbs:load_text(Full, KB),
+    fragment_block_name(Config.mode, Fragment, Name),
+    exercise_pairs(Config.mode, KB, Name, Pairs0),
+    % A run of the reasoner per combination, each with its own 30-second limit:
+    % a program with fifty queries would spend longer here than on the LLM. The
+    % cap is REPORTED (`skipped`), never silent — a truncated list that reads as
+    % complete is how "nothing answered" becomes a wrong conclusion.
+    exercise_cap(Cap),
+    length(Pairs0, NAll),
+    ( NAll =< Cap -> Pairs = Pairs0, Skipped = 0
+    ; length(Pairs, Cap), append(Pairs, _, Pairs0), Skipped is NAll - Cap ),
+    maplist(exercise_one(KB), Pairs, Rows),
+    include([R]>>( get_dict(answers, R, A), A > 0 ), Rows, Answered),
+    length(Rows, Total), length(Answered, NAnswered),
+    Report = _{enabled: true, name: Name, rows: Rows, skipped: Skipped,
+               answered: NAnswered, total: Total}.
+
+exercise_cap(20).
+
+% The block's own name, from its header line.
+fragment_block_name(Mode, Fragment, Name) :-
+    split_string(Fragment, "\n", "\r", Lines),
+    member(L, Lines),
+    normalize_space(string(T), L),
+    section_opener_words(Mode, Words),
+    member(W, Words),
+    string_concat(W, Rest0, T), string_concat(" ", Rest1, Rest0),
+    sub_string(Rest1, Before, _, 0, ":"),
+    sub_string(Rest1, 0, Before, _, Rest2),
+    normalize_space(string(Rest), Rest2),
+    ( le_i18n:kw_main_words(marker_is, [Is|_]) -> true ; Is = is ),
+    format(string(IsW), " ~w", [Is]),
+    ( sub_string(Rest, B, _, 0, IsW) -> sub_string(Rest, 0, B, _, Name0) ; Name0 = Rest ),
+    Name0 \== "", !,
+    atom_string(Name, Name0).
+
+% (QueryName, ScenarioName) pairs to run: everything the new block can be
+% combined with, and nothing the program already tests on its own.
+exercise_pairs(scenario, KB, Name, Pairs) :-
+    findall(Q-Name, ( current_predicate(KB:query_info/3), KB:query_info(Q, _, _) ), Pairs).
+exercise_pairs(query, KB, Name, Pairs) :-
+    findall(Name-S, ( current_predicate(KB:scenario/2), KB:scenario(S, _) ), Pairs0),
+    exclude([_-S]>>(S == Name), Pairs0, Pairs).
+
+% A test whose expectation cannot possibly match, so the runner hands back the
+% ACTUAL answers instead of a bare pass/fail.
+exercise_sentinel(["no such answer"]).
+
+exercise_one(KB, Q-S, Row) :-
+    exercise_sentinel(Sentinel),
+    (   catch(le_kbs:run_one_test(KB, test(Q, S, Sentinel, []), Result), _, fail)
+    ->  exercise_row(Q, S, Result, Row)
+    ;   Row = _{query: QS, scenario: SS, answers: 0, sample: [], error: "could not be run"},
+        term_string(Q, QS), term_string(S, SS)
+    ).
+
+exercise_row(Q, S, fail(_, _, _, Actual, _, _), Row) :- !,
+    term_string(Q, QS), term_string(S, SS),
+    length(Actual, N), first_n(3, Actual, Sample),
+    Row = _{query: QS, scenario: SS, answers: N, sample: Sample}.
+exercise_row(Q, S, error(_, _, Msg), Row) :- !,
+    term_string(Q, QS), term_string(S, SS), term_string(Msg, MsgS),
+    Row = _{query: QS, scenario: SS, answers: 0, sample: [], error: MsgS}.
+exercise_row(Q, S, _, _{query: QS, scenario: SS, answers: 0, sample: []}) :-
+    term_string(Q, QS), term_string(S, SS).
+
+report_exercise(_, _, Report) :- Report.enabled == false, !.
+report_exercise(JobID, Config, Report) :-
+    fragment_kind_noun(Config.mode, Noun),
+    (   Report.total =:= 0
+    ->  ca_emit(JobID, "Exercise: the program has nothing to run this ~w against"-[Noun])
+    ;   Report.answered =:= 0
+    ->  ca_emit(JobID, "Exercise: WARNING — none of the ~w combination(s) with the program produced an answer. The ~w is valid but may be describing something the program's rules never reach"-[Report.total, Noun])
+    ;   ca_emit(JobID, "Exercise: ~w of ~w combination(s) with the program produce answers"-[Report.answered, Report.total])
+    ),
+    (   Report.get(skipped, 0) > 0
+    ->  ca_emit(JobID, "Exercise: ~w further combination(s) were NOT run (cap ~w)"-[Report.skipped, 20])
+    ;   true
+    ).
+
+%!  fragment_coverage_note(+JobID, +Config, +Fragment, +Exercise, -Note) is det.
+%
+%   The counterpart of the coverage ledger: what of the supplied text the block
+%   does NOT represent, and why — the templates that do not exist for it, the
+%   detail that had to be dropped, the reading that had to be chosen between two.
+%   It is delivered as `%` comment lines PREPENDED to the block, so the
+%   limitation travels with the code that carries it rather than living in a
+%   report the user reads once.
+%
+%   Every line is forced to be a comment before it is returned: a stray prose
+%   line here would be a syntax error in the user's program.
+fragment_coverage_note(JobID, Config, Fragment, Exercise, Note) :-
+    fragment_kind_noun(Config.mode, Noun),
+    exercise_block(Exercise, ExerciseText),
+    fragment_materials(Config, Materials),
+    instructions_block(Config, Instructions),
+    stage_llm(JobID, Config, fragment_coverage, fragment_style, 'fragment_coverage',
+              [kind-Noun, fragment-Fragment, exercise-ExerciseText,
+               instructions-Instructions, materials-Materials],
+              [temperature(0)], Reply),
+    ( extract_tagged_block(Reply, le, Body) -> true
+    ; any_fenced_block(Reply, Body) -> true
+    ; Body = Reply ),
+    comment_lines(Body, Note).
+
+% Every non-blank line as a `%` comment, blank lines dropped, one blank line
+% after the block so it never runs into the section header.
+comment_lines(Text, Note) :-
+    split_string(Text, "\n", "\r", Lines0),
+    findall(C, ( member(L, Lines0), normalize_space(string(T), L), T \== "",
+                 ( string_concat("%", _, T) -> C = T
+                 ; format(string(C), "% ~w", [T]) ) ),
+            Comments),
+    (   Comments == []
+    ->  Note = ""
+    ;   atomic_list_concat(Comments, "\n", Body),
+        format(string(Note), "~w~n~n", [Body])
+    ).
+
+exercise_block(Report, "(the fragment was not exercised)") :- Report.enabled == false, !.
+exercise_block(Report, Text) :-
+    findall(L, ( member(R, Report.rows),
+                 format(string(L), "- query '~w' in scenario '~w': ~w answer(s)~w",
+                        [R.query, R.scenario, R.answers, R.get(error, "")]) ),
+            Lines),
+    (   Report.get(skipped, 0) > 0
+    ->  format(string(Note), "\n- (~w further combination(s) were not run)", [Report.skipped])
+    ;   Note = ""
+    ),
+    ( Lines == [] -> Text = "(nothing to run it against)"
+    ; atomic_list_concat(Lines, "\n", Body), string_concat(Body, Note, Text) ).
+
+%!  fragment_technicalities(+JobID, +Config, +WinnerIdx, +Summary, +Exercise,
+%!                          +Branches, -Text) is det.
+%
+%   The provenance block for a fragment run — the short cousin of
+%   technicalities/8: what was asked, what it was written against, what it was
+%   run against, and how it verified.
+fragment_technicalities(JobID, Config, WIdx, Summary, Exercise, Branches, Text) :-
+    fragment_kind_noun(Config.mode, Noun),
+    format_time(string(Date), '%Y-%m-%d %H:%M', Config.started),
+    get_time(Now), El is round(Now - Config.started),
+    Min is El // 60, Sec is El mod 60,
+    format(string(Elapsed), "~w:~|~`0t~w~2+", [Min, Sec]),
+    ( Config.judge_model == Config.model -> Judge = "same" ; Judge = Config.judge_model ),
+    (   Config.get(instructions, none) == none
+    ->  InstrLine = "none"
+    ;   normalize_space(string(InstrLine), Config.instructions)
+    ),
+    string_length(Config.program, PLen),
+    string_length(Config.source_text, TLen),
+    findall(BLine,
+            ( member(branch(BIdx, _, S), Branches),
+              ( BIdx =:= WIdx -> Mark = " ← delivered" ; Mark = "" ),
+              format(string(BLine), "  - attempt ~w: ~w~w", [BIdx, S.summary, Mark]) ),
+            BLines0),
+    msort(BLines0, BLines),
+    atomic_list_concat(BLines, "\n", BranchBlock),
+    (   Exercise.enabled == true
+    ->  format(string(ELine), "~w of ~w combination(s) with the program produce answers",
+               [Exercise.answered, Exercise.total])
+    ;   ELine = "not run"
+    ),
+    (   Cost = Config.get(est_cost), number(Cost)
+    ->  format_cost(Cost, CostS0),
+        format(string(CostS), "~w (estimated before the run, upper bound)", [CostS0])
+    ;   CostS = "not estimated"
+    ),
+    format(string(Text),
+"---\n\n## Technicalities\n\n- Generated: ~w (job ~w) · mode: ~w\n- Model: ~w · judge: ~w\n- Given program: ~w chars, treated as correct and never modified\n- Text converted: ~w chars\n- Search: ~w independent attempt(s) · repair patience ~w · budget ~w min · elapsed ~w\n- Additional instructions: ~w\n- LLM cost: ~w\n- Attempts:\n~w\n- Exercised against the program: ~w\n- Delivered ~w: ~w\n",
+           [Date, JobID, Config.mode, Config.model, Judge, PLen, TLen,
+            Config.w, Config.repairs, Config.minutes, Elapsed,
+            InstrLine, CostS, BranchBlock, ELine, Noun, Summary]).
+
 %!  calibrate_and_estimate(+JobID, +Config, +Materials, -Config1) is det.
 %
 %   One cheap look before spending real money:
@@ -808,7 +1572,8 @@ effort_estimate(JobID, Config, Materials, Config1) :-
     ( Config.existing == none -> EChars = 0 ; string_length(Config.existing, EChars) ),
     Chars is MChars + EChars,
     InTokens is Chars // 4,
-    cost_estimate(_{model: Config.model, judge_model: Config.judge_model,
+    cost_estimate(_{mode: Config.get(mode, contract),
+                    model: Config.model, judge_model: Config.judge_model,
                     k: Config.k, w: Config.w, repairs: Config.repairs,
                     probes: Config.features.probes, input_chars: Chars},
                   Est),
@@ -848,12 +1613,18 @@ effort_estimate(JobID, Config, Materials, Config1) :-
 %   - when a model matches several providers in the price table, the dearest
 %     is used (see llm_prices.pl).
 cost_estimate(P, Est) :-
-    call_plan(P.k, P.w, P.repairs, P.probes, MainCalls, JudgeCalls),
+    (   fragment_mode(P.get(mode, contract))
+    ->  fragment_call_plan(P.w, P.repairs, MainCalls, JudgeCalls),
+        % One section out, however big the program that goes in.
+        OutTok = 1500
+    ;   call_plan(P.k, P.w, P.repairs, P.probes, MainCalls, JudgeCalls),
+        OutTok0 is round(P.input_chars / 4),
+        OutTok is min(16000, max(2500, OutTok0 // 2))
+    ),
     Calls is MainCalls + JudgeCalls,
     prompt_overhead_tokens(Overhead),
     MatTokens is round(P.input_chars / 4),
     InTok is Overhead + MatTokens,
-    OutTok is min(16000, max(2500, MatTokens // 2)),
     Base = _{calls: Calls, input_tokens_per_call: InTok,
              output_tokens_per_call: OutTok},
     (   catch(llm_price(P.model, MIn, MOut), _, fail)
@@ -886,6 +1657,16 @@ call_plan(K, W, R, P, MainCalls, JudgeCalls) :-
     RepairRounds is max(R, (5 * R + 1) // 2),
     MainCalls is K + W + W * (1 + RepairRounds) + Probing + 1,
     JudgeCalls is Merge + 1.
+
+%!  fragment_call_plan(+W, +Repairs, -MainCalls, -JudgeCalls) is det.
+%
+%   The scenario/query modes: W drafts, each repaired within a cap of
+%   max(2 x patience, 6) rounds, plus the coverage note (judge model). No
+%   vocabulary samples, no architectures, no probes, no ledger.
+fragment_call_plan(W, R, MainCalls, JudgeCalls) :-
+    HardCap is max(2 * R, 6),
+    MainCalls is W * (1 + HardCap),
+    JudgeCalls = 1.
 
 % Every call carries the house style and the LE syntax summary in its system
 % prompt: measure them rather than guessing.
@@ -2635,7 +3416,15 @@ verify_le_text_(Text, V) :-
               term_string(Sev, SevS), term_string(Type, TypeS),
               issue_text(Msg, MsgS), issue_text(Fix, FixS),
               issue_location(Starts, SrcLines, S, LineNo, SrcLine) ),
-            Issues),
+            Issues0),
+    % Sentences that matched no template. The parser parks them in the knowledge
+    % base and says nothing (see le_verifier:unmatched_sentences/3), so a scenario
+    % full of facts that state NOTHING — the shape a model produces when it invents
+    % wording instead of instantiating a template — scored perfectly clean and could
+    % win its branch.
+    unmatched_sentences(KB, all, Unmatched),
+    maplist(unmatched_issue(Starts, SrcLines), Unmatched, UnmatchedIssues),
+    append(UnmatchedIssues, Issues0, Issues),
     partition_severity(Issues, NErrors, NWarnings),
     (   current_predicate(KB:le_expected/4)
     ->  findall(test(Q, S, A, U), KB:le_expected(Q, S, A, U), Tests)
@@ -2673,6 +3462,20 @@ verify_le_text_(Text, V) :-
     V = _{errors: NErrors1, warnings: NWarnings,
           tests_passed: NPassed, tests_failed: NFailed,
           issues: Issues2, test_details: Details}.
+
+unmatched_issue(Starts, SrcLines, unmatched(Where, Start, Text),
+                _{severity: "error", type: "unknown_template", message: Msg,
+                  fix: "Rewrite the sentence as an instance of a declared template, or declare the template it needs.",
+                  line: LineNo, source: SrcLine}) :-
+    where_noun(Where, Noun, Name),
+    truncated(Text, 200, Short),
+    issue_location(Starts, SrcLines, Start, LineNo, SrcLine),
+    format(string(Msg),
+           "'~w' in ~w '~w' matches NO declared template, so it states nothing and the reasoner never reads it. Every sentence of a scenario or a query must be an instance of a template declared in `the templates are:`.",
+           [Short, Noun, Name]).
+
+where_noun(scenario(Name), "scenario", Name).
+where_noun(query(Name), "query", Name).
 
 %!  asterisks_outside_templates(+Text, -NLines) is semidet.
 %
@@ -2736,33 +3539,6 @@ kb_has_substance(KB) :-
 %   its apostrophes backslash-escaped — noise in front of every single line.
 issue_text(T, S) :-
     ( atomic(T) -> text_to_string(T, S) ; term_string(T, S) ).
-
-%!  line_start_offsets(+Lines, -Starts) is det.
-%!  issue_location(+Starts, +Lines, +Offset, -LineNo, -SourceLine) is det.
-%
-%   Where an issue is, in terms a repair can act on: the line number, and the
-%   line itself — which is what a SEARCH block has to match.
-line_start_offsets(Lines, Starts) :-
-    foldl([L, S0-Acc, S1-[S0|Acc]]>>( string_length(L, Len), S1 is S0 + Len + 1 ),
-          Lines, 0-[], _-Rev),
-    reverse(Rev, Starts).
-
-issue_location(Starts, Lines, Offset, LineNo, SourceLine) :-
-    (   integer(Offset), Offset >= 0
-    ->  offset_line_no(Starts, Offset, 1, 1, LineNo),
-        (   nth1(LineNo, Lines, L0)
-        ->  normalize_space(string(L1), L0), truncated(L1, 200, SourceLine)
-        ;   SourceLine = ""
-        )
-    ;   LineNo = 0, SourceLine = ""
-    ).
-
-offset_line_no([], _, _, Best, Best).
-offset_line_no([S|Ss], Offset, N, Best0, Best) :-
-    (   S =< Offset
-    ->  N1 is N + 1, offset_line_no(Ss, Offset, N1, N, Best)
-    ;   Best = Best0
-    ).
 
 %!  kb_has_rules(+KB) is semidet.
 %
@@ -2828,7 +3604,8 @@ format_verify_feedback(V, Feedback) :-
     ->  partition([item(R, _, _)]>>(R < 3), Items0, Items, Deferred)
     ;   Items = Items0, Deferred = []
     ),
-    select_feedback(Items, Shown, Omitted0),
+    feedback_caps(Caps),
+    select_feedback(Caps, Items, Shown, Omitted0),
     append(Omitted0, Deferred, Omitted),
     findall(L, member(item(_, _, L), Shown), Ls0),
     (   V.tests_passed + V.tests_failed =:= 0
@@ -2888,113 +3665,24 @@ feedback_items(V, Items) :-
             Cosmetic),
     append([Errors, Tests, Modelling, Cosmetic], Items).
 
-%!  modelling_warning(+Type) is semidet.
-%
-%   The warnings that are about MEANING, not tidiness. Each one is a way for a
-%   program to load cleanly, pass every test, and still not say what the
-%   contract says:
-%
-%   - unconsumed_facts: a limit, an excess or an exclusion is stated and no rule
-%     reads it, so the rules it should bound compute unbounded answers. (The
-%     warning this list was written for: a payment limit sat in a scenario in
-%     plain sight while the payment rules capped nothing.)
-%   - untested_predicate: a rule no query reaches decides nothing — it is either
-%     an unasked question or a rule the decision surface forgot to consult.
-%   - suspicious_is / suspicious_is_a: a whole predicate was swallowed into a
-%     constant, leaving a condition that can never succeed, silently making its
-%     rule unprovable.
-%   - unmarked_meta_template: the sentence parsed into a shape the author did
-%     not write, so the rule is about something else.
-%   - single_variable_fact: an article turned an individual into a universal —
-%     the fact holds of everyone.
-%
-%   The repair loop refuses to call a program finished while any of these is
-%   left (bounded by its patience), and one of them outranks every cosmetic
-%   warning in a round's working set. Everything else — dead vocabulary, ground
-%   rules, facts/rules ratios — is left to the polish rounds, which may not
-%   change what the program decides.
-modelling_warning("unconsumed_facts").
-modelling_warning("untested_predicate").
-modelling_warning("suspicious_is").
-modelling_warning("suspicious_is_a").
-modelling_warning("unmarked_meta_template").
-modelling_warning("single_variable_fact").
+%   Which warnings are about MEANING rather than tidiness (modelling_warning/1),
+%   how an issue becomes a prompt line (issue_line/3), the per-type caps and the
+%   closing "what was left out" note all live in le_issue_feedback.pl: the
+%   English→LE conversion behind the Scenario and Query editors repairs
+%   fragments against the same verifier and had grown its own drifting copy.
 
 %!  modelling_warnings(+V, -Count) is det.
-modelling_warnings(V, Count) :-
-    findall(1, ( member(I, V.issues),
-                 get_dict(severity, I, "warning"),
-                 get_dict(type, I, Ty), modelling_warning(Ty) ),
-            L),
-    length(L, Count).
-
-issue_line(I, Type, Line) :-
-    ( get_dict(type, I, Type) -> true ; Type = "issue" ),
-    truncated(I.message, 400, Msg),
-    (   get_dict(line, I, N), integer(N), N > 0
-    ->  format(string(Where), " (line ~w)", [N])
-    ;   Where = ""
-    ),
-    (   get_dict(source, I, Src), Src \== ""
-    ->  format(string(SrcPart), "~n    in: ~w", [Src])
-    ;   SrcPart = ""
-    ),
-    (   get_dict(fix, I, Fix), Fix \== "", Fix \== "''"
-    ->  truncated(Fix, 300, F), format(string(FixPart), "~n    fix: ~w", [F])
-    ;   FixPart = ""
-    ),
-    format(string(Line), "- [~w]~w ~w~w~w", [I.severity, Where, Msg, SrcPart, FixPart]).
+modelling_warnings(V, Count) :- count_modelling_warnings(V.issues, Count).
 
 test_line(T, Line) :-
     format(string(L0), "- FAILED test: query '~w' in scenario '~w'~n    expected: ~w~n    actual:   ~w",
            [T.query, T.scenario, T.expected, T.actual]),
     truncated(L0, 600, Line).
 
-%!  select_feedback(+Items, -Shown, -Omitted) is det.
-select_feedback(Items, Shown, Omitted) :-
-    feedback_max_items(Max),
-    select_feedback_(Items, [], 0, Max, Shown, Omitted).
-
-select_feedback_([], _, _, _, [], []).
-select_feedback_([item(R, Type, L)|Rest], Counts0, N, Max, Shown, Omitted) :-
-    (   N < Max,
-        ( memberchk(Type-C, Counts0) -> true ; C = 0 ),
-        ( Type = error(_) -> feedback_error_cap(Cap) ; feedback_type_cap(Type, Cap) ),
-        C < Cap
-    ->  C1 is C + 1,
-        ( selectchk(Type-C, Counts0, Counts1) -> true ; Counts1 = Counts0 ),
-        N1 is N + 1,
-        Shown = [item(R, Type, L)|Shown1],
-        select_feedback_(Rest, [Type-C1|Counts1], N1, Max, Shown1, Omitted)
-    ;   Omitted = [item(R, Type, L)|Omitted1],
-        select_feedback_(Rest, Counts0, N, Max, Shown, Omitted1)
-    ).
-
-%!  omitted_note(+Omitted, -Lines) is det.
-%
-%   What is NOT in the list, by kind and count. Without it the model reads a
-%   short list as "the program is nearly done" and stops looking.
-omitted_note([], []) :- !.
-omitted_note(Omitted, [Line]) :-
-    length(Omitted, N),
-    findall(Type, member(item(_, Type, _), Omitted), Types),
-    msort(Types, Sorted),
-    clumped(Sorted, Clumped),                       % Type-Count, one per kind
-    findall(C-T, member(T-C, Clumped), Counted),
-    sort(0, @>=, Counted, Ranked),                  % the commonest kinds first
-    findall(S, ( member(C, Ranked), C = Cn-T, feedback_type_name(T, TN),
-                 format(string(S), "~w ~w", [Cn, TN]) ),
-            Parts),
-    atomic_list_concat(Parts, ", ", Summary),
-    format(string(Line),
-           "- ... and ~w more not listed (~w). Fix what is above; the program is re-verified after every reply and whatever is still wrong will be listed next round.",
-           [N, Summary]).
-
-feedback_type_name(test(Q), Name) :- !,
-    format(string(Name), "failing test(s) of query '~w'", [Q]).
-feedback_type_name(error(T), Name) :- !,
-    format(string(Name), "~w error(s)", [T]).
-feedback_type_name(T, T).
+% The caps this pipeline hands to le_issue_feedback:select_feedback/4, which
+% also writes the closing "what was left out" line.
+feedback_caps(caps(Max, ErrorCap, TypeCap)) :-
+    feedback_max_items(Max), feedback_error_cap(ErrorCap), feedback_type_cap(_, TypeCap).
 
 % ================================ LLM plumbing ================================
 
@@ -3004,7 +3692,18 @@ feedback_type_name(T, T).
 %   prompt (with {{slot}} substitutions); user message = remaining big slots.
 %   Honors the test hook ca_llm_hook/1.
 stage_llm(JobID, Config, Purpose, PromptName, Slots, Options, Reply) :-
-    build_messages(PromptName, Slots, Messages),
+    stage_llm(JobID, Config, Purpose, house_style, PromptName, Slots, Options, Reply).
+
+%!  stage_llm(+JobID, +Config, +Purpose, +Style, +PromptName, +Slots, +Options, -Reply)
+%
+%   As stage_llm/7, with the standing instructions chosen explicitly. The
+%   whole-contract stages use `house_style` (how to build a computable twin of a
+%   contract); the fragment modes use `fragment_style`, which is about writing
+%   ONE block for a program that already exists and must not change — nearly the
+%   opposite advice, and sending the wrong one is how a job asked for a scenario
+%   comes back with a redesigned vocabulary.
+stage_llm(JobID, Config, Purpose, Style, PromptName, Slots, Options, Reply) :-
+    build_messages(Style, PromptName, Slots, Messages),
     (   ca_llm_hook(Hook)
     ->  call(Hook, Purpose, Messages, Reply)
     ;   resolve_model(Purpose, Config, Model, Key),
@@ -3091,6 +3790,10 @@ small_output_purpose(paraphrase).
 small_output_purpose(paraphrase_compare).
 small_output_purpose(probes).
 small_output_purpose(holdout(_, _)).
+% A fragment is one section — a scenario or a query, not a program.
+small_output_purpose(fragment_draft(_)).
+small_output_purpose(fragment_repair(_, _)).
+small_output_purpose(fragment_coverage).
 
 % Transient provider failures (503 Service unavailable, 429 rate limit,
 % dropped sockets) must not kill a many-minute job on its first call: retry
@@ -3465,7 +4168,7 @@ short_error(E, Short) :- E =.. [F|_], term_string(F, Short).
 
 % Judging/merging purposes use the judge model; everything else the main one.
 resolve_model(Purpose, Config, Model, Key) :-
-    ( memberchk(Purpose, [vocabulary_merge, ledger]) -> ModelS = Config.judge_model
+    ( memberchk(Purpose, [vocabulary_merge, ledger, fragment_coverage]) -> ModelS = Config.judge_model
     ; ModelS = Config.model ),
     atom_string(Model0, ModelS), Model = Model0,
     key_for_model(Model, Config.api_keys, Key).
@@ -3481,10 +4184,10 @@ key_for_model(Model, Keys, Key) :-
         ; catch(llm_client:api_key(openai, Key), _, Key = "") )
     ).
 
-build_messages(PromptName, Slots, [
+build_messages(StyleName, PromptName, Slots, [
         _{role: system, content: System},
         _{role: user, content: User}]) :-
-    prompt_text(house_style, House),
+    prompt_text(StyleName, House),
     le_syntax_summary(Syntax),
     prompt_text(PromptName, Stage0),
     substitute_slots(Stage0, Slots, Stage, BigSlots),

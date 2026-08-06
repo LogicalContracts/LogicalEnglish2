@@ -938,11 +938,22 @@ test(instructions_reach_the_prompt) :-
     le_contract_assistant:instructions_block(_{instructions: "Please add boundary scenarios."}, B),
     assertion(sub_string(B, _, _, _, "ADDITIONAL INSTRUCTIONS FROM THE USER")),
     assertion(sub_string(B, _, _, _, "Please add boundary scenarios.")),
-    le_contract_assistant:build_messages('stage2_draft',
+    le_contract_assistant:build_messages(house_style, 'stage2_draft',
         [existing-"", instructions-B, scenarios-"", materials-"M",
          vocabulary-"V", architecture-"A"],
         [_{role: system, content: Sys}|_]),
     assertion(sub_string(Sys, _, _, _, "Please add boundary scenarios.")).
+
+% The fragment modes carry their own standing instructions: the whole-contract
+% house style tells a model to design a knowledge base, which is the opposite of
+% what a job asked for one scenario needs to hear.
+test(the_fragment_modes_use_their_own_standing_instructions) :-
+    le_contract_assistant:build_messages(fragment_style, 'fragment_scenario',
+        [instructions-"", expectations-"E", name-"N", materials-"M"],
+        [_{role: system, content: Sys}|_]),
+    assertion(sub_string(Sys, _, _, _, "The program is fixed")),
+    assertion(sub_string(Sys, _, _, _, "adding exactly ONE section to it")),
+    assertion(\+ sub_string(Sys, _, _, _, "computable twin")).
 
 % A target names a section AND its subsections — not the section up to its own
 % first subsection, and not the rest of the document.
@@ -2182,3 +2193,248 @@ test(disagreeing_probe_is_reverted_and_reported,
     assertion(Result.le == P).
 
 :- end_tests(contract_assistant_feature_pipeline).
+
+% ================== Fragment modes: scenario / query =========================
+% A program the user owns and a paragraph of English in; ONE scenario (or ONE
+% query) block out, carrying a `%` comment about what it does not cover. The
+% program is an input only — nothing the job produces may change it, and
+% breaking one of its passing tests is an error, not a trade-off.
+
+fixed_program("the target language is: prolog.
+
+the templates are:
+    *a person* is happy.
+    *a person* is healthy.
+    *a person* is rich.
+
+the knowledge base tiny includes:
+
+a person is happy
+    if the person is healthy.
+
+scenario one is:
+    bob is healthy.
+    who expects answers [\"bob is happy\"].
+
+query who is:
+    which person is happy.
+").
+
+fenced_block(Text, Reply) :- format(string(Reply), "Here it is:\n```le\n~w```\n", [Text]).
+
+good_scenario("scenario alice is:\n    alice is healthy.\n").
+% Same, but its one statement matches no template: the parser accepts it in
+% silence, so the pipeline has to catch it.
+mute_scenario("scenario alice is:\n    alice flies to mars.\n").
+% ... and one that declares a template, which the fixed program forbids.
+greedy_scenario("the templates are:\n    *a person* flies to *a place*.\n\nscenario alice is:\n    alice flies to mars.\n").
+good_query("query rich_and_happy is:\n    which person is happy\n    and the person is rich.\n").
+
+hook_fragment_good(fragment_draft(_), _, R) :- !, good_scenario(S), fenced_block(S, R).
+hook_fragment_good(fragment_coverage, _, "% Not represented: the text's mention of Alice's age (no template for it).") :- !.
+hook_fragment_good(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+hook_fragment_query(fragment_draft(_), _, R) :- !, good_query(Q), fenced_block(Q, R).
+hook_fragment_query(fragment_coverage, _, "Complete: the block represents the whole question.") :- !.
+hook_fragment_query(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+% Draft says nothing (no template matches); the repair round fixes it.
+hook_fragment_repair(fragment_draft(_), _, R) :- !, mute_scenario(S), fenced_block(S, R).
+hook_fragment_repair(fragment_repair(_, _), _, R) :- !, good_scenario(S), fenced_block(S, R).
+hook_fragment_repair(fragment_coverage, _, "% All represented.") :- !.
+hook_fragment_repair(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+% A draft that helpfully declares the template it wishes existed.
+hook_fragment_greedy(fragment_draft(_), _, R) :- !, greedy_scenario(S), fenced_block(S, R).
+hook_fragment_greedy(fragment_repair(_, _), _, R) :- !, good_scenario(S), fenced_block(S, R).
+hook_fragment_greedy(fragment_coverage, _, "% All represented.") :- !.
+hook_fragment_greedy(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+fragment_config(Mode, Config) :-
+    fixed_program(P),
+    Config = _{mode: Mode,
+               program: P,
+               text: "Alice, who is 34, is in good health.",
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}}.
+
+:- begin_tests(contract_assistant_fragments).
+
+test(scenario_mode_delivers_one_scenario_with_a_coverage_comment,
+     [setup(hook_setup(user:hook_fragment_good)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(Result.mode == scenario),
+    assertion(Result.filename == 'scenario.le'),
+    % the block itself, and nothing but the block
+    assertion(sub_string(Result.le, _, _, _, "scenario alice is:")),
+    assertion(sub_string(Result.le, _, _, _, "alice is healthy.")),
+    assertion(\+ sub_string(Result.le, _, _, _, "the templates are:")),
+    assertion(\+ sub_string(Result.le, _, _, _, "query who is:")),
+    % ... carrying the limitations of coverage, as a comment
+    assertion(sub_string(Result.le, _, _, _, "% Not represented")),
+    sub_string(Result.le, 0, 1, _, First),
+    assertion(First == "%"),
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.errors =:= 0).
+
+test(query_mode_delivers_one_query,
+     [setup(hook_setup(user:hook_fragment_query)), cleanup(hook_cleanup)]) :-
+    fragment_config(query, Config0),
+    Config = Config0.put(text, "Who is both happy and rich?"),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(Result.mode == query),
+    assertion(sub_string(Result.le, _, _, _, "query rich_and_happy is:")),
+    % a coverage note without a leading '%' is still delivered as a comment
+    assertion(sub_string(Result.le, _, _, _, "% Complete")).
+
+% The silent failure this whole pipeline exists to catch: a sentence that
+% matches no template is parked by the parser and reported by nobody.
+test(a_scenario_that_states_nothing_is_repaired,
+     [setup(hook_setup(user:hook_fragment_repair)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(sub_string(Result.le, _, _, _, "alice is healthy.")),
+    assertion(\+ sub_string(Result.le, _, _, _, "flies to mars")).
+
+% "And nothing more": a reply that declares a template is rejected and repaired.
+test(a_fragment_may_not_declare_templates,
+     [setup(hook_setup(user:hook_fragment_greedy)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(\+ sub_string(Result.le, _, _, _, "the templates are:")),
+    assertion(sub_string(Result.le, _, _, _, "alice is healthy.")).
+
+test(the_ledger_reports_the_run,
+     [setup(hook_setup(user:hook_fragment_good)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    L = Result.ledger,
+    assertion(sub_string(L, _, _, _, "## Technicalities")),
+    assertion(sub_string(L, _, _, _, "stub-model")),
+    assertion(sub_string(L, _, _, _, "never modified")),
+    assertion(sub_string(L, _, _, _, "Exercised against the program")).
+
+% A new scenario is run against every query the program has, so the report can
+% say whether the program can decide anything at all about it.
+test(the_new_scenario_is_exercised_against_the_programs_queries,
+     [setup(hook_setup(user:hook_fragment_good)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    E = Result.exercise,
+    assertion(E.enabled == true),
+    assertion(E.total =:= 1),
+    assertion(E.answered =:= 1),          % `who` finds alice happy
+    E.rows = [Row],
+    assertion(Row.answers =:= 1).
+
+% ---- unit-level: the fragment verification --------------------------------
+
+fragment_baseline_config(Mode, Config) :-
+    fixed_program(P),
+    verify_le_text(P, V),
+    le_contract_assistant:fragment_baseline(P, V, B),
+    Config = _{mode: Mode, program: P, baseline: B,
+               features: _{diff_repairs: true, expectations: auto}}.
+
+test(the_programs_own_issues_are_not_counted_against_the_fragment) :-
+    fragment_baseline_config(scenario, Config),
+    % `*a person* is rich.` is an unused template of the PROGRAM
+    fixed_program(P), verify_le_text(P, VP),
+    assertion(VP.warnings >= 1),
+    good_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    assertion(V.errors =:= 0),
+    assertion(\+ (member(I, V.issues), get_dict(type, I, "unused_template"))).
+
+test(a_sentence_matching_no_template_is_an_error_of_the_fragment) :-
+    fragment_baseline_config(scenario, Config),
+    mute_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    assertion(V.errors >= 1),
+    assertion((member(I, V.issues), get_dict(type, I, "unknown_template"))).
+
+test(a_declared_template_is_a_forbidden_section) :-
+    fragment_baseline_config(scenario, Config),
+    greedy_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    assertion((member(I, V.issues), get_dict(type, I, "forbidden_section"))).
+
+test(a_reply_with_no_block_at_all_is_an_error) :-
+    fragment_baseline_config(scenario, Config),
+    le_contract_assistant:verify_fragment(Config, "alice is healthy.\n", V),
+    assertion((member(I, V.issues), get_dict(type, I, "missing_block"))).
+
+test(two_blocks_are_an_error) :-
+    fragment_baseline_config(scenario, Config),
+    le_contract_assistant:verify_fragment(Config,
+        "scenario a is:\n    alice is healthy.\n\nscenario b is:\n    bob is rich.\n", V),
+    assertion((member(I, V.issues), get_dict(type, I, "too_many_blocks"))).
+
+% The program is not ours to change: a block that breaks one of its passing
+% tests is simply wrong.
+test(breaking_a_test_of_the_given_program_is_an_error) :-
+    fragment_baseline_config(scenario, Config),
+    % a fact stated for EVERY person makes bob rich, alice happy... and the
+    % program's own `who` expectation (bob alone) then fails
+    le_contract_assistant:verify_fragment(Config,
+        "scenario alice is:\n    alice is healthy.\n", V0),
+    assertion(V0.errors =:= 0),
+    le_contract_assistant:fragment_regressions(
+        _{passing: ["who"-"one"], tests: ["who"-"one"]},
+        _{test_details: [_{status: "fail", query: "who", scenario: "one"}]},
+        Regressions),
+    assertion(Regressions = [_]),
+    Regressions = [R],
+    assertion(get_dict(severity, R, "error")),
+    assertion(get_dict(type, R, "regression")).
+
+% Line numbers reach the model as lines of ITS OWN block, not of the spliced
+% program — otherwise every repair round is told to look at line 27 of a text
+% it has never seen.
+test(issue_line_numbers_are_rebased_onto_the_fragment) :-
+    fragment_baseline_config(scenario, Config),
+    mute_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    member(I, V.issues), get_dict(type, I, "unknown_template"), !,
+    assertion(I.line =:= 2).          % the header is line 1, the fact line 2
+
+% The fragment modes cost a handful of calls, not a contract's worth.
+test(the_fragment_cost_estimate_is_not_a_contracts) :-
+    le_contract_assistant:cost_estimate(
+        _{mode: scenario, model: "stub", judge_model: "stub", k: 3, w: 1,
+          repairs: 3, probes: 4, input_chars: 4000}, Frag),
+    le_contract_assistant:cost_estimate(
+        _{mode: contract, model: "stub", judge_model: "stub", k: 3, w: 1,
+          repairs: 3, probes: 4, input_chars: 4000}, Whole),
+    assertion(Frag.calls < Whole.calls).
+
+test(an_unknown_mode_falls_back_to_contract) :-
+    forall(member(D, [_{}, _{mode: "nonsense"}, _{mode: null}]),
+           ( le_contract_assistant:job_mode(D, M), assertion(M == contract) )),
+    le_contract_assistant:job_mode(_{mode: "scenario"}, M1),
+    assertion(M1 == scenario).
+
+% Both required inputs are named plainly when they are missing, rather than
+% failing somewhere inside the pipeline.
+test(the_fragment_modes_require_a_program_and_a_text) :-
+    catch(start_contract_job(_{mode: "scenario", text: "x", model: "stub-model"}, [sync(true)], _),
+          E1, true),
+    assertion(nonvar(E1)),
+    assertion(( E1 = error(contract_assistant_error(M1), _), sub_string(M1, _, _, _, "program") )),
+    fixed_program(P),
+    catch(start_contract_job(_{mode: "query", program: P, model: "stub-model"}, [sync(true)], _),
+          E2, true),
+    assertion(nonvar(E2)),
+    assertion(( E2 = error(contract_assistant_error(M2), _), sub_string(M2, _, _, _, "text") )).
+
+:- end_tests(contract_assistant_fragments).
