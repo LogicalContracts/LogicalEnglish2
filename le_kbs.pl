@@ -2219,6 +2219,14 @@ normalize_string(S, N) :-
 strip_string_wrapper(string(S, _), S) :- !.
 strip_string_wrapper(S, S).
 
+%!  read_tests(+Stream, -Tests:list) is det.
+%
+%   DEPRECATED. Reads expected/4 facts from a legacy `<file>.le.tests` sibling.
+%   Expectations belong inside the scenario that sets them up
+%   (`<query> expects answers [...] and unknowns [...]`, asserted as
+%   le_expected/4); no example in the corpus carries a `.le.tests` file any
+%   more. Kept only so an old file outside this repo still runs — do not add
+%   new ones.
 read_tests(Stream, Tests) :-
     read(Stream, Term),
     ( Term == end_of_file -> Tests = []; Term = expected(Q, S, E, U) -> Tests = [test(Q, S, E, U)|Rest], read_tests(Stream, Rest); read_tests(Stream, Tests)).
@@ -2288,8 +2296,35 @@ runTests :-
             LangResults),
     append(Results0, LangResults, Results),
     print_test_summary(Results),
-    setup_call_cleanup(open('testSuiteStatus.txt', write, Stream), with_output_to(Stream, print_test_summary(Results)), close(Stream)),
+    write_test_status_file('testSuiteStatus.txt', Results),
     forall(member(R, Results), print_test_result(R)).
+
+%!  write_test_status_file(+File:atom, +Results:list) is det.
+%
+%   testSuiteStatus.txt is a SNAPSHOT of one run, overwritten by every
+%   runTests/0 — not a curated baseline to gate CI on (for that, use the exit
+%   status of testing/run_tests.sh, which fails when any suite fails). Nothing
+%   in the file used to say so, or say when it was taken, so a committed copy
+%   from an older tree read as an authoritative statement of what green looks
+%   like. The header below makes the snapshot date its own claim.
+write_test_status_file(File, Results) :-
+    get_time(Now),
+    format_time(atom(When), '%Y-%m-%d %H:%M:%S %Z', Now),
+    current_prolog_flag(version_data, swi(Mj, Mn, Pt, _)),
+    working_directory(Cwd, Cwd),
+    setup_call_cleanup(
+        open(File, write, Stream),
+        with_output_to(Stream,
+            ( format('Snapshot of one `runTests` run — regenerated in full every time the~n'),
+              format('Logical English example suite runs. It records what THAT run did; it is~n'),
+              format('not a curated baseline. To gate CI, use the exit status of~n'),
+              format('testing/run_tests.sh.~n~n'),
+              format('Generated: ~w~n', [When]),
+              format('SWI-Prolog: ~w.~w.~w~n', [Mj, Mn, Pt]),
+              format('Tree:       ~w~n', [Cwd]),
+              print_test_summary(Results)
+            )),
+        close(Stream)).
 
 % is_failure(+Result): run_one_test returns fail/6 when it has unknowns to
 % report and fail/4 otherwise. Counting only fail/4 (as this summary used to)

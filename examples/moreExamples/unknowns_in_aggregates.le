@@ -1,0 +1,80 @@
+the target language is: prolog.
+
+% Unknowns inside aggregates.
+%
+% An aggregation goal that only holds by ASSUMING an unknown must contribute to
+% the aggregate exactly as an ordinary conjunct does, and the assumption must be
+% reported in the query's unknowns list. Collecting only the definite solutions
+% silently drops the assumable terms from the total AND returns no unknowns at
+% all, so a caller reading "unknowns == []" as "certified" gets a confident
+% wrong total with no signal.
+
+the templates are:
+    *an item* is eligible; unknown.
+    *an item* has a value of *an amount*.
+    *an item* is countable.
+    *a total* is the eligible total.
+    *a count* is the eligible count.
+
+the knowledge base aggregate_unknowns includes:
+
+% Control: the same condition as an ordinary conjunct. The unknown propagates.
+an item is countable
+    if the item has a value of an amount
+    and the item is eligible.
+
+a total is the eligible total
+    if the total is the sum of each partial such that
+        an item has a value of the partial
+        and the item is eligible.
+
+a count is the eligible count
+    if the count is the count of each item such that
+        the item has a value of an amount
+        and the item is eligible.
+
+% One item, eligibility never stated: the total is a conditional answer.
+scenario assumed is:
+    widget has a value of 10.
+    countable expects answers ["widget is countable"]
+        and unknowns ["widget is eligible"].
+    total expects answers ["10 is the eligible total"]
+        and unknowns ["widget is eligible"].
+    count expects answers ["1 is the eligible count"]
+        and unknowns ["widget is eligible"].
+
+% Eligibility stated for one of two items. The definite term is counted once —
+% not twice, once as a fact and once by assumption — and only the item whose
+% eligibility is still open shows up as an unknown.
+scenario mixed is:
+    widget has a value of 10.
+    gadget has a value of 5.
+    gadget is eligible.
+    total expects answers ["15 is the eligible total"]
+        and unknowns ["widget is eligible"].
+    count expects answers ["2 is the eligible count"]
+        and unknowns ["widget is eligible"].
+
+% Everything stated: no assumptions left, the total is certified.
+scenario known is:
+    widget has a value of 10.
+    gadget has a value of 5.
+    widget is eligible.
+    gadget is eligible.
+    total expects answers ["15 is the eligible total"] and unknowns [].
+    count expects answers ["2 is the eligible count"] and unknowns [].
+
+% Nothing to aggregate: the empty sum is 0, with nothing assumed. The proof
+% carries the aggregation goal's FAILURE branch, so the zero is auditable.
+scenario empty is:
+    total expects answers ["0 is the eligible total"] and unknowns [].
+    count expects answers ["0 is the eligible count"] and unknowns [].
+
+query countable is:
+    which item is countable.
+
+query total is:
+    which total is the eligible total.
+
+query count is:
+    which count is the eligible count.
