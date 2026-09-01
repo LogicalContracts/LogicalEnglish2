@@ -2197,6 +2197,14 @@ Or should the prompting be richer in terms of the LE syntax...?
 # One more issue, Contract Assistant
 - In addition to unused_template, we need an additional warning: a template for which there are scenario facts, or facts, but no rule body uses it, nor is th$$ere a query using it.
 - The LE Contract Assistant must push harder for zero warnings, as some (namely the previous new issue type being added now) force "good invention" of rules. For example if a scenario fact is imposed by the user, that warning (if cleared) effectively forces some rule to use that scenario fact; ditto for a rule whose head is untested by any query (in other words, useless). I just encountered a situation where a limit for payments was being ignored even though sitting there in plain sight as a scenarion fact, so some rules handling payments ignored limits completely. So forcing zero warnings seems necessary. Should we increase patience...? Be more creative when successive changes do not improve the program (higher temperature, wild prompt variants?). Or should we add some "common sense" principles generic to most contracts, such as "statements of limits to payments in one part of the document may condition rules elsewhere in the document"... but this sounds a bit like those wild hoose chases so typical of symbolic AI...? Help!
+  
+# Core test suite
+Currently the LE test suite (based on the expectations in LE programs) includes the programs living in directories with paths
+containing "/insureLE2/". We need to distinguish "LE core tests" from "LE core + extensions tests"; the former should exclude
+any LE programs depending on proprietary extensions; we can simply hardwire this somewhere near the test runner, e.g.a table
+of excluded path fragments for the core test suite.
+Do that and make notes in README.md, CLAUDE.md etc on how to run both suites (core only, or with extensions).
+So that other teams can depend on the core test suite runner for their CI flows.
 
 
 ## TBD

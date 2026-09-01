@@ -68,20 +68,57 @@ The quickest way to run everything is the aggregate runner in `testing/`
 testing/run_tests.sh            # run all suites and report a combined pass/fail
 testing/run_tests.sh --no-e2e   # skip the browser tests (fast: unit + LE examples)
 testing/run_tests.sh unit       # only the Prolog plunit suite
-testing/run_tests.sh le         # only the Logical English example tests
+testing/run_tests.sh le         # only the Logical English example tests (core)
 testing/run_tests.sh e2e        # only the Playwright browser tests
+
+testing/run_tests.sh --with-extensions       # LE examples incl. extension-dependent trees
+testing/run_tests.sh le --with-extensions    # ... just that suite
 ```
 
 It exits non-zero if any suite that ran failed. The Playwright suite is skipped
 (not failed) when its prerequisites are missing, unless `CI` is set. Override the
 interpreter with `SWIPL=/path/to/swipl testing/run_tests.sh`.
 
-The individual suites can also be run directly:
+#### LE example suite: core vs core + extensions
+
+The Logical English example suite comes in two variants:
+
+| suite | what it runs | when |
+|---|---|---|
+| **core** (default) | Every example that runs on this repository alone. | **Gate CI on this.** It is the suite a clean checkout can make green. |
+| **all** (`--with-extensions`) | core, plus the example trees that need the proprietary `le_extensions.pl` — a symlink into a sibling repository. | Only when those extensions are installed. |
+
+The extension-dependent programs use constructs the core grammar does not
+implement, so without `le_extensions.pl` they do not merely fail — they cannot be
+parsed, and their failures say nothing about core LE. That is why they are not in
+the default suite.
+
+The exclusion is a hardwired table, `extension_dependent_path_fragment/1` in
+`le_kbs.pl` (currently the `insureLE2/` and `InsurLE2/` example trees). Add a row
+there when a new extension-dependent tree appears; nothing else changes.
+
+Each variant writes its **own** status snapshot, and neither run touches the
+other's:
+
+| suite | status file | |
+|---|---|---|
+| core | `testSuiteCoreStatus.txt` | reproducible from a clean checkout |
+| all | `testSuiteStatus.txt` | needs `le_extensions.pl` to mean anything |
+
+Both are tracked here. A repository that does not have the extensions should
+**ignore `testSuiteStatus.txt`** — it cannot reproduce it — and read
+`testSuiteCoreStatus.txt` instead. Each file's header names the suite it ran, when,
+and the sibling file, so opening the wrong one tells you where the other is. Both
+are snapshots of a single run, not curated baselines: to gate CI, use the exit
+status of `testing/run_tests.sh`.
+
+#### Running the suites directly
 
 - **Prolog unit tests (plunit):** `swipl -q -g run_tests -t halt testing/test_session_reaper.pl`
   (covers `testing/test_*.pl`).
 - **Logical English example tests:** `swipl -g "use_module(le_kbs), runTests, halt."`
-  (runs the `.le` examples and refreshes `testSuiteStatus.txt`). Expectations live
+  runs the **core** suite; `runAllTests` (equivalently `runTests(all)`) adds the
+  extension-dependent trees. Each refreshes its own status file. Expectations live
   inside each scenario as `<query> expects answers [...] and unknowns [...]`;
   sibling `.le.tests` files are deprecated — still read if present, but none remain
   in the corpus and new examples must not add them.

@@ -2,20 +2,20 @@ Snapshot of one example-suite run, rewritten in full by every run of
 that suite. It records what THAT run did; it is not a curated baseline.
 To gate CI, use the exit status of testing/run_tests.sh.
 
-Suite:      all (core + trees requiring the proprietary le_extensions.pl)
-Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
-Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-01 08:38:50 UTC
+Suite:      core (this repository alone; extension-dependent trees excluded)
+Command:    testing/run_tests.sh le   (or: runTests)
+Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
+Generated:  2026-09-01 08:37:31 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 142
-Total tests:     634
-Passed:          542
-Failed:          90
-Errors/Timeouts: 2
+Files processed: 102
+Total tests:     364
+Passed:          364
+Failed:          0
+Errors/Timeouts: 0
 -------------
 
 Detailed File Summary:
@@ -109,46 +109,6 @@ Detailed File Summary:
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/template_folding.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/trace_sample.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/globals.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/testing/hiscoxhappypath.le: 2 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/InsurLE2/testing/policy-GLM-5.2.le: 1 Pass, 1 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/InsurLE2/testing/policy-gpt-5.6-terra.le: 6 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/InsurLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/InsurLE2/testing/fema/fema-gpt-4o.le: 0 Pass, 17 Fail, 0 Error
-  [FAIL] examples/moreExamples/InsurLE2/testing/fema/fema-gpt-5.5.le: 45 Pass, 5 Fail, 1 Error
-  [FAIL] examples/moreExamples/InsurLE2/testing/fema/fema-gpt-oss-120g.le: 0 Pass, 17 Fail, 0 Error
-  [FAIL] examples/moreExamples/InsurLE2/testing/fema/fema-kimi-k3.le: 20 Pass, 5 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 2 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/insureLE2/testing/policy-GLM-5.2.le: 1 Pass, 1 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
-  [PASS] examples/moreExamples/insureLE2/testing/policy-gpt-5.6-terra.le: 6 Pass, 0 Fail, 0 Error
-  [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
-  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-4o.le: 0 Pass, 17 Fail, 0 Error
-  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-5.5.le: 45 Pass, 5 Fail, 1 Error
-  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-oss-120g.le: 0 Pass, 17 Fail, 0 Error
-  [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-kimi-k3.le: 20 Pass, 5 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/diagnosis.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
