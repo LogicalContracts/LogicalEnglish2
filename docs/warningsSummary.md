@@ -24,7 +24,7 @@ A template is declared but appears nowhere else — no rule head, no rule condit
 
 ## Test failed for query '...' in scenario '...'
 
-The actual results of a query do not match the expected answers defined in the scenario or `.le.tests` file.  
+The actual results of a query do not match the expected answers declared in the scenario (`<query> expects answers [...] and unknowns [...]`), or in a legacy `.le.tests` sibling file if the example still has one.  
 **Fix:** check the logic of your rules or the facts in the scenario.
 
 ## Rule without variables: ...

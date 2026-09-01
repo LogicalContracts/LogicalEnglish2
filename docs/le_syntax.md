@@ -1,6 +1,13 @@
 # The Syntax of Logical English, LE
 
-Version 1.0
+Version 2.0
+
+> This document describes the shape of an LE document — sections, indentation,
+> templates, conditions. For the current, complete language reference (including
+> the features added in LE 2.0: `unknown` templates, `expects answers` test
+> expectations, aggregates, non-English surfaces) see
+> [`le_summary.md`](le_summary.md), which is the reference the agent guidelines
+> point at.
 
 ## Logical English, LE, in brief
 
@@ -64,7 +71,11 @@ A declaration may also include a statement about the target language.
 
 ### Declarations
 
-The target language (to translate from LE into) is either taxlog or prolog (taxlog is the default). The actual language declaration starts with the expression "the target language is" and ends with a full stop.
+The target language (the backend to translate from LE into) is one of `prolog`, `scasp` or `lps`; `prolog` is the default when a program declares nothing. (The `taxlog` target of LE 1.0 no longer exists.) The declaration starts with the expression "the target language is" and ends with a full stop:
+
+    the target language is: prolog.
+
+It must be the program's first statement, and in a non-English program it is written in that program's own language ("a linguagem alvo é: prolog." and so on) — that line is what tells the parser which natural language the rest of the document is in.
 A template is a string of words and  variable indicators separated by spaces.
 A word is string of letters or numbers.
 A variable indicator is a string of words prefixed by * and postfixed by *.

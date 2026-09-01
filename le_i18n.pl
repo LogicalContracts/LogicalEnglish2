@@ -54,6 +54,51 @@
 :- use_module(library(apply)).
 :- use_module(library(lists)).
 
+%   Everything Logical English reads is UTF-8 — the dictionaries under i18n/,
+%   and the .le programs themselves, whose whole point is that they are written
+%   in the author's own language ("um número", "é igual a"). SWI derives the
+%   default file encoding from LANG/LC_ALL, which is plain `text` under e.g.
+%   LANG=C, so under a non-UTF-8 locale every accented byte became U+FFFD:
+%   the dictionaries failed to load, and a Portuguese program that was
+%   perfectly well formed was reported as a malformed section. Stating the
+%   encoding here removes the dependency on the ambient locale for every file
+%   the system opens without saying otherwise. (This is the in-process
+%   equivalent of exporting LANG=C.UTF-8, which is what users were told to do.)
+:- set_prolog_flag(encoding, utf8).
+
+%!  ensure_utf8_ctype is det.
+%
+%   Decoding the bytes is only half of it: code_type/2 — which the tokenizer
+%   uses to decide what a word is — classifies characters through the C
+%   library's LC_CTYPE. Under LANG=C, 'ã' is not `alpha` and not `csym`, so
+%   "são" tokenized as three words and a Portuguese program that was perfectly
+%   well formed came back as a malformed section. Switch LC_CTYPE to a UTF-8
+%   locale when the ambient one cannot classify letters outside ASCII; if no
+%   UTF-8 locale is installed, say so once, plainly, rather than leaving the
+%   user to read the damage as an error in their own file.
+ensure_utf8_ctype :-
+    (   utf8_ctype_ok
+    ->  true
+    ;   member(Loc, ['C.UTF-8', 'C.utf8', 'en_US.UTF-8', 'UTF-8']),
+        catch(setlocale(ctype, _, Loc), _, fail),
+        utf8_ctype_ok
+    ->  true
+    ;   ( getenv('LANG', Lang) -> true ; Lang = '<unset>' ),
+        print_message(warning,
+            format('Logical English: no UTF-8 locale is installed (LANG=~w). Letters \c
+outside ASCII will not be recognised as letters, so non-English LE programs will be \c
+mis-tokenized and reported as malformed. Install/select a UTF-8 locale (e.g. \c
+LANG=C.UTF-8).', [Lang]))
+    ).
+
+%   Latin small letter a with tilde (U+00E3) and e with acute (U+00E9) stand in
+%   for every letter the ASCII-only ctype cannot see. Written as numeric codes,
+%   not as literals: this very file would be mis-decoded under the locale the
+%   check exists to detect.
+utf8_ctype_ok :-
+    code_type(0'\xE3\, csym),
+    code_type(0'\xE9\, alpha).
+
 :- thread_local active_language_flag/1.
 
 :- dynamic kw_syn/4.            % kw_syn(Lang, Category, Key, Words:list(atom))
@@ -397,8 +442,24 @@ reload_i18n :-
     retractall(sys_row(_, _, _, _)),
     load_i18n.
 
+%!  load_i18n is det.
+%
+%   Reads every dictionary under i18n/. A failure here is fatal and must SAY
+%   so: with the tables empty, nothing downstream is broken visibly — the
+%   keyword lexicon is gone, so every section header stops being recognised,
+%   and le_msg/3 falls back to "missing message: <id>", which then gets
+%   attached to whatever LE file happened to be loading. The user reads it as
+%   a syntax error in their own file. So the reason is reported here, at the
+%   point where it is still knowable, instead of leaking out downstream.
 load_i18n :-
     i18n_dir(Dir),
+    catch(load_i18n_files(Dir), E, i18n_load_failed(Dir, E)),
+    !.
+load_i18n :-
+    i18n_dir(Dir),
+    i18n_load_failed(Dir, failed).
+
+load_i18n_files(Dir) :-
     load_languages_csv(Dir),
     load_keywords_csv(Dir),
     load_system_templates_csv(Dir),
@@ -406,8 +467,40 @@ load_i18n :-
     load_ui_csv(Dir),
     materialize_class_words.
 
+%!  i18n_load_failed(+Dir, +Reason) is det.
+%
+%   Fails loudly, in English — the message catalog is exactly what is missing,
+%   so this one string cannot come from it.
+i18n_load_failed(Dir, Reason) :-
+    (   Reason == failed
+    ->  Detail = 'a dictionary is missing or malformed'
+    ;   format(atom(Detail), '~p', [Reason])
+    ),
+    format(user_error,
+           'FATAL: cannot read the Logical English i18n dictionaries in ~w~n\c
+            ~8|reason: ~w~n\c
+            ~8|Every keyword, template and diagnostic is read from those CSV files. Without~n\c
+            ~8|them no LE file can be parsed, and diagnostics degrade to~n\c
+            ~8|"missing message: <id>", which looks like an error in the LE file and is not.~n',
+           [Dir, Detail]),
+    throw(error(le_i18n_unavailable(Dir, Reason), _)).
+
+:- multifile prolog:message//1.
+prolog:message(error(le_i18n_unavailable(Dir, _), _)) -->
+    [ 'cannot read the Logical English i18n dictionaries in ~w — see the FATAL line above'-[Dir] ].
+
+%!  read_csv_rows(+File, -Header, -Rows) is det.
+%
+%   The dictionaries are UTF-8 whatever the machine's locale is, so the
+%   encoding is stated rather than inherited from the `encoding` Prolog flag
+%   (which follows LANG/LC_ALL and is plain `text` under e.g. LANG=C). Without
+%   this, every accented row raised "Illegal multibyte Sequence", load_i18n
+%   failed, and the empty message table then surfaced as
+%   "missing message: <id>" attached to whatever LE file was being read — a
+%   diagnostic that looks like a syntax error in the user's own file.
 read_csv_rows(File, Header, Rows) :-
-    csv_read_file(File, [Header0|Rows0], [convert(false), match_arity(false)]),
+    csv_read_file(File, [Header0|Rows0],
+                  [convert(false), match_arity(false), encoding(utf8)]),
     Header0 =.. [row|Header1],
     maplist(to_atom, Header1, Header),
     Rows = Rows0.
@@ -559,4 +652,7 @@ load_ui_csv(Dir) :-
     ;   true
     ).
 
-:- initialization(load_i18n, now).
+% The ctype locale has to be right BEFORE the dictionaries are parsed: the
+% keyword and template rows are full of accented words, and splitting them
+% into words uses the same character classification the tokenizer does.
+:- initialization((ensure_utf8_ctype, load_i18n), now).

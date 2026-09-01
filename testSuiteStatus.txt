@@ -1,9 +1,17 @@
+Snapshot of one `runTests` run — regenerated in full every time the
+Logical English example suite runs. It records what THAT run did; it is
+not a curated baseline. To gate CI, use the exit status of
+testing/run_tests.sh.
+
+Generated: 2026-09-01 08:50:40 WEST
+SWI-Prolog: 10.0.0
+Tree:       /Users/mc/git/LogicalEnglish2/
 
 Test Summary:
 -------------
-Files processed: 118
-Total tests:     448
-Passed:          402
+Files processed: 121
+Total tests:     467
+Passed:          421
 Failed:          45
 Errors/Timeouts: 1
 -------------
@@ -43,6 +51,8 @@ Detailed File Summary:
   [PASS] examples/moreExamples/tea_party.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/type_check_test.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/unknowns_in_aggregates.le: 9 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/unknowns_in_forall.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/prolog_resources/postcodes.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/prolog_resources/postcodes_layer.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
@@ -110,6 +120,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/insureLE2/testing/hiscoxhappypath.le: 2 Pass, 0 Fail, 0 Error
   [FAIL] examples/moreExamples/insureLE2/testing/policy-GLM-5.2.le: 1 Pass, 1 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/insureLE2/testing/policy-gpt-5.6-terra.le: 6 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/insureLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
   [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-4o.le: 0 Pass, 17 Fail, 0 Error
   [FAIL] examples/moreExamples/insureLE2/testing/fema/fema-gpt-5.5.le: 45 Pass, 5 Fail, 1 Error

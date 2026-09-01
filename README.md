@@ -81,7 +81,10 @@ The individual suites can also be run directly:
 - **Prolog unit tests (plunit):** `swipl -q -g run_tests -t halt testing/test_session_reaper.pl`
   (covers `testing/test_*.pl`).
 - **Logical English example tests:** `swipl -g "use_module(le_kbs), runTests, halt."`
-  (runs the `.le` / `.le.tests` examples and refreshes `testSuiteStatus.txt`).
+  (runs the `.le` examples and refreshes `testSuiteStatus.txt`). Expectations live
+  inside each scenario as `<query> expects answers [...] and unknowns [...]`;
+  sibling `.le.tests` files are deprecated — still read if present, but none remain
+  in the corpus and new examples must not add them.
 - **E2E Tests (Playwright):**
   ```bash
   cd editor
