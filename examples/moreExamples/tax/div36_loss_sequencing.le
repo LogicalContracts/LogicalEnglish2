@@ -1,0 +1,433 @@
+the target language is: prolog.
+
+the templates are:
+    *a taxpayer* is an individual.
+    *a taxpayer* is a corporate tax entity.
+    *a taxpayer* derived *a receipt* in *a year*.
+    *a receipt* is an amount of *an amount*.
+    *a receipt* is made exempt from income tax by *a provision*.
+    *a receipt* is made not assessable and not exempt by *a provision*.
+    *a receipt* is included in assessable income by *a provision*; scenario element.
+    *an outgoing* was incurred by *a taxpayer* in deriving *a receipt*.
+    *a taxpayer* paid foreign tax of *an amount* on *a receipt*; scenario element.
+    *a taxpayer* has total deductions of *an amount* in *a year*.
+    *a taxpayer* has total assessable income of *an amount* in *a year*.
+    *a taxpayer* has an undeducted tax loss of *an amount* from *a loss year*.
+    *a receipt* is exempt income.
+    *a receipt* is non assessable non exempt income.
+    *a receipt* is of undetermined character.
+    *a taxpayer* has characterised every receipt in *a year*.
+    *a taxpayer* has gross exempt income of *an amount* in *a year*.
+    *a taxpayer* has exempt outgoings of *an amount* in *a year*.
+    *a taxpayer* has foreign tax on exempt income of *an amount* in *a year*.
+    *a taxpayer* has net exempt income of *an amount* in *a year*.
+    *a taxpayer* has an excess of deductions of *an amount* in *a year*.
+    *a taxpayer* has total undeducted losses of *an amount* before *a year*.
+    *a taxpayer* has a tax loss of *an amount* for *a year*.
+    *a taxpayer* has net exempt income remaining of *an amount* in *a year*.
+    *a taxpayer* absorbs *an amount* of the loss from *a loss year* in *a year*.
+    *a taxpayer* carries forward *an amount* of the loss from *a loss year* after *a year*.
+    *a taxpayer* carries forward total losses of *an amount* after *a year*.
+    *a taxpayer* consumes exempt income of *an amount* in *a year*.
+    *a taxpayer* applies net exempt income consistently in *a year*.
+
+the knowledge base div36 includes:
+
+%% ---------------------------------------------------------------------------
+%% PART 1 - THE GATE: exempt income, or non-assessable non-exempt income?
+%%
+%% This is the distinction the whole of LodgeiT ticket #56568 turned on and that
+%% nobody in the thread established. Exempt income reduces tax losses. NANE does
+%% not. Everything downstream is conditional on this.
+%%
+%% ITAA 1997 s 6-20 (Exempt income), s 6-23 (Non-assessable non-exempt income).
+%% Compilation C2026C00324, 27 Aug 2026, Volume 1, Part 1-3, Division 6.
+%% https://www.legislation.gov.au/C2004A05138/latest/text
+%% ---------------------------------------------------------------------------
+
+% s 6-20: ordinary or statutory income is exempt income if made exempt from
+% income tax by a provision of this Act or another Commonwealth law.
+a receipt is exempt income
+    if the receipt is made exempt from income tax by a provision.
+
+% s 6-23: an amount is non-assessable non-exempt income where a provision states
+% it is not assessable income and is not exempt income. NANE is not exempt
+% income and never enters s 36-10 or s 36-20.
+a receipt is non assessable non exempt income
+    if the receipt is made not assessable and not exempt by a provision.
+
+% A receipt whose character has not been established. The model must not guess.
+a receipt is of undetermined character
+    if a taxpayer derived the receipt in a year
+    and it is not the case that
+        the receipt is exempt income
+    and it is not the case that
+        the receipt is non assessable non exempt income
+    and it is not the case that
+        the receipt is included in assessable income by a provision.
+
+% The loud-failure gate. While any receipt is uncharacterised, net exempt income
+% below is not derivable and no carry-forward figure can be produced at all.
+a taxpayer has characterised every receipt in a year
+    if the taxpayer has total deductions of a guard in the year
+    and it is not the case that
+        the taxpayer derived a receipt in the year
+        and the receipt is of undetermined character.
+
+%% ---------------------------------------------------------------------------
+%% PART 2 - NET EXEMPT INCOME
+%%
+%% ITAA 1997 s 36-20(1): for an Australian resident, net exempt income is the
+%% amount by which total exempt income from all sources exceeds the total of
+%% (a) the losses and outgoings (except capital) incurred in deriving that
+%% exempt income, and (b) any taxes payable outside Australia on it.
+%%
+%% "The amount by which X exceeds Y" is nil, not a negative number, where Y is
+%% the greater - hence the maximum against 0.
+%% ---------------------------------------------------------------------------
+
+a taxpayer has gross exempt income of an amount in a year
+    if the taxpayer has total deductions of a guard in the year
+    and the amount is the sum of each partial such that
+        the taxpayer derived a receipt in the year
+        and the receipt is exempt income
+        and the receipt is an amount of the partial.
+
+% s 36-20(1)(a). This is the gross-versus-net question from the ticket. Every
+% dollar here moves the final carry-forward figure by a dollar.
+a taxpayer has exempt outgoings of an amount in a year
+    if the taxpayer has total deductions of a guard in the year
+    and the amount is the sum of each partial such that
+        the taxpayer derived a receipt in the year
+        and the receipt is exempt income
+        and an outgoing was incurred by the taxpayer in deriving the receipt
+        and the outgoing is an amount of the partial.
+
+% s 36-20(1)(b).
+a taxpayer has foreign tax on exempt income of an amount in a year
+    if the taxpayer has total deductions of a guard in the year
+    and the amount is the sum of each partial such that
+        the taxpayer derived a receipt in the year
+        and the receipt is exempt income
+        and the taxpayer paid foreign tax of the partial on the receipt.
+
+a taxpayer has net exempt income of an amount in a year
+    if the taxpayer has characterised every receipt in the year
+    and the taxpayer has gross exempt income of a gross in the year
+    and the taxpayer has exempt outgoings of an outgoings in the year
+    and the taxpayer has foreign tax on exempt income of a foreign impost in the year
+    and a surplus = gross - outgoings - foreign impost
+    and the maximum of the surplus and 0 is the amount.
+
+%% ---------------------------------------------------------------------------
+%% PART 3 - THE CURRENT YEAR TAX LOSS
+%%
+%% ITAA 1997 s 36-10, method statement:
+%%   Step 1  add up the amounts you can deduct (except earlier-year tax losses)
+%%   Step 2  subtract your total assessable income
+%%   Step 3  if you derived exempt income, ALSO subtract your net exempt income
+%%   Step 4  any amount REMAINING is your tax loss for the income year
+%%
+%% Step 3 is unconditional and sits INSIDE the loss calculation. Step 4 means a
+%% tax loss exists only to the extent an amount remains: where net exempt income
+%% equals or exceeds the excess, the tax loss is nil - not reduced, not deferred.
+%%
+%% Step 3 is the step the LodgeiT engine omits (#56568). It is also the step that
+%% must NOT be added on its own - see PART 6.
+%% ---------------------------------------------------------------------------
+
+% Steps 1 and 2.
+a taxpayer has an excess of deductions of an amount in a year
+    if the taxpayer has total deductions of a deductions in the year
+    and the taxpayer has total assessable income of an assessable in the year
+    and a shortfall = deductions - assessable
+    and the maximum of the shortfall and 0 is the amount.
+
+% Steps 3 and 4.
+a taxpayer has a tax loss of an amount for a year
+    if the taxpayer has an excess of deductions of an excess in the year
+    and the taxpayer has net exempt income of a net exempt in the year
+    and a residue = excess - net exempt
+    and the maximum of the residue and 0 is the amount.
+
+%% ---------------------------------------------------------------------------
+%% PART 4 - DEDUCTING EARLIER-YEAR LOSSES IN A DEFICIT YEAR
+%%
+%% ITAA 1997 s 36-15(4), entities other than corporate tax entities:
+%%   "However, if you have net exempt income for the later income year and those
+%%    deductions exceed your total assessable income, then: (a) subtract that
+%%    excess from your net exempt income; and (b) deduct the tax loss from any
+%%    net exempt income that remains."
+%%
+%% ITAA 1997 s 36-17(4) is the corporate tax entity analogue and is materially
+%% identical on this limb. The "as the entity chooses" latitude in s 36-17
+%% attaches to deduction against ASSESSABLE income - subsections (2) and (3)(b) -
+%% and does not reach the net exempt income limb. So entity type does not change
+%% the answer. Scenario 'company' below proves that mechanically.
+%%
+%% Paragraph (a) is the step every draft on #56568 skipped, Jenny's included -
+%% she reached the right number by the right route but cited only s 36-15.
+%% It is what stops the exempt income being spent twice.
+%% ---------------------------------------------------------------------------
+
+% s 36-15(4)(a) - individuals and other non-corporate entities.
+a taxpayer has net exempt income remaining of an amount in a year
+    if the taxpayer is an individual
+    and the taxpayer has an excess of deductions of an excess in the year
+    and the excess is greater than 0
+    and the taxpayer has net exempt income of a net exempt in the year
+    and a remainder = net exempt - excess
+    and the maximum of the remainder and 0 is the amount.
+
+% s 36-17(4)(a) - corporate tax entities. Same mechanic, different provision.
+a taxpayer has net exempt income remaining of an amount in a year
+    if the taxpayer is a corporate tax entity
+    and the taxpayer has an excess of deductions of an excess in the year
+    and the excess is greater than 0
+    and the taxpayer has net exempt income of a net exempt in the year
+    and a remainder = net exempt - excess
+    and the maximum of the remainder and 0 is the amount.
+
+% s 36-15(4)(b) / s 36-17(4)(b) - deduct the tax loss from what remains.
+a taxpayer absorbs an amount of the loss from a loss year in a year
+    if the taxpayer has an undeducted tax loss of a brought forward from the loss year
+    and the taxpayer has net exempt income remaining of a remaining in the year
+    and the minimum of the brought forward and the remaining is the amount.
+
+%% ---------------------------------------------------------------------------
+%% PART 5 - PROFIT YEAR (regression guard)
+%%
+%% ITAA 1997 s 36-15(3): where there is net exempt income and total assessable
+%% income exceeds total deductions, the tax loss is deducted (a) first from net
+%% exempt income and (b) secondly from the excess of assessable income.
+%%
+%% Included deliberately. In a profit year the ATO's L1 Worksheet 1 rule
+%% "row g = row a - row f" IS a correct proxy for the statute and the LodgeiT
+%% engine is correct. The #56568 defect is bounded to the deficit case, and any
+%% fix must leave this branch alone.
+%% ---------------------------------------------------------------------------
+
+a taxpayer has net exempt income remaining of an amount in a year
+    if the taxpayer has an excess of deductions of 0 in the year
+    and the taxpayer has net exempt income of the amount in the year.
+
+%% ---------------------------------------------------------------------------
+%% PART 6 - CARRY FORWARD AND THE CONSERVATION INVARIANT
+%%
+%% The invariant is the point of this file. Exempt income consumed across the
+%% two steps must equal the lesser of net exempt income and total capacity to
+%% absorb it (the current-year excess plus the losses brought forward):
+%%
+%%     consumed  =  min(NEI, excess)          [ s 36-10 Step 3 ]
+%%               +  amounts absorbed          [ s 36-15(4)(b) ]
+%%     ceiling   =  min(NEI, excess + prior losses)
+%%
+%% On the #56568 figures (NEI 4579, excess 2822, prior losses 3286):
+%%     correct     2822 + 1757 = 4579 of 4579   consistent
+%%     engine      0    + 3286 = 3286 of 4579   under - Step 3 never applied
+%%     naive fix   2822 + 3286 = 6108 of 4579   over  - counted twice, gives 0
+%%
+%% The naive fix - adding s 36-10 Step 3 while leaving the L1 worksheet's
+%% "row g = row a - row f" untouched - satisfies the customer's complaint (the
+%% number goes down) and breaks this invariant. Both steps must change together.
+%% ---------------------------------------------------------------------------
+
+a taxpayer has total undeducted losses of an amount before a year
+    if the taxpayer has total deductions of a guard in the year
+    and the amount is the sum of each partial such that
+        the taxpayer has an undeducted tax loss of the partial from a loss year.
+
+a taxpayer carries forward an amount of the loss from a loss year after a year
+    if the taxpayer has an undeducted tax loss of a brought forward from the loss year
+    and the taxpayer absorbs an absorbed of the loss from the loss year in the year
+    and the amount = brought forward - absorbed.
+
+a taxpayer carries forward total losses of an amount after a year
+    if the taxpayer has a tax loss of a year loss for the year
+    and a prior total is the sum of each partial such that
+        the taxpayer carries forward the partial of the loss from a loss year after the year
+    and the amount = year loss + prior total.
+
+a taxpayer consumes exempt income of an amount in a year
+    if the taxpayer has net exempt income of a net exempt in the year
+    and the taxpayer has an excess of deductions of an excess in the year
+    and the minimum of the net exempt and the excess is a deficit part
+    and a prior part is the sum of each partial such that
+        the taxpayer absorbs the partial of the loss from a loss year in the year
+    and the amount = deficit part + prior part.
+
+a taxpayer applies net exempt income consistently in a year
+    if the taxpayer has net exempt income of a net exempt in the year
+    and the taxpayer has an excess of deductions of an excess in the year
+    and the taxpayer has total undeducted losses of a prior losses before the year
+    and a capacity = excess + prior losses
+    and the minimum of the net exempt and the capacity is a ceiling
+    and the taxpayer consumes exempt income of a consumed in the year
+    and the consumed is equal to the ceiling.
+
+%% ---------------------------------------------------------------------------
+%% SCENARIOS
+%%
+%% Figures are those of LodgeiT support ticket #56568 (Freshdesk, 29-31 Aug 2026,
+%% Natural Numbers Accounting). The taxpayer is fictional; the numbers are the
+%% ticket's:
+%%     losses brought forward   3286
+%%     current year deficit     2822   (deductions less assessable income)
+%%     exempt income            4579
+%% The engine returned 2822. Jenny's manual answer was 1529.
+%% ---------------------------------------------------------------------------
+
+% -- A: the ticket as reported, receipt characterised as exempt income and no
+% related outgoings. No current-year tax loss survives; 1529 carried forward.
+scenario ticket is:
+    Wren Kavanagh is an individual.
+    Wren Kavanagh has total deductions of 2822 in FY2026.
+    Wren Kavanagh has total assessable income of 0 in FY2026.
+    Wren Kavanagh has an undeducted tax loss of 3286 from FY2025.
+    Wren Kavanagh derived the Kavanagh pension in FY2026.
+    the Kavanagh pension is an amount of 4579.
+    the Kavanagh pension is made exempt from income tax by section 52-10.
+    net exempt income expects answers ["Wren Kavanagh has net exempt income of 4579 in FY2026"].
+    current year loss expects answers ["Wren Kavanagh has a tax loss of 0 for FY2026"].
+    carried forward expects answers ["Wren Kavanagh carries forward total losses of 1529 after FY2026"].
+    conservation expects answers ["Wren Kavanagh applies net exempt income consistently in FY2026"].
+    missing facts expects answers [].
+    engine answer expects answers [].
+
+% -- B: the same receipt characterised as NANE instead. No offset arises
+% anywhere. The current-year loss survives in full and the prior year loss is
+% untouched. If the ticket's 4579 turns out to be NANE, this is the answer and
+% the engine's 2822 is still wrong - just wrong by more.
+scenario nane is:
+    Wren Kavanagh is an individual.
+    Wren Kavanagh has total deductions of 2822 in FY2026.
+    Wren Kavanagh has total assessable income of 0 in FY2026.
+    Wren Kavanagh has an undeducted tax loss of 3286 from FY2025.
+    Wren Kavanagh derived the Kavanagh receipt in FY2026.
+    the Kavanagh receipt is an amount of 4579.
+    the Kavanagh receipt is made not assessable and not exempt by section 59-30.
+    net exempt income expects answers ["Wren Kavanagh has net exempt income of 0 in FY2026"].
+    current year loss expects answers ["Wren Kavanagh has a tax loss of 2822 for FY2026"].
+    carried forward expects answers ["Wren Kavanagh carries forward total losses of 6108 after FY2026"].
+    conservation expects answers ["Wren Kavanagh applies net exempt income consistently in FY2026"].
+    missing facts expects answers [].
+    engine answer expects answers [].
+
+% -- C: the gross-versus-net trap. 4579 gross with 2822 of outgoings incurred in
+% deriving it, so net exempt income is 1757 - less than the deficit, and nothing
+% remains for the prior year loss. Total 4351. This is the figure the third
+% internal draft reached, by the wrong route: it used 1757 as the STARTING
+% exempt income rather than as a residual. Right method, wrong input.
+scenario gross is:
+    Wren Kavanagh is an individual.
+    Wren Kavanagh has total deductions of 2822 in FY2026.
+    Wren Kavanagh has total assessable income of 0 in FY2026.
+    Wren Kavanagh has an undeducted tax loss of 3286 from FY2025.
+    Wren Kavanagh derived the Kavanagh pension in FY2026.
+    the Kavanagh pension is an amount of 4579.
+    the Kavanagh pension is made exempt from income tax by section 52-10.
+    the pension management fee was incurred by Wren Kavanagh in deriving the Kavanagh pension.
+    the pension management fee is an amount of 2822.
+    net exempt income expects answers ["Wren Kavanagh has net exempt income of 1757 in FY2026"].
+    current year loss expects answers ["Wren Kavanagh has a tax loss of 1065 for FY2026"].
+    carried forward expects answers ["Wren Kavanagh carries forward total losses of 4351 after FY2026"].
+    conservation expects answers ["Wren Kavanagh applies net exempt income consistently in FY2026"].
+
+% -- D: the silent cohort. Same deficit and same exempt income, but no prior year
+% loss to argue about. The s 36-10 Step 3 failure alone overstates the carry
+% forward by the whole 2822 and no customer would ever have a figure to dispute.
+% This population is larger than the ticket's and nobody has complained.
+scenario no prior loss is:
+    Wren Kavanagh is an individual.
+    Wren Kavanagh has total deductions of 2822 in FY2026.
+    Wren Kavanagh has total assessable income of 0 in FY2026.
+    Wren Kavanagh derived the Kavanagh pension in FY2026.
+    the Kavanagh pension is an amount of 4579.
+    the Kavanagh pension is made exempt from income tax by section 52-10.
+    net exempt income expects answers ["Wren Kavanagh has net exempt income of 4579 in FY2026"].
+    current year loss expects answers ["Wren Kavanagh has a tax loss of 0 for FY2026"].
+    carried forward expects answers ["Wren Kavanagh carries forward total losses of 0 after FY2026"].
+    conservation expects answers ["Wren Kavanagh applies net exempt income consistently in FY2026"].
+
+% -- E: the loud failure, and the real evidentiary position of #56568 today.
+% Identical to scenario A except that the character of the receipt is never
+% stated. Nothing about net exempt income, the tax loss or the carry forward is
+% derivable. The model refuses to guess, and 'missing facts' names what is
+% needed. Two AI analyses, a support team and a dev team all produced a
+% confident number from exactly this evidence.
+scenario uncharacterised is:
+    Wren Kavanagh is an individual.
+    Wren Kavanagh has total deductions of 2822 in FY2026.
+    Wren Kavanagh has total assessable income of 0 in FY2026.
+    Wren Kavanagh has an undeducted tax loss of 3286 from FY2025.
+    Wren Kavanagh derived the Kavanagh pension in FY2026.
+    the Kavanagh pension is an amount of 4579.
+    net exempt income expects answers [].
+    current year loss expects answers [].
+    carried forward expects answers [].
+    missing facts expects answers ["the Kavanagh pension is of undetermined character"].
+    engine answer expects answers [].
+
+% -- F: profit year regression guard. Assessable income exceeds deductions, so
+% s 36-15(3) governs, the full net exempt income is available against the prior
+% year loss, and the whole 3286 is absorbed. The LodgeiT engine is correct in
+% this branch. A fix for #56568 must not disturb it.
+scenario profit is:
+    Wren Kavanagh is an individual.
+    Wren Kavanagh has total deductions of 1000 in FY2026.
+    Wren Kavanagh has total assessable income of 9000 in FY2026.
+    Wren Kavanagh has an undeducted tax loss of 3286 from FY2025.
+    Wren Kavanagh derived the Kavanagh pension in FY2026.
+    the Kavanagh pension is an amount of 4579.
+    the Kavanagh pension is made exempt from income tax by section 52-10.
+    net exempt income expects answers ["Wren Kavanagh has net exempt income of 4579 in FY2026"].
+    current year loss expects answers ["Wren Kavanagh has a tax loss of 0 for FY2026"].
+    carried forward expects answers ["Wren Kavanagh carries forward total losses of 0 after FY2026"].
+    conservation expects answers ["Wren Kavanagh applies net exempt income consistently in FY2026"].
+
+% -- G: entity type control. The ticket figures again, but the taxpayer is a
+% corporate tax entity, so s 36-17(4) governs instead of s 36-15(4). Same answer,
+% 1529. This is the ruling that entity type does not move the number, expressed
+% mechanically rather than argued. Note this does NOT test Division 165
+% continuity of ownership or business continuity, which are separate questions
+% and could independently deny the loss.
+scenario company is:
+    Trellis Holdings Pty Ltd is a corporate tax entity.
+    Trellis Holdings Pty Ltd has total deductions of 2822 in FY2026.
+    Trellis Holdings Pty Ltd has total assessable income of 0 in FY2026.
+    Trellis Holdings Pty Ltd has an undeducted tax loss of 3286 from FY2025.
+    Trellis Holdings Pty Ltd derived the Trellis grant in FY2026.
+    the Trellis grant is an amount of 4579.
+    the Trellis grant is made exempt from income tax by section 52-10.
+    net exempt income expects answers ["Trellis Holdings Pty Ltd has net exempt income of 4579 in FY2026"].
+    carried forward expects answers ["Trellis Holdings Pty Ltd carries forward total losses of 1529 after FY2026"].
+    conservation expects answers ["Trellis Holdings Pty Ltd applies net exempt income consistently in FY2026"].
+
+%% ---------------------------------------------------------------------------
+%% QUERIES
+%% ---------------------------------------------------------------------------
+
+query net exempt income is:
+    which taxpayer has net exempt income of which amount in which year.
+
+query current year loss is:
+    which taxpayer has a tax loss of which amount for which year.
+
+query carried forward is:
+    which taxpayer carries forward total losses of which amount after which year.
+
+query prior year detail is:
+    which taxpayer carries forward which amount of the loss from which loss year after which year.
+
+query conservation is:
+    which taxpayer applies net exempt income consistently in which year.
+
+query missing facts is:
+    which receipt is of undetermined character.
+
+% The engine's answer. Not derivable from Division 36 under ANY characterisation
+% of the receipt: 1529 if exempt income, 6108 if NANE. Never 2822. Expected to
+% return no answers in every scenario - that is the defect, stated as a
+% falsifiable test rather than an assertion.
+query engine answer is:
+    Wren Kavanagh carries forward total losses of 2822 after FY2026.

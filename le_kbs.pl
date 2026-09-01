@@ -7,7 +7,10 @@
 
 :- module(le_kbs, [load/2, load/3, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
-    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
+    runTestsFor/2, runTestsInDir/2, runTestsInDir/3, runTests/0, runTests/1, runAllTests/0, le_suite/1,
+    run_suite/2, suite_failure_count/3, print_test_summary/1,
+    suite_status_file/2, write_suite_status_file/2, write_test_status_file/3,
+    print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
     run_one_test/3, le_my_id/1, le_my_kb/1, kb_target_language/2, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
@@ -2234,13 +2237,18 @@ read_tests(Stream, Tests) :-
 %!  runTestsInDir(+Dir:atom, -Results:list) is det.
 %
 %   Runs all Logical English tests found in Dir and any immediate subdirectories.
+%   runTestsInDir/2 is the `all` suite; runTestsInDir/3 selects (see le_suite/1).
 runTestsInDir(Dir, Results) :-
+    runTestsInDir(Dir, all, Results).
+
+runTestsInDir(Dir, Suite, Results) :-
     directory_files(Dir, Files),
     findall(LEFile, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
         \+ sub_atom(F, _, _, 0, '.le.tests'),
-        directory_file_path(Dir, F, LEFile)
+        directory_file_path(Dir, F, LEFile),
+        suite_includes(Suite, LEFile)
     ), LEFiles0),
     sort(LEFiles0, LEFiles),
     findall(SubResults, (
@@ -2248,11 +2256,57 @@ runTestsInDir(Dir, Results) :-
         \+ sub_atom(F, 0, 1, _, '.'),
         directory_file_path(Dir, F, SubDir),
         exists_directory(SubDir),
-        runTestsInDir(SubDir, SubResults)
+        suite_includes(Suite, SubDir),
+        runTestsInDir(SubDir, Suite, SubResults)
     ), SubResultsLists),
     maplist(runTestsFor, LEFiles, FileResults),
     append(SubResultsLists, SubResultsFlat),
     append(FileResults, SubResultsFlat, Results).
+
+%!  le_suite(?Suite:atom) is nondet.
+%
+%   The two example suites.
+%
+%     core  Programs that run on this repository alone. This is what CI —
+%           ours and a downstream user's — should gate on: it is the suite a
+%           clean checkout can actually make green.
+%     all   core plus the example trees that need the proprietary
+%           `le_extensions.pl` (a symlink into a sibling repository). Those
+%           examples use constructs the core grammar does not implement, so
+%           without the extensions they do not merely fail — they cannot be
+%           parsed, and their failures say nothing about core LE.
+le_suite(core).
+le_suite(all).
+
+%!  extension_dependent_path_fragment(?Fragment:atom) is nondet.
+%
+%   Hardwired table of path fragments marking example trees that depend on
+%   `le_extensions.pl`. Matched case-insensitively against a '/'-terminated
+%   path, so a fragment names a whole directory anywhere in the tree. Written
+%   in lower case; the directories as they appear on disk are `insureLE2/`
+%   (the symlinked tree) and `InsurLE2/`.
+%
+%   Add a row here when a new extension-dependent example tree appears —
+%   nothing else needs to change.
+extension_dependent_path_fragment('/insurele2/').
+extension_dependent_path_fragment('/insurle2/').
+
+%!  suite_includes(+Suite:atom, +Path:atom) is semidet.
+%
+%   True when Path (a file or a directory) belongs to Suite.
+suite_includes(all, _) :- !.
+suite_includes(core, Path) :-
+    \+ extension_dependent_path(Path).
+
+%!  extension_dependent_path(+Path:atom) is semidet.
+extension_dependent_path(Path) :-
+    % Terminate with '/' so a DIRECTORY matches its own fragment, not only the
+    % files under it — which lets the walk prune the whole tree.
+    atom_concat(Path, '/', Padded),
+    downcase_atom(Padded, Lower),
+    extension_dependent_path_fragment(Fragment),
+    sub_atom(Lower, _, _, _, Fragment),
+    !.
 
 %!  runTestsFor(+LEFile:atom, -Result:term) is det.
 %
@@ -2280,10 +2334,56 @@ runTestsFor(LEFile, Result) :-
     ).
 
 %!  runTests is det.
+%!  runTests(+Suite:atom) is det.
+%!  runAllTests is det.
 %
-%   Runs all tests in the default examples directory and prints a summary.
+%   Runs the example suite and prints a summary. runTests/0 runs the CORE
+%   suite — the programs that run on this repository alone; runAllTests/0 (or
+%   runTests(all)) adds the trees that need the proprietary `le_extensions.pl`.
+%   See le_suite/1.
 runTests :-
-    le_examples_dir(Dir), runTestsInDir(Dir, Results0),
+    runTests(core).
+
+runAllTests :-
+    runTests(all).
+
+runTests(Suite) :-
+    (   le_suite(Suite)
+    ->  true
+    ;   findall(S, le_suite(S), Suites),
+        throw(error(domain_error(le_suite(Suites), Suite), _))
+    ),
+    run_suite(Suite, Results),
+    print_test_summary(Results),
+    write_suite_status_file(Suite, Results),
+    forall(member(R, Results), print_test_result(R)).
+
+%!  suite_status_file(?Suite:atom, ?File:atom) is nondet.
+%
+%   Each suite has its OWN committed status file, and neither run touches the
+%   other's. Sharing one file made the two indistinguishable after the fact —
+%   whichever variant ran last silently redefined what the repository claimed
+%   green was.
+%
+%   `testSuiteCoreStatus.txt` is the one a downstream repository cares about:
+%   it is the suite a clean checkout can run. `testSuiteStatus.txt` needs
+%   `le_extensions.pl` installed to mean anything, so a fork without it should
+%   ignore that file rather than try to reproduce it.
+suite_status_file(core, 'testSuiteCoreStatus.txt').
+suite_status_file(all,  'testSuiteStatus.txt').
+
+%!  write_suite_status_file(+Suite:atom, +Results:list) is det.
+write_suite_status_file(Suite, Results) :-
+    suite_status_file(Suite, File),
+    write_test_status_file(File, Suite, Results).
+
+%!  run_suite(+Suite:atom, -Results:list) is det.
+%
+%   Every example test result for Suite: the main examples tree plus the
+%   per-language trees. Shared with testing/run_tests.sh, which needs the
+%   results without the printing and status-file side effects.
+run_suite(Suite, Results) :-
+    le_examples_dir(Dir), runTestsInDir(Dir, Suite, Results0),
     % Per-language example trees (O-7 layout A): examples/<lang>/ for every
     % language registered in i18n/languages.csv beyond English (whose tree is
     % the main examples directory).
@@ -2291,40 +2391,59 @@ runTests :-
             ( le_i18n:known_language(Lang), Lang \== en,
               atomic_list_concat([examples, /, Lang], LangDir),
               exists_directory(LangDir),
-              runTestsInDir(LangDir, Rs),
+              runTestsInDir(LangDir, Suite, Rs),
               member(R, Rs) ),
             LangResults),
-    append(Results0, LangResults, Results),
-    print_test_summary(Results),
-    write_test_status_file('testSuiteStatus.txt', Results),
-    forall(member(R, Results), print_test_result(R)).
+    append(Results0, LangResults, Results).
 
-%!  write_test_status_file(+File:atom, +Results:list) is det.
+%!  suite_failure_count(+Results:list, -Failures:integer, -Errors:integer) is det.
+suite_failure_count(Results, NF, NE) :-
+    findall(1, ( member(test_file(_, FR), Results), member(R, FR), is_failure(R) ), Fs),
+    findall(1, ( member(test_file(_, FR), Results), member(error(_, _, _), FR) ), Es),
+    length(Fs, NF), length(Es, NE).
+
+%!  write_test_status_file(+File:atom, +Suite:atom, +Results:list) is det.
 %
-%   testSuiteStatus.txt is a SNAPSHOT of one run, overwritten by every
-%   runTests/0 — not a curated baseline to gate CI on (for that, use the exit
-%   status of testing/run_tests.sh, which fails when any suite fails). Nothing
-%   in the file used to say so, or say when it was taken, so a committed copy
-%   from an older tree read as an authoritative statement of what green looks
-%   like. The header below makes the snapshot date its own claim.
-write_test_status_file(File, Results) :-
+%   A status file is a SNAPSHOT of one run, overwritten in full by every run of
+%   the suite it belongs to — not a curated baseline to gate CI on (for that,
+%   use the exit status of testing/run_tests.sh, which fails when any suite
+%   fails). Nothing in the file used to say so, or say when it was taken, or
+%   which suite it ran, so a committed copy from an older tree read as an
+%   authoritative statement of what green looks like. The header below makes
+%   the snapshot date its own claim, and names the sibling file so a reader who
+%   opened the wrong one is told where the other is.
+write_test_status_file(File, Suite, Results) :-
     get_time(Now),
     format_time(atom(When), '%Y-%m-%d %H:%M:%S %Z', Now),
     current_prolog_flag(version_data, swi(Mj, Mn, Pt, _)),
     working_directory(Cwd, Cwd),
+    suite_description(Suite, SuiteDesc),
+    suite_command(Suite, Command),
+    ( le_suite(Other), Other \== Suite, suite_status_file(Other, OtherFile),
+      suite_description(Other, OtherDesc)
+    -> true ; OtherFile = '', OtherDesc = '' ),
     setup_call_cleanup(
         open(File, write, Stream),
         with_output_to(Stream,
-            ( format('Snapshot of one `runTests` run — regenerated in full every time the~n'),
-              format('Logical English example suite runs. It records what THAT run did; it is~n'),
-              format('not a curated baseline. To gate CI, use the exit status of~n'),
-              format('testing/run_tests.sh.~n~n'),
-              format('Generated: ~w~n', [When]),
+            ( format('Snapshot of one example-suite run, rewritten in full by every run of~n'),
+              format('that suite. It records what THAT run did; it is not a curated baseline.~n'),
+              format('To gate CI, use the exit status of testing/run_tests.sh.~n~n'),
+              format('Suite:      ~w~n', [SuiteDesc]),
+              format('Command:    ~w~n', [Command]),
+              ( OtherFile == '' -> true
+              ; format('Sibling:    ~w — ~w~n', [OtherFile, OtherDesc]) ),
+              format('Generated:  ~w~n', [When]),
               format('SWI-Prolog: ~w.~w.~w~n', [Mj, Mn, Pt]),
               format('Tree:       ~w~n', [Cwd]),
               print_test_summary(Results)
             )),
         close(Stream)).
+
+suite_description(core, 'core (this repository alone; extension-dependent trees excluded)').
+suite_description(all,  'all (core + trees requiring the proprietary le_extensions.pl)').
+
+suite_command(core, 'testing/run_tests.sh le   (or: runTests)').
+suite_command(all,  'testing/run_tests.sh le --with-extensions   (or: runAllTests)').
 
 % is_failure(+Result): run_one_test returns fail/6 when it has unknowns to
 % report and fail/4 otherwise. Counting only fail/4 (as this summary used to)

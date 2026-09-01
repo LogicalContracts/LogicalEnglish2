@@ -5,17 +5,33 @@
 #
 # Suites:
 #   unit  Prolog unit tests (plunit) in testing/test_*.pl  — fast, no server needed.
-#   le    Logical English example tests (runTestsInDir over examples/moreExamples).
+#   le    Logical English example tests (the examples/ trees).
 #   e2e   Playwright browser tests in editor/tests  — needs Node deps + browsers,
 #         and starts its own Prolog server (see editor/playwright.config.ts).
 #
+# LE example suite: CORE vs CORE + EXTENSIONS
+#   By default the `le` suite runs the CORE example set — the programs that run
+#   on this repository alone. Example trees that need the proprietary
+#   `le_extensions.pl` (a symlink into a sibling repository) are excluded; the
+#   exclusion table is `extension_dependent_path_fragment/1` in le_kbs.pl.
+#   Core is what CI should gate on: it is the suite a clean checkout can make
+#   green. Pass --with-extensions to run those trees as well; without the
+#   extensions installed they do not merely fail, they cannot be parsed.
+#
+#   Each variant writes its OWN status snapshot, and neither touches the
+#   other's: core -> testSuiteCoreStatus.txt, all -> testSuiteStatus.txt.
+#   Both are tracked here; a repository without le_extensions.pl should ignore
+#   testSuiteStatus.txt, which it cannot reproduce.
+#
 # Usage (from anywhere):
-#   testing/run_tests.sh              # run all suites (e2e is best-effort, see below)
-#   testing/run_tests.sh unit         # run only the plunit suite
-#   testing/run_tests.sh le           # run only the LE example suite
-#   testing/run_tests.sh e2e          # run only the Playwright suite
-#   testing/run_tests.sh unit le      # run a subset (space-separated)
-#   testing/run_tests.sh --no-e2e     # run everything except e2e
+#   testing/run_tests.sh                    # all suites, LE core only (e2e best-effort)
+#   testing/run_tests.sh unit               # run only the plunit suite
+#   testing/run_tests.sh le                 # run only the LE example suite (core)
+#   testing/run_tests.sh le --with-extensions   # LE examples incl. extension-dependent trees
+#   testing/run_tests.sh le --core          # LE core only (the default, stated explicitly)
+#   testing/run_tests.sh e2e                # run only the Playwright suite
+#   testing/run_tests.sh unit le            # run a subset (space-separated)
+#   testing/run_tests.sh --no-e2e           # run everything except e2e
 #
 # Environment:
 #   SWIPL   swipl binary to use (default: swipl on PATH).
@@ -39,11 +55,15 @@ SWIPL="${SWIPL:-./myswipl.sh}"
 run_unit=0 run_le=0 run_e2e=0
 no_e2e=0
 explicit=0
+# LE example suite: core (this repo alone) or all (core + extension-dependent trees).
+le_suite=core
 for arg in "$@"; do
   case "$arg" in
     unit) run_unit=1; explicit=1 ;;
     le)   run_le=1;   explicit=1 ;;
     e2e)  run_e2e=1;  explicit=1 ;;
+    --with-extensions) le_suite=all ;;
+    --core) le_suite=core ;;
     --no-e2e) no_e2e=1 ;;
     -h|--help)
       awk 'NR==1{next} /^#/{sub(/^# ?/,""); print; next} {exit}' "$0"
@@ -96,28 +116,24 @@ fi
 
 # --- le: Logical English example tests --------------------------------------
 if [ "$run_le" -eq 1 ]; then
-  hr; echo "[le] Logical English example tests"; hr
-  # runTestsInDir over the default examples dir; also refreshes testSuiteStatus.txt
-  # (as runTests/0 does) and exits non-zero if any example test fails or errors.
+  if [ "$le_suite" = "core" ]; then
+    hr; echo "[le] Logical English example tests — CORE (this repository alone)"; hr
+  else
+    hr; echo "[le] Logical English example tests — CORE + EXTENSIONS (needs le_extensions.pl)"; hr
+  fi
+  # Same walk runTests/1 does; also refreshes that suite's own status file
+  # (testSuiteCoreStatus.txt / testSuiteStatus.txt — see suite_status_file/2)
+  # and exits non-zero if any example test fails or errors.
   if "$SWIPL" -q -l le_kbs.pl -g "
-      le_kbs:le_examples_dir(Dir),
-      le_kbs:runTestsInDir(Dir, Results0),
-      findall(R, ( le_i18n:known_language(Lang), Lang \\== en,
-                   atomic_list_concat([examples, /, Lang], LangDir),
-                   exists_directory(LangDir),
-                   le_kbs:runTestsInDir(LangDir, Rs), member(R, Rs) ),
-              LangResults),
-      append(Results0, LangResults, Results),
+      le_kbs:run_suite($le_suite, Results),
       le_kbs:print_test_summary(Results),
-      le_kbs:write_test_status_file('testSuiteStatus.txt', Results),
-      findall(1, (member(test_file(_,FR),Results), member(R,FR), le_kbs:is_failure(R)), Fs),
-      findall(1, (member(test_file(_,FR),Results), member(error(_,_,_),FR)),  Es),
-      length(Fs, NF), length(Es, NE),
+      le_kbs:write_suite_status_file($le_suite, Results),
+      le_kbs:suite_failure_count(Results, NF, NE),
       ( NF =:= 0, NE =:= 0 -> halt(0) ; halt(1) )
   "; then
-    record "le (examples)" PASS
+    record "le (examples, $le_suite)" PASS
   else
-    record "le (examples)" FAIL
+    record "le (examples, $le_suite)" FAIL
   fi
 fi
 
