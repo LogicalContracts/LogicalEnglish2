@@ -20,6 +20,9 @@
 :- use_module(library(uri)).
 
 :- thread_local current_token_pos/1.
+% Source offsets at which a line's first token begins (see record_line_starts/1):
+% what tells a section header from the same word inside a sentence.
+:- thread_local line_start_offset/1.
 
 %!  set_token_pos(+Pos:integer) is det.
 %
@@ -145,7 +148,13 @@ parse_le_tokens(Tokens, doc(NewSections), M) :-
     ( nonvar(M), M \== (-) ->
         retractall(M:le_lang(_)), assertz(M:le_lang(Lang))
     ; true ),
-    (   phrase(doc(Sections), Tokens) ->  true
+    % The line-start table belongs to THIS document (see next_section_start//0):
+    % an included resource is parsed by a nested call, so save and restore.
+    findall(O, line_start_offset(O), SavedStarts),
+    (   setup_call_cleanup(record_line_starts(Tokens),
+                           phrase(doc(Sections), Tokens),
+                           restore_line_starts(SavedStarts))
+    ->  true
         ;
         print_message(error, "DCG phrase(doc(Sections), Tokens) failed"),
         fail
@@ -487,7 +496,56 @@ consume_until_next_section([]) --> [].
 % i18n/keywords.csv (for English: "the knowledge", "the contract", "scenario",
 % "query", "the ontology", "the predicates", "the templates", "the fluents",
 % "the events", "the target").
-next_section_start --> any_indent, kw(guard).
+%
+% A section header starts a LINE. The same words inside a sentence are ordinary
+% vocabulary: `*a claim* involves a scenario tested of *a description*` was
+% being cut in half at "scenario", and everything after it reported as an
+% unknown section. The test is on the keyword's own source offset (recorded by
+% record_line_starts/1 when the document is tokenized) rather than on a
+% preceding indent token, because by the time an item parser looks ahead for
+% the next section it has usually consumed the indent already.
+next_section_start --> any_indent, at_line_start, kw(guard).
+
+% Non-consuming: the next token begins a line. With no table recorded — a
+% fragment parsed directly through kb_items//1, say — every position qualifies,
+% which is what those callers saw before line starts were tracked at all.
+at_line_start(S, S) :-
+    (   \+ line_start_offset(_)
+    ->  true
+    ;   S = [T|_],
+        token_offset(T, Off),
+        line_start_offset(Off)
+    ).
+
+token_offset(T, Off) :-
+    compound(T),
+    T =.. [_|Args],
+    last(Args, loc(Off, _)).
+
+%!  record_line_starts(+Tokens) is det.
+%
+%   The source offsets at which a line's first token begins: the very first
+%   token, and every token that follows an indent (the tokenizer emits one per
+%   line, collapsing runs of blank lines). Thread-local, rebuilt per document —
+%   parses are per-thread and one document at a time.
+record_line_starts(Tokens) :-
+    retractall(line_start_offset(_)),
+    record_line_starts_(Tokens, true).
+
+restore_line_starts(Saved) :-
+    retractall(line_start_offset(_)),
+    forall(member(O, Saved), assertz(line_start_offset(O))).
+
+record_line_starts_([], _).
+record_line_starts_([T|Ts], First) :-
+    (   T = indent(_, _)
+    ->  record_line_starts_(Ts, true)
+    ;   ( First == true, token_offset(T, Off)
+        ->  ( line_start_offset(Off) -> true ; assertz(line_start_offset(Off)) )
+        ;   true
+        ),
+        record_line_starts_(Ts, false)
+    ).
 
 resource_list([R|Rs], End) -->
     any_indent, resource_item(R),
@@ -1471,16 +1529,41 @@ candidate_template(Templates, Words, Dict) :-
     % predicate scans every template, and a per-word lexicon lookup here is a
     % measurable parse-time regression on large programs.
     le_i18n:class_word_list(meta_marker, Ms),
-    (   member(Dict, Templates),
-        Dict = dict(FA, _, WV, _, _, NIW, _, _, _, _),
-        \+ system_template_fa(FA),
-        meta_template_wv(WV, Ms),
-        contains_subsequence(NIW, Words)
-    ;   member(Dict, Templates),
-        Dict = dict(FA, _, WV, _, _, NIW, _, _, _, _),
-        \+ ( \+ system_template_fa(FA), meta_template_wv(WV, Ms) ),
-        contains_subsequence(NIW, Words)
+    template_partition(Templates, Ms, Metas, Rest),
+    ( member(Dict, Metas) ; member(Dict, Rest) ),
+    Dict = dict(_FA, _NTs, _WV, _Start, _End, NIW, _Globals, _Opposite, _Prep, _Unknown),
+    contains_subsequence(NIW, Words).
+
+%!  template_partition(+Templates, +MetaMarkers, -Metas, -Rest) is det.
+%
+%   The meta templates and the others — computed ONCE per template list rather
+%   than once per sentence parsed.
+%
+%   The split itself is cheap; doing it per sentence is not. The meta test walks
+%   a template's whole word list, and the two branches this replaces ran it over
+%   every template twice: on a 386-template program with no meta template at all
+%   that was 3.5 million failing scans, a third of the parse time, for a
+%   partition that never changes while a section is being parsed.
+%
+%   The cache is the identity of the list: `prepare_templates/2` builds it once
+%   per section and the same term is then handed to every sentence, so `==`
+%   settles it by pointer in the hit case and a miss merely recomputes. It lives
+%   in a backtrackable global (per-thread, so the server's sessions cannot see
+%   each other's, and a value restored by backtracking is still a correct
+%   partition of whatever list it was computed from).
+template_partition(Templates, Ms, Metas, Rest) :-
+    (   catch(b_getval(le_template_partition, part(Cached, M0, R0)), _, fail),
+        Cached == Templates
+    ->  Metas = M0, Rest = R0
+    ;   partition(meta_candidate(Ms), Templates, Metas, Rest),
+        b_setval(le_template_partition, part(Templates, Metas, Rest))
     ).
+
+% A template that gets META parse priority: not a built-in, and its word list
+% has a marked slot.
+meta_candidate(Ms, dict(FA, _, WV, _, _, _, _, _, _, _)) :-
+    \+ system_template_fa(FA),
+    meta_template_wv(WV, Ms).
 
 % A built-in (le_-prefixed) template. System templates never get META parse
 % priority: in Romance languages the meta marker 'que' also occurs in ordinary

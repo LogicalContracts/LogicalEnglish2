@@ -7,18 +7,40 @@
 
 :- module(le_kbs, [load/2, load/3, load_text/2, load_text/3, createSession/2, destroySession/1, note_session_use/1, start_session_reaper/0,
     addSessionFact/2, negateSessionFact/2, setScenarion/2, clearSession/1, printSession/1, query/5, queryScenario/4, queryScenario/6,
-    runTestsFor/2, runTestsInDir/2, runTests/0, print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
+    runTestsFor/2, runTestsInDir/2, runTestsInDir/3, runTests/0, runTests/1, runAllTests/0, le_suite/1,
+    run_suite/2, suite_failure_count/3, print_test_summary/1,
+    suite_status_file/2, write_suite_status_file/2, write_test_status_file/3,
+    print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
     run_one_test/3, le_my_id/1, le_my_kb/1, kb_target_language/2, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
     verify/1, edit/1, canonical_string/2, token_to_atom/2, item_to_instance/3, query_explain/5, template_of/5,
     topPredicates/2, kbSummary/2, kb_own_predicate/2, kb_summary_safe/3, with_kb_reference/2, parse_custom_facts/3, parse_custom_query/3, is_a_hierarchy/2, fetch_resources/3,
+    maybe_destroy_kb/1, is_generated_kb_module/1,
+    le_network_allowed/0, set_le_network_allowed/1,
+    le_issue_reporting/0, set_le_issue_reporting/1,
     le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
 
 :- meta_predicate set_id_from_ref(+, +).
+
+/*  Where this repository is, as a search path.
+
+    Two things here used to be resolved against the *current working
+    directory*: the optional `le_extensions.pl`, and the `use_module(le_kbs)`
+    that every freshly created knowledge-base module runs at run time. Both
+    worked as long as LE2 was the process — its own server starts in its own
+    directory — and both failed the moment another program loaded LE2 as a
+    library, with `source_sink 'le_kbs' does not exist` and no document
+    parsing. `le_i18n:i18n_dir/1` already derived its own directory from
+    `module_property/2` for exactly this reason; this is the same idea as a
+    file-search path, so every relative reference in this file can use it.  */
+:- multifile user:file_search_path/2.
+:- prolog_load_context(directory, LEDir),
+   ( user:file_search_path(le2, LEDir) -> true
+   ; assertz(user:file_search_path(le2, LEDir)) ).
 
 :- use_module(le_grammar).
 :- use_module(tokenizer).
@@ -64,7 +86,10 @@ le_example_relpath(Name0, Path) :-
         atomic_list_concat([Dir, '/', Name], Path)
     ).
 
-:- (exists_file('le_extensions.pl') -> use_module('le_extensions') ; true).
+:- ( absolute_file_name(le2('le_extensions.pl'), F, [access(read), file_errors(fail)])
+   -> use_module(F)
+   ;  true
+   ).
 
 %!  is_a_hierarchy(+KBmodule, -Hierarchy) is det.
 %
@@ -257,7 +282,10 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
     ->  true
     ;   % Ensure we start with a clean module
         forall(current_predicate(NewModule:F/N), abolish(NewModule:F/N)),
-        NewModule:use_module(le_kbs),
+        %  Absolute, via the le2 search path: this runs at *run* time, where
+        %  a bare `le_kbs` is resolved against the working directory and not
+        %  against this file's.
+        NewModule:use_module(le2(le_kbs)),
         forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
         assertz(NewModule:le_kb_module_fact(NewModule)),
         retractall(rule_counter(_)),
@@ -270,7 +298,7 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
             ) ->  
             forall(member(S, Sections), process_section(S, NewModule)),
             findall(D, le_system_template(D), SysDicts),
-            forall(member(D, SysDicts), assertz(NewModule:le_dict(D))),
+            forall(member(D, SysDicts), assert_le_dict(NewModule, D)),
             (   memberchk(skip_tests, Options)
             ->  VerifyOptions = [skip_tests],
                 assertz(NewModule:le_tests_skipped)
@@ -284,7 +312,7 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
             ;   true
             ),
             % Report ALL issues
-            (   current_predicate(NewModule:le_issue/6)
+            (   current_predicate(NewModule:le_issue/6), le_issue_reporting
             ->  forall(NewModule:le_issue(Severity, Type, Desc, _Fix, Start, End),
                        % A real format string consuming its args (the previous
                        % `Type - [Desc,Start,End]` used the Type atom as the format
@@ -387,13 +415,37 @@ process_section_acc(unknown_section(Tokens, Start, End), M) :-
     ->  le_grammar:reconstruct_name(Tokens, FullName),
         ( atom_length(FullName, L), L > 100 -> sub_atom(FullName, 0, 100, _, Sub), atom_concat(Sub, '...', Name); Name = FullName),
         le_i18n:le_msg(unknown_section_desc, [name-Name], Desc),
-        le_i18n:le_msg(unknown_section_fix, [], Fix),
+        % A near-miss header ("the knowledge base X is:") swallows everything
+        % under it as ONE unknown section — the rules simply vanish, and the
+        % generic "check the section header" says nothing about which word is
+        % wrong. Name the two headers that do work.
+        (   near_miss_kb_header(Tokens)
+        ->  le_i18n:le_msg(unknown_section_kb_fix, [], Fix)
+        ;   le_i18n:le_msg(unknown_section_fix, [], Fix)
+        ),
         % le_issue/6 — every reader (verify/1, load/3, the web API, le_tools)
         % matches on that arity, so an le_issue/5 here would be asserted and
         % then silently ignored.
         assertz(M:le_issue(error, unknown_section, Desc, Fix, Start, End))
     ;   true
     ).
+
+%!  near_miss_kb_header(+Tokens) is semidet.
+%
+%   The unknown section opens with the words of a knowledge-base header
+%   ("the knowledge base <name> ...") but never reached `includes:` — the
+%   spelling models get wrong most often, and the one that costs the whole
+%   knowledge base.
+near_miss_kb_header(Tokens) :-
+    token_words(Tokens, TWords),
+    ( le_i18n:kw_synonym_words(kb_open, Words)
+    ; le_i18n:kw_synonym_words(contract_open, Words) ),
+    append(Words, _, TWords), !.
+
+token_words(Tokens, Words) :-
+    findall(W, ( member(T, Tokens), le_grammar:extract_simple_word(T, W),
+                 atom(W), W \== '' ),          % indents render as the empty atom
+            Words).
 
 % has_reportable_content(+Tokens): the token list holds something other than
 % indentation and comments.
@@ -664,19 +716,96 @@ parse_resource_text(Text, M, FilteredMergedSections) :-
 is_scenario_or_query(scenario(_, _, _, _)).
 is_scenario_or_query(query(_, _, _, _)).
 
+fetch_error_desc(URL, error(permission_error(fetch, url, _), _), Desc) :-
+    !,
+    format(atom(Desc),
+           "Outbound network access is disabled: ~w was not fetched", [URL]).
 fetch_error_desc(URL, Err, Desc) :-
     term_string(Err, ES),
     format(atom(Desc), "Failed to fetch URL ~w: ~w", [URL, ES]).
 
-fetch_url(URL, Text) :-
-    setup_call_cleanup(
-        http_open(URL, In, []),
-        read_string(In, _, Text),
-        close(In)
+%!  le_network_allowed is semidet.
+%!  set_le_network_allowed(+Bool) is det.
+%
+%   Whether a document's URL-valued resources (`le_url`, `pl_url`) may be
+%   fetched. True by default, which is the behaviour every existing caller
+%   has had; an embedder that loads this library into a server of its own —
+%   LPS2's IDE, say — can turn it off so that opening someone's `.le` in an
+%   editor cannot make outbound requests on the author's behalf. A refused
+%   fetch raises permission_error/3, which fetch_resource_kind/5 already turns
+%   into an le_issue against the document.
+:- dynamic le_network_disabled/0.
+
+le_network_allowed :-
+    \+ le_network_disabled.
+
+set_le_network_allowed(Bool) :-
+    must_be(boolean, Bool),
+    (   Bool == true
+    ->  retractall(le_network_disabled)
+    ;   ( le_network_disabled -> true ; assertz(le_network_disabled) )
     ).
 
+%!  le_issue_reporting is semidet.
+%!  set_le_issue_reporting(+Bool) is det.
+%
+%   Whether loading a document also *prints* its issues. True by default,
+%   which is what LE2's own command-line and server use have always done. An
+%   embedder gets every issue back as data — le_lps_text/4's fourth argument,
+%   le_analyse/3's `issues` — and printing them again puts a copy on its
+%   stderr, interleaved with its own output and out of order on a threaded
+%   server. So it can turn the printing off without losing anything.
+:- dynamic le_issues_unreported/0.
+
+le_issue_reporting :-
+    \+ le_issues_unreported.
+
+set_le_issue_reporting(Bool) :-
+    must_be(boolean, Bool),
+    (   Bool == true
+    ->  retractall(le_issues_unreported)
+    ;   ( le_issues_unreported -> true ; assertz(le_issues_unreported) )
+    ).
+
+fetch_url(URL, Text) :-
+    (   le_network_allowed
+    ->  setup_call_cleanup(
+            http_open(URL, In, []),
+            read_string(In, _, Text),
+            close(In)
+        )
+    ;   throw(error(permission_error(fetch, url, URL), le_network_disabled))
+    ).
+
+%!  assert_le_dict(+M, +Dict) is det.
+%!  assert_le_dict(+M, +Dict, -Ref) is det.
+%
+%   Assert a template AND its lookup indexes. le_dict/1 carries the whole
+%   template in one compound, so first-argument indexing cannot tell two
+%   templates apart (they are all dict/7, or all dict/3 for the built-ins) and
+%   every lookup by predicate walks the entire templates section. That is what
+%   the verifier does for each literal it checks: on a 386-template program it
+%   was the most expensive thing in a load. le_dict_fa/3 keys the template by
+%   its own functor and arity, le_dict_opposite/3 by the functor of its
+%   `opposite:` — both indexed on the first argument, both written once.
+assert_le_dict(M, Dict) :- assert_le_dict(M, Dict, _).
+
+assert_le_dict(M, Dict, Ref) :-
+    assertz(M:le_dict(Dict), Ref),
+    (   arg(1, Dict, [F|Args]), atom(F), length(Args, A)
+    ->  assertz(M:le_dict_fa(F, A, Dict))
+    ;   true
+    ),
+    (   dict_opposite(Dict, Opposite), nonvar(Opposite),
+        functor(Opposite, OF, OA)
+    ->  assertz(M:le_dict_opposite(OF, OA, Dict))
+    ;   true
+    ).
+
+dict_opposite(dict(_, _, _, _, Opposite, _, _), Opposite).
+
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, Unknown), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)),
     (   Unknown == unknown ->
         Goal =.. FA,
@@ -685,19 +814,19 @@ assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, U
     ;   true
     ).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, Prep, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, Prep, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, Opposite, _, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, _, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, Globals, _, _, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, Globals, _, _, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _, _)), Ref),
+    assert_le_dict(M, dict(FA, NTs, WV, [], _, _, _), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)).
 assert_dict_with_source(dict(FA, NTs, WV), M) :-
-    assertz(M:le_dict(dict(FA, NTs, WV, [], _, _, _))).
+    assert_le_dict(M, dict(FA, NTs, WV, [], _, _, _)).
 
 % A section marker switches the section that subsequent rules are recorded under.
 process_item(section_marker(Name, _Start, _End), _M) :-
@@ -1935,6 +2064,14 @@ is_system_predicate(le_expected/4).
 is_system_predicate(query_info/3).
 is_system_predicate(ontology/1).
 is_system_predicate(le_dict/1).
+% Functor/arity index over le_dict/1 (see assert_le_dict/3): every le_dict
+% clause has the SAME first-argument key — the compound dict/7 — so looking a
+% template up by its predicate is a scan of the whole templates section. The
+% verifier does exactly that, per literal.
+is_system_predicate(le_dict_fa/3).
+% ... and the same for the `opposite:` side of a template, which is looked up
+% by the opposite's own functor.
+is_system_predicate(le_dict_opposite/3).
 is_system_predicate(unknown_template/1).
 is_system_predicate(le_issue/6).
 is_system_predicate(le_kb_module_fact/1).
@@ -2009,7 +2146,7 @@ verify(LEfilePath) :-
     collect_and_assert_types(KBmodule),
     forall(member(S, Sections), process_section(S, KBmodule)),
     findall(D, le_system_template(D), SysDicts),
-    forall(member(D, SysDicts), assertz(KBmodule:le_dict(D))),
+    forall(member(D, SysDicts), assert_le_dict(KBmodule, D)),
     le_verifier:verify(KBmodule, Issues),
     forall(member(Issue, Issues), le_verifier:print_issue(Issue)),
     % Also report asserted issues
@@ -2085,6 +2222,14 @@ normalize_string(S, N) :-
 strip_string_wrapper(string(S, _), S) :- !.
 strip_string_wrapper(S, S).
 
+%!  read_tests(+Stream, -Tests:list) is det.
+%
+%   DEPRECATED. Reads expected/4 facts from a legacy `<file>.le.tests` sibling.
+%   Expectations belong inside the scenario that sets them up
+%   (`<query> expects answers [...] and unknowns [...]`, asserted as
+%   le_expected/4); no example in the corpus carries a `.le.tests` file any
+%   more. Kept only so an old file outside this repo still runs — do not add
+%   new ones.
 read_tests(Stream, Tests) :-
     read(Stream, Term),
     ( Term == end_of_file -> Tests = []; Term = expected(Q, S, E, U) -> Tests = [test(Q, S, E, U)|Rest], read_tests(Stream, Rest); read_tests(Stream, Tests)).
@@ -2092,13 +2237,18 @@ read_tests(Stream, Tests) :-
 %!  runTestsInDir(+Dir:atom, -Results:list) is det.
 %
 %   Runs all Logical English tests found in Dir and any immediate subdirectories.
+%   runTestsInDir/2 is the `all` suite; runTestsInDir/3 selects (see le_suite/1).
 runTestsInDir(Dir, Results) :-
+    runTestsInDir(Dir, all, Results).
+
+runTestsInDir(Dir, Suite, Results) :-
     directory_files(Dir, Files),
     findall(LEFile, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
         \+ sub_atom(F, _, _, 0, '.le.tests'),
-        directory_file_path(Dir, F, LEFile)
+        directory_file_path(Dir, F, LEFile),
+        suite_includes(Suite, LEFile)
     ), LEFiles0),
     sort(LEFiles0, LEFiles),
     findall(SubResults, (
@@ -2106,11 +2256,57 @@ runTestsInDir(Dir, Results) :-
         \+ sub_atom(F, 0, 1, _, '.'),
         directory_file_path(Dir, F, SubDir),
         exists_directory(SubDir),
-        runTestsInDir(SubDir, SubResults)
+        suite_includes(Suite, SubDir),
+        runTestsInDir(SubDir, Suite, SubResults)
     ), SubResultsLists),
     maplist(runTestsFor, LEFiles, FileResults),
     append(SubResultsLists, SubResultsFlat),
     append(FileResults, SubResultsFlat, Results).
+
+%!  le_suite(?Suite:atom) is nondet.
+%
+%   The two example suites.
+%
+%     core  Programs that run on this repository alone. This is what CI —
+%           ours and a downstream user's — should gate on: it is the suite a
+%           clean checkout can actually make green.
+%     all   core plus the example trees that need the proprietary
+%           `le_extensions.pl` (a symlink into a sibling repository). Those
+%           examples use constructs the core grammar does not implement, so
+%           without the extensions they do not merely fail — they cannot be
+%           parsed, and their failures say nothing about core LE.
+le_suite(core).
+le_suite(all).
+
+%!  extension_dependent_path_fragment(?Fragment:atom) is nondet.
+%
+%   Hardwired table of path fragments marking example trees that depend on
+%   `le_extensions.pl`. Matched case-insensitively against a '/'-terminated
+%   path, so a fragment names a whole directory anywhere in the tree. Written
+%   in lower case; the directories as they appear on disk are `insureLE2/`
+%   (the symlinked tree) and `InsurLE2/`.
+%
+%   Add a row here when a new extension-dependent example tree appears —
+%   nothing else needs to change.
+extension_dependent_path_fragment('/insurele2/').
+extension_dependent_path_fragment('/insurle2/').
+
+%!  suite_includes(+Suite:atom, +Path:atom) is semidet.
+%
+%   True when Path (a file or a directory) belongs to Suite.
+suite_includes(all, _) :- !.
+suite_includes(core, Path) :-
+    \+ extension_dependent_path(Path).
+
+%!  extension_dependent_path(+Path:atom) is semidet.
+extension_dependent_path(Path) :-
+    % Terminate with '/' so a DIRECTORY matches its own fragment, not only the
+    % files under it — which lets the walk prune the whole tree.
+    atom_concat(Path, '/', Padded),
+    downcase_atom(Padded, Lower),
+    extension_dependent_path_fragment(Fragment),
+    sub_atom(Lower, _, _, _, Fragment),
+    !.
 
 %!  runTestsFor(+LEFile:atom, -Result:term) is det.
 %
@@ -2138,10 +2334,56 @@ runTestsFor(LEFile, Result) :-
     ).
 
 %!  runTests is det.
+%!  runTests(+Suite:atom) is det.
+%!  runAllTests is det.
 %
-%   Runs all tests in the default examples directory and prints a summary.
+%   Runs the example suite and prints a summary. runTests/0 runs the CORE
+%   suite — the programs that run on this repository alone; runAllTests/0 (or
+%   runTests(all)) adds the trees that need the proprietary `le_extensions.pl`.
+%   See le_suite/1.
 runTests :-
-    le_examples_dir(Dir), runTestsInDir(Dir, Results0),
+    runTests(core).
+
+runAllTests :-
+    runTests(all).
+
+runTests(Suite) :-
+    (   le_suite(Suite)
+    ->  true
+    ;   findall(S, le_suite(S), Suites),
+        throw(error(domain_error(le_suite(Suites), Suite), _))
+    ),
+    run_suite(Suite, Results),
+    print_test_summary(Results),
+    write_suite_status_file(Suite, Results),
+    forall(member(R, Results), print_test_result(R)).
+
+%!  suite_status_file(?Suite:atom, ?File:atom) is nondet.
+%
+%   Each suite has its OWN committed status file, and neither run touches the
+%   other's. Sharing one file made the two indistinguishable after the fact —
+%   whichever variant ran last silently redefined what the repository claimed
+%   green was.
+%
+%   `testSuiteCoreStatus.txt` is the one a downstream repository cares about:
+%   it is the suite a clean checkout can run. `testSuiteStatus.txt` needs
+%   `le_extensions.pl` installed to mean anything, so a fork without it should
+%   ignore that file rather than try to reproduce it.
+suite_status_file(core, 'testSuiteCoreStatus.txt').
+suite_status_file(all,  'testSuiteStatus.txt').
+
+%!  write_suite_status_file(+Suite:atom, +Results:list) is det.
+write_suite_status_file(Suite, Results) :-
+    suite_status_file(Suite, File),
+    write_test_status_file(File, Suite, Results).
+
+%!  run_suite(+Suite:atom, -Results:list) is det.
+%
+%   Every example test result for Suite: the main examples tree plus the
+%   per-language trees. Shared with testing/run_tests.sh, which needs the
+%   results without the printing and status-file side effects.
+run_suite(Suite, Results) :-
+    le_examples_dir(Dir), runTestsInDir(Dir, Suite, Results0),
     % Per-language example trees (O-7 layout A): examples/<lang>/ for every
     % language registered in i18n/languages.csv beyond English (whose tree is
     % the main examples directory).
@@ -2149,13 +2391,59 @@ runTests :-
             ( le_i18n:known_language(Lang), Lang \== en,
               atomic_list_concat([examples, /, Lang], LangDir),
               exists_directory(LangDir),
-              runTestsInDir(LangDir, Rs),
+              runTestsInDir(LangDir, Suite, Rs),
               member(R, Rs) ),
             LangResults),
-    append(Results0, LangResults, Results),
-    print_test_summary(Results),
-    setup_call_cleanup(open('testSuiteStatus.txt', write, Stream), with_output_to(Stream, print_test_summary(Results)), close(Stream)),
-    forall(member(R, Results), print_test_result(R)).
+    append(Results0, LangResults, Results).
+
+%!  suite_failure_count(+Results:list, -Failures:integer, -Errors:integer) is det.
+suite_failure_count(Results, NF, NE) :-
+    findall(1, ( member(test_file(_, FR), Results), member(R, FR), is_failure(R) ), Fs),
+    findall(1, ( member(test_file(_, FR), Results), member(error(_, _, _), FR) ), Es),
+    length(Fs, NF), length(Es, NE).
+
+%!  write_test_status_file(+File:atom, +Suite:atom, +Results:list) is det.
+%
+%   A status file is a SNAPSHOT of one run, overwritten in full by every run of
+%   the suite it belongs to — not a curated baseline to gate CI on (for that,
+%   use the exit status of testing/run_tests.sh, which fails when any suite
+%   fails). Nothing in the file used to say so, or say when it was taken, or
+%   which suite it ran, so a committed copy from an older tree read as an
+%   authoritative statement of what green looks like. The header below makes
+%   the snapshot date its own claim, and names the sibling file so a reader who
+%   opened the wrong one is told where the other is.
+write_test_status_file(File, Suite, Results) :-
+    get_time(Now),
+    format_time(atom(When), '%Y-%m-%d %H:%M:%S %Z', Now),
+    current_prolog_flag(version_data, swi(Mj, Mn, Pt, _)),
+    working_directory(Cwd, Cwd),
+    suite_description(Suite, SuiteDesc),
+    suite_command(Suite, Command),
+    ( le_suite(Other), Other \== Suite, suite_status_file(Other, OtherFile),
+      suite_description(Other, OtherDesc)
+    -> true ; OtherFile = '', OtherDesc = '' ),
+    setup_call_cleanup(
+        open(File, write, Stream),
+        with_output_to(Stream,
+            ( format('Snapshot of one example-suite run, rewritten in full by every run of~n'),
+              format('that suite. It records what THAT run did; it is not a curated baseline.~n'),
+              format('To gate CI, use the exit status of testing/run_tests.sh.~n~n'),
+              format('Suite:      ~w~n', [SuiteDesc]),
+              format('Command:    ~w~n', [Command]),
+              ( OtherFile == '' -> true
+              ; format('Sibling:    ~w — ~w~n', [OtherFile, OtherDesc]) ),
+              format('Generated:  ~w~n', [When]),
+              format('SWI-Prolog: ~w.~w.~w~n', [Mj, Mn, Pt]),
+              format('Tree:       ~w~n', [Cwd]),
+              print_test_summary(Results)
+            )),
+        close(Stream)).
+
+suite_description(core, 'core (this repository alone; extension-dependent trees excluded)').
+suite_description(all,  'all (core + trees requiring the proprietary le_extensions.pl)').
+
+suite_command(core, 'testing/run_tests.sh le   (or: runTests)').
+suite_command(all,  'testing/run_tests.sh le --with-extensions   (or: runAllTests)').
 
 % is_failure(+Result): run_one_test returns fail/6 when it has unknowns to
 % report and fail/4 otherwise. Counting only fail/4 (as this summary used to)
@@ -2193,9 +2481,33 @@ run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUn
     createSession(KBmodule, SM),
     setup_call_cleanup(
         true,
-        run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result),
+        catch(run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result),
+              Error,
+              test_run_error(Error, QueryName, ScenarioName, Result)),
         destroySession(SM)
     ).
+
+%!  test_run_error(+Error, +QueryName, +ScenarioName, -Result) is det.
+%
+%   A test that RAISES is that test's error, not the run's. Only
+%   time_limit_exceeded was handled before, so anything else escaped
+%   run_one_test/3, escaped runTestsFor/2 and aborted the whole suite — every
+%   file after the offending one silently unrun. Machine-written programs reach
+%   the runner routinely and hit run-time errors no verifier can see: `Z =
+%   min(A, L)` (Logical English has no min function) throws inside a sum
+%   aggregate, mid-proof, with the whole reasoner stack on it.
+%
+%   Control exceptions are not test failures: SWI signals abort, halt and
+%   thread_exit as unwind/1 terms, and swallowing one would break Ctrl-C and
+%   halt/1. Those keep unwinding.
+test_run_error(Error, _, _, _) :-
+    nonvar(Error), Error = unwind(_), !,
+    throw(Error).
+test_run_error('$aborted', _, _, _) :- !, throw('$aborted').
+test_run_error(Error, QueryName, ScenarioName, error(QueryName, ScenarioName, Msg)) :-
+    term_string(Error, S0),
+    ( string_length(S0, L), L > 300 -> sub_string(S0, 0, 297, _, S1), string_concat(S1, "...", S) ; S = S0 ),
+    format(string(Msg), "Run-time error: ~w", [S]).
 
 run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result) :-
     (   setScenarion(SM, ScenarioName) ->

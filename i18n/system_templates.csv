@@ -13,3 +13,5 @@ le_known,any,{1} is known,{1} é conhecido|{1} é conhecida,{1} es conocido|{1} 
 le_is,any any,{1} is {2},{1} é {2},{1} es {2},{1} est {2},{1} è {2}
 le_is_in,any list,{1} is in {2},{1} está em {2},{1} está en {2},{1} est dans {2},{1} è in {2}
 le_is_days_after,date number date,{1} is {2} days after {3},{1} é {2} dias depois de {3},{1} es {2} días después de {3},{1} est {2} jours après {3},{1} è {2} giorni dopo {3}
+le_minimum,number number number,the minimum of {1} and {2} is {3},o mínimo de {1} e {2} é {3},el mínimo de {1} y {2} es {3},le minimum de {1} et {2} est {3},il minimo di {1} e {2} è {3}
+le_maximum,number number number,the maximum of {1} and {2} is {3},o máximo de {1} e {2} é {3},el máximo de {1} y {2} es {3},le maximum de {1} et {2} est {3},il massimo di {1} e {2} è {3}

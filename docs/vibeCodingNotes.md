@@ -2123,10 +2123,95 @@ And exclude type guard nodes
 Let's refine the "important reason" for failures, tweaking the heuristic you just implemented. Instead of returning the deepest failed node... return all of them (notice that they cannot be ancestor of each other), and render the lot with "it is not the case that X, nor Y, nor..."; truncate after the third.
 Make this refinement a new preferfence in the explanations preferences panel, "larger important reasons".
 
+## Lousy run of LE Contract Assistant
+First, a template should allow the word 'scenario' in it, for example "*a claim* involves a scenario tested of *a description*"; right now this causes a syntax error.
+
+Second, I ran the LE Contract Assistant and some dumb LLM (or not so dumb, actually: GLM-5.2 !) generated duplicated templates, apparently inspired by case data with many similar instances in a JSON array; this is dumb, duplicate templates should be simply mechanically removed after each iteration, ditto for facts and rules.
+
+Third, some LLMs are generating min(A,L) as a function, causing errors containing the string "`'min(A, L)'/0' is not a function". So add a system template  "the minimum of *X* and *Y* is *Z*" and corresponding Prolog predicate min(X,Y,Z). And edit prompts in LE Assistant and in LE Contract Assistant to use it.
+
+Finally: I executed now the LE contract Assistant but got low quality results which I want you to analyse.
+Inputs were examples/moreExamples/insurLE2/testing/fema/fema_F-122-Dwelling-SFIP_2021.md, with nearby files claims.json and expected_outcomes.json for claims, plus schedules.json. The resulting program was examples/moreExamples/insurLE2/testing/fema/fema-gpt-oss-120b.le , which has syntax errrors. 
+The coverage report was "skipped", see below.
+
+How was this possible, syntax errors, using a fast model, with plenty of time budget to spare? And the cover ledger seems a marginal effort versus the rest (?), so I think it should always be present, even if full of holes.
+
+This was shown at the end in the web UI:
+
+Result
+
+model openai/gpt-oss-120b · K=5 W=3 repairs=4 · probes 8 · holdout auto · paraphrase check · diff repairs · max 120 min · 65536 tokens/call · additional instructions · polish 3 · est. cost ≤ $0.62 · finished in 6:52
+Delivered program
+1 errors, 51 warnings, 0/17 tests passing
+Branch 1 — winner
+1 errors, 51 warnings, 0/17 tests passing; held-out: 0/4
+held-out: 0/4
+Branch 2
+45 errors, 76 warnings, 1/17 tests passing; held-out: 1/49
+held-out: 1/49
+Branch 3
+1 errors, 56 warnings, 0/17 tests passing; held-out: 0/4
+held-out: 0/4
+Paraphrase invariance
+stability 31%
+
+
+And this is the coverage ledger:
+(ledger skipped: the winning program still has errors — see the scores and the run log; there is nothing sound to audit yet)
+
+---
+
+Technicalities
+
+- Generated: 2026-08-03 00:06 (job caj_cceef308-8ec6-11f1-8756-7e6c0b0670f7)
+- Model: openai/gpt-oss-120b · judge: same
+- Search: K=5 vocabulary samples · W=3 branches · repair patience 4 · probes 8 · holdout auto
+- Options: diff repairs · reasoning default · clause-wise false · paraphrase true · warning clean-up rounds 3
+- Scenarios: 13 supplied case(s); no scenario invented beyond them
+- Additional instructions: expected_outcomes.json convey expected answers for claims.json
+- Completion limit: 65536 tokens/call (auto-calibrated) · budget 120 min · elapsed 6:52
+- LLM cost: $0.62 (estimated before the run, upper bound)
+- Target section: none
+- Existing LE code: none supplied
+- Branches:
+  - branch 1: 1 errors, 51 warnings, 0/17 tests passing; held-out: 0/4 ← winner
+  - branch 2: 45 errors, 76 warnings, 1/17 tests passing; held-out: 1/49
+  - branch 3: 1 errors, 56 warnings, 0/17 tests passing; held-out: 0/4
+- Auto-tuning during the run:
+  - none
+- Interrogation: off · Paraphrase: stability 31%
+- Delivered program: 1 errors, 51 warnings, 0/17 tests passing
+
+
+I see too many:
+"iteration N ranks worse than the best so far; continuing from the best version"
+Even when there are (say) errors to fix, for example this sequence:
+...
+Branch 2 iteration 2: 11 errors, 183 warnings, 0/15 tests passing
+Branch 2: iteration 2 ranks worse than the best so far; continuing from the best version
+...
+
+How is it possible that it didn't fix (say) 1 error, and improve the program??? Too many errors being submitted in the prompt? Are they going with the hints given by the LE parser and verifier?
+Or should the prompting be richer in terms of the LE syntax...?
+
+# One more issue, Contract Assistant
+- In addition to unused_template, we need an additional warning: a template for which there are scenario facts, or facts, but no rule body uses it, nor is th$$ere a query using it.
+- The LE Contract Assistant must push harder for zero warnings, as some (namely the previous new issue type being added now) force "good invention" of rules. For example if a scenario fact is imposed by the user, that warning (if cleared) effectively forces some rule to use that scenario fact; ditto for a rule whose head is untested by any query (in other words, useless). I just encountered a situation where a limit for payments was being ignored even though sitting there in plain sight as a scenarion fact, so some rules handling payments ignored limits completely. So forcing zero warnings seems necessary. Should we increase patience...? Be more creative when successive changes do not improve the program (higher temperature, wild prompt variants?). Or should we add some "common sense" principles generic to most contracts, such as "statements of limits to payments in one part of the document may condition rules elsewhere in the document"... but this sounds a bit like those wild hoose chases so typical of symbolic AI...? Help!
+  
+# Core test suite
+Currently the LE test suite (based on the expectations in LE programs) includes the programs living in directories with paths
+containing "/insureLE2/". We need to distinguish "LE core tests" from "LE core + extensions tests"; the former should exclude
+any LE programs depending on proprietary extensions; we can simply hardwire this somewhere near the test runner, e.g.a table
+of excluded path fragments for the core test suite.
+Do that and make notes in README.md, CLAUDE.md etc on how to run both suites (core only, or with extensions).
+So that other teams can depend on the core test suite runner for their CI flows.
+
+
 ## TBD
+
 In the editor, "Show s(CASP)" should appear only if the selected engine is s(CASP)
 Contracções (numa, desta, ..)
 Logical English for German (Logisches Deutsch)
 Blockly ??
-wasm
+wasm for embedable deployment
 server logs, grafana??

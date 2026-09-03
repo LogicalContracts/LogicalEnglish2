@@ -199,15 +199,23 @@ export function openNlInput(opts: NlInputOptions): void {
                     close();
                 } else {
                     // Verified with new issues: warn, but let the user insert anyway.
+                    // The server ranks them — errors first, then the warnings that
+                    // change what the text MEANS, then cosmetic ones — so the list is
+                    // shown in the order it arrives and coloured by its worst entry.
                     pendingLe = res.le;
                     primaryMode = 'insert';
                     generate.textContent = t('Insert anyway');
                     regenerate.style.display = '';
-                    status.className = 'nl-status warn';
+                    const serious = warnings.some(w => w.startsWith('[error]'));
+                    status.className = serious ? 'nl-status error' : 'nl-status warn';
                     status.textContent =
-                        `Verification found ${warnings.length} new issue${warnings.length === 1 ? '' : 's'} vs. your program:\n`
+                        (serious
+                            ? `Verification found ${warnings.length} problem${warnings.length === 1 ? '' : 's'} with the generated text:\n`
+                            : `Verification found ${warnings.length} new issue${warnings.length === 1 ? '' : 's'} vs. your program:\n`)
                         + warnings.map(w => `• ${w}`).join('\n')
-                        + '\nYou can insert it anyway, or rephrase and regenerate.';
+                        + (serious
+                            ? '\nAn [error] means the text would not do what it says — rephrasing and regenerating is usually better than inserting it.'
+                            : '\nYou can insert it anyway, or rephrase and regenerate.');
                 }
             } else if (res && res.result === 'ok') {
                 toGenerateMode();

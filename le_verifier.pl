@@ -5,7 +5,8 @@
     rules without variables, and other potential issues.
 */
 
-:- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2]).
+:- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2,
+                        unmatched_sentences/3]).
 
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2, ensure_kb_language/1]).
 :- use_module(le_i18n).
@@ -44,6 +45,64 @@ check_issue(KB, _, Issue) :- single_variable_scenario_fact(KB, Issue).
 check_issue(KB, _, Issue) :- unmarked_meta_template(KB, Issue).
 check_issue(KB, _, Issue) :- non_stratified(KB, Issue).
 check_issue(KB, _, Issue) :- unused_template(KB, Issue).
+check_issue(KB, _, Issue) :- unconsumed_facts(KB, Issue).
+
+%!  unmatched_sentences(+KB:atom, +Scope, -Occurrences:list) is det.
+%
+%   The sentences of KB's scenarios and queries that matched NO declared
+%   template. The parser does not reject them and does not warn: it parks them
+%   in the loaded knowledge base as `unknown_template(Tokens, Start, End)`
+%   terms, so a scenario fact or a query condition that says nothing at all
+%   reaches the reasoner, decides nothing, and is reported by nobody.
+%
+%   Scope selects what to look at: `all`, `scenario(Name)` or `query(Name)`.
+%   Occurrences are `unmatched(Where, Start, Text)`, Where being scenario(Name)
+%   or query(Name), Start the character offset in the source and Text the words
+%   as the author wrote them.
+%
+%   Deliberately NOT one of the check_issue/3 clauses of verify/2: turning this
+%   into a load-time issue would change the diagnostics of every existing
+%   document (and there are examples in this repository that would light up).
+%   The LLM-facing callers — the Contract Assistant and the English→Logical
+%   English conversion — ask for it explicitly, because for machine-written text
+%   it is the single most valuable check there is: it is exactly how a fragment
+%   that means nothing passes for a fragment that verifies clean.
+unmatched_sentences(KB, Scope, Occurrences) :-
+    findall(unmatched(scenario(Name), Start, Text),
+            ( scope_admits(Scope, scenario(Name)),
+              current_predicate(KB:scenario/2), KB:scenario(Name, Facts),
+              unknown_template_in(Facts, Start, Text) ),
+            Scenarios),
+    findall(unmatched(query(Name), Start, Text),
+            ( scope_admits(Scope, query(Name)),
+              current_predicate(KB:query_info/3), KB:query_info(Name, Goal, _),
+              unknown_template_in(Goal, Start, Text) ),
+            Queries),
+    append(Scenarios, Queries, All),
+    sort(All, Occurrences).
+
+scope_admits(all, _) :- !.
+scope_admits(Where, Where).
+
+%   A plain sub_term/2 walk is WRONG here: an unbound variable in a query goal
+%   unifies with the pattern, so every query with a variable in it reported an
+%   unmatched sentence at an unbound offset. Recurse explicitly and never match
+%   through a variable.
+unknown_template_in(Term, Start, Text) :-
+    nonvar(Term),
+    Term = unknown_template(Tokens, Start, _End),
+    integer(Start),
+    unmatched_tokens_text(Tokens, Text).
+unknown_template_in(Term, Start, Text) :-
+    compound(Term),
+    \+ ( nonvar(Term), Term = unknown_template(_, _, _) ),
+    arg(_, Term, Arg),
+    unknown_template_in(Arg, Start, Text).
+
+unmatched_tokens_text(Tokens, Text) :-
+    findall(W, ( member(T, Tokens), nonvar(T), T = word(W, _) ), Words),
+    atomic_list_concat(Words, ' ', Atom),
+    atom_string(Atom, Text).
 
 % --- Stratification (loops through negation) ---
 % Reuse the s(CASP) dependency-graph analysis: a cycle through a `not` edge means
@@ -405,6 +464,14 @@ template_used(KB, F, A) :-
     clause(KB:H, Body),
     find_in_body(Body, Literal),
     functor(Literal, F, A), !.
+%   Used by an LPS sentence. An `lps`-target program's rules are not Prolog
+%   clauses — they are le_lps_item/3 payloads handed to the LPS2 engine — so
+%   the clause-walking cases above find nothing and every template in a
+%   perfectly ordinary LPS program is reported as dead vocabulary.
+template_used(KB, F, A) :-
+    current_predicate(KB:le_lps_item/3),
+    KB:le_lps_item(_, Payload, _),
+    contains_literal(Payload, F, A), !.
 template_used(KB, F, A) :-
     safe_scenario_fact(KB, F, A), !.
 template_used(KB, F, A) :-
@@ -412,6 +479,100 @@ template_used(KB, F, A) :-
     KB:query_info(_, Goal, _),
     find_in_body(Goal, Literal),
     functor(Literal, F, A), !.
+
+%!  contains_literal(+Term, +F, +A) is semidet.
+%
+%   Does this term mention F/A anywhere inside it? An LPS payload is a nest of
+%   `r/2`, `and/2`, `lps_at/2`, `le_at/3` and friends around the literals, and
+%   the only thing wanted here is whether the template appears at all.
+contains_literal(T, F, A) :-
+    compound(T),
+    (   functor(T, F, A)
+    ;   arg(_, T, Sub), contains_literal(Sub, F, A)
+    ), !.
+
+% --- 3c. Facts nobody reads ---
+%
+% The template is not dead vocabulary — the program states FACTS through it, in
+% the knowledge base or in a scenario — but nothing ever reads them: no rule
+% condition mentions it and no query asks about it. Data nothing consults
+% changes no answer, so the fact is a statement the program silently ignores.
+%
+% This is the expensive half of `unused_template`. A dead template costs the
+% reader attention; an unread FACT costs a wrong decision: a payment limit, an
+% excess or an exclusion stated in a scenario and never consulted means the
+% rules that should have been bounded by it are computing unbounded answers,
+% and every test still passes because nothing was ever going to read it.
+%
+% Only EXTENSIONAL predicates are reported. A predicate with rules of its own
+% that no query reaches is already `untested_predicate`, which says the same
+% thing about a derivation rather than about data.
+unconsumed_facts(KB, issue(unconsumed_facts, Description, Fix, Start, End)) :-
+    le_kbs:template_of(KB, F, A, _Dict, Label),
+    once(template_data(KB, F, A, Where, Start, End)),
+    % `current_predicate` FIRST, always. is_intensional/3 probes the predicate
+    % with predicate_property/clause, and probing one the KB never defined —
+    % every `; undefined` template is one — creates it in the module, which
+    % breaks the reasoner's later rendering of that program. Templates with no
+    % predicate at all are extensional by definition anyway.
+    \+ ( current_predicate(KB:F/A), is_intensional(KB, F, A) ),
+    \+ template_consumed(KB, F, A),
+    unconsumed_facts_desc(Where, Label, Description),
+    le_i18n:le_msg(unconsumed_facts_fix, [], Fix).
+
+unconsumed_facts_desc(knowledge_base, Label, Description) :-
+    le_i18n:le_msg(unconsumed_facts_desc, [template-Label], Description).
+unconsumed_facts_desc(scenario(Name), Label, Description) :-
+    le_i18n:le_msg(unconsumed_scenario_facts_desc, [template-Label, scenario-Name],
+                   Description).
+
+%!  template_data(+KB, +F, +A, -Where, -Start, -End) is nondet.
+%
+%   The program states a fact through F/A: a knowledge-base fact (a clause with
+%   a `true` body) or a scenario fact. Where says which, and the source span
+%   anchors the warning at the ignored DATA — the sentence the reader wrote and
+%   believes is doing something — rather than at the template declaration.
+template_data(KB, F, A, knowledge_base, Start, End) :-
+    functor(Head, F, A),
+    current_predicate(KB:F/A),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, true, Ref),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
+template_data(KB, F, A, scenario(Name), Start, End) :-
+    current_predicate(KB:scenario/2),
+    KB:scenario(Name, Terms),
+    member(Item, Terms),
+    ( Item = fact_with_source(Term, Start, End) -> true ; Term = Item, Start = 0, End = 0 ),
+    ( Term = (Head :- _) -> true ; Head = Term ),
+    compound(Head),
+    functor(Head, F, A).
+
+%!  template_consumed(+KB, +F, +A) is semidet.
+%
+%   Something READS F/A: a rule condition, a query, or an LPS sentence. Note
+%   the asymmetry with template_used/3 — a fact or a rule HEAD is a use of the
+%   template but not a consumer of its facts, which is the whole point here.
+template_consumed(KB, F, A) :-
+    current_predicate(KB:Other/OA),
+    \+ is_system_predicate(Other/OA),
+    functor(H, Other, OA),
+    le_kbs:kb_own_predicate(KB, H),
+    clause(KB:H, Body),
+    Body \== true,
+    find_in_body(Body, Literal),
+    functor(Literal, F, A), !.
+template_consumed(KB, F, A) :-
+    current_predicate(KB:query_info/3),
+    KB:query_info(_, Goal, _),
+    find_in_body(Goal, Literal),
+    functor(Literal, F, A), !.
+%   An LPS program's rules are le_lps_item/3 payloads, not clauses, and the
+%   payload nests head and body together — so any mention counts, rather than
+%   reporting every fact template of a perfectly ordinary LPS program.
+template_consumed(KB, F, A) :-
+    current_predicate(KB:le_lps_item/3),
+    KB:le_lps_item(_, Payload, _),
+    contains_literal(Payload, F, A), !.
 
 %!  template_source(+KB, +Dict, -Start, -End) is det.
 template_source(KB, Dict, Start, End) :-
@@ -469,7 +630,19 @@ all_rules_ground(KB) :-
     \+ ( a_rule(KB, H, B, _), \+ ( ground(H), ground(B) ) ).
 
 % --- 5. Facts/Rules ratio ---
+%
+% Not for every target. count_rules/2 counts Prolog clauses with bodies in the
+% KB's module, which is what `the target language is: prolog` produces. An
+% `lps` program asserts none: its rules become reactive_rule/2, updated/4 and
+% d_pre/1 facts handed to the LPS2 engine, so the heuristic sees a program of
+% facts alone and reports missing_rules on a program that is nothing but rules.
+% Same for too_many_facts, and for the same reason.
+counts_prolog_rules(KB) :-
+    le_kbs:kb_target_language(KB, Target),
+    memberchk(Target, [prolog, scasp]).
+
 facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
+    counts_prolog_rules(KB),
     count_rules(KB, Rules),
     Rules == 0,
     count_facts(KB, Facts),
@@ -477,6 +650,7 @@ facts_rules_ratio(KB, issue(missing_rules, Description, Fix, 0, 0)) :-
     le_i18n:le_msg(missing_rules_desc, [], Description),
     le_i18n:le_msg(missing_rules_fix, [], Fix).
 facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
+    counts_prolog_rules(KB),
     count_rules(KB, Rules),
     Rules > 0,
     count_facts(KB, Facts),
@@ -698,8 +872,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
     [ '~w: ~w' - [Type, Msg] ].

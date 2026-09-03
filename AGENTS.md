@@ -18,8 +18,30 @@ you can call it from anywhere. Use it as the default check:
 - `testing/run_tests.sh` — all suites (unit + LE examples + Playwright e2e).
 - `testing/run_tests.sh --no-e2e` — fast path: Prolog unit + LE examples only.
 - `testing/run_tests.sh unit | le | e2e` — run a single suite (space-separated subsets allowed).
+- `testing/run_tests.sh --with-extensions` — LE examples INCLUDING the trees that
+  need the proprietary `le_extensions.pl` (see below). Default is core only.
 - Set `SWIPL=...` to choose the interpreter; set `CI=1` to make a missing e2e setup
   a failure instead of a skip.
+
+**Core vs core + extensions.** The LE example suite has two variants:
+- **core** (the default) — the programs that run on this repository alone. This is
+  the suite a clean checkout can make green, and the one CI should gate on.
+- **all** (`--with-extensions`) — core plus the example trees that need
+  `le_extensions.pl`, a symlink into a sibling repository. Those programs use
+  constructs the core grammar does not implement, so without the extensions
+  installed they do not merely fail, they cannot be parsed — and their failures say
+  nothing about core LE.
+
+The exclusion is a hardwired table, `extension_dependent_path_fragment/1` in
+`le_kbs.pl` (currently the `insureLE2/` and `InsurLE2/` trees). Add a row there when
+a new extension-dependent example tree appears; nothing else needs to change.
+
+Each variant writes its own committed status snapshot and never touches the other's
+(`suite_status_file/2`): core → `testSuiteCoreStatus.txt`, all → `testSuiteStatus.txt`.
+Both are tracked; a repository without `le_extensions.pl` should ignore
+`testSuiteStatus.txt`, which it cannot reproduce. **After a change, regenerate the
+status file of whichever suite(s) you ran** — do not hand-edit either file, and do
+not leave one stale while updating the other.
 
 The three suites it wraps (also runnable directly):
 - **Prolog unit tests (plunit):** `SWIPL -q -g run_tests -t halt testing/test_session_reaper.pl`
@@ -27,6 +49,10 @@ The three suites it wraps (also runnable directly):
   `:- begin_tests(Name). ... :- end_tests(Name).` and `testing/run_tests.sh unit` picks them up.
   Use `:- use_module('../le_kbs').` (the module is one level up from `testing/`).
 - **Logical English example tests:** `SWIPL -g "use_module(le_kbs), runTests, halt."`
+  runs the **core** suite; `runAllTests` (or `runTests(all)`) adds the
+  extension-dependent trees. Each refreshes its own status file (see above), whose
+  header records the suite, the command and the sibling file — a snapshot of one
+  run, not a baseline.
   (single LE test: `SWIPL -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le', R), print_test_result(R), halt."`
   — tests are embedded in scenarios via `expects answers`; separate `.le.tests`
   files are no longer used. Non-English example trees live under

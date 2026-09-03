@@ -481,7 +481,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                         operation: operation,
                         sessionModule: sessionModule,
                         position: model.getOffsetAt(position),
-                        line: model.getLineContent(position.lineNumber)
+                        line: model.getLineContent(position.lineNumber),
+                        // Where that line starts: a rule whose source range
+                        // begins on this line is a rule the cursor is on the
+                        // HEAD of, whatever words the conditions below share
+                        // with it (see on_head_line/3 in classic_web_api.pl).
+                        lineStart: model.getOffsetAt({ lineNumber: position.lineNumber, column: 1 })
                     })
                 });
                 const data = await response.json();

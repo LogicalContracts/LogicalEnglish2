@@ -164,6 +164,424 @@ test(verify_le_text_survives_garbage) :-
     assertion(is_dict(V)),
     assertion(V.tests_passed =:= 0).
 
+% ---- uploads: several schedule/case files, structured formats ----------------
+% A schedule can be split over several documents, and either a schedule or a
+% batch of cases often arrives as .json (or .csv) rather than prose. Both must
+% survive ingestion untouched — no converter, no dropped file.
+
+upload_dir(Dir) :-
+    tmp_file(casources, Dir), make_directory_path(Dir).
+
+test(uploads_take_several_schedules_and_structured_formats,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "policy.md", text: "# Tiny\n"},
+            schedule: [_{name: "limits.json", text: "{\"limit\": 1000}"},
+                       _{name: "elections.md", text: "Elections: none.\n"}],
+            cases: [_{name: "claims.json", text: "[{\"claim\": 1}]"},
+                    _{name: "case2.md", text: "Case 2.\n"}]},
+    le_contract_assistant:save_uploads(Req, Dir, Wording, Schedules, Cases),
+    assertion(exists_file(Wording)),
+    assertion(Schedules = [_, _]), assertion(Cases = [_, _]),
+    forall(member(F, [Wording|Schedules]), assertion(exists_file(F))),
+    forall(member(F, Cases), assertion(exists_file(F))),
+    % .json is text: kept as it is, never sent through pandoc/pdftotext
+    Schedules = [S1|_], Cases = [C1|_],
+    assertion(file_name_extension(_, json, S1)),
+    assertion(file_name_extension(_, json, C1)),
+    read_file_to_string(S1, S1Text, [encoding(utf8)]),
+    assertion(S1Text == "{\"limit\": 1000}"),
+    % the stored name keeps the user's, so a multi-file header can name it
+    file_base_name(S1, S1Base),
+    assertion(sub_atom(S1Base, _, _, _, limits)).
+
+% Older clients (and hand-written /leapi calls) send a single schedule dict.
+test(uploads_accept_a_single_schedule_dict,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "policy.md", text: "# Tiny\n"},
+            schedule: _{name: "schedule.md", text: "Limit: 1000.\n"}},
+    le_contract_assistant:save_uploads(Req, Dir, _, Schedules, Cases),
+    assertion(Schedules = [_]), assertion(Cases == []).
+
+% A hostile file name must not escape the job's sources directory.
+test(uploads_sanitise_the_file_name,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "../../etc/passwd.md", text: "# Tiny\n"}},
+    le_contract_assistant:save_uploads(Req, Dir, Wording, _, _),
+    atomic_list_concat([Dir, '/sources/'], Prefix),
+    assertion(atom_concat(Prefix, _, Wording)),
+    assertion(\+ sub_atom(Wording, _, _, _, '..')).
+
+% ---- structured cases: an array of claims is an array of CASES ---------------
+% A claims file with seventeen claims must become seventeen scenarios, each
+% carrying the schedule it names and the expected outcome recorded for it in a
+% second file. (Observed: the FEMA run treated claims.json as ONE case and
+% expected_outcomes.json as another, then held the second out — the delivered
+% program had a single invented scenario.)
+
+json_case_dir(Dir) :-
+    tmp_file(cacases, Dir), make_directory_path(Dir).
+
+write_json_file(Dir, Name, Text, Path) :-
+    atomic_list_concat([Dir, '/', Name], Path),
+    setup_call_cleanup(open(Path, write, S, [encoding(utf8)]),
+                       write(S, Text), close(S)).
+
+claims_json("{\"claims\": [
+   {\"claimRef\": \"C1\", \"policyRef\": \"P1\", \"facts\": \"water everywhere\"},
+   {\"claimRef\": \"C2\", \"policyRef\": \"P2\", \"facts\": \"a small puddle\"},
+   {\"claimRef\": \"C3\", \"policyRef\": \"P1\", \"facts\": \"mud\"}]}").
+
+outcomes_json("{\"note\": \"ground truth\", \"outcomes\": [
+   {\"claimRef\": \"C1\", \"decision\": \"pay\", \"totalPayable\": 46200},
+   {\"claimRef\": \"C2\", \"decision\": \"deny\", \"totalPayable\": 0},
+   {\"claimRef\": \"C3\", \"decision\": \"pay\", \"totalPayable\": 1500}]}").
+
+schedules_json("{\"schedules\": [
+   {\"policyRef\": \"P1\", \"buildingLimit\": 250000, \"deductible\": 2000},
+   {\"policyRef\": \"P2\", \"buildingLimit\": 120000, \"deductible\": 5000}]}").
+
+test(json_case_array_becomes_one_case_each_with_its_schedule_and_outcome,
+     [setup(json_case_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    claims_json(CJ), outcomes_json(OJ), schedules_json(SJ),
+    write_json_file(Dir, 'claims.json', CJ, Claims),
+    write_json_file(Dir, 'expected_outcomes.json', OJ, Outcomes),
+    write_json_file(Dir, 'schedules.json', SJ, Scheds),
+    le_contract_assistant:case_texts([Claims, Outcomes], [Scheds], Cases),
+    assertion(length(Cases, 3)),                       % three claims, not two files
+    Cases = [C1, C2, _],
+    % the claim and its recorded outcome are ONE case
+    assertion(sub_string(C1, _, _, _, "water everywhere")),
+    assertion(sub_string(C1, _, _, _, "46200")),
+    assertion(sub_string(C1, _, _, _, "claims.json, expected_outcomes.json")),
+    % ... carrying the schedule it names, and only that one
+    assertion(sub_string(C1, _, _, _, "250000")),
+    assertion(\+ sub_string(C1, _, _, _, "120000")),
+    assertion(sub_string(C2, _, _, _, "120000")),
+    assertion(\+ sub_string(C2, _, _, _, "250000")),
+    assertion(sub_string(C1, _, _, _, "belong in this scenario")).
+
+test(a_non_structured_case_file_is_still_one_case,
+     [setup(json_case_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    write_json_file(Dir, 'case.md', "Case 1: bob was healthy.", Case),
+    % ... and so is JSON that holds no array of records
+    write_json_file(Dir, 'meta.json', "{\"policy\": \"P1\", \"note\": \"x\"}", Meta),
+    le_contract_assistant:case_texts([Case, Meta], [], Cases),
+    assertion(length(Cases, 2)),
+    Cases = [C1, _],
+    assertion(C1 == "Case 1: bob was healthy.").
+
+% Only DIFFERENT files merge, and only on a field that identifies a record:
+% two claims of the same policy must not collapse into one case.
+test(records_of_the_same_file_never_merge,
+     [setup(json_case_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    claims_json(CJ),
+    write_json_file(Dir, 'claims.json', CJ, Claims),
+    le_contract_assistant:case_texts([Claims], [], Cases),
+    assertion(length(Cases, 3)).
+
+test(holdout_split_holds_out_a_quarter_of_the_cases) :-
+    numlist(1, 17, Ns),
+    findall(S, ( member(N, Ns), number_string(N, S) ), Cases),
+    le_contract_assistant:holdout_split(_{features: _{holdout: auto}}, Cases, Dev, Held),
+    length(Dev, NDev), length(Held, NHeld),
+    assertion(NDev =:= 13), assertion(NHeld =:= 4),
+    % the held-out ones are the last, and the two sets are the whole
+    assertion(append(Dev, Held, Cases)),
+    % ... and with two cases the split is still one and one
+    le_contract_assistant:holdout_split(_{features: _{holdout: auto}}, ["a", "b"], D2, H2),
+    assertion(D2 == ["a"]), assertion(H2 == ["b"]).
+
+test(scenario_policy_demands_one_scenario_per_case) :-
+    le_contract_assistant:scenarios_block(_{existing: none}, 17, B),
+    assertion(sub_string(B, _, _, _, "17 cases were supplied")),
+    assertion(sub_string(B, _, _, _, "must contain 17 scenarios")),
+    assertion(sub_string(B, _, _, _, "Never merge two cases")).
+
+% How much of the contract the ledger says is missing must be a number in the
+% run log, not a discovery the user makes on page nine of the report.
+test(ledger_coverage_counts_the_todo_rows) :-
+    L = "# Coverage Ledger\n\n| Clause | Status | Notes |\n|--------|--------|-------|\n| I.A | **TODO** | not encoded |\n| I.B | procedural — skipped | no decision content |\n| I.C | encoded | rule one |\n| II.A | **TODO** | not encoded |\n\n## Known simplifications\n\n% TODO: II.A\n",
+    le_contract_assistant:ledger_coverage(L, Todo, Rows),
+    assertion(Rows =:= 4),        % header and |---| rule excluded
+    assertion(Todo =:= 2).        % the prose TODO line is not a table row
+
+% ---- mechanical de-duplication -----------------------------------------------
+% Models fed a JSON array of similar claims write a template per claim (GLM-5.2
+% produced pages of them). A repetition cannot change what the program decides,
+% so it goes without an LLM call and without a verification gate — but only a
+% real repetition: rules that share a head, and identical facts in DIFFERENT
+% scenarios, are meant.
+
+dup_program("the target language is: prolog.
+
+the templates are:
+    *a person* is happy.
+    *a person* is healthy.
+    *a person* is happy.
+    *a claim* involves a scenario tested of *a description*.
+    *a claim* involves a scenario tested of *a description*.
+
+the knowledge base tiny includes:
+
+a person is happy
+    if the person is healthy.
+
+a person is happy
+    if the person is healthy.
+
+bob is healthy.
+bob is healthy.
+
+query who is:
+    which person is happy.
+").
+
+test(duplicate_templates_rules_and_facts_are_removed) :-
+    dup_program(P),
+    le_contract_assistant:dedup_program(_{existing: none}, P, Text, Report),
+    assertion(Report.templates =:= 2),
+    assertion(Report.rules =:= 2),          % the repeated rule and the repeated fact
+    % one of each survives, in place
+    once(sub_string(Text, _, _, _, "*a person* is happy.")),
+    aggregate_all(count, sub_string(Text, _, _, _, "involves a scenario tested"), NT),
+    assertion(NT =:= 1),
+    aggregate_all(count, sub_string(Text, _, _, _, "bob is healthy."), NF),
+    assertion(NF =:= 1),
+    aggregate_all(count, sub_string(Text, _, _, _, "if the person is healthy."), NR),
+    assertion(NR =:= 1).
+
+% Two rules for one predicate share a head line, and two scenarios legitimately
+% state the same fact: neither is a duplicate.
+test(rules_sharing_a_head_and_per_scenario_facts_are_kept) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    *a person* is rich.\n\nthe knowledge base tiny includes:\n\na person is happy\n    if the person is healthy.\n\na person is happy\n    if the person is rich.\n\nscenario one is:\n    bob is healthy.\n\nscenario two is:\n    bob is healthy.\n\nquery who is:\n    which person is happy.\n",
+    le_contract_assistant:dedup_program(_{existing: none}, P, Text, Report),
+    assertion(Report.deleted =:= 0),
+    assertion(Text == P).
+
+% ---- a program with no rules is an ERROR, not a clean program ----------------
+% The FEMA run delivered a program whose knowledge base header read
+% "the knowledge base NFIP is:" instead of "... includes:". LE reported the
+% whole discarded knowledge base as ONE unknown_section, so the branch scored
+% "1 error" and won — with no rule in it and 0 of 17 tests passing.
+test(a_program_with_templates_but_no_rules_scores_an_error) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny is:\n\na person is happy\n    if the person is healthy.\n\nquery who is:\n    which person is happy.\n",
+    verify_le_text(P, V),
+    assertion((member(I, V.issues), get_dict(type, I, "no_rules"))),
+    assertion(V.errors >= 2),      % the unknown section AND the missing rules
+    % ... while a program that HAS a rule does not get it
+    Q = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n\nthe knowledge base tiny includes:\n\na person is happy\n    if the person is healthy.\n\nquery who is:\n    which person is happy.\n",
+    verify_le_text(Q, V2),
+    assertion(\+ (member(I2, V2.issues), get_dict(type, I2, "no_rules"))).
+
+% ---- a rewrite has to earn its place ----------------------------------------
+% Once a branch is within a few errors of loading, a whole new program is not a
+% repair: it is a fresh draft that throws away everything already working. One
+% run went 82 → 36 → 1 error and the next full-program reply put it back to 77.
+
+test(rewrite_policy_guards_only_when_the_program_is_close) :-
+    Diff = _{features: _{diff_repairs: true}},
+    le_contract_assistant:rewrite_policy(Diff, _{errors: 0}, P0),
+    assertion(P0 = guarded(_)),
+    le_contract_assistant:rewrite_policy(Diff, _{errors: 5}, P5),
+    assertion(P5 = guarded(_)),
+    % ... a program still far from loading may be rewritten freely
+    le_contract_assistant:rewrite_policy(Diff, _{errors: 40}, P40),
+    assertion(P40 == any),
+    % ... and with diff repairs off, the full program IS the mechanism
+    Full = _{features: _{diff_repairs: false}},
+    le_contract_assistant:rewrite_policy(Full, _{errors: 0}, PF),
+    assertion(PF == any).
+
+test(a_rewrite_that_verifies_worse_is_refused) :-
+    good_program(Good),
+    verify_le_text(Good, V),
+    Config = _{features: _{diff_repairs: true}},
+    worse_program(Worse),
+    fence(Worse, Reply),
+    le_contract_assistant:apply_repair_reply(Config, guarded(V), Reply, Good, NewText, How),
+    assertion(NewText == Good),
+    assertion(sub_string(How, _, _, _, "refused")).
+
+test(a_rewrite_that_verifies_better_is_used) :-
+    broken_program(Broken),          % 0 errors, but its one test fails
+    verify_le_text(Broken, V),
+    assertion(V.errors =:= 0),
+    assertion(V.tests_failed =:= 1),
+    Config = _{features: _{diff_repairs: true}},
+    good_program(Good),
+    fence(Good, Reply),
+    le_contract_assistant:apply_repair_reply(Config, guarded(V), Reply, Broken, NewText, How),
+    assertion(NewText == Good),
+    assertion(sub_string(How, _, _, _, "verifies better")).
+
+% ---- what ONE repair round is asked to fix -----------------------------------
+% Every issue used to go into every repair prompt: a branch at "0 errors, 59
+% warnings, 0/25 tests" produced 134 lines and 12 kB of complaint, identical
+% every round, and models answered it by rewriting the program. The prompt now
+% carries a working set — errors, then failing tests (spread over DIFFERENT
+% queries), then warnings — and says what it left out.
+
+feedback_fixture(V) :-
+    findall(_{severity: "warning", type: "unused_template", message: M},
+            ( between(1, 20, I), format(string(M), "unused ~w", [I]) ), Warnings),
+    findall(_{severity: "warning", type: "failed_test", message: "duplicate of a test line"},
+            member(_, [a, b, c]), Dups),
+    findall(_{status: "fail", query: Q, scenario: S, expected: "x", actual: "y"},
+            ( member(Q, ["pay", "cover", "total"]), between(1, 5, N),
+              format(string(S), "case ~w", [N]) ), Tests),
+    append(Warnings, Dups, Issues),
+    V = _{errors: 0, warnings: 23, tests_passed: 0, tests_failed: 15,
+          issues: Issues, test_details: Tests}.
+
+test(repair_feedback_is_a_working_set_not_everything) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    split_string(FB, "\n", "", Lines),
+    % 12 items at most, and a failing test costs three lines
+    length(Lines, NL),
+    assertion(NL < 45),
+    string_length(FB, Len),
+    assertion(Len < 3000).
+
+% Three examples per query, so the round sees three DIFFERENT bugs rather than
+% five copies of one.
+test(failing_tests_are_spread_over_different_queries) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    forall(member(Q, ["pay", "cover", "total"]),
+           ( format(string(Needle), "query '~w'", [Q]),
+             assertion(sub_string(FB, _, _, _, Needle)) )),
+    aggregate_all(count, sub_string(FB, _, _, _, "FAILED test: query 'pay'"), NPay),
+    assertion(NPay =< 3).
+
+% A failing test is reported twice by the verifier — as a failed_test warning
+% and in test_details. Only the readable one is listed.
+test(the_duplicate_failed_test_warning_is_not_listed) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(\+ sub_string(FB, _, _, _, "duplicate of a test line")).
+
+% What was left out is named, so a short list does not read as "nearly done".
+test(the_feedback_says_what_it_left_out) :-
+    feedback_fixture(V),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "more not listed")),
+    assertion(sub_string(FB, _, _, _, "unused_template")),
+    assertion(sub_string(FB, _, _, _, "failing test(s) of query")).
+
+% Errors come first and crowd the rest out: a warning cannot matter while the
+% program does not load.
+test(errors_come_before_everything_else) :-
+    findall(_{severity: "error", type: "missing_template", message: M},
+            ( between(1, 20, I), format(string(M), "missing template ~w", [I]) ), Errors),
+    findall(_{severity: "warning", type: "unused_template", message: "unused"},
+            member(_, [a, b, c]), Ws),
+    append(Errors, Ws, Issues),
+    V = _{errors: 20, warnings: 3, tests_passed: 0, tests_failed: 1,
+          issues: Issues,
+          test_details: [_{status: "fail", query: "pay", scenario: "s", expected: "x", actual: "y"}]},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "missing template 1")),
+    % no warning line while the program does not load ...
+    assertion(\+ sub_string(FB, _, _, _, "[warning]")),
+    % ... though the closing line still says they are there
+    assertion(sub_string(FB, _, _, _, "unused_template")),
+    assertion(sub_string(FB, _, _, _, "missing_template")).
+
+test(a_clean_program_has_no_feedback) :-
+    V = _{errors: 0, warnings: 0, tests_passed: 3, tests_failed: 0,
+          issues: [], test_details: []},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(FB == "no issues").
+
+% A program with no expectations at all is still told so.
+test(a_program_without_tests_is_told) :-
+    V = _{errors: 0, warnings: 0, tests_passed: 0, tests_failed: 0,
+          issues: [], test_details: []},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "NO scenario expectations")).
+
+% The loop's bounds. The hard cap is a runaway guard, not a budget: a branch
+% was cut off at nine rounds, still improving, with 24 of its 45 minutes
+% unspent — and a round now covers at most twelve issues, so covering a program
+% with sixty of them simply takes more rounds.
+test(the_hard_repair_cap_leaves_room_for_progress) :-
+    forall(member(Preset, [draft, standard, thorough]),
+           ( le_contract_assistant:preset_params(Preset, _, _, Patience, _),
+             HardCap is max(4 * Patience, 16),
+             assertion(Patience >= 3),
+             assertion(HardCap >= 16) )).
+
+% The pre-run estimate has to price the loop it actually runs, or the number
+% shown before the money is spent is a fiction.
+test(the_cost_estimate_follows_the_repair_loop) :-
+    le_contract_assistant:call_plan(3, 2, 4, 4, Main, Judge),
+    Calls is Main + Judge,
+    % 2 branches x (1 draft + ~10 repair rounds) + samples + probes + ledger
+    assertion(Calls >= 30),
+    % ... and it still rises with patience
+    le_contract_assistant:call_plan(3, 2, 6, 4, Main2, Judge2),
+    Calls2 is Main2 + Judge2,
+    assertion(Calls2 > Calls).
+
+% An issue reaches the repair round with everything needed to act on it: WHERE
+% it is, the offending line (which is what a SEARCH block must match), and the
+% verifier's own remedy. All three used to be discarded — the round was told
+% "Missing template for '...'" and left to find it in 50 kB of program.
+test(an_issue_carries_its_line_source_and_fix) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    we cover *a claim* if it is valid.\n",
+    verify_le_text(P, V),
+    member(I, V.issues), get_dict(type, I, "reserved_word_in_template"), !,
+    assertion(I.line =:= 5),
+    assertion(sub_string(I.source, _, _, _, "we cover")),
+    assertion(I.fix \== ""),
+    le_contract_assistant:format_verify_feedback(V, FB),
+    assertion(sub_string(FB, _, _, _, "(line 5)")),
+    assertion(sub_string(FB, _, _, _, "in: we cover")),
+    assertion(sub_string(FB, _, _, _, "fix:")).
+
+% Messages are plain text: term_string/2 quoted every atom that needed quoting,
+% so each line arrived wrapped in quotes with its apostrophes escaped.
+test(issue_messages_are_not_prolog_quoted) :-
+    P = "the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n\nthe knowledge base tiny includes:\n\nbob is happy.\n",
+    verify_le_text(P, V),
+    forall(member(I, V.issues),
+           ( assertion(\+ sub_string(I.message, 0, _, _, "'")),
+             assertion(\+ sub_string(I.message, _, _, _, "\\'")) )).
+
+% Errors get a bigger share of the working set than other kinds: they block the
+% load, and each now carries its own location, so five instances of one error
+% type are five repairs rather than one complaint five times.
+test(errors_get_a_bigger_share_of_the_working_set) :-
+    findall(_{severity: "error", type: "missing_template", message: M, fix: "declare it", line: I, source: "a line"},
+            ( between(1, 20, I), format(string(M), "missing template ~w", [I]) ), Issues),
+    V = _{errors: 20, warnings: 0, tests_passed: 0, tests_failed: 0,
+          issues: Issues, test_details: []},
+    le_contract_assistant:format_verify_feedback(V, FB),
+    aggregate_all(count, sub_string(FB, _, _, _, "missing template "), N),
+    assertion(N >= 6).
+
+test(schedule_text_of_no_file_is_empty) :-
+    le_contract_assistant:schedule_text([], T),
+    assertion(T == "").
+
+test(schedule_text_joins_several_files_under_named_headers,
+     [setup(upload_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    Req = _{wording: _{name: "policy.md", text: "# Tiny\n"},
+            schedule: [_{name: "limits.json", text: "{\"limit\": 1000}"},
+                       _{name: "elections.md", text: "Elections: none.\n"}]},
+    le_contract_assistant:save_uploads(Req, Dir, _, Schedules, _),
+    le_contract_assistant:schedule_text(Schedules, T),
+    assertion(sub_string(T, _, _, _, "{\"limit\": 1000}")),
+    assertion(sub_string(T, _, _, _, "Elections: none.")),
+    assertion(sub_string(T, _, _, _, "### SCHEDULE 1")),
+    assertion(sub_string(T, _, _, _, "### SCHEDULE 2")),
+    assertion(sub_string(T, _, _, _, "limits.json")),
+    % ... while a single schedule is still passed verbatim, as it always was
+    Schedules = [S1|_],
+    le_contract_assistant:schedule_text([S1], One),
+    assertion(One == "{\"limit\": 1000}").
+
 :- end_tests(contract_assistant_units).
 
 % ------------------------------ pipeline tests -------------------------------
@@ -293,6 +711,35 @@ raw_hook_refuses_temperature(_Model, _Messages, Opts, Reply) :-
     ;   Reply = "the answer"
     ).
 
+% A provider that knows `reasoning_effort` but not the level we send — gpt-5.5,
+% which dropped the "minimal" its predecessors accept — and names the levels it
+% does take. It answers as soon as one of those is used.
+:- dynamic effort_calls/2.
+
+raw_hook_refuses_minimal_effort(_Model, _Messages, Opts, Reply) :-
+    ( retract(effort_calls(N0, _)) -> true ; N0 = 0 ),
+    N is N0 + 1,
+    (   memberchk(reasoning_effort(Level), Opts)
+    ->  true
+    ;   memberchk(reasoning(Level), Opts)
+    ->  true
+    ;   Level = absent
+    ),
+    assertz(effort_calls(N, Level)),
+    (   memberchk(Level, [minimal, absent])
+    ->  throw(error(llm_api_error(400,
+            "{\"error\":{\"code\":\"unsupported_value\",\"message\":\"Unsupported value: 'reasoning_effort' does not support 'minimal' with this model. Supported values are: 'none', 'low', 'medium', 'high', and 'xhigh'.\",\"param\":\"reasoning_effort\"}}"), c))
+    ;   Reply = "the answer"
+    ).
+
+% ... and one that rejects the parameter without saying what it would accept.
+raw_hook_refuses_effort_silently(_Model, _Messages, Opts, Reply) :-
+    (   le_contract_assistant:asks_for_less_reasoning(Opts)
+    ->  throw(error(llm_api_error(400,
+            "{\"error\":{\"message\":\"Unsupported parameter: 'reasoning_effort' is not supported with this model.\",\"param\":\"reasoning_effort\"}}"), c))
+    ;   Reply = "the answer"
+    ).
+
 :- begin_tests(contract_assistant_features).
 
 test(extract_search_replace_two_blocks) :-
@@ -358,7 +805,7 @@ test(target_slice_from_toc_titles) :-
 test(unapplied_edit_block_never_becomes_the_program) :-
     Config = _{features: _{diff_repairs: true}},
     Reply = "```\n<<<<<<< SEARCH\ndoes not exist in the program\n=======\nreplacement\n>>>>>>> REPLACE\n```\n",
-    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, _How),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, "the original program", NewText, _How),
     assertion(NewText == "the original program").
 
 % A reply that elides sections ("% ... (all rules and templates)") must never
@@ -366,9 +813,55 @@ test(unapplied_edit_block_never_becomes_the_program) :-
 test(elided_program_never_replaces_the_text) :-
     Config = _{features: _{diff_repairs: true}},
     Reply = "```le\n% ... (all rules and templates)\n\nscenario case1 is:\n    the claim occurs on 2026-02-12.\n```\n",
-    le_contract_assistant:apply_repair_reply(Config, Reply, "the original program", NewText, How),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, "the original program", NewText, How),
     assertion(NewText == "the original program"),
     assertion(sub_string(How, _, _, _, "elided")).
+
+% A full-program reply that is a fraction of the program it would replace is a
+% truncation or a quiet rewrite, not a repair. Regression from a FEMA run: a
+% 52 kB program came back as 8 kB — no elision marker, no error — and four of
+% the policy's five coverages were simply gone.
+long_program(P) :-
+    numlist(1, 400, Ns),
+    findall(L, ( member(N, Ns),
+                 format(string(L), "a claim ~w is covered if the claim ~w is qualifying.", [N, N]) ),
+            Ls),
+    atomic_list_concat(Ls, "\n", P0), atom_string(P0, P).
+
+test(amputated_full_program_reply_never_replaces_the_text) :-
+    Config = _{features: _{diff_repairs: true}},
+    long_program(P),
+    Reply = "```le\nthe templates are:\n    *a claim* is covered.\n```\n",
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, P, NewText, How),
+    assertion(NewText == P),
+    assertion(sub_string(How, _, _, _, "treated as truncation")).
+
+% Same guard for the reply the provider cut off mid-program: its code fence
+% never closes.
+test(truncated_full_program_reply_never_replaces_the_text) :-
+    Config = _{features: _{diff_repairs: true}},
+    long_program(P),
+    string_concat("```le\n", P, Head),
+    sub_string(Head, 0, 900, _, Reply),      % cut off: no closing fence
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, P, NewText, How),
+    assertion(NewText == P),
+    assertion(sub_string(How, _, _, _, "cut off mid-program")).
+
+% ... while a full program of comparable size still replaces the text, and a
+% small program (an early draft) may still change freely.
+test(a_full_sized_full_program_reply_is_still_accepted) :-
+    Config = _{features: _{diff_repairs: true}},
+    long_program(P),
+    format(string(Reply), "```le\n~w\nand one more rule if it is so.\n```\n", [P]),
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, P, NewText, How),
+    assertion(sub_string(NewText, _, _, _, "and one more rule")),
+    assertion(sub_string(How, _, _, _, "replaced the full program")).
+
+test(a_small_program_may_still_shrink) :-
+    Config = _{features: _{diff_repairs: true}},
+    Reply = "```le\nsmall.\n```\n",
+    le_contract_assistant:apply_repair_reply(Config, any, Reply, "the original program", NewText, _),
+    assertion(NewText == "small.\n").
 
 % A scenarios-only program (rules and templates elided) must be flagged as an
 % error even though it has (failing) test expectations.
@@ -398,6 +891,20 @@ test(rank_prefers_net_test_evidence) :-
     Winner = branch(WIdx, _, _),
     assertion(WIdx =:= 1).
 
+% The held-out term is net too. Regression from a FEMA run: a branch that had
+% amputated itself to 8 kB wrote 2 blind tests and failed 1, the complete 50 kB
+% branch wrote 7 and failed 2 — and the raw failure count crowned the amputee.
+test(rank_prefers_net_holdout_evidence) :-
+    Big = _{errors: 0, warnings: 3, tests_passed: 7, tests_failed: 3, test_details: [],
+            holdout_passed: 5, holdout_failed: 2, summary: "complete"},
+    Small = _{errors: 0, warnings: 2, tests_passed: 2, tests_failed: 2, test_details: [],
+              holdout_passed: 1, holdout_failed: 1, summary: "amputated"},
+    le_contract_assistant:select_winner(job,
+        [branch(1, "a program of fifty thousand characters", Big),
+         branch(2, "a sketch", Small)], Winner),
+    Winner = branch(WIdx, _, _),
+    assertion(WIdx =:= 1).
+
 % A 43-error program passing 16/18 tests must beat a clean-verifying program
 % with NO scenarios at all (which demonstrates nothing).
 test(rank_prefers_tested_over_untested_clean) :-
@@ -420,7 +927,8 @@ test(scenario_policy_forbids_invention_when_no_case_is_supplied) :-
 
 test(scenario_policy_counts_the_supplied_cases) :-
     le_contract_assistant:scenarios_block(_{existing: none}, 3, B),
-    assertion(sub_string(B, _, _, _, "one scenario per supplied case (3 supplied)")).
+    assertion(sub_string(B, _, _, _, "one scenario per supplied case")),
+    assertion(sub_string(B, _, _, _, "3 cases were supplied")).
 
 test(instructions_block_is_empty_without_instructions) :-
     le_contract_assistant:instructions_block(_{instructions: none}, B),
@@ -430,11 +938,22 @@ test(instructions_reach_the_prompt) :-
     le_contract_assistant:instructions_block(_{instructions: "Please add boundary scenarios."}, B),
     assertion(sub_string(B, _, _, _, "ADDITIONAL INSTRUCTIONS FROM THE USER")),
     assertion(sub_string(B, _, _, _, "Please add boundary scenarios.")),
-    le_contract_assistant:build_messages('stage2_draft',
+    le_contract_assistant:build_messages(house_style, 'stage2_draft',
         [existing-"", instructions-B, scenarios-"", materials-"M",
          vocabulary-"V", architecture-"A"],
         [_{role: system, content: Sys}|_]),
     assertion(sub_string(Sys, _, _, _, "Please add boundary scenarios.")).
+
+% The fragment modes carry their own standing instructions: the whole-contract
+% house style tells a model to design a knowledge base, which is the opposite of
+% what a job asked for one scenario needs to hear.
+test(the_fragment_modes_use_their_own_standing_instructions) :-
+    le_contract_assistant:build_messages(fragment_style, 'fragment_scenario',
+        [instructions-"", expectations-"E", name-"N", materials-"M"],
+        [_{role: system, content: Sys}|_]),
+    assertion(sub_string(Sys, _, _, _, "The program is fixed")),
+    assertion(sub_string(Sys, _, _, _, "adding exactly ONE section to it")),
+    assertion(\+ sub_string(Sys, _, _, _, "computable twin")).
 
 % A target names a section AND its subsections — not the section up to its own
 % first subsection, and not the rest of the document.
@@ -533,6 +1052,78 @@ test(temperature_rejection_is_retried_without_it,
     assertion(Calls =:= 2),                                   % refused, then retried
     assertion(le_contract_assistant:ca_tune(temp_retry_job, no_temperature)).
 
+% A rejection of the reasoning LEVEL is classified apart from a rejection of
+% the temperature, and the levels the provider says it accepts are read off the
+% message. (The two must not be confused: an "unsupported value" message can
+% mention both parameters, and dropping the temperature would not have saved
+% the gpt-5.5 job — every call would still have 400ed.)
+test(reasoning_effort_rejection_classified) :-
+    E = error(llm_api_error(400, "{\"error\":{\"code\":\"unsupported_value\",\"message\":\"Unsupported value: 'reasoning_effort' does not support 'minimal' with this model. Supported values are: 'none', 'low', 'medium', 'high', and 'xhigh'.\",\"param\":\"reasoning_effort\"}}"), c),
+    assertion(le_contract_assistant:reasoning_effort_rejected(E, _)),
+    le_contract_assistant:reasoning_effort_rejected(E, Supported),
+    assertion(Supported == [none, low, medium, high, xhigh]),   % "minimal" is NOT offered
+    le_contract_assistant:cheapest_effort(Supported, Level),
+    assertion(Level == none),
+    assertion(\+ le_contract_assistant:temperature_rejected(E)),
+    % a plain temperature rejection is still one, and is not read as this
+    T = error(llm_api_error(400, "Unsupported value: 'temperature' does not support 0.05 with this model."), c),
+    assertion(le_contract_assistant:temperature_rejected(T)),
+    assertion(\+ le_contract_assistant:reasoning_effort_rejected(T, _)),
+    % ... and a rejection that names no levels parses as "none offered"
+    S = error(llm_api_error(400, "Unsupported parameter: 'reasoning_effort' is not supported with this model."), c),
+    le_contract_assistant:reasoning_effort_rejected(S, None),
+    assertion(None == []),
+    assertion(\+ le_contract_assistant:cheapest_effort(None, _)).
+
+% The whole ladder, offline: the job has been switched to minimal reasoning,
+% the provider refuses that level, and the assistant retries the SAME model at
+% the cheapest level it does accept — sticky, so the next call starts there.
+test(rejected_reasoning_level_is_retried_at_an_accepted_one,
+     [setup(( retractall(user:effort_calls(_, _)),
+              retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_refuses_minimal_effort)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(user:effort_calls(_, _)),
+                retractall(le_contract_assistant:ca_tune(effort_job, _)),
+                retractall(le_contract_assistant:ca_log(effort_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(effort_job, _)) ))]) :-
+    get_time(Now), Deadline is Now + 600,
+    Config = _{deadline: Deadline, max_tokens: 4096, max_tokens_cap: 4096,
+               reasoning: minimal},
+    le_contract_assistant:llm_try(effort_job, Config, architecture, 'gpt-5.5',
+                                  [_{role: user, content: "hi"}],
+                                  [reasoning(minimal), max_tokens(4096)], 1, Reply),
+    assertion(Reply == "the answer"),
+    user:effort_calls(Calls, LastLevel),
+    assertion(Calls =:= 2),                    % refused, then retried at a good level
+    assertion(LastLevel == none),
+    assertion(le_contract_assistant:ca_tune(effort_job, reasoning_effort(none))),
+    % ... and every later call of the job goes out at that level, with no
+    % second `reasoning` field beside it
+    le_contract_assistant:stage_options(effort_job, Config, draft(1), "KEY", [], Opts),
+    assertion(memberchk(reasoning_effort(none), Opts)),
+    assertion(\+ memberchk(reasoning(_), Opts)).
+
+% A provider that refuses the parameter without naming an alternative: drop it
+% and carry on, rather than failing the job.
+test(unusable_reasoning_parameter_is_dropped,
+     [setup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+              assertz(le_contract_assistant:ca_raw_hook(user:raw_hook_refuses_effort_silently)) )),
+      cleanup(( retractall(le_contract_assistant:ca_raw_hook(_)),
+                retractall(le_contract_assistant:ca_tune(effort_drop_job, _)),
+                retractall(le_contract_assistant:ca_log(effort_drop_job, _, _)),
+                retractall(le_contract_assistant:ca_logseq(effort_drop_job, _)) ))]) :-
+    get_time(Now), Deadline is Now + 600,
+    Config = _{deadline: Deadline, max_tokens: 4096, max_tokens_cap: 4096,
+               reasoning: minimal},
+    le_contract_assistant:llm_try(effort_drop_job, Config, architecture, 'some-model',
+                                  [_{role: user, content: "hi"}],
+                                  [reasoning(minimal), max_tokens(4096)], 1, Reply),
+    assertion(Reply == "the answer"),
+    assertion(le_contract_assistant:ca_tune(effort_drop_job, no_reasoning)),
+    le_contract_assistant:stage_options(effort_drop_job, Config, draft(1), "KEY", [], Opts),
+    assertion(\+ le_contract_assistant:asks_for_less_reasoning(Opts)).
+
 test(transient_errors_classified) :-
     assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(503, x), c))),
     assertion(le_contract_assistant:transient_llm_error(error(llm_api_error(429, x), c))),
@@ -572,6 +1163,55 @@ hook_full(paraphrase_compare, _, "STABILITY: 83%\nMissing from B: none\n") :- !.
 hook_full(ledger, _, "LEDGER") :- !.
 hook_full(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
+% A hook that raises something that is NOT a contract_assistant_error — a bug,
+% a library exception. One branch must not take the pipeline down with it.
+hook_odd_error(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_odd_error(architecture, _, "one branch") :- !.
+hook_odd_error(draft(_), _, _) :- !, throw(error(type_error(list, not_a_list), _)).
+hook_odd_error(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% Hooks for a provider that dies during the HELD-OUT evaluation — after the
+% branch has been drafted, repaired and polished. One dies on every held-out
+% call, the other only on the first.
+hook_holdout_dead(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_holdout_dead(architecture, _, "one branch") :- !.
+hook_holdout_dead(draft(_), _, Reply) :- !, good_program(P), fence(P, Reply).
+hook_holdout_dead(holdout(_, _), _, _) :- !,
+    throw(error(contract_assistant_error(llm_failed(holdout, "Service unavailable")), _)).
+hook_holdout_dead(ledger, _, "LEDGER") :- !.
+hook_holdout_dead(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+hook_holdout_flaky(holdout(_, 1), _, _) :- !,
+    throw(error(contract_assistant_error(llm_failed(holdout, "Service unavailable")), _)).
+hook_holdout_flaky(holdout(_, _), _, Reply) :- !,
+    fence("scenario held out case 202 is:\n    carol is healthy.\n    who expects answers [\"carol is happy\"].\n", Reply).
+hook_holdout_flaky(Purpose, Messages, Reply) :- hook_holdout_dead(Purpose, Messages, Reply).
+
+% Hook that answers a repair with a WHOLE PROGRAM twice: first a worse one
+% (which must be refused), then the right one (which must be accepted). It also
+% records the prompt of each repair round, so the test can check what the model
+% was shown after its rewrite was thrown away.
+:- dynamic saw_repair/2.
+
+worse_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy if healthy.\n").
+
+hook_rewrites(Purpose, Messages, Reply) :-
+    (   Purpose = repair(_, Iter)
+    ->  findall(C, ( member(M, Messages), get_dict(content, M, C) ), Cs),
+        atomic_list_concat(Cs, "\n", Prompt),
+        assertz(saw_repair(Iter, Prompt))
+    ;   true
+    ),
+    hook_rewrites_(Purpose, Reply).
+
+hook_rewrites_(vocabulary, "*a person* is happy. % vocabulary") :- !.
+hook_rewrites_(architecture, "one branch: happiness") :- !.
+hook_rewrites_(draft(_), Reply) :- !, broken_program(P), fence(P, Reply).
+hook_rewrites_(repair(_, 0), Reply) :- !, worse_program(P), fence(P, Reply).
+hook_rewrites_(repair(_, _), Reply) :- !, good_program(P), fence(P, Reply).
+hook_rewrites_(ledger, "LEDGER") :- !.
+hook_rewrites_(Purpose, _) :- throw(unexpected_llm_purpose(Purpose)).
+
 % Hook whose ledger call returns empty content (reasoning models can exhaust
 % their output budget before emitting text): the result must explain that
 % instead of carrying a blank ledger.
@@ -587,6 +1227,7 @@ hook_empty_ledger(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 hook_broken(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
 hook_broken(architecture, _, "one branch") :- !.
 hook_broken(draft(_), _, "```\n% only a comment, no program\n```\n") :- !.
+hook_broken(ledger, _, "| Clause | Status | Notes |\n|---|---|---|\n| I.A | **TODO** | nothing encoded |\n") :- !.
 hook_broken(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
 % Hook whose repair calls always die (e.g. reasoning truncation after all
@@ -608,6 +1249,24 @@ hook_probes_die(probes, _, _) :- !,
     throw(error(contract_assistant_error(llm_truncated(probes, stub)), _)).
 hook_probes_die(ledger, _, "LEDGER") :- !.
 hook_probes_die(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
+
+% A program that loads, passes every test — and quietly ignores a payment
+% limit: `the payment limit is 150.` sits in the scenario and no rule reads it
+% (unconsumed_facts). Right and clean-looking, and wrong about the contract.
+:- dynamic modelling_repair_calls/1.
+limit_ignored_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    the payment limit is *an amount*.\n\nthe knowledge base tiny includes:\n\nthe payment limit is 150.\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n\nquery who is:\n    which person is happy.\n").
+% The same program with the limit actually consulted.
+limit_used_program("the target language is: prolog.\n\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\n    the payment limit is *an amount*.\n\nthe knowledge base tiny includes:\n\nthe payment limit is 150.\n\na person is happy\n    if the person is healthy\n    and the payment limit is an amount.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n\nquery who is:\n    which person is happy.\n").
+
+hook_modelling(vocabulary, _, "*a person* is happy. % vocabulary") :- !.
+hook_modelling(architecture, _, "one branch") :- !.
+hook_modelling(draft(_), _, Reply) :- !, limit_ignored_program(P), fence(P, Reply).
+hook_modelling(repair(_, _), _, Reply) :- !,
+    ( retract(modelling_repair_calls(N)) -> true ; N = 0 ),
+    N1 is N + 1, assertz(modelling_repair_calls(N1)),
+    limit_used_program(P), fence(P, Reply).
+hook_modelling(ledger, _, "LEDGER") :- !.
+hook_modelling(Purpose, _, _) :- throw(unexpected_llm_purpose(Purpose)).
 
 % Stateful hook proving the progress-aware repair loop: the draft fails two
 % tests; repair 1 fixes one (improvement -> streak resets); repairs 2 and 3
@@ -714,6 +1373,31 @@ existing_config(Config) :-
     existing_fixture(E),
     Config = Config0.put(existing_code, E).
 
+% Several schedule files, one of them structured (.json): both must reach the
+% drafting prompt, each under a header naming its file.
+:- dynamic saw_prompt/1.
+
+hook_schedules(Purpose, Messages, Reply) :-
+    (   Purpose = draft(_)
+    ->  findall(C, ( member(M, Messages), get_dict(content, M, C) ), Cs),
+        atomic_list_concat(Cs, "\n", Prompt),
+        assertz(saw_prompt(Prompt))
+    ;   true
+    ),
+    (   Purpose = holdout(_, _)
+    ->  fence("scenario held out case 101 is:\n    carol is healthy.\n    who expects answers [\"carol is happy\"].\n", Reply)
+    ;   hook_good(Purpose, Messages, Reply)
+    ).
+
+two_schedules_config(Config) :-
+    good_wording(W),
+    Config = _{wording: _{name: "contract.md", text: W},
+               schedule: [_{name: "limits.json", text: "{\"limit\": 1000}"},
+                          _{name: "elections.md", text: "Elections: none.\n"}],
+               cases: [_{name: "case1.md", text: "Case 1: bob was healthy."}],
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}}.
+
 two_case_config(Features, Config) :-
     good_wording(W),
     Config = _{wording: _{name: "contract.md", text: W},
@@ -760,7 +1444,11 @@ test(holdout_probe_and_paraphrase,
     assertion(Paraphrase.enabled == true),
     assertion(Paraphrase.stability =:= 83).
 
-test(ledger_skipped_when_winner_is_broken,
+% A broken winner is exactly when the user most needs to know what the twin
+% covers, so the ledger is written anyway — under a banner saying the program
+% it audits does not load. (It used to say "(ledger skipped)", leaving the user
+% with a broken program and no map of it.)
+test(ledger_is_written_even_when_the_winner_is_broken,
      [setup(hook_setup(user:hook_broken)), cleanup(hook_cleanup)]) :-
     good_wording(W),
     Config = _{wording: _{name: "contract.md", text: W},
@@ -771,9 +1459,147 @@ test(ledger_skipped_when_winner_is_broken,
     assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
     le_contract_assistant:ca_result(JobID, Result),
     Ledger = Result.ledger,
-    assertion(sub_string(Ledger, _, _, _, "skipped")),
+    assertion(sub_string(Ledger, _, _, _, "does not load cleanly")),
+    assertion(sub_string(Ledger, _, _, _, "**TODO**")),      % the audit itself
+    assertion(\+ sub_string(Ledger, _, _, _, "ledger skipped")),
     Scores = Result.scores, Scores = [Score],
     assertion(Score.errors >= 1).
+
+test(several_schedule_files_reach_the_drafting_prompt,
+     [setup(( retractall(user:saw_prompt(_)), hook_setup(user:hook_schedules) )),
+      cleanup(( retractall(user:saw_prompt(_)), hook_cleanup ))]) :-
+    two_schedules_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    user:saw_prompt(Sys),
+    assertion(sub_string(Sys, _, _, _, "{\"limit\": 1000}")),   % the .json, verbatim
+    assertion(sub_string(Sys, _, _, _, "Elections: none.")),
+    assertion(sub_string(Sys, _, _, _, "limits.json")),         % named in its header
+    !.
+
+% End to end: a JSON claims file is not one case, it is four, and the drafting
+% prompt is told to write one scenario for each — with the schedule each claim
+% names attached to it.
+json_cases_config(Config) :-
+    good_wording(W),
+    Claims = "{\"claims\": [
+       {\"claimRef\": \"C1\", \"policyRef\": \"P1\", \"facts\": \"bob was healthy\"},
+       {\"claimRef\": \"C2\", \"policyRef\": \"P2\", \"facts\": \"carol was healthy\"},
+       {\"claimRef\": \"C3\", \"policyRef\": \"P1\", \"facts\": \"dave was healthy\"},
+       {\"claimRef\": \"C4\", \"policyRef\": \"P2\", \"facts\": \"eve was healthy\"}]}",
+    Scheds = "{\"schedules\": [
+       {\"policyRef\": \"P1\", \"buildingLimit\": 250000},
+       {\"policyRef\": \"P2\", \"buildingLimit\": 120000}]}",
+    Config = _{wording: _{name: "contract.md", text: W},
+               schedule: [_{name: "schedules.json", text: Scheds}],
+               cases: [_{name: "claims.json", text: Claims}],
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}}.
+
+test(a_json_claims_array_becomes_one_case_per_claim_end_to_end,
+     [setup(( retractall(user:saw_prompt(_)), hook_setup(user:hook_schedules) )),
+      cleanup(( retractall(user:saw_prompt(_)), hook_cleanup ))]) :-
+    json_cases_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    % four claims, the last quarter held out: three development cases
+    le_contract_assistant:ca_config(JobID, C),
+    assertion(C.n_dev_cases =:= 3),
+    user:saw_prompt(Prompt),
+    assertion(sub_string(Prompt, _, _, _, "### CASE 3")),
+    assertion(\+ sub_string(Prompt, _, _, _, "### CASE 4")),   % the fourth is blind
+    assertion(sub_string(Prompt, _, _, _, "3 cases were supplied")),
+    % each case carries the schedule entry it names, and not the other one
+    atom_string(PromptA, Prompt),
+    atomic_list_concat(Chunks, '### CASE ', PromptA),
+    nth1(3, Chunks, Case2),                     % chunk 1 is everything before CASE 1
+    assertion(sub_atom(Case2, _, _, _, 'carol was healthy')),
+    assertion(sub_atom(Case2, _, _, _, '120000')),
+    assertion(\+ sub_atom(Case2, _, _, _, '250000')),
+    !.
+
+% End to end: the refused rewrite does not become the base of the next round,
+% and the model is TOLD why — otherwise, at temperature 0, it sends the same
+% program again and the branch burns its patience on identical refusals.
+test(a_refused_rewrite_is_not_carried_forward_and_the_model_is_told,
+     [setup(( retractall(user:saw_repair(_, _)), hook_setup(user:hook_rewrites) )),
+      cleanup(( retractall(user:saw_repair(_, _)), hook_cleanup ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    % the second rewrite (the right program) was accepted, so the branch ends clean
+    good_program(Good),
+    assertion(Result.le == Good),
+    % round 1 was prompted with the program from round 0 — NOT the refused rewrite
+    user:saw_repair(1, Prompt1),
+    broken_program(Broken),
+    sub_string(Broken, _, _, _, "alice is happy"),
+    assertion(sub_string(Prompt1, _, _, _, "alice is happy")),
+    worse_program(Worse),
+    sub_string(Worse, _, _, _, "is happy if healthy"),
+    assertion(\+ sub_string(Prompt1, _, _, _, "is happy if healthy")),
+    % ... and it says why the previous reply was thrown away
+    assertion(sub_string(Prompt1, _, _, _, "REFUSED")),
+    assertion(sub_string(Prompt1, _, _, _, "SEARCH/REPLACE")),
+    !.
+
+% A provider that dies during the held-out evaluation costs the EVALUATION, not
+% the branch. (Observed: two fully repaired and polished branches were thrown
+% away because the provider answered 503 to the first held-out call of each, and
+% the job then had no branch left to deliver — twenty-one minutes lost.)
+test(a_dead_provider_during_holdout_keeps_the_repaired_program,
+     [setup(hook_setup(user:hook_holdout_dead)), cleanup(hook_cleanup)]) :-
+    two_case_config(_{holdout: "auto"}, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    good_program(P),
+    assertion(Result.le == P),                       % the program survived
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.errors =:= 0),
+    assertion(Score.tests_passed =:= 1),
+    assertion(Score.holdout_passed =:= 0),           % simply unscored
+    assertion(Score.holdout_failed =:= 0),
+    !.
+
+% ... and when only SOME held-out calls fail, the rest are still scored.
+test(a_flaky_provider_during_holdout_scores_the_cases_that_worked,
+     [setup(hook_setup(user:hook_holdout_flaky)), cleanup(hook_cleanup)]) :-
+    good_wording(W),
+    Config = _{wording: _{name: "contract.md", text: W},
+               cases: [_{name: "case1.md", text: "Case 1: bob was healthy."},
+                       _{name: "case2.md", text: "Case 2: carol was healthy."},
+                       _{name: "case3.md", text: "Case 3: dave was healthy."},
+                       _{name: "case4.md", text: "Case 4: eve was healthy."},
+                       _{name: "case5.md", text: "Case 5: frank was healthy."},
+                       _{name: "case6.md", text: "Case 6: grace was healthy."},
+                       _{name: "case7.md", text: "Case 7: heidi was healthy."},
+                       _{name: "case8.md", text: "Case 8: ivan was healthy."}],
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}},
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    Scores = Result.scores, Scores = [Score],
+    % 8 cases -> 2 held out; the first held-out call dies, the second answers
+    Total is Score.holdout_passed + Score.holdout_failed,
+    assertion(Total >= 1),
+    assertion(sub_string(Result.le, _, _, _, "held out case 202")),
+    !.
+
+% An unexpected error inside a branch is reported as that branch failing, not
+% as an exception escaping into the pipeline (branches run concurrently: an
+% escape takes every other branch's finished program with it).
+test(an_unexpected_branch_error_does_not_escape,
+     [setup(hook_setup(user:hook_odd_error)), cleanup(hook_cleanup)]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_status(JobID, Status),
+    assertion(Status = finished(error(_))),          % the job ends, tidily
+    findall(L, le_contract_assistant:ca_log(JobID, _, L), Lines),
+    assertion(( member(L, Lines), sub_string(L, _, _, _, "Branch 1 FAILED") )),
+    !.
 
 test(status_reports_config_and_elapsed,
      [setup(hook_setup(user:hook_good)), cleanup(hook_cleanup)]) :-
@@ -827,6 +1653,34 @@ test(dead_probe_generation_never_kills_the_job,
 % The repair loop extends beyond the patience count while iterations improve:
 % with patience 2, an improving repair resets the streak, so a third repair
 % call happens before two consecutive non-improving rounds stop the loop.
+% "0 errors, all tests passing" is not enough to stop repairing when a
+% MODELLING warning is left: the draft states a payment limit no rule reads, so
+% the loop must spend a repair round on it instead of declaring victory — the
+% failure mode this gate exists for is a limit sitting in plain sight while the
+% rules ignore it and every test passes anyway.
+test(repair_continues_while_a_modelling_warning_remains,
+     [setup(( hook_setup(user:hook_modelling),
+              retractall(user:modelling_repair_calls(_)) )),
+      cleanup(( hook_cleanup, retractall(user:modelling_repair_calls(_)) ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    assertion(user:modelling_repair_calls(_)),      % it did not stop at "right"
+    le_contract_assistant:ca_result(JobID, Result),
+    limit_used_program(P),
+    assertion(Result.le == P).
+
+% ... and a COSMETIC warning does not hold the loop: a dead template is the
+% polish rounds' business, and repairing on for it would burn LLM calls on
+% tidiness (hook_polish's draft is right-but-not-clean and its repair purpose
+% throws, so reaching one would fail the job).
+test(repair_stops_for_a_cosmetic_warning,
+     [setup(( hook_setup(user:hook_polish), retractall(polish_calls(_)) )),
+      cleanup(( hook_cleanup, retractall(polish_calls(_)) ))]) :-
+    start_config(Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))).
+
 test(repair_loop_extends_while_improving,
      [setup(( hook_setup(user:hook_progress),
               retractall(user:progress_repair_calls(_)),
@@ -1339,3 +2193,248 @@ test(disagreeing_probe_is_reverted_and_reported,
     assertion(Result.le == P).
 
 :- end_tests(contract_assistant_feature_pipeline).
+
+% ================== Fragment modes: scenario / query =========================
+% A program the user owns and a paragraph of English in; ONE scenario (or ONE
+% query) block out, carrying a `%` comment about what it does not cover. The
+% program is an input only — nothing the job produces may change it, and
+% breaking one of its passing tests is an error, not a trade-off.
+
+fixed_program("the target language is: prolog.
+
+the templates are:
+    *a person* is happy.
+    *a person* is healthy.
+    *a person* is rich.
+
+the knowledge base tiny includes:
+
+a person is happy
+    if the person is healthy.
+
+scenario one is:
+    bob is healthy.
+    who expects answers [\"bob is happy\"].
+
+query who is:
+    which person is happy.
+").
+
+fenced_block(Text, Reply) :- format(string(Reply), "Here it is:\n```le\n~w```\n", [Text]).
+
+good_scenario("scenario alice is:\n    alice is healthy.\n").
+% Same, but its one statement matches no template: the parser accepts it in
+% silence, so the pipeline has to catch it.
+mute_scenario("scenario alice is:\n    alice flies to mars.\n").
+% ... and one that declares a template, which the fixed program forbids.
+greedy_scenario("the templates are:\n    *a person* flies to *a place*.\n\nscenario alice is:\n    alice flies to mars.\n").
+good_query("query rich_and_happy is:\n    which person is happy\n    and the person is rich.\n").
+
+hook_fragment_good(fragment_draft(_), _, R) :- !, good_scenario(S), fenced_block(S, R).
+hook_fragment_good(fragment_coverage, _, "% Not represented: the text's mention of Alice's age (no template for it).") :- !.
+hook_fragment_good(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+hook_fragment_query(fragment_draft(_), _, R) :- !, good_query(Q), fenced_block(Q, R).
+hook_fragment_query(fragment_coverage, _, "Complete: the block represents the whole question.") :- !.
+hook_fragment_query(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+% Draft says nothing (no template matches); the repair round fixes it.
+hook_fragment_repair(fragment_draft(_), _, R) :- !, mute_scenario(S), fenced_block(S, R).
+hook_fragment_repair(fragment_repair(_, _), _, R) :- !, good_scenario(S), fenced_block(S, R).
+hook_fragment_repair(fragment_coverage, _, "% All represented.") :- !.
+hook_fragment_repair(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+% A draft that helpfully declares the template it wishes existed.
+hook_fragment_greedy(fragment_draft(_), _, R) :- !, greedy_scenario(S), fenced_block(S, R).
+hook_fragment_greedy(fragment_repair(_, _), _, R) :- !, good_scenario(S), fenced_block(S, R).
+hook_fragment_greedy(fragment_coverage, _, "% All represented.") :- !.
+hook_fragment_greedy(P, _, _) :- throw(unexpected_llm_purpose(P)).
+
+fragment_config(Mode, Config) :-
+    fixed_program(P),
+    Config = _{mode: Mode,
+               program: P,
+               text: "Alice, who is 34, is in good health.",
+               model: "stub-model",
+               budget: _{preset: "draft", minutes: 5}}.
+
+:- begin_tests(contract_assistant_fragments).
+
+test(scenario_mode_delivers_one_scenario_with_a_coverage_comment,
+     [setup(hook_setup(user:hook_fragment_good)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(Result.mode == scenario),
+    assertion(Result.filename == 'scenario.le'),
+    % the block itself, and nothing but the block
+    assertion(sub_string(Result.le, _, _, _, "scenario alice is:")),
+    assertion(sub_string(Result.le, _, _, _, "alice is healthy.")),
+    assertion(\+ sub_string(Result.le, _, _, _, "the templates are:")),
+    assertion(\+ sub_string(Result.le, _, _, _, "query who is:")),
+    % ... carrying the limitations of coverage, as a comment
+    assertion(sub_string(Result.le, _, _, _, "% Not represented")),
+    sub_string(Result.le, 0, 1, _, First),
+    assertion(First == "%"),
+    Scores = Result.scores, Scores = [Score],
+    assertion(Score.errors =:= 0).
+
+test(query_mode_delivers_one_query,
+     [setup(hook_setup(user:hook_fragment_query)), cleanup(hook_cleanup)]) :-
+    fragment_config(query, Config0),
+    Config = Config0.put(text, "Who is both happy and rich?"),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(Result.mode == query),
+    assertion(sub_string(Result.le, _, _, _, "query rich_and_happy is:")),
+    % a coverage note without a leading '%' is still delivered as a comment
+    assertion(sub_string(Result.le, _, _, _, "% Complete")).
+
+% The silent failure this whole pipeline exists to catch: a sentence that
+% matches no template is parked by the parser and reported by nobody.
+test(a_scenario_that_states_nothing_is_repaired,
+     [setup(hook_setup(user:hook_fragment_repair)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    assertion(le_contract_assistant:ca_status(JobID, finished(ok))),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(sub_string(Result.le, _, _, _, "alice is healthy.")),
+    assertion(\+ sub_string(Result.le, _, _, _, "flies to mars")).
+
+% "And nothing more": a reply that declares a template is rejected and repaired.
+test(a_fragment_may_not_declare_templates,
+     [setup(hook_setup(user:hook_fragment_greedy)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    assertion(\+ sub_string(Result.le, _, _, _, "the templates are:")),
+    assertion(sub_string(Result.le, _, _, _, "alice is healthy.")).
+
+test(the_ledger_reports_the_run,
+     [setup(hook_setup(user:hook_fragment_good)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    L = Result.ledger,
+    assertion(sub_string(L, _, _, _, "## Technicalities")),
+    assertion(sub_string(L, _, _, _, "stub-model")),
+    assertion(sub_string(L, _, _, _, "never modified")),
+    assertion(sub_string(L, _, _, _, "Exercised against the program")).
+
+% A new scenario is run against every query the program has, so the report can
+% say whether the program can decide anything at all about it.
+test(the_new_scenario_is_exercised_against_the_programs_queries,
+     [setup(hook_setup(user:hook_fragment_good)), cleanup(hook_cleanup)]) :-
+    fragment_config(scenario, Config),
+    start_contract_job(Config, [sync(true)], JobID),
+    le_contract_assistant:ca_result(JobID, Result),
+    E = Result.exercise,
+    assertion(E.enabled == true),
+    assertion(E.total =:= 1),
+    assertion(E.answered =:= 1),          % `who` finds alice happy
+    E.rows = [Row],
+    assertion(Row.answers =:= 1).
+
+% ---- unit-level: the fragment verification --------------------------------
+
+fragment_baseline_config(Mode, Config) :-
+    fixed_program(P),
+    verify_le_text(P, V),
+    le_contract_assistant:fragment_baseline(P, V, B),
+    Config = _{mode: Mode, program: P, baseline: B,
+               features: _{diff_repairs: true, expectations: auto}}.
+
+test(the_programs_own_issues_are_not_counted_against_the_fragment) :-
+    fragment_baseline_config(scenario, Config),
+    % `*a person* is rich.` is an unused template of the PROGRAM
+    fixed_program(P), verify_le_text(P, VP),
+    assertion(VP.warnings >= 1),
+    good_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    assertion(V.errors =:= 0),
+    assertion(\+ (member(I, V.issues), get_dict(type, I, "unused_template"))).
+
+test(a_sentence_matching_no_template_is_an_error_of_the_fragment) :-
+    fragment_baseline_config(scenario, Config),
+    mute_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    assertion(V.errors >= 1),
+    assertion((member(I, V.issues), get_dict(type, I, "unknown_template"))).
+
+test(a_declared_template_is_a_forbidden_section) :-
+    fragment_baseline_config(scenario, Config),
+    greedy_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    assertion((member(I, V.issues), get_dict(type, I, "forbidden_section"))).
+
+test(a_reply_with_no_block_at_all_is_an_error) :-
+    fragment_baseline_config(scenario, Config),
+    le_contract_assistant:verify_fragment(Config, "alice is healthy.\n", V),
+    assertion((member(I, V.issues), get_dict(type, I, "missing_block"))).
+
+test(two_blocks_are_an_error) :-
+    fragment_baseline_config(scenario, Config),
+    le_contract_assistant:verify_fragment(Config,
+        "scenario a is:\n    alice is healthy.\n\nscenario b is:\n    bob is rich.\n", V),
+    assertion((member(I, V.issues), get_dict(type, I, "too_many_blocks"))).
+
+% The program is not ours to change: a block that breaks one of its passing
+% tests is simply wrong.
+test(breaking_a_test_of_the_given_program_is_an_error) :-
+    fragment_baseline_config(scenario, Config),
+    % a fact stated for EVERY person makes bob rich, alice happy... and the
+    % program's own `who` expectation (bob alone) then fails
+    le_contract_assistant:verify_fragment(Config,
+        "scenario alice is:\n    alice is healthy.\n", V0),
+    assertion(V0.errors =:= 0),
+    le_contract_assistant:fragment_regressions(
+        _{passing: ["who"-"one"], tests: ["who"-"one"]},
+        _{test_details: [_{status: "fail", query: "who", scenario: "one"}]},
+        Regressions),
+    assertion(Regressions = [_]),
+    Regressions = [R],
+    assertion(get_dict(severity, R, "error")),
+    assertion(get_dict(type, R, "regression")).
+
+% Line numbers reach the model as lines of ITS OWN block, not of the spliced
+% program — otherwise every repair round is told to look at line 27 of a text
+% it has never seen.
+test(issue_line_numbers_are_rebased_onto_the_fragment) :-
+    fragment_baseline_config(scenario, Config),
+    mute_scenario(S),
+    le_contract_assistant:verify_fragment(Config, S, V),
+    member(I, V.issues), get_dict(type, I, "unknown_template"), !,
+    assertion(I.line =:= 2).          % the header is line 1, the fact line 2
+
+% The fragment modes cost a handful of calls, not a contract's worth.
+test(the_fragment_cost_estimate_is_not_a_contracts) :-
+    le_contract_assistant:cost_estimate(
+        _{mode: scenario, model: "stub", judge_model: "stub", k: 3, w: 1,
+          repairs: 3, probes: 4, input_chars: 4000}, Frag),
+    le_contract_assistant:cost_estimate(
+        _{mode: contract, model: "stub", judge_model: "stub", k: 3, w: 1,
+          repairs: 3, probes: 4, input_chars: 4000}, Whole),
+    assertion(Frag.calls < Whole.calls).
+
+test(an_unknown_mode_falls_back_to_contract) :-
+    forall(member(D, [_{}, _{mode: "nonsense"}, _{mode: null}]),
+           ( le_contract_assistant:job_mode(D, M), assertion(M == contract) )),
+    le_contract_assistant:job_mode(_{mode: "scenario"}, M1),
+    assertion(M1 == scenario).
+
+% Both required inputs are named plainly when they are missing, rather than
+% failing somewhere inside the pipeline.
+test(the_fragment_modes_require_a_program_and_a_text) :-
+    catch(start_contract_job(_{mode: "scenario", text: "x", model: "stub-model"}, [sync(true)], _),
+          E1, true),
+    assertion(nonvar(E1)),
+    assertion(( E1 = error(contract_assistant_error(M1), _), sub_string(M1, _, _, _, "program") )),
+    fixed_program(P),
+    catch(start_contract_job(_{mode: "query", program: P, model: "stub-model"}, [sync(true)], _),
+          E2, true),
+    assertion(nonvar(E2)),
+    assertion(( E2 = error(contract_assistant_error(M2), _), sub_string(M2, _, _, _, "text") )).
+
+:- end_tests(contract_assistant_fragments).
