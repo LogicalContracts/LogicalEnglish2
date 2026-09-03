@@ -49,7 +49,10 @@ i(Goal, SessionModule, Unknowns, Whys) :-
                 member(U, Unknowns0),
                 solve(U, SessionModule, KBmodule, [], 0, none, [], _)
             ),
-            Unknowns = Unknowns0
+            % One assumption reached through several branches of the proof (the
+            % same unclassified receipt feeding two sums, say) is one assumption
+            % to the caller, and reads as one line in a list of what is missing.
+            remove_variant_duplicates(Unknowns0, Unknowns)
         ),
         le_kbs:clear_kb_module
     ).
@@ -72,9 +75,9 @@ explain(Goal, SessionModule, Unknowns, Whys) :-
             \+ (
                 member(U, Unknowns0),
                 solve(U, SessionModule, KBmodule, [], 0, none, [], _)
-            ) ->  
-            Unknowns = Unknowns0
-            ;   
+            ) ->
+            remove_variant_duplicates(Unknowns0, Unknowns)
+            ;
             Unknowns = [],
             findall(W, (called(0, CID, _), build_failure_tree(CID, Ws), member(W, Ws)), Whys)
         ),
@@ -137,25 +140,44 @@ solve_real_actual(or(A, B), SM, KM, Anc, D, MyID, Us, Whys) :- !,
 solve_real_actual(once(Goal), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     once(solve(Goal, SM, KM, Anc, D, MyID, Us, Whys)).
 % Aggregates
+% A term contributes to the aggregate whenever the aggregation goal holds for it,
+% INCLUDING when it holds only by assuming some unknowns — exactly as an ordinary
+% conjunct does. Those unknowns are returned in Us, so the total is reported as
+% the conditional answer it is instead of being silently certified: collecting
+% only the definite solutions (as this used to) dropped the assumable ones from
+% the sum AND returned no unknowns at all, so a caller reading "unknowns == []"
+% as "certified" got a confident wrong total with no signal.
+%
+% The `\+ definitely_provable(...)` guard is the aggregate-level counterpart of
+% the "definite proof wins" rule i/4 applies to whole answers (see i/4): a goal
+% that is both stated and declared unknown is solvable twice — once as a fact,
+% once by assumption — and without the guard the same term would be counted
+% twice in the sum.
 solve_real_actual(Aggregate, SM, KM, Anc, D, MyID, Us, [success(Aggregate, aggregate, WhysGoal)]) :-
     is_aggregate(Aggregate, Type, VarTerm, Goal, ResultTerm), !,
     D1 is D + 1,
     extract_var(VarTerm, Var),
-    findall(Var-Whys, solve(Goal, SM, KM, Anc, D1, MyID, [], Whys), Pairs),
-    (   Pairs == [] ->  
+    findall(agg(Var, Us1, Whys),
+            ( solve(Goal, SM, KM, Anc, D1, MyID, Us1, Whys),
+              \+ ( member(U, Us1), definitely_provable(U, SM, KM, D1) )
+            ),
+            Solutions),
+    (   Solutions == [] ->
         % Goal failed, build failure tree for the goal
         % We need to ensure the failure is recorded under MyID
         next_id(GoalID),
         ( (MyID \== none, ground(Goal)) -> assertz(called(MyID, GoalID, Goal)); true),
         ( solve(Goal, SM, KM, Anc, D1, GoalID, [], _) -> true ; true ),
         build_failure_tree(GoalID, WhysGoal),
-        List = []
-    ;   pairs_keys_values(Pairs, List, WhysList),
-        flatten(WhysList, WhysGoal)
+        List = [], Us = []
+    ;   maplist(agg_value, Solutions, List),
+        maplist(agg_whys, Solutions, WhysList),
+        flatten(WhysList, WhysGoal),
+        maplist(agg_unknowns, Solutions, UsLists),
+        append(UsLists, Us0),
+        remove_variant_duplicates(Us0, Us)
     ),
     apply_aggregate(Type, List, Result),
-
-    Us = [],
     extract_var(ResultTerm, Result).
 % Forall
 % The explanation states the universal once in the header (with its quantified
@@ -191,15 +213,21 @@ solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
     % Keep the forall itself on the ancestor stack while its condition and
     % consequent are solved, so the "for all cases in which …" frame stays visible
     % in the debugger instead of vanishing while its sub-goals run.
+    % A case whose condition holds only by ASSUMING an unknown is still a case:
+    % its consequent is required exactly as a definite case's is, and whatever
+    % it assumed is returned in Us. Skipping the consequent for such a case (as
+    % this used to) claimed the universal held while a case that may well exist
+    % went unchecked, and reported no unknown to say so — a confident answer
+    % with no signal, the same defect that used to hide unknowns inside
+    % aggregates.
     ForallAnc = [forall(Cond, Cons) | Anc],
     findall(Case,
         ( solve(Cond, SM, KM, ForallAnc, D1, CondID, UsC, WhysCond),
-          ( UsC == []
-            -> ( solve(Cons, SM, KM, ForallAnc, D1, MyID, [], WhysCons)
-                 -> Case = ok(Cond, WhysCond, Cons, WhysCons)
-                 ;  Case = consequent_failed )
-            ;  Case = unknown_condition(Cond, WhysCond)
-          )
+          \+ ( member(U, UsC), definitely_provable(U, SM, KM, D1) ),
+          ( solve(Cons, SM, KM, ForallAnc, D1, MyID, UsK, WhysCons)
+            -> append(UsC, UsK, UsCase),
+               Case = ok(Cond, WhysCond, Cons, WhysCons, UsCase)
+            ;  Case = consequent_failed )
         ),
         Cases),
     (   Cases == [] ->
@@ -207,17 +235,20 @@ solve_real_actual(forall(Cond, Cons), SM, KM, Anc, D, MyID, Us,
             % so it renders as a (red) negative branch under the header.
             build_failure_tree(CondID, CondFailWhys),
             ( CondFailWhys = [CondWhy] -> true ; CondWhy = failure(Cond, CondFailWhys) ),
-            CaseChildren = [CondWhy]
+            CaseChildren = [CondWhy],
+            Us = []
         ;   \+ memberchk(consequent_failed, Cases) ->
-            % Consequent holds for every definite case: the universal holds. Render
-            % one "for case <condition>" / "it is true that <consequent>" pair per
-            % case (each carrying that instance's own derivation).
+            % Consequent holds for every case: the universal holds. Render one
+            % "for case <condition>" / "it is true that <consequent>" pair per
+            % case (each carrying that instance's own derivation), and report the
+            % assumptions the cases rested on.
             findall(Nodes, ( member(C, Cases), forall_case_nodes(C, Nodes) ), NodeLists),
-            append(NodeLists, CaseChildren)
-        ;   % Some definite case's consequent failed: the universal fails.
+            append(NodeLists, CaseChildren),
+            findall(U, ( member(ok(_, _, _, _, UsCase), Cases), member(U, UsCase) ), Us0),
+            remove_variant_duplicates(Us0, Us)
+        ;   % Some case's consequent failed: the universal fails.
             fail
-    ),
-    Us = []. % TODO: handle unknowns in forall
+    ).
 
 % Negation as Failure
 solve_real_actual(not(Goal), SM, KM, Anc, D, MyID, Us, [success(not(Goal), negation, FailureTrees)]) :- !,
@@ -308,20 +339,43 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
             Us = [G], WhysBody = [], Ref = unknown
     ).
 
+% One solution of an aggregation goal: the aggregated value, the unknowns that
+% solution assumed, and its derivation.
+agg_value(agg(V, _, _), V).
+agg_unknowns(agg(_, Us, _), Us).
+agg_whys(agg(_, _, Whys), Whys).
+
+%!  remove_variant_duplicates(+Us0:list, -Us:list) is det.
+%
+%   Us0 without repeats, first occurrence kept. One assumption relied on by
+%   several aggregated terms — a single unclassified receipt feeding two sums —
+%   is reported once. sort/2 would do it, but it would also reorder the list;
+%   unknowns read best in the order the proof met them.
+remove_variant_duplicates([], []).
+remove_variant_duplicates([U|Us0], [U|Us]) :-
+    exclude(=@=(U), Us0, Rest),
+    remove_variant_duplicates(Rest, Us).
+
+%!  definitely_provable(+Goal, +SM, +KM, +D) is semidet.
+%
+%   True when Goal has a proof that assumes nothing. Used to discard an
+%   assumption-based solution when the same goal is also established outright
+%   (the "definite proof wins" rule, applied per aggregated term).
+definitely_provable(Goal, SM, KM, D) :-
+    \+ \+ solve(Goal, SM, KM, [], D, none, [], _).
+
 % forall_case_nodes(+Case, -Nodes): explanation nodes for one universal case — a
-% "for case <condition>" node, and (when the condition is definite) an "it is true
-% that <consequent>" node, each carrying that instance's derivation.
-forall_case_nodes(ok(Cond, WhysCond, Cons, WhysCons),
+% "for case <condition>" node and an "it is true that <consequent>" node, each
+% carrying that instance's derivation. A case that rests on an assumption is not
+% a separate node shape: the assumed literal already sits in the condition's own
+% derivation with an `unknown` ref, which is what marks it as assumed.
+forall_case_nodes(ok(Cond, WhysCond, Cons, WhysCons, _Us),
         [success(for_case(CondGoal), CondRef, CondChildren),
-         success(it_is_true_that(ConsGoal), ConsRef, ConsChildren)]) :- !,
+         success(it_is_true_that(ConsGoal), ConsRef, ConsChildren)]) :-
     unwrap_le_at(Cond, CondGoal),
     unwrap_le_at(Cons, ConsGoal),
     case_proof(WhysCond, CondRef, CondChildren),
     case_proof(WhysCons, ConsRef, ConsChildren).
-forall_case_nodes(unknown_condition(Cond, WhysCond),
-        [success(for_case(CondGoal), CondRef, CondChildren)]) :-
-    unwrap_le_at(Cond, CondGoal),
-    case_proof(WhysCond, CondRef, CondChildren).
 
 unwrap_le_at(le_at(G, _, _), G) :- !.
 unwrap_le_at(G, G).
@@ -333,14 +387,18 @@ unwrap_le_at(G, G).
 case_proof([success(_, Ref, GrandChildren)], Ref, GrandChildren) :- !.
 case_proof(Whys, universal_case, Whys).
 
+% Both lookups go through the functor indexes (le_dict_fa/3, le_dict_opposite/3
+% — see assert_le_dict/3 in le_kbs): every le_dict/1 clause carries the same
+% first-argument key, so asking it for one template used to walk the whole
+% templates section, once per literal the verifier checks.
 has_opposite(G, SM, KM, OppG) :-
     ( KM \== none -> M = KM ; M = SM ),
     functor(G, F, A),
-    (   M:le_dict(dict([F|Args], _, _, _, Opposite, _, _)), length(Args, A), nonvar(Opposite) ->
+    (   dict_by_functor(M, F, A, dict([F|Args], _, _, _, Opposite, _, _)), nonvar(Opposite) ->
         % G is the main predicate
         G =.. [F | GArgs],
         copy_term(dict(Args, Opposite), dict(GArgs, OppG))
-    ;   M:le_dict(dict(FA, _, _, _, Opposite, _, _)), nonvar(Opposite), functor(Opposite, F, A) ->
+    ;   dict_by_opposite(M, F, A, dict(FA, _, _, _, Opposite, _, _)), nonvar(Opposite) ->
         % G is the opposite predicate
         Opposite =.. [F | OppArgs],
         G =.. [F | GArgs],
@@ -363,10 +421,30 @@ is_type_compatible(SM, KM, G) :-
 % predicate is F/N. Both the full dict/7 and the short dict/3 form are searched,
 % as before.
 candidate_dict(M, F, N, FormalArgs, NTs) :-
-    (   M:le_dict(dict([F|FormalArgs], NTs, _, _, _, _, _))
-    ;   M:le_dict(dict([F|FormalArgs], NTs, _))
-    ),
-    length(FormalArgs, N).
+    (   dict_by_functor(M, F, N, dict([F|FormalArgs], NTs, _, _, _, _, _))
+    ;   dict_by_functor(M, F, N, dict([F|FormalArgs], NTs, _))
+    ).
+
+%!  dict_by_functor(+M, +F, +A, ?Dict) is nondet.
+%!  dict_by_opposite(+M, +F, +A, ?Dict) is nondet.
+%
+%   Templates by the predicate they declare, and by the predicate their
+%   `opposite:` declares. The indexes are written when the template is asserted
+%   (assert_le_dict/3); a KB loaded before they existed — or by a path that
+%   never built them — falls back to the scan, so nothing depends on them
+%   being there.
+dict_by_functor(M, F, A, Dict) :-
+    (   current_predicate(M:le_dict_fa/3)
+    ->  M:le_dict_fa(F, A, Dict)
+    ;   M:le_dict(Dict), arg(1, Dict, [F|Args]), length(Args, A)
+    ).
+
+dict_by_opposite(M, F, A, Dict) :-
+    (   current_predicate(M:le_dict_opposite/3)
+    ->  M:le_dict_opposite(F, A, Dict)
+    ;   M:le_dict(Dict), Dict = dict(_, _, _, _, Opposite, _, _),
+        nonvar(Opposite), functor(Opposite, F, A)
+    ).
 
 %!  args_compatible_any(+Candidates, +ActualArgs, +M, +SM, +KM) is semidet.
 %
@@ -692,6 +770,8 @@ is_built_in(le_le(_, _)).
 is_built_in(le_gt(_, _)).
 is_built_in(le_lt(_, _)).
 is_built_in(le_is_days_after(_, _, _)).
+is_built_in(le_minimum(_, _, _)).
+is_built_in(le_maximum(_, _, _)).
 is_built_in(le_is_in(_, _)).
 is_built_in(equal_to(_, _)).
 
@@ -739,6 +819,8 @@ call_reasoner_built_in(le_le(X, Y), _) :- !, le_compare(=<, X, Y).
 call_reasoner_built_in(le_gt(X, Y), _) :- !, le_compare(>, X, Y).
 call_reasoner_built_in(le_lt(X, Y), _) :- !, le_compare(<, X, Y).
 call_reasoner_built_in(le_is_days_after(Later, Count, Before), _) :- !, le_is_days_after(Later, Count, Before).
+call_reasoner_built_in(le_minimum(X, Y, Z), _) :- !, le_minimum(X, Y, Z).
+call_reasoner_built_in(le_maximum(X, Y, Z), _) :- !, le_maximum(X, Y, Z).
 call_reasoner_built_in(equal_to(X, Y), _) :- !, equal_to(X, Y).
 call_reasoner_built_in(G, _) :- call(G).
 
@@ -753,8 +835,28 @@ le_compare(<, X, Y) :- !, X @< Y.
 
 equal_to(X, X).
 
+%!  le_minimum(+X, +Y, -Z) is semidet.
+%!  le_maximum(+X, +Y, -Z) is semidet.
+%
+%   "the minimum of *a number* and *an other number* is *a third number*" —
+%   the smaller (larger) of two numbers. Least of / greater of is everywhere in
+%   insurance and finance wording (a limit against a repair cost, an excess
+%   against a loss), and without a template for it models write `Z = min(X, Y)`
+%   — which is not an LE expression and dies at run time with "min(A,B)/0 is
+%   not a function". Both arguments must be numbers; the result is compared
+%   when it is already bound, so the goal can also be used as a test.
+le_minimum(X, Y, Z) :-
+    number(X), number(Y),
+    M is min(X, Y),
+    ( var(Z) -> Z = M ; number(Z), Z =:= M ).
+
+le_maximum(X, Y, Z) :-
+    number(X), number(Y),
+    M is max(X, Y),
+    ( var(Z) -> Z = M ; number(Z), Z =:= M ).
+
 le_is_days_after(Later, Count, Before) :-
-    nonvar(Before), nonvar(Count), !, 
+    nonvar(Before), nonvar(Count), !,
     le_date_stamp(Before, BeforeStamp),
     LaterStamp is Count*86400 + BeforeStamp,
     le_stamp_date(LaterStamp, Later).

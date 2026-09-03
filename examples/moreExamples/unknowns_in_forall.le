@@ -1,0 +1,56 @@
+the target language is: prolog.
+
+% Unknowns inside a universal ("for all cases in which ...").
+%
+% A case whose CONDITION holds only by assuming an unknown is still a case: its
+% consequent has to hold too, and the assumption has to be reported. Skipping
+% such a case claimed the universal held while a case that may well exist went
+% unchecked, and returned no unknowns to say so — a confident answer with no
+% signal, the same defect that used to hide unknowns inside aggregates.
+
+the templates are:
+    *a person* is on the list; unknown.
+    *a person* is enrolled.
+    *a person* has paid.
+    every enrolled person on the list has paid.
+
+the knowledge base forall_unknowns includes:
+
+every enrolled person on the list has paid
+    if for all cases in which
+        a person is enrolled
+        and the person is on the list
+        it is the case that
+        the person has paid.
+
+% Ann is the only enrolled person and she has paid. Whether she is on the list
+% was never stated, so the universal holds only on that assumption — and says so.
+scenario open is:
+    ann is enrolled.
+    ann has paid.
+    paid expects answers ["every enrolled person on the list has paid"]
+        and unknowns ["ann is on the list"].
+
+% Ben is enrolled and has not paid. His being on the list is exactly as open a
+% question as Ann's, so his case must be checked, not skipped: the universal
+% must not be claimed.
+scenario counterexample is:
+    ann is enrolled.
+    ann has paid.
+    ben is enrolled.
+    paid expects answers [] and unknowns [].
+
+% List membership stated outright for the one enrolled person: nothing is left
+% to assume.
+scenario settled is:
+    ann is enrolled.
+    ann has paid.
+    ann is on the list.
+    paid expects answers ["every enrolled person on the list has paid"] and unknowns [].
+
+% Nobody is enrolled: the universal is vacuously true, with nothing assumed.
+scenario vacuous is:
+    paid expects answers ["every enrolled person on the list has paid"] and unknowns [].
+
+query paid is:
+    every enrolled person on the list has paid.
