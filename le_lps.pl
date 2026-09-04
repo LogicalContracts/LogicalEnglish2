@@ -387,11 +387,20 @@ locate_issue(LEText, le_lps_issue(S, T, M, Start, _),
 %
 %   1-based line, 0-based column, as docs/le_lps_interface.md §2 requires.
 offset_line_col(Text, Offset, Line, Col) :-
-	sub_string(Text, 0, Offset, _, Before),
-	split_string(Before, "\n", "", Parts),
-	length(Parts, Line),
-	last(Parts, LastLine),
-	string_length(LastLine, Col).
+	string_length(Text, Len),
+	(   Offset =< Len
+	->  sub_string(Text, 0, Offset, _, Before),
+	    split_string(Before, "\n", "", Parts),
+	    length(Parts, Line),
+	    last(Parts, LastLine),
+	    string_length(LastLine, Col)
+	;   %  An offset past the end of the document belongs to an included
+	    %  resource (`includes these resources:`), whose items keep their
+	    %  own file's offsets. There is no file to name yet, so the
+	    %  position is the contract's "unknown" rather than a failure —
+	    %  which used to take the whole emission down with it.
+	    Line = 0, Col = 0
+	).
 
 %   LE-side issues the loader already recorded, carried across unchanged.
 kb_issues(KB, Issues) :-
