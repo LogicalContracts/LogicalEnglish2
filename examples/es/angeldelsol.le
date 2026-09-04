@@ -1,0 +1,72 @@
+el lenguaje objetivo es:  prolog.
+
+las  plantillas son:
+    *un ave* tiene un hermoso plumaje.
+    *un ave* es probablemente macho.
+    *un ave* es más atractiva para el otro sexo.
+    *un ave* tiene ventajas para la reproducción.
+    *un ave* atrae depredadores.
+    *un ave* pone en riesgo a sus descendientes.
+    *un ave* está a cargo del nido.
+    *una estrategia* contribuye a la supervivencia de *una especie*.
+    hay *un primer sujeto* y *un segundo sujeto* para garantizar la reproducción de *una especie*. 
+
+la base de conocimiento angel del sol incluye:
+
+un colibrí es probablemente macho si
+    el colibrí tiene un hermoso plumaje.
+
+un ave es más atractiva para el otro sexo si
+    el ave tiene un hermoso plumaje. 
+
+un ave tiene ventajas para la reproducción si
+    el ave es más atractiva para el otro sexo. 
+
+% no es cierto que 
+%   un ave es un colibrí
+%   y el ave es un macho
+%   y no es el caso que el ave tiene un hermoso plumaje.  
+
+% no es cierto que 
+%   un ave es un colibrí
+%   y el ave es una hembra
+%   y el ave tiene un hermoso plumaje.
+
+un ave atrae depredadores si
+    el ave tiene un hermoso plumaje.
+
+un ave pone en riesgo a sus descendientes si
+    el ave atrae depredadores
+    y el ave está a cargo del nido. 
+
+un ave está a cargo del nido si
+    el ave es un colibrí
+    y el ave es una hembra.
+
+dimorfismo sexual contribuye a la supervivencia de una especie si
+    hay un primer individuo y un segundo individuo para garantizar la reproducción de la especie
+    y el primer individuo tiene ventajas para la reproducción
+    y no es el caso que 
+        el segundo individuo pone en riesgo a sus descendientes.
+
+
+escenario uno es:
+    el colibrí en la imagen es un ave.
+    el colibrí en la imagen es un colibrí. 
+    el colibrí en la imagen es un macho.
+    el colibrí en la imagen tiene un hermoso plumaje.
+    hay el colibrí en la imagen y alguna hembra para garantizar la reproducción de los colibríes.
+    uno espera respuestas ["el colibrí en la imagen es probablemente un macho"]. 
+
+escenario dos es:
+    hay Él y Ella para garantizar la reproducción de los colibríes.
+    Él tiene un hermoso plumaje.
+    Él es un macho.
+    Ella es una hembra.
+    dos espera respuestas ["dimorfismo sexual contribuye a la supervivencia de los colibríes"].
+
+consulta uno es:
+    cuál ave es probablemente macho. 
+
+consulta dos es:
+    cuál estrategia contribuye a la supervivencia de cuál especie. 
