@@ -750,10 +750,11 @@ single_variable_fact(KB, issue(single_variable_fact, Description, Fix, Start, En
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
 
 % --- 8a. Scenario fact with a single, likely-accidental variable ---
-% The same trap as single_variable_fact, but inside a scenario. There the
-% articles behave differently from the knowledge base: "the individual is happy"
-% names the constant 'the individual' (safe), but "a person is happy" quietly
-% introduces a *variable*, so the scenario fact holds for every person. Such a
+% The same trap as single_variable_fact, but inside a scenario: "a person is
+% happy" quietly introduces a *variable*, so the scenario fact holds for every
+% person. ("the individual is happy" is safe: a definite phrase that nothing
+% introduced names the constant 'the individual', in a scenario as in the
+% knowledge base.) Such a
 % fact compiles to a clause whose body is just the type check, and scenario
 % facts are stored as terms inside scenario/2 rather than as KB clauses, so the
 % check above does not see them. Rules and unknown facts (whose bodies contain

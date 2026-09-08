@@ -56,7 +56,7 @@ escenario uno es:
     el colibrí en la imagen es un macho.
     el colibrí en la imagen tiene un hermoso plumaje.
     hay el colibrí en la imagen y alguna hembra para garantizar la reproducción de los colibríes.
-    uno espera respuestas ["el colibrí en la imagen es probablemente un macho"]. 
+    uno espera respuestas ["el colibrí en la imagen es probablemente macho"]. 
 
 escenario dos es:
     hay Él y Ella para garantizar la reproducción de los colibríes.

@@ -143,8 +143,21 @@ Cálculos sobre conjuntos de resultados.
 ## 6. Variáveis e constantes
 - **Variáveis:**
   - Explícitas: `*a minha variável*`
-  - Implícitas: `uma pessoa`, `a pessoa`, `alguma pessoa`, `cada pessoa`, `qual pessoa`
+  - Implícitas: `uma pessoa`, `alguma pessoa`, `cada pessoa`, `qual pessoa` — e
+    `a pessoa`, mas **apenas como retoma**: ver §6.0.
   - Especiais: `quem`, `quê`, `quando`, `onde`
+
+### 6.0 Frases definidas: retoma ou constante global
+Uma frase **indefinida** (`uma pessoa`, `um montante`) *introduz* uma variável.
+Uma frase **definida** (`a pessoa`, `o coelho branco`) nunca introduz: só é uma
+variável quando a **mesma frase** já introduziu uma variável com esse nome; caso
+contrário nomeia uma **constante global** — o indivíduo que a frase denota,
+escrito com o artigo (`o coelho branco`), o mesmo em todas as regras, cenários e
+consultas do programa. É o que já acontecia nos cenários, e passa a valer também
+na base de conhecimento. Ver `examples/moreExamples/white_rabbit.le` (em inglês).
+
+Para usar como variável uma frase definida que nada introduz, nomeie-a
+explicitamente: `*o coelho branco*` (§6.1).
 
 ### 6.1 Nomes e tipos de variáveis
 - **Tipo** = o **substantivo principal** da frase; a frase completa é o **nome** da variável (identidade e apresentação).

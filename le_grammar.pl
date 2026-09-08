@@ -1307,7 +1307,8 @@ capitalize_atom(W, Cap) :-
 %   Decides whether a sequence of Words introduces a variable, and under
 %   what determiner policy:
 %   - Mode == true: any article (a/an/the/some) or id introduces a variable
-%     (the classic rule/query behaviour).
+%     (the classic rule/query behaviour). A *definite* phrase is only ever an
+%     anaphoric reference, never an introduction: see definite_is_anaphoric/3.
 %   - Mode == indefinite: only an indefinite determiner (a/an/some) introduces
 %     a fresh variable. A definite phrase ("the repair cost") is left to be
 %     treated as a constant individual. Used when parsing scenario facts, where
@@ -1317,6 +1318,25 @@ allow_var_name(true, Words, Name) :- extract_var_name(Words, Name).
 allow_var_name(indefinite, Words, Name) :- \+ definite_phrase(Words), extract_var_name(Words, Name).
 
 definite_phrase([Art | _]) :- le_i18n:class_member(definite_article, Art).
+
+%!  definite_is_anaphoric(+Words, +Name, +VMIn) is semidet.
+%
+%   Gate applied to a phrase that allow_var_name/3 accepted as a variable, in
+%   rule/query mode. An *indefinite* phrase ("a white rabbit") introduces a
+%   variable and always passes. A *definite* phrase ("the white rabbit") is a
+%   variable only when that same variable has already been introduced in the
+%   same sentence — i.e. its name is in the variable map. Otherwise it is not a
+%   variable at all: it falls through to the constant branches of
+%   extract_value_from_parts/8 and denotes a global constant, 'the white
+%   rabbit', the same individual named by that phrase anywhere else in the
+%   program (scenarios included, where definite phrases are already constants).
+%
+%   To force a variable out of a definite phrase that nothing introduced, name
+%   it explicitly: *the white rabbit*.
+definite_is_anaphoric(Words, _Name, _VMIn) :- \+ definite_phrase(Words), !.
+definite_is_anaphoric(_Words, Name, VMIn) :-
+    normalize_var_name(Name, NormName),
+    memberchk(NormName-_, VMIn).
 
 unify_with_vmap(Name, Var, VMIn, VMOut, IsVar) :-
     unify_with_vmap_extension(Name, Var, VMIn, VMOut, IsVar), !.
@@ -1373,10 +1393,12 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
         ; (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
         ; maplist(extract_simple_word, Parts, Words),
           (   check_global_abbreviation(Words, Templates, Value, VMIn, VMOut) -> true
-              ; allow_var_name(AllowVars, Words, Name) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
+              ; allow_var_name(AllowVars, Words, Name),
+                definite_is_anaphoric(Words, Name, VMIn) -> unify_with_vmap(Name, Value, VMIn, VMOut, true)
               ; NoTransform \== true, transform_instance(Parts, Templates, VMIn, VMOut, Value, AllowVars, Depth) -> true
               ; is_proper_name(Words) -> tokens_to_string(Parts, Value), VMOut = VMIn
-              ; parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars),
+              ; \+ definite_hyphenated_name(Words, Parts),
+                parse_expression(Parts, VMIn, VMOut, Templates, Value, AllowVars),
                 \+ is_hyphenated_id(Value, VMIn) -> true
               ; (AllowVars == false ; AllowVars == indefinite) -> ( Words = [Value] -> true; tokens_to_string(Parts, Value)), VMOut = VMIn
               ; % Fallback: treat as constant if not a variable name
@@ -2781,6 +2803,25 @@ is_hyphenated_id(-(V, N), VM) :-
     number(N),
     var(V),
     \+ (member(_-V1, VM), V1 == V).
+
+%!  definite_hyphenated_name(+Words, +Parts) is semidet.
+%
+%   True for a definite description whose tokens contain a hyphen written with
+%   no space on either side, as in "le Royaume-Uni": that is a compound name,
+%   not a subtraction. Source positions are what tells the two apart, since
+%   arithmetic between named ids is written with spaces or without an article
+%   ("VR = (ET-P)/PAYG"), so such a phrase is kept out of the expression branch
+%   of extract_value_from_parts/8 and named as a constant instead.
+definite_hyphenated_name(Words, Parts) :-
+    definite_phrase(Words),
+    append(_, [Prev, Hyphen, Next | _], Parts),
+    ( Hyphen = punctuation(-, _) ; Hyphen = punct(-, _) ),
+    token_span(Hyphen, HStart, HEnd),
+    token_span(Prev, _, HStart),
+    token_span(Next, HEnd, _),
+    !.
+
+token_span(Token, Start, End) :- compound(Token), arg(2, Token, loc(Start, End)).
 
 
 % Structured Body Parsing

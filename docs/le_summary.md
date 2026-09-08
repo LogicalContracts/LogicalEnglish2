@@ -15,6 +15,7 @@ This document provides a summary of the Logical English constructs supported by 
   - [4. Logical Operators](#4-logical-operators)
   - [5. Aggregates](#5-aggregates)
   - [6. Variables and Constants](#6-variables-and-constants)
+    - [6.0 Definite descriptions: back-reference or global constant](#60-definite-descriptions-back-reference-or-global-constant)
     - [6.1 Variable names and types](#61-variable-names-and-types)
     - [6.2 Type checking](#62-type-checking)
   - [7. Arithmetic and Comparisons](#7-arithmetic-and-comparisons)
@@ -192,8 +193,40 @@ Used to perform calculations over sets of results.
 ## 6. Variables and Constants
 - **Variables:**
   - Explicit: `*my variable*`
-  - Implicit: `a person`, `the person`, `some person`, `each person`, `which person`
+  - Implicit: `a person`, `some person`, `each person`, `which person` — and
+    `the person`, but **only as a back-reference**: see §6.0.
   - Special: `who`, `what`, `when`, `where`
+
+### 6.0 Definite descriptions: back-reference or global constant
+An **indefinite** phrase (`a person`, `an amount`, `some rabbit`) *introduces* a
+variable. A **definite** phrase (`the person`, `the white rabbit`) never does: it
+is a variable only when the *same sentence* has already introduced one with that
+name, and otherwise names a **global constant** — the individual that the phrase
+denotes, written with its article (`the white rabbit`), the same in every rule,
+scenario and query of the program.
+
+```le
+a rabbit is in a hurry
+    if the rabbit is late for an appointment.       % "the rabbit" = the head's variable
+
+a person falls down the rabbit hole
+    if the person follows the white rabbit          % "the white rabbit" = a constant,
+    and the white rabbit is late for the tea party. % and so is "the tea party"
+```
+The second rule is about **one** rabbit: a scenario fact `the white rabbit is
+late for the tea party` is about that same individual, because a definite phrase
+in a scenario has always been a constant. See
+`examples/moreExamples/white_rabbit.le`.
+
+Consequences worth knowing:
+- Order matters within a sentence, not just membership: the introduction has to
+  come first (heads are read before bodies, conditions left to right), which is
+  how LE is written anyway.
+- A typo in a back-reference (`the peron`) no longer becomes a silently
+  unconstrained variable; it becomes a constant nothing else mentions, so the
+  rule simply does not fire.
+- To use a definite phrase as a variable that nothing introduces, name it
+  explicitly: `*the white rabbit*` (§6.1).
 
 ### 6.1 Variable names and types
 A variable phrase optionally carries a **name** in addition to its **type**, so that several variables of the same type can be distinguished:

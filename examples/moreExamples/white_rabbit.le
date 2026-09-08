@@ -1,0 +1,38 @@
+% Definite descriptions: "the white rabbit" is a variable only when the same
+% rule introduced it with "a white rabbit". Where nothing introduces it, the
+% phrase names a global constant — the same individual everywhere in the
+% program, rules and scenarios alike.
+the target language is: prolog.
+
+the templates are:
+*a rabbit* is late for *an appointment*.
+*a rabbit* is in a hurry.
+*a person* follows *a rabbit*.
+*a person* falls down the rabbit hole.
+
+the knowledge base wonderland includes:
+
+% "a rabbit" in the head introduces the variable, so "the rabbit" in the body
+% refers back to it: this rule is about every rabbit.
+a rabbit is in a hurry
+    if the rabbit is late for an appointment.
+
+% Nothing introduces "the white rabbit" or "the tea party", so both are global
+% constants: this rule is about that one rabbit and that one appointment.
+a person falls down the rabbit hole
+    if the person follows the white rabbit
+    and the white rabbit is late for the tea party.
+
+scenario wonderland is:
+    the white rabbit is late for the tea party.
+    the march hare is late for the mad breakfast.
+    Alice follows the white rabbit.
+    Bob follows the march hare.
+    hurried expects answers ["the white rabbit is in a hurry", "the march hare is in a hurry"].
+    down expects answers ["Alice falls down the rabbit hole"].
+
+query hurried is:
+    which rabbit is in a hurry.
+
+query down is:
+    which person falls down the rabbit hole.
