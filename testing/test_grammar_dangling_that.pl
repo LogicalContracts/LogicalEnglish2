@@ -68,10 +68,11 @@ contains_not_true(T) :-
 test(not_the_case_absorbs_shallower_argument) :-
     prohibited_bodies(_KB, Bodies),
     % The lofty creature is the same one whose attendance is not approved, so
-    % the variable is shared between the two conjuncts.
+    % the variable is shared between the two conjuncts. ("the tea party" is a
+    % constant: nothing in this rule introduces it with "a tea party".)
     assertion(has_variant(Bodies,
                           and(is_a_lofty_creature(A),
-                              not(it_is_approved_that(attends(A, _)))))),
+                              not(it_is_approved_that(attends(A, 'the tea party')))))),
     % And the broken not(true) form must be gone from every rule.
     assertion(\+ ( member(B, Bodies), contains_not_true(B) )).
 

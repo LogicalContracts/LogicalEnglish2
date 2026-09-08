@@ -100,6 +100,7 @@ CONSULTAS
 * Write the ontology based on the types (`um estudante é uma pessoa.`)
 * Write the rules (`Cabeça se Corpo.`), defining and using the predicates
   * Make sure rules use variables, because concrete objects/entities should be provided via scenarios instead
+  * Only an indefinite phrase introduces a variable (`uma pessoa`, `um montante`): a definite one (`a pessoa`) refers back to a variable already introduced in the SAME sentence, and where nothing introduced it, it names a global constant (`o coelho branco` is one individual, not a variable)
   * Comparisons among numbers or dates need the system templates (`é superior a`, `é anterior a`, ...) or PROLOG operators, instead of comparative adjectives
 * Write scenarios (`cenário <nome> é:`) and queries (`consulta <nome> é:`), based on the examples
 * Scenario facts should not be for rule head predicates, but for predicates used in rule bodies

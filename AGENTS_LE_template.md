@@ -99,6 +99,7 @@ QUERIES
 * Write the ontology based on the types
 * Write the rules, defining and using the predicates
   * Make sure rules use variables, because concrete objects/entities should be provided via scenarios instead
+  * Only an indefinite phrase introduces a variable (`a person`, `an amount`): a definite one (`the person`) refers back to a variable already introduced in the SAME sentence, and where nothing introduced it, it names a global constant (`the white rabbit` is one individual, not a variable)
   * Comparisons among numbers or dates need to be written with PROLOG operators, instead of comparative adjectives
 * Write scenarios (sets of predicate fact sentences) and queries (useful questions), based on the examples
 * Scenario facts should not be for rule head predicates, but for predicates used in rule bodies

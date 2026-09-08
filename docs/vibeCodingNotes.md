@@ -2206,6 +2206,12 @@ of excluded path fragments for the core test suite.
 Do that and make notes in README.md, CLAUDE.md etc on how to run both suites (core only, or with extensions).
 So that other teams can depend on the core test suite runner for their CI flows.
 
+# the white rabbit
+
+We got this recommendation from LE's father: 
+'the white rabbit' should not be a variable unless it is introduced in the same rule by 'a white rabbit'. When it is not so introduced, it is a global constant. We used this approach very effectively in our legal applications.
+
+Implement it; add a simple test example with it.
 
 ## TBD
 

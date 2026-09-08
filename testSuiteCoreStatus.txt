@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-01 08:37:31 UTC
+Generated:  2026-09-08 05:26:19 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 102
-Total tests:     364
-Passed:          364
+Files processed: 104
+Total tests:     368
+Passed:          368
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -55,6 +55,7 @@ Detailed File Summary:
   [PASS] examples/moreExamples/unknowns.le: 5 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns_in_aggregates.le: 9 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/unknowns_in_forall.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/white_rabbit.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/prolog_resources/postcodes.le: 5 Pass, 0 Fail, 0 Error
   [NONE] examples/moreExamples/prolog_resources/postcodes_layer.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/rkBook/above_transitivity.le: 1 Pass, 0 Fail, 0 Error
@@ -117,6 +118,7 @@ Detailed File Summary:
   [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/dobragem.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/es/angeldelsol.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/es/ciudadania.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/es/conjuntos.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/fr/citoyennete.le: 2 Pass, 0 Fail, 0 Error
