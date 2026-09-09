@@ -7,6 +7,29 @@ duplicated verbatim in both repositories, like `le_lps_interface.md`.
 Every construct here has a written mapping to the internal term set of
 `le_lps_interface.md` §5, and a program in `examples/lps/` that exercises it.
 
+**Contents**
+
+- [Logical English for LPS — the surface language](#logical-english-for-lps--the-surface-language)
+  - [0. Where this came from](#0-where-this-came-from)
+  - [1. The shape of a document](#1-the-shape-of-a-document)
+  - [2. Declarations](#2-declarations)
+    - [`; known as f`](#-known-as-f)
+  - [3. Sentences](#3-sentences)
+    - [3.1 Temporal suffixes](#31-temporal-suffixes)
+    - [3.2 `initially`](#32-initially)
+    - [3.3 Timeless facts and rules](#33-timeless-facts-and-rules)
+    - [3.4 `when … then …` — causal laws](#34-when--then---causal-laws)
+    - [3.5 `if … then …` — reactive rules](#35-if--then---reactive-rules)
+    - [3.6 Intensional fluents and composite events](#36-intensional-fluents-and-composite-events)
+    - [3.7 `it must not be true that …` — integrity constraints](#37-it-must-not-be-true-that---integrity-constraints)
+    - [3.8 `the goal is that …` — planning](#38-the-goal-is-that---planning)
+    - [3.9 Observations](#39-observations)
+    - [3.10 `display`](#310-display)
+  - [4. Conditions](#4-conditions)
+  - [5. The prospective form](#5-the-prospective-form)
+  - [6. The fifteen programs](#6-the-fifteen-programs)
+  - [7. What is out of scope, and why](#7-what-is-out-of-scope-and-why)
+
 ---
 
 ## 0. Where this came from
@@ -387,7 +410,7 @@ does and does not claim). The two that do not are `delivery_delay.le` and
 `loan_agreement.le`, both for the same reason and both listed in the test with
 it: a calendar date appears as a *constant* (`2018-04-01`), and a date constant
 has no LE surface form of its own, so the writer cannot put it back.
- Thirteen also *run* to `success` under LPS(2)
+ Thirteen also *run* to `success` under LPS2
 (`./lps run examples/lps/NAME.le` with `LPS_LE2_DIR` set). The two that do not:
 
 - `prospective_goat.le` ends in `failure` — and so does the original
