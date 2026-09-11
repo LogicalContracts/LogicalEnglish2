@@ -1,0 +1,366 @@
+% Upper-body garments of Chapters 61 (knitted) and 62 (not knitted): the
+% headings for shirts, blouses, T-shirts and tank tops, sweaters and pullovers,
+% with the Section XI and chapter notes that decide between them. A library:
+% it includes gri.le, and the scenario programs apparel_cbp.le (US rulings)
+% and apparel_ebti.le (EU BTIs) include it.
+%
+% Text: HTSUS Revision 18 (2026), Section XI notes 2 and subheading note 2,
+% Chapter 61 notes 1, 2(a), 4, 5, 9 and Chapter 62 notes 1, 4, 9
+% (https://hts.usitc.gov/). The notes quoted are the WCO text, identical in
+% the EU Combined Nomenclature; the subheadings are the six-digit HS ones.
+%
+% Headings modelled: 6105 (men's shirts, knitted), 6106 (women's blouses and
+% shirts, knitted), 6109 (T-shirts, singlets, tank tops, knitted), 6110
+% (sweaters, pullovers, sweatshirts and similar articles, knitted), 6205
+% (men's shirts, woven), 6206 (women's blouses and shirts, woven). Every other
+% heading — outerwear (6101, 6102, 6201, 6202), sleepwear (6107, 6108, 6207,
+% 6208), brassieres (6212), other garments (6114, 6211) — is outside the model:
+% a claim that the garment belongs there is answered by the office (gri.le).
+%
+% The facts a program reads are the ones customs rulings state about a
+% garment: fabric construction and composition, closure, sleeves, openings,
+% pockets and bottom, fit, neckline, straps. Where a ruling characterises a
+% garment without describing it (for instance "an outer tank top"), the
+% characterisation is recorded as such, with its source.
+
+the target language is: prolog.
+
+the templates are:
+    *a garment* is an upper body garment; undefined.
+    *a garment* is classified under the US tariff; undefined.
+    *a garment* is classified under the EU tariff; undefined.
+    the fabric construction of *a garment* is *a construction*; undefined.
+    *a garment* contains *a number* percent of *a material*; undefined.
+    all the yarn of *a garment* is metalized yarn; undefined.
+    *a material* belongs to *a group*.
+    *a group* is a textile group of chapter *a number*.
+    the share of *a group* in *a garment* is *a number*.
+    *a group* at *a number* percent outweighs *an other group* at *an other number* percent.
+    the textile material of *a garment* is *a group*.
+    the construction of *a garment* is *a construction*.
+    the cut of *a garment* indicates *a gender*; undefined.
+    *a garment* closes left over right; undefined.
+    *a garment* closes right over left; undefined.
+    the gender of *a garment* is *a gender*.
+    *a garment* is sleeveless; undefined.
+    *a garment* has an opening starting at the neckline; undefined.
+    *a garment* has pockets below the waist; undefined.
+    *a garment* has a means of tightening at the bottom; undefined.
+    *a garment* has less than ten stitches per centimetre in each direction; undefined.
+    *a garment* is loose-fitting; undefined.
+    *a garment* has a collar; undefined.
+    *a garment* has a high neckline; undefined.
+    *a garment* is napped; undefined.
+    the fabric of *a garment* is terry; undefined.
+    the fabric of *a garment* is lightweight; undefined.
+    *a garment* is of plain knit fabric; undefined.
+    *a garment* has shoulder straps; undefined.
+    the rear neckline of *a garment* falls below the nape of the neck; undefined.
+    *a garment* is designed to be worn as an undergarment; undefined.
+    *a garment* has a tank silhouette.
+    *a garment* is a shirt.
+    *a garment* is a blouse.
+    *a garment* is a blouse-type garment.
+    *a garment* has the fabric of a T-shirt.
+    *a garment* meets the knit test of its tariff for T-shirts.
+    *a garment* is a T-shirt.
+    *a garment* is a tank top.
+    *a garment* is a singlet.
+    *a garment* is of the T-shirt family.
+    heading *a heading* is a shirt heading.
+    heading *a heading* is a knitted shirt heading.
+    heading *a heading* excludes sleeveless garments.
+    the subheading for *a group* in heading *a heading* is *a code* under table apparel.
+    the subheading of *a good* is *a code*.
+
+% GRI 6: the six-digit subheadings, by the textile material that
+% predominates (Section XI subheading note 2). The subheadings of 6110 for
+% wool and fine animal hair (6110.11, .12, .19) need the hair's kind, which the
+% model does not read: a woollen pullover gets no subheading.
+the table apparel is, with first match:
+    row | material                                      | heading | code
+    a1  | cotton                                        | 6105    | "6105.10"
+    a2  | man-made fibres                               | 6105    | "6105.20"
+    a3  | any                                           | 6105    | "6105.90"
+    b1  | cotton                                        | 6106    | "6106.10"
+    b2  | man-made fibres                               | 6106    | "6106.20"
+    b3  | any                                           | 6106    | "6106.90"
+    c1  | cotton                                        | 6109    | "6109.10"
+    c2  | any                                           | 6109    | "6109.90"
+    d1  | cotton                                        | 6110    | "6110.20"
+    d2  | man-made fibres                               | 6110    | "6110.30"
+    d3  | silk or vegetable fibres or metalized yarn    | 6110    | "6110.90"
+    e1  | cotton                                        | 6205    | "6205.20"
+    e2  | man-made fibres                               | 6205    | "6205.30"
+    e3  | any                                           | 6205    | "6205.90"
+    f1  | silk                                          | 6206    | "6206.10"
+    f2  | wool fibres                                   | 6206    | "6206.20"
+    f3  | cotton                                        | 6206    | "6206.30"
+    f4  | man-made fibres                               | 6206    | "6206.40"
+    f5  | any                                           | 6206    | "6206.90"
+
+the knowledge base apparel includes these resources:
+    gri.
+
+the knowledge base apparel includes:
+
+a good is within the scope of the model
+    if the good is an upper body garment.
+
+% GRI 6 and Section XI subheading note 2: the subheading of the heading, for
+% the textile material of what the garment is classified as (GRI 3(b)).
+the subheading of a good is a code
+    if the heading of the good is a heading
+    and the good is classified as consisting of a component
+    and the textile material of the component is a group
+    and the subheading for the group in heading the heading is the code under table apparel.
+
+the construction of a good is a construction
+    if the good is classified as consisting of a component
+    and the fabric construction of the component is the construction.
+
+% ---------------------------------------------------------------------------
+% Section XI note 2(A): a good of two or more textile materials is classified
+% as if it consisted wholly of the one that predominates by weight over each
+% other single textile material; when none predominates, as if it consisted of
+% the one of the heading that occurs last in numerical order. Note 2(B)(b):
+% first the chapter, then the heading within it — so the man-made fibres of
+% Chapters 54 and 55 count together (2(B)(c)). Note 2(B)(a): a metalized yarn
+% (heading 5605) is one textile material, whatever it is made of.
+% ---------------------------------------------------------------------------
+
+cotton belongs to cotton.
+polyester belongs to man-made fibres.
+elastane belongs to man-made fibres.
+spandex belongs to man-made fibres.
+nylon belongs to man-made fibres.
+polyamide belongs to man-made fibres.
+acrylic belongs to man-made fibres.
+rayon belongs to man-made fibres.
+viscose belongs to man-made fibres.
+modal belongs to man-made fibres.
+lyocell belongs to man-made fibres.
+wool belongs to wool fibres.
+cashmere belongs to wool fibres.
+silk belongs to silk.
+flax belongs to vegetable fibres.
+linen belongs to vegetable fibres.
+metalized yarn belongs to metalized yarn.
+
+silk is a textile group of chapter 50.
+wool fibres is a textile group of chapter 51.
+cotton is a textile group of chapter 52.
+vegetable fibres is a textile group of chapter 53.
+man-made fibres is a textile group of chapter 55.
+metalized yarn is a textile group of chapter 56.
+
+the share of a group in a garment is a total
+    if the group is a textile group of chapter a number
+    and the total is the sum of each percentage such that
+        the garment contains the percentage percent of a material
+        and the material belongs to the group.
+
+the textile material of a garment is metalized yarn
+    if all the yarn of the garment is metalized yarn.
+
+the textile material of a garment is a group
+    if it is not the case that
+        all the yarn of the garment is metalized yarn
+    and the share of the group in the garment is a total
+    and the total > 0
+    and for all cases in which
+            the share of an other group in the garment is an other total
+            and it is not the case that
+                the other group is equal to the group
+        it is the case that
+            the group at the total percent outweighs the other group at the other total percent.
+
+a group at a total percent outweighs an other group at an other total percent
+    if the total > the other total.
+
+a group at a total percent outweighs an other group at an other total percent
+    if the total = the other total
+    and the group is a textile group of chapter a number
+    and the other group is a textile group of chapter an other number
+    and the number > the other number.
+
+% ---------------------------------------------------------------------------
+% Chapter 61 note 9, Chapter 62 note 9: left over right closure is men's,
+% right over left women's, unless the cut clearly indicates the sex; a garment
+% that cannot be identified goes to the women's headings.
+% ---------------------------------------------------------------------------
+
+the gender of a garment is a gender
+    if the cut of the garment indicates the gender.
+
+the gender of a garment is men
+    if it is not the case that
+        the cut of the garment indicates a gender
+    and the garment closes left over right.
+
+the gender of a garment is women
+    if it is not the case that
+        the cut of the garment indicates a gender
+    and the garment closes right over left.
+
+the gender of a garment is women
+    if it is not the case that
+        the cut of the garment indicates a gender
+    and it is not the case that
+        the garment closes left over right
+    and it is not the case that
+        the garment closes right over left.
+
+% ---------------------------------------------------------------------------
+% Chapter 61 note 4, Chapter 62 note 4: "Shirts" and "shirt-blouses" have long
+% or short sleeves and a full or partial opening starting at the neckline;
+% "blouses" are loose-fitting, may be sleeveless, with or without an opening.
+% ---------------------------------------------------------------------------
+
+a garment is a shirt
+    if it is not the case that
+        the garment is sleeveless
+    and the garment has an opening starting at the neckline.
+
+a garment is a blouse
+    if the garment is loose-fitting.
+
+a garment is a blouse-type garment
+    if the garment is a shirt
+    otherwise the garment is a blouse.
+
+% ---------------------------------------------------------------------------
+% Heading 6109. The Explanatory Note: T-shirts are lightweight knitted
+% garments, not napped nor of terry, with long or short sleeves, without
+% collar, without opening or fastening at the neckline, with a close-fitting or
+% lower neckline; the heading also covers singlets and other vests. CBP adds,
+% since HQ 950855 (1992), that the fabric be plain jersey or plain interlock.
+% A tank top, for CBP, has the tank silhouette: straps, and a rear neckline
+% below the nape of the neck (NY N360982).
+% ---------------------------------------------------------------------------
+
+a garment has the fabric of a T-shirt
+    if the fabric of the garment is lightweight
+    and it is not the case that
+        the garment is napped
+    and it is not the case that
+        the fabric of the garment is terry
+    and the garment meets the knit test of its tariff for T-shirts.
+
+a garment meets the knit test of its tariff for T-shirts
+    if the garment is classified under the US tariff
+    and the garment is of plain knit fabric.
+
+a garment meets the knit test of its tariff for T-shirts
+    if the garment is classified under the EU tariff.
+
+a garment is a T-shirt
+    if it is not the case that
+        the garment is sleeveless
+    and the garment has the fabric of a T-shirt
+    and it is not the case that
+        the garment has a collar
+    and it is not the case that
+        the garment has a high neckline
+    and it is not the case that
+        the garment has an opening starting at the neckline.
+
+a garment has a tank silhouette
+    if the garment has shoulder straps
+    and the rear neckline of the garment falls below the nape of the neck.
+
+a garment is a tank top
+    if the garment is sleeveless
+    and the garment has a tank silhouette.
+
+a garment is a singlet
+    if the garment is designed to be worn as an undergarment.
+
+a garment is of the T-shirt family
+    if the garment is a T-shirt
+    otherwise the garment is a tank top
+    otherwise the garment is a singlet.
+
+% ---------------------------------------------------------------------------
+% The headings (GRI 1). Chapter 61 note 1: only knitted articles; Chapter 62
+% note 1: only articles that are not knitted.
+% ---------------------------------------------------------------------------
+
+a garment is described by heading 6105
+    if the construction of the garment is knitted
+    and the gender of the garment is men
+    and the garment is a shirt.
+
+a garment is described by heading 6106
+    if the construction of the garment is knitted
+    and the gender of the garment is women
+    and the garment is a blouse-type garment.
+
+a garment is described by heading 6109
+    if the construction of the garment is knitted
+    and the garment is of the T-shirt family.
+
+% The Explanatory Note to heading 6110: a category of knitted articles, without
+% distinction as to sex, designed to cover the upper parts of the body.
+a garment is described by heading 6110
+    if the construction of the garment is knitted.
+
+a garment is described by heading 6205
+    if the construction of the garment is woven
+    and the gender of the garment is men
+    and the garment is a shirt.
+
+a garment is described by heading 6206
+    if the construction of the garment is woven
+    and the gender of the garment is women
+    and the garment is a blouse-type garment.
+
+% The exclusions. Chapter 61 note 4 and Chapter 62 note 4: the shirt headings
+% do not cover garments with pockets below the waist, or with a ribbed
+% waistband or other means of tightening at the bottom; the knitted ones not
+% those with less than 10 stitches per linear centimetre in each direction;
+% 6105 and 6205 not sleeveless garments. Chapter 61 note 5: 6109 does not
+% cover garments with a drawstring, ribbed waistband or other means of
+% tightening at the bottom.
+
+heading 6105 is a shirt heading.
+heading 6106 is a shirt heading.
+heading 6205 is a shirt heading.
+heading 6206 is a shirt heading.
+heading 6105 is a knitted shirt heading.
+heading 6106 is a knitted shirt heading.
+heading 6105 excludes sleeveless garments.
+heading 6205 excludes sleeveless garments.
+
+a garment is excluded from heading a heading
+    if heading the heading is a shirt heading
+    and the garment has pockets below the waist.
+
+a garment is excluded from heading a heading
+    if heading the heading is a shirt heading
+    and the garment has a means of tightening at the bottom.
+
+a garment is excluded from heading a heading
+    if heading the heading is a knitted shirt heading
+    and the garment has less than ten stitches per centimetre in each direction.
+
+a garment is excluded from heading a heading
+    if heading the heading excludes sleeveless garments
+    and the garment is sleeveless.
+
+a garment is excluded from heading 6109
+    if the garment has a means of tightening at the bottom.
+
+% GRI 3(a): the more specific description. Heading 6110 names a category
+% ("... and similar articles") of which shirts, blouses and T-shirts are
+% particular kinds; and CBP holds a loose-fitting women's top to be a blouse
+% rather than a T-shirt.
+heading 6105 is more specific than heading 6110,
+    because "a shirt is a particular kind of the upper-body garments of heading 6110".
+heading 6106 is more specific than heading 6110,
+    because "a blouse or shirt is a particular kind of the upper-body garments of heading 6110".
+heading 6109 is more specific than heading 6110,
+    because "a T-shirt, tank top or singlet is a particular kind of the upper-body garments of heading 6110".
+heading 6106 is more specific than heading 6109,
+    according to CBP, as stated in HQ H325360,
+    because "loose-fitting women's tops have the characteristics of blouses of Note 4 to Chapter 61, which precludes headings 6109 and 6110".

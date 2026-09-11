@@ -1,0 +1,166 @@
+% Binding Tariff Information of EU customs offices (EBTI,
+% https://ec.europa.eu/taxation_customs/dds2/ebti/) run through the SAME
+% apparel model (apparel.le, with gri.le) as the US rulings.
+%
+% One scenario per ruling; each style is described by the facts the ruling
+% states, each fact citing the ruling ("as stated in BTI DEBTI22950/25-1"); the
+% office's judgments carry who made them and why. The ruling's own code is NOT
+% a fact: the expectation is the six-digit subheading the model derives, and
+% where it differs from the ruling's the comment says so (DISAGREES) and why.
+% Selection: the most recent valid BTI (English, French or German) for each
+% of the same subheadings (September 2026). A BTI gives an eight-digit CN code
+% whose first six digits are the HS subheading compared here. See
+% README.md for the method and the results.
+
+the target language is: prolog.
+scenario facts require provenance.
+
+the knowledge base apparel ebti includes these resources:
+    apparel.
+
+the knowledge base apparel ebti includes:
+
+query subheading is:
+    the subheading of which good is which code.
+
+query heading is:
+    the heading of which good is which heading.
+
+query unplaced is:
+    which good is not placed by the model.
+
+% BTI FRBTIFR-BTI-2026-04256, French customs, 22/07/2026: men's high-visibility polo.
+scenario bti_frbtifr_bti_2026_04256 is:
+    the high visibility polo is an upper body garment, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the high visibility polo is classified under the EU tariff, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the fabric construction of the high visibility polo is knitted, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the cut of the high visibility polo indicates men, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the high visibility polo has a collar, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the high visibility polo has an opening starting at the neckline, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the high visibility polo closes left over right, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the high visibility polo contains 55 percent of cotton, as stated in BTI FRBTIFR-BTI-2026-04256.
+    the high visibility polo contains 45 percent of polyester, as stated in BTI FRBTIFR-BTI-2026-04256.
+    subheading expects answers ["the subheading of the high visibility polo is 6105.10"].
+
+% BTI DEBTI22950/25-1, Hauptzollamt Hannover, 26/09/2025: men's knitted shirt.
+scenario bti_debti22950_25_1 is:
+    the napped knitted shirt is an upper body garment, as stated in BTI DEBTI22950/25-1.
+    the napped knitted shirt is classified under the EU tariff, as stated in BTI DEBTI22950/25-1.
+    the fabric construction of the napped knitted shirt is knitted, as stated in BTI DEBTI22950/25-1.
+    the napped knitted shirt closes left over right, as stated in BTI DEBTI22950/25-1.
+    the napped knitted shirt is napped, as stated in BTI DEBTI22950/25-1.
+    the napped knitted shirt has a collar, as stated in BTI DEBTI22950/25-1.
+    the napped knitted shirt has an opening starting at the neckline, as stated in BTI DEBTI22950/25-1.
+    the napped knitted shirt contains 100 percent of polyester, as stated in BTI DEBTI22950/25-1.
+    subheading expects answers ["the subheading of the napped knitted shirt is 6105.20"].
+
+% BTI FRBTIFR-BTI-2026-01958, French customs, 20/05/2026: women's knitted shirt-blouse.
+scenario bti_frbtifr_bti_2026_01958 is:
+    the printed cotton shirt-blouse is an upper body garment, as stated in BTI FRBTIFR-BTI-2026-01958.
+    the printed cotton shirt-blouse is classified under the EU tariff, as stated in BTI FRBTIFR-BTI-2026-01958.
+    the fabric construction of the printed cotton shirt-blouse is knitted, as stated in BTI FRBTIFR-BTI-2026-01958.
+    the cut of the printed cotton shirt-blouse indicates women, as stated in BTI FRBTIFR-BTI-2026-01958.
+    the printed cotton shirt-blouse has an opening starting at the neckline, as stated in BTI FRBTIFR-BTI-2026-01958.
+    the printed cotton shirt-blouse closes right over left, as stated in BTI FRBTIFR-BTI-2026-01958.
+    the printed cotton shirt-blouse has a collar, as stated in BTI FRBTIFR-BTI-2026-01958.
+    the printed cotton shirt-blouse contains 100 percent of cotton, as stated in BTI FRBTIFR-BTI-2026-01958.
+    subheading expects answers ["the subheading of the printed cotton shirt-blouse is 6106.10"].
+
+% BTI FRBTIFR-BTI-2025-07379, French customs, 03/07/2026: unisex children's knitted lace blouse.
+scenario bti_frbtifr_bti_2025_07379 is:
+    the lace blouse is an upper body garment, as stated in BTI FRBTIFR-BTI-2025-07379.
+    the lace blouse is classified under the EU tariff, as stated in BTI FRBTIFR-BTI-2025-07379.
+    the fabric construction of the lace blouse is knitted, as stated in BTI FRBTIFR-BTI-2025-07379.
+    the lace blouse has an opening starting at the neckline, as stated in BTI FRBTIFR-BTI-2025-07379.
+    the lace blouse contains 92 percent of polyamide, as stated in BTI FRBTIFR-BTI-2025-07379.
+    the lace blouse contains 8 percent of elastane, as stated in BTI FRBTIFR-BTI-2025-07379.
+    subheading expects answers ["the subheading of the lace blouse is 6106.20"].
+
+% BTI DEBTI4593/26-1, Hauptzollamt Hannover, 23/04/2026: fashionable undershirt with feather trim.
+scenario bti_debti4593_26_1 is:
+    the feather-trimmed undershirt is an upper body garment, as stated in BTI DEBTI4593/26-1.
+    the feather-trimmed undershirt is classified under the EU tariff, as stated in BTI DEBTI4593/26-1.
+    the fabric construction of the feather-trimmed undershirt is knitted, as stated in BTI DEBTI4593/26-1.
+    the fabric of the feather-trimmed undershirt is lightweight, as stated in BTI DEBTI4593/26-1.
+    the feather-trimmed undershirt is designed to be worn as an undergarment, as stated in BTI DEBTI4593/26-1.
+    the feather-trimmed undershirt contains 100 percent of cotton, as stated in BTI DEBTI4593/26-1.
+    subheading expects answers ["the subheading of the feather-trimmed undershirt is 6109.10"].
+
+% BTI DEBTI985/26-1, Hauptzollamt Hannover, 12/03/2026: T-shirt.
+scenario bti_debti985_26_1 is:
+    the long-sleeved T-shirt is an upper body garment, as stated in BTI DEBTI985/26-1.
+    the long-sleeved T-shirt is classified under the EU tariff, as stated in BTI DEBTI985/26-1.
+    the fabric construction of the long-sleeved T-shirt is knitted, as stated in BTI DEBTI985/26-1.
+    the fabric of the long-sleeved T-shirt is lightweight, as stated in BTI DEBTI985/26-1.
+    the long-sleeved T-shirt contains 50 percent of polyester, as stated in BTI DEBTI985/26-1.
+    the long-sleeved T-shirt contains 50 percent of cotton, as stated in BTI DEBTI985/26-1.
+    subheading expects answers ["the subheading of the long-sleeved T-shirt is 6109.90"].
+
+% BTI FRBTIFR-BTI-2025-06897, French customs, 10/07/2026: unisex hooded sweatshirt.
+scenario bti_frbtifr_bti_2025_06897 is:
+    the hooded sweatshirt is an upper body garment, as stated in BTI FRBTIFR-BTI-2025-06897.
+    the hooded sweatshirt is classified under the EU tariff, as stated in BTI FRBTIFR-BTI-2025-06897.
+    the fabric construction of the hooded sweatshirt is knitted, as stated in BTI FRBTIFR-BTI-2025-06897.
+    the hooded sweatshirt is of plain knit fabric, as stated in BTI FRBTIFR-BTI-2025-06897.
+    the hooded sweatshirt has a means of tightening at the bottom, as stated in BTI FRBTIFR-BTI-2025-06897.
+    the hooded sweatshirt contains 70 percent of cotton, as stated in BTI FRBTIFR-BTI-2025-06897.
+    the hooded sweatshirt contains 30 percent of polyester, as stated in BTI FRBTIFR-BTI-2025-06897.
+    subheading expects answers ["the subheading of the hooded sweatshirt is 6110.20"].
+
+% BTI DEBTI22717/26-1, Hauptzollamt Hannover, 28/07/2026: lightweight under-pullover.
+scenario bti_debti22717_26_1 is:
+    the mesh under-pullover is an upper body garment, as stated in BTI DEBTI22717/26-1.
+    the mesh under-pullover is classified under the EU tariff, as stated in BTI DEBTI22717/26-1.
+    the fabric construction of the mesh under-pullover is knitted, as stated in BTI DEBTI22717/26-1.
+    the fabric of the mesh under-pullover is lightweight, as stated in BTI DEBTI22717/26-1.
+    the mesh under-pullover has a high neckline, as stated in BTI DEBTI22717/26-1.
+    the mesh under-pullover has a collar, as stated in BTI DEBTI22717/26-1.
+    the mesh under-pullover contains 86 percent of polyester, as stated in BTI DEBTI22717/26-1.
+    the mesh under-pullover contains 14 percent of elastane, as stated in BTI DEBTI22717/26-1.
+    subheading expects answers ["the subheading of the mesh under-pullover is 6110.30"].
+
+% BTI DEBTI17890/26-1, Hauptzollamt Hannover, 14/07/2026: shirt of a two-piece shirt and trousers set.
+scenario bti_debti17890_26_1 is:
+    the embroidered cotton shirt is an upper body garment, as stated in BTI DEBTI17890/26-1.
+    the embroidered cotton shirt is classified under the EU tariff, as stated in BTI DEBTI17890/26-1.
+    the fabric construction of the embroidered cotton shirt is woven, as stated in BTI DEBTI17890/26-1.
+    the embroidered cotton shirt closes left over right, as stated in BTI DEBTI17890/26-1.
+    the embroidered cotton shirt has a collar, as stated in BTI DEBTI17890/26-1.
+    the embroidered cotton shirt has an opening starting at the neckline, as stated in BTI DEBTI17890/26-1.
+    the embroidered cotton shirt contains 100 percent of cotton, as stated in BTI DEBTI17890/26-1.
+    the embroidered cotton shirt is claimed to belong to sleepwear, as stated in BTI DEBTI17890/26-1.
+    the claim that the embroidered cotton shirt belongs to sleepwear is rejected,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI17890/26-1,
+        because "by cut, material and overall impression the garments can be worn in bed or elsewhere alike, so they are not intended to be worn exclusively or essentially as nightwear".
+    subheading expects answers ["the subheading of the embroidered cotton shirt is 6205.20"].
+
+% BTI DEBTI9846/26-1, Hauptzollamt Hannover, 05/06/2026: women's woven blouse.
+scenario bti_debti9846_26_1 is:
+% DISAGREES: Hauptzollamt Hannover gives 6206.30; the model gives no heading — the office finds the garment 'presents itself as a blouse' (the CN Explanatory Note: light, fancy, mostly loose-fitting) but records no loose fit, and sleeveless it is no shirt.
+    the sleeveless flounced blouse is an upper body garment, as stated in BTI DEBTI9846/26-1.
+    the sleeveless flounced blouse is classified under the EU tariff, as stated in BTI DEBTI9846/26-1.
+    the fabric construction of the sleeveless flounced blouse is woven, as stated in BTI DEBTI9846/26-1.
+    the cut of the sleeveless flounced blouse indicates women, as stated in BTI DEBTI9846/26-1.
+    the sleeveless flounced blouse is sleeveless, as stated in BTI DEBTI9846/26-1.
+    the sleeveless flounced blouse has an opening starting at the neckline, as stated in BTI DEBTI9846/26-1.
+    the fabric of the sleeveless flounced blouse is lightweight, as stated in BTI DEBTI9846/26-1.
+    the textile material of the sleeveless flounced blouse is cotton,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI9846/26-1,
+        because "the yarns are of cotton, which predominates, and of textile yarn combined with metal (metalized yarn of heading 5605); the BTI gives no percentages".
+    subheading expects answers [].
+    unplaced expects answers ["the sleeveless flounced blouse is not placed by the model"].
+
+% BTI FRBTIFR-BTI-2025-07180, French customs, 28/07/2026: women's satin blouse with thin straps.
+scenario bti_frbtifr_bti_2025_07180 is:
+% DISAGREES: French customs gives 6206.40; the model gives no heading — the office applies the CN Explanatory Note to heading 6206 (light fancy garments, mostly loose-fitting, at least with straps) but records no loose fit.
+    the red satin strap blouse is an upper body garment, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the red satin strap blouse is classified under the EU tariff, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the fabric construction of the red satin strap blouse is woven, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the cut of the red satin strap blouse indicates women, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the red satin strap blouse is sleeveless, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the red satin strap blouse has shoulder straps, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the red satin strap blouse contains 80 percent of polyester, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the red satin strap blouse contains 19 percent of viscose, as stated in BTI FRBTIFR-BTI-2025-07180.
+    the red satin strap blouse contains 1 percent of elastane, as stated in BTI FRBTIFR-BTI-2025-07180.
+    subheading expects answers [].
+    unplaced expects answers ["the red satin strap blouse is not placed by the model"].
