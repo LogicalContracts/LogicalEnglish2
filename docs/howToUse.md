@@ -11,6 +11,7 @@ The Logical English (LE) web application is a simple IDE designed for developing
   - [File Operations](#file-operations)
     - [Opening and Saving](#opening-and-saving)
     - [Saving via URL (Quick Save)](#saving-via-url-quick-save)
+    - [Several documents: file tabs](#several-documents-file-tabs)
   - [Writing Logic and Issue Reporting](#writing-logic-and-issue-reporting)
   - [Running Queries](#running-queries)
   - [The Scenario Editor](#the-scenario-editor)
@@ -72,6 +73,8 @@ The view is read-only — it never edits the program.
 ## File Operations
 
 ### Opening and Saving
+The File operations act on the document of the tab in front (see [file tabs](#several-documents-file-tabs) below).
+
 *   **New File:** `File > New` clears the editor.
 *   **Open Local File:** `File > Open...` allows you to load a `.le` file from your computer.
 *   **Open from Server:** `File > Open copy from server...` provides a list of built-in examples (like `citizenship`).
@@ -83,6 +86,15 @@ The view is read-only — it never edits the program.
 The editor automatically synchronizes the current code into the browser's URL using a `text` parameter. 
 *   **To "Save" a state:** Simply copy the current URL from your browser's address bar.
 *   **To "Load" a state:** Paste that URL into a new tab. This is useful for sharing snippets or bookmarking a specific version of your logic.
+
+### Several documents: file tabs
+The strip above the editor has one tab per open document, as in a browser: its name, a dot while it has unsaved changes (click the dot, or the `×` that replaces it on hover, to close the tab; a middle click closes it too), and `+` to open a new, empty document in a tab of its own. `File > New`, `Open...`, `Open copy from server...`, `New from URL...`, `Save` and `Save As...` all act on the tab in front.
+
+Each tab's program has panels of its own: clicking a tab brings its document into the editor *and* its program into the **Query** panel (scenarios, queries, answers and explanation, as you left them), the **LE Assistant** (its own conversation) and the Source Graph. The address bar follows: it names the example (or carries the text) of the program in the panels, with its scenario and query.
+
+Clicking an explanation node proved by a rule of an **included resource** opens that resource in a tab of its own (or brings its tab forward) at the rule — but the panels stay on the program being explained, so you can keep following the explanation; the tab of that program is then marked with a dotted underline. A click on one of the program's own nodes brings its tab back. Choosing the resource's tab yourself makes it the program in the panels.
+
+While a program is loading on the server the scenario and query pickers show a busy cursor; a click on one of them waits for the load (the whole window shows a waiting cursor) and then opens the menu.
 
 ## Writing Logic and Issue Reporting
 
@@ -177,7 +189,7 @@ Once a query is executed:
 *   **Answers:** A list of results appears in the left side of the bottom panel.
 *   **Explanation Tree:** Clicking an answer displays a natural language justification tree on the right. When a query has *no* answer, the tree explains *why* it failed.
 *   **Navigation to Source:**
-    *   Clicking any node in the explanation tree will automatically scroll the editor to the corresponding rule or fact in your source code.
+    *   Clicking any node in the explanation tree will automatically scroll the editor to the corresponding rule or fact in your source code — in the tab of an included resource when the rule is there (see [file tabs](#several-documents-file-tabs)).
     *   The selected range will be highlighted in the editor, allowing you to quickly verify the logic.
 
 ### Reading the Explanation Tree

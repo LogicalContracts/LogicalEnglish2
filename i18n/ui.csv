@@ -331,3 +331,7 @@ Paste or fetch the document text below: each fact will cite the passage that sta
 "Address of its text: a URL, or a file beside the program",,"Endereço do texto: um URL, ou um ficheiro junto ao programa","Dirección del texto: una URL, o un archivo junto al programa","Adresse du texte : une URL, ou un fichier à côté du programme","Indirizzo del testo: un URL, o un file accanto al programma"
 Fetch text,,Obter texto,Obtener texto,Récupérer le texte,Recupera testo
 Provenance,,Proveniência,Procedencia,Provenance,Provenienza
+New tab,,Novo separador,Nueva pestaña,Nouvel onglet,Nuova scheda
+The queries and the assistant are about this program,,As consultas e o assistente são sobre este programa,Las consultas y el asistente tratan de este programa,Les requêtes et l'assistant portent sur ce programme,Le interrogazioni e l'assistente riguardano questo programma
+You have unsaved changes. Close this tab anyway?,,Tem alterações por guardar. Fechar este separador mesmo assim?,Tiene cambios sin guardar. ¿Cerrar esta pestaña de todos modos?,Vous avez des modifications non enregistrées. Fermer cet onglet quand même ?,Ci sono modifiche non salvate. Chiudere comunque questa scheda?
+Could not open the included resource,,Não foi possível abrir o recurso incluído,No se pudo abrir el recurso incluido,Impossible d'ouvrir la ressource incluse,Impossibile aprire la risorsa inclusa
