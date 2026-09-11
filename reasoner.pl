@@ -6,7 +6,7 @@
     explanation trees.
 */
 
-:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8,
+:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8, goal_attempt/4, with_saved_reasoner_state/1,
                      hide_repeated_explanations/0, set_show_repeated_explanations/1]).
 
 :- use_module(library(time)).
@@ -292,6 +292,15 @@ solve_real_actual(le_table(Name, Args), _SM, KM, _Anc, _D, _MyID, [],
     le_tables:table_solution(KM, Name, Args, RowId, RowRange),
     ( RowRange = range(_, _) -> RowRef = RowRange ; RowRef = table_row ).
 
+% The decision skeleton (le_sections.pl): where a query with no answer fails.
+solve_real_actual(le_fails_at_section(Section), SM, KM, _Anc, _D, _MyID, [],
+                  [success(le_fails_at_section(Section), built_in, [])]) :- !,
+    le_sections:failing_section(SM, KM, principal, Section).
+solve_real_actual(le_query_fails_at_section(Query, Section), SM, KM, _Anc, _D, _MyID, [],
+                  [success(le_query_fails_at_section(Query, Section), built_in, [])]) :- !,
+    nonvar(Query),
+    le_sections:failing_section(SM, KM, Query, Section).
+
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),
@@ -347,6 +356,62 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
           solve(UnkBody, SM, KM, [le_unknown(G)|Anc], D1, MyID, [], _) ->  
             Us = [G], WhysBody = [], Ref = unknown
     ).
+
+%!  goal_attempt(+Goal, +SM, +KM, -Result) is det.
+%
+%   Attempts Goal in session SM WITHOUT disturbing a proof in progress (the
+%   bookkeeping of the enclosing i/4 is saved and restored). Result is
+%   `succeeded` when Goal has a proof (definite or conditional), otherwise
+%   failed(Calls), Calls being every goal the attempt tried, as G-Status with
+%   Status `succeeded` or `failed` — le_at/3 wrappers removed.
+goal_attempt(Goal, SM, KM, Result) :-
+    with_saved_reasoner_state(goal_attempt_(Goal, SM, KM, Result)).
+
+goal_attempt_(Goal, SM, KM, Result) :-
+    (   solve(Goal, SM, KM, [], 0, 0, _, _)
+    ->  Result = succeeded
+    ;   findall(G-St,
+                ( called(_, ID, G0), strip_le_at(G0, G),
+                  (   ( succeeded(ID) ; success_in_not(ID, _) )
+                  ->  St = succeeded
+                  ;   St = failed
+                  ) ),
+                Calls),
+        Result = failed(Calls)
+    ).
+
+%!  with_saved_reasoner_state(:Goal) is semidet.
+%
+%   Runs Goal (once) on a fresh copy of the reasoner's per-thread proof
+%   bookkeeping, restoring the enclosing proof's afterwards — also the KB
+%   module i/4 set, which a nested i/4 clears on exit.
+:- meta_predicate with_saved_reasoner_state(0).
+with_saved_reasoner_state(Goal) :-
+    findall(called(A, B, C), called(A, B, C), Called),
+    findall(called_clause(A, B, C), called_clause(A, B, C), CalledClause),
+    findall(success_in_not(A, B), success_in_not(A, B), SIN),
+    findall(succeeded(A), succeeded(A), Succ),
+    findall(solved_binding(A, B), solved_binding(A, B), SB),
+    findall(counter(A), counter(A), Ctr),
+    ( le_kbs:le_kb_module(KBM) -> true ; KBM = none ),
+    setup_call_cleanup(
+        ( clear_reasoner_state, init_counter ),
+        once(Goal),
+        ( clear_reasoner_state,
+          forall(member(T, Called), assertz(T)),
+          forall(member(T, CalledClause), assertz(T)),
+          forall(member(T, SIN), assertz(T)),
+          forall(member(T, Succ), assertz(T)),
+          forall(member(T, SB), assertz(T)),
+          retractall(counter(_)), forall(member(T, Ctr), assertz(T)),
+          ( KBM == none -> le_kbs:clear_kb_module ; le_kbs:set_kb_module(KBM) ) )).
+
+clear_reasoner_state :-
+    retractall(called(_, _, _)),
+    retractall(called_clause(_, _, _)),
+    retractall(success_in_not(_, _)),
+    retractall(succeeded(_)),
+    retractall(solved_binding(_, _)).
 
 % One solution of an aggregation goal: the aggregated value, the unknowns that
 % solution assumed, and its derivation.
