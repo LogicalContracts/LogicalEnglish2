@@ -19,6 +19,50 @@ the knowledge base plastics cbp includes these resources:
 
 the knowledge base plastics cbp includes:
 
+% Where each cited ruling is published, and a copy of its text (sources/).
+ruling NY N363384 is published at "https://rulings.cbp.gov/ruling/N363384".
+the text of ruling NY N363384 is at "sources/cbp/N363384.txt".
+ruling NY N363522 is published at "https://rulings.cbp.gov/ruling/N363522".
+the text of ruling NY N363522 is at "sources/cbp/N363522.txt".
+ruling NY N363173 is published at "https://rulings.cbp.gov/ruling/N363173".
+the text of ruling NY N363173 is at "sources/cbp/N363173.txt".
+ruling NY N363253 is published at "https://rulings.cbp.gov/ruling/N363253".
+the text of ruling NY N363253 is at "sources/cbp/N363253.txt".
+ruling NY N362836 is published at "https://rulings.cbp.gov/ruling/N362836".
+the text of ruling NY N362836 is at "sources/cbp/N362836.txt".
+ruling NY N362269 is published at "https://rulings.cbp.gov/ruling/N362269".
+the text of ruling NY N362269 is at "sources/cbp/N362269.txt".
+ruling NY N362002 is published at "https://rulings.cbp.gov/ruling/N362002".
+the text of ruling NY N362002 is at "sources/cbp/N362002.txt".
+ruling NY N363254 is published at "https://rulings.cbp.gov/ruling/N363254".
+the text of ruling NY N363254 is at "sources/cbp/N363254.txt".
+ruling NY N362334 is published at "https://rulings.cbp.gov/ruling/N362334".
+the text of ruling NY N362334 is at "sources/cbp/N362334.txt".
+ruling NY N360630 is published at "https://rulings.cbp.gov/ruling/N360630".
+the text of ruling NY N360630 is at "sources/cbp/N360630.txt".
+ruling NY N360066 is published at "https://rulings.cbp.gov/ruling/N360066".
+the text of ruling NY N360066 is at "sources/cbp/N360066.txt".
+ruling NY N357351 is published at "https://rulings.cbp.gov/ruling/N357351".
+the text of ruling NY N357351 is at "sources/cbp/N357351.txt".
+ruling NY N356689 is published at "https://rulings.cbp.gov/ruling/N356689".
+the text of ruling NY N356689 is at "sources/cbp/N356689.txt".
+ruling NY N340223 is published at "https://rulings.cbp.gov/ruling/N340223".
+the text of ruling NY N340223 is at "sources/cbp/N340223.txt".
+ruling NY N363423 is published at "https://rulings.cbp.gov/ruling/N363423".
+the text of ruling NY N363423 is at "sources/cbp/N363423.txt".
+ruling NY N360189 is published at "https://rulings.cbp.gov/ruling/N360189".
+the text of ruling NY N360189 is at "sources/cbp/N360189.txt".
+ruling NY N360191 is published at "https://rulings.cbp.gov/ruling/N360191".
+the text of ruling NY N360191 is at "sources/cbp/N360191.txt".
+ruling NY N360188 is published at "https://rulings.cbp.gov/ruling/N360188".
+the text of ruling NY N360188 is at "sources/cbp/N360188.txt".
+ruling NY N360190 is published at "https://rulings.cbp.gov/ruling/N360190".
+the text of ruling NY N360190 is at "sources/cbp/N360190.txt".
+ruling NY N358771 is published at "https://rulings.cbp.gov/ruling/N358771".
+the text of ruling NY N358771 is at "sources/cbp/N358771.txt".
+ruling NY N342911 is published at "https://rulings.cbp.gov/ruling/N342911".
+the text of ruling NY N342911 is at "sources/cbp/N342911.txt".
+
 query subheading is:
     the subheading of which good is which code.
 
@@ -36,80 +80,106 @@ query household is:
 
 % NY N363384 (July 2026): a men's faux leather jacket from China.
 scenario ny_n363384 is:
-    style CB81426 is a manufactured article, as stated in ruling NY N363384.
+    style CB81426 is a manufactured article,
+        as stated in ruling NY N363384 at "Style CB81426 is a men’s faux leather jacket".
     style CB81426 is of cellular plastics reinforced by a textile fabric,
-        according to CBP, as stated in ruling NY N363384,
+        according to CBP, as stated in ruling NY N363384 at "The outer shell is composed of cellular polyurethane plasticmaterial with a backing of 100% polyester woven",
         because "the outer shell is cellular polyurethane with a polyester woven backing present merely for reinforcement purposes".
     the principal use of style CB81426 is apparel,
-        according to CBP, as stated in ruling NY N363384,
+        according to CBP, as stated in ruling NY N363384 at "Style CB81426 is a men’s faux leather jacket",
         because "a men's jacket".
-    style CB81426 is claimed to belong to garments of heading 6210, as stated in ruling NY N363384.
+    style CB81426 is claimed to belong to garments of heading 6210,
+        as stated in ruling NY N363384 at "and a ribbed knit bottom.You suggested classification under subheading 6210.".
     the claim that style CB81426 belongs to garments of heading 6210 is rejected,
-        according to CBP, as stated in ruling NY N363384,
+        according to CBP, as stated in ruling NY N363384 at "where the textile fabric ispresent merely for reinforcing purposes (chapter 39).",
         because "the textile fabric backing is present merely for reinforcing the cellular plastic (Chapter 59 note 2(a)(5)): the jacket is apparel of plastic material of Chapter 39".
     subheading expects answers ["the subheading of style CB81426 is 3926.20"].
 
 % NY N363522 (July 2026): four cellphone cases from Canada.
 scenario ny_n363522 is:
-    the G10 bezel case is a manufactured article, as stated in ruling NY N363522.
-    the G10 bezel case is a composite good, as stated in ruling NY N363522.
-    the G10 rear housing of the G10 bezel case is a component of the G10 bezel case, as stated in ruling NY N363522.
-    the G10 bezel of the G10 bezel case is a component of the G10 bezel case, as stated in ruling NY N363522.
-    the G10 rear housing of the G10 bezel case is made of plastics, as stated in ruling NY N363522.
+    the G10 bezel case is a manufactured article,
+        as stated in ruling NY N363522 at "and they are all described as a two-part fitted protective case for the iPhone 17 Pro / 17 Pro Max".
+    the G10 bezel case is a composite good,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the G10 rear housing of the G10 bezel case is a component of the G10 bezel case,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the G10 bezel of the G10 bezel case is a component of the G10 bezel case,
+        as stated in ruling NY N363522 at "composite rear housing and a machined front bezel".
+    the G10 rear housing of the G10 bezel case is made of plastics,
+        as stated in ruling NY N363522 at "Each consists of a black G10 (fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
     the essential character of the G10 bezel case is given by the G10 rear housing of the G10 bezel case,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "the plastic that would impart the essential character to each case as it provides the impact protection and predominates",
         because "the plastic provides the impact protection and predominates over the bezel materials (GRI 3(b))".
     the principal use of the G10 bezel case is protecting a mobile phone,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "and they are all described as a two-part fitted protective case for the iPhone 17 Pro / 17 Pro Max",
         because "a fitted protective case for a mobile phone".
-    the G10 bezel case is claimed to belong to cases of heading 4202, as stated in ruling NY N363522.
+    the G10 bezel case is claimed to belong to cases of heading 4202,
+        as stated in ruling NY N363522 at "you indicate that these cases are classifiable under heading 4202".
     the claim that the G10 bezel case belongs to cases of heading 4202 is rejected,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "details why these cellphone cases are not classified under heading 4202 but rather by their constituent materials",
         because "per HQ H297451 such cellphone cases are not classified under heading 4202 but by their constituent materials".
-    the aluminium bezel case is a manufactured article, as stated in ruling NY N363522.
-    the aluminium bezel case is a composite good, as stated in ruling NY N363522.
-    the G10 rear housing of the aluminium bezel case is a component of the aluminium bezel case, as stated in ruling NY N363522.
-    the aluminium bezel of the aluminium bezel case is a component of the aluminium bezel case, as stated in ruling NY N363522.
-    the G10 rear housing of the aluminium bezel case is made of plastics, as stated in ruling NY N363522.
+    the aluminium bezel case is a manufactured article,
+        as stated in ruling NY N363522 at "and they are all described as a two-part fitted protective case for the iPhone 17 Pro / 17 Pro Max".
+    the aluminium bezel case is a composite good,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the G10 rear housing of the aluminium bezel case is a component of the aluminium bezel case,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the aluminium bezel of the aluminium bezel case is a component of the aluminium bezel case,
+        as stated in ruling NY N363522 at "the second style has an aluminum bezel".
+    the G10 rear housing of the aluminium bezel case is made of plastics,
+        as stated in ruling NY N363522 at "Each consists of a black G10 (fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
     the essential character of the aluminium bezel case is given by the G10 rear housing of the aluminium bezel case,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "the plastic that would impart the essential character to each case as it provides the impact protection and predominates",
         because "the plastic provides the impact protection and predominates over the bezel materials (GRI 3(b))".
     the principal use of the aluminium bezel case is protecting a mobile phone,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "and they are all described as a two-part fitted protective case for the iPhone 17 Pro / 17 Pro Max",
         because "a fitted protective case for a mobile phone".
-    the aluminium bezel case is claimed to belong to cases of heading 4202, as stated in ruling NY N363522.
+    the aluminium bezel case is claimed to belong to cases of heading 4202,
+        as stated in ruling NY N363522 at "you indicate that these cases are classifiable under heading 4202".
     the claim that the aluminium bezel case belongs to cases of heading 4202 is rejected,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "details why these cellphone cases are not classified under heading 4202 but rather by their constituent materials",
         because "per HQ H297451 such cellphone cases are not classified under heading 4202 but by their constituent materials".
-    the stainless steel bezel case is a manufactured article, as stated in ruling NY N363522.
-    the stainless steel bezel case is a composite good, as stated in ruling NY N363522.
-    the G10 rear housing of the stainless steel bezel case is a component of the stainless steel bezel case, as stated in ruling NY N363522.
-    the stainless steel bezel of the stainless steel bezel case is a component of the stainless steel bezel case, as stated in ruling NY N363522.
-    the G10 rear housing of the stainless steel bezel case is made of plastics, as stated in ruling NY N363522.
+    the stainless steel bezel case is a manufactured article,
+        as stated in ruling NY N363522 at "and they are all described as a two-part fitted protective case for the iPhone 17 Pro / 17 Pro Max".
+    the stainless steel bezel case is a composite good,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the G10 rear housing of the stainless steel bezel case is a component of the stainless steel bezel case,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the stainless steel bezel of the stainless steel bezel case is a component of the stainless steel bezel case,
+        as stated in ruling NY N363522 at "the third style has a stainless-steel bezel".
+    the G10 rear housing of the stainless steel bezel case is made of plastics,
+        as stated in ruling NY N363522 at "Each consists of a black G10 (fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
     the essential character of the stainless steel bezel case is given by the G10 rear housing of the stainless steel bezel case,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "the plastic that would impart the essential character to each case as it provides the impact protection and predominates",
         because "the plastic provides the impact protection and predominates over the bezel materials (GRI 3(b))".
     the principal use of the stainless steel bezel case is protecting a mobile phone,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "and they are all described as a two-part fitted protective case for the iPhone 17 Pro / 17 Pro Max",
         because "a fitted protective case for a mobile phone".
-    the stainless steel bezel case is claimed to belong to cases of heading 4202, as stated in ruling NY N363522.
+    the stainless steel bezel case is claimed to belong to cases of heading 4202,
+        as stated in ruling NY N363522 at "you indicate that these cases are classifiable under heading 4202".
     the claim that the stainless steel bezel case belongs to cases of heading 4202 is rejected,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "details why these cellphone cases are not classified under heading 4202 but rather by their constituent materials",
         because "per HQ H297451 such cellphone cases are not classified under heading 4202 but by their constituent materials".
-    the titanium bezel case is a manufactured article, as stated in ruling NY N363522.
-    the titanium bezel case is a composite good, as stated in ruling NY N363522.
-    the G10 rear housing of the titanium bezel case is a component of the titanium bezel case, as stated in ruling NY N363522.
-    the titanium bezel of the titanium bezel case is a component of the titanium bezel case, as stated in ruling NY N363522.
-    the G10 rear housing of the titanium bezel case is made of plastics, as stated in ruling NY N363522.
+    the titanium bezel case is a manufactured article,
+        as stated in ruling NY N363522 at "and they are all described as a two-part fitted protective case for the iPhone 17 Pro / 17 Pro Max".
+    the titanium bezel case is a composite good,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the G10 rear housing of the titanium bezel case is a component of the titanium bezel case,
+        as stated in ruling NY N363522 at "(fiberglass-reinforced epoxy) plastic composite rear housing and a machined front bezel".
+    the titanium bezel of the titanium bezel case is a component of the titanium bezel case,
+        as stated in ruling NY N363522 at "the fourth style has a titanium front bezel".
+    the G10 rear housing of the titanium bezel case is made of plastics,
+        as stated in ruling NY N363522 at "All versions will have an internal plastic polymer impact liner".
     the essential character of the titanium bezel case is given by the G10 rear housing of the titanium bezel case,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "the plastic that would impart the essential character to each case as it provides the impact protection and predominates",
         because "the plastic provides the impact protection and predominates over the bezel materials (GRI 3(b))".
     the principal use of the titanium bezel case is protecting a mobile phone,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "each case as it provides the impact protection and predominates over the various metal bezel materials",
         because "a fitted protective case for a mobile phone".
-    the titanium bezel case is claimed to belong to cases of heading 4202, as stated in ruling NY N363522.
+    the titanium bezel case is claimed to belong to cases of heading 4202,
+        as stated in ruling NY N363522 at "you indicate that these cases are classifiable under heading 4202".
     the claim that the titanium bezel case belongs to cases of heading 4202 is rejected,
-        according to CBP, as stated in ruling NY N363522,
+        according to CBP, as stated in ruling NY N363522 at "details why these cellphone cases are not classified under heading 4202 but rather by their constituent materials",
         because "per HQ H297451 such cellphone cases are not classified under heading 4202 but by their constituent materials".
     subheading expects answers ["the subheading of the G10 bezel case is 3926.90",
         "the subheading of the aluminium bezel case is 3926.90",
@@ -118,19 +188,23 @@ scenario ny_n363522 is:
 
 % NY N363173 (July 2026): collectible miniature studio equipment from Belgium.
 scenario ny_n363173 is:
-    the miniature studio replicas is a manufactured article, as stated in ruling NY N363173.
-    the miniature studio replicas is made of plastics, as stated in ruling NY N363173.
+    the miniature studio replicas is a manufactured article,
+        as stated in ruling NY N363173 at "The products under consideration are all described as highly detailed".
+    the miniature studio replicas is made of plastics,
+        as stated in ruling NY N363173 at "printing using polylactic acid (PLA) plastic".
     the principal use of the miniature studio replicas is ornament,
-        according to CBP, as stated in ruling NY N363173,
+        according to CBP, as stated in ruling NY N363173 at "These articles are intended to serve as collectible decorations",
         because "static display pieces intended to serve as collectible decorations".
     subheading expects answers ["the subheading of the miniature studio replicas is 3926.40"].
 
 % NY N363253 (July 2026): a bowl clamp from China.
 scenario ny_n363253 is:
-    the self-feeding bowl clamp is a manufactured article, as stated in ruling NY N363253.
-    the self-feeding bowl clamp is made of plastics, as stated in ruling NY N363253.
+    the self-feeding bowl clamp is a manufactured article,
+        as stated in ruling NY N363253 at "“Dymmoy Self-Feeding Bowl Clamp.” It is a reusable and washable feeding accessory designed for babies and toddlers that are six months of age and older".
+    the self-feeding bowl clamp is made of plastics,
+        as stated in ruling NY N363253 at "acrylonitrile butadiene styrene (ABS) plastic along with internal metal components which support the internal".
     the principal use of the self-feeding bowl clamp is securing a feeding bowl,
-        according to CBP, as stated in ruling NY N363253,
+        according to CBP, as stated in ruling NY N363253 at "This article is used to secure a separate feeding bowl to a dining table or highchair tray during",
         because "the clamp is not of the same class or kind as the tableware and kitchenware exemplars of EN 39.24 because it functions as a clamp (as in N269773)".
     subheading expects answers ["the subheading of the self-feeding bowl clamp is 3926.90"].
     household expects changes [["add: the principal use of the self-feeding bowl clamp is household use"],
@@ -140,58 +214,80 @@ scenario ny_n363253 is:
 
 % NY N362836 (July 2026): a plastic cartridge from China.
 scenario ny_n362836 is:
-    the printing cartridge is a manufactured article, as stated in ruling NY N362836.
-    the printing cartridge is made of plastics, as stated in ruling NY N362836.
+    the printing cartridge is a manufactured article,
+        as stated in ruling NY N362836 at "We note that this “cartridge” is a graduated syringe".
+    the printing cartridge is made of plastics,
+        as stated in ruling NY N362836 at "The product under consideration is described as a molded plastic cartridge".
     the principal use of the printing cartridge is dispensing paste in a 3D printer,
-        according to CBP, as stated in ruling NY N362836,
+        according to CBP, as stated in ruling NY N362836 at "be used as a material reservoir and dispensing cartridge in an additive-manufacturing (3D printing) system",
         because "a graduated syringe used as the material reservoir of an additive-manufacturing system, not for medical use".
     subheading expects answers ["the subheading of the printing cartridge is 3926.90"].
 
 % NY N362269 (June 2026): ornamental craft kits from China.
 scenario ny_n362269 is:
-    kit DS0031003 is a manufactured article, as stated in ruling NY N362269.
-    kit DS0031003 is a set put up for retail sale, as stated in ruling NY N362269.
-    the acetate candle piece of kit DS0031003 is a component of kit DS0031003, as stated in ruling NY N362269.
-    the crystal diamonds of kit DS0031003 is a component of kit DS0031003, as stated in ruling NY N362269.
-    the acetate candle piece of kit DS0031003 is made of plastics, as stated in ruling NY N362269.
+    kit DS0031003 is a manufactured article,
+        as stated in ruling NY N362269 at "under consideration with each being described as a “diamond keychain kit.” They feature a primary decorative component".
+    kit DS0031003 is a set put up for retail sale,
+        as stated in ruling NY N362269 at "includes the following components".
+    the acetate candle piece of kit DS0031003 is a component of kit DS0031003,
+        as stated in ruling NY N362269 at "one decorative acetate plastic piece with the appearance of a candle".
+    the crystal diamonds of kit DS0031003 is a component of kit DS0031003,
+        as stated in ruling NY N362269 at "four bags of crystal diamonds".
+    the acetate candle piece of kit DS0031003 is made of plastics,
+        as stated in ruling NY N362269 at "one decorative acetate plastic piece with the appearance of a candle, two acrylic plastic pieces".
     the essential character of kit DS0031003 is given by the acetate candle piece of kit DS0031003,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "plastic components would impart the essential character to each product",
         because "the decorative plastic components impart the essential character (GRI 3(b))".
     the principal use of kit DS0031003 is ornament,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "then will assemble the other kit elements to create the finished charm",
         because "the finished charm is an ornamental article".
-    kit DS0031006 is a manufactured article, as stated in ruling NY N362269.
-    kit DS0031006 is a set put up for retail sale, as stated in ruling NY N362269.
-    the acetate dog piece of kit DS0031006 is a component of kit DS0031006, as stated in ruling NY N362269.
-    the crystal diamonds of kit DS0031006 is a component of kit DS0031006, as stated in ruling NY N362269.
-    the acetate dog piece of kit DS0031006 is made of plastics, as stated in ruling NY N362269.
+    kit DS0031006 is a manufactured article,
+        as stated in ruling NY N362269 at "under consideration with each being described as a “diamond keychain kit.” They feature a primary decorative component".
+    kit DS0031006 is a set put up for retail sale,
+        as stated in ruling NY N362269 at "includes the following components".
+    the acetate dog piece of kit DS0031006 is a component of kit DS0031006,
+        as stated in ruling NY N362269 at "two acetate pieces (one shaped like a dog)".
+    the crystal diamonds of kit DS0031006 is a component of kit DS0031006,
+        as stated in ruling NY N362269 at "four bags of crystal diamonds".
+    the acetate dog piece of kit DS0031006 is made of plastics,
+        as stated in ruling NY N362269 at "two acetate pieces (one shaped like a dog), one acrylic plastic piece".
     the essential character of kit DS0031006 is given by the acetate dog piece of kit DS0031006,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "plastic components would impart the essential character to each product",
         because "the decorative plastic components impart the essential character (GRI 3(b))".
     the principal use of kit DS0031006 is ornament,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "then will assemble the other kit elements to create the finished charm",
         because "the finished charm is an ornamental article".
-    kit DS0031007 is a manufactured article, as stated in ruling NY N362269.
-    kit DS0031007 is a set put up for retail sale, as stated in ruling NY N362269.
-    the acetate croissant piece of kit DS0031007 is a component of kit DS0031007, as stated in ruling NY N362269.
-    the crystal diamonds of kit DS0031007 is a component of kit DS0031007, as stated in ruling NY N362269.
-    the acetate croissant piece of kit DS0031007 is made of plastics, as stated in ruling NY N362269.
+    kit DS0031007 is a manufactured article,
+        as stated in ruling NY N362269 at "under consideration with each being described as a “diamond keychain kit.” They feature a primary decorative component".
+    kit DS0031007 is a set put up for retail sale,
+        as stated in ruling NY N362269 at "includes the following components".
+    the acetate croissant piece of kit DS0031007 is a component of kit DS0031007,
+        as stated in ruling NY N362269 at "one acetate piece shaped like a croissant".
+    the crystal diamonds of kit DS0031007 is a component of kit DS0031007,
+        as stated in ruling NY N362269 at "a bag of crystal diamonds".
+    the acetate croissant piece of kit DS0031007 is made of plastics,
+        as stated in ruling NY N362269 at "one acetate piece shaped like a croissant, the acrylic plastic pieces".
     the essential character of kit DS0031007 is given by the acetate croissant piece of kit DS0031007,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "plastic components would impart the essential character to each product",
         because "the decorative plastic components impart the essential character (GRI 3(b))".
     the principal use of kit DS0031007 is ornament,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "then will assemble the other kit elements to create the finished charm",
         because "the finished charm is an ornamental article".
-    kit DS0042003 is a manufactured article, as stated in ruling NY N362269.
-    kit DS0042003 is a set put up for retail sale, as stated in ruling NY N362269.
-    the polyurethane charm of kit DS0042003 is a component of kit DS0042003, as stated in ruling NY N362269.
-    the crystal diamonds of kit DS0042003 is a component of kit DS0042003, as stated in ruling NY N362269.
-    the polyurethane charm of kit DS0042003 is made of plastics, as stated in ruling NY N362269.
+    kit DS0042003 is a manufactured article,
+        as stated in ruling NY N362269 at "under consideration with each being described as a “diamond keychain kit.” They feature a primary decorative component".
+    kit DS0042003 is a set put up for retail sale,
+        as stated in ruling NY N362269 at "four craft kits would be considered sets for classification purposes and that the decorative plastic components".
+    the polyurethane charm of kit DS0042003 is a component of kit DS0042003,
+        as stated in ruling NY N362269 at "one decorative polyurethane plastic charm".
+    the crystal diamonds of kit DS0042003 is a component of kit DS0042003,
+        as stated in ruling NY N362269 at "four bags of crystal diamonds".
+    the polyurethane charm of kit DS0042003 is made of plastics,
+        as stated in ruling NY N362269 at "one decorative polyurethane plastic charm".
     the essential character of kit DS0042003 is given by the polyurethane charm of kit DS0042003,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "plastic components would impart the essential character to each product",
         because "the decorative plastic components impart the essential character (GRI 3(b))".
     the principal use of kit DS0042003 is ornament,
-        according to CBP, as stated in ruling NY N362269,
+        according to CBP, as stated in ruling NY N362269 at "then will assemble the other kit elements to create the finished charm",
         because "the finished charm is an ornamental article".
     subheading expects answers ["the subheading of kit DS0031003 is 3926.40",
         "the subheading of kit DS0031006 is 3926.40",
@@ -200,176 +296,226 @@ scenario ny_n362269 is:
 
 % NY N362002 (June 2026): a plastic foam pad from China.
 scenario ny_n362002 is:
-    the reticulated foam pad is a manufactured article, as stated in ruling NY N362002.
-    the reticulated foam pad is made of plastics, as stated in ruling NY N362002.
+    the reticulated foam pad is a manufactured article,
+        as stated in ruling NY N362002 at "It is a single piece of die-cut open-cell reticulated polyurethane foam that is circular in shape and intended to suppress splashing".
+    the reticulated foam pad is made of plastics,
+        as stated in ruling NY N362002 at "As this foam component would be considered an article of plastic".
     the principal use of the reticulated foam pad is splash suppression in an oil drain container,
-        according to CBP, as stated in ruling NY N362002,
+        according to CBP, as stated in ruling NY N362002 at "circular in shape and intended to suppress splashing and agitation of used motor oil as it is drained from a vehicle",
         because "a component permanently incorporated in an oil drain container to suppress splashing; not a filter".
     subheading expects answers ["the subheading of the reticulated foam pad is 3926.90"].
 
 % NY N363254 (July 2026): a plastic rake from China.
 scenario ny_n363254 is:
-    the Leafinator is a manufactured article, as stated in ruling NY N363254.
-    the Leafinator is a composite good, as stated in ruling NY N363254.
-    the polypropylene panels of the Leafinator is a component of the Leafinator, as stated in ruling NY N363254.
-    the aluminium pole of the Leafinator is a component of the Leafinator, as stated in ruling NY N363254.
-    the polypropylene panels of the Leafinator is made of plastics, as stated in ruling NY N363254.
+    the Leafinator is a manufactured article,
+        as stated in ruling NY N363254 at "It is a garden rake used in household yards".
+    the Leafinator is a composite good,
+        as stated in ruling NY N363254 at "The item is considered a composite good within the meaning of General Rule of Interpretation (GRI) 3".
+    the polypropylene panels of the Leafinator is a component of the Leafinator,
+        as stated in ruling NY N363254 at "The rake consists of polypropylene plastic upper and lower scoop panels".
+    the aluminium pole of the Leafinator is a component of the Leafinator,
+        as stated in ruling NY N363254 at "an aluminum handle and aluminum pole".
+    the polypropylene panels of the Leafinator is made of plastics,
+        as stated in ruling NY N363254 at "The item consists of a polypropylene (PP) upper rake panel, a polypropylene plastic lower scoop panel".
     the essential character of the Leafinator is given by the polypropylene panels of the Leafinator,
-        according to CBP, as stated in ruling NY N363254,
+        according to CBP, as stated in ruling NY N363254 at "polypropylene plastic components provides the essential character within the meaning of GRI 3(b)",
         because "the polypropylene components make up most of the weight and bulk and perform the principal function of raking".
     the principal use of the Leafinator is household use,
-        according to CBP, as stated in ruling NY N363254,
+        according to CBP, as stated in ruling NY N363254 at "It is a garden rake used in household yards",
         because "a garden rake used in household yards".
     subheading expects answers ["the subheading of the Leafinator is 3924.90"].
 
 % NY N362334 (June 2026): a plastic laundry bin from China.
 scenario ny_n362334 is:
-    the laundry bin GS750 is a manufactured article, as stated in ruling NY N362334.
-    the laundry bin GS750 is made of plastics, as stated in ruling NY N362334.
+    the laundry bin GS750 is a manufactured article,
+        as stated in ruling NY N362334 at "The item concerned is a white plastic laundry bin".
+    the laundry bin GS750 is made of plastics,
+        as stated in ruling NY N362334 at "The item concerned is a white plastic laundry bin".
     the principal use of the laundry bin GS750 is household use,
-        according to CBP, as stated in ruling NY N362334,
+        according to CBP, as stated in ruling NY N362334 at "The article is designed to be used in the home to hold and store assorted items",
         because "designed to be used in the home to hold and store laundry, toys and other household items".
     subheading expects answers ["the subheading of the laundry bin GS750 is 3924.90"].
 
 % NY N360630 (April 2026): a plastic shoe tree from China.
 scenario ny_n360630 is:
-    the Fresh Flow shoe tree is a manufactured article, as stated in ruling NY N360630.
-    the Fresh Flow shoe tree is made of plastics, as stated in ruling NY N360630.
+    the Fresh Flow shoe tree is a manufactured article,
+        as stated in ruling NY N360630 at "The merchandise under consideration is identified as a shoe tree".
+    the Fresh Flow shoe tree is made of plastics,
+        as stated in ruling NY N360630 at "acrylonitrile butadiene styrene (ABS) plastic".
     the principal use of the Fresh Flow shoe tree is household use,
-        according to CBP, as stated in ruling NY N360630,
+        according to CBP, as stated in ruling NY N360630 at "Please see NY ruling A81381, dated April 16, 1996, N086500, dated December 18, 2009, and N302876",
         because "classified with household articles following NY A81381, N086500 and N302876".
-    the Fresh Flow shoe tree is claimed to belong to parts of footwear of heading 6406, as stated in ruling NY N360630.
+    the Fresh Flow shoe tree is claimed to belong to parts of footwear of heading 6406,
+        as stated in ruling NY N360630 at "you suggested that the shoe tree be classified under heading 6406".
     the claim that the Fresh Flow shoe tree belongs to parts of footwear of heading 6406 is rejected,
-        according to CBP, as stated in ruling NY N360630,
+        according to CBP, as stated in ruling NY N360630 at "The merchandise is not a complete shoe or a part of a shoe",
         because "the article is not a complete shoe or a part of a shoe".
     subheading expects answers ["the subheading of the Fresh Flow shoe tree is 3924.90"].
 
 % NY N360066 (March 2026): a cat toy from China.
 scenario ny_n360066 is:
-    the Pom Pom Launcher is a manufactured article, as stated in ruling NY N360066.
-    the Pom Pom Launcher is a set put up for retail sale, as stated in ruling NY N360066.
-    the launcher of the Pom Pom Launcher is a component of the Pom Pom Launcher, as stated in ruling NY N360066.
-    the pom pom balls of the Pom Pom Launcher is a component of the Pom Pom Launcher, as stated in ruling NY N360066.
-    the launcher of the Pom Pom Launcher is made of plastics, as stated in ruling NY N360066.
+    the Pom Pom Launcher is a manufactured article,
+        as stated in ruling NY N360066 at "It is a cat toy consisting of a molded polypropylene (PP) plastic launcher shaped like a gun and fifty pom pom balls".
+    the Pom Pom Launcher is a set put up for retail sale,
+        as stated in ruling NY N360066 at "provides that the term “goods put up in sets for retail sale” means goods that".
+    the launcher of the Pom Pom Launcher is a component of the Pom Pom Launcher,
+        as stated in ruling NY N360066 at "The item concerned is referred to as a Pom Pom Launcher".
+    the pom pom balls of the Pom Pom Launcher is a component of the Pom Pom Launcher,
+        as stated in ruling NY N360066 at "launcher shaped like a gun and fifty pom pom balls".
+    the launcher of the Pom Pom Launcher is made of plastics,
+        as stated in ruling NY N360066 at "the plastic pom pom launcher is considered a plastic pet toy used by cats and will be classified under heading 3924 as".
     the essential character of the Pom Pom Launcher is given by the launcher of the Pom Pom Launcher,
-        according to CBP, as stated in ruling NY N360066,
+        according to CBP, as stated in ruling NY N360066 at "or component which gives them their essential character which may be determined by the nature of the material or component",
         because "the launcher gives the essential character by bulk, weight, value and importance to the set".
     the principal use of the Pom Pom Launcher is household use,
-        according to CBP, as stated in ruling NY N360066,
+        according to CBP, as stated in ruling NY N360066 at "plastic pet supplies used by domestic household animals are classified as household articles",
         because "plastic pet toys used by domestic animals are household articles (Hartz Mountain Corp. v. United States, 19 CIT 1149)".
-    the Pom Pom Launcher is claimed to belong to toys of heading 9503, as stated in ruling NY N360066.
+    the Pom Pom Launcher is claimed to belong to toys of heading 9503,
+        as stated in ruling NY N360066 at "you suggest classification in heading 9503".
     the claim that the Pom Pom Launcher belongs to toys of heading 9503 is rejected,
-        according to CBP, as stated in ruling NY N360066,
+        according to CBP, as stated in ruling NY N360066 at "are identifiable as intended exclusively for animals",
         because "Chapter 95 note 5: heading 9503 does not cover articles identifiable as intended exclusively for animals".
     subheading expects answers ["the subheading of the Pom Pom Launcher is 3924.90"].
 
 % NY N357351 (December 2025): a plastic scrub sponge.
 scenario ny_n357351 is:
-    the scrub sponge is a manufactured article, as stated in ruling NY N357351.
-    the scrub sponge is made of plastics, as stated in ruling NY N357351.
+    the scrub sponge is a manufactured article,
+        as stated in ruling NY N357351 at "The merchandise is a plastic scrub sponge".
+    the scrub sponge is made of plastics,
+        as stated in ruling NY N357351 at "of origin determination ruling on a plastic scrub sponge".
     the principal use of the scrub sponge is household use,
-        according to CBP, as stated in ruling NY N357351,
+        according to CBP, as stated in ruling NY N357351 at "The scrub sponge is intended for household cleaning",
         because "the scrub sponge is intended for household cleaning".
     subheading expects answers ["the subheading of the scrub sponge is 3924.90"].
 
 % NY N356689 (December 2025): plastic picture frames from China.
 scenario ny_n356689 is:
-    the Fitm picture frames is a manufactured article, as stated in ruling NY N356689.
-    the Fitm picture frames is made of plastics, as stated in ruling NY N356689.
+    the Fitm picture frames is a manufactured article,
+        as stated in ruling NY N356689 at "The merchandise under consideration is plastic picture frames".
+    the Fitm picture frames is made of plastics,
+        as stated in ruling NY N356689 at "The merchandise under consideration is plastic picture frames".
     the principal use of the Fitm picture frames is household use,
-        according to CBP, as stated in ruling NY N356689,
+        according to CBP, as stated in ruling NY N356689 at "inches wide by 0.64 inches high for household display of standard 4×6 photographs or artwork",
         because "frames for household display of photographs or artwork".
     subheading expects answers ["the subheading of the Fitm picture frames is 3924.90"].
 
 % NY N340223 (May 2024): a plastic mat from China.
 scenario ny_n340223 is:
-    the kitchen rug M516 is a manufactured article, as stated in ruling NY N340223.
-    the kitchen rug M516 is a composite good, as stated in ruling NY N340223.
-    the coated nonwoven layer of the kitchen rug M516 is a component of the kitchen rug M516, as stated in ruling NY N340223.
-    the rubber foam back of the kitchen rug M516 is a component of the kitchen rug M516, as stated in ruling NY N340223.
+    the kitchen rug M516 is a manufactured article,
+        as stated in ruling NY N340223 at "The article is a rectangular beige mat with three layers that measure approximately 20 inches wide by 40 inches long".
+    the kitchen rug M516 is a composite good,
+        as stated in ruling NY N340223 at "This item is considered to be a composite good within the meaning of General Rule of Interpretation (GRI) 3".
+    the coated nonwoven layer of the kitchen rug M516 is a component of the kitchen rug M516,
+        as stated in ruling NY N340223 at "a rectangular beige mat with three layers that measure approximately 20 inches wide by 40 inches long".
+    the rubber foam back of the kitchen rug M516 is a component of the kitchen rug M516,
+        as stated in ruling NY N340223 at "The back of the mat is a polyurethane-coated fabric laminated with neoprene foam rubber".
     the coated nonwoven layer of the kitchen rug M516 is made of plastics,
-        according to the CBP laboratory, as stated in ruling NY N340223,
+        according to the CBP laboratory, as stated in ruling NY N340223 at "You indicate that the external surface area of the upper is coated with polyurethane",
         because "a man-made nonwoven fabric coated, covered, impregnated or laminated with poly(ether-ester urethane)".
     the essential character of the kitchen rug M516 is given by the coated nonwoven layer of the kitchen rug M516,
-        according to CBP, as stated in ruling NY N340223,
+        according to CBP, as stated in ruling NY N340223 at "material provides this item with the essential character within the meaning of GRI 3(b)",
         because "the coated layer performs the primary role of cushioning; the rubber back only prevents sliding".
     the principal use of the kitchen rug M516 is household use,
-        according to CBP, as stated in ruling NY N340223,
+        according to CBP, as stated in ruling NY N340223 at "The mat is designed and marketed for household use",
         because "the mat is designed and marketed for household use".
     subheading expects answers ["the subheading of the kitchen rug M516 is 3924.90"].
 
 % NY N363423 (July 2026): polyethylene foam packaging inserts from China.
 scenario ny_n363423 is:
-    the foam packaging inserts is a manufactured article, as stated in ruling NY N363423.
-    the foam packaging inserts is made of plastics, as stated in ruling NY N363423.
+    the foam packaging inserts is a manufactured article,
+        as stated in ruling NY N363423 at "The products under consideration are polyethylene foam packaging inserts used to protect a robotic arm during shipment".
+    the foam packaging inserts is made of plastics,
+        as stated in ruling NY N363423 at "as a plastic article for the conveyance or packing of goods".
     the principal use of the foam packaging inserts is packing of goods,
-        according to CBP, as stated in ruling NY N363423,
+        according to CBP, as stated in ruling NY N363423 at "consideration are polyethylene foam packaging inserts used to protect a robotic arm during shipment",
         because "inserts used to protect a robotic arm during shipment".
     subheading expects answers ["the subheading of the foam packaging inserts is 3923.90"].
 
 % NY N360189 (March 2026): a plastic bag from Malaysia.
 scenario ny_n360189 is:
-    the reclosable bag is a manufactured article, as stated in ruling NY N360189.
-    the reclosable bag is made of plastics, as stated in ruling NY N360189.
-    the reclosable bag is shaped as sack, as stated in ruling NY N360189.
-    the reclosable bag contains 80 percent of polyethylene, as stated in ruling NY N360189.
+    the reclosable bag is a manufactured article,
+        as stated in ruling NY N360189 at "The merchandise at issue is a plastic bag manufactured in Malaysia".
+    the reclosable bag is made of plastics,
+        as stated in ruling NY N360189 at "The merchandise at issue is a plastic bag manufactured in Malaysia".
+    the reclosable bag is shaped as sack,
+        as stated in ruling NY N360189 at "The merchandise at issue is a plastic bag manufactured in Malaysia".
+    the reclosable bag contains 80 percent of polyethylene,
+        as stated in ruling NY N360189 at "The polyethylene comprises 80 percent by weight of the bag".
     the principal use of the reclosable bag is packing of goods,
-        according to CBP, as stated in ruling NY N360189,
+        according to CBP, as stated in ruling NY N360189 at "has an integral extruded closure at the top and is intended for supplementary packaging",
         because "the bag is intended for supplementary packaging".
     subheading expects answers ["the subheading of the reclosable bag is 3923.21"].
 
 % NY N360191 (March 2026): a plastic bag from Turkey.
 scenario ny_n360191 is:
-    the reclosable bag is a manufactured article, as stated in ruling NY N360191.
-    the reclosable bag is made of plastics, as stated in ruling NY N360191.
-    the reclosable bag is shaped as sack, as stated in ruling NY N360191.
-    the reclosable bag contains 80 percent of polyethylene, as stated in ruling NY N360191.
+    the reclosable bag is a manufactured article,
+        as stated in ruling NY N360191 at "The merchandise at issue is a plastic bag manufactured in Turkey".
+    the reclosable bag is made of plastics,
+        as stated in ruling NY N360191 at "The merchandise at issue is a plastic bag manufactured in Turkey".
+    the reclosable bag is shaped as sack,
+        as stated in ruling NY N360191 at "The merchandise at issue is a plastic bag manufactured in Turkey".
+    the reclosable bag contains 80 percent of polyethylene,
+        as stated in ruling NY N360191 at "The polyethylene comprises 80 percent by weight of the bag".
     the principal use of the reclosable bag is packing of goods,
-        according to CBP, as stated in ruling NY N360191,
+        according to CBP, as stated in ruling NY N360191 at "has an integral extruded closure at the top and is intended for supplementary packaging",
         because "the bag is intended for supplementary packaging".
     subheading expects answers ["the subheading of the reclosable bag is 3923.21"].
 
 % NY N360188 (March 2026): a plastic bag from China.
 scenario ny_n360188 is:
-    the reclosable bag is a manufactured article, as stated in ruling NY N360188.
-    the reclosable bag is made of plastics, as stated in ruling NY N360188.
-    the reclosable bag is shaped as sack, as stated in ruling NY N360188.
-    the reclosable bag contains 80 percent of polyethylene, as stated in ruling NY N360188.
+    the reclosable bag is a manufactured article,
+        as stated in ruling NY N360188 at "The merchandise at issue is a plastic bag manufactured in China".
+    the reclosable bag is made of plastics,
+        as stated in ruling NY N360188 at "The merchandise at issue is a plastic bag manufactured in China".
+    the reclosable bag is shaped as sack,
+        as stated in ruling NY N360188 at "The merchandise at issue is a plastic bag manufactured in China".
+    the reclosable bag contains 80 percent of polyethylene,
+        as stated in ruling NY N360188 at "The polyethylene comprises 80 percent by weight of the bag".
     the principal use of the reclosable bag is packing of goods,
-        according to CBP, as stated in ruling NY N360188,
+        according to CBP, as stated in ruling NY N360188 at "has an integral extruded closure at the top and is intended for supplementary packaging",
         because "the bag is intended for supplementary packaging".
     subheading expects answers ["the subheading of the reclosable bag is 3923.21"].
 
 % NY N360190 (March 2026): a plastic bag from Thailand.
 scenario ny_n360190 is:
-    the reclosable bag is a manufactured article, as stated in ruling NY N360190.
-    the reclosable bag is made of plastics, as stated in ruling NY N360190.
-    the reclosable bag is shaped as sack, as stated in ruling NY N360190.
-    the reclosable bag contains 80 percent of polyethylene, as stated in ruling NY N360190.
+    the reclosable bag is a manufactured article,
+        as stated in ruling NY N360190 at "The merchandise at issue is a plastic bag manufactured in Thailand".
+    the reclosable bag is made of plastics,
+        as stated in ruling NY N360190 at "The merchandise at issue is a plastic bag manufactured in Thailand".
+    the reclosable bag is shaped as sack,
+        as stated in ruling NY N360190 at "The merchandise at issue is a plastic bag manufactured in Thailand".
+    the reclosable bag contains 80 percent of polyethylene,
+        as stated in ruling NY N360190 at "The polyethylene comprises 80 percent by weight of the bag".
     the principal use of the reclosable bag is packing of goods,
-        according to CBP, as stated in ruling NY N360190,
+        according to CBP, as stated in ruling NY N360190 at "has an integral extruded closure at the top and is intended for supplementary packaging",
         because "the bag is intended for supplementary packaging".
     subheading expects answers ["the subheading of the reclosable bag is 3923.21"].
 
 % NY N358771 (February 2026): a lipstick container from South Korea.
 scenario ny_n358771 is:
-    the lipstick container LPNR001 is a manufactured article, as stated in ruling NY N358771.
-    the lipstick container LPNR001 is made of plastics, as stated in ruling NY N358771.
+    the lipstick container LPNR001 is a manufactured article,
+        as stated in ruling NY N358771 at "described as a lipstick container, model number LPNR001, constructed from an injection-molded plastic".
+    the lipstick container LPNR001 is made of plastics,
+        as stated in ruling NY N358771 at "constructed from an injection-molded plastic".
     the principal use of the lipstick container LPNR001 is packing of goods,
-        according to CBP, as stated in ruling NY N358771,
+        according to CBP, as stated in ruling NY N358771 at "designed to protect the contents from external impact and contamination, and to facilitate its transport, storage, and use",
         because "the container protects the lipstick from impact and contamination and serves its transport, storage and use".
     the lipstick container LPNR001 is shaped as cylindrical container,
-        according to CBP, as stated in ruling NY N358771,
+        according to CBP, as stated in ruling NY N358771 at "The product is a cylindrical round container which is not considered a box",
         because "a cylindrical round container is not a box, case, crate or similar article".
     subheading expects answers ["the subheading of the lipstick container LPNR001 is 3923.90"].
 
 % NY N342911 (September 2024): WPP/BOPP bags from Dominican Republic-Central America.
 scenario ny_n342911 is:
-    the WPP BOPP bag is a manufactured article, as stated in ruling NY N342911.
-    the WPP BOPP bag is made of plastics, as stated in ruling NY N342911.
-    the WPP BOPP bag is shaped as sack, as stated in ruling NY N342911.
-    the WPP BOPP bag contains 100 percent of polypropylene, as stated in ruling NY N342911.
+    the WPP BOPP bag is a manufactured article,
+        as stated in ruling NY N342911 at "(i) the good is a good wholly obtained or produced entirely in the territory of one or more of the parties to the Agreement".
+    the WPP BOPP bag is made of plastics,
+        as stated in ruling NY N342911 at "strips 2 mm wide and laminated with plastic visible to the naked eye and classified in heading 5903.".
+    the WPP BOPP bag is shaped as sack,
+        as stated in ruling NY N342911 at "on the status of WPP/BOPP bags from Dominican Republic-Central America under the DR-CAFTA".
+    the WPP BOPP bag contains 100 percent of polypropylene,
+        as stated in ruling NY N342911 at "described as a bag made from woven polypropylene (WPP) that is coated on the exterior with melted polypropylene laminated".
     the principal use of the WPP BOPP bag is packing of goods,
-        according to CBP, as stated in ruling NY N342911,
+        according to CBP, as stated in ruling NY N342911 at "The bags are used for packaging products including animal feed",
         because "bags used for packaging animal feed, cat litter, home and garden products and charcoal".
     subheading expects answers ["the subheading of the WPP BOPP bag is 3923.29"].

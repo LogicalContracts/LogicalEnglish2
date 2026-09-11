@@ -1,0 +1,279 @@
+HTSUS Section XI and Chapter 50 — Harmonized Tariff Schedule of the United States, Revision 18 (2026).
+Text extracted from the PDF at https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2050
+(pages 1, 2, 3, 4, 5, 6, 9 only; "=== page N ===" marks the PDF page, addressable as #page=N).
+
+=== page 1 ===
+SECTION XI
+TEXTILES AND TEXTILE ARTICLES
+XI-1
+Notes
+1. This section does not cover:
+(a) Animal brush-making bristles or hair (heading 0502); horsehair or horsehair waste (heading 0511);
+(b) Human hair or articles of human hair (heading 0501, 6703 or 6704), except filtering or straining cloth of a kind commonly
+used in oil presses or the like (heading 5911);
+(c) Cotton linters or other vegetable materials of chapter 14;
+(d) Asbestos of heading 2524 or articles of asbestos or other products of heading 6812 or 6813;
+(e) Articles of heading 3005 or 3006; yarn used to clean between the teeth, in individual retail packages (dental floss), of heading
+3306;
+(f) Sensitized textiles of headings 3701 to 3704;
+(g) Monofilament of which any cross-sectional dimension exceeds 1 mm or strip or the like (for example, artificial straw) of an
+apparent width exceeding 5 mm, of plastics (chapter 39), or plaits or fabrics or other basketware or wickerwork of such
+monofilament or strip (chapter 46);
+(h) Woven, knitted or crocheted fabrics, felt or nonwovens, impregnated, coated, covered or laminated with plastics, or articles
+thereof, of chapter 39;
+(ij) Woven, knitted or crocheted fabrics, felt or nonwovens, impregnated, coated, covered or laminated with rubber, or articles
+thereof, of chapter 40;
+(k) Hides or skins with their hair or wool on (chapter 41 or 43) or articles of furskin, artificial fur or articles thereof, of heading
+4303 or 4304;
+(l) Articles of textile materials of heading 4201 or 4202;
+(m) Products or articles of chapter 48 (for example, cellulose wadding);
+(n) Footwear or parts of footwear, gaiters or leggings or similar articles of chapter 64;
+(o) Hair-nets or other headgear or parts thereof of chapter 65;
+(p) Goods of chapter 67;
+(q) Abrasive-coated textile material (heading 6805) and also carbon fibers or articles of carbon fibers of heading 6815;
+(r) Glass fibers or articles of glass fibers, other than embroidery with glass thread on a visible ground of fabric (chapter 70);
+(s) Articles of chapter 94 (for example, furniture, bedding, luminaires and lighting fittings);
+(t) Articles of chapter 95 (for example, toys, games, sports requisites and nets);
+(u) Articles of Chapter 96 (for example, brushes, travel sets for sewing, slide fasteners, typewriter ribbons, sanitary pads (towels)
+and tampons, diapers (napkins) and diaper liners); or
+(v) Articles of chapter 97.
+2. (A) Goods classifiable in chapters 50 to 55 or in heading 5809 or 5902 and of a mixture of two or more textile materials are to
+be classified as if consisting wholly of that one textile material which predominates by weight over each other single textile
+material.
+When no one textile material predominates by weight, the goods are to be classified as if consisting wholly of that one textile
+material which is covered by the heading which occurs last in numerical order among those which equally merit consideration.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+
+=== page 2 ===
+Notes (con.)
+(B) For the purposes of the above rule:
+(a) Gimped horsehair yarn (heading 5110) and metalized yarn (heading 5605) are to be treated as a single textile material
+the weight of which is to be taken as the aggregate of the weights of its components; for the classification of woven
+fabrics, metal thread is to be regarded as a textile material;
+(b) The choice of appropriate heading shall be effected by determining first the chapter and then the applicable heading
+within that chapter, disregarding any materials not classified in that chapter;
+(c) When both chapters 54 and 55 are involved with any other chapter, chapters 54 and 55 are to be treated as a single
+chapter;
+(d) Where a chapter or a heading refers to goods of different textile materials, such materials are to be treated as a single
+textile material.
+(C) The provisions of paragraphs (A) and (B) above apply also to the yarns referred to in notes 3, 4, 5 or 6 below.
+3. (A) For the purposes of this section, and subject to the exceptions in paragraph (B) below, yarns (single, multiple (folded) or
+cabled) of the following descriptions are to be treated as "twine, cordage, ropes and cables":
+(a) Of silk or waste silk, measuring more than 20,000 decitex;
+(b) Of man-made fibers (including yarn of two or more monofilaments of chapter 54), measuring more than 10,000 decitex;
+(c) Of true hemp or flax:
+(i) Polished or glazed, measuring 1,429 decitex or more; or
+(ii) Not polished or glazed, measuring more than 20,000 decitex;
+(d) Of coir, consisting of three or more plies;
+(e) Of other vegetable fibers, measuring more than 20,000 decitex; or
+(f) Reinforced with metal thread.
+(B) Exceptions:
+(a) Yarn of wool or other animal hair and paper yarn, other than yarn reinforced with metal thread;
+(b) Man-made filament tow of chapter 55 and multifilament yarn without twist or with a twist of less than 5 turns per meter
+of chapter 54;
+(c) Silkworm gut of heading 5006 and monofilaments of chapter 54;
+(d) Metalized yarn of heading 5605; yarn reinforced with metal thread is subject to paragraph (A)(f) above; and
+(e) Chenille yarn, gimped yarn and loop wale-yarn of heading 5606.
+4. (A) For the purposes of chapters 50, 51, 52, 54 and 55, the expression "put up for retail sale" in relation to yarn means, subject
+to the exceptions in paragraph (B) below, yarn (single, multiple (folded) or cabled) put up:
+(a) On cards, reels, tubes or similar supports, of a weight (including support) not exceeding:
+(i) 85 g in the case of silk, waste silk or man-made filament yarn; or
+(ii) 125 g in other cases;
+(b) In balls, hanks or skeins of a weight not exceeding:
+(i) 85 g in the case of man-made filament yarn of less than 3,000 decitex, silk or silk waste;
+(ii) 125 g in the case of all other yarns of less than 2,000 decitex; or
+(iii) 500 g in other cases;
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI-2
+
+=== page 3 ===
+Notes (con.)
+(c) In hanks or skeins comprising several smaller hanks or skeins separated by dividing threads which render them
+independent one of the other, each of uniform weight not exceeding:
+(i) 85 g in the case of silk, waste silk or man-made filament yarn; or
+(ii) 125 g in other cases.
+(B) Exceptions:
+(a) Single yarn of any textile material, except:
+(i) Single yarn of wool or fine animal hair, unbleached; and
+(ii) Single yarn of wool or fine animal hair, bleached, dyed or printed, measuring more than 5,000 decitex;
+(b) Multiple (folded) or cabled yarn, unbleached:
+(i) Of silk or waste silk, however put up; or
+(ii) Of other textile material except wool or fine animal hair, in hanks or skeins;
+(c) Multiple (folded) or cabled yarn of silk or waste silk, bleached, dyed or printed, measuring 133 decitex or less; and
+(d) Single, multiple (folded) or cabled yarn of any textile material:
+(i) In cross-reeled hanks or skeins; or
+(ii) Put up on supports or in some other manner indicating its use in the textile industry (for example, on cops, twisting
+mill tubes, pirns, conical bobbins or spindles, or reeled in the form of cocoons for embroidery looms).
+5. For the purposes of headings 5204, 5401 and 5508, the expression "sewing thread" means multiple (folded) or cabled yarn:
+(a) Put up on supports (for example, reels, tubes) of a weight (including support) not exceeding 1,000 g;
+(b) Dressed for use as sewing thread; and
+(c) With a final "Z" twist.
+6. For the purposes of this section, the expression "high tenacity yarn" means yarn having a tenacity, expressed in cN/tex
+(centinewtons per tex), greater than the following:
+60 cN/texSingle yarn of nylon or other polyamides, or of polyesters............................
+53 cN/tex
+Multiple (folded) or cabled yarn of nylon or other polyamides, or of
+polyesters....................................................................................................
+27 cN/texSingle, multiple (folded) or cabled yarn of viscose rayon..............................
+7. For the purposes of this section, the expression "made up" means:
+(a) Cut otherwise than into squares or rectangles;
+(b) Produced in the finished state, ready for use (or merely needing separation by cutting dividing threads) without sewing or
+other working (for example, certain dusters, towels, tablecloths, scarf squares, blankets);
+(c) Cut to size and with at least one heat-sealed edge with a visibly tapered or compressed border and the other edges treated
+as described in any other subparagraph of this note, but excluding fabrics the cut edges of which have been prevented from
+unraveling by hot cutting or by other simple means;
+(d) Hemmed or with rolled edges, or with a knotted fringe at any of the edges, but excluding fabrics the cut edges of which have
+been prevented from unraveling by whipping or by other simple means;
+(e) Cut to size and having undergone a process of drawn thread work;
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI-3
+
+=== page 4 ===
+Notes (con.)
+(f) Assembled by sewing, gumming or otherwise (other than piece goods consisting of two or more lengths of identical material
+joined end to end and piece goods composed of two or more textiles assembled in layers, whether or not padded); or
+(g) Knitted or crocheted to shape, whether presented as separate items or in the form of a number of items in the length.
+8. For the purposes of chapters 50 to 60:
+(a) Chapters 50 to 55 and 60 and, except where the context otherwise requires, chapters 56 to 59, do not apply to goods made
+up within the meaning of note 7 above; and
+(b) Chapters 50 to 55 and 60 do not apply to goods of chapters 56 to 59.
+9. The woven fabrics of chapters 50 to 55 include fabrics consisting of layers of parallel textile yarns superimposed on each other
+at acute or right angles. These layers are bonded at the intersections of the yarns by an adhesive or by thermal bonding.
+10. Elastic products consisting of textile materials combined with rubber threads are classified in this section.
+11. For the purposes of this section, the expression "impregnated" includes "dipped."
+12. For the purposes of this section, the expression "polyamides" includes "aramids."
+13. For the purposes of this Section and, where applicable, throughout the tariff schedule, the expression "elastomeric yarn" means
+filament yarn, including monofilament, of synthetic textile material, other than textured yarn, which does not break on being
+extended to three times its original length and which returns, after being extended to twice its original length, within a period of
+five minutes, to a length not greater than one and a half times its original length.
+14. Unless the context otherwise requires, textile garments of different headings are to be classified in their own headings even if
+put up in sets for retail sale. For the purposes of this note, the expression "textile garments" means garments of headings 6101
+to 6114 and headings 6201 to 6211.
+15. Subject to note 1 to section XI, textiles, garments and other textile articles, incorporating chemical, mechanical or electronic
+components for additional functionality, whether incorporated as built-in components or within the fiber or fabric, are classified
+in their respective headings in Section XI provided that they retain the essential character of the goods of this section.
+Subheading Notes
+1. In this section and, where applicable, throughout the tariff schedule, the following expressions have the meanings hereby assigned
+to them:
+(a) Unbleached yarn
+Yarn which:
+(i) Has the natural color of its constituent fibers and has not been bleached, dyed (whether or not in the mass) or printed;
+or
+(ii) Is of indeterminate color ("grey yarn"), manufactured from garnetted stock.
+Such yarn may have been treated with a colorless dressing or fugitive dye (which disappears after simple washing with soap)
+and, in the case of man-made fibers, treated in the mass with delustering agents (for example, titanium dioxide).
+(b) Bleached yarn
+Yarn which:
+(i) Has undergone a bleaching process, is made of bleached fibers or, unless the context otherwise requires, has been
+dyed white (whether or not in the mass) or treated with a white dressing;
+(ii) Consists of a mixture of unbleached and bleached fibers; or
+(iii) Is multiple (folded) or cabled and consists of unbleached and bleached yarns.
+(c) Colored (dyed or printed) yarn
+Yarn which:
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI-4
+
+=== page 5 ===
+Subheading Notes (con.)
+(i) Is dyed (whether or not in the mass) other than white or in a fugitive color, or printed, or made from dyed or printed
+fibers;
+(ii) Consists of a mixture of dyed fibers of different colors or of a mixture of unbleached or bleached fibers with colored fibers
+(marl or mixture yarns), or is printed in one or more colors at intervals to give the impression of dots;
+(iii) Is obtained from slivers or rovings which have been printed; or
+(iv) Is multiple (folded) or cabled and consists of unbleached or bleached yarn and colored yarn.
+The above definitions also apply, mutatis mutandis , to monofilament and to strip or the like of chapter 54.
+(d) Unbleached woven fabric
+Woven fabric made from unbleached yarn and which has not been bleached, dyed or printed. Such fabric may have been
+treated with a colorless dressing or a fugitive dye.
+(e) Bleached woven fabric
+Woven fabric which:
+(i) Has been bleached or, unless the context otherwise requires, dyed white or treated with a white dressing, in the piece;
+(ii) Consists of bleached yarn; or
+(iii) Consists of unbleached and bleached yarn.
+(f) Dyed woven fabric
+Woven fabric which:
+(i) Is dyed a single uniform color other than white (unless the context otherwise requires) or has been treated with a colored
+finish other than white (unless the context otherwise requires), in the piece; or
+(ii) Consists of colored yarn of a single uniform color.
+(g) Woven fabric of yarns of different colors
+Woven fabric (other than printed woven fabric) which:
+(i) Consists of yarns of different colors or yarns of different shades of the same color (other than the natural color of the
+constituent fibers);
+(ii) Consists of unbleached or bleached yarn and colored yarn; or
+(iii) Consists of marl or mixture yarns.
+(In all cases, the yarn used in selvages and piece ends is not taken into consideration.)
+(h) Printed woven fabric
+Woven fabric which has been printed in the piece, whether or not made from yarns of different colors.
+(The following are also regarded as printed woven fabrics: woven fabrics bearing designs made, for example, with a brush
+or spray gun, by means of transfer paper, by flocking or by the batik process.)
+The definitions at (d) to (h) above apply, mutatis mutandis , to knitted or crocheted fabrics.
+(ij) Plain weave
+A fabric construction in which each yarn of the weft passes alternately over and under successive yarns of the warp and each
+yarn of the warp passes alternately over and under successive yarns of the weft.
+The definitions at (d) to (h) above apply, mutatis mutandis, to knitted or crocheted fabrics.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI-5
+
+=== page 6 ===
+Subheading Notes (con.)
+2. (A) Products of chapters 56 to 63 containing two or more textile materials are to be regarded as consisting wholly of that textile
+material which would be selected under note 2 to this section for the classification of a product of chapters 50 to 55 or of
+heading 5809 consisting of the same textile materials.
+(B) For the application of this rule:
+(a) Where appropriate, only the part which determines the classification under general interpretative rule 3 shall be taken
+into account;
+(b) In the case of textile products consisting of a ground fabric and a pile or looped surface no account shall be taken of the
+ground fabric;
+(c) In the case of embroidery of heading 5810 and goods thereof, only the ground fabric shall be taken into account. However,
+embroidery without visible ground, and goods thereof, shall be classified with reference to the embroidering threads
+alone.
+Additional U.S. Notes
+1. In the case of each provision in the tariff schedule on which the United States has agreed to reduce the rate of duty, pursuant
+to a trade agreement entered into under section 101 of the Trade Act of 1974 before January 3, 1980, on any cotton, wool or
+man-made fiber textile product as defined in the Arrangement Regarding International Trade in Textiles, as extended on December
+14, 1977 (the Arrangement), if the Arrangement, or a substitute arrangement, including unilateral import restrictions or bilateral
+agreements, determined by the President to be suitable, ceases to be in effect with respect to the United States before the total
+reduction in the rate of duty for such provision under sections 101 and 109 of the Trade Act of 1974 has become effective, then
+the President shall proclaim the rate of duty in rate column 1 for such provision existing on January 1, 1975, to be the rate of
+duty effective, with respect to articles entered or withdrawn from warehouse for consumption, within 30 days after such cessation
+and until the President proclaims the continuation of such reduction under the next sentence. If subsequently the Arrangement
+or a substitute arrangement, including unilateral import restrictions or bilateral agreements, determined by the President to be
+suitable, is in effect with respect to the United States, then the President shall proclaim the continuation of the reduction of such
+rate of duty pursuant to such trade agreement. For purposes of section 109(c)(2) of the Trade Act of 1974, any time when a rate
+of duty existing on January 1, 1975, is in effect under this note shall be time when part of such reduction is not in effect by reason
+of legislation of the United States or action thereunder.
+2. The term "Certified hand-loomed and folklore" as used with respect to products provided for in the tariff schedule, refers to such
+products as have been certified, in accordance with procedures established by the United States Trade Representative pursuant
+to international understandings, by an official of a government agency of the country where the products were produced, to have
+been so made.
+Statistical Notes
+1. Restraints under the Arrangement regarding International Trade in Textiles may not apply to developing country exports of
+"hand-loomed and folklore products" which have been certified, in accordance with procedures established by the Committee
+for the Implementation of Textile Agreements pursuant to international understandings, by an official of a government agency
+of the country where the products were produced, to have been so made. The importer is required to identify such certified
+products on the entry summary or withdrawal forms by placing the symbol "F" as a prefix to the appropriate 10-digit statistical
+reporting number.
+2. For the purposes of the Tariff Schedule:
+(a) The term "subject to cotton restraints" means articles in which:
+(i) The cotton component equals or exceeds 50 percent by weight of all the component fibers thereof; or
+(ii) The cotton and any wool, fine animal hair or man-made fibers in the aggregate equals or exceeds 50 percent by weight
+of all the component fibers thereof and the cotton component equals or exceeds the weight of each of the wool (including
+fine animal hair) and man-made fiber components.
+(b) The term "subject to wool restraints" means articles not provided for in (a) above and in which the wool (including fine animal
+hair) component exceeds 17 percent by weight of all the component fibers thereof.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI-6
+
+=== page 9 ===
+CHAPTER 50
+SILK
+XI
+50-1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes

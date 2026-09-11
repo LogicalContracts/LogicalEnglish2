@@ -1,0 +1,131 @@
+CBP ruling NY N336500 (2023-12-07): The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of a men’s dress shirt from Guatemala
+https://rulings.cbp.gov/ruling/N336500 — text as served by https://rulings.cbp.gov/api/ruling/N336500
+
+N336500 
+
+December 7, 2023 
+
+CLA-2-62:OT:RR:NC:N3:356
+
+CATEGORY: Classification
+
+TARIFF NO.: 6205.20.2016
+
+Mr. Juan Felipe Spataro
+Quality Shirt Company S.A.
+Primera Avenida, La Brigada 13-30 Guatemala 01057Guatemala
+
+RE: The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of a men’s dress shirt from Guatemala
+
+Dear Mr. Spataro:
+
+In your letter dated November 13, 2023, you requested a ruling on the classification and status under the DR-CAFTA of  a men’s dress shirt from Guatemala. Your submitted sample will be retained in our office.
+
+Style BE003 is a men’s shirt constructed from 100% cotton woven fabric. Style BE003 features a self-fabric button-down collar; a left-over-right, full front opening with seven button closures; long, vented sleeves with two adjustable button closures on each cuff and one button closure on each vent; an embroidered logo on the left chest; a small label with a logo design sewn into the lower left side seam; a back yoke; and a curved, hemmed bottom. A label sewn into the neckline of the shirt identifies its neck size in inches (the sample is marked “15½”) and its sleeve length range in inches (the sample is marked “32-33”).
+
+The applicable subheading for Style BE003 will be 6205.20.2016, Harmonized Tariff Schedule of the United States (HTSUS), which provides for: Men’s or boys’ shirts: Of cotton: Other: Dress shirts: With two or more colors in the warp and/or the filling: Men’s. The rate of duty will be 19.7 percent ad valorem.
+
+Your request also concerns the eligibility of Style BE003 for preferential tariff treatment under the DR-CAFTA.
+
+The manufacturing operations are as follows:
+
+Cotton fabric is woven outside the DR-CAFTA territory (primarily China and Colombia) and exported to Guatemala.
+
+The thread used to sew the garment is either produced in Guatemala, or produced in El Salvador or Honduras and exported to Guatemala.
+
+In Guatemala, the fabric is cut, sewn, and assembled into the finished garment.
+
+The completed garment is then packaged for retail sale in an individual polybag. The packaging also includes a chipboard, a cardboard strip inserted beneath and around the outer collar, a plastic collar form encircling the inner collar; a piece of plastic sheeting attached to the top button and inserted beneath the front collar; two jet clips, one metal shirt clip, tissue paper, and a hang tag that identifies the brand.
+
+The completed and packaged garments are exported directly from Guatemala to the United States.
+
+General Note (GN) 29, HTSUS, sets forth the criteria for determining whether a good is originating under the DR-CAFTA.
+
+GN 29(b), HTSUS (19 U.S.C. § 1202) states:
+
+For the purposes of this note, subject to the provisions of subdivisions (c), (d), (m) and (n) thereof, a good imported into the customs territory of the United States is eligible for treatment as an originating good under the terms of this note if —
+
+(i) the good is a good wholly obtained or produced entirely in the territory of one or more of the parties to the Agreement;
+
+(ii) the good was produced entirely in the territory of one or more of the parties to the Agreement, and —
+
+(A) each of the non-originating materials used in the production of the good undergoes an applicable change in tariff classification specified in subdivision (n) of this note; or
+
+(B) the good otherwise satisfies any applicable regional value content or other requirements specified in subdivision (n) of this note;
+
+and the good satisfies all other applicable requirements of this note; or
+
+(iii) the good was produced entirely in the territory of one or more of the parties to the Agreement exclusively from originating materials.
+
+As the good contains non-originating materials, it must undergo the applicable change in tariff classification specified in GN 29(n) in order to meet the requirements of GN 29(b)(ii)(A).
+
+For goods classified in subheading 6205.20, HTSUS, GN 29(n) includes two alternative rules of origin.
+
+GN 29(n)/62.30A requires:
+
+A change to dress shirts for men, with two or more colors in the warp and/or the filling, each with collar and sleeve sizes stated in inches, without dual collar sizing, the foregoing individually packaged with chipboards, pins, jett (sic) clips, individual polybags and hang tags ready for retail sale, of tariff item 6205.20.20 from any other chapter, provided that the good is cut or knit to shape, or both, and sewn or otherwise assembled in the territory of one or more of the parties to the Agreement.  
+
+GN 29(n)/62.30B requires, in pertinent part:
+
+A change to any other good of subheading 6205.20 from any other chapter, except from headings… 5204 through 5212… provided that the good is cut or knit to shape, or both, and sewn or otherwise assembled in the territory of one or more of the parties to the Agreement. 
+
+In addition to meeting one of the two tariff shift rules noted above, the good must also satisfy any applicable chapter rules found in GN 29(n), Chapter 62. The chapter rules that apply to the subject good are 2 and 4.
+
+GN 29(n), Chapter 62, Chapter rule 2 states, in pertinent part:
+
+For purposes of determining whether a good of this chapter is originating, the rule applicable to that good shall only apply to the component that determines the tariff classification of the good and such component must satisfy the tariff change requirements set out in the rule for that good.
+
+The component that determines the tariff classification of the subject good is the cotton woven fabric. Therefore, this fabric is the only component that must satisfy the tariff shift rule of either GN 29(n)/62.30A or GN 29(n)/62.30B.
+
+GN 29(n), Chapter 62, Chapter rule 4 states, in pertinent part:
+
+Notwithstanding chapter rule 2, a good of this chapter… other than—
+
+(a)… 6205.20.20 (for dress shirts for men, with two or more colors in the warp and/or the filling, each with collar and sleeve sizes stated in inches, without dual collar sizing, the foregoing individually packaged with chipboards, pins, jett (sic) clips, individual polybags and hang tags ready for retail sale),…
+
+containing sewing thread of 5204, 5401 or 5508 or yarn of 5402 used as sewing thread shall be considered originating only if such sewing thread or yarn is both formed and finished in the territory of one or more of the parties to the Agreement.
+
+You assert that Style BE003 satisfies GN 29(n)/62.30A because the non-originating cotton fabric used to produce the garments, classifiable in Chapter 52, HTSUS, meets the required tariff shift to men’s dress shirts of subheading 6205.20.2016. While you admit that the retail packaging of the garment does not include pins, you state that this is due to customer requests based on safety concerns, and that a shift away from pins in such packaging is consistent with trade practice.
+
+While we agree that Style BE003 is classified under subheading 6205.20.2016, we disagree that it meets all the requirements set out in GN 29(n)/62.30A. This rule of origin is very specific with regard to packaging requirements and requires chipboards, pins, jet clips, individual polybags and hang tags ready for retail sale. Because the good does not include pins as part of its retail packaging, it does not fit the description of garments to which this rule applies. See Headquarters Ruling Letter H036076, dated September 16, 2008.
+
+As GN 29(n)/62.30A is inapplicable to Style BE003, it is necessary to determine whether the garment satisfies the requirements of GN 29(n)/62.30(B).
+
+As noted above, the component that determines the tariff classification of Style BE003 is the cotton woven fabric. Therefore, per GN 29(n), Chapter 62, Chapter rule 2, this fabric must satisfy the tariff shift rule set out in GN 29(n)/62.30B. Based on the information you have provided, this non-originating fabric is classifiable in heading 5208, HTSUS. Since 5208 is an excluded heading within the range of 5204 through 5212 listed in GN 29(n)/62.30B, the fabric fails to satisfy the required tariff shift to 6205.20.
+
+You have not provided sufficient information about either the fiber content or the production of the thread used to sew Style BE003 to enable us to determine whether it has been both formed and finished within the DR-CAFTA territory as required by GN 29(n), Chapter 62, Chapter rule 4. However, since the garment has been shown not to meet the requirements of GN 29(n)/62.30B, there is no need to examine this chapter rule with respect to the garment.
+
+Based on the facts provided, Style BE003 is not entitled to preferential tariff treatment under the DR-CAFTA because it fails to meet the requirements of HTSUS, GN 29(b)(ii)(A).
+
+Style BE003 is not marked with its country of origin. Section 134.11 of the Customs Regulations (19 C.F.R. 134.11) provides in part:
+
+Unless excepted by law... every article of foreign origin (or its container) imported into the U.S. shall be marked in a conspicuous place as legibly, indelibly, and permanently as the nature of the article (or container) will permit, in such a manner as to indicate to an ultimate purchaser in the U.S. the English name of the country of origin of the article, at the time of importation into the Customs territory of the U.S.
+
+Further, Treasury Decision (T.D.) 54640(6) (1958) provides, in pertinent part:
+
+Subject to the exceptions from marking provided under Section 304(a), Tariff Act of 1930, as amended… wearing apparel, such as shirts, blouses, coats and sweaters, etc., must be legibly and conspicuously marked with the name of the country of origin by means of a fabric label or label made from natural or synthetic film sewn or otherwise permanently affixed on the inside center of the neck midway between the shoulder seams or in that immediate area or otherwise permanently marked in that area in some other manner.
+
+Style BE003 also lacks fiber content marking. Textile fiber products imported into the United States must be labeled in accordance with the Textile Fiber Products Identification Act (15 U.S.C. 70 through 70k) and the rules promulgated thereunder by the Federal Trade Commission. We suggest you contact the Federal Trade Commission, 600 Pennsylvania Avenue, N.W., Washington, D.C. 20580 for information concerning the requirements of this Act. Information may also be obtained at the Federal Trade Commission website, www.ftc.gov.
+
+Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided at https://hts.usitc.gov/current.
+
+The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+
+
+
+
+
+
+
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Maryalice Nowak at maryalice.nowak@cbp.dhs.gov.
+
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

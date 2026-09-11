@@ -5,7 +5,7 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-11 16:44:19 UTC
+Generated:  2026-09-11 18:03:09 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 

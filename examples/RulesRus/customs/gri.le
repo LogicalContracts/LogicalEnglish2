@@ -31,6 +31,14 @@
 % rejected, according to CBP, ..., because ..."). A good is classified by the
 % model only when every such claim has been rejected; a claim nobody has
 % answered yet leaves the classification conditional — a judgment needed.
+%
+% Provenance. Every rule is labelled and says where it comes from
+% ("rule gri_3a with provenance as stated in HTSUS General Rules of
+% Interpretation at "<the words of the rule>":"); the documents cited say where
+% they are published and where their text is (sources/, a copy of the pages
+% cited), so the editor can show each rule's source passage beside it. Rules
+% that are this model's own devices — not the tariff's — say so in their
+% `because`.
 
 the target language is: prolog.
 
@@ -55,20 +63,32 @@ the templates are:
 
 the knowledge base gri includes:
 
+HTSUS General Rules of Interpretation is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=General%20Rules%20of%20Interpretation#page=1".
+the text of HTSUS General Rules of Interpretation is at "sources/hts/general_rules.txt".
+
 % The question: the heading, for a good the model covers and no rival
 % heading claims.
+rule gri_question with provenance as stated in HTSUS General Rules of Interpretation
+        at "Classification of goods in the tariff schedule shall be governed by the following principles",
+        because "the model's question: the heading of a good it covers, once every claim to a heading it does not model is answered":
 the heading of a good is a heading
     if the good is within the scope of the model
     and the good is clear of rival headings
     and the good is classified in heading the heading.
 
 % A good the model should classify and cannot: no heading describes it.
+rule gri_unplaced with provenance as stated in HTSUS General Rules of Interpretation
+        at "Goods which cannot be classified in accordance with the above rules shall be classified under the heading appropriate to the goods to which they are most akin",
+        because "the model does not apply GRI 4: a good that no modelled heading describes is reported, not classified":
 a good is not placed by the model
     if the good is within the scope of the model
     and the good is clear of rival headings
     and it is not the case that
         the good is classified in heading a heading.
 
+rule gri_rival_headings with provenance as stated in HTSUS General Rules of Interpretation
+        at "classification shall be determined according to the terms of the headings and any relative section or chapter notes",
+        because "a heading outside the model is read by the office, not by these rules: every claim that the good belongs there must have been rejected":
 a good is clear of rival headings
     if for all cases in which
             the good is claimed to belong to a kind
@@ -76,6 +96,8 @@ a good is clear of rival headings
             the claim that the good belongs to the kind is rejected.
 
 % GRI 1: the terms of the headings and the relative section and chapter notes.
+rule gri_1 with provenance as stated in HTSUS General Rules of Interpretation
+        at "for legal purposes, classification shall be determined according to the terms of the headings and any relative section or chapter notes":
 a good is prima facie classifiable in heading a heading
     if the good is described by heading the heading
     and it is not the case that
@@ -84,15 +106,21 @@ a good is prima facie classifiable in heading a heading
 % GRI 3: of two headings that both apply, the more specific one (3(a));
 % otherwise, when neither is more specific, the later one (3(c)). GRI 3(b)
 % acts on the good itself: see "classified as consisting of" below.
+rule gri_3 with provenance as stated in HTSUS General Rules of Interpretation
+        at "When, by application of rule 2(b) or for any other reason, goods are, prima facie, classifiable under two or more headings":
 a good is classified in heading a heading
     if the good is prima facie classifiable in heading the heading
     and it is not the case that
         the good is prima facie classifiable in heading an other heading
         and heading the other heading prevails over heading the heading.
 
+rule gri_3a with provenance as stated in HTSUS General Rules of Interpretation
+        at "The heading which provides the most specific description shall be preferred to headings providing a more general description":
 heading a heading prevails over heading an other heading
     if heading the heading is more specific than heading the other heading.
 
+rule gri_3c with provenance as stated in HTSUS General Rules of Interpretation
+        at "they shall be classified under the heading which occurs last in numerical order among those which equally merit consideration":
 heading a heading prevails over heading an other heading
     if it is not the case that
         heading the heading is more specific than heading the other heading
@@ -104,16 +132,23 @@ heading a heading prevails over heading an other heading
 % as if it consisted of the component that gives it its essential character.
 % Every other good stands for itself. The domain programs read the material
 % and the construction of a good from what it is classified as.
+rule gri_3b_composite with provenance as stated in HTSUS General Rules of Interpretation
+        at "shall be classified as if they consisted of the material or component which gives them their essential character":
 a good is classified as consisting of a component
     if the good is a composite good
     and the component is a component of the good
     and the essential character of the good is given by the component.
 
+rule gri_3b_set with provenance as stated in HTSUS General Rules of Interpretation
+        at "goods put up in sets for retail sale, which cannot be classified by reference to 3(a)":
 a good is classified as consisting of a component
     if the good is a set put up for retail sale
     and the component is a component of the good
     and the essential character of the good is given by the component.
 
+rule gri_3b_other with provenance as stated in HTSUS General Rules of Interpretation
+        at "Mixtures, composite goods consisting of different materials or made up of different components, and goods put up in sets for retail sale",
+        because "GRI 3(b) speaks of mixtures, composite goods and sets; any other good is classified as what it is":
 a good is classified as consisting of the good
     if it is not the case that
         the good is a composite good

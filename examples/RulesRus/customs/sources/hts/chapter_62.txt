@@ -1,0 +1,322 @@
+HTSUS Chapter 62 — Harmonized Tariff Schedule of the United States, Revision 18 (2026).
+Text extracted from the PDF at https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2062
+(pages 1, 2, 3, 4, 84, 90 only; "=== page N ===" marks the PDF page, addressable as #page=N).
+
+=== page 1 ===
+CHAPTER 62
+ARTICLES OF APPAREL AND CLOTHING ACCESSORIES, NOT KNITTED OR CROCHETED
+XI
+62-1
+Notes
+1. This chapter applies only to made up articles of any textile fabric other than wadding, excluding knitted or crocheted articles
+(other than those of heading 6212).
+2. This chapter does not cover:
+(a) Worn clothing or other worn articles of heading 6309;
+(b) Orthopedic appliances, surgical belts, trusses or the like (heading 9021).
+3. For the purposes of headings 6203 and 6204:
+(a) The term "suit" means a set of garments composed of two or three pieces made up, in respect of their outer surface, pieces
+made up in identical fabric, and comprising:
+- one suit coat or jacket the outer shell of which, exclusive of sleeves, consists of four or more panels, designed to cover
+the upper part of the body, possibly with a tailored waistcoat in addition whose front is made from the same fabric as
+the outer surface of the other components of the set and whose back is made from the same fabric as the lining of the
+suit coat or jacket; and
+- one garment designed to cover the lower part of the body and consisting of trousers, breeches or shorts (other than
+swimwear), a skirt or a divided skirt, having neither braces nor bibs.
+All of the components of a "suit" must be of the same fabric construction, color and composition; they must also be of the
+same style and of corresponding or compatible size. However, these components may have piping (a strip of fabric sewn
+into the seam) in a different fabric.
+If several separate components to cover the lower part of the body area presented together (for example, two pairs of trousers
+or trousers and shorts, or a skirt or divided skirt and trousers), the constituent lower part shall be one pair of trousers, or, in
+the case of women's or girls' suits, the skirt or divided skirt, the other garments being considered separately.
+The term "suit" includes the following sets of garments whether or not they fulfill all the above conditions:
+- morning dress, comprising a plain jacket (cutaway) with rounded tails hanging well down at the back and striped trousers;
+- evening dress (tailcoat), generally made of black fabric, the jacket of which is relatively short at the front, does not close
+and has narrow skirts cut in at the hips and hanging down behind;
+- dinner jacket suits, in which the jacket is similar in style to an ordinary jacket (though perhaps revealing more of the shirt
+front), but has shiny silk or imitation silk lapels.
+(b) The term "ensemble" means a set of garments (other than suits and articles of heading 6207 or 6208) composed of several
+pieces made up in identical fabric, put up for retail sale, and comprising:
+- one garment designed to cover the upper part of the body, with the exception of waistcoats which may also form a
+second upper garment, and
+- one or two different garments, designed to cover the lower part of the body and consisting of trousers, bib and brace
+overalls, breeches, shorts (other than swimwear), a skirt or a divided skirt.
+All of the components of an ensemble must be of the same fabric construction, style, color and composition; they also must
+be of corresponding or compatible size. The term "ensemble" does not apply to track suits or ski-suits of heading 6211.
+4. Headings 6205 and 6206 do not cover garments with pockets below the waist, with a ribbed waistband or other means of tightening
+at the bottom of the garment. Heading 6205 does not cover sleeveless garments.
+“Shirts” and “shirt-blouses” are garments designed to cover the upper part of the body, having long or short sleeves and a full or
+partial opening starting at the neckline. “Blouses” are loose-fitting garments also designed to cover the upper part of the body
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+
+=== page 2 ===
+Notes (con.)
+but may be sleeveless and with or without an opening at the neckline. “Shirts”, “shirt-blouses” and “blouses” may also have a
+collar.
+5. For the purposes of heading 6209:
+(a) The expression "babies' garments and clothing accessories" means articles for young children of a body height not exceeding
+86 centimeters;
+(b) Articles which are, prima facie, classifiable both in heading 6209 and in other headings of this chapter are to be classified
+in heading 6209.
+6. Garments which are, prima facie, classifiable both in heading 6210 and in other headings of this chapter, excluding heading
+6209, are to be classified in heading 6210.
+7. For the purposes of heading 6211,"ski-suits" means garments or sets of garments which, by their general appearance and
+texture, are identifiable as intended to be worn principally for skiing (cross-country or alpine). They consist either of:
+(a) A "ski overall," that is, a one-piece garment designed to cover the upper and the lower parts of the body; in addition to sleeves
+and a collar the ski overall may have pockets or footstraps; or
+(b) A "ski ensemble," that is, a set of garments composed of two or three pieces, put up for retail sale and comprising:
+- one garment such as an anorak, windbreaker or similar article, closed by a slide fastener (zipper), possibly with a
+waistcoat in addition, and
+- one pair of trousers whether or not extending above waist level, one pair of breeches or one bib and brace overall.
+The "ski ensemble" may also consist of an overall similar to the one mentioned in paragraph (a) above and a type of padded,
+sleeveless jacket worn over the overall.
+All the components of a "ski ensemble" must be made up in a fabric of the same texture, style and composition whether or
+not of the same color; they also must be of corresponding or compatible size.
+8. Scarves and articles of the scarf type, square or approximately square, of which no side exceeds 60 centimeters, are to be
+classified as handkerchiefs (heading 6213). Handkerchiefs of which any side exceeds 60 centimeters are to be classified in
+heading 6214.
+9. Garments of this chapter designed for left over right closure at the front shall be regarded as men's or boys' garments, and those
+designed for right over left closure at the front as women's or girls' garments. These provisions do not apply where the cut of the
+garment clearly indicates that it is designed for one or other of the sexes.
+Garments which cannot be identified as either men's or boys' garments or as women's or girls' garments are to be classified in
+the headings covering women's or girls' garments.
+10. Articles of this chapter may be made of metal thread.
+Additional U.S. Notes
+1. For the purpose of heading 6209, the term "sets" means two or more different garments of headings 6111, 6209 or 6505 imported
+together, of corresponding sizes and intended to be worn together by the same person.
+2. For the purposes of subheadings 6201.30.40, 6201.30.70, 6201.40.45, 6201.40.70, 6202.30.40, 6202.30.70, 6202.40.45,
+6202.40.70, 6203.41.01, 6203.41.25, 6203.43.03, 6203.43.11, 6203.43.55, 6203.43.75, 6204.61.05, 6204.61.60, 6204.63.02,
+6204.63.09, 6204.63.55, 6204.63.75 and 6211.20.15, the term "water resistant" means that garments classifiable in those
+subheadings must have a water resistance (see current version of ASTM D7017) such that, under a head pressure of 600
+millimeters, not more than 1.0 gram of water penetrates after two minutes when tested in accordance with the current version
+of AATCC Test Method 35. This water resistance must be the result of a rubber or plastics application to the outer shell, lining
+or inner lining.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+62-2
+
+=== page 3 ===
+Additional U.S. Notes (con.)
+3. (a) When used in a subheading of this chapter or immediate superior text thereto, the term 'recreational performance outerwear'
+means trousers (including, but not limited to, ski or snowboard pants, and ski or snowboard pants intended for sale as parts of
+ski-suits), coveralls, bib and brace overalls, jackets (including, but not limited to, full zip jackets, ski jackets and ski jackets
+intended for sale as parts of ski-suits), windbreakers and similar articles (including padded, sleeveless jackets), the foregoing of
+fabrics of cotton, wool, hemp, bamboo, silk or manmade fibers, or a combination of such fibers; that are either water resistant
+within the meaning of additional U.S. note 2 to this chapter or treated with plastics, or both; with critically sealed seams, and with
+5 or more of the following features (as further provided herein):
+(i) insulated for cold weather protection;
+(ii) pockets, at least one of which has a zippered, hook and loop, or other type of closure;
+(iii) elastic, draw cord or other means of tightening around the waist or leg hems, including hidden leg sleeves with a means of
+tightening at the ankle for trousers and tightening around the waist or bottom hem for jackets;
+(iv) venting, not including grommet(s);
+(v) articulated elbows or knees;
+(vi) reinforcement in one of the following areas: the elbows, shoulders, seat, knees, ankles or cuffs;
+(vii) weatherproof closure at the waist or front;
+(viii) multi-adjustable hood or adjustable collar;
+(ix) adjustable powder skirt, inner protective skirt or adjustable inner protective cuff at sleeve hem;
+(x) construction at the arm gusset that utilizes fabric, design or patterning to allow radial arm movement; or
+(xi) odor control technology
+The term 'recreational performance outerwear' does not include occupational outerwear.
+(b) For purposes of this note, the following terms have the following meanings:
+(i) the term 'treated with plastics' refers to textile fabrics impregnated, coated, covered or laminated with plastics, as described
+in note 2 to chapter 59.
+(ii) The term 'sealed seams' means seams that have been covered by means of taping, gluing, bonding, cementing, fusing,
+welding or a similar process so that air and water cannot pass through the seams when tested in accordance with the current
+version of AATCC Test Method 35.
+(iii) The term 'critically sealed seams' means--
+(A) for jackets, windbreakers and similar articles (including padded, sleeveless jackets), sealed seams that are sealed at
+the front and back yokes, or at the shoulders, arm holes, or both, where applicable; and
+(B) for trousers, overalls and bib and brace overalls and similar articles, sealed seams that are sealed at the front (up to the
+zipper or other means of closure) and back rise.
+(iv) The term 'insulation for cold weather protection' means insulation that meets a minimum clo value of 1.5 per ASTM F 2732.
+(v) The term 'venting' refers to closable or permanent constructed openings in a garment (excluding front, primary zipper closures
+and grommet(s)) to allow increased expulsion of built-up heat during outdoor activities. In a jacket, such openings are often
+positioned on the underarm seam of a garment but may also be placed along other seams in the front or back of a garment.
+In trousers, such openings are often positions on the inner or outer leg seams of a garment but may also be placed along
+other seams in the front or back of a garment.
+(vi) The term 'articulated elbows or knees' refers to the construction of a sleeve (or pant leg) to allow improved mobility at the
+elbow (or knee) through the use of extra seams, darts, gussets or other means.
+(vii) the term 'reinforcement' refers to the use of a double layer of fabric or section(s) of fabric that is abrasion-resistant or otherwise
+more durable than the face fabric of the garment.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+62-3
+
+=== page 4 ===
+Additional U.S. Notes (con.)
+(viii) The term 'weatherproof closure' means a closure (including, but not limited to, laminated or coated zippers, storm flaps or
+other weatherproof construction) that has been reinforced or engineered in a manner to reduce the penetration or absorption
+of moisture or air through an opening in the garment.
+(ix) the term 'multi-adjustable hood' or adjustable collar' means, in the case of a hood, a hood into which is incorporated two or
+more draw cords, adjustment tabs or elastics, or, in the case of a collar, a collar into which is incorporated at least one draw
+cord, adjustment tab, elastic or similar component, to allow volume adjustments around a helmet, or around the crown of
+the head, neck, or face.
+(x) The terms 'adjustable powder skirt' and 'inner protective skirt' refer to a partial lower inner lining with means of tightening
+around the waist for additional protection from the elements.
+(xi) The term 'arm gusset' means construction at the arm of a gusset that utilizes an extra fabric piece in the underarm, usually
+diamond- or triangular-shaped, designed or patterned to allow radial arm movement.
+(xii) The term 'radial arm movement' refers to unrestricted 180-degree range of motion for the arm while wearing performance
+outerwear.
+(xiii) The term 'odor control technology' means the incorporation into a fabric or garment of materials, including, but not limited
+to, activated carbon, silver, copper or any combination thereof, capable of adsorbing, absorbing or reacting with human
+odors, or effective in reducing the growth of odor-causing bacteria.
+(xiv) The term 'occupational outerwear' means outerwear garments, including uniforms, of a kind principally used in the work
+place and specially designed to provide protection from work place hazards such as fire, electrical, abrasion or chemical
+hazards, or impacts, cuts and punctures.
+(c) The importer of goods entered as 'recreational performance outerwear' under a particular subheading of this chapter shall maintain
+records demonstrating that the entered goods meet the terms of this note, including such information as is necessary to demonstrate
+the present of the specific features that render the goods eligible for classification as 'recreational performance outerwear'.
+Statistical Notes
+1. For the purposes of subheadings 6203.21.00, 6203.22.30, 6203.23.00, 6203.29.20, 6204.21.00, 6204.22.30, 6204.23.00 and
+6204.29.20, merchandise entered together and classified for customs purposes as an ensemble, shall be reported statistically
+as separate articles and reported under the most appropriate 10-digit reporting number within the same 8-digit tariff subheading
+which provides for the ensemble.
+2. Certain garments of chapter 62 assembled abroad from components formed and cut in the United States which, after assembly
+have been subject to bleaching, garment dyeing stone-washing, acid-washing or perma-pressing abroad, may be eligible for
+entry under a Special Access Program or Special Regime. Eligibility must be established under a bilateral agreement, and entry
+must be in compliance with procedures established by the Committee for the Implementation of Textile Agreements.The importer
+is required to identify such garments on the entry summary or withdrawal forms by placing the symbol "H" as a prefix to the
+appropriate 10-digit chapter 62 tariff number.
+3.. Certain garments of chapter 62, manufactured (cut and assembled) from fabric formed in the United States, may be eligible for
+entry under the Outward Processing Program for textiles and apparel. Eligibility must be in compliance with procedures established
+by the Committee for the Implementation of Textile Agreements (CITA). The importer is required to identify such garments on
+the entry summary or withdrawal forms by placing the symbol "S" as a prefix to the appropriate 10-digit chapter 62 tariff number.
+4. For the purpose of statistical reporting numbers 6203.43.1110, 6203.43.7510, 6204.63.0910, 6204.63.7510, 6210.40.2531,
+6210.40.5531, 6210.50.0531 and 6210.50.5531, the term "ski/snowboard pants" means ankle-length pants made of synthetic
+fabrics with or without insulation for cold weather protection, with pockets, at least one of which has a zippered or hook and loop
+closure, sealed seams at the front (up to the zipper or other means of closure) and back rise, hidden leg sleeves with a means
+of tightening at the ankle, and with one or more of the following: side openings, scuff guards or reinforcement in the seat. A
+sealed seam is a seam that is sealed by means of taping, gluing, bonding, cementing, fusing or similar process so that air and
+water cannot pass through.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+62-4
+
+=== page 84 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Women's or girls' suits, ensembles, suit-type jackets, blazers,
+dresses, skirts, divided skirts, trousers, bib and brace overalls,
+breeches and shorts (other than swimwear): (con.)
+6204 (con.)
+Trousers, bib and brace overalls, breeches and shorts:
+(con.)
+Of other textile materials: (con.)6204.69
+(con.)
+Other: (con.)
+Other ...................................................................6204.69.80 35%Free (AU, BH, CL,
+CO, E*, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+2.8%..................
+Trousers, breeches and shorts:
+Subject to cotton restraints (348).......10 doz.
+kg
+Subject to wool restraints (448)..........20 doz.
+kg
+Subject to man-made fiber restraints
+(648) ......................................................
+30
+doz.
+kg
+Other:
+Trousers and breeches (847)......44 doz.
+kg
+Shorts (847)...................................46 doz.
+kg
+Bib and brace overalls (859).....................50 doz.
+kg
+Men's or boys' shirts:6205
+Of cotton:6205.20
+Certified hand-loomed and folklore products (340)......006205.20.10 90%Free (AU, BH, CL,
+CO, E, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+8.7%doz. ...........
+kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+62-84
+
+=== page 90 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Women's or girls' blouses, shirts and shirt-blouses:6206
+Of silk or silk waste................................................................6206.10.00 65%Free (AU, BH, CL,
+CO, E*, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+6.9%..................
+Subject to cotton restraints (341)..................................10 doz.
+kg
+Subject to wool restraints (440).....................................20 doz.
+kg
+Subject to man-made fiber restraints (641).................30 doz.
+kg
+Other:
+Containing 70 percent or more by weight of silk or
+silk waste (741).........................................................
+40
+doz.
+kg
+Other (840)................................................................50 doz.
+kg
+Of wool or fine animal hair:6206.20
+Certified hand-loomed and folklore products (440)......006206.20.10 90%Free (AU, BH, CL,
+CO, E, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+8.5%doz. ...........
+kg
+Other:
+Containing 30 percent or more by weight of silk or
+silk waste...................................................................
+6206.20.20
+90%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+7.1%..................
+Women's (440)...................................................10 doz.
+kg
+Girls' (440)..........................................................20 doz.
+kg
+Other ..........................................................................6206.20.30 82.7¢/kg +
+58.5%
+Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+17%..................
+Women's (440)...................................................10 doz.
+kg
+Girls' (440)..........................................................20 doz.
+kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+62-90

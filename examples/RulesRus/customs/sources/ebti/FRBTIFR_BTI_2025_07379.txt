@@ -1,0 +1,31 @@
+EU Binding Tariff Information FRBTIFR-BTI-2025-07379 — EBTI, https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en (search by the reference)
+
+BTI Reference FRBTIFR-BTI-2025-07379
+Issuing country FR
+Start date of validity 03/07/2026
+End date of validity 02/07/2029
+Nomenclature code 6106200000************
+Classification justification Règles générales 1 et 6 : le classement est déterminé par les notes de section et de chapitre, ainsi que par le libellé de position, de sous-position et de code NC. Note 7 de la section XI : cet article est confectionné. Note 8 a) de la section XI : pour l'application des Chapitres 50 à 60, ne relèvent pas des Chapitres 50 à 55 et 60 et, sauf dispositions contraires, des Chapitres 56 à 59 les articles confectionnés au sens de la Note 7 ci-dessus. Note 1 du chapitre 61 : le présent chapitre ne comprend que des articles confectionnés en bonneterie. Note 4 du chapitre 61 : les n.° 6105 et 6106 ne couvrent pas les vêtements comportant des poches au-dessous de la taille ou des bords-côtes ou autres moyens permettant de resserrer le bas du vêtement, ni les vêtements comportant en moyenne moins de dix rangées de mailles par centimètre linéaire dans chaque direction, comptées sur une superficie d'au moins 10 cm x 10 cm. Le n° 6105 ne comprend pas de vêtements sans manches. Note 9 du chapitre 61 : les vêtements qui ne sont pas reconnaissables comme étant des vêtements d'hommes ou de femmes doivent être classés avec ces derniers. Exclusion de la position 6109, conformément aux NESH relatives à ladite position : les vêtements repris à cette position ne doivent pas comporter de dentelles, d'ouverture à l'encolure ou de bouton ou autre système de fermeture. NESH de la position 6106 reprenant le groupe de vêtements féminins en bonneterie comprenant les chemisiers, blouses, blouses-chemisiers et chemisettes. NENC relatives à la position 6106 : sont considérés comme étant des blouses pour femmes ou fillettes, les vêtements légers destinés à recouvrir la partie supérieure du corps, de fantaisie, le plus souvent de facture ample, avec ou sans col, avec ou sans manches, avec une encolure de tout genre ou au moins avec des bretelles et avec un boutonnage ou autre système de fermeture, qui peuvent ne pas exister dans le seul cas où ces vêtements sont très décolletés, avec ou sans garnitures telles que cravates, jabots, dentelles, lacets et broderies.
+Language fr
+Place of issue
+Date of issue 03/07/2026
+Name and adress FR005400 CSMR - Pôle RTC 11 RUE DES MESSAGERIES IM. LE FORUM 57036 METZ FR
+Description of goods Vêtement destiné à couvrir le haut du corps, non reconnaissable comme étant pour homme ou pour femme, de type blouse, confectionnée en étoffe de bonneterie de fibres synthétiques imitant la dentelle (92 % polyamide, 8% élasthanne). Le vêtement comporte plus de dix rangées de mailles par centimètre linaire. Le vêtement est doté d'une encolure ronde avec une ouverture partielle dans le dos, fermée au moyen d'un bouton, de manches longues avec élastiques resserrant aux poignets et d'une doublure en bonneterie de fibres synthétiques (100% polyester) ne couvrant pas les bras. Le vêtement est disponible de la taille 4 ans à 12 ans.
+Keywords GARMENTS
+UPPER PART
+GARMENTS
+FOR UNISEX
+SMOCKS
+MADE UP
+FINE KNIT FABRICS
+OF SYNTHETIC FIBRE
+OF POLYAMIDE
+WITH PARTIAL LINING
+OF POLYESTER
+WITH ROUND NECK
+WITH PARTIAL OPENING
+WITH BUTTON
+WITH LACE
+WITH LONG SLEEVES
+WITH ELASTIC
+AT THE WRISTS
