@@ -1,0 +1,45 @@
+HTSUS Chapter 52 — Harmonized Tariff Schedule of the United States, Revision 18 (2026).
+Text extracted from the PDF at https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2052
+(pages 1 only; "=== page N ===" marks the PDF page, addressable as #page=N).
+
+=== page 1 ===
+CHAPTER 52
+COTTON
+XI
+52-1
+Subheading Note
+1. For the purposes of subheadings 5209.42 and 5211.42, the expression "denim" means fabrics of yarns of different colors, of
+3-thread or 4-thread twill, including broken twill, warp faced, the warp yarns of which are of one and the same color and the weft
+yarns of which are unbleached, bleached, dyed grey or colored a lighter shade of the color of the warp yarns.
+Additional U.S. Notes
+1. Under regulations prescribed by the Secretary of the Treasury, the staple length of cotton shall be determined for all customs
+purposes by application of the Official Cotton Standards of the United States for length of staple, as established by the Secretary
+of Agriculture and in effect when the determination is to be made.
+2. For the purposes of classifying yarns of headings 5205 and 5206 the term "nm," as applied in these headings, means the number
+of 1,000-meter lengths of yarn in one kilogram. To determine the nm measurement of any yarn, whether single, multiple (folded)
+or cabled, the actual meters per kilogram shall be divided by 1,000 and the quotient thereof multiplied by the number of single
+yarns therein, including the single yarns used in manufacturing multiple (folded) or cabled yarns.
+3. For the purposes of the woven fabrics of chapter 52:
+(a) The term "number," as applied to woven fabrics of cotton, means the average yarn number of the yarns contained therein.
+In computing the average yarn number, the length of the yarn is considered to be equal to the distance covered by it in the
+fabric in the condition as imported, with all clipped yarn being measured as if continuous and with the count being taken of
+the total single yarns in the fabric including the single yarns in any multiple (folded) or cabled yarns. The weight shall be
+taken after any excessive sizing is removed by boiling or other suitable process. Any one of the following formulas can be
+used to determine the average yarn number for tariff purposes--
+N = BYT/1,000, 100T/Z', BT/Z or ST/10
+when:
+N is the average yarn number,
+B is the breadth (width) of the fabric in centimeters,
+Y is the meters (linear) of the fabric per kilogram,
+T is the total single yarns per square centimeter,
+S is the square meters of fabric per kilogram,
+Z is the grams per linear meter of fabric, and
+Z' is the grams per square meter of fabric.
+Fractions in the resulting "number" shall be disregarded.
+(b) Unless the context otherwise requires, provisions relating to one or more weaves embrace only those fabrics which (excluding
+selvage) are wholly of the specified weave or weaves, including combinations exclusively thereof.
+4. For the purposes of heading 5208 and 5209, the term "certified hand-loomed fabrics" means fabrics made on a hand loom (i.e.,
+a nonpower-driven loom) by a cottage industry and which prior to exportation have been certified by an official of a government
+agency of the country where the fabrics were produced to have been so made.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes

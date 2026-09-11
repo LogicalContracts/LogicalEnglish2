@@ -20,6 +20,16 @@ the knowledge base plastics ebti includes these resources:
 
 the knowledge base plastics ebti includes:
 
+% Where each cited ruling is published, and a copy of its text (sources/).
+BTI DEBTI19479/26-1 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI DEBTI19479/26-1 is at "sources/ebti/DEBTI19479_26_1.txt".
+BTI DEBTI22676/26-1 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI DEBTI22676/26-1 is at "sources/ebti/DEBTI22676_26_1.txt".
+BTI DEBTI41932/25-1 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI DEBTI41932/25-1 is at "sources/ebti/DEBTI41932_25_1.txt".
+BTI DEBTI47170/25-1 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI DEBTI47170/25-1 is at "sources/ebti/DEBTI47170_25_1.txt".
+
 query subheading is:
     the subheading of which good is which code.
 
@@ -37,57 +47,74 @@ query household is:
 
 % BTI DEBTI19479/26-1, Hauptzollamt Hannover, 09/07/2026: dog waste bags.
 scenario bti_debti19479_26_1 is:
-    the dog waste bags is a manufactured article, as stated in BTI DEBTI19479/26-1.
-    the dog waste bags is made of plastics, as stated in BTI DEBTI19479/26-1.
-    the dog waste bags is shaped as sack, as stated in BTI DEBTI19479/26-1.
-    the dog waste bags contains 100 percent of polyethylene, as stated in BTI DEBTI19479/26-1.
-    the dog waste bags is printed with motifs, as stated in BTI DEBTI19479/26-1.
+    the dog waste bags is a manufactured article,
+        as stated in BTI DEBTI19479/26-1 at "Antragsangaben sowie dem vorgelegten Warenmuster handelt es sich um Hundekotbeutel aus miteinander verschweißten Folien aus".
+    the dog waste bags is made of plastics,
+        as stated in BTI DEBTI19479/26-1 at "einem Kunststoff im Sinne der Anmerkung 1 zu Kapitel 39".
+    the dog waste bags is shaped as sack,
+        as stated in BTI DEBTI19479/26-1 at "Warenmuster handelt es sich um Hundekotbeutel aus miteinander verschweißten Folien aus".
+    the dog waste bags contains 100 percent of polyethylene,
+        as stated in BTI DEBTI19479/26-1 at "HDPE (High-Density Polyethylen)".
+    the dog waste bags is printed with motifs,
+        as stated in BTI DEBTI19479/26-1 at "der Schauseite mit diversen Motiven bedruckt und als Rolle auf einer Papphülse aufgemacht".
     the principal use of the dog waste bags is packing of goods,
-        according to Hauptzollamt Hannover, as stated in BTI DEBTI19479/26-1,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI19479/26-1 at "Transport- oder Verpackungsmittel aus Kunststoffen",
         because "bags of welded HDPE film classified as articles for the conveyance or packing of goods".
     the printing of the dog waste bags is merely subsidiary,
-        according to Hauptzollamt Hannover, as stated in BTI DEBTI19479/26-1,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI19479/26-1 at "der Schauseite mit diversen Motiven bedruckt und als Rolle auf einer Papphülse aufgemacht",
         because "the BTI cites Section VII note 2 and keeps the printed bags in Chapter 39".
     subheading expects answers ["the subheading of the dog waste bags is 3923.21"].
 
 % BTI DEBTI22676/26-1, Hauptzollamt Hannover, 26/06/2026: foam packaging insert.
 scenario bti_debti22676_26_1 is:
-    the foam packaging insert is a manufactured article, as stated in BTI DEBTI22676/26-1.
-    the foam packaging insert is made of plastics, as stated in BTI DEBTI22676/26-1.
+    the foam packaging insert is a manufactured article,
+        as stated in BTI DEBTI22676/26-1 at "Antragsangaben sowie der vorgelegten Abbildung handelt es sich um einen quaderförmigen Verpackungseinleger aus aufgeschäumtem Polyethylen".
+    the foam packaging insert is made of plastics,
+        as stated in BTI DEBTI22676/26-1 at "Verpackungseinleger aus aufgeschäumtem Polyethylen (Kunststoff im Sinne der Anmerkung 1 zu Kapitel 39)".
     the principal use of the foam packaging insert is packing of goods,
-        according to Hauptzollamt Hannover, as stated in BTI DEBTI22676/26-1,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI22676/26-1 at "handelt es sich um einen quaderförmigen Verpackungseinleger aus aufgeschäumtem Polyethylen (Kunststoff im Sinne der",
         because "a transport packaging for parts of dial gauges".
-    the foam packaging insert is claimed to belong to sheets of heading 3921, as stated in BTI DEBTI22676/26-1.
+    the foam packaging insert is claimed to belong to sheets of heading 3921,
+        as stated in BTI DEBTI22676/26-1 at "Eine Ware der Position 3921 liegt aufgrund der weitergehenden Bearbeitung nicht vor".
     the claim that the foam packaging insert belongs to sheets of heading 3921 is rejected,
-        according to Hauptzollamt Hannover, as stated in BTI DEBTI22676/26-1,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI22676/26-1 at "Eine Ware der Position 3921 liegt aufgrund der weitergehenden Bearbeitung nicht vor",
         because "the block has been worked further (specific cut-outs), so it is not a good of heading 3921 (Chapter 39 note 10)".
     subheading expects answers ["the subheading of the foam packaging insert is 3923.90"].
 
 % BTI DEBTI41932/25-1, Hauptzollamt Hannover, 11/11/2025: drinking bottle.
 scenario bti_debti41932_25_1 is:
-    the drinking bottle is a manufactured article, as stated in BTI DEBTI41932/25-1.
-    the drinking bottle is a composite good, as stated in BTI DEBTI41932/25-1.
-    the plastic body and lid of the drinking bottle is a component of the drinking bottle, as stated in BTI DEBTI41932/25-1.
-    the silicone seal of the drinking bottle is a component of the drinking bottle, as stated in BTI DEBTI41932/25-1.
-    the carrying strap of the drinking bottle is a component of the drinking bottle, as stated in BTI DEBTI41932/25-1.
-    the plastic body and lid of the drinking bottle is made of plastics, as stated in BTI DEBTI41932/25-1.
+    the drinking bottle is a manufactured article,
+        as stated in BTI DEBTI41932/25-1 at "sowie der vorliegenden Produktabbildung handelt es sich um eine sogenannte".
+    the drinking bottle is a composite good,
+        as stated in BTI DEBTI41932/25-1 at "Ø 7,7 x H 26,6 cm) mit einem Fassungsvermögen von etwa 700 ml besteht aus einem zylindrischen".
+    the plastic body and lid of the drinking bottle is a component of the drinking bottle,
+        as stated in BTI DEBTI41932/25-1 at "Description of goods Nach den Antragsangaben sowie der vorliegenden Produktabbildung handelt es sich".
+    the silicone seal of the drinking bottle is a component of the drinking bottle,
+        as stated in BTI DEBTI41932/25-1 at "Description of goods Nach den Antragsangaben sowie der vorliegenden Produktabbildung handelt es sich".
+    the carrying strap of the drinking bottle is a component of the drinking bottle,
+        as stated in BTI DEBTI41932/25-1 at "Description of goods Nach den Antragsangaben sowie der vorliegenden Produktabbildung handelt es sich".
+    the plastic body and lid of the drinking bottle is made of plastics,
+        as stated in BTI DEBTI41932/25-1 at "Kunststoffen im Sinne der Anmerkung 1 zu Kapitel 39".
     the essential character of the drinking bottle is given by the plastic body and lid of the drinking bottle,
-        according to Hauptzollamt Hannover, as stated in BTI DEBTI41932/25-1,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI41932/25-1 at "die Verwendung sind die Kunststoffe charakterverleihend",
         because "by their extent and their importance for the use, the plastics give the character".
     the principal use of the drinking bottle is household use,
-        according to Hauptzollamt Hannover, as stated in BTI DEBTI41932/25-1,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI41932/25-1 at "Getränken und wird üblicherweise im Haushalt",
         because "a bottle for carrying drinks, used in the household, outdoors and when travelling; not tableware or kitchenware of subheading 3924.10".
     subheading expects answers ["the subheading of the drinking bottle is 3924.90"].
 
 % BTI DEBTI47170/25-1, Hauptzollamt Hannover, 14/01/2026: system tool crate.
 scenario bti_debti47170_25_1 is:
-    the system tool crate is a manufactured article, as stated in BTI DEBTI47170/25-1.
-    the system tool crate is made of plastics, as stated in BTI DEBTI47170/25-1.
+    the system tool crate is a manufactured article,
+        as stated in BTI DEBTI47170/25-1 at "Description of goods Nach den Angaben der Antragstellerin und dem vorgelegten Datenblatt handelt es".
+    the system tool crate is made of plastics,
+        as stated in BTI DEBTI47170/25-1 at "einem Kunststoff im Sinne der Anmerkung 1 zu Kapitel 39".
     the principal use of the system tool crate is carrying tools,
         according to Hauptzollamt Hannover, as stated in BTI DEBTI47170/25-1,
         because "an open crate of a modular tool-case system for transporting and storing tools of all kinds; not an article for the packing of goods (Explanatory Note to heading 3923)".
-    the system tool crate is claimed to belong to containers of heading 4202, as stated in BTI DEBTI47170/25-1.
+    the system tool crate is claimed to belong to containers of heading 4202,
+        as stated in BTI DEBTI47170/25-1 at "Damit wird sie weder vom Wortlaut der Position 4202 erfasst".
     the claim that the system tool crate belongs to containers of heading 4202 is rejected,
-        according to Hauptzollamt Hannover, as stated in BTI DEBTI47170/25-1,
+        according to Hauptzollamt Hannover, as stated in BTI DEBTI47170/25-1 at "Damit wird sie weder vom Wortlaut der Position 4202 erfasst",
         because "the crate is not fitted to hold particular tools, so it is neither named in heading 4202 nor similar to the goods named there".
     subheading expects answers ["the subheading of the system tool crate is 3926.90"].

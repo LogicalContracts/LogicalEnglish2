@@ -1,0 +1,868 @@
+HTSUS Section VII and Chapter 39 — Harmonized Tariff Schedule of the United States, Revision 18 (2026).
+Text extracted from the PDF at https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2039
+(pages 1, 3, 4, 5, 7, 8, 12, 33, 34, 35, 36, 37, 38 only; "=== page N ===" marks the PDF page, addressable as #page=N).
+
+=== page 1 ===
+SECTION VII
+PLASTICS AND ARTICLES THEREOF;
+RUBBER AND ARTICLES THEREOF
+VII-1
+Notes
+1. Goods put up in sets consisting of two or more separate constituents, some or all of which fall in this section and are intended
+to be mixed together to obtain a product of section VI or VII, are to be classified in the heading appropriate to that product,
+provided that the constituents are:
+(a) Having regard to the manner in which they are put up, clearly identifiable as being intended to be used together without first
+being repacked;
+(b) Entered together; and
+(c) Identifiable, whether by their nature or by the relative proportions in which they are present, as being complementary one
+to another.
+2. Except for the goods of heading 3918 or 3919, plastics, rubber, and articles thereof, printed with motifs, characters or pictorial
+representations, which are not merely subsidiary to the primary use of the goods, fall in chapter 49.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+
+=== page 3 ===
+CHAPTER 39
+PLASTICS AND ARTICLES THEREOF
+VII
+39-1
+Notes
+1. Throughout the tariff schedule the expression "plastics" means those materials of headings 3901 to 3914 which are or have been
+capable, either at the moment of polymerization or at some subsequent stage, of being formed under external influence (usually
+heat and pressure, if necessary with a solvent or plasticizer) by molding, casting, extruding, rolling or other process into shapes
+which are retained on the removal of the external influence.
+Throughout the tariff schedule, any reference to "plastics" also includes vulcanized fiber. The expression, however, does not
+apply to materials regarded as textile materials of section XI.
+2. This chapter does not cover:
+(a) Lubricating preparations of 2710 or 3403;
+(b) Waxes of heading 2712 or 3404;
+(c) Separate chemically defined organic compounds (chapter 29);
+(d) Heparin or its salts (heading 3001);
+(e) Solutions (other than collodions) consisting of any of the products specified in headings 3901 to 3913 in volatile organic
+solvents when the weight of the solvent exceeds 50 percent of the weight of the solution (heading 3208); stamping foils of
+heading 3212;
+(f) Organic surface-active agents or preparations of heading 3402;
+(g) Run gums or ester gums (heading 3806);
+(h) Prepared additives for mineral oils (including gasoline) or for other liquids used for the same purposes as mineral oil (heading
+3811);
+(ij) Prepared hydraulic fluids based on polyglycols, silicones or other polymers of Chapter 39 (heading 3819);
+(k) Diagnostic or laboratory reagents on a backing of plastics (heading 3822);
+(l) Synthetic rubber, as defined for the purposes of chapter 40, or articles thereof;
+(m) Saddlery or harness (heading 4201) or trunks, suitcases, handbags or other containers of heading 4202;
+(n) Plaits, wickerwork or other articles of chapter 46;
+(o) Wall coverings of heading 4814;
+(p) Goods of section XI (textiles and textile articles);
+(q) Articles of section XII (for example, footwear, headgear, umbrellas, sun umbrellas, walking-sticks, whips, riding-crops or
+parts thereof);
+(r) Imitation jewelry of heading 7117;
+(s) Articles of section XVI (machines and mechanical or electrical appliances);
+(t) Parts of aircraft or vehicles of section XVII;
+(u) Articles of chapter 90 (for example, optical elements, spectacle frames, drawing instruments);
+(v) Articles of chapter 91 (for example, clock or watch cases);
+(w) Articles of chapter 92 (for example, musical instruments or parts thereof);
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+
+=== page 4 ===
+Notes (con.)
+(x) Articles of chapter 94 (for example, furniture, luminaires and lighting fittings, illuminated signs, prefabricated buildings);
+(y) Articles of chapter 95 (for example, toys, games, sports equipment); or
+(z) Articles of chapter 96 (for example, brushes, buttons, slide fasteners, combs, mouthpieces or stems for smoking pipes,
+cigarette holders or the like, parts of vacuum flasks or the like, pens, mechanical pencils, and monopods, bipods, tripods
+and similar articles).
+3. Headings 3901 to 3911 apply only to goods of a kind produced by chemical synthesis, falling in the following categories:
+(a) Liquid synthetic polyolefins of which less than 60 percent by volume distills at 300°C, after conversion to 1,013 millibars
+when a reduced-pressure distillation method is used (headings 3901 and 3902);
+(b) Resins, not highly polymerized, of the coumarone-indene type (heading 3911);
+(c) Other synthetic polymers with an average of at least five monomer units;
+(d) Silicones (heading 3910);
+(e) Resols (heading 3909) and other prepolymers.
+4. The expression "copolymers" covers all polymers in which no single monomer contributes 95 percent or more by weight to the
+total polymer content.
+For the purposes of this chapter, except where the context otherwise requires, copolymers (including co-polycondensates,
+co-polyaddition products, block copolymers and graft copolymers) and polymer blends are to be classified in the heading covering
+polymers of that comonomer unit which predominates by weight over every other single comonomer unit. For the purposes of
+this note, constituent comonomer units of polymers falling in the same heading shall be taken together.
+If no single comonomer predominates, copolymers or polymer blends, as the case may be, are to be classified in the heading
+which occurs last in numerical order among those which equally merit consideration.
+5. Chemically modified polymers, that is, those in which only appendages to the main polymer chain have been changed by chemical
+reaction, are to be classified in the heading appropriate to the unmodified polymer. This provision does not apply to graft
+copolymers.
+6. In headings 3901 to 3914, the expression "primary forms" applies only to the following forms:
+(a) Liquids and pastes, including dispersions (emulsions and suspensions) and solutions;
+(b) Blocks of irregular shape, lumps, powders (including molding powders), granules, flakes and similar bulk forms.
+7. Heading 3915 does not apply to waste, parings and scrap of a single thermoplastic material, transformed into primary forms
+(headings 3901 to 3914).
+8. For the purposes of heading 3917, the expression "tubes, pipes and hoses" means hollow products, whether semimanufactures
+or finished products, of a kind generally used for conveying, conducting or distributing gases or liquids (for example, ribbed
+garden hose, perforated tubes). This expression also includes sausage casings and other lay-flat tubing. However, except for
+the last mentioned, those having an internal cross section other than round, oval, rectangular (in which the length does not
+exceed 1.5 times the width) or in the shape of a regular polygon are not to be regarded as tubes, pipes and hoses, but as profile
+shapes.
+9. For the purposes of heading 3918, the expression "wall or ceiling coverings of plastics" applies to products in rolls, of a width
+not less than 45 cm, suitable for wall or ceiling decoration, consisting of plastics fixed permanently on a backing of any material
+other than paper, the layer of plastics (on the face side) being grained, embossed, colored, design-printed or otherwise decorated.
+10. In headings 3920 and 3921, the expression "plates, sheets, film, foil and strip" applies only to plates, sheets, film, foil and strip
+(other than those of chapter 54) and to blocks of regular geometric shape, whether or not printed or otherwise surface-worked,
+uncut or cut into rectangles (including squares) but not further worked (even if when so cut they become articles ready for use).
+11. Heading 3925 applies only to the following articles, not being products covered by any of the earlier headings of subchapter II:
+(a) Reservoirs, tanks (including septic tanks), vats and similar containers, of a capacity exceeding 300 liters;
+(b) Structural elements used, for example, in floors, walls or partitions, ceilings or roofs;
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-2
+
+=== page 5 ===
+Notes (con.)
+(c) Gutters and fittings therefor;
+(d) Doors, windows and their frames and thresholds for doors;
+(e) Balconies, balustrades, fencing, gates and similar barriers;
+(f) Shutters, blinds (including venetian blinds) and similar articles and parts and fittings thereof;
+(g) Large-scale shelving for assembly and permanent installation, for example, in shops, workshops, warehouses;
+(h) Ornamental architectural features, for example, flutings, cupolas, dovecotes; and
+(ij) Fittings and mountings intended for permanent installation in or on doors, windows, staircases, walls or other parts of
+buildings, for example, knobs, handles, hooks, brackets, towel rails, switch plates and other protective plates.
+Subheading Notes
+1. Within any one heading of this chapter, polymers (including copolymers) are to be classified according to the following provisions:
+(a) Where there is a subheading named "Other" in the same series:
+(1) The designation in a subheading of a polymer by the prefix "poly" (for example, polyethylene and polyamide-6,6) means
+that the constituent monomer unit or monomer units of the named polymer taken together must contribute 95 percent
+or more by weight of the total polymer content.
+(2) The copolymers named in subheadings 3901.30, 3901.40, 3903.20, 3903.30 and 3904.30 are to be classified in those
+subheadings, provided that the comonomer units of the named copolymers contribute 95 percent or more by weight of
+the total polymer content.
+(3) Chemically modified polymers are to be classified in the subheading named "Other", provided that the chemically modified
+polymers are not more specifically covered by another subheading.
+(4) Polymers not meeting (1), (2), or (3), above, are to be classified in the subheading, among the remaining subheadings
+in the series, covering polymers of that monomer unit which predominates by weight over every other single comonomer
+unit. For this purpose, constituent monomer units of polymers falling in the same subheading shall be taken together.
+Only the constituent comonomer units of the polymers in the series of subheadings under consideration are to be
+compared.
+(b) Where there is no subheading named "Other" in the same series:
+(1) Polymers are to be classified in the subheading covering polymers of that monomer unit which predominates by weight
+over every other single comonomer unit. For this purpose, constituent monomer units of polymers falling in the same
+subheading shall be taken together. Only the constituent comonomer units of the polymers in the series under
+consideration are to be compared.
+(2) Chemically modified polymers are to be classified in the subheading appropriate to the unmodified polymer.
+Polymer blends are to be classified in the same subheading as polymers of the same monomer units in the same proportions.
+2. For the purposes of subheading 3920.43, the term “plasticizers” includes secondary plasticizers.
+Additional U.S. Notes
+1. For the purposes of this chapter, the term "elastomeric" means a plastics material which after cross-linking can be stretched at
+20°C to at least three times its original length and that, after having been stretched to twice its original length and the stress
+removed, returns within five minutes to less than 150 percent of its original length. Elastomeric plastics may also contain fillers,
+extenders, pigments or rubber-processing chemicals, whether or not such plastics material, after the addition of such fillers,
+extenders, pigments or chemicals, can meet the tests specified in the first part of this note.
+2. For the purposes of heading 3916, the rate of duty "Free (B)" appearing in the "Special" subcolumn applies only to articles
+measuring not more than 38.1 cm in length.
+3. For the purposes of heading 3917, with respect to tubes, pipes and hoses, the rate of duty "Free (C)" appearing in the "Special"
+subcolumn applies only to tubes, pipes and hoses having attached fittings.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-3
+
+=== page 7 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+I. PRIMARY FORMS
+Polymers of ethylene, in primary forms:3901
+Polyethylene having a specific gravity of less than 0.94:3901.10
+Having a relative viscosity of 1.44 or more...................003901.10.10 43%Free (AU, BH, CL,
+CO, E, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+6.5%kg ..............
+Other .................................................................................3901.10.50 43%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%..................
+Linear low density polyethylene..............................10 kg
+Low density polyethylene,except linear low density
+polyethylene ..............................................................
+20
+kg
+Medium density polyethylene..................................30 kg
+Polyethylene having a specific gravity of 0.94 or more:3901.20
+Having a relative viscosity of 1.44 or more...................003901.20.10 43%Free (AU, BH, CL,
+CO, E, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+6.5%kg ..............
+Other .................................................................................003901.20.50 43%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Ethylene-vinyl acetate copolymers:3901.30
+Vinyl acetate-vinyl chloride-ethylene terpolymers,
+containing by weight less than 50 percent derivatives
+of vinyl acetate, except those polymerized from
+aromatic or modified aromatic monomers....................
+003901.30.20
+43.5%Freekg ..............
+Other .................................................................................003901.30.60 43.5%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+5.3%kg ..............
+Ethylene-alpha-olefincopolymers,having a specific gravity
+of less than 0.94.....................................................................
+003901.40.00
+43%Free (AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Other:3901.90
+Elastomeric ......................................................................003901.90.10 20%Freekg ..............
+Other:
+Ethylene copolymers................................................013901.90.55 43%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Other ..........................................................................003901.90.90 2.2¢/kg
++33.5%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, K, KR, MA,
+OM, P, PA, PE, S,
+SG)
+6.5%kg ..............
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-5
+
+=== page 8 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Polymers of propylene or of other olefins, in primary forms:3902
+Polypropylene .........................................................................003902.10.00 33.5%
+1/Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+6.5%kg ..............
+Polyisobutylene:3902.20
+Elastomeric ......................................................................003902.20.10 20%
+1/Freekg ..............
+Other .................................................................................003902.20.50 2.2¢/kg +
+33.5%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+6.5%kg ..............
+Propylene copolymers...........................................................003902.30.00 2.2¢/kg +
+33.5%
+Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Other........................................................................................3902.90.00 2.2¢/kg +
+33.5%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, K, KR, MA,
+OM, P, PA, PE, S,
+SG)
+6.5%..................
+Polybutylene.....................................................................10 kg
+Other .................................................................................50 kg
+Polymers of styrene, in primary forms:3903
+Polystyrene:
+Expandable ......................................................................003903.11.00 15.4¢/kg +
+46%
+Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Other .................................................................................003903.19.00 15.4¢/kg +
+46%
+Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Styrene-acrylonitrile (SAN) copolymers..............................003903.20.00 15.4¢/kg +
+45.5%
+Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Acrylonitrile-butadiene-styrene (ABS) copolymers............003903.30.00 15.4¢/kg +
+47%
+Free (A, AU, BH, CL,
+D, E, IL, J, JO, KR,
+MA, OM, P, PE, S,
+SG)
+6.5%kg ..............
+Other:3903.90
+Methyl methacrylate-butadiene-styrene (MBS)
+copolymers.......................................................................
+003903.90.10
+15.4¢/kg +
+67.5%
+Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Other .................................................................................003903.90.50 15.4¢/kg +
+46%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+6.5%kg ..............
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-6
+
+=== page 12 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Polyacetals, other polyethers and epoxide resins, in primary
+forms; polycarbonates, alkyd resins, polyallyl esters and other
+polyesters, in primary forms: (con.)
+3907 (con.)
+Poly(ethylene terephthalate):
+Having a viscosity number of 78 ml/g or higher...........3907.61.00 15.4¢/kg +
+45%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, K, KR, MA,
+OM, P, PA, PE, S,
+SG)
+6.5%..................
+Having a viscosity number of 78 ml/g or more
+but not more than 88 ml/g.................................
+10
+kg
+Other ...................................................................50 kg
+Other .................................................................................3907.69.00 15.4¢/kg +
+45%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, K, KR, MA,
+OM, P, PA, PE, S,
+SG)
+6.5%..................
+Having a viscosity number of 70 ml/g or more
+but less than 78 ml/g.........................................
+10
+kg
+Other ...................................................................50 kg
+Poly(lactic acid)......................................................................003907.70.00 15.4¢/kg +
+45%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, K, KR, MA,
+OM, P, PA, PE, S,
+SG)
+6.5%kg ..............
+Other polyesters:
+Unsaturated:3907.91
+Allyl resins:
+Allyl resins, uncompounded..............................003907.91.20 15.4¢/kg +
+45%
+Freekg ..............
+Other ...................................................................003907.91.40 15.4¢/kg +
+45%
+Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+5.8%kg ..............
+Other ..........................................................................003907.91.50 15.4¢/kg +
+45%
+Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Other:3907.99
+Thermoplastic liquid crystal aromatic polyester
+copolymers ................................................................
+003907.99.20
+15.4¢/kg +
+45%
+Freekg ..............
+Other ..........................................................................3907.99.50 15.4¢/kg +
+45%
+Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, K, KR, MA,
+OM, P, PA, PE, S,
+SG)
+6.5%..................
+Polybutylene terephthalate...............................10 kg
+Other ...................................................................50 kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-10
+
+=== page 33 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Articles for the conveyance or packing of goods, of plastics;
+stoppers, lids, caps and other closures, of plastics:
+3923
+Boxes, cases, crates and similar articles:3923.10
+Specially shaped or fitted for the conveyance or
+packing of semiconductor wafers, masks or reticles of
+subheadings 3923.10 or 8486.90.................................
+003923.10.20
+80%Freekg ..............
+Other .................................................................................003923.10.90 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3%kg ..............
+Sacks and bags (including cones):
+Of polymers of ethylene..................................................3923.21.00 80%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+3%..................
+Reclosable, with integral extruded closure:
+With no single side exceeding 75 mm in
+length...................................................................
+11
+thousands
+Other, with sliders that open or close the
+seal ......................................................................
+20
+thousands
+Other ...................................................................30 thousands
+Other:
+With no single side exceeding 75 mm in
+length...................................................................
+80
+thousands
+Polyethylene retail carrier bags (PRCBs) with
+handles (including drawstrings),with no length
+or width shorter than 6 inches (152.4 mm) or
+longer than 40 inches (1,016 mm)...................
+85
+thousands
+Other ...................................................................95 thousands
+Of other plastics..............................................................003923.29.00 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3%kg ..............
+Carboys, bottles, flasks and similar articles........................3923.30.00 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3%..................
+Of a capacity not exceeding 50 ml................................10 thousands
+Other .................................................................................90 kg
+Spools, cops, bobbins and similar supports.......................3923.40.00 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+5.3%..................
+Photographic film reels and reel cans...........................10 kg
+Other .................................................................................50 kg
+Stoppers, lids, caps and other closures..............................003923.50.00 80%Free (A, AU, B, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+5.3%No. and
+kg ..............
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-31
+
+=== page 34 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Articles for the conveyance or packing of goods, of plastics;
+stoppers, lids, caps and other closures, of plastics: (con.)
+3923 (con.)
+Other........................................................................................3923.90.00 80%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+3%..................
+Buckets and pails, with or without lids or other closures,
+having a capacity of:
+Less than 11.36 liters (3 gallons)............................12 No.
+11.36 liters (3 gallons) or more, but not more than
+22.71 liters (6 gallons)..............................................
+14
+No.
+22.71 liters (6 gallons) or more...............................16 No.
+Other .................................................................................80 No. and kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-32
+
+=== page 35 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Tableware, kitchenware, other household articles and hygienic
+or toilet articles, of plastics:
+3924
+Tableware and kitchenware:3924.10
+Salt, pepper, mustard and ketchup dispensers and
+similar dispensers...........................................................
+003924.10.10
+80%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+3.4%No. and
+kg ..............
+Plates, cups, saucers, soup bowls, cereal bowls, sugar
+bowls, creamers, gravy boats, serving dishes and
+platters..............................................................................
+003924.10.20
+84.5%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+6.5%kg ..............
+Trays.................................................................................003924.10.30 40%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+5.3%No. ............
+Other .................................................................................003924.10.40 80%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+3.4%No. and
+kg ..............
+Other:3924.90
+Nursing nipples and finger cots.....................................003924.90.05 25%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3.1%gross.........
+Curtains and drapes, including panels and valances;
+napkins, table covers, mats, scarves, runners, doilies,
+centerpieces, antimacassars and furniture slipcovers;
+and like furnishings.........................................................
+3924.90.10
+25%
+1/Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3.3%..................
+Curtains and drapes.................................................10 kg
+Other ..........................................................................50 No. and kg
+Picture frames..................................................................003924.90.20 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3.4%No. and
+kg ..............
+Other .................................................................................3924.90.56 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3.4%..................
+Gates for confining children or pets........................10 No.
+Other ..........................................................................50 No. and kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-33
+
+=== page 36 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Builders' ware of plastics, not elsewhere specified or included:3925
+Reservoirs,tanks, vats and similarcontainers,of a capacity
+exceeding 300 liters...............................................................
+003925.10.00
+56%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.3%No. and
+kg ..............
+Doors, windows and their frames and thresholds for
+doors........................................................................................
+3925.20.00
+80%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+5.3%..................
+Doors and door frames...................................................10 No.
+kg
+Windows and window frames........................................20 No.
+kg
+Other .................................................................................91 No. and kg
+Shutters, blinds (including venetian blinds) and similar
+articles and parts thereof:
+3925.30
+Blinds (including venetian blinds)..................................003925.30.10 25%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+3.3%No. ............
+Other .................................................................................003925.30.50 80%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+5.3%No. and
+kg ..............
+Other........................................................................................003925.90.00 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+5.3%No. and
+kg ..............
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-34
+
+=== page 37 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Other articles of plastics and articles of other materials of
+headings 3901 to 3914:
+3926
+Office or school supplies.......................................................003926.10.00 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+5.3%kg ..............
+Articles of apparel and clothing accessories (including
+gloves, mittens and mitts):
+3926.20
+Gloves, mittens and mitts:
+Seamless...................................................................3926.20.10 25%Free..................
+Surgical and medical.........................................10 doz. prs.
+Other:
+Disposable ...................................................20 doz. prs.
+Other.............................................................50 doz. prs.
+Other:
+Specially designed for use in sports:
+Baseball and softball gloves and mitts......003926.20.20 30%FreeNo. ............
+Other.............................................................003926.20.30 30%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3%No. ............
+Other ...................................................................3926.20.40 25%Free (A+, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+6.5%..................
+Disposable ...................................................10 doz. prs.
+Other.............................................................50 doz. prs.
+Other:
+Plasticrainwear,includingjackets,coats, ponchos,
+parkas and slickers, featuring an outer shell of
+polyvinyl chloride plastic with or without attached
+hoods, valued not over $10 per unit.......................
+003926.20.60
+25%Freedoz. ...........
+Other ..........................................................................3926.20.90 25%
+1/Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+5%..................
+Aprons.................................................................10 doz.
+Other ...................................................................50 doz.
+Fittings for furniture, coachwork or the like:3926.30
+Handles and knobs.........................................................003926.30.10 57.5%Free (A, AU, B, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+3.25% (JP)
+6.5%kg ..............
+Other .................................................................................003926.30.50 80%Free (A+, AU, B, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+2.65% (JP)
+5.3%kg ..............
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-35
+
+=== page 38 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Other articles of plastics and articles of other materials of
+headings 3901 to 3914: (con.)
+3926 (con.)
+Statuettes and other ornamental articles............................3926.40.00 80%Free (A*, AU, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+5.3%..................
+Bows and similar products for decorative purposes
+including gift-packaging and the like.............................
+10
+No.
+Other .................................................................................90 No.
+Other:3926.90
+Buckets and pails............................................................003926.90.10 80%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3.4%No. ............
+Pacifiers............................................................................003926.90.16 25%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+3.1%gross.........
+Ice bags; douche bags, enema bags, hot water bottles,
+and fittings therefor; invalid and similar nursing
+cushions;dress shields;pessaries;prophylactics;bulbs
+for syringes; syringes (other than hypodermicsyringes)
+and fittings therefor, not in part of glass or metal.........
+003926.90.21
+25%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+4.2%No. ............
+Handles and knobs, not elsewhere specified or
+included, of plastics.........................................................
+003926.90.25
+57.5%Free (A, AU, B, BH,
+CL, CO, D, E, IL,
+JO, KR, MA, OM,
+P, PA, PE, S, SG)
+6.5%kg ..............
+Parts for yachts or pleasure boats of heading 8903;
+parts of canoes, racing shells, pneumatic craft and
+pleasure boats which are not of a type designed to be
+principally used with motors or sails.............................
+003926.90.30
+30%
+1/Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+4.2%kg ..............
+Beads, bugles and spangles, not strung (except
+temporarily)and not set; articles thereof, not elsewhere
+specified or included:
+Handbags ..................................................................003926.90.33 60%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%No. ............
+Other ..........................................................................003926.90.35 60%Free (A, AU, BH, CL,
+CO, D, E, IL, JO,
+KR, MA, OM, P,
+PA, PE, S, SG)
+6.5%kg ..............
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+VII
+39-36

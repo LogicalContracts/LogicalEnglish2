@@ -1,0 +1,48 @@
+HTSUS Chapter 54 — Harmonized Tariff Schedule of the United States, Revision 18 (2026).
+Text extracted from the PDF at https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2054
+(pages 1 only; "=== page N ===" marks the PDF page, addressable as #page=N).
+
+=== page 1 ===
+CHAPTER 54
+MAN-MADE FILAMENTS; STRIP AND THE LIKE OF MAN-MADE TEXTILE MATERIALS
+XI
+54-1
+Notes
+1. Throughout the tariff schedule, the term "man-made fibers" means staple fibers and filaments of organic polymers produced by
+manufacturing processes, either:
+(a) By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes,
+or by chemical modification of polymers produced by this process (for example, poly(vinyl alcohol) prepared by the hydrolysis
+of poly(vinyl acetate)); or
+(b) By dissolution or chemical treatment of natural organic polymers (for example, cellulose) to produce polymers such as
+cuprammonium rayon (cupro) or viscose rayon, or by chemical modification of natural organic polymers (for example,
+cellulose, casein and other proteins, or alginic acid), to produce polymers such as cellulose acetate or alginates.
+The terms "synthetic" and "artificial", used in relation to fibers, mean: synthetic: fibers as defined at (a); artificial: fibers as defined
+at (b). Strip and the like of heading 5404 or 5405 are not considered to be man-made fibers.
+The terms "man-made", "synthetic" and "artificial" shall have the same meanings when used in relation to "textile materials".
+2. Headings 5402 and 5403 do not apply to synthetic or artificial filament tow of chapter 55.
+Statistical Notes
+1. For the purposes of the woven fabrics of chapter 54:
+(a) Unless the context otherwise requires, provisions relating to one or more weaves embrace only those fabrics which (excluding
+selvage) are wholly of the specified weave or weaves, including combinations exclusively thereof.
+(b) The term "flat fabrics" means fabrics not containing yarns twisted more than 472 turns per meter.
+(c) The term "poplin or broadcloth" means plain weave fabrics, not of square construction, whether or not napped, but does not
+include the following types:
+(i) Fabrics weighing not more than 170 grams per square meter, containing 33 or less warp ends and filling picks per square
+centimeter; and
+(ii) Fabrics weighing more than 170 grams per square meter, of average yarn number 26 or lower number.
+(d) The term "sheeting" means plain weave fabrics, whether or not napped, of the following types:
+(i) Fabrics weighing not more than 170 grams per square meter, of square construction, containing more than 33 warp
+ends and filling picks per square centimeter, of average yarn number 68 or lower number, but not including printcloth;
+and
+(ii) Fabrics weighing more than 170 grams per square meter, but does not include:
+(A) Fabrics of which the warp or filling consists of multiple (folded) or cabled yarns, of average yarn number 26 or lower
+number; and
+(B) Fabrics of average yarn number 27 or higher number, not of square construction.
+(e) The term "printcloth" means plain weave fabrics, weighing not more than 170 grams per square meter, of average yarn
+numbers 43-68, containing more than 33 singles yarns per square centimeter and not containing multiple (folded) or cabled
+yarns, of square construction, whether or not napped, of the following types:
+(i) Fabrics, not combed; and
+(ii) Other fabrics, measuring less than 168 cm in width.
+(f) The term "square construction" means fabrics of the following types:
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes

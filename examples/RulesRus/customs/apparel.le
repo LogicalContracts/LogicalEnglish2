@@ -22,6 +22,12 @@
 % pockets and bottom, fit, neckline, straps. Where a ruling characterises a
 % garment without describing it (for instance "an outer tank top"), the
 % characterisation is recorded as such, with its source.
+%
+% Provenance. Every rule is labelled and cites the passage it encodes — a
+% section or chapter note, a heading's terms, or, for the Explanatory Notes
+% (which are not public), the ruling or BTI that quotes them. The documents
+% say where they are published and where their text is (sources/), so the
+% editor shows each rule's passage and the verifier checks every quotation.
 
 the target language is: prolog.
 
@@ -77,7 +83,9 @@ the templates are:
 % predominates (Section XI subheading note 2). The subheadings of 6110 for
 % wool and fine animal hair (6110.11, .12, .19) need the hair's kind, which the
 % model does not read: a woollen pullover gets no subheading.
-the table apparel is, with first match:
+the table apparel is, with first match, with provenance as stated in HTSUS General Rules of Interpretation
+        at "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes",
+        because "the six-digit subheadings of headings 6105, 6106, 6109, 6110 (HTSUS Chapter 61) and 6205, 6206 (HTSUS Chapter 62), by the textile material (Section XI subheading note 2)":
     row | material                                      | heading | code
     a1  | cotton                                        | 6105    | "6105.10"
     a2  | man-made fibres                               | 6105    | "6105.20"
@@ -104,17 +112,54 @@ the knowledge base apparel includes these resources:
 
 the knowledge base apparel includes:
 
+HTSUS Section XI and Chapter 50 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2050#page=1".
+the text of HTSUS Section XI and Chapter 50 is at "sources/hts/chapter_50.txt".
+HTSUS Chapter 51 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2051#page=1".
+the text of HTSUS Chapter 51 is at "sources/hts/chapter_51.txt".
+HTSUS Chapter 52 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2052#page=1".
+the text of HTSUS Chapter 52 is at "sources/hts/chapter_52.txt".
+HTSUS Chapter 53 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2053#page=1".
+the text of HTSUS Chapter 53 is at "sources/hts/chapter_53.txt".
+HTSUS Chapter 54 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2054#page=1".
+the text of HTSUS Chapter 54 is at "sources/hts/chapter_54.txt".
+HTSUS Chapter 55 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2055#page=1".
+the text of HTSUS Chapter 55 is at "sources/hts/chapter_55.txt".
+HTSUS Chapter 56 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2056#page=1".
+the text of HTSUS Chapter 56 is at "sources/hts/chapter_56.txt".
+HTSUS Chapter 61 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2061#page=2".
+the text of HTSUS Chapter 61 is at "sources/hts/chapter_61.txt".
+HTSUS Chapter 62 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2062#page=2".
+the text of HTSUS Chapter 62 is at "sources/hts/chapter_62.txt".
+ruling NY N362034 is published at "https://rulings.cbp.gov/ruling/N362034".
+the text of ruling NY N362034 is at "sources/cbp/N362034.txt".
+ruling NY N360982 is published at "https://rulings.cbp.gov/ruling/N360982".
+the text of ruling NY N360982 is at "sources/cbp/N360982.txt".
+ruling NY N356079 is published at "https://rulings.cbp.gov/ruling/N356079".
+the text of ruling NY N356079 is at "sources/cbp/N356079.txt".
+BTI FRBTIFR-BTI-2025-07379 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI FRBTIFR-BTI-2025-07379 is at "sources/ebti/FRBTIFR_BTI_2025_07379.txt".
+BTI FRBTIFR-BTI-2025-06897 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI FRBTIFR-BTI-2025-06897 is at "sources/ebti/FRBTIFR_BTI_2025_06897.txt".
+
+rule apparel_scope with provenance
+        because "the model covers upper-body garments: headings 6105, 6106, 6109, 6110, 6205 and 6206":
 a good is within the scope of the model
     if the good is an upper body garment.
 
 % GRI 6 and Section XI subheading note 2: the subheading of the heading, for
 % the textile material of what the garment is classified as (GRI 3(b)).
+rule apparel_subheading with provenance as stated in HTSUS Section XI and Chapter 50
+        at "Products of chapters 56 to 63 containing two or more textile materials are to be regarded as consisting wholly of that textile material which would be selected under note 2 to this section",
+        because "Section XI subheading note 2(A), read with GRI 6":
 the subheading of a good is a code
     if the heading of the good is a heading
     and the good is classified as consisting of a component
     and the textile material of the component is a group
     and the subheading for the group in heading the heading is the code under table apparel.
 
+rule apparel_construction with provenance as stated in HTSUS Section XI and Chapter 50
+        at "only the part which determines the classification under general interpretative rule 3 shall be taken into account",
+        because "Section XI subheading note 2(B)(a): a garment's fabric is that of the part that gives it its essential character":
 the construction of a good is a construction
     if the good is classified as consisting of a component
     and the fabric construction of the component is the construction.
@@ -129,40 +174,67 @@ the construction of a good is a construction
 % (heading 5605) is one textile material, whatever it is made of.
 % ---------------------------------------------------------------------------
 
-cotton belongs to cotton.
-polyester belongs to man-made fibres.
-elastane belongs to man-made fibres.
-spandex belongs to man-made fibres.
-nylon belongs to man-made fibres.
-polyamide belongs to man-made fibres.
-acrylic belongs to man-made fibres.
-rayon belongs to man-made fibres.
-viscose belongs to man-made fibres.
-modal belongs to man-made fibres.
-lyocell belongs to man-made fibres.
-wool belongs to wool fibres.
-cashmere belongs to wool fibres.
-silk belongs to silk.
-flax belongs to vegetable fibres.
-linen belongs to vegetable fibres.
-metalized yarn belongs to metalized yarn.
+cotton belongs to cotton, as stated in HTSUS Chapter 52 at "CHAPTER 52 COTTON".
+polyester belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+elastane belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes",
+    because "elastane is a segmented polyurethane".
+spandex belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes",
+    because "spandex is the American name of elastane, a segmented polyurethane".
+nylon belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes",
+    because "nylon is a polyamide".
+polyamide belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+acrylic belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By polymerization of organic monomers",
+    because "acrylic fibres are polymers of acrylonitrile".
+rayon belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By dissolution or chemical treatment of natural organic polymers (for example, cellulose) to produce polymers such as cuprammonium rayon (cupro) or viscose rayon".
+viscose belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By dissolution or chemical treatment of natural organic polymers (for example, cellulose) to produce polymers such as cuprammonium rayon (cupro) or viscose rayon".
+modal belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)",
+    because "modal is a regenerated cellulose fibre".
+lyocell belongs to man-made fibres,
+    as stated in HTSUS Chapter 54 at "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)",
+    because "lyocell is a regenerated cellulose fibre".
+wool belongs to wool fibres, as stated in HTSUS Chapter 51 at "means the natural fiber grown by sheep or lambs".
+cashmere belongs to wool fibres, as stated in HTSUS Chapter 51 at "Tibetan, Kashmir or similar goats".
+silk belongs to silk, as stated in HTSUS Section XI and Chapter 50 at "CHAPTER 50 SILK".
+flax belongs to vegetable fibres, as stated in HTSUS Chapter 53 at "Flax, raw or processed but not spun".
+linen belongs to vegetable fibres, as stated in HTSUS Chapter 53 at "Flax, raw or processed but not spun",
+    because "linen is flax".
+metalized yarn belongs to metalized yarn,
+    as stated in HTSUS Chapter 56 at "Metalized yarn, whether or not gimped, being textile yarn".
 
-silk is a textile group of chapter 50.
-wool fibres is a textile group of chapter 51.
-cotton is a textile group of chapter 52.
-vegetable fibres is a textile group of chapter 53.
-man-made fibres is a textile group of chapter 55.
-metalized yarn is a textile group of chapter 56.
+silk is a textile group of chapter 50, as stated in HTSUS Section XI and Chapter 50 at "CHAPTER 50 SILK".
+wool fibres is a textile group of chapter 51, as stated in HTSUS Chapter 51 at "CHAPTER 51 WOOL, FINE OR COARSE ANIMAL HAIR".
+cotton is a textile group of chapter 52, as stated in HTSUS Chapter 52 at "CHAPTER 52 COTTON".
+vegetable fibres is a textile group of chapter 53, as stated in HTSUS Chapter 53 at "CHAPTER 53 OTHER VEGETABLE TEXTILE FIBERS".
+man-made fibres is a textile group of chapter 55,
+    as stated in HTSUS Section XI and Chapter 50 at "When both chapters 54 and 55 are involved with any other chapter, chapters 54 and 55 are to be treated as a single chapter",
+    because "counted as one chapter, numbered by the later of the two (55) when the last heading decides a tie".
+metalized yarn is a textile group of chapter 56,
+    as stated in HTSUS Chapter 56 at "CHAPTER 56 WADDING, FELT AND NONWOVENS; SPECIAL YARNS".
 
+rule section_xi_2b_share with provenance as stated in HTSUS Section XI and Chapter 50
+        at "The choice of appropriate heading shall be effected by determining first the chapter and then the applicable heading within that chapter":
 the share of a group in a garment is a total
     if the group is a textile group of chapter a number
     and the total is the sum of each percentage such that
         the garment contains the percentage percent of a material
         and the material belongs to the group.
 
+rule section_xi_2ba_metalized with provenance as stated in HTSUS Section XI and Chapter 50
+        at "metalized yarn (heading 5605) are to be treated as a single textile material the weight of which is to be taken as the aggregate of the weights of its components":
 the textile material of a garment is metalized yarn
     if all the yarn of the garment is metalized yarn.
 
+rule section_xi_2a_predominance with provenance as stated in HTSUS Section XI and Chapter 50
+        at "are to be classified as if consisting wholly of that one textile material which predominates by weight over each other single textile material":
 the textile material of a garment is a group
     if it is not the case that
         all the yarn of the garment is metalized yarn
@@ -175,9 +247,13 @@ the textile material of a garment is a group
         it is the case that
             the group at the total percent outweighs the other group at the other total percent.
 
+rule section_xi_2a_weight with provenance as stated in HTSUS Section XI and Chapter 50
+        at "which predominates by weight over each other single textile material":
 a group at a total percent outweighs an other group at an other total percent
     if the total > the other total.
 
+rule section_xi_2a_tie with provenance as stated in HTSUS Section XI and Chapter 50
+        at "When no one textile material predominates by weight, the goods are to be classified as if consisting wholly of that one textile material which is covered by the heading which occurs last in numerical order":
 a group at a total percent outweighs an other group at an other total percent
     if the total = the other total
     and the group is a textile group of chapter a number
@@ -190,19 +266,28 @@ a group at a total percent outweighs an other group at an other total percent
 % that cannot be identified goes to the women's headings.
 % ---------------------------------------------------------------------------
 
+rule note_61_9_cut with provenance as stated in HTSUS Chapter 61
+        at "the cut of the garment clearly indicates that it is designed for one or other of the sexes",
+        because "Chapter 61 note 9 and Chapter 62 note 9: the closure rule does not apply when the cut shows the sex":
 the gender of a garment is a gender
     if the cut of the garment indicates the gender.
 
+rule note_61_9_left_over_right with provenance as stated in HTSUS Chapter 61
+        at "Garments of this chapter designed for left over right closure at the front shall be regarded as men's or boys' garments":
 the gender of a garment is men
     if it is not the case that
         the cut of the garment indicates a gender
     and the garment closes left over right.
 
+rule note_61_9_right_over_left with provenance as stated in HTSUS Chapter 61
+        at "those designed for right over left closure at the front as women's or girls' garments":
 the gender of a garment is women
     if it is not the case that
         the cut of the garment indicates a gender
     and the garment closes right over left.
 
+rule note_61_9_unidentified with provenance as stated in HTSUS Chapter 61
+        at "Garments which cannot be identified as either men's or boys' garments or as women's or girls' garments are to be classified in the headings covering women's or girls' garments":
 the gender of a garment is women
     if it is not the case that
         the cut of the garment indicates a gender
@@ -217,14 +302,21 @@ the gender of a garment is women
 % "blouses" are loose-fitting, may be sleeveless, with or without an opening.
 % ---------------------------------------------------------------------------
 
+rule note_61_4_shirts with provenance as stated in HTSUS Chapter 61
+        at "are garments designed to cover the upper part of the body, having long or short sleeves and a full or partial opening starting at the neckline":
 a garment is a shirt
     if it is not the case that
         the garment is sleeveless
     and the garment has an opening starting at the neckline.
 
+rule note_61_4_blouses with provenance as stated in HTSUS Chapter 61
+        at "are loose-fitting garments also designed to cover the upper part of the body but may be sleeveless and with or without an opening at the neckline":
 a garment is a blouse
     if the garment is loose-fitting.
 
+rule note_61_4_blouse_type with provenance as stated in HTSUS Chapter 61
+        at "may also have a collar",
+        because "Note 4 defines shirts, shirt-blouses and blouses together; heading 6106 and 6206 cover all three":
 a garment is a blouse-type garment
     if the garment is a shirt
     otherwise the garment is a blouse.
@@ -239,6 +331,9 @@ a garment is a blouse-type garment
 % below the nape of the neck (NY N360982).
 % ---------------------------------------------------------------------------
 
+rule en_6109_tshirt_fabric with provenance as stated in ruling NY N362034
+        at "To be classifiable as a T-shirt, a garment must be constructed from lightweight, plain jersey or plain interlock fabric",
+        because "the Explanatory Note to heading 6109 describes T-shirts as lightweight knitted garments, not napped nor of terry":
 a garment has the fabric of a T-shirt
     if the fabric of the garment is lightweight
     and it is not the case that
@@ -247,13 +342,20 @@ a garment has the fabric of a T-shirt
         the fabric of the garment is terry
     and the garment meets the knit test of its tariff for T-shirts.
 
+rule cbp_hq_950855 with provenance as stated in ruling NY N362034
+        at "plain jersey or plain interlock fabric; see Headquarters Ruling HQ 950855":
 a garment meets the knit test of its tariff for T-shirts
     if the garment is classified under the US tariff
     and the garment is of plain knit fabric.
 
+rule en_6109_eu_fabric with provenance
+        because "EU offices apply the Explanatory Note to heading 6109 without CBP's plain jersey or interlock test":
 a garment meets the knit test of its tariff for T-shirts
     if the garment is classified under the EU tariff.
 
+rule en_6109_tshirt with provenance as stated in BTI FRBTIFR-BTI-2025-07379
+        at "les vêtements repris à cette position ne doivent pas comporter de dentelles, d'ouverture à l'encolure ou de bouton ou autre système de fermeture",
+        because "the Explanatory Note to heading 6109, as a French BTI quotes it: no opening or fastening at the neckline; the Note also excludes collars and has sleeves":
 a garment is a T-shirt
     if it is not the case that
         the garment is sleeveless
@@ -265,17 +367,26 @@ a garment is a T-shirt
     and it is not the case that
         the garment has an opening starting at the neckline.
 
+rule cbp_tank_silhouette with provenance as stated in ruling NY N360982
+        at "it lacks a tank silhouette. Specifically, as noted above, the rear neckline does not fall below the nape of the neck, and there is no appearance of straps in the back":
 a garment has a tank silhouette
     if the garment has shoulder straps
     and the rear neckline of the garment falls below the nape of the neck.
 
+rule cbp_tank_top with provenance as stated in ruling NY N360982
+        at "Although you refer to the garment as a tank top, it lacks a tank silhouette":
 a garment is a tank top
     if the garment is sleeveless
     and the garment has a tank silhouette.
 
+rule heading_6109_singlets with provenance as stated in HTSUS Chapter 61
+        at "T-shirts, singlets, tank tops and similar garments, knitted or crocheted",
+        because "the Explanatory Note to heading 6109 includes singlets and other vests: garments worn as undergarments":
 a garment is a singlet
     if the garment is designed to be worn as an undergarment.
 
+rule heading_6109_family with provenance as stated in HTSUS Chapter 61
+        at "T-shirts, singlets, tank tops and similar garments, knitted or crocheted":
 a garment is of the T-shirt family
     if the garment is a T-shirt
     otherwise the garment is a tank top
@@ -286,30 +397,45 @@ a garment is of the T-shirt family
 % note 1: only articles that are not knitted.
 % ---------------------------------------------------------------------------
 
+rule heading_6105 with provenance as stated in HTSUS Chapter 61
+        at "Men's or boys' shirts, knitted or crocheted",
+        because "Chapter 61 note 1: only knitted or crocheted articles":
 a garment is described by heading 6105
     if the construction of the garment is knitted
     and the gender of the garment is men
     and the garment is a shirt.
 
+rule heading_6106 with provenance as stated in HTSUS Chapter 61
+        at "Women's or girls' blouses and shirts, knitted or crocheted":
 a garment is described by heading 6106
     if the construction of the garment is knitted
     and the gender of the garment is women
     and the garment is a blouse-type garment.
 
+rule heading_6109 with provenance as stated in HTSUS Chapter 61
+        at "T-shirts, singlets, tank tops and similar garments, knitted or crocheted":
 a garment is described by heading 6109
     if the construction of the garment is knitted
     and the garment is of the T-shirt family.
 
 % The Explanatory Note to heading 6110: a category of knitted articles, without
 % distinction as to sex, designed to cover the upper parts of the body.
+rule heading_6110 with provenance as stated in BTI FRBTIFR-BTI-2025-06897
+        at "la présente position couvre une catégorie d'articles en bonneterie, sans distinction quant au sexe, destinés à recouvrir la partie supérieure du corps",
+        because "the Explanatory Note to heading 6110 (Sweaters, pullovers, sweatshirts, waistcoats and similar articles, knitted or crocheted), as a French BTI quotes it":
 a garment is described by heading 6110
     if the construction of the garment is knitted.
 
+rule heading_6205 with provenance as stated in HTSUS Chapter 62
+        at "Men's or boys' shirts",
+        because "Chapter 62 note 1: articles other than knitted or crocheted":
 a garment is described by heading 6205
     if the construction of the garment is woven
     and the gender of the garment is men
     and the garment is a shirt.
 
+rule heading_6206 with provenance as stated in HTSUS Chapter 62
+        at "Women's or girls' blouses, shirts and shirt-blouses":
 a garment is described by heading 6206
     if the construction of the garment is woven
     and the gender of the garment is women
@@ -323,31 +449,46 @@ a garment is described by heading 6206
 % cover garments with a drawstring, ribbed waistband or other means of
 % tightening at the bottom.
 
-heading 6105 is a shirt heading.
-heading 6106 is a shirt heading.
-heading 6205 is a shirt heading.
-heading 6206 is a shirt heading.
-heading 6105 is a knitted shirt heading.
-heading 6106 is a knitted shirt heading.
-heading 6105 excludes sleeveless garments.
-heading 6205 excludes sleeveless garments.
+heading 6105 is a shirt heading, as stated in HTSUS Chapter 61 at "Headings 6105 and 6106 do not cover garments with pockets below the waist".
+heading 6106 is a shirt heading, as stated in HTSUS Chapter 61 at "Headings 6105 and 6106 do not cover garments with pockets below the waist".
+heading 6205 is a shirt heading, as stated in HTSUS Chapter 62 at "Headings 6205 and 6206 do not cover garments with pockets below the waist".
+heading 6206 is a shirt heading, as stated in HTSUS Chapter 62 at "Headings 6205 and 6206 do not cover garments with pockets below the waist".
+heading 6105 is a knitted shirt heading,
+    as stated in HTSUS Chapter 61 at "garments having an average of less than 10 stiches per linear centimeter in each direction".
+heading 6106 is a knitted shirt heading,
+    as stated in HTSUS Chapter 61 at "garments having an average of less than 10 stiches per linear centimeter in each direction".
+heading 6105 excludes sleeveless garments, as stated in HTSUS Chapter 61 at "Heading 6105 does not cover sleeveless garments".
+heading 6205 excludes sleeveless garments, as stated in HTSUS Chapter 62 at "Heading 6205 does not cover sleeveless garments".
 
+rule note_61_4_pockets with provenance as stated in HTSUS Chapter 61
+        at "Headings 6105 and 6106 do not cover garments with pockets below the waist",
+        because "the same in Chapter 62 note 4 for headings 6205 and 6206":
 a garment is excluded from heading a heading
     if heading the heading is a shirt heading
     and the garment has pockets below the waist.
 
+rule note_61_4_tightening with provenance as stated in HTSUS Chapter 61
+        at "with a ribbed waistband or other means of tightening at the bottom of the garment",
+        because "the same in Chapter 62 note 4 for headings 6205 and 6206":
 a garment is excluded from heading a heading
     if heading the heading is a shirt heading
     and the garment has a means of tightening at the bottom.
 
+rule note_61_4_stitches with provenance as stated in HTSUS Chapter 61
+        at "garments having an average of less than 10 stiches per linear centimeter in each direction counted on an area measuring at least 10 cm by 10 cm":
 a garment is excluded from heading a heading
     if heading the heading is a knitted shirt heading
     and the garment has less than ten stitches per centimetre in each direction.
 
+rule note_61_4_sleeveless with provenance as stated in HTSUS Chapter 61
+        at "Heading 6105 does not cover sleeveless garments",
+        because "the same in Chapter 62 note 4 for heading 6205":
 a garment is excluded from heading a heading
     if heading the heading excludes sleeveless garments
     and the garment is sleeveless.
 
+rule note_61_5 with provenance as stated in HTSUS Chapter 61
+        at "Heading 6109 does not cover garments with a drawstring, ribbed waistband or other means of tightening at the bottom of the garment":
 a garment is excluded from heading 6109
     if the garment has a means of tightening at the bottom.
 
@@ -356,11 +497,15 @@ a garment is excluded from heading 6109
 % particular kinds; and CBP holds a loose-fitting women's top to be a blouse
 % rather than a T-shirt.
 heading 6105 is more specific than heading 6110,
+    as stated in HTSUS General Rules of Interpretation at "The heading which provides the most specific description shall be preferred to headings providing a more general description",
     because "a shirt is a particular kind of the upper-body garments of heading 6110".
 heading 6106 is more specific than heading 6110,
+    as stated in HTSUS General Rules of Interpretation at "The heading which provides the most specific description shall be preferred to headings providing a more general description",
     because "a blouse or shirt is a particular kind of the upper-body garments of heading 6110".
 heading 6109 is more specific than heading 6110,
+    as stated in HTSUS General Rules of Interpretation at "The heading which provides the most specific description shall be preferred to headings providing a more general description",
     because "a T-shirt, tank top or singlet is a particular kind of the upper-body garments of heading 6110".
 heading 6106 is more specific than heading 6109,
-    according to CBP, as stated in HQ H325360,
+    according to CBP, as stated in ruling NY N356079
+        at "in accordance with the reasoning set forth in Headquarters Ruling Letters H325360 and H324935",
     because "loose-fitting women's tops have the characteristics of blouses of Note 4 to Chapter 61, which precludes headings 6109 and 6110".

@@ -1,0 +1,408 @@
+HTSUS Chapter 61 — Harmonized Tariff Schedule of the United States, Revision 18 (2026).
+Text extracted from the PDF at https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2061
+(pages 1, 2, 3, 39, 40, 49, 52 only; "=== page N ===" marks the PDF page, addressable as #page=N).
+
+=== page 1 ===
+CHAPTER 61
+ARTICLES OF APPAREL AND CLOTHING ACCESSORIES, KNITTED OR CROCHETED
+XI
+61-1
+Notes
+1. This chapter applies only to made up knitted or crocheted articles.
+2. This chapter does not cover:
+(a) Goods of heading 6212;
+(b) Worn clothing or other worn articles of heading 6309;
+(c) Orthopedic appliances, surgical belts, trusses or the like (heading 9021).
+3. For the purposes of headings 6103 and 6104:
+(a) The term "suit" means a set of garments composed of two or three pieces made up, in respect of their outer surface, in
+identical fabric and comprising:
+- one suit coat or jacket the outer shell of which, exclusive of sleeves, consists of four or more panels, designed to cover
+the upper part of the body, possibly with a tailored waistcoat in addition whose front is made from the same fabric as
+the outer surface of the other components of the set and whose back is made from the same fabric as the lining of the
+suit coat or jacket; and
+- one garment designed to cover the lower part of the body and consisting of trousers, breeches or shorts (other than
+swim- wear), a skirt or a divided skirt, having neither braces nor bibs.
+All of the components of a "suit" must be of the same fabric construction, color and composition; they must also be of the
+same style and of corresponding or compatible size. However, these components may have piping (a strip of fabric sewn
+into the seam) in a different fabric.
+If several separate components to cover the lower part of the body are presented together (for example, two pairs of trousers
+or trousers and shorts, or a skirt or divided skirt and trousers), the constituent lower part shall be one pair of trousers or, in
+the case of women's or girls' suits, the skirt or divided skirt, the other garments being considered separately.
+The term "suit" includes the following sets of garments whether or not they fulfill all the above conditions:
+- morning dress, comprising a plain jacket (cutaway) with rounded tails hanging well down at the back and striped trousers;
+- evening dress (tailcoat), generally made of black fabric, the jacket of which is relatively short at the front, does not close
+and has narrow skirts cut in at the hips and hanging down behind;
+- dinner jacket suits, in which the jacket is similar in style to an ordinary jacket (though perhaps revealing more of the shirt
+front), but has shiny silk or imitation silk lapels.
+(b) The term "ensemble" means a set of garments (other than suits and articles of heading 6107, 6108 or 6109), composed of
+several pieces made up in identical fabric, put up for retail sale, and comprising:
+- one garment designed to cover the upper part of the body, with the exception of pullovers which may form a second
+upper garment in the sole context of twin sets, and of waistcoats which may also form a second upper garment, and
+- one or two different garments, designed to cover the lower part of the body and consisting of trousers, bib and brace
+overalls, breeches, shorts (other than swimwear), a skirt or a divided skirt.
+All of the components of an ensemble must be of the same fabric construction, style, color and composition; they also must
+be of corresponding or compatible size. The term "ensemble" does not apply to track suits or ski-suits of heading 6112.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+
+=== page 2 ===
+Notes (con.)
+4. Headings 6105 and 6106 do not cover garments with pockets below the waist, with a ribbed waistband or other means of tightening
+at the bottom of the garment, or garments having an average of less than 10 stiches per linear centimeter in each direction
+counted on an area measuring at least 10 cm by 10 cm. Heading 6105 does not cover sleeveless garments.
+“Shirts” and “shirt-blouses” are garments designed to cover the upper part of the body, having long or short sleeves and a full or
+partial opening starting at the neckline. “Blouses” are loose-fitting garments also designed to cover the upper part of the body
+but may be sleeveless and with or without an opening at the neckline. “Shirts”, “shirt-blouses” and “blouses” may also have a
+collar.
+5. Heading 6109 does not cover garments with a drawstring, ribbed waistband or other means of tightening at the bottom of the
+garment.
+6. For the purposes of heading 6111:
+(a) The expression "babies' garments and clothing accessories" means articles for young children of a body height not exceeding
+86 centimeters;
+(b) Articles which are, prima facie, classifiable both in heading 6111 and in other headings of this chapter are to be classified
+in heading 6111.
+7. For the purposes of heading 6112, "ski-suits", means garments or sets of garments which, by their general appearance and
+texture, are identifiable as intended to be worn principally for skiing (cross-country or alpine). They consist either of:
+(a) A "ski overall," that is, a one-piece garment designed to cover the upper and the lower parts of the body; in addition to sleeves
+and a collar the ski overall may have pockets or footstraps; or
+(b) A "ski ensemble," that is, a set of garments composed of two or three pieces, put up for retail sale and comprising:
+- one garment such as an anorak, windbreaker or similar article, closed by a slide fastener (zipper), possibly with a
+waistcoat in addition, and
+- one pair of trousers whether or not extending above waist level, one pair of breeches or one bib and brace overall.
+The "ski ensemble" may also consist of an overall similar to the one mentioned in paragraph (a) above and a type of padded,
+sleeveless jacket worn over the overall.
+All the components of a "ski ensemble" must be made up in a fabric of the same texture, style and composition whether or
+not of the same color; they also must be of corresponding or compatible size.
+8. Garments which are, prima facie, classifiable both in heading 6113 and in other headings of this chapter, excluding heading
+6111, are to be classified in heading 6113.
+9. Garments of this chapter designed for left over right closure at the front shall be regarded as men's or boys' garments, and those
+designed for right over left closure at the front as women's or girls' garments. These provisions do not applywhere the cut of the
+garment clearly indicates that it is designed for one or other of the sexes.
+Garments which cannot be identified as either men's or boys' garments or as women's or girls' garments are to be classified in
+the headings covering women's or girls' garments.
+10. Articles of this chapter may be made of metal thread.
+Additional U.S. Note
+1. For the purpose of heading 6111, the term "sets" means two or more different garments of headings 6111, 6209 or 6505 imported
+together, of corresponding sizes and intended to be worn together by the same person.
+Statistical Notes
+1. Merchandise entered together and classified for customs purposes as an ensemble, under subheadings 6103.21.00, 6103.22.00,
+6103.23.00, 6103.29.10, 6104.2l.00, 6104.22.00, 6104.23.00 or 6104.29.10, or as a track suit under subheadings 6112.11.00,
+or 6112.12.00 shall be reported statistically as separate articles under the most appropriate 10-digit reporting number within the
+same 8-digit tariff subheading which provides for the ensemble or track suit, warm-up or jogging suit.
+2. For purposes of headings 6103, 6104 and 6112, statistical provisions for shirts refer to garments provided for in headings 6105,
+6106 and 6110, other than sweaters, pullovers, vests or cardigans referred to in statistical note 3 below.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+61-2
+
+=== page 3 ===
+Statistical Notes (con.)
+3. For purposes of this chapter, statistical provisions for sweaters include garments, whether or not known as pullovers, vests or
+cardigans, the outer surfaces of which are constructed essentially with 9 or fewer stitches per 2 centimeters measured in the
+direction the stitches were formed, and garments, known as sweaters, where, due to their construction, the stitches on the outer
+surface cannot be counted in the direction the stitches were formed.
+4. Certain garments of chapter 61 assembled abroad from components formed and cut in the United States which, after assembly
+have been subject to bleaching, garment dyeing or perma-pressing abroad, may be eligible for entry under a Special Access
+Regime. Eligibility must be established under a bilateral agreement, and entry must be in compliance with procedures established
+by the Committee for the Implementation of Textile Agreements. The importer is required to identify such garments on the entry
+summary or withdrawal forms by placing the symbol "H" as a prefix to the appropriate 10-digit chapter 61 tariff number.
+5. Certain garments of chapter 61, manufactured (cut and assembled) from fabric formed in the United States, may be eligible for
+entry under the Outward Processing Program for textiles and apparel. Eligibility must be in compliance with procedures established
+by the Committee for the Implementation of Textile Agreements (CITA). The importer is required to identify such garments on
+the entry summary or withdrawal forms by placing the symbol "S" as a prefix to the appropriate 10-digit chapter 61 tariff number.
+6. For the purposes of statistical reporting under heading 6110, the term "knit to shape" means garments knit to shape on flat-knitting
+machines, having a stitch count exceeding 9 stitches per 2 centimeters, but less than or equal to 18 stitches per 2 centimeters,
+measured on the outer surfaces of the fabric, in the direction on which the stitches are formed. For purposes of this statistical
+note, in the instances where both knit and purl stitches are usually counted, the purl stitches will be disregarded, and only the
+knit stitches on the outer surface of the fabric will be counted. All of the garment’s components, which include, but are not limited
+to, collars, plackets, cuffs, waistbands and pockets, are knit to shape. All of the components are assembled by looping and
+linking, including the side seams.
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+61-3
+
+=== page 39 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Men's or boys' shirts, knitted or crocheted:6105
+Of cotton..................................................................................6105.10.00 45%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+19.7%..................
+Men's (338)......................................................................10 doz.
+kg
+Boys':
+Imported as parts of playsuits (237).......................20 doz.
+kg
+Other (338)................................................................30 doz.
+kg
+Of man-made fibers:6105.20
+Containing 23 percent or more by weight of wool or
+fine animal hair (438)......................................................
+006105.20.10
+54.5%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+13.6%doz. ...........
+kg
+Other .................................................................................6105.20.20 72%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+32%..................
+Men's (638)...............................................................10 doz.
+kg
+Boys':
+Imported as parts of playsuits (237)................20 doz.
+kg
+Other (638).........................................................30 doz.
+kg
+Of other textile materials:6105.90
+Of wool or fine animal hair (438)...................................006105.90.10 54.5%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+14.9%doz. ...........
+kg
+Containing 70 percent or more by weight of silk or silk
+waste (738)......................................................................
+006105.90.40
+60%Free (AU, BH, CL,
+CO, E, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+0.9%doz. ...........
+kg
+Other .................................................................................6105.90.80 60%Free (AU, BH, CL,
+CO, E*, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+5.6%..................
+Subject to cotton restraints (338)...........................10 doz.
+kg
+Subject to wool restraints (438)..............................20 doz.
+kg
+Subject to man-made fiber restraints (638)...........30 doz.
+kg
+Other (838)................................................................60 doz.
+kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+61-39
+
+=== page 40 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Women's or girls' blouses and shirts, knitted or crocheted:6106
+Of cotton..................................................................................6106.10.00 45%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+19.7%..................
+Women's (339)................................................................10 doz.
+kg
+Girls':
+Imported as parts of playsuits (237).......................20 doz.
+kg
+Other (339)................................................................30 doz.
+kg
+Of man-made fibers:6106.20
+Containing 23 percent or more by weight of wool or
+fine animal hair................................................................
+6106.20.10
+54.5%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+14.9%..................
+Women's (438).........................................................10 doz.
+kg
+Girls' (438).................................................................20 doz.
+kg
+Other .................................................................................6106.20.20 72%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+32%..................
+Women's (639).........................................................10 doz.
+kg
+Girls':
+Imported as parts of playsuits (237)................20 doz.
+kg
+Other (639).........................................................30 doz.
+kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+61-40
+
+=== page 49 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+Women's or girls' slips, petticoats, briefs, panties, night
+dresses, pajamas, negligees, bathrobes, dressing gowns and
+similar articles, knitted or crocheted: (con.)
+6108 (con.)
+Other: (con.)
+Of other textile materials:6108.99
+Of wool or fine animal hair (459).............................006108.99.20 54.5%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+8.5%doz. ...........
+kg
+Containing 70 percent or more by weight of silk or
+silk waste...................................................................
+6108.99.50
+60%Free (AU, BH, CL,
+CO, E, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+0.6%..................
+Underwear (752)................................................13 doz.
+kg
+Other (750).........................................................15 doz.
+kg
+Other (850)................................................................006108.99.90 60%Free (AU, BH, CL,
+CO, E, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+3.8%doz. ...........
+kg
+T-shirts, singlets, tank tops and similar garments, knitted or
+crocheted:
+6109
+Of cotton..................................................................................6109.10.00 90%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+16.5%..................
+Men's or boys':
+T-shirts,all white, short hemmed sleeves, hemmed
+bottom, crew or round neckline, or V-neck with a
+mitered seam at the center of the V, without
+pockets, trim or embroidery (352)..........................
+04
+doz.
+kg
+Singlets, all white, without pockets, trim or
+embroidery (352)......................................................
+07
+doz.
+kg
+Thermal undershirts (352).......................................11 doz.
+kg
+Other T-shirts:
+Men's (338)........................................................12 doz.
+kg
+Boys' (338).........................................................14 doz.
+kg
+Tank tops and other singlets:
+Men's (338)........................................................18 doz.
+kg
+Boys' (338).........................................................23 doz.
+kg
+Other (338)................................................................27 doz.
+kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+61-49
+
+=== page 52 ===
+Rates of DutyUnit
+of
+Quantity
+Article Description
+Stat.
+Suf-
+fix
+Heading/
+Subheading 21
+SpecialGeneral
+T-shirts, singlets, tank tops and similar garments, knitted or
+crocheted: (con.)
+6109 (con.)
+Of other textile materials: (con.)6109.90
+(con.)
+Other .................................................................................6109.90.80 90%Free (AU, BH, CL,
+CO, E*, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+16%..................
+Men's or boys' (838).................................................10 doz.
+kg
+Women's or girls':
+Of wool (438)......................................................20 doz.
+kg
+Other (838).........................................................30 doz.
+kg
+Sweaters,pullovers,sweatshirts,waistcoats(vests)and similar
+articles, knitted or crocheted:
+6110
+Of wool or fine animal hair:
+Of wool..............................................................................6110.11.00 54.5%Free (AU, BH, CL,
+CO, IL, JO, KR,
+MA, OM, P, PA,
+PE, S, SG)
+16%..................
+Sweaters:
+Men's (445)........................................................15 doz.
+kg
+Boys' (445).........................................................25 doz.
+kg
+Women's (446)...................................................30 doz.
+kg
+Girls' (446)..........................................................40 doz.
+kg
+Vests, other than sweater vests:
+Men's or boys' (459)..........................................50 doz.
+kg
+Women's or girls' (459).....................................60 doz.
+kg
+Other:
+Men's or boys' (438)..........................................70 doz.
+kg
+Women's or girls' (438).....................................80 doz.
+kg
+Rates of Duty
+1
+Harmonized Tariff Schedule of the United States Revision 18 (2026)
+Annotated for Statistical Reporting Purposes
+XI
+61-52

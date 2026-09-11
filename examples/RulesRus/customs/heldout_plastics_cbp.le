@@ -21,6 +21,18 @@ the knowledge base heldout plastics cbp includes these resources:
 
 the knowledge base heldout plastics cbp includes:
 
+% Where each cited ruling is published, and a copy of its text (sources/).
+ruling NY N362285 is published at "https://rulings.cbp.gov/ruling/N362285".
+the text of ruling NY N362285 is at "sources/cbp/N362285.txt".
+ruling NY N358418 is published at "https://rulings.cbp.gov/ruling/N358418".
+the text of ruling NY N358418 is at "sources/cbp/N358418.txt".
+ruling NY N361986 is published at "https://rulings.cbp.gov/ruling/N361986".
+the text of ruling NY N361986 is at "sources/cbp/N361986.txt".
+ruling NY N361872 is published at "https://rulings.cbp.gov/ruling/N361872".
+the text of ruling NY N361872 is at "sources/cbp/N361872.txt".
+ruling NY N361443 is published at "https://rulings.cbp.gov/ruling/N361443".
+the text of ruling NY N361443 is at "sources/cbp/N361443.txt".
+
 query subheading is:
     the subheading of which good is which code.
 
@@ -32,50 +44,62 @@ query unplaced is:
 
 % NY N362285 (July 2026): a shower vinyl curtain.
 scenario ny_n362285 is:
-    the shower vinyl curtain is a manufactured article, as stated in ruling NY N362285.
-    the shower vinyl curtain is made of plastics, as stated in ruling NY N362285.
-    the shower vinyl curtain contains 100 percent of polyvinyl chloride, as stated in ruling NY N362285.
+    the shower vinyl curtain is a manufactured article,
+        as stated in ruling NY N362285 at "The item under consideration is identified as a shower vinyl curtain".
+    the shower vinyl curtain is made of plastics,
+        as stated in ruling NY N362285 at "you stated that it is made of polyvinyl chloride (PVC) plastic sheet material".
+    the shower vinyl curtain contains 100 percent of polyvinyl chloride,
+        as stated in ruling NY N362285 at "you stated that it is made of polyvinyl chloride (PVC) plastic sheet material".
     the principal use of the shower vinyl curtain is household use,
-        according to CBP, as stated in ruling NY N362285,
+        according to CBP, as stated in ruling NY N362285 at "The item under consideration is identified as a shower vinyl curtain",
         because "a 72 by 72 inch shower curtain of PVC sheet".
     subheading expects answers ["the subheading of the shower vinyl curtain is 3924.90"].
 
 % NY N358418 (February 2026): a plastic bowl from China.
 scenario ny_n358418 is:
-    the ghost ramekin is a manufactured article, as stated in ruling NY N358418.
-    the ghost ramekin is made of plastics, as stated in ruling NY N358418.
+    the ghost ramekin is a manufactured article,
+        as stated in ruling NY N358418 at "A ramekin is an individual baking dish used in the oven".
+    the ghost ramekin is made of plastics,
+        as stated in ruling NY N358418 at "The bowl is made from 50% melamine and 50% urea plastic materials".
     the principal use of the ghost ramekin is table use,
-        according to CBP, as stated in ruling NY N358418,
+        according to CBP, as stated in ruling NY N358418 at "You have indicated that the bowl is food-safe",
         because "a food-safe plastic bowl, not heatproof, so not a ramekin for the oven".
-    the ghost ramekin is claimed to belong to festive articles of heading 9505, as stated in ruling NY N358418.
+    the ghost ramekin is claimed to belong to festive articles of heading 9505,
+        as stated in ruling NY N358418 at "The item will be marketed and sold during the Halloween season".
     the claim that the ghost ramekin belongs to festive articles of heading 9505 is rejected,
-        according to CBP, as stated in ruling NY N358418,
+        according to CBP, as stated in ruling NY N358418 at "See Park B. Smith Ltd",
         because "a Halloween motif on a functional bowl does not make it a festive article (Park B. Smith Ltd. v. United States, 347 F.3d 922)".
     subheading expects answers ["the subheading of the ghost ramekin is 3924.10"].
 
 % NY N361986 (June 2026): vinyl record sleeves from China.
 scenario ny_n361986 is:
-    the record sleeves is a manufactured article, as stated in ruling NY N361986.
-    the record sleeves is made of plastics, as stated in ruling NY N361986.
+    the record sleeves is a manufactured article,
+        as stated in ruling NY N361986 at "The product under consideration is described as polypropylene plastic protective outer sleeves designed for vinyl".
+    the record sleeves is made of plastics,
+        as stated in ruling NY N361986 at "consideration is described as polypropylene plastic protective outer sleeves designed for vinyl record jackets".
     the principal use of the record sleeves is protecting vinyl records,
-        according to CBP, as stated in ruling NY N361986,
+        according to CBP, as stated in ruling NY N361986 at "described as polypropylene plastic protective outer sleeves designed for vinyl record jackets",
         because "outer sleeves to store, protect and preserve vinyl records and their jackets during storage, handling, display and transport".
     subheading expects answers ["the subheading of the record sleeves is 3926.90"].
 
 % NY N361872 (June 2026): plastic rebar from China.
 scenario ny_n361872 is:
-    the LiteBar rebar is a manufactured article, as stated in ruling NY N361872.
-    the LiteBar rebar is made of plastics, as stated in ruling NY N361872.
+    the LiteBar rebar is a manufactured article,
+        as stated in ruling NY N361872 at "” which is a fiberglass-reinforced plastic (FRP) rebar".
+    the LiteBar rebar is made of plastics,
+        as stated in ruling NY N361872 at "” which is a fiberglass-reinforced plastic (FRP) rebar".
     the principal use of the LiteBar rebar is reinforcing concrete,
-        according to CBP, as stated in ruling NY N361872,
+        according to CBP, as stated in ruling NY N361872 at "” which is a fiberglass-reinforced plastic (FRP) rebar",
         because "a fiberglass-reinforced plastic substitute for steel rebar in concrete".
     subheading expects answers ["the subheading of the LiteBar rebar is 3926.90"].
 
 % NY N361443 (May 2026): plastic letter charms from China.
 scenario ny_n361443 is:
-    the letter charms is a manufactured article, as stated in ruling NY N361443.
-    the letter charms is made of plastics, as stated in ruling NY N361443.
+    the letter charms is a manufactured article,
+        as stated in ruling NY N361443 at "sample.The product under consideration is described as alphabet charms".
+    the letter charms is made of plastics,
+        as stated in ruling NY N361443 at "They are made ofmolded plastic in the shape of the letters of the alphabet".
     the principal use of the letter charms is ornament,
-        according to CBP, as stated in ruling NY N361443,
+        according to CBP, as stated in ruling NY N361443 at "to be used for home craft projects",
         because "molded plastic letters with loops to be strung, for home craft projects".
     subheading expects answers ["the subheading of the letter charms is 3926.40"].
