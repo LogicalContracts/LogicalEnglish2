@@ -934,12 +934,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // The text a new document starts with.
     const newDocumentText = () => uiLang() === 'en' ? '' : targetLanguageStatement() + '\n\n';
 
-    // Menu Actions — the File operations act on the document in the editor's
-    // current tab ("+" on the tab strip opens a new one).
-    document.getElementById('menu-new')?.addEventListener('click', () => {
-        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Create new file anyway?'))) return;
-        replaceActiveDocument(newDocumentText(), { fileName: 'document.le' });
-    });
+    // Menu Actions — New and the Open operations put the document in a tab of
+    // its own (openDocument); Save and Save As act on the tab in front.
+    document.getElementById('menu-new')?.addEventListener('click', () => { newTab(); });
 
     // New from URL: fetch an LE program from a URL and load it into the editor.
     const urlModal = document.getElementById('new-from-url-modal');
@@ -953,7 +950,6 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     };
 
     document.getElementById('menu-new-from-url')?.addEventListener('click', () => {
-        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Load from URL anyway?'))) return;
         if (urlError) urlError.style.display = 'none';
         if (urlModal) urlModal.style.display = 'flex';
         urlInput?.focus();
@@ -1012,7 +1008,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
             // Filename from the URL's last path segment (default document.le).
             const seg = url.pathname.split('/').filter(Boolean).pop() || 'document.le';
-            replaceActiveDocument(content, {
+            await openDocument(content, {
                 fileName: /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + '.le',
                 // remote: no local write-back handle. Base = the URL up to its
                 // last '/', so relative includes resolve.
@@ -1035,8 +1031,6 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     document.getElementById('menu-open')?.addEventListener('click', async () => {
-        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Open another file anyway?'))) return;
-        
         if ('showOpenFilePicker' in window) {
             try {
                 const [handle] = await (window as any).showOpenFilePicker({
@@ -1048,7 +1042,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 });
                 const file = await handle.getFile();
                 const content = await file.text();
-                replaceActiveDocument(content, { fileName: file.name, fileHandle: handle });
+                await openDocument(content, { fileName: file.name, fileHandle: handle });
                 return;
             } catch (err: any) {
                 if (err.name === 'AbortError') return;
@@ -1067,7 +1061,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             const content = e.target?.result as string;
             if (content !== undefined) {
                 // Traditional input doesn't give us a handle we can write back to
-                replaceActiveDocument(content, { fileName: file.name });
+                openDocument(content, { fileName: file.name });
             }
         };
         reader.readAsText(file);
@@ -1157,8 +1151,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     });
 
     document.getElementById('menu-open-server')?.addEventListener('click', async () => {
-        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Open from server anyway?'))) return;
-        
+
         if (modalOverlay) modalOverlay.style.display = 'flex';
         if (exampleList) exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Loading examples...</div>';
 
@@ -1251,7 +1244,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             if (data.document !== undefined) {
                 // the example's name goes with it: the server resolves its
                 // relative includes against the example's folder
-                replaceActiveDocument(data.document, { fileName: name + '.le', example: name });
+                openDocument(data.document, { fileName: name + '.le', example: name });
             }
         } catch (err) {
             alert(t('Failed to load example from server.'));
@@ -3302,8 +3295,42 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         updateUrlSelection();
     }
 
-    // Replaces the document in the current tab (File > New, Open, Open from
-    // server, New from URL). The tab's program takes the panels, afresh.
+    // A document opened from the File menu (Open, Open copy from server, New
+    // from URL) goes into a tab of its own, which comes forward with its
+    // program in the panels. If it is open already, its tab comes forward
+    // instead; an untouched new document in front is replaced rather than
+    // left behind as an empty tab.
+    type DocProps = { fileName: string, fileHandle?: any, baseUrl?: string | null, example?: string | null };
+    async function openDocument(text: string, props: DocProps) {
+        const open = await findOpenDocument(props);
+        if (open) { activateDoc(open, true); return; }
+        if (isUntouchedNewDocument(activeDoc)) { replaceActiveDocument(text, props); return; }
+        const doc = createDoc(text, props.fileName, {
+            fileHandle: props.fileHandle ?? null, baseUrl: props.baseUrl ?? null, example: props.example ?? null,
+        });
+        lspOpen(doc);
+        activateDoc(doc, true);
+    }
+
+    async function findOpenDocument(props: DocProps): Promise<EditorDoc | undefined> {
+        for (const d of docs) {
+            if (props.example && d.example === props.example && !d.baseUrl && d.fileName === props.fileName) return d;
+            if (props.baseUrl && d.baseUrl === props.baseUrl && d.fileName === props.fileName) return d;
+            if (props.fileHandle && d.fileHandle) {
+                try { if (await d.fileHandle.isSameEntry(props.fileHandle)) return d; } catch { /* not comparable */ }
+            }
+        }
+        return undefined;
+    }
+
+    function isUntouchedNewDocument(doc: EditorDoc): boolean {
+        return !doc.dirty && !doc.fileHandle && !doc.example && !doc.baseUrl && !doc.textInUrl && !doc.hash
+            && doc.fileName === 'document.le'
+            && doc.model.getValue().trim() === newDocumentText().trim();
+    }
+
+    // Replaces the document in the current tab (an untouched new one, see
+    // openDocument). The tab's program takes the panels, afresh.
     function replaceActiveDocument(text: string, props: { fileName: string, fileHandle?: any, baseUrl?: string | null, example?: string | null }) {
         const doc = activeDoc;
         if (doc !== panelDoc) switchPanel(doc);

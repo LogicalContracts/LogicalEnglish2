@@ -66,20 +66,63 @@ test.describe('Editor file tabs', () => {
         await expect(page.locator('#answers-list')).toContainText('the ring is shiny');
         await expect(page.locator('#query-select')).toHaveValue('shiny');
 
-        // File > New acts on the tab in front only.
-        page.once('dialog', d => d.accept());
+        // File > New opens a new tab; the others keep their documents.
         await page.click('text=File');
         await page.click('#menu-new');
-        await expect(tabs).toHaveCount(2);
+        await expect(tabs).toHaveCount(3);
+        await expect(tabs.nth(2)).toHaveClass(/active/);
         expect(await page.evaluate(modelText)).toBe('');
-        await expect(tabs.nth(1)).not.toHaveClass(/dirty/);
 
-        // Closing the tab in front brings its neighbour forward.
+        // Closing the tab in front brings its neighbour forward (an untouched
+        // tab closes without asking; one with unsaved changes asks first).
+        await tabs.nth(2).locator('.le-tab-close').click();
+        await expect(tabs).toHaveCount(2);
+        await expect(tabs.nth(1)).toHaveClass(/active/);
+        expect(await page.evaluate(modelText)).toContain('the ring is gold');
+        page.once('dialog', d => d.accept());
         await tabs.nth(1).locator('.le-tab-close').click();
         await expect(tabs).toHaveCount(1);
         await expect(tabs.nth(0)).toHaveClass(/active/);
         expect(await page.evaluate(modelText)).toContain('citizenship');
         await expect(page.locator('#answers-list')).toHaveText(answersBefore);
+    });
+
+    test('files opened from the File menu go into tabs of their own', async ({ page }) => {
+        test.setTimeout(120000);
+        const openFromServer = async (name: RegExp) => {
+            const item = page.locator('#example-list .dropdown-item', { hasText: name });
+            await expect(async () => {
+                await page.click('text=File');
+                await page.click('#menu-open-server');
+                await expect(item).toBeVisible({ timeout: 1000 });
+            }).toPass();
+            await item.click();
+        };
+        await page.goto('index.html');
+        const tabs = page.locator('#editor-tabs .le-tab');
+        await expect(tabs).toHaveCount(1);
+
+        // The untouched new document the editor starts with is replaced, not
+        // left behind as an empty tab.
+        await openFromServer(/^citizenship$/);
+        await expect(tabs).toHaveCount(1);
+        await expect(tabs.nth(0).locator('.le-tab-title')).toHaveText('citizenship.le');
+        await expect.poll(() => page.evaluate(modelText)).toContain('citizenship');
+
+        // The next one gets a tab of its own, in front, with its program in the panels.
+        await openFromServer(/^happy_dragon$/);
+        await expect(tabs).toHaveCount(2);
+        await expect(tabs.nth(1)).toHaveClass(/active/);
+        await expect(tabs.nth(1).locator('.le-tab-title')).toHaveText('happy_dragon.le');
+        expect(await page.evaluate(modelText)).not.toContain('citizenship');
+        await expect.poll(() => new URL(page.url()).searchParams.get('example')).toBe('happy_dragon');
+        await expect(tabs.nth(0)).not.toHaveClass(/dirty/);
+
+        // A file already open: its tab comes forward, no duplicate.
+        await openFromServer(/^citizenship$/);
+        await expect(tabs).toHaveCount(2);
+        await expect(tabs.nth(0)).toHaveClass(/active/);
+        expect(await page.evaluate(modelText)).toContain('citizenship');
     });
 
     test('a click on a picker before the program is loaded shows a waiting cursor', async ({ page }) => {
