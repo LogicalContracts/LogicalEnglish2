@@ -8,7 +8,7 @@ import { t, applyI18nDom, installLeApiLang } from './i18n';
 
 import {
     splitTemplate, matchFact, fillTemplate, parseTemplateDefs, parseScenarioBlocks,
-    blockHeader, unknownWhetherPrefix, testDirectiveRe, unknownPrefixRe
+    blockHeader, unknownWhetherPrefix, testDirectiveRe, unknownPrefixRe, splitProvenance
 } from './le-templates';
 
 interface Row {
@@ -16,6 +16,7 @@ interface Row {
     values: string[];
     raw: string;
     assumed: boolean;               // "it is unknown whether <fact>" (Assume checkbox)
+    trailers?: string;              // its provenance (", as stated in ... at "...""), kept as written
 }
 
 // "X is a / an TYPE" type assertions are valid scenario facts but aren't declared
@@ -41,6 +42,9 @@ export interface ScenarioFormOptions {
     // When set, an extra "Write it in English…" entry is added to the Add picker; the
     // host opens the NL modal and later calls addFact() with the generated facts.
     onWriteInEnglish?: () => void;
+    // Templates the source text does not declare itself — those of the resources
+    // it includes, as the server reports them after a load.
+    extraTemplates?: { label: string; scenario_element?: boolean }[];
 }
 
 // Sentinel value for the "Write it in English…" entry in the Add picker.
@@ -59,6 +63,14 @@ export class ScenarioForm {
     constructor(opts: ScenarioFormOptions) {
         this.opts = opts;
         const defs = parseTemplateDefs(opts.source);
+        // Templates of included resources: known only from the server's load.
+        const declared = new Set(defs.map(d => d.label));
+        for (const x of opts.extraTemplates || []) {
+            if (!declared.has(x.label)) {
+                declared.add(x.label);
+                defs.push({ label: x.label, isUndefined: !!x.scenario_element });
+            }
+        }
         this.templates = [...defs.map(d => d.label), ...SYSTEM_TYPE];
 
         // Addable = templates declared "; undefined" (scenario element) or already used
@@ -112,10 +124,11 @@ export class ScenarioForm {
             if (isTestDirective(fact)) { this.testLines.push(fact); continue; }
             // A fact the program declares unknown loads with "Assume" pre-checked.
             const assumed = UNKNOWN_PREFIX.test(fact);
-            const inner = assumed ? fact.replace(UNKNOWN_PREFIX, '') : fact;
+            const inner0 = assumed ? fact.replace(UNKNOWN_PREFIX, '') : fact;
+            const { base: inner, trailers } = splitProvenance(inner0, this.opts.source);
             const m = matchFact(inner, this.templates);
-            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '', assumed });
-            else this.rows.push({ templateLabel: null, values: [], raw: inner, assumed });
+            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '', assumed, trailers });
+            else this.rows.push({ templateLabel: null, values: [], raw: inner0, assumed });
         }
         this.render();
     }
@@ -185,6 +198,16 @@ export class ScenarioForm {
                     fieldInputs.push(input);
                 }
             }
+        }
+
+        // The fact's provenance, kept as written (edit it in the main editor).
+        if (row.trailers) {
+            const prov = document.createElement('span');
+            prov.className = 'trailers';
+            prov.textContent = `, ${row.trailers}`;
+            prov.title = row.trailers;
+            prov.style.cssText = 'opacity:0.65;font-size:0.85em;margin-left:4px;max-width:28em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;';
+            el.appendChild(prov);
         }
 
         const tools = document.createElement('div');
@@ -258,15 +281,16 @@ export class ScenarioForm {
     addFact(text: string, assumed = false): boolean {
         const base = (text || '').trim().replace(/\.\s*$/, '').trim();
         if (!base) return false;
-        const key = ScenarioForm.norm(base);
+        const key = ScenarioForm.norm(splitProvenance(base, this.opts.source).base);
         const existing = this.rows.find(r => ScenarioForm.norm(this.factBase(r)) === key);
         let idx: number;
         if (existing) {
             existing.assumed = assumed;
             idx = this.rows.indexOf(existing);
         } else {
-            const m = matchFact(base, this.templates);
-            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '', assumed });
+            const { base: core, trailers } = splitProvenance(base, this.opts.source);
+            const m = matchFact(core, this.templates);
+            if (m) this.rows.push({ templateLabel: m.label, values: m.values, raw: '', assumed, trailers });
             else this.rows.push({ templateLabel: null, values: [], raw: base, assumed });
             idx = this.rows.length - 1;
         }
@@ -300,8 +324,9 @@ export class ScenarioForm {
 
     // --- Producing text --------------------------------------------------------
     private factText(row: Row): string {
-        const base = this.factBase(row);
-        if (!base) return '';
+        const base0 = this.factBase(row);
+        if (!base0) return '';
+        const base = row.trailers ? `${base0}, ${row.trailers}` : base0;
         // The "it is unknown whether" prefix in the program's own language.
         return row.assumed ? `${unknownWhetherPrefix(this.opts.source)}${base}` : base;
     }

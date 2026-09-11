@@ -21,3 +21,5 @@ le_admissible_under,any any,{1} is admissible under {2},{1} é admissível segun
 le_semantically_similar,any any,{1} is semantically similar to {2},{1} é semanticamente semelhante a {2},{1} es semánticamente similar a {2},{1} est sémantiquement similaire à {2},{1} è semanticamente simile a {2}
 le_best_match,any list any,the best match of {1} among {2} is {3},a melhor correspondência de {1} entre {2} é {3},la mejor coincidencia de {1} entre {2} es {3},la meilleure correspondance de {1} parmi {2} est {3},la migliore corrispondenza di {1} tra {2} è {3}
 le_satisfies_description,any any,{1} satisfies the description {2},{1} satisfaz a descrição {2},{1} satisface la descripción {2},{1} satisfait la description {2},{1} soddisfa la descrizione {2}
+le_published_at,any any,{1} is published at {2},{1} está publicado em {2}|{1} está publicada em {2},{1} está publicado en {2}|{1} está publicada en {2},{1} est publié à {2}|{1} est publiée à {2},{1} è pubblicato a {2}|{1} è pubblicata a {2}
+le_text_at,any any,the text of {1} is at {2},o texto de {1} está em {2},el texto de {1} está en {2},le texte de {1} est à {2},il testo di {1} è a {2}

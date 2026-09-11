@@ -25,6 +25,14 @@
 
 :- module(le_provenance, [
     record_fact_provenance/5,     % +M, +CompiledItem, +TrailerTokens, +Start, +End
+    record_rule_provenance/5,     % +M, +RuleID, +Tokens, +Start, +End
+    rule_provenance/3,            % +KB, +RuleID, -Prov
+    provenance_dict/4,            % +SM, +KB, +Prov, -Dict
+    quote_in_text/2,              % +Quote, +Text
+    normalized_text/2,            % +Text, -Norm
+    quote_in_normalized/2,        % +Quote, +Norm
+    quoted_text/2,                % +Locator, -Quote
+    same_document/2,              % +Doc1, +Doc2
     parse_provenance_trailers/2,  % +Tokens, -Prov
     prov_effective_source/2,      % +Prov, -Source
     prov_public/5,                % +Prov, -Source, -Document, -Locator, -Rationale
@@ -76,6 +84,136 @@ malformed_provenance(M, Start, End) :-
     ;   true
     ).
 
+%!  record_rule_provenance(+M, +ID, +Tokens, +Start, +End) is det.
+%
+%   Records the provenance of the rule labelled ID ("rule ID with provenance
+%   <Tokens>: ..."), as le_rule_provenance(ID, Prov) — Prov as for a fact. The
+%   provenance is either the trailers of a fact (it opens with according to /
+%   as stated in / because) or a single quoted string (a URL or a citation),
+%   read as `as stated in <string>`. Anything else is kept verbatim as the
+%   document, with a malformed_provenance warning when trailers do not parse.
+record_rule_provenance(M, ID, Tokens0, Start, End) :-
+    exclude(le_grammar:is_indent_or_comment, Tokens0, Tokens),
+    (   Tokens = [Tok], token_string(Tok, _)
+    ->  document_parts(Tokens, Const, Text),
+        Prov = prov(none, doc(Const, Text), none, none)
+    ;   le_grammar:starts_with_trailer_keyword(Tokens),
+        parse_provenance_trailers(Tokens, Prov0)
+    ->  Prov = Prov0
+    ;   Tokens \== [],
+        \+ le_grammar:starts_with_trailer_keyword(Tokens)
+    ->  document_parts(Tokens, Const, Text),
+        Prov = prov(none, doc(Const, Text), none, none)
+    ;   malformed_provenance(M, Start, End),
+        Prov = none
+    ),
+    (   Prov \== none, nonvar(M), M \== (-)
+    ->  assertz(M:le_rule_provenance(ID, Prov))
+    ;   true
+    ).
+
+%!  rule_provenance(+KB, +ID, -Prov) is semidet.
+rule_provenance(KB, ID, Prov) :-
+    atom(KB), KB \== none,
+    current_predicate(KB:le_rule_provenance/2),
+    KB:le_rule_provenance(ID, Prov), !.
+
+%!  provenance_dict(+SM, +KB, +Prov, -Dict) is det.
+%
+%   The provenance as the editor shows it: who, which document, where in it,
+%   why — plus `url`, the address to open (the document when it is a URL, else
+%   its published address, "<document> is published at <address>"), and
+%   `text`, the address of the document's text when the program gives one
+%   ("the text of <document> is at <address>"), so the editor can show the
+%   passage quoted by the locator.
+provenance_dict(SM, KB, Prov, Dict) :-
+    Prov = prov(Src0, D, Loc0, Rat0),
+    ( Src0 == none -> Src = null ; term_string_plain(Src0, Src) ),
+    (   D = doc(Const, Text)
+    ->  Doc = Text,
+        atom_string(Const, ConstS),
+        ( document_address(SM, KB, le_published_at, Const, U) -> Url0 = U
+        ; is_url_text(ConstS) -> Url0 = ConstS
+        ; Url0 = null ),
+        ( document_address(SM, KB, le_text_at, Const, T) -> TextAt = T ; TextAt = null )
+    ;   Doc = null, Url0 = null, TextAt = null
+    ),
+    ( Loc0 == none -> Loc = null ; Loc = Loc0 ),
+    ( Loc0 \== none, quoted_text(Loc0, Q) -> Quote = Q ; Quote = null ),
+    ( Rat0 == none -> Rat = null ; Rat = Rat0 ),
+    Dict = _{source: Src, document: Doc, locator: Loc, quote: Quote,
+             rationale: Rat, url: Url0, text: TextAt}.
+
+%!  quote_in_text(+Quote, +Text) is semidet.
+%
+%   Quote occurs in Text, white space collapsed — and, failing that, letter
+%   case ignored. (The editor's source viewer finds it the same way.)
+quote_in_text(Quote, Text) :-
+    normalized_text(Text, Norm),
+    quote_in_normalized(Quote, Norm).
+
+%!  normalized_text(+Text, -Norm) is det.
+%
+%   Text prepared for quote_in_normalized/2: Unicode spaces as plain ones,
+%   white space collapsed, and a lower-case copy — norm(Exact, Lower).
+normalized_text(Text, norm(T, TL)) :-
+    plain_spaces(Text, Text1),
+    normalize_space(string(T), Text1),
+    string_lower(T, TL).
+
+quote_in_normalized(Quote, norm(T, TL)) :-
+    plain_spaces(Quote, Quote1),
+    normalize_space(string(Q), Quote1),
+    Q \== "",
+    (   sub_string(T, _, _, _, Q)
+    ->  true
+    ;   string_lower(Q, QL),
+        sub_string(TL, _, _, _, QL)
+    ).
+
+% Unicode spaces (no-break, thin, ...) as plain ones: documents copied from
+% the web are full of them, and a quotation typed by hand has none.
+plain_spaces(S0, S) :-
+    string_codes(S0, Cs0),
+    maplist(plain_space, Cs0, Cs),
+    string_codes(S, Cs).
+
+plain_space(C0, C) :-
+    (   memberchk(C0, [0xA0, 0x1680, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005,
+                       0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x202F, 0x205F, 0x3000])
+    ->  C = 0' 
+    ;   C = C0
+    ).
+
+% The text inside a quoted locator: the passage it quotes.
+quoted_text(Loc, Quote) :-
+    string_concat("\"", Rest, Loc),
+    string_concat(Quote, "\"", Rest).
+
+term_string_plain(T, S) :- ( atom(T) ; string(T) ), !, atom_string(T, S).
+term_string_plain(T, S) :- term_string(T, S).
+
+is_url_text(Text) :-
+    ( sub_string(Text, 0, _, _, "http://") ; sub_string(Text, 0, _, _, "https://") ), !.
+
+% "<document> is published at <address>" / "the text of <document> is at
+% <address>" (built-in templates), as facts of the session or the program.
+document_address(SM, KB, F, Doc, Address) :-
+    Goal =.. [F, Doc0, Address0],
+    (   atom(SM), SM \== none, catch(SM:Goal, _, fail)
+    ;   atom(KB), KB \== none, catch(KB:Goal, _, fail)
+    ;   % stated in a scenario rather than in the knowledge base
+        atom(KB), KB \== none,
+        catch(KB:scenario(_, Terms), _, fail),
+        member(T, Terms),
+        ( T = fact_with_source(Goal, _, _) ; T = Goal )
+    ),
+    same_document(Doc0, Doc), !,
+    atom_string(Address0, Address).
+
+same_document(A, B) :- A == B, !.
+same_document(A, B) :- atomic(A), atomic(B), atom_string(A, S), atom_string(B, S).
+
 %!  with_provenance_sink(:Goal, -Collected) is semidet.
 %
 %   Runs Goal (a parse of custom scenario text) collecting the provenance of
@@ -124,10 +262,9 @@ apply_trailer(Group, prov(S0, D0, L0, R0), prov(S, D, L, R)) :-
     ->  D0 == none, Rest \== [],
         split_locator(Rest, DocToks, LocToks),
         DocToks \== [],
-        token_constant(DocToks, DocConst),
-        verbatim(DocToks, DocText),
+        document_parts(DocToks, DocConst, DocText),
         D = doc(DocConst, DocText),
-        ( LocToks == [] -> L = L0 ; verbatim(LocToks, L) ),
+        ( LocToks == [] -> L = L0 ; locator_text(LocToks, L) ),
         S = S0, R = R0
     ;   trailer_body(because, Group, Rest)
     ->  R0 == none, Rest \== [],
@@ -153,6 +290,21 @@ split_locator(Tokens, DocToks, LocToks) :-
     ->  true
     ;   DocToks = Tokens, LocToks = []
     ).
+
+% A document is a constant ("report LA-17"), or a quoted string — a URL, or a
+% citation with punctuation of its own — standing for itself.
+document_parts([Tok], Const, Text) :-
+    token_string(Tok, Str), !,
+    atom_string(Const, Str),
+    verbatim([Tok], Text).
+document_parts(Toks, Const, Text) :-
+    token_constant(Toks, Const),
+    verbatim(Toks, Text).
+
+% A locator is its verbatim text — a quoted locator (a quotation of the
+% passage) keeps its quotes, which is how provenance_dict/4 knows it is one.
+locator_text(Toks, Text) :-
+    verbatim(Toks, Text).
 
 token_string(string(S, _), S).
 token_string(doubleQuoteString(S, _), S).

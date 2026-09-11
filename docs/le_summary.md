@@ -38,6 +38,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [17.6 Services and semantic predicates over text](#176-services-and-semantic-predicates-over-text)
     - [17.7 Flip queries: which minimal change flips the outcome](#177-flip-queries-which-minimal-change-flips-the-outcome)
     - [17.8 Factors and precedent: a pattern, not syntax](#178-factors-and-precedent-a-pattern-not-syntax)
+    - [17.9 Facts from a document](#179-facts-from-a-document)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -465,6 +466,23 @@ children: `either`, `any of` and `at least one of` OR the children together;
 ### 15.5 Rule labels and numbered rule bodies **[numbering requires le_extensions.pl]**
 A rule may be labelled: `rule <name>: Head if ...` — the label becomes the
 rule's ID (visible in `le_source_element/3` and `le_source_info/4`, §13).
+A label may also say where the rule comes from (core LE, no extension):
+```le
+rule note_61_4_pockets with provenance as stated in HTSUS Chapter 61
+        at "Headings 6105 and 6106 do not cover garments with pockets below the waist":
+a garment is excluded from heading a heading
+    if heading the heading is a shirt heading
+    and the garment has pockets below the waist.
+```
+The provenance is written exactly like a fact's trailers (§17.1: `according
+to <source>`, `as stated in <document> at <locator>`, `because "<text>"`,
+separated by commas, on as many lines as needed before the colon), or as one
+quoted string — a URL, `with provenance "https://example.org/act.html#s2"`,
+or any citation. It is recorded as `le_rule_provenance(ID, Prov)` (Prov as for
+a fact) and changes nothing in proof; explanations and the editor show it
+(§17.1, *Documents*). A decision table header takes the same addition:
+`the table apparel is, with first match, with provenance ...:` (recorded under
+the table's id, `table_<name>`).
 With the extension, a rule body introduced by `if:` may be written as a
 numbered outline mirroring a statute or contract clause:
 ```le
@@ -601,7 +619,32 @@ keyword stays part of the fact, as always.
     phrase a judged template with its outcome last (`the claim that *a good*
     is *a kind* is *an outcome*`), not as a bare relation between two things.
 
-See `examples/RulesRus/judged_damage.le`.
+**Documents.** A cited document is an ordinary constant (`ruling NY
+N362700`, `the benefit act`) or a quoted string (a URL). Two built-in
+templates say where it is:
+```le
+ruling NY N362700 is published at "https://rulings.cbp.gov/ruling/N362700".
+the text of ruling NY N362700 is at "sources/cbp/N362700.txt".
+```
+The first is the page a reader opens; the second is the plain text of the
+document — a file beside the program (resolved against the program's folder,
+never outside it) or a URL (JSON: its `text` field; HTML: the page's text;
+not PDF). Such facts need no provenance of their own. With them:
+- a **quoted locator** — `as stated in ruling NY N362700 at "a zipper
+  garage at the top of the collar"` — is a quotation: the verifier checks it
+  against the document's text when that text is a file beside the program,
+  white space, no-break spaces and letter case aside (`quote_not_found`
+  warning otherwise);
+- every explanation node proved by a cited fact or a labelled rule carries its
+  provenance (`provenance: {source, document, locator, quote, rationale, url,
+  text}`, plus `rule` for a rule) and the editor shows a **§** badge on it:
+  the source viewer shows the document's text with the quoted passage
+  highlighted, and *Open original* opens the published address (with a
+  `#:~:text=` fragment on the quotation when the address has no anchor of its
+  own). The server's `documentText` operation serves the text.
+
+See `examples/RulesRus/judged_damage.le`, and `examples/RulesRus/customs/`,
+where every rule, table and fact cites its passage.
 
 ### 17.2 `otherwise` cascades
 A body line that **opens** with `otherwise` starts a new alternative. It has
@@ -860,3 +903,26 @@ decision and each shared factor with its source. Not forced, the judged
 predicate is open and reported as a judgment needed. The consistency of the
 case base is the library's `*an issue* has an inconsistent case base`, asked
 as a query. See `examples/RulesRus/precedent_pattern.le`.
+
+### 17.9 Facts from a document
+The Scenario Editor's *Write it in English…* dialog also extracts facts from
+a document. Under *From a document*, give the document's name (the constant
+the facts will cite) and, optionally, the address of its text (a URL, or a
+file beside the program — *Fetch text* loads it); paste or fetch the text,
+and *Generate*. Nothing in this is specific to a kind of document or program:
+- the facts are instances of the program's templates — including those of the
+  resources it includes — and each cites the passage that states it:
+  `<fact>, as stated in <document> at "<passage copied from the text>"`;
+- a `; judged` template is written only when the text reports someone's
+  decision (`according to <who>`, `because "..."`); a template that rules
+  conclude is never written — the document's conclusions are what the rules
+  must reproduce, not facts;
+- every passage is checked against the text (a `quote_not_in_text` warning
+  when the model paraphrased), then the facts are verified against the
+  program as for any *Write it in English* result;
+- with an address, the facts saying where the document is (§17.1,
+  *Documents*) are added too, so the § badges of the new facts show their
+  passages.
+The editor keeps each fact's provenance beside its row. Backend:
+`nl_to_le:english_to_le/8` with the options `document(Name)` and `base(Dir)`.
+

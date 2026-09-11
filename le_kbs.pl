@@ -314,6 +314,12 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
         NewModule:use_module(le2(le_kbs)),
         forall(is_system_predicate(F/N), dynamic(NewModule:F/N)),
         assertz(NewModule:le_kb_module_fact(NewModule)),
+        % The program's own folder (or base URL): where its relative document
+        % addresses ("the text of <document> is at <address>") resolve.
+        (   le_include_base(ProgramBase), ProgramBase \== (-)
+        ->  assertz(NewModule:le_program_base(ProgramBase))
+        ;   true
+        ),
         retractall(rule_counter(_)),
         assertz(rule_counter(1)),
         (   setup_call_cleanup(
@@ -870,7 +876,8 @@ handle_pl_directive(D, _Cache, M) :-
     (nonvar(M) -> assertz(M:le_issue(warning, skipped_directive, Desc, "Only dynamic, discontiguous and use_module(library(...)) run at load time.", 0, 0)) ; true).
 
 count_rules_and_templates(Sections, RuleCount, TemplateCount) :-
-    findall(1, (member(kb(_, Content, _, _), Sections), member(rule(_,_,_,_,_,_), Content)), Rules),
+    findall(1, (member(kb(_, Content, _, _), Sections),
+                ( member(rule(_,_,_,_,_,_), Content) ; member(rule_prov(_, _), Content) )), Rules),
     length(Rules, RuleCount),
     findall(1, (member(S, Sections), (S = templates(Dicts) ; S = predicates(Dicts)), member(_, Dicts)), Templates),
     length(Templates, TemplateCount).
@@ -2241,7 +2248,43 @@ get_kb_metadata(KB, Metadata) :-
         ), TemplateImages)
     ;   TemplateImages = []
     ),
-    Metadata = _{ kb: KBName, templates: Templates, queries: Queries, examples: Scenarios, included_resources: IncludedResources, fact_images: FactImages, template_images: TemplateImages }.
+    % The templates with their *placeholders* — the program's own and those of
+    % the resources it includes — and which are scenario elements or judged:
+    % what the Scenario Editor offers as fact rows.
+    findall(_{label: TLabel, scenario_element: SE, judged: J},
+            ( template_def(KB, TLabel, Kind),
+              ( Kind == scenario_element -> SE = true ; SE = false ),
+              ( Kind == judged -> J = true ; J = false ) ),
+            TemplateDefs),
+    Metadata = _{ kb: KBName, templates: Templates, template_defs: TemplateDefs, queries: Queries, examples: Scenarios, included_resources: IncludedResources, fact_images: FactImages, template_images: TemplateImages }.
+
+%!  template_def(+KB, -Label:string, -Kind) is nondet.
+%
+%   A non-system template of KB as its label with *placeholders* ("*a garment*
+%   is sleeveless"), Kind being scenario_element (`; undefined`), judged,
+%   unknown (assumable) or none.
+template_def(KB, Label, Kind) :-
+    template_of(KB, _, _, Dict, _),
+    (   Dict = dict(_, NTs, WV, _, _, _, Unknown) -> true
+    ;   Dict = dict(_, NTs, WV, _, _, _) -> Unknown = none
+    ;   Dict = dict(_, NTs, WV, _, _) -> Unknown = none
+    ;   Dict = dict(_, NTs, WV, _) -> Unknown = none
+    ;   Dict = dict(_, NTs, WV), Unknown = none
+    ),
+    copy_term(NTs-WV, NTsC-WVC),
+    maplist(starred_article_type, NTsC),
+    canonical_string(WVC, Label0),
+    % a hyphenated template word is tokenised in three ("loose - fitting")
+    re_replace("(\\w) - (\\w)"/g, "$1-$2", Label0, Label1),
+    atom_string(Label1, Label),
+    ( var(Unknown) -> Kind = none ; Kind = Unknown ).
+
+starred_article_type(V-Type) :-
+    (   atom(Type)
+    ->  ( sub_atom(Type, 0, 1, _, C), memberchk(C, [a, e, i, o, u]) -> Art = an ; Art = a ),
+        format(atom(V), "*~w ~w*", [Art, Type])
+    ;   V = '*a thing*'
+    ).
 
 %!  topPredicates(+KB:atom, -TopPreds:list) is det.
 %
@@ -2394,6 +2437,8 @@ is_system_predicate(le_lps_item/3).
 % "scenario facts require provenance." declaration.
 is_system_predicate(le_fact_provenance/4).
 is_system_predicate(le_resource_origin/3).
+is_system_predicate(le_rule_provenance/2).
+is_system_predicate(le_program_base/1).
 is_system_predicate(le_provenance/5).
 is_system_predicate(le_provenance_required/0).
 % Services (le_services.pl): the declared services, and the templates they back.

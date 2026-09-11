@@ -12,6 +12,7 @@
 :- use_module(le_i18n).
 :- use_module(le_system_templates, [le_system_template/1]).
 :- use_module(le_scasp, []).
+:- use_module(le_documents, []).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
 %
@@ -50,6 +51,52 @@ check_issue(KB, _, Issue) :- judged_with_rules(KB, Issue).
 check_issue(KB, _, Issue) :- judgment_without_provenance(KB, Issue).
 check_issue(KB, _, Issue) :- fact_without_provenance(KB, Issue).
 check_issue(KB, _, Issue) :- service_undeclared(KB, Issue).
+check_issue(KB, _, Issue) :- quote_not_found(KB, Issue).
+
+% --- Quoted locators (docs/le_summary.md §15.5, §17.1) ---
+% A fact or rule cites a passage of a document ("as stated in <document> at
+% "<quotation>"") and the program says where the document's text is, in a
+% file beside it ("the text of <document> is at "sources/x.txt""): the
+% quotation must be in that text (white space and letter case aside). Texts
+% at URLs are not fetched to verify.
+quote_not_found(KB, Issue) :-
+    current_predicate(KB:le_text_at/2),
+    findall(c(Doc, Quote, Start, End, What),
+            quoted_citation(KB, Doc, Quote, Start, End, What), Cs),
+    Cs \== [],
+    ( current_predicate(KB:le_program_base/1), KB:le_program_base(Base) -> true ; Base = (-) ),
+    % each document's text is read and normalised once
+    findall(Doc, member(c(Doc, _, _, _, _), Cs), Docs0),
+    sort(Docs0, Docs),
+    findall(Doc-(Address-Norm),
+            ( member(Doc, Docs),
+              KB:le_text_at(Doc0, Address0),
+              le_provenance:same_document(Doc0, Doc),
+              atom_string(Address0, Address),
+              \+ le_documents:is_url(Address),
+              catch(le_documents:document_text(Address, Base, [], Text), _, fail),
+              le_provenance:normalized_text(Text, Norm) ),
+            Texts),
+    member(c(Doc, Quote, Start, End, What), Cs),
+    memberchk(Doc-(Address-Norm), Texts),
+    \+ le_provenance:quote_in_normalized(Quote, Norm),
+    le_i18n:le_msg(quote_not_found_desc, [quote-Quote, document-Doc, where-What], Description),
+    le_i18n:le_msg(quote_not_found_fix, [address-Address], Fix),
+    Issue = issue(quote_not_found, Description, Fix, Start, End).
+
+quoted_citation(KB, Doc, Quote, Start, End, What) :-
+    current_predicate(KB:le_fact_provenance/4),
+    KB:le_fact_provenance(Start, End, _, prov(_, doc(Doc, _), Loc, _)),
+    Loc \== none,
+    le_provenance:quoted_text(Loc, Quote),
+    What = "fact".
+quoted_citation(KB, Doc, Quote, Start, End, What) :-
+    current_predicate(KB:le_rule_provenance/2),
+    KB:le_rule_provenance(ID, prov(_, doc(Doc, _), Loc, _)),
+    Loc \== none,
+    le_provenance:quoted_text(Loc, Quote),
+    ( clause(KB:le_source_info(_, Start, End, ID), true) -> true ; Start = 0, End = 0 ),
+    format(string(What), "rule ~w", [ID]).
 
 % --- Services (docs/le_summary.md §17.6) ---
 % "; via service X" naming no declared service, or a built-in semantic
@@ -129,6 +176,9 @@ fact_without_provenance(KB, issue(fact_without_provenance, Description, Fix, Sta
     compound(Head),
     \+ functor(Head, le_unknown, _),
     \+ functor(Head, unknown_template, _),
+    % where a document is (le_published_at/2, le_text_at/2) is not evidence
+    \+ functor(Head, le_published_at, 2),
+    \+ functor(Head, le_text_at, 2),
     \+ ( current_predicate(KB:le_fact_provenance/4),
          KB:le_fact_provenance(Start, End, _, _) ),
     fact_le_text(KB, Head, Text),
@@ -986,8 +1036,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
     [ '~w: ~w' - [Type, Msg] ].

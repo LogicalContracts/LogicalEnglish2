@@ -8,6 +8,7 @@
 
 import { parseTemplateDefs } from './le-templates';
 import { t, applyI18nDom, installLeApiLang } from './i18n';
+import { fetchDocumentText, DocumentContext } from './source-viewer';
 
 const TOKEN = 'myToken123';
 
@@ -18,6 +19,12 @@ export interface NlInputOptions {
     instruction: string;          // guidance shown at the top of the dialog
     placeholder?: string;         // textarea placeholder
     onResult: (leText: string) => void;   // receives the generated LE text
+    // Facts only: offer "From a document" — the text pasted or fetched is a
+    // document, every fact generated cites the passage that states it
+    // (", as stated in <document> at "<passage>""). The context locates the
+    // program's folder, for text addresses beside it and its included templates.
+    documentContext?: DocumentContext;
+    extraTemplates?: string[];    // templates of included resources (labels with *…*)
 }
 
 // The LLM model + API keys are shared with the LE Assistant via localStorage (same
@@ -133,6 +140,51 @@ export function openNlInput(opts: NlInputOptions): void {
 
     dialog.appendChild(h);
     dialog.appendChild(instr);
+
+    // "From a document": its name (cited by every fact) and, optionally, where
+    // its text is — fetched into the text area.
+    const docName = document.createElement('input');
+    const docAddress = document.createElement('input');
+    if (opts.kind === 'facts' && opts.documentContext) {
+        const box = document.createElement('details');
+        box.className = 'nl-document';
+        const sum = document.createElement('summary');
+        sum.textContent = t('From a document');
+        box.appendChild(sum);
+        const help = document.createElement('p');
+        help.className = 'nl-instruction';
+        help.textContent = t('Paste or fetch the document text below: each fact will cite the passage that states it.');
+        box.appendChild(help);
+        docName.type = 'text';
+        docName.className = 'nl-doc-name';
+        docName.placeholder = t('Document name, e.g. ruling NY N362700');
+        docAddress.type = 'text';
+        docAddress.className = 'nl-doc-address';
+        docAddress.placeholder = t('Address of its text: a URL, or a file beside the program');
+        const fetchBtn = document.createElement('button');
+        fetchBtn.textContent = t('Fetch text');
+        fetchBtn.addEventListener('click', async () => {
+            const addr = docAddress.value.trim();
+            if (!addr) { docAddress.focus(); return; }
+            status.className = 'nl-status';
+            status.textContent = t('Loading the document…');
+            const res = await fetchDocumentText(addr, opts.documentContext);
+            if (res && typeof res.text === 'string') {
+                textarea.value = res.text;
+                status.textContent = '';
+            } else {
+                status.className = 'nl-status error';
+                status.textContent = t('Error: ') + ((res && res.error) || '');
+            }
+        });
+        for (const el of [docName, docAddress]) {
+            el.style.cssText = 'width:100%;box-sizing:border-box;margin:4px 0;padding:6px;';
+            box.appendChild(el);
+        }
+        box.appendChild(fetchBtn);
+        box.style.marginBottom = '8px';
+        dialog.appendChild(box);
+    }
     dialog.appendChild(textarea);
     dialog.appendChild(status);
     dialog.appendChild(actions);
@@ -175,7 +227,9 @@ export function openNlInput(opts: NlInputOptions): void {
         generate.disabled = true; cancel.disabled = true; regenerate.disabled = true;
         status.className = 'nl-status';
         status.textContent = t('Generating and verifying…');
-        const templates = [...new Set(parseTemplateDefs(opts.source).map(d => d.label))];
+        const templates = [...new Set([...parseTemplateDefs(opts.source).map(d => d.label),
+                                       ...(opts.extraTemplates || [])])];
+        const documentName = docName.value.trim();
         try {
             const res = await fetch('/leapi', {
                 method: 'POST',
@@ -189,10 +243,20 @@ export function openNlInput(opts: NlInputOptions): void {
                     content: opts.source,      // the program, for baseline-diff verification
                     model: assistantModel(),
                     api_keys: assistantKeys(),
+                    // facts from a document: its name and where its text is
+                    document: documentName,
+                    address: documentName ? docAddress.value.trim() : '',
+                    source: opts.documentContext?.source || '',
+                    base: opts.documentContext?.base || '',
                 }),
             }).then(r => r.json());
             generate.disabled = false; cancel.disabled = false; regenerate.disabled = false;
             if (res && res.result === 'ok' && typeof res.le === 'string' && res.le.trim()) {
+                // Where the document is ("<document> is published at …", "the
+                // text of <document> is at …"), so its passages can be shown.
+                if (Array.isArray(res.document_facts) && res.document_facts.length) {
+                    res.le = `${res.le.trim()}\n${res.document_facts.map((f: string) => `${f}.`).join('\n')}`;
+                }
                 const warnings: string[] = Array.isArray(res.warnings) ? res.warnings : [];
                 if (warnings.length === 0) {
                     opts.onResult(res.le);
@@ -244,8 +308,21 @@ export function openNlInput(opts: NlInputOptions): void {
 // of one-per-line output. A period is a separator only at end-of-line or before
 // whitespace, so decimals ("3.5") and dates are not split.
 export function splitStatements(leText: string): string[] {
-    return leText
-        .split(/\.(?=\s|$)/)
-        .map(s => s.replace(/\s+/g, ' ').trim())
-        .filter(Boolean);
+    // A period inside a quoted passage ("... at "Style 1025AD. The garment...""
+    // — provenance quotes the document) does not end the statement.
+    const out: string[] = [];
+    let cur = '';
+    let inQuote = false;
+    for (let i = 0; i < leText.length; i++) {
+        const c = leText[i];
+        if (c === '"') inQuote = !inQuote;
+        if (c === '.' && !inQuote && (i + 1 === leText.length || /\s/.test(leText[i + 1]))) {
+            out.push(cur);
+            cur = '';
+        } else {
+            cur += c;
+        }
+    }
+    out.push(cur);
+    return out.map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
 }

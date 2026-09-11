@@ -8,7 +8,14 @@ import { t, applyI18nDom, installLeApiLang } from './i18n';
 import { ScenarioForm } from './scenario-form';
 import { openNlInput, splitStatements } from './nl-input';
 
-interface ScenarioEditorData { source?: string; }
+interface ScenarioEditorData {
+    source?: string;
+    // From the main editor's last load: the templates of included resources,
+    // and where the program came from (for the text of cited documents).
+    templateDefs?: { label: string; scenario_element?: boolean }[];
+    example?: string;
+    base?: string;
+}
 
 // The editor listens on this channel and applies inserts to the Monaco document.
 const CHANNEL = 'le-scenario-editor';
@@ -32,8 +39,11 @@ export function initScenarioEditor(data: ScenarioEditorData) {
     function setStatus(text: string) { statusEl.textContent = text; }
     function markDirty() { dirty = true; setStatus(t('Unsaved changes')); }
 
+    const templateDefs = data.templateDefs || [];
+    const documentContext = { source: data.example || '', base: data.base || '' };
     const form = new ScenarioForm({
         source,
+        extraTemplates: templateDefs,
         rowsEl: $('rows'),
         addSelect: $('add-template') as HTMLSelectElement,
         btnAdd: $('btn-add') as HTMLButtonElement,
@@ -46,6 +56,8 @@ export function initScenarioEditor(data: ScenarioEditorData) {
                 + 'The facts must respect the predicates (templates) already in your program; if you need to '
                 + 'expand these first, use the editor or the LE Assistant.',
             placeholder: 'e.g. Alice is the mother of John, and John was born in the UK on 2021-10-09.',
+            documentContext,
+            extraTemplates: templateDefs.map(d => d.label),
             onResult: (leText) => {
                 const facts = splitStatements(leText);
                 facts.forEach(f => form.addFact(f));
