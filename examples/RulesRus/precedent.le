@@ -1,0 +1,60 @@
+% The result model of precedential constraint (Horty), as a plain-LE library.
+%
+% Include it ("... includes these resources: precedent.") and supply, for each
+% open-textured issue: rules naming its factors ("a damage has factor
+% suddenness if the damage occurred suddenly"), which factors favour or
+% disfavour it ("suddenness favours accidental"), and the case base: facts
+% about each decided case, cited with provenance trailers ("kitchen flood has
+% factor suddenness, as stated in decision D-1 at paragraph 4"; "kitchen flood
+% decided for accidental, according to the ombudsman, ...").
+%
+% A situation is forced for an issue by a precedent that decided for it when
+% the situation has at least the precedent's pro-factors and at most its
+% con-factors (a fortiori); symmetrically against. See precedent_pattern.le.
+
+the target language is: prolog.
+
+the templates are:
+    *a situation* has factor *a factor*.
+    *a factor* favours *an issue*.
+    *a factor* disfavours *an issue*.
+    *a case* decided for *an issue*.
+    *a case* decided against *an issue*.
+    *a situation* is forced for *an issue* by *a case*.
+    *a situation* is forced against *an issue* by *a case*.
+    *an issue* has an inconsistent case base.
+
+the knowledge base precedent includes:
+
+a situation is forced for an issue by a case
+    if the case decided for the issue
+    and for all cases in which
+            a factor favours the issue
+            and the case has factor the factor
+        it is the case that
+            the situation has factor the factor
+    and for all cases in which
+            a second factor disfavours the issue
+            and the situation has factor the second factor
+        it is the case that
+            the case has factor the second factor.
+
+a situation is forced against an issue by a case
+    if the case decided against the issue
+    and for all cases in which
+            a factor disfavours the issue
+            and the case has factor the factor
+        it is the case that
+            the situation has factor the factor
+    and for all cases in which
+            a second factor favours the issue
+            and the situation has factor the second factor
+        it is the case that
+            the case has factor the second factor.
+
+% A case base is inconsistent when one of its decisions would be forced the
+% other way by another.
+an issue has an inconsistent case base
+    if a first case decided for the issue
+    and the first case is forced against the issue by a second case.
+

@@ -37,6 +37,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [17.5 Source-scoped proof: `according to` in a rule](#175-source-scoped-proof-according-to-in-a-rule)
     - [17.6 Services and semantic predicates over text](#176-services-and-semantic-predicates-over-text)
     - [17.7 Flip queries: which minimal change flips the outcome](#177-flip-queries-which-minimal-change-flips-the-outcome)
+    - [17.8 Factors and precedent: a pattern, not syntax](#178-factors-and-precedent-a-pattern-not-syntax)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -819,3 +820,29 @@ predicates are never changed.
   `le_flip_max_changes` (default 3) and `le_flip_max_evaluations` (400).
 
 See `examples/RulesRus/flip_housing.le`.
+
+### 17.8 Factors and precedent: a pattern, not syntax
+Deciding an open-textured (`; judged`) issue from earlier decisions —
+Horty's *result model* of precedential constraint — needs no construct of
+its own. `examples/RulesRus/precedent.le` is a plain-LE library (include it
+as a resource); a program supplies:
+- **factors**, as rules that name them: `a damage has factor suddenness if the damage occurred suddenly.`
+  and which way they point: `suddenness favours accidental.` / `wear and tear disfavours accidental.`;
+- **the case base**, as facts about each decided case, cited with trailers
+  (§17.1): `kitchen flood has factor suddenness, as stated in decision D-1 at paragraph 4.`
+  / `kitchen flood decided for accidental, according to the ombudsman, ... because "...".`;
+- **the hook**, an `otherwise` cascade (§17.2) around the judged predicate:
+  ```le
+  a damage counts as accidental
+      if the damage is forced for accidental by a case
+      otherwise the damage is accidental
+      and it is not the case that
+          the damage is forced against accidental by a case.
+  ```
+A situation is *forced for* an issue by a case that decided for it when it
+has at least the case's pro-factors and at most its con-factors (and
+symmetrically *against*). Forced, the explanation is the analogy: the cited
+decision and each shared factor with its source. Not forced, the judged
+predicate is open and reported as a judgment needed. The consistency of the
+case base is the library's `*an issue* has an inconsistent case base`, asked
+as a query. See `examples/RulesRus/precedent_pattern.le`.
