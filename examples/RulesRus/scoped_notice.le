@@ -1,0 +1,53 @@
+% Source-scoped proof (LE_extensions_proposal §3.5).
+%
+% A late penalty is owed only if the LANDLORD can show that the notice was
+% delivered: "according to the landlord" restricts that part of the proof to
+% scenario facts whose source (their "according to", or their document) is
+% the landlord, or is admissible under the landlord. The program's own rules
+% and facts always count; a scenario fact with no provenance never does.
+%
+% - proven: the courier's delivery slip is admissible under the landlord, and
+%   the rule "delivered if left at the door" carries it through.
+% - not_proven: the only evidence of delivery is ann's own statement.
+% - unattributed: the delivery is stated, but by nobody.
+%
+% "<a source> is admissible under <a scope>" is a built-in template; with no
+% such statement a source is admissible only under its own name.
+
+the target language is: prolog.
+
+the templates are:
+    *a tenant* owes the late penalty.
+    the rent of *a tenant* is overdue; undefined.
+    the notice was delivered to *a tenant*.
+    the notice to *a tenant* was left at the door; undefined.
+
+the knowledge base scoped notice includes:
+
+a tenant owes the late penalty
+    if the rent of the tenant is overdue
+    and the notice was delivered to the tenant
+        according to the landlord.
+
+the notice was delivered to a tenant
+    if the notice to the tenant was left at the door.
+
+the courier is admissible under the landlord.
+
+scenario proven is:
+    the rent of ann is overdue, according to the landlord, as stated in the rent ledger at row 3.
+    the notice to ann was left at the door, according to the courier, as stated in delivery slip 44.
+    penalty expects answers ["ann owes the late penalty"].
+
+scenario not_proven is:
+    the rent of ann is overdue, according to the landlord, as stated in the rent ledger at row 3.
+    the notice was delivered to ann, according to ann.
+    penalty expects answers [].
+
+scenario unattributed is:
+    the rent of ann is overdue, according to the landlord, as stated in the rent ledger at row 3.
+    the notice was delivered to ann.
+    penalty expects answers [].
+
+query penalty is:
+    which tenant owes the late penalty.

@@ -359,6 +359,7 @@ find_in_body(and(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body((A ; B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(or(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(not(B), L) :- !, find_in_body(B, L).
+find_in_body(le_scoped(B, _), L) :- !, find_in_body(B, L).
 find_in_body(forall(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(sum(_, G, _), L) :- !, find_in_body(G, L).
 find_in_body(count(_, G, _), L) :- !, find_in_body(G, L).

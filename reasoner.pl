@@ -301,6 +301,17 @@ solve_real_actual(le_query_fails_at_section(Query, Section), SM, KM, _Anc, _D, _
     nonvar(Query),
     le_sections:failing_section(SM, KM, Query, Section).
 
+% Source-scoped proof (docs/le_summary.md §17.5): Goal proved from the rules
+% and facts of the program plus only those session (scenario) facts whose
+% provenance source is admissible under Scope. The scope is carried down the
+% sub-proof in a backtrackable global and checked at each session leaf.
+solve_real_actual(le_scoped(Goal, Scope), SM, KM, Anc, D, MyID, Us,
+                  [success(le_scoped(Goal, Scope), scope, Whys)]) :- !,
+    current_scope(Old),
+    b_setval(le_scope, scope(Scope)),
+    solve(Goal, SM, KM, Anc, D, MyID, Us, Whys),
+    b_setval(le_scope, Old).
+
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),
@@ -333,6 +344,7 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
                 WhysBody = [success(is_a(X, Y), Ref1, []) | WhysBody2]
             )
         ; get_clause(G, SM, KM, Body, Ref),
+            admissible_clause(Ref, G, SM, KM, MyID),
             ( KM \== none -> le_kbs:set_id_from_ref(Ref, KM) ; le_kbs:set_id_from_ref(Ref, SM) ),
             \+ SM:le_neg(G),
             \+ member(G, Anc),
@@ -412,6 +424,80 @@ clear_reasoner_state :-
     retractall(success_in_not(_, _)),
     retractall(succeeded(_)),
     retractall(solved_binding(_, _)).
+
+current_scope(Scope) :-
+    ( nb_current(le_scope, S), S \== [] -> Scope = S ; Scope = none ).
+
+%!  admissible_clause(+Ref, +Goal, +SM, +KM, +MyID) is semidet.
+%
+%   Outside a scoped proof every clause may be used. Inside one, a clause of
+%   the knowledge base may (it is part of the rules, not of the evidence); a
+%   session clause — a scenario fact — only when its provenance source is
+%   admissible under the scope. A session clause with no provenance is not.
+%   A rejected fact is recorded under the goal (MyID), so that a failure
+%   explanation says whose evidence it was and why it did not count.
+admissible_clause(Ref, Goal, SM, KM, MyID) :-
+    current_scope(Current),
+    (   Current == none
+    ->  true
+    ;   \+ clause_property(Ref, module(SM))
+    ->  true
+    ;   Current = scope(Scope),
+        (   catch(le_provenance:clause_provenance(SM, KM, Ref, Goal, Prov), _, fail)
+        ->  le_provenance:prov_effective_source(Prov, Source)
+        ;   Source = none
+        ),
+        (   Source \== none,
+            admissible_under(Source, Scope, SM, KM)
+        ->  true
+        ;   ( MyID \== none, ground(Goal)
+            ->  next_id(RejID),
+                Rej = le_inadmissible(Goal, Source, Scope),
+                (   catch(SM:le_source_info(Ref, S, E, _), _, fail)
+                ->  assertz(called(MyID, RejID, le_at(Rej, S, E)))     % points at the fact
+                ;   assertz(called(MyID, RejID, Rej))
+                )
+            ;   true
+            ),
+            fail
+        )
+    ).
+
+%!  admissible_under(+Source, +Scope, +SM, +KM) is semidet.
+%
+%   A source is admissible under its own name, and under any scope the
+%   program says it is: "<source> is admissible under <scope>" (a built-in
+%   template), established — outside any scope — from the rules and facts.
+admissible_under(Source, Scope, _, _) :-
+    var(Scope), !,
+    Scope = Source.                       % "according to a party": whose evidence
+admissible_under(Source, Scope, _, _) :-
+    same_constant(Source, Scope), !.
+admissible_under(Source, Scope, SM, KM) :-
+    admissibility_functor(KM, SM, F),
+    Goal =.. [F, Source, Scope],
+    with_scope(none,
+        \+ \+ solve(Goal, SM, KM, [], 0, none, [], _)), !.
+
+same_constant(A, B) :- A == B, !.
+same_constant(A, B) :- ( atom(A) ; string(A) ), ( atom(B) ; string(B) ),
+    atom_string(A, S), atom_string(B, S).
+
+% le_admissible_under/2, or a user template spelled the same way (declaring it
+% again is harmless).
+admissibility_functor(_, _, le_admissible_under).
+admissibility_functor(KM, SM, F) :-
+    ( KM \== none -> M = KM ; M = SM ),
+    le_i18n:system_template_row(le_admissible_under, _, Parts),
+    include(atom, Parts, Words),
+    current_predicate(M:le_dict/1),
+    M:le_dict(Dict), arg(1, Dict, [F, _, _]), F \== le_admissible_under,
+    arg(3, Dict, WV), include(atom, WV, Words2), Words2 == Words.
+
+:- meta_predicate with_scope(+, 0).
+with_scope(Scope, Goal) :-
+    current_scope(Old),
+    setup_call_cleanup(b_setval(le_scope, Scope), Goal, b_setval(le_scope, Old)).
 
 % One solution of an aggregation goal: the aggregated value, the unknowns that
 % solution assumed, and its derivation.
@@ -963,7 +1049,7 @@ attach_range(Start, End, success(G, Ref, Children), success(G, NewRef, Children)
 attach_range(_, _, Why, Why).
 
 is_special_ref(Ref) :-
-    memberchk(Ref, [built_in, identity, transitivity, aggregate, negation, universal, universal_success, empty_forall]).
+    memberchk(Ref, [built_in, identity, transitivity, aggregate, negation, universal, universal_success, empty_forall, scope]).
 is_special_ref(range(_, _)).
 
 extract_var(var(_, V), V) :- !.

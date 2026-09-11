@@ -336,6 +336,8 @@ lower_body(KB, ID, (A;B), (SA;SB), Is) :- !,
 lower_body(KB, ID, not(G), NegBody, Is) :- !,
     lower_body(KB, ID, G, SG, Is),
     demorgan_negate(SG, NegBody).
+lower_body(_KB, _ID, le_scoped(_, _), true, _) :- !,
+    throw(le_scasp_untranslatable(scasp_scoped_proof)).
 lower_body(_KB, _ID, Leaf, SLeaf, Is) :- lower_leaf(Leaf, SLeaf, Is).
 
 % demorgan_negate(+Body, -Negated): push a negation inward so that no ;/2 or
@@ -763,6 +765,7 @@ body_literal((A,B), L, K) :- !, ( body_literal(A, L, K) ; body_literal(B, L, K) 
 body_literal(or(A,B), L, K) :- !, ( body_literal(A, L, K) ; body_literal(B, L, K) ).
 body_literal((A;B), L, K) :- !, ( body_literal(A, L, K) ; body_literal(B, L, K) ).
 body_literal(not(G), L, neg) :- !, body_inner(G, L).
+body_literal(le_scoped(G, _), L, K) :- !, body_literal(G, L, K).
 body_literal(G, G, pos) :- callable(G), \+ le_builtin_functor_g(G).
 
 body_inner(le_at(G,_,_), L) :- !, body_inner(G, L).
