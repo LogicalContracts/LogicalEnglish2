@@ -314,9 +314,14 @@
             font-weight: normal;
         }
         #container {
-            height: calc(100% - 270px);
+            /* header 35 + menu bar 30 + file tabs 30 + resizer 5 + bottom panel 200 */
+            height: calc(100% - 300px);
             width: 100%;
         }
+        /* Waiting for the program to load: the pickers can't open before it is
+           (le-loading), and a click on one waits for it (le-busy, whole window). */
+        #query-tab.le-loading #scenario-select, #query-tab.le-loading #query-select { cursor: progress; }
+        body.le-busy, body.le-busy * { cursor: wait !important; }
         #resizer {
             height: 5px;
             background-color: var(--header-bg);
@@ -776,6 +781,7 @@
         </div>
         <input type="file" id="file-input" accept=".le" style="display: none;">
     </div>
+    <div id="editor-tabs"></div>
     <div id="container"></div>
     
     <!-- Prolog Panel -->

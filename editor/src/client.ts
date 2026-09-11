@@ -5,6 +5,7 @@ import qrcode from 'qrcode-generator';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
 import { isForeignOffset, openIncludedResource, describeResourceRange } from './resource-nav';
+import { TabBar } from './editor-tabs';
 
 declare var monaco: any;
 
@@ -193,15 +194,13 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             initialFilename = filenameParam;
         }
 
-        let currentFileName = initialFilename;
-        let fileHandle: any = null;
-        // When the current document was fetched from a URL, its directory — sent
-        // to the server so the program's relative `includes these resources:`
-        // resolve against the URL's location. Cleared on New/Open (local files).
-        let currentBaseUrl: string | null = null;
+        // The document's name, handle and origin live with each open document
+        // (EditorDoc below). A document fetched from a URL keeps that URL's
+        // directory (baseUrl), sent to the server so the program's relative
+        // `includes these resources:` resolve against the URL's location.
         const filenameDisplay = document.getElementById('filename-display');
         if (filenameDisplay) {
-            filenameDisplay.textContent = currentFileName;
+            filenameDisplay.textContent = initialFilename;
         }
 
         const savedTheme = localStorage.getItem('le-editor-theme') || 'le-theme';
@@ -217,7 +216,6 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             numberingCheck.style.visibility = showHierarchicalNumbering ? 'visible' : 'hidden';
         }
 
-        let isDirty = false;
         let isLoaded = false;
         let isLoading = false;
         let lastIssues: any[] = [];
@@ -255,9 +253,60 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
         const container = document.getElementById('container')!;
 
+        // ---- open documents (the editor's file tabs) --------------------------
+        // Each tab is one document: its own Monaco model, file name, where it
+        // came from, unsaved state, and — kept aside while another program is
+        // in the panels — the state of the Query and Assistant panels for it
+        // (see switchPanel below). `activeDoc` is the one in the editor;
+        // `panelDoc` the program the panels (queries, assistant, graph) are
+        // about. They differ only while a click in an explanation shows a rule
+        // of an included resource: its tab comes forward, the explanation stays.
+        interface EditorDoc {
+            id: number;
+            model: any;
+            viewState: any;
+            fileName: string;
+            fileHandle: any;
+            baseUrl: string | null;     // directory of the URL it was fetched from
+            example: string | null;     // the server example it was opened as
+            dirty: boolean;
+            textInUrl: boolean;         // the URL carries its text (edited, or given as ?text=)
+            hash: string;               // its #lzp fragment, if it came in one
+            assistantSessionId: string;
+            panel: any;                 // saved panel state while not in the panels
+        }
+        let nextDocId = 1;
+        const docs: EditorDoc[] = [];
+        function createDoc(text: string, fileName: string, props: Partial<EditorDoc> = {}): EditorDoc {
+            const id = nextDocId++;
+            const uri = monaco.Uri.parse(id === 1 ? 'file:///main.le' : `file:///tab${id}.le`);
+            const doc: EditorDoc = {
+                id, model: monaco.editor.createModel(text, 'le', uri), viewState: null,
+                fileName, fileHandle: null, baseUrl: null, example: null,
+                dirty: false, textInUrl: false, hash: '',
+                assistantSessionId: 'ses_' + Math.random().toString(36).substring(7),
+                panel: null, ...props,
+            };
+            docs.push(doc);
+            doc.model.onDidChangeContent(() => docChanged(doc));
+            return doc;
+        }
+        const firstDoc = createDoc(initialValue, initialFilename, {
+            example: exampleParam || null,
+            textInUrl: !lzpParam && !!textParam,
+            hash: lzpParam ? window.location.hash : '',
+        });
+        let activeDoc = firstDoc;
+        let panelDoc = firstDoc;
+        // the language server's view of the documents (set up with the server)
+        let lspOpen = (_doc: EditorDoc) => {};
+        let lspChange = (_doc: EditorDoc) => {};
+        let lspClose = (_doc: EditorDoc) => {};
+        const programModel = () => panelDoc.model;
+        const programText = (): string => panelDoc.model.getValue();
+
         const editor = monaco.editor.create(container, {
-            value: initialValue,
-            language: 'le',
+            model: firstDoc.model,
             theme: savedTheme,
             automaticLayout: true,
             fontSize: savedFontSize,
@@ -280,6 +329,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 if (info && info.resource) openIncludedResource(info);
                 return;
             }
+            // Offsets of the program in the panels: bring its tab forward.
+            showProgramInEditor();
             const model = editor.getModel();
             // A jump from an explanation node, the graph or the proof game:
             // where we were is worth remembering, so Go back returns there.
@@ -316,8 +367,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             contextMenuOrder: 1.6,
             precondition: 'editorTextFocus',
             run: (ed: any) => {
-                const params = new URLSearchParams(window.location.search);
-                const example = params.get('example');
+                const example = activeDoc.example;
                 if (!example) {
                     alert(t('Copy URL is only available for existing examples.'));
                     return;
@@ -348,7 +398,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 const model = ed.getModel();
                 const offset = model.getOffsetAt(position);
 
-                if (!isLoaded && !isLoading) {
+                adoptActiveAsProgram();   // the cursor is in the tab shown: its program
+                if (!isLoaded) {
                     await loadModule();
                 }
 
@@ -386,7 +437,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 1.6,
             run: async (ed: any) => {
-                if (!isLoaded && !isLoading) {
+                adoptActiveAsProgram();   // the cursor is in the tab shown: its program
+                if (!isLoaded) {
                     await loadModule();
                 }
                 if (!sessionModule) {
@@ -450,7 +502,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 1.7,
             run: async (ed: any) => {
-                if (!isLoaded && !isLoading) {
+                adoptActiveAsProgram();   // the cursor is in the tab shown: its program
+                if (!isLoaded) {
                     await loadModule();
                 }
 
@@ -471,7 +524,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         // rule's range covers the whole rule — the line is what distinguishes
         // the head from a condition.
         async function predicateAtCursor(ed: any, operation = 'predicateAt'): Promise<any | null> {
-            if (!isLoaded && !isLoading) {
+            adoptActiveAsProgram();   // the cursor is in the tab shown: its program
+            if (!isLoaded) {
                 await loadModule();
             }
             if (!sessionModule) {
@@ -566,15 +620,16 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         // so "Go back" returns the way VS Code's Go Back does. Ordinary typing
         // and cursor moves are NOT recorded: only jumps that moved the user
         // somewhere they did not navigate to themselves.
-        const jumpHistory: { lineNumber: number, column: number }[] = [];
+        // Each entry remembers its document too: a jump may have changed tabs.
+        const jumpHistory: { lineNumber: number, column: number, doc: EditorDoc }[] = [];
         const JUMP_HISTORY_MAX = 50;
 
         function rememberJumpOrigin(ed: any) {
             const position = ed.getPosition();
             if (!position) return;
             const last = jumpHistory[jumpHistory.length - 1];
-            if (last && last.lineNumber === position.lineNumber && last.column === position.column) return;
-            jumpHistory.push({ lineNumber: position.lineNumber, column: position.column });
+            if (last && last.doc === activeDoc && last.lineNumber === position.lineNumber && last.column === position.column) return;
+            jumpHistory.push({ lineNumber: position.lineNumber, column: position.column, doc: activeDoc });
             if (jumpHistory.length > JUMP_HISTORY_MAX) jumpHistory.shift();
         }
 
@@ -779,8 +834,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 2.3,
             run: (ed: any) => {
-                const target = jumpHistory.pop();
+                let target = jumpHistory.pop();
+                while (target && !docs.includes(target.doc)) target = jumpHistory.pop();   // its tab was closed
                 if (!target) return;
+                if (target.doc !== activeDoc) activateDoc(target.doc, false);
                 const model = ed.getModel();
                 // The document may have shrunk since (an edit, or another file
                 // loaded): clamp rather than throw the position away.
@@ -870,20 +927,18 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     const updateSaveMenu = () => {
         if (menuSave) {
-            menuSave.style.display = fileHandle ? 'block' : 'none';
+            menuSave.style.display = activeDoc.fileHandle ? 'block' : 'none';
         }
     };
 
-    // Menu Actions
+    // The text a new document starts with.
+    const newDocumentText = () => uiLang() === 'en' ? '' : targetLanguageStatement() + '\n\n';
+
+    // Menu Actions — the File operations act on the document in the editor's
+    // current tab ("+" on the tab strip opens a new one).
     document.getElementById('menu-new')?.addEventListener('click', () => {
-        if (isDirty && !confirm(t('You have unsaved changes. Create new file anyway?'))) return;
-        editor.setValue(uiLang() === 'en' ? '' : targetLanguageStatement() + '\n\n');
-        currentFileName = 'document.le';
-        fileHandle = null;
-        currentBaseUrl = null;
-        updateSaveMenu();
-        if (filenameDisplay) filenameDisplay.textContent = currentFileName;
-        isDirty = false;
+        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Create new file anyway?'))) return;
+        replaceActiveDocument(newDocumentText(), { fileName: 'document.le' });
     });
 
     // New from URL: fetch an LE program from a URL and load it into the editor.
@@ -898,7 +953,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     };
 
     document.getElementById('menu-new-from-url')?.addEventListener('click', () => {
-        if (isDirty && !confirm(t('You have unsaved changes. Load from URL anyway?'))) return;
+        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Load from URL anyway?'))) return;
         if (urlError) urlError.style.display = 'none';
         if (urlModal) urlModal.style.display = 'flex';
         urlInput?.focus();
@@ -922,7 +977,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (u) navigator.clipboard.writeText(u);
     });
     document.getElementById('menu-qr-code')?.addEventListener('click', async () => {
-        const url = await buildShareUrl(editor.getValue());
+        const url = await buildShareUrl(programText());
         if (url.length > QR_URL_MAX) {
             showModal(
                 t('The URL is too long for a QR code ({n} characters; the limit is {max}). Shorten the program, or save it as a server example and share its example URL instead.')
@@ -955,16 +1010,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             if (!resp.ok) throw new Error(`server returned ${resp.status} ${resp.statusText}`);
             const content = await resp.text();
 
-            editor.setValue(content);
             // Filename from the URL's last path segment (default document.le).
             const seg = url.pathname.split('/').filter(Boolean).pop() || 'document.le';
-            currentFileName = /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + '.le';
-            fileHandle = null;                 // remote: no local write-back handle
-            // Base = the URL up to its last '/', so relative includes resolve.
-            currentBaseUrl = raw.slice(0, raw.length - url.pathname.split('/').pop()!.length);
-            if (filenameDisplay) filenameDisplay.textContent = currentFileName;
-            isDirty = false;
-            updateSaveMenu();
+            replaceActiveDocument(content, {
+                fileName: /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + '.le',
+                // remote: no local write-back handle. Base = the URL up to its
+                // last '/', so relative includes resolve.
+                baseUrl: raw.slice(0, raw.length - url.pathname.split('/').pop()!.length),
+            });
             closeUrlModal();
         } catch (err: any) {
             showUrlError(
@@ -982,7 +1035,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     document.getElementById('menu-open')?.addEventListener('click', async () => {
-        if (isDirty && !confirm(t('You have unsaved changes. Open another file anyway?'))) return;
+        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Open another file anyway?'))) return;
         
         if ('showOpenFilePicker' in window) {
             try {
@@ -995,14 +1048,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 });
                 const file = await handle.getFile();
                 const content = await file.text();
-                
-                fileHandle = handle;
-                currentFileName = file.name;
-                currentBaseUrl = null;
-                if (filenameDisplay) filenameDisplay.textContent = currentFileName;
-                editor.setValue(content);
-                isDirty = false;
-                updateSaveMenu();
+                replaceActiveDocument(content, { fileName: file.name, fileHandle: handle });
                 return;
             } catch (err: any) {
                 if (err.name === 'AbortError') return;
@@ -1016,35 +1062,30 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     fileInput?.addEventListener('change', (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;
-        currentFileName = file.name;
-        fileHandle = null; // Traditional input doesn't give us a handle we can write back to
-        currentBaseUrl = null;
-        updateSaveMenu();
-        if (filenameDisplay) filenameDisplay.textContent = currentFileName;
         const reader = new FileReader();
         reader.onload = (e) => {
             const content = e.target?.result as string;
             if (content !== undefined) {
-                editor.setValue(content);
-                isDirty = false;
+                // Traditional input doesn't give us a handle we can write back to
+                replaceActiveDocument(content, { fileName: file.name });
             }
         };
         reader.readAsText(file);
         fileInput.value = '';
     });
 
-    const saveToFile = async (handle: any) => {
-        const content = editor.getValue();
+    const saveToFile = async (handle: any, doc: EditorDoc = activeDoc) => {
+        const content = doc.model.getValue();
         const writable = await handle.createWritable();
         await writable.write(content);
         await writable.close();
-        isDirty = false;
+        setDirty(doc, false);
     };
 
     const saveAction = async () => {
-        if (fileHandle) {
+        if (activeDoc.fileHandle) {
             try {
-                await saveToFile(fileHandle);
+                await saveToFile(activeDoc.fileHandle);
                 return;
             } catch (err) {
                 console.error('Direct save failed, falling back to Save As', err);
@@ -1054,24 +1095,24 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     };
 
     const saveAsAction = async () => {
-        const content = editor.getValue();
+        const doc = activeDoc;
+        const content = doc.model.getValue();
         
         // Try to use the File System Access API for "Save As"
         if ('showSaveFilePicker' in window) {
             try {
                 const handle = await (window as any).showSaveFilePicker({
-                    suggestedName: currentFileName,
+                    suggestedName: doc.fileName.split('/').pop(),
                     types: [{
                         description: 'Logical English File',
                         accept: { 'text/plain': ['.le'] },
                     }],
                 });
-                await saveToFile(handle);
+                await saveToFile(handle, doc);
                 
-                fileHandle = handle;
-                currentFileName = handle.name;
-                if (filenameDisplay) filenameDisplay.textContent = currentFileName;
-                updateSaveMenu();
+                doc.fileHandle = handle;
+                doc.fileName = handle.name;
+                refreshTabs();
                 return;
             } catch (err: any) {
                 if (err.name === 'AbortError') return;
@@ -1084,10 +1125,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = currentFileName;
+        a.download = doc.fileName.split('/').pop() || 'document.le';
         a.click();
         URL.revokeObjectURL(url);
-        isDirty = false;
+        setDirty(doc, false);
     };
 
     menuSave?.addEventListener('click', saveAction);
@@ -1116,7 +1157,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     });
 
     document.getElementById('menu-open-server')?.addEventListener('click', async () => {
-        if (isDirty && !confirm(t('You have unsaved changes. Open from server anyway?'))) return;
+        if (activeDoc.dirty && !confirm(t('You have unsaved changes. Open from server anyway?'))) return;
         
         if (modalOverlay) modalOverlay.style.display = 'flex';
         if (exampleList) exampleList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Loading examples...</div>';
@@ -1208,19 +1249,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 return;
             }
             if (data.document !== undefined) {
-                editor.setValue(data.document);
-                currentFileName = name + '.le';
-                fileHandle = null;
-                updateSaveMenu();
-                if (filenameDisplay) filenameDisplay.textContent = currentFileName;
-                isDirty = false;
-                
-                // Reset loading state for the new file
-                isLoaded = false;
-                scenarioSelect.innerHTML = `<option value="">${t('[Empty Scenario]')}</option>`;
-                querySelect.innerHTML = `<option value="">${t('Select a query...')}</option>`;
-                kbModuleDisplay.textContent = '';
-                sessionModuleDisplay.textContent = '';
+                // the example's name goes with it: the server resolves its
+                // relative includes against the example's folder
+                replaceActiveDocument(data.document, { fileName: name + '.le', example: name });
             }
         } catch (err) {
             alert(t('Failed to load example from server.'));
@@ -1473,7 +1504,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 sessionModule,
                 theme: localStorage.getItem('le-editor-theme') || 'le-theme',
                 isLoaded,
-                filename: currentFileName
+                filename: panelDoc.fileName
             }
         });
     }
@@ -1488,6 +1519,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     };
 
     editor.onDidChangeCursorPosition((e: any) => {
+        // The graph shows the program in the panels: only its caret counts.
+        if (activeDoc !== panelDoc) return;
         const model = editor.getModel();
         const offset = model.getOffsetAt(e.position);
         // Keep the graph window's focused node in sync with the caret.
@@ -1572,11 +1605,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // lazily, e.g. on mouse-enter, which would delay the update). The load handler
     // still refines it from the authoritative server `res.target`.
     function refreshEnginePickerTarget() {
-        try { currentTargetLanguage = detectTargetLanguage(editor.getValue()); }
+        try { currentTargetLanguage = detectTargetLanguage(programText()); }
         catch { currentTargetLanguage = 'prolog'; }
         applyEnginePickerVisibility();
     }
-    editor.onDidChangeModelContent(() => refreshEnginePickerTarget());
     updateEnginePickerChecks();
     refreshEnginePickerTarget();
     const btnQuery = document.getElementById('btn-query') as HTMLButtonElement;
@@ -1645,8 +1677,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     const updateQueryButtonState = () => {
         if (!btnQuery) return;
         
-        const model = editor.getModel();
-        const markers = model ? monaco.editor.getModelMarkers({ owner: 'le-verifier' }) : [];
+        // the verifier's findings on the program in the panels (other tabs have their own)
+        const markers = monaco.editor.getModelMarkers({ owner: 'le-verifier', resource: programModel().uri });
         const hasErrors = markers.some(m => m.severity === monaco.MarkerSeverity.Error);
         
         const scenarioSelected = true; // Allow empty scenario
@@ -1686,8 +1718,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         }
     };
 
-    const updateMarkers = (issues: any[]) => {
-        const model = editor.getModel();
+    const updateMarkers = (issues: any[], model: any = programModel()) => {
         if (!model) return;
 
         issueFixes.clear();
@@ -1722,10 +1753,31 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         updateQueryButtonState();
     };
 
-    const loadModule = async () => {
-        if (isLoaded || isLoading) return true;
+    // Loads the program in the panels on the server. A load already under
+    // way is shared, not repeated: its callers all wait for it. While it runs
+    // the pickers show a busy cursor. A load overtaken by a switch of program
+    // (switchPanel) is dropped: it reports false and touches nothing.
+    let loadPromise: Promise<boolean> | null = null;
+    let loadGen = 0;
+    const queryTab = document.getElementById('query-tab');
+    const loadModule = (): Promise<boolean> => {
+        if (isLoaded) return Promise.resolve(true);
+        if (isLoading && loadPromise) return loadPromise;
+        const gen = ++loadGen;
         isLoading = true;
-        
+        queryTab?.classList.add('le-loading');
+        loadPromise = loadProgram(gen).finally(() => {
+            if (gen === loadGen) {
+                isLoading = false;
+                loadPromise = null;
+                queryTab?.classList.remove('le-loading');
+            }
+        });
+        return loadPromise;
+    };
+
+    const loadProgram = async (gen: number): Promise<boolean> => {
+        const doc = panelDoc;
         resultsDisplay.textContent = t('Loading module on server...');
         try {
             const response = await fetch('/leapi', {
@@ -1734,16 +1786,17 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 body: JSON.stringify({
                     token: 'myToken123',
                     operation: 'load',
-                    le: editor.getValue(),
+                    le: doc.model.getValue(),
                     // The example this text came from, so the server resolves
                     // relative include resources against the example's folder.
-                    source: new URLSearchParams(window.location.search).get('example') || '',
+                    source: doc.example || '',
                     // If the document was fetched from a URL, its base URL, so
                     // relative includes resolve against the remote location.
-                    base: currentBaseUrl || ''
+                    base: doc.baseUrl || ''
                 })
             });
             const res = await response.json();
+            if (gen !== loadGen) return false;   // another program took the panels meanwhile
             
             if (res && res.sessionModule) {
                 sessionModule = res.sessionModule;
@@ -1837,20 +1890,18 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 }
 
                 resultsDisplay.textContent = t('Results');
-                isLoading = false;
                 return true;
             } else {
                 lastLoadError = res?.error || 'Unknown error';
                 resultsDisplay.textContent = t('Error loading module: ') + lastLoadError;
-                isLoading = false;
                 updateMarkers([]);
                 return false;
             }
         } catch (err) {
+            if (gen !== loadGen) return false;
             lastLoadError = 'Error connecting to server.';
             resultsDisplay.textContent = lastLoadError;
             console.error(err);
-            isLoading = false;
             updateMarkers([]);
             return false;
         }
@@ -1955,40 +2006,28 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (!isLoaded && !isLoading) loadModule();
     });
 
-    scenarioSelect.addEventListener('mousedown', async (e) => {
-        if (!isLoaded) {
-            if (!isLoading) {
-                e.preventDefault();
-                const success = await loadModule();
-                if (success) {
-                    setTimeout(() => {
-                        scenarioSelect.focus();
-                        scenarioSelect.click();
-                    }, 100);
-                }
-            } else {
-                // If already loading, just wait for it to finish
-                e.preventDefault();
-            }
+    // A picker clicked before its program is loaded: the menu can only list the
+    // scenarios/queries once the server has read the program, which for a large
+    // one takes seconds. Meanwhile the whole window shows a waiting cursor; the
+    // menu opens when the load is done.
+    const openPickerAfterLoad = async (select: HTMLSelectElement, e: MouseEvent) => {
+        if (isLoaded) return;
+        e.preventDefault();
+        document.body.classList.add('le-busy');
+        let ok = false;
+        try {
+            ok = await loadModule();
+        } finally {
+            document.body.classList.remove('le-busy');
         }
-    });
-
-    querySelect.addEventListener('mousedown', async (e) => {
-        if (!isLoaded) {
-            if (!isLoading) {
-                e.preventDefault();
-                const success = await loadModule();
-                if (success) {
-                    setTimeout(() => {
-                        querySelect.focus();
-                        querySelect.click();
-                    }, 100);
-                }
-            } else {
-                e.preventDefault();
-            }
-        }
-    });
+        if (!ok) return;
+        select.focus();
+        // showPicker needs the click's user activation, which a long load may
+        // outlive: then the picker is focused (keyboard arrows open it).
+        try { (select as any).showPicker?.(); } catch { /* focused only */ }
+    };
+    scenarioSelect.addEventListener('mousedown', (e) => { openPickerAfterLoad(scenarioSelect, e); });
+    querySelect.addEventListener('mousedown', (e) => { openPickerAfterLoad(querySelect, e); });
 
     // If the URL carried scenario/query parameters, apply them now (the document
     // has been loaded into the editor from example/text above).
@@ -2007,7 +2046,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (!isResizing) return;
         const offsetTop = e.clientY;
         const windowHeight = window.innerHeight;
-        const headerHeight = 35 + 30; // header + menu-bar
+        const headerHeight = container.getBoundingClientRect().top; // header, menu bar, file tabs
         const newContainerHeight = offsetTop - headerHeight;
         const newPanelHeight = windowHeight - offsetTop - 5; // 5 is resizer height
 
@@ -2049,13 +2088,16 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (!isResizing) document.body.style.cursor = 'default';
     });
 
-    const answersList = document.getElementById('answers-list')!;
-    const explanationTree = document.getElementById('explanation-tree')!;
+    // The answers + explanation of the program in the panels. Each open
+    // program has its own pair of elements and view (switchPanel swaps them
+    // in), so going back to a tab finds its answers as they were.
+    let answersList = document.getElementById('answers-list')!;
+    let explanationTree = document.getElementById('explanation-tree')!;
 
     // The answers + explanation view (Query panel body), now a reusable component
     // shared with the Scenario Variations window. Source navigation selects the range
     // in this editor; answer selection keeps the URL's `answer` param in sync.
-    const explView = new ExplanationView({
+    const makeExplanationView = (answersList: HTMLElement, explanationTree: HTMLElement) => new ExplanationView({
         answersList,
         explanationTree,
         explanationTitle: document.getElementById('explanation-title') || undefined,
@@ -2081,7 +2123,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         onOpenDrill: (why: any) => {
             if (!sessionModule) { showModal('Load the module and run a query first.', 'Explanation Drill'); return; }
             // Pass the program so the drill window can run its OWN independent session.
-            localStorage.setItem('le_explanation_drill_data', JSON.stringify({ source: editor.getValue(), sessionModule, kbName: lastKb, why }));
+            localStorage.setItem('le_explanation_drill_data', JSON.stringify({ source: programText(), sessionModule, kbName: lastKb, why }));
             const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                                  document.body.className.includes('hc-theme') ? 'hc-theme' : '';
             window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, '_blank');
@@ -2089,6 +2131,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         failedNodePrefix: () => failedNodePrefix,
         hierarchicalNumbering: () => showHierarchicalNumbering,
         onNavigate: (start: number, end: number) => {
+            showProgramInEditor();
             const model = editor.getModel();
             const startPos = model.getPositionAt(start);
             const endPos = model.getPositionAt(end);
@@ -2099,10 +2142,11 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         },
         onSelectAnswer: (index: number) => setAnswerInUrl(index),
         documentContext: () => ({
-            source: new URLSearchParams(window.location.search).get('example') || '',
-            base: currentBaseUrl || '',
+            source: panelDoc.example || '',
+            base: panelDoc.baseUrl || '',
         }),
     });
+    let explView = makeExplanationView(answersList, explanationTree);
 
     const debugPanel = document.getElementById('debug-panel')!;
     const debugStack = document.getElementById('debug-stack')!;
@@ -2235,7 +2279,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // top-down LE/Prolog execution.
     const renderStack = (frames: any[]) => {
         debugStack.innerHTML = '';
-        const model = editor.getModel();
+        const model = programModel();
 
         [...frames].reverse().forEach((f) => {
             const div = document.createElement('div');
@@ -2263,6 +2307,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
 
     // Highlight a frame's exact source span in the editor and reveal it.
     const highlightFrameRange = (f: any) => {
+        showProgramInEditor();
         const model = editor.getModel();
         if (!f || f.offset === undefined || isForeignOffset(f.offset)) {
             debugDecorations = editor.deltaDecorations(debugDecorations, []);
@@ -2428,6 +2473,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const wantAnswer = pendingAnswerIndex;
         pendingAnswerIndex = null;
 
+        // The answers go to this program's view, even if another tab takes
+        // the panels while the query runs.
+        const view = explView;
+        const answersEl = answersList;
         answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
         explanationTree.innerHTML = '';
         showInterruptSoon();
@@ -2488,9 +2537,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 else if (nResults > 0) showModal(`Answer ${wantAnswer + 1} does not exist — the query has ${nResults} answer(s) in this scenario.`, 'No such answer');
                 else if (res && res.why) showModal('The query has no answers (it is false in this scenario), so there is no answer to select.', 'No such answer');
             }
-            explView.showResults(res, target);
+            view.showResults(res, target);
         } catch (err) {
-            answersList.textContent = t('Error executing query.');
+            answersEl.textContent = t('Error executing query.');
             console.error(err);
         } finally {
             hideInterrupt();
@@ -2547,7 +2596,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
 
             if (res && res.gameData) {
-                const text = editor.getValue();
+                const text = programText();
                 
                 // Process rules to extract exact text
                 res.gameData.rules = res.gameData.rules.map((rule: any) => {
@@ -2633,8 +2682,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     window.addEventListener('message', (event) => {
         if (event.data && event.data.type === 'le-highlight' && event.data.loc) {
             const loc = event.data.loc;
-            const model = editor.getModel();
-            if (model && loc.start !== undefined && loc.end !== undefined && !isForeignOffset(loc.start)) {
+            if (loc.start !== undefined && loc.end !== undefined && !isForeignOffset(loc.start)) {
+                showProgramInEditor();
+                const model = editor.getModel();
                 const startPos = model.getPositionAt(loc.start);
                 const endPos = model.getPositionAt(loc.end);
                 editor.setSelection(new monaco.Range(
@@ -2658,12 +2708,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     document.getElementById('menu-scenario-editor')?.addEventListener('click', async () => {
         // The window parses templates and scenarios straight from the source.
         const data = {
-            source: editor.getValue(),
+            source: programText(),
             // the templates of included resources (from the last load), and
             // where the program came from — for "Write it in English" from a document
             templateDefs: lastTemplateDefs,
-            example: new URLSearchParams(window.location.search).get('example') || '',
-            base: currentBaseUrl || '',
+            example: panelDoc.example || '',
+            base: panelDoc.baseUrl || '',
         };
         localStorage.setItem('le_scenario_editor_data', JSON.stringify(data));
         const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
@@ -2676,7 +2726,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // by the basic connectives. Like the Scenario Editor it parses templates and
     // existing queries straight from the source (pure client data).
     document.getElementById('menu-query-editor')?.addEventListener('click', async () => {
-        const data = { source: editor.getValue() };
+        const data = { source: programText() };
         localStorage.setItem('le_query_editor_data', JSON.stringify(data));
         const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                              document.body.className.includes('hc-theme') ? 'hc-theme' : '';
@@ -2690,7 +2740,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     document.getElementById('btn-variations')?.addEventListener('click', async () => {
         if (!isLoaded) { const ok = await loadModule(); if (!ok) return; }
         const data = {
-            source: editor.getValue(),
+            source: programText(),
             kbName: lastKb,
             queries: lastQueries.map((q: any) => ({ name: q.name, label: q.le || q.template })),
             selectedScenario: scenarioSelect.value === '___custom___' ? '' : scenarioSelect.value,
@@ -2709,6 +2759,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     scenarioChannel.onmessage = (event) => {
         const msg = event.data;
         if (!msg || msg.type !== 'insert-scenario' || typeof msg.blockText !== 'string') return;
+        showProgramInEditor();   // the window edits the program in the panels
         const model = editor.getModel();
         if (!model) return;
         const source = editor.getValue();
@@ -2747,6 +2798,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     queryChannel.onmessage = (event) => {
         const msg = event.data;
         if (!msg || msg.type !== 'insert-query' || typeof msg.blockText !== 'string') return;
+        showProgramInEditor();   // the window edits the program in the panels
         const model = editor.getModel();
         if (!model) return;
         const source = editor.getValue();
@@ -2781,7 +2833,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // Assistant Logic
     const assistantInput = document.getElementById('assistant-input') as HTMLInputElement;
     const btnAssistantSend = document.getElementById('btn-assistant-send') as HTMLButtonElement;
-    const assistantHistory = document.getElementById('assistant-history')!;
+    // The conversation about the program in the panels (switchPanel swaps it).
+    let assistantHistory = document.getElementById('assistant-history')!;
+    const assistantGreeting = assistantHistory.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
     const btnAssistantInterrupt = document.getElementById('btn-assistant-interrupt') as HTMLButtonElement;
     const assistantProgress = document.getElementById('assistant-progress')!;
     const assistantProgressText = document.getElementById('assistant-progress-text')!;
@@ -2795,10 +2849,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             localStorage.setItem('le-assistant-mode', assistantModeToggle.checked ? 'light' : 'deep');
         });
     }
-    let assistantSessionId = 'ses_' + Math.random().toString(36).substring(7);
     let assistantStartTime: number | null = null;
 
-    const addChatMessage = (role: 'user' | 'assistant', text: string, details?: string) => {
+    const addChatMessage = (role: 'user' | 'assistant', text: string, details?: string, history: HTMLElement = assistantHistory) => {
         const msg = document.createElement('div');
         msg.className = `chat-message ${role}`;
         
@@ -2867,8 +2920,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             msg.appendChild(detailsEl);
         }
 
-        assistantHistory.appendChild(msg);
-        assistantHistory.scrollTop = assistantHistory.scrollHeight;
+        history.appendChild(msg);
+        history.scrollTop = history.scrollHeight;
     };
 
     let currentJobId: string | null = null;
@@ -2912,7 +2965,11 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             together: localStorage.getItem('le-together-key')
         };
 
-        console.log('Sending assistant command with session ID:', assistantSessionId);
+        // The request is about this program: its reply goes to its conversation
+        // and its changes to its text, whichever tab is in front by then.
+        const jobDoc = panelDoc;
+        const jobHistory = assistantHistory;
+        console.log('Sending assistant command with session ID:', jobDoc.assistantSessionId);
         try {
             const response = await fetch('/leapi', {
                 method: 'POST',
@@ -2921,8 +2978,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     token: 'myToken123',
                     operation: 'assistant_command',
                     command: command,
-                    content: editor.getValue(),
-                    session_id: assistantSessionId,
+                    content: jobDoc.model.getValue(),
+                    session_id: jobDoc.assistantSessionId,
                     api_keys: apiKeys,
                     model: localStorage.getItem('le-assistant-model'),
                     mode: assistantModeToggle ? (assistantModeToggle.checked ? 'light' : 'deep') : 'light',
@@ -2932,19 +2989,19 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             const data = await response.json();
             if (data.result === 'ok') {
                 currentJobId = data.job_id;
-                pollAssistantStatus(data.job_id);
+                pollAssistantStatus(data.job_id, jobDoc, jobHistory);
             } else {
-                addChatMessage('assistant', 'Error: ' + (data.error || 'Unknown error'));
+                addChatMessage('assistant', 'Error: ' + (data.error || 'Unknown error'), undefined, jobHistory);
                 finishAssistantRequest();
             }
         } catch (err) {
             console.error('Assistant error:', err);
-            addChatMessage('assistant', 'Failed to connect to the assistant.');
+            addChatMessage('assistant', 'Failed to connect to the assistant.', undefined, jobHistory);
             finishAssistantRequest();
         }
     };
 
-    const pollAssistantStatus = async (jobId: string) => {
+    const pollAssistantStatus = async (jobId: string, jobDoc: EditorDoc, jobHistory: HTMLElement) => {
         try {
             const response = await fetch('/leapi', {
                 method: 'POST',
@@ -2971,37 +3028,38 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     if (progressText) {
                         assistantProgressText.textContent = progressText.substring(0, 60) + (progressText.length > 60 ? '...' : '');
                     }
-                    setTimeout(() => pollAssistantStatus(jobId), 1000);
+                    setTimeout(() => pollAssistantStatus(jobId, jobDoc, jobHistory), 1000);
                 } else if (data.status === 'finished') {
                     const duration = assistantStartTime ? Math.round((Date.now() - assistantStartTime) / 1000) : 0;
                     if (data.session_id) {
-                        assistantSessionId = data.session_id;
-                        console.log('Updated assistant session ID:', assistantSessionId);
+                        jobDoc.assistantSessionId = data.session_id;
+                        console.log('Updated assistant session ID:', data.session_id);
                     }
                     
                     let stdout = data.stdout || '';
                     let newContent = data.new_content || '';
 
                     if (stdout) {
-                        addChatMessage('assistant', stdout, data.stderr);
+                        addChatMessage('assistant', stdout, data.stderr, jobHistory);
                     } else if (data.stderr) {
-                        addChatMessage('assistant', 'The assistant finished with some logs but no direct output.', data.stderr);
+                        addChatMessage('assistant', 'The assistant finished with some logs but no direct output.', data.stderr, jobHistory);
                     }
 
-                    if (newContent && newContent !== editor.getValue()) {
-                        editor.setValue(newContent);
-                        addChatMessage('assistant', t('I have updated the editor content with the changes.'));
+                    if (newContent && newContent !== jobDoc.model.getValue() && docs.includes(jobDoc)) {
+                        // a whole-text edit, undoable in its tab
+                        jobDoc.model.pushEditOperations([], [{ range: jobDoc.model.getFullModelRange(), text: newContent }], () => null);
+                        addChatMessage('assistant', t('I have updated the editor content with the changes.'), undefined, jobHistory);
                     }
-                    addChatMessage('assistant', `_${t('Request completed in {n} seconds.').replace('{n}', String(duration))}_`);
+                    addChatMessage('assistant', `_${t('Request completed in {n} seconds.').replace('{n}', String(duration))}_`, undefined, jobHistory);
                     finishAssistantRequest();
                 }
             } else {
-                addChatMessage('assistant', 'Error polling status: ' + (data.error || 'Unknown error'));
+                addChatMessage('assistant', 'Error polling status: ' + (data.error || 'Unknown error'), undefined, jobHistory);
                 finishAssistantRequest();
             }
         } catch (err) {
             console.error('Polling error:', err);
-            addChatMessage('assistant', 'Lost connection while waiting for assistant.');
+            addChatMessage('assistant', 'Lost connection while waiting for assistant.', undefined, jobHistory);
             finishAssistantRequest();
         }
     };
@@ -3043,9 +3101,305 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (e.key === 'Enter') handleAssistantSend();
     });
 
+    // ---- file tabs ----------------------------------------------------------
+    // The strip above the editor (editor-tabs.ts) shows the open documents.
+    // Clicking a tab brings its document into the editor AND its program into
+    // the panels: the Query panel's pickers, answers and explanation, the
+    // Assistant's conversation, the graph — each program keeps its own, so
+    // switching back and forth loses nothing. A click in an explanation that
+    // leads into an included resource opens (or brings forward) the resource's
+    // tab but leaves the panels on the program being explained; a click on
+    // one of the program's own nodes brings its tab back.
+    const tabBar = new TabBar(document.getElementById('editor-tabs')!, {
+        onSelect: (id) => { const d = docs.find(x => x.id === id); if (d) activateDoc(d, true); },
+        onClose: (id) => { const d = docs.find(x => x.id === id); if (d) closeDoc(d); },
+        onNew: () => newTab(),
+        newTitle: t('New tab'),
+        programTitle: t('The queries and the assistant are about this program'),
+    });
+
+    function refreshTabs() {
+        tabBar.render(docs.map(d => ({
+            id: d.id,
+            title: d.fileName.split('/').pop() || d.fileName,
+            tooltip: d.baseUrl ? d.baseUrl + (d.fileName.split('/').pop() || '') : d.fileName,
+            dirty: d.dirty,
+            program: d === panelDoc && d !== activeDoc,
+        })), activeDoc.id);
+        if (filenameDisplay) filenameDisplay.textContent = activeDoc.fileName;
+        updateSaveMenu();
+    }
+
+    function setDirty(doc: EditorDoc, dirty: boolean) {
+        if (doc.dirty === dirty) return;
+        doc.dirty = dirty;
+        refreshTabs();
+    }
+
+    // Any change to a document's text, typed or not, in front or not.
+    function docChanged(doc: EditorDoc) {
+        setDirty(doc, true);
+        lspChange(doc);
+        if (doc === activeDoc) syncEditorLanguage(doc.model.getValue());
+        if (doc === panelDoc) {
+            if (isLoaded) {
+                isLoaded = false;
+                scenarioSelect.innerHTML = `<option value="">${t('[Empty Scenario]')}</option>`;
+                querySelect.innerHTML = `<option value="">${t('Select a query...')}</option>`;
+            }
+            refreshEnginePickerTarget();
+            // Debounced proactive load
+            if (loadTimeout) clearTimeout(loadTimeout);
+            loadTimeout = setTimeout(() => {
+                if (!isLoaded && !isLoading) loadModule();
+            }, 1500);
+            doc.textInUrl = true;
+            const url = new URL(window.location.href);
+            url.searchParams.set('text', doc.model.getValue());
+            window.history.replaceState({}, '', url.toString());
+        } else if (doc.panel) {
+            // its program, set aside, is out of date: reloaded when it is back
+            doc.panel.isLoaded = false;
+            doc.panel.scenarioOptions = `<option value="">${t('[Empty Scenario]')}</option>`;
+            doc.panel.queryOptions = `<option value="">${t('Select a query...')}</option>`;
+        }
+    }
+
+    // Puts a document in the editor. `takePanels`: its program also goes to
+    // the panels (the user chose this tab); otherwise the panels stay as they
+    // are (navigation from them). `focus` defaults to the user's choice.
+    function activateDoc(doc: EditorDoc, takePanels: boolean, focus = takePanels) {
+        if (doc !== activeDoc) {
+            activeDoc.viewState = editor.saveViewState();
+            activeDoc = doc;
+            editor.setModel(doc.model);
+            if (doc.viewState) editor.restoreViewState(doc.viewState);
+            syncEditorLanguage(doc.model.getValue());
+        }
+        if (takePanels && doc !== panelDoc) switchPanel(doc);
+        refreshTabs();
+        if (focus) editor.focus();
+    }
+
+    // Before selecting a range of the program in the panels.
+    function showProgramInEditor() {
+        if (activeDoc !== panelDoc) activateDoc(panelDoc, false, false);
+    }
+
+    // Before an action at the cursor that asks the server about the program.
+    function adoptActiveAsProgram() {
+        if (activeDoc !== panelDoc) { switchPanel(activeDoc); refreshTabs(); }
+    }
+
+    // The state of the panels that belongs to the program in them.
+    function capturePanel() {
+        return {
+            sessionModule, isLoaded, lastIssues, lastLoadError, includedResources,
+            lastTemplateDefs, lastKb, lastFactImages, lastTemplateImages, lastQueries,
+            engineUserSet,
+            scenarioOptions: scenarioSelect.innerHTML, scenario: scenarioSelect.value,
+            queryOptions: querySelect.innerHTML, query: querySelect.value,
+            engine: engineSelect ? engineSelect.value : 'prolog',
+            customScenario: customScenarioText.value, customQuery: customQueryText.value,
+            kbText: kbModuleDisplay.textContent || '', sessionText: sessionModuleDisplay.textContent || '',
+            resultsText: resultsDisplay.textContent || '',
+            answersList, explanationTree, explView, assistantHistory,
+            answersScroll: answersList.parentElement?.scrollTop || 0,
+            explanationScroll: explanationTree.parentElement?.scrollTop || 0,
+        };
+    }
+
+    function swapElement(current: HTMLElement, next: HTMLElement): HTMLElement {
+        if (current === next) return next;
+        const id = current.id;
+        current.replaceWith(next);
+        current.removeAttribute('id');
+        next.id = id;
+        return next;
+    }
+
+    // Hands the panels to another program: what they show now is set aside
+    // with its program, and the other program's comes back (fresh, the first
+    // time). Its program then loads if it is not loaded.
+    function switchPanel(doc: EditorDoc) {
+        panelDoc.panel = capturePanel();
+        panelDoc = doc;
+        const p = doc.panel;
+        doc.panel = null;
+        // a load or a proactive load of the program leaving is of no use now
+        loadGen++;
+        isLoading = false;
+        loadPromise = null;
+        queryTab?.classList.remove('le-loading');
+        if (loadTimeout) { clearTimeout(loadTimeout); loadTimeout = null; }
+
+        const emptyScenarios = `<option value="">${t('[Empty Scenario]')}</option>`;
+        const emptyQueries = `<option value="">${t('Select a query...')}</option>`;
+        sessionModule = p ? p.sessionModule : null;
+        isLoaded = p ? p.isLoaded : false;
+        lastIssues = p ? p.lastIssues : [];
+        lastLoadError = p ? p.lastLoadError : '';
+        includedResources = p ? p.includedResources : [];
+        lastTemplateDefs = p ? p.lastTemplateDefs : [];
+        lastKb = p ? p.lastKb : '';
+        lastFactImages = p ? p.lastFactImages : [];
+        lastTemplateImages = p ? p.lastTemplateImages : [];
+        lastQueries = p ? p.lastQueries : [];
+        engineUserSet = p ? p.engineUserSet : false;
+        scenarioSelect.innerHTML = p ? p.scenarioOptions : emptyScenarios;
+        scenarioSelect.value = p ? p.scenario : '';
+        querySelect.innerHTML = p ? p.queryOptions : emptyQueries;
+        querySelect.value = p ? p.query : '';
+        if (engineSelect) engineSelect.value = p ? p.engine : 'prolog';
+        customScenarioText.value = p ? p.customScenario : '';
+        customQueryText.value = p ? p.customQuery : '';
+        customScenarioContainer.style.display = scenarioSelect.value === '___custom___' ? 'flex' : 'none';
+        customQueryContainer.style.display = querySelect.value === '___custom___' ? 'flex' : 'none';
+        kbModuleDisplay.textContent = p ? p.kbText : '';
+        sessionModuleDisplay.textContent = p ? p.sessionText : '';
+        resultsDisplay.textContent = p ? p.resultsText : t('Results');
+
+        let nextAnswers: HTMLElement, nextTree: HTMLElement, nextHistory: HTMLElement;
+        if (p) {
+            nextAnswers = p.answersList; nextTree = p.explanationTree; nextHistory = p.assistantHistory;
+            explView = p.explView;
+        } else {
+            nextAnswers = document.createElement('div');
+            nextTree = document.createElement('div');
+            nextHistory = document.createElement('div');
+            if (assistantGreeting) nextHistory.appendChild(assistantGreeting.cloneNode(true));
+            explView = makeExplanationView(nextAnswers, nextTree);
+        }
+        answersList = swapElement(answersList, nextAnswers);
+        explanationTree = swapElement(explanationTree, nextTree);
+        assistantHistory = swapElement(assistantHistory, nextHistory);
+        explView.refreshTitle();
+        if (p) {
+            if (answersList.parentElement) answersList.parentElement.scrollTop = p.answersScroll;
+            if (explanationTree.parentElement) explanationTree.parentElement.scrollTop = p.explanationScroll;
+        }
+
+        syncUrlForPanel();
+        refreshEnginePickerTarget();
+        updateQueryButtonState();
+        sendStateToGraph();
+        if (!isLoaded) loadModule();
+    }
+
+    // The address bar names the program in the panels: its example (or its
+    // text, once edited) and its scenario/query/engine selections.
+    function syncUrlForPanel() {
+        const url = new URL(window.location.href);
+        for (const k of ['example', 'text', 'filename', 'line', 'scenario', 'query', 'engine', 'answer']) {
+            url.searchParams.delete(k);
+        }
+        const doc = panelDoc;
+        if (doc.example) url.searchParams.set('example', doc.example);
+        if (doc.textInUrl) url.searchParams.set('text', doc.model.getValue());
+        if (!doc.example && doc.fileName !== 'document.le') url.searchParams.set('filename', doc.fileName);
+        url.hash = doc.textInUrl ? '' : doc.hash;
+        window.history.replaceState({}, '', url.toString());
+        updateUrlSelection();
+    }
+
+    // Replaces the document in the current tab (File > New, Open, Open from
+    // server, New from URL). The tab's program takes the panels, afresh.
+    function replaceActiveDocument(text: string, props: { fileName: string, fileHandle?: any, baseUrl?: string | null, example?: string | null }) {
+        const doc = activeDoc;
+        if (doc !== panelDoc) switchPanel(doc);
+        doc.fileName = props.fileName;
+        doc.fileHandle = props.fileHandle ?? null;
+        doc.baseUrl = props.baseUrl ?? null;
+        doc.example = props.example ?? null;
+        doc.hash = '';
+        doc.model.setValue(text);    // docChanged: the program must be reloaded
+        doc.textInUrl = false;
+        doc.viewState = null;
+        isLoaded = false;
+        scenarioSelect.innerHTML = `<option value="">${t('[Empty Scenario]')}</option>`;
+        querySelect.innerHTML = `<option value="">${t('Select a query...')}</option>`;
+        kbModuleDisplay.textContent = '';
+        sessionModuleDisplay.textContent = '';
+        explView.clear();
+        setDirty(doc, false);
+        syncUrlForPanel();
+        updateQueryButtonState();
+        refreshTabs();
+    }
+
+    // "+": a new, empty document in a tab of its own.
+    function newTab(): EditorDoc {
+        const doc = createDoc(newDocumentText(), 'document.le');
+        lspOpen(doc);
+        activateDoc(doc, true);
+        return doc;
+    }
+
+    function closeDoc(doc: EditorDoc) {
+        if (doc.dirty && !confirm(t('You have unsaved changes. Close this tab anyway?'))) return;
+        if (docs.length === 1) newTab();     // there is always a document to edit
+        const i = docs.indexOf(doc);
+        if (doc === activeDoc) {
+            const next = docs[i + 1] || docs[i - 1];
+            activateDoc(next, true);
+        } else if (doc === panelDoc) {
+            switchPanel(activeDoc);
+        }
+        docs.splice(docs.indexOf(doc), 1);
+        lspClose(doc);
+        doc.model.dispose();
+        refreshTabs();
+    }
+
+    // An included resource, shown in a tab of its own at the given range: the
+    // tab that has it already, or a new one with the server's copy of it. The
+    // panels stay on the program that led here.
+    async function openResourceTab(info: any): Promise<void> {
+        let doc = docs.find(d => d.example === info.resourceExample);
+        if (!doc) {
+            try {
+                const response = await fetch('/leapi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: 'myToken123', operation: 'examples', file: info.resourceExample })
+                });
+                const data = await response.json();
+                if (data.document === undefined) {
+                    alert(`${t('Could not open the included resource')} ${describeResourceRange(info)}.`);
+                    return;
+                }
+                doc = createDoc(data.document, info.resourceExample + '.le', { example: info.resourceExample });
+                doc.dirty = false;
+                lspOpen(doc);
+            } catch (err) {
+                console.error('Failed to open included resource', err);
+                alert(`${t('Could not open the included resource')} ${describeResourceRange(info)}.`);
+                return;
+            }
+        }
+        rememberJumpOrigin(editor);
+        activateDoc(doc, false, true);
+        const model = doc.model;
+        let range;
+        if (typeof info.resourceStart === 'number' && typeof info.resourceEnd === 'number') {
+            const a = model.getPositionAt(info.resourceStart), b = model.getPositionAt(info.resourceEnd);
+            range = new monaco.Range(a.lineNumber, a.column, b.lineNumber, b.column);
+        } else {
+            const line = info.resourceLine || 1;
+            range = new monaco.Range(line, 1, line, model.getLineMaxColumn(line));
+        }
+        editor.setSelection(range);
+        editor.revealRangeInCenter(range);
+    }
+    // resource-nav.ts opens included resources through this
+    (window as any).leOpenResourceTab = openResourceTab;
+
+    syncEditorLanguage(editor.getValue());
+    refreshTabs();
+
     // Window closing check
     window.addEventListener('beforeunload', (e) => {
-        if (isDirty) {
+        if (docs.some(d => d.dirty)) {
             e.preventDefault();
             e.returnValue = '';
         }
@@ -3074,7 +3428,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 endColumn: d.range.end.character + 1,
                 message: d.message
             }));
-            monaco.editor.setModelMarkers(editor.getModel()!, 'le', markers);
+            const target = monaco.editor.getModel(monaco.Uri.parse(message.params.uri));
+            if (target) monaco.editor.setModelMarkers(target, 'le', markers);
         }
     };
 
@@ -3093,50 +3448,30 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     sendRequest('initialize', { capabilities: {} });
     sendNotification('initialized', {});
 
-    const model = editor.getModel()!;
-    sendNotification('textDocument/didOpen', {
+    // Every open document is a text document of the language server, under
+    // its model's URI; hover, completion, folding and colouring ask about the
+    // model they are for.
+    lspOpen = (doc: EditorDoc) => sendNotification('textDocument/didOpen', {
         textDocument: {
-            uri: 'file:///main.le',
+            uri: doc.model.uri.toString(),
             languageId: 'le',
-            version: 1,
-            text: model.getValue()
+            version: doc.model.getVersionId(),
+            text: doc.model.getValue()
         }
     });
-
-    syncEditorLanguage(editor.getValue());
-    editor.onDidChangeModelContent(() => {
-        syncEditorLanguage(editor.getValue());
-        isDirty = true;
-        if (isLoaded) {
-            isLoaded = false;
-            scenarioSelect.innerHTML = `<option value="">${t('[Empty Scenario]')}</option>`;
-            querySelect.innerHTML = `<option value="">${t('Select a query...')}</option>`;
-        }
-        
-        // Debounced proactive load
-        if (loadTimeout) clearTimeout(loadTimeout);
-        loadTimeout = setTimeout(() => {
-            if (!isLoaded && !isLoading) loadModule();
-        }, 1500);
-
-        const text = model.getValue();
-        sendNotification('textDocument/didChange', {
-            textDocument: {
-                uri: 'file:///main.le',
-                version: 1
-            },
-            contentChanges: [{ text }]
-        });
-
-        const url = new URL(window.location.href);
-        url.searchParams.set('text', text);
-        window.history.replaceState({}, '', url.toString());
+    lspChange = (doc: EditorDoc) => sendNotification('textDocument/didChange', {
+        textDocument: { uri: doc.model.uri.toString(), version: doc.model.getVersionId() },
+        contentChanges: [{ text: doc.model.getValue() }]
     });
+    lspClose = (doc: EditorDoc) => sendNotification('textDocument/didClose', {
+        textDocument: { uri: doc.model.uri.toString() }
+    });
+    docs.forEach(doc => lspOpen(doc));
 
     monaco.languages.registerHoverProvider('le', {
         provideHover: async (model: any, position: any) => {
             const offset = model.getOffsetAt(position);
-            if (includedResources && includedResources.length > 0) {
+            if (model === programModel() && includedResources && includedResources.length > 0) {
                 for (const res of includedResources) {
                     if (offset >= res.start && offset <= res.end) {
                         return {
@@ -3150,7 +3485,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             }
 
             const res: any = await sendRequest('textDocument/hover', {
-                textDocument: { uri: 'file:///main.le' },
+                textDocument: { uri: model.uri.toString() },
                 position: { line: position.lineNumber - 1, character: position.column - 1 }
             });
             if (res && res.contents) {
@@ -3166,7 +3501,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         triggerCharacters: [' ', '*'],
         provideCompletionItems: async (model: any, position: any) => {
             const res: any = await sendRequest('textDocument/completion', {
-                textDocument: { uri: 'file:///main.le' },
+                textDocument: { uri: model.uri.toString() },
                 position: { line: position.lineNumber - 1, character: position.column - 1 }
             });
             if (res) {
@@ -3241,7 +3576,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         provideFoldingRanges: async (model: any, context: any, token: any) => {
             console.log('Providing folding ranges for', model.uri.toString());
             const res: any = await sendRequest('textDocument/foldingRange', {
-                textDocument: { uri: 'file:///main.le' }
+                textDocument: { uri: model.uri.toString() }
             });
             console.log('Folding ranges from server:', res);
             if (res) {
@@ -3262,7 +3597,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         }),
         provideDocumentSemanticTokens: async (model: any, lastResultId: any, token: any) => {
             const res: any = await sendRequest('textDocument/semanticTokens/full', {
-                textDocument: { uri: 'file:///main.le' }
+                textDocument: { uri: model.uri.toString() }
             });
             if (res && res.data) {
                 return {

@@ -6906,7 +6906,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Endereço do texto: um URL, ou um ficheiro junto ao programa",
     "Fetch text": "Obter texto",
-    "Provenance": "Proveniência"
+    "Provenance": "Proveniência",
+    "New tab": "Novo separador",
+    "The queries and the assistant are about this program": "As consultas e o assistente são sobre este programa",
+    "You have unsaved changes. Close this tab anyway?": "Tem alterações por guardar. Fechar este separador mesmo assim?",
+    "Could not open the included resource": "Não foi possível abrir o recurso incluído"
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -7240,7 +7244,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Dirección del texto: una URL, o un archivo junto al programa",
     "Fetch text": "Obtener texto",
-    "Provenance": "Procedencia"
+    "Provenance": "Procedencia",
+    "New tab": "Nueva pestaña",
+    "The queries and the assistant are about this program": "Las consultas y el asistente tratan de este programa",
+    "You have unsaved changes. Close this tab anyway?": "Tiene cambios sin guardar. ¿Cerrar esta pestaña de todos modos?",
+    "Could not open the included resource": "No se pudo abrir el recurso incluido"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7574,7 +7582,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Adresse du texte : une URL, ou un fichier à côté du programme",
     "Fetch text": "Récupérer le texte",
-    "Provenance": "Provenance"
+    "Provenance": "Provenance",
+    "New tab": "Nouvel onglet",
+    "The queries and the assistant are about this program": "Les requêtes et l'assistant portent sur ce programme",
+    "You have unsaved changes. Close this tab anyway?": "Vous avez des modifications non enregistrées. Fermer cet onglet quand même ?",
+    "Could not open the included resource": "Impossible d'ouvrir la ressource incluse"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7908,7 +7920,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Indirizzo del testo: un URL, o un file accanto al programma",
     "Fetch text": "Recupera testo",
-    "Provenance": "Provenienza"
+    "Provenance": "Provenienza",
+    "New tab": "Nuova scheda",
+    "The queries and the assistant are about this program": "Le interrogazioni e l'assistente riguardano questo programma",
+    "You have unsaved changes. Close this tab anyway?": "Ci sono modifiche non salvate. Chiudere comunque questa scheda?",
+    "Could not open the included resource": "Impossibile aprire la risorsa inclusa"
   }
 } as const;
 

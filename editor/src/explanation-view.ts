@@ -125,6 +125,7 @@ export class ExplanationView {
     // Tree path ("1.2.3") of the selected answer's strongest-reason node, for the
     // "Show strongest reason" action.
     private currentStrongestPath: string | null = null;
+    private currentStrongestReason = '';
     // Per-answer expansion state (keyed by the answer's `why` object), so toggles
     // persist when switching between answers.
     private expansionStore = new WeakMap<object, Map<string, boolean>>();
@@ -136,7 +137,9 @@ export class ExplanationView {
         // Right-click the EXPLANATION title -> title menu (shown whenever there is an
         // explanation). "Show important reason" appears only when there is one.
         opts.explanationTitle?.addEventListener('contextmenu', (e) => {
-            if (!this.lastWhy) return;
+            // several views may share the title (the editor keeps one per open
+            // program): only the one on screen answers
+            if (!this.lastWhy || !this.o.explanationTree.isConnected) return;
             e.preventDefault();
             activeView = this;
             this.m.menuShowStrongest.style.display = this.currentStrongestPath ? '' : 'none';
@@ -158,9 +161,16 @@ export class ExplanationView {
     // context menu. `path` is that node's tree path ("1.2.3"). Cleared when there is none.
     private setStrongestReason(reason?: string, path?: string) {
         this.currentStrongestPath = (reason && path) ? path : null;
+        this.currentStrongestReason = (reason || '').trim();
+        this.refreshTitle();
+    }
+
+    // Puts this view's strongest reason on the (shared) EXPLANATION title,
+    // e.g. when the view comes back on screen.
+    refreshTitle() {
         const el = this.o.explanationTitle;
         if (!el) return;
-        const r = (reason || '').trim();
+        const r = this.currentStrongestReason;
         if (r) { el.title = `Important reason: ${r}`; el.classList.add('has-reason'); }
         else { el.removeAttribute('title'); el.classList.remove('has-reason'); }
     }

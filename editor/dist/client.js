@@ -6770,7 +6770,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Endere\xE7o do texto: um URL, ou um ficheiro junto ao programa",
     "Fetch text": "Obter texto",
-    "Provenance": "Proveni\xEAncia"
+    "Provenance": "Proveni\xEAncia",
+    "New tab": "Novo separador",
+    "The queries and the assistant are about this program": "As consultas e o assistente s\xE3o sobre este programa",
+    "You have unsaved changes. Close this tab anyway?": "Tem altera\xE7\xF5es por guardar. Fechar este separador mesmo assim?",
+    "Could not open the included resource": "N\xE3o foi poss\xEDvel abrir o recurso inclu\xEDdo"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -7104,7 +7108,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Direcci\xF3n del texto: una URL, o un archivo junto al programa",
     "Fetch text": "Obtener texto",
-    "Provenance": "Procedencia"
+    "Provenance": "Procedencia",
+    "New tab": "Nueva pesta\xF1a",
+    "The queries and the assistant are about this program": "Las consultas y el asistente tratan de este programa",
+    "You have unsaved changes. Close this tab anyway?": "Tiene cambios sin guardar. \xBFCerrar esta pesta\xF1a de todos modos?",
+    "Could not open the included resource": "No se pudo abrir el recurso incluido"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7438,7 +7446,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Adresse du texte : une URL, ou un fichier \xE0 c\xF4t\xE9 du programme",
     "Fetch text": "R\xE9cup\xE9rer le texte",
-    "Provenance": "Provenance"
+    "Provenance": "Provenance",
+    "New tab": "Nouvel onglet",
+    "The queries and the assistant are about this program": "Les requ\xEAtes et l'assistant portent sur ce programme",
+    "You have unsaved changes. Close this tab anyway?": "Vous avez des modifications non enregistr\xE9es. Fermer cet onglet quand m\xEAme ?",
+    "Could not open the included resource": "Impossible d'ouvrir la ressource incluse"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7772,7 +7784,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Indirizzo del testo: un URL, o un file accanto al programma",
     "Fetch text": "Recupera testo",
-    "Provenance": "Provenienza"
+    "Provenance": "Provenienza",
+    "New tab": "Nuova scheda",
+    "The queries and the assistant are about this program": "Le interrogazioni e l'assistente riguardano questo programma",
+    "You have unsaved changes. Close this tab anyway?": "Ci sono modifiche non salvate. Chiudere comunque questa scheda?",
+    "Could not open the included resource": "Impossibile aprire la risorsa inclusa"
   }
 };
 var languages = [
@@ -10027,6 +10043,11 @@ function openIncludedResource(info) {
     alert(`${t("This is defined in the included resource")} ${describeResourceRange(info)}.`);
     return;
   }
+  const inTab = window.leOpenResourceTab;
+  if (typeof inTab === "function") {
+    inTab(info);
+    return;
+  }
   const url = new URL(window.location.href);
   url.search = "";
   url.hash = "";
@@ -10308,6 +10329,7 @@ var ExplanationView = class {
   // Tree path ("1.2.3") of the selected answer's strongest-reason node, for the
   // "Show strongest reason" action.
   currentStrongestPath = null;
+  currentStrongestReason = "";
   // Per-answer expansion state (keyed by the answer's `why` object), so toggles
   // persist when switching between answers.
   expansionStore = /* @__PURE__ */ new WeakMap();
@@ -10316,7 +10338,7 @@ var ExplanationView = class {
     this.m = opts.menus;
     wireMenus(opts.menus);
     opts.explanationTitle?.addEventListener("contextmenu", (e) => {
-      if (!this.lastWhy)
+      if (!this.lastWhy || !this.o.explanationTree.isConnected)
         return;
       e.preventDefault();
       activeView = this;
@@ -10353,10 +10375,16 @@ var ExplanationView = class {
   // context menu. `path` is that node's tree path ("1.2.3"). Cleared when there is none.
   setStrongestReason(reason, path) {
     this.currentStrongestPath = reason && path ? path : null;
+    this.currentStrongestReason = (reason || "").trim();
+    this.refreshTitle();
+  }
+  // Puts this view's strongest reason on the (shared) EXPLANATION title,
+  // e.g. when the view comes back on screen.
+  refreshTitle() {
     const el = this.o.explanationTitle;
     if (!el)
       return;
-    const r = (reason || "").trim();
+    const r = this.currentStrongestReason;
     if (r) {
       el.title = `Important reason: ${r}`;
       el.classList.add("has-reason");
@@ -10795,6 +10823,104 @@ ${provenanceSummary(node.provenance, node.rule)}`;
   }
 };
 
+// src/editor-tabs.ts
+function ensureStyles2() {
+  if (document.getElementById("editor-tabs-styles"))
+    return;
+  const style = document.createElement("style");
+  style.id = "editor-tabs-styles";
+  style.textContent = `
+        #editor-tabs { display: flex; align-items: stretch; height: 30px; box-sizing: border-box;
+            overflow-x: auto; overflow-y: hidden; background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color); scrollbar-width: thin; }
+        #editor-tabs .le-tab { display: flex; align-items: center; gap: 6px; min-width: 110px; max-width: 240px;
+            flex: 0 1 200px; padding: 0 6px 0 10px; font-size: 12px; cursor: pointer; user-select: none;
+            color: var(--label-color); border-right: 1px solid var(--border-color); position: relative; }
+        #editor-tabs .le-tab:hover { background: var(--item-hover-bg); color: var(--text-color); }
+        #editor-tabs .le-tab.active { background: var(--bg-color); color: var(--text-color);
+            box-shadow: inset 0 2px 0 #0e639c; }
+        #editor-tabs .le-tab.program::after { content: ''; position: absolute; left: 8px; right: 8px; bottom: 2px;
+            border-bottom: 2px dotted #0e639c; }
+        #editor-tabs .le-tab-icon { font-size: 9px; font-weight: bold; color: #4fc1ff; border: 1px solid #4fc1ff;
+            border-radius: 3px; padding: 0 2px; line-height: 12px; flex: none; }
+        .light-theme #editor-tabs .le-tab-icon { color: #0e639c; border-color: #0e639c; }
+        #editor-tabs .le-tab-title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        #editor-tabs .le-tab-close { flex: none; width: 18px; height: 18px; line-height: 17px; text-align: center;
+            border-radius: 3px; font-size: 14px; color: inherit; visibility: hidden; }
+        #editor-tabs .le-tab:hover .le-tab-close, #editor-tabs .le-tab.active .le-tab-close,
+        #editor-tabs .le-tab.dirty .le-tab-close { visibility: visible; }
+        #editor-tabs .le-tab-close:hover { background: rgba(128,128,128,0.35); }
+        #editor-tabs .le-tab.dirty .le-tab-close::before { content: '\u25CF'; font-size: 10px; }
+        #editor-tabs .le-tab.dirty .le-tab-close span { display: none; }
+        #editor-tabs .le-tab.dirty .le-tab-close:hover::before { content: ''; }
+        #editor-tabs .le-tab.dirty .le-tab-close:hover span { display: inline; }
+        #editor-tabs .le-tab-new { flex: none; width: 30px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 17px; color: var(--label-color); }
+        #editor-tabs .le-tab-new:hover { background: var(--item-hover-bg); color: var(--text-color); }
+    `;
+  document.head.appendChild(style);
+}
+var TabBar = class {
+  constructor(el, o) {
+    this.el = el;
+    this.o = o;
+    ensureStyles2();
+  }
+  render(tabs, activeId) {
+    this.el.innerHTML = "";
+    for (const tab of tabs) {
+      const tabEl = document.createElement("div");
+      tabEl.className = "le-tab" + (tab.id === activeId ? " active" : "") + (tab.dirty ? " dirty" : "") + (tab.program ? " program" : "");
+      tabEl.dataset.tabId = String(tab.id);
+      tabEl.title = (tab.tooltip || tab.title) + (tab.program ? `
+${this.o.programTitle}` : "");
+      const icon = document.createElement("span");
+      icon.className = "le-tab-icon";
+      icon.textContent = "LE";
+      const title = document.createElement("span");
+      title.className = "le-tab-title";
+      title.textContent = tab.title;
+      const close = document.createElement("span");
+      close.className = "le-tab-close";
+      close.title = t("Close");
+      const x = document.createElement("span");
+      x.textContent = "\xD7";
+      close.appendChild(x);
+      close.addEventListener("click", (e) => {
+        e.stopPropagation();
+        this.o.onClose(tab.id);
+      });
+      tabEl.addEventListener("click", () => this.o.onSelect(tab.id));
+      tabEl.addEventListener("auxclick", (e) => {
+        if (e.button === 1) {
+          e.preventDefault();
+          this.o.onClose(tab.id);
+        }
+      });
+      tabEl.append(icon, title, close);
+      this.el.appendChild(tabEl);
+      if (tab.id === activeId)
+        setTimeout(() => this.reveal(tabEl), 0);
+    }
+    const plus = document.createElement("div");
+    plus.className = "le-tab-new";
+    plus.id = "editor-tab-new";
+    plus.textContent = "+";
+    plus.title = this.o.newTitle;
+    plus.addEventListener("click", () => this.o.onNew());
+    this.el.appendChild(plus);
+  }
+  // Scrolls the strip (only the strip) so that a tab is in view.
+  reveal(tabEl) {
+    const strip = this.el.getBoundingClientRect();
+    const r = tabEl.getBoundingClientRect();
+    if (r.left < strip.left)
+      this.el.scrollLeft -= strip.left - r.left;
+    else if (r.right > strip.right)
+      this.el.scrollLeft += r.right - strip.right;
+  }
+};
+
 // src/client.ts
 var graphChannel = new BroadcastChannel("le-graph-sync");
 var scenarioChannel = new BroadcastChannel("le-scenario-editor");
@@ -10826,17 +10952,17 @@ async function start() {
     return `${marker.startLineNumber}:${marker.startColumn}:${marker.message}`;
   };
   monaco.languages.registerCodeActionProvider("le", {
-    provideCodeActions: (model2, range, context, token) => {
+    provideCodeActions: (model, range, context, token) => {
       const actions = context.markers.filter((m) => m.source === "LE Verifier").map((m) => {
         const fix = issueFixes.get(getMarkerKey(m));
         if (!fix)
           return null;
-        const text = model2.getValue();
+        const text = model.getValue();
         const match = text.match(/the[ \t]+(predicates|templates|fluents|events)[ \t]+are:/i);
         let insertRange;
         if (match) {
           const offset = match.index + match[0].length;
-          const pos = model2.getPositionAt(offset);
+          const pos = model.getPositionAt(offset);
           insertRange = new monaco.Range(pos.lineNumber + 1, 1, pos.lineNumber + 1, 1);
         } else {
           insertRange = new monaco.Range(1, 1, 1, 1);
@@ -10848,7 +10974,7 @@ async function start() {
           edit: {
             edits: [
               {
-                resource: model2.uri,
+                resource: model.uri,
                 textEdit: {
                   range: insertRange,
                   text: `    ${fix}
@@ -10946,12 +11072,9 @@ async function start() {
   if (filenameParam) {
     initialFilename = filenameParam;
   }
-  let currentFileName = initialFilename;
-  let fileHandle = null;
-  let currentBaseUrl = null;
   const filenameDisplay = document.getElementById("filename-display");
   if (filenameDisplay) {
-    filenameDisplay.textContent = currentFileName;
+    filenameDisplay.textContent = initialFilename;
   }
   const savedTheme = localStorage.getItem("le-editor-theme") || "le-theme";
   const savedFontSize = parseInt(localStorage.getItem("le-editor-font-size") || "16");
@@ -10964,7 +11087,6 @@ async function start() {
   if (numberingCheck) {
     numberingCheck.style.visibility = showHierarchicalNumbering ? "visible" : "hidden";
   }
-  let isDirty = false;
   let isLoaded = false;
   let isLoading = false;
   let lastIssues = [];
@@ -10988,9 +11110,47 @@ async function start() {
     }
   }).catch((err) => console.error("Failed to fetch build info", err));
   const container = document.getElementById("container");
+  let nextDocId = 1;
+  const docs = [];
+  function createDoc(text, fileName, props = {}) {
+    const id = nextDocId++;
+    const uri = monaco.Uri.parse(id === 1 ? "file:///main.le" : `file:///tab${id}.le`);
+    const doc = {
+      id,
+      model: monaco.editor.createModel(text, "le", uri),
+      viewState: null,
+      fileName,
+      fileHandle: null,
+      baseUrl: null,
+      example: null,
+      dirty: false,
+      textInUrl: false,
+      hash: "",
+      assistantSessionId: "ses_" + Math.random().toString(36).substring(7),
+      panel: null,
+      ...props
+    };
+    docs.push(doc);
+    doc.model.onDidChangeContent(() => docChanged(doc));
+    return doc;
+  }
+  const firstDoc = createDoc(initialValue, initialFilename, {
+    example: exampleParam || null,
+    textInUrl: !lzpParam && !!textParam,
+    hash: lzpParam ? window.location.hash : ""
+  });
+  let activeDoc = firstDoc;
+  let panelDoc = firstDoc;
+  let lspOpen = (_doc) => {
+  };
+  let lspChange = (_doc) => {
+  };
+  let lspClose = (_doc) => {
+  };
+  const programModel = () => panelDoc.model;
+  const programText = () => panelDoc.model.getValue();
   const editor = monaco.editor.create(container, {
-    value: initialValue,
-    language: "le",
+    model: firstDoc.model,
     theme: savedTheme,
     automaticLayout: true,
     fontSize: savedFontSize,
@@ -11011,10 +11171,11 @@ async function start() {
         openIncludedResource(info);
       return;
     }
-    const model2 = editor.getModel();
+    showProgramInEditor();
+    const model = editor.getModel();
     rememberJumpOrigin(editor);
-    const startPos = model2.getPositionAt(start2);
-    const endPos = model2.getPositionAt(end);
+    const startPos = model.getPositionAt(start2);
+    const endPos = model.getPositionAt(end);
     editor.setSelection(new monaco.Range(
       startPos.lineNumber,
       startPos.column,
@@ -11047,8 +11208,7 @@ async function start() {
     contextMenuOrder: 1.6,
     precondition: "editorTextFocus",
     run: (ed) => {
-      const params2 = new URLSearchParams(window.location.search);
-      const example = params2.get("example");
+      const example = activeDoc.example;
       if (!example) {
         alert(t("Copy URL is only available for existing examples."));
         return;
@@ -11072,9 +11232,10 @@ async function start() {
     contextMenuOrder: 1.5,
     run: async (ed) => {
       const position = ed.getPosition();
-      const model2 = ed.getModel();
-      const offset = model2.getOffsetAt(position);
-      if (!isLoaded && !isLoading) {
+      const model = ed.getModel();
+      const offset = model.getOffsetAt(position);
+      adoptActiveAsProgram();
+      if (!isLoaded) {
         await loadModule();
       }
       if (!sessionModule) {
@@ -11109,7 +11270,8 @@ async function start() {
     contextMenuGroupId: "navigation",
     contextMenuOrder: 1.6,
     run: async (ed) => {
-      if (!isLoaded && !isLoading) {
+      adoptActiveAsProgram();
+      if (!isLoaded) {
         await loadModule();
       }
       if (!sessionModule) {
@@ -11168,7 +11330,8 @@ async function start() {
     contextMenuGroupId: "navigation",
     contextMenuOrder: 1.7,
     run: async (ed) => {
-      if (!isLoaded && !isLoading) {
+      adoptActiveAsProgram();
+      if (!isLoaded) {
         await loadModule();
       }
       if (!sessionModule) {
@@ -11180,14 +11343,15 @@ async function start() {
     }
   });
   async function predicateAtCursor(ed, operation = "predicateAt") {
-    if (!isLoaded && !isLoading) {
+    adoptActiveAsProgram();
+    if (!isLoaded) {
       await loadModule();
     }
     if (!sessionModule) {
       alert(t("Please wait for the module to load."));
       return null;
     }
-    const model2 = ed.getModel();
+    const model = ed.getModel();
     const position = ed.getPosition();
     try {
       const response = await fetch("/leapi", {
@@ -11197,13 +11361,13 @@ async function start() {
           token: "myToken123",
           operation,
           sessionModule,
-          position: model2.getOffsetAt(position),
-          line: model2.getLineContent(position.lineNumber),
+          position: model.getOffsetAt(position),
+          line: model.getLineContent(position.lineNumber),
           // Where that line starts: a rule whose source range
           // begins on this line is a rule the cursor is on the
           // HEAD of, whatever words the conditions below share
           // with it (see on_head_line/3 in classic_web_api.pl).
-          lineStart: model2.getOffsetAt({ lineNumber: position.lineNumber, column: 1 })
+          lineStart: model.getOffsetAt({ lineNumber: position.lineNumber, column: 1 })
         })
       });
       const data = await response.json();
@@ -11218,8 +11382,8 @@ async function start() {
     }
   }
   function ruleHeadLines(ed, data) {
-    const model2 = ed.getModel();
-    const lines = (data.rules || []).filter((r) => !isForeignOffset(r.start)).map((r) => model2.getPositionAt(r.start).lineNumber);
+    const model = ed.getModel();
+    const lines = (data.rules || []).filter((r) => !isForeignOffset(r.start)).map((r) => model.getPositionAt(r.start).lineNumber);
     return [...new Set(lines)].sort((a, b) => a - b);
   }
   async function foldPredicateRules(ed, fold) {
@@ -11271,9 +11435,9 @@ async function start() {
     if (!position)
       return;
     const last = jumpHistory[jumpHistory.length - 1];
-    if (last && last.lineNumber === position.lineNumber && last.column === position.column)
+    if (last && last.doc === activeDoc && last.lineNumber === position.lineNumber && last.column === position.column)
       return;
-    jumpHistory.push({ lineNumber: position.lineNumber, column: position.column });
+    jumpHistory.push({ lineNumber: position.lineNumber, column: position.column, doc: activeDoc });
     if (jumpHistory.length > JUMP_HISTORY_MAX)
       jumpHistory.shift();
   }
@@ -11298,7 +11462,7 @@ async function start() {
       const data = await predicateAtCursor(ed);
       if (!data)
         return;
-      const model2 = ed.getModel();
+      const model = ed.getModel();
       const local = (data.rules || []).filter((r) => !isForeignOffset(r.start));
       const first = local.length > 0 ? local[0] : data.template && !isForeignOffset(data.template.start) ? data.template : data.rules && data.rules.length > 0 ? data.rules[0] : data.template;
       if (first && isForeignOffset(first.start)) {
@@ -11310,7 +11474,7 @@ async function start() {
         alert(t("No definition found for") + ` "${data.le}"`);
         return;
       }
-      const pos = model2.getPositionAt(target);
+      const pos = model.getPositionAt(target);
       jumpToLine(ed, pos.lineNumber, pos.column);
     }
   });
@@ -11330,9 +11494,9 @@ async function start() {
   function leWords(text) {
     return text.toLowerCase().split(/[^0-9a-zà-öø-ÿA-ZÀ-ÖØ-Þ_]+/).filter((w) => w.length > 0);
   }
-  function occurrenceLine(model2, occ) {
-    const first = model2.getPositionAt(occ.start).lineNumber;
-    const last = Math.min(model2.getPositionAt(occ.end).lineNumber, model2.getLineCount());
+  function occurrenceLine(model, occ) {
+    const first = model.getPositionAt(occ.start).lineNumber;
+    const last = Math.min(model.getPositionAt(occ.end).lineNumber, model.getLineCount());
     const searches = occ.kind === "condition" || occ.kind === "query";
     if (!searches || last <= first)
       return first;
@@ -11341,7 +11505,7 @@ async function start() {
       return first;
     let best = first, bestScore = 0;
     for (let line = first + 1; line <= last; line++) {
-      const lineWords = new Set(leWords(model2.getLineContent(line)));
+      const lineWords = new Set(leWords(model.getLineContent(line)));
       const score = words2.filter((w) => lineWords.has(w)).length;
       if (score > bestScore) {
         bestScore = score;
@@ -11361,13 +11525,13 @@ async function start() {
   function showOccurrences(ed, data) {
     if (!occurrencesModal || !occurrencesList)
       return;
-    const model2 = ed.getModel();
+    const model = ed.getModel();
     const rows = [];
     const seen = /* @__PURE__ */ new Set();
     for (const occ of data.occurrences || []) {
       if (isForeignOffset(occ.start))
         continue;
-      const line = occurrenceLine(model2, occ);
+      const line = occurrenceLine(model, occ);
       const key = `${line}|${occ.kind}|${occ.text}`;
       if (seen.has(key))
         continue;
@@ -11392,7 +11556,7 @@ async function start() {
       item.appendChild(lineNo);
       const text = document.createElement("span");
       text.className = "occurrence-text";
-      text.textContent = model2.getLineContent(row.line).trim() || row.occ.text || "";
+      text.textContent = model.getLineContent(row.line).trim() || row.occ.text || "";
       item.appendChild(text);
       if (row.occ.context) {
         const context = document.createElement("span");
@@ -11442,11 +11606,15 @@ async function start() {
     contextMenuGroupId: "navigation",
     contextMenuOrder: 2.3,
     run: (ed) => {
-      const target = jumpHistory.pop();
+      let target = jumpHistory.pop();
+      while (target && !docs.includes(target.doc))
+        target = jumpHistory.pop();
       if (!target)
         return;
-      const model2 = ed.getModel();
-      const lineNumber = Math.min(target.lineNumber, model2.getLineCount());
+      if (target.doc !== activeDoc)
+        activateDoc(target.doc, false);
+      const model = ed.getModel();
+      const lineNumber = Math.min(target.lineNumber, model.getLineCount());
       ed.revealLineInCenter(lineNumber);
       ed.setPosition({ lineNumber, column: target.column });
       ed.focus();
@@ -11520,20 +11688,14 @@ async function start() {
   }
   const updateSaveMenu = () => {
     if (menuSave) {
-      menuSave.style.display = fileHandle ? "block" : "none";
+      menuSave.style.display = activeDoc.fileHandle ? "block" : "none";
     }
   };
+  const newDocumentText = () => uiLang() === "en" ? "" : targetLanguageStatement() + "\n\n";
   document.getElementById("menu-new")?.addEventListener("click", () => {
-    if (isDirty && !confirm(t("You have unsaved changes. Create new file anyway?")))
+    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Create new file anyway?")))
       return;
-    editor.setValue(uiLang() === "en" ? "" : targetLanguageStatement() + "\n\n");
-    currentFileName = "document.le";
-    fileHandle = null;
-    currentBaseUrl = null;
-    updateSaveMenu();
-    if (filenameDisplay)
-      filenameDisplay.textContent = currentFileName;
-    isDirty = false;
+    replaceActiveDocument(newDocumentText(), { fileName: "document.le" });
   });
   const urlModal = document.getElementById("new-from-url-modal");
   const urlInput = document.getElementById("new-from-url-input");
@@ -11550,7 +11712,7 @@ async function start() {
     }
   };
   document.getElementById("menu-new-from-url")?.addEventListener("click", () => {
-    if (isDirty && !confirm(t("You have unsaved changes. Load from URL anyway?")))
+    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Load from URL anyway?")))
       return;
     if (urlError)
       urlError.style.display = "none";
@@ -11578,7 +11740,7 @@ async function start() {
       navigator.clipboard.writeText(u);
   });
   document.getElementById("menu-qr-code")?.addEventListener("click", async () => {
-    const url = await buildShareUrl(editor.getValue());
+    const url = await buildShareUrl(programText());
     if (url.length > QR_URL_MAX) {
       showModal(
         t("The URL is too long for a QR code ({n} characters; the limit is {max}). Shorten the program, or save it as a server example and share its example URL instead.").replace("{n}", String(url.length)).replace("{max}", String(QR_URL_MAX)),
@@ -11619,15 +11781,13 @@ async function start() {
       if (!resp.ok)
         throw new Error(`server returned ${resp.status} ${resp.statusText}`);
       const content = await resp.text();
-      editor.setValue(content);
       const seg = url.pathname.split("/").filter(Boolean).pop() || "document.le";
-      currentFileName = /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + ".le";
-      fileHandle = null;
-      currentBaseUrl = raw.slice(0, raw.length - url.pathname.split("/").pop().length);
-      if (filenameDisplay)
-        filenameDisplay.textContent = currentFileName;
-      isDirty = false;
-      updateSaveMenu();
+      replaceActiveDocument(content, {
+        fileName: /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + ".le",
+        // remote: no local write-back handle. Base = the URL up to its
+        // last '/', so relative includes resolve.
+        baseUrl: raw.slice(0, raw.length - url.pathname.split("/").pop().length)
+      });
       closeUrlModal();
     } catch (err) {
       showUrlError(
@@ -11647,7 +11807,7 @@ async function start() {
   });
   const fileInput = document.getElementById("file-input");
   document.getElementById("menu-open")?.addEventListener("click", async () => {
-    if (isDirty && !confirm(t("You have unsaved changes. Open another file anyway?")))
+    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Open another file anyway?")))
       return;
     if ("showOpenFilePicker" in window) {
       try {
@@ -11660,14 +11820,7 @@ async function start() {
         });
         const file = await handle.getFile();
         const content = await file.text();
-        fileHandle = handle;
-        currentFileName = file.name;
-        currentBaseUrl = null;
-        if (filenameDisplay)
-          filenameDisplay.textContent = currentFileName;
-        editor.setValue(content);
-        isDirty = false;
-        updateSaveMenu();
+        replaceActiveDocument(content, { fileName: file.name, fileHandle: handle });
         return;
       } catch (err) {
         if (err.name === "AbortError")
@@ -11681,34 +11834,27 @@ async function start() {
     const file = e.target.files?.[0];
     if (!file)
       return;
-    currentFileName = file.name;
-    fileHandle = null;
-    currentBaseUrl = null;
-    updateSaveMenu();
-    if (filenameDisplay)
-      filenameDisplay.textContent = currentFileName;
     const reader = new FileReader();
     reader.onload = (e2) => {
       const content = e2.target?.result;
       if (content !== void 0) {
-        editor.setValue(content);
-        isDirty = false;
+        replaceActiveDocument(content, { fileName: file.name });
       }
     };
     reader.readAsText(file);
     fileInput.value = "";
   });
-  const saveToFile = async (handle) => {
-    const content = editor.getValue();
+  const saveToFile = async (handle, doc = activeDoc) => {
+    const content = doc.model.getValue();
     const writable = await handle.createWritable();
     await writable.write(content);
     await writable.close();
-    isDirty = false;
+    setDirty(doc, false);
   };
   const saveAction = async () => {
-    if (fileHandle) {
+    if (activeDoc.fileHandle) {
       try {
-        await saveToFile(fileHandle);
+        await saveToFile(activeDoc.fileHandle);
         return;
       } catch (err) {
         console.error("Direct save failed, falling back to Save As", err);
@@ -11717,22 +11863,21 @@ async function start() {
     await saveAsAction();
   };
   const saveAsAction = async () => {
-    const content = editor.getValue();
+    const doc = activeDoc;
+    const content = doc.model.getValue();
     if ("showSaveFilePicker" in window) {
       try {
         const handle = await window.showSaveFilePicker({
-          suggestedName: currentFileName,
+          suggestedName: doc.fileName.split("/").pop(),
           types: [{
             description: "Logical English File",
             accept: { "text/plain": [".le"] }
           }]
         });
-        await saveToFile(handle);
-        fileHandle = handle;
-        currentFileName = handle.name;
-        if (filenameDisplay)
-          filenameDisplay.textContent = currentFileName;
-        updateSaveMenu();
+        await saveToFile(handle, doc);
+        doc.fileHandle = handle;
+        doc.fileName = handle.name;
+        refreshTabs();
         return;
       } catch (err) {
         if (err.name === "AbortError")
@@ -11744,10 +11889,10 @@ async function start() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = currentFileName;
+    a.download = doc.fileName.split("/").pop() || "document.le";
     a.click();
     URL.revokeObjectURL(url);
-    isDirty = false;
+    setDirty(doc, false);
   };
   menuSave?.addEventListener("click", saveAction);
   menuSaveAs?.addEventListener("click", saveAsAction);
@@ -11770,7 +11915,7 @@ async function start() {
       closeModal();
   });
   document.getElementById("menu-open-server")?.addEventListener("click", async () => {
-    if (isDirty && !confirm(t("You have unsaved changes. Open from server anyway?")))
+    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Open from server anyway?")))
       return;
     if (modalOverlay)
       modalOverlay.style.display = "flex";
@@ -11854,18 +11999,7 @@ async function start() {
         return;
       }
       if (data.document !== void 0) {
-        editor.setValue(data.document);
-        currentFileName = name + ".le";
-        fileHandle = null;
-        updateSaveMenu();
-        if (filenameDisplay)
-          filenameDisplay.textContent = currentFileName;
-        isDirty = false;
-        isLoaded = false;
-        scenarioSelect.innerHTML = `<option value="">${t("[Empty Scenario]")}</option>`;
-        querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
-        kbModuleDisplay.textContent = "";
-        sessionModuleDisplay.textContent = "";
+        replaceActiveDocument(data.document, { fileName: name + ".le", example: name });
       }
     } catch (err) {
       alert(t("Failed to load example from server."));
@@ -12092,7 +12226,7 @@ async function start() {
         sessionModule,
         theme: localStorage.getItem("le-editor-theme") || "le-theme",
         isLoaded,
-        filename: currentFileName
+        filename: panelDoc.fileName
       }
     });
   }
@@ -12105,8 +12239,10 @@ async function start() {
     }
   };
   editor.onDidChangeCursorPosition((e) => {
-    const model2 = editor.getModel();
-    const offset = model2.getOffsetAt(e.position);
+    if (activeDoc !== panelDoc)
+      return;
+    const model = editor.getModel();
+    const offset = model.getOffsetAt(e.position);
     graphChannel.postMessage({
       type: "focus-offset",
       data: { offset }
@@ -12170,13 +12306,12 @@ async function start() {
   document.getElementById("menu-engine-nonprolog")?.addEventListener("click", () => setEnginePickerMode("nonprolog"));
   function refreshEnginePickerTarget() {
     try {
-      currentTargetLanguage = detectTargetLanguage(editor.getValue());
+      currentTargetLanguage = detectTargetLanguage(programText());
     } catch {
       currentTargetLanguage = "prolog";
     }
     applyEnginePickerVisibility();
   }
-  editor.onDidChangeModelContent(() => refreshEnginePickerTarget());
   updateEnginePickerChecks();
   refreshEnginePickerTarget();
   const btnQuery = document.getElementById("btn-query");
@@ -12234,8 +12369,7 @@ async function start() {
   const updateQueryButtonState = () => {
     if (!btnQuery)
       return;
-    const model2 = editor.getModel();
-    const markers = model2 ? monaco.editor.getModelMarkers({ owner: "le-verifier" }) : [];
+    const markers = monaco.editor.getModelMarkers({ owner: "le-verifier", resource: programModel().uri });
     const hasErrors = markers.some((m) => m.severity === monaco.MarkerSeverity.Error);
     const scenarioSelected = true;
     const querySelected = querySelect.value !== "";
@@ -12271,9 +12405,8 @@ async function start() {
         btnTrace.title = "";
     }
   };
-  const updateMarkers = (issues) => {
-    const model2 = editor.getModel();
-    if (!model2)
+  const updateMarkers = (issues, model = programModel()) => {
+    if (!model)
       return;
     issueFixes.clear();
     const includeSection = (includedResources || []).find((r) => !isForeignOffset(r.start));
@@ -12281,8 +12414,8 @@ async function start() {
       const foreign = isForeignOffset(issue.start);
       const start2 = foreign ? includeSection ? includeSection.start : 0 : issue.start;
       const end = foreign ? includeSection ? includeSection.end : 0 : issue.end;
-      const startPos = model2.getPositionAt(start2);
-      const endPos = model2.getPositionAt(end);
+      const startPos = model.getPositionAt(start2);
+      const endPos = model.getPositionAt(end);
       const message = foreign ? `${t("In the included resource")} ${describeResourceRange(issue)}: ${issue.message}` : issue.message;
       const marker = {
         severity: issue.severity === "error" ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
@@ -12298,13 +12431,31 @@ async function start() {
       }
       return marker;
     });
-    monaco.editor.setModelMarkers(model2, "le-verifier", markers);
+    monaco.editor.setModelMarkers(model, "le-verifier", markers);
     updateQueryButtonState();
   };
-  const loadModule = async () => {
-    if (isLoaded || isLoading)
-      return true;
+  let loadPromise = null;
+  let loadGen = 0;
+  const queryTab = document.getElementById("query-tab");
+  const loadModule = () => {
+    if (isLoaded)
+      return Promise.resolve(true);
+    if (isLoading && loadPromise)
+      return loadPromise;
+    const gen = ++loadGen;
     isLoading = true;
+    queryTab?.classList.add("le-loading");
+    loadPromise = loadProgram(gen).finally(() => {
+      if (gen === loadGen) {
+        isLoading = false;
+        loadPromise = null;
+        queryTab?.classList.remove("le-loading");
+      }
+    });
+    return loadPromise;
+  };
+  const loadProgram = async (gen) => {
+    const doc = panelDoc;
     resultsDisplay.textContent = t("Loading module on server...");
     try {
       const response = await fetch("/leapi", {
@@ -12313,16 +12464,18 @@ async function start() {
         body: JSON.stringify({
           token: "myToken123",
           operation: "load",
-          le: editor.getValue(),
+          le: doc.model.getValue(),
           // The example this text came from, so the server resolves
           // relative include resources against the example's folder.
-          source: new URLSearchParams(window.location.search).get("example") || "",
+          source: doc.example || "",
           // If the document was fetched from a URL, its base URL, so
           // relative includes resolve against the remote location.
-          base: currentBaseUrl || ""
+          base: doc.baseUrl || ""
         })
       });
       const res = await response.json();
+      if (gen !== loadGen)
+        return false;
       if (res && res.sessionModule) {
         sessionModule = res.sessionModule;
         isLoaded = true;
@@ -12394,20 +12547,19 @@ async function start() {
           updateMarkers([]);
         }
         resultsDisplay.textContent = t("Results");
-        isLoading = false;
         return true;
       } else {
         lastLoadError = res?.error || "Unknown error";
         resultsDisplay.textContent = t("Error loading module: ") + lastLoadError;
-        isLoading = false;
         updateMarkers([]);
         return false;
       }
     } catch (err) {
+      if (gen !== loadGen)
+        return false;
       lastLoadError = "Error connecting to server.";
       resultsDisplay.textContent = lastLoadError;
       console.error(err);
-      isLoading = false;
       updateMarkers([]);
       return false;
     }
@@ -12505,37 +12657,30 @@ async function start() {
     if (!isLoaded && !isLoading)
       loadModule();
   });
-  scenarioSelect.addEventListener("mousedown", async (e) => {
-    if (!isLoaded) {
-      if (!isLoading) {
-        e.preventDefault();
-        const success = await loadModule();
-        if (success) {
-          setTimeout(() => {
-            scenarioSelect.focus();
-            scenarioSelect.click();
-          }, 100);
-        }
-      } else {
-        e.preventDefault();
-      }
+  const openPickerAfterLoad = async (select, e) => {
+    if (isLoaded)
+      return;
+    e.preventDefault();
+    document.body.classList.add("le-busy");
+    let ok = false;
+    try {
+      ok = await loadModule();
+    } finally {
+      document.body.classList.remove("le-busy");
     }
+    if (!ok)
+      return;
+    select.focus();
+    try {
+      select.showPicker?.();
+    } catch {
+    }
+  };
+  scenarioSelect.addEventListener("mousedown", (e) => {
+    openPickerAfterLoad(scenarioSelect, e);
   });
-  querySelect.addEventListener("mousedown", async (e) => {
-    if (!isLoaded) {
-      if (!isLoading) {
-        e.preventDefault();
-        const success = await loadModule();
-        if (success) {
-          setTimeout(() => {
-            querySelect.focus();
-            querySelect.click();
-          }, 100);
-        }
-      } else {
-        e.preventDefault();
-      }
-    }
+  querySelect.addEventListener("mousedown", (e) => {
+    openPickerAfterLoad(querySelect, e);
   });
   applyUrlSelection();
   const bottomPanel = document.getElementById("bottom-panel");
@@ -12550,7 +12695,7 @@ async function start() {
       return;
     const offsetTop = e.clientY;
     const windowHeight = window.innerHeight;
-    const headerHeight = 35 + 30;
+    const headerHeight = container.getBoundingClientRect().top;
     const newContainerHeight = offsetTop - headerHeight;
     const newPanelHeight = windowHeight - offsetTop - 5;
     if (newContainerHeight > 100 && newPanelHeight > 100) {
@@ -12586,11 +12731,11 @@ async function start() {
     if (!isResizing)
       document.body.style.cursor = "default";
   });
-  const answersList = document.getElementById("answers-list");
-  const explanationTree = document.getElementById("explanation-tree");
-  const explView = new ExplanationView({
-    answersList,
-    explanationTree,
+  let answersList = document.getElementById("answers-list");
+  let explanationTree = document.getElementById("explanation-tree");
+  const makeExplanationView = (answersList2, explanationTree2) => new ExplanationView({
+    answersList: answersList2,
+    explanationTree: explanationTree2,
     explanationTitle: document.getElementById("explanation-title") || void 0,
     menus: {
       answerContextMenu: document.getElementById("answer-context-menu"),
@@ -12615,16 +12760,17 @@ async function start() {
         showModal("Load the module and run a query first.", "Explanation Drill");
         return;
       }
-      localStorage.setItem("le_explanation_drill_data", JSON.stringify({ source: editor.getValue(), sessionModule, kbName: lastKb, why }));
+      localStorage.setItem("le_explanation_drill_data", JSON.stringify({ source: programText(), sessionModule, kbName: lastKb, why }));
       const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
       window.open(`explanation-drill.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
     },
     failedNodePrefix: () => failedNodePrefix,
     hierarchicalNumbering: () => showHierarchicalNumbering,
     onNavigate: (start2, end) => {
-      const model2 = editor.getModel();
-      const startPos = model2.getPositionAt(start2);
-      const endPos = model2.getPositionAt(end);
+      showProgramInEditor();
+      const model = editor.getModel();
+      const startPos = model.getPositionAt(start2);
+      const endPos = model.getPositionAt(end);
       const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
       editor.setSelection(range);
       editor.revealRangeInCenter(range);
@@ -12632,10 +12778,11 @@ async function start() {
     },
     onSelectAnswer: (index) => setAnswerInUrl(index),
     documentContext: () => ({
-      source: new URLSearchParams(window.location.search).get("example") || "",
-      base: currentBaseUrl || ""
+      source: panelDoc.example || "",
+      base: panelDoc.baseUrl || ""
     })
   });
+  let explView = makeExplanationView(answersList, explanationTree);
   const debugPanel = document.getElementById("debug-panel");
   const debugStack = document.getElementById("debug-stack");
   const debugVariables = document.getElementById("debug-variables");
@@ -12753,14 +12900,14 @@ async function start() {
   };
   const renderStack = (frames) => {
     debugStack.innerHTML = "";
-    const model2 = editor.getModel();
+    const model = programModel();
     [...frames].reverse().forEach((f) => {
       const div = document.createElement("div");
       div.className = "stack-frame";
       div.dataset.frameId = String(f.id);
       if (f.id === 1)
         div.classList.add("executing");
-      const pos = f.offset !== void 0 && !isForeignOffset(f.offset) ? model2.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
+      const pos = f.offset !== void 0 && !isForeignOffset(f.offset) ? model.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
       const nameSpan = document.createElement("span");
       nameSpan.className = "stack-frame-name";
       nameSpan.textContent = f.name;
@@ -12774,14 +12921,15 @@ async function start() {
     });
   };
   const highlightFrameRange = (f) => {
-    const model2 = editor.getModel();
+    showProgramInEditor();
+    const model = editor.getModel();
     if (!f || f.offset === void 0 || isForeignOffset(f.offset)) {
       debugDecorations = editor.deltaDecorations(debugDecorations, []);
       return;
     }
-    const start2 = model2.getPositionAt(f.offset);
+    const start2 = model.getPositionAt(f.offset);
     const hasSpan = f.endOffset !== void 0 && f.endOffset > f.offset;
-    const end = hasSpan ? model2.getPositionAt(f.endOffset) : start2;
+    const end = hasSpan ? model.getPositionAt(f.endOffset) : start2;
     const range = new monaco.Range(start2.lineNumber, start2.column, end.lineNumber, end.column);
     editor.revealRangeInCenterIfOutsideViewport(range);
     debugDecorations = editor.deltaDecorations(debugDecorations, [
@@ -12922,6 +13070,8 @@ async function start() {
     }
     const wantAnswer = pendingAnswerIndex;
     pendingAnswerIndex = null;
+    const view = explView;
+    const answersEl = answersList;
     answersList.innerHTML = '<div style="color: #888;">Executing query...</div>';
     explanationTree.innerHTML = "";
     showInterruptSoon();
@@ -12972,9 +13122,9 @@ async function start() {
         else if (res && res.why)
           showModal("The query has no answers (it is false in this scenario), so there is no answer to select.", "No such answer");
       }
-      explView.showResults(res, target);
+      view.showResults(res, target);
     } catch (err) {
-      answersList.textContent = t("Error executing query.");
+      answersEl.textContent = t("Error executing query.");
       console.error(err);
     } finally {
       hideInterrupt();
@@ -13022,7 +13172,7 @@ async function start() {
         }
       }
       if (res && res.gameData) {
-        const text = editor.getValue();
+        const text = programText();
         res.gameData.rules = res.gameData.rules.map((rule) => {
           if (rule.start !== void 0 && rule.end !== void 0) {
             const ruleText = text.substring(rule.start, rule.end);
@@ -13089,10 +13239,11 @@ async function start() {
   window.addEventListener("message", (event) => {
     if (event.data && event.data.type === "le-highlight" && event.data.loc) {
       const loc = event.data.loc;
-      const model2 = editor.getModel();
-      if (model2 && loc.start !== void 0 && loc.end !== void 0 && !isForeignOffset(loc.start)) {
-        const startPos = model2.getPositionAt(loc.start);
-        const endPos = model2.getPositionAt(loc.end);
+      if (loc.start !== void 0 && loc.end !== void 0 && !isForeignOffset(loc.start)) {
+        showProgramInEditor();
+        const model = editor.getModel();
+        const startPos = model.getPositionAt(loc.start);
+        const endPos = model.getPositionAt(loc.end);
         editor.setSelection(new monaco.Range(
           startPos.lineNumber,
           startPos.column,
@@ -13112,19 +13263,19 @@ async function start() {
   });
   document.getElementById("menu-scenario-editor")?.addEventListener("click", async () => {
     const data = {
-      source: editor.getValue(),
+      source: programText(),
       // the templates of included resources (from the last load), and
       // where the program came from — for "Write it in English" from a document
       templateDefs: lastTemplateDefs,
-      example: new URLSearchParams(window.location.search).get("example") || "",
-      base: currentBaseUrl || ""
+      example: panelDoc.example || "",
+      base: panelDoc.baseUrl || ""
     };
     localStorage.setItem("le_scenario_editor_data", JSON.stringify(data));
     const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
     window.open(`scenario-editor.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
   });
   document.getElementById("menu-query-editor")?.addEventListener("click", async () => {
-    const data = { source: editor.getValue() };
+    const data = { source: programText() };
     localStorage.setItem("le_query_editor_data", JSON.stringify(data));
     const currentTheme = document.body.className.includes("light-theme") ? "light-theme" : document.body.className.includes("hc-theme") ? "hc-theme" : "";
     window.open(`query-editor.html?theme=${currentTheme}&v=${Date.now()}`, "_blank");
@@ -13136,7 +13287,7 @@ async function start() {
         return;
     }
     const data = {
-      source: editor.getValue(),
+      source: programText(),
       kbName: lastKb,
       queries: lastQueries.map((q) => ({ name: q.name, label: q.le || q.template })),
       selectedScenario: scenarioSelect.value === "___custom___" ? "" : scenarioSelect.value,
@@ -13150,8 +13301,9 @@ async function start() {
     const msg = event.data;
     if (!msg || msg.type !== "insert-scenario" || typeof msg.blockText !== "string")
       return;
-    const model2 = editor.getModel();
-    if (!model2)
+    showProgramInEditor();
+    const model = editor.getModel();
+    if (!model)
       return;
     const source = editor.getValue();
     const blocks = parseScenarioBlocks(source);
@@ -13169,11 +13321,11 @@ async function start() {
       endOff = insertAt;
       text = (before.length ? "\n\n" : "") + msg.blockText + "\n";
     }
-    const startPos = model2.getPositionAt(startOff);
-    const endPos = model2.getPositionAt(endOff);
+    const startPos = model.getPositionAt(startOff);
+    const endPos = model.getPositionAt(endOff);
     const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
     editor.executeEdits("scenario-editor", [{ range, text, forceMoveMarkers: true }]);
-    const newEndPos = model2.getPositionAt(startOff + text.length);
+    const newEndPos = model.getPositionAt(startOff + text.length);
     editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
     editor.revealRangeInCenter(range);
     editor.focus();
@@ -13183,8 +13335,9 @@ async function start() {
     const msg = event.data;
     if (!msg || msg.type !== "insert-query" || typeof msg.blockText !== "string")
       return;
-    const model2 = editor.getModel();
-    if (!model2)
+    showProgramInEditor();
+    const model = editor.getModel();
+    if (!model)
       return;
     const source = editor.getValue();
     const blocks = parseQueryBlocks(source);
@@ -13202,11 +13355,11 @@ async function start() {
       endOff = insertAt;
       text = (before.length ? "\n\n" : "") + msg.blockText + "\n";
     }
-    const startPos = model2.getPositionAt(startOff);
-    const endPos = model2.getPositionAt(endOff);
+    const startPos = model.getPositionAt(startOff);
+    const endPos = model.getPositionAt(endOff);
     const range = new monaco.Range(startPos.lineNumber, startPos.column, endPos.lineNumber, endPos.column);
     editor.executeEdits("query-editor", [{ range, text, forceMoveMarkers: true }]);
-    const newEndPos = model2.getPositionAt(startOff + text.length);
+    const newEndPos = model.getPositionAt(startOff + text.length);
     editor.setSelection(new monaco.Range(startPos.lineNumber, startPos.column, newEndPos.lineNumber, newEndPos.column));
     editor.revealRangeInCenter(range);
     editor.focus();
@@ -13214,7 +13367,8 @@ async function start() {
   };
   const assistantInput = document.getElementById("assistant-input");
   const btnAssistantSend = document.getElementById("btn-assistant-send");
-  const assistantHistory = document.getElementById("assistant-history");
+  let assistantHistory = document.getElementById("assistant-history");
+  const assistantGreeting = assistantHistory.firstElementChild?.cloneNode(true);
   const btnAssistantInterrupt = document.getElementById("btn-assistant-interrupt");
   const assistantProgress = document.getElementById("assistant-progress");
   const assistantProgressText = document.getElementById("assistant-progress-text");
@@ -13226,9 +13380,8 @@ async function start() {
       localStorage.setItem("le-assistant-mode", assistantModeToggle.checked ? "light" : "deep");
     });
   }
-  let assistantSessionId = "ses_" + Math.random().toString(36).substring(7);
   let assistantStartTime = null;
-  const addChatMessage = (role, text, details) => {
+  const addChatMessage = (role, text, details, history = assistantHistory) => {
     const msg = document.createElement("div");
     msg.className = `chat-message ${role}`;
     const content = document.createElement("div");
@@ -13288,8 +13441,8 @@ async function start() {
       detailsEl.appendChild(pre);
       msg.appendChild(detailsEl);
     }
-    assistantHistory.appendChild(msg);
-    assistantHistory.scrollTop = assistantHistory.scrollHeight;
+    history.appendChild(msg);
+    history.scrollTop = history.scrollHeight;
   };
   let currentJobId = null;
   const handleAssistantSend = async () => {
@@ -13325,7 +13478,9 @@ async function start() {
       groq: localStorage.getItem("le-groq-key"),
       together: localStorage.getItem("le-together-key")
     };
-    console.log("Sending assistant command with session ID:", assistantSessionId);
+    const jobDoc = panelDoc;
+    const jobHistory = assistantHistory;
+    console.log("Sending assistant command with session ID:", jobDoc.assistantSessionId);
     try {
       const response = await fetch("/leapi", {
         method: "POST",
@@ -13334,8 +13489,8 @@ async function start() {
           token: "myToken123",
           operation: "assistant_command",
           command,
-          content: editor.getValue(),
-          session_id: assistantSessionId,
+          content: jobDoc.model.getValue(),
+          session_id: jobDoc.assistantSessionId,
           api_keys: apiKeys,
           model: localStorage.getItem("le-assistant-model"),
           mode: assistantModeToggle ? assistantModeToggle.checked ? "light" : "deep" : "light",
@@ -13345,18 +13500,18 @@ async function start() {
       const data = await response.json();
       if (data.result === "ok") {
         currentJobId = data.job_id;
-        pollAssistantStatus(data.job_id);
+        pollAssistantStatus(data.job_id, jobDoc, jobHistory);
       } else {
-        addChatMessage("assistant", "Error: " + (data.error || "Unknown error"));
+        addChatMessage("assistant", "Error: " + (data.error || "Unknown error"), void 0, jobHistory);
         finishAssistantRequest();
       }
     } catch (err) {
       console.error("Assistant error:", err);
-      addChatMessage("assistant", "Failed to connect to the assistant.");
+      addChatMessage("assistant", "Failed to connect to the assistant.", void 0, jobHistory);
       finishAssistantRequest();
     }
   };
-  const pollAssistantStatus = async (jobId) => {
+  const pollAssistantStatus = async (jobId, jobDoc, jobHistory) => {
     try {
       const response = await fetch("/leapi", {
         method: "POST",
@@ -13381,34 +13536,34 @@ async function start() {
           if (progressText) {
             assistantProgressText.textContent = progressText.substring(0, 60) + (progressText.length > 60 ? "..." : "");
           }
-          setTimeout(() => pollAssistantStatus(jobId), 1e3);
+          setTimeout(() => pollAssistantStatus(jobId, jobDoc, jobHistory), 1e3);
         } else if (data.status === "finished") {
           const duration = assistantStartTime ? Math.round((Date.now() - assistantStartTime) / 1e3) : 0;
           if (data.session_id) {
-            assistantSessionId = data.session_id;
-            console.log("Updated assistant session ID:", assistantSessionId);
+            jobDoc.assistantSessionId = data.session_id;
+            console.log("Updated assistant session ID:", data.session_id);
           }
           let stdout = data.stdout || "";
           let newContent = data.new_content || "";
           if (stdout) {
-            addChatMessage("assistant", stdout, data.stderr);
+            addChatMessage("assistant", stdout, data.stderr, jobHistory);
           } else if (data.stderr) {
-            addChatMessage("assistant", "The assistant finished with some logs but no direct output.", data.stderr);
+            addChatMessage("assistant", "The assistant finished with some logs but no direct output.", data.stderr, jobHistory);
           }
-          if (newContent && newContent !== editor.getValue()) {
-            editor.setValue(newContent);
-            addChatMessage("assistant", t("I have updated the editor content with the changes."));
+          if (newContent && newContent !== jobDoc.model.getValue() && docs.includes(jobDoc)) {
+            jobDoc.model.pushEditOperations([], [{ range: jobDoc.model.getFullModelRange(), text: newContent }], () => null);
+            addChatMessage("assistant", t("I have updated the editor content with the changes."), void 0, jobHistory);
           }
-          addChatMessage("assistant", `_${t("Request completed in {n} seconds.").replace("{n}", String(duration))}_`);
+          addChatMessage("assistant", `_${t("Request completed in {n} seconds.").replace("{n}", String(duration))}_`, void 0, jobHistory);
           finishAssistantRequest();
         }
       } else {
-        addChatMessage("assistant", "Error polling status: " + (data.error || "Unknown error"));
+        addChatMessage("assistant", "Error polling status: " + (data.error || "Unknown error"), void 0, jobHistory);
         finishAssistantRequest();
       }
     } catch (err) {
       console.error("Polling error:", err);
-      addChatMessage("assistant", "Lost connection while waiting for assistant.");
+      addChatMessage("assistant", "Lost connection while waiting for assistant.", void 0, jobHistory);
       finishAssistantRequest();
     }
   };
@@ -13447,8 +13602,306 @@ async function start() {
     if (e.key === "Enter")
       handleAssistantSend();
   });
+  const tabBar = new TabBar(document.getElementById("editor-tabs"), {
+    onSelect: (id) => {
+      const d = docs.find((x) => x.id === id);
+      if (d)
+        activateDoc(d, true);
+    },
+    onClose: (id) => {
+      const d = docs.find((x) => x.id === id);
+      if (d)
+        closeDoc(d);
+    },
+    onNew: () => newTab(),
+    newTitle: t("New tab"),
+    programTitle: t("The queries and the assistant are about this program")
+  });
+  function refreshTabs() {
+    tabBar.render(docs.map((d) => ({
+      id: d.id,
+      title: d.fileName.split("/").pop() || d.fileName,
+      tooltip: d.baseUrl ? d.baseUrl + (d.fileName.split("/").pop() || "") : d.fileName,
+      dirty: d.dirty,
+      program: d === panelDoc && d !== activeDoc
+    })), activeDoc.id);
+    if (filenameDisplay)
+      filenameDisplay.textContent = activeDoc.fileName;
+    updateSaveMenu();
+  }
+  function setDirty(doc, dirty) {
+    if (doc.dirty === dirty)
+      return;
+    doc.dirty = dirty;
+    refreshTabs();
+  }
+  function docChanged(doc) {
+    setDirty(doc, true);
+    lspChange(doc);
+    if (doc === activeDoc)
+      syncEditorLanguage(doc.model.getValue());
+    if (doc === panelDoc) {
+      if (isLoaded) {
+        isLoaded = false;
+        scenarioSelect.innerHTML = `<option value="">${t("[Empty Scenario]")}</option>`;
+        querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
+      }
+      refreshEnginePickerTarget();
+      if (loadTimeout)
+        clearTimeout(loadTimeout);
+      loadTimeout = setTimeout(() => {
+        if (!isLoaded && !isLoading)
+          loadModule();
+      }, 1500);
+      doc.textInUrl = true;
+      const url = new URL(window.location.href);
+      url.searchParams.set("text", doc.model.getValue());
+      window.history.replaceState({}, "", url.toString());
+    } else if (doc.panel) {
+      doc.panel.isLoaded = false;
+      doc.panel.scenarioOptions = `<option value="">${t("[Empty Scenario]")}</option>`;
+      doc.panel.queryOptions = `<option value="">${t("Select a query...")}</option>`;
+    }
+  }
+  function activateDoc(doc, takePanels, focus = takePanels) {
+    if (doc !== activeDoc) {
+      activeDoc.viewState = editor.saveViewState();
+      activeDoc = doc;
+      editor.setModel(doc.model);
+      if (doc.viewState)
+        editor.restoreViewState(doc.viewState);
+      syncEditorLanguage(doc.model.getValue());
+    }
+    if (takePanels && doc !== panelDoc)
+      switchPanel(doc);
+    refreshTabs();
+    if (focus)
+      editor.focus();
+  }
+  function showProgramInEditor() {
+    if (activeDoc !== panelDoc)
+      activateDoc(panelDoc, false, false);
+  }
+  function adoptActiveAsProgram() {
+    if (activeDoc !== panelDoc) {
+      switchPanel(activeDoc);
+      refreshTabs();
+    }
+  }
+  function capturePanel() {
+    return {
+      sessionModule,
+      isLoaded,
+      lastIssues,
+      lastLoadError,
+      includedResources,
+      lastTemplateDefs,
+      lastKb,
+      lastFactImages,
+      lastTemplateImages,
+      lastQueries,
+      engineUserSet,
+      scenarioOptions: scenarioSelect.innerHTML,
+      scenario: scenarioSelect.value,
+      queryOptions: querySelect.innerHTML,
+      query: querySelect.value,
+      engine: engineSelect ? engineSelect.value : "prolog",
+      customScenario: customScenarioText.value,
+      customQuery: customQueryText.value,
+      kbText: kbModuleDisplay.textContent || "",
+      sessionText: sessionModuleDisplay.textContent || "",
+      resultsText: resultsDisplay.textContent || "",
+      answersList,
+      explanationTree,
+      explView,
+      assistantHistory,
+      answersScroll: answersList.parentElement?.scrollTop || 0,
+      explanationScroll: explanationTree.parentElement?.scrollTop || 0
+    };
+  }
+  function swapElement(current, next) {
+    if (current === next)
+      return next;
+    const id = current.id;
+    current.replaceWith(next);
+    current.removeAttribute("id");
+    next.id = id;
+    return next;
+  }
+  function switchPanel(doc) {
+    panelDoc.panel = capturePanel();
+    panelDoc = doc;
+    const p = doc.panel;
+    doc.panel = null;
+    loadGen++;
+    isLoading = false;
+    loadPromise = null;
+    queryTab?.classList.remove("le-loading");
+    if (loadTimeout) {
+      clearTimeout(loadTimeout);
+      loadTimeout = null;
+    }
+    const emptyScenarios = `<option value="">${t("[Empty Scenario]")}</option>`;
+    const emptyQueries = `<option value="">${t("Select a query...")}</option>`;
+    sessionModule = p ? p.sessionModule : null;
+    isLoaded = p ? p.isLoaded : false;
+    lastIssues = p ? p.lastIssues : [];
+    lastLoadError = p ? p.lastLoadError : "";
+    includedResources = p ? p.includedResources : [];
+    lastTemplateDefs = p ? p.lastTemplateDefs : [];
+    lastKb = p ? p.lastKb : "";
+    lastFactImages = p ? p.lastFactImages : [];
+    lastTemplateImages = p ? p.lastTemplateImages : [];
+    lastQueries = p ? p.lastQueries : [];
+    engineUserSet = p ? p.engineUserSet : false;
+    scenarioSelect.innerHTML = p ? p.scenarioOptions : emptyScenarios;
+    scenarioSelect.value = p ? p.scenario : "";
+    querySelect.innerHTML = p ? p.queryOptions : emptyQueries;
+    querySelect.value = p ? p.query : "";
+    if (engineSelect)
+      engineSelect.value = p ? p.engine : "prolog";
+    customScenarioText.value = p ? p.customScenario : "";
+    customQueryText.value = p ? p.customQuery : "";
+    customScenarioContainer.style.display = scenarioSelect.value === "___custom___" ? "flex" : "none";
+    customQueryContainer.style.display = querySelect.value === "___custom___" ? "flex" : "none";
+    kbModuleDisplay.textContent = p ? p.kbText : "";
+    sessionModuleDisplay.textContent = p ? p.sessionText : "";
+    resultsDisplay.textContent = p ? p.resultsText : t("Results");
+    let nextAnswers, nextTree, nextHistory;
+    if (p) {
+      nextAnswers = p.answersList;
+      nextTree = p.explanationTree;
+      nextHistory = p.assistantHistory;
+      explView = p.explView;
+    } else {
+      nextAnswers = document.createElement("div");
+      nextTree = document.createElement("div");
+      nextHistory = document.createElement("div");
+      if (assistantGreeting)
+        nextHistory.appendChild(assistantGreeting.cloneNode(true));
+      explView = makeExplanationView(nextAnswers, nextTree);
+    }
+    answersList = swapElement(answersList, nextAnswers);
+    explanationTree = swapElement(explanationTree, nextTree);
+    assistantHistory = swapElement(assistantHistory, nextHistory);
+    explView.refreshTitle();
+    if (p) {
+      if (answersList.parentElement)
+        answersList.parentElement.scrollTop = p.answersScroll;
+      if (explanationTree.parentElement)
+        explanationTree.parentElement.scrollTop = p.explanationScroll;
+    }
+    syncUrlForPanel();
+    refreshEnginePickerTarget();
+    updateQueryButtonState();
+    sendStateToGraph();
+    if (!isLoaded)
+      loadModule();
+  }
+  function syncUrlForPanel() {
+    const url = new URL(window.location.href);
+    for (const k of ["example", "text", "filename", "line", "scenario", "query", "engine", "answer"]) {
+      url.searchParams.delete(k);
+    }
+    const doc = panelDoc;
+    if (doc.example)
+      url.searchParams.set("example", doc.example);
+    if (doc.textInUrl)
+      url.searchParams.set("text", doc.model.getValue());
+    if (!doc.example && doc.fileName !== "document.le")
+      url.searchParams.set("filename", doc.fileName);
+    url.hash = doc.textInUrl ? "" : doc.hash;
+    window.history.replaceState({}, "", url.toString());
+    updateUrlSelection();
+  }
+  function replaceActiveDocument(text, props) {
+    const doc = activeDoc;
+    if (doc !== panelDoc)
+      switchPanel(doc);
+    doc.fileName = props.fileName;
+    doc.fileHandle = props.fileHandle ?? null;
+    doc.baseUrl = props.baseUrl ?? null;
+    doc.example = props.example ?? null;
+    doc.hash = "";
+    doc.model.setValue(text);
+    doc.textInUrl = false;
+    doc.viewState = null;
+    isLoaded = false;
+    scenarioSelect.innerHTML = `<option value="">${t("[Empty Scenario]")}</option>`;
+    querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
+    kbModuleDisplay.textContent = "";
+    sessionModuleDisplay.textContent = "";
+    explView.clear();
+    setDirty(doc, false);
+    syncUrlForPanel();
+    updateQueryButtonState();
+    refreshTabs();
+  }
+  function newTab() {
+    const doc = createDoc(newDocumentText(), "document.le");
+    lspOpen(doc);
+    activateDoc(doc, true);
+    return doc;
+  }
+  function closeDoc(doc) {
+    if (doc.dirty && !confirm(t("You have unsaved changes. Close this tab anyway?")))
+      return;
+    if (docs.length === 1)
+      newTab();
+    const i = docs.indexOf(doc);
+    if (doc === activeDoc) {
+      const next = docs[i + 1] || docs[i - 1];
+      activateDoc(next, true);
+    } else if (doc === panelDoc) {
+      switchPanel(activeDoc);
+    }
+    docs.splice(docs.indexOf(doc), 1);
+    lspClose(doc);
+    doc.model.dispose();
+    refreshTabs();
+  }
+  async function openResourceTab(info) {
+    let doc = docs.find((d) => d.example === info.resourceExample);
+    if (!doc) {
+      try {
+        const response = await fetch("/leapi", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: "myToken123", operation: "examples", file: info.resourceExample })
+        });
+        const data = await response.json();
+        if (data.document === void 0) {
+          alert(`${t("Could not open the included resource")} ${describeResourceRange(info)}.`);
+          return;
+        }
+        doc = createDoc(data.document, info.resourceExample + ".le", { example: info.resourceExample });
+        doc.dirty = false;
+        lspOpen(doc);
+      } catch (err) {
+        console.error("Failed to open included resource", err);
+        alert(`${t("Could not open the included resource")} ${describeResourceRange(info)}.`);
+        return;
+      }
+    }
+    rememberJumpOrigin(editor);
+    activateDoc(doc, false, true);
+    const model = doc.model;
+    let range;
+    if (typeof info.resourceStart === "number" && typeof info.resourceEnd === "number") {
+      const a = model.getPositionAt(info.resourceStart), b = model.getPositionAt(info.resourceEnd);
+      range = new monaco.Range(a.lineNumber, a.column, b.lineNumber, b.column);
+    } else {
+      const line = info.resourceLine || 1;
+      range = new monaco.Range(line, 1, line, model.getLineMaxColumn(line));
+    }
+    editor.setSelection(range);
+    editor.revealRangeInCenter(range);
+  }
+  window.leOpenResourceTab = openResourceTab;
+  syncEditorLanguage(editor.getValue());
+  refreshTabs();
   window.addEventListener("beforeunload", (e) => {
-    if (isDirty) {
+    if (docs.some((d) => d.dirty)) {
       e.preventDefault();
       e.returnValue = "";
     }
@@ -13474,7 +13927,9 @@ async function start() {
         endColumn: d.range.end.character + 1,
         message: d.message
       }));
-      monaco.editor.setModelMarkers(editor.getModel(), "le", markers);
+      const target = monaco.editor.getModel(monaco.Uri.parse(message.params.uri));
+      if (target)
+        monaco.editor.setModelMarkers(target, "le", markers);
     }
   };
   function sendRequest(method, params2) {
@@ -13489,46 +13944,26 @@ async function start() {
   }
   sendRequest("initialize", { capabilities: {} });
   sendNotification("initialized", {});
-  const model = editor.getModel();
-  sendNotification("textDocument/didOpen", {
+  lspOpen = (doc) => sendNotification("textDocument/didOpen", {
     textDocument: {
-      uri: "file:///main.le",
+      uri: doc.model.uri.toString(),
       languageId: "le",
-      version: 1,
-      text: model.getValue()
+      version: doc.model.getVersionId(),
+      text: doc.model.getValue()
     }
   });
-  syncEditorLanguage(editor.getValue());
-  editor.onDidChangeModelContent(() => {
-    syncEditorLanguage(editor.getValue());
-    isDirty = true;
-    if (isLoaded) {
-      isLoaded = false;
-      scenarioSelect.innerHTML = `<option value="">${t("[Empty Scenario]")}</option>`;
-      querySelect.innerHTML = `<option value="">${t("Select a query...")}</option>`;
-    }
-    if (loadTimeout)
-      clearTimeout(loadTimeout);
-    loadTimeout = setTimeout(() => {
-      if (!isLoaded && !isLoading)
-        loadModule();
-    }, 1500);
-    const text = model.getValue();
-    sendNotification("textDocument/didChange", {
-      textDocument: {
-        uri: "file:///main.le",
-        version: 1
-      },
-      contentChanges: [{ text }]
-    });
-    const url = new URL(window.location.href);
-    url.searchParams.set("text", text);
-    window.history.replaceState({}, "", url.toString());
+  lspChange = (doc) => sendNotification("textDocument/didChange", {
+    textDocument: { uri: doc.model.uri.toString(), version: doc.model.getVersionId() },
+    contentChanges: [{ text: doc.model.getValue() }]
   });
+  lspClose = (doc) => sendNotification("textDocument/didClose", {
+    textDocument: { uri: doc.model.uri.toString() }
+  });
+  docs.forEach((doc) => lspOpen(doc));
   monaco.languages.registerHoverProvider("le", {
-    provideHover: async (model2, position) => {
-      const offset = model2.getOffsetAt(position);
-      if (includedResources && includedResources.length > 0) {
+    provideHover: async (model, position) => {
+      const offset = model.getOffsetAt(position);
+      if (model === programModel() && includedResources && includedResources.length > 0) {
         for (const res2 of includedResources) {
           if (offset >= res2.start && offset <= res2.end) {
             return {
@@ -13541,7 +13976,7 @@ async function start() {
         }
       }
       const res = await sendRequest("textDocument/hover", {
-        textDocument: { uri: "file:///main.le" },
+        textDocument: { uri: model.uri.toString() },
         position: { line: position.lineNumber - 1, character: position.column - 1 }
       });
       if (res && res.contents) {
@@ -13554,14 +13989,14 @@ async function start() {
   });
   monaco.languages.registerCompletionItemProvider("le", {
     triggerCharacters: [" ", "*"],
-    provideCompletionItems: async (model2, position) => {
+    provideCompletionItems: async (model, position) => {
       const res = await sendRequest("textDocument/completion", {
-        textDocument: { uri: "file:///main.le" },
+        textDocument: { uri: model.uri.toString() },
         position: { line: position.lineNumber - 1, character: position.column - 1 }
       });
       if (res) {
         const items = Array.isArray(res) ? res : res.items;
-        const lineContent = model2.getLineContent(position.lineNumber);
+        const lineContent = model.getLineContent(position.lineNumber);
         const textBefore = lineContent.substring(0, position.column - 1);
         const articles = ["a", "an", "the", "some"];
         return {
@@ -13611,11 +14046,11 @@ async function start() {
                 }
                 insertText = keptText + templateText.substring(templateOverlapEndIdx);
               } else {
-                const word = model2.getWordUntilPosition(position);
+                const word = model.getWordUntilPosition(position);
                 range = { startLineNumber: position.lineNumber, startColumn: word.startColumn, endLineNumber: position.lineNumber, endColumn: word.endColumn };
               }
             } else {
-              const word = model2.getWordUntilPosition(position);
+              const word = model.getWordUntilPosition(position);
               range = { startLineNumber: position.lineNumber, startColumn: word.startColumn, endLineNumber: position.lineNumber, endColumn: word.endColumn };
             }
             return { label, kind: item.kind !== void 0 ? item.kind - 1 : 1, insertText, detail: item.detail, range };
@@ -13626,10 +14061,10 @@ async function start() {
     }
   });
   monaco.languages.registerFoldingRangeProvider("le", {
-    provideFoldingRanges: async (model2, context, token) => {
-      console.log("Providing folding ranges for", model2.uri.toString());
+    provideFoldingRanges: async (model, context, token) => {
+      console.log("Providing folding ranges for", model.uri.toString());
       const res = await sendRequest("textDocument/foldingRange", {
-        textDocument: { uri: "file:///main.le" }
+        textDocument: { uri: model.uri.toString() }
       });
       console.log("Folding ranges from server:", res);
       if (res) {
@@ -13647,9 +14082,9 @@ async function start() {
       tokenTypes: ["keyword", "variable", "string", "number", "comment", "type", "templateWord"],
       tokenModifiers: []
     }),
-    provideDocumentSemanticTokens: async (model2, lastResultId, token) => {
+    provideDocumentSemanticTokens: async (model, lastResultId, token) => {
       const res = await sendRequest("textDocument/semanticTokens/full", {
-        textDocument: { uri: "file:///main.le" }
+        textDocument: { uri: model.uri.toString() }
       });
       if (res && res.data) {
         return {

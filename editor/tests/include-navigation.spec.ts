@@ -9,12 +9,18 @@ function subheadingRuleLine(): number {
     return text.split('\n').findIndex(l => l.startsWith('the subheading of a good is a code')) + 1;
 }
 
+const editorState = () => {
+    const ed = (window as any).monaco.editor.getEditors()[0];
+    return { line: ed.getSelection().startLineNumber, text: ed.getModel().getValue() as string };
+};
+
 // An explanation node proved by a rule of an INCLUDED resource must open that
 // resource at the rule — not select whatever sits at the same offsets in the
 // document on screen (apparel_cbp.le includes apparel.le and gri.le; the root
-// of the explanation is proved by the subheading rule of apparel.le).
+// of the explanation is proved by the subheading rule of apparel.le). The
+// resource opens in an editor tab of its own; the explanation stays.
 test.describe('Navigation into included resources', () => {
-    test('clicking a node proved in an included file opens that file at the rule', async ({ page }) => {
+    test('clicking a node proved in an included file opens that file at the rule, in a tab', async ({ page }) => {
         test.setTimeout(120000);
         await page.goto('index.html?example=RulesRus/customs/apparel_cbp&scenario=ny_n362700&query=subheading');
         // Wait until the URL's selections applied (the module load can be slow).
@@ -28,18 +34,39 @@ test.describe('Navigation into included resources', () => {
         expect(line).toBeGreaterThan(0);
         await expect(root).toHaveAttribute('title', new RegExp(`apparel\\.le, line ${line}`));
 
-        const selectionBefore = await page.evaluate(() =>
-            (window as any).monaco.editor.getEditors()[0].getSelection().startLineNumber);
+        await root.click();
 
-        const [popup] = await Promise.all([page.waitForEvent('popup'), root.click()]);
-        const url = new URL(popup.url());
-        expect(url.searchParams.get('example')).toBe('RulesRus/customs/apparel');
-        expect(url.searchParams.get('line')).toBe(String(line));
+        // A second tab, in front, with apparel.le at the rule.
+        const tabs = page.locator('#editor-tabs .le-tab');
+        await expect(tabs).toHaveCount(2);
+        await expect(tabs.nth(1)).toHaveClass(/active/);
+        await expect(tabs.nth(1).locator('.le-tab-title')).toHaveText('apparel.le');
+        await expect.poll(() => page.evaluate(editorState).then(s => s.line)).toBe(line);
+        expect((await page.evaluate(editorState)).text).toContain('the subheading of a good is a code');
 
-        // The document on screen did not jump to the scenario text at those offsets.
-        const selectionAfter = await page.evaluate(() =>
-            (window as any).monaco.editor.getEditors()[0].getSelection().startLineNumber);
-        expect(selectionAfter).toBe(selectionBefore);
-        await popup.close();
+        // The panels stay on the program being explained, marked on its tab.
+        await expect(tabs.nth(0)).toHaveClass(/program/);
+        await expect(root).toContainText('the subheading of style');
+        await expect(page.locator('#query-select')).toHaveValue('subheading');
+        expect(new URL(page.url()).searchParams.get('example')).toBe('RulesRus/customs/apparel_cbp');
+
+        // A range of the program itself (a click on one of its own nodes, in
+        // the graph, the proof game...) brings its tab back.
+        await page.evaluate(() => (window as any).selectRange(0, 10));
+        await expect(tabs.nth(0)).toHaveClass(/active/);
+        expect((await page.evaluate(editorState)).text).toContain('scenario ny_n362700 is');
+
+        // Going back to the resource's tab by hand makes it the program: the
+        // panels now belong to apparel.le (not loaded yet → fresh pickers).
+        await tabs.nth(1).click();
+        await expect(tabs.nth(1)).toHaveClass(/active/);
+        await expect(page.locator('#answers-list .answer-item')).toHaveCount(0);
+        expect(new URL(page.url()).searchParams.get('example')).toBe('RulesRus/customs/apparel');
+        // ... and back: apparel_cbp's answers and explanation are as they were.
+        await tabs.nth(0).click();
+        await expect(page.locator('#answers-list .answer-item').first()).toBeVisible();
+        await expect(root).toContainText('the subheading of style');
+        await expect(page.locator('#query-select')).toHaveValue('subheading');
+        await expect(page.locator('#scenario-select')).toHaveValue('ny_n362700');
     });
 });

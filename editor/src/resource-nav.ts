@@ -34,13 +34,20 @@ export function describeResourceRange(info: ResourceRangeInfo): string {
     return info.resourceLine ? `${name}, ${t('line')} ${info.resourceLine}` : name;
 }
 
-// Opens the included resource at the range's line, in a new editor tab (the
-// document on screen stays as it is). A resource that is not one of the
-// server's examples (a URL, a file elsewhere) cannot be opened from here: the
-// user is told where the range is instead.
+// Opens the included resource at the range: in a tab of the editor, when the
+// page is the editor (client.ts provides leOpenResourceTab), else in a new
+// browser tab at the range's line. Either way the document on screen stays as
+// it is. A resource that is not one of the server's examples (a URL, a file
+// elsewhere) cannot be opened from here: the user is told where the range is
+// instead.
 export function openIncludedResource(info: ResourceRangeInfo): void {
     if (!info.resourceExample) {
         alert(`${t('This is defined in the included resource')} ${describeResourceRange(info)}.`);
+        return;
+    }
+    const inTab = (window as any).leOpenResourceTab;
+    if (typeof inTab === 'function') {
+        inTab(info);
         return;
     }
     const url = new URL(window.location.href);

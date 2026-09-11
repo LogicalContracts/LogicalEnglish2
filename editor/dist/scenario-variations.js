@@ -6770,7 +6770,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Endere\xE7o do texto: um URL, ou um ficheiro junto ao programa",
     "Fetch text": "Obter texto",
-    "Provenance": "Proveni\xEAncia"
+    "Provenance": "Proveni\xEAncia",
+    "New tab": "Novo separador",
+    "The queries and the assistant are about this program": "As consultas e o assistente s\xE3o sobre este programa",
+    "You have unsaved changes. Close this tab anyway?": "Tem altera\xE7\xF5es por guardar. Fechar este separador mesmo assim?",
+    "Could not open the included resource": "N\xE3o foi poss\xEDvel abrir o recurso inclu\xEDdo"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -7104,7 +7108,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Direcci\xF3n del texto: una URL, o un archivo junto al programa",
     "Fetch text": "Obtener texto",
-    "Provenance": "Procedencia"
+    "Provenance": "Procedencia",
+    "New tab": "Nueva pesta\xF1a",
+    "The queries and the assistant are about this program": "Las consultas y el asistente tratan de este programa",
+    "You have unsaved changes. Close this tab anyway?": "Tiene cambios sin guardar. \xBFCerrar esta pesta\xF1a de todos modos?",
+    "Could not open the included resource": "No se pudo abrir el recurso incluido"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7438,7 +7446,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Adresse du texte : une URL, ou un fichier \xE0 c\xF4t\xE9 du programme",
     "Fetch text": "R\xE9cup\xE9rer le texte",
-    "Provenance": "Provenance"
+    "Provenance": "Provenance",
+    "New tab": "Nouvel onglet",
+    "The queries and the assistant are about this program": "Les requ\xEAtes et l'assistant portent sur ce programme",
+    "You have unsaved changes. Close this tab anyway?": "Vous avez des modifications non enregistr\xE9es. Fermer cet onglet quand m\xEAme ?",
+    "Could not open the included resource": "Impossible d'ouvrir la ressource incluse"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7772,7 +7784,11 @@ var uiCatalog = {
     "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Indirizzo del testo: un URL, o un file accanto al programma",
     "Fetch text": "Recupera testo",
-    "Provenance": "Provenienza"
+    "Provenance": "Provenienza",
+    "New tab": "Nuova scheda",
+    "The queries and the assistant are about this program": "Le interrogazioni e l'assistente riguardano questo programma",
+    "You have unsaved changes. Close this tab anyway?": "Ci sono modifiche non salvate. Chiudere comunque questa scheda?",
+    "Could not open the included resource": "Impossibile aprire la risorsa inclusa"
   }
 };
 var languages = [
@@ -8572,6 +8588,11 @@ function openIncludedResource(info) {
     alert(`${t("This is defined in the included resource")} ${describeResourceRange(info)}.`);
     return;
   }
+  const inTab = window.leOpenResourceTab;
+  if (typeof inTab === "function") {
+    inTab(info);
+    return;
+  }
   const url = new URL(window.location.href);
   url.search = "";
   url.hash = "";
@@ -8853,6 +8874,7 @@ var ExplanationView = class {
   // Tree path ("1.2.3") of the selected answer's strongest-reason node, for the
   // "Show strongest reason" action.
   currentStrongestPath = null;
+  currentStrongestReason = "";
   // Per-answer expansion state (keyed by the answer's `why` object), so toggles
   // persist when switching between answers.
   expansionStore = /* @__PURE__ */ new WeakMap();
@@ -8861,7 +8883,7 @@ var ExplanationView = class {
     this.m = opts.menus;
     wireMenus(opts.menus);
     opts.explanationTitle?.addEventListener("contextmenu", (e) => {
-      if (!this.lastWhy)
+      if (!this.lastWhy || !this.o.explanationTree.isConnected)
         return;
       e.preventDefault();
       activeView = this;
@@ -8898,10 +8920,16 @@ var ExplanationView = class {
   // context menu. `path` is that node's tree path ("1.2.3"). Cleared when there is none.
   setStrongestReason(reason, path) {
     this.currentStrongestPath = reason && path ? path : null;
+    this.currentStrongestReason = (reason || "").trim();
+    this.refreshTitle();
+  }
+  // Puts this view's strongest reason on the (shared) EXPLANATION title,
+  // e.g. when the view comes back on screen.
+  refreshTitle() {
     const el = this.o.explanationTitle;
     if (!el)
       return;
-    const r = (reason || "").trim();
+    const r = this.currentStrongestReason;
     if (r) {
       el.title = `Important reason: ${r}`;
       el.classList.add("has-reason");
