@@ -204,9 +204,9 @@ prov_public(Prov, Source, Document, Locator, Rationale) :-
 add_scenario_provenance(SM, KB, Terms) :-
     (   atom(KB), KB \== none, current_predicate(KB:le_fact_provenance/4)
     ->  forall(( member(fact_with_source(F, S, E), Terms),
-                 KB:le_fact_provenance(S, E, _, Prov) ),
-               ( ( F = (H :- _) -> true ; H = F ),
-                 prov_public(Prov, Src, Doc, Loc, Rat),
+                 ( F = (H :- _) -> true ; H = F ),
+                 provenance_at(KB, S, E, H, Prov) ),
+               ( prov_public(Prov, Src, Doc, Loc, Rat),
                  assertz(SM:le_provenance(H, Src, Doc, Loc, Rat)) ))
     ;   true
     ).
@@ -224,13 +224,29 @@ clause_provenance(SM, KB, Ref, _Goal, Prov) :-
     ;   catch(KB:le_source_info(Ref, S, E, _), _, fail)
     ),
     integer(S),
-    KB:le_fact_provenance(S, E, _, Prov), !.
+    (   catch(clause(SM:Head, _, Ref), _, fail) -> true
+    ;   catch(clause(KB:Head, _, Ref), _, fail) -> true
+    ;   true
+    ),
+    provenance_at(KB, S, E, Head, Prov), !.
 clause_provenance(SM, _KB, Ref, _Goal, prov(Src, Doc, Loc, Rat)) :-
     catch(clause(SM:Head, true, Ref), _, fail),
     current_predicate(SM:le_provenance/5),
     SM:le_provenance(H, Src, Doc0, Loc, Rat),
     H =@= Head, !,
     ( Doc0 == none -> Doc = none ; Doc = doc(Doc0, Doc0) ).
+
+%!  provenance_at(+KB, +Start, +End, ?Head, -Prov) is nondet.
+%
+%   The provenance recorded for the fact Head at Start-End. Ranges are offsets
+%   into the file that holds the fact, so a fact of an included resource can
+%   share its range with one of the including program: the head tells them
+%   apart (an unknown Head matches any).
+provenance_at(KB, S, E, Head, Prov) :-
+    KB:le_fact_provenance(S, E, H, Prov),
+    (   var(Head) -> true
+    ;   \+ \+ H = Head
+    ).
 
 %!  provenance_suffix(+Prov, -Suffix:string) is det.
 %

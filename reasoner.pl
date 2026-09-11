@@ -385,6 +385,7 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
         ; get_clause(le_unknown(G), SM, KM, UnkBody, _UnkRef),
           \+ SM:le_neg(le_unknown(G)),
           \+ member(le_unknown(G), Anc),
+          \+ judged_question_decided(G, SM, KM),
           D1 is D + 1,
           solve(UnkBody, SM, KM, [le_unknown(G)|Anc], D1, MyID, [], _) ->  
             Us = [G], WhysBody = [], Ref = unknown
@@ -928,6 +929,30 @@ is_redundant(PID, le_at(G, _, _)) :-
     called(_, PID, G1),
     variant(G, G1).
 
+
+%!  judged_question_decided(+Goal, +SM, +KM) is semidet.
+%
+%   Goal is an instance of a `; judged` template whose question already has a
+%   recorded judgment, so it must not be assumed. The question of a judged
+%   template with two or more arguments is every argument but the last, which is
+%   the outcome ("the principal use of the bin is household use"): once any
+%   outcome is recorded for a known question, the other outcomes are not open.
+%   With one argument the question is the goal itself. A question that is not
+%   yet known (non-ground) is left as it was: assumable.
+judged_question_decided(G, SM, KM) :-
+    compound(G),
+    KM \== none,
+    le_provenance:is_judged_goal(KM, G),
+    G =.. [F|Args],
+    (   append(Question, [_], Args), Question \== []
+    ->  ground(Question),
+        append(Question, [_], Args1),
+        Recorded =.. [F|Args1]
+    ;   ground(G),
+        Recorded = G
+    ),
+    get_clause(Recorded, SM, KM, Body, _),
+    Body == true, !.
 
 % get_clause(+Goal, +SM, +KM, -Body, -Ref)
 get_clause(G, SM, _KM, Body, Ref) :-

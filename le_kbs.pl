@@ -769,8 +769,11 @@ count_rules_and_templates(Sections, RuleCount, TemplateCount) :-
 
 parse_resource_text(Text, M, FilteredMergedSections) :-
     tokenizer:tokenize_lang(Text, Tokens),
-    (   phrase(le_grammar:doc(Sections), Tokens)
-    ->  fetch_resources(Sections, MergedSections, M),
+    % The resource's own text is the source text while it is parsed, so that
+    % its provenance trailers are read back from it, not from the includer.
+    (   le_grammar:with_source_text(Text, phrase(le_grammar:doc(Sections), Tokens))
+    ->  le_grammar:register_resource_fact_texts(Sections, Text),
+        fetch_resources(Sections, MergedSections, M),
         exclude(is_scenario_or_query, MergedSections, FilteredMergedSections)
     ;   FilteredMergedSections = []
     ).
@@ -869,7 +872,8 @@ dict_opposite(dict(_, _, _, _, Opposite, _, _), Opposite).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, Unknown), M) :-
     assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)),
-    % A `; judged` template is solved exactly like an assumable one.
+    % A `; judged` template is solved like an assumable one (see
+    % reasoner:judged_question_decided/3 for the one difference).
     (   ( Unknown == unknown ; Unknown == judged ) ->
         Goal =.. FA,
         assertz(M:le_unknown(Goal), URef),

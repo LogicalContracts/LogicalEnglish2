@@ -79,7 +79,7 @@ A template definition can be followed by one or more additions, each introduced 
   - A **`defined_scenario_element` warning** is raised if a fact or rule head with this template is found in the knowledge base.
   - Example: `*a person* has passed the test; undefined.`
 - `; via service <name>` — the template is answered at run time by a declared service (§17.6).
-- `; judged` — marks an **open-textured** predicate whose instances are *decided*, not derived (synonyms `; open textured`, `; evaluative`). Solved exactly like `; assumable`; a rule concluding it is an error, and its open instances render as *judgment needed*. See §17.1.
+- `; judged` — marks an **open-textured** predicate whose instances are *decided*, not derived (synonyms `; open textured`, `; evaluative`). Solved like `; assumable`, except that once an outcome (the last argument) is recorded for a question no other outcome is assumed; a rule concluding it is an error, and its open instances render as *judgment needed*. See §17.1.
 
 ### 2.1 Prepositional templates
 A prepositional template is a binary template that **starts with an argument** and is used to extend a previous condition. When chaining, the leading argument can be omitted and is filled in automatically from the previous condition's type-compatible variable.
@@ -546,7 +546,9 @@ shape of a regulatory decision (applicability, one contested predicate,
 remedy), where every fact has a source and the contested predicate is
 decided by someone. Examples live in `examples/RulesRus/`;
 `eu261_integration.le` uses them all together on the facts of the CJEU's
-Wallentin-Hermann judgment.
+Wallentin-Hermann judgment, and `customs/` applies them to tariff
+classification — the GRIs and the notes of Chapters 39, 61 and 62, run on
+CBP rulings and EU BTIs (its README reports the comparison).
 
 ### 17.1 Provenance trailers and judged templates
 Any scenario fact (and any knowledge-base fact) may carry **trailers**,
@@ -580,14 +582,23 @@ keyword stays part of the fact, as always.
   (after the target-language line). Every scenario fact without a trailer
   then gets a `fact_without_provenance` warning.
 - **`; judged`** (template addition, §2): the predicate is decided, not
-  derived. The solver treats it exactly like `; assumable`. Effects:
+  derived. The solver treats it like `; assumable` (but see the outcome rule
+  below). Effects:
   - a rule whose conclusion is a judged template is an **error**
     (`judged_with_rules`);
   - a judged fact in a scenario without `according to` or `because` gets a
     `judgment_without_provenance` warning;
   - an open (assumed) instance renders in explanations as
     `the burst pipe is accidental (judgment needed)`; the unknowns list of the
-    answer is unchanged (`"the burst pipe is accidental"`).
+    answer is unchanged (`"the burst pipe is accidental"`);
+  - **the last argument is the outcome** when the template has two or more
+    (as for a service, §17.6): `the principal use of *a good* is *a use*;
+    judged.` asks one question per good. Once an outcome is recorded for a
+    question (`the principal use of the bin is household use, according to
+    CBP, ...`), no other outcome of it is assumed; a question with nothing
+    recorded stays open, one judgment needed per outcome the rules try. So
+    phrase a judged template with its outcome last (`the claim that *a good*
+    is *a kind* is *an outcome*`), not as a bare relation between two things.
 
 See `examples/RulesRus/judged_damage.le`.
 
