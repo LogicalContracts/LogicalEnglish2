@@ -96,3 +96,9 @@ lps,lps_to,to,até,hasta,jusqu'à,fino a
 lps,lps_max_time,the maximum time is,o tempo máximo é,el tiempo máximo es,le temps maximum est,il tempo massimo è
 lps,lps_max_real_time,the maximum real time is,o tempo real máximo é,el tiempo real máximo es,le temps réel maximum est,il tempo reale massimo è
 lps,lps_min_cycle_time,the minimum cycle time is,o tempo mínimo de ciclo é,el tiempo mínimo de ciclo es,le temps de cycle minimum est,il tempo minimo di ciclo è
+section,provenance_required,scenario facts require provenance,os factos do cenário exigem proveniência|os fatos do cenário exigem proveniência,los hechos del escenario requieren procedencia,les faits du scénario exigent une provenance,i fatti dello scenario richiedono una provenienza
+template_addition,judged,judged|open textured|evaluative,julgado|julgada|avaliativo|avaliativa,juzgado|juzgada|evaluativo|evaluativa,jugé|jugée|évaluatif|évaluative,giudicato|giudicata|valutativo|valutativa
+provenance,according_to,according to,de acordo com|segundo,de acuerdo con|según,selon|suivant,secondo|stando a
+provenance,as_stated_in,as stated in,conforme consta em|conforme consta no|conforme consta na,como consta en|según consta en,comme indiqué dans,come indicato in|come risulta da
+provenance,at_locator,at,em|na|no,en,à|au,a|al|alla
+provenance,because,because,porque,porque,parce que|car,perché|poiché

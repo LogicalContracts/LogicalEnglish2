@@ -104,7 +104,35 @@ parse_le_file(FilePath, Doc, M) :-
 
 parse_le_text(Text, Doc, M) :-
     tokenize_for_language(Text, Tokens),
-    parse_le_tokens(Tokens, Doc, M).
+    with_source_text(Text, parse_le_tokens(Tokens, Doc, M)).
+
+% The source text of the document being parsed, so that sentence parts whose
+% exact spelling matters — the document and locator of a provenance trailer
+% ("as stated in C-549/07 at paragraph 11") — can be read back verbatim rather
+% than rebuilt from tokens (the tokenizer reads "07" as the number 7).
+:- thread_local current_source_text/1.
+
+%!  with_source_text(+Text, :Goal) is semidet.
+%
+%   Runs Goal with Text as the current source text, restoring the previous one
+%   afterwards: an included resource is parsed by a nested call.
+:- meta_predicate with_source_text(+, 0).
+with_source_text(Text, Goal) :-
+    findall(T, current_source_text(T), Saved),
+    setup_call_cleanup(
+        ( retractall(current_source_text(_)), assertz(current_source_text(Text)) ),
+        Goal,
+        ( retractall(current_source_text(_)),
+          forall(member(T, Saved), assertz(current_source_text(T))) )).
+
+%!  source_substring(+Start, +End, -String) is semidet.
+%
+%   The verbatim source text between two offsets of the document being parsed.
+source_substring(Start, End, String) :-
+    current_source_text(Text),
+    integer(Start), integer(End), End >= Start,
+    Len is End - Start,
+    catch(sub_string(Text, Start, Len, _, String), _, fail).
 
 
 %!  parse_le_text(+Text:string, -Doc:term) is det.
@@ -191,6 +219,7 @@ section_start(events(_), 0).
 section_start(actions(_), 0).
 section_start(prolog_events(_), 0).
 section_start(lps_setting(_, _, S, _), S).
+section_start(provenance_required(S, _), S).
 
 % Only KNOWLEDGE BASE rules count for the "scenario before rules" ordering check.
 % Scenarios (and queries) may legitimately contain their own local rules, so they
@@ -326,6 +355,14 @@ section(misplaced_expectation(Start, End)) -->
           -> assertz(M:le_issue(error, misplaced_expectation, Desc, Fix, Start, End))
           ;  true )
     }.
+
+% section(provenance_required(...)) parses the program-level statement
+% "scenario facts require provenance." — every scenario fact must then carry a
+% provenance trailer (see fact_prov below), or the verifier warns. Tried before
+% the scenario section, whose keyword it shares in English.
+section(provenance_required(Start, End)) -->
+    any_indent, kw_start(provenance_required, Start),
+    t(punctuation('.', loc(_, End))).
 
 % section(scenario(...)) parses a scenario section.
 section(scenario(Name, Content, Start, End)) -->
@@ -505,6 +542,10 @@ consume_until_next_section([]) --> [].
 % preceding indent token, because by the time an item parser looks ahead for
 % the next section it has usually consumed the indent already.
 next_section_start --> any_indent, at_line_start, kw(guard).
+% "scenario facts require provenance." is a top-level statement too, and in
+% languages whose phrase does not open with a guard word it must still end the
+% section before it.
+next_section_start --> any_indent, at_line_start, kw(provenance_required).
 
 % Non-consuming: the next token begins a line. With no table recorded — a
 % fragment parsed directly through kb_items//1, say — every position qualifies,
@@ -748,6 +789,28 @@ kb_item(unknown_fact(Head, Start, End)) -->
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
 
+% kb_item(fact_prov(Head, Trailers, Start, End)) parses a fact carrying
+% provenance trailers (docs/le_summary.md §17.1):
+%     the burst pipe is accidental,
+%         according to the loss adjuster, as stated in report LA-17 at page 3,
+%         because "corrosion was not visible on inspection".
+% Each trailer follows a comma and opens with its keyword (according to / as
+% stated in / because), in any order. A comma inside the fact that is NOT
+% followed by a trailer keyword stays part of the fact, as before. A trailer
+% block may start on the fact's own line (the comma is then inside the template
+% instance) or on the next line (the instance stops at a line-ending comma).
+% Trailers are kept as tokens here and interpreted in the second pass.
+kb_item(fact_prov(Core, Trailers, Start, End)) -->
+    template_instance(Head0),
+    { Head0 = [First|_], get_token_start(First, Start),
+      split_inline_provenance(Head0, Core, Inline) },
+    (   t(punctuation(',', _)), trailer_ahead
+    ->  provenance_tokens(Cont)
+    ;   { Cont = [] }
+    ),
+    { append(Inline, Cont, Trailers), Trailers \== [], Core \== [] },
+    any_indent, t(punctuation('.', loc(_, End))).
+
 % kb_item(fact_image(...)) parses a fact carrying an image addition:
 %     <fact>; image "https://…".
 % The template instance stops at ';' (is_terminator), so the addition parses
@@ -766,6 +829,47 @@ kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
+
+% The upcoming tokens open a provenance trailer (non-consuming).
+trailer_ahead(S, S) :-
+    skip_indents(S, S1),
+    starts_with_trailer_keyword(S1).
+
+starts_with_trailer_keyword(Tokens) :-
+    member(Key, [according_to, as_stated_in, because]),
+    le_i18n:kw_synonym_words(Key, Words),
+    tokens_word_prefix(Words, Tokens, _), !.
+
+% tokens_word_prefix(+Words, +Tokens, -Rest): Tokens (template parts or raw
+% tokens, indents skipped) spell Words, followed by Rest.
+tokens_word_prefix([], Rest, Rest).
+tokens_word_prefix([W|Ws], Tokens0, Rest) :-
+    skip_indents(Tokens0, [T|Ts]),
+    extract_simple_word(T, W0), W0 == W,
+    tokens_word_prefix(Ws, Ts, Rest).
+
+% The raw tokens of a trailer block, up to (not including) the '.' that ends
+% the fact. Indents and comments are dropped: they carry no meaning here.
+provenance_tokens([T|Ts]) -->
+    any_indent, [T], { T \= punctuation('.', _) }, !,
+    provenance_tokens(Ts).
+provenance_tokens([]) --> [].
+
+%!  split_inline_provenance(+Parts, -Core, -Trailers) is det.
+%
+%   Splits a template instance at its first comma that is followed by a
+%   provenance keyword: Core is the fact proper, Trailers the tokens after
+%   that comma ([] when the instance carries no inline trailer).
+split_inline_provenance(Parts, Core, Trailers) :-
+    (   append(Core0, [Comma|Rest], Parts),
+        comma_part(Comma),
+        starts_with_trailer_keyword(Rest)
+    ->  Core = Core0, Trailers = Rest
+    ;   Core = Parts, Trailers = []
+    ).
+
+comma_part(punct(',', _)).
+comma_part(punctuation(',', _)).
 
 % The antecedent of a when/if: every token up to the `then` that starts a line
 % (or follows the antecedent inline). `then` cannot appear inside a template
@@ -960,6 +1064,13 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   undefined_keyword ->
         { Unknown = scenario_element },
+        template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
+    ;   kw(judged) ->
+        % "; judged" (open textured, evaluative): an assumable scenario element
+        % whose instances are DECISIONS, recorded as provenance-bearing facts
+        % and never derived by rules. Solved exactly like "; assumable"; the
+        % verifier, the explanation and flip queries key on the marker.
+        { Unknown = judged },
         template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   kw(known_as) ->
         % "; known as played" binds this template to an LPS functor
@@ -2119,6 +2230,13 @@ second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Sta
         NewBody = true
     ).
 
+% A fact with provenance trailers: compile the fact exactly as a plain fact —
+% proof is unaffected — and record its provenance against the fact's source
+% range (see record_fact_provenance/5).
+second_pass_item(Templates, fact_prov(Head, Trailers, Start, End), NewItem, M) :-
+    second_pass_item(Templates, fact(Head, Start, End), NewItem, M),
+    le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End).
+
 % A fact with an image addition ("<fact>; image "URL"."): compile the fact
 % exactly as a plain fact, then validate and record the image against the
 % fact's source range (the same range its explanation nodes carry, which is
@@ -2278,6 +2396,8 @@ second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, New
         )
     ;   NewHead = unknown_template(Head, Start, End), NewBody = true
     ).
+second_pass_ontology_item(Templates, fact_prov(Head, _Trailers, Start, End), NewItem, M) :-
+    second_pass_ontology_item(Templates, fact(Head, Start, End), NewItem, M).
 second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
     ( parse_literal(Head, Templates, [], VM1, NewHead, _, true) -> 
@@ -2357,6 +2477,12 @@ literal_arg_types(Literal, Templates, ArgTypes) :-
 
 arg_type(NTs, Arg, FormalArg, Arg-Type) :-
     ( member(K-T, NTs), K == FormalArg -> Type = T ; Type = any ).
+
+% A scenario fact with provenance trailers: a plain scenario fact plus its
+% provenance record.
+second_pass_scenario_item(Templates, fact_prov(Head, Trailers, Start, End), NewItem, M) :-
+    second_pass_scenario_item(Templates, fact(Head, Start, End), NewItem, M),
+    le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End).
 
 % A scenario fact with an image addition: compile as a plain scenario fact,
 % then validate and record the image (see record_fact_image/7).

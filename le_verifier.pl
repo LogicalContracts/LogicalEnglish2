@@ -46,6 +46,66 @@ check_issue(KB, _, Issue) :- unmarked_meta_template(KB, Issue).
 check_issue(KB, _, Issue) :- non_stratified(KB, Issue).
 check_issue(KB, _, Issue) :- unused_template(KB, Issue).
 check_issue(KB, _, Issue) :- unconsumed_facts(KB, Issue).
+check_issue(KB, _, Issue) :- judged_with_rules(KB, Issue).
+check_issue(KB, _, Issue) :- judgment_without_provenance(KB, Issue).
+check_issue(KB, _, Issue) :- fact_without_provenance(KB, Issue).
+
+% --- Judged templates and provenance (docs/le_summary.md §3.3) ---
+
+%!  is_judged_functor(+KB, ?F, ?A) is nondet.
+%
+%   F/A is declared `; judged` in KB.
+is_judged_functor(KB, F, A) :-
+    current_predicate(KB:le_dict/1),
+    clause(KB:le_dict(dict([F|Args], _, _, _, _, _, Unknown)), true),
+    Unknown == judged,
+    length(Args, A).
+
+% A judged predicate is decided, not derived: a rule concluding it is an error.
+judged_with_rules(KB, issue(judged_with_rules, Description, Fix, Start, End)) :-
+    is_judged_functor(KB, F, A),
+    functor(Head, F, A),
+    current_predicate(KB:F/A),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, Body, Ref),
+    Body \== true,
+    predicate_le_label(KB, F, A, Label),
+    le_i18n:le_msg(judged_with_rules_desc, [template-Label], Description),
+    le_i18n:le_msg(judged_with_rules_fix, [], Fix),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ).
+
+% A judgment stated in a scenario should say who made it or why.
+judgment_without_provenance(KB, issue(judgment_without_provenance, Description, Fix, Start, End)) :-
+    current_predicate(KB:scenario/2),
+    KB:scenario(Name, Terms),
+    member(fact_with_source(Term, Start, End), Terms),
+    ( Term = (Head :- _) -> true ; Head = Term ),
+    compound(Head),
+    functor(Head, F, A),
+    is_judged_functor(KB, F, A),
+    \+ ( current_predicate(KB:le_fact_provenance/4),
+         KB:le_fact_provenance(Start, End, _, prov(Src, _, _, Rat)),
+         ( Src \== none ; Rat \== none ) ),
+    fact_le_text(KB, Head, Text),
+    le_i18n:le_msg(judgment_without_provenance_desc, [text-Text, scenario-Name], Description),
+    le_i18n:le_msg(judgment_without_provenance_fix, [], Fix).
+
+% Under "scenario facts require provenance.", every scenario fact needs a trailer.
+fact_without_provenance(KB, issue(fact_without_provenance, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_provenance_required/0),
+    KB:le_provenance_required,
+    current_predicate(KB:scenario/2),
+    KB:scenario(Name, Terms),
+    member(fact_with_source(Term, Start, End), Terms),
+    ( Term = (Head :- _) -> true ; Head = Term ),
+    compound(Head),
+    \+ functor(Head, le_unknown, _),
+    \+ functor(Head, unknown_template, _),
+    \+ ( current_predicate(KB:le_fact_provenance/4),
+         KB:le_fact_provenance(Start, End, _, _) ),
+    fact_le_text(KB, Head, Text),
+    le_i18n:le_msg(fact_without_provenance_desc, [text-Text, scenario-Name], Description),
+    le_i18n:le_msg(fact_without_provenance_fix, [], Fix).
 
 %!  unmatched_sentences(+KB:atom, +Scope, -Occurrences:list) is det.
 %
@@ -873,8 +933,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance]) },
     [ '~w: ~w' - [Type, Msg] ].

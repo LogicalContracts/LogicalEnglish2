@@ -19,7 +19,7 @@
     maybe_destroy_kb/1, is_generated_kb_module/1,
     le_network_allowed/0, set_le_network_allowed/1,
     le_issue_reporting/0, set_le_issue_reporting/1,
-    le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, negation_words/1, user_rule_name/1]).
+    le_examples_dir/1, le_example_relpath/2, language_examples_dir/2, le_extra_examples_dir/2, negation_words/1, user_rule_name/1]).
 
 :- discontiguous process_section_acc/2.
 :- discontiguous print_test_result/1.
@@ -48,6 +48,7 @@
 :- use_module(le_i18n).
 :- use_module(reasoner).
 :- use_module(le_verifier, [verify/2, verify/3, find_in_body/2]).
+:- use_module(le_provenance).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -68,6 +69,17 @@ language_examples_dir(Lang, Dir) :-
     atom_concat('examples/', Lang, Dir),
     exists_directory(Dir).
 
+%!  le_extra_examples_dir(?Name:atom, ?Dir:atom) is nondet.
+%
+%   Example trees kept beside the main one so that a family of examples does
+%   not clutter it: examples/RulesRus/ holds the programs exercising the
+%   regulatory-decision constructs (provenance, judged templates, otherwise,
+%   decision tables, section conventions, scoped proof, services, flip
+%   queries). Such a tree is named by its directory: 'RulesRus/judged_damage'
+%   resolves into it (le_example_relpath/2), and it is listed and run by the
+%   example suite like the main tree.
+le_extra_examples_dir('RulesRus', 'examples/RulesRus').
+
 %!  le_example_relpath(+Name, -Path:atom) is det.
 %
 %   Resolves an example name as used by the web API/MCP — relative to the
@@ -82,6 +94,11 @@ le_example_relpath(Name0, Path) :-
         sub_atom(Name, 0, Before, _, Lang),
         language_examples_dir(Lang, _)
     ->  atom_concat('examples/', Name, Path)
+    ;   sub_atom(Name, Before, _, _, '/'),
+        sub_atom(Name, 0, Before, _, Root),
+        le_extra_examples_dir(Root, RootDir)
+    ->  sub_atom(Name, Before, _, 0, Rest),          % '/<name>'
+        atom_concat(RootDir, Rest, Path)
     ;   le_examples_dir(Dir),
         atomic_list_concat([Dir, '/', Name], Path)
     ).
@@ -306,7 +323,7 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
             ),
             (   catch(le_verifier:verify(NewModule, VerifyOptions, Issues), EV, (print_message(error, EV), Issues = [])) ->
                 forall(member(issue(Type, Desc, Fix, Start, End), Issues), (
-                    (Type == missing_template -> Severity = error; Severity = warning),
+                    ( error_issue_type(Type) -> Severity = error; Severity = warning),
                     assertz(NewModule:le_issue(Severity, Type, Desc, Fix, Start, End))
                 ))
             ;   true
@@ -329,6 +346,10 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
             print_message(error, ErrorMsg)
         )
     ).
+
+% Verifier issues that are errors (the rest are warnings).
+error_issue_type(missing_template).
+error_issue_type(judged_with_rules).
 
 process_section(S, M) :-
     ( do_log -> print_message(informational,'Processing section: ~w' - [S]); true),
@@ -396,6 +417,11 @@ assert_role_dicts(Dicts, Role, M) :-
 process_section_acc(lps_setting(Key, Value, Start, End), M) :-
     assertz(M:le_lps_item(setting, Key-Value, Key), Ref),
     assertz(M:le_source_info(Ref, Start, End, Key)).
+
+% "scenario facts require provenance." — read by the verifier.
+process_section_acc(provenance_required(Start, End), M) :-
+    assertz(M:le_provenance_required, Ref),
+    assertz(M:le_source_info(Ref, Start, End, provenance_required)).
 
 process_section_acc(meta(Target), M) :-
     ( atom(Target) -> assertz(M:le_target_language(Target))
@@ -807,7 +833,8 @@ dict_opposite(dict(_, _, _, _, Opposite, _, _), Opposite).
 assert_dict_with_source(dict(FA, NTs, WV, Start, End, Globals, Opposite, Prep, Unknown), M) :-
     assert_le_dict(M, dict(FA, NTs, WV, Globals, Opposite, Prep, Unknown), Ref),
     assertz(M:le_source_info(Ref, Start, End, template)),
-    (   Unknown == unknown ->
+    % A `; judged` template is solved exactly like an assumable one.
+    (   ( Unknown == unknown ; Unknown == judged ) ->
         Goal =.. FA,
         assertz(M:le_unknown(Goal), URef),
         assertz(M:le_source_info(URef, Start, End, template_unknown))
@@ -924,6 +951,7 @@ createSession(KBmodule, SessionModule) :-
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:sessionClause/1),
     dynamic(SessionModule:le_source_info/4),
+    dynamic(SessionModule:le_provenance/5),
     % Register the KB reference and the in-use timestamp atomically under the
     % same mutex the reaper uses, so maybe_destroy_kb/1 reliably sees this new
     % session as a live reference and will not reclaim a shared KB module out
@@ -1004,7 +1032,8 @@ setScenarion(SessionModule, ScenarioName) :-
         ;   atom(ScenarioName), atom_number(ScenarioName, Num), KBmodule:scenario(Num, Facts) -> true
         ;   fail
         ),
-        forall(member(Fact, Facts), addSessionFact(SessionModule, Fact))
+        forall(member(Fact, Facts), addSessionFact(SessionModule, Fact)),
+        add_scenario_provenance(SessionModule, KBmodule, Facts)
     ; fail).
 
 %!  clearSession(+SessionModule:atom) is det.
@@ -1020,7 +1049,8 @@ clearSession(SessionModule) :-
     dynamic(SessionModule:le_neg/1),
     dynamic(SessionModule:debug_mode/0),
     dynamic(SessionModule:sessionClause/1),
-    dynamic(SessionModule:le_source_info/4).
+    dynamic(SessionModule:le_source_info/4),
+    dynamic(SessionModule:le_provenance/5).
 
 % --- Session lifecycle / garbage collection ---------------------------------
 %
@@ -1303,7 +1333,8 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     ( Goal0 = le_at(Goal, _, _) -> true; Goal = Goal0),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( (SM:le_source_info(Ref, Start, End, _); (KB \== none, KB:le_source_info(Ref, Start, End, _))) -> Range0 = range(Start, End); Range0 = Ref),
-    ( (KB \== none, item_to_instance_ranged(KB, Goal, Range0, Tokens)) -> canonical_string(Tokens, LE); term_string(Goal, LE)),
+    ( (KB \== none, item_to_instance_ranged(KB, Goal, Range0, Tokens)) -> canonical_string(Tokens, LE0); term_string(Goal, LE0)),
+    why_annotation(SM, KB, Goal, Ref, LE0, LE),
     % A condition the user explicitly assumed in THIS scenario ("it is unknown
     % whether …", e.g. the Assume checkbox) is shown as an assumption (unknown /
     % yellow) EVEN when it was independently provable — reflecting the "consider this
@@ -1338,6 +1369,21 @@ postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
     postprocess_why_children(SM, Whys, WhysOut).
 postprocess_why(Other, _, Other).
+
+%!  why_annotation(+SM, +KB, +Goal, +Ref, +LE0, -LE) is det.
+%
+%   A proved fact that carries provenance renders with its trailers, as the
+%   author wrote them ("..., according to the loss adjuster, as stated in
+%   report LA-17 at page 3"); an unknown of a `; judged` template renders as a
+%   judgment needed rather than as a bare assumption.
+why_annotation(SM, KB, Goal, Ref, LE0, LE) :-
+    (   ( Ref == unknown ; nonvar(Ref), Ref = unknown(_, _) ), is_judged_goal(KB, Goal)
+    ->  le_i18n:le_msg(judgment_needed, [goal-LE0], LEAtom), atom_string(LEAtom, LE)
+    ;   catch(clause_provenance(SM, KB, Ref, Goal, Prov), _, fail),
+        provenance_suffix(Prov, Suffix), Suffix \== ""
+    ->  string_concat(LE0, Suffix, LE)
+    ;   LE = LE0
+    ).
 
 % Postprocess a sibling list, dropping the nodes postprocessing omitted.
 postprocess_why_children(SM, Children, ChildrenOut) :-
@@ -2028,7 +2074,10 @@ parse_custom_facts(KB, Text, Terms) :-
     % phrase like "the UK" stays a concrete individual. The regular KB pass would
     % treat it as an anaphoric variable, silently dropping the value (so editing
     % such an argument would have no effect).
-    maplist(scenario_item_to_term(Templates, KB), Items, Terms).
+    % Provenance trailers of custom facts come back as le_provenance/5 terms
+    % (their offsets are relative to the custom text, not to the program).
+    with_provenance_sink(maplist(scenario_item_to_term(Templates, KB), Items, Terms0), ProvTerms),
+    append(Terms0, ProvTerms, Terms).
 
 scenario_item_to_term(Templates, M, Item, Term) :-
     ( le_grammar:second_pass_scenario_item_with_module(Templates, M, Item, NewItem) ->
@@ -2106,6 +2155,12 @@ is_system_predicate(le_prolog_resource/2).
 is_system_predicate(le_lps_role/2).
 is_system_predicate(le_lps_functor/2).
 is_system_predicate(le_lps_item/3).
+% Provenance-bearing facts (le_provenance.pl): the parse-time record keyed by
+% the fact's source range, its public per-session form, and the program-level
+% "scenario facts require provenance." declaration.
+is_system_predicate(le_fact_provenance/4).
+is_system_predicate(le_provenance/5).
+is_system_predicate(le_provenance_required/0).
 
 %!  kb_own_predicate(+M:atom, +Head:callable) is semidet.
 %
@@ -2394,7 +2449,14 @@ run_suite(Suite, Results) :-
               runTestsInDir(LangDir, Suite, Rs),
               member(R, Rs) ),
             LangResults),
-    append(Results0, LangResults, Results).
+    % Extra example trees beside the main one (le_extra_examples_dir/2).
+    findall(R,
+            ( le_extra_examples_dir(_, ExtraDir),
+              exists_directory(ExtraDir),
+              runTestsInDir(ExtraDir, Suite, Rs),
+              member(R, Rs) ),
+            ExtraResults),
+    append([Results0, ExtraResults, LangResults], Results).
 
 %!  suite_failure_count(+Results:list, -Failures:integer, -Errors:integer) is det.
 suite_failure_count(Results, NF, NE) :-

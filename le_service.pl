@@ -341,6 +341,7 @@ dict_parts(dict(FA, NTs, WV), FA, NTs, WV, []).
 
 dict_flag(_, _, Prep, _, prepositional) :- Prep == prepositional.
 dict_flag(_, _, _, Unknown, unknown) :- Unknown == unknown.
+dict_flag(_, _, _, Unknown, judged) :- Unknown == judged.
 dict_flag(_, Opposite, _, _, opposite(OF/OA)) :-
     nonvar(Opposite),
     functor(Opposite, OF, OA).

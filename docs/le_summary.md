@@ -29,6 +29,8 @@ This document provides a summary of the Logical English constructs supported by 
   - [14. Included Resources](#14-included-resources)
   - [15. LE Extensions](#15-le-extensions)
   - [16. Humanizing LE](#16-humanizing-le)
+  - [17. Regulatory-decision constructs](#17-regulatory-decision-constructs)
+    - [17.1 Provenance trailers and judged templates](#171-provenance-trailers-and-judged-templates)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -69,6 +71,7 @@ A template definition can be followed by one or more additions, each introduced 
   - The `undefined_predicate` warning is **suppressed** for this template (even though no KB clause exists for it).
   - A **`defined_scenario_element` warning** is raised if a fact or rule head with this template is found in the knowledge base.
   - Example: `*a person* has passed the test; undefined.`
+- `; judged` — marks an **open-textured** predicate whose instances are *decided*, not derived (synonyms `; open textured`, `; evaluative`). Solved exactly like `; assumable`; a rule concluding it is an error, and its open instances render as *judgment needed*. See §17.1.
 
 ### 2.1 Prepositional templates
 A prepositional template is a binary template that **starts with an argument** and is used to extend a previous condition. When chaining, the leading argument can be omitted and is filled in automatically from the previous condition's type-compatible variable.
@@ -524,3 +527,52 @@ natural prose:
 - **Name individuals meaningfully**: determiner-free, descriptive constants
   (`claim one`, `wrist injury`, `United Kingdom`) — they appear verbatim in
   answers and explanations.
+
+## 17. Regulatory-decision constructs
+Constructs for programs that apply written rules to recorded cases — the
+shape of a regulatory decision (applicability, one contested predicate,
+remedy), where every fact has a source and the contested predicate is
+decided by someone. Examples live in `examples/RulesRus/`.
+
+### 17.1 Provenance trailers and judged templates
+Any scenario fact (and any knowledge-base fact) may carry **trailers**,
+each after a comma, in any order:
+
+| Trailer | Meaning |
+|---|---|
+| `according to <source>` | who asserts the fact — a party, a witness, a document type, a service, a court. `<source>` is an ordinary constant. |
+| `as stated in <document> at <locator>` | where it is written (`at <locator>` is optional). Without `according to`, the document is the source. |
+| `because "<text>"` | the rationale. |
+
+```le
+scenario decided is:
+    claim one is for the burst pipe, as stated in the claim form at section 2.
+    the burst pipe is accidental,
+        according to the loss adjuster, as stated in report LA-17 at page 3,
+        because "corrosion was not visible on inspection".
+```
+The trailers may start on the fact's own line or on the next one (the line
+then ends with the comma). A comma that is *not* followed by a trailer
+keyword stays part of the fact, as always.
+
+- **Proof is unaffected.** The fact is compiled exactly as without trailers.
+  The provenance is recorded beside it (`le_fact_provenance/4`, keyed by the
+  fact's source range) and every session loaded with the scenario gets
+  `le_provenance(Fact, Source, Document, Locator, Rationale)` (`none` for a
+  missing part; Source is the document when no `according to` is given).
+- **Explanations** render a proved fact with its trailers, as written:
+  `the burst pipe is accidental, according to the loss adjuster, as stated in report LA-17 at page 3, because "..."`.
+- **`scenario facts require provenance.`** — a program-level statement
+  (after the target-language line). Every scenario fact without a trailer
+  then gets a `fact_without_provenance` warning.
+- **`; judged`** (template addition, §2): the predicate is decided, not
+  derived. The solver treats it exactly like `; assumable`. Effects:
+  - a rule whose conclusion is a judged template is an **error**
+    (`judged_with_rules`);
+  - a judged fact in a scenario without `according to` or `because` gets a
+    `judgment_without_provenance` warning;
+  - an open (assumed) instance renders in explanations as
+    `the burst pipe is accidental (judgment needed)`; the unknowns list of the
+    answer is unchanged (`"the burst pipe is accidental"`).
+
+See `examples/RulesRus/judged_damage.le`.
