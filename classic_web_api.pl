@@ -524,7 +524,20 @@ safe_example_subdir(DirParam, BaseDir, SubDirPath, UserRoles) :-
 %   depth, so e.g. examples/.../insureLE2/testing/foo appears as
 %   insureLE2/ > testing/ > foo.
 landing_example_items(Dir, UserRoles, Items) :-
-    landing_example_items(Dir, '', UserRoles, Items).
+    landing_example_items(Dir, '', UserRoles, Items0),
+    % The extra example trees beside the main one (le_kbs:le_extra_examples_dir/2),
+    % each as one more collapsible folder named after its directory.
+    findall(li([class('le-folder-item')],
+               details(['data-path'(Prefix), class('le-folder')],
+                       [summary(b(Prefix)), ul(SubItems)])),
+            ( le_kbs:le_extra_examples_dir(Root, ExtraDir),
+              exists_directory(ExtraDir),
+              is_path_allowed(ExtraDir, UserRoles),
+              atom_concat(Root, '/', Prefix),
+              landing_example_items(ExtraDir, Prefix, UserRoles, SubItems),
+              SubItems \== [] ),
+            ExtraItems),
+    append(Items0, ExtraItems, Items).
 
 landing_example_items(Dir, Prefix, UserRoles, Items) :-
     directory_files(Dir, Files),
@@ -801,7 +814,15 @@ handle_list_examples(_Dict, Response) :-
         list_examples_in_dir(LangDirSlash, LangPrefix, UserRoles, LangExamples)
     ;   LangExamples = []
     ),
-    append(LangExamples, StandardExamples, Examples),
+    findall(E,
+            ( le_kbs:le_extra_examples_dir(Root, ExtraDir),
+              exists_directory(ExtraDir),
+              atomic_list_concat([ExtraDir, '/'], ExtraDirSlash),
+              atomic_list_concat([Root, '/'], ExtraPrefix),
+              list_examples_in_dir(ExtraDirSlash, ExtraPrefix, UserRoles, Es),
+              member(E, Es) ),
+            ExtraExamples),
+    append([LangExamples, StandardExamples, ExtraExamples], Examples),
     Response = _{examples: Examples}.
 
 %!  list_examples_in_dir(+Dir:atom, +Prefix:atom, +UserRoles:list, -Examples:list) is det.

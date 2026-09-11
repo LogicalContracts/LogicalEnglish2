@@ -1,0 +1,44 @@
+% Provenance-bearing facts and judged templates (LE_extensions_proposal §3.1).
+%
+% "a damage is accidental" is open-textured: it is not derived by a rule but
+% DECIDED, by someone, for a reason. The template says so ("; judged"), and
+% the scenario that decides it records who decided, where it is written and
+% why. Every scenario fact must say where it comes from, because the program
+% declares "scenario facts require provenance".
+%
+% - scenario decided: the loss adjuster's judgment is recorded, so the claim is
+%   payable outright; the explanation carries the three trailers.
+% - scenario undecided: nobody has judged the damage yet, so the answer is
+%   conditional and the open point is reported as a judgment needed.
+
+the target language is: prolog.
+scenario facts require provenance.
+
+the templates are:
+    *a claim* is payable.
+    *a claim* is for *a damage*; undefined.
+    *a damage* is accidental; judged.
+    *a damage* is reported within the time limit; undefined.
+
+the knowledge base judged damage includes:
+
+a claim is payable
+    if the claim is for a damage
+    and the damage is reported within the time limit
+    and the damage is accidental.
+
+scenario decided is:
+    claim one is for the burst pipe, as stated in the claim form at section 2.
+    the burst pipe is reported within the time limit, as stated in the claim log at entry 7.
+    the burst pipe is accidental,
+        according to the loss adjuster, as stated in report LA-17 at page 3,
+        because "corrosion was not visible on inspection and the pipe was within its service life".
+    payable expects answers ["claim one is payable"].
+
+scenario undecided is:
+    claim one is for the burst pipe, as stated in the claim form at section 2.
+    the burst pipe is reported within the time limit, as stated in the claim log at entry 7.
+    payable expects answers ["claim one is payable"] and unknowns ["the burst pipe is accidental"].
+
+query payable is:
+    which claim is payable.
