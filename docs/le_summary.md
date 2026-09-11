@@ -36,6 +36,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [17.4 The decision skeleton: applicability, question, remedy](#174-the-decision-skeleton-applicability-question-remedy)
     - [17.5 Source-scoped proof: `according to` in a rule](#175-source-scoped-proof-according-to-in-a-rule)
     - [17.6 Services and semantic predicates over text](#176-services-and-semantic-predicates-over-text)
+    - [17.7 Flip queries: which minimal change flips the outcome](#177-flip-queries-which-minimal-change-flips-the-outcome)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -333,6 +334,7 @@ Scenarios can define expected results for queries, which are used by the test ru
 - **Syntax:** `<QueryName> expects answers ["Answer 1", "Answer 2"] and unknowns ["Unknown 1"].` (The `and unknowns [...]` part is optional, and so is the word `answers`).
 - The expectation names the query directly — it must **not** be prefixed with
   `query` (a leading section keyword is reported as a misplaced expectation).
+- **Flip queries** (§17.7) state their expected minimal change sets: `<QueryName> expects changes [["add: <fact>"], ["remove: <fact>", "add: <fact>"]].`
 - **Example:**
   ```le
   scenario alice is:
@@ -782,3 +784,38 @@ the templates are:
 See `examples/RulesRus/semantic_match.le` (stub, tested) and
 `semantic_llm.le` (an LLM classifier; no expectations — its answers depend on
 the model).
+
+### 17.7 Flip queries: which minimal change flips the outcome
+```le
+query flip_rich is:
+    which minimal change to the scenario makes it the case that
+        rich gets help to pay rent.
+
+query flip_bob is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that bob gets help to pay rent.
+```
+The answers are the **minimal change sets** — the smallest number of
+changes, and every set of that size that works — after which the goal holds
+outright (no assumption), or, for `it is not the case that G`, G no longer
+has any proof. A change **adds** or **removes** one fact of a
+scenario-element template: one marked `; undefined` or `; judged` (§17.1) —
+or, in a program that marks none, any template no rule concludes. Derived
+predicates are never changed.
+- An answer renders as its changes: `add: rich is on a low income` (several
+  are joined with `and`; `no change is needed` when the goal already holds),
+  and is explained by the proof the changed scenario gives.
+- A judged template's open instance is a one-step change like any other —
+  a judgment (`add: the burst pipe is accidental`).
+- **Expectations**: `flip_bob expects changes [["remove: bob is on a low income"], ["remove: bob is on other benefits"]].`
+  (order-insensitive, within and between sets).
+- **The search** is explanation-guided and verified. Candidates come only from
+  what an attempt at the goal touched — a ground scenario-element goal it
+  called that is not a fact (addition), a scenario fact it used (removal) —
+  never from the whole fact space. Sets grow one change at a time; each is
+  applied to a copy of the session and the goal re-solved, and each set's
+  own attempt supplies the next candidates, so a change that opens a new
+  path brings that path's conditions into play. Bounds: Prolog flags
+  `le_flip_max_changes` (default 3) and `le_flip_max_evaluations` (400).
+
+See `examples/RulesRus/flip_housing.le`.
