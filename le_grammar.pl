@@ -220,6 +220,7 @@ section_start(actions(_), 0).
 section_start(prolog_events(_), 0).
 section_start(lps_setting(_, _, S, _), S).
 section_start(provenance_required(S, _), S).
+section_start(table(_, _, _, _, _, S, _), S).
 
 % Only KNOWLEDGE BASE rules count for the "scenario before rules" ordering check.
 % Scenarios (and queries) may legitimately contain their own local rules, so they
@@ -380,6 +381,38 @@ section(query(Name, [query_raw(BodyTokens, BStart, End)], Start, End)) -->
     body(BodyTokens, End),
     { ( body_first_start(BodyTokens, BStart) -> true ; BStart = Start ) }.
 
+% section(table(...)) parses a decision table (docs/le_summary.md §17.3):
+%     the table shipping is, with first match:
+%         band | weight kg | cost
+%         s    | <= 1      | 5
+% or, with its rows in a CSV file,
+%     the table postcode_region is loaded from postcodes.csv, with unique match:
+%         postcode | region
+% The header and the rows are kept as token lines; le_tables.pl interprets them
+% in the second pass, where the template the table is bound to is known.
+section(table(Name, Policy, Source, Header, Rows, Start, End)) -->
+    any_indent, kw_start(table_open, Start),
+    section_name_tokens(NameTokens), { NameTokens \== [] },
+    kw(marker_is),
+    (   kw(table_loaded_from)
+    ->  table_source_tokens(SrcTokens), { SrcTokens \== [],
+        reconstruct_resource_name(SrcTokens, File), Source = file(File) }
+    ;   { Source = inline }
+    ),
+    (   t(punctuation(',', _)), kw(table_with)
+    ->  hit_policy(Policy)
+    ;   { Policy = unique }
+    ),
+    t(punctuation(':', loc(_, HEnd))),
+    table_line(Header, _, HLineEnd),
+    table_rows(Rows),
+    {   reconstruct_name(NameTokens, Name),
+        (   last(Rows, row(_, _, End0)) -> End = End0
+        ;   HLineEnd > HEnd -> End = HLineEnd
+        ;   End = HEnd
+        )
+    }.
+
 % section(ontology(...)) parses an ontology section.
 section(ontology(Content, Start, End)) -->
     any_indent, kw_start(ontology, Start), t(punctuation(':', _)),
@@ -456,6 +489,44 @@ section(unknown_section(Tokens, Start, End)) -->
     consume_until_next_section(Ts),
     { append([T], Ts, Tokens) },
     { last(Tokens, Last), ( get_token_end(Last, End) -> true ; End = Start) }.
+
+% The file (or URL) a loaded table reads: every token up to the ',' or ':'.
+table_source_tokens([T|Ts]) -->
+    [T], { \+ is_punctuation(T, ','), \+ is_punctuation(T, ':'), T \= indent(_, _) }, !,
+    table_source_tokens(Ts).
+table_source_tokens([]) --> [].
+
+hit_policy(first) --> kw(first_match), !.
+hit_policy(all) --> kw(all_matches), !.
+hit_policy(unique) --> kw(unique_match).
+
+% One line of a table: the tokens between two line breaks (comments dropped,
+% comment-only lines skipped). Stops at the next section.
+table_rows([row(Ts, S, E)|Rs]) -->
+    \+ next_section_start, table_line(Ts, S, E), !, table_rows(Rs).
+table_rows([]) --> [].
+
+table_line(Tokens, S, E) -->
+    [indent(_, _)],
+    table_line_tokens(Tokens0),
+    {   exclude(is_indent_or_comment, Tokens0, Tokens1) },
+    (   { Tokens1 == [] }
+    ->  table_line(Tokens, S, E)
+    ;   { Tokens = Tokens1, Tokens = [F|_], last(Tokens, L),
+          get_token_start(F, S), get_token_end(L, E) }
+    ).
+
+table_line_tokens([T|Ts]) --> [T], { T \= indent(_, _) }, !, table_line_tokens(Ts).
+table_line_tokens([]) --> [].
+
+% A table header ahead (non-consuming): "the table <name> is" followed by
+% ',' / ':' / "loaded from". Precise enough that a sentence which merely begins
+% with "the table" does not end the section it is in.
+table_header_ahead(S, S) :-
+    phrase(( kw(table_open), section_name_tokens(NameTokens), { NameTokens \== [] },
+             kw(marker_is),
+             ( kw(table_loaded_from) ; t(punctuation(',', _)) ; t(punctuation(':', _)) ) ),
+           S, _).
 
 % le_allowed_target(?Target) enumerates the execution backends a program may
 % declare via the target-language opener line (kept out of the section/3 DCG
@@ -546,6 +617,7 @@ next_section_start --> any_indent, at_line_start, kw(guard).
 % languages whose phrase does not open with a guard word it must still end the
 % section before it.
 next_section_start --> any_indent, at_line_start, kw(provenance_required).
+next_section_start --> any_indent, at_line_start, table_header_ahead.
 
 % Non-consuming: the next token begins a line. With no table recorded — a
 % fragment parsed directly through kb_items//1, say — every position qualifies,
@@ -1927,7 +1999,38 @@ second_pass_section(Templates, M, scenario(Name, Content, Start, End), scenario(
 second_pass_section(Templates, M, query(Name, Content, Start, End), query(Name, NewContent, Start, End)) :-
     exclude(is_section_marker, Content, Content1),
     maplist(second_pass_query_item_with_module(Templates, M), Content1, NewContent).
+% A decision table: interpreted by le_tables.pl against the templates, which
+% records le_table/6 and le_table_row/6; le_kbs then asserts the clause that
+% binds the table's template (process_section_acc(table_done(...))).
+second_pass_section(Templates, M, table(Name, Policy, Source0, Header, Rows, Start, End),
+                    table_done(Name, Start, End)) :-
+    !,
+    (   Source0 = file(File0)
+    ->  table_file(File0, M, Source, Start, End)
+    ;   Source = inline
+    ),
+    (   Source == missing
+    ->  true
+    ;   le_tables:compile_table(M, Templates, Name, Policy, Source, Header, Rows, Start, End)
+    ).
 second_pass_section(_, _, S, S). % Keep other sections as is
+
+% Resolve a loaded table's file against the including program's directory,
+% under the same local-path restriction as included resources.
+table_file(File0, M, Source, Start, End) :-
+    le_kbs:current_include_base(Base),
+    (   le_kbs:is_url(Base) -> working_directory(Dir, Dir) ; Dir = Base ),
+    absolute_file_name(File0, Abs, [relative_to(Dir)]),
+    (   le_kbs:local_resource_allowed(Abs, Base)
+    ->  Source = file(Abs)
+    ;   Source = missing,
+        (   nonvar(M), M \== (-)
+        ->  le_i18n:le_msg(table_csv_missing_desc, [name-File0, file-File0], Desc),
+            le_i18n:le_msg(table_csv_missing_fix, [name-File0, file-File0], Fix),
+            assertz(M:le_issue(error, table_csv_missing, Desc, Fix, Start, End))
+        ;   true
+        )
+    ).
 
 is_section_marker(section_marker(_, _, _)).
 
@@ -3187,11 +3290,59 @@ subtree_has_marker(Nodes) :-
     !.
 
 fold_nodes(Acc, [], _, VM, VM, Acc).
+% "otherwise" (docs/le_summary.md §17.2): a line opening with it starts a new
+% alternative, of lower precedence than and/or. Everything folded so far is the
+% previous alternative; the rest of the sibling list, from this line on, is the
+% next one (which may itself contain further "otherwise" lines). An
+% alternative applies only when every earlier one fails:
+%     A otherwise B   ==   A  or  (it is not the case that A, and B)
+fold_nodes(Acc, [node(N, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic) :-
+    otherwise_line(Tokens, AltTokens), !,
+    hierarchy_to_logic([node(N, AltTokens, Children)|Rest], Templates, VMIn, VMOut, AltLogic),
+    otherwise_guard(Acc, G),
+    % The guard's explanation node points at the "otherwise" line.
+    ( tokens_range(Tokens, S, E) -> NegGuard = le_at(not(G), S, E) ; NegGuard = not(G) ),
+    Logic = or(Acc, and(NegGuard, AltLogic)).
 fold_nodes(Acc, [node(_, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic) :-
     strip_op(Tokens, Op, RestTokens),
     parse_node(RestTokens, Children, Templates, VMIn, VM1, ChildLogic),
     NewAcc =.. [Op, Acc, ChildLogic],
     fold_nodes(NewAcc, Rest, Templates, VM1, VMOut, Logic).
+
+% otherwise_line(+Tokens, -Rest): the line opens with an "otherwise" keyword.
+otherwise_line(Tokens, Rest) :-
+    le_i18n:kw_synonym_words(otherwise, Words),
+    match_word_prefix(Words, Tokens, Rest), !.
+
+% The guard of "A otherwise B" is A negated as failure: bindings made inside
+% a failed alternative are not seen by the next one. What is negated is the
+% alternative's CONDITIONS: a conjunct that only sets an output ("and the rate
+% is 20" — an assignment to a variable no other conjunct mentions) is always
+% satisfiable, so leaving it out changes nothing when the output is unknown,
+% and when it is known it keeps "is the discount for ann 10?" from passing the
+% guard just because 10 is not 20.
+otherwise_guard(A, Guard) :-
+    conjuncts(A, Cs),
+    exclude(output_assignment(Cs), Cs, Kept),
+    (   Kept == Cs -> Guard = A
+    ;   Kept == [] -> Guard = true
+    ;   list_to_conj(Kept, Guard)
+    ).
+
+conjuncts(le_at(G, S, E), Cs) :- !,
+    (   ( G = and(_, _) ; G = (_, _) ) -> conjuncts(G, Cs) ; Cs = [le_at(G, S, E)] ).
+conjuncts(and(X, Y), Cs) :- !, conjuncts(X, CX), conjuncts(Y, CY), append(CX, CY, Cs).
+conjuncts((X, Y), Cs) :- !, conjuncts(X, CX), conjuncts(Y, CY), append(CX, CY, Cs).
+conjuncts(G, [G]).
+
+output_assignment(All, C) :-
+    strip_le_at_goal(C, G),
+    ( G = le_is(V, _) ; G = le_assign(V, _) ; G = le_equal_to(V, _) ),
+    var(V),
+    \+ ( member(Other, All), Other \== C, term_variables(Other, Vs), member(V2, Vs), V2 == V ).
+
+strip_le_at_goal(le_at(G0, _, _), G) :- !, strip_le_at_goal(G0, G).
+strip_le_at_goal(G, G).
 
 strip_op(Tokens, Op, RestTokens) :-
     strip_leading_op(Tokens, Op, Tokens1),
@@ -3261,6 +3412,14 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             Logic0 =.. [Op, [each|ElementList], Goal, ResultList],
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
+        ; swallowed_connective_literal(Tokens, Templates, VMIn),
+          parse_inline_connective(Tokens, Templates, VMIn, VM1, Logic0) ->
+            % "the customer is a member and the rate is 20": read whole, the
+            % line only parses through the generic is-a / is fallback, whose
+            % constant swallows the connective ('member and the rate is 20').
+            % When its conjuncts parse on their own, the connective is real.
+            tokens_range(Tokens, Start, End),
+            fold_nodes(le_at(Logic0, Start, End), Children, Templates, VM1, VMOut, Logic)
         ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, LitInstance) ->
             collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals),
             % A global ("defines global") abbreviation contributes a goal that
@@ -3306,6 +3465,20 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ),
     ( le_kbs:do_log -> print_message(informational,'  Node succeeded: ~w~n' - [Logic]); true).
 
+
+%!  swallowed_connective_literal(+Tokens, +Templates, +VMIn) is semidet.
+%
+%   The line parses as a single literal only through the generic "X is a Y" or
+%   "X is Y" fallback, with a constant Y that contains an and/or word — the
+%   tell-tale of a connective swallowed into a constant (the same sign the
+%   suspicious_is_a / suspicious_is warnings look for).
+swallowed_connective_literal(Tokens, Templates, VMIn) :-
+    \+ \+ ( parse_literal(Tokens, Templates, VMIn, _, Lit, _),
+            ( Lit = is_a(_, T) ; Lit = le_is(_, T) ),
+            ( atom(T) ; string(T) ),
+            atomic_list_concat(Ws, ' ', T),
+            member(W, Ws),
+            ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) ) ).
 
 % is_aggregate(+Tokens, -Op, -ElementTokens, -ResultTokens): matches
 % "<result> is the <op> of each <element> such that" (with each phrase piece —

@@ -102,3 +102,12 @@ provenance,according_to,according to,de acordo com|segundo,de acuerdo con|según
 provenance,as_stated_in,as stated in,conforme consta em|conforme consta no|conforme consta na,como consta en|según consta en,comme indiqué dans,come indicato in|come risulta da
 provenance,at_locator,at,em|na|no,en,à|au,a|al|alla
 provenance,because,because,porque,porque,parce que|car,perché|poiché
+connective,otherwise,otherwise,caso contrário|senão,de lo contrario|si no,sinon|autrement,altrimenti
+table,table_open,the table,a tabela,la tabla,la table,la tabella
+table,table_word,table,tabela,tabla,table,tabella
+table,table_loaded_from,loaded from,carregada de|carregada a partir de,cargada de|cargada desde,chargée depuis|chargée de,caricata da
+table,table_with,with,com,con,avec,con
+table,first_match,first match,primeira correspondência,primera coincidencia,première correspondance,prima corrispondenza
+table,all_matches,all matches,todas as correspondências,todas las coincidencias,toutes les correspondances,tutte le corrispondenze
+table,unique_match,unique match,correspondência única,coincidencia única,correspondance unique,corrispondenza unica
+table,table_any,any,qualquer,cualquiera,quelconque,qualsiasi

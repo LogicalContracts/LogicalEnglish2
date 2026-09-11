@@ -1,0 +1,4 @@
+band,weight kg,cost
+s,<= 1,5
+m,> 1 and <= 10,12
+l,> 10,30
