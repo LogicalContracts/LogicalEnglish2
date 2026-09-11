@@ -894,6 +894,184 @@ var keywords = {
         "time",
         "is"
       ]
+    ],
+    "provenance_required": [
+      [
+        "scenario",
+        "facts",
+        "require",
+        "provenance"
+      ]
+    ],
+    "judged": [
+      [
+        "open",
+        "textured"
+      ],
+      [
+        "evaluative"
+      ],
+      [
+        "judged"
+      ]
+    ],
+    "according_to": [
+      [
+        "according",
+        "to"
+      ]
+    ],
+    "as_stated_in": [
+      [
+        "as",
+        "stated",
+        "in"
+      ]
+    ],
+    "at_locator": [
+      [
+        "at"
+      ]
+    ],
+    "because": [
+      [
+        "because"
+      ]
+    ],
+    "otherwise": [
+      [
+        "otherwise"
+      ]
+    ],
+    "table_open": [
+      [
+        "the",
+        "table"
+      ]
+    ],
+    "table_word": [
+      [
+        "table"
+      ]
+    ],
+    "table_loaded_from": [
+      [
+        "loaded",
+        "from"
+      ]
+    ],
+    "table_with": [
+      [
+        "with"
+      ]
+    ],
+    "first_match": [
+      [
+        "first",
+        "match"
+      ]
+    ],
+    "all_matches": [
+      [
+        "all",
+        "matches"
+      ]
+    ],
+    "unique_match": [
+      [
+        "unique",
+        "match"
+      ]
+    ],
+    "table_any": [
+      [
+        "any"
+      ]
+    ],
+    "section_applicability": [
+      [
+        "applicability"
+      ]
+    ],
+    "section_question": [
+      [
+        "question"
+      ]
+    ],
+    "section_remedy": [
+      [
+        "remedy"
+      ]
+    ],
+    "services_include": [
+      [
+        "includes",
+        "these",
+        "services"
+      ]
+    ],
+    "service_at": [
+      [
+        "at"
+      ]
+    ],
+    "service_as": [
+      [
+        "as",
+        "an"
+      ],
+      [
+        "as",
+        "a"
+      ],
+      [
+        "as"
+      ]
+    ],
+    "via_service": [
+      [
+        "via",
+        "service"
+      ]
+    ],
+    "kind_semantic_matcher": [
+      [
+        "semantic",
+        "matcher"
+      ]
+    ],
+    "flip_query": [
+      [
+        "which",
+        "minimal",
+        "change",
+        "to",
+        "the",
+        "scenario",
+        "makes",
+        "it",
+        "the",
+        "case",
+        "that"
+      ],
+      [
+        "which",
+        "minimal",
+        "changes",
+        "to",
+        "the",
+        "scenario",
+        "make",
+        "it",
+        "the",
+        "case",
+        "that"
+      ]
+    ],
+    "changes": [
+      [
+        "changes"
+      ]
     ]
   },
   "pt": {
@@ -2007,6 +2185,229 @@ var keywords = {
         "de",
         "ciclo",
         "\xE9"
+      ]
+    ],
+    "provenance_required": [
+      [
+        "os",
+        "factos",
+        "do",
+        "cen\xE1rio",
+        "exigem",
+        "proveni\xEAncia"
+      ],
+      [
+        "os",
+        "fatos",
+        "do",
+        "cen\xE1rio",
+        "exigem",
+        "proveni\xEAncia"
+      ]
+    ],
+    "judged": [
+      [
+        "avaliativo"
+      ],
+      [
+        "avaliativa"
+      ],
+      [
+        "julgado"
+      ],
+      [
+        "julgada"
+      ]
+    ],
+    "according_to": [
+      [
+        "de",
+        "acordo",
+        "com"
+      ],
+      [
+        "segundo"
+      ]
+    ],
+    "as_stated_in": [
+      [
+        "conforme",
+        "consta",
+        "em"
+      ],
+      [
+        "conforme",
+        "consta",
+        "no"
+      ],
+      [
+        "conforme",
+        "consta",
+        "na"
+      ]
+    ],
+    "at_locator": [
+      [
+        "em"
+      ],
+      [
+        "na"
+      ],
+      [
+        "no"
+      ]
+    ],
+    "because": [
+      [
+        "porque"
+      ]
+    ],
+    "otherwise": [
+      [
+        "caso",
+        "contr\xE1rio"
+      ],
+      [
+        "sen\xE3o"
+      ]
+    ],
+    "table_open": [
+      [
+        "a",
+        "tabela"
+      ]
+    ],
+    "table_word": [
+      [
+        "tabela"
+      ]
+    ],
+    "table_loaded_from": [
+      [
+        "carregada",
+        "a",
+        "partir",
+        "de"
+      ],
+      [
+        "carregada",
+        "de"
+      ]
+    ],
+    "table_with": [
+      [
+        "com"
+      ]
+    ],
+    "first_match": [
+      [
+        "primeira",
+        "correspond\xEAncia"
+      ]
+    ],
+    "all_matches": [
+      [
+        "todas",
+        "as",
+        "correspond\xEAncias"
+      ]
+    ],
+    "unique_match": [
+      [
+        "correspond\xEAncia",
+        "\xFAnica"
+      ]
+    ],
+    "table_any": [
+      [
+        "qualquer"
+      ]
+    ],
+    "section_applicability": [
+      [
+        "aplicabilidade"
+      ]
+    ],
+    "section_question": [
+      [
+        "quest\xE3o"
+      ]
+    ],
+    "section_remedy": [
+      [
+        "repara\xE7\xE3o"
+      ],
+      [
+        "rem\xE9dio"
+      ]
+    ],
+    "services_include": [
+      [
+        "inclui",
+        "estes",
+        "servi\xE7os"
+      ]
+    ],
+    "service_at": [
+      [
+        "em"
+      ]
+    ],
+    "service_as": [
+      [
+        "como",
+        "uma"
+      ],
+      [
+        "como",
+        "um"
+      ],
+      [
+        "como"
+      ]
+    ],
+    "via_service": [
+      [
+        "atrav\xE9s",
+        "do",
+        "servi\xE7o"
+      ],
+      [
+        "via",
+        "servi\xE7o"
+      ]
+    ],
+    "kind_semantic_matcher": [
+      [
+        "comparador",
+        "sem\xE2ntico"
+      ]
+    ],
+    "flip_query": [
+      [
+        "que",
+        "altera\xE7\xF5es",
+        "m\xEDnimas",
+        "ao",
+        "cen\xE1rio",
+        "fazem",
+        "com",
+        "que"
+      ],
+      [
+        "que",
+        "altera\xE7\xE3o",
+        "m\xEDnima",
+        "ao",
+        "cen\xE1rio",
+        "faz",
+        "com",
+        "que"
+      ]
+    ],
+    "changes": [
+      [
+        "altera\xE7\xF5es"
       ]
     ]
   },
@@ -3123,6 +3524,208 @@ var keywords = {
         "ciclo",
         "es"
       ]
+    ],
+    "provenance_required": [
+      [
+        "los",
+        "hechos",
+        "del",
+        "escenario",
+        "requieren",
+        "procedencia"
+      ]
+    ],
+    "judged": [
+      [
+        "evaluativo"
+      ],
+      [
+        "evaluativa"
+      ],
+      [
+        "juzgado"
+      ],
+      [
+        "juzgada"
+      ]
+    ],
+    "according_to": [
+      [
+        "de",
+        "acuerdo",
+        "con"
+      ],
+      [
+        "seg\xFAn"
+      ]
+    ],
+    "as_stated_in": [
+      [
+        "seg\xFAn",
+        "consta",
+        "en"
+      ],
+      [
+        "como",
+        "consta",
+        "en"
+      ]
+    ],
+    "at_locator": [
+      [
+        "en"
+      ]
+    ],
+    "because": [
+      [
+        "porque"
+      ]
+    ],
+    "otherwise": [
+      [
+        "de",
+        "lo",
+        "contrario"
+      ],
+      [
+        "si",
+        "no"
+      ]
+    ],
+    "table_open": [
+      [
+        "la",
+        "tabla"
+      ]
+    ],
+    "table_word": [
+      [
+        "tabla"
+      ]
+    ],
+    "table_loaded_from": [
+      [
+        "cargada",
+        "desde"
+      ],
+      [
+        "cargada",
+        "de"
+      ]
+    ],
+    "table_with": [
+      [
+        "con"
+      ]
+    ],
+    "first_match": [
+      [
+        "primera",
+        "coincidencia"
+      ]
+    ],
+    "all_matches": [
+      [
+        "todas",
+        "las",
+        "coincidencias"
+      ]
+    ],
+    "unique_match": [
+      [
+        "coincidencia",
+        "\xFAnica"
+      ]
+    ],
+    "table_any": [
+      [
+        "cualquiera"
+      ]
+    ],
+    "section_applicability": [
+      [
+        "aplicabilidad"
+      ]
+    ],
+    "section_question": [
+      [
+        "cuesti\xF3n"
+      ]
+    ],
+    "section_remedy": [
+      [
+        "reparaci\xF3n"
+      ],
+      [
+        "remedio"
+      ]
+    ],
+    "services_include": [
+      [
+        "incluye",
+        "estos",
+        "servicios"
+      ]
+    ],
+    "service_at": [
+      [
+        "en"
+      ]
+    ],
+    "service_as": [
+      [
+        "como",
+        "una"
+      ],
+      [
+        "como",
+        "un"
+      ],
+      [
+        "como"
+      ]
+    ],
+    "via_service": [
+      [
+        "mediante",
+        "el",
+        "servicio"
+      ],
+      [
+        "v\xEDa",
+        "servicio"
+      ]
+    ],
+    "kind_semantic_matcher": [
+      [
+        "comparador",
+        "sem\xE1ntico"
+      ]
+    ],
+    "flip_query": [
+      [
+        "qu\xE9",
+        "cambios",
+        "m\xEDnimos",
+        "al",
+        "escenario",
+        "hacen",
+        "que"
+      ],
+      [
+        "qu\xE9",
+        "cambio",
+        "m\xEDnimo",
+        "al",
+        "escenario",
+        "hace",
+        "que"
+      ]
+    ],
+    "changes": [
+      [
+        "cambios"
+      ]
     ]
   },
   "fr": {
@@ -4204,6 +4807,211 @@ var keywords = {
         "cycle",
         "minimum",
         "est"
+      ]
+    ],
+    "provenance_required": [
+      [
+        "les",
+        "faits",
+        "du",
+        "sc\xE9nario",
+        "exigent",
+        "une",
+        "provenance"
+      ]
+    ],
+    "judged": [
+      [
+        "\xE9valuative"
+      ],
+      [
+        "\xE9valuatif"
+      ],
+      [
+        "jug\xE9e"
+      ],
+      [
+        "jug\xE9"
+      ]
+    ],
+    "according_to": [
+      [
+        "suivant"
+      ],
+      [
+        "selon"
+      ]
+    ],
+    "as_stated_in": [
+      [
+        "comme",
+        "indiqu\xE9",
+        "dans"
+      ]
+    ],
+    "at_locator": [
+      [
+        "au"
+      ],
+      [
+        "\xE0"
+      ]
+    ],
+    "because": [
+      [
+        "parce",
+        "que"
+      ],
+      [
+        "car"
+      ]
+    ],
+    "otherwise": [
+      [
+        "autrement"
+      ],
+      [
+        "sinon"
+      ]
+    ],
+    "table_open": [
+      [
+        "la",
+        "table"
+      ]
+    ],
+    "table_word": [
+      [
+        "table"
+      ]
+    ],
+    "table_loaded_from": [
+      [
+        "charg\xE9e",
+        "depuis"
+      ],
+      [
+        "charg\xE9e",
+        "de"
+      ]
+    ],
+    "table_with": [
+      [
+        "avec"
+      ]
+    ],
+    "first_match": [
+      [
+        "premi\xE8re",
+        "correspondance"
+      ]
+    ],
+    "all_matches": [
+      [
+        "toutes",
+        "les",
+        "correspondances"
+      ]
+    ],
+    "unique_match": [
+      [
+        "correspondance",
+        "unique"
+      ]
+    ],
+    "table_any": [
+      [
+        "quelconque"
+      ]
+    ],
+    "section_applicability": [
+      [
+        "applicabilit\xE9"
+      ]
+    ],
+    "section_question": [
+      [
+        "question"
+      ]
+    ],
+    "section_remedy": [
+      [
+        "r\xE9paration"
+      ],
+      [
+        "rem\xE8de"
+      ]
+    ],
+    "services_include": [
+      [
+        "comprend",
+        "ces",
+        "services"
+      ],
+      [
+        "inclut",
+        "ces",
+        "services"
+      ]
+    ],
+    "service_at": [
+      [
+        "\xE0"
+      ]
+    ],
+    "service_as": [
+      [
+        "comme",
+        "une"
+      ],
+      [
+        "comme",
+        "un"
+      ],
+      [
+        "comme"
+      ]
+    ],
+    "via_service": [
+      [
+        "via",
+        "le",
+        "service"
+      ],
+      [
+        "via",
+        "service"
+      ]
+    ],
+    "kind_semantic_matcher": [
+      [
+        "comparateur",
+        "s\xE9mantique"
+      ]
+    ],
+    "flip_query": [
+      [
+        "quels",
+        "changements",
+        "minimaux",
+        "du",
+        "sc\xE9nario",
+        "font",
+        "que"
+      ],
+      [
+        "quel",
+        "changement",
+        "minimal",
+        "du",
+        "sc\xE9nario",
+        "fait",
+        "que"
+      ]
+    ],
+    "changes": [
+      [
+        "changements"
       ]
     ]
   },
@@ -5357,6 +6165,206 @@ var keywords = {
         "di",
         "ciclo",
         "\xE8"
+      ]
+    ],
+    "provenance_required": [
+      [
+        "i",
+        "fatti",
+        "dello",
+        "scenario",
+        "richiedono",
+        "una",
+        "provenienza"
+      ]
+    ],
+    "judged": [
+      [
+        "valutativo"
+      ],
+      [
+        "valutativa"
+      ],
+      [
+        "giudicato"
+      ],
+      [
+        "giudicata"
+      ]
+    ],
+    "according_to": [
+      [
+        "stando",
+        "a"
+      ],
+      [
+        "secondo"
+      ]
+    ],
+    "as_stated_in": [
+      [
+        "come",
+        "indicato",
+        "in"
+      ],
+      [
+        "come",
+        "risulta",
+        "da"
+      ]
+    ],
+    "at_locator": [
+      [
+        "alla"
+      ],
+      [
+        "al"
+      ],
+      [
+        "a"
+      ]
+    ],
+    "because": [
+      [
+        "perch\xE9"
+      ],
+      [
+        "poich\xE9"
+      ]
+    ],
+    "otherwise": [
+      [
+        "altrimenti"
+      ]
+    ],
+    "table_open": [
+      [
+        "la",
+        "tabella"
+      ]
+    ],
+    "table_word": [
+      [
+        "tabella"
+      ]
+    ],
+    "table_loaded_from": [
+      [
+        "caricata",
+        "da"
+      ]
+    ],
+    "table_with": [
+      [
+        "con"
+      ]
+    ],
+    "first_match": [
+      [
+        "prima",
+        "corrispondenza"
+      ]
+    ],
+    "all_matches": [
+      [
+        "tutte",
+        "le",
+        "corrispondenze"
+      ]
+    ],
+    "unique_match": [
+      [
+        "corrispondenza",
+        "unica"
+      ]
+    ],
+    "table_any": [
+      [
+        "qualsiasi"
+      ]
+    ],
+    "section_applicability": [
+      [
+        "applicabilit\xE0"
+      ]
+    ],
+    "section_question": [
+      [
+        "questione"
+      ]
+    ],
+    "section_remedy": [
+      [
+        "rimedio"
+      ]
+    ],
+    "services_include": [
+      [
+        "include",
+        "questi",
+        "servizi"
+      ]
+    ],
+    "service_at": [
+      [
+        "a"
+      ]
+    ],
+    "service_as": [
+      [
+        "come",
+        "una"
+      ],
+      [
+        "come",
+        "un"
+      ],
+      [
+        "come"
+      ]
+    ],
+    "via_service": [
+      [
+        "tramite",
+        "il",
+        "servizio"
+      ],
+      [
+        "via",
+        "servizio"
+      ]
+    ],
+    "kind_semantic_matcher": [
+      [
+        "comparatore",
+        "semantico"
+      ]
+    ],
+    "flip_query": [
+      [
+        "quali",
+        "cambiamenti",
+        "minimi",
+        "dello",
+        "scenario",
+        "fanno",
+        "s\xEC",
+        "che"
+      ],
+      [
+        "quale",
+        "cambiamento",
+        "minimo",
+        "dello",
+        "scenario",
+        "fa",
+        "s\xEC",
+        "che"
+      ]
+    ],
+    "changes": [
+      [
+        "cambiamenti"
       ]
     ]
   }
@@ -7531,9 +8539,11 @@ function openNlInput(opts) {
           primaryMode = "insert";
           generate.textContent = t("Insert anyway");
           regenerate.style.display = "";
-          status.className = "nl-status warn";
-          status.textContent = `Verification found ${warnings.length} new issue${warnings.length === 1 ? "" : "s"} vs. your program:
-` + warnings.map((w) => `\u2022 ${w}`).join("\n") + "\nYou can insert it anyway, or rephrase and regenerate.";
+          const serious = warnings.some((w) => w.startsWith("[error]"));
+          status.className = serious ? "nl-status error" : "nl-status warn";
+          status.textContent = (serious ? `Verification found ${warnings.length} problem${warnings.length === 1 ? "" : "s"} with the generated text:
+` : `Verification found ${warnings.length} new issue${warnings.length === 1 ? "" : "s"} vs. your program:
+`) + warnings.map((w) => `\u2022 ${w}`).join("\n") + (serious ? "\nAn [error] means the text would not do what it says \u2014 rephrasing and regenerating is usually better than inserting it." : "\nYou can insert it anyway, or rephrase and regenerate.");
         }
       } else if (res && res.result === "ok") {
         toGenerateMode();

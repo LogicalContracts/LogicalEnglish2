@@ -94,14 +94,19 @@ export function buildLeMonarchTokens(lang: string): any {
         'lps_when', 'lps_then', 'lps_if', 'lps_initially', 'lps_must_not',
         'lps_goal', 'lps_initiate', 'lps_terminate', 'lps_becomes',
         'lps_max_time', 'lps_max_real_time', 'lps_min_cycle_time',
+        // Regulatory-decision constructs (docs/le_summary.md §17): provenance
+        // trailers, otherwise cascades, decision tables, services, flip queries.
+        'provenance_required', 'according_to', 'as_stated_in', 'because',
+        'otherwise', 'table_open', 'table_loaded_from', 'first_match',
+        'all_matches', 'unique_match', 'services_include', 'flip_query',
     ]);
-    const expects = alt(T, ['expects']) && `(?:${alt(T, ['expects'])})[ \\t]+(?:${alt(T, ['answers'])})`;
+    const expects = alt(T, ['expects']) && `(?:${alt(T, ['expects'])})[ \\t]+(?:${alt(T, ['answers', 'changes'])})`;
     const andOr = words(T, ['and', 'or']);
     const articles = words(T, ['article', 'each', 'wh_var']);
     const qualifiers = words(T, ['qualifier']);
     const copulas = words(T, ['copula', 'ignorable', 'meta_marker', 'that']);
     const preps = words(T, ['connective_heuristic', 'of']);
-    const additions = alt(T, ['defines_global', 'opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as']);
+    const additions = alt(T, ['defines_global', 'opposite', 'synonym', 'prepositional', 'unknown', 'undefined', 'known_as', 'judged', 'via_service']);
 
     return {
         tokenizer: {
