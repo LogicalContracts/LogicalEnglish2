@@ -49,6 +49,34 @@ check_issue(KB, _, Issue) :- unconsumed_facts(KB, Issue).
 check_issue(KB, _, Issue) :- judged_with_rules(KB, Issue).
 check_issue(KB, _, Issue) :- judgment_without_provenance(KB, Issue).
 check_issue(KB, _, Issue) :- fact_without_provenance(KB, Issue).
+check_issue(KB, _, Issue) :- service_undeclared(KB, Issue).
+
+% --- Services (docs/le_summary.md §17.6) ---
+% "; via service X" naming no declared service, or a built-in semantic
+% template used with no service declared "as a semantic matcher".
+service_undeclared(KB, issue(service_undeclared, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_service_template/2),
+    KB:le_service_template(F/A, Name),
+    \+ ( current_predicate(KB:le_service/3), KB:le_service(Name, _, _) ),
+    le_i18n:le_msg(service_undeclared_desc, [name-Name], Description),
+    le_i18n:le_msg(service_undeclared_fix, [name-Name], Fix),
+    ( le_kbs:template_of(KB, F, A, Dict, _), template_source(KB, Dict, Start, End) -> true ; Start = 0, End = 0 ).
+service_undeclared(KB, issue(service_undeclared, Description, Fix, Start, End)) :-
+    member(F/A, [le_semantically_similar/2, le_best_match/3, le_satisfies_description/2]),
+    functor(Lit, F, A),
+    current_predicate(KB:P/N), functor(H, P, N),
+    \+ is_system_predicate(P/N),
+    le_kbs:kb_own_predicate(KB, H),
+    clause(KB:H, Body, Ref),
+    find_in_body(Body, Lit0), subsumes_term(Lit, Lit0),
+    \+ semantic_matcher_declared(KB),
+    le_i18n:le_msg(semantic_matcher_undeclared_desc, [], Description),
+    le_i18n:le_msg(semantic_matcher_undeclared_fix, [], Fix),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true ; Start = 0, End = 0 ), !.
+
+semantic_matcher_declared(KB) :-
+    catch(le_services:semantic_matcher(KB, _), _, fail).
+
 
 % --- Judged templates and provenance (docs/le_summary.md §3.3) ---
 
@@ -264,6 +292,8 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     % Suppress for predicates declared as scenario elements — those are
     % intentionally undefined in the KB; they live only in scenarios.
     \+ is_scenario_element_functor(KB, FL, AL),
+    % ... and for templates answered by a service at run time.
+    \+ ( current_predicate(KB:le_service_template/2), KB:le_service_template(FL/AL, _) ),
     le_i18n:le_msg(undefined_predicate_desc, [functor-FL, arity-AL], Description),
     le_i18n:le_msg(undefined_predicate_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
@@ -378,7 +408,8 @@ is_defined_real(KB, Literal) :-
     functor(Literal, F, A),
     (   Literal = is_a(_, _) -> true
     ;   memberchk(F/A, [and/2, or/2, not/1, forall/2, true/0, fail/0, sum/3, count/3, min/3, max/3, average/3]) -> true
-    ;   memberchk(F/A, [le_is/2, le_equal_to/2, le_not_equal_to/2, le_assign/2, le_ge/2, le_le/2, le_gt/2, le_lt/2, le_known/1, le_is_in/2, le_type_check/2, le_table/2, le_fails_at_section/1, le_query_fails_at_section/2]) -> true
+    ;   memberchk(F/A, [le_is/2, le_equal_to/2, le_not_equal_to/2, le_assign/2, le_ge/2, le_le/2, le_gt/2, le_lt/2, le_known/1, le_is_in/2, le_type_check/2, le_table/2, le_fails_at_section/1, le_query_fails_at_section/2,
+                       le_semantically_similar/2, le_best_match/3, le_satisfies_description/2]) -> true
     ;   (F == says_that, A == 2) -> true
     ;   safe_clause(KB, Literal) -> true
     ;   safe_scenario_fact(KB, F, A) -> true
@@ -754,6 +785,8 @@ redefined_system_template(KB, issue(redefined_system_template, Description, Fix,
     length(Args, Arity),
     functor(G, F, Arity),
     \+ is_defined(KB, G),
+    % A template answered by a service has no rules by design.
+    \+ ( current_predicate(KB:le_service_template/2), KB:le_service_template(F/Arity, _) ),
     % Get source info
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0),
     canonical_string(WV, TemplateStr),

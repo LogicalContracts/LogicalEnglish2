@@ -312,6 +312,19 @@ solve_real_actual(le_scoped(Goal, Scope), SM, KM, Anc, D, MyID, Us,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys),
     b_setval(le_scope, Old).
 
+% A goal on a service-backed template (le_services.pl): answered by the
+% service, once per distinct request, attributed to it. Inside a scoped proof
+% the service must be admissible under the scope like any other source.
+solve_real_actual(G, SM, KM, _Anc, _D, _MyID, Us, [success(G, Ref, [])]) :-
+    KM \== none,
+    le_services:service_backed(KM, G, Service), !,
+    le_services:service_call(G, Service, SM, KM, Us, Ref, _Rationale),
+    (   Ref = service(Name, _), current_scope(scope(Scope))
+    ->  le_services:service_source(Name, Source),
+        admissible_under(Source, Scope, SM, KM)
+    ;   true
+    ).
+
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),

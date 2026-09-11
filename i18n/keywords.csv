@@ -114,3 +114,8 @@ table,table_any,any,qualquer,cualquiera,quelconque,qualsiasi
 decision_section,section_applicability,applicability,aplicabilidade,aplicabilidad,applicabilité,applicabilità
 decision_section,section_question,question,questão,cuestión,question,questione
 decision_section,section_remedy,remedy,remédio|reparação,remedio|reparación,remède|réparation,rimedio
+section,services_include,includes these services,inclui estes serviços,incluye estos servicios,comprend ces services|inclut ces services,include questi servizi
+service,service_at,at,em,en,à,a
+service,service_as,as a|as an|as,como um|como uma|como,como un|como una|como,comme un|comme une|comme,come un|come una|come
+template_addition,via_service,via service,via serviço|através do serviço,vía servicio|mediante el servicio,via le service|via service,tramite il servizio|via servizio
+service,kind_semantic_matcher,semantic matcher,comparador semântico,comparador semántico,comparateur sémantique,comparatore semantico
