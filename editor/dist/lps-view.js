@@ -938,6 +938,12 @@ var keywords = {
         "because"
       ]
     ],
+    "with_provenance": [
+      [
+        "with",
+        "provenance"
+      ]
+    ],
     "otherwise": [
       [
         "otherwise"
@@ -2262,6 +2268,12 @@ var keywords = {
         "porque"
       ]
     ],
+    "with_provenance": [
+      [
+        "com",
+        "proveni\xEAncia"
+      ]
+    ],
     "otherwise": [
       [
         "caso",
@@ -3581,6 +3593,12 @@ var keywords = {
         "porque"
       ]
     ],
+    "with_provenance": [
+      [
+        "con",
+        "procedencia"
+      ]
+    ],
     "otherwise": [
       [
         "de",
@@ -4864,6 +4882,12 @@ var keywords = {
       ],
       [
         "car"
+      ]
+    ],
+    "with_provenance": [
+      [
+        "avec",
+        "provenance"
       ]
     ],
     "otherwise": [
@@ -6230,6 +6254,12 @@ var keywords = {
       ],
       [
         "poich\xE9"
+      ]
+    ],
+    "with_provenance": [
+      [
+        "con",
+        "provenienza"
       ]
     ],
     "otherwise": [

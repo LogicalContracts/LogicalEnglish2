@@ -314,3 +314,19 @@ Show engine choice only for non-Prolog,,Mostrar a escolha do motor apenas para n
 This is defined in the included resource,,Isto está definido no recurso incluído,Esto está definido en el recurso incluido,Ceci est défini dans la ressource incluse,Questo è definito nella risorsa inclusa
 In the included resource,,No recurso incluído,En el recurso incluido,Dans la ressource incluse,Nella risorsa inclusa
 line,,linha,línea,ligne,riga
+rule,,regra,regla,règle,regola
+according to,,de acordo com,de acuerdo con,selon,secondo
+because,,porque,porque,parce que,perché
+at,,em,en,à,a
+Source,,Fonte,Fuente,Source,Fonte
+Published at,,Publicado em,Publicado en,Publié à,Pubblicato a
+Open original,,Abrir original,Abrir original,Ouvrir l'original,Apri originale
+The program does not say where the text of this document is,,O programa não diz onde está o texto deste documento,El programa no dice dónde está el texto de este documento,Le programme ne dit pas où se trouve le texte de ce document,Il programma non dice dove si trova il testo di questo documento
+Loading the document…,,A carregar o documento…,Cargando el documento…,Chargement du document…,Caricamento del documento…
+The quoted passage was not found in this text.,,A passagem citada não foi encontrada neste texto.,El pasaje citado no se encontró en este texto.,Le passage cité est introuvable dans ce texte.,Il passaggio citato non è stato trovato in questo testo.
+Show the source,,Mostrar a fonte,Mostrar la fuente,Afficher la source,Mostra la fonte
+From a document,,A partir de um documento,A partir de un documento,À partir d'un document,Da un documento
+Paste or fetch the document text below: each fact will cite the passage that states it.,,Cole ou obtenha abaixo o texto do documento: cada facto citará a passagem que o afirma.,Pegue u obtenga abajo el texto del documento: cada hecho citará el pasaje que lo afirma.,Collez ou récupérez ci-dessous le texte du document : chaque fait citera le passage qui l'énonce.,Incolli o recuperi qui sotto il testo del documento: ogni fatto citerà il passaggio che lo afferma.
+"Document name, e.g. ruling NY N362700",,"Nome do documento, p. ex. ruling NY N362700","Nombre del documento, p. ej. ruling NY N362700","Nom du document, p. ex. ruling NY N362700","Nome del documento, ad es. ruling NY N362700"
+"Address of its text: a URL, or a file beside the program",,"Endereço do texto: um URL, ou um ficheiro junto ao programa","Dirección del texto: una URL, o un archivo junto al programa","Adresse du texte : une URL, ou un fichier à côté du programme","Indirizzo del testo: un URL, o un file accanto al programma"
+Fetch text,,Obter texto,Obtener texto,Récupérer le texte,Recupera testo

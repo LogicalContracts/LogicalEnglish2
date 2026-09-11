@@ -292,7 +292,31 @@ is_rule_bearing_section(unknown_section(Tokens, _, _)) :-
     member(word(W, _), Tokens),
     ( le_i18n:class_member(if, W) ; le_i18n:class_member(unless, W) ), !.
 
+% The tokens of a rule label's provenance: everything up to the colon that
+% ends the label (a URL is a quoted string, so its own colons are inside it).
+rule_provenance_tokens([T|Ts]) --> [T], { \+ T = punctuation(':', _) }, !,
+    rule_provenance_tokens(Ts).
+rule_provenance_tokens([]) --> [].
+
+rule_after_label(Head, Body, Indent, Start, End) -->
+    template_instance(Head),
+    { Head = [First|_], get_token_start(First, Start) },
+    any_indent(N),
+    (   kw(if), t(punctuation(':')) ->
+        numbered_body(Body, End)
+    ;   kw(only_if) ->
+        body(Body0, End), { Body = only_if(Body0) }
+    ;   kw(if) ->
+        body(Body, End)
+    ;   kw(unless), t(punctuation(':')) ->
+        numbered_body(Body0, End), { Body = unless(Body0) }
+    ;   kw(unless) ->
+        body(Body0, End), { Body = unless(Body0) }
+    ),
+    { Indent = N }.
+
 is_rule_item(rule(_, _, _, _, _, _)).
+is_rule_item(rule_prov(_, _)).
 is_rule_item(fact(_, _, _)).
 
 % ---------------------------------------------------------------------------
@@ -460,7 +484,9 @@ section(query(Name, [query_raw(BodyTokens, BStart, End)], Start, End)) -->
 %         postcode | region
 % The header and the rows are kept as token lines; le_tables.pl interprets them
 % in the second pass, where the template the table is bound to is known.
-section(table(Name, Policy, Source, Header, Rows, Start, End)) -->
+% Either header may end with ", with provenance <provenance>" (as a labelled
+% rule, §15.5): the section is then table_prov(Table, ProvTokens).
+section(Section) -->
     any_indent, kw_start(table_open, Start),
     section_name_tokens(NameTokens), { NameTokens \== [] },
     kw(marker_is),
@@ -469,9 +495,15 @@ section(table(Name, Policy, Source, Header, Rows, Start, End)) -->
         reconstruct_resource_name(SrcTokens, File), Source = file(File) }
     ;   { Source = inline }
     ),
-    (   t(punctuation(',', _)), kw(table_with)
-    ->  hit_policy(Policy)
-    ;   { Policy = unique }
+    (   t(punctuation(',', _)), kw(with_provenance)
+    ->  rule_provenance_tokens(ProvTokens), { Policy = unique }
+    ;   t(punctuation(',', _)), kw(table_with)
+    ->  hit_policy(Policy),
+        (   t(punctuation(',', _)), kw(with_provenance)
+        ->  rule_provenance_tokens(ProvTokens)
+        ;   { ProvTokens = [] }
+        )
+    ;   { Policy = unique, ProvTokens = [] }
     ),
     t(punctuation(':', loc(_, HEnd))),
     table_line(Header, _, HLineEnd),
@@ -480,7 +512,9 @@ section(table(Name, Policy, Source, Header, Rows, Start, End)) -->
         (   last(Rows, row(_, _, End0)) -> End = End0
         ;   HLineEnd > HEnd -> End = HLineEnd
         ;   End = HEnd
-        )
+        ),
+        Table = table(Name, Policy, Source, Header, Rows, Start, End),
+        ( ProvTokens == [] -> Section = Table ; Section = table_prov(Table, ProvTokens) )
     }.
 
 % section(ontology(...)) parses an ontology section.
@@ -941,24 +975,24 @@ kb_item(lps_setting(Key, Value, Start, End)) -->
     t(number(Value)),
     any_indent, t(punctuation('.', loc(_, End))).
 
+% kb_item(rule_prov(Rule, ProvTokens)) parses a labelled rule whose label
+% carries its provenance (docs/le_summary.md §15.5):
+%     rule note_61_4 with provenance as stated in HTSUS Chapter 61 note 4
+%         at "https://hts.usitc.gov/...#page=2":
+%     a garment is excluded from heading a heading if ...
+% The provenance is either a quoted string (a URL, or any citation) or the
+% trailers of a fact (§17.1: according to / as stated in ... at ... /
+% because "..."), read in the second pass; Rule is the ordinary rule item.
+kb_item(rule_prov(rule(Head, Body, Indent, Start, End, ID), ProvTokens)) -->
+    kw(rule), (t(word(ID)) | t(number(ID))), kw(with_provenance), !,
+    rule_provenance_tokens(ProvTokens), { ProvTokens \== [] },
+    t(punctuation(':')),
+    rule_after_label(Head, Body, Indent, Start, End).
+
 % kb_item(rule(Head, Body, Indent, Start, End, ID)) parses a Logical English rule (Head if Body).
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
     kw(rule), !, (t(word(ID)) | t(number(ID))), t(punctuation(':')),
-    template_instance(Head),
-    { Head = [First|_], get_token_start(First, Start) },
-    any_indent(N),
-    (   kw(if), t(punctuation(':')) ->
-        numbered_body(Body, End)
-    ;   kw(only_if) ->
-        body(Body0, End), { Body = only_if(Body0) }
-    ;   kw(if) ->
-        body(Body, End)
-    ;   kw(unless), t(punctuation(':')) ->
-        numbered_body(Body0, End), { Body = unless(Body0) }
-    ;   kw(unless) ->
-        body(Body0, End), { Body = unless(Body0) }
-    ),
-    { Indent = N }.
+    rule_after_label(Head, Body, Indent, Start, End).
 
 kb_item(rule(Head, Body, Indent, Start, End, ID)) -->
     template_instance(Head),
@@ -2237,6 +2271,12 @@ second_pass_section(Templates, M, query(Name, Content, Start, End), query(Name, 
 % A decision table: interpreted by le_tables.pl against the templates, which
 % records le_table/6 and le_table_row/6; le_kbs then asserts the clause that
 % binds the table's template (process_section_acc(table_done(...))).
+second_pass_section(Templates, M, table_prov(Table, ProvTokens), Done) :-
+    !,
+    second_pass_section(Templates, M, Table, Done),
+    Table = table(Name, _, _, _, _, Start, End),
+    format(atom(ID), 'table_~w', [Name]),          % the id of the table's clause
+    le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End).
 second_pass_section(Templates, M, table(Name, Policy, Source0, Header, Rows, Start, End),
                     table_done(Name, Start, End)) :-
     !,
@@ -2273,6 +2313,10 @@ second_pass_ontology_item_with_module(Templates, M, Item, NewItem) :-
     second_pass_ontology_item(Templates, Item, NewItem, M),
     check_stray_asterisks(Item, NewItem, M).
 
+second_pass_scenario_item_with_module(Templates, M, rule_prov(Rule, ProvTokens), NewItem) :- !,
+    second_pass_scenario_item_with_module(Templates, M, Rule, NewItem),
+    Rule = rule(_, _, _, Start, End, ID),
+    le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End).
 second_pass_scenario_item_with_module(Templates, M, Item, NewItem) :-
     %  The extension is tried here too, not only in a knowledge base: under the
     %  LPS target a scenario is a list of timed observations, and its facts
@@ -2290,6 +2334,12 @@ second_pass_content(Items, Templates, NewItems, M) :-
     ( le_kbs:do_log -> length(Items, L), print_message(informational,'Second pass content: ~w items~n' - [L]); true),
     maplist(second_pass_item_with_module(Templates, M), Items, NewItems).
 
+second_pass_item_with_module(Templates, M, rule_prov(Rule, ProvTokens), NewItem) :- !,
+    % A rule whose label carries provenance: compile the rule as any other,
+    % then record the provenance against its label.
+    second_pass_item_with_module(Templates, M, Rule, NewItem),
+    Rule = rule(_, _, _, Start, End, ID),
+    le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End).
 second_pass_item_with_module(Templates, M, Item, NewItem) :-
     ( second_pass_item_extension(Templates, Item, NewItem, M) -> true
     ; second_pass_item(Templates, Item, NewItem, M)

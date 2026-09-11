@@ -26,6 +26,7 @@
 :- use_module(le_system_templates).
 :- use_module(le_i18n).
 :- use_module(le_graph).
+:- use_module(le_documents).
 :- use_module(le_scasp).
 :- use_module(le_lps).
 :- use_module(le_assistant).
@@ -211,6 +212,7 @@ handle_operation(Dict, Response) :-
         ; Op == "loadFactsAndQuery" -> handle_load_facts_and_query(Dict, Response)
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
+        ; Op == "documentText" -> handle_document_text(Dict, Response)
         ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
         ; Op == "predicateOccurrences" -> handle_predicate_occurrences(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
@@ -893,17 +895,50 @@ handle_nl_to_le(Dict, Response) :-
     ( get_dict(model, Dict, Model), Model \== "", Model \== null -> true ; Model = "openai/gpt-oss-120b" ),
     ( get_dict(api_keys, Dict, Keys) -> true ; Keys = _{} ),
     nl_le_api_key(Model, Keys, Key),
-    ( Key == "" -> Options = [] ; Options = [api_key(Key)] ),
+    ( Key == "" -> Options0 = [] ; Options0 = [api_key(Key)] ),
+    % Facts extracted from a document: its name (cited by every fact), and the
+    % program's folder so that its included templates are known.
+    load_base_of(Dict, Base),
+    (   get_dict(document, Dict, Doc), Doc \== "", Doc \== null
+    ->  Options = [document(Doc), base(Base)|Options0]
+    ;   Options = [base(Base)|Options0], Doc = ""
+    ),
     % Recover with `true` (not `fail`) so a thrown error leaves Err bound and the
     % catch still succeeds; then distinguish success (Err unbound) from an error.
     (   catch(english_to_le(Kind, Sentence, Templates, Program, Model, Options, LEText, NewIssues), Err, true)
     ->  (   nonvar(Err)
         ->  message_to_string(Err, EMsg), Response = _{result: "error", error: EMsg}
         ;   nl_issue_messages(NewIssues, Warnings),
-            Response = _{result: "ok", le: LEText, warnings: Warnings}
+            document_address_facts(Dict, Doc, DocFacts),
+            Response = _{result: "ok", le: LEText, warnings: Warnings, document_facts: DocFacts}
         )
     ;   Response = _{result: "error", error: "LLM request failed"}
     ).
+
+% document_address_facts(+Dict, +Doc, -Facts): when facts were extracted from a
+% document at a known `address`, the facts that tell the program where it is —
+% "<document> is published at <url>" and "the text of <document> is at
+% <address>" — in the program's language, so the cited passages can be shown.
+document_address_facts(Dict, Doc, Facts) :-
+    (   Doc \== "",
+        get_dict(address, Dict, Address), Address \== "", Address \== null
+    ->  format(string(Q), "\"~w\"", [Address]),
+        (   ( sub_string(Address, 0, _, _, "http://") ; sub_string(Address, 0, _, _, "https://") )
+        ->  Fs = [le_published_at, le_text_at]
+        ;   Fs = [le_text_at]
+        ),
+        findall(F, ( member(Fn, Fs), system_fact_text(Fn, [Doc, Q], F) ), Facts)
+    ;   Facts = []
+    ).
+
+system_fact_text(Functor, Args, Text) :-
+    le_i18n:system_template_row(Functor, _, Parts), !,
+    maplist(fill_part(Args), Parts, Words),
+    atomic_list_concat(Words, ' ', A),
+    atom_string(A, Text).
+
+fill_part(Args, slot(N), W) :- !, nth1(N, Args, W).
+fill_part(_, W, W).
 
 % nl_issue_messages(+Issues, -Warnings): the issue list as display strings, in the
 % order english_to_le/8 ranked them (errors, then warnings that change what the
@@ -1013,6 +1048,21 @@ load_base_of(Dict, Base) :-
     ->  Base = BaseDir
     ;   Base = (-)
     ).
+
+%!  handle_document_text(+Dict, -Response) is det.
+%
+%   The text of a cited document (le_documents:document_text/4): `address` is
+%   a URL or a path relative to the program's folder, which — as for a load —
+%   comes from `source` (the example the program was opened as) or `base`.
+%   Replies {text, address} or {error}.
+handle_document_text(Dict, Response) :-
+    get_dict(address, Dict, Address),
+    load_base_of(Dict, Base),
+    (   http_in_session(_), http_session_data(user(_, Roles)) -> true ; Roles = [] ),
+    catch(( le_documents:document_text(Address, Base, Roles, Text),
+            Response = _{text: Text, address: Address} ),
+          error(document_error(Reason), _),
+          Response = _{error: Reason}).
 
 handle_load(Dict, Response) :-
     (   get_dict(le, Dict, Doc) ->  
@@ -1805,8 +1855,47 @@ convert_why_deduped(Why, KB, JSON) :-
     (   hide_repeated_explanations
     ->  group_repeated_whys(Why, Grouped),
         mark_cross_tree_repeats(Grouped, Marked),
-        convert_why(Marked, KB, JSON)
-    ;   convert_why(Why, KB, JSON)
+        convert_why(Marked, KB, JSON0)
+    ;   convert_why(Why, KB, JSON0)
+    ),
+    add_provenance_json(KB, JSON0, JSON).
+
+%!  add_provenance_json(+KB, +JSON0, -JSON) is det.
+%
+%   A node proved by a fact or a rule that carries provenance (a fact's
+%   trailers, a rule label's `with provenance`, docs/le_summary.md §15.5 and
+%   §17.1) gets a `provenance` dict — who, which document, where, why, and the
+%   addresses to open the document and its text — so the editor can take the
+%   reader to the source (le_provenance:provenance_dict/4); a labelled rule's
+%   node also gets its `rule` name.
+add_provenance_json(KB, JSON0, JSON) :-
+    (   is_dict(JSON0)
+    ->  (   get_dict(children, JSON0, Cs0)
+        ->  maplist(add_provenance_json(KB), Cs0, Cs),
+            put_dict(children, JSON0, Cs, JSON1)
+        ;   JSON1 = JSON0
+        ),
+        (   atom(KB), KB \== none,
+            get_dict(start, JSON1, S), get_dict(end, JSON1, E),
+            node_provenance(KB, S, E, Extra)
+        ->  put_dict(Extra, JSON1, JSON)
+        ;   JSON = JSON1
+        )
+    ;   is_list(JSON0)
+    ->  maplist(add_provenance_json(KB), JSON0, JSON)
+    ;   JSON = JSON0
+    ).
+
+node_provenance(KB, S, E, Extra) :-
+    (   catch(KB:le_source_info(_, S, E, ID), _, fail),
+        le_kbs:user_rule_name(ID),
+        le_provenance:rule_provenance(KB, ID, Prov)
+    ->  le_provenance:provenance_dict(none, KB, Prov, P),
+        Extra = _{provenance: P, rule: ID}
+    ;   current_predicate(KB:le_fact_provenance/4),
+        KB:le_fact_provenance(S, E, _, Prov)
+    ->  le_provenance:provenance_dict(none, KB, Prov, P),
+        Extra = _{provenance: P}
     ).
 
 % A repeated sub-explanation grouped from sibling duplicates: render the single

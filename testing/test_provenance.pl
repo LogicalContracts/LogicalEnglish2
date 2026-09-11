@@ -17,6 +17,8 @@
 
 :- use_module(library(plunit)).
 :- use_module('../le_kbs').
+:- use_module('../le_documents').
+:- use_module(library(pcre)).
 
 program(Extra, ScenarioFacts, Text) :-
     format(string(Text), "the target language is: prolog.
@@ -283,6 +285,97 @@ query q is:
     load(Main, KB),
     KB:le_fact_provenance(_, _, beats(6106, 6109), Prov), !,
     Prov == prov('CBP', doc('HQ H325360', "HQ H325360"), "page 07", "loose tops are blouses").
+
+% "rule <name> with provenance <provenance>:" (docs/le_summary.md §15.5): the
+% trailers of a fact, or one quoted string (a URL or a citation); a table
+% header may carry the same. Recorded as le_rule_provenance(ID, Prov).
+cited_program("the target language is: prolog.
+
+the templates are:
+    *a person* is eligible.
+    *a person* is resident; undefined.
+    *a person* is old; undefined.
+    the rate for *a person* is *a rate* under table rates.
+
+the table rates is, with first match, with provenance \"https://example.org/rates.html\":
+    kind | person | rate
+    r1   | any    | 5
+
+the knowledge base cited includes:
+
+the benefit act is published at \"https://example.org/act.html\".
+the text of the benefit act is at \"sources/act.txt\".
+
+rule s2 with provenance as stated in the benefit act at \"a resident is eligible\",
+        because \"section 2\":
+a person is eligible
+    if the person is resident.
+
+rule s3 with provenance \"https://example.org/act.html#s3\":
+a person is eligible
+    if the person is old.
+
+scenario s is:
+    ann is resident.
+
+query q is:
+    which person is eligible.
+").
+
+test(rule_label_provenance) :-
+    cited_program(P),
+    load_text(P, KB),
+    KB:le_rule_provenance(s2, prov(none, doc('the benefit act', _), "\"a resident is eligible\"", "section 2")),
+    KB:le_rule_provenance(s3, prov(none, doc('https://example.org/act.html#s3', _), none, none)),
+    KB:le_rule_provenance(table_rates, prov(none, doc('https://example.org/rates.html', _), none, none)),
+    % the labelled rules still reason as before
+    answers(KB, s, q, ["ann is eligible"-[]]).
+
+% The editor's view of a provenance: the published address and the text
+% address come from "<document> is published at" / "the text of <document>
+% is at"; a quoted locator is the quotation.
+test(provenance_dict_addresses) :-
+    cited_program(P),
+    load_text(P, KB),
+    KB:le_rule_provenance(s2, Prov),
+    le_provenance:provenance_dict(none, KB, Prov, D),
+    D.url == "https://example.org/act.html",
+    D.text == "sources/act.txt",
+    D.quote == "a resident is eligible",
+    KB:le_rule_provenance(s3, Prov3),
+    le_provenance:provenance_dict(none, KB, Prov3, D3),
+    D3.url == "https://example.org/act.html#s3".
+
+% A quotation must be in the document's text when the program says where the
+% text is (white space, no-break spaces and case aside); otherwise the
+% verifier warns quote_not_found.
+test(quote_checked_against_the_text, [setup(resource_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    directory_file_path(Dir, 'sources', Src),
+    make_directory(Src),
+    directory_file_path(Src, 'act.txt', Act),
+    write_file(Act, "Section 2. A\u00a0resident   is\nELIGIBLE for help."),
+    cited_program(P),
+    directory_file_path(Dir, 'good.le', Good),
+    write_file(Good, P),
+    load(Good, KB1),
+    issue_types(KB1, warning, W1),
+    \+ memberchk(quote_not_found, W1),
+    split_string(P, "", "", [P0]),
+    re_replace("a resident is eligible"/g, "a resident is wealthy", P0, P1),
+    directory_file_path(Dir, 'bad.le', Bad),
+    write_file(Bad, P1),
+    load(Bad, KB2),
+    issue_types(KB2, warning, W2),
+    memberchk(quote_not_found, W2).
+
+% A document's text: a file inside the program's folder, never outside it.
+test(document_text_stays_in_the_folder, [setup(resource_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    directory_file_path(Dir, 'doc.txt', F),
+    write_file(F, "the text"),
+    le_documents:document_text("doc.txt", Dir, [], T),
+    T == "the text",
+    catch(le_documents:document_text("../doc.txt", Dir, [], _), error(document_error(_), _), true),
+    \+ catch(le_documents:document_text("../doc.txt", Dir, [], _), _, fail).
 
 test(portuguese_trailers) :-
     load_text("a linguagem alvo é: prolog.

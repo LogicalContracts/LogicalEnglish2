@@ -938,6 +938,12 @@ var keywords = {
         "because"
       ]
     ],
+    "with_provenance": [
+      [
+        "with",
+        "provenance"
+      ]
+    ],
     "otherwise": [
       [
         "otherwise"
@@ -2262,6 +2268,12 @@ var keywords = {
         "porque"
       ]
     ],
+    "with_provenance": [
+      [
+        "com",
+        "proveni\xEAncia"
+      ]
+    ],
     "otherwise": [
       [
         "caso",
@@ -3581,6 +3593,12 @@ var keywords = {
         "porque"
       ]
     ],
+    "with_provenance": [
+      [
+        "con",
+        "procedencia"
+      ]
+    ],
     "otherwise": [
       [
         "de",
@@ -4864,6 +4882,12 @@ var keywords = {
       ],
       [
         "car"
+      ]
+    ],
+    "with_provenance": [
+      [
+        "avec",
+        "provenance"
       ]
     ],
     "otherwise": [
@@ -6232,6 +6256,12 @@ var keywords = {
         "poich\xE9"
       ]
     ],
+    "with_provenance": [
+      [
+        "con",
+        "provenienza"
+      ]
+    ],
     "otherwise": [
       [
         "altrimenti"
@@ -6686,7 +6716,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} ocorr\xEAncia(s); clique numa para ir at\xE9 ela",
     "This is defined in the included resource": "Isto est\xE1 definido no recurso inclu\xEDdo",
     "In the included resource": "No recurso inclu\xEDdo",
-    "line": "linha"
+    "line": "linha",
+    "rule": "regra",
+    "according to": "de acordo com",
+    "because": "porque",
+    "at": "em",
+    "Source": "Fonte",
+    "Published at": "Publicado em",
+    "Open original": "Abrir original",
+    "The program does not say where the text of this document is": "O programa n\xE3o diz onde est\xE1 o texto deste documento",
+    "Loading the document\u2026": "A carregar o documento\u2026",
+    "The quoted passage was not found in this text.": "A passagem citada n\xE3o foi encontrada neste texto.",
+    "Show the source": "Mostrar a fonte",
+    "From a document": "A partir de um documento",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Cole ou obtenha abaixo o texto do documento: cada facto citar\xE1 a passagem que o afirma.",
+    "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Endere\xE7o do texto: um URL, ou um ficheiro junto ao programa",
+    "Fetch text": "Obter texto"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -7003,7 +7049,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} aparici\xF3n(es); haga clic en una para ir a ella",
     "This is defined in the included resource": "Esto est\xE1 definido en el recurso incluido",
     "In the included resource": "En el recurso incluido",
-    "line": "l\xEDnea"
+    "line": "l\xEDnea",
+    "rule": "regla",
+    "according to": "de acuerdo con",
+    "because": "porque",
+    "at": "en",
+    "Source": "Fuente",
+    "Published at": "Publicado en",
+    "Open original": "Abrir original",
+    "The program does not say where the text of this document is": "El programa no dice d\xF3nde est\xE1 el texto de este documento",
+    "Loading the document\u2026": "Cargando el documento\u2026",
+    "The quoted passage was not found in this text.": "El pasaje citado no se encontr\xF3 en este texto.",
+    "Show the source": "Mostrar la fuente",
+    "From a document": "A partir de un documento",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Pegue u obtenga abajo el texto del documento: cada hecho citar\xE1 el pasaje que lo afirma.",
+    "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Direcci\xF3n del texto: una URL, o un archivo junto al programa",
+    "Fetch text": "Obtener texto"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7320,7 +7382,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} occurrence(s) ; cliquez sur une pour y aller",
     "This is defined in the included resource": "Ceci est d\xE9fini dans la ressource incluse",
     "In the included resource": "Dans la ressource incluse",
-    "line": "ligne"
+    "line": "ligne",
+    "rule": "r\xE8gle",
+    "according to": "selon",
+    "because": "parce que",
+    "at": "\xE0",
+    "Source": "Source",
+    "Published at": "Publi\xE9 \xE0",
+    "Open original": "Ouvrir l'original",
+    "The program does not say where the text of this document is": "Le programme ne dit pas o\xF9 se trouve le texte de ce document",
+    "Loading the document\u2026": "Chargement du document\u2026",
+    "The quoted passage was not found in this text.": "Le passage cit\xE9 est introuvable dans ce texte.",
+    "Show the source": "Afficher la source",
+    "From a document": "\xC0 partir d'un document",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Collez ou r\xE9cup\xE9rez ci-dessous le texte du document : chaque fait citera le passage qui l'\xE9nonce.",
+    "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Adresse du texte : une URL, ou un fichier \xE0 c\xF4t\xE9 du programme",
+    "Fetch text": "R\xE9cup\xE9rer le texte"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7637,7 +7715,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} occorrenza/e; fai clic su una per andarci",
     "This is defined in the included resource": "Questo \xE8 definito nella risorsa inclusa",
     "In the included resource": "Nella risorsa inclusa",
-    "line": "riga"
+    "line": "riga",
+    "rule": "regola",
+    "according to": "secondo",
+    "because": "perch\xE9",
+    "at": "a",
+    "Source": "Fonte",
+    "Published at": "Pubblicato a",
+    "Open original": "Apri originale",
+    "The program does not say where the text of this document is": "Il programma non dice dove si trova il testo di questo documento",
+    "Loading the document\u2026": "Caricamento del documento\u2026",
+    "The quoted passage was not found in this text.": "Il passaggio citato non \xE8 stato trovato in questo testo.",
+    "Show the source": "Mostra la fonte",
+    "From a document": "Da un documento",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Incolli o recuperi qui sotto il testo del documento: ogni fatto citer\xE0 il passaggio che lo afferma.",
+    "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Indirizzo del testo: un URL, o un file accanto al programma",
+    "Fetch text": "Recupera testo"
   }
 };
 var languages = [
@@ -7834,6 +7928,22 @@ function kwAlt(source, key) {
 }
 function kwAltAll(key) {
   return kwAltFor(languageList().map((l) => l.code), key);
+}
+function splitProvenance(fact, source) {
+  const kw = ["according_to", "as_stated_in", "because"].map((k) => kwAlt(source, k)).filter(Boolean).join("|");
+  if (!kw)
+    return { base: fact, trailers: "" };
+  const trailerStart = new RegExp(`^,\\s*(?:${kw})(?![\\p{L}])`, "iu");
+  let inQuote = false;
+  for (let i = 0; i < fact.length; i++) {
+    const c = fact[i];
+    if (c === '"')
+      inQuote = !inQuote;
+    else if (c === "," && !inQuote && trailerStart.test(fact.slice(i))) {
+      return { base: fact.slice(0, i).trim(), trailers: fact.slice(i + 1).trim() };
+    }
+  }
+  return { base: fact, trailers: "" };
 }
 var testDirectiveReCache = null;
 function testDirectiveRe() {
@@ -8078,6 +8188,13 @@ var ScenarioForm = class _ScenarioForm {
   constructor(opts) {
     this.opts = opts;
     const defs = parseTemplateDefs(opts.source);
+    const declared = new Set(defs.map((d) => d.label));
+    for (const x of opts.extraTemplates || []) {
+      if (!declared.has(x.label)) {
+        declared.add(x.label);
+        defs.push({ label: x.label, isUndefined: !!x.scenario_element });
+      }
+    }
     this.templates = [...defs.map((d) => d.label), ...SYSTEM_TYPE];
     const used = /* @__PURE__ */ new Set();
     for (const b of parseScenarioBlocks(opts.source)) {
@@ -8143,12 +8260,13 @@ var ScenarioForm = class _ScenarioForm {
         continue;
       }
       const assumed = UNKNOWN_PREFIX.test(fact);
-      const inner = assumed ? fact.replace(UNKNOWN_PREFIX, "") : fact;
+      const inner0 = assumed ? fact.replace(UNKNOWN_PREFIX, "") : fact;
+      const { base: inner, trailers } = splitProvenance(inner0, this.opts.source);
       const m = matchFact(inner, this.templates);
       if (m)
-        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed });
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed, trailers });
       else
-        this.rows.push({ templateLabel: null, values: [], raw: inner, assumed });
+        this.rows.push({ templateLabel: null, values: [], raw: inner0, assumed });
     }
     this.render();
   }
@@ -8214,6 +8332,14 @@ var ScenarioForm = class _ScenarioForm {
           fieldInputs.push(input);
         }
       }
+    }
+    if (row.trailers) {
+      const prov = document.createElement("span");
+      prov.className = "trailers";
+      prov.textContent = `, ${row.trailers}`;
+      prov.title = row.trailers;
+      prov.style.cssText = "opacity:0.65;font-size:0.85em;margin-left:4px;max-width:28em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;";
+      el.appendChild(prov);
     }
     const tools = document.createElement("div");
     tools.className = "row-tools";
@@ -8283,16 +8409,17 @@ var ScenarioForm = class _ScenarioForm {
     const base = (text || "").trim().replace(/\.\s*$/, "").trim();
     if (!base)
       return false;
-    const key = _ScenarioForm.norm(base);
+    const key = _ScenarioForm.norm(splitProvenance(base, this.opts.source).base);
     const existing = this.rows.find((r) => _ScenarioForm.norm(this.factBase(r)) === key);
     let idx;
     if (existing) {
       existing.assumed = assumed;
       idx = this.rows.indexOf(existing);
     } else {
-      const m = matchFact(base, this.templates);
+      const { base: core, trailers } = splitProvenance(base, this.opts.source);
+      const m = matchFact(core, this.templates);
       if (m)
-        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed });
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed, trailers });
       else
         this.rows.push({ templateLabel: null, values: [], raw: base, assumed });
       idx = this.rows.length - 1;
@@ -8329,9 +8456,10 @@ var ScenarioForm = class _ScenarioForm {
   }
   // --- Producing text --------------------------------------------------------
   factText(row) {
-    const base = this.factBase(row);
-    if (!base)
+    const base0 = this.factBase(row);
+    if (!base0)
       return "";
+    const base = row.trailers ? `${base0}, ${row.trailers}` : base0;
     return row.assumed ? `${unknownWhetherPrefix(this.opts.source)}${base}` : base;
   }
   // Each fact's text (no trailing period), skipping wholly-empty rows.
@@ -8358,8 +8486,28 @@ var ScenarioForm = class _ScenarioForm {
   }
 };
 
-// src/nl-input.ts
+// src/source-viewer.ts
 var TOKEN = "myToken123";
+async function fetchDocumentText(address, ctx = {}) {
+  try {
+    return await fetch("/leapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: TOKEN,
+        operation: "documentText",
+        address,
+        source: ctx.source || "",
+        base: ctx.base || ""
+      })
+    }).then((r) => r.json());
+  } catch {
+    return { error: t("Could not reach the server.") };
+  }
+}
+
+// src/nl-input.ts
+var TOKEN2 = "myToken123";
 function assistantModel() {
   return localStorage.getItem("le-assistant-model") || "";
 }
@@ -8468,6 +8616,51 @@ function openNlInput(opts) {
   actions.appendChild(generate);
   dialog.appendChild(h);
   dialog.appendChild(instr);
+  const docName = document.createElement("input");
+  const docAddress = document.createElement("input");
+  if (opts.kind === "facts" && opts.documentContext) {
+    const box = document.createElement("details");
+    box.className = "nl-document";
+    const sum = document.createElement("summary");
+    sum.textContent = t("From a document");
+    box.appendChild(sum);
+    const help = document.createElement("p");
+    help.className = "nl-instruction";
+    help.textContent = t("Paste or fetch the document text below: each fact will cite the passage that states it.");
+    box.appendChild(help);
+    docName.type = "text";
+    docName.className = "nl-doc-name";
+    docName.placeholder = t("Document name, e.g. ruling NY N362700");
+    docAddress.type = "text";
+    docAddress.className = "nl-doc-address";
+    docAddress.placeholder = t("Address of its text: a URL, or a file beside the program");
+    const fetchBtn = document.createElement("button");
+    fetchBtn.textContent = t("Fetch text");
+    fetchBtn.addEventListener("click", async () => {
+      const addr = docAddress.value.trim();
+      if (!addr) {
+        docAddress.focus();
+        return;
+      }
+      status.className = "nl-status";
+      status.textContent = t("Loading the document\u2026");
+      const res = await fetchDocumentText(addr, opts.documentContext);
+      if (res && typeof res.text === "string") {
+        textarea.value = res.text;
+        status.textContent = "";
+      } else {
+        status.className = "nl-status error";
+        status.textContent = t("Error: ") + (res && res.error || "");
+      }
+    });
+    for (const el of [docName, docAddress]) {
+      el.style.cssText = "width:100%;box-sizing:border-box;margin:4px 0;padding:6px;";
+      box.appendChild(el);
+    }
+    box.appendChild(fetchBtn);
+    box.style.marginBottom = "8px";
+    dialog.appendChild(box);
+  }
   dialog.appendChild(textarea);
   dialog.appendChild(status);
   dialog.appendChild(actions);
@@ -8521,13 +8714,17 @@ function openNlInput(opts) {
     regenerate.disabled = true;
     status.className = "nl-status";
     status.textContent = t("Generating and verifying\u2026");
-    const templates = [...new Set(parseTemplateDefs(opts.source).map((d) => d.label))];
+    const templates = [.../* @__PURE__ */ new Set([
+      ...parseTemplateDefs(opts.source).map((d) => d.label),
+      ...opts.extraTemplates || []
+    ])];
+    const documentName = docName.value.trim();
     try {
       const res = await fetch("/leapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          token: TOKEN,
+          token: TOKEN2,
           operation: "nl_to_le",
           kind: opts.kind,
           sentence,
@@ -8535,13 +8732,22 @@ function openNlInput(opts) {
           content: opts.source,
           // the program, for baseline-diff verification
           model: assistantModel(),
-          api_keys: assistantKeys()
+          api_keys: assistantKeys(),
+          // facts from a document: its name and where its text is
+          document: documentName,
+          address: documentName ? docAddress.value.trim() : "",
+          source: opts.documentContext?.source || "",
+          base: opts.documentContext?.base || ""
         })
       }).then((r) => r.json());
       generate.disabled = false;
       cancel.disabled = false;
       regenerate.disabled = false;
       if (res && res.result === "ok" && typeof res.le === "string" && res.le.trim()) {
+        if (Array.isArray(res.document_facts) && res.document_facts.length) {
+          res.le = `${res.le.trim()}
+${res.document_facts.map((f) => `${f}.`).join("\n")}`;
+        }
         const warnings = Array.isArray(res.warnings) ? res.warnings : [];
         if (warnings.length === 0) {
           opts.onResult(res.le);
@@ -8585,7 +8791,22 @@ function openNlInput(opts) {
   regenerate.addEventListener("click", run);
 }
 function splitStatements(leText) {
-  return leText.split(/\.(?=\s|$)/).map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+  const out = [];
+  let cur = "";
+  let inQuote = false;
+  for (let i = 0; i < leText.length; i++) {
+    const c = leText[i];
+    if (c === '"')
+      inQuote = !inQuote;
+    if (c === "." && !inQuote && (i + 1 === leText.length || /\s/.test(leText[i + 1]))) {
+      out.push(cur);
+      cur = "";
+    } else {
+      cur += c;
+    }
+  }
+  out.push(cur);
+  return out.map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean);
 }
 
 // src/scenario-editor.ts
@@ -8609,8 +8830,11 @@ function initScenarioEditor(data) {
     dirty = true;
     setStatus(t("Unsaved changes"));
   }
+  const templateDefs = data.templateDefs || [];
+  const documentContext = { source: data.example || "", base: data.base || "" };
   const form = new ScenarioForm({
     source,
+    extraTemplates: templateDefs,
     rowsEl: $("rows"),
     addSelect: $("add-template"),
     btnAdd: $("btn-add"),
@@ -8621,6 +8845,8 @@ function initScenarioEditor(data) {
       title: "Add facts \u2014 write it in English",
       instruction: "Type one or more sentences describing precise facts to be added to the scenario. The facts must respect the predicates (templates) already in your program; if you need to expand these first, use the editor or the LE Assistant.",
       placeholder: "e.g. Alice is the mother of John, and John was born in the UK on 2021-10-09.",
+      documentContext,
+      extraTemplates: templateDefs.map((d) => d.label),
       onResult: (leText) => {
         const facts = splitStatements(leText);
         facts.forEach((f) => form.addFact(f));

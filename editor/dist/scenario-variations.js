@@ -938,6 +938,12 @@ var keywords = {
         "because"
       ]
     ],
+    "with_provenance": [
+      [
+        "with",
+        "provenance"
+      ]
+    ],
     "otherwise": [
       [
         "otherwise"
@@ -2262,6 +2268,12 @@ var keywords = {
         "porque"
       ]
     ],
+    "with_provenance": [
+      [
+        "com",
+        "proveni\xEAncia"
+      ]
+    ],
     "otherwise": [
       [
         "caso",
@@ -3581,6 +3593,12 @@ var keywords = {
         "porque"
       ]
     ],
+    "with_provenance": [
+      [
+        "con",
+        "procedencia"
+      ]
+    ],
     "otherwise": [
       [
         "de",
@@ -4864,6 +4882,12 @@ var keywords = {
       ],
       [
         "car"
+      ]
+    ],
+    "with_provenance": [
+      [
+        "avec",
+        "provenance"
       ]
     ],
     "otherwise": [
@@ -6232,6 +6256,12 @@ var keywords = {
         "poich\xE9"
       ]
     ],
+    "with_provenance": [
+      [
+        "con",
+        "provenienza"
+      ]
+    ],
     "otherwise": [
       [
         "altrimenti"
@@ -6686,7 +6716,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} ocorr\xEAncia(s); clique numa para ir at\xE9 ela",
     "This is defined in the included resource": "Isto est\xE1 definido no recurso inclu\xEDdo",
     "In the included resource": "No recurso inclu\xEDdo",
-    "line": "linha"
+    "line": "linha",
+    "rule": "regra",
+    "according to": "de acordo com",
+    "because": "porque",
+    "at": "em",
+    "Source": "Fonte",
+    "Published at": "Publicado em",
+    "Open original": "Abrir original",
+    "The program does not say where the text of this document is": "O programa n\xE3o diz onde est\xE1 o texto deste documento",
+    "Loading the document\u2026": "A carregar o documento\u2026",
+    "The quoted passage was not found in this text.": "A passagem citada n\xE3o foi encontrada neste texto.",
+    "Show the source": "Mostrar a fonte",
+    "From a document": "A partir de um documento",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Cole ou obtenha abaixo o texto do documento: cada facto citar\xE1 a passagem que o afirma.",
+    "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Endere\xE7o do texto: um URL, ou um ficheiro junto ao programa",
+    "Fetch text": "Obter texto"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -7003,7 +7049,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} aparici\xF3n(es); haga clic en una para ir a ella",
     "This is defined in the included resource": "Esto est\xE1 definido en el recurso incluido",
     "In the included resource": "En el recurso incluido",
-    "line": "l\xEDnea"
+    "line": "l\xEDnea",
+    "rule": "regla",
+    "according to": "de acuerdo con",
+    "because": "porque",
+    "at": "en",
+    "Source": "Fuente",
+    "Published at": "Publicado en",
+    "Open original": "Abrir original",
+    "The program does not say where the text of this document is": "El programa no dice d\xF3nde est\xE1 el texto de este documento",
+    "Loading the document\u2026": "Cargando el documento\u2026",
+    "The quoted passage was not found in this text.": "El pasaje citado no se encontr\xF3 en este texto.",
+    "Show the source": "Mostrar la fuente",
+    "From a document": "A partir de un documento",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Pegue u obtenga abajo el texto del documento: cada hecho citar\xE1 el pasaje que lo afirma.",
+    "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Direcci\xF3n del texto: una URL, o un archivo junto al programa",
+    "Fetch text": "Obtener texto"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7320,7 +7382,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} occurrence(s) ; cliquez sur une pour y aller",
     "This is defined in the included resource": "Ceci est d\xE9fini dans la ressource incluse",
     "In the included resource": "Dans la ressource incluse",
-    "line": "ligne"
+    "line": "ligne",
+    "rule": "r\xE8gle",
+    "according to": "selon",
+    "because": "parce que",
+    "at": "\xE0",
+    "Source": "Source",
+    "Published at": "Publi\xE9 \xE0",
+    "Open original": "Ouvrir l'original",
+    "The program does not say where the text of this document is": "Le programme ne dit pas o\xF9 se trouve le texte de ce document",
+    "Loading the document\u2026": "Chargement du document\u2026",
+    "The quoted passage was not found in this text.": "Le passage cit\xE9 est introuvable dans ce texte.",
+    "Show the source": "Afficher la source",
+    "From a document": "\xC0 partir d'un document",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Collez ou r\xE9cup\xE9rez ci-dessous le texte du document : chaque fait citera le passage qui l'\xE9nonce.",
+    "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Adresse du texte : une URL, ou un fichier \xE0 c\xF4t\xE9 du programme",
+    "Fetch text": "R\xE9cup\xE9rer le texte"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7637,7 +7715,23 @@ var uiCatalog = {
     "{n} occurrence(s); click one to go to it": "{n} occorrenza/e; fai clic su una per andarci",
     "This is defined in the included resource": "Questo \xE8 definito nella risorsa inclusa",
     "In the included resource": "Nella risorsa inclusa",
-    "line": "riga"
+    "line": "riga",
+    "rule": "regola",
+    "according to": "secondo",
+    "because": "perch\xE9",
+    "at": "a",
+    "Source": "Fonte",
+    "Published at": "Pubblicato a",
+    "Open original": "Apri originale",
+    "The program does not say where the text of this document is": "Il programma non dice dove si trova il testo di questo documento",
+    "Loading the document\u2026": "Caricamento del documento\u2026",
+    "The quoted passage was not found in this text.": "Il passaggio citato non \xE8 stato trovato in questo testo.",
+    "Show the source": "Mostra la fonte",
+    "From a document": "Da un documento",
+    "Paste or fetch the document text below: each fact will cite the passage that states it.": "Incolli o recuperi qui sotto il testo del documento: ogni fatto citer\xE0 il passaggio che lo afferma.",
+    "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
+    "Address of its text: a URL, or a file beside the program": "Indirizzo del testo: un URL, o un file accanto al programma",
+    "Fetch text": "Recupera testo"
   }
 };
 var languages = [
@@ -7834,6 +7928,22 @@ function kwAlt(source, key) {
 }
 function kwAltAll(key) {
   return kwAltFor(languageList().map((l) => l.code), key);
+}
+function splitProvenance(fact, source) {
+  const kw = ["according_to", "as_stated_in", "because"].map((k) => kwAlt(source, k)).filter(Boolean).join("|");
+  if (!kw)
+    return { base: fact, trailers: "" };
+  const trailerStart = new RegExp(`^,\\s*(?:${kw})(?![\\p{L}])`, "iu");
+  let inQuote = false;
+  for (let i = 0; i < fact.length; i++) {
+    const c = fact[i];
+    if (c === '"')
+      inQuote = !inQuote;
+    else if (c === "," && !inQuote && trailerStart.test(fact.slice(i))) {
+      return { base: fact.slice(0, i).trim(), trailers: fact.slice(i + 1).trim() };
+    }
+  }
+  return { base: fact, trailers: "" };
 }
 var testDirectiveReCache = null;
 function testDirectiveRe() {
@@ -8078,6 +8188,13 @@ var ScenarioForm = class _ScenarioForm {
   constructor(opts) {
     this.opts = opts;
     const defs = parseTemplateDefs(opts.source);
+    const declared = new Set(defs.map((d) => d.label));
+    for (const x of opts.extraTemplates || []) {
+      if (!declared.has(x.label)) {
+        declared.add(x.label);
+        defs.push({ label: x.label, isUndefined: !!x.scenario_element });
+      }
+    }
     this.templates = [...defs.map((d) => d.label), ...SYSTEM_TYPE];
     const used = /* @__PURE__ */ new Set();
     for (const b of parseScenarioBlocks(opts.source)) {
@@ -8143,12 +8260,13 @@ var ScenarioForm = class _ScenarioForm {
         continue;
       }
       const assumed = UNKNOWN_PREFIX.test(fact);
-      const inner = assumed ? fact.replace(UNKNOWN_PREFIX, "") : fact;
+      const inner0 = assumed ? fact.replace(UNKNOWN_PREFIX, "") : fact;
+      const { base: inner, trailers } = splitProvenance(inner0, this.opts.source);
       const m = matchFact(inner, this.templates);
       if (m)
-        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed });
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed, trailers });
       else
-        this.rows.push({ templateLabel: null, values: [], raw: inner, assumed });
+        this.rows.push({ templateLabel: null, values: [], raw: inner0, assumed });
     }
     this.render();
   }
@@ -8214,6 +8332,14 @@ var ScenarioForm = class _ScenarioForm {
           fieldInputs.push(input);
         }
       }
+    }
+    if (row.trailers) {
+      const prov = document.createElement("span");
+      prov.className = "trailers";
+      prov.textContent = `, ${row.trailers}`;
+      prov.title = row.trailers;
+      prov.style.cssText = "opacity:0.65;font-size:0.85em;margin-left:4px;max-width:28em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;";
+      el.appendChild(prov);
     }
     const tools = document.createElement("div");
     tools.className = "row-tools";
@@ -8283,16 +8409,17 @@ var ScenarioForm = class _ScenarioForm {
     const base = (text || "").trim().replace(/\.\s*$/, "").trim();
     if (!base)
       return false;
-    const key = _ScenarioForm.norm(base);
+    const key = _ScenarioForm.norm(splitProvenance(base, this.opts.source).base);
     const existing = this.rows.find((r) => _ScenarioForm.norm(this.factBase(r)) === key);
     let idx;
     if (existing) {
       existing.assumed = assumed;
       idx = this.rows.indexOf(existing);
     } else {
-      const m = matchFact(base, this.templates);
+      const { base: core, trailers } = splitProvenance(base, this.opts.source);
+      const m = matchFact(core, this.templates);
       if (m)
-        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed });
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed, trailers });
       else
         this.rows.push({ templateLabel: null, values: [], raw: base, assumed });
       idx = this.rows.length - 1;
@@ -8329,9 +8456,10 @@ var ScenarioForm = class _ScenarioForm {
   }
   // --- Producing text --------------------------------------------------------
   factText(row) {
-    const base = this.factBase(row);
-    if (!base)
+    const base0 = this.factBase(row);
+    if (!base0)
       return "";
+    const base = row.trailers ? `${base0}, ${row.trailers}` : base0;
     return row.assumed ? `${unknownWhetherPrefix(this.opts.source)}${base}` : base;
   }
   // Each fact's text (no trailing period), skipping wholly-empty rows.
@@ -8409,6 +8537,200 @@ function openIncludedResource(info) {
   if (theme)
     url.searchParams.set("theme", theme);
   window.open(url.toString(), "_blank");
+}
+
+// src/source-viewer.ts
+var TOKEN = "myToken123";
+function provenanceSummary(p, rule) {
+  const parts = [];
+  if (rule)
+    parts.push(`${t("rule")} ${rule}`);
+  if (p.document)
+    parts.push(p.document + (p.locator ? ` \u2014 ${p.locator}` : ""));
+  if (p.source)
+    parts.push(`${t("according to")} ${p.source}`);
+  if (p.rationale)
+    parts.push(`${t("because")} ${p.rationale}`);
+  return parts.join("\n");
+}
+function originalUrl(p) {
+  if (!p.url)
+    return null;
+  if (p.quote && !p.url.includes("#")) {
+    return `${p.url}#:~:text=${encodeURIComponent(p.quote)}`;
+  }
+  return p.url;
+}
+function findQuote(text, quote) {
+  const norm = [];
+  const map = [];
+  let lastSpace = true;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (/\s/.test(c)) {
+      if (!lastSpace) {
+        norm.push(" ");
+        map.push(i);
+        lastSpace = true;
+      }
+    } else {
+      norm.push(c);
+      map.push(i);
+      lastSpace = false;
+    }
+  }
+  const hay = norm.join("");
+  const needle = quote.replace(/\s+/g, " ").trim();
+  if (!needle)
+    return null;
+  let at = hay.indexOf(needle);
+  if (at < 0)
+    at = hay.toLowerCase().indexOf(needle.toLowerCase());
+  if (at < 0)
+    return null;
+  const start = map[at];
+  const end = map[at + needle.length - 1] + 1;
+  return [start, end];
+}
+function ensureStyles() {
+  if (document.getElementById("source-viewer-styles"))
+    return;
+  const style = document.createElement("style");
+  style.id = "source-viewer-styles";
+  style.textContent = `
+        .sv-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
+            align-items: center; justify-content: center; z-index: 1000; }
+        .sv-dialog { background: var(--panel-bg, #252526); color: var(--text-color, #d4d4d4);
+            border: 1px solid var(--border-color, #444); border-radius: 8px; width: min(820px, 94vw);
+            max-height: 90vh; display: flex; flex-direction: column; padding: 16px 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        .sv-dialog h2 { margin: 0 0 6px 0; font-size: 16px; }
+        .sv-meta { font-size: 12px; line-height: 1.5; margin: 0 0 8px 0; }
+        .sv-meta div { margin: 2px 0; }
+        .sv-meta .sv-label { color: var(--muted, #888); margin-right: 6px; }
+        .sv-text { flex: 1; overflow: auto; white-space: pre-wrap; font-family: inherit; font-size: 13px;
+            background: var(--field-bg, #1e1e1e); border: 1px solid var(--input-border, #555);
+            border-radius: 4px; padding: 10px; margin: 0; min-height: 120px; }
+        .sv-text mark { background: #e2b93d; color: #000; }
+        .sv-status { font-size: 12px; color: var(--muted, #888); margin: 6px 0; }
+        .sv-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+        .sv-dialog button { background: var(--input-bg, #3c3c3c); color: var(--input-text, #d4d4d4);
+            border: 1px solid var(--input-border, #555); border-radius: 4px; padding: 6px 12px; font: inherit; cursor: pointer; }
+        .sv-dialog button.primary { background: var(--accent, #0e639c); color: #fff; border-color: var(--accent, #0e639c); }
+    `;
+  document.head.appendChild(style);
+}
+async function fetchDocumentText(address, ctx = {}) {
+  try {
+    return await fetch("/leapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: TOKEN,
+        operation: "documentText",
+        address,
+        source: ctx.source || "",
+        base: ctx.base || ""
+      })
+    }).then((r) => r.json());
+  } catch {
+    return { error: t("Could not reach the server.") };
+  }
+}
+function openSourceViewer(p, rule, ctx = {}) {
+  ensureStyles();
+  const overlay = document.createElement("div");
+  overlay.className = "sv-overlay";
+  const dialog = document.createElement("div");
+  dialog.className = "sv-dialog";
+  dialog.id = "source-viewer";
+  overlay.appendChild(dialog);
+  const h = document.createElement("h2");
+  h.textContent = p.document || t("Source");
+  dialog.appendChild(h);
+  const meta = document.createElement("div");
+  meta.className = "sv-meta";
+  const addMeta = (label, value) => {
+    if (!value)
+      return;
+    const row = document.createElement("div");
+    const l = document.createElement("span");
+    l.className = "sv-label";
+    l.textContent = label;
+    row.appendChild(l);
+    row.appendChild(document.createTextNode(value));
+    meta.appendChild(row);
+  };
+  addMeta(t("rule"), rule);
+  addMeta(t("at"), p.locator);
+  addMeta(t("according to"), p.source);
+  addMeta(t("because"), p.rationale);
+  addMeta(t("Published at"), p.url);
+  dialog.appendChild(meta);
+  const status = document.createElement("div");
+  status.className = "sv-status";
+  const pre = document.createElement("pre");
+  pre.className = "sv-text";
+  pre.style.display = "none";
+  dialog.appendChild(status);
+  dialog.appendChild(pre);
+  const actions = document.createElement("div");
+  actions.className = "sv-actions";
+  const open = originalUrl(p);
+  if (open) {
+    const btnOpen = document.createElement("button");
+    btnOpen.textContent = t("Open original");
+    btnOpen.addEventListener("click", () => window.open(open, "_blank"));
+    actions.appendChild(btnOpen);
+  }
+  const close = document.createElement("button");
+  close.className = "primary";
+  close.textContent = t("Close");
+  actions.appendChild(close);
+  dialog.appendChild(actions);
+  document.body.appendChild(overlay);
+  const done = () => {
+    overlay.remove();
+    document.removeEventListener("keydown", onKey);
+  };
+  const onKey = (e) => {
+    if (e.key === "Escape")
+      done();
+  };
+  document.addEventListener("keydown", onKey);
+  close.addEventListener("click", done);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay)
+      done();
+  });
+  if (!p.text) {
+    status.textContent = p.document ? `${t("The program does not say where the text of this document is")}: the text of ${p.document} is at "\u2026".` : "";
+    return;
+  }
+  status.textContent = t("Loading the document\u2026");
+  fetchDocumentText(p.text, ctx).then((res) => {
+    if (!res || res.error || typeof res.text !== "string") {
+      status.textContent = `${t("Error: ")}${res && res.error || ""}`;
+      return;
+    }
+    const text = res.text;
+    const span = p.quote ? findQuote(text, p.quote) : null;
+    pre.textContent = "";
+    if (span) {
+      pre.appendChild(document.createTextNode(text.slice(0, span[0])));
+      const mark = document.createElement("mark");
+      mark.textContent = text.slice(span[0], span[1]);
+      pre.appendChild(mark);
+      pre.appendChild(document.createTextNode(text.slice(span[1])));
+      status.textContent = "";
+      pre.style.display = "";
+      mark.scrollIntoView({ block: "center" });
+    } else {
+      pre.textContent = text;
+      pre.style.display = "";
+      status.textContent = p.quote ? t("The quoted passage was not found in this text.") : "";
+    }
+  });
 }
 
 // src/explanation-view.ts
@@ -8930,6 +9252,19 @@ var ExplanationView = class {
           }
         });
       }
+      if (node && typeof node === "object" && node.provenance) {
+        const badge = document.createElement("span");
+        badge.className = "tree-prov";
+        badge.textContent = "\xA7";
+        badge.title = `${t("Show the source")}
+${provenanceSummary(node.provenance, node.rule)}`;
+        badge.style.cssText = "margin-left:6px;cursor:pointer;opacity:0.75;font-weight:bold;";
+        badge.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openSourceViewer(node.provenance, node.rule, this.o.documentContext?.() || {});
+        });
+        label.appendChild(badge);
+      }
       container.appendChild(label);
       if (hasChildren) {
         const childrenContainer = document.createElement("div");
@@ -8961,12 +9296,12 @@ var ExplanationView = class {
 };
 
 // src/scenario-variations.ts
-var TOKEN = "myToken123";
+var TOKEN2 = "myToken123";
 async function leapi(body) {
   return fetch("/leapi", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token: TOKEN, ...body })
+    body: JSON.stringify({ token: TOKEN2, ...body })
   }).then((r) => r.json());
 }
 async function initScenarioVariations() {

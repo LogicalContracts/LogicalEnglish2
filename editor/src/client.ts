@@ -227,6 +227,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         let pendingAnswerIndex: number | null = null;
         let sessionModule: string | null = null;
         let includedResources: any[] = [];
+        let lastTemplateDefs: any[] = [];
         let lastKb = '';
         // Per-fact images ("<fact>; image \"URL\".") from the last load's
         // metadata: [{start, end, url}], keyed by the fact's source range.
@@ -1750,6 +1751,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 lastIssues = res.issues || [];
                 lastLoadError = '';
                 includedResources = res.included_resources || [];
+                lastTemplateDefs = res.template_defs || [];
 
                 kbModuleDisplay.textContent = `KB: ${res.kb || 'unknown'}`;
                 sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
@@ -2096,6 +2098,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             editor.focus();
         },
         onSelectAnswer: (index: number) => setAnswerInUrl(index),
+        documentContext: () => ({
+            source: new URLSearchParams(window.location.search).get('example') || '',
+            base: currentBaseUrl || '',
+        }),
     });
 
     const debugPanel = document.getElementById('debug-panel')!;
@@ -2651,7 +2657,14 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // source (to list/parse existing scenarios); both are pure client data.
     document.getElementById('menu-scenario-editor')?.addEventListener('click', async () => {
         // The window parses templates and scenarios straight from the source.
-        const data = { source: editor.getValue() };
+        const data = {
+            source: editor.getValue(),
+            // the templates of included resources (from the last load), and
+            // where the program came from — for "Write it in English" from a document
+            templateDefs: lastTemplateDefs,
+            example: new URLSearchParams(window.location.search).get('example') || '',
+            base: currentBaseUrl || '',
+        };
         localStorage.setItem('le_scenario_editor_data', JSON.stringify(data));
         const currentTheme = document.body.className.includes('light-theme') ? 'light-theme' :
                              document.body.className.includes('hc-theme') ? 'hc-theme' : '';

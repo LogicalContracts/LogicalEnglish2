@@ -46,6 +46,7 @@
 :- use_module(le_i18n).
 :- use_module(le_kbs, [load_text/2, text_language/2]).
 :- use_module(le_verifier, [verify/2, unmatched_sentences/3]).
+:- use_module(le_provenance, [quote_in_text/2]).
 :- use_module(le_issue_feedback).
 :- use_module(library(lists)).
 :- use_module(library(apply)).
@@ -103,6 +104,18 @@ feedback_caps(caps(8, 4, 2)).
 %   @throws error(type_error(nl_kind, Kind), _) if Kind is neither facts nor query.
 %   Errors from the LLM call propagate from llm_client unchanged.
 english_to_le(Kind, Sentence, Templates, Program, Model, Options0, LEText, NewIssues) :-
+    % A program opened from a folder (or a URL) resolves its included
+    % resources — and so its templates — against it: option base(Base).
+    (   select(base(Base), Options0, Options1), Base \== (-), Base \== ''
+    ->  setup_call_cleanup(
+            asserta(le_kbs:le_include_base(Base), Ref),
+            english_to_le_(Kind, Sentence, Templates, Program, Model, Options1, LEText, NewIssues),
+            erase(Ref))
+    ;   exclude(==(base(-)), Options0, Options1),
+        english_to_le_(Kind, Sentence, Templates, Program, Model, Options1, LEText, NewIssues)
+    ).
+
+english_to_le_(Kind, Sentence, Templates0, Program, Model, Options0, LEText, NewIssues) :-
     % The fragment must be written in the PROGRAM's language: its keyword set
     % drives both the prompt's connective words and the verification parse.
     text_language(Program, ProgLang),
@@ -110,16 +123,36 @@ english_to_le(Kind, Sentence, Templates, Program, Model, Options0, LEText, NewIs
     must_be_kind(Kind),
     to_string(Program, ProgramS),
     to_string(Sentence, SentenceS),
-    loop_options(Options0, Limits, CheckRegressions, Options1),
-    ensure_max_tokens(Options1, Options2),
+    % Facts extracted from a document (option document(Name)): every fact cites
+    % the passage of the text that states it (see document_rules/2).
+    (   select(document(Doc0), Options0, OptionsD), Kind == facts
+    ->  to_string(Doc0, Doc), Options0b = OptionsD,
+        program_templates(ProgramS, Templates1),
+        ( Templates1 == [] -> Templates = Templates0 ; Templates = Templates1 )
+    ;   Doc = none, Options0b = Options0, Templates = Templates0
+    ),
+    loop_options(Options0b, Limits, CheckRegressions, Options1),
+    ( Doc == none -> Options1b = Options1 ; ensure_option(max_tokens(4096), Options1, Options1b) ),
+    ensure_max_tokens(Options1b, Options2),
     ensure_temperature(Options2, Options),
     baseline(ProgramS, CheckRegressions, Baseline),
-    system_prompt(Kind, Templates, ProgramS, System),
+    system_prompt(Kind, Templates, ProgramS, System0),
+    (   Doc == none
+    ->  System = System0
+    ;   document_rules(Doc, DocRules),
+        string_concat(System0, DocRules, System)
+    ),
     Messages0 = [ _{role: system, content: System}, _{role: user, content: SentenceS} ],
     le_llm_request(Model, Messages0, Raw0, Options),
     clean_reply(Raw0, LE0),
     refine(Kind, ProgramS, Baseline, Model, Options, Messages0, Raw0, LE0,
-           1, none, 0, Limits, LEText0, New0),
+           1, none, 0, Limits, LEText1, New1),
+    (   Doc == none
+    ->  LEText0 = LEText1, New0 = New1
+    ;   LEText0 = LEText1,
+        quote_issues(LEText1, SentenceS, QuoteIssues),
+        append(New1, QuoteIssues, New0)
+    ),
     % One last, more expensive question, asked once rather than every round: does the
     % fragment BREAK anything that used to work? A scenario whose facts leak out of
     % their block (a line the splice could not indent into it, a stray section header)
@@ -596,6 +629,99 @@ system_prompt(Kind, Templates, Program, Prompt) :-
     format(string(Prompt),
         "You translate a natural-language sentence into Logical English (LE).~w~n~n~w~n~nKeep each template's fixed words EXACTLY, adjusting the sentence's wording and tense to fit them (e.g. 'was born' becomes the template's 'is born'). Replace each *...* placeholder with the matching value from the sentence. If the sentence does NOT give a value for some placeholder, keep the placeholder's own words in its place (for example write 'a date' where no date is stated) — do NOT invent a specific value, and do NOT drop the placeholder. Do not use predicates or wording that is not in a template below. Output plain text only — no Markdown, no code fences, no commentary.~n~n~w~n~nTemplates (each *...* is a placeholder to fill):~n~w~w",
         [LangNote, Rules, Pitfalls, TemplatesText, Context]).
+
+% ---------------------------------------------------------------------------
+% Facts from a document
+% ---------------------------------------------------------------------------
+
+%!  document_rules(+Doc, -Text) is det.
+%
+%   The extra instruction for extracting facts from the text of a document:
+%   each fact cites the passage that states it, with the program's own
+%   provenance trailers (docs/le_summary.md §17.1) in the program's language;
+%   judged templates only record a decision the text reports; derived ones are
+%   never stated.
+document_rules(Doc, Text) :-
+    kw_phrase(as_stated_in, "as stated in", AsStated),
+    kw_phrase(at_locator, "at", At),
+    kw_phrase(according_to, "according to", According),
+    kw_phrase(because, "because", Because),
+    format(string(Text),
+"~n~n--- The text is a document ---~n\
+The user's message is the text of the document named ~w. Extract the facts it states about the individuals it describes (the goods, persons, events...): name each individual as the document does (for example by its style, model or reference number), never starting a name with 'a', 'an' or 'the'.~n\
+After EACH fact, on the same line, write where the document states it: , ~w ~w ~w \"<passage>\" — where <passage> is copied WORD FOR WORD from the text (3 to 20 consecutive words, no double quote inside) and states that fact.~n\
+A template marked (judged) records a decision someone made: write such a fact only when the text reports that decision, as: <fact>, ~w <who decided>, ~w ~w ~w \"<passage>\", ~w \"<their reason, in their words>\".~n\
+Never write a fact of a template marked (derived): the program's rules derive those, and the document's conclusions (a classification, an outcome) are what the rules must reproduce, not facts.~n\
+State only what the text states: a feature the text does not mention is simply left out.",
+        [Doc, AsStated, Doc, At, According, AsStated, Doc, At, Because]).
+
+kw_phrase(Key, Default, Phrase) :-
+    (   le_i18n:kw_main_words(Key, Words), Words \== []
+    ->  atomic_list_concat(Words, ' ', A), atom_string(A, Phrase)
+    ;   Phrase = Default
+    ).
+
+ensure_option(Opt, Options, Options) :-
+    functor(Opt, F, 1), functor(Probe, F, 1), memberchk(Probe, Options), !.
+ensure_option(Opt, Options, [Opt|Options]).
+
+%!  program_templates(+Program, -Templates) is det.
+%
+%   The program's templates — its own and those of the resources it includes —
+%   as labels with their *placeholders*, each tagged (judged) or (derived) when
+%   it is: what a fact extracted from a document may and may not state.
+program_templates(Program, Templates) :-
+    (   catch(load_text(Program, KB), _, fail)
+    ->  findall(Label, kb_template_label(KB, Label), Labels0),
+        sort(Labels0, Templates)
+    ;   Templates = []
+    ).
+
+kb_template_label(KB, Label) :-
+    le_kbs:template_of(KB, F, A, Dict, _),
+    arg(1, Dict, [F|_]),
+    ( Dict = dict(_, NTs, WV, _, _, _, Unknown) -> true ; Dict = dict(_, NTs, WV), Unknown = none ),
+    copy_term(NTs-WV, NTsC-WVC),
+    maplist(starred_slot, NTsC),
+    le_kbs:canonical_string(WVC, Base),
+    functor(Head, F, A),
+    (   Unknown == judged
+    ->  format(string(Label), "~w (judged)", [Base])
+    ;   Unknown \== undefined, Unknown \== unknown,
+        catch(( clause(KB:Head, Body, _), Body \== true ), _, fail)
+    ->  format(string(Label), "~w (derived)", [Base])
+    ;   Label = Base
+    ).
+
+starred_slot(V-Type) :-
+    (   atom(Type)
+    ->  ( sub_atom(Type, 0, 1, _, C), memberchk(C, [a, e, i, o, u]) -> Art = an ; Art = a ),
+        format(atom(V), "*~w ~w*", [Art, Type])
+    ;   V = '*a thing*'
+    ).
+
+%!  quote_issues(+LE, +Text, -Issues) is det.
+%
+%   A warning for every quoted passage of LE ("at \"...\"") that is not in the
+%   document's Text: the model paraphrased instead of quoting.
+quote_issues(LE, Text, Issues) :-
+    split_string(LE, "\n", "", Lines),
+    findall(_{severity: "warning", type: "quote_not_in_text", message: Msg,
+              fix: "", line: N, source: Line},
+            ( nth1(N, Lines, Line),
+              line_quote(Line, Quote),
+              \+ le_provenance:quote_in_text(Quote, Text),
+              format(string(Msg), "the passage \"~w\" is not in the document's text", [Quote]) ),
+            Issues).
+
+line_quote(Line, Quote) :-
+    kw_phrase(at_locator, "at", At),
+    format(string(Marker), " ~w \"", [At]),
+    sub_string(Line, B, L, _, Marker),
+    Start is B + L,
+    sub_string(Line, Start, _, 0, Rest),
+    sub_string(Rest, QL, 1, _, "\""), !,
+    sub_string(Rest, 0, QL, _, Quote).
 
 % language_note(-Note): output-language directive for non-English programs.
 language_note(Note) :-

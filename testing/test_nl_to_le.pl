@@ -36,12 +36,13 @@ nl_templates(["*a person* is happy.", "*a person* is healthy."]).
 % repeated once the list runs out. Every call is recorded so a test can prove
 % how many rounds ran and what the correction prompt said.
 
-:- dynamic replies/1, llm_calls/1, last_prompt/1.
+:- dynamic replies/1, llm_calls/1, last_prompt/1, first_system/1.
 
 stub_replies(List) :-
     retractall(replies(_)), assertz(replies(List)),
     retractall(llm_calls(_)), assertz(llm_calls(0)),
     retractall(last_prompt(_)),
+    retractall(first_system(_)),
     set_le_llm_provider(user).
 
 llm_call_count(N) :- ( llm_calls(N) -> true ; N = 0 ).
@@ -50,6 +51,10 @@ user:llm_request(_Model, Messages, Answer, _Options) :-
     ( retract(llm_calls(N0)) -> true ; N0 = 0 ),
     N is N0 + 1, assertz(llm_calls(N)),
     last(Messages, LastMsg), get_dict(content, LastMsg, Content),
+    (   \+ first_system(_), Messages = [Sys|_], get_dict(role, Sys, system)
+    ->  get_dict(content, Sys, SysC), assertz(first_system(SysC))
+    ;   true
+    ),
     retractall(last_prompt(_)), assertz(last_prompt(Content)),
     ( retract(replies(Rs)) -> true ; Rs = [] ),
     (   Rs = [A|Rest]
@@ -242,5 +247,49 @@ test(an_unknown_kind_is_rejected) :-
     catch(english_to_le(rules, "x", T, P, "stub-model", [], _, _), E, true),
     assertion(nonvar(E)),
     assertion(E = error(type_error(nl_kind, rules), _)).
+
+% --- facts from a document (option document(Name)) ---------------------------
+
+doc_program("the target language is: prolog.
+
+the templates are:
+    *a garment* is eligible.
+    *a garment* has a collar; undefined.
+    the claim that *a garment* is *a kind* is *an outcome*; judged.
+
+the knowledge base shirts includes:
+
+a garment is eligible
+    if the garment has a collar.
+
+scenario one is:
+    style A has a collar, as stated in ruling R1.
+
+query q is:
+    which garment is eligible.
+").
+
+doc_text("Style 1025AD features a partial front opening that zips through a self-fabric stand-up collar.").
+
+% The prompt asks for cited facts and marks judged and derived templates,
+% taken from the program itself.
+test(document_prompt_cites_and_tags,
+     [setup(stub_replies(["style 1025AD has a collar, as stated in ruling NY N362700 at \"a self-fabric stand-up collar\"."]))]) :-
+    doc_program(P), doc_text(T),
+    english_to_le(facts, T, [], P, "stub-model", [document("ruling NY N362700")], LE, Issues),
+    assertion(sub_string(LE, _, _, _, "as stated in ruling NY N362700 at")),
+    assertion(\+ nl_has_issue(Issues, "quote_not_in_text")),
+    first_system(Sys),
+    assertion(sub_string(Sys, _, _, _, "The user's message is the text of the document named ruling NY N362700")),
+    assertion(sub_string(Sys, _, _, _, "*a garment* is eligible (derived)")),
+    assertion(sub_string(Sys, _, _, _, "is *an outcome* (judged)")),
+    assertion(sub_string(Sys, _, _, _, "*a garment* has a collar")).
+
+% A passage the model paraphrased rather than copied is reported.
+test(document_paraphrased_quote_warns,
+     [setup(stub_replies(["style 1025AD has a collar, as stated in ruling NY N362700 at \"it has a nice collar\"."]))]) :-
+    doc_program(P), doc_text(T),
+    english_to_le(facts, T, [], P, "stub-model", [document("ruling NY N362700")], _LE, Issues),
+    assertion(nl_has_issue(Issues, "quote_not_in_text")).
 
 :- end_tests(nl_to_le).

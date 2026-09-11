@@ -8,6 +8,7 @@
 import { explanationToMermaid } from './mermaid-export';
 import { t, applyI18nDom, installLeApiLang } from './i18n';
 import { isForeignOffset, openIncludedResource, describeResourceRange } from './resource-nav';
+import { openSourceViewer, provenanceSummary, DocumentContext } from './source-viewer';
 
 export interface MenuEls {
     answerContextMenu: HTMLElement;
@@ -33,6 +34,7 @@ export interface ExplanationViewOptions {
     failedNodePrefix?: () => string;       // prefix for failed nodes when copying
     hierarchicalNumbering?: () => boolean; // show "1.2.3" path numbers
     onNavigate?: (start: number, end: number) => void;   // a node was clicked -> reveal source
+    documentContext?: () => DocumentContext;             // where the program came from (for its documents' text)
     onSelectAnswer?: (index: number) => void;            // an answer was selected (1-based)
     onOpenDrill?: (why: any) => void;                    // open the Explanation Drill for a `why`
     onOpenBento?: (why: any, answer: string) => void;    // open the Bento Box for an answer's `why`
@@ -539,6 +541,21 @@ export class ExplanationView {
                         this.o.onNavigate?.(node.start, node.end);
                     }
                 });
+            }
+
+            // A node proved by a fact or a labelled rule with provenance: a
+            // badge that shows the cited document, quoted passage highlighted.
+            if (node && typeof node === 'object' && node.provenance) {
+                const badge = document.createElement('span');
+                badge.className = 'tree-prov';
+                badge.textContent = '§';
+                badge.title = `${t('Show the source')}\n${provenanceSummary(node.provenance, node.rule)}`;
+                badge.style.cssText = 'margin-left:6px;cursor:pointer;opacity:0.75;font-weight:bold;';
+                badge.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openSourceViewer(node.provenance, node.rule, this.o.documentContext?.() || {});
+                });
+                label.appendChild(badge);
             }
 
             container.appendChild(label);

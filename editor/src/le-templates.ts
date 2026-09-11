@@ -34,6 +34,25 @@ function kwAltAll(key: string): string {
     return kwAltFor(languageList().map(l => l.code), key);
 }
 
+// A fact's provenance trailers (docs/le_summary.md §17.1): the first comma,
+// outside a quoted string, followed by "according to", "as stated in" or
+// "because" (in the program's language, or English) starts them. Returns the
+// fact without them and the trailers (without the leading comma), '' if none.
+export function splitProvenance(fact: string, source: string): { base: string; trailers: string } {
+    const kw = ['according_to', 'as_stated_in', 'because'].map(k => kwAlt(source, k)).filter(Boolean).join('|');
+    if (!kw) return { base: fact, trailers: '' };
+    const trailerStart = new RegExp(`^,\\s*(?:${kw})(?![\\p{L}])`, 'iu');
+    let inQuote = false;
+    for (let i = 0; i < fact.length; i++) {
+        const c = fact[i];
+        if (c === '"') inQuote = !inQuote;
+        else if (c === ',' && !inQuote && trailerStart.test(fact.slice(i))) {
+            return { base: fact.slice(0, i).trim(), trailers: fact.slice(i + 1).trim() };
+        }
+    }
+    return { base: fact, trailers: '' };
+}
+
 // A scenario "test" line in any language: "<query> expects answers [...]".
 let testDirectiveReCache: RegExp | null = null;
 export function testDirectiveRe(): RegExp {
