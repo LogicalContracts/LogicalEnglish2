@@ -19,6 +19,7 @@
 :- use_module('../le_kbs').
 :- use_module('../le_documents').
 :- use_module(library(pcre)).
+:- dynamic user:le_test_seen_quote/0.
 
 program(Extra, ScenarioFacts, Text) :-
     format(string(Text), "the target language is: prolog.
@@ -367,6 +368,24 @@ test(quote_checked_against_the_text, [setup(resource_dir(Dir)), cleanup(delete_d
     load(Bad, KB2),
     issue_types(KB2, warning, W2),
     memberchk(quote_not_found, W2).
+
+% verify/1 (the command-line check) reads the program from its own folder,
+% as load/2 does: the document's relative address is found and a quotation
+% that is not in the text is reported.
+test(verify_checks_quotes_from_the_programs_folder, [setup(resource_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    directory_file_path(Dir, 'sources', Src),
+    make_directory(Src),
+    directory_file_path(Src, 'act.txt', Act),
+    write_file(Act, "Section 2. A resident is eligible for help."),
+    cited_program(P0),
+    re_replace("a resident is eligible"/g, "a resident is wealthy", P0, P1),
+    directory_file_path(Dir, 'bad.le', Bad),
+    write_file(Bad, P1),
+    setup_call_cleanup(
+        assertz((user:message_hook(quote_not_found - _, warning, _) :- assertz(user:le_test_seen_quote))),
+        with_output_to(string(_), verify(Bad)),
+        retractall(user:message_hook(quote_not_found - _, warning, _))),
+    retract(user:le_test_seen_quote).
 
 % A document's text: a file inside the program's folder, never outside it.
 test(document_text_stays_in_the_folder, [setup(resource_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
