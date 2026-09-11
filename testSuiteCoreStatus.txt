@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-11 12:33:29 UTC
+Generated:  2026-09-11 12:49:13 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 105
-Total tests:     370
-Passed:          370
+Files processed: 107
+Total tests:     373
+Passed:          373
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -115,6 +115,8 @@ Detailed File Summary:
   [PASS] examples/moreExamples/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/judged_damage.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/loaded_table.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/otherwise_table.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error

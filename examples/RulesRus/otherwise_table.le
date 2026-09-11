@@ -1,0 +1,62 @@
+% "otherwise" and decision tables (LE_extensions_proposal §3.3).
+%
+% - The discount rule is a cascade: each alternative applies only when all the
+%   earlier ones fail. Ann is both a member and a student, and gets exactly one
+%   discount (20), not also the student's 10. A cascade decides the case of
+%   ONE customer: the customer is known (bound) by the time the cascade is
+%   reached — here by the first rule, which finds the customers who ordered —
+%   because each "otherwise" is guarded by "it is not the case that" the
+%   earlier alternatives hold.
+% - The shipping cost is looked up in a decision table. The table is bound to
+%   the one template that names it ("... under table shipping"); its columns
+%   correspond, in order, to the template's arguments, with the row id first
+%   and the output last. "first match" is the hit policy: the first row whose
+%   conditions hold answers. An explanation cites that row (cy: row l).
+
+the target language is: prolog.
+
+the templates are:
+    the discount for *a customer* is *a rate*.
+    the discount rate for *a customer* is *a rate*.
+    *a customer* is a member; undefined.
+    *a customer* is a student; undefined.
+    the order of *a customer* weighs *a number* kg; undefined.
+    the shipping cost for a weight of *a number* kg is *a cost* under table shipping.
+    the shipping cost for *a customer* is *a cost*.
+
+the table shipping is, with first match:
+    band | weight kg          | cost
+    s    | <= 1               | 5
+    m    | > 1 and <= 10      | 12
+    l    | > 10               | 30
+
+the knowledge base otherwise table includes:
+
+the discount for a customer is a rate
+    if the order of the customer weighs a weight kg
+    and the discount rate for the customer is the rate.
+
+the discount rate for a customer is a rate
+    if the customer is a member and the rate is 20
+    otherwise the customer is a student and the rate is 10
+    otherwise the rate is 0.
+
+the shipping cost for a customer is a cost
+    if the order of the customer weighs a number kg
+    and the shipping cost for a weight of the number kg is the cost under table shipping.
+
+scenario three_customers is:
+    ann is a member.
+    ann is a student.
+    bob is a student.
+    the order of ann weighs 0.5 kg.
+    the order of bob weighs 4 kg.
+    the order of cy weighs 40 kg.
+    discounts expects answers ["the discount for ann is 20", "the discount for bob is 10", "the discount for cy is 0"].
+    shipping expects answers ["the shipping cost for ann is 5", "the shipping cost for bob is 12", "the shipping cost for cy is 30"].
+
+query discounts is:
+    the discount for which customer is which rate.
+
+query shipping is:
+    the shipping cost for which customer is which cost.

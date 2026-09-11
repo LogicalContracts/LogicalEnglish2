@@ -1,0 +1,32 @@
+% A decision table loaded from a CSV file (LE_extensions_proposal §3.3).
+%
+% The same shipping table as otherwise_table.le, with its rows in
+% shipping.csv next to this program. The header line names the columns; the
+% CSV supplies the rows (its own first row, when it repeats the header, is
+% skipped). Cells in the CSV are read exactly like inline cells, conditions
+% included. The rows are cached and re-read when the file changes.
+
+the target language is: prolog.
+
+the templates are:
+    the order of *a customer* weighs *a number* kg; undefined.
+    the shipping cost for a weight of *a number* kg is *a cost* under table shipping.
+    the shipping cost for *a customer* is *a cost*.
+
+the table shipping is loaded from shipping.csv, with first match:
+    band | weight kg | cost
+
+the knowledge base loaded table includes:
+
+the shipping cost for a customer is a cost
+    if the order of the customer weighs a number kg
+    and the shipping cost for a weight of the number kg is the cost under table shipping.
+
+scenario three_customers is:
+    the order of ann weighs 0.5 kg.
+    the order of bob weighs 4 kg.
+    the order of cy weighs 40 kg.
+    shipping expects answers ["the shipping cost for ann is 5", "the shipping cost for bob is 12", "the shipping cost for cy is 30"].
+
+query shipping is:
+    the shipping cost for which customer is which cost.

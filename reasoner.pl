@@ -283,6 +283,15 @@ solve_real_actual(true, _, _, _, _, _, [], []) :- !.
 solve_real_actual(le_type_check(Arg, Type), SM, KM, _Anc, _D, _MyID, [], [success(le_type_check(Arg, Type), built_in, [])]) :- !,
     when(nonvar(Arg), once(type_arg_ok(Arg, Type, SM, KM))).
 
+% Decision table (le_tables.pl): the row that answers under the table's hit
+% policy. The explanation cites that row ("row l of table shipping"), pointing
+% at it in the source when it is an inline row.
+solve_real_actual(le_table(Name, Args), _SM, KM, _Anc, _D, _MyID, [],
+                  [success(le_table_row(Name, RowId), RowRef, [])]) :- !,
+    KM \== none,
+    le_tables:table_solution(KM, Name, Args, RowId, RowRange),
+    ( RowRange = range(_, _) -> RowRef = RowRange ; RowRef = table_row ).
+
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),

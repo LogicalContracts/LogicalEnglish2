@@ -49,6 +49,7 @@
 :- use_module(reasoner).
 :- use_module(le_verifier, [verify/2, verify/3, find_in_body/2]).
 :- use_module(le_provenance).
+:- use_module(le_tables).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -417,6 +418,22 @@ assert_role_dicts(Dicts, Role, M) :-
 process_section_acc(lps_setting(Key, Value, Start, End), M) :-
     assertz(M:le_lps_item(setting, Key-Value, Key), Ref),
     assertz(M:le_source_info(Ref, Start, End, Key)).
+
+% A decision table, already interpreted in the second pass (le_tables.pl): assert
+% the one clause binding its template, Head :- le_table(Name, Args), with the
+% table's source range so explanations and the verifier point at the table.
+process_section_acc(table_done(Name, Start, End), M) :-
+    (   current_predicate(M:le_table/6),
+        M:le_table(Name, _, F/A, _, _, _)
+    ->  functor(Head, F, A),
+        Head =.. [F|Args],
+        dynamic(M:F/A),
+        format(atom(ID), 'table_~w', [Name]),
+        assertz(M:(Head :- le_table(Name, Args)), Ref),
+        assertz(M:le_source_info(Ref, Start, End, ID)),
+        assertz(M:le_source_section(main, ID))
+    ;   true
+    ).
 
 % "scenario facts require provenance." — read by the verifier.
 process_section_acc(provenance_required(Start, End), M) :-
@@ -1668,6 +1685,9 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         aggregate_render_words(average, OpWords),
         ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
         flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
+    ;   Head = le_table_row(Table, RowId) ->
+        % How an explanation cites the row of a decision table that answered.
+        table_row_words(Table, RowId, WordsAndVars)
     ;   Head = not(Goal) ->
         negation_words(Neg),
         ( item_to_instance(KBmodule, Goal, GoalLE) -> append(Neg, GoalLE, WordsAndVars); append(Neg, [Goal], WordsAndVars))
@@ -2161,6 +2181,9 @@ is_system_predicate(le_lps_item/3).
 is_system_predicate(le_fact_provenance/4).
 is_system_predicate(le_provenance/5).
 is_system_predicate(le_provenance_required/0).
+% Decision tables (le_tables.pl): the table and its rows.
+is_system_predicate(le_table/6).
+is_system_predicate(le_table_row/6).
 
 %!  kb_own_predicate(+M:atom, +Head:callable) is semidet.
 %

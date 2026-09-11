@@ -31,6 +31,8 @@ This document provides a summary of the Logical English constructs supported by 
   - [16. Humanizing LE](#16-humanizing-le)
   - [17. Regulatory-decision constructs](#17-regulatory-decision-constructs)
     - [17.1 Provenance trailers and judged templates](#171-provenance-trailers-and-judged-templates)
+    - [17.2 `otherwise` cascades](#172-otherwise-cascades)
+    - [17.3 Decision tables](#173-decision-tables)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -173,6 +175,7 @@ from the query's goal with its bindings, e.g. `"bob is happy and bob is healthy"
 ## 4. Logical Operators
 - **And:** `and` (or new line with same indentation)
 - **Or:** `or`, `either`, `any of`, `all of`
+- **Otherwise:** a line opening with `otherwise` starts a new alternative, applied only when all the earlier ones fail (§17.2).
 - **Negation:** `it is not the case that` or `not the case that`
   - `it is not the case that *a person* is a citizen`
   - `not the case that *a person* is a citizen`
@@ -576,3 +579,75 @@ keyword stays part of the fact, as always.
     answer is unchanged (`"the burst pipe is accidental"`).
 
 See `examples/RulesRus/judged_damage.le`.
+
+### 17.2 `otherwise` cascades
+A body line that **opens** with `otherwise` starts a new alternative. It has
+lower precedence than `and`/`or`: everything before it (in the same block)
+is the previous alternative.
+```le
+the discount rate for a customer is a rate
+    if the customer is a member and the rate is 20
+    otherwise the customer is a student and the rate is 10
+    otherwise the rate is 0.
+```
+`A otherwise B` means `A`, or else — only when `A` fails — `B`; it compiles to
+`A or (it is not the case that A, and B)`, so each alternative is guarded by
+the failure of all earlier ones and exactly one applies. Details:
+- **The guard is the earlier alternative's conditions.** A conjunct that only
+  sets an output (`and the rate is 20`, an assignment to a variable no other
+  conjunct uses) is left out of the guard, so asking "is the discount rate for
+  ann 10?" does not pass the guard merely because 10 is not 20.
+- **Decide one case at a time.** The guard is a negation as failure: its
+  variables should be known when the cascade is reached. Find the individual
+  first (e.g. in a calling rule: `if the customer is a customer and the
+  discount rate for the customer is the rate`), then let the cascade decide.
+- **Layout.** Only a line that *starts* with the keyword is a cascade line
+  (`the claim is otherwise covered` is an ordinary sentence). Inside a nested
+  block (under `it is not the case that`, say) a cascade is scoped by
+  indentation like any other condition. A line such as
+  `the customer is a member and the rate is 20` is split at its `and` when
+  read whole it would only parse through the generic `... is a ...` fallback.
+- **Explanations** show the failed guard as a negation pointing at the
+  `otherwise` line: `it is not the case that cy is a member`.
+
+See `examples/RulesRus/otherwise_table.le`.
+
+### 17.3 Decision tables
+A **decision table** is a section of its own, bound to the ONE template whose
+words name it (`... under table shipping`):
+```le
+the templates are:
+    the shipping cost for a weight of *a number* kg is *a cost* under table shipping.
+
+the table shipping is, with first match:
+    band | weight kg          | cost
+    s    | <= 1               | 5
+    m    | > 1 and <= 10      | 12
+    l    | > 10               | 30
+```
+- **Columns ↔ arguments, in order.** When the table has one column more than
+  the template has arguments, the first column is the **row id** (cited by
+  explanations); otherwise rows are numbered (`row 2`). The **last** column is
+  the output; the others are inputs.
+- **Cells**: a constant (read exactly like a scenario value), `any` or `-`
+  (no condition), a list of constants joined by `or`, or a condition —
+  comparisons `<`, `<=`, `>`, `>=`, `=`, `!=` joined by `and`/`or`
+  (`> 1 and <= 10`). An input with a condition cell must be known when the
+  table is consulted.
+- **Hit policies** (DMN): `with first match` (the first row whose inputs
+  match answers), `with unique match` (the default: two matching rows are a
+  run-time error), `with all matches` (every matching row — the policy for a
+  relation such as a code list or a code-pair edit).
+- **Loaded tables**: `the table postcode_region is loaded from postcodes.csv, with unique match:`
+  followed by the header line; the CSV (next to the program or in a directory
+  under it) supplies the rows, cells as above. A first CSV row repeating the
+  header is skipped. Rows are cached and re-read when the file changes.
+- **Explanations** cite the row: `row l of table shipping`, pointing at the
+  row in the source for an inline table.
+- The table compiles to one clause of its template, `Head :- le_table(Name,
+  Args)`, plus row records (`le_table/6`, `le_table_row/6`). Errors reported
+  at load time: `table_without_template`, `table_arity_mismatch`,
+  `table_row_width`, `table_bad_cell`, `table_bad_output`,
+  `table_csv_missing`.
+
+See `examples/RulesRus/otherwise_table.le` and `loaded_table.le` (+ `shipping.csv`).
