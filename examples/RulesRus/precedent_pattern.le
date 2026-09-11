@@ -1,0 +1,103 @@
+% Factors and precedential constraint WITHOUT new keywords
+% (a response to LE_extensions_proposal §3.2).
+%
+% Horty's result model — a precedent decided an open-textured issue on its
+% pro-factors and con-factors; a later situation with at least those
+% pro-factors and at most those con-factors cannot be decided the other way —
+% written in plain Logical English plus two constructs that exist anyway:
+% provenance trailers (the case base cites its decisions) and "otherwise"
+% (the hook: decide by precedent when a precedent forces the issue, otherwise
+% by a recorded judgment, which may still be open).
+%
+% - Factors are ordinary rules naming a factor: "a damage has factor
+%   suddenness if the damage occurred suddenly."
+% - The case base is ordinary facts about the cases, with their citations.
+% - The constraint is two rules with "for all cases in which", in the
+%   includable library precedent.le (the result model; the reason model would
+%   be the same library with priority facts).
+% - forced: the bathroom leak has the precedent's pro-factor and none of its
+%   con-factors, so kitchen flood decides it: no judgment needed.
+% - undecided: the garage leak has kitchen flood's pro-factor but also a
+%   con-factor kitchen flood lacked (deliberate damage); and it has a
+%   pro-factor garden shed lacked (suddenness). Neither precedent forces it: a
+%   judgment is needed.
+% - against: the broken window has only garden shed's con-factor, so garden
+%   shed forces it the other way: not payable, whatever anyone judged.
+% - The consistency of the case base is itself a query.
+
+the target language is: prolog.
+
+the knowledge base precedent pattern includes these resources:
+    precedent.
+
+the templates are:
+    *a claim* is payable.
+    *a claim* is for *a damage*; undefined.
+    *a damage* is reported within the time limit; undefined.
+    *a damage* is accidental; judged.
+    *a damage* counts as accidental.
+    *a damage* occurred suddenly; undefined.
+    *a damage* results from wear and tear; undefined.
+    *a damage* was caused deliberately by the policyholder; undefined.
+
+the knowledge base precedent pattern includes:
+
+a claim is payable
+    if the claim is for a damage
+    and the damage is reported within the time limit
+    and the damage counts as accidental.
+
+% The hook: precedent first; otherwise the recorded (or open) judgment,
+% unless a precedent forces the other way.
+a damage counts as accidental
+    if the damage is forced for accidental by a case
+    otherwise the damage is accidental
+    and it is not the case that
+        the damage is forced against accidental by a case.
+
+% Factors of the issue "accidental".
+a damage has factor suddenness if the damage occurred suddenly.
+a damage has factor wear and tear if the damage results from wear and tear.
+a damage has factor deliberate damage if the damage was caused deliberately by the policyholder.
+
+suddenness favours accidental.
+wear and tear disfavours accidental.
+deliberate damage disfavours accidental.
+
+% The case base.
+kitchen flood has factor suddenness, as stated in decision D-1 at paragraph 4.
+kitchen flood has factor wear and tear, as stated in decision D-1 at paragraph 5.
+kitchen flood decided for accidental,
+    according to the ombudsman, as stated in decision D-1 at paragraph 9,
+    because "suddenness outweighs the age of the pipe where no maintenance failure is shown".
+garden shed has factor deliberate damage, as stated in decision D-2 at paragraph 3.
+garden shed decided against accidental,
+    according to the ombudsman, as stated in decision D-2 at paragraph 6,
+    because "damage the policyholder caused on purpose is not an accident".
+
+scenario forced is:
+    claim two is for the bathroom leak, as stated in the claim form at section 2.
+    the bathroom leak is reported within the time limit, as stated in the claim log at entry 8.
+    the bathroom leak occurred suddenly, as stated in the plumber report at page 1.
+    payable expects answers ["claim two is payable"].
+    consistency expects answers [].
+
+scenario undecided is:
+    claim three is for the garage leak, as stated in the claim form at section 2.
+    the garage leak is reported within the time limit, as stated in the claim log at entry 9.
+    the garage leak occurred suddenly, as stated in the plumber report at page 1.
+    the garage leak was caused deliberately by the policyholder, according to the insurer.
+    payable expects answers ["claim three is payable"] and unknowns ["the garage leak is accidental"].
+
+scenario against is:
+    claim four is for the broken window, as stated in the claim form at section 2.
+    the broken window is reported within the time limit, as stated in the claim log at entry 10.
+    the broken window was caused deliberately by the policyholder, according to the insurer.
+    the broken window is accidental, according to the policyholder.
+    payable expects answers [].
+
+query payable is:
+    which claim is payable.
+
+query consistency is:
+    which issue has an inconsistent case base.
