@@ -544,7 +544,9 @@ natural prose:
 Constructs for programs that apply written rules to recorded cases — the
 shape of a regulatory decision (applicability, one contested predicate,
 remedy), where every fact has a source and the contested predicate is
-decided by someone. Examples live in `examples/RulesRus/`.
+decided by someone. Examples live in `examples/RulesRus/`;
+`eu261_integration.le` uses them all together on the facts of the CJEU's
+Wallentin-Hermann judgment.
 
 ### 17.1 Provenance trailers and judged templates
 Any scenario fact (and any knowledge-base fact) may carry **trailers**,

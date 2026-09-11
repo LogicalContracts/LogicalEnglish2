@@ -56,7 +56,10 @@ The three suites it wraps (also runnable directly):
   (single LE test: `SWIPL -g "use_module(le_kbs), runTestsFor('examples/moreExamples/citizenship.le', R), print_test_result(R), halt."`
   — tests are embedded in scenarios via `expects answers`; separate `.le.tests`
   files are no longer used. Non-English example trees live under
-  `examples/<lang>/` (e.g. `examples/pt/`) and are run by the same suite.)
+  `examples/<lang>/` (e.g. `examples/pt/`) and are run by the same suite, as are
+  the extra trees of `le_extra_examples_dir/2` in `le_kbs.pl` — currently
+  `examples/RulesRus/`, the programs of the regulatory-decision constructs,
+  docs/le_summary.md §17.)
 - **Editor E2E (Playwright):** `cd editor && npm run test:e2e` (add `-- --headed` to run visibly).
   Browsers are pinned to this project: `test:e2e` runs with `PLAYWRIGHT_BROWSERS_PATH=0`
   (browsers live in `editor/node_modules`, not the shared `~/Library/Caches/ms-playwright`),

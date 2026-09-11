@@ -1,0 +1,180 @@
+% Integration example: air-passenger compensation under EU Regulation 261/2004
+% (LE_extensions_proposal §5), exercising the constructs together:
+% provenance trailers and "scenario facts require provenance" (§17.1), judged
+% templates decided by precedent through an "otherwise" cascade and the
+% precedent library (§17.2, §17.8), a decision table for the remedy (§17.3),
+% the applicability / question / remedy sections (§17.4), a source-scoped
+% proof — extraordinary circumstances must be established by the CARRIER's
+% evidence (§17.5) — and a flip query (§17.7).
+%
+% The facts are those of the CJEU's Wallentin-Hermann judgment (C-549/07): a
+% Vienna-Brindisi flight cancelled because of a turbine defect found in a check
+% the day before; the Court held that technical problems which come to light
+% during maintenance are inherent in the normal activity of a carrier, and so
+% not extraordinary circumstances. In the new claim, Alitalia's own evidence
+% shows a maintenance problem: by analogy to Wallentin-Hermann it is inherent,
+% the carrier cannot establish extraordinary circumstances, and the passenger
+% is owed the band-a amount for an 800 km flight. A bird strike, by contrast,
+% is forced the other way by Peskova (C-315/15): with the carrier's evidence
+% that it was beyond its control, the carrier establishes extraordinary
+% circumstances and owes nothing.
+
+the target language is: prolog.
+scenario facts require provenance.
+
+the knowledge base eu261 includes these resources:
+    precedent.
+
+the templates are:
+    *a passenger* is entitled to compensation of *an amount* for *a flight*.
+    *a passenger* is booked on *a flight*; undefined.
+    *a flight* is within scope.
+    *a flight* departs from *an airport*; undefined.
+    *an airport* is in the EU.
+    *a flight* is cancelled; undefined.
+    *a passenger* is notified of the cancellation of *a flight* with *a number* days of notice; undefined.
+    the cancellation of *a flight* is caused by *an event*; undefined.
+    the cancellation of *a flight* is due to extraordinary circumstances.
+    *an event* is inherent in the normal exercise of the activity of *a carrier*; judged.
+    *an event* counts as inherent in the normal exercise of the activity of *a carrier*.
+    *an event* is beyond the actual control of *a carrier*; judged.
+    the carrier of *a flight* is *a carrier*; undefined.
+    the distance of *a flight* is *a number* km; undefined.
+    *an amount* is the compensation due for *a flight*.
+    the compensation for a distance of *a number* km is *an amount* under table article_7.
+    *an event* is a technical problem discovered during maintenance of the aircraft of *a carrier*; undefined.
+    *an event* is a hidden manufacturing defect revealed by the manufacturer or an authority; undefined.
+    *an event* is a collision with a bird; undefined.
+
+the table article_7 is, with first match:
+    band | distance km            | amount
+    a    | <= 1500                | 250
+    b    | > 1500 and <= 3500     | 400
+    c    | > 3500                 | 600
+
+the knowledge base eu261 includes:
+
+section applicability is:
+
+Vienna is in the EU.
+
+a flight is within scope
+    if the flight departs from an airport
+    and the airport is in the EU.
+
+section question is:
+
+a passenger is entitled to compensation of an amount for a flight
+    if the passenger is booked on the flight
+    and the flight is within scope
+    and the flight is cancelled
+    and it is not the case that
+        the passenger is notified of the cancellation of the flight with a number days of notice
+        and the number >= 14
+    and the carrier of the flight is a carrier
+    and it is not the case that
+        the cancellation of the flight is due to extraordinary circumstances
+        according to the carrier
+    and the amount is the compensation due for the flight.
+
+the cancellation of a flight is due to extraordinary circumstances
+    if the cancellation of the flight is caused by an event
+    and the carrier of the flight is a carrier
+    and it is not the case that
+        the event counts as inherent in the normal exercise of the activity of the carrier
+    and the event is beyond the actual control of the carrier.
+
+% The judged predicate, decided by precedent when a precedent forces it.
+an event counts as inherent in the normal exercise of the activity of a carrier
+    if the event is forced for inherent by a case
+    otherwise the event is inherent in the normal exercise of the activity of the carrier
+    and it is not the case that
+        the event is forced against inherent by a case.
+
+an event has factor maintenance problem
+    if the event is a technical problem discovered during maintenance of the aircraft of a carrier.
+an event has factor hidden manufacturing defect
+    if the event is a hidden manufacturing defect revealed by the manufacturer or an authority.
+an event has factor bird strike
+    if the event is a collision with a bird.
+
+maintenance problem favours inherent.
+hidden manufacturing defect disfavours inherent.
+bird strike disfavours inherent.
+
+wallentin hermann has factor maintenance problem, as stated in C-549/07 at paragraph 11.
+wallentin hermann decided for inherent,
+    according to the CJEU, as stated in C-549/07 at paragraph 25,
+    because "technical problems which come to light during maintenance cannot constitute, in themselves, extraordinary circumstances".
+peskova has factor bird strike, as stated in C-315/15 at paragraph 24.
+peskova decided against inherent,
+    according to the CJEU, as stated in C-315/15 at paragraph 26,
+    because "a collision with a bird is not intrinsically linked to the operating system of the aircraft".
+
+section remedy is:
+
+an amount is the compensation due for a flight
+    if the distance of the flight is a number km
+    and the compensation for a distance of the number km is the amount under table article_7.
+
+scenario new_claim is:
+    anna is booked on flight AZ123, as stated in the booking at page 1.
+    flight AZ123 departs from Vienna, as stated in the booking at page 1.
+    flight AZ123 is cancelled, as stated in the carrier letter at paragraph 2.
+    the carrier of flight AZ123 is Alitalia, according to Alitalia, as stated in the carrier letter at paragraph 1.
+    the cancellation of flight AZ123 is caused by the inspection defect,
+        according to Alitalia, as stated in the carrier letter at paragraph 3.
+    the inspection defect is a technical problem discovered during maintenance of the aircraft of Alitalia,
+        according to Alitalia, as stated in the maintenance log at entry 14.
+    the distance of flight AZ123 is 800 km, as stated in the booking at page 1.
+    claim expects answers ["anna is entitled to compensation of 250 for flight AZ123"].
+    stage expects answers [].
+    consistency expects answers [].
+    flip expects changes [["remove: anna is booked on flight AZ123"], ["remove: flight AZ123 departs from Vienna"], ["remove: flight AZ123 is cancelled"], ["remove: the carrier of flight AZ123 is Alitalia"], ["remove: the distance of flight AZ123 is 800 km"]].
+
+scenario notified is:
+    anna is booked on flight AZ123, as stated in the booking at page 1.
+    flight AZ123 departs from Vienna, as stated in the booking at page 1.
+    flight AZ123 is cancelled, as stated in the carrier letter at paragraph 2.
+    anna is notified of the cancellation of flight AZ123 with 20 days of notice,
+        according to Alitalia, as stated in the notice email.
+    the carrier of flight AZ123 is Alitalia, according to Alitalia, as stated in the carrier letter at paragraph 1.
+    the distance of flight AZ123 is 800 km, as stated in the booking at page 1.
+    claim expects answers [].
+    stage expects answers ["the query fails at question"].
+
+scenario bird_strike is:
+    anna is booked on flight AZ123, as stated in the booking at page 1.
+    flight AZ123 departs from Vienna, as stated in the booking at page 1.
+    flight AZ123 is cancelled, as stated in the carrier letter at paragraph 2.
+    the carrier of flight AZ123 is Alitalia, according to Alitalia, as stated in the carrier letter at paragraph 1.
+    the cancellation of flight AZ123 is caused by the bird collision,
+        according to Alitalia, as stated in the carrier letter at paragraph 3.
+    the bird collision is a collision with a bird, according to Alitalia, as stated in the incident report at page 1.
+    the bird collision is beyond the actual control of Alitalia,
+        according to Alitalia, as stated in the incident report at page 2,
+        because "the bird struck the engine on take-off".
+    the distance of flight AZ123 is 800 km, as stated in the booking at page 1.
+    claim expects answers [].
+
+scenario outside_the_eu is:
+    anna is booked on flight XY9, as stated in the booking at page 1.
+    flight XY9 departs from Istanbul, as stated in the booking at page 1.
+    flight XY9 is cancelled, as stated in the carrier letter at paragraph 2.
+    the carrier of flight XY9 is Skyline, according to Skyline.
+    the distance of flight XY9 is 1200 km, as stated in the booking at page 1.
+    claim expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+query claim is:
+    which passenger is entitled to compensation of which amount for which flight.
+
+query stage is:
+    the query fails at which section.
+
+query consistency is:
+    which issue has an inconsistent case base.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that anna is entitled to compensation of 250 for flight AZ123.
