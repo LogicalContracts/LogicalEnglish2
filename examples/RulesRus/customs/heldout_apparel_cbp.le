@@ -1,0 +1,167 @@
+% HELD-OUT apparel rulings of U.S. Customs and Border Protection, run through
+% the apparel model (apparel.le, which includes gri.le) after it was frozen.
+%
+% One scenario per ruling; each style is described by the facts the ruling
+% states, each fact citing the ruling ("as stated in ruling NY N362700"); the
+% office's judgments carry who made them and why. The ruling's own code is NOT
+% a fact: the expectation is the six-digit subheading the model derives, and
+% where it differs from the ruling's the comment says so (DISAGREES) and why.
+% Selection: for each modelled heading, the two most recent rulings not used
+% to write the rules whose codes (other than Chapter 98/99) all fall in
+% modelled headings (none left for 6105; N341977, which cites a non-existent
+% 6109.00.0012, skipped). Facts were transcribed from the text with its
+% classification sentences removed. See
+% README.md for the method and the results.
+
+the target language is: prolog.
+scenario facts require provenance.
+
+the knowledge base heldout apparel cbp includes these resources:
+    apparel.
+
+the knowledge base heldout apparel cbp includes:
+
+query subheading is:
+    the subheading of which good is which code.
+
+query heading is:
+    the heading of which good is which heading.
+
+query unplaced is:
+    which good is not placed by the model.
+
+% NY N355325 (November 2025): a women's upper body garment from South Korea.
+scenario ny_n355325 is:
+    style 251028A is an upper body garment, as stated in ruling NY N355325.
+    style 251028A is classified under the US tariff, as stated in ruling NY N355325.
+    the fabric construction of style 251028A is knitted, as stated in ruling NY N355325.
+    the cut of style 251028A indicates women, as stated in ruling NY N355325.
+    style 251028A is loose-fitting, as stated in ruling NY N355325.
+    style 251028A is sleeveless, as stated in ruling NY N355325.
+    style 251028A has shoulder straps, as stated in ruling NY N355325.
+    style 251028A has an opening starting at the neckline, as stated in ruling NY N355325.
+    style 251028A contains 57 percent of cotton, as stated in ruling NY N355325.
+    style 251028A contains 39 percent of modal, as stated in ruling NY N355325.
+    style 251028A contains 4 percent of spandex, as stated in ruling NY N355325.
+    subheading expects answers ["the subheading of style 251028A is 6106.10"].
+
+% NY N355025 (November 2025): a women's knit blouse from India.
+scenario ny_n355025 is:
+% the terry blouse is style 014613.
+    the terry blouse is an upper body garment, as stated in ruling NY N355025.
+    the terry blouse is classified under the US tariff, as stated in ruling NY N355025.
+    the fabric construction of the terry blouse is knitted, as stated in ruling NY N355025.
+    the cut of the terry blouse indicates women, as stated in ruling NY N355025.
+    the terry blouse is loose-fitting, as stated in ruling NY N355025.
+    the fabric of the terry blouse is terry, as stated in ruling NY N355025.
+    the terry blouse contains 100 percent of cotton, as stated in ruling NY N355025.
+    subheading expects answers ["the subheading of the terry blouse is 6106.10"].
+
+% NY N352158 (September 2025): a men's T-shirt from Haiti.
+scenario ny_n352158 is:
+    style PCTBD542025 is an upper body garment, as stated in ruling NY N352158.
+    style PCTBD542025 is classified under the US tariff, as stated in ruling NY N352158.
+    the fabric construction of style PCTBD542025 is knitted, as stated in ruling NY N352158.
+    the cut of style PCTBD542025 indicates men, as stated in ruling NY N352158.
+    the fabric of style PCTBD542025 is lightweight, as stated in ruling NY N352158.
+    style PCTBD542025 is of plain knit fabric, as stated in ruling NY N352158.
+    style PCTBD542025 contains 100 percent of cotton, as stated in ruling NY N352158.
+    subheading expects answers ["the subheading of style PCTBD542025 is 6109.10"].
+
+% NY N342008 (August 2024): a woman's reversible tank top from Taiwan.
+scenario ny_n342008 is:
+% the reversible tank top is style 018085.
+    the reversible tank top is an upper body garment, as stated in ruling NY N342008.
+    the reversible tank top is classified under the US tariff, as stated in ruling NY N342008.
+    the fabric construction of the reversible tank top is knitted, as stated in ruling NY N342008.
+    the cut of the reversible tank top indicates women, as stated in ruling NY N342008.
+    the reversible tank top is sleeveless, as stated in ruling NY N342008.
+    the reversible tank top has shoulder straps, as stated in ruling NY N342008.
+    the rear neckline of the reversible tank top falls below the nape of the neck, as stated in ruling NY N342008.
+    the reversible tank top contains 80 percent of nylon, as stated in ruling NY N342008.
+    the reversible tank top contains 20 percent of spandex, as stated in ruling NY N342008.
+    subheading expects answers ["the subheading of the reversible tank top is 6109.90"].
+
+% NY N348144 (January 2026): a women's knit sweater from Cambodia.
+scenario ny_n348144 is:
+    style 239752 is an upper body garment, as stated in ruling NY N348144.
+    style 239752 is classified under the US tariff, as stated in ruling NY N348144.
+    the fabric construction of style 239752 is knitted, as stated in ruling NY N348144.
+    the cut of style 239752 indicates women, as stated in ruling NY N348144.
+    style 239752 contains 47.7 percent of cotton, as stated in ruling NY N348144.
+    style 239752 contains 31.3 percent of polyester, as stated in ruling NY N348144.
+    style 239752 contains 13.7 percent of nylon, as stated in ruling NY N348144.
+    style 239752 contains 6.6 percent of elastane, as stated in ruling NY N348144.
+    style 239752 contains 0.7 percent of metalized yarn, as stated in ruling NY N348144.
+    all the yarn of style 239752 is metalized yarn,
+        according to the CBP laboratory, as stated in ruling NY N348144,
+        because "the garment is knitted from a single eight-ply yarn with all plies, two of them metallic, twisted together".
+    subheading expects answers ["the subheading of style 239752 is 6110.90"].
+
+% NY N348143 (January 2026): a women's knit sweater from Cambodia.
+scenario ny_n348143 is:
+    style 239375 is an upper body garment, as stated in ruling NY N348143.
+    style 239375 is classified under the US tariff, as stated in ruling NY N348143.
+    the fabric construction of style 239375 is knitted, as stated in ruling NY N348143.
+    the cut of style 239375 indicates women, as stated in ruling NY N348143.
+    style 239375 contains 73.3 percent of polyester, as stated in ruling NY N348143.
+    style 239375 contains 16.7 percent of wool, as stated in ruling NY N348143.
+    style 239375 contains 8.6 percent of metalized yarn, as stated in ruling NY N348143.
+    style 239375 contains 1.4 percent of elastane, as stated in ruling NY N348143.
+    all the yarn of style 239375 is metalized yarn,
+        according to the CBP laboratory, as stated in ruling NY N348143,
+        because "the garment is knitted from a single ten-ply yarn with all plies, three of them metallic, twisted together".
+    subheading expects answers ["the subheading of style 239375 is 6110.90"].
+
+% NY N355847 (November 2025): a men's shirt from Nicaragua.
+scenario ny_n355847 is:
+    style 334171 is an upper body garment, as stated in ruling NY N355847.
+    style 334171 is classified under the US tariff, as stated in ruling NY N355847.
+    the fabric construction of style 334171 is woven, as stated in ruling NY N355847.
+    the cut of style 334171 indicates men, as stated in ruling NY N355847.
+    style 334171 has a collar, as stated in ruling NY N355847.
+    style 334171 has an opening starting at the neckline, as stated in ruling NY N355847.
+    style 334171 contains 100 percent of cotton, as stated in ruling NY N355847.
+    subheading expects answers ["the subheading of style 334171 is 6205.20"].
+
+% NY N336309 (May 2024): a men's shirt from Guatemala.
+scenario ny_n336309 is:
+% DISAGREES: CBP gives 6205.20; the model gives 6205.30 — CBP classifies on the stated composition (98% cotton, 2% spandex) while its own laboratory, testing the fabric for the short-supply claim, reports 96% polyester and 4% spandex; the transcription takes the laboratory's finding.
+    style PE001 is an upper body garment, as stated in ruling NY N336309.
+    style PE001 is classified under the US tariff, as stated in ruling NY N336309.
+    the fabric construction of style PE001 is woven, as stated in ruling NY N336309.
+    the cut of style PE001 indicates men, as stated in ruling NY N336309.
+    style PE001 has a collar, as stated in ruling NY N336309.
+    style PE001 has an opening starting at the neckline, as stated in ruling NY N336309.
+    style PE001 closes left over right, as stated in ruling NY N336309.
+    style PE001 contains 96 percent of polyester,
+        according to the CBP laboratory, as stated in ruling NY N336309,
+        because "the laboratory found the fabric to be 96% polyester and 4% spandex, not the stated 98% cotton and 2% spandex".
+    style PE001 contains 4 percent of spandex,
+        according to the CBP laboratory, as stated in ruling NY N336309,
+        because "the laboratory found the fabric to be 96% polyester and 4% spandex, not the stated 98% cotton and 2% spandex".
+    subheading expects answers ["the subheading of style PE001 is 6205.30"].
+
+% NY N350798 (July 2025): a woman's scrub top from El Salvador.
+scenario ny_n350798 is:
+% DISAGREES: CBP gives 6206.40; the model gives no heading — a pullover woven top with a V-neckline, no opening and no fit recorded: neither a shirt nor a blouse of Note 4 to Chapter 62 (the blouse gap of the in-sample rulings).
+    style AFMT04CAS is an upper body garment, as stated in ruling NY N350798.
+    style AFMT04CAS is classified under the US tariff, as stated in ruling NY N350798.
+    the fabric construction of style AFMT04CAS is woven, as stated in ruling NY N350798.
+    the cut of style AFMT04CAS indicates women, as stated in ruling NY N350798.
+    style AFMT04CAS contains 90 percent of polyester, as stated in ruling NY N350798.
+    style AFMT04CAS contains 10 percent of spandex, as stated in ruling NY N350798.
+    subheading expects answers [].
+    unplaced expects answers ["style AFMT04CAS is not placed by the model"].
+
+% NY N343173 (October 2024): a woman's blouse from China.
+scenario ny_n343173 is:
+% the wrap blouse is style C-RAZY/A167200IKAP.
+    the wrap blouse is an upper body garment, as stated in ruling NY N343173.
+    the wrap blouse is classified under the US tariff, as stated in ruling NY N343173.
+    the fabric construction of the wrap blouse is woven, as stated in ruling NY N343173.
+    the cut of the wrap blouse indicates women, as stated in ruling NY N343173.
+    the wrap blouse has a collar, as stated in ruling NY N343173.
+    the wrap blouse has an opening starting at the neckline, as stated in ruling NY N343173.
+    the wrap blouse contains 100 percent of viscose, as stated in ruling NY N343173.
+    subheading expects answers ["the subheading of the wrap blouse is 6206.40"].

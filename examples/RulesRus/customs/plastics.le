@@ -1,0 +1,187 @@
+% Articles of plastics of Chapter 39: articles for the conveyance or packing
+% of goods (3923), tableware, kitchenware, other household and toilet articles
+% (3924), and other articles of plastics (3926). A library: it includes
+% gri.le, and the scenario programs plastics_cbp.le (US rulings) and
+% plastics_ebti.le (EU BTIs) include it.
+%
+% Text: HTSUS Revision 18 (2026), Chapter 39 notes 1, 2 and subheading note 1,
+% Chapter 59 note 2(a)(5), and the terms of headings 3923, 3924 and 3926
+% (https://hts.usitc.gov/); the subheadings are the six-digit HS ones.
+%
+% What decides between the three headings is the PRINCIPAL USE of the article
+% (HTSUS Additional U.S. Rule of Interpretation 1(a): the use of the class or
+% kind of goods to which it belongs). That is a judgment, recorded with who
+% made it and why ("; judged", outcome last). The material is read from what
+% the article is classified as (GRI 3(b), gri.le): a rake of plastic panels on
+% an aluminium pole is classified as its plastic panels when those give it its
+% essential character. Chapter 39 note 2 sends many articles of plastics
+% elsewhere — cases of 4202, parts of footwear of 6406, toys of 9503,
+% textile articles of Section XI; those headings are outside the model, and a
+% claim that the article belongs there is answered by the office (gri.le).
+
+the target language is: prolog.
+
+the templates are:
+    *a good* is a manufactured article; undefined.
+    *a thing* is made of plastics; undefined.
+    *a thing* is of plastics.
+    *a good* is printed with motifs; undefined.
+    the printing of *a good* is *a role*; judged.
+    *a thing* is of cellular plastics reinforced by a textile fabric; undefined.
+    *a good* is an article of plastics.
+    the principal use of *a good* is *a use*; judged.
+    *a use* is a household use.
+    *a good* is shaped as *a form*; undefined.
+    the packing form of *a good* is *a form*.
+    *a good* contains *a number* percent of *a polymer*; undefined.
+    *a polymer* is a polymer of *a monomer*.
+    *a monomer* is a monomer of heading *a number*.
+    the share of *a monomer* in *a good* is *a number*.
+    *a monomer* at *a number* percent outweighs *an other monomer* at *an other number* percent.
+    the predominant monomer of *a good* is *a monomer*.
+    the polymer class of *a good* is *a class*.
+    the subheading for *a form* of *a class* is *a code* under table packing.
+    the subheading in heading *a heading* for *a use* is *a code* under table uses.
+    the subheading of *a good* is *a code*.
+
+% GRI 6 for heading 3923: by the form of the article, and for sacks and bags
+% by the polymer (Chapter 39 subheading note 1: the monomer unit that
+% predominates by weight).
+the table packing is, with first match:
+    row | form                  | class          | code
+    p1  | box                   | any            | "3923.10"
+    p2  | sack                  | ethylene       | "3923.21"
+    p3  | sack                  | any            | "3923.29"
+    p4  | bottle                | any            | "3923.30"
+    p5  | spool                 | any            | "3923.40"
+    p6  | closure               | any            | "3923.50"
+    p7  | any                   | any            | "3923.90"
+
+% GRI 6 for headings 3924 and 3926: by the use.
+the table uses is, with first match:
+    row | heading | use                        | code
+    u1  | 3924    | table use or kitchen use   | "3924.10"
+    u2  | 3924    | any                        | "3924.90"
+    u3  | 3926    | office use or school use   | "3926.10"
+    u4  | 3926    | apparel                    | "3926.20"
+    u5  | 3926    | furniture fittings         | "3926.30"
+    u6  | 3926    | ornament                   | "3926.40"
+    u7  | 3926    | any                        | "3926.90"
+
+the knowledge base plastics includes these resources:
+    gri.
+
+the knowledge base plastics includes:
+
+a good is within the scope of the model
+    if the good is a manufactured article.
+
+% Chapter 39 note 1: "plastics" are the materials of headings 3901 to 3914.
+% Chapter 59 note 2(a)(5): plates or sheets of cellular plastics combined with
+% textile fabric present merely for reinforcing are of Chapter 39.
+a thing is of plastics
+    if the thing is made of plastics.
+
+a thing is of plastics
+    if the thing is of cellular plastics reinforced by a textile fabric.
+
+a good is an article of plastics
+    if the good is classified as consisting of a component
+    and the component is of plastics.
+
+% The headings (GRI 1).
+a good is described by heading 3923
+    if the good is an article of plastics
+    and the principal use of the good is packing of goods.
+
+a good is described by heading 3924
+    if the good is an article of plastics
+    and a use is a household use
+    and the principal use of the good is the use.
+
+% "Other articles of plastics": any article of plastics.
+a good is described by heading 3926
+    if the good is an article of plastics.
+
+% Section VII note 2: plastics printed with motifs, characters or pictorial
+% representations which are not merely subsidiary to the primary use of the
+% goods fall in Chapter 49. Whether the printing is merely subsidiary is the
+% office's judgment.
+a good is excluded from heading a heading
+    if the heading is in [3923, 3924, 3926]
+    and the good is printed with motifs
+    and the printing of the good is primary.
+
+table use is a household use.
+kitchen use is a household use.
+household use is a household use.
+toilet use is a household use.
+
+% GRI 3(a): 3926 is the residual heading of the chapter's articles.
+heading 3923 is more specific than heading 3926,
+    because "heading 3926 covers articles of plastics not specified in the earlier headings".
+heading 3924 is more specific than heading 3926,
+    because "heading 3926 covers articles of plastics not specified in the earlier headings".
+
+% GRI 6.
+the subheading of a good is a code
+    if the heading of the good is 3923
+    and the packing form of the good is a form
+    and the polymer class of the good is a class
+    and the subheading for the form of the class is the code under table packing.
+
+the subheading of a good is a code
+    if the heading of the good is a heading
+    and the heading is in [3924, 3926]
+    and the principal use of the good is a use
+    and the subheading in heading the heading for the use is the code under table uses.
+
+the packing form of a good is a form
+    if the good is shaped as the form.
+
+the packing form of a good is other
+    if it is not the case that
+        the good is shaped as a form.
+
+% Chapter 39 subheading note 1(b)(1): the monomer unit that predominates by
+% weight over every other single one; units of the same subheading count
+% together. Ties: the later heading (Chapter 39 note 4).
+polyethylene is a polymer of ethylene.
+polypropylene is a polymer of propylene.
+polyethylene terephthalate is a polymer of ethylene terephthalate.
+
+ethylene is a monomer of heading 3901.
+propylene is a monomer of heading 3902.
+ethylene terephthalate is a monomer of heading 3907.
+
+the share of a monomer in a good is a total
+    if the monomer is a monomer of heading a number
+    and the total is the sum of each percentage such that
+        the good contains the percentage percent of a polymer
+        and the polymer is a polymer of the monomer.
+
+the predominant monomer of a good is a monomer
+    if the share of the monomer in the good is a total
+    and the total > 0
+    and for all cases in which
+            the share of an other monomer in the good is an other total
+            and it is not the case that
+                the other monomer is equal to the monomer
+        it is the case that
+            the monomer at the total percent outweighs the other monomer at the other total percent.
+
+a monomer at a total percent outweighs an other monomer at an other total percent
+    if the total > the other total.
+
+a monomer at a total percent outweighs an other monomer at an other total percent
+    if the total = the other total
+    and the monomer is a monomer of heading a number
+    and the other monomer is a monomer of heading an other number
+    and the number > the other number.
+
+the polymer class of a good is ethylene
+    if the predominant monomer of the good is ethylene.
+
+the polymer class of a good is other polymers
+    if it is not the case that
+        the predominant monomer of the good is ethylene.
