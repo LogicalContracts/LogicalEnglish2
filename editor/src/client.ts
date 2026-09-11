@@ -4,6 +4,7 @@ import { buildShareUrl, decompressFromParam, fragmentParam } from './share-url';
 import qrcode from 'qrcode-generator';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
+import { isForeignOffset, openIncludedResource, describeResourceRange } from './resource-nav';
 
 declare var monaco: any;
 
@@ -271,7 +272,13 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             'semanticHighlighting.enabled': true
         });
 
-        (window as any).selectRange = (start: number, end: number) => {
+        (window as any).selectRange = (start: number, end: number, info?: any) => {
+            // A range in an included resource: open the resource, never read
+            // its offsets as this document's (resource-nav.ts).
+            if (isForeignOffset(start)) {
+                if (info && info.resource) openIncludedResource(info);
+                return;
+            }
             const model = editor.getModel();
             // A jump from an explanation node, the graph or the proof game:
             // where we were is worth remembering, so Go back returns there.
@@ -504,7 +511,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         // Rule head lines (1-based) for a predicate, in document order.
         function ruleHeadLines(ed: any, data: any): number[] {
             const model = ed.getModel();
-            const lines = (data.rules || []).map((r: any) => model.getPositionAt(r.start).lineNumber);
+            const lines = (data.rules || [])
+                .filter((r: any) => !isForeignOffset(r.start))
+                .map((r: any) => model.getPositionAt(r.start).lineNumber);
             return [...new Set<number>(lines)].sort((a, b) => a - b);
         }
 
@@ -595,9 +604,17 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 const model = ed.getModel();
                 // the first rule that defines it; failing that, its template —
                 // a predicate with no rules is defined by its declaration
-                const target = (data.rules && data.rules.length > 0)
-                    ? data.rules[0].start
-                    : (data.template ? data.template.start : null);
+                // Rules and templates of an included resource are opened there.
+                const local = (data.rules || []).filter((r: any) => !isForeignOffset(r.start));
+                const first = local.length > 0 ? local[0]
+                    : (data.template && !isForeignOffset(data.template.start)) ? data.template
+                    : (data.rules && data.rules.length > 0) ? data.rules[0]
+                    : data.template;
+                if (first && isForeignOffset(first.start)) {
+                    openIncludedResource(first);
+                    return;
+                }
+                const target = first ? first.start : null;
                 if (target === null) {
                     alert(t('No definition found for') + ` "${data.le}"`);
                     return;
@@ -669,6 +686,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             const rows: any[] = [];
             const seen = new Set<string>();
             for (const occ of (data.occurrences || [])) {
+                if (isForeignOffset(occ.start)) continue;   // in an included resource
                 const line = occurrenceLine(model, occ);
                 // Two literals of one rule can land on the same line (`... if the
                 // person is rich and the person is rich`); one row is enough.
@@ -1462,7 +1480,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     graphChannel.onmessage = (event) => {
         const { type, data } = event.data;
         if (type === 'select-range') {
-            (window as any).selectRange(data.start, data.end);
+            (window as any).selectRange(data.start, data.end, data);
         } else if (type === 'request-state') {
             sendStateToGraph();
         }
@@ -1672,16 +1690,25 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (!model) return;
 
         issueFixes.clear();
+        // An issue of an included resource is shown on the document's
+        // "includes these resources" section, saying where it really is.
+        const includeSection = (includedResources || []).find((r: any) => !isForeignOffset(r.start));
         const markers = issues.map((issue: any) => {
-            const startPos = model.getPositionAt(issue.start);
-            const endPos = model.getPositionAt(issue.end);
+            const foreign = isForeignOffset(issue.start);
+            const start = foreign ? (includeSection ? includeSection.start : 0) : issue.start;
+            const end = foreign ? (includeSection ? includeSection.end : 0) : issue.end;
+            const startPos = model.getPositionAt(start);
+            const endPos = model.getPositionAt(end);
+            const message = foreign
+                ? `${t('In the included resource')} ${describeResourceRange(issue)}: ${issue.message}`
+                : issue.message;
             const marker = {
                 severity: issue.severity === 'error' ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
                 startLineNumber: startPos.lineNumber,
                 startColumn: startPos.column,
                 endLineNumber: endPos.lineNumber,
                 endColumn: endPos.column,
-                message: issue.message,
+                message,
                 source: 'LE Verifier'
             };
             if (issue.fix) {
@@ -2210,7 +2237,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             div.dataset.frameId = String(f.id);
             if (f.id === 1) div.classList.add('executing');   // deepest = current goal
 
-            const pos = f.offset !== undefined ? model.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
+            const pos = f.offset !== undefined && !isForeignOffset(f.offset)
+                ? model.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
 
             const nameSpan = document.createElement('span');
             nameSpan.className = 'stack-frame-name';
@@ -2230,7 +2258,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // Highlight a frame's exact source span in the editor and reveal it.
     const highlightFrameRange = (f: any) => {
         const model = editor.getModel();
-        if (!f || f.offset === undefined) {
+        if (!f || f.offset === undefined || isForeignOffset(f.offset)) {
             debugDecorations = editor.deltaDecorations(debugDecorations, []);
             return;
         }
@@ -2600,7 +2628,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         if (event.data && event.data.type === 'le-highlight' && event.data.loc) {
             const loc = event.data.loc;
             const model = editor.getModel();
-            if (model && loc.start !== undefined && loc.end !== undefined) {
+            if (model && loc.start !== undefined && loc.end !== undefined && !isForeignOffset(loc.start)) {
                 const startPos = model.getPositionAt(loc.start);
                 const endPos = model.getPositionAt(loc.end);
                 editor.setSelection(new monaco.Range(
