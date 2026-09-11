@@ -1715,6 +1715,22 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         aggregate_render_words(average, OpWords),
         ( le_i18n:kw_main_words(such_that, SuchThat) -> true ; SuchThat = [such, that] ),
         flatten([ResultName, OpWords, VarName, SuchThat], WordsAndVars)
+    ;   Head = le_scoped(Goal, Scope) ->
+        % "<goal> according to <scope>" (a source-scoped proof).
+        ( le_i18n:kw_main_words(according_to, AccWords) -> true ; AccWords = [according, to] ),
+        maybe_transform_value(KBmodule, Scope, ScopeI),
+        ( item_to_instance(KBmodule, Goal, GoalLE) -> true ; GoalLE = [Goal] ),
+        flatten([GoalLE, AccWords, ScopeI], WordsAndVars)
+    ;   Head = le_inadmissible(Fact, Source, Scope) ->
+        % Evidence a scoped proof could not use (reasoner:admissible_clause/5).
+        ( item_to_instance(KBmodule, Fact, FactLE) -> canonical_string(FactLE, FactS) ; term_string(Fact, FactS) ),
+        maybe_transform_value(KBmodule, Scope, ScopeI),
+        (   Source == none
+        ->  le_i18n:le_msg(unattributed_evidence, [fact-FactS, scope-ScopeI], Msg)
+        ;   maybe_transform_value(KBmodule, Source, SourceI),
+            le_i18n:le_msg(inadmissible_evidence, [fact-FactS, source-SourceI, scope-ScopeI], Msg)
+        ),
+        WordsAndVars = [Msg]
     ;   Head = le_table_row(Table, RowId) ->
         % How an explanation cites the row of a decision table that answered.
         table_row_words(Table, RowId, WordsAndVars)

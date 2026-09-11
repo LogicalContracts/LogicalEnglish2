@@ -34,6 +34,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [17.2 `otherwise` cascades](#172-otherwise-cascades)
     - [17.3 Decision tables](#173-decision-tables)
     - [17.4 The decision skeleton: applicability, question, remedy](#174-the-decision-skeleton-applicability-question-remedy)
+    - [17.5 Source-scoped proof: `according to` in a rule](#175-source-scoped-proof-according-to-in-a-rule)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -178,6 +179,7 @@ from the query's goal with its bindings, e.g. `"bob is happy and bob is healthy"
 - **And:** `and` (or new line with same indentation)
 - **Or:** `or`, `either`, `any of`, `all of`
 - **Otherwise:** a line opening with `otherwise` starts a new alternative, applied only when all the earlier ones fail (§17.2).
+- **According to:** `<condition> according to <source>` proves the condition from that source's evidence only (§17.5).
 - **Negation:** `it is not the case that` or `not the case that`
   - `it is not the case that *a person* is a citizen`
   - `not the case that *a person* is a citizen`
@@ -686,3 +688,38 @@ query:
   Programs that do not use the reserved names are unaffected.
 
 See `examples/RulesRus/sections_benefit.le`.
+
+### 17.5 Source-scoped proof: `according to` in a rule
+In a rule (or query) body, `according to <scope>` restricts the proof of the
+condition(s) before it to the evidence of one source — the burden of proof:
+```le
+a tenant owes the late penalty
+    if the rent of the tenant is overdue
+    and the notice was delivered to the tenant
+        according to the landlord.
+
+the courier is admissible under the landlord.
+```
+`G according to S` is true iff G is provable from the program's own rules
+and facts plus only those **scenario facts** whose provenance source (§17.1:
+their `according to`, else their `as stated in` document) is **admissible
+under S**. A scenario fact with no provenance is never admissible inside a
+scoped proof; knowledge-base facts always are (they are rules, not evidence).
+- **Layout.** On its own line nested under a condition (scopes that
+  condition), on a line after several conditions at the same level (scopes
+  all of them — e.g. the goal of an `it is not the case that` block), or at
+  the end of the condition's own line.
+- **Admissibility** is the built-in template `*a source* is admissible under *a scope*`,
+  defaulting to identity; programs add facts or rules
+  (`the maintenance log is admissible under the carrier.`).
+- **The scope** is an ordinary value: a constant (`the landlord`), a
+  variable the rule introduced earlier, or a new one (`according to a party`
+  binds the party whose evidence establishes the condition).
+- **Presumptions** need no syntax: `G if it is not the case that <not-G>
+  according to <the other side>`.
+- **Explanations** show `the notice was delivered to ann according to the
+  landlord`; a failed scoped proof lists the evidence it could not use:
+  `the notice was delivered to ann, according to ann, is not admissible under the landlord`.
+- Not available on the s(CASP) engine.
+
+See `examples/RulesRus/scoped_notice.le`.

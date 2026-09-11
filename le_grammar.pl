@@ -3303,11 +3303,56 @@ fold_nodes(Acc, [node(N, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic)
     % The guard's explanation node points at the "otherwise" line.
     ( tokens_range(Tokens, S, E) -> NegGuard = le_at(not(G), S, E) ; NegGuard = not(G) ),
     Logic = or(Acc, and(NegGuard, AltLogic)).
+% "according to <scope>" (docs/le_summary.md §17.5), on a line of its own
+% under a condition or after it: the conditions folded so far are to be proved
+% from the evidence of that source only.
+fold_nodes(Acc, [node(_, Tokens, [])|Rest], Templates, VMIn, VMOut, Logic) :-
+    scope_line(Tokens, ScopeTokens), !,
+    scope_value(ScopeTokens, Templates, VMIn, VM1, Scope),
+    tokens_range(Tokens, S, E),
+    fold_nodes(le_at(le_scoped(Acc, Scope), S, E), Rest, Templates, VM1, VMOut, Logic).
 fold_nodes(Acc, [node(_, Tokens, Children)|Rest], Templates, VMIn, VMOut, Logic) :-
     strip_op(Tokens, Op, RestTokens),
     parse_node(RestTokens, Children, Templates, VMIn, VM1, ChildLogic),
     NewAcc =.. [Op, Acc, ChildLogic],
     fold_nodes(NewAcc, Rest, Templates, VM1, VMOut, Logic).
+
+% scope_line(+Tokens, -ScopeTokens): the line is "according to <scope>".
+scope_line(Tokens, ScopeTokens) :-
+    le_i18n:kw_synonym_words(according_to, Words),
+    match_word_prefix(Words, Tokens, ScopeTokens0), !,
+    drop_trailing_comments(ScopeTokens0, ScopeTokens),
+    ScopeTokens \== [].
+
+% The scope is an ordinary value: a constant ("the landlord", "Alitalia"), or a
+% variable the rule has already introduced ("the carrier"), or a new one.
+scope_value(Tokens, Templates, VMIn, VMOut, Scope) :-
+    exclude(is_indent_or_comment, Tokens, Clean),
+    extract_value_from_parts(Clean, Scope, VMIn, VMOut, Templates, true, true, 0).
+
+%!  inline_scope(+Tokens, +Templates, -GoalTokens, -ScopeTokens) is semidet.
+%
+%   "the notice was delivered to the tenant according to the landlord" on one
+%   line: split at the LAST "according to" when what precedes is a condition
+%   of its own (not merely through the generic "is" fallback) and no template
+%   of the program has "according to" among its own words — otherwise the
+%   words belong to the sentence.
+inline_scope(Tokens, Templates, GoalTokens, ScopeTokens) :-
+    le_i18n:kw_synonym_words(according_to, Words),
+    append(GoalTokens, Tail, Tokens),
+    GoalTokens \== [],
+    match_word_prefix(Words, Tail, ScopeTokens),
+    ScopeTokens \== [],
+    \+ ( append(_, Tail2, ScopeTokens), match_word_prefix(Words, Tail2, _) ),
+    \+ template_with_words(Templates, Words),
+    \+ \+ ( parse_literal(GoalTokens, Templates, [], _, Lit, _),
+            \+ functor(Lit, le_is, 2) ), !.
+
+template_with_words(Templates, Words) :-
+    member(D, Templates),
+    arg(3, D, WV),
+    include(atom, WV, Ws),
+    append(_, T, Ws), append(Words, _, T), !.
 
 % otherwise_line(+Tokens, -Rest): the line opens with an "otherwise" keyword.
 otherwise_line(Tokens, Rest) :-
@@ -3412,6 +3457,11 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             Logic0 =.. [Op, [each|ElementList], Goal, ResultList],
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
+        ; Children == [], inline_scope(Tokens, Templates, GoalTokens, ScopeTokens) ->
+            parse_node(GoalTokens, [], Templates, VMIn, VM1, GoalLogic),
+            scope_value(ScopeTokens, Templates, VM1, VMOut, Scope),
+            tokens_range(Tokens, Start, End),
+            Logic = le_at(le_scoped(GoalLogic, Scope), Start, End)
         ; swallowed_connective_literal(Tokens, Templates, VMIn),
           parse_inline_connective(Tokens, Templates, VMIn, VM1, Logic0) ->
             % "the customer is a member and the rate is 20": read whole, the
