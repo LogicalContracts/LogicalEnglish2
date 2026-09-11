@@ -533,10 +533,12 @@ table_line_tokens([]) --> [].
 % ',' / ':' / "loaded from". Precise enough that a sentence which merely begins
 % with "the table" does not end the section it is in.
 table_header_ahead(S, S) :-
-    phrase(( kw(table_open), section_name_tokens(NameTokens), { NameTokens \== [] },
-             kw(marker_is),
-             ( kw(table_loaded_from) ; t(punctuation(',', _)) ; t(punctuation(':', _)) ) ),
-           S, _).
+    table_header_(S, _).
+
+table_header_ -->
+    kw(table_open), section_name_tokens(NameTokens), { NameTokens \== [] },
+    kw(marker_is),
+    ( kw(table_loaded_from) ; t(punctuation(',', _)) ; t(punctuation(':', _)) ), !.
 
 % le_allowed_target(?Target) enumerates the execution backends a program may
 % declare via the target-language opener line (kept out of the section/3 DCG
@@ -622,12 +624,15 @@ consume_until_next_section([]) --> [].
 % record_line_starts/1 when the document is tokenized) rather than on a
 % preceding indent token, because by the time an item parser looks ahead for
 % the next section it has usually consumed the indent already.
-next_section_start --> any_indent, at_line_start, kw(guard).
-% "scenario facts require provenance." is a top-level statement too, and in
-% languages whose phrase does not open with a guard word it must still end the
-% section before it.
-next_section_start --> any_indent, at_line_start, kw(provenance_required).
-next_section_start --> any_indent, at_line_start, table_header_ahead.
+next_section_start --> any_indent, at_line_start, section_opener.
+% (A line-start test once, then the openers: this runs for every token of a
+% multi-line sentence.) "scenario facts require provenance." is a top-level
+% statement too, and in languages whose phrase does not open with a guard word
+% it must still end the section before it; a table header is recognised by
+% its whole shape (table_header_ahead//0).
+section_opener --> kw(guard).
+section_opener --> kw(provenance_required).
+section_opener --> table_header_ahead.
 
 % Non-consuming: the next token begins a line. With no table recorded — a
 % fragment parsed directly through kb_items//1, say — every position qualifies,
@@ -933,6 +938,7 @@ kb_item(unknown_fact(Head, Start, End)) -->
 % the split is settled against the templates (provenance_split/4): a template
 % may itself contain trailer words.
 kb_item(fact_prov(Core, Trailers, Full, Start, End)) -->
+    sentence_has_trailer,
     template_instance(Head0),
     { Head0 = [First|_], get_token_start(First, Start),
       split_inline_provenance(Head0, Core, Inline) },
@@ -998,6 +1004,17 @@ owned_trailer_parse(Tokens, Templates) :-
             member(Key, [according_to, as_stated_in, because]),
             le_i18n:kw_synonym_words(Key, KW),
             contig_subseq(KW, Words) ).
+
+% Before the sentence's end, a comma is followed by a trailer keyword
+% (non-consuming): the cheap test that spares every other fact a second parse.
+sentence_has_trailer(S, S) :-
+    has_trailer_(S).
+
+has_trailer_([T|Ts]) :-
+    (   T = punctuation('.', _) -> fail
+    ;   T = punctuation(',', _), starts_with_trailer_keyword(Ts) -> true
+    ;   has_trailer_(Ts)
+    ).
 
 % The upcoming tokens open a provenance trailer (non-consuming).
 trailer_ahead(S, S) :-
@@ -3652,15 +3669,13 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             scope_value(ScopeTokens, Templates, VM1, VMOut, Scope),
             tokens_range(Tokens, Start, End),
             Logic = le_at(le_scoped(GoalLogic, Scope), Start, End)
-        ; swallowed_connective_literal(Tokens, Templates, VMIn),
-          parse_inline_connective(Tokens, Templates, VMIn, VM1, Logic0) ->
-            % "the customer is a member and the rate is 20": read whole, the
-            % line only parses through the generic is-a / is fallback, whose
-            % constant swallows the connective ('member and the rate is 20').
-            % When its conjuncts parse on their own, the connective is real.
-            tokens_range(Tokens, Start, End),
-            fold_nodes(le_at(Logic0, Start, End), Children, Templates, VM1, VMOut, Logic)
-        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, LitInstance) ->
+        ; parse_literal(Tokens, Templates, VMIn, VM1, Literal, LitInstance),
+          % "the customer is a member and the rate is 20": read whole, the line
+          % may parse only through the generic is-a / is fallback, whose
+          % constant swallows the connective ('member and the rate is 20').
+          % When its conjuncts parse on their own, the connective is real: the
+          % inline-connective branches below take the line.
+          \+ swallowed_connective(Literal, Tokens, Templates, VMIn) ->
             collect_literal_extra_goals(VM1, VMIn, LiteralExtraGoals),
             % A global ("defines global") abbreviation contributes a goal that
             % BINDS the global's variable, so it must run immediately BEFORE the
@@ -3693,6 +3708,11 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
             % e.g. "p if q and r." — split into conjuncts/disjuncts.
             tokens_range(Tokens, Start, End),
             Logic = le_at(Logic0, Start, End)
+        ; Children \== [], parse_inline_connective(Tokens, Templates, VMIn, VM1, Logic0) ->
+            % ... the same with lines nested under it (an otherwise cascade
+            % whose first alternative is on the head's line, say).
+            tokens_range(Tokens, Start, End),
+            fold_nodes(le_at(Logic0, Start, End), Children, Templates, VM1, VMOut, Logic)
         ; match_is_a(Tokens, Type, SuperType, VMIn, VM1, true) ->  
             Literal = is_a(Type, SuperType),
             fold_nodes(Literal, Children, Templates, VM1, VMOut, Logic0),
@@ -3706,19 +3726,19 @@ parse_node(Tokens, Children, Templates, VMIn, VMOut, Logic) :-
     ( le_kbs:do_log -> print_message(informational,'  Node succeeded: ~w~n' - [Logic]); true).
 
 
-%!  swallowed_connective_literal(+Tokens, +Templates, +VMIn) is semidet.
+%!  swallowed_connective(+Literal, +Tokens, +Templates, +VMIn) is semidet.
 %
-%   The line parses as a single literal only through the generic "X is a Y" or
-%   "X is Y" fallback, with a constant Y that contains an and/or word — the
-%   tell-tale of a connective swallowed into a constant (the same sign the
-%   suspicious_is_a / suspicious_is warnings look for).
-swallowed_connective_literal(Tokens, Templates, VMIn) :-
-    \+ \+ ( parse_literal(Tokens, Templates, VMIn, _, Lit, _),
-            ( Lit = is_a(_, T) ; Lit = le_is(_, T) ),
-            ( atom(T) ; string(T) ),
-            atomic_list_concat(Ws, ' ', T),
-            member(W, Ws),
-            ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) ) ).
+%   Literal came from the generic "X is a Y" or "X is Y" fallback with a
+%   constant Y containing an and/or word — the tell-tale of a connective
+%   swallowed into a constant (the same sign suspicious_is_a / suspicious_is
+%   warn about) — and the line's conjuncts parse on their own.
+swallowed_connective(Literal, Tokens, Templates, VMIn) :-
+    ( Literal = is_a(_, T) ; Literal = le_is(_, T) ),
+    ( atom(T) ; string(T) ),
+    atomic_list_concat(Ws, ' ', T),
+    member(W, Ws),
+    ( le_i18n:class_member(and, W) ; le_i18n:class_member(or, W) ), !,
+    \+ \+ parse_inline_connective(Tokens, Templates, VMIn, _, _).
 
 % is_aggregate(+Tokens, -Op, -ElementTokens, -ResultTokens): matches
 % "<result> is the <op> of each <element> such that" (with each phrase piece —
