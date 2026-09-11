@@ -26,6 +26,10 @@
 :- module(le_provenance, [
     record_fact_provenance/5,     % +M, +CompiledItem, +TrailerTokens, +Start, +End
     record_rule_provenance/5,     % +M, +RuleID, +Tokens, +Start, +End
+    with_default_provenance/2,    % +Default, :Goal
+    default_provenance/1,         % -Default
+    scenario_default_provenance/6,
+    record_default_provenance/5,
     rule_provenance/3,            % +KB, +RuleID, -Prov
     provenance_dict/4,            % +SM, +KB, +Prov, -Dict
     quote_in_text/2,              % +Quote, +Text
@@ -60,11 +64,59 @@
 record_fact_provenance(M, Item, Trailers, Start, End) :-
     (   Item = clause(Head, _, _, _, _), compound(Head),
         \+ functor(Head, unknown_template, _)
-    ->  (   parse_provenance_trailers(Trailers, Prov)
-        ->  store_provenance(M, Start, End, Head, Prov)
+    ->  (   parse_provenance_trailers(Trailers, Prov0)
+        ->  with_default(Prov0, Prov),
+            store_provenance(M, Start, End, Head, Prov)
         ;   malformed_provenance(M, Start, End)
         )
     ;   true
+    ).
+
+% A scenario's default provenance ("scenario s is, as stated in <document>:")
+% while its facts are compiled: a fact with no trailers takes it; a fact whose
+% trailers name no document ("confer \"...\"", "according to X") takes its
+% document; a fact that names its own document keeps its own provenance.
+:- thread_local current_default_provenance/1.
+
+%!  with_default_provenance(+Default, :Goal) is semidet.
+:- meta_predicate with_default_provenance(+, 0).
+with_default_provenance(none, Goal) :- !, call(Goal).
+with_default_provenance(Default, Goal) :-
+    setup_call_cleanup(asserta(current_default_provenance(Default), Ref),
+                       Goal,
+                       erase(Ref)).
+
+default_provenance(Default) :-
+    current_default_provenance(Default), !.
+
+%!  scenario_default_provenance(+M, +Name, +Tokens, +Start, +End, -Default) is det.
+scenario_default_provenance(M, Name, Tokens0, Start, End, Default) :-
+    exclude(le_grammar:is_indent_or_comment, Tokens0, Tokens),
+    (   parse_provenance_trailers(Tokens, Default)
+    ->  (   nonvar(M), M \== (-)
+        ->  assertz(M:le_scenario_provenance(Name, Default))
+        ;   true
+        )
+    ;   malformed_provenance(M, Start, End),
+        Default = none
+    ).
+
+%!  record_default_provenance(+M, +Item, +Default, +Start, +End) is det.
+record_default_provenance(M, Item, Default, Start, End) :-
+    (   Item = clause(Head, _, _, _, _), compound(Head),
+        \+ functor(Head, unknown_template, _)
+    ->  store_provenance(M, Start, End, Head, Default)
+    ;   true
+    ).
+
+% A fact's own provenance, completed by the default in force.
+with_default(Prov0, Prov) :-
+    (   default_provenance(prov(DS, DD, DL, _)),
+        Prov0 = prov(S0, none, L0, R0)
+    ->  ( S0 == none -> S = DS ; S = S0 ),
+        ( L0 == none -> L = DL ; L = L0 ),
+        Prov = prov(S, DD, L, R0)
+    ;   Prov = Prov0
     ).
 
 store_provenance(_M, _Start, _End, Head, Prov) :-
@@ -94,22 +146,46 @@ malformed_provenance(M, Start, End) :-
 %   document, with a malformed_provenance warning when trailers do not parse.
 record_rule_provenance(M, ID, Tokens0, Start, End) :-
     exclude(le_grammar:is_indent_or_comment, Tokens0, Tokens),
-    (   Tokens = [Tok], token_string(Tok, _)
-    ->  document_parts(Tokens, Const, Text),
-        Prov = prov(none, doc(Const, Text), none, none)
-    ;   le_grammar:starts_with_trailer_keyword(Tokens),
+    (   le_grammar:starts_with_trailer_keyword(Tokens),
         parse_provenance_trailers(Tokens, Prov0)
-    ->  Prov = Prov0
-    ;   Tokens \== [],
-        \+ le_grammar:starts_with_trailer_keyword(Tokens)
-    ->  document_parts(Tokens, Const, Text),
-        Prov = prov(none, doc(Const, Text), none, none)
+    ->  Prov = Prov0                        % the trailers of a fact
+    ;   light_provenance(Tokens, Prov0)
+    ->  Prov = Prov0                        % <document> [at <locator>] [, confer "..."]
     ;   malformed_provenance(M, Start, End),
         Prov = none
     ),
     (   Prov \== none, nonvar(M), M \== (-)
     ->  assertz(M:le_rule_provenance(ID, Prov))
     ;   true
+    ).
+
+% The light form of a rule's (or table's) provenance: a document — a name, or
+% a quoted string such as a URL — optionally "at <locator>", optionally
+% followed by (", ") confer "<passage>" and other trailers.
+light_provenance(Tokens, Prov) :-
+    Tokens \== [],
+    (   append(DocPart, [Sep|Rest], Tokens),
+        (   le_grammar:comma_part(Sep), le_grammar:starts_with_trailer_keyword(Rest)
+        ->  TrailerToks = Rest
+        ;   le_grammar:starts_with_trailer_keyword([Sep|Rest])
+        ->  TrailerToks = [Sep|Rest]
+        )
+    ->  true
+    ;   DocPart = Tokens, TrailerToks = []
+    ),
+    (   DocPart == []
+    ->  D = none, L0 = none
+    ;   split_locator(DocPart, DocToks, LocToks),
+        document_parts(DocToks, Const, Text),
+        D = doc(Const, Text),
+        ( LocToks == [] -> L0 = none ; locator_text(LocToks, L0) )
+    ),
+    (   TrailerToks == []
+    ->  Prov = prov(none, D, L0, none)
+    ;   parse_provenance_trailers(TrailerToks, prov(S, D1, L1, R)),
+        ( D1 == none -> D2 = D ; D2 = D1 ),
+        ( L1 == none -> L = L0 ; L = L1 ),
+        Prov = prov(S, D2, L, R)
     ).
 
 %!  rule_provenance(+KB, +ID, -Prov) is semidet.
@@ -266,6 +342,11 @@ apply_trailer(Group, prov(S0, D0, L0, R0), prov(S, D, L, R)) :-
         D = doc(DocConst, DocText),
         ( LocToks == [] -> L = L0 ; locator_text(LocToks, L) ),
         S = S0, R = R0
+    ;   trailer_body(confer, Group, Rest)
+    ->  % confer "<passage>": the passage of the document (quoted locator)
+        L0 == none, Rest \== [],
+        locator_text(Rest, L),
+        S = S0, D = D0, R = R0
     ;   trailer_body(because, Group, Rest)
     ->  R0 == none, Rest \== [],
         (   Rest = [StrTok], token_string(StrTok, Str) -> R = Str
@@ -408,11 +489,13 @@ provenance_suffix(prov(S, D, L, R), Suffix) :-
     findall(Part,
             (   S \== none, main_phrase(according_to, KW), format(string(Part), "~w ~w", [KW, S])
             ;   D = doc(_, DocText), main_phrase(as_stated_in, KW),
-                (   L \== none
+                (   L \== none, \+ quoted_text(L, _)
                 ->  main_phrase(at_locator, AtW),
                     format(string(Part), "~w ~w ~w ~w", [KW, DocText, AtW, L])
                 ;   format(string(Part), "~w ~w", [KW, DocText])
                 )
+            ;   L \== none, quoted_text(L, _), main_phrase(confer, KW),
+                format(string(Part), "~w ~w", [KW, L])
             ;   R \== none, main_phrase(because, KW), format(string(Part), "~w \"~w\"", [KW, R])
             ),
             Parts),

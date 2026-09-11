@@ -57,6 +57,9 @@ export class ScenarioForm {
     readonly templates: string[];        // all templates (for recognising facts)
     readonly addableTemplates: string[]; // those offered in the Add menu
     testLines: string[] = [];            // tests from the loaded scenario, kept as comments
+    // the loaded scenario's default provenance ("as stated in <document>"),
+    // written back into its header
+    provenance = '';
     private rows: Row[] = [];
     private opts: ScenarioFormOptions;
 
@@ -345,7 +348,7 @@ export class ScenarioForm {
     // A full "scenario <name> is:" block (header in the program's own
     // language); tests are appended commented-out.
     blockText(name: string): string {
-        const lines = [blockHeader(this.opts.source, 'scenario', name)];
+        const lines = [blockHeader(this.opts.source, 'scenario', name, this.provenance)];
         for (const t of this.factLines()) lines.push(`    ${t}.`);
         if (this.testLines.length) {
             lines.push(`    % tests (review and uncomment to re-enable):`);

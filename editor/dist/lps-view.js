@@ -944,6 +944,11 @@ var keywords = {
         "provenance"
       ]
     ],
+    "confer": [
+      [
+        "confer"
+      ]
+    ],
     "otherwise": [
       [
         "otherwise"
@@ -2274,6 +2279,14 @@ var keywords = {
         "proveni\xEAncia"
       ]
     ],
+    "confer": [
+      [
+        "confira"
+      ],
+      [
+        "confer"
+      ]
+    ],
     "otherwise": [
       [
         "caso",
@@ -3599,6 +3612,14 @@ var keywords = {
         "procedencia"
       ]
     ],
+    "confer": [
+      [
+        "confer"
+      ],
+      [
+        "v\xE9ase"
+      ]
+    ],
     "otherwise": [
       [
         "de",
@@ -4888,6 +4909,14 @@ var keywords = {
       [
         "avec",
         "provenance"
+      ]
+    ],
+    "confer": [
+      [
+        "confer"
+      ],
+      [
+        "voir"
       ]
     ],
     "otherwise": [
@@ -6260,6 +6289,14 @@ var keywords = {
       [
         "con",
         "provenienza"
+      ]
+    ],
+    "confer": [
+      [
+        "confronta"
+      ],
+      [
+        "confer"
       ]
     ],
     "otherwise": [

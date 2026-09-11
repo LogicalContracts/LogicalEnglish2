@@ -1,12 +1,13 @@
 % HELD-OUT plastics rulings of U.S. Customs and Border Protection, run through
 % the plastics model (plastics.le, which includes gri.le) after it was frozen.
 %
-% One scenario per ruling; each article is described by the facts the ruling
-% states, citing it; the office's judgments — the principal use, the essential
-% character of a composite good or set, the answer to a claim that the article
-% belongs to a heading outside the model — carry who made them and why. The
-% ruling's code is NOT a fact: the expectation is the six-digit subheading the
-% model derives from them.
+% One scenario per ruling, which the scenario names ("scenario n is, as
+% stated in ruling NY ...:"); each article is described by the facts the
+% ruling states, each pointing at its passage ("confer "..."");
+% the office's judgments — the principal use, the essential character of a
+% composite good or set, the answer to a claim that the article belongs to a
+% heading outside the model — say who made them. The ruling's code is NOT
+% a fact: the expectation is the six-digit subheading the model derives.
 % Selection: the two (for 3926 three) most recent rulings not used to write
 % the rules whose codes (other than Chapter 98/99) all fall in 3923, 3924 or
 % 3926 (none left for 3923). Facts transcribed with the classification
@@ -43,63 +44,57 @@ query unplaced is:
     which good is not placed by the model.
 
 % NY N362285 (July 2026): a shower vinyl curtain.
-scenario ny_n362285 is:
+scenario ny_n362285 is, as stated in ruling NY N362285:
     the shower vinyl curtain is a manufactured article,
-        as stated in ruling NY N362285 at "The item under consideration is identified as a shower vinyl curtain".
+        confer "The item under consideration is identified as a shower vinyl curtain".
     the shower vinyl curtain is made of plastics,
-        as stated in ruling NY N362285 at "you stated that it is made of polyvinyl chloride (PVC) plastic sheet material".
+        confer "you stated that it is made of polyvinyl chloride (PVC) plastic sheet material".
     the shower vinyl curtain contains 100 percent of polyvinyl chloride,
-        as stated in ruling NY N362285 at "you stated that it is made of polyvinyl chloride (PVC) plastic sheet material".
+        confer "you stated that it is made of polyvinyl chloride (PVC) plastic sheet material".
     the principal use of the shower vinyl curtain is household use,
-        according to CBP, as stated in ruling NY N362285 at "The item under consideration is identified as a shower vinyl curtain",
-        because "a 72 by 72 inch shower curtain of PVC sheet".
+        according to CBP, confer "The item under consideration is identified as a shower vinyl curtain".
     subheading expects answers ["the subheading of the shower vinyl curtain is 3924.90"].
 
 % NY N358418 (February 2026): a plastic bowl from China.
-scenario ny_n358418 is:
+scenario ny_n358418 is, as stated in ruling NY N358418:
     the ghost ramekin is a manufactured article,
-        as stated in ruling NY N358418 at "A ramekin is an individual baking dish used in the oven".
+        confer "A ramekin is an individual baking dish used in the oven".
     the ghost ramekin is made of plastics,
-        as stated in ruling NY N358418 at "The bowl is made from 50% melamine and 50% urea plastic materials".
+        confer "The bowl is made from 50% melamine and 50% urea plastic materials".
     the principal use of the ghost ramekin is table use,
-        according to CBP, as stated in ruling NY N358418 at "You have indicated that the bowl is food-safe",
-        because "a food-safe plastic bowl, not heatproof, so not a ramekin for the oven".
+        according to CBP, confer "You have indicated that the bowl is food-safe".
     the ghost ramekin is claimed to belong to festive articles of heading 9505,
-        as stated in ruling NY N358418 at "The item will be marketed and sold during the Halloween season".
+        confer "The item will be marketed and sold during the Halloween season".
     the claim that the ghost ramekin belongs to festive articles of heading 9505 is rejected,
-        according to CBP, as stated in ruling NY N358418 at "See Park B. Smith Ltd",
-        because "a Halloween motif on a functional bowl does not make it a festive article (Park B. Smith Ltd. v. United States, 347 F.3d 922)".
+        according to CBP, confer "See Park B. Smith Ltd".
     subheading expects answers ["the subheading of the ghost ramekin is 3924.10"].
 
 % NY N361986 (June 2026): vinyl record sleeves from China.
-scenario ny_n361986 is:
+scenario ny_n361986 is, as stated in ruling NY N361986:
     the record sleeves is a manufactured article,
-        as stated in ruling NY N361986 at "The product under consideration is described as polypropylene plastic protective outer sleeves designed for vinyl".
+        confer "The product under consideration is described as polypropylene plastic protective outer sleeves designed for vinyl".
     the record sleeves is made of plastics,
-        as stated in ruling NY N361986 at "consideration is described as polypropylene plastic protective outer sleeves designed for vinyl record jackets".
+        confer "consideration is described as polypropylene plastic protective outer sleeves designed for vinyl record jackets".
     the principal use of the record sleeves is protecting vinyl records,
-        according to CBP, as stated in ruling NY N361986 at "described as polypropylene plastic protective outer sleeves designed for vinyl record jackets",
-        because "outer sleeves to store, protect and preserve vinyl records and their jackets during storage, handling, display and transport".
+        according to CBP, confer "described as polypropylene plastic protective outer sleeves designed for vinyl record jackets".
     subheading expects answers ["the subheading of the record sleeves is 3926.90"].
 
 % NY N361872 (June 2026): plastic rebar from China.
-scenario ny_n361872 is:
+scenario ny_n361872 is, as stated in ruling NY N361872:
     the LiteBar rebar is a manufactured article,
-        as stated in ruling NY N361872 at "” which is a fiberglass-reinforced plastic (FRP) rebar".
+        confer "” which is a fiberglass-reinforced plastic (FRP) rebar".
     the LiteBar rebar is made of plastics,
-        as stated in ruling NY N361872 at "” which is a fiberglass-reinforced plastic (FRP) rebar".
+        confer "” which is a fiberglass-reinforced plastic (FRP) rebar".
     the principal use of the LiteBar rebar is reinforcing concrete,
-        according to CBP, as stated in ruling NY N361872 at "” which is a fiberglass-reinforced plastic (FRP) rebar",
-        because "a fiberglass-reinforced plastic substitute for steel rebar in concrete".
+        according to CBP, confer "” which is a fiberglass-reinforced plastic (FRP) rebar".
     subheading expects answers ["the subheading of the LiteBar rebar is 3926.90"].
 
 % NY N361443 (May 2026): plastic letter charms from China.
-scenario ny_n361443 is:
+scenario ny_n361443 is, as stated in ruling NY N361443:
     the letter charms is a manufactured article,
-        as stated in ruling NY N361443 at "sample.The product under consideration is described as alphabet charms".
+        confer "sample.The product under consideration is described as alphabet charms".
     the letter charms is made of plastics,
-        as stated in ruling NY N361443 at "They are made ofmolded plastic in the shape of the letters of the alphabet".
+        confer "They are made ofmolded plastic in the shape of the letters of the alphabet".
     the principal use of the letter charms is ornament,
-        according to CBP, as stated in ruling NY N361443 at "to be used for home craft projects",
-        because "molded plastic letters with loops to be strung, for home craft projects".
+        according to CBP, confer "to be used for home craft projects".
     subheading expects answers ["the subheading of the letter charms is 3926.40"].

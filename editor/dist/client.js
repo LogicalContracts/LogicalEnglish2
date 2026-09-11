@@ -944,6 +944,11 @@ var keywords = {
         "provenance"
       ]
     ],
+    "confer": [
+      [
+        "confer"
+      ]
+    ],
     "otherwise": [
       [
         "otherwise"
@@ -2274,6 +2279,14 @@ var keywords = {
         "proveni\xEAncia"
       ]
     ],
+    "confer": [
+      [
+        "confira"
+      ],
+      [
+        "confer"
+      ]
+    ],
     "otherwise": [
       [
         "caso",
@@ -3599,6 +3612,14 @@ var keywords = {
         "procedencia"
       ]
     ],
+    "confer": [
+      [
+        "confer"
+      ],
+      [
+        "v\xE9ase"
+      ]
+    ],
     "otherwise": [
       [
         "de",
@@ -4888,6 +4909,14 @@ var keywords = {
       [
         "avec",
         "provenance"
+      ]
+    ],
+    "confer": [
+      [
+        "confer"
+      ],
+      [
+        "voir"
       ]
     ],
     "otherwise": [
@@ -6262,6 +6291,14 @@ var keywords = {
         "provenienza"
       ]
     ],
+    "confer": [
+      [
+        "confronta"
+      ],
+      [
+        "confer"
+      ]
+    ],
     "otherwise": [
       [
         "altrimenti"
@@ -6732,7 +6769,8 @@ var uiCatalog = {
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Cole ou obtenha abaixo o texto do documento: cada facto citar\xE1 a passagem que o afirma.",
     "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Endere\xE7o do texto: um URL, ou um ficheiro junto ao programa",
-    "Fetch text": "Obter texto"
+    "Fetch text": "Obter texto",
+    "Provenance": "Proveni\xEAncia"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -7065,7 +7103,8 @@ var uiCatalog = {
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Pegue u obtenga abajo el texto del documento: cada hecho citar\xE1 el pasaje que lo afirma.",
     "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Direcci\xF3n del texto: una URL, o un archivo junto al programa",
-    "Fetch text": "Obtener texto"
+    "Fetch text": "Obtener texto",
+    "Provenance": "Procedencia"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7398,7 +7437,8 @@ var uiCatalog = {
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Collez ou r\xE9cup\xE9rez ci-dessous le texte du document : chaque fait citera le passage qui l'\xE9nonce.",
     "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Adresse du texte : une URL, ou un fichier \xE0 c\xF4t\xE9 du programme",
-    "Fetch text": "R\xE9cup\xE9rer le texte"
+    "Fetch text": "R\xE9cup\xE9rer le texte",
+    "Provenance": "Provenance"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7731,7 +7771,8 @@ var uiCatalog = {
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Incolli o recuperi qui sotto il testo del documento: ogni fatto citer\xE0 il passaggio che lo afferma.",
     "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
     "Address of its text: a URL, or a file beside the program": "Indirizzo del testo: un URL, o un file accanto al programma",
-    "Fetch text": "Recupera testo"
+    "Fetch text": "Recupera testo",
+    "Provenance": "Provenienza"
   }
 };
 var languages = [
@@ -9853,7 +9894,7 @@ function kwAlt(source, key) {
 }
 function blockHeaderRe(source, key) {
   return new RegExp(
-    `^(?:${kwAlt(source, key)})\\s+(.+?)\\s+(?:${kwAlt(source, "marker_is")})\\s*:`,
+    `^(?:${kwAlt(source, key)})\\s+(.+?)\\s+(?:${kwAlt(source, "marker_is")})\\s*(?::|,\\s*(.*):\\s*(?:%.*)?$)`,
     "i"
   );
 }
@@ -9874,6 +9915,7 @@ function scanBlocks(source, headerRe) {
     if (!m)
       continue;
     const name = m[1].trim();
+    const provenance = (m[2] || "").trim();
     const start2 = offsets[i];
     const bodyLines = [];
     let j = i + 1;
@@ -9901,12 +9943,12 @@ function scanBlocks(source, headerRe) {
       break;
     }
     const end = offsets[lastContent] + lines[lastContent].length;
-    blocks.push({ name, start: start2, end, bodyLines });
+    blocks.push({ name, provenance, start: start2, end, bodyLines });
   }
   return blocks;
 }
 function parseScenarioBlocks(source) {
-  return scanBlocks(source, blockHeaderRe(source, "scenario")).map((b) => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
+  return scanBlocks(source, blockHeaderRe(source, "scenario")).map((b) => ({ name: b.name, provenance: b.provenance, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
 }
 function parseQueryBlocks(source) {
   return scanBlocks(source, blockHeaderRe(source, "query")).map((b) => {

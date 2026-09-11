@@ -51,9 +51,11 @@ the templates are:
 % GRI 6 for heading 3923: by the form of the article, and for sacks and bags
 % by the polymer (Chapter 39 subheading note 1: the monomer unit that
 % predominates by weight).
-the table packing is, with first match, with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Articles for the conveyance or packing of goods, of plastics",
-        because "the six-digit subheadings of heading 3923: boxes, sacks and bags of polymers of ethylene or of other plastics, carboys and bottles, spools, stoppers and closures, other":
+% the six-digit subheadings of heading 3923: boxes, sacks and bags of polymers
+% of ethylene or of other plastics, carboys and bottles, spools, stoppers and
+% closures, other
+the table packing is, with first match, with provenance HTSUS Section VII and Chapter 39,
+        confer "Articles for the conveyance or packing of goods, of plastics":
     row | form                  | class          | code
     p1  | box                   | any            | "3923.10"
     p2  | sack                  | ethylene       | "3923.21"
@@ -64,9 +66,11 @@ the table packing is, with first match, with provenance as stated in HTSUS Secti
     p7  | any                   | any            | "3923.90"
 
 % GRI 6 for headings 3924 and 3926: by the use.
-the table uses is, with first match, with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Tableware, kitchenware, other household articles and hygienic",
-        because "the six-digit subheadings of headings 3924 (tableware and kitchenware; other) and 3926 (office or school supplies; apparel; fittings for furniture; statuettes and other ornamental articles; other), by the article's use":
+% the six-digit subheadings of headings 3924 (tableware and kitchenware;
+% other) and 3926 (office or school supplies; apparel; fittings for furniture;
+% statuettes and other ornamental articles; other), by the article's use
+the table uses is, with first match, with provenance HTSUS Section VII and Chapter 39,
+        confer "Tableware, kitchenware, other household articles and hygienic":
     row | heading | use                        | code
     u1  | 3924    | table use or kitchen use   | "3924.10"
     u2  | 3924    | any                        | "3924.90"
@@ -86,51 +90,55 @@ the text of HTSUS Section VII and Chapter 39 is at "sources/hts/chapter_39.txt".
 HTSUS Chapter 59 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2059#page=1".
 the text of HTSUS Chapter 59 is at "sources/hts/chapter_59.txt".
 
-rule plastics_scope with provenance
-        because "the model covers manufactured articles of headings 3923, 3924 and 3926":
+% the model covers manufactured articles of headings 3923, 3924 and 3926
+rule plastics_scope:
 a good is within the scope of the model
     if the good is a manufactured article.
 
 % Chapter 39 note 1: "plastics" are the materials of headings 3901 to 3914.
 % Chapter 59 note 2(a)(5): plates or sheets of cellular plastics combined with
 % textile fabric present merely for reinforcing are of Chapter 39.
-rule note_39_1 with provenance as stated in HTSUS Section VII and Chapter 39
-        at "means those materials of headings 3901 to 3914":
+rule note_39_1 with provenance HTSUS Section VII and Chapter 39,
+        confer "means those materials of headings 3901 to 3914":
 a thing is of plastics
     if the thing is made of plastics.
 
-rule note_59_2a5 with provenance as stated in HTSUS Chapter 59
-        at "Plates, sheets or strip of cellular plastics, combined with textile fabric, where the textile fabric is present merely for reinforcing purposes (chapter 39)":
+rule note_59_2a5 with provenance HTSUS Chapter 59,
+        confer "Plates, sheets or strip of cellular plastics, combined with textile fabric, where the textile fabric is present merely for reinforcing purposes (chapter 39)":
 a thing is of plastics
     if the thing is of cellular plastics reinforced by a textile fabric.
 
-rule plastics_article with provenance as stated in HTSUS General Rules of Interpretation
-        at "shall be classified as if they consisted of the material or component which gives them their essential character",
-        because "an article is of plastics when what it is classified as consisting of (GRI 3(b)) is of plastics":
+% an article is of plastics when what it is classified as consisting of (GRI
+% 3(b)) is of plastics
+rule plastics_article with provenance HTSUS General Rules of Interpretation,
+        confer "shall be classified as if they consisted of the material or component which gives them their essential character":
 a good is an article of plastics
     if the good is classified as consisting of a component
     and the component is of plastics.
 
 % The headings (GRI 1), decided by principal use (Additional U.S. Rule 1(a)).
-rule heading_3923 with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Articles for the conveyance or packing of goods, of plastics",
-        because "a classification controlled by use is decided by the principal use (HTSUS Additional U.S. Rule of Interpretation 1(a))":
+% a classification controlled by use is decided by the principal use (HTSUS
+% Additional U.S. Rule of Interpretation 1(a))
+rule heading_3923 with provenance HTSUS Section VII and Chapter 39,
+        confer "Articles for the conveyance or packing of goods, of plastics":
 a good is described by heading 3923
     if the good is an article of plastics
     and the principal use of the good is packing of goods.
 
-rule heading_3924 with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Tableware, kitchenware, other household articles and hygienic",
-        because "a classification controlled by use is decided by the principal use (HTSUS Additional U.S. Rule of Interpretation 1(a))":
+% a classification controlled by use is decided by the principal use (HTSUS
+% Additional U.S. Rule of Interpretation 1(a))
+rule heading_3924 with provenance HTSUS Section VII and Chapter 39,
+        confer "Tableware, kitchenware, other household articles and hygienic":
 a good is described by heading 3924
     if the good is an article of plastics
     and a use is a household use
     and the principal use of the good is the use.
 
 % "Other articles of plastics": any article of plastics.
-rule heading_3926 with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Other articles of plastics and articles of other materials of",
-        because "heading 3926: other articles of plastics and articles of other materials of headings 3901 to 3914":
+% heading 3926: other articles of plastics and articles of other materials of
+% headings 3901 to 3914
+rule heading_3926 with provenance HTSUS Section VII and Chapter 39,
+        confer "Other articles of plastics and articles of other materials of":
 a good is described by heading 3926
     if the good is an article of plastics.
 
@@ -138,55 +146,59 @@ a good is described by heading 3926
 % representations which are not merely subsidiary to the primary use of the
 % goods fall in Chapter 49. Whether the printing is merely subsidiary is the
 % office's judgment.
-rule note_vii_2 with provenance as stated in HTSUS Section VII and Chapter 39
-        at "printed with motifs, characters or pictorial representations, which are not merely subsidiary to the primary use of the goods, fall in chapter 49":
+rule note_vii_2 with provenance HTSUS Section VII and Chapter 39,
+        confer "printed with motifs, characters or pictorial representations, which are not merely subsidiary to the primary use of the goods, fall in chapter 49":
 a good is excluded from heading a heading
     if the heading is in [3923, 3924, 3926]
     and the good is printed with motifs
     and the printing of the good is primary.
 
 table use is a household use,
-    as stated in HTSUS Section VII and Chapter 39 at "Tableware, kitchenware, other household articles and hygienic".
+    as stated in HTSUS Section VII and Chapter 39, confer "Tableware, kitchenware, other household articles and hygienic".
 kitchen use is a household use,
-    as stated in HTSUS Section VII and Chapter 39 at "Tableware, kitchenware, other household articles and hygienic".
+    as stated in HTSUS Section VII and Chapter 39, confer "Tableware, kitchenware, other household articles and hygienic".
 household use is a household use,
-    as stated in HTSUS Section VII and Chapter 39 at "Tableware, kitchenware, other household articles and hygienic".
+    as stated in HTSUS Section VII and Chapter 39, confer "Tableware, kitchenware, other household articles and hygienic".
 toilet use is a household use,
-    as stated in HTSUS Section VII and Chapter 39 at "or toilet articles, of plastics".
+    as stated in HTSUS Section VII and Chapter 39, confer "or toilet articles, of plastics".
 
 % GRI 3(a): 3926 is the residual heading of the chapter's articles.
+% heading 3926 covers articles of plastics not specified in the earlier
+% headings
 heading 3923 is more specific than heading 3926,
-    as stated in HTSUS General Rules of Interpretation at "The heading which provides the most specific description shall be preferred to headings providing a more general description",
-    because "heading 3926 covers articles of plastics not specified in the earlier headings".
+    as stated in HTSUS General Rules of Interpretation, confer "The heading which provides the most specific description shall be preferred to headings providing a more general description".
+% heading 3926 covers articles of plastics not specified in the earlier
+% headings
 heading 3924 is more specific than heading 3926,
-    as stated in HTSUS General Rules of Interpretation at "The heading which provides the most specific description shall be preferred to headings providing a more general description",
-    because "heading 3926 covers articles of plastics not specified in the earlier headings".
+    as stated in HTSUS General Rules of Interpretation, confer "The heading which provides the most specific description shall be preferred to headings providing a more general description".
 
 % GRI 6.
-rule plastics_subheading_3923 with provenance as stated in HTSUS General Rules of Interpretation
-        at "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
+rule plastics_subheading_3923 with provenance HTSUS General Rules of Interpretation,
+        confer "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
 the subheading of a good is a code
     if the heading of the good is 3923
     and the packing form of the good is a form
     and the polymer class of the good is a class
     and the subheading for the form of the class is the code under table packing.
 
-rule plastics_subheading_by_use with provenance as stated in HTSUS General Rules of Interpretation
-        at "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
+rule plastics_subheading_by_use with provenance HTSUS General Rules of Interpretation,
+        confer "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
 the subheading of a good is a code
     if the heading of the good is a heading
     and the heading is in [3924, 3926]
     and the principal use of the good is a use
     and the subheading in heading the heading for the use is the code under table uses.
 
-rule packing_form with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Boxes, cases, crates and similar articles",
-        because "the subheadings of heading 3923 name forms of article: boxes, sacks and bags, carboys and bottles, spools, closures":
+% the subheadings of heading 3923 name forms of article: boxes, sacks and
+% bags, carboys and bottles, spools, closures
+rule packing_form with provenance HTSUS Section VII and Chapter 39,
+        confer "Boxes, cases, crates and similar articles":
 the packing form of a good is a form
     if the good is shaped as the form.
 
-rule packing_form_other with provenance
-        because "an article of heading 3923 shaped as none of the forms its subheadings name falls in 3923.90, other":
+% an article of heading 3923 shaped as none of the forms its subheadings name
+% falls in 3923.90, other
+rule packing_form_other:
 the packing form of a good is other
     if it is not the case that
         the good is shaped as a form.
@@ -194,25 +206,31 @@ the packing form of a good is other
 % Chapter 39 subheading note 1(b)(1): the monomer unit that predominates by
 % weight over every other single one; units of the same subheading count
 % together. Ties: the later heading (Chapter 39 note 4).
-polyethylene is a polymer of ethylene, as stated in HTSUS Section VII and Chapter 39 at "Polymers of ethylene, in primary forms".
-polypropylene is a polymer of propylene, as stated in HTSUS Section VII and Chapter 39 at "Polymers of propylene or of other olefins, in primary forms".
-polyethylene terephthalate is a polymer of ethylene terephthalate, as stated in HTSUS Section VII and Chapter 39 at "Poly(ethylene terephthalate)".
+polyethylene is a polymer of ethylene,
+    as stated in HTSUS Section VII and Chapter 39, confer "Polymers of ethylene, in primary forms".
+polypropylene is a polymer of propylene,
+    as stated in HTSUS Section VII and Chapter 39, confer "Polymers of propylene or of other olefins, in primary forms".
+polyethylene terephthalate is a polymer of ethylene terephthalate,
+    as stated in HTSUS Section VII and Chapter 39, confer "Poly(ethylene terephthalate)".
 
-ethylene is a monomer of heading 3901, as stated in HTSUS Section VII and Chapter 39 at "Polymers of ethylene, in primary forms:3901".
-propylene is a monomer of heading 3902, as stated in HTSUS Section VII and Chapter 39 at "Polymers of propylene or of other olefins, in primary forms:3902".
-ethylene terephthalate is a monomer of heading 3907, as stated in HTSUS Section VII and Chapter 39 at "Poly(ethylene terephthalate)",
-    because "heading 3907 covers polyesters in primary forms".
+ethylene is a monomer of heading 3901,
+    as stated in HTSUS Section VII and Chapter 39, confer "Polymers of ethylene, in primary forms:3901".
+propylene is a monomer of heading 3902,
+    as stated in HTSUS Section VII and Chapter 39, confer "Polymers of propylene or of other olefins, in primary forms:3902".
+% heading 3907 covers polyesters in primary forms
+ethylene terephthalate is a monomer of heading 3907,
+    as stated in HTSUS Section VII and Chapter 39, confer "Poly(ethylene terephthalate)".
 
-rule note_39_sub_1_share with provenance as stated in HTSUS Section VII and Chapter 39
-        at "constituent monomer units of polymers falling in the same subheading shall be taken together":
+rule note_39_sub_1_share with provenance HTSUS Section VII and Chapter 39,
+        confer "constituent monomer units of polymers falling in the same subheading shall be taken together":
 the share of a monomer in a good is a total
     if the monomer is a monomer of heading a number
     and the total is the sum of each percentage such that
         the good contains the percentage percent of a polymer
         and the polymer is a polymer of the monomer.
 
-rule note_39_sub_1_predominance with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Polymers are to be classified in the subheading covering polymers of that monomer unit which predominates by weight over every other single comonomer unit":
+rule note_39_sub_1_predominance with provenance HTSUS Section VII and Chapter 39,
+        confer "Polymers are to be classified in the subheading covering polymers of that monomer unit which predominates by weight over every other single comonomer unit":
 the predominant monomer of a good is a monomer
     if the share of the monomer in the good is a total
     and the total > 0
@@ -223,28 +241,28 @@ the predominant monomer of a good is a monomer
         it is the case that
             the monomer at the total percent outweighs the other monomer at the other total percent.
 
-rule note_39_sub_1_weight with provenance as stated in HTSUS Section VII and Chapter 39
-        at "which predominates by weight over every other single comonomer unit":
+rule note_39_sub_1_weight with provenance HTSUS Section VII and Chapter 39,
+        confer "which predominates by weight over every other single comonomer unit":
 a monomer at a total percent outweighs an other monomer at an other total percent
     if the total > the other total.
 
-rule note_39_4_tie with provenance as stated in HTSUS Section VII and Chapter 39
-        at "If no single comonomer predominates, copolymers or polymer blends, as the case may be, are to be classified in the heading which occurs last in numerical order":
+rule note_39_4_tie with provenance HTSUS Section VII and Chapter 39,
+        confer "If no single comonomer predominates, copolymers or polymer blends, as the case may be, are to be classified in the heading which occurs last in numerical order":
 a monomer at a total percent outweighs an other monomer at an other total percent
     if the total = the other total
     and the monomer is a monomer of heading a number
     and the other monomer is a monomer of heading an other number
     and the number > the other number.
 
-rule polymer_class_ethylene with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Of polymers of ethylene",
-        because "subheading 3923.21: sacks and bags of polymers of ethylene":
+% subheading 3923.21: sacks and bags of polymers of ethylene
+rule polymer_class_ethylene with provenance HTSUS Section VII and Chapter 39,
+        confer "Of polymers of ethylene":
 the polymer class of a good is ethylene
     if the predominant monomer of the good is ethylene.
 
-rule polymer_class_other with provenance as stated in HTSUS Section VII and Chapter 39
-        at "Of other plastics",
-        because "subheading 3923.29: sacks and bags of other plastics":
+% subheading 3923.29: sacks and bags of other plastics
+rule polymer_class_other with provenance HTSUS Section VII and Chapter 39,
+        confer "Of other plastics":
 the polymer class of a good is other polymers
     if it is not the case that
         the predominant monomer of the good is ethylene.

@@ -377,6 +377,75 @@ test(document_text_stays_in_the_folder, [setup(resource_dir(Dir)), cleanup(delet
     catch(le_documents:document_text("../doc.txt", Dir, [], _), error(document_error(_), _), true),
     \+ catch(le_documents:document_text("../doc.txt", Dir, [], _), _, fail).
 
+% The light notation: a scenario's default provenance ("scenario s is, as
+% stated in <document>:"), facts pointing at passages with confer "...", a fact
+% redefining the document with its own "as stated in"; a rule's provenance as
+% just a document, a document at a locator, or a document and a confer.
+light_program("the target language is: prolog.
+scenario facts require provenance.
+
+the templates are:
+    *a person* is eligible.
+    *a person* is resident; undefined.
+    *a person* is old; undefined.
+    *a person* is poor; undefined.
+
+the knowledge base light includes:
+
+rule s2 with provenance the benefit act, confer \"a resident is eligible\":
+a person is eligible
+    if the person is resident.
+
+rule s3 with provenance the benefit act at section 3:
+a person is eligible
+    if the person is old.
+
+rule s4 with provenance \"https://example.org/act.html#s4\":
+a person is eligible
+    if the person is poor.
+
+scenario s is, as stated in the census:
+    ann is resident.
+    bob is resident,
+        confer \"Bob, resident of York\".
+    cy is old, as stated in the tax register at page 7.
+    dee is poor, according to the council.
+    q expects answers [\"ann is eligible\", \"bob is eligible\", \"cy is eligible\", \"dee is eligible\"].
+
+query q is:
+    which person is eligible.
+").
+
+test(light_notation) :-
+    light_program(P),
+    load_text(P, KB),
+    issue_types(KB, warning, Ws),
+    \+ memberchk(fact_without_provenance, Ws),
+    \+ memberchk(malformed_provenance, Ws),
+    KB:le_fact_provenance(_, _, is_resident(ann), prov(none, doc('the census', _), none, none)),
+    KB:le_fact_provenance(_, _, is_resident(bob), prov(none, doc('the census', _), "\"Bob, resident of York\"", none)),
+    KB:le_fact_provenance(_, _, is_old(cy), prov(none, doc('the tax register', _), "page 7", none)),
+    KB:le_fact_provenance(_, _, is_poor(dee), prov('the council', doc('the census', _), none, none)),
+    KB:le_rule_provenance(s2, prov(none, doc('the benefit act', _), "\"a resident is eligible\"", none)).
+
+test(light_rule_forms) :-
+    light_program(P),
+    load_text(P, KB),
+    KB:le_rule_provenance(s3, prov(none, doc('the benefit act', _), "section 3", none)),
+    KB:le_rule_provenance(s4, prov(none, doc('https://example.org/act.html#s4', _), none, none)),
+    answers(KB, s, q, Answers0), msort(Answers0, Answers),
+    Answers == ["ann is eligible"-[], "bob is eligible"-[], "cy is eligible"-[], "dee is eligible"-[]].
+
+% An explanation renders a quoted passage as confer "...".
+test(confer_rendered) :-
+    light_program(P),
+    load_text(P, KB),
+    createSession(KB, SM), setScenarion(SM, s),
+    findall(W, query(SM, q, _, _, W), Whys),
+    destroySession(SM),
+    why_literals(Whys, Lits),
+    memberchk("bob is resident, as stated in the census, confer \"Bob, resident of York\"", Lits).
+
 test(portuguese_trailers) :-
     load_text("a linguagem alvo é: prolog.
 

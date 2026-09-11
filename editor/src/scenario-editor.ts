@@ -4,7 +4,7 @@
 // reloads.
 
 import { parseScenarioBlocks, ScenarioBlock } from './le-templates';
-import { t, applyI18nDom, installLeApiLang } from './i18n';
+import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, kwPhrases } from './i18n';
 import { ScenarioForm } from './scenario-form';
 import { openNlInput, splitStatements } from './nl-input';
 
@@ -31,6 +31,9 @@ export function initScenarioEditor(data: ScenarioEditorData) {
     const $ = (id: string) => document.getElementById(id)!;
     const picker = $('scenario-picker') as HTMLSelectElement;
     const nameInput = $('scenario-name') as HTMLInputElement;
+    // The scenario's default provenance ("as stated in <document>"), shown and
+    // editable beside its name.
+    const provInput = document.getElementById('scenario-provenance') as HTMLInputElement | null;
     const statusEl = $('status');
 
     let loadedName = '';    // the existing scenario currently loaded (for replace), '' for New
@@ -58,8 +61,21 @@ export function initScenarioEditor(data: ScenarioEditorData) {
             placeholder: 'e.g. Alice is the mother of John, and John was born in the UK on 2021-10-09.',
             documentContext,
             extraTemplates: templateDefs.map(d => d.label),
-            onResult: (leText) => {
-                const facts = splitStatements(leText);
+            onResult: (leText, info) => {
+                let facts = splitStatements(leText);
+                if (info?.document) {
+                    // The facts point at passages of the document ("confer …"):
+                    // the scenario's default provenance names it — or, when the
+                    // scenario already cites another document, each fact does.
+                    const asStated = kwPhrases(detectProgramLanguage(source), 'as_stated_in')[0] || 'as stated in';
+                    const ownDefault = `${asStated} ${info.document}`;
+                    if (!form.provenance) form.provenance = ownDefault;
+                    if (provInput) provInput.value = form.provenance;
+                    if (form.provenance !== ownDefault) {
+                        facts = facts.map(f => f.includes(asStated) ? f
+                            : f.replace(/,\s*(confer\s+")/, `, ${ownDefault}, $1`));
+                    }
+                }
                 facts.forEach(f => form.addFact(f));
                 setStatus(`Added ${facts.length} fact${facts.length === 1 ? '' : 's'} from English`);
             },
@@ -84,6 +100,8 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         loadedName = block ? block.name : '';
         nameInput.value = block ? block.name : '';
         form.loadFacts(block ? block.facts : []);
+        form.provenance = block?.provenance || '';
+        if (provInput) provInput.value = form.provenance;
         dirty = false;
         const n = form.testLines.length;
         setStatus(block ? `Loaded scenario "${name}"${n ? ` (${n} test line${n > 1 ? 's' : ''} kept as comments)` : ''}` : '');
@@ -92,6 +110,8 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         loadedName = '';
         nameInput.value = '';
         form.clear();
+        form.provenance = '';
+        if (provInput) provInput.value = '';
         dirty = false;
         setStatus(t('New scenario'));
     }
@@ -126,6 +146,8 @@ export function initScenarioEditor(data: ScenarioEditorData) {
         setStatus(t('Inserted into editor'));
         setTimeout(() => window.close(), 100);   // once the message has been dispatched
     });
+
+    provInput?.addEventListener('input', () => { form.provenance = provInput.value.trim(); markDirty(); });
 
     picker.addEventListener('change', () => {
         if (dirty && !confirm(t('Discard unsaved changes and load the selected scenario?'))) {

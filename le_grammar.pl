@@ -460,10 +460,20 @@ section(provenance_required(Start, End)) -->
     t(punctuation('.', loc(_, End))).
 
 % section(scenario(...)) parses a scenario section.
+% "scenario <name> is, as stated in <document>:" gives its facts a default
+% provenance (docs/le_summary.md §17.1): the header's trailers are kept as a
+% scenario_provenance(Tokens, Start, End) item ahead of the facts.
 section(scenario(Name, Content, Start, End)) -->
-    any_indent, kw_start(scenario, Start), section_name_tokens(Tokens), kw(marker_is), t(punctuation(':', _)),
+    any_indent, kw_start(scenario, Start), section_name_tokens(Tokens), kw(marker_is),
+    (   t(punctuation(',', loc(PS, _))), trailer_ahead
+    ->  rule_provenance_tokens(ProvTokens), { ProvTokens \== [] },
+        t(punctuation(':', loc(_, PE))),
+        { Default = [scenario_provenance(ProvTokens, PS, PE)] }
+    ;   t(punctuation(':', _)), { Default = [] }
+    ),
     { reconstruct_name(Tokens, Name) },
-    kb_content(Content, End).
+    kb_content(Content0, End),
+    { append(Default, Content0, Content) }.
 
 % section(query(...)) parses a query section. The body is captured with its
 % indentation preserved (like a rule body) so it can be a full body expression —
@@ -1116,7 +1126,7 @@ trailer_ahead(S, S) :-
     starts_with_trailer_keyword(S1).
 
 starts_with_trailer_keyword(Tokens) :-
-    member(Key, [according_to, as_stated_in, because]),
+    member(Key, [according_to, as_stated_in, because, confer]),
     le_i18n:kw_synonym_words(Key, Words),
     tokens_word_prefix(Words, Tokens, _), !.
 
@@ -2263,8 +2273,13 @@ second_pass_section(Templates, M, ontology(Content, Start, End), ontology(NewCon
     exclude(is_section_marker, Content, Content1),
     maplist(second_pass_ontology_item_with_module(Templates, M), Content1, NewContent).
 second_pass_section(Templates, M, scenario(Name, Content, Start, End), scenario(Name, NewContent, Start, End)) :-
-    exclude(is_section_marker, Content, Content1),
-    maplist(second_pass_scenario_item_with_module(Templates, M), Content1, NewContent).
+    exclude(is_section_marker, Content, Content0),
+    (   select(scenario_provenance(ProvTokens, PS, PE), Content0, Content1)
+    ->  le_provenance:scenario_default_provenance(M, Name, ProvTokens, PS, PE, Default)
+    ;   Content1 = Content0, Default = none
+    ),
+    le_provenance:with_default_provenance(Default,
+        maplist(le_grammar:second_pass_scenario_item_with_module(Templates, M), Content1, NewContent)).
 second_pass_section(Templates, M, query(Name, Content, Start, End), query(Name, NewContent, Start, End)) :-
     exclude(is_section_marker, Content, Content1),
     maplist(second_pass_query_item_with_module(Templates, M), Content1, NewContent).
@@ -2317,6 +2332,12 @@ second_pass_scenario_item_with_module(Templates, M, rule_prov(Rule, ProvTokens),
     second_pass_scenario_item_with_module(Templates, M, Rule, NewItem),
     Rule = rule(_, _, _, Start, End, ID),
     le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End).
+second_pass_scenario_item_with_module(Templates, M, fact(Head, Start, End), NewItem) :-
+    le_provenance:default_provenance(Default), !,
+    % a fact with no trailers of its own takes the scenario's provenance
+    second_pass_scenario_item(Templates, fact(Head, Start, End), NewItem, M),
+    check_stray_asterisks(fact(Head, Start, End), NewItem, M),
+    le_provenance:record_default_provenance(M, NewItem, Default, Start, End).
 second_pass_scenario_item_with_module(Templates, M, Item, NewItem) :-
     %  The extension is tried here too, not only in a knowledge base: under the
     %  LPS target a scenario is a list of timed observations, and its facts

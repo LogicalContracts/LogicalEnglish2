@@ -42,8 +42,8 @@ test.describe('Facts from a document', () => {
                 request = body;
                 await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({
                     result: 'ok',
-                    le: 'style 1025AD has a collar, as stated in ruling NY N362700 at "zips through a self-fabric stand-up collar".\n'
-                      + 'style 1025AD contains 92 percent of polyester, as stated in ruling NY N362700 at "92 percent polyester and 8 percent spandex".',
+                    le: 'style 1025AD has a collar, confer "zips through a self-fabric stand-up collar".\n'
+                      + 'style 1025AD contains 92 percent of polyester, confer "92 percent polyester and 8 percent spandex".',
                     warnings: [],
                     document_facts: ['the text of ruling NY N362700 is at "sources/cbp/N362700.txt"'],
                 }) });
@@ -76,7 +76,9 @@ test.describe('Facts from a document', () => {
         const rows = page.locator('.fact-row');
         await expect(rows).toHaveCount(3);
         await expect(rows.nth(0).locator('input.field')).toHaveValue('style 1025AD');
-        await expect(rows.nth(0).locator('.trailers')).toContainText('as stated in ruling NY N362700');
+        await expect(rows.nth(0).locator('.trailers')).toContainText('confer "zips through');
+        // the scenario's default provenance names the document
+        await expect(page.locator('#scenario-provenance')).toHaveValue('as stated in ruling NY N362700');
         await expect(rows.nth(1).locator('input.field').nth(1)).toHaveValue('92');
         await expect(rows.nth(2)).toContainText('the text of ruling NY N362700 is at');
 

@@ -39,7 +39,7 @@ function kwAltAll(key: string): string {
 // "because" (in the program's language, or English) starts them. Returns the
 // fact without them and the trailers (without the leading comma), '' if none.
 export function splitProvenance(fact: string, source: string): { base: string; trailers: string } {
-    const kw = ['according_to', 'as_stated_in', 'because'].map(k => kwAlt(source, k)).filter(Boolean).join('|');
+    const kw = ['according_to', 'as_stated_in', 'because', 'confer'].map(k => kwAlt(source, k)).filter(Boolean).join('|');
     if (!kw) return { base: fact, trailers: '' };
     const trailerStart = new RegExp(`^,\\s*(?:${kw})(?![\\p{L}])`, 'iu');
     let inQuote = false;
@@ -76,11 +76,11 @@ export function unknownPrefixRe(): RegExp {
 
 // The header line for writing a "<scenario|query> <name> is:" block back into
 // the program, in the program's own language.
-export function blockHeader(source: string, key: 'scenario' | 'query', name: string): string {
+export function blockHeader(source: string, key: 'scenario' | 'query', name: string, provenance = ''): string {
     const lang = detectProgramLanguage(source);
     const kw = kwPhrases(lang, key)[0] || key;
     const is = kwPhrases(lang, 'marker_is')[0] || 'is';
-    return `${kw} ${name} ${is}:`;
+    return provenance ? `${kw} ${name} ${is}, ${provenance}:` : `${kw} ${name} ${is}:`;
 }
 
 // The "it is unknown whether " prefix for writing an assumed fact back, in the
@@ -97,9 +97,11 @@ export function unknownWhetherPrefix(source: string): string {
 
 // Header regex for a "<scenario|query> <name> <is>:" block in the program's
 // own language (plus English).
+// A scenario header may carry a default provenance for its facts:
+// "scenario s is, as stated in <document>:" (group 2, without the comma).
 function blockHeaderRe(source: string, key: 'scenario' | 'query'): RegExp {
     return new RegExp(
-        `^(?:${kwAlt(source, key)})\\s+(.+?)\\s+(?:${kwAlt(source, 'marker_is')})\\s*:`, 'i');
+        `^(?:${kwAlt(source, key)})\\s+(.+?)\\s+(?:${kwAlt(source, 'marker_is')})\\s*(?::|,\\s*(.*):\\s*(?:%.*)?$)`, 'i');
 }
 
 export interface TemplateSegment {
@@ -281,6 +283,7 @@ export function fillTemplate(label: string, values: string[]): string {
 
 export interface ScenarioBlock {
     name: string;
+    provenance?: string; // the header's default provenance ("as stated in <document>"), if any
     start: number;   // char offset of the "scenario ..." header
     end: number;     // char offset just past the block's last non-blank line
     facts: string[]; // each fact's text, without its trailing period
@@ -288,6 +291,7 @@ export interface ScenarioBlock {
 
 interface RawBlock {
     name: string;
+    provenance?: string;
     start: number;
     end: number;
     bodyLines: string[];
@@ -308,6 +312,7 @@ function scanBlocks(source: string, headerRe: RegExp): RawBlock[] {
         const m = lines[i].match(headerRe);
         if (!m) continue;
         const name = m[1].trim();
+        const provenance = (m[2] || '').trim();
         const start = offsets[i];
         const bodyLines: string[] = [];
         let j = i + 1;
@@ -324,7 +329,7 @@ function scanBlocks(source: string, headerRe: RegExp): RawBlock[] {
             break;
         }
         const end = offsets[lastContent] + lines[lastContent].length;
-        blocks.push({ name, start, end, bodyLines });
+        blocks.push({ name, provenance, start, end, bodyLines });
     }
     return blocks;
 }
@@ -334,7 +339,7 @@ function scanBlocks(source: string, headerRe: RegExp): RawBlock[] {
 // "."-terminated statements (a fact may span lines).
 export function parseScenarioBlocks(source: string): ScenarioBlock[] {
     return scanBlocks(source, blockHeaderRe(source, 'scenario'))
-        .map(b => ({ name: b.name, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
+        .map(b => ({ name: b.name, provenance: b.provenance, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
 }
 
 export interface QueryBlock {
