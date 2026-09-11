@@ -2,8 +2,9 @@
 % run through the apparel model (apparel.le, which includes gri.le).
 %
 % One scenario per ruling; each style is described by the facts the ruling
-% states, each fact citing the ruling ("as stated in ruling NY N362700"); the
-% office's judgments carry who made them and why. The ruling's own code is NOT
+% states: the scenario names the ruling ("scenario ny_n362700 is, as stated
+% in ruling NY N362700:") and each fact points at its passage ("confer "..."");
+% the office's judgments say who made them ("according to CBP"). The ruling's own code is NOT
 % a fact: the expectation is the six-digit subheading the model derives, and
 % where it differs from the ruling's the comment says so (DISAGREES) and why.
 % Selection: the most recent rulings returned by CROSS for each of the
@@ -89,48 +90,47 @@ query unplaced is:
     which good is not placed by the model.
 
 % NY N362700 (July 2026): men's upper body garments from Jordan.
-scenario ny_n362700 is:
+scenario ny_n362700 is, as stated in ruling NY N362700:
     style 1025AD is an upper body garment,
-        as stated in ruling NY N362700 at "is a men’s upper body garment constructed from 92 percent polyester and 8 percent spandex knit".
+        confer "is a men’s upper body garment constructed from 92 percent polyester and 8 percent spandex knit".
     style 1025AD is classified under the US tariff,
-        as stated in ruling NY N362700 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 1025AD is knitted,
-        as stated in ruling NY N362700 at "percent polyester and 8 percent spandex knit fabric that is lightly brushed on its inner surface".
+        confer "percent polyester and 8 percent spandex knit fabric that is lightly brushed on its inner surface".
     the cut of style 1025AD indicates men,
-        as stated in ruling NY N362700 at "is a men’s upper body garment constructed from 92 percent polyester and 8 percent spandex knit fabric that is lightly".
+        confer "is a men’s upper body garment constructed from 92 percent polyester and 8 percent spandex knit fabric that is lightly".
     style 1025AD has an opening starting at the neckline,
-        as stated in ruling NY N362700 at "Style 1025AD features a partial front opening with a zippered closure that zips through a self-fabric stand-up".
+        confer "Style 1025AD features a partial front opening with a zippered closure that zips through a self-fabric stand-up".
     style 1025AD has a collar,
-        as stated in ruling NY N362700 at "zips through a self-fabric stand-up collar".
+        confer "zips through a self-fabric stand-up collar".
     style 1025AD is napped,
-        as stated in ruling NY N362700 at "spandex knit fabric that is lightly brushed on its inner surface".
+        confer "spandex knit fabric that is lightly brushed on its inner surface".
     style 1025AD contains 92 percent of polyester,
-        as stated in ruling NY N362700 at "garment constructed from 92 percent polyester and 8 percent spandex knit".
+        confer "garment constructed from 92 percent polyester and 8 percent spandex knit".
     style 1025AD contains 8 percent of spandex,
-        as stated in ruling NY N362700 at "92 percent polyester and 8 percent spandex knit fabric that is lightly brushed".
+        confer "92 percent polyester and 8 percent spandex knit fabric that is lightly brushed".
     style 1025AD is claimed to belong to outerwear,
-        as stated in ruling NY N362700 at "You ask whether Style 1025AD is classifiable under heading 6101".
+        confer "You ask whether Style 1025AD is classifiable under heading 6101".
     the claim that style 1025AD belongs to outerwear is rejected,
-        according to CBP, as stated in ruling NY N362700 at "the garment lacks the character of an outerwear jacket",
-        because "the garment lacks the character of an outerwear jacket designed for wear over all other clothing for protection against the elements".
+        according to CBP, confer "the garment lacks the character of an outerwear jacket".
     style 1000AD is an upper body garment,
-        as stated in ruling NY N362700 at "is a men’s cut and sewn upper body garment constructed from 100 percent polyester knit fabric that is lightly".
+        confer "is a men’s cut and sewn upper body garment constructed from 100 percent polyester knit fabric that is lightly".
     style 1000AD is classified under the US tariff,
-        as stated in ruling NY N362700 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 1000AD is knitted,
-        as stated in ruling NY N362700 at "constructed from 100 percent polyester knit fabric that is lightly brushed on its inner and outer surfaces".
+        confer "constructed from 100 percent polyester knit fabric that is lightly brushed on its inner and outer surfaces".
     the cut of style 1000AD indicates men,
-        as stated in ruling NY N362700 at "is a men’s cut and sewn upper body garment constructed from 100 percent polyester knit fabric that is lightly brushed".
+        confer "is a men’s cut and sewn upper body garment constructed from 100 percent polyester knit fabric that is lightly brushed".
     style 1000AD has an opening starting at the neckline,
-        as stated in ruling NY N362700 at "Style 1000AD features a partial front opening with a zippered closure that zips through a self-fabric stand-up".
+        confer "Style 1000AD features a partial front opening with a zippered closure that zips through a self-fabric stand-up".
     style 1000AD has a collar,
-        as stated in ruling NY N362700 at "zips through a self-fabric stand-up collar".
+        confer "zips through a self-fabric stand-up collar".
     style 1000AD is napped,
-        as stated in ruling NY N362700 at "polyester knit fabric that is lightly brushed on its inner and outer surfaces".
+        confer "polyester knit fabric that is lightly brushed on its inner and outer surfaces".
     style 1000AD contains 100 percent of polyester,
-        as stated in ruling NY N362700 at "garment constructed from 100 percent polyester knit fabric that is lightly".
+        confer "garment constructed from 100 percent polyester knit fabric that is lightly".
     style 1000AD has pockets below the waist,
-        according to CBP, as stated in ruling NY N362700 at "side seam pockets below the waist",
+        according to CBP, confer "side seam pockets below the waist",
         because "on a mannequin a portion of each side seam pocket is below the waist; per HQ H293112, if any part of a pocket is below the waist it is a pocket below the waist".
     subheading expects answers ["the subheading of style 1025AD is 6105.20",
         "the subheading of style 1000AD is 6110.30"].
@@ -139,673 +139,669 @@ scenario ny_n362700 is:
 % style 1025AD is an outerwear jacket of heading 6101, and nobody has decided.
 % The model's answer is conditional on that judgment — the judgment needed is
 % the unknown.
-scenario request_n362700 is:
-    style 1025AD is an upper body garment, as stated in the request of NY N362700.
-    style 1025AD is classified under the US tariff, as stated in the request of NY N362700.
-    the fabric construction of style 1025AD is knitted, as stated in the request of NY N362700.
-    the cut of style 1025AD indicates men, as stated in the request of NY N362700.
-    style 1025AD has an opening starting at the neckline, as stated in the request of NY N362700.
-    style 1025AD has a collar, as stated in the request of NY N362700.
-    style 1025AD contains 92 percent of polyester, as stated in the request of NY N362700.
-    style 1025AD contains 8 percent of spandex, as stated in the request of NY N362700.
-    style 1025AD is claimed to belong to outerwear, according to the importer, as stated in the request of NY N362700.
+scenario request_n362700 is, as stated in the request of NY N362700:
+    style 1025AD is an upper body garment.
+    style 1025AD is classified under the US tariff.
+    the fabric construction of style 1025AD is knitted.
+    the cut of style 1025AD indicates men.
+    style 1025AD has an opening starting at the neckline.
+    style 1025AD has a collar.
+    style 1025AD contains 92 percent of polyester.
+    style 1025AD contains 8 percent of spandex.
+    style 1025AD is claimed to belong to outerwear, according to the importer.
     subheading expects answers ["the subheading of style 1025AD is 6105.20"]
         and unknowns ["the claim that style 1025AD belongs to outerwear is rejected"].
 
 % NY N362034 (June 2026): men's upper body garments from Taiwan.
-scenario ny_n362034 is:
+scenario ny_n362034 is, as stated in ruling NY N362034:
     style TaraNirvana Performance Polo is an upper body garment,
-        as stated in ruling NY N362034 at "TaraNirvana Performance Polo” is a men’s shirt constructed from 85 percent polyester and 15 percent elastane French".
+        confer "TaraNirvana Performance Polo” is a men’s shirt constructed from 85 percent polyester and 15 percent elastane French".
     style TaraNirvana Performance Polo is classified under the US tariff,
-        as stated in ruling NY N362034 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style TaraNirvana Performance Polo is knitted,
-        as stated in ruling NY N362034 at "and 15 percent elastane French terry knit fabric".
+        confer "and 15 percent elastane French terry knit fabric".
     the cut of style TaraNirvana Performance Polo indicates men,
-        as stated in ruling NY N362034 at "TaraNirvana Performance Polo” is a men’s shirt constructed from 85 percent polyester and 15 percent elastane French terry knit fabric".
+        confer "TaraNirvana Performance Polo” is a men’s shirt constructed from 85 percent polyester and 15 percent elastane French terry knit fabric".
     style TaraNirvana Performance Polo has a collar,
-        as stated in ruling NY N362034 at "The garment features a spread collar".
+        confer "The garment features a spread collar".
     style TaraNirvana Performance Polo has an opening starting at the neckline,
-        as stated in ruling NY N362034 at "partial front opening with three button closures on the placket".
+        confer "partial front opening with three button closures on the placket".
     style TaraNirvana Performance Polo closes left over right,
-        as stated in ruling NY N362034 at "a left-over-right".
+        confer "a left-over-right".
     the fabric of style TaraNirvana Performance Polo is terry,
-        as stated in ruling NY N362034 at "polyester and 15 percent elastane French terry knit fabric".
+        confer "polyester and 15 percent elastane French terry knit fabric".
     style TaraNirvana Performance Polo contains 85 percent of polyester,
-        as stated in ruling NY N362034 at "men’s shirt constructed from 85 percent polyester and 15 percent elastane French".
+        confer "men’s shirt constructed from 85 percent polyester and 15 percent elastane French".
     style TaraNirvana Performance Polo contains 15 percent of elastane,
-        as stated in ruling NY N362034 at "85 percent polyester and 15 percent elastane French terry knit fabric".
+        confer "85 percent polyester and 15 percent elastane French terry knit fabric".
     style TaraNirvana Performance Tee is an upper body garment,
-        as stated in ruling NY N362034 at "TaraNirvana Performance Tee” is a men’s pullover garment constructed from 85 percent polyester and 15 percent elastane French".
+        confer "TaraNirvana Performance Tee” is a men’s pullover garment constructed from 85 percent polyester and 15 percent elastane French".
     style TaraNirvana Performance Tee is classified under the US tariff,
-        as stated in ruling NY N362034 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style TaraNirvana Performance Tee is knitted,
-        as stated in ruling NY N362034 at "and 15 percent elastane French terry knit fabric that weighs 220 grams per square meter".
+        confer "and 15 percent elastane French terry knit fabric that weighs 220 grams per square meter".
     the cut of style TaraNirvana Performance Tee indicates men,
-        as stated in ruling NY N362034 at "TaraNirvana Performance Tee” is a men’s pullover garment constructed from 85 percent polyester and 15 percent elastane French terry knit fabric that".
+        confer "TaraNirvana Performance Tee” is a men’s pullover garment constructed from 85 percent polyester and 15 percent elastane French terry knit fabric that".
     the fabric of style TaraNirvana Performance Tee is terry,
-        as stated in ruling NY N362034 at "polyester and 15 percent elastane French terry knit fabric that weighs 220 grams per square meter".
+        confer "polyester and 15 percent elastane French terry knit fabric that weighs 220 grams per square meter".
     style TaraNirvana Performance Tee contains 85 percent of polyester,
-        as stated in ruling NY N362034 at "garment constructed from 85 percent polyester and 15 percent elastane French".
+        confer "garment constructed from 85 percent polyester and 15 percent elastane French".
     style TaraNirvana Performance Tee contains 15 percent of elastane,
-        as stated in ruling NY N362034 at "85 percent polyester and 15 percent elastane French terry knit fabric that".
+        confer "85 percent polyester and 15 percent elastane French terry knit fabric that".
     subheading expects answers ["the subheading of style TaraNirvana Performance Polo is 6105.20",
         "the subheading of style TaraNirvana Performance Tee is 6110.30"].
 
 % NY N357552 (January 2026): a men's upper body garment.
-scenario ny_n357552 is:
+scenario ny_n357552 is, as stated in ruling NY N357552:
     style 264581 is an upper body garment,
-        as stated in ruling NY N357552 at "264581 is a men’s upper body garment constructed from 56 percent cotton".
+        confer "264581 is a men’s upper body garment constructed from 56 percent cotton".
     style 264581 is classified under the US tariff,
-        as stated in ruling NY N357552 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 264581 is knitted,
-        as stated in ruling NY N357552 at "and 3 percent elastane knit fabric".
+        confer "and 3 percent elastane knit fabric".
     the cut of style 264581 indicates men,
-        as stated in ruling NY N357552 at "264581 is a men’s upper body garment constructed from 56 percent cotton".
+        confer "264581 is a men’s upper body garment constructed from 56 percent cotton".
     style 264581 has an opening starting at the neckline,
-        as stated in ruling NY N357552 at "Style 264581 features a partial front opening that zips through a self-fabric stand-up collar".
+        confer "Style 264581 features a partial front opening that zips through a self-fabric stand-up collar".
     style 264581 has a collar,
-        as stated in ruling NY N357552 at "Style 264581 features a partial front opening that zips through a self-fabric stand-up collar".
+        confer "Style 264581 features a partial front opening that zips through a self-fabric stand-up collar".
     style 264581 contains 56 percent of cotton,
-        as stated in ruling NY N357552 at "garment constructed from 56 percent cotton".
+        confer "garment constructed from 56 percent cotton".
     style 264581 contains 41 percent of polyester,
-        as stated in ruling NY N357552 at "41 percent polyester".
+        confer "41 percent polyester".
     style 264581 contains 3 percent of elastane,
-        as stated in ruling NY N357552 at "and 3 percent elastane knit fabric".
+        confer "and 3 percent elastane knit fabric".
     subheading expects answers ["the subheading of style 264581 is 6105.10"].
 
 % NY N339358 (April 2024): men's upper body garments.
-scenario ny_n339358 is:
+scenario ny_n339358 is, as stated in ruling NY N339358:
     style MVSW9742 is an upper body garment,
-        as stated in ruling NY N339358 at "MVSW9742 “Brrr°illiant Performance Hoodie” is a men’s cut and sewn pullover constructed from 92% polyester and 8% spandex knit fabric".
+        confer "MVSW9742 “Brrr°illiant Performance Hoodie” is a men’s cut and sewn pullover constructed from 92% polyester and 8% spandex knit fabric".
     style MVSW9742 is classified under the US tariff,
-        as stated in ruling NY N339358 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style MVSW9742 is knitted,
-        as stated in ruling NY N339358 at "constructed from 92% polyester and 8% spandex knit fabric".
+        confer "constructed from 92% polyester and 8% spandex knit fabric".
     the cut of style MVSW9742 indicates men,
-        as stated in ruling NY N339358 at "MVSW9742 “Brrr°illiant Performance Hoodie” is a men’s cut and sewn pullover constructed from 92% polyester and 8% spandex knit fabric".
+        confer "MVSW9742 “Brrr°illiant Performance Hoodie” is a men’s cut and sewn pullover constructed from 92% polyester and 8% spandex knit fabric".
     style MVSW9742 contains 92 percent of polyester,
-        as stated in ruling NY N339358 at "pullover constructed from 92% polyester and 8% spandex knit fabric".
+        confer "pullover constructed from 92% polyester and 8% spandex knit fabric".
     style MVSW9742 contains 8 percent of spandex,
-        as stated in ruling NY N339358 at "constructed from 92% polyester and 8% spandex knit fabric".
+        confer "constructed from 92% polyester and 8% spandex knit fabric".
     style MVSW9622 is an upper body garment,
-        as stated in ruling NY N339358 at "MVSW9622 “Andreas Sun Farer Hoodie” is a men’s cut and sewn pullover constructed from 100% cotton".
+        confer "MVSW9622 “Andreas Sun Farer Hoodie” is a men’s cut and sewn pullover constructed from 100% cotton".
     style MVSW9622 is classified under the US tariff,
-        as stated in ruling NY N339358 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style MVSW9622 is knitted,
-        as stated in ruling NY N339358 at "slub jersey knit fabric".
+        confer "slub jersey knit fabric".
     the cut of style MVSW9622 indicates men,
-        as stated in ruling NY N339358 at "MVSW9622 “Andreas Sun Farer Hoodie” is a men’s cut and sewn pullover constructed from 100% cotton".
+        confer "MVSW9622 “Andreas Sun Farer Hoodie” is a men’s cut and sewn pullover constructed from 100% cotton".
     style MVSW9622 is of plain knit fabric,
-        as stated in ruling NY N339358 at "slub jersey knit fabric".
+        confer "slub jersey knit fabric".
     style MVSW9622 contains 100 percent of cotton,
-        as stated in ruling NY N339358 at "pullover constructed from 100% cotton".
+        confer "pullover constructed from 100% cotton".
     style MVQZ9343 is an upper body garment,
-        as stated in ruling NY N339358 at "Heather Hoodie Performance Quarter Zip” is a men’s upper body garment constructed from 93% polyester and 7% spandex knit fabric".
+        confer "Heather Hoodie Performance Quarter Zip” is a men’s upper body garment constructed from 93% polyester and 7% spandex knit fabric".
     style MVQZ9343 is classified under the US tariff,
-        as stated in ruling NY N339358 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style MVQZ9343 is knitted,
-        as stated in ruling NY N339358 at "constructed from 93% polyester and 7% spandex knit fabric".
+        confer "constructed from 93% polyester and 7% spandex knit fabric".
     the cut of style MVQZ9343 indicates men,
-        as stated in ruling NY N339358 at "Heather Hoodie Performance Quarter Zip” is a men’s upper body garment constructed from 93% polyester and 7% spandex knit fabric".
+        confer "Heather Hoodie Performance Quarter Zip” is a men’s upper body garment constructed from 93% polyester and 7% spandex knit fabric".
     style MVQZ9343 has an opening starting at the neckline,
-        as stated in ruling NY N339358 at "a partial front opening with a zippered closure".
+        confer "a partial front opening with a zippered closure".
     style MVQZ9343 has a collar,
-        as stated in ruling NY N339358 at "a zipper garage at the top of the collar".
+        confer "a zipper garage at the top of the collar".
     style MVQZ9343 contains 93 percent of polyester,
-        as stated in ruling NY N339358 at "garment constructed from 93% polyester and 7% spandex knit fabric".
+        confer "garment constructed from 93% polyester and 7% spandex knit fabric".
     style MVQZ9343 contains 7 percent of spandex,
-        as stated in ruling NY N339358 at "constructed from 93% polyester and 7% spandex knit fabric".
+        confer "constructed from 93% polyester and 7% spandex knit fabric".
     style MVSW10337 is an upper body garment,
-        as stated in ruling NY N339358 at "“Stratford Heather Interlock Hoodie” is a men’s cut and sewn pullover constructed from 57% polyester".
+        confer "“Stratford Heather Interlock Hoodie” is a men’s cut and sewn pullover constructed from 57% polyester".
     style MVSW10337 is classified under the US tariff,
-        as stated in ruling NY N339358 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style MVSW10337 is knitted,
-        as stated in ruling NY N339358 at "and 5% nylon knit fabric".
+        confer "and 5% nylon knit fabric".
     the cut of style MVSW10337 indicates men,
-        as stated in ruling NY N339358 at "“Stratford Heather Interlock Hoodie” is a men’s cut and sewn pullover constructed from 57% polyester".
+        confer "“Stratford Heather Interlock Hoodie” is a men’s cut and sewn pullover constructed from 57% polyester".
     style MVSW10337 has pockets below the waist,
-        as stated in ruling NY N339358 at "a kangaroo pocket on the front panel below the waist".
+        confer "a kangaroo pocket on the front panel below the waist".
     style MVSW10337 contains 57 percent of polyester,
-        as stated in ruling NY N339358 at "pullover constructed from 57% polyester".
+        confer "pullover constructed from 57% polyester".
     style MVSW10337 contains 33 percent of viscose,
-        as stated in ruling NY N339358 at "33% viscose (rayon)".
+        confer "33% viscose (rayon)".
     style MVSW10337 contains 5 percent of spandex,
-        as stated in ruling NY N339358 at "5% spandex".
+        confer "5% spandex".
     style MVSW10337 contains 5 percent of nylon,
-        as stated in ruling NY N339358 at "5% spandex".
+        confer "5% spandex".
     subheading expects answers ["the subheading of style MVSW9742 is 6110.30",
         "the subheading of style MVSW9622 is 6110.20",
         "the subheading of style MVQZ9343 is 6105.20",
         "the subheading of style MVSW10337 is 6110.30"].
 
 % NY N336228 (2023-2024): a men's upper body garment.
-scenario ny_n336228 is:
+scenario ny_n336228 is, as stated in ruling NY N336228:
     style TSUBLCK002 is an upper body garment,
-        as stated in ruling NY N336228 at "TSUBLCK002 is a men’s upper body garment constructed from 100% cotton".
+        confer "TSUBLCK002 is a men’s upper body garment constructed from 100% cotton".
     style TSUBLCK002 is classified under the US tariff,
-        as stated in ruling NY N336228 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style TSUBLCK002 is knitted,
-        as stated in ruling NY N336228 at "waffle knit fabric".
+        confer "waffle knit fabric".
     the cut of style TSUBLCK002 indicates men,
-        as stated in ruling NY N336228 at "TSUBLCK002 is a men’s upper body garment constructed from 100% cotton".
+        confer "TSUBLCK002 is a men’s upper body garment constructed from 100% cotton".
     style TSUBLCK002 has an opening starting at the neckline,
-        as stated in ruling NY N336228 at "partial front opening with three button closures on the placket".
+        confer "partial front opening with three button closures on the placket".
     style TSUBLCK002 closes left over right,
-        as stated in ruling NY N336228 at "a left-over-right".
+        confer "a left-over-right".
     style TSUBLCK002 contains 100 percent of cotton,
-        as stated in ruling NY N336228 at "TSUBLCK002 is a men’s upper body garment constructed from 100% cotton".
+        confer "TSUBLCK002 is a men’s upper body garment constructed from 100% cotton".
     style TSUBLCK002 is claimed to belong to sleepwear,
-        as stated in ruling NY N336228 at "you refer to Style TSUBLCK002 as sleepwear and state that the garment will be sold as part of coordinating separates".
+        confer "you refer to Style TSUBLCK002 as sleepwear and state that the garment will be sold as part of coordinating separates".
     the claim that style TSUBLCK002 belongs to sleepwear is rejected,
-        according to CBP, as stated in ruling NY N336228 at "these garments are not classified as sleepwear",
-        because "garments of this style and construction are multi-use loungewear worn in informal situations in and around the home, not garments designed for wear only to bed".
+        according to CBP, confer "these garments are not classified as sleepwear".
     subheading expects answers ["the subheading of style TSUBLCK002 is 6105.10"].
 
 % NY N362516 (June 2026): women's blouses from the Dominican Republic.
-scenario ny_n362516 is:
+scenario ny_n362516 is, as stated in ruling NY N362516:
     style W61383 is an upper body garment,
-        as stated in ruling NY N362516 at "W61383 is a women’s upper body garment constructed from 84 percent modal".
+        confer "W61383 is a women’s upper body garment constructed from 84 percent modal".
     style W61383 is classified under the US tariff,
-        as stated in ruling NY N362516 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style W61383 is knitted,
-        as stated in ruling NY N362516 at "and 7 percent elastane knit fabric".
+        confer "and 7 percent elastane knit fabric".
     the cut of style W61383 indicates women,
-        as stated in ruling NY N362516 at "W61383 is a women’s upper body garment constructed from 84 percent modal".
+        confer "W61383 is a women’s upper body garment constructed from 84 percent modal".
     style W61383 is loose-fitting,
-        as stated in ruling NY N362516 at "The loose-fitting garment extends from the shoulders to below the waist and features".
+        confer "The loose-fitting garment extends from the shoulders to below the waist and features".
     style W61383 contains 84 percent of modal,
-        as stated in ruling NY N362516 at "garment constructed from 84 percent modal".
+        confer "garment constructed from 84 percent modal".
     style W61383 contains 9 percent of cashmere,
-        as stated in ruling NY N362516 at "9 percent cashmere".
+        confer "9 percent cashmere".
     style W61383 contains 7 percent of elastane,
-        as stated in ruling NY N362516 at "and 7 percent elastane knit fabric".
+        confer "and 7 percent elastane knit fabric".
     style W61383 is claimed to belong to sleepwear,
-        as stated in ruling NY N362516 at "which provides for women’s pajamas of man-made fibers".
+        confer "which provides for women’s pajamas of man-made fibers".
     the claim that style W61383 belongs to sleepwear is rejected,
-        according to CBP, as stated in ruling NY N362516 at "We find that there is nothing about the styling",
-        because "nothing in the styling, fabric, cut or construction indicates wear primarily to bed; the principal use is home comfort and lounging".
+        according to CBP, confer "We find that there is nothing about the styling".
     style W64383 is an upper body garment,
-        as stated in ruling NY N362516 at "W64383 is a women’s upper body garment constructed from 84 percent modal".
+        confer "W64383 is a women’s upper body garment constructed from 84 percent modal".
     style W64383 is classified under the US tariff,
-        as stated in ruling NY N362516 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style W64383 is knitted,
-        as stated in ruling NY N362516 at "and 7 percent elastane knit fabric".
+        confer "and 7 percent elastane knit fabric".
     the cut of style W64383 indicates women,
-        as stated in ruling NY N362516 at "W64383 is a women’s upper body garment constructed from 84 percent modal".
+        confer "W64383 is a women’s upper body garment constructed from 84 percent modal".
     style W64383 is loose-fitting,
-        as stated in ruling NY N362516 at "The loose-fitting garment extends from the shoulders to below the waist and features".
+        confer "The loose-fitting garment extends from the shoulders to below the waist and features".
     style W64383 contains 84 percent of modal,
-        as stated in ruling NY N362516 at "garment constructed from 84 percent modal".
+        confer "garment constructed from 84 percent modal".
     style W64383 contains 9 percent of cashmere,
-        as stated in ruling NY N362516 at "9 percent cashmere".
+        confer "9 percent cashmere".
     style W64383 contains 7 percent of elastane,
-        as stated in ruling NY N362516 at "and 7 percent elastane knit fabric".
+        confer "and 7 percent elastane knit fabric".
     style W64383 is claimed to belong to sleepwear,
-        as stated in ruling NY N362516 at "which provides for women’s pajamas of man-made fibers".
+        confer "which provides for women’s pajamas of man-made fibers".
     the claim that style W64383 belongs to sleepwear is rejected,
-        according to CBP, as stated in ruling NY N362516 at "We find that there is nothing about the styling",
-        because "nothing in the styling, fabric, cut or construction indicates wear primarily to bed; the principal use is home comfort and lounging".
+        according to CBP, confer "We find that there is nothing about the styling".
     subheading expects answers ["the subheading of style W61383 is 6106.20",
         "the subheading of style W64383 is 6106.20"].
 
 % NY N359550 (March 2026): women's upper body garments from Vietnam.
-scenario ny_n359550 is:
+scenario ny_n359550 is, as stated in ruling NY N359550:
     style 260309A is an upper body garment,
-        as stated in ruling NY N359550 at "260309A is women’s upper body garment constructed from lightweight".
+        confer "260309A is women’s upper body garment constructed from lightweight".
     style 260309A is classified under the US tariff,
-        as stated in ruling NY N359550 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 260309A is knitted,
-        as stated in ruling NY N359550 at "67 percent cotton and 33 percent polyester knit fabric that is lightly napped on its inner surface".
+        confer "67 percent cotton and 33 percent polyester knit fabric that is lightly napped on its inner surface".
     the cut of style 260309A indicates women,
-        as stated in ruling NY N359550 at "260309A is women’s upper body garment constructed from lightweight".
+        confer "260309A is women’s upper body garment constructed from lightweight".
     the fabric of style 260309A is lightweight,
-        as stated in ruling NY N359550 at "260309A is women’s upper body garment constructed from lightweight".
+        confer "260309A is women’s upper body garment constructed from lightweight".
     style 260309A is napped,
-        as stated in ruling NY N359550 at "67 percent cotton and 33 percent polyester knit fabric that is lightly napped on its inner surface".
+        confer "67 percent cotton and 33 percent polyester knit fabric that is lightly napped on its inner surface".
     style 260309A has an opening starting at the neckline,
-        as stated in ruling NY N359550 at "shoulders to below the waist and features a full front opening with a zippered closure".
+        confer "shoulders to below the waist and features a full front opening with a zippered closure".
     style 260309A has a collar,
-        as stated in ruling NY N359550 at "a band collar".
+        confer "a band collar".
     style 260309A has pockets below the waist,
-        as stated in ruling NY N359550 at "mesh knit pockets on the inner front panels below the waist".
+        confer "mesh knit pockets on the inner front panels below the waist".
     style 260309A contains 67 percent of cotton,
-        as stated in ruling NY N359550 at "67 percent cotton and 33 percent polyester knit".
+        confer "67 percent cotton and 33 percent polyester knit".
     style 260309A contains 33 percent of polyester,
-        as stated in ruling NY N359550 at "67 percent cotton and 33 percent polyester knit fabric that is lightly".
+        confer "67 percent cotton and 33 percent polyester knit fabric that is lightly".
     style 260309A is claimed to belong to outerwear,
-        as stated in ruling NY N359550 at "Although you identify Style 260309A as a “bomber jacket".
+        confer "Although you identify Style 260309A as a “bomber jacket".
     the claim that style 260309A belongs to outerwear is rejected,
-        according to CBP, as stated in ruling NY N359550,
+        according to CBP, confer "the submitted sample lacks the character of an outerwear jacket",
         because "the sample lacks the character of an outerwear jacket designed for wear over all other clothing for protection against the weather".
     style 260309B is an upper body garment,
-        as stated in ruling NY N359550 at "260309B “Henley Hoodie” is a women’s shirt constructed from 60 percent cotton and 40 percent polyester rib".
+        confer "260309B “Henley Hoodie” is a women’s shirt constructed from 60 percent cotton and 40 percent polyester rib".
     style 260309B is classified under the US tariff,
-        as stated in ruling NY N359550 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 260309B is knitted,
-        as stated in ruling NY N359550 at "cotton and 40 percent polyester rib knit fabric that measures more than 10 stitches per linear centimeter".
+        confer "cotton and 40 percent polyester rib knit fabric that measures more than 10 stitches per linear centimeter".
     the cut of style 260309B indicates women,
-        as stated in ruling NY N359550 at "260309B “Henley Hoodie” is a women’s shirt constructed from 60 percent cotton and 40 percent polyester rib knit fabric that measures more than".
+        confer "260309B “Henley Hoodie” is a women’s shirt constructed from 60 percent cotton and 40 percent polyester rib knit fabric that measures more than".
     style 260309B has an opening starting at the neckline,
-        as stated in ruling NY N359550 at "shoulders to below the waist and features a partial front opening with seven button closures".
+        confer "shoulders to below the waist and features a partial front opening with seven button closures".
     style 260309B contains 60 percent of cotton,
-        as stated in ruling NY N359550 at "women’s shirt constructed from 60 percent cotton and 40 percent polyester rib".
+        confer "women’s shirt constructed from 60 percent cotton and 40 percent polyester rib".
     style 260309B contains 40 percent of polyester,
-        as stated in ruling NY N359550 at "from 60 percent cotton and 40 percent polyester rib knit fabric that measures".
+        confer "from 60 percent cotton and 40 percent polyester rib knit fabric that measures".
     style 260309C is an upper body garment,
-        as stated in ruling NY N359550 at "260309C “Raw Edge Henley Cami” is a women’s garment that is similar to a tank top".
+        confer "260309C “Raw Edge Henley Cami” is a women’s garment that is similar to a tank top".
     style 260309C is classified under the US tariff,
-        as stated in ruling NY N359550 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 260309C is knitted,
-        as stated in ruling NY N359550 at "It is constructed from 60 percent cotton and 40 percent polyester knit fabric".
+        confer "It is constructed from 60 percent cotton and 40 percent polyester knit fabric".
     the cut of style 260309C indicates women,
-        as stated in ruling NY N359550 at "260309C “Raw Edge Henley Cami” is a women’s garment that is similar to a tank top".
+        confer "260309C “Raw Edge Henley Cami” is a women’s garment that is similar to a tank top".
     style 260309C has an opening starting at the neckline,
-        as stated in ruling NY N359550 at "the waist and features a henley-style partial front opening with two button closures".
+        confer "the waist and features a henley-style partial front opening with two button closures".
     style 260309C is sleeveless,
-        as stated in ruling NY N359550 at "½-inch wide shoulder straps".
+        confer "½-inch wide shoulder straps".
     style 260309C has shoulder straps,
-        as stated in ruling NY N359550 at "½-inch wide shoulder straps".
+        confer "½-inch wide shoulder straps".
     the rear neckline of style 260309C falls below the nape of the neck,
-        as stated in ruling NY N359550 at "a curved rear neckline that reaches below the nape of the neck".
+        confer "a curved rear neckline that reaches below the nape of the neck".
     style 260309C contains 60 percent of cotton,
-        as stated in ruling NY N359550 at "It is constructed from 60 percent cotton and 40 percent polyester knit".
+        confer "It is constructed from 60 percent cotton and 40 percent polyester knit".
     style 260309C contains 40 percent of polyester,
-        as stated in ruling NY N359550 at "from 60 percent cotton and 40 percent polyester knit fabric".
+        confer "from 60 percent cotton and 40 percent polyester knit fabric".
     subheading expects answers ["the subheading of style 260309A is 6110.20",
         "the subheading of style 260309B is 6106.10",
         "the subheading of style 260309C is 6109.10"].
 
 % NY N359021 (March 2026): upper body garments from South Korea.
-scenario ny_n359021 is:
+scenario ny_n359021 is, as stated in ruling NY N359021:
     style 260220A is an upper body garment,
-        as stated in ruling NY N359021 at "260220A is a girl’s upper body garment constructed from 60% cotton and 40% recycled polyester knit fabric".
+        confer "260220A is a girl’s upper body garment constructed from 60% cotton and 40% recycled polyester knit fabric".
     style 260220A is classified under the US tariff,
-        as stated in ruling NY N359021 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 260220A is knitted,
-        as stated in ruling NY N359021 at "60% cotton and 40% recycled polyester knit fabric that is napped on its inner surface".
+        confer "60% cotton and 40% recycled polyester knit fabric that is napped on its inner surface".
     the cut of style 260220A indicates women,
-        as stated in ruling NY N359021 at "260220A is a girl’s upper body garment constructed from 60% cotton and 40% recycled polyester knit fabric that is napped on its".
+        confer "260220A is a girl’s upper body garment constructed from 60% cotton and 40% recycled polyester knit fabric that is napped on its".
     style 260220A is napped,
-        as stated in ruling NY N359021 at "recycled polyester knit fabric that is napped on its inner surface".
+        confer "recycled polyester knit fabric that is napped on its inner surface".
     style 260220A is loose-fitting,
-        as stated in ruling NY N359021 at "The loose-fitting sweatshirt style garment features a round crew neckline with a rib knit collar".
+        confer "The loose-fitting sweatshirt style garment features a round crew neckline with a rib knit collar".
     style 260220A has a collar,
-        as stated in ruling NY N359021 at "The loose-fitting sweatshirt style garment features a round crew neckline with a rib knit collar".
+        confer "The loose-fitting sweatshirt style garment features a round crew neckline with a rib knit collar".
     style 260220A contains 60 percent of cotton,
-        as stated in ruling NY N359021 at "garment constructed from 60% cotton and 40% recycled polyester knit fabric".
+        confer "garment constructed from 60% cotton and 40% recycled polyester knit fabric".
     style 260220A contains 40 percent of polyester,
-        as stated in ruling NY N359021 at "constructed from 60% cotton and 40% recycled polyester knit fabric that is napped".
+        confer "constructed from 60% cotton and 40% recycled polyester knit fabric that is napped".
     style 260220B is an upper body garment,
-        as stated in ruling NY N359021 at "260220B is a women’s loose-fitting upper body garment constructed from 95% cotton and 5% spandex waffle knit fabric".
+        confer "260220B is a women’s loose-fitting upper body garment constructed from 95% cotton and 5% spandex waffle knit fabric".
     style 260220B is classified under the US tariff,
-        as stated in ruling NY N359021 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 260220B is knitted,
-        as stated in ruling NY N359021 at "from 95% cotton and 5% spandex waffle knit fabric".
+        confer "from 95% cotton and 5% spandex waffle knit fabric".
     the cut of style 260220B indicates women,
-        as stated in ruling NY N359021 at "260220B is a women’s loose-fitting upper body garment constructed from 95% cotton and 5% spandex waffle knit fabric".
+        confer "260220B is a women’s loose-fitting upper body garment constructed from 95% cotton and 5% spandex waffle knit fabric".
     style 260220B is loose-fitting,
-        as stated in ruling NY N359021 at "260220B is a women’s loose-fitting upper body garment constructed from 95% cotton and 5% spandex waffle".
+        confer "260220B is a women’s loose-fitting upper body garment constructed from 95% cotton and 5% spandex waffle".
     style 260220B has an opening starting at the neckline,
-        as stated in ruling NY N359021 at "Style 260220B features a partial front opening with eight button closures that extend up through a rib knit".
+        confer "Style 260220B features a partial front opening with eight button closures that extend up through a rib knit".
     style 260220B has a collar,
-        as stated in ruling NY N359021 at "mock neck collar".
+        confer "mock neck collar".
     style 260220B contains 95 percent of cotton,
-        as stated in ruling NY N359021 at "garment constructed from 95% cotton and 5% spandex waffle knit fabric".
+        confer "garment constructed from 95% cotton and 5% spandex waffle knit fabric".
     style 260220B contains 5 percent of spandex,
-        as stated in ruling NY N359021 at "constructed from 95% cotton and 5% spandex waffle knit fabric".
+        confer "constructed from 95% cotton and 5% spandex waffle knit fabric".
     subheading expects answers ["the subheading of style 260220A is 6106.10",
         "the subheading of style 260220B is 6106.10"].
 
 % NY N356079 (November 2025): women's upper body garments from South Korea.
-scenario ny_n356079 is:
+scenario ny_n356079 is, as stated in ruling NY N356079:
     style 251117A is an upper body garment,
-        as stated in ruling NY N356079 at "251117A is a women’s short sleeve pullover garment constructed of 58 percent cotton".
+        confer "251117A is a women’s short sleeve pullover garment constructed of 58 percent cotton".
     style 251117A is classified under the US tariff,
-        as stated in ruling NY N356079 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 251117A is knitted,
-        as stated in ruling NY N356079 at "and 4 percent spandex knit fabric".
+        confer "and 4 percent spandex knit fabric".
     the cut of style 251117A indicates women,
-        as stated in ruling NY N356079 at "251117A is a women’s short sleeve pullover garment constructed of 58 percent cotton".
+        confer "251117A is a women’s short sleeve pullover garment constructed of 58 percent cotton".
     style 251117A is loose-fitting,
-        as stated in ruling NY N356079 at "The loose-fitting garment features short puff sleeves".
+        confer "The loose-fitting garment features short puff sleeves".
     style 251117A contains 58 percent of cotton,
-        as stated in ruling NY N356079 at "pullover garment constructed of 58 percent cotton".
+        confer "pullover garment constructed of 58 percent cotton".
     style 251117A contains 38 percent of polyester,
-        as stated in ruling NY N356079 at "38 percent polyester".
+        confer "38 percent polyester".
     style 251117A contains 4 percent of spandex,
-        as stated in ruling NY N356079 at "and 4 percent spandex knit fabric".
+        confer "and 4 percent spandex knit fabric".
     style 251117B is an upper body garment,
-        as stated in ruling NY N356079 at "251117B is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 percent polyester knit fabric".
+        confer "251117B is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 percent polyester knit fabric".
     style 251117B is classified under the US tariff,
-        as stated in ruling NY N356079 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 251117B is knitted,
-        as stated in ruling NY N356079 at "percent cotton and 30 percent polyester knit fabric".
+        confer "percent cotton and 30 percent polyester knit fabric".
     the cut of style 251117B indicates women,
-        as stated in ruling NY N356079 at "251117B is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 percent polyester knit fabric".
+        confer "251117B is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 percent polyester knit fabric".
     style 251117B contains 70 percent of cotton,
-        as stated in ruling NY N356079 at "pullover garment constructed of 70 percent cotton and 30 percent polyester knit".
+        confer "pullover garment constructed of 70 percent cotton and 30 percent polyester knit".
     style 251117B contains 30 percent of polyester,
-        as stated in ruling NY N356079 at "of 70 percent cotton and 30 percent polyester knit fabric".
+        confer "of 70 percent cotton and 30 percent polyester knit fabric".
     style 251117C is an upper body garment,
-        as stated in ruling NY N356079 at "251117C is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 per cent polyester knit".
+        confer "251117C is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 per cent polyester knit".
     style 251117C is classified under the US tariff,
-        as stated in ruling NY N356079 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 251117C is knitted,
-        as stated in ruling NY N356079 at "percent cotton and 30 per cent polyester knit fabric".
+        confer "percent cotton and 30 per cent polyester knit fabric".
     the cut of style 251117C indicates women,
-        as stated in ruling NY N356079 at "251117C is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 per cent polyester knit fabric".
+        confer "251117C is a women’s long sleeve pullover garment constructed of 70 percent cotton and 30 per cent polyester knit fabric".
     style 251117C has a high neckline,
-        as stated in ruling NY N356079 at "The pullover features a ribbed mock neckline".
+        confer "The pullover features a ribbed mock neckline".
     style 251117C contains 70 percent of cotton,
-        as stated in ruling NY N356079 at "pullover garment constructed of 70 percent cotton and 30 per cent polyester knit".
+        confer "pullover garment constructed of 70 percent cotton and 30 per cent polyester knit".
     style 251117C contains 30 percent of polyester,
-        as stated in ruling NY N356079 at "of 70 percent cotton and 30 per cent polyester knit fabric".
+        confer "of 70 percent cotton and 30 per cent polyester knit fabric".
     style 251117D is an upper body garment,
-        as stated in ruling NY N356079 at "251117D is a women’s sleeveless pull over garment constructed of 53 percent polyester".
+        confer "251117D is a women’s sleeveless pull over garment constructed of 53 percent polyester".
     style 251117D is classified under the US tariff,
-        as stated in ruling NY N356079 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 251117D is knitted,
-        as stated in ruling NY N356079 at "and 7 percent spandex knit fabric".
+        confer "and 7 percent spandex knit fabric".
     the cut of style 251117D indicates women,
-        as stated in ruling NY N356079 at "251117D is a women’s sleeveless pull over garment constructed of 53 percent polyester".
+        confer "251117D is a women’s sleeveless pull over garment constructed of 53 percent polyester".
     style 251117D is sleeveless,
-        as stated in ruling NY N356079 at "251117D is a women’s sleeveless pull over garment constructed of 53 percent polyester".
+        confer "251117D is a women’s sleeveless pull over garment constructed of 53 percent polyester".
     style 251117D is loose-fitting,
-        as stated in ruling NY N356079 at "The loose-fitting garment features a v-neckline".
+        confer "The loose-fitting garment features a v-neckline".
     style 251117D contains 53 percent of polyester,
-        as stated in ruling NY N356079 at "over garment constructed of 53 percent polyester".
+        confer "over garment constructed of 53 percent polyester".
     style 251117D contains 40 percent of rayon,
-        as stated in ruling NY N356079 at "40 percent rayon".
+        confer "40 percent rayon".
     style 251117D contains 7 percent of spandex,
-        as stated in ruling NY N356079 at "and 7 percent spandex knit fabric".
+        confer "and 7 percent spandex knit fabric".
     subheading expects answers ["the subheading of style 251117A is 6106.10",
         "the subheading of style 251117B is 6110.20",
         "the subheading of style 251117C is 6110.20",
         "the subheading of style 251117D is 6106.20"].
 
 % NY N342989 (September 2024): women's knitted blouses.
-scenario ny_n342989 is:
+scenario ny_n342989 is, as stated in ruling NY N342989:
     style 251952923 is an upper body garment,
-        as stated in ruling NY N342989 at "251952923 is a women’s knitted blouse constructed from 57 percent cotton".
+        confer "251952923 is a women’s knitted blouse constructed from 57 percent cotton".
     style 251952923 is classified under the US tariff,
-        as stated in ruling NY N342989 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 251952923 is knitted,
-        as stated in ruling NY N342989 at "251952923 is a women’s knitted blouse constructed from 57 percent cotton".
+        confer "251952923 is a women’s knitted blouse constructed from 57 percent cotton".
     the cut of style 251952923 indicates women,
-        as stated in ruling NY N342989 at "251952923 is a women’s knitted blouse constructed from 57 percent cotton".
+        confer "251952923 is a women’s knitted blouse constructed from 57 percent cotton".
     style 251952923 is loose-fitting,
-        as stated in ruling NY N342989 at "The loose-fitting extends from the shoulders to below the waist and features a round neckline".
+        confer "The loose-fitting extends from the shoulders to below the waist and features a round neckline".
     style 251952923 contains 57 percent of cotton,
-        as stated in ruling NY N342989 at "blouse constructed from 57 percent cotton".
+        confer "blouse constructed from 57 percent cotton".
     style 251952923 contains 38 percent of modal,
-        as stated in ruling NY N342989 at "38 percent modal".
+        confer "38 percent modal".
     style 251952923 contains 5 percent of spandex,
-        as stated in ruling NY N342989 at "and 5 percent spandex".
+        confer "and 5 percent spandex".
     style 251952924 is an upper body garment,
-        as stated in ruling NY N342989 at "251952924 is a women’s knitted blouse constructed from 58 percent cotton".
+        confer "251952924 is a women’s knitted blouse constructed from 58 percent cotton".
     style 251952924 is classified under the US tariff,
-        as stated in ruling NY N342989 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 251952924 is knitted,
-        as stated in ruling NY N342989 at "251952924 is a women’s knitted blouse constructed from 58 percent cotton".
+        confer "251952924 is a women’s knitted blouse constructed from 58 percent cotton".
     the cut of style 251952924 indicates women,
-        as stated in ruling NY N342989 at "251952924 is a women’s knitted blouse constructed from 58 percent cotton".
+        confer "251952924 is a women’s knitted blouse constructed from 58 percent cotton".
     style 251952924 is loose-fitting,
-        as stated in ruling NY N342989 at "The loose-fitting garment extends from the shoulders to below the waist and features".
+        confer "The loose-fitting garment extends from the shoulders to below the waist and features".
     style 251952924 contains 58 percent of cotton,
-        as stated in ruling NY N342989 at "blouse constructed from 58 percent cotton".
+        confer "blouse constructed from 58 percent cotton".
     style 251952924 contains 38 percent of modal,
-        as stated in ruling NY N342989 at "38 percent modal".
+        confer "38 percent modal".
     style 251952924 contains 4 percent of spandex,
-        as stated in ruling NY N342989 at "and 4 percent spandex".
+        confer "and 4 percent spandex".
     subheading expects answers ["the subheading of style 251952923 is 6106.10",
         "the subheading of style 251952924 is 6106.10"].
 
 % NY N342552 (September 2024): a women's blouse.
-scenario ny_n342552 is:
+scenario ny_n342552 is, as stated in ruling NY N342552:
     style CE309 is an upper body garment,
-        as stated in ruling NY N342552 at "CE309 is women’s blouse constructed from 100 percent cotton".
+        confer "CE309 is women’s blouse constructed from 100 percent cotton".
     style CE309 is classified under the US tariff,
-        as stated in ruling NY N342552 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style CE309 is knitted,
-        as stated in ruling NY N342552 at "interlock knit fabric that measures at least 10 or more stitches per linear centimeter".
+        confer "interlock knit fabric that measures at least 10 or more stitches per linear centimeter".
     the cut of style CE309 indicates women,
-        as stated in ruling NY N342552 at "CE309 is women’s blouse constructed from 100 percent cotton".
+        confer "CE309 is women’s blouse constructed from 100 percent cotton".
     style CE309 is loose-fitting,
-        as stated in ruling NY N342552 at "The loose-fitting garment features a crew neckline".
+        confer "The loose-fitting garment features a crew neckline".
     style CE309 is of plain knit fabric,
-        as stated in ruling NY N342552 at "interlock knit fabric that measures at least 10 or more stitches per linear".
+        confer "interlock knit fabric that measures at least 10 or more stitches per linear".
     style CE309 contains 100 percent of cotton,
-        as stated in ruling NY N342552 at "CE309 is women’s blouse constructed from 100 percent cotton".
+        confer "CE309 is women’s blouse constructed from 100 percent cotton".
     subheading expects answers ["the subheading of style CE309 is 6106.10"].
 
 % NY N362518 (May 2026): a woman's singlet.
-scenario ny_n362518 is:
+scenario ny_n362518 is, as stated in ruling NY N362518:
     style 912222 is an upper body garment,
-        as stated in ruling NY N362518 at "912222 is a woman’s singlet constructed from 87% polyamide and 13% elastane lace-like mesh knit".
+        confer "912222 is a woman’s singlet constructed from 87% polyamide and 13% elastane lace-like mesh knit".
     style 912222 is classified under the US tariff,
-        as stated in ruling NY N362518 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 912222 is knitted,
-        as stated in ruling NY N362518 at "polyamide and 13% elastane lace-like mesh knit fabric".
+        confer "polyamide and 13% elastane lace-like mesh knit fabric".
     the cut of style 912222 indicates women,
-        as stated in ruling NY N362518 at "912222 is a woman’s singlet constructed from 87% polyamide and 13% elastane lace-like mesh knit fabric".
+        confer "912222 is a woman’s singlet constructed from 87% polyamide and 13% elastane lace-like mesh knit fabric".
     style 912222 is designed to be worn as an undergarment,
-        as stated in ruling NY N362518 at "The undergarment features a V-neckline".
+        confer "The undergarment features a V-neckline".
     style 912222 is sleeveless,
-        as stated in ruling NY N362518 at "adjustable shoulder straps".
+        confer "adjustable shoulder straps".
     style 912222 has shoulder straps,
-        as stated in ruling NY N362518 at "adjustable shoulder straps".
+        confer "adjustable shoulder straps".
     style 912222 contains 87 percent of polyamide,
-        as stated in ruling NY N362518 at "singlet constructed from 87% polyamide and 13% elastane lace-like mesh knit".
+        confer "singlet constructed from 87% polyamide and 13% elastane lace-like mesh knit".
     style 912222 contains 13 percent of elastane,
-        as stated in ruling NY N362518 at "constructed from 87% polyamide and 13% elastane lace-like mesh knit fabric".
+        confer "constructed from 87% polyamide and 13% elastane lace-like mesh knit fabric".
     style 912222 is claimed to belong to brassieres,
-        as stated in ruling NY N362518 at "You requested classification of style 912222 as a brassiere under 6212.10.9020".
+        confer "You requested classification of style 912222 as a brassiere under 6212.10.9020".
     the claim that style 912222 belongs to brassieres is rejected,
-        according to CBP, as stated in ruling NY N362518 at "the paramount function of a brassiere is to support the breasts",
-        because "the paramount function of a brassiere is to support the breasts; this item offers minor support as a secondary function and functions as a singlet".
+        according to CBP, confer "the paramount function of a brassiere is to support the breasts".
     subheading expects answers ["the subheading of style 912222 is 6109.90"].
 
 % NY N362151 (June 2026): women's upper body garments from Vietnam.
-scenario ny_n362151 is:
-% style HEATTECH crew neck is style 04276F043A.
+scenario ny_n362151 is, as stated in ruling NY N362151:
+    % style HEATTECH crew neck is style 04276F043A.
     style HEATTECH crew neck is an upper body garment,
-        as stated in ruling NY N362151 at "04276F043A “W’s HEATTECH crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 33 percent polyester".
+        confer "04276F043A “W’s HEATTECH crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 33 percent polyester".
     style HEATTECH crew neck is classified under the US tariff,
-        as stated in ruling NY N362151 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style HEATTECH crew neck is knitted,
-        as stated in ruling NY N362151 at "and 15 percent spandex knit fabric".
+        confer "and 15 percent spandex knit fabric".
     the cut of style HEATTECH crew neck indicates women,
-        as stated in ruling NY N362151 at "04276F043A “W’s HEATTECH crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 33 percent polyester".
+        confer "04276F043A “W’s HEATTECH crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 33 percent polyester".
     style HEATTECH crew neck contains 33 percent of polyester,
-        as stated in ruling NY N362151 at "garment constructed from 33 percent polyester".
+        confer "garment constructed from 33 percent polyester".
     style HEATTECH crew neck contains 31 percent of acrylic,
-        as stated in ruling NY N362151 at "31 percent acrylic".
+        confer "31 percent acrylic".
     style HEATTECH crew neck contains 21 percent of rayon,
-        as stated in ruling NY N362151 at "21 percent rayon".
+        confer "21 percent rayon".
     style HEATTECH crew neck contains 15 percent of spandex,
-        as stated in ruling NY N362151 at "and 15 percent spandex knit fabric".
-% style CPJ HEATTECH crew neck is style 04275F059Q.
+        confer "and 15 percent spandex knit fabric".
+    % style CPJ HEATTECH crew neck is style 04275F059Q.
     style CPJ HEATTECH crew neck is an upper body garment,
-        as stated in ruling NY N362151 at "EXW cashmere blend crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 57 acrylic".
+        confer "EXW cashmere blend crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 57 acrylic".
     style CPJ HEATTECH crew neck is classified under the US tariff,
-        as stated in ruling NY N362151 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style CPJ HEATTECH crew neck is knitted,
-        as stated in ruling NY N362151 at "lightweight jersey knit fabric".
+        confer "lightweight jersey knit fabric".
     the cut of style CPJ HEATTECH crew neck indicates women,
-        as stated in ruling NY N362151 at "EXW cashmere blend crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 57 acrylic".
+        confer "EXW cashmere blend crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 57 acrylic".
     the fabric of style CPJ HEATTECH crew neck is lightweight,
-        as stated in ruling NY N362151 at "lightweight jersey knit fabric".
+        confer "lightweight jersey knit fabric".
     style CPJ HEATTECH crew neck is of plain knit fabric,
-        as stated in ruling NY N362151 at "lightweight jersey knit fabric".
+        confer "lightweight jersey knit fabric".
     style CPJ HEATTECH crew neck contains 57 percent of acrylic,
-        as stated in ruling NY N362151 at "garment constructed from 57 acrylic".
+        confer "garment constructed from 57 acrylic".
     style CPJ HEATTECH crew neck contains 28 percent of rayon,
-        as stated in ruling NY N362151 at "28 percent rayon".
+        confer "28 percent rayon".
     style CPJ HEATTECH crew neck contains 9 percent of cashmere,
-        as stated in ruling NY N362151 at "9 percent cashmere".
+        confer "9 percent cashmere".
     style CPJ HEATTECH crew neck contains 6 percent of spandex,
-        as stated in ruling NY N362151 at "and 6 percent spandex".
-% style CPJ HEATTECH turtleneck is style 04275F060R.
+        confer "and 6 percent spandex".
+    % style CPJ HEATTECH turtleneck is style 04275F060R.
     style CPJ HEATTECH turtleneck is an upper body garment,
-        as stated in ruling NY N362151 at "cashmere blend turtleneck T-shirt” is a women’s cut and sewn upper body garment that is similar to a T-shirt".
+        confer "cashmere blend turtleneck T-shirt” is a women’s cut and sewn upper body garment that is similar to a T-shirt".
     style CPJ HEATTECH turtleneck is classified under the US tariff,
-        as stated in ruling NY N362151 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style CPJ HEATTECH turtleneck is knitted,
-        as stated in ruling NY N362151 at "and 6 percent spandex jersey knit fabric".
+        confer "and 6 percent spandex jersey knit fabric".
     the cut of style CPJ HEATTECH turtleneck indicates women,
-        as stated in ruling NY N362151 at "cashmere blend turtleneck T-shirt” is a women’s cut and sewn upper body garment that is similar to a T-shirt".
+        confer "cashmere blend turtleneck T-shirt” is a women’s cut and sewn upper body garment that is similar to a T-shirt".
     style CPJ HEATTECH turtleneck is of plain knit fabric,
-        as stated in ruling NY N362151 at "and 6 percent spandex jersey knit fabric".
+        confer "and 6 percent spandex jersey knit fabric".
     style CPJ HEATTECH turtleneck has a high neckline,
-        as stated in ruling NY N362151 at "“W’s CPJ HEATTECH EXW cashmere blend turtleneck T-shirt” is a women’s cut and sewn upper body garment that is similar".
+        confer "“W’s CPJ HEATTECH EXW cashmere blend turtleneck T-shirt” is a women’s cut and sewn upper body garment that is similar".
     style CPJ HEATTECH turtleneck contains 57 percent of acrylic,
-        as stated in ruling NY N362151 at "It is constructed from 57 acrylic".
+        confer "It is constructed from 57 acrylic".
     style CPJ HEATTECH turtleneck contains 28 percent of rayon,
-        as stated in ruling NY N362151 at "28 percent rayon".
+        confer "28 percent rayon".
     style CPJ HEATTECH turtleneck contains 9 percent of cashmere,
-        as stated in ruling NY N362151 at "9 percent cashmere".
+        confer "9 percent cashmere".
     style CPJ HEATTECH turtleneck contains 6 percent of spandex,
-        as stated in ruling NY N362151 at "and 6 percent spandex jersey knit fabric".
-% style HEATTECH Ultra Warm crew neck is style 04275F026R.
+        confer "and 6 percent spandex jersey knit fabric".
+    % style HEATTECH Ultra Warm crew neck is style 04275F026R.
     style HEATTECH Ultra Warm crew neck is an upper body garment,
-        as stated in ruling NY N362151 at "HEATTECH Ultra Warm crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 35 percent acrylic".
+        confer "HEATTECH Ultra Warm crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 35 percent acrylic".
     style HEATTECH Ultra Warm crew neck is classified under the US tariff,
-        as stated in ruling NY N362151 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style HEATTECH Ultra Warm crew neck is knitted,
-        as stated in ruling NY N362151 at "and 8 percent spandex knit fabric that is brushed on its inner surface".
+        confer "and 8 percent spandex knit fabric that is brushed on its inner surface".
     the cut of style HEATTECH Ultra Warm crew neck indicates women,
-        as stated in ruling NY N362151 at "HEATTECH Ultra Warm crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 35 percent acrylic".
+        confer "HEATTECH Ultra Warm crew neck T-shirt” is a women’s cut and sewn upper body garment constructed from 35 percent acrylic".
     style HEATTECH Ultra Warm crew neck is napped,
-        as stated in ruling NY N362151 at "and 8 percent spandex knit fabric that is brushed on its inner surface".
+        confer "and 8 percent spandex knit fabric that is brushed on its inner surface".
     style HEATTECH Ultra Warm crew neck contains 35 percent of acrylic,
-        as stated in ruling NY N362151 at "garment constructed from 35 percent acrylic".
+        confer "garment constructed from 35 percent acrylic".
     style HEATTECH Ultra Warm crew neck contains 34 percent of polyester,
-        as stated in ruling NY N362151 at "34 percent polyester".
+        confer "34 percent polyester".
     style HEATTECH Ultra Warm crew neck contains 23 percent of rayon,
-        as stated in ruling NY N362151 at "23 percent rayon".
+        confer "23 percent rayon".
     style HEATTECH Ultra Warm crew neck contains 8 percent of spandex,
-        as stated in ruling NY N362151 at "and 8 percent spandex knit fabric that is brushed on its inner surface".
+        confer "and 8 percent spandex knit fabric that is brushed on its inner surface".
     subheading expects answers ["the subheading of style HEATTECH crew neck is 6110.30",
         "the subheading of style CPJ HEATTECH crew neck is 6109.90",
         "the subheading of style CPJ HEATTECH turtleneck is 6110.30",
         "the subheading of style HEATTECH Ultra Warm crew neck is 6110.30"].
 
 % NY N361928 (June 2026): a women's tank top.
-scenario ny_n361928 is:
+scenario ny_n361928 is, as stated in ruling NY N361928:
     style 991177927 is an upper body garment,
-        as stated in ruling NY N361928 at "991177927 is a women’s tank top constructed from 64 polyester".
-    style 991177927 is classified under the US tariff, as stated in ruling NY N361928.
+        confer "991177927 is a women’s tank top constructed from 64 polyester".
+    style 991177927 is classified under the US tariff.
     the fabric construction of style 991177927 is knitted,
-        as stated in ruling NY N361928 at "and 7 percentelastane rib knit fabric".
+        confer "and 7 percentelastane rib knit fabric".
     the cut of style 991177927 indicates women,
-        as stated in ruling NY N361928 at "991177927 is a women’s tank top constructed from 64 polyester".
+        confer "991177927 is a women’s tank top constructed from 64 polyester".
     style 991177927 is sleeveless,
-        as stated in ruling NY N361928 at "shoulder straps that measureapproximately 1.25 inches in width".
+        confer "shoulder straps that measureapproximately 1.25 inches in width".
     style 991177927 has shoulder straps,
-        as stated in ruling NY N361928 at "shoulder straps that measureapproximately 1.25 inches in width".
+        confer "shoulder straps that measureapproximately 1.25 inches in width".
     the rear neckline of style 991177927 falls below the nape of the neck,
-        as stated in ruling NY N361928 at "a scoop back neckline that falls below the nape of the neck".
+        confer "a scoop back neckline that falls below the nape of the neck".
     style 991177927 contains 64 percent of polyester,
-        as stated in ruling NY N361928 at "991177927 is a women’s tank top constructed from 64 polyester".
+        confer "991177927 is a women’s tank top constructed from 64 polyester".
     style 991177927 contains 29 percent of viscose,
-        as stated in ruling NY N361928 at "29 viscose (rayon)".
+        confer "29 viscose (rayon)".
     style 991177927 contains 7 percent of elastane,
-        as stated in ruling NY N361928 at "and 7 percentelastane rib knit fabric".
+        confer "and 7 percentelastane rib knit fabric".
     subheading expects answers ["the subheading of style 991177927 is 6109.90"].
 
 % NY N360982 (April 2026): women's upper body garments.
-scenario ny_n360982 is:
+scenario ny_n360982 is, as stated in ruling NY N360982:
     style 260421F is an upper body garment,
-        as stated in ruling NY N360982 at "260421F is a women’s tank top constructed from 57 percent cotton".
-    style 260421F is classified under the US tariff, as stated in ruling NY N360982.
+        confer "260421F is a women’s tank top constructed from 57 percent cotton".
+    style 260421F is classified under the US tariff.
     the fabric construction of style 260421F is knitted,
-        as stated in ruling NY N360982 at "rib knit capping around the neckline and armholes".
+        confer "rib knit capping around the neckline and armholes".
     the cut of style 260421F indicates women,
-        as stated in ruling NY N360982 at "260421F is a women’s tank top constructed from 57 percent cotton".
+        confer "260421F is a women’s tank top constructed from 57 percent cotton".
     style 260421F is sleeveless,
-        as stated in ruling NY N360982 at "The sleeveless garment reaches from the shoulders to below the waist and features".
+        confer "The sleeveless garment reaches from the shoulders to below the waist and features".
     style 260421F has shoulder straps,
-        as stated in ruling NY N360982 at "shoulder straps measuring 1 1/4 inches in width".
+        confer "shoulder straps measuring 1 1/4 inches in width".
     the rear neckline of style 260421F falls below the nape of the neck,
-        as stated in ruling NY N360982 at "a scoop rear neckline that fallsbelow the nape of the neck".
+        confer "a scoop rear neckline that fallsbelow the nape of the neck".
     style 260421F contains 57 percent of cotton,
-        as stated in ruling NY N360982 at "260421F is a women’s tank top constructed from 57 percent cotton".
+        confer "260421F is a women’s tank top constructed from 57 percent cotton".
     style 260421F contains 39 percent of modal,
-        as stated in ruling NY N360982 at "39 modal".
+        confer "39 modal".
     style 260421F contains 4 percent of spandex,
-        as stated in ruling NY N360982 at "and 4 percent spandexknit fabric".
+        confer "and 4 percent spandexknit fabric".
     style 260421G is an upper body garment,
-        as stated in ruling NY N360982 at "260421G is a women’s upper body garment constructed from 58 percent cotton".
-    style 260421G is classified under the US tariff, as stated in ruling NY N360982.
+        confer "260421G is a women’s upper body garment constructed from 58 percent cotton".
+    style 260421G is classified under the US tariff.
     the fabric construction of style 260421G is knitted,
-        as stated in ruling NY N360982 at "and4 percent spandex knit fabric.The outer surface of the garment’s fabric measures more than".
+        confer "and4 percent spandex knit fabric.The outer surface of the garment’s fabric measures more than".
     the cut of style 260421G indicates women,
-        as stated in ruling NY N360982 at "260421G is a women’s upper body garment constructed from 58 percent cotton".
+        confer "260421G is a women’s upper body garment constructed from 58 percent cotton".
     style 260421G is sleeveless,
-        as stated in ruling NY N360982 at "direction the stitches were formed.The sleeveless garment reaches from the shoulders to below the waist and features".
+        confer "direction the stitches were formed.The sleeveless garment reaches from the shoulders to below the waist and features".
     style 260421G has shoulder straps,
-        as stated in ruling NY N360982 at "shoulder straps measuring 2 1/2inches in width".
+        confer "shoulder straps measuring 2 1/2inches in width".
     style 260421G contains 58 percent of cotton,
-        as stated in ruling NY N360982 at "garment constructed from 58 percent cotton".
+        confer "garment constructed from 58 percent cotton".
     style 260421G contains 38 percent of modal,
-        as stated in ruling NY N360982 at "38 percent modal".
+        confer "38 percent modal".
     style 260421G contains 4 percent of spandex,
-        as stated in ruling NY N360982 at "and4 percent spandex knit fabric.The outer surface".
+        confer "and4 percent spandex knit fabric.The outer surface".
     style 260421H is an upper body garment,
-        as stated in ruling NY N360982 at "260421H is a women’s tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
-    style 260421H is classified under the US tariff, as stated in ruling NY N360982.
+        confer "260421H is a women’s tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
+    style 260421H is classified under the US tariff.
     the fabric construction of style 260421H is knitted,
-        as stated in ruling NY N360982 at "260421H is a women’s tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
+        confer "260421H is a women’s tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
     the cut of style 260421H indicates women,
-        as stated in ruling NY N360982 at "260421H is a women’s tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
+        confer "260421H is a women’s tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
     style 260421H is sleeveless,
-        as stated in ruling NY N360982 at "The sleeveless garment reaches from the shoulders to below the waist and features".
+        confer "The sleeveless garment reaches from the shoulders to below the waist and features".
     style 260421H has shoulder straps,
-        as stated in ruling NY N360982 at "shoulder straps measuring 1 1/2 inches in width".
+        confer "shoulder straps measuring 1 1/2 inches in width".
     the rear neckline of style 260421H falls below the nape of the neck,
-        as stated in ruling NY N360982 at "a curved rear neckline that falls beneaththe nape of the neck".
+        confer "a curved rear neckline that falls beneaththe nape of the neck".
     style 260421H contains 95 percent of cotton,
-        as stated in ruling NY N360982 at "tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
+        confer "tank top constructed from 95 percent cotton and 5 percent spandex knit fabric".
     style 260421H contains 5 percent of spandex,
-        as stated in ruling NY N360982 at "from 95 percent cotton and 5 percent spandex knit fabric".
+        confer "from 95 percent cotton and 5 percent spandex knit fabric".
     style 260421I is an upper body garment,
-        as stated in ruling NY N360982 at "260421I is a women’s upper body garment constructed from 57 percent cotton".
-    style 260421I is classified under the US tariff, as stated in ruling NY N360982.
+        confer "260421I is a women’s upper body garment constructed from 57 percent cotton".
+    style 260421I is classified under the US tariff.
     the fabric construction of style 260421I is knitted,
-        as stated in ruling NY N360982 at "and 4percent spandex knit fabric".
+        confer "and 4percent spandex knit fabric".
     the cut of style 260421I indicates women,
-        as stated in ruling NY N360982 at "260421I is a women’s upper body garment constructed from 57 percent cotton".
+        confer "260421I is a women’s upper body garment constructed from 57 percent cotton".
     style 260421I is sleeveless,
-        as stated in ruling NY N360982 at "The sleeveless garment reaches from the shouldersto below the waist and features".
+        confer "The sleeveless garment reaches from the shouldersto below the waist and features".
     style 260421I has shoulder straps,
-        as stated in ruling NY N360982 at "shoulder straps measuring 2 1/16 inches in width".
+        confer "shoulder straps measuring 2 1/16 inches in width".
     style 260421I has an opening starting at the neckline,
-        as stated in ruling NY N360982 at "a partial front opening with three right-over-left buttonclosures on the placket".
+        confer "a partial front opening with three right-over-left buttonclosures on the placket".
     style 260421I closes right over left,
-        as stated in ruling NY N360982 at "a partial front opening with three right-over-left buttonclosures on the placket".
+        confer "a partial front opening with three right-over-left buttonclosures on the placket".
     style 260421I contains 57 percent of cotton,
-        as stated in ruling NY N360982 at "garment constructed from 57 percent cotton".
+        confer "garment constructed from 57 percent cotton".
     style 260421I contains 39 percent of modal,
-        as stated in ruling NY N360982 at "39 percent modal".
+        confer "39 percent modal".
     style 260421I contains 4 percent of spandex,
-        as stated in ruling NY N360982 at "and 4percent spandex knit fabric".
+        confer "and 4percent spandex knit fabric".
     style 260421J is an upper body garment,
-        as stated in ruling NY N360982 at "260421J is a women’s tank top constructed from 60 percent cotton and 40 percent polyester knit".
-    style 260421J is classified under the US tariff, as stated in ruling NY N360982.
+        confer "260421J is a women’s tank top constructed from 60 percent cotton and 40 percent polyester knit".
+    style 260421J is classified under the US tariff.
     the fabric construction of style 260421J is knitted,
-        as stated in ruling NY N360982 at "percent cotton and 40 percent polyester knit fabric".
+        confer "percent cotton and 40 percent polyester knit fabric".
     the cut of style 260421J indicates women,
-        as stated in ruling NY N360982 at "260421J is a women’s tank top constructed from 60 percent cotton and 40 percent polyester knit fabric".
+        confer "260421J is a women’s tank top constructed from 60 percent cotton and 40 percent polyester knit fabric".
     style 260421J is sleeveless,
-        as stated in ruling NY N360982 at "The sleeveless garment reaches from the shoulders to the waist and features a U-shaped".
+        confer "The sleeveless garment reaches from the shoulders to the waist and features a U-shaped".
     style 260421J has shoulder straps,
-        as stated in ruling NY N360982 at "spaghetti straps".
+        confer "spaghetti straps".
     the rear neckline of style 260421J falls below the nape of the neck,
-        as stated in ruling NY N360982 at "a curved rear neckline that falls beneath the nape of the neck".
+        confer "a curved rear neckline that falls beneath the nape of the neck".
     style 260421J contains 60 percent of cotton,
-        as stated in ruling NY N360982 at "tank top constructed from 60 percent cotton and 40 percent polyester knit".
+        confer "tank top constructed from 60 percent cotton and 40 percent polyester knit".
     style 260421J contains 40 percent of polyester,
-        as stated in ruling NY N360982 at "from 60 percent cotton and 40 percent polyester knit fabric".
+        confer "from 60 percent cotton and 40 percent polyester knit fabric".
     subheading expects answers ["the subheading of style 260421F is 6109.10",
         "the subheading of style 260421G is 6110.20",
         "the subheading of style 260421H is 6109.10",
@@ -813,410 +809,405 @@ scenario ny_n360982 is:
         "the subheading of style 260421J is 6109.10"].
 
 % NY N356893 (December 2025): girls' tops from Vietnam.
-scenario ny_n356893 is:
+scenario ny_n356893 is, as stated in ruling NY N356893:
     style SS27GAA0015 is an upper body garment,
-        as stated in ruling NY N356893 at "SS27GAA0015 is a girls’ sleeveless tank top".
+        confer "SS27GAA0015 is a girls’ sleeveless tank top".
     style SS27GAA0015 is classified under the US tariff,
-        as stated in ruling NY N356893 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style SS27GAA0015 is knitted,
-        as stated in ruling NY N356893 at "5% elastane jersey knit fabric".
+        confer "5% elastane jersey knit fabric".
     the cut of style SS27GAA0015 indicates women,
-        as stated in ruling NY N356893 at "SS27GAA0015 is a girls’ sleeveless tank top".
+        confer "SS27GAA0015 is a girls’ sleeveless tank top".
     style SS27GAA0015 is sleeveless,
-        as stated in ruling NY N356893 at "SS27GAA0015 is a girls’ sleeveless tank top".
+        confer "SS27GAA0015 is a girls’ sleeveless tank top".
     style SS27GAA0015 has shoulder straps,
-        as stated in ruling NY N356893 at "The garment features narrow spaghetti shoulder straps".
+        confer "The garment features narrow spaghetti shoulder straps".
     style SS27GAA0015 contains 95 percent of polyester,
-        as stated in ruling NY N356893 at "composed of 95% polyester".
+        confer "composed of 95% polyester".
     style SS27GAA0015 contains 5 percent of elastane,
-        as stated in ruling NY N356893 at "5% elastane jersey knit fabric".
+        confer "5% elastane jersey knit fabric".
     the rear neckline of style SS27GAA0015 falls below the nape of the neck,
-        as stated in ruling NY N356893 at "a scooped front and back neckline and a sewn-in supportive bra constructed of 89% polyester and 11%",
+        confer "a scooped front and back neckline and a sewn-in supportive bra constructed of 89% polyester and 11%",
         because "the garment has a scooped front and back neckline".
     style SS27GAA0015 is claimed to belong to brassieres,
-        as stated in ruling NY N356893 at "which provides for Brassieres…whether or not knitted or crocheted".
+        confer "which provides for Brassieres…whether or not knitted or crocheted".
     the claim that style SS27GAA0015 belongs to brassieres is rejected,
-        according to CBP, as stated in ruling NY N356893 at "both garments lack the structural features required for classification as a supportive garment and are designed",
-        because "the garments lack the structural features required for classification as a supportive garment and are designed and marketed as outer tank tops".
-%% Agrees on the strength of a characterisation by the office (see the judged fact).
+        according to CBP, confer "both garments lack the structural features required for classification as a supportive garment and are designed".
+    %% Agrees on the strength of a characterisation by the office (see the judged fact).
     style SS27GAA0016 is an upper body garment,
-        as stated in ruling NY N356893 at "SS27GAA0016 is a girls’ sleeveless tank top".
+        confer "SS27GAA0016 is a girls’ sleeveless tank top".
     style SS27GAA0016 is classified under the US tariff,
-        as stated in ruling NY N356893 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style SS27GAA0016 is knitted,
-        as stated in ruling NY N356893 at "composed of 89% polyester and 11% elastane knit fabric".
+        confer "composed of 89% polyester and 11% elastane knit fabric".
     the cut of style SS27GAA0016 indicates women,
-        as stated in ruling NY N356893 at "SS27GAA0016 is a girls’ sleeveless tank top".
+        confer "SS27GAA0016 is a girls’ sleeveless tank top".
     style SS27GAA0016 is sleeveless,
-        as stated in ruling NY N356893 at "SS27GAA0016 is a girls’ sleeveless tank top".
+        confer "SS27GAA0016 is a girls’ sleeveless tank top".
     style SS27GAA0016 has shoulder straps,
-        as stated in ruling NY N356893 at "The close-fitting garment features shoulder straps measuring approximately 1 ¼ inches".
+        confer "The close-fitting garment features shoulder straps measuring approximately 1 ¼ inches".
     style SS27GAA0016 contains 89 percent of polyester,
-        as stated in ruling NY N356893 at "composed of 89% polyester and 11% elastane knit fabric".
+        confer "composed of 89% polyester and 11% elastane knit fabric".
     style SS27GAA0016 contains 11 percent of elastane,
-        as stated in ruling NY N356893 at "composed of 89% polyester and 11% elastane knit fabric".
+        confer "composed of 89% polyester and 11% elastane knit fabric".
     style SS27GAA0016 has a tank silhouette,
-        according to CBP, as stated in ruling NY N356893 at "garment and are designed and marketed as outer tank tops",
+        according to CBP, confer "garment and are designed and marketed as outer tank tops",
         because "the garment is designed and marketed as an outer tank top; the ruling does not describe its rear neckline".
     style SS27GAA0016 is claimed to belong to brassieres,
-        as stated in ruling NY N356893 at "which provides for Brassieres…whether or not knitted or crocheted".
+        confer "which provides for Brassieres…whether or not knitted or crocheted".
     the claim that style SS27GAA0016 belongs to brassieres is rejected,
-        according to CBP, as stated in ruling NY N356893 at "both garments lack the structural features required for classification as a supportive garment and are designed",
-        because "the garments lack the structural features required for classification as a supportive garment and are designed and marketed as outer tank tops".
+        according to CBP, confer "both garments lack the structural features required for classification as a supportive garment and are designed".
     subheading expects answers ["the subheading of style SS27GAA0015 is 6109.90",
         "the subheading of style SS27GAA0016 is 6109.90"].
 
 % NY N342660 (2024): a woman's upper body garment from Bangladesh.
-scenario ny_n342660 is:
-%% Agrees on the strength of a characterisation by the office (see the judged fact).
+scenario ny_n342660 is, as stated in ruling NY N342660:
+    %% Agrees on the strength of a characterisation by the office (see the judged fact).
     style 473013S is an upper body garment,
-        as stated in ruling NY N342660 at "473013S is a woman’s tank-styled top".
+        confer "473013S is a woman’s tank-styled top".
     style 473013S is classified under the US tariff,
-        as stated in ruling NY N342660 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 473013S is knitted,
-        as stated in ruling NY N342660 at "10 percent polyester and 8 percent metallic knit fabric".
+        confer "10 percent polyester and 8 percent metallic knit fabric".
     the cut of style 473013S indicates women,
-        as stated in ruling NY N342660 at "473013S is a woman’s tank-styled top".
+        confer "473013S is a woman’s tank-styled top".
     style 473013S is sleeveless,
-        as stated in ruling NY N342660 at "The sleeveless top features shoulder straps measuring over two inches in width".
+        confer "The sleeveless top features shoulder straps measuring over two inches in width".
     style 473013S has shoulder straps,
-        as stated in ruling NY N342660 at "The sleeveless top features shoulder straps measuring over two inches in width".
+        confer "The sleeveless top features shoulder straps measuring over two inches in width".
     style 473013S contains 84 percent of rayon,
-        as stated in ruling NY N342660 at "The overall composition of the sample by weight is 84 percent rayon".
+        confer "The overall composition of the sample by weight is 84 percent rayon".
     style 473013S contains 9.5 percent of polyester,
-        as stated in ruling NY N342660 at "9.5 percent polyester and 6.5 percent metalized yarn".
+        confer "9.5 percent polyester and 6.5 percent metalized yarn".
     style 473013S contains 6.5 percent of metalized yarn,
-        as stated in ruling NY N342660 at "9.5 percent polyester and 6.5 percent metalized yarn".
+        confer "9.5 percent polyester and 6.5 percent metalized yarn".
     all the yarn of style 473013S is metalized yarn,
-        according to the CBP laboratory, as stated in ruling NY N342660 at "determine whether any yarn qualifies as a metalized yarn under heading 5605",
-        because "each yarn is four plies twisted together, one of them a metallic strip, so all of it is metalized yarn of heading 5605 (Section style 473013SI note 2(B)(a))".
+        according to the CBP laboratory, confer "twisted with a strip that is metallic",
+        because "each yarn is four plies twisted together, one of them a metallic strip, so all of it is metalized yarn of heading 5605 (Section XI note 2(B)(a))".
     style 473013S has a tank silhouette,
-        according to CBP, as stated in ruling NY N342660 at "473013S is a woman’s tank-styled top",
+        according to CBP, confer "473013S is a woman’s tank-styled top",
         because "CBP describes a tank-styled top; the ruling does not describe its rear neckline".
     subheading expects answers ["the subheading of style 473013S is 6109.90"].
 
 % NY N361705 (May 2026): a men's upper body garment.
-scenario ny_n361705 is:
-% style D27 is style D27-00003.
+scenario ny_n361705 is, as stated in ruling NY N361705:
+    % style D27 is style D27-00003.
     style D27 is an upper body garment,
-        as stated in ruling NY N361705 at "D27-00003 is a men’s upper body garment constructed from 100 percent polyester knit fabric that isheavily".
-    style D27 is classified under the US tariff, as stated in ruling NY N361705.
+        confer "D27-00003 is a men’s upper body garment constructed from 100 percent polyester knit fabric that isheavily".
+    style D27 is classified under the US tariff.
     the fabric construction of style D27 is knitted,
-        as stated in ruling NY N361705 at "constructed from 100 percent polyester knit fabric that isheavily napped on its outer surface and lightly napped".
+        confer "constructed from 100 percent polyester knit fabric that isheavily napped on its outer surface and lightly napped".
     the cut of style D27 indicates men,
-        as stated in ruling NY N361705 at "D27-00003 is a men’s upper body garment constructed from 100 percent polyester knit fabric that isheavily napped on its outer surface".
+        confer "D27-00003 is a men’s upper body garment constructed from 100 percent polyester knit fabric that isheavily napped on its outer surface".
     style D27 is napped,
-        as stated in ruling NY N361705 at "polyester knit fabric that isheavily napped on its outer surface and lightly napped on its inner surface.The".
+        confer "polyester knit fabric that isheavily napped on its outer surface and lightly napped on its inner surface.The".
     style D27 has an opening starting at the neckline,
-        as stated in ruling NY N361705 at "wereformed.Style D27-00003 features a full front opening with a zippered closure that zips through a woven fabric stand-up".
+        confer "wereformed.Style D27-00003 features a full front opening with a zippered closure that zips through a woven fabric stand-up".
     style D27 has a collar,
-        as stated in ruling NY N361705 at "zips through a woven fabric stand-up collar".
+        confer "zips through a woven fabric stand-up collar".
     style D27 has pockets below the waist,
-        as stated in ruling NY N361705 at "two verticalpockets with zippered closures below the waist".
+        confer "two verticalpockets with zippered closures below the waist".
     style D27 contains 100 percent of polyester,
-        as stated in ruling NY N361705 at "garment constructed from 100 percent polyester knit fabric that isheavily".
+        confer "garment constructed from 100 percent polyester knit fabric that isheavily".
     subheading expects answers ["the subheading of style D27 is 6110.30"].
 
 % NY N348145 (April 2025): a women's sweater.
-scenario ny_n348145 is:
+scenario ny_n348145 is, as stated in ruling NY N348145:
     style 239318 is an upper body garment,
-        as stated in ruling NY N348145 at "239318 is a women’s knit sweater with a stated fiber content of 81 percent polyamide and percent19".
-    style 239318 is classified under the US tariff, as stated in ruling NY N348145.
+        confer "239318 is a women’s knit sweater with a stated fiber content of 81 percent polyamide and percent19".
+    style 239318 is classified under the US tariff.
     the fabric construction of style 239318 is knitted,
-        as stated in ruling NY N348145 at "239318 is a women’s knit sweater with a stated fiber content of 81 percent polyamide and percent19".
+        confer "239318 is a women’s knit sweater with a stated fiber content of 81 percent polyamide and percent19".
     the cut of style 239318 indicates women,
-        as stated in ruling NY N348145 at "239318 is a women’s knit sweater with a stated fiber content of 81 percent polyamide and percent19 metallic.he outer surface of".
+        confer "239318 is a women’s knit sweater with a stated fiber content of 81 percent polyamide and percent19 metallic.he outer surface of".
     style 239318 contains 82.9 percent of nylon,
-        as stated in ruling NY N348145 at "content of the garment is 82.9 percent nylon and 17.1 metalized.The applicable".
+        confer "content of the garment is 82.9 percent nylon and 17.1 metalized.The applicable".
     style 239318 contains 17.1 percent of metalized yarn,
-        as stated in ruling NY N348145 at "short-length metalized yarns (17.1percent by weight) and protruding short-length".
+        confer "short-length metalized yarns (17.1percent by weight) and protruding short-length".
     subheading expects answers ["the subheading of style 239318 is 6110.30"].
 
 % NY N351060 (July 2025): a women's sweater.
-scenario ny_n351060 is:
+scenario ny_n351060 is, as stated in ruling NY N351060:
     style 261-SW421136 is an upper body garment,
-        as stated in ruling NY N351060 at "261-SW421136 is a women’s knit sweater with a stated fiber content of 50 percent polyester".
-    style 261-SW421136 is classified under the US tariff, as stated in ruling NY N351060.
+        confer "261-SW421136 is a women’s knit sweater with a stated fiber content of 50 percent polyester".
+    style 261-SW421136 is classified under the US tariff.
     the fabric construction of style 261-SW421136 is knitted,
-        as stated in ruling NY N351060 at "261-SW421136 is a women’s knit sweater with a stated fiber content of 50 percent polyester".
+        confer "261-SW421136 is a women’s knit sweater with a stated fiber content of 50 percent polyester".
     the cut of style 261-SW421136 indicates women,
-        as stated in ruling NY N351060 at "261-SW421136 is a women’s knit sweater with a stated fiber content of 50 percent polyester".
+        confer "261-SW421136 is a women’s knit sweater with a stated fiber content of 50 percent polyester".
     style 261-SW421136 is sleeveless,
-        as stated in ruling NY N351060 at "Style 261-SW421136 is sleeveless and features a rib knit crew neckline".
+        confer "Style 261-SW421136 is sleeveless and features a rib knit crew neckline".
     style 261-SW421136 contains 58.91 percent of polyester,
-        as stated in ruling NY N351060 at "The overall fiber content of the garment is 58.91 percent polyester".
+        confer "The overall fiber content of the garment is 58.91 percent polyester".
     style 261-SW421136 contains 28.32 percent of cotton,
-        as stated in ruling NY N351060 at "28.32 percent cotton".
+        confer "28.32 percent cotton".
     style 261-SW421136 contains 8.54 percent of nylon,
-        as stated in ruling NY N351060 at "8.54 percent nylon".
+        confer "8.54 percent nylon".
     style 261-SW421136 contains 2.21 percent of metalized yarn,
-        as stated in ruling NY N351060 at "2.21 percent metallic".
+        confer "2.21 percent metallic".
     style 261-SW421136 contains 2.02 percent of rayon,
-        as stated in ruling NY N351060 at "and2.02 percent rayon/flax".
+        confer "and2.02 percent rayon/flax".
     all the yarn of style 261-SW421136 is metalized yarn,
-        according to the CBP laboratory, as stated in ruling NY N351060 at "The two yarns of thetwo-ply yarn are twisted together",
-        because "the garment is knitted from one six-ply yarn in which all plies are twisted together, including the metallic one: all of it is metalized yarn (Section style 261-SW421136I note 2(B)(a))".
+        according to the CBP laboratory, confer "and then all five yarns are twisted together",
+        because "the garment is knitted from one six-ply yarn in which all plies are twisted together, including the metallic one: all of it is metalized yarn (Section XI note 2(B)(a))".
     subheading expects answers ["the subheading of style 261-SW421136 is 6110.90"].
 
 % NY N361049 (April 2026): a women's upper body garment.
-scenario ny_n361049 is:
+scenario ny_n361049 is, as stated in ruling NY N361049:
     style WX6FA129RD is an upper body garment,
-        as stated in ruling NY N361049 at "from 68 percent cotton and 32 percentupper body garment polyester knit fabric that is napped on its inner surface.tyle significantly".
-    style WX6FA129RD is classified under the US tariff, as stated in ruling NY N361049.
+        confer "from 68 percent cotton and 32 percentupper body garment polyester knit fabric that is napped on its inner surface.tyle significantly".
+    style WX6FA129RD is classified under the US tariff.
     the fabric construction of style WX6FA129RD is knitted,
-        as stated in ruling NY N361049 at "percentupper body garment polyester knit fabric that is napped on its inner surface.tyle significantly SWX6FA129RD".
+        confer "percentupper body garment polyester knit fabric that is napped on its inner surface.tyle significantly SWX6FA129RD".
     the cut of style WX6FA129RD indicates women,
-        as stated in ruling NY N361049 at "WX6FA129RD is a women’s constructed from 68 percent cotton and 32 percentupper body garment polyester knit fabric that is napped on".
+        confer "WX6FA129RD is a women’s constructed from 68 percent cotton and 32 percentupper body garment polyester knit fabric that is napped on".
     style WX6FA129RD is napped,
-        as stated in ruling NY N361049 at "garment polyester knit fabric that is napped on its inner surface.tyle significantly SWX6FA129RD features a".
+        confer "garment polyester knit fabric that is napped on its inner surface.tyle significantly SWX6FA129RD features a".
     style WX6FA129RD has an opening starting at the neckline,
-        as stated in ruling NY N361049 at "significantly SWX6FA129RD features a partialfront opening that zips through a self-fabric stand-up collar".
+        confer "significantly SWX6FA129RD features a partialfront opening that zips through a self-fabric stand-up collar".
     style WX6FA129RD has a collar,
-        as stated in ruling NY N361049 at "zips through a self-fabric stand-up collar".
+        confer "zips through a self-fabric stand-up collar".
     style WX6FA129RD has pockets below the waist,
-        as stated in ruling NY N361049 at "vertical welt pockets on the front panel below the waist".
+        confer "vertical welt pockets on the front panel below the waist".
     style WX6FA129RD has a means of tightening at the bottom,
-        as stated in ruling NY N361049 at "¼-inch-wide rib knit bottom band thatprovides tightening to the bottom of the garment.The applicable subheading for Style".
+        confer "¼-inch-wide rib knit bottom band thatprovides tightening to the bottom of the garment.The applicable subheading for Style".
     style WX6FA129RD contains 68 percent of cotton,
-        as stated in ruling NY N361049 at "women’s constructed from 68 percent cotton and 32 percentupper body garment".
+        confer "women’s constructed from 68 percent cotton and 32 percentupper body garment".
     style WX6FA129RD contains 32 percent of polyester,
-        as stated in ruling NY N361049 at "from 68 percent cotton and 32 percentupper body garment polyester knit fabric".
+        confer "from 68 percent cotton and 32 percentupper body garment polyester knit fabric".
     subheading expects answers ["the subheading of style WX6FA129RD is 6110.20"].
 
 % NY N360338 (April 2026): a women's upper body garment.
-scenario ny_n360338 is:
+scenario ny_n360338 is, as stated in ruling NY N360338:
     style A2726-4 is an upper body garment,
-        as stated in ruling NY N360338 at "Bomber Jacket – Valley of the Fleurs” is a women’s upper body garment constructed from knit fabric".
+        confer "Bomber Jacket – Valley of the Fleurs” is a women’s upper body garment constructed from knit fabric".
     style A2726-4 is classified under the US tariff,
-        as stated in ruling NY N360338 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style A2726-4 is knitted,
-        as stated in ruling NY N360338 at "upper body garment constructed from knit fabric".
+        confer "upper body garment constructed from knit fabric".
     the cut of style A2726-4 indicates women,
-        as stated in ruling NY N360338 at "Bomber Jacket – Valley of the Fleurs” is a women’s upper body garment constructed from knit fabric".
+        confer "Bomber Jacket – Valley of the Fleurs” is a women’s upper body garment constructed from knit fabric".
     style A2726-4 has an opening starting at the neckline,
-        as stated in ruling NY N360338 at "Style A2726-4 features a full-front opening with a zippered closure".
+        confer "Style A2726-4 features a full-front opening with a zippered closure".
     style A2726-4 has a collar,
-        as stated in ruling NY N360338 at "a rib knit band collar".
+        confer "a rib knit band collar".
     style A2726-4 has pockets below the waist,
-        as stated in ruling NY N360338 at "vertical pockets with zippered closures on the front panels below the waist".
+        confer "vertical pockets with zippered closures on the front panels below the waist".
     style A2726-4 contains 96 percent of cotton,
-        according to the importer, as stated in ruling NY N360338 at "will have a fiber content of 96 percent cotton and 4 percent spandex",
+        according to the importer, confer "will have a fiber content of 96 percent cotton and 4 percent spandex",
         because "the fibre content of the garment as imported, not of the sample".
     style A2726-4 contains 4 percent of spandex,
-        according to the importer, as stated in ruling NY N360338 at "A2726-4 “Bee Active Drop Shoulder Bomber Jacket – Valley",
+        according to the importer, confer "will have a fiber content of 96 percent cotton and 4 percent spandex",
         because "the fibre content of the garment as imported, not of the sample".
     style A2726-4 is claimed to belong to outerwear,
-        as stated in ruling NY N360338 at "Style A2726-4 “Bee Active Drop Shoulder Bomber Jacket – Valley of the Fleurs” is a women’s upper body garment constructed".
+        confer "Style A2726-4 “Bee Active Drop Shoulder Bomber Jacket – Valley of the Fleurs” is a women’s upper body garment constructed".
     the claim that style A2726-4 belongs to outerwear is rejected,
-        according to CBP, as stated in ruling NY N360338,
+        according to CBP, confer "the sample garment lacks the character of an outerwear jacket",
         because "the sample lacks the character of an outerwear jacket designed for wear over all other clothing for protection against the weather".
     subheading expects answers ["the subheading of style A2726-4 is 6110.20"].
 
 % NY N357689 (January 2026): a girl's upper body garment.
-scenario ny_n357689 is:
+scenario ny_n357689 is, as stated in ruling NY N357689:
     style 260108A is an upper body garment,
-        as stated in ruling NY N357689 at "is a girl’s upper body garment constructed of 55% cotton and 45% polyester fleece knit fabric that".
+        confer "is a girl’s upper body garment constructed of 55% cotton and 45% polyester fleece knit fabric that".
     style 260108A is classified under the US tariff,
-        as stated in ruling NY N357689 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 260108A is knitted,
-        as stated in ruling NY N357689 at "55% cotton and 45% polyester fleece knit fabric that is lightly napped on its inner surface".
+        confer "55% cotton and 45% polyester fleece knit fabric that is lightly napped on its inner surface".
     the cut of style 260108A indicates women,
-        as stated in ruling NY N357689 at "is a girl’s upper body garment constructed of 55% cotton and 45% polyester fleece knit fabric that is lightly napped".
+        confer "is a girl’s upper body garment constructed of 55% cotton and 45% polyester fleece knit fabric that is lightly napped".
     style 260108A is napped,
-        as stated in ruling NY N357689 at "fleece knit fabric that is lightly napped on its inner surface".
+        confer "fleece knit fabric that is lightly napped on its inner surface".
     style 260108A has a collar,
-        as stated in ruling NY N357689 at "The garment features a round crew neckline with a rib knit collar".
+        confer "The garment features a round crew neckline with a rib knit collar".
     style 260108A contains 55 percent of cotton,
-        as stated in ruling NY N357689 at "body garment constructed of 55% cotton and 45% polyester fleece knit fabric".
+        confer "body garment constructed of 55% cotton and 45% polyester fleece knit fabric".
     style 260108A contains 45 percent of polyester,
-        as stated in ruling NY N357689 at "constructed of 55% cotton and 45% polyester fleece knit fabric that is lightly".
+        confer "constructed of 55% cotton and 45% polyester fleece knit fabric that is lightly".
     subheading expects answers ["the subheading of style 260108A is 6110.20"].
 
 % NY N338772 (March 2024): men's shirts from Guatemala.
-scenario ny_n338772 is:
+scenario ny_n338772 is, as stated in ruling NY N338772:
     style 789023555314 is an upper body garment,
-        as stated in ruling NY N338772 at "789023555314 is a men’s shirt stated to be constructed from 100% cotton chambray woven fabric".
+        confer "789023555314 is a men’s shirt stated to be constructed from 100% cotton chambray woven fabric".
     style 789023555314 is classified under the US tariff,
-        as stated in ruling NY N338772 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 789023555314 is woven,
-        as stated in ruling NY N338772 at "789023555314 is a men’s shirt stated to be constructed from 100% cotton chambray woven fabric".
+        confer "789023555314 is a men’s shirt stated to be constructed from 100% cotton chambray woven fabric".
     the cut of style 789023555314 indicates men,
-        as stated in ruling NY N338772 at "789023555314 is a men’s shirt stated to be constructed from 100% cotton chambray woven fabric".
+        confer "789023555314 is a men’s shirt stated to be constructed from 100% cotton chambray woven fabric".
     style 789023555314 has a collar,
-        as stated in ruling NY N338772 at "The garment features a self-fabric button-down collar".
+        confer "The garment features a self-fabric button-down collar".
     style 789023555314 has an opening starting at the neckline,
-        as stated in ruling NY N338772 at "full front opening with seven button closures".
+        confer "full front opening with seven button closures".
     style 789023555314 closes left over right,
-        as stated in ruling NY N338772 at "a left-over-right".
+        confer "a left-over-right".
     style 789023555314 contains 100 percent of cotton,
-        as stated in ruling NY N338772 at "stated to be constructed from 100% cotton chambray woven fabric".
+        confer "stated to be constructed from 100% cotton chambray woven fabric".
     style 710804257 is an upper body garment,
-        as stated in ruling NY N338772 at "710804257 is a men’s shirt stated to be constructed from 100% cotton woven fabric".
+        confer "710804257 is a men’s shirt stated to be constructed from 100% cotton woven fabric".
     style 710804257 is classified under the US tariff,
-        as stated in ruling NY N338772 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 710804257 is woven,
-        as stated in ruling NY N338772 at "710804257 is a men’s shirt stated to be constructed from 100% cotton woven fabric".
+        confer "710804257 is a men’s shirt stated to be constructed from 100% cotton woven fabric".
     the cut of style 710804257 indicates men,
-        as stated in ruling NY N338772 at "710804257 is a men’s shirt stated to be constructed from 100% cotton woven fabric".
+        confer "710804257 is a men’s shirt stated to be constructed from 100% cotton woven fabric".
     style 710804257 has a collar,
-        as stated in ruling NY N338772 at "The garment features a self-fabric button-down collar".
+        confer "The garment features a self-fabric button-down collar".
     style 710804257 has an opening starting at the neckline,
-        as stated in ruling NY N338772 at "full front opening with six button closures".
+        confer "full front opening with six button closures".
     style 710804257 closes left over right,
-        as stated in ruling NY N338772 at "a left-over-right".
+        confer "a left-over-right".
     style 710804257 contains 100 percent of cotton,
-        as stated in ruling NY N338772 at "stated to be constructed from 100% cotton woven fabric".
+        confer "stated to be constructed from 100% cotton woven fabric".
     subheading expects answers ["the subheading of style 789023555314 is 6205.20",
         "the subheading of style 710804257 is 6205.20"].
 
 % NY N337141 (December 2023): a men's dress shirt from Guatemala.
-scenario ny_n337141 is:
+scenario ny_n337141 is, as stated in ruling NY N337141:
     style PERT003 is an upper body garment,
-        as stated in ruling NY N337141 at "PERT003 is a men’s striped shirt constructed from 100% cotton woven fabric".
+        confer "PERT003 is a men’s striped shirt constructed from 100% cotton woven fabric".
     style PERT003 is classified under the US tariff,
-        as stated in ruling NY N337141 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style PERT003 is woven,
-        as stated in ruling NY N337141 at "PERT003 is a men’s striped shirt constructed from 100% cotton woven fabric".
+        confer "PERT003 is a men’s striped shirt constructed from 100% cotton woven fabric".
     the cut of style PERT003 indicates men,
-        as stated in ruling NY N337141 at "PERT003 is a men’s striped shirt constructed from 100% cotton woven fabric".
+        confer "PERT003 is a men’s striped shirt constructed from 100% cotton woven fabric".
     style PERT003 has a collar,
-        as stated in ruling NY N337141 at "Style PERT003 features a self-fabric spread collar".
+        confer "Style PERT003 features a self-fabric spread collar".
     style PERT003 has an opening starting at the neckline,
-        as stated in ruling NY N337141 at "full front opening with seven button closures".
+        confer "full front opening with seven button closures".
     style PERT003 closes left over right,
-        as stated in ruling NY N337141 at "a left-over-right".
+        confer "a left-over-right".
     style PERT003 contains 100 percent of cotton,
-        as stated in ruling NY N337141 at "striped shirt constructed from 100% cotton woven fabric".
+        confer "striped shirt constructed from 100% cotton woven fabric".
     subheading expects answers ["the subheading of style PERT003 is 6205.20"].
 
 % NY N336500 (November 2023): a men's dress shirt from Guatemala.
-scenario ny_n336500 is:
+scenario ny_n336500 is, as stated in ruling NY N336500:
     style BE003 is an upper body garment,
-        as stated in ruling NY N336500 at "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
+        confer "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
     style BE003 is classified under the US tariff,
-        as stated in ruling NY N336500 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style BE003 is woven,
-        as stated in ruling NY N336500 at "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
+        confer "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
     the cut of style BE003 indicates men,
-        as stated in ruling NY N336500 at "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
+        confer "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
     style BE003 has a collar,
-        as stated in ruling NY N336500 at "Style BE003 features a self-fabric button-down collar".
+        confer "Style BE003 features a self-fabric button-down collar".
     style BE003 has an opening starting at the neckline,
-        as stated in ruling NY N336500 at "full front opening with seven button closures".
+        confer "full front opening with seven button closures".
     style BE003 closes left over right,
-        as stated in ruling NY N336500 at "a left-over-right".
+        confer "a left-over-right".
     style BE003 contains 100 percent of cotton,
-        as stated in ruling NY N336500 at "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
+        confer "BE003 is a men’s shirt constructed from 100% cotton woven fabric".
     subheading expects answers ["the subheading of style BE003 is 6205.20"].
 
 % NY N361742 (May 2026): a woman's blouse from Vietnam.
-scenario ny_n361742 is:
-% DISAGREES: CBP gives 6206.40; the model gives no heading — the ruling calls the garment a blouse but records neither a loose fit (Note 4 to Chapter 62) nor an opening at the neckline, so no heading of the model describes it.
+scenario ny_n361742 is, as stated in ruling NY N361742:
+    % DISAGREES: CBP gives 6206.40; the model gives no heading — the ruling calls the garment a blouse but records neither a loose fit (Note 4 to Chapter 62) nor an opening at the neckline, so no heading of the model describes it.
     style 271-SW222435 is an upper body garment,
-        as stated in ruling NY N361742 at "The pullover style blouse features a round collar".
-    style 271-SW222435 is classified under the US tariff, as stated in ruling NY N361742.
+        confer "The pullover style blouse features a round collar".
+    style 271-SW222435 is classified under the US tariff.
     the cut of style 271-SW222435 indicates women,
-        as stated in ruling NY N361742 at "which provides for Women’s or girls’ blouses".
+        confer "which provides for Women’s or girls’ blouses".
     style 271-SW222435 is a composite good,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the knitted back of style 271-SW222435 is a component of style 271-SW222435,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the woven front of style 271-SW222435 is a component of style 271-SW222435,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the fabric construction of the knitted back of style 271-SW222435 is knitted,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the fabric construction of the woven front of style 271-SW222435 is woven,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the knitted back of style 271-SW222435 contains 57 percent of cotton,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the knitted back of style 271-SW222435 contains 38 percent of modal,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the knitted back of style 271-SW222435 contains 5 percent of spandex,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the woven front of style 271-SW222435 contains 85 percent of modal,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the woven front of style 271-SW222435 contains 15 percent of nylon,
-        as stated in ruling NY N361742 at "271-SW222435back of the sleeves".
+        confer "271-SW222435back of the sleeves".
     the essential character of style 271-SW222435 is given by the woven front of style 271-SW222435,
-        according to CBP, as stated in ruling NY N361742 at "and a hemmedbottomThe ven fabric imparts thessential character",
-        because "the woven fabric imparts the essential character of the garment".
+        according to CBP, confer "and a hemmedbottomThe ven fabric imparts thessential character".
     subheading expects answers [].
     unplaced expects answers ["style 271-SW222435 is not placed by the model"].
 
 % NY N356781 (December 2025): girls' upper body garments from Vietnam.
-scenario ny_n356781 is:
-% style BG BEACON MH TOP gauze is style PID-E73R1G-C126.
-% DISAGREES: CBP gives 6206.30; the model gives no heading — the ruling records elastic shirring and a peplum, non-functional buttons, and no loose fit: neither a shirt nor a blouse of Note 4 to Chapter 62.
+scenario ny_n356781 is, as stated in ruling NY N356781:
+    % style BG BEACON MH TOP gauze is style PID-E73R1G-C126.
+    % DISAGREES: CBP gives 6206.30; the model gives no heading — the ruling records elastic shirring and a peplum, non-functional buttons, and no loose fit: neither a shirt nor a blouse of Note 4 to Chapter 62.
     style BG BEACON MH TOP gauze is an upper body garment,
-        as stated in ruling NY N356781 at "PID-E73R1G-C126 BG BEACON MH TOP-TPI GAUZE is a girls’ upper body garment constructed of 96% cotton and 4% polyester woven fabric with an".
+        confer "PID-E73R1G-C126 BG BEACON MH TOP-TPI GAUZE is a girls’ upper body garment constructed of 96% cotton and 4% polyester woven fabric with an".
     style BG BEACON MH TOP gauze is classified under the US tariff,
-        as stated in ruling NY N356781 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style BG BEACON MH TOP gauze is woven,
-        as stated in ruling NY N356781 at "constructed of 96% cotton and 4% polyester woven fabric with an inner lining of 60% cotton and 40% polyester woven".
+        confer "constructed of 96% cotton and 4% polyester woven fabric with an inner lining of 60% cotton and 40% polyester woven".
     the cut of style BG BEACON MH TOP gauze indicates women,
-        as stated in ruling NY N356781 at "PID-E73R1G-C126 BG BEACON MH TOP-TPI GAUZE is a girls’ upper body garment constructed of 96% cotton and 4% polyester woven fabric with an inner lining of 60% cotton".
+        confer "PID-E73R1G-C126 BG BEACON MH TOP-TPI GAUZE is a girls’ upper body garment constructed of 96% cotton and 4% polyester woven fabric with an inner lining of 60% cotton".
     style BG BEACON MH TOP gauze contains 96 percent of cotton,
-        as stated in ruling NY N356781 at "garment constructed of 96% cotton and 4% polyester woven fabric with an".
+        confer "garment constructed of 96% cotton and 4% polyester woven fabric with an".
     style BG BEACON MH TOP gauze contains 4 percent of polyester,
-        as stated in ruling NY N356781 at "constructed of 96% cotton and 4% polyester woven fabric with an inner lining".
-% style BG BEACON MH TOP is style PID-R6YM91-C126.
-% DISAGREES: CBP gives 6206.30; the model gives no heading — as above: elastic shirring across the bodice, no opening, no loose fit recorded.
+        confer "constructed of 96% cotton and 4% polyester woven fabric with an inner lining".
+    % style BG BEACON MH TOP is style PID-R6YM91-C126.
+    % DISAGREES: CBP gives 6206.30; the model gives no heading — as above: elastic shirring across the bodice, no opening, no loose fit recorded.
     style BG BEACON MH TOP is an upper body garment,
-        as stated in ruling NY N356781 at "PID-R6YM91-C126 BG BEACON MH TOP_TPI is a girls’ upper body garment constructed of 80% cotton and 20% polyester woven fabric with an".
+        confer "PID-R6YM91-C126 BG BEACON MH TOP_TPI is a girls’ upper body garment constructed of 80% cotton and 20% polyester woven fabric with an".
     style BG BEACON MH TOP is classified under the US tariff,
-        as stated in ruling NY N356781 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style BG BEACON MH TOP is woven,
-        as stated in ruling NY N356781 at "constructed of 80% cotton and 20% polyester woven fabric with an inner lining of 100% polyester woven fabric".
+        confer "constructed of 80% cotton and 20% polyester woven fabric with an inner lining of 100% polyester woven fabric".
     the cut of style BG BEACON MH TOP indicates women,
-        as stated in ruling NY N356781 at "PID-R6YM91-C126 BG BEACON MH TOP_TPI is a girls’ upper body garment constructed of 80% cotton and 20% polyester woven fabric with an inner lining of 100%".
+        confer "PID-R6YM91-C126 BG BEACON MH TOP_TPI is a girls’ upper body garment constructed of 80% cotton and 20% polyester woven fabric with an inner lining of 100%".
     style BG BEACON MH TOP contains 80 percent of cotton,
-        as stated in ruling NY N356781 at "body garment constructed of 80% cotton and 20% polyester woven fabric with".
+        confer "body garment constructed of 80% cotton and 20% polyester woven fabric with".
     style BG BEACON MH TOP contains 20 percent of polyester,
-        as stated in ruling NY N356781 at "constructed of 80% cotton and 20% polyester woven fabric with an inner lining".
+        confer "constructed of 80% cotton and 20% polyester woven fabric with an inner lining".
     subheading expects answers [].
     unplaced expects answers ["style BG BEACON MH TOP gauze is not placed by the model", "style BG BEACON MH TOP is not placed by the model"].
 
 % NY N342011 (August 2024): women's blouses from India and Indonesia.
-scenario ny_n342011 is:
-% style Kwitney is style 014954.
+scenario ny_n342011 is, as stated in ruling NY N342011:
+    % style Kwitney is style 014954.
     style Kwitney is an upper body garment,
-        as stated in ruling NY N342011 at "014954 (Kwitney Women’s Long Sleeve) is a woman’s upper body garment constructed from 100% cotton woven fabric".
+        confer "014954 (Kwitney Women’s Long Sleeve) is a woman’s upper body garment constructed from 100% cotton woven fabric".
     style Kwitney is classified under the US tariff,
-        as stated in ruling NY N342011 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style Kwitney is woven,
-        as stated in ruling NY N342011 at "garment constructed from 100% cotton woven fabric".
+        confer "garment constructed from 100% cotton woven fabric".
     the cut of style Kwitney indicates women,
-        as stated in ruling NY N342011 at "014954 (Kwitney Women’s Long Sleeve) is a woman’s upper body garment constructed from 100% cotton woven fabric".
+        confer "014954 (Kwitney Women’s Long Sleeve) is a woman’s upper body garment constructed from 100% cotton woven fabric".
     style Kwitney has an opening starting at the neckline,
-        as stated in ruling NY N342011 at "The blouse features a full front opening secured by button closures".
+        confer "The blouse features a full front opening secured by button closures".
     style Kwitney has a collar,
-        as stated in ruling NY N342011 at "a shirt collar".
+        confer "a shirt collar".
     style Kwitney contains 100 percent of cotton,
-        as stated in ruling NY N342011 at "garment constructed from 100% cotton woven fabric".
+        confer "garment constructed from 100% cotton woven fabric".
     style Kwitney is claimed to belong to swim cover-ups,
-        as stated in ruling NY N342011 at "you refer to styles 014954 and 1237 as swim cover-ups".
+        confer "you refer to styles 014954 and 1237 as swim cover-ups".
     the claim that style Kwitney belongs to swim cover-ups is rejected,
-        according to CBP, as stated in ruling NY N342011 at "we consider these garments to be casual wear",
-        because "the styling, length and coverage allow the wearer to appear in public outside the beach or pool area: casual wear".
-% style 1237 is Natalie.
+        according to CBP, confer "we consider these garments to be casual wear".
+    % style 1237 is Natalie.
     style 1237 is an upper body garment,
-        as stated in ruling NY N342011 at "1237 (Natalie Women’s ¾ Sleeve) is a woman’s upper body garment constructed from 100% rayon woven fabric".
+        confer "1237 (Natalie Women’s ¾ Sleeve) is a woman’s upper body garment constructed from 100% rayon woven fabric".
     style 1237 is classified under the US tariff,
-        as stated in ruling NY N342011 at "Harmonized Tariff Schedule of the United States (HTSUS)".
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
     the fabric construction of style 1237 is woven,
-        as stated in ruling NY N342011 at "garment constructed from 100% rayon woven fabric".
+        confer "garment constructed from 100% rayon woven fabric".
     the cut of style 1237 indicates women,
-        as stated in ruling NY N342011 at "1237 (Natalie Women’s ¾ Sleeve) is a woman’s upper body garment constructed from 100% rayon woven fabric".
+        confer "1237 (Natalie Women’s ¾ Sleeve) is a woman’s upper body garment constructed from 100% rayon woven fabric".
     style 1237 has an opening starting at the neckline,
-        as stated in ruling NY N342011 at "The blouse features a full front opening secured by button closures".
+        confer "The blouse features a full front opening secured by button closures".
     style 1237 has a collar,
-        as stated in ruling NY N342011 at "a shirt collar".
+        confer "a shirt collar".
     style 1237 contains 100 percent of rayon,
-        as stated in ruling NY N342011 at "garment constructed from 100% rayon woven fabric".
+        confer "garment constructed from 100% rayon woven fabric".
     style 1237 is claimed to belong to swim cover-ups,
-        as stated in ruling NY N342011 at "you refer to styles 014954 and 1237 as swim cover-ups".
+        confer "you refer to styles 014954 and 1237 as swim cover-ups".
     the claim that style 1237 belongs to swim cover-ups is rejected,
-        according to CBP, as stated in ruling NY N342011 at "we consider these garments to be casual wear",
-        because "the styling, length and coverage allow the wearer to appear in public outside the beach or pool area: casual wear".
+        according to CBP, confer "we consider these garments to be casual wear".
     subheading expects answers ["the subheading of style Kwitney is 6206.30",
         "the subheading of style 1237 is 6206.40"].

@@ -466,23 +466,24 @@ children: `either`, `any of` and `at least one of` OR the children together;
 ### 15.5 Rule labels and numbered rule bodies **[numbering requires le_extensions.pl]**
 A rule may be labelled: `rule <name>: Head if ...` — the label becomes the
 rule's ID (visible in `le_source_element/3` and `le_source_info/4`, §13).
-A label may also say where the rule comes from (core LE, no extension):
+A label may also point at where the rule comes from (core LE, no extension):
+a document, and if possible a place in it:
 ```le
-rule note_61_4_pockets with provenance as stated in HTSUS Chapter 61
-        at "Headings 6105 and 6106 do not cover garments with pockets below the waist":
+rule note_61_4_pockets with provenance HTSUS Chapter 61,
+        confer "Headings 6105 and 6106 do not cover garments with pockets below the waist":
 a garment is excluded from heading a heading
     if heading the heading is a shirt heading
     and the garment has pockets below the waist.
 ```
-The provenance is written exactly like a fact's trailers (§17.1: `according
-to <source>`, `as stated in <document> at <locator>`, `because "<text>"`,
-separated by commas, on as many lines as needed before the colon), or as one
-quoted string — a URL, `with provenance "https://example.org/act.html#s2"`,
-or any citation. It is recorded as `le_rule_provenance(ID, Prov)` (Prov as for
-a fact) and changes nothing in proof; explanations and the editor show it
-(§17.1, *Documents*). A decision table header takes the same addition:
-`the table apparel is, with first match, with provenance ...:` (recorded under
-the table's id, `table_<name>`).
+`with provenance <document>` — a name, or a quoted string such as a URL
+(`with provenance "https://example.org/act.html#s2"`) — optionally followed by
+`at <locator>` (`at section 4`) or `, confer "<passage>"` (a quotation of the
+document, §17.1). The trailers of a fact (`according to`, `as stated in`,
+`because`) are accepted too. It is recorded as `le_rule_provenance(ID, Prov)`
+(Prov as for a fact) and changes nothing in proof; explanations and the
+editor show it (§17.1, *Documents*). A decision table header takes the same
+addition: `the table apparel is, with first match, with provenance ...:`
+(recorded under the table's id, `table_<name>`).
 With the extension, a rule body introduced by `if:` may be written as a
 numbered outline mirroring a statute or contract clause:
 ```le
@@ -578,6 +579,7 @@ each after a comma, in any order:
 | `according to <source>` | who asserts the fact — a party, a witness, a document type, a service, a court. `<source>` is an ordinary constant. |
 | `as stated in <document> at <locator>` | where it is written (`at <locator>` is optional). Without `according to`, the document is the source. |
 | `because "<text>"` | the rationale. |
+| `confer "<passage>"` | a quotation of the passage of the document that states the fact (the document is the one given by `as stated in`, or the scenario's default). |
 
 ```le
 scenario decided is:
@@ -587,7 +589,23 @@ scenario decided is:
         because "corrosion was not visible on inspection".
 ```
 The trailers may start on the fact's own line or on the next one (the line
-then ends with the comma). A comma that is *not* followed by a trailer
+then ends with the comma).
+
+**A scenario's default provenance.** Scenarios usually take all their facts
+from one document; its header says so once, and each fact only points at its
+passage:
+```le
+scenario ny_n362700 is, as stated in ruling NY N362700:
+    style 1025AD is an upper body garment,
+        confer "is a men’s upper body garment constructed from 92 percent polyester".
+    style 1025AD is napped.
+    style 1000AD has pockets below the waist,
+        according to CBP, confer "a portion of each of these pockets is below the waist".
+    style 1025AD is shown in the catalogue, as stated in the importer's catalogue at page 3.
+```
+A fact with no trailers takes the default; one whose trailers name no
+document (`confer`, `according to`, `because`) takes the default document; one
+with its own `as stated in` redefines it. A comma that is *not* followed by a trailer
 keyword stays part of the fact, as always.
 
 - **Proof is unaffected.** The fact is compiled exactly as without trailers.
@@ -630,8 +648,8 @@ The first is the page a reader opens; the second is the plain text of the
 document — a file beside the program (resolved against the program's folder,
 never outside it) or a URL (JSON: its `text` field; HTML: the page's text;
 not PDF). Such facts need no provenance of their own. With them:
-- a **quoted locator** — `as stated in ruling NY N362700 at "a zipper
-  garage at the top of the collar"` — is a quotation: the verifier checks it
+- a **quotation** — `confer "a zipper garage at the top of the collar"`,
+  or a quoted locator `at "..."` — is checked: the verifier checks it
   against the document's text when that text is a file beside the program,
   white space, no-break spaces and letter case aside (`quote_not_found`
   warning otherwise);
@@ -912,7 +930,8 @@ file beside the program — *Fetch text* loads it); paste or fetch the text,
 and *Generate*. Nothing in this is specific to a kind of document or program:
 - the facts are instances of the program's templates — including those of the
   resources it includes — and each cites the passage that states it:
-  `<fact>, as stated in <document> at "<passage copied from the text>"`;
+  `<fact>, confer "<passage copied from the text>"` under a scenario whose
+  header names the document (or `as stated in <document>, confer "..."`);
 - a `; judged` template is written only when the text reports someone's
   decision (`according to <who>`, `because "..."`); a template that rules
   conclude is never written — the document's conclusions are what the rules

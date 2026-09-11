@@ -18,7 +18,9 @@ export interface NlInputOptions {
     title: string;                // dialog title
     instruction: string;          // guidance shown at the top of the dialog
     placeholder?: string;         // textarea placeholder
-    onResult: (leText: string) => void;   // receives the generated LE text
+    // receives the generated LE text; `document` when the facts were extracted
+    // from a document (they then point at its passages with `confer "…"`)
+    onResult: (leText: string, info?: { document?: string }) => void;
     // Facts only: offer "From a document" — the text pasted or fetched is a
     // document, every fact generated cites the passage that states it
     // (", as stated in <document> at "<passage>""). The context locates the
@@ -259,7 +261,7 @@ export function openNlInput(opts: NlInputOptions): void {
                 }
                 const warnings: string[] = Array.isArray(res.warnings) ? res.warnings : [];
                 if (warnings.length === 0) {
-                    opts.onResult(res.le);
+                    opts.onResult(res.le, { document: documentName });
                     close();
                 } else {
                     // Verified with new issues: warn, but let the user insert anyway.
@@ -298,7 +300,7 @@ export function openNlInput(opts: NlInputOptions): void {
         }
     }
     generate.addEventListener('click', () => {
-        if (primaryMode === 'insert') { opts.onResult(pendingLe); close(); }
+        if (primaryMode === 'insert') { opts.onResult(pendingLe, { document: docName.value.trim() }); close(); }
         else run();
     });
     regenerate.addEventListener('click', run);

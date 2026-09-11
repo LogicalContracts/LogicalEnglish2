@@ -274,10 +274,10 @@ doc_text("Style 1025AD features a partial front opening that zips through a self
 % The prompt asks for cited facts and marks judged and derived templates,
 % taken from the program itself.
 test(document_prompt_cites_and_tags,
-     [setup(stub_replies(["style 1025AD has a collar, as stated in ruling NY N362700 at \"a self-fabric stand-up collar\"."]))]) :-
+     [setup(stub_replies(["style 1025AD has a collar, confer \"a self-fabric stand-up collar\"."]))]) :-
     doc_program(P), doc_text(T),
     english_to_le(facts, T, [], P, "stub-model", [document("ruling NY N362700")], LE, Issues),
-    assertion(sub_string(LE, _, _, _, "as stated in ruling NY N362700 at")),
+    assertion(sub_string(LE, _, _, _, "confer \"a self-fabric stand-up collar\"")),
     assertion(\+ nl_has_issue(Issues, "quote_not_in_text")),
     first_system(Sys),
     assertion(sub_string(Sys, _, _, _, "The user's message is the text of the document named ruling NY N362700")),
@@ -287,7 +287,7 @@ test(document_prompt_cites_and_tags,
 
 % A passage the model paraphrased rather than copied is reported.
 test(document_paraphrased_quote_warns,
-     [setup(stub_replies(["style 1025AD has a collar, as stated in ruling NY N362700 at \"it has a nice collar\"."]))]) :-
+     [setup(stub_replies(["style 1025AD has a collar, confer \"it has a nice collar\"."]))]) :-
     doc_program(P), doc_text(T),
     english_to_le(facts, T, [], P, "stub-model", [document("ruling NY N362700")], _LE, Issues),
     assertion(nl_has_issue(Issues, "quote_not_in_text")).

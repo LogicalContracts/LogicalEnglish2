@@ -642,18 +642,17 @@ system_prompt(Kind, Templates, Program, Prompt) :-
 %   judged templates only record a decision the text reports; derived ones are
 %   never stated.
 document_rules(Doc, Text) :-
-    kw_phrase(as_stated_in, "as stated in", AsStated),
-    kw_phrase(at_locator, "at", At),
+    kw_phrase(confer, "confer", Confer),
     kw_phrase(according_to, "according to", According),
     kw_phrase(because, "because", Because),
     format(string(Text),
 "~n~n--- The text is a document ---~n\
 The user's message is the text of the document named ~w. Extract the facts it states about the individuals it describes (the goods, persons, events...): name each individual as the document does (for example by its style, model or reference number), never starting a name with 'a', 'an' or 'the'.~n\
-After EACH fact, on the same line, write where the document states it: , ~w ~w ~w \"<passage>\" — where <passage> is copied WORD FOR WORD from the text (3 to 20 consecutive words, no double quote inside) and states that fact.~n\
-A template marked (judged) records a decision someone made: write such a fact only when the text reports that decision, as: <fact>, ~w <who decided>, ~w ~w ~w \"<passage>\", ~w \"<their reason, in their words>\".~n\
+After EACH fact, on the same line, point at the passage that states it: , ~w \"<passage>\" — where <passage> is copied WORD FOR WORD from the text (3 to 20 consecutive words, no double quote inside).~n\
+A template marked (judged) records a decision someone made: write such a fact only when the text reports that decision, as: <fact>, ~w <who decided>, ~w \"<passage>\", ~w \"<their reason, in their words>\".~n\
 Never write a fact of a template marked (derived): the program's rules derive those, and the document's conclusions (a classification, an outcome) are what the rules must reproduce, not facts.~n\
 State only what the text states: a feature the text does not mention is simply left out.",
-        [Doc, AsStated, Doc, At, According, AsStated, Doc, At, Because]).
+        [Doc, Confer, According, Confer, Because]).
 
 kw_phrase(Key, Default, Phrase) :-
     (   le_i18n:kw_main_words(Key, Words), Words \== []
@@ -715,8 +714,8 @@ quote_issues(LE, Text, Issues) :-
             Issues).
 
 line_quote(Line, Quote) :-
-    kw_phrase(at_locator, "at", At),
-    format(string(Marker), " ~w \"", [At]),
+    (   kw_phrase(confer, "confer", W) ; kw_phrase(at_locator, "at", W) ),
+    format(string(Marker), " ~w \"", [W]),
     sub_string(Line, B, L, _, Marker),
     Start is B + L,
     sub_string(Line, Start, _, 0, Rest),
