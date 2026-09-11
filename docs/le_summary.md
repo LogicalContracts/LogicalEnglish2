@@ -33,6 +33,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [17.1 Provenance trailers and judged templates](#171-provenance-trailers-and-judged-templates)
     - [17.2 `otherwise` cascades](#172-otherwise-cascades)
     - [17.3 Decision tables](#173-decision-tables)
+    - [17.4 The decision skeleton: applicability, question, remedy](#174-the-decision-skeleton-applicability-question-remedy)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -113,6 +114,7 @@ Every rule (or fact) that follows the marker belongs to section `<name>`, until 
 
 Conventions:
 - If a knowledge base has no section markers, all of its rules belong to the default section **`main`**.
+- The names **`applicability`**, **`question`** and **`remedy`** are reserved for the decision skeleton (§17.4): they change nothing about solving, but a failed query is reported against them.
 - Rules appearing before the first section marker also belong to **`main`**.
 
 There is a shorthand for a commonly used section named `annexes`:
@@ -651,3 +653,36 @@ the table shipping is, with first match:
   `table_csv_missing`.
 
 See `examples/RulesRus/otherwise_table.le` and `loaded_table.le` (+ `shipping.csv`).
+
+### 17.4 The decision skeleton: applicability, question, remedy
+No new keyword: the macro-structure of a decision — *is the rule applicable,
+what is the answer to the question, what follows* — is written with the
+ordinary section markers (§3.1) using three reserved names (per language, in
+`i18n/keywords.csv`):
+```le
+section applicability is:
+a person is in scope if the person is resident.
+section question is:
+a person is eligible for help if the person is in scope and the person is on a low income.
+section remedy is:
+the help for a person is an amount if the person is eligible for help and ...
+```
+Solving is unchanged. What the names add is the reading of a **failed**
+query:
+- **`the query fails at section *a section*`** (also `the query fails at *a section*`)
+  — a built-in template, true when the program's first query ("the query")
+  has no answer, naming the section where it fails: the earliest section, in
+  checklist order (applicability, question, remedy, then any other named
+  section in source order), holding a rule for a goal the attempt tried and
+  could not prove. `the query *a name* fails at section *a section*` does
+  the same for a named query.
+  ```le
+  query stage is:
+      the query fails at which section.
+  ```
+  answers `the query fails at applicability` for a non-resident.
+- **Failure explanations lead with the checklist**:
+  `section checklist: applicability passed, question failed, remedy not reached`.
+  Programs that do not use the reserved names are unaffected.
+
+See `examples/RulesRus/sections_benefit.le`.

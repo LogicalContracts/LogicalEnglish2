@@ -50,6 +50,7 @@
 :- use_module(le_verifier, [verify/2, verify/3, find_in_body/2]).
 :- use_module(le_provenance).
 :- use_module(le_tables).
+:- use_module(le_sections).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -206,7 +207,12 @@ edit(LEfilePath) :-
 %!  current_compiling_module(-Module:atom) is semidet.
 %
 %   True if Module is the module currently being compiled.
-:- dynamic do_log/0, current_compiling_module/1. % assert(do_log).
+:- dynamic do_log/0. % assert(do_log).
+% Per thread: the server loads documents on concurrent worker threads, and a
+% process-wide flag let one load's cleanup (retractall) wipe another's module
+% mid-parse — whatever the parser records against it (template images,
+% misplaced-expectation errors, ...) was then silently dropped.
+:- thread_local current_compiling_module/1.
 :- thread_local le_current_id/1, le_kb_module/1.
 
 %!  rule_counter(-Count:integer) is det.
@@ -1313,7 +1319,8 @@ query_explain(SessionModule, Goal, TemplateInstance, Unknowns, Why) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
     reasoner:explain(Goal, SessionModule, Unknowns, Why0),
     ( (KBmodule \== none, item_to_instance(KBmodule, Goal, _Tokens)) -> true ; TemplateInstance = [Goal] ),
-    postprocess_why(Why0, SessionModule, Why).
+    postprocess_why(Why0, SessionModule, Why1),
+    add_section_checklist(SessionModule, KBmodule, Goal, Why1, Why).
 query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
     ensure_tokens(Template, Tokens),
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
@@ -1321,14 +1328,37 @@ query_explain(SessionModule, Template, TemplateInstance, Unknowns, Why) :-
             ( do_log -> print_message(informational, 'Executing named query explain ~w: ~w' - [QueryName, Goal]); true),
             reasoner:explain(Goal, SessionModule, Unknowns, Why0),
             ( (maplist(item_to_instance(KBmodule), Items, Instances), flatten(Instances, TemplateInstance)) -> true; TemplateInstance = []),
-            postprocess_why(Why0, SessionModule, Why)
+            postprocess_why(Why0, SessionModule, Why1),
+            add_section_checklist(SessionModule, KBmodule, Goal, Why1, Why)
         ;   (   parse_query_to_goal(KBmodule, Tokens, Goal, TemplateInstance) ->
                     ( do_log -> print_message(informational, 'Executing query goal explain: ~w' - [Goal]); true),
                     reasoner:explain(Goal, SessionModule, Unknowns, Why0),
-                    postprocess_why(Why0, SessionModule, Why)
+                    postprocess_why(Why0, SessionModule, Why1),
+                    add_section_checklist(SessionModule, KBmodule, Goal, Why1, Why)
                 ;   format(string(Error), "Query does not match any template: ~w", [Template]),
                     throw(error(le_parse_error(Error), _))
             )
+    ).
+
+%!  add_section_checklist(+SM, +KB, +Goal, +Why0, -Why) is det.
+%
+%   A failure explanation for a program that uses the reserved section names
+%   (applicability, question, remedy — le_sections.pl) leads with the section
+%   checklist: "section checklist: applicability failed, question not
+%   reached, remedy not reached". Anything else is left as it is.
+add_section_checklist(SM, KB, Goal, Why0, Why) :-
+    (   KB \== none, is_list(Why0),
+        catch(section_checklist(SM, KB, Goal, Checklist), _, fail)
+    ->  findall(Item,
+                ( member(Sec-Status, Checklist),
+                  atom_concat(section_, Status, MsgId),
+                  le_i18n:le_msg(MsgId, [section-Sec], Item) ),
+                Items),
+        atomic_list_concat(Items, ', ', ItemsAtom),
+        le_i18n:le_msg(section_checklist, [items-ItemsAtom], LEAtom),
+        atom_string(LEAtom, LE),
+        Why = [failure(le_section_checklist(Checklist), none, LE, []) | Why0]
+    ;   Why = Why0
     ).
 
 postprocess_why(repeated_group(N, Why), SM, Out) :- !,

@@ -1,0 +1,65 @@
+% The decision skeleton as a section convention (LE_extensions_proposal §3.4).
+%
+% A rent-help rule in three sections with the reserved names applicability,
+% question and remedy. Nothing about solving changes; what the names add is
+% the reading of a query that FAILS: "the query fails at section *a section*"
+% (or "the query fails at *a section*") names the earliest section, in checklist order, whose rules could not
+% conclude. ("The query" is the program's first query, here help.) A failure
+% explanation leads with the checklist: passed / failed / not reached.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* is in scope.
+    *a person* is eligible for help.
+    *a person* is resident; undefined.
+    *a person* is on a low income; undefined.
+    the help for *a person* is *an amount*.
+    the rent of *a person* is *an amount*; undefined.
+
+the knowledge base sections benefit includes:
+
+section applicability is:
+a person is in scope if the person is resident.
+
+section question is:
+a person is eligible for help
+    if the person is in scope
+    and the person is on a low income.
+
+section remedy is:
+the help for a person is an amount
+    if the person is eligible for help
+    and the rent of the person is a rent
+    and the amount is the rent / 2.
+
+scenario yes is:
+    ann is resident.
+    ann is on a low income.
+    the rent of ann is 800.
+    help expects answers ["the help for ann is 400"].
+    stage expects answers [].
+
+scenario out_of_scope is:
+    bob is on a low income.
+    the rent of bob is 800.
+    help expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+scenario not_eligible is:
+    cy is resident.
+    the rent of cy is 700.
+    help expects answers [].
+    stage expects answers ["the query fails at question"].
+
+scenario no_rent is:
+    dee is resident.
+    dee is on a low income.
+    help expects answers [].
+    stage expects answers ["the query fails at remedy"].
+
+query help is:
+    the help for which person is which amount.
+
+query stage is:
+    the query fails at which section.

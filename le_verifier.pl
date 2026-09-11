@@ -377,7 +377,7 @@ is_defined_real(KB, Literal) :-
     functor(Literal, F, A),
     (   Literal = is_a(_, _) -> true
     ;   memberchk(F/A, [and/2, or/2, not/1, forall/2, true/0, fail/0, sum/3, count/3, min/3, max/3, average/3]) -> true
-    ;   memberchk(F/A, [le_is/2, le_equal_to/2, le_not_equal_to/2, le_assign/2, le_ge/2, le_le/2, le_gt/2, le_lt/2, le_known/1, le_is_in/2, le_type_check/2, le_table/2]) -> true
+    ;   memberchk(F/A, [le_is/2, le_equal_to/2, le_not_equal_to/2, le_assign/2, le_ge/2, le_le/2, le_gt/2, le_lt/2, le_known/1, le_is_in/2, le_type_check/2, le_table/2, le_fails_at_section/1, le_query_fails_at_section/2]) -> true
     ;   (F == says_that, A == 2) -> true
     ;   safe_clause(KB, Literal) -> true
     ;   safe_scenario_fact(KB, F, A) -> true
@@ -401,6 +401,8 @@ safe_scenario_fact(KB, F, A) :-
 is_built_in_literal(L) :- reasoner:is_built_in(L).
 is_built_in_literal(says_that(_, _)).
 is_built_in_literal(le_table(_, _)).
+is_built_in_literal(le_fails_at_section(_)).
+is_built_in_literal(le_query_fails_at_section(_, _)).
 
 % --- 3. Untested predicate ---
 %   Reported AT the first rule head that defines the predicate (these are

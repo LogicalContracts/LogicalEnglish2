@@ -111,3 +111,6 @@ table,first_match,first match,primeira correspondência,primera coincidencia,pre
 table,all_matches,all matches,todas as correspondências,todas las coincidencias,toutes les correspondances,tutte le corrispondenze
 table,unique_match,unique match,correspondência única,coincidencia única,correspondance unique,corrispondenza unica
 table,table_any,any,qualquer,cualquiera,quelconque,qualsiasi
+decision_section,section_applicability,applicability,aplicabilidade,aplicabilidad,applicabilité,applicabilità
+decision_section,section_question,question,questão,cuestión,question,questione
+decision_section,section_remedy,remedy,remédio|reparação,remedio|reparación,remède|réparation,rimedio
