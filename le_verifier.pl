@@ -390,6 +390,7 @@ find_in_body((A ; B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(or(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(not(B), L) :- !, find_in_body(B, L).
 find_in_body(le_scoped(B, _), L) :- !, find_in_body(B, L).
+find_in_body(le_flip(B, _), L) :- !, find_in_body(B, L).
 find_in_body(forall(A, B), L) :- !, (find_in_body(A, L) ; find_in_body(B, L)).
 find_in_body(sum(_, G, _), L) :- !, find_in_body(G, L).
 find_in_body(count(_, G, _), L) :- !, find_in_body(G, L).
@@ -409,7 +410,7 @@ is_defined_real(KB, Literal) :-
     (   Literal = is_a(_, _) -> true
     ;   memberchk(F/A, [and/2, or/2, not/1, forall/2, true/0, fail/0, sum/3, count/3, min/3, max/3, average/3]) -> true
     ;   memberchk(F/A, [le_is/2, le_equal_to/2, le_not_equal_to/2, le_assign/2, le_ge/2, le_le/2, le_gt/2, le_lt/2, le_known/1, le_is_in/2, le_type_check/2, le_table/2, le_fails_at_section/1, le_query_fails_at_section/2,
-                       le_semantically_similar/2, le_best_match/3, le_satisfies_description/2]) -> true
+                       le_semantically_similar/2, le_best_match/3, le_satisfies_description/2, le_flip/2]) -> true
     ;   (F == says_that, A == 2) -> true
     ;   safe_clause(KB, Literal) -> true
     ;   safe_scenario_fact(KB, F, A) -> true
@@ -765,6 +766,21 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
         le_i18n:le_msg(failed_test_unknowns_desc, [query-QueryName, scenario-ScenarioName, expected-Expected, actual-Actual, expected_unknowns-ExpectedU, actual_unknowns-ActualU], Description)
     ;   Result = error(_, _, Error) ->
         le_i18n:le_msg(failed_test_error_desc, [query-QueryName, scenario-ScenarioName, error-Error], Description)
+    ;   le_i18n:le_msg(failed_test_plain_desc, [query-QueryName, scenario-ScenarioName], Description)
+    ),
+    le_i18n:le_msg(failed_test_fix, [], Fix),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% The expected minimal change sets of a flip query (le_flip.pl).
+failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
+    current_predicate(KB:le_expected_changes/3),
+    clause(KB:le_expected_changes(QueryName, ScenarioName, Sets), true, Ref),
+    run_one_test(KB, test_changes(QueryName, ScenarioName, Sets), Result),
+    Result \= pass(_, _),
+    (   Result = fail(_, _, Expected, Actual)
+    ->  le_i18n:le_msg(failed_test_desc, [query-QueryName, scenario-ScenarioName, expected-Expected, actual-Actual], Description)
+    ;   Result = error(_, _, Error)
+    ->  le_i18n:le_msg(failed_test_error_desc, [query-QueryName, scenario-ScenarioName, error-Error], Description)
     ;   le_i18n:le_msg(failed_test_plain_desc, [query-QueryName, scenario-ScenarioName], Description)
     ),
     le_i18n:le_msg(failed_test_fix, [], Fix),

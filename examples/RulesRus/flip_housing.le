@@ -1,0 +1,70 @@
+% Flip queries (LE_extensions_proposal §3.7), on the housing benefit rules of
+% rkBook/housing_benefit.le (Kowalski, Computational Logic and Human Thinking,
+% §5.7).
+%
+% "which minimal change to the scenario makes it the case that <goal>" asks
+% for the smallest sets of scenario changes — adding or removing facts of the
+% scenario-element templates, never of derived ones — after which the goal
+% holds (or, for "it is not the case that ...", no longer holds). Each answer
+% comes with the proof the changed scenario gives. "expects changes" lists the
+% expected minimal sets.
+%
+% - rich works part-time but is not on a low income, so is ineligible: the one
+%   minimal change is to add that he is on a low income. (Adding "on other
+%   benefits" or "works full-time on a low income" would not do: he would
+%   still be ineligible.)
+% - bob gets help through other benefits, on a low income: removing either
+%   fact takes the help away; no single fact needs adding, and no two-fact
+%   set is minimal.
+
+the target language is: prolog.
+
+the templates are:
+    *a person* gets help to pay rent.
+    *a person* receives housing benefit.
+    *a person* is on other benefits; undefined.
+    *a person* works part-time; undefined.
+    *a person* works full-time on a low income; undefined.
+    *a person* is on a low income; undefined.
+    *a person* is ineligible to receive housing benefit.
+
+the knowledge base flip housing includes:
+
+a person gets help to pay rent
+    if the person receives housing benefit.
+
+a person receives housing benefit
+    if the person is on other benefits
+    and it is not the case that
+        the person is ineligible to receive housing benefit.
+
+a person receives housing benefit
+    if the person works part-time
+    and it is not the case that
+        the person is ineligible to receive housing benefit.
+
+a person receives housing benefit
+    if the person works full-time on a low income
+    and it is not the case that
+        the person is ineligible to receive housing benefit.
+
+a person is ineligible to receive housing benefit
+    if it is not the case that
+        the person is on a low income.
+
+scenario rich is:
+    rich works part-time.
+    flip_rich expects changes [["add: rich is on a low income"]].
+
+scenario bob is:
+    bob is on other benefits.
+    bob is on a low income.
+    flip_bob expects changes [["remove: bob is on a low income"], ["remove: bob is on other benefits"]].
+
+query flip_rich is:
+    which minimal change to the scenario makes it the case that
+        rich gets help to pay rent.
+
+query flip_bob is:
+    which minimal change to the scenario makes it the case that
+        it is not the case that bob gets help to pay rent.

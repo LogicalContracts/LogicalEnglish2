@@ -325,6 +325,14 @@ solve_real_actual(G, SM, KM, _Anc, _D, _MyID, Us, [success(G, Ref, [])]) :-
     ;   true
     ).
 
+% A flip query (le_flip.pl): one solution per minimal change set that makes
+% Goal hold, explained by the proof Goal then has.
+solve_real_actual(le_flip(Goal, Changes), SM, KM, _Anc, _D, _MyID, [],
+                  [success(le_flip_changes(Changes, Goal), flip, Proof)]) :- !,
+    KM \== none,
+    le_flip:minimal_changes(Goal, SM, KM, _Sets, Proofs),
+    member(Changes-Proof, Proofs).
+
 % Literals
 solve_real_actual(le_at(Goal, Start, End), SM, KM, Anc, D, MyID, Us, Whys) :- !,
     solve(Goal, SM, KM, Anc, D, MyID, Us, Whys0),

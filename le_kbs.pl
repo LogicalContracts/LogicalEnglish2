@@ -52,6 +52,7 @@
 :- use_module(le_tables).
 :- use_module(le_sections).
 :- use_module(le_services).
+:- use_module(le_flip).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -383,6 +384,10 @@ process_section_acc(scenario(Name, Content, Start, End), M) :-
     assertz(M:le_source_info(Ref, Start, End, Name)),
     forall(member(expected(Q, A, U, S, E), ExpectedItems), (
         assertz(M:le_expected(Q, Name, A, U), ERef),
+        assertz(M:le_source_info(ERef, S, E, Q))
+    )),
+    forall(member(expected_changes(Q, Sets, S, E), ExpectedItems), (
+        assertz(M:le_expected_changes(Q, Name, Sets), ERef),
         assertz(M:le_source_info(ERef, S, E, Q))
     )).
 
@@ -1685,6 +1690,11 @@ item_to_instance(KBmodule, query_clause(_Goal, _, _, InstantiatedTokens, _, _, _
     maplist(bracket_list_token(KBmodule), InstantiatedTokens, Tokens).
 % A multi-condition query: render its goal (with bindings) — e.g.
 % "alice is happy and alice is healthy".
+% A flip query: its answer is the change set that solution found.
+item_to_instance(KBmodule, query_flip(le_flip(_, Changes), _, _, _), Tokens) :- !,
+    flip_changes_words(KBmodule, Changes, Tokens).
+item_to_instance(KBmodule, le_flip_changes(Changes, _Goal), Tokens) :- !,
+    flip_changes_words(KBmodule, Changes, Tokens).
 item_to_instance(KBmodule, query_body(Goal, _, _, _), Tokens) :- !,
     ( item_to_instance(KBmodule, Goal, Tokens) -> true ; term_string(Goal, S), Tokens = [S] ).
 item_to_instance(KBmodule, Head, WordsAndVars) :-
@@ -1812,6 +1822,22 @@ item_to_instance(KBmodule, Head, WordsAndVars) :-
         ;   term_string(Head, Str), WordsAndVars = [Str]
         )
     ).
+
+%!  flip_changes_words(+KB, +Changes, -Words) is det.
+%
+%   "add: rich is on a low income and remove: ...", or "no change is needed"
+%   when the goal already holds.
+flip_changes_words(KB, Changes, Words) :-
+    (   var(Changes) -> Words = ['_']
+    ;   Changes == []
+    ->  le_i18n:le_msg(flip_no_change, [], A), Words = [A]
+    ;   maplist(change_words(KB), Changes, WordLists),
+        and_render_word(And),
+        foldl(join_with(And), WordLists, [], Words)
+    ).
+
+join_with(_, W, [], W) :- !.
+join_with(And, W, Acc, Out) :- append(Acc, [And|W], Out).
 
 %!  item_to_instance_ranged(+KBmodule, +Head, +Range, -WordsAndVars) is det.
 %
@@ -2243,6 +2269,8 @@ is_system_predicate(le_provenance/5).
 is_system_predicate(le_provenance_required/0).
 % Services (le_services.pl): the declared services, and the templates they back.
 is_system_predicate(le_service/3).
+% The expected minimal change sets of a flip query (le_flip.pl), per scenario.
+is_system_predicate(le_expected_changes/3).
 is_system_predicate(le_service_template/2).
 % Decision tables (le_tables.pl): the table and its rows.
 is_system_predicate(le_table/6).
@@ -2272,6 +2300,7 @@ collect_and_assert_types(M) :-
     forall(le_grammar:is_a_type(T), assertz(M:le_type(T))).
 
 is_expected_item(expected(_, _, _, _, _)).
+is_expected_item(expected_changes(_, _, _, _)).
 
 %!  verify(+LEfilePath:atom) is det.
 %
@@ -2301,7 +2330,8 @@ verify(LEfilePath) :-
         ; LegacyTests = []
     ),
     ( current_predicate(KBmodule:le_expected/4) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
-    append(LegacyTests, EmbeddedTests, AllTests),
+    ( current_predicate(KBmodule:le_expected_changes/3) -> findall(test_changes(Q, S, Sets), KBmodule:le_expected_changes(Q, S, Sets), ChangeTests) ; ChangeTests = [] ),
+    append([LegacyTests, EmbeddedTests, ChangeTests], AllTests),
     (   AllTests \== [] ->  
         maplist(run_one_test(KBmodule), AllTests, TestResults),
         print_test_result(test_file(LEfilePath, TestResults))
@@ -2322,6 +2352,7 @@ item_to_le_string(Item, String) :-
 item_to_term(_Templates, _M, query_clause(Head, _, _, _, _), Head) :- !.
 item_to_term(_Templates, _M, query_clause(Head, _, _, _, _, _, _, _), Head) :- !.
 item_to_term(_Templates, _M, query_body(Goal, _, _, _), Goal) :- !.
+item_to_term(_Templates, _M, query_flip(Goal, _, _, _), Goal) :- !.
 item_to_term(_Templates, _M, clause(Head, true, _, _, _), Head) :- !.
 item_to_term(_Templates, _M, clause(Head, Body, _, _, _), (Head :- Body)) :- !.
 item_to_term(_Templates, _M, clause(Head, true, _, _), Head) :- !.
@@ -2467,7 +2498,8 @@ runTestsFor(LEFile, Result) :-
             ; LegacyTests = []
         ),
         ( current_predicate(KBmodule:le_expected/4) -> findall(test(Q, S, A, U), KBmodule:le_expected(Q, S, A, U), EmbeddedTests); EmbeddedTests = []),
-        append(LegacyTests, EmbeddedTests, AllTests),
+        ( current_predicate(KBmodule:le_expected_changes/3) -> findall(test_changes(Q, S, Sets), KBmodule:le_expected_changes(Q, S, Sets), ChangeTests) ; ChangeTests = [] ),
+        append([LegacyTests, EmbeddedTests, ChangeTests], AllTests),
         maplist(run_one_test(KBmodule), AllTests, TestResults),
         Result = test_file(LEFile, TestResults)
         ;   
@@ -2625,6 +2657,15 @@ print_test_result(test_file(File, FileResults)) :-
     format('File: ~w~n', [File]),
     forall(member(R, FileResults),
            ( R = pass(Q, S) -> format('  PASS: ~w (~w)~n', [Q, S]); R = fail(Q, S, E, A) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n', [Q, S, E, A]); R = fail(Q, S, E, A, EU, AU) -> format('  FAIL: ~w (~w)~n    Expected: ~w~n    Actual:   ~w~n    Expected Unknowns: ~w~n    Actual Unknowns: ~w~n', [Q, S, E, A, EU, AU]); format('  ERROR: ~w~n', [R]))).
+% A flip query's expectation: its minimal change sets, as sets of strings.
+run_one_test(KBmodule, test_changes(QueryName, ScenarioName, ExpectedSets), Result) :- !,
+    createSession(KBmodule, SM),
+    setup_call_cleanup(
+        true,
+        catch(run_change_test(KBmodule, QueryName, ScenarioName, ExpectedSets, SM, Result),
+              Error,
+              test_run_error(Error, QueryName, ScenarioName, Result)),
+        destroySession(SM)).
 run_one_test(KBmodule, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), Result) :-
     createSession(KBmodule, SM),
     setup_call_cleanup(
@@ -2656,6 +2697,38 @@ test_run_error(Error, QueryName, ScenarioName, error(QueryName, ScenarioName, Ms
     term_string(Error, S0),
     ( string_length(S0, L), L > 300 -> sub_string(S0, 0, 297, _, S1), string_concat(S1, "...", S) ; S = S0 ),
     format(string(Msg), "Run-time error: ~w", [S]).
+
+run_change_test(KB, QueryName, ScenarioName, ExpectedSets, SM, Result) :-
+    (   \+ setScenarion(SM, ScenarioName)
+    ->  Result = error(QueryName, ScenarioName, 'Scenario not found')
+    ;   \+ KB:query_info(QueryName, _, _)
+    ->  Result = error(QueryName, ScenarioName, 'Query not found')
+    ;   KB:query_info(QueryName, Goal, _),
+        call_with_time_limit(60,
+            findall(Set,
+                    ( reasoner:i(Goal, SM, _, _),
+                      Goal = le_flip(_, Changes), is_list(Changes),
+                      maplist(change_string(KB), Changes, Set0),
+                      msort(Set0, Set) ),
+                    Actual0)),
+        sort(Actual0, Actual),
+        maplist(normalized_set, ExpectedSets, Expected0),
+        sort(Expected0, Expected),
+        maplist(normalized_set, Actual, ActualN0),
+        sort(ActualN0, ActualN),
+        (   Expected == ActualN
+        ->  Result = pass(QueryName, ScenarioName)
+        ;   Result = fail(QueryName, ScenarioName, ExpectedSets, Actual)
+        )
+    ).
+
+change_string(KB, Change, S) :-
+    change_words(KB, Change, Words),
+    atomic_list_concat(Words, ' ', A), atom_string(A, S).
+
+normalized_set(Strings, Set) :-
+    maplist(normalize_string, Strings, N),
+    msort(N, Set).
 
 run_one_test_body(KBmodule, QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns, SM, Result) :-
     (   setScenarion(SM, ScenarioName) ->

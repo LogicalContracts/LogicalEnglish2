@@ -778,6 +778,17 @@ kb_item(section_marker(Name, Start, End)) -->
 kb_item(section_marker(annexes, Start, End)) -->
     kw_start(annexes, Start), t(punctuation(':', loc(_, End))).
 
+% kb_item(expected_changes(QueryName, Sets, Start, End)) parses the expectation
+% of a flip query (docs/le_summary.md §17.7): the minimal change sets, as lists
+% of "add: <fact>" / "remove: <fact>" strings:
+%     flip_bob expects changes [["remove: bob is on a low income"], ["remove: bob is on other benefits"]].
+kb_item(expected_changes(QueryName, Sets, Start, End)) -->
+    query_name_tokens(Tokens), { Tokens \== [], reconstruct_name(Tokens, QueryName) },
+    { Tokens = [First|_], get_token_start(First, Start) },
+    kw(expects), kw(changes), !,
+    t(punctuation('[')), change_sets(Sets), t(punctuation(']')),
+    any_indent, t(punctuation('.', loc(_, End))).
+
 % kb_item(expected(QueryName, Answers, Unknowns, Start, End)) parses "QueryName expects answers [Answers] and unknowns [Unknowns]."
 % The 'answers' word is optional: "QueryName expects [Answers]" means the same
 % thing, and reads better for a numbered query. Without this, such a line
@@ -989,6 +1000,16 @@ split_inline_provenance(Parts, Core, Trailers) :-
 
 comma_part(punct(',', _)).
 comma_part(punctuation(',', _)).
+
+change_sets([S|Ss]) -->
+    t(punctuation('[')), change_strings(S), t(punctuation(']')),
+    ( t(punctuation(',')) -> change_sets(Ss) ; { Ss = [] } ).
+change_sets([]) --> [].
+
+change_strings([S|Ss]) -->
+    ( t(doubleQuoteString(S, _)) | t(quoteString(S, _)) ),
+    ( t(punctuation(',')) -> change_strings(Ss) ; { Ss = [] } ).
+change_strings([]) --> [].
 
 % The antecedent of a when/if: every token up to the `then` that starts a line
 % (or follows the antecedent inline). `then` cannot appear inside a template
@@ -2701,10 +2722,24 @@ second_pass_scenario_item(Templates, unknown_fact(Head, Start, End), clause(NewH
         NewBody = true
     ).
 
+second_pass_scenario_item(_Templates, expected_changes(Q, Sets, Start, End), expected_changes(Q, Sets, Start, End), _M).
 second_pass_scenario_item(_Templates, expected(QueryName, Answers, Unknowns, Start, End), expected(QueryName, AnswerStrings, UnknownStrings, Start, End), _M) :-
     maplist(extract_answer_string, Unknowns, UnknownStrings),
     maplist(extract_answer_string, Answers, AnswerStrings).
 
+% A flip query (docs/le_summary.md §17.7): "which minimal change to the
+% scenario makes it the case that <goal>". The goal is parsed as any query
+% body; the query asks le_flip/2 for the minimal change sets that make it hold.
+second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, M) :-
+    exclude(is_indent_or_comment, BodyTokens, Clean),
+    le_i18n:kw_synonym_words(flip_query, Words),
+    match_word_prefix(Words, Clean, _),
+    flip_goal_tokens(BodyTokens, Words, GoalTokens),
+    GoalTokens \== [], !,
+    ( body_first_start(GoalTokens, GStart) -> true ; GStart = Start ),
+    second_pass_query_item(Templates, query_raw(GoalTokens, GStart, End), Inner, M),
+    item_goal(Inner, Goal),
+    Item = query_flip(le_flip(Goal, _Changes), Inner, Start, End).
 second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, _M) :-
     !,
     (   parse_query_body(BodyTokens, Templates, BodyGoal)
@@ -2719,6 +2754,17 @@ second_pass_query_item(Templates, query_raw(BodyTokens, Start, End), Item, _M) :
         Item = query_clause(NewHead, LiteralTokens, Instance, Start, End)
     ;   Item = query_clause(unknown_template(BodyTokens, Start, End), BodyTokens, BodyTokens, Start, End)
     ).
+
+% The body tokens after the flip phrase (leading indents/comments skipped,
+% the rest kept with its layout).
+flip_goal_tokens([T|Ts], Words, Rest) :-
+    is_indent_or_comment(T), !,
+    flip_goal_tokens(Ts, Words, Rest).
+flip_goal_tokens(Tokens, Words, Rest) :-
+    match_word_prefix(Words, Tokens, Rest).
+
+item_goal(query_body(G, _, _, _), G).
+item_goal(query_clause(G, _, _, _, _), G).
 
 % query_literal_tokens(+BodyTokens, -LiteralTokens): a single-literal query's body
 % tokens reparsed as a template instance, so an explicit *variable* becomes a var
