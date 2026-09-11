@@ -6681,10 +6681,6 @@ var uiCatalog = {
     "Scenario copied to clipboard": "Cen\xE1rio copiado para a \xE1rea de transfer\xEAncia",
     "Write it in English": "Escreva em Portugu\xEAs",
     "Write it in English\u2026": "Escreva em Portugu\xEAs\u2026",
-    "You have unsaved changes. Create new file anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Criar um ficheiro novo mesmo assim?",
-    "You have unsaved changes. Load from URL anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Carregar do URL mesmo assim?",
-    "You have unsaved changes. Open another file anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Abrir outro ficheiro mesmo assim?",
-    "You have unsaved changes. Open from server anyway?": "Tem altera\xE7\xF5es n\xE3o guardadas. Abrir do servidor mesmo assim?",
     "the LLM request failed.": "o pedido ao LLM falhou.",
     "Important reason: ": "Raz\xE3o importante: ",
     "repeated sub-explanations": "sub-explica\xE7\xF5es repetidas",
@@ -7019,10 +7015,6 @@ var uiCatalog = {
     "Scenario copied to clipboard": "Escenario copiado al portapapeles",
     "Write it in English": "Escr\xEDbalo en espa\xF1ol",
     "Write it in English\u2026": "Escr\xEDbalo en espa\xF1ol\u2026",
-    "You have unsaved changes. Create new file anyway?": "Tiene cambios no guardados. \xBFCrear un archivo nuevo de todos modos?",
-    "You have unsaved changes. Load from URL anyway?": "Tiene cambios no guardados. \xBFCargar desde URL de todos modos?",
-    "You have unsaved changes. Open another file anyway?": "Tiene cambios no guardados. \xBFAbrir otro archivo de todos modos?",
-    "You have unsaved changes. Open from server anyway?": "Tiene cambios no guardados. \xBFAbrir del servidor de todos modos?",
     "the LLM request failed.": "la solicitud al LLM fall\xF3.",
     "Important reason: ": "Raz\xF3n importante: ",
     "repeated sub-explanations": "subexplicaciones repetidas",
@@ -7357,10 +7349,6 @@ var uiCatalog = {
     "Scenario copied to clipboard": "Sc\xE9nario copi\xE9 dans le presse-papiers",
     "Write it in English": "\xC9crivez-le en fran\xE7ais",
     "Write it in English\u2026": "\xC9crivez-le en fran\xE7ais\u2026",
-    "You have unsaved changes. Create new file anyway?": "Vous avez des modifications non enregistr\xE9es. Cr\xE9er un nouveau fichier quand m\xEAme ?",
-    "You have unsaved changes. Load from URL anyway?": "Vous avez des modifications non enregistr\xE9es. Charger depuis l'URL quand m\xEAme ?",
-    "You have unsaved changes. Open another file anyway?": "Vous avez des modifications non enregistr\xE9es. Ouvrir un autre fichier quand m\xEAme ?",
-    "You have unsaved changes. Open from server anyway?": "Vous avez des modifications non enregistr\xE9es. Ouvrir depuis le serveur quand m\xEAme ?",
     "the LLM request failed.": "la demande au LLM a \xE9chou\xE9.",
     "Important reason: ": "Raison importante : ",
     "repeated sub-explanations": "sous-explications r\xE9p\xE9t\xE9es",
@@ -7695,10 +7683,6 @@ var uiCatalog = {
     "Scenario copied to clipboard": "Scenario copiato negli appunti",
     "Write it in English": "Scrivilo in italiano",
     "Write it in English\u2026": "Scrivilo in italiano\u2026",
-    "You have unsaved changes. Create new file anyway?": "Hai modifiche non salvate. Creare comunque un nuovo file?",
-    "You have unsaved changes. Load from URL anyway?": "Hai modifiche non salvate. Caricare comunque dall'URL?",
-    "You have unsaved changes. Open another file anyway?": "Hai modifiche non salvate. Aprire comunque un altro file?",
-    "You have unsaved changes. Open from server anyway?": "Hai modifiche non salvate. Aprire comunque dal server?",
     "the LLM request failed.": "la richiesta al LLM \xE8 fallita.",
     "Important reason: ": "Ragione importante: ",
     "repeated sub-explanations": "sotto-spiegazioni ripetute",
@@ -11693,9 +11677,7 @@ async function start() {
   };
   const newDocumentText = () => uiLang() === "en" ? "" : targetLanguageStatement() + "\n\n";
   document.getElementById("menu-new")?.addEventListener("click", () => {
-    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Create new file anyway?")))
-      return;
-    replaceActiveDocument(newDocumentText(), { fileName: "document.le" });
+    newTab();
   });
   const urlModal = document.getElementById("new-from-url-modal");
   const urlInput = document.getElementById("new-from-url-input");
@@ -11712,8 +11694,6 @@ async function start() {
     }
   };
   document.getElementById("menu-new-from-url")?.addEventListener("click", () => {
-    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Load from URL anyway?")))
-      return;
     if (urlError)
       urlError.style.display = "none";
     if (urlModal)
@@ -11782,7 +11762,7 @@ async function start() {
         throw new Error(`server returned ${resp.status} ${resp.statusText}`);
       const content = await resp.text();
       const seg = url.pathname.split("/").filter(Boolean).pop() || "document.le";
-      replaceActiveDocument(content, {
+      await openDocument(content, {
         fileName: /\.[A-Za-z0-9]+$/.test(seg) ? seg : seg + ".le",
         // remote: no local write-back handle. Base = the URL up to its
         // last '/', so relative includes resolve.
@@ -11807,8 +11787,6 @@ async function start() {
   });
   const fileInput = document.getElementById("file-input");
   document.getElementById("menu-open")?.addEventListener("click", async () => {
-    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Open another file anyway?")))
-      return;
     if ("showOpenFilePicker" in window) {
       try {
         const [handle] = await window.showOpenFilePicker({
@@ -11820,7 +11798,7 @@ async function start() {
         });
         const file = await handle.getFile();
         const content = await file.text();
-        replaceActiveDocument(content, { fileName: file.name, fileHandle: handle });
+        await openDocument(content, { fileName: file.name, fileHandle: handle });
         return;
       } catch (err) {
         if (err.name === "AbortError")
@@ -11838,7 +11816,7 @@ async function start() {
     reader.onload = (e2) => {
       const content = e2.target?.result;
       if (content !== void 0) {
-        replaceActiveDocument(content, { fileName: file.name });
+        openDocument(content, { fileName: file.name });
       }
     };
     reader.readAsText(file);
@@ -11915,8 +11893,6 @@ async function start() {
       closeModal();
   });
   document.getElementById("menu-open-server")?.addEventListener("click", async () => {
-    if (activeDoc.dirty && !confirm(t("You have unsaved changes. Open from server anyway?")))
-      return;
     if (modalOverlay)
       modalOverlay.style.display = "flex";
     if (exampleList)
@@ -11999,7 +11975,7 @@ async function start() {
         return;
       }
       if (data.document !== void 0) {
-        replaceActiveDocument(data.document, { fileName: name + ".le", example: name });
+        openDocument(data.document, { fileName: name + ".le", example: name });
       }
     } catch (err) {
       alert(t("Failed to load example from server."));
@@ -13813,6 +13789,43 @@ async function start() {
     url.hash = doc.textInUrl ? "" : doc.hash;
     window.history.replaceState({}, "", url.toString());
     updateUrlSelection();
+  }
+  async function openDocument(text, props) {
+    const open = await findOpenDocument(props);
+    if (open) {
+      activateDoc(open, true);
+      return;
+    }
+    if (isUntouchedNewDocument(activeDoc)) {
+      replaceActiveDocument(text, props);
+      return;
+    }
+    const doc = createDoc(text, props.fileName, {
+      fileHandle: props.fileHandle ?? null,
+      baseUrl: props.baseUrl ?? null,
+      example: props.example ?? null
+    });
+    lspOpen(doc);
+    activateDoc(doc, true);
+  }
+  async function findOpenDocument(props) {
+    for (const d of docs) {
+      if (props.example && d.example === props.example && !d.baseUrl && d.fileName === props.fileName)
+        return d;
+      if (props.baseUrl && d.baseUrl === props.baseUrl && d.fileName === props.fileName)
+        return d;
+      if (props.fileHandle && d.fileHandle) {
+        try {
+          if (await d.fileHandle.isSameEntry(props.fileHandle))
+            return d;
+        } catch {
+        }
+      }
+    }
+    return void 0;
+  }
+  function isUntouchedNewDocument(doc) {
+    return !doc.dirty && !doc.fileHandle && !doc.example && !doc.baseUrl && !doc.textInUrl && !doc.hash && doc.fileName === "document.le" && doc.model.getValue().trim() === newDocumentText().trim();
   }
   function replaceActiveDocument(text, props) {
     const doc = activeDoc;

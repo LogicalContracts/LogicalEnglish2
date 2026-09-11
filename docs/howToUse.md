@@ -73,9 +73,9 @@ The view is read-only — it never edits the program.
 ## File Operations
 
 ### Opening and Saving
-The File operations act on the document of the tab in front (see [file tabs](#several-documents-file-tabs) below).
+New and the Open operations put the document in a tab of its own; Save and Save As act on the tab in front (see [file tabs](#several-documents-file-tabs) below).
 
-*   **New File:** `File > New` clears the editor.
+*   **New File:** `File > New` opens a new, empty document.
 *   **Open Local File:** `File > Open...` allows you to load a `.le` file from your computer.
 *   **Open from Server:** `File > Open copy from server...` provides a list of built-in examples (like `citizenship`).
 *   **Save:** `File > Save` or `Save As...` allows you to save your work back to your local filesystem.
@@ -88,7 +88,7 @@ The editor automatically synchronizes the current code into the browser's URL us
 *   **To "Load" a state:** Paste that URL into a new tab. This is useful for sharing snippets or bookmarking a specific version of your logic.
 
 ### Several documents: file tabs
-The strip above the editor has one tab per open document, as in a browser: its name, a dot while it has unsaved changes (click the dot, or the `×` that replaces it on hover, to close the tab; a middle click closes it too), and `+` to open a new, empty document in a tab of its own. `File > New`, `Open...`, `Open copy from server...`, `New from URL...`, `Save` and `Save As...` all act on the tab in front.
+The strip above the editor has one tab per open document, as in a browser: its name, a dot while it has unsaved changes (click the dot, or the `×` that replaces it on hover, to close the tab; a middle click closes it too), and `+` to open a new, empty document in a tab of its own, like `File > New`. A document opened with `File > Open...`, `Open copy from server...` or `New from URL...` goes into a new tab too — unless it is open already, in which case its tab comes forward; and the untouched empty document the editor starts with is replaced rather than left behind as an empty tab. `Save` and `Save As...` act on the tab in front.
 
 Each tab's program has panels of its own: clicking a tab brings its document into the editor *and* its program into the **Query** panel (scenarios, queries, answers and explanation, as you left them), the **LE Assistant** (its own conversation) and the Source Graph. The address bar follows: it names the example (or carries the text) of the program in the panels, with its scenario and query.
 
