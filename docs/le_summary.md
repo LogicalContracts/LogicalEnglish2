@@ -35,6 +35,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [17.3 Decision tables](#173-decision-tables)
     - [17.4 The decision skeleton: applicability, question, remedy](#174-the-decision-skeleton-applicability-question-remedy)
     - [17.5 Source-scoped proof: `according to` in a rule](#175-source-scoped-proof-according-to-in-a-rule)
+    - [17.6 Services and semantic predicates over text](#176-services-and-semantic-predicates-over-text)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -75,6 +76,7 @@ A template definition can be followed by one or more additions, each introduced 
   - The `undefined_predicate` warning is **suppressed** for this template (even though no KB clause exists for it).
   - A **`defined_scenario_element` warning** is raised if a fact or rule head with this template is found in the knowledge base.
   - Example: `*a person* has passed the test; undefined.`
+- `; via service <name>` — the template is answered at run time by a declared service (§17.6).
 - `; judged` — marks an **open-textured** predicate whose instances are *decided*, not derived (synonyms `; open textured`, `; evaluative`). Solved exactly like `; assumable`; a rule concluding it is an error, and its open instances render as *judgment needed*. See §17.1.
 
 ### 2.1 Prepositional templates
@@ -723,3 +725,60 @@ scoped proof; knowledge-base facts always are (they are rules, not evidence).
 - Not available on the s(CASP) engine.
 
 See `examples/RulesRus/scoped_notice.le`.
+
+### 17.6 Services and semantic predicates over text
+Some predicates cannot be decided by rules because their arguments are free
+text ("is this description a vehicle?"). A program may declare **services**
+and back templates with them:
+```le
+the knowledge base semantic match includes these services:
+    matcher at https://models.example.org/match as a semantic matcher,
+    classifier at llm:openai/gpt-oss-120b as a semantic matcher.
+
+the templates are:
+    the best match of *a text* among *a list* is *a category*; via service matcher.
+```
+- **Declaration**: `the knowledge base <name> includes these services:`
+  followed by `<name> at <address> as a <kind>`, separated by commas, ending
+  with a period. Addresses: `http(s)://...` (the request is POSTed as JSON,
+  the reply is `{"answers": [[arg, ...], ...], "rationale": "..."}`),
+  `llm:<model>` (a language model through `llm/llm_client.pl` — e.g.
+  `llm:openai/gpt-oss-120b` on Groq with `GROQ_API_KEY` — prompted with the
+  template and the known arguments), or `stub:matcher` / `stub:judge` (the
+  deterministic test stubs, also served by the LE server at
+  `/test_services/<name>`).
+- **`; via service <name>`** (template addition): goals on the template are
+  answered by that service. The **last** argument may be unknown (the
+  service fills it in); every other argument must be known when the goal is
+  reached (a run-time error otherwise). With every argument known the
+  service answers yes or no.
+- **Built-in semantic templates**, backed by the program's first service
+  declared `as a semantic matcher`:
+  `*a text* is semantically similar to *a second text*`,
+  `the best match of *a text* among *a list* is *an item*`,
+  `*a text* satisfies the description *a description*`.
+- **Call once, cache.** Each distinct request — service, template, inputs
+  in canonical form (strings with normalised spacing, lists sorted), the
+  service's version (its address, or the model), request format version — is
+  made **once per session**. When the Prolog flag `le_service_cache_dir`
+  names a directory, answers are also kept there, content-addressed by that
+  request (not by the program), and reused across sessions and programs; an
+  answer stored for another model/version is refused.
+- **Attribution.** An answer enters the proof attributed to the service:
+  its explanation reads `the best match of ... is vehicle, according to
+  service matcher, because "<the service's rationale>"`, and a scoped proof
+  (§17.5) admits it only under `according to service matcher` (or a scope it
+  is admissible under).
+- **Unreachable service**: with nothing cached, the goal becomes an unknown —
+  a conditional answer, not a crash.
+- **Materialise**: `le_services:service_materialise(Session, KB, Lines)`
+  writes the answers a session used as ordinary scenario facts
+  (`the best match of "..." among [...] is vehicle, according to service
+  matcher, as stated in cache at <hash>.`); a program with them runs without
+  the service or its cache — the reproducible artefact.
+- Verifier: `service_undeclared` (error) for `; via service X` with no
+  declared X, or a built-in semantic template with no semantic matcher.
+
+See `examples/RulesRus/semantic_match.le` (stub, tested) and
+`semantic_llm.le` (an LLM classifier; no expectations — its answers depend on
+the model).

@@ -42,6 +42,9 @@
 
 :- http_handler(root(leapi), handle_leapi, [method(post)]).
 :- http_handler(root(build_info), handle_build_info, [method(get)]).
+% Stub services for tests of programs that declare services (le_services.pl):
+% POST a service request to /test_services/matcher or /test_services/judge.
+:- http_handler(root(test_services), handle_test_services, [prefix, method(post)]).
 :- http_handler(root(.), handle_landing_page, []).
 :- http_handler(root(login), handle_login, []).
 :- http_handler(root(logout), handle_logout, []).
@@ -773,6 +776,14 @@ result_to_row(UserRoles, test_file(File, FileResults), tr([
     ).
 
 % --- Handlers ---
+
+handle_test_services(Request) :-
+    memberchk(path(Path), Request),
+    atomic_list_concat(Parts, '/', Path),
+    last(Parts, Name),
+    http_read_json_dict(Request, ServiceRequest),
+    le_services:stub_service(Name, ServiceRequest, Reply),
+    reply_json_dict(Reply).
 
 handle_examples(Dict, Response) :-
     get_dict(file, Dict, FileName),

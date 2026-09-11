@@ -1,0 +1,40 @@
+% Semantic predicates over text, backed by a service (LE_extensions_proposal §3.6).
+%
+% "the best match of a text among a list is a category" cannot be decided by
+% rules: its arguments are free text. The template is backed by a declared
+% service ("; via service matcher"), called at run time with the known
+% arguments (the text and the candidates), which fills in the unknown one
+% (the category). Each distinct request is made ONCE per session and cached:
+% x and y have the same description, so one call answers both. Every answer
+% enters the proof attributed to the service ("..., according to service
+% matcher"), so a source-scoped proof can admit or exclude it.
+%
+% The address "stub:matcher" is the deterministic in-process test stub (the
+% LE server also serves it at /test_services/matcher). A real service is an
+% http(s):// address answering the same JSON protocol, or an LLM, e.g.
+% "llm:openai/gpt-oss-120b" (see semantic_llm.le).
+
+the target language is: prolog.
+
+the knowledge base semantic match includes these services:
+    matcher at stub:matcher as a semantic matcher.
+
+the templates are:
+    the category of *an item* is *a category*.
+    the description of *an item* is *a text*; undefined.
+    the best match of *a text* among *a list* is *a category*; via service matcher.
+
+the knowledge base semantic match includes:
+
+the category of an item is a category
+    if the description of the item is a text
+    and the best match of the text among [fruit, vehicle, tool] is the category.
+
+scenario one is:
+    the description of x is "a red bicycle with a basket".
+    the description of y is "a red bicycle with a basket".
+    the description of z is "a ripe banana".
+    category expects answers ["the category of x is vehicle", "the category of y is vehicle", "the category of z is fruit"].
+
+query category is:
+    the category of which item is which category.

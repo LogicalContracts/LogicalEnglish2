@@ -221,6 +221,7 @@ section_start(prolog_events(_), 0).
 section_start(lps_setting(_, _, S, _), S).
 section_start(provenance_required(S, _), S).
 section_start(table(_, _, _, _, _, S, _), S).
+section_start(services(_, _, S, _), S).
 
 % Only KNOWLEDGE BASE rules count for the "scenario before rules" ordering check.
 % Scenarios (and queries) may legitimately contain their own local rules, so they
@@ -320,6 +321,15 @@ section(resources(Name, Resources, Start, End)) -->
     any_indent, kw_start(contract_open, Start), kb_name_tokens(Tokens), kw(resources_include), t(punctuation(':', _)),
     { reconstruct_name(Tokens, Name) },
     resource_list(Resources, End).
+
+% section(services(...)) parses a services declaration (docs/le_summary.md §17.6):
+%     the knowledge base kb includes these services:
+%         matcher at https://models.example.org/embed as a semantic matcher,
+%         judge at llm:openai/gpt-oss-120b as a judgment assistant.
+section(services(Name, Services, Start, End)) -->
+    any_indent, kw_start(kb_open, Start), kb_name_tokens(Tokens), kw(services_include), t(punctuation(':', _)),
+    { reconstruct_name(Tokens, Name) },
+    service_list(Services, End).
 
 % section(kb(...)) parses a knowledge base section.
 section(kb(Name, Content, Start, End)) -->
@@ -665,6 +675,43 @@ resource_list([R|Rs], End) -->
     (   t(punctuation(',', _)) -> resource_list(Rs, End)
     ;   t(punctuation('.', loc(_, End))), peek_next_section_start -> { Rs = [] }
     ).
+
+service_list([S|Ss], End) -->
+    service_item(S),
+    (   t(punctuation(',', _)) -> service_list(Ss, End)
+    ;   t(punctuation('.', loc(_, End))) -> { Ss = [] }
+    ).
+
+% "<name> at <address> as a <kind>": the address runs up to the first
+% "as" separated from it by a space (an address contains no space).
+service_item(service(Name, Address, Kind, S, E)) -->
+    any_indent, service_name_tokens(NameToks), { NameToks \== [], NameToks = [F|_], get_token_start(F, S) },
+    kw(service_at),
+    service_address_tokens(AddrToks, none), { AddrToks \== [] },
+    kw(service_as),
+    service_kind_tokens(KindToks), { KindToks \== [], last(KindToks, L), get_token_end(L, E) },
+    {   reconstruct_name(NameToks, Name),
+        reconstruct_resource_name(AddrToks, Address),
+        reconstruct_name(KindToks, Kind)
+    }.
+
+service_name_tokens([T|Ts]) --> \+ kw(service_at), [T], { T \= indent(_, _) }, !, service_name_tokens(Ts).
+service_name_tokens([]) --> [].
+
+service_address_tokens([T|Ts], Prev) -->
+    \+ ( { Prev = prev(PE) }, service_as_after_gap(PE) ),
+    [T], { T \= indent(_, _), \+ is_punctuation(T, ','), get_token_end(T, TE) }, !,
+    service_address_tokens(Ts, prev(TE)).
+service_address_tokens([], _) --> [].
+
+service_as_after_gap(PrevEnd, S, S) :-
+    S = [T|_], get_token_start(T, TS), TS > PrevEnd,
+    phrase(kw(service_as), S, _).
+
+service_kind_tokens([T|Ts]) -->
+    [T], { T \= indent(_, _), \+ is_punctuation(T, ','), \+ is_punctuation(T, '.') }, !,
+    service_kind_tokens(Ts).
+service_kind_tokens([]) --> [].
 
 peek_next_section_start(Tokens, Tokens) :-
     phrase(next_section_start, Tokens, _).
@@ -1144,6 +1191,13 @@ template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, 
         % verifier, the explanation and flip queries key on the marker.
         { Unknown = judged },
         template_additions(Globals, Opposite, OppositeWV, Prep, _, Synonyms, NTs, FunctorArgs, TStart, TEnd)
+    ;   kw(via_service) ->
+        % "; via service matcher": goals on this template are answered at run
+        % time by the declared service (le_services.pl), called once per
+        % distinct request.
+        t(word(Service)),
+        { record_service_template(FunctorArgs, Service) },
+        template_additions(Globals, Opposite, OppositeWV, Prep, Unknown, Synonyms, NTs, FunctorArgs, TStart, TEnd)
     ;   kw(known_as) ->
         % "; known as played" binds this template to an LPS functor
         % (docs/le_lps_surface.md §2). The generated internal syntax, the
@@ -1182,6 +1236,17 @@ record_template_functor(FunctorArgs, Functor, TStart, TEnd) :-
             le_i18n:le_msg(known_as_not_lps_fix, [], Fix),
             assertz(M:le_issue(warning, known_as_not_lps, Desc, Fix, TStart, TEnd))
         )
+    ;   true
+    ).
+
+%!  record_service_template(+FunctorArgs, +Service) is det.
+%
+%   Records `; via service <name>` for the template, as
+%   le_service_template(F/A, Name) in the compiling module.
+record_service_template(FunctorArgs, Service) :-
+    (   le_kbs:current_compiling_module(M), M \== (-)
+    ->  FunctorArgs = [F|Args], length(Args, A),
+        assertz(M:le_service_template(F/A, Service))
     ;   true
     ).
 
@@ -1571,6 +1636,11 @@ check_global_abbreviation(Words, Templates, Var, VMIn, VMOut) :-
 
 extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, AllowVars, Depth) :-
     (   Parts = [Part], extract_value(Part, Value, VMIn, VMOut, Templates, AllowVars) -> true
+        % A list literal written in a rule body arrives as raw tokens ('[' ...
+        % ',' ... ']'), not as the list part a template instance would give;
+        % read it as the list it is, not as the atom '[a, b]'.
+        ; raw_list_elements(Parts, Elements) ->
+          raw_list_values(Elements, Value, VMIn, VMOut, Templates, AllowVars, Depth)
         ; (Parts = [number(N, _)] ; Parts = [number(N)]) -> Value = N, VMOut = VMIn
         ; (Parts = [string(S, _)] ; Parts = [string(S)]) -> Value = S, VMOut = VMIn
         ; (Parts = [date(D, _)] ; Parts = [date(D)]) -> Value = D, VMOut = VMIn
@@ -1588,6 +1658,34 @@ extract_value_from_parts(Parts, Value, VMIn, VMOut, Templates, NoTransform, Allo
                 tokens_to_string(Parts, Value), VMOut = VMIn
           )
     ).
+
+% raw_list_elements(+Parts, -Elements): Parts are '[' e1 ',' e2 ... ']' as raw
+% tokens; Elements the token lists of the elements (nested lists kept whole).
+raw_list_elements(Parts, Elements) :-
+    Parts = [Open|Rest], raw_punct(Open, '['),
+    append(Inner, [Close], Rest), raw_punct(Close, ']'),
+    raw_split_commas(Inner, 0, [], Elements0),
+    ( Elements0 == [[]] -> Elements = [] ; Elements = Elements0 ),
+    \+ memberchk([], Elements).
+
+raw_punct(punctuation(P, _), P).
+raw_punct(punct(P, _), P).
+raw_punct(punct(P), P).
+
+raw_split_commas([], _, Acc, [E]) :- reverse(Acc, E).
+raw_split_commas([T|Ts], Depth, Acc, Es) :-
+    (   raw_punct(T, ','), Depth =:= 0
+    ->  reverse(Acc, E), Es = [E|Es1], raw_split_commas(Ts, Depth, [], Es1)
+    ;   raw_punct(T, '[') -> D1 is Depth + 1, raw_split_commas(Ts, D1, [T|Acc], Es)
+    ;   raw_punct(T, ']') -> D1 is Depth - 1, D1 >= 0, raw_split_commas(Ts, D1, [T|Acc], Es)
+    ;   raw_split_commas(Ts, Depth, [T|Acc], Es)
+    ).
+
+raw_list_values([], [], VM, VM, _, _, _).
+raw_list_values([E|Es], [V|Vs], VMIn, VMOut, Templates, AllowVars, Depth) :-
+    exclude(is_indent_or_comment, E, E1),
+    extract_value_from_parts(E1, V, VMIn, VM1, Templates, true, AllowVars, Depth),
+    raw_list_values(Es, Vs, VM1, VMOut, Templates, AllowVars, Depth).
 
 extract_simple_value(word(W, _), W).
 extract_simple_value(number(N, _), N).

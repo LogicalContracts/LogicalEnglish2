@@ -1,0 +1,46 @@
+% A semantic predicate answered by an LLM (LE_extensions_proposal §3.6, §4.1).
+%
+% The same program shape as semantic_match.le, with the service backed by a
+% language model: "llm:openai/gpt-oss-120b" is that model on Groq, reached
+% with the key in the GROQ_API_KEY environment variable (any model known to
+% llm/llm_client.pl works: llm:<model>). The model is shown the template, with
+% its slots starred, and the known arguments, and replies with the tuple that
+% makes the sentence true plus a one-sentence rationale, which the
+% explanation shows ("..., according to service classifier, because ...").
+% Each distinct request is made once per session; set the Prolog flag
+% le_service_cache_dir to a directory to keep the answers across runs.
+%
+% No expectations here: the answers depend on a remote model. Without a key
+% (or offline) each answer comes back conditional on the open classification.
+
+the target language is: prolog.
+
+the knowledge base customs triage includes these services:
+    classifier at llm:openai/gpt-oss-120b as a semantic matcher.
+
+the templates are:
+    the heading of *a product* is *a heading*.
+    the description of *a product* is *a text*; undefined.
+    the best heading for *a text* among *a list* is *a heading*; via service classifier.
+    *a product* is a seafood preparation.
+
+the knowledge base customs triage includes:
+
+the heading of a product is a heading
+    if the description of the product is a text
+    and the best heading for the text among [fish fillets, prepared or preserved fish, crustaceans, pasta] is the heading.
+
+a product is a seafood preparation
+    if the description of the product is a text
+    and the text is semantically similar to "a cooked dish made mainly of fish or shellfish".
+
+scenario shipment is:
+    the description of p1 is "frozen breaded cod fillets, fried and ready to heat".
+    the description of p2 is "cooked shrimp in garlic sauce, 250 g tray".
+    the description of p3 is "dried spaghetti made of durum wheat".
+
+query heading is:
+    the heading of which product is which heading.
+
+query seafood is:
+    which product is a seafood preparation.

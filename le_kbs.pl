@@ -51,6 +51,7 @@
 :- use_module(le_provenance).
 :- use_module(le_tables).
 :- use_module(le_sections).
+:- use_module(le_services).
 :- use_module(library(uuid)).
 :- use_module(library(pcre)).
 :- use_module(library(www_browser)).
@@ -357,6 +358,7 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
 % Verifier issues that are errors (the rest are warnings).
 error_issue_type(missing_template).
 error_issue_type(judged_with_rules).
+error_issue_type(service_undeclared).
 
 process_section(S, M) :-
     ( do_log -> print_message(informational,'Processing section: ~w' - [S]); true),
@@ -440,6 +442,12 @@ process_section_acc(table_done(Name, Start, End), M) :-
         assertz(M:le_source_section(main, ID))
     ;   true
     ).
+
+% "the knowledge base kb includes these services: ..." (le_services.pl).
+process_section_acc(services(_, Services, _, _), M) :-
+    forall(member(service(Name, Address, Kind, S, E), Services),
+           ( assertz(M:le_service(Name, Address, Kind), Ref),
+             assertz(M:le_source_info(Ref, S, E, service)) )).
 
 % "scenario facts require provenance." — read by the verifier.
 process_section_acc(provenance_required(Start, End), M) :-
@@ -1426,6 +1434,12 @@ postprocess_why(Other, _, Other).
 why_annotation(SM, KB, Goal, Ref, LE0, LE) :-
     (   ( Ref == unknown ; nonvar(Ref), Ref = unknown(_, _) ), is_judged_goal(KB, Goal)
     ->  le_i18n:le_msg(judgment_needed, [goal-LE0], LEAtom), atom_string(LEAtom, LE)
+    ;   nonvar(Ref), Ref = service(Name, Hash)
+    ->  % An answer given by a service is attributed to it, with its reason.
+        service_source(Name, Src),
+        (   catch(SM:le_service_cache(Hash, answers(_, Rat0)), _, fail) -> Rat = Rat0 ; Rat = none ),
+        provenance_suffix(prov(Src, none, none, Rat), Suffix),
+        string_concat(LE0, Suffix, LE)
     ;   catch(clause_provenance(SM, KB, Ref, Goal, Prov), _, fail),
         provenance_suffix(Prov, Suffix), Suffix \== ""
     ->  string_concat(LE0, Suffix, LE)
@@ -2227,6 +2241,9 @@ is_system_predicate(le_lps_item/3).
 is_system_predicate(le_fact_provenance/4).
 is_system_predicate(le_provenance/5).
 is_system_predicate(le_provenance_required/0).
+% Services (le_services.pl): the declared services, and the templates they back.
+is_system_predicate(le_service/3).
+is_system_predicate(le_service_template/2).
 % Decision tables (le_tables.pl): the table and its rows.
 is_system_predicate(le_table/6).
 is_system_predicate(le_table_row/6).
