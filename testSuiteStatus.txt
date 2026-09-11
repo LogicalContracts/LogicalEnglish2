@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      all (core + trees requiring the proprietary le_extensions.pl)
 Command:    testing/run_tests.sh le --with-extensions   (or: runAllTests)
 Sibling:    testSuiteCoreStatus.txt — core (this repository alone; extension-dependent trees excluded)
-Generated:  2026-09-08 06:40:40 WEST
-SWI-Prolog: 10.0.0
-Tree:       /Users/mc/git/LogicalEnglish2/
+Generated:  2026-09-11 13:49:52 UTC
+SWI-Prolog: 10.1.12
+Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 119
-Total tests:     391
-Passed:          391
+Files processed: 144
+Total tests:     437
+Passed:          437
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -110,6 +110,21 @@ Detailed File Summary:
   [PASS] examples/moreExamples/testing/tea_party3.le: 2 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/template_folding.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/testing/trace_sample.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/globals.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/which_test.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/which_test2.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/testing/effectcause.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/testing/hiscox.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/testing/hiscoxclaim1.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/testing/hiscoxconditionalanswers.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/testing/hiscoxcurrency.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/testing/hiscoxexcludingexclusion.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/testing/hiscoxhappypath.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/testing/policy-KIMI-K3.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/moreExamples/InsurLE2/testing/policy-gpt-5.6-terra.le: 6 Pass, 0 Fail, 0 Error
+  [NONE] examples/moreExamples/InsurLE2/testing/shorterpathassumable.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/big_conclusions.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/globals.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/insureLE2/unless_test.le: 2 Pass, 0 Fail, 0 Error
@@ -129,6 +144,16 @@ Detailed File Summary:
   [PASS] examples/moreExamples/abduction/grass_is_wet.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/loan_approval.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/moreExamples/abduction/sunglasses.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/flip_housing.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/judged_damage.le: 2 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/loaded_table.le: 1 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/otherwise_table.le: 2 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/precedent.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/precedent_pattern.le: 4 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/scoped_notice.le: 3 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/semantic_match.le: 1 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error

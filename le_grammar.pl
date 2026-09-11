@@ -919,7 +919,7 @@ kb_item(unknown_fact(Head, Start, End)) -->
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
 
-% kb_item(fact_prov(Head, Trailers, Start, End)) parses a fact carrying
+% kb_item(fact_prov(Head, Trailers, Full, Start, End)) parses a fact carrying
 % provenance trailers (docs/le_summary.md §17.1):
 %     the burst pipe is accidental,
 %         according to the loss adjuster, as stated in report LA-17 at page 3,
@@ -929,14 +929,17 @@ kb_item(unknown_fact(Head, Start, End)) -->
 % followed by a trailer keyword stays part of the fact, as before. A trailer
 % block may start on the fact's own line (the comma is then inside the template
 % instance) or on the next line (the instance stops at a line-ending comma).
-% Trailers are kept as tokens here and interpreted in the second pass.
-kb_item(fact_prov(Core, Trailers, Start, End)) -->
+% Trailers are kept as tokens here and interpreted in the second pass, where
+% the split is settled against the templates (provenance_split/4): a template
+% may itself contain trailer words.
+kb_item(fact_prov(Core, Trailers, Full, Start, End)) -->
     template_instance(Head0),
     { Head0 = [First|_], get_token_start(First, Start),
       split_inline_provenance(Head0, Core, Inline) },
-    (   t(punctuation(',', _)), trailer_ahead
-    ->  provenance_tokens(Cont)
-    ;   { Cont = [] }
+    (   t(punctuation(',', CommaLoc)), trailer_ahead
+    ->  provenance_tokens(Cont),
+        { append(Head0, [punct(',', CommaLoc)|Cont], Full) }
+    ;   { Cont = [], Full = Head0 }
     ),
     { append(Inline, Cont, Trailers), Trailers \== [], Core \== [] },
     any_indent, t(punctuation('.', loc(_, End))).
@@ -959,6 +962,42 @@ kb_item(fact(Head, Start, End)) -->
     template_instance(Head),
     { Head = [First|_], get_token_start(First, Start) },
     any_indent, t(punctuation('.', loc(_, End))).
+
+%!  provenance_split(+Full, +Templates, -Core, -Trailers) is semidet.
+%
+%   Where the fact ends and its trailers begin. A template may itself contain
+%   a trailer phrase ("the limit for *a section* is *an amount*, as stated in
+%   your schedule."): a sentence (or a prefix of it, before later trailers)
+%   that is an instance of such a template, with the phrase among the
+%   template's own words, keeps it. Otherwise the fact ends at the FIRST comma
+%   before a trailer keyword — a longer prefix could only "match" by letting a
+%   slot or the generic "is" fallback swallow a trailer.
+provenance_split(Full, Templates, Core, Trailers) :-
+    findall(C-T,
+            ( append(C, [Comma|T], Full), C \== [],
+              comma_part(Comma), starts_with_trailer_keyword(T) ),
+            Splits),
+    (   owned_trailer_parse(Full, Templates)
+    ->  Core = Full, Trailers = []
+    ;   Splits = [_|Longer0],                 % all but the first (shortest) split,
+        reverse(Longer0, Longer),             % longest first
+        member(C-T, Longer),
+        owned_trailer_parse(C, Templates),
+        le_provenance:parse_provenance_trailers(T, _)
+    ->  Core = C, Trailers = T
+    ;   Splits = [Core-Trailers|_]
+    ).
+
+% Tokens parse as an instance of a user template whose own words contain a
+% trailer phrase.
+owned_trailer_parse(Tokens, Templates) :-
+    \+ \+ ( parse_literal(Tokens, Templates, [], _, Lit, Instance),
+            \+ functor(Lit, le_is, 2), \+ functor(Lit, is_a, 2),
+            is_list(Instance),
+            include(atom, Instance, Words),
+            member(Key, [according_to, as_stated_in, because]),
+            le_i18n:kw_synonym_words(Key, KW),
+            contig_subseq(KW, Words) ).
 
 % The upcoming tokens open a provenance trailer (non-consuming).
 trailer_ahead(S, S) :-
@@ -2455,9 +2494,12 @@ second_pass_item(Templates, fact(Head, Start, End), clause(NewHead, NewBody, Sta
 % A fact with provenance trailers: compile the fact exactly as a plain fact —
 % proof is unaffected — and record its provenance against the fact's source
 % range (see record_fact_provenance/5).
-second_pass_item(Templates, fact_prov(Head, Trailers, Start, End), NewItem, M) :-
+second_pass_item(Templates, fact_prov(Head0, Trailers0, Full, Start, End), NewItem, M) :-
+    ( provenance_split(Full, Templates, Head, Trailers) -> true ; Head = Head0, Trailers = Trailers0 ),
     second_pass_item(Templates, fact(Head, Start, End), NewItem, M),
-    le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End).
+    (   Trailers == [] -> true
+    ;   le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End)
+    ).
 
 % A fact with an image addition ("<fact>; image "URL"."): compile the fact
 % exactly as a plain fact, then validate and record the image against the
@@ -2618,7 +2660,8 @@ second_pass_ontology_item(Templates, fact(Head, Start, End), clause(NewHead, New
         )
     ;   NewHead = unknown_template(Head, Start, End), NewBody = true
     ).
-second_pass_ontology_item(Templates, fact_prov(Head, _Trailers, Start, End), NewItem, M) :-
+second_pass_ontology_item(Templates, fact_prov(Head0, _, Full, Start, End), NewItem, M) :-
+    ( provenance_split(Full, Templates, Head, _) -> true ; Head = Head0 ),
     second_pass_ontology_item(Templates, fact(Head, Start, End), NewItem, M).
 second_pass_ontology_item(Templates, rule(Head, BodyTokens, Indent, Start, End, ID), clause(NewHead, NewBody, Start, End, ActualID), _M) :-
     (var(ID) -> format(atom(ActualID), 'rule_~w', [Start]) ; ActualID = ID),
@@ -2702,9 +2745,12 @@ arg_type(NTs, Arg, FormalArg, Arg-Type) :-
 
 % A scenario fact with provenance trailers: a plain scenario fact plus its
 % provenance record.
-second_pass_scenario_item(Templates, fact_prov(Head, Trailers, Start, End), NewItem, M) :-
+second_pass_scenario_item(Templates, fact_prov(Head0, Trailers0, Full, Start, End), NewItem, M) :-
+    ( provenance_split(Full, Templates, Head, Trailers) -> true ; Head = Head0, Trailers = Trailers0 ),
     second_pass_scenario_item(Templates, fact(Head, Start, End), NewItem, M),
-    le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End).
+    (   Trailers == [] -> true
+    ;   le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End)
+    ).
 
 % A scenario fact with an image addition: compile as a plain scenario fact,
 % then validate and record the image (see record_fact_image/7).

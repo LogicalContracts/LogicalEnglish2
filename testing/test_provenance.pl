@@ -179,6 +179,33 @@ query q is:
     destroySession(SM),
     As == ['12 High Street, Oxford'].
 
+% A template may itself contain a trailer phrase: the sentence is then an
+% ordinary fact of that template.
+test(template_owning_trailer_words) :-
+    load_text("the target language is: prolog.
+
+the templates are:
+    the limit for *a section* is *an amount*, as stated in your schedule.
+    *a section* is capped.
+
+the knowledge base k includes:
+a section is capped if the limit for the section is an amount, as stated in your schedule.
+
+scenario s is:
+    the limit for section one is 100, as stated in your schedule.
+    the limit for section two is 200, as stated in your schedule, according to the broker.
+
+query q is:
+    which section is capped.
+", KB),
+    findall(E, KB:le_issue(error, E, _, _, _, _), []),
+    createSession(KB, SM), setScenarion(SM, s),
+    findall(A, ( query(SM, q, I, _, _), canonical_string(I, A) ), As0), msort(As0, As),
+    destroySession(SM),
+    As == ["section one is capped", "section two is capped"],
+    \+ KB:le_fact_provenance(_, _, the_limit_for_is_as_stated_in_your_schedule('section one', _), _),
+    once(KB:le_fact_provenance(_, _, _, prov('the broker', none, none, none))).
+
 test(custom_facts_carry_provenance) :-
     load_decided(KB),
     once(parse_custom_facts(KB, "the burst pipe is accidental, according to the ombudsman.", Terms)),
