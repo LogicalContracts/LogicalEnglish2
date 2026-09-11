@@ -7,6 +7,7 @@
 
 import { explanationToMermaid } from './mermaid-export';
 import { t, applyI18nDom, installLeApiLang } from './i18n';
+import { isForeignOffset, openIncludedResource, describeResourceRange } from './resource-nav';
 
 export interface MenuEls {
     answerContextMenu: HTMLElement;
@@ -526,9 +527,17 @@ export class ExplanationView {
             });
 
             if (node.start !== undefined && node.end !== undefined) {
+                // A node whose source is in an included resource opens that
+                // resource; its offsets are not the document's (resource-nav.ts).
+                const foreign = isForeignOffset(node.start);
+                if (foreign && node.resource) textEl.title = describeResourceRange(node);
                 textEl.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    this.o.onNavigate?.(node.start, node.end);
+                    if (foreign) {
+                        if (node.resource) openIncludedResource(node);
+                    } else {
+                        this.o.onNavigate?.(node.start, node.end);
+                    }
                 });
             }
 

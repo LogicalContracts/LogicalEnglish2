@@ -6683,7 +6683,10 @@ var uiCatalog = {
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Quando ativo, a raz\xE3o importante de uma consulta falhada enumera todas as condi\xE7\xF5es falhadas mais profundas ("n\xE3o \xE9 o caso que X, nem que Y, nem que Z"), truncada ap\xF3s a terceira, em vez de apenas a primeira.',
     "Always show engine choice": "Mostrar sempre a escolha do motor",
     "Show engine choice only for non-Prolog": "Mostrar a escolha do motor apenas para n\xE3o-Prolog",
-    "{n} occurrence(s); click one to go to it": "{n} ocorr\xEAncia(s); clique numa para ir at\xE9 ela"
+    "{n} occurrence(s); click one to go to it": "{n} ocorr\xEAncia(s); clique numa para ir at\xE9 ela",
+    "This is defined in the included resource": "Isto est\xE1 definido no recurso inclu\xEDdo",
+    "In the included resource": "No recurso inclu\xEDdo",
+    "line": "linha"
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -6997,7 +7000,10 @@ var uiCatalog = {
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': 'Cuando est\xE1 activo, la raz\xF3n importante de una consulta fallida enumera todas las condiciones fallidas m\xE1s profundas ("no es el caso que X, ni que Y, ni que Z"), truncada tras la tercera, en lugar de solo la primera.',
     "Always show engine choice": "Mostrar siempre la elecci\xF3n del motor",
     "Show engine choice only for non-Prolog": "Mostrar la elecci\xF3n del motor solo para no-Prolog",
-    "{n} occurrence(s); click one to go to it": "{n} aparici\xF3n(es); haga clic en una para ir a ella"
+    "{n} occurrence(s); click one to go to it": "{n} aparici\xF3n(es); haga clic en una para ir a ella",
+    "This is defined in the included resource": "Esto est\xE1 definido en el recurso incluido",
+    "In the included resource": "En el recurso incluido",
+    "line": "l\xEDnea"
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7311,7 +7317,10 @@ var uiCatalog = {
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': "Quand elle est activ\xE9e, la raison importante d'une requ\xEAte en \xE9chec liste toutes les conditions en \xE9chec les plus profondes (\xAB il n'est pas le cas que X, ni que Y, ni que Z \xBB), tronqu\xE9e apr\xE8s la troisi\xE8me, au lieu de seulement la premi\xE8re.",
     "Always show engine choice": "Toujours afficher le choix du moteur",
     "Show engine choice only for non-Prolog": "Afficher le choix du moteur uniquement pour non-Prolog",
-    "{n} occurrence(s); click one to go to it": "{n} occurrence(s) ; cliquez sur une pour y aller"
+    "{n} occurrence(s); click one to go to it": "{n} occurrence(s) ; cliquez sur une pour y aller",
+    "This is defined in the included resource": "Ceci est d\xE9fini dans la ressource incluse",
+    "In the included resource": "Dans la ressource incluse",
+    "line": "ligne"
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7625,7 +7634,10 @@ var uiCatalog = {
     'When on, the important reason for a failed query lists all of the deepest failed conditions ("it is not the case that X, nor that Y, nor that Z"), truncated after the third, instead of just the first.': `Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite pi\xF9 profonde ("non \xE8 il caso che X, n\xE9 che Y, n\xE9 che Z"), troncato dopo il terzo, invece del solo primo.`,
     "Always show engine choice": "Mostra sempre la scelta del motore",
     "Show engine choice only for non-Prolog": "Mostra la scelta del motore solo per non-Prolog",
-    "{n} occurrence(s); click one to go to it": "{n} occorrenza/e; fai clic su una per andarci"
+    "{n} occurrence(s); click one to go to it": "{n} occorrenza/e; fai clic su una per andarci",
+    "This is defined in the included resource": "Questo \xE8 definito nella risorsa inclusa",
+    "In the included resource": "Nella risorsa inclusa",
+    "line": "riga"
   }
 };
 var languages = [
@@ -9865,6 +9877,32 @@ function explanationToMermaid(why) {
   return lines.join("\n");
 }
 
+// src/resource-nav.ts
+var RESOURCE_OFFSET_UNIT = 1e9;
+function isForeignOffset(offset) {
+  return typeof offset === "number" && offset >= RESOURCE_OFFSET_UNIT;
+}
+function describeResourceRange(info) {
+  const name = info.resource || info.resourcePath || "";
+  return info.resourceLine ? `${name}, ${t("line")} ${info.resourceLine}` : name;
+}
+function openIncludedResource(info) {
+  if (!info.resourceExample) {
+    alert(`${t("This is defined in the included resource")} ${describeResourceRange(info)}.`);
+    return;
+  }
+  const url = new URL(window.location.href);
+  url.search = "";
+  url.hash = "";
+  url.searchParams.set("example", info.resourceExample);
+  if (info.resourceLine)
+    url.searchParams.set("line", String(info.resourceLine));
+  const theme = new URLSearchParams(window.location.search).get("theme");
+  if (theme)
+    url.searchParams.set("theme", theme);
+  window.open(url.toString(), "_blank");
+}
+
 // src/explanation-view.ts
 var activeView = null;
 var menusWired = false;
@@ -10371,9 +10409,17 @@ var ExplanationView = class {
         this.m.explanationContextMenu.style.top = `${e.clientY}px`;
       });
       if (node.start !== void 0 && node.end !== void 0) {
+        const foreign = isForeignOffset(node.start);
+        if (foreign && node.resource)
+          textEl.title = describeResourceRange(node);
         textEl.addEventListener("click", (e) => {
           e.stopPropagation();
-          this.o.onNavigate?.(node.start, node.end);
+          if (foreign) {
+            if (node.resource)
+              openIncludedResource(node);
+          } else {
+            this.o.onNavigate?.(node.start, node.end);
+          }
         });
       }
       container.appendChild(label);
@@ -10615,7 +10661,12 @@ async function start() {
     // without this the registered semantic provider would be ignored.
     "semanticHighlighting.enabled": true
   });
-  window.selectRange = (start2, end) => {
+  window.selectRange = (start2, end, info) => {
+    if (isForeignOffset(start2)) {
+      if (info && info.resource)
+        openIncludedResource(info);
+      return;
+    }
     const model2 = editor.getModel();
     rememberJumpOrigin(editor);
     const startPos = model2.getPositionAt(start2);
@@ -10824,7 +10875,7 @@ async function start() {
   }
   function ruleHeadLines(ed, data) {
     const model2 = ed.getModel();
-    const lines = (data.rules || []).map((r) => model2.getPositionAt(r.start).lineNumber);
+    const lines = (data.rules || []).filter((r) => !isForeignOffset(r.start)).map((r) => model2.getPositionAt(r.start).lineNumber);
     return [...new Set(lines)].sort((a, b) => a - b);
   }
   async function foldPredicateRules(ed, fold) {
@@ -10904,7 +10955,13 @@ async function start() {
       if (!data)
         return;
       const model2 = ed.getModel();
-      const target = data.rules && data.rules.length > 0 ? data.rules[0].start : data.template ? data.template.start : null;
+      const local = (data.rules || []).filter((r) => !isForeignOffset(r.start));
+      const first = local.length > 0 ? local[0] : data.template && !isForeignOffset(data.template.start) ? data.template : data.rules && data.rules.length > 0 ? data.rules[0] : data.template;
+      if (first && isForeignOffset(first.start)) {
+        openIncludedResource(first);
+        return;
+      }
+      const target = first ? first.start : null;
       if (target === null) {
         alert(t("No definition found for") + ` "${data.le}"`);
         return;
@@ -10964,6 +11021,8 @@ async function start() {
     const rows = [];
     const seen = /* @__PURE__ */ new Set();
     for (const occ of data.occurrences || []) {
+      if (isForeignOffset(occ.start))
+        continue;
       const line = occurrenceLine(model2, occ);
       const key = `${line}|${occ.kind}|${occ.text}`;
       if (seen.has(key))
@@ -11696,7 +11755,7 @@ async function start() {
   graphChannel.onmessage = (event) => {
     const { type, data } = event.data;
     if (type === "select-range") {
-      window.selectRange(data.start, data.end);
+      window.selectRange(data.start, data.end, data);
     } else if (type === "request-state") {
       sendStateToGraph();
     }
@@ -11873,16 +11932,21 @@ async function start() {
     if (!model2)
       return;
     issueFixes.clear();
+    const includeSection = (includedResources || []).find((r) => !isForeignOffset(r.start));
     const markers = issues.map((issue) => {
-      const startPos = model2.getPositionAt(issue.start);
-      const endPos = model2.getPositionAt(issue.end);
+      const foreign = isForeignOffset(issue.start);
+      const start2 = foreign ? includeSection ? includeSection.start : 0 : issue.start;
+      const end = foreign ? includeSection ? includeSection.end : 0 : issue.end;
+      const startPos = model2.getPositionAt(start2);
+      const endPos = model2.getPositionAt(end);
+      const message = foreign ? `${t("In the included resource")} ${describeResourceRange(issue)}: ${issue.message}` : issue.message;
       const marker = {
         severity: issue.severity === "error" ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
         startLineNumber: startPos.lineNumber,
         startColumn: startPos.column,
         endLineNumber: endPos.lineNumber,
         endColumn: endPos.column,
-        message: issue.message,
+        message,
         source: "LE Verifier"
       };
       if (issue.fix) {
@@ -12347,7 +12411,7 @@ async function start() {
       div.dataset.frameId = String(f.id);
       if (f.id === 1)
         div.classList.add("executing");
-      const pos = f.offset !== void 0 ? model2.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
+      const pos = f.offset !== void 0 && !isForeignOffset(f.offset) ? model2.getPositionAt(f.offset) : { lineNumber: 1, column: 1 };
       const nameSpan = document.createElement("span");
       nameSpan.className = "stack-frame-name";
       nameSpan.textContent = f.name;
@@ -12362,7 +12426,7 @@ async function start() {
   };
   const highlightFrameRange = (f) => {
     const model2 = editor.getModel();
-    if (!f || f.offset === void 0) {
+    if (!f || f.offset === void 0 || isForeignOffset(f.offset)) {
       debugDecorations = editor.deltaDecorations(debugDecorations, []);
       return;
     }
@@ -12677,7 +12741,7 @@ async function start() {
     if (event.data && event.data.type === "le-highlight" && event.data.loc) {
       const loc = event.data.loc;
       const model2 = editor.getModel();
-      if (model2 && loc.start !== void 0 && loc.end !== void 0) {
+      if (model2 && loc.start !== void 0 && loc.end !== void 0 && !isForeignOffset(loc.start)) {
         const startPos = model2.getPositionAt(loc.start);
         const endPos = model2.getPositionAt(loc.end);
         editor.setSelection(new monaco.Range(

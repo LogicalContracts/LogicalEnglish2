@@ -169,8 +169,10 @@ handle_leapi(Request) :-
     (   validate_token(Dict) ->  
             get_dict(operation, Dict, Op),
             print_message(informational, le_api_info(Op)),
-            (   catch(handle_operation(Dict, Response), E, (print_message(error, E), fail)) ->  
+            (   catch(handle_operation(Dict, Response0), E, (print_message(error, E), fail)) ->  
                     print_message(informational, le_api_info(success(Op))),
+                    % Ranges inside included resources carry their resource.
+                    le_kbs:annotate_resource_ranges(Response0, Response),
                     reply_json_dict(Response)
                 ; print_message(error, le_api_error(Op, "Operation failed")),
                   reply_json_dict(_{error: "Operation failed or internal error"}, [status(500)])

@@ -344,7 +344,8 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
                        % `Type - [Desc,Start,End]` used the Type atom as the format
                        % string, which threw "too many arguments"). Desc is an
                        % argument, so a literal ~ in it is not re-interpreted.
-                       print_message(Severity, 'LE ~w: ~w (chars ~w-~w)' - [Type, Desc, Start, End]))
+                       ( issue_location(Start, End, Where),
+                         print_message(Severity, 'LE ~w: ~w (~w)' - [Type, Desc, Where]) ))
             ;   true
             )
         ;   % Parsing failed
@@ -594,6 +595,113 @@ resolve_resource(Resource, Base, Kind, Id) :-
         Id = WithExt
     ).
 
+%!  resource_base(+Id, -Base) is det.
+%
+%   The offset base of an included .le resource (see parse_resource_text/4):
+%   one per resource identity, the same in every load and every knowledge
+%   base, so that an offset in any reply can be traced back to its resource
+%   (resource_range_info/4) without knowing which load produced it. Derived
+%   from a hash of the identity, probing on a (rare) clash; below 2^53, so a
+%   JavaScript client reads offsets exactly.
+:- dynamic le_resource_base/2, le_resource_base_text/2.
+
+resource_base(Id, Base) :-
+    (   le_resource_base(Base0, Id)
+    ->  Base = Base0
+    ;   with_mutex(le_resource_base, allocate_resource_base(Id, Base))
+    ).
+
+allocate_resource_base(Id, Base) :-
+    (   le_resource_base(Base0, Id)
+    ->  Base = Base0
+    ;   le_grammar:resource_offset_unit(Unit),
+        term_hash(Id, H),
+        Slot0 is H mod 1000000 + 1,
+        free_resource_slot(Slot0, Unit, Base),
+        assertz(le_resource_base(Base, Id))
+    ).
+
+free_resource_slot(Slot, Unit, Base) :-
+    Base0 is Slot * Unit,
+    (   le_resource_base(Base0, _)
+    ->  Slot1 is Slot mod 1000000 + 1,
+        free_resource_slot(Slot1, Unit, Base)
+    ;   Base = Base0
+    ).
+
+%!  resource_range_info(+Start, +End, -Info:dict) is semidet.
+%
+%   Info describes a moved offset range (one inside an included resource):
+%   the resource (its file or URL), the example name the editor can open it
+%   under (null if it is not an example), the 1-based line, and the offsets
+%   within the resource. Fails for an offset of the including document.
+resource_range_info(Start, End, Info) :-
+    integer(Start),
+    le_grammar:offset_base(Start, Base),
+    Base > 0,
+    le_resource_base(Base, Id),
+    LStart is Start - Base,
+    ( integer(End), End >= Start -> LEnd is End - Base ; LEnd = LStart ),
+    (   le_resource_base_text(Base, Text),
+        catch(sub_string(Text, 0, LStart, _, Before), _, fail)
+    ->  split_string(Before, "\n", "", Lines), length(Lines, Line)
+    ;   Line = 1
+    ),
+    ( example_name_for_file(Id, Example) -> true ; Example = null ),
+    file_base_name(Id, Name),
+    Info = _{resource: Name, resourcePath: Id, resourceExample: Example,
+             resourceLine: Line, resourceStart: LStart, resourceEnd: LEnd}.
+
+%!  example_name_for_file(+File, -Name) is semidet.
+%
+%   The example name (as the editor's ?example= parameter and
+%   le_example_relpath/2 use it) of a file in one of the example trees.
+example_name_for_file(File, Name) :-
+    atom(File), \+ is_url(File),
+    file_name_extension(Stem, le, File),
+    (   le_examples_dir(Dir), Prefix = ''
+    ;   le_extra_examples_dir(Root, Dir), atom_concat(Root, '/', Prefix)
+    ;   language_examples_dir(Lang, Dir), atom_concat(Lang, '/', Prefix)
+    ),
+    absolute_file_name(Dir, AbsDir, [file_type(directory), file_errors(fail)]),
+    atom_concat(AbsDir, '/', DirSlash),
+    atom_concat(DirSlash, Rest, Stem),
+    atom_concat(Prefix, Rest, Name), !.
+
+%!  annotate_resource_ranges(+JSON0, -JSON) is det.
+%
+%   Every dict in a reply whose `start` is a moved offset (an included
+%   resource's) gets that resource's resource_range_info/4 fields, so the
+%   client can open the resource there instead of reading the offset as one
+%   of the document on screen.
+annotate_resource_ranges(JSON0, JSON) :-
+    (   is_dict(JSON0)
+    ->  dict_pairs(JSON0, Tag, Pairs0),
+        maplist(annotate_pair, Pairs0, Pairs1),
+        dict_pairs(JSON1, Tag, Pairs1),
+        (   get_dict(start, JSON1, S), integer(S),
+            ( get_dict(end, JSON1, E) -> true ; E = S ),
+            resource_range_info(S, E, Info)
+        ->  put_dict(Info, JSON1, JSON)
+        ;   JSON = JSON1
+        )
+    ;   is_list(JSON0)
+    ->  maplist(annotate_resource_ranges, JSON0, JSON)
+    ;   JSON = JSON0
+    ).
+
+annotate_pair(K-V0, K-V) :- annotate_resource_ranges(V0, V).
+
+%!  issue_location(+Start, +End, -Where:string) is det.
+%
+%   How a diagnostic's range reads in a message: "chars S-E" in the document,
+%   or "<resource>, line L" in an included resource.
+issue_location(Start, End, Where) :-
+    (   resource_range_info(Start, End, Info)
+    ->  format(string(Where), "~w, line ~w", [Info.resource, Info.resourceLine])
+    ;   format(string(Where), "chars ~w-~w", [Start, End])
+    ).
+
 is_url(A) :- atom(A), ( sub_atom(A, 0, _, _, 'http://') ; sub_atom(A, 0, _, _, 'https://') ), !.
 
 % Local resources are restricted: a file may be included when it lives under
@@ -663,7 +771,7 @@ include_resource_text(Text, IdOrPath, M, Sections) :-
     setup_call_cleanup(
         ( retractall(le_include_base(_)), assertz(le_include_base(NewBase)),
           retractall(le_include_depth(_)), assertz(le_include_depth(Depth1)) ),
-        parse_resource_text(Text, M, Sections),
+        parse_resource_text(Text, IdOrPath, M, Sections),
         ( retractall(le_include_base(_)), assertz(le_include_base(OldBase)),
           retractall(le_include_depth(_)), assertz(le_include_depth(Depth)) )).
 
@@ -767,13 +875,29 @@ count_rules_and_templates(Sections, RuleCount, TemplateCount) :-
     findall(1, (member(S, Sections), (S = templates(Dicts) ; S = predicates(Dicts)), member(_, Dicts)), Templates),
     length(Templates, TemplateCount).
 
-parse_resource_text(Text, M, FilteredMergedSections) :-
-    tokenizer:tokenize_lang(Text, Tokens),
-    % The resource's own text is the source text while it is parsed, so that
-    % its provenance trailers are read back from it, not from the includer.
-    (   le_grammar:with_source_text(Text, phrase(le_grammar:doc(Sections), Tokens))
-    ->  le_grammar:register_resource_fact_texts(Sections, Text),
-        fetch_resources(Sections, MergedSections, M),
+% An included resource is parsed with its offsets moved into a range of its
+% own (le_grammar:resource_offset_unit/1), so that nothing recorded for it —
+% clause ranges, conditions, issues, provenance, rule ids — is confused with
+% the including document's; le_resource_origin/3 remembers which resource a
+% base stands for, and its text.
+parse_resource_text(Text, Id, M, FilteredMergedSections) :-
+    tokenizer:tokenize_lang(Text, Tokens0),
+    resource_base(Id, Base),
+    le_grammar:register_resource_source_text(Base, Text),
+    retractall(le_resource_base_text(Base, _)),
+    assertz(le_resource_base_text(Base, Text)),
+    (   nonvar(M), M \== (-)
+    ->  assertz(M:le_resource_origin(Base, Id, Text))
+    ;   true
+    ),
+    le_grammar:shift_tokens(Base, Tokens0, Tokens),
+    % The resource's own line starts, while it is parsed.
+    findall(O, le_grammar:line_start_offset(O), SavedStarts),
+    (   setup_call_cleanup(
+            le_grammar:record_line_starts(Tokens),
+            phrase(le_grammar:doc(Sections), Tokens),
+            le_grammar:restore_line_starts(SavedStarts))
+    ->  fetch_resources(Sections, MergedSections, M),
         exclude(is_scenario_or_query, MergedSections, FilteredMergedSections)
     ;   FilteredMergedSections = []
     ).
@@ -2269,6 +2393,7 @@ is_system_predicate(le_lps_item/3).
 % the fact's source range, its public per-session form, and the program-level
 % "scenario facts require provenance." declaration.
 is_system_predicate(le_fact_provenance/4).
+is_system_predicate(le_resource_origin/3).
 is_system_predicate(le_provenance/5).
 is_system_predicate(le_provenance_required/0).
 % Services (le_services.pl): the declared services, and the templates they back.

@@ -272,7 +272,8 @@ cy.on('tap', 'node', (evt) => {
     if (source && source.start !== undefined && source.end !== undefined) {
         graphChannel.postMessage({
             type: 'select-range',
-            data: { start: source.start, end: source.end }
+            // the whole source: a range in an included resource carries it
+            data: { ...source }
         });
     }
 });

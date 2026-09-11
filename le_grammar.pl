@@ -125,36 +125,67 @@ with_source_text(Text, Goal) :-
         ( retractall(current_source_text(_)),
           forall(member(T, Saved), assertz(current_source_text(T))) )).
 
-% The facts with provenance trailers of an included resource, with the
-% resource's text: the second pass, which runs after all resources are merged,
-% reads their trailers back from that text (their offsets are offsets into it).
-:- thread_local resource_fact_text/2.
+% Included resources. Each .le resource of a load is parsed with its offsets
+% moved into a range of its own — a multiple of resource_offset_unit that
+% le_kbs:resource_base/2 allocates per resource — so that every source range
+% recorded for it (a
+% clause, a condition, an issue, a provenance record, a rule id "rule_<start>")
+% is told apart from the including document's, whose offsets stay below the
+% unit. le_kbs records which resource each base belongs to
+% (le_resource_origin/3), and the explanation, issue and navigation code turns
+% a moved offset back into "this resource, this offset".
+resource_offset_unit(1000000000).
 
-%!  register_resource_fact_texts(+Sections, +Text) is det.
-register_resource_fact_texts(Sections, Text) :-
-    forall(sub_term(fact_prov(_, _, Full, _, _), Sections),
-           assertz(resource_fact_text(Full, Text))).
+% The text of each resource parsed in the current load, by base, so that the
+% second pass (which runs after all resources are merged) reads trailers back
+% from the right text.
+:- thread_local resource_source_text/2.
 
-%!  with_fact_source_text(+Full, :Goal) is semidet.
+%!  register_resource_source_text(+Base, +Text) is det.
+register_resource_source_text(Base, Text) :-
+    assertz(resource_source_text(Base, Text)).
+
+
+%!  offset_base(+Offset, -Base) is det.
 %
-%   Runs Goal with the source text of the fact whose tokens are Full: the
-%   resource's own text for a fact of an included resource, else the current
-%   one.
-:- meta_predicate with_fact_source_text(+, 0).
-with_fact_source_text(Full, Goal) :-
-    (   resource_fact_text(Full0, Text), Full0 == Full
-    ->  with_source_text(Text, Goal)
-    ;   call(Goal)
+%   The base of the document an offset belongs to: 0 for the including
+%   document, the resource's base for a moved offset.
+offset_base(Offset, Base) :-
+    resource_offset_unit(Unit),
+    Base is (Offset // Unit) * Unit.
+
+%!  shift_tokens(+Base, +Tokens, -Shifted) is det.
+%
+%   The tokens of a resource with their offsets moved by Base.
+shift_tokens(0, Tokens, Tokens) :- !.
+shift_tokens(Base, Tokens, Shifted) :-
+    maplist(shift_token(Base), Tokens, Shifted).
+
+shift_token(Base, T, T1) :-
+    (   compound(T),
+        T =.. L,
+        append(Front, [loc(S, E)], L),
+        integer(S), integer(E)
+    ->  S1 is S + Base, E1 is E + Base,
+        append(Front, [loc(S1, E1)], L1),
+        T1 =.. L1
+    ;   T1 = T
     ).
 
 %!  source_substring(+Start, +End, -String) is semidet.
 %
-%   The verbatim source text between two offsets of the document being parsed.
+%   The verbatim source text between two offsets: of the document being
+%   parsed, or — for a moved offset — of the resource it belongs to.
 source_substring(Start, End, String) :-
-    current_source_text(Text),
     integer(Start), integer(End), End >= Start,
+    offset_base(Start, Base),
+    (   Base =:= 0
+    ->  current_source_text(Text)
+    ;   resource_source_text(Base, Text)
+    ),
+    From is Start - Base,
     Len is End - Start,
-    catch(sub_string(Text, Start, Len, _, String), _, fail).
+    catch(sub_string(Text, From, Len, _, String), _, fail).
 
 
 %!  parse_le_text(+Text:string, -Doc:term) is det.
@@ -210,15 +241,19 @@ parse_le_tokens(Tokens, doc(NewSections), M) :-
         fail
     ),
     check_scenario_before_rules(Sections, M),
+    % The resources of this load: a nested parse_le_tokens (none today) would
+    % start its own numbering, so save and restore.
+    findall(B-T, resource_source_text(B, T), SavedResources),
     setup_call_cleanup(
-        retractall(resource_fact_text(_, _)),
+        retractall(resource_source_text(_, _)),
         ( le_kbs:fetch_resources(Sections, MergedSections, M),
           (   second_pass(MergedSections, NewSections, M) ->  true
               ;
               print_message(error, "second_pass failed"),
               fail
           ) ),
-        retractall(resource_fact_text(_, _))).
+        ( retractall(resource_source_text(_, _)),
+          forall(member(B-T, SavedResources), assertz(resource_source_text(B, T))) )).
 
 check_scenario_before_rules(Sections, M) :-
     forall(
@@ -2540,8 +2575,7 @@ second_pass_item(Templates, fact_prov(Head0, Trailers0, Full, Start, End), NewIt
     ( provenance_split(Full, Templates, Head, Trailers) -> true ; Head = Head0, Trailers = Trailers0 ),
     second_pass_item(Templates, fact(Head, Start, End), NewItem, M),
     (   Trailers == [] -> true
-    ;   with_fact_source_text(Full,
-            le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End))
+    ;   le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End)
     ).
 
 % A fact with an image addition ("<fact>; image "URL"."): compile the fact

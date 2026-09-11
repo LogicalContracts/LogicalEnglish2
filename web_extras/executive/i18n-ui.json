@@ -313,7 +313,10 @@
    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando ativo, a razão importante de uma consulta falhada enumera todas as condições falhadas mais profundas (\"não é o caso que X, nem que Y, nem que Z\"), truncada após a terceira, em vez de apenas a primeira.",
    "Always show engine choice": "Mostrar sempre a escolha do motor",
    "Show engine choice only for non-Prolog": "Mostrar a escolha do motor apenas para não-Prolog",
-   "{n} occurrence(s); click one to go to it": "{n} ocorrência(s); clique numa para ir até ela"
+   "{n} occurrence(s); click one to go to it": "{n} ocorrência(s); clique numa para ir até ela",
+   "This is defined in the included resource": "Isto está definido no recurso incluído",
+   "In the included resource": "No recurso incluído",
+   "line": "linha"
   },
   "es": {
    "+ Add": "+ Añadir",
@@ -627,7 +630,10 @@
    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Cuando está activo, la razón importante de una consulta fallida enumera todas las condiciones fallidas más profundas (\"no es el caso que X, ni que Y, ni que Z\"), truncada tras la tercera, en lugar de solo la primera.",
    "Always show engine choice": "Mostrar siempre la elección del motor",
    "Show engine choice only for non-Prolog": "Mostrar la elección del motor solo para no-Prolog",
-   "{n} occurrence(s); click one to go to it": "{n} aparición(es); haga clic en una para ir a ella"
+   "{n} occurrence(s); click one to go to it": "{n} aparición(es); haga clic en una para ir a ella",
+   "This is defined in the included resource": "Esto está definido en el recurso incluido",
+   "In the included resource": "En el recurso incluido",
+   "line": "línea"
   },
   "fr": {
    "+ Add": "+ Ajouter",
@@ -941,7 +947,10 @@
    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quand elle est activée, la raison importante d'une requête en échec liste toutes les conditions en échec les plus profondes (« il n'est pas le cas que X, ni que Y, ni que Z »), tronquée après la troisième, au lieu de seulement la première.",
    "Always show engine choice": "Toujours afficher le choix du moteur",
    "Show engine choice only for non-Prolog": "Afficher le choix du moteur uniquement pour non-Prolog",
-   "{n} occurrence(s); click one to go to it": "{n} occurrence(s) ; cliquez sur une pour y aller"
+   "{n} occurrence(s); click one to go to it": "{n} occurrence(s) ; cliquez sur une pour y aller",
+   "This is defined in the included resource": "Ceci est défini dans la ressource incluse",
+   "In the included resource": "Dans la ressource incluse",
+   "line": "ligne"
   },
   "it": {
    "+ Add": "+ Aggiungi",
@@ -1255,7 +1264,10 @@
    "When on, the important reason for a failed query lists all of the deepest failed conditions (\"it is not the case that X, nor that Y, nor that Z\"), truncated after the third, instead of just the first.": "Quando attivo, il motivo importante di un'interrogazione fallita elenca tutte le condizioni fallite più profonde (\"non è il caso che X, né che Y, né che Z\"), troncato dopo il terzo, invece del solo primo.",
    "Always show engine choice": "Mostra sempre la scelta del motore",
    "Show engine choice only for non-Prolog": "Mostra la scelta del motore solo per non-Prolog",
-   "{n} occurrence(s); click one to go to it": "{n} occorrenza/e; fai clic su una per andarci"
+   "{n} occurrence(s); click one to go to it": "{n} occorrenza/e; fai clic su una per andarci",
+   "This is defined in the included resource": "Questo è definito nella risorsa inclusa",
+   "In the included resource": "Nella risorsa inclusa",
+   "line": "riga"
   }
  },
  "languages": [
