@@ -2480,9 +2480,21 @@ is_expected_item(expected_changes(_, _, _, _)).
 %!  verify(+LEfilePath:atom) is det.
 %
 %   Loads and verifies a Logical English file, printing any issues found.
+%   As load/2 does, it reads the program from its own folder: that is where
+%   its relative `includes these resources:` and the texts of the documents
+%   it quotes ("the text of <document> is at <address>") are found.
 verify(LEfilePath) :-
+    absolute_file_name(LEfilePath, Abs),
+    file_directory_name(Abs, Dir),
+    setup_call_cleanup(
+        ( retractall(le_include_base(_)), assertz(le_include_base(Dir)) ),
+        verify_in_folder(LEfilePath, Dir),
+        retractall(le_include_base(_))).
+
+verify_in_folder(LEfilePath, Dir) :-
     uuid(UUID), atom_concat(v, UUID, KBmodule),
     forall(is_system_predicate(F/N), dynamic(KBmodule:F/N)),
+    assertz(KBmodule:le_program_base(Dir)),
     setup_call_cleanup(
         asserta(current_compiling_module(KBmodule)),
         le_grammar:parse_le_file(LEfilePath, doc(Sections), KBmodule),
