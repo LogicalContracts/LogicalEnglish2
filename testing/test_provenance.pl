@@ -67,6 +67,13 @@ answers(KB, Scenario, Query, Answers) :-
 
 unknown_text(KB, U, S) :- item_to_instance(KB, U, T), canonical_string(T, S).
 
+resource_dir(Dir) :-
+    tmp_file(le_prov, Dir),
+    make_directory(Dir).
+
+write_file(Path, Text) :-
+    setup_call_cleanup(open(Path, write, S), write(S, Text), close(S)).
+
 why_literals(Why, Lits) :-
     findall(L, why_literal(Why, L), Lits).
 why_literal(L0, L) :- is_list(L0), !, member(X, L0), why_literal(X, L).
@@ -210,6 +217,72 @@ test(custom_facts_carry_provenance) :-
     load_decided(KB),
     once(parse_custom_facts(KB, "the burst pipe is accidental, according to the ombudsman.", Terms)),
     memberchk(le_provenance(is_accidental('the burst pipe'), 'the ombudsman', none, none, none), Terms).
+
+% A judged template with two or more arguments: the last is the outcome. Once
+% an outcome is recorded for a question, no other outcome of it is assumed;
+% a question with nothing recorded stays open (a judgment needed).
+test(judged_outcome_closes_the_question) :-
+    load_text("the target language is: prolog.
+
+the templates are:
+    *a good* is an article.
+    the principal use of *a good* is *a use*; judged.
+    *a good* is described by heading *a heading*.
+
+the knowledge base uses includes:
+
+a good is described by heading 3923
+    if the good is an article
+    and the principal use of the good is packing.
+
+a good is described by heading 3924
+    if the good is an article
+    and the principal use of the good is household use.
+
+scenario s is:
+    the bin is an article.
+    the principal use of the bin is household use, according to CBP, because \"it holds laundry\".
+    the crate is an article.
+
+query q is:
+    which good is described by heading which heading.
+", KB),
+    answers(KB, s, q, Answers0),
+    msort(Answers0, Answers),
+    Answers == ["the bin is described by heading 3924"-[],
+                "the crate is described by heading 3923"-["the principal use of the crate is packing"],
+                "the crate is described by heading 3924"-["the principal use of the crate is household use"]].
+
+% A fact of an included resource keeps the verbatim spelling of its trailers,
+% read from the resource's own text (its offsets are offsets into it), and its
+% provenance is not confused with a fact of the includer at the same offsets.
+test(resource_fact_trailers_verbatim, [setup(resource_dir(Dir)), cleanup(delete_directory_and_contents(Dir))]) :-
+    directory_file_path(Dir, 'lib.le', Lib),
+    directory_file_path(Dir, 'main.le', Main),
+    write_file(Lib, "the target language is: prolog.
+
+the templates are:
+    *a heading* beats *an other heading*.
+
+the knowledge base lib includes:
+
+6106 beats 6109,
+    according to CBP, as stated in HQ H325360 at page 07,
+    because \"loose tops are blouses\".
+"),
+    write_file(Main, "the target language is: prolog.
+
+the knowledge base main includes these resources:
+    lib.
+
+the knowledge base main includes:
+
+query q is:
+    which heading beats which other heading.
+"),
+    load(Main, KB),
+    KB:le_fact_provenance(_, _, beats(6106, 6109), Prov), !,
+    Prov == prov('CBP', doc('HQ H325360', "HQ H325360"), "page 07", "loose tops are blouses").
 
 test(portuguese_trailers) :-
     load_text("a linguagem alvo é: prolog.

@@ -125,6 +125,28 @@ with_source_text(Text, Goal) :-
         ( retractall(current_source_text(_)),
           forall(member(T, Saved), assertz(current_source_text(T))) )).
 
+% The facts with provenance trailers of an included resource, with the
+% resource's text: the second pass, which runs after all resources are merged,
+% reads their trailers back from that text (their offsets are offsets into it).
+:- thread_local resource_fact_text/2.
+
+%!  register_resource_fact_texts(+Sections, +Text) is det.
+register_resource_fact_texts(Sections, Text) :-
+    forall(sub_term(fact_prov(_, _, Full, _, _), Sections),
+           assertz(resource_fact_text(Full, Text))).
+
+%!  with_fact_source_text(+Full, :Goal) is semidet.
+%
+%   Runs Goal with the source text of the fact whose tokens are Full: the
+%   resource's own text for a fact of an included resource, else the current
+%   one.
+:- meta_predicate with_fact_source_text(+, 0).
+with_fact_source_text(Full, Goal) :-
+    (   resource_fact_text(Full0, Text), Full0 == Full
+    ->  with_source_text(Text, Goal)
+    ;   call(Goal)
+    ).
+
 %!  source_substring(+Start, +End, -String) is semidet.
 %
 %   The verbatim source text between two offsets of the document being parsed.
@@ -188,12 +210,15 @@ parse_le_tokens(Tokens, doc(NewSections), M) :-
         fail
     ),
     check_scenario_before_rules(Sections, M),
-    le_kbs:fetch_resources(Sections, MergedSections, M),
-    (   second_pass(MergedSections, NewSections, M) ->  true 
-        ;   
-        print_message(error, "second_pass failed"),
-        fail
-    ).
+    setup_call_cleanup(
+        retractall(resource_fact_text(_, _)),
+        ( le_kbs:fetch_resources(Sections, MergedSections, M),
+          (   second_pass(MergedSections, NewSections, M) ->  true
+              ;
+              print_message(error, "second_pass failed"),
+              fail
+          ) ),
+        retractall(resource_fact_text(_, _))).
 
 check_scenario_before_rules(Sections, M) :-
     forall(
@@ -2515,7 +2540,8 @@ second_pass_item(Templates, fact_prov(Head0, Trailers0, Full, Start, End), NewIt
     ( provenance_split(Full, Templates, Head, Trailers) -> true ; Head = Head0, Trailers = Trailers0 ),
     second_pass_item(Templates, fact(Head, Start, End), NewItem, M),
     (   Trailers == [] -> true
-    ;   le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End)
+    ;   with_fact_source_text(Full,
+            le_provenance:record_fact_provenance(M, NewItem, Trailers, Start, End))
     ).
 
 % A fact with an image addition ("<fact>; image "URL"."): compile the fact
