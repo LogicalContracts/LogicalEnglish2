@@ -291,3 +291,45 @@ scenario refill_timing is:
     Ann received instruction from the supplier in the use and care of the CPAP device.
     pay expects answers [].
     stage expects answers ["the query fails at remedy"].
+
+% A view (docs/le_summary.md §17.10): the reviewer's screen for a PAP claim.
+the view coverage desk is:
+    the title is "PAP coverage desk".
+    the case is a scenario.
+    the facts about "the claim" are
+        a claim is for an item,
+        the HCPCS code of an item is a code,
+        an item is furnished to a beneficiary,
+        the residence of a beneficiary is a place,
+        the date of service of a claim is a date,
+        the rental month of a claim is a number,
+        an item is an accessory of a device,
+        the quantity billed on a claim is a number,
+        a claim is for a supply of a number months.
+    the facts about "the sleep test and the evaluation" are
+        a beneficiary has a diagnosis of obstructive sleep apnea,
+        a beneficiary had an in-person clinical evaluation by the treating practitioner on a date,
+        the sleep test of a beneficiary was performed on a date,
+        the type of the sleep test of a beneficiary is a type,
+        the AHI of the sleep test of a beneficiary is a number,
+        the sleep test of a beneficiary recorded a number events,
+        the medical record of a beneficiary documents a condition,
+        a beneficiary received instruction from the supplier in the use and care of an item.
+    the facts about "the first three months" are
+        an item was delivered on a date,
+        a beneficiary had an in-person clinical re-evaluation by the treating practitioner on a date,
+        the re-evaluation of a beneficiary on a date documents that the symptoms of obstructive sleep apnea are improved,
+        a beneficiary used an item at least four hours per night on a number percent of nights during a consecutive thirty day period within the first three months.
+    the facts about "the order and the delivery" are
+        the order for an item is dated a date,
+        the order for an item is signed by the treating practitioner,
+        the order for an item includes an element,
+        the order for an item was communicated to the supplier on a date,
+        the supplier holds proof of delivery for an item.
+    the result is the answer to query pay.
+    the result shows the stage it reaches.
+    the result shows its citations.
+    the result asks what is missing.
+    the result can be flipped.
+    the cases are listed with their results.
+    the draft reads "DETERMINATION: {the result}. The claim of {the case} was reviewed under LCD L33718 (Positive Airway Pressure Devices) and Policy Article A52467. The facts relied on: {the facts}. The passages applied: {the citations}.".
