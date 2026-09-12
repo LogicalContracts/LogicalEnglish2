@@ -42,6 +42,7 @@
 %   Through the broker, not straight at llm_client: an embedder (LPS2) can
 %   substitute its own client, so English→LE uses the keys and the model
 %   registry the surrounding application already has. See llm/le_llm.pl.
+:- use_module(library(pcre)).
 :- use_module(llm/le_llm).
 :- use_module(le_i18n).
 :- use_module(le_kbs, [load_text/2, text_language/2]).
@@ -132,7 +133,14 @@ english_to_le_(Kind, Sentence, Templates0, Program, Model, Options0, LEText, New
     ;   Doc = none, Options0b = Options0, Templates = Templates0
     ),
     loop_options(Options0b, Limits, CheckRegressions, Options1),
-    ( Doc == none -> Options1b = Options1 ; ensure_option(max_tokens(4096), Options1, Options1b) ),
+    % A document is transcribed, not reasoned about: little reasoning, and room
+    % for the facts of several goods. (With a reasoning model and 4096 tokens a
+    % ruling of a few pages came back empty — the budget went to reasoning.)
+    (   Doc == none
+    ->  Options1b = Options1
+    ;   ensure_option(max_tokens(16384), Options1, Options1a),
+        ensure_option(reasoning(minimal), Options1a, Options1b)
+    ),
     ensure_max_tokens(Options1b, Options2),
     ensure_temperature(Options2, Options),
     baseline(ProgramS, CheckRegressions, Baseline),
@@ -647,11 +655,11 @@ document_rules(Doc, Text) :-
     kw_phrase(because, "because", Because),
     format(string(Text),
 "~n~n--- The text is a document ---~n\
-The user's message is the text of the document named ~w. Extract the facts it states about the individuals it describes (the goods, persons, events...): name each individual as the document does (for example by its style, model or reference number), never starting a name with 'a', 'an' or 'the'.~n\
+The user's message is the text of the document named ~w. Extract the facts it states about the individuals it describes (the goods, persons, events...): name each individual as the document does (for example by its style, model or reference number), never starting a name with 'a', 'an' or 'the', and without commas, colons, quotes, slashes or % signs in the name.~n\
 After EACH fact, on the same line, point at the passage that states it: , ~w \"<passage>\" — where <passage> is copied WORD FOR WORD from the text (3 to 20 consecutive words, no double quote inside).~n\
 A template marked (judged) records a decision someone made: write such a fact only when the text reports that decision, as: <fact>, ~w <who decided>, ~w \"<passage>\", ~w \"<their reason, in their words>\".~n\
 Never write a fact of a template marked (derived): the program's rules derive those, and the document's conclusions (a classification, an outcome) are what the rules must reproduce, not facts.~n\
-State only what the text states: a feature the text does not mention is simply left out.",
+State only what the text states: a feature the text does not mention is simply left out.~nBe exhaustive: a document describes each individual in detail, and every detail a template can express is a fact to write — what the individual is (its kind or type), what it is made of (one fact per material or component, with its share), how it is made, each of its features, its measures. Go through the templates one by one for each individual. A document usually yields many facts per individual (often ten or more); one or two facts is almost never a complete extraction. Keep the facts of each individual together.",
         [Doc, Confer, According, Confer, Because]).
 
 kw_phrase(Key, Default, Phrase) :-
@@ -671,25 +679,132 @@ ensure_option(Opt, Options, [Opt|Options]).
 %   it is: what a fact extracted from a document may and may not state.
 program_templates(Program, Templates) :-
     (   catch(load_text(Program, KB), _, fail)
-    ->  findall(Label, kb_template_label(KB, Label), Labels0),
+    ->  findall(Label-Kind, kb_template_label(KB, Label, Kind), Pairs),
+        % A program that marks its scenario elements (`; undefined`, `; judged`)
+        % says which templates a case's facts use: offer only those — a long
+        % list of rule-derived and knowledge-base templates the facts may not
+        % use drowns them (a model then writes a fact or two out of a whole
+        % document).
+        (   memberchk(_-scenario, Pairs)
+        ->  findall(LH, ( member(L-scenario, Pairs), with_value_hints(KB, L, LH) ), Labels0)
+        ;   findall(L, member(L-_, Pairs), Labels0)
+        ),
         sort(Labels0, Templates)
     ;   Templates = []
     ).
 
 kb_template_label(KB, Label) :-
+    kb_template_label(KB, Label, _).
+
+% ---- the values a placeholder can take ---------------------------------------
+% A fact whose value the program's rules cannot read states nothing ("the cut
+% of style X indicates male" where the rules test men and women). For a
+% scenario template, each placeholder is followed by the values the program
+% itself uses there, found one step along the rules: the facts of another
+% predicate that shares the variable in a rule's conditions ("the kind of a
+% good is a kind and the kind falls in the family ..."), and the constants
+% passed where the variable flows into a rule's conclusion.
+
+with_value_hints(KB, Label, Hinted) :-
+    (   label_template(KB, Label, F, A, Slots),
+        findall(Hint, ( nth1(I, Slots, SlotName),
+                        slot_values(KB, F, A, I, Values), Values \== [],
+                        hint_text(SlotName, Values, Hint) ), Hints),
+        Hints \== []
+    ->  atomic_list_concat(Hints, '; ', HintsA),
+        format(string(Hinted), "~w    [~w]", [Label, HintsA])
+    ;   Hinted = Label
+    ).
+
+% the template of a label, and the words of its placeholders, in order
+label_template(KB, Label, F, A, Slots) :-
     le_kbs:template_of(KB, F, A, Dict, _),
+    template_label(KB, F, A, Dict, Label0, _), Label0 == Label,
+    arg(1, Dict, [F|Args]), arg(2, Dict, NTs),
+    findall(Name, ( member(V, Args), member(V0-Type, NTs), V0 == V, slot_name(Type, Name) ), Slots),
+    length(Slots, A), !.
+
+slot_name(Type, Name) :-
+    (   atom(Type)
+    ->  ( sub_atom(Type, 0, 1, _, C), memberchk(C, [a, e, i, o, u]) -> Art = an ; Art = a ),
+        format(string(Name), "*~w ~w*", [Art, Type])
+    ;   Name = "*a thing*"
+    ).
+
+hint_text(SlotName, Values0, Hint) :-
+    length(Values0, N),
+    (   N > 200 -> length(Values, 200), append(Values, _, Values0), More = ", ..." ; Values = Values0, More = "" ),
+    maplist([V, S]>>format(string(S), "~w", [V]), Values, Ss),
+    atomic_list_concat(Ss, ', ', Joined),
+    format(string(Hint), "~w: ~w~w", [SlotName, Joined, More]).
+
+slot_values(KB, F, A, I, Values) :-
+    findall(V, slot_value(KB, F, A, I, V), Vs0),
+    exclude(number, Vs0, Vs1),
+    sort(Vs1, Values).
+
+slot_value(KB, F, A, I, V) :-
+    kb_rule(KB, Head, Body),
+    le_verifier:find_in_body(Body, Lit),
+    functor(Lit, F, A),
+    arg(I, Lit, Arg),
+    (   atomic(Arg), Arg \== [] -> V = Arg
+    ;   var(Arg),
+        (   le_verifier:find_in_body(Body, Lit2), Lit2 \== Lit,
+            functor(Lit2, F2, A2), \+ sub_atom(F2, 0, _, _, le_),
+            arg(J, Lit2, Arg2), Arg2 == Arg,
+            fact_argument(KB, F2, A2, J, V)
+        ;   arg(K, Head, HArg), HArg == Arg,
+            functor(Head, HF, HA),
+            head_argument_value(KB, HF, HA, K, V)
+        )
+    ).
+
+kb_rule(KB, Head, Body) :-
+    current_predicate(KB:P/N), functor(Head, P, N),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, Body), Body \== true.
+
+fact_argument(KB, F, A, J, V) :-
+    functor(G, F, A),
+    current_predicate(KB:F/A),
+    clause(KB:G, true),
+    arg(J, G, V), atomic(V).
+
+% the constants given to position K of a derived predicate: in the conditions
+% that call it, and in its own facts
+head_argument_value(KB, HF, HA, K, V) :-
+    (   kb_rule(KB, _, Body2),
+        le_verifier:find_in_body(Body2, Call),
+        functor(Call, HF, HA),
+        arg(K, Call, V), atomic(V), V \== []
+    ;   fact_argument(KB, HF, HA, K, V)
+    ).
+
+% kb_template_label(+KB, -Label, -Kind): Kind is scenario for a template the
+% program marks as a scenario element or judged, derived for one its rules
+% conclude, plain otherwise.
+kb_template_label(KB, Label, Kind) :-
+    le_kbs:template_of(KB, F, A, Dict, _),
+    template_label(KB, F, A, Dict, Label, Kind).
+
+template_label(KB, F, A, Dict, Label, Kind) :-
     arg(1, Dict, [F|_]),
     ( Dict = dict(_, NTs, WV, _, _, _, Unknown) -> true ; Dict = dict(_, NTs, WV), Unknown = none ),
     copy_term(NTs-WV, NTsC-WVC),
     maplist(starred_slot, NTsC),
-    le_kbs:canonical_string(WVC, Base),
+    le_kbs:canonical_string(WVC, Base0),
+    % a hyphenated template word is tokenised in three ("loose - fitting")
+    re_replace("(\\w) - (\\w)"/g, "$1-$2", Base0, Base),
     functor(Head, F, A),
     (   Unknown == judged
-    ->  format(string(Label), "~w (judged)", [Base])
-    ;   Unknown \== undefined, Unknown \== unknown,
+    ->  format(string(Label), "~w (judged)", [Base]), Kind = scenario
+    ;   ( Unknown == scenario_element ; Unknown == undefined )
+    ->  Label = Base, Kind = scenario
+    ;   Unknown \== unknown,
         catch(( clause(KB:Head, Body, _), Body \== true ), _, fail)
-    ->  format(string(Label), "~w (derived)", [Base])
-    ;   Label = Base
+    ->  format(string(Label), "~w (derived)", [Base]), Kind = derived
+    ;   Label = Base, Kind = plain
     ).
 
 starred_slot(V-Type) :-
@@ -850,8 +965,52 @@ clean_reply(Raw, Clean) :-
     to_string(Raw, S0),
     split_string(S0, "\n", "", Lines0),
     exclude(fence_line, Lines0, Lines1),
-    atomic_list_concat(Lines1, "\n", Joined),
+    maplist(trailer_punctuation, Lines1, Lines2),
+    atomic_list_concat(Lines2, "\n", Joined),
     string_trim(Joined, Clean).
+
+% trailer_punctuation(+Line, -Fixed): a fact closed by its full stop BEFORE its
+% provenance trailer ("X is Y., confer \"...\"") would leave the trailer
+% outside the fact; the stop goes after the trailer instead. A line that ends
+% with a quoted passage and no stop gets one.
+trailer_punctuation(Line0, Line) :-
+    string_trim(Line0, T0),
+    (   T0 == "" -> Line = Line0
+    ;   findall(K, ( member(Key, [confer, according_to, as_stated_in, because]),
+                     kw_phrase(Key, "", K), K \== "" ), Keys),
+        percent_outside_quotes(T0, T0a),
+        foldl(stop_before_trailer, Keys, T0a, T1),
+        (   sub_string(T1, _, 1, 0, "\"")
+        ->  string_concat(T1, ".", Line)
+        ;   Line = T1
+        )
+    ).
+
+% "%" starts a comment in LE: "56% cotton." would silently lose the rest of
+% the line (and the fact its full stop). Outside quoted passages it is the
+% word "percent".
+percent_outside_quotes(S0, S) :-
+    split_string(S0, "\"", "", Parts),
+    percent_parts(Parts, out, Parts1),
+    atomic_list_concat(Parts1, "\"", S).
+
+percent_parts([], _, []).
+percent_parts([P0|Ps0], Where, [P|Ps]) :-
+    (   Where == out
+    ->  re_replace("\\s*%"/g, " percent", P0, P), Next = in
+    ;   P = P0, Next = out
+    ),
+    percent_parts(Ps0, Next, Ps).
+
+stop_before_trailer(Key, S0, S) :-
+    format(string(Bad), "., ~w ", [Key]),
+    format(string(Good), ", ~w ", [Key]),
+    (   sub_string(S0, B, _, A, Bad)
+    ->  sub_string(S0, 0, B, _, Pre), sub_string(S0, _, A, 0, Post),
+        atomic_list_concat([Pre, Good, Post], S1),
+        stop_before_trailer(Key, S1, S)
+    ;   S = S0
+    ).
 
 fence_line(Line) :-
     string_trim(Line, T),

@@ -337,6 +337,11 @@ Scenarios can define expected results for queries, which are used by the test ru
 - The expectation names the query directly — it must **not** be prefixed with
   `query` (a leading section keyword is reported as a misplaced expectation).
 - **Flip queries** (§17.7) state their expected minimal change sets: `<QueryName> expects changes [["add: <fact>"], ["remove: <fact>", "add: <fact>"]].`
+- **When they run:** the test runner (`runTests`, `runTestsFor/2`) runs every
+  expectation. Verification — each load in the editor — runs them too, as far
+  as a time budget allows (Prolog flag `le_verify_tests_seconds`, default 5
+  seconds): the tests left over are reported once, as a `tests_not_run`
+  warning, so a program with many scenarios still opens quickly.
 - **Example:**
   ```le
   scenario alice is:
@@ -932,6 +937,16 @@ and *Generate*. Nothing in this is specific to a kind of document or program:
   resources it includes — and each cites the passage that states it:
   `<fact>, confer "<passage copied from the text>"` under a scenario whose
   header names the document (or `as stated in <document>, confer "..."`);
+- when the program marks its scenario templates (`; undefined` or
+  `; judged`), only those are offered, each with the values its rules read
+  in each place (`the kind of *a good* is *a kind*    [*a kind*: coat, dress,
+  jacket, ...]`, up to 200 values): the model then writes the rules' own words,
+  not near-synonyms that no rule reads; otherwise every template is offered;
+- the extraction asks the model for little reasoning (`reasoning(minimal)`)
+  and allows long replies (`max_tokens(16384)`), so a long document is not
+  cut off mid-fact; in the reply, a `%` outside a quoted passage becomes
+  the word `percent` (in LE it starts a comment) and a full stop written
+  before a fact's trailer is moved after it;
 - a `; judged` template is written only when the text reports someone's
   decision (`according to <who>`, `because "..."`); a template that rules
   conclude is never written — the document's conclusions are what the rules

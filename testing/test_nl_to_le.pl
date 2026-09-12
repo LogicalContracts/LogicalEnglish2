@@ -5,6 +5,7 @@
 % needs a module exporting llm_request/4), so the whole verify-and-refine loop
 % runs offline against a tiny program.
 
+:- use_module(library(pcre)).
 :- use_module('../nl_to_le').
 :- use_module('../llm/le_llm', [set_le_llm_provider/1]).
 
@@ -281,8 +282,23 @@ test(document_prompt_cites_and_tags,
     assertion(\+ nl_has_issue(Issues, "quote_not_in_text")),
     first_system(Sys),
     assertion(sub_string(Sys, _, _, _, "The user's message is the text of the document named ruling NY N362700")),
-    assertion(sub_string(Sys, _, _, _, "*a garment* is eligible (derived)")),
+    % the program marks its scenario elements: only those are offered — not
+    % the template its rules derive
+    assertion(\+ sub_string(Sys, _, _, _, "*a garment* is eligible")),
     assertion(sub_string(Sys, _, _, _, "is *an outcome* (judged)")),
+    assertion(sub_string(Sys, _, _, _, "*a garment* has a collar")).
+
+% A program that marks no scenario element: every template is offered, the
+% derived ones tagged so the model does not state them.
+test(document_prompt_tags_derived_when_nothing_marked,
+     [setup(stub_replies(["style 1025AD has a collar, confer \"a self-fabric stand-up collar\"."]))]) :-
+    doc_program(P0),
+    re_replace("; undefined"/g, "", P0, P1),
+    re_replace("; judged"/g, "", P1, P),
+    doc_text(T),
+    english_to_le(facts, T, [], P, "stub-model", [document("ruling NY N362700")], _LE, _Issues),
+    first_system(Sys),
+    assertion(sub_string(Sys, _, _, _, "*a garment* is eligible (derived)")),
     assertion(sub_string(Sys, _, _, _, "*a garment* has a collar")).
 
 % A passage the model paraphrased rather than copied is reported.
