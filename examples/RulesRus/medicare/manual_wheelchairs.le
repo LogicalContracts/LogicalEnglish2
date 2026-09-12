@@ -1,0 +1,391 @@
+% Manual Wheelchair Bases: LCD L33788 and its Policy Article A52497 (DME
+% MACs), read with NCD 280.3 (mobility assistive equipment) and 42 CFR
+% 410.38. A policy program of the DMEPOS model: it includes dmepos.le and
+% states when a claim for a manual wheelchair base — a standard (K0001),
+% hemi (K0002), lightweight (K0003), high strength lightweight (K0004),
+% ultralightweight (K0005), heavy duty (K0006), extra heavy duty (K0007),
+% custom (K0008) or other (K0009) adult base, a tilt-in-space base (E1161),
+% a transport chair (E1037–E1039) or a pediatric size base (E1229,
+% E1231–E1238) — is REASONABLE AND NECESSARY: the general coverage criteria
+% A–E and F or G every base needs, the added criteria of each base type, the
+% duration-of-need rule for the high strength lightweight and the custom
+% base, and the one-month rental of a standard base while a beneficiary-owned
+% wheelchair is repaired. The rollabout chair (E1031) is named only in the
+% Policy Article's coding guidelines, not in the LCD: it is not in scope.
+%
+% How the criteria are read. The LCD's criteria are clinical findings about
+% the beneficiary — a significant mobility limitation, that a cane or walker
+% would not resolve it, that the home accommodates the wheelchair, that the
+% beneficiary can self-propel it or has a caregiver who can... — made by the
+% treating practitioner and accepted or rejected on review: each is the
+% judged template of dmepos.le, "the finding F about B is established" (or
+% unsupported), with who found it and why. Where the LCD offers alternatives
+% (F or G: the beneficiary self-propels, or a caregiver assists; K0002: short
+% stature, or feet on the ground for propulsion; K0004: frequent activities
+% that need it, or seat dimensions that need it and two hours a day in the
+% chair; K0005: a full-time user, or individualized fitting) they are ONE
+% finding with the alternatives as its reasons, so that a recorded finding
+% closes the question. The findings this policy reads, and the criterion each
+% stands for (the first two are the findings pmd.le reads for the same
+% criteria):
+%   significant mobility limitation (A); walking aids insufficient (B);
+%   home accommodates manual wheelchair (C); manual wheelchair will
+%   significantly improve daily activities (D); willing to use manual
+%   wheelchair at home (E); manual wheelchair can be propelled (F or G: the
+%   beneficiary self-propels, or a caregiver is available, willing and able);
+%   caregiver available for manual wheelchair (G alone, for a transport
+%   chair); lower seat height required (K0002); standard wheelchair not self
+%   propellable (K0003 (1)); self propels lightweight wheelchair (K0003 (2));
+%   high strength lightweight wheelchair justified (K0004 (1) or (2));
+%   ultralightweight wheelchair justified (K0005 (1) or (2)); custom manual
+%   wheelchair base required (K0008).
+% What the record states as fact — the beneficiary's weight, severe
+% spasticity, the expected duration of need, the specialty evaluation, the
+% ATP's involvement, the repair of a beneficiary-owned wheelchair — is a
+% scenario fact. The base type comes from its HCPCS code (facts citing the
+% Policy Article's coding guidelines).
+%
+% The payment conditions the policy adds (Policy Article A52497, "Policy
+% specific documentation requirements"): the home assessment is documented;
+% for a K0005 a description of the beneficiary's routine activities and the
+% written report of the specialty evaluation; for an E1161 the written
+% report; for a K0008 the description of its custom fabrication; for a
+% transport chair a description of why the beneficiary cannot use a standard
+% manual wheelchair. Not modelled: the KX/GA/GY/GZ modifiers, the PDAC coding
+% verification of K0009, "only one wheelchair at a time" (a fact about the
+% beneficiary's other equipment the claim record does not carry), and the
+% NCD's questions on comorbidities and compliance (they are reasons for the
+% findings, not criteria of the LCD).
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    % candidate for dmepos.le (also a template of pmd.le)
+    the weight of *a beneficiary* is *a number* pounds; undefined.
+    % candidate for dmepos.le (also a template of pmd.le)
+    *a beneficiary* had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for *an item*; undefined.
+    % candidate for dmepos.le (also a template of pmd.le)
+    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of *an item*; undefined.
+    the expected duration of need for *an item* is *a number* months; undefined.
+    *a beneficiary* owns a wheelchair that is being repaired; undefined.
+    the home assessment for *an item* is documented; undefined.
+    the medical record describes the routine activities of *a beneficiary*; undefined.
+    the medical record describes the custom fabrication of *an item*; undefined.
+    the medical record describes why *a beneficiary* cannot use a standard manual wheelchair; undefined.
+    the written report of the specialty evaluation for *an item* is available; undefined.
+    % the codes
+    manual wheelchair code *a code* describes *a kind*.
+    % derived
+    *a beneficiary* meets the basic manual wheelchair criteria.
+    *a beneficiary* meets the general manual wheelchair coverage criteria.
+    *a beneficiary* meets the heavy duty wheelchair criterion.
+    *an item* is needed for at least three months.
+    the expected duration of need for *an item* is under three months.
+    *an item* was selected with a specialty evaluation and an assistive technology professional.
+    the code specific documentation requirements are met for *an item*.
+
+the knowledge base manual wheelchairs includes these resources:
+    dmepos.
+
+the knowledge base manual wheelchairs includes:
+
+LCD L33788 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33788".
+the text of LCD L33788 is at "sources/lcd/L33788.txt".
+Policy Article A52497 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52497".
+the text of Policy Article A52497 is at "sources/article/A52497.txt".
+NCD 280 3 is published at "https://www.cms.gov/medicare-coverage-database/view/ncd.aspx?ncdid=219".
+the text of NCD 280 3 is at "sources/ncd/NCD_280.3.txt".
+
+% The bases, by code: the kind of each (the Policy Article's coding
+% guidelines carry the code descriptors).
+manual wheelchair code "K0001" describes standard wheelchair, as stated in Policy Article A52497, confer "Standard wheelchair (K0001)".
+manual wheelchair code "K0002" describes standard hemi wheelchair, as stated in Policy Article A52497, confer "Standard hemi (low seat) wheelchair (K0002)".
+manual wheelchair code "K0003" describes lightweight wheelchair, as stated in Policy Article A52497, confer "Lightweight wheelchair (K0003)".
+manual wheelchair code "K0004" describes high strength lightweight wheelchair, as stated in Policy Article A52497, confer "High strength, lightweight wheelchair (K0004)".
+manual wheelchair code "K0005" describes ultralightweight wheelchair, as stated in Policy Article A52497, confer "Ultralightweight wheelchair (K0005)".
+manual wheelchair code "K0006" describes heavy duty wheelchair, as stated in Policy Article A52497, confer "Heavy duty wheelchair (K0006)".
+manual wheelchair code "K0007" describes extra heavy duty wheelchair, as stated in Policy Article A52497, confer "Extra heavy duty wheelchair (K0007)".
+manual wheelchair code "K0008" describes custom manual wheelchair base, as stated in Policy Article A52497, confer "Custom manual wheelchair/base (K0008)".
+manual wheelchair code "K0009" describes other manual wheelchair, as stated in Policy Article A52497, confer "the only products which may be billed to Medicare using HCPCS code K0009, are those for which a written coding verification review (CVR) has been made by the Pricing, Data Analysis, and Coding (PDAC) contractor".
+manual wheelchair code "E1161" describes tilt in space wheelchair, as stated in Policy Article A52497, confer "Adult tilt-in-space wheelchair (E1161)".
+manual wheelchair code "E1037" describes transport chair, as stated in Policy Article A52497, confer "Transport Chairs (E1037, E1038, E1039)".
+manual wheelchair code "E1038" describes transport chair, as stated in Policy Article A52497, confer "Transport Chairs (E1037, E1038, E1039)".
+manual wheelchair code "E1039" describes transport chair, as stated in Policy Article A52497, confer "Transport Chairs (E1037, E1038, E1039)".
+manual wheelchair code "E1229" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1231" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1232" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1233" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1234" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1235" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1236" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1237" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+manual wheelchair code "E1238" describes pediatric wheelchair, as stated in Policy Article A52497, confer "is considered a pediatric size wheelchair and is billed with codes E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238 or E1229".
+
+% A short expected need, as a number of months: three months is the LCD's
+% threshold. A helper of section main, so that its failure (the usual case,
+% the record stating no short need) is never blamed on a section.
+rule mwc_short_need with provenance LCD L33788,
+        confer "if the expected duration of need is less than three months (e.g., post-operative recovery)":
+the expected duration of need for an item is under three months
+    if the expected duration of need for the item is a number months
+    and the number < 3.
+
+section applicability is:
+
+rule mwc_codes with provenance Policy Article A52497,
+        confer "Manual wheelchairs are covered under the Durable Medical Equipment benefit":
+the policy for code a code is manual wheelchairs
+    if manual wheelchair code the code describes a kind.
+
+rule mwc_benefit with provenance Policy Article A52497,
+        confer "Manual wheelchairs are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is manual wheelchairs.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The general coverage criteria: A–E, and F or G. A standard base (K0001) and
+% an other base (K0009) need nothing more.
+% ---------------------------------------------------------------------------
+
+rule mwc_standard with provenance LCD L33788,
+        confer "A manual wheelchair for use inside the home (E1037, E1038, E1039, E1161, K0001, K0002, K0003, K0004, K0005, K0006, K0007, K0008, K0009) is covered if":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes standard wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria.
+
+rule mwc_other with provenance LCD L33788,
+        confer "A manual wheelchair for use inside the home (E1037, E1038, E1039, E1161, K0001, K0002, K0003, K0004, K0005, K0006, K0007, K0008, K0009) is covered if":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes other manual wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria.
+
+% A pediatric size base is the same manual wheelchair in a seat of 14 inches
+% or less (the Policy Article's coding guidelines); the LCD's general
+% criteria list only the adult codes. This model reads the general criteria
+% as the criteria of a pediatric base too: a device of this model.
+rule mwc_pediatric:
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes pediatric wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria.
+
+% A transport chair: A–E and G (a caregiver), the beneficiary not propelling.
+rule mwc_transport_chair with provenance LCD L33788,
+        confer "A transport chair (E1037, E1038 or E1039) is covered as an alternative to a standard manual wheelchair (K0001) and if basic coverage criteria A-E and G above are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes transport chair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the basic manual wheelchair criteria
+    and the finding caregiver available for manual wheelchair about the beneficiary is established.
+
+% Criteria A to E: the findings of the treating practitioner's record.
+rule mwc_criteria_a_to_e with provenance LCD L33788,
+        confer "Criteria A, B, C, D, and E are met; and Criterion F or G is met":
+a beneficiary meets the basic manual wheelchair criteria
+    if the finding significant mobility limitation about the beneficiary is established
+    and the finding walking aids insufficient about the beneficiary is established
+    and the finding home accommodates manual wheelchair about the beneficiary is established
+    and the finding manual wheelchair will significantly improve daily activities about the beneficiary is established
+    and the finding willing to use manual wheelchair at home about the beneficiary is established.
+
+% Criterion F or G: the beneficiary can safely self-propel the wheelchair,
+% or a caregiver is available, willing and able to assist — one finding.
+rule mwc_criteria_f_or_g with provenance NCD 280 3,
+        confer "If the beneficiary is unable to self-propel a manual wheelchair, and if there is a caregiver who is available, willing, and able to provide assistance, a manual wheelchair may be appropriate":
+a beneficiary meets the general manual wheelchair coverage criteria
+    if the beneficiary meets the basic manual wheelchair criteria
+    and the finding manual wheelchair can be propelled about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% The added criteria of each base type.
+% ---------------------------------------------------------------------------
+
+rule mwc_hemi with provenance LCD L33788,
+        confer "A standard hemi-wheelchair (K0002) is covered when the beneficiary requires a lower seat height":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes standard hemi wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the finding lower seat height required about the beneficiary is established.
+
+rule mwc_lightweight with provenance LCD L33788,
+        confer "A lightweight wheelchair (K0003) is covered when a beneficiary meets both criteria (1) and (2)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes lightweight wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the finding standard wheelchair not self propellable about the beneficiary is established
+    and the finding self propels lightweight wheelchair about the beneficiary is established.
+
+rule mwc_high_strength_lightweight with provenance LCD L33788,
+        confer "A high strength lightweight wheelchair (K0004) is covered when a beneficiary meets the criteria in (1) or (2)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes high strength lightweight wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the finding high strength lightweight wheelchair justified about the beneficiary is established
+    and the item is needed for at least three months.
+
+rule mwc_ultralightweight with provenance LCD L33788,
+        confer "An ultra lightweight manual wheelchair (K0005) is covered for a beneficiary if criteria (1) or (2) is met and (3) and (4) are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes ultralightweight wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the finding ultralightweight wheelchair justified about the beneficiary is established
+    and the item was selected with a specialty evaluation and an assistive technology professional.
+
+rule mwc_heavy_duty with provenance LCD L33788,
+        confer "A heavy duty wheelchair (K0006) is covered if the beneficiary weighs more than 250 pounds or the beneficiary has severe spasticity":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes heavy duty wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the beneficiary meets the heavy duty wheelchair criterion.
+
+rule mwc_extra_heavy_duty with provenance LCD L33788,
+        confer "An extra heavy duty wheelchair (K0007) is covered if the beneficiary weighs more than 300 pounds":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes extra heavy duty wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the weight of the beneficiary is a number pounds
+    and the number > 300.
+
+rule mwc_tilt_in_space with provenance LCD L33788,
+        confer "A manual wheelchair with tilt in space (E1161) is covered if the beneficiary meets the general coverage criteria for a manual wheelchair above, and if criteria (1) and (2) are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes tilt in space wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the item was selected with a specialty evaluation and an assistive technology professional.
+
+rule mwc_custom with provenance LCD L33788,
+        confer "A custom manual wheelchair base (K0008) is covered if, in addition to the general coverage criteria above, the specific configuration required to address the beneficiary’s physical and/or functional deficits cannot be met using one of the standard manual wheelchair bases":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes custom manual wheelchair base
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the general manual wheelchair coverage criteria
+    and the finding custom manual wheelchair base required about the beneficiary is established
+    and the item is needed for at least three months.
+
+% One month's rental of a standard base while the beneficiary's own
+% wheelchair is repaired: covered on that ground alone.
+rule mwc_loaner with provenance LCD L33788,
+        confer "One month's rental for a standard manual wheelchair (K0001) is covered if a beneficiary-owned wheelchair is being repaired":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and manual wheelchair code the code describes standard wheelchair
+    and the rental month of the claim is 1
+    and the item is furnished to a beneficiary
+    and the beneficiary owns a wheelchair that is being repaired.
+
+% The heavy duty criterion: more than 250 pounds, or severe spasticity (a
+% documented condition of the record).
+rule mwc_heavy_duty_weight with provenance LCD L33788,
+        confer "A heavy duty wheelchair (K0006) is covered if the beneficiary weighs more than 250 pounds or the beneficiary has severe spasticity":
+a beneficiary meets the heavy duty wheelchair criterion
+    if the weight of the beneficiary is a number pounds
+    and the number > 250.
+
+rule mwc_heavy_duty_spasticity with provenance LCD L33788,
+        confer "A heavy duty wheelchair (K0006) is covered if the beneficiary weighs more than 250 pounds or the beneficiary has severe spasticity":
+a beneficiary meets the heavy duty wheelchair criterion
+    if the medical record of the beneficiary documents severe spasticity.
+
+% The duration of need: a custom base is not reasonable and necessary, and a
+% high strength lightweight base rarely is, when the expected need is under
+% three months. The "rarely" of K0004 is read as a denial.
+rule mwc_duration with provenance LCD L33788,
+        confer "A custom manual wheelchair is not reasonable and necessary if the expected duration of need is less than three months":
+an item is needed for at least three months
+    if the item is furnished to a beneficiary
+    and it is not the case that
+        the expected duration of need for the item is under three months.
+
+% Criteria (3) and (4) of the ultralightweight base, (1) and (2) of the
+% tilt-in-space base: the specialty evaluation and the ATP.
+rule mwc_specialty with provenance LCD L33788,
+        confer "The beneficiary must have a specialty evaluation that was performed by a licensed/certified medical professional (LCMP), such as a PT or OT, or physician who has specific training and experience in rehabilitation wheelchair evaluations":
+an item was selected with a specialty evaluation and an assistive technology professional
+    if the item is furnished to a beneficiary
+    and the beneficiary had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for the item
+    and a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of the item.
+
+section remedy is:
+
+% The policy's own conditions of payment: the home assessment, and the
+% documentation the Policy Article asks of specific codes.
+rule mwc_documentation with provenance Policy Article A52497,
+        confer "Information about whether the beneficiary’s home can accommodate the wheelchair (Criterion C), also called the home assessment, must be fully documented in the medical record or elsewhere by the supplier":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is manual wheelchairs
+    and the claim is for an item
+    and the home assessment for the item is documented
+    and the code specific documentation requirements are met for the item.
+
+rule mwc_k0005_documentation with provenance Policy Article A52497,
+        confer "If documentation of the medical necessity for a K0005 wheelchair is requested, it must include a description of the beneficiary’s routine activities":
+the code specific documentation requirements are met for an item
+    if the HCPCS code of the item is "K0005"
+    and the item is furnished to a beneficiary
+    and the medical record describes the routine activities of the beneficiary
+    and the written report of the specialty evaluation for the item is available.
+
+rule mwc_e1161_documentation with provenance Policy Article A52497,
+        confer "There must be a written report of this evaluation available on request":
+the code specific documentation requirements are met for an item
+    if the HCPCS code of the item is "E1161"
+    and the written report of the specialty evaluation for the item is available.
+
+rule mwc_k0008_documentation with provenance Policy Article A52497,
+        confer "If documentation of the medical necessity for a K0008 wheelchair is requested, contractors must be able to determine that the item delivered is a customized item":
+the code specific documentation requirements are met for an item
+    if the HCPCS code of the item is "K0008"
+    and the medical record describes the custom fabrication of the item.
+
+rule mwc_transport_chair_documentation with provenance Policy Article A52497,
+        confer "it must include a description of why the beneficiary is unable to make use of a standard manual wheelchair (K0001, K0002, K0003, K0004, and K0005) on their own":
+the code specific documentation requirements are met for an item
+    if the HCPCS code of the item is a code
+    and the code is in ["E1037", "E1038", "E1039"]
+    and the item is furnished to a beneficiary
+    and the medical record describes why the beneficiary cannot use a standard manual wheelchair.
+
+% The other codes have no documentation requirement of their own.
+rule mwc_no_code_documentation with provenance Policy Article A52497,
+        confer "Information showing that the coverage criteria in the Coverage Indications, Limitations, and/or Medical Necessity section of the related LCD have been met must be present in the beneficiary’s medical record":
+the code specific documentation requirements are met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is in ["K0005", "E1161", "K0008", "E1037", "E1038", "E1039"].

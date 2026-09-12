@@ -1,0 +1,59 @@
+the target language is: prolog.
+scenario facts require provenance.
+
+the knowledge base council pmd includes these resources:
+    pmd.
+
+the knowledge base council pmd includes:
+
+Council decision m-11-2121 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-11-2121.pdf".
+the text of Council decision m-11-2121 is at "sources/council/m-11-2121.txt".
+Council decision 11-1835 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-1835.pdf".
+the text of Council decision 11-1835 is at "sources/council/11-1835.txt".
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+scenario m-11-2121 is, as stated in Council decision m-11-2121:
+    claim 1 is for the power wheelchair of AR,
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the HCPCS code of the power wheelchair of AR is "K0823",
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the power wheelchair of AR is furnished to AR,
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    claim 2 is for the power wheelchair of LW,
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the HCPCS code of the power wheelchair of LW is "K0823",
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the power wheelchair of LW is furnished to LW,
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the weight of AR is 200 pounds,
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the weight of LW is 200 pounds,
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the finding walking aids insufficient about AR is unsupported,
+        according to the Council, because "x", confer "the person filling out the form indicated that no significant edema existed by marking “no.”".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers [].
+
+scenario 11-1835 is, as stated in Council decision 11-1835:
+    claim 1 is for the power wheelchair,
+        confer "a power wheelchair (HCPCS 1 code K0825) and accessories the appellant supplier furnished to the beneficiary on January 22, 2010".
+    the HCPCS code of the power wheelchair is "K0825",
+        confer "This K0825 power wheelchair has a weight capacity of 301-450 pounds".
+    the power wheelchair is furnished to the beneficiary,
+        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
+    the rental month of claim 1 is 1,
+        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
+    the weight of the beneficiary is 302 pounds,
+        confer "power wheel chair for heavy weight + 302 lbs".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers [].

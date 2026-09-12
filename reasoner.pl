@@ -397,7 +397,8 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 %   bookkeeping of the enclosing i/4 is saved and restored). Result is
 %   `succeeded` when Goal has a proof (definite or conditional), otherwise
 %   failed(Calls), Calls being every goal the attempt tried, as G-Status with
-%   Status `succeeded` or `failed` — le_at/3 wrappers removed.
+%   Status `succeeded`, `failed`, or `moot` (failed under a goal that
+%   succeeded by another clause) — le_at/3 wrappers removed.
 goal_attempt(Goal, SM, KM, Result) :-
     with_saved_reasoner_state(goal_attempt_(Goal, SM, KM, Result)).
 
@@ -408,10 +409,24 @@ goal_attempt_(Goal, SM, KM, Result) :-
                 ( called(_, ID, G0), strip_le_at(G0, G),
                   (   ( succeeded(ID) ; success_in_not(ID, _) )
                   ->  St = succeeded
+                  ;   ancestor_succeeded(ID)
+                  ->  St = moot
                   ;   St = failed
                   ) ),
                 Calls),
         Result = failed(Calls)
+    ).
+
+% A failed goal under a goal that succeeded by another clause (the other
+% alternatives of a criterion, the other rows of a choice) did not make the
+% attempt fail: its status is `moot`, so that a failure is blamed on the
+% goals whose every ancestor failed too.
+ancestor_succeeded(ID) :-
+    called(Parent, ID, _),
+    Parent \== none,
+    (   ( succeeded(Parent) ; success_in_not(Parent, _) )
+    ->  true
+    ;   ancestor_succeeded(Parent)
     ).
 
 %!  with_saved_reasoner_state(:Goal) is semidet.
