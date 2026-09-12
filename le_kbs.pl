@@ -768,7 +768,10 @@ fetch_resource_kind(pl_file(File), Id, Resource, M, []) :-
 
 % Parse an included .le with the include state advanced: depth+1 and the base
 % rebased to the included file's own location, so ITS relative includes
-% resolve against it.
+% resolve against it. The parse is made deterministic so that the cleanup
+% runs on its return: left pending, it kept the deeper depth and base for
+% the NEXT resource, so three sibling includes (a program including three
+% chapters that each include a library) ran out of depth.
 include_resource_text(Text, IdOrPath, M, Sections) :-
     ( is_url(IdOrPath) -> resource_base_of_url(IdOrPath, NewBase)
     ; file_directory_name(IdOrPath, NewBase) ),
@@ -777,7 +780,7 @@ include_resource_text(Text, IdOrPath, M, Sections) :-
     setup_call_cleanup(
         ( retractall(le_include_base(_)), assertz(le_include_base(NewBase)),
           retractall(le_include_depth(_)), assertz(le_include_depth(Depth1)) ),
-        parse_resource_text(Text, IdOrPath, M, Sections),
+        once(parse_resource_text(Text, IdOrPath, M, Sections)),
         ( retractall(le_include_base(_)), assertz(le_include_base(OldBase)),
           retractall(le_include_depth(_)), assertz(le_include_depth(Depth)) )).
 

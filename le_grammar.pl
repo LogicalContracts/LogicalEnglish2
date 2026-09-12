@@ -1099,8 +1099,10 @@ provenance_split(Full, Templates, Core, Trailers) :-
     ).
 
 % Tokens parse as an instance of a user template whose own words contain a
-% trailer phrase.
+% trailer phrase. Only such a template can own a trailer, and most programs
+% have none: then the (costly) parse of the whole fact is not attempted.
 owned_trailer_parse(Tokens, Templates) :-
+    some_template_owns_trailer(Templates),
     \+ \+ ( parse_literal(Tokens, Templates, [], _, Lit, Instance),
             \+ functor(Lit, le_is, 2), \+ functor(Lit, is_a, 2),
             is_list(Instance),
@@ -1108,6 +1110,25 @@ owned_trailer_parse(Tokens, Templates) :-
             member(Key, [according_to, as_stated_in, because]),
             le_i18n:kw_synonym_words(Key, KW),
             contig_subseq(KW, Words) ).
+
+% The answer is the same for every fact of a pass (same template list), so it
+% is computed once per list and kept in a global variable.
+some_template_owns_trailer(Templates) :-
+    (   nb_current(le_owned_trailer_cache, cache(Key, Answer)),
+        Key == Templates
+    ->  true
+    ;   (   template_owning_trailer(Templates) -> Answer = true ; Answer = false ),
+        nb_setval(le_owned_trailer_cache, cache(Templates, Answer))
+    ),
+    Answer == true.
+
+template_owning_trailer(Templates) :-
+    findall(KW, ( member(Key, [according_to, as_stated_in, because]),
+                  le_i18n:kw_synonym_words(Key, KW) ), KWs),
+    member(dict(_, _, WordsAndVars, _, _, _, _, _, _, _), Templates),
+    include(atom, WordsAndVars, Words),
+    member(KW, KWs),
+    contig_subseq(KW, Words), !.
 
 % Before the sentence's end, a comma is followed by a trailer keyword
 % (non-consuming): the cheap test that spares every other fact a second parse.

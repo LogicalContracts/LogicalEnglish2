@@ -698,9 +698,12 @@ type_arg_ok(Arg, FormalType, SM, KM) :-
 
 universal_type(T) :- memberchk(T, [thing, object, entity, asset, element]).
 
+% (current_predicate/1 first: calling an undefined le_type/1 sends every call
+% through the autoloader's library search before the error is caught — a
+% quarter of a query's time in a large program.)
 is_type_value(Arg, SM, KM) :-
-    ( catch(SM:le_type(Arg), _, fail) -> true
-    ; KM \== none, catch(KM:le_type(Arg), _, fail)
+    ( current_predicate(SM:le_type/1), catch(SM:le_type(Arg), _, fail) -> true
+    ; KM \== none, current_predicate(KM:le_type/1), catch(KM:le_type(Arg), _, fail)
     ).
 
 instance_has_type(Arg, SM, KM) :-
@@ -741,7 +744,9 @@ is_a_simple(X, Z, M) :- atom(Z), le_grammar:head_noun_type(Z, HZ), HZ \== Z, is_
 
 %!  detailed_failures_on(+SM) is semidet.
 %   True when the session has requested detailed (per-rule) failure explanations.
-detailed_failures_on(SM) :- catch(SM:detailed_failures, _, fail).
+detailed_failures_on(SM) :-
+    current_predicate(SM:detailed_failures/0),     % else each call autoloads
+    catch(SM:detailed_failures, _, fail).
 
 %!  solve_rule_body(+Body, +SM, +KM, +Anc, +D, +MyID, +Ref, -Us, -WhysBody)
 %   Solves the body of a clause Ref under goal MyID. When detailed failures are

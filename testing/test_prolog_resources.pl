@@ -162,6 +162,26 @@ test(include_depth_cap) :-
         set_prolog_flag(le_include_max_depth, 5)),
     assertion(has_issue(KB, include_too_deep)).
 
+% Sibling includes each start at the includer's depth: a program including
+% three resources that each include a shared library is only two levels deep,
+% whatever the order (the depth of one sibling used to leak into the next).
+test(sibling_includes_do_not_accumulate_depth) :-
+    tmp_dir(Dir),
+    atomic_list_concat([Dir, '/lib.le'], Lib),
+    write_file(Lib, "the templates are:\n    *a thing* is shared.\n"),
+    forall(member(N, [s1, s2, s3]),
+        ( atomic_list_concat([Dir, '/', N, '.le'], F),
+          format(atom(Src), "the knowledge base ~w includes these resources:\n    lib.\n\nthe templates are:\n    *a thing* is ~w.\n", [N, N]),
+          write_file(F, Src) )),
+    atomic_list_concat([Dir, '/top.le'], Top),
+    write_file(Top, "the knowledge base top includes these resources:\n    s1,\n    s2,\n    s3.\n\nthe templates are:\n    *a thing* is top.\n"),
+    setup_call_cleanup(
+        set_prolog_flag(le_include_max_depth, 2),
+        load(Top, KB),
+        set_prolog_flag(le_include_max_depth, 5)),
+    assertion(\+ has_issue(KB, include_too_deep)),
+    assertion(\+ has_issue(KB, missing_resource)).
+
 % Text loaded WITHOUT a file path (as the editor does) still finds relative
 % resources when given the source's base directory via load_text/3 — and fails
 % to find them without it (the reported bug).
