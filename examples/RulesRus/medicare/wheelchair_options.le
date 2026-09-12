@@ -1,0 +1,613 @@
+% Wheelchair Options/Accessories: LCD L33792 and its Policy Article A52504
+% (DME MACs). A policy program of the DMEPOS model: it includes dmepos.le
+% (orders, delivery, benefit category, continued need, refills) and states
+% when a claim for an option or accessory of a wheelchair is REASONABLE AND
+% NECESSARY: the adjustable arm height option (E0973, K0017, K0018, K0020)
+% and the arm trough (E2209); elevating legrests (E0990, K0046, K0047, K0053,
+% K0195); nonstandard seat frame dimensions of a manual wheelchair
+% (E2201–E2204); the gear reduction drive wheel (E2227); sealed batteries
+% (E2359, E2361, E2363, E2365, E2371, K0733), the single mode charger (E2366)
+% and the lithium battery (E2397); power tilt and/or recline seating systems
+% with or without power elevating legrests (E1002–E1010, E1012); the power
+% seat elevation system (E2298); alternative drive control interfaces (E2312,
+% E2321, E2322, E2325, E2327, E2328, E2329, E2330, E2373), the expandable
+% controller and its harness (E2377, E2313), the multi-motor electronic
+% connection (E2310, E2311) and the attendant control in place of a
+% beneficiary-operated interface (E2331); the speech generating device
+% interface (E2351); the anti-rollback device (E0974), the safety belt
+% (E0978), swingaway hardware (E1028, E1032) and the manual fully reclining
+% back (E1226). A power standing system (E2301) is non-covered ("not
+% primarily medical in nature"), a non-sealed battery (E2358, E2360, E2362,
+% E2364, E2372) and a replacement dual mode charger (E2367) are denied: no
+% rule concludes them. Cushions and positioning accessories are the
+% Wheelchair Seating LCD (wheelchair_seating.le), not this policy.
+%
+% How the criteria are read. Every option depends on its base: "Options and
+% accessories for wheelchairs are covered if the beneficiary has a wheelchair
+% that meets Medicare coverage criteria and the option/accessory itself is
+% medically necessary". The scenario says which device the option is an
+% accessory of (the shared template of dmepos.le); the base is covered when a
+% claim for it is reasonable and necessary under its own policy (pmd.le for a
+% power wheelchair; a manual wheelchair base needs manual_wheelchairs.le). The
+% kind of base (power or manual wheelchair) and the groups eligible for seat
+% elevation come from the HCPCS code of the base. What the record states —
+% the hours per day spent in the wheelchair, a documented condition (the
+% shared template "the medical record of B documents C"), the specialty
+% evaluation and the ATP's involvement, a year of self-propulsion, a covered
+% speech generating device, the date of the previous lithium battery, that
+% an attendant control replaces the beneficiary's interface — is a scenario
+% fact. The clinical judgments are the shared judged template of dmepos.le,
+% "the finding F about B is established" (or unsupported), with who found it
+% and why; where the LCD offers alternatives they are ONE finding whose
+% reasons are the alternatives. The findings this policy reads, and the
+% criterion each stands for:
+%   adjustable arm height needed ("requires an arm height that is different
+%   from that available using nonadjustable arms"); elevating legrests needed
+%   (a musculoskeletal condition, cast or brace preventing 90 degree knee
+%   flexion, or significant edema — the third alternative, a covered
+%   reclining back, is a rule); nonstandard seat dimensions justified ("the
+%   beneficiary's physical dimensions justify the need"); power seating
+%   system needed (criterion 4, 5 or 6: pressure ulcer risk without a
+%   functional weight shift, intermittent catheterization without an
+%   independent transfer, increased tone or spasticity); seat elevation
+%   criteria met (the criteria of NCD 280.16, whose text is not in sources/:
+%   the finding stands for them); alternative drive control needed (the
+%   option "itself is medically necessary": the beneficiary cannot use a
+%   standard proportional joystick); attendant control required (unable to
+%   operate a manual or power wheelchair, with a caregiver able to operate a
+%   power wheelchair only); anti rollback device needed (self-propels, ramps);
+%   safety belt needed for positioning (weak upper body muscles, instability
+%   or spasticity); swingaway hardware needed (e.g. a slide transfer, not
+%   moving close to a desk); manual reclining back needed (pressure ulcer
+%   risk without a weight shift, or catheterization without a transfer).
+%
+% The payment conditions the policy adds (LCD "GENERAL", Policy Article
+% "POLICY SPECIFIC DOCUMENTATION REQUIREMENTS"): the base of an option must
+% have its written order prior to delivery when its code requires one (the
+% order requirements of dmepos.le, for the base); an option that needs a
+% specialty evaluation (power seating, gear reduction drive) has a written
+% report of it. The ATP assessment date, the modifiers (KX, GY, GA, GZ, RT,
+% LT, RB, KC), the bundling table (what a base allowance includes) and the
+% coding definitions of the Article are coding rules, not criteria of the
+% record, and are not modelled. Three years is read as 1095 days.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the hours per day *a beneficiary* spends in the wheelchair is *a number*; undefined.
+    *a beneficiary* has a covered speech generating device; undefined.
+    *an item* is provided in place of a beneficiary operated drive control interface; undefined.
+    a lithium battery was previously furnished for *a device* on *a date*; undefined.
+    % candidate for dmepos.le (also a template of pmd.le)
+    *a beneficiary* had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for *an item*; undefined.
+    % candidate for dmepos.le (also a template of pmd.le)
+    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of *an item*; undefined.
+    % candidate for dmepos.le (also a template of pmd.le)
+    *a beneficiary* has been self propelling a manual wheelchair for at least one year; undefined.
+    % candidate for dmepos.le (also a template of manual_wheelchairs.le)
+    the written report of the specialty evaluation for *an item* is available; undefined.
+    % the codes
+    *a code* is a power wheelchair code.
+    *a code* is a manual wheelchair code.
+    *a code* is a seat elevation eligible base code.
+    *a code* is a power seating system code.
+    *a code* is a reclining back code.
+    *a code* is an alternative drive control interface code.
+    *a code* is a specialty evaluation code.
+    *an item* needs a specialty evaluation.
+    *a condition* is a qualifying condition for an arm trough.
+    % derived
+    *a device* is a covered wheelchair base.
+    *an item* is an option of a covered wheelchair base.
+    *an item* is an option of a covered power wheelchair.
+    *an item* is an option of a covered manual wheelchair.
+    *an item* was provided with a specialty evaluation and an assistive technology professional.
+    *an item* meets the elevating legrest criteria.
+    the wheelchair base of *an item* has a covered reclining back.
+    *a device* has a covered powered seating function.
+    *a device* has a covered alternative drive control interface.
+    a lithium battery was furnished for *a device* within three years before *a date*.
+    the lithium battery replacement frequency is met for *a claim*.
+    the base order requirement is met for *an item*.
+    the specialty evaluation report requirement is met for *an item*.
+
+the knowledge base wheelchair options includes these resources:
+    dmepos.
+
+the knowledge base wheelchair options includes:
+
+LCD L33792 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33792".
+the text of LCD L33792 is at "sources/lcd/L33792.txt".
+Policy Article A52504 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52504".
+the text of Policy Article A52504 is at "sources/article/A52504.txt".
+
+% ---------------------------------------------------------------------------
+% The wheelchair base: what it is, and when it is covered.
+% ---------------------------------------------------------------------------
+
+% A covered wheelchair base: a device with a claim of its own that its policy
+% (pmd.le for a power wheelchair) finds reasonable and necessary. A device of
+% this model.
+rule wo_covered_base:
+a device is a covered wheelchair base
+    if a claim is for the device
+    and the claim is reasonable and necessary.
+
+% The base of the option is the beneficiary's, and it is covered.
+rule wo_covered_option with provenance LCD L33792,
+        confer "Options and accessories for wheelchairs are covered if the beneficiary has a wheelchair that meets Medicare coverage criteria and the option/accessory itself is medically necessary":
+an item is an option of a covered wheelchair base
+    if the item is furnished to a beneficiary
+    and the item is an accessory of a device
+    and the device is furnished to the beneficiary
+    and the device is a covered wheelchair base.
+
+rule wo_covered_power_wheelchair_option with provenance LCD L33792,
+        confer "The beneficiary meets all the coverage criteria for a power wheelchair described in the Power Mobility Devices LCD":
+an item is an option of a covered power wheelchair
+    if the item is an option of a covered wheelchair base
+    and the item is an accessory of a device
+    and the HCPCS code of the device is a code
+    and the code is a power wheelchair code.
+
+rule wo_covered_manual_wheelchair_option with provenance LCD L33792,
+        confer "WHEELS/TIRES FOR MANUAL WHEELCHAIRS":
+an item is an option of a covered manual wheelchair
+    if the item is an option of a covered wheelchair base
+    and the item is an accessory of a device
+    and the HCPCS code of the device is a code
+    and the code is a manual wheelchair code.
+
+% The kind of base each code describes (the bundling table of the Article).
+rule wo_power_wheelchair_codes_group_1_2 with provenance Policy Article A52504,
+        confer "Power Wheelchair Base Groups 1 and 2 (K0813, K0814, K0815, K0816, K0820, K0821, K0822, K0823, K0824, K0825, K0826, K0827, K0828, K0829, K0830, K0831, K0835, K0836, K0837, K0838, K0839, K0840, K0841, K0842, K0843)":
+a code is a power wheelchair code
+    if the code is in ["K0813", "K0814", "K0815", "K0816", "K0820", "K0821", "K0822", "K0823", "K0824", "K0825", "K0826", "K0827", "K0828", "K0829", "K0830", "K0831", "K0835", "K0836", "K0837", "K0838", "K0839", "K0840", "K0841", "K0842", "K0843"].
+
+rule wo_power_wheelchair_codes_group_3_4_5 with provenance Policy Article A52504,
+        confer "Power Wheelchair Base Groups 3, 4, and 5":
+a code is a power wheelchair code
+    if the code is in ["K0848", "K0849", "K0850", "K0851", "K0852", "K0853", "K0854", "K0855", "K0856", "K0857", "K0858", "K0859", "K0860", "K0861", "K0862", "K0863", "K0864", "K0868", "K0869", "K0870", "K0871", "K0877", "K0878", "K0879", "K0880", "K0884", "K0885", "K0886", "K0890", "K0891"].
+
+rule wo_manual_wheelchair_codes with provenance Policy Article A52504,
+        confer "Manual Wheelchair Base (E1161, E1229, E1231, E1232, E1233, E1234, E1235, E1236, E1237, E1238, K0001, K0002, K0003, K0004, K0005, K0006, K0007, K0009)":
+a code is a manual wheelchair code
+    if the code is in ["E1161", "E1229", "E1231", "E1232", "E1233", "E1234", "E1235", "E1236", "E1237", "E1238", "K0001", "K0002", "K0003", "K0004", "K0005", "K0006", "K0007", "K0009"].
+
+% The bases a power seat elevation system may be covered with: the Group 2
+% single power option (K0835–K0840) and multiple power option (K0841–K0843)
+% chairs and the Group 3 chairs (K0848–K0864), the codes of pmd.le.
+rule wo_seat_elevation_bases with provenance LCD L33792,
+        confer "a beneficiary meets the coverage criteria for either a Group 2 single power option or multiple power option power-driven wheelchair, or a Group 3 power-driven wheelchair as described in the Power Mobility Devices LCD":
+a code is a seat elevation eligible base code
+    if the code is in ["K0835", "K0836", "K0837", "K0838", "K0839", "K0840", "K0841", "K0842", "K0843", "K0848", "K0849", "K0850", "K0851", "K0852", "K0853", "K0854", "K0855", "K0856", "K0857", "K0858", "K0859", "K0860", "K0861", "K0862", "K0863", "K0864"].
+
+% ---------------------------------------------------------------------------
+% The kinds of option, by code.
+% ---------------------------------------------------------------------------
+
+rule wo_power_seating_codes with provenance LCD L33792,
+        confer "POWER TILT AND/OR RECLINE SEATING SYSTEMS (E1002, E1003, E1004, E1005, E1006, E1007, E1008, E1009, E1010, E1012)":
+a code is a power seating system code
+    if the code is in ["E1002", "E1003", "E1004", "E1005", "E1006", "E1007", "E1008", "E1009", "E1010", "E1012"].
+
+rule wo_manual_reclining_back_code with provenance Policy Article A52504,
+        confer "Code E1226 describes a manually operated reclining back that reclines 80 degrees or greater":
+a code is a reclining back code
+    if the code is "E1226".
+
+rule wo_power_recline_codes with provenance Policy Article A52504,
+        confer "A power recline seating system (E1003, E1004, E1005) includes":
+a code is a reclining back code
+    if the code is in ["E1003", "E1004", "E1005"].
+
+rule wo_power_tilt_recline_codes with provenance Policy Article A52504,
+        confer "A power tilt and recline seating system (E1006, E1007, E1008) includes":
+a code is a reclining back code
+    if the code is in ["E1006", "E1007", "E1008"].
+
+% The interfaces other than a standard proportional joystick: the mini and
+% compact proportional joysticks, the non-proportional joystick, the switch
+% systems, sip and puff, the head controls.
+rule wo_alternative_interface_codes with provenance Policy Article A52504,
+        confer "The interfaces described by codes E2312, E2321, E2322, E2325, E2327, E2328, E2329, E2330, E2373, E2374, E2375, E2376, E2377 must have programmable control parameters for speed adjustment, tremor dampening, acceleration control, and braking":
+a code is an alternative drive control interface code
+    if the code is in ["E2312", "E2321", "E2322", "E2325", "E2327", "E2328", "E2329", "E2330", "E2373"].
+
+% The options whose need a specialty evaluation explains.
+rule wo_specialty_evaluation_codes with provenance Policy Article A52504,
+        confer "The specialty evaluation provides detailed information explaining why each option and accessory – e.g., power tilt and/or recline seating systems, or gear reduction drive wheel – is needed to address the beneficiary’s mobility limitation":
+a code is a specialty evaluation code
+    if the code is in ["E1002", "E1003", "E1004", "E1005", "E1006", "E1007", "E1008", "E1009", "E1010", "E1012", "E2227"].
+
+rule wo_needs_specialty_evaluation with provenance Policy Article A52504,
+        confer "The specialty evaluation provides detailed information explaining why each option and accessory – e.g., power tilt and/or recline seating systems, or gear reduction drive wheel – is needed to address the beneficiary’s mobility limitation":
+an item needs a specialty evaluation
+    if the HCPCS code of the item is a code
+    and the code is a specialty evaluation code.
+
+% The conditions an arm trough is covered for.
+quadriplegia is a qualifying condition for an arm trough,
+    as stated in LCD L33792, confer "An arm trough (E2209) is covered if the beneficiary has quadriplegia, hemiplegia, or uncontrolled arm movements".
+hemiplegia is a qualifying condition for an arm trough,
+    as stated in LCD L33792, confer "An arm trough (E2209) is covered if the beneficiary has quadriplegia, hemiplegia, or uncontrolled arm movements".
+uncontrolled arm movements is a qualifying condition for an arm trough,
+    as stated in LCD L33792, confer "An arm trough (E2209) is covered if the beneficiary has quadriplegia, hemiplegia, or uncontrolled arm movements".
+
+% ---------------------------------------------------------------------------
+% Helpers of alternative routes (before the sections, so that a route not
+% taken is not blamed by "the query fails at").
+% ---------------------------------------------------------------------------
+
+% The specialty evaluation and the ATP (criteria 2 and 3 of a power seating
+% system, criteria 2 and 3 of a gear reduction drive wheel).
+rule wo_specialty with provenance LCD L33792,
+        confer "A specialty evaluation that was performed by a licensed/certified medical professional, such as a physical therapist (PT) or occupational therapist (OT) or practitioner who has specific training and experience in rehabilitation wheelchair evaluations of the beneficiary’s seating and positioning needs":
+an item was provided with a specialty evaluation and an assistive technology professional
+    if the item is furnished to a beneficiary
+    and the beneficiary had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for the item
+    and a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of the item.
+
+% The third route to elevating legrests: a reclining back on the wheelchair
+% that meets its own criteria — a claim for it that is reasonable and
+% necessary.
+rule wo_legrests_reclining_back with provenance LCD L33792,
+        confer "The beneficiary meets the criteria for and has a reclining back on the wheelchair":
+the wheelchair base of an item has a covered reclining back
+    if the item is an accessory of a device
+    and an other item is an accessory of the device
+    and the HCPCS code of the other item is a code
+    and the code is a reclining back code
+    and a claim is for the other item
+    and the claim is reasonable and necessary.
+
+% A powered function on the chair that a multi-motor connection may control:
+% a covered power seating system or seat elevation system on the same base.
+% A connection whose sole function is a power standing feature finds none:
+% no rule covers a standing system.
+rule wo_powered_seating_function with provenance Policy Article A52504,
+        confer "Codes E2310 and E2311 describe the electronic components that allow the beneficiary to control two or more of the following motors from a single interface":
+a device has a covered powered seating function
+    if an item is an accessory of the device
+    and the HCPCS code of the item is a code
+    and the code is in ["E1002", "E1003", "E1004", "E1005", "E1006", "E1007", "E1008", "E1009", "E1010", "E1012", "E2298"]
+    and a claim is for the item
+    and the claim is reasonable and necessary.
+
+% An alternative drive control interface on the chair that is covered: what
+% an expandable controller is for.
+rule wo_covered_alternative_interface with provenance Policy Article A52504,
+        confer "It can only be used with an expandable controller":
+a device has a covered alternative drive control interface
+    if an item is an accessory of the device
+    and the HCPCS code of the item is a code
+    and the code is an alternative drive control interface code
+    and a claim is for the item
+    and the claim is reasonable and necessary.
+
+% A lithium battery furnished less than three years (1095 days) before a date.
+rule wo_lithium_within_three_years with provenance LCD L33792,
+        confer "The usual maximum frequency of replacement for a lithium-based battery (E2397) is one every 3 years":
+a lithium battery was furnished for a device within three years before a date
+    if a lithium battery was previously furnished for the device on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number < 1095.
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: durable medical equipment
+% (Policy Article A52504). The list holds the codes with criteria and those
+% the LCD or the Article denies (E2301, the non-sealed batteries, E2367): a
+% claim for one is within scope and not reasonable and necessary.
+rule wo_codes with provenance Policy Article A52504,
+        confer "Wheelchair options and accessories are covered under the Durable Medical Equipment benefit":
+the policy for code a code is wheelchair_options
+    if the code is in ["E0973", "K0017", "K0018", "K0020", "E2209", "E0990", "K0046", "K0047", "K0053", "K0195", "E2201", "E2202", "E2203", "E2204", "E2227", "E2359", "E2361", "E2363", "E2365", "E2371", "K0733", "E2358", "E2360", "E2362", "E2364", "E2372", "E2366", "E2367", "E2397", "E1002", "E1003", "E1004", "E1005", "E1006", "E1007", "E1008", "E1009", "E1010", "E1012", "E2298", "E2301", "E2310", "E2311", "E2312", "E2321", "E2322", "E2325", "E2327", "E2328", "E2329", "E2330", "E2373", "E2377", "E2313", "E2331", "E2351", "E0974", "E0978", "E1028", "E1032", "E1226"].
+
+rule wo_benefit with provenance Policy Article A52504,
+        confer "Wheelchair options and accessories are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is wheelchair_options.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Arm of chair.
+% ---------------------------------------------------------------------------
+
+rule wo_adjustable_arm_height with provenance LCD L33792,
+        confer "Adjustable arm height option (E0973, K0017, K0018, K0020) is covered if the beneficiary requires an arm height that is different from that available using nonadjustable arms and the beneficiary spends at least 2 hours per day in the wheelchair":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E0973", "K0017", "K0018", "K0020"]
+    and the item is an option of a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the finding adjustable arm height needed about the beneficiary is established
+    and the hours per day the beneficiary spends in the wheelchair is a number
+    and the number >= 2.
+
+rule wo_arm_trough with provenance LCD L33792,
+        confer "An arm trough (E2209) is covered if the beneficiary has quadriplegia, hemiplegia, or uncontrolled arm movements":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E2209"
+    and the item is an option of a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying condition for an arm trough.
+
+% ---------------------------------------------------------------------------
+% Footrest/legrest.
+% ---------------------------------------------------------------------------
+
+rule wo_elevating_legrests with provenance LCD L33792,
+        confer "Elevating legrests (E0990, K0046, K0047, K0053, K0195) are covered if":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E0990", "K0046", "K0047", "K0053", "K0195"]
+    and the item is an option of a covered wheelchair base
+    and the item meets the elevating legrest criteria.
+
+% The first two routes: a musculoskeletal condition, cast or brace that
+% prevents 90 degree flexion at the knee, or significant edema — one finding.
+rule wo_legrests_finding with provenance LCD L33792,
+        confer "The beneficiary has a musculoskeletal condition or the presence of a cast or brace which prevents 90 degree flexion at the knee; or The beneficiary has significant edema of the lower extremities that requires an elevating legrest":
+an item meets the elevating legrest criteria
+    if the item is furnished to a beneficiary
+    and the finding elevating legrests needed about the beneficiary is established.
+
+rule wo_legrests_reclining with provenance LCD L33792,
+        confer "The beneficiary meets the criteria for and has a reclining back on the wheelchair":
+an item meets the elevating legrest criteria
+    if the wheelchair base of the item has a covered reclining back.
+
+% ---------------------------------------------------------------------------
+% Nonstandard seat frame dimensions of a manual wheelchair.
+% ---------------------------------------------------------------------------
+
+rule wo_nonstandard_seat with provenance LCD L33792,
+        confer "A nonstandard seat width and/or depth for a manual wheelchair (E2201, E2202, E2203, E2204) is covered only if the beneficiary's physical dimensions justify the need":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E2201", "E2202", "E2203", "E2204"]
+    and the item is an option of a covered manual wheelchair
+    and the item is furnished to a beneficiary
+    and the finding nonstandard seat dimensions justified about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Wheels/tires for manual wheelchairs: the gear reduction drive wheel.
+% ---------------------------------------------------------------------------
+
+rule wo_gear_reduction with provenance LCD L33792,
+        confer "A gear reduction drive wheel (E2227) is covered if all of the following criteria are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E2227"
+    and the item is an option of a covered manual wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary has been self propelling a manual wheelchair for at least one year
+    and the item was provided with a specialty evaluation and an assistive technology professional.
+
+% ---------------------------------------------------------------------------
+% Batteries and chargers.
+% ---------------------------------------------------------------------------
+
+rule wo_sealed_batteries with provenance LCD L33792,
+        confer "Up to two batteries (E2359, E2361, E2363, E2365, E2371, K0733) at any one time are allowed if required for a power wheelchair":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E2359", "E2361", "E2363", "E2365", "E2371", "K0733"]
+    and the item is an option of a covered power wheelchair
+    and the quantity billed on the claim is a number
+    and the number <= 2.
+
+% A single mode charger, as a replacement (at initial issue it is in the
+% allowance for the base, Policy Article A52504).
+rule wo_single_mode_charger with provenance LCD L33792,
+        confer "A single mode battery charger (E2366) is appropriate for charging a sealed lead acid battery":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E2366"
+    and the item is an option of a covered power wheelchair.
+
+rule wo_lithium_battery with provenance LCD L33792,
+        confer "The usual maximum frequency of replacement for a lithium-based battery (E2397) is one every 3 years. Only one battery is allowed at any one time":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E2397"
+    and the item is an option of a covered power wheelchair
+    and the quantity billed on the claim is a number
+    and the number <= 1
+    and the lithium battery replacement frequency is met for the claim.
+
+rule wo_lithium_frequency with provenance LCD L33792,
+        confer "The usual maximum frequency of replacement for a lithium-based battery (E2397) is one every 3 years":
+the lithium battery replacement frequency is met for a claim
+    if the claim is for an item
+    and the item is an accessory of a device
+    and the date of service of the claim is a date
+    and it is not the case that
+        a lithium battery was furnished for the device within three years before the date.
+
+% ---------------------------------------------------------------------------
+% Power tilt and/or recline seating systems, with or without power elevating
+% legrests: criteria 1, 2 and 3, and 4, 5 or 6.
+% ---------------------------------------------------------------------------
+
+rule wo_power_seating with provenance LCD L33792,
+        confer "A power seating system – tilt only, recline only, or combination tilt and recline – with or without power elevating legrests will be covered if criteria 1, 2, and 3 are met and if criterion 4, 5, or 6 is met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is a power seating system code
+    and the item is an option of a covered power wheelchair
+    and the item was provided with a specialty evaluation and an assistive technology professional
+    and the item is furnished to a beneficiary
+    and the finding power seating system needed about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Power seat elevation system.
+% ---------------------------------------------------------------------------
+
+rule wo_seat_elevation with provenance LCD L33792,
+        confer "A power seat elevation system (E2298) will be covered if a beneficiary meets the coverage criteria for either a Group 2 single power option or multiple power option power-driven wheelchair, or a Group 3 power-driven wheelchair as described in the Power Mobility Devices LCD and meets the coverage criteria for seat elevation equipment as described in CMS Medicare National Coverage Determinations (NCD) Manual (Pub. 100-03) Chapter 1, Part 4, Section 280.16 Seat Elevation Equipment (Power Operated) on Power Wheelchairs":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E2298"
+    and the item is an option of a covered power wheelchair
+    and the item is an accessory of a device
+    and the HCPCS code of the device is a code
+    and the code is a seat elevation eligible base code
+    and the item is furnished to a beneficiary
+    and the finding seat elevation criteria met about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Power wheelchair drive control systems.
+% ---------------------------------------------------------------------------
+
+% An interface other than a standard proportional joystick: the base is a
+% covered power wheelchair and the interface itself is medically necessary.
+rule wo_alternative_interface with provenance LCD L33792,
+        confer "the option/accessory itself is medically necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is an alternative drive control interface code
+    and the item is an option of a covered power wheelchair
+    and the item is furnished to a beneficiary
+    and the finding alternative drive control needed about the beneficiary is established.
+
+% The expandable controller and its harness: what a covered alternative
+% interface on the chair needs.
+rule wo_expandable_controller with provenance Policy Article A52504,
+        confer "Code E2313 is separately billable in addition to an expandable controller both at initial issue and with complete replacement of the expandable controller":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E2377", "E2313"]
+    and the item is an option of a covered power wheelchair
+    and the item is an accessory of a device
+    and the device has a covered alternative drive control interface.
+
+% The multi-motor electronic connection: a covered powered seating function
+% on the chair besides the drive.
+rule wo_multi_motor_connection with provenance Policy Article A52504,
+        confer "Codes E2310 and E2311 describe the electronic components that allow the beneficiary to control two or more of the following motors from a single interface":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E2310", "E2311"]
+    and the item is an option of a covered power wheelchair
+    and the item is an accessory of a device
+    and the device has a covered powered seating function.
+
+rule wo_attendant_control with provenance LCD L33792,
+        confer "An attendant control is covered in place of a beneficiary-operated drive control system if the beneficiary meets coverage criteria for a wheelchair, is unable to operate a manual or power wheelchair and has a caregiver who is unable to operate a manual wheelchair but is able to operate a power wheelchair":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E2331"
+    and the item is an option of a covered power wheelchair
+    and the item is provided in place of a beneficiary operated drive control interface
+    and the item is furnished to a beneficiary
+    and the finding attendant control required about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Other power wheelchair accessories.
+% ---------------------------------------------------------------------------
+
+rule wo_speech_device_interface with provenance LCD L33792,
+        confer "An electronic interface (E2351) to allow a speech generating device to be operated by the power wheelchair control interface is covered if the beneficiary has a covered speech generating device":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E2351"
+    and the item is an option of a covered power wheelchair
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered speech generating device.
+
+% ---------------------------------------------------------------------------
+% Miscellaneous accessories.
+% ---------------------------------------------------------------------------
+
+rule wo_anti_rollback with provenance LCD L33792,
+        confer "Anti-rollback device (E0974) is covered if the beneficiary self-propels and needs the device because of ramps":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0974"
+    and the item is an option of a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the finding anti rollback device needed about the beneficiary is established.
+
+rule wo_safety_belt with provenance LCD L33792,
+        confer "A safety belt/pelvic strap (E0978) is covered if the beneficiary has weak upper body muscles, upper body instability or muscle spasticity which requires use of this item for proper positioning":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0978"
+    and the item is an option of a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the finding safety belt needed for positioning about the beneficiary is established.
+
+rule wo_swingaway_hardware with provenance LCD L33792,
+        confer "One example (not all-inclusive) of a covered indication for swingaway, retractable, or removable hardware (E1028, E1032) would be to move the component out of the way so that a beneficiary can perform a slide transfer to a chair or bed":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E1028", "E1032"]
+    and the item is an option of a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the finding swingaway hardware needed about the beneficiary is established.
+
+rule wo_manual_reclining_back with provenance LCD L33792,
+        confer "A manual fully reclining back option (E1226) is covered if the beneficiary has one or more of the following conditions":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E1226"
+    and the item is an option of a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the finding manual reclining back needed about the beneficiary is established.
+
+section remedy is:
+
+% The policy's own conditions of payment: the base's written order prior to
+% delivery, and the written report of the specialty evaluation.
+rule wo_documentation with provenance LCD L33792,
+        confer "For DMEPOS base items that require a WOPD, and also require separately billed associated options, accessories, and/or supplies, the supplier must have received a WOPD which lists the base item and which may list all the associated options, accessories, and/or supplies that are separately billed prior to the delivery of the items":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is wheelchair_options
+    and the claim is for an item
+    and the base order requirement is met for the item
+    and the specialty evaluation report requirement is met for the item.
+
+rule wo_base_wopd with provenance LCD L33792,
+        confer "if the supplier separately bills for associated options, accessories, and/or supplies without first receiving a completed and signed WOPD of the base item prior to delivery, the claim(s) shall be denied as not reasonable and necessary":
+the base order requirement is met for an item
+    if the item is an accessory of a device
+    and the HCPCS code of the device is a code
+    and the code is on the required face-to-face and written order prior to delivery list
+    and the order requirements are met for the device.
+
+rule wo_base_no_wopd with provenance LCD L33792,
+        confer "For Durable Medical Equipment, Prosthetics, Orthotics and Supplies (DMEPOS) base items that require a Written Order Prior to Delivery (WOPD), the supplier must have received a signed SWO before the DMEPOS item is delivered to a beneficiary":
+the base order requirement is met for an item
+    if the item is an accessory of a device
+    and the HCPCS code of the device is a code
+    and it is not the case that
+        the code is on the required face-to-face and written order prior to delivery list.
+
+rule wo_specialty_report with provenance Policy Article A52504,
+        confer "There must be a written report of this evaluation available on request":
+the specialty evaluation report requirement is met for an item
+    if the item needs a specialty evaluation
+    and the written report of the specialty evaluation for the item is available.
+
+rule wo_no_specialty_report with provenance Policy Article A52504,
+        confer "There must be a written report of this evaluation available on request":
+the specialty evaluation report requirement is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the item needs a specialty evaluation.
