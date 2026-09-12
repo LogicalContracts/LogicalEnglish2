@@ -1,3 +1,32 @@
+% Decisions of the Medicare Appeals Council on power mobility devices, run
+% through the power mobility policy (pmd.le, LCD L33789 with Policy Article
+% A52498, NCD 280.3 and 42 CFR 410.38 as dmepos.le reads them).
+%
+% One scenario per decision, named after its text file in sources/council/
+% ("scenario dbc_partb is, as stated in Council decision dbc partb:"); each
+% fact quotes its passage ("confer \"...\""), the treating practitioner's
+% findings say "according to the treating practitioner", the Council's
+% "according to the Council" with the reason it gave, and a finding the
+% Council rejected is recorded only as the Council's "unsupported" (a
+% recorded outcome closes the question, whoever gave it). The Council's
+% outcome is NOT a fact: it is in the comment above each scenario; the
+% expectation is what the model derives, and where it differs the comment
+% says DISAGREES and why — a criterion of the LCD the Council applied
+% (L21271, L23598, L23613, L27239: the 120-day delivery rule, replacement of
+% lost or worn equipment, the 7-element order) that the current LCD or this
+% model does not have; a fact the decision does not state (most decisions
+% never give the beneficiary's weight, which the LCD's weight-class
+% criterion needs); a finding nobody made, so that the answer is
+% conditional (the assumed findings are in "and unknowns").
+%
+% Codes: the decisions cite the codes of their day (K0822, K0823, K0825,
+% K0861), which are the current ones; where a decision names no code the
+% Group 2 standard chair "K0823" is assumed and the comment says so; a
+% scooter is "K0800". Facts the vocabulary cannot express (a replacement of
+% same or similar equipment, its useful lifetime, a limitation-of-liability
+% payment, an accessory's coverage) are listed in each comment as candidate
+% templates.
+
 the target language is: prolog.
 scenario facts require provenance.
 
@@ -6,10 +35,33 @@ the knowledge base council pmd includes these resources:
 
 the knowledge base council pmd includes:
 
-Council decision m-11-2121 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-11-2121.pdf".
-the text of Council decision m-11-2121 is at "sources/council/m-11-2121.txt".
-Council decision 11-1835 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-1835.pdf".
-the text of Council decision 11-1835 is at "sources/council/11-1835.txt".
+% Where each cited decision is published, and a copy of its text (sources/).
+Council decision 11 1835 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-1835.pdf".
+the text of Council decision 11 1835 is at "sources/council/11-1835.txt".
+Council decision 11 332 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-332.pdf".
+the text of Council decision 11 332 is at "sources/council/11-332.txt".
+Council decision 11 705 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-705.pdf".
+the text of Council decision 11 705 is at "sources/council/11-705.txt".
+Council decision affordable home care is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/affordable_home_care.pdf".
+the text of Council decision affordable home care is at "sources/council/affordable_home_care.txt".
+Council decision allied home is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/allied_home.pdf".
+the text of Council decision allied home is at "sources/council/allied_home.txt".
+Council decision dbc partb is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/dbc_partb.pdf".
+the text of Council decision dbc partb is at "sources/council/dbc_partb.txt".
+Council decision extreme mobility is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/extreme_mobility.pdf".
+the text of Council decision extreme mobility is at "sources/council/extreme_mobility.txt".
+Council decision m 11 2121 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m-11-2121.pdf".
+the text of Council decision m 11 2121 is at "sources/council/m-11-2121.txt".
+Council decision m 11 2511 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m_11_2511.pdf".
+the text of Council decision m 11 2511 is at "sources/council/m_11_2511.txt".
+Council decision m 11 2642 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m_11_2642.pdf".
+the text of Council decision m 11 2642 is at "sources/council/m_11_2642.txt".
+Council decision m 12 1315 is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m_12_1315.pdf".
+the text of Council decision m 12 1315 is at "sources/council/m_12_1315.txt".
+Council decision webb medical is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/webb_medical.pdf".
+the text of Council decision webb medical is at "sources/council/webb_medical.txt".
+Council decision keelers is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/keelers.pdf".
+the text of Council decision keelers is at "sources/council/keelers.txt".
 
 query pay is:
     which claim is payable.
@@ -20,12 +72,395 @@ query rn is:
 query stage is:
     the query fails at which section.
 
-scenario m-11-2121 is, as stated in Council decision m-11-2121:
+% M-11-1835, Advanced Medical Concepts (13 September 2011). A Group 2 heavy
+% duty power wheelchair (K0825) furnished 22 January 2010 to a beneficiary
+% who had received a K0823 (300-pound capacity) in October 2007; the
+% prescription says "heavy weight + 302 lbs"; the only recorded weight
+% before that is 285 pounds in February 2007.
+% Council: not covered — the record does not establish that the 2007 chair
+% was inappropriate (when the weight passed 300 pounds is undocumented), so
+% a replacement inside the chair's useful lifetime is not shown necessary.
+% DISAGREES: the model finds the K0825 reasonable and necessary, conditional
+% on the eight clinical findings nobody made in the decision — the weight
+% (302 pounds) fits the heavy duty class; the criterion the decision turned
+% on, replacement of same or similar equipment within its reasonable useful
+% lifetime (Benefit Policy Manual ch. 15 §110.2), is not in pmd.le. Candidate
+% templates: "*a beneficiary* received same or similar equipment on *a
+% date* under code *a code*", "the weight of *a beneficiary* on *a date*
+% was *a number* pounds".
+scenario 11-1835 is, as stated in Council decision 11 1835:
+    claim 1 is for the power wheelchair,
+        confer "a power wheelchair (HCPCS 1 code K0825) and accessories the appellant supplier furnished to the beneficiary on January 22, 2010".
+    the HCPCS code of the power wheelchair is "K0825",
+        confer "This K0825 power wheelchair has a weight capacity of 301-450 pounds".
+    the power wheelchair is furnished to the beneficiary,
+        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
+    the date of service of claim 1 is 2010-01-22,
+        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
+    the rental month of claim 1 is 1,
+        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
+    the weight of the beneficiary is 302 pounds,
+        confer "power wheel chair for heavy weight + 302 lbs".
+    the order for the power wheelchair is dated 2010-01-22,
+        confer "The record contains a prescription dated January 22, 2010".
+    the order for the power wheelchair includes description of the item,
+        confer "power wheel chair for heavy weight + 302 lbs".
+    the power wheelchair was delivered on 2010-01-22,
+        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding home accommodates power wheelchair about the beneficiary is established", "the finding manual wheelchair not self propellable about the beneficiary is established", "the finding power wheelchair can be safely operated about the beneficiary is established", "the finding power wheelchair will significantly improve daily activities about the beneficiary is established", "the finding scooter ruled out about the beneficiary is established", "the finding significant mobility limitation about the beneficiary is established", "the finding walking aids insufficient about the beneficiary is established", "the finding willing to use power wheelchair at home about the beneficiary is established"].
+
+% M-11-332, Home Medi Service (29 September 2011). A Group 2 standard power
+% wheelchair (K0822) furnished 25 November 2009 to an 85-pound woman with
+% dense left hemiplegia, wheelchair-bound since 2003 (the previous chair
+% older than five years). The face-to-face is the physical therapist's
+% evaluation of 16 October 2009 countersigned by the physician on 29
+% October 2009, who signed the prescription the same day.
+% Council: covered — the evidence "amply demonstrates" medical necessity
+% (10-15 feet with a quad cane and caregiver assistance, non-functional
+% left grip, other assistive devices inadequate); the countersigned
+% therapist evaluation is a valid face-to-face.
+% Model: reasonable and necessary, conditional on the home criterion (M):
+% the home assessment form was excluded as new evidence and the Council did
+% not discuss the home — DISAGREES only in that the answer is conditional.
+% The scooter criterion is recorded as the appellant's statement, the only
+% one the decision reports. Not payable: the residence, the order's
+% elements, its communication to the supplier, proof of delivery and prior
+% authorization (which did not exist in 2009) are not stated; the
+% face-to-face timing the Council decided (the order dated the day of the
+% countersignature) is met.
+scenario 11-332 is, as stated in Council decision 11 332:
+    claim 1 is for the power wheelchair,
+        confer "a power wheelchair (HCPCS code K0822) and accessories the appellant-supplier furnished to the beneficiary on November 25, 2009".
+    the HCPCS code of the power wheelchair is "K0822",
+        confer "a power wheelchair (HCPCS code K0822) and accessories the appellant-supplier furnished to the beneficiary on November 25, 2009".
+    the power wheelchair is furnished to the beneficiary,
+        confer "on November 25, 2009, the beneficiary received the power wheelchair at issue".
+    the date of service of claim 1 is 2009-11-25,
+        confer "on November 25, 2009, the beneficiary received the power wheelchair at issue".
+    the rental month of claim 1 is 1,
+        confer "on November 25, 2009, the beneficiary received the power wheelchair at issue".
+    the weight of the beneficiary is 85 pounds,
+        confer "The beneficiary weighed 85 pounds and was 5 feet 6 inches tall".
+    the finding significant mobility limitation about the beneficiary is established,
+        according to the Council, because "her medical problems result in limited use of the left upper extremity and inability to engage in functional ambulation",
+        confer "outline her medical problems which result in limited use of the left upper extremity and inability to engage in functional ambulation".
+    the finding walking aids insufficient about the beneficiary is established,
+        according to the Council, because "she could only walk 10-15 feet when using a quad cane, with caregiver assistance",
+        confer "the beneficiary had only limited ambulation, and could only walk 10-15 feet when using a quad cane, with caregiver assistance".
+    the finding manual wheelchair not self propellable about the beneficiary is established,
+        according to the Council, because "other assistive devices would be inadequate for this beneficiary due to weakness, the left hand having a non-functional grip",
+        confer "The Evaluation also showed that other assistive devices would be inadequate for this beneficiary due to weakness".
+    the finding scooter ruled out about the beneficiary is established,
+        according to the appellant, because "the beneficiary's condition prevents her from operating a power operated vehicle",
+        confer "the beneficiary’s condition also prevents them from operating a power operated vehicle".
+    the finding power wheelchair can be safely operated about the beneficiary is established,
+        according to the treating practitioner,
+        confer "needs and ability to handle a powered motor vehicle device".
+    the finding power wheelchair will significantly improve daily activities about the beneficiary is established,
+        according to the treating practitioner,
+        confer "The physician’s medical notes state that a motorized wheelchair allows patient to remain self-sufficient".
+    the finding willing to use power wheelchair at home about the beneficiary is established,
+        according to the treating practitioner,
+        confer "She spends 12 to 16 hours per day in a wheelchair".
+    the treating practitioner examined the beneficiary for the power wheelchair in a face-to-face encounter on 2009-10-29,
+        confer "The physician countersigned that Evaluation on October 29, 2009, indicating concurrence".
+    the order for the power wheelchair is dated 2009-10-29,
+        confer "On the same date, the physician signed a prescription that contained a detailed product description of all the items ordered".
+    the order for the power wheelchair is signed by the treating practitioner,
+        confer "On the same date, the physician signed a prescription that contained a detailed product description of all the items ordered".
+    the order for the power wheelchair includes description of the item,
+        confer "On the same date, the physician signed a prescription that contained a detailed product description of all the items ordered".
+    the order for the power wheelchair was written by the practitioner who conducted the face-to-face encounter,
+        confer "On the same date, the physician signed a prescription that contained a detailed product description of all the items ordered".
+    the power wheelchair was delivered on 2009-11-25,
+        confer "on November 25, 2009, the beneficiary received the power wheelchair at issue".
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding home accommodates power wheelchair about the beneficiary is established"].
+    pay expects answers [].
+
+% M-11-705, Allied Home Medical (29 July 2011). A Group 2 standard power
+% wheelchair (K0823) delivered 16 December 2008 to an 80-year-old man with
+% low back pain, coronary artery disease and osteoarthritis; face-to-face
+% 27 October 2008, prescription 6 November 2008.
+% Council: not covered — (A) the documentation is contradictory on the
+% mobility limitation and has no objective evidence (5/5 strength in all
+% extremities, no walking distance or pace); (B) he has a cane at home and
+% nothing shows a walker would not do; (C) 5/5 strength, a manual
+% wheelchair merely "uncomfortable" — the record does not show he cannot
+% self-propel one. The practitioner's contrary statements (unable to bathe
+% or use the toilet without a PMD, bypass grafts taken from the arms) are
+% what the Council rejected, so only its "unsupported" is recorded.
+% Model: not reasonable and necessary (the basic criteria fail) — agrees.
+% The weight is not stated. Not payable, as it is not covered.
+scenario 11-705 is, as stated in Council decision 11 705:
+    claim 1 is for the power wheelchair,
+        confer "Medicare coverage for a power wheelchair (HCPCS code K0823)".
+    the HCPCS code of the power wheelchair is "K0823",
+        confer "Medicare coverage for a power wheelchair (HCPCS code K0823)".
+    the power wheelchair is furnished to the beneficiary,
+        confer "The power wheelchair and accessories were delivered to the beneficiary on December 16, 2008".
+    the date of service of claim 1 is 2008-12-16,
+        confer "The power wheelchair and accessories were delivered to the beneficiary on December 16, 2008".
+    the rental month of claim 1 is 1,
+        confer "The power wheelchair and accessories were delivered to the beneficiary on December 16, 2008".
+    the finding significant mobility limitation about the beneficiary is unsupported,
+        according to the Council, because "the documentation is contradictory as to whether the beneficiary was able to independently perform his MRADLs, and the objective evidence (5/5 strength, no walking distance or pace) does not support the physician's statements",
+        confer "the documentation does not demonstrate that the beneficiary had a mobility limitation that significantly impaired his ability to participate in one or more MRADLs".
+    the finding walking aids insufficient about the beneficiary is unsupported,
+        according to the Council, because "the beneficiary does have a cane at home and there is no evidence that a walker could not resolve the limitation",
+        confer "the record fails to show that the beneficiary’s mobility limitation could not sufficiently and safely be resolved by the use of an appropriately fitted cane or walker".
+    the finding manual wheelchair not self propellable about the beneficiary is unsupported,
+        according to the Council, because "he could move all extremities appropriately with 5/5 strength, and the manual wheelchair was merely uncomfortable in his lower back",
+        confer "the documentation of record is inadequate to demonstrate that the beneficiary was unable to self-propel a manual wheelchair".
+    the treating practitioner examined the beneficiary for the power wheelchair in a face-to-face encounter on 2008-10-27,
+        confer "On October 27, 2008, the beneficiary’s physician conducted a face-to-face examination".
+    the order for the power wheelchair is dated 2008-11-06,
+        confer "On November 6, 2008, the beneficiary’s physician prescribed a power mobility device".
+    the order for the power wheelchair is signed by the treating practitioner,
+        confer "On November 6, 2008, the beneficiary’s physician prescribed a power mobility device".
+    the order for the power wheelchair includes description of the item,
+        confer "On November 6, 2008, the beneficiary’s physician prescribed a power mobility device".
+    the order for the power wheelchair was written by the practitioner who conducted the face-to-face encounter,
+        confer "On November 6, 2008, the beneficiary’s physician prescribed a power mobility device".
+    the power wheelchair was delivered on 2008-12-16,
+        confer "The power wheelchair and accessories were delivered to the beneficiary on December 16, 2008".
+    rn expects answers [].
+    pay expects answers [].
+
+% M-10-1008, Affordable Home Health Care (22 June 2010). A Group 2 standard
+% power wheelchair (K0823) and battery purchased 7 October 2008 to replace
+% a chair destroyed in a house fire on 2 August 2008; physician's order and
+% office visit of 6 October 2008 (cannot use a walker or cane, cannot bear
+% weight after a CVA, difficulty with ADLs, a scooter not suited to the
+% home, physically and mentally able to use a power chair).
+% Council: covered, as replacement of "same or similar" equipment lost to
+% irreparable damage (Claims Processing Manual ch. 20 §50): a new order
+% reaffirming need and proof of loss suffice, and no face-to-face is
+% required for a replacement PMD (Program Integrity Manual ch. 5 §5.9.2).
+% DISAGREES: the model finds the claim not reasonable and necessary — the
+% replacement rule is outside pmd.le, the weight is not stated, and the
+% practitioner's note makes no finding on the manual wheelchair (C), the
+% home (M), the improvement (N) or the willingness to use the chair (O).
+% Candidate templates: "*an item* replaces equipment lost or irreparably
+% damaged on *a date*", "the previous device of *a beneficiary* was
+% destroyed by *a cause* on *a date*".
+scenario affordable_home_care is, as stated in Council decision affordable home care:
+    claim 1 is for the power wheelchair,
+        confer "a replacement power wheelchair and battery furnished to the beneficiary on October 7, 2008".
+    the HCPCS code of the power wheelchair is "K0823",
+        confer "The appellant then submitted a Medicare claim for a power wheelchair (HCPCS code K0823) and accessories (HCPCS code E2365), with date of service October 7, 2008".
+    the power wheelchair is furnished to the beneficiary,
+        confer "the power wheelchair and battery provided to the beneficiary on October 7, 2008".
+    the date of service of claim 1 is 2008-10-07,
+        confer "with date of service October 7, 2008".
+    the residence of the beneficiary is private residence,
+        confer "a fire occurred at the beneficiary’s residence on August 2, 2008".
+    the finding walking aids insufficient about the beneficiary is established,
+        according to the treating practitioner,
+        confer "states the beneficiary cannot use a walker or cane".
+    the finding significant mobility limitation about the beneficiary is established,
+        according to the treating practitioner,
+        confer "cannot bear weight due to a previous CVA (cerebrovascular accident), has difficulty with ADLs (activities of daily living)".
+    the finding scooter ruled out about the beneficiary is established,
+        according to the treating practitioner,
+        confer "a scooter is not suited for the home".
+    the finding power wheelchair can be safely operated about the beneficiary is established,
+        according to the treating practitioner,
+        confer "is physically and mentally able to use a power chair".
+    the treating practitioner examined the beneficiary for the power wheelchair in a face-to-face encounter on 2008-10-06,
+        confer "An office visit note, also dated October 6, 2008, states the beneficiary cannot use a walker or cane".
+    the order for the power wheelchair is dated 2008-10-06,
+        confer "A physician’s order, dated October 6, 2008, prescribes a “powerchair (PMD)” for the 68 year old beneficiary".
+    the order for the power wheelchair is signed by the treating practitioner,
+        confer "A physician’s order, dated October 6, 2008, prescribes a “powerchair (PMD)” for the 68 year old beneficiary".
+    the order for the power wheelchair includes description of the item,
+        confer "A physician’s order, dated October 6, 2008, prescribes a “powerchair (PMD)” for the 68 year old beneficiary".
+    the order for the power wheelchair was written by the practitioner who conducted the face-to-face encounter,
+        confer "An office visit note, also dated October 6, 2008, states the beneficiary cannot use a walker or cane".
+    the power wheelchair was delivered on 2008-10-07,
+        confer "the power wheelchair and battery provided to the beneficiary on October 7, 2008".
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Allied Home Medical (27 October 2009). A power wheelchair (code not
+% stated; a Group 2 standard chair, K0823, is assumed) supplied 12 February
+% 2008; the physician's progress note of 5 February 2008 is offered as the
+% face-to-face examination.
+% Council: not covered — the face-to-face documentation is "wholly
+% insufficient": partially legible, half a page, no quantitative
+% measurements of strength, range of motion or fatigue, and not a clinical
+% description of the inability to propel a manual wheelchair (LCD L21271,
+% NCD 280.3 B.7). The practitioner's remarks on the mobility difficulties
+% and on walkers and canes are recorded as his; the Council's explicit
+% rejection is of the manual wheelchair criterion (C).
+% Model: not reasonable and necessary — agrees (C unsupported; the weight
+% and the scooter, home and use findings are also absent).
+scenario allied_home is, as stated in Council decision allied home:
+    claim 1 is for the power wheelchair,
+        confer "a power wheelchair and accessories supplied to the beneficiary on February 12, 2008".
+    the HCPCS code of the power wheelchair is "K0823",
+        confer "The appellant provided a power wheelchair to the beneficiary on February 12, 2008".
+    the power wheelchair is furnished to the beneficiary,
+        confer "The appellant provided a power wheelchair to the beneficiary on February 12, 2008".
+    the date of service of claim 1 is 2008-02-12,
+        confer "The appellant provided a power wheelchair to the beneficiary on February 12, 2008".
+    the rental month of claim 1 is 1,
+        confer "The appellant provided a power wheelchair to the beneficiary on February 12, 2008".
+    the finding significant mobility limitation about the beneficiary is established,
+        according to the treating practitioner,
+        confer "the beneficiary’s physician had remarked that the beneficiary had mobility difficulties in dressing, bathing, and feeding".
+    the finding walking aids insufficient about the beneficiary is established,
+        according to the treating practitioner,
+        confer "other assistive devices such as a walker, cane, or manual wheelchair would not meet the mobility needs of the beneficiary".
+    the finding manual wheelchair not self propellable about the beneficiary is unsupported,
+        according to the Council, because "the physician's notes are not a clinical description of the beneficiary's inability to propel a manual wheelchair and give no quantitative measurements of strength, range of motion, or fatigue",
+        confer "are not a clinical description of the beneficiary’s inability to propel a manual wheelchair".
+    the treating practitioner examined the beneficiary for the power wheelchair in a face-to-face encounter on 2008-02-05,
+        confer "the February 5, 2008 progress note that the beneficiary’s physician signed is a record of the face-to-face examination".
+    the power wheelchair was delivered on 2008-02-12,
+        confer "The appellant provided a power wheelchair to the beneficiary on February 12, 2008".
+    rn expects answers [].
+    pay expects answers [].
+
+% Docket 10-1730, D.B.C. (22 November 2010). A Group 3 multiple power option
+% chair (K0861) and accessories; face-to-face 30 May 2008; a statement
+% signed 25 September 2008 (119 days later) attests delivery, but the
+% supplier concedes the beneficiary never had the chair before the ALJ
+% hearing of June 2010, when he was made to take a chair he cannot use.
+% Council: not reasonable and necessary — LCD L23613 requires delivery
+% within 120 days of the face-to-face examination and the chair was
+% delivered more than 120 days after it; and the beneficiary cannot use the
+% chair, which was not fitted properly.
+% Model: not reasonable and necessary — agrees on the outcome, on the
+% Council's second ground (the chair will not improve his activities) and
+% because the weight, the specialty evaluation and the ATP are not stated.
+% The 120-day rule is not in the current LCD (delivery within six months of
+% an affirmed prior authorization is). Not payable: no proof of delivery —
+% the delivery the supplier documented did not happen — and no delivery
+% date the decision gives. Candidate templates: "*a beneficiary* took
+% possession of *an item* on *a date*", "*an item* is usable by *a
+% beneficiary*".
+scenario dbc_partb is, as stated in Council decision dbc partb:
+    claim 1 is for the power wheelchair,
+        confer "Medicare coverage for a power wheelchair (HCPCS code K0861)".
+    the HCPCS code of the power wheelchair is "K0861",
+        confer "Medicare coverage for a power wheelchair (HCPCS code K0861)".
+    the power wheelchair is furnished to the beneficiary,
+        confer "related accessories provided to the beneficiary by National Seating".
+    the rental month of claim 1 is 1,
+        confer "related accessories provided to the beneficiary by National Seating".
+    the finding power wheelchair will significantly improve daily activities about the beneficiary is unsupported,
+        according to the Council, because "the beneficiary is unable to use, and does not use, the wheelchair because it was not fitted properly and is unsuitable for his needs",
+        confer "the beneficiary is unable to use, and does not use, the wheelchair because it was not fitted properly and is unsuitable for his needs".
+    the treating practitioner examined the beneficiary for the power wheelchair in a face-to-face encounter on 2008-05-30,
+        confer "The record indicates that the beneficiary met face-to-face with a physician on May 30, 2008".
+    rn expects answers [].
+    pay expects answers [].
+
+% M-10-138, Extreme Mobility (22 June 2010). A Group 3 multiple power option
+% chair (K0861) with a tilt seat and twelve accessories delivered 20
+% December 2008 to a 57-year-old man with C5-6 tetraplegia, bedridden a year
+% with a stage IV pressure wound; discharge summary and PT/OT addenda of
+% 2-3 June 2008 as the face-to-face; order dated 3 June 2008; affirmative
+% ADMC 12 November 2008; in-home evaluation signed 24 June 2008.
+% Council: covered — the order's description "power mobility device" is
+% within LCD L27239; the discharge summary with the therapists' addenda
+% documents the face-to-face; delivery within six months of the ADMC (not
+% 120 days of the face-to-face) is timely; the home assessment is in the
+% record; with quadriplegia the cane, walker and manual wheelchair answers
+% are evident and a scooter's tiller and posture are beyond him.
+% DISAGREES: the model finds the claim not reasonable and necessary — the
+% weight is not stated, nor the specialty evaluation by a professional with
+% no financial relationship with the supplier (the QIC found no such
+% attestation; the Council did not address it) nor the ATP's involvement;
+% the safe-operation (J or K) and willingness (O) findings are not made.
+% Not payable: the order lacks the current SWO's quantity element (the
+% 7-element order of L27239 had none), and proof of delivery and the date
+% the order reached the supplier are not stated; the ADMC delivery rule the
+% Council applied is met (38 days).
+scenario extreme_mobility is, as stated in Council decision extreme mobility:
+    claim 1 is for the power wheelchair,
+        confer "The appellant filed claims for the power wheelchair (HCPCS code K0861)".
+    the HCPCS code of the power wheelchair is "K0861",
+        confer "The appellant filed claims for the power wheelchair (HCPCS code K0861)".
+    the power wheelchair is furnished to the beneficiary,
+        confer "12 related components/accessories provided to the beneficiary on December 20, 2008".
+    the date of service of claim 1 is 2008-12-20,
+        confer "12 related components/accessories provided to the beneficiary on December 20, 2008".
+    the rental month of claim 1 is 1,
+        confer "12 related components/accessories provided to the beneficiary on December 20, 2008".
+    the residence of the beneficiary is private residence,
+        confer "1-story house with a ramp to enter".
+    the finding significant mobility limitation about the beneficiary is established,
+        according to the treating practitioner,
+        confer "minimum assist for grooming hair; maximum assist for sponge baths".
+    the finding walking aids insufficient about the beneficiary is established,
+        according to the Council, because "with quadriplegia the answer is evident",
+        confer "because the beneficiary has quadriplegia, the answers to some of the questions (e.g., can he use a cane or walker, can he use a manual wheelchair) are evident".
+    the finding manual wheelchair not self propellable about the beneficiary is established,
+        according to the Council, because "with quadriplegia the answer is evident",
+        confer "because the beneficiary has quadriplegia, the answers to some of the questions (e.g., can he use a cane or walker, can he use a manual wheelchair) are evident".
+    the finding scooter ruled out about the beneficiary is established,
+        according to the Council, because "a beneficiary with quadriplegia would not have the extended trunk stability and balance to maintain posture in order to use a power scooter",
+        confer "would not have the extended trunk stability and balance to maintain posture in order to use a power scooter".
+    the finding home accommodates power wheelchair about the beneficiary is established,
+        according to the supplier,
+        confer "The evaluation indicates an assessment of the beneficiary's home environment for wheelchair accessibility".
+    the finding power wheelchair will significantly improve daily activities about the beneficiary is established,
+        according to the treating practitioner, because "the previous chair was unable to provide safe and appropriate positioning for relief of pressure",
+        confer "the beneficiary's treating physician determined that the previous chair was".
+    the finding qualifying group 3 diagnosis about the beneficiary is established,
+        according to the treating practitioner, because "C5-7 quadriplegia and quadriparesis",
+        confer "due to diagnoses of C5-7 quadriplegia and quadriparesis, neurogenic bladder, and neurogenic bowel".
+    the finding multiple power option justified about the beneficiary is established,
+        according to the treating practitioner, because "a corpus seat with tilt for relief of pressure after a stage IV sacral pressure wound",
+        confer "corpus seat with tilt (HCPCS code E1002)".
+    the treating practitioner examined the beneficiary for the power wheelchair in a face-to-face encounter on 2008-06-03,
+        confer "The Order reflected that a face-to-face examination was conducted on June 3, 2008".
+    the order for the power wheelchair is dated 2008-06-03,
+        confer "The physician’s prescription for the power wheelchair, dated June 3, 2008, notes the date of the face-to-face examination as June 3, 2008".
+    the order for the power wheelchair is signed by the treating practitioner,
+        confer "completed a written order for a new power mobility device".
+    the order for the power wheelchair includes beneficiary name,
+        confer "The ALJ concluded that six of the seven elements had been met, with the exception of the description of the equipment".
+    the order for the power wheelchair includes order date,
+        confer "The ALJ concluded that six of the seven elements had been met, with the exception of the description of the equipment".
+    the order for the power wheelchair includes treating practitioner name,
+        confer "The ALJ concluded that six of the seven elements had been met, with the exception of the description of the equipment".
+    the order for the power wheelchair includes description of the item,
+        confer "the Council concludes that the ALJ erred in finding the physician’s order insufficient to meet this LCD documentation requirement".
+    the order for the power wheelchair was written by the practitioner who conducted the face-to-face encounter,
+        confer "The physician’s prescription for the power wheelchair, dated June 3, 2008, notes the date of the face-to-face examination as June 3, 2008".
+    prior authorization for the power wheelchair was affirmed on 2008-11-12,
+        confer "By letter dated November 12, 2008, CMS advised the appellant of an affirmative determination of the medical necessity for the power wheelchair".
+    the power wheelchair was delivered on 2008-12-20,
+        confer "the power wheelchair and components/accessories were delivered on December 20, 2008".
+    the supplier performed an on-site evaluation of the home for the power wheelchair,
+        confer "The Council finds that the record demonstrates that an in-home assessment was conducted and documented in accordance with LCD L27239".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% M-11-2121, The Scooter Store (18 May 2012). Power wheelchairs (code not
+% stated; K0823 assumed) supplied in March 2010 to two beneficiaries, A.R.
+% and L.W., on the strength of the Texas Academy of Family Physicians
+% face-to-face form.
+% Council: not covered — the TAFP form is a certificate of medical
+% necessity, not a substitute for the medical record (LCD L23598); the
+% documentation addresses none of the LCD's questions (mobility limitation,
+% cane or walker, manual wheelchair, POV, safe operation), has no
+% quantifiable data, and does not show a manual wheelchair would not do;
+% A.R. walks 15 feet unaided and accomplishes all MRADLs; L.W.'s form is
+% internally inconsistent. The form's checked boxes ("moderate", "severe")
+% are what the Council rejected, so no practitioner finding is recorded.
+% Model: neither claim reasonable and necessary — agrees.
+scenario m-11-2121 is, as stated in Council decision m 11 2121:
     claim 1 is for the power wheelchair of AR,
         confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
     the HCPCS code of the power wheelchair of AR is "K0823",
         confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
     the power wheelchair of AR is furnished to AR,
+        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the rental month of claim 1 is 1,
         confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
     claim 2 is for the power wheelchair of LW,
         confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
@@ -33,27 +468,262 @@ scenario m-11-2121 is, as stated in Council decision m-11-2121:
         confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
     the power wheelchair of LW is furnished to LW,
         confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
-    the weight of AR is 200 pounds,
+    the rental month of claim 2 is 1,
         confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
-    the weight of LW is 200 pounds,
-        confer "power wheelchairs and accessories the appellant supplied to two beneficiaries, A.R. and L.W.".
+    the finding significant mobility limitation about AR is unsupported,
+        according to the Council, because "the form notes that A.R. can safely walk 15 feet without a mobility aid and without stopping, a distance allowing all MRADLs in the home",
+        confer "A.R. can safely walk 15 feet".
+    the finding significant mobility limitation about LW is unsupported,
+        according to the Council, because "the documentation lacks quantifiable measurable data, such as arm and leg strength, endurance, or range of motion, and the form is internally inconsistent",
+        confer "The documentation for both beneficiaries lacks quantifiable measurable data, such as arm and leg strength, endurance, or range of motion".
     the finding walking aids insufficient about AR is unsupported,
-        according to the Council, because "x", confer "the person filling out the form indicated that no significant edema existed by marking “no.”".
+        according to the Council, because "the documentation does not address why a cane or walker cannot meet the patient's mobility needs in the home",
+        confer "The documentation did not specifically address any of the following criteria set forth in the applicable LCD".
+    the finding walking aids insufficient about LW is unsupported,
+        according to the Council, because "the documentation does not address why a cane or walker cannot meet the patient's mobility needs in the home",
+        confer "The documentation did not specifically address any of the following criteria set forth in the applicable LCD".
+    the finding manual wheelchair not self propellable about AR is unsupported,
+        according to the Council, because "the medical documentation does not establish that a manual wheelchair could not meet either beneficiary's mobility needs",
+        confer "documentation does not establish that a manual wheelchair could not meet either beneficiary’s mobility needs".
+    the finding manual wheelchair not self propellable about LW is unsupported,
+        according to the Council, because "the medical documentation does not establish that a manual wheelchair could not meet either beneficiary's mobility needs",
+        confer "documentation does not establish that a manual wheelchair could not meet either beneficiary’s mobility needs".
     rn expects answers [].
     pay expects answers [].
-    stage expects answers [].
 
-scenario 11-1835 is, as stated in Council decision 11-1835:
+% M-11-2511, Loyalsock Mobility (12 April 2012, amended). A Group 2 standard
+% power wheelchair (K0823) and accessories provided 21 April 2010 to a
+% 60-year-old woman with left hemiplegia after a 2002 stroke, whose power
+% wheelchair of more than five years was in poor condition.
+% Council: covered — she ambulates 5-10 feet (20 at most) with a quad cane
+% with a definite safety concern, so a cane or walker will not do; she
+% propels a manual wheelchair with her unaffected leg, which argues against
+% sufficient upper extremity function, and could not leave the house in an
+% emergency; the documentation and all other requirements are met.
+% DISAGREES: the model finds the claim not reasonable and necessary because
+% the weight is not stated (the K0823 class is 300 pounds or less); with a
+% weight the answer would be conditional on the scooter, safe-operation,
+% home and improvement findings, which the decision does not report.
+scenario m_11_2511 is, as stated in Council decision m 11 2511:
     claim 1 is for the power wheelchair,
-        confer "a power wheelchair (HCPCS 1 code K0825) and accessories the appellant supplier furnished to the beneficiary on January 22, 2010".
-    the HCPCS code of the power wheelchair is "K0825",
-        confer "This K0825 power wheelchair has a weight capacity of 301-450 pounds".
+        confer "payment for a power wheelchair (K0823) and accessories".
+    the HCPCS code of the power wheelchair is "K0823",
+        confer "payment for a power wheelchair (K0823) and accessories".
     the power wheelchair is furnished to the beneficiary,
-        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
+        confer "which were provided by the appellant on April 21, 2010".
+    the date of service of claim 1 is 2010-04-21,
+        confer "which were provided by the appellant on April 21, 2010".
     the rental month of claim 1 is 1,
-        confer "The appellant furnished the beneficiary a power wheelchair on January 22, 2010".
-    the weight of the beneficiary is 302 pounds,
-        confer "power wheel chair for heavy weight + 302 lbs".
+        confer "which were provided by the appellant on April 21, 2010".
+    the residence of the beneficiary is private residence,
+        confer "able to propel her wheelchair with her non-affective lower limb around her home".
+    the finding significant mobility limitation about the beneficiary is established,
+        according to the Council, because "a number of MRADLs, including meal preparation and housecleaning, cannot be accomplished without her power mobility platform",
+        confer "the Functional Mobility Evaluation notes a number of MRADLs that the beneficiary would not be able to accomplish without her power mobility platform".
+    the finding walking aids insufficient about the beneficiary is established,
+        according to the Council, because "she can ambulate 5-10 feet with a quad cane, 20 feet at most, with a definitive safety concern due to lack of motor control and increased risk for falls",
+        confer "the documentation demonstrates that the beneficiary’s mobility limitation cannot be sufficiently or safely resolved with the use of a cane or walker".
+    the finding manual wheelchair not self propellable about the beneficiary is established,
+        according to the Council, because "using one leg to propel a manual wheelchair strongly suggests against sufficient upper extremity function, the left arm being non-functional, and she could not exit her home in an emergency",
+        confer "the beneficiary would not be able to perform MRADLs using a manual wheelchair".
+    the finding willing to use power wheelchair at home about the beneficiary is established,
+        according to the treating practitioner,
+        confer "She is primarily dependent on her wheelchair for her mobility needs".
+    the order for the power wheelchair is signed by the treating practitioner,
+        confer "The beneficiary’s physician prescribed a new power wheelchair (K0823) and accessories".
+    the power wheelchair was delivered on 2010-04-21,
+        confer "which were provided by the appellant on April 21, 2010".
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% M-11-2642, Chair & Equipment Rentals and Sales (13 April 2012). A Group 3
+% multiple power option chair (K0861), seating and accessories supplied 26
+% March 2009 to a man with ALS who already had a Medicare-covered power
+% wheelchair less than five years old; order 30 January 2009; the home
+% assessment report was first produced with the request for review.
+% Council: not covered — the basic criteria A-C are not met (summary
+% statements that he needs assistance with "all" ADLs, inconsistent
+% "moderate"/"maximum"; "fair" strength and "full" upper extremity range of
+% motion against the claimed inability to use a manual wheelchair); ALS
+% meets the Group 3 diagnosis, but the need for multiple power options
+% (pressure ulcers, catheterization, tone, ventilator) is not identified,
+% the specialty evaluation is unclear, and no significant change in
+% condition justifies a new chair. Yet the items are payable under section
+% 1879: the contractor had paid on the same documentation, so the supplier
+% could not have known they would be denied.
+% Model: not reasonable and necessary — agrees; not payable — the
+% section 1879 payment is a limitation of liability, not coverage, and is
+% outside the model. Candidate templates: "the supplier knew or should have
+% known that *an item* would not be covered", "*a beneficiary* has a
+% Medicare-covered *a kind* less than five years old".
+scenario m_11_2642 is, as stated in Council decision m 11 2642:
+    claim 1 is for the power wheelchair,
+        confer "The appellant seeks Medicare coverage of a power wheelchair (K0861), seating, and accessories supplied to the beneficiary on March 26, 2009".
+    the HCPCS code of the power wheelchair is "K0861",
+        confer "The appellant seeks Medicare coverage of a power wheelchair (K0861), seating, and accessories supplied to the beneficiary on March 26, 2009".
+    the power wheelchair is furnished to the beneficiary,
+        confer "The appellant seeks Medicare coverage of a power wheelchair (K0861), seating, and accessories supplied to the beneficiary on March 26, 2009".
+    the date of service of claim 1 is 2009-03-26,
+        confer "The appellant seeks Medicare coverage of a power wheelchair (K0861), seating, and accessories supplied to the beneficiary on March 26, 2009".
+    the rental month of claim 1 is 1,
+        confer "The appellant seeks Medicare coverage of a power wheelchair (K0861), seating, and accessories supplied to the beneficiary on March 26, 2009".
+    the residence of the beneficiary is private residence,
+        confer "documentation in the record already indicated “that the home is accessible.”".
+    the finding significant mobility limitation about the beneficiary is unsupported,
+        according to the Council, because "the evaluation notes and letter state only summarily that he requires assistance for all of his ADLs, with no detailed assessment of individual MRADLs, and disagree on moderate or maximum assistance",
+        confer "the Council finds that the LCD’s basic criteria (A—C) are not met".
+    the finding walking aids insufficient about the beneficiary is unsupported,
+        according to the Council, because "the LCD's basic criteria A to C are not met",
+        confer "the Council finds that the LCD’s basic criteria (A—C) are not met".
+    the finding manual wheelchair not self propellable about the beneficiary is unsupported,
+        according to the Council, because "the evaluation notes fair strength and full range of motion in his upper extremities, which is not consistent with an inability to use a manual wheelchair",
+        confer "which is not consistent with an inability to use a manual wheelchair".
+    the finding home accommodates power wheelchair about the beneficiary is established,
+        according to the supplier,
+        confer "documentation in the record already indicated “that the home is accessible.”".
+    the finding qualifying group 3 diagnosis about the beneficiary is established,
+        according to the Council, because "amyotrophic lateral sclerosis is a neurological condition",
+        confer "he was diagnosed with a neurological condition, ALS, which meets group 3 criteria IV(B)".
+    the finding multiple power option justified about the beneficiary is unsupported,
+        according to the Council, because "the record does not identify clearly whether the need for the multiple power options was due to a high risk of pressure ulcers, intermittent catheterization, tone or spasticity, or a ventilator",
+        confer "the record does not identify clearly whether the beneficiary’s need for the multiple power options was due to".
+    the order for the power wheelchair is dated 2009-01-30,
+        confer "an order dated January 30, 2009".
+    the power wheelchair was delivered on 2009-03-26,
+        confer "The appellant seeks Medicare coverage of a power wheelchair (K0861), seating, and accessories supplied to the beneficiary on March 26, 2009".
+    the supplier performed an on-site evaluation of the home for the power wheelchair,
+        confer "The record now contains the requisite home assessment report".
     rn expects answers [].
     pay expects answers [].
-    stage expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% M-12-1315, R.C., a Medicare Advantage enrollee (13 June 2012). A request
+% for the plan's prior approval of a power operated vehicle (K0800):
+% prescription of 13 October 2011 for "progressive leg weakness", a letter
+% of medical necessity about shopping and doctors' appointments, dialysis
+% and physical therapy three times a week. Nothing was furnished: "the
+% scooter is furnished to the enrollee" stands for the item requested.
+% Council: not covered — the record does not show a mobility deficit that
+% impairs MRADLs within the home (NCD 280.3), that a physician examined him
+% for a PMD for use in the home, that he has the strength and postural
+% stability to operate a POV, or that his home gives it access; use outside
+% the home is not a Medicare ground.
+% Model: not reasonable and necessary — agrees (A, E and F unsupported;
+% the weight is not stated either).
+scenario m_12_1315 is, as stated in Council decision m 12 1315:
+    claim 1 is for the scooter,
+        confer "the enrollee’s request for the MA plan’s approval for coverage for a power mobility device".
+    the HCPCS code of the scooter is "K0800",
+        confer "concluded that a power scooter was not medically necessary".
+    the scooter is furnished to the enrollee,
+        confer "the enrollee’s request for the MA plan’s approval for coverage for a power mobility device".
+    the finding significant mobility limitation about the enrollee is unsupported,
+        according to the Council, because "the record does not support that the beneficiary requires mobility assistive equipment for MRADLs within his home, which is the Medicare requirement for coverage",
+        confer "the record does not support that the beneficiary requires mobility assistive equipment for MRADLs within his home, which is the Medicare requirement for coverage".
+    the finding capabilities sufficient for scooter about the enrollee is unsupported,
+        according to the Council, because "the record does not support that the enrollee has sufficient strength and postural stability to operate a power operated vehicle",
+        confer "The record also did not support that the enrollee had sufficient strength and postural stability to operate a power operated vehicle".
+    the finding home accommodates scooter about the enrollee is unsupported,
+        according to the Council, because "the record does not support that his home provides sufficient access for a power operated vehicle",
+        confer "or that his home provided sufficient access for a power operated vehicle".
+    the finding manual wheelchair not self propellable about the enrollee is established,
+        according to the enrollee, because "weakness secondary to dialysis",
+        confer "The enrollee testified that he could not use a manual wheelchair due to weakness secondary to dialysis".
+    the finding scooter will significantly improve daily activities about the enrollee is established,
+        according to the treating practitioner,
+        confer "benefit significantly from getting a motorized scooter".
+    the order for the scooter is dated 2011-10-13,
+        confer "Dr. A.B. wrote a prescription, dated October 13, 2011".
+    the order for the scooter is signed by the treating practitioner,
+        confer "Dr. A.B. wrote a prescription, dated October 13, 2011".
+    rn expects answers [].
+
+% Webb Medical Systems (27 October 2009). A multiple seat function control
+% kit (E2311), an accessory of the power wheelchair of a man with a T3
+% complete spinal cord injury; the Letter of Medical Necessity, Wheelchair
+% Prescription and PT Evaluation of 3 October 2007 and the Detailed Product
+% Description signed by the physician on 6 March 2008 serve as the order.
+% Council: covered — the two documents satisfy the prescription requirement
+% of 42 CFR 410.38(c)(2)(ii), the physician conducted a face-to-face
+% examination, and the records explain the need for power tilt and recline
+% (weight shifts against pressure ulcers) and elevating legrests (edema,
+% thrombophlebitis) that the kit controls.
+% DISAGREES: E2311 is a wheelchair option (LCD L33792), not a power
+% mobility device code: the claim is outside pmd.le's scope and no rule of
+% the model concludes it; the query fails at applicability. The findings
+% about the beneficiary are transcribed as far as the vocabulary allows.
+% Candidate templates: "*an item* is an accessory of *a device*" (present in
+% dmepos.le, but no rule reads it, so the fact "the seat function kit is an
+% accessory of the power wheelchair" is not stated here), "*an accessory* is
+% medically necessary for *a beneficiary*".
+scenario webb_medical is, as stated in Council decision webb medical:
+    claim 1 is for the seat function kit,
+        confer "a power wheelchair multiple seat function kit (HCPCS Code E2311) furnished by the appellant to the beneficiary".
+    the HCPCS code of the seat function kit is "E2311",
+        confer "a power wheelchair multiple seat function kit (HCPCS Code E2311) furnished by the appellant to the beneficiary".
+    the seat function kit is furnished to the beneficiary,
+        confer "a power wheelchair multiple seat function kit (HCPCS Code E2311) furnished by the appellant to the beneficiary".
+    the finding significant mobility limitation about the beneficiary is established,
+        according to the treating practitioner, because "a T3 complete spinal cord injury paralyzes him from his arm pits through his feet",
+        confer "paralyzes him from his arm pits through his feet".
+    the finding manual wheelchair not self propellable about the beneficiary is established,
+        according to the treating practitioner, because "no strength in the lower extremities and very little in the left arm",
+        confer "He has no strength in his lower extremities, and very little in his left arm; he is dependent upon a lift for all transfers".
+    the finding scooter ruled out about the beneficiary is established,
+        according to the treating practitioner, because "he is dependent upon a lift for all transfers",
+        confer "he is dependent upon a lift for all transfers".
+    the finding qualifying group 3 diagnosis about the beneficiary is established,
+        according to the treating practitioner, because "T3 complete spinal cord injury",
+        confer "He has had a T3 complete spinal cord injury for four years".
+    the finding multiple power option justified about the beneficiary is established,
+        according to the treating practitioner, because "power tilt and recline let him complete an independent weight shift to maximize skin integrity and prevent decubitus ulcers",
+        confer "the power tilt and recline to allow him to complete an independent and external weight shift to maximize his skin integrity and prevent decubitus ulcers".
+    the order for the seat function kit is dated 2008-03-06,
+        confer "signed by the physician on March 6, 2008, and forwarded to the appellant supplier".
+    the order for the seat function kit is signed by the treating practitioner,
+        confer "signed by the physician on March 6, 2008, and forwarded to the appellant supplier".
+    the order for the seat function kit includes description of the item,
+        confer "it lists all of the pertinent functions and accessories the beneficiary requires with his power wheelchair, including the multiple seat function kit (E2311)".
+    rn expects answers [].
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% Keeler's Medical Supply (21 September 2009). A Group 2 heavy duty power
+% wheelchair (K0825) provided 3 March 2008 to a woman whose K0823 of June
+% 2005 (300-pound capacity, 270 pounds then) had needed repairs three times
+% — motors, casters, batteries, armpads — and whose weight was 308 pounds on
+% 7 February 2008; prescription 4 February 2008. Not a repair claim: a
+% replacement, within the old chair's five-year lifetime, for weight gain.
+% Council: covered — the LCD covers a Group 2 chair "appropriate for the
+% patient's weight": she exceeded the standard chair's capacity and met the
+% heavy duty one's. The clinical criteria were not revisited (the earlier
+% chair was covered).
+% DISAGREES only in that the answer is conditional: the weight fits the
+% heavy duty class, and the eight clinical findings nobody made in the
+% decision are assumed. Replacement inside the useful lifetime for a change
+% of condition, the criterion the QIC and ALJ denied on, is outside pmd.le.
+% Candidate templates: "*a beneficiary* received same or similar equipment
+% on *a date* under code *a code*", "the weight capacity of *an item* is
+% *a number* pounds", "*an item* was repaired on *a date*".
+scenario keelers is, as stated in Council decision keelers:
+    claim 1 is for the power wheelchair,
+        confer "The appellant provided the beneficiary with a power wheelchair (HCPCS code K0825)".
+    the HCPCS code of the power wheelchair is "K0825",
+        confer "The appellant provided the beneficiary with a power wheelchair (HCPCS code K0825)".
+    the power wheelchair is furnished to the beneficiary,
+        confer "The appellant provided the beneficiary with a power wheelchair (HCPCS code K0825)".
+    the date of service of claim 1 is 2008-03-03,
+        confer "before receiving the instant power wheelchair (HCPCS code K0825) on March 3, 2008".
+    the rental month of claim 1 is 1,
+        confer "before receiving the instant power wheelchair (HCPCS code K0825) on March 3, 2008".
+    the weight of the beneficiary is 308 pounds,
+        confer "her weight had increased to 308 pounds as of February 7, 2008".
+    the order for the power wheelchair is dated 2008-02-04,
+        confer "The beneficiary's physician signed a prescription dated February 4, 2008, for an electric wheelchair".
+    the order for the power wheelchair is signed by the treating practitioner,
+        confer "The beneficiary's physician signed a prescription dated February 4, 2008, for an electric wheelchair".
+    the order for the power wheelchair includes description of the item,
+        confer "The beneficiary's physician signed a prescription dated February 4, 2008, for an electric wheelchair".
+    the power wheelchair was delivered on 2008-03-03,
+        confer "before receiving the instant power wheelchair (HCPCS code K0825) on March 3, 2008".
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding home accommodates power wheelchair about the beneficiary is established", "the finding manual wheelchair not self propellable about the beneficiary is established", "the finding power wheelchair can be safely operated about the beneficiary is established", "the finding power wheelchair will significantly improve daily activities about the beneficiary is established", "the finding scooter ruled out about the beneficiary is established", "the finding significant mobility limitation about the beneficiary is established", "the finding walking aids insufficient about the beneficiary is established", "the finding willing to use power wheelchair at home about the beneficiary is established"].
