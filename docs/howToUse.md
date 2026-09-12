@@ -73,6 +73,13 @@ mobile-friendly entry point at **`/executive`** (e.g.
   dropdowns opens the full [Scenario Variations](#scenario-variations) window on
   the same program, for altering facts and comparing outcomes.
 
+- **Views.** A program that declares views (docs/le_summary.md §17.10) lists
+  them at the top; a view replaces the two dropdowns with the screen its author
+  described — the case's facts in groups, the result in large type, its
+  citations, the stage it reaches, what is missing, what would change it, the
+  documents beside it, every case with its result, or an interview asking one
+  question at a time. `&view=<name>` opens one directly.
+
 Everything is driven by the URL, so results are shareable and bookmarkable:
 `/executive?program=<name>`, optionally with `&scenario=<name>` and
 `&query=<name>`. A link that names all three runs the query immediately on load.
@@ -193,6 +200,18 @@ The **Scenario Variations** window lets you take a scenario, **alter it**, and i
 Click **Query** to run everything. The button then disables itself and re-enables only when you change something (an edit to the facts, or to the query list), so you always know whether the results below are current.
 
 As you edit, the window keeps its **URL in sync** — the altered scenario, the query list and the program are all encoded in the address. Copy that URL to **share exactly what you are exploring** with someone else, just like sharing a program from the editor.
+
+## Generate LE view (LE Assistant)
+
+The **Generate LE view** button in the LE Assistant's header drafts a view for
+the program (docs/le_summary.md §17.10) and appends it: the facts a case can
+state as one group, the judged facts apart, the first query as the result,
+and what the program can show (citations, the stage, documents, a flip). It
+needs no language model. Edit it — group the facts under titles, head the
+result by the value that matters, add questions for an interview — or send
+the refinement the assistant's input then proposes. The verifier checks what
+a view names; once the program is saved, the view opens in the executive
+view.
 
 ## Explanations and Navigation
 

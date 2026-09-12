@@ -9556,6 +9556,297 @@ var keywords = {
       [
         "changes"
       ]
+    ],
+    "view_open": [
+      [
+        "the",
+        "view"
+      ]
+    ],
+    "view_title": [
+      [
+        "the",
+        "title",
+        "is"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "the",
+        "case",
+        "is",
+        "a",
+        "scenario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "with",
+        "the",
+        "documents",
+        "it",
+        "is",
+        "stated",
+        "in"
+      ],
+      [
+        "with",
+        "the",
+        "document",
+        "it",
+        "is",
+        "stated",
+        "in"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "the",
+        "case",
+        "is",
+        "about"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "the",
+        "facts",
+        "about"
+      ]
+    ],
+    "view_are": [
+      [
+        "are"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "the",
+        "judgments",
+        "are"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "the",
+        "other",
+        "facts",
+        "can",
+        "be",
+        "added"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "the",
+        "other",
+        "facts",
+        "cannot",
+        "be",
+        "added"
+      ]
+    ],
+    "view_sources": [
+      [
+        "every",
+        "fact",
+        "shows",
+        "who",
+        "states",
+        "it"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "the",
+        "facts",
+        "are",
+        "asked",
+        "one",
+        "at",
+        "a",
+        "time"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "the",
+        "question",
+        "for"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "the",
+        "result",
+        "is",
+        "the",
+        "answer",
+        "to",
+        "query"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "headed",
+        "by"
+      ]
+    ],
+    "view_in": [
+      [
+        "in"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "the",
+        "result",
+        "is",
+        "whether"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "the",
+        "result",
+        "reads"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "when",
+        "it",
+        "holds"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "when",
+        "it",
+        "does",
+        "not"
+      ]
+    ],
+    "view_citations": [
+      [
+        "the",
+        "result",
+        "shows",
+        "its",
+        "citations"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "the",
+        "result",
+        "shows",
+        "its",
+        "reasons"
+      ]
+    ],
+    "view_stage": [
+      [
+        "the",
+        "result",
+        "shows",
+        "the",
+        "stage",
+        "it",
+        "reaches"
+      ]
+    ],
+    "view_missing": [
+      [
+        "the",
+        "result",
+        "asks",
+        "what",
+        "is",
+        "missing"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "the",
+        "result",
+        "can",
+        "be",
+        "flipped"
+      ]
+    ],
+    "view_as": [
+      [
+        "as"
+      ]
+    ],
+    "view_compare": [
+      [
+        "the",
+        "result",
+        "is",
+        "compared",
+        "with",
+        "scenario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "the",
+        "answers",
+        "to"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "are",
+        "listed",
+        "as"
+      ]
+    ],
+    "view_documents": [
+      [
+        "the",
+        "documents",
+        "of",
+        "the",
+        "case",
+        "are",
+        "shown",
+        "beside",
+        "the",
+        "facts"
+      ],
+      [
+        "the",
+        "document",
+        "of",
+        "the",
+        "case",
+        "is",
+        "shown",
+        "beside",
+        "the",
+        "facts"
+      ]
+    ],
+    "view_cases": [
+      [
+        "the",
+        "cases",
+        "are",
+        "listed",
+        "with",
+        "their",
+        "results"
+      ]
+    ],
+    "view_draft": [
+      [
+        "the",
+        "draft",
+        "reads"
+      ]
     ]
   },
   "pt": {
@@ -10907,6 +11198,340 @@ var keywords = {
       [
         "altera\xE7\xF5es"
       ]
+    ],
+    "view_open": [
+      [
+        "a",
+        "vista"
+      ]
+    ],
+    "view_title": [
+      [
+        "o",
+        "t\xEDtulo",
+        "\xE9"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "o",
+        "caso",
+        "\xE9",
+        "um",
+        "cen\xE1rio"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "com",
+        "os",
+        "documentos",
+        "em",
+        "que",
+        "consta"
+      ],
+      [
+        "com",
+        "o",
+        "documento",
+        "em",
+        "que",
+        "consta"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "o",
+        "caso",
+        "\xE9",
+        "sobre"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "os",
+        "factos",
+        "sobre"
+      ],
+      [
+        "os",
+        "fatos",
+        "sobre"
+      ]
+    ],
+    "view_are": [
+      [
+        "s\xE3o"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "os",
+        "ju\xEDzos",
+        "s\xE3o"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "os",
+        "outros",
+        "factos",
+        "podem",
+        "ser",
+        "acrescentados"
+      ],
+      [
+        "os",
+        "outros",
+        "fatos",
+        "podem",
+        "ser",
+        "acrescentados"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "os",
+        "outros",
+        "factos",
+        "n\xE3o",
+        "podem",
+        "ser",
+        "acrescentados"
+      ],
+      [
+        "os",
+        "outros",
+        "fatos",
+        "n\xE3o",
+        "podem",
+        "ser",
+        "acrescentados"
+      ]
+    ],
+    "view_sources": [
+      [
+        "cada",
+        "facto",
+        "mostra",
+        "quem",
+        "o",
+        "afirma"
+      ],
+      [
+        "cada",
+        "fato",
+        "mostra",
+        "quem",
+        "o",
+        "afirma"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "os",
+        "factos",
+        "s\xE3o",
+        "perguntados",
+        "um",
+        "de",
+        "cada",
+        "vez"
+      ],
+      [
+        "os",
+        "fatos",
+        "s\xE3o",
+        "perguntados",
+        "um",
+        "de",
+        "cada",
+        "vez"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "a",
+        "pergunta",
+        "para"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "o",
+        "resultado",
+        "\xE9",
+        "a",
+        "resposta",
+        "\xE0",
+        "consulta"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "encabe\xE7ado",
+        "por"
+      ]
+    ],
+    "view_in": [
+      [
+        "em"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "o",
+        "resultado",
+        "\xE9",
+        "se"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "o",
+        "resultado",
+        "diz"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "quando",
+        "se",
+        "verifica"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "quando",
+        "n\xE3o",
+        "se",
+        "verifica"
+      ]
+    ],
+    "view_citations": [
+      [
+        "o",
+        "resultado",
+        "mostra",
+        "as",
+        "suas",
+        "cita\xE7\xF5es"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "o",
+        "resultado",
+        "mostra",
+        "as",
+        "suas",
+        "raz\xF5es"
+      ]
+    ],
+    "view_stage": [
+      [
+        "o",
+        "resultado",
+        "mostra",
+        "a",
+        "etapa",
+        "que",
+        "alcan\xE7a"
+      ]
+    ],
+    "view_missing": [
+      [
+        "o",
+        "resultado",
+        "pergunta",
+        "o",
+        "que",
+        "falta"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "o",
+        "resultado",
+        "pode",
+        "ser",
+        "invertido"
+      ]
+    ],
+    "view_as": [
+      [
+        "como"
+      ]
+    ],
+    "view_compare": [
+      [
+        "o",
+        "resultado",
+        "\xE9",
+        "comparado",
+        "com",
+        "o",
+        "cen\xE1rio"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "as",
+        "respostas",
+        "a"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "s\xE3o",
+        "listadas",
+        "como"
+      ]
+    ],
+    "view_documents": [
+      [
+        "os",
+        "documentos",
+        "do",
+        "caso",
+        "s\xE3o",
+        "mostrados",
+        "ao",
+        "lado",
+        "dos",
+        "factos"
+      ],
+      [
+        "o",
+        "documento",
+        "do",
+        "caso",
+        "\xE9",
+        "mostrado",
+        "ao",
+        "lado",
+        "dos",
+        "factos"
+      ]
+    ],
+    "view_cases": [
+      [
+        "os",
+        "casos",
+        "s\xE3o",
+        "listados",
+        "com",
+        "os",
+        "seus",
+        "resultados"
+      ]
+    ],
+    "view_draft": [
+      [
+        "o",
+        "rascunho",
+        "diz"
+      ]
     ]
   },
   "es": {
@@ -12238,6 +12863,294 @@ var keywords = {
       [
         "cambios"
       ]
+    ],
+    "view_open": [
+      [
+        "la",
+        "vista"
+      ]
+    ],
+    "view_title": [
+      [
+        "el",
+        "t\xEDtulo",
+        "es"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "el",
+        "caso",
+        "es",
+        "un",
+        "escenario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "con",
+        "los",
+        "documentos",
+        "en",
+        "que",
+        "consta"
+      ],
+      [
+        "con",
+        "el",
+        "documento",
+        "en",
+        "que",
+        "consta"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "el",
+        "caso",
+        "trata",
+        "de"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "los",
+        "hechos",
+        "sobre"
+      ]
+    ],
+    "view_are": [
+      [
+        "son"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "los",
+        "juicios",
+        "son"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "los",
+        "dem\xE1s",
+        "hechos",
+        "pueden",
+        "a\xF1adirse"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "los",
+        "dem\xE1s",
+        "hechos",
+        "no",
+        "pueden",
+        "a\xF1adirse"
+      ]
+    ],
+    "view_sources": [
+      [
+        "cada",
+        "hecho",
+        "muestra",
+        "qui\xE9n",
+        "lo",
+        "afirma"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "los",
+        "hechos",
+        "se",
+        "preguntan",
+        "uno",
+        "a",
+        "uno"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "la",
+        "pregunta",
+        "para"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "el",
+        "resultado",
+        "es",
+        "la",
+        "respuesta",
+        "a",
+        "la",
+        "consulta"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "encabezado",
+        "por"
+      ]
+    ],
+    "view_in": [
+      [
+        "en"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "el",
+        "resultado",
+        "es",
+        "si"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "el",
+        "resultado",
+        "dice"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "cuando",
+        "se",
+        "cumple"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "cuando",
+        "no",
+        "se",
+        "cumple"
+      ]
+    ],
+    "view_citations": [
+      [
+        "el",
+        "resultado",
+        "muestra",
+        "sus",
+        "citas"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "el",
+        "resultado",
+        "muestra",
+        "sus",
+        "razones"
+      ]
+    ],
+    "view_stage": [
+      [
+        "el",
+        "resultado",
+        "muestra",
+        "la",
+        "etapa",
+        "que",
+        "alcanza"
+      ]
+    ],
+    "view_missing": [
+      [
+        "el",
+        "resultado",
+        "pregunta",
+        "lo",
+        "que",
+        "falta"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "el",
+        "resultado",
+        "puede",
+        "invertirse"
+      ]
+    ],
+    "view_as": [
+      [
+        "como"
+      ]
+    ],
+    "view_compare": [
+      [
+        "el",
+        "resultado",
+        "se",
+        "compara",
+        "con",
+        "el",
+        "escenario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "las",
+        "respuestas",
+        "a"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "se",
+        "listan",
+        "como"
+      ]
+    ],
+    "view_documents": [
+      [
+        "los",
+        "documentos",
+        "del",
+        "caso",
+        "se",
+        "muestran",
+        "junto",
+        "a",
+        "los",
+        "hechos"
+      ],
+      [
+        "el",
+        "documento",
+        "del",
+        "caso",
+        "se",
+        "muestra",
+        "junto",
+        "a",
+        "los",
+        "hechos"
+      ]
+    ],
+    "view_cases": [
+      [
+        "los",
+        "casos",
+        "se",
+        "listan",
+        "con",
+        "sus",
+        "resultados"
+      ]
+    ],
+    "view_draft": [
+      [
+        "el",
+        "borrador",
+        "dice"
+      ]
     ]
   },
   "fr": {
@@ -13538,6 +14451,299 @@ var keywords = {
     "changes": [
       [
         "changements"
+      ]
+    ],
+    "view_open": [
+      [
+        "la",
+        "vue"
+      ]
+    ],
+    "view_title": [
+      [
+        "le",
+        "titre",
+        "est"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "le",
+        "cas",
+        "est",
+        "un",
+        "sc\xE9nario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "avec",
+        "les",
+        "documents",
+        "o\xF9",
+        "il",
+        "est",
+        "\xE9nonc\xE9"
+      ],
+      [
+        "avec",
+        "le",
+        "document",
+        "o\xF9",
+        "il",
+        "est",
+        "\xE9nonc\xE9"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "le",
+        "cas",
+        "porte",
+        "sur"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "les",
+        "faits",
+        "concernant"
+      ]
+    ],
+    "view_are": [
+      [
+        "sont"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "les",
+        "jugements",
+        "sont"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "les",
+        "autres",
+        "faits",
+        "peuvent",
+        "\xEAtre",
+        "ajout\xE9s"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "les",
+        "autres",
+        "faits",
+        "ne",
+        "peuvent",
+        "pas",
+        "\xEAtre",
+        "ajout\xE9s"
+      ]
+    ],
+    "view_sources": [
+      [
+        "chaque",
+        "fait",
+        "montre",
+        "qui",
+        "le",
+        "d\xE9clare"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "les",
+        "faits",
+        "sont",
+        "demand\xE9s",
+        "un",
+        "par",
+        "un"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "la",
+        "question",
+        "pour"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "le",
+        "r\xE9sultat",
+        "est",
+        "la",
+        "r\xE9ponse",
+        "\xE0",
+        "la",
+        "requ\xEAte"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "men\xE9",
+        "par"
+      ]
+    ],
+    "view_in": [
+      [
+        "en"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "le",
+        "r\xE9sultat",
+        "est",
+        "si"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "le",
+        "r\xE9sultat",
+        "dit"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "quand",
+        "il",
+        "est",
+        "vrai"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "quand",
+        "il",
+        "est",
+        "faux"
+      ]
+    ],
+    "view_citations": [
+      [
+        "le",
+        "r\xE9sultat",
+        "montre",
+        "ses",
+        "citations"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "le",
+        "r\xE9sultat",
+        "montre",
+        "ses",
+        "raisons"
+      ]
+    ],
+    "view_stage": [
+      [
+        "le",
+        "r\xE9sultat",
+        "montre",
+        "le",
+        "stade",
+        "atteint"
+      ]
+    ],
+    "view_missing": [
+      [
+        "le",
+        "r\xE9sultat",
+        "demande",
+        "ce",
+        "qui",
+        "manque"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "le",
+        "r\xE9sultat",
+        "peut",
+        "\xEAtre",
+        "invers\xE9"
+      ]
+    ],
+    "view_as": [
+      [
+        "comme"
+      ]
+    ],
+    "view_compare": [
+      [
+        "le",
+        "r\xE9sultat",
+        "est",
+        "compar\xE9",
+        "au",
+        "sc\xE9nario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "les",
+        "r\xE9ponses",
+        "\xE0"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "sont",
+        "list\xE9es",
+        "comme"
+      ]
+    ],
+    "view_documents": [
+      [
+        "les",
+        "documents",
+        "du",
+        "cas",
+        "sont",
+        "montr\xE9s",
+        "\xE0",
+        "c\xF4t\xE9",
+        "des",
+        "faits"
+      ],
+      [
+        "le",
+        "document",
+        "du",
+        "cas",
+        "est",
+        "montr\xE9",
+        "\xE0",
+        "c\xF4t\xE9",
+        "des",
+        "faits"
+      ]
+    ],
+    "view_cases": [
+      [
+        "les",
+        "cas",
+        "sont",
+        "list\xE9s",
+        "avec",
+        "leurs",
+        "r\xE9sultats"
+      ]
+    ],
+    "view_draft": [
+      [
+        "le",
+        "brouillon",
+        "dit"
       ]
     ]
   },
@@ -14905,6 +16111,295 @@ var keywords = {
     "changes": [
       [
         "cambiamenti"
+      ]
+    ],
+    "view_open": [
+      [
+        "la",
+        "vista"
+      ]
+    ],
+    "view_title": [
+      [
+        "il",
+        "titolo",
+        "\xE8"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "il",
+        "caso",
+        "\xE8",
+        "uno",
+        "scenario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "con",
+        "il",
+        "documento",
+        "in",
+        "cui",
+        "\xE8",
+        "indicato"
+      ],
+      [
+        "con",
+        "i",
+        "documenti",
+        "in",
+        "cui",
+        "\xE8",
+        "indicato"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "il",
+        "caso",
+        "riguarda"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "i",
+        "fatti",
+        "su"
+      ]
+    ],
+    "view_are": [
+      [
+        "sono"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "i",
+        "giudizi",
+        "sono"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "gli",
+        "altri",
+        "fatti",
+        "possono",
+        "essere",
+        "aggiunti"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "gli",
+        "altri",
+        "fatti",
+        "non",
+        "possono",
+        "essere",
+        "aggiunti"
+      ]
+    ],
+    "view_sources": [
+      [
+        "ogni",
+        "fatto",
+        "mostra",
+        "chi",
+        "lo",
+        "afferma"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "i",
+        "fatti",
+        "sono",
+        "chiesti",
+        "uno",
+        "alla",
+        "volta"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "la",
+        "domanda",
+        "per"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "il",
+        "risultato",
+        "\xE8",
+        "la",
+        "risposta",
+        "alla",
+        "interrogazione"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "guidato",
+        "da"
+      ]
+    ],
+    "view_in": [
+      [
+        "in"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "il",
+        "risultato",
+        "\xE8",
+        "se"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "il",
+        "risultato",
+        "dice"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "quando",
+        "vale"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "quando",
+        "non",
+        "vale"
+      ]
+    ],
+    "view_citations": [
+      [
+        "il",
+        "risultato",
+        "mostra",
+        "le",
+        "sue",
+        "citazioni"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "il",
+        "risultato",
+        "mostra",
+        "le",
+        "sue",
+        "ragioni"
+      ]
+    ],
+    "view_stage": [
+      [
+        "il",
+        "risultato",
+        "mostra",
+        "la",
+        "fase",
+        "raggiunta"
+      ]
+    ],
+    "view_missing": [
+      [
+        "il",
+        "risultato",
+        "chiede",
+        "ci\xF2",
+        "che",
+        "manca"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "il",
+        "risultato",
+        "pu\xF2",
+        "essere",
+        "invertito"
+      ]
+    ],
+    "view_as": [
+      [
+        "come"
+      ]
+    ],
+    "view_compare": [
+      [
+        "il",
+        "risultato",
+        "\xE8",
+        "confrontato",
+        "con",
+        "lo",
+        "scenario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "le",
+        "risposte",
+        "a"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "sono",
+        "elencate",
+        "come"
+      ]
+    ],
+    "view_documents": [
+      [
+        "i",
+        "documenti",
+        "del",
+        "caso",
+        "sono",
+        "mostrati",
+        "accanto",
+        "ai",
+        "fatti"
+      ],
+      [
+        "il",
+        "documento",
+        "del",
+        "caso",
+        "\xE8",
+        "mostrato",
+        "accanto",
+        "ai",
+        "fatti"
+      ]
+    ],
+    "view_cases": [
+      [
+        "i",
+        "casi",
+        "sono",
+        "elencati",
+        "con",
+        "i",
+        "loro",
+        "risultati"
+      ]
+    ],
+    "view_draft": [
+      [
+        "la",
+        "bozza",
+        "dice"
       ]
     ]
   }

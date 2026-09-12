@@ -3243,6 +3243,43 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     };
 
     btnAssistantSend.addEventListener('click', handleAssistantSend);
+
+    // --- Generate LE view ----------------------------------------------------
+    // A first view section for the program (docs/le_summary.md §17.10), drafted
+    // by the server from the program itself (le_views:draft_view/2 — no
+    // language model needed): its case facts as one group, its judged
+    // templates, its first query as the result, and what the program can show
+    // (citations, the stage, documents, a flip). It is appended to the program
+    // as an undoable edit; the assistant's input then holds a request to refine
+    // it (group the facts, word the questions), for whoever has a model set up.
+    document.getElementById('btn-generate-view')?.addEventListener('click', async () => {
+        adoptActiveAsProgram();
+        if (!isLoaded) { const ok = await loadModule(); if (!ok) { addChatMessage('assistant', t('The program must load without errors before a view can be drafted.')); return; } }
+        let data: any;
+        try {
+            data = await fetch('/leapi', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: 'myToken123', operation: 'draftView', sessionModule }),
+            }).then(r => r.json());
+        } catch { data = { error: t('Could not reach the server.') }; }
+        if (!data || !data.view) { addChatMessage('assistant', `${t('Error: ')}${(data && data.error) || ''}`); return; }
+        const doc = panelDoc;
+        const model = doc.model;
+        const text: string = data.view;
+        const current = model.getValue();
+        const insert = (current.endsWith('\n') ? '\n' : '\n\n') + text + '\n';
+        const end = model.getPositionAt(current.length);
+        model.pushEditOperations([], [{ range: new monaco.Range(end.lineNumber, end.column, end.lineNumber, end.column), text: insert }], () => null);
+        if (doc === activeDoc) {
+            const from = model.getPositionAt(current.length + insert.indexOf(text));
+            editor.revealLineNearTop(from.lineNumber);
+            editor.setPosition(from);
+        }
+        const name = (/\S+ \S+ (.+?) \S+:/.exec(text.split('\n')[0]) || [])[1] || '';
+        addChatMessage('assistant', `${t('I drafted a view at the end of the program:')}\n\n\`\`\`\n${text}\n\`\`\`\n\n${t('It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.')}` +
+            (doc.example ? `\n\n[${t('Open the view')}](/executive?program=${encodeURIComponent(doc.example)}&view=${encodeURIComponent(name)}) ${t('(once the program is saved)')}` : ''));
+        assistantInput.value = t('Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.');
+    });
     btnAssistantInterrupt.addEventListener('click', handleAssistantInterrupt);
     assistantInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleAssistantSend();

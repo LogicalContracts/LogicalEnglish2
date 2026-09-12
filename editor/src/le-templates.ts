@@ -67,12 +67,24 @@ export function citationTrailers(text: string, source: string): string {
     return `${confer} "${passage}"`;
 }
 
+// A fact as it stands without its scenario's header: the header's default
+// provenance ("as stated in <document>") written into it, unless the fact
+// names its own document — so a case run as custom facts keeps its citations.
+export function withDefaultProvenance(fact: string, provenance: string, source: string): string {
+    const prov = (provenance || '').trim();
+    if (!prov) return fact;
+    const { base, trailers } = splitProvenance(fact, source);
+    const asStated = kwAlt(source, 'as_stated_in');
+    if (trailers && asStated && new RegExp(`(^|,\\s*)(?:${asStated})(?![\\p{L}])`, 'iu').test(trailers)) return fact;
+    return trailers ? `${base}, ${prov}, ${trailers}` : `${base}, ${prov}`;
+}
+
 // A scenario "test" line in any language: "<query> expects answers [...]".
 let testDirectiveReCache: RegExp | null = null;
 export function testDirectiveRe(): RegExp {
     if (!testDirectiveReCache) {
         testDirectiveReCache = new RegExp(
-            `(?:^|\\s)(?:${kwAltAll('expects')})\\s+(?:${kwAltAll('answers')})(?!\\p{L})`, 'iu');
+            `(?:^|\\s)(?:${kwAltAll('expects')})\\s+(?:${kwAltAll('answers')}|${kwAltAll('changes')})(?!\\p{L})`, 'iu');
     }
     return testDirectiveReCache;
 }

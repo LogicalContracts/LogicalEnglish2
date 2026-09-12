@@ -25,6 +25,9 @@ When no opener matches, the program is parsed as English (decision O-1).
   more **synonyms separated by `|`**; each synonym is a space-separated word
   phrase. The first/longest synonym is the *principal* form, used when LE text
   is generated (answers, explanations); all synonyms are accepted when parsing.
+  Category `view` holds the sentence phrases of views (docs/le_summary.md
+  §17.10): each view sentence is a sequence of these phrases and its
+  arguments.
 - **`system_templates.csv`** — surface phrases of the built-in predicates
   (`is equal to` / `é igual a`, …). `{1}`, `{2}`, … mark the argument slots;
   synonyms with `|` as above. Symbolic operators (`>=`, `=` …) are

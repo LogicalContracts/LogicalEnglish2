@@ -9646,6 +9646,9 @@ function uiLang() {
   }
   return "en";
 }
+function languageList() {
+  return languages;
+}
 function t(key) {
   const lang = uiLang();
   if (lang === "en")
@@ -9679,9 +9682,9 @@ function detectProgramLanguage(text) {
     firstStatement = s;
     break;
   }
-  const norm = firstStatement.toLowerCase().replace(/\s+/g, " ");
+  const norm2 = firstStatement.toLowerCase().replace(/\s+/g, " ");
   for (const info of languages) {
-    if (info.opener && norm.startsWith(info.opener.toLowerCase()))
+    if (info.opener && norm2.startsWith(info.opener.toLowerCase()))
       return info.code;
   }
   return "en";
@@ -9704,60 +9707,6 @@ var AUTO_SELECTOR = [
   ".menu-item",
   "[data-i18n]"
 ].join(",");
-function translateFirstTextNode(el) {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const raw = node.textContent ?? "";
-      const trimmed = raw.trim();
-      if (trimmed) {
-        const tr = t(trimmed);
-        if (tr !== trimmed)
-          node.textContent = raw.replace(trimmed, tr);
-        return;
-      }
-    }
-  }
-}
-function applyI18nDom(root = document) {
-  if (uiLang() === "en")
-    return;
-  root.querySelectorAll(AUTO_SELECTOR).forEach((el) => translateFirstTextNode(el));
-  root.querySelectorAll("[title]").forEach((el) => {
-    const v = el.getAttribute("title");
-    if (v) {
-      const tr = t(v.trim());
-      if (tr !== v.trim())
-        el.setAttribute("title", tr);
-    }
-  });
-  root.querySelectorAll("[placeholder]").forEach((el) => {
-    const v = el.getAttribute("placeholder");
-    if (v) {
-      const tr = t(v.trim());
-      if (tr !== v.trim())
-        el.setAttribute("placeholder", tr);
-    }
-  });
-}
-function installLeApiLang() {
-  if (uiLang() === "en")
-    return;
-  const origFetch = window.fetch.bind(window);
-  window.fetch = (input, init) => {
-    try {
-      const url = typeof input === "string" ? input : input.url ?? String(input);
-      if (/^\/(leapi|query|verify|list_examples|example_details)\b/.test(url) && !/[?&]lang=/.test(url)) {
-        const sep = url.includes("?") ? "&" : "?";
-        const newUrl = `${url}${sep}lang=${encodeURIComponent(uiLang())}`;
-        if (typeof input === "string")
-          return origFetch(newUrl, init);
-        return origFetch(new Request(newUrl, input), init);
-      }
-    } catch (e) {
-    }
-    return origFetch(input, init);
-  };
-}
 
 // src/le-templates.ts
 function kwAltFor(langs, key) {
@@ -9771,11 +9720,78 @@ function kwAltFor(langs, key) {
 function kwAlt(source, key) {
   return kwAltFor([detectProgramLanguage(source), "en"], key);
 }
+function kwAltAll(key) {
+  return kwAltFor(languageList().map((l) => l.code), key);
+}
+function splitProvenance(fact, source) {
+  const kw = ["according_to", "as_stated_in", "because", "confer"].map((k) => kwAlt(source, k)).filter(Boolean).join("|");
+  if (!kw)
+    return { base: fact, trailers: "" };
+  const trailerStart = new RegExp(`^,\\s*(?:${kw})(?![\\p{L}])`, "iu");
+  let inQuote = false;
+  for (let i = 0; i < fact.length; i++) {
+    const c = fact[i];
+    if (c === '"')
+      inQuote = !inQuote;
+    else if (c === "," && !inQuote && trailerStart.test(fact.slice(i))) {
+      return { base: fact.slice(0, i).trim(), trailers: fact.slice(i + 1).trim() };
+    }
+  }
+  return { base: fact, trailers: "" };
+}
+function citationTrailers(text, source) {
+  const v = text.trim();
+  if (!v)
+    return "";
+  if (splitProvenance(`x, ${v}`, source).trailers)
+    return v;
+  const lang = detectProgramLanguage(source);
+  const confer = kwPhrases(lang, "confer")[0] || kwPhrases("en", "confer")[0] || "confer";
+  const passage = v.replace(/^["“]|["”]$/g, "").replace(/"/g, "'");
+  return `${confer} "${passage}"`;
+}
+function withDefaultProvenance(fact, provenance, source) {
+  const prov = (provenance || "").trim();
+  if (!prov)
+    return fact;
+  const { base, trailers } = splitProvenance(fact, source);
+  const asStated = kwAlt(source, "as_stated_in");
+  if (trailers && asStated && new RegExp(`(^|,\\s*)(?:${asStated})(?![\\p{L}])`, "iu").test(trailers))
+    return fact;
+  return trailers ? `${base}, ${prov}, ${trailers}` : `${base}, ${prov}`;
+}
+var testDirectiveReCache = null;
+function testDirectiveRe() {
+  if (!testDirectiveReCache) {
+    testDirectiveReCache = new RegExp(
+      `(?:^|\\s)(?:${kwAltAll("expects")})\\s+(?:${kwAltAll("answers")}|${kwAltAll("changes")})(?!\\p{L})`,
+      "iu"
+    );
+  }
+  return testDirectiveReCache;
+}
+var unknownPrefixReCache = null;
+function unknownPrefixRe() {
+  if (!unknownPrefixReCache) {
+    unknownPrefixReCache = new RegExp(
+      `^(?:${kwAltAll("it_is")})\\s+(?:${kwAltAll("unknown")})\\s+(?:${kwAltAll("whether")})\\s+`,
+      "iu"
+    );
+  }
+  return unknownPrefixReCache;
+}
 function blockHeader(source, key, name, provenance = "") {
   const lang = detectProgramLanguage(source);
   const kw = kwPhrases(lang, key)[0] || key;
   const is = kwPhrases(lang, "marker_is")[0] || "is";
   return provenance ? `${kw} ${name} ${is}, ${provenance}:` : `${kw} ${name} ${is}:`;
+}
+function unknownWhetherPrefix(source) {
+  const lang = detectProgramLanguage(source);
+  const first = (key, fallback) => kwPhrases(lang, key)[0] || fallback;
+  const unknowns = kwPhrases(lang, "unknown");
+  const unknown = unknowns.includes("unknown") ? "unknown" : unknowns[0] || "unknown";
+  return `${first("it_is", "it is")} ${unknown} ${first("whether", "whether")} `;
 }
 function blockHeaderRe(source, key) {
   return new RegExp(
@@ -9866,14 +9882,14 @@ function literalLength(label) {
 }
 function matchFact(fact, templates) {
   const f = fact.trim().replace(/\.\s*$/, "");
-  const norm = (s) => s.replace(/\s+/g, " ").trim().toLowerCase();
-  const fNorm = norm(f);
+  const norm2 = (s) => s.replace(/\s+/g, " ").trim().toLowerCase();
+  const fNorm = norm2(f);
   const sorted = [...templates].sort((a, b) => literalLength(b) - literalLength(a));
   for (const label of sorted) {
     const segs = splitTemplate(label);
     if (!segs.some((s) => s.kind === "field")) {
       const lit = segs.map((s) => s.text).join(" ");
-      if (norm(lit) === fNorm)
+      if (norm2(lit) === fNorm)
         return { label, values: [] };
       continue;
     }
@@ -9885,6 +9901,12 @@ function matchFact(fact, templates) {
       return { label, values: m.slice(1).map((v) => (v || "").trim()) };
   }
   return null;
+}
+function fillTemplate(label, values) {
+  const segs = splitTemplate(label);
+  let fi = 0;
+  const out = segs.map((s) => s.kind === "field" ? values[fi++] ?? "" : s.text).join(" ");
+  return out.replace(/\s+/g, " ").replace(/\s+,/g, ",").trim();
 }
 function scanBlocks(source, headerRe) {
   const blocks = [];
@@ -9932,12 +9954,8 @@ function scanBlocks(source, headerRe) {
   }
   return blocks;
 }
-function parseQueryBlocks(source) {
-  return scanBlocks(source, blockHeaderRe(source, "query")).map((b) => {
-    const bodyLines = b.bodyLines.map((l) => stripInlineComment(l).replace(/\s+$/, "")).filter((l) => l.trim() !== "");
-    const body = bodyLines.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
-    return { name: b.name, start: b.start, end: b.end, body, bodyLines };
-  });
+function parseScenarioBlocks(source) {
+  return scanBlocks(source, blockHeaderRe(source, "scenario")).map((b) => ({ name: b.name, provenance: b.provenance, start: b.start, end: b.end, facts: splitFacts(b.bodyLines) }));
 }
 function stripInlineComment(line) {
   let inStr = false;
@@ -9950,9 +9968,458 @@ function stripInlineComment(line) {
   }
   return line;
 }
+function splitFacts(bodyLines) {
+  const facts = [];
+  let cur = "";
+  for (const raw of bodyLines) {
+    const t2 = stripInlineComment(raw).trim();
+    if (t2 === "")
+      continue;
+    cur = cur ? cur + " " + t2 : t2;
+    if (t2.endsWith(".")) {
+      facts.push(cur.replace(/\.\s*$/, "").trim());
+      cur = "";
+    }
+  }
+  if (cur.trim())
+    facts.push(cur.replace(/\.\s*$/, "").trim());
+  return facts;
+}
+
+// src/scenario-form.ts
+var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
+var isTestDirective = (fact) => testDirectiveRe().test(fact);
+var UNKNOWN_PREFIX = unknownPrefixRe();
+var datalistIds = /* @__PURE__ */ new Map();
+function datalistFor(key, values) {
+  let id = datalistIds.get(key);
+  if (!id) {
+    id = `sf-values-${datalistIds.size + 1}`;
+    datalistIds.set(key, id);
+    const dl = document.createElement("datalist");
+    dl.id = id;
+    for (const v of values) {
+      const o = document.createElement("option");
+      o.value = v;
+      dl.appendChild(o);
+    }
+    document.body.appendChild(dl);
+  }
+  return id;
+}
+var WRITE_IN_ENGLISH = "__write_in_english__";
+var DEFAULT_ASSUME_TITLE = "if checked, fact is assumed, unknown";
+var ScenarioForm = class _ScenarioForm {
+  templates;
+  // all templates (for recognising facts)
+  addableTemplates;
+  // those offered in the Add menu
+  testLines = [];
+  // tests from the loaded scenario, kept as comments
+  // the loaded scenario's default provenance ("as stated in <document>"),
+  // written back into its header
+  provenance = "";
+  rows = [];
+  opts;
+  // per template label, per placeholder: the values the rules read there
+  slotValues = /* @__PURE__ */ new Map();
+  constructor(opts) {
+    this.opts = opts;
+    const defs = parseTemplateDefs(opts.source);
+    for (const x of opts.extraTemplates || []) {
+      if (Array.isArray(x.values) && x.values.some((v) => v && v.length))
+        this.slotValues.set(x.label, x.values);
+    }
+    const declared = new Set(defs.map((d) => d.label));
+    for (const x of opts.extraTemplates || []) {
+      if (!declared.has(x.label)) {
+        declared.add(x.label);
+        defs.push({ label: x.label, isUndefined: !!x.scenario_element });
+      }
+    }
+    this.templates = [...defs.map((d) => d.label), ...SYSTEM_TYPE];
+    const used = /* @__PURE__ */ new Set();
+    for (const b of parseScenarioBlocks(opts.source)) {
+      for (const f of b.facts) {
+        const m = matchFact(f, this.templates);
+        if (m)
+          used.add(m.label);
+      }
+    }
+    const seen = /* @__PURE__ */ new Set();
+    const addable = [];
+    for (const d of defs) {
+      if ((d.isUndefined || used.has(d.label)) && !seen.has(d.label)) {
+        seen.add(d.label);
+        addable.push(d.label);
+      }
+    }
+    for (const t2 of SYSTEM_TYPE) {
+      if (used.has(t2) && !seen.has(t2)) {
+        seen.add(t2);
+        addable.push(t2);
+      }
+    }
+    this.addableTemplates = opts.onlyTemplates ? opts.onlyTemplates.slice() : addable;
+    opts.addSelect.innerHTML = "";
+    for (const label of this.addableTemplates) {
+      const o = document.createElement("option");
+      o.value = label;
+      o.textContent = label.replace(/\*/g, "");
+      opts.addSelect.appendChild(o);
+    }
+    if (opts.onWriteInEnglish) {
+      const o = document.createElement("option");
+      o.value = WRITE_IN_ENGLISH;
+      o.textContent = t("Write it in English");
+      opts.addSelect.appendChild(o);
+    }
+    opts.btnAdd.addEventListener("click", () => {
+      const val = opts.addSelect.value;
+      if (!val)
+        return;
+      if (val === WRITE_IN_ENGLISH) {
+        this.opts.onWriteInEnglish?.();
+        return;
+      }
+      this.rows.push({ templateLabel: val, values: [], raw: "", assumed: false });
+      this.changed();
+      this.render();
+      opts.rowsEl.lastElementChild?.querySelector("input.field")?.focus();
+    });
+  }
+  changed() {
+    this.opts.onChange?.();
+  }
+  // Load a scenario's facts: template instances become editable rows, "expects
+  // answers" tests are kept aside, everything else is preserved read-only.
+  loadFacts(facts) {
+    this.rows = [];
+    this.testLines = [];
+    for (const fact of facts) {
+      if (isTestDirective(fact)) {
+        this.testLines.push(fact);
+        continue;
+      }
+      const assumed = UNKNOWN_PREFIX.test(fact);
+      const inner0 = assumed ? fact.replace(UNKNOWN_PREFIX, "") : fact;
+      const { base: inner, trailers } = splitProvenance(inner0, this.opts.source);
+      const m = matchFact(inner, this.templates);
+      if (m)
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed, trailers });
+      else
+        this.rows.push({ templateLabel: null, values: [], raw: inner0, assumed });
+    }
+    this.render();
+  }
+  clear() {
+    this.rows = [];
+    this.testLines = [];
+    this.render();
+  }
+  // --- Rendering -------------------------------------------------------------
+  render() {
+    const rowsEl = this.opts.rowsEl;
+    rowsEl.innerHTML = "";
+    if (this.rows.length === 0) {
+      const hint = document.createElement("div");
+      hint.className = "empty-hint";
+      hint.textContent = t("No facts yet \u2014 pick a template below and click \u201CAdd\u201D.");
+      rowsEl.appendChild(hint);
+      return;
+    }
+    this.rows.forEach((row, idx) => rowsEl.appendChild(this.renderRow(row, idx)));
+  }
+  sizeField(input) {
+    const n = Math.max((input.value || input.placeholder).length + 2, 6);
+    input.size = Math.min(n, 80);
+  }
+  renderRow(row, idx) {
+    const el2 = document.createElement("div");
+    el2.className = "fact-row";
+    if (row.assumed)
+      el2.classList.add("assumed");
+    const fieldInputs = [];
+    if (row.templateLabel === null) {
+      const span = document.createElement("span");
+      span.className = "preserved";
+      span.textContent = row.raw;
+      span.title = t("This line matches no template \u2014 edit it in the main editor");
+      el2.appendChild(span);
+    } else {
+      const segs = splitTemplate(row.templateLabel);
+      let fieldIdx = 0;
+      for (const seg of segs) {
+        if (seg.kind === "literal") {
+          const span = document.createElement("span");
+          span.className = "word";
+          span.textContent = seg.text;
+          el2.appendChild(span);
+        } else {
+          const fi = fieldIdx++;
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "field";
+          input.placeholder = seg.text;
+          input.title = seg.text;
+          input.value = row.values[fi] ?? "";
+          input.disabled = row.assumed;
+          const values = this.slotValues.get(row.templateLabel)?.[fi];
+          if (values && values.length) {
+            input.setAttribute("list", datalistFor(`${row.templateLabel}#${fi}`, values));
+            input.title = `${seg.text}: ${values.slice(0, 12).join(", ")}${values.length > 12 ? ", \u2026" : ""}`;
+          }
+          this.sizeField(input);
+          input.addEventListener("input", () => {
+            row.values[fi] = input.value;
+            this.sizeField(input);
+            this.changed();
+          });
+          el2.appendChild(input);
+          fieldInputs.push(input);
+        }
+      }
+    }
+    const cite = document.createElement("input");
+    cite.type = "text";
+    cite.className = "cite-field";
+    cite.placeholder = t("the passage that states it");
+    cite.title = t('Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"');
+    cite.value = row.trailers || "";
+    cite.hidden = !row.trailers || row.templateLabel === null;
+    cite.style.cssText = "margin-left:6px;min-width:18em;flex:1 1 18em;font-style:italic;";
+    cite.addEventListener("input", () => {
+      row.trailers = citationTrailers(cite.value, this.opts.source) || void 0;
+      this.changed();
+    });
+    if (row.templateLabel !== null)
+      el2.appendChild(cite);
+    const tools = document.createElement("div");
+    tools.className = "row-tools";
+    if (row.templateLabel !== null) {
+      const citeBtn = document.createElement("button");
+      citeBtn.className = "cite-toggle";
+      citeBtn.textContent = "\u275D";
+      citeBtn.title = t("Cite the passage that states this fact");
+      citeBtn.addEventListener("click", () => {
+        cite.hidden = !cite.hidden;
+        if (!cite.hidden)
+          cite.focus();
+      });
+      tools.appendChild(citeBtn);
+    }
+    const assume = document.createElement("label");
+    assume.className = "assume";
+    assume.title = this.opts.assumeTitle || DEFAULT_ASSUME_TITLE;
+    const check = document.createElement("input");
+    check.type = "checkbox";
+    check.checked = row.assumed;
+    check.addEventListener("change", () => {
+      row.assumed = check.checked;
+      fieldInputs.forEach((inp) => inp.disabled = row.assumed);
+      el2.classList.toggle("assumed", row.assumed);
+      this.changed();
+    });
+    assume.appendChild(check);
+    assume.appendChild(document.createTextNode(" Assume"));
+    tools.appendChild(assume);
+    const del = document.createElement("button");
+    del.textContent = t("\u2715");
+    del.title = t("Delete");
+    del.addEventListener("click", () => {
+      this.rows.splice(idx, 1);
+      this.changed();
+      this.render();
+    });
+    tools.appendChild(del);
+    el2.appendChild(tools);
+    return el2;
+  }
+  // --- Patching from an explanation node -------------------------------------
+  // A fact's surface text as compared for add/remove (no "it is unknown whether"
+  // prefix, no trailing period): the raw line, or the template filled with values.
+  factBase(row) {
+    return row.templateLabel === null ? row.raw.trim().replace(/\.\s*$/, "").trim() : fillTemplate(row.templateLabel, row.values);
+  }
+  // Normalise a fact's text for add/remove comparison. Besides trimming, dropping a
+  // trailing period and collapsing whitespace, it canonicalises date tokens so a
+  // scenario fact written "2021-10-09" matches the explanation's rendered
+  // "2021-10-9T0:0:0.0" (same calendar date, different surface form).
+  static norm(text) {
+    let s = text.trim().replace(/\.\s*$/, "").replace(/\s+/g, " ").trim().toLowerCase();
+    s = s.replace(
+      /\b(\d{1,4})-(\d{1,2})-(\d{1,2})(t[\d:.]*)?/g,
+      (_m, y, mo, d) => `${+y}-${+mo}-${+d}`
+    );
+    return s;
+  }
+  // Does a scenario fact matching `text` currently exist? (date-tolerant)
+  hasFact(text) {
+    const key = _ScenarioForm.norm((text || "").trim().replace(/\.\s*$/, "").trim());
+    if (!key)
+      return false;
+    return this.rows.some((r) => _ScenarioForm.norm(this.factBase(r)) === key);
+  }
+  // Is `text` a sensible scenario fact to add — i.e. does it instantiate one of the
+  // program's templates? (Compound/negated explanation literals do not.)
+  matchesTemplate(text) {
+    const base = (text || "").trim().replace(/\.\s*$/, "").trim();
+    return !!base && !!matchFact(base, this.templates);
+  }
+  // Add a scenario fact from an explanation node's surface text (the LE literal).
+  // If the fact is already present, only its "assumed" flag is updated. `assumed`
+  // adds it as "it is unknown whether …" — the equivalent of the Assume checkbox.
+  // Returns false if the text was empty (nothing done).
+  addFact(text, assumed = false) {
+    const base = (text || "").trim().replace(/\.\s*$/, "").trim();
+    if (!base)
+      return false;
+    const key = _ScenarioForm.norm(splitProvenance(base, this.opts.source).base);
+    const existing = this.rows.find((r) => _ScenarioForm.norm(this.factBase(r)) === key);
+    let idx;
+    if (existing) {
+      existing.assumed = assumed;
+      idx = this.rows.indexOf(existing);
+    } else {
+      const { base: core, trailers } = splitProvenance(base, this.opts.source);
+      const m = matchFact(core, this.templates);
+      if (m)
+        this.rows.push({ templateLabel: m.label, values: m.values, raw: "", assumed, trailers });
+      else
+        this.rows.push({ templateLabel: null, values: [], raw: base, assumed });
+      idx = this.rows.length - 1;
+    }
+    this.changed();
+    this.render();
+    this.selectRow(idx);
+    return true;
+  }
+  // Highlight, reveal and focus a row (used after adding a fact from a tree node).
+  selectRow(idx) {
+    const rowEl = this.opts.rowsEl.children[idx];
+    if (!rowEl)
+      return;
+    this.opts.rowsEl.querySelectorAll(".fact-row.selected").forEach((e) => e.classList.remove("selected"));
+    rowEl.classList.add("selected");
+    rowEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    rowEl.querySelector("input.field")?.focus();
+  }
+  // Remove every scenario fact whose surface text matches `text` (ignoring an
+  // "it is unknown whether" prefix). Returns how many rows were removed.
+  removeFact(text) {
+    const key = _ScenarioForm.norm((text || "").trim().replace(/\.\s*$/, "").trim());
+    if (!key)
+      return 0;
+    const before = this.rows.length;
+    this.rows = this.rows.filter((r) => _ScenarioForm.norm(this.factBase(r)) !== key);
+    const removed = before - this.rows.length;
+    if (removed > 0) {
+      this.changed();
+      this.render();
+    }
+    return removed;
+  }
+  // --- Producing text --------------------------------------------------------
+  factText(row) {
+    const base0 = this.factBase(row);
+    if (!base0)
+      return "";
+    const base = row.trailers ? `${base0}, ${row.trailers}` : base0;
+    return row.assumed ? `${unknownWhetherPrefix(this.opts.source)}${base}` : base;
+  }
+  // Each fact's text (no trailing period), skipping wholly-empty rows.
+  factLines() {
+    return this.rows.map((r) => this.factText(r)).filter((t2) => !!t2);
+  }
+  // The facts as runnable LE text (each terminated by "."), for use as a custom
+  // scenario. Tests are NOT included (they are not facts).
+  factsText() {
+    return this.factLines().map((t2) => `${t2}.`).join("\n");
+  }
+  // A full "scenario <name> is:" block (header in the program's own
+  // language); tests are appended commented-out.
+  blockText(name) {
+    const lines = [blockHeader(this.opts.source, "scenario", name, this.provenance)];
+    for (const t2 of this.factLines())
+      lines.push(`    ${t2}.`);
+    if (this.testLines.length) {
+      lines.push(`    % tests (review and uncomment to re-enable):`);
+      for (const t2 of this.testLines)
+        lines.push(`    % ${t2}.`);
+    }
+    return lines.join("\n");
+  }
+};
 
 // src/source-viewer.ts
 var TOKEN = "myToken123";
+function originalUrl(p) {
+  if (!p.url)
+    return null;
+  if (p.quote && !p.url.includes("#")) {
+    return `${p.url}#:~:text=${encodeURIComponent(p.quote)}`;
+  }
+  return p.url;
+}
+function findQuote(text, quote) {
+  const norm2 = [];
+  const map = [];
+  let lastSpace = true;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (/\s/.test(c)) {
+      if (!lastSpace) {
+        norm2.push(" ");
+        map.push(i);
+        lastSpace = true;
+      }
+    } else {
+      norm2.push(c);
+      map.push(i);
+      lastSpace = false;
+    }
+  }
+  const hay = norm2.join("");
+  const needle = quote.replace(/\s+/g, " ").trim();
+  if (!needle)
+    return null;
+  let at = hay.indexOf(needle);
+  if (at < 0)
+    at = hay.toLowerCase().indexOf(needle.toLowerCase());
+  if (at < 0)
+    return null;
+  const start = map[at];
+  const end = map[at + needle.length - 1] + 1;
+  return [start, end];
+}
+function ensureStyles() {
+  if (document.getElementById("source-viewer-styles"))
+    return;
+  const style = document.createElement("style");
+  style.id = "source-viewer-styles";
+  style.textContent = `
+        .sv-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
+            align-items: center; justify-content: center; z-index: 1000; }
+        .sv-dialog { background: var(--panel-bg, #252526); color: var(--text-color, #d4d4d4);
+            border: 1px solid var(--border-color, #444); border-radius: 8px; width: min(820px, 94vw);
+            max-height: 90vh; display: flex; flex-direction: column; padding: 16px 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        .sv-dialog h2 { margin: 0 0 6px 0; font-size: 16px; }
+        .sv-meta { font-size: 12px; line-height: 1.5; margin: 0 0 8px 0; }
+        .sv-meta div { margin: 2px 0; }
+        .sv-meta .sv-label { color: var(--muted, #888); margin-right: 6px; }
+        .sv-text { flex: 1; overflow: auto; white-space: pre-wrap; font-family: inherit; font-size: 13px;
+            background: var(--field-bg, #1e1e1e); border: 1px solid var(--input-border, #555);
+            border-radius: 4px; padding: 10px; margin: 0; min-height: 120px; }
+        .sv-text mark { background: #e2b93d; color: #000; }
+        .sv-status { font-size: 12px; color: var(--muted, #888); margin: 6px 0; }
+        .sv-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+        .sv-dialog button { background: var(--input-bg, #3c3c3c); color: var(--input-text, #d4d4d4);
+            border: 1px solid var(--input-border, #555); border-radius: 4px; padding: 6px 12px; font: inherit; cursor: pointer; }
+        .sv-dialog button.primary { background: var(--accent, #0e639c); color: #fff; border-color: var(--accent, #0e639c); }
+    `;
+  document.head.appendChild(style);
+}
 async function fetchDocumentText(address, ctx = {}) {
   try {
     return await fetch("/leapi", {
@@ -9970,686 +10437,1095 @@ async function fetchDocumentText(address, ctx = {}) {
     return { error: t("Could not reach the server.") };
   }
 }
-
-// src/nl-input.ts
-var TOKEN2 = "myToken123";
-function assistantModel() {
-  return localStorage.getItem("le-assistant-model") || "";
-}
-function assistantKeys() {
-  return {
-    openai: localStorage.getItem("le-openai-key"),
-    anthropic: localStorage.getItem("le-anthropic-key"),
-    google: localStorage.getItem("le-google-key"),
-    groq: localStorage.getItem("le-groq-key"),
-    together: localStorage.getItem("le-together-key")
-  };
-}
-function ensureStyles() {
-  if (document.getElementById("nl-input-styles"))
-    return;
-  const style = document.createElement("style");
-  style.id = "nl-input-styles";
-  style.textContent = `
-        .nl-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
-            align-items: center; justify-content: center; z-index: 1000; }
-        .nl-dialog { background: var(--panel-bg, #252526); color: var(--text-color, #d4d4d4);
-            border: 1px solid var(--border-color, #444); border-radius: 8px; width: min(640px, 92vw);
-            max-height: 90vh; overflow: auto; padding: 18px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-        .nl-dialog h2 { margin: 0 0 8px 0; font-size: 16px; cursor: move; user-select: none; }
-        .nl-instruction { color: var(--muted, #888); font-size: 12px; margin: 0 0 12px 0; line-height: 1.5; }
-        .nl-dialog textarea { width: 100%; min-height: 96px; resize: vertical; font-family: inherit;
-            font-size: 14px; background: var(--field-bg, #2d2d30); color: var(--input-text, #d4d4d4);
-            border: 1px solid var(--input-border, #555); border-radius: 4px; padding: 8px; box-sizing: border-box; }
-        .nl-status { font-size: 12px; margin: 10px 0 0 0; min-height: 16px; white-space: pre-line; }
-        .nl-status.error { color: #f48771; }
-        .nl-status.warn { color: #e2b93d; }
-        .nl-actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 14px; }
-        .nl-actions .spacer { flex: 1; }
-        .nl-model { color: var(--muted, #888); font-size: 11px; }
-        .nl-dialog button { background: var(--input-bg, #3c3c3c); color: var(--input-text, #d4d4d4);
-            border: 1px solid var(--input-border, #555); border-radius: 4px; padding: 6px 12px; font: inherit; cursor: pointer; }
-        .nl-dialog button.primary { background: var(--accent, #0e639c); color: #fff; border-color: var(--accent, #0e639c); }
-        .nl-dialog button:disabled { opacity: 0.5; cursor: default; }
-    `;
-  document.head.appendChild(style);
-}
-function makeDraggable(box, handle) {
-  let dx = 0, dy = 0;
-  let startX = 0, startY = 0, ox = 0, oy = 0, dragging = false;
-  const onMove = (e) => {
-    if (!dragging)
-      return;
-    dx = ox + (e.clientX - startX);
-    dy = oy + (e.clientY - startY);
-    box.style.transform = `translate(${dx}px, ${dy}px)`;
-  };
-  const onUp = () => {
-    dragging = false;
-    document.removeEventListener("mousemove", onMove);
-    document.removeEventListener("mouseup", onUp);
-    document.body.style.userSelect = "";
-  };
-  handle.addEventListener("mousedown", (e) => {
-    dragging = true;
-    startX = e.clientX;
-    startY = e.clientY;
-    ox = dx;
-    oy = dy;
-    document.body.style.userSelect = "none";
-    document.addEventListener("mousemove", onMove);
-    document.addEventListener("mouseup", onUp);
-    e.preventDefault();
-  });
-}
-function openNlInput(opts) {
+function openSourceViewer(p, rule, ctx = {}) {
   ensureStyles();
   const overlay = document.createElement("div");
-  overlay.className = "nl-overlay";
+  overlay.className = "sv-overlay";
   const dialog = document.createElement("div");
-  dialog.className = "nl-dialog";
+  dialog.className = "sv-dialog";
+  dialog.id = "source-viewer";
   overlay.appendChild(dialog);
   const h = document.createElement("h2");
-  h.textContent = opts.title;
-  const instr = document.createElement("p");
-  instr.className = "nl-instruction";
-  instr.textContent = opts.instruction;
-  const textarea = document.createElement("textarea");
-  textarea.placeholder = opts.placeholder || "Type your sentence(s) here\u2026";
-  const status = document.createElement("div");
-  status.className = "nl-status";
-  const actions = document.createElement("div");
-  actions.className = "nl-actions";
-  const model = assistantModel();
-  const modelLabel = document.createElement("span");
-  modelLabel.className = "nl-model";
-  modelLabel.textContent = model ? `Model: ${model}` : "No model configured";
-  const spacer = document.createElement("span");
-  spacer.className = "spacer";
-  const cancel = document.createElement("button");
-  cancel.textContent = t("Cancel");
-  const regenerate = document.createElement("button");
-  regenerate.textContent = t("Regenerate");
-  regenerate.style.display = "none";
-  const generate = document.createElement("button");
-  generate.className = "primary";
-  generate.textContent = t("Generate");
-  actions.appendChild(modelLabel);
-  actions.appendChild(spacer);
-  actions.appendChild(cancel);
-  actions.appendChild(regenerate);
-  actions.appendChild(generate);
+  h.textContent = p.document || t("Source");
   dialog.appendChild(h);
-  dialog.appendChild(instr);
-  const docName = document.createElement("input");
-  const docAddress = document.createElement("input");
-  if (opts.kind === "facts" && opts.documentContext) {
-    const box = document.createElement("details");
-    box.className = "nl-document";
-    const sum = document.createElement("summary");
-    sum.textContent = t("From a document");
-    box.appendChild(sum);
-    const help = document.createElement("p");
-    help.className = "nl-instruction";
-    help.textContent = t("Paste or fetch the document text below: each fact will cite the passage that states it.");
-    box.appendChild(help);
-    docName.type = "text";
-    docName.className = "nl-doc-name";
-    docName.placeholder = t("Document name, e.g. ruling NY N362700");
-    docAddress.type = "text";
-    docAddress.className = "nl-doc-address";
-    docAddress.placeholder = t("Address of its text: a URL, or a file beside the program");
-    const fetchBtn = document.createElement("button");
-    fetchBtn.textContent = t("Fetch text");
-    fetchBtn.addEventListener("click", async () => {
-      const addr = docAddress.value.trim();
-      if (!addr) {
-        docAddress.focus();
-        return;
-      }
-      status.className = "nl-status";
-      status.textContent = t("Loading the document\u2026");
-      const res = await fetchDocumentText(addr, opts.documentContext);
-      if (res && typeof res.text === "string") {
-        textarea.value = res.text;
-        status.textContent = "";
-      } else {
-        status.className = "nl-status error";
-        status.textContent = t("Error: ") + (res && res.error || "");
-      }
-    });
-    for (const el of [docName, docAddress]) {
-      el.style.cssText = "width:100%;box-sizing:border-box;margin:4px 0;padding:6px;";
-      box.appendChild(el);
-    }
-    box.appendChild(fetchBtn);
-    box.style.marginBottom = "8px";
-    dialog.appendChild(box);
-  }
-  dialog.appendChild(textarea);
+  const meta = document.createElement("div");
+  meta.className = "sv-meta";
+  const addMeta = (label, value) => {
+    if (!value)
+      return;
+    const row = document.createElement("div");
+    const l = document.createElement("span");
+    l.className = "sv-label";
+    l.textContent = label;
+    row.appendChild(l);
+    row.appendChild(document.createTextNode(value));
+    meta.appendChild(row);
+  };
+  addMeta(t("rule"), rule);
+  addMeta(t("at"), p.locator);
+  addMeta(t("according to"), p.source);
+  addMeta(t("because"), p.rationale);
+  addMeta(t("Published at"), p.url);
+  dialog.appendChild(meta);
+  const status = document.createElement("div");
+  status.className = "sv-status";
+  const pre = document.createElement("pre");
+  pre.className = "sv-text";
+  pre.style.display = "none";
   dialog.appendChild(status);
+  dialog.appendChild(pre);
+  const actions = document.createElement("div");
+  actions.className = "sv-actions";
+  const open = originalUrl(p);
+  if (open) {
+    const btnOpen = document.createElement("button");
+    btnOpen.textContent = t("Open original");
+    btnOpen.addEventListener("click", () => window.open(open, "_blank"));
+    actions.appendChild(btnOpen);
+  }
+  const close = document.createElement("button");
+  close.className = "primary";
+  close.textContent = t("Close");
+  actions.appendChild(close);
   dialog.appendChild(actions);
   document.body.appendChild(overlay);
-  makeDraggable(dialog, h);
-  setTimeout(() => textarea.focus(), 0);
-  const close = () => {
+  const done = () => {
     overlay.remove();
     document.removeEventListener("keydown", onKey);
   };
   const onKey = (e) => {
     if (e.key === "Escape")
-      close();
-    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      generate.click();
-    }
+      done();
   };
   document.addEventListener("keydown", onKey);
-  cancel.addEventListener("click", close);
+  close.addEventListener("click", done);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay)
-      close();
+      done();
   });
-  if (!model) {
-    status.className = "nl-status warn";
-    status.textContent = t("Configure an LLM model first: in the main editor, Misc \u2192 API Keys\u2026");
-    generate.disabled = true;
+  if (!p.text) {
+    status.textContent = p.document ? `${t("The program does not say where the text of this document is")}: the text of ${p.document} is at "\u2026".` : "";
+    return;
   }
-  let primaryMode = "generate";
-  let pendingLe = "";
-  function toGenerateMode() {
-    primaryMode = "generate";
-    generate.textContent = t("Generate");
-    regenerate.style.display = "none";
-  }
-  textarea.addEventListener("input", () => {
-    if (primaryMode === "insert")
-      toGenerateMode();
-  });
-  async function run() {
-    const sentence = textarea.value.trim();
-    if (!sentence) {
-      textarea.focus();
+  status.textContent = t("Loading the document\u2026");
+  fetchDocumentText(p.text, ctx).then((res) => {
+    if (!res || res.error || typeof res.text !== "string") {
+      status.textContent = `${t("Error: ")}${res && res.error || ""}`;
       return;
     }
-    if (!assistantModel())
-      return;
-    generate.disabled = true;
-    cancel.disabled = true;
-    regenerate.disabled = true;
-    status.className = "nl-status";
-    status.textContent = t("Generating and verifying\u2026");
-    const templates = [.../* @__PURE__ */ new Set([
-      ...parseTemplateDefs(opts.source).map((d) => d.label),
-      ...opts.extraTemplates || []
-    ])];
-    const documentName = docName.value.trim();
-    try {
-      const res = await fetch("/leapi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token: TOKEN2,
-          operation: "nl_to_le",
-          kind: opts.kind,
-          sentence,
-          templates,
-          content: opts.source,
-          // the program, for baseline-diff verification
-          model: assistantModel(),
-          api_keys: assistantKeys(),
-          // facts from a document: its name and where its text is
-          document: documentName,
-          address: documentName ? docAddress.value.trim() : "",
-          source: opts.documentContext?.source || "",
-          base: opts.documentContext?.base || ""
-        })
-      }).then((r) => r.json());
-      generate.disabled = false;
-      cancel.disabled = false;
-      regenerate.disabled = false;
-      if (res && res.result === "ok" && typeof res.le === "string" && res.le.trim()) {
-        if (Array.isArray(res.document_facts) && res.document_facts.length) {
-          res.le = `${res.le.trim()}
-${res.document_facts.map((f) => `${f}.`).join("\n")}`;
-        }
-        const warnings = Array.isArray(res.warnings) ? res.warnings : [];
-        if (warnings.length === 0) {
-          opts.onResult(res.le, { document: documentName });
-          close();
-        } else {
-          pendingLe = res.le;
-          primaryMode = "insert";
-          generate.textContent = t("Insert anyway");
-          regenerate.style.display = "";
-          const serious = warnings.some((w) => w.startsWith("[error]"));
-          status.className = serious ? "nl-status error" : "nl-status warn";
-          status.textContent = (serious ? `Verification found ${warnings.length} problem${warnings.length === 1 ? "" : "s"} with the generated text:
-` : `Verification found ${warnings.length} new issue${warnings.length === 1 ? "" : "s"} vs. your program:
-`) + warnings.map((w) => `\u2022 ${w}`).join("\n") + (serious ? "\nAn [error] means the text would not do what it says \u2014 rephrasing and regenerating is usually better than inserting it." : "\nYou can insert it anyway, or rephrase and regenerate.");
-        }
-      } else if (res && res.result === "ok") {
-        toGenerateMode();
-        status.className = "nl-status warn";
-        status.textContent = t("The model returned nothing that matches your templates. Try rephrasing.");
-      } else {
-        toGenerateMode();
-        status.className = "nl-status error";
-        status.textContent = t("Error: ") + (res && res.error || "the LLM request failed.");
-      }
-    } catch {
-      generate.disabled = false;
-      cancel.disabled = false;
-      regenerate.disabled = false;
-      toGenerateMode();
-      status.className = "nl-status error";
-      status.textContent = t("Could not reach the server.");
+    const text = res.text;
+    const span = p.quote ? findQuote(text, p.quote) : null;
+    pre.textContent = "";
+    if (span) {
+      pre.appendChild(document.createTextNode(text.slice(0, span[0])));
+      const mark = document.createElement("mark");
+      mark.textContent = text.slice(span[0], span[1]);
+      pre.appendChild(mark);
+      pre.appendChild(document.createTextNode(text.slice(span[1])));
+      status.textContent = "";
+      pre.style.display = "";
+      mark.scrollIntoView({ block: "center" });
+    } else {
+      pre.textContent = text;
+      pre.style.display = "";
+      status.textContent = p.quote ? t("The quoted passage was not found in this text.") : "";
     }
-  }
-  generate.addEventListener("click", () => {
-    if (primaryMode === "insert") {
-      opts.onResult(pendingLe, { document: docName.value.trim() });
-      close();
-    } else
-      run();
   });
-  regenerate.addEventListener("click", run);
 }
 
-// src/query-editor.ts
-var WRITE_IN_ENGLISH = "__write_in_english__";
-var CHANNEL = "le-query-editor";
-var NEG_PREFIX = /^it is not the case that\s+/i;
-function initQueryEditor(data) {
-  const source = data.source || "";
-  const templates = parseTemplateDefs(source).map((d) => d.label);
-  const addable = [...new Set(templates)];
-  const blocks = parseQueryBlocks(source);
-  const blockByName = /* @__PURE__ */ new Map();
-  blocks.forEach((b) => blockByName.set(b.name, b));
-  const channel = new BroadcastChannel(CHANNEL);
-  const $ = (id) => document.getElementById(id);
-  const picker = $("query-picker");
-  const nameInput = $("query-name");
-  const rowsEl = $("rows");
-  const addSelect = $("add-template");
-  const statusEl = $("status");
-  let loadedName = "";
-  let dirty = false;
-  let rows = [];
-  const setStatus = (text) => {
-    statusEl.textContent = text;
-  };
-  const markDirty = () => {
-    dirty = true;
-    setStatus(t("Unsaved changes"));
-  };
-  addSelect.innerHTML = "";
-  for (const label of addable) {
-    const o = document.createElement("option");
-    o.value = label;
-    o.textContent = label.replace(/\*/g, "");
-    addSelect.appendChild(o);
+// src/le-views.ts
+var TOKEN2 = "myToken123";
+var queue = Promise.resolve();
+async function leapi(body) {
+  const call = () => fetch("/leapi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: TOKEN2, ...body })
+  }).then((r) => r.json());
+  const p = queue.then(call, call);
+  queue = p.catch(() => void 0);
+  return p;
+}
+function el(tag, cls = "", text) {
+  const e = document.createElement(tag);
+  if (cls)
+    e.className = cls;
+  if (text !== void 0)
+    e.textContent = text;
+  return e;
+}
+var norm = (s) => (s || "").replace(/\s+-\s+/g, "-").replace(/\s+/g, " ").replace(/\.\s*$/, "").trim().toLowerCase();
+function ensureStyles2() {
+  if (document.getElementById("le-views-styles"))
+    return;
+  const style = document.createElement("style");
+  style.id = "le-views-styles";
+  style.textContent = `
+    .lv { --lv-card: var(--card, #f7f9fb); --lv-ink: var(--ink, #17202a); --lv-muted: var(--muted, #5b6674);
+          --lv-border: var(--border, #e2e6ea); --lv-accent: var(--accent, #0e639c); --lv-bg: var(--bg, #fff);
+          --lv-ok: var(--ok, #1c7d3c); --lv-fail: var(--fail, #b3261e); --lv-unknown: var(--unknown, #9a6a00);
+          color: var(--lv-ink); font-size: 14px; }
+    .lv-grid { display: grid; gap: 16px; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, .85fr); align-items: start; }
+    .lv-grid.two { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+    @media (max-width: 1000px) { .lv-grid, .lv-grid.two { grid-template-columns: minmax(0, 1fr); } }
+    .lv-col { display: grid; gap: 16px; align-content: start; min-width: 0; }
+    .lv .fact-row input.field { max-width: 100%; field-sizing: content; min-width: 5ch; }
+    .lv .empty-hint { display: none; }
+    .lv-wide { margin-top: 16px; display: grid; gap: 16px; }
+    .lv-card { background: var(--lv-bg); border: 1px solid var(--lv-border); border-radius: 12px; padding: 12px 14px; }
+    .lv-h { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--lv-muted); margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .lv-h button, .lv-btn { border: 1px solid var(--lv-accent); background: var(--lv-bg); color: var(--lv-accent); border-radius: 8px; padding: 3px 10px; font-size: 12.5px; cursor: pointer; text-transform: none; letter-spacing: 0; }
+    .lv-btn.primary { background: var(--lv-accent); color: #fff; }
+    .lv-grp { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--lv-muted); margin: 12px 0 6px; }
+    .lv .fact-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; background: var(--lv-card); border: 1px solid var(--lv-border); border-radius: 8px; padding: 6px 8px; margin-bottom: 6px; }
+    .lv .fact-row input.field { background: var(--lv-bg); color: var(--lv-ink); border: 1px solid var(--lv-border); border-radius: 5px; padding: 2px 6px; font: inherit; }
+    .lv .fact-row input.cite-field { background: transparent; color: var(--lv-muted); border: 1px dashed var(--lv-border); border-radius: 5px; padding: 2px 6px; font: inherit; font-size: 12px; font-style: italic; flex: 1 1 100%; }
+    .lv .fact-row .row-tools { margin-left: auto; display: flex; gap: 4px; align-items: center; font-size: 11px; color: var(--lv-muted); }
+    .lv .fact-row .row-tools button { border: 1px solid var(--lv-border); background: var(--lv-bg); border-radius: 5px; cursor: pointer; color: var(--lv-muted); }
+    .lv .fact-row .preserved { color: var(--lv-muted); font-style: italic; }
+    .lv .empty-hint { color: var(--lv-muted); font-size: 12px; font-style: italic; }
+    .lv-add { display: flex; gap: 6px; align-items: center; margin-top: 4px; }
+    .lv-add select { max-width: 100%; flex: 1; padding: 3px; border-radius: 6px; border: 1px solid var(--lv-border); background: var(--lv-bg); color: var(--lv-ink); font-size: 12.5px; }
+    .lv-absent { color: var(--lv-muted); font-style: italic; font-size: 13px; margin: 2px 0 6px; cursor: pointer; }
+    .lv-absent:hover { color: var(--lv-accent); }
+    .lv-badge { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 8px; background: #fbf3e2; color: #7a5200; border: 1px solid #e9d29a; }
+    .lv-big { font-size: 34px; font-weight: 700; color: var(--lv-ok); line-height: 1.15; word-break: break-word; }
+    .lv-big.no { color: var(--lv-fail); font-size: 24px; }
+    .lv-big.cond { color: var(--lv-unknown); }
+    .lv-unit { font-size: 18px; font-weight: 500; color: var(--lv-muted); margin-left: 6px; }
+    .lv-sub { color: var(--lv-muted); font-size: 13px; margin-top: 4px; }
+    .lv-ck { display: flex; gap: 10px; padding: 5px 0; border-bottom: 1px solid var(--lv-border); }
+    .lv-ck:last-child { border: 0; }
+    .lv-ok { color: var(--lv-ok); font-weight: 600; } .lv-fail { color: var(--lv-fail); font-weight: 600; } .lv-na { color: var(--lv-muted); }
+    .lv ol { margin: 0; padding-left: 22px; } .lv ol li { margin: 0 0 8px; }
+    .lv-cite { display: block; color: var(--lv-muted); font-size: 12px; font-style: italic; }
+    .lv-src { border: 1px solid var(--lv-border); background: var(--lv-bg); color: var(--lv-accent); border-radius: 6px; padding: 0 6px; margin-left: 4px; font-family: Georgia, serif; cursor: pointer; }
+    .lv-q { background: var(--lv-card); border: 1px solid var(--lv-border); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; }
+    .lv-chip { display: inline-block; border: 1px solid var(--lv-accent); color: var(--lv-accent); border-radius: 14px; padding: 1px 11px; margin: 6px 5px 0 0; font-size: 12.5px; cursor: pointer; background: var(--lv-bg); }
+    .lv table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    .lv th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--lv-muted); border-bottom: 1px solid var(--lv-border); padding: 5px 6px; }
+    .lv td { border-bottom: 1px solid var(--lv-border); padding: 6px; vertical-align: top; }
+    .lv-doc { font-family: Georgia, serif; font-size: 13px; line-height: 1.55; white-space: pre-wrap; max-height: 460px; overflow: auto; background: var(--lv-card); border: 1px solid var(--lv-border); border-radius: 8px; padding: 10px; }
+    .lv-doc mark { background: #fbe7a1; color: inherit; }
+    .lv-draft { font-family: Georgia, serif; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; }
+    .lv-interview { max-width: 460px; margin: 0 auto; }
+    .lv-ask { font-size: 21px; font-weight: 600; margin: 18px 0 14px; }
+    .lv-bigbtn { display: block; width: 100%; text-align: center; border: 2px solid var(--lv-accent); color: var(--lv-accent); background: var(--lv-bg); border-radius: 12px; padding: 11px; font-size: 16px; font-weight: 600; margin: 8px 0; cursor: pointer; }
+    .lv-res { border-radius: 12px; padding: 12px 14px; font-size: 18px; font-weight: 600; }
+    .lv-res.yes { background: #e9f6ee; color: #155e2e; } .lv-res.no { background: #fbeceb; color: #8c1d18; }
+    .lv-status { color: var(--lv-muted); font-size: 12.5px; }
+    `;
+  document.head.appendChild(style);
+}
+function answerSlots(queryText, answer) {
+  const whs = new Set([...kwPhrases(detectProgramLanguageSafe(), "wh_var"), ...kwPhrases("en", "wh_var")].map((w) => w.toLowerCase()));
+  const words = queryText.trim().split(/\s+/);
+  const nouns = [];
+  let pattern = "";
+  for (let i = 0; i < words.length; i++) {
+    if (whs.has(words[i].toLowerCase()) && i + 1 < words.length) {
+      nouns.push(words[i + 1].toLowerCase());
+      pattern += (pattern ? "\\s+" : "") + "(.+?)";
+      i++;
+    } else {
+      pattern += (pattern ? "\\s+" : "") + words[i].replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    }
   }
-  const nlOpt = document.createElement("option");
-  nlOpt.value = WRITE_IN_ENGLISH;
-  nlOpt.textContent = t("Write it in English");
-  addSelect.appendChild(nlOpt);
-  $("btn-add").addEventListener("click", () => {
-    const val = addSelect.value;
-    if (!val)
+  const m = new RegExp(`^${pattern}$`, "i").exec(answer.trim());
+  const out = {};
+  if (m)
+    nouns.forEach((n, i) => {
+      out[n] = m[i + 1];
+    });
+  return out;
+}
+var programLang = "en";
+var detectProgramLanguageSafe = () => programLang;
+function citedSteps(why) {
+  const out = [], seen = /* @__PURE__ */ new Set();
+  const walk = (n) => {
+    if (!n || typeof n !== "object")
       return;
-    if (val === WRITE_IN_ENGLISH) {
-      writeInEnglish();
+    if (Array.isArray(n)) {
+      n.forEach(walk);
       return;
     }
-    const indent = rows.length ? rows[rows.length - 1].indent : 0;
-    rows.push({ templateLabel: val, values: [], raw: "", negated: false, connective: "and", indent });
-    markDirty();
-    render();
-    rowsEl.lastElementChild?.querySelector("input.field, input.raw")?.focus();
-  });
-  function writeInEnglish() {
-    openNlInput({
-      kind: "query",
-      source,
-      title: "Add conditions \u2014 write it in English",
-      instruction: "Type one or more sentences describing the query to build (a question, and its conditions). The query must respect the predicates (templates) already in your program; if you need to expand these first, use the editor or the LE Assistant.",
-      placeholder: "e.g. which person is happy and is not the brother of Bob",
-      onResult: (leText) => {
-        const lines = leText.split(/\r?\n/).filter((l) => l.trim() !== "");
-        const added = parseBody(lines);
-        rows.push(...added);
-        normalizeIndents();
-        markDirty();
-        render();
-        setStatus(`Added ${added.length} condition${added.length === 1 ? "" : "s"} from English`);
+    if (n.type === "success" && n.provenance && (n.provenance.document || n.provenance.url)) {
+      const key = `${n.plain || n.literal}|${n.rule || ""}|${n.provenance.document || ""}|${n.provenance.quote || ""}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        out.push(n);
+      }
+    }
+    (n.children || []).forEach(walk);
+  };
+  walk(why);
+  return out;
+}
+function citationLine(n) {
+  const p = n.provenance || {};
+  const parts = [];
+  if (n.rule)
+    parts.push(`${t("rule")} ${n.rule}`);
+  if (p.source && p.source !== p.document)
+    parts.push(`${t("according to")} ${p.source}`);
+  if (p.document)
+    parts.push(p.document);
+  if (p.quote)
+    parts.push(`\u201C${p.quote}\u201D`);
+  else if (p.locator)
+    parts.push(p.locator);
+  if (p.rationale)
+    parts.push(`${t("because")} \u201C${p.rationale}\u201D`);
+  return parts.join(" \xB7 ");
+}
+function leaves(why) {
+  const out = [];
+  const seen = /* @__PURE__ */ new Set();
+  const walk = (n, negated) => {
+    if (!n || typeof n !== "object")
+      return;
+    if (Array.isArray(n)) {
+      n.forEach((c) => walk(c, negated));
+      return;
+    }
+    const kids = n.children || [];
+    if (kids.length === 0) {
+      const lit = String(n.plain || n.literal || "");
+      if (lit && !/\d\s+is\s+(greater|less|equal)/.test(lit) && !seen.has(lit)) {
+        seen.add(lit);
+        out.push({ literal: lit, ok: n.type === "success" });
+      }
+    } else
+      kids.forEach((c) => walk(c, negated || !!n.naf));
+  };
+  walk(why, false);
+  return out;
+}
+async function mountView(root, ctx) {
+  ensureStyles2();
+  programLang = detectProgramLanguage(ctx.source || "");
+  const V = ctx.view;
+  const phrase = (key) => kwPhrases(programLang, key)[0] || kwPhrases("en", key)[0] || "";
+  const queries = ctx.load.queries || [];
+  const queryText = (name) => {
+    const q = queries.find((x) => String(x.name) === String(name));
+    return q ? String(q.le || "") : "";
+  };
+  const blocks = parseScenarioBlocks(ctx.source || "");
+  const scenarioNames = (ctx.load.examples || []).map((e) => e.name);
+  const templateDefs = ctx.load.template_defs || [];
+  const documentCtx = { source: ctx.program };
+  root.innerHTML = "";
+  root.classList.add("lv");
+  if (V.title && !ctx.titleShown) {
+    const h = el("h2", "", V.title);
+    h.style.cssText = "margin:0 0 12px;font-size:20px;";
+    root.appendChild(h);
+  }
+  const status = el("div", "lv-status");
+  const groupDefs = (V.groups || []).map((g) => ({ title: g.title, labels: g.facts.map((f) => f.label), judged: g.judged }));
+  const grouped = new Set(groupDefs.flatMap((g) => g.labels));
+  const allLabels = templateDefs.map((d) => d.label);
+  const otherLabels = allLabels.filter((l) => !grouped.has(l) && templateDefs.find((d) => d.label === l && (d.scenario_element || d.judged)));
+  let caseProvenance = "";
+  let caseName = "";
+  const forms = [];
+  let dirty = false;
+  const factsCard = el("div", "lv-card");
+  const casePicker = document.createElement("select");
+  casePicker.style.cssText = "width:100%;padding:5px;border-radius:8px;border:1px solid var(--lv-border);background:var(--lv-bg);color:var(--lv-ink);";
+  casePicker.appendChild(new Option(t("New case"), ""));
+  for (const n of scenarioNames)
+    casePicker.appendChild(new Option(n, n));
+  const factsHead = el("div", "lv-h", t("The case"));
+  factsCard.appendChild(factsHead);
+  if (V.case && V.case.kind !== "subject")
+    factsCard.appendChild(casePicker);
+  const makeGroup = (title, labels, judged, all) => {
+    const box = el("div");
+    const head = el("div", "lv-grp", title ?? (judged ? t("Judgments") : t("Other facts")));
+    box.appendChild(head);
+    const rows = el("div");
+    const absent = el("div");
+    const add = el("div", "lv-add");
+    const sel = document.createElement("select");
+    const btn = el("button", "lv-btn", t("+ Add"));
+    add.appendChild(sel);
+    add.appendChild(btn);
+    box.appendChild(rows);
+    box.appendChild(absent);
+    box.appendChild(add);
+    const form = new ScenarioForm({
+      source: ctx.source,
+      rowsEl: rows,
+      addSelect: sel,
+      btnAdd: btn,
+      extraTemplates: templateDefs,
+      onlyTemplates: all ? void 0 : labels,
+      onChange: () => {
+        dirty = true;
+        scheduleRun();
       }
     });
-  }
-  picker.innerHTML = "";
-  const newOpt = document.createElement("option");
-  newOpt.value = "__new__";
-  newOpt.textContent = t("New\u2026");
-  picker.appendChild(newOpt);
-  blocks.forEach((b) => {
-    const o = document.createElement("option");
-    o.value = b.name;
-    o.textContent = b.name;
-    picker.appendChild(o);
-  });
-  function leadWidth(s) {
-    let w = 0;
-    for (const ch of s) {
-      if (ch === " ")
-        w++;
-      else if (ch === "	")
-        w += 4;
-      else
-        break;
-    }
-    return w;
-  }
-  function normalizeIndents() {
-    let prev = -1;
-    for (const r of rows) {
-      r.indent = Math.max(0, Math.min(r.indent, prev + 1));
-      prev = r.indent;
-    }
-  }
-  function parseBody(bodyLines2) {
-    if (bodyLines2.length === 0)
-      return [];
-    const conds = [];
-    for (const raw of bodyLines2) {
-      const trimmed = raw.trim();
-      const cm = trimmed.match(/^(and|or)\b\s*/i);
-      if (conds.length === 0) {
-        conds.push({ width: leadWidth(raw), connective: "and", text: trimmed });
-      } else if (cm) {
-        conds.push({ width: leadWidth(raw), connective: cm[1].toLowerCase(), text: trimmed.slice(cm[0].length) });
-      } else {
-        conds[conds.length - 1].text += " " + trimmed;
+    if (form.addableTemplates.length === 0)
+      add.style.display = "none";
+    forms.push({ form, labels, box, absent, named: !all && title !== null || judged });
+    return box;
+  };
+  for (const g of groupDefs)
+    factsCard.appendChild(makeGroup(g.title, g.labels, g.judged, false));
+  if (V.otherFacts !== false && otherLabels.length)
+    factsCard.appendChild(makeGroup(groupDefs.length ? null : t("Facts"), otherLabels, false, groupDefs.length === 0));
+  const showAbsent = () => {
+    for (const f of forms) {
+      f.absent.innerHTML = "";
+      if (!f.named)
+        continue;
+      const present = new Set(f.form.factLines().map((l) => {
+        const m = matchFact(l.split(/,\s*(?=\S)/)[0], f.labels);
+        return m ? m.label : "";
+      }));
+      for (const label of f.labels) {
+        if (present.has(label))
+          continue;
+        const a = el("div", "lv-absent", `${label.replace(/\*/g, "")} \u2014 ${t("not stated")}`);
+        a.title = t("State it");
+        a.addEventListener("click", () => {
+          f.form.addFact(label.replace(/\*/g, ""), false);
+        });
+        f.absent.appendChild(a);
       }
     }
-    conds[conds.length - 1].text = conds[conds.length - 1].text.replace(/\.\s*$/, "").trim();
-    const widths = [...new Set(conds.map((c) => c.width))].sort((a, b) => a - b);
-    const wholeBody = bodyLines2.map((l) => l.trim()).join(" ").replace(/\.\s*$/, "").trim();
-    const parsed = [];
-    for (const c of conds) {
-      const negated = NEG_PREFIX.test(c.text);
-      const inner = negated ? c.text.replace(NEG_PREFIX, "").trim() : c.text.trim();
-      const m = matchFact(inner, templates);
-      if (!m)
-        return [{ templateLabel: null, values: [], raw: wholeBody, negated: false, connective: "and", indent: 0 }];
-      parsed.push({ templateLabel: m.label, values: m.values, raw: "", negated, connective: c.connective, indent: widths.indexOf(c.width) });
-    }
-    return parsed;
-  }
-  function loadQuery(name) {
-    const block = blockByName.get(name);
-    loadedName = block ? block.name : "";
-    nameInput.value = block ? block.name : "";
-    rows = block ? parseBody(block.bodyLines) : [];
-    normalizeIndents();
-    dirty = false;
-    render();
-    setStatus(block ? `Loaded query "${name}"` : "");
-  }
-  function newQuery() {
-    loadedName = "";
-    nameInput.value = "";
-    rows = [];
-    dirty = false;
-    render();
-    setStatus(t("New query"));
-  }
-  function sizeField(input) {
-    const n = Math.max((input.value || input.placeholder).length + 1, 6);
-    input.size = Math.min(n, 80);
-  }
-  function render() {
-    rowsEl.innerHTML = "";
-    if (rows.length === 0) {
-      const hint = document.createElement("div");
-      hint.className = "empty-hint";
-      hint.textContent = t("No conditions yet \u2014 pick a template below and click \u201CAdd\u201D.");
-      rowsEl.appendChild(hint);
-      return;
-    }
-    rows.forEach((row, idx) => rowsEl.appendChild(renderRow(row, idx)));
-  }
-  function indentRow(idx, delta) {
-    rows[idx].indent = Math.max(0, rows[idx].indent + delta);
-    normalizeIndents();
-    markDirty();
-    render();
-  }
-  function renderRow(row, idx) {
-    const el = document.createElement("div");
-    el.className = "fact-row";
-    if (row.negated)
-      el.classList.add("negated");
-    el.style.marginLeft = `${row.indent * 28}px`;
-    if (row.indent > 0)
-      el.classList.add("indented");
-    const maxIndent = idx > 0 ? rows[idx - 1].indent + 1 : 0;
-    const indentTools = document.createElement("div");
-    indentTools.className = "indent-tools";
-    const outdent = document.createElement("button");
-    outdent.className = "indent-btn";
-    outdent.textContent = t("\u21E4");
-    outdent.title = t("Unindent (widen this condition\u2019s scope)");
-    outdent.disabled = row.indent === 0;
-    outdent.addEventListener("click", () => indentRow(idx, -1));
-    const indent = document.createElement("button");
-    indent.className = "indent-btn";
-    indent.textContent = t("\u21E5");
-    indent.title = t("Indent (nest this condition to bind tighter)");
-    indent.disabled = row.indent >= maxIndent;
-    indent.addEventListener("click", () => indentRow(idx, 1));
-    indentTools.appendChild(outdent);
-    indentTools.appendChild(indent);
-    el.appendChild(indentTools);
-    if (idx > 0) {
-      const conn = document.createElement("select");
-      conn.className = "connective";
-      for (const c of ["and", "or"]) {
-        const o = document.createElement("option");
-        o.value = c;
-        o.textContent = c;
-        conn.appendChild(o);
-      }
-      conn.value = row.connective;
-      conn.addEventListener("change", () => {
-        row.connective = conn.value;
-        markDirty();
-      });
-      el.appendChild(conn);
-    } else {
-      const spacer = document.createElement("span");
-      spacer.className = "connective-spacer";
-      el.appendChild(spacer);
-    }
-    if (row.negated) {
-      const neg = document.createElement("span");
-      neg.className = "neg-phrase";
-      neg.textContent = t("it is not the case that");
-      el.appendChild(neg);
-    }
-    if (row.templateLabel === null) {
-      const input = document.createElement("input");
-      input.type = "text";
-      input.className = "raw";
-      input.value = row.raw;
-      input.placeholder = t("condition");
-      input.size = Math.min(Math.max(row.raw.length + 1, 20), 80);
-      input.addEventListener("input", () => {
-        row.raw = input.value;
-        input.size = Math.min(Math.max(input.value.length + 1, 20), 80);
-        markDirty();
-      });
-      el.appendChild(input);
-    } else {
-      const segs = splitTemplate(row.templateLabel);
-      let fieldIdx = 0;
-      for (const seg of segs) {
-        if (seg.kind === "literal") {
-          const span = document.createElement("span");
-          span.className = "word";
-          span.textContent = seg.text;
-          el.appendChild(span);
-        } else {
-          const fi = fieldIdx++;
-          const input = document.createElement("input");
-          input.type = "text";
-          input.className = "field";
-          input.placeholder = seg.text;
-          input.title = `${seg.text} \u2014 a value, or a query variable like "which ${seg.text.replace(/^(a|an|the)\s+/i, "")}"`;
-          input.value = row.values[fi] ?? "";
-          sizeField(input);
-          input.addEventListener("input", () => {
-            row.values[fi] = input.value;
-            sizeField(input);
-            markDirty();
-          });
-          el.appendChild(input);
+  };
+  const loadCase = (name) => {
+    caseName = name;
+    const block = blocks.find((b) => b.name === name);
+    caseProvenance = block?.provenance || "";
+    const facts = block ? block.facts : [];
+    const byForm = forms.map(() => []);
+    for (const fact of facts) {
+      if (isTestDirective(fact))
+        continue;
+      let placed = false;
+      for (let i = 0; i < forms.length && !placed; i++) {
+        const m = matchFact(fact.split(/,\s*(?=(?:according|as stated|because|confer))/i)[0], forms[i].labels);
+        if (m) {
+          byForm[i].push(fact);
+          placed = true;
         }
       }
+      if (!placed && forms.length)
+        byForm[forms.length - 1].push(fact);
     }
-    const tools = document.createElement("div");
-    tools.className = "row-tools";
-    const negLabel = document.createElement("label");
-    negLabel.className = "negate";
-    negLabel.title = t('Wrap this condition in "it is not the case that \u2026"');
-    const check = document.createElement("input");
-    check.type = "checkbox";
-    check.checked = row.negated;
-    check.addEventListener("change", () => {
-      row.negated = check.checked;
-      markDirty();
-      render();
+    forms.forEach((f, i) => {
+      f.form.loadFacts(byForm[i]);
+      f.form.provenance = caseProvenance;
     });
-    negLabel.appendChild(check);
-    negLabel.appendChild(document.createTextNode(" not"));
-    tools.appendChild(negLabel);
-    const del = document.createElement("button");
-    del.textContent = t("\u2715");
-    del.title = t("Delete condition");
-    del.addEventListener("click", () => {
-      rows.splice(idx, 1);
-      markDirty();
-      render();
-    });
-    tools.appendChild(del);
-    el.appendChild(tools);
-    return el;
-  }
-  function condBase(row) {
-    if (row.templateLabel === null)
-      return row.raw.trim().replace(/\.\s*$/, "").trim();
-    const segs = splitTemplate(row.templateLabel);
-    let fi = 0;
-    const out = segs.map((s) => {
-      if (s.kind === "literal")
-        return s.text;
-      const v = (row.values[fi++] ?? "").trim();
-      return v || s.text;
-    }).join(" ");
-    return out.replace(/\s+/g, " ").trim();
-  }
-  function condText(row) {
-    const base = condBase(row);
-    if (!base)
-      return "";
-    return row.negated ? `it is not the case that ${base}` : base;
-  }
-  function bodyLines() {
-    const out = [];
-    rows.forEach((row) => {
-      const c = condText(row);
-      if (!c)
-        return;
-      const conn = out.length === 0 ? "" : `${row.connective} `;
-      out.push(`${" ".repeat(4 + row.indent * 4)}${conn}${c}`);
-    });
-    return out;
-  }
-  function blockText(name) {
-    const lines = bodyLines();
-    const body = lines.length ? lines.join("\n") : "    ";
-    return `${blockHeader(source, "query", name)}
-${body}.`;
-  }
-  function requireName() {
-    const name = nameInput.value.trim();
-    if (!name) {
-      alert(t("Please give the query a name."));
-      nameInput.focus();
-      return null;
-    }
-    if (/\s/.test(name)) {
-      alert(t("A query name must be a single word or number (no spaces)."));
-      nameInput.focus();
-      return null;
-    }
-    if (bodyLines().length === 0) {
-      alert(t("Add at least one condition to the query."));
-      return null;
-    }
-    return name;
-  }
-  $("btn-copy").addEventListener("click", async () => {
-    const name = requireName();
-    if (!name)
-      return;
-    const text = blockText(name);
-    try {
-      await navigator.clipboard.writeText(text);
-      dirty = false;
-      setStatus(t("Copied to clipboard"));
-    } catch {
-      window.prompt(t("Copy the query text:"), text);
-      dirty = false;
-      setStatus(t("Copied"));
-    }
-  });
-  $("btn-insert").addEventListener("click", () => {
-    const name = requireName();
-    if (!name)
-      return;
-    channel.postMessage({ type: "insert-query", name, blockText: blockText(name), replaceName: loadedName });
     dirty = false;
-    setStatus(t("Inserted into editor"));
-    setTimeout(() => window.close(), 100);
-  });
-  picker.addEventListener("change", () => {
-    if (dirty && !confirm(t("Discard unsaved changes and load the selected query?"))) {
-      picker.value = loadedName || "__new__";
+    showAbsent();
+  };
+  const caseFactsText = () => {
+    const lines = [];
+    for (const f of forms)
+      for (const l of f.form.factLines())
+        lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
+    return lines.map((l) => `${l}.`).join("\n");
+  };
+  const R = V.result || {};
+  const resultRequest = () => {
+    const req = { sessionModule: ctx.sessionModule };
+    if (!dirty && caseName)
+      req.scenario = caseName;
+    else
+      req.customScenario = caseFactsText();
+    if (R.whether)
+      req.customQuery = R.whether;
+    else if (R.query)
+      req.query = R.query;
+    return req;
+  };
+  const cards = {};
+  const card = (key, title) => {
+    const c = el("div", "lv-card");
+    c.dataset.widget = key;
+    const h = el("div", "lv-h");
+    h.appendChild(el("span", "", title));
+    h.appendChild(el("span", "lv-tools"));
+    c.appendChild(h);
+    const body = el("div");
+    body.className = "lv-body";
+    c.appendChild(body);
+    cards[key] = c;
+    return c;
+  };
+  const bodyOf = (key) => cards[key]?.querySelector(".lv-body");
+  const headOf = (key) => {
+    const x = cards[key]?.querySelector(".lv-tools");
+    return x;
+  };
+  const clearTools = (key) => {
+    const x = headOf(key);
+    if (x)
+      x.innerHTML = "";
+  };
+  let lastResult = null;
+  const renderResult = (res) => {
+    const b = bodyOf("result");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    const results = res.results || [];
+    const holds = results.length > 0;
+    if (R.whether) {
+      const d = el("div", `lv-res ${holds ? "yes" : "no"}`, holds ? R.holds || results[0].answer : R.not || t("No"));
+      b.appendChild(d);
       return;
     }
-    if (picker.value === "__new__")
-      newQuery();
-    else
-      loadQuery(picker.value);
-  });
-  nameInput.addEventListener("input", markDirty);
-  window.addEventListener("beforeunload", (e) => {
-    if (dirty) {
-      e.preventDefault();
-      e.returnValue = "";
-      return "";
+    if (!holds) {
+      b.appendChild(el("div", "lv-big no", R.not || t("No answer")));
+      const failed = (res.checklist || []).find((c) => c.status === "failed");
+      if (failed)
+        b.appendChild(el("div", "lv-sub", `${t("fails at")} ${failed.section}`));
+      else if (res.strongestReason)
+        b.appendChild(el("div", "lv-sub", res.strongestReason));
+      return;
     }
+    for (const r of results.slice(0, 5)) {
+      const slots = answerSlots(queryText(R.query), r.answer);
+      const head = R.headedBy ? slots[String(R.headedBy).split(/\s+/).pop().toLowerCase()] : null;
+      if (head) {
+        const big = el("div", "lv-big", head);
+        if (R.unit)
+          big.appendChild(el("span", "lv-unit", R.unit));
+        b.appendChild(big);
+      }
+      const conditional = r.unknowns && r.unknowns.length;
+      const line = el("div", head ? "lv-sub" : "lv-big", r.answer);
+      if (conditional && !head)
+        line.classList.add("cond");
+      b.appendChild(line);
+      if (conditional)
+        b.appendChild(el("div", "lv-sub", `${t("provided that")}: ${r.unknowns.join("; ")}`));
+    }
+    if (R.holds)
+      b.appendChild(el("div", "lv-sub", R.holds));
+  };
+  const renderStage = (res) => {
+    const b = bodyOf("stage");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    const cl = res.checklist || [];
+    if (!cl.length) {
+      b.appendChild(el("div", "lv-status", t("No sections to check.")));
+      return;
+    }
+    for (const c of cl) {
+      const row = el("div", "lv-ck");
+      const mark = c.status === "passed" ? ["lv-ok", "\u2713"] : c.status === "failed" ? ["lv-fail", "\u2717"] : ["lv-na", "\u2013"];
+      row.appendChild(el("span", mark[0], mark[1]));
+      row.appendChild(el("b", "", String(c.section)));
+      row.appendChild(el("span", "lv-na", t(c.status === "passed" ? "passed" : c.status === "failed" ? "failed" : "not reached")));
+      b.appendChild(row);
+    }
+  };
+  const sourceButton = (n) => {
+    const p = n.provenance || {};
+    const btn = el("button", "lv-src", "\xA7");
+    btn.title = t("Show original text");
+    btn.addEventListener("click", () => {
+      if (!p.text && p.url) {
+        window.open(originalUrl(p) || p.url, "_blank");
+        return;
+      }
+      openSourceViewer(p, n.rule || void 0, documentCtx);
+    });
+    return btn;
+  };
+  const whyOf = (res) => {
+    if (res.results && res.results.length)
+      return res.results[0].why;
+    const w = res.why;
+    if (Array.isArray(w) && (res.checklist || []).length && w.length > 1 && !(w[0].children || []).length)
+      return w.slice(1);
+    return w;
+  };
+  const renderCitations = (res) => {
+    const b = bodyOf("citations");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    clearTools("citations");
+    const steps = citedSteps(whyOf(res));
+    if (!steps.length) {
+      b.appendChild(el("div", "lv-status", t("No cited steps.")));
+      return;
+    }
+    const ol = el("ol");
+    const FIRST = 10;
+    steps.forEach((n, i) => {
+      const li = el("li");
+      if (i >= FIRST)
+        li.hidden = true;
+      li.appendChild(el("span", "", n.plain || n.literal));
+      if (n.provenance && (n.provenance.text || n.provenance.url))
+        li.appendChild(sourceButton(n));
+      li.appendChild(el("span", "lv-cite", citationLine(n)));
+      ol.appendChild(li);
+    });
+    b.appendChild(ol);
+    if (steps.length > FIRST) {
+      const more = el("button", "lv-btn", `${t("Show all")} (${steps.length})`);
+      more.addEventListener("click", () => {
+        ol.querySelectorAll("li").forEach((li) => li.hidden = false);
+        more.remove();
+      });
+      b.appendChild(more);
+    }
+    const copy = el("button", "", t("Copy"));
+    copy.addEventListener("click", () => navigator.clipboard?.writeText(
+      steps.map((n, i) => `${i + 1}. ${n.plain || n.literal}
+   ${citationLine(n)}`).join("\n")
+    ).catch(() => {
+    }));
+    headOf("citations")?.appendChild(copy);
+  };
+  const questionFor = (literal) => (V.questions || []).find((q) => norm(q.instance) === norm(literal));
+  const renderReasons = (res) => {
+    const b = bodyOf("reasons");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    const ls = leaves(whyOf(res)).slice(0, 14);
+    for (const l of ls) {
+      const q = questionFor(l.literal);
+      const row = el("div", "lv-ck");
+      row.appendChild(el("span", l.ok ? "lv-ok" : "lv-fail", l.ok ? "\u2713" : "\u2717"));
+      row.appendChild(el("span", "", q ? `${q.text} \u2014 ${l.ok ? t("yes") : t("no")}` : l.literal));
+      b.appendChild(row);
+    }
+    if (!ls.length)
+      b.appendChild(el("div", "lv-status", t("No reasons to show.")));
+  };
+  const renderDocuments = (res) => {
+    const b = bodyOf("documents");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    const docs = /* @__PURE__ */ new Map();
+    for (const n of citedSteps(whyOf(res))) {
+      const p = n.provenance || {};
+      if (!p.document)
+        continue;
+      const d = docs.get(p.document) || { p, quotes: [], locators: [] };
+      if (p.quote) {
+        if (!d.quotes.includes(p.quote))
+          d.quotes.push(p.quote);
+      } else if (p.locator && !d.locators.includes(p.locator))
+        d.locators.push(p.locator);
+      docs.set(p.document, d);
+    }
+    if (!docs.size) {
+      b.appendChild(el("div", "lv-status", t("No documents cited.")));
+      return;
+    }
+    const list = el("div");
+    const pane = el("div");
+    b.appendChild(list);
+    b.appendChild(pane);
+    const show = async (name) => {
+      const d = docs.get(name);
+      pane.innerHTML = "";
+      if (!d.p.text) {
+        pane.appendChild(el("div", "lv-status", t("The program does not say where the text of this document is")));
+        return;
+      }
+      const res2 = await fetchDocumentText(d.p.text, documentCtx);
+      if (!res2 || typeof res2.text !== "string") {
+        pane.appendChild(el("div", "lv-status", res2 && res2.error || ""));
+        return;
+      }
+      const text = res2.text;
+      const spans = d.quotes.map((q) => findQuote(text, q)).filter((x) => !!x).sort((a, b2) => a[0] - b2[0]);
+      const box = el("div", "lv-doc");
+      let at = 0;
+      for (const [s, e] of spans) {
+        if (s < at)
+          continue;
+        box.appendChild(document.createTextNode(text.slice(at, s)));
+        box.appendChild(el("mark", "", text.slice(s, e)));
+        at = e;
+      }
+      box.appendChild(document.createTextNode(text.slice(at)));
+      pane.appendChild(box);
+      box.querySelector("mark")?.scrollIntoView({ block: "center" });
+    };
+    let first = "";
+    for (const [name, d] of docs)
+      if (d.p.text && caseProvenance.includes(name)) {
+        first = name;
+        break;
+      }
+    for (const [name, d] of docs) {
+      const row = el("div", "lv-ck");
+      const a = el("b", "", name);
+      a.style.cursor = d.p.text ? "pointer" : "default";
+      a.addEventListener("click", () => show(name));
+      row.appendChild(a);
+      const what = [...d.locators.slice(0, 4)];
+      if (d.quotes.length)
+        what.push(`${d.quotes.length} ${d.quotes.length === 1 ? t("passage") : t("passages")}`);
+      row.appendChild(el("span", "lv-na", what.join(" \xB7 ")));
+      list.appendChild(row);
+      if (!first && d.p.text)
+        first = name;
+    }
+    if (first)
+      show(first);
+    else
+      pane.appendChild(el("div", "lv-status", t("No text attached to these documents: the program says where each is cited, not where its text is.")));
+  };
+  const flipText = (goal, negate) => `${phrase("flip_query")} ${negate ? phrase("not_the_case") + " " : ""}${goal}`;
+  const renderWhatIf = () => {
+    const b = bodyOf("whatif");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    const go = el("button", "lv-btn", t("Find the smallest changes"));
+    const out = el("div");
+    b.appendChild(go);
+    b.appendChild(out);
+    go.addEventListener("click", async () => {
+      if (!lastResult)
+        return;
+      const results = lastResult.results || [];
+      let goal;
+      let negate;
+      if (results.length) {
+        goal = results[0].goal || results[0].answer;
+        negate = true;
+      } else if (R.whether) {
+        goal = R.whether;
+        negate = false;
+      } else {
+        goal = queryText(R.query);
+        negate = false;
+      }
+      out.innerHTML = "";
+      out.appendChild(el("div", "lv-status", t("Searching\u2026")));
+      const req = resultRequest();
+      delete req.query;
+      req.customQuery = flipText(goal, negate);
+      const res = await leapi({ operation: "answeringQuery", ...req });
+      out.innerHTML = "";
+      const sets = (res.results || []).map((r) => String(r.answer));
+      if (!sets.length) {
+        out.appendChild(el("div", "lv-status", t("No change of up to three facts would change it.")));
+        return;
+      }
+      for (const s of sets.slice(0, 8))
+        out.appendChild(el("div", "lv-ck", sayChange(s)));
+      if (sets.length > 8)
+        out.appendChild(el("div", "lv-status", `\u2026 ${sets.length} ${t("change sets")}`));
+    });
+  };
+  const sayChange = (s) => {
+    return s.split(/\s+and\s+(?=(?:add|remove):)/).map((part) => {
+      const m = /^(add|remove):\s*(.*)$/.exec(part.trim());
+      if (!m)
+        return part;
+      const q = questionFor(m[2]);
+      if (q)
+        return `${t("Answering")} ${m[1] === "add" ? t("yes") : t("no")} ${t("to")} \u201C${q.text}\u201D`;
+      return part;
+    }).join(" \u2014 ");
+  };
+  const renderTables = async () => {
+    const b0 = bodyOf("tables");
+    if (!b0)
+      return;
+    const b = el("div");
+    for (const tb of V.tables || []) {
+      if ((V.tables || []).length > 1)
+        b.appendChild(el("div", "lv-grp", tb.title));
+      const req = resultRequest();
+      delete req.query;
+      req.customQuery = tb.question;
+      const res = await leapi({ operation: "answeringQuery", ...req });
+      const results = res.results || [];
+      if (!results.length) {
+        b.appendChild(el("div", "lv-status", t("None.")));
+        continue;
+      }
+      const slots0 = answerSlots(tb.question, results[0].answer);
+      const cols = Object.keys(slots0);
+      const table = el("table");
+      const hr = el("tr");
+      (cols.length ? cols : [t("Answer")]).forEach((c) => hr.appendChild(el("th", "", c)));
+      table.appendChild(hr);
+      for (const r of results) {
+        const tr = el("tr");
+        const sl = answerSlots(tb.question, r.answer);
+        if (cols.length)
+          cols.forEach((c) => tr.appendChild(el("td", "", sl[c] || "")));
+        else
+          tr.appendChild(el("td", "", r.answer));
+        table.appendChild(tr);
+      }
+      b.appendChild(table);
+    }
+    b0.innerHTML = "";
+    b0.appendChild(b);
+  };
+  const renderCompare = async () => {
+    const b = bodyOf("compare");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    for (const sc of V.compare || []) {
+      b.appendChild(el("div", "lv-grp", sc));
+      const req = { sessionModule: ctx.sessionModule, scenario: sc };
+      if (R.whether)
+        req.customQuery = R.whether;
+      else
+        req.query = R.query;
+      const res = await leapi({ operation: "answeringQuery", ...req });
+      const results = res.results || [];
+      if (results.length)
+        results.slice(0, 3).forEach((r) => b.appendChild(el("div", "lv-ok", R.whether && R.holds ? R.holds : r.answer)));
+      else {
+        b.appendChild(el("div", "lv-fail", R.whether && R.not ? R.not : t("No answer")));
+        const failed = (res.checklist || []).find((c) => c.status === "failed");
+        if (failed)
+          b.appendChild(el("div", "lv-sub", `${t("fails at")} ${failed.section}`));
+        if (res.strongestReason)
+          b.appendChild(el("div", "lv-sub", res.strongestReason));
+      }
+    }
+  };
+  const renderCases = () => {
+    const b = bodyOf("cases");
+    if (!b)
+      return;
+    b.innerHTML = "";
+    const go = el("button", "lv-btn", t("Run all cases"));
+    const out = el("div");
+    b.appendChild(go);
+    b.appendChild(out);
+    go.addEventListener("click", async () => {
+      out.innerHTML = "";
+      const table = el("table");
+      const hr = el("tr");
+      [t("Case"), t("Result"), t("Expected"), ""].forEach((c) => hr.appendChild(el("th", "", c)));
+      table.appendChild(hr);
+      out.appendChild(table);
+      for (const sc of scenarioNames) {
+        const req = { sessionModule: ctx.sessionModule, scenario: sc };
+        if (R.whether)
+          req.customQuery = R.whether;
+        else
+          req.query = R.query;
+        const res = await leapi({ operation: "answeringQuery", ...req });
+        const answers = (res.results || []).map((r) => String(r.answer));
+        const block = blocks.find((x) => x.name === sc);
+        const expected = R.query ? expectedAnswers(block, R.query) : null;
+        const tr = el("tr");
+        const a = el("a", "", sc);
+        a.setAttribute("href", "#");
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          casePicker.value = sc;
+          loadCase(sc);
+          run();
+        });
+        const td0 = el("td");
+        td0.appendChild(a);
+        tr.appendChild(td0);
+        tr.appendChild(el("td", "", answers.length ? answers.join("; ") : t("No answer")));
+        tr.appendChild(el("td", "", expected === null ? "\u2014" : expected.length ? expected.join("; ") : t("No answer")));
+        const agree = expected === null ? "" : sameSet(answers, expected) ? "\u2713" : "\u2717";
+        tr.appendChild(el("td", agree === "\u2713" ? "lv-ok" : agree === "\u2717" ? "lv-fail" : "", agree));
+        table.appendChild(tr);
+      }
+    });
+  };
+  const renderDraft = (res) => {
+    const b = bodyOf("draft");
+    if (!b || !V.draft)
+      return;
+    b.innerHTML = "";
+    clearTools("draft");
+    const results = res.results || [];
+    const slots = results.length && R.query ? answerSlots(queryText(R.query), results[0].answer) : {};
+    const head = R.headedBy ? slots[String(R.headedBy).split(/\s+/).pop().toLowerCase()] : null;
+    const fill = {
+      "the result": head || (results[0]?.answer ?? (R.not || t("No answer"))),
+      "the answer": results[0]?.answer ?? (R.not || t("No answer")),
+      // the legal basis: the steps a labelled rule or table row cites
+      "the citations": citedSteps(whyOf(res)).filter((n) => n.rule || /^row /.test(String(n.literal))).map((n) => citationLine(n)).filter((x, i, a) => a.indexOf(x) === i).join("; "),
+      "the facts": forms.flatMap((f) => f.form.factLines()).join("; "),
+      "the case": caseName
+    };
+    const text = String(V.draft).replace(/\{([^}]+)\}/g, (m, k) => k.trim() in fill ? fill[k.trim()] : m);
+    b.appendChild(el("div", "lv-draft", text));
+    const copy = el("button", "", t("Copy"));
+    copy.addEventListener("click", () => navigator.clipboard?.writeText(text).catch(() => {
+    }));
+    headOf("draft")?.appendChild(copy);
+  };
+  const renderMissing = async () => {
+    const b = bodyOf("questions");
+    if (!b)
+      return;
+    const req = resultRequest();
+    const oq = await leapi({ operation: "openQuestions", ...req });
+    b.innerHTML = "";
+    const assumed = !oq.holds && lastResult && (lastResult.results || []).length ? [...new Set((lastResult.results || []).flatMap((r) => r.unknowns || []))] : [];
+    if (assumed.length) {
+      for (const u of assumed) {
+        const box = el("div", "lv-q");
+        const q = questionFor(u);
+        box.appendChild(el("div", "", q ? q.text : `${u}?`));
+        box.appendChild(el("div", "lv-sub", t("The result holds provided that it does.")));
+        const y = el("span", "lv-chip", t("Yes, state it"));
+        y.addEventListener("click", () => {
+          const f = forms.find((x) => matchFact(u, x.labels)) || forms[forms.length - 1];
+          if (f)
+            f.form.addFact(u, false);
+        });
+        box.appendChild(y);
+        b.appendChild(box);
+      }
+      return;
+    }
+    if (oq.holds || !(oq.missing || []).length) {
+      b.appendChild(el("div", "lv-status", oq.holds ? t("Nothing is missing.") : t("No fact of the case would give a result on its own.")));
+      return;
+    }
+    for (const m of oq.missing) {
+      const q = questionFor(m.literal);
+      const box = el("div", "lv-q");
+      box.appendChild(el("div", "", q ? q.text : `${m.literal}?`));
+      const ground = !/\b(a|an)\s+\w+/.test(m.goal.replace(/^[^ ]+ /, "")) || !(m.values || []).some((v) => v && v.length);
+      const addFact = (text) => {
+        const f = forms.find((x) => x.labels.includes(m.label)) || forms[forms.length - 1];
+        if (f)
+          f.form.addFact(text, false);
+      };
+      if (ground) {
+        const y = el("span", "lv-chip", t("Yes, state it"));
+        y.addEventListener("click", () => addFact(m.goal));
+        box.appendChild(y);
+      } else {
+        const vals = (m.values || []).flat();
+        for (const v of vals.slice(0, 10)) {
+          const c = el("span", "lv-chip", v);
+          c.addEventListener("click", () => {
+            const mm = matchFact(m.goal, [m.label]);
+            if (!mm) {
+              addFact(m.goal);
+              return;
+            }
+            const segs = m.label.match(/\*[^*]+\*/g) || [];
+            const values = mm.values.map((x, i) => segs[i] && x === segs[i].replace(/\*/g, "") && m.values[i] && m.values[i].length ? v : x);
+            addFact(fillLabel(m.label, values));
+          });
+          box.appendChild(c);
+        }
+        const s = el("span", "lv-chip", t("State it"));
+        s.addEventListener("click", () => addFact(m.goal));
+        box.appendChild(s);
+      }
+      b.appendChild(box);
+    }
+  };
+  let runTimer = null;
+  const scheduleRun = () => {
+    if (runTimer)
+      clearTimeout(runTimer);
+    runTimer = setTimeout(() => {
+      showAbsent();
+      run();
+    }, 700);
+  };
+  const run = async () => {
+    status.textContent = t("Running\u2026");
+    const res = await leapi({ operation: "answeringQuery", ...resultRequest() });
+    lastResult = res;
+    status.textContent = res.error ? String(res.error) : "";
+    renderResult(res);
+    renderStage(res);
+    renderCitations(res);
+    renderReasons(res);
+    renderDocuments(res);
+    renderDraft(res);
+    renderWhatIf();
+    if (cards.questions && V.missing)
+      renderMissing();
+    renderTables();
+  };
+  if (V.interview) {
+    const box = el("div", "lv-interview");
+    root.appendChild(box);
+    const answers = /* @__PURE__ */ new Map();
+    const facts = () => (V.questions || []).filter((q) => answers.get(q.instance) === "yes").map((q) => `${q.instance}.`).join("\n");
+    const req = () => {
+      const r = { sessionModule: ctx.sessionModule, customScenario: facts() };
+      if (R.whether)
+        r.customQuery = R.whether;
+      else
+        r.query = R.query;
+      return r;
+    };
+    const step = async () => {
+      box.innerHTML = "";
+      const oq = await leapi({ operation: "openQuestions", ...req() });
+      const touched = new Set((oq.touched || []).map((x) => norm(x.literal)));
+      const next = oq.holds ? null : (V.questions || []).find((q) => !answers.has(q.instance) && touched.has(norm(q.instance)));
+      const total = (V.questions || []).length;
+      if (next) {
+        box.appendChild(el("div", "lv-status", `${t("Question")} ${answers.size + 1} ${t("of at most")} ${total}`));
+        box.appendChild(el("div", "lv-ask", next.text));
+        for (const [k, label] of [["yes", t("Yes")], ["no", t("No")], ["unsure", t("Not sure")]]) {
+          const bb = el("button", "lv-bigbtn", label);
+          bb.addEventListener("click", () => {
+            answers.set(next.instance, k);
+            step();
+          });
+          box.appendChild(bb);
+        }
+        if (answers.size) {
+          const back = el("button", "lv-btn", `\u2190 ${t("Back")}`);
+          back.addEventListener("click", () => {
+            const keys = [...answers.keys()];
+            answers.delete(keys[keys.length - 1]);
+            step();
+          });
+          box.appendChild(back);
+        }
+        return;
+      }
+      const res = await leapi({ operation: "answeringQuery", ...req() });
+      lastResult = res;
+      const holds = (res.results || []).length > 0;
+      box.appendChild(el("div", `lv-res ${holds ? "yes" : "no"}`, holds ? R.holds || res.results[0].answer : R.not || t("No")));
+      if (V.reasons) {
+        box.appendChild(el("div", "lv-grp", t("Why")));
+        for (const q of V.questions || []) {
+          if (!answers.has(q.instance))
+            continue;
+          const a = answers.get(q.instance);
+          const row = el("div", "lv-ck");
+          row.appendChild(el("span", a === "yes" ? "lv-ok" : "lv-fail", a === "yes" ? "\u2713" : a === "no" ? "\u2717" : "?"));
+          row.appendChild(el("span", "", `${q.text} \u2014 ${a === "yes" ? t("yes") : a === "no" ? t("no") : t("not sure")}`));
+          box.appendChild(row);
+        }
+      }
+      if (V.flip) {
+        box.appendChild(el("div", "lv-grp", V.flip.label || t("What would change this?")));
+        const goal = holds ? res.results[0].goal || res.results[0].answer : R.whether || queryText(R.query);
+        const r2 = req();
+        delete r2.query;
+        r2.customQuery = flipText(goal, holds);
+        const fl = await leapi({ operation: "answeringQuery", ...r2 });
+        const sets = (fl.results || []).map((r) => String(r.answer));
+        if (!sets.length)
+          box.appendChild(el("div", "lv-status", t("No change of up to three facts would change it.")));
+        sets.slice(0, 6).forEach((s, i) => box.appendChild(el("div", "lv-ck", (i ? `${t("or")} ` : "") + sayChange(s))));
+      }
+      const again = el("button", "lv-bigbtn", t("Change an answer"));
+      again.addEventListener("click", () => {
+        const keys = [...answers.keys()];
+        answers.delete(keys[keys.length - 1]);
+        step();
+      });
+      box.appendChild(again);
+    };
+    await step();
+    return;
+  }
+  const left = el("div", "lv-col"), mid = el("div", "lv-col"), right = el("div", "lv-col"), wide = el("div", "lv-wide");
+  const grid = el("div", "lv-grid");
+  grid.appendChild(left);
+  grid.appendChild(mid);
+  grid.appendChild(right);
+  root.appendChild(status);
+  root.appendChild(grid);
+  root.appendChild(wide);
+  left.appendChild(factsCard);
+  const titles = {
+    questions: t("What is missing"),
+    result: t("Result"),
+    stage: t("Stage"),
+    citations: t("Citations"),
+    reasons: t("Reasons"),
+    whatif: V.flip && V.flip.label || t("What would change this?"),
+    tables: t("Answers"),
+    compare: t("Compare"),
+    documents: t("Documents"),
+    cases: t("Cases"),
+    draft: t("Draft")
+  };
+  const column = {
+    questions: left,
+    result: mid,
+    stage: mid,
+    citations: mid,
+    reasons: mid,
+    whatif: mid,
+    tables: right,
+    compare: right,
+    documents: right,
+    cases: wide,
+    draft: wide
+  };
+  const order = (V.order || []).filter((w) => w !== "facts");
+  if (!order.includes("result") && (R.query || R.whether))
+    order.unshift("result");
+  for (const w of order) {
+    if (!column[w] || cards[w])
+      continue;
+    if (w === "tables" && titles.tables && (V.tables || []).length === 1)
+      titles.tables = V.tables[0].title;
+    column[w].appendChild(card(w, titles[w] || w));
+  }
+  if (!right.children.length)
+    grid.classList.add("two");
+  renderCompare();
+  renderCases();
+  if (cards.cases && scenarioNames.length <= 12)
+    cards.cases.querySelector("button")?.click();
+  casePicker.addEventListener("change", () => {
+    loadCase(casePicker.value);
+    run();
   });
-  picker.value = "__new__";
-  newQuery();
+  const initial = new URLSearchParams(location.search).get("scenario");
+  const start = initial && scenarioNames.includes(initial) ? initial : scenarioNames[0] || "";
+  casePicker.value = start;
+  loadCase(start);
+  await run();
 }
-installLeApiLang();
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => applyI18nDom());
-} else {
-  applyI18nDom();
+function expectedAnswers(block, query) {
+  if (!block)
+    return null;
+  for (const f of block.facts) {
+    const m = new RegExp(`^${String(query).replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+\\S+(?:\\s+\\S+)?\\s*\\[([^\\]]*)\\]`, "i").exec(f.trim());
+    if (m && /\[/.test(f)) {
+      return (m[1].match(/"([^"]*)"/g) || []).map((s) => s.slice(1, -1));
+    }
+  }
+  return null;
+}
+function sameSet(a, b) {
+  const n = (x) => x.replace(/\s+/g, " ").trim().toLowerCase();
+  const A = new Set(a.map(n)), B = new Set(b.map(n));
+  return A.size === B.size && [...A].every((x) => B.has(x));
+}
+function fillLabel(label, values) {
+  let i = 0;
+  return label.replace(/\*[^*]+\*/g, () => values[i++] ?? "");
 }
 export {
-  initQueryEditor
+  mountView
 };

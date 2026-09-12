@@ -1089,6 +1089,297 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "changes"
       ]
+    ],
+    "view_open": [
+      [
+        "the",
+        "view"
+      ]
+    ],
+    "view_title": [
+      [
+        "the",
+        "title",
+        "is"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "the",
+        "case",
+        "is",
+        "a",
+        "scenario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "with",
+        "the",
+        "documents",
+        "it",
+        "is",
+        "stated",
+        "in"
+      ],
+      [
+        "with",
+        "the",
+        "document",
+        "it",
+        "is",
+        "stated",
+        "in"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "the",
+        "case",
+        "is",
+        "about"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "the",
+        "facts",
+        "about"
+      ]
+    ],
+    "view_are": [
+      [
+        "are"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "the",
+        "judgments",
+        "are"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "the",
+        "other",
+        "facts",
+        "can",
+        "be",
+        "added"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "the",
+        "other",
+        "facts",
+        "cannot",
+        "be",
+        "added"
+      ]
+    ],
+    "view_sources": [
+      [
+        "every",
+        "fact",
+        "shows",
+        "who",
+        "states",
+        "it"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "the",
+        "facts",
+        "are",
+        "asked",
+        "one",
+        "at",
+        "a",
+        "time"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "the",
+        "question",
+        "for"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "the",
+        "result",
+        "is",
+        "the",
+        "answer",
+        "to",
+        "query"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "headed",
+        "by"
+      ]
+    ],
+    "view_in": [
+      [
+        "in"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "the",
+        "result",
+        "is",
+        "whether"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "the",
+        "result",
+        "reads"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "when",
+        "it",
+        "holds"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "when",
+        "it",
+        "does",
+        "not"
+      ]
+    ],
+    "view_citations": [
+      [
+        "the",
+        "result",
+        "shows",
+        "its",
+        "citations"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "the",
+        "result",
+        "shows",
+        "its",
+        "reasons"
+      ]
+    ],
+    "view_stage": [
+      [
+        "the",
+        "result",
+        "shows",
+        "the",
+        "stage",
+        "it",
+        "reaches"
+      ]
+    ],
+    "view_missing": [
+      [
+        "the",
+        "result",
+        "asks",
+        "what",
+        "is",
+        "missing"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "the",
+        "result",
+        "can",
+        "be",
+        "flipped"
+      ]
+    ],
+    "view_as": [
+      [
+        "as"
+      ]
+    ],
+    "view_compare": [
+      [
+        "the",
+        "result",
+        "is",
+        "compared",
+        "with",
+        "scenario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "the",
+        "answers",
+        "to"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "are",
+        "listed",
+        "as"
+      ]
+    ],
+    "view_documents": [
+      [
+        "the",
+        "documents",
+        "of",
+        "the",
+        "case",
+        "are",
+        "shown",
+        "beside",
+        "the",
+        "facts"
+      ],
+      [
+        "the",
+        "document",
+        "of",
+        "the",
+        "case",
+        "is",
+        "shown",
+        "beside",
+        "the",
+        "facts"
+      ]
+    ],
+    "view_cases": [
+      [
+        "the",
+        "cases",
+        "are",
+        "listed",
+        "with",
+        "their",
+        "results"
+      ]
+    ],
+    "view_draft": [
+      [
+        "the",
+        "draft",
+        "reads"
+      ]
     ]
   },
   "pt": {
@@ -2440,6 +2731,340 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "alterações"
       ]
+    ],
+    "view_open": [
+      [
+        "a",
+        "vista"
+      ]
+    ],
+    "view_title": [
+      [
+        "o",
+        "título",
+        "é"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "o",
+        "caso",
+        "é",
+        "um",
+        "cenário"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "com",
+        "os",
+        "documentos",
+        "em",
+        "que",
+        "consta"
+      ],
+      [
+        "com",
+        "o",
+        "documento",
+        "em",
+        "que",
+        "consta"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "o",
+        "caso",
+        "é",
+        "sobre"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "os",
+        "factos",
+        "sobre"
+      ],
+      [
+        "os",
+        "fatos",
+        "sobre"
+      ]
+    ],
+    "view_are": [
+      [
+        "são"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "os",
+        "juízos",
+        "são"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "os",
+        "outros",
+        "factos",
+        "podem",
+        "ser",
+        "acrescentados"
+      ],
+      [
+        "os",
+        "outros",
+        "fatos",
+        "podem",
+        "ser",
+        "acrescentados"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "os",
+        "outros",
+        "factos",
+        "não",
+        "podem",
+        "ser",
+        "acrescentados"
+      ],
+      [
+        "os",
+        "outros",
+        "fatos",
+        "não",
+        "podem",
+        "ser",
+        "acrescentados"
+      ]
+    ],
+    "view_sources": [
+      [
+        "cada",
+        "facto",
+        "mostra",
+        "quem",
+        "o",
+        "afirma"
+      ],
+      [
+        "cada",
+        "fato",
+        "mostra",
+        "quem",
+        "o",
+        "afirma"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "os",
+        "factos",
+        "são",
+        "perguntados",
+        "um",
+        "de",
+        "cada",
+        "vez"
+      ],
+      [
+        "os",
+        "fatos",
+        "são",
+        "perguntados",
+        "um",
+        "de",
+        "cada",
+        "vez"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "a",
+        "pergunta",
+        "para"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "o",
+        "resultado",
+        "é",
+        "a",
+        "resposta",
+        "à",
+        "consulta"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "encabeçado",
+        "por"
+      ]
+    ],
+    "view_in": [
+      [
+        "em"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "o",
+        "resultado",
+        "é",
+        "se"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "o",
+        "resultado",
+        "diz"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "quando",
+        "se",
+        "verifica"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "quando",
+        "não",
+        "se",
+        "verifica"
+      ]
+    ],
+    "view_citations": [
+      [
+        "o",
+        "resultado",
+        "mostra",
+        "as",
+        "suas",
+        "citações"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "o",
+        "resultado",
+        "mostra",
+        "as",
+        "suas",
+        "razões"
+      ]
+    ],
+    "view_stage": [
+      [
+        "o",
+        "resultado",
+        "mostra",
+        "a",
+        "etapa",
+        "que",
+        "alcança"
+      ]
+    ],
+    "view_missing": [
+      [
+        "o",
+        "resultado",
+        "pergunta",
+        "o",
+        "que",
+        "falta"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "o",
+        "resultado",
+        "pode",
+        "ser",
+        "invertido"
+      ]
+    ],
+    "view_as": [
+      [
+        "como"
+      ]
+    ],
+    "view_compare": [
+      [
+        "o",
+        "resultado",
+        "é",
+        "comparado",
+        "com",
+        "o",
+        "cenário"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "as",
+        "respostas",
+        "a"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "são",
+        "listadas",
+        "como"
+      ]
+    ],
+    "view_documents": [
+      [
+        "os",
+        "documentos",
+        "do",
+        "caso",
+        "são",
+        "mostrados",
+        "ao",
+        "lado",
+        "dos",
+        "factos"
+      ],
+      [
+        "o",
+        "documento",
+        "do",
+        "caso",
+        "é",
+        "mostrado",
+        "ao",
+        "lado",
+        "dos",
+        "factos"
+      ]
+    ],
+    "view_cases": [
+      [
+        "os",
+        "casos",
+        "são",
+        "listados",
+        "com",
+        "os",
+        "seus",
+        "resultados"
+      ]
+    ],
+    "view_draft": [
+      [
+        "o",
+        "rascunho",
+        "diz"
+      ]
     ]
   },
   "es": {
@@ -3771,6 +4396,294 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "cambios"
       ]
+    ],
+    "view_open": [
+      [
+        "la",
+        "vista"
+      ]
+    ],
+    "view_title": [
+      [
+        "el",
+        "título",
+        "es"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "el",
+        "caso",
+        "es",
+        "un",
+        "escenario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "con",
+        "los",
+        "documentos",
+        "en",
+        "que",
+        "consta"
+      ],
+      [
+        "con",
+        "el",
+        "documento",
+        "en",
+        "que",
+        "consta"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "el",
+        "caso",
+        "trata",
+        "de"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "los",
+        "hechos",
+        "sobre"
+      ]
+    ],
+    "view_are": [
+      [
+        "son"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "los",
+        "juicios",
+        "son"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "los",
+        "demás",
+        "hechos",
+        "pueden",
+        "añadirse"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "los",
+        "demás",
+        "hechos",
+        "no",
+        "pueden",
+        "añadirse"
+      ]
+    ],
+    "view_sources": [
+      [
+        "cada",
+        "hecho",
+        "muestra",
+        "quién",
+        "lo",
+        "afirma"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "los",
+        "hechos",
+        "se",
+        "preguntan",
+        "uno",
+        "a",
+        "uno"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "la",
+        "pregunta",
+        "para"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "el",
+        "resultado",
+        "es",
+        "la",
+        "respuesta",
+        "a",
+        "la",
+        "consulta"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "encabezado",
+        "por"
+      ]
+    ],
+    "view_in": [
+      [
+        "en"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "el",
+        "resultado",
+        "es",
+        "si"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "el",
+        "resultado",
+        "dice"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "cuando",
+        "se",
+        "cumple"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "cuando",
+        "no",
+        "se",
+        "cumple"
+      ]
+    ],
+    "view_citations": [
+      [
+        "el",
+        "resultado",
+        "muestra",
+        "sus",
+        "citas"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "el",
+        "resultado",
+        "muestra",
+        "sus",
+        "razones"
+      ]
+    ],
+    "view_stage": [
+      [
+        "el",
+        "resultado",
+        "muestra",
+        "la",
+        "etapa",
+        "que",
+        "alcanza"
+      ]
+    ],
+    "view_missing": [
+      [
+        "el",
+        "resultado",
+        "pregunta",
+        "lo",
+        "que",
+        "falta"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "el",
+        "resultado",
+        "puede",
+        "invertirse"
+      ]
+    ],
+    "view_as": [
+      [
+        "como"
+      ]
+    ],
+    "view_compare": [
+      [
+        "el",
+        "resultado",
+        "se",
+        "compara",
+        "con",
+        "el",
+        "escenario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "las",
+        "respuestas",
+        "a"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "se",
+        "listan",
+        "como"
+      ]
+    ],
+    "view_documents": [
+      [
+        "los",
+        "documentos",
+        "del",
+        "caso",
+        "se",
+        "muestran",
+        "junto",
+        "a",
+        "los",
+        "hechos"
+      ],
+      [
+        "el",
+        "documento",
+        "del",
+        "caso",
+        "se",
+        "muestra",
+        "junto",
+        "a",
+        "los",
+        "hechos"
+      ]
+    ],
+    "view_cases": [
+      [
+        "los",
+        "casos",
+        "se",
+        "listan",
+        "con",
+        "sus",
+        "resultados"
+      ]
+    ],
+    "view_draft": [
+      [
+        "el",
+        "borrador",
+        "dice"
+      ]
     ]
   },
   "fr": {
@@ -5071,6 +5984,299 @@ export const keywords: Record<string, KeywordTable> = {
     "changes": [
       [
         "changements"
+      ]
+    ],
+    "view_open": [
+      [
+        "la",
+        "vue"
+      ]
+    ],
+    "view_title": [
+      [
+        "le",
+        "titre",
+        "est"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "le",
+        "cas",
+        "est",
+        "un",
+        "scénario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "avec",
+        "les",
+        "documents",
+        "où",
+        "il",
+        "est",
+        "énoncé"
+      ],
+      [
+        "avec",
+        "le",
+        "document",
+        "où",
+        "il",
+        "est",
+        "énoncé"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "le",
+        "cas",
+        "porte",
+        "sur"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "les",
+        "faits",
+        "concernant"
+      ]
+    ],
+    "view_are": [
+      [
+        "sont"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "les",
+        "jugements",
+        "sont"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "les",
+        "autres",
+        "faits",
+        "peuvent",
+        "être",
+        "ajoutés"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "les",
+        "autres",
+        "faits",
+        "ne",
+        "peuvent",
+        "pas",
+        "être",
+        "ajoutés"
+      ]
+    ],
+    "view_sources": [
+      [
+        "chaque",
+        "fait",
+        "montre",
+        "qui",
+        "le",
+        "déclare"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "les",
+        "faits",
+        "sont",
+        "demandés",
+        "un",
+        "par",
+        "un"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "la",
+        "question",
+        "pour"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "le",
+        "résultat",
+        "est",
+        "la",
+        "réponse",
+        "à",
+        "la",
+        "requête"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "mené",
+        "par"
+      ]
+    ],
+    "view_in": [
+      [
+        "en"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "le",
+        "résultat",
+        "est",
+        "si"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "le",
+        "résultat",
+        "dit"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "quand",
+        "il",
+        "est",
+        "vrai"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "quand",
+        "il",
+        "est",
+        "faux"
+      ]
+    ],
+    "view_citations": [
+      [
+        "le",
+        "résultat",
+        "montre",
+        "ses",
+        "citations"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "le",
+        "résultat",
+        "montre",
+        "ses",
+        "raisons"
+      ]
+    ],
+    "view_stage": [
+      [
+        "le",
+        "résultat",
+        "montre",
+        "le",
+        "stade",
+        "atteint"
+      ]
+    ],
+    "view_missing": [
+      [
+        "le",
+        "résultat",
+        "demande",
+        "ce",
+        "qui",
+        "manque"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "le",
+        "résultat",
+        "peut",
+        "être",
+        "inversé"
+      ]
+    ],
+    "view_as": [
+      [
+        "comme"
+      ]
+    ],
+    "view_compare": [
+      [
+        "le",
+        "résultat",
+        "est",
+        "comparé",
+        "au",
+        "scénario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "les",
+        "réponses",
+        "à"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "sont",
+        "listées",
+        "comme"
+      ]
+    ],
+    "view_documents": [
+      [
+        "les",
+        "documents",
+        "du",
+        "cas",
+        "sont",
+        "montrés",
+        "à",
+        "côté",
+        "des",
+        "faits"
+      ],
+      [
+        "le",
+        "document",
+        "du",
+        "cas",
+        "est",
+        "montré",
+        "à",
+        "côté",
+        "des",
+        "faits"
+      ]
+    ],
+    "view_cases": [
+      [
+        "les",
+        "cas",
+        "sont",
+        "listés",
+        "avec",
+        "leurs",
+        "résultats"
+      ]
+    ],
+    "view_draft": [
+      [
+        "le",
+        "brouillon",
+        "dit"
       ]
     ]
   },
@@ -6439,6 +7645,295 @@ export const keywords: Record<string, KeywordTable> = {
       [
         "cambiamenti"
       ]
+    ],
+    "view_open": [
+      [
+        "la",
+        "vista"
+      ]
+    ],
+    "view_title": [
+      [
+        "il",
+        "titolo",
+        "è"
+      ]
+    ],
+    "view_case_scenario": [
+      [
+        "il",
+        "caso",
+        "è",
+        "uno",
+        "scenario"
+      ]
+    ],
+    "view_with_documents": [
+      [
+        "con",
+        "il",
+        "documento",
+        "in",
+        "cui",
+        "è",
+        "indicato"
+      ],
+      [
+        "con",
+        "i",
+        "documenti",
+        "in",
+        "cui",
+        "è",
+        "indicato"
+      ]
+    ],
+    "view_case_about": [
+      [
+        "il",
+        "caso",
+        "riguarda"
+      ]
+    ],
+    "view_facts_about": [
+      [
+        "i",
+        "fatti",
+        "su"
+      ]
+    ],
+    "view_are": [
+      [
+        "sono"
+      ]
+    ],
+    "view_judgments": [
+      [
+        "i",
+        "giudizi",
+        "sono"
+      ]
+    ],
+    "view_other_facts": [
+      [
+        "gli",
+        "altri",
+        "fatti",
+        "possono",
+        "essere",
+        "aggiunti"
+      ]
+    ],
+    "view_no_other_facts": [
+      [
+        "gli",
+        "altri",
+        "fatti",
+        "non",
+        "possono",
+        "essere",
+        "aggiunti"
+      ]
+    ],
+    "view_sources": [
+      [
+        "ogni",
+        "fatto",
+        "mostra",
+        "chi",
+        "lo",
+        "afferma"
+      ]
+    ],
+    "view_one_at_a_time": [
+      [
+        "i",
+        "fatti",
+        "sono",
+        "chiesti",
+        "uno",
+        "alla",
+        "volta"
+      ]
+    ],
+    "view_question_for": [
+      [
+        "la",
+        "domanda",
+        "per"
+      ]
+    ],
+    "view_result_query": [
+      [
+        "il",
+        "risultato",
+        "è",
+        "la",
+        "risposta",
+        "alla",
+        "interrogazione"
+      ]
+    ],
+    "view_headed_by": [
+      [
+        "guidato",
+        "da"
+      ]
+    ],
+    "view_in": [
+      [
+        "in"
+      ]
+    ],
+    "view_result_whether": [
+      [
+        "il",
+        "risultato",
+        "è",
+        "se"
+      ]
+    ],
+    "view_result_reads": [
+      [
+        "il",
+        "risultato",
+        "dice"
+      ]
+    ],
+    "view_when_holds": [
+      [
+        "quando",
+        "vale"
+      ]
+    ],
+    "view_when_not": [
+      [
+        "quando",
+        "non",
+        "vale"
+      ]
+    ],
+    "view_citations": [
+      [
+        "il",
+        "risultato",
+        "mostra",
+        "le",
+        "sue",
+        "citazioni"
+      ]
+    ],
+    "view_reasons": [
+      [
+        "il",
+        "risultato",
+        "mostra",
+        "le",
+        "sue",
+        "ragioni"
+      ]
+    ],
+    "view_stage": [
+      [
+        "il",
+        "risultato",
+        "mostra",
+        "la",
+        "fase",
+        "raggiunta"
+      ]
+    ],
+    "view_missing": [
+      [
+        "il",
+        "risultato",
+        "chiede",
+        "ciò",
+        "che",
+        "manca"
+      ]
+    ],
+    "view_flipped": [
+      [
+        "il",
+        "risultato",
+        "può",
+        "essere",
+        "invertito"
+      ]
+    ],
+    "view_as": [
+      [
+        "come"
+      ]
+    ],
+    "view_compare": [
+      [
+        "il",
+        "risultato",
+        "è",
+        "confrontato",
+        "con",
+        "lo",
+        "scenario"
+      ]
+    ],
+    "view_answers_to": [
+      [
+        "le",
+        "risposte",
+        "a"
+      ]
+    ],
+    "view_listed_as": [
+      [
+        "sono",
+        "elencate",
+        "come"
+      ]
+    ],
+    "view_documents": [
+      [
+        "i",
+        "documenti",
+        "del",
+        "caso",
+        "sono",
+        "mostrati",
+        "accanto",
+        "ai",
+        "fatti"
+      ],
+      [
+        "il",
+        "documento",
+        "del",
+        "caso",
+        "è",
+        "mostrato",
+        "accanto",
+        "ai",
+        "fatti"
+      ]
+    ],
+    "view_cases": [
+      [
+        "i",
+        "casi",
+        "sono",
+        "elencati",
+        "con",
+        "i",
+        "loro",
+        "risultati"
+      ]
+    ],
+    "view_draft": [
+      [
+        "la",
+        "bozza",
+        "dice"
+      ]
     ]
   }
 } as const;
@@ -6568,7 +8063,39 @@ export const keywordCategories: Record<string, string> = {
   "via_service": "template_addition",
   "kind_semantic_matcher": "service",
   "flip_query": "query",
-  "changes": "expect"
+  "changes": "expect",
+  "view_open": "view",
+  "view_title": "view",
+  "view_case_scenario": "view",
+  "view_with_documents": "view",
+  "view_case_about": "view",
+  "view_facts_about": "view",
+  "view_are": "view",
+  "view_judgments": "view",
+  "view_other_facts": "view",
+  "view_no_other_facts": "view",
+  "view_sources": "view",
+  "view_one_at_a_time": "view",
+  "view_question_for": "view",
+  "view_result_query": "view",
+  "view_headed_by": "view",
+  "view_in": "view",
+  "view_result_whether": "view",
+  "view_result_reads": "view",
+  "view_when_holds": "view",
+  "view_when_not": "view",
+  "view_citations": "view",
+  "view_reasons": "view",
+  "view_stage": "view",
+  "view_missing": "view",
+  "view_flipped": "view",
+  "view_as": "view",
+  "view_compare": "view",
+  "view_answers_to": "view",
+  "view_listed_as": "view",
+  "view_documents": "view",
+  "view_cases": "view",
+  "view_draft": "view"
 } as const;
 
 /** UI chrome strings per language, keyed by the canonical English string. */
@@ -6918,7 +8445,73 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "New tab": "Novo separador",
     "The queries and the assistant are about this program": "As consultas e o assistente são sobre este programa",
     "You have unsaved changes. Close this tab anyway?": "Tem alterações por guardar. Fechar este separador mesmo assim?",
-    "Could not open the included resource": "Não foi possível abrir o recurso incluído"
+    "Could not open the included resource": "Não foi possível abrir o recurso incluído",
+    "Views": "Vistas",
+    "Without a view": "Sem vista",
+    "New case": "Novo caso",
+    "The case": "O caso",
+    "Judgments": "Juízos",
+    "Other facts": "Outros factos",
+    "Facts": "Factos",
+    "not stated": "não indicado",
+    "State it": "Indicá-lo",
+    "No answer": "Sem resposta",
+    "assuming": "supondo",
+    "No sections to check.": "Não há secções a verificar.",
+    "passed": "passou",
+    "failed": "falhou",
+    "not reached": "não alcançada",
+    "No cited steps.": "Nenhum passo citado.",
+    "yes": "sim",
+    "no": "não",
+    "No reasons to show.": "Não há razões a mostrar.",
+    "No documents cited.": "Nenhum documento citado.",
+    "What would change this?": "O que mudaria isto?",
+    "Searching…": "A procurar…",
+    "No change of up to three facts would change it.": "Nenhuma alteração de até três factos o mudaria.",
+    "change sets": "conjuntos de alterações",
+    "Answering": "Responder",
+    "to": "a",
+    "None.": "Nenhum.",
+    "Answer": "Resposta",
+    "fails at": "falha em",
+    "Run all cases": "Correr todos os casos",
+    "Case": "Caso",
+    "Result": "Resultado",
+    "Expected": "Esperado",
+    "Nothing is missing.": "Não falta nada.",
+    "No fact of the case would give a result on its own.": "Nenhum facto do caso daria um resultado por si só.",
+    "Yes, state it": "Sim, indicá-lo",
+    "Running…": "A correr…",
+    "of at most": "de no máximo",
+    "Yes": "Sim",
+    "No": "Não",
+    "Not sure": "Não sei",
+    "Why": "Porquê",
+    "not sure": "não sei",
+    "Change an answer": "Mudar uma resposta",
+    "What is missing": "O que falta",
+    "Stage": "Etapa",
+    "Reasons": "Razões",
+    "Compare": "Comparar",
+    "Documents": "Documentos",
+    "Cases": "Casos",
+    "Draft": "Rascunho",
+    "Find the smallest changes": "Encontrar as menores alterações",
+    "No text attached to these documents: the program says where each is cited, not where its text is.": "Nenhum texto associado a estes documentos: o programa diz onde cada um é citado, não onde está o seu texto.",
+    "Show all": "Mostrar tudo",
+    "passage": "passagem",
+    "passages": "passagens",
+    "Generate LE view": "Gerar vista LE",
+    "Draft a view for this program (docs/le_summary.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it": "Esboçar uma vista para este programa (docs/le_summary.md §17.10): a secção que diz como um ecrã o mostra — os factos do caso, o resultado, o que se mostra ao lado",
+    "The program must load without errors before a view can be drafted.": "O programa tem de carregar sem erros antes de se poder esboçar uma vista.",
+    "I drafted a view at the end of the program:": "Esbocei uma vista no fim do programa:",
+    "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Lista todos os factos que um caso pode afirmar num grupo e mostra o resultado da primeira consulta. Edite-a: agrupe os factos sob títulos, encabece o resultado pelo valor que importa, redija as perguntas de uma entrevista. O verificador confere o que ela nomeia.",
+    "Open the view": "Abrir a vista",
+    "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.": "Aperfeiçoe a secção de vista no fim do programa: agrupe os factos sob títulos curtos, encabece o resultado pelo valor que importa e acrescente perguntas ou um rascunho onde ajudem. Use apenas as frases de vista de docs/le_summary.md §17.10.",
+    "(once the program is saved)": "(depois de o programa ser guardado)",
+    "provided that": "desde que",
+    "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique."
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -7264,7 +8857,73 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "New tab": "Nueva pestaña",
     "The queries and the assistant are about this program": "Las consultas y el asistente tratan de este programa",
     "You have unsaved changes. Close this tab anyway?": "Tiene cambios sin guardar. ¿Cerrar esta pestaña de todos modos?",
-    "Could not open the included resource": "No se pudo abrir el recurso incluido"
+    "Could not open the included resource": "No se pudo abrir el recurso incluido",
+    "Views": "Vistas",
+    "Without a view": "Sin vista",
+    "New case": "Nuevo caso",
+    "The case": "El caso",
+    "Judgments": "Juicios",
+    "Other facts": "Otros hechos",
+    "Facts": "Hechos",
+    "not stated": "no indicado",
+    "State it": "Indicarlo",
+    "No answer": "Sin respuesta",
+    "assuming": "suponiendo",
+    "No sections to check.": "No hay secciones que comprobar.",
+    "passed": "superada",
+    "failed": "fallida",
+    "not reached": "no alcanzada",
+    "No cited steps.": "Ningún paso citado.",
+    "yes": "sí",
+    "no": "no",
+    "No reasons to show.": "No hay razones que mostrar.",
+    "No documents cited.": "Ningún documento citado.",
+    "What would change this?": "¿Qué cambiaría esto?",
+    "Searching…": "Buscando…",
+    "No change of up to three facts would change it.": "Ningún cambio de hasta tres hechos lo cambiaría.",
+    "change sets": "conjuntos de cambios",
+    "Answering": "Responder",
+    "to": "a",
+    "None.": "Ninguno.",
+    "Answer": "Respuesta",
+    "fails at": "falla en",
+    "Run all cases": "Ejecutar todos los casos",
+    "Case": "Caso",
+    "Result": "Resultado",
+    "Expected": "Esperado",
+    "Nothing is missing.": "No falta nada.",
+    "No fact of the case would give a result on its own.": "Ningún hecho del caso daría un resultado por sí solo.",
+    "Yes, state it": "Sí, indicarlo",
+    "Running…": "Ejecutando…",
+    "of at most": "de como máximo",
+    "Yes": "Sí",
+    "No": "No",
+    "Not sure": "No estoy seguro",
+    "Why": "Por qué",
+    "not sure": "no estoy seguro",
+    "Change an answer": "Cambiar una respuesta",
+    "What is missing": "Lo que falta",
+    "Stage": "Etapa",
+    "Reasons": "Razones",
+    "Compare": "Comparar",
+    "Documents": "Documentos",
+    "Cases": "Casos",
+    "Draft": "Borrador",
+    "Find the smallest changes": "Encontrar los cambios más pequeños",
+    "No text attached to these documents: the program says where each is cited, not where its text is.": "Ningún texto asociado a estos documentos: el programa dice dónde se cita cada uno, no dónde está su texto.",
+    "Show all": "Mostrar todo",
+    "passage": "pasaje",
+    "passages": "pasajes",
+    "Generate LE view": "Generar vista LE",
+    "Draft a view for this program (docs/le_summary.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it": "Esbozar una vista para este programa (docs/le_summary.md §17.10): la sección que dice cómo lo muestra una pantalla — los hechos del caso, el resultado, lo que se muestra al lado",
+    "The program must load without errors before a view can be drafted.": "El programa debe cargarse sin errores antes de poder esbozar una vista.",
+    "I drafted a view at the end of the program:": "Esbocé una vista al final del programa:",
+    "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Lista todos los hechos que un caso puede afirmar en un grupo y muestra el resultado de la primera consulta. Edítela: agrupe los hechos bajo títulos, encabece el resultado por el valor que importa, redacte las preguntas de una entrevista. El verificador comprueba lo que nombra.",
+    "Open the view": "Abrir la vista",
+    "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.": "Refine la sección de vista al final del programa: agrupe sus hechos bajo títulos cortos, encabece el resultado por el valor que importa y añada preguntas o un borrador donde ayuden. Use solo las frases de vista de docs/le_summary.md §17.10.",
+    "(once the program is saved)": "(una vez guardado el programa)",
+    "provided that": "siempre que",
+    "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -7610,7 +9269,73 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "New tab": "Nouvel onglet",
     "The queries and the assistant are about this program": "Les requêtes et l'assistant portent sur ce programme",
     "You have unsaved changes. Close this tab anyway?": "Vous avez des modifications non enregistrées. Fermer cet onglet quand même ?",
-    "Could not open the included resource": "Impossible d'ouvrir la ressource incluse"
+    "Could not open the included resource": "Impossible d'ouvrir la ressource incluse",
+    "Views": "Vues",
+    "Without a view": "Sans vue",
+    "New case": "Nouveau cas",
+    "The case": "Le cas",
+    "Judgments": "Jugements",
+    "Other facts": "Autres faits",
+    "Facts": "Faits",
+    "not stated": "non indiqué",
+    "State it": "L'indiquer",
+    "No answer": "Pas de réponse",
+    "assuming": "en supposant",
+    "No sections to check.": "Aucune section à vérifier.",
+    "passed": "passée",
+    "failed": "échouée",
+    "not reached": "non atteinte",
+    "No cited steps.": "Aucune étape citée.",
+    "yes": "oui",
+    "no": "non",
+    "No reasons to show.": "Aucune raison à montrer.",
+    "No documents cited.": "Aucun document cité.",
+    "What would change this?": "Qu'est-ce qui changerait cela ?",
+    "Searching…": "Recherche…",
+    "No change of up to three facts would change it.": "Aucun changement d'au plus trois faits ne le changerait.",
+    "change sets": "ensembles de changements",
+    "Answering": "Répondre",
+    "to": "à",
+    "None.": "Aucun.",
+    "Answer": "Réponse",
+    "fails at": "échoue à",
+    "Run all cases": "Exécuter tous les cas",
+    "Case": "Cas",
+    "Result": "Résultat",
+    "Expected": "Attendu",
+    "Nothing is missing.": "Rien ne manque.",
+    "No fact of the case would give a result on its own.": "Aucun fait du cas ne donnerait à lui seul un résultat.",
+    "Yes, state it": "Oui, l'indiquer",
+    "Running…": "Exécution…",
+    "of at most": "sur au plus",
+    "Yes": "Oui",
+    "No": "Non",
+    "Not sure": "Pas sûr",
+    "Why": "Pourquoi",
+    "not sure": "pas sûr",
+    "Change an answer": "Changer une réponse",
+    "What is missing": "Ce qui manque",
+    "Stage": "Stade",
+    "Reasons": "Raisons",
+    "Compare": "Comparer",
+    "Documents": "Documents",
+    "Cases": "Cas",
+    "Draft": "Brouillon",
+    "Find the smallest changes": "Trouver les plus petits changements",
+    "No text attached to these documents: the program says where each is cited, not where its text is.": "Aucun texte associé à ces documents : le programme dit où chacun est cité, pas où se trouve son texte.",
+    "Show all": "Tout afficher",
+    "passage": "passage",
+    "passages": "passages",
+    "Generate LE view": "Générer une vue LE",
+    "Draft a view for this program (docs/le_summary.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it": "Esquisser une vue pour ce programme (docs/le_summary.md §17.10) : la section qui dit comment un écran le montre — les faits du cas, le résultat, ce qui est montré à côté",
+    "The program must load without errors before a view can be drafted.": "Le programme doit se charger sans erreur avant qu'une vue puisse être esquissée.",
+    "I drafted a view at the end of the program:": "J'ai esquissé une vue à la fin du programme :",
+    "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Elle liste tous les faits qu'un cas peut énoncer en un groupe et montre le résultat de la première requête. Modifiez-la : groupez les faits sous des titres, mettez en tête la valeur qui compte, rédigez les questions d'un entretien. Le vérificateur contrôle ce qu'elle nomme.",
+    "Open the view": "Ouvrir la vue",
+    "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.": "Affinez la section de vue à la fin du programme : groupez ses faits sous des titres courts, mettez en tête la valeur qui compte et ajoutez des questions ou un brouillon là où ils aident. N'utilisez que les phrases de vue de docs/le_summary.md §17.10.",
+    "(once the program is saved)": "(une fois le programme enregistré)",
+    "provided that": "pourvu que",
+    "The result holds provided that it does.": "Le résultat vaut pourvu que cela vaille."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -7956,7 +9681,73 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "New tab": "Nuova scheda",
     "The queries and the assistant are about this program": "Le interrogazioni e l'assistente riguardano questo programma",
     "You have unsaved changes. Close this tab anyway?": "Ci sono modifiche non salvate. Chiudere comunque questa scheda?",
-    "Could not open the included resource": "Impossibile aprire la risorsa inclusa"
+    "Could not open the included resource": "Impossibile aprire la risorsa inclusa",
+    "Views": "Viste",
+    "Without a view": "Senza vista",
+    "New case": "Nuovo caso",
+    "The case": "Il caso",
+    "Judgments": "Giudizi",
+    "Other facts": "Altri fatti",
+    "Facts": "Fatti",
+    "not stated": "non indicato",
+    "State it": "Indicarlo",
+    "No answer": "Nessuna risposta",
+    "assuming": "supponendo",
+    "No sections to check.": "Nessuna sezione da verificare.",
+    "passed": "superata",
+    "failed": "fallita",
+    "not reached": "non raggiunta",
+    "No cited steps.": "Nessun passo citato.",
+    "yes": "sì",
+    "no": "no",
+    "No reasons to show.": "Nessuna ragione da mostrare.",
+    "No documents cited.": "Nessun documento citato.",
+    "What would change this?": "Cosa cambierebbe questo?",
+    "Searching…": "Ricerca…",
+    "No change of up to three facts would change it.": "Nessun cambiamento di al massimo tre fatti lo cambierebbe.",
+    "change sets": "insiemi di cambiamenti",
+    "Answering": "Rispondere",
+    "to": "a",
+    "None.": "Nessuno.",
+    "Answer": "Risposta",
+    "fails at": "fallisce in",
+    "Run all cases": "Esegui tutti i casi",
+    "Case": "Caso",
+    "Result": "Risultato",
+    "Expected": "Atteso",
+    "Nothing is missing.": "Non manca nulla.",
+    "No fact of the case would give a result on its own.": "Nessun fatto del caso darebbe da solo un risultato.",
+    "Yes, state it": "Sì, indicarlo",
+    "Running…": "In esecuzione…",
+    "of at most": "su al massimo",
+    "Yes": "Sì",
+    "No": "No",
+    "Not sure": "Non sono sicuro",
+    "Why": "Perché",
+    "not sure": "non sono sicuro",
+    "Change an answer": "Cambiare una risposta",
+    "What is missing": "Cosa manca",
+    "Stage": "Fase",
+    "Reasons": "Ragioni",
+    "Compare": "Confronta",
+    "Documents": "Documenti",
+    "Cases": "Casi",
+    "Draft": "Bozza",
+    "Find the smallest changes": "Trova i cambiamenti più piccoli",
+    "No text attached to these documents: the program says where each is cited, not where its text is.": "Nessun testo associato a questi documenti: il programma dice dove ciascuno è citato, non dove si trova il suo testo.",
+    "Show all": "Mostra tutto",
+    "passage": "passaggio",
+    "passages": "passaggi",
+    "Generate LE view": "Genera vista LE",
+    "Draft a view for this program (docs/le_summary.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it": "Abbozzare una vista per questo programma (docs/le_summary.md §17.10): la sezione che dice come uno schermo lo mostra — i fatti del caso, il risultato, ciò che si mostra accanto",
+    "The program must load without errors before a view can be drafted.": "Il programma deve caricarsi senza errori prima di poter abbozzare una vista.",
+    "I drafted a view at the end of the program:": "Ho abbozzato una vista alla fine del programma:",
+    "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Elenca tutti i fatti che un caso può affermare in un gruppo e mostra il risultato della prima interrogazione. La modifichi: raggruppi i fatti sotto titoli, metta in testa il valore che conta, formuli le domande di un'intervista. Il verificatore controlla ciò che nomina.",
+    "Open the view": "Apri la vista",
+    "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.": "Rifinisca la sezione di vista alla fine del programma: raggruppi i fatti sotto titoli brevi, metta in testa il valore che conta e aggiunga domande o una bozza dove aiutano. Usi solo le frasi di vista di docs/le_summary.md §17.10.",
+    "(once the program is saved)": "(una volta salvato il programma)",
+    "provided that": "purché",
+    "The result holds provided that it does.": "Il risultato vale purché questo valga."
   }
 } as const;
 

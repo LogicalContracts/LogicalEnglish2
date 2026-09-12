@@ -178,3 +178,35 @@ query consistency is:
 query flip is:
     which minimal change to the scenario makes it the case that
         it is not the case that anna is entitled to compensation of 250 for flight AZ123.
+
+% A view (docs/le_summary.md §17.10): how a claims handler's screen shows the
+% program — the executive view renders it (/executive?program=RulesRus/eu261_integration&view=claim desk).
+the view claim desk is:
+    the title is "Passenger claim desk".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the booking" are
+        a passenger is booked on a flight,
+        a flight departs from an airport,
+        the distance of a flight is a number km.
+    the facts about "the cancellation" are
+        a flight is cancelled,
+        a passenger is notified of the cancellation of a flight with a number days of notice,
+        the carrier of a flight is a carrier,
+        the cancellation of a flight is caused by an event.
+    the facts about "the event" are
+        an event is a technical problem discovered during maintenance of the aircraft of a carrier,
+        an event is a hidden manufacturing defect revealed by the manufacturer or an authority,
+        an event is a collision with a bird.
+    the judgments are
+        an event is inherent in the normal exercise of the activity of a carrier,
+        an event is beyond the actual control of a carrier.
+    every fact shows who states it.
+    the result is the answer to query claim, headed by the amount, in euros.
+    the result shows the stage it reaches.
+    the result shows its citations.
+    the answers to "which situation has factor which factor" are listed as "Factors".
+    the answers to "which case decided for which issue" are listed as "Precedents decided for".
+    the answers to "which case decided against which issue" are listed as "Precedents decided against".
+    the result is compared with scenario bird_strike.
+    the result can be flipped.
+    the documents of the case are shown beside the facts.

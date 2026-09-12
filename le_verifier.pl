@@ -13,6 +13,7 @@
 :- use_module(le_system_templates, [le_system_template/1]).
 :- use_module(le_scasp, []).
 :- use_module(le_documents, []).
+:- use_module(le_views, []).
 :- use_module(library(ordsets)).
 :- use_module(library(assoc)).
 :- use_module(library(isub)).
@@ -84,6 +85,7 @@ check_issue(KB, _, Issue) :- fact_without_provenance(KB, Issue).
 check_issue(KB, _, Issue) :- service_undeclared(KB, Issue).
 check_issue(KB, _, Issue) :- quote_not_found(KB, Issue).
 check_issue(KB, _, Issue) :- unread_value(KB, Issue).
+check_issue(KB, _, Issue) :- le_views:view_issue(KB, Issue).
 
 % --- A value no rule reads, and one they do read is close ---
 % A scenario fact puts a constant where the program's rules test constants —
@@ -1181,10 +1183,10 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited]) },
     [ '~w: ~w' - [Type, Msg] ].
 
 % ---------------------------------------------------------------------------

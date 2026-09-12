@@ -39,6 +39,7 @@ This document provides a summary of the Logical English constructs supported by 
     - [17.7 Flip queries: which minimal change flips the outcome](#177-flip-queries-which-minimal-change-flips-the-outcome)
     - [17.8 Factors and precedent: a pattern, not syntax](#178-factors-and-precedent-a-pattern-not-syntax)
     - [17.9 Facts from a document](#179-facts-from-a-document)
+    - [17.10 Views: how a screen shows a program](#1710-views-how-a-screen-shows-a-program)
 
 ## 1. Document Sections
 Sections define the context of the code. Each section header ends with a colon `:`.
@@ -1011,3 +1012,82 @@ and *Generate*. Nothing in this is specific to a kind of document or program:
 The editor keeps each fact's provenance beside its row. Backend:
 `nl_to_le:english_to_le/8` with the options `document(Name)` and `base(Dir)`.
 
+### 17.10 Views: how a screen shows a program
+A **view** says how a screen that runs the program should look to the person
+who uses it: which facts a case states and how they are grouped, which query
+is the result, what is shown beside it. It is a section of fixed sentences —
+nothing reasons with them, as nothing reasons with `scenario facts require
+provenance.` — written in the program (or in a resource it includes):
+```le
+the view claim desk is:
+    the title is "Passenger claim desk".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the booking" are
+        a passenger is booked on a flight,
+        the distance of a flight is a number km.
+    the judgments are
+        an event is beyond the actual control of a carrier.
+    every fact shows who states it.
+    the result is the answer to query claim, headed by the amount, in euros.
+    the result shows the stage it reaches.
+    the result shows its citations.
+    the answers to "which case decided for which issue" are listed as "Precedents".
+    the result is compared with scenario bird_strike.
+    the result can be flipped.
+    the documents of the case are shown beside the facts.
+```
+The executive view (`/executive?program=<program>&view=<name>`) renders it
+with generic widgets; a program with views lists them there. The facts,
+questions and results a view names are **instances of the program's
+templates**, written as the conditions of a rule are. The sentences (category
+`view` of `i18n/keywords.csv`, so a view is written in the program's
+language):
+
+| Sentence | What the screen shows |
+|---|---|
+| `the title is "<text>"` | the screen's title |
+| `the case is a scenario[, with the documents it is stated in]` | a picker of the program's scenarios (or a new case); the documents its facts cite |
+| `the case is about <constant>` | the subject of the facts an interview's answers state |
+| `the facts about "<title>" are <instance>, <instance>, …` | a group of fact rows, editable, each with its citation; the group's facts the case does not state, one click to state |
+| `the judgments are <instance>, …` | the `; judged` facts apart |
+| `the other facts can be added` / `… cannot be added` | whether the case may state facts of other templates |
+| `every fact shows who states it` | each fact's `according to` |
+| `the result is the answer to query <name>[, headed by <the word>][, in <unit>]` | the query's answers, the value of its `which <word>` in large type |
+| `the result is whether <instance>` | a yes/no result, the query written in the view |
+| `the result reads "<text>" when it holds` / `… when it does not` | the result in the view's words |
+| `the result shows its citations` | the cited steps of the proof, each opening its passage |
+| `the result shows its reasons` | the facts the result rests on, or failed on |
+| `the result shows the stage it reaches` | the checklist of the applicability / question / remedy sections (§17.4) |
+| `the result asks what is missing` | the case facts the failed proof looked for, each one click to state |
+| `the facts are asked one at a time` | an interview: the view's questions, each asked only while the answer can still depend on it |
+| `the question for <instance> is "<text>"` | the question for a fact (and its wording in the reasons and the flip) |
+| `the result can be flipped[, as "<text>"]` | the minimal changes that would change the result (§17.7) |
+| `the answers to "<query body>" are listed as "<title>"` | a table of another query's answers, a column per `which` |
+| `the result is compared with scenario <name>` | the result of another scenario, and where it fails |
+| `the documents of the case are shown beside the facts` | the cited documents, the case's own open with its passages marked |
+| `the cases are listed with their results` | every scenario, its result and its expectation |
+| `the draft reads "<text with {the result}, {the answer}, {the facts}, {the citations}, {the case}>"` | a text filled from the result, to copy |
+
+- **Checked by the verifier** (errors): a sentence no view form reads
+  (`view_unknown_sentence`), an instance of no template
+  (`view_unknown_template`), a query or scenario the program lacks
+  (`view_unknown_query`, `view_unknown_scenario`), a table question that is
+  not a query (`view_bad_question`), two views of one name
+  (`view_duplicate_name`); (warnings) a judgment whose template is not
+  `; judged` (`view_not_judged`), a fact to state that the rules conclude
+  (`view_derived_fact`), no result (`view_no_result`), a sentence said twice
+  (`view_said_twice`), a heading the query does not ask for
+  (`view_headed_by_unknown`), the stage of a program without the reserved
+  sections (`view_stage_without_sections`), citations or documents of a
+  program that cites nothing (`view_nothing_cited`).
+- **The load** returns each view compiled (`views`, le_views:program_views/2);
+  `answeringQuery` adds the section `checklist`; `openQuestions` gives the
+  facts a failed proof looked for; `draftView` drafts a view.
+- **The LE Assistant's *Generate LE view*** appends a first view drafted from
+  the program itself — its case facts as one group, its judged templates, its
+  first query (or its first conclusion) as the result, and what the program
+  can show — and proposes a request to refine it.
+
+See the views of `examples/RulesRus/eu261_integration.le` (a claims desk),
+`flip_housing.le` (an interview), `judged_damage.le`, `sections_benefit.le`
+and `customs/cbp_62.le` (a classification worksheet).

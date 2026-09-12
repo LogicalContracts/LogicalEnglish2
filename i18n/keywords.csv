@@ -123,3 +123,35 @@ template_addition,via_service,via service,via serviço|através do serviço,vía
 service,kind_semantic_matcher,semantic matcher,comparador semântico,comparador semántico,comparateur sémantique,comparatore semantico
 query,flip_query,which minimal change to the scenario makes it the case that|which minimal changes to the scenario make it the case that,que alteração mínima ao cenário faz com que|que alterações mínimas ao cenário fazem com que,qué cambio mínimo al escenario hace que|qué cambios mínimos al escenario hacen que,quel changement minimal du scénario fait que|quels changements minimaux du scénario font que,quale cambiamento minimo dello scenario fa sì che|quali cambiamenti minimi dello scenario fanno sì che
 expect,changes,changes,alterações,cambios,changements,cambiamenti
+view,view_open,the view,a vista,la vista,la vue,la vista
+view,view_title,the title is,o título é,el título es,le titre est,il titolo è
+view,view_case_scenario,the case is a scenario,o caso é um cenário,el caso es un escenario,le cas est un scénario,il caso è uno scenario
+view,view_with_documents,with the documents it is stated in|with the document it is stated in,com os documentos em que consta|com o documento em que consta,con los documentos en que consta|con el documento en que consta,avec les documents où il est énoncé|avec le document où il est énoncé,con i documenti in cui è indicato|con il documento in cui è indicato
+view,view_case_about,the case is about,o caso é sobre,el caso trata de,le cas porte sur,il caso riguarda
+view,view_facts_about,the facts about,os factos sobre|os fatos sobre,los hechos sobre,les faits concernant,i fatti su
+view,view_are,are,são,son,sont,sono
+view,view_judgments,the judgments are,os juízos são,los juicios son,les jugements sont,i giudizi sono
+view,view_other_facts,the other facts can be added,os outros factos podem ser acrescentados|os outros fatos podem ser acrescentados,los demás hechos pueden añadirse,les autres faits peuvent être ajoutés,gli altri fatti possono essere aggiunti
+view,view_no_other_facts,the other facts cannot be added,os outros factos não podem ser acrescentados|os outros fatos não podem ser acrescentados,los demás hechos no pueden añadirse,les autres faits ne peuvent pas être ajoutés,gli altri fatti non possono essere aggiunti
+view,view_sources,every fact shows who states it,cada facto mostra quem o afirma|cada fato mostra quem o afirma,cada hecho muestra quién lo afirma,chaque fait montre qui le déclare,ogni fatto mostra chi lo afferma
+view,view_one_at_a_time,the facts are asked one at a time,os factos são perguntados um de cada vez|os fatos são perguntados um de cada vez,los hechos se preguntan uno a uno,les faits sont demandés un par un,i fatti sono chiesti uno alla volta
+view,view_question_for,the question for,a pergunta para,la pregunta para,la question pour,la domanda per
+view,view_result_query,the result is the answer to query,o resultado é a resposta à consulta,el resultado es la respuesta a la consulta,le résultat est la réponse à la requête,il risultato è la risposta alla interrogazione
+view,view_headed_by,headed by,encabeçado por,encabezado por,mené par,guidato da
+view,view_in,in,em,en,en,in
+view,view_result_whether,the result is whether,o resultado é se,el resultado es si,le résultat est si,il risultato è se
+view,view_result_reads,the result reads,o resultado diz,el resultado dice,le résultat dit,il risultato dice
+view,view_when_holds,when it holds,quando se verifica,cuando se cumple,quand il est vrai,quando vale
+view,view_when_not,when it does not,quando não se verifica,cuando no se cumple,quand il est faux,quando non vale
+view,view_citations,the result shows its citations,o resultado mostra as suas citações,el resultado muestra sus citas,le résultat montre ses citations,il risultato mostra le sue citazioni
+view,view_reasons,the result shows its reasons,o resultado mostra as suas razões,el resultado muestra sus razones,le résultat montre ses raisons,il risultato mostra le sue ragioni
+view,view_stage,the result shows the stage it reaches,o resultado mostra a etapa que alcança,el resultado muestra la etapa que alcanza,le résultat montre le stade atteint,il risultato mostra la fase raggiunta
+view,view_missing,the result asks what is missing,o resultado pergunta o que falta,el resultado pregunta lo que falta,le résultat demande ce qui manque,il risultato chiede ciò che manca
+view,view_flipped,the result can be flipped,o resultado pode ser invertido,el resultado puede invertirse,le résultat peut être inversé,il risultato può essere invertito
+view,view_as,as,como,como,comme,come
+view,view_compare,the result is compared with scenario,o resultado é comparado com o cenário,el resultado se compara con el escenario,le résultat est comparé au scénario,il risultato è confrontato con lo scenario
+view,view_answers_to,the answers to,as respostas a,las respuestas a,les réponses à,le risposte a
+view,view_listed_as,are listed as,são listadas como,se listan como,sont listées comme,sono elencate come
+view,view_documents,the documents of the case are shown beside the facts|the document of the case is shown beside the facts,os documentos do caso são mostrados ao lado dos factos|o documento do caso é mostrado ao lado dos factos,los documentos del caso se muestran junto a los hechos|el documento del caso se muestra junto a los hechos,les documents du cas sont montrés à côté des faits|le document du cas est montré à côté des faits,i documenti del caso sono mostrati accanto ai fatti|il documento del caso è mostrato accanto ai fatti
+view,view_cases,the cases are listed with their results,os casos são listados com os seus resultados,los casos se listan con sus resultados,les cas sont listés avec leurs résultats,i casi sono elencati con i loro risultati
+view,view_draft,the draft reads,o rascunho diz,el borrador dice,le brouillon dit,la bozza dice

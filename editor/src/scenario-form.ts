@@ -48,6 +48,9 @@ export interface ScenarioFormOptions {
     // every template, per placeholder, the values the program's rules read
     // there (`values`), offered as suggestions in its field.
     extraTemplates?: { label: string; scenario_element?: boolean; values?: string[][] }[];
+    // When set, the Add menu offers only these templates (a view's group of
+    // facts); every template is still recognised when facts are loaded.
+    onlyTemplates?: string[];
 }
 
 // One <datalist> per (template, placeholder), shared by every row and form of
@@ -118,10 +121,10 @@ export class ScenarioForm {
         for (const t of SYSTEM_TYPE) {
             if (used.has(t) && !seen.has(t)) { seen.add(t); addable.push(t); }
         }
-        this.addableTemplates = addable;
+        this.addableTemplates = opts.onlyTemplates ? opts.onlyTemplates.slice() : addable;
 
         opts.addSelect.innerHTML = '';
-        for (const label of addable) {
+        for (const label of this.addableTemplates) {
             const o = document.createElement('option');
             o.value = label;
             o.textContent = label.replace(/\*/g, '');   // show placeholders without the markers
@@ -185,7 +188,7 @@ export class ScenarioForm {
     }
 
     private sizeField(input: HTMLInputElement) {
-        const n = Math.max((input.value || input.placeholder).length + 1, 6);
+        const n = Math.max((input.value || input.placeholder).length + 2, 6);
         input.size = Math.min(n, 80);
     }
 
