@@ -1,0 +1,245 @@
+% Test cases for the Vitamin D Assay Testing policy (vitamin_d.le): synthetic
+% claims, each stating only what its record shows, and each read under all
+% six A/B MAC jurisdictions at once. The queries: whether the claim is
+% reasonable and necessary in its own jurisdiction (the scenario's "the
+% jurisdiction of claim 1 is ..."), and in which jurisdictions it would be.
+% No "pay" query: dmepos.le's payable rule asks for a delivery and a proof
+% of delivery, which a laboratory test has none of (vitamin_d.le, header).
+
+the target language is: prolog.
+
+the knowledge base vitamin d cases includes these resources:
+    vitamin_d.
+
+the knowledge base vitamin d cases includes:
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query rn_in is:
+    which claim is reasonable and necessary in which jurisdiction.
+
+% Vitamin D deficiency (E55.9), a code every article lists: covered in all
+% six jurisdictions.
+scenario deficiency_everywhere is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Ann.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is cgs.
+    the diagnosis code of Ann is "E55.9".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    rn_in expects answers ["claim 1 is reasonable and necessary in first coast", "claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint", "claim 1 is reasonable and necessary in palmetto"].
+
+% Psoriasis vulgaris (L40.0): in the tables of First Coast, WPS, Noridian
+% and Wellpoint, not in those of CGS (the jurisdiction) or Palmetto.
+scenario psoriasis_by_jurisdiction is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Ben.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is cgs.
+    the diagnosis code of Ben is "L40.0".
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in first coast", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint"].
+
+% Osteogenesis imperfecta (Q78.0): First Coast, WPS and Palmetto list it;
+% Noridian (the jurisdiction), Wellpoint and CGS do not.
+scenario osteogenesis_imperfecta is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Cy.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is noridian.
+    the diagnosis code of Cy is "Q78.0".
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in first coast", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in palmetto"].
+
+% Chronic kidney disease stage 3 unspecified (N18.30, a 2020 code): every
+% table but First Coast's (the jurisdiction), which has only N18.31 and
+% N18.32.
+scenario ckd_stage_3_unspecified is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Dee.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is first coast.
+    the diagnosis code of Dee is "N18.30".
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint", "claim 1 is reasonable and necessary in palmetto"].
+
+% The 1,25-dihydroxy assay (82652) for hypercalcemia (E83.52): group 2 of
+% Noridian, Wellpoint and Palmetto; not in WPS's group 2; First Coast and
+% CGS (the jurisdiction) have no 82652 at all.
+scenario dihydroxy_hypercalcemia is:
+    claim 1 is for the dihydroxy assay.
+    the HCPCS code of the dihydroxy assay is "82652".
+    the dihydroxy assay is furnished to Eve.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is cgs.
+    the diagnosis code of Eve is "E83.52".
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint", "claim 1 is reasonable and necessary in palmetto"].
+
+% A general adult examination (Z00.00): screening, covered nowhere — not
+% even in CGS, whose LCD names the documented low exposure to sunlight.
+scenario screening_examination is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Fay.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is palmetto.
+    the diagnosis code of Fay is "Z00.00".
+    the medical record of Fay documents low exposure to sunlight.
+    rn expects answers [].
+    rn_in expects answers [].
+
+% Low exposure to sunlight documented for a housebound beneficiary (Z74.09,
+% in no table): an indication CGS's LCD lists in prose, and only CGS's.
+scenario sunlight_cgs is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Gus.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is cgs.
+    the diagnosis code of Gus is "Z74.09".
+    the medical record of Gus documents low exposure to sunlight.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    rn_in expects answers ["claim 1 is reasonable and necessary in cgs"].
+
+% A pregnancy (supervision of normal pregnancy, Z34.90, in no table):
+% Palmetto's "Pregnant and lactating women", in prose only.
+scenario pregnancy_palmetto is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Ida.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is palmetto.
+    the diagnosis code of Ida is "Z34.90".
+    the medical record of Ida documents pregnancy.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    rn_in expects answers ["claim 1 is reasonable and necessary in palmetto"].
+
+% A fourth test in the year for a deficiency, in First Coast: more than
+% three tests per year. WPS allows four for a deficiency; the others set
+% no number.
+scenario fourth_test_first_coast is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Jon.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is first coast.
+    the diagnosis code of Jon is "E55.9".
+    Jon had a vitamin D test on 2026-01-15.
+    Jon had a vitamin D test on 2026-03-01.
+    Jon had a vitamin D test on 2026-04-20.
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint", "claim 1 is reasonable and necessary in palmetto"].
+
+% A fifth test in the year for a deficiency, in WPS: beyond its four per
+% year (and First Coast's three).
+scenario fifth_test_wps is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Lou.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is wps.
+    the diagnosis code of Lou is "E55.9".
+    Lou had a vitamin D test on 2025-07-01.
+    Lou had a vitamin D test on 2026-01-15.
+    Lou had a vitamin D test on 2026-03-01.
+    Lou had a vitamin D test on 2026-04-20.
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint", "claim 1 is reasonable and necessary in palmetto"].
+
+% A second test in the year for osteoporosis (M81.0), in WPS: once a year
+% for a condition other than a deficiency. Noridian and Wellpoint cover
+% osteoporosis only with one of their five conditions documented; First
+% Coast, CGS and Palmetto cover it.
+scenario second_test_osteoporosis_wps is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Kim.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is wps.
+    the diagnosis code of Kim is "M81.0".
+    Kim had a vitamin D test on 2026-02-01.
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in first coast", "claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in palmetto"].
+
+% Osteoporosis in Noridian with a history of fragility fractures: condition
+% ii of its LCD, met; a first test, covered everywhere.
+scenario osteoporosis_fracture_history_noridian is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Pat.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is noridian.
+    the diagnosis code of Pat is "M81.0".
+    the medical record of Pat documents history of fragility fractures.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    rn_in expects answers ["claim 1 is reasonable and necessary in first coast", "claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint", "claim 1 is reasonable and necessary in palmetto"].
+
+% A second level on the same day, in First Coast: one per 24 hour period
+% (First Coast, WPS); the others state no daily limit.
+scenario same_day_repeat is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Max.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is first coast.
+    the diagnosis code of Max is "E55.9".
+    Max had a vitamin D test on 2026-06-01.
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint", "claim 1 is reasonable and necessary in palmetto"].
+
+% Supplemented to normal levels, a second test in the year, in CGS: annual
+% testing thereafter (CGS, Palmetto, First Coast); WPS's four a year for a
+% deficiency, and Noridian's and Wellpoint's repeat rule, still allow it.
+scenario supplemented_second_test_cgs is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Ned.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is cgs.
+    the diagnosis code of Ned is "E55.9".
+    Ned has been supplemented to normal vitamin D levels.
+    Ned had a vitamin D test on 2026-02-01.
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint"].
+
+% Supplemented to normal levels, the annual test (the last one fifteen
+% months ago), in Palmetto, with nothing in the record supporting the need
+% for it: Palmetto alone asks for that.
+scenario annual_test_undocumented_palmetto is:
+    claim 1 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Oli.
+    the date of service of claim 1 is 2026-06-01.
+    the jurisdiction of claim 1 is palmetto.
+    the diagnosis code of Oli is "E55.9".
+    Oli has been supplemented to normal vitamin D levels.
+    Oli had a vitamin D test on 2025-03-01.
+    rn expects answers [].
+    rn_in expects answers ["claim 1 is reasonable and necessary in first coast", "claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in noridian", "claim 1 is reasonable and necessary in wellpoint"].
+
+% A repeat test of a clinically stable beneficiary whose last level was 35
+% ng/ml, in Wellpoint: claim 1 with nothing on its necessity, claim 2 with
+% the record clearly indicating it. Noridian reads the same; the other four
+% set no such condition.
+scenario stable_normal_repeat_wellpoint is:
+    claim 1 is for the vitamin D assay.
+    claim 2 is for the vitamin D assay.
+    the HCPCS code of the vitamin D assay is "82306".
+    the vitamin D assay is furnished to Quin.
+    the date of service of claim 1 is 2026-06-01.
+    the date of service of claim 2 is 2026-06-01.
+    the jurisdiction of claim 1 is wellpoint.
+    the jurisdiction of claim 2 is wellpoint.
+    the diagnosis code of Quin is "E55.9".
+    Quin had a vitamin D test on 2026-02-15.
+    the most recent vitamin D level of Quin is 35 ng per ml.
+    Quin is clinically stable.
+    the record clearly indicates the necessity of the test of claim 2.
+    rn expects answers ["claim 2 is reasonable and necessary"].
+    rn_in expects answers ["claim 1 is reasonable and necessary in first coast", "claim 1 is reasonable and necessary in cgs", "claim 1 is reasonable and necessary in wps", "claim 1 is reasonable and necessary in palmetto", "claim 2 is reasonable and necessary in first coast", "claim 2 is reasonable and necessary in cgs", "claim 2 is reasonable and necessary in wps", "claim 2 is reasonable and necessary in noridian", "claim 2 is reasonable and necessary in wellpoint", "claim 2 is reasonable and necessary in palmetto"].

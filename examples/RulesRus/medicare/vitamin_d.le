@@ -1,0 +1,643 @@
+% Vitamin D Assay Testing: the same laboratory policy in its six A/B MAC
+% jurisdictions, one LCD and one Billing and Coding article per contractor
+% (Phase B of the RulesRUs plan: jurisdiction as a parameter). The claim is
+% for a clinical diagnostic laboratory test, CPT 82306 (vitamin D, 25 hydroxy)
+% or 82652 (vitamin D, 1,25 dihydroxy), furnished to a beneficiary with a
+% diagnosis code; the scenario says which contractor's jurisdiction the claim
+% is in ("the jurisdiction of claim 1 is first coast" — a template offered
+% here as a candidate for dmepos.le), and the program says whether the claim
+% is REASONABLE AND NECESSARY there: under that contractor's LCD, with that
+% contractor's ICD-10 covered-code table. "a claim is reasonable and
+% necessary in a jurisdiction" answers the same question for every
+% jurisdiction at once, so one scenario compares the six.
+%
+%   contractor    LCD      article   ICD-10 rows   HCPCS codes of the article
+%   first coast   L33771   A56841    759           82306
+%   cgs           L33996   A56798    183           82306
+%   wps           L34658   A57484    972 (2 groups) 82306, 82652
+%   noridian      L36692   A57718    379 (2 groups) 82306, 82652
+%   wellpoint     L37535   A57736    565 (2 groups) 82306, 82652
+%   palmetto      L39391   A59170    588 (2 groups) 82306, 82652
+%
+% The six tables are LOADED from the export (sources/ab/A<article>_icd10_
+% covered.csv, columns code, group, article, description), never typed. Group
+% 1 is the article's list for 82306 (the 25-hydroxy assay); where the
+% article has a group 2 (WPS, Noridian, Wellpoint, Palmetto) it is the list
+% for 82652 (the 1,25-dihydroxy assay: the LCD's "unexplained hypercalcemia
+% (suspected granulomatous disease or lymphoma)", "suspected genetic
+% childhood rickets" ... — the export's HCPCS line puts both codes in
+% "group 1", the ICD-10 export has the two lists; the pairing is this
+% model's reading). First Coast and CGS have no 82652: a claim for it is
+% never reasonable and necessary in their jurisdictions.
+%
+% What the six LCDs share. A closed list of indications (the article's
+% ICD-10 table, plus a few conditions the LCD names in prose that the table
+% has no code for); screening excluded ("Vitamin D testing may not be used
+% for routine screening" — CGS, WPS; "Testing may not be used for routine or
+% other screening" — Noridian, Wellpoint; "Reimbursement is not allowed for
+% routine screening ... in asymptomatic individuals" — Palmetto; First
+% Coast's text does not state it: its closed list does the work); once a
+% deficiency is shown, further testing "only to ensure adequate replacement
+% has been accomplished" (CGS, WPS, Noridian, Wellpoint, Palmetto).
+%
+% Where they differ.
+%   Frequency: First Coast — one level per 24 hours, not more than three
+%   tests per year, one per year once supplemented to normal levels. WPS —
+%   one per 24 hours, once a year for conditions other than rickets, vitamin
+%   D deficiency, osteomalacia and aluminum bone disease, four per year for
+%   those. CGS — no number; annual testing "may be appropriate" once
+%   replacement is accomplished. Palmetto — the same, and "the documentation
+%   must support the need for annual testing". Noridian and Wellpoint — no
+%   number; a repeat test of a clinically stable beneficiary whose level is
+%   between 20 and 50 ng/ml needs documentation that "clearly indicate[s]
+%   the necessity of the test" (a level above 60 may be followed until it is
+%   normal).
+%   Indications in prose beyond the code table: CGS "low exposure to
+%   sunlight" (no ICD-10 code in any table); Palmetto "Pregnant and
+%   lactating women" (no pregnancy code in its table). Indications the LCD
+%   restricts beyond the table: Noridian and Wellpoint cover osteoporosis
+%   only "if" one of five conditions holds (a T score on a DEXA scan, a
+%   history of fragility fractures, a FRAX probability, initiating
+%   bisphosphonate therapy) — read here for the osteoporosis-without-
+%   fracture codes M81.0, M81.6, M81.8; a code with a current pathological
+%   fracture (M80.-) states condition ii by itself. The thresholds of
+%   conditions i, iii and iv are lost in the export ("T score on DEXA scan",
+%   the "<" signs eaten): they are read as the record's own statements
+%   ("qualifying bone density score", "qualifying fracture risk assessment").
+%
+% How the criteria are read. The record states the diagnosis code (the
+% shared template), the conditions it documents (the shared "the medical
+% record of Ann documents ..."), the dates of the beneficiary's earlier
+% vitamin D tests (from which the tests in the year — the 365 days — before
+% the date of service are counted, and a same-day repeat is the "24 hour
+% period"), whether the beneficiary has been supplemented to normal levels
+% (First Coast's "supplemented to normal levels", CGS's and Palmetto's
+% "adequate replacement has been accomplished"), the most recent level and
+% clinical stability (Noridian, Wellpoint), and whether the record clearly
+% indicates the necessity of a repeat or annual test. Not modelled: the
+% ABN modifiers, bill types, places of service and NCCI edits of the
+% articles; the "storage and supplement components" billed separately
+% (WPS); the "3-4 months after starting replacement therapy" advice; the
+% 1,25-dihydroxy daily limit of WPS beyond the 25-hydroxy one; Palmetto's
+% 12-week supplementation paragraph, whose thresholds the export lost.
+%
+% Payment. A laboratory test is not DMEPOS: dmepos.le's payable rule asks
+% for a delivery and proof of delivery, which a test has none of, so the
+% cases query only "reasonable and necessary" (and the jurisdiction-aware
+% form). The benefit is stated here as diagnostic laboratory tests (Social
+% Security Act 1861(s)(3), Claims Processing Manual chapter 16), so that the
+% shared benefit rule for a non-DME benefit applies without a home.
+
+the target language is: prolog.
+
+the templates are:
+    % the claim: its jurisdiction (a candidate template for dmepos.le)
+    the jurisdiction of *a claim* is *a contractor*; undefined.
+    % the record
+    *a beneficiary* had a vitamin D test on *a date*; undefined.
+    *a beneficiary* has been supplemented to normal vitamin D levels; undefined.
+    the most recent vitamin D level of *a beneficiary* is *a number* ng per ml; undefined.
+    *a beneficiary* is clinically stable; undefined.
+    the record clearly indicates the necessity of the test of *a claim*; undefined.
+    % the six articles' ICD-10 tables, one per contractor
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table first_coast_icd10.
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table cgs_icd10.
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table wps_icd10.
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table noridian_icd10.
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table wellpoint_icd10.
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table palmetto_icd10.
+    % what the LCDs and articles state
+    the article of *a jurisdiction* lists HCPCS code *a code* in group *a group*.
+    *a condition* is an indication in the text of the LCD of *a jurisdiction*.
+    *a condition* is a qualifying osteoporosis condition of *a jurisdiction*.
+    routine screening is excluded by *a jurisdiction*.
+    % derived
+    *a claim* is reasonable and necessary in *a jurisdiction*.
+    *an item* is a vitamin D assay.
+    *a beneficiary* has a covered indication for HCPCS code *a code* in *a jurisdiction*.
+    ICD10 code *a code* is listed in group *a group* of the article of *a jurisdiction*.
+    *a claim* is for routine screening.
+    *a claim* is excluded as screening in *a jurisdiction*.
+    *a beneficiary* meets the osteoporosis conditions of *a jurisdiction*.
+    *a code* is an osteoporosis code.
+    *a code* is a code of the deficiency conditions of wps.
+    *a claim* is within the frequency limits of *a jurisdiction*.
+    *a claim* is within the daily limit of *a jurisdiction*.
+    *a claim* is within the yearly limit of *a jurisdiction*.
+    the number of vitamin D tests of *a beneficiary* in the year before *a claim* is *a number*.
+    *a claim* repeats a vitamin D test on the same day.
+    *a claim* is a repeat vitamin D test.
+    *a claim* is a repeat test of a stable beneficiary in the normal range.
+
+% The six articles' ICD-10 covered-code tables, loaded from the export.
+the table first_coast_icd10 is loaded from sources/ab/A56841_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the table cgs_icd10 is loaded from sources/ab/A56798_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the table wps_icd10 is loaded from sources/ab/A57484_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the table noridian_icd10 is loaded from sources/ab/A57718_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the table wellpoint_icd10 is loaded from sources/ab/A57736_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the table palmetto_icd10 is loaded from sources/ab/A59170_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base vitamin d includes these resources:
+    dmepos.
+
+the knowledge base vitamin d includes:
+
+% The cited documents: the six LCDs and their Billing and Coding articles.
+LCD L33771 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33771".
+the text of LCD L33771 is at "sources/ab/L33771.txt".
+Article A56841 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=56841".
+the text of Article A56841 is at "sources/ab/A56841.txt".
+LCD L33996 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33996".
+the text of LCD L33996 is at "sources/ab/L33996.txt".
+Article A56798 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=56798".
+the text of Article A56798 is at "sources/ab/A56798.txt".
+LCD L34658 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34658".
+the text of LCD L34658 is at "sources/ab/L34658.txt".
+Article A57484 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=57484".
+the text of Article A57484 is at "sources/ab/A57484.txt".
+LCD L36692 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=36692".
+the text of LCD L36692 is at "sources/ab/L36692.txt".
+Article A57718 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=57718".
+the text of Article A57718 is at "sources/ab/A57718.txt".
+LCD L37535 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=37535".
+the text of LCD L37535 is at "sources/ab/L37535.txt".
+Article A57736 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=57736".
+the text of Article A57736 is at "sources/ab/A57736.txt".
+LCD L39391 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39391".
+the text of LCD L39391 is at "sources/ab/L39391.txt".
+Article A59170 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=59170".
+the text of Article A59170 is at "sources/ab/A59170.txt".
+
+% What the item is.
+rule vitd_assay with provenance Article A57484,
+        confer "82306 (group 1): Vitamin d 25 hydroxy":
+an item is a vitamin D assay
+    if the HCPCS code of the item is a code
+    and the code is in ["82306", "82652"].
+
+% ---------------------------------------------------------------------------
+% The articles: which HCPCS code each ICD-10 group serves.
+% ---------------------------------------------------------------------------
+
+the article of first coast lists HCPCS code "82306" in group 1,
+    as stated in Article A56841, confer "82306 (group 1): Vitamin d 25 hydroxy".
+the article of cgs lists HCPCS code "82306" in group 1,
+    as stated in Article A56798, confer "82306 (group 1): Vitamin d 25 hydroxy".
+the article of wps lists HCPCS code "82306" in group 1,
+    as stated in Article A57484, confer "82306 (group 1): Vitamin d 25 hydroxy".
+the article of wps lists HCPCS code "82652" in group 2,
+    as stated in Article A57484, confer "82652 (group 1): Vit d 1 25-dihydroxy".
+the article of noridian lists HCPCS code "82306" in group 1,
+    as stated in Article A57718, confer "82306 (group 1): Vitamin d 25 hydroxy".
+the article of noridian lists HCPCS code "82652" in group 2,
+    as stated in Article A57718, confer "82652 (group 1): Vit d 1 25-dihydroxy".
+the article of wellpoint lists HCPCS code "82306" in group 1,
+    as stated in Article A57736, confer "82306 (group 1): Vitamin d 25 hydroxy".
+the article of wellpoint lists HCPCS code "82652" in group 2,
+    as stated in Article A57736, confer "82652 (group 1): Vit d 1 25-dihydroxy".
+the article of palmetto lists HCPCS code "82306" in group 1,
+    as stated in Article A59170, confer "82306 (group 1): Vitamin d 25 hydroxy".
+the article of palmetto lists HCPCS code "82652" in group 2,
+    as stated in Article A59170, confer "82652 (group 1): Vit d 1 25-dihydroxy".
+
+% The six loaded tables, read one per jurisdiction.
+rule vitd_table_first_coast with provenance Article A56841,
+        confer "The submitted medical record must support the use of the selected ICD-10-CM code(s)":
+ICD10 code a code is listed in group a group of the article of first coast
+    if ICD10 code the code is in group the group of article "A56841" as a description under table first_coast_icd10.
+
+rule vitd_table_cgs with provenance Article A56798,
+        confer "The diagnosis code(s) must best describe the patient's condition for which the service was performed":
+ICD10 code a code is listed in group a group of the article of cgs
+    if ICD10 code the code is in group the group of article "A56798" as a description under table cgs_icd10.
+
+rule vitd_table_wps with provenance Article A57484,
+        confer "The diagnosis code(s) must best describe the patient's condition for which the service was performed":
+ICD10 code a code is listed in group a group of the article of wps
+    if ICD10 code the code is in group the group of article "A57484" as a description under table wps_icd10.
+
+rule vitd_table_noridian with provenance Article A57718,
+        confer "When the documentation does not meet the criteria for the service rendered or the documentation does not establish the medical necessity for the services, such services will be denied as not reasonable and necessary":
+ICD10 code a code is listed in group a group of the article of noridian
+    if ICD10 code the code is in group the group of article "A57718" as a description under table noridian_icd10.
+
+rule vitd_table_wellpoint with provenance Article A57736,
+        confer "The diagnosis code(s) must best describe the patient's condition for which the service was performed":
+ICD10 code a code is listed in group a group of the article of wellpoint
+    if ICD10 code the code is in group the group of article "A57736" as a description under table wellpoint_icd10.
+
+rule vitd_table_palmetto with provenance Article A59170,
+        confer "The diagnosis code(s) must best describe the patient's condition for which the service was performed":
+ICD10 code a code is listed in group a group of the article of palmetto
+    if ICD10 code the code is in group the group of article "A59170" as a description under table palmetto_icd10.
+
+% ---------------------------------------------------------------------------
+% The covered indication: the diagnosis code in the article's group for the
+% HCPCS code, or a condition the LCD names in prose that the table has no
+% code for (the 25-hydroxy assay only).
+% ---------------------------------------------------------------------------
+
+% a device of this model: the article's table read for the group that
+% serves the code billed
+rule vitd_indication_by_code:
+a beneficiary has a covered indication for HCPCS code a code in a jurisdiction
+    if the article of the jurisdiction lists HCPCS code the code in group a group
+    and the diagnosis code of the beneficiary is an other code
+    and ICD10 code the other code is listed in group the group of the article of the jurisdiction.
+
+% a device of this model: the conditions each LCD names in prose that its
+% article codes nowhere, stated below with their passages
+rule vitd_indication_in_text:
+a beneficiary has a covered indication for HCPCS code "82306" in a jurisdiction
+    if the medical record of the beneficiary documents a condition
+    and the condition is an indication in the text of the LCD of the jurisdiction.
+
+low exposure to sunlight is an indication in the text of the LCD of cgs,
+    as stated in LCD L33996, confer "low exposure to sunlight".
+pregnancy is an indication in the text of the LCD of palmetto,
+    as stated in LCD L39391, confer "Pregnant and lactating women".
+lactation is an indication in the text of the LCD of palmetto,
+    as stated in LCD L39391, confer "Pregnant and lactating women".
+
+% Screening: the encounter-for-screening diagnosis codes (a device of this
+% model: Z00.0-, Z00.8, Z13.2-), excluded by the five LCDs that say so.
+rule vitd_screening:
+a claim is for routine screening
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary is a code
+    and the code is in ["Z00.00", "Z00.01", "Z00.8", "Z13.21", "Z13.228", "Z13.29"].
+
+rule vitd_screening_excluded:
+a claim is excluded as screening in a jurisdiction
+    if routine screening is excluded by the jurisdiction
+    and the claim is for routine screening.
+
+routine screening is excluded by cgs,
+    as stated in LCD L33996, confer "Vitamin D testing may not be used for routine screening".
+routine screening is excluded by wps,
+    as stated in LCD L34658, confer "Vitamin D testing may not be used for routine screening".
+routine screening is excluded by noridian,
+    as stated in LCD L36692, confer "Testing may not be used for routine or other screening".
+routine screening is excluded by wellpoint,
+    as stated in LCD L37535, confer "Testing may not be used for routine or other screening".
+routine screening is excluded by palmetto,
+    as stated in LCD L39391, confer "Reimbursement is not allowed for routine screening for vitamin D deficiency in asymptomatic individuals and/or during general encounters".
+
+% ---------------------------------------------------------------------------
+% Osteoporosis under Noridian and Wellpoint: covered "if" one of the five
+% conditions is documented.
+% ---------------------------------------------------------------------------
+
+% a device of this model: the osteoporosis codes without a current
+% pathological fracture
+rule vitd_osteoporosis_codes:
+a code is an osteoporosis code
+    if the code is in ["M81.0", "M81.6", "M81.8"].
+
+% a diagnosis other than osteoporosis: nothing more to meet (a device)
+rule vitd_osteoporosis_not_applicable:
+a beneficiary meets the osteoporosis conditions of a jurisdiction
+    if the diagnosis code of the beneficiary is a code
+    and it is not the case that
+        the code is an osteoporosis code.
+
+rule vitd_osteoporosis_noridian with provenance LCD L36692,
+        confer "osteoporosis if":
+a beneficiary meets the osteoporosis conditions of noridian
+    if the diagnosis code of the beneficiary is a code
+    and the code is an osteoporosis code
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying osteoporosis condition of noridian.
+
+rule vitd_osteoporosis_wellpoint with provenance LCD L37535,
+        confer "osteoporosis if:":
+a beneficiary meets the osteoporosis conditions of wellpoint
+    if the diagnosis code of the beneficiary is a code
+    and the code is an osteoporosis code
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying osteoporosis condition of wellpoint.
+
+qualifying bone density score is a qualifying osteoporosis condition of noridian,
+    as stated in LCD L36692, confer "T score on DEXA scan".
+history of fragility fractures is a qualifying osteoporosis condition of noridian,
+    as stated in LCD L36692, confer "History of fragility fractures".
+qualifying fracture risk assessment is a qualifying osteoporosis condition of noridian,
+    as stated in LCD L36692, confer "FRAX > 3".
+initiation of bisphosphonate therapy is a qualifying osteoporosis condition of noridian,
+    as stated in LCD L36692, confer "Initiating bisphosphanate therapy".
+qualifying bone density score is a qualifying osteoporosis condition of wellpoint,
+    as stated in LCD L37535, confer "T score on DEXA scan".
+history of fragility fractures is a qualifying osteoporosis condition of wellpoint,
+    as stated in LCD L37535, confer "History of fragility fractures".
+qualifying fracture risk assessment is a qualifying osteoporosis condition of wellpoint,
+    as stated in LCD L37535, confer "FRAX> 3".
+initiation of bisphosphonate therapy is a qualifying osteoporosis condition of wellpoint,
+    as stated in LCD L37535, confer "Initiating bisphosphanate therapy".
+
+% ---------------------------------------------------------------------------
+% Frequency: what the record of earlier tests shows. Devices of this model:
+% the year is the 365 days before the date of service; the "24 hour period"
+% is the calendar day.
+% ---------------------------------------------------------------------------
+
+rule vitd_tests_in_year:
+the number of vitamin D tests of a beneficiary in the year before a claim is a number
+    if the claim is for an item
+    and the item is furnished to the beneficiary
+    and the date of service of the claim is a date
+    and the number is the count of each other date such that
+        the beneficiary had a vitamin D test on the other date
+        and the date is a number N days after the other date
+        and N >= 0
+        and N <= 365.
+
+rule vitd_same_day:
+a claim repeats a vitamin D test on the same day
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the date of service of the claim is a date
+    and the beneficiary had a vitamin D test on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number < 1.
+
+rule vitd_repeat:
+a claim is a repeat vitamin D test
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary had a vitamin D test on a date.
+
+rule vitd_repeat_stable_normal:
+a claim is a repeat test of a stable beneficiary in the normal range
+    if the claim is a repeat vitamin D test
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the most recent vitamin D level of the beneficiary is a number ng per ml
+    and the number >= 20
+    and the number <= 50
+    and the beneficiary is clinically stable.
+
+% the WPS conditions with four tests a year: rickets and its sequelae,
+% vitamin D deficiency, osteomalacia and aluminum bone disease, by code
+rule vitd_wps_deficiency_codes with provenance LCD L34658,
+        confer "rickets, vitamin D deficiency, osteomalacia, and aluminum bone disease":
+a code is a code of the deficiency conditions of wps
+    if the code is in ["E55.0", "E55.9", "E64.3", "M83.0", "M83.1", "M83.2", "M83.3", "M83.4", "M83.5", "M83.8", "M83.9"].
+
+section applicability is:
+
+vitamin_d has no specific documentation requirements.
+
+% The codes this policy decides, and their benefit: clinical diagnostic
+% laboratory tests (Claims Processing Manual chapter 16, which the LCD
+% refers to), not durable medical equipment — no home is needed.
+rule vitd_codes with provenance Article A57484,
+        confer "82652 (group 1): Vit d 1 25-dihydroxy":
+the policy for code a code is vitamin_d
+    if the code is in ["82306", "82652"].
+
+rule vitd_benefit with provenance LCD L33771,
+        confer "Please refer to CMS IOM Publication 100-04, Medicare Claims Processing Manual , Chapter 16, Section 120.1 for additional limitations for Vitamin D assay testing":
+the benefit category of code a code is diagnostic laboratory tests
+    if the policy for code the code is vitamin_d.
+
+section question is:
+
+% The claim is decided under the LCD of its jurisdiction: a device of this
+% model (the contractor's jurisdiction is a fact of the claim).
+rule vitd_rn:
+a claim is reasonable and necessary
+    if the jurisdiction of the claim is a contractor
+    and the claim is reasonable and necessary in the contractor.
+
+% ---------------------------------------------------------------------------
+% One rule per LCD: a covered indication of that contractor's article or
+% LCD, not screening, within that LCD's frequency limits.
+% ---------------------------------------------------------------------------
+
+rule vitd_first_coast with provenance LCD L33771,
+        confer "The measurement of 25(OH) Vitamin D levels will be considered medically reasonable and necessary for patients with any of the following conditions":
+a claim is reasonable and necessary in first coast
+    if the claim is for an item
+    and the item is a vitamin D assay
+    and the HCPCS code of the item is a code
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered indication for HCPCS code the code in first coast
+    and it is not the case that
+        the claim is excluded as screening in first coast
+    and the claim is within the frequency limits of first coast.
+
+rule vitd_cgs with provenance LCD L33996,
+        confer "Indications: Measurement of vitamin D levels is indicated for patients with":
+a claim is reasonable and necessary in cgs
+    if the claim is for an item
+    and the item is a vitamin D assay
+    and the HCPCS code of the item is a code
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered indication for HCPCS code the code in cgs
+    and it is not the case that
+        the claim is excluded as screening in cgs
+    and the claim is within the frequency limits of cgs.
+
+rule vitd_wps with provenance LCD L34658,
+        confer "Indications: Measurement of vitamin D levels is indicated for patients with":
+a claim is reasonable and necessary in wps
+    if the claim is for an item
+    and the item is a vitamin D assay
+    and the HCPCS code of the item is a code
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered indication for HCPCS code the code in wps
+    and it is not the case that
+        the claim is excluded as screening in wps
+    and the claim is within the frequency limits of wps.
+
+rule vitd_noridian with provenance LCD L36692,
+        confer "Measurement of 25-OH Vitamin D level is indicated for patients with":
+a claim is reasonable and necessary in noridian
+    if the claim is for an item
+    and the item is a vitamin D assay
+    and the HCPCS code of the item is a code
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered indication for HCPCS code the code in noridian
+    and the beneficiary meets the osteoporosis conditions of noridian
+    and it is not the case that
+        the claim is excluded as screening in noridian
+    and the claim is within the frequency limits of noridian.
+
+rule vitd_wellpoint with provenance LCD L37535,
+        confer "Measurement of 25-OH Vitamin D level is indicated for patients with":
+a claim is reasonable and necessary in wellpoint
+    if the claim is for an item
+    and the item is a vitamin D assay
+    and the HCPCS code of the item is a code
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered indication for HCPCS code the code in wellpoint
+    and the beneficiary meets the osteoporosis conditions of wellpoint
+    and it is not the case that
+        the claim is excluded as screening in wellpoint
+    and the claim is within the frequency limits of wellpoint.
+
+rule vitd_palmetto with provenance LCD L39391,
+        confer "25-hydroxyvitamin D [25(OH)D] testing will be considered medically reasonable and necessary for individuals at risk for deficiency with the following conditions":
+a claim is reasonable and necessary in palmetto
+    if the claim is for an item
+    and the item is a vitamin D assay
+    and the HCPCS code of the item is a code
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered indication for HCPCS code the code in palmetto
+    and it is not the case that
+        the claim is excluded as screening in palmetto
+    and the claim is within the frequency limits of palmetto.
+
+% ---------------------------------------------------------------------------
+% Frequency limits, LCD by LCD.
+% ---------------------------------------------------------------------------
+
+% First Coast: one level per 24 hours; three tests per year; one per year
+% once supplemented to normal levels.
+rule vitd_frequency_first_coast with provenance LCD L33771,
+        confer "Limitations":
+a claim is within the frequency limits of first coast
+    if the claim is within the daily limit of first coast
+    and the claim is within the yearly limit of first coast.
+
+rule vitd_daily_first_coast with provenance LCD L33771,
+        confer "Only one 25 OH Vitamin D level will be reimbursed in any 24 hour period":
+a claim is within the daily limit of first coast
+    if the claim is for an item
+    and it is not the case that
+        the claim repeats a vitamin D test on the same day.
+
+rule vitd_yearly_first_coast with provenance LCD L33771,
+        confer "It’s not reasonable and necessary to perform more than three tests per year":
+a claim is within the yearly limit of first coast
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and it is not the case that
+        the beneficiary has been supplemented to normal vitamin D levels
+    and the number of vitamin D tests of the beneficiary in the year before the claim is a number
+    and the number <= 2.
+
+rule vitd_yearly_first_coast_supplemented with provenance LCD L33771,
+        confer "Patients with Vitamin D deficiency that have been supplemented to normal levels are limited to one test per year":
+a claim is within the yearly limit of first coast
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary has been supplemented to normal vitamin D levels
+    and the number of vitamin D tests of the beneficiary in the year before the claim is a number
+    and the number <= 0.
+
+% CGS: no number; once replacement is accomplished, annual testing.
+rule vitd_frequency_cgs with provenance LCD L33996,
+        confer "Once a beneficiary has been shown to be vitamin D deficient, further testing is medically necessary only to ensure adequate replacement has been accomplished":
+a claim is within the frequency limits of cgs
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and it is not the case that
+        the beneficiary has been supplemented to normal vitamin D levels.
+
+rule vitd_frequency_cgs_annual with provenance LCD L33996,
+        confer "Thereafter, annual testing may be appropriate depending upon the indication and other mitigating factors":
+a claim is within the frequency limits of cgs
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary has been supplemented to normal vitamin D levels
+    and the number of vitamin D tests of the beneficiary in the year before the claim is a number
+    and the number <= 0.
+
+% WPS: one level per 24 hours; once a year, or four times a year for
+% rickets, vitamin D deficiency, osteomalacia and aluminum bone disease.
+rule vitd_frequency_wps with provenance LCD L34658,
+        confer "Utilization Guidelines":
+a claim is within the frequency limits of wps
+    if the claim is within the daily limit of wps
+    and the claim is within the yearly limit of wps.
+
+rule vitd_daily_wps with provenance LCD L34658,
+        confer "Only one 25 OH vitamin D level will be reimbursed in any 24 hour period":
+a claim is within the daily limit of wps
+    if the claim is for an item
+    and it is not the case that
+        the claim repeats a vitamin D test on the same day.
+
+rule vitd_yearly_wps_other with provenance LCD L34658,
+        confer "Assays of vitamin D levels for conditions other than for rickets, vitamin D deficiency, osteomalacia, and aluminum bone disease will be limited to once a year":
+a claim is within the yearly limit of wps
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary is a code
+    and it is not the case that
+        the code is a code of the deficiency conditions of wps
+    and the number of vitamin D tests of the beneficiary in the year before the claim is a number
+    and the number <= 0.
+
+rule vitd_yearly_wps_deficiency with provenance LCD L34658,
+        confer "Assays of the appropriate vitamin D levels for rickets, vitamin D deficiency, osteomalacia, and aluminum bone disease will be limited to 4 per year":
+a claim is within the yearly limit of wps
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary is a code
+    and the code is a code of the deficiency conditions of wps
+    and the number of vitamin D tests of the beneficiary in the year before the claim is a number
+    and the number <= 3.
+
+% Noridian: no number; a repeat test of a clinically stable beneficiary in
+% the 20-50 ng/ml range needs documentation of its necessity.
+rule vitd_frequency_noridian with provenance LCD L36692,
+        confer "If Vitamin D level is between 20 and 50 ng/ml and patient is clinically stable, repeat testing is often unnecessary":
+a claim is within the frequency limits of noridian
+    if the claim is for an item
+    and it is not the case that
+        the claim is a repeat test of a stable beneficiary in the normal range.
+
+rule vitd_frequency_noridian_documented with provenance LCD L36692,
+        confer "if performed, documentation most clearly indicate the necessity of the test":
+a claim is within the frequency limits of noridian
+    if the claim is a repeat test of a stable beneficiary in the normal range
+    and the record clearly indicates the necessity of the test of the claim.
+
+% Wellpoint: the same limitation, in its own words.
+rule vitd_frequency_wellpoint with provenance LCD L37535,
+        confer "If Vitamin D level is between 20 and 50 ng/ml and patient is clinically stable, repeat testing is often unnecessary":
+a claim is within the frequency limits of wellpoint
+    if the claim is for an item
+    and it is not the case that
+        the claim is a repeat test of a stable beneficiary in the normal range.
+
+rule vitd_frequency_wellpoint_documented with provenance LCD L37535,
+        confer "if performed, documentation must clearly indicate the necessity of the test":
+a claim is within the frequency limits of wellpoint
+    if the claim is a repeat test of a stable beneficiary in the normal range
+    and the record clearly indicates the necessity of the test of the claim.
+
+% Palmetto: no number; once replacement is accomplished, annual testing
+% whose need the documentation supports.
+rule vitd_frequency_palmetto with provenance LCD L39391,
+        confer "Once a beneficiary has been shown to be vitamin D deficient with a serum level of":
+a claim is within the frequency limits of palmetto
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and it is not the case that
+        the beneficiary has been supplemented to normal vitamin D levels.
+
+rule vitd_frequency_palmetto_annual with provenance LCD L39391,
+        confer "The documentation must support the need for annual testing":
+a claim is within the frequency limits of palmetto
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary has been supplemented to normal vitamin D levels
+    and the number of vitamin D tests of the beneficiary in the year before the claim is a number
+    and the number <= 0
+    and the record clearly indicates the necessity of the test of the claim.
