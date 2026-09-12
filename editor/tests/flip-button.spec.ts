@@ -34,4 +34,33 @@ test.describe('Flip button', () => {
         await expect(page.locator('#flip-goal')).toHaveValue('the heading of the self-feeding bowl clamp is 3926');
         await page.click('#flip-cancel');
     });
+
+    // A named flip query's answers are change sets: Flip offers the flip itself.
+    test('on a flip query, offers its goal', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.goto('index.html?example=RulesRus/customs/plastics_cbp&scenario=ny_n363253&query=household');
+        await expect(page.locator('#query-select')).toHaveValue('household', { timeout: 90000 });
+        await page.click('#btn-query');
+        await expect(page.locator('#answers-list .answer-item.selected')).toContainText('add:', { timeout: 90000 });
+        await page.click('#btn-flip');
+        await expect(page.locator('#flip-not')).not.toBeChecked();
+        await expect(page.locator('#flip-goal')).toHaveValue('the heading of the self-feeding bowl clamp is 3924');
+        await page.click('#flip-cancel');
+    });
+
+    // A code is a string that looks like a number: the goal keeps its quotes,
+    // or read back it would be the number 3901.9 and "no change is needed".
+    test('keeps a number-like value a string', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.goto('index.html?example=RulesRus/customs/cbp_39&scenario=ny_n345907&query=subheading');
+        await expect(page.locator('#query-select')).toHaveValue('subheading', { timeout: 90000 });
+        await page.click('#btn-query');
+        await page.locator('#answers-list .answer-item', { hasText: 'FUSABOND A560' }).click({ timeout: 90000 });
+        await page.click('#btn-flip');
+        await expect(page.locator('#flip-goal')).toHaveValue('the subheading of FUSABOND A560 is "3901.90"');
+        await page.click('#flip-run');
+        const answers = page.locator('#answers-list .answer-item');
+        await expect(answers.first()).toContainText(/^(add|remove): /, { timeout: 90000 });
+        await expect(page.locator('#answers-list .answer-item', { hasText: 'no change is needed' })).toHaveCount(0);
+    });
 });

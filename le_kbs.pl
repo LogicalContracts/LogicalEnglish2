@@ -10,7 +10,7 @@
     runTestsFor/2, runTestsInDir/2, runTestsInDir/3, runTests/0, runTests/1, runAllTests/0, le_suite/1,
     run_suite/2, suite_failure_count/3, print_test_summary/1,
     suite_status_file/2, write_suite_status_file/2, write_test_status_file/3,
-    print_test_result/1, do_log/0, get_kb_metadata/2, program_kb_name/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
+    print_test_result/1, do_log/0, get_kb_metadata/2, program_kb_name/2, goal_string/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
     run_one_test/3, le_my_id/1, le_my_kb/1, kb_target_language/2, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
@@ -1767,6 +1767,30 @@ canonical_string(Instance, String) :-
         ;
         token_to_atom(Instance, Atom),
         atom_string(Atom, String)
+    ).
+
+%!  goal_string(+Instance, -String) is det.
+%
+%   An answer as a sentence that reads back as the same goal — for a client
+%   that asks about an answer (the editor's Flip…). canonical_string/2 writes
+%   a string value bare, as the answer shows it ("the subheading of X is
+%   3901.90"), and read back the bare value is a number (3901.9), another
+%   constant; here a string that would read as a number or a date keeps its
+%   quotes ("the subheading of X is \"3901.90\"").
+goal_string(Instance, String) :-
+    (   is_list(Instance)
+    ->  maplist(quote_ambiguous_string, Instance, Tokens),
+        canonical_string(Tokens, String)
+    ;   canonical_string(Instance, String)
+    ).
+
+quote_ambiguous_string(T, Q) :-
+    (   string(T),
+        (   catch(number_string(_, T), _, fail)
+        ;   re_match("^\\d{4}-\\d{1,2}-\\d{1,2}"/i, T)
+        )
+    ->  format(atom(Q), "\"~w\"", [T])
+    ;   Q = T
     ).
 
 %!  token_to_atom(+Token:term, -Atom:atom) is det.

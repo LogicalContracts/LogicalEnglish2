@@ -8949,7 +8949,9 @@ function wireMenus(m) {
 }
 var ExplanationView = class {
   currentAnswerToCopy = "";
-  // The selected answer's text; null when none is, or it is "no answers".
+  // The selected answer as a sentence that reads back as the same goal (the
+  // server's `goal`: a value like "3901.90" keeps its quotes, where the
+  // answer shows it bare); null when none is selected, or it is "no answers".
   selectedAnswer = null;
   // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
   currentMenuNode = null;
@@ -9092,7 +9094,7 @@ var ExplanationView = class {
         item.addEventListener("click", () => {
           answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
           item.classList.add("selected");
-          this.selectedAnswer = result.answer;
+          this.selectedAnswer = result.goal || result.answer;
           this.renderExplanation(result.why);
           this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
           this.o.onSelectAnswer?.(index + 1);
