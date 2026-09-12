@@ -941,6 +941,14 @@ predicates are never changed.
   own attempt supplies the next candidates, so a change that opens a new
   path brings that path's conditions into play. Bounds: Prolog flags
   `le_flip_max_changes` (default 3) and `le_flip_max_evaluations` (400).
+- **Without writing the query**: a flip is also a custom query — the
+  editor's custom query field (and the `customQuery` of `answeringQuery`)
+  accepts the sentence, as it accepts any query body (conditions joined by
+  `and`/`or`/`it is not the case that`). The editor's **Flip…** button beside
+  **Query** composes it: the goal is the selected answer, negated (what would
+  make it not so), or the query itself when it has no answer; the author
+  may edit it before it runs. The goal may keep variables (`the heading of
+  which good is 3924`).
 
 See `examples/RulesRus/flip_housing.le`.
 

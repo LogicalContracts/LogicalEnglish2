@@ -3,6 +3,7 @@ import { t, applyI18nDom, installLeApiLang, detectProgramLanguage, detectTargetL
 import { buildShareUrl, decompressFromParam, fragmentParam } from './share-url';
 import qrcode from 'qrcode-generator';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
+import { kwPhrases } from './i18n';
 import { ExplanationView } from './explanation-view';
 import { isForeignOffset, openIncludedResource, describeResourceRange } from './resource-nav';
 import { openSourceViewer, originalUrl, Provenance } from './source-viewer';
@@ -2615,6 +2616,69 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         } finally {
             hideInterrupt();
         }
+    });
+
+    // --- Flip -----------------------------------------------------------------
+    // A flip query (docs/le_summary.md §17.7) about what is on screen: "which
+    // minimal change to the scenario makes it the case that <goal>". The goal
+    // is the selected answer, negated — what would make it not so — or, when
+    // the query has no answer, the query itself; the author may edit either.
+    // It runs as a custom query, so the sentence stays in view and the answers
+    // (the change sets) and their proofs show in the usual panels.
+    const flipModal = document.getElementById('flip-modal') as HTMLElement | null;
+    const flipGoal = document.getElementById('flip-goal') as HTMLTextAreaElement | null;
+    const flipNot = document.getElementById('flip-not') as HTMLInputElement | null;
+    const flipPhrase = (key: string): string => {
+        const lang = detectProgramLanguage(programText());
+        return kwPhrases(lang, key)[0] || kwPhrases('en', key)[0] || '';
+    };
+    const closeFlip = () => { if (flipModal) flipModal.style.display = 'none'; };
+    document.getElementById('flip-close')?.addEventListener('click', closeFlip);
+    document.getElementById('flip-cancel')?.addEventListener('click', closeFlip);
+    flipModal?.addEventListener('click', (e) => { if (e.target === flipModal) closeFlip(); });
+
+    document.getElementById('btn-flip')?.addEventListener('click', async () => {
+        if (!flipModal || !flipGoal || !flipNot) return;
+        if (!isLoaded) { const ok = await loadModule(); if (!ok) return; }
+        const opener = flipPhrase('flip_query');
+        const notWords = flipPhrase('not_the_case');
+        let goal = '';
+        let negate = false;
+        const current = querySelect.value === '___custom___' ? customQueryText.value.trim() : '';
+        if (current && opener && current.toLowerCase().startsWith(opener.toLowerCase())) {
+            // already a flip: offer it again, to edit
+            goal = current.slice(opener.length).trim().replace(/\.$/, '');
+            if (notWords && goal.toLowerCase().startsWith(notWords.toLowerCase())) {
+                negate = true;
+                goal = goal.slice(notWords.length).trim();
+            }
+        } else if (explView.selectedAnswer) {
+            goal = explView.selectedAnswer;
+            negate = true;
+        } else {
+            const q = lastQueries.find((x: any) => x.name === querySelect.value);
+            goal = q ? (q.le || '') : current;
+        }
+        (document.getElementById('flip-opener') as HTMLElement).textContent = `${opener} …`;
+        (document.getElementById('flip-not-words') as HTMLElement).textContent = notWords;
+        flipNot.checked = negate;
+        flipGoal.value = goal;
+        flipModal.style.display = 'flex';
+        flipGoal.focus();
+    });
+
+    document.getElementById('flip-run')?.addEventListener('click', () => {
+        if (!flipGoal || !flipNot) return;
+        const goal = flipGoal.value.trim().replace(/\.$/, '');
+        if (!goal) return;
+        const text = `${flipPhrase('flip_query')} ${flipNot.checked ? flipPhrase('not_the_case') + ' ' : ''}${goal}`;
+        querySelect.value = '___custom___';
+        customQueryContainer.style.display = 'flex';
+        customQueryText.value = text;
+        updateQueryButtonState();
+        updateUrlSelection();
+        closeFlip();
+        btnQuery.click();
     });
 
     const btnProofGame = document.getElementById('btn-proof-game') as HTMLButtonElement;

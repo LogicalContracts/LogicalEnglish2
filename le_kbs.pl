@@ -1833,6 +1833,8 @@ item_to_instance(KBmodule, query_flip(le_flip(_, Changes), _, _, _), Tokens) :- 
     flip_changes_words(KBmodule, Changes, Tokens).
 item_to_instance(KBmodule, le_flip_changes(Changes, _Goal), Tokens) :- !,
     flip_changes_words(KBmodule, Changes, Tokens).
+item_to_instance(KBmodule, le_flip(_Goal, Changes), Tokens) :- !,   % a flip asked as a custom query
+    flip_changes_words(KBmodule, Changes, Tokens).
 item_to_instance(KBmodule, query_body(Goal, _, _, _), Tokens) :- !,
     ( item_to_instance(KBmodule, Goal, Tokens) -> true ; term_string(Goal, S), Tokens = [S] ).
 item_to_instance(KBmodule, Head, WordsAndVars) :-
@@ -2432,10 +2434,28 @@ clause_item_to_term(Other, Other).
 parse_custom_query(KB, Text, Goal) :-
     tokenizer:tokenize_lang(Text, Tokens),
     le_grammar:set_token_pos(0),
-    (   parse_query_to_goal(KB, Tokens, Goal, _Instance) -> true
+    (   custom_query_body(KB, Tokens, Goal) -> true
+    ;   parse_query_to_goal(KB, Tokens, Goal, _Instance) -> true
     ;   format(string(Error), "Query does not match any template: ~w", [Text]),
         throw(error(le_parse_error(Error), _))
     ).
+
+% A custom query reads like the body of a query section, in the same order: a
+% flip query ("which minimal change to the scenario makes it the case that
+% ...", §17.7), then conditions joined by and / or / it is not the case that,
+% then one literal. (Read as one literal first, a flip would match the
+% built-in "*a thing* is *a value*" with its opener as the thing, and "a and
+% b" a template with "and" inside a constant.)
+custom_query_body(KB, Tokens, Goal) :-
+    findall(D, KB:le_dict(D), Dicts),
+    le_grammar:prepare_templates(Dicts, Templates),
+    length(Tokens, N),
+    catch(le_grammar:second_pass_query_item(Templates, query_raw(Tokens, 0, N), Item, KB), _, fail),
+    (   Item = query_flip(Goal, _, _, _)
+    ->  true
+    ;   Item = query_body(Goal, _, _, _)
+    ).
+
 
 %!  is_system_predicate(?Pred:term) is semidet.
 %

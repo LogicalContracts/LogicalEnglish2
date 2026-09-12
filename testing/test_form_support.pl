@@ -162,6 +162,35 @@ query flip is:
     atom_string(Q.le, Label),
     assertion(Label == "which minimal change to the scenario makes it the case that bob is glad").
 
+% A custom query (the editor's field, its Flip… button) may be a flip query or
+% any query body — not only one literal. The flip opener is tried first: read
+% as one literal, it would match the built-in "*a thing* is *a value*".
+test(custom_query_flip_and_body) :-
+    load_text("the target language is: prolog.
+
+the templates are:
+    *a person* is happy; undefined.
+    *a person* is rich; undefined.
+    *a person* is glad.
+
+the knowledge base k includes:
+
+a person is glad if the person is happy.
+
+scenario s is:
+    ann is happy.
+", KB),
+    parse_custom_query(KB, "which minimal change to the scenario makes it the case that it is not the case that ann is glad", G1),
+    assertion(G1 = le_flip(_, _)),
+    parse_custom_query(KB, "ann is happy and ann is rich", G2),
+    assertion(G2 = and(_, _)),              % the form of a query body
+    parse_custom_query(KB, "which person is glad", G3),
+    assertion(G3 = is_glad(_)),
+    createSession(KB, SM), setScenarion(SM, s),
+    findall(A, ( query(SM, G1, I, _, _), canonical_string(I, A) ), As),
+    destroySession(SM),
+    assertion(As == ["remove: ann is happy"]).
+
 :- end_tests(program_metadata).
 
 % ---------------------------------------------------------------------------

@@ -111,6 +111,8 @@ function wireMenus(m: MenuEls) {
 
 export class ExplanationView {
     currentAnswerToCopy = '';
+    // The selected answer's text; null when none is, or it is "no answers".
+    selectedAnswer: string | null = null;
     // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
     private currentMenuNode: any = null;
     // The `why` of the answer last right-clicked, target of the Bento Box item.
@@ -205,6 +207,7 @@ export class ExplanationView {
     showResults(res: any, selectIndex = 0) {
         const answersList = this.o.answersList;
         answersList.innerHTML = '';
+        this.selectedAnswer = null;
         this.o.explanationTree.innerHTML = '';
         this.m.answerTooltip.style.display = 'none';
 
@@ -239,6 +242,7 @@ export class ExplanationView {
                 item.addEventListener('click', () => {
                     answersList.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
                     item.classList.add('selected');
+                    this.selectedAnswer = result.answer;
                     this.renderExplanation(result.why);
                     this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
                     this.o.onSelectAnswer?.(index + 1);
@@ -252,9 +256,11 @@ export class ExplanationView {
             item.className = 'answer-item failure selected';
             item.style.color = '#f48771';
             item.textContent = t('No answers (false)');
+            this.selectedAnswer = null;
             item.addEventListener('click', () => {
                 answersList.querySelectorAll('.answer-item').forEach(el => el.classList.remove('selected'));
                 item.classList.add('selected');
+                this.selectedAnswer = null;
                 this.renderExplanation(res.why);
                 this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
             });
