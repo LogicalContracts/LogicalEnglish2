@@ -198,12 +198,14 @@ scenario accessory_quantity is:
     claim 1 is for the mask cushion.
     the HCPCS code of the mask cushion is "A7031".
     the mask cushion is an accessory of the CPAP device.
+    the mask cushion is furnished to Ann.
     the date of service of claim 1 is 2026-04-01.
     the quantity billed on claim 1 is 1.
     claim 1 is for a supply of 1 months.
     claim 2 is for the mask cushions.
     the HCPCS code of the mask cushions is "A7031".
     the mask cushions is an accessory of the CPAP device.
+    the mask cushions is furnished to Ann.
     the date of service of claim 2 is 2026-04-01.
     the quantity billed on claim 2 is 3.
     claim 2 is for a supply of 1 months.
@@ -219,7 +221,7 @@ scenario accessory_quantity is:
     the sleep test of Ann recorded 140 events.
     Ann received instruction from the supplier in the use and care of the CPAP device.
     rn expects answers ["claim 1 is reasonable and necessary"].
-    stage expects answers ["the query fails at remedy"].
+    stage expects answers ["the query fails at question"].
 
 % Reasonable and necessary, but no proof of delivery: payable fails at the
 % remedy.

@@ -11,6 +11,14 @@
 % Encounter and Written Order Prior to Delivery List and the Required Prior
 % Authorization List (which codes each applies to).
 %
+% Findings. Many criteria are clinical findings about the beneficiary ("the
+% mobility limitation cannot be resolved by a cane or walker", "oxygen will
+% improve the condition"): the treating practitioner's note states them, a
+% reviewer or an appeal body accepts or rejects them. They are one judged
+% template, "the finding F about B is established / unsupported", recorded
+% with who found it and why; a finding nobody has made leaves the answer
+% conditional (a judgment needed), as in the customs model.
+%
 % How a claim is read. A claim is for one item (a device, an accessory, a
 % supply), coded with its HCPCS code, furnished to a beneficiary, on a date of
 % service, for a rental month (1, 2, 3, ... — absent for a purchase or a
@@ -51,11 +59,14 @@ the templates are:
     the treating practitioner examined *a beneficiary* for *an item* in a face-to-face encounter on *a date*; undefined.
     *an item* was delivered on *a date*; undefined.
     the supplier holds proof of delivery for *an item*; undefined.
-    prior authorization for *an item* was affirmed; undefined.
+    prior authorization for *an item* was affirmed on *a date*; undefined.
     the medical record documents continued need for *an item* on *a date*; undefined.
     the record documents continued use of *an item* on *a date*; undefined.
     the current supply of *an item* is expected to end on *a date*; undefined.
     the beneficiary affirmed the need for the refill of *an item* on *a date*; undefined.
+    the medical record of *a beneficiary* documents *a condition*; undefined.
+    % a finding of the record, the reviewer or the appeal body about the beneficiary
+    the finding *a finding* about *a beneficiary* is *an outcome*; judged.
     % where the beneficiary lives, and what the item is
     the residence of *a beneficiary* is *a place*; undefined.
     *an item* can withstand repeated use; undefined.
@@ -85,6 +96,8 @@ the templates are:
     the continued need requirements are met for *a claim*.
     *a claim* is an ongoing claim.
     the refill requirements are met for *a claim*.
+    the policy specific documentation requirements are met for *a claim*.
+    *a policy* has no specific documentation requirements.
 
 the knowledge base dmepos includes:
 
@@ -95,8 +108,8 @@ the text of Standard Documentation Requirements Article A55426 is at "sources/ar
 the text of 42 CFR section 410 38 is at "sources/cfr/42_CFR_410.38.txt".
 Medicare Benefit Policy Manual Chapter 15 is published at "https://www.cms.gov/regulations-and-guidance/guidance/manuals/downloads/bp102c15.pdf".
 the text of Medicare Benefit Policy Manual Chapter 15 is at "sources/manuals/BPM_100-02_ch15.txt".
-the CMS required face-to-face and WOPD list is published at "https://www.cms.gov/files/document/required-face-face-encounter-written-order-prior-delivery-list.pdf".
-the text of the CMS required face-to-face and WOPD list is at "sources/cfr/CMS_required_f2f_wopd_list_2026-04-13.txt".
+the CMS required face-to-face list is published at "https://www.cms.gov/files/document/required-face-face-encounter-written-order-prior-delivery-list.pdf".
+the text of the CMS required face-to-face list is at "sources/cfr/CMS_required_f2f_wopd_list_2026-04-13.txt".
 the CMS required prior authorization list is published at "https://www.cms.gov/research-statistics-data-and-systems/monitoring-programs/medicare-ffs-compliance-programs/dmepos/downloads/dmepos_pa_required-prior-authorization-list.pdf".
 the text of the CMS required prior authorization list is at "sources/cfr/CMS_required_prior_authorization_list_2026-07-29.txt".
 
@@ -172,7 +185,17 @@ a claim is payable
     and the delivery requirements are met for the claim
     and the prior authorization requirement is met for the item
     and the continued need requirements are met for the claim
-    and the refill requirements are met for the claim.
+    and the refill requirements are met for the claim
+    and the policy specific documentation requirements are met for the claim.
+
+% Each policy either states that it has no documentation requirements of its
+% own or defines them (a power mobility device: the order written by the
+% practitioner who examined the beneficiary, the home assessment, delivery
+% within six months of the prior authorization). A device of this model.
+rule no_policy_specific_documentation:
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is a policy
+    and the policy has no specific documentation requirements.
 
 % ---------------------------------------------------------------------------
 % The order: a standard written order, its timing, the face-to-face encounter.
@@ -289,7 +312,7 @@ rule prior_authorization with provenance the CMS required prior authorization li
 the prior authorization requirement is met for an item
     if the HCPCS code of the item is a code
     and the code is on the required prior authorization list
-    and prior authorization for the item was affirmed.
+    and prior authorization for the item was affirmed on a date.
 
 rule prior_authorization_not_required with provenance the CMS required prior authorization list,
         confer "REQUIRED PRIOR AUTHORIZATION LIST As defined in 42 CFR 414.234(c)(1)":
