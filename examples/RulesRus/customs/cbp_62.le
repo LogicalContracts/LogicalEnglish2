@@ -1147,3 +1147,27 @@ scenario ny_n357085 is, as stated in ruling NY N357085:
         confer "The item measures 42” in length and 64” in width".
 
     subheading expects answers ["the subheading of the printed scarf sarong is 6214.30"].
+% A view (docs/le_summary.md §17.10): the classification worksheet of
+% CustomsOfficerReport.md — the good's facts as the ruling states them,
+% grouped, each with its passage; the subheading with the steps that cite the
+% tariff; the ruling beside it; every ruling of the file with its code.
+the view worksheet is:
+    the title is "Classification worksheet".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the article" are
+        the kind of a good is a kind,
+        the cut of a garment indicates a gender.
+    the facts about "the fabric" are
+        the fabric construction of a garment is a construction.
+    the facts about "the composition" are
+        a good contains a number percent of a material.
+    the facts about "the measurements" are
+        a good is approximately square,
+        the longest side of a good measures a number centimetres.
+    the result is the answer to query subheading, headed by the code.
+    the result shows its citations.
+    the result asks what is missing.
+    the result can be flipped.
+    the documents of the case are shown beside the facts.
+    the cases are listed with their results.
+    the draft reads "CLASSIFICATION: The applicable subheading for the goods of {the case} will be {the result}, Harmonized Tariff Schedule of the United States (HTSUS). The facts relied on: {the facts}.".

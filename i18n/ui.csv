@@ -343,3 +343,69 @@ New tab,,Novo separador,Nueva pestaña,Nouvel onglet,Nuova scheda
 The queries and the assistant are about this program,,As consultas e o assistente são sobre este programa,Las consultas y el asistente tratan de este programa,Les requêtes et l'assistant portent sur ce programme,Le interrogazioni e l'assistente riguardano questo programma
 You have unsaved changes. Close this tab anyway?,,Tem alterações por guardar. Fechar este separador mesmo assim?,Tiene cambios sin guardar. ¿Cerrar esta pestaña de todos modos?,Vous avez des modifications non enregistrées. Fermer cet onglet quand même ?,Ci sono modifiche non salvate. Chiudere comunque questa scheda?
 Could not open the included resource,,Não foi possível abrir o recurso incluído,No se pudo abrir el recurso incluido,Impossible d'ouvrir la ressource incluse,Impossibile aprire la risorsa inclusa
+Views,,Vistas,Vistas,Vues,Viste
+Without a view,,Sem vista,Sin vista,Sans vue,Senza vista
+New case,,Novo caso,Nuevo caso,Nouveau cas,Nuovo caso
+The case,,O caso,El caso,Le cas,Il caso
+Judgments,,Juízos,Juicios,Jugements,Giudizi
+Other facts,,Outros factos,Otros hechos,Autres faits,Altri fatti
+Facts,,Factos,Hechos,Faits,Fatti
+not stated,,não indicado,no indicado,non indiqué,non indicato
+State it,,Indicá-lo,Indicarlo,L'indiquer,Indicarlo
+No answer,,Sem resposta,Sin respuesta,Pas de réponse,Nessuna risposta
+assuming,,supondo,suponiendo,en supposant,supponendo
+No sections to check.,,Não há secções a verificar.,No hay secciones que comprobar.,Aucune section à vérifier.,Nessuna sezione da verificare.
+passed,,passou,superada,passée,superata
+failed,,falhou,fallida,échouée,fallita
+not reached,,não alcançada,no alcanzada,non atteinte,non raggiunta
+No cited steps.,,Nenhum passo citado.,Ningún paso citado.,Aucune étape citée.,Nessun passo citato.
+yes,,sim,sí,oui,sì
+no,,não,no,non,no
+No reasons to show.,,Não há razões a mostrar.,No hay razones que mostrar.,Aucune raison à montrer.,Nessuna ragione da mostrare.
+No documents cited.,,Nenhum documento citado.,Ningún documento citado.,Aucun document cité.,Nessun documento citato.
+What would change this?,,O que mudaria isto?,¿Qué cambiaría esto?,Qu'est-ce qui changerait cela ?,Cosa cambierebbe questo?
+Searching…,,A procurar…,Buscando…,Recherche…,Ricerca…
+No change of up to three facts would change it.,,Nenhuma alteração de até três factos o mudaria.,Ningún cambio de hasta tres hechos lo cambiaría.,Aucun changement d'au plus trois faits ne le changerait.,Nessun cambiamento di al massimo tre fatti lo cambierebbe.
+change sets,,conjuntos de alterações,conjuntos de cambios,ensembles de changements,insiemi di cambiamenti
+Answering,,Responder,Responder,Répondre,Rispondere
+to,,a,a,à,a
+None.,,Nenhum.,Ninguno.,Aucun.,Nessuno.
+Answer,,Resposta,Respuesta,Réponse,Risposta
+fails at,,falha em,falla en,échoue à,fallisce in
+Run all cases,,Correr todos os casos,Ejecutar todos los casos,Exécuter tous les cas,Esegui tutti i casi
+Case,,Caso,Caso,Cas,Caso
+Result,,Resultado,Resultado,Résultat,Risultato
+Expected,,Esperado,Esperado,Attendu,Atteso
+Nothing is missing.,,Não falta nada.,No falta nada.,Rien ne manque.,Non manca nulla.
+No fact of the case would give a result on its own.,,Nenhum facto do caso daria um resultado por si só.,Ningún hecho del caso daría un resultado por sí solo.,Aucun fait du cas ne donnerait à lui seul un résultat.,Nessun fatto del caso darebbe da solo un risultato.
+"Yes, state it",,"Sim, indicá-lo","Sí, indicarlo","Oui, l'indiquer","Sì, indicarlo"
+Running…,,A correr…,Ejecutando…,Exécution…,In esecuzione…
+of at most,,de no máximo,de como máximo,sur au plus,su al massimo
+Yes,,Sim,Sí,Oui,Sì
+No,,Não,No,Non,No
+Not sure,,Não sei,No estoy seguro,Pas sûr,Non sono sicuro
+Why,,Porquê,Por qué,Pourquoi,Perché
+not sure,,não sei,no estoy seguro,pas sûr,non sono sicuro
+Change an answer,,Mudar uma resposta,Cambiar una respuesta,Changer une réponse,Cambiare una risposta
+What is missing,,O que falta,Lo que falta,Ce qui manque,Cosa manca
+Stage,,Etapa,Etapa,Stade,Fase
+Reasons,,Razões,Razones,Raisons,Ragioni
+Compare,,Comparar,Comparar,Comparer,Confronta
+Documents,,Documentos,Documentos,Documents,Documenti
+Cases,,Casos,Casos,Cas,Casi
+Draft,,Rascunho,Borrador,Brouillon,Bozza
+Find the smallest changes,,Encontrar as menores alterações,Encontrar los cambios más pequeños,Trouver les plus petits changements,Trova i cambiamenti più piccoli
+"No text attached to these documents: the program says where each is cited, not where its text is.",,"Nenhum texto associado a estes documentos: o programa diz onde cada um é citado, não onde está o seu texto.","Ningún texto asociado a estos documentos: el programa dice dónde se cita cada uno, no dónde está su texto.","Aucun texte associé à ces documents : le programme dit où chacun est cité, pas où se trouve son texte.","Nessun testo associato a questi documenti: il programma dice dove ciascuno è citato, non dove si trova il suo testo."
+Show all,,Mostrar tudo,Mostrar todo,Tout afficher,Mostra tutto
+passage,,passagem,pasaje,passage,passaggio
+passages,,passagens,pasajes,passages,passaggi
+Generate LE view,,Gerar vista LE,Generar vista LE,Générer une vue LE,Genera vista LE
+"Draft a view for this program (docs/le_summary.md §17.10): the section that says how a screen shows it — its case facts, its result, what is shown beside it",,"Esboçar uma vista para este programa (docs/le_summary.md §17.10): a secção que diz como um ecrã o mostra — os factos do caso, o resultado, o que se mostra ao lado","Esbozar una vista para este programa (docs/le_summary.md §17.10): la sección que dice cómo lo muestra una pantalla — los hechos del caso, el resultado, lo que se muestra al lado","Esquisser une vue pour ce programme (docs/le_summary.md §17.10) : la section qui dit comment un écran le montre — les faits du cas, le résultat, ce qui est montré à côté","Abbozzare una vista per questo programma (docs/le_summary.md §17.10): la sezione che dice come uno schermo lo mostra — i fatti del caso, il risultato, ciò che si mostra accanto"
+The program must load without errors before a view can be drafted.,,O programa tem de carregar sem erros antes de se poder esboçar uma vista.,El programa debe cargarse sin errores antes de poder esbozar una vista.,Le programme doit se charger sans erreur avant qu'une vue puisse être esquissée.,Il programma deve caricarsi senza errori prima di poter abbozzare una vista.
+I drafted a view at the end of the program:,,Esbocei uma vista no fim do programa:,Esbocé una vista al final del programa:,J'ai esquissé une vue à la fin du programme :,Ho abbozzato una vista alla fine del programma:
+"It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.",,"Lista todos os factos que um caso pode afirmar num grupo e mostra o resultado da primeira consulta. Edite-a: agrupe os factos sob títulos, encabece o resultado pelo valor que importa, redija as perguntas de uma entrevista. O verificador confere o que ela nomeia.","Lista todos los hechos que un caso puede afirmar en un grupo y muestra el resultado de la primera consulta. Edítela: agrupe los hechos bajo títulos, encabece el resultado por el valor que importa, redacte las preguntas de una entrevista. El verificador comprueba lo que nombra.","Elle liste tous les faits qu'un cas peut énoncer en un groupe et montre le résultat de la première requête. Modifiez-la : groupez les faits sous des titres, mettez en tête la valeur qui compte, rédigez les questions d'un entretien. Le vérificateur contrôle ce qu'elle nomme.","Elenca tutti i fatti che un caso può affermare in un gruppo e mostra il risultato della prima interrogazione. La modifichi: raggruppi i fatti sotto titoli, metta in testa il valore che conta, formuli le domande di un'intervista. Il verificatore controlla ciò che nomina."
+Open the view,,Abrir a vista,Abrir la vista,Ouvrir la vue,Apri la vista
+"Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.",,"Aperfeiçoe a secção de vista no fim do programa: agrupe os factos sob títulos curtos, encabece o resultado pelo valor que importa e acrescente perguntas ou um rascunho onde ajudem. Use apenas as frases de vista de docs/le_summary.md §17.10.","Refine la sección de vista al final del programa: agrupe sus hechos bajo títulos cortos, encabece el resultado por el valor que importa y añada preguntas o un borrador donde ayuden. Use solo las frases de vista de docs/le_summary.md §17.10.","Affinez la section de vue à la fin du programme : groupez ses faits sous des titres courts, mettez en tête la valeur qui compte et ajoutez des questions ou un brouillon là où ils aident. N'utilisez que les phrases de vue de docs/le_summary.md §17.10.","Rifinisca la sezione di vista alla fine del programma: raggruppi i fatti sotto titoli brevi, metta in testa il valore che conta e aggiunga domande o una bozza dove aiutano. Usi solo le frasi di vista di docs/le_summary.md §17.10."
+(once the program is saved),,(depois de o programa ser guardado),(una vez guardado el programa),(une fois le programme enregistré),(una volta salvato il programma)
+provided that,,desde que,siempre que,pourvu que,purché
+The result holds provided that it does.,,O resultado verifica-se desde que isto se verifique.,El resultado se cumple siempre que esto se cumpla.,Le résultat vaut pourvu que cela vaille.,Il risultato vale purché questo valga.

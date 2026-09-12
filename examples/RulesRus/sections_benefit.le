@@ -63,3 +63,20 @@ query help is:
 
 query stage is:
     the query fails at which section.
+
+% A view (docs/le_summary.md §17.10): a caseworker's screen — the amount, the
+% stage an application reaches (applicability, question, remedy), what it
+% still lacks, and a sentence for the letter.
+the view rent help is:
+    the title is "Help with the rent".
+    the case is a scenario.
+    the facts about "the applicant" are
+        a person is resident,
+        a person is on a low income,
+        the rent of a person is an amount.
+    the result is the answer to query help, headed by the amount.
+    the result shows the stage it reaches.
+    the result shows its reasons.
+    the result asks what is missing.
+    the cases are listed with their results.
+    the draft reads "We have assessed your application: {the answer}.".

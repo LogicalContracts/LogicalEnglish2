@@ -216,6 +216,8 @@ handle_operation(Dict, Response) :-
         ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
         ; Op == "predicateOccurrences" -> handle_predicate_occurrences(Dict, Response)
         ; Op == "provenanceAt" -> handle_provenance_at(Dict, Response)
+        ; Op == "openQuestions" -> handle_open_questions(Dict, Response)
+        ; Op == "draftView" -> handle_draft_view(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
         ; Op == "getLps" -> handle_get_lps(Dict, Response)
         ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
@@ -1228,10 +1230,12 @@ run_answering_query(SM, Query, KB, Response) :-
             print_message(informational, 'Found answer: ~w' - [AnswerStr])
         ), KeyedResults),
     dedup_keep_first(KeyedResults, Results),
+    ( Results \== [] -> Held = true ; Held = false ),
+    answer_checklist(SM, KB, Query, Held, Checklist),
     (   Results \== [] ->  
         length(Results, Count),
         print_message(informational, 'Total answers found: ~w' - [Count]),
-        Response = _{results: Results, result: "ok"}
+        Response = _{results: Results, result: "ok", checklist: Checklist}
         ;   
         % No answers, get negative explanation
         print_message(informational, 'No answers found, generating negative explanation'),
@@ -1245,9 +1249,143 @@ run_answering_query(SM, Query, KB, Response) :-
                 (   important_reason_failed(JSONWhy, Larger, Reason, ReasonPath) -> true
                 ;   strongest_reason(JSONWhy, KB, Reason, ReasonPath)
                 ),
-                Response = _{results: [], why: JSONWhy, strongestReason: Reason, strongestReasonPath: ReasonPath, result: "ok"}
+                Response = _{results: [], why: JSONWhy, strongestReason: Reason, strongestReasonPath: ReasonPath, result: "ok", checklist: Checklist}
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
+    ).
+
+%!  answer_checklist(+SM, +KB, +Query, +Held, -Checklist:list) is det.
+%
+%   For a program with the reserved sections (applicability, question,
+%   remedy — le_sections.pl): [{section, status}] in checklist order, every
+%   section passed when the query has an answer, and otherwise where it fails
+%   and what it did not reach. [] for any other program.
+answer_checklist(SM, KB, Query, Held, Checklist) :-
+    (   KB \== none,
+        catch(le_sections:program_roles(KB, Present), _, fail), Present \== []
+    ->  (   Held == true
+        ->  le_sections:role_order(Roles),
+            findall(Name-passed, ( member(R, Roles), member(R-Name, Present) ), Pairs)
+        ;   query_goal(KB, Query, Goal),
+            catch(le_sections:section_checklist(SM, KB, Goal, Pairs), _, fail)
+        ->  true
+        ;   Pairs = []
+        ),
+        findall(_{section: N, status: St}, member(N-St, Pairs), Checklist)
+    ;   Checklist = []
+    ).
+
+% A query as a goal: a named query's, or the goal itself.
+query_goal(KB, Query, Goal) :-
+    (   ( atom(Query) ; string(Query) ),
+        atom_string(QA, Query),
+        current_predicate(KB:query_info/3),
+        ( KB:query_info(QA, Goal0, _) -> true ; atom_number(QA, N), KB:query_info(N, Goal0, _) )
+    ->  Goal = Goal0
+    ;   compound(Query), Goal = Query
+    ).
+
+%!  handle_open_questions(+Dict, -Response) is det.
+%
+%   What a case does not state and its query looked for — for a screen that
+%   asks for it (le_views.pl: "the result asks what is missing", "the facts
+%   are asked one at a time"). Same scenario and query fields as
+%   answeringQuery. Replies {holds, missing, touched}: `missing` are the case
+%   facts the proof failed on along its failed path (stating one may give the
+%   result), `touched` every case fact the attempt looked for and did not find;
+%   each {literal, label, goal, values}, `values` per placeholder of its
+%   template the values the rules read there. A case fact is a fact of a
+%   scenario-element or judged template (or, in a program that marks none, of
+%   a template no rule concludes).
+handle_open_questions(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
+    (   KB == none
+    ->  Response = _{error: "No KB loaded"}
+    ;   catch(request_scenario_and_goal(SM, KB, Dict, Goal), error(le_parse_error(Msg), _),
+              ( Response = _{error: Msg} ))
+    ->  (   nonvar(Response) -> true
+        ;   copy_term(Goal, G0),
+            ( catch(once(le_kbs:query(SM, G0, _, [], _)), _, fail) -> Holds = true ; Holds = false ),
+            copy_term(Goal, G1),
+            (   catch(le_kbs:query_explain(SM, G1, _, _, Why), _, fail) -> true ; Why = [] ),
+            findall(N, ( failed_path_leaf(Why, N) ), Missing0),
+            findall(N, ( any_failure(Why, N) ), Touched0),
+            open_fact_nodes(KB, Missing0, Missing),
+            open_fact_nodes(KB, Touched0, Touched),
+            Response = _{holds: Holds, missing: Missing, touched: Touched}
+        )
+    ;   Response = _{error: "Could not set up the query"}
+    ).
+
+request_scenario_and_goal(SM, KB, Dict, Goal) :-
+    (   get_dict(customScenario, Dict, CS), CS \== null
+    ->  clearSession(SM),
+        le_kbs:parse_custom_facts(KB, CS, Facts),
+        forall(member(F, Facts), addSessionFact(SM, F))
+    ;   get_dict(scenario, Dict, ScS), ScS \== "", ScS \== null
+    ->  atom_string(ScA, ScS), clearSession(SM), setScenarion(SM, ScA)
+    ;   clearSession(SM)
+    ),
+    (   get_dict(customQuery, Dict, CQ), CQ \== null
+    ->  le_kbs:parse_custom_query(KB, CQ, Goal)
+    ;   get_dict(query, Dict, Q), query_goal(KB, Q, Goal)
+    ).
+
+% the leaves of the failed path: failures under failures, from the root
+failed_path_leaf(Why, N) :- is_list(Why), !, member(W, Why), failed_path_leaf(W, N).
+failed_path_leaf(failure(G, R, LE, Cs), N) :-
+    include([C]>>(C = failure(_, _, _, _)), Cs, Fs),
+    (   Fs == [] -> N = failure(G, R, LE, Cs)
+    ;   member(F, Fs), failed_path_leaf(F, N)
+    ).
+
+% every failure node, anywhere
+any_failure(Why, N) :- is_list(Why), !, member(W, Why), any_failure(W, N).
+any_failure(failure(G, R, LE, Cs), N) :- ( N = failure(G, R, LE, Cs) ; any_failure(Cs, N) ).
+any_failure(success(_, _, _, Cs), N) :- any_failure(Cs, N).
+
+open_fact_nodes(KB, Nodes, Out) :-
+    findall(K-J, ( member(failure(G0, _, LE, _), Nodes),
+                   strip_at(G0, G), callable(G),
+                   catch(le_flip:changeable(KB, G), _, fail),
+                   open_fact_json(KB, G, LE, J), K = J.literal ), Pairs),
+    dedup_pairs(Pairs, Out).
+
+strip_at(le_at(G, _, _), G) :- !.
+strip_at(G, G).
+
+open_fact_json(KB, G, LE0, _{literal: LE, label: Label, goal: GoalStr, values: Values}) :-
+    functor(G, F, A),
+    ( catch(le_kbs:template_def(KB, F, A, Label, _, Values0), _, fail) -> Values = Values0 ; Label = "", Values = [] ),
+    (   catch(le_kbs:item_to_instance(KB, G, Tokens), _, fail)
+    ->  copy_term(Tokens, T1), numbervars(T1, 0, _), le_kbs:goal_string(T1, GoalStr0)
+    ;   GoalStr0 = LE0
+    ),
+    rejoin_hyphens(LE0, LE),
+    rejoin_hyphens(GoalStr0, GoalStr).
+
+% a hyphenated word renders tokenised ("full - time"): as written ("full-time")
+rejoin_hyphens(S0, S) :-
+    atomic_list_concat(Parts, ' - ', S0), atomic_list_concat(Parts, '-', A), atom_string(A, S).
+
+dedup_pairs([], []).
+dedup_pairs([K-V|T], [V|R]) :- exclude([K2-_]>>(K2 == K), T, T1), dedup_pairs(T1, R).
+
+%!  handle_draft_view(+Dict, -Response) is det.
+%
+%   A first view section for the loaded program (le_views:draft_view/2): the
+%   LE Assistant's "Generate LE view". Replies {view} or {error}.
+handle_draft_view(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    (   catch(SM:le_kb_module_fact(KB), _, fail),
+        catch(le_views:draft_view(KB, Text), E, (print_message(error, E), fail))
+    ->  Response = _{view: Text}
+    ;   Response = _{error: "No KB loaded"}
     ).
 
 %!  strongest_reason(+JSONWhy, +KB, -Reason:string) is det.

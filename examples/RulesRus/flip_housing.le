@@ -68,3 +68,20 @@ query flip_rich is:
 query flip_bob is:
     which minimal change to the scenario makes it the case that
         it is not the case that bob gets help to pay rent.
+
+% A view (docs/le_summary.md §17.10): the rules as a citizen's check on a
+% phone — four questions, asked only when the answer still depends on them,
+% and the answer in the view's words.
+the view benefit check is:
+    the title is "Can I get help to pay my rent?".
+    the case is about the applicant.
+    the facts are asked one at a time.
+    the question for the applicant is on other benefits is "Do you receive other benefits?".
+    the question for the applicant works part-time is "Do you work part-time?".
+    the question for the applicant works full-time on a low income is "Do you work full-time on a low income?".
+    the question for the applicant is on a low income is "Is your income low?".
+    the result is whether the applicant gets help to pay rent.
+    the result reads "You can get help to pay your rent." when it holds.
+    the result reads "You cannot get help to pay your rent, on what you told us." when it does not.
+    the result shows its reasons.
+    the result can be flipped, as "What would change this?".

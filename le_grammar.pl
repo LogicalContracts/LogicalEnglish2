@@ -527,6 +527,21 @@ section(Section) -->
         ( ProvTokens == [] -> Section = Table ; Section = table_prov(Table, ProvTokens) )
     }.
 
+% section(view(...)) parses a view (docs/le_summary.md §17.10): "the view <name>
+% is:" and its sentences, which say how a screen shows the program — which
+% facts the case states, which query is the result, what is shown beside it.
+% The lines are kept as tokens and interpreted by le_views.pl against the whole
+% program (its templates, queries and scenarios), so a view may name what an
+% included resource declares.
+section(view(Name, Rows, Start, End)) -->
+    any_indent, kw_start(view_open, Start),
+    section_name_tokens(NameTokens), { NameTokens \== [] },
+    kw(marker_is), t(punctuation(':', loc(_, HEnd))),
+    table_rows(Rows),
+    {   reconstruct_name(NameTokens, Name),
+        ( last(Rows, row(_, _, End0)) -> End = End0 ; End = HEnd )
+    }.
+
 % section(ontology(...)) parses an ontology section.
 section(ontology(Content, Start, End)) -->
     any_indent, kw_start(ontology, Start), t(punctuation(':', _)),
@@ -644,6 +659,14 @@ table_header_ -->
     kw(marker_is),
     ( kw(table_loaded_from) ; t(punctuation(',', _)) ; t(punctuation(':', _)) ), !.
 
+% A view header ahead (non-consuming): "the view <name> is:".
+view_header_ahead(S, S) :-
+    view_header_(S, _).
+
+view_header_ -->
+    kw(view_open), section_name_tokens(NameTokens), { NameTokens \== [] },
+    kw(marker_is), t(punctuation(':', _)), !.
+
 % le_allowed_target(?Target) enumerates the execution backends a program may
 % declare via the target-language opener line (kept out of the section/3 DCG
 % clauses so they stay contiguous).
@@ -737,6 +760,7 @@ next_section_start --> any_indent, at_line_start, section_opener.
 section_opener --> kw(guard).
 section_opener --> kw(provenance_required).
 section_opener --> table_header_ahead.
+section_opener --> view_header_ahead.
 
 % Non-consuming: the next token begins a line. With no table recorded — a
 % fragment parsed directly through kb_items//1, say — every position qualifies,
@@ -2317,6 +2341,9 @@ second_pass_section(Templates, M, table_prov(Table, ProvTokens), Done) :-
     format(atom(ID), 'table_~w', [Name]),          % the id of the table's clause
     le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End),
     le_provenance:record_table_row_provenance(M, Name).
+second_pass_section(_Templates, M, view(Name, Rows, Start, End), view_done(Name, Start, End)) :-
+    !,
+    le_views:record_view_source(M, Name, Rows, Start, End).
 second_pass_section(Templates, M, table(Name, Policy, Source0, Header, Rows, Start, End),
                     table_done(Name, Start, End)) :-
     !,

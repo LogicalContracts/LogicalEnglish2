@@ -42,3 +42,22 @@ scenario undecided is:
 
 query payable is:
     which claim is payable.
+
+% A view (docs/le_summary.md §17.10): the claim file a claims handler works
+% from — the facts with who states them, the judgment apart, what is still
+% open, every claim with its outcome.
+the view claim file is:
+    the title is "Claim file".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the claim" are
+        a claim is for a damage,
+        a damage is reported within the time limit.
+    the judgments are
+        a damage is accidental.
+    every fact shows who states it.
+    the result is the answer to query payable.
+    the result shows its citations.
+    the result asks what is missing.
+    the result can be flipped.
+    the documents of the case are shown beside the facts.
+    the cases are listed with their results.

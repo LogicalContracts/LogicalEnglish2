@@ -10,7 +10,7 @@
     runTestsFor/2, runTestsInDir/2, runTestsInDir/3, runTests/0, runTests/1, runAllTests/0, le_suite/1,
     run_suite/2, suite_failure_count/3, print_test_summary/1,
     suite_status_file/2, write_suite_status_file/2, write_test_status_file/3,
-    print_test_result/1, do_log/0, get_kb_metadata/2, program_kb_name/2, goal_string/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
+    print_test_result/1, do_log/0, get_kb_metadata/2, program_kb_name/2, goal_string/2, template_def/6, is_system_predicate/1, ensure_kb_language/1, text_language/2,
     run_one_test/3, le_my_id/1, le_my_kb/1, kb_target_language/2, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
@@ -50,6 +50,7 @@
 :- use_module(le_verifier, [verify/2, verify/3, find_in_body/2]).
 :- use_module(le_provenance).
 :- use_module(le_tables).
+:- use_module(le_views, []).   % views (§17.10); called qualified
 :- use_module(le_sections).
 :- use_module(le_services).
 :- use_module(le_flip).
@@ -367,6 +368,13 @@ load_common_sync(NewModule, ParseGoal, Sections, ErrorMsg, Options) :-
 error_issue_type(missing_template).
 error_issue_type(judged_with_rules).
 error_issue_type(service_undeclared).
+% a view that names what the program does not have (le_views.pl)
+error_issue_type(view_unknown_sentence).
+error_issue_type(view_unknown_template).
+error_issue_type(view_unknown_query).
+error_issue_type(view_unknown_scenario).
+error_issue_type(view_bad_question).
+error_issue_type(view_duplicate_name).
 
 process_section(S, M) :-
     ( do_log -> print_message(informational,'Processing section: ~w' - [S]); true),
@@ -454,6 +462,9 @@ process_section_acc(table_done(Name, Start, End), M) :-
         assertz(M:le_source_section(main, ID))
     ;   true
     ).
+
+% A view (le_views.pl): its sentences were recorded by the second pass.
+process_section_acc(view_done(_, _, _), _M).
 
 % "the knowledge base kb includes these services: ..." (le_services.pl).
 process_section_acc(services(_, Services, _, _), M) :-
@@ -2309,7 +2320,9 @@ get_kb_metadata(KB, Metadata) :-
                   ( Kind == scenario_element -> SE = true ; SE = false ),
                   ( Kind == judged -> J = true ; J = false ) ),
                 TemplateDefs)),
-    Metadata = _{ kb: KBName, templates: Templates, template_defs: TemplateDefs, queries: Queries, examples: Scenarios, included_resources: IncludedResources, fact_images: FactImages, template_images: TemplateImages }.
+    % The program's views (le_views.pl), compiled for a screen to render.
+    ( catch(le_views:program_views(KB, Views), _, fail) -> true ; Views = [] ),
+    Metadata = _{ kb: KBName, templates: Templates, template_defs: TemplateDefs, queries: Queries, examples: Scenarios, included_resources: IncludedResources, fact_images: FactImages, template_images: TemplateImages, views: Views }.
 
 %!  template_def(+KB, -Label:string, -Kind) is nondet.
 %
@@ -2324,6 +2337,12 @@ template_def(KB, Label, Kind) :-
 %   ... and, for each placeholder of Label in order, the list of the values the
 %   program's rules read there (empty when they read none in particular).
 template_def(KB, Label, Kind, Values) :-
+    template_def(KB, _F, _A, Label, Kind, Values).
+
+%!  template_def(+KB, ?F, ?A, -Label:string, -Kind, -Values:list) is nondet.
+%
+%   ... for the template of predicate F/A.
+template_def(KB, F, A, Label, Kind, Values) :-
     template_of(KB, F, A, Dict, _),
     (   Dict = dict(_, NTs, WV, _, _, _, Unknown) -> true
     ;   Dict = dict(_, NTs, WV, _, _, _) -> Unknown = none
@@ -2555,6 +2574,8 @@ is_system_predicate(le_service_template/2).
 is_system_predicate(le_table/6).
 is_system_predicate(le_table_row/6).
 is_system_predicate(le_table_row_citation/6).
+% Views (le_views.pl): the sentences of each view, as tokens.
+is_system_predicate(le_view_source/4).
 
 %!  kb_own_predicate(+M:atom, +Head:callable) is semidet.
 %

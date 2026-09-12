@@ -121,6 +121,33 @@ async function loadProgram(name) {
     programQueries = (data.queries || []).map(q => ({ name: q.name, label: q.le || q.template || q.name }));
     programTemplateDefs = data.template_defs || [];
 
+    // The program's views: a link to each; the one the address names is shown
+    // instead of the pickers (a view says itself what the screen asks and shows).
+    const views = data.views || [];
+    const wanted = params().get('view');
+    const links = $('view-links');
+    links.hidden = !views.length;
+    links.innerHTML = views.length
+        ? `<span>${esc(t('Views'))}:</span>` + views.map(v => {
+              const href = `/executive?program=${encodeURIComponent(name)}&view=${encodeURIComponent(v.name)}`;
+              return `<a href="${href}" class="${v.name === wanted ? 'on' : ''}">${esc(v.title || v.name)}</a>`;
+          }).join('') + (wanted ? `<a href="/executive?program=${encodeURIComponent(name)}">${esc(t('Without a view'))}</a>` : '')
+        : '';
+    const view = views.find(v => v.name === wanted);
+    $('default-screen').hidden = !!view;
+    $('view-root').hidden = !view;
+    document.body.classList.toggle('with-view', !!view);
+    if (view) {
+        $('title').textContent = view.title || name;
+        try {
+            const mod = await import('/editor/dist/le-views.js');
+            await mod.mountView($('view-root'), { program: name, sessionModule: session, load: data, view, source: await getSource(), titleShown: true });
+        } catch (e) {
+            $('view-root').innerHTML = `<div class="status">Could not show the view (${esc(e.message)}).</div>`;
+        }
+        return;
+    }
+
     // Load-time errors (missing templates, etc.) are worth surfacing, briefly.
     const errs = (data.issues || []).filter(i => i.severity === 'error');
     if (errs.length) {
