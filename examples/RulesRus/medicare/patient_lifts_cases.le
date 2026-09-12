@@ -1,0 +1,154 @@
+% Test cases for the patient lifts policy (patient_lifts.le): synthetic
+% claims, one per criterion of LCD L33799 and per benefit point of Policy
+% Article A52516. Findings are recorded as the treating practitioner's, a
+% medical reviewer's or the Council's; a finding nobody made leaves the
+% answer conditional. A patient lift is rented: the first month's claim is
+% shown, with no continued need to document.
+
+the target language is: prolog.
+
+the knowledge base patient_lifts cases includes these resources:
+    patient_lifts.
+
+the knowledge base patient_lifts cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete first-month claim for a hydraulic lift (E0630): the two
+% findings, the standard written order communicated before the date of
+% service, the delivery and its proof.
+scenario hydraulic_lift_complete is:
+    claim 1 is for the lift.
+    the HCPCS code of the lift is "E0630".
+    the lift is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the finding bed to chair transfer required about Ann is established, according to the treating practitioner, because "transfers to a wheelchair for meals and toileting".
+    the finding bed confined without lift about Ann is established, according to the treating practitioner, because "paraplegia; the caregiver cannot lift the beneficiary".
+    the order for the lift is dated 2026-02-20.
+    the order for the lift is signed by the treating practitioner.
+    the order for the lift includes beneficiary name.
+    the order for the lift includes order date.
+    the order for the lift includes description of the item.
+    the order for the lift includes quantity to be dispensed.
+    the order for the lift includes treating practitioner name.
+    the order for the lift was communicated to the supplier on 2026-02-22.
+    the lift was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the lift.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% An electric lift (E0635): the same basic criteria (the LCD text cited
+% covers it as it covers the hydraulic lift).
+scenario electric_lift is:
+    claim 1 is for the electric lift.
+    the HCPCS code of the electric lift is "E0635".
+    the electric lift is furnished to Ben.
+    the finding bed to chair transfer required about Ben is established, according to the treating practitioner.
+    the finding bed confined without lift about Ben is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The first basic criterion fails: the medical reviewer finds no transfer
+% between bed and chair is required.
+scenario no_transfer_required is:
+    claim 1 is for the lift.
+    the HCPCS code of the lift is "E0630".
+    the lift is furnished to Cy.
+    the residence of Cy is private residence.
+    the finding bed to chair transfer required about Cy is unsupported, according to the medical reviewer, because "the record documents the beneficiary walking to the bathroom with a walker".
+    the finding bed confined without lift about Cy is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% The second basic criterion: the Council finds the record does not show
+% the beneficiary would be bed confined without a lift.
+scenario not_bed_confined_council is:
+    claim 1 is for the lift.
+    the HCPCS code of the lift is "E0630".
+    the lift is furnished to Dee.
+    the finding bed to chair transfer required about Dee is established, according to the treating practitioner.
+    the finding bed confined without lift about Dee is unsupported, according to the Council, because "the home health notes show the beneficiary transferred to a chair daily by one aide with a gait belt before the lift was delivered".
+    rn expects answers [].
+
+% A multi-positional transfer system (E0636): with supine positioning
+% required, covered; for a beneficiary who transfers seated, not decided —
+% conditional on that finding.
+scenario multi_positional is:
+    claim 1 is for the transfer system.
+    the HCPCS code of the transfer system is "E0636".
+    the transfer system is furnished to Eve.
+    the finding bed to chair transfer required about Eve is established, according to the treating practitioner.
+    the finding bed confined without lift about Eve is established, according to the treating practitioner.
+    the finding supine positioning required for transfers about Eve is established, according to the treating practitioner, because "unstable spine after a fracture; no sitting transfers".
+    claim 2 is for the second transfer system.
+    the HCPCS code of the second transfer system is "E1035".
+    the second transfer system is furnished to Fay.
+    the finding bed to chair transfer required about Fay is established, according to the treating practitioner.
+    the finding bed confined without lift about Fay is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"] and unknowns ["the finding supine positioning required for transfers about Fay is established"].
+
+% A replacement sling (E0621) for a covered lift, and one that is not a
+% replacement for any lift.
+scenario replacement_sling is:
+    claim 1 is for the sling.
+    the HCPCS code of the sling is "E0621".
+    the sling is a replacement for a component of the lift.
+    the sling is furnished to Ann.
+    the HCPCS code of the lift is "E0630".
+    the lift is furnished to Ann.
+    the finding bed to chair transfer required about Ann is established, according to the treating practitioner.
+    the finding bed confined without lift about Ann is established, according to the treating practitioner.
+    claim 2 is for the second sling.
+    the HCPCS code of the second sling is "E0621".
+    the second sling is furnished to Ann.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A toilet or tub lift (E0625): in scope, outside the benefit — the claim
+% fails at applicability.
+scenario toilet_tub_lift is:
+    claim 1 is for the tub lift.
+    the HCPCS code of the tub lift is "E0625".
+    the tub lift is furnished to Gus.
+    the residence of Gus is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% Reasonable and necessary, but no proof of delivery: payable fails at the
+% remedy.
+scenario no_proof_of_delivery is:
+    claim 1 is for the lift.
+    the HCPCS code of the lift is "E0630".
+    the lift is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the finding bed to chair transfer required about Ann is established, according to the treating practitioner.
+    the finding bed confined without lift about Ann is established, according to the treating practitioner.
+    the order for the lift is dated 2026-02-20.
+    the order for the lift is signed by the treating practitioner.
+    the order for the lift includes beneficiary name.
+    the order for the lift includes order date.
+    the order for the lift includes description of the item.
+    the order for the lift includes quantity to be dispensed.
+    the order for the lift includes treating practitioner name.
+    the order for the lift was communicated to the supplier on 2026-02-22.
+    the lift was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the lift"]].

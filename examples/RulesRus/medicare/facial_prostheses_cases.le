@@ -1,0 +1,198 @@
+% Test cases for the facial prostheses policy (facial_prostheses.le):
+% synthetic claims, one per criterion of LCD L33738 and per payment
+% condition of Policy Article A52463, each stating only what its record
+% shows. A prosthesis is a purchase: no rental month. The benefit is a
+% prosthetic one, so no residence is needed.
+
+the target language is: prolog.
+
+the knowledge base facial prostheses cases includes these resources:
+    facial_prostheses.
+
+the knowledge base facial prostheses cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a nasal prosthesis (L8040) after the surgical loss
+% of the nose: the condition, the standard written order, the delivery and
+% its proof.
+scenario complete is:
+    claim 1 is for the nasal prosthesis.
+    the HCPCS code of the nasal prosthesis is "L8040".
+    the nasal prosthesis is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    Ann has loss of facial tissue due to surgery.
+    the order for the nasal prosthesis is dated 2026-02-20.
+    the order for the nasal prosthesis is signed by the treating practitioner.
+    the order for the nasal prosthesis includes beneficiary name.
+    the order for the nasal prosthesis includes order date.
+    the order for the nasal prosthesis includes description of the item.
+    the order for the nasal prosthesis includes quantity to be dispensed.
+    the order for the nasal prosthesis includes treating practitioner name.
+    the order for the nasal prosthesis was communicated to the supplier on 2026-02-22.
+    the nasal prosthesis was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the nasal prosthesis.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Criterion 1 fails: the record states no loss or absence of facial tissue.
+scenario no_condition is:
+    claim 1 is for the auricular prosthesis.
+    the HCPCS code of the auricular prosthesis is "L8045".
+    the auricular prosthesis is furnished to Ben.
+    the date of service of claim 1 is 2026-03-01.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% An orbital prosthesis (L8042), the adhesive used with it (A4364), the
+% component attaching it to a bone-anchored implant (L8048), and a skin
+% cream (A9270): the first three are reasonable and necessary, the cream is
+% in no benefit. (Its ocular component, V2623, is a claim of the eye
+% prostheses policy.)
+scenario orbital_with_supplies is:
+    claim 1 is for the orbital prosthesis.
+    the HCPCS code of the orbital prosthesis is "L8042".
+    the orbital prosthesis is furnished to Cy.
+    the date of service of claim 1 is 2026-03-01.
+    claim 2 is for the adhesive.
+    the HCPCS code of the adhesive is "A4364".
+    the adhesive is furnished to Cy.
+    the adhesive is an accessory of the orbital prosthesis.
+    the date of service of claim 2 is 2026-03-01.
+    claim 3 is for the attachment component.
+    the HCPCS code of the attachment component is "L8048".
+    the kind of the attachment component is attachment component.
+    the attachment component is furnished to Cy.
+    the attachment component is an accessory of the orbital prosthesis.
+    the date of service of claim 3 is 2026-03-01.
+    claim 4 is for the skin cream.
+    the HCPCS code of the skin cream is "A9270".
+    the skin cream is furnished to Cy.
+    the date of service of claim 4 is 2026-03-01.
+    Cy has loss of facial tissue due to disease.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary", "claim 3 is reasonable and necessary"].
+
+% A replacement auricular prosthesis: the prosthetist documents that the
+% previous one is worn (claim 1, covered); for another beneficiary the
+% Council finds no change in condition that a modification could not
+% accommodate (claim 2, denied).
+scenario replacement is:
+    claim 1 is for the prosthesis of Dee.
+    the HCPCS code of the prosthesis of Dee is "L8045".
+    the prosthesis of Dee is furnished to Dee.
+    the prosthesis of Dee replaces a previous facial prosthesis.
+    the finding replacement justified about Dee is established, according to the prosthetist, because "the silicone of the previous prosthesis has torn at the margin and discoloured beyond repair after three years of wear".
+    the date of service of claim 1 is 2026-03-01.
+    Dee has absence of facial tissue due to congenital defect.
+    claim 2 is for the prosthesis of Eve.
+    the HCPCS code of the prosthesis of Eve is "L8045".
+    the prosthesis of Eve is furnished to Eve.
+    the prosthesis of Eve replaces a previous facial prosthesis.
+    the finding replacement justified about Eve is unsupported, according to the Council, because "the record shows a change in skin tone that the supplier could have accommodated by modifying the existing prosthesis, and no loss, damage or wear".
+    the date of service of claim 2 is 2026-03-01.
+    Eve has absence of facial tissue due to trauma.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Labor (L8049) to repair accidental damage to a nasal prosthesis
+% (claim 1, covered), and labor to modify a prosthesis 40 days after its
+% delivery, within the allowance (claim 2, denied).
+scenario repair_and_early_modification is:
+    claim 1 is for the repair.
+    the HCPCS code of the repair is "L8049".
+    the repair is furnished to Fay.
+    the repair is an accessory of the nasal prosthesis.
+    the repair repairs accidental damage or extensive wear to the nasal prosthesis.
+    the date of service of claim 1 is 2026-09-01.
+    the HCPCS code of the nasal prosthesis is "L8040".
+    the nasal prosthesis is furnished to Fay.
+    Fay has loss of facial tissue due to surgery.
+    claim 2 is for the modification.
+    the HCPCS code of the modification is "L8049".
+    the modification is furnished to Gus.
+    the modification is an accessory of the midfacial prosthesis.
+    the date of service of claim 2 is 2026-04-10.
+    the finding change in condition requires modification about Gus is established, according to the treating practitioner, because "the cheek tissue has receded after radiotherapy".
+    the HCPCS code of the midfacial prosthesis is "L8041".
+    the midfacial prosthesis is furnished to Gus.
+    the midfacial prosthesis was delivered on 2026-03-01.
+    Gus has loss of facial tissue due to disease.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A modification 120 days after delivery, required by a change in the
+% beneficiary's condition according to the treating practitioner.
+scenario late_modification is:
+    claim 1 is for the modification.
+    the HCPCS code of the modification is "L8049".
+    the modification is furnished to Hal.
+    the modification is an accessory of the orbital prosthesis.
+    the date of service of claim 1 is 2026-06-29.
+    the finding change in condition requires modification about Hal is established, according to the treating practitioner, because "the orbital margin has changed shape as the swelling resolved".
+    the HCPCS code of the orbital prosthesis is "L8042".
+    the orbital prosthesis is furnished to Hal.
+    the orbital prosthesis was delivered on 2026-03-01.
+    Hal has loss of facial tissue due to surgery.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% An unspecified facial prosthesis (L8048) with the narrative description
+% but no drawing or photograph available: reasonable and necessary, payable
+% fails at the remedy.
+scenario l8048_no_photograph is:
+    claim 1 is for the chin prosthesis.
+    the HCPCS code of the chin prosthesis is "L8048".
+    the kind of the chin prosthesis is unspecified facial prosthesis.
+    the chin prosthesis is furnished to Ida.
+    the date of service of claim 1 is 2026-03-01.
+    Ida has loss of facial tissue due to trauma.
+    the claim for the chin prosthesis includes a description of the item in the narrative field.
+    the order for the chin prosthesis is dated 2026-02-20.
+    the order for the chin prosthesis is signed by the treating practitioner.
+    the order for the chin prosthesis includes beneficiary name.
+    the order for the chin prosthesis includes order date.
+    the order for the chin prosthesis includes description of the item.
+    the order for the chin prosthesis includes quantity to be dispensed.
+    the order for the chin prosthesis includes treating practitioner name.
+    the order for the chin prosthesis was communicated to the supplier on 2026-02-22.
+    the chin prosthesis was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the chin prosthesis.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: a drawing or photograph of the chin prosthesis is available"]].
+
+% A replacement fabricated from a new impression, the reason for it not
+% documented in the supplier's records: payable fails at the remedy.
+scenario new_impression_undocumented is:
+    claim 1 is for the nasal prosthesis.
+    the HCPCS code of the nasal prosthesis is "L8040".
+    the nasal prosthesis is furnished to Jo.
+    the nasal prosthesis replaces a previous facial prosthesis.
+    the finding replacement justified about Jo is established, according to the prosthetist, because "the previous prosthesis was lost".
+    the nasal prosthesis was fabricated from a new impression.
+    the date of service of claim 1 is 2026-03-01.
+    Jo has loss of facial tissue due to surgery.
+    the order for the nasal prosthesis is dated 2026-02-20.
+    the order for the nasal prosthesis is signed by the treating practitioner.
+    the order for the nasal prosthesis includes beneficiary name.
+    the order for the nasal prosthesis includes order date.
+    the order for the nasal prosthesis includes description of the item.
+    the order for the nasal prosthesis includes quantity to be dispensed.
+    the order for the nasal prosthesis includes treating practitioner name.
+    the order for the nasal prosthesis was communicated to the supplier on 2026-02-22.
+    the nasal prosthesis was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the nasal prosthesis.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the reason for the new impression for the nasal prosthesis is documented in the supplier records"], ["remove: the nasal prosthesis was fabricated from a new impression"]].

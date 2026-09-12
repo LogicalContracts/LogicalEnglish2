@@ -1,0 +1,105 @@
+% Canes and Crutches: LCD L33733 and its Policy Article A52459 (DME MACs). A
+% policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for a cane (E0100, E0105) or a crutch (E0110, E0111, E0112, E0113,
+% E0114, E0116) is REASONABLE AND NECESSARY: the criteria 1–3 the LCD states
+% for all of them. The underarm, articulating, spring assisted crutch
+% (E0117) is never covered ("the medical necessity ... has not been
+% established"): no rule concludes it. The crutch substitute (E0118) the
+% Policy Article describes ("either a device strapped to the lower leg with a
+% platform or a device with wheels and a platform the beneficiary propels
+% with their sound limb") has no criterion in the LCD, whose coverage
+% statement names the canes and crutches by code without it: it is in scope
+% and no rule concludes it either.
+%
+% How the criteria are read. The LCD's criteria are clinical findings about
+% the beneficiary — a significant mobility limitation, that the beneficiary
+% can safely use the cane or crutch, that a cane or crutch will sufficiently
+% resolve the deficit — made by the treating practitioner and accepted or
+% rejected on review: each is the judged template of dmepos.le, "the finding
+% F about B is established" (or unsupported), with who found it and why. The
+% findings this policy reads, and the criterion each stands for (the first
+% is the finding pmd.le and walkers.le read for the same criterion; the
+% others are named after pmd.le's "walking aids", its word for canes and
+% walkers):
+%   significant mobility limitation (1: a mobility limitation that
+%   significantly impairs the ability to participate in one or more MRADLs
+%   in the home — prevents the MRADL, or a heightened risk of morbidity or
+%   mortality in attempting it, or prevents completing it within a
+%   reasonable time frame); walking aid can be safely used (2: the
+%   beneficiary is able to safely use the cane or crutch); walking aid
+%   sufficiently resolves mobility deficit (3: the functional mobility
+%   deficit can be sufficiently resolved by use of a cane or crutch).
+%
+% Not modelled: the white cane for a blind person, noncovered "since it is
+% more of an identifying and self-help device", billed as A9270 — the
+% generic noncovered code, claimed by seat_lifts.le; the coding of canes and
+% crutches with springs or special weight capacity under the same codes
+% (coding). The Policy Article adds no documentation requirement of its own.
+
+the target language is: prolog.
+
+the templates are:
+    % derived
+    *an item* is a cane or crutch.
+    *a beneficiary* meets the criteria for a cane or crutch.
+
+the knowledge base canes_crutches includes these resources:
+    dmepos.
+
+the knowledge base canes_crutches includes:
+
+LCD L33733 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33733".
+the text of LCD L33733 is at "sources/lcd/L33733.txt".
+Policy Article A52459 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52459".
+the text of Policy Article A52459 is at "sources/article/A52459.txt".
+
+% What a cane or crutch with coverage criteria is: the codes the LCD's
+% coverage statement names.
+rule canes_crutches_item with provenance LCD L33733,
+        confer "Canes (E0100, E0105) and crutches (E0110, E0111, E0112, E0113, E0114, E0116) are covered if all of the following criteria (1-3) are met":
+an item is a cane or crutch
+    if the HCPCS code of the item is a code
+    and the code is in ["E0100", "E0105", "E0110", "E0111", "E0112", "E0113", "E0114", "E0116"].
+
+section applicability is:
+
+canes_crutches has no specific documentation requirements.
+
+% The codes this policy decides: the canes and crutches with criteria, the
+% articulating crutch and the crutch substitute; their benefit, durable
+% medical equipment.
+rule canes_crutches_codes with provenance Policy Article A52459,
+        confer "Canes and Crutches are covered under the Durable Medical Equipment benefit":
+the policy for code a code is canes_crutches
+    if the code is in ["E0100", "E0105", "E0110", "E0111", "E0112", "E0113", "E0114", "E0116", "E0117", "E0118"].
+
+rule canes_crutches_benefit with provenance Policy Article A52459,
+        confer "Canes and Crutches are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is canes_crutches.
+
+section question is:
+
+% A cane or crutch: criteria 1–3, all of them.
+rule canes_crutches_covered with provenance LCD L33733,
+        confer "Canes (E0100, E0105) and crutches (E0110, E0111, E0112, E0113, E0114, E0116) are covered if all of the following criteria (1-3) are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a cane or crutch
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the criteria for a cane or crutch.
+
+% Criteria 1–3: the findings of the treating practitioner.
+rule canes_crutches_criteria_1_to_3 with provenance LCD L33733,
+        confer "The beneficiary has a mobility limitation that significantly impairs his/her ability to participate in one or more mobility-related activities of daily living (MRADL) in the home":
+a beneficiary meets the criteria for a cane or crutch
+    if the finding significant mobility limitation about the beneficiary is established
+    and the finding walking aid can be safely used about the beneficiary is established
+    and the finding walking aid sufficiently resolves mobility deficit about the beneficiary is established.
+
+% The articulating crutch (E0117) has no rule: "The medical necessity for an
+% underarm, articulating, spring assisted crutch (E0117) has not been
+% established; therefore, if an E0117 is ordered, it will be denied as not
+% reasonable and necessary." Nor has the crutch substitute (E0118), for
+% which the LCD states no criterion.

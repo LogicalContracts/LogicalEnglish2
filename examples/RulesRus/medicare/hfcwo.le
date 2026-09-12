@@ -1,0 +1,215 @@
+% High Frequency Chest Wall Oscillation Devices: LCD L33785 and its Policy
+% Article A52494 (DME MACs). A policy program of the DMEPOS model: it
+% includes dmepos.le (orders, delivery, benefit category, continued need,
+% refills) and states when a claim for a high frequency chest wall
+% oscillation device (E0483) or a replacement vest or hose used with
+% beneficiary owned equipment (A7025, A7026) is REASONABLE AND NECESSARY:
+% one of the three diagnosis criteria — cystic fibrosis; bronchiectasis
+% confirmed by a CT scan with a daily productive cough of six months or
+% frequent exacerbations needing antibiotics; one of the named neuromuscular
+% diseases — and the well-documented failure of standard treatments to
+% mobilize retained secretions; and not the concurrent use of a mechanical
+% in-exsufflation device (E0482).
+%
+% How the criteria are read. The diagnoses are documented conditions of the
+% record (the shared template "the medical record of B documents C"):
+% cystic fibrosis, bronchiectasis, or a condition of the LCD's neuromuscular
+% list (the knowledge base facts below). What characterizes the
+% bronchiectasis is a fact of the record with its number — the months of
+% daily productive cough (the threshold, 6, is in the rule), the
+% exacerbations requiring antibiotic therapy in a year (more than 2) — and
+% so is the CT confirmation. Chronic bronchitis and COPD, the LCD says, do
+% not meet criterion 2 without a confirmed bronchiectasis: they are simply
+% not among the conditions the rules read. Criterion 4 is one clinical
+% judgment, the judged template of dmepos.le "the finding F about B is
+% established" (or unsupported), with who found it and why:
+%   standard treatments failed to mobilize secretions (criterion 4: the
+%   well-documented failure of standard treatments — chest physiotherapy,
+%   postural drainage, medications, other modalities — to adequately
+%   mobilize retained secretions).
+% The Policy Article's ICD-10 table (sources/icd10/A52494_icd10_covered.csv,
+% one group, serving E0483, A7025 and A7026) is data, loaded as the table
+% hfcwo_icd10; it is read by the payment condition the Article adds: the
+% diagnosis code that justifies the need must be on the claim (section
+% remedy). The record's conditions decide the coverage question; the
+% claim's code its documentation.
+%
+% Not modelled: the KX/GA/GZ modifiers (billing); the coding guidelines
+% (A7025 and A7026 billed with E0483 is unbundling, a matter of coding).
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the bronchiectasis of *a beneficiary* was confirmed by a CT scan; undefined.
+    *a beneficiary* has had a daily productive cough for *a number* continuous months; undefined.
+    *a beneficiary* had *a number* exacerbations requiring antibiotic therapy in the past year; undefined.
+    *a beneficiary* uses a mechanical in-exsufflation device; undefined.
+    *an item* is used with beneficiary owned equipment; undefined.
+    % the knowledge base
+    *a condition* is a qualifying neuromuscular disease for HFCWO.
+    % the table
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table hfcwo_icd10.
+    % derived
+    *an item* is a high frequency chest wall oscillation device.
+    *an item* is a replacement supply for a high frequency chest wall oscillation device.
+    *a beneficiary* meets the HFCWO coverage criteria.
+    *a beneficiary* meets a diagnosis criterion for HFCWO.
+    the bronchiectasis of *a beneficiary* is characterized as HFCWO requires.
+    the failure of standard treatments is documented for *a beneficiary*.
+    the diagnosis code of *a beneficiary* is a covered HFCWO diagnosis code.
+
+% The Policy Article's ICD-10 table: the covered codes of its one group.
+the table hfcwo_icd10 is loaded from sources/icd10/A52494_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base hfcwo includes these resources:
+    dmepos.
+
+the knowledge base hfcwo includes:
+
+LCD L33785 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33785".
+the text of LCD L33785 is at "sources/lcd/L33785.txt".
+Policy Article A52494 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52494".
+the text of Policy Article A52494 is at "sources/article/A52494.txt".
+
+% What the device and its replacement supplies are.
+rule hfcwo_device with provenance Policy Article A52494,
+        confer "HCPCS code E0483 describes a complete system":
+an item is a high frequency chest wall oscillation device
+    if the HCPCS code of the item is "E0483".
+
+rule hfcwo_replacement_supply with provenance LCD L33785,
+        confer "Replacement supplies, A7025 and A7026, used with beneficiary owned equipment, are covered if the beneficiary meets the criteria listed above for the base device, E0483":
+an item is a replacement supply for a high frequency chest wall oscillation device
+    if the HCPCS code of the item is a code
+    and the code is in ["A7025", "A7026"]
+    and the item is used with beneficiary owned equipment.
+
+% The neuromuscular diseases of criterion 3.
+post polio syndrome is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Post-polio".
+acid maltase deficiency is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Acid maltase deficiency".
+anterior horn cell disease is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Anterior horn cell diseases".
+multiple sclerosis is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Multiple sclerosis".
+quadriplegia is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Quadriplegia".
+hereditary muscular dystrophy is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Hereditary muscular dystrophy".
+myotonic disorder is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Myotonic disorders".
+myopathy is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Other myopathies".
+paralysis of the diaphragm is a qualifying neuromuscular disease for HFCWO,
+    as stated in LCD L33785, confer "Paralysis of the diaphragm".
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: durable medical
+% equipment (Policy Article A52494).
+rule hfcwo_codes with provenance Policy Article A52494,
+        confer "High frequency chest wall oscillation devices are covered under the Durable Medical Equipment benefit":
+the policy for code a code is hfcwo
+    if the code is in ["E0483", "A7025", "A7026"].
+
+rule hfcwo_benefit with provenance Policy Article A52494,
+        confer "High frequency chest wall oscillation devices are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is hfcwo.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The device, and the replacement supplies of a beneficiary owned device:
+% covered when the beneficiary meets the criteria.
+% ---------------------------------------------------------------------------
+
+rule hfcwo_covered with provenance LCD L33785,
+        confer "High frequency chest wall oscillation devices (HFCWO) (E0483) are covered for beneficiaries who meet":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a high frequency chest wall oscillation device
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the HFCWO coverage criteria.
+
+rule hfcwo_supplies_covered with provenance LCD L33785,
+        confer "Replacement supplies, A7025 and A7026, used with beneficiary owned equipment, are covered if the beneficiary meets the criteria listed above for the base device, E0483":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a replacement supply for a high frequency chest wall oscillation device
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the HFCWO coverage criteria.
+
+% The criteria: 1, 2 or 3, and 4; and not both devices.
+rule hfcwo_criteria with provenance LCD L33785,
+        confer "Criterion 1, 2, or 3, and Criterion 4":
+a beneficiary meets the HFCWO coverage criteria
+    if the beneficiary meets a diagnosis criterion for HFCWO
+    and the failure of standard treatments is documented for the beneficiary
+    and it is not the case that
+        the beneficiary uses a mechanical in-exsufflation device.
+
+% Criterion 1: cystic fibrosis.
+rule hfcwo_criterion_1 with provenance LCD L33785,
+        confer "There is a diagnosis of cystic fibrosis":
+a beneficiary meets a diagnosis criterion for HFCWO
+    if the medical record of the beneficiary documents cystic fibrosis.
+
+% Criterion 2: bronchiectasis confirmed by a CT scan and characterized by
+% the cough or the exacerbations.
+rule hfcwo_criterion_2 with provenance LCD L33785,
+        confer "which has been confirmed by a high resolution, spiral, or standard CT scan and which is characterized by":
+a beneficiary meets a diagnosis criterion for HFCWO
+    if the medical record of the beneficiary documents bronchiectasis
+    and the bronchiectasis of the beneficiary was confirmed by a CT scan
+    and the bronchiectasis of the beneficiary is characterized as HFCWO requires.
+
+rule hfcwo_daily_cough with provenance LCD L33785,
+        confer "Daily productive cough for at least 6 continuous months":
+the bronchiectasis of a beneficiary is characterized as HFCWO requires
+    if the beneficiary has had a daily productive cough for a number continuous months
+    and the number >= 6.
+
+rule hfcwo_exacerbations with provenance LCD L33785,
+        confer "Frequent (i.e., more than 2/year) exacerbations requiring antibiotic therapy":
+the bronchiectasis of a beneficiary is characterized as HFCWO requires
+    if the beneficiary had a number exacerbations requiring antibiotic therapy in the past year
+    and the number > 2.
+
+% Criterion 3: a neuromuscular disease of the list.
+rule hfcwo_criterion_3 with provenance LCD L33785,
+        confer "The beneficiary has one of the following neuromuscular disease diagnoses":
+a beneficiary meets a diagnosis criterion for HFCWO
+    if the medical record of the beneficiary documents a condition
+    and the condition is a qualifying neuromuscular disease for HFCWO.
+
+% Criterion 4: the finding.
+rule hfcwo_criterion_4 with provenance LCD L33785,
+        confer "There must be well-documented failure of standard treatments to adequately mobilize retained secretions":
+the failure of standard treatments is documented for a beneficiary
+    if the finding standard treatments failed to mobilize secretions about the beneficiary is established.
+
+% "It is not reasonable and necessary for a beneficiary to use both a HFCWO
+% device and a mechanical in-exsufflation device (E0482)": the negation in
+% the criteria rule.
+
+section remedy is:
+
+% The Policy Article's own condition of payment: the diagnosis code that
+% justifies the need, on the claim — a code of the Article's ICD-10 list.
+rule hfcwo_diagnosis_code_on_claim with provenance Policy Article A52494,
+        confer "The diagnosis code that justifies the need for these items must be included on the claim":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is hfcwo
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary is a covered HFCWO diagnosis code.
+
+rule hfcwo_covered_diagnosis_code with provenance Policy Article A52494,
+        confer "The diagnosis code that justifies the need for these items must be included on the claim":
+the diagnosis code of a beneficiary is a covered HFCWO diagnosis code
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52494" as a description under table hfcwo_icd10.

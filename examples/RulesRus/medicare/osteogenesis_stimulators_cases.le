@@ -1,0 +1,221 @@
+% Test cases for the osteogenesis stimulator policy
+% (osteogenesis_stimulators.le): synthetic claims, one or two per criterion
+% of LCD L33796, each stating only what its record shows. The finding
+% (fracture healing ceased) is the treating practitioner's written
+% interpretation of the radiographs, accepted or rejected on review. A
+% stimulator is a purchase: no rental month; E0747, E0748 and E0760 need
+% the face-to-face encounter and the written order before delivery
+% (dmepos.le).
+
+the target language is: prolog.
+
+the knowledge base osteogenesis stimulators cases includes these resources:
+    osteogenesis_stimulators.
+
+the knowledge base osteogenesis stimulators cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a non-spinal electrical stimulator (E0747): a
+% nonunion of the tibia, radiographs 96 days apart before treatment, the
+% practitioner's interpretation, the face-to-face encounter within six
+% months of the order, the order communicated before delivery, the delivery
+% and its proof.
+scenario nonunion_tibia_complete is:
+    claim 1 is for the bone stimulator.
+    the HCPCS code of the bone stimulator is "E0747".
+    the bone stimulator is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    Ann has a fracture of tibia.
+    the radiographs of the fracture of Ann obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Ann obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Ann started on 2026-03-01.
+    the finding fracture healing ceased about Ann is established, according to the treating practitioner, because "written interpretation of the radiographs of 2025-11-01 and 2026-02-05: no callus formation, the fracture line unchanged".
+    the treating practitioner examined Ann for the bone stimulator in a face-to-face encounter on 2026-02-10.
+    the order for the bone stimulator is dated 2026-02-20.
+    the order for the bone stimulator is signed by the treating practitioner.
+    the order for the bone stimulator includes beneficiary name.
+    the order for the bone stimulator includes order date.
+    the order for the bone stimulator includes description of the item.
+    the order for the bone stimulator includes quantity to be dispensed.
+    the order for the bone stimulator includes treating practitioner name.
+    the order for the bone stimulator was communicated to the supplier on 2026-02-22.
+    the bone stimulator was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the bone stimulator.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The radiograph criterion fails: sets 60 days apart (claim 1); and a bone
+% that is not a long bone — the scaphoid (claim 2).
+scenario radiographs_and_bone is:
+    claim 1 is for the first stimulator.
+    the HCPCS code of the first stimulator is "E0747".
+    the first stimulator is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    Ben has a fracture of femur.
+    the radiographs of the fracture of Ben obtained on 2025-12-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Ben obtained on 2026-01-30 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Ben started on 2026-03-01.
+    the finding fracture healing ceased about Ben is established, according to the treating practitioner.
+    claim 2 is for the second stimulator.
+    the HCPCS code of the second stimulator is "E0747".
+    the second stimulator is furnished to Cy.
+    the residence of Cy is private residence.
+    the date of service of claim 2 is 2026-03-01.
+    Cy has a fracture of scaphoid.
+    the radiographs of the fracture of Cy obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Cy obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Cy started on 2026-03-01.
+    the finding fracture healing ceased about Cy is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Failed fusion of a joint other than the spine: the ankle, 304 days after
+% the last surgery (claim 1); the wrist, 181 days after (claim 2).
+scenario failed_joint_fusion is:
+    claim 1 is for the first stimulator.
+    the HCPCS code of the first stimulator is "E0747".
+    the first stimulator is furnished to Dee.
+    Dee has a failed fusion of ankle.
+    the last fusion surgery of Dee was on 2025-05-01.
+    osteogenesis stimulator treatment of Dee started on 2026-03-01.
+    claim 2 is for the second stimulator.
+    the HCPCS code of the second stimulator is "E0747".
+    the second stimulator is furnished to Eve.
+    Eve has a failed fusion of wrist.
+    the last fusion surgery of Eve was on 2025-09-01.
+    osteogenesis stimulator treatment of Eve started on 2026-03-01.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The spinal stimulator (E0748): after a three-level fusion (claim 1);
+% after a two-level fusion with no history (claim 2); after a two-level
+% fusion at a site where a previous fusion failed (claim 3); a failed
+% spinal fusion 304 days after the surgery (claim 4).
+scenario spinal_fusions is:
+    claim 1 is for the first stimulator.
+    the HCPCS code of the first stimulator is "E0748".
+    the first stimulator is furnished to Fay.
+    Fay had spinal fusion surgery on 2026-02-15 involving 3 vertebrae.
+    osteogenesis stimulator treatment of Fay started on 2026-03-01.
+    claim 2 is for the second stimulator.
+    the HCPCS code of the second stimulator is "E0748".
+    the second stimulator is furnished to Gus.
+    Gus had spinal fusion surgery on 2026-02-15 involving 2 vertebrae.
+    osteogenesis stimulator treatment of Gus started on 2026-03-01.
+    claim 3 is for the third stimulator.
+    the HCPCS code of the third stimulator is "E0748".
+    the third stimulator is furnished to Hal.
+    Hal had spinal fusion surgery on 2026-02-15 involving 2 vertebrae.
+    Hal has a history of a previously failed spinal fusion at the same site.
+    osteogenesis stimulator treatment of Hal started on 2026-03-01.
+    claim 4 is for the fourth stimulator.
+    the HCPCS code of the fourth stimulator is "E0748".
+    the fourth stimulator is furnished to Ida.
+    Ida has a failed fusion of spine.
+    the last fusion surgery of Ida was on 2025-05-01.
+    osteogenesis stimulator treatment of Ida started on 2026-03-01.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 3 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% The ultrasonic stimulator (E0760) for a nonunion of the radius, and its
+% coupling gel (A4559, claim 2).
+scenario ultrasonic_with_gel is:
+    claim 1 is for the ultrasonic stimulator.
+    the HCPCS code of the ultrasonic stimulator is "E0760".
+    the ultrasonic stimulator is furnished to Jo.
+    claim 2 is for the coupling gel.
+    the HCPCS code of the coupling gel is "A4559".
+    the coupling gel is an accessory of the ultrasonic stimulator.
+    the coupling gel is furnished to Jo.
+    Jo has a fracture of radius.
+    the radiographs of the fracture of Jo obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Jo obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Jo started on 2026-03-01.
+    the finding fracture healing ceased about Jo is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% The ultrasonic exclusions: a fracture of the vertebrae (claim 1); a tumor
+% related fracture of the femur (claim 2); a unit used together with an
+% electrical stimulator (claim 3).
+scenario ultrasonic_exclusions is:
+    claim 1 is for the first stimulator.
+    the HCPCS code of the first stimulator is "E0760".
+    the first stimulator is furnished to Kim.
+    Kim has a fracture of vertebrae.
+    the radiographs of the fracture of Kim obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Kim obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Kim started on 2026-03-01.
+    the finding fracture healing ceased about Kim is established, according to the treating practitioner.
+    claim 2 is for the second stimulator.
+    the HCPCS code of the second stimulator is "E0760".
+    the second stimulator is furnished to Lee.
+    Lee has a fracture of femur.
+    the fracture of Lee is tumor related.
+    the radiographs of the fracture of Lee obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Lee obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Lee started on 2026-03-01.
+    the finding fracture healing ceased about Lee is established, according to the treating practitioner.
+    claim 3 is for the third stimulator.
+    the HCPCS code of the third stimulator is "E0760".
+    the third stimulator is furnished to Max.
+    Max has a fracture of ulna.
+    the radiographs of the fracture of Max obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Max obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Max started on 2026-03-01.
+    the finding fracture healing ceased about Max is established, according to the treating practitioner.
+    the third stimulator is used concurrently with other noninvasive osteogenesis stimulators.
+    rn expects answers [].
+
+% The Council reads the films otherwise: the second set shows bridging
+% callus, so the practitioner's interpretation is unsupported.
+scenario healing_council is:
+    claim 1 is for the bone stimulator.
+    the HCPCS code of the bone stimulator is "E0747".
+    the bone stimulator is furnished to Ned.
+    Ned has a fracture of humerus.
+    the radiographs of the fracture of Ned obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Ned obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Ned started on 2026-03-01.
+    the finding fracture healing ceased about Ned is unsupported, according to the Council, because "the radiologist's report of the second set of radiographs describes bridging callus at three of four cortices, which is clinically significant evidence of healing".
+    rn expects answers [].
+
+% Reasonable and necessary, fully documented but for the quantity on the
+% standard written order: payable fails at the remedy.
+scenario order_incomplete is:
+    claim 1 is for the bone stimulator.
+    the HCPCS code of the bone stimulator is "E0747".
+    the bone stimulator is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    Ann has a fracture of tibia.
+    the radiographs of the fracture of Ann obtained on 2025-11-01 include multiple views of the fracture site.
+    the radiographs of the fracture of Ann obtained on 2026-02-05 include multiple views of the fracture site.
+    osteogenesis stimulator treatment of Ann started on 2026-03-01.
+    the finding fracture healing ceased about Ann is established, according to the treating practitioner.
+    the treating practitioner examined Ann for the bone stimulator in a face-to-face encounter on 2026-02-10.
+    the order for the bone stimulator is dated 2026-02-20.
+    the order for the bone stimulator is signed by the treating practitioner.
+    the order for the bone stimulator includes beneficiary name.
+    the order for the bone stimulator includes order date.
+    the order for the bone stimulator includes description of the item.
+    the order for the bone stimulator includes treating practitioner name.
+    the order for the bone stimulator was communicated to the supplier on 2026-02-22.
+    the bone stimulator was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the bone stimulator.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the order for the bone stimulator includes quantity to be dispensed"]].

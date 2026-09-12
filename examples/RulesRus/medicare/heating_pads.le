@@ -1,0 +1,109 @@
+% Heating Pads and Heat Lamps: LCD L33784 and its Policy Article A52502 (DME
+% MACs). A policy program of the DMEPOS model: it includes dmepos.le
+% (orders, delivery, benefit category, continued need, refills) and states
+% when a claim for a heating pad is REASONABLE AND NECESSARY. Only the
+% standard electric heating pad (E0210) has coverage criteria: it "is covered
+% to relieve certain types of pain, decrease joint and soft tissue stiffness,
+% relax muscles, or reduce inflammation", and "is not reasonable and
+% necessary to treat pain due to peripheral neuropathy, including but not
+% limited to diabetic neuropathy". Everything else the LCD names is denied as
+% not reasonable and necessary — the moist electric heating pad (E0215) and
+% the water circulating heat pad with pump (E0217), "not established" to be
+% reasonable and necessary compared to the standard pad; the replacement
+% pump (E0236) and pad (E0249) of a water circulating system; the heat lamps
+% (E0200, E0205), whose safety and effectiveness in the home is not
+% established — so no rule concludes them. The hydrocollator units (E0225,
+% E0239) are "institutional equipment", statutorily noncovered (the Policy
+% Article): in scope, with no benefit category.
+%
+% How the criteria are read. Whether the pad is for one of the purposes the
+% LCD covers — certain types of pain, joint and soft tissue stiffness, muscle
+% relaxation, inflammation — is one clinical judgment of the treating
+% practitioner, accepted or rejected on review: the judged template of
+% dmepos.le, "the finding F about B is established" (or unsupported), with
+% who found it and why. The finding this policy reads, and the criterion it
+% stands for:
+%   heating pad indicated (E0210: to relieve certain types of pain, decrease
+%   joint and soft tissue stiffness, relax muscles, or reduce inflammation —
+%   ONE finding with the purposes as its reasons).
+% That the pad is provided to treat pain due to peripheral neuropathy is what
+% the record states — a scenario fact — and excludes coverage.
+%
+% Not modelled: the coding definitions of E0210, E0215 and E0217 (fabric
+% cover, automatic shut-off, NRTL certification) and the denial of pads
+% billed as E1399 that do not meet them (coding); the short-term replacement
+% pad billed as A9999; the nonelectric heating pad or wrap (A9273), which
+% the Policy Article denies as not durable medical equipment — the code is
+% the cold therapy policy's (cold_therapy.le), which names it too.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *an item* is provided to treat pain due to peripheral neuropathy; undefined.
+    % the knowledge base
+    heating code *a code* is statutorily noncovered as institutional equipment.
+    % derived
+    *an item* is a standard electric heating pad.
+
+the knowledge base heating_pads includes these resources:
+    dmepos.
+
+the knowledge base heating_pads includes:
+
+LCD L33784 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33784".
+the text of LCD L33784 is at "sources/lcd/L33784.txt".
+Policy Article A52502 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52502".
+the text of Policy Article A52502 is at "sources/article/A52502.txt".
+
+% What a standard electric heating pad is (the Policy Article's coding
+% guidelines).
+rule heating_pads_standard_pad with provenance Policy Article A52502,
+        confer "A standard electric heating pad (E0210) is a flexible device containing electric resistive elements producing heat":
+an item is a standard electric heating pad
+    if the HCPCS code of the item is "E0210".
+
+% The hydrocollator units the Policy Article places outside the benefit.
+heating code "E0225" is statutorily noncovered as institutional equipment,
+    as stated in Policy Article A52502, confer "Hydrocollator units (E0225, E0239) are considered institutional equipment and will be denied as statutorily noncovered".
+heating code "E0239" is statutorily noncovered as institutional equipment,
+    as stated in Policy Article A52502, confer "Hydrocollator units (E0225, E0239) are considered institutional equipment and will be denied as statutorily noncovered".
+
+section applicability is:
+
+heating_pads has no specific documentation requirements.
+
+% The codes this policy decides: the heating pads, the replacement pump and
+% pad, the heat lamps, the hydrocollator units.
+rule heating_pads_codes with provenance Policy Article A52502,
+        confer "Heating pads are covered under the Durable Medical Equipment benefit":
+the policy for code a code is heating_pads
+    if the code is in ["E0200", "E0205", "E0210", "E0215", "E0217", "E0225", "E0236", "E0239", "E0249"].
+
+% Their benefit: durable medical equipment, except the hydrocollator units.
+rule heating_pads_benefit with provenance Policy Article A52502,
+        confer "Heating pads are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is heating_pads
+    and it is not the case that
+        heating code the code is statutorily noncovered as institutional equipment.
+
+section question is:
+
+% The standard electric heating pad: for one of the covered purposes (the
+% finding), and not to treat pain due to peripheral neuropathy.
+rule heating_pads_standard with provenance LCD L33784,
+        confer "A standard electric heating pad (E0210) is covered to relieve certain types of pain, decrease joint and soft tissue stiffness, relax muscles, or reduce inflammation":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a standard electric heating pad
+    and the item is furnished to a beneficiary
+    and the finding heating pad indicated about the beneficiary is established
+    and it is not the case that
+        the item is provided to treat pain due to peripheral neuropathy.
+
+% No rule concludes the others: "if code E0215 or E0217 is provided it will
+% be denied as not reasonable and necessary"; "a replacement pump (E0236) or
+% pad (E0249, A9999) will be denied as not reasonable and necessary"; the
+% heat lamps (E0200, E0205): "Claims for these items will be denied as not
+% reasonable and necessary."

@@ -1,0 +1,243 @@
+% Test cases for the tremor stimulator policy (tremor_stimulator.le):
+% synthetic claims, one per criterion of LCD L39591 and its
+% continued-coverage rule, each stating only what its record shows. The
+% findings are recorded as the treating practitioner's, a medical
+% reviewer's or the Council's; a finding nobody made leaves the answer
+% conditional. The queries: whether the claim is payable (the first query,
+% so "stage" reads its checklist), whether it is reasonable and necessary,
+% and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base tremor stimulator cases includes these resources:
+    tremor_stimulator.
+
+the knowledge base tremor stimulator cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete first-month claim for a tremor stimulator (E0734): the
+% evaluation, the eight criteria, the standard written order, the delivery
+% and its proof.
+scenario initial_complete is:
+    claim 1 is for the tremor stimulator.
+    the HCPCS code of the tremor stimulator is "E0734".
+    the tremor stimulator is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    Ann had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Ann is "G25.0".
+    the age of Ann is 72 years.
+    the finding free of contraindications about Ann is established, according to the treating practitioner.
+    the tremor stimulator is prescribed to treat the dominant upper limb of Ann.
+    the BF-ADL score of Ann for eating before therapy is 4.
+    the BF-ADL score of Ann for writing before therapy is 3.
+    the finding tremor exacerbating medications addressed about Ann is established, according to the treating practitioner, because "the albuterol inhaler was replaced by an anticholinergic".
+    2 pharmacological treatment options for essential tremor were tried and failed or ruled out for Ann.
+    the tremor stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Ann.
+    the order for the tremor stimulator is dated 2026-02-20.
+    the order for the tremor stimulator is signed by the treating practitioner.
+    the order for the tremor stimulator includes beneficiary name.
+    the order for the tremor stimulator includes order date.
+    the order for the tremor stimulator includes description of the item.
+    the order for the tremor stimulator includes quantity to be dispensed.
+    the order for the tremor stimulator includes treating practitioner name.
+    the order for the tremor stimulator was communicated to the supplier on 2026-02-22.
+    the tremor stimulator was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the tremor stimulator.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Criteria 1 and 2 fail: a 17 year old (claim 1), and a tremor coded
+% outside Group 1 — G25.2, other specified forms of tremor (claim 2).
+scenario age_and_diagnosis is:
+    claim 1 is for the first stimulator.
+    the HCPCS code of the first stimulator is "E0734".
+    the first stimulator is furnished to Ben.
+    the residence of Ben is private residence.
+    the rental month of claim 1 is 1.
+    Ben had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Ben is "G25.0".
+    the age of Ben is 17 years.
+    the finding free of contraindications about Ben is established, according to the treating practitioner.
+    the first stimulator is prescribed to treat the dominant upper limb of Ben.
+    the BF-ADL score of Ben for eating before therapy is 4.
+    the finding tremor exacerbating medications addressed about Ben is established, according to the treating practitioner, because "no exacerbating medication is taken".
+    2 pharmacological treatment options for essential tremor were tried and failed or ruled out for Ben.
+    the first stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Ben.
+    claim 2 is for the second stimulator.
+    the HCPCS code of the second stimulator is "E0734".
+    the second stimulator is furnished to Cy.
+    the residence of Cy is private residence.
+    the rental month of claim 2 is 1.
+    Cy had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Cy is "G25.2".
+    the age of Cy is 70 years.
+    the finding free of contraindications about Cy is established, according to the treating practitioner.
+    the second stimulator is prescribed to treat the dominant upper limb of Cy.
+    the BF-ADL score of Cy for drinking before therapy is 3.
+    the finding tremor exacerbating medications addressed about Cy is established, according to the treating practitioner, because "no exacerbating medication is taken".
+    3 pharmacological treatment options for essential tremor were tried and failed or ruled out for Cy.
+    the second stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Cy.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Criterion 5 fails: no upper limb item scored 3 or more (a 3 on walking
+% up and down stairs is not an upper limb item).
+scenario mild_tremor is:
+    claim 1 is for the tremor stimulator.
+    the HCPCS code of the tremor stimulator is "E0734".
+    the tremor stimulator is furnished to Dee.
+    the rental month of claim 1 is 1.
+    Dee had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Dee is "G25.0".
+    the age of Dee is 68 years.
+    the finding free of contraindications about Dee is established, according to the treating practitioner.
+    the tremor stimulator is prescribed to treat the dominant upper limb of Dee.
+    the BF-ADL score of Dee for eating before therapy is 2.
+    the BF-ADL score of Dee for writing before therapy is 2.
+    the BF-ADL score of Dee for stairs before therapy is 3.
+    the finding tremor exacerbating medications addressed about Dee is established, according to the treating practitioner, because "no exacerbating medication is taken".
+    2 pharmacological treatment options for essential tremor were tried and failed or ruled out for Dee.
+    the tremor stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Dee.
+    rn expects answers [].
+
+% Criterion 7 fails: one pharmacological option tried, not two.
+scenario one_drug_tried is:
+    claim 1 is for the tremor stimulator.
+    the HCPCS code of the tremor stimulator is "E0734".
+    the tremor stimulator is furnished to Eve.
+    the rental month of claim 1 is 1.
+    Eve had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Eve is "G25.0".
+    the age of Eve is 75 years.
+    the finding free of contraindications about Eve is established, according to the treating practitioner.
+    the tremor stimulator is prescribed to treat the dominant upper limb of Eve.
+    the BF-ADL score of Eve for self care before therapy is 4.
+    the finding tremor exacerbating medications addressed about Eve is established, according to the treating practitioner, because "no exacerbating medication is taken".
+    1 pharmacological treatment options for essential tremor were tried and failed or ruled out for Eve.
+    the tremor stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Eve.
+    rn expects answers [].
+
+% Criterion 3, a Council-style finding: the medical reviewer finds the
+% record of an implanted cardiac pacemaker, a contraindication the
+% practitioner's note did not address.
+scenario contraindication_unsupported is:
+    claim 1 is for the tremor stimulator.
+    the HCPCS code of the tremor stimulator is "E0734".
+    the tremor stimulator is furnished to Fay.
+    the rental month of claim 1 is 1.
+    Fay had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Fay is "G25.0".
+    the age of Fay is 80 years.
+    the finding free of contraindications about Fay is unsupported, according to the Council, because "the hospital records document an implanted cardiac pacemaker, which the treating practitioner's note does not mention".
+    the tremor stimulator is prescribed to treat the dominant upper limb of Fay.
+    the BF-ADL score of Fay for eating before therapy is 4.
+    the finding tremor exacerbating medications addressed about Fay is established, according to the treating practitioner, because "no exacerbating medication is taken".
+    2 pharmacological treatment options for essential tremor were tried and failed or ruled out for Fay.
+    the tremor stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Fay.
+    rn expects answers [].
+
+% Month 4: re-evaluated on day 75 with the eating score improved from 4 to
+% 2 and 80 percent adherence — the device (claim 1) and a wrist band
+% (A4542, claim 2) 92 days into therapy.
+scenario month_4_benefit is:
+    claim 1 is for the tremor stimulator.
+    the HCPCS code of the tremor stimulator is "E0734".
+    the tremor stimulator is furnished to Gus.
+    the date of service of claim 1 is 2026-06-01.
+    the rental month of claim 1 is 4.
+    claim 2 is for the wrist band.
+    the HCPCS code of the wrist band is "A4542".
+    the wrist band is an accessory of the tremor stimulator.
+    the wrist band is furnished to Gus.
+    the date of service of claim 2 is 2026-06-01.
+    Gus had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Gus is "G25.0".
+    the age of Gus is 66 years.
+    the finding free of contraindications about Gus is established, according to the treating practitioner.
+    the tremor stimulator is prescribed to treat the dominant upper limb of Gus.
+    the BF-ADL score of Gus for eating before therapy is 4.
+    the BF-ADL score of Gus for writing before therapy is 2.
+    the finding tremor exacerbating medications addressed about Gus is established, according to the treating practitioner, because "no exacerbating medication is taken".
+    2 pharmacological treatment options for essential tremor were tried and failed or ruled out for Gus.
+    the tremor stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Gus.
+    the tremor stimulator was delivered on 2026-03-01.
+    Gus had a clinical re-evaluation in person or via telehealth by the treating practitioner on 2026-05-15.
+    the BF-ADL score of Gus for eating at the re-evaluation is 2.
+    the BF-ADL score of Gus for writing at the re-evaluation is 1.
+    Gus used the tremor stimulator on 80 percent of the days during a consecutive thirty day period within the first three months.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% Month 4 with the eating score unchanged at 4 (the writing score, 2 before
+% therapy, does not count) and 50 percent adherence: continued coverage
+% fails.
+scenario month_4_no_benefit is:
+    claim 1 is for the tremor stimulator.
+    the HCPCS code of the tremor stimulator is "E0734".
+    the tremor stimulator is furnished to Hal.
+    the residence of Hal is private residence.
+    the date of service of claim 1 is 2026-06-01.
+    the rental month of claim 1 is 4.
+    Hal had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Hal is "G25.0".
+    the age of Hal is 71 years.
+    the finding free of contraindications about Hal is established, according to the treating practitioner.
+    the tremor stimulator is prescribed to treat the dominant upper limb of Hal.
+    the BF-ADL score of Hal for eating before therapy is 4.
+    the BF-ADL score of Hal for writing before therapy is 2.
+    the finding tremor exacerbating medications addressed about Hal is established, according to the treating practitioner, because "no exacerbating medication is taken".
+    2 pharmacological treatment options for essential tremor were tried and failed or ruled out for Hal.
+    the tremor stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Hal.
+    the tremor stimulator was delivered on 2026-03-01.
+    Hal had a clinical re-evaluation in person or via telehealth by the treating practitioner on 2026-05-15.
+    the BF-ADL score of Hal for eating at the re-evaluation is 4.
+    the BF-ADL score of Hal for writing at the re-evaluation is 1.
+    Hal used the tremor stimulator on 50 percent of the days during a consecutive thirty day period within the first three months.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Reasonable and necessary, but no proof of delivery: payable fails at the
+% remedy.
+scenario no_proof_of_delivery is:
+    claim 1 is for the tremor stimulator.
+    the HCPCS code of the tremor stimulator is "E0734".
+    the tremor stimulator is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    Ann had a clinical evaluation in person or via telehealth by the treating practitioner on 2026-02-10.
+    the diagnosis code of Ann is "G25.0".
+    the age of Ann is 72 years.
+    the finding free of contraindications about Ann is established, according to the treating practitioner.
+    the tremor stimulator is prescribed to treat the dominant upper limb of Ann.
+    the BF-ADL score of Ann for eating before therapy is 4.
+    the finding tremor exacerbating medications addressed about Ann is established, according to the treating practitioner, because "the albuterol inhaler was replaced by an anticholinergic".
+    2 pharmacological treatment options for essential tremor were tried and failed or ruled out for Ann.
+    the tremor stimulator is prescribed as an alternative to invasive or permanent surgical treatment for Ann.
+    the order for the tremor stimulator is dated 2026-02-20.
+    the order for the tremor stimulator is signed by the treating practitioner.
+    the order for the tremor stimulator includes beneficiary name.
+    the order for the tremor stimulator includes order date.
+    the order for the tremor stimulator includes description of the item.
+    the order for the tremor stimulator includes quantity to be dispensed.
+    the order for the tremor stimulator includes treating practitioner name.
+    the order for the tremor stimulator was communicated to the supplier on 2026-02-22.
+    the tremor stimulator was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the tremor stimulator"]].

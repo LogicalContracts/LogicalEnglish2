@@ -1,0 +1,194 @@
+% Oral Appliances for Obstructive Sleep Apnea: LCD L33611 and its Policy
+% Article A52512 (DME MACs). A policy program of the DMEPOS model: it
+% includes dmepos.le (orders, delivery, benefit category, continued need,
+% refills) and states when a claim for a custom fabricated mandibular
+% advancement oral appliance (E0486) is REASONABLE AND NECESSARY: the four
+% criteria A-D — the in-person clinical evaluation before the sleep test, a
+% Medicare-covered sleep test with qualifying values, the order written by
+% the treating practitioner after reviewing the report of the sleep test,
+% and the device provided and billed by a licensed dentist. A prefabricated
+% oral appliance (E0485) is never covered ("will be denied as not reasonable
+% and necessary. There is insufficient evidence to show that these items are
+% effective therapy for OSA"): no rule concludes it. Tongue retaining
+% devices and other oral appliances (A9270) are dental devices outside the
+% benefit and outside this program.
+%
+% How the criteria are read. The sleep-test criteria are those of the PAP
+% policy (pap.le), and the record facts are stated in the same words: the
+% diagnosis, the in-person evaluation and its date, the sleep test (its
+% date, type, AHI or RDI, events recorded, whether the DME supplier ran it),
+% the symptoms documented (the shared template "the medical record of B
+% documents C"). The AHI template stands for the AHI of a facility study and
+% the RDI of a home sleep test alike, as the LCD treats them. Criterion B has
+% three alternatives: (1) an AHI of 15 or more with 30 events, (2) an AHI of
+% 5 to 14 with 10 events and a documented symptom, (3) an AHI over 30 and a
+% PAP device the beneficiary cannot tolerate or the treating practitioner
+% finds contraindicated. The last is one finding, the judged template of
+% dmepos.le "the finding F about B is established" (or unsupported), with
+% who found it and why:
+%   pap device unsuitable (criterion B3: the beneficiary is not able to
+%   tolerate a PAP device, or the treating practitioner determines that the
+%   use of a PAP device is contraindicated).
+% Criteria C and D are what the record states: that the order was written by
+% the treating practitioner following a review of the report of the sleep
+% test, and that the device was provided and billed by a licensed dentist.
+% That the sleep test was ordered by the treating practitioner, FDA-approved
+% and run by a qualified Medicare provider (the LCD's "Sleep Tests"
+% paragraph) is not modelled, as in pap.le; a test the DME supplier ran is
+% excluded expressly (Policy Article A52512).
+%
+% The Policy Article's policy-specific requirements are the narrative note
+% of the in-person evaluation (the evaluation is criterion A) and the
+% KX/GA/GZ modifiers (billing): the policy declares no documentation
+% requirement of its own. Not modelled: the follow-up care of the first 90
+% days included in the payment, the 5-year reasonable useful lifetime and
+% replacement, repairs, the PDAC coding verification of E0486.
+
+the target language is: prolog.
+
+the templates are:
+    % the record (the sleep-test facts in the words of pap.le)
+    *a beneficiary* has a diagnosis of obstructive sleep apnea; undefined.
+    *a beneficiary* had an in-person clinical evaluation by the treating practitioner on *a date*; undefined.
+    the sleep test of *a beneficiary* was performed on *a date*; undefined.
+    the type of the sleep test of *a beneficiary* is *a type*; undefined.
+    the AHI of the sleep test of *a beneficiary* is *a number*; undefined.
+    the sleep test of *a beneficiary* recorded *a number* events; undefined.
+    the sleep test of *a beneficiary* was performed by the DME supplier; undefined.
+    the order for *an item* was written by the treating practitioner following a review of the report of the sleep test; undefined.
+    *an item* is provided and billed by a licensed dentist; undefined.
+    % derived
+    *an item* is a custom fabricated mandibular advancement oral appliance.
+    *a beneficiary* was clinically evaluated before the sleep test for an oral appliance.
+    the sleep test of *a beneficiary* is a Medicare covered sleep test for an oral appliance.
+    the sleep test of *a beneficiary* meets the oral appliance AHI criterion.
+    *a condition* is a qualifying symptom for an oral appliance.
+
+the knowledge base oral_appliances includes these resources:
+    dmepos.
+
+the knowledge base oral_appliances includes:
+
+LCD L33611 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33611".
+the text of LCD L33611 is at "sources/lcd/L33611.txt".
+Policy Article A52512 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52512".
+the text of Policy Article A52512 is at "sources/article/A52512.txt".
+
+% What a custom fabricated mandibular advancement oral appliance is (the
+% Policy Article's coding guidelines).
+rule oral_custom_fabricated with provenance Policy Article A52512,
+        confer "HCPCS code E0486 may only be used for custom fabricated mandibular advancement devices":
+an item is a custom fabricated mandibular advancement oral appliance
+    if the HCPCS code of the item is "E0486".
+
+% The symptoms of criterion B2.
+excessive daytime sleepiness is a qualifying symptom for an oral appliance,
+    as stated in LCD L33611, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+impaired cognition is a qualifying symptom for an oral appliance,
+    as stated in LCD L33611, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+mood disorder is a qualifying symptom for an oral appliance,
+    as stated in LCD L33611, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+insomnia is a qualifying symptom for an oral appliance,
+    as stated in LCD L33611, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+hypertension is a qualifying symptom for an oral appliance,
+    as stated in LCD L33611, confer "Hypertension, ischemic heart disease, or history of stroke".
+ischemic heart disease is a qualifying symptom for an oral appliance,
+    as stated in LCD L33611, confer "Hypertension, ischemic heart disease, or history of stroke".
+history of stroke is a qualifying symptom for an oral appliance,
+    as stated in LCD L33611, confer "Hypertension, ischemic heart disease, or history of stroke".
+
+section applicability is:
+
+% The Policy Article's policy-specific requirements are the narrative note
+% of the evaluation (criterion A) and the claim modifiers (billing): none of
+% the policy's own.
+oral_appliances has no specific documentation requirements.
+
+% The codes this policy decides, and their benefit: durable medical
+% equipment (Policy Article A52512).
+rule oral_codes with provenance Policy Article A52512,
+        confer "Oral appliances used to treat obstructive sleep apnea (OSA) are covered under the Durable Medical Equipment benefit":
+the policy for code a code is oral_appliances
+    if the code is in ["E0485", "E0486"].
+
+rule oral_benefit with provenance Policy Article A52512,
+        confer "Oral appliances used to treat obstructive sleep apnea (OSA) are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is oral_appliances.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The custom fabricated appliance: criteria A-D. A prefabricated appliance
+% (E0485) has no rule: "A prefabricated oral appliance (E0485) will be
+% denied as not reasonable and necessary."
+% ---------------------------------------------------------------------------
+
+rule oral_covered with provenance LCD L33611,
+        confer "A custom fabricated mandibular advancement oral appliance (E0486) used to treat obstructive sleep apnea (OSA) is covered if criteria A - D are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a custom fabricated mandibular advancement oral appliance
+    and the item is furnished to a beneficiary
+    and the beneficiary has a diagnosis of obstructive sleep apnea
+    and the beneficiary was clinically evaluated before the sleep test for an oral appliance
+    and the sleep test of the beneficiary is a Medicare covered sleep test for an oral appliance
+    and the sleep test of the beneficiary meets the oral appliance AHI criterion
+    and the order for the item was written by the treating practitioner following a review of the report of the sleep test
+    and the item is provided and billed by a licensed dentist.
+
+% Criterion A.
+rule oral_criterion_a with provenance LCD L33611,
+        confer "The beneficiary has an in-person clinical evaluation by the treating practitioner prior to the sleep test to assess the beneficiary for obstructive sleep apnea testing":
+a beneficiary was clinically evaluated before the sleep test for an oral appliance
+    if the beneficiary had an in-person clinical evaluation by the treating practitioner on a date
+    and the sleep test of the beneficiary was performed on an other date
+    and the date is before or equal to the other date.
+
+% Criterion B: a Medicare-covered sleep test — a facility polysomnogram or an
+% inpatient or home sleep test — that the DME supplier had no part in
+% (Policy Article A52512).
+rule oral_sleep_test with provenance LCD L33611,
+        confer "The sleep test must be either a polysomnogram performed in a facility-based laboratory (Type I study) or an inpatient hospital-based or home-based sleep test (HST) (Types II, III, IV, Other)":
+the sleep test of a beneficiary is a Medicare covered sleep test for an oral appliance
+    if the type of the sleep test of the beneficiary is a type
+    and the type is in [facility polysomnogram, inpatient sleep test, home sleep test]
+    and it is not the case that
+        the sleep test of the beneficiary was performed by the DME supplier.
+
+% Criterion B, alternative 1.
+rule oral_criterion_b1 with provenance LCD L33611,
+        confer "The apnea-hypopnea index (AHI) or Respiratory Disturbance Index (RDI) is greater than or equal to 15 events per hour with a minimum of 30 events":
+the sleep test of a beneficiary meets the oral appliance AHI criterion
+    if the AHI of the sleep test of the beneficiary is a number
+    and the number >= 15
+    and the sleep test of the beneficiary recorded an other number events
+    and the other number >= 30.
+
+% Criterion B, alternative 2.
+rule oral_criterion_b2 with provenance LCD L33611,
+        confer "The AHI or RDI is greater than or equal to 5 and less than or equal to 14 events per hour with a minimum of 10 events and documentation of":
+the sleep test of a beneficiary meets the oral appliance AHI criterion
+    if the AHI of the sleep test of the beneficiary is a number
+    and the number >= 5
+    and the number <= 14
+    and the sleep test of the beneficiary recorded an other number events
+    and the other number >= 10
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying symptom for an oral appliance.
+
+% Criterion B, alternative 3: an AHI or RDI over 30 and a PAP device the
+% beneficiary is not able to tolerate or the treating practitioner finds
+% contraindicated (the finding's reasons; "The treating practitioner
+% determines that the use of a PAP device is contraindicated").
+rule oral_criterion_b3 with provenance LCD L33611,
+        confer "The beneficiary is not able to tolerate a positive airway pressure (PAP) device":
+the sleep test of a beneficiary meets the oral appliance AHI criterion
+    if the AHI of the sleep test of the beneficiary is a number
+    and the number > 30
+    and the finding pap device unsuitable about the beneficiary is established.
+
+% Criteria C and D are the record facts of the covering rule: "The device is
+% ordered by the treating practitioner following a review of the report of
+% the sleep test" and "The device is provided and billed for by a licensed
+% dentist (DDS or DMD)".

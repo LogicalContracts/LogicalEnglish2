@@ -1,0 +1,152 @@
+% Cervical Traction Devices: LCD L33823 and its Policy Article A52476 (DME
+% MACs). A policy program of the DMEPOS model: it includes dmepos.le
+% (orders, delivery, benefit category, continued need, refills) and states
+% when a claim for a cervical traction device is REASONABLE AND NECESSARY:
+% the criteria 1 and 2 of every device (a musculoskeletal or neurologic
+% impairment requiring traction equipment; the appropriate use demonstrated
+% and the selected device tolerated), which suffice for the over-the-door
+% device (E0860); and, for the higher-force devices — the free-standing
+% pneumatic frame (E0849) and the device without a door, frame or stand
+% (E0855) — one of the additional criteria A, B or C (a treated
+% temporomandibular joint dysfunction; a distortion of the lower jaw or neck
+% anatomy such that a chin halter cannot be used; the treating practitioner
+% ordering or documenting more than 20 pounds of traction in the home). The
+% headboard (E0840) and free-standing frame (E0850) devices have "no proven
+% clinical advantage" over the over-the-door one and are denied; the
+% ambulatory device (E0856) is denied: no rule concludes them.
+%
+% How the criteria are read. Criterion 1 and criterion B are clinical
+% findings about the beneficiary made by the treating practitioner and
+% accepted or rejected on review: each is the judged template of dmepos.le,
+% "the finding F about B is established" (or unsupported), with who found
+% it and why. Criterion 2 and criteria A and C are what the record states
+% — the demonstration and the tolerance of the device, the documented
+% diagnosis (the shared template "the medical record of B documents C") and
+% the treatment received, the pounds of traction ordered or documented (the
+% threshold, 20, is in the rule) — as scenario facts. The alternatives A, B
+% and C are read as hospital_beds.le reads its alternatives: what the record
+% states (A, C) decides first, and only when the record states neither is
+% the judgment (B) consulted — the "otherwise" is this model's device, so
+% that a criterion the record establishes does not leave a judgment open
+% beside it. The findings this policy reads, and the criterion each stands
+% for:
+%   impairment requiring cervical traction (1: a musculoskeletal or
+%   neurologic impairment requiring traction equipment — ONE finding with
+%   the kind of impairment as its reason); chin halter unusable (B: a
+%   distortion of the lower jaw or neck anatomy, e.g. radical neck
+%   dissection, such that a chin halter is unable to be utilized).
+%
+% Not modelled: the KX/GA/GZ modifiers of E0849 and E0855 (billing); the
+% coding descriptions of the devices (E0849 must generate more than 20
+% pounds and alternative vectors of force — coding). The Policy Article
+% adds no documentation requirement of its own.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the appropriate use of *an item* was demonstrated to *a beneficiary*; undefined.
+    *a beneficiary* tolerated *an item*; undefined.
+    *a beneficiary* has received treatment for the temporomandibular joint condition; undefined.
+    the treating practitioner orders or documents the medical necessity for *a number* pounds of cervical traction in the home; undefined.
+    % derived
+    *an item* is a higher force cervical traction device.
+    *a beneficiary* meets the criteria for cervical traction with *an item*.
+    the record of *a beneficiary* states an additional criterion for a higher force cervical traction device.
+    *a beneficiary* meets an additional criterion for a higher force cervical traction device.
+
+the knowledge base cervical_traction includes these resources:
+    dmepos.
+
+the knowledge base cervical_traction includes:
+
+LCD L33823 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33823".
+the text of LCD L33823 is at "sources/lcd/L33823.txt".
+Policy Article A52476 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52476".
+the text of Policy Article A52476 is at "sources/article/A52476.txt".
+
+% The two devices with additional criteria.
+rule cervical_traction_higher_force with provenance LCD L33823,
+        confer "Cervical traction devices described by code E0849 or E0855 are covered only when criteria 1 and 2 above and either criterion A, B or C below has been met":
+an item is a higher force cervical traction device
+    if the HCPCS code of the item is a code
+    and the code is in ["E0849", "E0855"].
+
+section applicability is:
+
+cervical_traction has no specific documentation requirements.
+
+% The codes this policy decides, and their benefit: durable medical
+% equipment.
+rule cervical_traction_codes with provenance Policy Article A52476,
+        confer "Cervical traction devices are covered under the Durable Medical Equipment benefit":
+the policy for code a code is cervical_traction
+    if the code is in ["E0840", "E0849", "E0850", "E0855", "E0856", "E0860"].
+
+rule cervical_traction_benefit with provenance Policy Article A52476,
+        confer "Cervical traction devices are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is cervical_traction.
+
+section question is:
+
+% The over-the-door device (E0860): criteria 1 and 2.
+rule cervical_traction_over_the_door with provenance LCD L33823,
+        confer "Cervical traction devices (E0840, E0849, E0850, E0855 and E0860) are covered only if both of the following criteria are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0860"
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the criteria for cervical traction with the item.
+
+% The higher-force devices (E0849, E0855): criteria 1 and 2, and one of A,
+% B, C.
+rule cervical_traction_higher_force_covered with provenance LCD L33823,
+        confer "Cervical traction devices described by code E0849 or E0855 are covered only when criteria 1 and 2 above and either criterion A, B or C below has been met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a higher force cervical traction device
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the criteria for cervical traction with the item
+    and the beneficiary meets an additional criterion for a higher force cervical traction device.
+
+% Criteria 1 and 2: the finding, the demonstration, the tolerance.
+rule cervical_traction_criteria_1_and_2 with provenance LCD L33823,
+        confer "The beneficiary has a musculoskeletal or neurologic impairment requiring traction equipment":
+a beneficiary meets the criteria for cervical traction with an item
+    if the finding impairment requiring cervical traction about the beneficiary is established
+    and the appropriate use of the item was demonstrated to the beneficiary
+    and the beneficiary tolerated the item.
+
+% The additional criteria are alternatives: what the record states (A and
+% C) decides first; only when the record states neither is the judgment (B)
+% consulted.
+rule cervical_traction_additional with provenance LCD L33823,
+        confer "either criterion A, B or C below has been met":
+a beneficiary meets an additional criterion for a higher force cervical traction device
+    if the record of the beneficiary states an additional criterion for a higher force cervical traction device
+    otherwise the finding chin halter unusable about the beneficiary is established.
+
+% Criterion A: a treated temporomandibular joint dysfunction.
+rule cervical_traction_criterion_a with provenance LCD L33823,
+        confer "The beneficiary has a diagnosis of temporomandibular joint (TMJ) dysfunction; and has received treatment for the TMJ condition":
+the record of a beneficiary states an additional criterion for a higher force cervical traction device
+    if the medical record of the beneficiary documents temporomandibular joint dysfunction
+    and the beneficiary has received treatment for the temporomandibular joint condition.
+
+% Criterion B is the finding chin halter unusable, the "otherwise" line
+% above; its passage: "The beneficiary has distortion of the lower jaw or
+% neck anatomy (e.g., radical neck dissection) such that a chin halter is
+% unable to be utilized".
+
+% Criterion C: more than 20 pounds of traction in the home.
+rule cervical_traction_criterion_c with provenance LCD L33823,
+        confer "The treating practitioner orders and/or documents the medical necessity for greater than 20 pounds of cervical traction in the home setting":
+the record of a beneficiary states an additional criterion for a higher force cervical traction device
+    if the treating practitioner orders or documents the medical necessity for a number pounds of cervical traction in the home
+    and the number > 20.
+
+% No rule concludes E0840, E0850 ("If an E0840 or E0850 is ordered, it will
+% be denied as not reasonable and necessary") or E0856 ("E0856 describes a
+% cervical traction device that can be used with ambulation. Therefore, it
+% will be denied as not reasonable and necessary").

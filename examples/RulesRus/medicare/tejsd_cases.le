@@ -1,0 +1,129 @@
+% Test cases for the TEJSD policy (tejsd.le): synthetic claims for E0762 and
+% A4465, fully documented, each concluding nothing at the question — the LCD
+% denies the device as not reasonable and necessary whatever the record
+% shows — and one decision of the Medicare Appeals Council (BioniCare
+% Medical Technologies, 2009) transcribed as the customs rulings are: each
+% fact quotes its passage, the Council's outcome is in the comment, not a
+% fact.
+
+the target language is: prolog.
+
+the knowledge base tejsd cases includes these resources:
+    tejsd.
+
+the knowledge base tejsd cases includes:
+
+Council decision bionicare is published at "https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/bionicare.pdf".
+the text of Council decision bionicare is at "sources/council/bionicare.txt".
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete first-month rental claim for a TEJSD (E0762) at home, with the
+% standard written order, the delivery and its proof: within the benefit,
+% not reasonable and necessary, and no change to the record makes it
+% payable. The stage names the remedy, not the question: "the query fails
+% at which section" blames the earliest section holding a rule the attempt
+% tried and could not prove, and this policy has no rule at all for the
+% question — the payable rule of dmepos.le, in the remedy, is the first that
+% fails.
+scenario device_complete is:
+    claim 1 is for the joint stimulator.
+    the HCPCS code of the joint stimulator is "E0762".
+    the joint stimulator is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the order for the joint stimulator is dated 2026-02-20.
+    the order for the joint stimulator is signed by the treating practitioner.
+    the order for the joint stimulator includes beneficiary name.
+    the order for the joint stimulator includes order date.
+    the order for the joint stimulator includes description of the item.
+    the order for the joint stimulator includes quantity to be dispensed.
+    the order for the joint stimulator includes treating practitioner name.
+    the order for the joint stimulator was communicated to the supplier on 2026-02-22.
+    the joint stimulator was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the joint stimulator.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [].
+
+% The same device furnished in a skilled nursing facility: statutorily
+% non-covered (Policy Article A52713) — the claim fails at applicability,
+% before the question is reached.
+scenario nursing_facility is:
+    claim 1 is for the joint stimulator.
+    the HCPCS code of the joint stimulator is "E0762".
+    the joint stimulator is furnished to Ben.
+    the residence of Ben is skilled nursing facility.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A replacement wrap (A4465) for the device: a supply of a device no rule
+% covers (the stage as in device_complete).
+scenario replacement_wrap is:
+    claim 1 is for the electrode wrap.
+    the HCPCS code of the electrode wrap is "A4465".
+    the electrode wrap is furnished to Cy.
+    the residence of Cy is private residence.
+    the date of service of claim 1 is 2026-05-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at remedy"].
+
+% A fourth rental month with continued need and use documented: the
+% continued-coverage record of dmepos.le is met, the question still is not
+% (the stage as in device_complete).
+scenario month_4 is:
+    claim 1 is for the joint stimulator.
+    the HCPCS code of the joint stimulator is "E0762".
+    the joint stimulator is furnished to Dee.
+    the residence of Dee is private residence.
+    the date of service of claim 1 is 2026-06-01.
+    the rental month of claim 1 is 4.
+    the medical record documents continued need for the joint stimulator on 2026-05-20.
+    the record documents continued use of the joint stimulator on 2026-05-20.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at remedy"].
+
+% Council: not covered — "the Council adopts the ALJ's ultimate conclusion
+% that Medicare coverage is not warranted for the BIO-1000 devices and
+% related supplies furnished to the beneficiaries", the device not having
+% been shown reasonable and necessary for osteoarthritis of the knee. The
+% decision names no residence; the model, wanting one, fails at
+% applicability rather than at the question — the same outcome, one step
+% earlier. The Council's finding ("The Council finds that the evidence, as
+% summarized below, does not establish that, at the time the devices were
+% furnished in 2004 and 2005, the BIO-1000 met medical necessity standards
+% for Medicare coverage") is not recorded as a fact: no rule of this policy
+% reads a finding, what the Council decided case by case being what the LCD
+% now denies by rule.
+scenario bionicare is, as stated in Council decision bionicare:
+    claim 1 is for the BIO-1000,
+        confer "the appellant billed Medicare for the rental of the BIO-1000 under HCPCS code E0762".
+    the HCPCS code of the BIO-1000 is "E0762",
+        confer "the appellant billed Medicare for the rental of the BIO-1000 under HCPCS code E0762".
+    the BIO-1000 is furnished to beneficiary one,
+        confer "a device that delivers pulsed electrical stimulation to the knee and is used in the treatment of osteoarthritis of the knee".
+    the rental month of claim 1 is 1,
+        confer "the appellant billed Medicare for the rental of the BIO-1000 under HCPCS code E0762".
+    the date of service of claim 1 is 2004-06-01,
+        confer "which the appellant rented to 47 beneficiaries on various dates in 2004 and 2005".
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].

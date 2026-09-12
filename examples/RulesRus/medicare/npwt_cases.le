@@ -1,0 +1,512 @@
+% Test cases for the negative pressure wound therapy policy (npwt.le):
+% synthetic claims, one or two per criterion of LCD L33821 and per payment
+% condition of Policy Article A52511, each stating only what its record
+% shows. Findings are recorded as the treating practitioner's or the
+% Council's. The queries: whether the claim is payable (the first query, so
+% "stage" reads its checklist), whether it is reasonable and necessary, and
+% what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base npwt cases includes these resources:
+    npwt.
+
+the knowledge base npwt cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete first-month claim for a pump under criterion A: a stage 4
+% pressure ulcer on the pelvis present for 45 days, every measure of the
+% wound therapy program tried, no exclusion; the order, delivery and proof
+% of delivery (E2402 needs neither a face-to-face encounter nor prior
+% authorization), the practitioner's initial statement and the diagnosis
+% code.
+scenario pump_complete is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-05-01.
+    the rental month of claim 1 is 1.
+    the pump is applied to the sacral ulcer.
+    the sacral ulcer is a wound of Ann.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 4.
+    the site of the sacral ulcer is pelvis.
+    the sacral ulcer has been present for 45 days.
+    the wound therapy program for the sacral ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the sacral ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the sacral ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the sacral ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the sacral ulcer included appropriate turning and positioning.
+    the wound therapy program for the sacral ulcer included appropriate management of moisture and incontinence.
+    the wound therapy program for the sacral ulcer included use of a group 2 or 3 support surface.
+    NPWT for the sacral ulcer was initiated on 2026-05-01.
+    the treating practitioner documented the initial condition of the sacral ulcer with measurements and the wound care efforts.
+    the diagnosis code of Ann is "L89.154".
+    the order for the pump is dated 2026-04-25.
+    the order for the pump is signed by the treating practitioner.
+    the order for the pump includes beneficiary name.
+    the order for the pump includes order date.
+    the order for the pump includes description of the item.
+    the order for the pump includes quantity to be dispensed.
+    the order for the pump includes treating practitioner name.
+    the order for the pump was communicated to the supplier on 2026-04-27.
+    the pump was delivered on 2026-05-01.
+    the supplier holds proof of delivery for the pump.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A stage 2 pressure ulcer: not a wound of criterion A.
+scenario stage_2_ulcer is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-05-01.
+    the rental month of claim 1 is 1.
+    the pump is applied to the heel ulcer.
+    the heel ulcer is a wound of Ben.
+    the type of the heel ulcer is pressure ulcer.
+    the stage of the heel ulcer is 2.
+    the site of the heel ulcer is heel.
+    the heel ulcer has been present for 45 days.
+    the wound therapy program for the heel ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the heel ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the heel ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the heel ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the heel ulcer included appropriate turning and positioning.
+    the wound therapy program for the heel ulcer included appropriate management of moisture and incontinence.
+    NPWT for the heel ulcer was initiated on 2026-05-01.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% The wound therapy program: Cy's pelvic ulcer was never on a group 2 or 3
+% support surface (claim 1, not covered); Dee's heel ulcer needs no support
+% surface (claim 2, covered).
+scenario program_incomplete is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Cy.
+    the date of service of claim 1 is 2026-05-01.
+    the rental month of claim 1 is 1.
+    the pump is applied to the ischial ulcer.
+    the ischial ulcer is a wound of Cy.
+    the type of the ischial ulcer is pressure ulcer.
+    the stage of the ischial ulcer is 3.
+    the site of the ischial ulcer is pelvis.
+    the ischial ulcer has been present for 60 days.
+    the wound therapy program for the ischial ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the ischial ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the ischial ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the ischial ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the ischial ulcer included appropriate turning and positioning.
+    the wound therapy program for the ischial ulcer included appropriate management of moisture and incontinence.
+    NPWT for the ischial ulcer was initiated on 2026-05-01.
+    claim 2 is for the second pump.
+    the HCPCS code of the second pump is "E2402".
+    the second pump is furnished to Dee.
+    the date of service of claim 2 is 2026-05-01.
+    the rental month of claim 2 is 1.
+    the second pump is applied to the heel ulcer.
+    the heel ulcer is a wound of Dee.
+    the type of the heel ulcer is pressure ulcer.
+    the stage of the heel ulcer is 3.
+    the site of the heel ulcer is heel.
+    the heel ulcer has been present for 60 days.
+    the wound therapy program for the heel ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the heel ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the heel ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the heel ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the heel ulcer included appropriate turning and positioning.
+    the wound therapy program for the heel ulcer included appropriate management of moisture and incontinence.
+    NPWT for the heel ulcer was initiated on 2026-05-01.
+    rn expects answers ["claim 2 is reasonable and necessary"].
+
+% An exclusion: a neuropathic ulcer with cancer present in the wound.
+scenario exclusion_cancer is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Eve.
+    the date of service of claim 1 is 2026-05-01.
+    the rental month of claim 1 is 1.
+    the pump is applied to the foot ulcer.
+    the foot ulcer is a wound of Eve.
+    the type of the foot ulcer is neuropathic ulcer.
+    the site of the foot ulcer is foot.
+    the wound therapy program for the foot ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the foot ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the foot ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the foot ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the foot ulcer included comprehensive diabetic management.
+    the wound therapy program for the foot ulcer included reduction in pressure on the foot ulcer.
+    the foot ulcer presents cancer in the wound.
+    NPWT for the foot ulcer was initiated on 2026-05-01.
+    rn expects answers [].
+
+% Criterion B-1: a venous insufficiency ulcer encountered in the hospital,
+% the program tried, NPWT the best available option in the treating
+% practitioner's judgment, ordered to continue at home.
+scenario inpatient_b1 is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Fay.
+    the date of service of claim 1 is 2026-05-10.
+    the rental month of claim 1 is 1.
+    the pump is applied to the leg ulcer.
+    the leg ulcer is a wound of Fay.
+    the type of the leg ulcer is venous insufficiency ulcer.
+    the site of the leg ulcer is lower leg.
+    the leg ulcer was encountered in the inpatient setting.
+    the wound therapy program for the leg ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the leg ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the leg ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the leg ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the leg ulcer included consistent application of compression bandages or garments.
+    the wound therapy program for the leg ulcer included leg elevation and ambulation.
+    the finding npwt best available treatment about Fay is established, according to the treating practitioner, because "the ulcer failed to granulate under compression and moist dressings during the admission".
+    NPWT for the leg ulcer was ordered to continue beyond discharge to the home setting.
+    NPWT for the leg ulcer was initiated on 2026-05-02.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The same record where the Council finds the judgment unsupported: the
+% discharge summary records no consideration of other treatments.
+scenario inpatient_b1_unsupported is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Gus.
+    the date of service of claim 1 is 2026-05-10.
+    the rental month of claim 1 is 1.
+    the pump is applied to the leg ulcer.
+    the leg ulcer is a wound of Gus.
+    the type of the leg ulcer is venous insufficiency ulcer.
+    the site of the leg ulcer is lower leg.
+    the leg ulcer was encountered in the inpatient setting.
+    the wound therapy program for the leg ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the leg ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the leg ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the leg ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the leg ulcer included consistent application of compression bandages or garments.
+    the wound therapy program for the leg ulcer included leg elevation and ambulation.
+    the finding npwt best available treatment about Gus is unsupported, according to the Council, because "the discharge summary orders NPWT without any statement that other wound treatments were tried or considered and ruled out".
+    NPWT for the leg ulcer was ordered to continue beyond discharge to the home setting.
+    NPWT for the leg ulcer was initiated on 2026-05-02.
+    rn expects answers [].
+
+% Criterion B-2: a dehisced surgical wound encountered in the hospital,
+% accelerated granulation required, ordered to continue at home.
+scenario inpatient_b2 is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Hal.
+    the date of service of claim 1 is 2026-05-10.
+    the rental month of claim 1 is 1.
+    the pump is applied to the abdominal wound.
+    the abdominal wound is a wound of Hal.
+    the type of the abdominal wound is surgical wound.
+    the site of the abdominal wound is abdomen.
+    the abdominal wound was encountered in the inpatient setting.
+    the finding accelerated granulation required about Hal is established, according to the treating practitioner, because "dehiscence of the laparotomy wound in a beneficiary on high-dose corticosteroids".
+    NPWT for the abdominal wound was ordered to continue beyond discharge to the home setting.
+    NPWT for the abdominal wound was initiated on 2026-05-04.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Continued coverage, rental month 3: Ida's ulcer assessed and supervised,
+% the measurements of the week before showing healing (claim 1, covered);
+% Jo's record shows no measurable healing (claim 2, not covered).
+scenario continued_month_3 is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Ida.
+    the date of service of claim 1 is 2026-05-01.
+    the rental month of claim 1 is 3.
+    the pump is applied to the sacral ulcer.
+    the sacral ulcer is a wound of Ida.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 4.
+    the site of the sacral ulcer is pelvis.
+    the sacral ulcer has been present for 100 days.
+    the wound therapy program for the sacral ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the sacral ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the sacral ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the sacral ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the sacral ulcer included appropriate turning and positioning.
+    the wound therapy program for the sacral ulcer included appropriate management of moisture and incontinence.
+    the wound therapy program for the sacral ulcer included use of a group 2 or 3 support surface.
+    NPWT for the sacral ulcer was initiated on 2026-03-01.
+    a licensed medical professional directly assesses the sacral ulcer and supervises the NPWT dressing changes.
+    the measurements of the sacral ulcer dated 2026-04-25 show measurable healing over the prior month.
+    claim 2 is for the second pump.
+    the HCPCS code of the second pump is "E2402".
+    the second pump is furnished to Jo.
+    the date of service of claim 2 is 2026-05-01.
+    the rental month of claim 2 is 3.
+    the second pump is applied to the trunk ulcer.
+    the trunk ulcer is a wound of Jo.
+    the type of the trunk ulcer is pressure ulcer.
+    the stage of the trunk ulcer is 3.
+    the site of the trunk ulcer is posterior trunk.
+    the trunk ulcer has been present for 100 days.
+    the wound therapy program for the trunk ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the trunk ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the trunk ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the trunk ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the trunk ulcer included appropriate turning and positioning.
+    the wound therapy program for the trunk ulcer included appropriate management of moisture and incontinence.
+    the wound therapy program for the trunk ulcer included use of a group 2 or 3 support surface.
+    NPWT for the trunk ulcer was initiated on 2026-03-01.
+    a licensed medical professional directly assesses the trunk ulcer and supervises the NPWT dressing changes.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Beyond four months of NPWT on the wound (134 days): coverage has ended.
+scenario beyond_four_months is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Kim.
+    the date of service of claim 1 is 2026-05-15.
+    the rental month of claim 1 is 5.
+    the pump is applied to the foot ulcer.
+    the foot ulcer is a wound of Kim.
+    the type of the foot ulcer is neuropathic ulcer.
+    the site of the foot ulcer is foot.
+    the wound therapy program for the foot ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the foot ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the foot ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the foot ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the foot ulcer included comprehensive diabetic management.
+    the wound therapy program for the foot ulcer included reduction in pressure on the foot ulcer.
+    NPWT for the foot ulcer was initiated on 2026-01-01.
+    a licensed medical professional directly assesses the foot ulcer and supervises the NPWT dressing changes.
+    the measurements of the foot ulcer dated 2026-05-10 show measurable healing over the prior month.
+    rn expects answers [].
+
+% Supplies for a pump treating two wounds in the first month: 30 dressing
+% sets (claim 1, 15 per wound, covered), 40 (claim 2, over the usual
+% maximum), 12 canister sets without documented drainage (claim 3, over
+% the maximum of 10) and 12 with a drainage of 120 ml a day (claim 4,
+% covered).
+scenario supplies_quantity is:
+    claim 1 is for the dressing sets.
+    the HCPCS code of the dressing sets is "A6550".
+    the dressing sets is an accessory of the pump.
+    the dressing sets is furnished to Ann.
+    the date of service of claim 1 is 2026-05-01.
+    the quantity billed on claim 1 is 30.
+    claim 1 is for a supply of 1 months.
+    claim 2 is for the extra dressing sets.
+    the HCPCS code of the extra dressing sets is "A6550".
+    the extra dressing sets is an accessory of the pump.
+    the extra dressing sets is furnished to Ann.
+    the date of service of claim 2 is 2026-05-01.
+    the quantity billed on claim 2 is 40.
+    claim 2 is for a supply of 1 months.
+    claim 3 is for the canisters.
+    the HCPCS code of the canisters is "A7000".
+    the canisters is an accessory of the pump.
+    the canisters is furnished to Ann.
+    the date of service of claim 3 is 2026-05-01.
+    the quantity billed on claim 3 is 12.
+    claim 3 is for a supply of 1 months.
+    claim 4 is for the large canisters.
+    the HCPCS code of the large canisters is "A7000".
+    the large canisters is an accessory of the second pump.
+    the large canisters is furnished to Ben.
+    the date of service of claim 4 is 2026-05-01.
+    the quantity billed on claim 4 is 12.
+    claim 4 is for a supply of 1 months.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Ann.
+    the pump is applied to the sacral ulcer.
+    the pump is applied to the heel ulcer.
+    the sacral ulcer is a wound of Ann.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 4.
+    the site of the sacral ulcer is pelvis.
+    the sacral ulcer has been present for 45 days.
+    the wound therapy program for the sacral ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the sacral ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the sacral ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the sacral ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the sacral ulcer included appropriate turning and positioning.
+    the wound therapy program for the sacral ulcer included appropriate management of moisture and incontinence.
+    the wound therapy program for the sacral ulcer included use of a group 2 or 3 support surface.
+    NPWT for the sacral ulcer was initiated on 2026-05-01.
+    the heel ulcer is a wound of Ann.
+    the type of the heel ulcer is pressure ulcer.
+    the stage of the heel ulcer is 3.
+    the site of the heel ulcer is heel.
+    the HCPCS code of the second pump is "E2402".
+    the second pump is furnished to Ben.
+    the second pump is applied to the leg ulcer.
+    the leg ulcer is a wound of Ben.
+    the type of the leg ulcer is venous insufficiency ulcer.
+    the site of the leg ulcer is lower leg.
+    the wound therapy program for the leg ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the leg ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the leg ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the leg ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the leg ulcer included consistent application of compression bandages or garments.
+    the wound therapy program for the leg ulcer included leg elevation and ambulation.
+    NPWT for the leg ulcer was initiated on 2026-05-01.
+    the drainage of the leg ulcer is 120 ml per day.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% A refill of dressing sets in the second month of therapy: the
+% beneficiary's affirmation 14 days before the supply runs out, delivery 2
+% days before, the continued-need record, the monthly measurements and the
+% supplier's assessment of progress — payable.
+scenario refill_dressings is:
+    claim 1 is for the dressing sets.
+    the HCPCS code of the dressing sets is "A6550".
+    the dressing sets is an accessory of the pump.
+    the dressing sets is furnished to Ann.
+    the residence of Ann is private residence.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-06-01.
+    the quantity billed on claim 1 is 15.
+    claim 1 is for a supply of 1 months.
+    the current supply of the dressing sets is expected to end on 2026-06-03.
+    the beneficiary affirmed the need for the refill of the dressing sets on 2026-05-20.
+    the medical record documents continued need for the dressing sets on 2026-05-28.
+    the record documents continued use of the dressing sets on 2026-05-28.
+    the order for the dressing sets is dated 2026-04-25.
+    the order for the dressing sets is signed by the treating practitioner.
+    the order for the dressing sets includes beneficiary name.
+    the order for the dressing sets includes order date.
+    the order for the dressing sets includes description of the item.
+    the order for the dressing sets includes quantity to be dispensed.
+    the order for the dressing sets includes treating practitioner name.
+    the order for the dressing sets was communicated to the supplier on 2026-04-27.
+    the dressing sets was delivered on 2026-06-01.
+    the supplier holds proof of delivery for the dressing sets.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Ann.
+    the pump is applied to the sacral ulcer.
+    the sacral ulcer is a wound of Ann.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 4.
+    the site of the sacral ulcer is pelvis.
+    the sacral ulcer has been present for 45 days.
+    the wound therapy program for the sacral ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the sacral ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the sacral ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the sacral ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the sacral ulcer included appropriate turning and positioning.
+    the wound therapy program for the sacral ulcer included appropriate management of moisture and incontinence.
+    the wound therapy program for the sacral ulcer included use of a group 2 or 3 support surface.
+    NPWT for the sacral ulcer was initiated on 2026-05-01.
+    a licensed medical professional directly assesses the sacral ulcer and supervises the NPWT dressing changes.
+    the measurements of the sacral ulcer dated 2026-05-28 show measurable healing over the prior month.
+    the treating practitioner documented the initial condition of the sacral ulcer with measurements and the wound care efforts.
+    the diagnosis code of Ann is "L89.154".
+    the supplier obtained an assessment of wound healing progress for the pump on 2026-05-28.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The complete first-month file without the treating practitioner's
+% statement of the initial condition of the wound: reasonable and
+% necessary, not payable; the flip names the statement.
+scenario no_initial_statement is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-05-01.
+    the rental month of claim 1 is 1.
+    the pump is applied to the sacral ulcer.
+    the sacral ulcer is a wound of Ann.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 4.
+    the site of the sacral ulcer is pelvis.
+    the sacral ulcer has been present for 45 days.
+    the wound therapy program for the sacral ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the sacral ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the sacral ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the sacral ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the sacral ulcer included appropriate turning and positioning.
+    the wound therapy program for the sacral ulcer included appropriate management of moisture and incontinence.
+    the wound therapy program for the sacral ulcer included use of a group 2 or 3 support surface.
+    NPWT for the sacral ulcer was initiated on 2026-05-01.
+    the diagnosis code of Ann is "L89.154".
+    the order for the pump is dated 2026-04-25.
+    the order for the pump is signed by the treating practitioner.
+    the order for the pump includes beneficiary name.
+    the order for the pump includes order date.
+    the order for the pump includes description of the item.
+    the order for the pump includes quantity to be dispensed.
+    the order for the pump includes treating practitioner name.
+    the order for the pump was communicated to the supplier on 2026-04-27.
+    the pump was delivered on 2026-05-01.
+    the supplier holds proof of delivery for the pump.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the treating practitioner documented the initial condition of the sacral ulcer with measurements and the wound care efforts"]].
+
+% Rental month 3 with the supplier's last assessment of progress seven
+% weeks old: reasonable and necessary, not payable.
+scenario stale_supplier_assessment is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E2402".
+    the pump is furnished to Ida.
+    the residence of Ida is private residence.
+    the date of service of claim 1 is 2026-05-01.
+    the rental month of claim 1 is 3.
+    the pump is applied to the sacral ulcer.
+    the sacral ulcer is a wound of Ida.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 4.
+    the site of the sacral ulcer is pelvis.
+    the sacral ulcer has been present for 100 days.
+    the wound therapy program for the sacral ulcer included evaluation care and wound measurements by a licensed medical professional.
+    the wound therapy program for the sacral ulcer included dressings to maintain a moist wound environment.
+    the wound therapy program for the sacral ulcer included debridement of necrotic tissue present.
+    the wound therapy program for the sacral ulcer included evaluation of and provision for adequate nutritional status.
+    the wound therapy program for the sacral ulcer included appropriate turning and positioning.
+    the wound therapy program for the sacral ulcer included appropriate management of moisture and incontinence.
+    the wound therapy program for the sacral ulcer included use of a group 2 or 3 support surface.
+    NPWT for the sacral ulcer was initiated on 2026-03-01.
+    a licensed medical professional directly assesses the sacral ulcer and supervises the NPWT dressing changes.
+    the measurements of the sacral ulcer dated 2026-04-25 show measurable healing over the prior month.
+    the treating practitioner documented the initial condition of the sacral ulcer with measurements and the wound care efforts.
+    the diagnosis code of Ida is "L89.154".
+    the supplier obtained an assessment of wound healing progress for the pump on 2026-03-12.
+    the medical record documents continued need for the pump on 2026-04-25.
+    the record documents continued use of the pump on 2026-04-25.
+    the order for the pump is dated 2026-02-25.
+    the order for the pump is signed by the treating practitioner.
+    the order for the pump includes beneficiary name.
+    the order for the pump includes order date.
+    the order for the pump includes description of the item.
+    the order for the pump includes quantity to be dispensed.
+    the order for the pump includes treating practitioner name.
+    the order for the pump was communicated to the supplier on 2026-02-27.
+    the pump was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the pump.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% A disposable wound suction pump (A9272): in scope, in no benefit category.
+scenario disposable_pump is:
+    claim 1 is for the disposable pump.
+    the HCPCS code of the disposable pump is "A9272".
+    the disposable pump is furnished to Lee.
+    the residence of Lee is private residence.
+    the date of service of claim 1 is 2026-05-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].

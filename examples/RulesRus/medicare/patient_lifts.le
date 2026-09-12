@@ -1,0 +1,150 @@
+% Patient Lifts: LCD L33799 and its Policy Article A52516 (DME MACs). A
+% policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for a patient lift — hydraulic or mechanical (E0630), electric
+% (E0635), the floor-to-ceiling pole system (E0639), the ceiling or wall
+% mounted system (E0640) — a multi-positional patient transfer system
+% (E0636, E1035, E1036) or a replacement sling or seat (E0621) is REASONABLE
+% AND NECESSARY: the basic coverage criteria ("transfer between bed and a
+% chair, wheelchair, or commode is required and, without the use of a lift,
+% the beneficiary would be bed confined"), and, for the multi-positional
+% systems, supine positioning for transfers. The patient lift for a toilet
+% or tub (E0625, "not primarily medical in nature") is within the policy's
+% scope and outside the benefit: no rule places it in a benefit category.
+%
+% NOTE on the electric lift. The LCD text in sources/ (L33799 as exported)
+% covers E0635, the electric lift, by the same basic criteria as the
+% hydraulic one ("A patient lift described by codes E0630, E0635, E0639, or
+% E0640 is covered if the basic coverage criteria are met"), and the
+% multi-positional E0636 "has electric controls of the lift function". An
+% earlier version of the policy denied electric lifts as a convenience
+% feature and required a transfer needing more than one person; that text
+% is not in these sources, so it is not encoded: the model follows the
+% document it cites.
+%
+% How the criteria are read. The basic criteria and the supine positioning
+% are clinical findings about the beneficiary made by the treating
+% practitioner and accepted or rejected on review: each is the judged
+% template of dmepos.le, "the finding F about B is established" (or
+% unsupported), with who found it and why. The findings this policy reads,
+% and the criterion each stands for:
+%   bed to chair transfer required (basic criterion, first part: transfer
+%   between bed and a chair, wheelchair, or commode is required — ONE
+%   finding with the destinations as its reasons); bed confined without
+%   lift (basic criterion, second part: without the use of a lift, the
+%   beneficiary would be bed confined); supine positioning required for
+%   transfers (E0636, E1035, E1036: the beneficiary requires supine
+%   positioning for transfers).
+% That a sling or seat replaces a component of a lift is what the record
+% states — a scenario fact.
+%
+% Not modelled: the discontinuation of payment for other mobility assistive
+% equipment once E1035 or E1036 is covered (a rule about other policies'
+% claims); the home modifications the installation of a lift system needs
+% (noncovered, not billed); the PDAC coding verification of E0636, E0639,
+% E0640, E1035 and E1036, and the heavy duty and bariatric lifts billed
+% under the same codes (coding); the KX/GA/GZ modifiers (billing). The
+% Policy Article adds no documentation requirement of its own.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    % candidate for dmepos.le (also a template of walkers.le)
+    *an item* is a replacement for a component of *a device*; undefined.
+    % the knowledge base
+    lift code *a code* is noncovered as not primarily medical in nature.
+    % derived
+    *an item* is a patient lift.
+    *an item* is a multi-positional patient transfer system.
+    *a beneficiary* meets the basic coverage criteria for a patient lift.
+    *an item* meets the patient lift coverage criteria for *a beneficiary*.
+
+the knowledge base patient_lifts includes these resources:
+    dmepos.
+
+the knowledge base patient_lifts includes:
+
+LCD L33799 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33799".
+the text of LCD L33799 is at "sources/lcd/L33799.txt".
+Policy Article A52516 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52516".
+the text of Policy Article A52516 is at "sources/article/A52516.txt".
+
+% What a patient lift is, and a multi-positional patient transfer system.
+rule patient_lifts_lift with provenance LCD L33799,
+        confer "A patient lift described by codes E0630, E0635, E0639, or E0640 is covered if the basic coverage criteria are met":
+an item is a patient lift
+    if the HCPCS code of the item is a code
+    and the code is in ["E0630", "E0635", "E0639", "E0640"].
+
+rule patient_lifts_multi_positional with provenance LCD L33799,
+        confer "A multi-positional patient transfer system (E0636, E1035, E1036) is covered if both of the following criteria 1 and 2 are met":
+an item is a multi-positional patient transfer system
+    if the HCPCS code of the item is a code
+    and the code is in ["E0636", "E1035", "E1036"].
+
+% The code the Policy Article places outside the benefit.
+lift code "E0625" is noncovered as not primarily medical in nature,
+    as stated in Policy Article A52516, confer "E0625 is non-covered; not primarily medical in nature".
+
+section applicability is:
+
+patient_lifts has no specific documentation requirements.
+
+% The codes this policy decides: the lifts, the transfer systems, the
+% replacement sling or seat, the toilet or tub lift.
+rule patient_lifts_codes with provenance Policy Article A52516,
+        confer "Patient lifts are covered under the Durable Medical Equipment benefit":
+the policy for code a code is patient_lifts
+    if the code is in ["E0621", "E0625", "E0630", "E0635", "E0636", "E0639", "E0640", "E1035", "E1036"].
+
+% Their benefit: durable medical equipment, except the toilet or tub lift.
+rule patient_lifts_benefit with provenance Policy Article A52516,
+        confer "Patient lifts are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is patient_lifts
+    and it is not the case that
+        lift code the code is noncovered as not primarily medical in nature.
+
+section question is:
+
+% A lift or a transfer system: the criteria of its kind.
+rule patient_lifts_covered with provenance LCD L33799,
+        confer "A patient lift is covered if transfer between bed and a chair, wheelchair, or commode is required and, without the use of a lift, the beneficiary would be bed confined":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the item meets the patient lift coverage criteria for the beneficiary.
+
+% The basic coverage criteria: the two findings.
+rule patient_lifts_basic_criteria with provenance LCD L33799,
+        confer "A patient lift is covered if transfer between bed and a chair, wheelchair, or commode is required and, without the use of a lift, the beneficiary would be bed confined":
+a beneficiary meets the basic coverage criteria for a patient lift
+    if the finding bed to chair transfer required about the beneficiary is established
+    and the finding bed confined without lift about the beneficiary is established.
+
+% A patient lift: the basic criteria.
+rule patient_lifts_standard with provenance LCD L33799,
+        confer "A patient lift described by codes E0630, E0635, E0639, or E0640 is covered if the basic coverage criteria are met":
+an item meets the patient lift coverage criteria for a beneficiary
+    if the item is a patient lift
+    and the beneficiary meets the basic coverage criteria for a patient lift.
+
+% A multi-positional transfer system: the basic criteria, and supine
+% positioning for transfers.
+rule patient_lifts_supine with provenance LCD L33799,
+        confer "The beneficiary requires supine positioning for transfers":
+an item meets the patient lift coverage criteria for a beneficiary
+    if the item is a multi-positional patient transfer system
+    and the beneficiary meets the basic coverage criteria for a patient lift
+    and the finding supine positioning required for transfers about the beneficiary is established.
+
+% A sling or seat (E0621): a replacement for a component of a covered lift.
+rule patient_lifts_sling with provenance LCD L33799,
+        confer "Code E0621 is covered as an accessory when ordered as a replacement for a covered patient lift":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0621"
+    and the item is a replacement for a component of a device
+    and the device is furnished to a beneficiary
+    and the device meets the patient lift coverage criteria for the beneficiary.

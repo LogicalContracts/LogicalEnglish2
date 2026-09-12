@@ -1,0 +1,81 @@
+% Intrapulmonary Percussive Ventilation System: LCD L33786 and its Policy
+% Article A52495 (DME MACs). A policy program of the DMEPOS model: it
+% includes dmepos.le (orders, delivery, benefit category, continued need,
+% refills) and decides the claims for an intrapulmonary percussive
+% ventilation system (E0481). The LCD has one coverage statement and it is
+% a denial: "An intrapulmonary percussive ventilator (IPV) (E0481) has not
+% been demonstrated to be reasonable and necessary in the home setting. It
+% will be denied as not medically necessary." The claim is within the scope
+% of the model and within the durable medical equipment benefit (Policy
+% Article A52495), and it fails the question whatever its record and its
+% documentation show.
+%
+% How the denial is written. The one rule of the question states it as an
+% exclusion: a claim of this policy is reasonable and necessary only if its
+% item is not an intrapulmonary percussive ventilation system — and E0481,
+% the policy's only code, is one. No claim passes; the rule is there so that
+% the checklist of a failed claim reads "question failed" (the coverage
+% question is what the LCD decides) rather than blaming the payment
+% conditions, and so that an explanation points at the LCD's sentence. The
+% record has no facts to state: no criterion reads one, and no finding is
+% consulted — an unrecorded finding would leave the answer conditional,
+% where the LCD is categorical.
+%
+% Not modelled: the coding guidelines of the Policy Article (E0481 includes
+% the compressor, the hand held units, the tubing and the accessories — a
+% claim for those separately is incorrect coding, a matter of coding rather
+% than of coverage).
+
+the target language is: prolog.
+
+the templates are:
+    % derived
+    *an item* is an intrapulmonary percussive ventilation system.
+
+the knowledge base ipv includes these resources:
+    dmepos.
+
+the knowledge base ipv includes:
+
+LCD L33786 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33786".
+the text of LCD L33786 is at "sources/lcd/L33786.txt".
+Policy Article A52495 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52495".
+the text of Policy Article A52495 is at "sources/article/A52495.txt".
+
+% What the system is (the Policy Article's coding guidelines).
+rule ipv_system with provenance Policy Article A52495,
+        confer "E0481 includes the compressor, hand held units, tubing and all related accessories":
+an item is an intrapulmonary percussive ventilation system
+    if the HCPCS code of the item is "E0481".
+
+section applicability is:
+
+% The Policy Article states no documentation requirement of its own beyond
+% the general ones of dmepos.le.
+ipv has no specific documentation requirements.
+
+% The code this policy decides, and its benefit: durable medical equipment
+% (Policy Article A52495).
+rule ipv_codes with provenance Policy Article A52495,
+        confer "Intrapulmonary Percussive Ventilation Systems are covered under the Durable Medical Equipment benefit":
+the policy for code a code is ipv
+    if the code is in ["E0481"].
+
+rule ipv_benefit with provenance Policy Article A52495,
+        confer "Intrapulmonary Percussive Ventilation Systems are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is ipv.
+
+section question is:
+
+% No claim for an intrapulmonary percussive ventilation system is reasonable
+% and necessary. The exclusion below is how the denial is stated (see the
+% header): the only code of the policy is the system's, so no claim of the
+% policy satisfies it.
+rule ipv_denied with provenance LCD L33786,
+        confer "An intrapulmonary percussive ventilator (IPV) (E0481) has not been demonstrated to be reasonable and necessary in the home setting":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the policy of the claim is ipv
+    and it is not the case that
+        the item is an intrapulmonary percussive ventilation system.

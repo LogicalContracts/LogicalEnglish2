@@ -1,0 +1,189 @@
+% Test cases for the commodes policy (commodes.le): synthetic claims, one
+% per situation and criterion of LCD L33736 and per benefit point of Policy
+% Article A52461. Findings are recorded as the treating practitioner's, a
+% medical reviewer's or the Council's; a finding nobody made leaves the
+% answer conditional. A commode is a purchase: no rental month.
+
+the target language is: prolog.
+
+the knowledge base commodes cases includes these resources:
+    commodes.
+
+the knowledge base commodes cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a stationary commode chair (E0163) for a beneficiary
+% confined to a single room: the standard written order communicated before
+% the date of service, the delivery and its proof.
+scenario single_room_complete is:
+    claim 1 is for the commode.
+    the HCPCS code of the commode is "E0163".
+    the commode is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    Ann is confined to a single room.
+    the order for the commode is dated 2026-02-20.
+    the order for the commode is signed by the treating practitioner.
+    the order for the commode includes beneficiary name.
+    the order for the commode includes order date.
+    the order for the commode includes description of the item.
+    the order for the commode includes quantity to be dispensed.
+    the order for the commode includes treating practitioner name.
+    the order for the commode was communicated to the supplier on 2026-02-22.
+    the commode was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the commode.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The other two situations: confined to one level with no toilet on it
+% (claim 1); confined to the home with no toilet facilities in it (claim 2);
+% and confined to one level of a home whose toilet is on that level (claim
+% 3): not incapable of using it.
+scenario levels_and_homes is:
+    claim 1 is for the first commode.
+    the HCPCS code of the first commode is "E0163".
+    the first commode is furnished to Ben.
+    Ben is confined to one level of the home.
+    the level of the home to which Ben is confined has no toilet.
+    claim 2 is for the second commode.
+    the HCPCS code of the second commode is "E0163".
+    the second commode is furnished to Cy.
+    Cy is confined to the home.
+    the home of Cy has no toilet facilities.
+    claim 3 is for the third commode.
+    the HCPCS code of the third commode is "E0163".
+    the third commode is furnished to Dee.
+    Dee is confined to one level of the home.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% The commode criterion fails: nothing in the record confines the
+% beneficiary — the query fails at the question.
+scenario not_confined is:
+    claim 1 is for the commode.
+    the HCPCS code of the commode is "E0163".
+    the commode is furnished to Eve.
+    the residence of Eve is private residence.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Detachable arms (E0165): with the finding, covered; the Council finds the
+% record shows no need for the feature.
+scenario detachable_arms is:
+    claim 1 is for the commode.
+    the HCPCS code of the commode is "E0165".
+    the commode is furnished to Fay.
+    Fay is confined to a single room.
+    the finding detachable arms necessary about Fay is established, according to the treating practitioner, because "lateral transfers from the wheelchair require the arm removed".
+    claim 2 is for the second commode.
+    the HCPCS code of the second commode is "E0165".
+    the second commode is furnished to Gus.
+    Gus is confined to a single room.
+    the finding detachable arms necessary about Gus is unsupported, according to the Council, because "the record shows the beneficiary standing to transfer with a caregiver and is silent on body configuration".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Weight: an extra wide/heavy duty commode (E0168) for a 280-pound
+% beneficiary is not covered; for a 300-pound one it is.
+scenario heavy_duty_weight is:
+    claim 1 is for the heavy duty commode.
+    the HCPCS code of the heavy duty commode is "E0168".
+    the heavy duty commode is furnished to Hal.
+    Hal is confined to a single room.
+    the weight of Hal is 280 pounds.
+    claim 2 is for the second heavy duty commode.
+    the HCPCS code of the second heavy duty commode is "E0168".
+    the second heavy duty commode is furnished to Ida.
+    Ida is confined to a single room.
+    the weight of Ida is 300 pounds.
+    rn expects answers ["claim 2 is reasonable and necessary"].
+
+% A commode with seat lift mechanism (E0170): the commode criterion and the
+% four seat lift findings; with one of them unsupported, not covered.
+scenario seat_lift_commode is:
+    claim 1 is for the lift commode.
+    the HCPCS code of the lift commode is "E0170".
+    the lift commode is furnished to Jo.
+    Jo is confined to a single room.
+    the finding qualifying seat lift diagnosis about Jo is established, according to the treating practitioner, because "severe osteoarthritis of both knees".
+    the finding seat lift part of course of treatment about Jo is established, according to the treating practitioner.
+    the finding completely incapable of standing from any chair about Jo is established, according to the treating practitioner.
+    the finding able to ambulate once standing about Jo is established, according to the treating practitioner.
+    claim 2 is for the second lift commode.
+    the HCPCS code of the second lift commode is "E0171".
+    the second lift commode is furnished to Kim.
+    Kim is confined to a single room.
+    the finding qualifying seat lift diagnosis about Kim is established, according to the treating practitioner, because "severe osteoarthritis of the hip".
+    the finding seat lift part of course of treatment about Kim is established, according to the treating practitioner.
+    the finding completely incapable of standing from any chair about Kim is unsupported, according to the medical reviewer, because "the record shows the beneficiary rising from an armchair with difficulty".
+    the finding able to ambulate once standing about Kim is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A commode chair used as a raised toilet seat over the toilet: noncovered.
+scenario used_as_raised_seat is:
+    claim 1 is for the commode.
+    the HCPCS code of the commode is "E0163".
+    the commode is furnished to Lou.
+    Lou is confined to a single room.
+    the commode is used as a raised toilet seat positioned over the toilet.
+    rn expects answers [].
+
+% A footrest (E0175) and a raised toilet seat (E0244): in scope, outside
+% the benefit — the claims fail at applicability.
+scenario footrest_and_raised_seat is:
+    claim 1 is for the footrest.
+    the HCPCS code of the footrest is "E0175".
+    the footrest is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 2 is for the raised toilet seat.
+    the HCPCS code of the raised toilet seat is "E0244".
+    the raised toilet seat is furnished to Ann.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A replacement pail (E0167) for a covered commode.
+scenario replacement_pail is:
+    claim 1 is for the pail.
+    the HCPCS code of the pail is "E0167".
+    the pail is an accessory of the commode.
+    the pail is furnished to Ann.
+    the HCPCS code of the commode is "E0163".
+    the commode is furnished to Ann.
+    Ann is confined to a single room.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Reasonable and necessary, but no proof of delivery: payable fails at the
+% remedy.
+scenario no_proof_of_delivery is:
+    claim 1 is for the commode.
+    the HCPCS code of the commode is "E0163".
+    the commode is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    Ann is confined to a single room.
+    the order for the commode is dated 2026-02-20.
+    the order for the commode is signed by the treating practitioner.
+    the order for the commode includes beneficiary name.
+    the order for the commode includes order date.
+    the order for the commode includes description of the item.
+    the order for the commode includes quantity to be dispensed.
+    the order for the commode includes treating practitioner name.
+    the order for the commode was communicated to the supplier on 2026-02-22.
+    the commode was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the commode"]].

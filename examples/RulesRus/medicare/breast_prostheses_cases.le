@@ -1,0 +1,190 @@
+% Test cases for the external breast prostheses policy
+% (breast_prostheses.le): synthetic claims, one per criterion of LCD L33317
+% and per payment condition of Policy Article A52478, each stating only
+% what its record shows. A prosthesis is a purchase: no rental month. The
+% benefit is prosthetic devices, so no residence is needed.
+
+the target language is: prolog.
+
+the knowledge base breast prostheses cases includes these resources:
+    breast_prostheses.
+
+the knowledge base breast prostheses cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a silicone prosthesis (L8030) after a right
+% mastectomy: the diagnosis, the side, no prosthesis before, the standard
+% written order, the delivery and its proof.
+scenario complete is:
+    claim 1 is for the silicone prosthesis.
+    the HCPCS code of the silicone prosthesis is "L8030".
+    the silicone prosthesis is furnished to Ann.
+    the side of the silicone prosthesis is right.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Ann is "C50.911".
+    the order for the silicone prosthesis is dated 2026-02-20.
+    the order for the silicone prosthesis is signed by the treating practitioner.
+    the order for the silicone prosthesis includes beneficiary name.
+    the order for the silicone prosthesis includes order date.
+    the order for the silicone prosthesis includes description of the item.
+    the order for the silicone prosthesis includes quantity to be dispensed.
+    the order for the silicone prosthesis includes treating practitioner name.
+    the order for the silicone prosthesis was communicated to the supplier on 2026-02-22.
+    the silicone prosthesis was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the silicone prosthesis.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Bilateral mastectomies: one prosthesis per side, both reasonable and
+% necessary.
+scenario bilateral is:
+    claim 1 is for the right prosthesis.
+    the HCPCS code of the right prosthesis is "L8030".
+    the right prosthesis is furnished to Ben.
+    the side of the right prosthesis is right.
+    the date of service of claim 1 is 2026-03-01.
+    claim 2 is for the left prosthesis.
+    the HCPCS code of the left prosthesis is "L8030".
+    the left prosthesis is furnished to Ben.
+    the side of the left prosthesis is left.
+    the date of service of claim 2 is 2026-03-01.
+    the diagnosis code of Ben is "C50.919".
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% Criterion 1 fails: the diagnosis code is not one of the Article's.
+scenario no_mastectomy is:
+    claim 1 is for the silicone prosthesis.
+    the HCPCS code of the silicone prosthesis is "L8030".
+    the silicone prosthesis is furnished to Cy.
+    the side of the silicone prosthesis is left.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Cy is "N60.02".
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Criterion 2: a second silicone prosthesis for the same side 273 days
+% after the first is within its 2-year useful lifetime (claim 1, denied); a
+% mastectomy form 200 days after the previous form is past its 6-month
+% lifetime (claim 2, covered).
+scenario useful_lifetime is:
+    claim 1 is for the silicone prosthesis.
+    the HCPCS code of the silicone prosthesis is "L8030".
+    the silicone prosthesis is furnished to Dee.
+    the side of the silicone prosthesis is right.
+    the date of service of claim 1 is 2026-03-01.
+    Dee was furnished a breast prosthesis of code "L8030" for side right on 2025-06-01.
+    the diagnosis code of Dee is "Z90.11".
+    claim 2 is for the mastectomy form.
+    the HCPCS code of the mastectomy form is "L8020".
+    the mastectomy form is furnished to Eve.
+    the side of the mastectomy form is left.
+    the date of service of claim 2 is 2026-03-01.
+    Eve was furnished a breast prosthesis of code "L8020" for side left on 2025-08-13.
+    the diagnosis code of Eve is "Z90.12".
+    rn expects answers ["claim 2 is reasonable and necessary"].
+
+% A silicone prosthesis lost 100 days after it was furnished: replaced at
+% any time.
+scenario replacement_lost is:
+    claim 1 is for the silicone prosthesis.
+    the HCPCS code of the silicone prosthesis is "L8030".
+    the silicone prosthesis is furnished to Fay.
+    the side of the silicone prosthesis is right.
+    the date of service of claim 1 is 2026-03-01.
+    Fay was furnished a breast prosthesis of code "L8030" for side right on 2025-11-21.
+    the silicone prosthesis replaces a breast prosthesis of the same type that was lost or irreparably damaged.
+    the diagnosis code of Fay is "Z90.11".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The prosthesis with integral adhesive (L8031) and the custom fabricated
+% prosthesis (L8035): in the benefit, denied as not reasonable and
+% necessary.
+scenario denied_types is:
+    claim 1 is for the adhesive prosthesis.
+    the HCPCS code of the adhesive prosthesis is "L8031".
+    the adhesive prosthesis is furnished to Gus.
+    the side of the adhesive prosthesis is right.
+    the date of service of claim 1 is 2026-03-01.
+    claim 2 is for the custom prosthesis.
+    the HCPCS code of the custom prosthesis is "L8035".
+    the custom prosthesis is furnished to Gus.
+    the side of the custom prosthesis is left.
+    the date of service of claim 2 is 2026-03-01.
+    the diagnosis code of Gus is "Z90.13".
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% The mastectomy bra (L8000) holding a covered silicone prosthesis, and the
+% garment with mastectomy form (L8015) for the postoperative period.
+scenario bra_and_garment is:
+    claim 1 is for the mastectomy bra.
+    the HCPCS code of the mastectomy bra is "L8000".
+    the mastectomy bra is furnished to Ann.
+    the mastectomy bra is an accessory of the silicone prosthesis.
+    the pocket of the mastectomy bra is used to hold the silicone prosthesis.
+    the date of service of claim 1 is 2026-03-01.
+    the HCPCS code of the silicone prosthesis is "L8030".
+    the silicone prosthesis is furnished to Ann.
+    claim 2 is for the garment.
+    the HCPCS code of the garment is "L8015".
+    the garment is furnished to Ann.
+    the date of service of claim 2 is 2026-02-10.
+    the diagnosis code of Ann is "C50.911".
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% A different type of prosthesis (a silicone prosthesis after a mastectomy
+% form) 60 days after the form, required by a change in the medical
+% condition according to the treating practitioner: reasonable and
+% necessary, but the new order does not explain the need — payable fails at
+% the remedy.
+scenario different_type_no_new_order is:
+    claim 1 is for the silicone prosthesis.
+    the HCPCS code of the silicone prosthesis is "L8030".
+    the silicone prosthesis is furnished to Hal.
+    the side of the silicone prosthesis is right.
+    the date of service of claim 1 is 2026-03-01.
+    Hal was furnished a breast prosthesis of code "L8020" for side right on 2025-12-31.
+    the silicone prosthesis is a different type of breast prosthesis from the one previously furnished.
+    the finding change in medical condition requires different type about Hal is established, according to the treating practitioner, because "the chest wall has healed and the weight of a silicone prosthesis is now needed to balance the posture".
+    the diagnosis code of Hal is "Z90.11".
+    the order for the silicone prosthesis is dated 2026-02-20.
+    the order for the silicone prosthesis is signed by the treating practitioner.
+    the order for the silicone prosthesis includes beneficiary name.
+    the order for the silicone prosthesis includes order date.
+    the order for the silicone prosthesis includes description of the item.
+    the order for the silicone prosthesis includes quantity to be dispensed.
+    the order for the silicone prosthesis includes treating practitioner name.
+    the order for the silicone prosthesis was communicated to the supplier on 2026-02-22.
+    the silicone prosthesis was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the silicone prosthesis.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the order for the silicone prosthesis explains the need for a different type of breast prosthesis"]].
+
+% The Council finds no change in the medical condition: a different type of
+% prosthesis within the lifetime of the previous one is not covered.
+scenario different_type_council is:
+    claim 1 is for the silicone prosthesis.
+    the HCPCS code of the silicone prosthesis is "L8030".
+    the silicone prosthesis is furnished to Ida.
+    the side of the silicone prosthesis is left.
+    the date of service of claim 1 is 2026-03-01.
+    Ida was furnished a breast prosthesis of code "L8030" for side left on 2025-06-01.
+    the silicone prosthesis is a different type of breast prosthesis from the one previously furnished.
+    the finding change in medical condition requires different type about Ida is unsupported, according to the Council, because "the record documents no change in the medical condition since the previous prosthesis was furnished; the new prosthesis is of the same type and was requested for comfort".
+    the diagnosis code of Ida is "Z90.12".
+    rn expects answers [].

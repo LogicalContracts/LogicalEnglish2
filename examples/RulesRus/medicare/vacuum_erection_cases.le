@@ -1,0 +1,98 @@
+% Test cases for the vacuum erection device policy (vacuum_erection.le):
+% synthetic claims for L7900 and L7902, each fully documented, and each
+% concluding nothing — the codes are statutorily non-covered (Policy Article
+% A52712), so the claim fails at applicability whatever the record shows,
+% and no change to the scenario makes it payable.
+
+the target language is: prolog.
+
+the knowledge base vacuum erection cases includes these resources:
+    vacuum_erection.
+
+the knowledge base vacuum erection cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a vacuum erection device (L7900): the standard
+% written order, the delivery and its proof, a home — and no benefit.
+scenario device_complete is:
+    claim 1 is for the vacuum erection device.
+    the HCPCS code of the vacuum erection device is "L7900".
+    the vacuum erection device is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the order for the vacuum erection device is dated 2026-02-20.
+    the order for the vacuum erection device is signed by the treating practitioner.
+    the order for the vacuum erection device includes beneficiary name.
+    the order for the vacuum erection device includes order date.
+    the order for the vacuum erection device includes description of the item.
+    the order for the vacuum erection device includes quantity to be dispensed.
+    the order for the vacuum erection device includes treating practitioner name.
+    the order for the vacuum erection device was communicated to the supplier on 2026-02-22.
+    the vacuum erection device was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the vacuum erection device.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+    flip expects changes [].
+
+% The related accessories (L7902): the same.
+scenario accessory is:
+    claim 1 is for the tension rings.
+    the HCPCS code of the tension rings is "L7902".
+    the tension rings is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A claim dated before 1 July 2015: the current LCD text states no criteria
+% for that period, so the model concludes nothing about it either.
+scenario before_july_2015 is:
+    claim 1 is for the vacuum erection device.
+    the HCPCS code of the vacuum erection device is "L7900".
+    the vacuum erection device is furnished to Cy.
+    the residence of Cy is private residence.
+    the date of service of claim 1 is 2015-06-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A clinical justification in the record (erectile dysfunction following a
+% radical prostatectomy, with the diagnosis code) changes nothing: the
+% exclusion is statutory, not a matter of medical necessity — and no rule
+% of the policy reads the diagnosis, so the record states only the claim.
+scenario clinical_justification is:
+    claim 1 is for the vacuum erection device.
+    the HCPCS code of the vacuum erection device is "L7900".
+    the vacuum erection device is furnished to Dee.
+    the residence of Dee is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A code the policy does not decide (a penile prosthesis, L7900 misbilled as
+% an implant code) is outside the scope of the model: not in scope, not
+% decided.
+scenario out_of_scope is:
+    claim 1 is for the implant.
+    the HCPCS code of the implant is "C1813".
+    the implant is furnished to Eve.
+    the residence of Eve is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
