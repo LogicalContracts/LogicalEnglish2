@@ -49,6 +49,22 @@ The tutorial builds a view step by step for a small program, then shows the two
 other kinds of screen (an interview and a professional's desk), what the
 verifier says about a broken view, and how it all works.
 
+## Contents
+
+1. [The program](#1-the-program)
+2. [A first view, drafted for you](#2-a-first-view-drafted-for-you)
+3. [Opening the view](#3-opening-the-view)
+4. [Refining it](#4-refining-it)
+5. [What only the author knows](#5-what-only-the-author-knows)
+6. [When a view is wrong](#6-when-a-view-is-wrong)
+7. [An interview: a citizen's check on a phone](#7-an-interview-a-citizens-check-on-a-phone)
+8. [A professional's desk](#8-a-professionals-desk)
+9. [Views in other languages](#9-views-in-other-languages)
+10. [Where a view lives](#10-where-a-view-lives)
+11. [Reference: the sentences](#11-reference-the-sentences)
+12. [How it works](#12-how-it-works)
+13. [Compared with the proposal, and limits](#13-compared-with-the-proposal-and-limits)
+
 ---
 
 ## 1. The program
@@ -137,6 +153,12 @@ editor at the moment you follow the link: nothing needs saving. It also puts a r
 view section…*, which you can send if a model is configured (Misc → API
 Keys). The refinement in this tutorial is done by hand.
 
+**You may not need to generate it at all.** A program that declares no view of
+its own offers an **Automatic view** in the executive view: this same draft,
+drawn from the program only when you open it, and always in step with the
+program. Generate LE view is how you get it as text, to change it. Once the
+program declares a view, the declared views replace the automatic one.
+
 ## 3. Opening the view
 
 A view is shown by the executive view, the editor's companion for people who
@@ -148,8 +170,9 @@ run programs rather than write them. There are three ways to open it:
   the new tab through the browser's storage. A link copied from that tab shows
   the saved program in another browser.
 - On the program's executive page (`/executive?program=RulesRus/sections_benefit`),
-  a row of links lists the program's views. **Without a view** goes back to the
-  plain scenario-and-query screen.
+  a row of links lists the program's views (for a program without any, its
+  automatic view). **Without a view** goes back to the plain
+  scenario-and-query screen.
 - A direct link: `/executive?program=RulesRus/sections_benefit&view=sections%20benefit`.
 
 ![The drafted view, on the scenario no_rent](IntroducingLEViews/02-draft-view.png)
@@ -243,7 +266,47 @@ fails at **question**. The reasons show why: ✓ cy is resident, ✗ cy is on a
 low income. *What is missing* asks whether cy is on a low income. The cases
 table shows all four scenarios agreeing with their expectations.
 
-## 5. When a view is wrong
+## 5. What only the author knows
+
+Generate LE view needs no language model: it reads the program's structure, so
+it drafts the same view every time, and the executive view can show that draft
+without any declaration (the automatic view, section 2). Why write views at all,
+then? Because most of what makes a view useful is not in the structure. The
+draft knows which templates a case states, which queries there are, whether the
+program cites sources or has sections. It cannot know:
+
+- **Grouping and order.** The draft lists every fact a case can state in one
+  group. For a small program that is fine. For an insurance policy it is some
+  sixty facts under "the case", which nobody can work through. "The booking",
+  "the cancellation" and "the event" of the EU 261 desk are the author's
+  knowledge of how a claim file is read, and in what order.
+- **Which answer matters.** A program with several queries gets the first as its
+  result. And `headed by the amount, in euros` picks, out of the whole answer,
+  the value the user is waiting for.
+- **Wording.** The housing interview is almost entirely the author's words: "Do
+  you work part-time?", "You can get help to pay your rent." Nothing in the
+  rules says how to ask a citizen, or how to tell them the outcome.
+- **Audience.** Desk or interview; which scenario to compare a case with; which
+  other questions deserve a table; what the draft letter says; what to leave out
+  (the caseworker's rent-help view drops the flip). These are decisions about
+  the people using the screen, not about the rules.
+
+So:
+
+- **Start with the automatic view.** It follows the program as it changes, with
+  nothing to maintain. It is often enough to try a program out, or to show it to
+  someone.
+- **Write a view when the screen has users.** Generate LE view gives you the
+  automatic view as text, to edit. From then on the declared view replaces the
+  automatic one.
+- **Keep it short.** A view says only what it changes. The facts no group lists
+  still appear, under *Other facts*, so a view can be as small as a title and
+  `the result is the answer to query 3, headed by the amount.`
+- **Let the verifier keep it honest.** A declared view can fall behind the
+  program; the verifier reports whatever it names that the program no longer
+  has.
+
+## 6. When a view is wrong
 
 The verifier reads a view against the whole program, including its included
 resources, as it reads everything else. Here is a view with typical mistakes:
@@ -298,7 +361,7 @@ The second warning matters most. A view that let a user state a conclusion
 would let them bypass the rules. The verifier cannot stop a program from being
 written that way, but it points it out.
 
-## 6. An interview: a citizen's check on a phone
+## 7. An interview: a citizen's check on a phone
 
 A caseworker edits a case; a citizen answers questions.
 `examples/RulesRus/flip_housing.le` holds Kowalski's housing-benefit rules
@@ -347,7 +410,7 @@ the applicant works part-time but the income is not low, so the answer is no.
 The reasons list each question with its answer, and the one change that would
 turn the result is to answer yes to the income question.
 
-## 7. A professional's desk
+## 8. A professional's desk
 
 A view grows with the program. `examples/RulesRus/eu261_integration.le` decides
 EU Regulation 261 compensation for a cancelled flight. Its facts are attributed
@@ -442,7 +505,7 @@ Two more views in the repository show the rest:
 
   ![The customs classification worksheet](IntroducingLEViews/08-customs-worksheet.png)
 
-## 8. Views in other languages
+## 9. Views in other languages
 
 Every phrase of a view is a row of `i18n/keywords.csv` (category `view`) in
 English, Portuguese, Spanish, French and Italian, so a program writes its view
@@ -470,7 +533,7 @@ The screen shows each fact in the view's words. The widgets' own labels
 (*Result*, *Stage*, *not stated*) follow the user's interface language, as the
 rest of the interface does.
 
-## 9. Where a view lives
+## 10. Where a view lives
 
 - **At the end of the program**, as in every example here. A program may have
   several views, for different users of the same rules. Each needs its own name,
@@ -503,7 +566,7 @@ rest of the interface does.
   templates, queries and scenarios. That is how one worksheet could serve every
   rulings file of a tariff.
 
-## 10. Reference: the sentences
+## 11. Reference: the sentences
 
 | Sentence | The screen |
 |---|---|
@@ -536,7 +599,7 @@ templates**, written as the conditions of a rule are: "a person is resident",
 "the applicant is on a low income". Each sentence ends with a full stop; the
 lines of a list end with commas.
 
-## 11. How it works
+## 12. How it works
 
 - **Parsing.** `the view <name> is:` opens a section, as `scenario` and `query`
   do. The parser keeps its lines; `le_views.pl` reads them after the whole
@@ -547,12 +610,14 @@ lines of a list end with commas.
   reasons with it.
 - **Checking.** The verifier's `view_*` issues come from the same reading, with
   a message and a fix in each language (`i18n/messages.csv`).
-- **Three server operations**, all generic:
+- **Four server operations**, all generic:
   - `answeringQuery` also returns the **checklist** of a program's sections;
   - **`openQuestions`** returns the case facts a failed proof looked for (the
     leaves of its failure whose templates a case may state), and the questions
     a proof touches, which the interview uses;
-  - **`draftView`** returns the draft of *Generate LE view*.
+  - **`draftView`** returns the draft of *Generate LE view*;
+  - **`automaticView`** returns that draft compiled, for a program that
+    declares no view, when a screen opens it.
 
   The flip, the citations and the documents use what the executive view already
   had.
@@ -564,7 +629,7 @@ lines of a list end with commas.
   phrase of the sentences is a row of `i18n/keywords.csv`. Adding a language
   adds columns, not code.
 
-## 12. Compared with the proposal, and limits
+## 13. Compared with the proposal, and limits
 
 LE Views began as a proposal in that review: a JSON file of
 widgets beside each program, followed by a section on writing views in Logical

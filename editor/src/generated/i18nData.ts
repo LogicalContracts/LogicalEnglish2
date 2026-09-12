@@ -8513,7 +8513,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique.",
     "Open Executive View": "Abrir a vista executiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Executar o programa como os seus utilizadores o veem, sem o texto: a vista executiva, com as vistas do programa, numa nova janela",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "A cópia do editor deste programa não está neste navegador: este é o programa tal como foi guardado."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "A cópia do editor deste programa não está neste navegador: este é o programa tal como foi guardado.",
+    "Automatic view": "Vista automática",
+    "Drawing the view…": "A desenhar a vista…",
+    "No view could be drawn from this program.": "Não foi possível desenhar uma vista a partir deste programa.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Desenhada a partir do próprio programa. Para a alterar, o Assistente LE do editor escreve-a: Gerar vista LE."
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -8927,7 +8931,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla.",
     "Open Executive View": "Abrir la vista ejecutiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ejecutar el programa como lo ven sus usuarios, sin su texto: la vista ejecutiva, con las vistas del programa, en una nueva ventana",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no está en este navegador: este es el programa tal como se guardó."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no está en este navegador: este es el programa tal como se guardó.",
+    "Automatic view": "Vista automática",
+    "Drawing the view…": "Dibujando la vista…",
+    "No view could be drawn from this program.": "No se pudo dibujar una vista a partir de este programa.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Dibujada a partir del propio programa. Para cambiarla, el Asistente LE del editor la escribe: Generar vista LE."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9341,7 +9349,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The result holds provided that it does.": "Le résultat vaut pourvu que cela vaille.",
     "Open Executive View": "Ouvrir la vue exécutive",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Exécuter le programme tel que ses utilisateurs le voient, sans son texte : la vue exécutive, avec les vues du programme, dans une nouvelle fenêtre",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'éditeur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistré."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'éditeur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistré.",
+    "Automatic view": "Vue automatique",
+    "Drawing the view…": "Construction de la vue…",
+    "No view could be drawn from this program.": "Aucune vue n'a pu être tirée de ce programme.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Tirée du programme lui-même. Pour la modifier, l'Assistant LE de l'éditeur l'écrit : Générer une vue LE."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -9755,7 +9767,11 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "The result holds provided that it does.": "Il risultato vale purché questo valga.",
     "Open Executive View": "Apri la vista esecutiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Eseguire il programma come lo vedono i suoi utenti, senza il testo: la vista esecutiva, con le viste del programma, in una nuova finestra",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non è in questo browser: questo è il programma come salvato."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non è in questo browser: questo è il programma come salvato.",
+    "Automatic view": "Vista automatica",
+    "Drawing the view…": "Costruzione della vista…",
+    "No view could be drawn from this program.": "Non è stato possibile ricavare una vista da questo programma.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Ricavata dal programma stesso. Per modificarla, l'Assistente LE dell'editor la scrive: Genera vista LE."
   }
 } as const;
 

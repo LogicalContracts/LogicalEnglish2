@@ -169,5 +169,6 @@ details.full > summary { cursor: pointer; color: var(--accent); font-size: 14px;
 .view-links[hidden] { display: none; }
 .view-links a { border: 1px solid var(--accent); color: var(--accent); border-radius: 14px; padding: 2px 11px; text-decoration: none; }
 .view-links a.on { background: var(--accent); color: var(--accent-ink); }
+.view-links .auto-note { font-style: italic; }
 body.with-view main { max-width: 1400px; }
 #view-root[hidden], #default-screen[hidden] { display: none; }

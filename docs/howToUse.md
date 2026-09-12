@@ -79,7 +79,9 @@ mobile-friendly entry point at **`/executive`** (e.g.
   described — the case's facts in groups, the result in large type, its
   citations, the stage it reaches, what is missing, what would change it, the
   documents beside it, every case with its result, or an interview asking one
-  question at a time. `&view=<name>` opens one directly. How to write one:
+  question at a time. `&view=<name>` opens one directly. A program without
+  views of its own offers an **Automatic view**, drawn from the program when
+  opened (`&view=*`). How to write one:
   [Introducing LE Views](IntroducingLEViews.md).
 
 Everything is driven by the URL, so results are shareable and bookmarkable:

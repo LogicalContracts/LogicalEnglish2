@@ -150,21 +150,38 @@ async function loadProgram(name) {
 
     // The program's views: a link to each; the one the address names is shown
     // instead of the pickers (a view says itself what the screen asks and shows).
+    // A program that declares none is offered its automatic view (`view=*`): the
+    // draft of Generate LE view, which the server draws only when it is opened.
     const views = data.views || [];
     const wanted = params().get('view');
+    const AUTO = '*';
     viewSlots();
     const links = $('view-links');
-    links.hidden = !views.length;
-    links.innerHTML = views.length
-        ? `<span>${esc(t('Views'))}:</span>` + views.map(v => {
+    const chips = views.length ? views.map(v => ({ name: v.name, title: v.title || v.name }))
+                               : [{ name: AUTO, title: t('Automatic view') }];
+    links.hidden = false;
+    links.innerHTML = `<span>${esc(t('Views'))}:</span>` + chips.map(v => {
               const href = programHref(name, `&view=${encodeURIComponent(v.name)}`);
-              return `<a href="${href}" class="${v.name === wanted ? 'on' : ''}">${esc(v.title || v.name)}</a>`;
-          }).join('') + (wanted ? `<a href="${programHref(name)}">${esc(t('Without a view'))}</a>` : '')
-        : '';
-    const view = views.find(v => v.name === wanted);
-    $('default-screen').hidden = !!view;
-    $('view-root').hidden = !view;
-    document.body.classList.toggle('with-view', !!view);
+              return `<a href="${href}" class="${v.name === wanted ? 'on' : ''}">${esc(v.title)}</a>`;
+          }).join('') + (wanted ? `<a href="${programHref(name)}">${esc(t('Without a view'))}</a>` : '');
+    let view = views.find(v => v.name === wanted);
+    const automatic = !view && !views.length && wanted === AUTO;
+    $('default-screen').hidden = !!view || automatic;
+    $('view-root').hidden = !view && !automatic;
+    document.body.classList.toggle('with-view', !!view || automatic);
+    if (automatic) {
+        $('view-root').innerHTML = `<div class="status">${esc(t('Drawing the view…'))}</div>`;
+        const res = await leapi('automaticView', { sessionModule: session, name }).catch(() => null);
+        if (!res || !res.view) {
+            $('view-root').innerHTML = `<div class="status">${esc(t('No view could be drawn from this program.'))}</div>`;
+            return;
+        }
+        view = res.view;
+        const note = document.createElement('span');
+        note.className = 'auto-note';
+        note.textContent = t('Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.');
+        links.appendChild(note);
+    }
     if (view) {
         $('title').textContent = view.title || name;
         try {
