@@ -1,0 +1,537 @@
+% Glucose Monitors: LCD L33822 and its Policy Article A52464 (DME MACs),
+% read with NCD 40.2 (Home Blood Glucose Monitors). A policy program of the
+% DMEPOS model: it includes dmepos.le (orders, delivery, benefit category,
+% continued need, refills) and states when a claim for a home blood glucose
+% monitor (E0607), its supplies (test strips A4253, lancets A4259, control
+% solution A4256, the spring powered lancing device A4258), a continuous
+% glucose monitor (the adjunctive E2102, the non-adjunctive E2103 and its
+% older code K0554) or the CGM supply allowance (A4238, A4239 and the older
+% K0553) is REASONABLE AND NECESSARY: the basic criteria (1)-(2) of every
+% monitor and supply (diabetes, the practitioner's conclusion that the
+% beneficiary or the caregiver is trained), the usual utilization of test
+% strips and lancets (100 per 3 months without insulin, 300 with insulin) and
+% the high-utilization criteria (a)-(c) beyond it, the CGM initial criteria
+% (1)-(5) (diabetes, training, the FDA indications, insulin treatment or a
+% history of problematic hypoglycemia, the practitioner's visit within six
+% months before the order) and the CGM continued-coverage criterion (a visit
+% every six months), the three-month limits on testing supplies and the
+% supply allowance. The laser skin piercing device (E0620) and its lens
+% shield cartridge (A4257) are never covered ("the medical necessity ... has
+% not been established"): they are in scope and no rule concludes them. The
+% monitors with special features (E2100, E2101, E2104: a visual impairment
+% or an impairment of manual dexterity certified by the practitioner) are
+% not modelled: outside this program's scope.
+%
+% How the criteria are read. Diabetes is a diagnosis code of the record,
+% checked against the Policy Article's ICD-10 table
+% (sources/icd10/A52464_icd10_covered.csv, loaded below): group 1 of the
+% article, the diabetes mellitus diagnoses, serves every code of this policy
+% (the LCD's criterion 1 for monitors and supplies and criterion 1 for CGMs
+% both refer to "the ICD-10 code list in the LCD-related Policy Article").
+% Insulin treatment is a fact of the record ("currently being treated with
+% insulin administrations"; the LCD's appendix: oral medication is not
+% insulin). The problematic-hypoglycemia route is the Policy Article's
+% documentation: the number of level 2 events and of earlier medication
+% adjustments, the level 3 event and the third-party assistance, as counts
+% and facts of the record. The practitioner's visits (to evaluate diabetes
+% control, to verify adherence) are dated events. Quantities: a claim bills
+% units of service (the shared template); one unit of A4253 is 50 strips and
+% one unit of A4259 is 100 lancets (the Article's coding guidelines), and
+% the usual utilization is compared in strips or lancets, prorated to the
+% months supplied (100 per 3 months is 33.3 per month). The LCD denies "the
+% amount in excess"; this model decides the claim as a whole. The findings
+% this policy reads, and the criterion each stands for:
+%   trained on blood glucose monitor (basic criterion 2: "the treating
+%   practitioner has concluded that the beneficiary (or the beneficiary's
+%   caregiver) has sufficient training using the particular device
+%   prescribed as evidenced by providing a prescription");
+%   trained on continuous glucose monitor (CGM criterion 2, the same
+%   conclusion for the CGM).
+% Six months is read as 183 days, ninety days as three months.
+%
+% Supplies and refills. Test strips, lancets, control solution and lancing
+% devices are supplies dispensed on a recurring basis: a claim for a refill
+% of them says "claim 1 is a refill" and the shared refill rules of dmepos.le
+% (the beneficiary's affirmation within 30 days of the end of the supply,
+% delivery within 10 days) apply, with the continued-need record. The CGM
+% supply allowance (A4238, A4239) is a monthly allowance, not a refill: the
+% LCD says "Refill requirements do not apply to code A4238 or A4239", so a
+% claim for it is never marked a refill. The payment conditions the policy
+% adds (Policy Article A52464, "POLICY SPECIFIC DOCUMENTATION REQUIREMENTS"):
+% for quantities above the usual utilization, the record corroborates the
+% testing frequency (a narrative statement or the beneficiary's log); and
+% the coding guidelines' dates for the CGM codes (K0554/K0553 until the end
+% of 2022, E2103/A4239 from 2023, E2102/A4238 from April 2022). Not
+% modelled: the PDAC Product Classification List (a coding rule), the
+% insulin-pump criteria of L33794 for an adjunctive CGM in a pump, the KX/KS/
+% CG/KF modifiers, the batteries (A4233-A4236) and the cartridge A4271.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the diagnosis code of *a beneficiary* is *a code*; undefined.       % candidate for dmepos.le
+    *a beneficiary* is currently being treated with insulin; undefined.
+    *a number* level two hypoglycemic events are documented for *a beneficiary*; undefined.
+    *a number* medication adjustments before the most recent level two event are documented for *a beneficiary*; undefined.
+    *a number* level three hypoglycemic events are documented for *a beneficiary*; undefined.
+    third party assistance for treatment of hypoglycemia is documented for *a beneficiary*; undefined.
+    the treating practitioner had an in-person or telehealth visit with *a beneficiary* to evaluate diabetes control on *a date*; undefined.
+    the treating practitioner verified adherence of *a beneficiary* to the high utilization testing regimen on *a date*; undefined.
+    the treating practitioner had an in-person or telehealth visit with *a beneficiary* to document adherence to the CGM regimen on *a date*; undefined.
+    the testing frequency of *a beneficiary* is corroborated by *an evidence*; undefined.
+    *an item* is prescribed in accordance with its FDA indications for use; undefined.
+    % the codes
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table glucose_icd10.
+    one unit of service of code *a code* is *a number* pieces.
+    % derived
+    *an item* is a home blood glucose monitor.
+    *an item* is a blood glucose testing supply.
+    *an item* is a continuous glucose monitor.
+    *an item* is a non-adjunctive continuous glucose monitor.
+    *an item* is a CGM supply allowance.
+    *a beneficiary* uses a non-adjunctive CGM.
+    *a beneficiary* has a covered diabetes diagnosis.
+    *a beneficiary* meets the basic glucose monitor coverage criteria.
+    the number of pieces billed on *a claim* is *a number*.
+    the usual utilization of *a beneficiary* is *a number* per 3 months.
+    the usual utilization allowance for *a claim* is *a number*.
+    *a claim* is within the usual utilization.
+    *a claim* exceeds the usual utilization.
+    *a claim* is for at most a three month quantity.
+    *a beneficiary* meets the high utilization criteria for *a claim*.
+    adherence to the high utilization regimen is verified for *a claim*.
+    *a beneficiary* meets the initial CGM coverage criteria for *an item*.
+    *a beneficiary* needs a CGM to improve glycemic control.
+    *a beneficiary* has a history of problematic hypoglycemia.
+    the CGM device of *a claim* is *a device*.
+    the CGM continued coverage criterion is met for *a claim*.
+    the CGM coding of *a claim* is in effect on its date of service.
+    the high utilization documentation is met for *a claim*.
+
+% The Policy Article's ICD-10 code table: group 1, the diabetes mellitus
+% diagnoses, serving every code of this policy.
+the table glucose_icd10 is loaded from sources/icd10/A52464_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base glucose monitors includes these resources:
+    dmepos.
+
+the knowledge base glucose monitors includes:
+
+LCD L33822 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33822".
+the text of LCD L33822 is at "sources/lcd/L33822.txt".
+Policy Article A52464 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52464".
+the text of Policy Article A52464 is at "sources/article/A52464.txt".
+NCD 40 2 is published at "https://www.cms.gov/medicare-coverage-database/view/ncd.aspx?ncdid=217".
+the text of NCD 40 2 is at "sources/ncd/NCD_40.2.txt".
+
+% What the items are, by code.
+rule glucose_bgm_code with provenance Policy Article A52464,
+        confer "Home BGMs (codes E0607, E2100, E2101, E2104) are devices that measure capillary whole blood for determination of blood glucose levels":
+an item is a home blood glucose monitor
+    if the HCPCS code of the item is a code
+    and the code is in ["E0607"].
+
+rule glucose_testing_supply_codes with provenance LCD L33822,
+        confer "The quantity of test strips (code A4253) and lancets (code A4259) that are covered depends on the usual medical needs of the beneficiary":
+an item is a blood glucose testing supply
+    if the HCPCS code of the item is a code
+    and the code is in ["A4253", "A4259"].
+
+rule glucose_cgm_codes with provenance Policy Article A52464,
+        confer "For claims with dates of service on or after January 1, 2023, a non-adjunctive CGM must be billed with code E2103 and code A4239 for the supply allowance":
+an item is a continuous glucose monitor
+    if the HCPCS code of the item is a code
+    and the code is in ["E2102", "E2103", "K0554"].
+
+rule glucose_non_adjunctive_codes with provenance Policy Article A52464,
+        confer "Code E2103 or K0554 describes a non-adjunctive CGM that meets the requirements of the DME benefit":
+an item is a non-adjunctive continuous glucose monitor
+    if the HCPCS code of the item is a code
+    and the code is in ["E2103", "K0554"].
+
+rule glucose_supply_allowance_codes with provenance Policy Article A52464,
+        confer "The supply allowance for supplies used with a CGM system (A4238, A4239) encompasses all items necessary for the use of the device":
+an item is a CGM supply allowance
+    if the HCPCS code of the item is a code
+    and the code is in ["A4238", "A4239", "K0553"].
+
+% Units of service (the Article's coding guidelines).
+one unit of service of code "A4253" is 50 pieces,
+    as stated in Policy Article A52464, confer "For glucose test strips (code A4253), 1 unit of service = 50 strips".
+one unit of service of code "A4259" is 100 pieces,
+    as stated in Policy Article A52464, confer "For lancets (code A4259), 1 unit of service = 100 lancets".
+
+% a beneficiary furnished a non-adjunctive CGM: a device of this model
+rule glucose_uses_cgm:
+a beneficiary uses a non-adjunctive CGM
+    if an item is furnished to the beneficiary
+    and the item is a non-adjunctive continuous glucose monitor.
+
+% The quantity of a testing-supply claim in strips or lancets, and the
+% usual utilization prorated to the months supplied.
+rule glucose_pieces with provenance Policy Article A52464,
+        confer "For glucose test strips (code A4253), 1 unit of service = 50 strips":
+the number of pieces billed on a claim is a number
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the quantity billed on the claim is a quantity
+    and one unit of service of code the code is an other number pieces
+    and the number is the quantity * the other number.
+
+rule glucose_usual_without_insulin with provenance LCD L33822,
+        confer "For a beneficiary who is not currently being treated with insulin administrations, up to 100 test strips and up to 100 lancets every 3 months are covered":
+the usual utilization of a beneficiary is 100 per 3 months
+    if an item is furnished to the beneficiary
+    and it is not the case that
+        the beneficiary is currently being treated with insulin.
+
+rule glucose_usual_with_insulin with provenance LCD L33822,
+        confer "For a beneficiary who is currently being treated with insulin administrations, up to 300 test strips and up to 300 lancets every 3 months are covered":
+the usual utilization of a beneficiary is 300 per 3 months
+    if the beneficiary is currently being treated with insulin.
+
+rule glucose_allowance with provenance LCD L33822,
+        confer "Coverage of testing supplies is based on the following guidelines":
+the usual utilization allowance for a claim is a number
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the usual utilization of the beneficiary is an other number per 3 months
+    and the claim is for a supply of a second number months
+    and the number is the other number * the second number / 3.
+
+rule glucose_within_usual with provenance LCD L33822,
+        confer "Usual Utilization":
+a claim is within the usual utilization
+    if the number of pieces billed on the claim is a number
+    and the usual utilization allowance for the claim is an other number
+    and the number <= the other number.
+
+rule glucose_exceeds_usual with provenance LCD L33822,
+        confer "High Utilization":
+a claim exceeds the usual utilization
+    if the number of pieces billed on the claim is a number
+    and the usual utilization allowance for the claim is an other number
+    and the number > the other number.
+
+rule glucose_three_months with provenance LCD L33822,
+        confer "Regardless of utilization, a supplier must not dispense more than a three (3) month quantity of BGM testing supplies at a time":
+a claim is for at most a three month quantity
+    if the claim is for a supply of a number months
+    and the number <= 3.
+
+% The CGM device a claim concerns: the device itself, or the device the
+% supply allowance is an accessory of. A device of this model.
+rule glucose_cgm_of_device_claim:
+the CGM device of a claim is a device
+    if the claim is for the device
+    and the device is a continuous glucose monitor.
+
+rule glucose_cgm_of_supply_claim:
+the CGM device of a claim is a device
+    if the claim is for an item
+    and the item is a CGM supply allowance
+    and the item is an accessory of the device
+    and the device is a continuous glucose monitor.
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: durable medical
+% equipment (Policy Article A52464).
+rule glucose_codes with provenance Policy Article A52464,
+        confer "Home blood glucose monitors (BGMs) and continuous glucose monitors (CGMs) are covered under the Durable Medical Equipment (DME) benefit":
+the policy for code a code is glucose_monitors
+    if the code is in ["E0607", "A4253", "A4259", "A4256", "A4258", "E0620", "A4257", "E2102", "E2103", "K0554", "A4238", "A4239", "K0553"].
+
+rule glucose_benefit with provenance Policy Article A52464,
+        confer "Home blood glucose monitors (BGMs) and continuous glucose monitors (CGMs) are covered under the Durable Medical Equipment (DME) benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is glucose_monitors.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The home blood glucose monitor and its supplies: the basic criteria.
+% ---------------------------------------------------------------------------
+
+rule glucose_bgm with provenance LCD L33822,
+        confer "To be eligible for coverage of home blood glucose monitors and related accessories and supplies, the beneficiary must meet both of the following basic criteria (1)-(2)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a home blood glucose monitor
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the basic glucose monitor coverage criteria
+    and it is not the case that
+        the beneficiary uses a non-adjunctive CGM.
+
+rule glucose_basic_criteria with provenance LCD L33822,
+        confer "the beneficiary must meet both of the following basic criteria (1)-(2)":
+a beneficiary meets the basic glucose monitor coverage criteria
+    if the beneficiary has a covered diabetes diagnosis
+    and the finding trained on blood glucose monitor about the beneficiary is established.
+
+% Criterion 1: a diabetes diagnosis of the Policy Article's list.
+rule glucose_diabetes with provenance LCD L33822,
+        confer "The beneficiary has diabetes (Refer to the ICD-10 code list in the LCD-related Policy Article for applicable diagnoses)":
+a beneficiary has a covered diabetes diagnosis
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52464" as a description under table glucose_icd10.
+
+% Control solution and the spring powered lancing device: covered with the
+% monitor; one lancing device per six months.
+rule glucose_control_solution with provenance LCD L33822,
+        confer "glucose control solutions (code A4256) and spring powered devices for lancets (code A4258) are covered for beneficiaries for whom the glucose monitor is covered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4256"
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the basic glucose monitor coverage criteria
+    and it is not the case that
+        the beneficiary uses a non-adjunctive CGM.
+
+rule glucose_lancing_device with provenance LCD L33822,
+        confer "More than one spring powered device (code A4258) per 6 months is not reasonable and necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4258"
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the basic glucose monitor coverage criteria
+    and it is not the case that
+        the beneficiary uses a non-adjunctive CGM
+    and the quantity billed on the claim is a number
+    and the number <= 1.
+
+% ---------------------------------------------------------------------------
+% Test strips and lancets: the usual utilization, and the high utilization
+% criteria (a)-(c) beyond it.
+% ---------------------------------------------------------------------------
+
+rule glucose_testing_supplies_usual with provenance LCD L33822,
+        confer "Lancets (code A4259), blood glucose test reagent strips (code A4253), glucose control solutions (code A4256) and spring powered devices for lancets (code A4258) are covered for beneficiaries for whom the glucose monitor is covered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a blood glucose testing supply
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the basic glucose monitor coverage criteria
+    and it is not the case that
+        the beneficiary uses a non-adjunctive CGM
+    and the claim is for at most a three month quantity
+    and the claim is within the usual utilization.
+
+rule glucose_testing_supplies_high with provenance LCD L33822,
+        confer "more than 100 test strips and more than 100 lancets every 3 months are covered if criteria (a)–(c) below are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a blood glucose testing supply
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the basic glucose monitor coverage criteria
+    and it is not the case that
+        the beneficiary uses a non-adjunctive CGM
+    and the claim is for at most a three month quantity
+    and the claim exceeds the usual utilization
+    and the beneficiary meets the high utilization criteria for the claim.
+
+% Criteria (b) and (c): the visit within six months (183 days) before the
+% order, and, for continued dispensing, adherence verified every six months.
+rule glucose_high_utilization_visit with provenance LCD L33822,
+        confer "Within the six (6) months prior to ordering quantities of strips and lancets that exceed the utilization guidelines, the treating practitioner has had an in-person or Medicare-approved telehealth visit with the beneficiary to evaluate their diabetes control and their need for the specific quantity of supplies that exceeds the usual utilization amounts described above":
+a beneficiary meets the high utilization criteria for a claim
+    if the claim is for an item
+    and the item is furnished to the beneficiary
+    and the order for the item is dated a date
+    and the treating practitioner had an in-person or telehealth visit with the beneficiary to evaluate diabetes control on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 183
+    and adherence to the high utilization regimen is verified for the claim.
+
+rule glucose_high_utilization_initial with provenance LCD L33822,
+        confer "Every six (6) months, for continued dispensing of quantities of testing supplies that exceed the usual utilization amounts, the treating practitioner must verify adherence to the high utilization testing regimen":
+adherence to the high utilization regimen is verified for a claim
+    if the claim is for an item
+    and it is not the case that
+        the claim is a refill.
+
+rule glucose_high_utilization_continued with provenance LCD L33822,
+        confer "Every six (6) months, for continued dispensing of quantities of testing supplies that exceed the usual utilization amounts, the treating practitioner must verify adherence to the high utilization testing regimen":
+adherence to the high utilization regimen is verified for a claim
+    if the claim is a refill
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the date of service of the claim is a date
+    and the treating practitioner verified adherence of the beneficiary to the high utilization testing regimen on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 183.
+
+% ---------------------------------------------------------------------------
+% The continuous glucose monitor: the initial criteria (1)-(5), the
+% continued-coverage criterion, the supply allowance.
+% ---------------------------------------------------------------------------
+
+rule glucose_cgm with provenance LCD L33822,
+        confer "To be eligible for coverage of a CGM and related supplies, the beneficiary must meet all of the following initial coverage criteria (1)-(5)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a continuous glucose monitor
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the initial CGM coverage criteria for the item
+    and the CGM continued coverage criterion is met for the claim.
+
+rule glucose_cgm_supply with provenance LCD L33822,
+        confer "When a CGM (code E2102 or E2103) is covered, the related supply allowance (code A4238 or A4239) is also covered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a CGM supply allowance
+    and the CGM device of the claim is a device
+    and the device is furnished to a beneficiary
+    and the beneficiary meets the initial CGM coverage criteria for the device
+    and the CGM continued coverage criterion is met for the claim
+    and the claim is for a supply of a number months
+    and the number <= 3
+    and the quantity billed on the claim is an other number
+    and the other number <= the number.
+
+% Criteria (1)-(5).
+rule glucose_cgm_initial_criteria with provenance LCD L33822,
+        confer "Within six (6) months prior to ordering the CGM, the treating practitioner has an in-person or Medicare-approved telehealth visit with the beneficiary to evaluate their diabetes control and determined that criteria (1)-(4) above are met":
+a beneficiary meets the initial CGM coverage criteria for an item
+    if the beneficiary has a covered diabetes diagnosis
+    and the finding trained on continuous glucose monitor about the beneficiary is established
+    and the item is prescribed in accordance with its FDA indications for use
+    and the beneficiary needs a CGM to improve glycemic control
+    and the order for the item is dated a date
+    and the treating practitioner had an in-person or telehealth visit with the beneficiary to evaluate diabetes control on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 183.
+
+% Criterion 4: insulin-treated, or a history of problematic hypoglycemia.
+rule glucose_cgm_insulin with provenance LCD L33822,
+        confer "The beneficiary is insulin-treated":
+a beneficiary needs a CGM to improve glycemic control
+    if the beneficiary is currently being treated with insulin.
+
+rule glucose_cgm_hypoglycemia with provenance LCD L33822,
+        confer "The beneficiary has a history of problematic hypoglycemia with documentation of at least one of the following":
+a beneficiary needs a CGM to improve glycemic control
+    if the beneficiary has a history of problematic hypoglycemia.
+
+% Level 2 events: more than one, despite more than one medication adjustment
+% (the level 2 threshold, a glucose below 54 mg/dL, is the practitioner's
+% classification of the event).
+rule glucose_level_2 with provenance Policy Article A52464,
+        confer "Documentation of more than one previous medication adjustment and/or modification to the treatment plan (such as raising A1c targets) prior to the most recent level two event":
+a beneficiary has a history of problematic hypoglycemia
+    if a number level two hypoglycemic events are documented for the beneficiary
+    and the number > 1
+    and an other number medication adjustments before the most recent level two event are documented for the beneficiary
+    and the other number > 1.
+
+% A level 3 event: at least one, with third party assistance.
+rule glucose_level_3 with provenance Policy Article A52464,
+        confer "An indication in the medical record that the beneficiary required third party assistance for treatment":
+a beneficiary has a history of problematic hypoglycemia
+    if a number level three hypoglycemic events are documented for the beneficiary
+    and the number >= 1
+    and third party assistance for treatment of hypoglycemia is documented for the beneficiary.
+
+% Continued coverage: within six months (183 days) of the initial
+% prescription the initial criteria suffice; afterwards a visit documenting
+% adherence within the six months before the date of service.
+rule glucose_cgm_initial_period with provenance LCD L33822,
+        confer "Every six (6) months following the initial prescription of the CGM, the treating practitioner conducts an in-person or Medicare-approved telehealth visit with the beneficiary to document adherence to their CGM regimen and diabetes treatment plan":
+the CGM continued coverage criterion is met for a claim
+    if the CGM device of the claim is a device
+    and the order for the device is dated a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number <= 183.
+
+rule glucose_cgm_continued with provenance LCD L33822,
+        confer "Every six (6) months following the initial prescription of the CGM, the treating practitioner conducts an in-person or Medicare-approved telehealth visit with the beneficiary to document adherence to their CGM regimen and diabetes treatment plan":
+the CGM continued coverage criterion is met for a claim
+    if the CGM device of the claim is a device
+    and the order for the device is dated a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number > 183
+    and the device is furnished to a beneficiary
+    and the treating practitioner had an in-person or telehealth visit with the beneficiary to document adherence to the CGM regimen on a third date
+    and the other date is a second number days after the third date
+    and the second number >= 0
+    and the second number <= 183.
+
+section remedy is:
+
+% The policy's own conditions of payment: the record of a high-utilization
+% claim corroborates the testing frequency, and the CGM codes are those in
+% effect on the date of service.
+rule glucose_documentation with provenance Policy Article A52464,
+        confer "For beneficiaries who exceed the usual utilization amounts of BGM testing supplies, there must be sufficient information in the beneficiary’s medical record to determine that":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is glucose_monitors
+    and the high utilization documentation is met for the claim
+    and the CGM coding of the claim is in effect on its date of service.
+
+rule glucose_documentation_not_testing_supply with provenance Policy Article A52464,
+        confer "For beneficiaries who exceed the usual utilization amounts of BGM testing supplies, there must be sufficient information in the beneficiary’s medical record to determine that":
+the high utilization documentation is met for a claim
+    if the claim is for an item
+    and it is not the case that
+        the item is a blood glucose testing supply.
+
+rule glucose_documentation_usual with provenance Policy Article A52464,
+        confer "For beneficiaries who exceed the usual utilization amounts of BGM testing supplies, there must be sufficient information in the beneficiary’s medical record to determine that":
+the high utilization documentation is met for a claim
+    if the claim is for an item
+    and the item is a blood glucose testing supply
+    and the claim is within the usual utilization.
+
+rule glucose_documentation_high with provenance Policy Article A52464,
+        confer "The beneficiary is actually testing at a frequency that corroborates the quantity of supplies that have been dispensed (e.g., a specific narrative statement that adequately documents the frequency at which the beneficiary is actually testing or a copy of the beneficiary's log)":
+the high utilization documentation is met for a claim
+    if the claim is for an item
+    and the item is a blood glucose testing supply
+    and the claim exceeds the usual utilization
+    and the item is furnished to a beneficiary
+    and an evidence is in [narrative statement, testing log]
+    and the testing frequency of the beneficiary is corroborated by the evidence.
+
+% The CGM codes and their dates (the Article's coding guidelines).
+rule glucose_coding_other with provenance Policy Article A52464,
+        confer "CODING GUIDELINES":
+the CGM coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the code is in ["E2102", "E2103", "K0554", "A4238", "A4239", "K0553"].
+
+rule glucose_coding_k_codes with provenance Policy Article A52464,
+        confer "For claims with dates of service on or after July 1, 2017, through December 31, 2022, a non-adjunctive CGM must be billed with code K0554 and code K0553 for the supply allowance":
+the CGM coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["K0554", "K0553"]
+    and the date of service of the claim is a date
+    and the date is after or equal to 2017-07-01
+    and the date is before or equal to 2022-12-31.
+
+rule glucose_coding_non_adjunctive with provenance Policy Article A52464,
+        confer "For claims with dates of service on or after January 1, 2023, a non-adjunctive CGM must be billed with code E2103 and code A4239 for the supply allowance":
+the CGM coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E2103", "A4239"]
+    and the date of service of the claim is a date
+    and the date is after or equal to 2023-01-01.
+
+rule glucose_coding_adjunctive with provenance Policy Article A52464,
+        confer "For claims with dates of service on or after April 1, 2022, adjunctive CGMs which meet the definition of DME must be billed with code E2102":
+the CGM coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E2102", "A4238"]
+    and the date of service of the claim is a date
+    and the date is after or equal to 2022-04-01.

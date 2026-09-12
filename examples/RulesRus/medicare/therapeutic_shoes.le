@@ -1,0 +1,474 @@
+% Therapeutic Shoes for Persons with Diabetes: LCD L33369 and its Policy
+% Article A52501 (DME MACs). A policy program of the DMEPOS model: it
+% includes dmepos.le (orders, delivery, benefit category, continued need,
+% refills) and states when a claim for a pair of depth shoes (A5500) or
+% custom molded shoes (A5501), for a pair of inserts (A5512, A5513, A5514)
+% or for a shoe modification (A5503–A5507) is REASONABLE AND NECESSARY.
+% The benefit is not durable medical equipment: therapeutic shoes and
+% inserts are covered under the Therapeutic Shoes for Individuals with
+% Diabetes benefit of Social Security Act §1861(s)(12) (the Policy
+% Article); deluxe features (A5508) and non-total-contact inserts (A5510)
+% are outside that benefit and denied as noncovered — the policy decides
+% them (they are in its scope) but places them in no benefit category.
+%
+% The coverage criteria (the Article's criteria 1–5, the LCD's rule for a
+% custom molded shoe and for inserts dispensed without shoes, and the
+% yearly limits):
+%   1. diabetes mellitus — the diagnosis code of the beneficiary is in the
+%      Article's ICD-10 table (sources/icd10/A52501_icd10_covered.csv,
+%      loaded as the table therapeutic_shoes_icd10; its one group, group 1,
+%      serves every code of the policy: A5500, A5501, A5503–A5507, A5512,
+%      A5513, A5514);
+%   2. one or more of the foot conditions a–f documented in the medical
+%      record (previous foot amputation, history of foot ulceration,
+%      preulcerative calluses, peripheral neuropathy with callus formation,
+%      foot deformity, poor circulation) — documented conditions, the shared
+%      template "the medical record of B documents C";
+%   3. the certifying physician — a doctor of medicine or of osteopathy who
+%      treats the diabetes under a comprehensive plan of care — has
+%      certified that the beneficiary needs diabetic shoes;
+%   4. the supplier's in-person evaluation of the feet, with measurements,
+%      before selecting the items; the prescribing practitioner (a
+%      podiatrist, M.D., D.O., physician assistant, nurse practitioner or
+%      clinical nurse specialist) writes the order;
+%   the yearly limits: one pair of shoes per calendar year, and with depth
+%   shoes 3 pairs of inserts, with custom molded shoes 2 additional pairs (a
+%   modification substitutes for an insert and counts as one) — the counts
+%   are facts of the record, including the pair of the claim.
+% One finding is a judgment: "deformity requires custom molded shoe" (LCD:
+% "a foot deformity that cannot be accommodated by a depth shoe"), needed
+% for A5501 only.
+%
+% The payment conditions the Article adds (its "Policy specific
+% documentation requirements"), in section remedy: the certification
+% statement signed by the certifying physician on or after the in-person
+% visit and within three months before delivery, on medical records that
+% document the management of the diabetes; the certifying physician's
+% in-person visit addressing diabetes management and the prescribing
+% practitioner's in-person visit, each within six months before delivery,
+% the order signed on or after the prescribing practitioner's visit; the
+% supplier's assessment of fit at delivery with the beneficiary wearing the
+% items, and for custom molded shoes and custom fabricated inserts (A5501,
+% A5513, A5514) the impressions, casts or CAD-CAM images for a positive
+% model. Six months is read as 183 days and three months as 91 days.
+%
+% Not modelled: the NP or PA certifying "incident to" a supervising
+% physician (no fact makes them a certifying physician); the certifying
+% physician as supplier in a rural or shortage area; the one-year renewal
+% of orders and certification statements for replacements (the statement
+% within three months of delivery is stricter); the KX, GY, RT and LT
+% modifiers and the PDAC coding verification (billing rules); the coding
+% definitions of the shoes and inserts (an item's code is taken as
+% correct); shoes that are part of a leg brace (another policy).
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the diagnosis code of *a beneficiary* is *a code*; undefined.    % candidate for dmepos.le
+    the certifying physician of *a beneficiary* is *a kind*; undefined.
+    the certifying physician treats *a beneficiary* under a comprehensive plan of care for diabetes; undefined.
+    the certifying physician certified that *a beneficiary* needs diabetic shoes; undefined.
+    the certification statement for *a beneficiary* is signed by the certifying physician; undefined.
+    the certification statement for *a beneficiary* is dated *a date*; undefined.
+    the certifying physician had an in-person visit with *a beneficiary* addressing diabetes management on *a date*; undefined.
+    the medical record of the certifying physician documents management of the diabetes of *a beneficiary*; undefined.
+    the prescribing practitioner for *an item* is *a kind*; undefined.
+    the prescribing practitioner had an in-person visit with *a beneficiary* on *a date*; undefined.
+    the supplier conducted an in-person evaluation of the feet of *a beneficiary* with measurements before selecting *an item*; undefined.
+    the supplier obtained impressions of the feet of *a beneficiary* for a positive model; undefined.
+    the supplier assessed the fit of *an item* at delivery with *a beneficiary* wearing it; undefined.
+    the supplier verified in writing that *a beneficiary* has appropriate footwear for *an item*; undefined.
+    the count of pairs of shoes furnished to *a beneficiary* in the calendar year of *a claim* is *a number*; undefined.
+    the count of pairs of inserts furnished to *a beneficiary* in the calendar year of *a claim* is *a number*; undefined.
+    % the codes and the lists
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table therapeutic_shoes_icd10.
+    *a kind* may serve as the certifying physician.
+    *a kind* may serve as the prescribing practitioner.
+    *a condition* is a qualifying foot condition for therapeutic shoes.
+    code *a code* is excluded from the therapeutic shoes benefit.
+    the yearly limit of pairs of inserts with shoes of code *a code* is *a limit*.
+    % derived
+    *an item* is a depth shoe.
+    *an item* is a custom molded shoe.
+    *an item* is a therapeutic shoe.
+    *an item* is a therapeutic shoe insert.
+    *an item* is a therapeutic shoe modification.
+    *a beneficiary* meets the therapeutic shoes coverage criteria.
+    *a beneficiary* has diabetes mellitus.
+    *a beneficiary* has a qualifying foot condition.
+    the certifying physician certified the need of *a beneficiary* for diabetic shoes.
+    the prescribing practitioner for *an item* is qualified.
+    *an item* was selected after an in-person evaluation by the supplier.
+    the footwear requirement is met for *an item*.
+    *a claim* is within the yearly limit of shoes.
+    *a claim* is within the yearly limit of inserts.
+    the certification statement requirement is met for *an item*.
+    the medical records of the certifying physician support the certification for *a beneficiary*.
+    the in-person visit requirements are met for *an item*.
+    the prescribing practitioner visit requirement is met for *an item*.
+    the order for *an item* is signed after the prescribing practitioner visit.
+    the supplier evaluation requirements are met for *an item*.
+    the positive model requirement is met for *an item*.
+
+% The Article's ICD-10 table: the diagnoses that are diabetes mellitus
+% (group 1, the only group; the CSV columns bind to the template's
+% arguments in order: code, group, article, description). The file read is
+% a copy of sources/icd10/A52501_icd10_covered.csv in which the word "and"
+% of a description is written "&": the table loader reads a cell holding
+% "and" as a condition and drops the row (20 rows — the .354x codes of E08,
+% E09, E10, E11 and E13, proliferative retinopathy with combined retinal
+% detachment — would be lost). Point the table back at the original once
+% the loader accepts the word in a value cell.
+the table therapeutic_shoes_icd10 is loaded from sources/icd10/A52501_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base therapeutic shoes includes these resources:
+    dmepos.
+
+the knowledge base therapeutic shoes includes:
+
+LCD L33369 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33369".
+the text of LCD L33369 is at "sources/lcd/L33369.txt".
+Policy Article A52501 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52501".
+the text of Policy Article A52501 is at "sources/article/A52501.txt".
+
+% What the items are, by code (Policy Article A52501).
+rule shoes_depth with provenance Policy Article A52501,
+        confer "One pair of depth shoes (A5500)":
+an item is a depth shoe
+    if the HCPCS code of the item is "A5500".
+
+rule shoes_custom with provenance Policy Article A52501,
+        confer "One pair of custom molded shoes (A5501)":
+an item is a custom molded shoe
+    if the HCPCS code of the item is "A5501".
+
+% a therapeutic shoe is a depth shoe or a custom molded shoe: a device of this model
+rule shoes_depth_is_shoe:
+an item is a therapeutic shoe
+    if the item is a depth shoe.
+
+rule shoes_custom_is_shoe:
+an item is a therapeutic shoe
+    if the item is a custom molded shoe.
+
+rule shoes_inserts with provenance Policy Article A52501,
+        confer "3 pairs of inserts (A5512, A5513, or A5514)":
+an item is a therapeutic shoe insert
+    if the HCPCS code of the item is a code
+    and the code is in ["A5512", "A5513", "A5514"].
+
+rule shoes_modifications with provenance Policy Article A52501,
+        confer "rigid rocker bottoms (A5503), roller bottoms (A5503), wedges (A5504), metatarsal bars (A5505), or offset heels (A5506)":
+an item is a therapeutic shoe modification
+    if the HCPCS code of the item is a code
+    and the code is in ["A5503", "A5504", "A5505", "A5506"].
+
+rule shoes_other_modifications with provenance Policy Article A52501,
+        confer "Other modifications to diabetic shoes (A5507) include, but are not limited to flared heels":
+an item is a therapeutic shoe modification
+    if the HCPCS code of the item is "A5507".
+
+section applicability is:
+
+% The codes this policy decides: the shoes, the inserts and the
+% modifications of the Article, including the two it denies as noncovered.
+rule shoes_codes with provenance Policy Article A52501,
+        confer "Codes for inserts or modifications (A5503, A5504, A5505, A5506, A5507, A5508, A5510, A5512, A5513, A5514) may only be used for items related to diabetic shoes (A5500, A5501)":
+the policy for code a code is therapeutic_shoes
+    if the code is in ["A5500", "A5501", "A5503", "A5504", "A5505", "A5506", "A5507", "A5508", "A5510", "A5512", "A5513", "A5514"].
+
+% The benefit: not durable medical equipment but the statutory benefit of
+% Social Security Act §1861(s)(12), therapeutic shoes for diabetics — for
+% every code of the policy but the two the Article puts outside it.
+rule shoes_benefit with provenance Policy Article A52501,
+        confer "Therapeutic Shoes and inserts are covered under the Therapeutic Shoes for Individuals with Diabetes benefit (Social Security Act §1861(s)(12))":
+the benefit category of code a code is therapeutic shoes for diabetics
+    if the policy for code the code is therapeutic_shoes
+    and it is not the case that
+        code the code is excluded from the therapeutic shoes benefit.
+
+code "A5510" is excluded from the therapeutic shoes benefit,
+    as stated in Policy Article A52501, confer "Since these inserts are not considered total contact at the time of dispensing, they do not meet the requirements of the benefit category and will be denied as noncovered".
+code "A5508" is excluded from the therapeutic shoes benefit,
+    as stated in Policy Article A52501, confer "Deluxe features of diabetic shoes (A5508) will be denied as noncovered".
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The claims: depth shoes, custom molded shoes, inserts, modifications.
+% ---------------------------------------------------------------------------
+
+rule shoes_depth_covered with provenance Policy Article A52501,
+        confer "Therapeutic shoes, inserts and/or modifications to therapeutic shoes are covered if all of the following criteria are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a depth shoe
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the therapeutic shoes coverage criteria
+    and the prescribing practitioner for the item is qualified
+    and the item was selected after an in-person evaluation by the supplier
+    and the claim is within the yearly limit of shoes.
+
+rule shoes_custom_covered with provenance LCD L33369,
+        confer "A custom molded shoe (A5501) is covered when the beneficiary has a foot deformity that cannot be accommodated by a depth shoe":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a custom molded shoe
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the therapeutic shoes coverage criteria
+    and the finding deformity requires custom molded shoe about the beneficiary is established
+    and the prescribing practitioner for the item is qualified
+    and the item was selected after an in-person evaluation by the supplier
+    and the claim is within the yearly limit of shoes.
+
+rule shoes_inserts_covered with provenance Policy Article A52501,
+        confer "One pair of depth shoes (A5500) and 3 pairs of inserts (A5512, A5513, or A5514) (not including the non-customized removable inserts provided with such shoes)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a therapeutic shoe insert
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the therapeutic shoes coverage criteria
+    and the prescribing practitioner for the item is qualified
+    and the item was selected after an in-person evaluation by the supplier
+    and the footwear requirement is met for the item
+    and the claim is within the yearly limit of inserts.
+
+rule shoes_modifications_covered with provenance Policy Article A52501,
+        confer "A modification of a custom molded or depth shoe may be covered as a substitute for an insert":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a therapeutic shoe modification
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the therapeutic shoes coverage criteria
+    and the prescribing practitioner for the item is qualified
+    and the item was selected after an in-person evaluation by the supplier
+    and the footwear requirement is met for the item
+    and the claim is within the yearly limit of inserts.
+
+% ---------------------------------------------------------------------------
+% The coverage criteria 1–3: diabetes, a foot condition, the certification.
+% ---------------------------------------------------------------------------
+
+rule shoes_criteria with provenance Policy Article A52501,
+        confer "If criteria 1-5 are not met, the therapeutic shoes, inserts and/or modifications will be denied as noncovered":
+a beneficiary meets the therapeutic shoes coverage criteria
+    if the beneficiary has diabetes mellitus
+    and the beneficiary has a qualifying foot condition
+    and the certifying physician certified the need of the beneficiary for diabetic shoes.
+
+% Criterion 1: the diagnosis code on the claim is one of the Article's.
+rule shoes_diabetes with provenance Policy Article A52501,
+        confer "The beneficiary has diabetes mellitus (Reference diagnosis code section below)":
+a beneficiary has diabetes mellitus
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52501" as a description under table therapeutic_shoes_icd10.
+
+% Criterion 2: one of the conditions a–f in the medical record.
+rule shoes_foot_condition with provenance Policy Article A52501,
+        confer "The certifying physician has documented in the beneficiary's medical record one or more of the following conditions":
+a beneficiary has a qualifying foot condition
+    if the medical record of the beneficiary documents a condition
+    and the condition is a qualifying foot condition for therapeutic shoes.
+
+previous foot amputation is a qualifying foot condition for therapeutic shoes,
+    as stated in Policy Article A52501, confer "Previous amputation of the other foot, or part of either foot".
+history of foot ulceration is a qualifying foot condition for therapeutic shoes,
+    as stated in Policy Article A52501, confer "History of previous foot ulceration of either foot".
+preulcerative calluses is a qualifying foot condition for therapeutic shoes,
+    as stated in Policy Article A52501, confer "History of pre-ulcerative calluses of either foot".
+peripheral neuropathy with callus formation is a qualifying foot condition for therapeutic shoes,
+    as stated in Policy Article A52501, confer "Peripheral neuropathy with evidence of callus formation of either foot".
+foot deformity is a qualifying foot condition for therapeutic shoes,
+    as stated in Policy Article A52501, confer "Foot deformity of either foot".
+poor circulation is a qualifying foot condition for therapeutic shoes,
+    as stated in Policy Article A52501, confer "Poor circulation in either foot".
+
+% Criterion 3: the certifying physician — an M.D. or D.O. treating the
+% diabetes under a comprehensive plan of care — certifies the need.
+rule shoes_certification with provenance Policy Article A52501,
+        confer "The certifying physician has certified that indications (1) and (2) are met and that he/she is treating the beneficiary under a comprehensive plan of care for his/her diabetes and that the beneficiary needs diabetic shoes":
+the certifying physician certified the need of a beneficiary for diabetic shoes
+    if the certifying physician of the beneficiary is a kind
+    and the kind may serve as the certifying physician
+    and the certifying physician treats the beneficiary under a comprehensive plan of care for diabetes
+    and the certifying physician certified that the beneficiary needs diabetic shoes.
+
+doctor of medicine may serve as the certifying physician,
+    as stated in Policy Article A52501, confer "The Certifying Physician is defined as a doctor of medicine (M.D.) or a doctor of osteopathy (D.O.) who is responsible for diagnosing and treating the beneficiary’s diabetic systemic condition through a comprehensive plan of care".
+doctor of osteopathy may serve as the certifying physician,
+    as stated in Policy Article A52501, confer "The Certifying Physician is defined as a doctor of medicine (M.D.) or a doctor of osteopathy (D.O.) who is responsible for diagnosing and treating the beneficiary’s diabetic systemic condition through a comprehensive plan of care".
+% "The certifying physician may not be a podiatrist or clinical nurse
+% specialist", nor an NP or PA except "incident to": no fact for them.
+
+% The prescribing practitioner: who writes the order.
+rule shoes_prescriber with provenance Policy Article A52501,
+        confer "The prescribing practitioner may be a podiatrist, M.D., D.O., physician assistant, nurse practitioner, or clinical nurse specialist":
+the prescribing practitioner for an item is qualified
+    if the prescribing practitioner for the item is a kind
+    and the kind may serve as the prescribing practitioner.
+
+podiatrist may serve as the prescribing practitioner,
+    as stated in Policy Article A52501, confer "The prescribing practitioner may be a podiatrist, M.D., D.O., physician assistant, nurse practitioner, or clinical nurse specialist".
+doctor of medicine may serve as the prescribing practitioner,
+    as stated in Policy Article A52501, confer "The prescribing practitioner may be a podiatrist, M.D., D.O., physician assistant, nurse practitioner, or clinical nurse specialist".
+doctor of osteopathy may serve as the prescribing practitioner,
+    as stated in Policy Article A52501, confer "The prescribing practitioner may be a podiatrist, M.D., D.O., physician assistant, nurse practitioner, or clinical nurse specialist".
+physician assistant may serve as the prescribing practitioner,
+    as stated in Policy Article A52501, confer "The prescribing practitioner may be a podiatrist, M.D., D.O., physician assistant, nurse practitioner, or clinical nurse specialist".
+nurse practitioner may serve as the prescribing practitioner,
+    as stated in Policy Article A52501, confer "The prescribing practitioner may be a podiatrist, M.D., D.O., physician assistant, nurse practitioner, or clinical nurse specialist".
+clinical nurse specialist may serve as the prescribing practitioner,
+    as stated in Policy Article A52501, confer "The prescribing practitioner may be a podiatrist, M.D., D.O., physician assistant, nurse practitioner, or clinical nurse specialist".
+
+% Criterion 4: the supplier's in-person evaluation before selecting the items.
+rule shoes_supplier_evaluation with provenance Policy Article A52501,
+        confer "Prior to selecting the specific items that will be provided, the supplier must conduct and document an in-person evaluation of the beneficiary":
+an item was selected after an in-person evaluation by the supplier
+    if the item is furnished to a beneficiary
+    and the supplier conducted an in-person evaluation of the feet of the beneficiary with measurements before selecting the item.
+
+% ---------------------------------------------------------------------------
+% Inserts and modifications: the footwear they go into.
+% ---------------------------------------------------------------------------
+
+rule shoes_footwear_furnished with provenance LCD L33369,
+        confer "This footwear must meet the definitions found in this policy for depth shoes or custom-molded shoes":
+the footwear requirement is met for an item
+    if the item is an accessory of a device
+    and the device is a therapeutic shoe
+    and the item is furnished to a beneficiary
+    and the device is furnished to the beneficiary.
+
+rule shoes_footwear_verified with provenance LCD L33369,
+        confer "Separate inserts may be covered and dispensed independently of diabetic shoes if the supplier of the shoes verifies in writing that the beneficiary has appropriate footwear into which the insert can be placed":
+the footwear requirement is met for an item
+    if the item is an accessory of a device
+    and the device is a therapeutic shoe
+    and the item is furnished to a beneficiary
+    and the supplier verified in writing that the beneficiary has appropriate footwear for the item.
+
+% ---------------------------------------------------------------------------
+% The yearly limits: one pair of shoes; 3 pairs of inserts with depth shoes,
+% 2 additional pairs with custom molded shoes (a modification counts as one).
+% The counts are facts of the record and include the pair of the claim.
+% ---------------------------------------------------------------------------
+
+rule shoes_limit_shoes with provenance Policy Article A52501,
+        confer "coverage is limited to one of the following within one calendar year (January – December)":
+a claim is within the yearly limit of shoes
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the count of pairs of shoes furnished to the beneficiary in the calendar year of the claim is a number
+    and the number <= 1.
+
+rule shoes_limit_inserts with provenance Policy Article A52501,
+        confer "Quantities of shoes, inserts, and/or modifications greater than those listed above will be denied as noncovered":
+a claim is within the yearly limit of inserts
+    if the claim is for an item
+    and the item is an accessory of a device
+    and the HCPCS code of the device is a code
+    and the yearly limit of pairs of inserts with shoes of code the code is a limit
+    and the item is furnished to a beneficiary
+    and the count of pairs of inserts furnished to the beneficiary in the calendar year of the claim is a number
+    and the number <= the limit.
+
+the yearly limit of pairs of inserts with shoes of code "A5500" is 3,
+    as stated in Policy Article A52501, confer "One pair of depth shoes (A5500) and 3 pairs of inserts (A5512, A5513, or A5514)".
+the yearly limit of pairs of inserts with shoes of code "A5501" is 2,
+    as stated in Policy Article A52501, confer "One pair of custom molded shoes (A5501) (which includes inserts provided with these shoes) and 2 additional pairs of inserts (A5512, A5513, or A5514)".
+
+section remedy is:
+
+% The policy's own conditions of payment (Policy Article A52501, "Policy
+% specific documentation requirements").
+rule shoes_documentation with provenance Policy Article A52501,
+        confer "The supplier must obtain a signed statement from the practitioner who is personally managing the beneficiary’s systemic diabetes condition (i.e., the certifying physician) specifying that the beneficiary has diabetes mellitus, has one of conditions 2a-2f above, is being treated under a comprehensive plan of care for his/her diabetes, and needs diabetic shoes":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is therapeutic_shoes
+    and the claim is for an item
+    and the certification statement requirement is met for the item
+    and the in-person visit requirements are met for the item
+    and the supplier evaluation requirements are met for the item.
+
+% The certification statement: signed by the certifying physician, dated on
+% or after the certifying physician's in-person visit and within three
+% months (91 days) before delivery, on medical records that document the
+% management of the diabetes.
+rule shoes_statement with provenance Policy Article A52501,
+        confer "Sign the certification statement (refer to the Policy Specific Documentation Requirements section below) on or after the date of the in-person visit and within 3 months prior to delivery of the shoes/inserts":
+the certification statement requirement is met for an item
+    if the item is furnished to a beneficiary
+    and the certification statement for the beneficiary is signed by the certifying physician
+    and the certification statement for the beneficiary is dated a date
+    and the certifying physician had an in-person visit with the beneficiary addressing diabetes management on an other date
+    and the date is after or equal to the other date
+    and the item was delivered on a third date
+    and the third date is a number days after the date
+    and the number >= 0
+    and the number <= 91
+    and the medical records of the certifying physician support the certification for the beneficiary.
+
+rule shoes_physician_records with provenance Policy Article A52501,
+        confer "The Certification Statement by itself does not meet this requirement for documentation in the medical records":
+the medical records of the certifying physician support the certification for a beneficiary
+    if the medical record of the certifying physician documents management of the diabetes of the beneficiary
+    and the beneficiary has a qualifying foot condition.
+
+% The in-person visits: the certifying physician's, addressing diabetes
+% management, within six months (183 days) before delivery; the prescribing
+% practitioner's within the same six months, the order signed on or after it.
+rule shoes_visits with provenance Policy Article A52501,
+        confer "Have an in-person visit with the beneficiary during which diabetes management is addressed within 6 months prior to delivery of the shoes/inserts":
+the in-person visit requirements are met for an item
+    if the item is furnished to a beneficiary
+    and the item was delivered on a date
+    and the certifying physician had an in-person visit with the beneficiary addressing diabetes management on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 183
+    and the prescribing practitioner visit requirement is met for the item.
+
+rule shoes_prescriber_visit with provenance Policy Article A52501,
+        confer "there must be an in-person visit with the prescribing practitioner within 6 months prior to delivery of the shoes/inserts":
+the prescribing practitioner visit requirement is met for an item
+    if the item is furnished to a beneficiary
+    and the item was delivered on a date
+    and the prescribing practitioner had an in-person visit with the beneficiary on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 183
+    and the order for the item is signed after the prescribing practitioner visit.
+
+rule shoes_order_after_visit with provenance Policy Article A52501,
+        confer "The SWO must be signed on or after the date of the visit with the Prescribing Practitioner":
+the order for an item is signed after the prescribing practitioner visit
+    if the item is furnished to a beneficiary
+    and the prescribing practitioner had an in-person visit with the beneficiary on a date
+    and the order for the item is dated an other date
+    and the other date is after or equal to the date.
+
+% The supplier's evaluation at delivery (criterion 5), and the positive
+% model for custom molded shoes and custom fabricated inserts.
+rule shoes_delivery_fit with provenance Policy Article A52501,
+        confer "The in-person evaluation of the beneficiary by the supplier at the time of delivery (refer to Non-Medical Necessity Coverage and Payment Rules, criterion 5) must be conducted with the beneficiary wearing the shoes and inserts and must document that the shoes/inserts/modifications fit properly":
+the supplier evaluation requirements are met for an item
+    if the item is furnished to a beneficiary
+    and the supplier assessed the fit of the item at delivery with the beneficiary wearing it
+    and the positive model requirement is met for the item.
+
+rule shoes_positive_model with provenance Policy Article A52501,
+        confer "For custom molded shoes (A5501) and inserts (A5513 and A5514), taking impressions, making casts, or obtaining CAD-CAM images of the beneficiary’s feet that will be used in creating positive models of the feet":
+the positive model requirement is met for an item
+    if the HCPCS code of the item is a code
+    and the code is in ["A5501", "A5513", "A5514"]
+    and the item is furnished to a beneficiary
+    and the supplier obtained impressions of the feet of the beneficiary for a positive model.
+
+rule shoes_no_positive_model with provenance Policy Article A52501,
+        confer "For custom molded shoes (A5501) and inserts (A5513 and A5514), taking impressions, making casts, or obtaining CAD-CAM images of the beneficiary’s feet that will be used in creating positive models of the feet":
+the positive model requirement is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is in ["A5501", "A5513", "A5514"].

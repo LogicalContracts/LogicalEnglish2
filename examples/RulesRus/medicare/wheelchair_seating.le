@@ -9,44 +9,55 @@
 % E0956, E0957, E0960), the headrest (E0955) on a tilt or recline system,
 % combination skin protection and positioning seat cushions (E2607, E2608,
 % E2624, E2625) and custom fabricated seat and back cushions (E2609, E2617).
-% A powered seat cushion (E2610) is never covered ("the effectiveness ... has
-% not been established"), nor a cushion on a transport chair, a scooter or a
-% power wheelchair with a captain's chair: no rule concludes them.
+% A powered seat cushion (E2610) is never covered ("The effectiveness of a
+% powered seat cushion (E2610) has not been established"), nor a cushion on a
+% transport chair, a scooter or a power wheelchair with a captain's chair:
+% no rule concludes them.
 %
 % How the criteria are read. Every seating item depends on its wheelchair
 % base: the LCD covers a cushion "for a beneficiary who has a manual
 % wheelchair or a power wheelchair with a sling/solid seat/back which meets
 % Medicare coverage criteria". The scenario says which device the item is an
-% accessory of (the shared template of dmepos.le); the base is covered when a
-% claim for it is reasonable and necessary under its own policy (pmd.le for a
-% power wheelchair — a manual wheelchair policy is not yet modelled in this
-% directory, so a manual base cannot be found covered here). The seat type of
-% a power wheelchair (sling/solid seat versus captain's chair) and the kind of
-% base (manual wheelchair, power wheelchair, scooter, transport chair) come
-% from the HCPCS code of the base.
+% accessory of (the shared template of dmepos.le, "an item is an accessory of
+% a device"); the base is a covered wheelchair base when a claim for it is
+% reasonable and necessary under its own policy (pmd.le for a power
+% wheelchair, manual_wheelchairs.le for a manual wheelchair — the scenario
+% program includes them). The kind of base (manual wheelchair, power
+% wheelchair with a sling/solid seat, power wheelchair with a captain's
+% chair, scooter, transport chair) comes from the HCPCS code of the base:
+% the CMS code descriptors, cited code by code in pmd.le, name the seat type
+% of each power wheelchair code.
 %
 % What the record states — a pressure ulcer, absent or impaired sensation at
-% the seating surface, the inability to shift weight; the tilt or recline
-% system of the chair; the therapist's written evaluation; what the claim
-% identifies — is a scenario fact, the skin protection conditions with the
-% shared template "the medical record of B documents C" and the LCD's list as
-% cited facts. The clinical judgments are the shared judged template of
-% dmepos.le, "the finding F about B is established" (or unsupported), with who
-% found it and why. The findings this policy reads, and the criterion each
-% stands for:
-%   significant postural asymmetries (the positioning criterion: "The
-%   beneficiary has any significant postural asymmetries"); prefabricated
-%   seating insufficient (custom fabrication criterion 3: the written
-%   evaluation "clearly explains why a prefabricated seating system is not
-%   sufficient").
+% the seating surface, the inability to carry out a functional weight shift
+% (the shared template "the medical record of B documents C", with the LCD's
+% list as cited facts); the tilt or recline system of the chair; the
+% therapist's comprehensive written evaluation; what the claim identifies —
+% is a scenario fact. The clinical judgments are the shared judged template
+% of dmepos.le, "the finding F about B is established" (or unsupported), with
+% who found it and why. The findings this policy reads, and the criterion
+% each stands for:
+%   significant postural asymmetries (criterion 2 of a positioning seat
+%   cushion, positioning back cushion and positioning accessory: "The
+%   beneficiary has any significant postural asymmetries"; the positioning
+%   half of a combination cushion; criterion (2) of a custom fabricated
+%   back cushion); prefabricated seating insufficient (criterion (3) of a
+%   custom fabricated cushion: the written evaluation "clearly explains why
+%   a prefabricated seating system is not sufficient").
 %
-% The Policy Article's ICD-10 code groups are not in sources/ (no
-% A52505_icd10_covered.csv): the qualifying conditions are the LCD's clinical
-% criteria (a) and (b), not a diagnosis code list. The PDAC coding
-% verification (a product not on the Product Classification List is billed
-% K0669 and denied as incorrectly coded) is a coding rule of the Article, not
-% a criterion of the record, and is not modelled. The payment condition the
-% Article adds: a claim for a custom fabricated cushion identifies the
+% Not modelled: the Policy Article's ICD-10 code groups (no
+% A52505_icd10_covered.csv in sources/ — the qualifying conditions are the
+% LCD's clinical criteria (a) and (b)); the PDAC coding verification (a
+% product not on the Product Classification List is billed K0669 and denied
+% as incorrectly coded — a coding rule, not a criterion of the record); the
+% KX/GA/GY/GZ modifiers; that the tilt or recline system a headrest sits on
+% is itself covered (the Wheelchair Options and Accessories LCD); and the
+% LCD's denial of the power wheelchair itself when a general use cushion is
+% provided with a sling seat and neither criterion 1 nor 2 is met (a rule of
+% the base's policy, not of the cushion's). The payment conditions the
+% Article adds (its "Policy specific documentation requirements" and
+% "Miscellaneous"): for a custom fabricated cushion, the written report of
+% the specialty evaluation is available and the claim identifies the
 % manufacturer and model (or describes the product).
 
 the target language is: prolog.
@@ -55,10 +66,12 @@ the templates are:
     % the record
     the seating system of *a device* is *a system*; undefined.
     *a beneficiary* had a comprehensive written seating evaluation by a licensed medical professional with no financial relationship with the supplier for *an item*; undefined.
+    % candidate for dmepos.le (also a template of manual_wheelchairs.le)
+    the written report of the specialty evaluation for *an item* is available; undefined.
     *a claim* identifies the manufacturer and model of *an item*; undefined.
     % the codes
     the wheelchair base kind of code *a code* is *a kind*.
-    *a code* is a power wheelchair code with no captains chair model.
+    *a code* is a sling seat only power wheelchair code.
     *a condition* is a qualifying skin protection condition.
     *a system* is a qualifying seating system for a headrest on *a kind*.
     % derived
@@ -72,13 +85,16 @@ the templates are:
     *an item* is a positioning back cushion.
     *an item* is a positioning accessory.
     *an item* is a combination skin protection and positioning seat cushion.
-    *an item* meets the skin protection cushion criteria.
-    *an item* meets the positioning cushion criteria.
+    *an item* is a custom fabricated cushion.
     *a beneficiary* meets the skin protection criteria.
     *a beneficiary* meets the positioning criteria.
+    *an item* meets the criteria for a skin protection seat cushion.
+    *an item* meets the criteria for a positioning cushion.
     *an item* is a skin protection or positioning cushion that meets coverage criteria.
+    *an item* is provided with a special cushion that meets coverage criteria.
     *an item* meets the criteria for a prefabricated seat cushion.
     the custom fabrication of *an item* is justified by a written evaluation.
+    the specialty evaluation report requirement is met for *an item*.
 
 the knowledge base wheelchair seating includes these resources:
     dmepos.
@@ -91,23 +107,27 @@ Policy Article A52505 is published at "https://www.cms.gov/medicare-coverage-dat
 the text of Policy Article A52505 is at "sources/article/A52505.txt".
 
 % ---------------------------------------------------------------------------
-% The wheelchair base: what it is, and when it is covered.
+% The wheelchair base: what kind it is, and when it is covered.
 % ---------------------------------------------------------------------------
 
 % A covered wheelchair base: a device with a claim of its own that its policy
-% (pmd.le for a power wheelchair) finds reasonable and necessary. A device of
-% this model.
+% (pmd.le for a power wheelchair, manual_wheelchairs.le for a manual one)
+% finds reasonable and necessary. A device of this model.
 rule seating_covered_base:
 a device is a covered wheelchair base
     if a claim is for the device
     and the claim is reasonable and necessary.
 
 % The kind of base each code describes. The seat type of a power wheelchair
-% is in its HCPCS descriptor (the CMS Required Face-to-Face list, cited code
-% by code in pmd.le: "sling/solid seat/back" or "captains chair"); the manual
-% wheelchair codes are those of the Manual Wheelchair Bases LCD L33788, not
-% modelled in this directory; the scooter codes are those of pmd.le. A device
-% of this model.
+% is in its HCPCS descriptor ("sling/solid seat/back" or "captains chair" in
+% the CMS Required Face-to-Face list, cited code by code in pmd.le); the
+% manual wheelchair codes are those of the Manual Wheelchair Bases LCD
+% L33788 (manual_wheelchairs.le); the scooter codes those of pmd.le. Devices
+% of this model, except the transport chair, which the LCD names.
+rule seating_manual_wheelchair_codes:
+the wheelchair base kind of code a code is manual wheelchair
+    if the code is in ["K0001", "K0002", "K0003", "K0004", "K0005", "K0006", "K0007", "K0008", "K0009", "E1161", "E1229", "E1231", "E1232", "E1233", "E1234", "E1235", "E1236", "E1237", "E1238"].
+
 rule seating_sling_seat_codes:
 the wheelchair base kind of code a code is sling seat power wheelchair
     if the code is in ["K0813", "K0815", "K0820", "K0822", "K0824", "K0826", "K0828", "K0835", "K0837", "K0839", "K0840", "K0841", "K0843", "K0848", "K0850", "K0852", "K0854", "K0856", "K0858", "K0860", "K0861", "K0862", "K0863", "K0864", "K0890", "K0891"].
@@ -120,25 +140,21 @@ rule seating_scooter_codes:
 the wheelchair base kind of code a code is power operated vehicle
     if the code is in ["K0800", "K0801", "K0802", "K0806", "K0807", "K0808"].
 
-rule seating_manual_wheelchair_codes:
-the wheelchair base kind of code a code is manual wheelchair
-    if the code is in ["K0001", "K0002", "K0003", "K0004", "K0005", "K0006", "K0007", "K0009", "E1161", "E1229", "E1231", "E1232", "E1233", "E1234", "E1235", "E1236", "E1237", "E1238"].
-
 rule seating_transport_chair_codes with provenance LCD L33312,
         confer "A seat or back cushion that is provided for use with a transport chair (E1037, E1038) will be denied as not reasonable and necessary":
 the wheelchair base kind of code a code is transport chair
     if the code is in ["E1037", "E1038"].
 
 % The power wheelchair bases that have no captain's chair model.
-rule seating_no_captains_chair_model with provenance LCD L33312,
+rule seating_sling_seat_only_codes with provenance LCD L33312,
         confer "The cushion is provided with a covered power wheelchair base that is not available in a Captain’s Chair model – i.e., codes K0839, K0840, K0843, K0860, K0861, K0862, K0863, K0864, K0890, K0891":
-a code is a power wheelchair code with no captains chair model
+a code is a sling seat only power wheelchair code
     if the code is in ["K0839", "K0840", "K0843", "K0860", "K0861", "K0862", "K0863", "K0864", "K0890", "K0891"].
 
 % Criterion 1 of every cushion: the beneficiary has a manual wheelchair or a
 % power wheelchair with a sling/solid seat/back, and it is covered. A cushion
 % on a scooter, a captain's chair or a transport chair meets no rule.
-rule seating_base_criterion with provenance LCD L33312,
+rule seating_base_criterion_manual with provenance LCD L33312,
         confer "The beneficiary has a manual wheelchair or a power wheelchair with a sling/solid seat/back and the beneficiary meets Medicare coverage criteria for it":
 an item is used with a covered wheelchair base
     if the item is used with a covered manual wheelchair.
@@ -208,27 +224,19 @@ an item is a combination skin protection and positioning seat cushion
     if the HCPCS code of the item is a code
     and the code is in ["E2607", "E2608", "E2624", "E2625"].
 
+rule seating_custom_codes with provenance Policy Article A52505,
+        confer "For a custom fabricated seat or back cushion (E2609, E2617)":
+an item is a custom fabricated cushion
+    if the HCPCS code of the item is a code
+    and the code is in ["E2609", "E2617"].
+
 % ---------------------------------------------------------------------------
 % The criteria the cushions share: the covered base, and the beneficiary's
 % skin protection or positioning need.
 % ---------------------------------------------------------------------------
 
-rule seating_skin_protection_cushion_criteria with provenance LCD L33312,
-        confer "A skin protection seat cushion (E2603, E2604, E2622, E2623) is covered for a beneficiary who meets both of the following criteria":
-an item meets the skin protection cushion criteria
-    if the item is used with a covered wheelchair base
-    and the item is furnished to a beneficiary
-    and the beneficiary meets the skin protection criteria.
-
-rule seating_positioning_cushion_criteria with provenance LCD L33312,
-        confer "are covered for a beneficiary who meets both of the following criteria":
-an item meets the positioning cushion criteria
-    if the item is used with a covered wheelchair base
-    and the item is furnished to a beneficiary
-    and the beneficiary meets the positioning criteria.
-
-% Criterion 2 of a skin protection cushion: the record documents one of the
-% conditions (a) or (b).
+% Criterion 2 of a skin protection seat cushion: the record documents one of
+% the conditions (a) or (b).
 rule seating_skin_protection_criterion with provenance LCD L33312,
         confer "The beneficiary has either of the following (a or b)":
 a beneficiary meets the skin protection criteria
@@ -252,46 +260,68 @@ rule seating_positioning_criterion with provenance LCD L33312,
 a beneficiary meets the positioning criteria
     if the finding significant postural asymmetries about the beneficiary is established.
 
+rule seating_skin_protection_cushion_criteria with provenance LCD L33312,
+        confer "A skin protection seat cushion (E2603, E2604, E2622, E2623) is covered for a beneficiary who meets both of the following criteria":
+an item meets the criteria for a skin protection seat cushion
+    if the item is used with a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the skin protection criteria.
+
+rule seating_positioning_cushion_criteria with provenance LCD L33312,
+        confer "A positioning seat cushion (E2605, E2606), positioning back cushion (E2613, E2614, E2615, E2616, E2620, E2621), and positioning accessory (E0953, E0955, E0956, E0957, E0960) are covered for a beneficiary who meets both of the following criteria":
+an item meets the criteria for a positioning cushion
+    if the item is used with a covered wheelchair base
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the positioning criteria.
+
 % A skin protection and/or positioning cushion that meets its coverage
-% criteria (the second route of a general use cushion on a sling seat).
+% criteria: criterion 2 of a general use cushion on a sling seat power
+% wheelchair, met by another item on the same base.
 rule seating_special_cushion_skin_protection with provenance LCD L33312,
         confer "A skin protection and/or positioning seat or back cushion that meets coverage criteria is provided":
 an item is a skin protection or positioning cushion that meets coverage criteria
     if the item is a skin protection seat cushion
-    and the item meets the skin protection cushion criteria.
+    and the item meets the criteria for a skin protection seat cushion.
 
 rule seating_special_cushion_positioning_seat with provenance LCD L33312,
         confer "A skin protection and/or positioning seat or back cushion that meets coverage criteria is provided":
 an item is a skin protection or positioning cushion that meets coverage criteria
     if the item is a positioning seat cushion
-    and the item meets the positioning cushion criteria.
+    and the item meets the criteria for a positioning cushion.
 
 rule seating_special_cushion_positioning_back with provenance LCD L33312,
         confer "A skin protection and/or positioning seat or back cushion that meets coverage criteria is provided":
 an item is a skin protection or positioning cushion that meets coverage criteria
     if the item is a positioning back cushion
-    and the item meets the positioning cushion criteria.
+    and the item meets the criteria for a positioning cushion.
 
 rule seating_special_cushion_combination with provenance LCD L33312,
         confer "A skin protection and/or positioning seat or back cushion that meets coverage criteria is provided":
 an item is a skin protection or positioning cushion that meets coverage criteria
     if the item is a combination skin protection and positioning seat cushion
-    and the item meets the skin protection cushion criteria
-    and the item meets the positioning cushion criteria.
+    and the item meets the criteria for a skin protection seat cushion
+    and the item meets the criteria for a positioning cushion.
+
+rule seating_provided_with_special_cushion with provenance LCD L33312,
+        confer "A skin protection and/or positioning seat or back cushion that meets coverage criteria is provided":
+an item is provided with a special cushion that meets coverage criteria
+    if the item is an accessory of a device
+    and an other item is an accessory of the device
+    and the other item is a skin protection or positioning cushion that meets coverage criteria.
 
 % ---------------------------------------------------------------------------
 % Custom fabrication: criteria (1), (2) and (3).
 % ---------------------------------------------------------------------------
 
-rule seating_custom_criterion_1_skin with provenance LCD L33312,
+rule seating_custom_criterion_1_skin_protection with provenance LCD L33312,
         confer "Beneficiary meets all of the criteria for a prefabricated skin protection seat cushion or positioning seat cushion":
 an item meets the criteria for a prefabricated seat cushion
-    if the item meets the skin protection cushion criteria.
+    if the item meets the criteria for a skin protection seat cushion.
 
 rule seating_custom_criterion_1_positioning with provenance LCD L33312,
         confer "Beneficiary meets all of the criteria for a prefabricated skin protection seat cushion or positioning seat cushion":
 an item meets the criteria for a prefabricated seat cushion
-    if the item meets the positioning cushion criteria.
+    if the item meets the criteria for a positioning cushion.
 
 rule seating_custom_criterion_3 with provenance LCD L33312,
         confer "There is a comprehensive written evaluation by a licensed/certified medical professional, such as a physical therapist (PT) or occupational therapist (OT), which clearly explains why a prefabricated seating system is not sufficient to meet the beneficiary’s seating and positioning needs":
@@ -300,7 +330,10 @@ the custom fabrication of an item is justified by a written evaluation
     and the beneficiary had a comprehensive written seating evaluation by a licensed medical professional with no financial relationship with the supplier for the item
     and the finding prefabricated seating insufficient about the beneficiary is established.
 
+% ---------------------------------------------------------------------------
 % The tilt and recline systems on which a headrest is covered, by base kind.
+% ---------------------------------------------------------------------------
+
 manual tilt in space is a qualifying seating system for a headrest on manual wheelchair,
     as stated in LCD L33312, confer "a covered manual tilt-in-space, manual semi or fully reclining back on a manual wheelchair".
 manual semi reclining back is a qualifying seating system for a headrest on manual wheelchair,
@@ -319,9 +352,8 @@ power tilt with recline is a qualifying seating system for a headrest on sling s
 section applicability is:
 
 % The codes this policy decides, and their benefit. The Article names no
-% benefit category in words; a wheelchair cushion is an accessory of durable
-% medical equipment (42 CFR 410.38 names wheelchairs), so its benefit is
-% durable medical equipment.
+% benefit category in words; a wheelchair cushion is an accessory of a
+% wheelchair, durable medical equipment under 42 CFR 410.38 (dmepos.le).
 rule seating_codes with provenance Policy Article A52505,
         confer "The only products which may be billed using codes E2601, E2602, E2603, E2604, E2605, E2606, E2607, E2608, E2610, E2611, E2612, E2613, E2614, E2615, E2616, E2620, E2621, and E2622, E2623, E2624, E2625":
 the policy for code a code is wheelchair_seating
@@ -336,7 +368,7 @@ section question is:
 
 % ---------------------------------------------------------------------------
 % General use seat and back cushions: a covered manual wheelchair, or a
-% covered sling seat power wheelchair with criterion 1 or 2.
+% covered sling seat power wheelchair with criterion 1 or criterion 2.
 % ---------------------------------------------------------------------------
 
 rule seating_general_use_manual with provenance LCD L33312,
@@ -354,17 +386,15 @@ a claim is reasonable and necessary
     and the item is used with a covered sling seat power wheelchair
     and the item is an accessory of a device
     and the HCPCS code of the device is a code
-    and the code is a power wheelchair code with no captains chair model.
+    and the code is a sling seat only power wheelchair code.
 
 rule seating_general_use_power_criterion_2 with provenance LCD L33312,
-        confer "A skin protection and/or positioning seat or back cushion that meets coverage criteria is provided":
+        confer "if a general use cushion is provided with a power wheelchair with a sling/solid seat/back instead of Captain’s Chair, the wheelchair and the cushion(s) will be covered if either criterion 1 or criterion 2 is met":
 a claim is reasonable and necessary
     if the claim is for an item
     and the item is a general use cushion
     and the item is used with a covered sling seat power wheelchair
-    and the item is an accessory of a device
-    and an other item is an accessory of the device
-    and the other item is a skin protection or positioning cushion that meets coverage criteria.
+    and the item is provided with a special cushion that meets coverage criteria.
 
 % ---------------------------------------------------------------------------
 % Skin protection, positioning and combination cushions, positioning
@@ -376,40 +406,41 @@ rule seating_skin_protection with provenance LCD L33312,
 a claim is reasonable and necessary
     if the claim is for an item
     and the item is a skin protection seat cushion
-    and the item meets the skin protection cushion criteria.
+    and the item meets the criteria for a skin protection seat cushion.
 
 rule seating_positioning_seat with provenance LCD L33312,
-        confer "A positioning seat cushion (E2605, E2606), positioning back cushion (E2613, E2614, E2615, E2616, E2620, E2621), and positioning accessory (E0953, E0955, E0956, E0957, E0960) are covered for a beneficiary who meets both of the following criteria":
+        confer "If a skin protection seat cushion, positioning seat cushion, or combination skin protection and positioning seat cushion is provided and if the stated coverage criteria are not met, it will be denied as not reasonable and necessary":
 a claim is reasonable and necessary
     if the claim is for an item
     and the item is a positioning seat cushion
-    and the item meets the positioning cushion criteria.
+    and the item meets the criteria for a positioning cushion.
 
 rule seating_positioning_back with provenance LCD L33312,
         confer "If a positioning back cushion is provided for a beneficiary who does not meet the stated coverage criteria, it will be denied as not reasonable and necessary":
 a claim is reasonable and necessary
     if the claim is for an item
     and the item is a positioning back cushion
-    and the item meets the positioning cushion criteria.
+    and the item meets the criteria for a positioning cushion.
 
 rule seating_positioning_accessory with provenance LCD L33312,
         confer "If a positioning accessory is provided and the criteria are not met, the item will be denied as not reasonable and necessary":
 a claim is reasonable and necessary
     if the claim is for an item
     and the item is a positioning accessory
-    and the item meets the positioning cushion criteria.
+    and the item meets the criteria for a positioning cushion.
 
 rule seating_combination with provenance LCD L33312,
         confer "A combination skin protection and positioning seat cushion (E2607, E2608, E2624, E2625) is covered for a beneficiary who meets the criteria for both a skin protection seat cushion and a positioning seat cushion":
 a claim is reasonable and necessary
     if the claim is for an item
     and the item is a combination skin protection and positioning seat cushion
-    and the item meets the skin protection cushion criteria
-    and the item meets the positioning cushion criteria.
+    and the item meets the criteria for a skin protection seat cushion
+    and the item meets the criteria for a positioning cushion.
 
-% The headrest's second route: a covered tilt or recline system. That the
-% system itself is covered (the Wheelchair Options and Accessories LCD) is
-% not modelled: the scenario states the system, and the base must be covered.
+% The headrest's second route: a covered tilt or recline system on a covered
+% manual wheelchair or sling seat power wheelchair ("If the beneficiary has a
+% POV or a power wheelchair with a captain's chair seat, a headrest or other
+% positioning accessory will be denied"). The scenario states the system.
 rule seating_headrest with provenance LCD L33312,
         confer "A headrest (E0955) is also covered when the beneficiary has a covered manual tilt-in-space, manual semi or fully reclining back on a manual wheelchair, a manual fully reclining back on a power wheelchair, or power tilt and/or recline power seating system":
 a claim is reasonable and necessary
@@ -439,28 +470,33 @@ rule seating_custom_back with provenance LCD L33312,
 a claim is reasonable and necessary
     if the claim is for an item
     and the HCPCS code of the item is "E2617"
-    and the item meets the positioning cushion criteria
+    and the item meets the criteria for a positioning cushion
     and the custom fabrication of the item is justified by a written evaluation.
 
 section remedy is:
 
-% The policy's own condition of payment: a claim for a custom fabricated
-% cushion identifies the product; a prefabricated item has no requirement of
-% its own.
+% The policy's own conditions of payment: a claim for a custom fabricated
+% cushion identifies the product and the written report of the specialty
+% evaluation is available; a prefabricated item has no requirement of its
+% own.
 rule seating_documentation_custom with provenance Policy Article A52505,
         confer "When billing for a custom fabricated cushion (E2609, E2617), the claim must include the manufacturer and model name/ number of the product (if applicable), or if not, a detailed description of the product that was provided":
 the policy specific documentation requirements are met for a claim
     if the policy of the claim is wheelchair_seating
     and the claim is for an item
-    and the HCPCS code of the item is a code
-    and the code is in ["E2609", "E2617"]
-    and the claim identifies the manufacturer and model of the item.
+    and the item is a custom fabricated cushion
+    and the claim identifies the manufacturer and model of the item
+    and the specialty evaluation report requirement is met for the item.
 
 rule seating_documentation_prefabricated with provenance Policy Article A52505,
         confer "When billing for a custom fabricated cushion (E2609, E2617), the claim must include the manufacturer and model name/ number of the product (if applicable), or if not, a detailed description of the product that was provided":
 the policy specific documentation requirements are met for a claim
     if the policy of the claim is wheelchair_seating
     and the claim is for an item
-    and the HCPCS code of the item is a code
     and it is not the case that
-        the code is in ["E2609", "E2617"].
+        the item is a custom fabricated cushion.
+
+rule seating_evaluation_report with provenance Policy Article A52505,
+        confer "There must be a written report of this evaluation available on request":
+the specialty evaluation report requirement is met for an item
+    if the written report of the specialty evaluation for the item is available.

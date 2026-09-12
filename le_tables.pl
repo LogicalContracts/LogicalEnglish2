@@ -223,10 +223,12 @@ parse_cell(Tokens, Cell) :-
         foldl1(or, Exprs, Expr),
         Cell = test(Expr)
     ).
+% a cell is a conjunction only when every part is a condition: a value
+% whose words include "and" ("with acute and chronic ...") stays a value
 parse_cell(Tokens, test(Expr)) :-
     split_connective(and, Tokens, Parts),
-    Parts = [_, _|_], !,
-    maplist(parse_condition, Parts, Exprs),
+    Parts = [_, _|_],
+    maplist(parse_condition, Parts, Exprs), !,
     foldl1(and, Exprs, Expr).
 parse_cell(Tokens, test(Expr)) :-
     parse_condition(Tokens, Expr), !.
