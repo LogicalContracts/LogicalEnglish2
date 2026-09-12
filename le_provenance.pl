@@ -44,7 +44,9 @@
     add_scenario_provenance/3,    % +SM, +KB, +ScenarioTerms
     clause_provenance/5,          % +SM, +KB, +Ref, +Goal, -Prov
     provenance_suffix/2,          % +Prov, -Suffix:string
-    is_judged_goal/2              % +KB, +Goal
+    is_judged_goal/2,             % +KB, +Goal
+    citation_spans/2,             % +KB, -Spans
+    citation_at/6                 % +KB, +Pos, +LineStart, +LineEnd, -Prov, -Rule
 ]).
 
 :- use_module(le_i18n).
@@ -155,7 +157,14 @@ record_rule_provenance(M, ID, Tokens0, Start, End) :-
         Prov = none
     ),
     (   Prov \== none, nonvar(M), M \== (-)
-    ->  assertz(M:le_rule_provenance(ID, Prov))
+    ->  assertz(M:le_rule_provenance(ID, Prov)),
+        % The rule's own range starts at its head; the label's provenance —
+        % where the author wrote which document the rule cites — comes before.
+        (   Tokens = [First|_], le_grammar:get_token_start(First, PS), integer(PS), PS > 0
+        ->  SpanStart is min(PS, Start)
+        ;   SpanStart = Start
+        ),
+        assertz(M:le_rule_provenance_span(ID, SpanStart, End))
     ;   true
     ).
 
@@ -516,3 +525,110 @@ is_judged_goal(KB, Goal) :-
     catch(KB:le_dict(dict([F|Args], _, _, _, _, _, Unknown)), _, fail),
     Unknown == judged,
     length(Args, A), !.
+
+% ---------------------------------------------------------------------------
+% Citations: where the program cites a document the reader can be shown
+% (the editor's "Show original text").
+% ---------------------------------------------------------------------------
+
+%!  citation(+KB, -Start, -End, -Prov, -Rule) is nondet.
+%
+%   A source range of the program that cites a document, and what it cites:
+%   a fact with provenance (its trailers, or its scenario's default); a rule or
+%   a decision table labelled with provenance, from the label to the end of the
+%   rule (Rule is its id, else `none`); a scenario whose header names its
+%   document ("scenario s is, as stated in <document>:"), the whole scenario;
+%   and the statements that say where a document is published or where its
+%   text is ("<document> is published at ...", "the text of <document> is at
+%   ...").
+citation(KB, S, E, Prov, none) :-
+    current_predicate(KB:le_fact_provenance/4),
+    KB:le_fact_provenance(S, E, _, Prov).
+citation(KB, S, E, Prov, ID) :-
+    current_predicate(KB:le_rule_provenance/2),
+    KB:le_rule_provenance(ID, Prov),
+    (   current_predicate(KB:le_rule_provenance_span/3),
+        KB:le_rule_provenance_span(ID, S, E)
+    ->  true
+    ;   once(KB:le_source_info(_, S, E, ID))
+    ).
+citation(KB, S, E, Prov, none) :-
+    current_predicate(KB:le_scenario_provenance/2),
+    KB:le_scenario_provenance(Name, Prov),
+    KB:le_source_info(Ref, S, E, Name),
+    catch(clause(KB:scenario(Name, _), true, Ref), _, fail).
+citation(KB, S, E, prov(none, doc(Doc, Text), none, none), none) :-
+    member(F, [le_published_at, le_text_at]),
+    current_predicate(KB:F/2),
+    Goal =.. [F, Doc, _],
+    catch(clause(KB:Goal, true, Ref), _, fail),
+    KB:le_source_info(Ref, S, E, _),
+    atom_string(Doc, Text).
+
+%!  openable(+KB, +Prov) is semidet.
+%
+%   The document Prov cites can be shown: the program says where its text is
+%   or where it is published, or the document is itself a URL.
+openable(KB, prov(_, doc(Const, _), _, _)) :-
+    openable_document(KB, Const).
+
+openable_document(KB, Const) :-
+    (   document_address(none, KB, le_text_at, Const, _)
+    ;   document_address(none, KB, le_published_at, Const, _)
+    ;   atom_string(Const, S), is_url_text(S)
+    ), !.
+
+%!  citation_spans(+KB, -Spans:list) is det.
+%
+%   The [Start, End] ranges of the program itself (not of the resources it
+%   includes, whose offsets are moved out of its range) that cite a document
+%   that can be shown. The editor keeps them to know where to offer "Show
+%   original text"; which document is shown is asked for then (citation_at/6).
+citation_spans(KB, Spans) :-
+    (   atom(KB), KB \== none
+    ->  le_grammar:resource_offset_unit(Unit),
+        findall(c(S, E, Const),
+                ( citation(KB, S, E, prov(_, doc(Const, _), _, _), _),
+                  integer(S), integer(E), S < Unit ),
+                Cs),
+        findall(Const, member(c(_, _, Const), Cs), Consts0),
+        sort(Consts0, Consts),
+        include(openable_document(KB), Consts, Openable),
+        findall([S, E], ( member(c(S, E, Const), Cs), memberchk(Const, Openable) ), Spans0),
+        sort(Spans0, Spans)
+    ;   Spans = []
+    ).
+
+%!  citation_at(+KB, +Pos, +LineStart, +LineEnd, -Prov, -Rule) is semidet.
+%
+%   The document cited at offset Pos: by the smallest range that holds Pos (a
+%   fact before its scenario) or, when none does, by the smallest range that
+%   meets the line LineStart-LineEnd (a rule's label, which comes before the
+%   rule's head); LineStart and LineEnd may be `none`. The innermost citation
+%   wins even when the program does not say where its document is — a fact
+%   that names its own document is not about its scenario's — so the caller
+%   checks whether it can be shown (provenance_dict/4 then has no `url` and no
+%   `text`).
+citation_at(KB, Pos, LineStart, LineEnd, Prov, Rule) :-
+    atom(KB), KB \== none, integer(Pos),
+    findall(Len-c(P, R),
+            ( cited_document(KB, S, E, P, R),
+              S =< Pos, Pos =< E, Len is E - S ),
+            Inside),
+    (   Inside \== []
+    ->  Candidates = Inside
+    ;   integer(LineStart), integer(LineEnd)
+    ->  findall(Len-c(P, R),
+                ( cited_document(KB, S, E, P, R),
+                  S =< LineEnd, E >= LineStart, Len is E - S ),
+                Candidates)
+    ;   Candidates = []
+    ),
+    keysort(Candidates, [_-c(Prov, Rule)|_]).
+
+% A citation that names a document (a fact "according to" someone, with no
+% document of its own or of its scenario, cites none).
+cited_document(KB, S, E, Prov, Rule) :-
+    citation(KB, S, E, Prov, Rule),
+    Prov = prov(_, doc(_, _), _, _),
+    integer(S), integer(E).

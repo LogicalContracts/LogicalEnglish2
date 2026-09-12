@@ -866,6 +866,9 @@ kb_content(Content, End) -->
     { ( Content = [] -> End = 0; last(Content, Last), get_item_end(Last, End)) }.
 
 get_item_end(rule(_, _, _, _, End, _), End) :- !.
+% A labelled rule with provenance ends where its rule does: the item's last
+% argument is the provenance's token list, not a position.
+get_item_end(rule_prov(Rule, _), End) :- !, get_item_end(Rule, End).
 get_item_end(Item, End) :-
     Item =.. List,
     last(List, End).

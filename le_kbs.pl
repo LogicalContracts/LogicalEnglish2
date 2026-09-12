@@ -2441,6 +2441,7 @@ is_system_predicate(le_lps_item/3).
 is_system_predicate(le_fact_provenance/4).
 is_system_predicate(le_resource_origin/3).
 is_system_predicate(le_rule_provenance/2).
+is_system_predicate(le_rule_provenance_span/3).
 is_system_predicate(le_program_base/1).
 is_system_predicate(le_scenario_provenance/2).
 is_system_predicate(le_provenance/5).

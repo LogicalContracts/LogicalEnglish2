@@ -664,7 +664,17 @@ not PDF). Such facts need no provenance of their own. With them:
   the source viewer shows the document's text with the quoted passage
   highlighted, and *Open original* opens the published address (with a
   `#:~:text=` fragment on the quotation when the address has no anchor of its
-  own). The server's `documentText` operation serves the text.
+  own). The server's `documentText` operation serves the text;
+- in the program itself, the editor's context menu offers **Show original
+  text** on any line that cites a document with an address — a fact with
+  provenance, a rule's or table's `with provenance` label and its body, a
+  scenario "as stated in" a document (its header and its facts), a `... is
+  published at` / `the text of ... is at` statement: the same source viewer,
+  on the passage the line quotes (only the published address known: that page
+  opens). The load response lists the ranges (`citations`), and the
+  `provenanceAt` operation says which document the cursor's line cites — the
+  innermost citation, so a fact naming its own document is not shown its
+  scenario's.
 
 See `examples/RulesRus/judged_damage.le`, and `examples/RulesRus/customs/`,
 where every rule, table and fact cites its passage.

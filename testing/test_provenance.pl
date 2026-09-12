@@ -455,6 +455,109 @@ test(light_rule_forms) :-
     answers(KB, s, q, Answers0), msort(Answers0, Answers),
     Answers == ["ann is eligible"-[], "bob is eligible"-[], "cy is eligible"-[], "dee is eligible"-[]].
 
+% Citations — where the editor offers "Show original text": the facts, the
+% rule label, the scenario header and the statements that say where a
+% document is. A fact naming a document with no address still cites that
+% document, not its scenario's.
+citation_program("the target language is: prolog.
+
+the templates are:
+    *a person* is eligible.
+    *a person* is resident.
+    *a person* is old.
+
+the knowledge base cited includes:
+
+the census is published at \"https://example.org/census.html\".
+the text of the census is at \"sources/census.txt\".
+the benefit act is published at \"https://example.org/act.html\".
+
+rule s2 with provenance the benefit act, confer \"a resident is eligible\":
+a person is eligible
+    if the person is resident.
+
+scenario s is, as stated in the census:
+    ann is resident.
+    bob is resident,
+        confer \"Bob, resident of York\".
+    cy is old, as stated in the tax register at page 7.
+
+query q is:
+    which person is eligible.
+").
+
+% Offset of the first occurrence of Text in the program, plus K; and the
+% bounds of the line it starts on.
+offset_in(P, Text, K, Pos) :- sub_string(P, B, _, _, Text), !, Pos is B + K.
+line_bounds(P, Pos, LS, LE) :-
+    sub_string(P, 0, Pos, _, Before),
+    (   aggregate_all(max(I), sub_string(Before, I, 1, _, "\n"), LastNL)
+    ->  LS is LastNL + 1
+    ;   LS = 0
+    ),
+    sub_string(P, LS, _, 0, Rest),
+    ( sub_string(Rest, NL, 1, _, "\n") -> LE is LS + NL ; string_length(P, LE) ).
+
+citation_at_text(KB, P, Text, K, Prov, Rule) :-
+    offset_in(P, Text, K, Pos),
+    line_bounds(P, Pos, LS, LE),
+    le_provenance:citation_at(KB, Pos, LS, LE, Prov, Rule).
+
+test(citation_of_a_fact_quotes_its_passage) :-
+    citation_program(P), load_text(P, KB),
+    citation_at_text(KB, P, "bob is resident", 2, Prov, Rule),
+    Rule == none,
+    le_provenance:provenance_dict(none, KB, Prov, D),
+    D.document == "the census",
+    D.quote == "Bob, resident of York",
+    D.text == "sources/census.txt",
+    D.url == "https://example.org/census.html".
+
+% The label comes before the rule's range: the cursor's line finds the rule.
+test(citation_of_a_rule_label) :-
+    citation_program(P), load_text(P, KB),
+    citation_at_text(KB, P, "rule s2 with", 1, Prov, Rule),
+    Rule == s2,
+    le_provenance:provenance_dict(none, KB, Prov, D),
+    D.document == "the benefit act",
+    D.quote == "a resident is eligible",
+    D.url == "https://example.org/act.html",
+    % ... and so does a cursor in the rule's body
+    citation_at_text(KB, P, "if the person is resident", 3, _, Rule2),
+    Rule2 == s2.
+
+test(citation_of_a_scenario_header_and_a_document_statement) :-
+    citation_program(P), load_text(P, KB),
+    citation_at_text(KB, P, "scenario s is", 2, Prov, none),
+    le_provenance:provenance_dict(none, KB, Prov, D),
+    D.document == "the census", D.quote == null,
+    citation_at_text(KB, P, "the text of the census", 5, Prov2, none),
+    le_provenance:provenance_dict(none, KB, Prov2, D2),
+    D2.document == "the census", D2.text == "sources/census.txt".
+
+test(citation_of_a_document_without_address) :-
+    citation_program(P), load_text(P, KB),
+    citation_at_text(KB, P, "cy is old", 2, Prov, none),
+    le_provenance:provenance_dict(none, KB, Prov, D),
+    D.document == "the tax register",
+    D.url == null, D.text == null,
+    % nothing cited among the templates
+    \+ citation_at_text(KB, P, "*a person* is old", 3, _, _).
+
+% The spans the editor keeps: only citations of documents it can show, the
+% rule's from its label on.
+test(citation_spans) :-
+    citation_program(P), load_text(P, KB),
+    le_provenance:citation_spans(KB, Spans),
+    offset_in(P, "bob is resident", 2, Bob),
+    assertion(( member([S, E], Spans), S =< Bob, Bob =< E )),
+    offset_in(P, "the benefit act, confer", 0, Label),
+    offset_in(P, "a person is eligible", 0, Head),
+    assertion(( member([S1, E1], Spans), S1 =< Label, Head =< E1 )),
+    KB:le_fact_provenance(CS, CE, is_old(cy), _),
+    assertion(\+ memberchk([CS, CE], Spans)),
+    forall(member([S2, E2], Spans), assertion((integer(S2), integer(E2), S2 =< E2))).
+
 % An explanation renders a quoted passage as confer "...".
 test(confer_rendered) :-
     light_program(P),

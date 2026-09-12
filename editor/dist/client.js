@@ -6761,6 +6761,8 @@ var uiCatalog = {
     "Loading the document\u2026": "A carregar o documento\u2026",
     "The quoted passage was not found in this text.": "A passagem citada n\xE3o foi encontrada neste texto.",
     "Show the source": "Mostrar a fonte",
+    "Show original text": "Mostrar o texto original",
+    "No cited document here.": "Nenhum documento citado aqui.",
     "From a document": "A partir de um documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Cole ou obtenha abaixo o texto do documento: cada facto citar\xE1 a passagem que o afirma.",
     "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
@@ -7095,6 +7097,8 @@ var uiCatalog = {
     "Loading the document\u2026": "Cargando el documento\u2026",
     "The quoted passage was not found in this text.": "El pasaje citado no se encontr\xF3 en este texto.",
     "Show the source": "Mostrar la fuente",
+    "Show original text": "Mostrar el texto original",
+    "No cited document here.": "No hay ning\xFAn documento citado aqu\xED.",
     "From a document": "A partir de un documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Pegue u obtenga abajo el texto del documento: cada hecho citar\xE1 el pasaje que lo afirma.",
     "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
@@ -7429,6 +7433,8 @@ var uiCatalog = {
     "Loading the document\u2026": "Chargement du document\u2026",
     "The quoted passage was not found in this text.": "Le passage cit\xE9 est introuvable dans ce texte.",
     "Show the source": "Afficher la source",
+    "Show original text": "Afficher le texte original",
+    "No cited document here.": "Aucun document cit\xE9 ici.",
     "From a document": "\xC0 partir d'un document",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Collez ou r\xE9cup\xE9rez ci-dessous le texte du document : chaque fait citera le passage qui l'\xE9nonce.",
     "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
@@ -7763,6 +7769,8 @@ var uiCatalog = {
     "Loading the document\u2026": "Caricamento del documento\u2026",
     "The quoted passage was not found in this text.": "Il passaggio citato non \xE8 stato trovato in questo testo.",
     "Show the source": "Mostra la fonte",
+    "Show original text": "Mostra il testo originale",
+    "No cited document here.": "Nessun documento citato qui.",
     "From a document": "Da un documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Incolli o recuperi qui sotto il testo del documento: ogni fatto citer\xE0 il passaggio che lo afferma.",
     "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
@@ -11621,6 +11629,66 @@ async function start() {
       showOccurrences(ed, data);
     }
   });
+  const CITATION = "le-citation";
+  const citationKey = editor.createContextKey("leCitationAtCursor", false);
+  const citationDecorations = /* @__PURE__ */ new WeakMap();
+  function updateCitationKey() {
+    const model = editor.getModel();
+    const position = editor.getPosition();
+    if (!model || !position || model.getLanguageId() !== "le") {
+      citationKey.set(false);
+    } else if (!citationDecorations.has(model)) {
+      citationKey.set(true);
+    } else {
+      citationKey.set(model.getLineDecorations(position.lineNumber).some((d) => d.options.description === CITATION));
+    }
+  }
+  editor.onContextMenu(() => {
+    if (activeDoc === panelDoc && !isLoaded && !isLoading)
+      loadModule();
+  });
+  const setCitations = (model, spans) => {
+    const decorations = spans.map(([start2, end]) => {
+      const a = model.getPositionAt(start2);
+      const b = model.getPositionAt(end);
+      return {
+        range: new monaco.Range(a.lineNumber, a.column, b.lineNumber, b.column),
+        options: {
+          description: CITATION,
+          stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+        }
+      };
+    });
+    citationDecorations.set(model, model.deltaDecorations(citationDecorations.get(model) || [], decorations));
+    updateCitationKey();
+  };
+  editor.onDidChangeCursorPosition(updateCitationKey);
+  editor.onDidChangeModel(updateCitationKey);
+  editor.addAction({
+    id: "le-show-original-text",
+    label: t("Show original text"),
+    contextMenuGroupId: "navigation",
+    contextMenuOrder: 2.25,
+    precondition: "leCitationAtCursor",
+    run: async (ed) => {
+      const data = await predicateAtCursor(ed, "provenanceAt");
+      if (!data || !data.provenance) {
+        alert(t("No cited document here."));
+        return;
+      }
+      const p = data.provenance;
+      const published = originalUrl(p);
+      if (!p.text && published) {
+        window.open(published, "_blank");
+        return;
+      }
+      openSourceViewer(
+        p,
+        data.rule || void 0,
+        { source: panelDoc.example || "", base: panelDoc.baseUrl || "" }
+      );
+    }
+  });
   const prologPanel = document.getElementById("prolog-panel");
   const prologContent = document.getElementById("prolog-content");
   const prologClose = document.getElementById("prolog-panel-close");
@@ -12459,6 +12527,7 @@ async function start() {
         lastLoadError = "";
         includedResources = res.included_resources || [];
         lastTemplateDefs = res.template_defs || [];
+        setCitations(doc.model, res.citations || []);
         kbModuleDisplay.textContent = `KB: ${res.kb || "unknown"}`;
         sessionModuleDisplay.textContent = `Session: ${sessionModule}`;
         if (engineSelect && !engineUserSet) {

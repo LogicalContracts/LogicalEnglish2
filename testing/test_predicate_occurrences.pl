@@ -115,6 +115,34 @@ test(no_predicate_at_a_blank_position) :-
     kb(KB),
     assertion(\+ classic_web_api:predicate_at_pos(KB, 0, "", _, _)).
 
+% A knowledge base whose LAST item is a rule labelled with provenance: its
+% source range must still end at a position. It used to end at the label's
+% provenance tokens, and every lookup by position then threw a type error in
+% =</2 (examples/RulesRus/customs/section_xi.le, "Show occurrences").
+prov_program("the target language is: prolog.
+
+the templates are:
+    *a good* is a suit.
+    *a good* is a set.
+
+the knowledge base tiny includes:
+
+rule suit_note with provenance HTSUS Chapter 61,
+        confer \"means a set of garments\":
+a good is a suit
+    if the good is a set.
+").
+
+test(kb_ending_with_a_provenance_rule_has_a_numeric_range) :-
+    prov_program(P), le_kbs:load_text(P, KB),
+    forall(KB:le_source_info(_, S, E, _),
+           assertion((integer(S), integer(E)))),
+    sub_string(P, Before, _, _, "a good is a suit"), !,
+    Pos is Before + 3,
+    assertion(classic_web_api:predicate_at_pos(KB, Pos, "a good is a suit", Before, is_a_suit, 1)),
+    classic_web_api:predicate_occurrences(KB, is_a_suit, 1, R),
+    assertion(R.occurrences \== []).
+
 :- end_tests(predicate_occurrences).
 
 % ---------------------------------------------------------------------------
