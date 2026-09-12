@@ -35,6 +35,8 @@
 :- use_module(library(option)).
 :- use_module(library(pairs)).
 :- use_module(library(error)).
+:- use_module(library(ugraphs)).
+:- use_module(library(ordsets)).
 :- use_module(le_i18n).
 
 %!  scasp_msg(+Key, +Pairs, -Text) is det.
@@ -739,15 +741,31 @@ inner_atom(A, A).
 %   Prolog engine may loop or give unsound answers, and s(CASP) is advised. Each
 %   cycle is a list of F/A predicate indicators.
 le_scasp_stratification(KB, Cycles) :-
-    findall(From-To-Kind, dep_edge(KB, From, To, Kind), Edges),
-    findall(P, ( member(P-_-_, Edges) ; member(_-P-_, Edges) ), Ps0),
+    findall(From-To-Kind, dep_edge(KB, From, To, Kind), Edges0),
+    sort(Edges0, Edges),
+    findall(F-T, member(F-T-_, Edges), Pairs0),
+    sort(Pairs0, Pairs),
+    findall(P, ( member(P-_, Pairs) ; member(_-P, Pairs) ), Ps0),
     sort(Ps0, Ps),
+    vertices_edges_to_ugraph(Ps, Pairs, Graph),
+    transpose_ugraph(Graph, Reversed),
     findall(Cycle,
-            ( member(Start, Ps),
-              neg_cycle(Start, Edges, Cycle) ),
+            ( member(A-B-neg, Edges),
+              negation_cycle(A, B, Graph, Reversed, Cycle) ),
             Cycles0),
-    maplist(canonical_cycle, Cycles0, Cycles1),
-    sort(Cycles1, Cycles).
+    sort(Cycles0, Cycles).
+
+% negation_cycle(+A, +B, +Graph, +Reversed, -Cycle): the negative edge A -> B
+% closes a cycle when B reaches A again; the cycle's predicates are those on
+% the paths from B back to A (sorted). Reachability over the dependency graph
+% (library(ugraphs)) keeps the check linear per negative edge: enumerating
+% every simple path instead grew exponentially with the size of the program
+% (a 250-predicate program spent seconds here on every load).
+negation_cycle(A, B, Graph, Reversed, Cycle) :-
+    reachable(B, Graph, FromB),
+    ord_memberchk(A, FromB),
+    reachable(A, Reversed, ToA),
+    ord_intersection(FromB, ToA, Cycle).
 
 % dep_edge(+KB, -HeadPI, -BodyPI, -Kind): Kind is neg for a body literal under
 % not/1, pos otherwise.
@@ -774,24 +792,6 @@ body_inner(G, G).
 le_builtin_functor_g(G) :- functor(G, F, _), le_builtin_functor(F).
 
 lit_pi(G, F/A) :- functor(G, F, A).
-
-% neg_cycle(+Start, +Edges, -Cycle): a cycle back to Start using ≥1 neg edge.
-neg_cycle(Start, Edges, [Start|Path]) :-
-    reach(Start, Start, Edges, [Start], Path, false, true).
-
-reach(Cur, Goal, Edges, Visited, [Next|Rest], NegSoFar, NegOut) :-
-    member(Cur-Next-Kind, Edges),
-    ( Kind == neg -> Neg1 = true ; Neg1 = NegSoFar ),
-    ( Next == Goal ->
-        Rest = [], NegOut = Neg1, NegOut == true
-    ; \+ memberchk(Next, Visited),
-      reach(Next, Goal, Edges, [Next|Visited], Rest, Neg1, NegOut)
-    ).
-
-canonical_cycle(Cycle, Canon) :-
-    ( Cycle = [_|_] -> last(Cycle, L), ( Cycle = [L|_] -> Trimmed = Cycle ; Trimmed = Cycle ) ; Trimmed = Cycle ),
-    sort(Trimmed, Canon).
-
 
 :- if(\+ current_predicate(have_scasp/0)).
 % Stubs so the file compiles without the pack; runtime entries fail cleanly.

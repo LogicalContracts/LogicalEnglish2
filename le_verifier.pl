@@ -13,6 +13,7 @@
 :- use_module(le_system_templates, [le_system_template/1]).
 :- use_module(le_scasp, []).
 :- use_module(le_documents, []).
+:- use_module(library(ordsets)).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
 %
@@ -29,7 +30,34 @@ verify(KB, Issues) :-
 %   the example-listing endpoints.
 verify(KB, Options, Issues) :-
     ensure_kb_language(KB),
+    nb_setval(le_query_reachable, none),       % computed once per verification
+    tests_budget_start,
     ( setof(Issue, check_issue(KB, Options, Issue), Issues) -> true; Issues = []).
+
+% The embedded tests a verification runs (failed_test below) share a time
+% budget, prolog flag le_verify_tests_seconds (default 5): a program with many
+% scenarios is not held up running all of them each time it is loaded — the
+% editor loads it at every change. The tests left over are reported once
+% (tests_not_run); the test runner (runTests, runTestsFor) runs them all.
+:- create_prolog_flag(le_verify_tests_seconds, 5, [type(integer), keep(true)]).
+
+tests_budget_start :-
+    current_prolog_flag(le_verify_tests_seconds, Budget),
+    get_time(Now), Deadline is Now + Budget,
+    nb_setval(le_tests_deadline, Deadline),
+    nb_setval(le_tests_skipped, 0).
+
+% True while the budget lasts; past it, counts the test as not run and fails.
+test_in_budget :-
+    (   nb_current(le_tests_deadline, Deadline), number(Deadline)
+    ->  get_time(Now),
+        (   Now =< Deadline
+        ->  true
+        ;   nb_getval(le_tests_skipped, N0), N is N0 + 1, nb_setval(le_tests_skipped, N),
+            fail
+        )
+    ;   true
+    ).
 
 check_issue(KB, _, Issue) :- missing_template(KB, Issue).
 check_issue(KB, _, Issue) :- undefined_predicate(KB, Issue).
@@ -40,6 +68,7 @@ check_issue(KB, _, Issue) :- untested_predicate(KB, Issue).
 check_issue(KB, _, Issue) :- rule_without_variables(KB, Issue).
 check_issue(KB, _, Issue) :- facts_rules_ratio(KB, Issue).
 check_issue(KB, Options, Issue) :- \+ memberchk(skip_tests, Options), failed_test(KB, Issue).
+check_issue(KB, Options, Issue) :- \+ memberchk(skip_tests, Options), tests_not_run(KB, Issue).
 check_issue(KB, _, Issue) :- redefined_system_template(KB, Issue).
 check_issue(KB, _, Issue) :- single_variable_fact(KB, Issue).
 check_issue(KB, _, Issue) :- single_variable_scenario_fact(KB, Issue).
@@ -730,22 +759,39 @@ template_source(KB, Dict, Start, End) :-
     ).
 
 is_reachable_from_query(KB, F, A) :-
-    current_predicate(KB:query_info/3),
-    KB:query_info(_, Goal, _),
-    is_reachable(KB, Goal, F, A, []).
+    query_reachable(KB, Reached),
+    ord_memberchk(F/A, Reached).
 
-is_reachable(_KB, Goal, F, A, _) :-
-    find_in_body(Goal, Literal),
-    functor(Literal, F, A).
-is_reachable(KB, Goal, F, A, Anc) :-
-    find_in_body(Goal, Literal),
-    functor(Literal, F1, A1),
-    \+ member(F1/A1, Anc),
-    functor(G1, F1, A1),
-    current_predicate(KB:F1/A1),
-    le_kbs:kb_own_predicate(KB, G1),
-    KB:clause(G1, Body),
-    is_reachable(KB, Body, F, A, [F1/A1|Anc]).
+% query_reachable(+KB, -Reached): the predicates the queries use, directly or
+% through the rules of the program's own predicates (ordered set), found once
+% per verification by a breadth-first walk of the dependency graph. (Walking
+% every path from every query again for each predicate grew exponentially
+% with the program: a 250-predicate program spent seconds on it.)
+query_reachable(KB, Reached) :-
+    (   nb_current(le_query_reachable, cache(KB0, Reached0)), KB0 == KB
+    ->  Reached = Reached0
+    ;   findall(F/A, ( current_predicate(KB:query_info/3),
+                       KB:query_info(_, Goal, _),
+                       find_in_body(Goal, L), functor(L, F, A) ), Start0),
+        sort(Start0, Start),
+        reach_closure(KB, Start, Start, Reached),
+        nb_setval(le_query_reachable, cache(KB, Reached))
+    ).
+
+reach_closure(_, [], Reached, Reached) :- !.
+reach_closure(KB, Frontier, Reached0, Reached) :-
+    findall(F1/A1,
+            ( member(F/A, Frontier),
+              functor(G, F, A),
+              current_predicate(KB:F/A),
+              le_kbs:kb_own_predicate(KB, G),
+              KB:clause(G, Body),
+              find_in_body(Body, L), functor(L, F1, A1) ),
+            Next0),
+    sort(Next0, Next),
+    ord_subtract(Next, Reached0, New),
+    ord_union(Reached0, New, Reached1),
+    reach_closure(KB, New, Reached1, Reached).
 
 % --- 4. Rule without variables ---
 rule_without_variables(KB, issue(rule_without_variables, Description, Fix, Start, End)) :-
@@ -808,6 +854,7 @@ facts_rules_ratio(KB, issue(too_many_facts, Description, Fix, 0, 0)) :-
 failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     current_predicate(KB:le_expected/4),
     clause(KB:le_expected(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), true, Ref),
+    test_in_budget,
     run_one_test(KB, test(QueryName, ScenarioName, ExpectedStrings, ExpectedUnknowns), Result),
     Result \= pass(_, _),
     (   Result = fail(_, _, Expected, Actual) ->
@@ -825,6 +872,7 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
 failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     current_predicate(KB:le_expected_changes/3),
     clause(KB:le_expected_changes(QueryName, ScenarioName, Sets), true, Ref),
+    test_in_budget,
     run_one_test(KB, test_changes(QueryName, ScenarioName, Sets), Result),
     Result \= pass(_, _),
     (   Result = fail(_, _, Expected, Actual)
@@ -835,6 +883,18 @@ failed_test(KB, issue(failed_test, Description, Fix, Start, End)) :-
     ),
     le_i18n:le_msg(failed_test_fix, [], Fix),
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+
+% The embedded tests the verification's time budget left unrun (see
+% test_in_budget/0): reported once, so that a clean load is not mistaken for
+% passing tests.
+tests_not_run(KB, issue(tests_not_run, Description, Fix, 0, 0)) :-
+    nb_current(le_tests_skipped, N), integer(N), N > 0,
+    aggregate_all(count, clause(KB:le_expected(_, _, _, _), true), T1),
+    aggregate_all(count, clause(KB:le_expected_changes(_, _, _), true), T2),
+    Total is T1 + T2,
+    current_prolog_flag(le_verify_tests_seconds, Budget),
+    le_i18n:le_msg(tests_not_run_desc, [count-N, total-Total, seconds-Budget], Description),
+    le_i18n:le_msg(tests_not_run_fix, [], Fix).
 
 % --- 7. Redefined system template ---
 redefined_system_template(KB, issue(redefined_system_template, Description, Fix, Start, End)) :-
@@ -853,6 +913,9 @@ redefined_system_template(KB, issue(redefined_system_template, Description, Fix,
     \+ is_defined(KB, G),
     % A template answered by a service has no rules by design.
     \+ ( current_predicate(KB:le_service_template/2), KB:le_service_template(F/Arity, _) ),
+    % So has a scenario element (`; undefined`): its facts come from the
+    % scenarios, which a library of rules included by them does not have.
+    \+ is_scenario_element_functor(KB, F, Arity),
     % Get source info
     ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0),
     canonical_string(WV, TemplateStr),
@@ -1036,8 +1099,8 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
     [ '~w: ~w' - [Type, Msg] ].

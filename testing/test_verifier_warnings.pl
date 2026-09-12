@@ -291,3 +291,52 @@ test(a_template_without_facts_is_not_flagged_here) :-
     assertion(\+ member(issue(unconsumed_facts, _, _, _, _), Issues)).
 
 :- end_tests(unconsumed_facts).
+
+% The embedded tests a verification runs share a time budget (prolog flag
+% le_verify_tests_seconds): the ones left over are not run, and one warning
+% says how many — a load must not look as if they had passed.
+:- begin_tests(verification_test_budget).
+
+budget_program("the target language is: prolog.\nthe templates are:\n    *a person* is happy.\n    *a person* is healthy.\nthe knowledge base b includes:\n\na person is happy if the person is healthy.\n\nscenario one is:\n    bob is healthy.\n    who expects answers [\"bob is happy\"].\n\nscenario two is:\n    ann is healthy.\n    who expects answers [\"ann is happy\"].\n\nquery who is:\n    which person is happy.\n").
+
+test(tests_past_the_budget_are_reported_not_run) :-
+    budget_program(T),
+    setup_call_cleanup(
+        set_prolog_flag(le_verify_tests_seconds, -1),     % already past
+        ( le_kbs:load_text(T, M), le_verifier:verify(M, Issues) ),
+        set_prolog_flag(le_verify_tests_seconds, 5)),
+    assertion(memberchk(issue(tests_not_run, _, _, _, _), Issues)),
+    memberchk(issue(tests_not_run, D, _, _, _), Issues),
+    assertion(sub_atom(D, 0, _, _, '2 of the 2 tests')).
+
+test(tests_within_the_budget_run) :-
+    budget_program(T),
+    le_kbs:load_text(T, M),
+    le_verifier:verify(M, Issues),
+    assertion(\+ memberchk(issue(tests_not_run, _, _, _, _), Issues)),
+    assertion(\+ memberchk(issue(failed_test, _, _, _, _), Issues)).
+
+:- end_tests(verification_test_budget).
+
+% "*a garment* is napped" looks like the system template "*a thing* is *a value*"
+% and has no rules: a warning, in case the author meant the system one. Not
+% when it is a scenario element: a library of rules has no scenarios, and the
+% facts of such a template are the scenarios' to give.
+:- begin_tests(redefined_system_template).
+
+napped_program(Mark, Text) :-
+    format(string(Text), "the target language is: prolog.\nthe templates are:\n    *a garment* is napped~w.\n    *a garment* is warm.\nthe knowledge base k includes:\n\na garment is warm if the garment is napped.\n", [Mark]).
+
+test(template_like_a_system_one_without_rules_is_flagged) :-
+    napped_program('', T),
+    le_kbs:load_text(T, M),
+    le_verifier:verify(M, Issues),
+    assertion(memberchk(issue(redefined_system_template, _, _, _, _), Issues)).
+
+test(scenario_element_like_a_system_one_is_not_flagged) :-
+    napped_program('; undefined', T),
+    le_kbs:load_text(T, M),
+    le_verifier:verify(M, Issues),
+    assertion(\+ memberchk(issue(redefined_system_template, _, _, _, _), Issues)).
+
+:- end_tests(redefined_system_template).
