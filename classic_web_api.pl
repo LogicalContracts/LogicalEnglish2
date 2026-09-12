@@ -215,6 +215,7 @@ handle_operation(Dict, Response) :-
         ; Op == "documentText" -> handle_document_text(Dict, Response)
         ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
         ; Op == "predicateOccurrences" -> handle_predicate_occurrences(Dict, Response)
+        ; Op == "provenanceAt" -> handle_provenance_at(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
         ; Op == "getLps" -> handle_get_lps(Dict, Response)
         ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
@@ -1087,11 +1088,15 @@ handle_load(Dict, Response) :-
         % The declared execution target (`the target language is: …`) so the client
         % can pre-select the matching engine.
         le_kbs:kb_target_language(KB, Target),
+        % Where the program cites a document the editor can show ("Show
+        % original text", operation provenanceAt).
+        ( catch(le_provenance:citation_spans(KB, Citations), _, fail) -> true ; Citations = [] ),
         Response = Metadata.put(_{
             sessionModule: SM,
             language: Language,
             target: Target,
-            issues: Issues
+            issues: Issues,
+            citations: Citations
         }),
         print_message(informational, le_api_info(loaded(KB, SM)))
         ;   
@@ -2520,6 +2525,40 @@ handle_predicate_occurrences(Dict, Response) :-
         (   predicate_at_pos(KB, Pos, Line0, LineStart, F, A)
         ->  predicate_occurrences(KB, F, A, Response)
         ;   Response = _{error: "No predicate at this position"}
+        )
+    ).
+
+%!  handle_provenance_at(+Dict, -Response) is det.
+%
+%   The document cited where the cursor is — by a fact's provenance, a rule's
+%   or a table's label, the header of the scenario, or a statement saying
+%   where the document is — for the editor's "Show original text":
+%
+%       {provenance: {document, locator, quote, source, rationale, url, text},
+%        rule: <label> | null}
+%
+%   (the provenance dict of explanation nodes, le_provenance:provenance_dict/4).
+%   Request fields as predicateAt: sessionModule, position, line, lineStart —
+%   the line lets a cursor on a rule's label, which precedes the rule's range,
+%   find the rule.
+handle_provenance_at(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( catch(SM:le_kb_module_fact(KB), _, fail) -> true ; KB = none ),
+    (   KB == none
+    ->  Response = _{error: "No KB loaded"}
+    ;   get_dict(position, Dict, Pos),
+        (   get_dict(lineStart, Dict, LS), integer(LS),
+            get_dict(line, Dict, Line), string(Line)
+        ->  string_length(Line, Len), LE is LS + Len
+        ;   LS = none, LE = none
+        ),
+        (   le_provenance:citation_at(KB, Pos, LS, LE, Prov, Rule)
+        ->  le_provenance:provenance_dict(SM, KB, Prov, P),
+            ( Rule \== none, le_kbs:user_rule_name(Rule) -> R = Rule ; R = null ),
+            Response = _{provenance: P, rule: R}
+        ;   Response = _{error: "No cited document at this position"}
         )
     ).
 

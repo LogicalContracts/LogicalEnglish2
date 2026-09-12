@@ -5,6 +5,7 @@ import qrcode from 'qrcode-generator';
 import { parseScenarioBlocks, parseQueryBlocks } from './le-templates';
 import { ExplanationView } from './explanation-view';
 import { isForeignOffset, openIncludedResource, describeResourceRange } from './resource-nav';
+import { openSourceViewer, originalUrl, Provenance } from './source-viewer';
 import { TabBar } from './editor-tabs';
 
 declare var monaco: any;
@@ -862,6 +863,82 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                     return;
                 }
                 showOccurrences(ed, data);
+            }
+        });
+
+        // ---- Show original text --------------------------------------------
+        // Where the program cites a document it says how to reach — a fact
+        // with provenance, a rule or table labelled with provenance, a scenario
+        // "as stated in" a document, "the text of <document> is at ..." — the
+        // context menu offers the document itself, the cited passage
+        // highlighted (the source viewer of the explanation's § badge).
+        // Each load sends those ranges (`citations`); they are kept as
+        // invisible decorations of the program's model, so they follow edits
+        // until the next load, and a context key says whether the cursor's
+        // line meets one — the menu shows the entry only then. Which document
+        // is asked for when the entry is chosen (operation provenanceAt).
+        // A program not loaded since it was opened has no known citations yet:
+        // the entry is offered anywhere and loads it (and so does opening the
+        // menu, so that the next menu knows).
+        const CITATION = 'le-citation';
+        const citationKey = editor.createContextKey('leCitationAtCursor', false);
+        const citationDecorations = new WeakMap<any, string[]>();
+
+        function updateCitationKey() {
+            const model = editor.getModel();
+            const position = editor.getPosition();
+            if (!model || !position || model.getLanguageId() !== 'le') {
+                citationKey.set(false);
+            } else if (!citationDecorations.has(model)) {
+                citationKey.set(true);
+            } else {
+                citationKey.set(model.getLineDecorations(position.lineNumber)
+                    .some((d: any) => d.options.description === CITATION));
+            }
+        }
+        editor.onContextMenu(() => {
+            if (activeDoc === panelDoc && !isLoaded && !isLoading) loadModule();
+        });
+
+        const setCitations = (model: any, spans: number[][]) => {
+            const decorations = spans.map(([start, end]) => {
+                const a = model.getPositionAt(start);
+                const b = model.getPositionAt(end);
+                return {
+                    range: new monaco.Range(a.lineNumber, a.column, b.lineNumber, b.column),
+                    options: {
+                        description: CITATION,
+                        stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+                    }
+                };
+            });
+            citationDecorations.set(model, model.deltaDecorations(citationDecorations.get(model) || [], decorations));
+            updateCitationKey();
+        };
+        editor.onDidChangeCursorPosition(updateCitationKey);
+        editor.onDidChangeModel(updateCitationKey);
+
+        editor.addAction({
+            id: 'le-show-original-text',
+            label: t('Show original text'),
+            contextMenuGroupId: 'navigation',
+            contextMenuOrder: 2.25,
+            precondition: 'leCitationAtCursor',
+            run: async (ed: any) => {
+                const data = await predicateAtCursor(ed, 'provenanceAt');
+                if (!data || !data.provenance) {
+                    alert(t('No cited document here.'));
+                    return;
+                }
+                const p: Provenance = data.provenance;
+                // Only a published address: that is the original to open.
+                const published = originalUrl(p);
+                if (!p.text && published) {
+                    window.open(published, '_blank');
+                    return;
+                }
+                openSourceViewer(p, data.rule || undefined,
+                                 { source: panelDoc.example || '', base: panelDoc.baseUrl || '' });
             }
         });
 
@@ -1798,6 +1875,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 lastLoadError = '';
                 includedResources = res.included_resources || [];
                 lastTemplateDefs = res.template_defs || [];
+                setCitations(doc.model, res.citations || []);
 
                 kbModuleDisplay.textContent = `KB: ${res.kb || 'unknown'}`;
                 sessionModuleDisplay.textContent = `Session: ${sessionModule}`;

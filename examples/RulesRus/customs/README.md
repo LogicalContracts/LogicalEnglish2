@@ -199,7 +199,12 @@ in sample.
   from the office's code the scenario says `DISAGREES` (or `NO CODE`,
   `CONDITIONAL`) and why, so the example suite stays a regression test of the
   model, not of the rulings. A code of a pre-2022 ruling that the 2022 edition
-  renumbered counts as the same code.
+  renumbered counts as the same code. A ruling that classifies several goods
+  (52 of the 225 CBP rulings span more than one subheading) has every good in
+  its scenario and every code in its `% CBP:` comment; the Chapter 99 codes
+  that follow some classifications (`9903.88.15`, `9903.01.24`: additional
+  duties on goods of a given origin) are not classifications and are not
+  compared. Eight- and ten-digit codes: RulesRUs §1, future work.
 
 A classification's explanation is the audit trail the report asks for — the
 GRI chain with every note and every fact's source. Abridged, for the cat toy of
