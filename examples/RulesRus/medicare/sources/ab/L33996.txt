@@ -1,0 +1,33 @@
+LCD L33996: Vitamin D Assay Testing
+Contractors: CGS Administrators, LLC
+Effective: 2026-08-06 00:00:00
+
+=== indication ===
+Abstract : Vitamin D is a hormone, synthesized by the skin and metabolized by the kidney to an active hormone, calcitriol. An excess of vitamin D may lead to hypercalcemia. Vitamin D deficiency may lead to a variety of disorders. This LCD identifies the indications and limitations of Medicare coverage and reimbursement for these services. 
+ Vitamin D is called a "vitamin" because of its exogenous source, predominately from oily fish in the form of vitamin D2 and vitamin D3. It is really a hormone, synthesized by the skin and metabolized by the kidney to an active hormone, calcitriol, which then acts throughout the body. In the skin, 7-dehydrocholesterol is converted to vitamin D3 in response to sunlight, a process that is inhibited by sunscreen with a skin protection factor (SPF) of 8 or greater. Once in the blood, vitamin D2 and D3 from diet or skin bind with vitamin D binding protein and are carried to the liver where they are hydroxylated to yield calcidiol. Calcidiol then is converted in the kidney to calcitriol by the action of 1a-hydroxylase (CYP27B1). The CYP27B1 in the kidney is regulated by nearly every hormone involved in calcium homeostasis, and its activity is stimulated by PTH, estrogen, calcitonin, prolactin, growth hormone, low calcium levels, and low phosphorus levels. Its activity is inhibited by calcitriol, thus providing the feedback loop that regulates calcitriol synthesis. 
+ An excess of vitamin D is unusual, but may lead to hypercalcemia. Vitamin D deficiency may lead to a variety of disorders, the most infamous of which is rickets. Evaluating patients’ vitamin D levels is accomplished by measuring the level of 25-hydroxyvitamin D. Measurement of other metabolites is generally not medically necessary.   Indications: Measurement of vitamin D levels is indicated for patients with: 
+ 
+ chronic kidney disease stage III or greater; 
+ osteoporosis; 
+ osteomalacia; 
+ osteopenia; 
+ hypocalcemia; 
+ hypercalcemia; 
+ hypercalciura; 
+ hypoparathyroidism; 
+ hyperparathyroidism; 
+ malabsorption states; 
+ cirrhosis; 
+ hypervitaminosis D; 
+ obstructive jaundice; 
+ osteosclerosis/petrosis; 
+ rickets; 
+ low exposure to sunlight; and 
+ vitamin D deficiency to monitor the efficacy of replacement therapy 
+ Obesity 
+ 
+ Limitations: For Medicare beneficiaries, screening tests are governed by statute. Vitamin D testing may not be used for routine screening. 
+ Once a beneficiary has been shown to be vitamin D deficient, further testing is medically necessary only to ensure adequate replacement has been accomplished. Thereafter, annual testing may be appropriate depending upon the indication and other mitigating factors.
+
+=== associated_info ===
+N/A
