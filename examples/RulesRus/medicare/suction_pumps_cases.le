@@ -1,0 +1,238 @@
+% Test cases for the suction pumps policy (suction_pumps.le): synthetic
+% claims, one or two per criterion of LCD L33612 and per payment condition
+% of dmepos.le and Policy Article A52519. Findings are recorded as the
+% treating practitioner's or the Council's; a finding nobody made leaves the
+% answer conditional. The queries: whether the claim is payable (the first
+% query, so "stage" reads its checklist), whether it is reasonable and
+% necessary, and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base suction_pumps cases includes these resources:
+    suction_pumps.
+
+the knowledge base suction_pumps cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete first-month claim for a respiratory suction pump (E0600): a
+% tracheostomy, the treating practitioner's finding on the secretions, the
+% diagnosis code on the claim, and every documentation requirement in the
+% record. E0600 is not on the CMS face-to-face list: the order need only
+% reach the supplier before the date of service.
+scenario respiratory_pump_complete is:
+    claim 1 is for the suction pump.
+    the HCPCS code of the suction pump is "E0600".
+    the suction pump is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the medical record of Ann documents tracheostomy.
+    the finding difficulty clearing secretions about Ann is established, according to the treating practitioner, because "thick secretions through the tracheostomy tube after a laryngectomy, needing suction several times a day".
+    the diagnosis code of Ann is "Z93.0".
+    the order for the suction pump is dated 2026-02-20.
+    the order for the suction pump is signed by the treating practitioner.
+    the order for the suction pump includes beneficiary name.
+    the order for the suction pump includes order date.
+    the order for the suction pump includes description of the item.
+    the order for the suction pump includes quantity to be dispensed.
+    the order for the suction pump includes treating practitioner name.
+    the order for the suction pump was communicated to the supplier on 2026-02-22.
+    the suction pump was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the suction pump.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The finding without a condition of the LCD's list: chronic bronchitis is
+% not one of them.
+scenario respiratory_pump_other_condition is:
+    claim 1 is for the suction pump.
+    the HCPCS code of the suction pump is "E0600".
+    the suction pump is furnished to Ben.
+    the residence of Ben is private residence.
+    the rental month of claim 1 is 1.
+    the medical record of Ben documents chronic bronchitis.
+    the finding difficulty clearing secretions about Ben is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A gastric suction pump (E2000) on the treating practitioner's finding;
+% and one the Council finds unsupported.
+scenario gastric_pump is:
+    claim 1 is for the gastric pump.
+    the HCPCS code of the gastric pump is "E2000".
+    the gastric pump is furnished to Cy.
+    the rental month of claim 1 is 1.
+    the finding unable to empty gastric secretions about Cy is established, according to the treating practitioner, because "gastric outlet obstruction from an inoperable carcinoma of the pancreas, decompressed through a gastrostomy tube".
+    claim 2 is for the second gastric pump.
+    the HCPCS code of the second gastric pump is "E2000".
+    the second gastric pump is furnished to Dee.
+    the rental month of claim 2 is 1.
+    the finding unable to empty gastric secretions about Dee is unsupported, according to the Council, because "the record shows a nasogastric tube for one week of postoperative ileus, resolved before discharge, and no continuing inability to empty the stomach".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Tracheal catheters with Ann's covered pump used for tracheostomy
+% suctioning: 60 catheters for 30 days (at most 3 a day) are within the
+% limit; 120 are not; a closed system catheter (A4605) without a covered
+% ventilator is not covered; with one it is.
+scenario tracheal_catheters is:
+    claim 1 is for the catheters.
+    the HCPCS code of the catheters is "A4624".
+    the catheters is furnished to Ann.
+    the catheters is an accessory of the suction pump.
+    claim 1 covers 30 days.
+    the quantity billed on claim 1 is 60.
+    claim 2 is for the extra catheters.
+    the HCPCS code of the extra catheters is "A4624".
+    the extra catheters is furnished to Ann.
+    the extra catheters is an accessory of the suction pump.
+    claim 2 covers 30 days.
+    the quantity billed on claim 2 is 120.
+    claim 3 is for the closed system catheters.
+    the HCPCS code of the closed system catheters is "A4605".
+    the closed system catheters is furnished to Ann.
+    the closed system catheters is an accessory of the suction pump.
+    claim 4 is for the ventilator catheters.
+    the HCPCS code of the ventilator catheters is "A4605".
+    the ventilator catheters is furnished to Eve.
+    the ventilator catheters is an accessory of the second suction pump.
+    the HCPCS code of the suction pump is "E0600".
+    the suction pump is furnished to Ann.
+    the suction pump is used for tracheostomy suctioning.
+    the medical record of Ann documents tracheostomy.
+    the finding difficulty clearing secretions about Ann is established, according to the treating practitioner.
+    the HCPCS code of the second suction pump is "E0600".
+    the second suction pump is furnished to Eve.
+    the second suction pump is used for tracheostomy suctioning.
+    the medical record of Eve documents tracheostomy.
+    the finding difficulty clearing secretions about Eve is established, according to the treating practitioner.
+    Eve requires the use of a covered ventilator.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% Oropharyngeal suctioning for Fay, unconscious after a stroke, with a
+% covered pump: 12 catheters (A4628) for 28 days (at most 3 a week) are
+% within the limit; 13 are not; saline (A4216) for oropharyngeal suctioning
+% is not covered; saline used to clear a catheter after tracheostomy
+% suctioning of Ann is.
+scenario oropharyngeal_suctioning is:
+    claim 1 is for the oral catheters.
+    the HCPCS code of the oral catheters is "A4628".
+    the oral catheters is furnished to Fay.
+    the oral catheters is an accessory of the suction pump.
+    the oral catheters is used for suctioning in the oropharynx.
+    claim 1 covers 28 days.
+    the quantity billed on claim 1 is 12.
+    claim 2 is for the extra oral catheters.
+    the HCPCS code of the extra oral catheters is "A4628".
+    the extra oral catheters is furnished to Fay.
+    the extra oral catheters is an accessory of the suction pump.
+    the extra oral catheters is used for suctioning in the oropharynx.
+    claim 2 covers 28 days.
+    the quantity billed on claim 2 is 13.
+    claim 3 is for the saline.
+    the HCPCS code of the saline is "A4216".
+    the saline is furnished to Fay.
+    the saline is an accessory of the suction pump.
+    claim 4 is for the tracheostomy saline.
+    the HCPCS code of the tracheostomy saline is "A4216".
+    the tracheostomy saline is furnished to Ann.
+    the tracheostomy saline is an accessory of the second suction pump.
+    the tracheostomy saline is used to clear a suction catheter after tracheostomy suctioning.
+    the HCPCS code of the suction pump is "E0600".
+    the suction pump is furnished to Fay.
+    the medical record of Fay documents unconsciousness.
+    the finding difficulty clearing secretions about Fay is established, according to the treating practitioner.
+    the HCPCS code of the second suction pump is "E0600".
+    the second suction pump is furnished to Ann.
+    the second suction pump is used for tracheostomy suctioning.
+    the medical record of Ann documents tracheostomy.
+    the finding difficulty clearing secretions about Ann is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% Tracheal catheters with their documentation, but the claim carries the
+% code of the laryngeal cancer (C32.9), not the tracheostomy status code
+% the Policy Article requires: reasonable and necessary, not payable.
+scenario catheters_without_tracheostomy_code is:
+    claim 1 is for the catheters.
+    the HCPCS code of the catheters is "A4624".
+    the catheters is furnished to Ann.
+    the residence of Ann is private residence.
+    the catheters is an accessory of the suction pump.
+    the date of service of claim 1 is 2026-04-01.
+    claim 1 covers 30 days.
+    the quantity billed on claim 1 is 60.
+    the diagnosis code of Ann is "C32.9".
+    the HCPCS code of the suction pump is "E0600".
+    the suction pump is furnished to Ann.
+    the suction pump is used for tracheostomy suctioning.
+    the medical record of Ann documents tracheostomy.
+    the finding difficulty clearing secretions about Ann is established, according to the treating practitioner.
+    the order for the catheters is dated 2026-02-20.
+    the order for the catheters is signed by the treating practitioner.
+    the order for the catheters includes beneficiary name.
+    the order for the catheters includes order date.
+    the order for the catheters includes description of the item.
+    the order for the catheters includes quantity to be dispensed.
+    the order for the catheters includes treating practitioner name.
+    the order for the catheters was communicated to the supplier on 2026-02-22.
+    the catheters was delivered on 2026-04-01.
+    the supplier holds proof of delivery for the catheters.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% Reasonable and necessary, but no proof of delivery: payable fails at the
+% remedy, and the flip adds the missing proof.
+scenario no_proof_of_delivery is:
+    claim 1 is for the suction pump.
+    the HCPCS code of the suction pump is "E0600".
+    the suction pump is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the medical record of Ann documents tracheostomy.
+    the finding difficulty clearing secretions about Ann is established, according to the treating practitioner.
+    the diagnosis code of Ann is "Z93.0".
+    the order for the suction pump is dated 2026-02-20.
+    the order for the suction pump is signed by the treating practitioner.
+    the order for the suction pump includes beneficiary name.
+    the order for the suction pump includes order date.
+    the order for the suction pump includes description of the item.
+    the order for the suction pump includes quantity to be dispensed.
+    the order for the suction pump includes treating practitioner name.
+    the order for the suction pump was communicated to the supplier on 2026-02-22.
+    the suction pump was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the suction pump"]].
+
+% Wound suction: a wound suction pump (K0743) and its dressing set (K0745)
+% are never covered; a disposable device (A9272) is outside the benefit.
+scenario wound_suction is:
+    claim 1 is for the wound pump.
+    the HCPCS code of the wound pump is "K0743".
+    the wound pump is furnished to Gus.
+    the residence of Gus is private residence.
+    the rental month of claim 1 is 1.
+    claim 2 is for the dressing set.
+    the HCPCS code of the dressing set is "K0745".
+    the dressing set is furnished to Gus.
+    the dressing set is an accessory of the wound pump.
+    claim 3 is for the disposable device.
+    the HCPCS code of the disposable device is "A9272".
+    the disposable device is furnished to Gus.
+    rn expects answers [].
+    pay expects answers [].

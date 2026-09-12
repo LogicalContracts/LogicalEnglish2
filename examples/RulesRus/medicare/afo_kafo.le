@@ -1,0 +1,425 @@
+% Ankle-Foot Orthoses (AFO) and Knee-Ankle-Foot Orthoses (KAFO): LCD L33686
+% and its Policy Article A52457 (DME MACs). A policy program of the DMEPOS
+% model: it includes dmepos.le (orders, delivery, benefit category, continued
+% need, refills) and states when a claim for an orthosis of the lower limb is
+% REASONABLE AND NECESSARY:
+%   - a static or dynamic positioning AFO not used during ambulation (L4396,
+%     L4397): either all of criteria 1-4 (a nonfixed plantar flexion
+%     contracture of the ankle, correctable, interfering with function, in a
+%     stretching program) or criterion 5 (plantar fasciitis), and its
+%     replacement interface (L4392, one per six months);
+%   - an AFO used during ambulation (L1900-L1990, L2106-L2116, L4350-L4387,
+%     L4631): an ambulatory beneficiary with weakness or deformity of the foot
+%     and ankle who requires stabilization for medical reasons and has the
+%     potential to benefit functionally;
+%   - a KAFO (L2000-L2038, L2126-L2136, L4370): an AFO is covered and
+%     additional knee stability is required;
+%   - a custom fabricated AFO or KAFO: the basic criteria and one of the five
+%     reasons for custom fabrication;
+%   - an L-coded addition (L2180-L2830): the base orthosis and the addition
+%     are reasonable and necessary;
+%   - a concentric adjustable torsion style mechanism (L2999) assisting knee
+%     extension or ankle plantar or dorsiflexion, in the absence of a joint
+%     contracture.
+% The foot drop splint (L4398) and its interface (L4394) are never covered
+% ("Medicare does not reimburse"): no rule concludes them. The benefit is not
+% durable medical equipment: the Policy Article places AFOs and KAFOs under
+% the Medicare braces benefit (Social Security Act §1861(s)(9)).
+%
+% How the criteria are read. What the record states is a scenario fact: the
+% diagnosis code, the dorsiflexion measured on passive range of motion
+% testing (a number, the threshold of 10 degrees is in the rule), the
+% goniometer measurement, the stretching program, the ambulatory status, the
+% documented weakness or deformity (the shared template "the medical record
+% of B documents C"), the date of the last replacement interface. What
+% someone finds is the judged template of dmepos.le, "the finding F about B
+% is established" (or unsupported). The findings this policy reads, and the
+% criterion each stands for:
+%   contracture correctable (criterion 2: a reasonable expectation of the
+%   ability to correct the contracture); contracture interferes with function
+%   (criterion 3); stabilization required for medical reasons (ambulatory
+%   AFO); potential to benefit functionally (ambulatory AFO); additional knee
+%   stability required (KAFO); custom fabrication required (ONE finding for
+%   the five alternatives: could not be fit with a prefabricated AFO, a
+%   permanent or longstanding condition, control in more than one plane, a
+%   status requiring custom fabrication to prevent tissue injury, a healing
+%   fracture lacking normal integrity); addition medically necessary (an
+%   L-coded addition); joint motion assist required (L2999).
+%
+% The Policy Article's ICD-10 table (sources/icd10/A52457_icd10_covered.csv,
+% loaded as the table afo_icd10): group 1 (contractures of the ankle and
+% foot M24.57x, plantar fascial fibromatosis M72.2) serves the positioning
+% AFO L4396, L4397 and its interface L4392 (the LCD's criteria 1 and 5);
+% group 2 (Charcot's arthropathy, diabetic neuropathic arthropathy) serves the
+% Charcot restraint orthotic walker L4631, whose diagnosis code the Article
+% requires on the claim line — the LCD's text states no diagnosis criterion
+% for L4631, so this program reads the group as the Article's condition on
+% that code.
+%
+% The payment conditions the Policy Article adds ("Policy specific
+% documentation requirements"), in section remedy: for a custom fabricated
+% orthosis the orthotist's functional evaluation corroborating the need for
+% custom fabrication; for L4396, L4397, L4392 and L4631 the diagnosis code
+% on the claim line. Two templates other orthotic policies read (the
+% ambulatory status, the orthotist's records) are defined here and marked
+% as candidates for dmepos.le; knee_orthoses.le and spinal_orthoses.le
+% include this program to use them.
+%
+% Not modelled: the OTS versus custom fitted coding of prefabricated
+% orthoses (minimal self-adjustment at delivery); the hospital and SNF
+% payment rules (an orthosis provided within two days of discharge); the
+% KX/GA/GZ/RT/LT modifiers; repairs and replacement labor (L4205, L4210);
+% the noncovered elastic garments (A4467), off-loading devices (A9283,
+% A9285) and socks (L2840, L2850); shoes integral to a brace (the Orthopedic
+% Footwear policy). Six months is read as 183 days.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    % candidate for dmepos.le (also read by knee_orthoses.le, which includes this program)
+    *a beneficiary* is ambulatory; undefined.
+    % candidate for dmepos.le (also read by knee_orthoses.le and spinal_orthoses.le, which include this program)
+    the records of the orthotist include a functional evaluation corroborating the need for custom fabrication of *an item*; undefined.
+    the dorsiflexion of the ankle of *a beneficiary* on passive range of motion testing is *a number* degrees; undefined.
+    the passive range of motion of the ankle of *a beneficiary* was measured with a goniometer before treatment; undefined.
+    the medical record documents a stretching program for the ankle of *a beneficiary*; undefined.
+    the last replacement interface for *a device* was furnished on *a date*; undefined.
+    *an item* is a concentric adjustable torsion style mechanism assisting *a motion*; undefined.
+    *a claim* states the diagnosis code of the beneficiary; undefined.
+    % the codes and the lists
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table afo_icd10.
+    *a condition* is a qualifying condition for an ankle foot orthosis.
+    *a motion* is a joint motion a torsion mechanism may assist.
+    % derived
+    *an item* is a positioning ankle foot orthosis.
+    *an item* is an ambulatory ankle foot orthosis.
+    *an item* is a knee ankle foot orthosis.
+    *an item* is a custom fabricated lower limb orthosis.
+    *an item* is an addition to a lower limb orthosis.
+    *an item* requires the diagnosis code on the claim line.
+    *a beneficiary* meets the criteria for a positioning ankle foot orthosis.
+    *a beneficiary* has a nonfixed plantar flexion contracture of the ankle.
+    *a beneficiary* has plantar fasciitis.
+    the replacement interface limit is met for *a claim*.
+    *a beneficiary* meets the basic coverage criteria for an ankle foot orthosis.
+    *an item* meets the base orthosis coverage criteria for *a beneficiary*.
+    the custom fabrication criteria are met for *an item*.
+    the diagnosis requirement is met for *an item*.
+    the custom fabrication documentation requirement is met for *an item*.
+    the claim line diagnosis requirement is met for *a claim*.
+
+% The Policy Article's ICD-10 table (the CSV columns bind to the template's
+% arguments in order: code, group, article, description).
+the table afo_icd10 is loaded from sources/icd10/A52457_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base afo_kafo includes these resources:
+    dmepos.
+
+the knowledge base afo_kafo includes:
+
+LCD L33686 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33686".
+the text of LCD L33686 is at "sources/lcd/L33686.txt".
+Policy Article A52457 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52457".
+the text of Policy Article A52457 is at "sources/article/A52457.txt".
+
+% What the items are, by code (LCD L33686).
+rule afo_positioning_device with provenance LCD L33686,
+        confer "An L4396 or L4397 (Static or dynamic positioning ankle-foot orthosis) is covered if either all of criteria 1 - 4 or criterion 5 is met":
+an item is a positioning ankle foot orthosis
+    if the HCPCS code of the item is a code
+    and the code is in ["L4396", "L4397"].
+
+rule afo_ambulatory_device with provenance LCD L33686,
+        confer "Ankle-foot orthoses (AFO) described by codes L1900, L1902, L1904, L1906, L1907, L1910, L1920, L1930, L1932, L1933, L1940, L1945, L1950, L1951, L1952, L1960, L1970, L1971, L1980, L1990, L2106, L2108, L2112, L2114, L2116, L4350, L4360, L4361, L4386, L4387 and L4631 are covered for ambulatory beneficiaries":
+an item is an ambulatory ankle foot orthosis
+    if the HCPCS code of the item is a code
+    and the code is in ["L1900", "L1902", "L1904", "L1906", "L1907", "L1910", "L1920", "L1930", "L1932", "L1933", "L1940", "L1945", "L1950", "L1951", "L1952", "L1960", "L1970", "L1971", "L1980", "L1990", "L2106", "L2108", "L2112", "L2114", "L2116", "L4350", "L4360", "L4361", "L4386", "L4387", "L4631"].
+
+rule kafo_device with provenance LCD L33686,
+        confer "Knee-ankle-foot orthoses (KAFO) described by codes L2000, L2005, L2010, L2020, L2030, L2034, L2035, L2036, L2037, L2038, L2126, L2128, L2132, L2134, L2136, and L4370 are covered for ambulatory beneficiaries for whom an ankle-foot orthosis is covered and for whom additional knee stability is required":
+an item is a knee ankle foot orthosis
+    if the HCPCS code of the item is a code
+    and the code is in ["L2000", "L2005", "L2010", "L2020", "L2030", "L2034", "L2035", "L2036", "L2037", "L2038", "L2126", "L2128", "L2132", "L2134", "L2136", "L4370"].
+
+rule afo_custom_fabricated_device with provenance Policy Article A52457,
+        confer "For a custom fabricated orthosis (L1900, L1904, L1907, L1920, L1940, L1945, L1950, L1960, L1970, L1980, L1990, L2000, L2005, L2006, L2010, L2020, L2030, L2034, L2036, L2037, L2038, L2106, L2108, L2126, L2128, L4631)":
+an item is a custom fabricated lower limb orthosis
+    if the HCPCS code of the item is a code
+    and the code is in ["L1900", "L1904", "L1907", "L1920", "L1940", "L1945", "L1950", "L1960", "L1970", "L1980", "L1990", "L2000", "L2005", "L2006", "L2010", "L2020", "L2030", "L2034", "L2036", "L2037", "L2038", "L2106", "L2108", "L2126", "L2128", "L4631"].
+
+rule afo_addition_device with provenance LCD L33686,
+        confer "L coded additions to AFOs and KAFOs (L2180, L2182, L2184, L2186, L2188, L2190, L2192, L2200, L2210, L2220, L2230, L2232, L2240, L2250, L2260, L2265, L2270, L2275, L2280, L2300, L2310, L2320, L2330, L2335, L2340, L2350, L2360, L2370, L2375, L2380, L2385, L2387, L2390, L2395, L2397, L2405, L2415, L2425, L2430, L2492, L2500, L2510, L2520, L2525, L2526, L2530, L2540, L2550, L2750, L2755, L2760, L2768, L2780, L2785, L2795, L2800, L2810, L2820, L2830)":
+an item is an addition to a lower limb orthosis
+    if the HCPCS code of the item is a code
+    and the code is in ["L2180", "L2182", "L2184", "L2186", "L2188", "L2190", "L2192", "L2200", "L2210", "L2220", "L2230", "L2232", "L2240", "L2250", "L2260", "L2265", "L2270", "L2275", "L2280", "L2300", "L2310", "L2320", "L2330", "L2335", "L2340", "L2350", "L2360", "L2370", "L2375", "L2380", "L2385", "L2387", "L2390", "L2395", "L2397", "L2405", "L2415", "L2425", "L2430", "L2492", "L2500", "L2510", "L2520", "L2525", "L2526", "L2530", "L2540", "L2550", "L2750", "L2755", "L2760", "L2768", "L2780", "L2785", "L2795", "L2800", "L2810", "L2820", "L2830"].
+
+% The joint motions a concentric adjustable torsion style mechanism (L2999)
+% may assist; one used for a contracture is durable medical equipment (E1810
+% and following) and is not this policy's.
+knee extension is a joint motion a torsion mechanism may assist,
+    as stated in LCD L33686, confer "Concentric adjustable torsion style mechanisms used to assist knee joint extension are coded as L2999 and are covered for beneficiaries who require knee extension assist in the absence of any co-existing joint contracture".
+ankle plantarflexion is a joint motion a torsion mechanism may assist,
+    as stated in LCD L33686, confer "Concentric adjustable torsion style mechanisms used to assist ankle joint plantarflexion or dorsiflexion are coded as L2999 and are covered for beneficiaries who require ankle plantar or dorsiflexion assist in the absence of any co-existing joint contracture".
+ankle dorsiflexion is a joint motion a torsion mechanism may assist,
+    as stated in LCD L33686, confer "Concentric adjustable torsion style mechanisms used to assist ankle joint plantarflexion or dorsiflexion are coded as L2999 and are covered for beneficiaries who require ankle plantar or dorsiflexion assist in the absence of any co-existing joint contracture".
+
+section applicability is:
+
+% The codes this policy decides: the positioning AFOs and their interfaces
+% (including the foot drop splint L4398 and its interface L4394, never
+% covered), the ambulatory AFOs, the KAFOs, the additions, the miscellaneous
+% code L2999.
+rule afo_codes with provenance Policy Article A52457,
+        confer "Ankle-foot orthoses (AFO) and knee-ankle-foot orthoses (KAFO) are covered under the Medicare braces benefit (Social Security Act §1861(s)(9))":
+the policy for code a code is afo_kafo
+    if the code is in ["L4396", "L4397", "L4392", "L4398", "L4394", "L1900", "L1902", "L1904", "L1906", "L1907", "L1910", "L1920", "L1930", "L1932", "L1933", "L1940", "L1945", "L1950", "L1951", "L1952", "L1960", "L1970", "L1971", "L1980", "L1990", "L2106", "L2108", "L2112", "L2114", "L2116", "L4350", "L4360", "L4361", "L4386", "L4387", "L4631", "L2000", "L2005", "L2006", "L2010", "L2020", "L2030", "L2034", "L2035", "L2036", "L2037", "L2038", "L2126", "L2128", "L2132", "L2134", "L2136", "L4370", "L2180", "L2182", "L2184", "L2186", "L2188", "L2190", "L2192", "L2200", "L2210", "L2220", "L2230", "L2232", "L2240", "L2250", "L2260", "L2265", "L2270", "L2275", "L2280", "L2300", "L2310", "L2320", "L2330", "L2335", "L2340", "L2350", "L2360", "L2370", "L2375", "L2380", "L2385", "L2387", "L2390", "L2395", "L2397", "L2405", "L2415", "L2425", "L2430", "L2492", "L2500", "L2510", "L2520", "L2525", "L2526", "L2530", "L2540", "L2550", "L2750", "L2755", "L2760", "L2768", "L2780", "L2785", "L2795", "L2800", "L2810", "L2820", "L2830", "L2999"].
+
+% The benefit: not durable medical equipment but the braces benefit of
+% Social Security Act §1861(s)(9).
+rule afo_benefit with provenance Policy Article A52457,
+        confer "Ankle-foot orthoses (AFO) and knee-ankle-foot orthoses (KAFO) are covered under the Medicare braces benefit (Social Security Act §1861(s)(9))":
+the benefit category of code a code is braces
+    if the policy for code the code is afo_kafo.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% AFOs not used during ambulation: the positioning AFO and its interface.
+% ---------------------------------------------------------------------------
+
+rule afo_positioning with provenance LCD L33686,
+        confer "An L4396 or L4397 (Static or dynamic positioning ankle-foot orthosis) is covered if either all of criteria 1 - 4 or criterion 5 is met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a positioning ankle foot orthosis
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the criteria for a positioning ankle foot orthosis.
+
+% Criteria 1-4: the contracture route.
+rule afo_contracture_route with provenance LCD L33686,
+        confer "Used as a component of a therapy program which includes active stretching of the involved muscles and/or tendons":
+a beneficiary meets the criteria for a positioning ankle foot orthosis
+    if the beneficiary has a nonfixed plantar flexion contracture of the ankle
+    and the finding contracture correctable about the beneficiary is established
+    and the finding contracture interferes with function about the beneficiary is established
+    and the medical record documents a stretching program for the ankle of the beneficiary.
+
+% Criterion 5: plantar fasciitis.
+rule afo_plantar_fasciitis_route with provenance LCD L33686,
+        confer "The beneficiary has plantar fasciitis":
+a beneficiary meets the criteria for a positioning ankle foot orthosis
+    if the beneficiary has plantar fasciitis.
+
+% Criterion 1: a contracture of the Article's group 1 (the contracture codes
+% of the group; M72.2, plantar fasciitis, is criterion 5), nonfixed — at least
+% 10 degrees of dorsiflexion on passive range of motion testing — measured
+% with a goniometer and documented.
+rule afo_nonfixed_contracture with provenance LCD L33686,
+        confer "Plantar flexion contracture of the ankle ( refer to the Group 1 Codes in the ICD-10 code list in the LCD-related Policy Article for applicable diagnoses ) with dorsiflexion on passive range of motion testing of at least 10 degrees (i.e., a nonfixed contracture)":
+a beneficiary has a nonfixed plantar flexion contracture of the ankle
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52457" as a description under table afo_icd10
+    and the code is in ["M24.571", "M24.572", "M24.574", "M24.575"]
+    and the dorsiflexion of the ankle of the beneficiary on passive range of motion testing is a number degrees
+    and the number >= 10
+    and the passive range of motion of the ankle of the beneficiary was measured with a goniometer before treatment.
+
+rule afo_plantar_fasciitis with provenance LCD L33686,
+        confer "The beneficiary has plantar fasciitis ( refer to the Group 1 Codes in the ICD-10 code list in the LCD-related Policy Article for applicable diagnoses )":
+a beneficiary has plantar fasciitis
+    if the diagnosis code of the beneficiary is "M72.2"
+    and ICD10 code "M72.2" is in group 1 of article "A52457" as a description under table afo_icd10.
+
+% The replacement interface: covered while the splint is, one per six months.
+rule afo_interface with provenance LCD L33686,
+        confer "If code L4396 or L4397 is covered, a replacement interface (L4392) is covered as long as the beneficiary continues to meet indications and other coverage rules for the splint":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "L4392"
+    and the item is an accessory of a device
+    and the device is a positioning ankle foot orthosis
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the criteria for a positioning ankle foot orthosis
+    and the replacement interface limit is met for the claim.
+
+rule afo_interface_limit with provenance LCD L33686,
+        confer "Coverage of a replacement interface is limited to a maximum of one (1) per 6 months":
+the replacement interface limit is met for a claim
+    if the claim is for an item
+    and the item is an accessory of a device
+    and the last replacement interface for the device was furnished on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 183.
+
+% no earlier interface: a device of this model
+rule afo_first_interface:
+the replacement interface limit is met for a claim
+    if the claim is for an item
+    and the item is an accessory of a device
+    and it is not the case that
+        the last replacement interface for the device was furnished on a date.
+
+% ---------------------------------------------------------------------------
+% AFOs and KAFOs used during ambulation.
+% ---------------------------------------------------------------------------
+
+rule afo_ambulatory with provenance LCD L33686,
+        confer "are covered for ambulatory beneficiaries with weakness or deformity of the foot and ankle, who: Require stabilization for medical reasons, and, Have the potential to benefit functionally":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an ambulatory ankle foot orthosis
+    and the item is furnished to a beneficiary
+    and the item meets the base orthosis coverage criteria for the beneficiary.
+
+rule kafo with provenance LCD L33686,
+        confer "are covered for ambulatory beneficiaries for whom an ankle-foot orthosis is covered and for whom additional knee stability is required":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a knee ankle foot orthosis
+    and the item is furnished to a beneficiary
+    and the item meets the base orthosis coverage criteria for the beneficiary.
+
+% The base orthosis: an AFO meets the basic criteria (and, for L4631, has the
+% Article's diagnosis); a KAFO meets them and needs additional knee
+% stability; a custom fabricated one meets the custom fabrication criteria.
+rule afo_base_criteria with provenance LCD L33686,
+        confer "If the basic coverage criteria for an AFO or KAFO are not met, the orthosis will be denied as not reasonable and necessary":
+an item meets the base orthosis coverage criteria for a beneficiary
+    if the item is an ambulatory ankle foot orthosis
+    and the item is furnished to the beneficiary
+    and the beneficiary meets the basic coverage criteria for an ankle foot orthosis
+    and the diagnosis requirement is met for the item
+    and the custom fabrication criteria are met for the item.
+
+rule kafo_base_criteria with provenance LCD L33686,
+        confer "for whom an ankle-foot orthosis is covered and for whom additional knee stability is required":
+an item meets the base orthosis coverage criteria for a beneficiary
+    if the item is a knee ankle foot orthosis
+    and the item is furnished to the beneficiary
+    and the beneficiary meets the basic coverage criteria for an ankle foot orthosis
+    and the finding additional knee stability required about the beneficiary is established
+    and the custom fabrication criteria are met for the item.
+
+rule afo_basic_criteria with provenance LCD L33686,
+        confer "are covered for ambulatory beneficiaries with weakness or deformity of the foot and ankle, who: Require stabilization for medical reasons, and, Have the potential to benefit functionally":
+a beneficiary meets the basic coverage criteria for an ankle foot orthosis
+    if the beneficiary is ambulatory
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying condition for an ankle foot orthosis
+    and the finding stabilization required for medical reasons about the beneficiary is established
+    and the finding potential to benefit functionally about the beneficiary is established.
+
+weakness of the foot is a qualifying condition for an ankle foot orthosis,
+    as stated in LCD L33686, confer "ambulatory beneficiaries with weakness or deformity of the foot and ankle".
+weakness of the ankle is a qualifying condition for an ankle foot orthosis,
+    as stated in LCD L33686, confer "ambulatory beneficiaries with weakness or deformity of the foot and ankle".
+deformity of the foot is a qualifying condition for an ankle foot orthosis,
+    as stated in LCD L33686, confer "ambulatory beneficiaries with weakness or deformity of the foot and ankle".
+deformity of the ankle is a qualifying condition for an ankle foot orthosis,
+    as stated in LCD L33686, confer "ambulatory beneficiaries with weakness or deformity of the foot and ankle".
+
+% Custom fabrication: one of the five reasons, as ONE finding.
+rule afo_custom_criteria with provenance LCD L33686,
+        confer "AFOs and KAFOs that are custom-fabricated are covered for ambulatory beneficiaries when the basic coverage criteria listed above and one of the following criteria are met":
+the custom fabrication criteria are met for an item
+    if the item is a custom fabricated lower limb orthosis
+    and the item is furnished to a beneficiary
+    and the finding custom fabrication required about the beneficiary is established.
+
+% a prefabricated orthosis needs no reason for custom fabrication: a device of this model
+rule afo_prefabricated:
+the custom fabrication criteria are met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the item is a custom fabricated lower limb orthosis.
+
+% The Charcot restraint orthotic walker (L4631): the Article requires its
+% diagnosis code on the claim line; the diagnoses are the table's group 2.
+rule afo_crow_diagnosis with provenance Policy Article A52457,
+        confer "The supplier must include on the claim line the diagnosis code(s) for HCPCS codes L4396, L4397, L4392 and L4631":
+the diagnosis requirement is met for an item
+    if the HCPCS code of the item is "L4631"
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 2 of article "A52457" as a description under table afo_icd10.
+
+% any other AFO carries no diagnosis condition: a device of this model
+rule afo_no_diagnosis_condition:
+the diagnosis requirement is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the HCPCS code of the item is "L4631".
+
+% ---------------------------------------------------------------------------
+% Additions and the concentric torsion mechanism.
+% ---------------------------------------------------------------------------
+
+rule afo_additions with provenance LCD L33686,
+        confer "will be denied as not reasonable and necessary if either the base orthosis is not reasonable and necessary or the specific addition is not reasonable and necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an addition to a lower limb orthosis
+    and the item is an accessory of a device
+    and the device is furnished to a beneficiary
+    and the device meets the base orthosis coverage criteria for the beneficiary
+    and the finding addition medically necessary about the beneficiary is established.
+
+rule afo_torsion_mechanism with provenance LCD L33686,
+        confer "Concentric adjustable torsion style mechanisms used to assist knee joint extension are coded as L2999 and are covered for beneficiaries who require knee extension assist in the absence of any co-existing joint contracture":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "L2999"
+    and the item is a concentric adjustable torsion style mechanism assisting a motion
+    and the motion is a joint motion a torsion mechanism may assist
+    and the item is furnished to a beneficiary
+    and the finding joint motion assist required about the beneficiary is established
+    and it is not the case that
+        the medical record of the beneficiary documents joint contracture.
+
+section remedy is:
+
+% The policy's own conditions of payment (Policy Article A52457, "Policy
+% specific documentation requirements").
+rule afo_documentation with provenance Policy Article A52457,
+        confer "For a custom-fabricated orthosis, there must be documentation in the supplier's records to support the medical necessity of that type of device rather than a prefabricated orthosis":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is afo_kafo
+    and the claim is for an item
+    and the custom fabrication documentation requirement is met for the item
+    and the claim line diagnosis requirement is met for the claim.
+
+rule afo_orthotist_records with provenance Policy Article A52457,
+        confer "This information will be corroborated by the functional evaluation in the orthotist's records":
+the custom fabrication documentation requirement is met for an item
+    if the item is a custom fabricated lower limb orthosis
+    and the records of the orthotist include a functional evaluation corroborating the need for custom fabrication of the item.
+
+% a prefabricated orthosis: a device of this model
+rule afo_no_custom_documentation:
+the custom fabrication documentation requirement is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the item is a custom fabricated lower limb orthosis.
+
+rule afo_claim_line_diagnosis with provenance Policy Article A52457,
+        confer "The supplier must include on the claim line the diagnosis code(s) for HCPCS codes L4396, L4397, L4392 and L4631":
+the claim line diagnosis requirement is met for a claim
+    if the claim is for an item
+    and the item requires the diagnosis code on the claim line
+    and the claim states the diagnosis code of the beneficiary.
+
+rule afo_claim_line_codes with provenance Policy Article A52457,
+        confer "The supplier must include on the claim line the diagnosis code(s) for HCPCS codes L4396, L4397, L4392 and L4631":
+an item requires the diagnosis code on the claim line
+    if the HCPCS code of the item is a code
+    and the code is in ["L4396", "L4397", "L4392", "L4631"].
+
+% any other code: a device of this model
+rule afo_no_claim_line_diagnosis:
+the claim line diagnosis requirement is met for a claim
+    if the claim is for an item
+    and it is not the case that
+        the item requires the diagnosis code on the claim line.

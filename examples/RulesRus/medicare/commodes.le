@@ -1,0 +1,204 @@
+% Commodes: LCD L33736 and its Policy Article A52461 (DME MACs). A policy
+% program of the DMEPOS model: it includes dmepos.le (orders, delivery,
+% benefit category, continued need, refills) and states when a claim for a
+% commode chair — stationary (E0163), with detachable arms (E0165), extra
+% wide/heavy duty (E0168), with seat lift mechanism (E0170, E0171) — or its
+% pail or pan (E0167) is REASONABLE AND NECESSARY: the beneficiary is
+% "physically incapable of utilizing regular toilet facilities", which the
+% LCD says occurs in three situations (confined to a single room; confined to
+% one level of the home with no toilet on that level; confined to the home
+% with no toilet facilities in it); the detachable arms feature necessary;
+% a weight of 300 pounds or more for the extra wide/heavy duty chair; the
+% seat lift criteria for a commode with seat lift mechanism. The footrest
+% (E0175, "not medical in nature") and the raised toilet seat (E0244,
+% noncovered) are within the policy's scope and outside the benefit: no
+% rule places them in a benefit category. A commode chair "used as a raised
+% toilet seat by positioning it over the toilet" is noncovered too (the
+% Policy Article): what the record states about the use is a scenario fact.
+%
+% How the criteria are read. The three situations of incapacity are what
+% the record states — confinement, and the absence of a toilet — as
+% scenario facts, positive statements of the record (the absence of a
+% toilet is stated, not presumed from silence). The detachable arms
+% criterion is a clinical judgment: the judged template of dmepos.le, "the
+% finding F about B is established" (or unsupported), with who found it and
+% why. The seat lift criteria are those of LCD L33801 ("see Local Coverage
+% Determination (LCD) and Policy Article on Seat Lift Mechanisms"), read
+% here as its four clinical findings, the ones seat_lifts.le reads under
+% the same names. The findings this policy reads, and the criterion each
+% stands for:
+%   detachable arms necessary (E0165: necessary to facilitate transferring
+%   the beneficiary, or a body configuration that requires extra width —
+%   ONE finding with the alternatives as its reasons); qualifying seat lift
+%   diagnosis, seat lift part of course of treatment, completely incapable
+%   of standing from any chair, able to ambulate once standing (E0170,
+%   E0171: the seat lift mechanism's criteria, seat_lifts.le).
+% The weight is what the record states, in pounds. The LCD's threshold for
+% E0168 is stated twice, "300 pounds or more" and, in the denial, "does not
+% weigh more than 300 pounds": the coverage statement is followed (300
+% qualifies).
+%
+% Not modelled: the KX/GA/GY/GZ modifiers (billing); the Column I/Column II
+% bundling of the pail (E0167) and the seat lift mechanism (E0627, E0629)
+% billed with a commode; the toilet seat lift mechanism (E0172) and the
+% bidets (A9270), both noncovered as not primarily medical in nature — the
+% codes are the seat lift policy's (seat_lifts.le). The Policy Article's
+% requirement that "the diagnosis code that justifies the need for these
+% items must be included on the claim" names no code list (the article has
+% no ICD-10 table): it is not modelled, and the policy declares no
+% documentation requirements of its own.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *a beneficiary* is confined to a single room; undefined.
+    *a beneficiary* is confined to one level of the home; undefined.
+    the level of the home to which *a beneficiary* is confined has no toilet; undefined.
+    *a beneficiary* is confined to the home; undefined.
+    the home of *a beneficiary* has no toilet facilities; undefined.
+    *an item* is used as a raised toilet seat positioned over the toilet; undefined.
+    % the knowledge base
+    commode code *a code* is noncovered by the Policy Article.
+    % derived
+    *an item* is a commode chair.
+    *an item* is provided as a commode.
+    *a beneficiary* is physically incapable of utilizing regular toilet facilities.
+    *an item* meets the commode coverage criteria for *a beneficiary*.
+    *a beneficiary* meets the seat lift criteria for a commode.
+
+the knowledge base commodes includes these resources:
+    dmepos.
+
+the knowledge base commodes includes:
+
+LCD L33736 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33736".
+the text of LCD L33736 is at "sources/lcd/L33736.txt".
+Policy Article A52461 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52461".
+the text of Policy Article A52461 is at "sources/article/A52461.txt".
+
+% What a commode chair is: the commodes the Policy Article's modifier rules
+% name.
+rule commodes_commode_chair with provenance Policy Article A52461,
+        confer "For commodes (E0163, E0165, E0168, E0170, and E0171) not used as a raised toilet seat, the KX modifier must be added to the code only if all of the coverage criteria as described in the Coverage Indication, Limitations and/or Medical Necessity section of the related LCD have been met":
+an item is a commode chair
+    if the HCPCS code of the item is a code
+    and the code is in ["E0163", "E0165", "E0168", "E0170", "E0171"].
+
+% A commode chair provided as a commode, not as a raised toilet seat.
+rule commodes_not_raised_seat with provenance Policy Article A52461,
+        confer "a commode chair that is used as a raised toilet seat by positioning it over the toilet is also noncovered":
+an item is provided as a commode
+    if the item is a commode chair
+    and it is not the case that
+        the item is used as a raised toilet seat positioned over the toilet.
+
+% The codes the Policy Article places outside the benefit.
+commode code "E0175" is noncovered by the Policy Article,
+    as stated in Policy Article A52461, confer "A footrest (E0175) is non-covered because it is not medical in nature".
+commode code "E0244" is noncovered by the Policy Article,
+    as stated in Policy Article A52461, confer "A raised toilet seat (E0244) is noncovered".
+
+section applicability is:
+
+commodes has no specific documentation requirements.
+
+% The codes this policy decides: the commode chairs, the pail or pan, the
+% footrest and the raised toilet seat.
+rule commodes_codes with provenance Policy Article A52461,
+        confer "Commodes are covered under the Durable Medical Equipment benefit":
+the policy for code a code is commodes
+    if the code is in ["E0163", "E0165", "E0167", "E0168", "E0170", "E0171", "E0175", "E0244"].
+
+% Their benefit: durable medical equipment, except the footrest and the
+% raised toilet seat.
+rule commodes_benefit with provenance Policy Article A52461,
+        confer "Commodes are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is commodes
+    and it is not the case that
+        commode code the code is noncovered by the Policy Article.
+
+section question is:
+
+% A commode chair: the beneficiary is physically incapable of utilizing
+% regular toilet facilities, and the chair's own criteria are met.
+rule commodes_covered with provenance LCD L33736,
+        confer "A commode is covered when the beneficiary is physically incapable of utilizing regular toilet facilities":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is provided as a commode
+    and the item is furnished to a beneficiary
+    and the beneficiary is physically incapable of utilizing regular toilet facilities
+    and the item meets the commode coverage criteria for the beneficiary.
+
+% The three situations of incapacity.
+rule commodes_single_room with provenance LCD L33736,
+        confer "The beneficiary is confined to a single room":
+a beneficiary is physically incapable of utilizing regular toilet facilities
+    if the beneficiary is confined to a single room.
+
+rule commodes_one_level with provenance LCD L33736,
+        confer "The beneficiary is confined to one level of the home environment and there is no toilet on that level":
+a beneficiary is physically incapable of utilizing regular toilet facilities
+    if the beneficiary is confined to one level of the home
+    and the level of the home to which the beneficiary is confined has no toilet.
+
+rule commodes_home_without_toilet with provenance LCD L33736,
+        confer "The beneficiary is confined to the home and there are no toilet facilities in the home":
+a beneficiary is physically incapable of utilizing regular toilet facilities
+    if the beneficiary is confined to the home
+    and the home of the beneficiary has no toilet facilities.
+
+% The chair's own criteria: none for the stationary commode chair.
+rule commodes_stationary with provenance LCD L33736,
+        confer "A commode is covered when the beneficiary is physically incapable of utilizing regular toilet facilities":
+an item meets the commode coverage criteria for a beneficiary
+    if the HCPCS code of the item is "E0163".
+
+% Detachable arms: the finding.
+rule commodes_detachable_arms with provenance LCD L33736,
+        confer "A commode chair with detachable arms (E0165) is covered if the detachable arms feature is necessary to facilitate transferring the beneficiary or if the beneficiary has a body configuration that requires extra width":
+an item meets the commode coverage criteria for a beneficiary
+    if the HCPCS code of the item is "E0165"
+    and the finding detachable arms necessary about the beneficiary is established.
+
+% Extra wide/heavy duty: a weight of 300 pounds or more.
+rule commodes_heavy_duty with provenance LCD L33736,
+        confer "An extra wide/heavy duty commode chair (E0168) is covered for a beneficiary who weighs 300 pounds or more":
+an item meets the commode coverage criteria for a beneficiary
+    if the HCPCS code of the item is "E0168"
+    and the weight of the beneficiary is a number pounds
+    and the number >= 300.
+
+% With seat lift mechanism: the seat lift criteria.
+rule commodes_seat_lift with provenance LCD L33736,
+        confer "Commode chair with seat lift mechanism (E0170, E0171) is covered if the beneficiary has medical necessity for a commode and meets the coverage criteria for a seat lift mechanism":
+an item meets the commode coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["E0170", "E0171"]
+    and the beneficiary meets the seat lift criteria for a commode.
+
+% The seat lift criteria of LCD L33801, as its four clinical findings
+% (seat_lifts.le reads the same findings for the mechanism itself).
+rule commodes_seat_lift_criteria with provenance LCD L33736,
+        confer "meets the coverage criteria for a seat lift mechanism (see Local Coverage Determination (LCD) and Policy Article on Seat Lift Mechanisms)":
+a beneficiary meets the seat lift criteria for a commode
+    if the finding qualifying seat lift diagnosis about the beneficiary is established
+    and the finding seat lift part of course of treatment about the beneficiary is established
+    and the finding completely incapable of standing from any chair about the beneficiary is established
+    and the finding able to ambulate once standing about the beneficiary is established.
+
+% The pail or pan (E0167), billed apart from the chair it is provided with
+% (the Policy Article's Column II bundling), is read as an accessory of a
+% commode chair that meets the coverage criteria — a device of this model:
+% the LCD states no criterion for it.
+rule commodes_pail:
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0167"
+    and the item is an accessory of a device
+    and the device is provided as a commode
+    and the device is furnished to a beneficiary
+    and the beneficiary is physically incapable of utilizing regular toilet facilities
+    and the device meets the commode coverage criteria for the beneficiary.

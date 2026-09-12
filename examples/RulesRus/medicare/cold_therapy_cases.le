@@ -1,0 +1,86 @@
+% Test cases for the cold therapy policy (cold_therapy.le): synthetic claims
+% for the two codes the LCD and Policy Article name. The policy concludes
+% nothing — LCD L33735 denies the cold pad with pump as not reasonable and
+% necessary and states no criterion for anything else — so every claim fails
+% at the question, however complete its documentation, and no change of the
+% record makes one payable.
+
+the target language is: prolog.
+
+the knowledge base cold_therapy cases includes these resources:
+    cold_therapy.
+
+the knowledge base cold_therapy cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A fully documented claim for a cold pad with pump (E0218): the standard
+% written order, the delivery and its proof, a home — denied as not
+% reasonable and necessary all the same, and nothing flips it.
+scenario cold_pad_complete is:
+    claim 1 is for the cold pad.
+    the HCPCS code of the cold pad is "E0218".
+    the cold pad is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the order for the cold pad is dated 2026-02-20.
+    the order for the cold pad is signed by the treating practitioner.
+    the order for the cold pad includes beneficiary name.
+    the order for the cold pad includes order date.
+    the order for the cold pad includes description of the item.
+    the order for the cold pad includes quantity to be dispensed.
+    the order for the cold pad includes treating practitioner name.
+    the order for the cold pad was communicated to the supplier on 2026-02-22.
+    the cold pad was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the cold pad.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+    flip expects changes [].
+
+% A reusable cold wrap (A9273): in scope, in the benefit, no criterion
+% covers it.
+scenario cold_wrap is:
+    claim 1 is for the cold wrap.
+    the HCPCS code of the cold wrap is "A9273".
+    the cold wrap is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A cold pad furnished to a hospital inpatient: the hospital is not a home,
+% so the claim fails already at applicability.
+scenario cold_pad_in_hospital is:
+    claim 1 is for the cold pad.
+    the HCPCS code of the cold pad is "E0218".
+    the cold pad is furnished to Cy.
+    the residence of Cy is hospital.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A code no policy of the model decides (a chemical cold pack, A9270, is
+% the seat lift policy's code; E1399 is nobody's): out of scope.
+scenario miscellaneous_code is:
+    claim 1 is for the cold device.
+    the HCPCS code of the cold device is "E1399".
+    the cold device is furnished to Dee.
+    the residence of Dee is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].

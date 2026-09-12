@@ -1,0 +1,181 @@
+% Test cases for the eye prostheses policy (eye_prostheses.le): synthetic
+% claims, one per criterion of LCD L33737 and per payment condition of
+% Policy Article A52462, each stating only what its record shows. A
+% prosthesis is a purchase: no rental month. The benefit is a prosthetic
+% one, so no residence is needed.
+
+the target language is: prolog.
+
+the knowledge base eye prostheses cases includes these resources:
+    eye_prostheses.
+
+the knowledge base eye prostheses cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a custom ocular prosthesis (V2623) after the
+% surgical removal of an eye: the condition, the standard written order,
+% the delivery and its proof.
+scenario complete is:
+    claim 1 is for the ocular prosthesis.
+    the HCPCS code of the ocular prosthesis is "V2623".
+    the ocular prosthesis is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    Ann has absence of an eye due to surgical removal.
+    the order for the ocular prosthesis is dated 2026-02-20.
+    the order for the ocular prosthesis is signed by the treating practitioner.
+    the order for the ocular prosthesis includes beneficiary name.
+    the order for the ocular prosthesis includes order date.
+    the order for the ocular prosthesis includes description of the item.
+    the order for the ocular prosthesis includes quantity to be dispensed.
+    the order for the ocular prosthesis includes treating practitioner name.
+    the order for the ocular prosthesis was communicated to the supplier on 2026-02-22.
+    the ocular prosthesis was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the ocular prosthesis.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A scleral cover shell (V2627) for an eye shrunken by trauma.
+scenario scleral_shell is:
+    claim 1 is for the scleral shell.
+    the HCPCS code of the scleral shell is "V2627".
+    the scleral shell is furnished to Ben.
+    the date of service of claim 1 is 2026-03-01.
+    Ben has shrinkage of an eye due to trauma.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Criterion 1 fails: the record states no absence or shrinkage of an eye.
+scenario no_condition is:
+    claim 1 is for the ocular prosthesis.
+    the HCPCS code of the ocular prosthesis is "V2629".
+    the ocular prosthesis is furnished to Cy.
+    the date of service of claim 1 is 2026-03-01.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Polishing and resurfacing (V2624): the second in twelve months is covered
+% (claim 1), the third is not (claim 2).
+scenario polishing is:
+    claim 1 is for the second polishing.
+    the HCPCS code of the second polishing is "V2624".
+    the second polishing is furnished to Dee.
+    the second polishing is an accessory of the prosthesis of Dee.
+    the date of service of claim 1 is 2026-03-01.
+    the number of polishing and resurfacing services on the prosthesis of Dee in the twelve months ending on the date of service of claim 1 is 2.
+    the HCPCS code of the prosthesis of Dee is "V2623".
+    the prosthesis of Dee is furnished to Dee.
+    Dee has absence of an eye due to birth defect.
+    claim 2 is for the third polishing.
+    the HCPCS code of the third polishing is "V2624".
+    the third polishing is furnished to Eve.
+    the third polishing is an accessory of the prosthesis of Eve.
+    the date of service of claim 2 is 2026-03-01.
+    the number of polishing and resurfacing services on the prosthesis of Eve in the twelve months ending on the date of service of claim 2 is 3.
+    the HCPCS code of the prosthesis of Eve is "V2623".
+    the prosthesis of Eve is furnished to Eve.
+    Eve has absence of an eye due to surgical removal.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The first enlargement (V2625), 120 days after the delivery of the
+% prosthesis: covered without documentation.
+scenario first_enlargement is:
+    claim 1 is for the enlargement.
+    the HCPCS code of the enlargement is "V2625".
+    the enlargement is furnished to Fay.
+    the enlargement is an accessory of the ocular prosthesis.
+    the date of service of claim 1 is 2026-07-01.
+    the number of enlargements and reductions of the ocular prosthesis previously furnished is 0.
+    the HCPCS code of the ocular prosthesis is "V2623".
+    the ocular prosthesis is furnished to Fay.
+    the ocular prosthesis was delivered on 2026-03-03.
+    Fay has absence of an eye due to surgical removal.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A reduction (V2626) 30 days after delivery: a modification within 90 days
+% is included in the allowance of the prosthesis.
+scenario modification_within_90_days is:
+    claim 1 is for the reduction.
+    the HCPCS code of the reduction is "V2626".
+    the reduction is furnished to Gus.
+    the reduction is an accessory of the ocular prosthesis.
+    the date of service of claim 1 is 2026-04-01.
+    the number of enlargements and reductions of the ocular prosthesis previously furnished is 0.
+    the HCPCS code of the ocular prosthesis is "V2623".
+    the ocular prosthesis is furnished to Gus.
+    the ocular prosthesis was delivered on 2026-03-02.
+    Gus has absence of an eye due to surgical removal.
+    rn expects answers [].
+
+% A second enlargement: the treating practitioner finds it necessary
+% (claim 1, covered); for another beneficiary the Council finds the record
+% does not support it (claim 2, denied).
+scenario additional_enlargement is:
+    claim 1 is for the enlargement of Hal.
+    the HCPCS code of the enlargement of Hal is "V2625".
+    the enlargement of Hal is furnished to Hal.
+    the enlargement of Hal is an accessory of the prosthesis of Hal.
+    the date of service of claim 1 is 2026-09-01.
+    the number of enlargements and reductions of the prosthesis of Hal previously furnished is 1.
+    the finding additional adjustment medically necessary about Hal is established, according to the treating practitioner, because "the socket has contracted further after radiotherapy and the prosthesis no longer fills it".
+    the HCPCS code of the prosthesis of Hal is "V2623".
+    the prosthesis of Hal is furnished to Hal.
+    the prosthesis of Hal was delivered on 2026-01-15.
+    Hal has absence of an eye due to surgical removal.
+    claim 2 is for the enlargement of Ida.
+    the HCPCS code of the enlargement of Ida is "V2625".
+    the enlargement of Ida is furnished to Ida.
+    the enlargement of Ida is an accessory of the prosthesis of Ida.
+    the date of service of claim 2 is 2026-09-01.
+    the number of enlargements and reductions of the prosthesis of Ida previously furnished is 2.
+    the finding additional adjustment medically necessary about Ida is unsupported, according to the Council, because "the medical record contains no information supporting the medical necessity of a third enlargement".
+    the HCPCS code of the prosthesis of Ida is "V2623".
+    the prosthesis of Ida is furnished to Ida.
+    the prosthesis of Ida was delivered on 2026-01-15.
+    Ida has absence of an eye due to trauma.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A trial scleral shell (L9900): in scope, but in no benefit — included in
+% the allowance for the scleral cover shell.
+scenario trial_shell is:
+    claim 1 is for the trial shell.
+    the HCPCS code of the trial shell is "L9900".
+    the trial shell is furnished to Jo.
+    the date of service of claim 1 is 2026-03-01.
+    Jo has shrinkage of an eye due to trauma.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% Reasonable and necessary, but no proof of delivery: payable fails at the
+% remedy.
+scenario no_proof_of_delivery is:
+    claim 1 is for the ocular prosthesis.
+    the HCPCS code of the ocular prosthesis is "V2623".
+    the ocular prosthesis is furnished to Kim.
+    the date of service of claim 1 is 2026-03-01.
+    Kim has absence of an eye due to surgical removal.
+    the order for the ocular prosthesis is dated 2026-02-20.
+    the order for the ocular prosthesis is signed by the treating practitioner.
+    the order for the ocular prosthesis includes beneficiary name.
+    the order for the ocular prosthesis includes order date.
+    the order for the ocular prosthesis includes description of the item.
+    the order for the ocular prosthesis includes quantity to be dispensed.
+    the order for the ocular prosthesis includes treating practitioner name.
+    the order for the ocular prosthesis was communicated to the supplier on 2026-02-22.
+    the ocular prosthesis was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the ocular prosthesis"]].

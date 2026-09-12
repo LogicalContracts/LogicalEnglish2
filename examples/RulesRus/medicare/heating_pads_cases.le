@@ -1,0 +1,138 @@
+% Test cases for the heating pads policy (heating_pads.le): synthetic claims,
+% one per criterion of LCD L33784 and per code the LCD or Policy Article
+% A52502 denies. The finding is recorded as the treating practitioner's, a
+% medical reviewer's or the Council's; a finding nobody made leaves the
+% answer conditional. A heating pad is a purchase: no rental month.
+
+the target language is: prolog.
+
+the knowledge base heating_pads cases includes these resources:
+    heating_pads.
+
+the knowledge base heating_pads cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a standard electric heating pad (E0210) for
+% osteoarthritic joint stiffness: the finding, the standard written order
+% communicated before the date of service, the delivery and its proof.
+scenario standard_pad_complete is:
+    claim 1 is for the heating pad.
+    the HCPCS code of the heating pad is "E0210".
+    the heating pad is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding heating pad indicated about Ann is established, according to the treating practitioner, because "to decrease joint stiffness from osteoarthritis of the knees".
+    the order for the heating pad is dated 2026-02-20.
+    the order for the heating pad is signed by the treating practitioner.
+    the order for the heating pad includes beneficiary name.
+    the order for the heating pad includes order date.
+    the order for the heating pad includes description of the item.
+    the order for the heating pad includes quantity to be dispensed.
+    the order for the heating pad includes treating practitioner name.
+    the order for the heating pad was communicated to the supplier on 2026-02-22.
+    the heating pad was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the heating pad.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The purpose is not decided: nothing in the record says what the pad is
+% for, so the answer is conditional on the finding.
+scenario purpose_not_decided is:
+    claim 1 is for the heating pad.
+    the HCPCS code of the heating pad is "E0210".
+    the heating pad is furnished to Ben.
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding heating pad indicated about Ben is established"].
+
+% The exclusion: the pad is provided to treat pain due to diabetic
+% neuropathy — not reasonable and necessary whatever the finding.
+scenario peripheral_neuropathy is:
+    claim 1 is for the heating pad.
+    the HCPCS code of the heating pad is "E0210".
+    the heating pad is furnished to Cy.
+    the residence of Cy is private residence.
+    the finding heating pad indicated about Cy is established, according to the treating practitioner, because "to relieve burning foot pain".
+    the heating pad is provided to treat pain due to peripheral neuropathy.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% The Council finds the record shows no covered purpose: the note names no
+% pain, stiffness, muscle or inflammatory condition the pad would treat.
+scenario purpose_unsupported_council is:
+    claim 1 is for the heating pad.
+    the HCPCS code of the heating pad is "E0210".
+    the heating pad is furnished to Dee.
+    the finding heating pad indicated about Dee is unsupported, according to the Council, because "the treating practitioner's note states only that the beneficiary requested a heating pad and names no pain, stiffness, muscle spasm or inflammation it would treat".
+    rn expects answers [].
+
+% A moist electric heating pad (E0215) and a water circulating heat pad
+% with pump (E0217): denied as not reasonable and necessary, whatever the
+% finding.
+scenario moist_and_water_circulating is:
+    claim 1 is for the moist pad.
+    the HCPCS code of the moist pad is "E0215".
+    the moist pad is furnished to Eve.
+    claim 2 is for the water pad.
+    the HCPCS code of the water pad is "E0217".
+    the water pad is furnished to Eve.
+    the finding heating pad indicated about Eve is established, according to the treating practitioner, because "to relax paraspinal muscle spasm".
+    rn expects answers [].
+
+% A replacement pump (E0236) for a water circulating system, and a heat lamp
+% (E0205): denied as not reasonable and necessary.
+scenario pump_and_heat_lamp is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "E0236".
+    the pump is furnished to Fay.
+    claim 2 is for the heat lamp.
+    the HCPCS code of the heat lamp is "E0205".
+    the heat lamp is furnished to Fay.
+    the finding heating pad indicated about Fay is established, according to the treating practitioner, because "to reduce inflammation of the shoulder".
+    rn expects answers [].
+
+% A hydrocollator unit (E0239): in scope, but institutional equipment
+% outside the benefit — the claim fails at applicability.
+scenario hydrocollator is:
+    claim 1 is for the hydrocollator.
+    the HCPCS code of the hydrocollator is "E0239".
+    the hydrocollator is furnished to Gus.
+    the residence of Gus is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% Reasonable and necessary, but the order is not signed by the treating
+% practitioner: payable fails at the remedy; the signature flips it.
+scenario order_unsigned is:
+    claim 1 is for the heating pad.
+    the HCPCS code of the heating pad is "E0210".
+    the heating pad is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding heating pad indicated about Ann is established, according to the treating practitioner, because "to decrease joint stiffness from osteoarthritis of the knees".
+    the order for the heating pad is dated 2026-02-20.
+    the order for the heating pad includes beneficiary name.
+    the order for the heating pad includes order date.
+    the order for the heating pad includes description of the item.
+    the order for the heating pad includes quantity to be dispensed.
+    the order for the heating pad includes treating practitioner name.
+    the order for the heating pad was communicated to the supplier on 2026-02-22.
+    the heating pad was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the heating pad.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the order for the heating pad is signed by the treating practitioner"]].

@@ -1,0 +1,250 @@
+% Oral Anticancer Drugs: LCD L33826 and its Policy Article A52479 (DME MACs).
+% A policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for an oral anticancer drug (busulfan, capecitabine, cyclophosphamide,
+% etoposide, melphalan, methotrexate, temozolomide, topotecan — the eight
+% drugs whose indications the Policy Article lists, group by group — or the
+% not otherwise classified J8999) or for an antiemetic used with one (J8498,
+% J8597) is REASONABLE AND NECESSARY: the statutory criteria 1-4 of the
+% Policy Article (an FDA-approved drug with the same active ingredient as a
+% covered injectable drug, used for the same indications, prescribed by a
+% practitioner licensed to prescribe anticancer agents), the indication read
+% as a diagnosis of the drug's ICD-10 group, the drug not used for
+% immunosuppression, and for the antiemetic: used with a covered oral
+% anticancer drug that is likely to induce emesis, within the two hours
+% before it. An oral anticancer drug the article does not list (A9270) is
+% never covered: it is in scope and no rule concludes it.
+%
+% How the criteria are read. The article's ICD-10 table is data
+% (sources/icd10/A52479_icd10_covered.csv, loaded as the table
+% anticancer_icd10); its eight groups are named by drug in the article, but
+% the article's text file does not carry the "Group N" paragraphs, so the
+% groups are mapped to the drugs in the article's alphabetical order, which
+% the indications of each group confirm (group 1 the leukemias, lymphomas
+% and transplant status of busulfan; group 2 the gastrointestinal, breast and
+% neuroendocrine tumors of capecitabine; group 3 cyclophosphamide; group 4
+% the lung, testicular and lymphoma indications of etoposide; group 5 the
+% myeloma, amyloidosis and ovarian indications of melphalan; group 6
+% methotrexate; group 7 the glioma, melanoma and neuroendocrine indications
+% of temozolomide; group 8 the ovarian, lung and cervical indications of
+% topotecan). The drugs are identified by their HCPCS J codes (J8510 to
+% J8705, the standard codes of the drugs; the article bills them by NDC and
+% names only J8530, J8610, J8498, J8597, J8999 and A9270): a claim's code
+% stands for its drug, and a J8999 claim states the drug it dispenses. The
+% finding this policy reads (dmepos.le's judged template), and the criterion
+% it stands for:
+%   anticancer drug likely to induce emesis (the antiemetic's criterion 2:
+%   "It is likely that administration of the covered oral anticancer drug
+%   will induce emesis if the antiemetic drug is not administered").
+% Not modelled: the licensing of the dispensing entity, the supply fees
+% Q0511 and Q0512, the NDC crosswalk, the appeal route for a diagnosis
+% outside the list.
+%
+% The payment conditions the policy adds (LCD L33826 "Refill requirements",
+% Policy Article A52479 "Policy specific documentation requirements"): no
+% more than a one-month quantity dispensed at a time, and for J8498 and
+% J8597 the narrative of the claim (the drug's name, manufacturer and dosage
+% strength, the oral anticancer drug used and its frequency of
+% administration).
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the drug dispensed as *an item* is *a drug*; undefined.
+    *an item* is approved by the FDA; undefined.
+    *an item* is prescribed by a practitioner licensed under state law to prescribe anticancer chemotherapeutic agents; undefined.
+    *an item* is prescribed for immunosuppression; undefined.
+    *an item* is used in conjunction with *an other item*; undefined.
+    *an item* is administered *a number* hours before the oral anticancer drug; undefined.
+    the claim narrative for *an item* identifies *an element*; undefined.
+    % the codes and the groups
+    the oral anticancer drug of code *a code* is *a drug*.
+    the ICD10 group of *a drug* is *a group*.
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table anticancer_icd10.
+    % derived
+    *an item* is an oral anticancer drug.
+    *an item* is an oral anticancer antiemetic.
+    the oral anticancer drug of *an item* is *a drug*.
+    *an item* meets the oral anticancer drug criteria for *a beneficiary*.
+    *an item* is used for an indication of its injectable form for *a beneficiary*.
+    *an element* is a required element of the antiemetic narrative.
+    the narrative requirements are met for *a claim*.
+    *a claim* is within the one month dispensing limit of the anticancer policy.
+
+% The Policy Article's ICD-10 table: eight groups, one per drug.
+the table anticancer_icd10 is loaded from sources/icd10/A52479_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base oral_anticancer includes these resources:
+    dmepos.
+
+the knowledge base oral_anticancer includes:
+
+LCD L33826 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33826".
+the text of LCD L33826 is at "sources/lcd/L33826.txt".
+Policy Article A52479 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52479".
+the text of Policy Article A52479 is at "sources/article/A52479.txt".
+
+% What the items are, by code.
+rule anticancer_drug_codes with provenance Policy Article A52479,
+        confer "Oral anticancer drugs which are not covered under the oral anticancer drug benefit (i.e., those that are not specifically listed in this policy) must be billed using code A9270":
+an item is an oral anticancer drug
+    if the HCPCS code of the item is a code
+    and the code is in ["J8510", "J8520", "J8521", "J8530", "J8560", "J8600", "J8610", "J8700", "J8705", "J8999"].
+
+rule anticancer_antiemetic_codes with provenance Policy Article A52479,
+        confer "A self-administered antiemetic drug billed with code J8498 or J8597 is covered if all of the following criteria are met":
+an item is an oral anticancer antiemetic
+    if the HCPCS code of the item is a code
+    and the code is in ["J8498", "J8597"].
+
+% The eight drugs of the article, by code (the standard HCPCS codes of the
+% oral drugs; the texts bill them by NDC) and by ICD-10 group (the article's
+% alphabetical order, see the header).
+the oral anticancer drug of code "J8510" is busulfan.
+the oral anticancer drug of code "J8520" is capecitabine.
+the oral anticancer drug of code "J8521" is capecitabine.
+the oral anticancer drug of code "J8530" is cyclophosphamide.
+the oral anticancer drug of code "J8560" is etoposide.
+the oral anticancer drug of code "J8600" is melphalan.
+the oral anticancer drug of code "J8610" is methotrexate.
+the oral anticancer drug of code "J8700" is temozolomide.
+the oral anticancer drug of code "J8705" is topotecan.
+
+the ICD10 group of busulfan is 1.
+the ICD10 group of capecitabine is 2.
+the ICD10 group of cyclophosphamide is 3.
+the ICD10 group of etoposide is 4.
+the ICD10 group of melphalan is 5.
+the ICD10 group of methotrexate is 6.
+the ICD10 group of temozolomide is 7.
+the ICD10 group of topotecan is 8.
+
+% The drug of an item: its code's, or, for the not otherwise classified
+% code, the drug the record says was dispensed.
+rule anticancer_drug_of_code with provenance Policy Article A52479,
+        confer "Suppliers must use the NDC that matches the product dispensed":
+the oral anticancer drug of an item is a drug
+    if the HCPCS code of the item is a code
+    and the oral anticancer drug of code the code is the drug.
+
+rule anticancer_drug_of_noc with provenance Policy Article A52479,
+        confer "Until a new NDC number is added to the list, suppliers must submit claims using code J8999":
+the oral anticancer drug of an item is a drug
+    if the HCPCS code of the item is "J8999"
+    and the drug dispensed as the item is the drug.
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: the oral anticancer drug
+% benefit of Social Security Act §1861(s)(2)(Q) (Policy Article A52479).
+rule anticancer_codes with provenance Policy Article A52479,
+        confer "Oral anticancer drugs are covered under the oral anticancer drug benefit":
+the policy for code a code is oral_anticancer
+    if the code is in ["J8510", "J8520", "J8521", "J8530", "J8560", "J8600", "J8610", "J8700", "J8705", "J8999", "J8498", "J8597", "A9270"].
+
+rule anticancer_benefit with provenance Policy Article A52479,
+        confer "Oral anticancer drugs are covered under the oral anticancer drug benefit":
+the benefit category of code a code is oral anticancer drug benefit
+    if the policy for code the code is oral_anticancer.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The oral anticancer drug: the statutory criteria 1-4, the indication of
+% the injectable form, not for immunosuppression.
+% ---------------------------------------------------------------------------
+
+rule anticancer_claim with provenance LCD L33826,
+        confer "Statutory coverage criteria for oral anticancer drugs are specified in the related Policy Article. In addition, the drug must be reasonable and necessary for the individual beneficiary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an oral anticancer drug
+    and the item is furnished to a beneficiary
+    and the item meets the oral anticancer drug criteria for the beneficiary.
+
+rule anticancer_criteria with provenance Policy Article A52479,
+        confer "For an oral anticancer drug to be covered, all of the following criteria (1-4) must be met":
+an item meets the oral anticancer drug criteria for a beneficiary
+    if the item is furnished to the beneficiary
+    and the item is approved by the FDA
+    and the oral anticancer drug of the item is a drug
+    and the item is used for an indication of its injectable form for the beneficiary
+    and the item is prescribed by a practitioner licensed under state law to prescribe anticancer chemotherapeutic agents
+    and it is not the case that
+        the item is prescribed for immunosuppression.
+
+% Criterion 3: the indication of the injectable form — a diagnosis of the
+% drug's group of the article's list.
+rule anticancer_indication with provenance Policy Article A52479,
+        confer "It is used for the same anticancer chemotherapeutic indications, including unlabeled or “off label” uses, as the non-self-administrable form of the drug":
+an item is used for an indication of its injectable form for a beneficiary
+    if the oral anticancer drug of the item is a drug
+    and the ICD10 group of the drug is a group
+    and the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group the group of article "A52479" as a description under table anticancer_icd10.
+
+% ---------------------------------------------------------------------------
+% The antiemetic used with an oral anticancer drug.
+% ---------------------------------------------------------------------------
+
+rule anticancer_antiemetic_claim with provenance Policy Article A52479,
+        confer "The antiemetic drug is administered within 2 hours before the covered oral anticancer drug is administered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an oral anticancer antiemetic
+    and the item is furnished to a beneficiary
+    and the item is used in conjunction with an other item
+    and the other item is an oral anticancer drug
+    and the other item meets the oral anticancer drug criteria for the beneficiary
+    and the finding anticancer drug likely to induce emesis about the beneficiary is established
+    and the item is administered a number hours before the oral anticancer drug
+    and the number >= 0
+    and the number <= 2.
+
+section remedy is:
+
+% The policy's own conditions of payment: at most a one-month quantity at a
+% time, and the narrative of an antiemetic claim.
+rule anticancer_documentation with provenance LCD L33826,
+        confer "Regardless of utilization, a supplier must not dispense more than a one (1) month quantity at a time":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is oral_anticancer
+    and the claim is within the one month dispensing limit of the anticancer policy
+    and the narrative requirements are met for the claim.
+
+rule anticancer_one_month with provenance Policy Article A52479,
+        confer "The quantity of oral anticancer drugs that is dispensed should be limited to a 30-day supply":
+a claim is within the one month dispensing limit of the anticancer policy
+    if the claim is for a supply of a number months
+    and the number <= 1.
+
+rule anticancer_narrative with provenance Policy Article A52479,
+        confer "Claims for codes J8498 or J8597 must identify the name of the drug, the manufacturer, and the dosage strength of each tablet/suppository/etc":
+the narrative requirements are met for a claim
+    if the claim is for an item
+    and the item is an oral anticancer antiemetic
+    and for all cases in which
+            an element is a required element of the antiemetic narrative
+        it is the case that
+            the claim narrative for the item identifies the element.
+
+% a claim for the anticancer drug itself has no narrative requirement — a
+% device of this model
+rule anticancer_narrative_not_needed:
+the narrative requirements are met for a claim
+    if the claim is for an item
+    and it is not the case that
+        the item is an oral anticancer antiemetic.
+
+drug name is a required element of the antiemetic narrative,
+    as stated in Policy Article A52479, confer "must identify the name of the drug, the manufacturer, and the dosage strength of each tablet/suppository/etc".
+manufacturer is a required element of the antiemetic narrative,
+    as stated in Policy Article A52479, confer "must identify the name of the drug, the manufacturer, and the dosage strength of each tablet/suppository/etc".
+dosage strength is a required element of the antiemetic narrative,
+    as stated in Policy Article A52479, confer "must identify the name of the drug, the manufacturer, and the dosage strength of each tablet/suppository/etc".
+oral anticancer drug used is a required element of the antiemetic narrative,
+    as stated in Policy Article A52479, confer "The claim must also indicate which oral anticancer drug is being used and the prescribed frequency of administration of the anticancer drug".
+frequency of administration is a required element of the antiemetic narrative,
+    as stated in Policy Article A52479, confer "The claim must also indicate which oral anticancer drug is being used and the prescribed frequency of administration of the anticancer drug".

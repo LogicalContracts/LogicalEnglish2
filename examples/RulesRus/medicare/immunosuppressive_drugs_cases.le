@@ -1,0 +1,303 @@
+% Test cases for the immunosuppressive drugs policy (immunosuppressive_drugs.le):
+% synthetic claims, one or two per criterion of Policy Article A52474 and of
+% LCD L33824, each stating only what its record shows. The diagnosis is a
+% code of the article's ICD-10 table. The queries: whether the claim is
+% payable (the first query, so "stage" reads its checklist), whether it is
+% reasonable and necessary, and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base immunosuppressive drugs cases includes these resources:
+    immunosuppressive_drugs.
+
+the knowledge base immunosuppressive drugs cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a 90-day supply of tacrolimus (J7507) after a kidney
+% transplant (Z94.0): every criterion and every documentation requirement in
+% the record; the drug is furnished on the day of discharge.
+scenario tacrolimus_complete is:
+    claim 1 is for the tacrolimus.
+    the HCPCS code of the tacrolimus is "J7507".
+    the tacrolimus is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Ann is "Z94.0".
+    Ann received a transplant of kidney on 2026-02-20.
+    the transplant of Ann met the Medicare coverage criteria in effect at the time.
+    Ann was enrolled in Medicare Part A at the time of the transplant.
+    Ann is enrolled in Medicare Part B at the time the drugs are dispensed.
+    Ann was discharged from the hospital following the transplant on 2026-03-01.
+    the labeling of the tacrolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Ann is established, according to the treating practitioner, because "tacrolimus 4 mg twice daily, the standard maintenance regimen after kidney transplantation".
+    the supplier holds the transplant date of Ann obtained from the treating practitioner.
+    the order for the tacrolimus is dated 2026-02-27.
+    the order for the tacrolimus is signed by the treating practitioner.
+    the order for the tacrolimus includes beneficiary name.
+    the order for the tacrolimus includes order date.
+    the order for the tacrolimus includes description of the item.
+    the order for the tacrolimus includes quantity to be dispensed.
+    the order for the tacrolimus includes treating practitioner name.
+    the order for the tacrolimus was communicated to the supplier on 2026-02-27.
+    the tacrolimus was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the tacrolimus.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Mycophenolate for rheumatoid arthritis (M06.9), no transplant: not
+% reasonable and necessary.
+scenario non_transplant_diagnosis is:
+    claim 1 is for the mycophenolate.
+    the HCPCS code of the mycophenolate is "J7517".
+    the mycophenolate is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ben is "M06.9".
+    the labeling of the mycophenolate includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Ben is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A pancreas transplant alone (Z94.83, 2024): Cy meets the criteria of
+% I(E) (a Medicare-approved facility, type I diabetes, a positive
+% autoantibody test, the labile diabetes, 18 months under an
+% endocrinologist, the two findings); Dee had the same transplant with no
+% autoantibody test and a fasting C-peptide at 150 percent of the lower
+% limit of normal — not a qualifying transplant.
+scenario pancreas_alone is:
+    claim 1 is for the tacrolimus.
+    the HCPCS code of the tacrolimus is "J7507".
+    the tacrolimus is furnished to Cy.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Cy is "Z94.83".
+    Cy received a transplant of pancreas alone on 2024-05-10.
+    the transplant of Cy was performed in a facility that is Medicare approved for kidney transplantation.
+    the medical record of Cy documents type I diabetes.
+    the beta cell autoantibody test of Cy is positive.
+    the medical record of Cy documents labile insulin dependent diabetes with hospitalization.
+    Cy was under the care of an endocrinologist with optimal and intensive management for 18 months.
+    the finding able to manage lifelong immunosuppression about Cy is established, according to the treating practitioner.
+    the finding suitable candidate for transplantation about Cy is established, according to the treating practitioner.
+    the transplant of Cy met the Medicare coverage criteria in effect at the time.
+    Cy was enrolled in Medicare Part A at the time of the transplant.
+    Cy is enrolled in Medicare Part B at the time the drugs are dispensed.
+    the labeling of the tacrolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Cy is established, according to the treating practitioner.
+    claim 2 is for the other tacrolimus.
+    the HCPCS code of the other tacrolimus is "J7507".
+    the other tacrolimus is furnished to Dee.
+    claim 2 is for a supply of 3 months.
+    the diagnosis code of Dee is "Z94.83".
+    Dee received a transplant of pancreas alone on 2024-05-10.
+    the transplant of Dee was performed in a facility that is Medicare approved for kidney transplantation.
+    the medical record of Dee documents type I diabetes.
+    the fasting C-peptide level of Dee is 150 percent of the lower limit of normal.
+    the fasting glucose of Dee obtained with the C-peptide determination is 180 mg per dl.
+    the medical record of Dee documents labile insulin dependent diabetes with hospitalization.
+    Dee was under the care of an endocrinologist with optimal and intensive management for 18 months.
+    the finding able to manage lifelong immunosuppression about Dee is established, according to the treating practitioner.
+    the finding suitable candidate for transplantation about Dee is established, according to the treating practitioner.
+    the transplant of Dee met the Medicare coverage criteria in effect at the time.
+    Dee was enrolled in Medicare Part A at the time of the transplant.
+    Dee is enrolled in Medicare Part B at the time the drugs are dispensed.
+    the labeling of the other tacrolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Dee is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A 120-day supply of cyclosporine after a liver transplant: over the 90-day
+% limit.
+scenario supply_over_90_days is:
+    claim 1 is for the cyclosporine.
+    the HCPCS code of the cyclosporine is "J7502".
+    the cyclosporine is furnished to Eve.
+    claim 1 is for a supply of 4 months.
+    the diagnosis code of Eve is "Z94.4".
+    Eve received a transplant of liver on 2025-11-03.
+    the transplant of Eve met the Medicare coverage criteria in effect at the time.
+    Eve was enrolled in Medicare Part A at the time of the transplant.
+    Eve is enrolled in Medicare Part B at the time the drugs are dispensed.
+    the labeling of the cyclosporine includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Eve is established, according to the treating practitioner.
+    rn expects answers [].
+
+% Parenteral drugs after a heart transplant (Z94.1): azathioprine injection
+% (J7501) for Fay, who cannot absorb the oral form and self-administers it,
+% is covered; belatacept (J0485) is denied in the home; and Gus's
+% azathioprine injection, with no intolerance in the record, is not covered.
+scenario parenteral_drugs is:
+    claim 1 is for the azathioprine injection.
+    the HCPCS code of the azathioprine injection is "J7501".
+    the azathioprine injection is furnished to Fay.
+    claim 1 is for a supply of 1 months.
+    the oral form of the azathioprine injection cannot be tolerated or absorbed by Fay.
+    the azathioprine injection is self administered by the beneficiary.
+    the diagnosis code of Fay is "Z94.1".
+    Fay received a transplant of heart on 2025-09-15.
+    the transplant of Fay met the Medicare coverage criteria in effect at the time.
+    Fay was enrolled in Medicare Part A at the time of the transplant.
+    Fay is enrolled in Medicare Part B at the time the drugs are dispensed.
+    the labeling of the azathioprine injection includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Fay is established, according to the treating practitioner.
+    claim 2 is for the belatacept.
+    the HCPCS code of the belatacept is "J0485".
+    the belatacept is furnished to Fay.
+    claim 2 is for a supply of 1 months.
+    the labeling of the belatacept includes an indication for preventing or treating the rejection of a transplanted organ.
+    claim 3 is for the other azathioprine injection.
+    the HCPCS code of the other azathioprine injection is "J7501".
+    the other azathioprine injection is furnished to Gus.
+    claim 3 is for a supply of 1 months.
+    the diagnosis code of Gus is "Z94.1".
+    Gus received a transplant of heart on 2025-09-15.
+    the transplant of Gus met the Medicare coverage criteria in effect at the time.
+    Gus was enrolled in Medicare Part A at the time of the transplant.
+    Gus is enrolled in Medicare Part B at the time the drugs are dispensed.
+    the labeling of the other azathioprine injection includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Gus is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A refill of a 90-day supply of tacrolimus a year after the transplant,
+% affirmed eight days before the current supply ends and delivered four
+% days before: payable — the transplant establishes the continued need, no
+% record of continued need or use is required.
+scenario tacrolimus_refill is:
+    claim 1 is for the tacrolimus.
+    the HCPCS code of the tacrolimus is "J7507".
+    the tacrolimus is furnished to Ann.
+    the residence of Ann is private residence.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2027-02-25.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Ann is "Z94.0".
+    Ann received a transplant of kidney on 2026-02-20.
+    the transplant of Ann met the Medicare coverage criteria in effect at the time.
+    Ann was enrolled in Medicare Part A at the time of the transplant.
+    Ann is enrolled in Medicare Part B at the time the drugs are dispensed.
+    Ann was discharged from the hospital following the transplant on 2026-03-01.
+    the labeling of the tacrolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Ann is established, according to the treating practitioner.
+    the supplier holds the transplant date of Ann obtained from the treating practitioner.
+    the current supply of the tacrolimus is expected to end on 2027-03-01.
+    the beneficiary affirmed the need for the refill of the tacrolimus on 2027-02-21.
+    the order for the tacrolimus is dated 2026-02-27.
+    the order for the tacrolimus is signed by the treating practitioner.
+    the order for the tacrolimus includes beneficiary name.
+    the order for the tacrolimus includes order date.
+    the order for the tacrolimus includes description of the item.
+    the order for the tacrolimus includes quantity to be dispensed.
+    the order for the tacrolimus includes treating practitioner name.
+    the order for the tacrolimus was communicated to the supplier on 2026-02-27.
+    the tacrolimus was delivered on 2027-02-25.
+    the supplier holds proof of delivery for the tacrolimus.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The complete claim without the supplier's record of the transplant date:
+% reasonable and necessary, but the KX documentation is missing — payable
+% fails at the remedy.
+scenario transplant_date_not_held is:
+    claim 1 is for the tacrolimus.
+    the HCPCS code of the tacrolimus is "J7507".
+    the tacrolimus is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Ann is "Z94.0".
+    Ann received a transplant of kidney on 2026-02-20.
+    the transplant of Ann met the Medicare coverage criteria in effect at the time.
+    Ann was enrolled in Medicare Part A at the time of the transplant.
+    Ann is enrolled in Medicare Part B at the time the drugs are dispensed.
+    Ann was discharged from the hospital following the transplant on 2026-03-01.
+    the labeling of the tacrolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Ann is established, according to the treating practitioner.
+    the order for the tacrolimus is dated 2026-02-27.
+    the order for the tacrolimus is signed by the treating practitioner.
+    the order for the tacrolimus includes beneficiary name.
+    the order for the tacrolimus includes order date.
+    the order for the tacrolimus includes description of the item.
+    the order for the tacrolimus includes quantity to be dispensed.
+    the order for the tacrolimus includes treating practitioner name.
+    the order for the tacrolimus was communicated to the supplier on 2026-02-27.
+    the tacrolimus was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the tacrolimus.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds the transplant date of Ann obtained from the treating practitioner"]].
+
+% The drug mailed three days before the discharge: the delivery requirement
+% of criterion V fails.
+scenario mailed_too_early is:
+    claim 1 is for the tacrolimus.
+    the HCPCS code of the tacrolimus is "J7507".
+    the tacrolimus is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Ann is "Z94.0".
+    Ann received a transplant of kidney on 2026-02-20.
+    the transplant of Ann met the Medicare coverage criteria in effect at the time.
+    Ann was enrolled in Medicare Part A at the time of the transplant.
+    Ann is enrolled in Medicare Part B at the time the drugs are dispensed.
+    Ann was discharged from the hospital following the transplant on 2026-03-04.
+    the tacrolimus was mailed on 2026-03-01.
+    the labeling of the tacrolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Ann is established, according to the treating practitioner.
+    the supplier holds the transplant date of Ann obtained from the treating practitioner.
+    the order for the tacrolimus is dated 2026-02-27.
+    the order for the tacrolimus is signed by the treating practitioner.
+    the order for the tacrolimus includes beneficiary name.
+    the order for the tacrolimus includes order date.
+    the order for the tacrolimus includes description of the item.
+    the order for the tacrolimus includes quantity to be dispensed.
+    the order for the tacrolimus includes treating practitioner name.
+    the order for the tacrolimus was communicated to the supplier on 2026-02-27.
+    the tacrolimus was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the tacrolimus.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% The regimen and the finding. Hal: the Council finds the regimen
+% unsupported (a dose outside accepted practice) — not reasonable and
+% necessary. Ivy: nobody has made the finding — the answer is conditional on
+% it.
+scenario regimen_findings is:
+    claim 1 is for the sirolimus.
+    the HCPCS code of the sirolimus is "J7520".
+    the sirolimus is furnished to Hal.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Hal is "Z94.2".
+    Hal received a transplant of lung on 2025-06-01.
+    the transplant of Hal met the Medicare coverage criteria in effect at the time.
+    Hal was enrolled in Medicare Part A at the time of the transplant.
+    Hal is enrolled in Medicare Part B at the time the drugs are dispensed.
+    the labeling of the sirolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    the finding regimen necessary to prevent rejection about Hal is unsupported, according to the Council, because "the order is for a dose four times the labeled maintenance dose with no explanation in the record".
+    claim 2 is for the other sirolimus.
+    the HCPCS code of the other sirolimus is "J7520".
+    the other sirolimus is furnished to Ivy.
+    claim 2 is for a supply of 1 months.
+    the diagnosis code of Ivy is "Z94.2".
+    Ivy received a transplant of lung on 2025-06-01.
+    the transplant of Ivy met the Medicare coverage criteria in effect at the time.
+    Ivy was enrolled in Medicare Part A at the time of the transplant.
+    Ivy is enrolled in Medicare Part B at the time the drugs are dispensed.
+    the labeling of the other sirolimus includes an indication for preventing or treating the rejection of a transplanted organ.
+    rn expects answers ["claim 2 is reasonable and necessary"] and unknowns ["the finding regimen necessary to prevent rejection about Ivy is established"].

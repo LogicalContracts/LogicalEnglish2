@@ -1,0 +1,286 @@
+% External Upper Limb Tremor Stimulator Therapy: LCD L39591 and its Policy
+% Article A59680 (DME MACs). A policy program of the DMEPOS model: it
+% includes dmepos.le (orders, delivery, benefit category, continued need,
+% refills) and states when a claim for an external upper limb tremor
+% stimulator of the peripheral nerves of the wrist (E0734) or its supplies
+% and accessories (A4542, the wrist band with integrated electrodes) is
+% REASONABLE AND NECESSARY: the initial coverage criteria 1-8 after a
+% clinical evaluation by the treating practitioner (a diagnosis of essential
+% tremor in the article's Group 1 codes; age 18 or older; no
+% contraindications; the dominant upper limb; a Bain & Findley ADL score of
+% 3 or more on an eating, drinking, self-care or writing item; tremor
+% exacerbating medications reduced or eliminated if appropriate; two
+% pharmacological options tried and failed or ruled out; an alternative to
+% surgery), and the continued-coverage criteria beyond the first three
+% months of therapy (a clinical re-evaluation between the 60th and the 91st
+% day — or later, coverage then resuming from its date — documenting a
+% 1-point BF-ADL improvement and adherence on 70 percent of days in a
+% consecutive thirty day period). A stimulator for the non-dominant limb
+% has no rule: "An external upper limb tremor stimulator (E0734) for the
+% non-dominant upper limb will be denied as not reasonable and necessary."
+%
+% How the criteria are read. The facts of a claim are what the record shows:
+% the clinical evaluation and its date, the diagnosis code, the age, the
+% limb the device is prescribed for, the BF-ADL scores before therapy and at
+% the re-evaluation (a score per task category — eating, drinking, self
+% care, writing — with the threshold 3 and the 1-point improvement in the
+% rules), the number of pharmacological options tried and failed or ruled
+% out, that the therapy is prescribed as an alternative to surgery, the
+% re-evaluation and its date, the usage data. Two criteria are clinical
+% judgments of the treating practitioner, accepted or rejected on review —
+% the judged template of dmepos.le, "the finding F about B is established"
+% (or unsupported), with who found it and why. The findings this policy
+% reads, and the criterion each stands for:
+%   free of contraindications (3: the beneficiary has no contraindications
+%   to external upper limb tremor stimulator therapy);
+%   tremor exacerbating medications addressed (6: if medically appropriate,
+%   tremor exacerbating medications such as stimulants and beta agonists
+%   have been reduced or eliminated — the reasons: reduced, eliminated, or
+%   no reduction medically appropriate).
+% Therapy is taken to start on the day the device is delivered. A claim
+% with no rental month (a purchase) is at the initiation of therapy and is
+% read under the initial criteria; a rental month after the third needs the
+% continued-coverage criteria; a supply (A4542) is covered when the device
+% is covered on the claim's date of service — the initial criteria within
+% the first 91 days, the continued criteria after. The article's
+% policy-specific documentation requirements restate the coverage criteria
+% (the medical record must show each), so the policy declares none of its
+% own; the KX/GA/GZ and RT/LT modifiers and the 90-day billing of A4542 are
+% billing, not modelled.
+%
+% The Policy Article's ICD-10 table (sources/icd10/A59680_icd10_covered.csv):
+% Group 1, the codes of essential tremor (G25.0), serves E0734 and A4542.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *a beneficiary* had a clinical evaluation in person or via telehealth by the treating practitioner on *a date*; undefined.
+    % candidate for dmepos.le
+    the age of *a beneficiary* is *a number* years; undefined.
+    *an item* is prescribed to treat the dominant upper limb of *a beneficiary*; undefined.
+    the BF-ADL score of *a beneficiary* for *a task* before therapy is *a number*; undefined.
+    *a number* pharmacological treatment options for essential tremor were tried and failed or ruled out for *a beneficiary*; undefined.
+    *an item* is prescribed as an alternative to invasive or permanent surgical treatment for *a beneficiary*; undefined.
+    *a beneficiary* had a clinical re-evaluation in person or via telehealth by the treating practitioner on *a date*; undefined.
+    the BF-ADL score of *a beneficiary* for *a task* at the re-evaluation is *a number*; undefined.
+    *a beneficiary* used *an item* on *a number* percent of the days during a consecutive thirty day period within the first three months; undefined.
+    % the knowledge base
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table tremor_icd10.
+    *a task* is an upper limb activity of daily living.
+    % derived
+    *an item* is a tremor stimulator.
+    *a claim* is in the initial tremor stimulator coverage period.
+    *an item* meets the initial tremor stimulator coverage criteria.
+    *a beneficiary* has a diagnosis of essential tremor.
+    the tremor of *a beneficiary* significantly impairs activities of daily living.
+    tremor stimulator therapy with *an item* was initiated on *a date*.
+    *an item* meets the tremor stimulator continued coverage criteria for *a claim*.
+    *a beneficiary* derives benefit from tremor stimulator therapy.
+    *a beneficiary* adheres to tremor stimulator therapy with *an item*.
+    *a device* is a covered tremor stimulator on the date of service of *a claim*.
+
+% The Policy Article's ICD-10 table: the covered codes of Group 1.
+the table tremor_icd10 is loaded from sources/icd10/A59680_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base tremor stimulator includes these resources:
+    dmepos.
+
+the knowledge base tremor stimulator includes:
+
+LCD L39591 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=39591".
+the text of LCD L39591 is at "sources/lcd/L39591.txt".
+Policy Article A59680 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=59680".
+the text of Policy Article A59680 is at "sources/article/A59680.txt".
+
+% What a tremor stimulator is.
+rule tremor_device with provenance Policy Article A59680,
+        confer "Code E0734 describes an external upper limb tremor stimulator that delivers customized electrical stimulation transcutaneously to the nerves of the upper extremity":
+an item is a tremor stimulator
+    if the HCPCS code of the item is "E0734".
+
+% The activities of daily living the BF-ADL criterion reads: the scale's
+% items grouped as the LCD groups them.
+eating is an upper limb activity of daily living,
+    as stated in LCD L39591, confer "for at least one (1) assessment item for eating, drinking, self-care, or writing".
+drinking is an upper limb activity of daily living,
+    as stated in LCD L39591, confer "for at least one (1) assessment item for eating, drinking, self-care, or writing".
+self care is an upper limb activity of daily living,
+    as stated in LCD L39591, confer "for at least one (1) assessment item for eating, drinking, self-care, or writing".
+writing is an upper limb activity of daily living,
+    as stated in LCD L39591, confer "for at least one (1) assessment item for eating, drinking, self-care, or writing".
+
+section applicability is:
+
+% The article's policy-specific documentation requirements restate the
+% LCD's criteria, each read from the record by the rules below; the
+% modifiers are billing: none of the policy's own.
+tremor_stimulator has no specific documentation requirements.
+
+% The codes this policy decides, and their benefit: durable medical
+% equipment (Policy Article A59680).
+rule tremor_codes with provenance Policy Article A59680,
+        confer "External upper limb tremor stimulators and related supplies and accessories meet the benefit requirements for Durable Medical Equipment":
+the policy for code a code is tremor_stimulator
+    if the code is in ["E0734", "A4542"].
+
+rule tremor_benefit with provenance Policy Article A59680,
+        confer "External upper limb tremor stimulators and related supplies and accessories meet the benefit requirements for Durable Medical Equipment":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is tremor_stimulator.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Initial coverage: the first three months of therapy.
+% ---------------------------------------------------------------------------
+
+rule tremor_initial with provenance LCD L39591,
+        confer "An external upper limb tremor stimulator of the peripheral nerves of the wrist (E0734) is covered when the beneficiary has had a clinical evaluation (in-person or via Medicare-approved telehealth) by the treating practitioner, and all of the following criteria are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a tremor stimulator
+    and the claim is in the initial tremor stimulator coverage period
+    and the item meets the initial tremor stimulator coverage criteria.
+
+rule tremor_initial_period_rental with provenance LCD L39591,
+        confer "CONTINUED COVERAGE BEYOND THE FIRST THREE MONTHS OF THERAPY":
+a claim is in the initial tremor stimulator coverage period
+    if the rental month of the claim is a number
+    and the number <= 3.
+
+% a purchase is at the initiation of therapy: a device of this model
+rule tremor_initial_period_purchase:
+a claim is in the initial tremor stimulator coverage period
+    if the claim is for an item
+    and it is not the case that
+        the rental month of the claim is a number.
+
+% The clinical evaluation and criteria 1-8.
+rule tremor_initial_criteria with provenance LCD L39591,
+        confer "If all of the initial coverage criteria 1 through 8 are not met, claims for codes E0734 and A4542 will be denied as not reasonable and necessary":
+an item meets the initial tremor stimulator coverage criteria
+    if the item is furnished to a beneficiary
+    and the beneficiary had a clinical evaluation in person or via telehealth by the treating practitioner on a date
+    and the beneficiary has a diagnosis of essential tremor
+    and the age of the beneficiary is a number years
+    and the number >= 18
+    and the finding free of contraindications about the beneficiary is established
+    and the item is prescribed to treat the dominant upper limb of the beneficiary
+    and the tremor of the beneficiary significantly impairs activities of daily living
+    and the finding tremor exacerbating medications addressed about the beneficiary is established
+    and an other number pharmacological treatment options for essential tremor were tried and failed or ruled out for the beneficiary
+    and the other number >= 2
+    and the item is prescribed as an alternative to invasive or permanent surgical treatment for the beneficiary.
+
+% Criterion 1: the diagnosis, read against the article's Group 1 codes.
+rule tremor_diagnosis with provenance LCD L39591,
+        confer "The beneficiary has a diagnosis of essential tremor (ET) (Refer to the Group 1 ICD-10 code list in the LCD-related Policy Article for applicable diagnoses)":
+a beneficiary has a diagnosis of essential tremor
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A59680" as a description under table tremor_icd10.
+
+% Criterion 5: a BF-ADL score of 3 or more on at least one item for eating,
+% drinking, self-care or writing.
+rule tremor_severity with provenance LCD L39591,
+        confer "as indicated by a score of greater than or equal to 3 on the Bain & Findley Tremor ADL Scale (BF-ADL) for at least one (1) assessment item for eating, drinking, self-care, or writing":
+the tremor of a beneficiary significantly impairs activities of daily living
+    if the BF-ADL score of the beneficiary for a task before therapy is a number
+    and the task is an upper limb activity of daily living
+    and the number >= 3.
+
+% ---------------------------------------------------------------------------
+% Continued coverage beyond the first three months of therapy.
+% ---------------------------------------------------------------------------
+
+rule tremor_continued with provenance LCD L39591,
+        confer "Continued coverage of external upper limb tremor stimulator therapy, and related supplies and accessories (E0734 and A4542) beyond the first three (3) months of therapy requires that no sooner than the 60th day but no later than the 91st day after initiating therapy, the treating practitioner must conduct a clinical re-evaluation":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a tremor stimulator
+    and the rental month of the claim is a number
+    and the number >= 4
+    and the item meets the initial tremor stimulator coverage criteria
+    and the item meets the tremor stimulator continued coverage criteria for the claim.
+
+% therapy starts with the delivery of the device: a device of this model
+rule tremor_initiation:
+tremor stimulator therapy with an item was initiated on a date
+    if the item was delivered on the date.
+
+rule tremor_continued_criteria with provenance LCD L39591,
+        confer "no sooner than the 60th day but no later than the 91st day after initiating therapy, the treating practitioner must conduct a clinical re-evaluation (in-person or via Medicare-approved telehealth) and document that the beneficiary is":
+an item meets the tremor stimulator continued coverage criteria for a claim
+    if the item is furnished to a beneficiary
+    and tremor stimulator therapy with the item was initiated on a date
+    and the beneficiary had a clinical re-evaluation in person or via telehealth by the treating practitioner on an other date
+    and the other date is a number days after the date
+    and the number >= 60
+    and the number <= 91
+    and the beneficiary derives benefit from tremor stimulator therapy
+    and the beneficiary adheres to tremor stimulator therapy with the item.
+
+rule tremor_continued_late with provenance LCD L39591,
+        confer "If the treating practitioner’s clinical re-evaluation does not occur until after the 91st day, but the re-evaluation demonstrates that the beneficiary is benefiting from and adhering to external upper limb tremor stimulator therapy, continued coverage of external upper limb tremor stimulator therapy will commence with the date of that re-evaluation":
+an item meets the tremor stimulator continued coverage criteria for a claim
+    if the item is furnished to a beneficiary
+    and tremor stimulator therapy with the item was initiated on a date
+    and the beneficiary had a clinical re-evaluation in person or via telehealth by the treating practitioner on an other date
+    and the other date is a number days after the date
+    and the number > 91
+    and the beneficiary derives benefit from tremor stimulator therapy
+    and the beneficiary adheres to tremor stimulator therapy with the item
+    and the date of service of the claim is a third date
+    and the third date is after or equal to the other date.
+
+% Benefit: a 1-point improvement at the re-evaluation in a task scored 3 or
+% more before therapy.
+rule tremor_benefit_derived with provenance LCD L39591,
+        confer "Deriving benefit from external upper limb tremor stimulator therapy as indicated by a 1-point improvement in BF-ADL score in any eating, drinking, self-care, or writing task scored as greater than or equal to 3 prior to the initiation of therapy":
+a beneficiary derives benefit from tremor stimulator therapy
+    if the BF-ADL score of the beneficiary for a task before therapy is a number
+    and the task is an upper limb activity of daily living
+    and the number >= 3
+    and the BF-ADL score of the beneficiary for the task at the re-evaluation is an other number
+    and a limit is the number - 1
+    and the other number <= the limit.
+
+rule tremor_adherence with provenance LCD L39591,
+        confer "adherence is defined as use of external upper limb tremor stimulator therapy on 70% of the days during a consecutive thirty (30) day period anytime during the first three (3) months of initial use":
+a beneficiary adheres to tremor stimulator therapy with an item
+    if the beneficiary used the item on a number percent of the days during a consecutive thirty day period within the first three months
+    and the number >= 70.
+
+% ---------------------------------------------------------------------------
+% Supplies and accessories: covered when the device is.
+% ---------------------------------------------------------------------------
+
+rule tremor_supplies with provenance LCD L39591,
+        confer "When an external upper limb tremor stimulator (E0734) is covered, the supplies and accessories (A4542) will also be covered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4542"
+    and the item is an accessory of a device
+    and the device is a tremor stimulator
+    and the device meets the initial tremor stimulator coverage criteria
+    and the device is a covered tremor stimulator on the date of service of the claim.
+
+% within the first three months of therapy the initial criteria suffice;
+% afterwards the device must have met the continued-coverage criteria
+rule tremor_device_covered_initially with provenance LCD L39591,
+        confer "CONTINUED COVERAGE BEYOND THE FIRST THREE MONTHS OF THERAPY":
+a device is a covered tremor stimulator on the date of service of a claim
+    if tremor stimulator therapy with the device was initiated on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number < 91.
+
+rule tremor_device_covered_later with provenance LCD L39591,
+        confer "Continued coverage of external upper limb tremor stimulator therapy, and related supplies and accessories (E0734 and A4542) beyond the first three (3) months of therapy requires that":
+a device is a covered tremor stimulator on the date of service of a claim
+    if tremor stimulator therapy with the device was initiated on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 91
+    and the device meets the tremor stimulator continued coverage criteria for the claim.

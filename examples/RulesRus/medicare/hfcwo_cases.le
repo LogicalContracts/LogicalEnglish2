@@ -1,0 +1,198 @@
+% Test cases for the high frequency chest wall oscillation policy (hfcwo.le):
+% synthetic claims, one or two per criterion of LCD L33785 and per payment
+% condition of dmepos.le and Policy Article A52494. Findings are recorded as
+% the treating practitioner's or the Council's; a finding nobody made leaves
+% the answer conditional. The queries: whether the claim is payable (the
+% first query, so "stage" reads its checklist), whether it is reasonable and
+% necessary, and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base hfcwo cases includes these resources:
+    hfcwo.
+
+the knowledge base hfcwo cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete first-month claim for the device (E0483): cystic fibrosis
+% (criterion 1), the treating practitioner's finding on the failure of
+% standard treatments (criterion 4), the diagnosis code on the claim, and
+% every documentation requirement in the record. E0483 is not on the CMS
+% face-to-face list: the order need only reach the supplier before the date
+% of service.
+scenario cystic_fibrosis_complete is:
+    claim 1 is for the vest system.
+    the HCPCS code of the vest system is "E0483".
+    the vest system is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the medical record of Ann documents cystic fibrosis.
+    the finding standard treatments failed to mobilize secretions about Ann is established, according to the treating practitioner, because "chest physiotherapy and postural drainage twice daily for six months, with hypertonic saline, did not prevent three admissions for retained secretions".
+    the diagnosis code of Ann is "E84.0".
+    the order for the vest system is dated 2026-02-20.
+    the order for the vest system is signed by the treating practitioner.
+    the order for the vest system includes beneficiary name.
+    the order for the vest system includes order date.
+    the order for the vest system includes description of the item.
+    the order for the vest system includes quantity to be dispensed.
+    the order for the vest system includes treating practitioner name.
+    the order for the vest system was communicated to the supplier on 2026-02-22.
+    the vest system was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the vest system.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Criterion 2, its two characterizations and its exclusion: Ben's
+% bronchiectasis, confirmed by CT, with a daily productive cough of eight
+% months; Cy's, confirmed by CT, with two exacerbations in the year (not
+% more than two) and no cough recorded; Dee's chronic obstructive pulmonary
+% disease with a cough of twelve months and no bronchiectasis.
+scenario bronchiectasis_paths is:
+    claim 1 is for the vest system.
+    the HCPCS code of the vest system is "E0483".
+    the vest system is furnished to Ben.
+    the rental month of claim 1 is 1.
+    the medical record of Ben documents bronchiectasis.
+    the bronchiectasis of Ben was confirmed by a CT scan.
+    Ben has had a daily productive cough for 8 continuous months.
+    the finding standard treatments failed to mobilize secretions about Ben is established, according to the treating practitioner.
+    claim 2 is for the second vest system.
+    the HCPCS code of the second vest system is "E0483".
+    the second vest system is furnished to Cy.
+    the rental month of claim 2 is 1.
+    the medical record of Cy documents bronchiectasis.
+    the bronchiectasis of Cy was confirmed by a CT scan.
+    Cy had 2 exacerbations requiring antibiotic therapy in the past year.
+    the finding standard treatments failed to mobilize secretions about Cy is established, according to the treating practitioner.
+    claim 3 is for the third vest system.
+    the HCPCS code of the third vest system is "E0483".
+    the third vest system is furnished to Dee.
+    the rental month of claim 3 is 1.
+    the medical record of Dee documents chronic obstructive pulmonary disease.
+    Dee has had a daily productive cough for 12 continuous months.
+    the finding standard treatments failed to mobilize secretions about Dee is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Criterion 3, and the exclusion of concurrent use: Eve's multiple
+% sclerosis with the finding; Fay's, the same, but Fay also uses a
+% mechanical in-exsufflation device.
+scenario neuromuscular_and_both_devices is:
+    claim 1 is for the vest system.
+    the HCPCS code of the vest system is "E0483".
+    the vest system is furnished to Eve.
+    the rental month of claim 1 is 1.
+    the medical record of Eve documents multiple sclerosis.
+    the finding standard treatments failed to mobilize secretions about Eve is established, according to the treating practitioner.
+    claim 2 is for the second vest system.
+    the HCPCS code of the second vest system is "E0483".
+    the second vest system is furnished to Fay.
+    the rental month of claim 2 is 1.
+    the medical record of Fay documents multiple sclerosis.
+    the finding standard treatments failed to mobilize secretions about Fay is established, according to the treating practitioner.
+    Fay uses a mechanical in-exsufflation device.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Cystic fibrosis, and nothing recorded about the standard treatments: the
+% answer is conditional on that finding alone.
+scenario no_treatment_failure_finding is:
+    claim 1 is for the vest system.
+    the HCPCS code of the vest system is "E0483".
+    the vest system is furnished to Gus.
+    the rental month of claim 1 is 1.
+    the medical record of Gus documents cystic fibrosis.
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding standard treatments failed to mobilize secretions about Gus is established"].
+
+% The Council finds the failure of standard treatments is not documented:
+% the claim is not reasonable and necessary.
+scenario council_treatment_failure_unsupported is:
+    claim 1 is for the vest system.
+    the HCPCS code of the vest system is "E0483".
+    the vest system is furnished to Hal.
+    the residence of Hal is private residence.
+    the rental month of claim 1 is 1.
+    the medical record of Hal documents cystic fibrosis.
+    the finding standard treatments failed to mobilize secretions about Hal is unsupported, according to the Council, because "the record lists chest physiotherapy as ordered but says nothing of whether it was carried out, for how long, or with what result".
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Reasonable and necessary, but no proof of delivery: payable fails at the
+% remedy, and the flip adds the missing proof.
+scenario no_proof_of_delivery is:
+    claim 1 is for the vest system.
+    the HCPCS code of the vest system is "E0483".
+    the vest system is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the medical record of Ann documents cystic fibrosis.
+    the finding standard treatments failed to mobilize secretions about Ann is established, according to the treating practitioner.
+    the diagnosis code of Ann is "E84.0".
+    the order for the vest system is dated 2026-02-20.
+    the order for the vest system is signed by the treating practitioner.
+    the order for the vest system includes beneficiary name.
+    the order for the vest system includes order date.
+    the order for the vest system includes description of the item.
+    the order for the vest system includes quantity to be dispensed.
+    the order for the vest system includes treating practitioner name.
+    the order for the vest system was communicated to the supplier on 2026-02-22.
+    the vest system was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the vest system"]].
+
+% The same complete record, but the claim carries a COPD code (J44.1), not
+% one of the Policy Article's list: reasonable and necessary on the record,
+% not payable as documented.
+scenario diagnosis_code_not_covered is:
+    claim 1 is for the vest system.
+    the HCPCS code of the vest system is "E0483".
+    the vest system is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the rental month of claim 1 is 1.
+    the medical record of Ann documents cystic fibrosis.
+    the finding standard treatments failed to mobilize secretions about Ann is established, according to the treating practitioner.
+    the diagnosis code of Ann is "J44.1".
+    the order for the vest system is dated 2026-02-20.
+    the order for the vest system is signed by the treating practitioner.
+    the order for the vest system includes beneficiary name.
+    the order for the vest system includes order date.
+    the order for the vest system includes description of the item.
+    the order for the vest system includes quantity to be dispensed.
+    the order for the vest system includes treating practitioner name.
+    the order for the vest system was communicated to the supplier on 2026-02-22.
+    the vest system was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the vest system.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% Replacement supplies: a vest (A7025) used with Ann's own device, and a
+% hose (A7026) for which the record does not say the equipment is
+% beneficiary owned.
+scenario replacement_supplies is:
+    claim 1 is for the replacement vest.
+    the HCPCS code of the replacement vest is "A7025".
+    the replacement vest is furnished to Ann.
+    the replacement vest is used with beneficiary owned equipment.
+    claim 2 is for the replacement hose.
+    the HCPCS code of the replacement hose is "A7026".
+    the replacement hose is furnished to Ann.
+    the medical record of Ann documents cystic fibrosis.
+    the finding standard treatments failed to mobilize secretions about Ann is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].

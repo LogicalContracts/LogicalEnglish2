@@ -1,0 +1,208 @@
+% Intravenous Immune Globulin: LCD L33610 and its Policy Article A52509 (DME
+% MACs). A policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for an intravenous immune globulin product (the J codes of the IVIG
+% products and the not otherwise specified J1599) or for the services,
+% supplies and accessories of its administration in the home (Q2052) is
+% REASONABLE AND NECESSARY: the four criteria of the Policy Article (an
+% approved pooled plasma derivative for primary immune deficiency, a
+% diagnosis of the article's ICD-10 list, administration in the home, the
+% treating practitioner's determination that home administration is
+% medically appropriate) and, for Q2052, one unit per infusion date within
+% 30 days of the product's date of service. The hyperimmune globulins J1573
+% and J2791 are non-covered ("not indicated for the treatment of primary
+% immune deficiency disease"): they are in scope and no rule concludes them.
+% Subcutaneous immune globulin is the External Infusion Pumps policy's.
+%
+% How the criteria are read. The product, the place of administration and
+% the diagnosis are record facts; the diagnosis is a code of the article's
+% table (sources/icd10/A52509_icd10_covered.csv, group 1, the primary immune
+% deficiency diagnoses, serving every code of this policy). The finding this
+% policy reads (dmepos.le's judged template), and the criterion it stands
+% for:
+%   home administration appropriate (criterion 4: "The treating practitioner
+%   has determined that administration of the IVIG in the patient's home is
+%   medically appropriate").
+% The HCPCS codes of the products are those the article's coding guidelines
+% name (J1552, J1553, J1569, J1576, J1577, J1599, Q2052, J1573, J2791) and
+% the standard codes of the other IVIG products, which the texts do not
+% list. Not modelled: the licensing of the dispensing entity, the modifiers
+% and the drug wastage rules, the 15-day cycling of Q2052 claims.
+%
+% The payment conditions the policy adds (LCD L33610 "Refill requirements",
+% Policy Article A52509 "Coding guidelines"): no more than a one-month
+% quantity dispensed at a time, and the product codes in effect on the date
+% of service (Alyglo J1552 from 2025, Panzyga J1576 from July 2023, Yimmugo
+% J1553 from April 2026, Qivigy J1577 from July 2026).
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *an item* is an approved pooled plasma derivative for the treatment of primary immune deficiency disease; undefined.
+    *an item* is administered in the home; undefined.  % candidate for dmepos.le
+    % the table
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table ivig_icd10.
+    % derived
+    *an item* is an intravenous immune globulin product.
+    *an item* is an IVIG administration supply.
+    *an item* meets the IVIG coverage criteria.
+    *a beneficiary* has a primary immune deficiency diagnosis.
+    the IVIG coding of *a claim* is in effect on its date of service.
+    *a claim* is within the one month dispensing limit of the IVIG policy.
+
+% The Policy Article's ICD-10 table: group 1, the primary immune deficiency
+% diagnoses, serving every code of this policy.
+the table ivig_icd10 is loaded from sources/icd10/A52509_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base ivig includes these resources:
+    dmepos.
+
+the knowledge base ivig includes:
+
+LCD L33610 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33610".
+the text of LCD L33610 is at "sources/lcd/L33610.txt".
+Policy Article A52509 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52509".
+the text of Policy Article A52509 is at "sources/article/A52509.txt".
+
+% What the items are, by code.
+rule ivig_product with provenance Policy Article A52509,
+        confer "Intravenous immune globulin (IVIG) is covered if all of the following criteria are met":
+an item is an intravenous immune globulin product
+    if the HCPCS code of the item is a code
+    and the code is in ["J1459", "J1552", "J1553", "J1554", "J1556", "J1557", "J1561", "J1566", "J1568", "J1569", "J1572", "J1576", "J1577", "J1599"].
+
+rule ivig_supply with provenance Policy Article A52509,
+        confer "Services, supplies and accessories used in the home for the administration of IVIG are billed to the DME MAC using HCPCS code Q2052":
+an item is an IVIG administration supply
+    if the HCPCS code of the item is "Q2052".
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: the intravenous immune
+% globulin benefit of the Medicare Benefit Policy Manual, Chapter 15, §50.6
+% (Policy Article A52509).
+rule ivig_codes with provenance Policy Article A52509,
+        confer "Intravenous immune globulin used for the treatment of primary immunodeficiency is covered under the Intravenous Immune Globulin benefit":
+the policy for code a code is ivig
+    if the code is in ["J1459", "J1552", "J1553", "J1554", "J1556", "J1557", "J1561", "J1566", "J1568", "J1569", "J1572", "J1576", "J1577", "J1599", "Q2052", "J1573", "J2791"].
+
+rule ivig_benefit with provenance Policy Article A52509,
+        confer "Intravenous immune globulin used for the treatment of primary immunodeficiency is covered under the Intravenous Immune Globulin benefit":
+the benefit category of code a code is intravenous immune globulin benefit
+    if the policy for code the code is ivig.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The product: the four criteria of the Policy Article.
+% ---------------------------------------------------------------------------
+
+rule ivig_claim with provenance Policy Article A52509,
+        confer "Intravenous immune globulin (IVIG) is covered if all of the following criteria are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an intravenous immune globulin product
+    and the item meets the IVIG coverage criteria.
+
+rule ivig_criteria with provenance Policy Article A52509,
+        confer "The treating practitioner has determined that administration of the IVIG in the patient’s home is medically appropriate":
+an item meets the IVIG coverage criteria
+    if the item is furnished to a beneficiary
+    and the item is an approved pooled plasma derivative for the treatment of primary immune deficiency disease
+    and the beneficiary has a primary immune deficiency diagnosis
+    and the item is administered in the home
+    and the finding home administration appropriate about the beneficiary is established.
+
+rule ivig_diagnosis with provenance Policy Article A52509,
+        confer "The patient has a diagnosis of primary immune deficiency disease (See Diagnosis Codes that Support Medical Necessity section below)":
+a beneficiary has a primary immune deficiency diagnosis
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52509" as a description under table ivig_icd10.
+
+% ---------------------------------------------------------------------------
+% The administration supplies: one unit per infusion date, within 30 days of
+% the product's date of service.
+% ---------------------------------------------------------------------------
+
+rule ivig_supply_claim with provenance Policy Article A52509,
+        confer "In cases where the IVIG product is mailed or delivered to the patient prior to administration, the date of service (DOS) for the administration of the IVIG may be no more than 30 calendar days after the DOS on the IVIG product claim line":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an IVIG administration supply
+    and the item is an accessory of a device
+    and the device is an intravenous immune globulin product
+    and the device meets the IVIG coverage criteria
+    and an other claim is for the device
+    and the date of service of the other claim is a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 0
+    and the number <= 30
+    and the quantity billed on the claim is an other number
+    and the other number <= 1.
+
+section remedy is:
+
+% The policy's own conditions of payment: at most a one-month quantity at a
+% time, and the product code in effect on the date of service.
+rule ivig_documentation with provenance LCD L33610,
+        confer "Regardless of utilization, a supplier must not dispense more than a one (1) month quantity at a time":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is ivig
+    and the claim is within the one month dispensing limit of the IVIG policy
+    and the IVIG coding of the claim is in effect on its date of service.
+
+rule ivig_one_month with provenance LCD L33610,
+        confer "Regardless of utilization, a supplier must not dispense more than a one (1) month quantity at a time":
+a claim is within the one month dispensing limit of the IVIG policy
+    if the claim is for a supply of a number months
+    and the number <= 1.
+
+% the administration supply is billed per infusion date, not as a supply of
+% months — a device of this model
+rule ivig_supply_no_limit:
+a claim is within the one month dispensing limit of the IVIG policy
+    if the claim is for an item
+    and the item is an IVIG administration supply.
+
+rule ivig_coding_other with provenance Policy Article A52509,
+        confer "CODING GUIDELINES":
+the IVIG coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the code is in ["J1552", "J1553", "J1576", "J1577"].
+
+rule ivig_coding_alyglo with provenance Policy Article A52509,
+        confer "Claims for ALYGLO for dates of service on or after January 1, 2025 must be submitted using HCPCS code J1552":
+the IVIG coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is "J1552"
+    and the date of service of the claim is a date
+    and the date is after or equal to 2025-01-01.
+
+rule ivig_coding_panzyga with provenance Policy Article A52509,
+        confer "Claims for Panzyga for dates of service on or after July 1, 2023 must be submitted using HCPCS code J1576":
+the IVIG coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is "J1576"
+    and the date of service of the claim is a date
+    and the date is after or equal to 2023-07-01.
+
+rule ivig_coding_yimmugo with provenance Policy Article A52509,
+        confer "Claims for Yimmugo for dates of service on or after April 1, 2026 must be submitted using HCPCS code J1553":
+the IVIG coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is "J1553"
+    and the date of service of the claim is a date
+    and the date is after or equal to 2026-04-01.
+
+rule ivig_coding_qivigy with provenance Policy Article A52509,
+        confer "Claims for Qivigy (immune globulin intravenous, human-kthm 10% solution) for dates of service on or after July 1, 2026 must be submitted using the HCPCS code J1577":
+the IVIG coding of a claim is in effect on its date of service
+    if the claim is for an item
+    and the HCPCS code of the item is "J1577"
+    and the date of service of the claim is a date
+    and the date is after or equal to 2026-07-01.

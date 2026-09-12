@@ -1,0 +1,251 @@
+% Test cases for the intravenous immune globulin policy (ivig.le): synthetic
+% claims, one or two per criterion of Policy Article A52509 and per payment
+% condition of LCD L33610, each stating only what its record shows. The
+% diagnosis is a code of the article's ICD-10 table. The queries: whether the
+% claim is payable (the first query, so "stage" reads its checklist), whether
+% it is reasonable and necessary, and what minimal change would make it
+% payable.
+
+the target language is: prolog.
+
+the knowledge base ivig cases includes these resources:
+    ivig.
+
+the knowledge base ivig cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a month of Privigen (J1459) infused at home for
+% hereditary hypogammaglobulinemia (D80.0): every criterion and every
+% documentation requirement in the record.
+scenario ivig_complete is:
+    claim 1 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ann is "D80.0".
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the immune globulin is administered in the home.
+    the finding home administration appropriate about Ann is established, according to the treating practitioner, because "stable on monthly infusions for two years without infusion reactions".
+    the order for the immune globulin is dated 2026-02-20.
+    the order for the immune globulin is signed by the treating practitioner.
+    the order for the immune globulin includes beneficiary name.
+    the order for the immune globulin includes order date.
+    the order for the immune globulin includes description of the item.
+    the order for the immune globulin includes quantity to be dispensed.
+    the order for the immune globulin includes treating practitioner name.
+    the order for the immune globulin was communicated to the supplier on 2026-02-22.
+    the immune globulin was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the immune globulin.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The same product for a beneficiary whose diagnosis is a secondary
+% immunodeficiency (D84.9), a code of no group of the article: not
+% reasonable and necessary.
+scenario secondary_immunodeficiency is:
+    claim 1 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ben is "D84.9".
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the immune globulin is administered in the home.
+    the finding home administration appropriate about Ben is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Infused in an outpatient clinic, not in the home (Cy); and a hyperimmune
+% globulin (J1573) for Dee, non-covered whatever the record.
+scenario not_in_the_home is:
+    claim 1 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Cy.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Cy is "D83.9".
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the finding home administration appropriate about Cy is established, according to the treating practitioner.
+    claim 2 is for the hyperimmune globulin.
+    the HCPCS code of the hyperimmune globulin is "J1573".
+    the hyperimmune globulin is furnished to Dee.
+    claim 2 is for a supply of 1 months.
+    the diagnosis code of Dee is "D83.9".
+    the hyperimmune globulin is administered in the home.
+    the finding home administration appropriate about Dee is established, according to the treating practitioner.
+    rn expects answers [].
+
+% The administration supplies (Q2052): one unit on the day of the infusion,
+% 14 days after the product's date of service, is covered; two units on the
+% same date (claim 3) and one unit 45 days after the product (claim 4) are
+% not.
+scenario administration_supplies is:
+    claim 1 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Eve.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Eve is "D80.0".
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the immune globulin is administered in the home.
+    the finding home administration appropriate about Eve is established, according to the treating practitioner.
+    claim 2 is for the infusion supplies.
+    the HCPCS code of the infusion supplies is "Q2052".
+    the infusion supplies is an accessory of the immune globulin.
+    the infusion supplies is furnished to Eve.
+    the date of service of claim 2 is 2026-03-15.
+    the quantity billed on claim 2 is 1.
+    claim 3 is for the double supplies.
+    the HCPCS code of the double supplies is "Q2052".
+    the double supplies is an accessory of the immune globulin.
+    the double supplies is furnished to Eve.
+    the date of service of claim 3 is 2026-03-15.
+    the quantity billed on claim 3 is 2.
+    claim 4 is for the late supplies.
+    the HCPCS code of the late supplies is "Q2052".
+    the late supplies is an accessory of the immune globulin.
+    the late supplies is furnished to Eve.
+    the date of service of claim 4 is 2026-04-15.
+    the quantity billed on claim 4 is 1.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% A refill of the monthly product, affirmed six days before the current
+% supply ends and delivered three days before, with continued need and use
+% in the record: payable.
+scenario ivig_refill is:
+    claim 1 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Ann.
+    the residence of Ann is private residence.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-05-29.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ann is "D80.0".
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the immune globulin is administered in the home.
+    the finding home administration appropriate about Ann is established, according to the treating practitioner.
+    the current supply of the immune globulin is expected to end on 2026-06-01.
+    the beneficiary affirmed the need for the refill of the immune globulin on 2026-05-26.
+    the medical record documents continued need for the immune globulin on 2026-04-10.
+    the record documents continued use of the immune globulin on 2026-04-10.
+    the order for the immune globulin is dated 2026-02-20.
+    the order for the immune globulin is signed by the treating practitioner.
+    the order for the immune globulin includes beneficiary name.
+    the order for the immune globulin includes order date.
+    the order for the immune globulin includes description of the item.
+    the order for the immune globulin includes quantity to be dispensed.
+    the order for the immune globulin includes treating practitioner name.
+    the order for the immune globulin was communicated to the supplier on 2026-02-22.
+    the immune globulin was delivered on 2026-05-29.
+    the supplier holds proof of delivery for the immune globulin.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Reasonable and necessary, but no proof of delivery: payable fails at the
+% remedy.
+scenario no_proof_of_delivery is:
+    claim 1 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ann is "D80.0".
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the immune globulin is administered in the home.
+    the finding home administration appropriate about Ann is established, according to the treating practitioner.
+    the order for the immune globulin is dated 2026-02-20.
+    the order for the immune globulin is signed by the treating practitioner.
+    the order for the immune globulin includes beneficiary name.
+    the order for the immune globulin includes order date.
+    the order for the immune globulin includes description of the item.
+    the order for the immune globulin includes quantity to be dispensed.
+    the order for the immune globulin includes treating practitioner name.
+    the order for the immune globulin was communicated to the supplier on 2026-02-22.
+    the immune globulin was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the immune globulin"]].
+
+% Alyglo billed as J1552 in November 2024, before the code took effect, and
+% a two-month supply of Privigen: both reasonable and necessary, both fail
+% the policy's payment conditions at the remedy.
+scenario coding_and_dispensing is:
+    claim 1 is for the alyglo.
+    the HCPCS code of the alyglo is "J1552".
+    the alyglo is furnished to Fay.
+    the residence of Fay is private residence.
+    the date of service of claim 1 is 2024-11-01.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Fay is "D80.0".
+    the alyglo is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the alyglo is administered in the home.
+    the finding home administration appropriate about Fay is established, according to the treating practitioner.
+    the order for the alyglo is dated 2024-10-20.
+    the order for the alyglo is signed by the treating practitioner.
+    the order for the alyglo includes beneficiary name.
+    the order for the alyglo includes order date.
+    the order for the alyglo includes description of the item.
+    the order for the alyglo includes quantity to be dispensed.
+    the order for the alyglo includes treating practitioner name.
+    the order for the alyglo was communicated to the supplier on 2024-10-22.
+    the alyglo was delivered on 2024-11-01.
+    the supplier holds proof of delivery for the alyglo.
+    claim 2 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Fay.
+    the date of service of claim 2 is 2024-11-01.
+    claim 2 is for a supply of 2 months.
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the immune globulin is administered in the home.
+    the order for the immune globulin is dated 2024-10-20.
+    the order for the immune globulin is signed by the treating practitioner.
+    the order for the immune globulin includes beneficiary name.
+    the order for the immune globulin includes order date.
+    the order for the immune globulin includes description of the item.
+    the order for the immune globulin includes quantity to be dispensed.
+    the order for the immune globulin includes treating practitioner name.
+    the order for the immune globulin was communicated to the supplier on 2024-10-22.
+    the immune globulin was delivered on 2024-11-01.
+    the supplier holds proof of delivery for the immune globulin.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% Home administration and the finding. Gus: the Council finds it
+% unsupported — not reasonable and necessary. Hal: nobody has made the
+% finding — the answer is conditional on it.
+scenario home_administration_findings is:
+    claim 1 is for the immune globulin.
+    the HCPCS code of the immune globulin is "J1459".
+    the immune globulin is furnished to Gus.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Gus is "D80.0".
+    the immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the immune globulin is administered in the home.
+    the finding home administration appropriate about Gus is unsupported, according to the Council, because "the record contains no determination by the treating practitioner that home infusion is appropriate, only the supplier's intake form".
+    claim 2 is for the other immune globulin.
+    the HCPCS code of the other immune globulin is "J1459".
+    the other immune globulin is furnished to Hal.
+    claim 2 is for a supply of 1 months.
+    the diagnosis code of Hal is "D80.0".
+    the other immune globulin is an approved pooled plasma derivative for the treatment of primary immune deficiency disease.
+    the other immune globulin is administered in the home.
+    rn expects answers ["claim 2 is reasonable and necessary"] and unknowns ["the finding home administration appropriate about Hal is established"].

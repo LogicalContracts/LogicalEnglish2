@@ -1,0 +1,345 @@
+% Suction Pumps: LCD L33612 and its Policy Article A52519 (DME MACs). A
+% policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for a gastric suction pump (E2000), a respiratory suction pump
+% (E0600), a suction catheter (A4624 tracheal, A4605 closed system, A4628
+% oropharyngeal), sterile water or saline (A4216, A4217) or the tubing of a
+% pump (A7002) is REASONABLE AND NECESSARY: the inability to empty gastric
+% secretions; the difficulty clearing secretions secondary to one of the
+% four named conditions; a tracheostomy, a covered pump used for
+% tracheostomy suctioning and, for the closed system, a covered ventilator;
+% the daily and weekly quantities of catheters; the water or saline used to
+% clear a catheter after tracheostomy suctioning. The oral interface (A7047)
+% and the wound suction pump (K0743) with its dressing sets (K0744-K0746)
+% are never covered ("Claims for A7047 will be denied as not reasonable and
+% necessary"; "when K0743 is billed it will be denied as not reasonable and
+% necessary", a non-covered alternative existing): no rule concludes them.
+% The disposable wound suction device (A9272) is within the policy's scope
+% but outside the benefit ("do not meet the DME benefit durability
+% requirement"): no rule places it in a benefit category.
+%
+% How the criteria are read. The conditions of the respiratory pump are
+% documented conditions of the record (the shared template "the medical
+% record of B documents C", the knowledge base facts below name them; a
+% tracheostomy is one of them, and "B has a tracheostomy" is derived from
+% it). Two criteria are clinical judgments, the judged template of dmepos.le
+% "the finding F about B is established" (or unsupported), with who found
+% it and why:
+%   unable to empty gastric secretions (the gastric pump: the beneficiary
+%   is unable to empty gastric secretions through normal gastrointestinal
+%   functions);
+%   difficulty clearing secretions (the respiratory pump: difficulty
+%   raising and clearing secretions, secondary to the documented condition).
+% What the record states as fact — that the pump is used for tracheostomy
+% suctioning, that a catheter is used in the oropharynx, that the water or
+% saline clears a catheter after tracheostomy suctioning, that the
+% beneficiary requires a covered ventilator — is a scenario fact. A
+% catheter or the water is an accessory of a pump (the shared template
+% "the item is an accessory of the device"), and is covered with a covered
+% pump. The quantities are per day (A4624, at most 3) and per week (A4628,
+% at most 3): the claim states the days it covers ("claim 1 covers 30
+% days", a template dmepos.le lacks) and the quantity billed.
+% The Policy Article's ICD-10 table (sources/icd10/A52519_icd10_covered.csv,
+% one group of tracheostomy codes, serving A4605 and A4624) is data, loaded
+% as the table suction_icd10, read by the payment condition the Article
+% adds: the tracheostomy status code on a claim for those catheters, and a
+% diagnosis code on a claim for E0600, A7002 or A7047 (section remedy).
+%
+% Not modelled: the supplies of the gastric pump other than tubing (the LCD
+% names tubing, tape and dressings without codes); the three-month
+% dispensing cap of the refill paragraph; saline for tracheal lavage
+% (noncovered); the denial of supplies in nursing facilities (a place of
+% service); the PDAC coding verification of K0743.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *a device* is used for tracheostomy suctioning; undefined.
+    *an item* is used for suctioning in the oropharynx; undefined.
+    *an item* is used to clear a suction catheter after tracheostomy suctioning; undefined.
+    *a beneficiary* requires the use of a covered ventilator; undefined.
+    *a claim* covers *a number* days; undefined.   % candidate for dmepos.le
+    % the knowledge base
+    *a condition* is a qualifying condition for respiratory suction.
+    suction code *a code* is statutorily noncovered as not durable.
+    *a code* needs a diagnosis code on the suction claim.
+    % the table
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table suction_icd10.
+    % derived
+    *an item* is a gastric suction pump.
+    *an item* is a respiratory suction pump.
+    *a beneficiary* has a tracheostomy.
+    *a beneficiary* meets the criteria for a respiratory suction pump.
+    *a device* is a covered suction pump.
+    *an item* is used with a covered respiratory suction pump.
+    *an item* is used with a covered respiratory suction pump for tracheostomy suctioning.
+    *a claim* is within the tracheal catheter quantity limit.
+    *a claim* is within the oropharyngeal catheter quantity limit.
+    the diagnosis code of *a beneficiary* indicates tracheostomy status.
+
+% The Policy Article's ICD-10 table: the tracheostomy codes of its one group.
+the table suction_icd10 is loaded from sources/icd10/A52519_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base suction_pumps includes these resources:
+    dmepos.
+
+the knowledge base suction_pumps includes:
+
+LCD L33612 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33612".
+the text of LCD L33612 is at "sources/lcd/L33612.txt".
+Policy Article A52519 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52519".
+the text of Policy Article A52519 is at "sources/article/A52519.txt".
+
+% What the pumps are (the Policy Article's coding guidelines).
+rule suction_gastric_pump with provenance Policy Article A52519,
+        confer "A portable or stationary home model gastric suction pump (E2000) is an electric aspirator designed to remove gastrointestinal secretions":
+an item is a gastric suction pump
+    if the HCPCS code of the item is "E2000".
+
+rule suction_respiratory_pump with provenance Policy Article A52519,
+        confer "A portable or stationary home model respiratory suction pump (E0600) is an electric aspirator designed for oropharyngeal and tracheal suction":
+an item is a respiratory suction pump
+    if the HCPCS code of the item is "E0600".
+
+% The conditions of the respiratory pump.
+cancer of the throat is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Cancer or surgery of the throat or mouth".
+cancer of the mouth is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Cancer or surgery of the throat or mouth".
+surgery of the throat is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Cancer or surgery of the throat or mouth".
+surgery of the mouth is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Cancer or surgery of the throat or mouth".
+dysfunction of the swallowing muscles is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Dysfunction of the swallowing muscles".
+unconsciousness is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Unconsciousness or obtunded state".
+obtunded state is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Unconsciousness or obtunded state".
+tracheostomy is a qualifying condition for respiratory suction,
+    as stated in LCD L33612, confer "Tracheostomy".
+
+% a tracheostomy is a documented condition of the record: a device of this
+% model
+rule suction_tracheostomy:
+a beneficiary has a tracheostomy
+    if the medical record of the beneficiary documents tracheostomy.
+
+% The disposable wound suction device the Policy Article places outside the
+% benefit.
+suction code "A9272" is statutorily noncovered as not durable,
+    as stated in Policy Article A52519, confer "Disposable wound suction devices (A9270, A9272) and related supplies will be denied as statutorily noncovered because they do not meet the DME benefit durability requirement".
+
+% The codes whose claims must carry a diagnosis code (the Policy Article's
+% policy-specific documentation requirements).
+rule suction_diagnosis_tracheostomy_codes with provenance Policy Article A52519,
+        confer "When billing HCPCS code(s) A4605 and/or A4624 for beneficiaries with a tracheostomy, the diagnosis code indicating tracheostomy status must be entered on the claim form":
+a code needs a diagnosis code on the suction claim
+    if the code is in ["A4605", "A4624"].
+
+rule suction_diagnosis_pump_codes with provenance Policy Article A52519,
+        confer "When billing HCPCS code(s) E0600, A7002 and A7047, the diagnosis code(s) for the condition(s) that justify the need for the item(s) must be entered on the claim form":
+a code needs a diagnosis code on the suction claim
+    if the code is in ["E0600", "A7002", "A7047"].
+
+section applicability is:
+
+% The codes this policy decides: the pumps, the catheters, the water and
+% saline, the tubing, the oral interface, the wound suction pump and its
+% dressing sets, and the disposable wound suction device the Policy Article
+% excludes from the benefit.
+rule suction_codes with provenance Policy Article A52519,
+        confer "Suction equipment is covered under the Durable Medical Equipment benefit":
+the policy for code a code is suction_pumps
+    if the code is in ["E2000", "E0600", "A4605", "A4624", "A4628", "A4216", "A4217", "A7002", "A7047", "K0743", "K0744", "K0745", "K0746", "A9272"].
+
+% Their benefit: durable medical equipment (and its supplies), except the
+% disposable wound suction device.
+rule suction_benefit with provenance Policy Article A52519,
+        confer "Suction equipment is covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is suction_pumps
+    and it is not the case that
+        suction code the code is statutorily noncovered as not durable.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Gastric suction.
+% ---------------------------------------------------------------------------
+
+rule suction_gastric with provenance LCD L33612,
+        confer "Use of a gastric suction pump and related supplies are covered for beneficiaries who are unable to empty gastric secretions through normal gastrointestinal functions":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a gastric suction pump
+    and the item is furnished to a beneficiary
+    and the finding unable to empty gastric secretions about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Respiratory suction: the pump, the catheters, the water and saline.
+% ---------------------------------------------------------------------------
+
+rule suction_respiratory with provenance LCD L33612,
+        confer "A respiratory suction pump (E0600) is only covered for beneficiaries who have difficulty raising and clearing secretions secondary to":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a respiratory suction pump
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the criteria for a respiratory suction pump.
+
+rule suction_respiratory_criteria with provenance LCD L33612,
+        confer "Use of a respiratory suction pump for other conditions will be denied as not reasonable and necessary":
+a beneficiary meets the criteria for a respiratory suction pump
+    if the finding difficulty clearing secretions about the beneficiary is established
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying condition for respiratory suction.
+
+% A covered pump, for the supplies used with it.
+rule suction_covered_gastric_pump with provenance LCD L33612,
+        confer "Supplies (tubing, tape, dressings, etc.) are covered and are separately payable when they are medically necessary and used with a medically necessary E2000 pump":
+a device is a covered suction pump
+    if the device is a gastric suction pump
+    and the device is furnished to a beneficiary
+    and the finding unable to empty gastric secretions about the beneficiary is established.
+
+rule suction_covered_respiratory_pump with provenance LCD L33612,
+        confer "Suction catheters (A4605, A4624, A4628) and sterile water/saline (A4216, A4217) are covered and are separately payable when they are medically necessary and used with a medically necessary E0600 pump":
+a device is a covered suction pump
+    if the device is a respiratory suction pump
+    and the device is furnished to a beneficiary
+    and the beneficiary meets the criteria for a respiratory suction pump.
+
+rule suction_used_with_respiratory_pump with provenance LCD L33612,
+        confer "Suction catheters (A4605, A4624, A4628) and sterile water/saline (A4216, A4217) are covered and are separately payable when they are medically necessary and used with a medically necessary E0600 pump":
+an item is used with a covered respiratory suction pump
+    if the item is an accessory of a device
+    and the device is a respiratory suction pump
+    and the device is a covered suction pump.
+
+rule suction_used_for_tracheostomy with provenance LCD L33612,
+        confer "The beneficiary requires the use of a covered respiratory suction pump (E0600) as described above, for tracheostomy suctioning":
+an item is used with a covered respiratory suction pump for tracheostomy suctioning
+    if the item is an accessory of a device
+    and the device is a respiratory suction pump
+    and the device is a covered suction pump
+    and the device is used for tracheostomy suctioning.
+
+% The tubing of a covered pump.
+rule suction_tubing with provenance LCD L33612,
+        confer "Supplies (tubing, tape, dressings, etc.) are covered and are separately payable when they are medically necessary and used with a medically necessary E2000 pump":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A7002"
+    and the item is an accessory of a device
+    and the device is a covered suction pump.
+
+% Tracheal suction catheters: a tracheostomy, a covered pump used for
+% tracheostomy suctioning, at most three a day.
+rule suction_tracheal_catheters with provenance LCD L33612,
+        confer "Tracheal suction catheters (A4624) are reasonable and necessary only when all of the following are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4624"
+    and the item is furnished to a beneficiary
+    and the beneficiary has a tracheostomy
+    and the item is used with a covered respiratory suction pump for tracheostomy suctioning
+    and the claim is within the tracheal catheter quantity limit.
+
+rule suction_tracheal_quantity with provenance LCD L33612,
+        confer "More than three A4624 catheters per day will be denied as not reasonable and necessary for tracheostomy suctioning":
+a claim is within the tracheal catheter quantity limit
+    if the claim covers a number days
+    and the quantity billed on the claim is an other number
+    and a limit is the number * 3
+    and the other number <= the limit.
+
+% Closed system catheters: the same, and a covered ventilator.
+rule suction_closed_system_catheters with provenance LCD L33612,
+        confer "Closed system catheters (A4605) are reasonable and necessary only when all of the following are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4605"
+    and the item is furnished to a beneficiary
+    and the beneficiary has a tracheostomy
+    and the item is used with a covered respiratory suction pump for tracheostomy suctioning
+    and the beneficiary requires the use of a covered ventilator.
+
+% Oropharyngeal catheters: suctioning in the oropharynx with a covered pump,
+% at most three a week.
+rule suction_oropharyngeal_catheters with provenance LCD L33612,
+        confer "Non-tracheal suction catheters (A4628) are reasonable and necessary for suctioning in the oropharynx":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4628"
+    and the item is used for suctioning in the oropharynx
+    and the item is used with a covered respiratory suction pump
+    and the claim is within the oropharyngeal catheter quantity limit.
+
+rule suction_oropharyngeal_quantity with provenance LCD L33612,
+        confer "More than three catheters (A4628) per week will be denied as not reasonable and necessary for oropharyngeal suctioning":
+a claim is within the oropharyngeal catheter quantity limit
+    if the claim covers a number days
+    and the quantity billed on the claim is an other number
+    and a limit is 3 * ceiling(the number / 7)
+    and the other number <= the limit.
+
+% Sterile water and saline: to clear a catheter after tracheostomy
+% suctioning ("Sterile water/saline will be denied as not reasonable and
+% necessary when used for oropharyngeal suctioning").
+rule suction_water_saline with provenance LCD L33612,
+        confer "Sterile water/saline solution (A4216, A4217) is covered when used to clear a suction catheter after tracheostomy suctioning":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4216", "A4217"]
+    and the item is used to clear a suction catheter after tracheostomy suctioning
+    and the item is used with a covered respiratory suction pump for tracheostomy suctioning.
+
+% The oral interface (A7047), the wound suction pump (K0743) and its
+% dressing sets (K0744-K0746) have no rule: "Claims for A7047 will be denied
+% as not reasonable and necessary"; "when K0743 is billed it will be denied
+% as not reasonable and necessary".
+
+section remedy is:
+
+% The Policy Article's own conditions of payment: the diagnosis code on the
+% claim — the tracheostomy status code for the tracheal catheters, the code
+% of the condition for the pump, its tubing and the oral interface.
+rule suction_documentation_tracheostomy_code with provenance Policy Article A52519,
+        confer "When billing HCPCS code(s) A4605 and/or A4624 for beneficiaries with a tracheostomy, the diagnosis code indicating tracheostomy status must be entered on the claim form":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is suction_pumps
+    and the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4605", "A4624"]
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary indicates tracheostomy status.
+
+rule suction_tracheostomy_status_code with provenance Policy Article A52519,
+        confer "the diagnosis code indicating tracheostomy status must be entered on the claim form":
+the diagnosis code of a beneficiary indicates tracheostomy status
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52519" as a description under table suction_icd10.
+
+rule suction_documentation_condition_code with provenance Policy Article A52519,
+        confer "When billing HCPCS code(s) E0600, A7002 and A7047, the diagnosis code(s) for the condition(s) that justify the need for the item(s) must be entered on the claim form":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is suction_pumps
+    and the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E0600", "A7002", "A7047"]
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary is an other code.
+
+% the other codes of the policy carry no requirement of the Article's
+rule suction_documentation_others with provenance Policy Article A52519,
+        confer "POLICY SPECIFIC DOCUMENTATION REQUIREMENTS":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is suction_pumps
+    and the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the code needs a diagnosis code on the suction claim.

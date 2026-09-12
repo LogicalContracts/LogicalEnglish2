@@ -1,0 +1,438 @@
+% Negative Pressure Wound Therapy Pumps: LCD L33821 and its Policy Article
+% A52511 (DME MACs). A policy program of the DMEPOS model: it includes
+% dmepos.le (orders, delivery, benefit category, continued need, refills)
+% and states when a claim for an NPWT pump (E2402) or its supplies (the
+% dressing set A6550, the canister set A7000) is REASONABLE AND NECESSARY:
+% criterion A (a chronic stage 3 or 4 pressure ulcer, a neuropathic ulcer, a
+% venous or arterial insufficiency ulcer or a chronic ulcer of mixed
+% etiology, after a complete wound therapy program — the general measures
+% A1 and the measures A2, A3 or A4 of the wound's type — has been tried or
+% considered and ruled out), criterion B (an ulcer encountered in the
+% inpatient setting where NPWT is, in the treating practitioner's judgment,
+% the best available option, or a complicated surgical or traumatic wound
+% needing accelerated granulation, in both cases ordered to continue after
+% discharge), the exclusions (eschar without debridement, untreated
+% osteomyelitis, cancer, an open fistula), the continued coverage (regular
+% assessment and supervision by a licensed medical professional, monthly
+% measurements showing healing, not discontinued, within four months of the
+% start of NPWT) and the usual maximum supplies (15 dressing sets per wound
+% per month, 10 canister sets per month unless the drainage exceeds 90 ml a
+% day). The disposable suction pump (A9272) is in scope and in no benefit
+% category (the Policy Article: statutorily noncovered). The payment
+% conditions it adds (Policy Article A52511, "POLICY SPECIFIC DOCUMENTATION
+% REQUIREMENTS"): the treating practitioner's statement of the initial
+% condition of the wound with measurements, a diagnosis code on the claim,
+% and, for an ongoing claim, the assessment of healing progress the
+% supplier obtains from the treating clinician each month.
+%
+% How the criteria are read. A wound is a constant of the record ("the
+% sacral ulcer") with its beneficiary, type, stage, site and age in days —
+% the vocabulary the surgical dressings policy reads too (candidates for
+% dmepos.le, defined here and included there). "Chronic" is read as present
+% for at least 30 days (the LCD defines it so for the ulcer of mixed
+% etiology; the model applies it to the pressure ulcer it also calls
+% chronic). The wound therapy program is what the record states was
+% included — tried, or considered and ruled out — element by element; which
+% elements a wound needs depends on its type and site. The exclusions are
+% complications the record states the wound presents. Therapy starts on
+% the date the record says NPWT was initiated, in the home or in the
+% inpatient setting, and four months are read as 120 days; a month as 30
+% days and the monthly assessment window as 31 days. The findings this
+% policy reads (the judged template of dmepos.le), and the criterion each
+% stands for:
+%   npwt best available treatment (criterion B-1: "NPWT is initiated
+%   because it is considered in the judgment of the treating practitioner,
+%   the best available treatment option");
+%   accelerated granulation required (criterion B-2: "documentation of the
+%   medical necessity for accelerated formation of granulation tissue which
+%   cannot be achieved by other available topical wound treatments").
+%
+% Not modelled: that only one E2402 per beneficiary is covered for a period
+% (a claim is decided alone); the PDAC coding verification and the KX, GA
+% and GZ modifiers; the one-month extensions sought through appeals; the
+% suction pumps of the Suction Pumps LCD (K0743-K0746); the wound-status
+% details the article's record must hold beyond the measurements.
+
+the target language is: prolog.
+
+the templates are:
+    % the wound of the record — candidate for dmepos.le (read by
+    % surgical_dressings.le as well)
+    *a wound* is a wound of *a beneficiary*; undefined.
+    the type of *a wound* is *a type*; undefined.
+    the stage of *a wound* is *a number*; undefined.
+    the site of *a wound* is *a site*; undefined.
+    *a wound* has been present for *a number* days; undefined.
+    % the record of the therapy
+    the wound therapy program for *a wound* included *an element*; undefined.
+    *a wound* was encountered in the inpatient setting; undefined.
+    NPWT for *a wound* was initiated on *a date*; undefined.
+    NPWT for *a wound* was ordered to continue beyond discharge to the home setting; undefined.
+    *a wound* presents *a complication*; undefined.
+    a licensed medical professional directly assesses *a wound* and supervises the NPWT dressing changes; undefined.
+    the measurements of *a wound* dated *a date* show measurable healing over the prior month; undefined.
+    the treating practitioner has determined that NPWT for *a wound* may be discontinued; undefined.
+    *an item* is applied to *a wound*; undefined.
+    the drainage of *a wound* is *a number* ml per day; undefined.
+    the treating practitioner documented the initial condition of *a wound* with measurements and the wound care efforts; undefined.
+    the supplier obtained an assessment of wound healing progress for *an item* on *a date*; undefined.
+    % derived
+    *an item* is an NPWT pump.
+    *an item* is an NPWT supply.
+    the NPWT pump of *a claim* is *a device*.
+    *a wound* qualifies for NPWT.
+    *a wound* is an NPWT qualifying ulcer.
+    the wound therapy program for *a wound* is complete.
+    *an element* is required in the wound therapy program for *a wound*.
+    *an element* is a general measure of a wound therapy program.
+    *an element* is a measure of a wound therapy program for *a type*.
+    *a wound* is excluded from NPWT coverage.
+    *a complication* is an exclusion from NPWT coverage.
+    the NPWT continued coverage criteria are met for *a wound* on *a date*.
+    the monthly NPWT assessment is documented for *a wound* on *a date*.
+    the number of wounds treated with *an item* is *a number*.
+    *a claim* is within the usual NPWT supply quantity.
+    the NPWT progress assessment is documented for *a claim*.
+
+the knowledge base npwt includes these resources:
+    dmepos.
+
+the knowledge base npwt includes:
+
+LCD L33821 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33821".
+the text of LCD L33821 is at "sources/lcd/L33821.txt".
+Policy Article A52511 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52511".
+the text of Policy Article A52511 is at "sources/article/A52511.txt".
+
+% What the pump and the supplies are, by code.
+rule npwt_pump_code with provenance Policy Article A52511,
+        confer "Code E2402 describes a stationary or portable Negative Pressure Wound Therapy (NPWT) electrical pump":
+an item is an NPWT pump
+    if the HCPCS code of the item is "E2402".
+
+rule npwt_supply_codes with provenance Policy Article A52511,
+        confer "This system contains a pump (E2402), dressing sets (A6550) and a separate collection canister (A7000)":
+an item is an NPWT supply
+    if the HCPCS code of the item is a code
+    and the code is in ["A6550", "A7000"].
+
+% The pump a claim concerns: the pump itself, or the pump the supply is an
+% accessory of. A device of this model.
+rule npwt_pump_of_pump_claim:
+the NPWT pump of a claim is a device
+    if the claim is for the device
+    and the device is an NPWT pump.
+
+rule npwt_pump_of_supply_claim:
+the NPWT pump of a claim is a device
+    if the claim is for an item
+    and the item is an NPWT supply
+    and the item is an accessory of the device
+    and the device is an NPWT pump.
+
+% The measures of a wound therapy program: the general measures A-1 of
+% every wound, and the measures A-2, A-3, A-4 of the wound's type.
+evaluation care and wound measurements by a licensed medical professional is a general measure of a wound therapy program,
+    as stated in LCD L33821, confer "Documentation in the beneficiary's medical record of evaluation, care, and wound measurements by a licensed medical professional".
+dressings to maintain a moist wound environment is a general measure of a wound therapy program,
+    as stated in LCD L33821, confer "Application of dressings to maintain a moist wound environment".
+debridement of necrotic tissue present is a general measure of a wound therapy program,
+    as stated in LCD L33821, confer "Debridement of necrotic tissue if present".
+evaluation of and provision for adequate nutritional status is a general measure of a wound therapy program,
+    as stated in LCD L33821, confer "Evaluation of and provision for adequate nutritional status".
+
+appropriate turning and positioning is a measure of a wound therapy program for pressure ulcer,
+    as stated in LCD L33821, confer "The beneficiary has been appropriately turned and positioned".
+appropriate management of moisture and incontinence is a measure of a wound therapy program for pressure ulcer,
+    as stated in LCD L33821, confer "The beneficiary’s moisture and incontinence have been appropriately managed".
+comprehensive diabetic management is a measure of a wound therapy program for neuropathic ulcer,
+    as stated in LCD L33821, confer "The beneficiary has been on a comprehensive diabetic management program".
+reduction in pressure on the foot ulcer is a measure of a wound therapy program for neuropathic ulcer,
+    as stated in LCD L33821, confer "Reduction in pressure on a foot ulcer has been accomplished with appropriate modalities".
+consistent application of compression bandages or garments is a measure of a wound therapy program for venous insufficiency ulcer,
+    as stated in LCD L33821, confer "Compression bandages and/or garments have been consistently applied".
+leg elevation and ambulation is a measure of a wound therapy program for venous insufficiency ulcer,
+    as stated in LCD L33821, confer "Leg elevation and ambulation have been encouraged".
+
+% The exclusions: complications of the wound that deny NPWT at any time.
+necrotic tissue with eschar without attempted debridement is an exclusion from NPWT coverage,
+    as stated in LCD L33821, confer "The presence in the wound of necrotic tissue with eschar, if debridement is not attempted".
+osteomyelitis not being treated with intent to cure is an exclusion from NPWT coverage,
+    as stated in LCD L33821, confer "Osteomyelitis within the vicinity of the wound that is not concurrently being treated with intent to cure".
+cancer in the wound is an exclusion from NPWT coverage,
+    as stated in LCD L33821, confer "Cancer present in the wound".
+open fistula to an organ or body cavity is an exclusion from NPWT coverage,
+    as stated in LCD L33821, confer "The presence of an open fistula to an organ or body cavity within the vicinity of the wound".
+
+% the wounds a pump treats: a count of the record's lines
+rule npwt_wound_count with provenance LCD L33821,
+        confer "NPWT pumps (E2402) must be capable of accommodating more than one wound dressing set for multiple wounds on a beneficiary":
+the number of wounds treated with an item is a number
+    if the number is the count of each W such that
+        the item is applied to a wound W.
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: durable medical
+% equipment for the pump and its supplies (Policy Article A52511); the
+% disposable pump A9272 is in scope and in no benefit category.
+rule npwt_codes with provenance Policy Article A52511,
+        confer "Negative pressure wound therapy equipment is covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
+the policy for code a code is npwt
+    if the code is in ["E2402", "A6550", "A7000", "A9272"].
+
+rule npwt_benefit with provenance Policy Article A52511,
+        confer "Negative pressure wound therapy equipment is covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is npwt
+    and it is not the case that
+        the code is "A9272".
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The pump: a qualifying wound, no exclusion, the continued coverage
+% criteria on the date of service.
+% ---------------------------------------------------------------------------
+
+rule npwt_pump_covered with provenance LCD L33821,
+        confer "A Negative Pressure Wound Therapy pump (E2402) and supplies (A6550, A7000) are covered when either criterion A or B is met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an NPWT pump
+    and the item is applied to a wound
+    and the wound qualifies for NPWT
+    and it is not the case that
+        the wound is excluded from NPWT coverage
+    and the date of service of the claim is a date
+    and the NPWT continued coverage criteria are met for the wound on the date.
+
+% The supplies: covered with the pump, within the usual maximum quantities.
+rule npwt_supplies_covered with provenance LCD L33821,
+        confer "A Negative Pressure Wound Therapy pump (E2402) and supplies (A6550, A7000) are covered when either criterion A or B is met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an NPWT supply
+    and the NPWT pump of the claim is a device
+    and the device is applied to a wound
+    and the wound qualifies for NPWT
+    and it is not the case that
+        the wound is excluded from NPWT coverage
+    and the date of service of the claim is a date
+    and the NPWT continued coverage criteria are met for the wound on the date
+    and the claim is within the usual NPWT supply quantity.
+
+% ---------------------------------------------------------------------------
+% Criterion A: an ulcer in the home setting after a complete wound therapy
+% program.
+% ---------------------------------------------------------------------------
+
+rule npwt_criterion_a with provenance LCD L33821,
+        confer "A complete wound therapy program described by criterion 1 and criteria 2, 3, or 4, as applicable depending on the type of wound, must have been tried or considered and ruled out prior to application of NPWT":
+a wound qualifies for NPWT
+    if the wound is an NPWT qualifying ulcer
+    and it is not the case that
+        the wound was encountered in the inpatient setting
+    and the wound therapy program for the wound is complete.
+
+% The ulcers of criterion A.
+rule npwt_pressure_ulcer with provenance LCD L33821,
+        confer "The beneficiary has a chronic Stage 3 or 4 pressure ulcer (see Appendices Section), neuropathic (for example, diabetic) ulcer, venous or arterial insufficiency ulcer, or a chronic (being present for at least 30 days) ulcer of mixed etiology":
+a wound is an NPWT qualifying ulcer
+    if the type of the wound is pressure ulcer
+    and the stage of the wound is a number
+    and the number is in [3, 4]
+    and the wound has been present for an other number days
+    and the other number >= 30.
+
+rule npwt_neuropathic_or_vascular_ulcer with provenance LCD L33821,
+        confer "neuropathic (for example, diabetic) ulcer, venous or arterial insufficiency ulcer":
+a wound is an NPWT qualifying ulcer
+    if the type of the wound is a type
+    and the type is in [neuropathic ulcer, venous insufficiency ulcer, arterial insufficiency ulcer].
+
+rule npwt_mixed_etiology_ulcer with provenance LCD L33821,
+        confer "a chronic (being present for at least 30 days) ulcer of mixed etiology":
+a wound is an NPWT qualifying ulcer
+    if the type of the wound is mixed etiology ulcer
+    and the wound has been present for a number days
+    and the number >= 30.
+
+% The program: every measure the wound needs, tried or considered and
+% ruled out.
+rule npwt_program_complete with provenance LCD L33821,
+        confer "For all ulcers or wounds, the following components of a wound therapy program must include a minimum of all of the following general measures, which should either be addressed, applied, or considered and ruled out prior to application of NPWT":
+the wound therapy program for a wound is complete
+    if the wound is a wound of a beneficiary
+    and for all cases in which
+            an element is required in the wound therapy program for the wound
+        it is the case that
+            the wound therapy program for the wound included the element.
+
+rule npwt_general_measures with provenance LCD L33821,
+        confer "For all ulcers or wounds, the following components of a wound therapy program must include a minimum of all of the following general measures":
+an element is required in the wound therapy program for a wound
+    if the wound is a wound of a beneficiary
+    and the element is a general measure of a wound therapy program.
+
+rule npwt_type_measures with provenance LCD L33821,
+        confer "A complete wound therapy program described by criterion 1 and criteria 2, 3, or 4, as applicable depending on the type of wound":
+an element is required in the wound therapy program for a wound
+    if the type of the wound is a type
+    and the element is a measure of a wound therapy program for the type.
+
+% the support surface: for a pressure ulcer on the posterior trunk or pelvis
+rule npwt_support_surface with provenance LCD L33821,
+        confer "The beneficiary has used a group 2 or 3 support surface for pressure ulcers on the posterior trunk or pelvis (see LCD on support surfaces)":
+use of a group 2 or 3 support surface is required in the wound therapy program for a wound
+    if the type of the wound is pressure ulcer
+    and the site of the wound is a site
+    and the site is in [posterior trunk, pelvis].
+
+% ---------------------------------------------------------------------------
+% Criterion B: a wound encountered in the inpatient setting, NPWT ordered to
+% continue after discharge.
+% ---------------------------------------------------------------------------
+
+rule npwt_criterion_b1 with provenance LCD L33821,
+        confer "An ulcer or wound (described under A above) is encountered in the inpatient setting and, after wound treatments described under A-1 through A-4 have been tried or considered and ruled out, NPWT is initiated because it is considered in the judgment of the treating practitioner, the best available treatment option":
+a wound qualifies for NPWT
+    if the wound is an NPWT qualifying ulcer
+    and the wound was encountered in the inpatient setting
+    and the wound therapy program for the wound is complete
+    and the wound is a wound of a beneficiary
+    and the finding npwt best available treatment about the beneficiary is established
+    and NPWT for the wound was ordered to continue beyond discharge to the home setting.
+
+rule npwt_criterion_b2 with provenance LCD L33821,
+        confer "The beneficiary has complications of a surgically created wound (for example, dehiscence) or a traumatic wound (for example, pre-operative flap or graft) where there is documentation of the medical necessity for accelerated formation of granulation tissue which cannot be achieved by other available topical wound treatments":
+a wound qualifies for NPWT
+    if the type of the wound is a type
+    and the type is in [surgical wound, traumatic wound]
+    and the wound was encountered in the inpatient setting
+    and the wound is a wound of a beneficiary
+    and the finding accelerated granulation required about the beneficiary is established
+    and NPWT for the wound was ordered to continue beyond discharge to the home setting.
+
+% ---------------------------------------------------------------------------
+% The exclusions, and the continued coverage.
+% ---------------------------------------------------------------------------
+
+rule npwt_exclusion with provenance LCD L33821,
+        confer "A NPWT pump and supplies will be denied at any time as not reasonable and necessary if one or more of the following are present":
+a wound is excluded from NPWT coverage
+    if the wound presents a complication
+    and the complication is an exclusion from NPWT coverage.
+
+% The first month of therapy needs nothing beyond the initial criteria;
+% afterwards the licensed professional's regular assessment and supervision,
+% the monthly measurements showing healing, and NPWT not discontinued —
+% within four months (120 days) of the start of NPWT, inpatient time
+% included.
+rule npwt_first_month with provenance LCD L33821,
+        confer "4 months (including the time NPWT was applied in an inpatient setting prior to discharge to the home) have elapsed using a NPWT pump in the treatment of the most recent wound":
+the NPWT continued coverage criteria are met for a wound on a date
+    if NPWT for the wound was initiated on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number < 30
+    and it is not the case that
+        the treating practitioner has determined that NPWT for the wound may be discontinued.
+
+rule npwt_continued with provenance LCD L33821,
+        confer "For wounds and ulcers described under A or B above, once placed on a NPWT pump and supplies, in order for coverage to continue, a licensed medical professional must do the following":
+the NPWT continued coverage criteria are met for a wound on a date
+    if NPWT for the wound was initiated on an other date
+    and the date is a number days after the other date
+    and the number >= 30
+    and the number < 120
+    and a licensed medical professional directly assesses the wound and supervises the NPWT dressing changes
+    and the monthly NPWT assessment is documented for the wound on the date
+    and it is not the case that
+        the treating practitioner has determined that NPWT for the wound may be discontinued.
+
+rule npwt_monthly_measurements with provenance LCD L33821,
+        confer "Any measurable degree of wound healing has failed to occur over the prior month":
+the monthly NPWT assessment is documented for a wound on a date
+    if the measurements of the wound dated an other date show measurable healing over the prior month
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 31.
+
+% ---------------------------------------------------------------------------
+% The supplies: the usual maximum quantities, a month at a time.
+% ---------------------------------------------------------------------------
+
+rule npwt_dressing_quantity with provenance LCD L33821,
+        confer "Coverage is provided up to a maximum of 15 dressing kits (A6550) per wound per month":
+a claim is within the usual NPWT supply quantity
+    if the claim is for an item
+    and the HCPCS code of the item is "A6550"
+    and the claim is for a supply of a number months
+    and the number <= 1
+    and the NPWT pump of the claim is a device
+    and the number of wounds treated with the device is an other number
+    and the quantity billed on the claim is a third number
+    and a limit is 15 * the other number
+    and the third number <= the limit.
+
+rule npwt_canister_quantity with provenance LCD L33821,
+        confer "Coverage is provided up to a maximum of 10 canister sets (A7000) per month unless there is documentation evidencing a large volume of drainage (greater than 90 ml of exudate per day)":
+a claim is within the usual NPWT supply quantity
+    if the claim is for an item
+    and the HCPCS code of the item is "A7000"
+    and the claim is for a supply of a number months
+    and the number <= 1
+    and the quantity billed on the claim is an other number
+    and the other number <= 10.
+
+rule npwt_canister_high_drainage with provenance LCD L33821,
+        confer "Coverage is provided up to a maximum of 10 canister sets (A7000) per month unless there is documentation evidencing a large volume of drainage (greater than 90 ml of exudate per day)":
+a claim is within the usual NPWT supply quantity
+    if the claim is for an item
+    and the HCPCS code of the item is "A7000"
+    and the claim is for a supply of a number months
+    and the number <= 1
+    and the quantity billed on the claim is an other number
+    and the other number > 10
+    and the NPWT pump of the claim is a device
+    and the device is applied to a wound
+    and the drainage of the wound is a third number ml per day
+    and the third number > 90.
+
+section remedy is:
+
+% The policy's own conditions of payment: the treating practitioner's
+% statement of the initial condition of the wound with measurements, a
+% diagnosis code on the claim, and for an ongoing claim the assessment of
+% healing progress the supplier obtains each month.
+rule npwt_documentation with provenance Policy Article A52511,
+        confer "The medical record must include a statement from the treating practitioner describing the initial condition of the wound (including measurements) and the efforts to address all aspects of wound care (listed in A1 through A4 in the related LCD)":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is npwt
+    and the claim is for an item
+    and the NPWT pump of the claim is a device
+    and the device is applied to a wound
+    and the treating practitioner documented the initial condition of the wound with measurements and the wound care efforts
+    and the item is furnished to a beneficiary
+    and the diagnosis code of the beneficiary is a code
+    and the NPWT progress assessment is documented for the claim.
+
+% the first month is documented by the initial statement: a device of this
+% model
+rule npwt_initial_assessment:
+the NPWT progress assessment is documented for a claim
+    if the claim is for an item
+    and it is not the case that
+        the claim is an ongoing claim.
+
+rule npwt_supplier_assessment with provenance Policy Article A52511,
+        confer "The supplier of the NPWT equipment and supplies must obtain from the treating clinician, an assessment of wound healing progress, based upon the wound measurement as documented in the beneficiary’s medical record, in order to determine whether the equipment and supplies continue to qualify for Medicare coverage":
+the NPWT progress assessment is documented for a claim
+    if the claim is an ongoing claim
+    and the NPWT pump of the claim is a device
+    and the date of service of the claim is a date
+    and the supplier obtained an assessment of wound healing progress for the device on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 31.

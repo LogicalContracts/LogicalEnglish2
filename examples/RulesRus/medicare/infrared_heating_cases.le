@@ -1,0 +1,87 @@
+% Test cases for the infrared heating pad policy (infrared_heating.le):
+% synthetic claims for the system and its replacement pads. The policy
+% concludes nothing — LCD L33825, applying NCD 270.6, denies the device and
+% its accessories as not reasonable and necessary — so every claim fails at
+% the question, however complete its documentation, and no change of the
+% record makes one payable.
+
+the target language is: prolog.
+
+the knowledge base infrared_heating cases includes these resources:
+    infrared_heating.
+
+the knowledge base infrared_heating cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A fully documented claim for an infrared heating pad system (E0221) for
+% chronic low back pain: denied all the same, and nothing flips it.
+scenario system_complete is:
+    claim 1 is for the infrared system.
+    the HCPCS code of the infrared system is "E0221".
+    the infrared system is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the order for the infrared system is dated 2026-02-20.
+    the order for the infrared system is signed by the treating practitioner.
+    the order for the infrared system includes beneficiary name.
+    the order for the infrared system includes order date.
+    the order for the infrared system includes description of the item.
+    the order for the infrared system includes quantity to be dispensed.
+    the order for the infrared system includes treating practitioner name.
+    the order for the infrared system was communicated to the supplier on 2026-02-22.
+    the infrared system was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the infrared system.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+    flip expects changes [].
+
+% A replacement pad (A4639) for a beneficiary-owned system: a supply of
+% a device that is itself never covered.
+scenario replacement_pad is:
+    claim 1 is for the replacement pad.
+    the HCPCS code of the replacement pad is "A4639".
+    the replacement pad is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the HCPCS code of the infrared system is "E0221".
+    the infrared system is furnished to Ben.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A system furnished to a skilled nursing facility resident: not a home, so
+% the claim fails already at applicability.
+scenario system_in_nursing_facility is:
+    claim 1 is for the infrared system.
+    the HCPCS code of the infrared system is "E0221".
+    the infrared system is furnished to Cy.
+    the residence of Cy is skilled nursing facility.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% An electric heating pad (E0210) is not this policy's: out of its scope
+% (heating_pads.le decides it).
+scenario electric_pad_out_of_scope is:
+    claim 1 is for the heating pad.
+    the HCPCS code of the heating pad is "E0210".
+    the heating pad is furnished to Dee.
+    the residence of Dee is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
