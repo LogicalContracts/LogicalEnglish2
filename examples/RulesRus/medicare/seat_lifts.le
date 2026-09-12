@@ -1,0 +1,156 @@
+% Seat Lift Mechanisms: LCD L33801 and its Policy Article A52518 (DME MACs),
+% read with NCD 280.4 (seat lift). A policy program of the DMEPOS model: it
+% includes dmepos.le (orders, delivery, benefit category, continued need,
+% refills) and states when a claim for a seat lift mechanism — electric
+% (E0627) or manual (E0629) — is REASONABLE AND NECESSARY: the clinical
+% criteria (severe arthritis of the hip or knee or a severe neuromuscular
+% disease; part of the practitioner's course of treatment; completely
+% incapable of standing up from a regular chair; able to ambulate once
+% standing), the type of mechanism (smooth, controlled by the beneficiary,
+% effective without other assistance, not a spring-release catapult), the
+% ordering practitioner, and the record of the therapeutic modalities tried.
+% Only the mechanism is in the benefit: a lift chair sold as a unit is billed
+% as the mechanism (E0627 or E0629) and the chair as A9270, which has no
+% benefit category (the Policy Article's coding guidelines); a toilet seat
+% lift (E0172) is non-covered. Both are in scope, with no benefit.
+%
+% How the criteria are read. The LCD's clinical criteria are findings about
+% the beneficiary made by the treating practitioner and accepted or rejected
+% on review: each is the judged template of dmepos.le, "the finding F about
+% B is established" (or unsupported), with who found it and why. Where the
+% LCD offers alternatives (arthritis of the hip, arthritis of the knee, a
+% neuromuscular disease) they are ONE finding with the alternative as its
+% reason. The findings this policy reads, and the criterion each stands for:
+%   qualifying seat lift diagnosis (1: severe arthritis of the hip or knee,
+%   or a severe neuromuscular disease — the NCD names muscular dystrophy);
+%   seat lift part of course of treatment (2: part of the treating
+%   practitioner's course of treatment, prescribed to effect improvement or
+%   arrest or retard deterioration — the NCD's "can benefit
+%   therapeutically"); completely incapable of standing from any chair (3:
+%   from a regular armchair or any chair in the home — difficulty, or a low
+%   chair, is not enough); able to ambulate once standing (4).
+% What the record states as fact — how the mechanism operates, who wrote the
+% order, that the practitioner's record documents the therapeutic modalities
+% tried and failed, the certificate of medical necessity of an old claim — is
+% a scenario fact.
+%
+% The payment condition the policy adds (Policy Article A52518, "Certificate
+% of medical necessity"): for a date of service before 1 January 2023 the
+% CMN (CMS Form 849), completed, signed and dated by the treating
+% practitioner, must be on file; from that date no CMN is needed. Not
+% modelled: the KX/GA/GZ modifiers; the NCD's limit of the payment for a unit
+% with a recliner feature to the amount payable for a seat lift without it
+% (the model decides coverage, not amounts); the NCD's "the alternative would
+% be chair or bed confinement", read as the reason behind criteria 3 and 4.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *an item* operates smoothly under the control of the beneficiary; undefined.
+    *an item* effectively assists the beneficiary in standing up and sitting down without other assistance; undefined.
+    *an item* operates by a spring release mechanism; undefined.
+    the order for *an item* was written by the treating practitioner or a consulting practitioner for the condition; undefined.
+    the record of the treating practitioner documents that all appropriate therapeutic modalities were tried and failed for *a beneficiary*; undefined.
+    the supplier holds a completed certificate of medical necessity for *an item* signed by the treating practitioner; undefined.
+    % derived
+    *an item* is a seat lift mechanism.
+    *a beneficiary* meets the clinical criteria for a seat lift mechanism.
+    *an item* is an acceptable type of seat lift mechanism.
+    *a claim* needs a certificate of medical necessity.
+
+the knowledge base seat lifts includes these resources:
+    dmepos.
+
+the knowledge base seat lifts includes:
+
+LCD L33801 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33801".
+the text of LCD L33801 is at "sources/lcd/L33801.txt".
+Policy Article A52518 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52518".
+the text of Policy Article A52518 is at "sources/article/A52518.txt".
+NCD 280 4 is published at "https://www.cms.gov/medicare-coverage-database/view/ncd.aspx?ncdid=64".
+the text of NCD 280 4 is at "sources/ncd/NCD_280.4.txt".
+
+% What a seat lift mechanism is (the Policy Article's coding guidelines).
+rule seat_lift_mechanism with provenance Policy Article A52518,
+        confer "A seat lift mechanism that is electrically operated is billed using HCPCS code E0627. A manually operated seat lift mechanism is billed using HCPCS code E0629":
+an item is a seat lift mechanism
+    if the HCPCS code of the item is a code
+    and the code is in ["E0627", "E0629"].
+
+% A claim dated before 1 January 2023 needs the certificate of medical
+% necessity (CMS Form 849).
+rule seat_lifts_cmn_period with provenance Policy Article A52518,
+        confer "For claims with dates of service prior to January 1, 2023 – If the CMN or DIF is required, it must be submitted with the claim, or be on file with a previous claim":
+a claim needs a certificate of medical necessity
+    if the policy of the claim is seat_lifts
+    and the date of service of the claim is a date
+    and the date is before 2023-01-01.
+
+section applicability is:
+
+% The codes this policy decides: the mechanisms, the chair billed with them
+% (A9270) and the toilet seat lift (E0172); the benefit — durable medical
+% equipment — is the mechanism's alone.
+rule seat_lifts_codes with provenance Policy Article A52518,
+        confer "the supplier may bill the seat lift mechanism using E0627 or E0629, and bill A9270 for the chair":
+the policy for code a code is seat_lifts
+    if the code is in ["E0627", "E0629", "E0172", "A9270"].
+
+rule seat_lifts_benefit with provenance Policy Article A52518,
+        confer "Seat lift mechanisms are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the code is in ["E0627", "E0629"].
+
+section question is:
+
+% The mechanism is covered if all the criteria are met: the clinical
+% criteria, the type, the ordering practitioner, the record of the
+% modalities tried.
+rule seat_lifts_covered with provenance LCD L33801,
+        confer "A seat lift mechanism is covered if all of the following criteria are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a seat lift mechanism
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the clinical criteria for a seat lift mechanism
+    and the item is an acceptable type of seat lift mechanism
+    and the order for the item was written by the treating practitioner or a consulting practitioner for the condition
+    and the record of the treating practitioner documents that all appropriate therapeutic modalities were tried and failed for the beneficiary.
+
+% The clinical criteria: the findings of the treating practitioner.
+rule seat_lifts_clinical_criteria with provenance LCD L33801,
+        confer "The beneficiary must have severe arthritis of the hip or knee or have a severe neuromuscular disease":
+a beneficiary meets the clinical criteria for a seat lift mechanism
+    if the finding qualifying seat lift diagnosis about the beneficiary is established
+    and the finding seat lift part of course of treatment about the beneficiary is established
+    and the finding completely incapable of standing from any chair about the beneficiary is established
+    and the finding able to ambulate once standing about the beneficiary is established.
+
+% The type of mechanism: smooth, controlled by the beneficiary, effective
+% without other assistance; not the spring-release catapult.
+rule seat_lifts_type with provenance NCD 280 4,
+        confer "Coverage of seat lifts is limited to those types which operate smoothly, can be controlled by the patient, and effectively assist a patient in standing up and sitting down without other assistance":
+an item is an acceptable type of seat lift mechanism
+    if the item operates smoothly under the control of the beneficiary
+    and the item effectively assists the beneficiary in standing up and sitting down without other assistance
+    and it is not the case that
+        the item operates by a spring release mechanism.
+
+section remedy is:
+
+% The policy's own condition of payment: the certificate of medical
+% necessity of a claim dated before 2023.
+rule seat_lifts_cmn with provenance Policy Article A52518,
+        confer "For dates of service for which a CMN is required, a CMN, which has been completed, signed and dated by the treating practitioner, must be kept on file by the supplier, and made available upon request":
+the policy specific documentation requirements are met for a claim
+    if the claim needs a certificate of medical necessity
+    and the claim is for an item
+    and the supplier holds a completed certificate of medical necessity for the item signed by the treating practitioner.
+
+rule seat_lifts_no_cmn with provenance Policy Article A52518,
+        confer "Providers and suppliers no longer need to submit Certificate of Medical Necessity (CMN) for services rendered on or after January 1, 2023":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is seat_lifts
+    and it is not the case that
+        the claim needs a certificate of medical necessity.
