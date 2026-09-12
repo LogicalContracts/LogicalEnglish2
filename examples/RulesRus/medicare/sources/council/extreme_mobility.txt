@@ -1,0 +1,222 @@
+Title: In the Case of Extreme Mobility, Inc.
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/extreme_mobility.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:52 GMT
+
+Number of Pages: 10
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-10-138 
+
+In the case of 
+
+Extreme Mobility, Inc. (Appellant) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** (Beneficiary) 
+
+National Government Services (Contractor) 
+
+**** (HIC Number) **** 
+
+(ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated September 15, 2009, which concerned Medicare coverage for a power wheelchair (HCPCS code K0861 1) and 12 related components/accessories provided to the beneficiary on December 20, 2008. The ALJ determined the items at issue were not covered by Medicare and that the appellant remained liable for the non-covered items. The appellant has asked the Medicare Appeals Council to review this action. 
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). 
+
+As set forth below, the Council reverses the ALJ’s determination of non-coverage for the power wheelchair and components/ accessories, and finds that the equipment at issue is covered by Medicare.   
+
+> 1The Centers for Medicare & Medicaid Services (CMS) have developed the Healthcare Common Procedure Coding System (HCPCS) to establish “uniform national definitions of services, codes to represent services, and payment modifiers to the codes.” 42 C.F.R. § 414.40(a). 2
+
+PRELIMINARY EVIDENTIARY ISSUES 
+
+Attached to the request for review were additional documents consisting of medical records, written statements, and supplier documentation, among other things. Most of the documentation submitted with the appellant’s request for review was previously provided at the redetermination and reconsideration levels of review and was in the record before the ALJ, with the exception of the following documents identified by the appellant, in the exhibit list attached to its request: 
+
+ Attachment (Att.) J – CMS’s Advance Determination of Medicare Coverage (ADMC) dated November 12, 2008; 
+
+ Att. L, in part – Rehabilitation Progress Notes; 
+
+ Att. M – Appellant's In-Home Evaluation (undated); 
+
+ Att. R – July 17, 2009, Letter from the beneficiary; and 
+
+ Att. S – October 22, 2009, Letter from L*** C*** (the occupational therapist). 
+
+By letter dated February 16, 2010, the Council informed the appellant that it must show good cause for submitting evidence for the first time at the Council level. See 42 C.F.R. 
+
+§§ 405.966(a)(2), 405.1018, 405.1122(c). The Council afforded the appellant twenty days from the date of the letter to show good cause for the new evidence. The Council also advised that the new evidence would be excluded from the record should the appellant fail to respond by the established deadline. The appellant did not respond to the Council’s letter. The Council therefore excludes the Rehabilitation Progress Notes at Att. L, and Atts. R and S from the record. 
+
+However, the Council notes that the November 12, 2008, ADMC (Att. J) and the In-Home Evaluation (Att. M) were submitted by the appellant as attachments to the request for an ALJ hearing. 
+
+See Exh. 6, at 85-86, 105. In a letter to the ALJ dated July 6, 2009, the appellant explained that the In-Home Evaluation and the ADMC were not provided prior to the request for hearing because issues relating to these documents were not raised until the Qualified Independent Contractor's (QIC's) reconsideration decision. Exh. 7, at 123. The appellant states that the contractor's denial was based on a prior wheelchair being 3
+
+provided to the beneficiary on January 3, 2005, and the appellant's failure to show that the wheelchair was either lost or irreparably damaged. Id. This was the issue appealed and argued on reconsideration. The ALJ’s decision is silent as to whether good cause was shown by the appellant for the submission of the documents for the first time at the ALJ level of review. The Council finds that good cause has been shown with regard to the In-Home Evaluation and the ADMC. Therefore, the Council admits the two documents into evidence, along with the request for review. 
+
+Thus, the Council has admitted the appellant’s Atts. A, B, J, and M into the record as Exh. MAC-1. The remainder of the attachments to the request for review are excluded as duplicative, or based on the appellant's failure to identify and establish good cause for their late submission. 
+
+BACKGROUND AND PROCEDURAL HISTORY 
+
+On the date of service at issue, the beneficiary was a 57-year-old male diagnosed with C5-6 tetraplegia secondary to a diving accident in 1975. He is also diagnosed with neurogenic bladder with ilial conduit, left ureteral stenosis with nephrostomy tube, renal calculi, diabetes mellitus, autonomic, dysreflexia, hypertension, spasticity, large sacral decubitus, status post skin grafting, gastroesophageal reflux disease/hiatal hernia, obstructive sleep apnea, and conjunctivitis – resolved. Exh. 1, at 18. In the year preceding the date of service at issue, the beneficiary had been bedridden for twelve months as the result of a stage IV pressure wound. He underwent surgical intervention to remove a diseased section of his left pelvic region, and a surgical procedure to close the area over the sacral pressure wound. Id. at 22. Between April 23, 2008, and June 3, 2008, the beneficiary was admitted into the spinal cord unit of *** Hill Rehabilitation Hospital for physical and occupational therapies (PT, OT) to further his ability for sitting and functional capabilities. Id. at 14-18. 
+
+On the beneficiary’s discharge from *** Hill, the attending physician, M*** M***, M.D., completed a written order 
+
+for a new power mobility device due to diagnoses of C5-7 quadriplegia and quadriparesis, neurogenic bladder, and neurogenic bowel. Id. at 26. The beneficiary had previously been provided with a power wheelchair. However, due to the beneficiary’s deteriorating medical condition, the beneficiary's treating physician determined that the previous chair was 4
+
+"unable to provide safe and appropriate positioning” for relief of pressure. Exh. 1, at 23-24. The Order reflected that a face-to-face examination was conducted on June 3, 2008. The only medical report provided by Dr. M*** for the date June 3, 2008, is the Discharge Summary from *** Hill. See id. at 
+
+14-18. There are, however, addendums to the PT and OT evaluations signed by the respective hospital therapist and both dated June 2, 2008 which address, among other things, the beneficiary's mobility and ambulation issues, as well as capacity for activities of daily living (ADLs). Exh. 1, at 10-18. The record also contains a June 16, 2008, letter from the occupational therapist (OT), signed by Dr. M*** on June 26, 2008, which discusses the beneficiary's need for the equipment. Exh. 1, at 20-22. 
+
+The appellant filed claims for the power wheelchair (HCPCS code K0861), corpus seat with tilt (HCPCS code E1002), group 34 batteries (HCPCS code K0108), multiple seat function control (HCPCS code E2311), ergo back 18x21 (HCPCS code E2620), corpus arm bar (HCPCS code K0108), thigh support (HCPCS code E0956), swing away lateral support (HCPCS code E0956), adjustable trunk support - right (HCPCS code E1028), adjustable calf hardware (HCPCS code E1028), adjustable thigh support hardware (HCPCS code E1028), stealth lateral swing away - left (HCPCS code E1028), and stealth lateral pad (HCPCS code E0956). Exh. 2, at 27; Exh. 3, at 31. The claims were denied both initially and on redetermination by the contractor. Exh. 4. The contractor concluded that the beneficiary had been previously provided with a power wheelchair on January 3, 2005, and that the record did not show that the chair was irreparably damaged or lost. Id. at 47. The contractor also concluded that the accessories were not covered when the power wheelchair has been denied. Id. at 46. 
+
+On reconsideration, the Qualified Independent Contractor (QIC) upheld the contractor’s determination of non-coverage. Exh. 5. The QIC found that the equipment was not delivered within 120 days of the face-to-face evaluation as required by Local Coverage Determination (LCD) L27239, and that the record did not contain a home assessment or an attestation by the occupational therapist of no financial relationship with the appellant. Exh. 5, at 60. The appellant filed an appeal for ALJ review. Exh. 6. The appellant waived its right to an in-person hearing and requested a decision on the record. Id. at 120, 121. 
+
+In his September 15, 2009, decision, the ALJ determined that the power wheelchair and accessories supplied to the beneficiary on 5
+
+December 20, 2008, were not medically reasonable and necessary because the record evidence did not support that the documentation requirements of LCD L27239, LCD for Power Mobility Devices , were met. Specifically, the ALJ concluded the following: 
+
+ The record does not include evidence of a home assessment related to the power wheelchair at issue; 
+
+ The record does not contain a report of a face-to-face examination which meets the requirements of the LCD; 
+
+ The physician’s description, in the written order (prescription), of the equipment as a “power mobility device” does not adequately describe the device; and 
+
+ The delivery of the power wheelchair and accessories did not occur within 120 days of the face-to-face examination. 
+
+Dec. at 9-10. 
+
+The appellant presents a variety of contentions in its request for review. The appellant contests the ALJ’s findings, arguing primarily that: 
+
+ the physician’s progress notes and letter of medical necessity support the significant change in the beneficiary’s condition, therefore sufficiently demonstrating the medical necessity for the equipment at issue; 
+
+ the record in fact contains a home assessment report, and the ALJ’s finding is in error; 
+
+ the physician’s order for the power wheelchair meets all of the documentation requirements of the LCD; and 
+
+ the appellant met the exception for delivery of the power wheelchair in that a supplier has six months from the date of the affirmative ADMC to deliver the equipment to the beneficiary, as opposed to 120 days from the date of the face-to-face evaluation. 
+
+Exh. MAC-1. These arguments will be addressed below. 6
+
+DISCUSSION 
+
+Physician’s Order 
+
+LCD L27239 requires that a physician’s order for equipment must contain the following information: 
+
+1. The beneficiary’s name; 
+
+2. A description of the item to be ordered. This may be general – e.g., “power operated vehicle,” “power wheelchair,” or “power mobility device” – or may be more specific; 
+
+3. Date of the face-to-face examination; 
+
+4. Pertinent diagnosis/conditions that relate to the need for the POV or power wheelchair; 
+
+5. Length of need; 
+
+6. Physician’s signature; and 
+
+7. Date of physician signature. 
+
+LCD L27239 – Orders . The Council notes that the ALJ accorded substantial deference to this LCD, consistent with 42 C.F.R. 
+
+§ 405.1062(a). 
+
+The ALJ concluded that six of the seven elements had been met, with the exception of the description of the equipment. Dec. at 9. The ALJ stated that the descriptive phrase “power mobility device” was insufficient. However, according to the LCD, such identification of the ordered equipment is within the parameters of the LCD. Therefore, the Council concludes that the ALJ erred in finding the physician’s order insufficient to meet this LCD documentation requirement. While the phrase “power mobility device” is broad, the Council notes that it is evident from the record that a beneficiary with quadriplegia, and with the complications experienced by the beneficiary throughout the previous year, would not have the extended trunk stability and balance to maintain posture in order to use a power scooter. 7
+
+Face-to-Face Examination 
+
+The LCD requires that there must be a documented report of a face-to-face examination which addresses the following questions for a power wheelchair: 
+
+ What is the patient’s mobility limitation and how does it interfere with the performance of activities of daily living? 
+
+ Why can’t a cane or walker meet this patient’s mobility needs in the home? 
+
+ Why can’t a manual wheelchair meet this patient’s mobility needs in the home? 
+
+ Why can’t a POV (scooter) meet this patient’s mobility needs in the home? 
+
+ Does this patient have the physical and mental abilities to operate a power wheelchair safely in the home? 
+
+LCD L27239 - Face-to-Face Examination . The LCD further delineates that the examination report should also include details of the patient’s history of present condition and past medical history relevant to mobility needs which includes, among other things, symptoms which limit ambulation, diagnoses associated with symptoms, changes in the patient’s condition which require use of the power wheelchair, pace of ambulation, and description of the home setting and ability to perform ADLs. 
+
+Id. The LCD also requires a physical examination, which includes documentation of cardiopulmonary, musculoskeletal, and neurological examinations, and the patient’s height and weight. 
+
+Id. The examination shall be documented in a detailed narrative note, and must clearly indicate that the “major reason for the visit was a mobility examination.” Id. 
+
+The physician’s prescription for the power wheelchair, dated June 3, 2008, notes the date of the face-to-face examination as June 3, 2008. Exh. 1, at 26. The record contains an extensive summary relating to the beneficiary’s discharge from *** 
+
+Hill Rehabilitation Hospital on June 3, 2008. The summary provides detailed information regarding the beneficiary’s medical condition and physical examination. Exh. 1, at 14-18. Also included in the record are two documents on *** Hill 8
+
+Rehabilitation Hospital letterhead - one labeled "PT Eval Addendum” (Exh. 1, at 12-13), and the other labeled "Occupational Therapy Eval/Addendum” (Exh. 1, at 10-11). The Addendums were signed by the respective PT and OT therapist and both dated June 2, 2008. 
+
+The cumulative information contained in both documents includes, among other things: 
+
+ a description of the beneficiary's home environment ( e.g., 
+
+1-story house with a ramp to enter); 
+
+ the beneficiary's ability to participate in activities of daily living (ADLs) ( e.g., minimum assist for grooming hair; maximum assist for sponge baths); 
+
+ the beneficiary's complaint of pain which makes use of the previous wheelchair no longer appropriate; and 
+
+ notations regarding the beneficiary's range of motion (ROM), which identify any functional limitations. 
+
+Exh. 1, at 10, 12. 
+
+Based on the record as a whole, the Council concludes that the physician's Discharge Summary, in conjunction with the information provided in the PT and OT Addendums dated June 2, 2008, provide the necessary documentation required by LCD L27239 for a face-to-face evaluation. For the physician to conduct a subsequent examination, in light of the June 2nd evaluations conducted by the PT and OT, would only replicate the information already contained in the medical record. Moreover, because the beneficiary has quadriplegia, the answers to some of the questions (e.g., can he use a cane or walker, can he use a manual wheelchair) are evident, and nothing would be gained by requiring the beneficiary to undergo an additional face-to-face evaluation. 
+
+Therefore, the Council finds that the record sufficiently documents a face-to-face evaluation and, thus, meets the requirements of the applicable LCD. 
+
+Advance Determination of Medicare Coverage (ADMC) 
+
+The LCD requires that delivery of the power wheelchair must be within 120 days of the face-to-face examination, except in cases where the equipment has undergone an ADMC process and received an affirmative determination. In such cases, the delivery must 9
+
+be within six months following the affirmative determination. LCD L27239 – Miscellaneous .
+
+By letter dated November 12, 2008, CMS advised the appellant of an affirmative determination of the medical necessity for the power wheelchair. Exh. 6, at 85-86. The appellant concedes that the delivery date of the power wheelchair and components/accessories was December 20, 2008. Exh. MAC-1, at 2; 
+
+see also, Exh. 1, at 2. 
+
+On this issue, the ALJ decided only that the equipment had not been delivered to the beneficiary within 120 days of the fact-to-face examination. Dec. at 9. Although submitted by the appellant with the request for ALJ review, the ALJ did not address the ADMC, whether or not good cause had been shown for the late submission, or its potential application to the instant case. 
+
+In light of CMS's issuance of an affirmative ADMC, the equipment at issue had to be delivered within six months of November 12, 2008, the date of the affirmative determination. According to the record and the appellant's concession, the power wheelchair and components/accessories were delivered on December 20, 2008. Exh. 1, at 2; Exh. MAC-1, at 1, 2. Therefore, the Council concludes that the record supports timely delivery of the equipment at issue, in accordance with the LCD. 
+
+In-Home Assessment 
+
+LCD L27239 states that an on-site evaluation of the patient’s home must be conducted by the supplier or practitioner prior to or at the time of delivery of the power wheelchair “to verify that the patient can adequately maneuver the device” within the home. There must be a written report of the in-home assessment. LCD L27239 – Home Assessment .
+
+The ALJ concluded that the record did not contain any documentation which could be described as a home assessment. Dec. at 9. The appellant contends that a home assessment was a part of the record in that an affirmative ADMC would not have been rendered without such documentation in the record. Exh. MAC-1, at 2. The record reflects that an "Extreme Mobility, Inc. In-Home Evaluation” was submitted by the appellant as an attachment to the request for an ALJ hearing. Exh. 6, at 105. The ALJ did not reference nor give an indication in his decision 10
+
+that any consideration was given to the In-Home Evaluation document. 
+
+The In-Home Evaluation notes the beneficiary's name and contact information, Medicare ID information, and vital statistics. The evaluation further reflects a description of the beneficiary's home, identifies the type of home, exterior wheelchair access, the width of the doorways, and the type of flooring within the home. Id. The evaluation indicates an assessment of the beneficiary's home environment for wheelchair accessibility. 
+
+Id. Lastly, the evaluation is signed and dated "June 24, 2008." 
+
+Id. The Council finds that the record demonstrates that an in-home assessment was conducted and documented in accordance with LCD L27239. 
+
+Therefore, the Council concludes that the ALJ erred in finding that the record did not contain any documentation purporting to be an in-home assessment. 
+
+DECISION 
+
+Based on the foregoing, the Council finds that the record contains sufficient documentation to support the medical necessity of the power wheelchair (HCPCS code K0861) and related components/accessories. Therefore, the Council reverses the ALJ’s September 15, 2009, decision as discussed above. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Gilde Morrisson 
+
+Administrative Appeals Judge 
+
+/s/ Susan S. Yim 
+
+Administrative Appeals Judge 
+
+Date: June 22, 2010

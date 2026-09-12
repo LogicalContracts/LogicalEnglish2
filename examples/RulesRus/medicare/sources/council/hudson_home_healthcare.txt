@@ -1,0 +1,102 @@
+Title: In the Case of Hudson Home Health Care
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/hudson_home_healthcare.pdf
+
+Published Time: Mon, 29 Aug 2016 04:20:00 GMT
+
+Number of Pages: 3
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+In the case of Claim for 
+
+Supplementary Medical Hudson Home Health Care Insurance Benefits (Part B) (Appellant) 
+
+**** **** 
+
+(Beneficiary) (HIC Number) 
+
+NHIC **** 
+
+(Contractor) (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated March 
+
+3, 2009. The ALJ denied the appellant supplier’s claim for 
+
+Medicare coverage of an ultra lightweight wheelchair and 
+
+accessories provided to the beneficiary on June 25, 2008. The 
+
+ALJ denied coverage because she determined that the appellant 
+
+had not submitted sufficient documentation to support the 
+
+medical necessity of the wheelchair. The appellant has asked 
+
+the Medicare Appeals Council to review this action. The 
+
+appellant’s request for review, with attachments, is entered 
+
+into the record as Exhibit (Exh.) MAC-1. 1
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. 
+
+§ 405.1108(a). The Council will limit its review of the ALJ’s 
+
+action to the exceptions raised by the party in the request for 
+
+review, unless the appellant is an unrepresented beneficiary. 
+
+42 C.F.R. § 405.1112(c). As set forth below, the Council 
+
+reverses the ALJ’s decision.                                                  
+
+> 1The appellant submit ted additional evidence to the ALJ that the ALJ excluded pursuant to 42 C.F.R. §405.1028(c), finding that the appellant had not shown good cause for not submitting the evidence at an earlier stage of review. Accordingly, the Council has not considered the excluded evidence in reaching our decision in this case.
+
+2DISCUSSION 
+
+The record shows that the beneficiary is 38 years old and has transverse myelitis with resulting paraplegia. She previously used an Invacare A4 wheelchair, which at the time she obtained the new, ultra lightweight wheelchair, was five years old and broken beyond repair. Moreover, her present weight of 300 pounds exceeds the weight limit for her previous wheelchair. Accordingly, both her physician and her physical therapist determined that she required a new wheelchair, which, among other things, could accommodate her current weight. Exhibit 3 at 21-22. 
+
+As the ALJ noted, coverage for the wheelchair the beneficiary has obtained is governed by local coverage determination (LCD) L11465. It provides, in pertinent part, that coverage of a lightweight wheelchair is determined on an “individual consideration basis.” The ALJ denied the request for coverage because she determined that the supplier had not submitted medical records, but, rather, merely an attestation from the beneficiary’s physical therapist. Decision at 8. Moreover, the ALJ stated that the beneficiary’s physician had not signed the attestation. Id. 
+
+In its request for review, the appellant contends that the ALJ’S description of the medical evidence submitted is not accurate. The Council agrees. The record contains a letter dated March 30, 2008 from *** Rehabilitation Hospital which is signed by both the beneficiary’s physical therapist, ***, and her physician, Dr. ***. Exhibit 3 at 21-22. The letter includes the following, relevant information concerning the beneficiary’s medical condition and her need for new equipment: 
+
+ Her present wheelchair is broken and beyond repair. 
+
+Moreover, she is over the weight level for this chair 
+
+because her present weight is 300 pounds and she is 5’ 
+
+tall. 
+
+ Her upper extremity strength is 4-/5 and her lower 
+
+extremity strength is 2+/5. 
+
+ She has clonus and increased extensor tone in both lower 
+
+extremities. 
+
+ Her sitting posture is remarkable for a forward head and 
+
+increased lumbar lordosis. 3 She is independent with lateral transfers and is independent with propelling an ultra light wheelchair for distances up to 400 feet. 
+
+ She becomes short of breath and fatigued with wheelchair mobility greater than 400 feet. She is unable to functionally propel a standard manual wheelchair or lightweight wheelchair due to weakness and fatigue. 
+
+None of the decisionmakers in this case has questioned whether the beneficiary requires a wheelchair. Rather, the question before them was whether the beneficiary required a replacement wheelchair, and, if so, the specific features of the replacement. The Council finds that the information that *** Rehabilitation Hospital has provided is sufficient to establish the medical necessity of the ultra lightweight wheelchair the beneficiary obtained on June 25, 2008. 
+
+Accordingly, the Council reverses the ALJ decision. The Council finds that the ultra lightweight wheelchair and accessories which were provided to the beneficiary on June 25, 2008 are covered. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ M. Susan Wiley Administrative Appeals Judge 
+
+/s/ Susan S. Yim Administrative Appeals Judge 
+
+Date: August 12, 2009

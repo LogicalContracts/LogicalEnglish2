@@ -1,0 +1,70 @@
+NCD 20.4 Implantable Cardioverter Defibrillators (ICDs) (version 5, effective 2023-07-31 00:00:00)
+
+=== Item/Service Description ===
+A. General 
+ An implantable cardioverter defibrillator (ICD) is an electronic device designed to diagnose and treat life-threatening ventricular tachyarrhythmias.
+
+=== Indications and Limitations of Coverage ===
+B. Nationally Covered Indications 
+
+ Effective for services performed on or after February 15, 2018 CMS has determined that the evidence is sufficient to conclude that the use of ICDs, (also referred to as defibrillators) is reasonable and necessary: 
+
+ 
+ Patients with a personal history of sustained ventricular tachyarrhythmia (VT) or cardiac arrest due to ventricular fibrillation (VF). Patients must have demonstrated:
+ An episode of sustained VT, either spontaneous or induced by an electrophysiology (EP) study, not associated with an acute myocardial infarction (MI) and not due to a transient or reversible cause; or
+ An episode of cardiac arrest due to VF, not due to a transient or reversible cause. 
+ 
+ Patients with a prior MI and a measured left ventricular ejection fraction (LVEF) ≤ 0.30. Patients must not have:
+ New York Heart Association (NYHA) classification IV heart failure; or,
+ Had a coronary artery bypass graft (CABG), or percutaneous coronary intervention (PCI) with angioplasty and/or stenting, within the past 3 months; or,
+ Had an MI within the past 40 days; or,
+ Clinical symptoms and findings that would make them a candidate for coronary revascularization. 
+ 
+ For these patients identified in B2, a formal shared decision making encounter must occur between the patient and a physician (as defined in Section 1861(r)(1) of the Social Security Act (the Act))or qualified non-physician practitioner (meaning a physician assistant, nurse practitioner, or clinical nurse specialist as defined in §1861(aa)(5) of the Act) using an evidence-based decision tool on ICDs prior to initial ICD implantation. The shared decision making encounter may occur at a separate visit. 
+ 
+ Patients who have severe, ischemic, dilated cardiomyopathy but no personal history of sustained VT or cardiac arrest due to VF, and have NYHA Class II or III heart failure, LVEF ≤ 35%. Additionally, patients must not have:
+
+ Had a CABG, or PCI with angioplasty and/or stenting, within the past 3 months; or,
+ Had an MI within the past 40 days; or,
+ Clinical symptoms and findings that would make them a candidate for coronary revascularization. 
+ 
+ For these patients identified in B3, a formal shared decision making encounter must occur between the patient and a physician (as defined in Section 1861(r)(1) of the Act) or qualified nonphysician practitioner (meaning a physician assistant, nurse practitioner, or clinical nurse specialist as defined in §1861(aa)(5) of the Act) using an evidence-based decision tool on ICDs prior to initial ICD implantation. The shared decision making encounter may occur at a separate visit. 
+ 
+ Patients who have severe, non-ischemic, dilated cardiomyopathy but no personal history of sustained VT or cardiac arrest due to VF, and have NYHA Class II or III heart failure, LVEF ≤ 35%, been on optimal medical therapy for at least 3 months. Additionally, patients must not have:
+
+ Had a CABG or PCI with angioplasty and/or stenting, within the past 3 months; or,
+ Had an MI within the past 40 days; or,
+ Clinical symptoms and findings that would make them a candidate for coronary revascularization. 
+ 
+ For these patients identified in B4, a formal shared decision making encounter must occur between the patient and a physician (as defined in Section 1861(r)(1) of the Act) or qualified nonphysician practitioner (meaning a physician assistant, nurse practitioner, or clinical nurse specialist as defined in §1861(aa)(5) of the Act) using an evidence-based decision tool on ICDs prior to initial ICD implantation. The shared decision making encounter may occur at a separate visit. 
+ 
+ Patients with documented, familial or genetic disorders with a high risk of life-threatening tachyarrhythmias (sustained VT or VF), to include, but not limited to, long QT syndrome or hypertrophic cardiomyopathy. 
+ 
+ For these patients identified in B5, a formal shared decision making encounter must occur between the patient and a physician (as defined in Section 1861(r)(1) of the Act) or qualified nonphysician practitioner (meaning a physician assistant, nurse practitioner, or clinical nurse specialist as defined in §1861(aa)(5) of the Act) using an evidence-based decision tool on ICDs prior to initial ICD implantation. The shared decision making encounter may occur at a separate visit. 
+ 
+ Patients with an existing ICD may receive an ICD replacement if it is required due to the end of battery life, elective replacement indicator (ERI), or device/lead malfunction. 
+
+ For each of the 6 covered indications above, the following additional criteria must also be met: 
+ 
+ Patients must be clinically stable (e.g., not in shock, from any etiology); 
+ LVEF must be measured by echocardiography, radionuclide (nuclear medicine) imaging, cardiac magnetic resonance imaging (MRI), or catheter angiography; 
+ Patients must not have:
+ Significant, irreversible brain damage; or,
+ Any disease, other than cardiac disease (e.g., cancer, renal failure, liver failure) associated
+with a likelihood of survival less than 1 year; or,
+ Supraventricular tachycardia such as atrial fibrillation with a poorly controlled ventricular
+ rate. 
+ 
+ Exceptions to waiting periods for patients that have had a CABG, or PCI with angioplasty and/or stenting, within the past 3 months, or had an MI within the past 40 days: 
+ 
+ Cardiac Pacemakers: Patients who meet all CMS coverage requirements for cardiac pacemakers, and who meet the criteria in this national coverage determination for an ICD, may receive the combined devices in one procedure, at the time the pacemaker is clinically indicated; Replacement of ICDs: Patients with an existing ICD may receive an ICD replacement if it is required due to the end of battery life, ERI, or device/lead malfunction. 
+
+ C. Nationally Non-Covered Indications 
+ N/A 
+ D. Other 
+ For patients that are candidates for heart transplantation on the United Network for Organ Sharing (UNOS) transplant list awaiting a donor heart, coverage of ICDs, as with cardiac resynchronization therapy, as a bridge-to-transplant to prolong survival until a donor becomes available, is determined by the local Medicare Administrative Contractors (MACs). 
+ All other indications for ICDs not currently covered in accordance with this decision may be covered under Category B Investigational Device Exemption (IDE) trials (42 CFR 405.201). 
+ (This NCD last reviewed February 2018.)
+
+=== Other ===
+

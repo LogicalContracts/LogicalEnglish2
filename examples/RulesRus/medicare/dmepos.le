@@ -1,0 +1,354 @@
+% DMEPOS: the rules that every DME MAC policy shares, as a library for the
+% policy programs of this directory (pap.le, oxygen.le, pmd.le, ...). The
+% RulesRUs report, §2.1, is the plan; README.md the method and the results.
+%
+% Texts: the Standard Documentation Requirements article A55426 (the standard
+% written order, the written order prior to delivery, the face-to-face
+% encounter, proof of delivery, continued need and use, refills); 42 CFR
+% 410.38 (the conditions of payment those requirements come from, and the
+% place where DME may be used); the Medicare Benefit Policy Manual, Chapter
+% 15, §110.1 (what durable medical equipment is); the CMS Required Face-to-Face
+% Encounter and Written Order Prior to Delivery List and the Required Prior
+% Authorization List (which codes each applies to).
+%
+% How a claim is read. A claim is for one item (a device, an accessory, a
+% supply), coded with its HCPCS code, furnished to a beneficiary, on a date of
+% service, for a rental month (1, 2, 3, ... — absent for a purchase or a
+% one-off supply) or as a refill of a supply. The policy programs say when a
+% claim is REASONABLE AND NECESSARY (the coverage criteria of the LCD, Social
+% Security Act §1862(a)(1)(A)) — the question the appeal record decides. This
+% library says when a claim is PAYABLE: it is within the scope of a modelled
+% policy (applicability), the item is within a Medicare benefit category and
+% used in a home, it is reasonable and necessary (question), and the order,
+% face-to-face, delivery, prior-authorization, continued-need and refill
+% requirements are met (remedy). Nothing not stated is met: the facts of a
+% claim are what its documentation shows, each with its source.
+%
+% Every rule cites the passage it encodes; the documents say where they are
+% published and where their text is (sources/). Rules that are this model's
+% own devices have no provenance and say so in a comment. Six months is read
+% as 183 days and twelve months as 365 days, LE having day arithmetic only.
+
+the target language is: prolog.
+
+the templates are:
+    % the claim and the item
+    *a claim* is for *an item*; undefined.
+    the HCPCS code of *an item* is *a code*; undefined.
+    *an item* is furnished to *a beneficiary*; undefined.
+    the date of service of *a claim* is *a date*; undefined.
+    the rental month of *a claim* is *a number*; undefined.
+    *a claim* is a refill; undefined.
+    *a claim* was submitted on *a date*; undefined.
+    the quantity billed on *a claim* is *a number*; undefined.
+    *a claim* is for a supply of *a number* months; undefined.
+    *an item* is an accessory of *a device*; undefined.
+    % the record of the order, the encounter and the delivery
+    the order for *an item* is dated *a date*; undefined.
+    the order for *an item* is signed by the treating practitioner; undefined.
+    the order for *an item* includes *an element*; undefined.
+    the order for *an item* was communicated to the supplier on *a date*; undefined.
+    the treating practitioner examined *a beneficiary* for *an item* in a face-to-face encounter on *a date*; undefined.
+    *an item* was delivered on *a date*; undefined.
+    the supplier holds proof of delivery for *an item*; undefined.
+    prior authorization for *an item* was affirmed; undefined.
+    the medical record documents continued need for *an item* on *a date*; undefined.
+    the record documents continued use of *an item* on *a date*; undefined.
+    the current supply of *an item* is expected to end on *a date*; undefined.
+    the beneficiary affirmed the need for the refill of *an item* on *a date*; undefined.
+    % where the beneficiary lives, and what the item is
+    the residence of *a beneficiary* is *a place*; undefined.
+    *an item* can withstand repeated use; undefined.
+    *an item* is primarily and customarily used to serve a medical purpose; undefined.
+    *an item* is generally not useful to a person in the absence of illness or injury; undefined.
+    *an item* is appropriate for use in the home; undefined.
+    % derived
+    *a claim* is within the scope of the model.
+    the policy of *a claim* is *a policy*.
+    the policy for code *a code* is *a policy*.
+    the benefit category of code *a code* is *a category*.
+    *an item* is within a Medicare benefit category.
+    *an item* is durable medical equipment.
+    *a place* qualifies as a home.
+    *a place* is excluded from being a home.
+    *a claim* is reasonable and necessary.
+    *a claim* is payable.
+    the order requirements are met for *an item*.
+    the order for *an item* is a complete standard written order.
+    *an element* is a required element of a standard written order.
+    the timing requirements of the order for *an item* are met.
+    the face-to-face requirement is met for *an item*.
+    *a code* is on the required face-to-face and written order prior to delivery list.
+    *a code* is on the required prior authorization list.
+    the delivery requirements are met for *a claim*.
+    the prior authorization requirement is met for *an item*.
+    the continued need requirements are met for *a claim*.
+    *a claim* is an ongoing claim.
+    the refill requirements are met for *a claim*.
+
+the knowledge base dmepos includes:
+
+% The cited documents: where they are published, and a copy of their text.
+Standard Documentation Requirements Article A55426 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=55426".
+the text of Standard Documentation Requirements Article A55426 is at "sources/article/A55426.txt".
+42 CFR section 410 38 is published at "https://www.ecfr.gov/current/title-42/chapter-IV/subchapter-B/part-410/subpart-B/section-410.38".
+the text of 42 CFR section 410 38 is at "sources/cfr/42_CFR_410.38.txt".
+Medicare Benefit Policy Manual Chapter 15 is published at "https://www.cms.gov/regulations-and-guidance/guidance/manuals/downloads/bp102c15.pdf".
+the text of Medicare Benefit Policy Manual Chapter 15 is at "sources/manuals/BPM_100-02_ch15.txt".
+the CMS required face-to-face and WOPD list is published at "https://www.cms.gov/files/document/required-face-face-encounter-written-order-prior-delivery-list.pdf".
+the text of the CMS required face-to-face and WOPD list is at "sources/cfr/CMS_required_f2f_wopd_list_2026-04-13.txt".
+the CMS required prior authorization list is published at "https://www.cms.gov/research-statistics-data-and-systems/monitoring-programs/medicare-ffs-compliance-programs/dmepos/downloads/dmepos_pa_required-prior-authorization-list.pdf".
+the text of the CMS required prior authorization list is at "sources/cfr/CMS_required_prior_authorization_list_2026-07-29.txt".
+
+% What durable medical equipment is (the Manual's definition), for an item
+% whose code no policy places in a benefit.
+rule dme_definition with provenance Medicare Benefit Policy Manual Chapter 15,
+        confer "Can withstand repeated use":
+an item is durable medical equipment
+    if the item can withstand repeated use
+    and the item is primarily and customarily used to serve a medical purpose
+    and the item is generally not useful to a person in the absence of illness or injury
+    and the item is appropriate for use in the home.
+
+section applicability is:
+
+% A claim the model can decide: its item's code belongs to a policy this
+% directory models (each policy program lists its codes). A device of this
+% model.
+rule scope:
+a claim is within the scope of the model
+    if the policy of the claim is a policy.
+
+rule claim_policy:
+the policy of a claim is a policy
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the policy for code the code is the policy.
+
+% The benefit category: the item is of a kind the policy places in a benefit
+% (the policy programs say so, code by code), or it is durable medical
+% equipment by the Manual's definition; and it is used in the home.
+rule benefit_category_by_code with provenance 42 CFR section 410 38,
+        confer "Medicare Part B pays for durable medical equipment, including ventilators, oxygen equipment, hospital beds, and wheelchairs, if the equipment is used in the patient's home or in an institution that is used as a home":
+an item is within a Medicare benefit category
+    if the HCPCS code of the item is a code
+    and the benefit category of code the code is a category
+    and the item is furnished to a beneficiary
+    and the residence of the beneficiary is a place
+    and the place qualifies as a home.
+
+rule benefit_category_by_definition with provenance 42 CFR section 410 38,
+        confer "Medicare Part B pays for durable medical equipment, including ventilators, oxygen equipment, hospital beds, and wheelchairs, if the equipment is used in the patient's home or in an institution that is used as a home":
+an item is within a Medicare benefit category
+    if the item is durable medical equipment
+    and the item is furnished to a beneficiary
+    and the residence of the beneficiary is a place
+    and the place qualifies as a home.
+
+rule home with provenance 42 CFR section 410 38,
+        confer "An institution that is used as a home may not be a hospital or a CAH or a SNF":
+a place qualifies as a home
+    if it is not the case that
+        the place is excluded from being a home.
+
+hospital is excluded from being a home,
+    as stated in 42 CFR section 410 38, confer "An institution that is used as a home may not be a hospital or a CAH or a SNF".
+critical access hospital is excluded from being a home,
+    as stated in 42 CFR section 410 38, confer "An institution that is used as a home may not be a hospital or a CAH or a SNF".
+skilled nursing facility is excluded from being a home,
+    as stated in 42 CFR section 410 38, confer "An institution that is used as a home may not be a hospital or a CAH or a SNF".
+
+section remedy is:
+
+% Payment: the coverage question answered, and the conditions of payment met.
+rule payable with provenance Standard Documentation Requirements Article A55426,
+        confer "In the event of a claim review, a DMEPOS supplier must provide sufficient information to demonstrate that the applicable criteria have been met thus justifying payment":
+a claim is payable
+    if the claim is within the scope of the model
+    and the claim is for an item
+    and the item is within a Medicare benefit category
+    and the claim is reasonable and necessary
+    and the order requirements are met for the item
+    and the delivery requirements are met for the claim
+    and the prior authorization requirement is met for the item
+    and the continued need requirements are met for the claim
+    and the refill requirements are met for the claim.
+
+% ---------------------------------------------------------------------------
+% The order: a standard written order, its timing, the face-to-face encounter.
+% ---------------------------------------------------------------------------
+
+rule order_requirements with provenance Standard Documentation Requirements Article A55426,
+        confer "All claims for items billed to Medicare require a written order/prescription from the treating practitioner as a condition for payment":
+the order requirements are met for an item
+    if the order for the item is a complete standard written order
+    and the timing requirements of the order for the item are met
+    and the face-to-face requirement is met for the item.
+
+rule swo_elements with provenance Standard Documentation Requirements Article A55426,
+        confer "A SWO must contain all of the following elements":
+the order for an item is a complete standard written order
+    if the order for the item is dated a date
+    and the order for the item is signed by the treating practitioner
+    and for all cases in which
+            an element is a required element of a standard written order
+        it is the case that
+            the order for the item includes the element.
+
+beneficiary name is a required element of a standard written order,
+    as stated in Standard Documentation Requirements Article A55426, confer "Beneficiary's name or Medicare Beneficiary Identifier (MBI)".
+order date is a required element of a standard written order,
+    as stated in Standard Documentation Requirements Article A55426, confer "Order Date".
+description of the item is a required element of a standard written order,
+    as stated in Standard Documentation Requirements Article A55426, confer "General description of the item".
+quantity to be dispensed is a required element of a standard written order,
+    as stated in Standard Documentation Requirements Article A55426, confer "Quantity to be dispensed, if applicable".
+treating practitioner name is a required element of a standard written order,
+    as stated in Standard Documentation Requirements Article A55426, confer "Treating Practitioner Name or NPI".
+
+% Timing: an item on the Required List needs the order before delivery; any
+% other item before the claim is submitted — which is certainly so when the
+% order reached the supplier by the date of service.
+rule wopd with provenance 42 CFR section 410 38,
+        confer "For PMDs and other DMEPOS items selected for inclusion on the Required Face-to-Face Encounter and Written Order Prior to Delivery List, the written order/prescription must be communicated to the supplier prior to delivery":
+the timing requirements of the order for an item are met
+    if the HCPCS code of the item is a code
+    and the code is on the required face-to-face and written order prior to delivery list
+    and the order for the item was communicated to the supplier on a date
+    and the item was delivered on an other date
+    and the date is before or equal to the other date.
+
+rule swo_before_submission with provenance 42 CFR section 410 38,
+        confer "For all other DMEPOS, the written order/prescription must be communicated to the supplier prior to claim submission":
+the timing requirements of the order for an item are met
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is on the required face-to-face and written order prior to delivery list
+    and the order for the item was communicated to the supplier on a date
+    and a claim is for the item
+    and the claim was submitted on an other date
+    and the date is before or equal to the other date.
+
+rule swo_before_service with provenance 42 CFR section 410 38,
+        confer "For all other DMEPOS, the written order/prescription must be communicated to the supplier prior to claim submission":
+the timing requirements of the order for an item are met
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is on the required face-to-face and written order prior to delivery list
+    and the order for the item was communicated to the supplier on a date
+    and a claim is for the item
+    and the date of service of the claim is an other date
+    and the date is before or equal to the other date.
+
+rule face_to_face with provenance 42 CFR section 410 38,
+        confer "the treating practitioner must document and communicate to the DMEPOS supplier that the treating practitioner has had a face-to-face encounter with the beneficiary within the 6 months preceding the date of the written order/prescription":
+the face-to-face requirement is met for an item
+    if the HCPCS code of the item is a code
+    and the code is on the required face-to-face and written order prior to delivery list
+    and the item is furnished to a beneficiary
+    and the order for the item is dated a date
+    and the treating practitioner examined the beneficiary for the item in a face-to-face encounter on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 183.
+
+rule face_to_face_not_required with provenance 42 CFR section 410 38,
+        confer "Items Requiring a Face-to-Face Encounter":
+the face-to-face requirement is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is on the required face-to-face and written order prior to delivery list.
+
+% The Required Face-to-Face Encounter and Written Order Prior to Delivery
+% List (42 CFR 410.38(c)(8)), edition effective 13 April 2026 with the oxygen
+% codes, as published for 28 October 2026: manual wheelchairs, oxygen, power
+% mobility devices, ventilators, osteogenesis stimulators, TENS, hospital
+% beds, support surfaces, orthoses.
+a code is on the required face-to-face and written order prior to delivery list
+    if the code is in ["K0002", "K0003", "K0004", "K0005", "K0006", "K0007", "K0738", "E0194", "E0290", "E0301", "E0304", "E0424", "E0431", "E0433", "E0434", "E0439", "E1390", "E1391", "E1392", "E0466", "E0467", "E0468", "E0747", "E0748", "E0760", "E1161", "K0800", "K0801", "K0802", "K0806", "K0807", "K0808", "K0813", "K0814", "K0815", "K0816", "K0820", "K0821", "K0822", "K0823", "K0824", "K0825", "K0826", "K0827", "K0828", "K0829", "K0831", "K0835", "K0836", "K0837", "K0838", "K0839", "K0840", "K0841", "K0842", "K0843", "K0848", "K0849", "K0850", "K0851", "K0852", "K0853", "K0854", "K0855", "K0856", "K0857", "K0858", "K0859", "K0860", "K0861", "K0862", "K0863", "K0864", "L0456", "L0457", "L0486", "L0631", "L0635", "L0636", "L0637", "L0638", "L0639", "L0640", "L0648", "L0650", "L0651", "L1832", "L1833", "L1843", "L1845", "L1851", "L1852", "L1906", "L1932", "L1933", "L1940", "L1951", "L1952", "L1960", "L1970", "L2005", "L2036", "L3761", "L3916", "L3960"].
+
+% The Required Prior Authorization List (42 CFR 414.234(c)(1)), updated 29
+% July 2026: power mobility devices, support surfaces, lower limb prostheses,
+% orthoses, pneumatic compression devices, the ultralightweight wheelchair.
+a code is on the required prior authorization list
+    if the code is in ["E0193", "E0194", "E0277", "E0371", "E0372", "E0373", "E0651", "E0652", "K0005", "K0800", "K0801", "K0802", "K0806", "K0807", "K0808", "K0813", "K0814", "K0815", "K0816", "K0820", "K0821", "K0822", "K0823", "K0824", "K0825", "K0826", "K0827", "K0828", "K0829", "K0835", "K0836", "K0837", "K0838", "K0839", "K0840", "K0841", "K0842", "K0843", "K0848", "K0849", "K0850", "K0851", "K0852", "K0853", "K0854", "K0855", "K0856", "K0857", "K0858", "K0859", "K0860", "K0861", "K0862", "K0863", "K0864", "L0456", "L0457", "L0486", "L0631", "L0637", "L0639", "L0648", "L0650", "L0651", "L1832", "L1833", "L1843", "L1844", "L1845", "L1846", "L1851", "L1852", "L1932", "L1951", "L3761", "L3916", "L5856", "L5857", "L5858", "L5973", "L5980", "L5987"].
+
+% ---------------------------------------------------------------------------
+% Delivery, prior authorization, continued need and use, refills.
+% ---------------------------------------------------------------------------
+
+rule proof_of_delivery with provenance Standard Documentation Requirements Article A55426,
+        confer "All services that do not have appropriate POD from the supplier will be denied and overpayments will be requested":
+the delivery requirements are met for a claim
+    if the claim is for an item
+    and the item was delivered on a date
+    and the supplier holds proof of delivery for the item.
+
+rule prior_authorization with provenance the CMS required prior authorization list,
+        confer "REQUIRED PRIOR AUTHORIZATION LIST As defined in 42 CFR 414.234(c)(1)":
+the prior authorization requirement is met for an item
+    if the HCPCS code of the item is a code
+    and the code is on the required prior authorization list
+    and prior authorization for the item was affirmed.
+
+rule prior_authorization_not_required with provenance the CMS required prior authorization list,
+        confer "REQUIRED PRIOR AUTHORIZATION LIST As defined in 42 CFR 414.234(c)(1)":
+the prior authorization requirement is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is on the required prior authorization list.
+
+% An ongoing claim — a rental month after the first, or a refill of supplies —
+% needs timely documentation of continued need and of continued use: a record
+% in the preceding twelve months.
+rule ongoing_rental:
+a claim is an ongoing claim
+    if the rental month of the claim is a number
+    and the number > 1.
+
+rule ongoing_refill:
+a claim is an ongoing claim
+    if the claim is a refill.
+
+rule continued_need with provenance Standard Documentation Requirements Article A55426,
+        confer "For ongoing supplies and rented DME items, in addition to information described above that justifies the initial provision of the item(s) and/or supplies, there must be information in the beneficiary’s medical record to support that the item continues to remain reasonable and necessary":
+the continued need requirements are met for a claim
+    if the claim is an ongoing claim
+    and the claim is for an item
+    and the date of service of the claim is a date
+    and the medical record documents continued need for the item on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 365
+    and the record documents continued use of the item on a third date
+    and the date is a second number days after the third date
+    and the second number >= 0
+    and the second number <= 365.
+
+rule initial_claim_need with provenance Standard Documentation Requirements Article A55426,
+        confer "For all DMEPOS items, the initial justification for medical need is established at the time the item(s) is first ordered":
+the continued need requirements are met for a claim
+    if the claim is for an item
+    and it is not the case that
+        the claim is an ongoing claim.
+
+rule refill with provenance 42 CFR section 410 38,
+        confer "Contact and affirmative response must be within 30 calendar days from the expected end of the current supply":
+the refill requirements are met for a claim
+    if the claim is a refill
+    and the claim is for an item
+    and the current supply of the item is expected to end on a date
+    and the beneficiary affirmed the need for the refill of the item on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 30
+    and the date of service of the claim is a third date
+    and the date is a second number days after the third date
+    and the second number <= 10.
+
+rule not_a_refill with provenance 42 CFR section 410 38,
+        confer "Refills mean DMEPOS products that are provided on a recurring basis secondary to a medically necessary DMEPOS order":
+the refill requirements are met for a claim
+    if the claim is for an item
+    and it is not the case that
+        the claim is a refill.

@@ -1,0 +1,60 @@
+Title: 2010.10.21 M-2010-211 In the Case of Dynamic Rehabilitation Services
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/dynamic_rehab_svs.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:54 GMT
+
+Number of Pages: 5
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-10-211 
+
+In the case of 
+
+Dynamic Rehabilitation Services (Appellant) 
+
+**** 
+
+(Beneficiaries) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** 
+
+(HIC Numbers) 
+
+1-479097255 
+
+(ALJ Appeal Number) 
+
+CIGNA (Contractor) 
+
+Under the single ALJ Appeal number identified above, the dministrative Law Judge (ALJ) issued nine substantively dentical decisions partially favorable to the appellant, and ne unfavorable to the appellant, each dated October 21, 2009. he ALJ’s decisions concerned the appellant’s claims for edicare coverage of pneumatic compression devices (HCPCS code 0652) provided to nine beneficiaries between January 20, 2009, nd March 9, 2009. The ALJ determined that the evidence in the ecord failed to demonstrate that the claims at issue qualified or the level of Medicare reimbursement claimed by the ppellant. The ALJ also found the appellant liable for the non-overed costs of each claim. The appellant has asked the edicare Appeals Council to review these actions. The ppellant’s requests for review of each decision, also ubstantively identical, have been entered into the record as xhibit (Exh.) MAC-1 in each case. he Council reviews the ALJ’s decision de novo . 42 C.F.R. 405.1108(a). The Council will limit its review of the ALJ’s ction to the exceptions raised by the party in the request for eview, unless the appellant is an unrepresented beneficiary. 2 C.F.R. § 405.1112(c). 
+
+AioTMEarfacMasE
+
+T§ar42
+
+The Council has considered the record, including the appellant’s exceptions, and finds no basis for changing the ALJ’s decisions. 
+
+DISCUSSION 
+
+Each beneficiary had a primary diagnosis of lymphedema. Their physicians each prescribed a “segmental pneumatic compressor with calibrated pressure gradient pressure.” The accompanying Certificates of Medical Necessity explained that each beneficiary would require the pneumatic compressor for life. A sales representative of the appellant presented at each beneficiary’s home and performed a brief (less than one hour each) trial of two compression pumps. The sales representative first tested what the ALJ characterized as a “lower-end” model. 1If that model did not work, the representative would then test the model at issue, identified by HCPCS 2 code E0652, a pneumatic compressor segmental home model with calibrated gradient pressure. In each of these cases, the appellant’s sales representative(s) noted that the beneficiary could not tolerate the device due to specific pain. The beneficiaries were then placed on treatments which they could tolerate. See Dec. at 2 (Claim File for Beneficiary E.A.). The appellant submitted claims for Medicare coverage of the E0652 which, except for the claim in the case of Beneficiary J.H. discussed below, were downcoded, initially and upon redetermination by the contractor. Relying upon Local Coverage Determination (LCD) L5017 (Pneumatic Compression Devices) the contractor determined that full payment for the E0652 would be made only where “there is documentation that the individual has unique characteristics” that precluded treatment using the devices identified by HCPCS code E0651. The contractor provided coverage at the lower rate of reimbursement applicable to claims billed under HCPCS code E0651. See, e.g., Exh. 1 at 15 (Claim File for Beneficiary E.A.). 1 Identified as HCPCS code E0650 or E0651 (pneumatic compressor, non-segmental home model). 2 The Centers for Medicare & Medicaid Services (CMS) developed the Healthcare Common Procedure Coding System (HCPCS) to establish “uniform national definitions of services, codes to represent services, and payment modifiers to the codes.” 42 C.F.R. § 414.40(a). 3
+
+The appellant requested reconsideration by a Qualified 
+
+Independent Contractor (QIC). Like the contractor, the QIC found no documentation in the record demonstrating that the beneficiaries had “unique characteristics” that precluded treatment using the devices identified by HCPCS code E0651. See id . at 23. The appellant requested a hearing before an ALJ. On October 6, 2009, the ALJ conducted a hearing by telephone, at which a representative of the appellant appeared and testified. Before the ALJ, the appellant argued that there was no acceptable documentation that satisfied the testing requirements envisioned by the LCD. The appellant asserted that its documentation was “more than sufficient to establish medical necessity for the E0652 device” and that the beneficiaries tried “and could not tolerate the non-segmented E0651 model.” Dec. at 7 (Beneficiary E.A.). Denying coverage as claimed, the ALJ found that there were “insufficient medical records” supporting the prescribing physicians’ opinions concerning medical necessity for the E0652. The ALJ reasoned that “general documentation of pain/pressure” did not establish the “unique” characteristic required by the LCD for coverage of the E0652. Further, the ALJ noted that the appellant’s sales representative(s) had performed the preliminary home testing, documented the beneficiaries’ responses and results. 3 Referencing the LCD, the ALJ noted that, “questions pertaining to medical necessity on any form used to gather information may not be completed by the supplier or anyone in a financial relationship with the supplier.” In each case, the ALJ found the appellant liable for the costs of the claims not covered by Medicare. Id . at 7-8. In its requests for review, the appellant argues that the ALJ erred in finding “that the home trial of the E0651 or E0650 device was done by an employee of ours and the document provided to the physician was used to establish medical necessity.” The appellant asserts that the prescribing physicians ordered the beneficiaries “to receive E0652 knowing full well that [it was] the appropriate equipment for [the beneficiary] given [his/her] condition.” The appellant also contends that the ALJ’s 3 Before the ALJ, the appellant’s witness testified that the sales representative(s) provided the testing information to the physician who ordered the test and that the physician then completed a three-page form found and identified in the record by the heading “Gradient Sequential Pneumatic Compression Pump Required Documentation to Support Coverage.” ALJ Hearing CD (October 6, 2009). 4
+
+statement regarding complaints of pain would be “common” in patients with lymphedema, is “totally false” and evidences a lack of understanding of the “science and medicine of the disease.” Exh. MAC-1 at 1. The appellant has provided no basis for changing the ALJ decision. LCD L5017 sets out specific coverage criteria for claims filed under HCPCS code E0652. Further, the LCD precludes a supplier or an individual with a financial relationship with the supplier from completing the medical necessity forms. The appellant’s witness testified that while the physician signed the form used to document medical necessity, the pertinent information was gathered by a sales representative in the appellant’s employment. Thus, the appellant’s representative supplied the information and effectively filled out the form. The appellant’s mere assertion that each physician knew “full well” that the E0652 was “appropriate” for a specific beneficiary is not adequate “documentation” for Medicare coverage. The appellant’s arguments otherwise do not address the underlying basis for the down-coding of the claims before the Council, that is, that the records do not contain documentation sufficient to support findings of coverage for the E0652. While not bound by a LCD, an ALJ (as well as the Council) must give an applicable LCD substantial deference. 42 C.F.R. § 405.1062(a). The ALJ’s review of the records, in the context of the LCD, supported a conclusion that the appellant’s claims did not satisfy the documentary or coverage criteria. In the case of Beneficiary J.H., the ALJ, like the contractor and the QIC, did not allow coverage for the E0652 or the E0651. Dec. at 10-11. Before the Council, the appellant asserts that physical therapy would have been used in conjunction with the pump, and, while physical therapy is only available one to two times per week, the pump is needed one to two times per day for the rest of the patient’s life. Exh. MAC-1 (Beneficiary J.H.). As in the other requests for review, the appellant asserts that the prescribing physician ordered the beneficiary “to receive E0652 knowing full well that [it was] the appropriate equipment for this [beneficiary] given [his] condition.” Id . As discussed above, the appellant’s mere assertion that each physician knew “full well” that the E0652 was “appropriate” for the beneficiary, is not adequate “documentation” for Medicare coverage. 5
+
+The Council agrees with the ALJ’s assessment of the evidence in the case of Beneficiary J.H. Specifically, the Council agrees that the record only contains the initial physical therapy evaluation performed on February 9, 2009. Exh. 2 at 38-39. Although the appellant contends that the physical therapist requesting an E0652 at the time of the initial evaluation, prior to starting therapy, was to be expected as the physical therapy would have been used in conjunction with the pump, this is contrary to the requirements set forth in the LCD. As noted by the LCD, Pneumatic compression devices are covered in the home setting for the treatment of lymphedema if the patient has undergone a four-week trial of conservative therapy and the treating physician determines that there has been no significant improvement or if significant symptoms remain after the trial. The trial of conservative therapy must include use of an appropriate compression bandage system or compression garment, exercise, and elevation of the limb. The garment may be prefabricated or custom-fabricated but must provide adequate graduated compression. LCD L5017. In this case, the record is devoid of any evidence of a four-week trial of conservative therapy; an initial physical therapy evaluation is insufficient documentation to support the beneficiary’s progress with conservative therapy. 
+
+See Dec. at 10; 42 C.F.R. § 405.1062(a). In each of the cases at issue, the appellant has raised no contentions with respect to the liability of the parties; therefore, the Council has not considered this issue. See 42 C.F.R. §§ 405.1112(b); 405.1112(c). Accordingly, the Council adopts the ALJ’s decisions. MEDICARE APPEALS COUNCIL /s/ Susan S. Yim Administrative Appeals Judge Date: October 21, 2010

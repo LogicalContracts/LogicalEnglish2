@@ -1,0 +1,76 @@
+Title: In the Case of J.D.K.
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/jdk.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:54 GMT
+
+Number of Pages: 5
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-10-579 
+
+In the case of 
+
+J.D.K. 
+
+(Appellant) **** (Beneficiary) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** (HIC Number) **** 
+
+(ALJ Appeal Number) 
+
+DME MAC, Jurisdiction C (CIGNA Government Services) (Contractor) 
+
+The Administrative Law Judge (ALJ) issued a decision dated January 5, 2010, which denied Medicare Part B coverage for a Vitrectomy Solutions DayTimer positioning system. The beneficiary rented the positioning system for two consecutive weeks following eye surgery, beginning on November 6, 2008, at a total billed amount of $260. The ALJ determined Medicare would not cover or pay for the positioning system because it was incorrectly billed as a positioning cushion (billing code E0190) when it was, in fact, more of a chair, and that the ALJ had no ability to change a previously-billed code. The ALJ found the supplier financially responsible for the non-covered equipment. The appellant has asked the Medicare Appeals Council (Council) to review this action. 
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). The appellant’s request for review, dated January 16, 2010 and received by the Council on January 25, 2010, with attachments, has been admitted to the record as Exhibit (Exh.) MAC-1. 2
+
+As set forth below, the Council reverses the ALJ’s decision. 
+
+DISCUSSION 
+
+The beneficiary received surgery on November 4, 2008 to treat a macular hole related to macular degeneration (ICD-9 diagnostic code 362.54.) Following surgery, the appellant’s physician, Dr. S***, issued a Certificate of Medical Necessity (CMN) for a face-down support system for a period of two weeks “[t]o ensure complete compliance and correct positioning of gas bubble during initial recovery time. Patient must maintain face down position 45 minutes every hour and sleep face-down.” Exh. 2, at 1. The beneficiary ordered and received, for a rental period of two weeks beginning on November 6, 2008, the Vitrectomy Solutions DayTimer positioning system at issue in this case. Adescription and photographs of that system, which appears to be a seated positioning system with a specially-designed face-down support for the head, was attached to the Request for Review (and was previously provided to the ALJ). Exh. MAC-1. 
+
+The beneficiary (rather than the supplier, Vitrectomy Solutions) filed a claim, dated December 2, 2008, for medical payment with the durable medical equipment (DME) jurisdictional contractor. The beneficiary attached a copy of the CMN issued by the treating physician. On January 29, 2009, the contractor denied coverage on the claim in an initial determination. Exh. 1, at 12. The Medicare Summary Notice (initial determination) noted that the claim was submitted by the beneficiary on an “Unassigned” basis, and concluded that the positioning system “is not covered because its primary use is not for a medical purpose.” The notice also stated – 
+
+Medicare will process your first claim only. In the future, you must use a Medicare enrolled supplier and provide the supplier identification number on your claim. . . .Your provider must complete and submit your claim. Id. 
+
+The beneficiary requested a redetermination from the contractor. The redetermination denied coverage, noting that the item was a “positioning cushion (E0190)”, and found that a positioning cushion is not covered because it is not DME. Exh. 1, at 7. On reconsideration, the Qualified Independent Contractor (QIC), RiverTrust Solutions, Inc., denied coverage on the grounds that 3
+
+“the claim for payment ... was filed with the code E0190,” the code assigned for a positioning cushion. While acknowledging that the equipment, based on the photographs, was “not a cushion but a chair,” the QIC found that it was unable to change a billed code on a claim and thus the claim would remain denied. Exh. 1, at 3. Following a hearing, the ALJ also denied coverage, finding that the claim was mis-billed as a positioning cushion and that the ALJ was unable to change the billed code. The ALJ found that the supplier was financially liable for the non-covered equipment based on its failure to issue an advance beneficiary notice (ABN). 
+
+In his January 16, 2010 request for review, the beneficiary argues that the equipment he received was a positioning chair rather than a cushion, that the supplier had nothing to do with the Medicare claim that was filed, that Medicare rather than the supplier assigned the incorrect billing code, and that the supplier should not be held financially liable. 
+
+The Medicare Appeals Council has carefully considered the entire record and finds that the beneficiary’s points are well-taken, and thus require reversal of the non-coverage decisions below. First, there is no evidence that the supplier at any time filed a bill for the equipment at issue, took assignment on the claim, or in any other manner participated in the appeals process. The record contains only one billing claim, which was filed by the beneficiary. Exh. 1, at 16. The claim attaches a copy of the physician-signed CMN. Neither the claim form nor the CMN refers to any specific item or service (HCPCS or CPT) billing code for the equipment; the CMN merely references an ICD-9 diagnostic code for a macular hole (362.54). 
+
+In fact, the E0190-RR (positioning cushion, rental modifier) first appears on the Medicare Summary Notice (MSN), not on the submitted claim. The MSN acknowledges on its face that the claim is “unassigned,” that the supplier is “unknown,” and that in the future, a provider/supplier (rather than the beneficiary) must submit a durable medical equipment claim. Exh. 1, at 12. Thus, the Council finds that the contractor, not the supplier, appears to have assigned the incorrect billing code of E0190 to the item at issue. Moreover, because the claim was processed as “unassigned,” this case involves no application of the limitation on liability (e.g., shifting the assignment of financial liability to the supplier) under section 1879 of the Social Security Act, as found by the ALJ below. 4
+
+The Council notes that there is no National Coverage Determina-tion (NCD) addressing coverage of a positioning/seating system for use following eye surgery to keep the head in a face-down position and immobilized. See Medicare National Coverage Determination Manual (CMS Pub. 100-03), section 280.1, Durable Medical Equipment Reference List. However, section 280.1 states that when the contractor receives a claim for an item of equipment which does not fall logically into any of the generic categories of equipment listed, the contractor must decide whether that item is covered under the DME benefit, taking into account chapter 20 (the DMEPOS section) of the Medicare Claims Processing Manual (CMS Pub. 100-04), the status of the item’s approval by the FDA, and whether the item is reasonable and necessary for the individual patient. 
+
+For purposes of Medicare coverage, DME is defined as equipment which: 
+
+ Can withstand repeated use, i.e., could normally be rented and used by successive patients; 
+
+ Is primarily and customarily used to serve a medical purpose; 
+
+ Generally is not useful to a person in the absence of illness or injury; and 
+
+ Is appropriate for use in the patient’s home. 
+
+While both the MSN and the ALJ found that the positioning system at issue was not covered DME because it was not primarily used to serve a medical purpose, neither determination explained the rationale for such conclusion. In any event, the Council disagrees. The Council finds that the positioning system was rented for only a brief, two-week period of time during the beneficiary’s initial recovery period for the purpose of immobilizing his head in a face-down position so that the “gas bubble” behind his eye would not be dislodged. This is a medical purpose, and the Council agrees with the beneficiary that this item would not generally be used in the absence of illness or injury. The item was, in fact, rented, and could be used by successive patients, and was certainly appropriate for use in the patient’s home. Thus, the Council finds that the equipment at issue met Medicare’s definition of DME and was medically reasonable and necessary for the beneficiary for the two weeks in which it was rented. 5
+
+DECISION 
+
+It is the decision of the Medicare Appeals Council that the Vitrectomy Solutions DayTimer positioning system, rented by the beneficiary following eye surgery for a two-week period beginning November 6, 2008, is covered by Medicare. Upon implementation, the contractor is directed to change the billing code from that of a positioning cushion (E0190) to the appropriate descriptive or miscellaneous billing code and to pay for the device (minus the beneficiary’s copayment, if applicable) based on that level. 
+
+MEDICARE APPEALS COUNCIL /s/ Gilde Morrisson Administrative Appeals Judge /s/ Susan S. Yim Administrative Appeals Judge 
+
+Date: August 20, 2010

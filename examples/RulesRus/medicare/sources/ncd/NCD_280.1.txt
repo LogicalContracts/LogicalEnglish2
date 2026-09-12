@@ -1,0 +1,693 @@
+NCD 280.1 Durable Medical Equipment Reference List (version 4, effective 2025-06-09 00:00:00)
+
+=== Item/Service Description ===
+The durable medical equipment (DME) list that follows is designed to facilitate the A/B MAC (HHH) and DME MACs processing of DME claims. This section is designed as a quick reference tool for determining the coverage status of certain pieces of DME and especially for those items commonly referred to by both brand and generic names. The information contained herein is applicable (where appropriate) to all DME national coverage determinations (NCDs) discussed in the DME portion of this manual. The list is organized into two columns. The first column lists alphabetically various generic categories of equipment on which NCDs have been made by the Centers for Medicare & Medicaid Services (CMS); the second column notes the coverage status. 
+ 
+ In the case of equipment categories that have been determined by CMS to be covered under the DME benefit, the list outlines the conditions of coverage that must be met if payment is to be allowed for the rental or purchase of the DME by a particular patient, or cross-refers to another section of the manual where the applicable coverage criteria are described in more detail. With respect to equipment categories that cannot be covered as DME, the list includes a brief
+explanation of why the equipment is not covered. This DME list will be updated periodically to reflect any additional NCDs that CMS may make with regard to other categories of equipment. 
+ 
+ When the A/B MAC (HHH) or DME MAC receives a claim for an item of equipment which does not appear to fall logically into any of the generic categories listed or has not been addressed in the processes outlined in regulations at 42 CFR §§414.114 and 414.240, the A/B MAC (HHH) or DME MAC has the authority and responsibility for deciding whether those items are covered under the DME benefit. 
+ 
+ These decisions must be made by each A/B MAC (HHH) and DME MAC based on the advice of its medical consultants, taking into account: 
+ The Medicare Claims Processing Manual, Chapter 20, “Durable Medical Equipment Prosthetics and Orthotics, and Supplies (DMEPOS).” 
+ Whether the item has been approved for marketing by the Food and Drug Administration (FDA) and is otherwise generally considered to be safe and effective for the purpose intended; and 
+ Whether the item is reasonable and necessary for the individual patient. 
+ 
+ The term DME is defined as equipment which, according to 42 CFR §414.202: 
+
+ Can withstand repeated use; i.e., could normally be rented and used by successive patients; 
+ Effective with respect to items classified as DME after January 1, 2012, has an expected life of at least 3 years; 
+ Is primarily and customarily used to serve a medical purpose; 
+ Generally, is not useful to a person in the absence of illness or injury; and, 
+ Is appropriate for use in a patient’s home.
+
+=== Indications and Limitations of Coverage ===
+Durable Medical Equipment Reference List 
+
+ 
+
+ 
+ 
+ 
+ Item 
+ Coverage 
+
+ 
+ Air Cleaners 
+ Deny - environmental control equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Air Conditioners 
+ Deny - environmental control equipment; not primarily medical in nature (§1861 (n) of the Act). 
+ 
+
+ 
+ Air-Fluidized Beds 
+ (See Air-Fluidized Beds, § 280.8 of the NCD Manual.) 
+ 
+
+ 
+ Alternating Pressure Pads, Mattresses and Lamb's Wool Pads 
+ Covered if patient has, or is highly susceptible to, decubitus ulcers and the patient’s physician specifies that he/she has specified that he will be supervising the course of treatment. 
+ 
+
+ 
+ Audible/Visible Signal/Pacemaker Monitors 
+ (See Self-Contained Pacemaker Monitors .) 
+ 
+
+ 
+ Augmentative Communication Devices 
+ (See Speech Generating Devices § 50.1 of this manual.) 
+ 
+
+ 
+ Bathtub Lifts 
+ Deny - convenience item; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Bathtub Seats 
+ Deny - comfort or convenience item; hygienic equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Bead Beds 
+ (See § 280.8 .) 
+ 
+
+ 
+ Bed Baths (home type) 
+ Deny - hygienic equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Bed Lifters (bed elevators ) 
+ Deny - not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Bedboards 
+ Deny - not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Bed Pans (autoclavable hospital type) 
+ Covered if patient is bed confined. 
+ 
+
+ 
+ Bed Side Rails 
+ (See Hospital Beds, § 280.7 of this manual.) 
+ 
+
+ 
+ Beds-Lounges (power or manual) 
+ Deny - not a hospital bed; comfort or convenience item; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Beds (Oscillating) 
+ Deny - institutional equipment; inappropriate for home use. 
+ 
+
+ 
+ Bidet Toilet Seats 
+ (See Toilet Seats .) 
+ 
+
+ 
+ Blood Glucose Analyzers (Reflectance Colorimeter) 
+ Deny - unsuitable for home use (see § 40.2 of this manual). 
+ 
+
+ 
+ Blood Glucose Monitors 
+ Covered if patient meets certain conditions (see § 40.2 of this manual). 
+ 
+
+ 
+ Braille Teaching Texts 
+ Deny - educational equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Canes 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Carafes 
+ Deny - convenience item; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Catheters 
+ Deny - nonreusable disposable supply (§1861(n) of the Act). (See The Medicare Claims Processing Manual , Chapter 20, DMEPOS). 
+ 
+
+ 
+ Commodes 
+ Covered if patient is confined to bed or room. 
+ 
+ NOTE : The term “room confined” means that the patient’s condition is such that leaving the room is medically contraindicated. The accessibility of bathroom facilities generally would not be a factor in this determination. However, confinement of a patient to a home in a case where there are no toilet facilities in the home may be equated to room confinement. Moreover, payment may also be made if a patient’s medical condition confines him to a floor of the home and there is no bathroom located on that floor. 
+ 
+
+ 
+ Communicators 
+ (See § 50.1 of this manual, Speech Generating Devices.) 
+ 
+
+ 
+ Continuous Passive Motion Devices 
+ Continuous passive motion devices are devices Covered for patients who have received a total knee replacement. To qualify for coverage, use of the device must commence within 2 days following surgery. In addition, coverage is limited to that portion of the 3-week period following surgery during which the device is used in the patient’s home. There is insufficient evidence to justify coverage of these devices for longer periods of time or for other applications. 
+ 
+
+ 
+ Continuous Positive Airway Pressure (CPAP) Devices 
+ (See § 240.4 of this manual.) 
+ 
+
+ 
+ Crutches 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see section 280.3 of this manual). 
+ 
+
+ 
+ Cushion Lift Power Seats 
+ (See Seat Lifts .) 
+ 
+
+ 
+ Dehumidifiers (room or central heating system type) 
+ Deny - environmental control equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Diathermy Machines (standard pulses wave types) 
+ Deny - inappropriate for home use (see § 150.5 of this manual). 
+ 
+
+ 
+ Digital Electronic Pacemaker Monitors 
+ (See Self-Contained Pacemaker Monitors .) 
+ 
+
+ 
+ Disposable Sheets and Bags 
+ Deny - non-reusable disposable supplies (§1861(n) of the Act). 
+ 
+
+ 
+ Elastic Stockings 
+ Deny - non-reusable supply; not rental-type items (§1861(n) of the Act). (See § 270.5 of this manual.) 
+ 
+
+ 
+ Electric Air Cleaners 
+ Deny - (See Air Cleaners .) (§1861(n) of the Act). 
+ 
+
+ 
+ Electric Hospital Beds 
+ (See Hospital Beds § 280.7 of this manual.) 
+ 
+
+ 
+ Electrical Stimulation for Wounds 
+ Deny - inappropriate for home use. (See § 270.1 of this manual.) 
+ 
+
+ 
+ Electrostatic Machines 
+ Deny - (See Air Cleaners and Air Conditioners .) (§1861(n) of the Act). 
+ 
+
+ 
+ Elevators 
+ Deny - convenience item; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Emesis Basins 
+ Deny - convenience item; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Esophageal Dilators 
+ Deny - physician instrument; inappropriate for patient use. 
+ 
+
+ 
+ Exercise Equipment 
+ Deny - not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Fabric Supports 
+ Deny - nonreusable supplies; not rental-type items (§1861(n) of the Act). 
+ 
+
+ 
+ Face Masks (oxygen) 
+ Covered if oxygen is covered. (See § 240.2 of this manual.) 
+ 
+
+ 
+ Face Masks (surgical) 
+ Deny - nonreusable disposable items (§1861(n) of the Act). 
+ 
+
+ 
+ Flow Meters 
+ (See Medical Oxygen Regulators .) (See § 240.2 of this manual.) 
+ 
+
+ 
+ Fluidic Breathing Assisters 
+ (See Intermittent Positive Pressure Breathing Machines .) 
+ 
+
+ 
+ Fomentation Devices 
+ (See Heating Pads .) 
+ 
+
+ 
+ Gel Flotation Pads and Mattresses 
+ (See Alternating Pressure Pads and Mattresses .) 
+ 
+
+ 
+ Grab Bars 
+ Deny - self-help device; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Heat and Massage Foam Cushion Pads 
+ Deny - not primarily medical in nature; personal comfort item (§1861(n) and 1862(a)(6) of the Act). 
+ 
+
+ 
+ Heating and Cooling Plants 
+ Deny - environmental control equipment not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Heating Pads 
+ Covered if MAC's medical staff determines patient’s medical condition is one for which the application of heat in the form of a heating pad is therapeutically effective. 
+ 
+
+ 
+ Heat Lamps 
+ Covered if MAC's medical staff determines patient’s medical condition is one for which the application of heat in the form of a heat lamp is therapeutically effective. 
+ 
+
+ 
+ Hospital Beds 
+ (See § 280.7 of this manual.) 
+ 
+
+ 
+ Hot Packs 
+ (See Heating Pads .) 
+ 
+
+ 
+ Humidifiers (oxygen) 
+ (See Oxygen Humidifiers .) 
+ 
+
+ 
+ Humidifiers (room or central heating system types) 
+ Deny - environmental control equipment; not medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Hydraulic Lifts 
+ (See Patient Lifts .) 
+ 
+
+ 
+ Incontinent Pads 
+ Deny - nonreusable supply; hygienic item (§1861(n) of the Act). 
+ 
+
+ 
+ Infusion Pumps 
+ For external and implantable pumps, see § 280.14 of this manual. If pump is used with an enteral or parenteral nutritional therapy system, see § 180.2 of this manual for special coverage rules. 
+ 
+
+ 
+ Injectors (hypodermic jet) 
+ Deny - not covered self-administered drug supply;pressure powered devices (§1861(s)(2)(A) of the Act) for injection of insulin. 
+ 
+
+ 
+ Intermittent Positive Pressure Breathing Machines 
+ Covered if patient’s ability to breathe is severely impaired. 
+ 
+
+ 
+ Iron Lungs 
+ (See Ventilators .) 
+ 
+
+ 
+ Irrigating Kits 
+ Deny - nonreusable supply; hygienic equipment (§1861(n) of the Act). 
+ 
+
+ 
+ Lamb's Wool Pads 
+ (See Alternating Pressure Pads, Mattresses, and Lamb's Wool Pads .) 
+ 
+
+ 
+ Leotards 
+ Deny - (See Pressure Leotards.) (§1861(n) of the Act). 
+ 
+
+ 
+ Lymphedema Pumps 
+ Covered (See Pneumatic Compression Devices, § 280.6 of this manual.) 
+ 
+
+ 
+ Massage Devices 
+ Deny - personal comfort items; not primarily medical in nature (§1861(n) and 1862(a)(6) of the Act). 
+ 
+
+ 
+ Mattresses 
+ Covered only where hospital bed is medically necessary. (Separate Charge for replacement mattress should not be allowed where hospital bed with mattress is rented.) (See § 280.7 of this manual.) 
+ 
+
+ 
+ Medical Oxygen Regulators 
+ Covered if patient’s ability to breathe is severely impaired. (See § 240.2 of this manual.) 
+ 
+
+ 
+ Mobile Geriatric Chairs 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). (See Rolling Chairs). 
+ 
+
+ 
+ Motorized Wheelchairs 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Muscle Stimulators 
+ Covered for certain conditions. (See §160.12 of this manual.) 
+ 
+
+ 
+ Nebulizers 
+ Covered if patient’s ability to breathe is severely impaired. 
+ 
+
+ 
+ Oscillating Beds 
+ Deny - institutional equipment - inappropriate for home use. 
+ 
+
+ 
+ Over-bed Tables 
+ Deny - convenience item; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Oxygen 
+ Covered if the oxygen has been prescribed for use in connection with medically necessary DME . (See § 240.2 of this manual.) 
+ 
+
+ 
+ Oxygen Humidifiers 
+ Covered if the oxygen has been prescribed for use in connection with medically necessary DME for purposes of moisturizing oxygen. (See § 240.2 of this manual.) 
+ 
+
+ 
+ Oxygen Regulators (Medical) 
+ (See Medical Oxygen Regulators .) 
+ 
+
+ 
+ Oxygen Tents 
+ (See § 240.2 of this manual.) 
+ 
+
+ 
+ Paraffin Bath Units (Portable) 
+ (See Portable Paraffin Bath Units .) 
+ 
+
+ 
+ Paraffin Bath Units (Standard) 
+ Deny - institutional equipment; inappropriate for home use. 
+ 
+
+ 
+ Parallel Bars 
+ Deny - support exercise equipment; primarily for institutional use; in the home setting other devices (e.g., walkers ) satisfy patient’s need. 
+ 
+
+ 
+ Patient Lifts 
+ Covered if A/B MAC (HHH) or DME MAC medical staff determines patient’s condition is such that periodic movement is necessary to effect improvement or to arrest/retard deterioration in condition. 
+ 
+
+ 
+ Percussors 
+ Covered for mobilizing respiratory tract secretions in patients with chronic obstructive lung disease, chronic bronchitis, or emphysema, when patient or operator of powered percussor receives appropriate training by a physician or therapist, and no one competent to administer manual therapy is available. 
+ 
+
+ 
+ Portable Oxygen Systems 
+ 1. Regulated Covered (adjustable Covered under conditions specified in a flow rate). Refer all claims to medical staff for this determination. 
+2. Preset Deny - (flow rate Deny - emergency, first-aid, or not adjustable) precautionary equipment; essentially not therapeutic in nature. 
+ 
+
+ 
+ Portable Paraffin Bath Units 
+ Covered when the patient has undergone a successful trial period of paraffin therapy ordered by a physician and the patient’s condition is expected to be relieved by long term use of this modality. 
+ 
+
+ 
+ Portable Room Heaters 
+ Deny - environmental control equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Portable Whirlpool Pumps 
+ Deny - not primarily medical in nature; personal comfort items (§§1861(n) and 1862(a)(6) of the Act). 
+ 
+
+ 
+ Postural Drainage Boards 
+ Covered if patient has a chronic pulmonary condition. 
+ 
+
+ 
+ Preset Portable Oxygen Units 
+ Deny - emergency, first-aid, or precautionary equipment; essentially not therapeutic in nature. 
+ 
+
+ 
+ Pressure Leotards 
+ Deny - non-reusable supply, not rental-type item (§1861(n) of the Act). 
+ 
+
+ 
+ Pulse Tachometers 
+ Deny - not reasonable or necessary for monitoring pulse of homebound patient with/without a cardiac pacemaker. 
+ 
+
+ 
+ Quad-Canes 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Raised Toilet Seats 
+ Deny - convenience item; hygienic equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Reflectance Colorimeters 
+ (See Blood Glucose Analyzers .) 
+ 
+
+ 
+ Respirators 
+ (See Ventilators .) 
+ 
+
+ 
+ Rolling Chairs 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of the NCD Manual). Coverage is limited to those roll-about chairs having casters of at least 5 inches in diameter and specifically designed to meet the needs of ill, injured, or otherwise impaired individuals. Coverage is denied for the wide range of chairs with smaller casters as are found in general use in homes, offices, and institutions for many purposes not related to the care/treatment of ill/injured persons. This type is not primarily medical in nature. (§1861(n) of the Act.) 
+ 
+
+ 
+ Safety Rollers 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Sauna Baths 
+ Deny - not primarily medical in nature; personal comfort items (§§1861(n) and 1862(a)(6) of the Act). 
+ 
+
+ 
+ Seat Elevation Equipment (power-operated) on Medicare Covered Power Wheelchairs 
+ DME on Medicare-covered power wheelchairs, and covered under conditions specified in §280.16 of this manual. 
+ 
+ 
+ 
+ Seat Lifts 
+ Covered under the conditions specified in § 280.4 of this manual. Refer all to medical staff for this determination. 
+ 
+
+ 
+ Self Contained Pacemaker Monitors 
+ Covered when prescribed by a physician for a patient with a cardiac pacemaker. (See §§ 20.8.1 and 280.2 of this manual.) 
+ 
+
+ 
+ Sitz Baths 
+ Covered if MAC's medical staff determines patient has an infection or injury of the perineal area and the item has been prescribed by the patient’s physician as a part of his planned regimen of treatment in the patient’s home. 
+ 
+
+ 
+ Spare Tanks of Oxygen 
+ Deny - convenience or precautionary supply. 
+ 
+
+ 
+ Speech Teaching Machines 
+ Deny - education equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Stairway Elevators 
+ Deny - (See Elevators .) (§1861(n) of the Act). 
+ 
+
+ 
+ Standing Tables 
+ Deny - convenience item; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Steam Packs 
+ These packs are Covered under the same conditions as heating pads. (See Heating Pads .) 
+ 
+
+ 
+ Suction Machines 
+ Covered if MAC's medical staff determines that the machine specified in the claim is medically required and appropriate for home use without technical or professional supervision. 
+ 
+
+ 
+ Support Hose 
+ Deny - (See Fabric Supports .) (§1861(n) of the Act). 
+ 
+
+ 
+ Surgical Leggings 
+ Deny - non-reusable supply; not rental-type item (§1861(n) of the Act). 
+ 
+
+ 
+ Telephone Alert Systems 
+ Deny - these are emergency communications systems and do not serve a diagnostic or therapeutic purpose. 
+ 
+
+ 
+ Toilet Seats 
+ Deny - not medical equipment (§1861(n) of the Act). 
+ 
+
+ 
+ Traction Equipment 
+ Covered if patient has orthopedic impairment requiring traction equipment that prevents ambulation during the period of use (Consider covering devices usable during ambulation; e.g., cervical traction collar, under the brace provision). 
+ 
+
+ 
+ Trapeze Bars 
+ Covered if patient is bed confined and the patient needs a trapeze bar to sit up because of respiratory condition, to change body position for other medical reasons, or to get in and out of bed. 
+ 
+
+ 
+ Treadmill 
+ Deny - exercise equipment; not primarily medical in nature (§1861(n) of the Act). 
+ 
+
+ 
+ Ultraviolet Cabinets 
+ Covered for selected patients with generalized intractable psoriasis. Using appropriate consultation, the MAC should determine whether medical and other factors justify treatment at home rather than at alternative sites, e.g., outpatient department of a hospital. 
+ 
+
+ 
+ Urinals autoclavable 
+ Covered if patient is bed confined (hospital type). 
+ 
+
+ 
+ Vaporizers 
+ Covered if patient has a respiratory illness. 
+ 
+
+ 
+ Ventilators 
+ Covered for treatment of neuromuscular diseases, thoracic restrictive diseases, and chronic respiratory failure consequent to chronic obstructive pulmonary disease (See § 240.9 of this manual.) . Includes both positive and negative pressure types. (See § 240.5 of this manual.) 
+ 
+
+ 
+ Walkers 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Water and Pressure Pads and Mattresses 
+ (See Alternating Pressure Pads, Mattresses and Lamb's Wool Pads .) 
+ 
+
+ 
+ Wheelchairs (manual) 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Wheelchairs (power operated) 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Wheelchairs (scooter/POV) 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Wheelchairs (specially-sized) 
+ Covered if patient meets Mobility Assistive Equipment clinical criteria (see § 280.3 of this manual). 
+ 
+
+ 
+ Whirlpool Bath Equipment 
+ Covered if patient is homebound and has a (standard)condition for which the whirlpool bath can be expected to provide substantial therapeutic benefit justifying its cost. Where patient is not homebound but has such a condition, payment is restricted to the cost of providing the services elsewhere; e.g., an outpatient department of a participating hospital, if that alternative is less costly. In all cases, refer claim to medical staff for a determination. 
+ 
+
+ 
+ Whirlpool Pumps 
+ Deny - (See Portable Whirlpool Pumps .) (§1861(n) of the Act). 
+ 
+
+ 
+ White Canes 
+ Deny - (See § 280.2 of this manual.) (Not considered Mobility Assistive Equipment)
+
+=== Other ===
+

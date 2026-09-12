@@ -1,0 +1,85 @@
+Title: 2011.12.31 M-2010-1843 In the Case of R.J.
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/rj_test_strips.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:52 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-10-1843 
+
+In the case of 
+
+R.J. 
+
+(Appellant) 
+
+**** (Beneficiary) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+Noridian DME MAC Jurisdiction D(Contractor) 
+
+**** (HIC Number) **** (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated June 28, 2010, concerning Medicare coverage for 500 blood glucose test strips furnished to the beneficiary by RX Solutions, Inc. (supplier) for the July 25, 2008, through October 22, 2008, period of service. The ALJ determined Medicare did not cover the items at issue and held the supplier liable for the non-covered items. The appellant has asked the Medicare Appeals Council (Council) to review this action. The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). The Council hereby enters the following documents into the record: Exh. MAC-1 Appellant’s timely-filed request for review, dated August 18, 2010, with attachments Exh. MAC-2 Council’s September 15, 2010, letter to appellant Exh. MAC-3 Appellant’s November 13, 2010, reply letter, with attachments 2
+
+As set forth below, the Council reverses the ALJ’s decision and grants Medicare coverage for the additional blood glucose test strips at issue. 
+
+BACKGROUND AND PROCEDURAL HISTORY 
+
+This case arises from the supplier’s claim for Medicare coverage of 24 units of blood glucose test strips (HCPCS code A4253) 1
+
+On further appeal, the ALJ conducted a hearing with the beneficiary and his wife via telephone on March 15, 2010. Dec. at 1; Hearing CD. which it furnished to the beneficiary for the period of service occurring from July 25, 2008, through October 22, 2008. Exh. 2at 4. By definition, each “unit” of test strips consists of 50 test strips. Therefore, the claim involved a total of 1200 individual test strips. The Medicare contractor denied the supplier’s claim, initially and again upon redetermination, because the documentation submitted did not support medical necessity for this quantity of test strips. Exhs. 2, 5. The contractor held the supplier liable for the non-covered items. Id. 
+
+Upon reconsideration, the Qualified Independent Contractor (QIC) issued a “partially favorable” decision, finding that the beneficiary’s testing logs indicated that he performed seven tests per day, and thus supported coverage for 14 units of test strips (or 700 individual strips). Exh. 7. The QIC denied coverage for the remaining 10 units of test strips (or 500 individual test strips), and held the supplier liable for the non-covered items. Id.                                               
+
+> 2
+> 1The Centers for Medicare & Medicaid Services (CMS) has developed the Healthcare Common Procedure Coding System (HCPCS) to establish “uniform national definitions of services, codes to represent services, and payment modifiers to the codes.” 42 C.F.R. § 414.40(a). 2An audit of the hearing reveals that the ALJ informed the beneficiary that all documentation supporting his claim for coverage had to be submitted by the QIC stage of the appeals process. Hearing CD. However, the regulations requiring the submission of documentation to the QIC and good cause for any later submissions do not extend to unrepresented beneficiaries, such as the appellant in this case. See 42 C.F.R. §§ 405.966(c), 405.1018(c), 405.1028. In this instance, the ALJ’s error does not disadvantage the beneficiary because the Council is granting coverage for the items at issue.
+
+On June 28, 2010, the ALJ issued adecision denying coverage for the 10 units of test strips remaining at issue. Dec. at 9-10. Specifically, the ALJ found 3
+
+that the record contained insufficient documentation to support coverage for the additional glucose test strips because the “glucose testing logs in the record did not substantiate apattern of testing glucose 12 times per day.” Id. at 10. The ALJ also determined that the supplier remained liable for the non-covered items. Id. 
+
+Before the Council, the appellant asserts that throughout the appeals process, the various adjudicators have misinterpreted his blood glucose testing logs. Exh. MAC-1. More specifically, the appellant explains that: 1) on the advice of his physician, he performed more than an average of 12 blood glucose tests daily because he no longer experienced symptoms of hypoglycemia; 2) he recorded these test results on pre-printed logs provided to him by the supplier; 3) the pre-printed forms contained space for only seven daily entries, and thus, 4) he used multiple pages to record up to 16 daily blood glucose test results each month. Id. The beneficiary also submitted additional documentation regarding his blood glucose testing in December 2009 and in 2010. Exhs. MAC-1, MAC-3. 
+
+DISCUSSION 
+
+Medicare Part B covers medical supplies, such as the blood glucose test strips at issue, pursuant to 42 C.F.R. § 410.10(g). Further, the National Coverage Determination (NCD) for Home Blood Glucose Monitors specifies that “lancets, reagent strips, and other supplies necessary for the proper functioning of the [blood glucose monitor] are also covered for patients for whom the device is indicated.” NCD Manual, Pub. 100-03, Ch. 1 at § 40.2. NCDs are binding on Medicare contractors, QICs, ALJs and the Council. 42 C.F.R. § 405.1060(a)(4). Neither an ALJ, nor the Council, may disregard, set aside, or otherwise review an NCD issued by CMS. 42 C.F.R. §§ 405.1060(b)(1) and (c)(1). In this case, the appellant’s diagnosis of type 1 diabetes mellitus, his dependence on insulin injections, and his need for a home blood glucose monitor have not been contested at any point during the appeals process and are supported by the record. Exh. 3 at 5 (physician visit notes reflect “longstanding history of type 1 diabetes mellitus, currently treating with insulin pump”); Exh. 11 at 1 (beneficiary asserts he has been diabetic for over 40 years). The Council therefore will not consider these issues further. 4
+
+The contractor’s Local Coverage Determination (LCD) on Glucose Monitors (L196) sets forth specific criteria for the coverage of supplies such as the test strips at issue. In relevant part, the LCD provides that the quantity of test strips “that are covered depends on the usual medical needs of the diabetic patient according to the following guidelines:” 
+
+For a patient who is currently being treated with insulin injections, more than 100 test strips and more than 100 lancets or one lens shield cartridge every month are covered if criteria (a)-(f) are met: a. Coverage criteria (1)-(5) listed above for aglucose monitor are met. b. The supplier of the test strips and lancets, or lens shield cartridge maintains in its records the order from the treating physician. c. The beneficiary has nearly exhausted the supply of test strips and lancets, or useful life of one lens shield cartridge previously dispensed. d. The treating physician has ordered a frequency of testing that exceeds the utilization guidelines and has documented in the patient's medical record the specific reason for the additional materials for that particular patient. e. The treating physician has seen the patient and has evaluated their diabetes control within 6 months prior to ordering quantities of strips and lancets, or lens shield cartridges that exceed the utilization guidelines. f. If refills of quantities of supplies that exceed the utilization guidelines are dispensed, there must be documentation in the physician's records (e.g., aspecific narrative statement that adequately documents the frequency at which the patient is actually testing or a copy of the beneficiary's log) or in the supplier's records (e.g., a copy of the beneficiary's log) that the patient is actually testing at afrequency that corroborates the quantity of supplies that have been dispensed. If the patient is regularly using quantities of supplies that exceed the 5
+
+utilization guidelines, new documentation must be present at least every six months. If criteria (a)-(c) are not met, all testing supplies will be denied as not medically necessary. If quantities of test strips, lancets or lens shield cartridges that exceed the utilization guidelines are provided and criteria (d)-(f) are not met, the amount in excess will be denied as not medically necessary. LCD L196. ALJs and the Council are not bound by LCDs, but will give substantial deference to these policies if they are applicable to a particular case. 42 C.F.R. § 405.1062(a). If an ALJ or the Council declines to follow an LCD in a particular case, the ALJ or the Council must explain the reasons why it was not followed. 42 C.F.R. § 405.1062(b). After considering the record, the Council finds no reason to depart from the applicable LCD in this case. Applying the LCD’s coverage criteria set forth above to the facts of this case, the Council finds that Medicare will cover the items at issue. Careful consideration of the medical documentation submitted supports a finding that the additional test strips at issue were medically reasonable and necessary for this beneficiary’s condition, and therefore are covered by Medicare. As noted above, the LCD requires that the appellant first satisfy certain coverage criteria for use of a glucose monitor before its supplies can be covered. LCD L196. The record does not contain any indication that the beneficiary, who was a type 1, insulin-dependent diabetic for more than 40 years, did not satisfy these criteria or that coverage for his glucose monitor was ever at issue. The LCD requires the supplier to keep an order from the treating physician on file. LCD L196. The record contains an order dated July 23, 2008, and signed by the treating physician on July 24, 2008, which reflects that the beneficiary is to test 10 to 12 times per day. Exh. 3 at 2. This order specifically indicates that the beneficiary is to test at a frequency that would exceed the utilization guidelines. 
+
+The LCD requires that the beneficiary nearly exhaust his supply of test strips previously dispensed. LCD L196. The 6
+
+record contains the supplier’s telephone note indicating that the beneficiary’s wife called about getting a refill on his test strips on July 8, 2008. Exh. 3 at 3. Absent any evidence to the contrary, it is reasonable to infer from this note that the beneficiary had nearly exhausted his previously dispensed supply of test strips. The LCD also requires that the treating physician order afrequency of testing that exceeds the utilization guidelines and “document the specific reason for the additional materials for that particular patient.” LCD L196. The order specifically indicates that the beneficiary is to test at a frequency of 10 to 12 times per day, which would exceed the utilization guidelines. Exh. 3at 2. It also explains that the beneficiary is required to test more frequently because he has “hypoglycemia unawareness” and “fluctuating glycemic trend.” Id. This statement is supported by a physician’s July 10, 2008, visit note indicating that the beneficiary’s diagnostic assessment was “diabetes mellitus type 1, reflecting poor glycemic control.” Id. at 5. It is further supported by the beneficiary’s assertion that he ceased to experience the physical warning signs of hypoglycemia or hyperglycemia about 20 years earlier. Exh. 11 at 1. The LCD requires the treating physician to have seen the beneficiary and evaluated his/her diabetes control within 6months prior to ordering the supplies at issue. LCD L196. The record contains a physician’s note documenting a visit with the beneficiary on July 10, 2008. Exh. 3 at 5-6. The visit occurred earlier the same month that the supplies were ordered and included the diagnostic assessment that the beneficiary had “poor glycemic control.” Id. 
+
+Finally, the LCD requires documentation of “the frequency at which the patient is actually testing or a copy of the beneficiary’s log” . . . “that corroborates the quantity of supplies that have been dispensed.” LCD L196. As the beneficiary explained in his requests for ALJ hearing and Council review, he performed more tests daily than the supplier’s pre-printed log forms could accommodate, so he continued each day’s test results onto additional log forms. Exhs. 8 at 1; MAC-1. The record supports the appellant’s assertions on this point. The May 2008, test logs reflect that the beneficiary performed an average of 7
+
+12 blood glucose tests each day. Exh. 3 at 10-11. 3 For example, on May 1, 2008, the log begins with an entry for 3:44 AM, and continues with the seventh test occurring at 12:55 PM. Id. at 11. If the additional log sheet is rea together with the first, the test results continued with the eighth test of the day occurring at 2:36 PM and the thirteenth and final test of the day occurring at 11:00 P
+
+It is the decision of the Medicare Appeals Council that the additional 10 units of blood glucose test strips furnished to the beneficiary for the period of July 25, 2008, through October 22, 2008, were medically reasonable and necessary. We therefore dM. 
+
+Id. at 10. Further, contrary to the ALJ’s finding, we need not question the reliability of the log: each sheet was in fact signed by the beneficiary and dated June 3, 2008. Id. 
+
+at 10-11. In addition to the documentation discussed above which adequately supports the appellant’s claim, the record also contains several submissions which do not address the relevant period of service. For example, the appellant submitted additional blood glucose testing logs from May 2009, December 2009, May 2010, September 2010, and October 2010, as well as a letter from his physician dated March 16, 2010, and a copy of an order for test strips to be used 10-15 times per day, dated March 17, 2010. Exhs. 8at 2-4; 11; MAC-1; MAC-3. These documents address the beneficiary’s medical condition as it existed on those dates in 2009 and 2010; thus, they are extraneous to the present inquiry which involves only a July 25, 2008, through October 22, 2008, period of service. As set forth above, the Council finds that the documentation supplied satisfies the coverage criteria set forth in the applicable LCD. We conclude that the evidence of record supports a finding that the additional blood glucose test strips at issue were reasonable and necessary for this beneficiary during the period at issue. 
+
+DECISION                 
+
+> 3Portions of the May 2008, logs at exhibit 3 are difficult to read due to poor photocopy or facsimile quality. Exh. 3. However, the appellant has reproduced the May 2008, test results in a clearer, easier to read, spreadsheet format. Exh. MAC-1 at 7.
+
+8
+
+reverse the ALJ’s decision and grant Medicare coverage for the items at issue. The contractor shall effectuate the claim at issue in accordance with this action. MEDICARE APPEALS COUNCIL /s/ Gilde Morrisson Administrative Appeals Judge /s/Constance B. Tobias, Chair Departmental Appeals Board 
+
+Date: December 31, 2010

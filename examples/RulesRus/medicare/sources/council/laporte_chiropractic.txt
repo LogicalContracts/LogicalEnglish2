@@ -1,0 +1,182 @@
+Title: In the Case of LaPorte Chiropractic Clinic
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/laporte_chiropractic.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:54 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+ACTION OF MEDICARE APPEALS COUNCIL 
+
+ON REQUEST FOR REVIEW 
+
+In the case of Claim for 
+
+Supplementary Medical LaPorte Chiropractic Clinic Insurance Benefits (Part B) (Appellant) 
+
+**** **** 
+
+(Beneficiary) (HIC Number) 
+
+National Government Services **** 
+
+(Contractor) (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated 
+
+March 5, 2009, concerning Medicare coverage for chiropractic 
+
+treatment provided to the beneficiary on May 20, 2008. The ALJ 
+
+determined that the medical documentation was insufficient to 
+
+support Medicare coverage for the manual manipulation 
+
+chiropractic service. Specifically, the ALJ found that the 
+
+medical document failed to show that the beneficiary’s care was 
+
+for a “new and separate injury as opposed to maintenance care.” 
+
+Dec. at 6. Further, the ALJ concurred with the contractor and 
+
+the QIC and found the appellant liable for the non-covered 
+
+services. The appellant has asked the Medicare Appeals Council 
+
+(Council) to review this action. 
+
+The Council reviews the ALJ’s decision de novo. 42 C.F.R. 
+
+§ 405.1108(a). The Council will limit its review of the ALJ’s 
+
+action to the exceptions raised by the party in the request for 
+
+review, unless the appellant is an unrepresented beneficiary. 
+
+42 C.F.R. § 405.1112(c). 
+
+The appellant filed a request for review dated April 28, 2009, 
+
+with accompanying documents. The Council sent an interim letter 
+
+dated September 29, 2009, asking the appellant to resubmit a 
+
+legible request for review, identify any new evidence and to 2
+
+establish good cause for its submission to the Council. The appellant responded by fax dated October 6, 2009, stating that the new evidence was submitted initially to the Medicare contractor and that it had assumed that the record would be forwarded to the QIC and ALJ upon request. Exh. MAC-1 at 1. The appellant further states that when the ALJ requested additional evidence to support the claims subject to the appellant’s request for hearing, it was unaware that the documentation at issue was absent from the record. Id . The Council finds that the appellant has shown good cause for submitting the evidence to the Council. See 42 C.F.R. § 405.966(a)(2). The Council admits the appellant’s request for review with the accompanying documentation into the record as Exhibit MAC-1. For the reasons articulated below, the Council modifies the ALJ’s decision. 
+
+BACKGROUND 
+
+The Medicare contractor denied Medicare coverage initially and upon redetermination finding that the medical documentation did not support coverage. Exh. 3 at 11. The appellant then requested reconsideration by the Qualified Independent Contractor (QIC), which found that the beneficiary’s medical record lacked the requisite medical documentation for Medicare coverage. Exh. 5 at 21. The ALJ found that the medical documentation failed to show that the beneficiary’s care was for a “new and separate injury as opposed to maintenance care.” Dec. at 6. Further, the ALJ concurred with the contractor and the QIC in finding the provider liable for the non-covered chiropractic services. 
+
+APPLICABLE LEGAL AUTHORITIES 
+
+Section 1862(a)(1)(A) of the Social Security Act (Act) provides: 
+
+Notwithstanding any other provisions of this title, no 
+
+payment shall be made under part A or part B for any 
+
+expenses incurred for items or services . . . which . . . 
+
+are not reasonable and necessary for the diagnosis or 
+
+treatment of illness or injury or to improve the 
+
+functioning of a malformed body member. 
+
+The Medicare Benefit Policy Manual (MBPM), CMS Pub. 100-02, Ch. 15, section 240.1.2 provides that subluxation of the spine is 3
+
+defined as a motion segment in which alignment, movement integrity, and/or physiological function of the spine are altered even though contact between joint surfaces remain intact. MBPM, Ch. 15, section 240.1 provides that subluxation can be demonstrated by x-ray or by physical examination. Further, as explained in detail below, the documentation for initial chiropractor visits must include a history, description of the present illness, evaluation of musculoskeletal/nervous system, diagnosis, treatment plan, and date of the initial treatment. Id .
+
+Additionally, MBPM § 240.1.3 states: 
+
+The patient must have a significant health problem in the form of a neuromusculoskeletal condition necessitating treatment, and the manipulative services rendered must have a direct therapeutic relationship to the patient’s condition and provide reasonable expectation of recovery or improvement of function.... When further clinical improvement cannot reasonably be expected from continuous ongoing care, and the chiropractic treatment becomes supportive rather than corrective in nature, the treatment is then considered maintenance therapy. 
+
+DISCUSSION 
+
+The ALJ considered the relevant MBPM provisions concerning chiropractic services. The ALJ also considered Local Coverage Determination (LCD) L7060, LCD for Chiropractic Services , the provisions of which are similar to the language in the MBPM. 1
+
+The ALJ concluded that the appellant failed to disprove that the services at issue were maintenance care by failing to submit medical records from the prior visit of March 18, 2008. Dec. at 
+
+6.  However, the Council finds that the ALJ did not sufficiently evaluate the medical record of the May 20, 2008 date of service to determine Medicare coverage. Thus, the Council will engage in a de novo review of the record to determine if the documentation submitted met the conditions of Medicare coverage set forth in the applicable legal authorities.     
+
+> 1National Government Se rvices, LCD for Chiropractic Services , was effective in its revised format for services provided on or after October 1, 2004, with a revision ending date of September 30, 2008. This and all LCDs are available in the Medicare Coverage Database at http://www.cms.hhs.gov/mcd .4
+
+Before the Council, the appellant argues that the medical records it submitted demonstrate that the beneficiary experienced a new injury and that records for prior visits did not involve any upper back or neck complaints. Exh. MAC-1 at 1. 
+
+Medicare will cover chiropractic services when the records indicate that the patient has a significant health problem in the form of a neuromusculoskeletal condition necessitating treatment to which the services have a direct therapeutic relationship. See MBPM, § 240.1.3. There must be reasonable expectation of recovery or improvement of function. Id . The appellant is further required to document the beneficiary’s history, physical examination and the treatment given on the day of the visit. Id. at § 240.1.2. 
+
+CMS issued guidance for services such as those provided to the beneficiary: 
+
+The chiropractor should be afforded the opportunity to 
+
+effect improvement or arrest or retard deterioration 
+
+in such condition within a reasonable and generally 
+
+predictable period of time. 
+
+See id. at § 240.1.5. 
+
+On May 20, 2008, the appellant completed a chiropractic plan of care to treat the beneficiary’s pain in the thoracic region, bilateral lumbar regions, sacral region at the sacro-iliac area, upper torso region and the cervical region. Exh. 2 at 7. The appellant submitted a claim suggesting that the initial visit for this injury was the date of service at issue and using HCPCS/CPT code 98942 (chiropractic manipulative treatment). 
+
+For an initial visit, the appellant is required to document: 
+
+1.  History: Symptoms causing patient to seek treatment; family history if relevant; past health history (general health, prior illness, injuries, or hospitalizations; medications; surgical history), mechanism of trauma; quality and character of symptoms/problem; onset, duration, intensity, frequency, location and radiation of symptoms; aggravating or relieving factors and prior interventions, treatments, medications, secondary complaints. 5
+
+2.  Description of the present illness including: Mechanism of trauma; quality and character of symptoms/problem; onset, duration, intensity, frequency, location, and radiation of symptoms; aggravating or relieving factors; prior interventions, treatments, medications, secondary complaints; and symptoms causing patient to seek treatment. 
+
+These symptoms must bear a direct relationship to the level of subluxation. The symptoms should refer to the spine (spondyle or vertebral), muscle (myo), bone (osseo or osteo), rib (costo or costal) and joint (arthro) and be reported as pain (algia), inflammation (itis), or as signs such as swelling, spasticity, etc. Vertebral pinching of spinal nerves may cause headaches, arm, shoulder, and hand problems as well as leg and foot pains and numbness. Rib and rib/chest pains are also recognized symptoms, but in general other symptoms must relate to the spine as such. The subluxation must be causal, i.e., the symptoms must be related to the level of the subluxation that has been cited. A statement on a claim that there is “pain” is insufficient. The location of pain must be described and whether the particular vertebra listed is capable of producing pain in the area determined. 
+
+3.  Evaluation of musculoskeletal/nervous system through 
+
+physical examination. 
+
+4.  Diagnosis: The primary diagnosis must be subluxation, including the level of subluxation, either so stated or identified by a term descriptive of subluxation. Such terms may refer either to the condition of the spinal joint involved or to the direction of position assumed by the particular bone name 
+
+5.  Treatment Plan: The treatment plan should include the following: Recommended level of care (duration and frequency of visits); Specific treatment goals; and Objective measures to evaluate treatment effectiveness. 
+
+6.  Date of the initial treatment. 
+
+See “Document Requirements: Initial Visit,” MBPM, Ch. 15, § 240.1.2. 6
+
+While the visit at issue was not the initial visit at this medical office, it was nonetheless a visit for a new incident or injury according to the appellant. By way of background for the treatment at issue, the record of the May 20, 2008 visit indicates only that the beneficiary --
+
+was fine during the interim and then started not to be 
+
+able to breathe. She was diagnosed with pneumonia and 
+
+cough. Increased px to mid and lower back and then 
+
+neck strained. 
+
+Id .
+
+While the appellant did document that the beneficiary was in moderate pain for approximately half of each day, as stated above, the MBPM directs that the history must include information about the onset and duration of the beneficiary’s illness. The Council finds that the narrative above, taken in context of the entire record, lacks specific information about the onset and duration of the beneficiary’s symptoms or past health history. Id . at 7-9. Further, the Council finds that the record is devoid of an explanation of prior medical or pharmaceutical interventions or treatments. Id . Thus the Council finds that the appellant’s medical documentation is insufficient to support Medicare coverage. 
+
+LIMITATION ON LIABILITY 
+
+According to Section 1879 of the Act, Medicare may limit the liability of a beneficiary or provider (or both) for costs of services not covered under sections 1862(a)(1)(A) or (a)(9). The statute provides that the liability for a non-covered item or service may be limited when a provider, practitioner, supplier, or beneficiary did not know, and could not reasonably have been expected to know, that the item or service would not be covered by Medicare. The record lacks evidence that the appellant provided the beneficiary with notice that the services may not be covered by Medicare. Thus, the Council finds that the beneficiary is not liable for the non-covered services. 
+
+In accordance with regulations at 42 C.F.R. § 411.406, the Medicare Claims Processing Manual (MCPM), CMS Pub. 100-4, Ch. 30, §§ 40.1 and 40.1.2 provides guidance concerning what constitutes evidence that a provider knew or should have known that Medicare would not pay for a service. This includes 7
+
+Medicare’s general notices to the medical community of Medicare payment denial of services under all or certain circumstances (such notices include, but are not limited to, manual instructions, bulletins, contractor’s written guides and directives). Medicare had issued various relevant instructions and regulations concerning chiropractic services for the date of service at issue, including but not limited to, the instructions in the relevant LCD and the Medicare Benefit Policy Manual, which the appellant referenced in its request for review. Exh. MAC-1 at 1. Thus, the Council concurs with the ALJ’s findings that the provider is liable for the services provided to the beneficiary. 
+
+DECISION 
+
+The Council concurs with the ALJ that the record is insufficient to support Medicare coverage. However, the Council modifies the ALJ’s support for denying Medicare coverage, pursuant to MBPM Ch. 15, § 240, after a complete review of the medical documentation. The Council finds that the records lacks sufficient documentation to support coverage set forth in the applicable legal authorities. Further, the Council concurs with the ALJ that the appellant is liable for the non-covered services. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Gilde Morrisson Administrative Appeals Judge 
+
+/s/ M. Susan Wiley Administrative Appeals Judge 
+
+Date: October 30, 2009

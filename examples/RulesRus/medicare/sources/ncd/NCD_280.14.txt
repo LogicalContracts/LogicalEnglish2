@@ -1,0 +1,161 @@
+NCD 280.14 Infusion Pumps (version 2, effective 2004-12-17 00:00:00)
+
+=== Item/Service Description ===
+A. General 
+
+ Infusion pumps are medical devices used to deliver solutions containing parenteral drugs under pressure at a regulated flow rate.
+
+=== Indications and Limitations of Coverage ===
+B. Nationally Covered Indications 
+
+ The following indications for treatment using infusion pumps are covered under Medicare: 
+
+ 1. External Infusion Pumps 
+ 
+ a.     Iron Poisoning (Effective for Services Performed On or After September 26, 1984) 
+
+ When used in the administration of deferoxamine for the treatment of acute iron poisoning and iron overload, only external infusion pumps are covered. 
+
+ b.     Thromboembolic Disease (Effective for Services Performed On or After September 26, 1984) 
+
+ When used in the administration of heparin for the treatment of thromboembolic disease and/or pulmonary embolism, only external infusion pumps used in an institutional setting are covered. 
+
+ c.     Chemotherapy for Liver Cancer (Effective for Services Performed On or After January 29, 1985) 
+
+ The external chemotherapy infusion pump is covered when used in the treatment of primary hepatocellular carcinoma or colorectal cancer where this disease is unresectable; OR, where the patient refuses surgical excision of the tumor. 
+
+ d.     Morphine for Intractable Cancer Pain (Effective for Services Performed On or After April 22, 1985) 
+
+ Morphine infusion via an external infusion pump is covered when used in the treatment of intractable pain caused by cancer (in either an inpatient or outpatient setting, including a hospice). 
+
+ e.     Continuous Subcutaneous Insulin Infusion (CSII) Pumps (Effective for Services Performed On or after December 17, 2004) 
+
+ Continuous subcutaneous insulin infusion (CSII) and related drugs/supplies are covered as medically reasonable and necessary in the home setting for the treatment of diabetic patients who: (1) either meet the updated fasting C-Peptide testing requirement, or, are beta cell autoantibody positive; and, (2) satisfy the remaining criteria for insulin pump therapy as described below. Patients must meet either Criterion A or B as follows: 
+
+ Criterion A: The patient has completed a comprehensive diabetes education program, and has been on a program of multiple daily injections of insulin (i.e., at least 3 injections per day), with frequent self-adjustments of insulin doses for at least 6 months prior to initiation of the insulin pump, and has documented frequency of glucose self-testing an average of at least 4 times per day during the 2 months prior to initiation of the insulin pump, and meets one or more of the following criteria while on the multiple daily injection regimen: 
+
+ 
+ Glycosylated hemoglobin level (HbAlc) > 7.0%; 
+
+ History of recurring hypoglycemia; 
+
+ Wide fluctuations in blood glucose before mealtime; 
+
+ Dawn phenomenon with fasting blood sugars frequently exceeding 200 mg/dl; or, 
+
+ History of severe glycemic excursions. 
+ 
+
+ Criterion B: The patient with diabetes has been on a pump prior to enrollment in Medicare and has documented frequency of glucose self-testing an average of at least 4 times per day during the month prior to Medicare enrollment. 
+
+ General CSII Criteria 
+
+ In addition to meeting Criterion A or B above, the following general requirements must be met: 
+
+ The patient with diabetes must be insulinopenic per the updated fasting C-peptide testing requirement, or, as an alternative, must be beta cell autoantibody positive. 
+
+ Updated fasting C-peptide testing requirement: 
+
+ 
+ Insulinopenia is defined as a fasting C-peptide level that is less than or equal to 110% of the lower limit of normal of the laboratory's measurement method. 
+
+ For patients with renal insufficiency and creatinine clearance (actual or calculated from age, gender, weight, and serum creatinine) ≤ 50 ml/minute, insulinopenia is defined as a fasting C-peptide level that is less than or equal to 200% of the lower limit of normal of the laboratory's measurement method. 
+
+ Fasting C-peptide levels will only be considered valid with a concurrently obtained fasting glucose ≤ 225 mg/dL. 
+
+ Levels only need to be documented once in the medical records. 
+ 
+
+ Continued coverage of the insulin pump would require that the patient be seen and evaluated by the treating physician at least every 3 months. 
+
+ The pump must be ordered by and follow-up care of the patient must be managed by a physician who manages multiple patients with CSII and who works closely with a team including nurses, diabetes educators, and dietitians who are knowledgeable in the use of CSII. 
+
+ Other Uses of CSII 
+
+ The Centers for Medicare & Medicaid Services will continue to allow coverage of all other uses of CSII in accordance with the Category B investigational device exemption clinical trials regulation (42 CFR 405.201) or as a routine cost under the clinical trials policy (Medicare National Coverage Determinations Manual 310.1 ). 
+
+ f.     Other Uses 
+
+ Other uses of external infusion pumps are covered if the Medicare Administrative Contractor (MAC) medical staff verifies the appropriateness of the therapy and the prescribed pump for the individual patient. 
+
+ NOTE: Payment may also be made for drugs necessary for the effective use of a covered external infusion pump as long as the drug being used with the pump is itself reasonable and necessary for the patient's treatment. 
+ 
+
+ 2.     Implantable Infusion Pumps 
+
+ a.     Chemotherapy for Liver Cancer (Effective for Services Performed On or After September 26, 1984) 
+
+ The implantable infusion pump is covered for intra-arterial infusion of 5-FUdR for the treatment of liver cancer for patients with primary hepatocellular carcinoma or Duke's Class D colorectal cancer, in whom the metastases are limited to the liver, and where: (1) the disease is unresectable, or, (2) the patient refuses surgical excision of the tumor. 
+
+ b.     Anti-Spasmodic Drugs for Severe Spasticity 
+
+ An implantable infusion pump is covered when used to administer anti-spasmodic drugs intrathecally (e.g., baclofen) to treat chronic intractable spasticity in patients who have proven unresponsive to less invasive medical therapy as determined by the following criteria: 
+
+ As indicated by at least a 6-week trial, the patient cannot be maintained on non-invasive methods of spasm control, such as oral anti-spasmodic drugs, either because these methods fail to control adequately the spasticity or produce intolerable side effects. And prior to pump implantation, the patient must have responded favorably to a trial intrathecal dose of the anti-spasmodic drug. 
+
+ c.     Opioid Drugs for Treatment of Chronic Intractable Pain 
+
+ An implantable infusion pump is covered when used to administer opioid drugs (e.g., morphine) intrathecally or epidurally for treatment of severe chronic intractable pain of malignant or nonmalignant origin in patients who have a life expectancy of at least 3 months, and who have proven unresponsive to less invasive medical therapy as determined by the following criteria: 
+
+ The patient's history must indicate that he/she would not respond adequately to noninvasive methods of pain control, such as systemic opioids (including attempts to eliminate physical and behavioral abnormalities which may cause an exaggerated reaction to pain); and a preliminary trial of intraspinal opioid drug administration must be undertaken with a temporary intrathecal/epidural catheter to substantiate adequately acceptable pain relief and degree of side effects (including effects on the activities of daily living) and patient acceptance. 
+
+ d.     Coverage of Other Uses of Implanted Infusion Pumps 
+
+ Determinations may be made on coverage of other uses of implanted infusion pumps if the MAC medical staff verifies that: 
+
+ 
+ The drug is reasonable and necessary for the treatment of the individual patient; 
+
+ It is medically necessary that the drug be administered by an implanted infusion pump; and, 
+
+ The Food and Drug Administration-approved labeling for the pump must specify that the drug being administered and the purpose for which it is administered is an indicated use for the pump. 
+ 
+
+ e.     Implantation of Infusion Pump Is Contraindicated 
+
+ The implantation of an infusion pump is contraindicated in the following patients: 
+
+ With a known allergy or hypersensitivity to the drug being used (e.g., oral baclofen, morphine, etc.);or, 
+
+ Who have an active infection;or, 
+
+ Whose body size is insufficient to support the weight and bulk of the device; or, 
+
+ With other implanted programmable devices since crosstalk between devices may inadvertently change the prescription. 
+
+ NOTE: Payment may also be made for drugs necessary for the effective use of an implantable infusion pump as long as the drug being used with the pump is itself reasonable and necessary for the patient's treatment. 
+ 
+
+ C.      Nationally Non-Covered Indications 
+
+ The following indications for treatment using infusion pumps are not covered under Medicare: 
+
+ 1.     External Infusion Pumps 
+
+ Vancomycin (Effective for Services Beginning On or After September 1, 1996) 
+
+
+ Medicare coverage of vancomycin as a durable medical equipment infusion pump benefit is not covered. There is insufficient evidence to support the necessity of using an external infusion pump, instead of a disposable elastomeric pump or the gravity drip method, to administer vancomycin in a safe and appropriate manner. 
+
+ 2.     Implantable Infusion Pump 
+
+ a.     Thromboembolic Disease (Effective for Services Performed On or After September 26, 1984) 
+
+ There is insufficient published clinical data to support the safety and effectiveness of the heparin implantable pump. Therefore, the use of an implantable infusion pump for infusion of heparin in the treatment of recurrent thromboembolic disease is not covered. 
+
+ b.     Diabetes 
+
+ An implanted infusion pump for the infusion of insulin to treat diabetes is not covered. The data does not demonstrate that the pump provides effective administration of insulin. 
+
+ 
+ 
+ 
+
+ D.     Other 
+
+ Not applicable. 
+
+ (This NCD last reviewed January 2005.)
+
+=== Other ===
+

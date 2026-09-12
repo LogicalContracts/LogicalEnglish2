@@ -1,0 +1,34 @@
+NCD 40.2 Home Blood Glucose Monitors (version 2, effective 2006-06-19 00:00:00)
+
+=== Item/Service Description ===
+CIM 60-11 
+
+ There are several different types of blood glucose monitors that use reflectance meters to determine blood glucose levels. Medicare coverage of these devices varies, with respect to both the type of device and the medical condition of the patient for whom the device is prescribed. 
+
+ Reflectance colorimeter devices used for measuring blood glucose levels in clinical settings are not covered as durable medical equipment for use in the home because their need for frequent professional re-calibration makes them unsuitable for home use. However, some types of blood glucose monitors which use a reflectance meter specifically designed for home use by diabetic patients may be covered as durable medical equipment, subject to the conditions and limitations described below.
+
+=== Indications and Limitations of Coverage ===
+Blood glucose monitors are meter devices that read color changes produced on specially treated reagent strips by glucose concentrations in the patient’s blood. The patient, using a disposable sterile lancet, draws a drop of blood, places it on a reagent strip and, following instructions which may vary with the device used, inserts it into the device to obtain a reading. Lancets, reagent strips, and other supplies necessary for the proper functioning of the device are also covered for patients for whom the device is indicated. Home blood glucose monitors enable certain patients to better control their blood glucose levels by frequently checking and appropriately contacting their attending physician for advice and treatment. Studies indicate that the patient’s ability to carefully follow proper procedures is critical to obtaining satisfactory results with these devices. In addition, the cost of the devices, with their supplies, limits economical use to patients who must make frequent checks of their blood glucose levels. Accordingly, coverage of home blood glucose monitors is limited to patients meeting the following conditions: 
+
+ 
+ The patient has been diagnosed as having diabetes; 
+
+ The patient’s physician states that the patient is capable of being trained to use the particular device prescribed in an appropriate manner. In some cases, the patient may not be able to perform this function, but a responsible individual can be trained to use the equipment and monitor the patient to assure that the intended effect is achieved. This is permissible if the record is properly documented by the patient’s physician; and 
+
+ The device is designed for home rather than clinical use. 
+ 
+
+ There is also a blood glucose monitoring system designed especially for use by those with visual impairments. The monitors used in such systems are identical in terms of reliability and sensitivity to the standard blood glucose monitors described above. They differ by having such features as voice synthesizers, automatic timers, and specially designed arrangements of supplies and materials to enable the visually impaired to use the equipment without assistance. 
+
+ These special blood glucose monitoring systems are covered under Medicare if the following conditions are met: 
+
+ 
+ The patient and device meet the three conditions listed above for coverage of standard home blood glucose monitors; and 
+
+ The patient's physician certifies that he or she has a visual impairment severe enough to require use of this special monitoring system. 
+ 
+
+ The additional features and equipment of these special systems justify a higher reimbursement amount than allowed for standard blood glucose monitors. Separately identify claims for such devices and establish a separate reimbursement amount for them.
+
+=== Other ===
+

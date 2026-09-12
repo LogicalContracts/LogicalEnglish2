@@ -1,0 +1,204 @@
+Title: 2011.09.16 M-11-146 In the Case of Gordian Medical, Inc. d/b/a American Medical Technologies
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/11-146.pdf
+
+Published Time: Mon, 29 Aug 2016 04:20:02 GMT
+
+Number of Pages: 14
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-11-146 
+
+In the case of 
+
+Gordian Medical, Inc., d/b/a American Medical Technologies (Appellant) 
+
+**** 
+
+(Beneficiaries) Cigna Government Services, National Heritage Insurance Company (NHIC), and Noridian Administrative Services (Contractor) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** (HIC Numbers) **** (ALJ Appeal Number) 
+
+On August 18, 2010, the Administrative Law Judge (ALJ) issued a decision concerning Medicare coverage for various surgical dressings furnished to multiple beneficiaries from April 2008 through December 2009. 1 The decision concerned a universe of 1147 claims, from which the ALJ randomly selected 50 claims for review. 2 As to each of the sample claims, the ALJ determined that Medicare did not cover the surgical dressings furnished to the beneficiaries. The ALJ extrapolated these results to the universe, concluding that the appellant is not entitled to Medicare reimbursement for any of the claims in the universe. The ALJ also found that the appellant remained liable for the non-covered items pursuant to section 1879 of the Social Security Act (Act). The appellant has asked the Medicare Appeals Council (Council) to review this action. 1 To maintain privacy, the Council will refer to the beneficiaries by their initials. The beneficiaries’ full names and HICNs, as well as the specific dates of service at issue, are listed on Attachment A to this action. 2 By a separate action, under Docket Number M-11-2519, the Council has remanded the claim for Beneficiary A.B. (#4) to an ALJ for further proceedings. Thus, a total of 49 claims remain in the sample and 1146 claims remain in the universe. 2
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). We enter the appellant’s timely-filed request for review dated October 20, 2010, and the accompanying brief (Br.), into the record as exhibit (Exh.) MAC-1. 
+
+The Council has considered the administrative record and exceptions set forth in the appellant’s request for review. We agree with the ALJ’s conclusion that Medicare does not cover any of the surgical dressings at issue. We modify the ALJ’s decision to clarify that multiple Local Coverage Determinations (LCDs), issued by multiple contractors, are applicable in this case and to add a discussion of waiver of liability for overpayments under section 1870 of the Act. 3
+
+BACKGROUND 
+
+The appellant seeks Medicare coverage for various surgical dressings it furnished to residents of long-term care facilities and billed utilizing HCPCS codes that included: foam dressings (A6209, A6210, A6211, A6212); collagen dressings (A6021); alginate dressings (A6196); hydrogel dressings (A6231, A6242, A6248); gauze roll (A6446); and tape (A4452). 4
+
+Initially and on redetermination, the Durable Medical Equipment (DME) Medicare Administrative Contractors (MACs), Cigna Government Services, National Heritage Insurance Company (NHIC), and Noridian Administrative Services, denied the claims. On reconsideration, the Qualified Independent Contractor (QIC), RiverTrust Solutions, Inc., also denied the claims. The QIC explained that the appellant had not submitted sufficient medical evidence to establish that the items at issue were medically reasonable and necessary for each beneficiary’s condition under Medicare Part B. See, e.g., Stat Sample Exh. 1, at 18-20; Stat Sample Exh. 2, at 30-31. 5      
+
+> 3The claims in both the sample and frame of this case involved both pre-payment claims review and post-payment review. Section 1870 is applicable only to overpayments on post-payment review.
+> 4The Centers for Medicare & Medicaid Services (CMS) has developed the Healthcare Common Procedure Coding System (HCPCS) to establish “uniform national definitions of services, codes to represent services, and payment modifiers to the codes.” 42 C.F.R. § 414.40(a).
+> 5We refer to the individual beneficiary files as Stat Sample Exhibits. There are also Master File Exhibits.
+
+3
+
+The contractors held the appellant, and not the individual beneficiaries, liable for the non-covered items pursuant to section 1879 of the Social Security Act (Act). In multiple instances, the contractors noted, Medicare had made an overpayment for the surgical dressings. See, e.g. , Stat Sample Exh. 1, at 15, 37; Stat Sample Exh. 3, at 14, 39. In those instances, the contractors determined that the appellant was not without fault in creating the overpayment, and thus, was not entitled to a waiver of Medicare’s recovery pursuant to section 1870 of the Act. See, e.g., Stat Sample Exh. 3, at 39. 
+
+The appellant requested an ALJ hearing. Master File Exh. 1. After a pre-hearing conference and with the appellant’s consent, the ALJ commissioned an independent statistical expert to produce a statistical sample of 50 beneficiaries from a universe of 1147 claims. Dec. at 2, 15-16; see also Master File Exh. 11 (Order dated May 13, 2010 and April 20, 2009 pre-hearing CD). The ALJ conducted a hearing on June 8, 2010, with Michael D. Watson, the appellant’s Vice President of Governmental Affairs, Heather Hettrick, Ph.D., the appellant’s Vice President of Academic Affairs and Education, and David R. Simon, the appellant’s Vice President and General Counsel, on behalf of the appellant. Dec. at 1-2; Hearing CD. Richard Whitten, M.D., Medical Director, and Lynn Tack, hearings coordinator, both of Noridian Administrative Services, also appeared at the hearing. 
+
+Id. 
+
+On August 18, 2010, the ALJ issued a decision in which he performed an individualized analysis for each of the 50 sample claims. 6 See Dec. at 17-107. The ALJ determined that Medicare did not cover any of the surgical dressings furnished to the beneficiaries. See id. 
+
+The ALJ then forwarded his findings to the independent statistical expert responsible for the sample, who determined that an extrapolation percentage of zero (0) percent applied to the universe of claims. Dec. at 106; Master File Exhs. 25, 26. Based on the extrapolation percentage, the ALJ concluded the appellant was not entitled to payment for any of the total amount at issue in the universe. Id.        
+
+> 6The appellant withdrew its request for a hearing as to the claim for foam dressings furnished to Beneficiary R.B. See Stat. Sample Exh. 6, at 43-44. In accordance with the appellant’s request, the ALJ dismissed the request for hearing as to R.B. Dec. at 26. The ALJ noted that the claim would remain included in the statistical sample as a denial. Id. Before the Council, the appellant has not objected to the ALJ’s disposition of this claim.
+
+4
+
+Before the Council, the appellant asserts that all of its claims are entitled to Medicare coverage and payment. The Appellant contends that the documentation it submitted from each beneficiary’s medical record is sufficient to support reimbursement of each claim under Medicare Part B. Br. at 9. The appellant argues that the ALJ “inaccurately portrayed the availability of wound documentation in long-term care facilities.” Id. at 11. Further, the appellant argues, Medicare should cover foam dressings in quantities that would permit dressing changes more frequently than three times per week and in the absence of moderate to heavy exudate. Id. at 17, 27. The Council addresses the appellant’s contentions below. 
+
+DISCUSSION 
+
+For the reasons explained more fully below, none of the appellant’s arguments presents a basis for changing the ALJ’s action. The Council therefore adopts the ALJ’s decision denying Medicare coverage for all of the surgical dressings at issue. 
+
+New Evidence 
+
+As a preliminary matter, the Council must address the appellant’s submission of additional documentation with its request for review, identified as Exhibit B to its brief. Exhibit B purports to contain an example of “the documentation typically maintained by [long-term care facilities],” specifically, weekly skin assessments maintained by one of the long-term care facilities “in which certain of Appellants beneficiaries reside.” Br. at 14. 
+
+When an appellant submits new evidence with its request for review, it must show good cause for submitting the documentation at this late stage in the appeal proceedings. See 42 C.F.R. §§ 405.966(a)(2), 405.1018, 405.1122(c). Here, the appellant states that the new evidence responds to the ALJ’s assertion that in certain instances “daily or weekly medical documentation” is required to establish that the items supplied were reasonable and necessary, and to counter the assumption that such documentation is readily available. Br. Exh. C (Statement of Good Cause). The appellant contends that there is good cause to admit the evidence because “the adequacy of Appellant’s documentation was not challenged in any of the first three stages of appeal for the claims at issue,” and the need to 5
+
+introduce the evidence “has arisen for the first time in connection with the ALJ stage of this appeal.” Id. 
+
+We conclude that good cause does not exist to admit the new evidence. The insufficiency of the documentation submitted in support of each claim was a stated basis for the DME-MAC and QIC decisions below. For example, the DME-MAC redetermination on the claim for foam dressings furnished to beneficiary K.A. stated that “no medical documentation on the ongoing progress of the wound has been provided. Since the medical records requested were not provided for this claim, it is appropriately denied and no payment will be made.” Stat Sample Exh. 1, at 23. Moreover, the DME-MAC advised the appellant that if it wished to appeal to the QIC, any additional evidence must be submitted with its request for QIC review. Id. at 22. The DME-MAC also advised the appellant that it would not be able to submit any new evidence to the ALJ or on further appeal unless it could demonstrate good cause for withholding the evidence from the QIC. Id. at 21-22. In numerous instances, the contractors issued separate requests for contemporaneous clinical documentation from the beneficiaries’ medical records, including progress notes and office notes, to evaluate the claims. See, e.g., Stat Sample Exh. 1, at 45; Stat Sample Exh. 2, at 47. 
+
+In several of the reconsideration decisions, the QIC provided a detailed explanation of the documentation necessary to support the claimed items and why the documentation submitted by the appellant was insufficient. See, e.g., Stat Sample Exh. 11, at 25-26. The QIC stated that “neither a physician’s order, nor a [certificate of medical necessity], nor a [durable medical information form] . . . nor physician attestation by itself provides sufficient documentation of medical necessity . . . . There must be information in the patient’s medical record that supports the medical necessity for the item and substantiates the answers on the [filled-in forms].” Id. at 25. Thus, there is no merit in appellant’s claim that the sufficiency of the medical documentation to support the claims was raised for the first time at the ALJ level of appeal. We therefore find that there is not good cause to admit Exhibit B to the appellant’s brief at this late stage in the proceedings and exclude it from the record, pursuant to the regulation at 42 C.F.R. § 405.1122(c)(2). 6
+
+Statistical Sample Methodology and Application 
+
+The ALJ, with the consent of the appellant, decided to use statistical sampling as a technique of adjudication and manner of proof. See Dec. at 2. As noted by the ALJ: 
+
+To efficiently resolve the large number of similar cases, John A***, Ph.D., a statistical expert, was appointed to obtain a random sample of fifty (50) cases from the universe of one thousand one hundred forty-seven (1147) claims via pre-hearing request. 
+
+. . . Further, the Appellant consented to the admission of the pre-extrapolation statistical results. . . . The fifty (50) sample cases now represent the entire universe of one thousand one hundred forty-seven (1147) separate appeals, from which they were randomly selected. The Appellant, as well as the [Centers for Medicaid & Medicare Services (CMS)] contractors were timely notified of these results and provided the list of the universe, as well as, the sample results. 
+
+Id . (citing Master File Exhs. 10, 11.) 
+
+The appellant has not raised any contentions with respect to the use of this methodology for determining whether Medicare coverage is appropriate for each of the 1146 claims remaining at issue. Therefore, the Council has similarly limited its review to the 49 remaining sample claims and used this methodology as aframework for the present case. 42 C.F.R. §§ 405.1112(b), 405.1112(c). 
+
+Medical Record Documentation 
+
+When the Council reviews an ALJ decision, it undertakes a de novo review. 42 C.F.R. § 405.1100(c). Therefore, the Council has reviewed the evidence of record in each of the claim files in the sample to determine whether the appellant has established that the surgical dressings it supplied were reasonable and necessary for each beneficiary and, accordingly, should be covered by Medicare. 
+
+Before the Council, the appellant argues that its documentation meets the requirements of the Social Security Act, regulations and the applicable Local Coverage Determinations (LCDs). Br. at 7
+
+9-10. Furthermore, the appellant contends, the adequacy of this documentation “has been repeatedly litigated, in dozens of cases in the Medicare appeals system, and has been consistently upheld.” Id. at 3. According to the appellant, to deny the claims based on the insufficiency of the medical documentation would thus “inject a bizarre potential for randomness into this matter . . . .” Id. at 8. 
+
+The appellant also asserts that the ALJ “inaccurately portrayed the quality and quantity of wound documentation in long-term care facilities.” Br. at 11. The ALJ indicated, as to each beneficiary: 
+
+[I]t is impossible to determine a beneficiary’s actual need for surgical dressings without the ongoing notes and evaluations from a beneficiary’s medical record. A nursing home or long term care facility maintains clinical records detailing wound evaluation and care performed by a physician, nurse, or other treating healthcare professional. The Appellant has failed to include the Beneficiary’s clinical record, and therefore, it is impossible to determine the need for the care or the dressings provided. 
+
+See, e.g., Dec. at 18 (discussion of Stat Sample No. 1). The appellant counters that there “is simply no additional documentation in the beneficiaries’ medical records that is reliably available.” Br. at 12. According to the appellant, physician and nursing notes for beneficiaries in long-term care facilities are inferior to, and less frequently obtained than, the documentation kept in skilled nursing and acute care facilities. Id. at 13. The appellant asserts that the wound evaluations and order forms it submitted are sufficient to meet all requirements for reimbursement. Id. at 15. 
+
+The Council is not persuaded by the appellant’s contentions. For each claim, the appellant submitted the beneficiary’s facility admission record; an appellant-generated form entitled “Nursing Facility Patient Wound Care Order Sheet” (Order), signed and dated by the beneficiary’s treating physician; a wound care evaluation form (Evaluation), also apparently generated by the appellant and dated on, or within several days prior to, the date of service at issue; and an invoice or proof of delivery. See, e.g., Stat Sample Exh. 1, at 46-51; Stat Sample Exh. 2, at 48-52; Br. at 10-11. In some of the sample cases, the appellant also provided Evaluations, at monthly 8
+
+intervals, for several months prior to the dates of service at issue. See, e.g., Stat Sample Exh. 49, at 46-47. In addition, the appellant also included, for each sample claim, a summary prepared by the appellant’s Medical Director of the information provided on the documentation. As detailed below, we conclude that none of the sample claims were supported by sufficient medical evidence to establish that the items furnished were reasonable and necessary under Medicare Part B. 
+
+Under sections 1832(a)(2)(B), 1861(s)(6) and 1862(a)(1)(A) of the Act, Medicare Part B covers durable medical equipment that is reasonable and necessary for the diagnosis or treatment of illness or injury or to improve the functioning of a malformed body member. Under section 1833(e) of the Act, “[n]o payment shall be made to any provider of services or other person under this part unless there has been furnished such information as may be necessary in order to determine the amounts due such provider or other person. . . .” 
+
+CMS has set forth the following guidance regarding documentation in a beneficiary’s medical record: 
+
+For any [durable medical equipment, prosthetics, orthotics, or supplies] to be covered by Medicare, the patient’s medical record must contain sufficient documentation of the patient’s medical condition to substantiate the necessity for the type and quantity of items ordered and for the frequency of use or replacement (if applicable). The information should include the patient’s diagnosis and other pertinent information including, but not limited to, duration of the patient’s condition, clinical course (worsening or improvement), prognosis, nature and extent of functional limitations, other therapeutic interventions and results, past experience with related items, etc. If an item requires a CMN [certificate of medical necessity] or DIF [DME information forms], it is recommended that a copy of the completed CMN or DIF be kept in the patient’s record. However, neither a physician’s order nor a CMN nor a DIF nor a supplier prepared statement nor a physician attestation by itself provides sufficient documentation of medical necessity, even though it is signed by the treating physician or supplier. There must be information in the patient’s medical record that supports the medical necessity for the item and 9
+
+substantiates the answers on the CMN (if applicable) 
+
+or DIF (if applicable) or information on a supplier prepared statement or physician attestation (if applicable). S, Pub. 100-08, Medicare Program Integrity Manual, Ch. 5 § 5.7. 7 This guidance was reiterated in several of the C reconsideration determinations for the claims at issue. 
+
+e, e.g., Stat Sample Exh. 11, at 25-26. e applicable LCDs, L11460 (Noridian Administrative Services); 1449 (CIGNA Government Services); and L11471 (NHIC) (“LCD for rgical Dressings”), 8 detail the types of documentation ntemplated: “It is expected that the patient’s medical cords will reflect the need for the care provided. The tient’s medical records include the physician’s office cords, hospital records, nursing home records, home health ency records, records from other healthcare professionals and st reports.” Further, the LCDs state: “Current clinical formation which supports the reasonableness and necessity of 
+
+CM at 
+
+QI 
+
+Se 
+
+Th L1 Su 
+
+co re pa re ag te in the type and quantity of surgical dressings provided must be present in the patient’s medical records.” Id. Thus, clinical documentation sufficient to satisfy the LCD’s coverage criteria may take several different forms. The LCD makes clear that Medicare may require additional, supporting clinical documentation beyond the appellant’s Evaluation and Order forms to support coverage. The appellant asserts that there is simply no additional documentation in the beneficiaries’ medical records that is reliably available. Br. at 12. At the same time, the appellant paradoxically admits that there may be “skin sheets” or nursing notes that document that a dressing was changed. Id. at 14. The appellant also cites state survey guidance which states that, at least daily, staff should evaluate and document 7 All CMS manuals are available at http://www.cms.gov/Manuals/IOM/list.asp (last visited September 7, 2011). 8 The contractors’ LCDs L11449, L11460, and L11471 (“LCD for Surgical Dressings”) in effect January 1, 2008, are available online at http://coverage.cms.fu.com/mcd_archive/viewlcd.asp?lcd_id=11449&lcd_version=4 1&show=all; http://coverage.cms.fu.com/mcd_archive/viewlcd.asp?lcd_id=11460&lcd_version=3 6&basket=lcd%3A11460%3A36%3ASurgical+Dressings%3ADME+MAC%3ANoridian+Administr ative+Services+%2819003%29%3A; and http://coverage.cms.fu.com/mcd_archive/viewlcd.asp?lcd_id=11471&lcd_version=3 6&basket=lcd%3A11471%3A36%3ASurgical+Dressings%3ADME+MAC%3ANHIC%7C%7C+Corp%2E +%2816003%29%3A. (Last visited September 7, 2011.) This case did not involve claims processed by the fourth DME MAC, National Government Services. 10 
+
+identified changes in wound conditions. Id. at 23-24. Thus, it is reasonable to assume that long-term care facilities would maintain such clinical records detailing wound evaluations and care performed by physicians, nurses, and other treating health care professionals to substantiate the need for the type and quantity of items ordered, as well as for the frequency of use or replacement. 
+
+The appellant takes issue with the ALJ’s statement that “there is not contemporaneous clinical documentation from the Beneficiary’s medical record to support the information contained in these Appellant generated forms.” Br. at 17 (citing Dec. at 17). Rather, the appellant contends that its forms record contemporaneous observations by nursing facility staff and that the forms are included in the beneficiaries’ medical records. Id. The Council finds that the record does not contain any primary, corroborating, daily or weekly documentation showing the clinical course (worsening or improvement) of the wounds, the day-to-day care of the wounds, or the totality of the beneficiaries’ conditions to substantiate the need for the types and quantities of dressings ordered. 9 The forms that the appellant did submit provide the Council with, at most, monthly snapshots of a beneficiary’s condition without any daily or weekly longitudinal information as to the clinical course of the wounds. This limited documentation is insufficient to satisfy the coverage criteria set forth in the LCDs and to establish medical necessity. 
+
+Moreover, the appellant bears the burden of providing additional documentation to explain the special circumstances necessitating each beneficiary’s use of additional or specialized surgical dressings. In this instance, the appellant has not met its burden. Instead of providing contemporaneous clinical documentation to support its claims, the appellant relied on the opinions of the beneficiaries’ physicians as expressed on the limited, appellant-generated forms it submitted. The Council agrees with several United States Circuit Courts of Appeal who have held that forms, such as a certificate of medical necessity, signed by a physician, are not conclusive evidence that an item is medically reasonable and necessary within the meaning of section 1862(a)(1)(A) of the Social Security Act (Act). See Maximum Comfort v. Secretary of Health & Human   
+
+> 9Even assuming, arguendo , that some facilities may not maintain this information, the appellant has offered no explanation why the wound care protocols it develops for facilities do not include this documentation which it asserts is required by F-tag 314.
+
+11 
+
+Services, 512 F.3d 1081 (9 th Cir. 2007); accord MacKenzie Medical Supply,, Inc. v. Leavitt, 506 F. 3d 341 (4 th Cir. 2007); 
+
+Gulfcoast Medical Supply, Inc. v. Secretary, HHS, 468 F. 3d 1347 (11 th Cir. 2006). Thus, we find the appellant’s assertions regarding the sufficiency of its documentation without merit. 
+
+Furthermore, we reject appellant’s arguments that the Council should find the documentation submitted sufficient in light of prior ALJ and carrier decisions. As noted, the Council’s review of the ALJ’s decision is a de novo review. 42 C.F.R. § 405.1100(c). Prior decisions of ALJs and contractors are not precedential, nor are they binding on the Council. 
+
+Foam Dressings 
+
+The appellant contends that the ALJ inappropriately deferred to the applicable LCDs in denying reimbursement for foam dressings. Br. at 22-29. 10  More specifically, the appellant asserts that the ALJ’s findings regarding the foam dressings at issue are arbitrary, capricious, and unsupported by substantial evidence. 
+
+Id . at 27. The appellant argues that the medical necessity of providing daily foam dressings has been “repeatedly litigated” and “consistently upheld” in proceedings before ALJs and contractors. Id. at 18. The appellant asserts that the standard of care requires foam dressings to be changed daily, and that the relevant LCD is unreasonable in that it allows for reimbursement of foam dressings only up to three times per week. 
+
+Id. at 23-27. The appellant further contends that “foam dressings can be supplied in the absence of moderate to heavy exudates levels, when required by the standard of care.” Id . at 27. 
+
+The Council, and likewise, an ALJ, is not bound by LCDs but will give substantial deference to these policies if they are applicable to a particular case. 42 C.F.R. § 405.1062(a). However, if either declines to follow an LCD, it must explain the reasons why the policy was not followed. Id . The Council finds that the appellant has not presented any valid reason why the applicable LCD should not be afforded substantial deference in the instant case. The appellant makes generalized assertions regarding what it characterizes as the current standard of care for furnishing foam dressings. However, the appellant does not   
+
+> 10 The appellant’s brief refers only to LCD L11460, applicable to claims filed with DME-MAC Noridian Administrative Services. Corresponding LCDs L11449 and L11471 apply, respectively, to claims filed with CIGNA Government Services and NHIC.
+
+12 
+
+discuss any medical evidence contained in the beneficiaries’ records; nor does the appellant explain why consideration of the advantages of foam dressings would support findings that these dressings were medically necessary for each individual beneficiary in the sample claims, or that the LCD documentation requirements were satisfied. 
+
+Instead, the appellant’s arguments seem to invite the Council to review the validity of the LCD itself. See Br. at 23-27. However, the Council has no authority to perform any such review. The regulations at 42 C.F.R. Part 426 provide a process for reviewing the validity of LCDs. The review of an LCD is distinct from the claims appeal process in 42 C.F.R. Part 405, subpart I, under which the present case arose. See Act at § 1869(f)(2)(A) and 42 C.F.R. Part 426, Subparts C and D. 
+
+The applicable LCDs provide, in pertinent part: 
+
+Foam dressings are covered when used on full thickness wounds (e.g., stage III or IV ulcers) with moderate to heavy exudate. Usual dressing change for a foam wound cover used as a primary dressing is up to 3 times per week. When a foam wound cover is used as a secondary dressing for wounds with very heavy exudate, dressing change may be up to 3 times per week. . . . 
+
+The LCDs also state: “When claims are submitted for these dressings for changes greater than once every other day, the quality in excess of that amount will be denied as not medically necessary.” Thus, the LCDs contemplate scenarios in which a provider may submit claims for greater quantities of dressings and for more frequent dressing changes than Medicare would cover. The appellant asserts that the LCDs are unreasonable because they do not cover everything required by what the appellant characterizes as the current standard of care. However, Medicare is a defined benefit program; it does not cover every service or item ordered by a physician. Thus, simply because an order was written for a particular quantity or type of dressing, does not, in itself, mean that the dressing is reasonable and necessary as contemplated by section 1862(a) of the Act. 
+
+The Documentation Requirements section of each LCD requires that the “[c]urrent clinical information which supports the reasonableness and necessity of the type and quantity of 13 
+
+surgical dressings provided must be present in the patient’s medical records.” As discussed above, the appellant has not provided such documentation to support the claims as billed. Thus, we find that the ALJ did not err in applying the relevant LCDs to the medical documentation in the record and concluding that Medicare does not cover the foam dressings furnished by the appellant as primary dressings. 
+
+The Council therefore concludes that all of the surgical dressings provided to the beneficiaries who comprised the sample were not reasonable and necessary, and thus, not covered by Medicare. As both CMS and the appellant have consented to the use of statistical sampling in this case, we extrapolate our findings to the universe of claims and find that Medicare does not cover any of the 1146 claims for surgical dressings remaining in the sample universe. 
+
+Limitation on Liability 
+
+The ALJ determined that the record did not contain any Advanced Beneficiary Notices (ABNs) and thus, the beneficiaries could not have been expected to know that Medicare would not cover the surgical dressings at issue. Dec. at 107. Conversely, the ALJ found that the appellant’s liability could not be waived pursuant to section 1879 of the Act, and held the appellant liable for the non-covered charges in the claims universe. Id. 
+
+The appellant did not raise any exceptions to the ALJ’s findings concerning its financial liability or the lack of ABNs. Asupplier, such as the appellant, is deemed to have actual or constructive knowledge of noncoverage based upon “[i]ts receipt of CMS notices, including manual issuances, bulletins, or other written guides or directives from [Medicare contractors]” and “[i]ts knowledge of what are considered acceptable standards of practice by the local medical community.” 42 C.F.R. §§ 411.406(e)(1) and 411.406(e)(3). Thus, we concur with the ALJ’s finding the appellant liable for the non-covered items without further discussion. 
+
+Finally, since multiple sample claims arose from overpayments, section 1870(b) of the Act may be applied to determine whether the appellant was without fault with respect to the overpayments. However, the appellant has not asserted that it is without fault. Although the ALJ did not address the applicability of section 1870(b) with respect to those claims, we conclude that the contractors did not err in determining that 14 
+
+the appellant was not without fault with respect to the overpayments because it knew or should have known that the items would not be covered. See MCPM, Ch. 3, § 90. 
+
+CONCLUSION 
+
+For the reasons enumerated above, the Council concludes that Medicare does not cover any of the various surgical dressings at issue. The appellant knew, or could reasonably be expected to know, that Medicare would not pay for the items. Therefore, the appellant is liable for the non-covered items under section 1879 of the Act. Recovery of any overpayments to the appellant may not be waived pursuant to section 1870 of the Act because the appellant is not deemed to be without fault. The ALJ’s decision is modified in accordance with the foregoing discussion. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Gilde Morrisson 
+
+Administrative Appeals Judge 
+
+/s/Constance B. Tobias, Chair 
+
+Departmental Appeals Board 
+
+Date: September 16, 2011

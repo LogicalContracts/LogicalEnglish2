@@ -1,0 +1,110 @@
+Title: 2012.06.13 M-12-1315 In the case of R.C
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/m_12_1315.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:52 GMT
+
+Number of Pages: 6
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-12-1315 
+
+In the case of 
+
+R.C. (Appellant) **** (Beneficiary/Enrollee) Aetna Medicare Plan (PPO) (MA Organization (MAO)/MA Plan) 
+
+Claim for 
+
+Medicare Advantage (MA) (Part C) **** (HIC Number) **** (ALJ Appeal Number) 
+
+The Administrative Law Judg decision on March 1, 2012. appellant enrollee did not 
+
+e (ALJ) issued an unfavorable The ALJ determined that the qualify for Medicare coverage of a power mobility device and that the plan was not required to provide coverage. Dec. at 8. The enrollee has asked the Medicare Appeals Council (Council) to review the ALJ’s decision. The Council admits the enrollee's request for review, with enclosures, and subsequent interim correspondence into the administrative record as Exhibits (Exhs.) MAC-1 through MAC-3. 
+
+The regulation codified at 42 C.F.R. § 422.608 states that “[t]he regulations under part 405 of this chapter regarding MAC [Medicare Appeals Council] review apply to matters addressed by this subpart to the extent that they are appropriate.” The regulations “under part 405” include the appeal procedures found at 42 C.F.R. part 405, subpart I. With respect to Medicare “fee-for-service” appeals, the subpart I procedures pertain primarily to claims subject to the Medicare, Medicaid and SCHIP Benefits Act of 2000 (BIPA) and the Medicare Prescription Drug, Improvement, and Modernization Act of 2003 (MMA). 70 Fed. Reg. 11420, 11421-11426 (March 8, 2005). The Council has determined, until there is amendment of 42 C.F.R. part 422 or clarification by the Centers for Medicare & Medicaid Services (CMS), that it 2
+
+is “appropriate” to apply, with certain exceptions, the legal provisions and principles codified in 42 C.F.R. part 405, subpart I, to this case. 1                               
+
+> 1As noted by CMS, “the provisions that are dependent upon qualified independent contractors would not apply since an independent review entity [IRE] conducts reconsiderations for MA appeals.” 70 Fed. Reg. 4676 (Jan. 28, 2005).
+
+The Council reviews the ALJ’s decision de novo. 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). The enrollee’s timely-filed request for review, which included attachments, is admitted into the administrative record as Exh. MAC-1. The Council provided the plan with notice of the appellant's request for review, and the plan has not filed exceptions. See Exh. MAC-3. For the reasons set forth below, the Council adopts the ALJ’s decision. 
+
+DISCUSSION 
+
+This case arose from the enrollee’s request for the MA plan’s approval for coverage for a power mobility device. See Exh. 12, at 1. 2                   
+
+> 2 The Exhibit List to the ALJ decision indicates that Exhs. 1-10 were omitted, and the record exhibits begin at Exh. 11.
+
+The plan denied the request for the following reason: 
+
+[T]here is no documentation to support that the member meets [the] criteria of CMS guideline *wheelchairs/ scooters (termed 'mobility assistive equipment'(MAE)) are reasonable and necessary for individuals who have a personal mobility deficit sufficient to impair their performance of mobility-related activities of daily living (MRADLs) in the home, such as toileting, feeding, dressing, grooming, and bathing. *documentation supports that the member's physical limitations have been confirmed by a face-to-face evaluation by the prescribing physician or treating practitioner*the requested equipment will restore the member's a [sic]. 
+
+Id. at 1; see also Exh. 15 (plan’s subsequent determination, upholding prior denial without explanation). Exh. 3, at 41-47. 3
+
+On further review, the independent review entity (IRE) agreed with the plan. Exh. 20. It stated that the health plan was required to pay for a medical item or service that "regular Medicare" covered. Id. at 2, citing 42 C.F.R. § 422.101. The IRE's physician consultant reviewed the record and concluded that a power scooter was not medically necessary, in part, because the documentation did not reflect the enrollee's functional skills, did not indicate whether the enrollee used an assistive device, and did not support that the enrollee had a gait deficit that impaired performance of MRADLs. Id. at 2-3, 
+
+citing Medicare National Coverage Determinations Manual (NCDM)(Pub. 100-03) Ch. 1, § 280.3. 3        
+
+> 3 Manuals issued by CMS can be found at http://www.cms.hhs.gov/manuals.
+
+The enrollee filed a request for ALJ hearing, dated November 14, 2011. Exh. 21, at 1. The ALJ conducted a telephone hearing on February 15, 2012, and the enrollee and a plan representative appeared. Dec. at 1. On March 1, 2012, the ALJ issued a hearing decision designated as “unfavorable” to the enrollee. 
+
+The ALJ found that the appellant had submitted physician's progress notes, dated July 15, 2011, and October 12, 2011, for the New York State Worker's Compensation Board which concluded, in part, that the patient was in physical therapy, could not return to work, and was totally disabled. Dec. at 2, citing 
+
+Exh. 24. The appellant also submitted a letter of medical necessity from Dr. A.B., dated September 29, 2011, which indicated that the enrollee's "progressive muscle stiffness and weakness [caused] difficulty walking and getting around, and performing his daily activities such as shopping and going to doctors' appointments." Id., citing Exh. 13. Dr. A.B. also stated that the enrollee had no family members to assist and that the enrollee would "benefit significantly from getting a motorized scooter." Id. Dr. A.B. wrote a prescription, dated October 13, 2011, for a "power operated vehicle" with diagnosis "progressive leg weakness." Id. ; see Exh. 13, at 4. The ALJ also considered physician progress notes dated July 15, 2011; August 5, 2010; August 18, 2011; and September 15, 2011. Id. ;
+
+see Exh. 13, at 4-24. 
+
+The enrollee testified that he could not use a manual wheelchair due to weakness secondary to dialysis, while the plan representative's argued that the documentation did not support that the beneficiary had mobility deficits which a power mobility device, such as a motorized scooter, would remedy (for purposes of MRADLs) or that the power mobility device would 4
+
+actually be used in the enrollee's home. Dec. at 3. The plan representative also argued that the enrollee should return to his physician for an evaluation for a power mobility device used "inside the home" to assist with MRADLs. Id. 
+
+The ALJ concluded that the record did not support that the enrollee met Medicare requirements for coverage of a "power scooter or other power mobility device." Dec. at 7. The ALJ found that Dr. A.B.'s medical necessity letter did not indicate that the enrollee required a power mobility device "to perform MRADLs in the home," but instead reflected intended use outside the home. Id. The ALJ further found that the record did not support that a physician had examined the enrollee and found a power mobility device reasonable and necessary to assist with MRADLs in the home. The record also did not support that the enrollee had sufficient strength and postural stability to operate a power operated vehicle, or that his home provided sufficient access for a power operated vehicle. Id. The ALJ concluded that the record did not support that the enrollee qualified for Medicare coverage of a power mobility device at this time and that the plan was not required to provide coverage. Id. at 8. 
+
+In the request for review, the enrollee argues that he needs a "motorized scooter indoors and out[doors]." Exh. MAC-1, at 1. The appellant asserts that enclosed recent medical records support the need for a scooter and that his "life would be much better by having a scooter to assist me in my home during the early hours of my daily needed activities." Id. 
+
+The Council has considered the enrollee’s contentions and enclosed medical records, but concludes that there is no basis for disturbing the ALJ’s determination that the record does not support that the beneficiary requires mobility assistive equipment for MRADLs within his home, which is the Medicare requirement for coverage. The appellant encloses with the request for review a list of approximately fifteen physicians that he sees, and he states that he is in both dialysis and physical therapy three times weekly on the same days, with physician appointments the other two days in the week. Exh. MAC-1, at 2. The appellant also provides a list of multiple medications; two Orders from the State of New York's Workers' Compensation Board, dated January 27, 2012, and March 19, 2012, for physical therapy; a letter of medical necessity, dated April 2, 2012, from a physician concerning physical therapy for a work related injury on October 7, 2003; a letter from the enrollee's 5
+
+podiatrist listing multiple diagnoses and stating that the beneficiary received podiatric care since 2008; wound care instructions from *** Hospital - ED (Bronx, New York), dated April 13, 2012, signed by the enrollee, but with no staff signature; and a form letter from a rheumatologist and pain management specialist, dated May 25, 2011, with checked box for "totally disabled". Exh. MAC-1, at 2-11. 
+
+The enrollee has argued, and continues to argue, that a power mobility device would greatly assist in his ability to attend dialysis, physical therapy, and physician appointments outside the home, as well as daily activities in the home. While it may be true that a power mobility device would assist the enrollee in those activities, or that the enrollee feels that he actually needs a power mobility device for these purposes, those reasons, standing alone, are not sufficient to meet Medicare coverage requirements. 
+
+As the ALJ noted, NCD § 280.3 provides, in pertinent part, that MAE may be "reasonable and necessary for beneficiaries who have a personal mobility deficit sufficient to impair their participation in mobility-related activities of daily living (MRADLs) such as toileting, feeding, dressing, grooming, and bathing in customary locations within the home ." Dec. at 6, 
+
+quoting NCD 280.3 (emphasis supplied). The ALJ noted that a sequential series of questions provide the clinical framework for determining whether MAE is reasonable and necessary "to restore the beneficiary's ability to participate in MRADLs . . .in the home." Id. Those questions are: 
+
+1. Does the beneficiary have a mobility related limitation that significantly impairs his/her ability to participate in one or more MRADLs in the home? 
+
+2. Are there other conditions that limit the beneficiary's ability to participate in MRADLs at home? 
+
+3. If these other limitations exist, can they be ameliorated or compensated sufficiently such that the additional provision of MAE will be reasonably expected to significantly improve the beneficiary's ability to perform or obtain assistance to participate in MRADLs in the home? 
+
+4. Does the beneficiary or caregiver demonstrate the capability and the willingness to consistently operate the MAE safely? 6
+
+5. Can the functional mobility deficit be sufficiently resolved by the prescription of a cane or walker? 
+
+6. Does the beneficiary's typical environment support the use of wheelchairs including scooters/power-operated vehicles (POVs)? 
+
+7. Does the beneficiary have sufficient upper extremity function to propel a manual wheelchair in the home to participate in MRADLs during a typical day? The manual wheelchair should be optimally configured (seating options, wheelbase, device weight, and other appropriate accessories) for this determination. 
+
+8. Does the beneficiary have sufficient strength and postural stability to operate a POV/scooter? 
+
+9. Are the additional features provided by a power wheelchair needed to allow the beneficiary to participate in one or more MRADLs? 
+
+NCDM, Ch. 1, § 280.3.B (subquestions omitted). The NCD also provides that "Medicare beneficiaries not meeting the clinical criteria for prescribing MAE as outlined above, and as documented by the beneficiary's physician, would not be eligible for Medicare coverage of the MAE." Id. § 280.3.C (emphasis supplied). 
+
+The Council has considered the record and the appellant's exceptions. The Council agrees with the ALJ that the record documentation, including the recent clinical documentation submitted with the request for review, does not satisfy the coverage criteria set forth in NCD § 280.3 and that the plan is not required to cover the requested power mobility device. The Council thus adopts the ALJ's decision. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Susan S. Yim 
+
+Administrative Appeals Judge 
+
+Date: June 13, 2012
