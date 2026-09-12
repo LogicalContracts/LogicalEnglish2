@@ -62,11 +62,8 @@ the target language is: prolog.
 the templates are:
     % the record
     % candidate for dmepos.le (also a template of pmd.le)
-    the weight of *a beneficiary* is *a number* pounds; undefined.
     % candidate for dmepos.le (also a template of pmd.le)
-    *a beneficiary* had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for *an item*; undefined.
     % candidate for dmepos.le (also a template of pmd.le)
-    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of *an item*; undefined.
     the expected duration of need for *an item* is *a number* months; undefined.
     *a beneficiary* owns a wheelchair that is being repaired; undefined.
     the home assessment for *an item* is documented; undefined.

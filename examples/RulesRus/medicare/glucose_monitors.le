@@ -70,7 +70,6 @@ the target language is: prolog.
 
 the templates are:
     % the record
-    the diagnosis code of *a beneficiary* is *a code*; undefined.       % candidate for dmepos.le
     *a beneficiary* is currently being treated with insulin; undefined.
     *a number* level two hypoglycemic events are documented for *a beneficiary*; undefined.
     *a number* medication adjustments before the most recent level two event are documented for *a beneficiary*; undefined.

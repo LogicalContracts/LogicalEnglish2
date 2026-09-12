@@ -72,7 +72,6 @@ the target language is: prolog.
 
 the templates are:
     % the record
-    the diagnosis code of *a beneficiary* is *a code*; undefined.
     *a drug* is administered with *a device*; undefined.
     the maintenance therapy of *a beneficiary* is *a therapy*; undefined.
     *an item* is used with a patient owned oxygen system; undefined.

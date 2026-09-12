@@ -1,0 +1,43 @@
+% Claims across policies, run through the whole model (dmepos_all.le): a
+% power wheelchair with a cushion, a CPAP with concurrent oxygen.
+
+the target language is: prolog.
+
+the knowledge base all cases includes these resources:
+    dmepos_all.
+
+the knowledge base all cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+% A CPAP (initial criteria met) and a concentrator for the same beneficiary:
+% both reasonable and necessary under their own policies.
+scenario cpap_and_oxygen is:
+    claim 1 is for the CPAP device.
+    the HCPCS code of the CPAP device is "E0601".
+    the CPAP device is furnished to Ann.
+    the rental month of claim 1 is 1.
+    Ann has a diagnosis of obstructive sleep apnea.
+    Ann had an in-person clinical evaluation by the treating practitioner on 2026-01-10.
+    the sleep test of Ann was performed on 2026-01-25.
+    the type of the sleep test of Ann is facility polysomnogram.
+    the AHI of the sleep test of Ann is 22.
+    the sleep test of Ann recorded 140 events.
+    Ann received instruction from the supplier in the use and care of the CPAP device.
+    claim 2 is for the concentrator.
+    the HCPCS code of the concentrator is "E1390".
+    the concentrator is furnished to Ann.
+    the rental month of claim 2 is 1.
+    the arterial PO2 of Ann taken at rest is 54 mm Hg.
+    the blood gas study of Ann was performed by treating practitioner.
+    the treating practitioner ordered and evaluated the blood gas study of Ann.
+    the blood gas study of Ann was performed at the time of need.
+    the finding oxygen will improve the condition about Ann is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].

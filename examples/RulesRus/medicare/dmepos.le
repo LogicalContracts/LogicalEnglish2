@@ -67,6 +67,13 @@ the templates are:
     the medical record of *a beneficiary* documents *a condition*; undefined.
     % a finding of the record, the reviewer or the appeal body about the beneficiary
     the finding *a finding* about *a beneficiary* is *an outcome*; judged.
+    % what the record states about the beneficiary and the selection of the
+    % item, read by several policies
+    the weight of *a beneficiary* is *a number* pounds; undefined.
+    the diagnosis code of *a beneficiary* is *a code*; undefined.
+    *a beneficiary* had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for *an item*; undefined.
+    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of *an item*; undefined.
+    *a beneficiary* has been self propelling a manual wheelchair for at least one year; undefined.
     % where the beneficiary lives, and what the item is
     the residence of *a beneficiary* is *a place*; undefined.
     *an item* can withstand repeated use; undefined.
