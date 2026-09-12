@@ -6763,6 +6763,11 @@ var uiCatalog = {
     "Show the source": "Mostrar a fonte",
     "Show original text": "Mostrar o texto original",
     "No cited document here.": "Nenhum documento citado aqui.",
+    "the passage that states it": "a passagem que o afirma",
+    'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': 'Onde o documento afirma este facto: a passagem, ou "de acordo com \u2026", "conforme consta em \u2026 em \u2026"',
+    "Cite the passage that states this fact": "Citar a passagem que afirma este facto",
+    "Citations": "Cita\xE7\xF5es",
+    "Full explanation": "Explica\xE7\xE3o completa",
     "From a document": "A partir de um documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Cole ou obtenha abaixo o texto do documento: cada facto citar\xE1 a passagem que o afirma.",
     "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
@@ -7099,6 +7104,11 @@ var uiCatalog = {
     "Show the source": "Mostrar la fuente",
     "Show original text": "Mostrar el texto original",
     "No cited document here.": "No hay ning\xFAn documento citado aqu\xED.",
+    "the passage that states it": "el pasaje que lo afirma",
+    'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': 'D\xF3nde afirma el documento este hecho: el pasaje, o "de acuerdo con \u2026", "seg\xFAn consta en \u2026 en \u2026"',
+    "Cite the passage that states this fact": "Citar el pasaje que afirma este hecho",
+    "Citations": "Citas",
+    "Full explanation": "Explicaci\xF3n completa",
     "From a document": "A partir de un documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Pegue u obtenga abajo el texto del documento: cada hecho citar\xE1 el pasaje que lo afirma.",
     "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
@@ -7435,6 +7445,11 @@ var uiCatalog = {
     "Show the source": "Afficher la source",
     "Show original text": "Afficher le texte original",
     "No cited document here.": "Aucun document cit\xE9 ici.",
+    "the passage that states it": "le passage qui l'\xE9nonce",
+    'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': "O\xF9 le document \xE9nonce ce fait : le passage, ou \xAB selon \u2026 \xBB, \xAB comme indiqu\xE9 dans \u2026 \xE0 \u2026 \xBB",
+    "Cite the passage that states this fact": "Citer le passage qui \xE9nonce ce fait",
+    "Citations": "Citations",
+    "Full explanation": "Explication compl\xE8te",
     "From a document": "\xC0 partir d'un document",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Collez ou r\xE9cup\xE9rez ci-dessous le texte du document : chaque fait citera le passage qui l'\xE9nonce.",
     "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
@@ -7771,6 +7786,11 @@ var uiCatalog = {
     "Show the source": "Mostra la fonte",
     "Show original text": "Mostra il testo originale",
     "No cited document here.": "Nessun documento citato qui.",
+    "the passage that states it": "il passaggio che lo afferma",
+    'Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"': 'Dove il documento afferma questo fatto: il passaggio, o "secondo \u2026", "come indicato in \u2026 a \u2026"',
+    "Cite the passage that states this fact": "Citare il passaggio che afferma questo fatto",
+    "Citations": "Citazioni",
+    "Full explanation": "Spiegazione completa",
     "From a document": "Da un documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Incolli o recuperi qui sotto il testo del documento: ogni fatto citer\xE0 il passaggio che lo afferma.",
     "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
@@ -7993,6 +8013,17 @@ function splitProvenance(fact, source) {
     }
   }
   return { base: fact, trailers: "" };
+}
+function citationTrailers(text, source) {
+  const v = text.trim();
+  if (!v)
+    return "";
+  if (splitProvenance(`x, ${v}`, source).trailers)
+    return v;
+  const lang = detectProgramLanguage(source);
+  const confer = kwPhrases(lang, "confer")[0] || kwPhrases("en", "confer")[0] || "confer";
+  const passage = v.replace(/^["“]|["”]$/g, "").replace(/"/g, "'");
+  return `${confer} "${passage}"`;
 }
 var testDirectiveReCache = null;
 function testDirectiveRe() {
@@ -8224,6 +8255,23 @@ function splitFacts(bodyLines) {
 var SYSTEM_TYPE = ["*a thing* is a *type*", "*a thing* is an *type*"];
 var isTestDirective = (fact) => testDirectiveRe().test(fact);
 var UNKNOWN_PREFIX = unknownPrefixRe();
+var datalistIds = /* @__PURE__ */ new Map();
+function datalistFor(key, values) {
+  let id = datalistIds.get(key);
+  if (!id) {
+    id = `sf-values-${datalistIds.size + 1}`;
+    datalistIds.set(key, id);
+    const dl = document.createElement("datalist");
+    dl.id = id;
+    for (const v of values) {
+      const o = document.createElement("option");
+      o.value = v;
+      dl.appendChild(o);
+    }
+    document.body.appendChild(dl);
+  }
+  return id;
+}
 var WRITE_IN_ENGLISH = "__write_in_english__";
 var DEFAULT_ASSUME_TITLE = "if checked, fact is assumed, unknown";
 var ScenarioForm = class _ScenarioForm {
@@ -8238,9 +8286,15 @@ var ScenarioForm = class _ScenarioForm {
   provenance = "";
   rows = [];
   opts;
+  // per template label, per placeholder: the values the rules read there
+  slotValues = /* @__PURE__ */ new Map();
   constructor(opts) {
     this.opts = opts;
     const defs = parseTemplateDefs(opts.source);
+    for (const x of opts.extraTemplates || []) {
+      if (Array.isArray(x.values) && x.values.some((v) => v && v.length))
+        this.slotValues.set(x.label, x.values);
+    }
     const declared = new Set(defs.map((d) => d.label));
     for (const x of opts.extraTemplates || []) {
       if (!declared.has(x.label)) {
@@ -8375,6 +8429,11 @@ var ScenarioForm = class _ScenarioForm {
           input.title = seg.text;
           input.value = row.values[fi] ?? "";
           input.disabled = row.assumed;
+          const values = this.slotValues.get(row.templateLabel)?.[fi];
+          if (values && values.length) {
+            input.setAttribute("list", datalistFor(`${row.templateLabel}#${fi}`, values));
+            input.title = `${seg.text}: ${values.slice(0, 12).join(", ")}${values.length > 12 ? ", \u2026" : ""}`;
+          }
           this.sizeField(input);
           input.addEventListener("input", () => {
             row.values[fi] = input.value;
@@ -8386,16 +8445,34 @@ var ScenarioForm = class _ScenarioForm {
         }
       }
     }
-    if (row.trailers) {
-      const prov = document.createElement("span");
-      prov.className = "trailers";
-      prov.textContent = `, ${row.trailers}`;
-      prov.title = row.trailers;
-      prov.style.cssText = "opacity:0.65;font-size:0.85em;margin-left:4px;max-width:28em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;";
-      el.appendChild(prov);
-    }
+    const cite = document.createElement("input");
+    cite.type = "text";
+    cite.className = "cite-field";
+    cite.placeholder = t("the passage that states it");
+    cite.title = t('Where the document states this fact: the passage, or "according to \u2026", "as stated in \u2026 at \u2026"');
+    cite.value = row.trailers || "";
+    cite.hidden = !row.trailers || row.templateLabel === null;
+    cite.style.cssText = "margin-left:6px;min-width:18em;flex:1 1 18em;font-style:italic;";
+    cite.addEventListener("input", () => {
+      row.trailers = citationTrailers(cite.value, this.opts.source) || void 0;
+      this.changed();
+    });
+    if (row.templateLabel !== null)
+      el.appendChild(cite);
     const tools = document.createElement("div");
     tools.className = "row-tools";
+    if (row.templateLabel !== null) {
+      const citeBtn = document.createElement("button");
+      citeBtn.className = "cite-toggle";
+      citeBtn.textContent = "\u275D";
+      citeBtn.title = t("Cite the passage that states this fact");
+      citeBtn.addEventListener("click", () => {
+        cite.hidden = !cite.hidden;
+        if (!cite.hidden)
+          cite.focus();
+      });
+      tools.appendChild(citeBtn);
+    }
     const assume = document.createElement("label");
     assume.className = "assume";
     assume.title = this.opts.assumeTitle || DEFAULT_ASSUME_TITLE;
@@ -9376,15 +9453,25 @@ async function initScenarioVariations() {
   let source = url.get("text") || ls.source || "";
   let kbName = ls.kbName || "";
   let queryDefs = Array.isArray(ls.queries) ? ls.queries : [];
+  let templateDefs = Array.isArray(ls.templateDefs) ? ls.templateDefs : [];
+  const example = url.get("example") || ls.example || "";
+  const base = url.get("base") || ls.base || "";
   let sessionModule = null;
   let sessionLoad = null;
   function startSessionLoad() {
     if (!sessionLoad) {
-      sessionLoad = (source ? leapi({ operation: "load", le: source }) : Promise.resolve(null)).then((r) => {
+      sessionLoad = (source ? leapi({
+        operation: "load",
+        le: source,
+        source: example,
+        base
+      }) : Promise.resolve(null)).then((r) => {
         if (r && r.sessionModule) {
           sessionModule = r.sessionModule;
           if (!kbName)
             kbName = r.kb || "";
+          if (templateDefs.length === 0 && Array.isArray(r.template_defs))
+            templateDefs = r.template_defs;
           if (queryDefs.length === 0 && Array.isArray(r.queries)) {
             queryDefs = r.queries.map((q) => ({ name: q.name, label: q.le || q.template }));
           }
@@ -9394,7 +9481,7 @@ async function initScenarioVariations() {
     }
     return sessionLoad;
   }
-  if (queryDefs.length === 0 && source)
+  if ((queryDefs.length === 0 || templateDefs.length === 0) && source)
     await startSessionLoad();
   else
     startSessionLoad();
@@ -9425,6 +9512,7 @@ async function initScenarioVariations() {
     addSelect: $("add-template"),
     btnAdd: $("btn-add"),
     assumeTitle: "Consider this unknown, and assume it to be true",
+    extraTemplates: templateDefs,
     onChange: () => {
       markStale();
       syncUrl();
@@ -9630,6 +9718,10 @@ async function initScenarioVariations() {
   function syncUrl() {
     const u = new URL(location.href);
     u.searchParams.set("text", source);
+    if (example)
+      u.searchParams.set("example", example);
+    if (base)
+      u.searchParams.set("base", base);
     u.searchParams.set("scenario", picker.value);
     u.searchParams.set("scenarioText", form.factsText());
     u.searchParams.set("queries", queryCards.map((q) => q.name).join(","));

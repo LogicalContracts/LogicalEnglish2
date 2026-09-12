@@ -99,6 +99,15 @@ ruling NY N362700 is at "sources/cbp/N362700.txt"`), so
   these sites — CROSS shows each ruling as an embedded PDF, EBTI detail pages
   need a session — hence the copies in `sources/`.)
 
+The subheading tables cite the tariff line by line: each row's last column
+quotes its subheading in the chapter's text (`as stated in HTSUS Chapter 62`
+for the Chapter 61 and 62 tables, whose own provenance is GRI 6; `confer` in
+Chapter 39's, which cite the chapter), so the step that gives a good its
+subheading points at "Of silk or silk waste:6214.10", not at GRI 6 alone. The
+quotations were taken from `sources/hts/` by a script (the line that ends in
+the six-digit code, or else the first ten-digit line under it); the verifier
+checks all 354.
+
 Rules that are the model's own devices rather than the tariff's have no
 provenance and say so in a comment. The Explanatory Notes are not public;
 rules that encode them cite the ruling or BTI that quotes them.

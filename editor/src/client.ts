@@ -2777,6 +2777,11 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     // needs the program's templates (to build the form fields) and the current
     // source (to list/parse existing scenarios); both are pure client data.
     document.getElementById('menu-scenario-editor')?.addEventListener('click', async () => {
+        // The templates of included resources (and the values the rules read
+        // in each place) come from a load: opened before one, the window
+        // would offer none of them.
+        adoptActiveAsProgram();
+        if (!isLoaded) await loadModule();
         // The window parses templates and scenarios straight from the source.
         const data = {
             source: programText(),
@@ -2813,6 +2818,11 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const data = {
             source: programText(),
             kbName: lastKb,
+            // the templates of included resources, and where the program came
+            // from (its own load resolves its includes against it)
+            templateDefs: lastTemplateDefs,
+            example: panelDoc.example || '',
+            base: panelDoc.baseUrl || '',
             queries: lastQueries.map((q: any) => ({ name: q.name, label: q.le || q.template })),
             selectedScenario: scenarioSelect.value === '___custom___' ? '' : scenarioSelect.value,
             selectedQuery: querySelect.value === '___custom___' ? '' : querySelect.value,

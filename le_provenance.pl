@@ -45,6 +45,7 @@
     clause_provenance/5,          % +SM, +KB, +Ref, +Goal, -Prov
     provenance_suffix/2,          % +Prov, -Suffix:string
     is_judged_goal/2,             % +KB, +Goal
+    record_table_row_provenance/2, % +M, +TableName
     citation_spans/2,             % +KB, -Spans
     citation_at/6                 % +KB, +Pos, +LineStart, +LineEnd, -Prov, -Rule
 ]).
@@ -165,6 +166,36 @@ record_rule_provenance(M, ID, Tokens0, Start, End) :-
         ;   SpanStart = Start
         ),
         assertz(M:le_rule_provenance_span(ID, SpanStart, End))
+    ;   true
+    ).
+
+%!  record_table_row_provenance(+M, +Name) is det.
+%
+%   The rows of decision table Name that cite a passage (a citation column,
+%   le_tables.pl) get it as their provenance, keyed by the row's source range
+%   like a fact's: le_fact_provenance(RowStart, RowEnd, le_table_row(Name, Row),
+%   prov(none, Document, "\"<passage>\"", none)). The document is the column's
+%   own ("as stated in <document>") or, for `confer`, the table's — so this
+%   runs again once the table's `with provenance` is recorded.
+record_table_row_provenance(M, Name) :-
+    (   nonvar(M), M \== (-),
+        current_predicate(M:le_table_row_citation/6)
+    ->  format(atom(ID), 'table_~w', [Name]),
+        (   current_predicate(M:le_rule_provenance/2),
+            M:le_rule_provenance(ID, prov(_, TableDoc, _, _))
+        ->  true
+        ;   TableDoc = none
+        ),
+        (   current_predicate(M:le_fact_provenance/4)
+        ->  retractall(M:le_fact_provenance(_, _, le_table_row(Name, _), _))
+        ;   true
+        ),
+        forall(M:le_table_row_citation(Name, RowId, Cite, Quote, RS, RE),
+               (   ( Cite = doc(_, _) -> Doc = Cite ; Doc = TableDoc ),
+                   format(string(Loc), "\"~w\"", [Quote]),
+                   assertz(M:le_fact_provenance(RS, RE, le_table_row(Name, RowId),
+                                                prov(none, Doc, Loc, none)))
+               ))
     ;   true
     ).
 

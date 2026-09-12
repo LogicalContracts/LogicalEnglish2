@@ -6,7 +6,7 @@
 */
 
 :- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2,
-                        unmatched_sentences/3]).
+                        unmatched_sentences/3, slot_values/5, with_rule_index/2]).
 
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2, ensure_kb_language/1]).
 :- use_module(le_i18n).
@@ -14,6 +14,8 @@
 :- use_module(le_scasp, []).
 :- use_module(le_documents, []).
 :- use_module(library(ordsets)).
+:- use_module(library(assoc)).
+:- use_module(library(isub)).
 
 %!  verify(+KBModule:atom, -Issues:list) is det.
 %
@@ -81,6 +83,86 @@ check_issue(KB, _, Issue) :- judgment_without_provenance(KB, Issue).
 check_issue(KB, _, Issue) :- fact_without_provenance(KB, Issue).
 check_issue(KB, _, Issue) :- service_undeclared(KB, Issue).
 check_issue(KB, _, Issue) :- quote_not_found(KB, Issue).
+check_issue(KB, _, Issue) :- unread_value(KB, Issue).
+
+% --- A value no rule reads, and one they do read is close ---
+% A scenario fact puts a constant where the program's rules test constants —
+% "the fabric construction of X is knit" where the rules read knitted, woven,
+% nonwoven, felt, lace — and the program mentions that constant nowhere: no
+% rule, fact or table row can ever match it, and the query just fails. When a
+% value the rules read is close to it (a variant, a misspelling: knit and
+% knitted, polyster and polyester), the fact is reported with those values.
+% A value the program mentions anywhere (in a list, a table cell, another
+% rule) is never reported; nor is one like none of the values read — a name,
+% or a free description the program deliberately does not interpret ("the
+% principal use of X is protecting a mobile phone").
+unread_value(KB, issue(unread_value, Description, Fix, Start, End)) :-
+    current_predicate(KB:scenario/2),
+    once(KB:scenario(_, _)),
+    program_constants(KB, Known),
+    findall(c(F/A/I, V, Head, S, E),
+            ( KB:scenario(_, Terms),
+              member(fact_with_source(Head, S, E), Terms),
+              compound(Head), Head \= (_ :- _),
+              functor(Head, F, A), \+ sub_atom(F, 0, _, _, le_),
+              arg(I, Head, V), atom(V),
+              \+ get_assoc(V, Known, _) ),
+            Candidates),
+    Candidates \== [],
+    findall(Slot, member(c(Slot, _, _, _, _), Candidates), Slots0),
+    sort(Slots0, Slots),
+    with_rule_index(KB,
+        findall(Slot-Values,
+                ( member(Slot, Slots), Slot = F/A/I,
+                  slot_values(KB, F, A, I, Values), Values \== [] ),
+                Read)),
+    member(c(Slot, V, Head, Start, End), Candidates),
+    memberchk(Slot-Values, Read),
+    nearest_values(V, Values, Nearest),
+    Nearest = [_|_],
+    fact_le_text(KB, Head, Text),
+    shown_values(Values, Shown),
+    le_i18n:le_msg(unread_value_desc, [value-V, text-Text, values-Shown], Description),
+    atomic_list_concat(Nearest, ', ', Suggestion),
+    le_i18n:le_msg(unread_value_fix, [suggestion-Suggestion], Fix).
+
+% Every atom the program's own rules, facts and decision-table rows mention —
+% not its scenarios, whose values are what is being checked.
+program_constants(KB, Known) :-
+    findall(C,
+            (   current_predicate(KB:P/N),
+                \+ le_kbs:is_system_predicate(P/N),
+                functor(G, P, N),
+                catch(clause(KB:G, B), _, fail),
+                term_atom((G :- B), C)
+            ;   current_predicate(KB:le_table_row/6),
+                KB:le_table_row(_, _, _, Cells, _, _),
+                term_atom(Cells, C)
+            ),
+            Cs0),
+    sort(Cs0, Cs),
+    findall(C-true, member(C, Cs), Pairs),
+    list_to_assoc(Pairs, Known).
+
+term_atom(T, C) :- atom(T), !, C = T.
+term_atom(T, C) :- compound(T), T =.. [_|Args], member(A, Args), term_atom(A, C).
+
+% the values most like V (letter-for-letter similarity), best first
+nearest_values(V, Values, Nearest) :-
+    findall(D-W, ( member(W, Values), atom(W),
+                   catch(isub(V, W, D, [normalize(true)]), _, fail), D >= 0.6 ), Scored),
+    sort(1, @>=, Scored, Sorted),
+    findall(W, member(_-W, Sorted), Ws),
+    ( length(Ws, N), N > 3 -> length(Nearest, 3), append(Nearest, _, Ws) ; Nearest = Ws ).
+
+shown_values(Values, Shown) :-
+    length(Values, N),
+    (   N > 12
+    ->  length(Some, 12), append(Some, _, Values),
+        atomic_list_concat(Some, ', ', S0),
+        format(atom(Shown), "~w, ... (~w in all)", [S0, N])
+    ;   atomic_list_concat(Values, ', ', Shown)
+    ).
 
 % --- Quoted locators (docs/le_summary.md §15.5, §17.1) ---
 % A fact or rule cites a passage of a document ("as stated in <document> at
@@ -1099,8 +1181,117 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value]) },
     [ '~w: ~w' - [Type, Msg] ].
+
+% ---------------------------------------------------------------------------
+% The values a placeholder can take
+% ---------------------------------------------------------------------------
+% A fact whose value the program's rules cannot read states nothing ("the cut
+% of style X indicates male" where the rules test men and women). For a
+% template, each placeholder has the values the program itself uses there,
+% found one step along the rules: the facts of another predicate that shares
+% the variable in a rule's conditions ("the kind of a good is a kind and the
+% kind falls in the family ..."), the members of a list it is tested against
+% ("... is in [woven, nonwoven]"), and the constants passed where the variable
+% flows into a rule's conclusion — including the cells of a decision table's
+% column. Read by the unread_value warning, by the editor's pick lists
+% (le_kbs:get_kb_metadata/2) and by the facts-from-a-document prompt
+% (nl_to_le.pl).
+
+%!  slot_values(+KB, +F, +A, +I, -Values:list) is det.
+slot_values(KB, F, A, I, Values) :-
+    findall(V, slot_value(KB, F, A, I, V), Vs0),
+    exclude(number, Vs0, Vs1),
+    sort(Vs1, Values).
+
+slot_value(KB, F, A, I, V) :-
+    rule_calling(KB, F/A, Head, Body),
+    find_in_body(Body, Lit),
+    functor(Lit, F, A),
+    arg(I, Lit, Arg),
+    (   atomic(Arg), Arg \== [] -> V = Arg
+    ;   var(Arg),
+        (   find_in_body(Body, Lit2), Lit2 \== Lit,
+            functor(Lit2, F2, A2), \+ sub_atom(F2, 0, _, _, le_),
+            arg(J, Lit2, Arg2), Arg2 == Arg,
+            fact_argument(KB, F2, A2, J, V)
+        ;   % "the construction is in [woven, nonwoven, felt]"
+            find_in_body(Body, le_is_in(Arg0, List)), Arg0 == Arg,
+            is_list(List), member(V, List), atomic(V)
+        ;   arg(K, Head, HArg), HArg == Arg,
+            functor(Head, HF, HA),
+            head_argument_value(KB, HF, HA, K, V)
+        )
+    ).
+
+% The rules whose conditions mention F/A. Within with_rule_index/2 they come
+% from an index built once (the editor asks for every placeholder of every
+% template at each load); otherwise from a pass over the rules.
+:- thread_local rule_index/2.
+
+rule_calling(KB, FA, Head, Body) :-
+    (   rule_index(KB, Index)
+    ->  get_assoc(FA, Index, Rules),
+        member(Head-Body, Rules)
+    ;   kb_rule(KB, Head, Body),
+        once(( find_in_body(Body, Lit), functor(Lit, F, A), F/A == FA ))
+    ).
+
+%!  with_rule_index(+KB, :Goal) is semidet.
+:- meta_predicate with_rule_index(+, 0).
+with_rule_index(KB, Goal) :-
+    findall(F/A-(Head-Body),
+            ( kb_rule(KB, Head, Body),
+              findall(F0/A0, ( find_in_body(Body, Lit), callable(Lit), functor(Lit, F0, A0) ), FAs0),
+              sort(FAs0, FAs),
+              member(F/A, FAs) ),
+            Pairs0),
+    keysort(Pairs0, Pairs),
+    group_pairs_by_key(Pairs, Grouped),
+    list_to_assoc(Grouped, Index),
+    setup_call_cleanup(asserta(rule_index(KB, Index), Ref), Goal, erase(Ref)).
+
+kb_rule(KB, Head, Body) :-
+    current_predicate(KB:P/N), functor(Head, P, N),
+    le_kbs:kb_own_predicate(KB, Head),
+    clause(KB:Head, Body), Body \== true.
+
+fact_argument(KB, F, A, J, V) :-
+    functor(G, F, A),
+    current_predicate(KB:F/A),
+    clause(KB:G, true),
+    arg(J, G, V), atomic(V).
+
+% the constants given to position K of a derived predicate: in the conditions
+% that call it, and in its own facts
+head_argument_value(KB, HF, HA, K, V) :-
+    (   rule_calling(KB, HF/HA, _, Body2),
+        find_in_body(Body2, Call),
+        functor(Call, HF, HA),
+        arg(K, Call, V0),
+        (   atomic(V0), V0 \== [] -> V = V0
+        ;   % a variable there, tested in the same conditions against a list
+            var(V0),
+            find_in_body(Body2, le_is_in(X, List)), X == V0,
+            is_list(List), member(V, List), atomic(V)
+        )
+    ;   fact_argument(KB, HF, HA, K, V)
+    ;   table_column_value(KB, HF, HA, K, V)
+    ).
+
+% the values of column K of the decision table bound to HF/HA (le_tables.pl):
+% a constant cell, or one of the alternatives of an "or" cell
+table_column_value(KB, HF, HA, K, V) :-
+    current_predicate(KB:le_table/6),
+    KB:le_table(Name, _, HF/HA, _, _, _),
+    KB:le_table_row(Name, _, _, Cells, _, _),
+    nth1(K, Cells, Cell),
+    (   Cell = val(V) -> true
+    ;   Cell = oneof(Vs) -> member(V, Vs)
+    ),
+    atomic(V).
+

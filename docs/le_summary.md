@@ -664,7 +664,10 @@ not PDF). Such facts need no provenance of their own. With them:
   the source viewer shows the document's text with the quoted passage
   highlighted, and *Open original* opens the published address (with a
   `#:~:text=` fragment on the quotation when the address has no anchor of its
-  own). The server's `documentText` operation serves the text;
+  own). The server's `documentText` operation serves the text (and a node's
+  `plain` field is its sentence without the trailers, for a view that shows
+  the citation apart — the executive view lists an answer's cited steps this
+  way);
 - in the program itself, the editor's context menu offers **Show original
   text** on any line that cites a document with an address — a fact with
   provenance, a rule's or table's `with provenance` label and its body, a
@@ -675,6 +678,19 @@ not PDF). Such facts need no provenance of their own. With them:
   `provenanceAt` operation says which document the cursor's line cites — the
   innermost citation, so a fact naming its own document is not shown its
   scenario's.
+
+**The values a place reads.** For each placeholder of a scenario template
+the program itself says which values matter: those its rules read there,
+found one step along the rules — the facts of a predicate sharing the
+variable, the members of a list it is tested against (`is in [...]`), the
+constants passed where it flows into a conclusion, a decision table's column.
+The editor's fact forms (Scenario Editor, Scenario Variations) offer them as
+suggestions in the field, the facts-from-a-document prompt lists them, and the
+verifier warns **`unread_value`** when a scenario fact puts there a value no
+rule, fact or table row of the program mentions and one the rules do read is
+close to it: `the fabric construction of style A is knit` where the rules read
+knitted, woven, … — "Did you mean knitted?". A value like none of them (a
+free description, a name) is not reported.
 
 See `examples/RulesRus/judged_damage.le`, and `examples/RulesRus/customs/`,
 where every rule, table and fact cites its passage.
@@ -743,6 +759,23 @@ the table shipping is, with first match:
   header is skipped. Rows are cached and re-read when the file changes.
 - **Explanations** cite the row: `row l of table shipping`, pointing at the
   row in the source for an inline table.
+- **A citation column.** One column of an inline table may cite, row by
+  row, the passage each row encodes — a band's line of the statute, a
+  subheading's line of a tariff. Its header is `confer` (the passages are in
+  the document the table's `with provenance` names) or `as stated in
+  <document>` (another document); each cell is a quoted passage, or empty:
+  ```le
+  the table woven is, with first match, with provenance HTSUS General Rules of Interpretation,
+          confer "the classification of goods in the subheadings of a heading ...":
+      row | heading | material | code      | as stated in HTSUS Chapter 62
+      w93 | 6214    | silk     | "6214.10" | "Of silk or silk waste:6214.10"
+  ```
+  The column is not one of the template's (it is set aside before columns
+  and arguments are matched). Each row's passage becomes the row's
+  provenance, like a fact's (§17.1): the explanation's node for the row
+  carries it (its **§** badge opens the passage), "Show original text" on the
+  row finds it, and the verifier checks the quotation against the document's
+  text (`quote_not_found`). Loaded (CSV) tables have no citation column.
 - The table compiles to one clause of its template, `Head :- le_table(Name,
   Args)`, plus row records (`le_table/6`, `le_table_row/6`). Errors reported
   at load time: `table_without_template`, `table_arity_mismatch`,
