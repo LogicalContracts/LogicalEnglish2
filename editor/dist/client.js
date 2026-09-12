@@ -6768,6 +6768,11 @@ var uiCatalog = {
     "Cite the passage that states this fact": "Citar a passagem que afirma este facto",
     "Citations": "Cita\xE7\xF5es",
     "Full explanation": "Explica\xE7\xE3o completa",
+    "Flip\u2026": "Inverter\u2026",
+    "Which minimal change to the scenario would flip the outcome? Asks a flip query about the selected answer (or the query), as a custom query you can edit": "Que altera\xE7\xE3o m\xEDnima ao cen\xE1rio inverteria o resultado? Faz uma consulta de invers\xE3o sobre a resposta selecionada (ou a consulta), como consulta personalizada que pode editar",
+    "Flip the outcome": "Inverter o resultado",
+    "Flip": "Inverter",
+    "The answers are the smallest sets of scenario facts to add or remove that make it so, each with the proof it then has. The flip runs on the selected scenario, as a custom query you can edit and run again.": "As respostas s\xE3o os menores conjuntos de factos do cen\xE1rio a acrescentar ou retirar para que assim seja, cada um com a prova que ent\xE3o tem. A invers\xE3o corre sobre o cen\xE1rio selecionado, como consulta personalizada que pode editar e voltar a correr.",
     "From a document": "A partir de um documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Cole ou obtenha abaixo o texto do documento: cada facto citar\xE1 a passagem que o afirma.",
     "Document name, e.g. ruling NY N362700": "Nome do documento, p. ex. ruling NY N362700",
@@ -7109,6 +7114,11 @@ var uiCatalog = {
     "Cite the passage that states this fact": "Citar el pasaje que afirma este hecho",
     "Citations": "Citas",
     "Full explanation": "Explicaci\xF3n completa",
+    "Flip\u2026": "Invertir\u2026",
+    "Which minimal change to the scenario would flip the outcome? Asks a flip query about the selected answer (or the query), as a custom query you can edit": "\xBFQu\xE9 cambio m\xEDnimo al escenario invertir\xEDa el resultado? Hace una consulta de inversi\xF3n sobre la respuesta seleccionada (o la consulta), como consulta personalizada que puede editar",
+    "Flip the outcome": "Invertir el resultado",
+    "Flip": "Invertir",
+    "The answers are the smallest sets of scenario facts to add or remove that make it so, each with the proof it then has. The flip runs on the selected scenario, as a custom query you can edit and run again.": "Las respuestas son los conjuntos m\xE1s peque\xF1os de hechos del escenario que a\xF1adir o quitar para que as\xED sea, cada uno con la prueba que entonces tiene. La inversi\xF3n se ejecuta sobre el escenario seleccionado, como consulta personalizada que puede editar y volver a ejecutar.",
     "From a document": "A partir de un documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Pegue u obtenga abajo el texto del documento: cada hecho citar\xE1 el pasaje que lo afirma.",
     "Document name, e.g. ruling NY N362700": "Nombre del documento, p. ej. ruling NY N362700",
@@ -7450,6 +7460,11 @@ var uiCatalog = {
     "Cite the passage that states this fact": "Citer le passage qui \xE9nonce ce fait",
     "Citations": "Citations",
     "Full explanation": "Explication compl\xE8te",
+    "Flip\u2026": "Inverser\u2026",
+    "Which minimal change to the scenario would flip the outcome? Asks a flip query about the selected answer (or the query), as a custom query you can edit": "Quel changement minimal du sc\xE9nario inverserait le r\xE9sultat ? Pose une requ\xEAte d'inversion sur la r\xE9ponse s\xE9lectionn\xE9e (ou la requ\xEAte), comme requ\xEAte personnalis\xE9e modifiable",
+    "Flip the outcome": "Inverser le r\xE9sultat",
+    "Flip": "Inverser",
+    "The answers are the smallest sets of scenario facts to add or remove that make it so, each with the proof it then has. The flip runs on the selected scenario, as a custom query you can edit and run again.": "Les r\xE9ponses sont les plus petits ensembles de faits du sc\xE9nario \xE0 ajouter ou retirer pour qu'il en soit ainsi, chacun avec la preuve qu'il donne alors. L'inversion porte sur le sc\xE9nario s\xE9lectionn\xE9, comme requ\xEAte personnalis\xE9e que vous pouvez modifier et relancer.",
     "From a document": "\xC0 partir d'un document",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Collez ou r\xE9cup\xE9rez ci-dessous le texte du document : chaque fait citera le passage qui l'\xE9nonce.",
     "Document name, e.g. ruling NY N362700": "Nom du document, p. ex. ruling NY N362700",
@@ -7791,6 +7806,11 @@ var uiCatalog = {
     "Cite the passage that states this fact": "Citare il passaggio che afferma questo fatto",
     "Citations": "Citazioni",
     "Full explanation": "Spiegazione completa",
+    "Flip\u2026": "Invertire\u2026",
+    "Which minimal change to the scenario would flip the outcome? Asks a flip query about the selected answer (or the query), as a custom query you can edit": "Quale cambiamento minimo dello scenario invertirebbe il risultato? Pone un'interrogazione di inversione sulla risposta selezionata (o sull'interrogazione), come interrogazione personalizzata modificabile",
+    "Flip the outcome": "Invertire il risultato",
+    "Flip": "Invertire",
+    "The answers are the smallest sets of scenario facts to add or remove that make it so, each with the proof it then has. The flip runs on the selected scenario, as a custom query you can edit and run again.": "Le risposte sono gli insiemi pi\xF9 piccoli di fatti dello scenario da aggiungere o togliere perch\xE9 sia cos\xEC, ciascuno con la prova che allora ha. L'inversione si esegue sullo scenario selezionato, come interrogazione personalizzata che pu\xF2 modificare e rieseguire.",
     "From a document": "Da un documento",
     "Paste or fetch the document text below: each fact will cite the passage that states it.": "Incolli o recuperi qui sotto il testo del documento: ogni fatto citer\xE0 il passaggio che lo afferma.",
     "Document name, e.g. ruling NY N362700": "Nome del documento, ad es. ruling NY N362700",
@@ -10327,6 +10347,8 @@ function wireMenus(m) {
 }
 var ExplanationView = class {
   currentAnswerToCopy = "";
+  // The selected answer's text; null when none is, or it is "no answers".
+  selectedAnswer = null;
   // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
   currentMenuNode = null;
   // The `why` of the answer last right-clicked, target of the Bento Box item.
@@ -10438,6 +10460,7 @@ var ExplanationView = class {
   showResults(res, selectIndex = 0) {
     const answersList = this.o.answersList;
     answersList.innerHTML = "";
+    this.selectedAnswer = null;
     this.o.explanationTree.innerHTML = "";
     this.m.answerTooltip.style.display = "none";
     if (res && res.results && res.results.length > 0) {
@@ -10467,6 +10490,7 @@ var ExplanationView = class {
         item.addEventListener("click", () => {
           answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
           item.classList.add("selected");
+          this.selectedAnswer = result.answer;
           this.renderExplanation(result.why);
           this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
           this.o.onSelectAnswer?.(index + 1);
@@ -10481,9 +10505,11 @@ var ExplanationView = class {
       item.className = "answer-item failure selected";
       item.style.color = "#f48771";
       item.textContent = t("No answers (false)");
+      this.selectedAnswer = null;
       item.addEventListener("click", () => {
         answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
         item.classList.add("selected");
+        this.selectedAnswer = null;
         this.renderExplanation(res.why);
         this.setStrongestReason(res.strongestReason, res.strongestReasonPath);
       });
@@ -13194,6 +13220,71 @@ async function start() {
     } finally {
       hideInterrupt();
     }
+  });
+  const flipModal = document.getElementById("flip-modal");
+  const flipGoal = document.getElementById("flip-goal");
+  const flipNot = document.getElementById("flip-not");
+  const flipPhrase = (key) => {
+    const lang = detectProgramLanguage(programText());
+    return kwPhrases(lang, key)[0] || kwPhrases("en", key)[0] || "";
+  };
+  const closeFlip = () => {
+    if (flipModal)
+      flipModal.style.display = "none";
+  };
+  document.getElementById("flip-close")?.addEventListener("click", closeFlip);
+  document.getElementById("flip-cancel")?.addEventListener("click", closeFlip);
+  flipModal?.addEventListener("click", (e) => {
+    if (e.target === flipModal)
+      closeFlip();
+  });
+  document.getElementById("btn-flip")?.addEventListener("click", async () => {
+    if (!flipModal || !flipGoal || !flipNot)
+      return;
+    if (!isLoaded) {
+      const ok = await loadModule();
+      if (!ok)
+        return;
+    }
+    const opener = flipPhrase("flip_query");
+    const notWords = flipPhrase("not_the_case");
+    let goal = "";
+    let negate = false;
+    const current = querySelect.value === "___custom___" ? customQueryText.value.trim() : "";
+    if (current && opener && current.toLowerCase().startsWith(opener.toLowerCase())) {
+      goal = current.slice(opener.length).trim().replace(/\.$/, "");
+      if (notWords && goal.toLowerCase().startsWith(notWords.toLowerCase())) {
+        negate = true;
+        goal = goal.slice(notWords.length).trim();
+      }
+    } else if (explView.selectedAnswer) {
+      goal = explView.selectedAnswer;
+      negate = true;
+    } else {
+      const q = lastQueries.find((x) => x.name === querySelect.value);
+      goal = q ? q.le || "" : current;
+    }
+    document.getElementById("flip-opener").textContent = `${opener} \u2026`;
+    document.getElementById("flip-not-words").textContent = notWords;
+    flipNot.checked = negate;
+    flipGoal.value = goal;
+    flipModal.style.display = "flex";
+    flipGoal.focus();
+  });
+  document.getElementById("flip-run")?.addEventListener("click", () => {
+    if (!flipGoal || !flipNot)
+      return;
+    const goal = flipGoal.value.trim().replace(/\.$/, "");
+    if (!goal)
+      return;
+    const text = `${flipPhrase("flip_query")} ${flipNot.checked ? flipPhrase("not_the_case") + " " : ""}${goal}`;
+    querySelect.value = "___custom___";
+    customQueryContainer.style.display = "flex";
+    customQueryText.value = text;
+    updateQueryButtonState();
+    updateUrlSelection();
+    closeFlip();
+    btnQuery.click();
   });
   const btnProofGame = document.getElementById("btn-proof-game");
   btnProofGame.addEventListener("click", async () => {
