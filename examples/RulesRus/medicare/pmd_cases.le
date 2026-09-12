@@ -272,3 +272,47 @@ scenario stale_encounter is:
     the supplier holds proof of delivery for the power wheelchair.
     pay expects answers [].
     stage expects answers ["the query fails at remedy"].
+
+% A view (docs/le_summary.md §17.10): the reviewer's screen for a power
+% mobility claim — the record's facts by group, the findings apart, whether
+% the claim is payable and at which stage it fails, what is missing, the
+% minimal change that would make it payable, and a draft of the decision
+% letter. The executive view renders it
+% (/executive?program=RulesRus/medicare/pmd_cases&view=coverage desk).
+the view coverage desk is:
+    the title is "Power mobility coverage desk".
+    the case is a scenario, with the documents it is stated in.
+    the facts about "the claim" are
+        a claim is for an item,
+        the HCPCS code of an item is a code,
+        an item is furnished to a beneficiary,
+        the residence of a beneficiary is a place,
+        the date of service of a claim is a date,
+        the rental month of a claim is a number.
+    the facts about "the beneficiary" are
+        the weight of a beneficiary is a number pounds,
+        a beneficiary had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for an item,
+        a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of an item,
+        the condition of a beneficiary is reversible with a length of need under three months.
+    the facts about "the order and the delivery" are
+        the treating practitioner examined a beneficiary for an item in a face-to-face encounter on a date,
+        the order for an item is dated a date,
+        the order for an item is signed by the treating practitioner,
+        the order for an item includes an element,
+        the order for an item was communicated to the supplier on a date,
+        the order for an item was written by the practitioner who conducted the face-to-face encounter,
+        prior authorization for an item was affirmed on a date,
+        an item was delivered on a date,
+        the supplier holds proof of delivery for an item,
+        the supplier performed an on-site evaluation of the home for an item.
+    the judgments are
+        the finding a finding about a beneficiary is an outcome.
+    every fact shows who states it.
+    the result is the answer to query pay.
+    the result shows the stage it reaches.
+    the result shows its citations.
+    the result asks what is missing.
+    the result can be flipped.
+    the documents of the case are shown beside the facts.
+    the cases are listed with their results.
+    the draft reads "DETERMINATION: {the result}. The claim of {the case} was reviewed under LCD L33789 (Power Mobility Devices) and Policy Article A52498. The facts relied on: {the facts}. The passages applied: {the citations}.".

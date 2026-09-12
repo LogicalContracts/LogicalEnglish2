@@ -1,0 +1,568 @@
+% Respiratory Assist Devices (RAD): LCD L33800 and its Policy Article A52517
+% (DME MACs). A policy program of the DMEPOS model: it includes dmepos.le
+% (orders, delivery, benefit category, continued need, refills) and states
+% when a claim for a bi-level respiratory assist device without back-up rate
+% (E0470) or with back-up rate (E0471) is REASONABLE AND NECESSARY for the
+% clinical disorders the LCD lists: restrictive thoracic disorders (criteria
+% A-C), central sleep apnea (CSA) or complex sleep apnea (CompSA) (criteria A
+% and B of a facility-based attended polysomnogram), hypoventilation syndrome
+% (E0470: A, B and C or D; E0471: a covered E0470 in use, B, and C or D) and
+% chronic respiratory failure consequent to COPD (the criteria of NCD 240.9,
+% which this program does not model: a finding stands for them). The
+% continued coverage beyond the first three months (a re-evaluation by the
+% treating practitioner no sooner than the 61st day, average use of at least
+% 4 hours per day, the practitioner's signed statement) and, for COPD, beyond
+% the first six months (the NCD's continuing usage criteria, a finding).
+% Accessories and humidifiers are not modelled here: pap.le carries the PAP
+% accessory codes and their usual maximum quantities. E0472 is not a code of
+% this LCD.
+%
+% E0470 is also a PAP code: pap.le covers it for obstructive sleep apnea.
+% Every rule of this program is guarded by one of the RAD disorders (a
+% documented neuromuscular disease or thoracic cage abnormality, a
+% polysomnogram documenting CSA or CompSA, a documented hypoventilation
+% syndrome, a documented chronic respiratory failure consequent to COPD), so
+% an E0470 claim for OSA is decided by pap.le alone.
+%
+% How the criteria are read. Measurements are facts of the record, as the
+% test reports state them: the PaCO2 of an arterial blood gas in mm Hg (the
+% initial one, done while awake; the one done during sleep or on awakening;
+% the follow-up one during use of an E0470), the oxygen saturation of a sleep
+% oximetry or a sleep test (the saturation reached and for how many minutes,
+% the recording time in hours), the FEV1 to FVC ratio of the spirometry, the
+% maximal inspiratory pressure, the forced vital capacity as a percent of
+% predicted, the AHI and CAHI of the sleep test and the share of central
+% events, the average hours of use per day at the re-evaluation, the dates.
+% The thresholds (45 mm Hg, 88 percent for 5 minutes of a 2-hour recording,
+% 60 cm H2O, 50 percent, 70 percent, 7 mm Hg, AHI 5, CAHI 5, 50 percent
+% central events, 61 days, 4 hours) are in the rules. Documented conditions
+% and symptoms are the shared template "the medical record of B documents C".
+% The sleep test of a beneficiary is one test (the AHI template stands for
+% the AHI of a facility polysomnogram and of a home sleep test alike). Use of
+% the device is taken to start on the day it is delivered. The findings this
+% policy reads, and the criterion each stands for:
+%   copd contribution insignificant (restrictive thoracic disorders, C: COPD
+%     does not contribute significantly to the pulmonary limitation);
+%   hypoventilation improved on device (CSA or CompSA, B: significant
+%     improvement of the sleep-associated hypoventilation with the device on
+%     the settings prescribed for home use);
+%   copd ncd initial criteria met (CRF consequent to COPD: the initial
+%     coverage criteria of NCD 240.9 for the device);
+%   copd ncd continuing criteria met (CRF consequent to COPD beyond six
+%     months: the continuing usage criteria of NCD 240.9).
+% Not modelled: the 2-hour rule for an AHI or CAHI computed on a short
+% recording (the count of events), the sleep test being ordered by the
+% treating practitioner and run by a qualified provider on an FDA-approved
+% device (the "Sleep Tests" paragraph, as in pap.le), the replacement rules,
+% the beneficiaries entering Medicare, the ventilator coding rules, the
+% discontinuation of use.
+
+the target language is: prolog.
+
+the templates are:
+    % the record: the disorder and the symptoms
+    *a condition* is a symptom of sleep associated hypoventilation.
+    *a condition* is a symptom of central sleep apnea.
+    % the record: blood gases, oximetry, spirometry, pressures
+    the PaCO2 of the initial arterial blood gas of *a beneficiary* done while awake on the prescribed FIO2 is *a number* mm Hg; undefined.
+    the PaCO2 of the arterial blood gas of *a beneficiary* done during sleep or immediately upon awakening on the prescribed FIO2 is *a number* mm Hg; undefined.
+    the PaCO2 of the follow-up arterial blood gas of *a beneficiary* done while awake on the prescribed FIO2 during use of the E0470 device is *a number* mm Hg; undefined.
+    the sleep oximetry of *a beneficiary* on the prescribed FIO2 shows oxygen saturation at or below *a number* percent for *an other number* minutes; undefined.
+    the recording time of the sleep oximetry of *a beneficiary* is *a number* hours; undefined.
+    the maximal inspiratory pressure of *a beneficiary* is *a number* cm H2O; undefined.
+    the forced vital capacity of *a beneficiary* is *a number* percent of predicted; undefined.
+    the FEV1 to FVC ratio of the spirometry of *a beneficiary* is *a number* percent; undefined.
+    *a beneficiary* is using an E0470 device; undefined.
+    % the record: the sleep test
+    the sleep test of *a beneficiary* was performed on *a date*; undefined.
+    the type of the sleep test of *a beneficiary* is *a type*; undefined.
+    the sleep test of *a beneficiary* was attended; undefined.
+    the sleep test of *a beneficiary* was performed by the DME supplier; undefined.
+    the sleep test of *a beneficiary* was performed while using an E0470 device; undefined.
+    the AHI of the sleep test of *a beneficiary* is *a number*; undefined.
+    the CAHI of the sleep test of *a beneficiary* is *a number*; undefined.
+    central apneas and central hypopneas are *a number* percent of the apneas and hypopneas of the sleep test of *a beneficiary*; undefined.
+    the sleep test of *a beneficiary* shows oxygen saturation at or below *a number* percent for *an other number* minutes; undefined.
+    the recording time of the sleep test of *a beneficiary* is *a number* hours; undefined.
+    the titration of *a beneficiary* on a PAP device without backup rate reached an obstructive AHI of *a number*; undefined.
+    after resolution of the obstructive events central apneas and central hypopneas are *a number* percent of the apneas and hypopneas of *a beneficiary*; undefined.
+    after resolution of the obstructive events the CAHI of *a beneficiary* is *a number*; undefined.
+    % the record: the re-evaluation
+    *a beneficiary* was re-evaluated by the treating practitioner on *a date*; undefined.
+    the medical record of *a beneficiary* documents the progress of symptoms and the usage of *an item*; undefined.
+    the average use of *an item* by *a beneficiary* by the time of the re-evaluation is *a number* hours per day; undefined.
+    the supplier holds a statement signed and dated by the treating practitioner on *a date* declaring that *a beneficiary* is compliantly using and benefiting from *an item*; undefined.
+    % derived
+    *an item* is a RAD device.
+    *a claim* is in the initial RAD coverage period.
+    *an item* meets the initial RAD coverage criteria for *a disorder*.
+    symptoms of sleep associated hypoventilation are documented for *a beneficiary*.
+    *a beneficiary* meets the restrictive thoracic disorder criteria.
+    *a beneficiary* has a restrictive thoracic disorder.
+    *a beneficiary* meets the restrictive thoracic disorder test criterion.
+    *a beneficiary* meets the central sleep apnea criteria.
+    the sleep test of *a beneficiary* is a facility based attended polysomnogram.
+    the sleep test of *a beneficiary* documents central sleep apnea.
+    the sleep test of *a beneficiary* documents complex sleep apnea.
+    the sleep test of *a beneficiary* shows a central pattern.
+    *a beneficiary* shows a symptom of central sleep apnea.
+    there is no evidence of hypoventilation for *a beneficiary*.
+    *a beneficiary* meets the hypoventilation syndrome criteria for E0470.
+    *a beneficiary* meets the hypoventilation syndrome criteria for E0471.
+    the initial PaCO2 of *a beneficiary* meets the hypoventilation criterion.
+    the spirometry of *a beneficiary* meets the FEV1 to FVC criterion.
+    the PaCO2 of *a beneficiary* worsened during sleep.
+    the PaCO2 of *a beneficiary* worsened during use of the E0470 device.
+    the sleep test of *a beneficiary* shows nocturnal desaturation without obstructive events.
+    the sleep test of *a beneficiary* is a valid sleep test.
+    *a beneficiary* is using a covered E0470 device.
+    *a beneficiary* meets the COPD criteria.
+    use of *an item* was initiated on *a date*.
+    *an item* meets the RAD continued coverage criteria for *a claim*.
+    *a beneficiary* was re-evaluated in time for *a claim*.
+    *a beneficiary* is compliantly using *an item*.
+    the supplier holds the practitioner statement for *an item*.
+
+the knowledge base rad includes these resources:
+    dmepos.
+
+the knowledge base rad includes:
+
+LCD L33800 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33800".
+the text of LCD L33800 is at "sources/lcd/L33800.txt".
+Policy Article A52517 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52517".
+the text of Policy Article A52517 is at "sources/article/A52517.txt".
+
+% What a RAD device is.
+rule rad_device with provenance Policy Article A52517,
+        confer "A respiratory assist device (RAD) without backup rate (E0470) delivers adjustable, variable levels (within a single respiratory cycle) of positive air pressure":
+an item is a RAD device
+    if the HCPCS code of the item is a code
+    and the code is in ["E0470", "E0471"].
+
+% The symptoms of sleep-associated hypoventilation the LCD names ("such as":
+% the list is the LCD's examples).
+daytime hypersomnolence is a symptom of sleep associated hypoventilation,
+    as stated in LCD L33800, confer "such as daytime hypersomnolence, excessive fatigue, morning headache, cognitive dysfunction, dyspnea".
+excessive fatigue is a symptom of sleep associated hypoventilation,
+    as stated in LCD L33800, confer "such as daytime hypersomnolence, excessive fatigue, morning headache, cognitive dysfunction, dyspnea".
+morning headache is a symptom of sleep associated hypoventilation,
+    as stated in LCD L33800, confer "such as daytime hypersomnolence, excessive fatigue, morning headache, cognitive dysfunction, dyspnea".
+cognitive dysfunction is a symptom of sleep associated hypoventilation,
+    as stated in LCD L33800, confer "such as daytime hypersomnolence, excessive fatigue, morning headache, cognitive dysfunction, dyspnea".
+dyspnea is a symptom of sleep associated hypoventilation,
+    as stated in LCD L33800, confer "such as daytime hypersomnolence, excessive fatigue, morning headache, cognitive dysfunction, dyspnea".
+
+% The symptoms of the LCD's definition of central sleep apnea.
+sleepiness is a symptom of central sleep apnea,
+    as stated in LCD L33800, confer "The presence of at least one of the following: Sleepiness".
+difficulty initiating or maintaining sleep is a symptom of central sleep apnea,
+    as stated in LCD L33800, confer "Difficulty initiating or maintaining sleep, frequent awakenings, or non-restorative sleep".
+frequent awakenings is a symptom of central sleep apnea,
+    as stated in LCD L33800, confer "Difficulty initiating or maintaining sleep, frequent awakenings, or non-restorative sleep".
+non-restorative sleep is a symptom of central sleep apnea,
+    as stated in LCD L33800, confer "Difficulty initiating or maintaining sleep, frequent awakenings, or non-restorative sleep".
+awakening short of breath is a symptom of central sleep apnea,
+    as stated in LCD L33800, confer "Awakening short of breath".
+snoring is a symptom of central sleep apnea,
+    as stated in LCD L33800, confer "Snoring Witnessed apneas".
+witnessed apneas is a symptom of central sleep apnea,
+    as stated in LCD L33800, confer "Snoring Witnessed apneas".
+
+section applicability is:
+
+rad has no specific documentation requirements.
+
+% The codes this policy decides, and their benefit: durable medical equipment
+% (Policy Article A52517). E0470 is also a code of pap.le, for OSA.
+rule rad_codes with provenance Policy Article A52517,
+        confer "Respiratory assist devices are covered under the Durable Medical Equipment benefit":
+the policy for code a code is rad
+    if the code is in ["E0470", "E0471"].
+
+rule rad_benefit with provenance Policy Article A52517,
+        confer "Respiratory assist devices are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is rad.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Initial coverage: the first three months (restrictive thoracic disorders,
+% CSA or CompSA, hypoventilation syndrome); the first six months for chronic
+% respiratory failure consequent to COPD.
+% ---------------------------------------------------------------------------
+
+rule rad_initial with provenance LCD L33800,
+        confer "A RAD (E0470, E0471) is covered for those beneficiaries with one of the following clinical disorders: restrictive thoracic disorders (i.e., neuromuscular diseases or severe thoracic cage abnormalities), CSA or CompSA, hypoventilation syndrome":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a RAD device
+    and the claim is in the initial RAD coverage period
+    and the item meets the initial RAD coverage criteria for a disorder
+    and the disorder is in [restrictive thoracic disorder, central sleep apnea, complex sleep apnea, hypoventilation syndrome].
+
+rule rad_initial_copd with provenance LCD L33800,
+        confer "See CONTINUED COVERAGE CRITERIA FOR E0470 OR E0471 DEVICES BEYOND THE FIRST SIX MONTHS for information on more than six months use":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a RAD device
+    and the rental month of the claim is a number
+    and the number <= 6
+    and the item meets the initial RAD coverage criteria for chronic respiratory failure consequent to COPD.
+
+rule rad_initial_period with provenance LCD L33800,
+        confer "will be covered for the first three months of therapy":
+a claim is in the initial RAD coverage period
+    if the rental month of the claim is a number
+    and the number <= 3.
+
+% Every disorder: the symptoms of sleep-associated hypoventilation must be
+% documented.
+rule rad_symptoms with provenance LCD L33800,
+        confer "the treating practitioner must fully document in the beneficiary’s medical record symptoms characteristic of sleep-associated hypoventilation":
+symptoms of sleep associated hypoventilation are documented for a beneficiary
+    if the medical record of the beneficiary documents a condition
+    and the condition is a symptom of sleep associated hypoventilation.
+
+% --- Restrictive thoracic disorders: criteria A, B and C, either device. ---
+
+rule rad_rtd with provenance LCD L33800,
+        confer "Restrictive Thoracic Disorders An E0470 or E0471 device is covered when criteria A – C are met":
+an item meets the initial RAD coverage criteria for restrictive thoracic disorder
+    if the item is furnished to a beneficiary
+    and symptoms of sleep associated hypoventilation are documented for the beneficiary
+    and the beneficiary meets the restrictive thoracic disorder criteria.
+
+rule rad_rtd_criteria with provenance LCD L33800,
+        confer "If all of the above criteria are met, either an E0470 or an E0471 device (based upon the judgment of the treating practitioner) will be covered for the first three months of therapy":
+a beneficiary meets the restrictive thoracic disorder criteria
+    if the beneficiary has a restrictive thoracic disorder
+    and the beneficiary meets the restrictive thoracic disorder test criterion
+    and the finding copd contribution insignificant about the beneficiary is established.
+
+% Criterion A: the documented disorder.
+rule rad_rtd_a with provenance LCD L33800,
+        confer "There is documentation in the beneficiary’s medical record of a neuromuscular disease (for example, amyotrophic lateral sclerosis) or a severe thoracic cage abnormality (for example, post-thoracoplasty for TB)":
+a beneficiary has a restrictive thoracic disorder
+    if the medical record of the beneficiary documents a condition
+    and the condition is in [neuromuscular disease, severe thoracic cage abnormality].
+
+% Criterion B, alternatives 1 (the awake PaCO2), 2 (the sleep oximetry), 3
+% (a neuromuscular disease only: the inspiratory pressure or the FVC).
+rule rad_rtd_b1 with provenance LCD L33800,
+        confer "An arterial blood gas PaCO2, done while awake and breathing the beneficiary’s prescribed FIO2 is greater than or equal to 45 mm Hg":
+a beneficiary meets the restrictive thoracic disorder test criterion
+    if the PaCO2 of the initial arterial blood gas of the beneficiary done while awake on the prescribed FIO2 is a number mm Hg
+    and the number >= 45.
+
+rule rad_rtd_b2 with provenance LCD L33800,
+        confer "Sleep oximetry demonstrates oxygen saturation less than or equal to 88":
+a beneficiary meets the restrictive thoracic disorder test criterion
+    if the sleep oximetry of the beneficiary on the prescribed FIO2 shows oxygen saturation at or below a number percent for an other number minutes
+    and the number <= 88
+    and the other number >= 5
+    and the recording time of the sleep oximetry of the beneficiary is a third number hours
+    and the third number >= 2.
+
+rule rad_rtd_b3_mip with provenance LCD L33800,
+        confer "For a neuromuscular disease (only), either i or ii, Maximal inspiratory pressure is less than 60 cm H20":
+a beneficiary meets the restrictive thoracic disorder test criterion
+    if the medical record of the beneficiary documents neuromuscular disease
+    and the maximal inspiratory pressure of the beneficiary is a number cm H2O
+    and the number < 60.
+
+rule rad_rtd_b3_fvc with provenance LCD L33800,
+        confer "Forced vital capacity is less than 50":
+a beneficiary meets the restrictive thoracic disorder test criterion
+    if the medical record of the beneficiary documents neuromuscular disease
+    and the forced vital capacity of the beneficiary is a number percent of predicted
+    and the number < 50.
+
+% --- Central sleep apnea or complex sleep apnea: criteria A and B of a ---
+% --- facility-based attended polysomnogram, done before therapy started. ---
+
+rule rad_csa with provenance LCD L33800,
+        confer "Central Sleep Apnea or Complex Sleep Apnea An E0470 or E0471 device is covered when, prior to initiating therapy, a complete facility-based, attended PSG is performed documenting the following (A and B)":
+an item meets the initial RAD coverage criteria for central sleep apnea
+    if the item is furnished to a beneficiary
+    and symptoms of sleep associated hypoventilation are documented for the beneficiary
+    and the sleep test of the beneficiary is a facility based attended polysomnogram
+    and the sleep test of the beneficiary documents central sleep apnea
+    and the beneficiary meets the central sleep apnea criteria
+    and use of the item was initiated on a date
+    and the sleep test of the beneficiary was performed on an other date
+    and the other date is before or equal to the date.
+
+rule rad_compsa with provenance LCD L33800,
+        confer "Central Sleep Apnea or Complex Sleep Apnea An E0470 or E0471 device is covered when, prior to initiating therapy, a complete facility-based, attended PSG is performed documenting the following (A and B)":
+an item meets the initial RAD coverage criteria for complex sleep apnea
+    if the item is furnished to a beneficiary
+    and symptoms of sleep associated hypoventilation are documented for the beneficiary
+    and the sleep test of the beneficiary is a facility based attended polysomnogram
+    and the sleep test of the beneficiary documents complex sleep apnea
+    and the beneficiary meets the central sleep apnea criteria
+    and use of the item was initiated on a date
+    and the sleep test of the beneficiary was performed on an other date
+    and the other date is before or equal to the date.
+
+% Criterion B: the improvement on the device is a judgment of the treating
+% practitioner reading the titration.
+rule rad_csa_b with provenance LCD L33800,
+        confer "Significant improvement of the sleep-associated hypoventilation with the use of an E0470 or E0471 device on the settings that will be prescribed for initial use at home, while breathing the beneficiary’s prescribed FIO2":
+a beneficiary meets the central sleep apnea criteria
+    if the finding hypoventilation improved on device about the beneficiary is established.
+
+rule rad_psg with provenance LCD L33800,
+        confer "a complete facility-based, attended PSG is performed":
+the sleep test of a beneficiary is a facility based attended polysomnogram
+    if the type of the sleep test of the beneficiary is facility polysomnogram
+    and the sleep test of the beneficiary was attended.
+
+% The LCD's definition of central sleep apnea: AHI at least 5, central events
+% more than half, CAHI at least 5, a symptom, no evidence of hypoventilation.
+rule rad_csa_definition with provenance LCD L33800,
+        confer "Central sleep apnea (CSA) is defined by all of the following: An apnea-hypopnea index (AHI) greater than or equal to 5":
+the sleep test of a beneficiary documents central sleep apnea
+    if the AHI of the sleep test of the beneficiary is a number
+    and the number >= 5
+    and the sleep test of the beneficiary shows a central pattern
+    and the beneficiary shows a symptom of central sleep apnea
+    and there is no evidence of hypoventilation for the beneficiary.
+
+rule rad_central_pattern with provenance LCD L33800,
+        confer "The sum total of central apneas plus central hypopneas is greater than 50":
+the sleep test of a beneficiary shows a central pattern
+    if central apneas and central hypopneas are a number percent of the apneas and hypopneas of the sleep test of the beneficiary
+    and the number > 50
+    and the CAHI of the sleep test of the beneficiary is an other number
+    and the other number >= 5.
+
+rule rad_csa_symptom with provenance LCD L33800,
+        confer "The presence of at least one of the following: Sleepiness":
+a beneficiary shows a symptom of central sleep apnea
+    if the medical record of the beneficiary documents a condition
+    and the condition is a symptom of central sleep apnea.
+
+rule rad_no_hypoventilation with provenance LCD L33800,
+        confer "There is no evidence of daytime or nocturnal hypoventilation":
+there is no evidence of hypoventilation for a beneficiary
+    if it is not the case that
+        the medical record of the beneficiary documents daytime hypoventilation
+    and it is not the case that
+        the medical record of the beneficiary documents nocturnal hypoventilation.
+
+% The LCD's definition of complex sleep apnea: on a PAP device without
+% backup rate titrated until the obstructive events are treated (obstructive
+% AHI under 5), central events persist or emerge — more than half, CAHI at
+% least 5.
+rule rad_compsa_definition with provenance LCD L33800,
+        confer "the polysomnogram (PSG) shows a pattern of apneas and hypopneas that demonstrates the persistence or emergence of central apneas or central hypopneas upon exposure to CPAP (E0601) or a bi-level device without backup rate (E0470) device when titrated to the point where obstructive events have been effectively treated (obstructive AHI less than 5 per hour)":
+the sleep test of a beneficiary documents complex sleep apnea
+    if the titration of the beneficiary on a PAP device without backup rate reached an obstructive AHI of a number
+    and the number < 5
+    and after resolution of the obstructive events central apneas and central hypopneas are an other number percent of the apneas and hypopneas of the beneficiary
+    and the other number > 50
+    and after resolution of the obstructive events the CAHI of the beneficiary is a third number
+    and the third number >= 5.
+
+% --- Hypoventilation syndrome: E0470 on A, B and C or D; E0471 on a covered ---
+% --- E0470 in use, B, and C or D. ---
+
+rule rad_hs_e0470 with provenance LCD L33800,
+        confer "Hypoventilation Syndrome An E0470 device is covered if both criteria A and B and either criterion C or D are met":
+an item meets the initial RAD coverage criteria for hypoventilation syndrome
+    if the HCPCS code of the item is "E0470"
+    and the item is furnished to a beneficiary
+    and symptoms of sleep associated hypoventilation are documented for the beneficiary
+    and the medical record of the beneficiary documents hypoventilation syndrome
+    and the beneficiary meets the hypoventilation syndrome criteria for E0470.
+
+rule rad_hs_e0471 with provenance LCD L33800,
+        confer "An E0471 device is covered for a beneficiary with hypoventilation syndrome if both criteria A, B, and either criterion C or D are met":
+an item meets the initial RAD coverage criteria for hypoventilation syndrome
+    if the HCPCS code of the item is "E0471"
+    and the item is furnished to a beneficiary
+    and symptoms of sleep associated hypoventilation are documented for the beneficiary
+    and the medical record of the beneficiary documents hypoventilation syndrome
+    and the beneficiary meets the hypoventilation syndrome criteria for E0471.
+
+rule rad_hs_e0470_c with provenance LCD L33800,
+        confer "An arterial blood gas PaCO2, done during sleep or immediately upon awakening, and breathing the beneficiary’s prescribed FIO2, shows the beneficiary's PaCO2 worsened greater than or equal to 7 mm Hg compared to the original result in criterion A (above)":
+a beneficiary meets the hypoventilation syndrome criteria for E0470
+    if the initial PaCO2 of the beneficiary meets the hypoventilation criterion
+    and the spirometry of the beneficiary meets the FEV1 to FVC criterion
+    and the PaCO2 of the beneficiary worsened during sleep.
+
+rule rad_hs_e0470_d with provenance LCD L33800,
+        confer "A facility-based PSG or HST demonstrates oxygen saturation less than or equal to 88":
+a beneficiary meets the hypoventilation syndrome criteria for E0470
+    if the initial PaCO2 of the beneficiary meets the hypoventilation criterion
+    and the spirometry of the beneficiary meets the FEV1 to FVC criterion
+    and the sleep test of the beneficiary shows nocturnal desaturation without obstructive events.
+
+rule rad_hs_e0471_c with provenance LCD L33800,
+        confer "An arterial blood gas PaCO2, done while awake, and breathing the beneficiary’s prescribed FIO2, shows that the beneficiary’s PaCO2 worsens greater than or equal to 7 mm Hg compared to the arterial blood gas (ABG) result performed to qualify the beneficiary for the E0470 device (criterion A under E0470)":
+a beneficiary meets the hypoventilation syndrome criteria for E0471
+    if the beneficiary is using a covered E0470 device
+    and the spirometry of the beneficiary meets the FEV1 to FVC criterion
+    and the PaCO2 of the beneficiary worsened during use of the E0470 device.
+
+rule rad_hs_e0471_d with provenance LCD L33800,
+        confer "AHI less than 5 while using an E0470 device":
+a beneficiary meets the hypoventilation syndrome criteria for E0471
+    if the beneficiary is using a covered E0470 device
+    and the spirometry of the beneficiary meets the FEV1 to FVC criterion
+    and the sleep test of the beneficiary was performed while using an E0470 device
+    and the sleep test of the beneficiary shows nocturnal desaturation without obstructive events.
+
+% Criterion A of E0470.
+rule rad_hs_a with provenance LCD L33800,
+        confer "An initial arterial blood gas PaCO2, done while awake and breathing the beneficiary’s prescribed FIO2, is greater than or equal to 45 mm Hg":
+the initial PaCO2 of a beneficiary meets the hypoventilation criterion
+    if the PaCO2 of the initial arterial blood gas of the beneficiary done while awake on the prescribed FIO2 is a number mm Hg
+    and the number >= 45.
+
+% Criterion B of both devices.
+rule rad_hs_b with provenance LCD L33800,
+        confer "Spirometry shows an FEV1/FVC greater than or equal to 70":
+the spirometry of a beneficiary meets the FEV1 to FVC criterion
+    if the FEV1 to FVC ratio of the spirometry of the beneficiary is a number percent
+    and the number >= 70.
+
+% Criterion C of E0470: the PaCO2 during sleep or on awakening, against the
+% initial one.
+rule rad_hs_c with provenance LCD L33800,
+        confer "shows the beneficiary's PaCO2 worsened greater than or equal to 7 mm Hg compared to the original result in criterion A (above)":
+the PaCO2 of a beneficiary worsened during sleep
+    if the PaCO2 of the initial arterial blood gas of the beneficiary done while awake on the prescribed FIO2 is a number mm Hg
+    and the PaCO2 of the arterial blood gas of the beneficiary done during sleep or immediately upon awakening on the prescribed FIO2 is an other number mm Hg
+    and a difference is the other number - the number
+    and the difference >= 7.
+
+% Criterion C of E0471: the follow-up awake PaCO2 on the E0470, against the
+% initial one.
+rule rad_hs_e0471_worsening with provenance LCD L33800,
+        confer "shows that the beneficiary’s PaCO2 worsens greater than or equal to 7 mm Hg compared to the arterial blood gas (ABG) result performed to qualify the beneficiary for the E0470 device (criterion A under E0470)":
+the PaCO2 of a beneficiary worsened during use of the E0470 device
+    if the PaCO2 of the initial arterial blood gas of the beneficiary done while awake on the prescribed FIO2 is a number mm Hg
+    and the PaCO2 of the follow-up arterial blood gas of the beneficiary done while awake on the prescribed FIO2 during use of the E0470 device is an other number mm Hg
+    and a difference is the other number - the number
+    and the difference >= 7.
+
+% Criterion D of both devices: the desaturation of a sleep test not caused
+% by obstructive events.
+rule rad_hs_d with provenance LCD L33800,
+        confer "that is not caused by obstructive upper airway events – i.e., AHI less than 5":
+the sleep test of a beneficiary shows nocturnal desaturation without obstructive events
+    if the sleep test of the beneficiary is a valid sleep test
+    and the sleep test of the beneficiary shows oxygen saturation at or below a number percent for an other number minutes
+    and the number <= 88
+    and the other number >= 5
+    and the recording time of the sleep test of the beneficiary is a third number hours
+    and the third number >= 2
+    and the AHI of the sleep test of the beneficiary is a fourth number
+    and the fourth number < 5.
+
+% A facility polysomnogram or a home sleep test — not run by the DME
+% supplier (the Policy Article).
+rule rad_sleep_test with provenance Policy Article A52517,
+        confer "No aspect of a home sleep test, including but not limited to delivery and/or pickup of the device, may be performed by a DME supplier":
+the sleep test of a beneficiary is a valid sleep test
+    if the type of the sleep test of the beneficiary is a type
+    and the type is in [facility polysomnogram, home sleep test]
+    and it is not the case that
+        the sleep test of the beneficiary was performed by the DME supplier.
+
+% Criterion A of E0471: an E0470 the beneficiary qualified for, in use.
+rule rad_hs_e0471_a with provenance LCD L33800,
+        confer "A covered E0470 device is being used":
+a beneficiary is using a covered E0470 device
+    if the beneficiary is using an E0470 device
+    and the beneficiary meets the hypoventilation syndrome criteria for E0470.
+
+% --- Chronic respiratory failure consequent to COPD: the criteria of NCD ---
+% --- 240.9, a finding. ---
+
+rule rad_copd with provenance LCD L33800,
+        confer "A respiratory assist device is covered when the beneficiary meets the initial coverage criteria for either an E0470 or E0471 as described in the Medicare National Coverage Determinations (NCD) Manual (CMS Pub. 100-03) Chapter 1, Part 4, Section 240.9":
+an item meets the initial RAD coverage criteria for chronic respiratory failure consequent to COPD
+    if the item is furnished to a beneficiary
+    and symptoms of sleep associated hypoventilation are documented for the beneficiary
+    and the medical record of the beneficiary documents chronic respiratory failure consequent to COPD
+    and the beneficiary meets the COPD criteria.
+
+rule rad_copd_criteria with provenance LCD L33800,
+        confer "Noninvasive Positive Pressure Ventilation (NIPPV) in the Home for the Treatment of Chronic Respiratory Failure (CRF) Consequent to Chronic Obstructive Pulmonary Disease (COPD)":
+a beneficiary meets the COPD criteria
+    if the finding copd ncd initial criteria met about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Continued coverage beyond the first three months (restrictive thoracic
+% disorders, CSA, CompSA, hypoventilation syndrome) and beyond the first six
+% months (COPD).
+% ---------------------------------------------------------------------------
+
+rule rad_continued with provenance LCD L33800,
+        confer "must be re-evaluated to establish the medical necessity of continued coverage by Medicare beyond the first three months":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a RAD device
+    and the rental month of the claim is a number
+    and the number >= 4
+    and the item meets the initial RAD coverage criteria for a disorder
+    and the disorder is in [restrictive thoracic disorder, central sleep apnea, complex sleep apnea, hypoventilation syndrome]
+    and the item meets the RAD continued coverage criteria for the claim.
+
+rule rad_continued_copd with provenance LCD L33800,
+        confer "For continued coverage of an E0470 or E0471 for the treatment of CRF consequent to COPD beyond the first 6-months of therapy, the beneficiary must meet the continuing usage criteria for a RAD":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a RAD device
+    and the rental month of the claim is a number
+    and the number >= 7
+    and the item meets the initial RAD coverage criteria for chronic respiratory failure consequent to COPD
+    and the item is furnished to a beneficiary
+    and the finding copd ncd continuing criteria met about the beneficiary is established.
+
+% use starts with the delivery of the device: a device of this model
+rule rad_initiation:
+use of an item was initiated on a date
+    if the item was delivered on the date.
+
+rule rad_continued_criteria with provenance LCD L33800,
+        confer "Medicare will not continue coverage for the fourth and succeeding months of therapy until this re-evaluation has been completed":
+an item meets the RAD continued coverage criteria for a claim
+    if the item is furnished to a beneficiary
+    and the beneficiary was re-evaluated in time for the claim
+    and the medical record of the beneficiary documents the progress of symptoms and the usage of the item
+    and the beneficiary is compliantly using the item
+    and the supplier holds the practitioner statement for the item.
+
+% The re-evaluation: no sooner than the 61st day of use, and completed by the
+% date of service of the claim it supports.
+rule rad_reevaluation with provenance LCD L33800,
+        confer "the re-evaluation upon which Medicare will base a decision to continue coverage beyond this time must occur no sooner than 61 days after initiating therapy by the treating practitioner":
+a beneficiary was re-evaluated in time for a claim
+    if the claim is for an item
+    and use of the item was initiated on a date
+    and the beneficiary was re-evaluated by the treating practitioner on an other date
+    and the other date is a number days after the date
+    and the number >= 61
+    and the date of service of the claim is a third date
+    and the other date is before or equal to the third date.
+
+rule rad_compliance with provenance LCD L33800,
+        confer "Failure of the beneficiary to be consistently using the E0470 or E0471 device for an average of 4 hours per 24 hour period by the time of the re-evaluation (on or after 61 days after initiation of therapy) would represent non-compliant utilization":
+a beneficiary is compliantly using an item
+    if the average use of the item by the beneficiary by the time of the re-evaluation is a number hours per day
+    and the number >= 4.
+
+rule rad_statement with provenance LCD L33800,
+        confer "A signed and dated statement completed by the treating practitioner no sooner than 61 days after initiating use of the device, declaring that the beneficiary is compliantly using the device (an average of 4 hours per 24 hour period) and that the beneficiary is benefiting from its use must be obtained by the supplier of the device for continued coverage beyond three months":
+the supplier holds the practitioner statement for an item
+    if the item is furnished to a beneficiary
+    and use of the item was initiated on a date
+    and the supplier holds a statement signed and dated by the treating practitioner on an other date declaring that the beneficiary is compliantly using and benefiting from the item
+    and the other date is a number days after the date
+    and the number >= 61.
