@@ -1,5 +1,6 @@
 % Plastics rulings of U.S. Customs and Border Protection (CROSS, rulings.cbp.gov)
-% run through the plastics model (plastics.le, which includes gri.le).
+% run through the whole modelled tariff (tariff.le). The first prototype's
+% sample of articles of plastics (see README.md).
 %
 % One scenario per ruling, which the scenario names ("scenario n is, as
 % stated in ruling NY ...:"); each article is described by the facts the
@@ -16,7 +17,7 @@ the target language is: prolog.
 scenario facts require provenance.
 
 the knowledge base plastics cbp includes these resources:
-    plastics.
+    tariff.
 
 the knowledge base plastics cbp includes:
 

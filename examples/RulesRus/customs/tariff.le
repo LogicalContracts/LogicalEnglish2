@@ -1,0 +1,18 @@
+% The modelled tariff: Chapters 39, 61 and 62 in full, at six digits — the
+% General Rules of Interpretation (gri.le), Section XI's notes and textile
+% materials (section_xi.le), and one program per chapter (chapter_39.le,
+% chapter_61.le, chapter_62.le). The scenario programs of this directory
+% include it, so every good is classified against all of it: a plastic
+% raincoat meets the garment headings as well as heading 3926, a knitted
+% glove the gloves of 6116 and those of 6216.
+%
+% Coverage: 60 headings, 341 six-digit subheadings (HTSUS Revision 18, 2026).
+
+the target language is: prolog.
+
+the knowledge base tariff includes these resources:
+    chapter_39,
+    chapter_61,
+    chapter_62.
+
+the knowledge base tariff includes:

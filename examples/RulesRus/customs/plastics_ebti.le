@@ -1,6 +1,6 @@
 % Binding Tariff Information of EU customs offices (EBTI,
 % https://ec.europa.eu/taxation_customs/dds2/ebti/) run through the SAME
-% plastics model (plastics.le, with gri.le) as the US rulings.
+% model (tariff.le: the whole modelled tariff) as the US rulings.
 %
 % One scenario per ruling, which the scenario names ("scenario n is, as
 % stated in ruling NY ...:"); each article is described by the facts the
@@ -17,7 +17,7 @@ the target language is: prolog.
 scenario facts require provenance.
 
 the knowledge base plastics ebti includes these resources:
-    plastics.
+    tariff.
 
 the knowledge base plastics ebti includes:
 

@@ -1,0 +1,1157 @@
+% Section XI of the tariff (textiles and textile articles), as far as Chapters
+% 61 (knitted or crocheted apparel) and 62 (apparel not knitted) need it: the
+% textile material a garment is of (Section XI note 2 and subheading note 2),
+% the vocabulary in which customs rulings describe garments and clothing
+% accessories, and the notes that Chapters 61 and 62 share — what a suit, an
+% ensemble, a shirt, a blouse, a babies' garment is, and the closure rule for
+% men's and women's garments. A library: chapter_61.le and chapter_62.le
+% include it, and it includes gri.le.
+%
+% Text: HTSUS Revision 18 (2026), Section XI notes 2 and 14 and subheading
+% note 2, Chapter 61 notes 3, 4, 6, 7, 9 and Chapter 62 notes 3, 4, 5, 7, 9
+% (https://hts.usitc.gov/). The notes quoted are the WCO text, identical in the
+% EU Combined Nomenclature. Where the two chapters have the same note, the rule
+% cites Chapter 61's and a comment says so.
+%
+% HOW A GOOD IS DESCRIBED. A ruling names the article ("a men's jacket", "a
+% pair of women's trousers", "ankle socks"): that is its KIND ("the kind of
+% style 345H115C is jacket"), and each kind falls in a FAMILY that the headings
+% name ("jacket falls in the family outerwear"). Tops — shirts, blouses,
+% T-shirts, tank tops, sweaters, sweatshirts, cardigans, knit vests — are
+% "upper body garments" and are told apart by what the ruling observes:
+% sleeves, openings, collar, fit, fabric, hem (the notes and Explanatory Notes
+% define them that way). The facts a scenario gives about a garment:
+%   the kind of G is K                      (a kind listed below)
+%   G is an upper body garment              (a top: not a jacket or a coat)
+%   the fabric construction of G is knitted | woven | nonwoven
+%   G contains N percent of M               (M: a material listed below)
+%   the cut of G indicates men | women;  G closes left over right / right over left
+%   G is sized for babies                   (body height 86 cm or less, note 6/5)
+%   G is made up of fabric of heading H     (5602, 5603, 5903, 5906 or 5907)
+%   the components of S are matching        (a set: same fabric, colour, style, size)
+%   G has at least four panels in its outer shell   (a suit jacket, note 3(a))
+% and the features of tops, hosiery, gloves and scarves declared below.
+%
+% Provenance. Every rule is labelled and cites the passage it encodes; the
+% documents say where they are published and where their text is (sources/),
+% so the editor shows each passage and the verifier checks every quotation.
+
+the target language is: prolog.
+
+the templates are:
+    *a garment* is an upper body garment; undefined.
+    *a family* is a family of garments.
+    *a family* is a family of clothing accessories.
+    *a good* is a garment.
+    *a good* is a clothing accessory.
+    *a garment* is a top.
+    *a garment* covers the upper body.
+    *a garment* covers the lower body.
+    *a garment* is classified under the US tariff; undefined.
+    *a garment* is classified under the EU tariff; undefined.
+    the fabric construction of *a garment* is *a construction*; undefined.
+    all the yarn of *a garment* is metalized yarn; undefined.
+    *a material* belongs to *a group*.
+    *a group* is a textile group of chapter *a number*.
+    *a material* is of the fibre class *a class*.
+    *a class* is a fibre class of *a group* ranked *a number*.
+    the share of fibre class *a class* in *a garment* is *a number*.
+    the textile material of *a garment* is *a group*.
+    the fibre material of *a garment* is *a class*.
+    the construction of *a garment* is *a construction*.
+    the cut of *a garment* indicates *a gender*; undefined.
+    *a garment* closes left over right; undefined.
+    *a garment* closes right over left; undefined.
+    the gender of *a garment* is *a gender*.
+    *a garment* shows its gender.
+    *a garment* is sized for babies; undefined.
+    *a garment* is made up of fabric of heading *a heading*; undefined.
+    *a garment* is made up of coated fabric.
+    the components of *a good* are matching; undefined.
+    *a garment* has at least four panels in its outer shell; undefined.
+    *a good* is a suit.
+    *a good* is an ensemble.
+    *a good* is a suit of note 3.
+    *a good* is an ensemble of note 3.
+    *a garment* is sleeveless; undefined.
+    *a garment* has an opening starting at the neckline; undefined.
+    *a garment* has pockets below the waist; undefined.
+    *a garment* has a means of tightening at the bottom; undefined.
+    *a garment* has less than ten stitches per centimetre in each direction; undefined.
+    *a garment* is loose-fitting; undefined.
+    *a garment* has a collar; undefined.
+    *a garment* has a high neckline; undefined.
+    *a garment* is napped; undefined.
+    the fabric of *a garment* is terry; undefined.
+    the fabric of *a garment* is lightweight; undefined.
+    *a garment* is of plain knit fabric; undefined.
+    *a garment* has shoulder straps; undefined.
+    the rear neckline of *a garment* falls below the nape of the neck; undefined.
+    *a garment* is designed to be worn as an undergarment; undefined.
+    *a garment* has limited upper body coverage; undefined.
+    heading *a heading* is a heading of tops.
+    *a good* is of boxer underpants.
+    *a good* has a fabric for heading *a heading*.
+    *a garment* has a tank silhouette.
+    *a garment* is a shirt.
+    *a garment* is a blouse.
+    *a garment* is a blouse-type garment.
+    *a garment* has the fabric of a T-shirt.
+    *a garment* meets the knit test of its tariff for T-shirts.
+    *a garment* is a T-shirt.
+    *a garment* is a tank top.
+    *a garment* is a singlet.
+    *a garment* is of the T-shirt family.
+    heading *a heading* is a shirt heading.
+    heading *a heading* is a knitted shirt heading.
+    heading *a heading* excludes sleeveless garments.
+    *a good* is graduated compression hosiery; undefined.
+    the yarn of *a good* measures *a number* decitex; undefined.
+    *a good* has a coating of plastics; undefined.
+    *a good* has a coating of rubber; undefined.
+    *a good* is approximately square; undefined.
+    *a good* is fine womens hosiery.
+    *a good* is a small square scarf.
+    *a good* is a large handkerchief.
+    the longest side of *a good* measures *a number* centimetres; undefined.
+    the subheading group of *a good* is *a group*.
+
+the knowledge base section xi includes these resources:
+    gri.
+
+the knowledge base section xi includes:
+
+HTSUS Section XI and Chapter 50 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2050#page=1".
+the text of HTSUS Section XI and Chapter 50 is at "sources/hts/chapter_50.txt".
+HTSUS Chapter 51 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2051#page=1".
+the text of HTSUS Chapter 51 is at "sources/hts/chapter_51.txt".
+HTSUS Chapter 52 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2052#page=1".
+the text of HTSUS Chapter 52 is at "sources/hts/chapter_52.txt".
+HTSUS Chapter 53 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2053#page=1".
+the text of HTSUS Chapter 53 is at "sources/hts/chapter_53.txt".
+HTSUS Chapter 54 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2054#page=1".
+the text of HTSUS Chapter 54 is at "sources/hts/chapter_54.txt".
+HTSUS Chapter 55 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2055#page=1".
+the text of HTSUS Chapter 55 is at "sources/hts/chapter_55.txt".
+HTSUS Chapter 56 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2056#page=1".
+the text of HTSUS Chapter 56 is at "sources/hts/chapter_56.txt".
+HTSUS Chapter 61 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2061#page=1".
+the text of HTSUS Chapter 61 is at "sources/hts/chapter_61.txt".
+HTSUS Chapter 62 is published at "https://hts.usitc.gov/reststop/file?release=currentRelease&filename=Chapter%2062#page=1".
+the text of HTSUS Chapter 62 is at "sources/hts/chapter_62.txt".
+ruling NY N362034 is published at "https://rulings.cbp.gov/ruling/N362034".
+the text of ruling NY N362034 is at "sources/cbp/N362034.txt".
+ruling NY N360982 is published at "https://rulings.cbp.gov/ruling/N360982".
+the text of ruling NY N360982 is at "sources/cbp/N360982.txt".
+ruling NY N356079 is published at "https://rulings.cbp.gov/ruling/N356079".
+the text of ruling NY N356079 is at "sources/cbp/N356079.txt".
+BTI FRBTIFR-BTI-2025-07379 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI FRBTIFR-BTI-2025-07379 is at "sources/ebti/FRBTIFR_BTI_2025_07379.txt".
+BTI FRBTIFR-BTI-2025-06897 is published at "https://ec.europa.eu/taxation_customs/dds2/ebti/ebti_consultation.jsp?Lang=en".
+the text of BTI FRBTIFR-BTI-2025-06897 is at "sources/ebti/FRBTIFR_BTI_2025_06897.txt".
+
+% ---------------------------------------------------------------------------
+% What the model covers: the garments and clothing accessories of Chapters 61
+% and 62.
+% ---------------------------------------------------------------------------
+
+% the textile part of the model covers the garments and clothing accessories
+% of Chapters 61 and 62
+rule textiles_scope_garment:
+a good is a good the model describes
+    if the good is a garment.
+
+
+% the textile part of the model covers the garments and clothing accessories
+% of Chapters 61 and 62
+rule textiles_scope_accessory:
+a good is a good the model describes
+    if the good is a clothing accessory.
+
+rule top_upper_body with provenance HTSUS Chapter 61,
+        confer "are garments designed to cover the upper part of the body":
+a garment is a top
+    if the garment is an upper body garment.
+
+rule top_kind with provenance HTSUS Chapter 61,
+        confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles":
+a garment is a top
+    if the family of the garment is top.
+
+rule garment_by_family with provenance HTSUS Chapter 61,
+        confer "ARTICLES OF APPAREL AND CLOTHING ACCESSORIES, KNITTED OR CROCHETED":
+a good is a garment
+    if the family of the good is a family
+    and the family is a family of garments.
+
+% a top described only by what it is (an upper body garment) is a garment
+rule garment_top with provenance HTSUS Chapter 61,
+        confer "are garments designed to cover the upper part of the body":
+a good is a garment
+    if the good is an upper body garment
+    and it is not the case that
+        the kind of the good is a kind.
+
+% a suit or an ensemble the ruling does not name by kind (a named one is a
+% garment by its family, set of garments)
+rule garment_suit with provenance HTSUS Chapter 61,
+        confer "means a set of garments composed of two or three pieces made up":
+a good is a garment
+    if the good is a suit
+    and it is not the case that
+        the family of the good is a family.
+
+rule garment_ensemble with provenance HTSUS Chapter 61,
+        confer "means a set of garments (other than suits and articles of heading 6107, 6108 or 6109)":
+a good is a garment
+    if the good is an ensemble
+    and it is not the case that
+        the family of the good is a family.
+
+rule accessory_by_family with provenance HTSUS Chapter 61,
+        confer "ARTICLES OF APPAREL AND CLOTHING ACCESSORIES, KNITTED OR CROCHETED":
+a good is a clothing accessory
+    if the family of the good is a family
+    and the family is a family of clothing accessories.
+
+% what a garment covers, for suits and ensembles (note 3)
+rule covers_upper_top with provenance HTSUS Chapter 61,
+        confer "one garment designed to cover the upper part of the body":
+a garment covers the upper body
+    if the garment is a top.
+
+rule covers_upper_jacket with provenance HTSUS Chapter 61,
+        confer "one suit coat or jacket the outer shell of which, exclusive of sleeves, consists of four or more panels, designed to cover the upper part of the body":
+a garment covers the upper body
+    if the family of the garment is a family
+    and the family is in [suit-type jacket, outerwear].
+
+rule covers_lower with provenance HTSUS Chapter 61,
+        confer "consisting of trousers, bib and brace overalls, breeches, shorts (other than swimwear), a skirt or a divided skirt":
+a garment covers the lower body
+    if the family of the garment is a family
+    and the family is in [trousers, skirt].
+
+% ---------------------------------------------------------------------------
+% The kinds of goods, and the families the headings name. A kind a ruling
+% names that is not listed here falls in no family: the good is then not
+% described by any heading (the model abstains) until the list says where it
+% belongs.
+% ---------------------------------------------------------------------------
+
+outerwear is a family of garments, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks (including ski-jackets), windbreakers and similar articles".
+suit-type jacket is a family of garments, as stated in HTSUS Chapter 61, confer "suit-type jackets, blazers".
+trousers is a family of garments, as stated in HTSUS Chapter 61, confer "trousers, bib and brace overalls, breeches and shorts (other than swimwear)".
+skirt is a family of garments, as stated in HTSUS Chapter 61, confer "skirts, divided skirts".
+dress is a family of garments, as stated in HTSUS Chapter 61, confer "suit-type jackets, blazers, dresses".
+top is a family of garments, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+underpants is a family of garments, as stated in HTSUS Chapter 61, confer "Men's or boys' underpants, briefs".
+nightwear is a family of garments, as stated in HTSUS Chapter 61, confer "nightshirts, pajamas".
+slip is a family of garments, as stated in HTSUS Chapter 61, confer "Women's or girls' slips, petticoats".
+robe is a family of garments, as stated in HTSUS Chapter 61, confer "bathrobes, dressing gowns and similar articles".
+undershirt is a family of garments, as stated in HTSUS Chapter 62, confer "singlets and other undershirts".
+swimwear is a family of garments, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+track suit is a family of garments, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+ski-suit is a family of garments, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+other garment is a family of garments, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+set of garments is a family of garments, as stated in HTSUS Chapter 61, confer "means a set of garments composed of two or three pieces made up".
+hosiery is a family of clothing accessories, as stated in HTSUS Chapter 61, confer "Panty hose, tights, stockings, socks and other hosiery".
+panty hose is a family of clothing accessories, as stated in HTSUS Chapter 61, confer "Panty hose, tights, stockings, socks and other hosiery".
+gloves is a family of clothing accessories, as stated in HTSUS Chapter 61, confer "Gloves, mittens and mitts".
+scarf is a family of clothing accessories, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+handkerchief is a family of clothing accessories, as stated in HTSUS Chapter 62, confer "Handkerchiefs".
+tie is a family of clothing accessories, as stated in HTSUS Chapter 62, confer "Ties, bow ties and cravats".
+brassiere is a family of clothing accessories, as stated in HTSUS Chapter 62, confer "Brassieres, girdles, corsets, braces, suspenders, garters and similar articles".
+girdle is a family of clothing accessories, as stated in HTSUS Chapter 62, confer "Brassieres, girdles, corsets, braces, suspenders, garters and similar articles".
+corset is a family of clothing accessories, as stated in HTSUS Chapter 62, confer "Brassieres, girdles, corsets, braces, suspenders, garters and similar articles".
+braces is a family of clothing accessories, as stated in HTSUS Chapter 62, confer "Brassieres, girdles, corsets, braces, suspenders, garters and similar articles".
+other accessory is a family of clothing accessories, as stated in HTSUS Chapter 61, confer "Other made up clothing accessories".
+part is a family of clothing accessories, as stated in HTSUS Chapter 61, confer "knitted or crocheted parts of garments or of clothing accessories".
+
+% outerwear: headings 6101, 6102, 6201, 6202 ("including padded, sleeveless
+% jackets" in 6201 and 6202)
+overcoat falls in the family outerwear, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks".
+coat falls in the family outerwear, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks".
+raincoat falls in the family outerwear, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks".
+carcoat falls in the family outerwear, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks".
+cape falls in the family outerwear, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks".
+cloak falls in the family outerwear, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks".
+poncho falls in the family outerwear, as stated in HTSUS Chapter 61, confer "overcoats, carcoats, capes, cloaks, anoraks".
+anorak falls in the family outerwear, as stated in HTSUS Chapter 61, confer "anoraks (including ski-jackets), windbreakers and similar articles".
+parka falls in the family outerwear, as stated in HTSUS Chapter 61, confer "anoraks (including ski-jackets), windbreakers and similar articles".
+ski-jacket falls in the family outerwear, as stated in HTSUS Chapter 61, confer "anoraks (including ski-jackets), windbreakers and similar articles".
+windbreaker falls in the family outerwear, as stated in HTSUS Chapter 61, confer "anoraks (including ski-jackets), windbreakers and similar articles".
+jacket falls in the family outerwear, as stated in HTSUS Chapter 61, confer "anoraks (including ski-jackets), windbreakers and similar articles".
+padded sleeveless jacket falls in the family outerwear, as stated in HTSUS Chapter 62, confer "(including padded, sleeveless jackets)".
+% sets of garments: a suit or an ensemble when note 3 says so (below)
+suit falls in the family set of garments, as stated in HTSUS Chapter 61, confer "means a set of garments composed of two or three pieces made up".
+ensemble falls in the family set of garments, as stated in HTSUS Chapter 61, confer "means a set of garments (other than suits and articles of heading 6107, 6108 or 6109)".
+% the suit-type jackets and blazers of headings 6103, 6104, 6203, 6204
+suit-type jacket falls in the family suit-type jacket, as stated in HTSUS Chapter 61, confer "suit-type jackets, blazers".
+blazer falls in the family suit-type jacket, as stated in HTSUS Chapter 61, confer "suit-type jackets, blazers".
+% trousers, bib and brace overalls, breeches and shorts
+trousers falls in the family trousers, as stated in HTSUS Chapter 61, confer "trousers, bib and brace overalls, breeches and shorts (other than swimwear)".
+jeans falls in the family trousers, as stated in HTSUS Chapter 61, confer "trousers, bib and brace overalls, breeches and shorts (other than swimwear)".
+leggings falls in the family trousers, as stated in HTSUS Chapter 61, confer "trousers, bib and brace overalls, breeches and shorts (other than swimwear)".
+shorts falls in the family trousers, as stated in HTSUS Chapter 61, confer "trousers, bib and brace overalls, breeches and shorts (other than swimwear)".
+breeches falls in the family trousers, as stated in HTSUS Chapter 61, confer "trousers, bib and brace overalls, breeches and shorts (other than swimwear)".
+bib overalls falls in the family trousers, as stated in HTSUS Chapter 61, confer "trousers, bib and brace overalls, breeches and shorts (other than swimwear)".
+skirt falls in the family skirt, as stated in HTSUS Chapter 61, confer "skirts, divided skirts".
+divided skirt falls in the family skirt, as stated in HTSUS Chapter 61, confer "skirts, divided skirts".
+skort falls in the family skirt, as stated in HTSUS Chapter 61, confer "skirts, divided skirts".
+dress falls in the family dress, as stated in HTSUS Chapter 61, confer "suit-type jackets, blazers, dresses".
+% tops: told apart by their features (notes 4 and 5 below, headings 6105,
+% 6106, 6109, 6110, 6205, 6206)
+shirt falls in the family top, as stated in HTSUS Chapter 61, confer "Men's or boys' shirts, knitted or crocheted".
+blouse falls in the family top, as stated in HTSUS Chapter 61, confer "Women's or girls' blouses and shirts, knitted or crocheted".
+T-shirt falls in the family top, as stated in HTSUS Chapter 61, confer "T-shirts, singlets, tank tops and similar garments, knitted or crocheted".
+tank top falls in the family top, as stated in HTSUS Chapter 61, confer "T-shirts, singlets, tank tops and similar garments, knitted or crocheted".
+top falls in the family top, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+sweater falls in the family top, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+pullover falls in the family top, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+sweatshirt falls in the family top, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+cardigan falls in the family top, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+vest falls in the family top, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+% underwear and sleepwear: headings 6107, 6108, 6207, 6208
+underpants falls in the family underpants, as stated in HTSUS Chapter 61, confer "Men's or boys' underpants, briefs".
+briefs falls in the family underpants, as stated in HTSUS Chapter 61, confer "Men's or boys' underpants, briefs".
+boxers falls in the family underpants, as stated in HTSUS Chapter 61, confer "Men's or boys' underpants, briefs".
+boxer briefs falls in the family underpants, as stated in HTSUS Chapter 61, confer "Men's or boys' underpants, briefs".
+boyshorts falls in the family underpants, as stated in HTSUS Chapter 61, confer "briefs, panties".
+long underpants falls in the family underpants, as stated in HTSUS Chapter 61, confer "Men's or boys' underpants, briefs".
+panties falls in the family underpants, as stated in HTSUS Chapter 61, confer "briefs, panties".
+nightshirt falls in the family nightwear, as stated in HTSUS Chapter 61, confer "nightshirts, pajamas".
+nightdress falls in the family nightwear, as stated in HTSUS Chapter 61, confer "night dresses, pajamas".
+pajamas falls in the family nightwear, as stated in HTSUS Chapter 61, confer "nightshirts, pajamas".
+slip falls in the family slip, as stated in HTSUS Chapter 61, confer "Women's or girls' slips, petticoats".
+petticoat falls in the family slip, as stated in HTSUS Chapter 61, confer "Women's or girls' slips, petticoats".
+bathrobe falls in the family robe, as stated in HTSUS Chapter 61, confer "bathrobes, dressing gowns and similar articles".
+dressing gown falls in the family robe, as stated in HTSUS Chapter 61, confer "bathrobes, dressing gowns and similar articles".
+negligee falls in the family robe, as stated in HTSUS Chapter 61, confer "negligees, bathrobes, dressing gowns and similar articles".
+bath wrap falls in the family robe, as stated in HTSUS Chapter 61, confer "bathrobes, dressing gowns and similar articles".
+sleep pants falls in the family robe, as stated in HTSUS Chapter 61, confer "bathrobes, dressing gowns and similar articles".
+undershirt falls in the family undershirt, as stated in HTSUS Chapter 62, confer "singlets and other undershirts".
+% swimwear, track suits, ski-suits, other garments: 6112, 6114, 6211
+swimsuit falls in the family swimwear, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+swim trunks falls in the family swimwear, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+swim shorts falls in the family swimwear, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+track suit falls in the family track suit, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+ski-suit falls in the family ski-suit, as stated in HTSUS Chapter 61, confer "Track suits, ski-suits and swimwear".
+coverall falls in the family other garment, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+jumpsuit falls in the family other garment, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+romper falls in the family other garment, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+bodysuit falls in the family other garment, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+shrug falls in the family other garment, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+skirtall falls in the family other garment, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+apron falls in the family other garment, as stated in HTSUS Chapter 61, confer "Other garments, knitted or crocheted".
+% clothing accessories: 6115 to 6117, 6212 to 6217
+tights falls in the family panty hose, as stated in HTSUS Chapter 61, confer "Panty hose, tights, stockings, socks and other hosiery".
+panty hose falls in the family panty hose, as stated in HTSUS Chapter 61, confer "Panty hose, tights, stockings, socks and other hosiery".
+stockings falls in the family hosiery, as stated in HTSUS Chapter 61, confer "Panty hose, tights, stockings, socks and other hosiery".
+knee-highs falls in the family hosiery, as stated in HTSUS Chapter 61, confer "Panty hose, tights, stockings, socks and other hosiery".
+socks falls in the family hosiery, as stated in HTSUS Chapter 61, confer "Panty hose, tights, stockings, socks and other hosiery".
+footwear without applied soles falls in the family hosiery, as stated in HTSUS Chapter 61, confer "footwear without applied soles".
+gloves falls in the family gloves, as stated in HTSUS Chapter 61, confer "Gloves, mittens and mitts".
+mittens falls in the family gloves, as stated in HTSUS Chapter 61, confer "Gloves, mittens and mitts".
+mitts falls in the family gloves, as stated in HTSUS Chapter 61, confer "Gloves, mittens and mitts".
+scarf falls in the family scarf, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+shawl falls in the family scarf, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+muffler falls in the family scarf, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+veil falls in the family scarf, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+boa falls in the family scarf, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+sarong falls in the family scarf, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+bandana falls in the family scarf, as stated in HTSUS Chapter 61, confer "Shawls, scarves, mufflers, mantillas, veils and the like".
+handkerchief falls in the family handkerchief, as stated in HTSUS Chapter 62, confer "Handkerchiefs".
+tie falls in the family tie, as stated in HTSUS Chapter 62, confer "Ties, bow ties and cravats".
+bow tie falls in the family tie, as stated in HTSUS Chapter 62, confer "Ties, bow ties and cravats".
+cravat falls in the family tie, as stated in HTSUS Chapter 62, confer "Ties, bow ties and cravats".
+brassiere falls in the family brassiere, as stated in HTSUS Chapter 62, confer "Brassieres, girdles, corsets".
+girdle falls in the family girdle, as stated in HTSUS Chapter 62, confer "Girdles and panty-girdles".
+panty-girdle falls in the family girdle, as stated in HTSUS Chapter 62, confer "Girdles and panty-girdles".
+corset falls in the family corset, as stated in HTSUS Chapter 62, confer "Brassieres, girdles, corsets".
+suspenders falls in the family braces, as stated in HTSUS Chapter 62, confer "braces, suspenders, garters and similar articles".
+garters falls in the family braces, as stated in HTSUS Chapter 62, confer "braces, suspenders, garters and similar articles".
+braces falls in the family braces, as stated in HTSUS Chapter 62, confer "braces, suspenders, garters and similar articles".
+headband falls in the family other accessory, as stated in HTSUS Chapter 61, confer "Other made up clothing accessories".
+sweatband falls in the family other accessory, as stated in HTSUS Chapter 61, confer "Other made up clothing accessories".
+arm sleeves falls in the family other accessory, as stated in HTSUS Chapter 61, confer "Other made up clothing accessories".
+sash falls in the family other accessory, as stated in HTSUS Chapter 61, confer "Other made up clothing accessories".
+neck gaiter falls in the family other accessory, as stated in HTSUS Chapter 61, confer "Other made up clothing accessories".
+dickey falls in the family part, as stated in HTSUS Chapter 61, confer "knitted or crocheted parts of garments or of clothing accessories".
+part falls in the family part, as stated in HTSUS Chapter 61, confer "knitted or crocheted parts of garments or of clothing accessories".
+
+% ---------------------------------------------------------------------------
+% Suits and ensembles (Chapter 61 note 3, Chapter 62 note 3). Section XI note
+% 14: other sets of garments are classified garment by garment — a scenario
+% describes each garment of such a set as a good of its own.
+% ---------------------------------------------------------------------------
+
+% the same in Chapter 62 note 3(a)
+rule note_61_3a_suit with provenance HTSUS Chapter 61,
+        confer "must be of the same fabric construction, color and composition; they must also be of the same style and of corresponding or compatible size":
+a good is a suit of note 3
+    if the components of the good are matching
+    and a jacket is a component of the good
+    and the jacket has at least four panels in its outer shell
+    and the jacket covers the upper body
+    and a lower garment is a component of the good
+    and the lower garment covers the lower body
+    and it is not the case that
+        the kind of the lower garment is bib overalls.
+
+% the same in Chapter 62 note 3(b)
+rule note_61_3b_ensemble with provenance HTSUS Chapter 61,
+        confer "All of the components of an ensemble must be of the same fabric construction, style, color and composition; they also must be of corresponding or compatible size":
+a good is an ensemble of note 3
+    if the good is a set put up for retail sale
+    and the components of the good are matching
+    and an upper garment is a component of the good
+    and the upper garment covers the upper body
+    and a lower garment is a component of the good
+    and the lower garment covers the lower body
+    and it is not the case that
+        the good is a suit.
+
+rule suit_note_3 with provenance HTSUS Chapter 61,
+        confer "means a set of garments composed of two or three pieces made up":
+a good is a suit
+    if the good is a suit of note 3.
+
+% A set the ruling itself calls a suit, of matching components, when it does
+% not describe what note 3(a) reads (the jacket's panels): the ruling's
+% characterisation, recorded as such ("the kind of S is suit").
+rule suit_characterised with provenance HTSUS Chapter 61,
+        confer "must be of the same fabric construction, color and composition; they must also be of the same style and of corresponding or compatible size":
+a good is a suit
+    if the kind of the good is suit
+    and the components of the good are matching
+    and it is not the case that
+        the good is a suit of note 3.
+
+% a set (a costume of a suit, a tie and a shirtfront) whose essential
+% character the suit gives is classified as the suit (GRI 3(b))
+rule suit_by_essential_character with provenance HTSUS General Rules of Interpretation,
+        confer "shall be classified as if they consisted of the material or component which gives them their essential character":
+a good is a suit
+    if a component is a component of the good
+    and the essential character of the good is given by the component
+    and it is not the case that
+        the kind of the good is a kind
+    and the component is a suit.
+
+rule ensemble_note_3 with provenance HTSUS Chapter 61,
+        confer "means a set of garments (other than suits and articles of heading 6107, 6108 or 6109)":
+a good is an ensemble
+    if the good is an ensemble of note 3.
+
+% the same for a set the ruling calls an ensemble
+rule ensemble_characterised with provenance HTSUS Chapter 61,
+        confer "All of the components of an ensemble must be of the same fabric construction, style, color and composition; they also must be of corresponding or compatible size":
+a good is an ensemble
+    if the kind of the good is ensemble
+    and the components of the good are matching
+    and it is not the case that
+        the good is a suit
+    and it is not the case that
+        the good is an ensemble of note 3.
+
+% the headings of suits and ensembles cover the set as such: the context
+% requires it (Section XI note 14)
+rule note_xi_14_suit with provenance HTSUS Section XI and Chapter 50,
+        confer "Unless the context otherwise requires, textile garments of different headings are to be classified in their own headings even if put up in sets for retail sale":
+a good is classified as consisting of the good
+    if the good is a set put up for retail sale
+    and the good is a suit.
+
+rule note_xi_14_ensemble with provenance HTSUS Section XI and Chapter 50,
+        confer "Unless the context otherwise requires, textile garments of different headings are to be classified in their own headings even if put up in sets for retail sale":
+a good is classified as consisting of the good
+    if the good is an ensemble.
+
+% ---------------------------------------------------------------------------
+% GRI 6 and Section XI subheading note 2: a garment's subheading is decided by
+% the textile material of what it is classified as (GRI 3(b)), and its fabric
+% is that of the part that determines its classification.
+% ---------------------------------------------------------------------------
+
+rule xi_construction with provenance HTSUS Section XI and Chapter 50,
+        confer "only the part which determines the classification under general interpretative rule 3 shall be taken into account":
+the construction of a good is a construction
+    if the good is classified as consisting of a component
+    and the fabric construction of the component is the construction.
+
+% Which fabric a heading of Chapter 61 or 62 takes (note 1 of each chapter;
+% heading 6212 whether or not knitted): for a good classified by GRI 3(c),
+% the subheading reads the component whose fabric the chosen heading takes.
+rule fabric_for_61 with provenance HTSUS Chapter 61,
+        confer "This chapter applies only to made up knitted or crocheted articles":
+a good has a fabric for heading a heading
+    if the heading >= 6101
+    and the heading <= 6117
+    and the fabric construction of the good is knitted.
+
+rule fabric_for_62 with provenance HTSUS Chapter 62,
+        confer "excluding knitted or crocheted articles (other than those of heading 6212)":
+a good has a fabric for heading a heading
+    if the heading >= 6201
+    and the heading <= 6217
+    and it is not the case that
+        the heading = 6212
+    and it is not the case that
+        the fabric construction of the good is knitted.
+
+rule fabric_for_6212 with provenance HTSUS Chapter 62,
+        confer "whether or not knitted or crocheted":
+a good has a fabric for heading 6212
+    if the good is a good the model describes
+    or the good is a component of an other good.
+
+% a garment made up of a coated or nonwoven fabric (headings 6113 and 6210)
+rule coated_fabric with provenance HTSUS Chapter 62,
+        confer "Garments, made up of fabrics of heading 5602, 5603, 5903, 5906 or 5907":
+a garment is made up of coated fabric
+    if the garment is made up of fabric of heading a heading
+    and the heading is in [5602, 5603, 5903, 5906, 5907].
+
+% ---------------------------------------------------------------------------
+% Section XI note 2(A): a good of two or more textile materials is classified
+% as if it consisted wholly of the one that predominates by weight over each
+% other single textile material; when none predominates, as if it consisted of
+% the one of the heading that occurs last in numerical order. Note 2(B)(b):
+% first the chapter, then the heading within it — so the man-made fibres of
+% Chapters 54 and 55 count together (2(B)(c)). Note 2(B)(a): a metalized yarn
+% (heading 5605) is one textile material, whatever it is made of.
+% ---------------------------------------------------------------------------
+
+cotton belongs to cotton, as stated in HTSUS Chapter 52, confer "CHAPTER 52 COTTON".
+polyester belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+% elastane is a segmented polyurethane
+elastane belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+% spandex is the American name of elastane, a segmented polyurethane
+spandex belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+% nylon is a polyamide
+nylon belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+polyamide belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+polypropylene belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+% acrylic fibres are polymers of acrylonitrile
+acrylic belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers".
+% modacrylic fibres are copolymers of acrylonitrile
+modacrylic belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers".
+rayon belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose) to produce polymers such as cuprammonium rayon (cupro) or viscose rayon".
+viscose belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose) to produce polymers such as cuprammonium rayon (cupro) or viscose rayon".
+cupro belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose) to produce polymers such as cuprammonium rayon (cupro) or viscose rayon".
+% modal is a regenerated cellulose fibre
+modal belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)".
+% lyocell is a regenerated cellulose fibre
+lyocell belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)".
+% cellulose acetate is a chemically modified natural polymer
+acetate belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By chemical modification of natural organic polymers (for example, cellulose, casein and other proteins, or alginic acid), to produce polymers such as cellulose acetate or alginates".
+triacetate belongs to man-made fibres,
+    as stated in HTSUS Chapter 54, confer "By chemical modification of natural organic polymers (for example, cellulose, casein and other proteins, or alginic acid), to produce polymers such as cellulose acetate or alginates".
+wool belongs to wool fibres,
+    as stated in HTSUS Chapter 51, confer "means the natural fiber grown by sheep or lambs".
+cashmere belongs to wool fibres,
+    as stated in HTSUS Chapter 51, confer "Tibetan, Kashmir or similar goats".
+alpaca belongs to wool fibres,
+    as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+camel hair belongs to wool fibres,
+    as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+mohair belongs to wool fibres,
+    as stated in HTSUS Chapter 51, confer "Angora, Tibetan, Kashmir or similar goats".
+angora belongs to wool fibres,
+    as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+yak belongs to wool fibres,
+    as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+silk belongs to silk, as stated in HTSUS Section XI and Chapter 50, confer "CHAPTER 50 SILK".
+flax belongs to vegetable fibres,
+    as stated in HTSUS Chapter 53, confer "Flax, raw or processed but not spun".
+% linen is flax
+linen belongs to vegetable fibres,
+    as stated in HTSUS Chapter 53, confer "Flax, raw or processed but not spun".
+ramie belongs to vegetable fibres,
+    as stated in HTSUS Chapter 53, confer "ramie".
+hemp belongs to vegetable fibres,
+    as stated in HTSUS Chapter 53, confer "True hemp".
+jute belongs to vegetable fibres,
+    as stated in HTSUS Chapter 53, confer "Jute and other textile bast fibers".
+metalized yarn belongs to metalized yarn,
+    as stated in HTSUS Chapter 56, confer "Metalized yarn, whether or not gimped, being textile yarn".
+
+silk is a textile group of chapter 50,
+    as stated in HTSUS Section XI and Chapter 50, confer "CHAPTER 50 SILK".
+wool fibres is a textile group of chapter 51,
+    as stated in HTSUS Chapter 51, confer "CHAPTER 51 WOOL, FINE OR COARSE ANIMAL HAIR".
+cotton is a textile group of chapter 52, as stated in HTSUS Chapter 52, confer "CHAPTER 52 COTTON".
+vegetable fibres is a textile group of chapter 53,
+    as stated in HTSUS Chapter 53, confer "CHAPTER 53 OTHER VEGETABLE TEXTILE FIBERS".
+% counted as one chapter, numbered by the later of the two (55) when the last
+% heading decides a tie
+man-made fibres is a textile group of chapter 55,
+    as stated in HTSUS Section XI and Chapter 50, confer "When both chapters 54 and 55 are involved with any other chapter, chapters 54 and 55 are to be treated as a single chapter".
+metalized yarn is a textile group of chapter 56,
+    as stated in HTSUS Chapter 56, confer "CHAPTER 56 WADDING, FELT AND NONWOVENS; SPECIAL YARNS".
+
+rule section_xi_2b_share with provenance HTSUS Section XI and Chapter 50,
+        confer "The choice of appropriate heading shall be effected by determining first the chapter and then the applicable heading within that chapter":
+the share of a group in a garment is a total
+    if the group is a textile group of chapter a number
+    and the total is the sum of each percentage such that
+        the garment contains the percentage percent of a material
+        and the material belongs to the group.
+
+rule section_xi_2ba_metalized with provenance HTSUS Section XI and Chapter 50,
+        confer "metalized yarn (heading 5605) are to be treated as a single textile material the weight of which is to be taken as the aggregate of the weights of its components":
+the textile material of a garment is metalized yarn
+    if all the yarn of the garment is metalized yarn.
+
+rule section_xi_2a_predominance with provenance HTSUS Section XI and Chapter 50,
+        confer "are to be classified as if consisting wholly of that one textile material which predominates by weight over each other single textile material":
+the textile material of a garment is a group
+    if it is not the case that
+        all the yarn of the garment is metalized yarn
+    and the share of the group in the garment is a total
+    and the total > 0
+    and for all cases in which
+            the share of an other group in the garment is an other total
+            and it is not the case that
+                the other group is equal to the group
+        it is the case that
+            the group at the total percent outweighs the other group at the other total percent.
+
+rule section_xi_2a_weight with provenance HTSUS Section XI and Chapter 50,
+        confer "which predominates by weight over each other single textile material":
+a group at a total percent outweighs an other group at an other total percent
+    if the total > the other total.
+
+rule section_xi_2a_tie with provenance HTSUS Section XI and Chapter 50,
+        confer "When no one textile material predominates by weight, the goods are to be classified as if consisting wholly of that one textile material which is covered by the heading which occurs last in numerical order":
+a group at a total percent outweighs an other group at an other total percent
+    if the total = the other total
+    and the group is a textile group of chapter a number
+    and the other group is a textile group of chapter an other number
+    and the number > the other number.
+
+% ---------------------------------------------------------------------------
+% Within the chapter, the heading (note 2(B)(b)): the subheadings of Chapters
+% 61 and 62 name wool, fine animal hair and Kashmir goats (5101, 5102),
+% synthetic and artificial fibres (5402/5503 before 5403/5504). A group with
+% one class is its own class. Ties go to the later heading (the higher rank).
+% ---------------------------------------------------------------------------
+
+synthetic fibres is a fibre class of man-made fibres ranked 1,
+    as stated in HTSUS Chapter 54, confer "staple fibers and filaments of organic polymers produced by manufacturing processes".
+artificial fibres is a fibre class of man-made fibres ranked 2,
+    as stated in HTSUS Chapter 54, confer "used in relation to fibers, mean: synthetic: fibers as defined at (a); artificial: fibers as defined".
+wool is a fibre class of wool fibres ranked 1,
+    as stated in HTSUS Chapter 51, confer "means the natural fiber grown by sheep or lambs".
+cashmere is a fibre class of wool fibres ranked 2,
+    as stated in HTSUS Chapter 51, confer "Tibetan, Kashmir or similar goats".
+fine animal hair is a fibre class of wool fibres ranked 3,
+    as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+
+polyester is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+elastane is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+spandex is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+nylon is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+polyamide is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+polypropylene is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers to produce polymers such as polyamides, polyesters, polyolefins or polyurethanes".
+acrylic is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers".
+modacrylic is of the fibre class synthetic fibres,
+    as stated in HTSUS Chapter 54, confer "By polymerization of organic monomers".
+rayon is of the fibre class artificial fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)".
+viscose is of the fibre class artificial fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)".
+cupro is of the fibre class artificial fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)".
+modal is of the fibre class artificial fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)".
+lyocell is of the fibre class artificial fibres,
+    as stated in HTSUS Chapter 54, confer "By dissolution or chemical treatment of natural organic polymers (for example, cellulose)".
+acetate is of the fibre class artificial fibres,
+    as stated in HTSUS Chapter 54, confer "to produce polymers such as cellulose acetate or alginates".
+triacetate is of the fibre class artificial fibres,
+    as stated in HTSUS Chapter 54, confer "to produce polymers such as cellulose acetate or alginates".
+wool is of the fibre class wool, as stated in HTSUS Chapter 51, confer "means the natural fiber grown by sheep or lambs".
+cashmere is of the fibre class cashmere, as stated in HTSUS Chapter 51, confer "Tibetan, Kashmir or similar goats".
+alpaca is of the fibre class fine animal hair, as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+camel hair is of the fibre class fine animal hair, as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+mohair is of the fibre class fine animal hair, as stated in HTSUS Chapter 51, confer "Angora, Tibetan, Kashmir or similar goats".
+angora is of the fibre class fine animal hair, as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+yak is of the fibre class fine animal hair, as stated in HTSUS Chapter 51, confer "the hair of alpaca, llama, vicuna, camel".
+
+rule xi_2bb_class_share with provenance HTSUS Section XI and Chapter 50,
+        confer "then the applicable heading within that chapter, disregarding any materials not classified in that chapter":
+the share of fibre class a class in a garment is a total
+    if the class is a fibre class of a group ranked a rank
+    and the total is the sum of each percentage such that
+        the garment contains the percentage percent of a material
+        and the material is of the fibre class the class.
+
+% a group with a single class (cotton, silk, vegetable fibres, metalized yarn)
+rule xi_2bb_single_class with provenance HTSUS Section XI and Chapter 50,
+        confer "The choice of appropriate heading shall be effected by determining first the chapter and then the applicable heading within that chapter":
+the fibre material of a garment is a group
+    if the textile material of the garment is the group
+    and it is not the case that
+        a class is a fibre class of the group ranked a rank.
+
+rule xi_2bb_class with provenance HTSUS Section XI and Chapter 50,
+        confer "then the applicable heading within that chapter, disregarding any materials not classified in that chapter":
+the fibre material of a garment is a class
+    if the textile material of the garment is a group
+    and the class is a fibre class of the group ranked a rank
+    and the share of fibre class the class in the garment is a total
+    and the total > 0
+    and for all cases in which
+            an other class is a fibre class of the group ranked an other rank
+            and it is not the case that
+                the other class is equal to the class
+            and the share of fibre class the other class in the garment is an other total
+        it is the case that
+            the class at the total percent outweighs the other class at the other total percent.
+
+% within a chapter, a tie goes to the class of the later heading
+rule xi_2a_class_tie with provenance HTSUS Section XI and Chapter 50,
+        confer "which is covered by the heading which occurs last in numerical order among those which equally merit consideration":
+a group at a total percent outweighs an other group at an other total percent
+    if the total = the other total
+    and the group is a fibre class of a parent ranked a number
+    and the other group is a fibre class of the parent ranked an other number
+    and the number > the other number.
+
+% ---------------------------------------------------------------------------
+% Chapter 61 note 9, Chapter 62 note 9: left over right closure is men's,
+% right over left women's, unless the cut clearly indicates the sex; a garment
+% that cannot be identified goes to the women's headings.
+% ---------------------------------------------------------------------------
+
+% Chapter 61 note 9 and Chapter 62 note 9: the closure rule does not apply
+% when the cut shows the sex
+rule note_61_9_cut with provenance HTSUS Chapter 61,
+        confer "the cut of the garment clearly indicates that it is designed for one or other of the sexes":
+the gender of a garment is a gender
+    if the cut of the garment indicates the gender.
+
+rule note_61_9_left_over_right with provenance HTSUS Chapter 61,
+        confer "Garments of this chapter designed for left over right closure at the front shall be regarded as men's or boys' garments":
+the gender of a garment is men
+    if it is not the case that
+        the cut of the garment indicates a gender
+    and the garment closes left over right.
+
+rule note_61_9_right_over_left with provenance HTSUS Chapter 61,
+        confer "those designed for right over left closure at the front as women's or girls' garments":
+the gender of a garment is women
+    if it is not the case that
+        the cut of the garment indicates a gender
+    and the garment closes right over left.
+
+% a good that shows nothing of its sex itself — a set, a composite good — is
+% of the sex of the component it is classified as consisting of (GRI 3(b))
+rule note_61_9_component with provenance HTSUS General Rules of Interpretation,
+        confer "shall be classified as if they consisted of the material or component which gives them their essential character":
+the gender of a garment is a gender
+    if a component is a component of the garment
+    and the essential character of the garment is given by the component
+    and it is not the case that
+        the garment shows its gender
+    and the component shows its gender
+    and the gender of the component is the gender.
+
+rule note_61_9_unidentified with provenance HTSUS Chapter 61,
+        confer "Garments which cannot be identified as either men's or boys' garments or as women's or girls' garments are to be classified in the headings covering women's or girls' garments":
+the gender of a garment is women
+    if it is not the case that
+        the garment shows its gender
+    and it is not the case that
+        a component is a component of the garment
+        and the essential character of the garment is given by the component
+        and the component shows its gender.
+
+rule shows_gender_cut:
+a garment shows its gender
+    if the cut of the garment indicates a gender.
+
+rule shows_gender_left_over_right:
+a garment shows its gender
+    if the garment closes left over right
+    and it is not the case that
+        the cut of the garment indicates a gender.
+
+rule shows_gender_right_over_left:
+a garment shows its gender
+    if the garment closes right over left
+    and it is not the case that
+        the cut of the garment indicates a gender
+    and it is not the case that
+        the garment closes left over right.
+
+% ---------------------------------------------------------------------------
+% Chapter 61 note 4, Chapter 62 note 4: "Shirts" and "shirt-blouses" have long
+% or short sleeves and a full or partial opening starting at the neckline;
+% "blouses" are loose-fitting, may be sleeveless, with or without an opening.
+% ---------------------------------------------------------------------------
+
+rule note_61_4_shirts with provenance HTSUS Chapter 61,
+        confer "are garments designed to cover the upper part of the body, having long or short sleeves and a full or partial opening starting at the neckline":
+a garment is a shirt
+    if the garment is a top
+    and it is not the case that
+        the garment is sleeveless
+    and the garment has an opening starting at the neckline.
+
+rule note_61_4_blouses with provenance HTSUS Chapter 61,
+        confer "are loose-fitting garments also designed to cover the upper part of the body but may be sleeveless and with or without an opening at the neckline":
+a garment is a blouse
+    if the garment is a top
+    and the garment is loose-fitting.
+
+% Note 4 defines shirts, shirt-blouses and blouses together; heading 6106 and
+% 6206 cover all three
+rule note_61_4_blouse_type with provenance HTSUS Chapter 61, confer "may also have a collar":
+a garment is a blouse-type garment
+    if the garment is a shirt
+    otherwise the garment is a blouse.
+
+% ---------------------------------------------------------------------------
+% Heading 6109. The Explanatory Note: T-shirts are lightweight knitted
+% garments, not napped nor of terry, with long or short sleeves, without
+% collar, without opening or fastening at the neckline, with a close-fitting or
+% lower neckline; the heading also covers singlets and other vests. CBP adds,
+% since HQ 950855 (1992), that the fabric be plain jersey or plain interlock.
+% A tank top, for CBP, has the tank silhouette: straps, and a rear neckline
+% below the nape of the neck (NY N360982).
+% ---------------------------------------------------------------------------
+
+% the Explanatory Note to heading 6109 describes T-shirts as lightweight
+% knitted garments, not napped nor of terry
+rule en_6109_tshirt_fabric with provenance ruling NY N362034,
+        confer "To be classifiable as a T-shirt, a garment must be constructed from lightweight, plain jersey or plain interlock fabric":
+a garment has the fabric of a T-shirt
+    if the fabric of the garment is lightweight
+    and it is not the case that
+        the garment is napped
+    and it is not the case that
+        the fabric of the garment is terry
+    and the garment meets the knit test of its tariff for T-shirts.
+
+rule cbp_hq_950855 with provenance ruling NY N362034,
+        confer "plain jersey or plain interlock fabric; see Headquarters Ruling HQ 950855":
+a garment meets the knit test of its tariff for T-shirts
+    if the garment is classified under the US tariff
+    and the garment is of plain knit fabric.
+
+% EU offices apply the Explanatory Note to heading 6109 without CBP's plain
+% jersey or interlock test
+rule en_6109_eu_fabric:
+a garment meets the knit test of its tariff for T-shirts
+    if the garment is classified under the EU tariff.
+
+% the Explanatory Note to heading 6109, as a French BTI quotes it: no opening
+% or fastening at the neckline; the Note also excludes collars and has sleeves
+rule en_6109_tshirt with provenance BTI FRBTIFR-BTI-2025-07379,
+        confer "les vêtements repris à cette position ne doivent pas comporter de dentelles, d'ouverture à l'encolure ou de bouton ou autre système de fermeture":
+a garment is a T-shirt
+    if the garment is a top
+    and it is not the case that
+        the garment is sleeveless
+    and the garment has the fabric of a T-shirt
+    and it is not the case that
+        the garment has a collar
+    and it is not the case that
+        the garment has a high neckline
+    and it is not the case that
+        the garment has an opening starting at the neckline.
+
+rule cbp_tank_silhouette with provenance ruling NY N360982,
+        confer "it lacks a tank silhouette. Specifically, as noted above, the rear neckline does not fall below the nape of the neck, and there is no appearance of straps in the back":
+a garment has a tank silhouette
+    if the garment has shoulder straps
+    and the rear neckline of the garment falls below the nape of the neck.
+
+rule cbp_tank_top with provenance ruling NY N360982,
+        confer "Although you refer to the garment as a tank top, it lacks a tank silhouette":
+a garment is a tank top
+    if the garment is a top
+    and the garment is sleeveless
+    and the garment has a tank silhouette.
+
+% the Explanatory Note to heading 6109 includes singlets and other vests:
+% garments worn as undergarments
+rule heading_6109_singlets with provenance HTSUS Chapter 61,
+        confer "T-shirts, singlets, tank tops and similar garments, knitted or crocheted":
+a garment is a singlet
+    if the garment is a top
+    and the garment is designed to be worn as an undergarment.
+
+% a knitted undershirt is a singlet of heading 6109
+rule heading_6109_undershirts with provenance HTSUS Chapter 61,
+        confer "T-shirts, singlets, tank tops and similar garments, knitted or crocheted":
+a garment is a singlet
+    if the family of the garment is undershirt.
+
+rule heading_6109_family with provenance HTSUS Chapter 61,
+        confer "T-shirts, singlets, tank tops and similar garments, knitted or crocheted":
+a garment is of the T-shirt family
+    if the garment is a T-shirt
+    otherwise the garment is a tank top
+    otherwise the garment is a singlet.
+
+% the exclusions of note 4 name these headings
+heading 6105 is a shirt heading,
+    as stated in HTSUS Chapter 61, confer "Headings 6105 and 6106 do not cover garments with pockets below the waist".
+heading 6106 is a shirt heading,
+    as stated in HTSUS Chapter 61, confer "Headings 6105 and 6106 do not cover garments with pockets below the waist".
+heading 6205 is a shirt heading,
+    as stated in HTSUS Chapter 62, confer "Headings 6205 and 6206 do not cover garments with pockets below the waist".
+heading 6206 is a shirt heading,
+    as stated in HTSUS Chapter 62, confer "Headings 6205 and 6206 do not cover garments with pockets below the waist".
+heading 6105 is a knitted shirt heading,
+    as stated in HTSUS Chapter 61, confer "garments having an average of less than 10 stiches per linear centimeter in each direction".
+heading 6106 is a knitted shirt heading,
+    as stated in HTSUS Chapter 61, confer "garments having an average of less than 10 stiches per linear centimeter in each direction".
+heading 6105 excludes sleeveless garments,
+    as stated in HTSUS Chapter 61, confer "Heading 6105 does not cover sleeveless garments".
+heading 6205 excludes sleeveless garments,
+    as stated in HTSUS Chapter 62, confer "Heading 6205 does not cover sleeveless garments".
+
+% the same in Chapter 62 note 4 for headings 6205 and 6206
+rule note_61_4_pockets with provenance HTSUS Chapter 61,
+        confer "Headings 6105 and 6106 do not cover garments with pockets below the waist":
+a garment is excluded from heading a heading
+    if heading the heading is a shirt heading
+    and the garment has pockets below the waist.
+
+% the same in Chapter 62 note 4 for headings 6205 and 6206
+rule note_61_4_tightening with provenance HTSUS Chapter 61,
+        confer "with a ribbed waistband or other means of tightening at the bottom of the garment":
+a garment is excluded from heading a heading
+    if heading the heading is a shirt heading
+    and the garment has a means of tightening at the bottom.
+
+rule note_61_4_stitches with provenance HTSUS Chapter 61,
+        confer "garments having an average of less than 10 stiches per linear centimeter in each direction counted on an area measuring at least 10 cm by 10 cm":
+a garment is excluded from heading a heading
+    if heading the heading is a knitted shirt heading
+    and the garment has less than ten stitches per centimetre in each direction.
+
+% A top that does not reach the waist, or leaves the upper body largely
+% uncovered (a crop top, a strapped top with limited coverage), is for CBP
+% none of the tops of the shirt, blouse, T-shirt and sweater headings but an
+% "other garment" (6114, 6211).
+rule cbp_limited_coverage with provenance ruling NY N353571,
+        confer "Based on the styling, length and coverage provided by this garment":
+a garment is excluded from heading a heading
+    if heading the heading is a heading of tops
+    and the garment has limited upper body coverage.
+
+heading 6105 is a heading of tops, as stated in HTSUS Chapter 61, confer "Men's or boys' shirts, knitted or crocheted".
+heading 6106 is a heading of tops, as stated in HTSUS Chapter 61, confer "Women's or girls' blouses and shirts, knitted or crocheted".
+heading 6109 is a heading of tops, as stated in HTSUS Chapter 61, confer "T-shirts, singlets, tank tops and similar garments, knitted or crocheted".
+heading 6110 is a heading of tops, as stated in HTSUS Chapter 61, confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles".
+heading 6205 is a heading of tops, as stated in HTSUS Chapter 62, confer "Men's or boys' shirts".
+heading 6206 is a heading of tops, as stated in HTSUS Chapter 62, confer "Women's or girls' blouses, shirts and shirt-blouses".
+
+% the same in Chapter 62 note 4 for heading 6205
+rule note_61_4_sleeveless with provenance HTSUS Chapter 61,
+        confer "Heading 6105 does not cover sleeveless garments":
+a garment is excluded from heading a heading
+    if heading the heading excludes sleeveless garments
+    and the garment is sleeveless.
+
+% ---------------------------------------------------------------------------
+% The group a subheading is chosen by: a suit, an ensemble, or the family of
+% the good's kind; for hosiery, gloves, scarves the features the subheadings
+% name. The chapters' tables read it with the heading, the gender and the
+% fibre material.
+% ---------------------------------------------------------------------------
+
+% The subheadings of women's underwear name briefs and panties (6108.2x,
+% 6208.9x); other underpants — boxers, boxer briefs, boyshorts, long
+% underpants — are among the similar articles ("Other"). Men's underpants
+% and briefs are named together (6107.1x, 6207.1x).
+rule boxer_underpants with provenance HTSUS Chapter 61, confer "Briefs and panties:":
+a good is of boxer underpants
+    if the family of the good is underpants
+    and it is not the case that
+        the kind of the good is a kind
+        and the kind is in [briefs, panties].
+
+rule group_boxer_underpants with provenance HTSUS Chapter 61, confer "Briefs and panties:":
+the subheading group of a good is boxer underpants
+    if the good is of boxer underpants.
+
+rule group_suit with provenance HTSUS Chapter 61, confer "Suits:":
+the subheading group of a good is suit
+    if the good is a suit.
+
+rule group_ensemble with provenance HTSUS Chapter 61, confer "Ensembles:":
+the subheading group of a good is ensemble
+    if the good is an ensemble.
+
+rule group_family with provenance HTSUS Chapter 61,
+        confer "ARTICLES OF APPAREL AND CLOTHING ACCESSORIES, KNITTED OR CROCHETED":
+the subheading group of a good is a family
+    if it is not the case that
+        the good is a suit
+    and it is not the case that
+        the good is an ensemble
+    and the family of the good is the family
+    and it is not the case that
+        the family is in [panty hose, hosiery, gloves, scarf, handkerchief]
+    and it is not the case that
+        the good is of boxer underpants.
+
+% a top described without a kind: its subheadings do not depend on the group
+rule group_top with provenance HTSUS Chapter 61,
+        confer "Sweaters, pullovers, sweatshirts, waistcoats (vests) and similar articles":
+the subheading group of a good is top
+    if the good is an upper body garment
+    and it is not the case that
+        the kind of the good is a kind.
+
+% heading 6115 names graduated compression hosiery, panty hose and tights by
+% the fineness of their yarn, and women's full-length or knee-length hosiery
+rule group_compression with provenance HTSUS Chapter 61,
+        confer "Graduated compression hosiery (for example, stockings for varicose veins)":
+the subheading group of a good is compression hosiery
+    if the family of the good is a family
+    and the family is in [panty hose, hosiery]
+    and the good is graduated compression hosiery.
+
+rule group_fine_panty_hose with provenance HTSUS Chapter 61,
+        confer "Of synthetic fibers, measuring per single yarn less than 67 decitex":
+the subheading group of a good is fine panty hose
+    if the family of the good is panty hose
+    and it is not the case that
+        the good is graduated compression hosiery
+    and the yarn of the good measures a number decitex
+    and the number < 67.
+
+rule group_heavy_panty_hose with provenance HTSUS Chapter 61,
+        confer "Of synthetic fibers, measuring per single yarn 67 decitex or more":
+the subheading group of a good is heavy panty hose
+    if the family of the good is panty hose
+    and it is not the case that
+        the good is graduated compression hosiery
+    and the yarn of the good measures a number decitex
+    and the number >= 67.
+
+rule group_panty_hose with provenance HTSUS Chapter 61, confer "Other panty hose and tights:":
+the subheading group of a good is panty hose
+    if the family of the good is panty hose
+    and it is not the case that
+        the good is graduated compression hosiery
+    and it is not the case that
+        the yarn of the good measures a number decitex.
+
+rule fine_hosiery with provenance HTSUS Chapter 61,
+        confer "Other women's full-length or knee-length hosiery, measuring per single yarn less than 67 decitex":
+a good is fine womens hosiery
+    if the family of the good is hosiery
+    and it is not the case that
+        the good is graduated compression hosiery
+    and the kind of the good is a kind
+    and the kind is in [stockings, knee-highs]
+    and the gender of the good is women
+    and the yarn of the good measures a number decitex
+    and the number < 67.
+
+rule group_fine_hosiery with provenance HTSUS Chapter 61,
+        confer "Other women's full-length or knee-length hosiery, measuring per single yarn less than 67 decitex":
+the subheading group of a good is fine womens hosiery
+    if the good is fine womens hosiery.
+
+rule group_other_hosiery with provenance HTSUS Chapter 61,
+        confer "Panty hose, tights, stockings, socks and other hosiery":
+the subheading group of a good is hosiery
+    if the family of the good is hosiery
+    and it is not the case that
+        the good is graduated compression hosiery
+    and it is not the case that
+        the good is fine womens hosiery.
+
+rule group_coated_gloves_plastics with provenance HTSUS Chapter 61,
+        confer "Impregnated, coated, covered or laminated with plastics or rubber":
+the subheading group of a good is coated gloves
+    if the family of the good is gloves
+    and the good has a coating of plastics.
+
+rule group_coated_gloves_rubber with provenance HTSUS Chapter 61,
+        confer "Impregnated, coated, covered or laminated with plastics or rubber":
+the subheading group of a good is coated gloves
+    if the family of the good is gloves
+    and the good has a coating of rubber
+    and it is not the case that
+        the good has a coating of plastics.
+
+rule group_gloves with provenance HTSUS Chapter 61, confer "Gloves, mittens and mitts, knitted or crocheted":
+the subheading group of a good is gloves
+    if the family of the good is gloves
+    and it is not the case that
+        the good has a coating of plastics
+    and it is not the case that
+        the good has a coating of rubber.
+
+% Chapter 62 note 8: a scarf, square or nearly so, of which no side exceeds 60
+% centimetres, is a handkerchief; a handkerchief with a side over 60 cm is
+% classified with the scarves
+rule note_62_8_small_scarf with provenance HTSUS Chapter 62,
+        confer "Scarves and articles of the scarf type, square or approximately square, of which no side exceeds 60 centimeters, are to be classified as handkerchiefs (heading 6213)":
+a good is a small square scarf
+    if the family of the good is scarf
+    and the good is approximately square
+    and the longest side of the good measures a number centimetres
+    and the number <= 60.
+
+rule note_62_8_large_handkerchief with provenance HTSUS Chapter 62,
+        confer "Handkerchiefs of which any side exceeds 60 centimeters are to be classified in heading 6214":
+a good is a large handkerchief
+    if the family of the good is handkerchief
+    and the longest side of the good measures a number centimetres
+    and the number > 60.
+
+rule group_handkerchief with provenance HTSUS Chapter 62, confer "Handkerchiefs":
+the subheading group of a good is handkerchief
+    if the family of the good is handkerchief
+    and it is not the case that
+        the good is a large handkerchief.
+
+rule group_small_scarf with provenance HTSUS Chapter 62,
+        confer "are to be classified as handkerchiefs (heading 6213)":
+the subheading group of a good is handkerchief
+    if the good is a small square scarf.
+
+rule group_scarf with provenance HTSUS Chapter 62,
+        confer "Shawls, scarves, mufflers, mantillas, veils and the like":
+the subheading group of a good is scarf
+    if the family of the good is scarf
+    and it is not the case that
+        the good is a small square scarf.
+
+rule group_large_handkerchief with provenance HTSUS Chapter 62,
+        confer "Handkerchiefs of which any side exceeds 60 centimeters are to be classified in heading 6214":
+the subheading group of a good is scarf
+    if the good is a large handkerchief.

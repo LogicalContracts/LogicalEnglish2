@@ -1,6 +1,6 @@
 % Binding Tariff Information of EU customs offices (EBTI,
 % https://ec.europa.eu/taxation_customs/dds2/ebti/) run through the SAME
-% apparel model (apparel.le, with gri.le) as the US rulings.
+% model (tariff.le: the whole modelled tariff) as the US rulings.
 %
 % One scenario per BTI, which the scenario names ("scenario ... is, as stated
 % in BTI DEBTI22950/25-1:"); each good is described by the facts the BTI
@@ -17,7 +17,7 @@ the target language is: prolog.
 scenario facts require provenance.
 
 the knowledge base apparel ebti includes these resources:
-    apparel.
+    tariff.
 
 the knowledge base apparel ebti includes:
 
@@ -225,7 +225,7 @@ scenario bti_debti17890_26_1 is, as stated in BTI DEBTI17890/26-1:
 
 % BTI DEBTI9846/26-1, Hauptzollamt Hannover, 05/06/2026: women's woven blouse.
 scenario bti_debti9846_26_1 is, as stated in BTI DEBTI9846/26-1:
-    % DISAGREES: Hauptzollamt Hannover gives 6206.30; the model gives no heading — the office finds the garment 'presents itself as a blouse' (the CN Explanatory Note: light, fancy, mostly loose-fitting) but records no loose fit, and sleeveless it is no shirt.
+    % DISAGREES: Hauptzollamt Hannover gives 6206.30; the model gives heading 6211 (other garments), the residual heading for woven garments — the office finds the garment 'presents itself as a blouse' (the CN Explanatory Note: light, fancy, mostly loose-fitting) but records no loose fit, and sleeveless it is no shirt.
     the sleeveless flounced blouse is an upper body garment,
         confer "Description of goods Bluse".
     the sleeveless flounced blouse is classified under the EU tariff,
@@ -243,12 +243,12 @@ scenario bti_debti9846_26_1 is, as stated in BTI DEBTI9846/26-1:
     the textile material of the sleeveless flounced blouse is cotton,
         according to Hauptzollamt Hannover, confer "Geweben aus augenscheinlich Garnen aus Baumwolle (überwiegend) und Spinnstoffgarnen in Verbindung mit laut Antrag",
         because "the yarns are of cotton, which predominates, and of textile yarn combined with metal (metalized yarn of heading 5605); the BTI gives no percentages".
-    subheading expects answers [].
-    unplaced expects answers ["the sleeveless flounced blouse is not placed by the model"].
+    subheading expects answers ["the subheading of the sleeveless flounced blouse is 6211.42"].
+    unplaced expects answers [].
 
 % BTI FRBTIFR-BTI-2025-07180, French customs, 28/07/2026: women's satin blouse with thin straps.
 scenario bti_frbtifr_bti_2025_07180 is, as stated in BTI FRBTIFR-BTI-2025-07180:
-    % DISAGREES: French customs gives 6206.40; the model gives no heading — the office applies the CN Explanatory Note to heading 6206 (light fancy garments, mostly loose-fitting, at least with straps) but records no loose fit.
+    % DISAGREES: French customs gives 6206.40; the model gives heading 6211 (other garments), the residual heading for woven garments — the office applies the CN Explanatory Note to heading 6206 (light fancy garments, mostly loose-fitting, at least with straps) but records no loose fit.
     the red satin strap blouse is an upper body garment,
         confer "Description of goods Vêtement destiné à couvrir la partie haute du corps".
     the red satin strap blouse is classified under the EU tariff,
@@ -267,5 +267,5 @@ scenario bti_frbtifr_bti_2025_07180 is, as stated in BTI FRBTIFR-BTI-2025-07180:
         confer "de fibres artificielles (19 % viscose) et de fibres synthétiques (1 % élasthanne)".
     the red satin strap blouse contains 1 percent of elastane,
         confer "de fibres synthétiques (1 % élasthanne)".
-    subheading expects answers [].
-    unplaced expects answers ["the red satin strap blouse is not placed by the model"].
+    subheading expects answers ["the subheading of the red satin strap blouse is 6211.43"].
+    unplaced expects answers [].

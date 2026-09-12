@@ -16,7 +16,7 @@ test.describe('Facts from a document', () => {
                 'scenario facts require provenance.',
                 '',
                 'the knowledge base apparel cbp includes these resources:',
-                '    apparel.',
+                '    tariff.',
                 '',
                 'the knowledge base apparel cbp includes:',
                 '',

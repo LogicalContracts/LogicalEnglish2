@@ -1,0 +1,57 @@
+CBP ruling NY N311197 (2020-11-13): The tariff classification of garments from China
+https://rulings.cbp.gov/ruling/N311197 — text as served by https://rulings.cbp.gov/api/ruling/N311197
+
+N311197
+
+November 13, 2020
+
+CLA-2-62:OT:RR:NC:N3:358
+
+CATEGORY:	Classification
+
+TARIFF NO.: 6203.12.2010; 9903.88.15 
+ 
+Ms. Annie Survis
+Fun.com Inc. 
+2080 Lookout Drive
+Mankato, MN 56003
+
+RE:  The tariff classification of garments from China
+
+Dear Ms. Survis:
+
+In your letter dated April 13, 2020, you requested a tariff classification ruling.  The sample will be retained for training purposes.
+
+The submitted sample, item number FUN1111WHTD, identified as “Toddler White Suit Costume,” which consists of a toddler’s jacket, a pair of pull-on pants, a shirtfront, a pre-tied neck tie and a bowtie.  In your request you state that the garments are constructed of 100 percent polyester woven fabric. 
+
+The unlined jacket extends from the shoulder to slightly below the waist with more than four panels featuring notched lapels and a collar, long sleeves, two front faux pockets and a full front opening secured by two small hook and loop patches on the inside and two buttons on the outside.  The pull-on pants feature an elasticized waistband, sturdy vertical side seams extending from below the waistband to the lower leg area, side seam pockets at the waist and a hemmed bottom.  The shirtfront ties on the back of the neck with a hoop and loop closure and ties at the bottom with two drawstrings.  The pre-tied necktie measures approximately 5.5 inches long with an elasticized band to hold around the neck and the pre-tied bowtie is approximately 8 inches long with an elasticized band to hold around the neck as well.  
+
+You indicate that the suit will be imported in toddler’s sizes under item #FUN1111WHTD and #FUN1111BKTD, children’s sizes under item #FUN1111WHCH and #FUN1111BKCH, men’s sizes under item #FUN1111WHAD and #FUN1111BKAD and men’s plus sizes under item #FUN1111WHPL and #FUN1111BKPL. 
+
+Although you refer to the suit as a costume, the physical attributes do not lend support to that. In addition, your website indicates that the garments can be used as regular apparel during any other time of the year.  It is therefore, classifiable as an apparel article in Chapter 62 of the Harmonized Tariff Schedule of the United States (HTSUS). See Rubie’s Costume Co. v. United States, slip op 02-1373 (Fed. Cir. Aug. 1, 2003).  
+
+General Rule of Interpretation (GRI) 3(b) provides that goods put up in sets for retail sale shall be classified if they consisted of the material or component which gives the set its essential character. The suit, necktie and bowtie are considered a set for purposes of classification.  As the necktie and bowtie are accessories to the suit, it is the suit which determines the essential character of the set.
+
+The applicable subheading for all item numbers will be 6203.12.2010, HTSUS, which provides for men’s or boys’…suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear): suits: of synthetic fibers: other: men’s. The rate of duty is 27.3% ad valorem.
+
+Pursuant to U.S. Note 20 to Subchapter III, Chapter 99, HTSUS, products of China classified under subheadings 6203.12.2010, HTSUS, unless specifically excluded, are subject to an additional 7.5% ad valorem rate of duty.  At the time of importation, you must report the Chapter 99 subheading, i.e., 9903.88.15, in addition to subheadings 6203.12.2010, HTSUS, listed above.
+
+The HTSUS is subject to periodic amendment so you should exercise reasonable care in monitoring the status of goods covered by the Note cited above and the applicable Chapter 99 subheading.  For background information regarding the trade remedy initiated pursuant to Section 301 of the Trade Act of 1974, you may refer to the relevant parts of the USTR and CBP websites, which are available at https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions and https://www.cbp.gov/trade/remedies/301-certain-products-china respectively.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on the World Wide Web at https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, contact National Import Specialist Katherine Souffront at katherine.souffront@cbp.dhs.gov.
+
+
+Sincerely,
+
+
+
+
+Steven A. Mack
+Director
+National Commodity Specialist Division
+
+

@@ -1,0 +1,1149 @@
+% Rulings of U.S. Customs and Border Protection (CROSS, rulings.cbp.gov) run
+% through the whole modelled tariff (tariff.le): Chapter 62 (apparel and clothing accessories, not knitted).
+%
+% One scenario per ruling, which the scenario names ("scenario ny_n345907 is,
+% as stated in ruling NY N345907:"); each good is described by the facts the
+% ruling states, each quoting its passage ("confer \"...\""), and the office's
+% judgments — principal use, essential character, answers to claims — say who
+% made them ("according to CBP"). The ruling's code is NOT a fact: it is in
+% the comment "% CBP: <good> -> <code>" above each scenario; the expectation
+% is the six-digit subheading the model derives, and where it differs from
+% CBP's the comment says so (DISAGREES) and why.
+%
+% Selection (September 2026): for each six-digit subheading of Chapters 39, 61
+% and 62 not covered by the first prototype, the most recent New York ruling
+% (2016 or later) returned by CROSS whose codes all fall in those chapters.
+% Transcribed by language-model agents following a written guide, with every
+% quotation checked against the ruling's text by the verifier. See README.md.
+
+the target language is: prolog.
+scenario facts require provenance.
+
+the knowledge base cbp 62 includes these resources:
+    tariff.
+
+the knowledge base cbp 62 includes:
+
+% Where each cited ruling is published, and a copy of its text (sources/).
+ruling NY N337067 is published at "https://rulings.cbp.gov/ruling/N337067".
+the text of ruling NY N337067 is at "sources/cbp/N337067.txt".
+ruling NY N362589 is published at "https://rulings.cbp.gov/ruling/N362589".
+the text of ruling NY N362589 is at "sources/cbp/N362589.txt".
+ruling NY N327194 is published at "https://rulings.cbp.gov/ruling/N327194".
+the text of ruling NY N327194 is at "sources/cbp/N327194.txt".
+ruling NY N359709 is published at "https://rulings.cbp.gov/ruling/N359709".
+the text of ruling NY N359709 is at "sources/cbp/N359709.txt".
+ruling NY N319411 is published at "https://rulings.cbp.gov/ruling/N319411".
+the text of ruling NY N319411 is at "sources/cbp/N319411.txt".
+ruling NY N282695 is published at "https://rulings.cbp.gov/ruling/N282695".
+the text of ruling NY N282695 is at "sources/cbp/N282695.txt".
+ruling NY N311197 is published at "https://rulings.cbp.gov/ruling/N311197".
+the text of ruling NY N311197 is at "sources/cbp/N311197.txt".
+ruling NY N327446 is published at "https://rulings.cbp.gov/ruling/N327446".
+the text of ruling NY N327446 is at "sources/cbp/N327446.txt".
+ruling NY N340250 is published at "https://rulings.cbp.gov/ruling/N340250".
+the text of ruling NY N340250 is at "sources/cbp/N340250.txt".
+ruling NY N359582 is published at "https://rulings.cbp.gov/ruling/N359582".
+the text of ruling NY N359582 is at "sources/cbp/N359582.txt".
+ruling NY N341935 is published at "https://rulings.cbp.gov/ruling/N341935".
+the text of ruling NY N341935 is at "sources/cbp/N341935.txt".
+ruling NY N308558 is published at "https://rulings.cbp.gov/ruling/N308558".
+the text of ruling NY N308558 is at "sources/cbp/N308558.txt".
+ruling NY N332687 is published at "https://rulings.cbp.gov/ruling/N332687".
+the text of ruling NY N332687 is at "sources/cbp/N332687.txt".
+ruling NY N341947 is published at "https://rulings.cbp.gov/ruling/N341947".
+the text of ruling NY N341947 is at "sources/cbp/N341947.txt".
+ruling NY N315788 is published at "https://rulings.cbp.gov/ruling/N315788".
+the text of ruling NY N315788 is at "sources/cbp/N315788.txt".
+ruling NY N353022 is published at "https://rulings.cbp.gov/ruling/N353022".
+the text of ruling NY N353022 is at "sources/cbp/N353022.txt".
+ruling NY N339789 is published at "https://rulings.cbp.gov/ruling/N339789".
+the text of ruling NY N339789 is at "sources/cbp/N339789.txt".
+ruling NY N346392 is published at "https://rulings.cbp.gov/ruling/N346392".
+the text of ruling NY N346392 is at "sources/cbp/N346392.txt".
+ruling NY N325092 is published at "https://rulings.cbp.gov/ruling/N325092".
+the text of ruling NY N325092 is at "sources/cbp/N325092.txt".
+ruling NY N352609 is published at "https://rulings.cbp.gov/ruling/N352609".
+the text of ruling NY N352609 is at "sources/cbp/N352609.txt".
+ruling NY N342199 is published at "https://rulings.cbp.gov/ruling/N342199".
+the text of ruling NY N342199 is at "sources/cbp/N342199.txt".
+ruling NY N360359 is published at "https://rulings.cbp.gov/ruling/N360359".
+the text of ruling NY N360359 is at "sources/cbp/N360359.txt".
+ruling NY N351537 is published at "https://rulings.cbp.gov/ruling/N351537".
+the text of ruling NY N351537 is at "sources/cbp/N351537.txt".
+ruling NY N330159 is published at "https://rulings.cbp.gov/ruling/N330159".
+the text of ruling NY N330159 is at "sources/cbp/N330159.txt".
+ruling NY N355940 is published at "https://rulings.cbp.gov/ruling/N355940".
+the text of ruling NY N355940 is at "sources/cbp/N355940.txt".
+ruling NY N286226 is published at "https://rulings.cbp.gov/ruling/N286226".
+the text of ruling NY N286226 is at "sources/cbp/N286226.txt".
+ruling NY N333046 is published at "https://rulings.cbp.gov/ruling/N333046".
+the text of ruling NY N333046 is at "sources/cbp/N333046.txt".
+ruling NY N277766 is published at "https://rulings.cbp.gov/ruling/N277766".
+the text of ruling NY N277766 is at "sources/cbp/N277766.txt".
+ruling NY N346508 is published at "https://rulings.cbp.gov/ruling/N346508".
+the text of ruling NY N346508 is at "sources/cbp/N346508.txt".
+ruling NY N357085 is published at "https://rulings.cbp.gov/ruling/N357085".
+the text of ruling NY N357085 is at "sources/cbp/N357085.txt".
+
+query subheading is:
+    the subheading of which good is which code.
+
+query heading is:
+    the heading of which good is which heading.
+
+query unplaced is:
+    which good is not placed by the model.
+
+% NY N337067 (December 2023): a men's woven jacket from Vietnam.
+% CBP: style 5781522 -> 6201.20
+scenario ny_n337067 is, as stated in ruling NY N337067:
+    the kind of style 5781522 is jacket,
+        confer "Style 5781522 is a men’s hip-length jacket".
+    the cut of style 5781522 indicates men,
+        confer "Style 5781522 is a men’s hip-length jacket".
+    the fabric construction of style 5781522 is woven,
+        confer "constructed from a 70% wool, 25% nylon, 5% polyester twill woven fabric".
+    style 5781522 contains 70 percent of wool,
+        confer "constructed from a 70% wool, 25% nylon, 5% polyester twill woven fabric".
+    style 5781522 contains 25 percent of nylon,
+        confer "constructed from a 70% wool, 25% nylon, 5% polyester twill woven fabric".
+    style 5781522 contains 5 percent of polyester,
+        confer "constructed from a 70% wool, 25% nylon, 5% polyester twill woven fabric".
+    style 5781522 has an opening starting at the neckline,
+        confer "The garment features a half front opening with a four-snap closure".
+    style 5781522 has pockets below the waist,
+        confer "a pass through kangaroo pocket below the waist".
+    subheading expects answers ["the subheading of style 5781522 is 6201.20"].
+
+% NY N362589 (July 2026): a men's jacket of knit and woven components from Vietnam.
+% CBP: style LD-4330 -> 6201.40
+scenario ny_n362589 is, as stated in ruling NY N362589:
+    the essential character of style LD-4330 is given by no single component,
+        according to CBP, confer "specifically 3(c), under the heading that occurs last in numerical order".
+    % CBP: neither fabric exceeds 60% of the visible surface nor imparts the
+    % essential character; classified by GRI 3(c), the heading last in order.
+    the kind of style LD-4330 is jacket,
+        confer "Style LD-4330 is a men’s jacket constructed from both knit and woven components".
+    the cut of style LD-4330 indicates men,
+        confer "Style LD-4330 is a men’s jacket constructed from both knit and woven components".
+    style LD-4330 is a composite good,
+        confer "constructed from both knit and woven components".
+    the woven parts of style LD-4330 is a component of style LD-4330,
+        confer "The hood, sleeves, back yoke, and the shoulders, are constructed from 100% polyamide woven fabric".
+    the fabric construction of the woven parts of style LD-4330 is woven,
+        confer "The hood, sleeves, back yoke, and the shoulders, are constructed from 100% polyamide woven fabric".
+    the woven parts of style LD-4330 contains 100 percent of polyamide,
+        confer "The hood, sleeves, back yoke, and the shoulders, are constructed from 100% polyamide woven fabric".
+    the knit body of style LD-4330 is a component of style LD-4330,
+        confer "The balance of the garment is constructed from 82% polyester, and 18% elastane knit fabric".
+    the fabric construction of the knit body of style LD-4330 is knitted,
+        confer "The balance of the garment is constructed from 82% polyester, and 18% elastane knit fabric".
+    the knit body of style LD-4330 contains 82 percent of polyester,
+        confer "The balance of the garment is constructed from 82% polyester, and 18% elastane knit fabric".
+    the knit body of style LD-4330 contains 18 percent of elastane,
+        confer "The balance of the garment is constructed from 82% polyester, and 18% elastane knit fabric".
+    style LD-4330 has an opening starting at the neckline,
+        confer "full frontal opening secured with zipper closures".
+    style LD-4330 has pockets below the waist,
+        confer "pockets below the waist secured by zipper closures".
+    style LD-4330 has a means of tightening at the bottom,
+        confer "the garment bottom is bound with an elasticized binding tape".
+    subheading expects answers ["the subheading of style LD-4330 is 6201.40"].
+
+% NY N327194 (July 2022): unisex jackets from China.
+% CBP: style FJN -> 6202.30; style FJP -> 6202.30; style FT-FB -> 6202.30; style PJ -> 6202.30
+scenario ny_n327194 is, as stated in ruling NY N327194:
+    % style FT-FB is style FT/FB of the ruling. The ruling gives one six-digit
+    % code for adult and youth sizes (6202.30.8061 / 6202.30.8071), so each
+    % style is one good. No gender fact: the styles have no left-over-right or
+    % right-over-left closure and are not cut for one gender (note 9).
+    the kind of style FJN is jacket,
+        confer "is a fully lined jacket constructed from 100% cotton woven fabric".
+    the fabric construction of style FJN is woven,
+        confer "is a fully lined jacket constructed from 100% cotton woven fabric".
+    style FJN contains 100 percent of cotton,
+        confer "is a fully lined jacket constructed from 100% cotton woven fabric".
+    style FJN has an opening starting at the neckline,
+        confer "The garment features a full front opening with a zipper closure".
+    style FJN has a collar,
+        confer "a pointed collar, back pleats, and a ribbed knit waistband".
+    style FJN has a means of tightening at the bottom,
+        confer "a pointed collar, back pleats, and a ribbed knit waistband".
+    style FJN has pockets below the waist,
+        confer "slant pockets below the waist".
+    the kind of style FJP is jacket,
+        confer "Style FJP, Flight Jacket (NASA) pink, is identical in construction and fabric to style FJN except for color".
+    the fabric construction of style FJP is woven,
+        confer "is identical in construction and fabric to style FJN except for color".
+    style FJP contains 100 percent of cotton,
+        confer "is identical in construction and fabric to style FJN except for color".
+    style FJP has an opening starting at the neckline,
+        confer "is identical in construction and fabric to style FJN except for color".
+    style FJP has a collar,
+        confer "is identical in construction and fabric to style FJN except for color".
+    style FJP has a means of tightening at the bottom,
+        confer "is identical in construction and fabric to style FJN except for color".
+    style FJP has pockets below the waist,
+        confer "is identical in construction and fabric to style FJN except for color".
+    the kind of style FT-FB is jacket,
+        confer "Fire Fighter Jacket, is a hip-length jacket constructed from 95% cotton, 5% polyester woven fabric".
+    the fabric construction of style FT-FB is woven,
+        confer "is a hip-length jacket constructed from 95% cotton, 5% polyester woven fabric".
+    style FT-FB contains 95 percent of cotton,
+        confer "is a hip-length jacket constructed from 95% cotton, 5% polyester woven fabric".
+    style FT-FB contains 5 percent of polyester,
+        confer "is a hip-length jacket constructed from 95% cotton, 5% polyester woven fabric".
+    style FT-FB has an opening starting at the neckline,
+        confer "The unlined jacket features a full front opening with a zipper closure, an outer storm flap".
+    style FT-FB has a collar,
+        confer "a pointed collar, long sleeves with inner protective cuffs".
+    style FT-FB has pockets below the waist,
+        confer "flap pockets on the left chest and below the waist".
+    the kind of style PJ is jacket,
+        confer "Style PJ, Paleontologist Jacket, is a jacket constructed from 100% cotton woven fabric".
+    the fabric construction of style PJ is woven,
+        confer "Style PJ, Paleontologist Jacket, is a jacket constructed from 100% cotton woven fabric".
+    style PJ contains 100 percent of cotton,
+        confer "Style PJ, Paleontologist Jacket, is a jacket constructed from 100% cotton woven fabric".
+    style PJ has an opening starting at the neckline,
+        confer "The unlined jacket features a full front opening with a zipper closure and a hook and loop secured outer storm flap".
+    style PJ has a collar,
+        confer "The garment also features a pointed collar".
+    style PJ has a means of tightening at the bottom,
+        confer "long sleeves with button cuffs, and an elasticized waistband".
+    subheading expects answers ["the subheading of style FJN is 6202.30", "the subheading of style FJP is 6202.30", "the subheading of style FT-FB is 6202.30", "the subheading of style PJ is 6202.30"].
+
+% NY N359709 (April 2026): a woman's pullover jacket from Guatemala.
+% CBP: style S20027 -> 6202.40
+scenario ny_n359709 is, as stated in ruling NY N359709:
+    % style S20027 is style number S20027-025-00140, the Kyrall Women's Hoodie.
+    % CBP gives 6202.40.7000 if it passes the water-resistance test, else
+    % 6202.40.7511: the same six digits; water resistance is not recorded.
+    the kind of style S20027 is jacket,
+        confer "is a woman’s hip-length pullover jacket".
+    the cut of style S20027 indicates women,
+        confer "is a woman’s hip-length pullover jacket".
+    the fabric construction of style S20027 is woven,
+        confer "constructed of 93% polyester, and 7% spandex woven fabric".
+    style S20027 contains 93 percent of polyester,
+        confer "constructed of 93% polyester, and 7% spandex woven fabric".
+    style S20027 contains 7 percent of spandex,
+        confer "constructed of 93% polyester, and 7% spandex woven fabric".
+    style S20027 is napped,
+        confer "woven fabric that is heavily brushed on the inside".
+    style S20027 has an opening starting at the neckline,
+        confer "partial front opening secured with zipper closures".
+    subheading expects answers ["the subheading of style S20027 is 6202.40"].
+
+% NY N319411 (May 2021): girls' quilted jackets from Vietnam.
+% CBP: style S027877 for toddlers -> 6202.93; style S027877 for infants -> 6209.30
+scenario ny_n319411 is, as stated in ruling NY N319411:
+    % AGREES, RENUMBERED: CBP gives 6202.93 (the toddler's jacket) under the
+    % HTSUS of 2021; the 2022 edition renumbered it 6202.40, which the model
+    % gives.
+    % The same style in toddler girls' sizes 2T to 5T and in infant girls'
+    % sizes 12 to 24 months; CBP gives 6202.93.4800 (water resistant) or
+    % 6202.93.5521 for the toddler sizes, the same six digits.
+    the kind of style S027877 for toddlers is jacket,
+        confer "Style S027877 is a girls’ quilted jacket".
+    the cut of style S027877 for toddlers indicates women,
+        confer "Style S027877 is a girls’ quilted jacket".
+    the fabric construction of style S027877 for toddlers is woven,
+        confer "constructed from a 100% polyester, woven fabric quilted in horizontal rows".
+    style S027877 for toddlers contains 100 percent of polyester,
+        confer "constructed from a 100% polyester, woven fabric quilted in horizontal rows".
+    style S027877 for toddlers has an opening starting at the neckline,
+        confer "a full front opening secured with a zipper closure".
+    style S027877 for toddlers has a collar,
+        confer "a separate collar".
+    style S027877 for toddlers has a means of tightening at the bottom,
+        confer "an elasticized hem".
+    the kind of style S027877 for infants is jacket,
+        confer "Style S027877 is a girls’ quilted jacket".
+    the cut of style S027877 for infants indicates women,
+        confer "Style S027877 is a girls’ quilted jacket".
+    the fabric construction of style S027877 for infants is woven,
+        confer "constructed from a 100% polyester, woven fabric quilted in horizontal rows".
+    style S027877 for infants contains 100 percent of polyester,
+        confer "constructed from a 100% polyester, woven fabric quilted in horizontal rows".
+    style S027877 for infants has an opening starting at the neckline,
+        confer "a full front opening secured with a zipper closure".
+    style S027877 for infants has a collar,
+        confer "a separate collar".
+    style S027877 for infants has a means of tightening at the bottom,
+        confer "an elasticized hem".
+    style S027877 for infants is sized for babies,
+        confer "infant girls’ sizes 12 to 24 months".
+    subheading expects answers ["the subheading of style S027877 for toddlers is 6202.40", "the subheading of style S027877 for infants is 6209.30"].
+
+% NY N282695 (February 2017): men's suits, suit-type jackets and trousers from Guatemala.
+% CBP: suit Adam-Tyler -> 6203.11; style Adam -> 6203.31; style Tyler -> 6203.41
+scenario ny_n282695 is, as stated in ruling NY N282695:
+    % suit Adam-Tyler is styles Adam and Tyler imported on the same shipment,
+    % in equal quantities and corresponding sizes; style Adam and style Tyler
+    % are each imported separately.
+    the kind of suit Adam-Tyler is suit,
+        confer "men’s suits, suit-type jackets, and trousers from Guatemala".
+    the cut of suit Adam-Tyler indicates men,
+        confer "Style “Adam” is a men’s suit-type jacket and Style “Tyler” is a pair of men’s trousers".
+    the fabric construction of suit Adam-Tyler is woven,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    suit Adam-Tyler contains 52 percent of wool,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    suit Adam-Tyler contains 46 percent of polyester,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    suit Adam-Tyler contains 2 percent of spandex,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    the components of suit Adam-Tyler are matching,
+        confer "Styles “Adam” and “Tyler” are constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    the jacket of suit Adam-Tyler is a component of suit Adam-Tyler,
+        confer "Style “Adam” is a men’s suit-type jacket".
+    the kind of the jacket of suit Adam-Tyler is suit-type jacket,
+        confer "Style “Adam” is a men’s suit-type jacket".
+    the jacket of suit Adam-Tyler has at least four panels in its outer shell,
+        confer "Style “Adam” is constructed from six panels sewn together lengthwise".
+    the trousers of suit Adam-Tyler is a component of suit Adam-Tyler,
+        confer "Style “Tyler” is a pair of men’s trousers".
+    the kind of the trousers of suit Adam-Tyler is trousers,
+        confer "Style “Tyler” is a pair of men’s trousers".
+    the kind of style Adam is suit-type jacket,
+        confer "Style “Adam” is a men’s suit-type jacket".
+    the cut of style Adam indicates men,
+        confer "Style “Adam” is a men’s suit-type jacket".
+    the fabric construction of style Adam is woven,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    style Adam contains 52 percent of wool,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    style Adam contains 46 percent of polyester,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    style Adam contains 2 percent of spandex,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    style Adam has at least four panels in its outer shell,
+        confer "Style “Adam” is constructed from six panels sewn together lengthwise".
+    style Adam closes left over right,
+        confer "a left-over-right, full front opening with two button closures".
+    the kind of style Tyler is trousers,
+        confer "Style “Tyler” is a pair of men’s trousers".
+    the cut of style Tyler indicates men,
+        confer "Style “Tyler” is a pair of men’s trousers".
+    the fabric construction of style Tyler is woven,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    style Tyler contains 52 percent of wool,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    style Tyler contains 46 percent of polyester,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    style Tyler contains 2 percent of spandex,
+        confer "constructed from identical 52% worsted wool, 46% polyester, and 2% spandex woven fabric".
+    subheading expects answers ["the subheading of suit Adam-Tyler is 6203.11", "the subheading of style Adam is 6203.31", "the subheading of style Tyler is 6203.41"].
+
+% NY N311197 (November 2020): a suit set (suit costume) from China.
+% CBP: item FUN1111WHTD -> 6203.12
+scenario ny_n311197 is, as stated in ruling NY N311197:
+    % The ruling holds 6203.12 for all item numbers of the suit (toddler,
+    % children's, men's and men's plus sizes); the sample is FUN1111WHTD.
+    % VOCAB: the shirtfront (a dickey tied at the neck), no listed kind.
+    item FUN1111WHTD is a set put up for retail sale,
+        confer "The suit, necktie and bowtie are considered a set for purposes of classification".
+    suit FUN1111WHTD is a component of item FUN1111WHTD,
+        confer "The suit, necktie and bowtie are considered a set for purposes of classification".
+    the necktie of item FUN1111WHTD is a component of item FUN1111WHTD,
+        confer "The suit, necktie and bowtie are considered a set for purposes of classification".
+    the bowtie of item FUN1111WHTD is a component of item FUN1111WHTD,
+        confer "The suit, necktie and bowtie are considered a set for purposes of classification".
+    the essential character of item FUN1111WHTD is given by suit FUN1111WHTD,
+        according to CBP, confer "it is the suit which determines the essential character of the set".
+    the kind of the necktie of item FUN1111WHTD is tie,
+        confer "a pre-tied neck tie".
+    the kind of the bowtie of item FUN1111WHTD is bow tie,
+        confer "the pre-tied bowtie is approximately 8 inches long".
+    the kind of suit FUN1111WHTD is suit,
+        confer "Although you refer to the suit as a costume".
+    the cut of suit FUN1111WHTD indicates men,
+        confer "men’s sizes under item #FUN1111WHAD and #FUN1111BKAD and men’s plus sizes".
+    the fabric construction of suit FUN1111WHTD is woven,
+        confer "the garments are constructed of 100 percent polyester woven fabric".
+    suit FUN1111WHTD contains 100 percent of polyester,
+        confer "the garments are constructed of 100 percent polyester woven fabric".
+    the components of suit FUN1111WHTD are matching,
+        confer "the garments are constructed of 100 percent polyester woven fabric".
+    the jacket of suit FUN1111WHTD is a component of suit FUN1111WHTD,
+        confer "consists of a toddler’s jacket, a pair of pull-on pants".
+    the kind of the jacket of suit FUN1111WHTD is suit-type jacket,
+        confer "The unlined jacket extends from the shoulder to slightly below the waist with more than four panels".
+    the jacket of suit FUN1111WHTD has at least four panels in its outer shell,
+        confer "with more than four panels featuring notched lapels and a collar".
+    the pants of suit FUN1111WHTD is a component of suit FUN1111WHTD,
+        confer "consists of a toddler’s jacket, a pair of pull-on pants".
+    the kind of the pants of suit FUN1111WHTD is trousers,
+        confer "The pull-on pants feature an elasticized waistband".
+    subheading expects answers ["the subheading of item FUN1111WHTD is 6203.12"].
+
+% NY N327446 (November 2022): a men's suit-type jacket from Vietnam.
+% CBP: style 23900230 -> 6203.32
+scenario ny_n327446 is, as stated in ruling NY N327446:
+    % DISAGREES: CBP gives 6203.32 (cotton); the model gives 6203.33 — in
+    % the laboratory's composition (cotton 41%, rayon 24.9%, polyester
+    % 23.8%, flax 7.5%, elastane 2.8%) the man-made fibres together
+    % predominate (Section XI note 2(B)(c)), and within them the synthetic.
+    % Composition as found by the CBP laboratory (stated: 42% cotton, 25%
+    % Tencel rayon, 22% polyester, 8% linen, 3% spandex); elastomeric fibre
+    % recorded as elastane.
+    the kind of style 23900230 is suit-type jacket,
+        confer "Style 23900230 is a men’s suit-type jacket constructed of woven fabric".
+    the cut of style 23900230 indicates men,
+        confer "Style 23900230 is a men’s suit-type jacket constructed of woven fabric".
+    the fabric construction of style 23900230 is woven,
+        confer "Style 23900230 is a men’s suit-type jacket constructed of woven fabric".
+    style 23900230 contains 41 percent of cotton,
+        confer "Style 23900230 is constructed from 41 percent cotton, 24.9 percent rayon, 23.8 percent polyester, 7.5 percent flax, and 2.8 percent elastomeric fiber".
+    style 23900230 contains 24.9 percent of rayon,
+        confer "Style 23900230 is constructed from 41 percent cotton, 24.9 percent rayon, 23.8 percent polyester, 7.5 percent flax, and 2.8 percent elastomeric fiber".
+    style 23900230 contains 23.8 percent of polyester,
+        confer "Style 23900230 is constructed from 41 percent cotton, 24.9 percent rayon, 23.8 percent polyester, 7.5 percent flax, and 2.8 percent elastomeric fiber".
+    style 23900230 contains 7.5 percent of flax,
+        confer "Style 23900230 is constructed from 41 percent cotton, 24.9 percent rayon, 23.8 percent polyester, 7.5 percent flax, and 2.8 percent elastomeric fiber".
+    style 23900230 contains 2.8 percent of elastane,
+        confer "Style 23900230 is constructed from 41 percent cotton, 24.9 percent rayon, 23.8 percent polyester, 7.5 percent flax, and 2.8 percent elastomeric fiber".
+    style 23900230 has at least four panels in its outer shell,
+        confer "The lined garment is constructed from six panels sewn together lengthwise".
+    style 23900230 closes left over right,
+        confer "features a left-over-right, full front opening with two button closures".
+    subheading expects answers ["the subheading of style 23900230 is 6203.33"].
+
+% NY N340250 (June 2024): men's suit-type jacket, trousers and vest from Guatemala.
+% CBP: style USM3Burlington-C -> 6203.33; style USM3Burlington-P -> 6203.43; style V104Burlington -> 6211.33
+scenario ny_n340250 is, as stated in ruling NY N340250:
+    % the faux welt pockets below the waist of style V104Burlington are not
+    % recorded as pockets.
+    the kind of style USM3Burlington-C is suit-type jacket,
+        confer "Style USM3Burlington-C is a men’s suit-type jacket constructed from 100% polyester woven fabric".
+    the cut of style USM3Burlington-C indicates men,
+        confer "Style USM3Burlington-C is a men’s suit-type jacket constructed from 100% polyester woven fabric".
+    the fabric construction of style USM3Burlington-C is woven,
+        confer "Style USM3Burlington-C is a men’s suit-type jacket constructed from 100% polyester woven fabric".
+    style USM3Burlington-C contains 100 percent of polyester,
+        confer "Style USM3Burlington-C is a men’s suit-type jacket constructed from 100% polyester woven fabric".
+    style USM3Burlington-C has at least four panels in its outer shell,
+        confer "Style USM3Burlington-C is constructed of six panels sewn together lengthwise".
+    style USM3Burlington-C closes left over right,
+        confer "a left-over-right, full front opening with two button closures".
+    the kind of style USM3Burlington-P is trousers,
+        confer "Style USM3Burlington-P is a pair of men’s trousers constructed from 100% polyester woven fabric".
+    the cut of style USM3Burlington-P indicates men,
+        confer "Style USM3Burlington-P is a pair of men’s trousers constructed from 100% polyester woven fabric".
+    the fabric construction of style USM3Burlington-P is woven,
+        confer "Style USM3Burlington-P is a pair of men’s trousers constructed from 100% polyester woven fabric".
+    style USM3Burlington-P contains 100 percent of polyester,
+        confer "Style USM3Burlington-P is a pair of men’s trousers constructed from 100% polyester woven fabric".
+    style V104Burlington is an upper body garment,
+        confer "Style V104Burlington is a men’s vest".
+    style V104Burlington is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style V104Burlington indicates men,
+        confer "Style V104Burlington is a men’s vest".
+    style V104Burlington is sleeveless,
+        confer "The garment is sleeveless".
+    style V104Burlington has an opening starting at the neckline,
+        confer "a left-over-right, full front opening with four button closures".
+    style V104Burlington closes left over right,
+        confer "a left-over-right, full front opening with four button closures".
+    style V104Burlington is a composite good,
+        confer "The essential character of the garment is imparted by the fabric of the front panels".
+    the front panels of style V104Burlington is a component of style V104Burlington,
+        confer "The front panels are constructed from 100% polyester woven fabric".
+    the fabric construction of the front panels of style V104Burlington is woven,
+        confer "The front panels are constructed from 100% polyester woven fabric".
+    the front panels of style V104Burlington contains 100 percent of polyester,
+        confer "The front panels are constructed from 100% polyester woven fabric".
+    the back panel of style V104Burlington is a component of style V104Burlington,
+        confer "The back panel and the lining of the front and back panels are constructed from a contrasting 100% polyester woven fabric".
+    the fabric construction of the back panel of style V104Burlington is woven,
+        confer "The back panel and the lining of the front and back panels are constructed from a contrasting 100% polyester woven fabric".
+    the back panel of style V104Burlington contains 100 percent of polyester,
+        confer "The back panel and the lining of the front and back panels are constructed from a contrasting 100% polyester woven fabric".
+    the essential character of style V104Burlington is given by the front panels of style V104Burlington,
+        according to CBP, confer "The essential character of the garment is imparted by the fabric of the front panels".
+    subheading expects answers ["the subheading of style USM3Burlington-C is 6203.33", "the subheading of style USM3Burlington-P is 6203.43", "the subheading of style V104Burlington is 6211.33"].
+
+% NY N359582 (March 2026): men's shorts from Mexico and Honduras.
+% CBP: style 385627 -> 6203.42
+scenario ny_n359582 is, as stated in ruling NY N359582:
+    the kind of style 385627 is shorts,
+        confer "Style 385627 is a pair of men’s shorts".
+    the cut of style 385627 indicates men,
+        confer "Style 385627 is a pair of men’s shorts".
+    the fabric construction of style 385627 is woven,
+        confer "constructed from 88 percent cotton and 12 nylon woven fabric".
+    style 385627 contains 88 percent of cotton,
+        confer "constructed from 88 percent cotton and 12 nylon woven fabric".
+    style 385627 contains 12 percent of nylon,
+        confer "constructed from 88 percent cotton and 12 nylon woven fabric".
+    subheading expects answers ["the subheading of style 385627 is 6203.42"].
+
+% NY N341935 (February 2025): men's trousers from Guatemala.
+% CBP: style AJ-17740 -> 6203.49
+scenario ny_n341935 is, as stated in ruling NY N341935:
+    the kind of style AJ-17740 is trousers,
+        confer "Style AJ-17740 is a pair of men’s trousers".
+    the cut of style AJ-17740 indicates men,
+        confer "Style AJ-17740 is a pair of men’s trousers".
+    the fabric construction of style AJ-17740 is woven,
+        confer "constructed from 70% rayon, 26% nylon, and 4% spandex woven fabric".
+    style AJ-17740 contains 70 percent of rayon,
+        confer "constructed from 70% rayon, 26% nylon, and 4% spandex woven fabric".
+    style AJ-17740 contains 26 percent of nylon,
+        confer "constructed from 70% rayon, 26% nylon, and 4% spandex woven fabric".
+    style AJ-17740 contains 4 percent of spandex,
+        confer "constructed from 70% rayon, 26% nylon, and 4% spandex woven fabric".
+    subheading expects answers ["the subheading of style AJ-17740 is 6203.49"].
+
+% NY N308558 (January 2020): a woman's suit from China.
+% CBP: style F20009-TH -> 6204.13
+scenario ny_n308558 is, as stated in ruling NY N308558:
+    % The importer asked for the jacket and pants as separates of the same
+    % heading 6204: no claim to another heading.
+    the kind of style F20009-TH is suit,
+        confer "The tariff classification of a woman’s suit from China".
+    the cut of style F20009-TH indicates women,
+        confer "The tariff classification of a woman’s suit from China".
+    the fabric construction of style F20009-TH is woven,
+        confer "which are constructed from 82% polyester, 13% rayon, and 5% spandex woven fabric".
+    style F20009-TH contains 82 percent of polyester,
+        confer "which are constructed from 82% polyester, 13% rayon, and 5% spandex woven fabric".
+    style F20009-TH contains 13 percent of rayon,
+        confer "which are constructed from 82% polyester, 13% rayon, and 5% spandex woven fabric".
+    style F20009-TH contains 5 percent of spandex,
+        confer "which are constructed from 82% polyester, 13% rayon, and 5% spandex woven fabric".
+    the components of style F20009-TH are matching,
+        confer "Style F20009-TH consists of two garments, a jacket and pants, which are constructed from 82% polyester, 13% rayon, and 5% spandex woven fabric".
+    the jacket of style F20009-TH is a component of style F20009-TH,
+        confer "Style F20009-TH consists of two garments, a jacket and pants".
+    the kind of the jacket of style F20009-TH is suit-type jacket,
+        confer "The fully-lined jacket is assembled from more than four panels".
+    the jacket of style F20009-TH has at least four panels in its outer shell,
+        confer "The fully-lined jacket is assembled from more than four panels".
+    the pants of style F20009-TH is a component of style F20009-TH,
+        confer "Style F20009-TH consists of two garments, a jacket and pants".
+    the kind of the pants of style F20009-TH is trousers,
+        confer "The pants are hemmed and feature a flat waistband".
+    subheading expects answers ["the subheading of style F20009-TH is 6204.13"].
+
+% NY N332687 (May 2023): a woman's suit-type jacket from China.
+% CBP: style 1611 -> 6204.33
+scenario ny_n332687 is, as stated in ruling NY N332687:
+    % three or more panels: not recorded as four panels.
+    the kind of style 1611 is suit-type jacket,
+        confer "Style 1611 is a woman’s suit-type jacket constructed from 100% polyester woven fabric".
+    the cut of style 1611 indicates women,
+        confer "Style 1611 is a woman’s suit-type jacket constructed from 100% polyester woven fabric".
+    the fabric construction of style 1611 is woven,
+        confer "Style 1611 is a woman’s suit-type jacket constructed from 100% polyester woven fabric".
+    style 1611 contains 100 percent of polyester,
+        confer "Style 1611 is a woman’s suit-type jacket constructed from 100% polyester woven fabric".
+    style 1611 has an opening starting at the neckline,
+        confer "The garment features a full front opening".
+    style 1611 has pockets below the waist,
+        confer "two pockets below the waist".
+    style 1611 is claimed to belong to other garment,
+        confer "Although you requested classification of style 1611 under heading 6211".
+    the claim that style 1611 belongs to other garment is rejected,
+        according to CBP, confer "the features and the cut of the garment are of those of a suit-type jacket under heading 6204".
+    subheading expects answers ["the subheading of style 1611 is 6204.33"].
+
+% NY N341947 (September 2024): a costume dress and cape from China.
+% CBP: Anna Classic Dress -> 6204.43; Anna Classic Cape -> 6211.43
+scenario ny_n341947 is, as stated in ruling NY N341947:
+    % DISAGREES (the cape): CBP gives 6211.43; the model gives 6202.40 —
+    % heading 6202 names capes; CBP treats this costume cape as an other
+    % garment, not outerwear.
+    % Anna Classic Dress is the dress of the “Anna (Frozen I) Classic Dress”
+    % (styles 252142 to 252182 by size), Anna Classic Cape its cape. No gender
+    % fact: the ruling states none (CBP's code is for girls').
+    the kind of Anna Classic Dress is dress,
+        confer "consists of a dress and a cape constructed of knit and woven components".
+    Anna Classic Dress is a composite good,
+        confer "Because the garment is made up of different fabrics, it is considered a composite good".
+    the woven parts of Anna Classic Dress is a component of Anna Classic Dress,
+        confer "The front bodice of the dress, the sleeves, collar, skirt layers and cape are made of 100 percent polyester woven fabric".
+    the fabric construction of the woven parts of Anna Classic Dress is woven,
+        confer "The front bodice of the dress, the sleeves, collar, skirt layers and cape are made of 100 percent polyester woven fabric".
+    the woven parts of Anna Classic Dress contains 100 percent of polyester,
+        confer "The front bodice of the dress, the sleeves, collar, skirt layers and cape are made of 100 percent polyester woven fabric".
+    the knit back bodice of Anna Classic Dress is a component of Anna Classic Dress,
+        confer "The back bodice is made of 100 percent polyester knit fabric".
+    the fabric construction of the knit back bodice of Anna Classic Dress is knitted,
+        confer "The back bodice is made of 100 percent polyester knit fabric".
+    the knit back bodice of Anna Classic Dress contains 100 percent of polyester,
+        confer "The back bodice is made of 100 percent polyester knit fabric".
+    the essential character of Anna Classic Dress is given by the woven parts of Anna Classic Dress,
+        according to CBP, confer "the woven fabric which comprises most of the dress imparts the essential character".
+    Anna Classic Dress is claimed to belong to festive articles,
+        confer "you believe this costume is properly classified under heading 9505 as “festive articles.”".
+    the claim that Anna Classic Dress belongs to festive articles is rejected,
+        according to CBP, confer "your costumes are well made".
+    the kind of Anna Classic Cape is cape,
+        confer "consists of a dress and a cape constructed of knit and woven components".
+    the fabric construction of Anna Classic Cape is woven,
+        confer "skirt layers and cape are made of 100 percent polyester woven fabric".
+    Anna Classic Cape contains 100 percent of polyester,
+        confer "skirt layers and cape are made of 100 percent polyester woven fabric".
+    Anna Classic Cape is claimed to belong to festive articles,
+        confer "you believe this costume is properly classified under heading 9505 as “festive articles.”".
+    the claim that Anna Classic Cape belongs to festive articles is rejected,
+        according to CBP, confer "your costumes are well made".
+    subheading expects answers ["the subheading of Anna Classic Dress is 6204.43", "the subheading of Anna Classic Cape is 6202.40"].
+
+% NY N315788 (December 2020): women's romper, dress and skirt from Indonesia.
+% CBP: style Felicia -> 6211.43; style Sasha -> 6204.44; style Camila -> 6204.59
+scenario ny_n315788 is, as stated in ruling NY N315788:
+    the kind of style Felicia is romper,
+        confer "Style Felicia is a woman’s romper constructed from 100% viscose woven fabric".
+    the cut of style Felicia indicates women,
+        confer "Style Felicia is a woman’s romper constructed from 100% viscose woven fabric".
+    the fabric construction of style Felicia is woven,
+        confer "Style Felicia is a woman’s romper constructed from 100% viscose woven fabric".
+    style Felicia contains 100 percent of viscose,
+        confer "Style Felicia is a woman’s romper constructed from 100% viscose woven fabric".
+    the kind of style Sasha is dress,
+        confer "Style Sasha is a woman’s dress constructed from 100% viscose woven fabric".
+    the cut of style Sasha indicates women,
+        confer "Style Sasha is a woman’s dress constructed from 100% viscose woven fabric".
+    the fabric construction of style Sasha is woven,
+        confer "Style Sasha is a woman’s dress constructed from 100% viscose woven fabric".
+    style Sasha contains 100 percent of viscose,
+        confer "Style Sasha is a woman’s dress constructed from 100% viscose woven fabric".
+    the kind of style Camila is skirt,
+        confer "Style Camila is a woman’s skirt constructed from 100% viscose woven fabric".
+    the cut of style Camila indicates women,
+        confer "Style Camila is a woman’s skirt constructed from 100% viscose woven fabric".
+    the fabric construction of style Camila is woven,
+        confer "Style Camila is a woman’s skirt constructed from 100% viscose woven fabric".
+    style Camila contains 100 percent of viscose,
+        confer "Style Camila is a woman’s skirt constructed from 100% viscose woven fabric".
+    subheading expects answers ["the subheading of style Felicia is 6211.43", "the subheading of style Sasha is 6204.44", "the subheading of style Camila is 6204.59"].
+
+% NY N353022 (September 2025): girls' costumes from China.
+% CBP: the top of style 251281 -> 6211.43; the skirt of style 251281 -> 6204.53; the sash of style 251281 -> 6217.10; the top of style 251261 -> 6211.43; the skirt of style 251261 -> 6204.53; the sash of style 251261 -> 6217.10
+scenario ny_n353022 is, as stated in ruling NY N353022:
+    % CONDITIONAL (the tops): CBP gives 6211.43 — the tops are composite
+    % goods (woven front, knit back) and the ruling states no essential
+    % character: the model's answer is conditional on that judgment. (The
+    % sashes, 6217.10, agree.)
+    % Each costume is three garments that CBP classifies separately (Section XI note 14);
+    % the two styles differ only in size. The top is of woven front and knit back: a
+    % composite good; CBP states no essential character.
+    % VOCAB: the importer's claim of heading 9505 (festive articles), no listed kind;
+    % CBP answers it: your costumes are well made.
+    the top of style 251281 is an upper body garment,
+        confer "are composed of three pieces, an upper body garment, a skirt, and a sash".
+    the top of style 251281 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of the top of style 251281 indicates women,
+        confer "The tariff classification of girls’ costumes from China".
+    the top of style 251281 has shoulder straps,
+        confer "The upper body garment features well-made spaghetti straps".
+    the top of style 251281 is a composite good,
+        confer "The upper body garment is constructed of 100 percent polyester woven fabric on the front and 100 percent polyester knit fabric on the back".
+    the woven front of the top of style 251281 is a component of the top of style 251281,
+        confer "constructed of 100 percent polyester woven fabric on the front".
+    the fabric construction of the woven front of the top of style 251281 is woven,
+        confer "constructed of 100 percent polyester woven fabric on the front".
+    the woven front of the top of style 251281 contains 100 percent of polyester,
+        confer "constructed of 100 percent polyester woven fabric on the front".
+    the knit back of the top of style 251281 is a component of the top of style 251281,
+        confer "100 percent polyester knit fabric on the back".
+    the fabric construction of the knit back of the top of style 251281 is knitted,
+        confer "100 percent polyester knit fabric on the back".
+    the knit back of the top of style 251281 contains 100 percent of polyester,
+        confer "100 percent polyester knit fabric on the back".
+    the kind of the skirt of style 251281 is skirt,
+        confer "The multi-layer skirt features a tunnel elastic waistband".
+    the cut of the skirt of style 251281 indicates women,
+        confer "The tariff classification of girls’ costumes from China".
+    the fabric construction of the skirt of style 251281 is woven,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    the skirt of style 251281 contains 100 percent of polyester,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    the kind of the sash of style 251281 is sash,
+        confer "an upper body garment, a skirt, and a sash".
+    the fabric construction of the sash of style 251281 is woven,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    the sash of style 251281 contains 100 percent of polyester,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    the top of style 251261 is an upper body garment,
+        confer "are composed of three pieces, an upper body garment, a skirt, and a sash".
+    the top of style 251261 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of the top of style 251261 indicates women,
+        confer "The tariff classification of girls’ costumes from China".
+    the top of style 251261 has shoulder straps,
+        confer "The upper body garment features well-made spaghetti straps".
+    the top of style 251261 is a composite good,
+        confer "The upper body garment is constructed of 100 percent polyester woven fabric on the front and 100 percent polyester knit fabric on the back".
+    the woven front of the top of style 251261 is a component of the top of style 251261,
+        confer "constructed of 100 percent polyester woven fabric on the front".
+    the fabric construction of the woven front of the top of style 251261 is woven,
+        confer "constructed of 100 percent polyester woven fabric on the front".
+    the woven front of the top of style 251261 contains 100 percent of polyester,
+        confer "constructed of 100 percent polyester woven fabric on the front".
+    the knit back of the top of style 251261 is a component of the top of style 251261,
+        confer "100 percent polyester knit fabric on the back".
+    the fabric construction of the knit back of the top of style 251261 is knitted,
+        confer "100 percent polyester knit fabric on the back".
+    the knit back of the top of style 251261 contains 100 percent of polyester,
+        confer "100 percent polyester knit fabric on the back".
+    the kind of the skirt of style 251261 is skirt,
+        confer "The multi-layer skirt features a tunnel elastic waistband".
+    the cut of the skirt of style 251261 indicates women,
+        confer "The tariff classification of girls’ costumes from China".
+    the fabric construction of the skirt of style 251261 is woven,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    the skirt of style 251261 contains 100 percent of polyester,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    the kind of the sash of style 251261 is sash,
+        confer "an upper body garment, a skirt, and a sash".
+    the fabric construction of the sash of style 251261 is woven,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    the sash of style 251261 contains 100 percent of polyester,
+        confer "The skirt has a sash and an inner layer constructed of 100 percent polyester woven fabric".
+    subheading expects answers ["the subheading of the skirt of style 251281 is 6204.53", "the subheading of the skirt of style 251261 is 6204.53", "the subheading of the top of style 251281 is 6211.43", "the subheading of the top of style 251261 is 6211.43", "the subheading of the sash of style 251281 is 6217.10", "the subheading of the sash of style 251261 is 6217.10"]
+        and unknowns ["the essential character of the top of style 251261 is given by no single component", "the essential character of the top of style 251261 is given by the woven front of the top of style 251261", "the essential character of the top of style 251281 is given by no single component", "the essential character of the top of style 251281 is given by the woven front of the top of style 251281"].
+
+% NY N339789 (July 2025): women's trousers from Guatemala.
+% CBP: style GTGH-10987 -> 6204.69; style PG589 -> 6204.69; style YD-85216 -> 6204.69
+scenario ny_n339789 is, as stated in ruling NY N339789:
+    % elastomeric fibre recorded as elastane.
+    the kind of style GTGH-10987 is trousers,
+        confer "The pull-on trousers feature two faux front pockets".
+    the cut of style GTGH-10987 indicates women,
+        confer "of women’s trousers from Guatemala".
+    the fabric construction of style GTGH-10987 is woven,
+        confer "Style GTGH-10987 is constructed of 77% rayon, 20% nylon, and 3% elastomeric woven fabric".
+    style GTGH-10987 contains 77 percent of rayon,
+        confer "Style GTGH-10987 is constructed of 77% rayon, 20% nylon, and 3% elastomeric woven fabric".
+    style GTGH-10987 contains 20 percent of nylon,
+        confer "Style GTGH-10987 is constructed of 77% rayon, 20% nylon, and 3% elastomeric woven fabric".
+    style GTGH-10987 contains 3 percent of elastane,
+        confer "Style GTGH-10987 is constructed of 77% rayon, 20% nylon, and 3% elastomeric woven fabric".
+    the kind of style PG589 is trousers,
+        confer "The pull-on trousers feature two faux front pockets".
+    the cut of style PG589 indicates women,
+        confer "of women’s trousers from Guatemala".
+    the fabric construction of style PG589 is woven,
+        confer "Style PG589 is constructed of 78% rayon, 19% nylon, and 3% elastomeric woven fabric".
+    style PG589 contains 78 percent of rayon,
+        confer "Style PG589 is constructed of 78% rayon, 19% nylon, and 3% elastomeric woven fabric".
+    style PG589 contains 19 percent of nylon,
+        confer "Style PG589 is constructed of 78% rayon, 19% nylon, and 3% elastomeric woven fabric".
+    style PG589 contains 3 percent of elastane,
+        confer "Style PG589 is constructed of 78% rayon, 19% nylon, and 3% elastomeric woven fabric".
+    the kind of style YD-85216 is trousers,
+        confer "The pull-on trousers feature two faux front pockets".
+    the cut of style YD-85216 indicates women,
+        confer "of women’s trousers from Guatemala".
+    the fabric construction of style YD-85216 is woven,
+        confer "Style YD-85216 is constructed of 78% rayon, 19% nylon, and 3% spandex woven fabric".
+    style YD-85216 contains 78 percent of rayon,
+        confer "Style YD-85216 is constructed of 78% rayon, 19% nylon, and 3% spandex woven fabric".
+    style YD-85216 contains 19 percent of nylon,
+        confer "Style YD-85216 is constructed of 78% rayon, 19% nylon, and 3% spandex woven fabric".
+    style YD-85216 contains 3 percent of spandex,
+        confer "Style YD-85216 is constructed of 78% rayon, 19% nylon, and 3% spandex woven fabric".
+    subheading expects answers ["the subheading of style GTGH-10987 is 6204.69", "the subheading of style PG589 is 6204.69", "the subheading of style YD-85216 is 6204.69"].
+
+% NY N346392 (March 2025): women's blouses and jackets from China.
+% CBP: style S25-4370 -> 6206.40; style W22125-4 -> 6206.90; style L41325-7 -> 6211.43; style AUC41825-9 -> 6211.49
+scenario ny_n346392 is, as stated in ruling NY N346392:
+    % DISAGREES (the jackets): CBP gives 6211.43 and 6211.49; the model
+    % gives 6202.40 and 6202.90 — the ruling calls them jackets; CBP holds
+    % these lightweight jackets to be other garments, not outerwear.
+    style S25-4370 is an upper body garment,
+        confer "Style S25-4370 is a woman’s blouse constructed from 100% viscose woven fabric".
+    style S25-4370 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style S25-4370 indicates women,
+        confer "Style S25-4370 is a woman’s blouse".
+    the fabric construction of style S25-4370 is woven,
+        confer "Style S25-4370 is a woman’s blouse constructed from 100% viscose woven fabric".
+    style S25-4370 contains 100 percent of viscose,
+        confer "Style S25-4370 is a woman’s blouse constructed from 100% viscose woven fabric".
+    style S25-4370 has a collar,
+        confer "The blouse features a pointed collar, a partial front opening secured by four button closures".
+    style S25-4370 has an opening starting at the neckline,
+        confer "a partial front opening secured by four button closures".
+    style W22125-4 is an upper body garment,
+        confer "Style W22125-4 is a woman’s blouse constructed from 100% ramie woven fabric".
+    style W22125-4 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style W22125-4 indicates women,
+        confer "Style W22125-4 is a woman’s blouse".
+    the fabric construction of style W22125-4 is woven,
+        confer "Style W22125-4 is a woman’s blouse constructed from 100% ramie woven fabric".
+    style W22125-4 contains 100 percent of ramie,
+        confer "Style W22125-4 is a woman’s blouse constructed from 100% ramie woven fabric".
+    style W22125-4 has an opening starting at the neckline,
+        confer "The blouse features a split V-neckline".
+    the kind of style L41325-7 is jacket,
+        confer "Style L41325-7 is a woman’s jacket constructed from 70% rayon and 30% silk woven fabric".
+    the cut of style L41325-7 indicates women,
+        confer "Style L41325-7 is a woman’s jacket".
+    the fabric construction of style L41325-7 is woven,
+        confer "Style L41325-7 is a woman’s jacket constructed from 70% rayon and 30% silk woven fabric".
+    style L41325-7 contains 70 percent of rayon,
+        confer "Style L41325-7 is a woman’s jacket constructed from 70% rayon and 30% silk woven fabric".
+    style L41325-7 contains 30 percent of silk,
+        confer "Style L41325-7 is a woman’s jacket constructed from 70% rayon and 30% silk woven fabric".
+    the kind of style AUC41825-9 is jacket,
+        confer "Style AUC41825-9 is a woman’s jacket constructed from 100% silk woven fabric".
+    the cut of style AUC41825-9 indicates women,
+        confer "Style AUC41825-9 is a woman’s jacket".
+    the fabric construction of style AUC41825-9 is woven,
+        confer "Style AUC41825-9 is a woman’s jacket constructed from 100% silk woven fabric".
+    style AUC41825-9 contains 100 percent of silk,
+        confer "Style AUC41825-9 is a woman’s jacket constructed from 100% silk woven fabric".
+    subheading expects answers ["the subheading of style L41325-7 is 6202.40", "the subheading of style AUC41825-9 is 6202.90", "the subheading of style S25-4370 is 6206.40", "the subheading of style W22125-4 is 6206.90"].
+
+% NY N325092 (April 2022): men's pajamas from Nicaragua.
+% CBP: style GRNSTRP_1SNAP_HGR -> 6207.21; style LOBSTER_FAUXFLY_HGR -> 6207.21; style LOBSTER_FAUXFLY_GIFTPK -> 6207.21; style PLAID_1SNAP_GIFTPK -> 6207.21; style FGRNSTRP_1SNAP_HGR -> 6207.22; style FLOBSTER_FAUXFLY_HGR -> 6207.22; style FLOBSTER_FAUXFLY_GIFTPK -> 6207.22; style FPLAID_1SNAP_GIFTPK -> 6207.22
+scenario ny_n325092 is, as stated in ruling NY N325092:
+    % Each style is a pajama top and pants, classified by CBP as one article (pajamas).
+    % The F styles are the same garments in polyester and cotton flannel.
+    the kind of style GRNSTRP_1SNAP_HGR is pajamas,
+        confer "Style GRNSTRP_1SNAP_HGR is a pair of men’s pajamas".
+    the cut of style GRNSTRP_1SNAP_HGR indicates men,
+        confer "Style GRNSTRP_1SNAP_HGR is a pair of men’s pajamas".
+    the fabric construction of style GRNSTRP_1SNAP_HGR is woven,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    style GRNSTRP_1SNAP_HGR contains 100 percent of cotton,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    the kind of style FGRNSTRP_1SNAP_HGR is pajamas,
+        confer "Style GRNSTRP_1SNAP_HGR is a pair of men’s pajamas".
+    the cut of style FGRNSTRP_1SNAP_HGR indicates men,
+        confer "Style GRNSTRP_1SNAP_HGR is a pair of men’s pajamas".
+    the fabric construction of style FGRNSTRP_1SNAP_HGR is woven,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FGRNSTRP_1SNAP_HGR".
+    style FGRNSTRP_1SNAP_HGR contains 65 percent of polyester,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FGRNSTRP_1SNAP_HGR".
+    style FGRNSTRP_1SNAP_HGR contains 35 percent of cotton,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FGRNSTRP_1SNAP_HGR".
+    the kind of style LOBSTER_FAUXFLY_HGR is pajamas,
+        confer "Style LOBSTER_FAUXFLY_HGR is a pair of men’s pajamas".
+    the cut of style LOBSTER_FAUXFLY_HGR indicates men,
+        confer "Style LOBSTER_FAUXFLY_HGR is a pair of men’s pajamas".
+    the fabric construction of style LOBSTER_FAUXFLY_HGR is woven,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    style LOBSTER_FAUXFLY_HGR contains 100 percent of cotton,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    the kind of style FLOBSTER_FAUXFLY_HGR is pajamas,
+        confer "Style LOBSTER_FAUXFLY_HGR is a pair of men’s pajamas".
+    the cut of style FLOBSTER_FAUXFLY_HGR indicates men,
+        confer "Style LOBSTER_FAUXFLY_HGR is a pair of men’s pajamas".
+    the fabric construction of style FLOBSTER_FAUXFLY_HGR is woven,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_HGR".
+    style FLOBSTER_FAUXFLY_HGR contains 65 percent of polyester,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_HGR".
+    style FLOBSTER_FAUXFLY_HGR contains 35 percent of cotton,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_HGR".
+    the kind of style LOBSTER_FAUXFLY_GIFTPK is pajamas,
+        confer "Style LOBSTER_FAUXFLY_GIFTPK is a pair of men’s pajamas".
+    the cut of style LOBSTER_FAUXFLY_GIFTPK indicates men,
+        confer "Style LOBSTER_FAUXFLY_GIFTPK is a pair of men’s pajamas".
+    the fabric construction of style LOBSTER_FAUXFLY_GIFTPK is woven,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    style LOBSTER_FAUXFLY_GIFTPK contains 100 percent of cotton,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    the kind of style FLOBSTER_FAUXFLY_GIFTPK is pajamas,
+        confer "Style LOBSTER_FAUXFLY_GIFTPK is a pair of men’s pajamas".
+    the cut of style FLOBSTER_FAUXFLY_GIFTPK indicates men,
+        confer "Style LOBSTER_FAUXFLY_GIFTPK is a pair of men’s pajamas".
+    the fabric construction of style FLOBSTER_FAUXFLY_GIFTPK is woven,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_GIFTPK".
+    style FLOBSTER_FAUXFLY_GIFTPK contains 65 percent of polyester,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_GIFTPK".
+    style FLOBSTER_FAUXFLY_GIFTPK contains 35 percent of cotton,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FLOBSTER_FAUXFLY_GIFTPK".
+    the kind of style PLAID_1SNAP_GIFTPK is pajamas,
+        confer "Style PLAID_1SNAP_GIFTPK is a pair of men’s pajamas".
+    the cut of style PLAID_1SNAP_GIFTPK indicates men,
+        confer "Style PLAID_1SNAP_GIFTPK is a pair of men’s pajamas".
+    the fabric construction of style PLAID_1SNAP_GIFTPK is woven,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    style PLAID_1SNAP_GIFTPK contains 100 percent of cotton,
+        confer "The garments are constructed from 100% cotton yarn dyed woven fabric".
+    the kind of style FPLAID_1SNAP_GIFTPK is pajamas,
+        confer "Style PLAID_1SNAP_GIFTPK is a pair of men’s pajamas".
+    the cut of style FPLAID_1SNAP_GIFTPK indicates men,
+        confer "Style PLAID_1SNAP_GIFTPK is a pair of men’s pajamas".
+    the fabric construction of style FPLAID_1SNAP_GIFTPK is woven,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FPLAID_1SNAP_GIFTPK".
+    style FPLAID_1SNAP_GIFTPK contains 65 percent of polyester,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FPLAID_1SNAP_GIFTPK".
+    style FPLAID_1SNAP_GIFTPK contains 35 percent of cotton,
+        confer "65% polyester 35% cotton yarn dyed flannel woven fabric and identified as Style FPLAID_1SNAP_GIFTPK".
+    subheading expects answers ["the subheading of style GRNSTRP 1SNAP HGR is 6207.21", "the subheading of style FGRNSTRP 1SNAP HGR is 6207.22", "the subheading of style LOBSTER FAUXFLY HGR is 6207.21", "the subheading of style FLOBSTER FAUXFLY HGR is 6207.22", "the subheading of style LOBSTER FAUXFLY GIFTPK is 6207.21", "the subheading of style FLOBSTER FAUXFLY GIFTPK is 6207.22", "the subheading of style PLAID 1SNAP GIFTPK is 6207.21", "the subheading of style FPLAID 1SNAP GIFTPK is 6207.22"].
+
+% NY N352609 (September 2025): women's pajamas from China.
+% CBP: style 60025A -> 6208.21
+scenario ny_n352609 is, as stated in ruling NY N352609:
+    the kind of style 60025A is pajamas,
+        confer "Style 60025A is a women’s pajama top and bottom".
+    the cut of style 60025A indicates women,
+        confer "Style 60025A is a women’s pajama top and bottom".
+    the fabric construction of style 60025A is woven,
+        confer "Both garments are constructed from 100% cotton woven fabric".
+    style 60025A contains 100 percent of cotton,
+        confer "Both garments are constructed from 100% cotton woven fabric".
+    subheading expects answers ["the subheading of style 60025A is 6208.21"].
+
+% NY N342199 (September 2024): unisex bath wraps from Vietnam.
+% CBP: item EG2407004 -> 6208.92; item EG2407005 -> 6208.92
+scenario ny_n342199 is, as stated in ruling NY N342199:
+    % unisex: no gender fact.
+    the kind of item EG2407004 is bath wrap,
+        confer "Printed Waffle Body Wrap,” is a unisex bath wrap".
+    the fabric construction of item EG2407004 is woven,
+        confer "It is constructed from 100 percent polyester woven fabric".
+    item EG2407004 contains 100 percent of polyester,
+        confer "It is constructed from 100 percent polyester woven fabric".
+    the kind of item EG2407005 is bath wrap,
+        confer "identified as “Solid Waffle Body Wrap” is a unisex bath wrap".
+    the fabric construction of item EG2407005 is woven,
+        confer "It is constructed from 100 percent polyester woven fabric".
+    item EG2407005 contains 100 percent of polyester,
+        confer "It is constructed from 100 percent polyester woven fabric".
+    subheading expects answers ["the subheading of item EG2407004 is 6208.92", "the subheading of item EG2407005 is 6208.92"].
+
+% NY N360359 (April 2026): women's disposable underwear briefs from Thailand.
+% CBP: the postpartum underwear -> 6210.10
+scenario ny_n360359 is, as stated in ruling NY N360359:
+    the essential character of the postpartum underwear is given by no single component,
+        according to CBP, confer "The disposable underwear shall be classified in accordance with (GRI) 3(c)".
+    % A composite good of nonwoven polypropylene and paper pulp; CBP finds that no
+    % essential character can be determined and applies GRI 3(c). The importer's
+    % proposal (6210.10.7000) is of the same heading: no claim recorded.
+    % VOCAB: paper pulp, no listed material.
+    the kind of the postpartum underwear is briefs,
+        confer "is a women’s disposable, seamless boyshort-style brief for one-time use".
+    the cut of the postpartum underwear indicates women,
+        confer "is a women’s disposable, seamless boyshort-style brief for one-time use".
+    the postpartum underwear is made up of fabric of heading 5603,
+        confer "as a garment made of nonwoven fabric of heading 5603".
+    the postpartum underwear is a composite good,
+        confer "Since the underwear is a composite good constructed from two different materials".
+    the nonwoven layers of the postpartum underwear is a component of the postpartum underwear,
+        confer "You state the top and bottom layers consist of 100 percent polypropylene spun bond nonwoven".
+    the fabric construction of the nonwoven layers of the postpartum underwear is nonwoven,
+        confer "You state the top and bottom layers consist of 100 percent polypropylene spun bond nonwoven".
+    the nonwoven layers of the postpartum underwear contains 100 percent of polypropylene,
+        confer "You state the top and bottom layers consist of 100 percent polypropylene spun bond nonwoven".
+    the paper pulp layer of the postpartum underwear is a component of the postpartum underwear,
+        confer "while the middle layer is made of paper pulp".
+    subheading expects answers ["the subheading of the postpartum underwear is 6210.10"].
+
+% NY N351537 (August 2025): a women's sleeveless padded jacket from Bangladesh.
+% CBP: style WV26 -> 6210.30
+scenario ny_n351537 is, as stated in ruling NY N351537:
+    % a visible coating on the inner surface recorded as fabric of heading 5903.
+    the kind of style WV26 is padded sleeveless jacket,
+        confer "Style WV26 is a women’s sleeveless padded jacket".
+    the cut of style WV26 indicates women,
+        confer "Style WV26 is a women’s sleeveless padded jacket".
+    the fabric construction of style WV26 is woven,
+        confer "constructed from a 100% polyester woven fabric".
+    style WV26 contains 100 percent of polyester,
+        confer "constructed from a 100% polyester woven fabric".
+    style WV26 is made up of fabric of heading 5903,
+        confer "which has a visible coating on the inner surface".
+    subheading expects answers ["the subheading of style WV26 is 6210.30"].
+
+% NY N330159 (January 2023): men's swim shorts from China.
+% CBP: style H2000184 -> 6210.40
+scenario ny_n330159 is, as stated in ruling NY N330159:
+    the kind of style H2000184 is swim shorts,
+        confer "Style H2000184 is a pair of men’s swim shorts".
+    the cut of style H2000184 indicates men,
+        confer "Style H2000184 is a pair of men’s swim shorts".
+    the fabric construction of style H2000184 is woven,
+        confer "constructed from 89% polyester, 11% elastane woven fabric".
+    style H2000184 contains 89 percent of polyester,
+        confer "constructed from 89% polyester, 11% elastane woven fabric".
+    style H2000184 contains 11 percent of elastane,
+        confer "constructed from 89% polyester, 11% elastane woven fabric".
+    style H2000184 is made up of fabric of heading 5903,
+        confer "woven fabric visibly impregnated, coated, covered or laminated with plastic".
+    subheading expects answers ["the subheading of style H2000184 is 6210.40"].
+
+% NY N355940 (December 2025): men's coveralls from Mexico.
+% CBP: item SW-605-12-L -> 6211.32; item ACCA12RG-M -> 6211.32; item 605-IND-N-44R -> 6211.32; item 605-USN-L -> 6211.32; item AF-CV-A1-L -> 6211.32; item 605-INDN-MGCED-L -> 6211.32
+scenario ny_n355940 is, as stated in ruling NY N355940:
+    the kind of item SW-605-12-L is coverall,
+        confer "Item SW-605-12-L is a men’s one-piece step-in-garment".
+    the cut of item SW-605-12-L indicates men,
+        confer "Item SW-605-12-L is a men’s one-piece step-in-garment".
+    the fabric construction of item SW-605-12-L is woven,
+        confer "Item SW-605-12-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item SW-605-12-L contains 88 percent of cotton,
+        confer "Item SW-605-12-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item SW-605-12-L contains 12 percent of nylon,
+        confer "Item SW-605-12-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item SW-605-12-L closes left over right,
+        confer "a left-over-right front with hook and loop closures".
+    the kind of item ACCA12RG-M is coverall,
+        confer "Item ACCA12RG-M is a men’s one-piece step-in-garment".
+    the cut of item ACCA12RG-M indicates men,
+        confer "Item ACCA12RG-M is a men’s one-piece step-in-garment".
+    the fabric construction of item ACCA12RG-M is woven,
+        confer "Item ACCA12RG-M is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item ACCA12RG-M contains 88 percent of cotton,
+        confer "Item ACCA12RG-M is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item ACCA12RG-M contains 12 percent of nylon,
+        confer "Item ACCA12RG-M is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item ACCA12RG-M closes left over right,
+        confer "a left-over-right front with hook and loop closures".
+    the kind of item 605-IND-N-44R is coverall,
+        confer "Item 605-IND-N-44R is a men’s one-piece step-in-garment".
+    the cut of item 605-IND-N-44R indicates men,
+        confer "Item 605-IND-N-44R is a men’s one-piece step-in-garment".
+    the fabric construction of item 605-IND-N-44R is woven,
+        confer "Item 605-IND-N-44R is a men’s one-piece step-in-garment constructed from 100% cotton woven fabric".
+    item 605-IND-N-44R contains 100 percent of cotton,
+        confer "Item 605-IND-N-44R is a men’s one-piece step-in-garment constructed from 100% cotton woven fabric".
+    item 605-IND-N-44R closes left over right,
+        confer "a left-over-right front opening secured by two snap closures".
+    the kind of item 605-USN-L is coverall,
+        confer "Item 605-USN-L is a men’s one-piece step-in-garment".
+    the cut of item 605-USN-L indicates men,
+        confer "Item 605-USN-L is a men’s one-piece step-in-garment".
+    the fabric construction of item 605-USN-L is woven,
+        confer "Item 605-USN-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item 605-USN-L contains 88 percent of cotton,
+        confer "Item 605-USN-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item 605-USN-L contains 12 percent of nylon,
+        confer "Item 605-USN-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item 605-USN-L closes left over right,
+        confer "a left-over-right front opening secured by two snap closures".
+    the kind of item AF-CV-A1-L is coverall,
+        confer "Item AF-CV-A1-L is a men’s one-piece step-in-garment".
+    the cut of item AF-CV-A1-L indicates men,
+        confer "Item AF-CV-A1-L is a men’s one-piece step-in-garment".
+    the fabric construction of item AF-CV-A1-L is woven,
+        confer "Item AF-CV-A1-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item AF-CV-A1-L contains 88 percent of cotton,
+        confer "Item AF-CV-A1-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item AF-CV-A1-L contains 12 percent of nylon,
+        confer "Item AF-CV-A1-L is a men’s one-piece step-in-garment constructed from 88% cotton, and 12% nylon woven fabric".
+    item AF-CV-A1-L closes left over right,
+        confer "a left-over-right front opening secured by two snap closures".
+    the kind of item 605-INDN-MGCED-L is coverall,
+        confer "Item 605-INDN-MGCED-L is a men’s one-piece step-in-garment".
+    the cut of item 605-INDN-MGCED-L indicates men,
+        confer "Item 605-INDN-MGCED-L is a men’s one-piece step-in-garment".
+    the fabric construction of item 605-INDN-MGCED-L is woven,
+        confer "Item 605-INDN-MGCED-L is a men’s one-piece step-in-garment constructed from 100% cotton woven fabric".
+    item 605-INDN-MGCED-L contains 100 percent of cotton,
+        confer "Item 605-INDN-MGCED-L is a men’s one-piece step-in-garment constructed from 100% cotton woven fabric".
+    item 605-INDN-MGCED-L closes left over right,
+        confer "a left-over-right front opening secured by two snap closures".
+    subheading expects answers ["the subheading of item SW-605-12-L is 6211.32", "the subheading of item ACCA12RG-M is 6211.32", "the subheading of item 605-IND-N-44R is 6211.32", "the subheading of item 605-USN-L is 6211.32", "the subheading of item AF-CV-A1-L is 6211.32", "the subheading of item 605-INDN-MGCED-L is 6211.32"].
+
+% NY N286226 (June 2017): a men's woven vest from Guatemala.
+% CBP: style 8361V -> 6211.39
+scenario ny_n286226 is, as stated in ruling NY N286226:
+    % A composite good of wool front panels and polyester rear panels; CBP gives the
+    % essential character to the wool front.
+    style 8361V is an upper body garment,
+        confer "Style 8361V, is a men’s vest constructed from four panels sewn together lengthwise".
+    style 8361V is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style 8361V indicates men,
+        confer "Style 8361V, is a men’s vest".
+    the fabric construction of style 8361V is woven,
+        confer "a men’s woven vest from Guatemala".
+    style 8361V is sleeveless,
+        confer "oversized armholes".
+    style 8361V has an opening starting at the neckline,
+        confer "a full front opening with five button closures".
+    style 8361V is a composite good,
+        confer "it is considered a composite good".
+    the front panels of style 8361V is a component of style 8361V,
+        confer "The two front panels are constructed from 100% worsted wool, woven fabric".
+    the fabric construction of the front panels of style 8361V is woven,
+        confer "The two front panels are constructed from 100% worsted wool, woven fabric".
+    the front panels of style 8361V contains 100 percent of wool,
+        confer "The two front panels are constructed from 100% worsted wool, woven fabric".
+    the rear panels of style 8361V is a component of style 8361V,
+        confer "the two rear panels are constructed from 100% polyester, woven fabric".
+    the fabric construction of the rear panels of style 8361V is woven,
+        confer "the two rear panels are constructed from 100% polyester, woven fabric".
+    the rear panels of style 8361V contains 100 percent of polyester,
+        confer "the two rear panels are constructed from 100% polyester, woven fabric".
+    the essential character of style 8361V is given by the front panels of style 8361V,
+        according to CBP, confer "The essential character of Style 8361V is imparted by the 100% worsted wool, woven fabric".
+    subheading expects answers ["the subheading of style 8361V is 6211.39"].
+
+% NY N333046 (June 2023): a compression girdle from Mexico.
+% CBP: style LGLFM -> 6212.20
+scenario ny_n333046 is, as stated in ruling NY N333046:
+    % VOCAB: the importer's claim of heading 9021 (orthopedic appliances), no listed
+    % kind; CBP rejects it (We disagree; Note 1(b) to Chapter 90).
+    the kind of style LGLFM is girdle,
+        confer "is a tight-fitting undergarment best described as a girdle".
+    style LGLFM is designed to be worn as an undergarment,
+        confer "is a tight-fitting undergarment best described as a girdle".
+    the fabric construction of style LGLFM is knitted,
+        confer "The garment is constructed of 51% nylon, 49% spandex knit fabric".
+    style LGLFM contains 51 percent of nylon,
+        confer "The garment is constructed of 51% nylon, 49% spandex knit fabric".
+    style LGLFM contains 49 percent of spandex,
+        confer "The garment is constructed of 51% nylon, 49% spandex knit fabric".
+    subheading expects answers ["the subheading of style LGLFM is 6212.20"].
+
+% NY N277766 (August 2016): cotton bandanas from China.
+% CBP: the cotton bandanas -> 6213.20
+scenario ny_n277766 is, as stated in ruling NY N277766:
+    % 21 by 21 inches = 53.3 cm a side.
+    the kind of the cotton bandanas is bandana,
+        confer "The submitted samples are two bandanas made of 100 percent cotton woven fabric".
+    the fabric construction of the cotton bandanas is woven,
+        confer "The submitted samples are two bandanas made of 100 percent cotton woven fabric".
+    the cotton bandanas contains 100 percent of cotton,
+        confer "The submitted samples are two bandanas made of 100 percent cotton woven fabric".
+    the cotton bandanas is approximately square,
+        confer "which is approximately 53 centimeters square".
+    the longest side of the cotton bandanas measures 53.3 centimetres,
+        confer "which is approximately 53 centimeters square".
+    subheading expects answers ["the subheading of the cotton bandanas is 6213.20"].
+
+% NY N346508 (March 2025): silk scarves from Cambodia.
+% CBP: the silk scarves -> 6214.10
+scenario ny_n346508 is, as stated in ruling NY N346508:
+    the kind of the silk scarves is scarf,
+        confer "The goods are described as scarves constructed from 100% woven silk fabric".
+    the fabric construction of the silk scarves is woven,
+        confer "The goods are described as scarves constructed from 100% woven silk fabric".
+    the silk scarves contains 100 percent of silk,
+        confer "The goods are described as scarves constructed from 100% woven silk fabric".
+    the silk scarves is approximately square,
+        confer "the dimensions of the scarves will be 65 centimeters by 65 centimeters".
+    the longest side of the silk scarves measures 65 centimetres,
+        confer "the dimensions of the scarves will be 65 centimeters by 65 centimeters".
+    subheading expects answers ["the subheading of the silk scarves is 6214.10"].
+
+% NY N357085 (December 2025): a scarf/sarong from Cambodia.
+% CBP: the printed scarf sarong -> 6214.40
+scenario ny_n357085 is, as stated in ruling NY N357085:
+    % DISAGREES: CBP gives 6214.40 (artificial fibres); the model gives
+    % 6214.30 — the scarf is of polyester, a synthetic fibre.
+    % the printed scarf sarong is style ATS/271 (a slash cannot be in a name).
+    % 64 inches = 162.6 cm.
+    the kind of the printed scarf sarong is scarf,
+        confer "The subject merchandise consists of a printed scarf/sarong".
+    the fabric construction of the printed scarf sarong is woven,
+        confer "composed of 100% polyester woven fabric".
+    the printed scarf sarong contains 100 percent of polyester,
+        confer "composed of 100% polyester woven fabric".
+    the longest side of the printed scarf sarong measures 162.6 centimetres,
+        confer "The item measures 42” in length and 64” in width".
+
+    subheading expects answers ["the subheading of the printed scarf sarong is 6214.30"].
