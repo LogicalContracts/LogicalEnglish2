@@ -2213,6 +2213,11 @@ We got this recommendation from LE's father:
 
 Implement it; add a simple test example with it.
 
+# IDE improvements
+Let's have the possibility to open multiple (file) tabs in the editor, in the style of another IDE, see MultipleEditorPanes.png. Related panes (Query, LE Assistant etc) should refresh accordingly. file operations should act on the current pane.
+
+When a LE file is large or has many scenarios, some time it taks several seconds between the user clicking on the scenario or quiery picker, and the menu popping up; add a waiting cursor.
+
 ## TBD
 
 In the editor, "Show s(CASP)" should appear only if the selected engine is s(CASP)
