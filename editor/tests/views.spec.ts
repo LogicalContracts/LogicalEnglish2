@@ -83,6 +83,25 @@ test.describe('LE Views', () => {
         await expect(root.locator('[data-widget="result"] .lv-big').first()).toHaveText('400', { timeout: 60000 });
     });
 
+    test('a program without views offers its automatic view, drawn when opened', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.goto('/executive?program=citizenship');
+        const chip = page.locator('#view-links a', { hasText: 'Automatic view' });
+        await expect(chip).toBeVisible({ timeout: 60000 });
+        // the plain screen still runs as before
+        await expect(page.locator('#answers .answer').first()).toBeVisible({ timeout: 60000 });
+        await chip.click();
+        await expect(page).toHaveURL(/view=\*/);
+        await expect(page.locator('#view-links .auto-note')).toBeVisible({ timeout: 60000 });
+        await expect(page.locator('#title')).toHaveText('Citizenship');
+        await expect(page.locator('#view-root [data-widget="result"]')).toBeVisible({ timeout: 60000 });
+        await expect(page.locator('#view-root .lv-grp', { hasText: 'the case' })).toBeVisible();
+        // a program with views of its own: those, no automatic one
+        await page.goto('/executive?program=RulesRus/sections_benefit');
+        await expect(page.locator('#view-links a', { hasText: 'Help with the rent' })).toBeVisible({ timeout: 60000 });
+        await expect(page.locator('#view-links a', { hasText: 'Automatic view' })).toHaveCount(0);
+    });
+
     test('Misc > Open Executive View opens the program as it is in the editor, unsaved', async ({ page, context }) => {
         test.setTimeout(120000);
         await page.goto('index.html?example=RulesRus/sections_benefit&scenario=no_rent&query=help');

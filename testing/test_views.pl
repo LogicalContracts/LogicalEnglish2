@@ -236,6 +236,22 @@ query q is:
     assertion(\+ KB2:le_issue(error, _, _, _, _, _)),
     view_of(KB2, 'policy GLM 5 2', _).
 
+% A program that declares no view has an automatic one: the draft of Generate
+% LE view, compiled when a screen asks for it (operation automaticView).
+test(automatic_view) :-
+    program("", P), load_text(P, KB),
+    le_views:automatic_view(KB, "ignored", V),
+    assertion(V.automatic == true),
+    assertion(V.name == help),
+    assertion(V.result.query == "help"),
+    V.groups = [G, J],
+    assertion(J.judged == true),
+    assertion(length(G.facts, 3)),
+    createSession(KB, SM), atom_string(SM, SMS),
+    classic_web_api:handle_automatic_view(_{sessionModule: SMS, name: "RulesRus/benefit.le"}, R),
+    assertion(R.view.title == "Help"),
+    destroySession(SM).
+
 % The screen's operations: the section checklist, the missing facts.
 test(open_questions_and_checklist) :-
     program("", P), load_text(P, KB),

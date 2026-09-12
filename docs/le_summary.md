@@ -1083,6 +1083,10 @@ language):
 - **The load** returns each view compiled (`views`, le_views:program_views/2);
   `answeringQuery` adds the section `checklist`; `openQuestions` gives the
   facts a failed proof looked for; `draftView` drafts a view.
+- **The automatic view.** A program that declares no view is offered one in
+  the executive view (`view=*`): the draft below, compiled only when it is
+  opened (operation `automaticView`, le_views:automatic_view/3). A declared
+  view replaces it.
 - **The LE Assistant's *Generate LE view*** appends a first view drafted from
   the program itself — its case facts as one group, its judged templates, its
   first query (or its first conclusion) as the result, and what the program

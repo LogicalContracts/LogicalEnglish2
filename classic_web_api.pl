@@ -222,6 +222,7 @@ handle_operation(Dict, Response) :-
         ; Op == "provenanceAt" -> handle_provenance_at(Dict, Response)
         ; Op == "openQuestions" -> handle_open_questions(Dict, Response)
         ; Op == "draftView" -> handle_draft_view(Dict, Response)
+        ; Op == "automaticView" -> handle_automatic_view(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
         ; Op == "getLps" -> handle_get_lps(Dict, Response)
         ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
@@ -1108,6 +1109,23 @@ handle_load(Dict, Response) :-
         ;   
         print_message(error, le_api_error(load, "get_kb_metadata failed")),
         fail
+    ).
+
+%!  handle_automatic_view(+Dict, -Response) is det.
+%
+%   The automatic view of the session's program (le_views:automatic_view/3),
+%   compiled only when a screen opens it — drafting reads every template, half
+%   a second on a large program. Named after the knowledge base, or else
+%   `name` (the program's file).
+handle_automatic_view(Dict, Response) :-
+    get_dict(sessionModule, Dict, SMStr),
+    atom_string(SM, SMStr),
+    le_kbs:note_session_use(SM),
+    ( get_dict(name, Dict, N0) -> file_base_name(N0, B), file_name_extension(Hint, _, B) ; Hint = "" ),
+    (   catch(SM:le_kb_module_fact(KB), _, fail),
+        catch(le_views:automatic_view(KB, Hint, View), E, (print_message(error, E), fail))
+    ->  Response = _{view: View}
+    ;   Response = _{error: "No view could be drawn from this program"}
     ).
 
 %!  valid_session(+SM:atom) is semidet.

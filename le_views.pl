@@ -37,7 +37,8 @@
     program_views/2,        % +KB, -Views:list(dict)
     view_issue/2,           % +KB, -Issue
     draft_view/2,           % +KB, -Text:string
-    draft_view/3            % +KB, +NameHint:string, -Text:string
+    draft_view/3,           % +KB, +NameHint:string, -Text:string
+    automatic_view/3        % +KB, +NameHint:string, -View:dict
 ]).
 
 :- use_module(le_i18n).
@@ -526,6 +527,32 @@ draft_view(KB, Hint, Text) :-
     append(Lines3, Opt, Lines),
     atomic_list_concat(Lines, '\n', A),
     atom_string(A, Text).
+
+%!  automatic_view(+KB, +NameHint:string, -View:dict) is semidet.
+%
+%   The view of a program that declares none: the draft of *Generate LE view*,
+%   compiled as if the program stated it, marked `automatic`. It follows the
+%   program as it changes, with nothing to keep up to date; a declared view
+%   replaces it (and Generate LE view writes it out, to be edited, under the
+%   same name, so an address naming it keeps working). Fails when the draft
+%   does not compile cleanly.
+automatic_view(KB, Hint, View) :-
+    once(automatic_view_(KB, Hint, View)).
+
+automatic_view_(KB, Hint, View) :-
+    draft_view(KB, Hint, Text),
+    split_string(Text, "\n", "", [_Header|BodyLines]),
+    atomic_list_concat(BodyLines, '\n', Body),
+    tokenizer:tokenize_lang(Body, Tokens0),
+    exclude(le_grammar:is_indent_or_comment, Tokens0, Tokens),
+    split_sentences(Tokens, Sentences),
+    draft_name(KB, Hint, Name0),
+    atom_string(Name, Name0),
+    compile_view(KB, Name, Sentences, 0, 0, View0, Issues),
+    \+ ( member(issue(Type, _, _, _, _), Issues), view_error(Type) ),
+    put_dict(automatic, View0, true, View).
+
+view_error(T) :- le_kbs:error_issue_type(T).
 
 optional_line(KB, view_citations) :- cites_anything(KB).
 optional_line(KB, view_stage) :- catch(le_sections:program_roles(KB, [_|_]), _, fail).
