@@ -1,0 +1,327 @@
+% Chapter 62 of the tariff: articles of apparel and clothing accessories, not
+% knitted or crocheted — all seventeen headings (6201 to 6217) and their 104
+% six-digit subheadings. A library: it includes section_xi.le (the textile
+% materials and the notes it shares with Chapter 61), and tariff.le includes
+% it.
+%
+% Text: HTSUS Revision 18 (2026), Chapter 62 notes 1 to 9 and the terms of
+% the headings and subheadings (https://hts.usitc.gov/); the subheadings are
+% the six-digit HS ones, which the EU Combined Nomenclature shares.
+%
+% How the headings are read: as in Chapter 61 (chapter_61.le), for articles of
+% any textile fabric other than knitted (note 1) — woven, nonwoven, felt, lace.
+% Babies' garments go to 6209 (note 5(b)), garments of coated or nonwoven
+% fabrics to 6210 (note 6), and 6211 takes the garments no earlier heading
+% describes, among them the woven tops that are neither shirts nor blouses.
+% Heading 6212 (brassieres, girdles, corsets...) covers them whether or not
+% knitted. A scarf no side of which exceeds 60 cm is a handkerchief (note 8).
+
+the target language is: prolog.
+
+the templates are:
+    the subheading in heading *a heading* for *a group* of *a gender* in *a material* is *a code* under table woven.
+    *a good* is of a non-knitted fabric.
+    *a good* is made up of nonwovens.
+
+% GRI 6: the six-digit subheadings, as in Chapter 61's table. Heading 6210's
+% first subheading (garments of nonwovens, 5602 or 5603) is read by its own
+% rule below.
+the table woven is, with first match, with provenance HTSUS General Rules of Interpretation,
+        confer "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
+    row | heading | group                          | gender | material                                  | code
+    w1  | 6201    | any                            | any    | wool or cashmere or fine animal hair      | "6201.20"
+    w2  | 6201    | any                            | any    | cotton                                    | "6201.30"
+    w3  | 6201    | any                            | any    | synthetic fibres or artificial fibres     | "6201.40"
+    w4  | 6201    | any                            | any    | any                                       | "6201.90"
+    w5  | 6202    | any                            | any    | wool or cashmere or fine animal hair      | "6202.20"
+    w6  | 6202    | any                            | any    | cotton                                    | "6202.30"
+    w7  | 6202    | any                            | any    | synthetic fibres or artificial fibres     | "6202.40"
+    w8  | 6202    | any                            | any    | any                                       | "6202.90"
+    w9  | 6203    | suit                           | any    | wool or cashmere or fine animal hair      | "6203.11"
+    w10 | 6203    | suit                           | any    | synthetic fibres                          | "6203.12"
+    w11 | 6203    | suit                           | any    | any                                       | "6203.19"
+    w12 | 6203    | ensemble                       | any    | cotton                                    | "6203.22"
+    w13 | 6203    | ensemble                       | any    | synthetic fibres                          | "6203.23"
+    w14 | 6203    | ensemble                       | any    | any                                       | "6203.29"
+    w15 | 6203    | suit-type jacket               | any    | wool or cashmere or fine animal hair      | "6203.31"
+    w16 | 6203    | suit-type jacket               | any    | cotton                                    | "6203.32"
+    w17 | 6203    | suit-type jacket               | any    | synthetic fibres                          | "6203.33"
+    w18 | 6203    | suit-type jacket               | any    | any                                       | "6203.39"
+    w19 | 6203    | trousers                       | any    | wool or cashmere or fine animal hair      | "6203.41"
+    w20 | 6203    | trousers                       | any    | cotton                                    | "6203.42"
+    w21 | 6203    | trousers                       | any    | synthetic fibres                          | "6203.43"
+    w22 | 6203    | trousers                       | any    | any                                       | "6203.49"
+    w23 | 6204    | suit                           | any    | wool or cashmere or fine animal hair      | "6204.11"
+    w24 | 6204    | suit                           | any    | cotton                                    | "6204.12"
+    w25 | 6204    | suit                           | any    | synthetic fibres                          | "6204.13"
+    w26 | 6204    | suit                           | any    | any                                       | "6204.19"
+    w27 | 6204    | ensemble                       | any    | wool or cashmere or fine animal hair      | "6204.21"
+    w28 | 6204    | ensemble                       | any    | cotton                                    | "6204.22"
+    w29 | 6204    | ensemble                       | any    | synthetic fibres                          | "6204.23"
+    w30 | 6204    | ensemble                       | any    | any                                       | "6204.29"
+    w31 | 6204    | suit-type jacket               | any    | wool or cashmere or fine animal hair      | "6204.31"
+    w32 | 6204    | suit-type jacket               | any    | cotton                                    | "6204.32"
+    w33 | 6204    | suit-type jacket               | any    | synthetic fibres                          | "6204.33"
+    w34 | 6204    | suit-type jacket               | any    | any                                       | "6204.39"
+    w35 | 6204    | dress                          | any    | wool or cashmere or fine animal hair      | "6204.41"
+    w36 | 6204    | dress                          | any    | cotton                                    | "6204.42"
+    w37 | 6204    | dress                          | any    | synthetic fibres                          | "6204.43"
+    w38 | 6204    | dress                          | any    | artificial fibres                         | "6204.44"
+    w39 | 6204    | dress                          | any    | any                                       | "6204.49"
+    w40 | 6204    | skirt                          | any    | wool or cashmere or fine animal hair      | "6204.51"
+    w41 | 6204    | skirt                          | any    | cotton                                    | "6204.52"
+    w42 | 6204    | skirt                          | any    | synthetic fibres                          | "6204.53"
+    w43 | 6204    | skirt                          | any    | any                                       | "6204.59"
+    w44 | 6204    | trousers                       | any    | wool or cashmere or fine animal hair      | "6204.61"
+    w45 | 6204    | trousers                       | any    | cotton                                    | "6204.62"
+    w46 | 6204    | trousers                       | any    | synthetic fibres                          | "6204.63"
+    w47 | 6204    | trousers                       | any    | any                                       | "6204.69"
+    w48 | 6205    | any                            | any    | cotton                                    | "6205.20"
+    w49 | 6205    | any                            | any    | synthetic fibres or artificial fibres     | "6205.30"
+    w50 | 6205    | any                            | any    | any                                       | "6205.90"
+    w51 | 6206    | any                            | any    | silk                                      | "6206.10"
+    w52 | 6206    | any                            | any    | wool or cashmere or fine animal hair      | "6206.20"
+    w53 | 6206    | any                            | any    | cotton                                    | "6206.30"
+    w54 | 6206    | any                            | any    | synthetic fibres or artificial fibres     | "6206.40"
+    w55 | 6206    | any                            | any    | any                                       | "6206.90"
+    w56 | 6207    | underpants or boxer underpants | any    | cotton                                    | "6207.11"
+    w57 | 6207    | underpants or boxer underpants | any    | any                                       | "6207.19"
+    w58 | 6207    | nightwear                      | any    | cotton                                    | "6207.21"
+    w59 | 6207    | nightwear                      | any    | synthetic fibres or artificial fibres     | "6207.22"
+    w60 | 6207    | nightwear                      | any    | any                                       | "6207.29"
+    w61 | 6207    | any                            | any    | cotton                                    | "6207.91"
+    w62 | 6207    | any                            | any    | any                                       | "6207.99"
+    w63 | 6208    | slip                           | any    | synthetic fibres or artificial fibres     | "6208.11"
+    w64 | 6208    | slip                           | any    | any                                       | "6208.19"
+    w65 | 6208    | nightwear                      | any    | cotton                                    | "6208.21"
+    w66 | 6208    | nightwear                      | any    | synthetic fibres or artificial fibres     | "6208.22"
+    w67 | 6208    | nightwear                      | any    | any                                       | "6208.29"
+    w68 | 6208    | any                            | any    | cotton                                    | "6208.91"
+    w69 | 6208    | any                            | any    | synthetic fibres or artificial fibres     | "6208.92"
+    w70 | 6208    | any                            | any    | any                                       | "6208.99"
+    w71 | 6209    | any                            | any    | cotton                                    | "6209.20"
+    w72 | 6209    | any                            | any    | synthetic fibres                          | "6209.30"
+    w73 | 6209    | any                            | any    | any                                       | "6209.90"
+    w74 | 6210    | outerwear                      | men    | any                                       | "6210.20"
+    w75 | 6210    | outerwear                      | women  | any                                       | "6210.30"
+    w76 | 6210    | any                            | men    | any                                       | "6210.40"
+    w77 | 6210    | any                            | women  | any                                       | "6210.50"
+    w78 | 6211    | swimwear                       | men    | any                                       | "6211.11"
+    w79 | 6211    | swimwear                       | women  | any                                       | "6211.12"
+    w80 | 6211    | ski-suit                       | any    | any                                       | "6211.20"
+    w81 | 6211    | any                            | men    | cotton                                    | "6211.32"
+    w82 | 6211    | any                            | men    | synthetic fibres or artificial fibres     | "6211.33"
+    w83 | 6211    | any                            | men    | any                                       | "6211.39"
+    w84 | 6211    | any                            | women  | cotton                                    | "6211.42"
+    w85 | 6211    | any                            | women  | synthetic fibres or artificial fibres     | "6211.43"
+    w86 | 6211    | any                            | women  | any                                       | "6211.49"
+    w87 | 6212    | brassiere                      | any    | any                                       | "6212.10"
+    w88 | 6212    | girdle                         | any    | any                                       | "6212.20"
+    w89 | 6212    | corset                         | any    | any                                       | "6212.30"
+    w90 | 6212    | any                            | any    | any                                       | "6212.90"
+    w91 | 6213    | any                            | any    | cotton                                    | "6213.20"
+    w92 | 6213    | any                            | any    | any                                       | "6213.90"
+    w93 | 6214    | any                            | any    | silk                                      | "6214.10"
+    w94 | 6214    | any                            | any    | wool or cashmere or fine animal hair      | "6214.20"
+    w95 | 6214    | any                            | any    | synthetic fibres                          | "6214.30"
+    w96 | 6214    | any                            | any    | artificial fibres                         | "6214.40"
+    w97 | 6214    | any                            | any    | any                                       | "6214.90"
+    w98 | 6215    | any                            | any    | silk                                      | "6215.10"
+    w99 | 6215    | any                            | any    | synthetic fibres or artificial fibres     | "6215.20"
+    w100| 6215    | any                            | any    | any                                       | "6215.90"
+    w101| 6216    | any                            | any    | any                                       | "6216.00"
+    w102| 6217    | part                           | any    | any                                       | "6217.90"
+    w103| 6217    | any                            | any    | any                                       | "6217.10"
+
+the knowledge base chapter 62 includes these resources:
+    section_xi.
+
+the knowledge base chapter 62 includes:
+
+rule woven_subheading with provenance HTSUS General Rules of Interpretation,
+        confer "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
+the subheading of a good in heading a heading is a code
+    if the heading >= 6201
+    and the heading <= 6217
+    and it is not the case that
+        the heading = 6210
+        and the good is made up of nonwovens
+    and the subheading group of the good is a group
+    and the gender of the good is a gender
+    and the good is classified as consisting of a component
+    and the component has a fabric for heading the heading
+    and the fibre material of the component is a material
+    and the subheading in heading the heading for the group of the gender in the material is the code under table woven.
+
+rule woven_subheading_6210_10 with provenance HTSUS Chapter 62,
+        confer "Of fabrics of heading 5602 or 5603":
+the subheading of a good in heading 6210 is "6210.10"
+    if the good is made up of nonwovens.
+
+% the first subheading of heading 6210: garments of felt or nonwovens
+rule subheading_6210_10 with provenance HTSUS Chapter 62,
+        confer "Of fabrics of heading 5602 or 5603":
+a good is made up of nonwovens
+    if the good is made up of fabric of heading a heading
+    and the heading is in [5602, 5603].
+
+% Note 1: made up articles of any textile fabric other than wadding, excluding
+% knitted or crocheted articles
+rule note_62_1 with provenance HTSUS Chapter 62,
+        confer "This chapter applies only to made up articles of any textile fabric other than wadding, excluding knitted or crocheted articles (other than those of heading 6212)":
+a good is of a non-knitted fabric
+    if the construction of the good is a construction
+    and the construction is in [woven, nonwoven, felt, lace].
+
+% ---------------------------------------------------------------------------
+% The headings (GRI 1).
+% ---------------------------------------------------------------------------
+
+rule heading_6201 with provenance HTSUS Chapter 62,
+        confer "Men's or boys' overcoats, carcoats, capes, cloaks, anoraks (including ski jackets), windbreakers and similar articles (including padded, sleeveless jackets), other than those of heading 6203":
+a garment is described by heading 6201
+    if the garment is of a non-knitted fabric
+    and the gender of the garment is men
+    and the family of the garment is outerwear.
+
+rule heading_6202 with provenance HTSUS Chapter 62,
+        confer "Women's or girls' overcoats, carcoats, capes, cloaks, anoraks (including ski jackets), windbreakers and similar articles (including padded, sleeveless jackets), other than those of heading 6204":
+a garment is described by heading 6202
+    if the garment is of a non-knitted fabric
+    and the gender of the garment is women
+    and the family of the garment is outerwear.
+
+rule heading_6203 with provenance HTSUS Chapter 62,
+        confer "Men's or boys' suits, ensembles, suit-type jackets, blazers, trousers, bib and brace overalls, breeches and shorts (other than swimwear)":
+a garment is described by heading 6203
+    if the garment is of a non-knitted fabric
+    and the gender of the garment is men
+    and the subheading group of the garment is a group
+    and the group is in [suit, ensemble, suit-type jacket, trousers].
+
+rule heading_6204 with provenance HTSUS Chapter 62,
+        confer "Women's or girls' suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear)":
+a garment is described by heading 6204
+    if the garment is of a non-knitted fabric
+    and the gender of the garment is women
+    and the subheading group of the garment is a group
+    and the group is in [suit, ensemble, suit-type jacket, dress, skirt, trousers].
+
+% Chapter 62 note 1: articles other than knitted or crocheted
+rule heading_6205 with provenance HTSUS Chapter 62, confer "Men's or boys' shirts":
+a garment is described by heading 6205
+    if the construction of the garment is woven
+    and the gender of the garment is men
+    and the garment is a shirt.
+
+rule heading_6206 with provenance HTSUS Chapter 62,
+        confer "Women's or girls' blouses, shirts and shirt-blouses":
+a garment is described by heading 6206
+    if the construction of the garment is woven
+    and the gender of the garment is women
+    and the garment is a blouse-type garment.
+
+rule heading_6207 with provenance HTSUS Chapter 62,
+        confer "Men's or boys' singlets and other undershirts, underpants, briefs, nightshirts, pajamas, bathrobes, dressing gowns and similar articles":
+a garment is described by heading 6207
+    if the garment is of a non-knitted fabric
+    and the gender of the garment is men
+    and the family of the garment is a family
+    and the family is in [undershirt, underpants, nightwear, robe].
+
+rule heading_6208 with provenance HTSUS Chapter 62,
+        confer "Women's or girls' singlets and other undershirts, slips, petticoats, briefs, panties, nightdresses, pajamas, negligees, bathrobes, dressing gowns and similar articles":
+a garment is described by heading 6208
+    if the garment is of a non-knitted fabric
+    and the gender of the garment is women
+    and the family of the garment is a family
+    and the family is in [undershirt, slip, underpants, nightwear, robe].
+
+rule heading_6209 with provenance HTSUS Chapter 62,
+        confer "Babies' garments and clothing accessories":
+a good is described by heading 6209
+    if the good is of a non-knitted fabric
+    and the good is sized for babies.
+
+rule heading_6210 with provenance HTSUS Chapter 62,
+        confer "Garments, made up of fabrics of heading 5602, 5603, 5903, 5906 or 5907":
+a garment is described by heading 6210
+    if the garment is of a non-knitted fabric
+    and the garment is a garment
+    and the garment is made up of coated fabric.
+
+% the woven tops that are neither shirts nor blouses are "other garments"
+rule heading_6211 with provenance HTSUS Chapter 62,
+        confer "Track suits, ski-suits and swimwear; other garments":
+a garment is described by heading 6211
+    if the garment is of a non-knitted fabric
+    and the garment is a garment.
+
+rule heading_6212 with provenance HTSUS Chapter 62,
+        confer "Brassieres, girdles, corsets, braces, suspenders, garters and similar articles and parts thereof, whether or not knitted or crocheted":
+a good is described by heading 6212
+    if the family of the good is a family
+    and the family is in [brassiere, girdle, corset, braces].
+
+rule heading_6213 with provenance HTSUS Chapter 62, confer "Handkerchiefs":
+a good is described by heading 6213
+    if the good is of a non-knitted fabric
+    and the subheading group of the good is handkerchief.
+
+rule heading_6214 with provenance HTSUS Chapter 62,
+        confer "Shawls, scarves, mufflers, mantillas, veils and the like":
+a good is described by heading 6214
+    if the good is of a non-knitted fabric
+    and the subheading group of the good is scarf.
+
+rule heading_6215 with provenance HTSUS Chapter 62, confer "Ties, bow ties and cravats":
+a good is described by heading 6215
+    if the good is of a non-knitted fabric
+    and the family of the good is tie.
+
+rule heading_6216 with provenance HTSUS Chapter 62, confer "Gloves, mittens and mitts":
+a good is described by heading 6216
+    if the good is of a non-knitted fabric
+    and the family of the good is gloves.
+
+rule heading_6217 with provenance HTSUS Chapter 62,
+        confer "Other made up clothing accessories; parts of garments or of clothing accessories, other than those of heading 6212":
+a good is described by heading 6217
+    if the good is of a non-knitted fabric
+    and the family of the good is a family
+    and the family is in [other accessory, part].
+
+% ---------------------------------------------------------------------------
+% Choosing between headings that both describe a good (GRI 3(a) in gri.le).
+% ---------------------------------------------------------------------------
+
+rule note_62_5b_before with provenance HTSUS Chapter 62,
+        confer "Articles which are, prima facie, classifiable both in heading 6209 and in other headings of this chapter are to be classified in heading 6209":
+heading 6209 is more specific than heading a heading
+    if the heading >= 6201
+    and the heading <= 6208.
+
+rule note_62_5b_after with provenance HTSUS Chapter 62,
+        confer "Articles which are, prima facie, classifiable both in heading 6209 and in other headings of this chapter are to be classified in heading 6209":
+heading 6209 is more specific than heading a heading
+    if the heading >= 6210
+    and the heading <= 6217.
+
+rule note_62_6_before with provenance HTSUS Chapter 62,
+        confer "Garments which are, prima facie, classifiable both in heading 6210 and in other headings of this chapter, excluding heading 6209, are to be classified in heading 6210":
+heading 6210 is more specific than heading a heading
+    if the heading >= 6201
+    and the heading <= 6208.
+
+rule note_62_6_after with provenance HTSUS Chapter 62,
+        confer "Garments which are, prima facie, classifiable both in heading 6210 and in other headings of this chapter, excluding heading 6209, are to be classified in heading 6210":
+heading 6210 is more specific than heading a heading
+    if the heading >= 6211
+    and the heading <= 6217.
+
+% Heading 6211 ("other garments") covers what the headings before it do not.
+rule gri_3a_6211 with provenance HTSUS General Rules of Interpretation,
+        confer "The heading which provides the most specific description shall be preferred to headings providing a more general description":
+heading a heading is more specific than heading 6211
+    if the heading >= 6201
+    and the heading <= 6208.

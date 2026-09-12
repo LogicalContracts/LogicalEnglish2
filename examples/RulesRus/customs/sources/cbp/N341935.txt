@@ -1,0 +1,106 @@
+CBP ruling NY N341935 (2025-02-04): The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of men’s trousers from Guatemala
+https://rulings.cbp.gov/ruling/N341935 — text as served by https://rulings.cbp.gov/api/ruling/N341935
+
+N341935 
+
+February 4, 2025 
+
+CLA-2-62:OT:RR:NC:N3:356
+
+CATEGORY: Classification
+
+TARIFF NO.: 6203.49.5015; 9822.05.01
+
+Alexis Martinez Medina
+Sam Sol, S.A.
+Km. 37.5 Carretera InteramericanaSantiago Sacatepequez
+Guatemala
+
+RE: The tariff classification and status under the Dominican Republic-Central America-United States Free Trade Agreement (DR-CAFTA) of men’s trousers from Guatemala
+
+Dear Mr. Martinez Medina:
+
+In your letter dated August 8, 2024, you requested a ruling on the classification and status under the DR-CAFTA of men’s trousers from Guatemala. Our response was delayed due to laboratory analysis. Your sample garment will be retained in our office.
+
+Style AJ-17740 is a pair of men’s trousers stated to be constructed from 70% rayon, 26% nylon, and 4% spandex woven fabric. Style AJ-17740 features a flat waistband; a zippered fly front opening with a metal clasp closure and a button closure on the waistband; two inset pockets at the waist; two rear welt pockets with button closures; and hemmed leg openings. While the waistband of the submitted sample has six belt loops, you state that larger sizes may feature eight belt loops.
+
+The applicable subheading for Style AJ-17740 will be 6203.49.5015, Harmonized Tariff Schedule of the United States (HTSUS), which provides for: Men’s or boys’ suits, ensembles, suit-type jackets, blazers, trousers, bib and brace overalls, breeches and shorts (other than swimwear): Trousers, bib and brace overalls, breeches and shorts: Of other textile materials: Other: Of artificial fibers: Trousers, breeches, and shorts: Other: Other: Trousers and breeches: Men’s. The rate of duty will be 27.9 percent ad valorem.
+
+You state that Style AJ-17740 is cut, sewn, and assembled in Guatemala from fabric of Chinese origin, and that the finished garments will be exported directly from Guatemala to the United States. You have asked whether the trousers are eligible for preferential duty treatment under the DR-CAFTA in accordance with paragraph 2 of the Office of Textiles and Apparel’s (OTEXA) DR-CAFTA short supply list (Annex 3.25). Specifically, your inquiry concerns whether the trousers are eligible for DR-CAFTA preference pursuant to short supply number 150.
+
+General Note 29, HTSUS, sets forth the criteria for determining whether a good is originating under the DR-CAFTA. General Note 29(b), HTSUS, (19 U.S.C. § 1202) states, in pertinent part, that
+
+For the purposes of this note, subject to the provisions of subdivisions (c), (d), (m) and (n) thereof, a good imported into the customs territory of the United States is eligible for treatment as an originating good under the terms of this note if-
+
+(i) the good is a good wholly obtained or produced entirely in the territory of one or more of the parties to the Agreement;
+
+(ii) the good was produced entirely in the territory of one or more of the parties to the Agreement, and-
+(A) each of the non-originating materials used in the production of the good undergoes an applicable change in tariff classification specified in subdivision (n) of this note; or
+
+(B) the good otherwise satisfies any applicable regional value content or other requirements specified in subdivision (n) of this note;
+
+and the good satisfies all other applicable requirements of this note; or
+
+(iii) the good was produced entirely in the territory of one or more of the parties to the Agreement exclusively from originating materials.
+
+Since the fabric of the trousers is produced in China, the trousers are not wholly produced within the DR-CAFTA territory or produced entirely within the DR-CAFTA territory exclusively from originating materials. Moreover, they do not meet the specific rule of origin, set out in HTSUS, GN 29(n)/62.15, that applies to their tariff classification.
+
+However, GN 29(m)(viii)(B) states, in pertinent part:
+
+An apparel good of chapter 61 or 62 of the tariff schedule and imported under heading 9822.05.01 of the tariff schedule shall be considered originating if it is cut or knit to shape, or both, and sewn or otherwise assembled in the territory of one or more of the parties to the Agreement, and if the fabric of the outer shell, exclusive of collars and cuffs where applicable, is wholly of—
+
+(1) one or more fabrics listed in U.S. note 20 to subchapter XXII of chapter 98….
+
+HTSUS, Chapter 98, Subchapter XXII, U.S. Note 20(a) states:
+
+Heading 9822.05.01 shall apply to textile or apparel goods of chapters 50 through 63 and subheading 9404.90 that contain any of the fabrics, yarns or fibers set forth herein, are described in general note 29 to the tariff schedule and otherwise meet the requirements of such general note 29.
+
+Within HTSUS, Chapter 98, Subchapter XXII, U.S. Note 20(a) and OTEXA’s short supply list for DR-CAFTA (Annex 3.25) is the following designated fabric:
+
+(150) Certain Warp Stretch Woven Rayon Blend Fabrics
+
+Fabric #1: Warp Stretch Woven Rayon, Nylon, Spandex Fabric
+
+HTS: 5516.22.00; 5516.23.00; 5516.24.00
+
+Fiber Content: Rayon: 67-80%; Nylon 15-35%; Spandex 2-6%
+
+Yarn configuration:
+
+Warp – nylon filament combined with spandex filament
+Filling – rayon staple
+
+Yarn Denier – Nylon and Spandex of various deniers
+
+Width: Metric: 139-153 cm English: 55-60 inches
+   
+Weight: 220-315 grams per square meter
+                                                                                                                                                                                                            Thread Count (Density):
+
+Metric: 30-74 ends per cm (warp) X 27-38 picks per cm (filling)
+English: 76-185 ends per inch (warp) X 70-95 picks per inch (filling)                                                                            
+Weave type: Various weaves
+
+Finish/Processing: Of yarns of different colors and/or piece dyed and/or printed
+
+Please note that only fabrics meeting the exact description and specifications set out above will be deemed to be commercially unavailable and eligible to be used to qualify products for DR-CAFTA preferential treatment pursuant to GN 29(m)(viii)(B).The fabric of Style AJ-17740 was tested by the Customs and Border Protection laboratory, and it was determined that it conforms to the exact description and specifications set out in short supply number 150. Accordingly, the trousers are entitled to a free rate of duty under the DR-CAFTA pursuant to short supply number 150, because they meet the requirements of HTSUS, GN 29(m)(viii)(B).
+
+Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided at https://hts.usitc.gov/current.
+
+The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+
+
+
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Maryalice Nowak at maryalice.nowak@cbp.dhs.gov.
+
+
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

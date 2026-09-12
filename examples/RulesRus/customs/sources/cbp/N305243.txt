@@ -1,0 +1,62 @@
+CBP ruling NY N305243 (2020-02-10): The tariff classification of a women’s dress from China
+https://rulings.cbp.gov/ruling/N305243 — text as served by https://rulings.cbp.gov/api/ruling/N305243
+
+
+
+N305243
+
+February 10, 2020
+
+CLA-2-61:OT:RR:NC:N3:359
+
+CATEGORY:	Classification
+
+TARIFF NO.: 6104.49.9030; 9903.88.15
+
+Mr. Edward C. Yan
+Centric BCBG, LLC
+1500 N. El Centro Ave.
+6th Floor
+Los Angeles, CA  90028 
+
+
+RE:  The tariff classification of a women’s dress from China
+ 
+
+Dear Mr. Yan:
+
+In your letter dated July 11, 2019, you requested a tariff classification.  The ruling letter was delayed due to laboratory analysis.  The sample was destroyed during laboratory analysis.
+
+Style FOQ6249780 is a women’s dress, which you state, is constructed from 65 percent polyester and 35 percent metallic knit fabric.  The dress features adjustable spaghetti straps, a sweetheart neckline, a multi contrasting colored body, a zipper in the back panel and a finished bottom.  The garment reaches to below the mid-thigh. 
+
+Due to the composition, it is necessary to analyze each yarn in the garment to determine whether any yarn qualifies as a metalized yarn under heading 5605, Harmonized Tariff Schedule of the United States (HTSUS), and then to determine the chief weight of the fabric. The weight of all fibers present in a yarn that qualifies under heading 5605, HTSUS, is governed by Section XI, Note 2 (B) (a) at the six and eight digit level. 
+
+The laboratory has reported style FOQ6249780 is composed of a one ply polyester yarn (63.0 percent by weight), a two ply polyester/elastomeric yarn (8.8 percent by weight), and a two ply metalized yarn (28.2 percent by weight) that are not twisted together.  The two ply metalized yarn is composed of a one ply polyester yarn twisted with a one ply metallic yarn.
+
+The sample has the following overall composition by weight:
+
+Polyester              70.4 percent
+Metalized yarn:    28.2 percent
+Elastomeric yarn: 1.4 percent        
+
+Consequently, the applicable subheading for style FOQ6249780 will be 6104.49.9030 HTSUS, which provides for Women’s or girls’ suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear), knitted or crocheted (con.): Dresses: Of other textile materials: Other: Subject to man-made fiber restraints.  The rate of duty will be 5.6 percent ad valorem.
+
+Pursuant to U.S. Note 20 to Subchapter III, Chapter 99, HTSUS, products of China classified under subheading 6104.49, HTSUS, unless specifically excluded, are subject to an additional 15 percent ad valorem rate of duty.  At the time of importation, you must report the Chapter 99 subheading, i.e., 9903.88.15, in addition to subheading 6104.49.9030, HTSUS, listed above.
+
+The HTSUS is subject to periodic amendment so you should exercise reasonable care in monitoring the status of goods covered by the Note cited above and the applicable Chapter 99 subheading.  For background information regarding the trade remedy initiated pursuant to Section 301 of the Trade Act of 1974, you may refer to the relevant parts of the USTR and CBP websites, which are available at https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions and https://www.cbp.gov/trade/remedies/301-certain-products-china, respectively.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on the World Wide Web at https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported.  If you have any questions regarding the ruling, contact National Import Specialist Renée Orsat at renee.orsat@cbp.dhs.gov.
+
+Sincerely,
+
+
+
+
+Steven A. Mack
+Director
+National Commodity Specialist Division
+

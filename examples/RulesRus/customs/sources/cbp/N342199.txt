@@ -1,0 +1,117 @@
+CBP ruling NY N342199 (2024-09-03): Classification and country of origin determination for bath wraps; 19 CFR 102.21(c)(4); most important assembly or manufacturing process
+https://rulings.cbp.gov/ruling/N342199 — text as served by https://rulings.cbp.gov/api/ruling/N342199
+
+N342199 
+
+September 3, 2024 
+
+OT:RR:NC:N2:348
+
+CATEGORY: Classification; Country of Origin
+
+TARIFF NO: 6208.92.0010
+
+Ms. Misty Li
+ABS International Inc.
+5th Floor, No. 2000 Pudong Avenue
+200135 Shanghai
+China
+
+RE:  Classification and country of origin determination for bath wraps; 19 CFR 102.21(c)(4); most important assembly or manufacturing process
+
+Dear Ms. Li:
+
+This is in reply to your letter dated August 22, 2024, forwarded on behalf of your client, Evergrace Home Inc., requesting a classification and country of origin determination for body wraps, which will be imported into the United States.  Samples of the products were provided to this office and will be retained for training purposes.
+
+FACTS:
+
+Item EG2407004, identified as “Printed Waffle Body Wrap,” is a unisex bath wrap.  It is constructed from 100 percent polyester woven fabric.  The face fabric is printed with assorted colorful circles. The wrap measures 31 inches long by 51 inches wide.  It features a self-fabric covered tunnel elasticized top edge with a hook and loop closure and a self-fabric patch pocket at the chest. 
+
+Item EG2407005, identified as “Solid Waffle Body Wrap” is a unisex bath wrap.  It is constructed from 100 percent polyester woven fabric.  The wrap measures 31 inches long by 51 inches wide.  It features a self-fabric covered tunnel elasticized top edge with a hook and loop closure and a self-fabric patch pocket at the chest. 
+
+The submitted information describes both items as "unisex"; this merchandise is commonly worn by males and females and is not identifiable as designed exclusively for either.  The wrap extends from above the chest to approximately the mid-thigh.  Since the merchandise can be worn by both men and women, Note 8 to Chapter 62 is applicable. It provides that articles of this chapter which cannot be identified as either men's or boys' garments or as women's or girls' garments are to be classified in the headings covering women's or girls' garments.
+
+The manufacturing operations are as follows:  
+
+SCENARIO 1
+
+China:
+
+Greige fabric is formed.
+
+Vietnam:
+
+Fabrics are printed or dyed.
+Fabric is cut to size.
+Pocket, elastic band and hook and loop closure are manufactured and assembled to cut to size fabric.
+All the edges are finished with an overlock stitch.
+Packaged and exported to the United States.
+
+SCENARIO 2
+
+China:
+
+Greige fabric is formed.
+Fabrics are printed or dyed.
+
+Vietnam:
+
+Fabric is cut to size.
+Pocket, elastic band and hook and loop closure are manufactured and assembled to cut to size fabric.
+All the edges finished with an overlock stitch.
+Packaged and exported to the United States.
+
+ISSUE:
+
+What are the classification and country of origin of the subject merchandise?
+
+CLASSIFICATION:
+
+The applicable subheading for Items EG2407004 and EG2407005 will be 6208.92.0010, Harmonized Tariff Schedule of the United States (HTSUS), which provides for Women’s or girls’ singlets and other undershirts, slips, petticoats, briefs, panties, nightdresses, pajamas, negligees, bathrobes, dressing gowns and similar articles: Other: Of man-made fibers: Bathrobes, dressing gowns and similar articles: Women’s. The rate of duty will be 16 percent ad valorem.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on World Wide Web at https://hts.usitc.gov/current.
+
+
+COUNTRY OF ORIGIN - LAW AND ANALYSIS:
+
+Section 334 of the Uruguay Round Agreements Act (codified at 19 U.S.C. 3592), enacted on December 8, 1994, provided rules of origin for textiles and apparel entered, or withdrawn from warehouse for consumption, on and after July 1, 1996.  Section 102.21, Customs Regulations (19 C.F.R. 102.21), published September 5, 1995 in the Federal Register, implements Section 334 (60 FR 46188).  Section 334 of the URAA was amended by section 405 of the Trade and Development Act of 2000, enacted on May 18, 2000, and accordingly, section 102.21 was amended (68 Fed. Reg. 8711).  Thus, the country of origin of a textile or apparel product shall be determined by the sequential application of the general rules set forth in paragraphs (c)(1) through (5) of Section 102.21.
+
+
+HOLDING:
+
+Paragraph (c)(1) states, “The country of origin of a textile or apparel product is the single country, territory, or insular possession in which the good was wholly obtained or produced.” 
+
+As the subject merchandise is not wholly obtained or produced in a single country, territory or insular possession, paragraph (c)(1) of Section 102.21 is inapplicable.
+
+Paragraph (c)(2) states, “Where the country of origin of a textile or apparel product cannot be determined under paragraph (c)(1) of this section, the country of origin of the good is the single country, territory, or insular possession in which each of the foreign materials incorporated in that good underwent an applicable change in tariff classification, and/or met any other requirement, specified for the good in paragraph (e) of this section:” 
+
+As the subject merchandise is not listed as one of the specified goods in paragraph (e) of this section, paragraph (c)(2) of Section 102.21 is inapplicable.
+
+Paragraph (c)(3) states, “Where the country of origin of a textile or apparel product cannot be determined under paragraph (c) (1) or (2) of this section:”
+
+(i) If the good was knit to shape, the country of origin of the good is the single country, territory, or insular possession in which the good was knit; or
+(ii) Except for fabrics of chapter 59 and goods of headings 5609, 5807, 5811, 6213, 6214, 6301 through 6306, and 6308, and subheadings 6307.10, 6307.90, 9404.90, and 9619.00.31-33 if the good was not knit to shape and the good was wholly assembled in a single country, territory, or insular possession, the country of origin of the good is the country, territory, or insular possession in which the good was wholly assembled.
+
+The term “wholly assembled” when used with reference to a good means that all components, of which there must be at least two, preexisted in essentially the same condition as found in the finished good and were combined to form the finished good in a single country, territory, or insular possession. Minor attachments and minor embellishments (for example, appliques, beads, spangles, embroidery, buttons) not appreciably affecting the identity of the good, and minor subassemblies (for example, collars, cuffs, plackets, pockets), will not affect the status of a good as “wholly assembled” in a single country, territory, or insular possession.
+
+As the subject merchandise is not knit to shape nor composed of two components paragraph (c)(3) of Section 102.21 is inapplicable.
+
+Paragraph (c)(4) states, Where the country of origin of a textile or apparel product cannot be determined under paragraph (c) (1), (2) or (3) of this section, the country of origin of the good is the single country, territory, or insular possession in which the most important assembly or manufacturing process occurred.
+
+The most important assembly operation occurs at the time the bath wraps are sewn.  Therefore, the country of origin is Vietnam, the country in which the most important assembly operation occurs, as per Section 102.21(c)(4).
+
+HOLDING:
+
+Items EG2407004 and EG2407005 are classified under 6208.92.0010, HTSUS, and the country of origin is Vietnam under both scenarios.
+
+The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Rosemarie Hayward at rosemariecasey.hayward@cbp.dhs.gov.
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

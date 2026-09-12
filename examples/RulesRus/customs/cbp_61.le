@@ -1,0 +1,1915 @@
+% Rulings of U.S. Customs and Border Protection (CROSS, rulings.cbp.gov) run
+% through the whole modelled tariff (tariff.le): Chapter 61 (apparel and clothing accessories, knitted or crocheted), with the woven garments and accessories the same rulings describe.
+%
+% One scenario per ruling, which the scenario names ("scenario ny_n345907 is,
+% as stated in ruling NY N345907:"); each good is described by the facts the
+% ruling states, each quoting its passage ("confer \"...\""), and the office's
+% judgments — principal use, essential character, answers to claims — say who
+% made them ("according to CBP"). The ruling's code is NOT a fact: it is in
+% the comment "% CBP: <good> -> <code>" above each scenario; the expectation
+% is the six-digit subheading the model derives, and where it differs from
+% CBP's the comment says so (DISAGREES) and why.
+%
+% Selection (September 2026): for each six-digit subheading of Chapters 39, 61
+% and 62 not covered by the first prototype, the most recent New York ruling
+% (2016 or later) returned by CROSS whose codes all fall in those chapters.
+% Transcribed by language-model agents following a written guide, with every
+% quotation checked against the ruling's text by the verifier. See README.md.
+
+the target language is: prolog.
+scenario facts require provenance.
+
+the knowledge base cbp 61 includes these resources:
+    tariff.
+
+the knowledge base cbp 61 includes:
+
+% Where each cited ruling is published, and a copy of its text (sources/).
+ruling NY N351827 is published at "https://rulings.cbp.gov/ruling/N351827".
+the text of ruling NY N351827 is at "sources/cbp/N351827.txt".
+ruling NY N361819 is published at "https://rulings.cbp.gov/ruling/N361819".
+the text of ruling NY N361819 is at "sources/cbp/N361819.txt".
+ruling NY N274193 is published at "https://rulings.cbp.gov/ruling/N274193".
+the text of ruling NY N274193 is at "sources/cbp/N274193.txt".
+ruling NY N354161 is published at "https://rulings.cbp.gov/ruling/N354161".
+the text of ruling NY N354161 is at "sources/cbp/N354161.txt".
+ruling NY N280981 is published at "https://rulings.cbp.gov/ruling/N280981".
+the text of ruling NY N280981 is at "sources/cbp/N280981.txt".
+ruling NY N344557 is published at "https://rulings.cbp.gov/ruling/N344557".
+the text of ruling NY N344557 is at "sources/cbp/N344557.txt".
+ruling NY N326541 is published at "https://rulings.cbp.gov/ruling/N326541".
+the text of ruling NY N326541 is at "sources/cbp/N326541.txt".
+ruling NY N301537 is published at "https://rulings.cbp.gov/ruling/N301537".
+the text of ruling NY N301537 is at "sources/cbp/N301537.txt".
+ruling NY N293511 is published at "https://rulings.cbp.gov/ruling/N293511".
+the text of ruling NY N293511 is at "sources/cbp/N293511.txt".
+ruling NY N340121 is published at "https://rulings.cbp.gov/ruling/N340121".
+the text of ruling NY N340121 is at "sources/cbp/N340121.txt".
+ruling NY N362503 is published at "https://rulings.cbp.gov/ruling/N362503".
+the text of ruling NY N362503 is at "sources/cbp/N362503.txt".
+ruling NY N282417 is published at "https://rulings.cbp.gov/ruling/N282417".
+the text of ruling NY N282417 is at "sources/cbp/N282417.txt".
+ruling NY N318819 is published at "https://rulings.cbp.gov/ruling/N318819".
+the text of ruling NY N318819 is at "sources/cbp/N318819.txt".
+ruling NY N346942 is published at "https://rulings.cbp.gov/ruling/N346942".
+the text of ruling NY N346942 is at "sources/cbp/N346942.txt".
+ruling NY N317889 is published at "https://rulings.cbp.gov/ruling/N317889".
+the text of ruling NY N317889 is at "sources/cbp/N317889.txt".
+ruling NY N351058 is published at "https://rulings.cbp.gov/ruling/N351058".
+the text of ruling NY N351058 is at "sources/cbp/N351058.txt".
+ruling NY N305243 is published at "https://rulings.cbp.gov/ruling/N305243".
+the text of ruling NY N305243 is at "sources/cbp/N305243.txt".
+ruling NY N284355 is published at "https://rulings.cbp.gov/ruling/N284355".
+the text of ruling NY N284355 is at "sources/cbp/N284355.txt".
+ruling NY N360460 is published at "https://rulings.cbp.gov/ruling/N360460".
+the text of ruling NY N360460 is at "sources/cbp/N360460.txt".
+ruling NY N330782 is published at "https://rulings.cbp.gov/ruling/N330782".
+the text of ruling NY N330782 is at "sources/cbp/N330782.txt".
+ruling NY N340376 is published at "https://rulings.cbp.gov/ruling/N340376".
+the text of ruling NY N340376 is at "sources/cbp/N340376.txt".
+ruling NY N352610 is published at "https://rulings.cbp.gov/ruling/N352610".
+the text of ruling NY N352610 is at "sources/cbp/N352610.txt".
+ruling NY N334240 is published at "https://rulings.cbp.gov/ruling/N334240".
+the text of ruling NY N334240 is at "sources/cbp/N334240.txt".
+ruling NY N328346 is published at "https://rulings.cbp.gov/ruling/N328346".
+the text of ruling NY N328346 is at "sources/cbp/N328346.txt".
+ruling NY N319042 is published at "https://rulings.cbp.gov/ruling/N319042".
+the text of ruling NY N319042 is at "sources/cbp/N319042.txt".
+ruling NY N312574 is published at "https://rulings.cbp.gov/ruling/N312574".
+the text of ruling NY N312574 is at "sources/cbp/N312574.txt".
+ruling NY N314376 is published at "https://rulings.cbp.gov/ruling/N314376".
+the text of ruling NY N314376 is at "sources/cbp/N314376.txt".
+ruling NY N340380 is published at "https://rulings.cbp.gov/ruling/N340380".
+the text of ruling NY N340380 is at "sources/cbp/N340380.txt".
+ruling NY N350525 is published at "https://rulings.cbp.gov/ruling/N350525".
+the text of ruling NY N350525 is at "sources/cbp/N350525.txt".
+ruling NY N278703 is published at "https://rulings.cbp.gov/ruling/N278703".
+the text of ruling NY N278703 is at "sources/cbp/N278703.txt".
+ruling NY N325347 is published at "https://rulings.cbp.gov/ruling/N325347".
+the text of ruling NY N325347 is at "sources/cbp/N325347.txt".
+ruling NY N320255 is published at "https://rulings.cbp.gov/ruling/N320255".
+the text of ruling NY N320255 is at "sources/cbp/N320255.txt".
+ruling NY N334211 is published at "https://rulings.cbp.gov/ruling/N334211".
+the text of ruling NY N334211 is at "sources/cbp/N334211.txt".
+ruling NY N329669 is published at "https://rulings.cbp.gov/ruling/N329669".
+the text of ruling NY N329669 is at "sources/cbp/N329669.txt".
+ruling NY N333682 is published at "https://rulings.cbp.gov/ruling/N333682".
+the text of ruling NY N333682 is at "sources/cbp/N333682.txt".
+ruling NY N319174 is published at "https://rulings.cbp.gov/ruling/N319174".
+the text of ruling NY N319174 is at "sources/cbp/N319174.txt".
+ruling NY N313600 is published at "https://rulings.cbp.gov/ruling/N313600".
+the text of ruling NY N313600 is at "sources/cbp/N313600.txt".
+ruling NY N346678 is published at "https://rulings.cbp.gov/ruling/N346678".
+the text of ruling NY N346678 is at "sources/cbp/N346678.txt".
+ruling NY N352612 is published at "https://rulings.cbp.gov/ruling/N352612".
+the text of ruling NY N352612 is at "sources/cbp/N352612.txt".
+ruling NY N356323 is published at "https://rulings.cbp.gov/ruling/N356323".
+the text of ruling NY N356323 is at "sources/cbp/N356323.txt".
+ruling NY N332956 is published at "https://rulings.cbp.gov/ruling/N332956".
+the text of ruling NY N332956 is at "sources/cbp/N332956.txt".
+ruling NY N353571 is published at "https://rulings.cbp.gov/ruling/N353571".
+the text of ruling NY N353571 is at "sources/cbp/N353571.txt".
+ruling NY N296659 is published at "https://rulings.cbp.gov/ruling/N296659".
+the text of ruling NY N296659 is at "sources/cbp/N296659.txt".
+ruling NY N317899 is published at "https://rulings.cbp.gov/ruling/N317899".
+the text of ruling NY N317899 is at "sources/cbp/N317899.txt".
+ruling NY N353868 is published at "https://rulings.cbp.gov/ruling/N353868".
+the text of ruling NY N353868 is at "sources/cbp/N353868.txt".
+ruling NY N361792 is published at "https://rulings.cbp.gov/ruling/N361792".
+the text of ruling NY N361792 is at "sources/cbp/N361792.txt".
+ruling NY N345960 is published at "https://rulings.cbp.gov/ruling/N345960".
+the text of ruling NY N345960 is at "sources/cbp/N345960.txt".
+ruling NY N352488 is published at "https://rulings.cbp.gov/ruling/N352488".
+the text of ruling NY N352488 is at "sources/cbp/N352488.txt".
+ruling NY N341329 is published at "https://rulings.cbp.gov/ruling/N341329".
+the text of ruling NY N341329 is at "sources/cbp/N341329.txt".
+ruling NY N315787 is published at "https://rulings.cbp.gov/ruling/N315787".
+the text of ruling NY N315787 is at "sources/cbp/N315787.txt".
+
+query subheading is:
+    the subheading of which good is which code.
+
+query heading is:
+    the heading of which good is which heading.
+
+query unplaced is:
+    which good is not placed by the model.
+
+% NY N351827 (May 2026): a 3-in-1 men's jacket from Bangladesh.
+% CBP: the outer jacket of style HJ222 -> 6210.20; the inner jacket of style HJ222 -> 6101.30
+scenario ny_n351827 is, as stated in ruling NY N351827:
+    % each jacket of the 3-in-1 style is classified as a separate garment
+    the kind of the outer jacket of style HJ222 is jacket,
+        confer "It is composed of two men’s hip-length jackets".
+    the cut of the outer jacket of style HJ222 indicates men,
+        confer "It is composed of two men’s hip-length jackets".
+    the fabric construction of the outer jacket of style HJ222 is woven,
+        confer "The outer jacket is composed of 100% polyester woven fabric".
+    the outer jacket of style HJ222 contains 100 percent of polyester,
+        confer "The outer jacket is composed of 100% polyester woven fabric".
+    the outer jacket of style HJ222 is made up of fabric of heading 5903,
+        confer "woven fabric with a visible polyurethane coating on the inner surface".
+    the kind of the inner jacket of style HJ222 is jacket,
+        confer "It is composed of two men’s hip-length jackets".
+    the cut of the inner jacket of style HJ222 indicates men,
+        confer "It is composed of two men’s hip-length jackets".
+    % the inner jacket is a woven fabric (92% polyester 8% elastane) bonded to a
+    % 100% polyester knit pile fabric, which CBP holds remains a knit pile fabric
+    % of heading 6001: construction and composition of the knit pile fabric
+    the fabric construction of the inner jacket of style HJ222 is knitted,
+        confer "The brushed knit fabric for the inner jacket was analyzed by the CBP laboratory and found to be of weft knit pile construction".
+    the inner jacket of style HJ222 contains 100 percent of polyester,
+        confer "bonded to a 100% polyester brushed knit fabric".
+    subheading expects answers ["the subheading of the outer jacket of style HJ222 is 6210.20", "the subheading of the inner jacket of style HJ222 is 6101.30"].
+
+% NY N361819 (June 2026): men's and women's jackets from Guatemala.
+% CBP: style 20069 -> 6101.30; style 20077 -> 6102.30; style 20063 -> 6101.30
+scenario ny_n361819 is, as stated in ruling NY N361819:
+    the kind of style 20069 is jacket,
+        confer "Style 20069 is a men’s jacket from 100% polyester knit fleece fabric".
+    the cut of style 20069 indicates men,
+        confer "Style 20069 is a men’s jacket from 100% polyester knit fleece fabric".
+    style 20069 is a composite good,
+        confer "It is therefore considered a composite good".
+    the knit fleece of style 20069 is a component of style 20069,
+        confer "Style 20069 is a men’s jacket from 100% polyester knit fleece fabric".
+    the fabric construction of the knit fleece of style 20069 is knitted,
+        confer "Style 20069 is a men’s jacket from 100% polyester knit fleece fabric".
+    the knit fleece of style 20069 contains 100 percent of polyester,
+        confer "Style 20069 is a men’s jacket from 100% polyester knit fleece fabric".
+    the woven overlay of style 20069 is a component of style 20069,
+        confer "feature an overlay panel made from a woven fabric consisting of 93% polyester and 7% spandex".
+    the fabric construction of the woven overlay of style 20069 is woven,
+        confer "an overlay panel made from a woven fabric consisting of 93% polyester and 7% spandex".
+    the woven overlay of style 20069 contains 93 percent of polyester,
+        confer "an overlay panel made from a woven fabric consisting of 93% polyester and 7% spandex".
+    the woven overlay of style 20069 contains 7 percent of spandex,
+        confer "an overlay panel made from a woven fabric consisting of 93% polyester and 7% spandex".
+    the essential character of style 20069 is given by the knit fleece of style 20069,
+        according to CBP, confer "The essential character of styles 20069, and 20077 are imparted by the knit fleece fabric".
+    the kind of style 20077 is jacket,
+        confer "Style 20077 is a women’s jacket constructed from 100% polyester knit fleece fabric".
+    the cut of style 20077 indicates women,
+        confer "Style 20077 is a women’s jacket constructed from 100% polyester knit fleece fabric".
+    style 20077 is a composite good,
+        confer "It is therefore considered a composite good".
+    the knit fleece of style 20077 is a component of style 20077,
+        confer "Style 20077 is a women’s jacket constructed from 100% polyester knit fleece fabric".
+    the fabric construction of the knit fleece of style 20077 is knitted,
+        confer "Style 20077 is a women’s jacket constructed from 100% polyester knit fleece fabric".
+    the knit fleece of style 20077 contains 100 percent of polyester,
+        confer "Style 20077 is a women’s jacket constructed from 100% polyester knit fleece fabric".
+    the woven overlay of style 20077 is a component of style 20077,
+        confer "Both the front and back yoke feature overlay panels made from a woven fabric composed of 93% polyester and 7% spandex".
+    the fabric construction of the woven overlay of style 20077 is woven,
+        confer "overlay panels made from a woven fabric composed of 93% polyester and 7% spandex".
+    the woven overlay of style 20077 contains 93 percent of polyester,
+        confer "overlay panels made from a woven fabric composed of 93% polyester and 7% spandex".
+    the woven overlay of style 20077 contains 7 percent of spandex,
+        confer "overlay panels made from a woven fabric composed of 93% polyester and 7% spandex".
+    the essential character of style 20077 is given by the knit fleece of style 20077,
+        according to CBP, confer "The essential character of styles 20069, and 20077 are imparted by the knit fleece fabric".
+    the kind of style 20063 is jacket,
+        confer "Style 20063 is a men’s jacket constructed from 90% polyester, and 10% spandex knit fabric".
+    the cut of style 20063 indicates men,
+        confer "Style 20063 is a men’s jacket constructed from 90% polyester, and 10% spandex knit fabric".
+    the fabric construction of style 20063 is knitted,
+        confer "90% polyester, and 10% spandex knit fabric that is brushed on the inside surface".
+    style 20063 contains 90 percent of polyester,
+        confer "constructed from 90% polyester, and 10% spandex knit fabric".
+    style 20063 contains 10 percent of spandex,
+        confer "constructed from 90% polyester, and 10% spandex knit fabric".
+    subheading expects answers ["the subheading of style 20069 is 6101.30", "the subheading of style 20077 is 6102.30", "the subheading of style 20063 is 6101.30"].
+
+% NY N274193 (April 2016): a cape from China.
+% CBP: style A281469 -> 6102.10
+scenario ny_n274193 is, as stated in ruling NY N274193:
+    the kind of style A281469 is cape,
+        confer "is a woman’s sleeveless cape that covers the shoulders and the elbows".
+    the cut of style A281469 indicates women,
+        confer "is a woman’s sleeveless cape that covers the shoulders and the elbows".
+    the fabric construction of style A281469 is knitted,
+        confer "The garment is constructed from 100% cashmere knit fabric".
+    style A281469 contains 100 percent of cashmere,
+        confer "The garment is constructed from 100% cashmere knit fabric".
+    subheading expects answers ["the subheading of style A281469 is 6102.10"].
+
+% NY N354161 (October 2025): a unisex jacket from India.
+% CBP: style UHZ2309JR -> 6102.20
+scenario ny_n354161 is, as stated in ruling NY N354161:
+    % the RE line calls the jacket unisex, the description a men's jacket:
+    % recorded as unisex, no gender fact (note 9 of the chapter)
+    the kind of style UHZ2309JR is jacket,
+        confer "Style UHZ2309JR is a men’s hip-length jacket constructed from a 100% cotton knit fabric".
+    the fabric construction of style UHZ2309JR is knitted,
+        confer "hip-length jacket constructed from a 100% cotton knit fabric".
+    style UHZ2309JR contains 100 percent of cotton,
+        confer "hip-length jacket constructed from a 100% cotton knit fabric".
+    subheading expects answers ["the subheading of style UHZ2309JR is 6102.20"].
+
+% NY N280981 (December 2016): a woman's poncho from China.
+% CBP: style PWS093971 -> 6102.90
+scenario ny_n280981 is, as stated in ruling NY N280981:
+    the kind of style PWS093971 is poncho,
+        confer "Style PWS093971 is a woman’s poncho constructed from 55% linen 45% viscose knit fabric".
+    the cut of style PWS093971 indicates women,
+        confer "Style PWS093971 is a woman’s poncho".
+    the fabric construction of style PWS093971 is knitted,
+        confer "constructed from 55% linen 45% viscose knit fabric".
+    style PWS093971 contains 55 percent of linen,
+        confer "constructed from 55% linen 45% viscose knit fabric".
+    style PWS093971 contains 45 percent of viscose,
+        confer "constructed from 55% linen 45% viscose knit fabric".
+    style PWS093971 is claimed to belong to scarf,
+        confer "you suggest the garment is classified under 6117.10.6020".
+    the claim that style PWS093971 belongs to scarf is rejected,
+        according to CBP, confer "The submitted garment exceeds the length consistently associated with garments classified under heading 6117".
+    subheading expects answers ["the subheading of style PWS093971 is 6102.90"].
+
+% NY N344557 (January 2025): a men's upper body garment from China.
+% CBP: style THM80274 -> 6103.32
+scenario ny_n344557 is, as stated in ruling NY N344557:
+    % DISAGREES: CBP gives 6103.32 (suit-type jacket); the model gives
+    % 6110.20 — the ruling calls the garment an upper body garment (a top)
+    % and never a jacket; its features (four panels, collar, full front
+    % opening) are those CBP reads as a suit-type jacket's.
+    % the ruling calls the garment only an upper body garment (its code is that
+    % of suit-type jackets): recorded as an upper body garment
+    style THM80274 is an upper body garment,
+        confer "Style THM80274 is a men’s upper body garment constructed from 70% cotton, 26% nylon, and 4% spandex knit fabric".
+    style THM80274 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of style THM80274 is knitted,
+        confer "constructed from 70% cotton, 26% nylon, and 4% spandex knit fabric".
+    the cut of style THM80274 indicates men,
+        confer "Style THM80274 is a men’s upper body garment".
+    style THM80274 contains 70 percent of cotton,
+        confer "constructed from 70% cotton, 26% nylon, and 4% spandex knit fabric".
+    style THM80274 contains 26 percent of nylon,
+        confer "constructed from 70% cotton, 26% nylon, and 4% spandex knit fabric".
+    style THM80274 contains 4 percent of spandex,
+        confer "constructed from 70% cotton, 26% nylon, and 4% spandex knit fabric".
+    style THM80274 has at least four panels in its outer shell,
+        confer "Style THM80274 is constructed from four panels sewn together lengthwise".
+    style THM80274 has a collar,
+        confer "features a self-fabric spread collar".
+    style THM80274 has an opening starting at the neckline,
+        confer "a left-over-right, full front opening with four button closures".
+    style THM80274 closes left over right,
+        confer "a left-over-right, full front opening with four button closures".
+    style THM80274 has pockets below the waist,
+        confer "a vertical inset pocket on each front panel below the waist".
+    subheading expects answers ["the subheading of style THM80274 is 6110.20"].
+
+% NY N326541 (June 2022): boy's garments from China.
+% CBP: style 811361001 -> 6103.42; style 111361001 -> 6205.20
+scenario ny_n326541 is, as stated in ruling NY N326541:
+    the kind of style 811361001 is trousers,
+        confer "is a pair of form fitting pull-on pants with a permanently attached short joined at the waistband".
+    the cut of style 811361001 indicates men,
+        confer "The tariff classification of boy’s garments from China".
+    style 811361001 is a composite good,
+        confer "is a pair of form fitting pull-on pants with a permanently attached short joined at the waistband".
+    the pants of style 811361001 is a component of style 811361001,
+        confer "is a pair of form fitting pull-on pants with a permanently attached short".
+    the kind of the pants of style 811361001 is trousers,
+        confer "is a pair of form fitting pull-on pants".
+    the fabric construction of the pants of style 811361001 is knitted,
+        confer "The pants are constructed of 57 percent cotton, 38 percent polyester and 5 percent spandex knit fabric".
+    the pants of style 811361001 contains 57 percent of cotton,
+        confer "The pants are constructed of 57 percent cotton, 38 percent polyester and 5 percent spandex knit fabric".
+    the pants of style 811361001 contains 38 percent of polyester,
+        confer "The pants are constructed of 57 percent cotton, 38 percent polyester and 5 percent spandex knit fabric".
+    the pants of style 811361001 contains 5 percent of spandex,
+        confer "The pants are constructed of 57 percent cotton, 38 percent polyester and 5 percent spandex knit fabric".
+    the shorts of style 811361001 is a component of style 811361001,
+        confer "with a permanently attached short joined at the waistband".
+    the kind of the shorts of style 811361001 is shorts,
+        confer "with a permanently attached short joined at the waistband".
+    the fabric construction of the shorts of style 811361001 is knitted,
+        confer "The shorts are constructed of 60 percent cotton and 40 percent polyester knit fabric".
+    the shorts of style 811361001 contains 60 percent of cotton,
+        confer "The shorts are constructed of 60 percent cotton and 40 percent polyester knit fabric".
+    the shorts of style 811361001 contains 40 percent of polyester,
+        confer "The shorts are constructed of 60 percent cotton and 40 percent polyester knit fabric".
+    the essential character of style 811361001 is given by the pants of style 811361001,
+        according to CBP, confer "the essential character is imparted by the knit pants".
+    style 111361001 is an upper body garment,
+        confer "is a boys’ shirt constructed from multiple fabric components".
+    style 111361001 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style 111361001 indicates men,
+        confer "is a boys’ shirt constructed from multiple fabric components".
+    style 111361001 has an opening starting at the neckline,
+        confer "a full front opening with a left-over-right six-snap closure".
+    style 111361001 closes left over right,
+        confer "a full front opening with a left-over-right six-snap closure".
+    style 111361001 is a composite good,
+        confer "constructed from multiple fabric components designed to simulate the look of a shirt worn over a hoodie".
+    the woven body of style 111361001 is a component of style 111361001,
+        confer "The body and part of the sleeves are constructed from 100 percent cotton woven fabric".
+    the fabric construction of the woven body of style 111361001 is woven,
+        confer "The body and part of the sleeves are constructed from 100 percent cotton woven fabric".
+    the woven body of style 111361001 contains 100 percent of cotton,
+        confer "The body and part of the sleeves are constructed from 100 percent cotton woven fabric".
+    the knit parts of style 111361001 is a component of style 111361001,
+        confer "The balance of the sleeves and the hood are constructed from 60 percent cotton and 40 percent polyester knit fabric".
+    the fabric construction of the knit parts of style 111361001 is knitted,
+        confer "The balance of the sleeves and the hood are constructed from 60 percent cotton and 40 percent polyester knit fabric".
+    the knit parts of style 111361001 contains 60 percent of cotton,
+        confer "The balance of the sleeves and the hood are constructed from 60 percent cotton and 40 percent polyester knit fabric".
+    the knit parts of style 111361001 contains 40 percent of polyester,
+        confer "The balance of the sleeves and the hood are constructed from 60 percent cotton and 40 percent polyester knit fabric".
+    the essential character of style 111361001 is given by the woven body of style 111361001,
+        according to CBP, confer "The woven fabric imparts the essential character".
+    subheading expects answers ["the subheading of style 811361001 is 6103.42", "the subheading of style 111361001 is 6205.20"].
+
+% NY N301537 (November 2018): a women's knit suit from China.
+% CBP: style S19042-TH -> 6104.13
+scenario ny_n301537 is, as stated in ruling NY N301537:
+    the kind of style S19042-TH is suit,
+        confer "Style S19042-TH is a women’s two piece suit (suit-type jacket and skirt)".
+    the cut of style S19042-TH indicates women,
+        confer "Style S19042-TH is a women’s two piece suit".
+    the fabric construction of style S19042-TH is knitted,
+        confer "constructed from 95 percent polyester and 5 percent Spandex knit fabric".
+    style S19042-TH contains 95 percent of polyester,
+        confer "constructed from 95 percent polyester and 5 percent Spandex knit fabric".
+    style S19042-TH contains 5 percent of spandex,
+        confer "constructed from 95 percent polyester and 5 percent Spandex knit fabric".
+    the components of style S19042-TH are matching,
+        confer "Both components of the suit are made up in the same fabric, style, color, size and composition".
+    the jacket of style S19042-TH is a component of style S19042-TH,
+        confer "The upper garment of the suit (suit-type jacket)".
+    the kind of the jacket of style S19042-TH is suit-type jacket,
+        confer "The upper garment of the suit (suit-type jacket)".
+    the skirt of style S19042-TH is a component of style S19042-TH,
+        confer "The lower garment (skirt)".
+    the kind of the skirt of style S19042-TH is skirt,
+        confer "The lower garment (skirt)".
+    subheading expects answers ["the subheading of style S19042-TH is 6104.13"].
+
+% NY N293511 (February 2018): a woman's knit ensemble.
+% CBP: model S18007-GA -> 6104.23 (upper and lower body garments)
+scenario ny_n293511 is, as stated in ruling NY N293511:
+    the kind of model S18007-GA is ensemble,
+        confer "The tariff classification of a woman’s knit ensemble".
+    the cut of model S18007-GA indicates women,
+        confer "consists of a woman’s cardigan style upper body garment and a woman’s lower body garment".
+    the fabric construction of model S18007-GA is knitted,
+        confer "The upper body garment is constructed from 95 percent nylon and 5 percent Spandex knit fabric".
+    model S18007-GA contains 95 percent of nylon,
+        confer "The lower body garment is constructed from 95 percent nylon and 5 percent Spandex".
+    model S18007-GA contains 5 percent of spandex,
+        confer "The lower body garment is constructed from 95 percent nylon and 5 percent Spandex".
+    the components of model S18007-GA are matching,
+        confer "Based on the fabric construction, fiber content, sizing and style, the garments qualify as an ensemble".
+    the cardigan of model S18007-GA is a component of model S18007-GA,
+        confer "consists of a woman’s cardigan style upper body garment and a woman’s lower body garment".
+    the kind of the cardigan of model S18007-GA is cardigan,
+        confer "consists of a woman’s cardigan style upper body garment".
+    the trousers of model S18007-GA is a component of model S18007-GA,
+        confer "consists of a woman’s cardigan style upper body garment and a woman’s lower body garment".
+    the kind of the trousers of model S18007-GA is trousers,
+        confer "The pull-on trousers feature a waistband of contrasting color".
+    subheading expects answers ["the subheading of model S18007-GA is 6104.23"].
+
+% NY N340121 (June 2024): a women's and a girls' blazer from Cambodia and China.
+% CBP: style BX482 -> 6104.32; style BW161 -> 6104.32
+scenario ny_n340121 is, as stated in ruling NY N340121:
+    the kind of style BX482 is blazer,
+        confer "is a women’s blazer constructed from 100 percent cotton knit fabric".
+    the cut of style BX482 indicates women,
+        confer "is a women’s blazer constructed from 100 percent cotton knit fabric".
+    the fabric construction of style BX482 is knitted,
+        confer "is a women’s blazer constructed from 100 percent cotton knit fabric".
+    style BX482 contains 100 percent of cotton,
+        confer "is a women’s blazer constructed from 100 percent cotton knit fabric".
+    the kind of style BW161 is blazer,
+        confer "is a girls’ blazer constructed from 100 percent cotton knit fabric".
+    the cut of style BW161 indicates women,
+        confer "is a girls’ blazer constructed from 100 percent cotton knit fabric".
+    the fabric construction of style BW161 is knitted,
+        confer "is a girls’ blazer constructed from 100 percent cotton knit fabric".
+    style BW161 contains 100 percent of cotton,
+        confer "is a girls’ blazer constructed from 100 percent cotton knit fabric".
+    subheading expects answers ["the subheading of style BX482 is 6104.32", "the subheading of style BW161 is 6104.32"].
+
+% NY N362503 (July 2026): a women's suit-type jacket from the Philippines.
+% CBP: style 274224 -> 6104.33
+scenario ny_n362503 is, as stated in ruling NY N362503:
+    the kind of style 274224 is suit-type jacket,
+        confer "The tariff classification of a women’s suit-type jacket from the Philippines".
+    the cut of style 274224 indicates women,
+        confer "Style 274224 is a women’s upper body garment constructed from 100 percent polyester knit fabric".
+    the fabric construction of style 274224 is knitted,
+        confer "constructed from 100 percent polyester knit fabric".
+    style 274224 contains 100 percent of polyester,
+        confer "constructed from 100 percent polyester knit fabric".
+    style 274224 has at least four panels in its outer shell,
+        confer "It is constructed from four panels sewn together lengthwise".
+    style 274224 closes right over left,
+        confer "features a right-over-left, full front opening with four button closures".
+    subheading expects answers ["the subheading of style 274224 is 6104.33"].
+
+% NY N282417 (February 2017): a woman's blazer from China.
+% CBP: the tailored blazer -> 6104.39
+scenario ny_n282417 is, as stated in ruling NY N282417:
+    % the tailored blazer is style 059560
+    the kind of the tailored blazer is blazer,
+        confer "is a woman’s tailored blazer constructed from 80% rayon and 20% nylon knit fabric".
+    the cut of the tailored blazer indicates women,
+        confer "is a woman’s tailored blazer".
+    the fabric construction of the tailored blazer is knitted,
+        confer "constructed from 80% rayon and 20% nylon knit fabric".
+    the tailored blazer contains 80 percent of rayon,
+        confer "constructed from 80% rayon and 20% nylon knit fabric".
+    the tailored blazer contains 20 percent of nylon,
+        confer "constructed from 80% rayon and 20% nylon knit fabric".
+    subheading expects answers ["the subheading of the tailored blazer is 6104.39"].
+
+% NY N318819 (May 2021): three women's garments from Peru.
+% CBP: item 1 -> 6110.20; item 2 -> 6104.41; item 3 -> 6109.10
+scenario ny_n318819 is, as stated in ruling NY N318819:
+    % DISAGREES (item 2): CBP gives 6104.41; the model gives 6104.42 — CBP's
+    % own description of the subheading is "Dresses: Of cotton", which is
+    % 6104.42; the dress is of cotton.
+    item 1 is an upper body garment,
+        confer "Item 1 is a women’s sleeveless pullover constructed from 100 percent organic pima cotton".
+    item 1 is classified under the US tariff,
+        confer "(HTSUS)".
+    the cut of item 1 indicates women,
+        confer "Item 1 is a women’s sleeveless pullover".
+    item 1 is sleeveless,
+        confer "Item 1 is a women’s sleeveless pullover".
+    the fabric construction of item 1 is knitted,
+        confer "The outer surface of the garment’s fabric measures more than nine stitches per two centimeters in the direction the stitches were formed".
+    item 1 contains 100 percent of cotton,
+        confer "sleeveless pullover constructed from 100 percent organic pima cotton".
+    item 1 has a means of tightening at the bottom,
+        confer "a rib-knit bottom that extends to below the waist".
+    the kind of item 2 is dress,
+        confer "Item 2 is a women’s sleeveless dress constructed from 100 percent organic pima cotton knit fabric".
+    the cut of item 2 indicates women,
+        confer "Item 2 is a women’s sleeveless dress".
+    the fabric construction of item 2 is knitted,
+        confer "sleeveless dress constructed from 100 percent organic pima cotton knit fabric".
+    item 2 contains 100 percent of cotton,
+        confer "sleeveless dress constructed from 100 percent organic pima cotton knit fabric".
+    item 3 is an upper body garment,
+        confer "Is a women’s upper body garment, similar to a tank top is constructed from 100 percent organic pima cotton knit fabric".
+    item 3 is classified under the US tariff,
+        confer "(HTSUS)".
+    the cut of item 3 indicates women,
+        confer "Is a women’s upper body garment".
+    the fabric construction of item 3 is knitted,
+        confer "similar to a tank top is constructed from 100 percent organic pima cotton knit fabric".
+    item 3 contains 100 percent of cotton,
+        confer "similar to a tank top is constructed from 100 percent organic pima cotton knit fabric".
+    item 3 is sleeveless,
+        confer "The sleeveless garment features a V-shaped front neckline".
+    item 3 has shoulder straps,
+        confer "shoulder straps over 2 inches wide".
+    the rear neckline of item 3 falls below the nape of the neck,
+        confer "a round back neckline that reaches below the nape of the neck".
+    subheading expects answers ["the subheading of item 2 is 6104.42", "the subheading of item 1 is 6110.20", "the subheading of item 3 is 6109.10"].
+
+% NY N346942 (April 2025): knit to shape women's garments.
+% CBP: the knitted long dress -> 6104.42; the knitted skirt -> 6104.52; the knitted pants -> 6104.62; the knitted sweater -> 6110.20; the knitted open cardigan -> 6110.30
+scenario ny_n346942 is, as stated in ruling NY N346942:
+    the kind of the knitted long dress is dress,
+        confer "The women’s long dress is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the cut of the knitted long dress indicates women,
+        confer "The women’s long dress is constructed from".
+    the fabric construction of the knitted long dress is knitted,
+        confer "The women’s long dress is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted long dress contains 87 percent of cotton,
+        confer "The women’s long dress is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted long dress contains 11 percent of nylon,
+        confer "The women’s long dress is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted long dress contains 2 percent of elastane,
+        confer "The women’s long dress is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the kind of the knitted skirt is skirt,
+        confer "The women’s skirt is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the cut of the knitted skirt indicates women,
+        confer "The women’s skirt is constructed from".
+    the fabric construction of the knitted skirt is knitted,
+        confer "The women’s skirt is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted skirt contains 87 percent of cotton,
+        confer "The women’s skirt is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted skirt contains 11 percent of nylon,
+        confer "The women’s skirt is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted skirt contains 2 percent of elastane,
+        confer "The women’s skirt is constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the kind of the knitted pants is trousers,
+        confer "The women’s pants are constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the cut of the knitted pants indicates women,
+        confer "The women’s pants are constructed from".
+    the fabric construction of the knitted pants is knitted,
+        confer "The women’s pants are constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted pants contains 87 percent of cotton,
+        confer "The women’s pants are constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted pants contains 11 percent of nylon,
+        confer "The women’s pants are constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted pants contains 2 percent of elastane,
+        confer "The women’s pants are constructed from 87 percent cotton, 11 percent nylon, and 2 percent elastane knit fabric".
+    the knitted sweater is an upper body garment,
+        confer "The women’s sweater is constructed from 95 percent cotton and 5 percent cashmere knit fabric".
+    the knitted sweater is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of the knitted sweater indicates women,
+        confer "The women’s sweater is constructed from".
+    the fabric construction of the knitted sweater is knitted,
+        confer "The women’s sweater is constructed from 95 percent cotton and 5 percent cashmere knit fabric".
+    the knitted sweater contains 95 percent of cotton,
+        confer "The women’s sweater is constructed from 95 percent cotton and 5 percent cashmere knit fabric".
+    the knitted sweater contains 5 percent of cashmere,
+        confer "The women’s sweater is constructed from 95 percent cotton and 5 percent cashmere knit fabric".
+    the knitted sweater has a collar,
+        confer "The crew neck sweater features a rib knit collar".
+    the knitted sweater has a means of tightening at the bottom,
+        confer "long sleeves with rib knit cuffs, and a straight rib knit hem".
+    the knitted open cardigan is an upper body garment,
+        confer "The women’s open cardigan is constructed from 100 percent viscose".
+    the knitted open cardigan is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of the knitted open cardigan indicates women,
+        confer "The women’s open cardigan is constructed from 100 percent viscose".
+    the fabric construction of the knitted open cardigan is knitted,
+        confer "knitted sweater and knitted open cardigan".
+    the knitted open cardigan contains 100 percent of viscose,
+        confer "The women’s open cardigan is constructed from 100 percent viscose".
+    the knitted open cardigan has an opening starting at the neckline,
+        confer "a full-frontal opening secured with six button closure".
+    the knitted open cardigan has a means of tightening at the bottom,
+        confer "a rib knit hemmed bottom".
+    subheading expects answers ["the subheading of the knitted long dress is 6104.42", "the subheading of the knitted skirt is 6104.52", "the subheading of the knitted pants is 6104.62", "the subheading of the knitted sweater is 6110.20", "the subheading of the knitted open cardigan is 6110.30"].
+
+% NY N317889 (March 2021): costumes from China, Vietnam, Taiwan and India.
+% CBP: item 119291 -> 6104.43; item 124831 -> 6104.43; the butterfly wing set -> 6104.53; item 124452 -> 6104.43
+% (also items 119292 and 124832, the same costumes in teens' sizes, -> 6104.43, and
+% item 119294, women's sizes -> 6104.43: not described separately)
+scenario ny_n317889 is, as stated in ruling NY N317889:
+    item 119291 is a set put up for retail sale,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the cut of item 119291 indicates women,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the dress of item 119291 is a component of item 119291,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the kind of the dress of item 119291 is dress,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the fabric construction of the dress of item 119291 is knitted,
+        confer "all panels of the dress are constructed of 100 percent polyester knit fabric".
+    the dress of item 119291 contains 100 percent of polyester,
+        confer "all panels of the dress are constructed of 100 percent polyester knit fabric".
+    % VOCAB: a pair of wings, no listed kind
+    the wings of item 119291 is a component of item 119291,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the sleevelets of item 119291 is a component of item 119291,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the kind of the sleevelets of item 119291 is arm sleeves,
+        confer "a set of sleevelets".
+    the horn headband of item 119291 is a component of item 119291,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the kind of the horn headband of item 119291 is headband,
+        confer "a horn headband".
+    % VOCAB: a tail, no listed kind
+    the tail of item 119291 is a component of item 119291,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings, a set of sleevelets, a horn headband and a tail".
+    the essential character of item 119291 is given by the dress of item 119291,
+        according to CBP, confer "In this case, the dress imparts the essential character to the set".
+    item 124831 is a set put up for retail sale,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings and a unicorn headband".
+    the cut of item 124831 indicates women,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings and a unicorn headband".
+    the dress of item 124831 is a component of item 124831,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings and a unicorn headband".
+    the kind of the dress of item 124831 is dress,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings and a unicorn headband".
+    % the dress fabric has a polyurethane coating for the upper body and sleeves;
+    % the ruling does not say it is visible: no heading 5903 fact
+    the fabric construction of the dress of item 124831 is knitted,
+        confer "the dress is constructed of 5 percent spandex and 95 percent polyester knit fabric".
+    the dress of item 124831 contains 95 percent of polyester,
+        confer "the dress is constructed of 5 percent spandex and 95 percent polyester knit fabric".
+    the dress of item 124831 contains 5 percent of spandex,
+        confer "the dress is constructed of 5 percent spandex and 95 percent polyester knit fabric".
+    % VOCAB: a pair of wings, no listed kind
+    the wings of item 124831 is a component of item 124831,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings and a unicorn headband".
+    the unicorn headband of item 124831 is a component of item 124831,
+        confer "is a girl’s costume set consisting of a dress, a pair of wings and a unicorn headband".
+    the kind of the unicorn headband of item 124831 is headband,
+        confer "a pair of wings and a unicorn headband".
+    the essential character of item 124831 is given by the dress of item 124831,
+        according to CBP, confer "In this case, the dress imparts the essential character to the set".
+    % the butterfly wing set is item number 90937P
+    the butterfly wing set is a set put up for retail sale,
+        confer "is a girl’s costume set consisting of a tutu skirt, a pair of wings and a butterfly hair clip".
+    the cut of the butterfly wing set indicates women,
+        confer "is a girl’s costume set consisting of a tutu skirt, a pair of wings and a butterfly hair clip".
+    the tutu skirt of the butterfly wing set is a component of the butterfly wing set,
+        confer "is a girl’s costume set consisting of a tutu skirt, a pair of wings and a butterfly hair clip".
+    the kind of the tutu skirt of the butterfly wing set is skirt,
+        confer "consisting of a tutu skirt".
+    % the skirt has two layers: outer layer knit, inner layer woven
+    the fabric construction of the tutu skirt of the butterfly wing set is knitted,
+        confer "the outer layer is constructed of 100 percent polyester knit fabric".
+    the tutu skirt of the butterfly wing set contains 100 percent of polyester,
+        confer "the outer layer is constructed of 100 percent polyester knit fabric the inner layer of 100 percent polyester woven".
+    % VOCAB: a pair of wings and a butterfly hair clip, no listed kind
+    the wings of the butterfly wing set is a component of the butterfly wing set,
+        confer "is a girl’s costume set consisting of a tutu skirt, a pair of wings and a butterfly hair clip".
+    the hair clip of the butterfly wing set is a component of the butterfly wing set,
+        confer "is a girl’s costume set consisting of a tutu skirt, a pair of wings and a butterfly hair clip".
+    the essential character of the butterfly wing set is given by the tutu skirt of the butterfly wing set,
+        according to CBP, confer "In this case, the skirt imparts the essential character to the set".
+    item 124452 is a set put up for retail sale,
+        confer "is a girl’s costume set consisting of a dress and a headband".
+    the cut of item 124452 indicates women,
+        confer "is a girl’s costume set consisting of a dress and a headband".
+    the dress of item 124452 is a component of item 124452,
+        confer "is a girl’s costume set consisting of a dress and a headband".
+    the kind of the dress of item 124452 is dress,
+        confer "is a girl’s costume set consisting of a dress and a headband".
+    the fabric construction of the dress of item 124452 is knitted,
+        confer "you indicate that the dress is constructed of 100 percent polyester knit fabric".
+    the dress of item 124452 contains 100 percent of polyester,
+        confer "you indicate that the dress is constructed of 100 percent polyester knit fabric".
+    the headband of item 124452 is a component of item 124452,
+        confer "is a girl’s costume set consisting of a dress and a headband".
+    the kind of the headband of item 124452 is headband,
+        confer "is a girl’s costume set consisting of a dress and a headband".
+    the essential character of item 124452 is given by the dress of item 124452,
+        according to CBP, confer "In this case, the dress imparts the essential character to the set".
+    subheading expects answers ["the subheading of item 119291 is 6104.43", "the subheading of item 124831 is 6104.43", "the subheading of the butterfly wing set is 6104.53", "the subheading of item 124452 is 6104.43"].
+
+% NY N351058 (July 2025): women's knit garments from Indonesia.
+% CBP: the blouse of style 772167 -> 6106.20; the shorts of style 772167 -> 6104.69; style 783082 -> 6104.44; the blouse of style 783006 -> 6106.20; the lounge pants of style 783006 -> 6104.69
+scenario ny_n351058 is, as stated in ruling NY N351058:
+    % the pajama tops and bottoms are classified garment by garment
+    the blouse of style 772167 is an upper body garment,
+        confer "Style 772167 is a women’s pajama top and bottom".
+    the blouse of style 772167 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United Sates (HTSUS)".
+    the cut of the blouse of style 772167 indicates women,
+        confer "Style 772167 is a women’s pajama top and bottom".
+    the fabric construction of the blouse of style 772167 is knitted,
+        confer "Both garments are constructed from 92 percent modal, 8 percent spandex knit fabric".
+    the blouse of style 772167 contains 92 percent of modal,
+        confer "Both garments are constructed from 92 percent modal, 8 percent spandex knit fabric".
+    the blouse of style 772167 contains 8 percent of spandex,
+        confer "Both garments are constructed from 92 percent modal, 8 percent spandex knit fabric".
+    the blouse of style 772167 is loose-fitting,
+        confer "The loose-fitting blouse extends from the shoulders to below the waist and features a round front neckline with a partial opening".
+    the blouse of style 772167 has an opening starting at the neckline,
+        confer "a round front neckline with a partial opening secured by a six-button left over right closure".
+    the blouse of style 772167 closes left over right,
+        confer "a partial opening secured by a six-button left over right closure".
+    the blouse of style 772167 is claimed to belong to nightwear,
+        confer "suggest the garments are classifiable under heading 6108".
+    the claim that the blouse of style 772167 belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classified as sleepwear".
+    the kind of the shorts of style 772167 is shorts,
+        confer "The pull-on shorts of style 772167 feature".
+    the cut of the shorts of style 772167 indicates women,
+        confer "Style 772167 is a women’s pajama top and bottom".
+    the fabric construction of the shorts of style 772167 is knitted,
+        confer "Both garments are constructed from 92 percent modal, 8 percent spandex knit fabric".
+    the shorts of style 772167 contains 92 percent of modal,
+        confer "Both garments are constructed from 92 percent modal, 8 percent spandex knit fabric".
+    the shorts of style 772167 contains 8 percent of spandex,
+        confer "Both garments are constructed from 92 percent modal, 8 percent spandex knit fabric".
+    the shorts of style 772167 is claimed to belong to nightwear,
+        confer "suggest the garments are classifiable under heading 6108".
+    the claim that the shorts of style 772167 belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classified as sleepwear".
+    the kind of style 783082 is dress,
+        confer "Style 783082 is a women’s pullover sleepwear sleeveless dress".
+    the cut of style 783082 indicates women,
+        confer "Style 783082 is a women’s pullover sleepwear sleeveless dress".
+    the fabric construction of style 783082 is knitted,
+        confer "constructed from 92 percent modal and 8 percent spandex knit fabric".
+    style 783082 contains 92 percent of modal,
+        confer "constructed from 92 percent modal and 8 percent spandex knit fabric".
+    style 783082 contains 8 percent of spandex,
+        confer "constructed from 92 percent modal and 8 percent spandex knit fabric".
+    style 783082 is claimed to belong to nightwear,
+        confer "Although you refer to these garments as sleepwear".
+    the claim that style 783082 belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classified as sleepwear".
+    the blouse of style 783006 is an upper body garment,
+        confer "Style 783006 is a women’s pajama top and bottom".
+    the blouse of style 783006 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United Sates (HTSUS)".
+    the cut of the blouse of style 783006 indicates women,
+        confer "Style 783006 is a women’s pajama top and bottom".
+    the fabric construction of the blouse of style 783006 is knitted,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the blouse of style 783006 contains 63 percent of lyocell,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the blouse of style 783006 contains 34 percent of polyester,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the blouse of style 783006 contains 3 percent of spandex,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the blouse of style 783006 is loose-fitting,
+        confer "The loose-fitting blouse extends from the shoulders to below the waist and features a round neckline, hemmed, short sleeves".
+    the blouse of style 783006 is claimed to belong to nightwear,
+        confer "suggest the garments are classifiable under heading 6108".
+    the claim that the blouse of style 783006 belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classified as sleepwear".
+    the kind of the lounge pants of style 783006 is trousers,
+        confer "The lounge pants of style 783006 feature".
+    the cut of the lounge pants of style 783006 indicates women,
+        confer "Style 783006 is a women’s pajama top and bottom".
+    the fabric construction of the lounge pants of style 783006 is knitted,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the lounge pants of style 783006 contains 63 percent of lyocell,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the lounge pants of style 783006 contains 34 percent of polyester,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the lounge pants of style 783006 contains 3 percent of spandex,
+        confer "Both garments are constructed from 63 percent lyocell, 34 percent polyester and 3 percent spandex knit fabric".
+    the lounge pants of style 783006 is claimed to belong to nightwear,
+        confer "suggest the garments are classifiable under heading 6108".
+    the claim that the lounge pants of style 783006 belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classified as sleepwear".
+    subheading expects answers ["the subheading of the shorts of style 772167 is 6104.69", "the subheading of style 783082 is 6104.44", "the subheading of the lounge pants of style 783006 is 6104.69", "the subheading of the blouse of style 772167 is 6106.20", "the subheading of the blouse of style 783006 is 6106.20"].
+
+% NY N305243 (February 2020): a women's dress from China.
+% CBP: style FOQ6249780 -> 6104.49
+scenario ny_n305243 is, as stated in ruling NY N305243:
+    % DISAGREES: CBP gives 6104.49; the model gives 6104.43 — CBP counts the
+    % whole weight of the yarns that qualify as metalized yarn of heading
+    % 5605 (Section XI note 2(B)(a)); the transcription records the
+    % laboratory's shares by fibre, in which the man-made fibres
+    % predominate.
+    the kind of style FOQ6249780 is dress,
+        confer "Style FOQ6249780 is a women’s dress".
+    the cut of style FOQ6249780 indicates women,
+        confer "Style FOQ6249780 is a women’s dress".
+    the fabric construction of style FOQ6249780 is knitted,
+        confer "constructed from 65 percent polyester and 35 percent metallic knit fabric".
+    % the composition by weight found by the laboratory
+    style FOQ6249780 contains 70.4 percent of polyester,
+        confer "Polyester 70.4 percent".
+    style FOQ6249780 contains 28.2 percent of metalized yarn,
+        confer "Metalized yarn: 28.2 percent".
+    style FOQ6249780 contains 1.4 percent of elastane,
+        confer "Elastomeric yarn: 1.4 percent".
+    subheading expects answers ["the subheading of style FOQ6249780 is 6104.43"].
+
+% NY N284355 (August 2017): four women's garments from Hong Kong.
+% CBP: style CKN4-3445FP-17 -> 6110.30; style CKN4-3496FQ-17 -> 6110.30; style CKN4-7243FO-46 -> 6104.59; style CKN8-3619FM-27 -> 6106.20
+scenario ny_n284355 is, as stated in ruling NY N284355:
+    % compositions: the overall composition by weight found by the laboratory
+    style CKN4-3445FP-17 is an upper body garment,
+        confer "Style CKN4-3445FP-17 is a woman’s sleeveless pullover".
+    style CKN4-3445FP-17 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style CKN4-3445FP-17 indicates women,
+        confer "Style CKN4-3445FP-17 is a woman’s sleeveless pullover".
+    style CKN4-3445FP-17 is sleeveless,
+        confer "Style CKN4-3445FP-17 is a woman’s sleeveless pullover".
+    the fabric construction of style CKN4-3445FP-17 is knitted,
+        confer "7 percent metallic, and 1 percent spandex knit fabric".
+    style CKN4-3445FP-17 contains 49.7 percent of rayon,
+        confer "The overall fiber composition by weight is 49.7 percent rayon, 42.9 percent nylon, 6.6 percent metalized yarn, and 0.8 percent elastomeric yarn".
+    style CKN4-3445FP-17 contains 42.9 percent of nylon,
+        confer "The overall fiber composition by weight is 49.7 percent rayon, 42.9 percent nylon, 6.6 percent metalized yarn, and 0.8 percent elastomeric yarn".
+    style CKN4-3445FP-17 contains 6.6 percent of metalized yarn,
+        confer "The overall fiber composition by weight is 49.7 percent rayon, 42.9 percent nylon, 6.6 percent metalized yarn, and 0.8 percent elastomeric yarn".
+    style CKN4-3445FP-17 contains 0.8 percent of elastane,
+        confer "The overall fiber composition by weight is 49.7 percent rayon, 42.9 percent nylon, 6.6 percent metalized yarn, and 0.8 percent elastomeric yarn".
+    style CKN4-3445FP-17 has a collar,
+        confer "The pullover features a self-fabric rib knit collar".
+    style CKN4-3445FP-17 has a means of tightening at the bottom,
+        confer "a vented rib knit bottom".
+    style CKN4-3496FQ-17 is an upper body garment,
+        confer "Style CKN4-3496FQ-17 is a woman’s cardigan".
+    style CKN4-3496FQ-17 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style CKN4-3496FQ-17 indicates women,
+        confer "Style CKN4-3496FQ-17 is a woman’s cardigan".
+    the fabric construction of style CKN4-3496FQ-17 is knitted,
+        confer "15 percent polyester, and 7 percent metallic knit fabric".
+    style CKN4-3496FQ-17 contains 48.5 percent of rayon,
+        confer "The overall fiber composition by weight is 48.5 percent rayon, 30.7 percent nylon, 13.7 percent polyester, and 7.1 percent metalized yarn".
+    style CKN4-3496FQ-17 contains 30.7 percent of nylon,
+        confer "The overall fiber composition by weight is 48.5 percent rayon, 30.7 percent nylon, 13.7 percent polyester, and 7.1 percent metalized yarn".
+    style CKN4-3496FQ-17 contains 13.7 percent of polyester,
+        confer "The overall fiber composition by weight is 48.5 percent rayon, 30.7 percent nylon, 13.7 percent polyester, and 7.1 percent metalized yarn".
+    style CKN4-3496FQ-17 contains 7.1 percent of metalized yarn,
+        confer "The overall fiber composition by weight is 48.5 percent rayon, 30.7 percent nylon, 13.7 percent polyester, and 7.1 percent metalized yarn".
+    style CKN4-3496FQ-17 has an opening starting at the neckline,
+        confer "The cardigan features a full front opening with six button closures".
+    style CKN4-3496FQ-17 has a means of tightening at the bottom,
+        confer "long sleeves with rib knit endings and a rib knit bottom".
+    the kind of style CKN4-7243FO-46 is skirt,
+        confer "Style CKN4-7243FO-46 is a woman’s pleated skirt".
+    the cut of style CKN4-7243FO-46 indicates women,
+        confer "Style CKN4-7243FO-46 is a woman’s pleated skirt".
+    the fabric construction of style CKN4-7243FO-46 is knitted,
+        confer "15 percent polyester, and 7 percent metallic knit fabric".
+    style CKN4-7243FO-46 contains 52.3 percent of rayon,
+        confer "The overall fiber composition by weight is 52.3 percent rayon, 26.4 percent nylon, 14.3 percent polyester, and 7.0 percent metalized strip yarn".
+    style CKN4-7243FO-46 contains 26.4 percent of nylon,
+        confer "The overall fiber composition by weight is 52.3 percent rayon, 26.4 percent nylon, 14.3 percent polyester, and 7.0 percent metalized strip yarn".
+    style CKN4-7243FO-46 contains 14.3 percent of polyester,
+        confer "The overall fiber composition by weight is 52.3 percent rayon, 26.4 percent nylon, 14.3 percent polyester, and 7.0 percent metalized strip yarn".
+    style CKN4-7243FO-46 contains 7 percent of metalized yarn,
+        confer "The overall fiber composition by weight is 52.3 percent rayon, 26.4 percent nylon, 14.3 percent polyester, and 7.0 percent metalized strip yarn".
+    style CKN8-3619FM-27 is an upper body garment,
+        confer "Style CKN8-3619FM-27 is a woman’s shirt".
+    style CKN8-3619FM-27 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of style CKN8-3619FM-27 indicates women,
+        confer "Style CKN8-3619FM-27 is a woman’s shirt".
+    the fabric construction of style CKN8-3619FM-27 is knitted,
+        confer "61 percent rayon, 37 percent nylon, and 2 percent metallic knit fabric".
+    style CKN8-3619FM-27 contains 64 percent of rayon,
+        confer "The overall fiber composition by weight is 64 percent rayon, 33.5 percent nylon, 1.2 percent polyester, and 1.3 percent metalized strip yarn".
+    style CKN8-3619FM-27 contains 33.5 percent of nylon,
+        confer "The overall fiber composition by weight is 64 percent rayon, 33.5 percent nylon, 1.2 percent polyester, and 1.3 percent metalized strip yarn".
+    style CKN8-3619FM-27 contains 1.2 percent of polyester,
+        confer "The overall fiber composition by weight is 64 percent rayon, 33.5 percent nylon, 1.2 percent polyester, and 1.3 percent metalized strip yarn".
+    style CKN8-3619FM-27 contains 1.3 percent of metalized yarn,
+        confer "The overall fiber composition by weight is 64 percent rayon, 33.5 percent nylon, 1.2 percent polyester, and 1.3 percent metalized strip yarn".
+    style CKN8-3619FM-27 has a collar,
+        confer "The garment features a stand up collar".
+    style CKN8-3619FM-27 has an opening starting at the neckline,
+        confer "a partial front opening with a right over left 3 button closure".
+    style CKN8-3619FM-27 closes right over left,
+        confer "a partial front opening with a right over left 3 button closure".
+    style CKN8-3619FM-27 is claimed to belong to sweater,
+        confer "You also requested classification of style CKN8-3619FM-27 under subheading 6110.90.9041".
+    the claim that style CKN8-3619FM-27 belongs to sweater is rejected,
+        according to CBP, confer "the garment is properly classified as a shirt of heading 6106".
+    subheading expects answers ["the subheading of style CKN4-7243FO-46 is 6104.59", "the subheading of style CKN4-3445FP-17 is 6110.30", "the subheading of style CKN4-3496FQ-17 is 6110.30", "the subheading of style CKN8-3619FM-27 is 6106.20"].
+
+% NY N360460 (April 2026): women's knit garments from Sri Lanka.
+% CBP: the pull-on pants -> 6104.63; the ruffled shorts -> 6104.63; the Henley top -> 6106.20; the tank top -> 6109.90; the shirred top -> 6114.30
+scenario ny_n360460 is, as stated in ruling NY N360460:
+    % the pull-on pants are style 014483
+    the kind of the pull-on pants is trousers,
+        confer "is a pair of women’s pants constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the cut of the pull-on pants indicates women,
+        confer "is a pair of women’s pants".
+    the fabric construction of the pull-on pants is knitted,
+        confer "is a pair of women’s pants constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the pull-on pants contains 95 percent of polyester,
+        confer "is a pair of women’s pants constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the pull-on pants contains 5 percent of spandex,
+        confer "is a pair of women’s pants constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the pull-on pants is claimed to belong to nightwear,
+        confer "you refer to the garments as sleepwear".
+    the claim that the pull-on pants belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classifiable as sleepwear".
+    % the ruffled shorts are style 017335
+    the kind of the ruffled shorts is shorts,
+        confer "is a pair of women’s shorts constructed from 95 polyester and 5 spandex knit fabric".
+    the cut of the ruffled shorts indicates women,
+        confer "is a pair of women’s shorts".
+    the fabric construction of the ruffled shorts is knitted,
+        confer "is a pair of women’s shorts constructed from 95 polyester and 5 spandex knit fabric".
+    the ruffled shorts contains 95 percent of polyester,
+        confer "is a pair of women’s shorts constructed from 95 polyester and 5 spandex knit fabric".
+    the ruffled shorts contains 5 percent of spandex,
+        confer "is a pair of women’s shorts constructed from 95 polyester and 5 spandex knit fabric".
+    the ruffled shorts is claimed to belong to nightwear,
+        confer "you refer to the garments as sleepwear".
+    the claim that the ruffled shorts belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classifiable as sleepwear".
+    % the Henley top is style 020337
+    the Henley top is an upper body garment,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The outer surface of the garment’s fabric measures 10 or more stitches".
+    the Henley top is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of the Henley top indicates women,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The outer surface".
+    the fabric construction of the Henley top is knitted,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The outer surface".
+    the Henley top contains 95 percent of polyester,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The outer surface".
+    the Henley top contains 5 percent of spandex,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The outer surface".
+    the Henley top is loose-fitting,
+        confer "The loose-fitting garment extends from the shoulders to below the waist and features a Henley neckline".
+    the Henley top has an opening starting at the neckline,
+        confer "a right-over-left, partial front opening with five button closures".
+    the Henley top closes right over left,
+        confer "a right-over-left, partial front opening with five button closures".
+    the Henley top is claimed to belong to nightwear,
+        confer "you refer to the garments as sleepwear".
+    the claim that the Henley top belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classifiable as sleepwear".
+    % the tank top is style 020338
+    the tank top is an upper body garment,
+        confer "is a women’s tank top constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the tank top is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of the tank top indicates women,
+        confer "is a women’s tank top".
+    the fabric construction of the tank top is knitted,
+        confer "is a women’s tank top constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the tank top contains 95 percent of polyester,
+        confer "is a women’s tank top constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the tank top contains 5 percent of spandex,
+        confer "is a women’s tank top constructed from 95 percent polyester and 5 percent spandex knit fabric".
+    the tank top is sleeveless,
+        confer "self-fabric capping at the neckline and armholes; shoulder straps measuring 1¾ inches in width".
+    the rear neckline of the tank top falls below the nape of the neck,
+        confer "a low rear neckline that falls below the nape of the neck".
+    the tank top has shoulder straps,
+        confer "shoulder straps measuring 1¾ inches in width".
+    the tank top is claimed to belong to nightwear,
+        confer "you refer to the garments as sleepwear".
+    the claim that the tank top belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classifiable as sleepwear".
+    % the shirred top is style 023704
+    the shirred top is an upper body garment,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The loose-fitting garment".
+    the shirred top has limited upper body coverage,
+        confer "limited upper body coverage".
+    the shirred top is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of the shirred top indicates women,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The loose-fitting garment".
+    the fabric construction of the shirred top is knitted,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The loose-fitting garment".
+    the shirred top contains 95 percent of polyester,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The loose-fitting garment".
+    the shirred top contains 5 percent of spandex,
+        confer "is a women’s upper body garment constructed from 95 percent polyester and 5 percent spandex knit fabric. The loose-fitting garment".
+    the shirred top is loose-fitting,
+        confer "The loose-fitting garment features 5/8-inch wide shoulder straps".
+    the shirred top has shoulder straps,
+        confer "The loose-fitting garment features 5/8-inch wide shoulder straps".
+    the shirred top is sleeveless,
+        confer "5/8-inch wide shoulder straps; limited upper body coverage".
+    the shirred top is claimed to belong to nightwear,
+        confer "you refer to the garments as sleepwear".
+    the claim that the shirred top belongs to nightwear is rejected,
+        according to CBP, confer "these garments are not classifiable as sleepwear".
+    subheading expects answers ["the subheading of the pull-on pants is 6104.63", "the subheading of the ruffled shorts is 6104.63", "the subheading of the Henley top is 6106.20", "the subheading of the tank top is 6109.90", "the subheading of the shirred top is 6114.30"].
+
+% NY N330782 (March 2023): children's garments from Bangladesh.
+% CBP: the infant top of style 991063826 -> 6111.20; the infant skirtall of style 991063826 -> 6209.20; the larger top of style 991063826 -> 6106.10; the larger skirtall of style 991063826 -> 6211.42
+scenario ny_n330782 is, as stated in ruling NY N330782:
+    % DISAGREES (the larger top): CBP gives 6106.10 (blouse); the model
+    % gives 6110.20 — the ruling records neither a loose fit nor an opening
+    % at the neckline, so the top is neither a shirt nor a blouse of Chapter
+    % 61 note 4.
+    % each garment in two size ranges: infant sizes 0-3 to 12-18 months (babies'
+    % garments) and sizes 18-24 and 24-36 months (over 86 centimetres)
+    the infant top of style 991063826 is an upper body garment,
+        confer "consists of a children’s upper body garment and a skirtall".
+    the infant top of style 991063826 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of the infant top of style 991063826 is knitted,
+        confer "the upper body garment is constructed of 100 percent cotton knit fabric".
+    the infant top of style 991063826 contains 100 percent of cotton,
+        confer "the upper body garment is constructed of 100 percent cotton knit fabric".
+    the infant top of style 991063826 is sized for babies,
+        confer "the upper body garment in infant sizes 0-3, 3-6, 6-9, 9-12 and 12-18 months".
+    the kind of the infant skirtall of style 991063826 is skirtall,
+        confer "The skirtall is constructed of 100 percent cotton woven twill fabric".
+    the fabric construction of the infant skirtall of style 991063826 is woven,
+        confer "The skirtall is constructed of 100 percent cotton woven twill fabric".
+    the infant skirtall of style 991063826 contains 100 percent of cotton,
+        confer "The skirtall is constructed of 100 percent cotton woven twill fabric".
+    the infant skirtall of style 991063826 is sized for babies,
+        confer "the skirtall in infant sizes 0-3, 3-6, 6-9, 9-12 and 12-18 months".
+    the larger top of style 991063826 is an upper body garment,
+        confer "consists of a children’s upper body garment and a skirtall".
+    the larger top of style 991063826 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of the larger top of style 991063826 is knitted,
+        confer "the upper body garment is constructed of 100 percent cotton knit fabric".
+    the larger top of style 991063826 contains 100 percent of cotton,
+        confer "the upper body garment is constructed of 100 percent cotton knit fabric".
+    % VOCAB: skirtall, no listed kind
+    the kind of the larger skirtall of style 991063826 is skirtall,
+        confer "The skirtall is constructed of 100 percent cotton woven twill fabric".
+    the fabric construction of the larger skirtall of style 991063826 is woven,
+        confer "The skirtall is constructed of 100 percent cotton woven twill fabric".
+    the larger skirtall of style 991063826 contains 100 percent of cotton,
+        confer "The skirtall is constructed of 100 percent cotton woven twill fabric".
+    subheading expects answers ["the subheading of the infant skirtall of style 991063826 is 6209.20", "the subheading of the larger skirtall of style 991063826 is 6211.42", "the subheading of the infant top of style 991063826 is 6111.20", "the subheading of the larger top of style 991063826 is 6110.20"].
+
+% NY N340376 (June 2024): women's garments from Turkey.
+% CBP: item VA0001 -> 6204.43; item VA0002 -> 6106.20; item VA0003 -> 6204.49; item VA0004 -> 6204.63
+scenario ny_n340376 is, as stated in ruling NY N340376:
+    % the secondary classification requested in 9817.00.96 (articles for the
+    % handicapped, Chapter 98), which CBP declines, is not recorded as a claim
+    the kind of item VA0001 is dress,
+        confer "Item VA0001 is a woman’s dress constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    the cut of item VA0001 indicates women,
+        confer "Item VA0001 is a woman’s dress".
+    the fabric construction of item VA0001 is woven,
+        confer "Item VA0001 is a woman’s dress constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    item VA0001 contains 73 percent of polyester,
+        confer "Item VA0001 is a woman’s dress constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    item VA0001 contains 22 percent of viscose,
+        confer "Item VA0001 is a woman’s dress constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    item VA0001 contains 5 percent of spandex,
+        confer "Item VA0001 is a woman’s dress constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    item VA0002 is an upper body garment,
+        confer "Item VA0002 is a woman’s blouse constructed from 45% rayon (modal), 45% polyester, and 10% spandex rib knit fabric".
+    item VA0002 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the cut of item VA0002 indicates women,
+        confer "Item VA0002 is a woman’s blouse".
+    the fabric construction of item VA0002 is knitted,
+        confer "45% rayon (modal), 45% polyester, and 10% spandex rib knit fabric".
+    item VA0002 contains 45 percent of modal,
+        confer "45% rayon (modal), 45% polyester, and 10% spandex rib knit fabric".
+    item VA0002 contains 45 percent of polyester,
+        confer "45% rayon (modal), 45% polyester, and 10% spandex rib knit fabric".
+    item VA0002 contains 10 percent of spandex,
+        confer "45% rayon (modal), 45% polyester, and 10% spandex rib knit fabric".
+    item VA0002 is loose-fitting,
+        confer "The loose-fitting garment extends from the shoulders to below the waist and features a crew neckline".
+    item VA0002 has an opening starting at the neckline,
+        confer "six snaps from the neckline to the sleeve hem".
+    the kind of item VA0003 is dress,
+        confer "Item VA0003 is a woman’s dress constructed from 100% linen woven fabric".
+    the cut of item VA0003 indicates women,
+        confer "Item VA0003 is a woman’s dress".
+    the fabric construction of item VA0003 is woven,
+        confer "Item VA0003 is a woman’s dress constructed from 100% linen woven fabric".
+    item VA0003 contains 100 percent of linen,
+        confer "Item VA0003 is a woman’s dress constructed from 100% linen woven fabric".
+    the kind of item VA0004 is trousers,
+        confer "Item VA0004 is a pair of woman’s trousers constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    the cut of item VA0004 indicates women,
+        confer "Item VA0004 is a pair of woman’s trousers".
+    the fabric construction of item VA0004 is woven,
+        confer "Item VA0004 is a pair of woman’s trousers constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    item VA0004 contains 73 percent of polyester,
+        confer "Item VA0004 is a pair of woman’s trousers constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    item VA0004 contains 22 percent of viscose,
+        confer "Item VA0004 is a pair of woman’s trousers constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    item VA0004 contains 5 percent of spandex,
+        confer "Item VA0004 is a pair of woman’s trousers constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric".
+    subheading expects answers ["the subheading of item VA0001 is 6204.43", "the subheading of item VA0003 is 6204.49", "the subheading of item VA0004 is 6204.63", "the subheading of item VA0002 is 6106.20"].
+
+% NY N352610 (September 2025): women's wearing apparel from China.
+% CBP: the knit Henley top -> 6106.20; the woven flannel pants -> 6208.91
+scenario ny_n352610 is, as stated in ruling NY N352610:
+    % both garments are style 60025T, classified separately
+    the knit Henley top is an upper body garment,
+        confer "consists of a women’s Henley knit top and a woven bottom".
+    the knit Henley top is classified under the US tariff,
+        confer "HTSUS, which provides for Women’s or girls’ blouses and shirts".
+    the cut of the knit Henley top indicates women,
+        confer "consists of a women’s Henley knit top and a woven bottom".
+    the fabric construction of the knit Henley top is knitted,
+        confer "The upper body garment is constructed from 48% cotton, 48% modal, 4% spandex knit fabric".
+    the knit Henley top contains 48 percent of cotton,
+        confer "The upper body garment is constructed from 48% cotton, 48% modal, 4% spandex knit fabric".
+    the knit Henley top contains 48 percent of modal,
+        confer "The upper body garment is constructed from 48% cotton, 48% modal, 4% spandex knit fabric".
+    the knit Henley top contains 4 percent of spandex,
+        confer "The upper body garment is constructed from 48% cotton, 48% modal, 4% spandex knit fabric".
+    the knit Henley top is loose-fitting,
+        confer "The loose-fitting garment extends from the shoulders to below the waist and features a Henley neckline".
+    the knit Henley top has an opening starting at the neckline,
+        confer "a right-over-left, partial front opening with a three-button closure on the placket".
+    the knit Henley top closes right over left,
+        confer "a right-over-left, partial front opening with a three-button closure on the placket".
+    the knit Henley top is claimed to belong to nightwear,
+        confer "You state that the garments are intended to be worn as sleepwear".
+    the claim that the knit Henley top belongs to nightwear is rejected,
+        according to CBP, confer "the Henley top is not classified as sleepwear".
+    % the importer's sleepwear claim is accepted for the pants: recorded as
+    % their kind (sleep pants), not as a claim
+    the kind of the woven flannel pants is sleep pants,
+        confer "we agree that they are designed, marketed and sold as sleepwear and will be principally used as such".
+    the cut of the woven flannel pants indicates women,
+        confer "consists of a women’s Henley knit top and a woven bottom".
+    the fabric construction of the woven flannel pants is woven,
+        confer "The pants are constructed from 100% cotton woven flannel fabric".
+    the woven flannel pants contains 100 percent of cotton,
+        confer "The pants are constructed from 100% cotton woven flannel fabric".
+    subheading expects answers ["the subheading of the woven flannel pants is 6208.91", "the subheading of the knit Henley top is 6106.20"].
+
+% NY N334240 (August 2023): briefs from Sri Lanka.
+% CBP: style GA1004 -> 6107.11
+scenario ny_n334240 is, as stated in ruling NY N334240:
+    the kind of style GA1004 is briefs,
+        confer "Style GA1004 is a man’s underwear brief constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    the cut of style GA1004 indicates men,
+        confer "Since this style is worn by men and designed for men".
+    the fabric construction of style GA1004 is knitted,
+        confer "constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    style GA1004 contains 53 percent of cotton,
+        confer "constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    style GA1004 contains 35 percent of modal,
+        confer "constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    style GA1004 contains 12 percent of elastane,
+        confer "constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    subheading expects answers ["the subheading of style GA1004 is 6107.11"].
+
+% NY N328346 (October 2022): pajamas from India.
+% CBP: item 724361001 -> 6207.21; item 824361001 -> 6107.21
+scenario ny_n328346 is, as stated in ruling NY N328346:
+    the essential character of item 724361001 is given by no single component,
+        according to CBP, confer "As each is equally essential, classification must be based upon GRI 3(c)".
+    % item 724361001: a knit top and woven bottoms; CBP finds that neither
+    % imparts the essential character and applies GRI 3(c)
+    the kind of item 724361001 is pajamas,
+        confer "Item 724361001 is a pair of men’s pajamas".
+    the cut of item 724361001 indicates men,
+        confer "Item 724361001 is a pair of men’s pajamas".
+    item 724361001 is a set put up for retail sale,
+        confer "The garments will be flat folded and secured in a belly band with a ribbon threaded through a cardboard band in the center".
+    the top of item 724361001 is a component of item 724361001,
+        confer "Since Item 724361001 consists of both knit and woven garments".
+    the kind of the top of item 724361001 is top,
+        confer "The top is constructed from 60% cotton 40% polyester jersey knit fabric".
+    the fabric construction of the top of item 724361001 is knitted,
+        confer "The top is constructed from 60% cotton 40% polyester jersey knit fabric".
+    the top of item 724361001 contains 60 percent of cotton,
+        confer "The top is constructed from 60% cotton 40% polyester jersey knit fabric".
+    the top of item 724361001 contains 40 percent of polyester,
+        confer "The top is constructed from 60% cotton 40% polyester jersey knit fabric".
+    the bottoms of item 724361001 is a component of item 724361001,
+        confer "Since Item 724361001 consists of both knit and woven garments".
+    the kind of the bottoms of item 724361001 is trousers,
+        confer "The pants feature a covered elastic waistband with a functional drawstring, an open fly".
+    the fabric construction of the bottoms of item 724361001 is woven,
+        confer "The bottoms are constructed from 100% cotton woven fabric with two or more colors in the warp and/or the filling".
+    the bottoms of item 724361001 contains 100 percent of cotton,
+        confer "The bottoms are constructed from 100% cotton woven fabric with two or more colors in the warp and/or the filling".
+    the kind of item 824361001 is pajamas,
+        confer "Item 824361001 is a pair of men’s pajamas".
+    the cut of item 824361001 indicates men,
+        confer "Item 824361001 is a pair of men’s pajamas".
+    the fabric construction of item 824361001 is knitted,
+        confer "The bottoms are constructed from 60% cotton 40% polyester jersey knit fabric".
+    item 824361001 contains 60 percent of cotton,
+        confer "The bottoms are constructed from 60% cotton 40% polyester jersey knit fabric".
+    item 824361001 contains 40 percent of polyester,
+        confer "The bottoms are constructed from 60% cotton 40% polyester jersey knit fabric".
+    subheading expects answers ["the subheading of item 724361001 is 6207.21", "the subheading of item 824361001 is 6107.21"].
+
+% NY N319042 (May 2021): pajamas from China.
+% CBP: the coverall pajama -> 6107.22
+scenario ny_n319042 is, as stated in ruling NY N319042:
+    % the coverall pajama is item 9049609-A (item 9049609-B is identical)
+    the kind of the coverall pajama is pajamas,
+        confer "Item 9049609-A is a men’s pajama".
+    the cut of the coverall pajama indicates men,
+        confer "Item 9049609-A is a men’s pajama".
+    the fabric construction of the coverall pajama is knitted,
+        confer "The pajama is constructed from 100% polyester knit fabric".
+    the coverall pajama contains 100 percent of polyester,
+        confer "The pajama is constructed from 100% polyester knit fabric".
+    subheading expects answers ["the subheading of the coverall pajama is 6107.22"].
+
+% NY N312574 (June 2020): men's sleep pants from China.
+% CBP: item 9049613 -> 6107.99
+scenario ny_n312574 is, as stated in ruling NY N312574:
+    the kind of item 9049613 is sleep pants,
+        confer "Item 9049613 is a men’s flannel sleep pant".
+    the cut of item 9049613 indicates men,
+        confer "Item 9049613 is a men’s flannel sleep pant".
+    the fabric construction of item 9049613 is knitted,
+        confer "The pants are composed of 100% polyester knit fabric".
+    item 9049613 contains 100 percent of polyester,
+        confer "The pants are composed of 100% polyester knit fabric".
+    subheading expects answers ["the subheading of item 9049613 is 6107.99"].
+
+% NY N314376 (September 2020): a slip from China and Vietnam.
+% CBP: style DEV-2692 -> 6108.11
+scenario ny_n314376 is, as stated in ruling NY N314376:
+    the kind of style DEV-2692 is slip,
+        confer "This undergarment is considered a half-slip".
+    the fabric construction of style DEV-2692 is knitted,
+        confer "is a knit undergarment skort which you state is constructed of 85% nylon, 12% spandex, 3% cotton".
+    style DEV-2692 contains 85 percent of nylon,
+        confer "constructed of 85% nylon, 12% spandex, 3% cotton".
+    style DEV-2692 contains 12 percent of spandex,
+        confer "constructed of 85% nylon, 12% spandex, 3% cotton".
+    style DEV-2692 contains 3 percent of cotton,
+        confer "constructed of 85% nylon, 12% spandex, 3% cotton".
+    subheading expects answers ["the subheading of style DEV-2692 is 6108.11"].
+
+% NY N340380 (June 2024): women's undergarments from the Dominican Republic.
+% CBP: style 911219 -> 6109.10; style 973219 -> 6108.21
+scenario ny_n340380 is, as stated in ruling NY N340380:
+    style 911219 is an upper body garment,
+        confer "Style 911219 is a woman’s underwear camisole".
+    style 911219 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of style 911219 is knitted,
+        confer "stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    the cut of style 911219 indicates women,
+        confer "Style 911219 is a woman’s underwear camisole".
+    style 911219 is designed to be worn as an undergarment,
+        confer "Style 911219 is a woman’s underwear camisole".
+    style 911219 is sleeveless,
+        confer "The camisole features thin straps".
+    style 911219 has shoulder straps,
+        confer "The camisole features thin straps".
+    style 911219 contains 52 percent of cotton,
+        confer "Style 911219 is a woman’s underwear camisole stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    style 911219 contains 34 percent of modal,
+        confer "Style 911219 is a woman’s underwear camisole stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    style 911219 contains 14 percent of spandex,
+        confer "Style 911219 is a woman’s underwear camisole stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    the kind of style 973219 is panties,
+        confer "Style 973219 is a woman’s bikini panty".
+    the cut of style 973219 indicates women,
+        confer "Style 973219 is a woman’s bikini panty".
+    the fabric construction of style 973219 is knitted,
+        confer "Style 973219 is a woman’s bikini panty stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    style 973219 contains 52 percent of cotton,
+        confer "Style 973219 is a woman’s bikini panty stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    style 973219 contains 34 percent of modal,
+        confer "Style 973219 is a woman’s bikini panty stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    style 973219 contains 14 percent of spandex,
+        confer "Style 973219 is a woman’s bikini panty stated to be constructed of 52% cotton, 34% modal, 14% spandex knit fabric".
+    subheading expects answers ["the subheading of style 973219 is 6108.21", "the subheading of style 911219 is 6109.10"].
+
+% NY N350525 (July 2025): brassieres and undergarments from Bangladesh and China.
+% CBP: style SW3BF01 -> 6212.10; style SW3UB01 -> 6108.22; style SWB405 -> 6212.10; style SWBS102 -> 6108.92
+scenario ny_n350525 is, as stated in ruling NY N350525:
+    the kind of style SW3BF01 is brassiere,
+        confer "Style SW3BF01 is a woman’s bra".
+    the cut of style SW3BF01 indicates women,
+        confer "Style SW3BF01 is a woman’s bra".
+    the fabric construction of style SW3BF01 is knitted,
+        confer "Style SW3BF01 is a woman’s bra constructed of 75% nylon and 25% spandex knit fabric".
+    style SW3BF01 contains 75 percent of nylon,
+        confer "Style SW3BF01 is a woman’s bra constructed of 75% nylon and 25% spandex knit fabric".
+    style SW3BF01 contains 25 percent of spandex,
+        confer "Style SW3BF01 is a woman’s bra constructed of 75% nylon and 25% spandex knit fabric".
+    the kind of style SW3UB01 is briefs,
+        confer "Style SW3UB01 is a woman’s high rise brief".
+    the cut of style SW3UB01 indicates women,
+        confer "Style SW3UB01 is a woman’s high rise brief".
+    the fabric construction of style SW3UB01 is knitted,
+        confer "Style SW3UB01 is a woman’s high rise brief constructed of 75% nylon and 25% spandex knit fabric".
+    style SW3UB01 contains 75 percent of nylon,
+        confer "Style SW3UB01 is a woman’s high rise brief constructed of 75% nylon and 25% spandex knit fabric".
+    style SW3UB01 contains 25 percent of spandex,
+        confer "Style SW3UB01 is a woman’s high rise brief constructed of 75% nylon and 25% spandex knit fabric".
+    the kind of style SWB405 is brassiere,
+        confer "Style SWB405 is a bralette".
+    the fabric construction of style SWB405 is knitted,
+        confer "Style SWB405 is a bralette constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    style SWB405 contains 48 percent of cotton,
+        confer "Style SWB405 is a bralette constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    style SWB405 contains 47 percent of modal,
+        confer "Style SWB405 is a bralette constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    style SWB405 contains 5 percent of spandex,
+        confer "Style SWB405 is a bralette constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    the kind of style SWBS102 is underpants,
+        confer "Style SWBS102 is a woman’s boyshort style underpant".
+    the cut of style SWBS102 indicates women,
+        confer "Style SWBS102 is a woman’s boyshort style underpant".
+    the fabric construction of style SWBS102 is knitted,
+        confer "Style SWBS102 is a woman’s boyshort style underpant constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    style SWBS102 contains 48 percent of cotton,
+        confer "Style SWBS102 is a woman’s boyshort style underpant constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    style SWBS102 contains 47 percent of modal,
+        confer "Style SWBS102 is a woman’s boyshort style underpant constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    style SWBS102 contains 5 percent of spandex,
+        confer "Style SWBS102 is a woman’s boyshort style underpant constructed of 48% cotton, 47% modal and 5% spandex knit fabric".
+    subheading expects answers ["the subheading of style SW3UB01 is 6108.22", "the subheading of style SWBS102 is 6108.92", "the subheading of style SW3BF01 is 6212.10", "the subheading of style SWB405 is 6212.10"].
+
+% NY N278703 (September 2016): women's sleepwear from China.
+% Sleep Gown A is the knit sleep shirt; Sleep Gown B is the woven nightdress.
+% CBP: the knit sleep shirt -> 6108.31; the woven nightdress -> 6208.22
+scenario ny_n278703 is, as stated in ruling NY N278703:
+    the kind of the knit sleep shirt is nightshirt,
+        confer "is a woman’s sleeveless sleep shirt".
+    the cut of the knit sleep shirt indicates women,
+        confer "is a woman’s sleeveless sleep shirt".
+    the knit sleep shirt is sleeveless,
+        confer "is a woman’s sleeveless sleep shirt".
+    the fabric construction of the knit sleep shirt is knitted,
+        confer "The sleep shirt is constructed from 60% cotton, 40% polyester knit fabric".
+    the knit sleep shirt contains 60 percent of cotton,
+        confer "The sleep shirt is constructed from 60% cotton, 40% polyester knit fabric".
+    the knit sleep shirt contains 40 percent of polyester,
+        confer "The sleep shirt is constructed from 60% cotton, 40% polyester knit fabric".
+    the kind of the woven nightdress is nightdress,
+        confer "is a woman’s nightdress".
+    the cut of the woven nightdress indicates women,
+        confer "is a woman’s nightdress".
+    the fabric construction of the woven nightdress is woven,
+        confer "The nightdress is constructed from 100% rayon woven fabric".
+    the woven nightdress contains 100 percent of rayon,
+        confer "The nightdress is constructed from 100% rayon woven fabric".
+    the woven nightdress has shoulder straps,
+        confer "a criss-cross tie front closure, thin straps and a hemmed bottom".
+    subheading expects answers ["the subheading of the knit sleep shirt is 6108.31", "the subheading of the woven nightdress is 6208.22"].
+
+% NY N325347 (May 2022): a child's pajama set from China.
+% The mermaid print pajamas are style 04182N060B, sizes 3Y and 4Y.
+% CBP: the mermaid print pajamas -> 6108.31
+scenario ny_n325347 is, as stated in ruling NY N325347:
+    % The ruling also states that the set is packaged together for retail sale;
+    % not recorded, since the guide treats pajamas as one article.
+    the kind of the mermaid print pajamas is pajamas,
+        confer "is a unisex child size pajama set consisting of an upper body garment and bottoms".
+    the fabric construction of the mermaid print pajamas is knitted,
+        confer "Both garments are constructed of 71 percent cotton, 25 percent polyester, and 4 percent elastane knit fabric".
+    the mermaid print pajamas contains 71 percent of cotton,
+        confer "Both garments are constructed of 71 percent cotton, 25 percent polyester, and 4 percent elastane knit fabric".
+    the mermaid print pajamas contains 25 percent of polyester,
+        confer "Both garments are constructed of 71 percent cotton, 25 percent polyester, and 4 percent elastane knit fabric".
+    the mermaid print pajamas contains 4 percent of elastane,
+        confer "Both garments are constructed of 71 percent cotton, 25 percent polyester, and 4 percent elastane knit fabric".
+    subheading expects answers ["the subheading of the mermaid print pajamas is 6108.31"].
+
+% NY N320255 (July 2021): women's sleepwear from Vietnam.
+% CBP: style 583009 -> 6108.32
+scenario ny_n320255 is, as stated in ruling NY N320255:
+    the kind of style 583009 is pajamas,
+        confer "Style 583009 is a women’s pajama top and bottom".
+    the cut of style 583009 indicates women,
+        confer "Style 583009 is a women’s pajama top and bottom".
+    the fabric construction of style 583009 is knitted,
+        confer "Both garments are constructed from 56.7% polyester, 40% rayon, 3.3% elastane knit fabric".
+    style 583009 contains 56.7 percent of polyester,
+        confer "Both garments are constructed from 56.7% polyester, 40% rayon, 3.3% elastane knit fabric".
+    style 583009 contains 40 percent of rayon,
+        confer "Both garments are constructed from 56.7% polyester, 40% rayon, 3.3% elastane knit fabric".
+    style 583009 contains 3.3 percent of elastane,
+        confer "Both garments are constructed from 56.7% polyester, 40% rayon, 3.3% elastane knit fabric".
+    subheading expects answers ["the subheading of style 583009 is 6108.32"].
+
+% NY N334211 (August 2023): a woman's boxer brief from Sri Lanka.
+% CBP: style GA5007 -> 6108.91
+scenario ny_n334211 is, as stated in ruling NY N334211:
+    the kind of style GA5007 is boxer briefs,
+        confer "Style GA5007 is a woman’s boxer brief".
+    the cut of style GA5007 indicates women,
+        confer "The undergarment is designed to be worn by women".
+    the fabric construction of style GA5007 is knitted,
+        confer "Style GA5007 is a woman’s boxer brief constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    style GA5007 contains 53 percent of cotton,
+        confer "Style GA5007 is a woman’s boxer brief constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    style GA5007 contains 35 percent of modal,
+        confer "Style GA5007 is a woman’s boxer brief constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    style GA5007 contains 12 percent of elastane,
+        confer "Style GA5007 is a woman’s boxer brief constructed of 53% cotton, 35% modal, 12% elastane knit fabric".
+    style GA5007 is claimed to belong to mens underpants of heading 6107,
+        confer "You assert that the correct classification for this item is 6107.11.0010".
+    the claim that style GA5007 belongs to mens underpants of heading 6107 is rejected,
+        according to CBP, confer "Since this style is worn by and designed for women, the item will be classified under the women’s provision".
+    subheading expects answers ["the subheading of style GA5007 is 6108.91"].
+
+% NY N329669 (December 2022): women's base layers from China.
+% CBP: style 1024 -> 6108.92; style 1017 -> 6108.99; style 1025 -> 6109.90; style 1019 -> 6109.90 (also style 1026, the same garment in another colour, not described)
+scenario ny_n329669 is, as stated in ruling NY N329669:
+    the kind of style 1024 is underpants,
+        confer "Style 1024 is a woman’s base layer long underpants".
+    the cut of style 1024 indicates women,
+        confer "Style 1024 is a woman’s base layer long underpants".
+    the fabric construction of style 1024 is knitted,
+        confer "constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric. The undergarment features an exposed elastic waistband".
+    style 1024 contains 45 percent of wool,
+        confer "Style 1024 is a woman’s base layer long underpants constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    style 1024 contains 43 percent of rayon,
+        confer "Style 1024 is a woman’s base layer long underpants constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    style 1024 contains 9 percent of polyamide,
+        confer "Style 1024 is a woman’s base layer long underpants constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    style 1024 contains 3 percent of spandex,
+        confer "Style 1024 is a woman’s base layer long underpants constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    the kind of style 1017 is underpants,
+        confer "Style 1017 is a woman’s base layer long underpants".
+    the cut of style 1017 indicates women,
+        confer "Style 1017 is a woman’s base layer long underpants".
+    the fabric construction of style 1017 is knitted,
+        confer "Style 1017 is a woman’s base layer long underpants constructed of 51.2% wool, 39.8% rayon from bamboo, 9% polyamide knit fabric".
+    style 1017 contains 51.2 percent of wool,
+        confer "Style 1017 is a woman’s base layer long underpants constructed of 51.2% wool, 39.8% rayon from bamboo, 9% polyamide knit fabric".
+    style 1017 contains 39.8 percent of rayon,
+        confer "Style 1017 is a woman’s base layer long underpants constructed of 51.2% wool, 39.8% rayon from bamboo, 9% polyamide knit fabric".
+    style 1017 contains 9 percent of polyamide,
+        confer "Style 1017 is a woman’s base layer long underpants constructed of 51.2% wool, 39.8% rayon from bamboo, 9% polyamide knit fabric".
+    the kind of style 1025 is undershirt,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt".
+    the cut of style 1025 indicates women,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt".
+    style 1025 is designed to be worn as an undergarment,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt".
+    the fabric construction of style 1025 is knitted,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    style 1025 contains 45 percent of wool,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    style 1025 contains 43 percent of rayon,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    style 1025 contains 9 percent of polyamide,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    style 1025 contains 3 percent of spandex,
+        confer "Style 1025 is a woman’s base layer long sleeve undershirt constructed of 45% wool, 43% rayon from bamboo, 9% polyamide, 3% spandex knit fabric".
+    the kind of style 1019 is undershirt,
+        confer "Style 1019 is a woman’s knit base layer long sleeve undershirt".
+    the cut of style 1019 indicates women,
+        confer "Style 1019 is a woman’s knit base layer long sleeve undershirt".
+    style 1019 is designed to be worn as an undergarment,
+        confer "Style 1019 is a woman’s knit base layer long sleeve undershirt".
+    the fabric construction of style 1019 is knitted,
+        confer "Style 1019 is a woman’s knit base layer long sleeve undershirt".
+    style 1019 has an opening starting at the neckline,
+        confer "a partial opening at the mock neck secured by a zipper closure".
+    style 1019 has a high neckline,
+        confer "a partial opening at the mock neck secured by a zipper closure".
+    style 1019 contains 51.2 percent of wool,
+        confer "long sleeve undershirt constructed of 51.2% wool, 39.8% rayon from bamboo, 9% polyamide".
+    style 1019 contains 39.8 percent of rayon,
+        confer "long sleeve undershirt constructed of 51.2% wool, 39.8% rayon from bamboo, 9% polyamide".
+    style 1019 contains 9 percent of polyamide,
+        confer "long sleeve undershirt constructed of 51.2% wool, 39.8% rayon from bamboo, 9% polyamide".
+    subheading expects answers ["the subheading of style 1024 is 6108.92", "the subheading of style 1017 is 6108.99", "the subheading of style 1025 is 6109.90", "the subheading of style 1019 is 6109.90"].
+
+% NY N333682 (July 2023): a women's cardigan style garment from China.
+% CBP: style A3819 -> 6110.11
+scenario ny_n333682 is, as stated in ruling NY N333682:
+    style A3819 is an upper body garment,
+        confer "Style A3819 is a women’s cardigan style garment".
+    style A3819 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of style A3819 is knitted,
+        confer "constructed from 100 percent boiled wool knit fabric".
+    the cut of style A3819 indicates women,
+        confer "Style A3819 is a women’s cardigan style garment".
+    style A3819 contains 100 percent of wool,
+        confer "constructed from 100 percent boiled wool knit fabric".
+    style A3819 has a collar,
+        confer "The cardigan features a shirt collar".
+    style A3819 has an opening starting at the neckline,
+        confer "a full front opening with a six-button closure".
+    style A3819 has less than ten stitches per centimetre in each direction,
+        according to CBP, confer "The garment does not have the stitch count required of heading 6106, HTSUS".
+    style A3819 is claimed to belong to outerwear,
+        confer "you suggest classification in headings 6102; 6104; or 6106".
+    the claim that style A3819 belongs to outerwear is rejected,
+        according to CBP, confer "The garment lacks the styling, cut and features of an outerwear jacket in heading 6102, HTSUS".
+    style A3819 is claimed to belong to suit-type jackets of heading 6104,
+        confer "you suggest classification in headings 6102; 6104; or 6106".
+    the claim that style A3819 belongs to suit-type jackets of heading 6104 is rejected,
+        according to CBP, confer "The garment lacks the styling, cut, and features of a suit type jacket in heading 6104, HTSUS".
+    style A3819 is claimed to belong to blouses of heading 6106,
+        confer "you suggest classification in headings 6102; 6104; or 6106".
+    the claim that style A3819 belongs to blouses of heading 6106 is rejected,
+        according to CBP, confer "The garment does not have the stitch count required of heading 6106, HTSUS".
+    subheading expects answers ["the subheading of style A3819 is 6110.11"].
+
+% NY N319174 (May 2021): women's and men's upper body garments from China.
+% The womens Cresta hoodie and the mens Cresta hoodie are the women's and men's
+% Cresta Wool Ultralight 150 Base Layer, Hoodie.
+% CBP: the womens Cresta hoodie -> 6110.19; the mens Cresta hoodie -> 6110.19
+scenario ny_n319174 is, as stated in ruling NY N319174:
+    % DISAGREES: CBP gives 6110.19; the model gives 6110.11 — the hoodies
+    % are of merino wool, which is wool (6110.11 "Of wool").
+    the womens Cresta hoodie is an upper body garment,
+        confer "The women’s Cresta Wool Ultralight 150 Base Layer, Hoodie is a pullover".
+    the womens Cresta hoodie is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of the womens Cresta hoodie is knitted,
+        confer "is a pullover constructed from 100 percent merino wool slub knit fabric".
+    the cut of the womens Cresta hoodie indicates women,
+        confer "The women’s Cresta Wool Ultralight 150 Base Layer, Hoodie is a pullover".
+    the womens Cresta hoodie contains 100 percent of wool,
+        confer "is a pullover constructed from 100 percent merino wool slub knit fabric".
+    the mens Cresta hoodie is an upper body garment,
+        confer "The men’s Cresta Wool Ultralight 150 Base Layer, Hoodie is a pullover".
+    the mens Cresta hoodie is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of the mens Cresta hoodie is knitted,
+        confer "is a pullover constructed from 100 percent merino wool slub knit fabric".
+    the cut of the mens Cresta hoodie indicates men,
+        confer "The men’s Cresta Wool Ultralight 150 Base Layer, Hoodie is a pullover".
+    the mens Cresta hoodie contains 100 percent of wool,
+        confer "is a pullover constructed from 100 percent merino wool slub knit fabric".
+    subheading expects answers ["the subheading of the womens Cresta hoodie is 6110.11", "the subheading of the mens Cresta hoodie is 6110.11"].
+
+% NY N313600 (August 2020): a woman's knit top and a scrub ensemble from China or Vietnam.
+% CBP: style VT525C -> 6204.23 (trousers 6204.23.0040, top 6204.23.0055); style WC649 -> 6110.30
+scenario ny_n313600 is, as stated in ruling NY N313600:
+    the kind of style VT525C is ensemble,
+        confer "style VT525C will be considered an ensemble".
+    the fabric construction of style VT525C is woven,
+        confer "constructed from 65% polyester and 35% cotton woven fabric".
+    style VT525C contains 65 percent of polyester,
+        confer "constructed from 65% polyester and 35% cotton woven fabric".
+    style VT525C contains 35 percent of cotton,
+        confer "constructed from 65% polyester and 35% cotton woven fabric".
+    style VT525C is a set put up for retail sale,
+        confer "style VT525C will be imported, marketed, packaged, and sold only as a two-piece unit".
+    the components of style VT525C are matching,
+        confer "The top and pants of each unit are of the same fabric construction, style, color, size, and composition".
+    the top of style VT525C is a component of style VT525C,
+        confer "Style VT525C consists of a scrub top and a pair of scrub pants".
+    the top of style VT525C is an upper body garment,
+        confer "The pullover top features a V-neckline, short sleeves, pockets below the waist".
+    the top of style VT525C has pockets below the waist,
+        confer "The pullover top features a V-neckline, short sleeves, pockets below the waist".
+    the pants of style VT525C is a component of style VT525C,
+        confer "Style VT525C consists of a scrub top and a pair of scrub pants".
+    the kind of the pants of style VT525C is trousers,
+        confer "Style VT525C consists of a scrub top and a pair of scrub pants".
+    style WC649 is an upper body garment,
+        confer "Style WC649 is a women’s pullover".
+    style WC649 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of style WC649 is knitted,
+        confer "Style WC649 is a women’s pullover constructed from 95% rayon and 5% spandex jersey knit fabric".
+    the cut of style WC649 indicates women,
+        confer "Style WC649 is a women’s pullover".
+    style WC649 is of plain knit fabric,
+        confer "95% rayon and 5% spandex jersey knit fabric".
+    style WC649 contains 95 percent of rayon,
+        confer "Style WC649 is a women’s pullover constructed from 95% rayon and 5% spandex jersey knit fabric".
+    style WC649 contains 5 percent of spandex,
+        confer "Style WC649 is a women’s pullover constructed from 95% rayon and 5% spandex jersey knit fabric".
+    subheading expects answers ["the subheading of style VT525C is 6204.23", "the subheading of style WC649 is 6110.30"].
+
+% NY N346678 (September 2025): a girl's cardigan from Bangladesh.
+% Composition: the CBP laboratory's (90.6% nylon, 9.4% metallized fibers), not
+% the stated 60% polyester, 36% nylon, 4% spandex.
+% CBP: style GJ5FS119KS2 -> 6110.30; style GJ5FS119GS2 -> 6111.30
+scenario ny_n346678 is, as stated in ruling NY N346678:
+    % DISAGREES (style GJ5FS119KS2): CBP gives 6110.30; the model gives
+    % 6106.20 — a full front opening and sleeves make the cardigan a shirt
+    % of Chapter 61 note 4; the ruling does not state the stitch count that
+    % would exclude it from 6106.
+    style GJ5FS119KS2 is an upper body garment,
+        confer "style GJ5FS119KS2, is a girl’s cardigan".
+    style GJ5FS119KS2 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of style GJ5FS119KS2 is knitted,
+        confer "The CBP laboratory reported that the fabric is of weft knit construction".
+    the cut of style GJ5FS119KS2 indicates women,
+        confer "style GJ5FS119KS2, is a girl’s cardigan".
+    style GJ5FS119KS2 has an opening starting at the neckline,
+        confer "a full-front opening secured by five buttons and a crew neckline".
+    style GJ5FS119KS2 contains 90.6 percent of nylon,
+        confer "the cardigan is composed of 90.6 percent nylon and 9.4 percent metallized fibers".
+    % VOCAB: 9.4 percent metallized fibers (not metalized yarn, CBP holds), no listed material
+    style GJ5FS119GS2 is an upper body garment,
+        confer "The garment will also be imported in infant sizes under style GJ5FS119GS2".
+    style GJ5FS119GS2 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    style GJ5FS119GS2 is sized for babies,
+        confer "The garment will also be imported in infant sizes under style GJ5FS119GS2".
+    the fabric construction of style GJ5FS119GS2 is knitted,
+        confer "The CBP laboratory reported that the fabric is of weft knit construction".
+    style GJ5FS119GS2 has an opening starting at the neckline,
+        confer "a full-front opening secured by five buttons and a crew neckline".
+    style GJ5FS119GS2 contains 90.6 percent of nylon,
+        confer "the cardigan is composed of 90.6 percent nylon and 9.4 percent metallized fibers".
+    % VOCAB: 9.4 percent metallized fibers (not metalized yarn, CBP holds), no listed material
+    subheading expects answers ["the subheading of style GJ5FS119KS2 is 6106.20", "the subheading of style GJ5FS119GS2 is 6111.30"].
+
+% NY N352612 (September 2025): men's apparel from China.
+% CBP: the pullover of style 60021R -> 6110.30; the bottoms of style 60021R -> 6207.91
+scenario ny_n352612 is, as stated in ruling NY N352612:
+    the pullover of style 60021R is an upper body garment,
+        confer "consists of a men’s knit pullover top and a woven bottom".
+    the pullover of style 60021R is classified under the US tariff,
+        confer "HTSUS".
+    the fabric construction of the pullover of style 60021R is knitted,
+        confer "consists of a men’s knit pullover top".
+    the cut of the pullover of style 60021R indicates men,
+        confer "consists of a men’s knit pullover top".
+    the pullover of style 60021R contains 48 percent of cotton,
+        confer "pullover is constructed from 48% cotton, 48% modal, and 4% rib knit fabric".
+    the pullover of style 60021R contains 48 percent of modal,
+        confer "pullover is constructed from 48% cotton, 48% modal, and 4% rib knit fabric".
+    % VOCAB: 4% of an unnamed fibre (48% cotton, 48% modal, and 4% rib knit fabric), no listed material
+    the pullover of style 60021R is claimed to belong to sleepwear,
+        confer "You state that the garments are intended to be worn as sleepwear".
+    the claim that the pullover of style 60021R belongs to sleepwear is rejected,
+        according to CBP, confer "the knit pullover is not classified as sleepwear".
+    the kind of the bottoms of style 60021R is sleep pants,
+        confer "we agree that they are designed, marketed and sold as sleepwear".
+    the cut of the bottoms of style 60021R indicates men,
+        confer "consists of a men’s knit pullover top and a woven bottom".
+    the fabric construction of the bottoms of style 60021R is woven,
+        confer "The pants are constructed from 100% cotton woven flannel fabric".
+    the bottoms of style 60021R contains 100 percent of cotton,
+        confer "The pants are constructed from 100% cotton woven flannel fabric".
+    subheading expects answers ["the subheading of the bottoms of style 60021R is 6207.91", "the subheading of the pullover of style 60021R is 6110.30"].
+
+% NY N356323 (December 2025): adaptive infant garments from Canada.
+% CBP: the hip dysplasia pajama loungers -> 6111.90; the hip dysplasia pants -> 6111.90 (both also 9817.00.96)
+scenario ny_n356323 is, as stated in ruling NY N356323:
+    % The claim for 9817.00.96 is granted as a secondary provision, not a rival
+    % heading: not recorded as a claim.
+    the kind of the hip dysplasia pajama loungers is coverall,
+        confer "is a one-piece infant garment".
+    the fabric construction of the hip dysplasia pajama loungers is knitted,
+        confer "is a one-piece infant garment constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    the hip dysplasia pajama loungers is sized for babies,
+        confer "The garment will be imported in sizes 0-3 Months, 3-6 Months and 6-9 Months".
+    the hip dysplasia pajama loungers contains 66 percent of rayon,
+        confer "is a one-piece infant garment constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    the hip dysplasia pajama loungers contains 28 percent of cotton,
+        confer "is a one-piece infant garment constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    the hip dysplasia pajama loungers contains 6 percent of spandex,
+        confer "is a one-piece infant garment constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    the kind of the hip dysplasia pants is trousers,
+        confer "is a pair of pull-on infant pants".
+    the fabric construction of the hip dysplasia pants is knitted,
+        confer "is a pair of pull-on infant pants constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    the hip dysplasia pants is sized for babies,
+        confer "The garment will be imported in sizes 0-3 Months, 3-6 Months and 6-9 Months".
+    the hip dysplasia pants contains 66 percent of rayon,
+        confer "is a pair of pull-on infant pants constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    the hip dysplasia pants contains 28 percent of cotton,
+        confer "is a pair of pull-on infant pants constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    the hip dysplasia pants contains 6 percent of spandex,
+        confer "is a pair of pull-on infant pants constructed of 66% rayon, 28% cotton and 6% Spandex knit fabric".
+    subheading expects answers ["the subheading of the hip dysplasia pajama loungers is 6111.90", "the subheading of the hip dysplasia pants is 6111.90"].
+
+% NY N332956 (May 2023): women's swimwear from Colombia.
+% CBP: style 64620 -> 6112.41; style 80752 -> 6112.41
+scenario ny_n332956 is, as stated in ruling NY N332956:
+    the kind of style 64620 is swimsuit,
+        confer "Styles 64620 and 80752 are a one-piece women’s swimsuit".
+    the cut of style 64620 indicates women,
+        confer "Styles 64620 and 80752 are a one-piece women’s swimsuit".
+    the fabric construction of style 64620 is knitted,
+        confer "The knit fabric, for the body of the garment, is manufactured in the U.S".
+    style 64620 contains 69 percent of nylon,
+        confer "Style 64620 is constructed from 69% nylon and 31% spandex".
+    style 64620 contains 31 percent of spandex,
+        confer "Style 64620 is constructed from 69% nylon and 31% spandex".
+    the kind of style 80752 is swimsuit,
+        confer "Styles 64620 and 80752 are a one-piece women’s swimsuit".
+    the cut of style 80752 indicates women,
+        confer "Styles 64620 and 80752 are a one-piece women’s swimsuit".
+    the fabric construction of style 80752 is knitted,
+        confer "The knit fabric, for the body of the garment, is manufactured in the U.S".
+    style 80752 contains 82 percent of nylon,
+        confer "Style 80752 is constructed from 82% nylon and 18% spandex".
+    style 80752 contains 18 percent of spandex,
+        confer "Style 80752 is constructed from 82% nylon and 18% spandex".
+    subheading expects answers ["the subheading of style 64620 is 6112.41", "the subheading of style 80752 is 6112.41"].
+
+% NY N353571 (September 2025): a women's crop top from India.
+% CBP: style CS533 -> 6114.20
+scenario ny_n353571 is, as stated in ruling NY N353571:
+    style CS533 is an upper body garment,
+        confer "Style CS533 is a women’s crocheted crop top".
+    style CS533 has limited upper body coverage,
+        confer "The garment does not reach the waist".
+    style CS533 is classified under the US tariff,
+        confer "Harmonized Tariff Schedule of the United States (HTSUS)".
+    the fabric construction of style CS533 is knitted,
+        confer "Style CS533 is a women’s crocheted crop top composed of 100 percent cotton knit fabric".
+    the cut of style CS533 indicates women,
+        confer "Style CS533 is a women’s crocheted crop top".
+    style CS533 contains 100 percent of cotton,
+        confer "Style CS533 is a women’s crocheted crop top composed of 100 percent cotton knit fabric".
+    style CS533 has a collar,
+        confer "a rib-knit crossover V-styled front with a spread collar".
+    subheading expects answers ["the subheading of style CS533 is 6114.20"].
+
+% NY N296659 (May 2018): men's tights from El Salvador.
+% CBP: style UE180S -> 6115.21; style UE1801 -> 6115.22
+scenario ny_n296659 is, as stated in ruling NY N296659:
+    % NO CODE: CBP gives 6115.21 and 6115.22 — the ruling gives the yarn
+    % only as less than or more than 67 decitex, not its measure.
+    the kind of style UE180S is tights,
+        confer "Style UE180S is a pair of men’s tights that are footless".
+    the cut of style UE180S indicates men,
+        confer "Style UE180S is a pair of men’s tights that are footless".
+    the fabric construction of style UE180S is knitted,
+        confer "The tights are knit and constructed of 95% nylon, 5% spandex".
+    style UE180S contains 95 percent of nylon,
+        confer "The tights are knit and constructed of 95% nylon, 5% spandex".
+    style UE180S contains 5 percent of spandex,
+        confer "The tights are knit and constructed of 95% nylon, 5% spandex".
+    % VOCAB: "the tights measure less than 67 decitex", no figure for the decitex template
+    the kind of style UE1801 is tights,
+        confer "Style UE1801 is a pair of men’s tights that are footless".
+    the cut of style UE1801 indicates men,
+        confer "Style UE1801 is a pair of men’s tights that are footless".
+    the fabric construction of style UE1801 is knitted,
+        confer "The tights are knit and constructed of 86% polyester, 8% nylon, 6% spandex".
+    style UE1801 contains 86 percent of polyester,
+        confer "The tights are knit and constructed of 86% polyester, 8% nylon, 6% spandex".
+    style UE1801 contains 8 percent of nylon,
+        confer "The tights are knit and constructed of 86% polyester, 8% nylon, 6% spandex".
+    style UE1801 contains 6 percent of spandex,
+        confer "The tights are knit and constructed of 86% polyester, 8% nylon, 6% spandex".
+    % VOCAB: "the tights measure over 67 decitex", no figure for the decitex template
+    subheading expects answers [].
+
+% NY N317899 (March 2021): women's tights from China.
+% CBP: style X08367T -> 6115.29
+scenario ny_n317899 is, as stated in ruling NY N317899:
+    the kind of style X08367T is tights,
+        confer "Style X08367T is a pair of women’s footless tights".
+    the cut of style X08367T indicates women,
+        confer "Style X08367T is a pair of women’s footless tights".
+    the fabric construction of style X08367T is knitted,
+        confer "The tights are knit and constructed from 71% rayon, 22% nylon, 7% spandex".
+    style X08367T contains 71 percent of rayon,
+        confer "The tights are knit and constructed from 71% rayon, 22% nylon, 7% spandex".
+    style X08367T contains 22 percent of nylon,
+        confer "The tights are knit and constructed from 71% rayon, 22% nylon, 7% spandex".
+    style X08367T contains 7 percent of spandex,
+        confer "The tights are knit and constructed from 71% rayon, 22% nylon, 7% spandex".
+    % VOCAB: "the tights measure per single yarn more than 67 decitex", no figure for the decitex template
+    subheading expects answers ["the subheading of style X08367T is 6115.29"].
+
+% NY N353868 (September 2025): holiday motif socks from China.
+% CBP: the holiday motif socks -> 6115.96
+scenario ny_n353868 is, as stated in ruling NY N353868:
+    the kind of the holiday motif socks is socks,
+        confer "Holiday motif adult unisex knit socks are constructed of 97% polyester, 3% spandex".
+    the fabric construction of the holiday motif socks is knitted,
+        confer "Holiday motif adult unisex knit socks are constructed of 97% polyester, 3% spandex".
+    the holiday motif socks contains 97 percent of polyester,
+        confer "Holiday motif adult unisex knit socks are constructed of 97% polyester, 3% spandex".
+    the holiday motif socks contains 3 percent of spandex,
+        confer "Holiday motif adult unisex knit socks are constructed of 97% polyester, 3% spandex".
+    the holiday motif socks is claimed to belong to festive articles of heading 9505,
+        confer "In your ruling request you suggest classification of the socks in 9505.90.6000".
+    the claim that the holiday motif socks belongs to festive articles of heading 9505 is rejected,
+        according to CBP, confer "Regardless of motif, socks are excluded from classification in Chapter 95 by Chapter Note 1 (x)".
+    subheading expects answers ["the subheading of the holiday motif socks is 6115.96"].
+
+% NY N361792 (June 2026): gloves from China.
+% CBP: style WETnDRY -> 6116.10; style WETnDRY Pro -> 6116.10
+scenario ny_n361792 is, as stated in ruling NY N361792:
+    the kind of style WETnDRY is gloves,
+        confer "Style WETnDRY is a multi-purpose glove".
+    the fabric construction of style WETnDRY is knitted,
+        confer "constructed of a 100% polyester knit fabric".
+    style WETnDRY contains 100 percent of polyester,
+        confer "constructed of a 100% polyester knit fabric".
+    style WETnDRY has a coating of plastics,
+        confer "with a thermoplasticpolyurethane membrane sandwiched in between".
+    the kind of style WETnDRY Pro is gloves,
+        confer "Style WETnDRY Pro is a multi-purpose glove".
+    % the ruling does not say the Pro's base fabric is knit; it names knit overlays
+    the fabric construction of style WETnDRY Pro is knitted,
+        confer "The glove features fourchettes, coated plastic knit overlays".
+    style WETnDRY Pro contains 100 percent of polyester,
+        confer "Style WETnDRY Pro is a multi-purpose glove constructed of 100% polyester".
+    style WETnDRY Pro has a coating of plastics,
+        confer "constructed of 100% polyester with a thermoplasticpolyurethane membrane sandwiched in between".
+    subheading expects answers ["the subheading of style WETnDRY is 6116.10", "the subheading of style WETnDRY Pro is 6116.10"].
+
+% NY N345960 (March 2025): gloves and a mitt from Sri Lanka.
+% CBP: style CHN18033 -> 6216.00; style CHN18012 -> 6116.91; style CHN18010 -> 6116.91; style CHN18020 -> 6116.93
+scenario ny_n345960 is, as stated in ruling NY N345960:
+    the kind of style CHN18033 is mitts,
+        confer "Style CHN18033 is a lobster mitt".
+    style CHN18033 is a composite good,
+        confer "constructed of 100% polyester woven fabric except for the palm and backside fingertips".
+    the shell of style CHN18033 is a component of style CHN18033,
+        confer "constructed of 100% polyester woven fabric except for the palm and backside fingertips".
+    the fabric construction of the shell of style CHN18033 is woven,
+        confer "constructed of 100% polyester woven fabric except for the palm and backside fingertips".
+    the shell of style CHN18033 contains 100 percent of polyester,
+        confer "constructed of 100% polyester woven fabric except for the palm and backside fingertips".
+    the palm of style CHN18033 is a component of style CHN18033,
+        confer "except for the palm and backside fingertips, which is stated to be a plastic-coated non-woven synthetic suede fabric".
+    the fabric construction of the palm of style CHN18033 is nonwoven,
+        confer "which is stated to be a plastic-coated non-woven synthetic suede fabric".
+    the palm of style CHN18033 has a coating of plastics,
+        confer "which is stated to be a plastic-coated non-woven synthetic suede fabric".
+    the palm of style CHN18033 contains 60 percent of polyester,
+        confer "synthetic suede fabric constructed of 60% polyester and 40% polyurethane".
+    % VOCAB: 40% polyurethane (of the palm fabric), no listed material
+    the essential character of style CHN18033 is given by the palm of style CHN18033,
+        according to CBP, confer "The essential character of the mitt is imparted by the non-woven fabric on the palm side from fingertips to wrist".
+    the kind of style CHN18012 is gloves,
+        confer "Style CHN18012 is a fingerless glove".
+    the fabric construction of style CHN18012 is knitted,
+        confer "Style CHN18012 is a fingerless glove constructed of 100% merino wool knit fabric".
+    style CHN18012 contains 100 percent of wool,
+        confer "Style CHN18012 is a fingerless glove constructed of 100% merino wool knit fabric".
+    the kind of style CHN18010 is gloves,
+        confer "Style CHN18010 is a glove".
+    the fabric construction of style CHN18010 is knitted,
+        confer "Style CHN18010 is a glove constructed of 100% merino wool knit fabric".
+    style CHN18010 contains 100 percent of wool,
+        confer "Style CHN18010 is a glove constructed of 100% merino wool knit fabric".
+    the kind of style CHN18020 is gloves,
+        confer "Style CHN18020 is a glove".
+    style CHN18020 is a composite good,
+        confer "It has a sewn-on mitten style cover constructed of 100% polyester woven fabric".
+    the knit glove of style CHN18020 is a component of style CHN18020,
+        confer "Style CHN18020 is a glove constructed of 100% polyester knit fabric".
+    the fabric construction of the knit glove of style CHN18020 is knitted,
+        confer "Style CHN18020 is a glove constructed of 100% polyester knit fabric".
+    the knit glove of style CHN18020 contains 100 percent of polyester,
+        confer "Style CHN18020 is a glove constructed of 100% polyester knit fabric".
+    the mitten cover of style CHN18020 is a component of style CHN18020,
+        confer "It has a sewn-on mitten style cover constructed of 100% polyester woven fabric".
+    the fabric construction of the mitten cover of style CHN18020 is woven,
+        confer "It has a sewn-on mitten style cover constructed of 100% polyester woven fabric".
+    the mitten cover of style CHN18020 contains 100 percent of polyester,
+        confer "It has a sewn-on mitten style cover constructed of 100% polyester woven fabric".
+    the essential character of style CHN18020 is given by the knit glove of style CHN18020,
+        according to CBP, confer "The essential character of the glove is imparted by the 100% polyester knit fabric".
+    subheading expects answers ["the subheading of style CHN18033 is 6216.00", "the subheading of style CHN18012 is 6116.91", "the subheading of style CHN18010 is 6116.91", "the subheading of style CHN18020 is 6116.93"].
+
+% NY N352488 (February 2026): a glove and a mitt from Sri Lanka.
+% Composition: the CBP laboratory's.
+% CBP: the Fudo Shield glove -> 6116.99; the SLV071 sleeve mitt -> 6116.93
+scenario ny_n352488 is, as stated in ruling NY N352488:
+    the kind of the Fudo Shield glove is gloves,
+        confer "is a string knit glove".
+    the fabric construction of the Fudo Shield glove is knitted,
+        confer "is a string knit glove".
+    all the yarn of the Fudo Shield glove is metalized yarn,
+        confer "the yarn used in making the item is a metalized yarn of heading 5605".
+    the Fudo Shield glove contains 35.1 percent of polyester,
+        confer "polyethylene 56.5 %, polyester 35.1 %, and metal 8.4 %".
+    % VOCAB: polyethylene 56.5 % (HPPE fibre), no listed material
+    % VOCAB: metal 8.4 % (steel wire), no listed material
+    the kind of the SLV071 sleeve mitt is mitts,
+        confer "is best described as a long sleeve work mitt".
+    the fabric construction of the SLV071 sleeve mitt is knitted,
+        confer "The mitt is knit".
+    the SLV071 sleeve mitt contains 33.8 percent of polyester,
+        confer "polyethylene 53.5 %, polyester 33.8 %, metal 9.6 %, rubber 1.8% and elastomeric 1.3 %".
+    % VOCAB: polyethylene 53.5 %, metal 9.6 %, rubber 1.8%, elastomeric 1.3 %, no listed materials
+    subheading expects answers ["the subheading of the Fudo Shield glove is 6116.99", "the subheading of the SLV071 sleeve mitt is 6116.93"].
+
+% NY N341329 (August 2024): a tulle boa from China.
+% The tulle boa is item OEM25- 0518.
+% CBP: the tulle boa -> 6117.10
+scenario ny_n341329 is, as stated in ruling NY N341329:
+    the kind of the tulle boa is boa,
+        confer "is a tulle boa".
+    the fabric construction of the tulle boa is knitted,
+        confer "The boa is composed of 100% polyester knit fabric".
+    the tulle boa contains 100 percent of polyester,
+        confer "The boa is composed of 100% polyester knit fabric".
+    the longest side of the tulle boa measures 182.9 centimetres,
+        confer "It measures 72 inches in length and is 8 inches in width".
+    subheading expects answers ["the subheading of the tulle boa is 6117.10"].
+
+% NY N315787 (December 2020): stockingfeet from Taiwan.
+% The stockingfeet are styles #12569S, #12199S and #12572S.
+% CBP: the stockingfeet -> 6117.90
+scenario ny_n315787 is, as stated in ruling NY N315787:
+    the kind of the stockingfeet is part,
+        confer "specifically designed and solely intended to be permanently attached to fishing wader overalls after importation".
+    the fabric construction of the stockingfeet is knitted,
+        confer "neoprene laminated between two layers of 100 % polyester jersey knit fabric".
+    the stockingfeet contains 100 percent of polyester,
+        confer "neoprene laminated between two layers of 100 % polyester jersey knit fabric".
+    the stockingfeet is made up of fabric of heading 5906,
+        confer "The items are composed of neoprene laminated between two layers of 100 % polyester jersey knit fabric".
+    the stockingfeet is claimed to belong to garments of heading 6210,
+        confer "You suggested classification under subheading 6210.40.5540".
+    the claim that the stockingfeet belongs to garments of heading 6210 is rejected,
+        according to CBP, confer "The stockingfeet are not garments".
+
+    subheading expects answers ["the subheading of the stockingfeet is 6117.90"].

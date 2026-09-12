@@ -1,0 +1,351 @@
+% Chapter 61 of the tariff: articles of apparel and clothing accessories,
+% knitted or crocheted — all seventeen headings (6101 to 6117) and their
+% 106 six-digit subheadings. A library: it includes section_xi.le (the
+% textile materials and the notes it shares with Chapter 62), and tariff.le
+% includes it.
+%
+% Text: HTSUS Revision 18 (2026), Chapter 61 notes 1 to 9 and the terms of
+% the headings and subheadings (https://hts.usitc.gov/); the subheadings are
+% the six-digit HS ones, which the EU Combined Nomenclature shares.
+%
+% How the headings are read. Note 1: only knitted or crocheted articles. A
+% garment's heading is decided by its family (the kind the ruling names: a
+% jacket, trousers, a dress...), or for tops by the features notes 4 and 5 and
+% the Explanatory Notes use (section_xi.le), and by its gender (note 9). Two
+% notes give a heading precedence: babies' garments go to 6111 (note 6(b)),
+% garments of coated fabric to 6113 (note 8); and 6114 ("other garments")
+% takes what no other heading describes. Those precedences are written as
+% GRI 3(a) preferences ("heading 6111 is more specific than ..."), which is how
+% gri.le chooses between headings that both describe a good.
+
+the target language is: prolog.
+
+the templates are:
+    the subheading in heading *a heading* for *a group* of *a gender* in *a material* is *a code* under table knitted.
+
+% GRI 6: the six-digit subheadings, by the group of the good (a suit, an
+% ensemble, the family of its kind), its gender where the heading distinguishes
+% men's and women's garments, and the textile material that predominates
+% (Section XI subheading note 2; wool, cashmere, fine animal hair, synthetic
+% and artificial fibres as section_xi.le reads them). First match: an "any"
+% row is the heading's "Of other textile materials".
+the table knitted is, with first match, with provenance HTSUS General Rules of Interpretation,
+        confer "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
+    row | heading | group                          | gender | material                                  | code
+    k1  | 6101    | any                            | any    | cotton                                    | "6101.20"
+    k2  | 6101    | any                            | any    | synthetic fibres or artificial fibres     | "6101.30"
+    k3  | 6101    | any                            | any    | any                                       | "6101.90"
+    k4  | 6102    | any                            | any    | wool or cashmere or fine animal hair      | "6102.10"
+    k5  | 6102    | any                            | any    | cotton                                    | "6102.20"
+    k6  | 6102    | any                            | any    | synthetic fibres or artificial fibres     | "6102.30"
+    k7  | 6102    | any                            | any    | any                                       | "6102.90"
+    k8  | 6103    | suit                           | any    | any                                       | "6103.10"
+    k9  | 6103    | ensemble                       | any    | cotton                                    | "6103.22"
+    k10 | 6103    | ensemble                       | any    | synthetic fibres                          | "6103.23"
+    k11 | 6103    | ensemble                       | any    | any                                       | "6103.29"
+    k12 | 6103    | suit-type jacket               | any    | wool or cashmere or fine animal hair      | "6103.31"
+    k13 | 6103    | suit-type jacket               | any    | cotton                                    | "6103.32"
+    k14 | 6103    | suit-type jacket               | any    | synthetic fibres                          | "6103.33"
+    k15 | 6103    | suit-type jacket               | any    | any                                       | "6103.39"
+    k16 | 6103    | trousers                       | any    | wool or cashmere or fine animal hair      | "6103.41"
+    k17 | 6103    | trousers                       | any    | cotton                                    | "6103.42"
+    k18 | 6103    | trousers                       | any    | synthetic fibres                          | "6103.43"
+    k19 | 6103    | trousers                       | any    | any                                       | "6103.49"
+    k20 | 6104    | suit                           | any    | synthetic fibres                          | "6104.13"
+    k21 | 6104    | suit                           | any    | any                                       | "6104.19"
+    k22 | 6104    | ensemble                       | any    | cotton                                    | "6104.22"
+    k23 | 6104    | ensemble                       | any    | synthetic fibres                          | "6104.23"
+    k24 | 6104    | ensemble                       | any    | any                                       | "6104.29"
+    k25 | 6104    | suit-type jacket               | any    | wool or cashmere or fine animal hair      | "6104.31"
+    k26 | 6104    | suit-type jacket               | any    | cotton                                    | "6104.32"
+    k27 | 6104    | suit-type jacket               | any    | synthetic fibres                          | "6104.33"
+    k28 | 6104    | suit-type jacket               | any    | any                                       | "6104.39"
+    k29 | 6104    | dress                          | any    | wool or cashmere or fine animal hair      | "6104.41"
+    k30 | 6104    | dress                          | any    | cotton                                    | "6104.42"
+    k31 | 6104    | dress                          | any    | synthetic fibres                          | "6104.43"
+    k32 | 6104    | dress                          | any    | artificial fibres                         | "6104.44"
+    k33 | 6104    | dress                          | any    | any                                       | "6104.49"
+    k34 | 6104    | skirt                          | any    | wool or cashmere or fine animal hair      | "6104.51"
+    k35 | 6104    | skirt                          | any    | cotton                                    | "6104.52"
+    k36 | 6104    | skirt                          | any    | synthetic fibres                          | "6104.53"
+    k37 | 6104    | skirt                          | any    | any                                       | "6104.59"
+    k38 | 6104    | trousers                       | any    | wool or cashmere or fine animal hair      | "6104.61"
+    k39 | 6104    | trousers                       | any    | cotton                                    | "6104.62"
+    k40 | 6104    | trousers                       | any    | synthetic fibres                          | "6104.63"
+    k41 | 6104    | trousers                       | any    | any                                       | "6104.69"
+    k42 | 6105    | any                            | any    | cotton                                    | "6105.10"
+    k43 | 6105    | any                            | any    | synthetic fibres or artificial fibres     | "6105.20"
+    k44 | 6105    | any                            | any    | any                                       | "6105.90"
+    k45 | 6106    | any                            | any    | cotton                                    | "6106.10"
+    k46 | 6106    | any                            | any    | synthetic fibres or artificial fibres     | "6106.20"
+    k47 | 6106    | any                            | any    | any                                       | "6106.90"
+    k48 | 6107    | underpants or boxer underpants | any    | cotton                                    | "6107.11"
+    k49 | 6107    | underpants or boxer underpants | any    | synthetic fibres or artificial fibres     | "6107.12"
+    k50 | 6107    | underpants or boxer underpants | any    | any                                       | "6107.19"
+    k51 | 6107    | nightwear                      | any    | cotton                                    | "6107.21"
+    k52 | 6107    | nightwear                      | any    | synthetic fibres or artificial fibres     | "6107.22"
+    k53 | 6107    | nightwear                      | any    | any                                       | "6107.29"
+    k54 | 6107    | any                            | any    | cotton                                    | "6107.91"
+    k55 | 6107    | any                            | any    | any                                       | "6107.99"
+    k56 | 6108    | slip                           | any    | synthetic fibres or artificial fibres     | "6108.11"
+    k57 | 6108    | slip                           | any    | any                                       | "6108.19"
+    k58 | 6108    | underpants                     | any    | cotton                                    | "6108.21"
+    k59 | 6108    | underpants                     | any    | synthetic fibres or artificial fibres     | "6108.22"
+    k60 | 6108    | underpants                     | any    | any                                       | "6108.29"
+    k61 | 6108    | nightwear                      | any    | cotton                                    | "6108.31"
+    k62 | 6108    | nightwear                      | any    | synthetic fibres or artificial fibres     | "6108.32"
+    k63 | 6108    | nightwear                      | any    | any                                       | "6108.39"
+    k64 | 6108    | any                            | any    | cotton                                    | "6108.91"
+    k65 | 6108    | any                            | any    | synthetic fibres or artificial fibres     | "6108.92"
+    k66 | 6108    | any                            | any    | any                                       | "6108.99"
+    k67 | 6109    | any                            | any    | cotton                                    | "6109.10"
+    k68 | 6109    | any                            | any    | any                                       | "6109.90"
+    k69 | 6110    | any                            | any    | wool                                      | "6110.11"
+    k70 | 6110    | any                            | any    | cashmere                                  | "6110.12"
+    k71 | 6110    | any                            | any    | fine animal hair                          | "6110.19"
+    k72 | 6110    | any                            | any    | cotton                                    | "6110.20"
+    k73 | 6110    | any                            | any    | synthetic fibres or artificial fibres     | "6110.30"
+    k74 | 6110    | any                            | any    | any                                       | "6110.90"
+    k75 | 6111    | any                            | any    | cotton                                    | "6111.20"
+    k76 | 6111    | any                            | any    | synthetic fibres                          | "6111.30"
+    k77 | 6111    | any                            | any    | any                                       | "6111.90"
+    k78 | 6112    | track suit                     | any    | cotton                                    | "6112.11"
+    k79 | 6112    | track suit                     | any    | synthetic fibres                          | "6112.12"
+    k80 | 6112    | track suit                     | any    | any                                       | "6112.19"
+    k81 | 6112    | ski-suit                       | any    | any                                       | "6112.20"
+    k82 | 6112    | swimwear                       | men    | synthetic fibres                          | "6112.31"
+    k83 | 6112    | swimwear                       | men    | any                                       | "6112.39"
+    k84 | 6112    | swimwear                       | women  | synthetic fibres                          | "6112.41"
+    k85 | 6112    | swimwear                       | women  | any                                       | "6112.49"
+    k86 | 6113    | any                            | any    | any                                       | "6113.00"
+    k87 | 6114    | any                            | any    | cotton                                    | "6114.20"
+    k88 | 6114    | any                            | any    | synthetic fibres or artificial fibres     | "6114.30"
+    k89 | 6114    | any                            | any    | any                                       | "6114.90"
+    k90 | 6115    | compression hosiery            | any    | any                                       | "6115.10"
+    k91 | 6115    | fine panty hose                | any    | synthetic fibres                          | "6115.21"
+    k92 | 6115    | heavy panty hose               | any    | synthetic fibres                          | "6115.22"
+    k93 | 6115    | panty hose or fine panty hose or heavy panty hose | any | wool or cashmere or fine animal hair or cotton or silk or vegetable fibres or artificial fibres or metalized yarn | "6115.29"
+    k94 | 6115    | fine womens hosiery            | any    | any                                       | "6115.30"
+    k95 | 6115    | hosiery                        | any    | wool or cashmere or fine animal hair      | "6115.94"
+    k96 | 6115    | hosiery                        | any    | cotton                                    | "6115.95"
+    k97 | 6115    | hosiery                        | any    | synthetic fibres                          | "6115.96"
+    k98 | 6115    | hosiery                        | any    | any                                       | "6115.99"
+    k99 | 6116    | coated gloves                  | any    | any                                       | "6116.10"
+    k100| 6116    | gloves                         | any    | wool or cashmere or fine animal hair      | "6116.91"
+    k101| 6116    | gloves                         | any    | cotton                                    | "6116.92"
+    k102| 6116    | gloves                         | any    | synthetic fibres                          | "6116.93"
+    k103| 6116    | gloves                         | any    | any                                       | "6116.99"
+    k104| 6117    | scarf or handkerchief          | any    | any                                       | "6117.10"
+    k105| 6117    | part                           | any    | any                                       | "6117.90"
+    k106| 6117    | any                            | any    | any                                       | "6117.80"
+
+the knowledge base chapter 61 includes these resources:
+    section_xi.
+
+the knowledge base chapter 61 includes:
+
+rule knitted_subheading with provenance HTSUS General Rules of Interpretation,
+        confer "the classification of goods in the subheadings of a heading shall be determined according to the terms of those subheadings and any related subheading notes":
+the subheading of a good in heading a heading is a code
+    if the heading >= 6101
+    and the heading <= 6117
+    and the subheading group of the good is a group
+    and the gender of the good is a gender
+    and the good is classified as consisting of a component
+    and the component has a fabric for heading the heading
+    and the fibre material of the component is a material
+    and the subheading in heading the heading for the group of the gender in the material is the code under table knitted.
+
+% ---------------------------------------------------------------------------
+% The headings (GRI 1). Note 1: only knitted or crocheted articles.
+% ---------------------------------------------------------------------------
+
+rule heading_6101 with provenance HTSUS Chapter 61,
+        confer "Men's or boys' overcoats, carcoats, capes, cloaks, anoraks (including ski-jackets), windbreakers and similar articles, knitted or crocheted, other than those of heading 6103":
+a garment is described by heading 6101
+    if the construction of the garment is knitted
+    and the gender of the garment is men
+    and the family of the garment is outerwear.
+
+rule heading_6102 with provenance HTSUS Chapter 61,
+        confer "Women's or girls' overcoats, carcoats, capes, cloaks, anoraks (including ski-jackets), windbreakers and similar articles, knitted or crocheted, other than those of heading 6104":
+a garment is described by heading 6102
+    if the construction of the garment is knitted
+    and the gender of the garment is women
+    and the family of the garment is outerwear.
+
+rule heading_6103 with provenance HTSUS Chapter 61,
+        confer "Men's or boys' suits, ensembles, suit-type jackets, blazers, trousers, bib and brace overalls, breeches and shorts (other than swimwear), knitted or crocheted":
+a garment is described by heading 6103
+    if the construction of the garment is knitted
+    and the gender of the garment is men
+    and the subheading group of the garment is a group
+    and the group is in [suit, ensemble, suit-type jacket, trousers].
+
+rule heading_6104 with provenance HTSUS Chapter 61,
+        confer "Women's or girls' suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear), knitted or crocheted":
+a garment is described by heading 6104
+    if the construction of the garment is knitted
+    and the gender of the garment is women
+    and the subheading group of the garment is a group
+    and the group is in [suit, ensemble, suit-type jacket, dress, skirt, trousers].
+
+rule heading_6105 with provenance HTSUS Chapter 61,
+        confer "Men's or boys' shirts, knitted or crocheted":
+a garment is described by heading 6105
+    if the construction of the garment is knitted
+    and the gender of the garment is men
+    and the garment is a shirt.
+
+rule heading_6106 with provenance HTSUS Chapter 61,
+        confer "Women's or girls' blouses and shirts, knitted or crocheted":
+a garment is described by heading 6106
+    if the construction of the garment is knitted
+    and the gender of the garment is women
+    and the garment is a blouse-type garment.
+
+rule heading_6107 with provenance HTSUS Chapter 61,
+        confer "Men's or boys' underpants, briefs, nightshirts, pajamas, bathrobes, dressing gowns and similar articles, knitted or crocheted":
+a garment is described by heading 6107
+    if the construction of the garment is knitted
+    and the gender of the garment is men
+    and the family of the garment is a family
+    and the family is in [underpants, nightwear, robe].
+
+rule heading_6108 with provenance HTSUS Chapter 61,
+        confer "Women's or girls' slips, petticoats, briefs, panties, night dresses, pajamas, negligees, bathrobes, dressing gowns and similar articles, knitted or crocheted":
+a garment is described by heading 6108
+    if the construction of the garment is knitted
+    and the gender of the garment is women
+    and the family of the garment is a family
+    and the family is in [slip, underpants, nightwear, robe].
+
+rule heading_6109 with provenance HTSUS Chapter 61,
+        confer "T-shirts, singlets, tank tops and similar garments, knitted or crocheted":
+a garment is described by heading 6109
+    if the construction of the garment is knitted
+    and the garment is of the T-shirt family.
+
+% The Explanatory Note to heading 6110: a category of knitted articles, without
+% distinction as to sex, designed to cover the upper parts of the body.
+% the Explanatory Note to heading 6110 (Sweaters, pullovers, sweatshirts,
+% waistcoats and similar articles, knitted or crocheted), as a French BTI
+% quotes it
+rule heading_6110 with provenance BTI FRBTIFR-BTI-2025-06897,
+        confer "la présente position couvre une catégorie d'articles en bonneterie, sans distinction quant au sexe, destinés à recouvrir la partie supérieure du corps":
+a garment is described by heading 6110
+    if the construction of the garment is knitted
+    and the garment is a top.
+
+rule heading_6111 with provenance HTSUS Chapter 61,
+        confer "Babies' garments and clothing accessories, knitted or crocheted":
+a good is described by heading 6111
+    if the construction of the good is knitted
+    and the good is sized for babies.
+
+rule heading_6112 with provenance HTSUS Chapter 61,
+        confer "Track suits, ski-suits and swimwear, knitted or crocheted":
+a garment is described by heading 6112
+    if the construction of the garment is knitted
+    and the family of the garment is a family
+    and the family is in [track suit, ski-suit, swimwear].
+
+rule heading_6113 with provenance HTSUS Chapter 61,
+        confer "Garments, made up of knitted or crocheted fabrics of heading 5903, 5906 or 5907":
+a garment is described by heading 6113
+    if the construction of the garment is knitted
+    and the garment is a garment
+    and the garment is made up of fabric of heading a heading
+    and the heading is in [5903, 5906, 5907].
+
+rule heading_6114 with provenance HTSUS Chapter 61,
+        confer "Other garments, knitted or crocheted":
+a garment is described by heading 6114
+    if the construction of the garment is knitted
+    and the garment is a garment.
+
+rule heading_6115 with provenance HTSUS Chapter 61,
+        confer "Panty hose, tights, stockings, socks and other hosiery, including graduated compression hosiery":
+a good is described by heading 6115
+    if the construction of the good is knitted
+    and the family of the good is a family
+    and the family is in [panty hose, hosiery].
+
+rule heading_6116 with provenance HTSUS Chapter 61,
+        confer "Gloves, mittens and mitts, knitted or crocheted":
+a good is described by heading 6116
+    if the construction of the good is knitted
+    and the family of the good is gloves.
+
+rule heading_6117 with provenance HTSUS Chapter 61,
+        confer "Other made up clothing accessories, knitted or crocheted; knitted or crocheted parts of garments or of clothing accessories":
+a good is described by heading 6117
+    if the construction of the good is knitted
+    and the family of the good is a family
+    and the family is in [scarf, handkerchief, tie, other accessory, part].
+
+% The exclusions of notes 4 and 5 (section_xi.le has the shirt headings').
+rule note_61_5 with provenance HTSUS Chapter 61,
+        confer "Heading 6109 does not cover garments with a drawstring, ribbed waistband or other means of tightening at the bottom of the garment":
+a garment is excluded from heading 6109
+    if the garment has a means of tightening at the bottom.
+
+% ---------------------------------------------------------------------------
+% Choosing between headings that both describe a good (GRI 3(a) in gri.le).
+% ---------------------------------------------------------------------------
+
+% Note 6(b): babies' garments and accessories go to heading 6111, whatever
+% other heading of the chapter also describes them.
+rule note_61_6b_before with provenance HTSUS Chapter 61,
+        confer "Articles which are, prima facie, classifiable both in heading 6111 and in other headings of this chapter are to be classified in heading 6111":
+heading 6111 is more specific than heading a heading
+    if the heading >= 6101
+    and the heading <= 6110.
+
+rule note_61_6b_after with provenance HTSUS Chapter 61,
+        confer "Articles which are, prima facie, classifiable both in heading 6111 and in other headings of this chapter are to be classified in heading 6111":
+heading 6111 is more specific than heading a heading
+    if the heading >= 6112
+    and the heading <= 6117.
+
+% Note 8: garments of coated fabric go to heading 6113, unless they are
+% babies' garments.
+rule note_61_8_before with provenance HTSUS Chapter 61,
+        confer "Garments which are, prima facie, classifiable both in heading 6113 and in other headings of this chapter, excluding heading 6111, are to be classified in heading 6113":
+heading 6113 is more specific than heading a heading
+    if the heading >= 6101
+    and the heading <= 6110.
+
+rule note_61_8_after with provenance HTSUS Chapter 61,
+        confer "Garments which are, prima facie, classifiable both in heading 6113 and in other headings of this chapter, excluding heading 6111, are to be classified in heading 6113":
+heading 6113 is more specific than heading a heading
+    if the heading >= 6114
+    and the heading <= 6117.
+
+% Heading 6114 ("other garments") covers what the headings before it do not:
+% each of them is the more specific description.
+rule gri_3a_6114 with provenance HTSUS General Rules of Interpretation,
+        confer "The heading which provides the most specific description shall be preferred to headings providing a more general description":
+heading a heading is more specific than heading 6114
+    if the heading >= 6101
+    and the heading <= 6112.
+
+% GRI 3(a) between the headings of tops. Heading 6110 names a category ("...
+% and similar articles") of which shirts, blouses and T-shirts are particular
+% kinds; and CBP holds a loose-fitting women's top to be a blouse rather than a
+% T-shirt.
+% a shirt is a particular kind of the upper-body garments of heading 6110
+heading 6105 is more specific than heading 6110,
+    as stated in HTSUS General Rules of Interpretation, confer "The heading which provides the most specific description shall be preferred to headings providing a more general description".
+% a blouse or shirt is a particular kind of the upper-body garments of heading
+% 6110
+heading 6106 is more specific than heading 6110,
+    as stated in HTSUS General Rules of Interpretation, confer "The heading which provides the most specific description shall be preferred to headings providing a more general description".
+% a T-shirt, tank top or singlet is a particular kind of the upper-body
+% garments of heading 6110
+heading 6109 is more specific than heading 6110,
+    as stated in HTSUS General Rules of Interpretation, confer "The heading which provides the most specific description shall be preferred to headings providing a more general description".
+% loose-fitting women's tops have the characteristics of blouses of Note 4 to
+% Chapter 61, which precludes headings 6109 and 6110
+heading 6106 is more specific than heading 6109,
+    according to CBP, as stated in ruling NY N356079, confer "in accordance with the reasoning set forth in Headquarters Ruling Letters H325360 and H324935".

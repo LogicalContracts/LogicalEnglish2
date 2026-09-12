@@ -1,5 +1,6 @@
 % HELD-OUT apparel rulings of U.S. Customs and Border Protection, run through
-% the apparel model (apparel.le, which includes gri.le) after it was frozen.
+% the first prototype's apparel model after it was frozen; now run through
+% the whole modelled tariff (tariff.le).
 %
 % One scenario per ruling; each style is described by the facts the ruling
 % states: the scenario names the ruling ("scenario ny_n362700 is, as stated
@@ -18,7 +19,7 @@ the target language is: prolog.
 scenario facts require provenance.
 
 the knowledge base heldout apparel cbp includes these resources:
-    apparel.
+    tariff.
 
 the knowledge base heldout apparel cbp includes:
 
@@ -231,7 +232,7 @@ scenario ny_n336309 is, as stated in ruling NY N336309:
 
 % NY N350798 (July 2025): a woman's scrub top from El Salvador.
 scenario ny_n350798 is, as stated in ruling NY N350798:
-    % DISAGREES: CBP gives 6206.40; the model gives no heading — a pullover woven top with a V-neckline, no opening and no fit recorded: neither a shirt nor a blouse of Note 4 to Chapter 62 (the blouse gap of the in-sample rulings).
+    % DISAGREES: CBP gives 6206.40; the model gives heading 6211 (other garments), the residual heading for woven garments — a pullover woven top with a V-neckline, no opening and no fit recorded: neither a shirt nor a blouse of Note 4 to Chapter 62 (the blouse gap of the in-sample rulings).
     style AFMT04CAS is an upper body garment,
         confer "AFMT04CAS is a woman’s scrub top constructed from 90% polyester and 10% spandex woven fabric".
     style AFMT04CAS is classified under the US tariff,
@@ -244,8 +245,8 @@ scenario ny_n350798 is, as stated in ruling NY N350798:
         confer "scrub top constructed from 90% polyester and 10% spandex woven fabric".
     style AFMT04CAS contains 10 percent of spandex,
         confer "constructed from 90% polyester and 10% spandex woven fabric".
-    subheading expects answers [].
-    unplaced expects answers ["style AFMT04CAS is not placed by the model"].
+    subheading expects answers ["the subheading of style AFMT04CAS is 6211.43"].
+    unplaced expects answers [].
 
 % NY N343173 (October 2024): a woman's blouse from China.
 scenario ny_n343173 is, as stated in ruling NY N343173:

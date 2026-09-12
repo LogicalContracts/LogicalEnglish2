@@ -1,5 +1,6 @@
 % Apparel rulings of U.S. Customs and Border Protection (CROSS, rulings.cbp.gov)
-% run through the apparel model (apparel.le, which includes gri.le).
+% run through the whole modelled tariff (tariff.le). The first prototype's
+% sample of upper-body garments (see README.md).
 %
 % One scenario per ruling; each style is described by the facts the ruling
 % states: the scenario names the ruling ("scenario ny_n362700 is, as stated
@@ -16,7 +17,7 @@ the target language is: prolog.
 scenario facts require provenance.
 
 the knowledge base apparel cbp includes these resources:
-    apparel.
+    tariff.
 
 the knowledge base apparel cbp includes:
 
@@ -1105,7 +1106,7 @@ scenario ny_n336500 is, as stated in ruling NY N336500:
 
 % NY N361742 (May 2026): a woman's blouse from Vietnam.
 scenario ny_n361742 is, as stated in ruling NY N361742:
-    % DISAGREES: CBP gives 6206.40; the model gives no heading — the ruling calls the garment a blouse but records neither a loose fit (Note 4 to Chapter 62) nor an opening at the neckline, so no heading of the model describes it.
+    % DISAGREES: CBP gives 6206.40; the model gives heading 6211 (other garments), the residual heading for woven garments — the ruling calls the garment a blouse but records neither a loose fit (Note 4 to Chapter 62) nor an opening at the neckline, so no heading more specific than 6211 describes it.
     style 271-SW222435 is an upper body garment,
         confer "The pullover style blouse features a round collar".
     style 271-SW222435 is classified under the US tariff.
@@ -1133,13 +1134,13 @@ scenario ny_n361742 is, as stated in ruling NY N361742:
         confer "271-SW222435back of the sleeves".
     the essential character of style 271-SW222435 is given by the woven front of style 271-SW222435,
         according to CBP, confer "and a hemmedbottomThe ven fabric imparts thessential character".
-    subheading expects answers [].
-    unplaced expects answers ["style 271-SW222435 is not placed by the model"].
+    subheading expects answers ["the subheading of style 271-SW222435 is 6211.43"].
+    unplaced expects answers [].
 
 % NY N356781 (December 2025): girls' upper body garments from Vietnam.
 scenario ny_n356781 is, as stated in ruling NY N356781:
     % style BG BEACON MH TOP gauze is style PID-E73R1G-C126.
-    % DISAGREES: CBP gives 6206.30; the model gives no heading — the ruling records elastic shirring and a peplum, non-functional buttons, and no loose fit: neither a shirt nor a blouse of Note 4 to Chapter 62.
+    % DISAGREES: CBP gives 6206.30; the model gives heading 6211 (other garments), the residual heading for woven garments — the ruling records elastic shirring and a peplum, non-functional buttons, and no loose fit: neither a shirt nor a blouse of Note 4 to Chapter 62, so an other garment of heading 6211.
     style BG BEACON MH TOP gauze is an upper body garment,
         confer "PID-E73R1G-C126 BG BEACON MH TOP-TPI GAUZE is a girls’ upper body garment constructed of 96% cotton and 4% polyester woven fabric with an".
     style BG BEACON MH TOP gauze is classified under the US tariff,
@@ -1153,7 +1154,7 @@ scenario ny_n356781 is, as stated in ruling NY N356781:
     style BG BEACON MH TOP gauze contains 4 percent of polyester,
         confer "constructed of 96% cotton and 4% polyester woven fabric with an inner lining".
     % style BG BEACON MH TOP is style PID-R6YM91-C126.
-    % DISAGREES: CBP gives 6206.30; the model gives no heading — as above: elastic shirring across the bodice, no opening, no loose fit recorded.
+    % DISAGREES: CBP gives 6206.30; the model gives heading 6211 (other garments), the residual heading for woven garments — as above: elastic shirring across the bodice, no opening, no loose fit recorded.
     style BG BEACON MH TOP is an upper body garment,
         confer "PID-R6YM91-C126 BG BEACON MH TOP_TPI is a girls’ upper body garment constructed of 80% cotton and 20% polyester woven fabric with an".
     style BG BEACON MH TOP is classified under the US tariff,
@@ -1166,8 +1167,8 @@ scenario ny_n356781 is, as stated in ruling NY N356781:
         confer "body garment constructed of 80% cotton and 20% polyester woven fabric with".
     style BG BEACON MH TOP contains 20 percent of polyester,
         confer "constructed of 80% cotton and 20% polyester woven fabric with an inner lining".
-    subheading expects answers [].
-    unplaced expects answers ["style BG BEACON MH TOP gauze is not placed by the model", "style BG BEACON MH TOP is not placed by the model"].
+    subheading expects answers ["the subheading of style BG BEACON MH TOP gauze is 6211.42", "the subheading of style BG BEACON MH TOP is 6211.42"].
+    unplaced expects answers [].
 
 % NY N342011 (August 2024): women's blouses from India and Indonesia.
 scenario ny_n342011 is, as stated in ruling NY N342011:

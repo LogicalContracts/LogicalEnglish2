@@ -1,0 +1,61 @@
+CBP ruling NY N296134 (2018-05-16): The tariff classification of plastic sheets from Denmark
+https://rulings.cbp.gov/ruling/N296134 — text as served by https://rulings.cbp.gov/api/ruling/N296134
+
+N296134
+
+May 16, 2018
+
+CLA-2-39:OT:RR:NC:N1:119
+
+CATEGORY:	Classification
+
+TARIFF NO.: 3920.30.0000 
+
+Paul S. Anderson
+The Anderson Law Firm, LLC
+125 South Wacker Drive, Suite 1825
+Chicago, IL 60606
+
+RE:	The tariff classification of plastic sheets from Denmark  
+
+Dear Mr. Anderson:
+
+In your letter dated April 16, 2018, on behalf of your client Stall og Plast A/S (SP), you requested a tariff classification ruling.
+
+The products to be imported are rectangular shaped tri-laminate plastic sheets.  Each of the layers is comprised of high impact polystyrene which contain certain additives stated to impart unique and proprietary properties to the product.  These sheets will ultimately be used to manufacture irrigation trays.  Based on the information provided, once imported, the sheets will be heated in order to shape channels for water distribution through utilization of a vacuum forming machine.  In addition some cleaning takes place. 
+
+The applicable subheading for the plastic sheets will be 3920.30.0000, Harmonized Tariff Schedule of the United States (HTSUS), which provides for Other plates, sheets, film, foil and strip, of plastics, noncellular and not reinforced, laminated, supported or similarly combined with other materials: Of polymers of styrene.  The rate of duty will be 5.8 percent ad valorem.
+
+Aside from a heading 3920 determination, it is suggested that we may also consider viewing these sheets as unfinished articles and classifying them in subheading 3926.90.99 which provides for Other articles of plastics and articles of other materials of headings 3901 to 3914: Other: Other. You stress that the “unfinished articles” are formed to size at the time of importation and possess certain characteristics that would dedicate them for horticultural/irrigation activities. In addition you, cite HQ 955597 dated 5/31/94 to support your argument. In that ruling, certain cut to shape plastic sheets were found eligible for duty free treatment under 9817.00.50 based upon the fact that they that were cut to specific sizes, ready for use as plastic gates/doors and determined to have a fixed identity as an agricultural implement. However, they were first found to be classified in heading 3920.
+
+It is longstanding practice that articles are classified according to their condition at the time of importation. United States v. Citroen, 223 U.S. 407, 32 S. Ct. 259, 56 L. Ed. 486 (1912).   In their condition as imported, the plastic sheets in question are exactly that, plastic sheets. They are not articles unfinished or otherwise, but rather a material component used to manufacture an irrigation tray. Therefore, despite their size, material make-up or stated intended purpose, the subject sheets are more specifically provided for in Chapter 39.  
+
+Classification of merchandise under the Harmonized Tariff Schedule of the United States (HTSUS) is made in accordance with the General Rules of Interpretation (GRI's) 1 through 6. The systematic detail of the HTSUS is such that virtually all goods are classified by application of GRI 1, that is, according to the terms of the headings of the tariff schedule and any relevant section or chapter notes. In the event that the goods cannot be classified solely on the basis of GRI 1, and if the headings and legal notes do not otherwise require, the remaining GRI's may be applied, taken in order. 
+
+When comparing the two headings, 3920 to 3926, these sheets are more specifically provided for under 3920, GRI 1 noted. Additionally, if a plastic article is more specifically provided for elsewhere in the HTSUS, then classification under 3926.90.99 is not appropriate.
+
+You have also asked about the applicability of subheading 9817.00.5000, HTSUS. Machinery, equipment and implements to be used for agricultural or horticultural purposes are provided for under the special classification provision of subheading 9817.00.5000, HTSUS.  In order for the subject merchandise to fall within the special provisions of Chapter 98, HTSUS, the following three-part test must be met: (1) The article in question must not be excluded from the heading under Section XXII, Chapter 98, Subchapter XVII, U.S. Note 2, HTSUS; (2) The terms of the headings must be met in accordance with GRI 1, HTSUS, which provides that classification is determined according to the terms of the headings and any relative section or chapter notes; and (3) The article must comply with the actual use provision requirements of sections 10.131-10.139, Customs Regulations (19 CFR 10.131-10.139).
+
+The plastic sheets are provided for under heading 3920, HTSUS.  This heading is not excluded from classification in subheading 9817.00.50, HTSUS, by operation of Section XXII, Chapter 98, Subchapter XVII, U.S. Note 2.  The second part of the test requires the plastic sheets to be “machinery", "equipment" or "implements" used for "agricultural or horticultural purposes". 
+You state that the plastic sheets to be imported by SP would qualify as implements as they are formed to shape and exhibit the essential character of the horticultural implement through the proprietary plastic and additives.  Since the subject sheets do not require any cutting to shape after importation, you believe them similar to the plastic sheets discussed in HQ 955597, referenced above, and HQ H090861, dated 10/12/10 which were found to be eligible for 9817.0050, HTSUS, and undoubtedly pass the second requirement of the three-part test.
+
+We disagree.  Though the products may be imported cut to specific rectangular sizes and containing special additives, neither their shape nor their material composition is enough to render them horticultural implements. The sheets only become recognizable as such after they  are heated and formed to include channels (or drainage ducts and sump valves as they are referred to in SP’s literature).  Even though the irrigation trays made from these sheets will clearly be used in a horticultural pursuit, in their condition as imported, the subject sheets are merely materials from which horticultural implements will be made. 
+
+Therefore, the merchandise does not meet the second part of the test for classifying an item in
+heading 9817.00.50, HTSUS.  As such, we find that the plastic sheets do not qualify for duty-free entry as agricultural or horticultural implements, in Chapter 98, under the HTSUS.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on the World Wide Web at https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported.  If you have any questions regarding the ruling, contact National Import Specialist April Cutuli at april.a.cutuli@cbp.dhs.gov.
+
+Sincerely,
+
+
+
+
+Steven A. Mack
+Director
+National Commodity Specialist Division
+

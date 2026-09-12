@@ -1,0 +1,48 @@
+CBP ruling NY N346497 (2025-03-11): The tariff classification of an inflatable polyvinyl chloride (PVC) tub from China
+https://rulings.cbp.gov/ruling/N346497 — text as served by https://rulings.cbp.gov/api/ruling/N346497
+
+N346497 
+
+March 11, 2025 
+
+CLA-2-39:OT:RR:NC:N5: 137
+
+CATEGORY: Classification
+
+TARIFF NO.: 3922.10.0000; 9903.01.24; 9903.88.15
+
+Dmitriy Pevzner
+Supply Chain Sources LLC.
+20 Prestige CircleAllen, TX 75252
+
+RE:  The tariff classification of an inflatable polyvinyl chloride (PVC) tub from China
+
+Dear Mr. Pevzner:
+
+In your letter dated March 5, 2025, you requested a tariff classification ruling.
+
+The product under consideration is Model No. QG-10-RB, referred to as a Hot/Cold Plunge tub. The included components are a polyvinyl chloride (PVC) inflatable tub, manual air pump, PVC tub cover, 1 horsepower (HP) heater and chiller and PVC water connection hoses and caps. The tub has a 120-gallon capacity and is said to be used for relaxation and workout recovery. The product can be heated up to 108 degrees Fahrenheit and provide ice therapy down to 37 degrees Fahrenheit.
+
+In your letter you suggest that the Hot/Cold Plunge Tub be classified under subheading 9019.10.2010, Harmonized Tariff Schedule of the United States (HTSUS), which provides for mechano-therapy apparatus. We disagree. The tub is not a mechano-therapy apparatus, “used to treat illnesses of the joints and muscles, by mechanical reproduction of various movements…usually carried out under medical supervision” as described in the Explanatory Note 1 to heading 9019. The product has neither the massage functions nor capabilities to provide a massage to the user; therefore, it is not a massage apparatus. As such, it cannot be classified in subheading 9019.10.20, HTSUS. 
+
+The applicable subheading for the inflatable PVC tub will be 3922.10.0000, Harmonized Tariff Schedule of the United States (HTSUS), which provides for baths, shower baths, sinks, washbasins, bidets, lavatory pans, seats and covers, flushing cisterns and similar sanitary ware, of plastics: baths, shower baths, sinks and washbasins. The rate of duty will be 6.3 percent ad valorem.
+
+Effective March 4, 2025, pursuant to U.S. Note 2(u) to Subchapter III, Chapter 99, all products of China and Hong Kong as provided by heading 9903.01.24, HTSUS, other than products classifiable under headings 9903.01.21, 9903.01.22, and 9903.01.23, HTSUS, will be subject to an additional 20 percent ad valorem rate of duty. At the time of entry, you must report the applicable Chapter 99 heading, i.e. 9903.01.24, in addition to subheading 3922.10.0000, HTSUS, listed above.
+
+Pursuant to U.S. Note 20 to Subchapter III, Chapter 99, HTSUS, products of China classified under subheading 3922.10.0000, HTSUS, unless specifically excluded, are subject to an additional 7.5 percent ad valorem rate of duty. At the time of importation, you must report the Chapter 99 subheading, i.e., 9903.88.15, in addition to subheading 3922.10.0000, HTSUS, listed above.
+
+The HTSUS is subject to periodic amendment, so you should exercise reasonable care in monitoring the status of goods covered by the Note cited above and the applicable Chapter 99 subheading. For background information regarding the trade remedy initiated pursuant to Section 301 of the Trade Act of 1974, including information on exclusions and their effective dates, you may refer to the relevant parts of the USTR and CBP websites, which are available at https://ustr.gov/issue-areas/enforcement/section-301-investigations/tariff-actions and https://www.cbp.gov/trade/programs-administration/trade-remedies, respectively.
+
+Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided at https://hts.usitc.gov/.
+
+The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Christina Allen at julie.c.allen@cbp.dhs.gov.
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

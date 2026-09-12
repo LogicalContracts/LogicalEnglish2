@@ -5,15 +5,15 @@ To gate CI, use the exit status of testing/run_tests.sh.
 Suite:      core (this repository alone; extension-dependent trees excluded)
 Command:    testing/run_tests.sh le   (or: runTests)
 Sibling:    testSuiteStatus.txt — all (core + trees requiring the proprietary le_extensions.pl)
-Generated:  2026-09-11 20:17:34 UTC
+Generated:  2026-09-12 02:24:20 UTC
 SWI-Prolog: 10.1.12
 Tree:       /work/
 
 Test Summary:
 -------------
-Files processed: 124
-Total tests:     487
-Passed:          487
+Files processed: 132
+Total tests:     637
+Passed:          637
 Failed:          0
 Errors/Timeouts: 0
 -------------
@@ -125,15 +125,23 @@ Detailed File Summary:
   [PASS] examples/RulesRus/sections_benefit.le: 8 Pass, 0 Fail, 0 Error
   [NONE] examples/RulesRus/semantic_llm.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/semantic_match.le: 1 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/apparel.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/customs/apparel_cbp.le: 32 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/customs/apparel_ebti.le: 13 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/customs/by_hand.le: 0 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/customs/cbp_39.le: 45 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/customs/cbp_61.le: 50 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/customs/cbp_62.le: 30 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/customs/chapter_39.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/customs/chapter_61.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/customs/chapter_62.le: 0 Pass, 0 Fail, 0 Error
   [NONE] examples/RulesRus/customs/gri.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/customs/heldout_apparel_cbp.le: 11 Pass, 0 Fail, 0 Error
+  [PASS] examples/RulesRus/customs/heldout_cbp_2.le: 25 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/customs/heldout_plastics_cbp.le: 5 Pass, 0 Fail, 0 Error
-  [NONE] examples/RulesRus/customs/plastics.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/customs/plastics_cbp.le: 22 Pass, 0 Fail, 0 Error
   [PASS] examples/RulesRus/customs/plastics_ebti.le: 4 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/customs/section_xi.le: 0 Pass, 0 Fail, 0 Error
+  [NONE] examples/RulesRus/customs/tariff.le: 0 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/cidadania.le: 4 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/desconhecidos.le: 3 Pass, 0 Fail, 0 Error
   [PASS] examples/pt/despesas.le: 6 Pass, 0 Fail, 0 Error

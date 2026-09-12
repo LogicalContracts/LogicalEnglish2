@@ -1,0 +1,63 @@
+CBP ruling NY N340376 (2024-06-25): The tariff classification of women’s garments from Turkey
+https://rulings.cbp.gov/ruling/N340376 — text as served by https://rulings.cbp.gov/api/ruling/N340376
+
+N340376 
+
+June 25, 2024 
+
+CLA-2-62:OT:RR:NC:N3:360
+
+CATEGORY: Classification
+
+TARIFF NO.: 6204.43.4030; 6106.20.2010; 6204.49.5060; 6204.63.9011
+
+Ms. Haley Schwartz
+Vertige Adaptive
+2663 Havens DriveWest Chicago, IL 60185RE:  The tariff classification of women’s garments from Turkey
+
+Dear Ms. Schwartz:
+
+In your letter dated May 28, 2024, you requested a tariff classification ruling.  Your samples will be retained by this office.
+
+Item VA0001 is a woman’s dress constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric.  The fully lined sleeveless dress features a round neck collar and a full front opening secured by a side fastener.  The dress extends from the shoulders to the mid-thigh area. The garment also features openings in the side seams and side seam pockets. In your submission, you indicate that these openings are intended to accommodate medical cords and tubes.  
+
+Item VA0002 is a woman’s blouse constructed from 45% rayon (modal), 45% polyester, and 10% spandex rib knit fabric that measures at least 10 or more stitches per linear centimeter measured in both directions. The loose-fitting garment extends from the shoulders to below the waist and features a crew neckline, short sleeves, six snaps from the neckline to the sleeve hem, and a straight, self-start bottom.  In your submission, you indicate that the garment is designed for use by women who need to access their PICC lines and ports without having to remove any clothing. 
+
+Item VA0003 is a woman’s dress constructed from 100% linen woven fabric.  The fully lined dress features a pointed collar, short sleeves, side seam pockets below the waist, and a partial front opening secured by six button closures.  The dress extends from the shoulders to the mid-thigh area. The garment also features openings in the side seams and side seam pockets. In your submission, you indicate that these openings are intended to accommodate medical cords and tubes.  
+
+Item VA0004 is a pair of woman’s trousers constructed from 73% polyester, 22% viscose, and 5% spandex woven fabric.  The trousers feature a partial back elasticized waist, a zippered fly front opening with a button closure, two front pockets, and two faux rear pockets.  The garment also features zippers on the insides of both pant legs. In your submission, you indicate that the zippers assist those with compression socks or small leg braces, the adjustable waist is designed for people with weight fluctuations, bloating, or for bulky devices or bags, and the extra elastic at the back of the waistband provides extra comfort when sitting.
+
+The applicable subheading for item VA0001 will be 6204.43.4030, Harmonized Tariff Schedule of the United States (HTSUS), which provides for Women’s or girls’ suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear): Dresses: Of synthetic fibers: Other: Other: Other: Women’s. The duty rate will be 16 percent ad valorem.
+
+The applicable subheading for item VA0002 will be 6106.20.2010, HTSUS, which provides for women’s or girls’ blouses and shirts, knitted or crocheted: Of man-made fibers: Other: Women’s. The rate of duty will be 32 percent ad valorem.
+
+The applicable subheading for item VA0003 will be 6204.49.5060, HTSUS, which provides for Women’s or girls’ suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear): Dresses: Of other textile materials: Other: Other: Other. The duty rate will be 6.9 percent ad valorem.
+
+The applicable subheading for item VA0004 will be 6204.63.9011, HTSUS, which provides for Women’s or girls’ suits, ensembles, suit-type jackets, blazers, dresses, skirts, divided skirts, trousers, bib and brace overalls, breeches and shorts (other than swimwear): Trousers, bib and brace overalls, breeches and shorts: Of synthetic fibers: Other: Other: Other: Other: Other: Trousers and breeches: Women’s: Other. The duty rate will be 28.6 percent ad valorem.
+
+In your submission you requested consideration of a secondary classification under 9817.00.96, HTSUS, which applies to articles and parts of articles specifically designed or adapted for the use or benefit of the permanently or chronically physically or mentally handicapped.
+
+Subheading 9817.00.96, HTSUS, covers: “Articles specially designed or adapted for the use or benefit of the blind or other physically or mentally handicapped persons; parts and accessories (except parts and accessories of braces and artificial limb prosthetics) that are specially designed or adapted for use in the foregoing articles . . . Other.”  The term “blind or other physically or mentally handicapped persons” includes “any person suffering from a permanent or chronic physical or mental impairment which substantially limits one or more major life activities, such as caring for one’s self, performing manual tasks, walking, seeing, hearing, speaking, breathing, learning, or working.”  U.S. Note 4(a), Subchapter XVII, Chapter 98, HTSUS.  Subheading 9817.00.96, HTSUS, excludes “(i) articles for acute or transient disability; (ii) spectacles, dentures, and cosmetic articles for individuals not substantially disabled; (iii) therapeutic and diagnostic articles; or, (iv) medicine or drugs.”  U.S. Note 4(b), Subchapter XVII, Chapter 98, HTSUS.
+
+In Sigvaris, Inc. v. United States, 227 F. Supp 3d 1327, 1336 (Ct. Int’l Trade 2017), aff’d, 899 F.3d 1308 (Fed. Cir. 2018), the U.S. Court of International Trade (CIT) explained that “specially” means “to an extent greater than in other cases or towards others” and “designed” means something that is “done, performed, or made with purpose and intent often despite an appearance of being accidental, spontaneous, or natural.”  We must first evaluate “for whose, if anyone’s, use and benefit is the article specially designed,” and then, whether “those persons [are] physically handicapped [].”  Sigvaris, 899 F.3d at 1314.
+
+The Court of Appeals for the Federal Circuit (CAFC) clarified in Sigvaris, 899 F.3d at 1314-15 that to be “specially designed,” the merchandise “must be intended for the use or benefit of a specific class of persons to an extent greater than for the use or benefit of others” and adopted the five factors used by U.S. Customs and Border Protection (CBP):
+(1) the physical properties of the article itself (i.e., whether the article is easily distinguishable by properties of the design, form, and the corresponding use specific to this unique design, from articles useful to non-handicapped persons); (2) whether any characteristics are present that create a substantial probability of use by the chronically handicapped so that the article is easily distinguishable from articles useful to the general public and any use thereof by the general public is so improbable that it would be fugitive; (3) whether articles are imported by manufacturers or distributors recognized or proven to be involved in this class or kind of articles for the handicapped; (4) whether the articles are sold in specialty stores which serve handicapped individuals; and, (5) whether the condition of the articles at the time of importation indicates that these articles are for the handicapped.
+
+Based upon the information supplied, it is the opinion of this office that items VA0001, VA0002, VA0003, and VA0004 are not for the permanently or chronically impaired. The garments’ adaptions are not significant enough to qualify for classification under 9817.00.96, HTSUS. In addition, the garments are not easily distinguishable from garments used by the general public and do not appear to be designed, marketed, and sold exclusively for the handicapped community. Therefore, we disagree that a secondary classification in 9817.00.96, HTSUS, applies.
+
+Duty rates are provided for your convenience and are subject to change. The text of the most recent HTSUS and the accompanying duty rates are provided at https://hts.usitc.gov/.
+
+At the time of Entry/Entry Summary, you may be requested to verify the information for any specific shipment or product.
+
+The holding set forth above applies only to the specific factual situation and merchandise description as identified in the ruling request. This position is clearly set forth in Title 19, Code of Federal Regulations (CFR), Section 177.9(b)(1). This section states that a ruling letter is issued on the assumption that all of the information furnished in the ruling letter, whether directly, by reference, or by implication, is accurate and complete in every material respect. In the event that the facts are modified in any way, or if the goods do not conform to these facts at time of importation, you should bring this to the attention of U.S. Customs and Border Protection (CBP) and submit a request for a new ruling in accordance with 19 CFR 177.2. Additionally, we note that the material facts described in the foregoing ruling may be subject to periodic verification by CBP.
+
+This ruling is being issued under the provisions of Part 177 of the Customs and Border Protection Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported. If you have any questions regarding the ruling, please contact National Import Specialist Kimberly Rackett at kimberly.rackett@cbp.dhs.gov.
+
+Sincerely, 
+
+Steven A. Mack 
+Director 
+National Commodity Specialist Division 

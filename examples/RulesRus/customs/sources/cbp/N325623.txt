@@ -1,0 +1,49 @@
+CBP ruling NY N325623 (2022-04-27): The tariff classification of plastic pipe and pipe fittings from Taiwan
+https://rulings.cbp.gov/ruling/N325623 — text as served by https://rulings.cbp.gov/api/ruling/N325623
+
+N325623
+
+April 27, 2022
+
+CLA-2-39:OT:RR:NC:N1:137
+
+CATEGORY:	Classification
+
+TARIFF NO.: 3917.23.0000, 3917.40.0090
+
+Chandanie Gunathilake
+Watertite Products Inc. dba IPS Corporation
+500 Distribution Parkway
+Collierville, Tennessee 38017
+
+RE:	The tariff classification of plastic pipe and pipe fittings from Taiwan   
+
+Dear Ms. Gunathilake:
+
+In your letter dated April 22, 2022 you requested a tariff classification ruling.
+
+IPS Part No. 59572 and 59580 are described as overflow elbows composed of Acrylonitrile Butadiene styrene (ABS).  59572 is an elbow fitting with one hole.  59580 is an elbow fitting with two holes.   
+
+IPS Part No. 59622 is described as an overflow elbow composed of Polyvinyl chloride (PVC).  It is an elbow fitting with one hole.
+
+IPS Part No. 59968 is described as an overflow elbow composed of ABS.  It consists of an elbow fitting incorporated into a length of drain pipe.  
+
+The applicable subheading for the ABS overflow elbows part numbers 59572 and 59580 and PVC overflow elbow part number 59622 will be 3917.40.0090, Harmonized Tariff Schedule of the United States (HTSUS), which provides for tubes, pipes and hoses and fittings therefor (for example, joints, elbows, flanges), of plastics: fittings: other.  The general rate of duty will be 5.3 percent ad valorem.
+
+The applicable subheading for the ABS overflow elbow part number 59968 will be 3917.23.0000, HTSUS, which provides for for tubes, pipes and hoses and fittings therefor (for example, joints, elbows, flanges), of plastics: tubes, pipes and hoses, rigid: of polymers of vinyl chloride.  The general rate of duty will be 3.1 percent ad valorem.
+
+Duty rates are provided for your convenience and are subject to change.  The text of the most recent HTSUS and the accompanying duty rates are provided on the World Wide Web at https://hts.usitc.gov/current.
+
+This ruling is being issued under the provisions of Part 177 of the Customs Regulations (19 C.F.R. 177).
+
+A copy of the ruling or the control number indicated above should be provided with the entry documents filed at the time this merchandise is imported.  If you have any questions regarding the ruling, contact National Import Specialist Christina Allen at julie.c.allen@cbp.dhs.gov.
+
+Sincerely,
+
+
+
+
+Steven A. Mack
+Director
+National Commodity Specialist Division
+
