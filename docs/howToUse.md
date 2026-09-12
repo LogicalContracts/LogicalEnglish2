@@ -68,7 +68,8 @@ mobile-friendly entry point at **`/executive`** (e.g.
   lists its **cited steps** in the order of the proof — each with the rule,
   the document and the passage — and a **§** button that opens the passage
   in the document's text. **Copy** puts the list on the clipboard; **Full
-  explanation** unfolds the whole tree.
+  explanation** unfolds the whole tree (a link beside the list's heading jumps
+  to it, past a long list of citations).
 - **Explore variations.** A **Scenario Variations** button between the two
   dropdowns opens the full [Scenario Variations](#scenario-variations) window on
   the same program, for altering facts and comparing outcomes.
@@ -78,7 +79,8 @@ mobile-friendly entry point at **`/executive`** (e.g.
   described — the case's facts in groups, the result in large type, its
   citations, the stage it reaches, what is missing, what would change it, the
   documents beside it, every case with its result, or an interview asking one
-  question at a time. `&view=<name>` opens one directly.
+  question at a time. `&view=<name>` opens one directly. How to write one:
+  [Introducing LE Views](IntroducingLEViews.md).
 
 Everything is driven by the URL, so results are shareable and bookmarkable:
 `/executive?program=<name>`, optionally with `&scenario=<name>` and
@@ -210,8 +212,11 @@ and what the program can show (citations, the stage, documents, a flip). It
 needs no language model. Edit it — group the facts under titles, head the
 result by the value that matters, add questions for an interview — or send
 the refinement the assistant's input then proposes. The verifier checks what
-a view names; once the program is saved, the view opens in the executive
-view.
+a view names. The reply's **Open the view** link opens it in the executive
+view as it is in the editor, without saving. A program whose knowledge base
+has no name takes its file's name for the view. Templates worded with a comma
+or full stop are left out, since a view's lists cannot hold them. Tutorial:
+[Introducing LE Views](IntroducingLEViews.md).
 
 ## Explanations and Navigation
 
@@ -267,6 +272,7 @@ Open **Misc → EXPLANATIONS → Preferences...** to configure:
 
 ## Advanced Features
 
+*   **Executive view:** **Misc → Open Executive View** opens the executive view of the program in a new tab, on the scenario and query picked in the editor, with the program's views listed at the top. It shows the program as it is in the editor, unsaved changes included (the text goes to the new tab through the browser's storage, so a link copied from it shows the saved program in another browser).
 *   **Source Graph:** **Misc → View Source Graph** opens, in a new browser tab, an interactive graph of the program: templates, rules, facts, scenarios, types and queries as nodes, with their uses/depends-on/negates/is-a relationships as edges. A sidebar selects the layout algorithm, its direction, and which layers (node and edge types) to show — these preferences persist across sessions. Clicking a node highlights its source text back in the editor (and the editor caret focuses the corresponding node); right-clicking a node offers **Copy Node** (copies its text to the clipboard), **Copy URL** (a shareable link focusing that node) and **Redraw from here**. The **Copy Mermaid** toolbar button copies the *visible* graph (the current layers and scenario filter, in the selected direction) as a [Mermaid](https://mermaid.js.org) flowchart — scenarios become subgraphs around their facts — ready to paste into GitHub, Obsidian, or any Mermaid renderer.
 *   **LE Assistant:** Use the **LE Assistant** tab to ask questions about your code or request help with drafting new rules.
 *   **Debugger:** Right-click in the editor and select **See PROLOG** to view the translated logic, or use the **Trace** button in the Query tab for step-by-step execution.

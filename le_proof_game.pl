@@ -7,6 +7,7 @@
 
 :- use_module(le_kbs).
 :- use_module(le_grammar).
+:- use_module(reasoner, [is_built_in/1]).
 
 % Fallback counter for the SM == none case (e.g. tests); thread_local so it
 % stays thread-safe. For real sessions the counter is stored in the SM module.
@@ -74,11 +75,13 @@ extract_rules_and_facts(KB, SM, Query, Rules, Facts, QueryTokens) :-
         literal_to_game(KB, Head, VarIds, NameMap, [], Seen1, HeadLE, HeadTokens),
         body_list_to_game(KB, FlatBodyList, VarIds, NameMap, Seen1, _SeenN, BodyLEs, BodyTokensList),
         findall(I, (nth0(I, FlatBodyList, Cond), is_naf_condition(Cond)), NafIndices),
-        % Type guards are checked by the engine, not played: they get no socket
-        % and count as already satisfied (see is_type_guard/1). They STAY in the
-        % body list so its indices keep lining up with the explanation's children
-        % and with apply_edges/2.
-        findall(TI, (nth0(TI, FlatBodyList, TCond), is_type_guard(TCond)), TypeCheckIndices),
+        % Type guards and built-in conditions are checked by the engine, not
+        % played: they get no socket and count as satisfied (see is_type_guard/1,
+        % is_engine_condition/1; a built-in is evaluated when its inputs are
+        % bound, see evaluate_engine_conditions/1). They STAY in the body list so
+        % its indices keep lining up with the explanation's children and with
+        % apply_edges/2.
+        findall(TI, (nth0(TI, FlatBodyList, TCond), engine_checked(TCond)), TypeCheckIndices),
         % For each "for all cases in which <Cond> it is the case that <Cons>" body
         % condition, expose its two sub-conditions so the UI can offer a separate
         % link target (sub-socket) for each (sub 0 = Cond, sub 1 = Cons).
@@ -184,6 +187,82 @@ is_true_conjunct(C) :- strip_le_at(C, true).
 %   filled, and its proof could never be completed.
 is_type_guard(Cond) :- strip_le_at(Cond, le_type_check(_, _)).
 
+engine_checked(Cond) :- is_type_guard(Cond), !.
+engine_checked(Cond) :- is_engine_condition(Cond).
+
+%!  is_engine_condition(+Cond) is semidet.
+%
+%   A built-in condition — arithmetic ("the amount is the rent / 2"), a
+%   comparison, a date computation, a `prolog` goal: the engine computes it, no
+%   rule or fact proves it, so no card can be linked to it. With a socket (as it
+%   had) it could never be filled, and a rule computing its conclusion could
+%   never complete: Show Proof laid out the tree and the proof never turned
+%   green.
+is_engine_condition(Cond) :-
+    strip_le_at(Cond, G),
+    callable(G),
+    G \== true,
+    \+ is_naf_condition(G),
+    \+ G = forall(_, _), \+ G = and(_, _), \+ G = or(_, _),
+    \+ is_type_guard(G),
+    is_built_in(G).
+
+%!  evaluate_engine_conditions(+Instances) is semidet.
+%
+%   Evaluate the built-in conditions of the cards whose inputs the links have
+%   bound, as the engine would: "the amount is the rent / 2" binds the amount
+%   once the rent is linked, so the conclusion shows it ("the help for ann is
+%   400") and matches the answer. Fails when one is false — the cards linked
+%   make the condition false: a clash. A computed value may be the input of
+%   another, hence the rounds; a condition whose inputs stay unbound is left, as
+%   its card is. `prolog` goals are not run here.
+evaluate_engine_conditions(Instances) :-
+    instances_engine_conditions(Instances, Conds),
+    evaluate_rounds(Conds).
+
+instances_engine_conditions([], []).
+instances_engine_conditions([inst(_, _, _, Body, _)|Insts], Conds) :-
+    include(evaluable_condition, Body, C1),
+    instances_engine_conditions(Insts, C2),
+    append(C1, C2, Conds).
+
+evaluable_condition(Cond) :-
+    is_engine_condition(Cond),
+    strip_le_at(Cond, G),
+    G \= prolog_call(_).
+
+evaluate_rounds(Conds) :-
+    partition(engine_condition_ready, Conds, Ready, Waiting),
+    (   Ready == []
+    ->  true
+    ;   maplist(evaluate_engine_condition, Ready),
+        evaluate_rounds(Waiting)
+    ).
+
+% Ready: what the built-in computes from is bound. A goal that could bind in
+% several ways (le_is_in/2 of a list) waits until ground: picking one of its
+% values here could clash with the link that decides it.
+engine_condition_ready(Cond) :-
+    strip_le_at(Cond, G),
+    engine_goal_ready(G).
+
+engine_goal_ready(le_is(_, E)) :- !, ground(E).
+engine_goal_ready(le_assign(_, E)) :- !, ground(E).
+engine_goal_ready(le_minimum(X, Y, _)) :- !, ground(X-Y).
+engine_goal_ready(le_maximum(X, Y, _)) :- !, ground(X-Y).
+engine_goal_ready(le_equal_to(X, Y)) :- !, ( ground(X) -> true ; ground(Y) ).
+engine_goal_ready(equal_to(X, Y)) :- !, ( ground(X) -> true ; ground(Y) ).
+engine_goal_ready(le_is_days_after(L, C, B)) :- !,
+    include(ground, [L, C, B], Bound), length(Bound, N), N >= 2.
+engine_goal_ready(G) :- ground(G).
+
+% A built-in that raises (a value of the wrong kind) is left unjudged.
+evaluate_engine_condition(Cond) :-
+    strip_le_at(Cond, G),
+    catch(( reasoner:call_reasoner_built_in(G, user) -> Result = true ; Result = false ),
+          _, Result = error),
+    Result \== false.
+
 %!  query_condition_cards(+KB, +SM, -Cards:dict) is det.
 %
 %   How the query node should be drawn: one socket per top-level conjunct, the
@@ -200,12 +279,14 @@ query_condition_cards(KB, SM, Cards) :-
     ->  body_list_to_game(KB, QConds, VarIds, NameMap, [], _Seen, LEs, TokensList),
         body_ranges(QConds, Ranges),
         findall(I, ( nth0(I, QConds, C), is_naf_condition(C) ), Nafs),
+        findall(I, ( nth0(I, QConds, C), engine_checked(C) ), Checked),
         forall_meta_list(KB, QConds, VarIds, NameMap, ForallMeta),
         Cards = _{ conditions: LEs, conditionTokens: TokensList,
                    conditionRanges: Ranges, conditionNaf: Nafs,
-                   conditionForall: ForallMeta }
+                   conditionForall: ForallMeta, conditionTypeCheck: Checked }
     ;   Cards = _{ conditions: [], conditionTokens: [],
-                   conditionRanges: [], conditionNaf: [], conditionForall: [] }
+                   conditionRanges: [], conditionNaf: [], conditionForall: [],
+                   conditionTypeCheck: [] }
     ).
 
 %!  unify_game_nodes(+KB, +SM, +NodeSpecs, +Edges, -Response) is det.
@@ -213,7 +294,8 @@ unify_game_nodes(KB, SM, NodeSpecs, Edges, Response) :-
     (   catch(
             build_proof_fragment(SM, NodeSpecs, Instances),
             _Err, fail)
-    ->  (   apply_edges(Instances, Edges)
+    ->  (   apply_edges(Instances, Edges),
+            evaluate_engine_conditions(Instances)
         ->  render_instances(KB, Instances, NodeResults),
             Response = _{ status: "ok", nodes: NodeResults }
         ;   Response = _{ status: "clash" }

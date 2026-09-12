@@ -485,3 +485,76 @@ query one is:
     le_kbs:destroySession(SM).
 
 :- end_tests(proof_game_conjunctive_query).
+
+% --- Built-in conditions -----------------------------------------------------
+% "the amount is the rent / 2" and "the rent is at most 1000" are computed by the
+% engine, no card proves them. They had a socket nothing could fill, so a rule
+% computing its conclusion could never complete: Show Proof laid out the tree of
+% examples/RulesRus/sections_benefit.le and it never turned green. Now they are
+% engine-checked (no socket), evaluated once the links bind their inputs.
+
+builtin_program("the target language is: prolog.
+
+the templates are:
+    the help for *a person* is *an amount*.
+    the rent of *a person* is *an amount*.
+
+the knowledge base builtins includes:
+    the help for a person is an amount
+        if the rent of the person is a rent
+        and the rent =< 1000
+        and the amount is the rent / 2.
+
+scenario ann is:
+    the rent of ann is 800.
+
+scenario bob is:
+    the rent of bob is 1200.
+
+query one is:
+    the help for which person is which amount.
+").
+
+builtin_session(Scenario, KB, SM, RuleId, Facts) :-
+    builtin_program(Text),
+    le_kbs:load_text(Text, KB),
+    le_kbs:createSession(KB, SM),
+    le_kbs:setScenarion(SM, Scenario),
+    KB:query_info(one, Goal, _),
+    le_proof_game:extract_rules_and_facts(KB, SM, Goal, Rules, Facts, _),
+    once(( member(R, Rules), sub_string(R.head, _, _, _, "help"), get_dict(id, R, RuleId) )),
+    assertion(R.bodyTypeCheck == [1, 2]).
+
+builtin_proof(Scenario, Response) :-
+    builtin_session(Scenario, KB, SM, RuleId, Facts),
+    Facts = [F|_],
+    Nodes = [ _{instanceId:"q", templateId:"query"},
+              _{instanceId:"r", templateId:RuleId},
+              _{instanceId:"f", templateId:F.id} ],
+    Edges = [ _{child:"r", parent:"q", bodyIndex:0},
+              _{child:"f", parent:"r", bodyIndex:0} ],
+    le_proof_game:unify_game_nodes(KB, SM, Nodes, Edges, Response),
+    le_kbs:destroySession(SM).
+
+:- begin_tests(proof_game_builtins).
+
+% The rent linked, the engine computes the amount: the conclusion reads bound.
+test(a_computed_conclusion_is_bound) :-
+    builtin_proof(ann, Response),
+    assertion(Response.status == "ok"),
+    once(( member(N, Response.nodes), N.instanceId == r )),
+    assertion(N.head == "the help for ann is 400").
+
+% A comparison the linked facts make false is a clash.
+test(a_false_comparison_clashes) :-
+    builtin_proof(bob, Response),
+    assertion(Response.status == "clash").
+
+% Nothing linked: the built-ins wait for their inputs, no clash.
+test(unbound_inputs_wait) :-
+    builtin_session(ann, KB, SM, RuleId, _),
+    le_proof_game:unify_game_nodes(KB, SM, [_{instanceId:"r", templateId:RuleId}], [], Response),
+    le_kbs:destroySession(SM),
+    assertion(Response.status == "ok").
+
+:- end_tests(proof_game_builtins).

@@ -36,12 +36,14 @@
     record_view_source/5,   % +M, +Name, +Rows, +Start, +End
     program_views/2,        % +KB, -Views:list(dict)
     view_issue/2,           % +KB, -Issue
-    draft_view/2            % +KB, -Text:string
+    draft_view/2,           % +KB, -Text:string
+    draft_view/3            % +KB, +NameHint:string, -Text:string
 ]).
 
 :- use_module(le_i18n).
 :- use_module(library(apply)).
 :- use_module(library(lists)).
+:- use_module(library(pcre)).
 
 % ---------------------------------------------------------------------------
 % Recording (second pass)
@@ -209,8 +211,10 @@ name_of(Toks, Name) :-
 % ---------------------------------------------------------------------------
 
 % A template instance: the literal it reads as, the template's label, the
-% instance as the program renders it.
-resolve_instance(KB, Templates, Toks, inst(F/A, Label, Text, Literal)) :-
+% instance as the program renders it, and as the view writes it (the words a
+% screen shows for it: the label and the rendering put English articles on the
+% placeholders, "*a lugar*", whatever the program's language).
+resolve_instance(KB, Templates, Toks, inst(F/A, Label, Text, Literal, Words)) :-
     catch(le_grammar:parse_literal(Toks, Templates, [], _, Literal0, _, true), _, fail),
     strip_extra(Literal0, Literal),
     callable(Literal),
@@ -221,7 +225,8 @@ resolve_instance(KB, Templates, Toks, inst(F/A, Label, Text, Literal)) :-
     ->  copy_term(Tokens, T1), numbervars(T1, 0, _),
         le_kbs:goal_string(T1, Text)
     ;   format(string(Text), "~w", [Literal])
-    ).
+    ),
+    sentence_text(Toks, Words).
 
 strip_extra(le_at(G, _, _), G) :- !.
 strip_extra((G, _), L) :- !, strip_extra(G, L).
@@ -231,7 +236,7 @@ resolve_item(KB, T, V, group(Title, Parts), S, E, group(Title, Insts), Issues) :
     resolve_parts(KB, T, V, Parts, S, E, Insts, Issues).
 resolve_item(KB, T, V, judgments(Parts), S, E, judgments(Insts), Issues) :- !,
     resolve_parts(KB, T, V, Parts, S, E, Insts, Issues0),
-    findall(I, ( member(inst(F/A, _, Text, _), Insts), \+ judged_template(KB, F, A),
+    findall(I, ( member(inst(F/A, _, _, _, Text), Insts), \+ judged_template(KB, F, A),
                  issue(view_not_judged, [name-V, text-Text], S, E, I) ), NotJ),
     append(Issues0, NotJ, Issues).
 resolve_item(KB, T, V, question(Toks, Q), S, E, question(Inst, Q), Issues) :- !,
@@ -337,7 +342,7 @@ apply_(question(Inst, Q), V0, V) :-
     append(V0.questions, [J], Qs), V = V0.put(questions, Qs).
 apply_(result_query(Q, H, U), V0, V) :- V = V0.put(result, V0.result.put(_{query: Q, headedBy: H, unit: U})).
 apply_(result_whether(none), V, V) :- !.
-apply_(result_whether(inst(_, Label, Text, _)), V0, V) :-
+apply_(result_whether(inst(_, Label, Text, _, _)), V0, V) :-
     V = V0.put(result, V0.result.put(_{whether: Text, whetherLabel: Label})).
 apply_(reads(holds, T), V0, V) :- V = V0.put(result, V0.result.put(holds, T)).
 apply_(reads(not, T), V0, V) :- V = V0.put(result, V0.result.put(not, T)).
@@ -352,7 +357,7 @@ apply_(documents, V0, V) :- V = V0.put(documents, true).
 apply_(cases, V0, V) :- V = V0.put(cases, true).
 apply_(draft(T), V0, V) :- V = V0.put(draft, T).
 
-inst_json(inst(_, Label, Text, _), _{label: Label, instance: Text}).
+inst_json(inst(_, Label, Text, _, Words), _{label: Label, instance: Text, words: Words}).
 
 % the widget a sentence brings on screen, in the order the view names them
 item_widget(group(_, _), facts).
@@ -389,7 +394,7 @@ whole_issue(_, Name, Items, _, VS, VE, I) :-
 whole_issue(KB, Name, Items, _, _, _, I) :-
     member(item(Item, S, E), Items),
     ( Item = group(_, Insts) ; Item = question(Inst0, _), Inst0 \== none, Insts = [Inst0] ),
-    member(inst(F/A, _, Text, _), Insts),
+    member(inst(F/A, _, _, _, Text), Insts),
     \+ case_fact_template(KB, F, A),
     issue(view_derived_fact, [name-Name, text-Text], S, E, I).
 % a sentence said twice where one counts
@@ -461,11 +466,19 @@ issue(Type, Pairs, S, E, issue(Type, Desc, Fix, S, E)) :-
 %   Written in the program's language; the author edits it (group the facts,
 %   name the result's heading, word the questions).
 draft_view(KB, Text) :-
+    draft_view(KB, "", Text).
+
+%!  draft_view(+KB, +NameHint:string, -Text:string) is det.
+%
+%   ... named after the program's knowledge base or, for a program that names
+%   none (a contract, say), after NameHint — the editor sends the file's name.
+draft_view(KB, Hint, Text) :-
     catch(le_kbs:ensure_kb_language(KB), _, true),
-    ( le_kbs:program_kb_name(KB, KBName) -> true ; KBName = program ),
+    draft_name(KB, Hint, KBName),
     findall(Label-F/A, ( le_kbs:template_def(KB, F, A, Label, Kind, _),
-                         Kind \== judged, case_fact_template(KB, F, A) ), Facts0),
-    findall(Label, ( le_kbs:template_def(KB, _, _, Label, judged, _) ), Judged0),
+                         Kind \== judged, case_fact_template(KB, F, A),
+                         listable(Label) ), Facts0),
+    findall(Label, ( le_kbs:template_def(KB, _, _, Label, judged, _), listable(Label) ), Judged0),
     sort(Facts0, Facts1), pairs_keys(Facts1, FactLabels0), sort(FactLabels0, FactLabels),
     sort(Judged0, Judged),
     (   current_predicate(KB:query_info/3), KB:query_info(Q, _, _), \+ flip_query(KB, Q)
@@ -487,7 +500,8 @@ draft_view(KB, Text) :-
     ;   phrase_of(view_facts_about, FA), phrase_of(view_are, Are),
         maplist(instance_phrase, FactLabels, FPs),
         atomic_list_concat(FPs, ',\n        ', FList),
-        format(string(GL), "    ~w \"~w\" ~w\n        ~w.", [FA, "the case", Are, FList]),
+        le_msg(view_draft_group, [], Group),
+        format(string(GL), "    ~w \"~w\" ~w\n        ~w.", [FA, Group, Are, FList]),
         append(Lines0, [GL], Lines1)
     ),
     (   Judged == [] -> Lines2 = Lines1
@@ -526,7 +540,25 @@ flip_query(KB, Q) :- KB:query_info(Q, le_flip(_, _), _).
 instance_phrase(Label, Phrase) :-
     split_string(Label, "*", "", Parts),
     atomic_list_concat(Parts, '', A),
-    atom_string(A, Phrase).
+    normalize_space(string(Phrase), A).
+
+% A template a view can list: its facts are separated by commas and its
+% sentences end at a full stop, so a wording with either cannot be listed.
+listable(Label) :-
+    \+ sub_atom(Label, _, _, _, ','),
+    \+ sub_atom(Label, _, _, _, '.').
+
+% The view's name: the knowledge base's, else the hint's words (a file name,
+% "policy-GLM-5.2" -> "policy GLM 5 2"), else "main".
+draft_name(KB, _, Name) :-
+    le_kbs:program_kb_name(KB, N), N \== '', N \== "", !,
+    Name = N.
+draft_name(_, Hint, Name) :-
+    atom_string(Hint, H0),
+    re_replace("[^\\p{L}\\p{N}]+"/g, " ", H0, H1),
+    normalize_space(string(Name), H1),
+    Name \== "", !.
+draft_name(_, _, main).
 
 phrase_of(Key, Phrase) :-
     ( le_i18n:kw_main_words(Key, Words) -> atomic_list_concat(Words, ' ', Phrase) ; Phrase = Key ).

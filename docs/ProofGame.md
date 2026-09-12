@@ -86,6 +86,12 @@ becomes **alice** everywhere in the rule.
   a **clash** (red). This is the heart of unification, made visible.
 - A branch of the proof is finished when it bottoms out in **facts** — things that
   are simply true in the scenario.
+- Some conditions are **computed, not proved**: arithmetic (*"the amount is the
+  rent / 2"*), comparisons (*"the rent =< 1000"*), date calculations. No card
+  supplies them, so their boxes have no socket; the game works them out as soon
+  as the cards you connect give them their inputs. Connect *"the rent of ann is
+  800"* and the rule's head becomes *"the help for ann is 400"*. If the result
+  is false — a rent of 1200 under *"the rent =< 1000"* — the connection clashes.
 
 **Teaching point:** a proof is not a single step. It is a *tree* — the query at the
 root, rules in the middle, and facts at the leaves. The student's job is to grow

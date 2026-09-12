@@ -207,6 +207,35 @@ test(draft_view) :-
     view_issues(KB2, Issues),
     assertion(Issues == []).
 
+% A program whose knowledge base has no name (a contract's, say) drafted "the
+% view is:", which no parser reads: the view takes the file's name instead. A
+% template worded with a comma cannot be listed (the list's separator), so the
+% draft leaves it out rather than write a list the verifier rejects.
+test(draft_view_of_a_program_without_a_name) :-
+    P = "the target language is: prolog.
+
+the templates are:
+    *a person* is resident.
+    *a person* is covered, provided that the premium is paid.
+
+scenario one is:
+    ann is resident.
+
+query q is:
+    which person is resident.
+",
+    load_text(P, KB),
+    le_views:draft_view(KB, "policy-GLM-5.2", Text),
+    assertion(sub_string(Text, 0, _, _, "the view policy GLM 5 2 is:")),
+    assertion(sub_string(Text, _, _, _, "the title is \"Policy GLM 5 2\".")),
+    assertion(\+ sub_string(Text, _, _, _, "provided that")),
+    atomic_list_concat([P, "\n", Text], P2),
+    load_text(P2, KB2),
+    view_issues(KB2, Issues),
+    assertion(Issues == []),
+    assertion(\+ KB2:le_issue(error, _, _, _, _, _)),
+    view_of(KB2, 'policy GLM 5 2', _).
+
 % The screen's operations: the section checklist, the missing facts.
 test(open_questions_and_checklist) :-
     program("", P), load_text(P, KB),
@@ -217,6 +246,34 @@ test(open_questions_and_checklist) :-
     assertion(Ls == ["bob is on a low income"]),
     classic_web_api:handle_answering_query(_{sessionModule: SMS, scenario: "ann", query: "help"}, A),
     assertion(A.checklist == []).
+
+% A view in the program's language: its sentences are rows of keywords.csv,
+% its facts keep the view's own words (the labels put English articles on the
+% placeholders), and the verifier speaks the language too.
+test(portuguese_view) :-
+    read_file_to_string('examples/pt/cidadania.le', P0, []),
+    string_concat(P0, "
+a vista balcão é:
+    o título é \"Cidadania britânica\".
+    o caso é um cenário.
+    os factos sobre \"o nascimento\" são
+        uma pessoa nasceu em um lugar em uma data,
+        uma pessoa é o pai de uma pessoa.
+    o resultado é a resposta à consulta um, encabeçado por a pessoa.
+    os casos são listados com os seus resultados.
+", P),
+    load_text(P, KB),
+    view_of(KB, 'balcão', D),
+    assertion(D.title == "Cidadania britânica"),
+    assertion(D.result.query == "um"),
+    D.groups = [G],
+    findall(W, ( member(F, G.facts), get_dict(words, F, W) ), Ws),
+    assertion(Ws == ["uma pessoa nasceu em um lugar em uma data", "uma pessoa é o pai de uma pessoa"]),
+    % a rule concludes who the father is: stating it would bypass it
+    view_issues(KB, Types),
+    assertion(Types == [view_derived_fact]),
+    once(KB:le_issue(_, view_derived_fact, Msg, _, _, _)),
+    assertion(sub_string(Msg, _, _, _, "uma pessoa é o pai de uma pessoa")).
 
 % The example programs' views compile without issues.
 test(example_views, [forall(member(F, ['examples/RulesRus/eu261_integration.le', 'examples/RulesRus/flip_housing.le',

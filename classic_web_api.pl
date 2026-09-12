@@ -60,8 +60,12 @@
 :- http_handler('/executive', handle_executive, []).
 :- http_handler('/multilingual', handle_multilingual, []).
 :- http_handler('/dap', dap_websocket_handler, []).
-:- http_handler('/editor/', http_reply_from_files('editor', []), [prefix]).
-:- http_handler('/web_extras/', http_reply_from_files('web_extras', []), [prefix]).
+% The pages and scripts change with the code; `no-cache` makes the browser
+% ask again each time (a 304 when unchanged), where without it Safari kept an
+% old page beside a new script (the executive's views: an element the old
+% page lacked).
+:- http_handler('/editor/', http_reply_from_files('editor', [headers([cache_control('no-cache')])]), [prefix]).
+:- http_handler('/web_extras/', http_reply_from_files('web_extras', [headers([cache_control('no-cache')])]), [prefix]).
 :- http_handler('/editor', http_redirect(moved, '/editor/index.html'), []).
 
 %!  start_api_server is det.
@@ -1383,7 +1387,8 @@ handle_draft_view(Dict, Response) :-
     atom_string(SM, SMStr),
     le_kbs:note_session_use(SM),
     (   catch(SM:le_kb_module_fact(KB), _, fail),
-        catch(le_views:draft_view(KB, Text), E, (print_message(error, E), fail))
+        ( get_dict(name, Dict, Hint0) -> atom_string(Hint0, Hint) ; Hint = "" ),
+        catch(le_views:draft_view(KB, Hint, Text), E, (print_message(error, E), fail))
     ->  Response = _{view: Text}
     ;   Response = _{error: "No KB loaded"}
     ).
@@ -1829,6 +1834,7 @@ handle_get_game_data(Dict, Response) :-
                                      queryRanges: QCards.conditionRanges,
                                      queryNaf: QCards.conditionNaf,
                                      queryForall: QCards.conditionForall,
+                                     queryTypeCheck: QCards.conditionTypeCheck,
                                      explanation: JSONWhy, answers: AnswerLabels,
                                      answerIndex: SelIdx}, result: "ok"}
         )
@@ -2888,7 +2894,8 @@ docs_dir(Dir) :- absolute_file_name('docs', Dir, [file_type(directory), access(r
 %   program, choose a scenario and query, and run it — no editing. Query
 %   parameters (program, scenario, query) are read client-side from the URL.
 handle_executive(Request) :-
-    http_reply_file('web_extras/executive/index.html', [mime_type(text/html)], Request).
+    http_reply_file('web_extras/executive/index.html',
+                    [mime_type(text/html), headers([cache_control('no-cache')])], Request).
 
 % The requested relative path resolves to a file strictly inside DocsDir
 % (rejects '..' escapes).

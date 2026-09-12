@@ -91,6 +91,25 @@ async function renderMenu() {
 
 // -------------------------------- a program ---------------------------------
 
+// The editor's copy of a program (Misc → Open Executive View, a drafted view's
+// "Open the view"): its text as it is in the editor, unsaved changes included,
+// left in localStorage under the key the address names (`text=`). null when
+// the address names none, or this browser does not have it.
+function editorCopy() {
+    const id = params().get('text');
+    if (!id) return null;
+    try {
+        const c = JSON.parse(localStorage.getItem('le-exec-text:' + id) || 'null');
+        return c && typeof c.le === 'string' ? c : null;
+    } catch { return null; }
+}
+
+// This program's address, keeping the editor's copy it was opened with.
+function programHref(name, extra) {
+    const id = params().get('text');
+    return `/executive?program=${encodeURIComponent(name)}${id ? '&text=' + encodeURIComponent(id) : ''}${extra || ''}`;
+}
+
 async function loadProgram(name) {
     show('program');
     $('title').textContent = name;
@@ -102,12 +121,16 @@ async function loadProgram(name) {
     $('program-issues').hidden = true;
     $('tool-variations').hidden = true;
 
+    const copy = editorCopy();
     // Fetch the source text in the background — the tool popups need it.
-    leapi('examples', { file: name }).then(d => { programSource = d.document || ''; }).catch(() => {});
+    if (copy) programSource = copy.le;
+    else leapi('examples', { file: name }).then(d => { programSource = d.document || ''; }).catch(() => {});
 
     let data;
     try {
-        data = await leapi('load', { file: name, source: name });
+        data = copy
+            ? await leapi('load', { le: copy.le, source: copy.source || '', base: copy.base || '' })
+            : await leapi('load', { file: name, source: name });
     } catch (e) {
         $('answers').innerHTML = `<div class="status">Could not load “${esc(name)}” (${esc(e.message)}).</div>`;
         return;
@@ -118,6 +141,10 @@ async function loadProgram(name) {
     }
     session = data.sessionModule;
     programKb = data.kb || '';
+    if (params().get('text') && !copy) {
+        $('program-issues').hidden = false;
+        $('program-issues').textContent = t("The editor's copy of this program is not in this browser: this is the program as saved.");
+    }
     programQueries = (data.queries || []).map(q => ({ name: q.name, label: q.le || q.template || q.name }));
     programTemplateDefs = data.template_defs || [];
 
@@ -125,13 +152,14 @@ async function loadProgram(name) {
     // instead of the pickers (a view says itself what the screen asks and shows).
     const views = data.views || [];
     const wanted = params().get('view');
+    viewSlots();
     const links = $('view-links');
     links.hidden = !views.length;
     links.innerHTML = views.length
         ? `<span>${esc(t('Views'))}:</span>` + views.map(v => {
-              const href = `/executive?program=${encodeURIComponent(name)}&view=${encodeURIComponent(v.name)}`;
+              const href = programHref(name, `&view=${encodeURIComponent(v.name)}`);
               return `<a href="${href}" class="${v.name === wanted ? 'on' : ''}">${esc(v.title || v.name)}</a>`;
-          }).join('') + (wanted ? `<a href="/executive?program=${encodeURIComponent(name)}">${esc(t('Without a view'))}</a>` : '')
+          }).join('') + (wanted ? `<a href="${programHref(name)}">${esc(t('Without a view'))}</a>` : '')
         : '';
     const view = views.find(v => v.name === wanted);
     $('default-screen').hidden = !!view;
@@ -189,6 +217,28 @@ async function loadProgram(name) {
     runQuery();
 }
 
+// The places of the views on the page. A browser that kept a copy of the page
+// from before views existed runs this script on it: add them there.
+function viewSlots() {
+    const screen = $('screen-program');
+    if (!$('default-screen')) {
+        const d = document.createElement('div');
+        d.id = 'default-screen';
+        [...screen.children].filter(c => c.id !== 'program-issues').forEach(c => d.appendChild(c));
+        screen.appendChild(d);
+    }
+    if (!$('view-root')) {
+        const r = document.createElement('div');
+        r.id = 'view-root'; r.hidden = true;
+        screen.insertBefore(r, $('default-screen'));
+    }
+    if (!$('view-links')) {
+        const n = document.createElement('nav');
+        n.id = 'view-links'; n.className = 'view-links'; n.hidden = true;
+        screen.insertBefore(n, $('view-root'));
+    }
+}
+
 // Reflect scenario/query in the URL so a result is shareable (no reload).
 function syncUrl() {
     const p = params();
@@ -242,6 +292,15 @@ function renderAnswers(data) {
         e.stopPropagation();
         const node = sourceNodes[Number(b.dataset.k)];
         if (node) openSource(node.provenance, node.rule);
+    }));
+    // The full explanation, from the top of a long list of citations.
+    box.querySelectorAll('a.to-full').forEach(a => a.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const full = $(`full-${a.dataset.i}`);
+        if (!full) return;
+        full.open = true;
+        full.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }));
     box.querySelectorAll('button.copy-cites').forEach(b => b.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -305,10 +364,11 @@ function renderWhy(why, i) {
              <div class="cite">${esc(citationLine(n))}</div></li>`).join('');
     return `<div class="cites">
             <div class="cites-head"><span>${esc(t('Citations'))}</span>
+                <a href="#" class="to-full" data-i="${i}">${esc(t('Full explanation'))} ↓</a>
                 <button class="copy-cites" data-i="${i}">${esc(t('Copy'))}</button></div>
             <ol class="cite-list">${items}</ol>
         </div>
-        <details class="full"><summary>${esc(t('Full explanation'))}</summary>${renderTree(why)}</details>`;
+        <details class="full" id="full-${i}"><summary>${esc(t('Full explanation'))}</summary>${renderTree(why)}</details>`;
 }
 
 // The source viewer of the editor (the explanation's § badge), loaded on first

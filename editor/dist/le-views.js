@@ -8341,9 +8341,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Lista todos os factos que um caso pode afirmar num grupo e mostra o resultado da primeira consulta. Edite-a: agrupe os factos sob t\xEDtulos, encabece o resultado pelo valor que importa, redija as perguntas de uma entrevista. O verificador confere o que ela nomeia.",
     "Open the view": "Abrir a vista",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Aperfei\xE7oe a sec\xE7\xE3o de vista no fim do programa: agrupe os factos sob t\xEDtulos curtos, encabece o resultado pelo valor que importa e acrescente perguntas ou um rascunho onde ajudem. Use apenas as frases de vista de docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(depois de o programa ser guardado)",
     "provided that": "desde que",
-    "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique."
+    "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique.",
+    "Open Executive View": "Abrir a vista executiva",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Executar o programa como os seus utilizadores o veem, sem o texto: a vista executiva, com as vistas do programa, numa nova janela",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "A c\xF3pia do editor deste programa n\xE3o est\xE1 neste navegador: este \xE9 o programa tal como foi guardado."
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -8753,9 +8755,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Lista todos los hechos que un caso puede afirmar en un grupo y muestra el resultado de la primera consulta. Ed\xEDtela: agrupe los hechos bajo t\xEDtulos, encabece el resultado por el valor que importa, redacte las preguntas de una entrevista. El verificador comprueba lo que nombra.",
     "Open the view": "Abrir la vista",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Refine la secci\xF3n de vista al final del programa: agrupe sus hechos bajo t\xEDtulos cortos, encabece el resultado por el valor que importa y a\xF1ada preguntas o un borrador donde ayuden. Use solo las frases de vista de docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(una vez guardado el programa)",
     "provided that": "siempre que",
-    "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla."
+    "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla.",
+    "Open Executive View": "Abrir la vista ejecutiva",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ejecutar el programa como lo ven sus usuarios, sin su texto: la vista ejecutiva, con las vistas del programa, en una nueva ventana",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no est\xE1 en este navegador: este es el programa tal como se guard\xF3."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9165,9 +9169,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Elle liste tous les faits qu'un cas peut \xE9noncer en un groupe et montre le r\xE9sultat de la premi\xE8re requ\xEAte. Modifiez-la : groupez les faits sous des titres, mettez en t\xEAte la valeur qui compte, r\xE9digez les questions d'un entretien. Le v\xE9rificateur contr\xF4le ce qu'elle nomme.",
     "Open the view": "Ouvrir la vue",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Affinez la section de vue \xE0 la fin du programme : groupez ses faits sous des titres courts, mettez en t\xEAte la valeur qui compte et ajoutez des questions ou un brouillon l\xE0 o\xF9 ils aident. N'utilisez que les phrases de vue de docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(une fois le programme enregistr\xE9)",
     "provided that": "pourvu que",
-    "The result holds provided that it does.": "Le r\xE9sultat vaut pourvu que cela vaille."
+    "The result holds provided that it does.": "Le r\xE9sultat vaut pourvu que cela vaille.",
+    "Open Executive View": "Ouvrir la vue ex\xE9cutive",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ex\xE9cuter le programme tel que ses utilisateurs le voient, sans son texte : la vue ex\xE9cutive, avec les vues du programme, dans une nouvelle fen\xEAtre",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'\xE9diteur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistr\xE9."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -9577,9 +9583,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Elenca tutti i fatti che un caso pu\xF2 affermare in un gruppo e mostra il risultato della prima interrogazione. La modifichi: raggruppi i fatti sotto titoli, metta in testa il valore che conta, formuli le domande di un'intervista. Il verificatore controlla ci\xF2 che nomina.",
     "Open the view": "Apri la vista",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Rifinisca la sezione di vista alla fine del programma: raggruppi i fatti sotto titoli brevi, metta in testa il valore che conta e aggiunga domande o una bozza dove aiutano. Usi solo le frasi di vista di docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(una volta salvato il programma)",
     "provided that": "purch\xE9",
-    "The result holds provided that it does.": "Il risultato vale purch\xE9 questo valga."
+    "The result holds provided that it does.": "Il risultato vale purch\xE9 questo valga.",
+    "Open Executive View": "Apri la vista esecutiva",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Eseguire il programma come lo vedono i suoi utenti, senza il testo: la vista esecutiva, con le viste del programma, in una nuova finestra",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non \xE8 in questo browser: questo \xE8 il programma come salvato."
   }
 };
 var languages = [
@@ -10331,6 +10339,24 @@ var ScenarioForm = class _ScenarioForm {
   factLines() {
     return this.rows.map((r) => this.factText(r)).filter((t2) => !!t2);
   }
+  // Each fact's text, skipping the rows with a field still unfilled: empty, or
+  // its placeholder's own words with any article ("an amount", "the amount",
+  // "um lugar" for *a lugar*). A screen that runs the facts as they are typed
+  // must not state "the rent of dee is an amount" (true of every amount: a
+  // variable) before the value is in.
+  completeFactLines() {
+    return this.rows.filter((r) => !this.unfilled(r)).map((r) => this.factText(r)).filter((t2) => !!t2);
+  }
+  unfilled(row) {
+    if (row.templateLabel === null)
+      return false;
+    const slots = splitTemplate(row.templateLabel).filter((s) => s.kind === "field").map((s) => s.text.trim().toLowerCase());
+    const rest = (x) => x.split(/\s+/).slice(1).join(" ");
+    return slots.some((slot, i) => {
+      const v = (row.values[i] || "").trim().toLowerCase().replace(/\s+/g, " ");
+      return !v || v === slot || rest(v) !== "" && rest(v) === rest(slot);
+    });
+  }
   // The facts as runnable LE text (each terminated by "."), for use as a custom
   // scenario. Tests are NOT included (they are not facts).
   factsText() {
@@ -10588,6 +10614,7 @@ function ensureStyles2() {
     .lv-add select { max-width: 100%; flex: 1; padding: 3px; border-radius: 6px; border: 1px solid var(--lv-border); background: var(--lv-bg); color: var(--lv-ink); font-size: 12.5px; }
     .lv-absent { color: var(--lv-muted); font-style: italic; font-size: 13px; margin: 2px 0 6px; cursor: pointer; }
     .lv-absent:hover { color: var(--lv-accent); }
+    .lv-who { align-self: center; font-size: 11px; border: 1px solid var(--lv-accent); color: var(--lv-accent); border-radius: 10px; padding: 0 7px; margin-left: 6px; white-space: nowrap; }
     .lv-badge { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 8px; background: #fbf3e2; color: #7a5200; border: 1px solid #e9d29a; }
     .lv-big { font-size: 34px; font-weight: 700; color: var(--lv-ok); line-height: 1.15; word-break: break-word; }
     .lv-big.no { color: var(--lv-fail); font-size: 24px; }
@@ -10725,6 +10752,11 @@ async function mountView(root, ctx) {
   }
   const status = el("div", "lv-status");
   const groupDefs = (V.groups || []).map((g) => ({ title: g.title, labels: g.facts.map((f) => f.label), judged: g.judged }));
+  const wordsOf = /* @__PURE__ */ new Map();
+  for (const g of V.groups || [])
+    for (const f of g.facts)
+      if (f.words)
+        wordsOf.set(f.label, f.words);
   const grouped = new Set(groupDefs.flatMap((g) => g.labels));
   const allLabels = templateDefs.map((d) => d.label);
   const otherLabels = allLabels.filter((l) => !grouped.has(l) && templateDefs.find((d) => d.label === l && (d.scenario_element || d.judged)));
@@ -10777,7 +10809,33 @@ async function mountView(root, ctx) {
     factsCard.appendChild(makeGroup(g.title, g.labels, g.judged, false));
   if (V.otherFacts !== false && otherLabels.length)
     factsCard.appendChild(makeGroup(groupDefs.length ? null : t("Facts"), otherLabels, false, groupDefs.length === 0));
+  const agentOf = (trailers) => {
+    const kws = [...kwPhrases(programLang, "according_to"), ...kwPhrases("en", "according_to")].filter(Boolean);
+    for (const part of trailers.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)) {
+      const p = part.trim();
+      const k = kws.find((k2) => p.toLowerCase().startsWith(k2.toLowerCase() + " "));
+      if (k)
+        return p.slice(k.length).trim();
+    }
+    return "";
+  };
+  const markSources = () => {
+    if (!V.sources)
+      return;
+    for (const f of forms)
+      f.box.querySelectorAll(".fact-row").forEach((row) => {
+        row.querySelector(".lv-who")?.remove();
+        const cite = row.querySelector(".cite-field");
+        const who = cite ? agentOf(cite.value) : "";
+        if (!cite || !who)
+          return;
+        const badge = el("span", "lv-who", who);
+        badge.title = `${phrase("according_to")} ${who}`;
+        row.insertBefore(badge, cite);
+      });
+  };
   const showAbsent = () => {
+    markSources();
     for (const f of forms) {
       f.absent.innerHTML = "";
       if (!f.named)
@@ -10789,7 +10847,7 @@ async function mountView(root, ctx) {
       for (const label of f.labels) {
         if (present.has(label))
           continue;
-        const a = el("div", "lv-absent", `${label.replace(/\*/g, "")} \u2014 ${t("not stated")}`);
+        const a = el("div", "lv-absent", `${wordsOf.get(label) || label.replace(/\*/g, "")} \u2014 ${t("not stated")}`);
         a.title = t("State it");
         a.addEventListener("click", () => {
           f.form.addFact(label.replace(/\*/g, ""), false);
@@ -10828,7 +10886,7 @@ async function mountView(root, ctx) {
   const caseFactsText = () => {
     const lines = [];
     for (const f of forms)
-      for (const l of f.form.factLines())
+      for (const l of f.form.completeFactLines())
         lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
     return lines.map((l) => `${l}.`).join("\n");
   };
@@ -11264,7 +11322,7 @@ async function mountView(root, ctx) {
       "the answer": results[0]?.answer ?? (R.not || t("No answer")),
       // the legal basis: the steps a labelled rule or table row cites
       "the citations": citedSteps(whyOf(res)).filter((n) => n.rule || /^row /.test(String(n.literal))).map((n) => citationLine(n)).filter((x, i, a) => a.indexOf(x) === i).join("; "),
-      "the facts": forms.flatMap((f) => f.form.factLines()).join("; "),
+      "the facts": forms.flatMap((f) => f.form.completeFactLines()).join("; "),
       "the case": caseName
     };
     const text = String(V.draft).replace(/\{([^}]+)\}/g, (m, k) => k.trim() in fill ? fill[k.trim()] : m);
