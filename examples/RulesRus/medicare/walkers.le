@@ -58,7 +58,6 @@ the target language is: prolog.
 the templates are:
     % the record
     % candidate for dmepos.le (also a template of pmd.le and manual_wheelchairs.le)
-    the weight of *a beneficiary* is *a number* pounds; undefined.
     the height of *a beneficiary* is *a number* inches; undefined.
     *an item* is a replacement for a component of *a device*; undefined.
     *a device* is owned by the beneficiary; undefined.

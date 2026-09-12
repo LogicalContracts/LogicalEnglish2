@@ -80,11 +80,8 @@ the templates are:
     *an item* is provided in place of a beneficiary operated drive control interface; undefined.
     a lithium battery was previously furnished for *a device* on *a date*; undefined.
     % candidate for dmepos.le (also a template of pmd.le)
-    *a beneficiary* had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for *an item*; undefined.
     % candidate for dmepos.le (also a template of pmd.le)
-    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of *an item*; undefined.
     % candidate for dmepos.le (also a template of pmd.le)
-    *a beneficiary* has been self propelling a manual wheelchair for at least one year; undefined.
     % candidate for dmepos.le (also a template of manual_wheelchairs.le)
     the written report of the specialty evaluation for *an item* is available; undefined.
     % the codes

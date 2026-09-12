@@ -70,7 +70,6 @@ the target language is: prolog.
 
 the templates are:
     % the record
-    the weight of *a beneficiary* is *a number* pounds; undefined.    % candidate for dmepos.le (pmd.le has the same template)
     *a beneficiary* requires the head of the bed elevated *a number* degrees most of the time; undefined.
     *a beneficiary* requires traction equipment that can only be attached to a hospital bed; undefined.
     *a device* is owned by the beneficiary; undefined.

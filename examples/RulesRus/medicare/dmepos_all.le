@@ -1,0 +1,32 @@
+% The whole modelled DMEPOS coverage: every policy program of this directory
+% at once, as tariff.le does for the customs chapters. A scenario program
+% that includes it can hold claims of any modelled policy — a power
+% wheelchair with its options and cushion, a CPAP with its oxygen, a diabetic
+% with a monitor and shoes — and every claim meets every policy's codes.
+%
+% Coverage (September 2026): 15 DME MAC LCDs of the 58 — positive airway
+% pressure devices, respiratory assist devices, oxygen, nebulizers, power
+% mobility devices, manual wheelchairs, wheelchair options and accessories,
+% wheelchair seating, hospital beds, walkers, seat lift mechanisms,
+% pressure reducing support surfaces (three LCDs), glucose monitors,
+% therapeutic shoes for diabetics.
+
+the target language is: prolog.
+
+the knowledge base dmepos all includes these resources:
+    pap,
+    rad,
+    oxygen,
+    nebulizers,
+    pmd,
+    manual_wheelchairs,
+    wheelchair_options,
+    wheelchair_seating,
+    hospital_beds,
+    walkers,
+    seat_lifts,
+    support_surfaces,
+    glucose_monitors,
+    therapeutic_shoes.
+
+the knowledge base dmepos all includes:

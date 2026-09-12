@@ -50,10 +50,6 @@ the target language is: prolog.
 
 the templates are:
     % the record
-    the weight of *a beneficiary* is *a number* pounds; undefined.
-    *a beneficiary* had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for *an item*; undefined.
-    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of *an item*; undefined.
-    *a beneficiary* has been self propelling a manual wheelchair for at least one year; undefined.
     the condition of *a beneficiary* is reversible with a length of need under three months; undefined.
     the order for *an item* was written by the practitioner who conducted the face-to-face encounter; undefined.
     the supplier performed an on-site evaluation of the home for *an item*; undefined.

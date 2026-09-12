@@ -65,7 +65,6 @@ the target language is: prolog.
 
 the templates are:
     % the record
-    the diagnosis code of *a beneficiary* is *a code*; undefined.    % candidate for dmepos.le
     the certifying physician of *a beneficiary* is *a kind*; undefined.
     the certifying physician treats *a beneficiary* under a comprehensive plan of care for diabetes; undefined.
     the certifying physician certified that *a beneficiary* needs diabetic shoes; undefined.
