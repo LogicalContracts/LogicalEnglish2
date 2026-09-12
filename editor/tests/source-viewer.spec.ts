@@ -79,4 +79,37 @@ test.describe('Source viewer', () => {
         await viewer.locator('button.primary').click();
         await expect(viewer).toHaveCount(0);
     });
+
+    // The viewer takes its colours from the page's theme: in the light theme
+    // its text must not be dark on the dark theme's field.
+    test('the source viewer is legible in the light theme', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.addInitScript(() => localStorage.setItem('le-editor-theme', 'le-theme-light'));
+        await page.goto('index.html?example=RulesRus/customs/apparel_cbp&scenario=ny_n362700');
+        await expect(page.locator('#scenario-select')).toHaveValue('ny_n362700', { timeout: 60000 });
+        await page.evaluate(async () => {
+            const ed = (window as any).monaco.editor.getEditors()[0];
+            const match = ed.getModel().findMatches('style 1025AD has a collar', false, false, true, null, false)[0];
+            ed.setPosition({ lineNumber: match.range.startLineNumber, column: 6 });
+            await ed.getAction('le-show-original-text').run(ed);
+        });
+        const viewer = page.locator('#source-viewer');
+        await expect(viewer.locator('mark')).toBeVisible({ timeout: 30000 });
+        await page.screenshot({ path: 'test-results/source-viewer-light.png' });
+
+        // WCAG contrast ratio of an element's text against its background
+        const contrast = (selector: string) => page.evaluate((sel) => {
+            const el = document.querySelector(sel) as HTMLElement;
+            const rgb = (c: string) => (c.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+            const lum = ([r, g, b]: number[]) => {
+                const f = (v: number) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+                return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+            };
+            const style = getComputedStyle(el);
+            const [a, b] = [lum(rgb(style.color)), lum(rgb(style.backgroundColor))].sort((x, y) => y - x);
+            return (a + 0.05) / (b + 0.05);
+        }, selector);
+        expect(await contrast('#source-viewer .sv-text')).toBeGreaterThan(7);
+        expect(await contrast('#source-viewer')).toBeGreaterThan(7);
+    });
 });
