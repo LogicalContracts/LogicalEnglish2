@@ -95,18 +95,31 @@ query_goal(KM, Name, Goal) :-
 failing_section(SM, KM, Query, Section) :-
     query_goal(KM, Query, Goal),
     copy_term(Goal, G),
-    reasoner:goal_attempt(G, SM, KM, Result),
+    reasoner:goal_attempt(G, SM, KM, Result, Refs),
     Result = failed(Calls),
-    failed_sections(KM, Calls, Sections),
+    failed_sections(KM, Calls, Refs, Sections),
     Sections = [Section|_].
 
-failed_sections(KM, Calls, Ordered) :-
-    findall(Sec,
-            ( member(G-failed, Calls),
-              goal_rule_section(KM, G, Sec) ),
-            Secs0),
-    sort(Secs0, Secs),
+% The sections blamed: those of the rules whose bodies called a goal that
+% failed (with every ancestor failed) — the rule that needed the condition,
+% not the rules of the predicate consulted; failing that (no calling rule
+% recorded), the sections of the failed goals' own rules.
+failed_sections(KM, Calls, Refs, Ordered) :-
+    findall(Sec, ( member(Ref, Refs), clause_section(KM, Ref, Sec) ), Secs0),
+    (   Secs0 == []
+    ->  findall(Sec,
+                ( member(G-failed, Calls),
+                  goal_rule_section(KM, G, Sec) ),
+                Secs1)
+    ;   Secs1 = Secs0
+    ),
+    sort(Secs1, Secs),
     order_sections(KM, Secs, Ordered).
+
+clause_section(KM, Ref, Section) :-
+    catch(KM:le_source_info(Ref, _, _, ID), _, fail),
+    KM:le_source_section(Section, ID),
+    Section \== main.
 
 % The sections holding a rule (not a fact) for Goal's predicate.
 goal_rule_section(KM, Goal, Section) :-
@@ -145,8 +158,8 @@ section_checklist(SM, KM, Goal, Checklist) :-
     program_roles(KM, Present),
     Present \== [],
     copy_term(Goal, G),
-    reasoner:goal_attempt(G, SM, KM, failed(Calls)),
-    failed_sections(KM, Calls, Failed),
+    reasoner:goal_attempt(G, SM, KM, failed(Calls), Refs),
+    failed_sections(KM, Calls, Refs, Failed),
     (   member(First, Failed), section_role(First, FirstRole) -> true ; FirstRole = none ),
     role_order(Roles),
     findall(Name-Status,

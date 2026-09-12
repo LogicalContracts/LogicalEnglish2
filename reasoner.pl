@@ -6,7 +6,7 @@
     explanation trees.
 */
 
-:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8, goal_attempt/4, with_saved_reasoner_state/1,
+:- module(reasoner, [i/4, explain/4, is_built_in/1, solve/8, goal_attempt/4, goal_attempt/5, with_saved_reasoner_state/1,
                      hide_repeated_explanations/0, set_show_repeated_explanations/1]).
 
 :- use_module(library(time)).
@@ -400,12 +400,28 @@ solve_real_actual(G, SM, KM, Anc, D, MyID, Us, [success(G, Ref, WhysBody)]) :-
 %   Status `succeeded`, `failed`, or `moot` (failed under a goal that
 %   succeeded by another clause) — le_at/3 wrappers removed.
 goal_attempt(Goal, SM, KM, Result) :-
-    with_saved_reasoner_state(goal_attempt_(Goal, SM, KM, Result)).
+    goal_attempt(Goal, SM, KM, Result, _).
 
-goal_attempt_(Goal, SM, KM, Result) :-
+%!  goal_attempt(+Goal, +SM, +KM, -Result, -CallerRefs) is det.
+%
+%   As goal_attempt/4; CallerRefs are the clause references of the rules
+%   whose bodies called a goal that failed with every ancestor failed — the
+%   rules the failure is chargeable to (a section blames its own rules, not
+%   the rules of the predicates they consult).
+goal_attempt(Goal, SM, KM, Result, CallerRefs) :-
+    with_saved_reasoner_state(goal_attempt_(Goal, SM, KM, Result, CallerRefs)).
+
+goal_attempt_(Goal, SM, KM, Result, CallerRefs) :-
     (   solve(Goal, SM, KM, [], 0, 0, _, _)
-    ->  Result = succeeded
-    ;   findall(G-St,
+    ->  Result = succeeded, CallerRefs = []
+    ;   findall(Ref,
+                ( called(P, ID, _),
+                  \+ succeeded(ID), \+ success_in_not(ID, _),
+                  \+ ancestor_succeeded(ID),
+                  called_clause(P, _, Ref) ),
+                Refs0),
+        sort(Refs0, CallerRefs),
+        findall(G-St,
                 ( called(_, ID, G0), strip_le_at(G0, G),
                   (   ( succeeded(ID) ; success_in_not(ID, _) )
                   ->  St = succeeded

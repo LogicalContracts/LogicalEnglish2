@@ -145,10 +145,20 @@ rule benefit_category_by_code with provenance 42 CFR section 410 38,
         confer "Medicare Part B pays for durable medical equipment, including ventilators, oxygen equipment, hospital beds, and wheelchairs, if the equipment is used in the patient's home or in an institution that is used as a home":
 an item is within a Medicare benefit category
     if the HCPCS code of the item is a code
-    and the benefit category of code the code is a category
+    and the benefit category of code the code is durable medical equipment
     and the item is furnished to a beneficiary
     and the residence of the beneficiary is a place
     and the place qualifies as a home.
+
+% a benefit other than durable medical equipment (therapeutic shoes,
+% prosthetics, orthotics) carries no condition on the place of use
+rule benefit_category_other with provenance 42 CFR section 410 38,
+        confer "Medicare Part B pays for durable medical equipment, including ventilators, oxygen equipment, hospital beds, and wheelchairs, if the equipment is used in the patient's home or in an institution that is used as a home":
+an item is within a Medicare benefit category
+    if the HCPCS code of the item is a code
+    and the benefit category of code the code is a category
+    and it is not the case that
+        the benefit category of code the code is durable medical equipment.
 
 rule benefit_category_by_definition with provenance 42 CFR section 410 38,
         confer "Medicare Part B pays for durable medical equipment, including ventilators, oxygen equipment, hospital beds, and wheelchairs, if the equipment is used in the patient's home or in an institution that is used as a home":

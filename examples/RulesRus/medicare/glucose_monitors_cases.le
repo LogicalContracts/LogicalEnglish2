@@ -1,0 +1,380 @@
+% Test cases for the glucose monitors policy (glucose_monitors.le):
+% synthetic claims, one or two per criterion of LCD L33822 and per payment
+% condition of Policy Article A52464, each stating only what its record
+% shows. The queries: whether the claim is payable (the first query, so
+% "stage" reads its checklist), whether it is reasonable and necessary, and
+% what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base glucose monitors cases includes these resources:
+    glucose_monitors.
+
+the knowledge base glucose monitors cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a home blood glucose monitor (E0607, a purchase): the
+% diabetes diagnosis, the practitioner's conclusion on training, the order,
+% delivery.
+scenario monitor_complete is:
+    claim 1 is for the glucose monitor.
+    the HCPCS code of the glucose monitor is "E0607".
+    the glucose monitor is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Ann is "E11.9".
+    the finding trained on blood glucose monitor about Ann is established, according to the treating practitioner.
+    the order for the glucose monitor is dated 2026-02-20.
+    the order for the glucose monitor is signed by the treating practitioner.
+    the order for the glucose monitor includes beneficiary name.
+    the order for the glucose monitor includes order date.
+    the order for the glucose monitor includes description of the item.
+    the order for the glucose monitor includes quantity to be dispensed.
+    the order for the glucose monitor includes treating practitioner name.
+    the order for the glucose monitor was communicated to the supplier on 2026-02-22.
+    the glucose monitor was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the glucose monitor.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A diagnosis code outside the Policy Article's list (hypertension, I10):
+% basic criterion 1 fails.
+scenario no_diabetes_diagnosis is:
+    claim 1 is for the glucose monitor.
+    the HCPCS code of the glucose monitor is "E0607".
+    the glucose monitor is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Ben is "I10".
+    the finding trained on blood glucose monitor about Ben is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Nothing says the practitioner concluded that Cy is trained: the answer is
+% conditional on that finding.
+scenario training_not_recorded is:
+    claim 1 is for the glucose monitor.
+    the HCPCS code of the glucose monitor is "E0607".
+    the glucose monitor is furnished to Cy.
+    the diagnosis code of Cy is "E10.9".
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding trained on blood glucose monitor about Cy is established"].
+
+% Test strips within and over the usual utilization: 100 strips (2 units)
+% for three months for Ann, not insulin-treated, are within it; 200 strips
+% (4 units) are not, and no visit supports the excess; 300 strips for Dee,
+% who is insulin-treated, are within hers.
+scenario strips_usual_utilization is:
+    claim 1 is for the test strips.
+    the HCPCS code of the test strips is "A4253".
+    the test strips is furnished to Ann.
+    the quantity billed on claim 1 is 2.
+    claim 1 is for a supply of 3 months.
+    claim 2 is for the extra test strips.
+    the HCPCS code of the extra test strips is "A4253".
+    the extra test strips is furnished to Ann.
+    the quantity billed on claim 2 is 4.
+    claim 2 is for a supply of 3 months.
+    claim 3 is for the insulin user strips.
+    the HCPCS code of the insulin user strips is "A4253".
+    the insulin user strips is furnished to Dee.
+    the quantity billed on claim 3 is 6.
+    claim 3 is for a supply of 3 months.
+    the diagnosis code of Ann is "E11.9".
+    the finding trained on blood glucose monitor about Ann is established, according to the treating practitioner.
+    the diagnosis code of Dee is "E10.9".
+    the finding trained on blood glucose monitor about Dee is established, according to the treating practitioner.
+    Dee is currently being treated with insulin.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 3 is reasonable and necessary"].
+
+% High utilization with every requirement: 400 strips (8 units) for three
+% months for Eve, insulin-treated, testing six times a day; the visit six
+% weeks before the order, the testing log in the record, the order and
+% delivery.
+scenario high_utilization_documented is:
+    claim 1 is for the test strips.
+    the HCPCS code of the test strips is "A4253".
+    the test strips is furnished to Eve.
+    the residence of Eve is private residence.
+    the date of service of claim 1 is 2026-03-05.
+    the quantity billed on claim 1 is 8.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Eve is "E10.9".
+    the finding trained on blood glucose monitor about Eve is established, according to the treating practitioner.
+    Eve is currently being treated with insulin.
+    the treating practitioner had an in-person or telehealth visit with Eve to evaluate diabetes control on 2026-01-15.
+    the testing frequency of Eve is corroborated by testing log.
+    the order for the test strips is dated 2026-03-01.
+    the order for the test strips is signed by the treating practitioner.
+    the order for the test strips includes beneficiary name.
+    the order for the test strips includes order date.
+    the order for the test strips includes description of the item.
+    the order for the test strips includes quantity to be dispensed.
+    the order for the test strips includes treating practitioner name.
+    the order for the test strips was communicated to the supplier on 2026-03-02.
+    the test strips was delivered on 2026-03-05.
+    the supplier holds proof of delivery for the test strips.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The same claim without the testing log or a narrative statement of the
+% testing frequency: reasonable and necessary, but the Policy Article's
+% documentation requirement fails at the remedy; the flip asks for either.
+scenario high_utilization_undocumented is:
+    claim 1 is for the test strips.
+    the HCPCS code of the test strips is "A4253".
+    the test strips is furnished to Eve.
+    the residence of Eve is private residence.
+    the date of service of claim 1 is 2026-03-05.
+    the quantity billed on claim 1 is 8.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Eve is "E10.9".
+    the finding trained on blood glucose monitor about Eve is established, according to the treating practitioner.
+    Eve is currently being treated with insulin.
+    the treating practitioner had an in-person or telehealth visit with Eve to evaluate diabetes control on 2026-01-15.
+    the order for the test strips is dated 2026-03-01.
+    the order for the test strips is signed by the treating practitioner.
+    the order for the test strips includes beneficiary name.
+    the order for the test strips includes order date.
+    the order for the test strips includes description of the item.
+    the order for the test strips includes quantity to be dispensed.
+    the order for the test strips includes treating practitioner name.
+    the order for the test strips was communicated to the supplier on 2026-03-02.
+    the test strips was delivered on 2026-03-05.
+    the supplier holds proof of delivery for the test strips.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the testing frequency of Eve is corroborated by narrative statement"], ["add: the testing frequency of Eve is corroborated by testing log"]].
+
+% The practitioner's visit was eight months before the order: criterion (b)
+% fails, the excess quantity is not reasonable and necessary.
+scenario high_utilization_stale_visit is:
+    claim 1 is for the test strips.
+    the HCPCS code of the test strips is "A4253".
+    the test strips is furnished to Eve.
+    the quantity billed on claim 1 is 8.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Eve is "E10.9".
+    the finding trained on blood glucose monitor about Eve is established, according to the treating practitioner.
+    Eve is currently being treated with insulin.
+    the treating practitioner had an in-person or telehealth visit with Eve to evaluate diabetes control on 2025-07-01.
+    the testing frequency of Eve is corroborated by testing log.
+    the order for the test strips is dated 2026-03-01.
+    rn expects answers [].
+
+% A complete claim for a non-adjunctive CGM (E2103) for Fay, who is
+% insulin-treated: the diagnosis, the training conclusion, the FDA
+% indications, the visit seven weeks before the order, the order, delivery.
+% Test strips billed for her in addition (claim 2) are denied.
+scenario cgm_insulin_treated is:
+    claim 1 is for the CGM.
+    the HCPCS code of the CGM is "E2103".
+    the CGM is furnished to Fay.
+    the residence of Fay is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 2 is for the test strips.
+    the HCPCS code of the test strips is "A4253".
+    the test strips is furnished to Fay.
+    the quantity billed on claim 2 is 2.
+    claim 2 is for a supply of 3 months.
+    the diagnosis code of Fay is "E10.9".
+    the finding trained on continuous glucose monitor about Fay is established, according to the treating practitioner.
+    the finding trained on blood glucose monitor about Fay is established, according to the treating practitioner.
+    the CGM is prescribed in accordance with its FDA indications for use.
+    Fay is currently being treated with insulin.
+    the treating practitioner had an in-person or telehealth visit with Fay to evaluate diabetes control on 2026-01-10.
+    the order for the CGM is dated 2026-02-20.
+    the order for the CGM is signed by the treating practitioner.
+    the order for the CGM includes beneficiary name.
+    the order for the CGM includes order date.
+    the order for the CGM includes description of the item.
+    the order for the CGM includes quantity to be dispensed.
+    the order for the CGM includes treating practitioner name.
+    the order for the CGM was communicated to the supplier on 2026-02-22.
+    the CGM was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the CGM.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A CGM for Gus, who takes oral medication only and has no documented
+% hypoglycemia: criterion 4 fails.
+scenario cgm_not_insulin_treated is:
+    claim 1 is for the CGM.
+    the HCPCS code of the CGM is "E2103".
+    the CGM is furnished to Gus.
+    the residence of Gus is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Gus is "E11.9".
+    the finding trained on continuous glucose monitor about Gus is established, according to the treating practitioner.
+    the CGM is prescribed in accordance with its FDA indications for use.
+    the treating practitioner had an in-person or telehealth visit with Gus to evaluate diabetes control on 2026-01-10.
+    the order for the CGM is dated 2026-02-20.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Problematic hypoglycemia without insulin: Hal with three level 2 events
+% after two medication adjustments (claim 1); Ida with one level 3 event
+% that needed third party assistance (claim 2); Jo with one level 2 event
+% only (claim 3).
+scenario cgm_problematic_hypoglycemia is:
+    claim 1 is for the CGM of Hal.
+    the HCPCS code of the CGM of Hal is "E2103".
+    the CGM of Hal is furnished to Hal.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Hal is "E11.65".
+    the finding trained on continuous glucose monitor about Hal is established, according to the treating practitioner.
+    the CGM of Hal is prescribed in accordance with its FDA indications for use.
+    3 level two hypoglycemic events are documented for Hal.
+    2 medication adjustments before the most recent level two event are documented for Hal.
+    the treating practitioner had an in-person or telehealth visit with Hal to evaluate diabetes control on 2026-01-10.
+    the order for the CGM of Hal is dated 2026-02-20.
+    claim 2 is for the CGM of Ida.
+    the HCPCS code of the CGM of Ida is "E2103".
+    the CGM of Ida is furnished to Ida.
+    the date of service of claim 2 is 2026-03-01.
+    the diagnosis code of Ida is "E11.9".
+    the finding trained on continuous glucose monitor about Ida is established, according to the treating practitioner.
+    the CGM of Ida is prescribed in accordance with its FDA indications for use.
+    1 level three hypoglycemic events are documented for Ida.
+    third party assistance for treatment of hypoglycemia is documented for Ida.
+    the treating practitioner had an in-person or telehealth visit with Ida to evaluate diabetes control on 2026-01-10.
+    the order for the CGM of Ida is dated 2026-02-20.
+    claim 3 is for the CGM of Jo.
+    the HCPCS code of the CGM of Jo is "E2103".
+    the CGM of Jo is furnished to Jo.
+    the date of service of claim 3 is 2026-03-01.
+    the diagnosis code of Jo is "E11.9".
+    the finding trained on continuous glucose monitor about Jo is established, according to the treating practitioner.
+    the CGM of Jo is prescribed in accordance with its FDA indications for use.
+    1 level two hypoglycemic events are documented for Jo.
+    2 medication adjustments before the most recent level two event are documented for Jo.
+    the treating practitioner had an in-person or telehealth visit with Jo to evaluate diabetes control on 2026-01-10.
+    the order for the CGM of Jo is dated 2026-02-20.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% The CGM supply allowance (A4239) nine months after the initial
+% prescription, 3 units for 90 days: the visit documenting adherence
+% eleven weeks before the date of service supports continued coverage.
+scenario cgm_supply_continued_with_visit is:
+    claim 1 is for the supply allowance.
+    the HCPCS code of the supply allowance is "A4239".
+    the supply allowance is an accessory of the CGM.
+    the supply allowance is furnished to Fay.
+    the date of service of claim 1 is 2026-03-01.
+    the quantity billed on claim 1 is 3.
+    claim 1 is for a supply of 3 months.
+    the HCPCS code of the CGM is "E2103".
+    the CGM is furnished to Fay.
+    the diagnosis code of Fay is "E10.9".
+    the finding trained on continuous glucose monitor about Fay is established, according to the treating practitioner.
+    the CGM is prescribed in accordance with its FDA indications for use.
+    Fay is currently being treated with insulin.
+    the treating practitioner had an in-person or telehealth visit with Fay to evaluate diabetes control on 2025-05-10.
+    the order for the CGM is dated 2025-06-01.
+    the treating practitioner had an in-person or telehealth visit with Fay to document adherence to the CGM regimen on 2025-12-10.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The same allowance with no visit since the initial prescription: the
+% continued coverage criterion fails.
+scenario cgm_supply_continued_without_visit is:
+    claim 1 is for the supply allowance.
+    the HCPCS code of the supply allowance is "A4239".
+    the supply allowance is an accessory of the CGM.
+    the supply allowance is furnished to Fay.
+    the date of service of claim 1 is 2026-03-01.
+    the quantity billed on claim 1 is 3.
+    claim 1 is for a supply of 3 months.
+    the HCPCS code of the CGM is "E2103".
+    the CGM is furnished to Fay.
+    the diagnosis code of Fay is "E10.9".
+    the finding trained on continuous glucose monitor about Fay is established, according to the treating practitioner.
+    the CGM is prescribed in accordance with its FDA indications for use.
+    Fay is currently being treated with insulin.
+    the treating practitioner had an in-person or telehealth visit with Fay to evaluate diabetes control on 2025-05-10.
+    the order for the CGM is dated 2025-06-01.
+    rn expects answers [].
+
+% A refill of lancets (A4259, 1 unit of 100 for three months) for Ann: the
+% beneficiary's affirmation 16 days before the supply runs out, delivery 4
+% days before, the continued-need record, the order — payable.
+scenario lancets_refill is:
+    claim 1 is for the lancets.
+    the HCPCS code of the lancets is "A4259".
+    the lancets is furnished to Ann.
+    the residence of Ann is private residence.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-06-01.
+    the quantity billed on claim 1 is 1.
+    claim 1 is for a supply of 3 months.
+    the diagnosis code of Ann is "E11.9".
+    the finding trained on blood glucose monitor about Ann is established, according to the treating practitioner.
+    the current supply of the lancets is expected to end on 2026-06-05.
+    the beneficiary affirmed the need for the refill of the lancets on 2026-05-20.
+    the medical record documents continued need for the lancets on 2026-02-20.
+    the record documents continued use of the lancets on 2026-05-20.
+    the order for the lancets is dated 2026-02-20.
+    the order for the lancets is signed by the treating practitioner.
+    the order for the lancets includes beneficiary name.
+    the order for the lancets includes order date.
+    the order for the lancets includes description of the item.
+    the order for the lancets includes quantity to be dispensed.
+    the order for the lancets includes treating practitioner name.
+    the order for the lancets was communicated to the supplier on 2026-02-22.
+    the lancets was delivered on 2026-06-01.
+    the supplier holds proof of delivery for the lancets.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A non-adjunctive CGM billed with the old code K0554 in 2026: reasonable
+% and necessary, but the code is not in effect on the date of service.
+scenario old_cgm_code is:
+    claim 1 is for the CGM.
+    the HCPCS code of the CGM is "K0554".
+    the CGM is furnished to Fay.
+    the residence of Fay is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the diagnosis code of Fay is "E10.9".
+    the finding trained on continuous glucose monitor about Fay is established, according to the treating practitioner.
+    the CGM is prescribed in accordance with its FDA indications for use.
+    Fay is currently being treated with insulin.
+    the treating practitioner had an in-person or telehealth visit with Fay to evaluate diabetes control on 2026-01-10.
+    the order for the CGM is dated 2026-02-20.
+    the order for the CGM is signed by the treating practitioner.
+    the order for the CGM includes beneficiary name.
+    the order for the CGM includes order date.
+    the order for the CGM includes description of the item.
+    the order for the CGM includes quantity to be dispensed.
+    the order for the CGM includes treating practitioner name.
+    the order for the CGM was communicated to the supplier on 2026-02-22.
+    the CGM was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the CGM.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% The Council finds the record does not show the practitioner concluded that
+% Kim was trained: no prescription states the supplies and the testing
+% frequency. Not reasonable and necessary.
+scenario training_unsupported is:
+    claim 1 is for the glucose monitor.
+    the HCPCS code of the glucose monitor is "E0607".
+    the glucose monitor is furnished to Kim.
+    the diagnosis code of Kim is "E11.9".
+    the finding trained on blood glucose monitor about Kim is unsupported, according to the Council, because "the record contains no prescription for supplies stating a frequency of blood glucose testing".
+    rn expects answers [].
