@@ -1,0 +1,21 @@
+Article A57484: Billing and Coding: Vitamin D Assay Testing
+Contractors: Wisconsin Physicians Service Insurance Corporation
+Related: [{'article_id': '57484', 'article_version': '19', 'related_num': '1', 'r_article_id': '', 'r_article_version': '', 'r_lcd_id': '34658', 'r_lcd_version': '27', 'r_contractor_id': '143', 'last_updated': '2019-10-08 12:38:33.320000'}, {'article_id': '57484', 'article_version': '21', 'related_num': '1', 'r_article_id': '', 'r_article_version': '', 'r_lcd_id': '34658', 'r_lcd_version': '27', 'r_contractor_id': '143', 'last_updated': '2019-10-08 12:38:33.320000'}, {'article_id': '57484', 'article_version': '22', 'related_num': '1', 'r_article_id': '', 'r_article_version': '', 'r_lcd_id': '34658', 'r_lcd_version': '27', 'r_contractor_id': '143', 'last_updated': '2019-10-08 12:38:33.320000'}]
+
+=== description ===
+The billing and coding information in this article is dependent on the coverage indications, limitations and/or medical necessity described in the associated LCD Vitamin D Assay Testing. 
+ A. General Guidelines for claims submitted to MAC A/B contractors: 
+ 
+ Procedure codes may be subject to National Correct Coding Initiative (NCCI) edits or OPPS packaging edits. Refer to NCCI and OPPS requirements prior to billing Medicare. 
+ For services requiring a referring/ordering physician, the name and NPI of the referring/ordering physician must be reported on the claim. 
+ A claim submitted without a valid diagnosis code will be returned to the provider as an incomplete claim under Section 1833(e) of the Social Security Act. The diagnosis code(s) must best describe the patient's condition for which the service was performed. For diagnostic tests, report the result of the test if known; otherwise, the symptoms prompting the performance of the test should be reported. 
+ For outpatient settings other than CORFs, references to "physicians" throughout this policy include non-physicians, such as nurse practitioners, clinical nurse specialists and physician assistants. Such non-physician practitioners, with certain exceptions, may certify, order, and establish the plan of care for Vitamin D Assay Testing services as authorized by State law. 
+ 
+ B. Billing Guidelines: Bill type codes only apply to providers billing these services to Part A. Bill type codes do not apply to physicians, other professionals, and suppliers who bill these services to Part B. (See CMS Publication 100-04, Medicare Claims Processing Manual, Chapter 25 – Completing and Processing the Form CMS-1450 Data Set, Section 75.5 – From Locators 43-81, FL-67 Principal Diagnosis Codes, for additional instructions.) 
+ 
+ All services/procedures performed on the same day for the same beneficiary by the physician/provider should be billed on the same claim. 
+ Claims for Vitamin D Assay Testing services are payable under Medicare Part B in the following places of service: office (11), independent clinic (49), Federally Qualified health Center (50) and independent lab (81).
+
+=== HCPCS codes ===
+82306 (group 1): Vitamin d 25 hydroxy
+82652 (group 1): Vit d 1 25-dihydroxy
