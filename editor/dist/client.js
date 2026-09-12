@@ -10347,7 +10347,9 @@ function wireMenus(m) {
 }
 var ExplanationView = class {
   currentAnswerToCopy = "";
-  // The selected answer's text; null when none is, or it is "no answers".
+  // The selected answer as a sentence that reads back as the same goal (the
+  // server's `goal`: a value like "3901.90" keeps its quotes, where the
+  // answer shows it bare); null when none is selected, or it is "no answers".
   selectedAnswer = null;
   // The tree node last right-clicked, target of the Patch scenario / Assume fact items.
   currentMenuNode = null;
@@ -10490,7 +10492,7 @@ var ExplanationView = class {
         item.addEventListener("click", () => {
           answersList.querySelectorAll(".answer-item").forEach((el) => el.classList.remove("selected"));
           item.classList.add("selected");
-          this.selectedAnswer = result.answer;
+          this.selectedAnswer = result.goal || result.answer;
           this.renderExplanation(result.why);
           this.setStrongestReason(result.strongestReason, result.strongestReasonPath);
           this.o.onSelectAnswer?.(index + 1);
@@ -13250,7 +13252,8 @@ async function start() {
     const notWords = flipPhrase("not_the_case");
     let goal = "";
     let negate = false;
-    const current = querySelect.value === "___custom___" ? customQueryText.value.trim() : "";
+    const named = lastQueries.find((x) => x.name === querySelect.value);
+    const current = querySelect.value === "___custom___" ? customQueryText.value.trim() : named ? String(named.le || "") : "";
     if (current && opener && current.toLowerCase().startsWith(opener.toLowerCase())) {
       goal = current.slice(opener.length).trim().replace(/\.$/, "");
       if (notWords && goal.toLowerCase().startsWith(notWords.toLowerCase())) {
@@ -13261,8 +13264,7 @@ async function start() {
       goal = explView.selectedAnswer;
       negate = true;
     } else {
-      const q = lastQueries.find((x) => x.name === querySelect.value);
-      goal = q ? q.le || "" : current;
+      goal = current;
     }
     document.getElementById("flip-opener").textContent = `${opener} \u2026`;
     document.getElementById("flip-not-words").textContent = notWords;

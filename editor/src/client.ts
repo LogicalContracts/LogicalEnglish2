@@ -2644,9 +2644,12 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         const notWords = flipPhrase('not_the_case');
         let goal = '';
         let negate = false;
-        const current = querySelect.value === '___custom___' ? customQueryText.value.trim() : '';
+        const named = lastQueries.find((x: any) => x.name === querySelect.value);
+        const current = querySelect.value === '___custom___' ? customQueryText.value.trim()
+                      : named ? String(named.le || '') : '';
         if (current && opener && current.toLowerCase().startsWith(opener.toLowerCase())) {
-            // already a flip: offer it again, to edit
+            // already a flip (typed, or one of the program's queries): its
+            // answers are change sets, not goals — offer the flip itself
             goal = current.slice(opener.length).trim().replace(/\.$/, '');
             if (notWords && goal.toLowerCase().startsWith(notWords.toLowerCase())) {
                 negate = true;
@@ -2656,8 +2659,7 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             goal = explView.selectedAnswer;
             negate = true;
         } else {
-            const q = lastQueries.find((x: any) => x.name === querySelect.value);
-            goal = q ? (q.le || '') : current;
+            goal = current;
         }
         (document.getElementById('flip-opener') as HTMLElement).textContent = `${opener} …`;
         (document.getElementById('flip-not-words') as HTMLElement).textContent = notWords;

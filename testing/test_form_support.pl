@@ -191,6 +191,18 @@ scenario s is:
     destroySession(SM),
     assertion(As == ["remove: ann is happy"]).
 
+% An answer's `goal` reads back as the same goal: a string value that looks
+% like a number or a date keeps its quotes (the answer shows it bare).
+test(goal_string_keeps_ambiguous_strings_quoted) :-
+    goal_string([the, subheading, of, 'FUSABOND A560', is, "3901.90"], G1),
+    assertion(G1 == "the subheading of FUSABOND A560 is \"3901.90\""),
+    goal_string([the, heading, of, x, is, 3926], G2),
+    assertion(G2 == "the heading of x is 3926"),
+    goal_string([ann, is, born, on, "2021-10-09"], G3),
+    assertion(G3 == "ann is born on \"2021-10-09\""),
+    goal_string([ann, is, "happy"], G4),
+    assertion(G4 == "ann is happy").
+
 :- end_tests(program_metadata).
 
 % ---------------------------------------------------------------------------
