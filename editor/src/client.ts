@@ -1622,6 +1622,35 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         openSourceGraph();
     });
 
+    // The executive view of a document AS IT IS HERE, unsaved changes included:
+    // its text goes to the new window by localStorage (same origin), under a key
+    // the address names (`text=`); the example it came from (or its URL) still
+    // resolves its includes. On the scenario and query picked here, or a view.
+    function openExecutive(doc: any, view?: string) {
+        const p = new URLSearchParams();
+        const name = doc.example || String(doc.fileName || '').replace(/\.le$/, '');
+        if (name) p.set('program', name);
+        try {
+            const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            const keys = Object.keys(localStorage).filter(k => k.startsWith('le-exec-text:')).sort();
+            for (const k of keys.slice(0, Math.max(0, keys.length - 4))) localStorage.removeItem(k);
+            localStorage.setItem('le-exec-text:' + id, JSON.stringify({
+                le: doc.model.getValue(), source: doc.example || '', base: doc.baseUrl || '' }));
+            p.set('text', id);
+        } catch { /* no storage: the program as the server holds it */ }
+        if (view) p.set('view', view);
+        else {
+            const scenario = scenarioSelect.value, query = querySelect.value;
+            if (scenario && scenario !== '___custom___') p.set('scenario', scenario);
+            if (query && query !== '___custom___') p.set('query', query);
+        }
+        window.open('/executive?' + p.toString(), '_blank');
+    }
+
+    document.getElementById('menu-open-executive')?.addEventListener('click', () => {
+        openExecutive(activeDoc);
+    });
+
     document.getElementById('menu-fold-all')?.addEventListener('click', () => {
         editor.focus();
         editor.trigger('keyboard', 'editor.foldAll', null);
@@ -3259,7 +3288,9 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         try {
             data = await fetch('/leapi', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: 'myToken123', operation: 'draftView', sessionModule }),
+                // the file's name names the view of a program whose knowledge base has none
+                body: JSON.stringify({ token: 'myToken123', operation: 'draftView', sessionModule,
+                    name: String(panelDoc.example || panelDoc.fileName || '').split('/').pop()!.replace(/\.le$/, '') }),
             }).then(r => r.json());
         } catch { data = { error: t('Could not reach the server.') }; }
         if (!data || !data.view) { addChatMessage('assistant', `${t('Error: ')}${(data && data.error) || ''}`); return; }
@@ -3277,7 +3308,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         }
         const name = (/\S+ \S+ (.+?) \S+:/.exec(text.split('\n')[0]) || [])[1] || '';
         addChatMessage('assistant', `${t('I drafted a view at the end of the program:')}\n\n\`\`\`\n${text}\n\`\`\`\n\n${t('It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.')}` +
-            (doc.example ? `\n\n[${t('Open the view')}](/executive?program=${encodeURIComponent(doc.example)}&view=${encodeURIComponent(name)}) ${t('(once the program is saved)')}` : ''));
+            `\n\n[${t('Open the view')}](#open-view)`);
+        // the program as it is when the link is followed, edits to the view included
+        const link = assistantHistory.lastElementChild?.querySelector('a[href="#open-view"]') as HTMLAnchorElement | null;
+        link?.addEventListener('click', (e) => { e.preventDefault(); openExecutive(doc, name); });
         assistantInput.value = t('Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md §17.10.');
     });
     btnAssistantInterrupt.addEventListener('click', handleAssistantInterrupt);

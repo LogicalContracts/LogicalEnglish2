@@ -85,6 +85,7 @@ function ensureStyles() {
     .lv-add select { max-width: 100%; flex: 1; padding: 3px; border-radius: 6px; border: 1px solid var(--lv-border); background: var(--lv-bg); color: var(--lv-ink); font-size: 12.5px; }
     .lv-absent { color: var(--lv-muted); font-style: italic; font-size: 13px; margin: 2px 0 6px; cursor: pointer; }
     .lv-absent:hover { color: var(--lv-accent); }
+    .lv-who { align-self: center; font-size: 11px; border: 1px solid var(--lv-accent); color: var(--lv-accent); border-radius: 10px; padding: 0 7px; margin-left: 6px; white-space: nowrap; }
     .lv-badge { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 8px; background: #fbf3e2; color: #7a5200; border: 1px solid #e9d29a; }
     .lv-big { font-size: 34px; font-weight: 700; color: var(--lv-ok); line-height: 1.15; word-break: break-word; }
     .lv-big.no { color: var(--lv-fail); font-size: 24px; }
@@ -214,6 +215,10 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     // --- the case: groups of facts, each a ScenarioForm ---------------------
     const groupDefs: { title: string | null; labels: string[]; judged: boolean }[] =
         (V.groups || []).map((g: any) => ({ title: g.title, labels: g.facts.map((f: any) => f.label), judged: g.judged }));
+    // a fact as the view writes it, in the program's language (the label's
+    // placeholders carry English articles)
+    const wordsOf = new Map<string, string>();
+    for (const g of V.groups || []) for (const f of g.facts) if (f.words) wordsOf.set(f.label, f.words);
     const grouped = new Set<string>(groupDefs.flatMap(g => g.labels));
     const allLabels = templateDefs.map(d => d.label);
     const otherLabels = allLabels.filter(l => !grouped.has(l) && templateDefs.find(d => d.label === l && (d.scenario_element || d.judged)));
@@ -254,15 +259,40 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     for (const g of groupDefs) factsCard.appendChild(makeGroup(g.title, g.labels, g.judged, false));
     if (V.otherFacts !== false && otherLabels.length) factsCard.appendChild(makeGroup(groupDefs.length ? null : t('Facts'), otherLabels, false, groupDefs.length === 0));
 
+    // "every fact shows who states it": the `according to` of a fact's
+    // trailers, as a badge on its row
+    const agentOf = (trailers: string): string => {
+        const kws = [...kwPhrases(programLang, 'according_to'), ...kwPhrases('en', 'according_to')].filter(Boolean);
+        for (const part of trailers.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/)) {
+            const p = part.trim();
+            const k = kws.find(k => p.toLowerCase().startsWith(k.toLowerCase() + ' '));
+            if (k) return p.slice(k.length).trim();
+        }
+        return '';
+    };
+    const markSources = () => {
+        if (!V.sources) return;
+        for (const f of forms) f.box.querySelectorAll('.fact-row').forEach(row => {
+            row.querySelector('.lv-who')?.remove();
+            const cite = row.querySelector('.cite-field') as HTMLInputElement | null;
+            const who = cite ? agentOf(cite.value) : '';
+            if (!cite || !who) return;
+            const badge = el('span', 'lv-who', who);
+            badge.title = `${phrase('according_to')} ${who}`;
+            row.insertBefore(badge, cite);
+        });
+    };
+
     // a group's templates the case does not state: shown, one click to state
     const showAbsent = () => {
+        markSources();
         for (const f of forms) {
             f.absent.innerHTML = '';
             if (!f.named) continue;          // the other facts: offered by the Add menu only
             const present = new Set(f.form.factLines().map(l => { const m = matchFact(l.split(/,\s*(?=\S)/)[0], f.labels); return m ? m.label : ''; }));
             for (const label of f.labels) {
                 if (present.has(label)) continue;
-                const a = el('div', 'lv-absent', `${label.replace(/\*/g, '')} — ${t('not stated')}`);
+                const a = el('div', 'lv-absent', `${wordsOf.get(label) || label.replace(/\*/g, '')} — ${t('not stated')}`);
                 a.title = t('State it');
                 a.addEventListener('click', () => { f.form.addFact(label.replace(/\*/g, ''), false); });
                 f.absent.appendChild(a);
@@ -292,7 +322,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
 
     const caseFactsText = (): string => {
         const lines: string[] = [];
-        for (const f of forms) for (const l of f.form.factLines()) lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
+        for (const f of forms) for (const l of f.form.completeFactLines()) lines.push(withDefaultProvenance(l, caseProvenance, ctx.source));
         return lines.map(l => `${l}.`).join('\n');
     };
 
@@ -622,7 +652,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             'the answer': results[0]?.answer ?? (R.not || t('No answer')),
             // the legal basis: the steps a labelled rule or table row cites
             'the citations': citedSteps(whyOf(res)).filter(n => n.rule || /^row /.test(String(n.literal))).map(n => citationLine(n)).filter((x, i, a) => a.indexOf(x) === i).join('; '),
-            'the facts': forms.flatMap(f => f.form.factLines()).join('; '),
+            'the facts': forms.flatMap(f => f.form.completeFactLines()).join('; '),
             'the case': caseName,
         };
         const text = String(V.draft).replace(/\{([^}]+)\}/g, (m, k) => (k.trim() in fill ? fill[k.trim()] : m));

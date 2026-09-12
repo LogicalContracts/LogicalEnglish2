@@ -79,7 +79,31 @@ test.describe('Forms and views for stating facts', () => {
         const viewer = page.locator('#source-viewer');
         await expect(viewer.locator('mark')).toHaveText('Of silk or silk waste:6214.10', { timeout: 30000 });
         await viewer.locator('button.primary').click();
-        // the whole explanation is still there, folded
-        await expect(answer.locator('details.full > summary')).toBeVisible();
+        // the whole explanation is still there, folded — and reachable from the
+        // top of the citations, however long their list
+        const full = answer.locator('details.full');
+        await expect(full.locator('> summary')).toBeVisible();
+        expect(await full.evaluate((d: any) => d.open)).toBe(false);
+        await answer.locator('.cites-head a.to-full').click();
+        expect(await full.evaluate((d: any) => d.open)).toBe(true);
+    });
+
+    // A browser that kept the executive page from before views existed runs the
+    // new script on it: the missing places are added, the program still opens.
+    test('Executive view: a page without the places of views still opens', async ({ page }) => {
+        test.setTimeout(120000);
+        let stale = false;
+        await page.route((url: URL) => url.pathname === '/executive', async (route) => {
+            const resp = await route.fetch();
+            const html = (await resp.text())
+                .replace(/<nav id="view-links"[^>]*><\/nav>/, '')
+                .replace(/<div id="view-root" hidden><\/div>/, '')
+                .replace('<div id="default-screen">', '<div>');
+            stale = !/view-links|view-root|default-screen/.test(html);
+            await route.fulfill({ response: resp, body: html });
+        });
+        await page.goto('/executive?program=RulesRus/flip_housing&view=benefit%20check');
+        expect(stale).toBe(true);
+        await expect(page.locator('#view-root .lv-ask')).toBeVisible({ timeout: 90000 });
     });
 });

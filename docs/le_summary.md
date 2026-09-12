@@ -1088,6 +1088,7 @@ language):
   first query (or its first conclusion) as the result, and what the program
   can show — and proposes a request to refine it.
 
+A tutorial, building a view step by step: [IntroducingLEViews.md](IntroducingLEViews.md).
 See the views of `examples/RulesRus/eu261_integration.le` (a claims desk),
 `flip_housing.le` (an interview), `judged_damage.le`, `sections_benefit.le`
 and `customs/cbp_62.le` (a classification worksheet).

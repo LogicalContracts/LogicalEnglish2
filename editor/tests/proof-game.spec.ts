@@ -269,3 +269,47 @@ test.describe('Proof Game — conjunctive query', () => {
         }), { timeout: 30000 }).toBe(true);
     });
 });
+
+// A rule that COMPUTES its conclusion ("the amount is the rent / 2") has a
+// built-in condition no card can prove. It used to get a socket nothing could
+// fill, so Show Proof laid out the tree and the proof never turned green
+// (examples/RulesRus/sections_benefit.le). The engine now checks it.
+const COMPUTED = `the target language is: prolog.
+
+the templates are:
+    *a person* is eligible.
+    the help for *a person* is *an amount*.
+    the rent of *a person* is *an amount*.
+
+the knowledge base computed includes:
+    the help for a person is an amount
+        if the person is eligible
+        and the rent of the person is a rent
+        and the amount is the rent / 2.
+
+scenario ann is:
+    ann is eligible.
+    the rent of ann is 800.
+
+query help is:
+    the help for which person is which amount.
+`;
+
+test.describe('Proof Game — built-in conditions', () => {
+    test('Show Proof completes a rule that computes its conclusion', async ({ page }) => {
+        test.setTimeout(90000);
+        const popup = await openGame(page, COMPUTED, 'ann', 'help');
+        const rule = await popup.evaluate(() =>
+            (window as any).__pgTest.nodes().find((n: any) => n.kind === 'RuleNode'));
+        // no socket for the arithmetic: only the two conditions a card proves
+        expect(rule.inputs).toEqual(['in-0', 'in-1']);
+
+        popup.on('dialog', (d: any) => d.accept());
+        await popup.click('#btn-show');
+        await expect.poll(async () => popup.evaluate(() => {
+            const q = (window as any).__pgTest.nodes().find((n: any) => n.kind === 'QueryNode');
+            return !!q && q.complete;
+        }), { timeout: 30000 }).toBe(true);
+        await expect(popup.locator('.rule-node', { hasText: 'the help for ann is 400' })).toBeVisible();
+    });
+});

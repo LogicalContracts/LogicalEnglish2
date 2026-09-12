@@ -8341,9 +8341,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Lista todos os factos que um caso pode afirmar num grupo e mostra o resultado da primeira consulta. Edite-a: agrupe os factos sob t\xEDtulos, encabece o resultado pelo valor que importa, redija as perguntas de uma entrevista. O verificador confere o que ela nomeia.",
     "Open the view": "Abrir a vista",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Aperfei\xE7oe a sec\xE7\xE3o de vista no fim do programa: agrupe os factos sob t\xEDtulos curtos, encabece o resultado pelo valor que importa e acrescente perguntas ou um rascunho onde ajudem. Use apenas as frases de vista de docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(depois de o programa ser guardado)",
     "provided that": "desde que",
-    "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique."
+    "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique.",
+    "Open Executive View": "Abrir a vista executiva",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Executar o programa como os seus utilizadores o veem, sem o texto: a vista executiva, com as vistas do programa, numa nova janela",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "A c\xF3pia do editor deste programa n\xE3o est\xE1 neste navegador: este \xE9 o programa tal como foi guardado."
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -8753,9 +8755,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Lista todos los hechos que un caso puede afirmar en un grupo y muestra el resultado de la primera consulta. Ed\xEDtela: agrupe los hechos bajo t\xEDtulos, encabece el resultado por el valor que importa, redacte las preguntas de una entrevista. El verificador comprueba lo que nombra.",
     "Open the view": "Abrir la vista",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Refine la secci\xF3n de vista al final del programa: agrupe sus hechos bajo t\xEDtulos cortos, encabece el resultado por el valor que importa y a\xF1ada preguntas o un borrador donde ayuden. Use solo las frases de vista de docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(una vez guardado el programa)",
     "provided that": "siempre que",
-    "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla."
+    "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla.",
+    "Open Executive View": "Abrir la vista ejecutiva",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ejecutar el programa como lo ven sus usuarios, sin su texto: la vista ejecutiva, con las vistas del programa, en una nueva ventana",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no est\xE1 en este navegador: este es el programa tal como se guard\xF3."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9165,9 +9169,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Elle liste tous les faits qu'un cas peut \xE9noncer en un groupe et montre le r\xE9sultat de la premi\xE8re requ\xEAte. Modifiez-la : groupez les faits sous des titres, mettez en t\xEAte la valeur qui compte, r\xE9digez les questions d'un entretien. Le v\xE9rificateur contr\xF4le ce qu'elle nomme.",
     "Open the view": "Ouvrir la vue",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Affinez la section de vue \xE0 la fin du programme : groupez ses faits sous des titres courts, mettez en t\xEAte la valeur qui compte et ajoutez des questions ou un brouillon l\xE0 o\xF9 ils aident. N'utilisez que les phrases de vue de docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(une fois le programme enregistr\xE9)",
     "provided that": "pourvu que",
-    "The result holds provided that it does.": "Le r\xE9sultat vaut pourvu que cela vaille."
+    "The result holds provided that it does.": "Le r\xE9sultat vaut pourvu que cela vaille.",
+    "Open Executive View": "Ouvrir la vue ex\xE9cutive",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ex\xE9cuter le programme tel que ses utilisateurs le voient, sans son texte : la vue ex\xE9cutive, avec les vues du programme, dans une nouvelle fen\xEAtre",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'\xE9diteur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistr\xE9."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -9577,9 +9583,11 @@ var uiCatalog = {
     "It lists every fact a case can state as one group, and shows the result of the first query. Edit it: group the facts under titles, head the result by the value that matters, word the questions for an interview. The verifier checks what it names.": "Elenca tutti i fatti che un caso pu\xF2 affermare in un gruppo e mostra il risultato della prima interrogazione. La modifichi: raggruppi i fatti sotto titoli, metta in testa il valore che conta, formuli le domande di un'intervista. Il verificatore controlla ci\xF2 che nomina.",
     "Open the view": "Apri la vista",
     "Refine the view section at the end of the program: group its facts under short titles, head the result by the value that matters, and add questions or a draft where they help. Use only the view sentences of docs/le_summary.md \xA717.10.": "Rifinisca la sezione di vista alla fine del programma: raggruppi i fatti sotto titoli brevi, metta in testa il valore che conta e aggiunga domande o una bozza dove aiutano. Usi solo le frasi di vista di docs/le_summary.md \xA717.10.",
-    "(once the program is saved)": "(una volta salvato il programma)",
     "provided that": "purch\xE9",
-    "The result holds provided that it does.": "Il risultato vale purch\xE9 questo valga."
+    "The result holds provided that it does.": "Il risultato vale purch\xE9 questo valga.",
+    "Open Executive View": "Apri la vista esecutiva",
+    "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Eseguire il programma come lo vedono i suoi utenti, senza il testo: la vista esecutiva, con le viste del programma, in una nuova finestra",
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non \xE8 in questo browser: questo \xE8 il programma come salvato."
   }
 };
 var languages = [

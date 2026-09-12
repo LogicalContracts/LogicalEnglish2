@@ -172,11 +172,14 @@ class QueryNode extends ClassicPreset.Node {
         this.bodyNaf = Array.isArray(conds.bodyNaf) ? conds.bodyNaf : [];
         this.bodyForall = Array.isArray(conds.bodyForall) ? conds.bodyForall : [];
         this.bodyRanges = Array.isArray(conds.bodyRanges) ? conds.bodyRanges : [];
+        this.bodyTypeCheck = Array.isArray(conds.bodyTypeCheck) ? conds.bodyTypeCheck : [];
         this.forallIndexSet = new Set(this.bodyForall.map((m: any) => m.index));
         this.rule = { head: label, body, bodyForall: this.bodyForall };
         const socket = new ClassicPreset.Socket('query-socket');
         body.forEach((_cond: string, i: number) => {
-            if (this.forallIndexSet.has(i)) {
+            if (this.bodyTypeCheck.includes(i)) {
+                // no socket: the engine checks it (a comparison, arithmetic)
+            } else if (this.forallIndexSet.has(i)) {
                 this.addInput(`in-${i}-0`, new ClassicPreset.Input(socket, undefined, true));
                 this.addInput(`in-${i}-1`, new ClassicPreset.Input(socket, undefined, true));
             } else if (this.bodyNaf.includes(i)) {
@@ -219,8 +222,10 @@ class RuleNode extends ClassicPreset.Node {
     public bodyNaf: number[];
     public bodyForall: any[];
     public bodyRanges: any[];
-    // Body conditions that are engine-checked TYPE GUARDS (le_type_check), not
-    // goals the player proves: they get no socket and count as already satisfied.
+    // Body conditions the engine checks — TYPE GUARDS (le_type_check) and
+    // built-ins (arithmetic, comparisons) — not goals the player proves: they get
+    // no socket and count as satisfied (the server evaluates a built-in once its
+    // inputs are linked, and reports a clash when it is false).
     public bodyTypeCheck: number[];
     public forallIndexSet: Set<number>;
     public clash: boolean = false;
@@ -1627,7 +1632,8 @@ export async function initProofGame(container: HTMLElement, gameData: any) {
             bodyTokens: gameData.queryConditionTokens,
             bodyNaf: gameData.queryNaf,
             bodyForall: gameData.queryForall,
-            bodyRanges: gameData.queryRanges
+            bodyRanges: gameData.queryRanges,
+            bodyTypeCheck: gameData.queryTypeCheck
         });
         queryNode.tokens = gameData.queryTokens || [];
         await editor.addNode(queryNode);

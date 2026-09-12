@@ -27,6 +27,8 @@ test.describe('LE Views', () => {
         // the fact groups, and the fact the case does not state
         await expect(root.locator('.lv-grp', { hasText: 'the booking' })).toBeVisible();
         await expect(root.locator('.lv-absent', { hasText: 'is notified of the cancellation' })).toBeVisible();
+        // every fact shows who states it: the carrier's facts carry its name
+        await expect(root.locator('.lv-grp + div .lv-who', { hasText: 'Alitalia' }).first()).toBeVisible();
         // a table of another query's answers
         // (the widgets that run queries of their own render after the result)
         await expect(root.locator('[data-widget="tables"] td', { hasText: 'the inspection defect' })).toBeVisible({ timeout: 90000 });
@@ -61,6 +63,57 @@ test.describe('LE Views', () => {
         await expect(root).toContainText('Answering yes to “Is your income low?”', { timeout: 60000 });
     });
 
+    test('what is missing: a fact stated from the question runs only once its value is in', async ({ page }) => {
+        test.setTimeout(180000);
+        await page.goto('/executive?program=RulesRus/sections_benefit&view=rent%20help');
+        const root = page.locator('#view-root');
+        await expect(root.locator('.lv-card').first()).toBeVisible({ timeout: 90000 });
+        await root.locator('select').first().selectOption('no_rent');
+        const stateIt = root.locator('[data-widget="questions"] .lv-chip', { hasText: 'Yes, state it' });
+        await expect(stateIt).toBeVisible({ timeout: 60000 });
+        await stateIt.click();
+        // the new row reads "the rent of dee is an amount" until a value is typed:
+        // not a fact about every amount, so still no answer (not "…is _123/2")
+        const rent = root.locator('.fact-row').last().locator('input.field').last();
+        await expect(rent).toHaveValue('an amount');
+        await page.waitForTimeout(2500);
+        await expect(root.locator('[data-widget="result"]')).toContainText('No answer', { timeout: 30000 });
+        await expect(root.locator('[data-widget="result"]')).not.toContainText('_');
+        await rent.fill('800');
+        await expect(root.locator('[data-widget="result"] .lv-big').first()).toHaveText('400', { timeout: 60000 });
+    });
+
+    test('Misc > Open Executive View opens the program as it is in the editor, unsaved', async ({ page, context }) => {
+        test.setTimeout(120000);
+        await page.goto('index.html?example=RulesRus/sections_benefit&scenario=no_rent&query=help');
+        await expect.poll(async () => page.locator('#scenario-select option').count(), { timeout: 60000 }).toBeGreaterThan(1);
+        await expect(page.locator('#scenario-select')).toHaveValue('no_rent');
+        const open = async () => {
+            const [p] = await Promise.all([
+                context.waitForEvent('page'),
+                page.evaluate(() => (document.getElementById('menu-open-executive') as HTMLElement).click()),
+            ]);
+            await p.waitForLoadState();
+            return p;
+        };
+        // on the scenario and query picked here
+        const first = await open();
+        expect(first.url()).toContain('/executive?program=RulesRus%2Fsections_benefit&text=');
+        expect(first.url()).toContain('&scenario=no_rent&query=help');
+        await first.close();
+        // an edit not saved: the view's title
+        await page.evaluate(() => {
+            const model = (window as any).monaco.editor.getEditors()[0].getModel();
+            model.setValue(model.getValue().replace('the title is "Help with the rent".', 'the title is "Rent desk, unsaved".'));
+        });
+        const exec = await open();
+        await expect(exec.locator('#view-links a', { hasText: 'Rent desk, unsaved' })).toBeVisible({ timeout: 60000 });
+        // the view's link keeps the editor's copy
+        await exec.locator('#view-links a', { hasText: 'Rent desk, unsaved' }).click();
+        await expect(exec.locator('#title')).toHaveText('Rent desk, unsaved', { timeout: 60000 });
+        await expect(exec.locator('#view-root .lv-card').first()).toBeVisible({ timeout: 60000 });
+    });
+
     test('Generate LE view drafts a view at the end of the program', async ({ page }) => {
         test.setTimeout(120000);
         page.on('dialog', d => d.dismiss());
@@ -75,5 +128,15 @@ test.describe('LE Views', () => {
         expect(draft).toContain('the result shows the stage it reaches.');
         expect(draft).toContain('a person is on a low income');
         await expect(page.locator('#assistant-input')).toHaveValue(/Refine the view section/);
+        // the drafted view, unsaved, on the executive view
+        const [exec] = await Promise.all([
+            page.context().waitForEvent('page'),
+            page.locator('#assistant-history a', { hasText: 'Open the view' }).last().click(),
+        ]);
+        await exec.waitForLoadState();
+        expect(exec.url()).toMatch(/&view=sections(\+|%20)benefit/);
+        await expect(exec.locator('#title')).toHaveText('Sections benefit', { timeout: 60000 });
+        await expect(exec.locator('#view-root [data-widget="result"]')).toBeVisible({ timeout: 60000 });
+        await expect(exec.locator('#view-root .lv-grp', { hasText: 'the case' })).toBeVisible();
     });
 });

@@ -143,7 +143,7 @@ export class ScenarioForm {
             this.rows.push({ templateLabel: val, values: [], raw: '', assumed: false });
             this.changed();
             this.render();
-            (opts.rowsEl.lastElementChild as HTMLElement | null)?.querySelector('input.field')?.focus();
+            (opts.rowsEl.lastElementChild as HTMLElement | null)?.querySelector<HTMLInputElement>('input.field')?.focus();
         });
     }
 
@@ -393,6 +393,25 @@ export class ScenarioForm {
     // Each fact's text (no trailing period), skipping wholly-empty rows.
     factLines(): string[] {
         return this.rows.map(r => this.factText(r)).filter(t => !!t);
+    }
+
+    // Each fact's text, skipping the rows with a field still unfilled: empty, or
+    // its placeholder's own words with any article ("an amount", "the amount",
+    // "um lugar" for *a lugar*). A screen that runs the facts as they are typed
+    // must not state "the rent of dee is an amount" (true of every amount: a
+    // variable) before the value is in.
+    completeFactLines(): string[] {
+        return this.rows.filter(r => !this.unfilled(r)).map(r => this.factText(r)).filter(t => !!t);
+    }
+
+    private unfilled(row: Row): boolean {
+        if (row.templateLabel === null) return false;
+        const slots = splitTemplate(row.templateLabel).filter(s => s.kind === 'field').map(s => s.text.trim().toLowerCase());
+        const rest = (x: string) => x.split(/\s+/).slice(1).join(' ');
+        return slots.some((slot, i) => {
+            const v = (row.values[i] || '').trim().toLowerCase().replace(/\s+/g, ' ');
+            return !v || v === slot || (rest(v) !== '' && rest(v) === rest(slot));
+        });
     }
 
     // The facts as runnable LE text (each terminated by "."), for use as a custom

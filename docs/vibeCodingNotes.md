@@ -2218,6 +2218,22 @@ Let's have the possibility to open multiple (file) tabs in the editor, in the st
 
 When a LE file is large or has many scenarios, some time it taks several seconds between the user clicking on the scenario or quiery picker, and the menu popping up; add a waiting cursor.
 
+# LE Views comments
+Please move the LE Views section from /InsurLE2/docs/CustomsOfficerReport.md to its own docs/IntroducingLEViews.md, and expand it enough to
+be a self contained tutorial; place a reference to it in CustomsOfficerReport.md
+
+Add a "Open Executive View" item to the editor Misc menu, which will open that UI in a new window
+
+Bug: when opening http://localhost:3050/executive?program=RulesRus%2Fcustoms%2Fcbp_61, it hangs; Javascript console shows
+Unhandled Promise Rejection: TypeError: null is not an object (evaluating 'links.hidden = !views.length'),
+executive/apps.js:129; refreshing the page makes it "work" ;-)
+
+In http://localhost:3050/executive?program=RulesRus%2Fcustoms%2Fcbp_61&scenario=ny_n274193&query=subheading, showing a list of
+51 citations before the "full explanation" (also big, but at least indented) seems a bit weird.... so bring the "Full
+explanation" link forward to the top, in case the user wants to jump to it
+
+In examples/RulesRus/sections_benefit.le, the Proof Game's "Show Proof" lays out a tree, but no prize (no green!)
+
 ## TBD
 
 In the editor, "Show s(CASP)" should appear only if the selected engine is s(CASP)
