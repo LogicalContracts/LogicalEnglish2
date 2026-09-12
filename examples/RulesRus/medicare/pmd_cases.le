@@ -1,0 +1,274 @@
+% Test cases for the power mobility policy (pmd.le): synthetic claims, one
+% or two per criterion of LCD L33789 and per payment condition of Policy
+% Article A52498. Findings are recorded as the treating practitioner's (the
+% face-to-face note) or the Council's; a finding nobody made leaves the
+% answer conditional.
+
+the target language is: prolog.
+
+the knowledge base pmd cases includes these resources:
+    pmd.
+
+the knowledge base pmd cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete Group 2 standard power wheelchair (K0823) file: the findings of
+% the face-to-face encounter, the weight, the order by the examining
+% practitioner, delivery within six months of the prior authorization, the
+% home assessment.
+scenario group_2_complete is:
+    claim 1 is for the power wheelchair.
+    the HCPCS code of the power wheelchair is "K0823".
+    the power wheelchair is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-04-10.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Ann is established, according to the treating practitioner.
+    the finding walking aids insufficient about Ann is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Ann is established, according to the treating practitioner.
+    the finding scooter ruled out about Ann is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Ann is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Ann is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Ann is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Ann is established, according to the treating practitioner.
+    the weight of Ann is 180 pounds.
+    the treating practitioner examined Ann for the power wheelchair in a face-to-face encounter on 2026-02-01.
+    the order for the power wheelchair is dated 2026-02-15.
+    the order for the power wheelchair is signed by the treating practitioner.
+    the order for the power wheelchair includes beneficiary name.
+    the order for the power wheelchair includes order date.
+    the order for the power wheelchair includes description of the item.
+    the order for the power wheelchair includes quantity to be dispensed.
+    the order for the power wheelchair includes treating practitioner name.
+    the order for the power wheelchair was communicated to the supplier on 2026-02-16.
+    the order for the power wheelchair was written by the practitioner who conducted the face-to-face encounter.
+    prior authorization for the power wheelchair was affirmed on 2026-03-01.
+    the power wheelchair was delivered on 2026-04-10.
+    the supplier holds proof of delivery for the power wheelchair.
+    the supplier performed an on-site evaluation of the home for the power wheelchair.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A scooter (K0800) for a beneficiary who can transfer to and operate it.
+scenario scooter is:
+    claim 1 is for the scooter.
+    the HCPCS code of the scooter is "K0800".
+    the scooter is furnished to Ben.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Ben is established, according to the treating practitioner.
+    the finding walking aids insufficient about Ben is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Ben is established, according to the treating practitioner.
+    the finding able to transfer to scooter safely about Ben is established, according to the treating practitioner.
+    the finding capabilities sufficient for scooter about Ben is established, according to the treating practitioner.
+    the finding home accommodates scooter about Ben is established, according to the supplier.
+    the finding scooter will significantly improve daily activities about Ben is established, according to the treating practitioner.
+    the finding willing to use scooter at home about Ben is established, according to the treating practitioner.
+    the weight of Ben is 210 pounds.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A Group 2 scooter (K0806) with the same findings: never covered.
+scenario group_2_scooter is:
+    claim 1 is for the scooter.
+    the HCPCS code of the scooter is "K0806".
+    the scooter is furnished to Ben.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Ben is established, according to the treating practitioner.
+    the finding walking aids insufficient about Ben is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Ben is established, according to the treating practitioner.
+    the finding able to transfer to scooter safely about Ben is established, according to the treating practitioner.
+    the finding capabilities sufficient for scooter about Ben is established, according to the treating practitioner.
+    the finding home accommodates scooter about Ben is established, according to the supplier.
+    the finding scooter will significantly improve daily activities about Ben is established, according to the treating practitioner.
+    the finding willing to use scooter at home about Ben is established, according to the treating practitioner.
+    the weight of Ben is 210 pounds.
+    rn expects answers [].
+
+% A power wheelchair for a beneficiary about whom nothing says a scooter
+% would not do: the answer is conditional on that finding.
+scenario scooter_not_ruled_out is:
+    claim 1 is for the power wheelchair.
+    the HCPCS code of the power wheelchair is "K0823".
+    the power wheelchair is furnished to Cy.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Cy is established, according to the treating practitioner.
+    the finding walking aids insufficient about Cy is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Cy is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Cy is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Cy is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Cy is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Cy is established, according to the treating practitioner.
+    the weight of Cy is 180 pounds.
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding scooter ruled out about Cy is established"].
+
+% The Council finds the record does not show that a cane or walker would not
+% do: the claim is not reasonable and necessary.
+scenario walking_aids_unsupported is:
+    claim 1 is for the power wheelchair.
+    the HCPCS code of the power wheelchair is "K0823".
+    the power wheelchair is furnished to Dee.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Dee is established, according to the treating practitioner.
+    the finding walking aids insufficient about Dee is unsupported, according to the Council, because "the record shows the beneficiary ambulating with a walker".
+    the finding manual wheelchair not self propellable about Dee is established, according to the treating practitioner.
+    the finding scooter ruled out about Dee is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Dee is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Dee is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Dee is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Dee is established, according to the treating practitioner.
+    the weight of Dee is 180 pounds.
+    rn expects answers [].
+
+% Weight: a 320-pound beneficiary is outside the standard class (K0823) and
+% inside the heavy-duty class (K0824).
+scenario weight_class is:
+    claim 1 is for the standard chair.
+    the HCPCS code of the standard chair is "K0823".
+    the standard chair is furnished to Eve.
+    the rental month of claim 1 is 1.
+    claim 2 is for the heavy duty chair.
+    the HCPCS code of the heavy duty chair is "K0824".
+    the heavy duty chair is furnished to Eve.
+    the rental month of claim 2 is 1.
+    the finding significant mobility limitation about Eve is established, according to the treating practitioner.
+    the finding walking aids insufficient about Eve is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Eve is established, according to the treating practitioner.
+    the finding scooter ruled out about Eve is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Eve is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Eve is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Eve is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Eve is established, according to the treating practitioner.
+    the weight of Eve is 320 pounds.
+    rn expects answers ["claim 2 is reasonable and necessary"].
+
+% A Group 3 single power option chair (K0856): a neurological diagnosis, a
+% power tilt seating system, the specialty evaluation and the ATP.
+scenario group_3_single_power is:
+    claim 1 is for the rehab chair.
+    the HCPCS code of the rehab chair is "K0856".
+    the rehab chair is furnished to Fay.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Fay is established, according to the treating practitioner.
+    the finding walking aids insufficient about Fay is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Fay is established, according to the treating practitioner.
+    the finding scooter ruled out about Fay is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Fay is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Fay is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Fay is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Fay is established, according to the treating practitioner.
+    the finding qualifying group 3 diagnosis about Fay is established, according to the treating practitioner, because "multiple sclerosis".
+    the finding single power option justified about Fay is established, according to the physical therapist.
+    Fay had a specialty evaluation by a licensed medical professional with no financial relationship with the supplier for the rehab chair.
+    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of the rehab chair.
+    the weight of Fay is 150 pounds.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The same chair without the specialty evaluation.
+scenario group_3_no_specialty_evaluation is:
+    claim 1 is for the rehab chair.
+    the HCPCS code of the rehab chair is "K0856".
+    the rehab chair is furnished to Fay.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Fay is established, according to the treating practitioner.
+    the finding walking aids insufficient about Fay is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Fay is established, according to the treating practitioner.
+    the finding scooter ruled out about Fay is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Fay is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Fay is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Fay is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Fay is established, according to the treating practitioner.
+    the finding qualifying group 3 diagnosis about Fay is established, according to the treating practitioner, because "multiple sclerosis".
+    the finding single power option justified about Fay is established, according to the physical therapist.
+    a RESNA certified assistive technology professional employed by the supplier was directly involved in the selection of the rehab chair.
+    the weight of Fay is 150 pounds.
+    rn expects answers [].
+
+% A Group 4 chair: never covered.
+scenario group_4 is:
+    claim 1 is for the chair.
+    the HCPCS code of the chair is "K0868".
+    the chair is furnished to Gus.
+    the rental month of claim 1 is 1.
+    rn expects answers [].
+
+% Delivered seven months after the prior authorization: reasonable and
+% necessary, but not payable.
+scenario late_delivery is:
+    claim 1 is for the power wheelchair.
+    the HCPCS code of the power wheelchair is "K0823".
+    the power wheelchair is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-10-10.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Ann is established, according to the treating practitioner.
+    the finding walking aids insufficient about Ann is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Ann is established, according to the treating practitioner.
+    the finding scooter ruled out about Ann is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Ann is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Ann is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Ann is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Ann is established, according to the treating practitioner.
+    the weight of Ann is 180 pounds.
+    the treating practitioner examined Ann for the power wheelchair in a face-to-face encounter on 2026-02-01.
+    the order for the power wheelchair is dated 2026-02-15.
+    the order for the power wheelchair is signed by the treating practitioner.
+    the order for the power wheelchair includes beneficiary name.
+    the order for the power wheelchair includes order date.
+    the order for the power wheelchair includes description of the item.
+    the order for the power wheelchair includes quantity to be dispensed.
+    the order for the power wheelchair includes treating practitioner name.
+    the order for the power wheelchair was communicated to the supplier on 2026-02-16.
+    the order for the power wheelchair was written by the practitioner who conducted the face-to-face encounter.
+    prior authorization for the power wheelchair was affirmed on 2026-03-01.
+    the power wheelchair was delivered on 2026-10-10.
+    the supplier holds proof of delivery for the power wheelchair.
+    the supplier performed an on-site evaluation of the home for the power wheelchair.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% A face-to-face encounter eight months before the order: the order is not
+% in time; the flip names the missing home assessment too.
+scenario stale_encounter is:
+    claim 1 is for the power wheelchair.
+    the HCPCS code of the power wheelchair is "K0823".
+    the power wheelchair is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-04-10.
+    the rental month of claim 1 is 1.
+    the finding significant mobility limitation about Ann is established, according to the treating practitioner.
+    the finding walking aids insufficient about Ann is established, according to the treating practitioner.
+    the finding manual wheelchair not self propellable about Ann is established, according to the treating practitioner.
+    the finding scooter ruled out about Ann is established, according to the treating practitioner.
+    the finding power wheelchair can be safely operated about Ann is established, according to the treating practitioner.
+    the finding home accommodates power wheelchair about Ann is established, according to the supplier.
+    the finding power wheelchair will significantly improve daily activities about Ann is established, according to the treating practitioner.
+    the finding willing to use power wheelchair at home about Ann is established, according to the treating practitioner.
+    the weight of Ann is 180 pounds.
+    the treating practitioner examined Ann for the power wheelchair in a face-to-face encounter on 2025-06-01.
+    the order for the power wheelchair is dated 2026-02-15.
+    the order for the power wheelchair is signed by the treating practitioner.
+    the order for the power wheelchair includes beneficiary name.
+    the order for the power wheelchair includes order date.
+    the order for the power wheelchair includes description of the item.
+    the order for the power wheelchair includes quantity to be dispensed.
+    the order for the power wheelchair includes treating practitioner name.
+    the order for the power wheelchair was communicated to the supplier on 2026-02-16.
+    the order for the power wheelchair was written by the practitioner who conducted the face-to-face encounter.
+    prior authorization for the power wheelchair was affirmed on 2026-03-01.
+    the power wheelchair was delivered on 2026-04-10.
+    the supplier holds proof of delivery for the power wheelchair.
+    pay expects answers [].
+    stage expects answers ["the query fails at remedy"].

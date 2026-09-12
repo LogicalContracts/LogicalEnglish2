@@ -31,7 +31,6 @@ the templates are:
     the AHI of the sleep test of *a beneficiary* is *a number*; undefined.
     the sleep test of *a beneficiary* recorded *a number* events; undefined.
     the sleep test of *a beneficiary* was performed by the DME supplier; undefined.
-    the medical record of *a beneficiary* documents *a symptom*; undefined.
     *a beneficiary* received instruction from the supplier in the use and care of *an item*; undefined.
     a single-level CPAP was tried by *a beneficiary* and proven ineffective; undefined.
     *a beneficiary* had an in-person clinical re-evaluation by the treating practitioner on *a date*; undefined.
@@ -45,7 +44,7 @@ the templates are:
     the beneficiary of *an item* was clinically evaluated before the sleep test.
     the sleep test of *a beneficiary* is a qualifying sleep test.
     the sleep test of *a beneficiary* meets the AHI criterion.
-    *a symptom* is a qualifying symptom for PAP.
+    *a condition* is a qualifying symptom for PAP.
     therapy with *an item* was initiated on *a date*.
     *an item* meets the PAP continued coverage criteria for *a claim*.
     *a beneficiary* adheres to therapy with *an item*.
@@ -119,6 +118,8 @@ an item is a PAP accessory
     and the code is in ["E0561", "E0562", "A4604", "A7027", "A7028", "A7029", "A7030", "A7031", "A7032", "A7033", "A7034", "A7035", "A7036", "A7037", "A7038", "A7039", "A7044", "A7045", "A7046"].
 
 section applicability is:
+
+pap has no specific documentation requirements.
 
 % The codes this policy decides, and their benefit: durable medical equipment
 % (Policy Article A52467).
@@ -198,8 +199,8 @@ the sleep test of a beneficiary meets the AHI criterion
     and the number <= 14
     and the sleep test of the beneficiary recorded an other number events
     and the other number >= 10
-    and the medical record of the beneficiary documents a symptom
-    and the symptom is a qualifying symptom for PAP.
+    and the medical record of the beneficiary documents a condition
+    and the condition is a qualifying symptom for PAP.
 
 excessive daytime sleepiness is a qualifying symptom for PAP,
     as stated in LCD L33718, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
