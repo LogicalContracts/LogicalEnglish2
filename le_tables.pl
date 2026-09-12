@@ -49,7 +49,9 @@
 %   le_kbs when the section is processed (le_table_clause/4 below).
 %   Problems are asserted as le_issue/6 against the table.
 compile_table(M, Templates, Name, Policy, Source, HeaderTokens, RowLines, Start, End) :-
-    header_columns(HeaderTokens, Columns),
+    split_cells(HeaderTokens, HeaderCells0),
+    citation_column(HeaderCells0, Cite, HeaderCells),
+    maplist(cell_text, HeaderCells, Columns),
     length(Columns, K),
     (   table_template(Templates, Name, FA)
     ->  FA = [F|Args], length(Args, A),
@@ -70,15 +72,11 @@ compile_table(M, Templates, Name, Policy, Source, HeaderTokens, RowLines, Start,
         ),
         assertz(M:le_table(Name, Policy, F/A, Columns, IdCol, Source)),
         forall(nth1(I, Rows, Row),
-               compile_row(M, Name, I, K, IdCol, Row, Start, End))
+               compile_row(M, Name, I, K, IdCol, Cite, Row, Start, End))
     ;   table_issue(M, error, table_without_template, [name-Name], Start, End)
     ),
     !.
 compile_table(_, _, _, _, _, _, _, _, _).
-
-header_columns(Tokens, Columns) :-
-    split_cells(Tokens, CellToks),
-    maplist(cell_text, CellToks, Columns).
 
 cell_text(Tokens, Text) :-
     (   Tokens == [] -> Text = ''
@@ -104,18 +102,28 @@ table_word(TW) :-
 
 contiguous(Sub, List) :- append(_, Tail, List), append(Sub, _, Tail), !.
 
-compile_row(M, Name, I, K, IdCol, row(Tokens, RS, RE), TStart, TEnd) :- !,
-    split_cells(Tokens, CellToks),
+compile_row(M, Name, I, K, IdCol, Cite, row(Tokens, RS, RE), TStart, TEnd) :- !,
+    split_cells(Tokens, CellToks0),
+    (   Cite = cite(CiteCol, _),
+        nth1(CiteCol, CellToks0, CiteToks, CellToks)
+    ->  true
+    ;   CellToks = CellToks0, CiteToks = []
+    ),
     length(CellToks, N),
     (   N =:= K
     ->  (   IdCol == true
         ->  CellToks = [IdToks|ValueToks], cell_text(IdToks, RowId)
         ;   ValueToks = CellToks, RowId = I
         ),
-        (   maplist(parse_cell, ValueToks, Cells)
+        (   maplist(parse_cell, ValueToks, Cells),
+            citation_cell(CiteToks, Quote)
         ->  (   last(Cells, Out), \+ output_cell(Out)
             ->  table_issue(M, error, table_bad_output, [name-Name, row-RowId], RS, RE)
-            ;   assertz(M:le_table_row(Name, I, RowId, Cells, RS, RE))
+            ;   assertz(M:le_table_row(Name, I, RowId, Cells, RS, RE)),
+                (   Quote \== none, RS \== 0, Cite = cite(_, Doc)
+                ->  assertz(M:le_table_row_citation(Name, RowId, Doc, Quote, RS, RE))
+                ;   true
+                )
             )
         ;   table_issue(M, error, table_bad_cell, [name-Name, row-RowId], RS, RE)
         )
@@ -134,6 +142,49 @@ table_issue(M, Severity, Type, Pairs, Start, End) :-
         le_msg(FixId, Pairs, Fix),
         assertz(M:le_issue(Severity, Type, Desc, Fix, Start, End))
     ;   true
+    ).
+
+% ---------------------------------------------------------------------------
+% A citation column
+% ---------------------------------------------------------------------------
+% One column of an inline table may cite, row by row, the passage each row
+% encodes — a tax band's line of the statute, a subheading's line of a tariff.
+% Its header is the provenance keyword `confer` (the passage is in the table's
+% own document, the one its `with provenance` names) or `as stated in` followed
+% by a document ("as stated in HTSUS Chapter 62"); each cell is a quoted
+% passage, or empty. The column is not one of the template's: it is set aside
+% before the columns are matched with the template's arguments, and each
+% row's passage becomes the provenance of that row (le_provenance:
+% record_table_row_provenance/2), so an explanation citing the row, "Show
+% original text" on it and the verifier's quotation check all see it.
+%
+%   citation_column(+HeaderCells, -Cite, -OtherCells): Cite is cite(Column,
+%   Document) — Document `table` or doc(Constant, Text) — or none.
+citation_column(Cells0, Cite, Cells) :-
+    (   nth1(Col, Cells0, Toks, Cells),
+        citation_header(Toks, Doc)
+    ->  Cite = cite(Col, Doc)
+    ;   Cite = none, Cells = Cells0
+    ).
+
+citation_header(Toks0, Doc) :-
+    exclude(le_grammar:is_indent_or_comment, Toks0, Toks),
+    (   le_i18n:kw_synonym_words(confer, Words),
+        le_grammar:tokens_word_prefix(Words, Toks, [])
+    ->  Doc = own
+    ;   le_i18n:kw_synonym_words(as_stated_in, Words),
+        le_grammar:tokens_word_prefix(Words, Toks, DocToks),
+        DocToks \== [],
+        le_provenance:document_parts(DocToks, Const, Text),
+        Doc = doc(Const, Text)
+    ).
+
+% The passage of a citation cell: a quoted string, or none when empty.
+citation_cell([], none) :- !.
+citation_cell(Toks0, Quote) :-
+    exclude(le_grammar:is_indent_or_comment, Toks0, Toks),
+    (   Toks == [] -> Quote = none
+    ;   Toks = [doubleQuoteString(Q, _)] -> atom_string(Q, Quote)
     ).
 
 % ---------------------------------------------------------------------------

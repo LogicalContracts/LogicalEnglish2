@@ -135,3 +135,29 @@ button.secondary:disabled { opacity: .5; }
 .tree li.t-unknown > .lit { color: var(--unknown); }
 .tree li.t-failure > .lit { color: var(--fail); }
 .repeated { color: var(--muted); font-size: 12px; }
+
+/* A negation's failed branches, folded (the search, not the reasons) */
+.tree details.negation > summary { list-style: none; cursor: pointer; }
+.tree details.negation > summary::-webkit-details-marker { display: none; }
+.tree li.t-success > details.negation > summary > .lit::before { content: "✓ "; color: var(--ok); }
+.tree details.negation > summary::after { content: " …"; color: var(--muted); }
+.tree details.negation[open] > summary::after { content: ""; }
+
+/* Citations: the cited steps of a proof, in order */
+.cites { margin: 6px 0 10px; }
+.cites-head { display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin: 6px 0; }
+.cites-head button, button.src {
+    border: 1px solid var(--border); background: var(--bg); color: var(--accent);
+    border-radius: 8px; padding: 2px 10px; font-size: 13px; cursor: pointer; }
+button.src { padding: 0 7px; margin-left: 4px; font-family: Georgia, serif; }
+.cite-list { margin: 0; padding-left: 22px; }
+.cite-list li { margin: 8px 0; font-size: 14px; }
+.cite-list .cite { color: var(--muted); font-size: 13px; font-style: italic; margin-top: 2px; }
+details.full > summary { cursor: pointer; color: var(--accent); font-size: 14px; margin: 8px 0; }
+
+/* The source viewer (shared with the editor) in this page's colours */
+:root { --panel-bg: var(--card); --text-color: var(--ink); --field-bg: var(--bg);
+    --input-border: var(--border); --border-color: var(--border); --input-bg: var(--bg); --input-text: var(--ink); }
+.sv-dialog button.primary { width: auto; padding: 6px 14px; font-size: 15px; border-radius: 8px; }
+.sv-dialog button { font-size: 15px; }

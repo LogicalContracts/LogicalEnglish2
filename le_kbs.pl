@@ -10,7 +10,7 @@
     runTestsFor/2, runTestsInDir/2, runTestsInDir/3, runTests/0, runTests/1, runAllTests/0, le_suite/1,
     run_suite/2, suite_failure_count/3, print_test_summary/1,
     suite_status_file/2, write_suite_status_file/2, write_test_status_file/3,
-    print_test_result/1, do_log/0, get_kb_metadata/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
+    print_test_result/1, do_log/0, get_kb_metadata/2, program_kb_name/2, is_system_predicate/1, ensure_kb_language/1, text_language/2,
     run_one_test/3, le_my_id/1, le_my_kb/1, kb_target_language/2, set_id_from_ref/2,
     set_kb_module/1, clear_kb_module/0,
     current_compiling_module/1, rule_counter/1,
@@ -1407,7 +1407,7 @@ session_reaper_loop :-
 %   Prints the current state of a reasoning session.
 printSession(SessionModule) :-
     ( SessionModule:le_kb_module_fact(KBmodule) -> true ; KBmodule = none ),
-    ( KBmodule \== none -> KBmodule:le_kb(KBName) ; KBName = unknown ),
+    ( KBmodule \== none, program_kb_name(KBmodule, KBName) -> true ; KBName = unknown ),
     format('Session: ~w~nKB: ~w (~w)~nFacts:~n', [SessionModule, KBName, KBmodule]),
     forall((SessionModule:sessionClause(Ref), clause(H, B, Ref)),
            (H \= sessionClause(_), format('  ~w :- ~w~n', [H, B]))).
@@ -2193,12 +2193,33 @@ bracket_list_token(KBmodule, Token, Out) :-
 extract_name(var(Name, _), Name) :- !.
 extract_name(V, V).
 
+%!  program_kb_name(+KB:atom, -Name) is semidet.
+%
+%   The name of the program's own knowledge base ("the knowledge base <Name>
+%   includes:"). The knowledge bases of the resources it includes are asserted
+%   in the same module — and before the program's own, since resources are
+%   read first — so the first le_kb/1 fact may name an included library; the
+%   program's own is the one whose source range lies in the program's text
+%   (below le_grammar:resource_offset_unit/1). Failing that, the first.
+program_kb_name(KB, Name) :-
+    atom(KB),
+    current_predicate(KB:le_kb/1),
+    le_grammar:resource_offset_unit(Unit),
+    (   KB:le_kb(Name),
+        clause(KB:le_kb(Name), true, Ref),
+        KB:le_source_info(Ref, S, _, _),
+        integer(S), S < Unit
+    ->  true
+    ;   KB:le_kb(Name)
+    ->  true
+    ).
+
 %!  get_kb_metadata(+KB:atom, -Metadata:dict) is det.
 %
 %   Returns metadata about a loaded KB, including its name, templates,
 %   queries, and scenarios.
 get_kb_metadata(KB, Metadata) :-
-    ( current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true; KBName = null),
+    ( program_kb_name(KB, KBName) -> true ; KBName = null ),
     findall(TemplateStr, (
         KB:le_dict(Dict),
         (Dict = dict(FA, NTs, WV, _, _, _, _) ; Dict = dict(FA, NTs, WV, _, _, _) ; Dict = dict(FA, NTs, WV, _, _) ; Dict = dict(FA, NTs, WV, _) ; Dict = dict(FA, NTs, WV)),
@@ -2254,11 +2275,14 @@ get_kb_metadata(KB, Metadata) :-
     % The templates with their *placeholders* — the program's own and those of
     % the resources it includes — and which are scenario elements or judged:
     % what the Scenario Editor offers as fact rows.
-    findall(_{label: TLabel, scenario_element: SE, judged: J},
-            ( template_def(KB, TLabel, Kind),
-              ( Kind == scenario_element -> SE = true ; SE = false ),
-              ( Kind == judged -> J = true ; J = false ) ),
-            TemplateDefs),
+    % With each, per placeholder (in the label's order), the values the rules
+    % read there (le_verifier:slot_values/5): the forms' pick lists.
+    le_verifier:with_rule_index(KB,
+        le_kbs:findall(_{label: TLabel, scenario_element: SE, judged: J, values: Values},
+                ( template_def(KB, TLabel, Kind, Values),
+                  ( Kind == scenario_element -> SE = true ; SE = false ),
+                  ( Kind == judged -> J = true ; J = false ) ),
+                TemplateDefs)),
     Metadata = _{ kb: KBName, templates: Templates, template_defs: TemplateDefs, queries: Queries, examples: Scenarios, included_resources: IncludedResources, fact_images: FactImages, template_images: TemplateImages }.
 
 %!  template_def(+KB, -Label:string, -Kind) is nondet.
@@ -2267,7 +2291,14 @@ get_kb_metadata(KB, Metadata) :-
 %   is sleeveless"), Kind being scenario_element (`; undefined`), judged,
 %   unknown (assumable) or none.
 template_def(KB, Label, Kind) :-
-    template_of(KB, _, _, Dict, _),
+    template_def(KB, Label, Kind, _).
+
+%!  template_def(+KB, -Label:string, -Kind, -Values:list) is nondet.
+%
+%   ... and, for each placeholder of Label in order, the list of the values the
+%   program's rules read there (empty when they read none in particular).
+template_def(KB, Label, Kind, Values) :-
+    template_of(KB, F, A, Dict, _),
     (   Dict = dict(_, NTs, WV, _, _, _, Unknown) -> true
     ;   Dict = dict(_, NTs, WV, _, _, _) -> Unknown = none
     ;   Dict = dict(_, NTs, WV, _, _) -> Unknown = none
@@ -2280,7 +2311,32 @@ template_def(KB, Label, Kind) :-
     % a hyphenated template word is tokenised in three ("loose - fitting")
     re_replace("(\\w) - (\\w)"/g, "$1-$2", Label0, Label1),
     atom_string(Label1, Label),
-    ( var(Unknown) -> Kind = none ; Kind = Unknown ).
+    ( var(Unknown) -> Kind = none ; Kind = Unknown ),
+    % only for what a scenario states: the rest of the templates are never
+    % offered as fact rows, and the search costs a pass over the rules each
+    (   ( memberchk(Kind, [scenario_element, judged]) ; used_in_a_scenario(KB, F, A) )
+    ->  placeholder_values(KB, F, A, Dict, WV, Values)
+    ;   findall([], ( member(W, WV), var(W) ), Values)
+    ).
+
+used_in_a_scenario(KB, F, A) :-
+    current_predicate(KB:scenario/2),
+    functor(G, F, A),
+    KB:scenario(_, Terms),
+    memberchk(fact_with_source(G, _, _), Terms), !.
+
+% The values of each placeholder, in the order the placeholders appear in the
+% template's words (which is not necessarily the argument order).
+placeholder_values(KB, F, A, Dict, WV, Values) :-
+    arg(1, Dict, [F|Args]),
+    findall(Vs,
+            ( member(W, WV), var(W),
+              once(( nth1(I, Args, Arg), Arg == W )),
+              ( catch(le_verifier:slot_values(KB, F, A, I, Vs0), _, fail) -> true ; Vs0 = [] ),
+              maplist(value_string, Vs0, Vs) ),
+            Values).
+
+value_string(V, S) :- format(string(S), "~w", [V]).
 
 starred_article_type(V-Type) :-
     (   atom(Type)
@@ -2334,7 +2390,7 @@ fill_type(V-Type) :-
 %
 %   Returns a short string summarizing the KB and its top predicates.
 kbSummary(KB, Summary) :-
-    (current_predicate(KB:le_kb/1), KB:le_kb(KBName) -> true ; KBName = KB),
+    ( program_kb_name(KB, KBName) -> true ; KBName = KB ),
     ensure_kb_language(KB),
     topPredicates(KB, TopPreds),
     atomic_list_concat(TopPreds, '; ', PredsStr),
@@ -2454,6 +2510,7 @@ is_system_predicate(le_service_template/2).
 % Decision tables (le_tables.pl): the table and its rows.
 is_system_predicate(le_table/6).
 is_system_predicate(le_table_row/6).
+is_system_predicate(le_table_row_citation/6).
 
 %!  kb_own_predicate(+M:atom, +Head:callable) is semidet.
 %
@@ -2537,6 +2594,11 @@ item_to_le_string(query_clause(_, OriginalTokens, _, _, _, _, _, _), String) :- 
     tokens_to_string(OriginalTokens, String).
 item_to_le_string(query_body(_, OriginalTokens, _, _), String) :- !,
     tokens_to_string(OriginalTokens, String).
+% A flip query: its opening phrase (in the program's language), then its goal.
+item_to_le_string(query_flip(_, Inner, _, _), String) :- !,
+    ( le_i18n:kw_main_words(flip_query, Words) -> atomic_list_concat(Words, ' ', Phrase) ; Phrase = '' ),
+    item_to_le_string(Inner, InnerString),
+    ( Phrase == '' -> String = InnerString ; format(string(String), "~w ~w", [Phrase, InnerString]) ).
 item_to_le_string(Item, String) :-
     term_string(Item, String).
 

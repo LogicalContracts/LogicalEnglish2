@@ -12,6 +12,11 @@ import { ExplanationView, MenuEls } from './explanation-view';
 interface VariationsData {
     source?: string;
     kbName?: string;
+    // the templates of the resources the program includes (the opener's load)
+    templateDefs?: { label: string; scenario_element?: boolean; values?: string[][] }[];
+    // where the program came from, so its includes resolve
+    example?: string;
+    base?: string;
     queries?: { name: string; label?: string }[];
     scenarios?: string[];
     selectedScenario?: string;
@@ -37,6 +42,10 @@ export async function initScenarioVariations() {
     let source = url.get('text') || ls.source || '';
     let kbName = ls.kbName || '';
     let queryDefs: { name: string; label?: string }[] = Array.isArray(ls.queries) ? ls.queries : [];
+    let templateDefs = Array.isArray(ls.templateDefs) ? ls.templateDefs : [];
+    // where the program came from (a shared link carries it too)
+    const example = url.get('example') || ls.example || '';
+    const base = url.get('base') || ls.base || '';
 
     // This window keeps its OWN reasoning session, independent of the editor's. The
     // editor reloading its module (or its session being reclaimed) must never break
@@ -46,11 +55,14 @@ export async function initScenarioVariations() {
     let sessionLoad: Promise<void> | null = null;
     function startSessionLoad(): Promise<void> {
         if (!sessionLoad) {
-            sessionLoad = (source ? leapi({ operation: 'load', le: source }) : Promise.resolve(null))
+            sessionLoad = (source ? leapi({ operation: 'load', le: source,
+                                            source: example, base })
+                                  : Promise.resolve(null))
                 .then((r: any) => {
                     if (r && r.sessionModule) {
                         sessionModule = r.sessionModule;
                         if (!kbName) kbName = r.kb || '';
+                        if (templateDefs.length === 0 && Array.isArray(r.template_defs)) templateDefs = r.template_defs;
                         if (queryDefs.length === 0 && Array.isArray(r.queries)) {
                             queryDefs = r.queries.map((q: any) => ({ name: q.name, label: q.le || q.template }));
                         }
@@ -63,7 +75,9 @@ export async function initScenarioVariations() {
     // A shared link carries only the text, so we must load to discover the queries;
     // otherwise we render immediately and load the session in the background, so it is
     // ready by the time the user runs a query.
-    if (queryDefs.length === 0 && source) await startSessionLoad();
+    // The same for the templates of included resources: the form needs them to
+    // make the scenario's facts editable rows.
+    if ((queryDefs.length === 0 || templateDefs.length === 0) && source) await startSessionLoad();
     else startSessionLoad();
 
     const blocks = parseScenarioBlocks(source);
@@ -96,6 +110,7 @@ export async function initScenarioVariations() {
         addSelect: $('add-template') as HTMLSelectElement,
         btnAdd: $('btn-add') as HTMLButtonElement,
         assumeTitle: 'Consider this unknown, and assume it to be true',
+        extraTemplates: templateDefs,
         onChange: () => { markStale(); syncUrl(); },
     });
 
@@ -300,6 +315,8 @@ export async function initScenarioVariations() {
     function syncUrl() {
         const u = new URL(location.href);
         u.searchParams.set('text', source);                 // self-contained for sharing
+        if (example) u.searchParams.set('example', example); // ... and its includes resolve
+        if (base) u.searchParams.set('base', base);
         u.searchParams.set('scenario', picker.value);
         u.searchParams.set('scenarioText', form.factsText());
         u.searchParams.set('queries', queryCards.map(q => q.name).join(','));

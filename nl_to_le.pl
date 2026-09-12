@@ -686,7 +686,8 @@ program_templates(Program, Templates) :-
         % use drowns them (a model then writes a fact or two out of a whole
         % document).
         (   memberchk(_-scenario, Pairs)
-        ->  findall(LH, ( member(L-scenario, Pairs), with_value_hints(KB, L, LH) ), Labels0)
+        ->  le_verifier:with_rule_index(KB,
+                nl_to_le:findall(LH, ( member(L-scenario, Pairs), with_value_hints(KB, L, LH) ), Labels0))
         ;   findall(L, member(L-_, Pairs), Labels0)
         ),
         sort(Labels0, Templates)
@@ -738,48 +739,10 @@ hint_text(SlotName, Values0, Hint) :-
     atomic_list_concat(Ss, ', ', Joined),
     format(string(Hint), "~w: ~w~w", [SlotName, Joined, More]).
 
+% slot_values/5 (the values a placeholder can take) is le_verifier's: the
+% verifier's unread_value warning and the editor's pick lists read it too.
 slot_values(KB, F, A, I, Values) :-
-    findall(V, slot_value(KB, F, A, I, V), Vs0),
-    exclude(number, Vs0, Vs1),
-    sort(Vs1, Values).
-
-slot_value(KB, F, A, I, V) :-
-    kb_rule(KB, Head, Body),
-    le_verifier:find_in_body(Body, Lit),
-    functor(Lit, F, A),
-    arg(I, Lit, Arg),
-    (   atomic(Arg), Arg \== [] -> V = Arg
-    ;   var(Arg),
-        (   le_verifier:find_in_body(Body, Lit2), Lit2 \== Lit,
-            functor(Lit2, F2, A2), \+ sub_atom(F2, 0, _, _, le_),
-            arg(J, Lit2, Arg2), Arg2 == Arg,
-            fact_argument(KB, F2, A2, J, V)
-        ;   arg(K, Head, HArg), HArg == Arg,
-            functor(Head, HF, HA),
-            head_argument_value(KB, HF, HA, K, V)
-        )
-    ).
-
-kb_rule(KB, Head, Body) :-
-    current_predicate(KB:P/N), functor(Head, P, N),
-    le_kbs:kb_own_predicate(KB, Head),
-    clause(KB:Head, Body), Body \== true.
-
-fact_argument(KB, F, A, J, V) :-
-    functor(G, F, A),
-    current_predicate(KB:F/A),
-    clause(KB:G, true),
-    arg(J, G, V), atomic(V).
-
-% the constants given to position K of a derived predicate: in the conditions
-% that call it, and in its own facts
-head_argument_value(KB, HF, HA, K, V) :-
-    (   kb_rule(KB, _, Body2),
-        le_verifier:find_in_body(Body2, Call),
-        functor(Call, HF, HA),
-        arg(K, Call, V), atomic(V), V \== []
-    ;   fact_argument(KB, HF, HA, K, V)
-    ).
+    le_verifier:slot_values(KB, F, A, I, Values).
 
 % kb_template_label(+KB, -Label, -Kind): Kind is scenario for a template the
 % program marks as a scenario element or judged, derived for one its rules

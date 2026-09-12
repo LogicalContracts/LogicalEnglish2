@@ -1447,181 +1447,204 @@ var AUTO_SELECTOR = [
   ".menu-item",
   "[data-i18n]"
 ].join(",");
-function translateFirstTextNode(el) {
-  for (const node of Array.from(el.childNodes)) {
-    if (node.nodeType === Node.TEXT_NODE) {
-      const raw = node.textContent ?? "";
-      const trimmed = raw.trim();
-      if (trimmed) {
-        const tr = t(trimmed);
-        if (tr !== trimmed)
-          node.textContent = raw.replace(trimmed, tr);
-        return;
-      }
-    }
-  }
-}
-function applyI18nDom(root = document) {
-  if (uiLang() === "en")
-    return;
-  root.querySelectorAll(AUTO_SELECTOR).forEach((el) => translateFirstTextNode(el));
-  root.querySelectorAll("[title]").forEach((el) => {
-    const v = el.getAttribute("title");
-    if (v) {
-      const tr = t(v.trim());
-      if (tr !== v.trim())
-        el.setAttribute("title", tr);
-    }
-  });
-  root.querySelectorAll("[placeholder]").forEach((el) => {
-    const v = el.getAttribute("placeholder");
-    if (v) {
-      const tr = t(v.trim());
-      if (tr !== v.trim())
-        el.setAttribute("placeholder", tr);
-    }
-  });
-}
 
-// src/bento-box.ts
-var GOLDEN_ANGLE = 137.508;
-function hue(index) {
-  return index * GOLDEN_ANGLE % 360;
+// src/source-viewer.ts
+var TOKEN = "myToken123";
+function provenanceSummary(p, rule) {
+  const parts = [];
+  if (rule)
+    parts.push(`${t("rule")} ${rule}`);
+  if (p.document)
+    parts.push(p.document + (p.locator ? ` \u2014 ${p.locator}` : ""));
+  if (p.source)
+    parts.push(`${t("according to")} ${p.source}`);
+  if (p.rationale)
+    parts.push(`${t("because")} ${p.rationale}`);
+  return parts.join("\n");
 }
-function initBentoBox() {
-  const $ = (id) => document.getElementById(id);
-  applyI18nDom();
-  const data = JSON.parse(localStorage.getItem("le_bento_box_data") || "{}");
-  $("title").textContent = `${t("Bento Box")}${data.kbName ? ` \u2014 ${data.kbName}` : ""}`;
-  document.title = `${t("Bento Box")}${data.kbName ? ` \u2014 ${data.kbName}` : ""}`;
-  $("answer").textContent = data.answer || "";
-  const roots = Array.isArray(data.why) ? data.why : data.why ? [data.why] : [];
-  const tray = $("tray");
-  const legendRows = $("legend-rows");
-  if (!roots.length) {
-    tray.textContent = t("No explanation to display.");
-    tray.style.color = "#d4d4d4";
-    return;
-  }
-  const light = document.body.classList.contains("light-theme");
-  const boxByPath = /* @__PURE__ */ new Map();
-  let seq = 0;
-  const factImages = Array.isArray(data.factImages) ? data.factImages : [];
-  const templateImages = Array.isArray(data.templateImages) ? data.templateImages : [];
-  function imageFor(node) {
-    if (typeof node.start === "number" && typeof node.end === "number" && node.end > node.start) {
-      for (const fi of factImages) {
-        if (node.start >= fi.start && node.end <= fi.end)
-          return fi.url;
-      }
-    }
-    const lit = node.literal ? String(node.literal) : "";
-    if (lit) {
-      const ti = templateImages.find((x) => x.literal === lit);
-      if (ti)
-        return ti.url;
-    }
+function originalUrl(p) {
+  if (!p.url)
     return null;
+  if (p.quote && !p.url.includes("#")) {
+    return `${p.url}#:~:text=${encodeURIComponent(p.quote)}`;
   }
-  function weight(node) {
-    const kids = node.children || [];
-    if (!kids.length)
-      return 1;
-    return kids.reduce((s, k) => s + weight(k), 0);
-  }
-  function markerFor(node) {
-    if (node.type === "failure")
-      return "x ";
-    if (node.type === "unknown")
-      return "? ";
-    return "";
-  }
-  function render(node, parent, depth, path) {
-    const el = document.createElement("div");
-    el.className = "bento-box";
-    el.dataset.path = path;
-    const kids = node.children || [];
-    const failed = node.type === "failure";
-    const assumed = node.type === "unknown";
-    const h = hue(seq++);
-    const fill = light ? `hsl(${h}, 62%, 86%)` : `hsl(${h}, 42%, 26%)`;
-    const edge = light ? `hsl(${h}, 55%, 55%)` : `hsl(${h}, 55%, 48%)`;
-    el.style.background = fill;
-    el.style.borderColor = edge;
-    el.style.flexGrow = String(weight(node));
-    el.style.flexBasis = "0";
-    el.style.flexDirection = depth % 2 === 0 ? "row" : "column";
-    if (failed)
-      el.classList.add("failed");
-    if (assumed)
-      el.classList.add("assumed");
-    const literal = node.literal ? String(node.literal) : "";
-    if (literal)
-      el.title = `${path}  ${markerFor(node)}${literal}`;
-    el.addEventListener("click", (e) => {
-      e.stopPropagation();
-      flash(el);
-      if (typeof node.start === "number" && typeof node.end === "number" && node.end > node.start) {
-        window.opener?.postMessage({ type: "le-highlight", loc: { start: node.start, end: node.end }, noFocus: true }, "*");
-      }
-    });
-    parent.appendChild(el);
-    boxByPath.set(path, el);
-    addLegendRow(node, path, failed ? "" : fill, failed ? "" : edge);
-    if (failed) {
-    } else if (!kids.length) {
-      el.classList.add("leaf");
-      const url = imageFor(node);
-      if (url) {
-        el.classList.add("has-image");
-        const img = document.createElement("img");
-        img.className = "bento-img";
-        img.src = url;
-        img.alt = literal;
-        img.addEventListener("error", () => {
-          img.remove();
-          el.classList.remove("has-image");
-          el.textContent = literal;
-        });
-        el.appendChild(img);
-      } else {
-        el.textContent = literal;
+  return p.url;
+}
+function findQuote(text, quote) {
+  const norm = [];
+  const map = [];
+  let lastSpace = true;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (/\s/.test(c)) {
+      if (!lastSpace) {
+        norm.push(" ");
+        map.push(i);
+        lastSpace = true;
       }
     } else {
-      kids.forEach((k, i) => render(k, el, depth + 1, `${path}.${i + 1}`));
+      norm.push(c);
+      map.push(i);
+      lastSpace = false;
     }
   }
-  function addLegendRow(node, path, fill, edge) {
+  const hay = norm.join("");
+  const needle = quote.replace(/\s+/g, " ").trim();
+  if (!needle)
+    return null;
+  let at = hay.indexOf(needle);
+  if (at < 0)
+    at = hay.toLowerCase().indexOf(needle.toLowerCase());
+  if (at < 0)
+    return null;
+  const start = map[at];
+  const end = map[at + needle.length - 1] + 1;
+  return [start, end];
+}
+function ensureStyles() {
+  if (document.getElementById("source-viewer-styles"))
+    return;
+  const style = document.createElement("style");
+  style.id = "source-viewer-styles";
+  style.textContent = `
+        .sv-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex;
+            align-items: center; justify-content: center; z-index: 1000; }
+        .sv-dialog { background: var(--panel-bg, #252526); color: var(--text-color, #d4d4d4);
+            border: 1px solid var(--border-color, #444); border-radius: 8px; width: min(820px, 94vw);
+            max-height: 90vh; display: flex; flex-direction: column; padding: 16px 18px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+        .sv-dialog h2 { margin: 0 0 6px 0; font-size: 16px; }
+        .sv-meta { font-size: 12px; line-height: 1.5; margin: 0 0 8px 0; }
+        .sv-meta div { margin: 2px 0; }
+        .sv-meta .sv-label { color: var(--muted, #888); margin-right: 6px; }
+        .sv-text { flex: 1; overflow: auto; white-space: pre-wrap; font-family: inherit; font-size: 13px;
+            background: var(--field-bg, #1e1e1e); border: 1px solid var(--input-border, #555);
+            border-radius: 4px; padding: 10px; margin: 0; min-height: 120px; }
+        .sv-text mark { background: #e2b93d; color: #000; }
+        .sv-status { font-size: 12px; color: var(--muted, #888); margin: 6px 0; }
+        .sv-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+        .sv-dialog button { background: var(--input-bg, #3c3c3c); color: var(--input-text, #d4d4d4);
+            border: 1px solid var(--input-border, #555); border-radius: 4px; padding: 6px 12px; font: inherit; cursor: pointer; }
+        .sv-dialog button.primary { background: var(--accent, #0e639c); color: #fff; border-color: var(--accent, #0e639c); }
+    `;
+  document.head.appendChild(style);
+}
+async function fetchDocumentText(address, ctx = {}) {
+  try {
+    return await fetch("/leapi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        token: TOKEN,
+        operation: "documentText",
+        address,
+        source: ctx.source || "",
+        base: ctx.base || ""
+      })
+    }).then((r) => r.json());
+  } catch {
+    return { error: t("Could not reach the server.") };
+  }
+}
+function openSourceViewer(p, rule, ctx = {}) {
+  ensureStyles();
+  const overlay = document.createElement("div");
+  overlay.className = "sv-overlay";
+  const dialog = document.createElement("div");
+  dialog.className = "sv-dialog";
+  dialog.id = "source-viewer";
+  overlay.appendChild(dialog);
+  const h = document.createElement("h2");
+  h.textContent = p.document || t("Source");
+  dialog.appendChild(h);
+  const meta = document.createElement("div");
+  meta.className = "sv-meta";
+  const addMeta = (label, value) => {
+    if (!value)
+      return;
     const row = document.createElement("div");
-    row.className = "legend-row";
-    if (node.type === "failure")
-      row.classList.add("failed");
-    if (node.type === "unknown")
-      row.classList.add("assumed");
-    const swatch = document.createElement("span");
-    swatch.className = "legend-swatch";
-    swatch.style.background = fill || "var(--empty-bg)";
-    swatch.style.borderColor = edge || "#000";
-    if (node.type === "unknown")
-      swatch.style.borderStyle = "dashed";
-    const pathEl = document.createElement("span");
-    pathEl.className = "legend-path";
-    pathEl.textContent = path;
-    const text = document.createElement("span");
-    text.className = "legend-text";
-    text.textContent = `${markerFor(node)}${node.literal ? String(node.literal) : ""}`;
-    row.append(swatch, pathEl, text);
-    row.addEventListener("mouseenter", () => boxByPath.get(path)?.classList.add("flash"));
-    row.addEventListener("mouseleave", () => boxByPath.get(path)?.classList.remove("flash"));
-    row.addEventListener("click", () => boxByPath.get(path)?.dispatchEvent(new MouseEvent("click")));
-    legendRows.appendChild(row);
+    const l = document.createElement("span");
+    l.className = "sv-label";
+    l.textContent = label;
+    row.appendChild(l);
+    row.appendChild(document.createTextNode(value));
+    meta.appendChild(row);
+  };
+  addMeta(t("rule"), rule);
+  addMeta(t("at"), p.locator);
+  addMeta(t("according to"), p.source);
+  addMeta(t("because"), p.rationale);
+  addMeta(t("Published at"), p.url);
+  dialog.appendChild(meta);
+  const status = document.createElement("div");
+  status.className = "sv-status";
+  const pre = document.createElement("pre");
+  pre.className = "sv-text";
+  pre.style.display = "none";
+  dialog.appendChild(status);
+  dialog.appendChild(pre);
+  const actions = document.createElement("div");
+  actions.className = "sv-actions";
+  const open = originalUrl(p);
+  if (open) {
+    const btnOpen = document.createElement("button");
+    btnOpen.textContent = t("Open original");
+    btnOpen.addEventListener("click", () => window.open(open, "_blank"));
+    actions.appendChild(btnOpen);
   }
-  function flash(el) {
-    el.classList.add("flash");
-    setTimeout(() => el.classList.remove("flash"), 400);
+  const close = document.createElement("button");
+  close.className = "primary";
+  close.textContent = t("Close");
+  actions.appendChild(close);
+  dialog.appendChild(actions);
+  document.body.appendChild(overlay);
+  const done = () => {
+    overlay.remove();
+    document.removeEventListener("keydown", onKey);
+  };
+  const onKey = (e) => {
+    if (e.key === "Escape")
+      done();
+  };
+  document.addEventListener("keydown", onKey);
+  close.addEventListener("click", done);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay)
+      done();
+  });
+  if (!p.text) {
+    status.textContent = p.document ? `${t("The program does not say where the text of this document is")}: the text of ${p.document} is at "\u2026".` : "";
+    return;
   }
-  roots.forEach((r, i) => render(r, tray, 0, String(i + 1)));
+  status.textContent = t("Loading the document\u2026");
+  fetchDocumentText(p.text, ctx).then((res) => {
+    if (!res || res.error || typeof res.text !== "string") {
+      status.textContent = `${t("Error: ")}${res && res.error || ""}`;
+      return;
+    }
+    const text = res.text;
+    const span = p.quote ? findQuote(text, p.quote) : null;
+    pre.textContent = "";
+    if (span) {
+      pre.appendChild(document.createTextNode(text.slice(0, span[0])));
+      const mark = document.createElement("mark");
+      mark.textContent = text.slice(span[0], span[1]);
+      pre.appendChild(mark);
+      pre.appendChild(document.createTextNode(text.slice(span[1])));
+      status.textContent = "";
+      pre.style.display = "";
+      mark.scrollIntoView({ block: "center" });
+    } else {
+      pre.textContent = text;
+      pre.style.display = "";
+      status.textContent = p.quote ? t("The quoted passage was not found in this text.") : "";
+    }
+  });
 }
 export {
-  initBentoBox
+  fetchDocumentText,
+  findQuote,
+  openSourceViewer,
+  originalUrl,
+  provenanceSummary
 };

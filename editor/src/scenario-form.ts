@@ -8,7 +8,8 @@ import { t, applyI18nDom, installLeApiLang } from './i18n';
 
 import {
     splitTemplate, matchFact, fillTemplate, parseTemplateDefs, parseScenarioBlocks,
-    blockHeader, unknownWhetherPrefix, testDirectiveRe, unknownPrefixRe, splitProvenance
+    blockHeader, unknownWhetherPrefix, testDirectiveRe, unknownPrefixRe, splitProvenance,
+    citationTrailers
 } from './le-templates';
 
 interface Row {
@@ -42,9 +43,31 @@ export interface ScenarioFormOptions {
     // When set, an extra "Write it in English…" entry is added to the Add picker; the
     // host opens the NL modal and later calls addFact() with the generated facts.
     onWriteInEnglish?: () => void;
-    // Templates the source text does not declare itself — those of the resources
-    // it includes, as the server reports them after a load.
-    extraTemplates?: { label: string; scenario_element?: boolean }[];
+    // Templates as the server reports them after a load: those the source text
+    // does not declare itself (the resources it includes) are added; and for
+    // every template, per placeholder, the values the program's rules read
+    // there (`values`), offered as suggestions in its field.
+    extraTemplates?: { label: string; scenario_element?: boolean; values?: string[][] }[];
+}
+
+// One <datalist> per (template, placeholder), shared by every row and form of
+// the page: a field's suggestions are the values the rules read in its place.
+const datalistIds = new Map<string, string>();
+function datalistFor(key: string, values: string[]): string {
+    let id = datalistIds.get(key);
+    if (!id) {
+        id = `sf-values-${datalistIds.size + 1}`;
+        datalistIds.set(key, id);
+        const dl = document.createElement('datalist');
+        dl.id = id;
+        for (const v of values) {
+            const o = document.createElement('option');
+            o.value = v;
+            dl.appendChild(o);
+        }
+        document.body.appendChild(dl);
+    }
+    return id;
 }
 
 // Sentinel value for the "Write it in English…" entry in the Add picker.
@@ -62,10 +85,15 @@ export class ScenarioForm {
     provenance = '';
     private rows: Row[] = [];
     private opts: ScenarioFormOptions;
+    // per template label, per placeholder: the values the rules read there
+    private slotValues = new Map<string, string[][]>();
 
     constructor(opts: ScenarioFormOptions) {
         this.opts = opts;
         const defs = parseTemplateDefs(opts.source);
+        for (const x of opts.extraTemplates || []) {
+            if (Array.isArray(x.values) && x.values.some(v => v && v.length)) this.slotValues.set(x.label, x.values);
+        }
         // Templates of included resources: known only from the server's load.
         const declared = new Set(defs.map(d => d.label));
         for (const x of opts.extraTemplates || []) {
@@ -191,6 +219,11 @@ export class ScenarioForm {
                     input.title = seg.text;
                     input.value = row.values[fi] ?? '';
                     input.disabled = row.assumed;      // assumed facts are not editable
+                    const values = this.slotValues.get(row.templateLabel)?.[fi];
+                    if (values && values.length) {
+                        input.setAttribute('list', datalistFor(`${row.templateLabel}#${fi}`, values));
+                        input.title = `${seg.text}: ${values.slice(0, 12).join(', ')}${values.length > 12 ? ', …' : ''}`;
+                    }
                     this.sizeField(input);
                     input.addEventListener('input', () => {
                         row.values[fi] = input.value;
@@ -203,18 +236,38 @@ export class ScenarioForm {
             }
         }
 
-        // The fact's provenance, kept as written (edit it in the main editor).
-        if (row.trailers) {
-            const prov = document.createElement('span');
-            prov.className = 'trailers';
-            prov.textContent = `, ${row.trailers}`;
-            prov.title = row.trailers;
-            prov.style.cssText = 'opacity:0.65;font-size:0.85em;margin-left:4px;max-width:28em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;vertical-align:bottom;';
-            el.appendChild(prov);
-        }
+        // The fact's provenance: the passage of the scenario's document that
+        // states it (typed bare, it becomes `confer "…"`), or trailers as
+        // written ("according to …, as stated in … at …"). Shown when the fact
+        // has one; the ❝ button opens it for one that has not.
+        const cite = document.createElement('input');
+        cite.type = 'text';
+        cite.className = 'cite-field';
+        cite.placeholder = t('the passage that states it');
+        cite.title = t('Where the document states this fact: the passage, or "according to …", "as stated in … at …"');
+        cite.value = row.trailers || '';
+        cite.hidden = !row.trailers || row.templateLabel === null;
+        cite.style.cssText = 'margin-left:6px;min-width:18em;flex:1 1 18em;font-style:italic;';
+        cite.addEventListener('input', () => {
+            row.trailers = citationTrailers(cite.value, this.opts.source) || undefined;
+            this.changed();
+        });
+        if (row.templateLabel !== null) el.appendChild(cite);
 
         const tools = document.createElement('div');
         tools.className = 'row-tools';
+
+        if (row.templateLabel !== null) {
+            const citeBtn = document.createElement('button');
+            citeBtn.className = 'cite-toggle';
+            citeBtn.textContent = '❝';
+            citeBtn.title = t('Cite the passage that states this fact');
+            citeBtn.addEventListener('click', () => {
+                cite.hidden = !cite.hidden;
+                if (!cite.hidden) cite.focus();
+            });
+            tools.appendChild(citeBtn);
+        }
 
         // "Assume" — mark the fact unknown ("it is unknown whether …"); its fields
         // then become read-only.

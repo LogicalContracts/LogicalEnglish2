@@ -53,6 +53,20 @@ export function splitProvenance(fact: string, source: string): { base: string; t
     return { base: fact, trailers: '' };
 }
 
+// A fact's provenance as typed into a form's citation field: trailers already
+// ("according to …", "as stated in … at …", "confer "…"") are kept as written;
+// bare text is a passage of the scenario's document, `confer "<text>"` in the
+// program's language. '' when empty.
+export function citationTrailers(text: string, source: string): string {
+    const v = text.trim();
+    if (!v) return '';
+    if (splitProvenance(`x, ${v}`, source).trailers) return v;
+    const lang = detectProgramLanguage(source);
+    const confer = kwPhrases(lang, 'confer')[0] || kwPhrases('en', 'confer')[0] || 'confer';
+    const passage = v.replace(/^["“]|["”]$/g, '').replace(/"/g, "'");
+    return `${confer} "${passage}"`;
+}
+
 // A scenario "test" line in any language: "<query> expects answers [...]".
 let testDirectiveReCache: RegExp | null = null;
 export function testDirectiveRe(): RegExp {

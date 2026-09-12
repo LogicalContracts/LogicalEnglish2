@@ -76,7 +76,8 @@ test.describe('Facts from a document', () => {
         const rows = page.locator('.fact-row');
         await expect(rows).toHaveCount(3);
         await expect(rows.nth(0).locator('input.field')).toHaveValue('style 1025AD');
-        await expect(rows.nth(0).locator('.trailers')).toContainText('confer "zips through');
+        // (its citation, editable in the row's citation field)
+        await expect(rows.nth(0).locator('input.cite-field')).toHaveValue(/confer "zips through/);
         // the scenario's default provenance names the document
         await expect(page.locator('#scenario-provenance')).toHaveValue('as stated in ruling NY N362700');
         await expect(rows.nth(1).locator('input.field').nth(1)).toHaveValue('92');

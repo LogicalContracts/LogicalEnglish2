@@ -323,6 +323,11 @@ The quoted passage was not found in this text.,,A passagem citada não foi encon
 Show the source,,Mostrar a fonte,Mostrar la fuente,Afficher la source,Mostra la fonte
 Show original text,,Mostrar o texto original,Mostrar el texto original,Afficher le texte original,Mostra il testo originale
 No cited document here.,,Nenhum documento citado aqui.,No hay ningún documento citado aquí.,Aucun document cité ici.,Nessun documento citato qui.
+the passage that states it,,a passagem que o afirma,el pasaje que lo afirma,le passage qui l'énonce,il passaggio che lo afferma
+"Where the document states this fact: the passage, or ""according to …"", ""as stated in … at …""",,"Onde o documento afirma este facto: a passagem, ou ""de acordo com …"", ""conforme consta em … em …""","Dónde afirma el documento este hecho: el pasaje, o ""de acuerdo con …"", ""según consta en … en …""","Où le document énonce ce fait : le passage, ou « selon … », « comme indiqué dans … à … »","Dove il documento afferma questo fatto: il passaggio, o ""secondo …"", ""come indicato in … a …"""
+Cite the passage that states this fact,,Citar a passagem que afirma este facto,Citar el pasaje que afirma este hecho,Citer le passage qui énonce ce fait,Citare il passaggio che afferma questo fatto
+Citations,,Citações,Citas,Citations,Citazioni
+Full explanation,,Explicação completa,Explicación completa,Explication complète,Spiegazione completa
 From a document,,A partir de um documento,A partir de un documento,À partir d'un document,Da un documento
 Paste or fetch the document text below: each fact will cite the passage that states it.,,Cole ou obtenha abaixo o texto do documento: cada facto citará a passagem que o afirma.,Pegue u obtenga abajo el texto del documento: cada hecho citará el pasaje que lo afirma.,Collez ou récupérez ci-dessous le texte du document : chaque fait citera le passage qui l'énonce.,Incolli o recuperi qui sotto il testo del documento: ogni fatto citerà il passaggio che lo afferma.
 "Document name, e.g. ruling NY N362700",,"Nome do documento, p. ex. ruling NY N362700","Nombre del documento, p. ej. ruling NY N362700","Nom du document, p. ex. ruling NY N362700","Nome del documento, ad es. ruling NY N362700"

@@ -1882,8 +1882,16 @@ add_provenance_json(KB, JSON0, JSON) :-
         ),
         (   atom(KB), KB \== none,
             get_dict(start, JSON1, S), get_dict(end, JSON1, E),
-            node_provenance(KB, S, E, Extra)
-        ->  put_dict(Extra, JSON1, JSON)
+            node_provenance(KB, S, E, Extra0, Prov)
+        ->  % the sentence without the trailers its rendering appended — for
+            % a view that shows the citation apart (the executive's citations)
+            (   get_dict(literal, JSON1, Lit), string(Lit),
+                le_provenance:provenance_suffix(Prov, Suffix), Suffix \== "",
+                string_concat(Plain, Suffix, Lit)
+            ->  put_dict(plain, Extra0, Plain, Extra)
+            ;   Extra = Extra0
+            ),
+            put_dict(Extra, JSON1, JSON)
         ;   JSON = JSON1
         )
     ;   is_list(JSON0)
@@ -1891,7 +1899,7 @@ add_provenance_json(KB, JSON0, JSON) :-
     ;   JSON = JSON0
     ).
 
-node_provenance(KB, S, E, Extra) :-
+node_provenance(KB, S, E, Extra, Prov) :-
     (   catch(KB:le_source_info(_, S, E, ID), _, fail),
         le_kbs:user_rule_name(ID),
         le_provenance:rule_provenance(KB, ID, Prov)

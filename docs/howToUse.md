@@ -60,7 +60,15 @@ mobile-friendly entry point at **`/executive`** (e.g.
   **Question** (the program's queries). There is no "run" button: the query runs
   automatically whenever you change either dropdown, and the answers appear below.
 - **See why.** Each answer is a card; tap it to expand its explanation as an
-  indented tree (green ✓ for what held, with any assumed *unknowns* noted).
+  indented tree (green ✓ for what held, with any assumed *unknowns* noted). A
+  step that held only because what it denies failed ("it is not the case
+  that …") keeps those failures folded behind **…**.
+- **Citations first.** When the program cites its sources (rules and tables
+  `with provenance`, facts `as stated in …, confer "…"`), an opened answer
+  lists its **cited steps** in the order of the proof — each with the rule,
+  the document and the passage — and a **§** button that opens the passage
+  in the document's text. **Copy** puts the list on the clipboard; **Full
+  explanation** unfolds the whole tree.
 - **Explore variations.** A **Scenario Variations** button between the two
   dropdowns opens the full [Scenario Variations](#scenario-variations) window on
   the same program, for altering facts and comparing outcomes.
@@ -129,7 +137,9 @@ Each fact is shown as one row built from a template: the template's fixed words 
 
 > `[a person]` is born in `[a place]` on `[a date]`
 
-Only the placeholders are editable — you can't accidentally break the surrounding wording. Each field's **hint text** is the template variable it stands for (e.g. *a person*), and fields grow to fit their contents. Loading an existing scenario fills the fields in automatically by recognising each fact's template.
+Only the placeholders are editable — you can't accidentally break the surrounding wording. Each field's **hint text** is the template variable it stands for (e.g. *a person*), and fields grow to fit their contents. Where the program's rules read particular values in a place (*knitted*, *woven*, … for a fabric construction), the field **suggests** them as you type, and its tooltip lists them. Loading an existing scenario fills the fields in automatically by recognising each fact's template.
+
+*   **Cite the passage.** The **❝** button on a row opens a field for where the document states the fact: type the passage and it is written as `confer "…"` (the scenario's **Provenance** names the document), or type trailers of your own (`according to …`, `as stated in … at …`). A fact that already has a citation shows it, editable.
 
 *   **Add a fact:** pick a template from the **Add fact** menu and click **+ Add**, then fill in the fields. The menu lists only templates that make sense as scenario facts: those declared **`; undefined`** (a.k.a. *scenario element*) and those already used by some scenario. Plain "*X* is a *type*" assertions are also supported.
 *   **Delete a fact:** click the **✕** on its row.

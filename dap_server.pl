@@ -308,7 +308,7 @@ frame_name(KB, FG, Name) :-
     ).
 
 frame_source_name(KB, SourceName) :-
-    (   KB \== none, current_predicate(KB:le_kb/1), KB:le_kb(KBName)
+    (   KB \== none, le_kbs:program_kb_name(KB, KBName)
     ->  ( atom(KBName) -> atom_concat(KBName, '.le', SourceName) ; SourceName = KBName )
     ;   SourceName = "document.le"
     ).

@@ -2315,7 +2315,8 @@ second_pass_section(Templates, M, table_prov(Table, ProvTokens), Done) :-
     second_pass_section(Templates, M, Table, Done),
     Table = table(Name, _, _, _, _, Start, End),
     format(atom(ID), 'table_~w', [Name]),          % the id of the table's clause
-    le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End).
+    le_provenance:record_rule_provenance(M, ID, ProvTokens, Start, End),
+    le_provenance:record_table_row_provenance(M, Name).
 second_pass_section(Templates, M, table(Name, Policy, Source0, Header, Rows, Start, End),
                     table_done(Name, Start, End)) :-
     !,
@@ -2325,7 +2326,8 @@ second_pass_section(Templates, M, table(Name, Policy, Source0, Header, Rows, Sta
     ),
     (   Source == missing
     ->  true
-    ;   le_tables:compile_table(M, Templates, Name, Policy, Source, Header, Rows, Start, End)
+    ;   le_tables:compile_table(M, Templates, Name, Policy, Source, Header, Rows, Start, End),
+        le_provenance:record_table_row_provenance(M, Name)
     ).
 second_pass_section(_, _, S, S). % Keep other sections as is
 

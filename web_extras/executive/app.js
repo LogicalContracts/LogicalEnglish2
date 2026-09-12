@@ -62,6 +62,7 @@ let programName = null;  // current program's example name
 let programSource = '';  // its LE source text (for the tool popups)
 let programKb = null;    // its knowledge-base name
 let programQueries = []; // [{name, label}] for Scenario Variations
+let programTemplateDefs = []; // the templates of the program and its includes (Scenario Variations)
 
 // ------------------------------- program menu -------------------------------
 
@@ -118,6 +119,7 @@ async function loadProgram(name) {
     session = data.sessionModule;
     programKb = data.kb || '';
     programQueries = (data.queries || []).map(q => ({ name: q.name, label: q.le || q.template || q.name }));
+    programTemplateDefs = data.template_defs || [];
 
     // Load-time errors (missing templates, etc.) are worth surfacing, briefly.
     const errs = (data.issues || []).filter(i => i.severity === 'error');
@@ -189,6 +191,7 @@ async function runQuery() {
 
 function renderAnswers(data) {
     const box = $('answers');
+    sourceNodes = [];
     if (data.error) { box.innerHTML = `<div class="status">${esc(data.error)}</div>`; return; }
     const results = data.results || [];
     if (!results.length) {
@@ -201,12 +204,98 @@ function renderAnswers(data) {
         return `<div class="answer" data-i="${i}">
             <div class="answer-head"><span class="chev">▶</span>
                 <span class="answer-text">${esc(r.answer)}</span>${unknowns}</div>
-            <div class="answer-why">${r.why ? renderTree(r.why) : ''}</div>
+            <div class="answer-why">${r.why ? renderWhy(r.why, i) : ''}</div>
         </div>`;
     }).join('');
     // Tap a header to expand its explanation.
     box.querySelectorAll('.answer-head').forEach(h =>
         h.addEventListener('click', () => h.parentElement.classList.toggle('open')));
+    // § buttons open the cited passage; Copy puts the citations on the clipboard.
+    box.querySelectorAll('button.src').forEach(b => b.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const node = sourceNodes[Number(b.dataset.k)];
+        if (node) openSource(node.provenance, node.rule);
+    }));
+    box.querySelectorAll('button.copy-cites').forEach(b => b.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const steps = citedSteps(results[Number(b.dataset.i)].why);
+        try { await navigator.clipboard.writeText(citationsText(steps)); b.textContent = t('Copied'); }
+        catch { /* no clipboard: nothing to do */ }
+    }));
+}
+
+// ---------------------------- citations ------------------------------------
+// Where the program cites its sources (a rule's `with provenance`, a fact's
+// "as stated in …, confer "…"", a table row's passage — docs/le_summary.md
+// §15.5, §17.1), every explanation node proved by it carries a `provenance`.
+// An answer opens on those steps alone, in the order of the proof — the chain
+// a reviewer reads, each step with its passage, one tap from the document —
+// with the whole explanation folded below. Nothing here knows any domain.
+
+let sourceNodes = [];    // the nodes § buttons refer to (by index)
+
+function citedSteps(why) {
+    const out = [], seen = new Set();
+    const walk = (n) => {
+        if (!n || typeof n !== 'object') return;
+        if (n.type === 'success' && n.provenance && (n.provenance.document || n.provenance.url)) {
+            const key = `${n.literal || ''}|${n.rule || ''}|${n.provenance.document || ''}|${n.provenance.quote || ''}`;
+            if (!seen.has(key)) { seen.add(key); out.push(n); }
+        }
+        (n.children || []).forEach(walk);
+    };
+    (Array.isArray(why) ? why : [why]).forEach(walk);
+    return out;
+}
+
+// Where a step comes from, as one line: the rule, the document, the passage.
+function citationLine(n) {
+    const p = n.provenance || {};
+    const parts = [];
+    if (n.rule) parts.push(`${t('rule')} ${n.rule}`);
+    if (p.document) parts.push(p.document);
+    if (p.quote) parts.push(`“${p.quote}”`);
+    else if (p.locator) parts.push(p.locator);
+    return parts.join(' · ');
+}
+
+function citationsText(steps) {
+    return steps.map((n, i) => `${i + 1}. ${n.plain || n.literal || ''}\n   ${citationLine(n)}`).join('\n');
+}
+
+function sourceButton(n) {
+    const p = n.provenance || {};
+    if (!p.text && !p.url) return '';
+    sourceNodes.push(n);
+    return ` <button class="src" data-k="${sourceNodes.length - 1}" title="${esc(t('Show original text'))}">§</button>`;
+}
+
+function renderWhy(why, i) {
+    const steps = citedSteps(why);
+    if (!steps.length) return renderTree(why);
+    const items = steps.map(n =>
+        `<li><span class="lit">${esc(n.plain || n.literal || '')}</span>${sourceButton(n)}
+             <div class="cite">${esc(citationLine(n))}</div></li>`).join('');
+    return `<div class="cites">
+            <div class="cites-head"><span>${esc(t('Citations'))}</span>
+                <button class="copy-cites" data-i="${i}">${esc(t('Copy'))}</button></div>
+            <ol class="cite-list">${items}</ol>
+        </div>
+        <details class="full"><summary>${esc(t('Full explanation'))}</summary>${renderTree(why)}</details>`;
+}
+
+// The source viewer of the editor (the explanation's § badge), loaded on first
+// use; the program's name lets the server find a text beside it.
+let viewerModule = null;
+async function openSource(provenance, rule) {
+    try {
+        viewerModule = viewerModule || await import('/editor/dist/source-viewer.js');
+        const p = provenance || {};
+        if (!p.text && p.url) { window.open(viewerModule.originalUrl(p) || p.url, '_blank'); return; }
+        viewerModule.openSourceViewer(p, rule || undefined, { source: programName || '' });
+    } catch (e) {
+        if (provenance && provenance.url) window.open(provenance.url, '_blank');
+    }
 }
 
 // The `why` explanation -> a nested <ul>. The server returns it as a list of
@@ -225,8 +314,17 @@ function renderNode(node) {
     if (node.repeated) rep = node.repeatedCount
         ? ` <span class="repeated">(×${node.repeatedCount})</span>`
         : ' <span class="repeated">(shown above)</span>';
-    const kids = (node.children || []).map(renderNode).join('');
-    return `<li class="${type}"><span class="lit">${lit}</span>${rep}` +
+    const src = (node.type === 'success' && node.provenance) ? sourceButton(node) : '';
+    const children = node.children || [];
+    const kids = children.map(renderNode).join('');
+    // A step proved only by what failed under it — "it is not the case that …",
+    // "for all …" — shows those failures on demand: they are the search, not
+    // the reasons.
+    if (node.type === 'success' && children.length && children.every(c => c && c.type === 'failure')) {
+        return `<li class="${type}"><details class="negation"><summary><span class="lit">${lit}</span>${rep}${src}</summary>` +
+            `<ul>${kids}</ul></details></li>`;
+    }
+    return `<li class="${type}"><span class="lit">${lit}</span>${rep}${src}` +
         (kids ? `<ul>${kids}</ul>` : '') + '</li>';
 }
 
@@ -252,6 +350,8 @@ async function openScenarioVariations() {
     localStorage.setItem('le_scenario_variations_data', JSON.stringify({
         source: programSource,
         kbName: programKb,
+        templateDefs: programTemplateDefs,
+        example: programName || '',
         queries: programQueries,
         selectedScenario: $('scenario-select').value,
         selectedQuery: $('query-select').value
