@@ -1,0 +1,264 @@
+% Walkers: LCD L33791 and its Policy Article A52503 (DME MACs). A policy
+% program of the DMEPOS model: it includes dmepos.le (orders, delivery,
+% benefit category, continued need, refills) and states when a claim for a
+% walker or a walker accessory is REASONABLE AND NECESSARY: the criteria 1–3
+% of a standard walker (E0130, E0135, E0141, E0143) and its related
+% accessories; the weight the heavy duty walkers (E0148, E0149) need; the
+% restricted use of one hand the heavy duty, multiple braking system,
+% variable wheel resistance walker (E0147) needs; the documented special
+% features of the walker with trunk support (E0140); the height the leg
+% extensions (E0158) need. The enclosed frame walker (E0144) is never
+% covered ("the medical necessity ... has not been established"): no rule
+% concludes it. The powered walker (E0152) and the combination wheeled walker
+% with seat and transport chair (E0150) are not durable medical equipment
+% (the Policy Article): they are in scope, and have no benefit category.
+%
+% How the criteria are read. The LCD's criteria are clinical findings about
+% the beneficiary — a significant mobility limitation, that the beneficiary
+% can safely use the walker, that a walker will sufficiently resolve the
+% deficit, that a severe neurologic disorder or another condition restricting
+% one hand precludes a standard walker, that the record justifies the special
+% features of a trunk support walker — made by the treating practitioner and
+% accepted or rejected on review: each is the judged template of dmepos.le,
+% "the finding F about B is established" (or unsupported), with who found it
+% and why. The findings this policy reads, and the criterion each stands for
+% (the first is the finding pmd.le reads for the same criterion):
+%   significant mobility limitation (1); walker can be safely used (2);
+%   walker sufficiently resolves mobility deficit (3); standard walker
+%   unusable due to restricted hand use (E0147: a severe neurologic disorder
+%   or other condition causing the restricted use of one hand — obesity by
+%   itself is not a reason); trunk support justified (E0140: the record
+%   documents why the special features are medically necessary).
+% What the record states as fact — the beneficiary's weight and height, that
+% an accessory replaces a component of a beneficiary-owned walker, when the
+% walker was first issued (its delivery date) — is a scenario fact. Six feet
+% is read as 72 inches and one month as 30 days.
+%
+% Accessories. The LCD covers the "related accessories" of a covered walker
+% under the walker's criteria; the Policy Article's coding guidelines say
+% which codes are accessories of the initial issue (E0154, E0156, E0157,
+% E0158) and which bill only replacements for covered, beneficiary-owned
+% walkers (A4636, A4637, E0159), and that wheels (E0155) are either such a
+% replacement or wheels added to a non-wheeled walker more than one month
+% after its initial issue. Claims that do not meet the coding guidelines are
+% denied as not reasonable and necessary (the LCD's "GENERAL" paragraph), so
+% those restrictions are read here as criteria of the accessory's claim.
+%
+% The payment condition the policy adds (Policy Article A52503, "Policy
+% specific information"): a claim for E0147 states the manufacturer's name
+% and the product name/number. Not modelled: the KX/GA/GY/GZ modifiers (the
+% supplier's record of the weight within one month of providing a heavy duty
+% walker is the KX condition, not a coverage criterion), the PDAC coding
+% verification of E0147, the Column I/Column II bundling of accessories
+% billed with a walker, enhancement accessories (A9270) and gait trainer
+% features (A9900), which are noncovered or not separately payable.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    % candidate for dmepos.le (also a template of pmd.le and manual_wheelchairs.le)
+    the weight of *a beneficiary* is *a number* pounds; undefined.
+    the height of *a beneficiary* is *a number* inches; undefined.
+    *an item* is a replacement for a component of *a device*; undefined.
+    *a device* is owned by the beneficiary; undefined.
+    *a claim* states the manufacturer name and product number of *an item*; undefined.
+    % the codes
+    code *a code* is excluded from the durable medical equipment benefit.
+    % derived
+    *an item* is a walker accessory.
+    *an item* is a non-wheeled walker.
+    *an item* must be identified by manufacturer and product on the claim.
+    *a beneficiary* meets the criteria for a standard walker.
+    *an item* meets the walker coverage criteria for *a beneficiary*.
+    *a claim* meets the accessory specific criteria.
+
+the knowledge base walkers includes these resources:
+    dmepos.
+
+the knowledge base walkers includes:
+
+LCD L33791 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33791".
+the text of LCD L33791 is at "sources/lcd/L33791.txt".
+Policy Article A52503 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52503".
+the text of Policy Article A52503 is at "sources/article/A52503.txt".
+
+% The walkers the Policy Article places outside the benefit.
+code "E0152" is excluded from the durable medical equipment benefit,
+    as stated in Policy Article A52503, confer "A powered walker (E0152) is noncovered as it does not meet the definition of DME".
+code "E0150" is excluded from the durable medical equipment benefit,
+    as stated in Policy Article A52503, confer "A combination wheeled walker with seat and transport chair (E0150) is noncovered as it does not meet the definition of DME".
+
+% What a walker accessory is, and a non-wheeled walker (the Policy Article's
+% coding guidelines).
+rule walker_accessory with provenance Policy Article A52503,
+        confer "Codes E0154, E0156, E0157, and E0158 can be used for accessories provided with the initial issue of a walker or for replacement components":
+an item is a walker accessory
+    if the HCPCS code of the item is a code
+    and the code is in ["E0154", "E0155", "E0156", "E0157", "E0158", "E0159", "A4636", "A4637"].
+
+rule non_wheeled_walker with provenance Policy Article A52503,
+        confer "when wheels are subsequently added to a covered, beneficiary-owned nonwheeled walker (E0130, E0135)":
+an item is a non-wheeled walker
+    if the HCPCS code of the item is a code
+    and the code is in ["E0130", "E0135"].
+
+% The one code whose claim must name the manufacturer and the product.
+rule walker_identified_product with provenance Policy Article A52503,
+        confer "When code E0147 is billed, the claim must include the manufacturer’s name and product name/number":
+an item must be identified by manufacturer and product on the claim
+    if the HCPCS code of the item is "E0147".
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: durable medical equipment
+% (Policy Article A52503), except the two walkers that are not DME.
+rule walkers_codes with provenance Policy Article A52503,
+        confer "Walkers are covered under the Durable Medical Equipment benefit":
+the policy for code a code is walkers
+    if the code is in ["E0130", "E0135", "E0140", "E0141", "E0143", "E0144", "E0147", "E0148", "E0149", "E0150", "E0152", "E0154", "E0155", "E0156", "E0157", "E0158", "E0159", "A4636", "A4637"].
+
+rule walkers_benefit with provenance Policy Article A52503,
+        confer "Walkers are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is walkers
+    and it is not the case that
+        code the code is excluded from the durable medical equipment benefit.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% A walker: the criteria of its kind.
+% ---------------------------------------------------------------------------
+
+rule walkers_walker with provenance LCD L33791,
+        confer "A standard walker (E0130, E0135, E0141, E0143) and related accessories are covered if all of the following criteria (1-3) are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the item meets the walker coverage criteria for the beneficiary.
+
+% Criteria 1–3: the findings of the treating practitioner.
+rule walkers_criteria_1_to_3 with provenance LCD L33791,
+        confer "The beneficiary has a mobility limitation that significantly impairs his/her ability to participate in one or more mobility-related activities of daily living (MRADL) in the home":
+a beneficiary meets the criteria for a standard walker
+    if the finding significant mobility limitation about the beneficiary is established
+    and the finding walker can be safely used about the beneficiary is established
+    and the finding walker sufficiently resolves mobility deficit about the beneficiary is established.
+
+rule walkers_standard with provenance LCD L33791,
+        confer "A standard walker (E0130, E0135, E0141, E0143) and related accessories are covered if all of the following criteria (1-3) are met":
+an item meets the walker coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["E0130", "E0135", "E0141", "E0143"]
+    and the beneficiary meets the criteria for a standard walker.
+
+rule walkers_heavy_duty with provenance LCD L33791,
+        confer "A heavy duty walker (E0148, E0149) is covered for beneficiaries who meet coverage criteria for a standard walker and who weigh more than 300 pounds":
+an item meets the walker coverage criteria for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["E0148", "E0149"]
+    and the beneficiary meets the criteria for a standard walker
+    and the weight of the beneficiary is a number pounds
+    and the number > 300.
+
+rule walkers_multiple_braking with provenance LCD L33791,
+        confer "A heavy duty, multiple braking system, variable wheel resistance walker (E0147) is covered for beneficiaries who meet coverage criteria for a standard walker and who are unable to use a standard walker due to a severe neurologic disorder or other condition causing the restricted use of one hand":
+an item meets the walker coverage criteria for a beneficiary
+    if the HCPCS code of the item is "E0147"
+    and the beneficiary meets the criteria for a standard walker
+    and the finding standard walker unusable due to restricted hand use about the beneficiary is established.
+
+% An enclosed frame walker (E0144) is never covered: "The medical necessity
+% for a walker with an enclosed frame (E0144) has not been established." No
+% rule concludes it.
+
+rule walkers_trunk_support with provenance LCD L33791,
+        confer "A walker with trunk support (E0140) is covered for beneficiaries who meet coverage criteria for a standard walker and who have documentation in the medical record justifying the medical necessity for the special features":
+an item meets the walker coverage criteria for a beneficiary
+    if the HCPCS code of the item is "E0140"
+    and the beneficiary meets the criteria for a standard walker
+    and the finding trunk support justified about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Accessories: covered under the walker's criteria, with the code's own
+% conditions.
+% ---------------------------------------------------------------------------
+
+rule walkers_accessories with provenance LCD L33791,
+        confer "A standard walker (E0130, E0135, E0141, E0143) and related accessories are covered if all of the following criteria (1-3) are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a walker accessory
+    and the item is an accessory of a device
+    and the device is furnished to a beneficiary
+    and the device meets the walker coverage criteria for the beneficiary
+    and the claim meets the accessory specific criteria.
+
+rule walkers_initial_accessories with provenance Policy Article A52503,
+        confer "Codes E0154, E0156, E0157, and E0158 can be used for accessories provided with the initial issue of a walker or for replacement components":
+a claim meets the accessory specific criteria
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E0154", "E0156", "E0157"].
+
+% six feet is 72 inches
+rule walkers_leg_extensions with provenance LCD L33791,
+        confer "Leg extensions (E0158) are covered only for beneficiaries 6 feet tall or more":
+a claim meets the accessory specific criteria
+    if the claim is for an item
+    and the HCPCS code of the item is "E0158"
+    and the item is furnished to a beneficiary
+    and the height of the beneficiary is a number inches
+    and the number >= 72.
+
+rule walkers_replacement_accessories with provenance Policy Article A52503,
+        confer "Codes A4636, A4637, and E0159 are only used to bill for replacement items for covered, beneficiary-owned walkers":
+a claim meets the accessory specific criteria
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4636", "A4637", "E0159"]
+    and the item is a replacement for a component of a device
+    and the device is owned by the beneficiary.
+
+rule walkers_replacement_wheels with provenance Policy Article A52503,
+        confer "Code E0155 can be used for replacements on covered, beneficiary-owned wheeled walkers":
+a claim meets the accessory specific criteria
+    if the claim is for an item
+    and the HCPCS code of the item is "E0155"
+    and the item is a replacement for a component of a device
+    and the device is owned by the beneficiary.
+
+% wheels added to a non-wheeled walker more than one month (30 days) after
+% its initial issue, which is its delivery
+rule walkers_added_wheels with provenance Policy Article A52503,
+        confer "Code E0155 cannot be used for wheels provided at the time of, or within one month of, the initial issue of a non-wheeled walker":
+a claim meets the accessory specific criteria
+    if the claim is for an item
+    and the HCPCS code of the item is "E0155"
+    and the item is an accessory of a device
+    and the device is a non-wheeled walker
+    and the device is owned by the beneficiary
+    and the device was delivered on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number > 30.
+
+section remedy is:
+
+% The policy's own condition of payment: the E0147 claim names the product.
+rule walkers_documentation_e0147 with provenance Policy Article A52503,
+        confer "When code E0147 is billed, the claim must include the manufacturer’s name and product name/number":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is walkers
+    and the claim is for an item
+    and the item must be identified by manufacturer and product on the claim
+    and the claim states the manufacturer name and product number of the item.
+
+rule walkers_documentation_others with provenance Policy Article A52503,
+        confer "When code E0147 is billed, the claim must include the manufacturer’s name and product name/number":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is walkers
+    and the claim is for an item
+    and it is not the case that
+        the item must be identified by manufacturer and product on the claim.

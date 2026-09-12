@@ -1,0 +1,252 @@
+% Test cases for the walkers policy (walkers.le): synthetic claims, one or
+% two per criterion of LCD L33791 and per coding or payment condition of
+% Policy Article A52503. Findings are recorded as the treating
+% practitioner's, a medical reviewer's or the Council's; a finding nobody
+% made leaves the answer conditional. A walker is a purchase: no rental
+% month.
+
+the target language is: prolog.
+
+the knowledge base walkers cases includes these resources:
+    walkers.
+
+the knowledge base walkers cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a folding wheeled walker (E0143): the three findings,
+% the standard written order communicated before the date of service, the
+% delivery and its proof.
+scenario standard_complete is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0143".
+    the walker is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding significant mobility limitation about Ann is established, according to the treating practitioner.
+    the finding walker can be safely used about Ann is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Ann is established, according to the treating practitioner.
+    the order for the walker is dated 2026-02-20.
+    the order for the walker is signed by the treating practitioner.
+    the order for the walker includes beneficiary name.
+    the order for the walker includes order date.
+    the order for the walker includes description of the item.
+    the order for the walker includes quantity to be dispensed.
+    the order for the walker includes treating practitioner name.
+    the order for the walker was communicated to the supplier on 2026-02-22.
+    the walker was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the walker.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Criterion 1 fails: the medical reviewer finds no significant mobility
+% limitation in the record.
+scenario no_mobility_limitation is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0130".
+    the walker is furnished to Ben.
+    the residence of Ben is private residence.
+    the finding significant mobility limitation about Ben is unsupported, according to the medical reviewer, because "the record documents independent ambulation without assistance".
+    the finding walker can be safely used about Ben is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Ben is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Criterion 2 fails: the beneficiary cannot use a walker safely.
+scenario cannot_use_safely is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0135".
+    the walker is furnished to Cy.
+    the finding significant mobility limitation about Cy is established, according to the treating practitioner.
+    the finding walker can be safely used about Cy is unsupported, according to the medical reviewer, because "the record documents severe cognitive impairment and repeated falls with a walker".
+    the finding walker sufficiently resolves mobility deficit about Cy is established, according to the treating practitioner.
+    rn expects answers [].
+
+% Criterion 3 not decided: nothing in the record says whether a walker would
+% resolve the deficit, so the answer is conditional on that finding.
+scenario resolution_not_decided is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0141".
+    the walker is furnished to Dee.
+    the finding significant mobility limitation about Dee is established, according to the treating practitioner.
+    the finding walker can be safely used about Dee is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"] and unknowns ["the finding walker sufficiently resolves mobility deficit about Dee is established"].
+
+% Weight: a heavy duty walker (E0148) for a 280-pound beneficiary is not
+% covered, a standard walker for the same beneficiary is; a heavy duty
+% wheeled walker (E0149) for a 320-pound beneficiary is covered.
+scenario heavy_duty_weight is:
+    claim 1 is for the heavy duty walker.
+    the HCPCS code of the heavy duty walker is "E0148".
+    the heavy duty walker is furnished to Eve.
+    claim 2 is for the standard walker.
+    the HCPCS code of the standard walker is "E0143".
+    the standard walker is furnished to Eve.
+    the finding significant mobility limitation about Eve is established, according to the treating practitioner.
+    the finding walker can be safely used about Eve is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Eve is established, according to the treating practitioner.
+    the weight of Eve is 280 pounds.
+    claim 3 is for the heavy duty wheeled walker.
+    the HCPCS code of the heavy duty wheeled walker is "E0149".
+    the heavy duty wheeled walker is furnished to Gus.
+    the finding significant mobility limitation about Gus is established, according to the treating practitioner.
+    the finding walker can be safely used about Gus is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Gus is established, according to the treating practitioner.
+    the weight of Gus is 320 pounds.
+    rn expects answers ["claim 2 is reasonable and necessary", "claim 3 is reasonable and necessary"].
+
+% A heavy duty, multiple braking system walker (E0147) for a beneficiary
+% whose stroke restricts the use of one hand.
+scenario multiple_braking is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0147".
+    the walker is furnished to Fay.
+    the finding significant mobility limitation about Fay is established, according to the treating practitioner.
+    the finding walker can be safely used about Fay is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Fay is established, according to the treating practitioner.
+    the finding standard walker unusable due to restricted hand use about Fay is established, according to the treating practitioner, because "left hemiparesis after a stroke".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The Council finds that the E0147 walker was justified by obesity alone,
+% which the LCD says is not a sufficient reason: not reasonable and
+% necessary.
+scenario obesity_council is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0147".
+    the walker is furnished to Hal.
+    the finding significant mobility limitation about Hal is established, according to the treating practitioner.
+    the finding walker can be safely used about Hal is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Hal is established, according to the treating practitioner.
+    the finding standard walker unusable due to restricted hand use about Hal is unsupported, according to the Council, because "the record cites the beneficiary's weight of 380 pounds and no condition restricting the use of a hand".
+    the weight of Hal is 380 pounds.
+    rn expects answers [].
+
+% An enclosed frame walker (E0144): never reasonable and necessary.
+scenario enclosed_frame is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0144".
+    the walker is furnished to Ida.
+    the residence of Ida is private residence.
+    the finding significant mobility limitation about Ida is established, according to the treating practitioner.
+    the finding walker can be safely used about Ida is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Ida is established, according to the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A powered walker (E0152): in scope, but not durable medical equipment —
+% the claim fails at applicability.
+scenario powered_walker is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0152".
+    the walker is furnished to Jo.
+    the residence of Jo is private residence.
+    the finding significant mobility limitation about Jo is established, according to the treating practitioner.
+    the finding walker can be safely used about Jo is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Jo is established, according to the treating practitioner.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A walker with trunk support (E0140) whose special features the record
+% justifies.
+scenario trunk_support is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0140".
+    the walker is furnished to Kim.
+    the finding significant mobility limitation about Kim is established, according to the treating practitioner.
+    the finding walker can be safely used about Kim is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Kim is established, according to the treating practitioner.
+    the finding trunk support justified about Kim is established, according to the treating practitioner, because "truncal ataxia prevents upright posture with a standard walker".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Accessories: leg extensions (E0158) for a 74-inch beneficiary are covered,
+% for a 68-inch one they are not; a seat attachment (E0156) needs only the
+% walker's criteria.
+scenario leg_extensions is:
+    claim 1 is for the leg extensions.
+    the HCPCS code of the leg extensions is "E0158".
+    the leg extensions is an accessory of the walker.
+    the leg extensions is furnished to Ann.
+    the HCPCS code of the walker is "E0143".
+    the walker is furnished to Ann.
+    the height of Ann is 74 inches.
+    the finding significant mobility limitation about Ann is established, according to the treating practitioner.
+    the finding walker can be safely used about Ann is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Ann is established, according to the treating practitioner.
+    claim 2 is for the short leg extensions.
+    the HCPCS code of the short leg extensions is "E0158".
+    the short leg extensions is an accessory of the second walker.
+    the short leg extensions is furnished to Ben.
+    the HCPCS code of the second walker is "E0143".
+    the second walker is furnished to Ben.
+    the height of Ben is 68 inches.
+    the finding significant mobility limitation about Ben is established, according to the treating practitioner.
+    the finding walker can be safely used about Ben is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Ben is established, according to the treating practitioner.
+    claim 3 is for the seat attachment.
+    the HCPCS code of the seat attachment is "E0156".
+    the seat attachment is an accessory of the second walker.
+    the seat attachment is furnished to Ben.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 3 is reasonable and necessary"].
+
+% Replacements: wheels (E0155) added four months after the initial issue of
+% a beneficiary-owned non-wheeled walker are covered; a handgrip (A4636)
+% that is not a replacement is not.
+scenario replacement_accessories is:
+    claim 1 is for the wheels.
+    the HCPCS code of the wheels is "E0155".
+    the wheels is an accessory of the walker.
+    the wheels is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 2 is for the handgrip.
+    the HCPCS code of the handgrip is "A4636".
+    the handgrip is an accessory of the walker.
+    the handgrip is furnished to Ann.
+    the date of service of claim 2 is 2026-03-01.
+    the HCPCS code of the walker is "E0130".
+    the walker is furnished to Ann.
+    the walker is owned by the beneficiary.
+    the walker was delivered on 2025-11-01.
+    the finding significant mobility limitation about Ann is established, according to the treating practitioner.
+    the finding walker can be safely used about Ann is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Ann is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Reasonable and necessary, but the E0147 claim does not name the
+% manufacturer and the product: payable fails at the remedy.
+scenario e0147_without_product is:
+    claim 1 is for the walker.
+    the HCPCS code of the walker is "E0147".
+    the walker is furnished to Fay.
+    the residence of Fay is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding significant mobility limitation about Fay is established, according to the treating practitioner.
+    the finding walker can be safely used about Fay is established, according to the treating practitioner.
+    the finding walker sufficiently resolves mobility deficit about Fay is established, according to the treating practitioner.
+    the finding standard walker unusable due to restricted hand use about Fay is established, according to the treating practitioner, because "left hemiparesis after a stroke".
+    the order for the walker is dated 2026-02-20.
+    the order for the walker is signed by the treating practitioner.
+    the order for the walker includes beneficiary name.
+    the order for the walker includes order date.
+    the order for the walker includes description of the item.
+    the order for the walker includes quantity to be dispensed.
+    the order for the walker includes treating practitioner name.
+    the order for the walker was communicated to the supplier on 2026-02-22.
+    the walker was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the walker.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: claim 1 states the manufacturer name and product number of the walker"]].
