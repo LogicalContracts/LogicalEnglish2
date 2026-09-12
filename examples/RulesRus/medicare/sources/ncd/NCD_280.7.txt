@@ -1,0 +1,45 @@
+NCD 280.7 Hospital Beds (version 1, effective 1966-01-01 00:00:00)
+
+=== Item/Service Description ===
+
+
+=== Indications and Limitations of Coverage ===
+A. General Requirements for Coverage of Hospital Beds 
+
+ A physician's prescription and such additional documentation as the Medicare Administrative Contractor (MAC) medical staff may consider necessary, including medical records and physicians' reports, must establish the medical necessity for a hospital bed due to one of the following reasons: 
+
+ The patient's condition requires positioning of the body; e.g., to alleviate pain, promote good body alignment, prevent contractures, avoid respiratory infections, in ways not feasible in an ordinary bed; or 
+
+ The patient's condition requires special attachments that cannot be fixed and used on an ordinary bed. 
+ 
+
+ B. Physician's Prescription 
+
+ The physician's prescription, which must accompany the initial claim, and supplementing documentation when required, must establish that a hospital bed is medically necessary. If the stated reason for the need for a hospital bed is the patient's condition requires positioning, the prescription or other documentation must describe the medical condition, e.g., cardiac disease, chronic obstructive pulmonary disease, quadriplegia or paraplegia, and also the severity and frequency of the symptoms of the condition that necessitates a hospital bed for positioning. 
+
+ If the stated reason for requiring a hospital bed is the patient's condition requires special attachments, the prescription must describe the patient's condition and specify the attachments that require a hospital bed. 
+
+ C. Variable Height Feature 
+
+ In well documented cases, the MAC medical staff may determine that a variable height feature of a hospital bed, approved for coverage under subsection A above, is medically necessary and, therefore, covered, for one of the following conditions: 
+
+ 
+ Severe arthritis and other injuries to lower extremities; e.g., fractured hip. The condition requires the variable height feature to assist the patient to ambulate by enabling the patient to place his or her feet on the floor while sitting on the edge of the bed; 
+
+ Severe cardiac conditions. For those cardiac patients who are able to leave bed, but who must avoid the strain of "jumping" up or down; 
+
+ Spinal cord injuries, including quadriplegic and paraplegic patients, multiple limb amputee and stroke patients. For those patients who are able to transfer from bed to a wheelchair, with or without help; or 
+
+ Other severely debilitating diseases and conditions, if the variable height feature is required to assist the patient to ambulate. 
+ 
+
+ D. Electric Powered Hospital Bed Adjustments 
+
+ Electric powered adjustments to lower and raise head and foot may be covered when the MAC medical staff determines that the patient's condition requires frequent change in body position and/or there may be an immediate need for a change in body position (i.e., no delay can be tolerated) and the patient can operate the controls and cause the adjustments. Exceptions may be made to this last requirement in cases of spinal cord injury and brain damaged patients. 
+
+ E. Side Rails 
+
+ If the patient's condition requires bed side rails, they can be covered when an integral part of, or an accessory to, a hospital bed.
+
+=== Other ===
+

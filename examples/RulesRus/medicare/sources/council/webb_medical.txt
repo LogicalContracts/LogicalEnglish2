@@ -1,0 +1,100 @@
+Title: In the Case of Webb Medical Systems
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/webb_medical.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:58 GMT
+
+Number of Pages: 4
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+In the case of Claim for 
+
+Supplementary Medical Webb Medical Systems Insurance Benefits (Part B) (Appellant) 
+
+**** **** 
+
+(Beneficiary) (HIC Number) 
+
+NHIC **** 
+
+(Contractor) (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued a decision dated April 
+
+30, 2009, which concerned Medicare coverage for a power 
+
+wheelchair multiple seat function kit (HCPCS Code E2311) 
+
+furnished by the appellant to the beneficiary. The ALJ denied 
+
+Medicare coverage for this wheelchair accessory, and found the 
+
+beneficiary liable to pay for the noncovered item. The 
+
+appellant has asked the Medicare Appeals Council to review this 
+
+action. 
+
+The Council reviews the ALJ’s decision de novo . 42 C.F.R. 
+
+§ 405.1108(a). The Council will limit its review of the ALJ’s 
+
+action to the exceptions raised by the party in the request for 
+
+review, unless the appellant is an unrepresented beneficiary. 
+
+42 C.F.R. § 405.1112(c). The appellant’s request for review 
+
+will be made a part of the record as Exhibit (Exh.) MAC-1. The 
+
+beneficiary’s additional submission (a one-page e-mail) will be 
+
+made a part of the record as Exh. MAC-2. 
+
+In its request for review, the appellant states that the 
+
+multiple seat function control kit is necessary to operate the 
+
+power seat functions, including power tilt and recline, power 
+
+articulating elevating legrests with recline seat, and power 
+
+adjustable seat height, as explained in the Letter of Medical 
+
+Necessity, Wheelchair Prescription, and Physical Therapy 2Evaluation document. Exh. MAC-1, citing Exh. 4 at 6. The appellant also contends that the reasons the beneficiary needs these functions have been fully explained in the Letter of Medical Necessity, Wheelchair Prescription, and PT Evaluation; the physician’s Face to Face Examination Report; and the other medical records. Exh. MAC-1, citing Exh. 4 at 3-25. 
+
+Moreover, the appellant points out that the power tilt and recline, and the power elevating legrests have been separately approved and paid for by Medicare. Exh. MAC-1; see, also, 
+
+Exh. 1 at 10, 12, and 13. Therefore, appellant asserts, it does not make sense to deny Medicare coverage for the multiple seat function control kit (E2311) which is necessary to operate the multiple power seat functions which have been approved and installed on the power wheelchair. Id.; see also Exh. MAC-2. 
+
+The Council has reviewed the record and the appellant’s contentions. For the reasons summarized below, the Council reverses the ALJ’s decision, and provides Medicare coverage for the multiple seat function kit (E2311) furnished with the beneficiary’s power wheelchair. 
+
+Applicable Law 
+
+The Council notes at the outset that the determination of coverage for a power wheelchair and accessories includes consideration of the requirements in the federal regulation at 42 C.F.R. § 410.38(c); the criteria for Mobility Assistive Equipment (MAE) in section 280.3 of the National Coverage Determination Manual, and local coverage determinations (LCDs) and policy articles (PAs) concerning MAE, to which the ALJs and the Council are required to afford deference. 42 C.F.R. § 405.1062. 
+
+Analysis 
+
+The ALJ cited two reasons for determining that the multiple seat function kit (E2311) was not covered in this case. First, she stated that the appellant did not provide a signed and written “order” for the equipment at issue. Dec. at 6. Second, the ALJ stated that the medical records submitted did not explain why the beneficiary needs to use the power tilt, recline, and elevating legrest functions. Id. The Council, in performing its responsibility for de novo review, determines that the appellant and the beneficiary have demonstrated that the 3multiple seat function function kit (E2311) should be covered by Medicare. 
+
+First, with respect to an order for the multiple seat function kit, the record in this case includes the Letter of Medical Necessity, Wheelchair Prescription, and PT Evaluation document dated October 3, 2007. This document explains in detail that the beneficiary needs a power adjustable seat height, a seat with power tilt and recline, power articulating legrests, and a multiple seat function control kit. Exh. 4 at 4. The same document explains why the beneficiary needs these functions as part of his power wheelchair. Id. at 5-6. He has had a T3 complete spinal cord injury for four years, that paralyzes him from his arm pits through his feet. Id. at 5; see also Exh. 4 at 19-20. He also has partial paralysis of his left upper extremity secondary to a brachial plexus injury that occurred at the same time. Exh. 4 at 5. He has no strength in his lower extremities, and very little in his left arm; he is dependent upon a lift for all transfers. Id. He requires the power adjustable seat height for transfers in and out of bed, the power tilt and recline to allow him to complete an independent and external weight shift to maximize his skin integrity and prevent decubitus ulcers, and the power articulating elevating legrests with recline seat to maximize lower extremity support, positioning, and to minimize edema in his bilateral lower extremities. Id. at 5-6. The second document that serves as an order is the “Detail[ed] Product Description, signed by the physician on March 6, 2008, and forwarded to the appellant supplier. Again, it lists all of the pertinent functions and accessories the beneficiary requires with his power wheelchair, including the multiple seat function kit (E2311). Exh. 4 at 2. These two documents fully satisfy the requirement at 42 C.F.R. § 410.38(c)(2)(ii) for a treating physician to forward a prescription to the supplier. In addition, the treating physician conducted a full face-to-face examination of the beneficiary for the purpose of evaluating his need for the power mobility device as part of an overall treatment plan, in accordance with § 410.39(d)(2)(i). See Exh. 4 at 7-8 (report on face-to-face examination). 
+
+Second, the ALJ erred in stating that the medical records submitted do not explain why the beneficiary needs to use the power tilt, recline, and elevating legrest functions. As noted above, the treating physician and the physical therapist opined that the beneficiary needed the power tilt and recline functions to complete an independent and external weight shift while he is 4in the wheelchair, in order to maximize his skin integrity and minimize the likelihood of decubitus ulcers. See Exh. 4 at 5-6, 7 (physician’s face-to-face exam report), and 15 (rehab facility report, describing sacral pressure ulcer). In addition, the treating physician and physical therapist recommended power elevating legrests with a reclining seat to maximize lower extremity support, position, and safety, as well as to minimize edema in his legs, and minimize a recurrence of his thrombophlebitis. Id. at 5-6, 7, 11 (2007 hospital report, recording 3+ pedal edema), 14 (rehab facility report, recording several episodes of deep vein thrombosis, including in his legs, and placement of a caval filter). These medical records, and those in Exh. 3 at 19-35, fully satisfy the requirement that the beneficiary’s physician provide documentation supporting the medical necessity of the multiple seat function kit for the power wheelchair. 42 C.F.R. § 410.38(c)(2)(iii). 
+
+DECISION 
+
+For the foregoing reasons, the Council finds the multiple seat function kit accessory (HCPCS Code E2311) the appellant furnished with the beneficiary’s power wheelchair is covered. The ALJ’s April 30, 2009, decision is reversed. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Clausen J. Krzywicki Administrative Appeals Judge 
+
+/s/ Gilde Morrisson Administrative Appeals Judge 
+
+Date: October 27, 2009

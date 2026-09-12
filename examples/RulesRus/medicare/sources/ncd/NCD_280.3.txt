@@ -1,0 +1,148 @@
+NCD 280.3 Mobility Assistive Equipment (MAE) (version 2, effective 2005-05-05 00:00:00)
+
+=== Item/Service Description ===
+A. General 
+
+ The Centers for Medicare & Medicaid Services (CMS) addresses numerous items that it terms “mobility assistive equipment” (MAE) and includes within that category canes, crutches, walkers, manual wheelchairs, power wheelchairs, and scooters. This list, however, is not exhaustive. 
+
+ Medicare beneficiaries may require mobility assistance for a variety of reasons and for varying durations because the etiology of the disability may be due to a congenital cause, injury, or disease. Thus, some beneficiaries experiencing temporary disability may need mobility assistance on a short-term basis, while in contrast, those living with chronic conditions or enduring disabilities will require mobility assistance on a permanent basis. 
+
+ Medicare beneficiaries who depend upon mobility assistance are found in varied living situations. Some may live alone and independently while others may live with a caregiver or in a custodial care facility. The beneficiary's environment is relevant to the determination of the appropriate form of mobility assistance that should be employed. For many patients, a device of some sort is compensation for the mobility deficit. Many beneficiaries experience co-morbid conditions that can impact their ability to safely utilize MAE independently or to successfully regain independent function even with mobility assistance. 
+
+ The functional limitation as experienced by a beneficiary depends on the beneficiary's physical and psychological function, the availability of other support, and the beneficiary's living environment. A few examples include muscular spasticity, cognitive deficits, the availability of a caregiver, and the physical layout, surfaces, and obstacles that exist in the beneficiary's living environment.
+
+=== Indications and Limitations of Coverage ===
+B. Nationally Covered Indications 
+
+ Effective May 5, 2005, CMS finds that the evidence is adequate to determine that MAE is reasonable and necessary for beneficiaries who have a personal mobility deficit sufficient to impair their participation in mobility-related activities of daily living (MRADLs) such as toileting, feeding, dressing, grooming, and bathing in customary locations within the home. Determination of the presence of a mobility deficit will be made by an algorithmic process, Clinical Criteria for MAE Coverage, to provide the appropriate MAE to correct the mobility deficit. 
+
+ Clinical Criteria for MAE Coverage 
+
+ The beneficiary, the beneficiary’s family or other caregiver, or a clinician, will usually initiate the discussion and consideration of MAE use. Sequential consideration of the questions below provides clinical guidance for the coverage of equipment of appropriate type and complexity to restore the beneficiary’s ability to participate in MRADLs such as toileting, feeding, dressing, grooming, and bathing in customary locations in the home. These questions correspond to the numbered decision points on the accompanying flow chart. In individual cases where the beneficiary’s condition clearly and unambiguously precludes the reasonable use of a device, it is not necessary to undertake a trial of that device for that beneficiary. 
+
+ 
+ Does the beneficiary have a mobility limitation that significantly impairs his/her ability to participate in one or more MRADLs in the home? A mobility limitation is one that: 
+ 
+ 
+ 
+ Prevents the beneficiary from accomplishing the MRADLs entirely, or, 
+
+ Places the beneficiary at reasonably determined heightened risk of morbidity or mortality secondary to the attempts to participate in MRADLs, or, 
+
+ Prevents the beneficiary from completing the MRADLs within a reasonable time frame. 
+ 
+ 
+
+ Are there other conditions that limit the beneficiary’s ability to participate in MRADLs at home? 
+ 
+ 
+ 
+ Some examples are significant impairment of cognition or judgment and/or vision. 
+
+ For these beneficiaries, the provision of MAE might not enable them to participate in MRADLs if the comorbidity prevents effective use of the wheelchair or reasonable completion of the tasks even with MAE. 
+ 
+
+ 
+
+ If these other limitations exist, can they be ameliorated or compensated sufficiently such that the additional provision of MAE will be reasonably expected to significantly improve the beneficiary’s ability to perform or obtain assistance to participate in MRADLs in the home? 
+ 
+ 
+ 
+ A caregiver, for example a family member, may be compensatory, if consistently available in the beneficiary's home and willing and able to safely operate and transfer the beneficiary to and from the wheelchair and to transport the beneficiary using the wheelchair. The caregiver’s need to use a wheelchair to assist the beneficiary in the MRADLs is to be considered in this determination. 
+
+ If the amelioration or compensation requires the beneficiary's compliance with treatment, for example medications or therapy, substantive non-compliance, whether willing or involuntary, can be grounds for denial of MAE coverage if it results in the beneficiary continuing to have a significant limitation. It may be determined that partial compliance results in adequate amelioration or compensation for the appropriate use of MAE. 
+ 
+ 
+ 
+
+ Does the beneficiary or caregiver demonstrate the capability and the willingness to consistently operate the MAE safely? 
+ 
+ 
+ 
+ Safety considerations include personal risk to the beneficiary as well as risk to others. The determination of safety may need to occur several times during the process as the consideration focuses on a specific device. 
+
+ A history of unsafe behavior in other venues may be considered. 
+ 
+
+ 
+
+ Can the functional mobility deficit be sufficiently resolved by the prescription of a cane or walker? 
+ 
+
+ 
+ The cane or walker should be appropriately fitted to the beneficiary for this evaluation. 
+
+ Assess the beneficiary’s ability to safely use a cane or walker. 
+ 
+
+ Does the beneficiary’s typical environment support the use of wheelchairs including scooters/power-operated vehicles (POVs)? 
+ 
+ 
+ 
+ Determine whether the beneficiary’s environment will support the use of these types of MAE. 
+
+ Keep in mind such factors as physical layout, surfaces, and obstacles, which may render MAE unusable in the beneficiary’s home. 
+ 
+ 
+ 
+
+ Does the beneficiary have sufficient upper extremity function to propel a manual wheelchair in the home to participate in MRADLs during a typical day? The manual wheelchair should be optimally configured (seating options, wheelbase, device weight, and other appropriate accessories) for this determination. 
+ 
+ 
+ 
+ Limitations of strength, endurance, range of motion, coordination, and absence or deformity in one or both upper extremities are relevant. 
+
+ A beneficiary with sufficient upper extremity function may qualify for a manual wheelchair. The appropriate type of manual wheelchair, i.e. light weight, etc., should be determined based on the beneficiary’s physical characteristics and anticipated intensity of use. 
+
+ The beneficiary's home should provide adequate access, maneuvering space and surfaces for the operation of a manual wheelchair. 
+
+ Assess the beneficiary’s ability to safely use a manual wheelchair. 
+ 
+ NOTE: If the beneficiary is unable to self-propel a manual wheelchair, and if there is a caregiver who is available, willing, and able to provide assistance, a manual wheelchair may be appropriate.
+
+ 
+ 
+ 
+
+ Does the beneficiary have sufficient strength and postural stability to operate a POV/scooter? 
+ 
+ 
+ 
+ A POV is a 3- or 4-wheeled device with tiller steering and limited seat modification capabilities. The beneficiary must be able to maintain stability and position for adequate operation. 
+
+ The beneficiary's home should provide adequate access, maneuvering space and surfaces for the operation of a POV. 
+
+ Assess the beneficiary’s ability to safely use a POV/scooter. 
+ 
+
+ Are the additional features provided by a power wheelchair needed to allow the beneficiary to participate in one or more MRADLs? 
+ 
+ 
+ 
+ The pertinent features of a power wheelchair compared to a POV are typically control by a joystick or alternative input device, lower seat height for slide transfers, and the ability to accommodate a variety of seating needs. 
+
+ The type of wheelchair and options provided should be appropriate for the degree of the beneficiary’s functional impairments. 
+
+ The beneficiary's home should provide adequate access, maneuvering space and surfaces for the operation of a power wheelchair. 
+
+ Assess the beneficiary’s ability to safely use a power wheelchair. 
+ 
+ NOTE: If the beneficiary is unable to use a power wheelchair, and if there is a caregiver who is available, willing, and able to provide assistance, a manual wheelchair is appropriate. A caregiver’s inability to operate a manual wheelchair can be considered in covering a power wheelchair so that the caregiver can assist the beneficiary.
+
+ 
+ 
+
+ Flow chart 
+
+ C. Nationally Non-Covered Indications 
+
+ Medicare beneficiaries not meeting the clinical criteria for prescribing MAE as outlined above, and as documented by the beneficiary’s physician, would not be eligible for Medicare coverage of the MAE. 
+
+ D. Other 
+
+ All other durable medical equipment (DME) not meeting the definition of MAE as described in this instruction will continue to be covered, or noncovered, as is currently described in the NCD Manual, in Section 280, Medical and Surgical Supplies. Also, all other sections not altered here and the corresponding policies regarding MAEs which have not been discussed here remain unchanged. 
+
+ (This NCD last reviewed May 2005).
+
+=== Other ===
+

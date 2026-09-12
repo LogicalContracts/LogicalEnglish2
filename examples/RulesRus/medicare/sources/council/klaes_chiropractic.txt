@@ -1,0 +1,154 @@
+Title: In the Case of Klaes Chiropractic Clinic
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/klaes_chiropractic.pdf
+
+Published Time: Mon, 29 Aug 2016 04:19:54 GMT
+
+Number of Pages: 8
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+In the case of Claim for 
+
+Klaes Chiropractic Clinic, Supplementary Medical 
+
+Inc. Insurance Benefits (Part B) 
+
+(Appellant) 
+
+**** **** 
+
+(Beneficiary) (HIC Number) 
+
+National Government Services, 
+
+Inc. **** 
+
+(Contractor) (ALJ Appeal Number) 
+
+The Administrative Law Judge (ALJ) issued decisions dated June 
+
+19, 2009, which concerned chiropractic services furnished to the 
+
+beneficiaries on various dates in April 2008. 1 The ALJ found 
+
+that the services consisted of maintenance treatments which were 
+
+not covered by Medicare. The ALJ concluded that the appellant 
+
+was liable for the cost of the non-covered services pursuant to 
+
+section 1879 of the Social Security Act (Act). The appellant 
+
+has asked the Medicare Appeals Council (Council) to review these 
+
+actions. 
+
+The Council reviews the ALJ’s decisions de novo . 42 C.F.R. 
+
+§ 405.1108(a). The Council will limit its review of the ALJ’s 
+
+action to the exceptions raised by the party in the request for 
+
+review, unless the appellant is an unrepresented beneficiary.     
+
+> The ALJ consolidated the appellant’s requests for hearing regarding the claims of eleven beneficiaries and held a single hearing. He issued eleven individual decisions, each of which is identified by the above ALJ Appeal Number. The appellant requested review of the ALJ’s decisions with respect to only six of the beneficiaries. In issuing his decisions, the ALJ designated each beneficiary’s file with a letter of the alphabet (see attached list). The Council will refer to the beneficiaries either by their initials or by the ALJ’s alphabetic designation to protect their privacy.
+> 1
+
+42 C.F.R. § 405.1112(c). We admit the appellant’s request for review into the record as Exhibit (Exh.) MAC-1. 2 As set forth below, the Council reverses the ALJ’s decisions as to two beneficiaries and finds the services rendered to these beneficiaries covered by Medicare. The Council adopts the ALJ’s conclusions as to the four remaining beneficiaries, and finds that the services are not covered by Medicare. With regard to the services we find not covered, we provide additional support for this conclusion. 
+
+BACKGROUND 
+
+The Appellant submitted claims for chiropractic manipulative treatment using HCPCS/CPT Code 98940 AT furnished to the beneficiaries on the dates of service listed in the attachment to this decision. The Medicare contractor denied the claims initially and on redetermination, finding that the services were not covered because they constituted maintenance therapy. See 
+
+Exhibit (Exh.) 3 in each individual beneficiary file. 
+
+The appellant requested reconsideration by a Qualified Independent Contractor (QIC). The QIC reconsideration concluded that the documentation submitted did not support that Medicare coverage requirements were met for any of the beneficiaries. 
+
+See ALJ Master Exh. 1. In some instances, the QIC observed that “ongoing treatment over a prolonged period of time did not show significant improvement in the patient’s condition.” Id. at 7 (Beneficiary D.F.), 19 (Beneficiary G.M.). 
+
+The appellant requested that the claims of eleven beneficiaries be combined for a hearing before an ALJ. ALJ Master Exh. 2. The ALJ granted the request and held a hearing as to all eleven beneficiaries on June 3, 2009. See Dec. at 1. The ALJ issued his decisions on June 19, 2009. The ALJ issued fully favorable decisions as to the claims of two beneficiaries and unfavorable decisions as to the claims of nine beneficiaries. 3 In each of the six cases at issue here, the ALJ concluded that the chiropractic services were not covered by Medicare because they were properly considered maintenance therapy.    
+
+> 2The appellant filed a single DAB-101 form, to which were attached six individual letters, addressing the appellant’s contentions with regard to each beneficiary. The Council has marked each attachment with the letter corresponding to the ALJ’s designation for that beneficiary.
+> 3The appellant did not request review by the Council of the ALJ’s unfavorable decisions as to three beneficiaries.
+
+APPLICABLE LEGAL AUTHORITY 
+
+Section 1862(a)(1)(A) of the Social Security Act (Act) provides: 
+
+Notwithstanding any other provisions of this title, no payment shall be made under part A or part B for any expenses incurred for items or services . . . which . . . are not reasonable and necessary for the diagnosis or treatment of illness or injury or to improve the functioning of a malformed body member. 
+
+The Medicare Benefit Policy Manual (MBPM), CMS Pub. 100-02, Ch. 15, section 240 governs Medicare coverage for chiropractic services. That section provides: “The term ‘physician’ under Part B includes a chiropractor who meets the specified qualifying requirements . . . but only for treatment by means of manual manipulation of the spine to correct a subluxation.” The MBPM defines subluxation of the spine “as a motion segment in which alignment, movement integrity, and/or physiological function of the spine are altered even though contact between joint surfaces remains intact.” MBPM § 240.1.2. According to the MBPM, subluxation can be demonstrated by x-ray or by physical examination. Id. 4
+
+Additionally, MBPM chapter 15, section 240.1.3 states: 
+
+The patient must have a significant health problem in the form of a neuromusculoskeletal condition necessitating treatment, and the manipulative services rendered must have a direct therapeutic relationship to the patient’s condition and provide reasonable expectation of recovery or improvement of function. 
+
+* * *
+
+When further clinical improvement cannot reasonably be expected from continuous ongoing care, and the chiropractic treatment becomes supportive rather than corrective in nature, the treatment is then considered maintenance therapy.   
+
+> The Medicare contractor, National Government Services, also issued a Local Coverage Determination (LCD), L7060, which was applicable on the dates of service at issue. The provisions of the LCD mirror the requirements found in the MBPM. The LCD can be viewed at
+> http://www.cms.hhs.gov/mcd/viewlcd.asp?lcd_id=7060&lcd_version=77&show=all .
+> 4
+
+Section 240.1.5 of the MBPM provides that “The chiropractor should be afforded the opportunity to effect improvement or arrest or retard deterioration in such condition within a reasonable and generally predictable period of time ” (emphasis added). 
+
+DISCUSSION 
+
+As noted above, the ALJ concluded that the chiropractic services furnished to the six beneficiaries at issue constituted maintenance therapy that was not covered by Medicare. The appellant argues, in each case, that there was a reasonable expectation of improvement in the beneficiary’s condition and, therefore, the chiropractic services met Medicare coverage guidelines. In addition, as to beneficiaries G.H. and B.M., the appellant argues that the beneficiaries sustained new injuries that necessitated chiropractic treatment. The Council has carefully considered the record in this case and concludes that the ALJ did not err in finding that the services at issue represented maintenance therapy as to four beneficiaries. As to beneficiaries G.H. and B.M., however, the Council concludes that the chiropractic services furnished on the dates in dispute were medically reasonable and necessary and are covered by Medicare. We first discuss our reasons for concluding that Medicare coverage is warranted for beneficiaries G.H. and B.M. We then explain why we conclude that the services furnished to the remaining beneficiaries do not satisfy Medicare coverage requirements. 
+
+The services furnished to G.H. and B.M. are covered by Medicare. 
+
+Beneficiary G.H.— The record indicates that the appellant treated the beneficiary beginning in August 2007 for “subluxation cervical/dysfunction C4.” ALJ Exh. F.1, at 1. According to the appellant, the beneficiary was discharged from treatment for that diagnosis on October 22, 2007. Exh. MAC-1, att. F; see also ALJ Exh. F.1, at 6. The beneficiary returned to the appellant’s clinic on March 17, 2008, complaining of left lower back pain. ALJ Exh. F.1, at 6. The appellant evaluated the beneficiary and diagnosed her condition as “subluxation lumbar/dysfunction L2.” Id. On March 25, 2008, the appellant revised the beneficiary’s diagnosis to “subluxation lumbar/dysfunction L4” based on an x-ray taken that same date. 
+
+Id. at 9; see also Exh. MAC-1, att. F. At the March 17 visit, the appellant documented a plan of care involving chiropractic treatment three times per week for one week and two times per week for three weeks. ALJ Exh. F.1, at 6. The dates of service at issue before us are April 1, 4, 8, and 15, 2008. 
+
+The diagnosis of lumbar subluxation involves an area of the spine distinct from that treated by the appellant in 2007. The dates of service at issue are within the time period contemplated in the initial plan of care (i.e. four weeks). As provided in the MBPM, “The chiropractor should be afforded the opportunity to effect improvement or arrest or retard deterioration in such condition within a reasonable and generally predictable period of time.” MBPM ch. 15, § 240.1.5. The Council finds that the chiropractic services at issue were furnished to correct a subluxation of the spine and were furnished within a reasonable period of time. Therefore, we find that the chiropractic services furnished by the appellant to Beneficiary G.H. on April 1, 4, 8, and 15, 2008, were medically reasonable and necessary and are covered by Medicare. 
+
+Beneficiary B.M.— The medical records indicate that the beneficiary presented to the appellant’s clinic on March 25, 2008, complaining of neck pain, which she said began after she experienced a fall “over the winter.” ALJ Exh. H.1, at 1. 5 The appellant examined the beneficiary and diagnosed her with “subluxation cervical/dysfunction C7.” Id. The appellant developed and documented a plan of care pursuant to which the beneficiary was to receive chiropractic treatment once per week for four weeks. Id. The dates of service at issue before us are April 1, 8, and 15, 2008, all of which are within the scope of the initial plan of care. As noted above, the MBPM directs that the chiropractor be given a reasonable opportunity to treat the beneficiary’s condition. MBPM § 240.1.5. The Council concludes that the chiropractic services furnished to Beneficiary B.M. on April 1, 8, and 15, 2008, were furnished to correct a subluxation of the spine and were furnished within a reasonable period of time. As such, the services were reasonable and necessary and are covered by Medicare. 
+
+The services furnished to the remaining four beneficiaries are not covered by Medicare.  
+
+> The appellant’s note for the March 25 visit is headed “Reevaluation” rather than “Initial Evaluation,” but there is no indication in the record as to what treatment the appellant had previously furnished to the beneficiary, or the dates of such treatment. ALJ Exh. H.1, at 1.
+> 5
+
+The appellant argues that the chiropractic services furnished to the remaining beneficiaries met the requirements set out in the applicable LCD, and should be covered. Exh. MAC-1. After carefully reviewing the records in each beneficiary file, the Council has concluded that the services do not satisfy Medicare coverage requirements for one of two reasons. As to Beneficiaries D.F. and H.H., the Council concludes that the appellant’s chiropractic treatments extended beyond a reasonable period of time and that there is no indication in the record that there was an expectation that the beneficiaries’ conditions would improve “within a reasonable and generally predictable period of time,” as required by MBPM § 240.1.5. As to Beneficiaries G.M. and D.O., we conclude that the records do not support a conclusion that the beneficiaries’ conditions represented significant health problems, as required by MBPM § 
+
+240.1.3.  For these reasons, the Council concludes that the ALJ did not err in denying Medicare coverage for the services furnished to these beneficiaries. 
+
+Beneficiaries D.F. and H.H.— The appellant began treating each of these beneficiaries in 2007. ALJ Exhs. C.1, at 1-2; E.1, at 1. The appellant’s diagnosis of Beneficiary D.F., i.e., “subluxation si [sacro-iliac]-dysfunction with sacrum subluxation” remained constant from the initial evaluation through the dates of service at issue. Compare ALJ Exh. C.1, at 2, with Exh. C.1, at 20. The appellant apparently treated Beneficiary H.H. for low back pain prior to October 2007. ALJ Exh. E.1., at 1. The Beneficiary injured his neck and lower back in a fall that occurred on October 13, 2007. Id. at 2. The appellant treated the beneficiary for these problems from October 23 through December 20, 2007. Id. at 2-9. The beneficiary again consulted the appellant beginning in February, 2008. Id. at 9. The Beneficiary was again experiencing low back pain. Id. The appellant began treating the beneficiary once per week for an initial four-week period, followed by a plan for an additional four weeks of treatment. Id. at 9, 12. 
+
+The appellant argues that further improvement in the beneficiaries’ conditions could be expected. Exh. MAC-1, atts. C, E. This argument overlooks the requirement in the MBPM that such improvement must be expected to occur within a reasonable and generally predictable period of time, however. The medical records indicate to the Council that Beneficiaries D.F. and H.H. experienced low back pain of a chronic nature that was not likely to be corrected or relieved within a reasonable and generally predictable period of time. Accordingly, the Council finds that the chiropractic services furnished to D.F. and H.H. were not medically reasonable and necessary and are not covered by Medicare. 
+
+Beneficiaries G.M. and D.O.— The appellant began treating Beneficiary G.M. in 2007. ALJ Exh. J.1, at 1. The appellant acknowledges in the request for review that “[r]apid resolution to this patient’s condition was not anticipated.” Exh. MAC-1, att. J. 6 At the Beneficiary’s March 7, 2008, interim evaluation, 
+
+G.M.  reported his progress as excellent and his pain as a “0” on a scale of 0-10. ALJ Exh. J.1, at 12. The record does not clearly indicate when the appellant began providing care to Beneficiary D.O. 7 In an interim evaluation conducted April 8, 2008, the beneficiary reported that her progress had been very good and that her worst pain was a “1” on a 0-10 scale. ALJ Exh. K.1, at 5. In addition, the appellant rated each beneficiary’s symptoms as causing “minimal disability.” ALJ Exhs. J.1, at 12; K.1, at 5. 
+
+The MBPM provides that chiropractic services are medically reasonable and necessary if they are furnished for a “significant health problem in the form of a neuro-musculoskeletal condition necessitating treatment.” MBPM § 240.1.3 (emphasis added). The Council concludes that, by the dates of service in question, the beneficiaries’ conditions had improved to the point that they no longer could be considered as experiencing a significant health problem. By the beneficiaries’ documented responses, they were experiencing minimal or no pain and minimal impact on their daily lives. For these reasons, the Council finds that the chiropractic services at issue were not medically reasonable and necessary and are not covered by Medicare. 
+
+The appellant is liable for non-covered services. 
+
+In each of his decisions, the ALJ concluded that the appellant was liable for the cost of the non-covered services, pursuant to        
+
+> 6For this reason, an a dditional ground for concluding that the services furnished to Beneficiary G.M. were not covered by Medicare is that the records do not indicate that improvement in the beneficiary’s condition was expected to occur within a reasonable and generally predictable period of time, as discussed in the preceding paragraph.
+> 7The appellant asserts that D.O. was seen initially on March 14, 2008. Exh. MAC-1, att. K. The medical records in the file begin with a partial entry that is not dated, however. ALJ Exh. K.1, at 1. The first dated entry is for a routine office visit on March 15, 2008. Id.
+
+section 1879 of the Act. The appellant has raised no exceptions to the ALJ’s findings on liability. Therefore, the Council adopts the ALJ’s conclusions on this issue. 
+
+DECISION 
+
+It is the decision of the Medicare Appeals Council that the chiropractic services furnished to Beneficiaries G.H. and B.M. were medically reasonable and necessary and are covered by Medicare. The ALJ’s decisions as to these beneficiaries are reversed. The chiropractic services furnished to Beneficiaries D.F., H.H., G.M., and D.O. were not reasonable and necessary and are not covered by Medicare. The appellant is liable for the cost of the non-covered services furnished to these beneficiaries. 
+
+MEDICARE APPEALS COUNCIL 
+
+/s/ Gilde Morrisson Administrative Appeals Judge 
+
+/s/ Clausen J. Krzywicki Administrative Appeals Judge 
+
+Date: November 18, 2009

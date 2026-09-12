@@ -1,0 +1,90 @@
+Title: 2011.01.20 M-2010-1590 In the Case of S.C.S
+
+URL Source: https://www.hhs.gov/sites/default/files/static/dab/decisions/council-decisions/scs_partb.pdf
+
+Published Time: Mon, 29 Aug 2016 04:20:02 GMT
+
+Number of Pages: 7
+
+Markdown Content:
+DEPARTMENT OF HEALTH AND HUMAN SERVICES 
+
+DEPARTMENTAL APPEALS BOARD 
+
+DECISION OF MEDICARE APPEALS COUNCIL 
+
+Docket Number: M-10-1590 
+
+In the case of 
+
+S.C.S. (Appellant) 
+
+**** 
+
+(Beneficiary) 
+
+Claim for 
+
+Supplementary Medical Insurance Benefits (Part B) 
+
+**** 
+
+(HIC Number) **** (ALJ Appeal Number) 
+
+Noridian Administrative Services (Contractor) 
+
+The Administrative Law Judge (ALJ) issued a decision dated May 18, 2010, concerning Medicare coverage for a power standing system (HCPCS E2301) wheelchair accessory furnished to the beneficiary by Wheelchair Works, Inc. (supplier) on July 26, 2007. 1 The ALJ determined that Medicare did not cover the equipment at issue and held the beneficiary liable for the non-covered item. The beneficiary has asked the Medicare Appeals Council (Council) to review this action. The beneficiary’s timely-filed request for review is entered into the administrative record as Exhibit (Exh.) MAC-1. The Council reviews the ALJ’s decision de novo. 42 C.F.R. § 405.1108(a). The Council will limit its review of the ALJ’s action to the exceptions raised by the party in the request for review, unless the appellant is an unrepresented beneficiary. 42 C.F.R. § 405.1112(c). For the reasons explained below, the Council adopts the ALJ’s decision.                
+
+> 1The Centers for Medicare & Medicaid Services (CMS) developed the Healthcare Common Procedure Coding System (HCPCS) to process, screen, identify, and pay Medicare claims. Code E2301 refers to the power standing system at issue. 2
+
+BACKGROUND 
+
+The beneficiary is diagnosed with Spinal Muscle Atrophy (SMA, Type II), a slowly progressive muscle-wasting disease that makes it impossible for him to walk or stand under his own power. Exh. 7, at 9. He seeks Medicare coverage for a power standing system (PSS) furnished to him by the supplier on July 26, 2007, as an accessory to an existing power wheelchair. Initially, and upon redetermination, the Medicare contractor denied coverage for the PSS and held the supplier liable for the non-covered item. Exh. 5. The Qualified Independent Contractor (QIC) upheld the denial on reconsideration. Exh. 6. Following ahearing on November 18, 2008, the ALJ issued a decision dated December 11, 2008, in which he found the PSS not covered and held the beneficiary liable for the non-covered item. Exh. 10. The beneficiary requested Council review and, in an Order dated May 26, 2009, the Council remanded the case to an ALJ for further proceedings. Exh. 13. Following the Council’s remand, the ALJ in turn remanded to the QIC by order dated November 2, 2009. Exh. 22. The QIC issued a new reconsideration on February 4, 2010. Exh. 23. In it, the QIC concluded that the PSS is not covered by Medicare because it is not primarily medical in nature. Id. at 3. The ALJ conducted a second hearing, by telephone, on April 15, 2010. Dec. at 2. The beneficiary, an independent medical expert retained by the ALJ, the contractor’s medical director, and another contractor representative testified during the hearing. In the decision which followed, the ALJ held that the PSS is not covered by Medicare because it does not meet the definition of durable medical equipment. Id . at 7. Because he concluded that the PSS does not fall within a Medicare benefit category, the ALJ further concluded that section 1879 of the Act is inapplicable and, accordingly, the beneficiary’s liability for the non-covered item cannot be waived. Id. at 8. On appeal before the Council, the beneficiary asserts that Medicare should cover the PSS because it serves a clear medical purpose and, therefore, is reasonable and necessary for his medical condition. Exh. MAC-1, at 2-4. He argues that the contractor’s and, by extension, the ALJ’s conclusion that the PSS is not primarily medical in nature is unsupported. Id. at 1-2. In addition, the beneficiary points to what he perceives as procedural irregularities in the hearing process. Id. at 6-7. 3
+
+LEGAL AUTHORITIES 
+
+Durable Medical Equipment (DME) 
+
+Section 1832(a) of the Social Security Act (Act) provides that benefits under Medicare Part B include “medical and other health services.” Section 1861(s)(6) of the Act defines “medical and other health services” to include DME. Medicare covers DME if it (1) meets the definition of DME; (2) is medically “reasonable and necessary;” and (3) the equipment is used in the beneficiary’s home. Medicare Benefit Policy Manual (MBPM)(Pub. 100-02), Ch. 15, § 110. DME is defined as equipment that can withstand repeated use; is primarily and customarily used to serve a medical purpose; generally is not useful to an individual in the absence of an illness or injury; and is appropriate for use in the home. 42 C.F.R. § 414.202. 
+
+Reasonable and Necessary 
+
+Section 1862(a)(1) of the Act provides that notwithstanding any other provisions of title XVIII of the Act, items or services which are not reasonable and necessary for the diagnosis or treatment of illness or injury or to improve the functioning of a malformed body member are excluded from coverage. The statute vests in the Secretary the authority to make those coverage decisions. Under this authority, CMS issues National Coverage Determinations (NCDs) that specify whether particular medical items and services are covered by Medicare. See CMS Manual System, Pub. 100-3, Medicare National Coverage Determinations (NCD). The NCD on Mobility Assistive Equipment (MAE), effective May 5, 2005, addresses items such as “canes, crutches, walkers, manual wheelchairs, power wheelchairs, and scooters. This list, however, is not exhaustive.” NCD, Ch.1, Pt. 4, § 280.3. 
+
+In the absence of a NCD or other national Medicare policy regarding coverage of a particular item or service, the individual Medicare contractor is responsible for determining whether an item or service is reasonable and necessary. See 
+
+preface to Coverage Issues Manual, reprinted at 54 Fed. Reg. 34555 (August 21, 1989). The Medicare contractor develops program guidance and may issue a local coverage determination (LCD) applicable to its service area. Relevant to the present case, the contractor (Noridian Administrative Services – DME MAC Jurisdiction D) issued LCD L11462 and related Policy Article 4
+
+A19846, which address Medicare coverage of wheelchair options and accessories. 2 See Exh. 2. NCDs are binding on fiscal intermediaries, carriers, QICs, ALJs and the Council. 42 C.F.R. § 405.1060(a)(4). ALJs and the Council are not bound by CMS program guidance, such as program memoranda, manual instructions, and LCDs, but they will give 
+
+Policy Article A19846 provides, in pertinent part: “A power seat elevation feature (E2300) and power standing feature (E2301) are noncovered because they are not primarily medical in nature.” Exh. 2, at 3. At the hearing, the contractor medical director explained the basis for the conclusion set forth in the substantial deference to those policies if they are applicable to a particular case. 42 C.F.R. § 405.1062(a). If an ALJ or the Council declines to follow a policy in a particular case, the rationale for not following that policy must be explained. 42 C.F.R. § 405.1062(b). Moreover, neither an ALJ nor the Council may set aside or review the validity of an LCD for the purposes of a claim appeal. 42 C.F.R. § 405.1062(c). 
+
+DISCUSSION 
+
+In the request for review, the beneficiary argues that he has demonstrated that the PSS is medically necessary for him, based on letters from his treating physicians, as well as the testimony of the independent medical expert retained by the ALJ. Exh. MAC-1, at 2-4. The Council does not question that the PSS may be of benefit to the beneficiary; nor does the Council suggest that the medical opinions of the beneficiary’s physicians and the independent medical expert are unsound. However, the relevant inquiry in this case is not whether the PSS may be of medical benefit in the beneficiary’s individual case. Here, the contractor, the QIC, and the ALJ determined that the PSS is not DME because it does not “primarily and customarily” serve a medical purpose as required by 42 C.F.R. §414.202. Such a determination represents a conclusion regarding how PSS devices are most often used across a wide spectrum of Medicare beneficiaries. Moreover, the contractor has exercised its delegated authority on behalf of CMS by memorializing this determination in LCD L11462 and Policy Article A19846. 2 LCDs address determinations on whether an item is covered under section 1862(a)(1)(A) of Act as medically reasonable and necessary. Policy Articles address whether a benefit category is met or an item or service is otherwise statutorily excluded. Medicare Program Integrity Manual (MPIM), CMS Pub. 100-08, Ch. 13, § 13.1.3. 5
+
+policy article. 3 He testified that the two primary and customary uses for a PSS are to allow access to higher surfaces in the home (such as countertops) and to facilitate social interactions by permitting eye-level interactions with others. Hearing CD at approximately 4:14:47-4:15:28. See also Dec. at 6. For those reasons, he opined that the PSS is primarily for convenience. Id. 
+
+Pursuant to 42 C.F.R. § 405.1062, the Council, like the ALJ, is required to afford substantial deference to Medicare policy guidance, where applicable. 4 Thus, absent a compelling reason, the Council will defer to Policy Article A19846. In the request for review, the beneficiary contends that Policy Article A19846 is not entitled to deference because the contractor has not produced scientific evidence in support of the article. By contrast, the beneficiary argues that he has produced many scientific references supporting the medical benefits of standing for disabled persons. The Council has 
+
+See reviewed the article abstracts prepared by the beneficiary. Exhibit 12 (attachment to Exh. MAC-1). We recognize that the referenced articles generally support the proposition that subjects who are bedfast or chairfast may experience greater incidence of complications such as osteoporosis, contractures, skin breakdown, and urinary tract infection than individuals who are either ambulatory or able to stand. Nevertheless, the articles do not express a consensus that the use of a PSS is an effective medical treatment to prevent such complications. 5 
+
+> 3
+
+The beneficiary argues that the opinions of his treating physicians should be accorded greater weight than that of the contractor medical director. Exh. MAC-1, at 7. The beneficiary acknowledges that the “treating physician rule” applicable in Social Security Administration disability cases does not apply in Medicare claims appeals. Id. Nevertheless, he argues that his physicians are specialists practicing in the field, while the medical director works in medical administration. Id. The Council finds that the ALJ did not err in relying on the contractor medical director’s testimony to establish the background for the determination that the PSS is not primarily and customarily used for a medical purpose. 4 While the regulation specifically references only LCDs and not policy articles, it is the Council’s practice also to give deference to interpretive articles published by Medicare contractors. 5 In addition, during the hearing, the contractor medical director testified that representatives of the Centers for Medicare & Medicaid Services (CMS) and contractors had recently met with representatives of the Rehabilitative Engineering and Adaptive Technology Society of North America (RESNA) to review Medicare’s position on the use of standing systems. Hearing CD at approximately 4:15:40-4:17:12. He testified that CMS and the contractors did not find that current medical literature supports a change in Medicare coverage for PSS devices. Id. 
+
+At 6
+
+most, the articles suggest that the use of such devices should be considered or made the subject of further research. For these reasons, the Council cannot find that Policy Article A19846 is not entitled to the usual deference accorded such policies. The ALJ accordingly did not err in deferring to the article in reaching his decision. See Dec. at 7. The beneficiary additionally raises several concerns regarding the manner in which the ALJ conducted the hearing. The beneficiary first contends that the ALJ erred by failing to notify him that the issue of whether or not the PSS meets the definition of DME would be considered at the hearing. Exh. MAC-1, at 6-7. According to the beneficiary, this represents a new issue of which he lacked notice prior to the ALJ hearing. Id. 
+
+This argument is misplaced. The regulations provide that the issues before the ALJ “include all the issues brought out in the initial determination, redetermination, or reconsideration that were not decided entirely in a party’s favor.” 42 C.F.R. § 405.1032(a). An examination of the decisions at lower levels of review demonstrates that whether or not the PSS is primarily and customarily used to serve a medical purpose—and thus meets the definition of DME—has been an issue in this case since the first level of review. The contractor’s redetermination, issued April 28, 2008, stated: “Medicare does not pay for any standing systems. This item is not regarded as medically needed.” Exh. 5, at 2. Further, the QIC’s reconsideration after remand was explicit on this point: “A power standing feature (E2301) is noncovered because it is not primarily medical in nature.” Exh. 23, at 3. Accordingly, the beneficiary did not lack notice that the issues before the ALJ would include consideration of whether or not the PSS primarily serves a medical purpose. 
+
+The beneficiary also objects that the ALJ failed to issue asubpoena for the appearance of B*** P***, a physical therapist, at the beneficiary’s hearing. Exh. MAC-1, at 7. The beneficiary acknowledges, however, that he did not raise this objection with the ALJ’s staff member who scheduled the hearing; nor did he bring this objection to the ALJ’s attention during the hearing. For these reasons, the Council concludes that the beneficiary waived his right to subpoena Mr. P*** as a witness. 6              
+
+> 6The Council further notes that the beneficiary’s request for a subpoena for Mr. P*** (Exh. 15) does not fully comply with the regulatory requirements for such requests found at 42 C.F.R. § 405.1036(f)(2). 7
+
+Finally, the beneficiary points to the fact that, in another case, involving a different beneficiary, an ALJ concluded that aPSS could be covered by Medicare. See Exh. MAC-1, at 8; see also Exh. 7, at 91-98. This argument is unpersuasive. The Council conducts a de novo review of ALJ decisions. 42 C.F.R. §405.1100(c). Prior decisions of ALJs and contractors are not precedential, nor are they binding on the Council. The ALJ found that, because the PSS does not fall within aMedicare benefit category, section 1879 of the Act is inapplicable and, accordingly, the beneficiary’s liability for the non-covered item may not be waived. Dec. at 8. The beneficiary did not raise any exceptions to the ALJ’s conclusion on liability; further, the Council finds that the ALJ did not err on this point. For the reasons explained above, the exceptions raised by the beneficiary do not provide a basis for changing the ALJ’s decision. The Council therefore adopts the ALJ’s decision. MEDICARE APPEALS COUNCIL 
+
+/s/ Clausen J. Krzywicki Administrative Appeals Judge 
+
+Date: January 20, 2011

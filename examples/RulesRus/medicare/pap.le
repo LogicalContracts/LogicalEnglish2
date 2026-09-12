@@ -1,0 +1,334 @@
+% Positive Airway Pressure (PAP) devices for the treatment of obstructive
+% sleep apnea: LCD L33718 and its Policy Article A52467 (DME MACs), read with
+% NCD 240.4. A policy program of the DMEPOS model: it includes dmepos.le
+% (orders, delivery, benefit category, continued need, refills) and states
+% when a claim for a PAP device (E0601, E0470 for OSA) or an accessory
+% (A4604, A7027–A7046, the humidifiers E0561, E0562) is REASONABLE AND
+% NECESSARY: the initial coverage criteria A–C (and D for E0470), the
+% continued-coverage criteria after the third month (a clinical
+% re-evaluation between the 31st and 91st day, adherence to therapy), the
+% usual maximum quantities of accessories.
+%
+% How the criteria are read. The facts of a claim are what the record shows:
+% the diagnosis, the in-person evaluation and its date, the sleep test (its
+% date, type, AHI or RDI, events recorded), the symptoms documented, the
+% instruction given, the re-evaluation and the usage data. That the sleep
+% test was ordered by the treating practitioner, run by a qualified Medicare
+% provider on an FDA-approved device (the LCD's "Sleep Tests" paragraph) is
+% not modelled: a record rarely says otherwise, and a test the DME supplier
+% ran is excluded expressly. Therapy is taken to start on the day the device
+% is delivered. The AHI template stands for the AHI of a facility study and
+% the RDI of a home sleep test alike, as the LCD treats them.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *a beneficiary* has a diagnosis of obstructive sleep apnea; undefined.
+    *a beneficiary* had an in-person clinical evaluation by the treating practitioner on *a date*; undefined.
+    the sleep test of *a beneficiary* was performed on *a date*; undefined.
+    the type of the sleep test of *a beneficiary* is *a type*; undefined.
+    the AHI of the sleep test of *a beneficiary* is *a number*; undefined.
+    the sleep test of *a beneficiary* recorded *a number* events; undefined.
+    the sleep test of *a beneficiary* was performed by the DME supplier; undefined.
+    the medical record of *a beneficiary* documents *a symptom*; undefined.
+    *a beneficiary* received instruction from the supplier in the use and care of *an item*; undefined.
+    a single-level CPAP was tried by *a beneficiary* and proven ineffective; undefined.
+    *a beneficiary* had an in-person clinical re-evaluation by the treating practitioner on *a date*; undefined.
+    the re-evaluation of *a beneficiary* on *a date* documents that the symptoms of obstructive sleep apnea are improved; undefined.
+    *a beneficiary* used *an item* at least four hours per night on *a number* percent of nights during a consecutive thirty day period within the first three months; undefined.
+    % derived
+    *an item* is a PAP device.
+    *an item* is a PAP accessory.
+    *a claim* is in the initial PAP coverage period.
+    *an item* meets the initial PAP coverage criteria.
+    the beneficiary of *an item* was clinically evaluated before the sleep test.
+    the sleep test of *a beneficiary* is a qualifying sleep test.
+    the sleep test of *a beneficiary* meets the AHI criterion.
+    *a symptom* is a qualifying symptom for PAP.
+    therapy with *an item* was initiated on *a date*.
+    *an item* meets the PAP continued coverage criteria for *a claim*.
+    *a beneficiary* adheres to therapy with *an item*.
+    *a device* is covered on the date of service of *a claim*.
+    *a claim* is within the usual maximum quantity.
+    the usual maximum for code *a code* is *a quantity* under table pap_quantity.
+    the period of the usual maximum for code *a code* is *a number* months under table pap_period.
+
+% The usual maximum amount of each accessory (LCD L33718, "ACCESSORIES").
+the table pap_quantity is, with unique match, with provenance LCD L33718,
+        confer "The following table represents the usual maximum amount of accessories expected to be reasonable and necessary":
+    code  | quantity | confer
+    "A4604" | 1        | "A4604 1 per 3 months"
+    "A7027" | 1        | "A7027 1 per 3 months"
+    "A7028" | 2        | "A7028 2 per 1 month"
+    "A7029" | 2        | "A7029 2 per 1 month"
+    "A7030" | 1        | "A7030 1 per 3 months"
+    "A7031" | 1        | "A7031 1 per 1 month"
+    "A7032" | 2        | "A7032 2 per 1 month"
+    "A7033" | 2        | "A7033 2 per 1 month"
+    "A7034" | 1        | "A7034 1 per 3 months"
+    "A7035" | 1        | "A7035 1 per 6 months"
+    "A7036" | 1        | "A7036 1 per 6 months"
+    "A7037" | 1        | "A7037 1 per 3 months"
+    "A7038" | 2        | "A7038 2 per 1 month"
+    "A7039" | 1        | "A7039 1 per 6 months"
+    "A7046" | 1        | "A7046 1 per 6 months"
+
+the table pap_period is, with unique match, with provenance LCD L33718,
+        confer "The following table represents the usual maximum amount of accessories expected to be reasonable and necessary":
+    code  | months | confer
+    "A4604" | 3      | "A4604 1 per 3 months"
+    "A7027" | 3      | "A7027 1 per 3 months"
+    "A7028" | 1      | "A7028 2 per 1 month"
+    "A7029" | 1      | "A7029 2 per 1 month"
+    "A7030" | 3      | "A7030 1 per 3 months"
+    "A7031" | 1      | "A7031 1 per 1 month"
+    "A7032" | 1      | "A7032 2 per 1 month"
+    "A7033" | 1      | "A7033 2 per 1 month"
+    "A7034" | 3      | "A7034 1 per 3 months"
+    "A7035" | 6      | "A7035 1 per 6 months"
+    "A7036" | 6      | "A7036 1 per 6 months"
+    "A7037" | 3      | "A7037 1 per 3 months"
+    "A7038" | 1      | "A7038 2 per 1 month"
+    "A7039" | 6      | "A7039 1 per 6 months"
+    "A7046" | 6      | "A7046 1 per 6 months"
+
+the knowledge base pap includes these resources:
+    dmepos.
+
+the knowledge base pap includes:
+
+LCD L33718 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33718".
+the text of LCD L33718 is at "sources/lcd/L33718.txt".
+Policy Article A52467 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52467".
+the text of Policy Article A52467 is at "sources/article/A52467.txt".
+NCD 240 4 is published at "https://www.cms.gov/medicare-coverage-database/view/ncd.aspx?ncdid=226".
+the text of NCD 240 4 is at "sources/ncd/NCD_240.4.txt".
+
+% What a PAP device and a PAP accessory are.
+rule pap_device with provenance LCD L33718,
+        confer "the term PAP (positive airway pressure) device will refer to both a single-level continuous positive airway pressure device (E0601) and a bi-level respiratory assist device without back-up rate (E0470) when it is used in the treatment of obstructive sleep apnea":
+an item is a PAP device
+    if the HCPCS code of the item is a code
+    and the code is in ["E0601", "E0470"].
+
+rule pap_accessory with provenance LCD L33718,
+        confer "Accessories used with a PAP device are covered when the coverage criteria for the device are met":
+an item is a PAP accessory
+    if the HCPCS code of the item is a code
+    and the code is in ["E0561", "E0562", "A4604", "A7027", "A7028", "A7029", "A7030", "A7031", "A7032", "A7033", "A7034", "A7035", "A7036", "A7037", "A7038", "A7039", "A7044", "A7045", "A7046"].
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: durable medical equipment
+% (Policy Article A52467).
+rule pap_codes with provenance Policy Article A52467,
+        confer "Positive airway pressure devices are covered under the Durable Medical Equipment benefit":
+the policy for code a code is pap
+    if the code is in ["E0601", "E0470", "E0561", "E0562", "A4604", "A7027", "A7028", "A7029", "A7030", "A7031", "A7032", "A7033", "A7034", "A7035", "A7036", "A7037", "A7038", "A7039", "A7044", "A7045", "A7046"].
+
+rule pap_benefit with provenance Policy Article A52467,
+        confer "Positive airway pressure devices are covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is pap.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Initial coverage: the first three months.
+% ---------------------------------------------------------------------------
+
+rule pap_initial_e0601 with provenance LCD L33718,
+        confer "An E0601 device is covered for the treatment of obstructive sleep apnea (OSA) if criteria A – C are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0601"
+    and the claim is in the initial PAP coverage period
+    and the item meets the initial PAP coverage criteria.
+
+rule pap_initial_e0470 with provenance LCD L33718,
+        confer "An E0470 device is covered for those beneficiaries with OSA who meet criteria A-C above, in addition to criterion D":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0470"
+    and the claim is in the initial PAP coverage period
+    and the item meets the initial PAP coverage criteria
+    and the item is furnished to a beneficiary
+    and a single-level CPAP was tried by the beneficiary and proven ineffective.
+
+rule pap_initial_period with provenance LCD L33718,
+        confer "CONTINUED COVERAGE BEYOND THE FIRST THREE MONTHS OF THERAPY":
+a claim is in the initial PAP coverage period
+    if the rental month of the claim is a number
+    and the number <= 3.
+
+rule pap_criteria_a_to_c with provenance LCD L33718,
+        confer "An E0601 device is covered for the treatment of obstructive sleep apnea (OSA) if criteria A – C are met":
+an item meets the initial PAP coverage criteria
+    if the item is furnished to a beneficiary
+    and the beneficiary has a diagnosis of obstructive sleep apnea
+    and the beneficiary of the item was clinically evaluated before the sleep test
+    and the sleep test of the beneficiary is a qualifying sleep test
+    and the sleep test of the beneficiary meets the AHI criterion
+    and the beneficiary received instruction from the supplier in the use and care of the item.
+
+% Criterion A.
+rule pap_criterion_a with provenance LCD L33718,
+        confer "The beneficiary has an in-person clinical evaluation by the treating practitioner prior to the sleep test to assess the beneficiary for obstructive sleep apnea":
+the beneficiary of an item was clinically evaluated before the sleep test
+    if the item is furnished to a beneficiary
+    and the beneficiary had an in-person clinical evaluation by the treating practitioner on a date
+    and the sleep test of the beneficiary was performed on an other date
+    and the date is before or equal to the other date.
+
+% Criterion B, alternatives 1 and 2.
+rule pap_criterion_b1 with provenance LCD L33718,
+        confer "The apnea-hypopnea index (AHI) or Respiratory Disturbance Index (RDI) is greater than or equal to 15 events per hour with a minimum of 30 events":
+the sleep test of a beneficiary meets the AHI criterion
+    if the AHI of the sleep test of the beneficiary is a number
+    and the number >= 15
+    and the sleep test of the beneficiary recorded an other number events
+    and the other number >= 30.
+
+rule pap_criterion_b2 with provenance LCD L33718,
+        confer "The AHI or RDI is greater than or equal to 5 and less than or equal to 14 events per hour with a minimum of 10 events and documentation of":
+the sleep test of a beneficiary meets the AHI criterion
+    if the AHI of the sleep test of the beneficiary is a number
+    and the number >= 5
+    and the number <= 14
+    and the sleep test of the beneficiary recorded an other number events
+    and the other number >= 10
+    and the medical record of the beneficiary documents a symptom
+    and the symptom is a qualifying symptom for PAP.
+
+excessive daytime sleepiness is a qualifying symptom for PAP,
+    as stated in LCD L33718, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+impaired cognition is a qualifying symptom for PAP,
+    as stated in LCD L33718, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+mood disorder is a qualifying symptom for PAP,
+    as stated in LCD L33718, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+insomnia is a qualifying symptom for PAP,
+    as stated in LCD L33718, confer "Excessive daytime sleepiness, impaired cognition, mood disorders, or insomnia".
+hypertension is a qualifying symptom for PAP,
+    as stated in LCD L33718, confer "Hypertension, ischemic heart disease, or history of stroke".
+ischemic heart disease is a qualifying symptom for PAP,
+    as stated in LCD L33718, confer "Hypertension, ischemic heart disease, or history of stroke".
+history of stroke is a qualifying symptom for PAP,
+    as stated in LCD L33718, confer "Hypertension, ischemic heart disease, or history of stroke".
+
+% The sleep test itself: a facility polysomnogram or a home or inpatient
+% sleep test, ordered by the treating practitioner, by a qualified provider,
+% on an approved device — and not run by the DME supplier (the Policy Article).
+rule pap_sleep_test with provenance LCD L33718,
+        confer "The sleep test must be either a polysomnogram performed in a facility-based laboratory (Type I study) or an inpatient hospital-based or home-based sleep test (HST) (Types II, III, IV, Other)":
+the sleep test of a beneficiary is a qualifying sleep test
+    if the type of the sleep test of the beneficiary is a type
+    and the type is in [facility polysomnogram, inpatient sleep test, home sleep test]
+    and it is not the case that
+        the sleep test of the beneficiary was performed by the DME supplier.
+
+% ---------------------------------------------------------------------------
+% Continued coverage beyond the first three months.
+% ---------------------------------------------------------------------------
+
+rule pap_continued with provenance LCD L33718,
+        confer "Continued coverage of a PAP device (E0470 or E0601) beyond the first three months of therapy requires that, no sooner than the 31st day but no later than the 91st day after initiating therapy, the treating practitioner must conduct a clinical re-evaluation and document that the beneficiary is benefiting from PAP therapy":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a PAP device
+    and the rental month of the claim is a number
+    and the number >= 4
+    and the item meets the initial PAP coverage criteria
+    and the item meets the PAP continued coverage criteria for the claim.
+
+% therapy starts with the delivery of the device: a device of this model
+rule pap_initiation:
+therapy with an item was initiated on a date
+    if the item was delivered on the date.
+
+rule pap_continued_criteria with provenance LCD L33718,
+        confer "In-person clinical re-evaluation by the treating practitioner with documentation that symptoms of obstructive sleep apnea are improved":
+an item meets the PAP continued coverage criteria for a claim
+    if the item is furnished to a beneficiary
+    and therapy with the item was initiated on a date
+    and the beneficiary had an in-person clinical re-evaluation by the treating practitioner on an other date
+    and the other date is a number days after the date
+    and the number >= 31
+    and the number <= 91
+    and the re-evaluation of the beneficiary on the other date documents that the symptoms of obstructive sleep apnea are improved
+    and the beneficiary adheres to therapy with the item.
+
+rule pap_continued_late with provenance LCD L33718,
+        confer "If the treating practitioner re-evaluation does not occur until after the 91st day but the evaluation demonstrates that the beneficiary is benefiting from PAP therapy as defined in criteria 1 and 2 above, continued coverage of the PAP device will commence with the date of that re-evaluation":
+an item meets the PAP continued coverage criteria for a claim
+    if the item is furnished to a beneficiary
+    and therapy with the item was initiated on a date
+    and the beneficiary had an in-person clinical re-evaluation by the treating practitioner on an other date
+    and the other date is a number days after the date
+    and the number > 91
+    and the re-evaluation of the beneficiary on the other date documents that the symptoms of obstructive sleep apnea are improved
+    and the beneficiary adheres to therapy with the item
+    and the date of service of the claim is a third date
+    and the third date is after or equal to the other date.
+
+rule pap_adherence with provenance LCD L33718,
+        confer "Adherence to therapy is defined as use of PAP":
+a beneficiary adheres to therapy with an item
+    if the beneficiary used the item at least four hours per night on a number percent of nights during a consecutive thirty day period within the first three months
+    and the number >= 70.
+
+% ---------------------------------------------------------------------------
+% Accessories: covered when the device's criteria are met, within the usual
+% maximum quantities.
+% ---------------------------------------------------------------------------
+
+rule pap_accessories with provenance LCD L33718,
+        confer "Accessories used with a PAP device are covered when the coverage criteria for the device are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a PAP accessory
+    and the item is an accessory of a device
+    and the device is a PAP device
+    and the device meets the initial PAP coverage criteria
+    and the device is covered on the date of service of the claim
+    and the claim is within the usual maximum quantity.
+
+% within the first three months of therapy the initial criteria suffice;
+% afterwards the device must have met the continued-coverage criteria
+rule pap_device_covered_initially with provenance LCD L33718,
+        confer "CONTINUED COVERAGE BEYOND THE FIRST THREE MONTHS OF THERAPY":
+a device is covered on the date of service of a claim
+    if therapy with the device was initiated on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number < 91.
+
+rule pap_device_covered_later with provenance LCD L33718,
+        confer "If the above criteria are not met, continued coverage of a PAP device and related accessories will be denied as not reasonable and necessary":
+a device is covered on the date of service of a claim
+    if therapy with the device was initiated on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 91
+    and the device meets the PAP continued coverage criteria for the claim.
+
+rule pap_quantity with provenance LCD L33718,
+        confer "Quantities of supplies greater than those described in the policy as the usual maximum amounts will be denied as not reasonable and necessary":
+a claim is within the usual maximum quantity
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the usual maximum for code the code is a quantity under table pap_quantity
+    and the period of the usual maximum for code the code is a number months under table pap_period
+    and the claim is for a supply of an other number months
+    and the quantity billed on the claim is a third number
+    and a limit is the quantity * ceiling(the other number / the number)
+    and the third number <= the limit.
+
+% a humidifier or an accessory with no usual maximum: any quantity ordered
+rule pap_no_maximum with provenance LCD L33718,
+        confer "Either a non-heated (E0561) or heated (E0562) humidifier is covered when ordered by the treating practitioner for use with a covered PAP (E0470 or E0601) device":
+a claim is within the usual maximum quantity
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the usual maximum for code the code is a quantity under table pap_quantity.

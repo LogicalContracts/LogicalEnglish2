@@ -1,0 +1,1425 @@
+=== page 1 ===
+-Medicare Program Integrity Manual 
+Chapter 5 – Durable Medical Equipment, Prosthetics, 
+Orthotics, and Supplies (DMEPOS) Items and Services 
+Having Special DME Review Considerations 
+ 
+Table of Contents  
+(Rev. 13689; Issued: 03-19-26) 
+ 
+Transmittals for Chapter 5 
+ 
+5.1 – Home Use of DME, Prosthetics, Orthotics, and Supplies 
+5.2 – Rules Concerning DMEPOS Orders Prescriptions 
+5.2.1 – Standard Written Order/ Prescription (SWO) 
+5.2.2 – Required Elements of a SWO  
+5.2.3 – Who can complete a SWO  
+5.2.4 – Timing of the Order/Prescription  
+5.2.5 - When a New Order/Prescription is Required  
+5.2.6 - Documentation Requirements for DMEPOS Supplied as Refills to the 
+Original Order  
+5.3 – Master List of DMEPOS Items Potentially Subject to a Face- to- Face Encounter  
+         and WOPD and/or Prior Authorization Requirements 
+5.3.1 – Notification of DMEPOS Item(s) Selected and Included on the Required 
+Face-to-Face Encounter and Written Order Prior To Delivery List  
+5.4 – Face-to-Face Encounter Definition  
+5.4.1 – Timing of the Face-to-Face Encounter 
+5.4.2 – Documentation from the Face-to-Face Encounter 
+5.4.3 – Suspension of Face-to-Face Encounter and WOPD Requirements 
+5.5 – Certificates of Medical Necessity (CMNs) and DME Information Forms (DIFs) 
+5.5.1 – Completing a CMN or DIF 
+5.5.2 – Cover Letters for CMNs 
+5.5.3 - Reserved for Future Use 
+5.6 – DME MACs and UPICs Authority to Initiate an Overpayment and/or Civil        
+Monetary Penalty  (CMP) When Invalid CMNs or DIFs Are Identified 
+5.7 - Nurse Practitioner or Clinical Nurse Specialist Rules Concerning Orders and       
+        CMNs 
+5.8 - Physician Assistant Rules Concerning Orders and CMNs  
+5.9 - Documentation in the Patient’s Medical Record  
+5.10 - Supplier Documentation  
+=== page 2 ===
+             5.10.1 - Suppliers Documentation for DMEPOS Repair Claims 
+   5.10.2 -  Suppliers Documentation for Claims for Refills of Essential Accessories           
+ for Beneficiary-Owned Continuous Positive Airway Pressure (CPAP), 
+Respiratory Assist Devices (RADs), and Continuous Glucose                                         
+Monitors (CGMs) 
+5.11 - Evidence of Medical Necessity  
+5.11.1 - Evidence of Medical Necessity for the Oxygen Claims  
+5.11.2 - Evidence of Medical Necessity: Wheelchair and Power Operated Vehicle 
+(POV) Claims 
+5.12 - Period of Medical Necessity - Home Dialysis Equipment  
+5.13 - Safeguards in Making Monthly Payments  
+          5.13.1 - Reserved for Future Use 
+5.14 - Pick-up Slips  
+5.15 - Incurred Expenses for DMEPOS  
+5.16 - Reserved for Future Use  
+5.17 - Definitions of  Customized DMEPOS 
+5.18 - Advance Determination of Medical Coverage (ADMC) of Customized DMEPOS 
+5.18.1 - Items Eligible for ADMC 
+5.18.2 - Instructions for Submitting ADMC Requests 
+5.18.3 - Instructions for Processing ADMC Requests 
+5.18.4 - Affirmative ADMC Decisions 
+5.18.5 - Negative ADMC Decisions 
+5.19 - DME MAC Tracking 
+ 
+=== page 3 ===
+5.1 – Home Use of DME, Prosthetics, Orthotics, and Supplies 
+(DMEPOS) 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+The Social Security Act (the Act) defines those items and services covered by Medicare 
+and identifies certain conditions for payment. In Section 1834(a)(11) of the Act, Congress 
+sets forth prescription and face-to-face encounter requirements for certain items. We note 
+that Section 1834(h)(3) of the Act requires that section 1834(a)(11) of the Act apply to 
+orthotics and prosthetics in the same manner as it applies to items of DME. 
+ 
+See Pub. 100-04, chapter 20, section 10 for more information related to home use of 
+DME. 
+ 
+5.2 – Rules Concerning DMEPOS Orders/Prescriptions 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+A written order/prescription is a written communication from a treating practitioner that 
+documents the need for a beneficiary to be provided an item of DMEPOS. As used 
+throughout this chapter, treating practitioner means a physician, as defined in section 
+1861(r)(1) of the Act, or physician assistant, nurse practitioner, or clinical nurse 
+specialist, as those terms are defined in section 1861(aa)(5) of the Act.   
+ 
+All DMEPOS items require a written order/prescription from the treating practitioner for 
+Medicare payment as a condition of payment.  
+ 
+Certain items require an order/prescription based on statute. In such instances, if the 
+statutory requirements related to the order are not met, the claim will be denied as not 
+meeting the benefit category. If the error cannot be cured, or can be cured but it is not 
+cured within the prescribed timeframe, there may be financial implications for the 
+beneficiary (see Pub. 100-04, Chapter 30, for more information on limitation on liability).   
+ 
+A supplier must maintain the written order/prescription and the supporting documentation 
+provided by the treating practitioner and make them available to CMS and its contractors 
+upon request. 
+ 
+In those limited instances in which the treating practitioner is also the supplier and is 
+permitted to furnish specific items of DMEPOS and fulfill the role of the supplier in 
+accordance with any applicable laws and policies, a separate SWO is not required. 
+However, the medical record must still contain all of the required SWO elements. 
+ 
+5.2.1 - Standard Written Order/Prescription (SWO) 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+=== page 4 ===
+All claims for DMEPOS items billed to Medicare require a written order/prescription 
+from the treating practitioner as a condition for payment. The required elements of a 
+DMEPOS order/prescription have been codified at 42 CFR 410.38(d)(1) and are listed 
+below.  
+ 
+5.2.2 - Required Elements of a SWO 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+A SWO must contain all of the following elements:  
+ 
+• Beneficiary name or Medicare Beneficiary Identifier (MBI); 
+• General description of the item.  
+o The description can be either a general description (e.g., wheelchair or 
+hospital bed), a brand name/model number, a HCPCS code, or a 
+HCPCS code narrative; 
+o For equipment – In addition to the description of the base item, the 
+SWO may include all concurrently ordered options, accessories, or 
+additional features that are separately billed or require an upgraded 
+code (List each separately); 
+o For supplies – In addition to the description of the base item, the SWO 
+may include all concurrently ordered supplies that are separately billed  
+Note: If such items are not concurrently ordered, they nonetheless 
+require an order for payment purposes 
+• Quantity to be dispensed, if applicable; 
+• Order Date; 
+• Treating Practitioner Name or National Provider Identifier (NPI); and 
+• Treating Practitioner Signature.  
+ 
+The elements of the SWO will be evaluated in accordance with Ch. 3, Section 3.3.2.1, 
+which discusses using the totality of the record to verify compliance with required 
+elements.  
+ 
+Note also that while the SWO has a limited number of required order elements, 
+suppliers/providers are permitted to add elements that may provide clarity for issues such 
+as length of need (LON), frequency of use, dosage form/strength, refills frequency, etc.  
+This additional information shall be corroborated by information in the medical record. 
+ 
+Suppliers may also wish to consult state law or regulation since some states may have 
+additional requirements for the elements of an order/prescription (e.g., refill frequency). 
+ 
+5.2.3 –Who can complete a SWO 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+=== page 5 ===
+ 
+\Statute requires that the treating practitioner who conducts the qualifying face-to-face 
+encounter for Power Mobility Devices (PMDs) also prepare the SWO for the PMD 
+base.  For items other than PMDs appearing on the Required Face-to-Face and Written 
+Order Prior to Delivery List, the treating practitioner who conducts the face-to-face 
+encounter does not need to be the prescriber of the DMEPOS items— so long as the 
+prescribing practitioner has knowledge of, and documentation to support (e.g., face-to-
+face), the condition that requires his or her writing an order/prescription.  
+ 
+For non-PMD items, and PMD separately billed accessories, certain elements of the 
+order/prescription may be completed by someone other than the treating practitioner, so 
+long as the treating practitioner identified in the order, via their name or national provider 
+identifier (NPI), signs the document.  
+ 
+5.2.4 – Timing of the Order/Prescription 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+Written Order Prior to Delivery (WOPD) 
+ 
+For PMDs and other DMEPOS items selected for inclusion on the Required Face-to-Face 
+Encounter and Written Order Prior to Delivery List (See section 5.3.1 below), the SWO 
+must be communicated to the supplier prior to delivery. For items requiring a WOPD, the 
+contractors shall verify that the date of the written order is on or before the date of 
+delivery or on or before the date shipped, the shipping date is used as the date of service.  
+For additional information, see Chapter 4, section 26.1. 
+ 
+Written Orders Prior to Claim Submission: 
+ 
+For DMEPOS items that are not PMDs or otherwise included on the Required Face-to-
+Face Encounter and Written Order Prior to Delivery List, the SWO must be 
+communicated to the supplier prior to claim submission. 
+ 
+5.2.5 - When a New Order/Prescription is Required 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+A new order/prescription is required:  
+ 
+• For all claims for purchases or initial rentals;  
+• If there is a change in the DMEPOS order/prescription (e.g., quantity);  
+• On a regular basis (even if there is no change in the order/prescription) only if it is so 
+specified in the documentation section of a particular medical policy;  
+• When an item is replaced; and  
+• When there is a change in the supplier, and the new supplier is unable to obtain a copy 
+of a valid order/prescription for the DMEPOS item from the transferring supplier. 
+=== page 6 ===
+ 
+5.2.6 - Documentation Requirements for DMEPOS Supplied as Refills 
+to the Original Order 
+(Rev. 12512; Issued: 02-15-24; Effective: 01-01-24; Implementation: 02-19-24) 
+ 
+Per 42 CFR 410.38 related to DMEPOS products that are supplied as refills to the 
+original order/prescription, suppliers must contact the beneficiary prior to dispensing 
+the refill and not automatically ship on a pre-determined basis, even if authorized by 
+the beneficiary.  This shall be done to ensure that the refilled item remains reasonable 
+and necessary and to confirm any changes/modifications to the SWO. The DMEPOS 
+supplier must document contact with the beneficiary or their representative to verify 
+the refill is needed. This documentation must include the following: 
+ 
+• Evidence of the beneficiary or their representative’s affirmative response of 
+the need for supplies, which should be obtained as close to the expected end 
+of the current supply as possible. However, such contact and affirmative 
+response must be within 30 calendar days from the expected end of the 
+current supply.  
+ 
+o For shipped items: the beneficiary’s name, date of contact, the item 
+requested, and an affirmative response from the beneficiary, 
+indicative of the need for refill, prior to dispensing the product is 
+required. Beneficiary’s need not count the remaining supply. 
+o For items obtained in-person from a retail store, the delivery slip 
+signed by the beneficiary or their representative or a copy of the 
+itemized sales receipt is sufficient documentation of a request for 
+refill.   
+ 
+Suppliers are permitted to use any mode of communication so long as the beneficiary 
+affirmation is received, and documentation of the contact is captured and can be 
+provided upon request. 
+ 
+• For example, automated text messaging or email may be used so long as the 
+captured information demonstrates the beneficiary’s name, item(s), date of 
+contact, and affirmative response.  
+ 
+For delivery of refills, the supplier must deliver the DMEPOS product no sooner than 
+10 calendar days prior to the end of usage for the current product. This is regardless of 
+which delivery method is utilized. DME MACs shall allow for the processing of 
+claims for refills delivered/shipped prior to the beneficiary exhausting his/her supply. 
+ 
+5.3 - Master List of DMEPOS Items Potentially Subject to a Face- to- 
+Face Encounter and WOPD and/or Prior Authorization Requirements  
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+=== page 7 ===
+42 CFR 410.38 and Final Rule 1713 (84 Fed. Reg Vol 217) creates a “Master List of 
+DMEPOS Items Potentially Subject to Face-To-Face Encounter and Written Order Prior 
+to Delivery and/or Prior Authorization Requirements”.  The Master List shall serve as a 
+library of DMEPOS items from which items may be selected for inclusion on either the:  
+ 
+• Required Face-to-Face Encounter and Written Order Prior to Delivery List; or 
+• Required Prior Authorization List. 
+ 
+Items included in either Required List are subject to the face-to-face encounter and 
+WOPD or prior authorization requirements, respectively, as a condition of payment.  
+ 
+See Chapter 3 for instructions regarding the requirements for items selected and included 
+on the Required Prior Authorization List.  
+ 
+The following instructions are limited to those items selected and included on the 
+Required Face-to-Face Encounter and Written Order Prior to Delivery List. 
+5.3.1 – Notification of DMEPOS Item(s) Selected and Included on the 
+Required Face-to-Face Encounter and Written Order Prior To Delivery 
+List 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+Items selected and included in the Required Face-To-Face Encounter and Written Order 
+Prior to Delivery List are published in the Federal Register with no less than 60 days’ 
+notice and posted on CMS’ and its contractors’ websites.  Contractors shall include the 
+effective date on their websites.  Contractors shall apply the face-to-face encounter and 
+WOPD requirement as a condition of payment for any item appearing on the Required 
+Face-To-Face Encounter and Written Order Prior to Delivery List beginning on the 
+published effective date.   
+5.4 – Face-to-Face Encounter Definition  
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+A face-to-face encounter means an in-person or telehealth encounter between the treating 
+practitioner and the beneficiary. The face-to-face encounter must be used for the purpose 
+of gathering subjective and objective information associated with diagnosing, treating, or 
+managing a clinical condition for which the DMEPOS is ordered. Telehealth encounters 
+used to satisfy the face-to-face requirement must meet the requirements of 42 CFR §§ 
+410.78 and 414.65 for purposes of DMEPOS coverage.  
+ 
+5.4.1 – Timing of the Face-to-Face Encounter  
+(Rev. 13689; Issued: 03-19-26; Effective: 04-20-26; Implementation: 04-20-26) 
+ 
+=== page 8 ===
+For DMEPOS items appearing on the Required Face-to-Face and Written Order Prior to 
+Delivery List, the treating practitioner must document and communicate to the DMEPOS 
+supplier that the treating practitioner has had a face-to-face encounter with 
+the beneficiary within the 6 months preceding the date of the written order/prescription.  
+ 
+A qualifying face-to-face encounter is required each time there is a new 
+order/prescription for a DMEPOS items on the Required Face-to-Face and Written Order 
+Prior to Delivery List. A single face-to-face encounter may document the clinical 
+conditions necessitating multiple DMEPOS items. In this situation, regardless of whether 
+the DMEPOS items are prescribed on different dates, the single face-to-face encounter 
+may be utilized in support of the multiple items, so long as the encounter date is within 6 
+months prior to the date of the orders. As always, the supplier is responsible for 
+submitting documentation to support each claim upon request. The exception to this 
+requirement is for items replaced with an identical item (same Healthcare Common 
+Procedure Coding System (HCPCS) code) following the expiration of the five-year 
+reasonable useful lifetime. In this circumstance, a new Face-to-Face evaluation would 
+not be required unless specifically required by a Local Coverage Determination or 
+National Coverage Determination.   
+ 
+The face-to-face requirement codified at 42 CFR 410.38 does not supplant other CMS 
+coverage policies.  
+ 
+5.4.2 – Documentation from the Face-to-Face Encounter  
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+A supplier must maintain the SWO and the supporting documentation provided by the 
+treating practitioner and make them available to CMS and its contractors upon request. A 
+supplier must submit additional documentation to CMS or its contractors, upon request, 
+to support and/or substantiate the medical necessity for the DMEPOS.  
+ 
+The face-to-face encounter must support payment and be documented in the pertinent 
+portion of the medical record (for example, history, physical examination, diagnostic 
+tests, summary of findings, progress notes, treatment plans or other sources of 
+information that may be appropriate).  The supporting documentation must include 
+subjective and objective beneficiary specific information used for diagnosing, treating, or 
+managing a clinical condition for which the DMEPOS is ordered. 
+ 
+Section 1834(h)(5) of the Act states that for purposes of determining the reasonableness 
+and medical necessity of orthotics and prosthetics, documentation created by orthotists 
+and prosthetists shall be considered part of the individual’s medical record to support 
+documentation created by eligible professionals as described in section 1848(k)(3)(B) of 
+the Social Security Act. Documentation from a face-to-face encounter conducted by a 
+treating practitioner, as well as documentation created by an orthotist or prosthetist, 
+becomes part of the medical records. If the orthotist or prosthetist notes support the 
+=== page 9 ===
+documentation created by eligible professionals described in section 1848(k)(3)(B), they 
+can be used together to support medical necessity of an ordered DMEPOS item. In the 
+event the orthotist or prosthetist documentation does not support the documentation 
+created by the eligible professional, payment may be denied. 
+ 
+If a supplier bills for an item listed on the Required Face-to-Face Encounter and Written 
+Order Prior to Delivery List and does not possess documentation of the face-to-face 
+encounter and/or the WOPD, the item will be denied.  
+ 
+5.4.3 – Suspension of Face-to-Face Encounter and WOPD Requirements  
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+CMS may suspend the face-to-face encounter and WOPD requirements generally or for a 
+particular item or items at any time and without undertaking rulemaking, except those 
+items for which inclusion on the Required Face-to-Face Encounter and Written Order 
+Prior to Delivery List was statutorily imposed or codified in prior rule making, such as 
+power mobility devices. CMS will post notification of the suspension on the CMS 
+website. Upon direction from CMS, contractors shall post notification of the suspension 
+on their websites and may utilize other communication tools to alert suppliers of the 
+suspension. 
+5.5 – Certificates of Medical Necessity (CMNs) and DME Information 
+Forms (DIFs) 
+(Rev. 11431; Issued: 05-26-22; Effective: 06-28-22; Implementation: 06-28-22) 
+ 
+The CMS seeks to reduce burden and modernize processes to ensure a reduction in 
+improper payments and an increase in customer satisfaction.  The CMN form and DIF 
+were originally required to help document the medical necessity and other coverage 
+criteria for selected Durable Medical Equipment, Prosthetics, Orthotics, and Supplies 
+(DMEPOS) items.  In the past, a supplier received a signed CMN from the treating 
+physician or created and signed a DIF to submit with the claim. Due to improvements in 
+claims processing and medical records management, the information found on CMNs or 
+DIFs is available either on the claim or in the medical record and is 
+redundant.  Therefore, to reduce burden and increase customer satisfaction, providers and 
+suppliers no longer need to submit these forms for services rendered after January 1, 
+2023. 
+ 
+• For claims with dates of service on or after January 1, 2023 – providers and 
+suppliers no longer need to submit CMNs or DIFs with claims.  Due to electronic 
+filing requirements, claims received with these forms attached will be rejected and 
+returned to the provider or supplier.   
+• For claims with dates of service prior to January 1, 2023 – processes will not 
+change and if the CMN or DIF is required, it will still need to be submitted with 
+the claim, or be on file with a previous claim.   
+=== page 10 ===
+This statement applies throughout the Program Integrity Manual wherever CMNs and 
+DIFs are mentioned.  
+ 
+A CMN or a DIF is a form required to help document the medical necessity and other 
+coverage criteria for selected DMEPOS items. CMNs contain Sections A through D. 
+Sections A and C are completed by the supplier and Sections B and D are completed by 
+the physician. A DIF is completed and signed by the supplier. It does not require a narrative 
+description of equipment and cost or a physician signature. 
+ 
+The following forms below have been approved by the Office of Management and Budget 
+(OMB). For the CMS. For the CMS forms 484, 846, 847, 848, 849, 854, 10125 and 10126, 
+the OMB# is 0938-0679. 
+ 
+• CMN CMS-484 – Oxygen 
+• CMN CMS-846 – Pneumatic Compression Devices 
+• CMN CMS-847 -- Osteogenesis Stimulators 
+• CMN CMS-848 – Transcutaneous Electrical Nerve Stimulators 
+• CMN CMS-849 – Seat Lift Mechanisms 
+• CMN CMS-854 – Section C Continuation Form 
+• DME Information Form CMS-10125 – External Infusion Pumps 
+• DME Information Form CMS-10126 – Enteral & Parenteral Nutrition 
+ 
+The TENS CMN is for purchases only. A TENS CMN will no longer be necessary for 
+rentals. 
+ 
+For certain items or services billed to a DME MAC, the supplier must receive a signed 
+CMN from the treating physician or a signed DIF from the supplier. For these items, a 
+supplier must have a signed original, faxed, photocopied, or electronic CMN or DIF i n 
+their records when submitting a claim for payment to Medicare. 
+ 
+A signed original, faxed, photocopied, or electronic CMN or DIF must be maintained by 
+the supplier and be available to the DME MACs, UPICs, SMRC, and DME RACs on 
+request. When hardcopy CMNs or DIFs are submitted to the DME MACs, UPICs, SMRC 
+and DME RACs, the supplier must include a copy of only the front side. When CMNs are 
+submitted electronically to the DME MAC, information from sections A and B are 
+required. 
+ 
+It is in the supplier’s interest to maintain a copy of what they faxed to the physician. 
+Suppliers must maintain a copy of the completed CMN or DIF in their records. However, 
+if the physician only faxes the front of the completed CMN then the supplier is only 
+required to maintain the front portion of the CMN. 
+ 
+However, when the CMN or DIF is submitted electronically and the supplier chooses to 
+maintain a hard copy CMN or DIF, the font may be modified as follows: 
+ 
+o Pitch may vary from 10 characters per inch (cpi) to 17.7 cpi; 
+=== page 11 ===
+ 
+o Line spacing must be 6 lines per inch 
+ 
+o Each form must have a minimum 1/4 inch margin on all four sides. 
+ 
+Without exception, these modified hard copy forms must contain identical 
+questions/wording to the CMS forms, in the same sequence, with the same pagination, and 
+identical instructions/definitions printed on the back; and CMN question sets may not be 
+combined. 
+ 
+The CMN can serve as the physician's detailed written order if the narrative description in 
+section C is sufficiently detailed. This would include quantities needed and frequency of 
+replacement for accessories and supplies. For items requiring both a CMN a nd a written 
+order prior to delivery (e.g., seat lift mechanisms) suppliers may utilize a completed and 
+physician-signed CMN for this purpose. Otherwise, a separate order in addition to a 
+subsequently completed and signed CMN is necessary. 
+ 
+The supplier may not complete the information in section B of the CMN. A supplier who 
+knowingly and willfully completes section B of the form is subject to a civil monetary 
+penalty up to $1,000 for each form or document so distributed. Any supplier who remains 
+in non- compliance after repeated attempts by the contractor to get the supplier into 
+compliance, refer to your RO (for UPICs refer the supplier to the primary GTL or associate 
+GTL and SME) as a potential civil monetary penalty case. 
+ 
+The fee schedule amount, narrative description of the items furnished and the supplier's 
+charge for the medical equipment or supplies being furnished must be completed on a 
+CMN by the supplier prior to it being furnished to the physician. A supplier who 
+knowingly and willfully fails to include this information may be subject to a civil monetary 
+penalty up to $1,000 for each form or document so distributed. Any supplier who remains 
+in non- compliance, after repeated attempts by the contractor to get the suppl ier into 
+compliance, refer to your RO (for UPICs, refer the supplier to the primary GTL or 
+associate GTL and SME) as a potential civil monetary penalty case. 
+ 
+The CMS will not accept any other certifications of medical necessity by other insurers or 
+government agencies. 
+ 
+Suppliers and physician may choose to utilize electronic CMNs (e -CMNs) or electronic 
+DIFs (e-DIFs). E-CMNs or e -DIFS must adhere to all privacy, security, and electronic 
+signature rules and regulations promulgated by CMS and DHHS. Additionally, e -CMNs 
+or e -DIFs must contain identical questions/wording to the CMS forms, in the same 
+sequence, with the same pagination, and identical instructions/definitions as printed on the 
+back of the hardcopy form. 
+If an item requires a CMN or a DIF and the supplier does not have a faxed, photocopied, 
+original hardcopy, or an electronic signed CMN or DIF in their records when they submit 
+a claim to Medicare, the claim will be denied. 
+ 
+=== page 12 ===
+In cases where two or more suppliers merge, the resultant supplier should make all 
+reasonable attempts to secure copies of all active CMNs or DIFs from the supplier(s) 
+purchased. This document should be kept on file by the resultant supplier for future 
+presentation to the DME MACs, and UPICs. 
+ 
+When reviewing claims where the medical record contains a copied, faxed or electronically 
+maintained CMN or DIF (any CMN or DIF created, modified, and stored via electronic 
+means such as commercially available software packages and servers), the DME MACs, 
+or UPICs must accept the copied, faxed or electronic document as fulfilling the 
+requirements for these documents. 
+ 
+When a UPIC is investigating potentially fraudulent behavior by a supplier, it will be the 
+supplier's responsibility to prove the authenticity/validity of the claim(s) under 
+investigation. UPICs may require the supplier to prove the authenticity/validity of the 
+signature on the CMN, DIF, order, or any other questionable portion of the claim(s) under 
+investigation. 
+ 
+Upon request by the DME MACs, UPICs, SMRC or DME RACs, suppliers must provide 
+the CMN or DIF, in a format that the DME MACs, UPICs, SMRC, and DME RACs can 
+accept, in a timely manner. Upon medical review, the DME MACs, UPICs, SMRC, and 
+DME RACs should not deny claims solely because the CMN or DIF is faxed, copied, or 
+electronic. The DME MACs, UPICs, SMRC, and DME RACs may request the supplier to 
+download and print a hard copy of an electronic order, CMN or DIF if the DME MACs, 
+UPICs, SMRC, and DME RACs cannot access it electronically. 
+ 
+For items that require a CMN, and for accessories, supplies, and drugs related to an item 
+requiring a CMN, the CMN may serve as the written order if the narrative description in 
+Section C is sufficiently detailed (as described above). This applies to both hard copy and 
+electronic orders or CMNs. A DIF does not contain a section for a narrative description 
+and is not applicable. 
+ 
+A supplier must have a hard copied, faxed or electronic order, CMN or DIF in their records 
+when they can submit a claim for payment to Medicare. Suppliers must ensure the security 
+and integrity of electronically maintained CMNs or DIFs are in accordance wi th any 
+regulations published by CMS. 
+ 
+The DME MACs or UPICs need not make any shared system changes to electronically 
+accept e-CMNs or e-DIFS as CMS views e-CMNs or e-DIFs as a transaction between the 
+physician and suppliers. Suppliers must continue to use current systems for transmitting 
+claim information to the DME MAC or UPICs. 
+ 
+5.5.1 – Completing a CMN or DIF 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+=== page 13 ===
+The "Initial Date" found in Section A of the CMN, should be either the specific date that 
+the physician gives as the start of the medical necessity or, if the physician does not give 
+a specific start date, the "Initial Date" would be the date of the order. 
+ 
+The "Signature Date" is the date the physician signed and dated Section D of the CMN. 
+This date might not be the same as the "Initial Date", since the "Signature Date" must 
+indicate when the physician signed Section D of the CMN. Medicare requires a legibl e 
+identifier for services provided/ordered. The method used shall be handwritten or an 
+electronic signature in accordance with chapter 3, section 3.4.1.1 to sign an order or other 
+medical record documentation for medical review purposes. Signature and date stamps are 
+not acceptable for use on CMNs and DIFs. 
+ 
+The "Delivery Date/Date of Service" on the claim must not precede the "Initial Date" on 
+the CMN or DIF or the start date on the written order. To ensure that an item is still 
+medically necessary, the delivery date/date of service must be within 3 months fr om the 
+"Initial Date" of the CMN or DIF or 3 months from the date of the physician's signature. 
+ 
+The DME MACs and UPICs have the authority to request to verify the information on a 
+CMN or DIF at any time. If the information contained either in the supplier’s records or in 
+the patient’s medical record maintained by the ordering physician fails to substantiate the 
+CMN or DIF, or if it appears that the CMN or DIF has been altered, the DME MACs and 
+UPICs should deny the service and initiate the appropriate administrative or corrective 
+actions. 
+ 
+In the event of a post pay audit, the supplier must be able to produce the CMN or DIF and, 
+if requested by the DME MACs or UPICs DME produce information to substantiate the 
+information on the CMN or DIF. If the supplier cannot produce this information, the DME 
+MACs and UPICs should deny the service and initiate the appropriate administrative or 
+corrective actions. 
+ 
+If there is a change made to any section of the CMN after the physician has signed the 
+CMN, the physician must line through the error, initial and date the correction; or the 
+supplier may choose to have the physician complete a new CMN. 
+ 
+5.5.2 – Cover Letters for CMNs 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+Cover letters can be used by a supplier as a method of communication between the supplier 
+and the physician. It is not CMS's intent to restrict necessary communication between the 
+supplier and the physician. CMS does not require nor regulate the cover lett er. The DME 
+MACs and UPICs should not take adverse action against suppliers that solely involve 
+cover letters. 
+ 
+The DME MACs should regularly publish an article in their bulletins asking suppliers to 
+remind physicians and suppliers of their responsibility in completing and signing the CMN 
+or DIF. It is the physician’s and supplier’s responsibility to determine both the medical 
+=== page 14 ===
+need for, and the utilization of, all health care services. The physician and supplier should 
+ensure that information relating to the beneficiary’s condition is correct. The DME MAC 
+and UPICs should encourage suppliers to include language in their cover letters to remind 
+physicians of their responsibilities. 
+ 
+5.5.3 – Reserved for Future Use 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+5.6 – DME MACs and UPICs Authority to Initiate an Overpayment 
+and/or Civil Monetary Penalty (CMP) When Invalid CMNs or DIFs Are 
+Identified 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+Section 1862(a)(1)(A) of the Act prohibits Medicare payment for services that are not 
+reasonable and necessary. Section 1833(e) of the Act requires that Medicare be furnished 
+by providers and suppliers "such information as may be necessary in order to dete rmine 
+the amount due.…" These sections provide support that a failure to have a valid CMN or 
+DIF on file or to submit a valid CMN or DIF to the DME MACs or UPICs makes the 
+underlying claim improper because Medicare does not have sufficient information to 
+determine whether the claim is reasonable and necessary. A valid CMN is one in which 
+the treating physician has attested to and signed supporting the medical need for the item, 
+and the appropriate individuals have completed the medical portion of the CMN. A  valid 
+DIF is one in which the supplier has attested to and signed supporting the medical need for 
+the item. When the DME MACs and UPICs identify a claim for which a CMN or DIF is 
+not valid, they may deny the claim and/or initiate overpayment action. 
+ 
+If a DME MAC or UPIC identifies a supplier that has a pattern of improperly completing 
+the CMN or DIF, the DME MAC or UPIC may choose to initiate a potential Civil 
+Monetary Penalty (CMP) case against the supplier. The authority for such action is found 
+in §1834(j)(2)(A)(iii) of the Act which states that "any supplier of medical equipment and 
+supplies who knowingly and willfully distributes a CMN in violation of clause (I) or fails 
+to provide the information required under clause (ii) is subject to a civil money penalty in 
+an amount not to exceed $1,000 for each such certificate of medical necessity so 
+distributed." The provisions of §1128A of the Act (other than subsections (a) and (b) shall 
+apply to CMPs penalties under this subparagraph in the same manner as they apply to a 
+penalty or proceeding under §1128(A)(a)) of the Act. 
+ 
+5.7 – Nurse Practitioner or Clinical Nurse Specialist Rules Concerning 
+Orders and CMNs 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+A nurse practitioner or clinical nurse specialist may give the dispensing order and sign 
+the detailed written order in the following situations: 
+=== page 15 ===
+ 
+• They are treating the beneficiary for the condition for which the item is needed; 
+ 
+• They are practicing independently of a physician; 
+ 
+• They bill Medicare for other covered services using their own provider number; 
+and  
+ 
+• They are permitted to do all of the above in the State in which the services are 
+rendered. 
+ 
+A nurse practitioner or clinical nurse specialist may complete Section B and sign Section 
+D of a CMN if they meet all the criteria described above for signing orders. 
+ 
+5.8 – Physician Assistant Rules Concerning Orders and CMNs 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+Physician assistants may provide the dispensing order and write and sign the detailed 
+written order if they satisfy all the following requirements: 
+ 
+• They meet the definition of physician assistant found in §1861(aa)(5)(A) of the 
+Act; 
+ 
+• They are treating the beneficiary for the condition for which the item is needed; 
+ 
+• They are practicing under the supervision of a Doctor of Medicine or Doctor of 
+Osteopathy; 
+ 
+• They have their own NPI; and  
+ 
+• They are permitted to perform services in accordance with State law. 
+ 
+Physician assistants may complete section b and sign section D of a CMN if they meet all 
+the criteria described above for signing orders. 
+ 
+5.9 – Documentation in the Patient’s Medical Record 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+For any DMEPOS item to be covered by Medicare, the patient’s medical record must 
+contain sufficient documentation of the patient’s medical condition to substantiate the 
+necessity for the type and quantity of items ordered and for the frequency of use or 
+replacement (if applicable). The information should include the patient’s diagnosis and 
+other pertinent information including, but not limited to, duration of the patient’s 
+condition, clinical course (worsening or improvement), prognosis, nature and extent o f 
+functional limitations, other therapeutic interventions and results, past experience with 
+=== page 16 ===
+related items, etc. If an item requires a CMN or DIF, it is recommended that a copy of the 
+completed CMN or DIF be kept in the patient’s record. However, neither a physician’s 
+order nor a CMN nor a DIF nor a supplier prepared statement nor a physician atte station 
+by itself provides sufficient documentation of medical necessity, even though it is signed 
+by the treating physician or supplier. There must be information in the patient’s medical 
+record that supports the medical necessity for the item and substantiates the answers on 
+the CMN (if applicable) or DIF (if applicable) or information on a supplier prepared 
+statement or physician attestation (if applicable). When a CMN or DIF and a medical 
+record contain conflicting information due to a minor error or om ission within the CMN 
+or DIF, but all coverage, coding and payment criteria are substantiated through the medical 
+record, the reviewer shall rely upon the content of the medical record (absent suspicion of 
+abuse or gaming) and shall not issue a denial. 
+ 
+See PIM, chapter 3, section 3.4.1.1, for additional instructions regarding review of 
+documentation during pre- and post-payment review. 
+ 
+The patient’s medical record is not limited to the physician’s office records. It may include 
+hospital, nursing home, or HHA records and records from other health care professionals. 
+ 
+The documentation in the patient’s medical record does not have to be routinely sent to 
+the supplier or to the DME MACs or UPICs. However, the DME MACs or UPICs may 
+request this information in selected cases. If the DME MACs or UPICs do not receive the 
+information when requested or if the information in the patient’s medical record does not 
+adequately support the medical necessity for the item, then on assigned claims the supplier 
+is liable for the dollar amount involved unless a properly executed advance beneficiary 
+notice (ABN) of possible denial has been obtained. 
+ 
+5.10 - Supplier Documentation 
+(Rev. 11032; Issued: 09-30-21; Effective: 10-12-21; Implementation: 11-10-21) 
+ 
+A. General 
+ 
+Before submitting a claim to the DME MAC (or before dispensing the item – see section 
+5.2.4), the supplier must have on file a standard written order, the CMN (if applicable), 
+the DIF (if applicable), information from the treating practitioner concerning the patient's 
+diagnosis, and any information required for the use of specific modifiers or attestation 
+statements as defined in certain DME MAC policies. The supplier should also obtain as 
+much documentation from the patient's medical record as they determine they need to 
+assure themselves that coverage criteria for an item have been met. If the information in 
+the patient's medical record does not adequately support the medical necessity for the 
+item, the supplier is liable for the dollar amount involved unless a properly executed 
+ABN of possible denial has been obtained. 
+ 
+Documentation must be maintained in the supplier's files for seven (7) years from date of 
+service. If the provider responds, in writing, that the Medicare qualifying supplier 
+documentation is older than 7 years, and provides proof of continued medical necessity of 
+=== page 17 ===
+the item or necessity of the repair, the contractors shall not deny the claim based solely on 
+missing the supporting Medicare qualifying documentation that is over 7 years old. 
+ 
+B. Proof of Delivery 
+ 
+Section 424.57(c)(12) requires suppliers, as part of their standards to be met for 
+enrollment and participation, to maintain proof of delivery documentation in their files. In 
+certain instances, compliance with proof of delivery may be required as a condition of 
+payment, and must be available to the DME MAC, RAC, SMRC, CERT, and UPIC on 
+request. For such items, if the supplier does not have appropriate proof of delivery 
+documentation within the prescribed timeframes, associated claims will be denied and 
+overpayments recouped. We note that non-compliance with supplier standards may also 
+result in revocation from the Medicare program. Suppliers who consistently do not 
+provide documentation to support their services may be referred to the OIG or NSC for 
+investigation and/or imposition of sanctions. If the beneficiary is newly eligible to the 
+Medicare program, the proof of delivery standards require the supplier to obtain a 
+statement, signed and dated by the beneficiary (or beneficiary's designee), that the 
+supplier has examined the item. 
+ 
+Please refer to IOM 100-08. Ch. 4, Section 4.7.3.1 for additional information regarding 
+all proof of delivery requirements. 
+ 
+5.10.1 - Suppliers Documentation for DMEPOS Repair Claims 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+When reviewing DMEPOS claims for repairs, the contractor shall review for continued 
+medical necessity of the item and necessity of the repair. Contractors are not required to 
+determine that the requirements for provision of the DMEPOS item as when it was 
+originally ordered were met.  For example, even though a face-to-face encounter is 
+required for the initial provision of certain wheelchairs, it is not needed for the repair of a 
+wheelchair already covered and paid for by Medicare.  However, documentation from the 
+treating practitioner that indicates the wheelchair being repaired continues to be 
+medically necessary is required.  For this purpose, documentation is considered timely 
+when it is on record in the preceding 12 months, unless otherwise specified in relevant 
+Medicare policy. 
+ 
+In addition, the contractor shall ensure that the supplier’s record includes the nature of the 
+repair required and work performed to restore the item to its functionality to meet the 
+Medicare beneficiary’s medical need. 
+ 
+These instructions do not replace or alter other longstanding instructions related to 
+coverage and payment for reasonable and necessary repairs and maintenance and 
+servicing of DMEPOS items.  Contractors shall continue to adhere to these program 
+policies and procedures.  Examples include, but are not limited to, Chapter 15, section 
+110.2 of the Benefit Policy Manual and Chapter 20, sections 10.2 and 40 of the Claims 
+=== page 18 ===
+Processing Manual.  Contractors are also reminded that parts and labor covered under a 
+manufacturer or supplier warranty are not to be considered reasonable and necessary 
+under regulation; therefore, contractors shall determine for each claim whether billed 
+parts and labor are covered under a warranty.  For reasonable and necessary parts, 
+payment is made on a lump sum basis based on the contractor’s individual consideration 
+of a reasonable payment amount for the part.  For reasonable and necessary labor, 
+payment is based on a reasonable fee established by the contractor for labor associated 
+with repairing the item. 
+ 
+5.10.2 - Suppliers Documentation for Claims for Refills of Essential 
+Accessories for Beneficiary-Owned Continuous Positive Airway 
+Pressure (CPAP), Respiratory Assist Devices (RADs), and Continuous 
+Glucose Monitors (CGMs) 
+(Rev. 13356; Issued: 08-14-25; Effective: 01-01-24; Implementation: 09-16-25) 
+ 
+When reviewing claims for refills of essential accessories for beneficiary-owned CPAP, 
+RADs, and CGMs, the contractor shall review for continued medical necessity of the 
+DME and necessity of the refill accessory.  Contractors are not required to determine that 
+the requirements for provision of the CPAP, RAD, and CGM as when it was originally 
+ordered were met.  For example, even though a face-to-face encounter is required for the 
+initial provision of the CPAP device, it is not needed for refill of a CPAP mask for a 
+patient-owned CPAP device covered by Medicare in the past.  However, documentation 
+from the treating practitioner that indicates the CPAP or RAD which requires refill 
+accessories/supplies continues to be medically necessary is required. Timely 
+documentation is defined as a record in the preceding 12 months unless otherwise 
+specified elsewhere in the policy. Likewise, for CGM supplies, contractors would not 
+need to see the initial qualifying documentation but will need to verify that medical need 
+for continuing coverage, as prescribed in applicable policy (e.g., Local Coverage 
+Determination) is met.  
+ 
+These instructions do not replace or alter other longstanding instructions related to 
+coverage and payment for reasonable and necessary accessories for patient-owned DME.  
+Contractors shall continue to adhere to these program policies and procedures. 
+ 
+5.11 - Evidence of Medical Necessity 
+(Rev. 10538; Issued: 12-30-20; Effective: 01-01-20; Implementation: 12-29-20) 
+ 
+If replacement supplies are needed for the therapeutic use of purchased DMEPOS, the 
+treating practitioner must specify on the standard written order, or on the CMN, the type 
+of supplies needed, in such a manner that the supplier may calculate the necessary 
+disbursement and assess the continued need for refill with the beneficiary. DME 
+MACs, UPICs, and other contractors evaluate supply utilization information as part of 
+their medical necessity and coverage determinations for DMEPOS.  
+ 
+Absent a State law to the contrary or a supply utilization problem, the standard written 
+order or CMN submitted for the DMEPOS may also serve as medical evidence for supply 
+=== page 19 ===
+replacement claims. However, when a standard written order for DMEPOS is renewed or 
+revised, supply utilization information must be specified or updated by the treating 
+practitioner on the CMN.  DME MACs, UPICs, and other contractors assess the 
+continuing medical necessity. 
+ 
+The DME MACs, UPICs, and other contractors must establish procedures for monitoring 
+the utilization of replacement supplies. Suppliers must have documentation to support the 
+medical necessity of changes in the equipment, device, or supply utilization requirements.  
+Absent such notification, DME MACs, UPICs, and other contractors do not allow claims 
+for unexplained increases in supply utilization above the usage level they previously 
+determined as medically necessary.  Suppliers shall make this information available to 
+the DME MACs, UPICs, and other contractors on request. 
+ 
+If necessary or appropriate for a medical necessity determination, the DME MAC, UPIC, 
+or other contractor must ask the supplier to obtain documentation from the treating 
+practitioner, establishing the severity of the patient's condition and the immediate and 
+long term need for the equipment and the therapeutic benefits the patient is expected to 
+realize from its use. A claim of therapeutic effectiveness or benefit based on speculation 
+or theory alone cannot be accepted. When restoration of function is cited as a reason for 
+use of DMEPOS, the exact nature of the deformity or medical problem should be clear 
+from the medical evidence submitted. Also, the manner in which the equipment or device 
+will restore or improve the bodily function should be explained by the treating 
+practitioner. 
+ 
+If the DME MAC, UPIC, or other contractor is unsuccessful in obtaining medical 
+information from the supplier for non-assigned claims, it gives the beneficiary the 
+opportunity to obtain the desired information from the supplier. If, after obtaining the 
+requested information, a question of medical necessity remains, the DME MAC, UPIC, 
+or other contractor must resolve the issue. 
+ 
+5.11.1 – Evidence of Medical Necessity for the Oxygen Claims 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+If DME MACs, CERT, UPICs, Recovery Auditors or the SMRC learn that the physician 
+of record is no longer the treating physician, the supplier shall obtain from the physician 
+currently responsible for the patient's pulmonary condition a current fully- completed 
+oxygen CMN. After review of this oxygen CMN, DME MACs continue monthly payments 
+if the evidence establishes medical necessity. Their records must be updated to identify the 
+new treating physician. 
+ 
+For an initial claim, the physician must submit a signed certification of medical necessity 
+that includes an oxygen/blood gas lab result. This certification must be corroborated with 
+information in the medical record. A physician signature on the oxygen la b test result is 
+not necessary to corroborate the certification. Instead, the reviewer should consider all 
+submitted records from all of the beneficiary’s healthcare professionals. 
+ 
+=== page 20 ===
+Therefore, contractors shall not deny an oxygen or oxygen equipment claim solely because 
+the claim lacks a physician signature on the oxygen lab test result. 
+ 
+5.11.2 - Evidence of Medical Necessity: Wheelchair and Power Operated 
+Vehicle (POV) Claims 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+The physician or treating practitioner (a physician assistant, nurse practitioner or clinical 
+nurse specialist) must conduct a face-to-face encounter of the beneficiary and write a 
+written order for the power mobility device (PMD). The face-to-face examination and the 
+written order must comply with the instructions found under Required Elements of a 
+SWO, Written Order Prior to Deliver, Face-to-Face Encounter Definitions and Timing of 
+the Face-to-Face Encounter. 
+ 
+The face-to-face examination requirement does not apply when only accessories for 
+power mobility devices are being ordered, nor does it apply for the ordering of 
+replacement PMDs. A replacement PMD would be the same device as previously 
+ordered. However, if a beneficiary has a POV but would like to replace the POV with a 
+power wheelchair, then a face-to-face examination would need to be conducted.   
+ 
+Prior to dispensing a PMD, the DMEPOS supplier must obtain from the physician or 
+treating practitioner who performed the face-to-face examination the written order 
+accompanied by supporting documentation of the beneficiary’s need for the PMD in the 
+home. Pertinent parts from the documentation of the beneficiary’s PMD evaluation may 
+include the history, physical examination, diagnostic tests, summary of findings, 
+diagnoses, and treatment plans. The physician or treating practitioner should select only 
+those parts of the medical record that clearly demonstrate medically necessity for the 
+PMD. The parts of the medical record selected should be sufficient to delineate the 
+history of events that led to the request for the PMD; identify the mobility deficits to be 
+corrected by the PMD; and document that other treatments do not obviate the need for the 
+PMD, that the beneficiary lives in an environment that supports the use of the PMD and 
+that the beneficiary or caregiver is capable of operating the PMD. In most cases, the 
+information recorded at the face-to-face examination will be sufficient. However, there 
+may be some cases where the physician or treating practitioner has treated a patient for an 
+extended period of time and the information recorded at the face-to-face examination 
+refers to previous notes in the medical record. In this instance, those previous notes 
+would also be needed. The physician, treating practitioner or supplier that is a HIPAA 
+covered entity should make sure to remove or edit any materials that may be contained 
+within the medical record that are not necessary to support the order.  For example, a 
+gynecologic report would not be needed in the records submitted for a beneficiary whose 
+clinical need for a PMD is based solely on disability secondary to a stroke. 
+ 
+As defined in the PIM, chapter 3, if data analysis indicates potentially aberrant billing, 
+contractors shall continue to follow the general guidance for performing medical review 
+on claims. 
+=== page 21 ===
+ 
+5.12 – Period of Medical Necessity - Home Dialysis Equipment 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+Situations may occur causing temporary non-use of equipment: 
+ 
+• Beneficiary requires in-facility treatment for re -stabilization or as a result 
+of some acute condition. The beneficiary is expected to return to home  
+dialysis; 
+ 
+• Beneficiary is temporarily without a suitable home dialysis assistant; 
+ 
+• Beneficiary is away from home but expects to return; or 
+ 
+• Beneficiary is a transplant candidate and is taken off home dialysis preparatory 
+to transplant. (If the transplant cannot occur, or if the transplant is not successful, 
+the patient will very likely resume home dialysis and an evaluation can be made 
+whether it will be within the immediate or foreseeable future.) 
+ 
+Under such circumstances, DME MACs or UPICs determine that medical necessity exists 
+and pay for a period of up to 3 months after the month home dialysis equipment was last 
+used. This does not eliminate the necessity for periodic reevaluation of medical necessity. 
+It provides a tolerance to avoid frequent reevaluation in renal dialysis situations and 
+provides for continuity of payments where economically advantageous. 
+ 
+5.13 - Safeguards in Making Monthly Payments 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+The DME MACs and UPICs shall establish appropriate safeguards to assure that payments 
+are not made beyond the last month of medical necessity. They must develop appropriate 
+safeguards to identify and investigate the following: 
+ 
+• Multiple claims for rental of the same or similar equipment from the  same 
+supplier within the same rental month (e.g., rental claims with different start 
+dates but within the same rental period); Pub. 100- 04, chapter  20, §30.5 
+specifically forbids payments for multiple claims for rental of the same or similar 
+equipment from either the same or a different supplier during the same rental 
+month. 
+ 
+• Contraindicated items of rented or purchased equipment; 
+ 
+• Incompatible claims information (e.g., liquid oxygen contents billed for 
+a purchased gas delivery system); 
+ 
+• Medical equipment rentals or purchases after a beneficiary's death; 
+ 
+=== page 22 ===
+• Rental start dates on or after the purchase of the same or comparable equipment 
+(absent evidence that the beneficiary has disposed of purchased equipment); 
+ 
+• Rental claims for the same or similar equipment from different suppliers for 
+the same or overlapping rental months; and 
+ 
+• Equipment rental start dates within periods of confinement in an institution 
+that cannot be considered a patient's home. 
+ 
+The DME MACs and UPICs shall resolve these situations on a prepayment basis. 
+Development, if necessary, may be via written or telephone contact per Pub. 100- 08 
+subject to any other documentation or development guidelines specified in Pub. 100- 02, 
+chapter 15, §100-01, Pub. 100-04, chapter 20, §10.1.1 and Pub. 100-04, chapter 20, 
+§100.2.3. 
+ 
+To the extent possible, DME MACs and UPICs give beneficiaries and supplier- assignees 
+advance notice of the date and reason that payments are scheduled to stop. (See Pub. 100-
+04, chapter 21 for EOMB language.) 
+ 
+5.13.1 – Reserved for Future Use 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+5.14 – Pick-up Slips 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+For purposes of this section, a pick-up slip is written confirmation, provided by a supplier, 
+that the supplier has removed an item of DME from the beneficiary’s home. 
+ 
+When making determinations, DME MACs and UPICs must ascertain not only whether 
+equipment is present in the home, but must determine which equipment is actually being 
+used by the patient. Therefore, it is inappropriate to determine, solely based on lack of a 
+pick up slip that a piece of equipment may still be in use. Likewise, it is inappropriate for 
+DME MACs and UPICs to deny claims solely based on lack of a pick-up slip. DME MACs 
+and UPICs should develop these claims to determine which piece of equipment i s 
+medically necessary. 
+ 
+5.15 – Incurred Expenses for DMEPOS 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+The first month's expense for rental is incurred on the date of delivery of the equipment.  
+Expenses for subsequent months are incurred on the same date of the month. Where 
+equipment is purchased, benefits are payable on the same basis. Suppliers may submit 
+claims as of the date expenses are incurred. If the date of delivery is not specified on the 
+=== page 23 ===
+claim, reviewers assume, in the absence of evidence to the contrary, that the date of 
+purchase or rental was the date of delivery. 
+ 
+Generally, for all DMEPOS, the supplier’s date of service (DOS) is the date of delivery 
+to a beneficiary’s home. For DMEPOS provided to a beneficiary immediately following a 
+hospital inpatient stay and/or DME immediately following a nursing home stay, the DOS 
+is the date of final discharge to the beneficiary’s home. For mail order DMEPOS 
+provided immediately subsequent to a hospital inpatient stay and/or DME immediately 
+following a nursing home stay, the DOS is the later of the actual delivery date or the date 
+of the discharge. Under no circumstances can the DOS be earlier than the date of 
+delivery. 
+ 
+No payment may be made for rental for any month throughout which the patient is in an 
+institution that does not qualify as his or her home (see Pub. 100-02, chapter 15, §110.3) 
+or is outside the U.S. (See Pub. 100-02, chapter 16, §60.) If the patient is at home as of 
+the first day of a rental month and, for part of the same rental month, is in an institution 
+which cannot qualify as his or her home, or is outside the U.S., payment may be made for 
+the entire rental month. Similarly, if an item of rental equipment is returned to the 
+supplier before the end of a payment month because the beneficiary died in that rental 
+month or because the equipment became unnecessary in that month, payment may be 
+made for the entire rental month. However, if the supplier charges for only part of a 
+month, or the DME MAC is aware that the supplier customarily follows such a practice, 
+it pays on a prorated basis. If the individual is outside the U.S. for more than 30 days and 
+returns to the U.S. (before resuming payments), it determines medical necessity as in an 
+initial case. 
+ 
+Note that in the case of purchased equipment, Pub. 100-02, chapter 16, §60 requires that 
+the beneficiary must have been in the United States when the item was delivered, and 
+Pub. 100-01, chapter 2, §40.1 requires that the individual must have had Supplementary 
+Medical Insurance (SMI) coverage at the time the item was delivered. Therefore, where a 
+purchased item of equipment was delivered to an individual outside the United States or 
+before his/her coverage period began (i.e., the effective date of his/her enrollment), the 
+entire expense of the item is excluded from coverage whether it was paid for in its 
+entirety at purchase or on a deferred or installment basis. Payment cannot be made in 
+such cases even though the individual uses the item inside the United States or after 
+his/her coverage begins. 
+ 
+Contractor systems must maintain the outcome (e.g., audit trail) of prepayment decisions 
+such as approved, denied, or partially denied. 
+ 
+5.16 – Reserved for Future Use 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+5.17 - Definition of Customized DMEPOS 
+=== page 24 ===
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+42 CFR 414.224 defines customized DME as being items of DME which have been 
+uniquely constructed or substantially modified for a specific beneficiary according to the 
+description and orders of the beneficiary's treating physician.  See Pub. 100-04, Chapter 
+20, Section 30.3 for information on customized DME. 
+ 
+5.18 – Advance Determination of Medicare Coverage (ADMC) of 
+Customized DMEPOS 
+(Rev. 10749; Issued: 05-11-21; Effective: 06-11-21; Implementation: 06-11-21) 
+ 
+Section 1834(a)(15)(C) of the Act provides that carriers shall, at the request of a supplier 
+or beneficiary, determine in advance of delivery of an item whether payment for the item 
+may not be made because the item is not covered if: 
+ 
+• The item is a customized item, 
+ 
+• The patient to whom the item is to be furnished, or the supplier, requests that such 
+advance determination be made, and 
+ 
+• The item is not an inexpensive item as specified by the Secretary. 
+ 
+This section provides for direction in implementing §1834 (a)(15)(C) of the Act. 
+It is important to note that ADMCs are not initial determinations as defined at 42 CFR 
+405.801(a), because no request for payment is being made. As such, an ADMC cannot be 
+appealed. 
+ 
+This is a voluntary program. Beneficiaries and suppliers are not required to submit ADMC 
+requests in order to submit claims for items. Additionally, UPICs may not require an 
+ADMC request as a prerequisite for submitting a claim. 
+ 
+5.18.1 – Items Eligible for ADMCs 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+The DME MACs shall publish examples of the types of items for which ADMCs are 
+available. These examples shall be published yearly in the DME MAC’s Supplier Manual 
+or yearly in the DME MAC’s Supplier Bulletin.  Examples will be published in the form 
+of HCPCS codes eligible for this program. Because HCPCS codes describe general 
+“categories" of equipment, this list is not a list of specific items, but rather a general list 
+of the categories of types of items eligible for this program. 
+ 
+5.18.2 – Instructions for Submitting ADMC Requests 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+=== page 25 ===
+ 
+Suppliers or beneficiaries may submit, in hard copy, requests for ADMC. Requests must 
+contain adequate information from the patient's medical record to identify the patient for 
+whom the item is intended, the intended use of the item, and the medical condition of the 
+patient that necessitates the use of a customized item. Each DME MAC shall publish the 
+mailing address to which requests should be sent. 
+ 
+5.18.3 – Instructions for Processing ADMC Requests 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+Once a request is received, the DME MAC shall determine if there is sufficient medical 
+documentation that supports whether the item is reasonable and necessary. In addition, a 
+review of the beneficiary’s claims’ history should be conducted in order to determine 
+whether any other reason exists to cause the claim to be denied, e.g., whether the same or 
+similar equipment has already been provided. 
+ 
+Upon receipt of a request, the DME MAC shall render an advance determination of 
+Medicare coverage within 30 calendar days. DME MACs shall provide the requestor with 
+their decision, be it affirmative or negative, in writing. 
+ 
+If requests are received for the wrong item(s), the request will be rejected. Rejected 
+requests should not be counted as workload. 
+ 
+Requests for appropriate items received without documentation to support coverage will 
+be denied as not meeting the medical necessity requirements Medicare has established for 
+the item. 
+ 
+5.18.4 – Affirmative ADMC Decisions 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+When making an ADMC, the DME MAC should review the information submitted with 
+the request to determine; 1) if a benefit category exists, 2) if a statutory exclusion exists, 
+and 3) if the item is reasonable and necessary. 
+ 
+An affirmative ADMC decision will provide the supplier and the beneficiary assurance 
+that the beneficiary, based on the information submitted with the request, will meet the 
+medical necessity requirements Medicare has established for the item. An affirmative 
+ADMC decision does not provide assurance that the beneficiary meets Medicare 
+eligibility requirements nor does it assure that any other Medicare requirements (MSP, 
+etc.) have been met. Only upon submission of a complete claim, can the DME MAC 
+make a full and complete determination. 
+ 
+An affirmative ADMC decision does not extend to the price that Medicare will pay for 
+the item. 
+=== page 26 ===
+ 
+An affirmative ADMC decision is valid for a period of 6 months from the date the 
+decision is rendered. Oftentimes, beneficiaries who require customized DME are subject 
+to rapid changes in medical condition. These changes may obviate the need for a 
+particular item, either because the beneficiary's condition improved or deteriorated. For 
+this reason, the date the item was provided to the beneficiary cannot be more than 6 
+months after the date the ADMC decision was made. 
+ 
+The DME MACs reserve the right to review claims on a pre- or post-payment basis and, 
+notwithstanding the requirements of this section, may deny claims and take appropriate 
+remedy if they determine that an affirmative ADMC decision was made based on 
+incorrect information. 
+ 
+5.18.5 – Negative ADMC Decisions 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+A negative ADMC decision communicates to the supplier and the beneficiary that, based 
+on the information submitted with the request, the beneficiary does not meet the medical 
+necessity requirements Medicare has established for the item. The negative ADMC 
+decision should indicate why the request was denied. 
+ 
+A beneficiary or a supplier can resubmit an ADMC request if additional medical 
+documentation is obtained that could affect the prior negative ADMC decision. However, 
+requests may only be submitted once during a 6-month period. 
+ 
+5.19 - DME MAC Tracking 
+(Rev. 10190; Issued: 06-19-2020; Effective: 01-01-2020; Implementation: 07-01-
+2020) 
+ 
+The DME MACs shall develop the capability to track ADMC requests in order to assure 
+that decisions are rendered in a timely and appropriate fashion. DME MACs shall also 
+develop the capability to ensure that: 1) items for which an affirmative ADMC decision 
+was made are not denied as not meeting the medical necessary requirements of the 
+policy, and 2) claims for item that received a negative ADMC decision are denied as not 
+covered, unless additional medical documentation submitted with the claims supports 
+coverage. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+=== page 27 ===
+ 
+ 
+ 
+Transmittals Issued for this Chapter 
+ 
+Rev # Issue Date Subject Impl Date CR# 
+R13689PI 03/19/2025 Face-to-Face Encounter Requirements for 
+Replacements Occurring After the 
+Reasonable Use Lifetime (RUL) 
+04/20/2026 14395 
+R13356PI 08/14/2025 Suppliers Documentation for Claims for 
+Refills of Essential Accessories for 
+Beneficiary-Owned Continuous Positive 
+Airway Pressure (CPAP), Respiratory Assist 
+Devices (RADs), and Continuous Glucose 
+Monitors (CGMs) 
+09/16/2025 14094 
+R13049PI 01/16/2025 Documentation for Claims for Replacement 
+of Essential Accessories for Beneficiary-
+Owned Continuous Glucose Monitors 
+(CGMs) 
+02/18/2025 13919 
+R12512PI 02/15/2024 Documentation Requirements for Refillable 
+Durable Medical Equipment, Prosthetics, 
+Orthotics, and Supplies (DMEPOS) 
+02/19/2024 13480 
+R12468PI 01/18/2024 Documentation Requirements for Refillable 
+Durable Medical Equipment, Prosthetics, 
+Orthotics, and Supplies (DMEPOS)- – 
+Rescinded and replaced by transmittal 12512 
+02/19/2024 13480 
+R11431PI 05/26/2022 Publication (Pub.) 100-08, Chapter 5 Update 
+- Planned Elimination of Certificates of 
+Medical Necessity (CMN) and Durable 
+Medical Equipment Information (DIF) 
+Forms 
+06/28/2022 12726 
+R11032PI 09/30/2021 Updates to Chapters 1, 3, 4, 5, 8 and 9 of 
+Publication (Pub.) 100-08 
+11/10/2021 12375 
+R10984PI 09/09/2021 Updates to Chapters 1, 3, 4, 5, 8 and 9 of 
+Publication (Pub.) 100-08 – Rescinded and 
+replaced by transmittal 11032 
+11/10/2021 12375 
+R10749PI 05/11/2021 Updates to Chapter 4 and Chapter 5 of 
+Publication (Pub.) 100-08 
+06/11/2021 12257 
+R10538PI 12/30/2020 Clarifying The Use of As-Needed/PRN 
+Orders for Durable Medical Equipment, 
+Prosthetics, Orthotics, and Supplies 
+(DMEPOS) 
+12/29/2020 11997 
+=== page 28 ===
+Rev # Issue Date Subject Impl Date CR# 
+R10492PI 11/25/2020 Clarifying The Use of As-Needed/PRN 
+Orders for Durable Medical Equipment, 
+Prosthetics, Orthotics, and Supplies 
+(DMEPOS) 
+12/29/2020 11997 
+R10190PI 06/19/2020 Revising Chapters 3 and 5 of Publication 
+(Pub.) 100-08, to Reflect the Recent Final 
+Rule CMS-1713-F 
+07/01/2020 11599 
+R834PI 10/12/2018 Order Requirements When Prescribing 
+Practitioner is Also the Supplier and is 
+Permitted to Furnish Specific Items of 
+Durable Medical Equipment, Prosthetics, 
+Orthotics, and Supplies (DMEPOS) 
+11/13/2018 10984 
+R812PI 07/27/2018 Clarify Detailed Written Orders For Durable 
+Medical Equipment, Prosthetics, Orthotics, 
+And Supplies (DMEPOS) 
+08/28/2018 10345 
+R806PI 07/06/2018 Clarify Detailed Written Orders For Durable 
+Medical Equipment, Prosthetics, Orthotics, 
+And Supplies (DMEPOS) – Rescinded and 
+replaced by Transmittal 812 
+08/07/2018 10345 
+R750PI 10/20/2017 Proof of Delivery Documentation 
+Requirements 
+11/20/2017 10324 
+R753PI 10/27/2017 Certificates of Medical Necessity (CMN) 
+and Durable Medical Equipment (DME) 
+Information Forms (DIF) 
+11/28/2017 10244 
+R733PI 07/27/2017 Clarification of Certificate of Medical 
+Necessity (CMN) and Durable Medical 
+Equipment Information Forms (DIFs) 
+08/28/2017 10148 
+R722PI 05/26/2017 Clarifying Date and Timing Requirements 
+for Certain Durable Medical Equipment 
+Prosthetics Orthotics and Supplies 
+(DMEPOS) 
+06/27/2017 10106 
+R705PI 03/24/2017 Durable Medical Equipment, Prosthetics, 
+Orthotics, and Supplies (DMEPOS) Order 
+Requirements for Changing Suppliers 
+04/24/2017 9886 
+R693PI 12/30/2016 Clarification of Appeal Rights for Denials 
+Stemming from Statutory Requirements 
+01/31/2017 9910 
+R672PI 08/19/2016 Documentation for Durable Medical 
+Equipment Prosthetics, Orthotics and 
+Supplies (DMEPOS) Claims for 
+Replacement of Essential Accessories for 
+Beneficiary-Owned Continuous Positive 
+11/23/2016 9741 
+=== page 29 ===
+Rev # Issue Date Subject Impl Date CR# 
+Airway Pressure (CPAP) Devices and 
+Respiratory Assist Devices (RADs) 
+R662PI 07/01/2016 Date and Timing Requirements 08/01/2016 9679 
+R641PI 02/19/2016 Proof of Delivery in Nursing Facilities 03/19/2016 9524 
+R623PI 11/03/2015 Written Orders Prior to Delivery (WOPD) 10/10/2015 9364 
+R618PI 10/09/2015 Written Orders Prior to Delivery (WOPD) – 
+Rescinded and replaced by Transmittal 623 
+10/10/2015 9364 
+R612PI 09/10/2015 Changes to Supplier Documentation and 
+Evidence of Medical Necessity for Oxygen 
+Claims 
+09/29/2015 9063 
+R611PI 08/28/2015 Changes to Supplier Documentation and 
+Evidence of Medical Necessity for Oxygen 
+Claims – Rescinded and replaced by 
+Transmittal 612 
+09/29/2015 9063 
+R608PI 08/14/2015 Update to Pub. 100-08 to Provide Language-
+Only Changes for Updating ICD-10 and 
+ASC X12 
+09/14/2015 8747 
+R598PI 06/12/2015 Proof and Date of Delivery 07/13/2015 9194 
+R546PI 10/17/2014 Documentation for Durable Medical 
+Equipment Prosthetics, Orthotics and 
+Supplies (DMEPOS) Repair Claims. This 
+CR rescinds and fully replaces CR 8843. 
+11/04/2014 8952 
+R533PI 08/01/2014 Documentation for Durable Medical 
+Equipment Prosthetics, Orthotics and 
+Supplies (DMEPOS) Repair Claims – 
+Rescinded and replaced by CR 8952, 
+Transmittal 546 
+11/04/2014 8843 
+R528PI 07/03/2014 Proof of Delivery 08/05/2014 8643 
+R468PI 05/31/2013 Detailed Written Orders and Face-to-Face 
+Encounters 
+07/01/2013 8304 
+R460PI 04/19/2013 Clarify the Definition of Customized 
+Durable Medical Equipment (DME) Items 
+07/19/2013 8194 
+R378PI 07/01/2011 Prospective Billing for Refills of DMEPOS 
+Items Provided on a Recurring Basis 
+08/02/2011 7452 
+R281PI 12/31/2008 Signature and Date Stamps for DME 
+Supplies-CMNs and DIFs 
+02/02/2009 6261 
+R242PI 02/22/2008 Items and Special Services Having Special 
+DME Review Considerations 
+03/01/2008 5909 
+=== page 30 ===
+Rev # Issue Date Subject Impl Date CR# 
+R168PI 10/31/2006 DMEPOS Transcutaneous Electrical Nerve 
+Stimulators (TENS) Certificate of Medical 
+Necessity (CMN) for Purchases:  Form 
+CMS-848 
+01/02/2007 5107 
+R167PI 10/27/2006 New DMEPOS Certificates of Medical 
+Necessity (CMNs) and DME Information 
+Forms (DIFS) for Claims Processing 
+10/01/2006 4296 
+R166PI 10/06/2006 DMEPOS Transcutaneous Electrical Nerve 
+Stimulators (TENS) Certificate of Medical 
+Necessity (CMN) for Purchases:  Form 
+CMS-848 – Replaced by Transmittal 168 
+01/02/2007 5107 
+R159PI 09/22/2006 New DMEPOS Certificates of Medical 
+Necessity (CMNs) and DME Information 
+Forms (DIFS) for Claims Processing – 
+Replaced by Transmittal 167 
+10/02/2006 4296 
+R157PI 08/25/2006 Evidence of Medical Necessity: Wheelchair 
+and Power-Operated Vehicle (POV) Claims 
+(Clarification of CR 3952, Transmittal 128, 
+Dated October 28, 2005) 
+10/16/2006 5128 
+R156PI 08/18/2006 Evidence of Medical Necessity: Wheelchair 
+and Power-Operated Vehicle (POV) Claims 
+(Clarification of CR 3952, Transmittal 128, 
+Dated October 28, 2005)- Replaced by 
+Transmittal R157 
+09/18/2006 5128 
+R142PI 03/02/2006 New DMEPOS Certificates of Medical 
+Necessity (CMNs) and DME MAC 
+Information Forms (DIFS) for Claims 
+Processing - Replaced by Transmittal 159 
+10/02/2006 4296 
+R138PI 02/10/2006 New DMEPOS Certificates of Medical 
+Necessity (CMNs) and DME MAC 
+Information Forms (DIFS) for Claims 
+Processing - Replaced by Transmittal 142 
+10/02/2006 4296 
+R128PI 10/28/2005 Evidence of Medical Necessity: Wheelchair 
+and Power Operated Vehicle (POV) Claims 
+10/25/2005 3952 
+R124PI 09/23/2005 Evidence of Medical Necessity: Wheelchair 
+and Power Operated Vehicle (POV) Claims - 
+Replaced by Transmittal 128 
+10/25/2005 3952 
+R121PI 09/14/2005 Evidence of Medical Necessity: Wheelchair 
+and Power Operated Vehicle (POV) Claims - 
+Replaced by Transmittal 124 
+10/17/2005 3952 
+R100PI 01/21/2005 Review of Documentation During Medical 02/22/2005 3644 
+=== page 31 ===
+Rev # Issue Date Subject Impl Date CR# 
+Review 
+R071PI 04/09/2004 Rewrite of Program Integrity Manual (except 
+Chapter 10) to Apply to PSCs 
+05/10/2004 3030 
+R061PI 01/02/2004 Clarification of Proof of Delivery 
+Requirements 
+02/02/2004 2903 
+R059PI 11/28/2003 Written Orders 01/05/2004 2937 
+R050PI 09/26/2003 Advance Determination of Medicare 
+Coverage (ADMC) Requests 
+10/10/2003 2866 
+R048PIM 09/12/2003 Items Denied as not Meeting Benefit 
+Category 
+10/01/2003 2872 
+R037PI 01/17/2003 Written Orders 02/01/2003 2471 
+R030PI 09/27/2002 Written Orders 10/15/2002 2202 
+R016PIM 11/28/2001 Adds Various Program Memoranda for BI 
+Requests for Information, Organizational 
+Requirements, Unsolicited Voluntary Refund 
+Checks, Anti-Kickback Statute Implications 
+11/28/2001 1732 
+R011PIM 09/18/2001 Completing a CMN 09/24/2001 1773 
+R005PIM 02/26/2001 Advance Determination of Medicare 
+Coverage (ADMC) of Customized Durable 
+Medical Equipment (DME) 
+07/2001 1187 
+R004PIM 01/31/2001 Physician Assistant Rules Concerning 
+Orders and CMNs 
+01/31/2001 1471 
+R003PIM 11/22/2000 Complete Replacement of PIM Revision 1. NA 1292 
+R001PIM 06/2000 Initial Release of Manual NA 931 
+Back to top of chapter 
