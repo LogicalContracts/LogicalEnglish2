@@ -103,6 +103,7 @@ the templates are:
     the continued need requirements are met for *a claim*.
     *a claim* is an ongoing claim.
     the refill requirements are met for *a claim*.
+    *a claim* was served before *a date*.
     the policy specific documentation requirements are met for *a claim*.
     *a policy* has no specific documentation requirements.
 
@@ -117,6 +118,8 @@ Medicare Benefit Policy Manual Chapter 15 is published at "https://www.cms.gov/r
 the text of Medicare Benefit Policy Manual Chapter 15 is at "sources/manuals/BPM_100-02_ch15.txt".
 the CMS required face-to-face list is published at "https://www.cms.gov/files/document/required-face-face-encounter-written-order-prior-delivery-list.pdf".
 the text of the CMS required face-to-face list is at "sources/cfr/CMS_required_f2f_wopd_list_2026-04-13.txt".
+LCD L33718 revision history is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33718".
+the text of LCD L33718 revision history is at "sources/history/L33718.txt".
 the CMS required prior authorization list is published at "https://www.cms.gov/research-statistics-data-and-systems/monitoring-programs/medicare-ffs-compliance-programs/dmepos/downloads/dmepos_pa_required-prior-authorization-list.pdf".
 the text of the CMS required prior authorization list is at "sources/cfr/CMS_required_prior_authorization_list_2026-07-29.txt".
 
@@ -375,11 +378,25 @@ the continued need requirements are met for a claim
     and it is not the case that
         the claim is an ongoing claim.
 
+% Versions. The refill rule changed on 1 January 2024 (CMS-1780-F, and every
+% DME MAC LCD with it): before, the contact could be no sooner than 14 days
+% before the delivery or shipping date, and the delivery no sooner than 10
+% days before the end of usage; since, the contact within 30 days of the
+% expected end of the supply. A claim is judged by the version in effect on
+% its date of service; one with no date of service by the current version.
+% The earlier wording is quoted by the LCDs' revision history.
+rule served_before:
+a claim was served before a date
+    if the date of service of the claim is an other date
+    and the other date is before the date.
+
 rule refill with provenance 42 CFR section 410 38,
         confer "Contact and affirmative response must be within 30 calendar days from the expected end of the current supply":
 the refill requirements are met for a claim
     if the claim is a refill
     and the claim is for an item
+    and it is not the case that
+        the claim was served before 2024-01-01
     and the current supply of the item is expected to end on a date
     and the beneficiary affirmed the need for the refill of the item on an other date
     and the date is a number days after the other date
@@ -387,6 +404,21 @@ the refill requirements are met for a claim
     and the number <= 30
     and the date of service of the claim is a third date
     and the date is a second number days after the third date
+    and the second number <= 10.
+
+rule refill_before_2024 with provenance LCD L33718 revision history,
+        confer "Revised: “Contact with the beneficiary or designee regarding refills must take place no sooner than 14 calendar days prior to the delivery/shipping date.”":
+the refill requirements are met for a claim
+    if the claim is a refill
+    and the claim is for an item
+    and the claim was served before 2024-01-01
+    and the date of service of the claim is a date
+    and the beneficiary affirmed the need for the refill of the item on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 14
+    and the current supply of the item is expected to end on a third date
+    and the third date is a second number days after the date
     and the second number <= 10.
 
 rule not_a_refill with provenance 42 CFR section 410 38,

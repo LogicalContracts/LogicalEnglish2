@@ -1,0 +1,47 @@
+LCD L34658: Vitamin D Assay Testing — revision history (Medicare Coverage Database export, 12 September 2026, lcd_x_revision_history)
+
+=== version 4, revision history date 2015-10-01 ===
+04/01/2014 Removed reference to ICD-9 and changed to ICD-10. No change in coverage.
+
+=== version 6, revision history date 2015-10-01 ===
+07/01/2014 For clarity, added the ICD-10 codes for vitamin D deficiency E55.0, E55.9, E64.3, M83.0 – M83.5, and M83.8 – M83.9 under the utilization guidelines. Theses codes already appear in the chart of Group 2 codes. No change in coverage.
+
+=== version 8, revision history date 2015-10-01 ===
+10/01/2014: Annual review done 09/09/2014. Formatting and punctuation changes made. Sources of Information updated. No change in coverage.
+
+=== version 10, revision history date 2015-10-01 ===
+10/01/2015 Annual review done. Formatting changes made. Updated Sources of Information. No change in coverage.
+
+=== version 12, revision history date 2015-10-01 ===
+10/06/2015 - Due to CMS guidance, we have removed the Jurisdiction 8 Notice and corresponding table from the CMS National Coverage Policy section. No other changes to policy or coverage.
+
+=== version 14, revision history date 2015-10-01 ===
+12/01/2015 Added codes C22.0, C22.1, C22.2, C22.3, C22.4, C22.7, C22.8, C22.9, C23, C24.0, C24.1, C24.8, C24.9, C25.0, C25.1, C25.2, C25.3, C25.4, C25.7, C25.8, C25.9, C26.0, C26.1, C26.9, D13.0, D13.1, D13.2, D13.30, D13.39, D13.4, D13.5, D13.6, D13.7, D13.9, K80.01, K80.11, K80.13, K80.19, K80.21, K80.31, K80.33, K80.35, K80.37, K80.41, K80.43, K80.45, K80.47. K80.51, K80.61, K80.63, K80.65, K80.67, K80.71, K80.81, K82.0, K82.8, K82.9, K83.0, K83.1, K83.2, K83.3, K83.4, K83.5, K83.8, K83.9, K85.1, K86.2, K86.3, K86.8, K86.9, K87, M85.80, M85.811, M85.812, M85.821, M85.822, M85.831, M85.832, M85.841, M85.842, M85.851, M85.852, M85.861, M85.862, M85.871, M85.872, M85.88, and M85.89 to Group 1 table with an effective date of 10/01/2015. Removed CAC information. Formatting changes made.
+
+=== version 17, revision history date 2016-10-01 ===
+10/01/2016 Annual review done. Per ICD-10 Code Updates: in Group 1 deleted codes K85.1, K86.8, and K90.4 and added codes K85.10, K85.11, K85.12, K86.81, K86.89, K90.41, and K90.49, effective 10/01/2016.
+
+=== version 20, revision history date 2017-09-01 ===
+09/01/2017: Added the following codes to Group 1 for 82306: B38.0-B38.89, B39.0-B39.5, C82.00-C82.99, J63.2, M80.00XA-M80.88XS, Z68.30-Z68.45, and Z98.0. Added “obesity” to the list of indications for the measurement of vitamin D levels in the narrative section. At this time 21st Century Cures Act will apply to new and revised LCDs that restrict coverage which requires comment and notice. This revision is not a restriction to the coverage determination; and, therefore not all the fields included on the LCD are applicable as noted in this policy.
+
+=== version 22, revision history date 2017-10-01 ===
+10/01/2017 Annual review done 09/02/2017. Per ICD-10 code updates: To Group 1 description changes to codes M33.01, M33.02, M33.09, M33.11, M33.12, and M33.19; and added codes M3303, M33.13, and M33.93.
+
+=== version 25, revision history date 2018-10-01 ===
+10/01/2018 Annual review done 08/31/2018. ICD-10 code updates: description change to code Z68.43; deleted codes K83.0 and M79.1; and added codes K82.A1, K82.A2, K83.01, K83.09, M79.10, M79.11, M79.12, and M79.18.
+
+=== version 27, revision history date 2019-10-01 ===
+09/26/2019: Group 1 Codes: removed Z68.30-Z68.45 from code range and listed individually. ICD-10 CM code annual update in Group 1 Codes: Z68.43 description change. Review completed 09/03/2019.
+
+=== version 30, revision history date 2019-10-31 ===
+10/31/2019 Change Request 10901 Local Coverage Determinations (LCDs): it will no longer be appropriate to include Current Procedure Terminology (CPT)/Health Care Procedure Coding System (HCPCS) codes or International Classification of Diseases Tenth Revision-Clinical Modification (ICD-10-CM) codes in the LCDs. All CPT/HCPCS, ICD-10 codes, and Billing and Coding Guidelines have been removed from this LCD and placed in Billing and Coding: Vitamin D Assay Testing linked to this LCD. Consistent with Change Request 10901 language from IOMs and/or regulations has been removed and the applicable manual/regulation has been referenced.
+
+=== version 32, revision history date 2021-10-01 ===
+09/30/2021 Review completed 09/03/2021. Grammar and punctuation corrections made throughout the LCD. Relocated references listed under “Sources of Information” to “Bibliography”, and AMA formatting corrections made.
+
+=== version 34, revision history date 2023-10-01 ===
+Posted 09/28/2023: Review completed 08/22/2023 with no change in coverage. No changes were made to the LCD.
+
+=== version 36, revision history date 2025-08-28 ===
+Posted 08/28/2025: Biennial review completed 07/15/2025. Minor grammatical changes were made with no changes to coverage.
+

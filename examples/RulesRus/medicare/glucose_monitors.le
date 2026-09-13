@@ -71,6 +71,11 @@ the target language is: prolog.
 the templates are:
     % the record
     *a beneficiary* is currently being treated with insulin; undefined.
+    *a beneficiary* is treated with *a number* daily administrations of insulin; undefined.
+    *a beneficiary* uses an insulin infusion pump; undefined.
+    *a beneficiary* tests blood glucose *a number* times per day; undefined.
+    *a beneficiary* is on an intensive insulin regimen.
+    *a beneficiary* meets the CGM criteria of July 2021 for *an item*.
     *a number* level two hypoglycemic events are documented for *a beneficiary*; undefined.
     *a number* medication adjustments before the most recent level two event are documented for *a beneficiary*; undefined.
     *a number* level three hypoglycemic events are documented for *a beneficiary*; undefined.
@@ -120,6 +125,8 @@ the knowledge base glucose monitors includes:
 
 LCD L33822 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33822".
 the text of LCD L33822 is at "sources/lcd/L33822.txt".
+LCD L33822 revision history is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33822".
+the text of LCD L33822 revision history is at "sources/history/L33822.txt".
 Policy Article A52464 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52464".
 the text of Policy Article A52464 is at "sources/article/A52464.txt".
 NCD 40 2 is published at "https://www.cms.gov/medicare-coverage-database/view/ncd.aspx?ncdid=217".
@@ -376,9 +383,65 @@ rule glucose_cgm with provenance LCD L33822,
 a claim is reasonable and necessary
     if the claim is for an item
     and the item is a continuous glucose monitor
+    and it is not the case that
+        the claim was served before 2023-04-16
     and the item is furnished to a beneficiary
     and the beneficiary meets the initial CGM coverage criteria for the item
     and the CGM continued coverage criterion is met for the claim.
+
+% Versions. The criteria above are those of 16 April 2023 (version 55). A
+% claim served earlier is judged by the version then in effect, which the
+% revision history quotes: from 18 July 2021, insulin three or more times a
+% day or by pump, and a regimen the beneficiary adjusts frequently on the
+% testing results (no training criterion, no hypoglycemia route); before 18
+% July 2021, also blood glucose testing four or more times a day.
+rule glucose_cgm_2021 with provenance LCD L33822 revision history,
+        confer "Removed: “The beneficiary is insulin-treated with multiple (three or more) daily administrations of insulin or a continuous subcutaneous insulin infusion (CSII) pump” from CGM coverage criteria":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a continuous glucose monitor
+    and the claim was served before 2023-04-16
+    and it is not the case that
+        the claim was served before 2021-07-18
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the CGM criteria of July 2021 for the item
+    and the CGM continued coverage criterion is met for the claim.
+
+rule glucose_cgm_2017 with provenance LCD L33822 revision history,
+        confer "Removed: Four times or more per day testing with blood glucose monitor as prerequisite for CGM coverage":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a continuous glucose monitor
+    and the claim was served before 2021-07-18
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the CGM criteria of July 2021 for the item
+    and the beneficiary tests blood glucose a number times per day
+    and the number >= 4
+    and the CGM continued coverage criterion is met for the claim.
+
+rule glucose_cgm_criteria_2021 with provenance LCD L33822 revision history,
+        confer "Removed: “The beneficiary’s insulin treatment regimen requires frequent adjustment by the beneficiary on the basis of BGM or CGM testing results” from CGM coverage criteria":
+a beneficiary meets the CGM criteria of July 2021 for an item
+    if the beneficiary has a covered diabetes diagnosis
+    and the beneficiary is on an intensive insulin regimen
+    and the finding insulin regimen requires frequent self adjustment about the beneficiary is established
+    and the item is prescribed in accordance with its FDA indications for use
+    and the order for the item is dated a date
+    and the treating practitioner had an in-person or telehealth visit with the beneficiary to evaluate diabetes control on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 183.
+
+rule glucose_intensive_administrations with provenance LCD L33822 revision history,
+        confer "Removed: “with multiple (three or more) daily administrations of insulin or a continuous subcutaneous insulin infusion (CSII) pump” from CGM coverage criterion pertaining to beneficiary being insulin-treated":
+a beneficiary is on an intensive insulin regimen
+    if the beneficiary is treated with a number daily administrations of insulin
+    and the number >= 3.
+
+rule glucose_intensive_pump with provenance LCD L33822 revision history,
+        confer "Removed: “with multiple (three or more) daily administrations of insulin or a continuous subcutaneous insulin infusion (CSII) pump” from CGM coverage criterion pertaining to beneficiary being insulin-treated":
+a beneficiary is on an intensive insulin regimen
+    if the beneficiary uses an insulin infusion pump.
 
 rule glucose_cgm_supply with provenance LCD L33822,
         confer "When a CGM (code E2102 or E2103) is covered, the related supply allowance (code A4238 or A4239) is also covered":
