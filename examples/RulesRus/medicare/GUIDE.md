@@ -110,6 +110,10 @@ first (so `stage` reads its checklist).
   excess quantity explained about the beneficiary is established.` Use it
   for "a finding only when the record's own facts do not already decide"
   (an excess quantity, a judgment behind a measurable criterion).
+- **No negative literals.** `the number >= -2` and a scenario fact `...
+  initiated -1 hours after ...` do not parse as numbers; the rule silently
+  fails. Give the record two templates (`N hours before`, `N hours after`)
+  or shift through `is` (`a shift is the number + 2`).
 - **Arithmetic** goes through `is`: `and a limit is the quantity * 3 and the
   billed number <= the limit`. A comparison does not evaluate an
   expression (`the number <= the quantity * 3` compares terms and passes).

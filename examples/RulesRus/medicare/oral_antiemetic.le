@@ -1,0 +1,315 @@
+% Oral Antiemetic Drugs (Replacement for Intravenous Antiemetics): LCD
+% L33827 and its Policy Article A52480 (DME MACs). A policy program of the
+% DMEPOS model: it includes dmepos.le (orders, delivery, benefit category,
+% continued need, refills) and states when a claim for an oral antiemetic
+% drug (the single drugs Q0155-Q0181, the NK-1 antagonists aprepitant J8501
+% and rolapitant J8670, netupitant/palonosetron J8655, dexamethasone J8540)
+% is REASONABLE AND NECESSARY: the statutory criteria 1-4 of the Policy
+% Article (FDA-approved as an antiemetic, ordered as part of a cancer
+% chemotherapy regimen, a full therapeutic replacement for an intravenous
+% antiemetic — which an oral chemotherapy or one infused at home does not
+% call for —, initiated within two hours of the chemotherapeutic agent and
+% continued for at most 48 hours, 24 for granisetron and dolasetron), a
+% cancer diagnosis of the article's ICD-10 list, and for the three-drug
+% regimen (an NK-1 antagonist, a 5HT3 antagonist and dexamethasone, or
+% netupitant/palonosetron with dexamethasone) the chemotherapeutic agents
+% the LCD lists. An NK-1 antagonist or dexamethasone outside the three-drug
+% regimen is not covered: no rule concludes it.
+%
+% How the criteria are read. The chemotherapy (its agent, its route, its
+% setting), the order, the FDA approval, the hours of initiation and of
+% therapy are record facts; the diagnosis is a code of the article's table
+% (sources/icd10/A52480_icd10_covered.csv, group 1, the cancer diagnoses,
+% serving every code of this policy). The finding this policy reads
+% (dmepos.le's judged template), and the criterion it stands for:
+%   full replacement for intravenous antiemetic (criterion 3: "The drug is
+%   used as a full therapeutic replacement for an intravenous antiemetic
+%   drug that would otherwise have been administered at the time of the
+%   chemotherapy treatment").
+% "Within two hours of the administration" is read as an initiation between
+% two hours before and two hours after it. Not modelled: the licensing of
+% the dispensing entity, the supply fees Q0511 and Q0512, the older codes of
+% netupitant/palonosetron and rolapitant (Q9978, Q9981), the loading-dose
+% quantities, the Q0181 narrative, the modifiers.
+%
+% The payment conditions the policy adds (LCD L33827 "Refill requirements",
+% Policy Article A52480 "Policy specific documentation requirements"): no
+% more than a one-month quantity dispensed at a time; the drugs of a
+% three-drug regimen billed on the same claim; and an NK-1 antagonist claim
+% carrying a diagnosis code of an encounter for antineoplastic chemotherapy.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *an item* is approved by the FDA for use as an antiemetic; undefined.
+    *an item* was ordered by the treating practitioner as part of the cancer chemotherapy regimen of *a beneficiary*; undefined.
+    the chemotherapeutic agent of *a beneficiary* is *an agent*; undefined.
+    the chemotherapy of *a beneficiary* is administered by *a route*; undefined.
+    the chemotherapy of *a beneficiary* is administered in *a setting*; undefined.
+    *an item* was initiated *a number* hours after the administration of the chemotherapeutic agent; undefined.
+    *an item* was initiated *a number* hours before the administration of the chemotherapeutic agent; undefined.
+    *an item* was initiated within two hours of the administration of the chemotherapeutic agent.
+    *an item* is continued for *a number* hours; undefined.
+    *an item* is billed on the same claim as the other drugs of its regimen; undefined.
+    the claim for *an item* carries a diagnosis code of an encounter for antineoplastic chemotherapy; undefined.
+    % the table
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table antiemetic_icd10.
+    % derived
+    *an item* is an oral antiemetic drug.
+    *an item* is a single oral antiemetic drug.
+    *an item* is an NK1 antagonist.
+    *an item* is a 5HT3 antagonist.
+    *an item* is dexamethasone.
+    *an item* is netupitant palonosetron.
+    *an item* is a three drug regimen antiemetic.
+    *an item* meets the statutory antiemetic criteria for *a beneficiary*.
+    the chemotherapy of *a beneficiary* calls for intravenous antiemetics.
+    *an item* is part of a covered three drug regimen for *a beneficiary*.
+    *a beneficiary* receives a qualifying chemotherapeutic agent.
+    the duration of *an item* is within the covered period.
+    *a beneficiary* has a covered cancer diagnosis.
+    the regimen billing requirements are met for *a claim*.
+    *a claim* is within the one month dispensing limit of the antiemetic policy.
+
+% The Policy Article's ICD-10 table: group 1, the cancer diagnoses, serving
+% every code of this policy.
+the table antiemetic_icd10 is loaded from sources/icd10/A52480_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base oral_antiemetic includes these resources:
+    dmepos.
+
+the knowledge base oral_antiemetic includes:
+
+LCD L33827 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33827".
+the text of LCD L33827 is at "sources/lcd/L33827.txt".
+Policy Article A52480 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52480".
+the text of Policy Article A52480 is at "sources/article/A52480.txt".
+
+% What the items are, by code.
+rule antiemetic_single with provenance Policy Article A52480,
+        confer "An oral antiemetic drug (J8670, Q0155, Q0161, Q0162, Q0163, Q0164, Q0166, Q0167, Q0169, Q0173, Q0175, Q0177, Q0180, Q0181) is covered if all of the following criteria (1-4) are met":
+an item is a single oral antiemetic drug
+    if the HCPCS code of the item is a code
+    and the code is in ["Q0155", "Q0161", "Q0162", "Q0163", "Q0164", "Q0166", "Q0167", "Q0169", "Q0173", "Q0175", "Q0177", "Q0180", "Q0181"].
+
+rule antiemetic_nk1 with provenance Policy Article A52480,
+        confer "There are three NK-1 antagonists approved for this use, Aprepitant (J8501), rolapitant (J8670) and netupitant/palonosetron (J8655)":
+an item is an NK1 antagonist
+    if the HCPCS code of the item is a code
+    and the code is in ["J8501", "J8670"].
+
+rule antiemetic_5ht3 with provenance Policy Article A52480,
+        confer "Aprepitant (J8501) or rolapitant (J8670) are covered when given as part of a 3-drug regimen that includes a 5HT3 antagonist (Q0162, Q0166, or Q0180) and dexamethasone (J8540)":
+an item is a 5HT3 antagonist
+    if the HCPCS code of the item is a code
+    and the code is in ["Q0162", "Q0166", "Q0180"].
+
+rule antiemetic_dexamethasone with provenance Policy Article A52480,
+        confer "Netupitant/palonosetron (J8655) is covered when given in conjunction with dexamethasone (J8540)":
+an item is dexamethasone
+    if the HCPCS code of the item is "J8540".
+
+rule antiemetic_netupitant with provenance Policy Article A52480,
+        confer "Netupitant/palonosetron (J8655) is covered when given in conjunction with dexamethasone (J8540)":
+an item is netupitant palonosetron
+    if the HCPCS code of the item is "J8655".
+
+% the drugs covered only within the three-drug regimen
+rule antiemetic_regimen_drug with provenance Policy Article A52480,
+        confer "If the NK-1 antagonist and/or dexamethasone is given as an oral anti-emetic outside of the 3-drug regimen, claims will be denied as statutorily non-covered, no benefit":
+an item is a three drug regimen antiemetic
+    if the HCPCS code of the item is a code
+    and the code is in ["J8501", "J8670", "J8655", "J8540"].
+
+rule antiemetic_drug with provenance Policy Article A52480,
+        confer "Oral Antiemetic Drugs are covered under the Oral Antiemetic Drug benefit":
+an item is an oral antiemetic drug
+    if the HCPCS code of the item is a code
+    and the code is in ["Q0155", "Q0161", "Q0162", "Q0163", "Q0164", "Q0166", "Q0167", "Q0169", "Q0173", "Q0175", "Q0177", "Q0180", "Q0181", "J8501", "J8670", "J8655", "J8540"].
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: the oral antiemetic drug
+% benefit of Social Security Act §1861(s)(2)(T) (Policy Article A52480).
+rule antiemetic_codes with provenance Policy Article A52480,
+        confer "Oral Antiemetic Drugs are covered under the Oral Antiemetic Drug benefit":
+the policy for code a code is oral_antiemetic
+    if the code is in ["Q0155", "Q0161", "Q0162", "Q0163", "Q0164", "Q0166", "Q0167", "Q0169", "Q0173", "Q0175", "Q0177", "Q0180", "Q0181", "J8501", "J8670", "J8655", "J8540"].
+
+rule antiemetic_benefit with provenance Policy Article A52480,
+        confer "Oral Antiemetic Drugs are covered under the Oral Antiemetic Drug benefit":
+the benefit category of code a code is oral antiemetic drug benefit
+    if the policy for code the code is oral_antiemetic.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% A single oral antiemetic: the statutory criteria 1-4, the cancer
+% diagnosis, the covered period.
+% ---------------------------------------------------------------------------
+
+rule antiemetic_single_claim with provenance Policy Article A52480,
+        confer "An oral antiemetic drug (J8670, Q0155, Q0161, Q0162, Q0163, Q0164, Q0166, Q0167, Q0169, Q0173, Q0175, Q0177, Q0180, Q0181) is covered if all of the following criteria (1-4) are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a single oral antiemetic drug
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered cancer diagnosis
+    and the item meets the statutory antiemetic criteria for the beneficiary
+    and the duration of the item is within the covered period.
+
+% The three-drug regimen: the same criteria, the regimen complete, and one
+% of the LCD's chemotherapeutic agents.
+rule antiemetic_regimen_claim with provenance LCD L33827,
+        confer "The use of the oral anti-emetic 3-drug combination of an FDA approved oral NK-1 antagonist in combination with an oral 5HT3 antagonist and dexamethasone (J8540) is covered if, in addition to meeting the statutory coverage criteria specified in the related Policy Article, they are administered to beneficiaries who are receiving one or more of the following anti-cancer chemotherapeutic agents":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a three drug regimen antiemetic
+    and the item is furnished to a beneficiary
+    and the beneficiary has a covered cancer diagnosis
+    and the item meets the statutory antiemetic criteria for the beneficiary
+    and the item is part of a covered three drug regimen for the beneficiary
+    and the beneficiary receives a qualifying chemotherapeutic agent
+    and the duration of the item is within the covered period.
+
+rule antiemetic_criteria with provenance Policy Article A52480,
+        confer "Oral anti-emetic drugs administered with a particular chemotherapy treatment must be initiated within two hours of the administration of the chemotherapeutic agent and may be continued for a period not to exceed 48 hours from that time":
+an item meets the statutory antiemetic criteria for a beneficiary
+    if the item is approved by the FDA for use as an antiemetic
+    and the item was ordered by the treating practitioner as part of the cancer chemotherapy regimen of the beneficiary
+    and the finding full replacement for intravenous antiemetic about the beneficiary is established
+    and the chemotherapy of the beneficiary calls for intravenous antiemetics
+    and the item was initiated within two hours of the administration of the chemotherapeutic agent.
+
+% "within two hours": up to two hours after the chemotherapeutic agent, or
+% up to two hours before it (the record states the one or the other)
+rule antiemetic_within_two_hours_after with provenance Policy Article A52480,
+        confer "must be initiated within two hours of the administration of the chemotherapeutic agent":
+an item was initiated within two hours of the administration of the chemotherapeutic agent
+    if the item was initiated a number hours after the administration of the chemotherapeutic agent
+    and the number <= 2.
+
+rule antiemetic_within_two_hours_before with provenance Policy Article A52480,
+        confer "must be initiated within two hours of the administration of the chemotherapeutic agent":
+an item was initiated within two hours of the administration of the chemotherapeutic agent
+    if the item was initiated a number hours before the administration of the chemotherapeutic agent
+    and the number <= 2.
+
+% Criterion 3 is not met for an oral chemotherapy, nor for one infused in
+% the home.
+rule antiemetic_intravenous_chemotherapy with provenance Policy Article A52480,
+        confer "Criterion 3 is not met when the chemotherapy drug is an oral drug or when the chemotherapy drug is administered intravenously in the home setting because the type and dosage of chemotherapy drugs administered in these situations do not require intravenous antiemetic drugs":
+the chemotherapy of a beneficiary calls for intravenous antiemetics
+    if the chemotherapy of the beneficiary is administered by intravenous infusion
+    and the chemotherapy of the beneficiary is administered in a setting
+    and the setting is different from home.
+
+rule antiemetic_diagnosis with provenance Policy Article A52480,
+        confer "The supplier must enter a diagnosis code corresponding to the beneficiary's cancer diagnosis on each claim":
+a beneficiary has a covered cancer diagnosis
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52480" as a description under table antiemetic_icd10.
+
+% The covered period: 48 hours of therapy, 24 for granisetron and
+% dolasetron.
+rule antiemetic_48_hours with provenance Policy Article A52480,
+        confer "the quantity of oral antiemetic drugs covered for each episode of chemotherapy cannot exceed the initial loading dose plus 48 hours of therapy":
+the duration of an item is within the covered period
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is in ["Q0166", "Q0180"]
+    and the item is continued for a number hours
+    and the number <= 48.
+
+rule antiemetic_24_hours with provenance Policy Article A52480,
+        confer "for the drugs granisetron (Q0166) and dolasetron (Q0180), the quantity of drugs covered for each episode of chemotherapy is limited to the initial loading dose plus 24 hours of therapy":
+the duration of an item is within the covered period
+    if the HCPCS code of the item is a code
+    and the code is in ["Q0166", "Q0180"]
+    and the item is continued for a number hours
+    and the number <= 24.
+
+% The three-drug regimen, seen from each of its drugs.
+rule antiemetic_regimen_nk1 with provenance Policy Article A52480,
+        confer "Aprepitant (J8501) or rolapitant (J8670) are covered when given as part of a 3-drug regimen that includes a 5HT3 antagonist (Q0162, Q0166, or Q0180) and dexamethasone (J8540)":
+an item is part of a covered three drug regimen for a beneficiary
+    if the item is an NK1 antagonist
+    and an other item is furnished to the beneficiary
+    and the other item is a 5HT3 antagonist
+    and a third item is furnished to the beneficiary
+    and the third item is dexamethasone.
+
+rule antiemetic_regimen_netupitant with provenance Policy Article A52480,
+        confer "Netupitant/palonosetron (J8655) is covered when given in conjunction with dexamethasone (J8540). A separate 5HT3 antagonist is not needed":
+an item is part of a covered three drug regimen for a beneficiary
+    if the item is netupitant palonosetron
+    and an other item is furnished to the beneficiary
+    and the other item is dexamethasone.
+
+rule antiemetic_regimen_dexamethasone_nk1 with provenance Policy Article A52480,
+        confer "A 3-drug combination regimen consisting of an NK-1 antagonist, a 5HT3 antagonist and dexamethasone is covered when all of the criteria above (1-4) are met and all 3 drugs are given in combination":
+an item is part of a covered three drug regimen for a beneficiary
+    if the item is dexamethasone
+    and an other item is furnished to the beneficiary
+    and the other item is an NK1 antagonist
+    and a third item is furnished to the beneficiary
+    and the third item is a 5HT3 antagonist.
+
+rule antiemetic_regimen_dexamethasone_netupitant with provenance Policy Article A52480,
+        confer "Netupitant/palonosetron (J8655) is covered when given in conjunction with dexamethasone (J8540)":
+an item is part of a covered three drug regimen for a beneficiary
+    if the item is dexamethasone
+    and an other item is furnished to the beneficiary
+    and the other item is netupitant palonosetron.
+
+rule antiemetic_agents with provenance LCD L33827,
+        confer "Alemtuzumab Azacitidine Bendamustin Carboplatin Carmustine Cisplatin Clofarabine Cyclophosphamide Cytarabine Dacarbazine Daunorubicin Doxorubicin Epirubicin Idarubicin Ifosfamide Irinotecan Lomustine Mechlorethamine Oxaliplatin Streptozocin":
+a beneficiary receives a qualifying chemotherapeutic agent
+    if the chemotherapeutic agent of the beneficiary is an agent
+    and the agent is in [alemtuzumab, azacitidine, bendamustine, carboplatin, carmustine, cisplatin, clofarabine, cyclophosphamide, cytarabine, dacarbazine, daunorubicin, doxorubicin, epirubicin, idarubicin, ifosfamide, irinotecan, lomustine, mechlorethamine, oxaliplatin, streptozocin].
+
+section remedy is:
+
+% The policy's own conditions of payment: at most a one-month quantity at a
+% time, and the billing of a three-drug regimen (the drugs on one claim, the
+% NK-1 antagonist with the chemotherapy encounter code).
+rule antiemetic_documentation with provenance LCD L33827,
+        confer "Regardless of utilization, a supplier must not dispense more than a one (1) - month quantity at a time":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is oral_antiemetic
+    and the claim is within the one month dispensing limit of the antiemetic policy
+    and the regimen billing requirements are met for the claim.
+
+rule antiemetic_one_month with provenance LCD L33827,
+        confer "Regardless of utilization, a supplier must not dispense more than a one (1) - month quantity at a time":
+a claim is within the one month dispensing limit of the antiemetic policy
+    if the claim is for a supply of a number months
+    and the number <= 1.
+
+rule antiemetic_regimen_billing with provenance Policy Article A52480,
+        confer "claims for oral aprepitant (J8501), rolapitant (J8670) or netupitant/palonosetron (J8655) must also be accompanied with a diagnosis code of an encounter for antineoplastic chemotherapy":
+the regimen billing requirements are met for a claim
+    if the claim is for an item
+    and the item is a three drug regimen antiemetic
+    and the item is billed on the same claim as the other drugs of its regimen
+    and the claim for the item carries a diagnosis code of an encounter for antineoplastic chemotherapy.
+
+% dexamethasone needs no encounter code of its own, only the same claim
+rule antiemetic_dexamethasone_billing with provenance Policy Article A52480,
+        confer "Aprepitant (J8501) or rolapitant (J8670) used with a separate 5HT3 antagonist (Q0162, Q0166 or Q0180) and dexamethasone (J8540) must be billed on the same claim":
+the regimen billing requirements are met for a claim
+    if the claim is for an item
+    and the item is dexamethasone
+    and it is not the case that
+        the item is an NK1 antagonist
+    and it is not the case that
+        the item is netupitant palonosetron
+    and the item is billed on the same claim as the other drugs of its regimen.
+
+% a single drug has no regimen to bill — a device of this model
+rule antiemetic_single_billing:
+the regimen billing requirements are met for a claim
+    if the claim is for an item
+    and the item is a single oral antiemetic drug.

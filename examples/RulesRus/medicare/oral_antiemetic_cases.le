@@ -1,0 +1,345 @@
+% Test cases for the oral antiemetic drugs policy (oral_antiemetic.le):
+% synthetic claims, one or two per criterion of Policy Article A52480 and of
+% LCD L33827, each stating only what its record shows. The diagnosis is a
+% code of the article's ICD-10 table. The queries: whether the claim is
+% payable (the first query, so "stage" reads its checklist), whether it is
+% reasonable and necessary, and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base oral antiemetic cases includes these resources:
+    oral_antiemetic.
+
+the knowledge base oral antiemetic cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for ondansetron (Q0162) replacing the intravenous
+% antiemetic of a carboplatin infusion given in an outpatient clinic to a
+% beneficiary with breast cancer (C50.911): started with the infusion,
+% continued 48 hours; every criterion and every documentation requirement
+% in the record.
+scenario ondansetron_complete is:
+    claim 1 is for the ondansetron.
+    the HCPCS code of the ondansetron is "Q0162".
+    the ondansetron is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ann is "C50.911".
+    the ondansetron is approved by the FDA for use as an antiemetic.
+    the ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Ann.
+    the finding full replacement for intravenous antiemetic about Ann is established, according to the treating practitioner, because "ondansetron 8 mg orally replaces the 8 mg intravenous dose of the carboplatin protocol".
+    the chemotherapeutic agent of Ann is carboplatin.
+    the chemotherapy of Ann is administered by intravenous infusion.
+    the chemotherapy of Ann is administered in outpatient clinic.
+    the ondansetron was initiated 0 hours after the administration of the chemotherapeutic agent.
+    the ondansetron is continued for 48 hours.
+    the order for the ondansetron is dated 2026-02-20.
+    the order for the ondansetron is signed by the treating practitioner.
+    the order for the ondansetron includes beneficiary name.
+    the order for the ondansetron includes order date.
+    the order for the ondansetron includes description of the item.
+    the order for the ondansetron includes quantity to be dispensed.
+    the order for the ondansetron includes treating practitioner name.
+    the order for the ondansetron was communicated to the supplier on 2026-02-22.
+    the ondansetron was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the ondansetron.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Criterion 3: Ben's chemotherapy is an oral drug, Cy's is infused at home
+% — neither calls for intravenous antiemetics.
+scenario oral_or_home_chemotherapy is:
+    claim 1 is for the ondansetron.
+    the HCPCS code of the ondansetron is "Q0162".
+    the ondansetron is furnished to Ben.
+    the residence of Ben is private residence.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ben is "C50.911".
+    the ondansetron is approved by the FDA for use as an antiemetic.
+    the ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Ben.
+    the finding full replacement for intravenous antiemetic about Ben is established, according to the treating practitioner.
+    the chemotherapy of Ben is administered by mouth.
+    the chemotherapy of Ben is administered in outpatient clinic.
+    the ondansetron was initiated 0 hours after the administration of the chemotherapeutic agent.
+    the ondansetron is continued for 48 hours.
+    claim 2 is for the other ondansetron.
+    the HCPCS code of the other ondansetron is "Q0162".
+    the other ondansetron is furnished to Cy.
+    claim 2 is for a supply of 1 months.
+    the diagnosis code of Cy is "C50.911".
+    the other ondansetron is approved by the FDA for use as an antiemetic.
+    the other ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Cy.
+    the finding full replacement for intravenous antiemetic about Cy is established, according to the treating practitioner.
+    the chemotherapy of Cy is administered by intravenous infusion.
+    the chemotherapy of Cy is administered in home.
+    the other ondansetron was initiated 0 hours after the administration of the chemotherapeutic agent.
+    the other ondansetron is continued for 48 hours.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% Timing and duration. Dee's granisetron (Q0166) continued 48 hours is over
+% its 24-hour period; Eve's, 24 hours, is within it; Fay's ondansetron
+% started 5 hours after the infusion fails the two-hour window.
+scenario timing_and_duration is:
+    claim 1 is for the granisetron.
+    the HCPCS code of the granisetron is "Q0166".
+    the granisetron is furnished to Dee.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Dee is "C61".
+    the granisetron is approved by the FDA for use as an antiemetic.
+    the granisetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Dee.
+    the finding full replacement for intravenous antiemetic about Dee is established, according to the treating practitioner.
+    the chemotherapy of Dee is administered by intravenous infusion.
+    the chemotherapy of Dee is administered in outpatient clinic.
+    the granisetron was initiated 1 hours after the administration of the chemotherapeutic agent.
+    the granisetron is continued for 48 hours.
+    claim 2 is for the other granisetron.
+    the HCPCS code of the other granisetron is "Q0166".
+    the other granisetron is furnished to Eve.
+    claim 2 is for a supply of 1 months.
+    the diagnosis code of Eve is "C61".
+    the other granisetron is approved by the FDA for use as an antiemetic.
+    the other granisetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Eve.
+    the finding full replacement for intravenous antiemetic about Eve is established, according to the treating practitioner.
+    the chemotherapy of Eve is administered by intravenous infusion.
+    the chemotherapy of Eve is administered in outpatient clinic.
+    the other granisetron was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the other granisetron is continued for 24 hours.
+    claim 3 is for the late ondansetron.
+    the HCPCS code of the late ondansetron is "Q0162".
+    the late ondansetron is furnished to Fay.
+    claim 3 is for a supply of 1 months.
+    the diagnosis code of Fay is "C61".
+    the late ondansetron is approved by the FDA for use as an antiemetic.
+    the late ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Fay.
+    the finding full replacement for intravenous antiemetic about Fay is established, according to the treating practitioner.
+    the chemotherapy of Fay is administered by intravenous infusion.
+    the chemotherapy of Fay is administered in outpatient clinic.
+    the late ondansetron was initiated 5 hours after the administration of the chemotherapeutic agent.
+    the late ondansetron is continued for 48 hours.
+    rn expects answers ["claim 2 is reasonable and necessary"].
+
+% The three-drug regimen with cisplatin: aprepitant (J8501), ondansetron
+% (Q0162) and dexamethasone (J8540) are all reasonable and necessary for
+% Gus. Hal receives the same three drugs with paclitaxel, an agent the LCD
+% does not list: only his ondansetron is.
+scenario three_drug_regimen is:
+    claim 1 is for the aprepitant.
+    the HCPCS code of the aprepitant is "J8501".
+    the aprepitant is furnished to Gus.
+    claim 1 is for a supply of 1 months.
+    claim 2 is for the ondansetron.
+    the HCPCS code of the ondansetron is "Q0162".
+    the ondansetron is furnished to Gus.
+    claim 2 is for a supply of 1 months.
+    claim 3 is for the dexamethasone.
+    the HCPCS code of the dexamethasone is "J8540".
+    the dexamethasone is furnished to Gus.
+    claim 3 is for a supply of 1 months.
+    the diagnosis code of Gus is "C61".
+    the aprepitant is approved by the FDA for use as an antiemetic.
+    the ondansetron is approved by the FDA for use as an antiemetic.
+    the dexamethasone is approved by the FDA for use as an antiemetic.
+    the aprepitant was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Gus.
+    the ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Gus.
+    the dexamethasone was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Gus.
+    the finding full replacement for intravenous antiemetic about Gus is established, according to the treating practitioner.
+    the chemotherapeutic agent of Gus is cisplatin.
+    the chemotherapy of Gus is administered by intravenous infusion.
+    the chemotherapy of Gus is administered in outpatient clinic.
+    the aprepitant was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the ondansetron was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the dexamethasone was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the aprepitant is continued for 48 hours.
+    the ondansetron is continued for 48 hours.
+    the dexamethasone is continued for 48 hours.
+    claim 4 is for the other aprepitant.
+    the HCPCS code of the other aprepitant is "J8501".
+    the other aprepitant is furnished to Hal.
+    claim 4 is for a supply of 1 months.
+    claim 5 is for the other ondansetron.
+    the HCPCS code of the other ondansetron is "Q0162".
+    the other ondansetron is furnished to Hal.
+    claim 5 is for a supply of 1 months.
+    claim 6 is for the other dexamethasone.
+    the HCPCS code of the other dexamethasone is "J8540".
+    the other dexamethasone is furnished to Hal.
+    claim 6 is for a supply of 1 months.
+    the diagnosis code of Hal is "C61".
+    the other aprepitant is approved by the FDA for use as an antiemetic.
+    the other ondansetron is approved by the FDA for use as an antiemetic.
+    the other dexamethasone is approved by the FDA for use as an antiemetic.
+    the other aprepitant was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Hal.
+    the other ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Hal.
+    the other dexamethasone was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Hal.
+    the finding full replacement for intravenous antiemetic about Hal is established, according to the treating practitioner.
+    the chemotherapeutic agent of Hal is paclitaxel.
+    the chemotherapy of Hal is administered by intravenous infusion.
+    the chemotherapy of Hal is administered in outpatient clinic.
+    the other aprepitant was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the other ondansetron was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the other dexamethasone was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the other aprepitant is continued for 48 hours.
+    the other ondansetron is continued for 48 hours.
+    the other dexamethasone is continued for 48 hours.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary", "claim 3 is reasonable and necessary", "claim 5 is reasonable and necessary"].
+
+% Netupitant/palonosetron (J8655) with dexamethasone and oxaliplatin: both
+% covered without a separate 5HT3 antagonist; Jon's dexamethasone alone,
+% with no NK-1 antagonist, is not.
+scenario netupitant_regimen is:
+    claim 1 is for the netupitant.
+    the HCPCS code of the netupitant is "J8655".
+    the netupitant is furnished to Ivy.
+    claim 1 is for a supply of 1 months.
+    claim 2 is for the dexamethasone.
+    the HCPCS code of the dexamethasone is "J8540".
+    the dexamethasone is furnished to Ivy.
+    claim 2 is for a supply of 1 months.
+    the diagnosis code of Ivy is "C50.911".
+    the netupitant is approved by the FDA for use as an antiemetic.
+    the dexamethasone is approved by the FDA for use as an antiemetic.
+    the netupitant was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Ivy.
+    the dexamethasone was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Ivy.
+    the finding full replacement for intravenous antiemetic about Ivy is established, according to the treating practitioner.
+    the chemotherapeutic agent of Ivy is oxaliplatin.
+    the chemotherapy of Ivy is administered by intravenous infusion.
+    the chemotherapy of Ivy is administered in outpatient clinic.
+    the netupitant was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the dexamethasone was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the netupitant is continued for 48 hours.
+    the dexamethasone is continued for 48 hours.
+    claim 3 is for the lone dexamethasone.
+    the HCPCS code of the lone dexamethasone is "J8540".
+    the lone dexamethasone is furnished to Jon.
+    claim 3 is for a supply of 1 months.
+    the diagnosis code of Jon is "C50.911".
+    the lone dexamethasone is approved by the FDA for use as an antiemetic.
+    the lone dexamethasone was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Jon.
+    the finding full replacement for intravenous antiemetic about Jon is established, according to the treating practitioner.
+    the chemotherapeutic agent of Jon is oxaliplatin.
+    the chemotherapy of Jon is administered by intravenous infusion.
+    the chemotherapy of Jon is administered in outpatient clinic.
+    the lone dexamethasone was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the lone dexamethasone is continued for 48 hours.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+
+% A refill of the ondansetron for the next cycle, affirmed four days before
+% the current supply ends and delivered on the day it ends, with continued
+% need and use in the record: payable.
+scenario ondansetron_refill is:
+    claim 1 is for the ondansetron.
+    the HCPCS code of the ondansetron is "Q0162".
+    the ondansetron is furnished to Ann.
+    the residence of Ann is private residence.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-03-22.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Ann is "C50.911".
+    the ondansetron is approved by the FDA for use as an antiemetic.
+    the ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Ann.
+    the finding full replacement for intravenous antiemetic about Ann is established, according to the treating practitioner.
+    the chemotherapeutic agent of Ann is carboplatin.
+    the chemotherapy of Ann is administered by intravenous infusion.
+    the chemotherapy of Ann is administered in outpatient clinic.
+    the ondansetron was initiated 0 hours after the administration of the chemotherapeutic agent.
+    the ondansetron is continued for 48 hours.
+    the current supply of the ondansetron is expected to end on 2026-03-22.
+    the beneficiary affirmed the need for the refill of the ondansetron on 2026-03-18.
+    the medical record documents continued need for the ondansetron on 2026-03-15.
+    the record documents continued use of the ondansetron on 2026-03-15.
+    the order for the ondansetron is dated 2026-02-20.
+    the order for the ondansetron is signed by the treating practitioner.
+    the order for the ondansetron includes beneficiary name.
+    the order for the ondansetron includes order date.
+    the order for the ondansetron includes description of the item.
+    the order for the ondansetron includes quantity to be dispensed.
+    the order for the ondansetron includes treating practitioner name.
+    the order for the ondansetron was communicated to the supplier on 2026-02-22.
+    the ondansetron was delivered on 2026-03-22.
+    the supplier holds proof of delivery for the ondansetron.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Aprepitant of a complete cisplatin regimen billed on the same claim as the
+% other drugs, but without the diagnosis code of the chemotherapy encounter:
+% reasonable and necessary, payable fails at the remedy.
+scenario aprepitant_without_encounter_code is:
+    claim 1 is for the aprepitant.
+    the HCPCS code of the aprepitant is "J8501".
+    the aprepitant is furnished to Gus.
+    the residence of Gus is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the aprepitant is billed on the same claim as the other drugs of its regimen.
+    the HCPCS code of the ondansetron is "Q0162".
+    the ondansetron is furnished to Gus.
+    the HCPCS code of the dexamethasone is "J8540".
+    the dexamethasone is furnished to Gus.
+    the diagnosis code of Gus is "C61".
+    the aprepitant is approved by the FDA for use as an antiemetic.
+    the aprepitant was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Gus.
+    the finding full replacement for intravenous antiemetic about Gus is established, according to the treating practitioner.
+    the chemotherapeutic agent of Gus is cisplatin.
+    the chemotherapy of Gus is administered by intravenous infusion.
+    the chemotherapy of Gus is administered in outpatient clinic.
+    the aprepitant was initiated 1 hours before the administration of the chemotherapeutic agent.
+    the aprepitant is continued for 48 hours.
+    the order for the aprepitant is dated 2026-02-20.
+    the order for the aprepitant is signed by the treating practitioner.
+    the order for the aprepitant includes beneficiary name.
+    the order for the aprepitant includes order date.
+    the order for the aprepitant includes description of the item.
+    the order for the aprepitant includes quantity to be dispensed.
+    the order for the aprepitant includes treating practitioner name.
+    the order for the aprepitant was communicated to the supplier on 2026-02-22.
+    the aprepitant was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the aprepitant.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the claim for the aprepitant carries a diagnosis code of an encounter for antineoplastic chemotherapy"]].
+
+% The replacement finding. Kim: the Council finds it unsupported (the
+% protocol used no intravenous antiemetic) — not reasonable and necessary.
+% Lee: nobody has made the finding — the answer is conditional on it.
+scenario replacement_findings is:
+    claim 1 is for the ondansetron.
+    the HCPCS code of the ondansetron is "Q0162".
+    the ondansetron is furnished to Kim.
+    claim 1 is for a supply of 1 months.
+    the diagnosis code of Kim is "C50.911".
+    the ondansetron is approved by the FDA for use as an antiemetic.
+    the ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Kim.
+    the finding full replacement for intravenous antiemetic about Kim is unsupported, according to the Council, because "the chemotherapy protocol in the record calls for no intravenous antiemetic that the oral drug could replace".
+    the chemotherapy of Kim is administered by intravenous infusion.
+    the chemotherapy of Kim is administered in outpatient clinic.
+    the ondansetron was initiated 0 hours after the administration of the chemotherapeutic agent.
+    the ondansetron is continued for 48 hours.
+    claim 2 is for the other ondansetron.
+    the HCPCS code of the other ondansetron is "Q0162".
+    the other ondansetron is furnished to Lee.
+    claim 2 is for a supply of 1 months.
+    the diagnosis code of Lee is "C50.911".
+    the other ondansetron is approved by the FDA for use as an antiemetic.
+    the other ondansetron was ordered by the treating practitioner as part of the cancer chemotherapy regimen of Lee.
+    the chemotherapy of Lee is administered by intravenous infusion.
+    the chemotherapy of Lee is administered in outpatient clinic.
+    the other ondansetron was initiated 0 hours after the administration of the chemotherapeutic agent.
+    the other ondansetron is continued for 48 hours.
+    rn expects answers ["claim 2 is reasonable and necessary"] and unknowns ["the finding full replacement for intravenous antiemetic about Lee is established"].
