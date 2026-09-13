@@ -147,8 +147,8 @@ the weight range of class very heavy duty is 428 to 600 pounds,
 the weight range of class extra heavy duty is 570 to 10000 pounds,
     as stated in LCD L33789, confer "an Extra Heavy Duty PWC is covered for a beneficiary weighing 570 pounds or more".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 rule pmd_codes with provenance Policy Article A52498,
         confer "Power mobility devices are covered under the Durable Medical Equipment benefit":
 the policy for code a code is pmd
@@ -156,6 +156,8 @@ the policy for code a code is pmd
 
 the policy for code "E0986" is pmd,
     as stated in LCD L33789, confer "A power assist system (E0986) for a manual wheelchair is covered if all of the following criteria are met".
+
+section applicability is:
 
 rule pmd_benefit with provenance Policy Article A52498,
         confer "Power mobility devices are covered under the Durable Medical Equipment benefit":

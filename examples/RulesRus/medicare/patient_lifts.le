@@ -87,16 +87,18 @@ an item is a multi-positional patient transfer system
 lift code "E0625" is noncovered as not primarily medical in nature,
     as stated in Policy Article A52516, confer "E0625 is non-covered; not primarily medical in nature".
 
-section applicability is:
-
-patient_lifts has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the lifts, the transfer systems, the
 % replacement sling or seat, the toilet or tub lift.
 rule patient_lifts_codes with provenance Policy Article A52516,
         confer "Patient lifts are covered under the Durable Medical Equipment benefit":
 the policy for code a code is patient_lifts
     if the code is in ["E0621", "E0625", "E0630", "E0635", "E0636", "E0639", "E0640", "E1035", "E1036"].
+
+section applicability is:
+
+patient_lifts has no specific documentation requirements.
 
 % Their benefit: durable medical equipment, except the toilet or tub lift.
 rule patient_lifts_benefit with provenance Policy Article A52516,

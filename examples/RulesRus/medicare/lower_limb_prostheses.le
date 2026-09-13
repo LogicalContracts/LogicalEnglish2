@@ -279,8 +279,8 @@ comorbidity of the sound limb affecting hip extension is a comorbidity qualifyin
 comorbidity of the sound limb affecting quadriceps function is a comorbidity qualifying for a powered knee assist,
     as stated in LCD L33787, confer "Has a documented comorbidity of the spine and/or sound limb affecting hip extension and/or quadriceps function that impairs K3 level function with the use of a microprocessor-controlled knee alone".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the prostheses, the components with a
 % functional level, L5859, the never-covered L5969 and L5990, the donning
 % sleeve the Article denies.
@@ -288,6 +288,8 @@ rule llp_codes with provenance Policy Article A52496,
         confer "Lower limb prostheses are covered under the Medicare Artificial Legs, Arms and Eyes benefit (Social Security Act §1861(s)(9))":
 the policy for code a code is lower_limb_prostheses
     if the code is in ["L5000", "L5010", "L5020", "L5100", "L5105", "L5150", "L5160", "L5200", "L5250", "L5270", "L5280", "L5301", "L5312", "L5321", "L5331", "L5341", "L5400", "L5410", "L5420", "L5430", "L5450", "L5460", "L5500", "L5505", "L5510", "L5520", "L5530", "L5535", "L5540", "L5560", "L5570", "L5580", "L5585", "L5590", "L5595", "L5600", "L5610", "L5611", "L5613", "L5614", "L5615", "L5616", "L5710", "L5711", "L5712", "L5714", "L5716", "L5718", "L5722", "L5724", "L5726", "L5728", "L5780", "L5810", "L5811", "L5812", "L5814", "L5816", "L5818", "L5822", "L5824", "L5826", "L5828", "L5830", "L5840", "L5841", "L5848", "L5856", "L5857", "L5858", "L5859", "L5930", "L5961", "L5969", "L5970", "L5972", "L5973", "L5974", "L5976", "L5978", "L5979", "L5980", "L5981", "L5982", "L5984", "L5985", "L5986", "L5987", "L5990", "L7600"].
+
+section applicability is:
 
 % The benefit: the Artificial Legs, Arms and Eyes benefit of Social Security
 % Act §1861(s)(9) — for every code but the donning sleeve.

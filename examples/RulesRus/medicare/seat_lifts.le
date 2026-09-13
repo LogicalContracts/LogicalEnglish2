@@ -87,8 +87,8 @@ a claim needs a certificate of medical necessity
     and the date of service of the claim is a date
     and the date is before 2023-01-01.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the mechanisms, the chair billed with them
 % (A9270) and the toilet seat lift (E0172); the benefit — durable medical
 % equipment — is the mechanism's alone.
@@ -96,6 +96,8 @@ rule seat_lifts_codes with provenance Policy Article A52518,
         confer "the supplier may bill the seat lift mechanism using E0627 or E0629, and bill A9270 for the chair":
 the policy for code a code is seat_lifts
     if the code is in ["E0627", "E0629", "E0172", "A9270"].
+
+section applicability is:
 
 rule seat_lifts_benefit with provenance Policy Article A52518,
         confer "Seat lift mechanisms are covered under the Durable Medical Equipment benefit":

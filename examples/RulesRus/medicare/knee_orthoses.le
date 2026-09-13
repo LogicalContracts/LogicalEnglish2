@@ -276,8 +276,8 @@ a beneficiary meets the osteoarthritis criteria for an item
     and the adjustment is in [varus, valgus]
     and the beneficiary expresses a willingness to use the item.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the prefabricated and custom fabricated
 % knee orthoses, the additions, the replacement soft interface. The L-coded
 % additions are also additions of afo_kafo.le: both policies decide them,
@@ -286,6 +286,8 @@ rule ko_codes with provenance Policy Article A52465,
         confer "Knee orthoses (KO) are covered under the Medicare braces benefit (Social Security Act §1861(s)(9))":
 the policy for code a code is knee_orthoses
     if the code is in ["L1810", "L1812", "L1820", "L1821", "L1830", "L1831", "L1832", "L1833", "L1834", "L1836", "L1840", "L1843", "L1844", "L1845", "L1846", "L1847", "L1848", "L1850", "L1851", "L1852", "L1860", "L2275", "L2320", "L2330", "L2385", "L2390", "L2395", "L2397", "L2405", "L2415", "L2425", "L2430", "L2492", "L2750", "L2755", "L2780", "L2785", "L2795", "L2800", "L2810", "L2820", "L2830", "K0672"].
+
+section applicability is:
 
 % The benefit: not durable medical equipment but the braces benefit of
 % Social Security Act §1861(s)(9).

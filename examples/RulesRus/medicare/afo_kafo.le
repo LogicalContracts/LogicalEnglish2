@@ -165,8 +165,8 @@ ankle plantarflexion is a joint motion a torsion mechanism may assist,
 ankle dorsiflexion is a joint motion a torsion mechanism may assist,
     as stated in LCD L33686, confer "Concentric adjustable torsion style mechanisms used to assist ankle joint plantarflexion or dorsiflexion are coded as L2999 and are covered for beneficiaries who require ankle plantar or dorsiflexion assist in the absence of any co-existing joint contracture".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the positioning AFOs and their interfaces
 % (including the foot drop splint L4398 and its interface L4394, never
 % covered), the ambulatory AFOs, the KAFOs, the additions, the miscellaneous
@@ -175,6 +175,8 @@ rule afo_codes with provenance Policy Article A52457,
         confer "Ankle-foot orthoses (AFO) and knee-ankle-foot orthoses (KAFO) are covered under the Medicare braces benefit (Social Security Act §1861(s)(9))":
 the policy for code a code is afo_kafo
     if the code is in ["L4396", "L4397", "L4392", "L4398", "L4394", "L1900", "L1902", "L1904", "L1906", "L1907", "L1910", "L1920", "L1930", "L1932", "L1933", "L1940", "L1945", "L1950", "L1951", "L1952", "L1960", "L1970", "L1971", "L1980", "L1990", "L2106", "L2108", "L2112", "L2114", "L2116", "L4350", "L4360", "L4361", "L4386", "L4387", "L4631", "L2000", "L2005", "L2006", "L2010", "L2020", "L2030", "L2034", "L2035", "L2036", "L2037", "L2038", "L2126", "L2128", "L2132", "L2134", "L2136", "L4370", "L2180", "L2182", "L2184", "L2186", "L2188", "L2190", "L2192", "L2200", "L2210", "L2220", "L2230", "L2232", "L2240", "L2250", "L2260", "L2265", "L2270", "L2275", "L2280", "L2300", "L2310", "L2320", "L2330", "L2335", "L2340", "L2350", "L2360", "L2370", "L2375", "L2380", "L2385", "L2387", "L2390", "L2395", "L2397", "L2405", "L2415", "L2425", "L2430", "L2492", "L2500", "L2510", "L2520", "L2525", "L2526", "L2530", "L2540", "L2550", "L2750", "L2755", "L2760", "L2768", "L2780", "L2785", "L2795", "L2800", "L2810", "L2820", "L2830", "L2999"].
+
+section applicability is:
 
 % The benefit: not durable medical equipment but the braces benefit of
 % Social Security Act §1861(s)(9).

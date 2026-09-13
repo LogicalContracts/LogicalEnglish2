@@ -156,14 +156,16 @@ the ICD10 group of the article for code "K0607" is 2.
 the ICD10 group of the article for code "K0608" is 2.
 the ICD10 group of the article for code "K0609" is 2.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment.
 rule aeds_codes with provenance Policy Article A52458,
         confer "Automatic external defibrillators are covered under the Durable Medical Equipment benefit":
 the policy for code a code is aeds
     if the code is in ["E0617", "K0606", "K0607", "K0608", "K0609"].
+
+section applicability is:
 
 rule aeds_benefit with provenance Policy Article A52458,
         confer "Automatic external defibrillators are covered under the Durable Medical Equipment benefit":

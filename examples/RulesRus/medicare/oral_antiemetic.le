@@ -129,14 +129,16 @@ an item is an oral antiemetic drug
     if the HCPCS code of the item is a code
     and the code is in ["Q0155", "Q0161", "Q0162", "Q0163", "Q0164", "Q0166", "Q0167", "Q0169", "Q0173", "Q0175", "Q0177", "Q0180", "Q0181", "J8501", "J8670", "J8655", "J8540"].
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: the oral antiemetic drug
 % benefit of Social Security Act §1861(s)(2)(T) (Policy Article A52480).
 rule antiemetic_codes with provenance Policy Article A52480,
         confer "Oral Antiemetic Drugs are covered under the Oral Antiemetic Drug benefit":
 the policy for code a code is oral_antiemetic
     if the code is in ["Q0155", "Q0161", "Q0162", "Q0163", "Q0164", "Q0166", "Q0167", "Q0169", "Q0173", "Q0175", "Q0177", "Q0180", "Q0181", "J8501", "J8670", "J8655", "J8540"].
+
+section applicability is:
 
 rule antiemetic_benefit with provenance Policy Article A52480,
         confer "Oral Antiemetic Drugs are covered under the Oral Antiemetic Drug benefit":

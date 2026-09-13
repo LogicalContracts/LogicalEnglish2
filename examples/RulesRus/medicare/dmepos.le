@@ -130,6 +130,15 @@ an item is durable medical equipment
     and the item is generally not useful to a person in the absence of illness or injury
     and the item is appropriate for use in the home.
 
+% The policy of a claim: outside the section checklist, so a guard such as
+% "the policy of the claim is pmd" in another policy's rule does not charge
+% a claim's failure to applicability.
+rule claim_policy:
+the policy of a claim is a policy
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the policy for code the code is the policy.
+
 section applicability is:
 
 % A claim the model can decide: its item's code belongs to a policy this
@@ -138,12 +147,6 @@ section applicability is:
 rule scope:
 a claim is within the scope of the model
     if the policy of the claim is a policy.
-
-rule claim_policy:
-the policy of a claim is a policy
-    if the claim is for an item
-    and the HCPCS code of the item is a code
-    and the policy for code the code is the policy.
 
 % The benefit category: the item is of a kind the policy places in a benefit
 % (the policy programs say so, code by code), or it is durable medical

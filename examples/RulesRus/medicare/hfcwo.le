@@ -106,14 +106,16 @@ myopathy is a qualifying neuromuscular disease for HFCWO,
 paralysis of the diaphragm is a qualifying neuromuscular disease for HFCWO,
     as stated in LCD L33785, confer "Paralysis of the diaphragm".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment (Policy Article A52494).
 rule hfcwo_codes with provenance Policy Article A52494,
         confer "High frequency chest wall oscillation devices are covered under the Durable Medical Equipment benefit":
 the policy for code a code is hfcwo
     if the code is in ["E0483", "A7025", "A7026"].
+
+section applicability is:
 
 rule hfcwo_benefit with provenance Policy Article A52494,
         confer "High frequency chest wall oscillation devices are covered under the Durable Medical Equipment benefit":

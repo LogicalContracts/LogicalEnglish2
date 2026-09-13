@@ -129,14 +129,16 @@ a beneficiary was furnished a breast prosthesis for side a side within its usefu
     and the other number >= 0
     and the other number < the number.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the prostheses, the garment and the bra
 % the texts name, including the two the LCD denies.
 rule breast_codes with provenance Policy Article A52478,
         confer "The diagnosis code must be included on each claim for the prosthesis or related item":
 the policy for code a code is breast_prostheses
     if the code is in ["L8000", "L8001", "L8002", "L8015", "L8020", "L8030", "L8031", "L8032", "L8035"].
+
+section applicability is:
 
 % The benefit: not durable medical equipment but the Prosthetic Devices
 % benefit of Social Security Act §1861(s)(8).

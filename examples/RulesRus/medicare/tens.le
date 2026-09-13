@@ -119,14 +119,16 @@ an item is a TENS unit
     if the HCPCS code of the item is a code
     and the code is in ["E0720", "E0730"].
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment (Policy Article A52520).
 rule tens_codes with provenance Policy Article A52520,
         confer "Transcutaneous electrical nerve stimulation (TENS) equipment is covered under the Durable Medical Equipment benefit":
 the policy for code a code is tens
     if the code is in ["E0720", "E0730", "E0731", "A4595", "A4557"].
+
+section applicability is:
 
 rule tens_benefit with provenance Policy Article A52520,
         confer "Transcutaneous electrical nerve stimulation (TENS) equipment is covered under the Durable Medical Equipment benefit":

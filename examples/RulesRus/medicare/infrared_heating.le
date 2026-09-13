@@ -26,16 +26,18 @@ the text of LCD L33825 is at "sources/lcd/L33825.txt".
 Policy Article A52477 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52477".
 the text of Policy Article A52477 is at "sources/article/A52477.txt".
 
-section applicability is:
-
-infrared_heating has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the system and its replacement pads; their
 % benefit, durable medical equipment (considered for coverage there).
 rule infrared_heating_codes with provenance Policy Article A52477,
         confer "An infrared heating pad system (E0221) consists of a pad or pads containing mechanisms (for example, luminous gallium aluminum arsenide diodes) that generate infrared (or near infrared) light and a power source. Replacement pads are coded A4639":
 the policy for code a code is infrared_heating
     if the code is in ["E0221", "A4639"].
+
+section applicability is:
+
+infrared_heating has no specific documentation requirements.
 
 rule infrared_heating_benefit with provenance Policy Article A52477,
         confer "Infrared Heating Pad Systems are considered for coverage under the Durable Medical Equipment benefit":

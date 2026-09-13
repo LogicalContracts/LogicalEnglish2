@@ -105,12 +105,14 @@ rule oxygen_initiation:
 oxygen therapy with an item was initiated on a date
     if the item was delivered on the date.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 rule oxygen_codes with provenance Policy Article A52514,
         confer "Oxygen and oxygen equipment is covered under the Durable Medical Equipment benefit":
 the policy for code a code is oxygen
     if the code is in ["E0424", "E0439", "E1390", "E1391", "E0431", "E0433", "E0434", "E1392", "K0738", "E0441", "E0442", "E0443", "E0444", "E0447"].
+
+section applicability is:
 
 rule oxygen_benefit with provenance Policy Article A52514,
         confer "Oxygen and oxygen equipment is covered under the Durable Medical Equipment benefit":

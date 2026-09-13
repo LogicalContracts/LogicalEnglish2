@@ -247,14 +247,16 @@ inadequate structural support for the bed is a contraindication to an air fluidi
 insufficient electrical system is a contraindication to an air fluidized bed,
     as stated in LCD L33692, confer "Electrical system is insufficient for the anticipated increase in energy consumption".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment (each Policy Article).
 rule ss_codes with provenance Policy Article A52489,
         confer "Pressure-reducing support surfaces are covered under the Durable Medical Equipment benefit":
 the policy for code a code is support_surfaces
     if the code is in ["E0181", "E0182", "E0184", "E0185", "E0186", "E0187", "E0188", "E0189", "E0196", "E0197", "E0198", "E0199", "A4640", "E0193", "E0277", "E0371", "E0372", "E0373", "E0194"].
+
+section applicability is:
 
 rule ss_benefit with provenance Policy Article A52489,
         confer "Pressure-reducing support surfaces are covered under the Durable Medical Equipment benefit":

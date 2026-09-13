@@ -101,12 +101,14 @@ rule ttft_initiation:
 tumor treatment field therapy with an item was initiated on a date
     if the item was delivered on the date.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 rule ttft_codes with provenance Policy Article A52711,
         confer "Tumor treatment field therapy devices are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
 the policy for code a code is tumor_treatment_field
     if the code is in ["E0766"].
+
+section applicability is:
 
 rule ttft_benefit with provenance Policy Article A52711,
         confer "Tumor treatment field therapy devices are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":

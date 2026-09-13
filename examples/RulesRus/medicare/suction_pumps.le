@@ -144,8 +144,8 @@ rule suction_diagnosis_pump_codes with provenance Policy Article A52519,
 a code needs a diagnosis code on the suction claim
     if the code is in ["E0600", "A7002", "A7047"].
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the pumps, the catheters, the water and
 % saline, the tubing, the oral interface, the wound suction pump and its
 % dressing sets, and the disposable wound suction device the Policy Article
@@ -154,6 +154,8 @@ rule suction_codes with provenance Policy Article A52519,
         confer "Suction equipment is covered under the Durable Medical Equipment benefit":
 the policy for code a code is suction_pumps
     if the code is in ["E2000", "E0600", "A4605", "A4624", "A4628", "A4216", "A4217", "A7002", "A7047", "K0743", "K0744", "K0745", "K0746", "A9272"].
+
+section applicability is:
 
 % Their benefit: durable medical equipment (and its supplies), except the
 % disposable wound suction device.

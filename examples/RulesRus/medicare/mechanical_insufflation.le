@@ -67,14 +67,16 @@ rule mie_interface with provenance Policy Article A52510,
 an item is a replacement interface for a mechanical in-exsufflation device
     if the HCPCS code of the item is "A7020".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment (Policy Article A52510).
 rule mie_codes with provenance Policy Article A52510,
         confer "Mechanical in-exsufflation equipment is covered under the Durable Medical Equipment benefit":
 the policy for code a code is mechanical_insufflation
     if the code is in ["E0482", "A7020"].
+
+section applicability is:
 
 rule mie_benefit with provenance Policy Article A52510,
         confer "Mechanical in-exsufflation equipment is covered under the Durable Medical Equipment benefit":

@@ -108,14 +108,16 @@ rule walker_identified_product with provenance Policy Article A52503,
 an item must be identified by manufacturer and product on the claim
     if the HCPCS code of the item is "E0147".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical equipment
 % (Policy Article A52503), except the two walkers that are not DME.
 rule walkers_codes with provenance Policy Article A52503,
         confer "Walkers are covered under the Durable Medical Equipment benefit":
 the policy for code a code is walkers
     if the code is in ["E0130", "E0135", "E0140", "E0141", "E0143", "E0144", "E0147", "E0148", "E0149", "E0150", "E0152", "E0154", "E0155", "E0156", "E0157", "E0158", "E0159", "A4636", "A4637"].
+
+section applicability is:
 
 rule walkers_benefit with provenance Policy Article A52503,
         confer "Walkers are covered under the Durable Medical Equipment benefit":

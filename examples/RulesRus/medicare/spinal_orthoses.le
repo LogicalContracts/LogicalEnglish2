@@ -116,14 +116,16 @@ weak spinal muscles is an indication for a spinal orthosis,
 spinal deformity is an indication for a spinal orthosis,
     as stated in LCD L33790, confer "To otherwise support weak spinal muscles and/or a deformed spine".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the LSOs and TLSOs of the LCD, and the
 % protective body sock the Article denies.
 rule spinal_codes with provenance Policy Article A52500,
         confer "Lumbar-sacral orthoses (LSO) and thoracic-lumbar-sacral orthoses (TLSO) are covered under the Medicare braces benefit (Social Security Act §1861(s)(9))":
 the policy for code a code is spinal_orthoses
     if the code is in ["L0450", "L0452", "L0454", "L0455", "L0456", "L0457", "L0458", "L0460", "L0462", "L0464", "L0466", "L0467", "L0468", "L0469", "L0470", "L0472", "L0480", "L0482", "L0484", "L0486", "L0488", "L0490", "L0491", "L0492", "L0621", "L0622", "L0623", "L0624", "L0625", "L0626", "L0627", "L0628", "L0629", "L0630", "L0631", "L0632", "L0633", "L0634", "L0635", "L0636", "L0637", "L0638", "L0639", "L0640", "L0641", "L0642", "L0643", "L0648", "L0649", "L0650", "L0651", "L0984"].
+
+section applicability is:
 
 % The benefit: not durable medical equipment but the braces benefit of
 % Social Security Act §1861(s)(9) — for every code but the body sock.

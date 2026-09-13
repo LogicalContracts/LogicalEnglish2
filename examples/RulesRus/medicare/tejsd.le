@@ -54,15 +54,17 @@ the text of LCD L34821 is at "sources/lcd/L34821.txt".
 Policy Article A52713 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52713".
 the text of Policy Article A52713 is at "sources/article/A52713.txt".
 
-section applicability is:
-
-tejsd has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the device and its own replacement wrap.
 rule tejsd_codes with provenance Policy Article A52713,
         confer "A transcutaneous electrical joint stimulation device (TEJSD) coded (E0762) is a noninvasive device that delivers electrical stimulation intended to reduce the level of pain and symptoms associated with arthritis in a joint":
 the policy for code a code is tejsd
     if the code is in ["E0762", "A4465"].
+
+section applicability is:
+
+tejsd has no specific documentation requirements.
 
 % Their benefit: durable medical equipment — used in the home, or nothing
 % ("Provision of TEJSD to beneficiaries in a Place of Service or facility

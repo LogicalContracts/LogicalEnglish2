@@ -90,10 +90,8 @@ an item is a service on a covered eye prosthesis
     and the item is furnished to the beneficiary
     and the beneficiary has a qualifying eye condition.
 
-section applicability is:
-
-eye_prostheses has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the prostheses, the services on them, and
 % the trial shell; the benefit — the statutory benefit of Social Security
 % Act §1861(s)(9) — is not the trial shell's.
@@ -101,6 +99,10 @@ rule eye_codes with provenance Policy Article A52462,
         confer "The right (RT) and/or left (LT) modifiers must be used with all HCPCS codes in this policy":
 the policy for code a code is eye_prostheses
     if the code is in ["V2623", "V2624", "V2625", "V2626", "V2627", "V2629", "L9900"].
+
+section applicability is:
+
+eye_prostheses has no specific documentation requirements.
 
 rule eye_benefit with provenance Policy Article A52462,
         confer "Eye prostheses are covered under the Medicare Artificial Legs, Arms and Eyes benefit (Social Security Act §1861(s)(9))":

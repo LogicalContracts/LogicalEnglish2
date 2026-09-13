@@ -69,16 +69,18 @@ heating code "E0225" is statutorily noncovered as institutional equipment,
 heating code "E0239" is statutorily noncovered as institutional equipment,
     as stated in Policy Article A52502, confer "Hydrocollator units (E0225, E0239) are considered institutional equipment and will be denied as statutorily noncovered".
 
-section applicability is:
-
-heating_pads has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the heating pads, the replacement pump and
 % pad, the heat lamps, the hydrocollator units.
 rule heating_pads_codes with provenance Policy Article A52502,
         confer "Heating pads are covered under the Durable Medical Equipment benefit":
 the policy for code a code is heating_pads
     if the code is in ["E0200", "E0205", "E0210", "E0215", "E0217", "E0225", "E0236", "E0239", "E0249"].
+
+section applicability is:
+
+heating_pads has no specific documentation requirements.
 
 % Their benefit: durable medical equipment, except the hydrocollator units.
 rule heating_pads_benefit with provenance Policy Article A52502,

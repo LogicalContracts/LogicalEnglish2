@@ -112,12 +112,14 @@ treatment plan with a training schedule is a required element of the written eva
 abilities to use the device is a required element of the written evaluation,
     as stated in LCD L33739, confer "The cognitive and physical abilities to effectively use the selected device and any accessories to communicate".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 rule sgd_codes with provenance Policy Article A52469,
         confer "Speech generating devices are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
 the policy for code a code is speech_generating_devices
     if the code is in ["E2500", "E2502", "E2504", "E2506", "E2508", "E2510", "E2511", "E2512", "E2513", "E2599"].
+
+section applicability is:
 
 rule sgd_benefit with provenance Policy Article A52469,
         confer "Speech generating devices are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":

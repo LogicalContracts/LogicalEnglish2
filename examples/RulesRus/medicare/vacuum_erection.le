@@ -33,10 +33,8 @@ the text of LCD L34824 is at "sources/lcd/L34824.txt".
 Policy Article A52712 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52712".
 the text of Policy Article A52712 is at "sources/article/A52712.txt".
 
-section applicability is:
-
-vacuum_erection has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the device and its accessories. No benefit
 % rule follows: "For dates of service on or after July 1, 2015, codes L7900
 % and L7902 are statutorily non-covered based on the Achieving a Better Life
@@ -45,6 +43,11 @@ rule ved_codes with provenance LCD L34824,
         confer "Vacuum erection devices (L7900) and related accessories (L7902) are statutorily non-covered":
 the policy for code a code is vacuum_erection
     if the code is in ["L7900", "L7902"].
+
+section applicability is:
+
+vacuum_erection has no specific documentation requirements.
+
 
 section question is:
 

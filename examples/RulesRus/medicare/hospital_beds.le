@@ -131,19 +131,21 @@ bed accessory code "E0315" is noncovered as not primarily medical in nature,
 bed accessory code "E0274" is noncovered as not primarily medical in nature,
     as stated in Policy Article A52508, confer "An over bed table (E0274, E0315) is noncovered because it is not primarily medical in nature".
 
-section applicability is:
-
-% The Policy Article's policy-specific requirements are the face-to-face
-% encounter and WOPD of Final Rule 1713 (dmepos.le, by the CMS list) and the
-% claim modifiers (billing): none of the policy's own.
-hospital beds has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the beds, the accessories, and the bed
 % boards and over bed tables the Policy Article excludes from the benefit.
 rule beds_codes with provenance Policy Article A52508,
         confer "Hospital Beds are covered under the Durable Medical Equipment benefit":
 the policy for code a code is hospital beds
     if the code is in ["E0250", "E0251", "E0290", "E0291", "E0328", "E0255", "E0256", "E0292", "E0293", "E0260", "E0261", "E0294", "E0295", "E0329", "E0301", "E0303", "E0302", "E0304", "E0265", "E0266", "E0296", "E0297", "E0910", "E0940", "E0911", "E0912", "E0280", "E0305", "E0310", "E0316", "E0271", "E0272", "E0273", "E0274", "E0315"].
+
+section applicability is:
+
+% The Policy Article's policy-specific requirements are the face-to-face
+% encounter and WOPD of Final Rule 1713 (dmepos.le, by the CMS list) and the
+% claim modifiers (billing): none of the policy's own.
+hospital beds has no specific documentation requirements.
 
 % Their benefit: durable medical equipment, except the bed board and the
 % over bed table.

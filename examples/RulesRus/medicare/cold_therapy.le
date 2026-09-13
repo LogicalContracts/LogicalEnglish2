@@ -37,16 +37,18 @@ the text of LCD L33735 is at "sources/lcd/L33735.txt".
 Policy Article A52460 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52460".
 the text of Policy Article A52460 is at "sources/article/A52460.txt".
 
-section applicability is:
-
-cold_therapy has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the cold pad with pump and the reusable
 % cold or hot wraps; their benefit, durable medical equipment.
 rule cold_therapy_codes with provenance Policy Article A52460,
         confer "Code E0218 describes a device which has an electric pump that circulates cold fluid through a pad":
 the policy for code a code is cold_therapy
     if the code is in ["E0218", "A9273"].
+
+section applicability is:
+
+cold_therapy has no specific documentation requirements.
 
 rule cold_therapy_benefit with provenance Policy Article A52460,
         confer "Cold therapy devices are covered under the Durable Medical Equipment benefit":
