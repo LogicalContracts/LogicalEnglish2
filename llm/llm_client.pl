@@ -210,9 +210,19 @@ reasoning_fields(openai, Model, minimal, Fields) :- !,
     ;   Fields = []
     ).
 reasoning_fields(gemini, _Model, minimal, [reasoning_effort(low)]) :- !.
-reasoning_fields(together, _Model, minimal,
-                 [chat_template_kwargs(_{enable_thinking: false})]) :- !.
+reasoning_fields(together, Model, minimal, Fields) :- !,
+    (   kimi_model(Model)
+    ->  % Kimi's chat template takes no enable_thinking switch: with it the
+        % reply comes back empty (moonshotai/Kimi-K3 on Together, September
+        % 2026 — "pong" without the field, "" with it). Leave its thinking on.
+        Fields = []
+    ;   Fields = [chat_template_kwargs(_{enable_thinking: false})]
+    ).
 reasoning_fields(_, _, _, []).
+
+kimi_model(Model) :-
+    atom_string(M0, Model), downcase_atom(M0, M),
+    sub_atom(M, _, _, _, kimi).
 
 reasoning_effort_model(Model) :-
     atom_string(M, Model),
