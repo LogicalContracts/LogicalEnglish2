@@ -330,9 +330,34 @@ normalize_header_cell(C, N) :-
     to_text(C, T), downcase_atom(T, L), normalize_space(atom(N), L).
 
 cells_row(Cells, row(Tokens, 0, 0)) :-
-    atomic_list_concat(Cells, ' | ', Line),
+    maplist(csv_cell_text, Cells, Texts),
+    atomic_list_concat(Texts, ' | ', Line),
     tokenizer:tokenize(Line, Tokens0),
     exclude(le_grammar:is_indent_or_comment, Tokens0, Tokens).
+
+% A CSV cell as the text of an inline cell. The CSV reader has removed any
+% quotes, so a code such as G71.01 or 012 would be tokenized as a number and
+% lose its zeros: a cell of plain text is quoted again. A number, an empty
+% cell, "-" or "any", a condition (a cell opening with a comparison) and a
+% list of alternatives ("cotton or silk") are left to be read as an inline
+% cell is.
+csv_cell_text(Cell, Text) :-
+    normalize_space(atom(C), Cell),
+    (   C == ''
+    ->  Text = C
+    ;   atom_number(C, _)
+    ->  Text = C
+    ;   ( C == '-' ; class_member(table_any, C) )
+    ->  Text = C
+    ;   sub_atom(C, 0, 1, _, F), memberchk(F, [<, >, =, !])
+    ->  Text = C
+    ;   atomic_list_concat(Parts, ' or ', C), Parts = [_, _|_],
+        \+ ( member(P, Parts), sub_atom(P, _, _, _, ' ') )
+    ->  Text = C
+    ;   atomic_list_concat(Pieces, '"', C),
+        atomic_list_concat(Pieces, '\'', C1),
+        format(atom(Text), '"~w"', [C1])
+    ).
 
 % ---------------------------------------------------------------------------
 % Solving
