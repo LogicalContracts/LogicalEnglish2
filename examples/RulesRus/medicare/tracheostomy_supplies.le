@@ -169,8 +169,8 @@ an item is a tracheostomy tube excluded by a plug
     and the item is furnished to a beneficiary
     and the beneficiary receives a tracheostomy tube plug.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the supplies of the LCD's table and the
 % mask it denies; their benefit: the prosthetic benefit (Policy Article
 % A52492), with no condition on the place of use.
@@ -178,6 +178,8 @@ rule trach_codes with provenance Policy Article A52492,
         confer "Tracheostomy Supplies are covered under the Prosthetic Benefit":
 the policy for code a code is tracheostomy_supplies
     if the code is in ["A4364", "A4402", "A4450", "A4452", "A4456", "A4481", "A4623", "A4625", "A4626", "A4629", "A5120", "A7501", "A7502", "A7503", "A7504", "A7505", "A7506", "A7507", "A7508", "A7509", "A7520", "A7521", "A7522", "A7523", "A7524", "A7526", "A7527"].
+
+section applicability is:
 
 rule trach_benefit with provenance Policy Article A52492,
         confer "Tracheostomy Supplies are covered under the Prosthetic Benefit":

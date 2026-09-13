@@ -128,8 +128,8 @@ an item is a parenteral drug limited to oral intolerance
     if the HCPCS code of the item is a code
     and the code is in ["J7501", "J2919"].
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: the immunosuppressive
 % therapy benefit of Social Security Act §1861(s)(2)(J) (Policy Article
 % A52474).
@@ -137,6 +137,8 @@ rule immuno_codes with provenance Policy Article A52474,
         confer "Immunosuppressive drugs are covered under the immunosuppressive therapy benefit":
 the policy for code a code is immunosuppressive_drugs
     if the code is in ["J7500", "J7501", "J7502", "J7503", "J7504", "J7505", "J7507", "J7508", "J7509", "J7510", "J7511", "J7512", "J7513", "J7515", "J7516", "J7517", "J7518", "J7520", "J7525", "J7527", "J7599", "J0485", "J2919", "J8530", "J8610"].
+
+section applicability is:
 
 rule immuno_benefit with provenance Policy Article A52474,
         confer "Immunosuppressive drugs are covered under the immunosuppressive therapy benefit":

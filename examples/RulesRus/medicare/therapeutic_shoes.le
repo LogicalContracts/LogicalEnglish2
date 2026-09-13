@@ -169,14 +169,16 @@ rule shoes_other_modifications with provenance Policy Article A52501,
 an item is a therapeutic shoe modification
     if the HCPCS code of the item is "A5507".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the shoes, the inserts and the
 % modifications of the Article, including the two it denies as noncovered.
 rule shoes_codes with provenance Policy Article A52501,
         confer "Codes for inserts or modifications (A5503, A5504, A5505, A5506, A5507, A5508, A5510, A5512, A5513, A5514) may only be used for items related to diabetic shoes (A5500, A5501)":
 the policy for code a code is therapeutic_shoes
     if the code is in ["A5500", "A5501", "A5503", "A5504", "A5505", "A5506", "A5507", "A5508", "A5510", "A5512", "A5513", "A5514"].
+
+section applicability is:
 
 % The benefit: not durable medical equipment but the statutory benefit of
 % Social Security Act §1861(s)(12), therapeutic shoes for diabetics — for

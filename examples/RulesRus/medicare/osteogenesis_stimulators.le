@@ -100,18 +100,20 @@ metacarpal is a long bone,
 metatarsal is a long bone,
     as stated in LCD L33796, confer "A long bone is limited to a clavicle, humerus, radius, ulna, femur, tibia, fibula, metacarpal, or metatarsal".
 
-section applicability is:
-
-% The article's certificate of medical necessity (dates of service before
-% 2023) and modifiers are not modelled: none of the policy's own.
-osteogenesis_stimulators has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the three noninvasive stimulators, the
 % coupling gel, and the invasive stimulator the DME MAC does not process.
 rule osteo_codes with provenance Policy Article A52513,
         confer "Osteogenesis stimulators are covered under the Durable Medical Equipment benefit":
 the policy for code a code is osteogenesis_stimulators
     if the code is in ["E0747", "E0748", "E0760", "A4559", "E0749"].
+
+section applicability is:
+
+% The article's certificate of medical necessity (dates of service before
+% 2023) and modifiers are not modelled: none of the policy's own.
+osteogenesis_stimulators has no specific documentation requirements.
 
 % Their benefit: durable medical equipment, except the invasive stimulator.
 rule osteo_benefit with provenance Policy Article A52513,

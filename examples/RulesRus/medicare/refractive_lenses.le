@@ -155,14 +155,16 @@ a beneficiary was furnished a pair of lenses after a date
     if the beneficiary was furnished a pair of eyeglasses or contact lenses on an other date
     and the other date is after the date.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the lenses, the frames and the add-ons,
 % including those the Article denies as noncovered.
 rule lenses_codes with provenance Policy Article A52499,
         confer "The RT and/or LT modifiers must be used with all HCPCS codes in this policy except codes V2020, V2025 and V2600":
 the policy for code a code is refractive_lenses
     if the code is in ["V2020", "V2025", "V2100", "V2101", "V2102", "V2103", "V2104", "V2105", "V2106", "V2107", "V2108", "V2109", "V2110", "V2111", "V2112", "V2113", "V2114", "V2115", "V2118", "V2121", "V2199", "V2200", "V2201", "V2202", "V2203", "V2204", "V2205", "V2206", "V2207", "V2208", "V2209", "V2210", "V2211", "V2212", "V2213", "V2214", "V2215", "V2218", "V2219", "V2220", "V2221", "V2299", "V2300", "V2301", "V2302", "V2303", "V2304", "V2305", "V2306", "V2307", "V2308", "V2309", "V2310", "V2311", "V2312", "V2313", "V2314", "V2315", "V2318", "V2319", "V2320", "V2321", "V2399", "V2410", "V2430", "V2499", "V2520", "V2521", "V2522", "V2523", "V2524", "V2531", "V2600", "V2610", "V2615", "V2700", "V2702", "V2710", "V2715", "V2718", "V2730", "V2744", "V2745", "V2750", "V2755", "V2756", "V2760", "V2761", "V2762", "V2770", "V2780", "V2781", "V2782", "V2783", "V2784", "V2786", "V2797"].
+
+section applicability is:
 
 % The benefit: not durable medical equipment but the Prosthetic Devices
 % benefit of Social Security Act §1861(s)(8) — for every code of the policy

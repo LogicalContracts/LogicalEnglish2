@@ -78,8 +78,8 @@ rule ivig_supply with provenance Policy Article A52509,
 an item is an IVIG administration supply
     if the HCPCS code of the item is "Q2052".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: the intravenous immune
 % globulin benefit of the Medicare Benefit Policy Manual, Chapter 15, §50.6
 % (Policy Article A52509).
@@ -87,6 +87,8 @@ rule ivig_codes with provenance Policy Article A52509,
         confer "Intravenous immune globulin used for the treatment of primary immunodeficiency is covered under the Intravenous Immune Globulin benefit":
 the policy for code a code is ivig
     if the code is in ["J1459", "J1552", "J1553", "J1554", "J1556", "J1557", "J1561", "J1566", "J1568", "J1569", "J1572", "J1576", "J1577", "J1599", "Q2052", "J1573", "J2791"].
+
+section applicability is:
 
 rule ivig_benefit with provenance Policy Article A52509,
         confer "Intravenous immune globulin used for the treatment of primary immunodeficiency is covered under the Intravenous Immune Globulin benefit":

@@ -118,8 +118,8 @@ an item is a repair or modification of a covered facial prosthesis
     and the item is furnished to a beneficiary
     and the device is a covered facial prosthesis for the beneficiary.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the prostheses, the miscellaneous code and
 % the labor code, the adhesives and tape, and the skin care products the
 % Article denies; the benefit — the statutory benefit of Social Security
@@ -128,6 +128,8 @@ rule facial_codes with provenance Policy Article A52463,
         confer "Adhesives, adhesive remover, and tape used in conjunction with a facial prosthesis should be billed using codes A4364, A4455, A4456, A4450, or A4452":
 the policy for code a code is facial_prostheses
     if the code is in ["L8040", "L8041", "L8042", "L8043", "L8044", "L8045", "L8046", "L8047", "L8048", "L8049", "A4364", "A4455", "A4456", "A4450", "A4452", "A5120", "A9270"].
+
+section applicability is:
 
 rule facial_benefit with provenance Policy Article A52463,
         confer "Facial prostheses are covered under the Medicare Artificial Legs, Arms and Eyes benefit (Social Security Act §1861(s)(9))":

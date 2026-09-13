@@ -349,8 +349,8 @@ power recline is a qualifying seating system for a headrest on sling seat power 
 power tilt with recline is a qualifying seating system for a headrest on sling seat power wheelchair,
     as stated in LCD L33312, confer "power tilt and/or recline power seating system".
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit. The Article names no
 % benefit category in words; a wheelchair cushion is an accessory of a
 % wheelchair, durable medical equipment under 42 CFR 410.38 (dmepos.le).
@@ -358,6 +358,8 @@ rule seating_codes with provenance Policy Article A52505,
         confer "The only products which may be billed using codes E2601, E2602, E2603, E2604, E2605, E2606, E2607, E2608, E2610, E2611, E2612, E2613, E2614, E2615, E2616, E2620, E2621, and E2622, E2623, E2624, E2625":
 the policy for code a code is wheelchair_seating
     if the code is in ["E2601", "E2602", "E2603", "E2604", "E2605", "E2606", "E2607", "E2608", "E2609", "E2610", "E2611", "E2612", "E2613", "E2614", "E2615", "E2616", "E2617", "E2620", "E2621", "E2622", "E2623", "E2624", "E2625", "E0953", "E0955", "E0956", "E0957", "E0960"].
+
+section applicability is:
 
 rule seating_benefit with provenance Policy Article A52505,
         confer "be eligible for a defined Medicare benefit category":

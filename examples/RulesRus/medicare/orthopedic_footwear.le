@@ -117,14 +117,16 @@ an item is a shoe repair item
     if the HCPCS code of the item is a code
     and the code is in ["L3455", "L3460", "L3530", "L3540", "L3600", "L3610", "L3620", "L3630", "L3640"].
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the footwear codes of the Article, and the
 % off-loading device it denies.
 rule footwear_codes with provenance Policy Article A52481,
         confer "With the exception of the situations described above, orthopedic footwear billed using codes":
 the policy for code a code is orthopedic_footwear
     if the code is in ["L3000", "L3001", "L3002", "L3003", "L3010", "L3020", "L3030", "L3031", "L3040", "L3050", "L3060", "L3070", "L3080", "L3090", "L3100", "L3140", "L3150", "L3160", "L3170", "L3201", "L3202", "L3203", "L3204", "L3206", "L3207", "L3208", "L3209", "L3211", "L3212", "L3213", "L3214", "L3215", "L3216", "L3217", "L3219", "L3221", "L3222", "L3224", "L3225", "L3230", "L3250", "L3251", "L3252", "L3253", "L3254", "L3255", "L3257", "L3260", "L3265", "L3300", "L3310", "L3320", "L3330", "L3332", "L3334", "L3340", "L3350", "L3360", "L3370", "L3380", "L3390", "L3400", "L3410", "L3420", "L3430", "L3440", "L3450", "L3455", "L3460", "L3465", "L3470", "L3480", "L3485", "L3500", "L3510", "L3520", "L3530", "L3540", "L3550", "L3560", "L3570", "L3580", "L3590", "L3595", "L3600", "L3610", "L3620", "L3630", "L3640", "L3649", "A9283"].
+
+section applicability is:
 
 % The benefit: the braces and artificial limbs benefit of Social Security
 % Act §1861(s)(9) — for every code but the off-loading device.

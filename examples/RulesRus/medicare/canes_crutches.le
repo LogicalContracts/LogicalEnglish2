@@ -62,10 +62,8 @@ an item is a cane or crutch
     if the HCPCS code of the item is a code
     and the code is in ["E0100", "E0105", "E0110", "E0111", "E0112", "E0113", "E0114", "E0116"].
 
-section applicability is:
-
-canes_crutches has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the canes and crutches with criteria, the
 % articulating crutch and the crutch substitute; their benefit, durable
 % medical equipment.
@@ -73,6 +71,10 @@ rule canes_crutches_codes with provenance Policy Article A52459,
         confer "Canes and Crutches are covered under the Durable Medical Equipment benefit":
 the policy for code a code is canes_crutches
     if the code is in ["E0100", "E0105", "E0110", "E0111", "E0112", "E0113", "E0114", "E0116", "E0117", "E0118"].
+
+section applicability is:
+
+canes_crutches has no specific documentation requirements.
 
 rule canes_crutches_benefit with provenance Policy Article A52459,
         confer "Canes and Crutches are covered under the Durable Medical Equipment benefit":

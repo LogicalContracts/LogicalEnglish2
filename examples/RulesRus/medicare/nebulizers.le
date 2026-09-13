@@ -281,8 +281,8 @@ the diagnosis of a beneficiary is in ICD10 group a group
     if the diagnosis code of the beneficiary is a code
     and ICD10 code the code is in group the group of article "A52466" as a description under table nebulizer_icd10.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides — the equipment, the accessories, the water
 % and saline, the FDA-approved drugs and the compounded solutions the LCD
 % denies — and their benefit: durable medical equipment and the supplies
@@ -301,6 +301,8 @@ rule neb_codes_compounded with provenance LCD L33370,
         confer "Compounded inhalation solutions (J7604, J7607, J7609, J7610, J7615, J7622, J7624, J7627, J7628, J7629, J7632, J7634, J7635, J7636, J7637, J7638, J7640, J7641, J7642, J7643, J7645, J7647, J7650, J7657, J7660, J7667, J7670, J7676, J7680, J7681, J7683, J7684, J7685, and compounded solutions billed with J7699) will be denied as not reasonable and necessary":
 the policy for code a code is nebulizers
     if the code is in ["J7604", "J7607", "J7609", "J7610", "J7615", "J7622", "J7624", "J7627", "J7628", "J7629", "J7632", "J7634", "J7635", "J7636", "J7637", "J7638", "J7640", "J7641", "J7642", "J7643", "J7645", "J7647", "J7650", "J7657", "J7660", "J7667", "J7670", "J7676", "J7680", "J7681", "J7683", "J7684", "J7685", "J7699"].
+
+section applicability is:
 
 rule neb_benefit with provenance Policy Article A52466,
         confer "Nebulizers are covered under the Durable Medical Equipment (DME) benefit":

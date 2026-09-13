@@ -48,18 +48,20 @@ rule ipv_system with provenance Policy Article A52495,
 an item is an intrapulmonary percussive ventilation system
     if the HCPCS code of the item is "E0481".
 
-section applicability is:
-
-% The Policy Article states no documentation requirement of its own beyond
-% the general ones of dmepos.le.
-ipv has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The code this policy decides, and its benefit: durable medical equipment
 % (Policy Article A52495).
 rule ipv_codes with provenance Policy Article A52495,
         confer "Intrapulmonary Percussive Ventilation Systems are covered under the Durable Medical Equipment benefit":
 the policy for code a code is ipv
     if the code is in ["E0481"].
+
+section applicability is:
+
+% The Policy Article states no documentation requirement of its own beyond
+% the general ones of dmepos.le.
+ipv has no specific documentation requirements.
 
 rule ipv_benefit with provenance Policy Article A52495,
         confer "Intrapulmonary Percussive Ventilation Systems are covered under the Durable Medical Equipment benefit":

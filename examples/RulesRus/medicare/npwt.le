@@ -171,8 +171,8 @@ the number of wounds treated with an item is a number
     if the number is the count of each W such that
         the item is applied to a wound W.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment for the pump and its supplies (Policy Article A52511); the
 % disposable pump A9272 is in scope and in no benefit category.
@@ -180,6 +180,8 @@ rule npwt_codes with provenance Policy Article A52511,
         confer "Negative pressure wound therapy equipment is covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
 the policy for code a code is npwt
     if the code is in ["E2402", "A6550", "A7000", "A9272"].
+
+section applicability is:
 
 rule npwt_benefit with provenance Policy Article A52511,
         confer "Negative pressure wound therapy equipment is covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":

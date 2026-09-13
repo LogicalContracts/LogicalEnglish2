@@ -117,16 +117,18 @@ an item is a PAP accessory
     if the HCPCS code of the item is a code
     and the code is in ["E0561", "E0562", "A4604", "A7027", "A7028", "A7029", "A7030", "A7031", "A7032", "A7033", "A7034", "A7035", "A7036", "A7037", "A7038", "A7039", "A7044", "A7045", "A7046"].
 
-section applicability is:
-
-pap has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical equipment
 % (Policy Article A52467).
 rule pap_codes with provenance Policy Article A52467,
         confer "Positive airway pressure devices are covered under the Durable Medical Equipment benefit":
 the policy for code a code is pap
     if the code is in ["E0601", "E0470", "E0561", "E0562", "A4604", "A7027", "A7028", "A7029", "A7030", "A7031", "A7032", "A7033", "A7034", "A7035", "A7036", "A7037", "A7038", "A7039", "A7044", "A7045", "A7046"].
+
+section applicability is:
+
+pap has no specific documentation requirements.
 
 rule pap_benefit with provenance Policy Article A52467,
         confer "Positive airway pressure devices are covered under the Durable Medical Equipment benefit":

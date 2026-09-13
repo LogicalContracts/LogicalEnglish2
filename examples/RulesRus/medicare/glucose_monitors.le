@@ -234,14 +234,16 @@ the CGM device of a claim is a device
     and the item is an accessory of the device
     and the device is a continuous glucose monitor.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment (Policy Article A52464).
 rule glucose_codes with provenance Policy Article A52464,
         confer "Home blood glucose monitors (BGMs) and continuous glucose monitors (CGMs) are covered under the Durable Medical Equipment (DME) benefit":
 the policy for code a code is glucose_monitors
     if the code is in ["E0607", "A4253", "A4259", "A4256", "A4258", "E0620", "A4257", "E2102", "E2103", "K0554", "A4238", "A4239", "K0553"].
+
+section applicability is:
 
 rule glucose_benefit with provenance Policy Article A52464,
         confer "Home blood glucose monitors (BGMs) and continuous glucose monitors (CGMs) are covered under the Durable Medical Equipment (DME) benefit":

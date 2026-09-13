@@ -72,16 +72,18 @@ an item is a higher force cervical traction device
     if the HCPCS code of the item is a code
     and the code is in ["E0849", "E0855"].
 
-section applicability is:
-
-cervical_traction has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment.
 rule cervical_traction_codes with provenance Policy Article A52476,
         confer "Cervical traction devices are covered under the Durable Medical Equipment benefit":
 the policy for code a code is cervical_traction
     if the code is in ["E0840", "E0849", "E0850", "E0855", "E0856", "E0860"].
+
+section applicability is:
+
+cervical_traction has no specific documentation requirements.
 
 rule cervical_traction_benefit with provenance Policy Article A52476,
         confer "Cervical traction devices are covered under the Durable Medical Equipment benefit":

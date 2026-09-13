@@ -396,10 +396,8 @@ rule vitd_wps_deficiency_codes with provenance LCD L34658,
 a code is a code of the deficiency conditions of wps
     if the code is in ["E55.0", "E55.9", "E64.3", "M83.0", "M83.1", "M83.2", "M83.3", "M83.4", "M83.5", "M83.8", "M83.9"].
 
-section applicability is:
-
-vitamin_d has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: clinical diagnostic
 % laboratory tests (Claims Processing Manual chapter 16, which the LCD
 % refers to), not durable medical equipment — no home is needed.
@@ -407,6 +405,10 @@ rule vitd_codes with provenance Article A57484,
         confer "82652 (group 1): Vit d 1 25-dihydroxy":
 the policy for code a code is vitamin_d
     if the code is in ["82306", "82652"].
+
+section applicability is:
+
+vitamin_d has no specific documentation requirements.
 
 rule vitd_benefit with provenance LCD L33771,
         confer "Please refer to CMS IOM Publication 100-04, Medicare Claims Processing Manual , Chapter 16, Section 120.1 for additional limitations for Vitamin D assay testing":

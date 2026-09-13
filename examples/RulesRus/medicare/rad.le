@@ -169,16 +169,18 @@ snoring is a symptom of central sleep apnea,
 witnessed apneas is a symptom of central sleep apnea,
     as stated in LCD L33800, confer "Snoring Witnessed apneas".
 
-section applicability is:
-
-rad has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical equipment
 % (Policy Article A52517). E0470 is also a code of pap.le, for OSA.
 rule rad_codes with provenance Policy Article A52517,
         confer "Respiratory assist devices are covered under the Durable Medical Equipment benefit":
 the policy for code a code is rad
     if the code is in ["E0470", "E0471"].
+
+section applicability is:
+
+rad has no specific documentation requirements.
 
 rule rad_benefit with provenance Policy Article A52517,
         confer "Respiratory assist devices are covered under the Durable Medical Equipment benefit":

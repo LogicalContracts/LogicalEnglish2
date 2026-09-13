@@ -292,8 +292,8 @@ a lithium battery was furnished for a device within three years before a date
     and the number >= 0
     and the number < 1095.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical equipment
 % (Policy Article A52504). The list holds the codes with criteria and those
 % the LCD or the Article denies (E2301, the non-sealed batteries, E2367): a
@@ -302,6 +302,8 @@ rule wo_codes with provenance Policy Article A52504,
         confer "Wheelchair options and accessories are covered under the Durable Medical Equipment benefit":
 the policy for code a code is wheelchair_options
     if the code is in ["E0973", "K0017", "K0018", "K0020", "E2209", "E0990", "K0046", "K0047", "K0053", "K0195", "E2201", "E2202", "E2203", "E2204", "E2227", "E2359", "E2361", "E2363", "E2365", "E2371", "K0733", "E2358", "E2360", "E2362", "E2364", "E2372", "E2366", "E2367", "E2397", "E1002", "E1003", "E1004", "E1005", "E1006", "E1007", "E1008", "E1009", "E1010", "E1012", "E2298", "E2301", "E2310", "E2311", "E2312", "E2321", "E2322", "E2325", "E2327", "E2328", "E2329", "E2330", "E2373", "E2377", "E2313", "E2331", "E2351", "E0974", "E0978", "E1028", "E1032", "E1226"].
+
+section applicability is:
 
 rule wo_benefit with provenance Policy Article A52504,
         confer "Wheelchair options and accessories are covered under the Durable Medical Equipment benefit":

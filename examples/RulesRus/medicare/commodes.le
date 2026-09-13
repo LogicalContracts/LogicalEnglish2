@@ -99,16 +99,18 @@ commode code "E0175" is noncovered by the Policy Article,
 commode code "E0244" is noncovered by the Policy Article,
     as stated in Policy Article A52461, confer "A raised toilet seat (E0244) is noncovered".
 
-section applicability is:
-
-commodes has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides: the commode chairs, the pail or pan, the
 % footrest and the raised toilet seat.
 rule commodes_codes with provenance Policy Article A52461,
         confer "Commodes are covered under the Durable Medical Equipment benefit":
 the policy for code a code is commodes
     if the code is in ["E0163", "E0165", "E0167", "E0168", "E0170", "E0171", "E0175", "E0244"].
+
+section applicability is:
+
+commodes has no specific documentation requirements.
 
 % Their benefit: durable medical equipment, except the footrest and the
 % raised toilet seat.

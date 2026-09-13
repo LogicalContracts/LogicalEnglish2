@@ -128,12 +128,14 @@ the expected duration of need for an item is under three months
     if the expected duration of need for the item is a number months
     and the number < 3.
 
-section applicability is:
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 rule mwc_codes with provenance Policy Article A52497,
         confer "Manual wheelchairs are covered under the Durable Medical Equipment benefit":
 the policy for code a code is manual wheelchairs
     if manual wheelchair code the code describes a kind.
+
+section applicability is:
 
 rule mwc_benefit with provenance Policy Article A52497,
         confer "Manual wheelchairs are covered under the Durable Medical Equipment benefit":

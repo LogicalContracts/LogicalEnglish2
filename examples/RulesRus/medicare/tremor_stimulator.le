@@ -111,19 +111,21 @@ self care is an upper limb activity of daily living,
 writing is an upper limb activity of daily living,
     as stated in LCD L39591, confer "for at least one (1) assessment item for eating, drinking, self-care, or writing".
 
-section applicability is:
-
-% The article's policy-specific documentation requirements restate the
-% LCD's criteria, each read from the record by the rules below; the
-% modifiers are billing: none of the policy's own.
-tremor_stimulator has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment (Policy Article A59680).
 rule tremor_codes with provenance Policy Article A59680,
         confer "External upper limb tremor stimulators and related supplies and accessories meet the benefit requirements for Durable Medical Equipment":
 the policy for code a code is tremor_stimulator
     if the code is in ["E0734", "A4542"].
+
+section applicability is:
+
+% The article's policy-specific documentation requirements restate the
+% LCD's criteria, each read from the record by the rules below; the
+% modifiers are billing: none of the policy's own.
+tremor_stimulator has no specific documentation requirements.
 
 rule tremor_benefit with provenance Policy Article A59680,
         confer "External upper limb tremor stimulators and related supplies and accessories meet the benefit requirements for Durable Medical Equipment":

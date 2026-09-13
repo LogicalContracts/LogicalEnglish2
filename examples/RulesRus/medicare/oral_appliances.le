@@ -97,19 +97,21 @@ ischemic heart disease is a qualifying symptom for an oral appliance,
 history of stroke is a qualifying symptom for an oral appliance,
     as stated in LCD L33611, confer "Hypertension, ischemic heart disease, or history of stroke".
 
-section applicability is:
-
-% The Policy Article's policy-specific requirements are the narrative note
-% of the evaluation (criterion A) and the claim modifiers (billing): none of
-% the policy's own.
-oral_appliances has no specific documentation requirements.
-
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
 % The codes this policy decides, and their benefit: durable medical
 % equipment (Policy Article A52512).
 rule oral_codes with provenance Policy Article A52512,
         confer "Oral appliances used to treat obstructive sleep apnea (OSA) are covered under the Durable Medical Equipment benefit":
 the policy for code a code is oral_appliances
     if the code is in ["E0485", "E0486"].
+
+section applicability is:
+
+% The Policy Article's policy-specific requirements are the narrative note
+% of the evaluation (criterion A) and the claim modifiers (billing): none of
+% the policy's own.
+oral_appliances has no specific documentation requirements.
 
 rule oral_benefit with provenance Policy Article A52512,
         confer "Oral appliances used to treat obstructive sleep apnea (OSA) are covered under the Durable Medical Equipment benefit":
