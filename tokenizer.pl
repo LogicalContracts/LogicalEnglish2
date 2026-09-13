@@ -48,9 +48,35 @@ tokenize(String, DecSep, ThouSep, Tokens) :-
     setup_call_cleanup(
         ( retractall(current_num_seps(_, _)),
           assertz(current_num_seps(DecCode, ThouCode)) ),
-        phrase(tokens(0, 1, Tokens), Codes),
+        phrase(tokens(0, 1, Tokens0), Codes),
         retractall(current_num_seps(_, _))
-    ).
+    ),
+    negative_numbers(Tokens0, none, Tokens).
+
+%!  negative_numbers(+Tokens0, +Previous, -Tokens) is det.
+%
+%   A minus sign directly followed by a number ("-5", "-2.5") is a negative
+%   number when the sign is not glued to a preceding word or number: after
+%   the start of a line, a space, an operator or an opening bracket ("has
+%   -5 degrees", ">= -2", "[-1, 2]"), but not in "ICD-10", "3-5" or "x-1".
+%   Binary subtraction is written with spaces ("the amount - 5"), which this
+%   leaves alone because the sign is not attached to the number.
+negative_numbers([], _, []).
+negative_numbers([T|Rest0], Prev, [T1|Out]) :-
+    (   T = punctuation(-, loc(S, E)),
+        Rest0 = [number(N, loc(E, E2))|Rest1],
+        unary_minus_position(Prev, S)
+    ->  M is -N, T1 = number(M, loc(S, E2)), Rest = Rest1
+    ;   T1 = T, Rest = Rest0
+    ),
+    negative_numbers(Rest, T1, Out).
+
+unary_minus_position(none, _) :- !.
+unary_minus_position(indent(_, _), _) :- !.
+unary_minus_position(punctuation(P, _), _) :- !, \+ memberchk(P, [')', ']']).
+unary_minus_position(Prev, S) :-
+    arg(2, Prev, loc(_, PrevEnd)),
+    PrevEnd < S.
 
 %!  tokenize_lang(+String, -Tokens) is det.
 %
