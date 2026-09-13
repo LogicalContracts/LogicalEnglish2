@@ -142,7 +142,7 @@ the oral anticancer drug of an item is a drug
 rule anticancer_codes with provenance Policy Article A52479,
         confer "Oral anticancer drugs are covered under the oral anticancer drug benefit":
 the policy for code a code is oral_anticancer
-    if the code is in ["J8510", "J8520", "J8521", "J8530", "J8560", "J8600", "J8610", "J8700", "J8705", "J8999", "J8498", "J8597", "A9270"].
+    if the code is in ["J8510", "J8520", "J8521", "J8530", "J8560", "J8600", "J8610", "J8700", "J8705", "J8999", "J8498", "J8597"].
 
 section applicability is:
 
