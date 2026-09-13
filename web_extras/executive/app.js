@@ -275,7 +275,8 @@ async function runQuery() {
         const data = await leapi('answeringQuery', {
             sessionModule: session,
             scenario: $('scenario-select').value,
-            query
+            query,
+            whyNot: true
         });
         renderAnswers(data);
     } catch (e) {
@@ -289,7 +290,22 @@ function renderAnswers(data) {
     if (data.error) { box.innerHTML = `<div class="status">${esc(data.error)}</div>`; return; }
     const results = data.results || [];
     if (!results.length) {
-        box.innerHTML = '<div class="answer none"><div class="answer-head">No — no answers for this query.</div></div>';
+        // what the case did not meet (le_why_not.pl), each with its passage
+        const unmet = data.unmet || [];
+        const items = unmet.map(u =>
+            `<li><span class="lit">${esc(u.literal)}</span>
+                 <span class="kind ${u.kind === 'not_stated' ? 'silent' : 'met'}">${esc(u.kind === 'not_stated' ? t('not stated') : t('not met'))}</span>${sourceButton(u)}
+                 ${(u.rule || u.provenance) ? `<div class="cite">${esc(citationLine(u))}</div>` : ''}
+                 ${(u.facts || []).length ? `<div class="cite">${esc(t('given'))}: ${esc(u.facts.join('; '))}</div>` : ''}</li>`).join('');
+        box.innerHTML = `<div class="answer none open"><div class="answer-head">${esc(t('No — no answers for this query.'))}</div>
+            ${unmet.length ? `<div class="cites"><div class="cites-head"><span>${esc(t('Why not'))}</span></div>
+                <ul class="cite-list unmet">${items}</ul></div>` : ''}
+            ${data.why ? `<details class="full"><summary>${esc(t('Full explanation'))}</summary>${renderTree(data.why)}</details>` : ''}</div>`;
+        box.querySelectorAll('button.src').forEach(b => b.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const node = sourceNodes[Number(b.dataset.k)];
+            if (node) openSource(node.provenance, node.rule);
+        }));
         return;
     }
     box.innerHTML = results.map((r, i) => {

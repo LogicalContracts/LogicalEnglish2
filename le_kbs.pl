@@ -1554,9 +1554,12 @@ postprocess_why(success(Goal0, Ref, Children), SM, success(Goal, Range, LE, Chil
     ;  Range = Range0
     ),
     postprocess_why_children(SM, Children, ChildrenOut).
-postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref), Range, LE, ChildrenOut)) :- !,
+postprocess_why(failed_rule(Ref, Children), SM, failure(rule_attempt(Ref, Met, Total), Range, LE, ChildrenOut)) :- !,
     % An intermediate "failed rule" node (detailed failure explanations): label it
     % with the rule's head and point its range at the whole rule for navigation.
+    % Met of its Total conditions held before the furthest one that failed: how
+    % close this alternative came (le_why_not.pl keeps the ones that came closest).
+    rule_progress(Ref, Children, Met, Total),
     ( SM:le_kb_module_fact(KB) -> true; KB = none),
     ( ( SM:le_source_info(Ref, Start, End, RuleID0)
       ; (KB \== none, KB:le_source_info(Ref, Start, End, RuleID0)) )
@@ -1578,6 +1581,46 @@ postprocess_why(Whys, SM, WhysOut) :-
     is_list(Whys), !,
     postprocess_why_children(SM, Whys, WhysOut).
 postprocess_why(Other, _, Other).
+
+%!  rule_progress(+Ref, +Children, -Met, -Total) is det.
+%
+%   How far the attempt at clause Ref got: Total is the number of conditions of
+%   its body (its top-level conjuncts), Met the number that precede the furthest
+%   condition that failed (Children are the attempt's raw failure subtrees, each
+%   at its source position). A body whose conditions carry no positions, or an
+%   attempt with no positioned failure, counts as 0 of Total.
+rule_progress(Ref, Children, Met, Total) :-
+    (   catch(clause(_, Body, Ref), _, fail)
+    ->  body_conjuncts(Body, Conjuncts),
+        length(Conjuncts, Total),
+        (   findall(S, ( member(C, Children), failed_child_start(C, S) ), Ss),
+            Ss \== []
+        ->  max_list(Ss, Furthest),
+            aggregate_all(count,
+                          ( member(Cj, Conjuncts), conjunct_start(Cj, CS), CS < Furthest ),
+                          Met)
+        ;   Met = 0
+        )
+    ;   Met = 0, Total = 0
+    ).
+
+body_conjuncts(and(A, B), Cs) :- !, body_conjuncts(A, CA), body_conjuncts(B, CB), append(CA, CB, Cs).
+body_conjuncts((A, B), Cs) :- !, body_conjuncts(A, CA), body_conjuncts(B, CB), append(CA, CB, Cs).
+body_conjuncts(true, []) :- !.
+body_conjuncts(G, [G]).
+
+% the first source position inside a condition (a negation, an "or" or an
+% aggregate wraps positioned goals)
+conjunct_start(G, S) :-
+    findall(S0, positioned_subterm(G, S0), Ss),
+    Ss \== [], min_list(Ss, S).
+
+failed_child_start(repeated_group(_, W), S) :- !, failed_child_start(W, S).
+failed_child_start(failure(G, _), S) :- !, positioned_subterm(G, S), !.
+
+% the start of a le_at/3 inside a term (never binding the term's variables)
+positioned_subterm(T, S) :-
+    sub_term(X, T), compound(X), X = le_at(_, S, _), integer(S).
 
 %!  why_annotation(+SM, +KB, +Goal, +Ref, +LE0, -LE) is det.
 %
@@ -1823,15 +1866,20 @@ token_to_atom(punctuation(P, _), P) :- !.
 token_to_atom(punctuation(P), P) :- !.
 token_to_atom(punct(P, _), P) :- !.
 token_to_atom(punct(P), P) :- !.
+% a date reads as it is written, 2021-10-09 (it read "2021-10-9T0:0:0.0")
 token_to_atom(date(date(Y,M,D), _), Atom) :- !, 
-    ( number(Y), number(M), number(D) -> format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]); Atom = 'date').
+    ( number(Y), number(M), number(D) -> iso_date_atom(Y, M, D, Atom); Atom = 'date').
 token_to_atom(date(Y,M,D), Atom) :- !,
-    ( number(Y), number(M), number(D) -> format(atom(Atom), '~w-~w-~wT0:0:0.0', [Y,M,D]); Atom = 'date').
+    ( number(Y), number(M), number(D) -> iso_date_atom(Y, M, D, Atom); Atom = 'date').
 token_to_atom(N, Atom) :- number(N), !, number_locale_atom(N, Atom).
 token_to_atom(S, Atom) :- string(S), !, atom_string(Atom, S).
 token_to_atom(A, Atom) :- atom(A), !, 
     ( (A \== '_', sub_atom(A, _, _, _, '_')) -> re_replace("_"/g, " ", A, Atom); Atom = A).
 token_to_atom(X, Atom) :- term_to_atom(X, Atom).
+
+iso_date_atom(Y, M, D, Atom) :-
+    Yi is integer(Y), Mi is integer(M), Di is integer(D),
+    format(atom(Atom), '~d-~|~`0t~d~2+-~|~`0t~d~2+', [Yi, Mi, Di]).
 
 %!  number_locale_atom(+N:number, -Atom) is det.
 %

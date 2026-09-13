@@ -36,21 +36,21 @@ cenário alice é:
 	2021-10-09 é posterior ao início de vigência.
 	Alice é a mãe de John.
 	Alice é cidadã britânica em 2021-10-09.
-    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+    um espera respostas ["John adquire cidadania britânica em 2021-10-09"].
 
 cenário harry é:
 	John nasceu em o Reino Unido em 2021-10-09.
 	2021-10-09 é posterior ao início de vigência.
 	Harry é o pai de John.
 	Harry é residente no Reino Unido em 2021-10-09.
-    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+    um espera respostas ["John adquire cidadania britânica em 2021-10-09"].
 
 cenário confia_harry é:
 	John nasceu em o Reino Unido em 2021-10-09.
 	2021-10-09 é posterior ao início de vigência.
 	Harry diz que Harry é o pai de John.
 	Harry é residente no Reino Unido em 2021-10-09.
-    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+    um espera respostas ["John adquire cidadania britânica em 2021-10-09"].
 
 cenário alice_harry é:
 	John nasceu em o Reino Unido em 2021-10-09.
@@ -59,7 +59,7 @@ cenário alice_harry é:
 	Alice diz que Harry é o pai de John.
     Alice é qualificada para determinar paternidade.
 	Harry é residente no Reino Unido em 2021-10-09.
-    um espera respostas ["John adquire cidadania britânica em 2021-10-9T0:0:0.0"].
+    um espera respostas ["John adquire cidadania britânica em 2021-10-09"].
 
 consulta um é:
     qual pessoa adquire cidadania britânica em qual data.

@@ -27,6 +27,7 @@
 :- use_module(le_i18n).
 :- use_module(le_graph).
 :- use_module(le_documents).
+:- use_module(le_why_not).
 :- use_module(le_scasp).
 :- use_module(le_lps).
 :- use_module(le_assistant).
@@ -915,13 +916,23 @@ handle_nl_to_le(Dict, Response) :-
     % catch still succeeds; then distinguish success (Err unbound) from an error.
     (   catch(english_to_le(Kind, Sentence, Templates, Program, Model, Options, LEText, NewIssues), Err, true)
     ->  (   nonvar(Err)
-        ->  message_to_string(Err, EMsg), Response = _{result: "error", error: EMsg}
+        ->  nl_error_message(Err, EMsg), Response = _{result: "error", error: EMsg}
         ;   nl_issue_messages(NewIssues, Warnings),
             document_address_facts(Dict, Doc, DocFacts),
             Response = _{result: "ok", le: LEText, warnings: Warnings, document_facts: DocFacts}
         )
     ;   Response = _{result: "error", error: "LLM request failed"}
     ).
+
+% nl_error_message(+Error, -Msg): what went wrong, for the person who typed the
+% sentence rather than for a programmer — the LLM client's own explanation
+% ("The model hit max_tokens while still reasoning …", "API returned HTTP 400:
+% …") without the Prolog error term around it.
+nl_error_message(error(_, context(_, M)), Msg) :-
+    ( string(M) ; atom(M) ), M \== '', !,
+    format(string(Msg), "The model could not answer: ~w", [M]).
+nl_error_message(Err, Msg) :-
+    message_to_string(Err, Msg).
 
 % document_address_facts(+Dict, +Doc, -Facts): when facts were extracted from a
 % document at a known `address`, the facts that tell the program where it is —
@@ -1176,6 +1187,24 @@ handle_answering_query(Dict, Response) :-
     retractall(SM:detailed_failures),
     (   get_dict(detailedFailures, Dict, true) -> assertz(SM:detailed_failures); true),
 
+    % "Why not" (le_why_not.pl): a FAILED query also replies with its unmet
+    % conditions, `unmet`. They are read off the per-rule failure tree, so the
+    % request turns detailed failures on.
+    dynamic(SM:why_not_requested/0),
+    retractall(SM:why_not_requested),
+    (   get_dict(whyNot, Dict, true)
+    ->  assertz(SM:why_not_requested),
+        ( SM:detailed_failures -> true ; assertz(SM:detailed_failures) )
+    ;   true
+    ),
+
+    % The facts a flip may not change (a view's "the flip keeps ..."): template
+    % labels, for this query only.
+    (   get_dict(keep, Dict, Keep), is_list(Keep), KB \== none
+    ->  le_flip:keep_templates(KB, Keep)
+    ;   le_flip:keep_templates(none, [])
+    ),
+
     % "Larger important reasons": for a FAILED query, render ALL of the deepest
     % failure nodes (up to three) as the important reason, not just the first.
     % ON by default (the client sends it explicitly); disabled only when the
@@ -1198,7 +1227,10 @@ handle_answering_query(Dict, Response) :-
             ; get_dict(query, Dict, Query)
         ),
         (   nonvar(ErrorQuery) -> Response = _{error: ErrorQuery}
-        ;   catch(run_interruptible_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg})
+        ;   % the kept templates are this query's only (a thread serves many)
+            setup_call_cleanup(true,
+                catch(run_interruptible_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg}),
+                le_flip:keep_templates(none, []))
         )
     ).
 
@@ -1271,7 +1303,12 @@ run_answering_query(SM, Query, KB, Response) :-
                 (   important_reason_failed(JSONWhy, Larger, Reason, ReasonPath) -> true
                 ;   strongest_reason(JSONWhy, KB, Reason, ReasonPath)
                 ),
-                Response = _{results: [], why: JSONWhy, strongestReason: Reason, strongestReasonPath: ReasonPath, result: "ok", checklist: Checklist}
+                Response0 = _{results: [], why: JSONWhy, strongestReason: Reason, strongestReasonPath: ReasonPath, result: "ok", checklist: Checklist},
+                (   catch(SM:why_not_requested, _, fail),
+                    catch(le_why_not:unmet_json(SM, KB, Why, Unmet), E, (print_message(error, E), fail))
+                ->  Response = Response0.put(unmet, Unmet)
+                ;   Response = Response0
+                )
             ;   Response = _{results: [], error: "Explanation failed", result: "ok"}
         )
     ).
@@ -1332,8 +1369,20 @@ handle_open_questions(Dict, Response) :-
         ;   copy_term(Goal, G0),
             ( catch(once(le_kbs:query(SM, G0, _, [], _)), _, fail) -> Holds = true ; Holds = false ),
             copy_term(Goal, G1),
-            (   catch(le_kbs:query_explain(SM, G1, _, _, Why), _, fail) -> true ; Why = [] ),
-            findall(N, ( failed_path_leaf(Why, N) ), Missing0),
+            % the per-rule failure tree, so that only the alternatives that came
+            % closest ask for anything (le_why_not.pl)
+            dynamic(SM:detailed_failures/0),
+            ( catch(SM:detailed_failures, _, fail) -> Detailed = true ; Detailed = false ),
+            setup_call_cleanup(
+                ( Detailed == true -> true ; assertz(SM:detailed_failures) ),
+                (   catch(le_kbs:query_explain(SM, G1, _, _, Why), _, fail) -> true ; Why = [] ),
+                ( Detailed == true -> true ; retractall(SM:detailed_failures) )),
+            (   Holds == false,
+                catch(le_why_not:unmet_conditions(SM, KB, Why, Unmet), _, fail)
+            ->  % the facts the case could state that the closest routes lack
+                findall(failure(G, R, LE, []), member(unmet(not_stated, G, LE, R, _), Unmet), Missing0)
+            ;   findall(N, ( failed_path_leaf(Why, N) ), Missing0)
+            ),
             findall(N, ( any_failure(Why, N) ), Touched0),
             open_fact_nodes(KB, Missing0, Missing),
             open_fact_nodes(KB, Touched0, Touched),
@@ -2108,12 +2157,15 @@ convert_why(success(Goal, Ref, LE, Children), KB, JSON) :- !,
 % A "failed clause attempt" node (rule_attempt): one per clause whose head matched the
 % failed goal (detailed failure explanations). Marked `ruleAttempt` so the important
 % reason treats these extra structural nodes as transparent.
-convert_why(failure(rule_attempt(_), range(Start, End), LE, Children), KB, JSON) :- !,
+% `met` of its `conditions` held before the furthest failed one.
+convert_why(failure(rule_attempt(_, Met, Total), range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    JSON = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren, ruleAttempt: true}.
-convert_why(failure(rule_attempt(_), _Ref, LE, Children), KB, JSON) :- !,
+    JSON = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren, ruleAttempt: true,
+             met: Met, conditions: Total}.
+convert_why(failure(rule_attempt(_, Met, Total), _Ref, LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
-    JSON = _{type: "failure", literal: LE, children: JSONChildren, ruleAttempt: true}.
+    JSON = _{type: "failure", literal: LE, children: JSONChildren, ruleAttempt: true,
+             met: Met, conditions: Total}.
 convert_why(failure(Goal, range(Start, End), LE, Children), KB, JSON) :- !,
     maplist(convert_why_child(KB), Children, JSONChildren),
     JSON0 = _{type: "failure", literal: LE, start: Start, end: End, children: JSONChildren},

@@ -83,6 +83,48 @@ test.describe('LE Views', () => {
         await expect(root.locator('[data-widget="result"] .lv-big').first()).toHaveText('400', { timeout: 60000 });
     });
 
+    // Why not (le_why_not.pl): a failed result lists the conditions it did not
+    // meet — the file silent on one, or saying otherwise — with the stages in
+    // the view's words, a letter for the outcome, and a flip that keeps what
+    // the view says it keeps.
+    test('a failed result says why not, in the view\'s words and letter', async ({ page }) => {
+        test.setTimeout(180000);
+        await page.goto('/executive?program=RulesRus/sections_benefit&view=rent%20decision&scenario=not_eligible');
+        await ready(page);
+        const root = page.locator('#view-root');
+        await expect(root.locator('[data-widget="result"]')).toContainText('No help', { timeout: 60000 });
+        await expect(root.locator('[data-widget="result"]')).toContainText('fails at Eligibility');
+        await expect(root.locator('[data-widget="stage"]')).toContainText('Who the scheme is for');
+        const why = root.locator('[data-widget="reasons"]');
+        await expect(why.locator('.lv-h')).toContainText('Why not');
+        await expect(why.locator('.lv-unmet', { hasText: 'cy is on a low income' })).toBeVisible();
+        await expect(why.locator('.lv-kind.silent')).toHaveText('not stated');
+        const draft = root.locator('.lv-draft');
+        await expect(draft).toContainText('We cannot grant your application. It does not meet:');
+        await expect(draft).toContainText('- cy is on a low income (not stated)');
+        await expect(draft).toContainText('Please send us, if you have it:\n- cy is on a low income');
+        // out of scope: the only change would be the residence, which the flip keeps
+        await root.locator('select').first().selectOption('out_of_scope');
+        // (the query asks which person: nobody stated resident is the reason)
+        await expect(why.locator('.lv-unmet', { hasText: 'is resident' })).toBeVisible({ timeout: 60000 });
+        await expect(why).not.toContainText('rule_');
+        await root.locator('[data-widget="whatif"] button', { hasText: 'Find the smallest changes' }).click();
+        await expect(root.locator('[data-widget="whatif"]')).toContainText('No change of up to three facts would change it.', { timeout: 60000 });
+        // a case that holds: the other letter
+        await root.locator('select').first().selectOption('yes');
+        await expect(root.locator('[data-widget="result"]')).toContainText('Help granted', { timeout: 60000 });
+        await expect(draft).toContainText('We have granted your application: the help for ann is 400.');
+    });
+
+    test('the plain screen says why not for a query with no answer', async ({ page }) => {
+        test.setTimeout(120000);
+        await page.goto('/executive?program=RulesRus/sections_benefit&scenario=not_eligible&query=help');
+        const answers = page.locator('#answers');
+        await expect(answers).toContainText('Why not', { timeout: 60000 });
+        await expect(answers.locator('.cite-list.unmet li', { hasText: 'cy is on a low income' })).toBeVisible();
+        await expect(answers.locator('.kind.silent')).toHaveText('not stated');
+    });
+
     test('a program without views offers its automatic view, drawn when opened', async ({ page }) => {
         test.setTimeout(120000);
         await page.goto('/executive?program=citizenship');

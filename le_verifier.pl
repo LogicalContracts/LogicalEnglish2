@@ -6,7 +6,8 @@
 */
 
 :- module(le_verifier, [verify/2, verify/3, print_issue/1, is_intensional/3, find_in_body/2,
-                        unmatched_sentences/3, slot_values/5, with_rule_index/2]).
+                        unmatched_sentences/3, slot_values/5, with_rule_index/2,
+                        read_by_a_rule/3]).
 
 :- use_module(le_kbs, [is_system_predicate/1, run_one_test/3, canonical_string/2, ensure_kb_language/1]).
 :- use_module(le_i18n).
@@ -457,9 +458,14 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     \+ is_scenario_element_functor(KB, FL, AL),
     % ... and for templates answered by a service at run time.
     \+ ( current_predicate(KB:le_service_template/2), KB:le_service_template(FL/AL, _) ),
+    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0),
+    % ... and for a template an included library's rules read and leaves to the
+    % programs that include it (an extension point: "the policy has no
+    % specific documentation requirements", which some policies state and
+    % others need not).
+    \+ ( in_included_resource(Start), le_kbs:template_of(KB, FL, AL, _, _) ),
     le_i18n:le_msg(undefined_predicate_desc, [functor-FL, arity-AL], Description),
-    le_i18n:le_msg(undefined_predicate_fix, [], Fix),
-    ( clause(KB:le_source_info(Ref, Start, End, _), true) -> true; Start = 0, End = 0).
+    le_i18n:le_msg(undefined_predicate_fix, [], Fix).
 
 % --- 2a. Suspicious "is a" (predicate absorbed into a constant type) ---
 % The generic "*X* is a *Y*" template matches almost any "... is ..." sentence,
@@ -653,12 +659,25 @@ is_intensional(KB, F, A) :-
 % (when marked `undefined`) it invites a scenario that will never be read.
 % Generated programs are especially prone to it: a drafting model invents leaf
 % classifications like `*a cost* is a cost; undefined.` that no rule consults.
+%
+% A template an INCLUDED resource declares is not this program's to use: a
+% library offers vocabulary to every program that includes it, and each uses
+% part of it (a shared DMEPOS library declares a weight that the oxygen policy
+% never reads). It is reported when the library itself is verified.
 unused_template(KB, issue(unused_template, Description, Fix, Start, End)) :-
     le_kbs:template_of(KB, F, A, Dict, Label),
     \+ template_used(KB, F, A),
+    template_source(KB, Dict, Start, End),
+    \+ in_included_resource(Start),
     le_i18n:le_msg(unused_template_desc, [template-Label], Description),
-    unused_template_fix(KB, Label, Fix),
-    template_source(KB, Dict, Start, End).
+    unused_template_fix(KB, Label, Fix).
+
+%!  in_included_resource(+Offset) is semidet.
+%   Offset is a position in a resource the program includes, not in its own text.
+in_included_resource(Offset) :-
+    integer(Offset),
+    le_grammar:resource_offset_unit(Unit),
+    Offset >= Unit.
 
 %!  unused_template_fix(+KB, +Label, -Fix) is det.
 %
@@ -1183,10 +1202,10 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited]) },
+    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w' - [Type, Msg] ].
 
 % ---------------------------------------------------------------------------
@@ -1256,6 +1275,17 @@ with_rule_index(KB, Goal) :-
     group_pairs_by_key(Pairs, Grouped),
     list_to_assoc(Grouped, Index),
     setup_call_cleanup(asserta(rule_index(KB, Index), Ref), Goal, erase(Ref)).
+
+%!  read_by_a_rule(+KB, +F, +A) is semidet.
+%
+%   A condition of some rule of the program is of predicate F/A (through the
+%   index of with_rule_index/2 when one is built).
+read_by_a_rule(KB, F, A) :-
+    (   rule_index(KB, Index)
+    ->  get_assoc(F/A, Index, [_|_])
+    ;   kb_rule(KB, _, Body),
+        find_in_body(Body, Lit), callable(Lit), functor(Lit, F, A)
+    ), !.
 
 kb_rule(KB, Head, Body) :-
     current_predicate(KB:P/N), functor(Head, P, N),

@@ -26,7 +26,9 @@
 
 :- module(le_flip, [
     minimal_changes/5,          % +Goal, +SM, +KM, -ChangeSets, -Proofs
-    change_words/3              % +KM, +Change, -Words
+    change_words/3,             % +KM, +Change, -Words
+    keep_templates/2,           % +KM, +Labels
+    kept/1                      % +Goal
 ]).
 
 :- use_module(le_i18n).
@@ -37,6 +39,31 @@ max_evaluations(Max) :-
     ( current_prolog_flag(le_flip_max_evaluations, M), integer(M) -> Max = M ; Max = 400 ).
 
 :- thread_local evaluations/1.
+:- thread_local kept_template/2.     % kept_template(Functor, Arity)
+
+%!  keep_templates(+KM, +Labels) is det.
+%
+%   The templates whose facts the flips of this thread leave as they are, by
+%   label ("the HCPCS code of *an item* is *a code*") — what a view says the
+%   flip keeps: the facts that define the case, which no answer should propose
+%   to add, remove or change. [] (or KM none) keeps none.
+keep_templates(KM, Labels) :-
+    retractall(kept_template(_, _)),
+    forall(( KM \== none, member(L0, Labels),
+             ( string(L0) -> L = L0 ; atom_string(L0, L) ),
+             catch(le_kbs:template_def(KM, F, A, Label, _, _), _, fail),
+             same_label(Label, L) ),
+           assertz(kept_template(F, A))).
+
+same_label(Label, L) :-
+    atom_string(Label, S1),
+    normalize_space(string(A), S1), normalize_space(string(B), L),
+    A == B.
+
+%!  kept(+Goal) is semidet.
+%   Goal's template is one the flips of this thread keep.
+kept(G) :-
+    callable(G), functor(G, F, A), kept_template(F, A), !.
 
 %!  minimal_changes(+Goal, +SM, +KM, -ChangeSets, -Proofs) is det.
 %
@@ -119,14 +146,14 @@ candidate_pool(T, KM, Base, Set, Pool) :-
     sort(Called0, Called),
     findall(add(G),
             ( member(G, Called), ground(G),
-              changeable(KM, G),
+              changeable(KM, G), \+ kept(G),
               \+ current_fact(T, G) ),
             Adds),
     Base = base(Facts, _),
     findall(remove(F),
             ( member(fact(F, _, _), Facts),
               \+ ( member(remove(R), Set), R =@= F ),
-              changeable(KM, F),
+              changeable(KM, F), \+ kept(F),
               member(G, Called), \+ \+ G = F ),
             Removes),
     append(Adds, Removes, Pool0),

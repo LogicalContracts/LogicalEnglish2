@@ -1374,6 +1374,24 @@ var keywords = {
         "draft",
         "reads"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "the",
+        "flip",
+        "keeps"
+      ]
+    ],
+    "view_section": [
+      [
+        "the",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
+        "reads"
+      ]
     ]
   },
   "pt": {
@@ -3059,6 +3077,28 @@ var keywords = {
         "rascunho",
         "diz"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "a",
+        "invers\xE3o",
+        "mant\xE9m"
+      ]
+    ],
+    "view_section": [
+      [
+        "a",
+        "sec\xE7\xE3o"
+      ],
+      [
+        "a",
+        "se\xE7\xE3o"
+      ]
+    ],
+    "view_reads": [
+      [
+        "diz"
+      ]
     ]
   },
   "es": {
@@ -4678,6 +4718,24 @@ var keywords = {
         "borrador",
         "dice"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "la",
+        "inversi\xF3n",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "secci\xF3n"
+      ]
+    ],
+    "view_reads": [
+      [
+        "dice"
+      ]
     ]
   },
   "fr": {
@@ -6270,6 +6328,23 @@ var keywords = {
       [
         "le",
         "brouillon",
+        "dit"
+      ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversion",
+        "garde"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "section"
+      ]
+    ],
+    "view_reads": [
+      [
         "dit"
       ]
     ]
@@ -7928,6 +8003,23 @@ var keywords = {
         "bozza",
         "dice"
       ]
+    ],
+    "view_flip_keeps": [
+      [
+        "l'inversione",
+        "mantiene"
+      ]
+    ],
+    "view_section": [
+      [
+        "la",
+        "sezione"
+      ]
+    ],
+    "view_reads": [
+      [
+        "dice"
+      ]
     ]
   }
 };
@@ -8286,6 +8378,12 @@ var uiCatalog = {
     "Other facts": "Outros factos",
     "Facts": "Factos",
     "not stated": "n\xE3o indicado",
+    "not met": "n\xE3o cumprido",
+    "Why not": "Porque n\xE3o",
+    "one of": "um de",
+    "The text the model wrote:": "O texto que o modelo escreveu:",
+    "No \u2014 no answers for this query.": "N\xE3o \u2014 esta consulta n\xE3o tem respostas.",
+    "given": "dado que",
     "State it": "Indic\xE1-lo",
     "No answer": "Sem resposta",
     "assuming": "supondo",
@@ -8345,7 +8443,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "O resultado verifica-se desde que isto se verifique.",
     "Open Executive View": "Abrir a vista executiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Executar o programa como os seus utilizadores o veem, sem o texto: a vista executiva, com as vistas do programa, numa nova janela",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "A c\xF3pia do editor deste programa n\xE3o est\xE1 neste navegador: este \xE9 o programa tal como foi guardado."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "A c\xF3pia do editor deste programa n\xE3o est\xE1 neste navegador: este \xE9 o programa tal como foi guardado.",
+    "Automatic view": "Vista autom\xE1tica",
+    "Drawing the view\u2026": "A desenhar a vista\u2026",
+    "No view could be drawn from this program.": "N\xE3o foi poss\xEDvel desenhar uma vista a partir deste programa.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Desenhada a partir do pr\xF3prio programa. Para a alterar, o Assistente LE do editor escreve-a: Gerar vista LE."
   },
   "es": {
     "+ Add": "+ A\xF1adir",
@@ -8700,6 +8802,12 @@ var uiCatalog = {
     "Other facts": "Otros hechos",
     "Facts": "Hechos",
     "not stated": "no indicado",
+    "not met": "no cumplido",
+    "Why not": "Por qu\xE9 no",
+    "one of": "uno de",
+    "The text the model wrote:": "El texto que escribi\xF3 el modelo:",
+    "No \u2014 no answers for this query.": "No \u2014 esta consulta no tiene respuestas.",
+    "given": "dado que",
     "State it": "Indicarlo",
     "No answer": "Sin respuesta",
     "assuming": "suponiendo",
@@ -8759,7 +8867,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "El resultado se cumple siempre que esto se cumpla.",
     "Open Executive View": "Abrir la vista ejecutiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ejecutar el programa como lo ven sus usuarios, sin su texto: la vista ejecutiva, con las vistas del programa, en una nueva ventana",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no est\xE1 en este navegador: este es el programa tal como se guard\xF3."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia del editor de este programa no est\xE1 en este navegador: este es el programa tal como se guard\xF3.",
+    "Automatic view": "Vista autom\xE1tica",
+    "Drawing the view\u2026": "Dibujando la vista\u2026",
+    "No view could be drawn from this program.": "No se pudo dibujar una vista a partir de este programa.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Dibujada a partir del propio programa. Para cambiarla, el Asistente LE del editor la escribe: Generar vista LE."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9114,6 +9226,12 @@ var uiCatalog = {
     "Other facts": "Autres faits",
     "Facts": "Faits",
     "not stated": "non indiqu\xE9",
+    "not met": "non rempli",
+    "Why not": "Pourquoi pas",
+    "one of": "l\u2019un de",
+    "The text the model wrote:": "Le texte \xE9crit par le mod\xE8le :",
+    "No \u2014 no answers for this query.": "Non \u2014 cette requ\xEAte n\u2019a pas de r\xE9ponse.",
+    "given": "\xE9tant donn\xE9",
     "State it": "L'indiquer",
     "No answer": "Pas de r\xE9ponse",
     "assuming": "en supposant",
@@ -9173,7 +9291,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "Le r\xE9sultat vaut pourvu que cela vaille.",
     "Open Executive View": "Ouvrir la vue ex\xE9cutive",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Ex\xE9cuter le programme tel que ses utilisateurs le voient, sans son texte : la vue ex\xE9cutive, avec les vues du programme, dans une nouvelle fen\xEAtre",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'\xE9diteur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistr\xE9."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copie de l'\xE9diteur de ce programme n'est pas dans ce navigateur : voici le programme tel qu'enregistr\xE9.",
+    "Automatic view": "Vue automatique",
+    "Drawing the view\u2026": "Construction de la vue\u2026",
+    "No view could be drawn from this program.": "Aucune vue n'a pu \xEAtre tir\xE9e de ce programme.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Tir\xE9e du programme lui-m\xEAme. Pour la modifier, l'Assistant LE de l'\xE9diteur l'\xE9crit : G\xE9n\xE9rer une vue LE."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -9528,6 +9650,12 @@ var uiCatalog = {
     "Other facts": "Altri fatti",
     "Facts": "Fatti",
     "not stated": "non indicato",
+    "not met": "non soddisfatto",
+    "Why not": "Perch\xE9 no",
+    "one of": "uno tra",
+    "The text the model wrote:": "Il testo scritto dal modello:",
+    "No \u2014 no answers for this query.": "No \u2014 questa interrogazione non ha risposte.",
+    "given": "dato che",
     "State it": "Indicarlo",
     "No answer": "Nessuna risposta",
     "assuming": "supponendo",
@@ -9587,7 +9715,11 @@ var uiCatalog = {
     "The result holds provided that it does.": "Il risultato vale purch\xE9 questo valga.",
     "Open Executive View": "Apri la vista esecutiva",
     "Run the program as its users see it, without its text: the executive view, with the program's views, in a new window": "Eseguire il programma come lo vedono i suoi utenti, senza il testo: la vista esecutiva, con le viste del programma, in una nuova finestra",
-    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non \xE8 in questo browser: questo \xE8 il programma come salvato."
+    "The editor's copy of this program is not in this browser: this is the program as saved.": "La copia dell'editor di questo programma non \xE8 in questo browser: questo \xE8 il programma come salvato.",
+    "Automatic view": "Vista automatica",
+    "Drawing the view\u2026": "Costruzione della vista\u2026",
+    "No view could be drawn from this program.": "Non \xE8 stato possibile ricavare una vista da questo programma.",
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Ricavata dal programma stesso. Per modificarla, l'Assistente LE dell'editor la scrive: Genera vista LE."
   }
 };
 var languages = [
@@ -10474,6 +10606,9 @@ function ensureStyles() {
         .nl-status { font-size: 12px; margin: 10px 0 0 0; min-height: 16px; white-space: pre-line; }
         .nl-status.error { color: #f48771; }
         .nl-status.warn { color: #e2b93d; }
+        .nl-preview { margin: 10px 0 0; max-height: 180px; overflow: auto; white-space: pre-wrap; font-size: 12px;
+                      border: 1px solid rgba(128,128,128,.4); border-radius: 4px; padding: 6px 8px; }
+        .nl-preview-label { font-size: 12px; margin: 10px 0 0; opacity: .8; }
         .nl-actions { display: flex; gap: 10px; align-items: center; justify-content: flex-end; margin-top: 14px; }
         .nl-actions .spacer { flex: 1; }
         .nl-model { color: var(--muted, #888); font-size: 11px; }
@@ -10528,6 +10663,13 @@ function openNlInput(opts) {
   textarea.placeholder = opts.placeholder || "Type your sentence(s) here\u2026";
   const status = document.createElement("div");
   status.className = "nl-status";
+  const previewLabel = document.createElement("div");
+  previewLabel.className = "nl-preview-label";
+  previewLabel.textContent = t("The text the model wrote:");
+  const preview = document.createElement("pre");
+  preview.className = "nl-preview";
+  previewLabel.hidden = true;
+  preview.hidden = true;
   const actions = document.createElement("div");
   actions.className = "nl-actions";
   const model = assistantModel();
@@ -10597,6 +10739,8 @@ function openNlInput(opts) {
     dialog.appendChild(box);
   }
   dialog.appendChild(textarea);
+  dialog.appendChild(previewLabel);
+  dialog.appendChild(preview);
   dialog.appendChild(status);
   dialog.appendChild(actions);
   document.body.appendChild(overlay);
@@ -10631,6 +10775,8 @@ function openNlInput(opts) {
     primaryMode = "generate";
     generate.textContent = t("Generate");
     regenerate.style.display = "none";
+    previewLabel.hidden = true;
+    preview.hidden = true;
   }
   textarea.addEventListener("input", () => {
     if (primaryMode === "insert")
@@ -10689,6 +10835,9 @@ ${res.document_facts.map((f) => `${f}.`).join("\n")}`;
           close();
         } else {
           pendingLe = res.le;
+          preview.textContent = res.le.trim();
+          previewLabel.hidden = false;
+          preview.hidden = false;
           primaryMode = "insert";
           generate.textContent = t("Insert anyway");
           regenerate.style.display = "";

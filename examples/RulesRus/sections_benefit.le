@@ -80,3 +80,28 @@ the view rent help is:
     the result asks what is missing.
     the cases are listed with their results.
     the draft reads "We have assessed your application: {the answer}.".
+
+% A second view: the decision as the scheme words it — its sections in its own
+% words, why an application fails (the conditions it does not meet, and which
+% of them the file is silent on), a what-if that keeps the applicant's
+% residence as it is, and a letter for each outcome.
+the view rent decision is:
+    the title is "Rent help decision".
+    the case is a scenario.
+    the facts about "the applicant" are
+        a person is resident,
+        a person is on a low income,
+        the rent of a person is an amount.
+    the result is the answer to query help, headed by the amount.
+    the result reads "Help granted" when it holds.
+    the result reads "No help" when it does not.
+    the section applicability reads "Who the scheme is for".
+    the section question reads "Eligibility".
+    the section remedy reads "The amount".
+    the result shows the stage it reaches.
+    the result shows its reasons.
+    the result can be flipped.
+    the flip keeps
+        a person is resident.
+    the draft reads "We have granted your application: {the answer}." when it holds.
+    the draft reads "We cannot grant your application. It does not meet:\n{the reasons}\n\nPlease send us, if you have it:\n{the missing}" when it does not.

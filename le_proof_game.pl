@@ -254,6 +254,8 @@ engine_goal_ready(le_equal_to(X, Y)) :- !, ( ground(X) -> true ; ground(Y) ).
 engine_goal_ready(equal_to(X, Y)) :- !, ( ground(X) -> true ; ground(Y) ).
 engine_goal_ready(le_is_days_after(L, C, B)) :- !,
     include(ground, [L, C, B], Bound), length(Bound, N), N >= 2.
+engine_goal_ready(le_is_months_after(L, C, B)) :- !,
+    include(ground, [L, C, B], Bound), length(Bound, N), N >= 2.
 engine_goal_ready(G) :- ground(G).
 
 % A built-in that raises (a value of the wrong kind) is left unjudged.

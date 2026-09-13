@@ -252,6 +252,34 @@ test.describe('Scenario Editor', () => {
         await expect(page.locator('.nl-dialog button.primary')).toHaveText('Insert anyway');
     });
 
+    // A result that verified with something to say is shown before it is
+    // inserted: the reader sees what the model wrote, not only the warnings.
+    test('Write it in English… shows the generated text beside its warnings', async ({ page }) => {
+        const seed = { source: 'the templates are:\n    *a person* is happy.\n' };
+        await page.goto('index.html');
+        await page.evaluate((s) => {
+            localStorage.setItem('le_scenario_editor_data', JSON.stringify(s));
+            localStorage.setItem('le-assistant-model', 'openai/gpt-oss-120b');
+        }, seed);
+        await page.route('**/leapi*', async (route) => {
+            const body = JSON.parse(route.request().postData() || '{}');
+            if (body.operation === 'nl_to_le') {
+                await route.fulfill({ status: 200, contentType: 'application/json',
+                    body: JSON.stringify({ result: 'ok', le: 'bob is happy.\nann is happy.',
+                        warnings: ['[warning] line 1: No rule of the program reads "bob"'] }) });
+            } else { await route.continue(); }
+        });
+        await page.goto('scenario-editor.html');
+        await page.fill('#scenario-name', 'nl2');
+        await page.selectOption('#add-template', '__write_in_english__');
+        await page.click('#btn-add');
+        await page.fill('.nl-dialog textarea', 'Bob and Ann are happy');
+        await page.click('.nl-dialog button.primary');
+        await expect(page.locator('.nl-preview')).toBeVisible();
+        await expect(page.locator('.nl-preview')).toContainText('ann is happy.');
+        await expect(page.locator('.nl-dialog button.primary')).toHaveText('Insert anyway');
+    });
+
     test('Insert into Editor replaces the scenario in the document', async ({ context }) => {
         // The real editor, seeded with the program via the URL text param.
         const editorPage = await context.newPage();

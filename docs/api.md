@@ -225,6 +225,9 @@ Requires a prior `load` call to obtain `sessionModule`.
 | `scenario` | string | Named scenario or Prolog term string |
 | `customScenario` | string | (Optional) LE facts to add to session |
 | `customQuery` | string | (Optional) LE query string to parse and run |
+| `whyNot` | boolean | (Optional) for a query with no answer, also reply `unmet`: the conditions it did not meet (docs/le_summary.md §17.10, "Why not") |
+| `keep` | list of strings | (Optional) template labels whose facts a flip query leaves as they are (§17.7) |
+| `detailedFailures` | boolean | (Optional) one explanation node per rule attempted in a failure explanation (set by `whyNot`) |
 
 **Response**
 
@@ -237,7 +240,7 @@ Requires a prior `load` call to obtain `sessionModule`.
 
 Each result's `unknowns` lists the unknown goals (the non-empty third argument of `i/4`) associated with that answer, rendered as Logical English template instances. The editor shows them in a tooltip on the answer. The list is empty when the answer has no unknown goals.
 
-If no answers are found, a negative explanation is returned in the `why` field of the top-level object.
+If no answers are found, a negative explanation is returned in the `why` field of the top-level object. With `whyNot`, the reply also has `unmet`: a list of `{literal, kind, facts, rule?, provenance?, label?, goal?, values?}` — `kind` is `not_stated` (a fact the case could state and does not) or `not_met`; `rule` and `provenance` are those of the rule that asks for the condition (its name only when the author named it); `facts` the conditions of that rule that held; for a `not_stated` fact, its template `label`, the `goal` to state and the `values` the rules read at each place.
 
 ---
 

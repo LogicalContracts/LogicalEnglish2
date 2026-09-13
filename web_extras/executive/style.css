@@ -157,6 +157,12 @@ button.src { padding: 0 7px; margin-left: 4px; font-family: Georgia, serif; }
 .cite-list li { margin: 8px 0; font-size: 14px; }
 .cite-list .cite { color: var(--muted); font-size: 13px; font-style: italic; margin-top: 2px; }
 details.full > summary { cursor: pointer; color: var(--accent); font-size: 14px; margin: 8px 0; }
+/* Why not: the conditions a failed query did not meet */
+.answer.none .cites, .answer.none details.full { padding: 0 16px; }
+.cite-list.unmet { list-style: none; padding-left: 4px; }
+.cite-list.unmet li > .lit::before { content: "✗ "; color: var(--fail); }
+.kind { font-size: 11px; border: 1px solid; border-radius: 10px; padding: 0 7px; margin-left: 6px; }
+.kind.silent { color: var(--unknown); } .kind.met { color: var(--fail); }
 
 /* The source viewer (shared with the editor) in this page's colours */
 :root { --panel-bg: var(--card); --text-color: var(--ink); --field-bg: var(--bg);

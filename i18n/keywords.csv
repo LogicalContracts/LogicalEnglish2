@@ -155,3 +155,6 @@ view,view_listed_as,are listed as,são listadas como,se listan como,sont listée
 view,view_documents,the documents of the case are shown beside the facts|the document of the case is shown beside the facts,os documentos do caso são mostrados ao lado dos factos|o documento do caso é mostrado ao lado dos factos,los documentos del caso se muestran junto a los hechos|el documento del caso se muestra junto a los hechos,les documents du cas sont montrés à côté des faits|le document du cas est montré à côté des faits,i documenti del caso sono mostrati accanto ai fatti|il documento del caso è mostrato accanto ai fatti
 view,view_cases,the cases are listed with their results,os casos são listados com os seus resultados,los casos se listan con sus resultados,les cas sont listés avec leurs résultats,i casi sono elencati con i loro risultati
 view,view_draft,the draft reads,o rascunho diz,el borrador dice,le brouillon dit,la bozza dice
+view,view_flip_keeps,the flip keeps,a inversão mantém,la inversión mantiene,l'inversion garde,l'inversione mantiene
+view,view_section,the section,a secção|a seção,la sección,la section,la sezione
+view,view_reads,reads,diz,dice,dit,dice

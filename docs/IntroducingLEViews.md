@@ -583,17 +583,20 @@ rest of the interface does.
 | `the result is whether <instance>` | a yes/no result, the query written in the view |
 | `the result reads "<text>" when it holds` / `… when it does not` | the result in the view's words |
 | `the result shows its citations` | the cited steps of the proof, each with its passage, and *Copy* |
-| `the result shows its reasons` | the facts the result rests on, or failed on |
+| `the result shows its reasons` | the facts the result rests on; for a result that fails, *Why not*: the conditions it did not meet, each *not stated* or *not met*, with the rule that asks for it and its passage |
 | `the result shows the stage it reaches` | the applicability / question / remedy checklist (§17.4) |
 | `the result asks what is missing` | the case facts the failed proof looked for, or the facts a conditional result waits for, each a click to state |
 | `the facts are asked one at a time` | an interview: the view's questions, each asked only while the result can still depend on it |
 | `the question for <instance> is "<text>"` | the question for a fact, and its wording in the reasons and the flip |
 | `the result can be flipped[, as "<text>"]` | the minimal changes that would change the result (§17.7) |
+| `the flip keeps <instance>, …` | the facts the flip leaves as they are (those that define the case) |
+| `the section <name> reads "<text>"` | a section of the stage, in the view's words |
 | `the answers to "<query body>" are listed as "<title>"` | a table of another question's answers, one column per `which` |
 | `the result is compared with scenario <name>` | the result of another scenario, and where it fails |
 | `the documents of the case are shown beside the facts` | the cited documents, with their passages |
 | `the cases are listed with their results` | every scenario, its result and its expectation |
-| `the draft reads "<text>"` | a text filled from the screen: `{the result}`, `{the answer}`, `{the facts}`, `{the citations}`, `{the case}` |
+| `the draft reads "<text>"` | a text filled from the screen: `{the result}`, `{the answer}`, `{the facts}`, `{the citations}`, `{the reasons}` (what a failed result did not meet), `{the missing}` (of those, the facts to ask for), `{the case}`; a list placeholder alone on its line is one item per line, and `\n` is a new line |
+| `the draft reads "<text>" when it holds` / `… when it does not` | a text for each outcome |
 
 The facts, questions and results a view names are **instances of the program's
 templates**, written as the conditions of a rule are: "a person is resident",
@@ -612,10 +615,13 @@ lines of a list end with commas.
 - **Checking.** The verifier's `view_*` issues come from the same reading, with
   a message and a fix in each language (`i18n/messages.csv`).
 - **Four server operations**, all generic:
-  - `answeringQuery` also returns the **checklist** of a program's sections;
+  - `answeringQuery` also returns the **checklist** of a program's sections,
+    and, asked `whyNot`, the **unmet** conditions of a failed result
+    (`le_why_not.pl`: only the alternatives that came closest; docs/le_summary.md
+    §17.10);
   - **`openQuestions`** returns the case facts a failed proof looked for (the
-    leaves of its failure whose templates a case may state), and the questions
-    a proof touches, which the interview uses;
+    facts the closest alternatives lack, which the case could state), and the
+    questions a proof touches, which the interview uses;
   - **`draftView`** returns the draft of *Generate LE view*;
   - **`automaticView`** returns that draft compiled, for a program that
     declares no view, when a screen opens it.

@@ -112,6 +112,9 @@ function ensureStyles() {
     .lv-res { border-radius: 12px; padding: 12px 14px; font-size: 18px; font-weight: 600; }
     .lv-res.yes { background: #e9f6ee; color: #155e2e; } .lv-res.no { background: #fbeceb; color: #8c1d18; }
     .lv-status { color: var(--lv-muted); font-size: 12.5px; }
+    .lv-kind { display: inline-block; font-size: 11px; border-radius: 10px; padding: 0 7px; margin-left: 6px; border: 1px solid; }
+    .lv-kind.silent { color: var(--lv-unknown); border-color: var(--lv-unknown); }
+    .lv-kind.met { color: var(--lv-fail); border-color: var(--lv-fail); }
     `;
     document.head.appendChild(style);
 }
@@ -169,6 +172,16 @@ function citationLine(n: any): string {
     if (p.quote) parts.push(`“${p.quote}”`); else if (p.locator) parts.push(p.locator);
     if (p.rationale) parts.push(`${t('because')} “${p.rationale}”`);
     return parts.join(' · ');
+}
+
+// a passage as a letter cites it: the document and its words (the rule's
+// name is the program's, not the letter's)
+function draftCitation(n: any): string {
+    const p = n.provenance || {};
+    const parts: string[] = [];
+    if (p.document) parts.push(p.document);
+    if (p.quote) parts.push(`“${p.quote}”`); else if (p.locator) parts.push(p.locator);
+    return parts.join(', ');
 }
 
 // the leaves of an explanation: the facts it rests on (or failed on)
@@ -334,6 +347,14 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         if (R.whether) req.customQuery = R.whether; else if (R.query) req.query = R.query;
         return req;
     };
+    // the result itself: a failed one also says which conditions it did not meet
+    const runRequest = (): any => ({ ...resultRequest(), whyNot: true });
+    // a section as the view words it ("the section remedy reads …")
+    const sectionWords = (name: string): string => {
+        const w = (V.sections || []).find((x: any) => String(x.section) === String(name));
+        return w ? String(w.text) : String(name);
+    };
+    const keep: string[] = V.keep || [];
 
     // widget containers
     const cards: Record<string, HTMLElement> = {};
@@ -364,8 +385,8 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         if (!holds) {
             b.appendChild(el('div', 'lv-big no', R.not || t('No answer')));
             const failed = (res.checklist || []).find((c: any) => c.status === 'failed');
-            if (failed) b.appendChild(el('div', 'lv-sub', `${t('fails at')} ${failed.section}`));
-            else if (res.strongestReason) b.appendChild(el('div', 'lv-sub', res.strongestReason));
+            if (failed) b.appendChild(el('div', 'lv-sub', `${t('fails at')} ${sectionWords(failed.section)}`));
+            else if (!(res.unmet || []).length && res.strongestReason) b.appendChild(el('div', 'lv-sub', res.strongestReason));
             return;
         }
         for (const r of results.slice(0, 5)) {
@@ -394,7 +415,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             const row = el('div', 'lv-ck');
             const mark = c.status === 'passed' ? ['lv-ok', '✓'] : c.status === 'failed' ? ['lv-fail', '✗'] : ['lv-na', '–'];
             row.appendChild(el('span', mark[0], mark[1]));
-            row.appendChild(el('b', '', String(c.section)));
+            row.appendChild(el('b', '', sectionWords(c.section)));
             row.appendChild(el('span', 'lv-na', t(c.status === 'passed' ? 'passed' : c.status === 'failed' ? 'failed' : 'not reached')));
             b.appendChild(row);
         }
@@ -423,7 +444,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     const renderCitations = (res: any) => {
         const b = bodyOf('citations'); if (!b) return;
         b.innerHTML = ''; clearTools('citations');
-        const steps = citedSteps(whyOf(res));
+        const steps = resultSteps(res);
         if (!steps.length) { b.appendChild(el('div', 'lv-status', t('No cited steps.'))); return; }
         const ol = el('ol');
         const FIRST = 10;
@@ -449,9 +470,56 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
 
     const questionFor = (literal: string) => (V.questions || []).find((q: any) => norm(q.instance) === norm(literal));
 
+    // The conditions a failed result did not meet (le_why_not.pl): each with
+    // whether the case is silent on it or states otherwise, the rule that asks
+    // for it and its passage, and the facts that rule compared.
+    const renderUnmet = (b: HTMLElement, unmet: any[]) => {
+        const FIRST = 8;
+        unmet.forEach((u, i) => {
+            const box = el('div', 'lv-ck lv-unmet');
+            if (i >= FIRST) box.hidden = true;
+            box.appendChild(el('span', 'lv-fail', '✗'));
+            const main = el('div');
+            const q = questionFor(u.goal || u.literal);
+            const line = el('span', '', q ? q.text : (u.plain || u.literal));
+            main.appendChild(line);
+            main.appendChild(el('span', `lv-kind ${u.kind === 'not_stated' ? 'silent' : 'met'}`,
+                u.kind === 'not_stated' ? t('not stated') : t('not met')));
+            if (u.provenance && (u.provenance.text || u.provenance.url)) main.appendChild(sourceButton(u));
+            if (u.rule || u.provenance) main.appendChild(el('span', 'lv-cite', citationLine(u)));
+            if ((u.facts || []).length) main.appendChild(el('span', 'lv-cite', `${t('given')}: ${u.facts.join('; ')}`));
+            box.appendChild(main);
+            b.appendChild(box);
+        });
+        if (unmet.length > FIRST) {
+            const more = el('button', 'lv-btn', `${t('Show all')} (${unmet.length})`);
+            more.addEventListener('click', () => { b.querySelectorAll('.lv-unmet').forEach(x => (x as HTMLElement).hidden = false); more.remove(); });
+            b.appendChild(more);
+        }
+    };
+
+    // the cited steps of a result — for a failed one, the rules whose
+    // conditions it did not meet, each once
+    const resultSteps = (res: any): any[] => {
+        if ((res.results || []).length || !(res.unmet || []).length) return citedSteps(whyOf(res));
+        const out: any[] = [], seen = new Set<string>();
+        for (const u of res.unmet) {
+            if (!u.provenance || !(u.provenance.document || u.provenance.url)) continue;
+            const key = `${u.rule || ''}|${u.provenance.document || ''}|${u.provenance.quote || ''}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            out.push({ ...u, plain: `${u.kind === 'not_stated' ? t('not stated') : t('not met')}: ${u.literal}` });
+        }
+        return out;
+    };
+
     const renderReasons = (res: any) => {
         const b = bodyOf('reasons'); if (!b) return;
         b.innerHTML = '';
+        const head = cards.reasons?.querySelector('.lv-h > span');
+        const unmet: any[] = (res.results || []).length ? [] : (res.unmet || []);
+        if (head) head.textContent = unmet.length ? t('Why not') : t('Reasons');
+        if (unmet.length) { renderUnmet(b, unmet); return; }
         const ls = leaves(whyOf(res)).slice(0, 14);
         for (const l of ls) {
             const q = questionFor(l.literal);
@@ -467,7 +535,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
         const b = bodyOf('documents'); if (!b) return;
         b.innerHTML = '';
         const docs = new Map<string, { p: Provenance; quotes: string[]; locators: string[] }>();
-        for (const n of citedSteps(whyOf(res))) {
+        for (const n of resultSteps(res)) {
             const p: Provenance = n.provenance || {};
             if (!p.document) continue;
             const d = docs.get(p.document) || { p, quotes: [], locators: [] };
@@ -541,6 +609,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
             const req = resultRequest();
             delete req.query;
             req.customQuery = flipText(goal, negate);
+            if (keep.length) req.keep = keep;
             const res = await leapi({ operation: 'answeringQuery', ...req });
             out.innerHTML = '';
             const sets: string[] = (res.results || []).map((r: any) => String(r.answer));
@@ -632,8 +701,10 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
                 const tr = el('tr');
                 const a = el('a', '', sc); a.setAttribute('href', '#'); a.addEventListener('click', (e) => { e.preventDefault(); casePicker.value = sc; loadCase(sc); run(); });
                 const td0 = el('td'); td0.appendChild(a); tr.appendChild(td0);
-                tr.appendChild(el('td', '', answers.length ? answers.join('; ') : t('No answer')));
-                tr.appendChild(el('td', '', expected === null ? '—' : expected.length ? expected.join('; ') : t('No answer')));
+                const failedAt = (res.checklist || []).find((c: any) => c.status === 'failed');
+                tr.appendChild(el('td', '', answers.length ? answers.join('; ')
+                    : `${R.not || t('No answer')}${failedAt ? ` · ${t('fails at')} ${sectionWords(failedAt.section)}` : ''}`));
+                tr.appendChild(el('td', '', expected === null ? '—' : expected.length ? expected.join('; ') : (R.not || t('No answer'))));
                 const agree = expected === null ? '' : sameSet(answers, expected) ? '✓' : '✗';
                 tr.appendChild(el('td', agree === '✓' ? 'lv-ok' : agree === '✗' ? 'lv-fail' : '', agree));
                 table.appendChild(tr);
@@ -642,20 +713,50 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     };
 
     const renderDraft = (res: any) => {
-        const b = bodyOf('draft'); if (!b || !V.draft) return;
-        b.innerHTML = ''; clearTools('draft');
         const results: any[] = res.results || [];
+        // the draft for a result that holds, or for one that does not
+        const template = (results.length ? V.draftHolds : V.draftNot) || V.draft;
+        const b = bodyOf('draft'); if (!b) return;
+        b.innerHTML = ''; clearTools('draft');
+        if (!template) return;
         const slots = results.length && R.query ? answerSlots(queryText(R.query), results[0].answer) : {};
         const head = R.headedBy ? slots[String(R.headedBy).split(/\s+/).pop()!.toLowerCase()] : null;
+        // the lists a draft names: one item per line where the placeholder stands
+        // on a line of its own, else joined in the sentence
+        const lists: Record<string, string[]> = {
+            // the legal basis: the passages a labelled rule or table row cites
+            // (of a failed result: the passages it does not meet)
+            'the citations': resultSteps(res).filter(n => n.rule || /^row /.test(String(n.literal)))
+                .map(n => draftCitation(n)).filter((x, i, a) => x && a.indexOf(x) === i),
+            'the facts': forms.flatMap(f => f.form.completeFactLines()),
+            // what a failed result did not meet, each with its passage
+            'the reasons': (results.length ? [] : (res.unmet || [])).map((u: any) =>
+                `${u.literal} (${u.kind === 'not_stated' ? t('not stated') : t('not met')})${draftCitation(u) ? ` — ${draftCitation(u)}` : ''}`),
+            // of those, the facts the case is silent on: what to ask for
+            'the missing': (results.length ? [] : (res.unmet || [])).filter((u: any) => u.kind === 'not_stated').map((u: any) => {
+                // the values the rules would read there, when the fact has an open place
+                const open = /\b(a|an)\s+\w+/.test(String(u.goal || '').replace(/^\S+\s/, ''));
+                const vals: string[] = open ? (u.values || []).flat().slice(0, 10) : [];
+                return `${u.goal || u.literal}${vals.length ? ` (${t('one of')}: ${vals.join(', ')})` : ''}${draftCitation(u) ? ` — ${draftCitation(u)}` : ''}`;
+            }),
+        };
         const fill: Record<string, string> = {
             'the result': head || (results[0]?.answer ?? (R.not || t('No answer'))),
             'the answer': results[0]?.answer ?? (R.not || t('No answer')),
-            // the legal basis: the steps a labelled rule or table row cites
-            'the citations': citedSteps(whyOf(res)).filter(n => n.rule || /^row /.test(String(n.literal))).map(n => citationLine(n)).filter((x, i, a) => a.indexOf(x) === i).join('; '),
-            'the facts': forms.flatMap(f => f.form.completeFactLines()).join('; '),
             'the case': caseName,
         };
-        const text = String(V.draft).replace(/\{([^}]+)\}/g, (m, k) => (k.trim() in fill ? fill[k.trim()] : m));
+        const text = String(template).replace(/\\n/g, '\n').split('\n').map(line => {
+            const alone = /^\s*\{([^}]+)\}\s*$/.exec(line);
+            if (alone && alone[1].trim() in lists) {
+                const items = lists[alone[1].trim()];
+                return items.length ? items.map(x => `- ${x}`).join('\n') : '- —';
+            }
+            return line.replace(/\{([^}]+)\}/g, (m, k) => {
+                const key = k.trim();
+                if (key in lists) return lists[key].join('; ');
+                return key in fill ? fill[key] : m;
+            });
+        }).join('\n');
         b.appendChild(el('div', 'lv-draft', text));
         const copy = el('button', '', t('Copy'));
         copy.addEventListener('click', () => navigator.clipboard?.writeText(text).catch(() => { }));
@@ -727,7 +828,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
     const scheduleRun = () => { if (runTimer) clearTimeout(runTimer); runTimer = setTimeout(() => { showAbsent(); run(); }, 700); };
     const run = async () => {
         status.textContent = t('Running…');
-        const res = await leapi({ operation: 'answeringQuery', ...resultRequest() });
+        const res = await leapi({ operation: 'answeringQuery', ...runRequest() });
         lastResult = res;
         status.textContent = res.error ? String(res.error) : '';
         renderResult(res);
@@ -792,6 +893,7 @@ export async function mountView(root: HTMLElement, ctx: ViewContext): Promise<vo
                 box.appendChild(el('div', 'lv-grp', V.flip.label || t('What would change this?')));
                 const goal = holds ? (res.results[0].goal || res.results[0].answer) : (R.whether || queryText(R.query));
                 const r2 = req(); delete r2.query; r2.customQuery = flipText(goal, holds);
+                if (keep.length) r2.keep = keep;
                 const fl = await leapi({ operation: 'answeringQuery', ...r2 });
                 const sets: string[] = (fl.results || []).map((r: any) => String(r.answer));
                 if (!sets.length) box.appendChild(el('div', 'lv-status', t('No change of up to three facts would change it.')));
