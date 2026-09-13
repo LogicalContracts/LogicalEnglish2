@@ -1,0 +1,697 @@
+% Urological Supplies: LCD L33803 and its Policy Article A52521 (DME MACs).
+% A policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for a urinary catheter, an external urinary collection device or a
+% supply used with them is REASONABLE AND NECESSARY:
+%   indwelling catheters (A4311, A4312, A4313, A4314, A4315, A4316, A4338,
+%   A4340, A4344, A4346) — one a month for routine maintenance, more for a
+%   non-routine change the record documents; the specialty and all-silicone
+%   catheters (A4340, A4344, A4312, A4315) with the documented need for
+%   that catheter; the three-way catheters (A4346, A4313, A4316) only when
+%   continuous irrigation is reasonable and necessary (a history of
+%   obstruction, patency not maintained by intermittent irrigation);
+%   intermittent catheterization — a catheter with lubricant (A4351, A4352,
+%   A4332) or a hydrophilic catheter (A4295, A4296) when the beneficiary or
+%   a caregiver can perform the procedure, the Coude tip (A4296, A4352) with
+%   its documented need, the sterile kits (A4297, A4353) for one of the
+%   criteria 1-4 (a nursing facility, immunosuppression, vesicoureteral
+%   reflux, two urinary tract infections in the twelve months before the
+%   kits), 200 a month;
+%   external urinary collection devices (the male external catheter A4349,
+%   35 a month; the specialty male external catheter A4326 with its
+%   documented need; the female meatal cup A4327, pouch A4328 and Tibbe
+%   device A4318) for urinary incontinence, never beside an indwelling
+%   catheter;
+%   the urethral insert (A4336) for an adult female with stress
+%   incontinence, a diagnosis of the Article's ICD-10 list
+%   (sources/icd10/A52521_icd10_covered.csv, one row, group 1: N39.3,
+%   serving A4336 only; loaded as the table uro_icd10), without the
+%   contraindications the LCD lists;
+%   the supplies used with a covered catheter or device — the drainage bags
+%   and bottle (A4357, A4358, A5102, A5105, A5112, the tray A4354), no leg
+%   bag for a bedridden beneficiary and not both a vinyl and a latex leg
+%   bag; the tray (A4310), tape (A4450, A4452) and anchoring devices (A4333,
+%   A4334) of an indwelling catheter; the continuous irrigation tubing
+%   (A4355) of a three-way catheter; the intermittent irrigation tray and
+%   syringe (A4320, A4322) for an acute obstruction; each within the usual
+%   maximum quantity of the LCD.
+% The therapeutic irrigant A4321 is in scope and never covered ("will be
+% denied as not reasonable and necessary"): no rule concludes it. The
+% benefit is the Prosthetic Device benefit (Policy Article A52521, Social
+% Security Act §1861(s)(8)), which carries no condition on the place of use.
+%
+% The payment conditions the Article adds (its "statutory payment policy
+% requirements", section remedy): a permanent impairment of urination —
+% urinary incontinence or urinary retention the record documents, of long
+% and indefinite duration — and the dispensing cap of the LCD's refill
+% paragraph (three months at a time). Once that benefit is met, continued
+% need needs no further documentation (the Article's "CONTINUED MEDICAL
+% NEED": an addition to the shared rules of dmepos.le).
+%
+% How the criteria are read. What the record states is a scenario fact: the
+% documented conditions (the shared template "the medical record of B
+% documents C": urinary incontinence, urinary retention, the indications of
+% a non-routine change, of a specialty catheter, of immunosuppression, the
+% contraindications of the urethral insert — each from a list below with
+% its passage), whether the beneficiary or a caregiver can perform the
+% procedure, the reflux, the number of urinary tract infections (a record
+% of an infection stands for one meeting the LCD's definition: a culture
+% above 10,000 colony forming units with a sign or symptom of the list),
+% being bedridden, the residence, sex and age (adult: 18 years). Supplies
+% used with a catheter or device are its accessories (the shared
+% template). The quantities are the LCD's, as data (the tables
+% uro_quantity and uro_period, the period in days: a month is read as 31
+% days, the longest, so that one a day is 31 a month; a week as 7, three
+% months as 93), read against the quantity billed and the months the claim
+% supplies. For the tape, the anchoring devices,
+% the sterile kits, the female devices and the irrigation tubing the LCD
+% denies any quantity above the maximum; for the others a greater quantity
+% is covered when the record documents a non-routine change (the catheters
+% and drainage supplies) or explains it (the finding). The findings this
+% policy reads, and the criterion each stands for:
+%   permanent impairment of urination (the Article: "If the medical record,
+%   including the judgment of the treating practitioner, indicates the
+%   condition is of long and indefinite duration, the test of permanence is
+%   considered met");
+%   excess urological supplies explained ("The medical necessity for use of
+%   a greater quantity of supplies than the amounts specified in the policy
+%   must be well documented"; consulted only when the maximum is exceeded
+%   and no non-routine change is documented);
+%   specialty catheter necessary (the specialty or all-silicone catheter,
+%   when none of the LCD's examples is documented: "not all-inclusive");
+%   intermittent irrigation insufficient (continuous irrigation: "the
+%   patency of the catheter cannot be maintained by intermittent irrigation
+%   in conjunction with reasonable and necessary catheter changes");
+%   coude tip catheter necessary (when the inability to catheterize with a
+%   straight tip catheter is not documented);
+%   specialty external catheter necessary (A4326: "covered only when
+%   documentation substantiates the medical necessity for such a catheter").
+%
+% Not modelled: the inFlow device (A4341, A4342: permanent urinary
+% retention due to impaired detrusor contractility, once every 29 days, the
+% re-evaluation between the 31st and 91st day); the insertion tray "per
+% episode" and the combined utilization of catheters and bags (a count of
+% episodes no claim states); the combined 200 kits of A4297 and A4353 (each
+% claim is read alone); continuous irrigation for more than 2 weeks; the
+% appliance cleaner A5131, the external urethral clamp A4356, the extension
+% tubing A4331, the leg straps A5113 and A5114, the anchoring device A5200;
+% the sterile water or saline A4217 (also a nebulizer code); the AU, KX,
+% GA, GY and GZ modifiers, the Column I / Column II bundling, the supplies
+% used in a practitioner's office, and the incontinence products the
+% Article denies as not prosthetic (A4520, A4553, A4554, A6250, A9270).
+% The codes A4357 and A5102 are ostomy supplies too, and A4450 and A4452
+% are ostomy supplies and surgical dressings as well: in a model holding
+% those policies such a claim meets them all.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *a beneficiary* or a caregiver can perform the procedure; undefined.
+    vesicoureteral reflux of *a beneficiary* while on intermittent catheterization is radiologically documented; undefined.
+    *a number* urinary tract infections on intermittent catheterization in the twelve months before the sterile kits are documented for *a beneficiary*; undefined.
+    *a beneficiary* is bedridden; undefined.
+    *a beneficiary* is female; undefined.
+    the age of *a beneficiary* is *a number* years; undefined.
+    % the tables
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table uro_icd10.
+    the usual maximum for urological supply *a code* is *a quantity* under table uro_quantity.
+    the period of the usual maximum for urological supply *a code* is *a number* days under table uro_period.
+    % derived
+    *an item* is an indwelling catheter.
+    *a device* meets the urological coverage criteria.
+    *a condition* is a nonroutine catheter change indication.
+    *a condition* is a specialty catheter indication.
+    the need for a specialty catheter is documented for *a beneficiary*.
+    continuous irrigation is reasonable and necessary for *a beneficiary*.
+    the need for a coude tip catheter is documented for *a beneficiary*.
+    *a beneficiary* meets a sterile intermittent catheter kit criterion.
+    *a condition* is an immunosuppressing condition for sterile kits.
+    *a beneficiary* uses an indwelling catheter.
+    the diagnosis code of *a beneficiary* is a covered urethral insert diagnosis code.
+    *a condition* is a contraindication to urethral inserts.
+    *a beneficiary* has a contraindication to urethral inserts.
+    *an item* is an excluded urinary drainage supply.
+    *a claim* is within the usual maximum quantity of urological supplies.
+    *a claim* is within the listed amount of urological supplies.
+    the urological supply quantity of *a claim* is allowed for *a beneficiary*.
+    *a claim* is a documented nonroutine change for *a beneficiary*.
+    the excess quantity of *a claim* may be explained.
+    *a code* has a strict urological maximum.
+    *a beneficiary* has a permanent impairment of urination.
+    the impairment of urination of *a beneficiary* is documented.
+    *a claim* is within the dispensing limit for urological supplies.
+
+% The Policy Article's ICD-10 table: female stress incontinence, the one
+% code of group 1, serving the urethral insert A4336.
+the table uro_icd10 is loaded from sources/icd10/A52521_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+% The usual maximum quantity of each supply (LCD L33803), and its period in
+% days (a month is 31 days, three months 93, a week 7).
+the table uro_quantity is, with unique match, with provenance LCD L33803,
+        confer "Usual Maximum Quantity of Supplies":
+    code    | quantity | confer
+    "A4311" | 1        | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4312" | 1        | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4313" | 1        | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4314" | 1        | "A4314 1"
+    "A4315" | 1        | "A4315 1"
+    "A4316" | 1        | "A4316 1"
+    "A4338" | 1        | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4340" | 1        | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4344" | 1        | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4346" | 1        | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4354" | 1        | "A4354 1"
+    "A4357" | 2        | "A4357 2"
+    "A4358" | 2        | "A4358 2"
+    "A5112" | 1        | "A5112 1"
+    "A5102" | 1        | "Code Number per 3 month A5102 1"
+    "A4295" | 200      | "A4295 200"
+    "A4296" | 200      | "A4296 200"
+    "A4297" | 200      | "A4297 200"
+    "A4332" | 200      | "A4332 200"
+    "A4351" | 200      | "A4351 200"
+    "A4352" | 200      | "A4352 200"
+    "A4353" | 200      | "A4353 200"
+    "A4349" | 35       | "The utilization of male external catheters (A4349) generally should not exceed 35 per month"
+    "A4327" | 1        | "One meatal cup (A4327) per week"
+    "A4328" | 1        | "One pouch (A4328) per day"
+    "A4318" | 1        | "One Tibbe Female External Urinary Device (EUD) (A4318) per day"
+    "A4450" | 10       | "More than 10 units"
+    "A4452" | 10       | "More than 10 units"
+    "A4333" | 3        | "More than 3 per week of A4333 or 1 per month of A4334 will be denied as not reasonable and necessary"
+    "A4334" | 1        | "More than 3 per week of A4333 or 1 per month of A4334 will be denied as not reasonable and necessary"
+    "A4355" | 1        | "More than one irrigation tubing set per day for continuous catheter irrigation will be denied as not reasonable and necessary"
+
+the table uro_period is, with unique match, with provenance LCD L33803,
+        confer "Usual Maximum Quantity of Supplies":
+    code    | days | confer
+    "A4311" | 31   | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4312" | 31   | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4313" | 31   | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4314" | 31   | "Code Number per month A4314 1"
+    "A4315" | 31   | "A4315 1"
+    "A4316" | 31   | "A4316 1"
+    "A4338" | 31   | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4340" | 31   | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4344" | 31   | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4346" | 31   | "No more than one catheter per month is covered for routine catheter maintenance"
+    "A4354" | 31   | "A4354 1"
+    "A4357" | 31   | "A4357 2"
+    "A4358" | 31   | "A4358 2"
+    "A5112" | 31   | "A5112 1"
+    "A5102" | 93   | "Code Number per 3 month A5102 1"
+    "A4295" | 31   | "Code Number per Month A4295 200"
+    "A4296" | 31   | "A4296 200"
+    "A4297" | 31   | "A4297 200"
+    "A4332" | 31   | "A4332 200"
+    "A4351" | 31   | "A4351 200"
+    "A4352" | 31   | "A4352 200"
+    "A4353" | 31   | "A4353 200"
+    "A4349" | 31   | "The utilization of male external catheters (A4349) generally should not exceed 35 per month"
+    "A4327" | 7    | "One meatal cup (A4327) per week"
+    "A4328" | 1    | "One pouch (A4328) per day"
+    "A4318" | 1    | "One Tibbe Female External Urinary Device (EUD) (A4318) per day"
+    "A4450" | 31   | "per month will be denied as not reasonable and necessary"
+    "A4452" | 31   | "per month will be denied as not reasonable and necessary"
+    "A4333" | 7    | "More than 3 per week of A4333 or 1 per month of A4334 will be denied as not reasonable and necessary"
+    "A4334" | 31   | "More than 3 per week of A4333 or 1 per month of A4334 will be denied as not reasonable and necessary"
+    "A4355" | 1    | "More than one irrigation tubing set per day for continuous catheter irrigation will be denied as not reasonable and necessary"
+
+the knowledge base urological_supplies includes these resources:
+    dmepos.
+
+the knowledge base urological_supplies includes:
+
+LCD L33803 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33803".
+the text of LCD L33803 is at "sources/lcd/L33803.txt".
+Policy Article A52521 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52521".
+the text of Policy Article A52521 is at "sources/article/A52521.txt".
+
+% What an indwelling catheter is, by code.
+rule uro_indwelling_codes with provenance LCD L33803,
+        confer "INDWELLING CATHETERS (A4311, A4312, A4313, A4314, A4315, A4316, A4338, A4340, A4344, and A4346)":
+an item is an indwelling catheter
+    if the HCPCS code of the item is a code
+    and the code is in ["A4311", "A4312", "A4313", "A4314", "A4315", "A4316", "A4338", "A4340", "A4344", "A4346"].
+
+% a beneficiary furnished an indwelling catheter: a device of this model
+rule uro_uses_indwelling:
+a beneficiary uses an indwelling catheter
+    if an item is furnished to the beneficiary
+    and the item is an indwelling catheter.
+
+% The indications of a non-routine change of a catheter or of the drainage
+% system, as documented conditions.
+accidental removal of the catheter is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "Catheter is accidentally removed (e.g., pulled out by beneficiary)".
+catheter malfunction is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "Malfunction of catheter (e.g., balloon does not stay inflated, hole in catheter)".
+catheter obstruction is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "Catheter is obstructed by encrustation, mucous plug, or blood clot".
+recurrent obstruction prevented by scheduled changes is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "History of recurrent obstruction or urinary tract infection for which it has been established that an acute event is prevented by a scheduled change frequency of more than once per month".
+recurrent urinary tract infection prevented by scheduled changes is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "History of recurrent obstruction or urinary tract infection for which it has been established that an acute event is prevented by a scheduled change frequency of more than once per month".
+sludging is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "(e.g., obstruction, sludging, clotting of blood, or chronic, recurrent urinary tract infection)".
+clotting of blood is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "(e.g., obstruction, sludging, clotting of blood, or chronic, recurrent urinary tract infection)".
+chronic recurrent urinary tract infection is a nonroutine catheter change indication,
+    as stated in LCD L33803, confer "(e.g., obstruction, sludging, clotting of blood, or chronic, recurrent urinary tract infection)".
+
+% The LCD's examples of the need for a specialty or all-silicone catheter.
+recurrent encrustation is a specialty catheter indication,
+    as stated in LCD L33803, confer "such as recurrent encrustation, inability to pass a straight catheter, or sensitivity to latex".
+inability to pass a straight catheter is a specialty catheter indication,
+    as stated in LCD L33803, confer "such as recurrent encrustation, inability to pass a straight catheter, or sensitivity to latex".
+sensitivity to latex is a specialty catheter indication,
+    as stated in LCD L33803, confer "such as recurrent encrustation, inability to pass a straight catheter, or sensitivity to latex".
+
+% Criterion 2 of the sterile kits: the LCD's examples of immunosuppression
+% ("not all-inclusive"), and the spinal cord injury the Article says is
+% sufficient.
+immunosuppressive drugs after transplant is an immunosuppressing condition for sterile kits,
+    as stated in LCD L33803, confer "on a regimen of immunosuppressive drugs post-transplant".
+cancer chemotherapy is an immunosuppressing condition for sterile kits,
+    as stated in LCD L33803, confer "on cancer chemotherapy".
+acquired immunodeficiency syndrome is an immunosuppressing condition for sterile kits,
+    as stated in LCD L33803, confer "has AIDS".
+chronic oral corticosteroid use is an immunosuppressing condition for sterile kits,
+    as stated in LCD L33803, confer "has a drug-induced state such as chronic oral corticosteroid use".
+spinal cord injury is an immunosuppressing condition for sterile kits,
+    as stated in Policy Article A52521, confer "documentation in the medical records of a diagnosis of spinal cord injury (SCI) is sufficient to establish the beneficiary is immunocompromised".
+
+% The women for whom urethral inserts are not indicated.
+urinary tract infection is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "With bladder or other urinary tract infections (UTI)".
+urethral stricture is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "With a history of urethral stricture, bladder augmentation, pelvic radiation or other conditions where urethral catheterization is not clinically advisable".
+bladder augmentation is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "With a history of urethral stricture, bladder augmentation, pelvic radiation or other conditions where urethral catheterization is not clinically advisable".
+pelvic radiation is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "With a history of urethral stricture, bladder augmentation, pelvic radiation or other conditions where urethral catheterization is not clinically advisable".
+immunocompromise is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "Who are immunocompromised, at significant risk from UTI, interstitial cystitis, or pyelonephritis, or who have severely compromised urinary mucosa".
+interstitial cystitis is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "Who are immunocompromised, at significant risk from UTI, interstitial cystitis, or pyelonephritis, or who have severely compromised urinary mucosa".
+pyelonephritis is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "Who are immunocompromised, at significant risk from UTI, interstitial cystitis, or pyelonephritis, or who have severely compromised urinary mucosa".
+severely compromised urinary mucosa is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "Who are immunocompromised, at significant risk from UTI, interstitial cystitis, or pyelonephritis, or who have severely compromised urinary mucosa".
+intolerance of antibiotic therapy is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "Unable to tolerate antibiotic therapy".
+anticoagulant therapy is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "On anticoagulants".
+overflow incontinence is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "With overflow incontinence or neurogenic bladder".
+neurogenic bladder is a contraindication to urethral inserts,
+    as stated in LCD L33803, confer "With overflow incontinence or neurogenic bladder".
+
+rule uro_insert_contraindication with provenance LCD L33803,
+        confer "They are not indicated for women":
+a beneficiary has a contraindication to urethral inserts
+    if the medical record of the beneficiary documents a condition
+    and the condition is a contraindication to urethral inserts.
+
+% The diagnosis code of the claim, read against the Article's table.
+rule uro_insert_diagnosis with provenance LCD L33803,
+        confer "Urethral inserts (A4336) are covered for adult females with stress incontinence (refer to the ICD-10 Codes section in the LCD-related Policy Article for applicable diagnoses)":
+the diagnosis code of a beneficiary is a covered urethral insert diagnosis code
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52521" as a description under table uro_icd10.
+
+% The quantities the LCD denies outright above the maximum.
+rule uro_strict_kits with provenance LCD L33803,
+        confer "Billing more than 200 units per month total for A4297 and A4353 will be denied as not reasonable and necessary":
+a code has a strict urological maximum
+    if the code is in ["A4297", "A4353"].
+
+rule uro_strict_female_devices with provenance LCD L33803,
+        confer "For female external urinary collection devices, more than the following will be denied as not reasonable and necessary":
+a code has a strict urological maximum
+    if the code is in ["A4327", "A4328", "A4318"].
+
+rule uro_strict_tape with provenance LCD L33803,
+        confer "per month will be denied as not reasonable and necessary":
+a code has a strict urological maximum
+    if the code is in ["A4450", "A4452"].
+
+rule uro_strict_anchoring with provenance LCD L33803,
+        confer "More than 3 per week of A4333 or 1 per month of A4334 will be denied as not reasonable and necessary":
+a code has a strict urological maximum
+    if the code is in ["A4333", "A4334"].
+
+rule uro_strict_tubing with provenance LCD L33803,
+        confer "More than one irrigation tubing set per day for continuous catheter irrigation will be denied as not reasonable and necessary":
+a code has a strict urological maximum
+    if the code is "A4355".
+
+% Drainage supplies the LCD denies for the beneficiary: a leg bag for a
+% bedridden beneficiary; both a vinyl and a latex leg bag.
+rule uro_leg_bag_bedridden with provenance LCD L33803,
+        confer "The use of leg bags for bedridden beneficiaries would be denied as not reasonable and necessary":
+an item is an excluded urinary drainage supply
+    if the HCPCS code of the item is a code
+    and the code is in ["A4358", "A5112", "A5105"]
+    and the item is furnished to a beneficiary
+    and the beneficiary is bedridden.
+
+rule uro_vinyl_or_latex with provenance LCD L33803,
+        confer "Payment will be made for either a vinyl leg bag (A4358) or a latex leg bag (A5112). The use of both is not reasonable and necessary":
+an item is an excluded urinary drainage supply
+    if the HCPCS code of the item is a code
+    and the code is in ["A4358", "A5112"]
+    and the item is furnished to a beneficiary
+    and an other item is furnished to the beneficiary
+    and the HCPCS code of the other item is an other code
+    and the other code is in ["A4358", "A5112"]
+    and the other code is different from the code.
+
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
+% The codes this policy decides — the catheters, devices and supplies it
+% covers and the irrigant it denies — and their benefit: the Prosthetic
+% Device benefit (Policy Article A52521), with no condition on the place
+% of use.
+rule uro_codes with provenance Policy Article A52521,
+        confer "Urological supplies are covered under the Prosthetic Device benefit (Social Security Act § 1861(s)(8))":
+the policy for code a code is urological_supplies
+    if the code is in ["A4295", "A4296", "A4297", "A4310", "A4311", "A4312", "A4313", "A4314", "A4315", "A4316", "A4318", "A4320", "A4321", "A4322", "A4326", "A4327", "A4328", "A4332", "A4333", "A4334", "A4336", "A4338", "A4340", "A4344", "A4346", "A4349", "A4351", "A4352", "A4353", "A4354", "A4355", "A4357", "A4358", "A4450", "A4452", "A5102", "A5105", "A5112"].
+
+section applicability is:
+
+rule uro_benefit with provenance Policy Article A52521,
+        confer "Urological supplies are covered under the Prosthetic Device benefit (Social Security Act § 1861(s)(8))":
+the benefit category of code a code is prosthetic devices
+    if the policy for code the code is urological_supplies.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% A catheter or a collection device: its criteria, within the usual maximum
+% quantity. A supply used with one: the device covered, the supply's own
+% conditions, within the usual maximum quantity.
+% ---------------------------------------------------------------------------
+
+rule uro_device_claim with provenance Policy Article A52521,
+        confer "Urinary catheters and external urinary collection devices are covered to drain or collect urine for a beneficiary who has permanent urinary incontinence or permanent urinary retention":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item meets the urological coverage criteria
+    and the claim is within the usual maximum quantity of urological supplies.
+
+rule uro_drainage_claim with provenance Policy Article A52521,
+        confer "If the catheter or the external urinary collection device meets the coverage criteria then the related supplies that are necessary for their effective use are also covered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4354", "A4357", "A4358", "A5102", "A5105", "A5112"]
+    and the item is an accessory of a device
+    and the device meets the urological coverage criteria
+    and it is not the case that
+        the item is an excluded urinary drainage supply
+    and the claim is within the usual maximum quantity of urological supplies.
+
+rule uro_indwelling_supplies_claim with provenance LCD L33803,
+        confer "Adhesive catheter anchoring devices (A4333) and catheter leg straps (A4334) for indwelling urethral catheters are covered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4310", "A4450", "A4452", "A4333", "A4334"]
+    and the item is an accessory of a device
+    and the device is an indwelling catheter
+    and the device meets the urological coverage criteria
+    and the claim is within the usual maximum quantity of urological supplies.
+
+rule uro_continuous_irrigation_tubing with provenance LCD L33803,
+        confer "Covered supplies for reasonable and necessary continuous bladder irrigation include a 3-way Foley catheter (A4313, A4316, and A4346), irrigation tubing set (A4355), and sterile water/saline (A4217)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4355"
+    and the item is an accessory of a device
+    and the HCPCS code of the device is a code
+    and the code is in ["A4313", "A4316", "A4346"]
+    and the device meets the urological coverage criteria
+    and the claim is within the usual maximum quantity of urological supplies.
+
+rule uro_intermittent_irrigation with provenance LCD L33803,
+        confer "Supplies for the intermittent irrigation of an indwelling catheter are covered when they are used on an as needed (non-routine) basis in the presence of acute obstruction of the catheter":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4320", "A4322"]
+    and the item is an accessory of a device
+    and the device is an indwelling catheter
+    and the device meets the urological coverage criteria
+    and the item is furnished to a beneficiary
+    and the medical record of the beneficiary documents acute catheter obstruction.
+
+% ---------------------------------------------------------------------------
+% Indwelling catheters.
+% ---------------------------------------------------------------------------
+
+% a standard two-way catheter: the statutory criteria (section remedy) and
+% the quantity are all the LCD asks
+rule uro_indwelling_standard with provenance LCD L33803,
+        confer "No more than one catheter per month is covered for routine catheter maintenance":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is a code
+    and the code is in ["A4311", "A4314", "A4338"].
+
+rule uro_indwelling_specialty with provenance LCD L33803,
+        confer "A specialty indwelling catheter (A4340) or an all silicone catheter (A4344, A4312, or A4315) is covered when the criteria for an indwelling catheter (above) are met and there is documentation in the beneficiary's medical record to justify the medical need for that catheter":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is a code
+    and the code is in ["A4340", "A4344", "A4312", "A4315"]
+    and the device is furnished to a beneficiary
+    and the need for a specialty catheter is documented for the beneficiary.
+
+% one of the LCD's examples in the record, otherwise the judgment (the
+% examples are "not all-inclusive")
+rule uro_specialty_need with provenance LCD L33803,
+        confer "In addition, the particular catheter must be necessary for the beneficiary":
+the need for a specialty catheter is documented for a beneficiary
+    if the medical record of the beneficiary documents a condition
+    and the condition is a specialty catheter indication
+    otherwise the finding specialty catheter necessary about the beneficiary is established.
+
+rule uro_indwelling_three_way with provenance LCD L33803,
+        confer "A three way indwelling catheter either alone (A4346) or with other components (A4313 or A4316) will be covered only if continuous catheter irrigation is reasonable and necessary":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is a code
+    and the code is in ["A4346", "A4313", "A4316"]
+    and the device is furnished to a beneficiary
+    and continuous irrigation is reasonable and necessary for the beneficiary.
+
+rule uro_continuous_irrigation with provenance LCD L33803,
+        confer "Supplies for continuous irrigation of a catheter are covered if there is a history of obstruction of the catheter and the patency of the catheter cannot be maintained by intermittent irrigation in conjunction with reasonable and necessary catheter changes":
+continuous irrigation is reasonable and necessary for a beneficiary
+    if the medical record of the beneficiary documents history of catheter obstruction
+    and the finding intermittent irrigation insufficient about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% Intermittent catheterization.
+% ---------------------------------------------------------------------------
+
+rule uro_intermittent with provenance LCD L33803,
+        confer "Intermittent catheterization is covered when basic coverage criteria are met and the beneficiary or caregiver can perform the procedure":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is a code
+    and the code is in ["A4351", "A4332", "A4295"]
+    and the device is furnished to a beneficiary
+    and the beneficiary or a caregiver can perform the procedure.
+
+rule uro_intermittent_coude with provenance LCD L33803,
+        confer "When a Coude tip catheter (A4296, A4352) is used, there must be documentation in the beneficiary's medical record of the medical necessity for that catheter":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is a code
+    and the code is in ["A4352", "A4296"]
+    and the device is furnished to a beneficiary
+    and the beneficiary or a caregiver can perform the procedure
+    and the need for a coude tip catheter is documented for the beneficiary.
+
+% the LCD's example in the record, otherwise the judgment
+rule uro_coude_need with provenance LCD L33803,
+        confer "An example would be the inability to catheterize with a straight tip catheter":
+the need for a coude tip catheter is documented for a beneficiary
+    if the medical record of the beneficiary documents inability to catheterize with a straight tip catheter
+    otherwise the finding coude tip catheter necessary about the beneficiary is established.
+
+rule uro_sterile_kit with provenance LCD L33803,
+        confer "Intermittent catheterization using a sterile intermittent catheter kit (A4297, A4353) is covered when the beneficiary requires catheterization and the beneficiary meets one of the following criteria (1-4)":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is a code
+    and the code is in ["A4297", "A4353"]
+    and the device is furnished to a beneficiary
+    and the beneficiary or a caregiver can perform the procedure
+    and the beneficiary meets a sterile intermittent catheter kit criterion.
+
+rule uro_kit_nursing_facility with provenance LCD L33803,
+        confer "The beneficiary resides in a nursing facility":
+a beneficiary meets a sterile intermittent catheter kit criterion
+    if the residence of the beneficiary is nursing facility.
+
+rule uro_kit_immunosuppressed with provenance LCD L33803,
+        confer "The beneficiary is immunosuppressed, for example (not all-inclusive)":
+a beneficiary meets a sterile intermittent catheter kit criterion
+    if the medical record of the beneficiary documents a condition
+    and the condition is an immunosuppressing condition for sterile kits.
+
+rule uro_kit_reflux with provenance LCD L33803,
+        confer "The beneficiary has radiologically documented vesico-ureteral reflux while on a program of intermittent catheterization":
+a beneficiary meets a sterile intermittent catheter kit criterion
+    if vesicoureteral reflux of the beneficiary while on intermittent catheterization is radiologically documented.
+
+rule uro_kit_infections with provenance LCD L33803,
+        confer "twice within the 12-months prior to the initiation of sterile intermittent catheter kits":
+a beneficiary meets a sterile intermittent catheter kit criterion
+    if a number urinary tract infections on intermittent catheterization in the twelve months before the sterile kits are documented for the beneficiary
+    and the number >= 2.
+
+% ---------------------------------------------------------------------------
+% External urinary collection devices, and the urethral insert.
+% ---------------------------------------------------------------------------
+
+rule uro_external_devices with provenance LCD L33803,
+        confer "Male external catheters (condom-type) or female external urinary collection devices are covered for beneficiaries who have permanent urinary incontinence when used as an alternative to an indwelling catheter":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is a code
+    and the code is in ["A4349", "A4327", "A4328", "A4318"]
+    and the device is furnished to a beneficiary
+    and the medical record of the beneficiary documents urinary incontinence
+    and it is not the case that
+        the beneficiary uses an indwelling catheter.
+
+rule uro_specialty_external with provenance LCD L33803,
+        confer "Specialty type male external catheters (A4326) such as those that inflate or that include a faceplate or extended wear catheter systems are covered only when documentation substantiates the medical necessity for such a catheter":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is "A4326"
+    and the device is furnished to a beneficiary
+    and the medical record of the beneficiary documents urinary incontinence
+    and it is not the case that
+        the beneficiary uses an indwelling catheter
+    and the finding specialty external catheter necessary about the beneficiary is established.
+
+rule uro_urethral_insert with provenance LCD L33803,
+        confer "Urethral inserts (A4336) are covered for adult females with stress incontinence (refer to the ICD-10 Codes section in the LCD-related Policy Article for applicable diagnoses) when basic coverage criteria are met and the beneficiary or caregiver can perform the procedure":
+a device meets the urological coverage criteria
+    if the HCPCS code of the device is "A4336"
+    and the device is furnished to a beneficiary
+    and the beneficiary is female
+    and the age of the beneficiary is a number years
+    and the number >= 18
+    and the diagnosis code of the beneficiary is a covered urethral insert diagnosis code
+    and the beneficiary or a caregiver can perform the procedure
+    and it is not the case that
+        the beneficiary has a contraindication to urethral inserts.
+
+% ---------------------------------------------------------------------------
+% The usual maximum quantities: the listed amount; otherwise a non-routine
+% change the record documents (catheters and drainage supplies); otherwise
+% the explanation, where the LCD allows one.
+% ---------------------------------------------------------------------------
+
+rule uro_usual_quantity with provenance LCD L33803,
+        confer "The medical necessity for use of a greater quantity of supplies than the amounts specified in the policy must be well documented in the beneficiary's medical record and must be available upon request":
+a claim is within the usual maximum quantity of urological supplies
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the urological supply quantity of the claim is allowed for the beneficiary.
+
+% the cascade decides one claim and one beneficiary at a time (both bound
+% by the head)
+rule uro_quantity_allowed with provenance LCD L33803,
+        confer "Non-routine catheter changes are covered when documentation substantiates medical necessity, such as for the following indications":
+the urological supply quantity of a claim is allowed for a beneficiary
+    if the claim is within the listed amount of urological supplies
+    otherwise the claim is a documented nonroutine change for the beneficiary
+    otherwise the excess quantity of the claim may be explained
+    and the finding excess urological supplies explained about the beneficiary is established.
+
+rule uro_listed_amount with provenance LCD L33803,
+        confer "Usual Maximum Quantity of Supplies":
+a claim is within the listed amount of urological supplies
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the usual maximum for urological supply the code is a quantity under table uro_quantity
+    and the period of the usual maximum for urological supply the code is a number days under table uro_period
+    and the claim is for a supply of an other number months
+    and the quantity billed on the claim is a third number
+    and a limit is the quantity * ceiling(the other number * 31 / the number)
+    and the third number <= the limit.
+
+% a supply with no maximum in the LCD (a tray, the irrigation tray and
+% syringe, the specialty male external catheter): any quantity ordered — a
+% device of this model
+rule uro_no_listed_amount:
+a claim is within the listed amount of urological supplies
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the usual maximum for urological supply the code is a quantity under table uro_quantity.
+
+rule uro_nonroutine_change with provenance LCD L33803,
+        confer "Additional charges will be allowed for reasonable and necessary non-routine changes when the documentation substantiates the medical necessity":
+a claim is a documented nonroutine change for a beneficiary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4311", "A4312", "A4313", "A4314", "A4315", "A4316", "A4338", "A4340", "A4344", "A4346", "A4354", "A4357", "A4358", "A5102", "A5112"]
+    and the medical record of the beneficiary documents a condition
+    and the condition is a nonroutine catheter change indication.
+
+% a quantity the LCD does not deny outright: a device of this model
+rule uro_excess_may_be_explained:
+the excess quantity of a claim may be explained
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the code has a strict urological maximum.
+
+section remedy is:
+
+% The Policy Article's own conditions of payment: a permanent impairment of
+% urination, and the dispensing cap of the LCD's refill paragraph.
+rule uro_documentation with provenance Policy Article A52521,
+        confer "In addition, there are specific statutory payment policy requirements, discussed below, that also must be met":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is urological_supplies
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary has a permanent impairment of urination
+    and the claim is within the dispensing limit for urological supplies.
+
+rule uro_permanent_impairment with provenance Policy Article A52521,
+        confer "The beneficiary must have a permanent impairment of urination":
+a beneficiary has a permanent impairment of urination
+    if the impairment of urination of the beneficiary is documented
+    and the finding permanent impairment of urination about the beneficiary is established.
+
+% the two impairments, one rule each (so that a flip can name either)
+rule uro_incontinence with provenance Policy Article A52521,
+        confer "Urinary catheters and external urinary collection devices are covered to drain or collect urine for a beneficiary who has permanent urinary incontinence or permanent urinary retention":
+the impairment of urination of a beneficiary is documented
+    if the medical record of the beneficiary documents urinary incontinence.
+
+rule uro_retention with provenance Policy Article A52521,
+        confer "Urinary catheters and external urinary collection devices are covered to drain or collect urine for a beneficiary who has permanent urinary incontinence or permanent urinary retention":
+the impairment of urination of a beneficiary is documented
+    if the medical record of the beneficiary documents urinary retention.
+
+rule uro_dispensing_limit with provenance LCD L33803,
+        confer "Regardless of utilization, a supplier must not dispense more than a three (3) - month quantity at a time":
+a claim is within the dispensing limit for urological supplies
+    if the claim is for a supply of a number months
+    and the number <= 3.
+
+% Continued need: once the permanent impairment is established, no further
+% documentation of it (an addition to the shared continued need rules of
+% dmepos.le; continued use is documented by the refill request).
+rule uro_continued_need with provenance Policy Article A52521,
+        confer "There is no requirement for further documentation of continued medical need as long as the beneficiary continues to meet the Prosthetic Devices benefit":
+the continued need requirements are met for a claim
+    if the policy of the claim is urological_supplies
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary has a permanent impairment of urination.

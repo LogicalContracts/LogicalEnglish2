@@ -1,0 +1,511 @@
+% External Infusion Pumps: LCD L33794 and its Policy Article A52507 (DME
+% MACs). A policy program of the DMEPOS model: it includes dmepos.le
+% (orders, delivery, benefit category, continued need, refills) and states
+% when a claim for an external infusion pump, the drug it administers or its
+% supplies is REASONABLE AND NECESSARY, for three of the LCD's indications:
+%   IV, continuous subcutaneous insulin — the insulin pump E0784 for
+%   diabetes (the Article's ICD-10 group 1), criterion A (the C-peptide
+%   test: at most 110 percent of the lower limit of normal, or 200 percent
+%   with a creatinine clearance of at most 50 ml/minute, with a fasting
+%   blood sugar of at most 225 mg/dl at the same time) or B (a positive
+%   beta cell autoantibody test), and criterion C (a comprehensive diabetes
+%   education program, at least six months of multiple daily injections —
+%   at least 3 a day — with frequent self-adjustments of the dose, glucose
+%   self-testing at least 4 times a day in the two months before the pump,
+%   and one of the clinical criteria 1-5) or D (on a pump before Medicare
+%   enrollment, testing at least 4 times a day in the month before); the
+%   Article's reading that a documented continuous glucose monitor meets the
+%   testing requirement; the pump ordered and followed by a practitioner
+%   managing multiple beneficiaries on insulin infusion with a team; and
+%   continued coverage with an evaluation by the treating practitioner at
+%   least every three months. The insulin (J1811, J1813, J1817) and the
+%   insulin pump supplies (A4224, A4225) are covered with a covered pump;
+%   the non-insulin supplies (A4221, A4222, K0552) never with E0784;
+%   V(E), epoprostenol (J1325) or treprostinil (J3285) for pulmonary
+%   hypertension with the pump K0455 only — the disease criteria (not
+%   secondary to pulmonary venous hypertension or a respiratory disorder;
+%   primary, or secondary to a listed condition; progressed despite maximal
+%   treatment; a mean pulmonary artery pressure above 25 mm Hg at rest or 30
+%   with exertion; significant symptoms; calcium channel blockers tried and
+%   failed or ruled out); a backup pump is not separately payable;
+%   V(H), subcutaneous immune globulin (J1551, J1555, J1558, J1559, J1561,
+%   J1569, J1575) with the pump the Article's table pairs it with (E0779,
+%   E0781) — administered in the home, the practitioner's determination
+%   that home administration is necessary and appropriate, and a primary
+%   immune deficiency (ICD-10 group 3) or a chronic inflammatory
+%   demyelinating polyneuropathy (group 6) that responded to intravenous
+%   immune globulin.
+% The drug necessitating a covered pump and the supplies of a covered pump
+% are covered with it ("When an infusion pump is covered, the drug
+% necessitating the use of the pump and necessary supplies are also
+% covered"); a drug alone is not. The benefit is durable medical equipment
+% (Policy Article A52507), used in a home (dmepos.le); the disposable drug
+% delivery systems (A4305, A4306, A9274) are in scope and in no benefit.
+% The payment condition the policy adds (section remedy): the dispensing cap
+% of the LCD's refill paragraph, a three-month quantity of a drug or supply
+% at a time (a pump is not dispensed).
+%
+% ICD-10 table. The Article's table (sources/icd10/A52507_icd10_covered.csv,
+% 460 rows, loaded as the table infusion_icd10) has six groups; the
+% Article's text file does not carry the "Group N" paragraphs, so they are
+% mapped to codes from the LCD's cross-references and the rows' contents:
+%   group 1 — diabetes mellitus (E08-E13): the insulin pump E0784, its
+%             insulin and supplies (read);
+%   group 2 — hypercalcemia (E83.52): gallium nitrate (not modelled);
+%   group 3 — primary immune deficiencies (D80-D83, G11.3): subcutaneous
+%             immune globulin, criterion 4 (read);
+%   group 4 — Parkinson's disease (G20.A1-G20.B2): the infusion therapies
+%             for Parkinson's disease, J7340 and J7356 (not modelled);
+%   group 5 — acute lymphoblastic leukemia (C91.0x): blinatumomab J9039
+%             (not modelled);
+%   group 6 — chronic inflammatory demyelinating polyneuritis (G61.81):
+%             subcutaneous immune globulin, criterion 5 (read).
+%
+% How the criteria are read. What the record states is a scenario fact: the
+% laboratory values as numbers (the C-peptide level as a percent of the
+% laboratory's lower limit of normal — "connecting peptide" in the
+% templates, a capital C alone reading as a variable; the fasting blood
+% sugar; the creatinine clearance; the glycosylated hemoglobin), the
+% injections a day and the months of the regimen, the average self-tests a
+% day, the documented conditions (the shared template "the medical record
+% of B documents C": the clinical criteria 1-5, continuous glucose monitor
+% use), the practitioner's evaluations (dated, in the words of
+% support_surfaces.le), the pressures (in the words of nebulizers.le), the
+% drug a pump administers (in the words of nebulizers.le) and the supplies
+% it is used with (the shared accessory template). That a subcutaneous
+% immune globulin is an FDA-approved pooled plasma derivative labeled for
+% subcutaneous use is carried by its HCPCS code. Therapy with a pump starts
+% on its delivery; three months are read as 91 days. The findings this
+% policy reads (the judged template of dmepos.le), and the criterion each
+% stands for:
+%   frequent insulin dose self adjustment (criterion C: "with frequent
+%   self-adjustments of insulin dose");
+%   qualifying pulmonary hypertension etiology, pulmonary hypertension
+%   progressed despite treatment, significant pulmonary hypertension
+%   symptoms, calcium channel blockers excluded (V(E), the disease criteria
+%   — the names nebulizers.le reads for the same criteria of inhaled
+%   treprostinil);
+%   home immune globulin administration appropriate (V(H) criterion 3: "The
+%   treating practitioner has determined that administration of the SCIg in
+%   the patient's home is medically necessary and appropriate").
+%
+% Left out (the LCD's other indications, each a program of its own size):
+% I deferoxamine, II chemotherapy for hepatocellular or colorectal cancer,
+% III morphine for cancer pain, V(A) the anticancer drugs by continuous
+% infusion, V(B) narcotic analgesics, V(C) the antifungal and antiviral
+% drugs, V(D) the inotropic drugs for Stage D or Class IV heart failure,
+% V(F) gallium nitrate, V(G) ziconotide, V(I) the Parkinson's disease
+% infusions, V(J) blinatumomab — and with them the pumps E0780 and E0791,
+% which only those indications use, the criteria sets (1) and (2), the
+% heparin exclusion, the IV pole E0776 and the infusion controller E1399.
+% Not modelled either: the insulin pumps with an integrated continuous
+% glucose monitor (E0784 with E2102 or E2103: the Glucose Monitors LCD),
+% the maintenance supplies' "not to exceed 4 weeks per episode" between
+% periods of use, the cassettes per dose, drug wastage and the JB, JK, JL,
+% JW, JZ, KX, GA, GY and GZ modifiers, the batteries, the dispensing
+% entity's licensing, compounded drugs (J7999, Q9977). J1561 and J1569 are
+% also intravenous immune globulin codes (ivig.le): in a model holding both
+% policies such a claim meets both.
+
+the target language is: prolog.
+
+the templates are:
+    % the record: the pump and its drug — in the words of nebulizers.le and
+    % support_surfaces.le (candidates for dmepos.le)
+    *a drug* is administered with *a device*; undefined.
+    the treating practitioner evaluated *a beneficiary* for *an item* on *a date*; undefined.
+    the mean pulmonary artery pressure of *a beneficiary* at rest is *a number* mm Hg; undefined.
+    the mean pulmonary artery pressure of *a beneficiary* with exertion is *a number* mm Hg; undefined.
+    % the record: the insulin pump criteria
+    the connecting peptide level of *a beneficiary* is *a number* percent of the lower limit of normal; undefined.
+    the fasting blood sugar of *a beneficiary* at the connecting peptide test is *a number* mg per dl; undefined.
+    the creatinine clearance of *a beneficiary* is *a number* ml per minute; undefined.
+    the beta cell autoantibody test of *a beneficiary* is positive; undefined.
+    *a beneficiary* has completed a comprehensive diabetes education program; undefined.
+    *a beneficiary* took *a number* insulin injections per day for *a second number* months before the insulin pump; undefined.
+    *a beneficiary* self tested glucose an average of *a number* times per day during the two months before the insulin pump; undefined.
+    the glycosylated hemoglobin of *a beneficiary* on multiple injections is *a number* percent; undefined.
+    *a beneficiary* was on an external insulin infusion pump before enrollment in Medicare; undefined.
+    *a beneficiary* self tested glucose an average of *a number* times per day during the month before enrollment in Medicare; undefined.
+    the insulin pump of *a beneficiary* is ordered by a practitioner managing multiple beneficiaries on continuous subcutaneous insulin infusion with a knowledgeable team; undefined.
+    % the record: the other pumps
+    *an item* is a backup pump; undefined.
+    *a beneficiary* receives the immune globulin in the home; undefined.
+    the chronic inflammatory demyelinating polyneuropathy of *a beneficiary* responded to intravenous immune globulin; undefined.
+    % the tables
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table infusion_icd10.
+    immune globulin code *a code* is used with pump *an other code* under table scig_pumps.
+    % derived
+    the diagnosis of *a beneficiary* is in infusion pump ICD10 group *a group*.
+    *a device* is a covered insulin pump on the date of service of *a claim*.
+    *a beneficiary* meets the insulin pump criteria.
+    *a beneficiary* meets the insulin deficiency criterion.
+    *a beneficiary* meets the insulin regimen criterion.
+    the glucose self testing of *a beneficiary* before the insulin pump is sufficient.
+    the glucose self testing of *a beneficiary* before enrollment is sufficient.
+    *a beneficiary* meets an insulin pump clinical criterion.
+    *a condition* is an insulin pump clinical criterion.
+    the follow up of *a device* is current on the date of service of *a claim*.
+    *a device* administers a covered infusion drug.
+    *a drug* is a covered infusion drug for *a device*.
+    *a beneficiary* meets the pulmonary hypertension infusion criteria.
+    the pulmonary artery pressure of *a beneficiary* meets the infusion criterion.
+    *a beneficiary* meets the subcutaneous immune globulin criteria.
+    *a beneficiary* has a subcutaneous immune globulin diagnosis.
+    *a claim* is within the dispensing limit for infusion drugs and supplies.
+
+% The Policy Article's ICD-10 table: the diagnoses of the six groups (the
+% header lists which are read).
+the table infusion_icd10 is loaded from sources/icd10/A52507_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+% The Article's table of the pumps each subcutaneous immune globulin is
+% administered with.
+the table scig_pumps is, with all matches, with provenance Policy Article A52507,
+        confer "Specific infusion pump HCPCS codes are used with specific SCIg preparations according to the table below":
+    drug | pump | confer
+    "J1555" or "J1559" or "J1561" or "J1569" | "E0779" | "Infusion Pump SCIg Preparation E0779 J1555, J1559, J1561, J1569"
+    "J1575" | "E0781" | "E0781 J1575"
+    "J1551" or "J1558" | "E0779" | "E0779 or E0781 J1551, J1558"
+    "J1551" or "J1558" | "E0781" | "E0779 or E0781 J1551, J1558"
+
+the knowledge base external_infusion_pumps includes these resources:
+    dmepos.
+
+the knowledge base external_infusion_pumps includes:
+
+LCD L33794 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33794".
+the text of LCD L33794 is at "sources/lcd/L33794.txt".
+Policy Article A52507 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52507".
+the text of Policy Article A52507 is at "sources/article/A52507.txt".
+
+% The diagnosis of the claim, read against the Article's table.
+rule infusion_diagnosis_group with provenance LCD L33794,
+        confer "Refer to the ICD-10 code list in the LCD-related Policy Article for applicable diagnoses.":
+the diagnosis of a beneficiary is in infusion pump ICD10 group a group
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group the group of article "A52507" as a description under table infusion_icd10.
+
+% The clinical criteria 1-5 of criterion C other than the glycosylated
+% hemoglobin, as documented conditions.
+history of recurring hypoglycemia is an insulin pump clinical criterion,
+    as stated in LCD L33794, confer "History of recurring hypoglycemia".
+wide fluctuations in blood glucose before mealtime is an insulin pump clinical criterion,
+    as stated in LCD L33794, confer "Wide fluctuations in blood glucose before mealtime".
+dawn phenomenon with frequently high fasting blood sugars is an insulin pump clinical criterion,
+    as stated in LCD L33794, confer "Dawn phenomenon with fasting blood sugars frequently exceeding 200 mg/dL".
+history of severe glycemic excursions is an insulin pump clinical criterion,
+    as stated in LCD L33794, confer "History of severe glycemic excursions".
+
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
+% The codes this policy decides — the pumps, drugs and supplies of the
+% modelled indications, and the disposable systems — and their benefit:
+% durable medical equipment (Policy Article A52507), but not the
+% disposable drug delivery systems.
+rule infusion_codes with provenance Policy Article A52507,
+        confer "External infusion pumps are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
+the policy for code a code is external_infusion_pumps
+    if the code is in ["E0779", "E0781", "E0784", "K0455", "A4221", "A4222", "K0552", "A4224", "A4225", "J1811", "J1813", "J1817", "J1325", "J3285", "J1551", "J1555", "J1558", "J1559", "J1561", "J1569", "J1575", "A4305", "A4306", "A9274"].
+
+section applicability is:
+
+% "Disposable drug delivery systems, including elastomeric infusion pumps
+% (A4305, A4306, A9274) are non-covered devices because they do not meet the
+% Medicare definition of durable medical equipment."
+rule infusion_benefit with provenance Policy Article A52507,
+        confer "External infusion pumps are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is external_infusion_pumps
+    and it is not the case that
+        the code is in ["A4305", "A4306", "A9274"].
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Indication IV: the insulin pump, its insulin and its supplies.
+% ---------------------------------------------------------------------------
+
+rule infusion_insulin_pump_claim with provenance LCD L33794,
+        confer "Subcutaneous insulin is administered using ambulatory infusion pump E0784. Claims for usage of infusion pumps other than E0784 will be denied as not reasonable and necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a covered insulin pump on the date of service of the claim.
+
+rule infusion_insulin_claim with provenance Policy Article A52507,
+        confer "Use code J1811, J1813 or J1817 for insulin administered through an external insulin pump (E0784)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["J1811", "J1813", "J1817"]
+    and the item is administered with a device
+    and the device is a covered insulin pump on the date of service of the claim.
+
+rule infusion_insulin_supplies_claim with provenance LCD L33794,
+        confer "Supplies for the maintenance of a parenteral drug infusion catheter (A4221) or supplies for the maintenance for an insulin infusion pump (A4224) are covered during the period of covered use of an infusion pump":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4224", "A4225"]
+    and the item is an accessory of a device
+    and the device is a covered insulin pump on the date of service of the claim.
+
+% the pump E0784, for a beneficiary meeting the criteria, followed up
+rule infusion_insulin_pump_covered with provenance LCD L33794,
+        confer "Administration of continuous subcutaneous insulin for the treatment of diabetes mellitus (Refer to the ICD-10 code list in the LCD-related Policy Article for applicable diagnoses.) if criterion A or B is met and if criterion C or D is met":
+a device is a covered insulin pump on the date of service of a claim
+    if the HCPCS code of the device is "E0784"
+    and the device is furnished to a beneficiary
+    and the beneficiary meets the insulin pump criteria
+    and the follow up of the device is current on the date of service of the claim.
+
+rule infusion_insulin_criteria with provenance LCD L33794,
+        confer "In addition, the external insulin infusion pump must be ordered and follow-up care rendered by a practitioner who manages multiple beneficiaries on continuous subcutaneous insulin infusion therapy and who works closely with a team including nurses, diabetic educators, and dieticians who are knowledgeable in the use of continuous subcutaneous insulin infusion therapy":
+a beneficiary meets the insulin pump criteria
+    if the diagnosis of the beneficiary is in infusion pump ICD10 group 1
+    and the beneficiary meets the insulin deficiency criterion
+    and the beneficiary meets the insulin regimen criterion
+    and the insulin pump of the beneficiary is ordered by a practitioner managing multiple beneficiaries on continuous subcutaneous insulin infusion with a knowledgeable team.
+
+% Criterion A, alternatives 1 and 2, each with 3.
+rule infusion_criterion_a1 with provenance LCD L33794,
+        confer "C-peptide level is less than or equal to 110 percent of the lower limit of normal of the laboratory's measurement method":
+a beneficiary meets the insulin deficiency criterion
+    if the connecting peptide level of the beneficiary is a number percent of the lower limit of normal
+    and the number <= 110
+    and the fasting blood sugar of the beneficiary at the connecting peptide test is an other number mg per dl
+    and the other number <= 225.
+
+rule infusion_criterion_a2 with provenance LCD L33794,
+        confer "a fasting C-peptide level is less than or equal to 200 per cent of the lower limit of normal":
+a beneficiary meets the insulin deficiency criterion
+    if the creatinine clearance of the beneficiary is a number ml per minute
+    and the number <= 50
+    and the connecting peptide level of the beneficiary is an other number percent of the lower limit of normal
+    and the other number <= 200
+    and the fasting blood sugar of the beneficiary at the connecting peptide test is a third number mg per dl
+    and the third number <= 225.
+
+% (criterion 3 in both rules: "A fasting blood sugar obtained at the same
+% time as the C-peptide level is less than or equal to 225 mg/dl")
+
+% Criterion B.
+rule infusion_criterion_b with provenance LCD L33794,
+        confer "Beta cell autoantibody test is positive":
+a beneficiary meets the insulin deficiency criterion
+    if the beta cell autoantibody test of the beneficiary is positive.
+
+% Criterion C: education, six months of at least 3 injections a day with
+% frequent self-adjustment, the testing, one of the clinical criteria.
+rule infusion_criterion_c with provenance LCD L33794,
+        confer "The beneficiary has completed a comprehensive diabetes education program, has been on a program of multiple daily injections of insulin (i.e., at least 3 injections per day) with frequent self-adjustments of insulin dose for at least 6 months prior to initiation of the insulin pump":
+a beneficiary meets the insulin regimen criterion
+    if the beneficiary has completed a comprehensive diabetes education program
+    and the beneficiary took a number insulin injections per day for an other number months before the insulin pump
+    and the number >= 3
+    and the other number >= 6
+    and the finding frequent insulin dose self adjustment about the beneficiary is established
+    and the glucose self testing of the beneficiary before the insulin pump is sufficient
+    and the beneficiary meets an insulin pump clinical criterion.
+
+% Criterion D.
+rule infusion_criterion_d with provenance LCD L33794,
+        confer "The beneficiary has been on an external insulin infusion pump prior to enrollment in Medicare and has documented frequency of glucose self-testing an average of at least 4 times per day during the month prior to Medicare enrollment":
+a beneficiary meets the insulin regimen criterion
+    if the beneficiary was on an external insulin infusion pump before enrollment in Medicare
+    and the glucose self testing of the beneficiary before enrollment is sufficient.
+
+% The testing: an average of at least 4 a day, or a continuous glucose
+% monitor documented (the Article).
+rule infusion_testing_before_pump with provenance LCD L33794,
+        confer "has documented frequency of glucose self-testing an average of at least 4 times per day during the 2 months prior to initiation of the insulin pump":
+the glucose self testing of a beneficiary before the insulin pump is sufficient
+    if the beneficiary self tested glucose an average of a number times per day during the two months before the insulin pump
+    and the number >= 4.
+
+rule infusion_testing_cgm_before_pump with provenance Policy Article A52507,
+        confer "Documentation of the use of a CGM device in the beneficiary’s medical records would meet the testing requirement in the External Infusion Pump LCD":
+the glucose self testing of a beneficiary before the insulin pump is sufficient
+    if the medical record of the beneficiary documents continuous glucose monitor use.
+
+rule infusion_testing_before_enrollment with provenance LCD L33794,
+        confer "has documented frequency of glucose self-testing an average of at least 4 times per day during the month prior to Medicare enrollment":
+the glucose self testing of a beneficiary before enrollment is sufficient
+    if the beneficiary self tested glucose an average of a number times per day during the month before enrollment in Medicare
+    and the number >= 4.
+
+rule infusion_testing_cgm_before_enrollment with provenance Policy Article A52507,
+        confer "Documentation of the use of a CGM device in the beneficiary’s medical records would meet the testing requirement in the External Infusion Pump LCD":
+the glucose self testing of a beneficiary before enrollment is sufficient
+    if the medical record of the beneficiary documents continuous glucose monitor use.
+
+% The clinical criteria 1-5 while on multiple injections.
+rule infusion_clinical_hba1c with provenance LCD L33794,
+        confer "Glycosylated hemoglobin level (HbA1C) greater than 7 percent":
+a beneficiary meets an insulin pump clinical criterion
+    if the glycosylated hemoglobin of the beneficiary on multiple injections is a number percent
+    and the number > 7.
+
+rule infusion_clinical_documented with provenance LCD L33794,
+        confer "meets one or more of the following criteria (1 - 5) while on the multiple injection regimen":
+a beneficiary meets an insulin pump clinical criterion
+    if the medical record of the beneficiary documents a condition
+    and the condition is an insulin pump clinical criterion.
+
+% Continued coverage: the first three months (91 days) from the delivery of
+% the pump need nothing more; afterwards an evaluation by the treating
+% practitioner within the three months before the date of service.
+rule infusion_follow_up_initial with provenance LCD L33794,
+        confer "Continued coverage of an external insulin pump and supplies requires that the beneficiary be seen and evaluated by the treating practitioner at least every 3 months":
+the follow up of a device is current on the date of service of a claim
+    if the device was delivered on a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 0
+    and the number <= 91.
+
+rule infusion_follow_up_evaluation with provenance LCD L33794,
+        confer "Continued coverage of an external insulin pump and supplies requires that the beneficiary be seen and evaluated by the treating practitioner at least every 3 months":
+the follow up of a device is current on the date of service of a claim
+    if the device is furnished to a beneficiary
+    and the date of service of the claim is a date
+    and the treating practitioner evaluated the beneficiary for the device on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 91.
+
+% ---------------------------------------------------------------------------
+% The other pumps: covered with the drug they administer; the drug and the
+% supplies covered with a covered pump.
+% ---------------------------------------------------------------------------
+
+rule infusion_pump_claim with provenance LCD L33794,
+        confer "An external infusion pump is covered for the following indications (I-V)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["K0455", "E0779", "E0781"]
+    and the item administers a covered infusion drug
+    and it is not the case that
+        the item is a backup pump.
+
+% (the backup pump: "A second pump provided as a backup will be denied as
+% not separately payable")
+
+rule infusion_drug_claim with provenance Policy Article A52507,
+        confer "Drugs are only covered as a supply to a covered DME infusion pump":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is administered with a device
+    and the item is a covered infusion drug for the device.
+
+rule infusion_non_insulin_supplies_claim with provenance Policy Article A52507,
+        confer "Claims for codes A4221, A4222 and K0552 must only be used with a non-insulin external infusion pump (E0779, E0780, E0781, E0791 or K0455)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["A4221", "A4222", "K0552"]
+    and the item is an accessory of a device
+    and the HCPCS code of the device is an other code
+    and the other code is in ["K0455", "E0779", "E0781"]
+    and the device administers a covered infusion drug.
+
+rule infusion_pump_with_covered_drug with provenance LCD L33794,
+        confer "When an infusion pump is covered, the drug necessitating the use of the pump and necessary supplies are also covered":
+a device administers a covered infusion drug
+    if a drug is administered with the device
+    and the drug is a covered infusion drug for the device.
+
+% V(E): epoprostenol or treprostinil, with K0455 only.
+rule infusion_epoprostenol_treprostinil with provenance LCD L33794,
+        confer "Epoprostenol/treprostinil is administered using ambulatory infusion pump K0455. Claims for usage of infusion pumps other than K0455 will be denied as not reasonable and necessary":
+a drug is a covered infusion drug for a device
+    if the HCPCS code of the drug is a code
+    and the code is in ["J1325", "J3285"]
+    and the HCPCS code of the device is "K0455"
+    and the device is furnished to a beneficiary
+    and the beneficiary meets the pulmonary hypertension infusion criteria.
+
+rule infusion_pulmonary_hypertension_criteria with provenance LCD L33794,
+        confer "Administration of epoprostenol (J1325) or treprostinil (J3285) for beneficiaries with pulmonary hypertension if they meet the following disease criteria":
+a beneficiary meets the pulmonary hypertension infusion criteria
+    if the finding qualifying pulmonary hypertension etiology about the beneficiary is established
+    and the finding pulmonary hypertension progressed despite treatment about the beneficiary is established
+    and the pulmonary artery pressure of the beneficiary meets the infusion criterion
+    and the finding significant pulmonary hypertension symptoms about the beneficiary is established
+    and the finding calcium channel blockers excluded about the beneficiary is established.
+
+% (the findings: "The pulmonary hypertension is not secondary to pulmonary
+% venous hypertension" and "The beneficiary has primary pulmonary
+% hypertension or pulmonary hypertension, which is secondary to one of the
+% following conditions"; "The pulmonary hypertension has progressed despite
+% maximal medical and/or surgical treatment of the identified condition";
+% "The beneficiary has significant symptoms from the pulmonary
+% hypertension"; "Treatment with oral calcium channel blocking agents has
+% been tried and failed, or has been considered and ruled out")
+
+rule infusion_mpap_at_rest with provenance LCD L33794,
+        confer "The mean pulmonary artery pressure is greater than 25 mm Hg at rest or greater than 30 mm Hg with exertion":
+the pulmonary artery pressure of a beneficiary meets the infusion criterion
+    if the mean pulmonary artery pressure of the beneficiary at rest is a number mm Hg
+    and the number > 25.
+
+rule infusion_mpap_with_exertion with provenance LCD L33794,
+        confer "The mean pulmonary artery pressure is greater than 25 mm Hg at rest or greater than 30 mm Hg with exertion":
+the pulmonary artery pressure of a beneficiary meets the infusion criterion
+    if the mean pulmonary artery pressure of the beneficiary with exertion is a number mm Hg
+    and the number > 30.
+
+% V(H): subcutaneous immune globulin, with the pump of the Article's table.
+rule infusion_scig with provenance LCD L33794,
+        confer "If a drug and pump combination is used, other than those listed in the table in the LCD-related Policy Article, the pump and drug will be denied as not reasonable and necessary":
+a drug is a covered infusion drug for a device
+    if the HCPCS code of the drug is a code
+    and the HCPCS code of the device is an other code
+    and immune globulin code the code is used with pump the other code under table scig_pumps
+    and the device is furnished to a beneficiary
+    and the beneficiary meets the subcutaneous immune globulin criteria.
+
+rule infusion_scig_criteria with provenance LCD L33794,
+        confer "Subcutaneous immune globulin (SCIg) (see Group 3 HCPCS codes) is covered when criteria 1-3, AND criterion 4 or 5 are met":
+a beneficiary meets the subcutaneous immune globulin criteria
+    if the beneficiary receives the immune globulin in the home
+    and the finding home immune globulin administration appropriate about the beneficiary is established
+    and the beneficiary has a subcutaneous immune globulin diagnosis.
+
+% (criterion 2: "The SCIg is administered in the home"; criterion 1, the
+% FDA-approved pooled plasma derivative, is carried by the code)
+
+rule infusion_scig_primary_immune_deficiency with provenance LCD L33794,
+        confer "The beneficiary has a primary immune deficiency disorder (Refer to the ICD-10 code list in the LCD-related Policy Article for applicable diagnoses.)":
+a beneficiary has a subcutaneous immune globulin diagnosis
+    if the diagnosis of the beneficiary is in infusion pump ICD10 group 3.
+
+rule infusion_scig_cidp with provenance LCD L33794,
+        confer "The beneficiary has a diagnosis of chronic inflammatory demyelinating polyneuropathy (CIDP) that has responded to IVIg treatment":
+a beneficiary has a subcutaneous immune globulin diagnosis
+    if the diagnosis of the beneficiary is in infusion pump ICD10 group 6
+    and the chronic inflammatory demyelinating polyneuropathy of the beneficiary responded to intravenous immune globulin.
+
+section remedy is:
+
+% The policy's own condition of payment: the dispensing cap of the LCD's
+% refill paragraph for the drugs and supplies; a pump is not dispensed (a
+% device of this model).
+rule infusion_documentation with provenance LCD L33794,
+        confer "Regardless of utilization, a supplier must not dispense more than a three (3) - month quantity at a time":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is external_infusion_pumps
+    and the claim is within the dispensing limit for infusion drugs and supplies.
+
+rule infusion_dispensing_supply with provenance LCD L33794,
+        confer "Regardless of utilization, a supplier must not dispense more than a three (3) - month quantity at a time":
+a claim is within the dispensing limit for infusion drugs and supplies
+    if the claim is for a supply of a number months
+    and the number <= 3.
+
+rule infusion_dispensing_pump:
+a claim is within the dispensing limit for infusion drugs and supplies
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["E0779", "E0781", "E0784", "K0455"].

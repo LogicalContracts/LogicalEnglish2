@@ -1,0 +1,403 @@
+% Test cases for the surgical dressings policy (surgical_dressings.le):
+% synthetic claims, one or two per criterion of LCD L33831 and per payment
+% condition of dmepos.le and Policy Article A54563, each stating only what
+% its record shows. Findings are recorded as the treating practitioner's,
+% the reviewer's or the Council's; a finding nobody made leaves the answer
+% conditional. Dressings are a one-off supply or a refill. The queries:
+% whether the claim is payable (the first query, so "stage" reads its
+% checklist), whether it is reasonable and necessary, and what minimal
+% change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base surgical_dressings cases includes these resources:
+    surgical_dressings.
+
+the knowledge base surgical_dressings cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a month of bordered foam covers (A6212, three times a
+% week: 12) as the primary dressing of a debrided stage 3 sacral pressure
+% ulcer with moderate exudate: the order of 20 February, the evaluation of
+% 25 February, delivery and proof of delivery. The Surgical Dressings
+% benefit asks nothing about the residence; no code of the policy is on the
+% CMS face-to-face list.
+scenario foam_complete is:
+    claim 1 is for the foam covers.
+    the HCPCS code of the foam covers is "A6212".
+    the foam covers is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 12.
+    the use of the foam covers is primary dressing.
+    the foam covers is applied to the sacral ulcer.
+    the sacral ulcer is a wound of Ann.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 3.
+    the exudate of the sacral ulcer is moderate.
+    the sacral ulcer has been debrided.
+    the sacral ulcer was evaluated on 2026-02-25.
+    the order for the foam covers is dated 2026-02-20.
+    the order for the foam covers is signed by the treating practitioner.
+    the order for the foam covers includes beneficiary name.
+    the order for the foam covers includes order date.
+    the order for the foam covers includes description of the item.
+    the order for the foam covers includes quantity to be dispensed.
+    the order for the foam covers includes treating practitioner name.
+    the order for the foam covers was communicated to the supplier on 2026-02-22.
+    the foam covers was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the foam covers.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The criteria of the categories: an alginate cover on Ben's heavily
+% exudative stage 4 ulcer (claim 1, covered); on Cy's dry stage 3 ulcer
+% (claim 2, not covered); a hydrocolloid on Dee's heavily draining wound
+% (claim 3, not covered); a hydrogel cover on Eve's stage 2 ulcer (claim 4,
+% not covered); a transparent film on Fay's closed incision (claim 5,
+% covered); saline impregnated gauze on Ben's ulcer (claim 6, never
+% covered).
+scenario category_criteria is:
+    claim 1 is for the alginate covers.
+    the HCPCS code of the alginate covers is "A6196".
+    the alginate covers is applied to the heel ulcer.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 30.
+    the heel ulcer is a wound of Ben.
+    the type of the heel ulcer is pressure ulcer.
+    the stage of the heel ulcer is 4.
+    the exudate of the heel ulcer is heavy.
+    claim 2 is for the second alginate covers.
+    the HCPCS code of the second alginate covers is "A6196".
+    the second alginate covers is applied to the dry ulcer.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 30.
+    the dry ulcer is a wound of Cy.
+    the type of the dry ulcer is pressure ulcer.
+    the stage of the dry ulcer is 3.
+    the exudate of the dry ulcer is none.
+    claim 3 is for the hydrocolloid covers.
+    the HCPCS code of the hydrocolloid covers is "A6234".
+    the hydrocolloid covers is applied to the leg wound.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 12.
+    the leg wound is a wound of Dee.
+    the type of the leg wound is surgical wound.
+    the exudate of the leg wound is heavy.
+    claim 4 is for the hydrogel covers.
+    the HCPCS code of the hydrogel covers is "A6242".
+    the hydrogel covers is applied to the hip ulcer.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 30.
+    the hip ulcer is a wound of Eve.
+    the type of the hip ulcer is pressure ulcer.
+    the stage of the hip ulcer is 2.
+    the thickness of the hip ulcer is partial thickness.
+    the exudate of the hip ulcer is minimal.
+    claim 5 is for the film.
+    the HCPCS code of the film is "A6257".
+    the film is applied to the incision.
+    claim 5 is for a supply of 1 months.
+    the quantity billed on claim 5 is 12.
+    the incision is a wound of Fay.
+    the type of the incision is surgical wound.
+    the incision is closed.
+    claim 6 is for the saline gauze.
+    the HCPCS code of the saline gauze is "A6228".
+    the saline gauze is applied to the heel ulcer.
+    claim 6 is for a supply of 1 months.
+    the quantity billed on claim 6 is 30.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 5 is reasonable and necessary"].
+
+% The usual quantities: gauze pads without a border on Gus's surgical
+% wound, three a day — 90 for a month (claim 1, covered), 100 (claim 2, not
+% covered); bordered specialty absorptive dressings on Hal's two stage 3
+% ulcers, every other day each — 30 for a month (claim 3, covered), 40
+% (claim 4, not covered).
+scenario usual_quantities is:
+    claim 1 is for the gauze pads.
+    the HCPCS code of the gauze pads is "A6216".
+    the gauze pads is applied to the abdominal wound.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 90.
+    claim 2 is for the extra gauze pads.
+    the HCPCS code of the extra gauze pads is "A6216".
+    the extra gauze pads is applied to the abdominal wound.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 100.
+    the abdominal wound is a wound of Gus.
+    the type of the abdominal wound is surgical wound.
+    claim 3 is for the absorptive dressings.
+    the HCPCS code of the absorptive dressings is "A6254".
+    the absorptive dressings is applied to the left hip ulcer.
+    the absorptive dressings is applied to the right hip ulcer.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 30.
+    claim 4 is for the extra absorptive dressings.
+    the HCPCS code of the extra absorptive dressings is "A6254".
+    the extra absorptive dressings is applied to the left hip ulcer.
+    the extra absorptive dressings is applied to the right hip ulcer.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 40.
+    the left hip ulcer is a wound of Hal.
+    the type of the left hip ulcer is pressure ulcer.
+    the stage of the left hip ulcer is 3.
+    the exudate of the left hip ulcer is heavy.
+    the right hip ulcer is a wound of Hal.
+    the type of the right hip ulcer is pressure ulcer.
+    the stage of the right hip ulcer is 3.
+    the exudate of the right hip ulcer is moderate.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 3 is reasonable and necessary"].
+
+% Collagen on a partial thickness venous ulcer with minimal exudate: covered
+% only if the wound has stalled — so the treating practitioner finds for
+% Ida (claim 1, covered); the Council finds Jo's record shows steady
+% healing (claim 2, not covered — the Council-style unsupported finding).
+scenario collagen_stalled is:
+    claim 1 is for the collagen dressings.
+    the HCPCS code of the collagen dressings is "A6021".
+    the collagen dressings is applied to the ankle ulcer.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 8.
+    the ankle ulcer is a wound of Ida.
+    the type of the ankle ulcer is venous insufficiency ulcer.
+    the thickness of the ankle ulcer is partial thickness.
+    the exudate of the ankle ulcer is minimal.
+    the finding wound healing stalled about Ida is established, according to the treating practitioner, because "the ulcer area has not decreased in six weeks of compression and moist dressings".
+    claim 2 is for the second collagen dressings.
+    the HCPCS code of the second collagen dressings is "A6021".
+    the second collagen dressings is applied to the shin ulcer.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 8.
+    the shin ulcer is a wound of Jo.
+    the type of the shin ulcer is venous insufficiency ulcer.
+    the thickness of the shin ulcer is partial thickness.
+    the exudate of the shin ulcer is minimal.
+    the finding wound healing stalled about Jo is unsupported, according to the Council, because "the weekly measurements in the nursing notes show the ulcer shrinking from 12 to 7 square centimeters during the month before the collagen was ordered".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Combinations: a hydrogel filler and an alginate filler on Kim's cavity
+% (claims 1 and 2, neither covered); tape over Lee's bordered foam cover,
+% the reviewer finding no reason for it (claim 3, not covered); tape holding
+% Mia's gauze pads, which have no border (claim 4, covered).
+scenario combinations is:
+    claim 1 is for the hydrogel filler.
+    the HCPCS code of the hydrogel filler is "A6248".
+    the hydrogel filler is applied to the cavity.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 3.
+    claim 2 is for the alginate filler.
+    the HCPCS code of the alginate filler is "A6199".
+    the alginate filler is applied to the cavity.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 30.
+    the cavity is a wound of Kim.
+    the type of the cavity is pressure ulcer.
+    the stage of the cavity is 4.
+    the exudate of the cavity is moderate.
+    claim 3 is for the tape.
+    the HCPCS code of the tape is "A4450".
+    the tape is applied to the back ulcer.
+    the tape is an accessory of the bordered foam.
+    the tape is furnished to Lee.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 24.
+    the HCPCS code of the bordered foam is "A6212".
+    the bordered foam is applied to the back ulcer.
+    the bordered foam is furnished to Lee.
+    the back ulcer is a wound of Lee.
+    the finding additional tape necessary about Lee is unsupported, according to the reviewer, because "the record gives no reason for tape over a cover with an adhesive border".
+    claim 4 is for the second tape.
+    the HCPCS code of the second tape is "A4450".
+    the second tape is applied to the arm wound.
+    the second tape is an accessory of the plain gauze.
+    the second tape is furnished to Mia.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 24.
+    the HCPCS code of the plain gauze is "A6216".
+    the plain gauze is applied to the arm wound.
+    the plain gauze is furnished to Mia.
+    the arm wound is a wound of Mia.
+    the type of the arm wound is surgical wound.
+    rn expects answers ["claim 4 is reasonable and necessary"].
+
+% Bandages and wraps for Ned's venous stasis ulcer: a zinc paste bandage
+% weekly (claim 1, covered); a high compression bandage of a multi-layer
+% system, changed twice a week (claim 2, covered: no weekly limit in a
+% multi-layer system); a light compression bandage used as the primary
+% dressing (claim 3, not covered); a gradient compression wrap for six
+% months (claim 4, covered), two for the one leg (claim 5, not covered).
+scenario compression is:
+    claim 1 is for the zinc bandages.
+    the HCPCS code of the zinc bandages is "A6456".
+    the zinc bandages is applied to the stasis ulcer.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 4.
+    claim 2 is for the compression bandages.
+    the HCPCS code of the compression bandages is "A6451".
+    the compression bandages is applied to the stasis ulcer.
+    the compression bandages is part of a multi-layer compression bandage system.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 8.
+    claim 3 is for the light bandages.
+    the HCPCS code of the light bandages is "A6448".
+    the light bandages is applied to the stasis ulcer.
+    the use of the light bandages is primary dressing.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 4.
+    claim 4 is for the wrap.
+    the HCPCS code of the wrap is "A6545".
+    the wrap is applied to the stasis ulcer.
+    claim 4 is for a supply of 6 months.
+    the quantity billed on claim 4 is 1.
+    claim 5 is for the extra wraps.
+    the HCPCS code of the extra wraps is "A6545".
+    the extra wraps is applied to the stasis ulcer.
+    claim 5 is for a supply of 6 months.
+    the quantity billed on claim 5 is 2.
+    the stasis ulcer is a wound of Ned.
+    the type of the stasis ulcer is venous insufficiency ulcer.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% The complete claim whose last wound evaluation is 50 days old, with no
+% reason given (Policy Article A54563): reasonable and necessary, not
+% payable; the flip adds the record's justification.
+scenario stale_evaluation is:
+    claim 1 is for the foam covers.
+    the HCPCS code of the foam covers is "A6212".
+    the foam covers is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 12.
+    the use of the foam covers is primary dressing.
+    the foam covers is applied to the sacral ulcer.
+    the sacral ulcer is a wound of Ann.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 3.
+    the exudate of the sacral ulcer is moderate.
+    the sacral ulcer has been debrided.
+    the sacral ulcer was evaluated on 2026-01-10.
+    the order for the foam covers is dated 2026-02-20.
+    the order for the foam covers is signed by the treating practitioner.
+    the order for the foam covers includes beneficiary name.
+    the order for the foam covers includes order date.
+    the order for the foam covers includes description of the item.
+    the order for the foam covers includes quantity to be dispensed.
+    the order for the foam covers includes treating practitioner name.
+    the order for the foam covers was communicated to the supplier on 2026-02-22.
+    the foam covers was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the foam covers.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the medical record justifies the late evaluation of the sacral ulcer with the other monitoring methods used"]].
+
+% A skin tear neither surgically treated nor debrided: gauze pads are
+% reasonable and necessary for it, but it is not a qualifying wound — no
+% benefit (Policy Article A54563), and the claim fails at the remedy.
+scenario skin_tear is:
+    claim 1 is for the gauze pads.
+    the HCPCS code of the gauze pads is "A6216".
+    the gauze pads is furnished to Ola.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 30.
+    the use of the gauze pads is primary dressing.
+    the gauze pads is applied to the skin tear.
+    the skin tear is a wound of Ola.
+    the type of the skin tear is skin tear.
+    the skin tear was evaluated on 2026-02-25.
+    the order for the gauze pads is dated 2026-02-20.
+    the order for the gauze pads is signed by the treating practitioner.
+    the order for the gauze pads includes beneficiary name.
+    the order for the gauze pads includes order date.
+    the order for the gauze pads includes description of the item.
+    the order for the gauze pads includes quantity to be dispensed.
+    the order for the gauze pads includes treating practitioner name.
+    the order for the gauze pads was communicated to the supplier on 2026-02-22.
+    the gauze pads was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the gauze pads.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% A refill of the foam covers in May: the beneficiary contacted on 15 May,
+% delivery on 25 May, the order of 20 March renewed within three months,
+% the ulcer evaluated on 20 May, continued need and use in the record —
+% payable. A second refill for Pat rests on an order of 20 January, more
+% than three months old: not payable.
+scenario refill is:
+    claim 1 is for the foam covers.
+    the HCPCS code of the foam covers is "A6212".
+    the foam covers is furnished to Ann.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-05-25.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 12.
+    the use of the foam covers is primary dressing.
+    the foam covers is applied to the sacral ulcer.
+    the current supply of the foam covers is expected to end on 2026-06-01.
+    the beneficiary affirmed the need for the refill of the foam covers on 2026-05-15.
+    the medical record documents continued need for the foam covers on 2026-05-20.
+    the record documents continued use of the foam covers on 2026-05-20.
+    the sacral ulcer is a wound of Ann.
+    the type of the sacral ulcer is pressure ulcer.
+    the stage of the sacral ulcer is 3.
+    the exudate of the sacral ulcer is moderate.
+    the sacral ulcer has been debrided.
+    the sacral ulcer was evaluated on 2026-05-20.
+    the order for the foam covers is dated 2026-03-20.
+    the order for the foam covers is signed by the treating practitioner.
+    the order for the foam covers includes beneficiary name.
+    the order for the foam covers includes order date.
+    the order for the foam covers includes description of the item.
+    the order for the foam covers includes quantity to be dispensed.
+    the order for the foam covers includes treating practitioner name.
+    the order for the foam covers was communicated to the supplier on 2026-03-22.
+    the foam covers was delivered on 2026-05-25.
+    the supplier holds proof of delivery for the foam covers.
+    claim 2 is for the second foam covers.
+    the HCPCS code of the second foam covers is "A6212".
+    the second foam covers is furnished to Pat.
+    claim 2 is a refill.
+    the date of service of claim 2 is 2026-05-25.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 12.
+    the use of the second foam covers is primary dressing.
+    the second foam covers is applied to the heel wound.
+    the current supply of the second foam covers is expected to end on 2026-06-01.
+    the beneficiary affirmed the need for the refill of the second foam covers on 2026-05-15.
+    the medical record documents continued need for the second foam covers on 2026-05-20.
+    the record documents continued use of the second foam covers on 2026-05-20.
+    the heel wound is a wound of Pat.
+    the type of the heel wound is surgical wound.
+    the thickness of the heel wound is full thickness.
+    the exudate of the heel wound is moderate.
+    the heel wound was created or treated by a surgical procedure.
+    the heel wound was evaluated on 2026-05-20.
+    the order for the second foam covers is dated 2026-01-20.
+    the order for the second foam covers is signed by the treating practitioner.
+    the order for the second foam covers includes beneficiary name.
+    the order for the second foam covers includes order date.
+    the order for the second foam covers includes description of the item.
+    the order for the second foam covers includes quantity to be dispensed.
+    the order for the second foam covers includes treating practitioner name.
+    the order for the second foam covers was communicated to the supplier on 2026-01-22.
+    the second foam covers was delivered on 2026-05-25.
+    the supplier holds proof of delivery for the second foam covers.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+    stage expects answers [].

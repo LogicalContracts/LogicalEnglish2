@@ -1,0 +1,417 @@
+% Ostomy Supplies: LCD L33828 and its Policy Article A52487 (DME MACs). A
+% policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for an ostomy supply — the pouches, barriers, faceplates, pastes,
+% belts, irrigation supplies, adhesives, tape and the rest of the LCD's
+% table of usual maximum quantities, and the pouches and barriers the
+% Article's coding guidelines name — is REASONABLE AND NECESSARY: every
+% supply within the usual maximum quantity of the LCD's table (per month,
+% or per six months), or beyond it with the greater quantity explained in
+% the medical record; not both of two supplies the LCD says are used one
+% instead of the other (the liquid barrier A4369 and the wipes or swabs
+% A5120; the night drainage bag A4357 and bottle A5102 of a urinary
+% ostomy). The benefit is the Prosthetic Device benefit (Policy Article
+% A52487, Social Security Act §1861(s)(8)), which carries no condition on
+% the place of use.
+%
+% The payment conditions the Article adds (its "statutory payment policy
+% requirements", section remedy): a beneficiary with a permanent impairment
+% requiring an ostomy — a colostomy, an ileostomy or a urinary ostomy, with
+% a diagnosis code of the Article's ICD-10 list on the claim
+% (sources/icd10/A52487_icd10_covered.csv, 10 rows, one group: group 1
+% serves every code of the policy; loaded as the table ostomy_icd10); not
+% in a covered home health episode (the home health agency provides the
+% supplies); an ostomy clamp (A4363) only when ordered as a replacement;
+% and the dispensing cap of the LCD's refill paragraph — a one-month supply
+% at a time for a beneficiary in a nursing facility, three months at home.
+% Once that benefit is met, continued need needs no further documentation
+% (the Article's "CONTINUED MEDICAL NEED": an addition to the shared rules
+% of dmepos.le; continued use is shown by the refill request, which
+% dmepos.le checks).
+%
+% How the criteria are read. What the record states is a scenario fact:
+% the kind of ostomy ("the ostomy of Ann is colostomy": colostomy,
+% ileostomy, urinary ostomy), the diagnosis code, the home health episode,
+% the residence. The quantities are the LCD's table, as data (the tables
+% ostomy_quantity and ostomy_period), read against the quantity billed and
+% the months the claim supplies (the shared templates); a code the table
+% does not list has no usual maximum. Two judgments are findings, the
+% judged template of dmepos.le "the finding F about B is established" (or
+% unsupported), with who found it and why:
+%   permanent impairment requiring ostomy (the Article: "If the medical
+%   record, including the judgment of the treating practitioner, indicates
+%   the condition is of long and indefinite duration, the test of permanence
+%   is considered met");
+%   excess ostomy supplies explained (a quantity above the usual maximum:
+%   "The explanation for use of a greater quantity of supplies than the
+%   amounts listed must be clearly documented in the beneficiary's medical
+%   record"; consulted only when the listed amount is exceeded).
+%
+% Not modelled: the continent stoma's "No more than one of these types of
+% supply would be reasonable and necessary on a given day" (A5055, A5081,
+% A5083, A6216 — a daily use no claim states); the Column I / Column II
+% bundling of the faceplate systems and the clamps "billed with ostomy
+% pouches" (coding); the AU modifier of the tape and adhesives; the pouch
+% cover, coded A9270 (the generic noncovered code, which no policy of the
+% model decides); A4400, "not valid for claim submission". The codes
+% A4364, A4402, A4450, A4452 and A5120 are also in the tracheostomy
+% supplies policy, and A4450, A4452 and A6216 are surgical dressings as
+% well: the Article's AU modifier tells them apart on a real claim, and in
+% a model holding both policies such a claim meets both.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the ostomy of *a beneficiary* is *a kind*; undefined.
+    *a beneficiary* is in a covered home health episode; undefined.
+    *an item* was ordered as a replacement; undefined.
+    % the tables
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table ostomy_icd10.
+    the usual maximum for ostomy supply *a code* is *a quantity* under table ostomy_quantity.
+    the period of the usual maximum for ostomy supply *a code* is *a number* months under table ostomy_period.
+    % derived
+    *an item* is an ostomy supply.
+    *an item* conflicts with a concurrent ostomy supply.
+    *a claim* is within the usual maximum quantity of ostomy supplies.
+    *a claim* is within the listed amount of ostomy supplies.
+    the ostomy supply quantity of *a claim* is allowed for *a beneficiary*.
+    *a beneficiary* meets the ostomy benefit requirements.
+    the diagnosis code of *a beneficiary* is a covered ostomy diagnosis code.
+    the ostomy clamp requirement is met for *an item*.
+    *a claim* is within the dispensing limit for ostomy supplies.
+
+% The Policy Article's ICD-10 table: the covered codes of its one group.
+the table ostomy_icd10 is loaded from sources/icd10/A52487_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+% The usual maximum quantity of each supply, and the months it is per (LCD
+% L33828, "USUAL MAXIMUM QUANTITY OF SUPPLIES": "# per Month" and "# per 6
+% Months").
+the table ostomy_quantity is, with unique match, with provenance LCD L33828,
+        confer "The table below lists the maximum number of items/units of service that are usually reasonable and necessary":
+    code    | quantity | confer
+    "A4357" | 2        | "A4357 2"
+    "A4362" | 20       | "A4362 20"
+    "A4364" | 4        | "A4364 4"
+    "A4367" | 1        | "A4367 1"
+    "A4369" | 2        | "A4369 2"
+    "A4377" | 10       | "A4377 10"
+    "A4381" | 10       | "A4381 10"
+    "A4402" | 4        | "A4402 4"
+    "A4404" | 10       | "A4404 10"
+    "A4405" | 4        | "A4405 4"
+    "A4406" | 4        | "A4406 4"
+    "A4414" | 20       | "A4414 20"
+    "A4415" | 20       | "A4415 20"
+    "A4416" | 60       | "A4416 60"
+    "A4417" | 60       | "A4417 60"
+    "A4418" | 60       | "A4418 60"
+    "A4419" | 60       | "A4419 60"
+    "A4420" | 60       | "A4420 60"
+    "A4423" | 60       | "A4423 60"
+    "A4424" | 20       | "A4424 20"
+    "A4425" | 20       | "A4425 20"
+    "A4426" | 20       | "A4426 20"
+    "A4427" | 20       | "A4427 20"
+    "A4429" | 20       | "A4429 20"
+    "A4431" | 20       | "A4431 20"
+    "A4432" | 20       | "A4432 20"
+    "A4433" | 20       | "A4433 20"
+    "A4434" | 20       | "A4434 20"
+    "A4436" | 1        | "A4436 1"
+    "A4437" | 1        | "A4437 1"
+    "A4450" | 40       | "A4450 40"
+    "A4452" | 40       | "A4452 40"
+    "A5051" | 60       | "A5051 60"
+    "A5052" | 60       | "A5052 60"
+    "A5053" | 60       | "A5053 60"
+    "A5054" | 60       | "A5054 60"
+    "A5055" | 31       | "A5055 31"
+    "A5056" | 40       | "A5056 40"
+    "A5057" | 40       | "A5057 40"
+    "A5061" | 20       | "A5061 20"
+    "A5062" | 20       | "A5062 20"
+    "A5063" | 20       | "A5063 20"
+    "A5071" | 20       | "A5071 20"
+    "A5072" | 20       | "A5072 20"
+    "A5073" | 20       | "A5073 20"
+    "A5081" | 31       | "A5081 31"
+    "A5082" | 1        | "A5082 1"
+    "A5083" | 150      | "A5083 150"
+    "A5093" | 10       | "A5093 10"
+    "A5121" | 20       | "A5121 20"
+    "A5122" | 20       | "A5122 20"
+    "A5126" | 20       | "A5126 20"
+    "A5131" | 1        | "A5131 1"
+    "A6216" | 60       | "A6216 60"
+    "A4361" | 3        | "A4361 3"
+    "A4371" | 10       | "A4371 10"
+    "A4398" | 2        | "A4398 2"
+    "A4399" | 2        | "A4399 2"
+    "A4455" | 16       | "A4455 16"
+    "A5102" | 2        | "A5102 2"
+    "A5120" | 150      | "A5120 150"
+
+the table ostomy_period is, with unique match, with provenance LCD L33828,
+        confer "The table below lists the maximum number of items/units of service that are usually reasonable and necessary":
+    code    | months | confer
+    "A4357" | 1      | "Code # per Month A4357 2"
+    "A4362" | 1      | "Code # per Month A4357 2 A4362 20"
+    "A4364" | 1      | "A4364 4"
+    "A4367" | 1      | "A4367 1"
+    "A4369" | 1      | "A4369 2"
+    "A4377" | 1      | "A4377 10"
+    "A4381" | 1      | "A4381 10"
+    "A4402" | 1      | "A4402 4"
+    "A4404" | 1      | "A4404 10"
+    "A4405" | 1      | "A4405 4"
+    "A4406" | 1      | "A4406 4"
+    "A4414" | 1      | "A4414 20"
+    "A4415" | 1      | "A4415 20"
+    "A4416" | 1      | "A4416 60"
+    "A4417" | 1      | "A4417 60"
+    "A4418" | 1      | "A4418 60"
+    "A4419" | 1      | "A4419 60"
+    "A4420" | 1      | "A4420 60"
+    "A4423" | 1      | "A4423 60"
+    "A4424" | 1      | "A4424 20"
+    "A4425" | 1      | "A4425 20"
+    "A4426" | 1      | "A4426 20"
+    "A4427" | 1      | "A4427 20"
+    "A4429" | 1      | "A4429 20"
+    "A4431" | 1      | "A4431 20"
+    "A4432" | 1      | "A4432 20"
+    "A4433" | 1      | "A4433 20"
+    "A4434" | 1      | "A4434 20"
+    "A4436" | 1      | "A4436 1"
+    "A4437" | 1      | "A4437 1"
+    "A4450" | 1      | "A4450 40"
+    "A4452" | 1      | "A4452 40"
+    "A5051" | 1      | "A5051 60"
+    "A5052" | 1      | "A5052 60"
+    "A5053" | 1      | "A5053 60"
+    "A5054" | 1      | "A5054 60"
+    "A5055" | 1      | "A5055 31"
+    "A5056" | 1      | "A5056 40"
+    "A5057" | 1      | "A5057 40"
+    "A5061" | 1      | "A5061 20"
+    "A5062" | 1      | "A5062 20"
+    "A5063" | 1      | "A5063 20"
+    "A5071" | 1      | "A5071 20"
+    "A5072" | 1      | "A5072 20"
+    "A5073" | 1      | "A5073 20"
+    "A5081" | 1      | "A5081 31"
+    "A5082" | 1      | "A5082 1"
+    "A5083" | 1      | "A5083 150"
+    "A5093" | 1      | "A5093 10"
+    "A5121" | 1      | "A5121 20"
+    "A5122" | 1      | "A5122 20"
+    "A5126" | 1      | "A5126 20"
+    "A5131" | 1      | "A5131 1"
+    "A6216" | 1      | "A6216 60"
+    "A4361" | 6      | "Code # per 6 Months A4361 3"
+    "A4371" | 6      | "A4371 10"
+    "A4398" | 6      | "A4398 2"
+    "A4399" | 6      | "A4399 2"
+    "A4455" | 6      | "A4455 16"
+    "A5102" | 6      | "A5102 2"
+    "A5120" | 6      | "A5120 150"
+
+the knowledge base ostomy_supplies includes these resources:
+    dmepos.
+
+the knowledge base ostomy_supplies includes:
+
+LCD L33828 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33828".
+the text of LCD L33828 is at "sources/lcd/L33828.txt".
+Policy Article A52487 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52487".
+the text of Policy Article A52487 is at "sources/article/A52487.txt".
+
+% The ostomy supplies: the codes of the LCD's table, and the pouches,
+% barriers, faceplates, vents, filters and absorbent material the Article's
+% coding guidelines describe.
+rule ostomy_supply_codes with provenance LCD L33828,
+        confer "The quantity of ostomy supplies needed by a beneficiary is determined primarily by the type of ostomy, its location, its construction, and the condition of the skin surface surrounding the stoma":
+an item is an ostomy supply
+    if the HCPCS code of the item is a code
+    and the code is in ["A4357", "A4361", "A4362", "A4363", "A4364", "A4366", "A4367", "A4368", "A4369", "A4371", "A4375", "A4376", "A4377", "A4378", "A4379", "A4380", "A4381", "A4382", "A4383", "A4398", "A4399", "A4402", "A4404", "A4405", "A4406", "A4407", "A4408", "A4409", "A4411", "A4412", "A4413", "A4414", "A4415", "A4416", "A4417", "A4418", "A4419", "A4420", "A4422", "A4423", "A4424", "A4425", "A4426", "A4427", "A4429", "A4431", "A4432", "A4433", "A4434", "A4435", "A4436", "A4437", "A4450", "A4452", "A4455", "A5051", "A5052", "A5053", "A5054", "A5055", "A5056", "A5057", "A5061", "A5062", "A5063", "A5071", "A5072", "A5073", "A5081", "A5082", "A5083", "A5093", "A5102", "A5120", "A5121", "A5122", "A5126", "A5131", "A6216"].
+
+% Two supplies used one instead of the other: the liquid barrier and the
+% wipes or swabs; the night drainage bag and bottle of a urinary ostomy.
+% Both claims are denied: the LCD says which pair, not which of the two.
+rule ostomy_liquid_barrier_or_wipes with provenance LCD L33828,
+        confer "When a liquid barrier is necessary, either liquid or spray (A4369) or individual wipes or swabs (A5120) are appropriate. The use of both is not reasonable and necessary":
+an item conflicts with a concurrent ostomy supply
+    if the HCPCS code of the item is a code
+    and the code is in ["A4369", "A5120"]
+    and the item is furnished to a beneficiary
+    and an other item is furnished to the beneficiary
+    and the HCPCS code of the other item is an other code
+    and the other code is in ["A4369", "A5120"]
+    and the other code is different from the code.
+
+rule ostomy_night_drainage with provenance LCD L33828,
+        confer "Beneficiaries with urinary ostomies may use either a bag (A4357) or bottle (A5102) for drainage at night. It is not reasonable and necessary to have both":
+an item conflicts with a concurrent ostomy supply
+    if the HCPCS code of the item is a code
+    and the code is in ["A4357", "A5102"]
+    and the item is furnished to a beneficiary
+    and an other item is furnished to the beneficiary
+    and the HCPCS code of the other item is an other code
+    and the other code is in ["A4357", "A5102"]
+    and the other code is different from the code.
+
+% The diagnosis code of the claim, read against the Article's table.
+rule ostomy_diagnosis_code with provenance Policy Article A52487,
+        confer "Ostomy supplies are appropriately used for colostomies, ileostomies or urinary ostomies (see covered diagnosis codes below.)":
+the diagnosis code of a beneficiary is a covered ostomy diagnosis code
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A52487" as a description under table ostomy_icd10.
+
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
+% The codes this policy decides — the ostomy supplies — and their benefit:
+% the Prosthetic Device benefit (Policy Article A52487), with no condition
+% on the place of use.
+rule ostomy_codes with provenance Policy Article A52487,
+        confer "Ostomy supplies are covered under the Prosthetic Device benefit (Social Security Act Section 1861(s)(8))":
+the policy for code a code is ostomy_supplies
+    if the code is in ["A4357", "A4361", "A4362", "A4363", "A4364", "A4366", "A4367", "A4368", "A4369", "A4371", "A4375", "A4376", "A4377", "A4378", "A4379", "A4380", "A4381", "A4382", "A4383", "A4398", "A4399", "A4402", "A4404", "A4405", "A4406", "A4407", "A4408", "A4409", "A4411", "A4412", "A4413", "A4414", "A4415", "A4416", "A4417", "A4418", "A4419", "A4420", "A4422", "A4423", "A4424", "A4425", "A4426", "A4427", "A4429", "A4431", "A4432", "A4433", "A4434", "A4435", "A4436", "A4437", "A4450", "A4452", "A4455", "A5051", "A5052", "A5053", "A5054", "A5055", "A5056", "A5057", "A5061", "A5062", "A5063", "A5071", "A5072", "A5073", "A5081", "A5082", "A5083", "A5093", "A5102", "A5120", "A5121", "A5122", "A5126", "A5131", "A6216"].
+
+section applicability is:
+
+rule ostomy_benefit with provenance Policy Article A52487,
+        confer "Ostomy supplies are covered under the Prosthetic Device benefit (Social Security Act Section 1861(s)(8))":
+the benefit category of code a code is prosthetic devices
+    if the policy for code the code is ostomy_supplies.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Every supply: within the usual maximum quantity (or the excess explained),
+% and not beside the supply it replaces.
+% ---------------------------------------------------------------------------
+
+rule ostomy_supplies_covered with provenance LCD L33828,
+        confer "The actual quantity needed for a particular beneficiary may be more or less than the amount listed depending on the factors that affect the frequency of barrier and pouch change":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is an ostomy supply
+    and the item is furnished to a beneficiary
+    and the claim is within the usual maximum quantity of ostomy supplies
+    and it is not the case that
+        the item conflicts with a concurrent ostomy supply.
+
+rule ostomy_usual_quantity with provenance LCD L33828,
+        confer "The explanation for use of a greater quantity of supplies than the amounts listed must be clearly documented in the beneficiary’s medical record":
+a claim is within the usual maximum quantity of ostomy supplies
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the ostomy supply quantity of the claim is allowed for the beneficiary.
+
+% the cascade decides one claim and one beneficiary at a time (both bound
+% by the head): within the listed amount, otherwise the explanation
+rule ostomy_quantity_allowed with provenance LCD L33828,
+        confer "If adequate documentation is not provided when requested, the excess quantities will be denied as not reasonable and necessary":
+the ostomy supply quantity of a claim is allowed for a beneficiary
+    if the claim is within the listed amount of ostomy supplies
+    otherwise the finding excess ostomy supplies explained about the beneficiary is established.
+
+rule ostomy_listed_amount with provenance LCD L33828,
+        confer "USUAL MAXIMUM QUANTITY OF SUPPLIES":
+a claim is within the listed amount of ostomy supplies
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the usual maximum for ostomy supply the code is a quantity under table ostomy_quantity
+    and the period of the usual maximum for ostomy supply the code is a number months under table ostomy_period
+    and the claim is for a supply of an other number months
+    and the quantity billed on the claim is a third number
+    and a limit is the quantity * ceiling(the other number / the number)
+    and the third number <= the limit.
+
+% a supply the table does not list (a pouch with a convex or extended wear
+% barrier, a faceplate system, a high output pouch): no usual maximum — a
+% device of this model
+rule ostomy_no_listed_amount:
+a claim is within the listed amount of ostomy supplies
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the usual maximum for ostomy supply the code is a quantity under table ostomy_quantity.
+
+section remedy is:
+
+% The Policy Article's own conditions of payment: the permanent impairment
+% requiring an ostomy, the kind of ostomy and its diagnosis code, no covered
+% home health episode, the clamps as replacements, the dispensing cap of
+% the LCD's refill paragraph.
+% (the home health episode: "Ostomy supplies are not separately payable
+% when a beneficiary is in a covered home health episode")
+rule ostomy_documentation with provenance Policy Article A52487,
+        confer "In addition, there are specific statutory payment policy requirements, discussed below, that also must be met":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is ostomy_supplies
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the ostomy benefit requirements
+    and it is not the case that
+        the beneficiary is in a covered home health episode
+    and the ostomy clamp requirement is met for the item
+    and the claim is within the dispensing limit for ostomy supplies.
+
+% "Ostomy supplies are covered for use on a beneficiary with a surgically
+% created opening (stoma) to divert urine, or fecal contents outside the
+% body" — a colostomy, an ileostomy or a urinary ostomy ("Use for other
+% conditions will be denied as noncovered"), permanent, with its diagnosis
+% code on the claim.
+rule ostomy_permanent_impairment with provenance Policy Article A52487,
+        confer "Ostomy supplies are covered for a beneficiary who has a permanent impairment requiring an ostomy":
+a beneficiary meets the ostomy benefit requirements
+    if the ostomy of the beneficiary is a kind
+    and the kind is in [colostomy, ileostomy, urinary ostomy]
+    and the finding permanent impairment requiring ostomy about the beneficiary is established
+    and the diagnosis code of the beneficiary is a covered ostomy diagnosis code.
+
+% any supply other than a clamp: no condition — a device of this model
+rule ostomy_not_a_clamp:
+the ostomy clamp requirement is met for an item
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is "A4363".
+
+rule ostomy_clamp_replacement with provenance Policy Article A52487,
+        confer "Ostomy clamps are only payable when ordered as a replacement":
+the ostomy clamp requirement is met for an item
+    if the HCPCS code of the item is "A4363"
+    and the item was ordered as a replacement.
+
+rule ostomy_dispensing_nursing_facility with provenance LCD L33828,
+        confer "a supplier must not dispense more than a one (1) -month supply at a time for a beneficiary in a nursing facility and a three (3) -month supply for a beneficiary at home":
+a claim is within the dispensing limit for ostomy supplies
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and the residence of the beneficiary is nursing facility
+    and the claim is for a supply of a number months
+    and the number <= 1.
+
+rule ostomy_dispensing_home with provenance LCD L33828,
+        confer "a supplier must not dispense more than a one (1) -month supply at a time for a beneficiary in a nursing facility and a three (3) -month supply for a beneficiary at home":
+a claim is within the dispensing limit for ostomy supplies
+    if the claim is for an item
+    and the item is furnished to a beneficiary
+    and it is not the case that
+        the residence of the beneficiary is nursing facility
+    and the claim is for a supply of a number months
+    and the number <= 3.
+
+% Continued need: once the permanent impairment is established, no further
+% documentation of it (an addition to the shared continued need rules of
+% dmepos.le; continued use is documented by the refill request).
+rule ostomy_continued_need with provenance Policy Article A52487,
+        confer "There is no requirement for further documentation of continued medical need as long as the beneficiary continues to meet the Prosthetic Devices benefit":
+the continued need requirements are met for a claim
+    if the policy of the claim is ostomy_supplies
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the ostomy benefit requirements.

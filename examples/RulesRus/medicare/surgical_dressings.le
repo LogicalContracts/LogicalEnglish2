@@ -1,0 +1,625 @@
+% Surgical Dressings: LCD L33831 and its Policy Article A54563 (DME MACs).
+% A policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for a surgical dressing is REASONABLE AND NECESSARY: the dressing
+% category of its code (the LCD's product types, the table
+% dressing_category: alginate or other fiber gelling A6196-A6199, collagen
+% A6010, A6011, A6021-A6024, composite A6203-A6205, contact layer
+% A6206-A6208, foam A6209-A6215, non-impregnated gauze A6216-A6221,
+% A6402-A6404, A6407, impregnated gauze A6222-A6224, A6266, water or saline
+% gauze A6228-A6230, hydrocolloid A6234-A6241, hydrogel A6231-A6233,
+% A6242-A6248, specialty absorptive A6251-A6256, transparent film
+% A6257-A6259, wound filler A6261, A6262, wound pouch A6154, zinc paste
+% bandage A6456, tape A4450, A4452, the bandages A6441-A6455, the gradient
+% compression wrap A6545) meets the criteria of that category for each wound
+% it is applied to — the wound's thickness and exudate, eschar, closure,
+% type and stage, the exclusions (collagen and heavy exudate, third-degree
+% burns, active vasculitis; hydrogel and stage 2 ulcers); a foam cover as a
+% secondary dressing only for very heavy exudate; tape only to hold a
+% cover without an adhesive border, unless the reason for more tape is
+% documented; the compression bandages as a secondary dressing, or in a
+% multi-layer system for a venous stasis ulcer; no hydrating dressing on the
+% same wound as an absorptive one (hydrogel and alginate); and the quantity
+% within the usual frequency of change of the category (the table
+% dressing_changes, per wound). Water or saline impregnated gauze
+% (A6228-A6230) is in scope and never covered: no rule concludes it. The
+% benefit is the Surgical Dressings benefit (Policy Article A54563, Social
+% Security Act §1861(s)(5)); the wound care items the Article says are not
+% dressings (A6250 skin sealants, A6260 wound cleansers, A6025 silicone gel
+% sheets, A6413 first-aid bandages) are in scope and in no benefit.
+%
+% The payment conditions the Article adds (section remedy): the statutory
+% requirements — each wound the dressing is applied to is a qualifying wound
+% (caused or treated by a surgical procedure, or debrided), and the dressing
+% is used as a primary or a secondary dressing (not, say, to cleanse a
+% wound); and its policy specific documentation requirements — an order
+% renewed every three months for each dressing, a wound evaluation every
+% month (every week for a beneficiary in a nursing facility or a heavily
+% draining or infected wound) unless the record justifies why not and the
+% other monitoring used; and the dispensing cap of the LCD's refill
+% paragraph, a month's supply at a time unless the need for more at home is
+% documented.
+%
+% How the criteria are read. A wound is a constant of the record ("the
+% sacral ulcer") with its beneficiary, type and stage — the vocabulary of
+% npwt.le, declared here in the same words (candidates for dmepos.le: the
+% two programs read the same predicates; npwt.le is not included, because
+% its scope and benefit rules would be tried for these claims and "stage"
+% would blame them) — and with its thickness (full thickness, partial
+% thickness; a pressure ulcer of stage 3 or 4 is full thickness by the LCD's
+% appendix), its exudate (none, minimal, light, moderate, heavy, very
+% heavy), eschar, closure, infection, the surgery or debridement, its dated
+% evaluations. The dressing's use (primary dressing, secondary dressing,
+% wound cleansing) and the wounds it is applied to are facts of the record;
+% tape is an accessory of the cover it holds (the shared template). The
+% usual quantity is the number of changes a month the LCD allows for the
+% category, as the Article's example reckons it (once a day is 30 a month,
+% three times a week 12, every other day 15, once a week 4, three times a
+% day 90), times the units per change (two units of alginate filler), times
+% the wounds, times the months supplied. Three months are read as 91 days,
+% a month as 31. The findings this policy reads (the judged template of
+% dmepos.le), and the criterion each stands for:
+%   wound healing stalled (collagen: "wounds that have stalled or have not
+%   progressed toward a healing goal" — consulted only when the wound is
+%   neither full thickness nor lightly to moderately exudative);
+%   additional tape necessary (tape over a cover with an adhesive border:
+%   "Reasons for use of additional tape must be well documented");
+%   greater dressing supply necessary (more than a month's supply: "unless
+%   there is documentation to support the necessity of greater quantities in
+%   the home setting in an individual case").
+%
+% Not modelled: the other combination rules (more than one type of filler
+% or cover in a wound, a secondary dressing of weekly change over a daily
+% primary, a secondary dressing over an impervious backing, a contact layer
+% under a non-adherent dressing); the tape units by the size of the cover;
+% the fillers' units beyond alginate's two per change and hydrogel's 3 per
+% 30 days (A6248); the dressing sizes; the materials not recognized as
+% effective (silver, honey, ...: coded A9270 or A4649, no rule); dressings
+% bundled in the supply allowances of other policies; the compression burn
+% garments (A6501-A6513) and the gradient compression stockings (A6531,
+% A6532); the A1-A9, AW, EY, GY, RT and LT modifiers, the PDAC coding
+% verification. The Article says it lists ICD-10 codes, but no table of
+% them is in sources/icd10. A4450, A4452 and A6216 are also ostomy supplies
+% and A4450, A4452 urological supplies: in a model holding those policies
+% such a claim meets them all.
+
+the target language is: prolog.
+
+the templates are:
+    % the wound of the record — candidates for dmepos.le, in the words of
+    % npwt.le
+    *a wound* is a wound of *a beneficiary*; undefined.
+    the type of *a wound* is *a type*; undefined.
+    the stage of *a wound* is *a number*; undefined.
+    *an item* is applied to *a wound*; undefined.
+    % the record of the wound and the dressing
+    the thickness of *a wound* is *a thickness*; undefined.
+    the exudate of *a wound* is *an amount*; undefined.
+    *a wound* is covered with eschar; undefined.
+    *a wound* is closed; undefined.
+    *a wound* is infected; undefined.
+    *a wound* was created or treated by a surgical procedure; undefined.
+    *a wound* has been debrided; undefined.
+    *a wound* was evaluated on *a date*; undefined.
+    the medical record justifies the late evaluation of *a wound* with the other monitoring methods used; undefined.
+    the use of *an item* is *a use*; undefined.
+    *an item* is part of a multi-layer compression bandage system; undefined.
+    % the tables
+    the dressing category of code *a code* is *a category* under table dressing_category.
+    the usual changes per month of dressing code *a code* is *a number* under table dressing_changes.
+    % derived
+    *a wound* is a full thickness wound.
+    *an item* meets the dressing criteria for *a wound*.
+    *an item* meets the dressing criteria for every wound it is applied to.
+    the collagen indication is met for *a wound*.
+    *an item* has an adhesive border.
+    additional tape is justified for *a device*.
+    *an item* conflicts with a concurrent dressing.
+    the number of wounds dressed with *an item* is *a number*.
+    *a claim* is within the usual dressing quantity.
+    *a wound* is a qualifying wound.
+    the dressing order of *a claim* is current.
+    the wound evaluation for *a claim* is current.
+    the evaluation of *a wound* is current on *a date*.
+    *a wound* needs weekly evaluation.
+    the evaluation interval of *a wound* is *a number* days.
+    *a claim* is within the dispensing limit for surgical dressings.
+
+% The LCD's product types, by code.
+the table dressing_category is, with unique match, with provenance LCD L33831,
+        confer "DRESSINGS The following are specific guidelines for individual product types":
+    code | category | confer
+    "A6196" or "A6197" or "A6198" or "A6199" | alginate | "Alginate Or Other Fiber Gelling Dressing (A6196-A6199)"
+    "A6010" or "A6011" or "A6021" or "A6022" or "A6023" or "A6024" | collagen | "Collagen Dressing Or Wound Filler (A6010, A6011, A6021-A6024)"
+    "A6203" or "A6204" or "A6205" | composite | "Composite Dressing (A6203-A6205)"
+    "A6206" or "A6207" or "A6208" | contact layer | "Contact Layer (A6206-A6208)"
+    "A6209" or "A6210" or "A6211" or "A6212" or "A6213" or "A6214" or "A6215" | foam | "Foam Dressing Or Wound Filler (A6209-A6215)"
+    "A6216" or "A6217" or "A6218" or "A6219" or "A6220" or "A6221" or "A6402" or "A6403" or "A6404" or "A6407" | gauze | "Gauze, Non-Impregnated (A6216-A6221, A6402-A6404, A6407)"
+    "A6222" or "A6223" or "A6224" or "A6266" | impregnated gauze | "Gauze, Impregnated, With Other Than Water, Normal Saline, Hydrogel, Or Zinc Paste (A6222-A6224, A6266)"
+    "A6228" or "A6229" or "A6230" | saline gauze | "Gauze, Impregnated, Water Or Normal Saline (A6228-A6230)"
+    "A6234" or "A6235" or "A6236" or "A6237" or "A6238" or "A6239" or "A6240" or "A6241" | hydrocolloid | "Hydrocolloid Dressing (A6234-A6241)"
+    "A6231" or "A6232" or "A6233" or "A6242" or "A6243" or "A6244" or "A6245" or "A6246" or "A6247" or "A6248" | hydrogel | "Hydrogel Dressing (A6231-A6233, A6242-A6248)"
+    "A6251" or "A6252" or "A6253" or "A6254" or "A6255" or "A6256" | specialty absorptive | "Specialty Absorptive Dressing (A6251-A6256)"
+    "A6257" or "A6258" or "A6259" | transparent film | "Transparent Film (A6257-A6259)"
+    "A6261" or "A6262" | wound filler | "Wound Filler, Not Elsewhere Classified (A6261-A6262)"
+    "A6154" | wound pouch | "Wound Pouch (A6154)"
+    "A6456" | zinc paste bandage | "Zinc Paste Impregnated Bandage (A6456)"
+    "A4450" or "A4452" | tape | "Tape (A4450, A4452)"
+    "A6448" or "A6449" or "A6450" | light compression bandage | "Light Compression Bandage (A6448-A6450)"
+    "A6451" or "A6452" | high compression bandage | "Moderate/High Compression Bandage (A6451, A6452)"
+    "A6453" or "A6454" or "A6455" | self adherent bandage | "Self-Adherent Bandage (A6453-A6455)"
+    "A6442" or "A6443" or "A6444" or "A6445" or "A6446" or "A6447" | conforming bandage | "Conforming Bandage (A6442-A6447)"
+    "A6441" | padding bandage | "Padding Bandage (A6441)"
+    "A6545" | gradient compression wrap | "Gradient Compression Wrap (A6545)"
+
+% The usual number of changes a month of each code, per wound (units per
+% change included): the LCD's frequencies, reckoned as the Article's
+% example does ("A61XX (max allowance of 30 per month)" for a daily change,
+% "A62XX (max allowance of 12 per month)" for three times a week).
+the table dressing_changes is, with unique match, with provenance LCD L33831,
+        confer "The frequency of recommended dressing changes depends on the type and use of the surgical dressing":
+    code | changes | confer
+    "A6196" or "A6197" or "A6198" | 30 | "Dressing change is up to once per day. One wound cover sheet of the approximate size of the wound or up to 2 units of wound filler"
+    "A6199" | 60 | "Dressing change is up to once per day. One wound cover sheet of the approximate size of the wound or up to 2 units of wound filler"
+    "A6203" or "A6204" or "A6205" | 12 | "Composite dressing change is up to 3 times per week, one wound cover per dressing change"
+    "A6206" or "A6207" or "A6208" | 4 | "They are not intended to be changed with each dressing change. Dressing change is up to once per week"
+    "A6209" or "A6210" or "A6211" or "A6212" or "A6213" or "A6214" | 12 | "Dressing change for a foam wound cover used as a primary dressing is up to 3 times per week"
+    "A6215" | 30 | "Dressing change frequency for foam wound fillers is up to once per day"
+    "A6216" or "A6217" or "A6218" or "A6402" or "A6403" or "A6404" | 90 | "Non-impregnated gauze dressing change is up to 3 times per day for a dressing without a border"
+    "A6219" or "A6220" or "A6221" | 30 | "once per day for a dressing with a border"
+    "A6222" or "A6223" or "A6224" or "A6266" | 30 | "Dressing change for gauze dressings impregnated with other than water, normal saline, hydrogel or zinc paste is up to once per day"
+    "A6234" or "A6235" or "A6236" or "A6237" or "A6238" or "A6239" or "A6240" or "A6241" | 12 | "Dressing change for hydrocolloid wound covers or hydrocolloid wound fillers is up to 3 times per week"
+    "A6242" or "A6243" or "A6244" | 30 | "Dressing change for hydrogel wound covers without adhesive border or hydrogel wound fillers is up to once per day"
+    "A6245" or "A6246" or "A6247" | 12 | "Dressing change for hydrogel wound covers with adhesive border is up to 3 times per week"
+    "A6248" | 3 | "Maximum utilization of code A6248 is 3 units (fluid ounces) per wound in 30 days"
+    "A6251" or "A6252" or "A6253" | 30 | "Specialty absorptive dressing change is up to once per day for a dressing without an adhesive border"
+    "A6254" or "A6255" or "A6256" | 15 | "up to every other day for a dressing with a border"
+    "A6257" or "A6258" or "A6259" | 12 | "closed wounds. Dressing change is up to 3 times per week"
+    "A6261" or "A6262" | 30 | "Coverage is based upon the characteristics of the underlying material(s). Dressing change is up to once per day"
+    "A6154" | 12 | "Wound Pouch (A6154) Dressing change is up to 3 times per week"
+    "A6456" | 4 | "Dressing change frequency for A6456 is weekly"
+    "A6441" or "A6448" or "A6449" or "A6450" or "A6451" or "A6452" or "A6453" or "A6454" or "A6455" | 4 | "Frequency of replacement would be no more than one per week unless they are part of a multi-layer compression bandage system"
+
+the knowledge base surgical_dressings includes these resources:
+    dmepos.
+
+the knowledge base surgical_dressings includes:
+
+LCD L33831 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33831".
+the text of LCD L33831 is at "sources/lcd/L33831.txt".
+Policy Article A54563 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=54563".
+the text of Policy Article A54563 is at "sources/article/A54563.txt".
+
+% A full thickness wound: the record says so, or a pressure ulcer of stage 3
+% or 4 (the LCD's appendix).
+rule dressing_full_thickness_recorded with provenance LCD L33831,
+        confer "full thickness wounds (e.g., stage 3 or 4 ulcers)":
+a wound is a full thickness wound
+    if the thickness of the wound is full thickness.
+
+rule dressing_full_thickness_stage with provenance LCD L33831,
+        confer "Stage 3 Pressure Injury: Full-thickness skin loss":
+a wound is a full thickness wound
+    if the type of the wound is pressure ulcer
+    and the stage of the wound is a number
+    and the number is in [3, 4].
+
+% The wound covers with an adhesive border, by code (the Article's coding
+% guidelines; the composite dressing's barrier "extends out into the
+% adhesive border").
+rule dressing_adhesive_border with provenance Policy Article A54563,
+        confer "A wound cover with adhesive border has an integrated cover and distinct adhesive border designed to adhere tightly to the skin":
+an item has an adhesive border
+    if the HCPCS code of the item is a code
+    and the code is in ["A6203", "A6204", "A6205", "A6212", "A6213", "A6214", "A6219", "A6220", "A6221", "A6237", "A6238", "A6239", "A6245", "A6246", "A6247", "A6254", "A6255", "A6256"].
+
+% the wounds a dressing is applied to: a count of the record's lines
+rule dressing_wound_count with provenance Policy Article A54563,
+        confer "Modifiers A1-A9 are used to indicate the number of qualifying wounds on which a specific dressing HCPCS code is being used":
+the number of wounds dressed with an item is a number
+    if the number is the count of each W such that
+        the item is applied to a wound W.
+
+% A hydrating dressing and an absorptive one on the same wound.
+rule dressing_hydrating_with_absorptive with provenance LCD L33831,
+        confer "It is not appropriate to use combinations of a hydrating dressing on the same wound at the same time as an absorptive dressing (e.g., hydrogel and alginate)":
+an item conflicts with a concurrent dressing
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is a category under table dressing_category
+    and the category is in [hydrogel, alginate]
+    and the item is applied to a wound
+    and an other item is applied to the wound
+    and the HCPCS code of the other item is an other code
+    and the dressing category of code the other code is an other category under table dressing_category
+    and the other category is in [hydrogel, alginate]
+    and the other category is different from the category.
+
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
+% The codes this policy decides — the dressings, tape, bandages and wrap of
+% the LCD, and the wound care items the Article says are not dressings —
+% and their benefit: the Surgical Dressings benefit (Policy Article
+% A54563), with no condition on the place of use; the items that are not
+% dressings in no benefit.
+rule dressing_codes with provenance Policy Article A54563,
+        confer "Surgical Dressings are covered under the Surgical Dressings Benefit (Social Security Act §1861(s)(5))":
+the policy for code a code is surgical_dressings
+    if the code is in ["A6010", "A6011", "A6021", "A6022", "A6023", "A6024", "A6154", "A6196", "A6197", "A6198", "A6199", "A6203", "A6204", "A6205", "A6206", "A6207", "A6208", "A6209", "A6210", "A6211", "A6212", "A6213", "A6214", "A6215", "A6216", "A6217", "A6218", "A6219", "A6220", "A6221", "A6222", "A6223", "A6224", "A6228", "A6229", "A6230", "A6231", "A6232", "A6233", "A6234", "A6235", "A6236", "A6237", "A6238", "A6239", "A6240", "A6241", "A6242", "A6243", "A6244", "A6245", "A6246", "A6247", "A6248", "A6251", "A6252", "A6253", "A6254", "A6255", "A6256", "A6257", "A6258", "A6259", "A6261", "A6262", "A6266", "A6402", "A6403", "A6404", "A6407", "A6441", "A6442", "A6443", "A6444", "A6445", "A6446", "A6447", "A6448", "A6449", "A6450", "A6451", "A6452", "A6453", "A6454", "A6455", "A6456", "A6545", "A4450", "A4452", "A6250", "A6260", "A6025", "A6413"].
+
+section applicability is:
+
+% "The following are examples of wound care items which are non-covered
+% under the surgical dressing benefit because they do not meet the
+% statutory definition of a dressing (not all-inclusive): Skin sealants or
+% barriers (A6250) Wound cleansers (A6260) ... Silicone gel sheets (A6025)
+% ... First-aid type adhesive bandage (A6413)"
+rule dressing_benefit with provenance Policy Article A54563,
+        confer "Surgical Dressings are covered under the Surgical Dressings Benefit (Social Security Act §1861(s)(5))":
+the benefit category of code a code is surgical dressings
+    if the policy for code the code is surgical_dressings
+    and it is not the case that
+        the code is in ["A6250", "A6260", "A6025", "A6413"].
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% A dressing: the criteria of its category for each wound it is applied
+% to, no hydrating dressing beside an absorptive one, the usual quantity.
+% ---------------------------------------------------------------------------
+
+rule dressing_claim with provenance LCD L33831,
+        confer "They are considered reasonable and necessary when used as described by this policy":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is applied to a wound
+    and the item meets the dressing criteria for every wound it is applied to
+    and it is not the case that
+        the item conflicts with a concurrent dressing
+    and the claim is within the usual dressing quantity.
+
+rule dressing_every_wound with provenance LCD L33831,
+        confer "Surgical dressings must be tailored to the specific needs of an individual beneficiary":
+an item meets the dressing criteria for every wound it is applied to
+    if the item is applied to a wound
+    and for all cases in which
+            the item is applied to an other wound
+        it is the case that
+            the item meets the dressing criteria for the other wound.
+
+% ---------------------------------------------------------------------------
+% The criteria of each category.
+% ---------------------------------------------------------------------------
+
+rule dressing_alginate with provenance LCD L33831,
+        confer "Alginate or other fiber gelling dressing covers are covered for moderately to highly exudative full thickness wounds (e.g., stage 3 or 4 ulcers)":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is alginate under table dressing_category
+    and the wound is a full thickness wound
+    and the exudate of the wound is an amount
+    and the amount is in [moderate, heavy, very heavy]
+    and it is not the case that
+        the wound is covered with eschar.
+
+% (the eschar: "They are not reasonable and necessary on dry wounds or
+% wounds covered with eschar"; a dry wound has no exudate)
+
+rule dressing_collagen with provenance LCD L33831,
+        confer "Collagen based dressings are not covered for wounds with heavy exudate, third-degree burns, or when an active vasculitis is present":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is collagen under table dressing_category
+    and the collagen indication is met for the wound
+    and the exudate of the wound is an amount
+    and it is not the case that
+        the amount is in [heavy, very heavy]
+    and it is not the case that
+        the type of the wound is third degree burn
+    and the wound is a wound of a beneficiary
+    and it is not the case that
+        the medical record of the beneficiary documents active vasculitis.
+
+% full thickness; otherwise light to moderate exudate; otherwise the
+% judgment that the wound has stalled
+rule dressing_collagen_indication with provenance LCD L33831,
+        confer "A collagen-based dressing or wound filler is covered for full thickness wounds (e.g., stage 3 or 4 ulcers), wounds with light to moderate exudate, or wounds that have stalled or have not progressed toward a healing goal":
+the collagen indication is met for a wound
+    if the wound is a full thickness wound
+    otherwise the exudate of the wound is an amount
+    and the amount is in [light, moderate]
+    otherwise the wound is a wound of a beneficiary
+    and the finding wound healing stalled about the beneficiary is established.
+
+rule dressing_composite with provenance LCD L33831,
+        confer "Composite dressings are covered for moderately to highly exudative wounds":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is composite under table dressing_category
+    and the exudate of the wound is an amount
+    and the amount is in [moderate, heavy, very heavy].
+
+% the categories whose coverage the LCD ties to no characteristic of the
+% wound (or to "the characteristics of the underlying material(s)", which
+% the code does not state): any wound
+rule dressing_any_wound with provenance LCD L33831,
+        confer "Medicare recognizes the surgical dressing materials described by the product types listed above to be effective":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is a category under table dressing_category
+    and the category is in [contact layer, gauze, impregnated gauze, wound filler, wound pouch]
+    and the item is applied to the wound.
+
+rule dressing_foam_primary with provenance LCD L33831,
+        confer "Foam dressings are covered when used on full thickness wounds (e.g., stage 3 or 4 ulcers) with moderate to heavy exudate":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is foam under table dressing_category
+    and it is not the case that
+        the use of the item is secondary dressing
+    and the wound is a full thickness wound
+    and the exudate of the wound is an amount
+    and the amount is in [moderate, heavy, very heavy].
+
+rule dressing_foam_secondary with provenance LCD L33831,
+        confer "When a foam wound cover is used as a secondary dressing for wounds with very heavy exudate, dressing change is up to 3 times per week":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is foam under table dressing_category
+    and the use of the item is secondary dressing
+    and the exudate of the wound is very heavy.
+
+rule dressing_hydrocolloid with provenance LCD L33831,
+        confer "Hydrocolloid dressings are covered for use on wounds with light to moderate exudate":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is hydrocolloid under table dressing_category
+    and the exudate of the wound is an amount
+    and the amount is in [light, moderate].
+
+rule dressing_hydrogel with provenance LCD L33831,
+        confer "Hydrogel dressings are covered when used on full thickness wounds (e.g., stage 3 or 4 ulcers) with minimal or no exudate. Hydrogel dressings are not reasonable and necessary for stage 2 ulcers":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is hydrogel under table dressing_category
+    and the wound is a full thickness wound
+    and the exudate of the wound is an amount
+    and the amount is in [none, minimal]
+    and it is not the case that
+        the stage of the wound is 2.
+
+rule dressing_specialty_absorptive with provenance LCD L33831,
+        confer "Specialty absorptive dressings are covered when used for moderately or highly exudative full thickness wounds (e.g., stage 3 or 4 ulcers)":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is specialty absorptive under table dressing_category
+    and the wound is a full thickness wound
+    and the exudate of the wound is an amount
+    and the amount is in [moderate, heavy, very heavy].
+
+rule dressing_transparent_film_open with provenance LCD L33831,
+        confer "Transparent film dressings are covered when used on open partial thickness wounds with minimal exudate or closed wounds":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is transparent film under table dressing_category
+    and the thickness of the wound is partial thickness
+    and the exudate of the wound is minimal.
+
+rule dressing_transparent_film_closed with provenance LCD L33831,
+        confer "Transparent film dressings are covered when used on open partial thickness wounds with minimal exudate or closed wounds":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is transparent film under table dressing_category
+    and the wound is closed.
+
+rule dressing_zinc_paste with provenance LCD L33831,
+        confer "A zinc paste impregnated bandage is covered for the treatment of venous leg ulcers that meet the statutory requirements for a qualifying wound (surgically created or modified, or debrided)":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is zinc paste bandage under table dressing_category
+    and the type of the wound is venous insufficiency ulcer.
+
+% Tape: to hold a cover without an adhesive border; over a bordered cover
+% only with the reason documented.
+rule dressing_tape with provenance LCD L33831,
+        confer "Tape is covered when needed to hold on a wound cover, elastic roll gauze or non-elastic roll gauze":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is tape under table dressing_category
+    and the item is an accessory of a device
+    and the device is applied to the wound
+    and additional tape is justified for the device.
+
+rule dressing_tape_border with provenance LCD L33831,
+        confer "When a wound cover with an adhesive border is being used, no other dressing is needed on top of it and additional tape is not required. Reasons for use of additional tape must be well documented":
+additional tape is justified for a device
+    if it is not the case that
+        the device has an adhesive border
+    otherwise the device is furnished to a beneficiary
+    and the finding additional tape necessary about the beneficiary is established.
+
+% The bandages: a light compression, self-adherent or conforming bandage as
+% a secondary dressing holding a cover; a moderate or high compression,
+% conforming, self-adherent or padding bandage in a multi-layer system for
+% a venous stasis ulcer.
+rule dressing_bandage_secondary with provenance Policy Article A54563,
+        confer "Light compression bandages, self-adherent bandages, and conforming bandages are covered when they are used to hold wound cover dressings in place over any wound type i.e., as a secondary dressing over a qualified wound":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is a category under table dressing_category
+    and the category is in [light compression bandage, self adherent bandage, conforming bandage]
+    and the use of the item is secondary dressing
+    and the item is applied to the wound.
+
+rule dressing_bandage_multilayer with provenance Policy Article A54563,
+        confer "Moderate or high compression bandages, conforming bandages, self-adherent bandages, and padding bandages are covered when they are part of a multi-layer compression bandage system used in the treatment of a venous stasis ulcer that meets the requirements to be a qualified wound":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is a code
+    and the dressing category of code the code is a category under table dressing_category
+    and the category is in [high compression bandage, conforming bandage, self adherent bandage, padding bandage]
+    and the item is part of a multi-layer compression bandage system
+    and the type of the wound is venous insufficiency ulcer.
+
+rule dressing_gradient_wrap with provenance Policy Article A54563,
+        confer "a non-elastic gradient compression wrap described by code A6545 is only covered when it is used in the treatment of an open venous stasis ulcer that meets the qualifying wound requirements described above":
+an item meets the dressing criteria for a wound
+    if the HCPCS code of the item is "A6545"
+    and the type of the wound is venous insufficiency ulcer.
+
+% ---------------------------------------------------------------------------
+% The usual quantity: the changes a month of the code, per wound, times the
+% months supplied.
+% ---------------------------------------------------------------------------
+
+rule dressing_usual_quantity with provenance LCD L33831,
+        confer "The quantity and type of dressings dispensed at any one time must take into account the status of the wound(s), the likelihood of change, and the recent use of dressings":
+a claim is within the usual dressing quantity
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the usual changes per month of dressing code the code is a number under table dressing_changes
+    and it is not the case that
+        the item is part of a multi-layer compression bandage system
+    and the number of wounds dressed with the item is an other number
+    and the claim is for a supply of a third number months
+    and the quantity billed on the claim is a quantity
+    and a limit is the number * the other number * the third number
+    and the quantity <= the limit.
+
+% a code with no usual frequency (collagen, the conforming bandage, tape,
+% the packing strip, the hydrogel impregnated gauze): the quantity ordered —
+% a device of this model
+rule dressing_no_usual_frequency:
+a claim is within the usual dressing quantity
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and it is not the case that
+        the code is "A6545"
+    and it is not the case that
+        the usual changes per month of dressing code the code is a number under table dressing_changes.
+
+% the components of a multi-layer system: no weekly limit ("unless they are
+% part of a multi-layer compression bandage system") — a device of this
+% model
+rule dressing_multilayer_quantity with provenance LCD L33831,
+        confer "Frequency of replacement would be no more than one per week unless they are part of a multi-layer compression bandage system":
+a claim is within the usual dressing quantity
+    if the claim is for an item
+    and the item is part of a multi-layer compression bandage system.
+
+rule dressing_gradient_wrap_quantity with provenance LCD L33831,
+        confer "Utilization of a gradient compression wrap (A6545) is limited to one per 6 months per leg":
+a claim is within the usual dressing quantity
+    if the claim is for an item
+    and the HCPCS code of the item is "A6545"
+    and the number of wounds dressed with the item is a number
+    and the claim is for a supply of an other number months
+    and the quantity billed on the claim is a quantity
+    and a limit is the number * ceiling(the other number / 6)
+    and the quantity <= the limit.
+
+section remedy is:
+
+% The Policy Article's own conditions of payment: the statutory
+% requirements (a qualifying wound, a primary or secondary dressing), the
+% order renewed every three months, the current wound evaluation, and the
+% LCD's dispensing cap.
+rule dressing_documentation with provenance Policy Article A54563,
+        confer "In order for a beneficiary’s item(s) to be eligible for reimbursement, all benefit requirements discussed below and the reasonable and necessary (R&N) requirements set out in the related Local Coverage Determination must be met":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is surgical_dressings
+    and the claim is for an item
+    and the use of the item is a use
+    and the use is in [primary dressing, secondary dressing]
+    and the item is applied to a wound
+    and for all cases in which
+            the item is applied to an other wound
+        it is the case that
+            the other wound is a qualifying wound
+    and the dressing order of the claim is current
+    and the wound evaluation for the claim is current
+    and the claim is within the dispensing limit for surgical dressings.
+
+% (the use: "Claims for products that are not able to be used as a primary
+% or secondary dressing on a qualifying wound of the skin or that are
+% composed of materials that do not serve a therapeutic or protective
+% function will be denied as statutorily non-covered, no benefit")
+
+rule dressing_qualifying_surgical with provenance Policy Article A54563,
+        confer "A wound caused by, or treated by, a surgical procedure":
+a wound is a qualifying wound
+    if the wound was created or treated by a surgical procedure.
+
+rule dressing_qualifying_debrided with provenance Policy Article A54563,
+        confer "After debridement of the wound, regardless of the debridement technique":
+a wound is a qualifying wound
+    if the wound has been debrided.
+
+% a new order every three months (91 days) for each dressing
+rule dressing_order_renewed with provenance Policy Article A54563,
+        confer "A new order is required every 3 months for each dressing being used":
+the dressing order of a claim is current
+    if the claim is for an item
+    and the order for the item is dated a date
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 0
+    and the number <= 91.
+
+% every wound the dressing is applied to evaluated within the month (a
+% week, where the Article expects weekly evaluations) before the date of
+% service, or the delay justified
+rule dressing_evaluations with provenance Policy Article A54563,
+        confer "This information must be updated by the treating practitioner (or their designee) on a monthly basis":
+the wound evaluation for a claim is current
+    if the claim is for an item
+    and the date of service of the claim is a date
+    and the item is applied to a wound
+    and for all cases in which
+            the item is applied to an other wound
+        it is the case that
+            the evaluation of the other wound is current on the date.
+
+rule dressing_evaluation_current with provenance Policy Article A54563,
+        confer "This evaluation of the beneficiary's wound(s) is required unless there is documentation in the medical record which justifies why an evaluation could not be done within this timeframe and what other monitoring methods were used to evaluate the beneficiary's need for ongoing use of dressings":
+the evaluation of a wound is current on a date
+    if the wound was evaluated on an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the evaluation interval of the wound is an other number days
+    and the number <= the other number
+    otherwise the medical record justifies the late evaluation of the wound with the other monitoring methods used.
+
+rule dressing_evaluation_interval with provenance Policy Article A54563,
+        confer "For beneficiaries in a nursing facility or for beneficiaries with heavily draining or infected wounds, wound evaluations are expected on a weekly basis":
+the evaluation interval of a wound is a number days
+    if the wound needs weekly evaluation
+    and the number is 7
+    otherwise the number is 31.
+
+rule dressing_weekly_nursing_facility with provenance Policy Article A54563,
+        confer "For beneficiaries in a nursing facility or for beneficiaries with heavily draining or infected wounds, wound evaluations are expected on a weekly basis":
+a wound needs weekly evaluation
+    if the wound is a wound of a beneficiary
+    and the residence of the beneficiary is nursing facility.
+
+rule dressing_weekly_heavy_drainage with provenance Policy Article A54563,
+        confer "For beneficiaries in a nursing facility or for beneficiaries with heavily draining or infected wounds, wound evaluations are expected on a weekly basis":
+a wound needs weekly evaluation
+    if the exudate of the wound is an amount
+    and the amount is in [heavy, very heavy].
+
+rule dressing_weekly_infected with provenance Policy Article A54563,
+        confer "For beneficiaries in a nursing facility or for beneficiaries with heavily draining or infected wounds, wound evaluations are expected on a weekly basis":
+a wound needs weekly evaluation
+    if the wound is infected.
+
+% a month's supply; otherwise the documented need for more at home
+rule dressing_dispensing_limit with provenance LCD L33831,
+        confer "Regardless of utilization, no more than a month’s supply of dressings may be provided at one time, unless there is documentation to support the necessity of greater quantities in the home setting in an individual case":
+a claim is within the dispensing limit for surgical dressings
+    if the claim is for a supply of a number months
+    and the number <= 1
+    otherwise the claim is for an item
+    and the item is furnished to a beneficiary
+    and it is not the case that
+        the residence of the beneficiary is nursing facility
+    and the finding greater dressing supply necessary about the beneficiary is established.

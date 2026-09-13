@@ -1,0 +1,159 @@
+% Test cases for the bowel management devices policy (bowel_management.le):
+% synthetic claims, one or two per criterion of LCD L36267 and per benefit
+% rule of Policy Article A54516, each stating only what its record shows.
+% Findings are recorded as the treating practitioner's or the Council's. A
+% bed pan is purchased: no rental month, no refill. The queries: whether
+% the claim is payable (the first query, so "stage" reads its checklist),
+% whether it is reasonable and necessary, and what minimal change would
+% make it payable.
+
+the target language is: prolog.
+
+the knowledge base bowel_management cases includes these resources:
+    bowel_management.
+
+the knowledge base bowel_management cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a standard bed pan (E0275) for a bed-confined
+% beneficiary at home: the practitioner's finding, the order, delivery and
+% proof of delivery (E0275 needs neither a face-to-face encounter nor prior
+% authorization).
+scenario bed_pan_complete is:
+    claim 1 is for the bed pan.
+    the HCPCS code of the bed pan is "E0275".
+    the bed pan is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding confined to bed about Ann is established, according to the treating practitioner, because "end-stage heart failure; she cannot get out of bed without two-person assistance".
+    the order for the bed pan is dated 2026-02-20.
+    the order for the bed pan is signed by the treating practitioner.
+    the order for the bed pan includes beneficiary name.
+    the order for the bed pan includes order date.
+    the order for the bed pan includes description of the item.
+    the order for the bed pan includes quantity to be dispensed.
+    the order for the bed pan includes treating practitioner name.
+    the order for the bed pan was communicated to the supplier on 2026-02-22.
+    the bed pan was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the bed pan.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% A fracture bed pan (E0276) after a hip fracture: bed-confined in the
+% treating practitioner's judgment — reasonable and necessary.
+scenario fracture_bed_pan is:
+    claim 1 is for the fracture pan.
+    the HCPCS code of the fracture pan is "E0276".
+    the fracture pan is furnished to Ben.
+    the residence of Ben is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding confined to bed about Ben is established, according to the treating practitioner, because "non-weight-bearing for six weeks after fixation of a femoral neck fracture".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The Council finds the beneficiary was not bed-confined: she walked to the
+% bathroom with a walker. Not reasonable and necessary (the Council-style
+% unsupported finding).
+scenario not_bed_confined is:
+    claim 1 is for the bed pan.
+    the HCPCS code of the bed pan is "E0275".
+    the bed pan is furnished to Cy.
+    the residence of Cy is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding confined to bed about Cy is unsupported, according to the Council, because "the physical therapy notes of the same month record that she walks 50 feet to the bathroom with a rolling walker".
+    the order for the bed pan is dated 2026-02-20.
+    the order for the bed pan is signed by the treating practitioner.
+    the order for the bed pan includes beneficiary name.
+    the order for the bed pan includes order date.
+    the order for the bed pan includes description of the item.
+    the order for the bed pan includes quantity to be dispensed.
+    the order for the bed pan includes treating practitioner name.
+    the order for the bed pan was communicated to the supplier on 2026-02-22.
+    the bed pan was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the bed pan.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A bed pan for a beneficiary in a skilled nursing facility: durable
+% medical equipment is not paid there (42 CFR 410.38) — reasonable and
+% necessary, but outside the benefit, so the claim fails at applicability.
+scenario skilled_nursing_facility is:
+    claim 1 is for the bed pan.
+    the HCPCS code of the bed pan is "E0275".
+    the bed pan is furnished to Dee.
+    the residence of Dee is skilled nursing facility.
+    the date of service of claim 1 is 2026-03-01.
+    the finding confined to bed about Dee is established, according to the treating practitioner, because "bed-bound after a stroke".
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at applicability"].
+
+% A rectal insert (A4337): a prosthetic device, but denied as not
+% reasonable and necessary.
+scenario rectal_insert is:
+    claim 1 is for the rectal inserts.
+    the HCPCS code of the rectal inserts is "A4337".
+    the rectal inserts is furnished to Eve.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A gravity enema system (A4458): in no benefit (not durable, replaces no
+% organ) — the claim fails at applicability.
+scenario enema_system is:
+    claim 1 is for the enema bag.
+    the HCPCS code of the enema bag is "A4458".
+    the enema bag is furnished to Fay.
+    the residence of Fay is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% A transanal irrigation system (A4459): the text of the LCD states no
+% criterion for it and the model leaves it out of scope.
+scenario transanal_irrigation is:
+    claim 1 is for the irrigation system.
+    the HCPCS code of the irrigation system is "A4459".
+    the irrigation system is furnished to Gus.
+    the residence of Gus is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    pay expects answers [].
+    stage expects answers ["the query fails at applicability"].
+
+% The complete claim without proof of delivery: reasonable and necessary,
+% not payable; the flip adds the proof.
+scenario no_proof_of_delivery is:
+    claim 1 is for the bed pan.
+    the HCPCS code of the bed pan is "E0275".
+    the bed pan is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the finding confined to bed about Ann is established, according to the treating practitioner, because "end-stage heart failure; she cannot get out of bed without two-person assistance".
+    the order for the bed pan is dated 2026-02-20.
+    the order for the bed pan is signed by the treating practitioner.
+    the order for the bed pan includes beneficiary name.
+    the order for the bed pan includes order date.
+    the order for the bed pan includes description of the item.
+    the order for the bed pan includes quantity to be dispensed.
+    the order for the bed pan includes treating practitioner name.
+    the order for the bed pan was communicated to the supplier on 2026-02-22.
+    the bed pan was delivered on 2026-03-01.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the supplier holds proof of delivery for the bed pan"]].

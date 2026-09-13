@@ -1,0 +1,305 @@
+% Test cases for the parenteral nutrition policy (parenteral_nutrition.le):
+% synthetic claims, one or two per criterion of LCD L38953 and per payment
+% condition of dmepos.le and Policy Article A58836, each stating only what
+% its record shows. Findings are recorded as the treating practitioner's,
+% the reviewer's or the Council's; a finding nobody made leaves the answer
+% conditional. The queries: whether the claim is payable (the first query,
+% so "stage" reads its checklist), whether it is reasonable and necessary,
+% and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base parenteral_nutrition cases includes these resources:
+    parenteral_nutrition.
+
+the knowledge base parenteral_nutrition cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a month of a premix solution (B4193, one unit a day)
+% for short bowel syndrome after a massive small bowel resection: condition
+% (a), jejunal feeding tried and failed, evaluated 10 days before the start,
+% 25 cal/kg/day, the practitioner's judgment of permanence, and every
+% documentation requirement in the record. The prosthetic benefit asks
+% nothing about the residence.
+scenario premix_complete is:
+    claim 1 is for the premix.
+    the HCPCS code of the premix is "B4193".
+    the premix is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 31.
+    Ann has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Ann is established, according to the treating practitioner, because "a trial of jejunal feeding at 40 ml an hour produced high output and weight loss of 4 kg in three weeks".
+    parenteral nutrition of Ann was initiated on 2026-03-01.
+    the treating practitioner saw Ann to evaluate the parenteral nutrition needs on 2026-02-19.
+    the caloric intake ordered for Ann is 25 cal per kg per day.
+    the finding permanent gastrointestinal impairment about Ann is established, according to the treating practitioner, because "90 cm of small bowel remain after resection for mesenteric ischemia; no intestinal adaptation sufficient for oral nutrition is expected".
+    the order for the premix is dated 2026-02-20.
+    the order for the premix is signed by the treating practitioner.
+    the order for the premix includes beneficiary name.
+    the order for the premix includes order date.
+    the order for the premix includes description of the item.
+    the order for the premix includes quantity to be dispensed.
+    the order for the premix includes treating practitioner name.
+    the order for the premix was communicated to the supplier on 2026-02-22.
+    the premix was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the premix.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The coverage criteria: Ben's gastroparesis (condition (b)), enteral
+% nutrition exacerbating it (claim 1, covered); Cy, for whom the Council
+% finds that enteral nutrition was never tried nor ruled out (claim 2, not
+% covered — the Council-style unsupported finding); Dee, with neither
+% condition (a) nor (b) in the record (claim 3, not covered).
+scenario coverage_criteria is:
+    claim 1 is for the premix.
+    the HCPCS code of the premix is "B4193".
+    the premix is furnished to Ben.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 31.
+    Ben has a motility disorder of the stomach or intestine impairing the transport or absorption of nutrients by the gastrointestinal system.
+    the finding enteral nutrition unsuitable about Ben is established, according to the treating practitioner, because "gastric and jejunal tube feedings both provoked intractable vomiting from the gastroparesis".
+    parenteral nutrition of Ben was initiated on 2026-03-01.
+    the treating practitioner saw Ben to evaluate the parenteral nutrition needs on 2026-02-25.
+    the caloric intake ordered for Ben is 30 cal per kg per day.
+    claim 2 is for the second premix.
+    the HCPCS code of the second premix is "B4193".
+    the second premix is furnished to Cy.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 31.
+    Cy has a motility disorder of the stomach or intestine impairing the transport or absorption of nutrients by the gastrointestinal system.
+    the finding enteral nutrition unsuitable about Cy is unsupported, according to the Council, because "the discharge summary starts parenteral nutrition without any trial of tube feeding and gives no reason why enteral nutrition was ruled out".
+    parenteral nutrition of Cy was initiated on 2026-03-01.
+    the treating practitioner saw Cy to evaluate the parenteral nutrition needs on 2026-02-25.
+    the caloric intake ordered for Cy is 30 cal per kg per day.
+    claim 3 is for the third premix.
+    the HCPCS code of the third premix is "B4193".
+    the third premix is furnished to Dee.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 31.
+    the finding enteral nutrition unsuitable about Dee is established, according to the treating practitioner, because "she refuses a feeding tube".
+    parenteral nutrition of Dee was initiated on 2026-03-01.
+    the treating practitioner saw Dee to evaluate the parenteral nutrition needs on 2026-02-25.
+    the caloric intake ordered for Dee is 30 cal per kg per day.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The evaluation before the start: Eve was seen 45 days before, and the
+% practitioner documented why and the weekly laboratory monitoring used
+% instead (claim 1, covered); Fay was seen 45 days before with nothing
+% documented (claim 2, not covered).
+scenario evaluation_timing is:
+    claim 1 is for the premix.
+    the HCPCS code of the premix is "B4193".
+    the premix is furnished to Eve.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 31.
+    Eve has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Eve is established, according to the treating practitioner, because "enteral feeding tried for two months without weight gain".
+    parenteral nutrition of Eve was initiated on 2026-03-01.
+    the treating practitioner saw Eve to evaluate the parenteral nutrition needs on 2026-01-15.
+    the treating practitioner documented the reason for the late evaluation of Eve with the other monitoring methods used.
+    the caloric intake ordered for Eve is 28 cal per kg per day.
+    claim 2 is for the second premix.
+    the HCPCS code of the second premix is "B4193".
+    the second premix is furnished to Fay.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 31.
+    Fay has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Fay is established, according to the treating practitioner, because "enteral feeding tried for two months without weight gain".
+    parenteral nutrition of Fay was initiated on 2026-03-01.
+    the treating practitioner saw Fay to evaluate the parenteral nutrition needs on 2026-01-15.
+    the caloric intake ordered for Fay is 28 cal per kg per day.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The homemix components and the ranges of the order, all for Gus: amino
+% acids at 1.5 gm/kg/day (claim 1, covered); dextrose at 5 percent, which
+% the reviewer finds undocumented (claim 2, not covered); lipids above the
+% FDA-approved dosing, the practitioner documenting why (claim 3, covered);
+% a special formula (B5000) for his renal failure (claim 4, covered). Hal's
+% 45 cal/kg/day is outside the range and the reviewer finds no reason for
+% it (claim 5, not covered).
+scenario homemix_ranges is:
+    claim 1 is for the amino acids.
+    the HCPCS code of the amino acids is "B4172".
+    the amino acids is furnished to Gus.
+    claim 1 is for a supply of 1 months.
+    claim 2 is for the dextrose.
+    the HCPCS code of the dextrose is "B4164".
+    the dextrose is furnished to Gus.
+    claim 2 is for a supply of 1 months.
+    claim 3 is for the lipids.
+    the HCPCS code of the lipids is "B4185".
+    the lipids is furnished to Gus.
+    claim 3 is for a supply of 1 months.
+    claim 4 is for the renal formula.
+    the HCPCS code of the renal formula is "B5000".
+    the renal formula is furnished to Gus.
+    claim 4 is for a supply of 1 months.
+    Gus has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Gus is established, according to the treating practitioner, because "enteral nutrition ruled out: high-output enterocutaneous fistula".
+    parenteral nutrition of Gus was initiated on 2026-03-01.
+    the treating practitioner saw Gus to evaluate the parenteral nutrition needs on 2026-02-25.
+    the caloric intake ordered for Gus is 30 cal per kg per day.
+    the protein ordered for Gus is 1.5 gm per kg per day.
+    the dextrose concentration ordered for Gus is 5 percent.
+    the finding low dextrose concentration necessary about Gus is unsupported, according to the reviewer, because "the record gives no reason for a dextrose concentration below 10 percent".
+    the lipid use of Gus exceeds the FDA approved dosing recommendations.
+    the finding excess lipid dosing necessary about Gus is established, according to the treating practitioner, because "essential fatty acid deficiency documented by the triene to tetraene ratio".
+    the finding special parenteral nutrient necessary about Gus is established, according to the treating practitioner, because "end-stage renal disease on dialysis requires the renal amino acid formulation".
+    claim 5 is for the premix.
+    the HCPCS code of the premix is "B4193".
+    the premix is furnished to Hal.
+    claim 5 is for a supply of 1 months.
+    the quantity billed on claim 5 is 31.
+    Hal has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Hal is established, according to the treating practitioner, because "enteral nutrition ruled out: chronic intestinal pseudo-obstruction".
+    parenteral nutrition of Hal was initiated on 2026-03-01.
+    the treating practitioner saw Hal to evaluate the parenteral nutrition needs on 2026-02-25.
+    the caloric intake ordered for Hal is 45 cal per kg per day.
+    the finding atypical caloric intake necessary about Hal is unsupported, according to the reviewer, because "the record gives no reason for 45 cal/kg/day in a beneficiary of stable weight".
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 3 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% The pump and the supply allowances: Ida's pump at home (claim 1,
+% covered), Jo's pump used in an outpatient facility (claim 2, not
+% separately payable); Ida's supply allowance, 31 for a month (claim 3,
+% covered) and 40 (claim 4, more than one a day).
+scenario pump_and_allowances is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "B9006".
+    the pump is furnished to Ida.
+    the rental month of claim 1 is 1.
+    claim 2 is for the second pump.
+    the HCPCS code of the second pump is "B9006".
+    the second pump is furnished to Jo.
+    the rental month of claim 2 is 1.
+    Jo receives the parenteral nutrition in an outpatient facility.
+    claim 3 is for the supply allowance.
+    the HCPCS code of the supply allowance is "B4222".
+    the supply allowance is furnished to Ida.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 31.
+    claim 4 is for the extra supply allowance.
+    the HCPCS code of the extra supply allowance is "B4222".
+    the extra supply allowance is furnished to Ida.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 40.
+    Ida has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Ida is established, according to the treating practitioner, because "enteral nutrition ruled out: short bowel syndrome with 60 cm of jejunum".
+    parenteral nutrition of Ida was initiated on 2026-03-01.
+    the treating practitioner saw Ida to evaluate the parenteral nutrition needs on 2026-02-25.
+    Jo has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Jo is established, according to the treating practitioner, because "enteral nutrition ruled out: radiation enteritis with malabsorption".
+    parenteral nutrition of Jo was initiated on 2026-03-01.
+    the treating practitioner saw Jo to evaluate the parenteral nutrition needs on 2026-02-25.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 3 is reasonable and necessary"].
+
+% Reasonable and necessary with its order and delivery, but Ann is in an
+% inpatient stay covered by Part A (Policy Article A58836): no Part B
+% payment. Payable fails at the remedy; the flip removes the stay.
+scenario part_a_stay is:
+    claim 1 is for the premix.
+    the HCPCS code of the premix is "B4193".
+    the premix is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 31.
+    Ann has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Ann is established, according to the treating practitioner, because "a trial of jejunal feeding at 40 ml an hour produced high output and weight loss of 4 kg in three weeks".
+    parenteral nutrition of Ann was initiated on 2026-03-01.
+    the treating practitioner saw Ann to evaluate the parenteral nutrition needs on 2026-02-19.
+    the caloric intake ordered for Ann is 25 cal per kg per day.
+    the finding permanent gastrointestinal impairment about Ann is established, according to the treating practitioner, because "90 cm of small bowel remain after resection for mesenteric ischemia; no intestinal adaptation sufficient for oral nutrition is expected".
+    Ann is in an inpatient stay covered by hospital insurance.
+    the order for the premix is dated 2026-02-20.
+    the order for the premix is signed by the treating practitioner.
+    the order for the premix includes beneficiary name.
+    the order for the premix includes order date.
+    the order for the premix includes description of the item.
+    the order for the premix includes quantity to be dispensed.
+    the order for the premix includes treating practitioner name.
+    the order for the premix was communicated to the supplier on 2026-02-22.
+    the premix was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the premix.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["remove: Ann is in an inpatient stay covered by hospital insurance"]].
+
+% Parenteral nutrition during chemotherapy-induced mucositis expected to
+% heal: the Council finds the impairment temporary — the test of
+% permanence fails at the remedy.
+scenario temporary_impairment is:
+    claim 1 is for the premix.
+    the HCPCS code of the premix is "B4193".
+    the premix is furnished to Kim.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 31.
+    Kim has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Kim is established, according to the treating practitioner, because "severe mucositis and diarrhea on tube feeding".
+    parenteral nutrition of Kim was initiated on 2026-03-01.
+    the treating practitioner saw Kim to evaluate the parenteral nutrition needs on 2026-02-25.
+    the caloric intake ordered for Kim is 25 cal per kg per day.
+    the finding permanent gastrointestinal impairment about Kim is unsupported, according to the Council, because "the oncologist's notes expect the mucositis to resolve within weeks of the last chemotherapy cycle".
+    the order for the premix is dated 2026-02-20.
+    the order for the premix is signed by the treating practitioner.
+    the order for the premix includes beneficiary name.
+    the order for the premix includes order date.
+    the order for the premix includes description of the item.
+    the order for the premix includes quantity to be dispensed.
+    the order for the premix includes treating practitioner name.
+    the order for the premix was communicated to the supplier on 2026-02-22.
+    the premix was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the premix.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% A refill of the premix, the supply running out on 1 June, Ann contacted
+% on 15 May and the premix delivered on 25 May, with continued need and use
+% in the record: payable.
+scenario refill is:
+    claim 1 is for the premix.
+    the HCPCS code of the premix is "B4193".
+    the premix is furnished to Ann.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-05-25.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 31.
+    the current supply of the premix is expected to end on 2026-06-01.
+    the beneficiary affirmed the need for the refill of the premix on 2026-05-15.
+    the medical record documents continued need for the premix on 2026-04-10.
+    the record documents continued use of the premix on 2026-04-10.
+    Ann has a condition of the small intestine or its exocrine glands significantly impairing the absorption of nutrients.
+    the finding enteral nutrition unsuitable about Ann is established, according to the treating practitioner, because "a trial of jejunal feeding at 40 ml an hour produced high output and weight loss of 4 kg in three weeks".
+    parenteral nutrition of Ann was initiated on 2026-03-01.
+    the treating practitioner saw Ann to evaluate the parenteral nutrition needs on 2026-02-19.
+    the caloric intake ordered for Ann is 25 cal per kg per day.
+    the finding permanent gastrointestinal impairment about Ann is established, according to the treating practitioner, because "90 cm of small bowel remain after resection for mesenteric ischemia; no intestinal adaptation sufficient for oral nutrition is expected".
+    the order for the premix is dated 2026-02-20.
+    the order for the premix is signed by the treating practitioner.
+    the order for the premix includes beneficiary name.
+    the order for the premix includes order date.
+    the order for the premix includes description of the item.
+    the order for the premix includes quantity to be dispensed.
+    the order for the premix includes treating practitioner name.
+    the order for the premix was communicated to the supplier on 2026-02-22.
+    the premix was delivered on 2026-05-25.
+    the supplier holds proof of delivery for the premix.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
