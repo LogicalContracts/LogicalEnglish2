@@ -1,0 +1,26 @@
+LCD L34824: Vacuum Erection Devices (VED) — revision history (Medicare Coverage Database export, 12 September 2026, lcd_x_revision_history)
+
+=== version 4, revision history date 2015-10-01 ===
+Revision Effective Date: 10/01/2014 Draft LCD promoted to final
+
+=== version 5, revision history date 2015-10-01 ===
+Revision Effective Date: 10/01/2014 SOURCES OF INFORMATION AND BASIS FOR DECISION: Revised: Update link to ‘The primary care management of erectile dysfunction’, Department of Veterans Affairs publication
+
+=== version 6, revision history date 2015-10-01 ===
+Revision Effective Date: 10/31/2014 COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Revised: Standard Documentation Language to add covered prior to a beneficiary’s Medicare eligibility DOCUMENTATION REQUIREMENTS: Revised: Standard Documentation Language to add who can enter date of delivery date on the POD Added: Instructions for Equipment Retained from a Prior Payer Revised: Repair to beneficiary-owned DMEPOS
+
+=== version 7, revision history date 2015-10-01 ===
+Revision Effective Date: 07/01/2015 COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Revised: Changed coverage indications for L7900 and L7902 to non-covered based on Achieving a Better Life Experience (ABLE) Act of 2014
+
+=== version 9, revision history date 2016-07-01 ===
+Effective July 1, 2016 oversight for DME MAC LCDs is the responsibility of CGS Administrators, LLC 18003 and 17013 and Noridian Healthcare Solutions, LLC 19003 and 16013. No other changes have been made to the LCDs.
+
+=== version 11, revision history date 2017-01-01 ===
+Revision Effective Date: 01/01/2017 COVERAGE INDICATIONS, INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Removed: Standard Documentation Language Added: New reference language and directions to Standard Documentation Requirements Added: General Requirements DOCUMENTATION REQUIREMENTS: Added: General Documentation Requirements Added: New reference language and directions to Standard Documentation Requirements POLICY SPECIFIC DOCUMENTATION REQUIREMENTS: Added: Direction to Standard Documentation Requirements Removed: Supplier Manual reference from Miscellaneous Removed: PIM reference from Appendices RELATED LOCAL COVERAGE DOCUMENTS: Added: LCD-related Standard Documentation Requirements article
+
+=== version 19, revision history date 2020-01-01 ===
+Revision Effective Date: 01/01/2020 COVERAGE INDICATIONS, LIMITATIONS AND/OR MEDICAL NECESSITY: Revised: Order information as a result of Final Rule 1713 DOCUMENTATION REQUIREMENTS: Revised: “physician's” to “treating practitioner's” GENERAL DOCUMENTATION REQUIREMENTS: Revised: Prescriptions (orders) to SWO 02/13/2020: Pursuant to the 21st Century Cures Act, these revisions do not require notice and comment because they are due to non-discretionary coverage updates reflective of CMS FR-1713
+
+=== version 21, revision history date 2020-01-01 ===
+Revision Effective Date: 01/01/2020 CODING INFORMATION: Removed: Field titled “Bill Type” Removed: Field titled “Revenue Codes” Removed: Field titled “ICD-10 Codes that Support Medical Necessity” Removed: Field titled “ICD-10 Codes that DO NOT Support Medical Necessity” Removed: Field titled “Additional ICD-10 Information” As required by CR 10901, the ICD-10 information has been moved to all Policy Articles. There is no change in coverage.
+

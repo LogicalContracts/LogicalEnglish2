@@ -1,0 +1,89 @@
+% Versioned rules: a claim is judged by the LCD version in effect on its date
+% of service. The CGM criteria of L33822 changed on 18 July 2021 and on 16
+% April 2023; the refill contact window of every DME MAC LCD on 1 January
+% 2024 (dmepos.le). The earlier versions are read from the revision history
+% the Medicare Coverage Database export keeps (sources/history/), which
+% quotes the wording each revision removed.
+
+the target language is: prolog.
+
+the knowledge base glucose versions includes these resources:
+    glucose_monitors.
+
+the knowledge base glucose versions includes:
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query refills is:
+    the refill requirements are met for which claim.
+
+% Bea takes one insulin administration a day and is trained on her CGM. Her
+% CGM claim of 1 March 2023 falls under the criteria of July 2021 (three or
+% more administrations or a pump): not covered. The same device on 1 June
+% 2023 falls under the criteria of April 2023 (insulin-treated): covered.
+scenario cgm_one_daily_administration is:
+    claim 1 is for the March CGM.
+    the HCPCS code of the March CGM is "E2103".
+    the March CGM is furnished to Bea.
+    the date of service of claim 1 is 2023-03-01.
+    the order for the March CGM is dated 2023-02-20.
+    the March CGM is prescribed in accordance with its FDA indications for use.
+    claim 2 is for the June CGM.
+    the HCPCS code of the June CGM is "E2103".
+    the June CGM is furnished to Bea.
+    the date of service of claim 2 is 2023-06-01.
+    the order for the June CGM is dated 2023-05-20.
+    the June CGM is prescribed in accordance with its FDA indications for use.
+    the diagnosis code of Bea is "E11.9".
+    Bea is currently being treated with insulin.
+    Bea is treated with 1 daily administrations of insulin.
+    the finding trained on continuous glucose monitor about Bea is established, according to the treating practitioner.
+    the treating practitioner had an in-person or telehealth visit with Bea to evaluate diabetes control on 2023-02-10.
+    the treating practitioner had an in-person or telehealth visit with Bea to evaluate diabetes control on 2023-05-10.
+    rn expects answers ["claim 2 is reasonable and necessary"].
+
+% Cal takes four administrations a day and adjusts his doses on his readings.
+% In 2022 that suffices; before 18 July 2021 he also had to test four times a
+% day, and the record says three.
+scenario cgm_testing_frequency_before_2021 is:
+    claim 1 is for the 2021 CGM.
+    the HCPCS code of the 2021 CGM is "K0554".
+    the 2021 CGM is furnished to Cal.
+    the date of service of claim 1 is 2021-03-01.
+    the order for the 2021 CGM is dated 2021-02-20.
+    the 2021 CGM is prescribed in accordance with its FDA indications for use.
+    claim 2 is for the 2022 CGM.
+    the HCPCS code of the 2022 CGM is "K0554".
+    the 2022 CGM is furnished to Cal.
+    the date of service of claim 2 is 2022-03-01.
+    the order for the 2022 CGM is dated 2022-02-20.
+    the 2022 CGM is prescribed in accordance with its FDA indications for use.
+    the diagnosis code of Cal is "E10.9".
+    Cal is currently being treated with insulin.
+    Cal is treated with 4 daily administrations of insulin.
+    Cal tests blood glucose 3 times per day.
+    the finding insulin regimen requires frequent self adjustment about Cal is established, according to the treating practitioner.
+    the treating practitioner had an in-person or telehealth visit with Cal to evaluate diabetes control on 2021-02-10.
+    the treating practitioner had an in-person or telehealth visit with Cal to evaluate diabetes control on 2022-02-10.
+    rn expects answers ["claim 2 is reasonable and necessary"].
+
+% Refills: the beneficiary confirmed 20 days before the shipping date, the
+% supply ending 5 days after it. Under the rule before 1 January 2024 (no
+% sooner than 14 days before shipping) the December 2023 refill fails; under
+% the current rule (within 30 days of the expected end) the February 2024
+% one passes.
+scenario refill_window_change is:
+    claim 1 is for the December strips.
+    the HCPCS code of the December strips is "A4253".
+    claim 1 is a refill.
+    the date of service of claim 1 is 2023-12-20.
+    the beneficiary affirmed the need for the refill of the December strips on 2023-11-30.
+    the current supply of the December strips is expected to end on 2023-12-25.
+    claim 2 is for the February strips.
+    the HCPCS code of the February strips is "A4253".
+    claim 2 is a refill.
+    the date of service of claim 2 is 2024-02-20.
+    the beneficiary affirmed the need for the refill of the February strips on 2024-01-31.
+    the current supply of the February strips is expected to end on 2024-02-25.
+    refills expects answers ["the refill requirements are met for claim 2"].
