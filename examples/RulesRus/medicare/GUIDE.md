@@ -102,6 +102,14 @@ first (so `stage` reads its checklist).
   after the other date` (the number is negative when the first date is
   earlier); `is before or equal to`, `is after`. Six months is 183 days,
   twelve months 365, ninety days 90 — say so in a comment.
+- **`otherwise` splits the whole body**: everything before `otherwise`
+  (bindings included) is the first alternative, so a variable bound there
+  is unbound in the next one. Put the cascade in a helper rule whose head
+  binds every variable it needs: `the quantity of a claim is allowed for a
+  beneficiary if the claim is within the listed amount otherwise the finding
+  excess quantity explained about the beneficiary is established.` Use it
+  for "a finding only when the record's own facts do not already decide"
+  (an excess quantity, a judgment behind a measurable criterion).
 - **Arithmetic** goes through `is`: `and a limit is the quantity * 3 and the
   billed number <= the limit`. A comparison does not evaluate an
   expression (`the number <= the quantity * 3` compares terms and passes).
