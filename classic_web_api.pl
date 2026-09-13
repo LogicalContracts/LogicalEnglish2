@@ -27,7 +27,9 @@
 :- use_module(le_i18n).
 :- use_module(le_graph).
 :- use_module(le_documents).
+:- use_module(le_import).
 :- use_module(le_why_not).
+:- use_module(le_lps_legal).
 :- use_module(le_scasp).
 :- use_module(le_lps).
 :- use_module(le_assistant).
@@ -218,12 +220,15 @@ handle_operation(Dict, Response) :-
         ; Op == "query" -> handle_query(Dict, Response)
         ; Op == "getProlog" -> handle_get_prolog(Dict, Response)
         ; Op == "documentText" -> handle_document_text(Dict, Response)
+        ; Op == "originals" -> handle_originals(Dict, Response)
         ; Op == "predicateAt" -> handle_predicate_at(Dict, Response)
         ; Op == "predicateOccurrences" -> handle_predicate_occurrences(Dict, Response)
         ; Op == "provenanceAt" -> handle_provenance_at(Dict, Response)
         ; Op == "openQuestions" -> handle_open_questions(Dict, Response)
         ; Op == "draftView" -> handle_draft_view(Dict, Response)
         ; Op == "automaticView" -> handle_automatic_view(Dict, Response)
+        ; Op == "legalView" -> handle_legal_view(Dict, Response)
+        ; Op == "testReport" -> handle_test_report(Dict, Response)
         ; Op == "getScasp" -> handle_get_scasp(Dict, Response)
         ; Op == "getLps" -> handle_get_lps(Dict, Response)
         ; Op == "scaspQuery" -> handle_scasp_query(Dict, Response)
@@ -243,6 +248,8 @@ handle_operation(Dict, Response) :-
         ; Op == "contract_cost_estimate" -> handle_contract_estimate(Dict, Response)
         ; Op == "list_models" -> handle_list_models(Dict, Response)
         ; Op == "nl_to_le" -> handle_nl_to_le(Dict, Response)
+        ; Op == "importForeign" -> handle_import_foreign(Dict, Response)
+        ; Op == "importFormats" -> ( le_import:import_formats(Fs), Response = _{formats: Fs} )
         ; Op == "is_a_hierarchy" -> handle_is_a_hierarchy(Dict, Response)
         ; Op == "graph" -> handle_graph(Dict, Response)
         ; Response = _{error: "Unknown operation"}
@@ -854,7 +861,8 @@ handle_list_examples(_Dict, Response) :-
 %   Collects example base names (with Prefix prepended) from Dir and its subdirectories.
 %   Subdirectory examples are returned as "subdir/name".
 list_examples_in_dir(Dir, Prefix, UserRoles, Examples) :-
-    directory_files(Dir, Files),
+    directory_files(Dir, Files0),
+    msort(Files0, Files),
     findall(ExPath, (
         member(F, Files),
         sub_atom(F, _, _, 0, '.le'),
@@ -862,20 +870,94 @@ list_examples_in_dir(Dir, Prefix, UserRoles, Examples) :-
         file_name_extension(Base, le, F),
         atomic_list_concat([Dir, F], FullPath),
         is_path_allowed(FullPath, UserRoles),
+        \+ library_copy(Dir, Base),
         atom_concat(Prefix, Base, ExPath)
     ), DirectExamples),
-    findall(SubExamples, (
+    findall(F-SubDir, (
         member(F, Files),
         \+ sub_atom(F, 0, 1, _, '.'),
+        \+ not_programs_dir(F),
+        \+ plain_file_name(F),
         directory_file_path(Dir, F, SubDir),
         exists_directory(SubDir),
-        is_path_allowed(SubDir, UserRoles),
+        is_path_allowed(SubDir, UserRoles)
+    ), Subs0),
+    distinct_directories(Subs0, Subs),
+    findall(SubExamples, (
+        member(F-SubDir, Subs),
         atomic_list_concat([Prefix, F, '/'], SubPrefix),
         atomic_list_concat([SubDir, '/'], SubDirSlash),
         list_examples_in_dir(SubDirSlash, SubPrefix, UserRoles, SubExamples)
     ), SubExamplesLists),
     append(SubExamplesLists, SubExamplesFlat),
     append(DirectExamples, SubExamplesFlat, Examples).
+
+%   Folders that hold no programs: a program's originals (`sources/`, what
+%   File > Show the Original lists) and a translator's packages.
+not_programs_dir(sources).
+not_programs_dir(node_modules).
+
+%   A name with one of these extensions is a file: no need to ask the file
+%   system whether it is a folder.
+plain_file_name(F) :-
+    file_name_extension(_, Ext, F), Ext \== '',
+    memberchk(Ext, [le, pl, json, md, csv, txt, lps, png, jpg, svg, html, js, ts, py, tests, xml, pdf, zip]).
+
+%   One directory reached under two names (a symbolic link beside the tree it
+%   points to) is listed once, under the link's name: every program would
+%   otherwise be offered twice. Only a link can make a second name, so each
+%   folder is compared with the links beside it, not with every sibling (on
+%   a network file system every comparison is two round trips).
+distinct_directories(Subs0, Subs) :-
+    include(link_entry, Subs0, Links),
+    (   Links == []
+    ->  Subs = Subs0
+    ;   exclude(named_by_a_link(Links), Subs0, Subs1),
+        distinct_links(Subs1, Subs)
+    ).
+
+link_entry(_-D) :- is_link(D).
+
+named_by_a_link(Links, F-D) :-
+    \+ is_link(D),
+    member(F2-L, Links), F2 \== F,
+    catch(same_file(D, L), _, fail), !.
+
+%   Two links to one folder: the first stands for both.
+distinct_links([], []).
+distinct_links([F-D|Rest], [F-D|Out]) :-
+    (   is_link(D)
+    ->  exclude([_-D2]>>( is_link(D2), catch(same_file(D, D2), _, fail) ), Rest, Rest1)
+    ;   Rest1 = Rest
+    ),
+    distinct_links(Rest1, Out).
+
+is_link(D) :- atom_concat(D0, '/', D) -> is_link(D0) ; catch(read_link(D, _, _), _, fail).
+
+%   A copy of one of LE's own libraries (lib/: the migrations copy
+%   `temporal.le` beside the programs that include it) is a library, not a
+%   program to open on its own: listed once, as the library, by nobody.
+library_copy(Dir, Base) :-
+    lib_library(Base),
+    atomic_list_concat(['lib/', Base, '.le'], Lib),
+    atomic_list_concat([Dir, Base, '.le'], Copy),
+    exists_file(Copy), \+ same_file(Lib, Copy),
+    file_head(Lib, H), file_head(Copy, H).
+
+%   The libraries of lib/, read once per listing's worth of calls (a stat
+%   per program otherwise).
+lib_library(Base) :-
+    (   nb_current(le_lib_libraries, Libs-T), get_time(Now), Now - T < 60
+    ->  true
+    ;   ( catch(directory_files(lib, Fs), _, Fs = []) -> true ; Fs = [] ),
+        findall(B, ( member(F, Fs), file_name_extension(B, le, F) ), Libs),
+        get_time(Now), nb_setval(le_lib_libraries, Libs-Now)
+    ),
+    memberchk(Base, Libs).
+
+file_head(File, Head) :-
+    catch(setup_call_cleanup(open(File, read, S, [encoding(utf8)]),
+                             read_string(S, 300, Head), close(S)), _, fail).
 
 handle_list_models(_Dict, Response) :-
     llm_list_models(Rows),
@@ -896,6 +978,26 @@ handle_list_models(_Dict, Response) :-
 %   for verification), model, api_keys. Response: {result:"ok", le:"<LE text>",
 %   warnings:[<message>...]} (warnings empty when it verified clean) or
 %   {result:"error", error:"<message>"}.
+%!  handle_import_foreign(+Dict, -Response) is det.
+%
+%   File ▸ Open of another system's file (le_import.pl): `name` and either
+%   `text` or `base64` (an archive); optional `importer`. Replies with the
+%   translated program and where it was written (`source`), or `error`.
+handle_import_foreign(Dict, Response) :-
+    get_dict(name, Dict, Name),
+    (   get_dict(base64, Dict, B), B \== null -> Content = base64(B)
+    ;   get_dict(text, Dict, T) -> Content = text(T)
+    ;   Content = text("")
+    ),
+    arg(1, Content, Data), string_length(Data, Len),
+    le_import:max_upload_bytes(Max),
+    (   Len > Max * 4 / 3 + 4
+    ->  le_i18n:le_msg(import_too_large, [max-Max], M), Response = _{error: M}
+    ;   ( get_dict(importer, Dict, Imp), Imp \== null, Imp \== "" -> Opts = [importer(Imp)] ; Opts = [] ),
+        catch(le_import:import_upload(Name, Content, Response, Opts), E,
+              ( print_message(error, E), term_string(E, ES), Response = _{error: ES} ))
+    ).
+
 handle_nl_to_le(Dict, Response) :-
     ( get_dict(sentence, Dict, Sentence) -> true ; Sentence = "" ),
     ( get_dict(kind, Dict, "query") -> Kind = query ; Kind = facts ),
@@ -1068,6 +1170,35 @@ load_base_of(Dict, Base) :-
     ;   Base = (-)
     ).
 
+%!  handle_originals(+Dict, -Response) is det.
+%
+%   The originals a program was converted from, for the editor's File ▸ Show
+%   the Original: by convention the files of the `sources/` folder beside it
+%   (the migrations' twins, and a program File ▸ Open translated from another
+%   system). `source` is the example the program was opened as. Replies
+%   {files: ["sources/…", …]} — each readable with documentText — or {files: []}.
+handle_originals(Dict, _{files: Files}) :-
+    (   load_base_of(Dict, Base), atom(Base), Base \== (-),
+        \+ sub_atom(Base, 0, _, _, 'http'),
+        atomic_list_concat([Base, '/sources'], SDir), exists_directory(SDir),
+        (   http_in_session(_), http_session_data(user(_, Roles)) -> true ; Roles = [] ),
+        catch(restricted_paths:is_path_allowed(SDir, Roles), _, true)
+    ->  findall(Rel,
+                ( directory_member(SDir, F, [recursive(true)]),
+                  exists_file(F), \+ binary_original(F),
+                  atom_concat(SDir, '/', P), atom_concat(P, R, F),
+                  atom_concat('sources/', R, Rel0), atom_string(Rel0, Rel) ),
+                Files0),
+        msort(Files0, Files1),
+        length(Files1, N), ( N > 500 -> length(Files, 500), append(Files, _, Files1) ; Files = Files1 )
+    ;   Files = []
+    ).
+
+%   Not text: the source viewer has nothing to show of these.
+binary_original(F) :-
+    file_name_extension(_, Ext0, F), downcase_atom(Ext0, Ext),
+    memberchk(Ext, [pdf, png, jpg, jpeg, gif, zip, docx, xlsx, pptx, doc, xls, ppt, ico, woff, woff2, ttf, bin, exe, jar, class]).
+
 %!  handle_document_text(+Dict, -Response) is det.
 %
 %   The text of a cited document (le_documents:document_text/4): `address` is
@@ -1139,6 +1270,70 @@ handle_automatic_view(Dict, Response) :-
     ;   Response = _{error: "No view could be drawn from this program"}
     ).
 
+%!  handle_legal_view(+Dict, -Response) is det.
+%
+%   The legal-readable view of an LE-for-LPS document (le_lps_legal.pl): who
+%   may do what, when, and with which effect, as an ordinary LE program. `le`
+%   is the document's text; `source`/`base` resolve its includes as for a
+%   load. Replies {document, name, issues} or {error}.
+handle_legal_view(Dict, Response) :-
+    get_dict(le, Dict, Doc),
+    load_base_of(Dict, Base),
+    (   catch(le_kbs:load_text(Doc, Base, KB), E, (print_message(error, E), fail)),
+        catch(KB:le_target_language(lps), _, fail)
+    ->  (   catch(le_lps_legal:legal_view_kb(KB, [], IR), E2, (print_message(error, E2), fail)),
+            le_writer:le_write(IR, Text, Issues0)
+        ->  findall(_{severity: S, code: C, message: M},
+                    ( member(issue(S0, C0, M0), Issues0),
+                      maplist(term_to_atom_string, [S0, C0, M0], [S, C, M]) ),
+                    Issues),
+            ( catch(KB:le_kb(N0), _, fail) -> true ; N0 = program ),
+            Response = _{document: Text, name: N0, issues: Issues}
+        ;   le_i18n:le_msg(legal_view_failed, [], Msg), atom_string(Msg, MS),
+            Response = _{error: MS}
+        )
+    ;   le_i18n:le_msg(legal_view_not_lps, [], Msg), atom_string(Msg, MS),
+        Response = _{error: MS}
+    ).
+
+term_to_atom_string(T, S) :- ( string(T) -> S = T ; atom(T) -> atom_string(T, S) ; term_string(T, S) ).
+
+%!  handle_test_report(+Dict, -Response) is det.
+%
+%   Every expectation of the program (`<query> expects answers [...]` in its
+%   scenarios) run, with its outcome: the test report of the editor's Misc
+%   menu. `le` is the program's text (`source`/`base` resolve its includes).
+%   Replies {tests: [{scenario, query, status, expected, actual, unknowns,
+%   expectedUnknowns, message}], passed, failed, errors} or {error}.
+handle_test_report(Dict, Response) :-
+    get_dict(le, Dict, Doc),
+    load_base_of(Dict, Base),
+    (   catch(le_kbs:load_text(Doc, Base, KB), E, (print_message(error, E), fail))
+    ->  ( current_predicate(KB:le_expected/4) -> findall(test(Q, S, A, U), KB:le_expected(Q, S, A, U), Ts) ; Ts = [] ),
+        maplist(le_kbs:run_one_test(KB), Ts, Rs),
+        maplist(test_result_json, Rs, Tests),
+        aggregate_all(count, ( member(T, Tests), get_dict(status, T, "pass") ), P),
+        aggregate_all(count, ( member(T, Tests), get_dict(status, T, "fail") ), F),
+        aggregate_all(count, ( member(T, Tests), get_dict(status, T, "error") ), Er),
+        Response = _{tests: Tests, passed: P, failed: F, errors: Er}
+    ;   Response = _{error: "The program could not be loaded"}
+    ).
+
+test_result_json(pass(Q, S), _{scenario: SS, query: QS, status: "pass", expected: [], actual: [], unknowns: [], expectedUnknowns: [], message: ""}) :- !,
+    term_to_atom_string(Q, QS), term_to_atom_string(S, SS).
+test_result_json(fail(Q, S, Exp, Act), J) :- !,
+    test_result_json(fail(Q, S, Exp, Act, [], []), J).
+test_result_json(fail(Q, S, Exp, Act, ExpU, ActU), J) :- !,
+    term_to_atom_string(Q, QS), term_to_atom_string(S, SS),
+    maplist(term_to_atom_string, Exp, E1), maplist(term_to_atom_string, Act, A1),
+    maplist(term_to_atom_string, ExpU, EU1), maplist(term_to_atom_string, ActU, AU1),
+    J = _{scenario: SS, query: QS, status: "fail", expected: E1, actual: A1,
+          unknowns: AU1, expectedUnknowns: EU1, message: ""}.
+test_result_json(error(Q, S, M), _{scenario: SS, query: QS, status: "error", expected: [], actual: [], unknowns: [], expectedUnknowns: [], message: MS}) :- !,
+    term_to_atom_string(Q, QS), term_to_atom_string(S, SS), term_to_atom_string(M, MS).
+test_result_json(R, _{scenario: "", query: "", status: "error", expected: [], actual: [], unknowns: [], expectedUnknowns: [], message: MS}) :-
+    term_to_atom_string(R, MS).
+
 %!  valid_session(+SM:atom) is semidet.
 %
 %   True if SM is still a live reasoning session (it may have been reclaimed by
@@ -1155,7 +1350,7 @@ handle_answering_query(Dict, _{error: "Session expired", session_expired: true})
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
     \+ valid_session(SM), !.
-handle_answering_query(Dict, Response) :-
+handle_answering_query(Dict, Reply) :-
     get_dict(sessionModule, Dict, SMStr),
     atom_string(SM, SMStr),
     le_kbs:note_session_use(SM),
@@ -1166,7 +1361,10 @@ handle_answering_query(Dict, Response) :-
             clearSession(SM),
             ( KB \== none -> 
                 catch(parse_custom_facts(KB, CustomScenario, Facts), error(le_parse_error(Msg), _), ErrorFacts = Msg),
-                ( var(ErrorFacts) -> forall(member(F, Facts), addSessionFact(SM, F)) ; true )
+                ( var(ErrorFacts)
+                ->  forall(member(F, Facts), addSessionFact(SM, F)),
+                    custom_value_warnings(KB, Facts, ValueWarnings)
+                ;   true )
             ; true )
         ; get_dict(scenario, Dict, ScenarioStr) ->  
             (   ((atom(ScenarioStr) ; string(ScenarioStr)), \+ sub_atom(ScenarioStr, _, _, _, '(')) ->  
@@ -1232,6 +1430,23 @@ handle_answering_query(Dict, Response) :-
                 catch(run_interruptible_query(SM, Query, KB, Response), error(le_parse_error(Msg), _), Response = _{error: Msg}),
                 le_flip:keep_templates(none, []))
         )
+    ),
+    (   nonvar(ValueWarnings), ValueWarnings \== [], is_dict(Response)
+    ->  Reply = Response.put(valueWarnings, ValueWarnings)
+    ;   Reply = Response
+    ).
+
+%   The values of a typed-in case that no rule can read where they stand (a
+%   number written as text, a near miss of a value the rules read): the screen
+%   says so beside the answer (le_verifier:fact_value_warnings/3).
+custom_value_warnings(KB, Facts, Warnings) :-
+    (   catch(le_verifier:fact_value_warnings(KB, Facts, Ws), _, fail)
+    ->  findall(_{fact: Text, value: VS, kind: Kind, message: D, fix: Fx},
+                ( member(w(Kind, Head, V, D, Fx), Ws),
+                  le_verifier:fact_le_text(KB, Head, Text),
+                  ( string(V) -> format(string(VS), "\"~w\"", [V]) ; format(string(VS), "~w", [V]) ) ),
+                Warnings)
+    ;   Warnings = []
     ).
 
 % A long-running query (e.g. a failure with a big negative explanation) can be
@@ -2437,7 +2652,12 @@ handle_get_prolog(Dict, Response) :-
 %   the text.
 handle_get_lps(Dict, Response) :-
     (   get_dict(le, Dict, Doc)
-    ->  le_lps:le_lps_text(Doc, Text, Prov, Issues)
+    ->  load_base_of(Dict, Base),
+        (   Base \== (-),
+            catch(le_kbs:load_text(Doc, Base, KB0), _, fail)
+        ->  le_lps:le_lps_module(KB0, Doc, Text, Prov, Issues)   % its includes resolved where it lives
+        ;   le_lps:le_lps_text(Doc, Text, Prov, Issues)
+        )
     ;   get_dict(sessionModule, Dict, SMStr),
         atom_string(SM, SMStr),
         le_kbs:note_session_use(SM),

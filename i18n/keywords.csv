@@ -152,6 +152,12 @@ view,view_as,as,como,como,comme,come
 view,view_compare,the result is compared with scenario,o resultado é comparado com o cenário,el resultado se compara con el escenario,le résultat est comparé au scénario,il risultato è confrontato con lo scenario
 view,view_answers_to,the answers to,as respostas a,las respuestas a,les réponses à,le risposte a
 view,view_listed_as,are listed as,são listadas como,se listan como,sont listées comme,sono elencate come
+view,view_flagged,the case is flagged as,o caso é assinalado como,el caso se señala como,le cas est signalé comme,il caso è segnalato come
+view,view_flag_when,when,quando,cuando,quand,quando
+view,view_flag_when_query,when query,quando a consulta,cuando la consulta,quand la requête,quando la query
+view,view_has_answer,has an answer,tem uma resposta,tiene una respuesta,a une réponse,ha una risposta
+view,view_numbers_shown,the numbers are shown with,os números são mostrados com,los números se muestran con,les nombres sont affichés avec,i numeri sono mostrati con
+view,view_decimals,decimals,casas decimais,decimales,décimales,decimali
 view,view_documents,the documents of the case are shown beside the facts|the document of the case is shown beside the facts,os documentos do caso são mostrados ao lado dos factos|o documento do caso é mostrado ao lado dos factos,los documentos del caso se muestran junto a los hechos|el documento del caso se muestra junto a los hechos,les documents du cas sont montrés à côté des faits|le document du cas est montré à côté des faits,i documenti del caso sono mostrati accanto ai fatti|il documento del caso è mostrato accanto ai fatti
 view,view_cases,the cases are listed with their results,os casos são listados com os seus resultados,los casos se listan con sus resultados,les cas sont listés avec leurs résultats,i casi sono elencati con i loro risultati
 view,view_draft,the draft reads,o rascunho diz,el borrador dice,le brouillon dit,la bozza dice

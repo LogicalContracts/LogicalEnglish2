@@ -1331,6 +1331,47 @@ var keywords = {
         "as"
       ]
     ],
+    "view_flagged": [
+      [
+        "the",
+        "case",
+        "is",
+        "flagged",
+        "as"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "when"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "when",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "has",
+        "an",
+        "answer"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "the",
+        "numbers",
+        "are",
+        "shown",
+        "with"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimals"
+      ]
+    ],
     "view_documents": [
       [
         "the",
@@ -3033,6 +3074,49 @@ var keywords = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "o",
+        "caso",
+        "\xE9",
+        "assinalado",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "a",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tem",
+        "uma",
+        "resposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "os",
+        "n\xFAmeros",
+        "s\xE3o",
+        "mostrados",
+        "com"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "casas",
+        "decimais"
+      ]
+    ],
     "view_documents": [
       [
         "os",
@@ -4675,6 +4759,48 @@ var keywords = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "el",
+        "caso",
+        "se",
+        "se\xF1ala",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "cuando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "cuando",
+        "la",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tiene",
+        "una",
+        "respuesta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "los",
+        "n\xFAmeros",
+        "se",
+        "muestran",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimales"
+      ]
+    ],
     "view_documents": [
       [
         "los",
@@ -6285,6 +6411,48 @@ var keywords = {
         "sont",
         "list\xE9es",
         "comme"
+      ]
+    ],
+    "view_flagged": [
+      [
+        "le",
+        "cas",
+        "est",
+        "signal\xE9",
+        "comme"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quand"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quand",
+        "la",
+        "requ\xEAte"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "a",
+        "une",
+        "r\xE9ponse"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "les",
+        "nombres",
+        "sont",
+        "affich\xE9s",
+        "avec"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "d\xE9cimales"
       ]
     ],
     "view_documents": [
@@ -7961,6 +8129,48 @@ var keywords = {
         "come"
       ]
     ],
+    "view_flagged": [
+      [
+        "il",
+        "caso",
+        "\xE8",
+        "segnalato",
+        "come"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "la",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "ha",
+        "una",
+        "risposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "i",
+        "numeri",
+        "sono",
+        "mostrati",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimali"
+      ]
+    ],
     "view_documents": [
       [
         "i",
@@ -8195,7 +8405,8 @@ function buildLeMonarchTokens(lang) {
         [/\d{4}-\d{2}-\d{2}/, "number.date"],
         // Numbers (both . and , accepted as decimal separator visually)
         [/\d+([.,]\d+)?/, "number"],
-        // Comments
+        // Comments (a TODO comment — what a translator left to do — stands out)
+        [/%\s*TODO\b.*$/, "comment.todo"],
         [/%.*$/, "comment"],
         [/\/\*/, "comment", "@comment"],
         // Punctuation
@@ -8370,7 +8581,16 @@ async function post(base, body) {
 }
 var leApi = (body) => post(LE_BASE, { ...body, token: LE_TOKEN });
 var lpsApi = (body) => post(LPS_BASE, LPS_TOKEN ? { ...body, token: LPS_TOKEN } : body);
-var state = { editor: null, mode: "le", program: null, session: null, cycles: 0, provenance: [] };
+var state = {
+  editor: null,
+  mode: "le",
+  program: null,
+  session: null,
+  cycles: 0,
+  provenance: [],
+  source: "",
+  base: ""
+};
 function setupEditor() {
   monaco.languages.register({ id: "le" });
   monaco.languages.setLanguageConfiguration("le", leLanguageConfiguration);
@@ -8402,7 +8622,12 @@ async function compileAndRun() {
   try {
     let reply;
     if (state.mode === "le") {
-      const le = await leApi({ operation: "getLps", le: source });
+      const le = await leApi({
+        operation: "getLps",
+        le: source,
+        source: state.source,
+        base: state.base
+      });
       if (le.error) {
         setStatus(le.error);
         return;
@@ -8442,7 +8667,8 @@ async function compileAndRun() {
     $("cycle").max = String(state.cycles);
     await renderActivePane();
   } catch (e) {
-    setStatus(String(e.message ?? e));
+    const msg = String(e.message ?? e);
+    setStatus(/fetch|network/i.test(msg) ? `${msg} \u2014 is the LPS engine running at ${LPS_BASE}? (in the LPS2 checkout: LPS_LE2_LIB=<this LE checkout> ./lps ide)` : msg);
   }
 }
 var setStatus = (t) => {
@@ -8755,6 +8981,22 @@ function boot() {
     renderActivePane();
   }));
   $("endpoints").textContent = `LE ${LE_BASE} \xB7 LPS ${LPS_BASE}`;
+  const textId = params.get("text");
+  if (textId) {
+    try {
+      const raw = localStorage.getItem("le-lps-text:" + textId);
+      if (raw) {
+        const h = JSON.parse(raw);
+        state.editor.getModel().setValue(String(h.le ?? ""));
+        state.source = String(h.source ?? "");
+        state.base = String(h.base ?? "");
+        if (h.name)
+          document.title = `${h.name} \u2014 Logical English \u2192 LPS`;
+        compileAndRun();
+      }
+    } catch {
+    }
+  }
 }
 window.startLpsView = boot;
 export {

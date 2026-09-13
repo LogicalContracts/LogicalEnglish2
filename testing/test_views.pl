@@ -111,6 +111,32 @@ test(compiles_every_sentence) :-
     assertion(D.draft == "The help is {the result}."),
     assertion(D.order == [facts, result, citations, reasons, questions, whatif, tables, compare, documents, cases, draft]).
 
+% A banner for a decision that stops the case, by query body or by query
+% name, and the numbers' format.
+test(flags_and_decimals) :-
+    program("the view desk is:
+    the result is the answer to query help, headed by the amount.
+    the case is flagged as \"No help\" when \"which person is resident\".
+    the case is flagged as \"Helped\" when query help has an answer.
+    the numbers are shown with 2 decimals.
+", P),
+    load_text(P, KB),
+    view_issues(KB, Issues),
+    assertion(Issues == []),
+    view_of(KB, desk, D),
+    assertion(D.flags = [_{question: "which person is resident", label: "No help"},
+                          _{query: "help", label: "Helped"}]),
+    assertion(D.decimals == 2).
+
+test(flag_naming_an_unknown_query) :-
+    program("the view desk is:
+    the result is the answer to query help.
+    the case is flagged as \"X\" when query nothing has an answer.
+", P),
+    load_text(P, KB),
+    view_issues(KB, Issues),
+    assertion(Issues == [view_unknown_query]).
+
 % An interview: the subject, the questions, the result as a yes/no.
 test(interview) :-
     program("the view check is:

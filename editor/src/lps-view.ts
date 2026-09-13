@@ -79,7 +79,10 @@ const state: {
     session: string | null;
     cycles: number;
     provenance: any[];
-} = { editor: null, mode: 'le', program: null, session: null, cycles: 0, provenance: [] };
+    source: string;     // the example the document came from (its includes resolve there)
+    base: string;       // or the URL it was fetched from
+} = { editor: null, mode: 'le', program: null, session: null, cycles: 0, provenance: [],
+      source: '', base: '' };
 
 /* ---- the editor --------------------------------------------------------- */
 
@@ -120,7 +123,8 @@ async function compileAndRun() {
     try {
         let reply: Dict;
         if (state.mode === 'le') {
-            const le = await leApi({ operation: 'getLps', le: source });
+            const le = await leApi({ operation: 'getLps', le: source,
+                                     source: state.source, base: state.base });
             if (le.error) { setStatus(le.error); return; }
             state.provenance = le.provenance ?? [];
             showIssues(le.issues ?? []);
@@ -152,7 +156,12 @@ async function compileAndRun() {
         ($('cycle') as HTMLInputElement).max = String(state.cycles);
         await renderActivePane();
     } catch (e: any) {
-        setStatus(String(e.message ?? e));
+        //  A fetch that never reached the LPS server says only "Failed to
+        //  fetch": name the server, and how to start it.
+        const msg = String(e.message ?? e);
+        setStatus(/fetch|network/i.test(msg)
+            ? `${msg} — is the LPS engine running at ${LPS_BASE}? (in the LPS2 checkout: LPS_LE2_LIB=<this LE checkout> ./lps ide)`
+            : msg);
     }
 }
 
@@ -451,6 +460,22 @@ export function boot() {
         renderActivePane();
     }));
     $('endpoints').textContent = `LE ${LE_BASE} · LPS ${LPS_BASE}`;
+    //  Opened from the Logical English editor (Misc > Run in LPS): the
+    //  document on screen there, handed over by localStorage, run at once.
+    const textId = params.get('text');
+    if (textId) {
+        try {
+            const raw = localStorage.getItem('le-lps-text:' + textId);
+            if (raw) {
+                const h = JSON.parse(raw);
+                state.editor.getModel().setValue(String(h.le ?? ''));
+                state.source = String(h.source ?? '');
+                state.base = String(h.base ?? '');
+                if (h.name) document.title = `${h.name} — Logical English → LPS`;
+                compileAndRun();
+            }
+        } catch { /* the sample stays */ }
+    }
 }
 
 // The page calls this once Monaco's AMD loader has resolved.

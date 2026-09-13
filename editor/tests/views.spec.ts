@@ -80,7 +80,13 @@ test.describe('LE Views', () => {
         await expect(root.locator('[data-widget="result"]')).toContainText('No answer', { timeout: 30000 });
         await expect(root.locator('[data-widget="result"]')).not.toContainText('_');
         await rent.fill('800');
+        // a change marks the results out of date until the case is evaluated again
+        await expect(root.locator('.lv-evalbar')).toHaveClass(/stale/);
+        await root.locator('.lv-evalbar button', { hasText: 'Re-evaluate' }).click();
         await expect(root.locator('[data-widget="result"] .lv-big').first()).toHaveText('400', { timeout: 60000 });
+        await expect(root.locator('.lv-evalbar')).not.toHaveClass(/stale/);
+        // what the result said before the change is kept, struck through
+        await expect(root.locator('[data-widget="result"] .lv-was')).toHaveCount(0);
     });
 
     // Why not (le_why_not.pl): a failed result lists the conditions it did not

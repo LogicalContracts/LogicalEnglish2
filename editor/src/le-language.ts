@@ -152,7 +152,8 @@ export function buildLeMonarchTokens(lang: string): any {
                 // Numbers (both . and , accepted as decimal separator visually)
                 [/\d+([.,]\d+)?/, 'number'],
 
-                // Comments
+                // Comments (a TODO comment — what a translator left to do — stands out)
+                [/%\s*TODO\b.*$/, 'comment.todo'],
                 [/%.*$/, 'comment'],
                 [/\/\*/, 'comment', '@comment'],
 

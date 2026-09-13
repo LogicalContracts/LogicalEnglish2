@@ -1337,6 +1337,47 @@ export const keywords: Record<string, KeywordTable> = {
         "as"
       ]
     ],
+    "view_flagged": [
+      [
+        "the",
+        "case",
+        "is",
+        "flagged",
+        "as"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "when"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "when",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "has",
+        "an",
+        "answer"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "the",
+        "numbers",
+        "are",
+        "shown",
+        "with"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimals"
+      ]
+    ],
     "view_documents": [
       [
         "the",
@@ -3039,6 +3080,49 @@ export const keywords: Record<string, KeywordTable> = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "o",
+        "caso",
+        "é",
+        "assinalado",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "a",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tem",
+        "uma",
+        "resposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "os",
+        "números",
+        "são",
+        "mostrados",
+        "com"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "casas",
+        "decimais"
+      ]
+    ],
     "view_documents": [
       [
         "os",
@@ -4681,6 +4765,48 @@ export const keywords: Record<string, KeywordTable> = {
         "como"
       ]
     ],
+    "view_flagged": [
+      [
+        "el",
+        "caso",
+        "se",
+        "señala",
+        "como"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "cuando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "cuando",
+        "la",
+        "consulta"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "tiene",
+        "una",
+        "respuesta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "los",
+        "números",
+        "se",
+        "muestran",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimales"
+      ]
+    ],
     "view_documents": [
       [
         "los",
@@ -6291,6 +6417,48 @@ export const keywords: Record<string, KeywordTable> = {
         "sont",
         "listées",
         "comme"
+      ]
+    ],
+    "view_flagged": [
+      [
+        "le",
+        "cas",
+        "est",
+        "signalé",
+        "comme"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quand"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quand",
+        "la",
+        "requête"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "a",
+        "une",
+        "réponse"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "les",
+        "nombres",
+        "sont",
+        "affichés",
+        "avec"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "décimales"
       ]
     ],
     "view_documents": [
@@ -7967,6 +8135,48 @@ export const keywords: Record<string, KeywordTable> = {
         "come"
       ]
     ],
+    "view_flagged": [
+      [
+        "il",
+        "caso",
+        "è",
+        "segnalato",
+        "come"
+      ]
+    ],
+    "view_flag_when": [
+      [
+        "quando"
+      ]
+    ],
+    "view_flag_when_query": [
+      [
+        "quando",
+        "la",
+        "query"
+      ]
+    ],
+    "view_has_answer": [
+      [
+        "ha",
+        "una",
+        "risposta"
+      ]
+    ],
+    "view_numbers_shown": [
+      [
+        "i",
+        "numeri",
+        "sono",
+        "mostrati",
+        "con"
+      ]
+    ],
+    "view_decimals": [
+      [
+        "decimali"
+      ]
+    ],
     "view_documents": [
       [
         "i",
@@ -8185,6 +8395,12 @@ export const keywordCategories: Record<string, string> = {
   "view_compare": "view",
   "view_answers_to": "view",
   "view_listed_as": "view",
+  "view_flagged": "view",
+  "view_flag_when": "view",
+  "view_flag_when_query": "view",
+  "view_has_answer": "view",
+  "view_numbers_shown": "view",
+  "view_decimals": "view",
   "view_documents": "view",
   "view_cases": "view",
   "view_draft": "view",
@@ -8624,7 +8840,125 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Automatic view": "Vista automática",
     "Drawing the view…": "A desenhar a vista…",
     "No view could be drawn from this program.": "Não foi possível desenhar uma vista a partir deste programa.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Desenhada a partir do próprio programa. Para a alterar, o Assistente LE do editor escreve-a: Gerar vista LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Desenhada a partir do próprio programa. Para a alterar, o Assistente LE do editor escreve-a: Gerar vista LE.",
+    "Could not open": "Não foi possível abrir",
+    "no answer from the server": "sem resposta do servidor",
+    "translated from": "traduzido de",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "fragmento(s) não puderam ser traduzidos: estão no programa como comentários TODO.",
+    "Everything was translated.": "Tudo foi traduzido.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "O que o tradutor fez. O programa está aberto num novo separador; guarde-o com Ficheiro > Guardar como.",
+    "translated on opening": "traduzido ao abrir",
+    "Open a Logical English file, or a file of another system that the server has a translator for (a Solidity contract, a Miniscript policy, an Oracle Intelligent Advisor project, a Socotra product as a .zip): it is translated on opening, and what could not be translated is kept as TODO comments": "Abrir um ficheiro Logical English, ou um ficheiro de outro sistema para o qual o servidor tem um tradutor (um contrato Solidity, uma política Miniscript, um projeto Oracle Intelligent Advisor, um produto Socotra em .zip): é traduzido ao abrir, e o que não pôde ser traduzido fica como comentários TODO",
+    "One of the program's scenarios as the case, or a new case to fill in": "Um dos cenários do programa como caso, ou um caso novo para preencher",
+    "The kinds of fact this group can state": "Os tipos de facto que este grupo pode afirmar",
+    "Add a fact of the kind chosen": "Acrescentar um facto do tipo escolhido",
+    "A group of facts, as the view names it": "Um grupo de factos, como a vista o designa",
+    "The case does not state this fact: click to state it": "O caso não afirma este facto: clique para o afirmar",
+    "The case meets this section": "O caso cumpre esta secção",
+    "The case stops here: this section is not met": "O caso pára aqui: esta secção não é cumprida",
+    "Not reached: an earlier section stopped the case": "Não alcançada: uma secção anterior parou o caso",
+    "Copy to the clipboard": "Copiar para a área de transferência",
+    "The case says nothing about this": "O caso nada diz sobre isto",
+    "The case states something else": "O caso afirma outra coisa",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Procurar os menos factos (até três) a acrescentar ou retirar que mudariam o resultado",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Correr cada cenário do programa pela pergunta da vista e comparar com o que ele espera",
+    "State this fact in the case": "Afirmar este facto no caso",
+    "State the fact with this value (one the rules read)": "Afirmar o facto com este valor (um que as regras leem)",
+    "State the fact, then fill in its value": "Afirmar o facto e depois preencher o seu valor",
+    "Re-evaluate": "Reavaliar",
+    "Work out the result again from the facts of the case as they are now": "Calcular de novo o resultado a partir dos factos do caso como estão agora",
+    "automatically": "automaticamente",
+    "Re-evaluate on every change, without pressing the button": "Reavaliar a cada alteração, sem carregar no botão",
+    "The case has changed: the results below are those of the case before the change.": "O caso mudou: os resultados abaixo são os do caso antes da alteração.",
+    "Changed by the last evaluation": "Mudou com a última avaliação",
+    "before the change": "antes da alteração",
+    "What the result said before the case was changed": "O que o resultado dizia antes de o caso mudar",
+    "Evaluating…": "A avaliar…",
+    "Evaluated at": "Avaliado às",
+    "the case as edited": "o caso como editado",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "Os factos do caso. Mude um valor, acrescente ou retire um facto, ou escolha outro caso; depois Reavaliar",
+    "The facts the result still depends on: answer them to complete the case": "Os factos de que o resultado ainda depende: responda-lhes para completar o caso",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "A resposta à pergunta da vista para este caso, calculada a partir das regras e dos factos à esquerda",
+    "The sections of the rules in order: which the case passes, and where it stops": "As secções das regras por ordem: as que o caso passa, e onde pára",
+    "Every step of the result that cites a source, in the order of the reasoning; § opens the passage": "Cada passo do resultado que cita uma fonte, pela ordem do raciocínio; § abre a passagem",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "Os factos em que o resultado assenta; quando falha, as condições que não cumpriu e porquê",
+    "The smallest changes to the facts of the case that would change the result": "As menores alterações aos factos do caso que mudariam o resultado",
+    "Further answers about this case, one row per answer": "Outras respostas sobre este caso, uma linha por resposta",
+    "The same question asked of other scenarios of the program": "A mesma pergunta feita a outros cenários do programa",
+    "The documents the result cites, with the cited passages marked": "Os documentos que o resultado cita, com as passagens citadas marcadas",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Cada cenário do programa passado pela pergunta da vista, ao lado da resposta que o cenário espera",
+    "A text filled in from the result, to copy into a letter or a note": "Um texto preenchido a partir do resultado, para copiar para uma carta ou nota",
+    "Run in LPS": "Executar em LPS",
+    "Legal View": "Vista jurídica",
+    "Legal View of This LPS Program": "Vista jurídica deste programa LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Este é um programa LPS: corre no tempo, um evento após outro, em vez de responder a consultas.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Executar este programa LPS (a linguagem alvo é: lps) no tempo com o motor LPS, numa nova janela: a sua linha do tempo, mudanças de estado e explicações",
+    "The legal view of this LPS program: who may do what, when, and with which effect — each action's integrity constraints as one permission rule, each causal law as an effect — an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "A vista jurídica deste programa LPS: quem pode fazer o quê, quando e com que efeito — as restrições de integridade de cada ação como uma regra de permissão, cada lei causal como um efeito — um programa Logical English comum, aberto num novo separador com as chamadas do próprio programa como consultas",
+    "The legal view of this LPS program could not be drawn.": "Não foi possível tirar a vista jurídica deste programa LPS.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "O tipo de cada coisa do caso. Ficam no caso tal como estão.",
+    "Also stated": "Também afirmado",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Alguns factos do caso não podem ser lidos pelas regras tal como estão escritos: o resultado pode estar errado.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Um valor está escrito numa forma que as regras nunca leem nessa posição (um número entre aspas, um valor quase igual a um que leem). Corrija-o e Reavalie.",
+    "The view flags the case when": "A vista assinala o caso quando",
+    "The result has more answers than are shown": "O resultado tem mais respostas do que as mostradas",
+    "Thinking…": "A pensar…",
+    "Only the questions the result can still depend on are asked": "Só se fazem as perguntas de que o resultado ainda pode depender",
+    "The value, as the rules read it": "O valor, tal como as regras o leem",
+    "Next": "Seguinte",
+    "State this value in the case and go on": "Afirmar este valor no caso e continuar",
+    "Not known": "Desconhecido",
+    "Leave this fact unstated": "Deixar este facto por afirmar",
+    "Take back the last answer": "Retirar a última resposta",
+    "Tests of": "Testes de",
+    "Running the tests…": "A executar os testes…",
+    "only those that did not pass": "só os que não passaram",
+    "Hide the tests that passed": "Esconder os testes que passaram",
+    "errors": "erros",
+    "tests": "testes",
+    "This program has no tests: a scenario states them with \"<query> expects answers [...]\".": "Este programa não tem testes: um cenário declara-os com \"<consulta> espera respostas [...]\".",
+    "Got": "Obtido",
+    "Select this scenario and query in the query panel": "Selecionar este cenário e esta consulta no painel de consultas",
+    "unknowns": "desconhecidos",
+    "Run the Program's Tests…": "Executar os Testes do Programa…",
+    "Run every expectation of the program (the \"expects answers\" lines of its scenarios) and list each with its outcome: passed, or what was expected and what came instead. A click on a row selects its scenario and query.": "Executar cada expectativa do programa (as linhas \"espera respostas\" dos seus cenários) e listar cada uma com o seu resultado: passou, ou o que se esperava e o que veio em vez disso. Um clique numa linha seleciona o seu cenário e consulta.",
+    "A new tab with an empty Logical English program": "Um novo separador com um programa Logical English vazio",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Abrir uma cópia de um programa Logical English publicado num endereço web; as inclusões e os documentos citados resolvem-se relativamente a esse endereço",
+    "Translate a file of another system into Logical English — deterministically, no LLM — and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Traduzir um ficheiro de outro sistema para Logical English — de forma determinística, sem LLM — e abrir o resultado num novo separador: o que não pôde ser traduzido fica como comentários TODO, e o próprio ficheiro fica ao lado do programa (Ficheiro > Mostrar o original)",
+    "Import from Another System…": "Importar de outro sistema…",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Abrir uma cópia de um dos programas de exemplo deste servidor: as suas alterações não tocam no ficheiro do servidor",
+    "Save the active program to the file it was opened from": "Guardar o programa ativo no ficheiro de onde foi aberto",
+    "Save the active program under a new name": "Guardar o programa ativo com um novo nome",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Mostrar no visualizador os ficheiros de onde este programa foi convertido (regras, contrato ou produto de outro sistema), guardados na pasta sources ao lado dele",
+    "Show the Original…": "Mostrar o original…",
+    "Cut the selection to the clipboard": "Cortar a seleção para a área de transferência",
+    "Copy the selection to the clipboard": "Copiar a seleção para a área de transferência",
+    "Paste the clipboard at the cursor": "Colar a área de transferência no cursor",
+    "Find text in the program (Ctrl/Cmd+F)": "Procurar texto no programa (Ctrl/Cmd+F)",
+    "Find text and replace it": "Procurar texto e substituí-lo",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Editar os cenários do programa num formulário: cada facto a partir de um dos modelos do programa, um campo por lacuna",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Construir ou editar as consultas do programa num formulário, a partir dos seus modelos, unidas com e / ou e negadas com não",
+    "Fold every rule and section to its first line, to see the outline": "Dobrar cada regra e secção na sua primeira linha, para ver o esquema",
+    "Unfold everything folded": "Desdobrar tudo o que está dobrado",
+    "Light text on a dark background": "Texto claro sobre fundo escuro",
+    "Dark text on a light background": "Texto escuro sobre fundo claro",
+    "Maximum contrast, for low vision or bright rooms": "Contraste máximo, para baixa visão ou salas claras",
+    "Smaller editor text": "Texto do editor mais pequeno",
+    "Medium editor text": "Texto do editor médio",
+    "Larger editor text": "Texto do editor maior",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, …)": "Numerar os passos de uma explicação hierarquicamente (1, 1.1, 1.2, …)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "As chaves de API dos fornecedores de LLM e os modelos que o assistente usa (guardados neste navegador)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "Como as explicações são mostradas: o prefixo dos passos falhados, o detalhe das falhas por regra, as explicações repetidas, as razões importantes",
+    "Copy this answer's text to the clipboard": "Copiar o texto desta resposta para a área de transferência",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Este passo é explicado por inteiro noutro ponto da explicação (as repetições estão escondidas): ir para lá",
+    "Copy the explanation, as indented text, to the clipboard": "Copiar a explicação, como texto indentado, para a área de transferência",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copiar a explicação como fluxograma Mermaid, para colar em Markdown ou num editor Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Abrir a explicação na razão que mais pesa nesta resposta",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Percorrer a explicação uma razão de cada vez, a mais forte primeiro: responda Percebido ou Ainda não, e só aprofunda onde é preciso (numa janela à parte)",
+    "This server has no translator from another system.": "Este servidor não tem tradutor de outro sistema.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Não há original guardado para este programa: não foi convertido a partir de ficheiros de outro sistema (não há pasta sources ao lado dele).",
+    "The original files this program was converted from": "Os ficheiros originais de onde este programa foi convertido",
+    "Open it in the source viewer": "Abri-lo no visualizador de fontes",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "A vista jurídica é tirada de um programa LPS: este documento não declara a linguagem alvo lps (ou não carrega)."
   },
   "es": {
     "+ Add": "+ Añadir",
@@ -9054,7 +9388,123 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Automatic view": "Vista automática",
     "Drawing the view…": "Dibujando la vista…",
     "No view could be drawn from this program.": "No se pudo dibujar una vista a partir de este programa.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Dibujada a partir del propio programa. Para cambiarla, el Asistente LE del editor la escribe: Generar vista LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Dibujada a partir del propio programa. Para cambiarla, el Asistente LE del editor la escribe: Generar vista LE.",
+    "Could not open": "No se pudo abrir",
+    "no answer from the server": "sin respuesta del servidor",
+    "translated from": "traducido de",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "fragmento(s) no pudieron traducirse: están en el programa como comentarios TODO.",
+    "Everything was translated.": "Todo se tradujo.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "Lo que hizo el traductor. El programa está abierto en una pestaña nueva; guárdelo con Archivo > Guardar como.",
+    "translated on opening": "traducido al abrir",
+    "One of the program's scenarios as the case, or a new case to fill in": "Uno de los escenarios del programa como caso, o un caso nuevo por rellenar",
+    "The kinds of fact this group can state": "Los tipos de hecho que este grupo puede afirmar",
+    "Add a fact of the kind chosen": "Añadir un hecho del tipo elegido",
+    "A group of facts, as the view names it": "Un grupo de hechos, como lo nombra la vista",
+    "The case does not state this fact: click to state it": "El caso no afirma este hecho: haga clic para afirmarlo",
+    "The case meets this section": "El caso cumple esta sección",
+    "The case stops here: this section is not met": "El caso se detiene aquí: esta sección no se cumple",
+    "Not reached: an earlier section stopped the case": "No alcanzada: una sección anterior detuvo el caso",
+    "Copy to the clipboard": "Copiar al portapapeles",
+    "The case says nothing about this": "El caso no dice nada de esto",
+    "The case states something else": "El caso afirma otra cosa",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Buscar los menos hechos (hasta tres) que añadir o quitar para cambiar el resultado",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Ejecutar cada escenario del programa con la pregunta de la vista y comparar con lo que espera",
+    "State this fact in the case": "Afirmar este hecho en el caso",
+    "State the fact with this value (one the rules read)": "Afirmar el hecho con este valor (uno que las reglas leen)",
+    "State the fact, then fill in its value": "Afirmar el hecho y luego rellenar su valor",
+    "Re-evaluate": "Reevaluar",
+    "Work out the result again from the facts of the case as they are now": "Calcular de nuevo el resultado a partir de los hechos del caso tal como están ahora",
+    "automatically": "automáticamente",
+    "Re-evaluate on every change, without pressing the button": "Reevaluar con cada cambio, sin pulsar el botón",
+    "The case has changed: the results below are those of the case before the change.": "El caso ha cambiado: los resultados de abajo son los del caso antes del cambio.",
+    "Changed by the last evaluation": "Cambió con la última evaluación",
+    "before the change": "antes del cambio",
+    "What the result said before the case was changed": "Lo que decía el resultado antes de cambiar el caso",
+    "Evaluating…": "Evaluando…",
+    "Evaluated at": "Evaluado a las",
+    "the case as edited": "el caso tal como se editó",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "Los hechos del caso. Cambie un valor, añada o quite un hecho, o elija otro caso; luego Reevaluar",
+    "The facts the result still depends on: answer them to complete the case": "Los hechos de los que aún depende el resultado: respóndalos para completar el caso",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "La respuesta a la pregunta de la vista para este caso, calculada a partir de las reglas y los hechos de la izquierda",
+    "The sections of the rules in order: which the case passes, and where it stops": "Las secciones de las reglas en orden: cuáles pasa el caso y dónde se detiene",
+    "Every step of the result that cites a source, in the order of the reasoning; § opens the passage": "Cada paso del resultado que cita una fuente, en el orden del razonamiento; § abre el pasaje",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "Los hechos en que se basa el resultado; cuando falla, las condiciones que no cumplió y por qué",
+    "The smallest changes to the facts of the case that would change the result": "Los cambios más pequeños en los hechos del caso que cambiarían el resultado",
+    "Further answers about this case, one row per answer": "Otras respuestas sobre este caso, una fila por respuesta",
+    "The same question asked of other scenarios of the program": "La misma pregunta hecha a otros escenarios del programa",
+    "The documents the result cites, with the cited passages marked": "Los documentos que cita el resultado, con los pasajes citados marcados",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Cada escenario del programa con la pregunta de la vista, junto a la respuesta que el escenario espera",
+    "A text filled in from the result, to copy into a letter or a note": "Un texto rellenado a partir del resultado, para copiar en una carta o una nota",
+    "Run in LPS": "Ejecutar en LPS",
+    "Legal View": "Vista jurídica",
+    "Legal View of This LPS Program": "Vista jurídica de este programa LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Este es un programa LPS: se ejecuta en el tiempo, un evento tras otro, en lugar de responder consultas.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Ejecutar este programa LPS (el lenguaje objetivo es: lps) en el tiempo con el motor LPS, en una ventana nueva: su línea de tiempo, cambios de estado y explicaciones",
+    "The legal view of this LPS program: who may do what, when, and with which effect — each action's integrity constraints as one permission rule, each causal law as an effect — an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "La vista jurídica de este programa LPS: quién puede hacer qué, cuándo y con qué efecto — las restricciones de integridad de cada acción como una regla de permiso, cada ley causal como un efecto — un programa Logical English corriente, abierto en una pestaña nueva con las llamadas del propio programa como consultas",
+    "The legal view of this LPS program could not be drawn.": "No se pudo obtener la vista jurídica de este programa LPS.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "Qué clase de cosa es cada cosa del caso. Se quedan en el caso tal como están.",
+    "Also stated": "También se afirma",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Algunos hechos del caso no pueden ser leídos por las reglas tal como están escritos: el resultado puede ser erróneo.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Un valor está escrito de una forma que las reglas nunca leen en ese lugar (un número entre comillas, un valor casi igual a uno que leen). Corríjalo y Reevalúe.",
+    "The view flags the case when": "La vista señala el caso cuando",
+    "The result has more answers than are shown": "El resultado tiene más respuestas de las que se muestran",
+    "Thinking…": "Pensando…",
+    "Only the questions the result can still depend on are asked": "Solo se hacen las preguntas de las que aún puede depender el resultado",
+    "The value, as the rules read it": "El valor, tal como lo leen las reglas",
+    "Next": "Siguiente",
+    "State this value in the case and go on": "Afirmar este valor en el caso y seguir",
+    "Not known": "Desconocido",
+    "Leave this fact unstated": "Dejar este hecho sin afirmar",
+    "Take back the last answer": "Retirar la última respuesta",
+    "Tests of": "Pruebas de",
+    "Running the tests…": "Ejecutando las pruebas…",
+    "only those that did not pass": "solo las que no pasaron",
+    "Hide the tests that passed": "Ocultar las pruebas que pasaron",
+    "errors": "errores",
+    "tests": "pruebas",
+    "This program has no tests: a scenario states them with \"<query> expects answers [...]\".": "Este programa no tiene pruebas: un escenario las declara con \"<consulta> espera respuestas [...]\".",
+    "Got": "Obtenido",
+    "Select this scenario and query in the query panel": "Seleccionar este escenario y esta consulta en el panel de consultas",
+    "unknowns": "desconocidos",
+    "Run the Program's Tests…": "Ejecutar las Pruebas del Programa…",
+    "A new tab with an empty Logical English program": "Una pestaña nueva con un programa Logical English vacío",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Abrir una copia de un programa Logical English publicado en una dirección web; sus inclusiones y documentos citados se resuelven respecto a esa dirección",
+    "Translate a file of another system into Logical English — deterministically, no LLM — and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Traducir un archivo de otro sistema a Logical English — de forma determinista, sin LLM — y abrir el resultado en una pestaña nueva: lo que no se pudo traducir queda como comentarios TODO, y el propio archivo queda junto al programa (Archivo > Mostrar el original)",
+    "Import from Another System…": "Importar de otro sistema…",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Abrir una copia de uno de los programas de ejemplo de este servidor: sus cambios no tocan el archivo del servidor",
+    "Save the active program to the file it was opened from": "Guardar el programa activo en el archivo del que se abrió",
+    "Save the active program under a new name": "Guardar el programa activo con otro nombre",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Mostrar en el visor los archivos de los que se convirtió este programa (reglas, contrato o producto de otro sistema), guardados en la carpeta sources junto a él",
+    "Show the Original…": "Mostrar el original…",
+    "Cut the selection to the clipboard": "Cortar la selección al portapapeles",
+    "Copy the selection to the clipboard": "Copiar la selección al portapapeles",
+    "Paste the clipboard at the cursor": "Pegar el portapapeles en el cursor",
+    "Find text in the program (Ctrl/Cmd+F)": "Buscar texto en el programa (Ctrl/Cmd+F)",
+    "Find text and replace it": "Buscar texto y reemplazarlo",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Editar los escenarios del programa en un formulario: cada hecho a partir de una de las plantillas del programa, un campo por hueco",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Construir o editar las consultas del programa en un formulario, a partir de sus plantillas, unidas con y / o y negadas con no",
+    "Fold every rule and section to its first line, to see the outline": "Plegar cada regla y sección en su primera línea, para ver el esquema",
+    "Unfold everything folded": "Desplegar todo lo plegado",
+    "Light text on a dark background": "Texto claro sobre fondo oscuro",
+    "Dark text on a light background": "Texto oscuro sobre fondo claro",
+    "Maximum contrast, for low vision or bright rooms": "Contraste máximo, para baja visión o salas luminosas",
+    "Smaller editor text": "Texto del editor más pequeño",
+    "Medium editor text": "Texto del editor mediano",
+    "Larger editor text": "Texto del editor más grande",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, …)": "Numerar los pasos de una explicación jerárquicamente (1, 1.1, 1.2, …)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "Las claves de API de los proveedores de LLM y los modelos que usa el asistente (guardados en este navegador)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "Cómo se muestran las explicaciones: el prefijo de los pasos fallidos, el detalle de fallos por regla, las explicaciones repetidas, las razones importantes",
+    "Copy this answer's text to the clipboard": "Copiar el texto de esta respuesta al portapapeles",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Este paso se explica completo en otro punto de la explicación (las repeticiones están ocultas): ir allí",
+    "Copy the explanation, as indented text, to the clipboard": "Copiar la explicación, como texto sangrado, al portapapeles",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copiar la explicación como diagrama de flujo Mermaid, para pegar en Markdown o en un editor Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Abrir la explicación en la razón que más pesa en esta respuesta",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Recorrer la explicación una razón a la vez, la más fuerte primero: responda Entendido o Todavía no, y solo profundiza donde hace falta (en una ventana aparte)",
+    "This server has no translator from another system.": "Este servidor no tiene traductor de otro sistema.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "No se guarda ningún original para este programa: no se convirtió a partir de archivos de otro sistema (no hay carpeta sources junto a él).",
+    "The original files this program was converted from": "Los archivos originales de los que se convirtió este programa",
+    "Open it in the source viewer": "Abrirlo en el visor de fuentes",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista jurídica se obtiene de un programa LPS: este documento no declara el lenguaje objetivo lps (o no se carga)."
   },
   "fr": {
     "+ Add": "+ Ajouter",
@@ -9484,7 +9934,123 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Automatic view": "Vue automatique",
     "Drawing the view…": "Construction de la vue…",
     "No view could be drawn from this program.": "Aucune vue n'a pu être tirée de ce programme.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Tirée du programme lui-même. Pour la modifier, l'Assistant LE de l'éditeur l'écrit : Générer une vue LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Tirée du programme lui-même. Pour la modifier, l'Assistant LE de l'éditeur l'écrit : Générer une vue LE.",
+    "Could not open": "Impossible d'ouvrir",
+    "no answer from the server": "pas de réponse du serveur",
+    "translated from": "traduit de",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "fragment(s) n'ont pas pu être traduits : ils sont dans le programme sous forme de commentaires TODO.",
+    "Everything was translated.": "Tout a été traduit.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "Ce qu'a fait le traducteur. Le programme est ouvert dans un nouvel onglet ; enregistrez-le avec Fichier > Enregistrer sous.",
+    "translated on opening": "traduit à l'ouverture",
+    "One of the program's scenarios as the case, or a new case to fill in": "Un des scénarios du programme comme cas, ou un nouveau cas à remplir",
+    "The kinds of fact this group can state": "Les sortes de faits que ce groupe peut énoncer",
+    "Add a fact of the kind chosen": "Ajouter un fait de la sorte choisie",
+    "A group of facts, as the view names it": "Un groupe de faits, tel que la vue le nomme",
+    "The case does not state this fact: click to state it": "Le cas n'énonce pas ce fait : cliquez pour l'énoncer",
+    "The case meets this section": "Le cas satisfait cette section",
+    "The case stops here: this section is not met": "Le cas s'arrête ici : cette section n'est pas satisfaite",
+    "Not reached: an earlier section stopped the case": "Non atteinte : une section antérieure a arrêté le cas",
+    "Copy to the clipboard": "Copier dans le presse-papiers",
+    "The case says nothing about this": "Le cas ne dit rien à ce sujet",
+    "The case states something else": "Le cas énonce autre chose",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Chercher le moins de faits (jusqu'à trois) à ajouter ou retirer qui changeraient le résultat",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Passer chaque scénario du programme par la question de la vue et comparer à ce qu'il attend",
+    "State this fact in the case": "Énoncer ce fait dans le cas",
+    "State the fact with this value (one the rules read)": "Énoncer le fait avec cette valeur (une que les règles lisent)",
+    "State the fact, then fill in its value": "Énoncer le fait, puis remplir sa valeur",
+    "Re-evaluate": "Réévaluer",
+    "Work out the result again from the facts of the case as they are now": "Recalculer le résultat à partir des faits du cas tels qu'ils sont maintenant",
+    "automatically": "automatiquement",
+    "Re-evaluate on every change, without pressing the button": "Réévaluer à chaque changement, sans appuyer sur le bouton",
+    "The case has changed: the results below are those of the case before the change.": "Le cas a changé : les résultats ci-dessous sont ceux du cas avant le changement.",
+    "Changed by the last evaluation": "Changé par la dernière évaluation",
+    "before the change": "avant le changement",
+    "What the result said before the case was changed": "Ce que disait le résultat avant que le cas change",
+    "Evaluating…": "Évaluation…",
+    "Evaluated at": "Évalué à",
+    "the case as edited": "le cas tel que modifié",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "Les faits du cas. Changez une valeur, ajoutez ou retirez un fait, ou choisissez un autre cas ; puis Réévaluer",
+    "The facts the result still depends on: answer them to complete the case": "Les faits dont le résultat dépend encore : répondez-y pour compléter le cas",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "La réponse à la question de la vue pour ce cas, calculée à partir des règles et des faits à gauche",
+    "The sections of the rules in order: which the case passes, and where it stops": "Les sections des règles dans l'ordre : celles que le cas passe, et où il s'arrête",
+    "Every step of the result that cites a source, in the order of the reasoning; § opens the passage": "Chaque étape du résultat qui cite une source, dans l'ordre du raisonnement ; § ouvre le passage",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "Les faits sur lesquels repose le résultat ; en cas d'échec, les conditions non satisfaites et pourquoi",
+    "The smallest changes to the facts of the case that would change the result": "Les plus petits changements aux faits du cas qui changeraient le résultat",
+    "Further answers about this case, one row per answer": "D'autres réponses sur ce cas, une ligne par réponse",
+    "The same question asked of other scenarios of the program": "La même question posée à d'autres scénarios du programme",
+    "The documents the result cites, with the cited passages marked": "Les documents que cite le résultat, avec les passages cités marqués",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Chaque scénario du programme passé par la question de la vue, à côté de la réponse que le scénario attend",
+    "A text filled in from the result, to copy into a letter or a note": "Un texte rempli à partir du résultat, à copier dans une lettre ou une note",
+    "Run in LPS": "Exécuter en LPS",
+    "Legal View": "Vue juridique",
+    "Legal View of This LPS Program": "Vue juridique de ce programme LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Ceci est un programme LPS : il s'exécute dans le temps, un événement après l'autre, au lieu de répondre à des requêtes.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Exécuter ce programme LPS (le langage cible est : lps) dans le temps avec le moteur LPS, dans une nouvelle fenêtre : sa chronologie, ses changements d'état et ses explications",
+    "The legal view of this LPS program: who may do what, when, and with which effect — each action's integrity constraints as one permission rule, each causal law as an effect — an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "La vue juridique de ce programme LPS : qui peut faire quoi, quand et avec quel effet — les contraintes d'intégrité de chaque action comme une règle de permission, chaque loi causale comme un effet — un programme Logical English ordinaire, ouvert dans un nouvel onglet avec les appels du programme comme requêtes",
+    "The legal view of this LPS program could not be drawn.": "La vue juridique de ce programme LPS n'a pas pu être tirée.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "La sorte de chaque chose du cas. Elles restent dans le cas telles quelles.",
+    "Also stated": "Également énoncé",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Certains faits du cas ne peuvent pas être lus par les règles tels qu'ils sont écrits : le résultat peut être faux.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Une valeur est écrite sous une forme que les règles ne lisent jamais à cet endroit (un nombre entre guillemets, une valeur proche d'une qu'elles lisent). Corrigez-la et Réévaluez.",
+    "The view flags the case when": "La vue signale le cas quand",
+    "The result has more answers than are shown": "Le résultat a plus de réponses que celles affichées",
+    "Thinking…": "Réflexion…",
+    "Only the questions the result can still depend on are asked": "Seules les questions dont le résultat peut encore dépendre sont posées",
+    "The value, as the rules read it": "La valeur, telle que les règles la lisent",
+    "Next": "Suivant",
+    "State this value in the case and go on": "Énoncer cette valeur dans le cas et continuer",
+    "Not known": "Inconnu",
+    "Leave this fact unstated": "Laisser ce fait non énoncé",
+    "Take back the last answer": "Reprendre la dernière réponse",
+    "Tests of": "Tests de",
+    "Running the tests…": "Exécution des tests…",
+    "only those that did not pass": "seulement ceux qui n'ont pas réussi",
+    "Hide the tests that passed": "Masquer les tests réussis",
+    "errors": "erreurs",
+    "tests": "tests",
+    "This program has no tests: a scenario states them with \"<query> expects answers [...]\".": "Ce programme n'a pas de tests : un scénario les énonce avec \"<requête> attend réponses [...]\".",
+    "Got": "Obtenu",
+    "Select this scenario and query in the query panel": "Sélectionner ce scénario et cette requête dans le panneau des requêtes",
+    "unknowns": "inconnues",
+    "Run the Program's Tests…": "Exécuter les Tests du Programme…",
+    "A new tab with an empty Logical English program": "Un nouvel onglet avec un programme Logical English vide",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Ouvrir une copie d'un programme Logical English publié à une adresse web ; ses inclusions et documents cités se résolvent par rapport à cette adresse",
+    "Translate a file of another system into Logical English — deterministically, no LLM — and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Traduire un fichier d'un autre système en Logical English — de façon déterministe, sans LLM — et ouvrir le résultat dans un nouvel onglet : ce qui n'a pas pu être traduit reste en commentaires TODO, et le fichier lui-même reste à côté du programme (Fichier > Afficher l'original)",
+    "Import from Another System…": "Importer depuis un autre système…",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Ouvrir une copie d'un des programmes d'exemple de ce serveur : vos modifications ne touchent pas le fichier du serveur",
+    "Save the active program to the file it was opened from": "Enregistrer le programme actif dans le fichier d'où il a été ouvert",
+    "Save the active program under a new name": "Enregistrer le programme actif sous un nouveau nom",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Afficher dans la visionneuse les fichiers d'où ce programme a été converti (règles, contrat ou produit d'un autre système), conservés dans le dossier sources à côté de lui",
+    "Show the Original…": "Afficher l'original…",
+    "Cut the selection to the clipboard": "Couper la sélection dans le presse-papiers",
+    "Copy the selection to the clipboard": "Copier la sélection dans le presse-papiers",
+    "Paste the clipboard at the cursor": "Coller le presse-papiers au curseur",
+    "Find text in the program (Ctrl/Cmd+F)": "Chercher du texte dans le programme (Ctrl/Cmd+F)",
+    "Find text and replace it": "Chercher du texte et le remplacer",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Modifier les scénarios du programme dans un formulaire : chaque fait à partir d'un des modèles du programme, un champ par emplacement",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Construire ou modifier les requêtes du programme dans un formulaire, à partir de ses modèles, jointes par et / ou et niées par non",
+    "Fold every rule and section to its first line, to see the outline": "Replier chaque règle et section sur sa première ligne, pour voir le plan",
+    "Unfold everything folded": "Déplier tout ce qui est replié",
+    "Light text on a dark background": "Texte clair sur fond sombre",
+    "Dark text on a light background": "Texte sombre sur fond clair",
+    "Maximum contrast, for low vision or bright rooms": "Contraste maximal, pour basse vision ou pièces lumineuses",
+    "Smaller editor text": "Texte de l'éditeur plus petit",
+    "Medium editor text": "Texte de l'éditeur moyen",
+    "Larger editor text": "Texte de l'éditeur plus grand",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, …)": "Numéroter les étapes d'une explication de façon hiérarchique (1, 1.1, 1.2, …)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "Les clés d'API des fournisseurs de LLM et les modèles que l'assistant utilise (conservés dans ce navigateur)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "Comment les explications sont affichées : le préfixe des étapes en échec, le détail des échecs par règle, les explications répétées, les raisons importantes",
+    "Copy this answer's text to the clipboard": "Copier le texte de cette réponse dans le presse-papiers",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Cette étape est expliquée en entier ailleurs dans l'explication (les répétitions sont masquées) : y aller",
+    "Copy the explanation, as indented text, to the clipboard": "Copier l'explication, en texte indenté, dans le presse-papiers",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copier l'explication comme organigramme Mermaid, à coller dans du Markdown ou un éditeur Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Ouvrir l'explication à la raison qui pèse le plus pour cette réponse",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Parcourir l'explication une raison à la fois, la plus forte d'abord : répondez Compris ou Pas encore, et elle ne va plus loin que là où il le faut (dans une fenêtre à part)",
+    "This server has no translator from another system.": "Ce serveur n'a pas de traducteur depuis un autre système.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Aucun original n'est conservé pour ce programme : il n'a pas été converti depuis les fichiers d'un autre système (il n'y a pas de dossier sources à côté).",
+    "The original files this program was converted from": "Les fichiers originaux d'où ce programme a été converti",
+    "Open it in the source viewer": "L'ouvrir dans la visionneuse de sources",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vue juridique se tire d'un programme LPS : ce document ne déclare pas le langage cible lps (ou ne se charge pas)."
   },
   "it": {
     "+ Add": "+ Aggiungi",
@@ -9914,7 +10480,123 @@ export const uiCatalog: Record<string, Record<string, string>> = {
     "Automatic view": "Vista automatica",
     "Drawing the view…": "Costruzione della vista…",
     "No view could be drawn from this program.": "Non è stato possibile ricavare una vista da questo programma.",
-    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Ricavata dal programma stesso. Per modificarla, l'Assistente LE dell'editor la scrive: Genera vista LE."
+    "Drawn from the program itself. To change it, the LE Assistant of the editor writes it out: Generate LE view.": "Ricavata dal programma stesso. Per modificarla, l'Assistente LE dell'editor la scrive: Genera vista LE.",
+    "Could not open": "Impossibile aprire",
+    "no answer from the server": "nessuna risposta dal server",
+    "translated from": "tradotto da",
+    "fragment(s) could not be translated: they are in the program as TODO comments.": "frammento/i non tradotti: sono nel programma come commenti TODO.",
+    "Everything was translated.": "Tutto è stato tradotto.",
+    "What the translator did. The program is open in a new tab; save it with File > Save As.": "Ciò che ha fatto il traduttore. Il programma è aperto in una nuova scheda; lo salvi con File > Salva con nome.",
+    "translated on opening": "tradotto all'apertura",
+    "One of the program's scenarios as the case, or a new case to fill in": "Uno degli scenari del programma come caso, o un nuovo caso da compilare",
+    "The kinds of fact this group can state": "I tipi di fatto che questo gruppo può affermare",
+    "Add a fact of the kind chosen": "Aggiungere un fatto del tipo scelto",
+    "A group of facts, as the view names it": "Un gruppo di fatti, come lo chiama la vista",
+    "The case does not state this fact: click to state it": "Il caso non afferma questo fatto: clicchi per affermarlo",
+    "The case meets this section": "Il caso soddisfa questa sezione",
+    "The case stops here: this section is not met": "Il caso si ferma qui: questa sezione non è soddisfatta",
+    "Not reached: an earlier section stopped the case": "Non raggiunta: una sezione precedente ha fermato il caso",
+    "Copy to the clipboard": "Copiare negli appunti",
+    "The case says nothing about this": "Il caso non dice nulla su questo",
+    "The case states something else": "Il caso afferma altro",
+    "Search for the fewest facts (up to three) to add or remove that would change the result": "Cercare il minor numero di fatti (fino a tre) da aggiungere o togliere che cambierebbero il risultato",
+    "Run every scenario of the program through the view's question and compare with what it expects": "Eseguire ogni scenario del programma con la domanda della vista e confrontare con ciò che si attende",
+    "State this fact in the case": "Affermare questo fatto nel caso",
+    "State the fact with this value (one the rules read)": "Affermare il fatto con questo valore (uno che le regole leggono)",
+    "State the fact, then fill in its value": "Affermare il fatto, poi compilarne il valore",
+    "Re-evaluate": "Rivalutare",
+    "Work out the result again from the facts of the case as they are now": "Ricalcolare il risultato dai fatti del caso come sono ora",
+    "automatically": "automaticamente",
+    "Re-evaluate on every change, without pressing the button": "Rivalutare a ogni modifica, senza premere il pulsante",
+    "The case has changed: the results below are those of the case before the change.": "Il caso è cambiato: i risultati qui sotto sono quelli del caso prima della modifica.",
+    "Changed by the last evaluation": "Cambiato dall'ultima valutazione",
+    "before the change": "prima della modifica",
+    "What the result said before the case was changed": "Cosa diceva il risultato prima che il caso cambiasse",
+    "Evaluating…": "Valutazione…",
+    "Evaluated at": "Valutato alle",
+    "the case as edited": "il caso come modificato",
+    "The facts of the case. Change a value, add or remove a fact, or pick another case; then Re-evaluate": "I fatti del caso. Cambi un valore, aggiunga o tolga un fatto, o scelga un altro caso; poi Rivalutare",
+    "The facts the result still depends on: answer them to complete the case": "I fatti da cui il risultato dipende ancora: risponda per completare il caso",
+    "The answer to the view's question for this case, worked out from the rules and the facts on the left": "La risposta alla domanda della vista per questo caso, ricavata dalle regole e dai fatti a sinistra",
+    "The sections of the rules in order: which the case passes, and where it stops": "Le sezioni delle regole in ordine: quali il caso supera, e dove si ferma",
+    "Every step of the result that cites a source, in the order of the reasoning; § opens the passage": "Ogni passo del risultato che cita una fonte, nell'ordine del ragionamento; § apre il passo",
+    "The facts the result rests on; when it fails, the conditions it did not meet and why": "I fatti su cui si basa il risultato; quando fallisce, le condizioni non soddisfatte e perché",
+    "The smallest changes to the facts of the case that would change the result": "Le modifiche più piccole ai fatti del caso che cambierebbero il risultato",
+    "Further answers about this case, one row per answer": "Altre risposte su questo caso, una riga per risposta",
+    "The same question asked of other scenarios of the program": "La stessa domanda posta ad altri scenari del programma",
+    "The documents the result cites, with the cited passages marked": "I documenti che il risultato cita, con i passi citati evidenziati",
+    "Every scenario of the program run through the view's question, beside the answer the scenario expects": "Ogni scenario del programma con la domanda della vista, accanto alla risposta che lo scenario si attende",
+    "A text filled in from the result, to copy into a letter or a note": "Un testo compilato dal risultato, da copiare in una lettera o in una nota",
+    "Run in LPS": "Esegui in LPS",
+    "Legal View": "Vista giuridica",
+    "Legal View of This LPS Program": "Vista giuridica di questo programma LPS",
+    "This is an LPS program: it runs in time, one event after another, instead of answering queries.": "Questo è un programma LPS: si esegue nel tempo, un evento dopo l'altro, invece di rispondere a interrogazioni.",
+    "Run this LPS program (the target language is: lps) in time with the LPS engine, in a new window: its timeline, state changes and explanations": "Eseguire questo programma LPS (il linguaggio obiettivo è: lps) nel tempo con il motore LPS, in una nuova finestra: la sua linea temporale, i cambiamenti di stato e le spiegazioni",
+    "The legal view of this LPS program: who may do what, when, and with which effect — each action's integrity constraints as one permission rule, each causal law as an effect — an ordinary Logical English program, opened in a new tab with the program's own calls as queries": "La vista giuridica di questo programma LPS: chi può fare cosa, quando e con quale effetto — i vincoli di integrità di ogni azione come una regola di permesso, ogni legge causale come un effetto — un normale programma Logical English, aperto in una nuova scheda con le chiamate del programma come interrogazioni",
+    "The legal view of this LPS program could not be drawn.": "Non è stato possibile ricavare la vista giuridica di questo programma LPS.",
+    "What kind of thing each thing of the case is. They stay in the case as they are.": "Che tipo di cosa è ogni cosa del caso. Restano nel caso così come sono.",
+    "Also stated": "Affermato anche",
+    "Some facts of the case cannot be read by the rules as written: the result may be wrong.": "Alcuni fatti del caso non possono essere letti dalle regole così come sono scritti: il risultato potrebbe essere sbagliato.",
+    "A value is written in a form the rules never read at that place (a number in quotes, a near miss of a value they read). Correct it and Re-evaluate.": "Un valore è scritto in una forma che le regole non leggono mai in quel punto (un numero tra virgolette, un valore quasi uguale a uno che leggono). Lo corregga e Rivaluti.",
+    "The view flags the case when": "La vista segnala il caso quando",
+    "The result has more answers than are shown": "Il risultato ha più risposte di quelle mostrate",
+    "Thinking…": "Sto pensando…",
+    "Only the questions the result can still depend on are asked": "Si pongono solo le domande da cui il risultato può ancora dipendere",
+    "The value, as the rules read it": "Il valore, come lo leggono le regole",
+    "Next": "Avanti",
+    "State this value in the case and go on": "Affermare questo valore nel caso e proseguire",
+    "Not known": "Non noto",
+    "Leave this fact unstated": "Lasciare questo fatto non affermato",
+    "Take back the last answer": "Ritirare l'ultima risposta",
+    "Tests of": "Test di",
+    "Running the tests…": "Esecuzione dei test…",
+    "only those that did not pass": "solo quelli non superati",
+    "Hide the tests that passed": "Nascondere i test superati",
+    "errors": "errori",
+    "tests": "test",
+    "This program has no tests: a scenario states them with \"<query> expects answers [...]\".": "Questo programma non ha test: uno scenario li dichiara con \"<query> attende risposte [...]\".",
+    "Got": "Ottenuto",
+    "Select this scenario and query in the query panel": "Selezionare questo scenario e questa query nel pannello delle query",
+    "unknowns": "incognite",
+    "Run the Program's Tests…": "Eseguire i Test del Programma…",
+    "A new tab with an empty Logical English program": "Una nuova scheda con un programma Logical English vuoto",
+    "Open a copy of a Logical English program published at a web address; its includes and cited documents resolve relative to that address": "Aprire una copia di un programma Logical English pubblicato a un indirizzo web; le sue inclusioni e i documenti citati si risolvono rispetto a quell'indirizzo",
+    "Translate a file of another system into Logical English — deterministically, no LLM — and open the result in a new tab: what could not be translated is kept as TODO comments, and the file itself stays beside the program (File > Show the Original)": "Tradurre un file di un altro sistema in Logical English — in modo deterministico, senza LLM — e aprire il risultato in una nuova scheda: ciò che non si è potuto tradurre resta come commenti TODO, e il file stesso resta accanto al programma (File > Mostra l'originale)",
+    "Import from Another System…": "Importa da un altro sistema…",
+    "Open a copy of one of the example programs this server keeps: your changes do not touch the server's file": "Aprire una copia di uno dei programmi di esempio di questo server: le modifiche non toccano il file del server",
+    "Save the active program to the file it was opened from": "Salvare il programma attivo nel file da cui è stato aperto",
+    "Save the active program under a new name": "Salvare il programma attivo con un nuovo nome",
+    "Show the files this program was converted from (another system's rules, contract or product), kept in the sources folder beside it, in the source viewer": "Mostrare nel visualizzatore i file da cui questo programma è stato convertito (regole, contratto o prodotto di un altro sistema), conservati nella cartella sources accanto a esso",
+    "Show the Original…": "Mostra l'originale…",
+    "Cut the selection to the clipboard": "Tagliare la selezione negli appunti",
+    "Copy the selection to the clipboard": "Copiare la selezione negli appunti",
+    "Paste the clipboard at the cursor": "Incollare gli appunti al cursore",
+    "Find text in the program (Ctrl/Cmd+F)": "Cercare testo nel programma (Ctrl/Cmd+F)",
+    "Find text and replace it": "Cercare testo e sostituirlo",
+    "Edit the program's scenarios in a form: each fact from one of the program's templates, one field per placeholder": "Modificare gli scenari del programma in un modulo: ogni fatto da uno dei modelli del programma, un campo per segnaposto",
+    "Build or edit the program's queries in a form, from its templates, joined with and / or and negated with not": "Costruire o modificare le interrogazioni del programma in un modulo, dai suoi modelli, unite con e / o e negate con non",
+    "Fold every rule and section to its first line, to see the outline": "Ripiegare ogni regola e sezione sulla prima riga, per vederne lo schema",
+    "Unfold everything folded": "Dispiegare tutto ciò che è ripiegato",
+    "Light text on a dark background": "Testo chiaro su sfondo scuro",
+    "Dark text on a light background": "Testo scuro su sfondo chiaro",
+    "Maximum contrast, for low vision or bright rooms": "Contrasto massimo, per ipovisione o stanze luminose",
+    "Smaller editor text": "Testo dell'editor più piccolo",
+    "Medium editor text": "Testo dell'editor medio",
+    "Larger editor text": "Testo dell'editor più grande",
+    "Number the steps of an explanation hierarchically (1, 1.1, 1.2, …)": "Numerare i passi di una spiegazione in modo gerarchico (1, 1.1, 1.2, …)",
+    "The API keys of the LLM providers, and the models the assistant uses (kept in this browser)": "Le chiavi API dei fornitori di LLM e i modelli usati dall'assistente (conservati in questo browser)",
+    "How explanations are shown: the prefix of failed steps, per-rule failure detail, repeated explanations, important reasons": "Come sono mostrate le spiegazioni: il prefisso dei passi falliti, il dettaglio dei fallimenti per regola, le spiegazioni ripetute, le ragioni importanti",
+    "Copy this answer's text to the clipboard": "Copiare il testo di questa risposta negli appunti",
+    "This step is explained in full elsewhere in the explanation (repeats are hidden): go there": "Questo passo è spiegato per intero altrove nella spiegazione (le ripetizioni sono nascoste): andarci",
+    "Copy the explanation, as indented text, to the clipboard": "Copiare la spiegazione, come testo rientrato, negli appunti",
+    "Copy the explanation as a Mermaid flowchart, to paste into Markdown or a Mermaid editor": "Copiare la spiegazione come diagramma di flusso Mermaid, da incollare in Markdown o in un editor Mermaid",
+    "Open the explanation at the reason that weighs most for this answer": "Aprire la spiegazione alla ragione che pesa di più per questa risposta",
+    "Walk through the explanation one reason at a time, strongest first: answer Understood or Not yet, and it goes deeper only where needed (a separate window)": "Percorrere la spiegazione una ragione alla volta, la più forte per prima: rispondete Capito o Non ancora, e scende più a fondo solo dove serve (in una finestra a parte)",
+    "This server has no translator from another system.": "Questo server non ha traduttori da un altro sistema.",
+    "No original is kept for this program: it was not converted from another system's files (there is no sources folder beside it).": "Nessun originale è conservato per questo programma: non è stato convertito dai file di un altro sistema (non c'è una cartella sources accanto).",
+    "The original files this program was converted from": "I file originali da cui questo programma è stato convertito",
+    "Open it in the source viewer": "Aprirlo nel visualizzatore delle fonti",
+    "The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).": "La vista giuridica si ricava da un programma LPS: questo documento non dichiara il linguaggio obiettivo lps (o non si carica)."
   }
 } as const;
 

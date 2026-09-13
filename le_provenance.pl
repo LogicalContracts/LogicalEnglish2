@@ -251,7 +251,9 @@ provenance_dict(SM, KB, Prov, Dict) :-
         ( document_address(SM, KB, le_published_at, Const, U) -> Url0 = U
         ; is_url_text(ConstS) -> Url0 = ConstS
         ; Url0 = null ),
-        ( document_address(SM, KB, le_text_at, Const, T) -> TextAt = T ; TextAt = null )
+        ( document_address(SM, KB, le_text_at, Const, T) -> TextAt = T
+        ; file_beside_program(KB, ConstS) -> TextAt = ConstS
+        ; TextAt = null )
     ;   Doc = null, Url0 = null, TextAt = null
     ),
     ( Loc0 == none -> Loc = null ; Loc = Loc0 ),
@@ -326,6 +328,19 @@ document_address(SM, KB, F, Doc, Address) :-
     ),
     same_document(Doc0, Doc), !,
     atom_string(Address0, Address).
+
+%   A document cited by a relative file name ("example_table.csv") that is a
+%   file of the program's own folder is its own text: nothing more need be
+%   said for the editor to show it.
+file_beside_program(KB, Name) :-
+    atom(KB), KB \== none,
+    catch(KB:le_program_base(Base), _, fail),
+    atom(Base), \+ sub_atom(Base, 0, _, _, 'http'),
+    \+ sub_string(Name, 0, 1, _, "/"),
+    \+ sub_string(Name, _, _, _, ".."),
+    file_name_extension(_, Ext, Name), Ext \== '',
+    atomic_list_concat([Base, '/', Name], Path),
+    exists_file(Path), !.
 
 same_document(A, B) :- A == B, !.
 same_document(A, B) :- atomic(A), atomic(B), atom_string(A, S), atom_string(B, S).

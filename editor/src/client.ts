@@ -112,7 +112,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 { token: 'keyword.addition', foreground: 'c586c0', fontStyle: 'italic' },
                 { token: 'variable', foreground: '9cdcfe' },
                 { token: 'number.date', foreground: 'b5cea8' },
-                { token: 'templateWord', foreground: 'dcdcaa' }
+                { token: 'templateWord', foreground: 'dcdcaa' },
+                { token: 'comment.todo', foreground: 'e5c07b', fontStyle: 'bold' }
             ],
             colors: {
                 'editor.background': '#1e1e1e'
@@ -129,7 +130,8 @@ const queryChannel = new BroadcastChannel('le-query-editor');
                 { token: 'keyword.addition', foreground: 'af00db', fontStyle: 'italic' },
                 { token: 'variable', foreground: '001080' },
                 { token: 'number.date', foreground: '098658' },
-                { token: 'templateWord', foreground: '795e26' }
+                { token: 'templateWord', foreground: '795e26' },
+                { token: 'comment.todo', foreground: 'b35900', fontStyle: 'bold' }
             ],
             colors: {}
         });
@@ -657,6 +659,17 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             contextMenuGroupId: 'navigation',
             contextMenuOrder: 2.1,
             run: async (ed: any) => {
+                // On a provenance trailer ("with provenance …", "as stated in
+                // … at …") the definition of what is written there is the
+                // document it cites: open it, as "Show original text" does.
+                adoptActiveAsProgram();
+                if (!isLoaded) await loadModule();
+                const here = ed.getPosition();
+                if (here && ed.getModel().getDecorationsInRange(new monaco.Range(here.lineNumber, here.column, here.lineNumber, here.column))
+                        .some((d: any) => d.options.description === 'le-citation')) {
+                    await ed.getAction('le-show-original-text')?.run();
+                    return;
+                }
                 const data = await predicateAtCursor(ed);
                 if (!data) return;
                 const model = ed.getModel();
@@ -1108,41 +1121,188 @@ const queryChannel = new BroadcastChannel('le-query-editor');
     });
 
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
-    document.getElementById('menu-open')?.addEventListener('click', async () => {
+
+    // ---- Opening another system's files --------------------------------
+    // File > Open also takes the files of the systems the server has a
+    // translator for (le_import.pl: a Solidity contract, a Miniscript policy,
+    // an Oracle Intelligent Advisor project, a Socotra product as a .zip, ...).
+    // The server translates deterministically and keeps the result, with what
+    // it includes and cites, in a folder of its own; the program is opened as
+    // that "example", so its includes and cited documents resolve. What the
+    // translator could not translate is in the program as TODO comments.
+    let importFormats: { id: string, title: string, extensions: string[] }[] | null = null;
+    const loadImportFormats = async () => {
+        if (importFormats) return importFormats;
+        try {
+            const r = await fetch('/leapi', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: 'myToken123', operation: 'importFormats' })
+            });
+            importFormats = (await r.json()).formats || [];
+        } catch { importFormats = []; }
+        return importFormats!;
+    };
+    const isLeFile = (name: string) => /\.le$/i.test(name);
+    const isBinaryUpload = (name: string) => /\.(zip|xlsx|docx)$/i.test(name);
+    const toBase64 = (buf: ArrayBuffer) => {
+        const bytes = new Uint8Array(buf);
+        let bin = '';
+        for (let i = 0; i < bytes.length; i += 0x8000) {
+            bin += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + 0x8000)));
+        }
+        return btoa(bin);
+    };
+    const importForeignFile = async (file: File) => {
+        const body: any = { token: 'myToken123', operation: 'importForeign', name: file.name };
+        if (isBinaryUpload(file.name)) body.base64 = toBase64(await file.arrayBuffer());
+        else body.text = await file.text();
+        document.body.style.cursor = 'progress';
+        try {
+            const r = await fetch('/leapi', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await r.json();
+            if (data.error || !data.document) {
+                alert(`${t('Could not open')} ${file.name}: ${data.error || t('no answer from the server')}`);
+                return;
+            }
+            const example = String(data.source);
+            await openDocument(data.document, { fileName: String(data.fileName), example });
+            const todos = (String(data.document).match(/^\s*%\s*TODO\b/gm) || []).length;
+            const lines = [
+                data.importer ? `${file.name} — ${t('translated from')} ${data.importer}.` : `${file.name}`,
+                todos ? `${todos} ${t('fragment(s) could not be translated: they are in the program as TODO comments.')}`
+                      : t('Everything was translated.'),
+                ...((data.notes || []) as string[]).slice(0, 12).map((n: string) => '• ' + n),
+            ];
+            showImportReport(lines);
+        } catch (err: any) {
+            alert(`${t('Could not open')} ${file.name}: ${err.message}`);
+        } finally {
+            document.body.style.cursor = '';
+        }
+    };
+    // A dismissable note under the menu bar: what was translated, and how.
+    const showImportReport = (lines: string[]) => {
+        document.getElementById('import-report')?.remove();
+        const box = document.createElement('div');
+        box.id = 'import-report';
+        box.title = t('What the translator did. The program is open in a new tab; save it with File > Save As.');
+        box.style.cssText = 'position:fixed;top:70px;right:16px;max-width:520px;z-index:3000;background:var(--menu-bg,#eee);'
+            + 'color:inherit;border:1px solid #888;border-radius:6px;padding:10px 30px 10px 12px;font-size:12px;'
+            + 'box-shadow:0 2px 8px rgba(0,0,0,.3);white-space:pre-wrap';
+        box.textContent = lines.join('\n');
+        const close = document.createElement('span');
+        close.textContent = '×';
+        close.title = t('Close');
+        close.style.cssText = 'position:absolute;top:4px;right:10px;cursor:pointer;font-size:16px';
+        close.onclick = () => box.remove();
+        box.appendChild(close);
+        document.body.appendChild(box);
+    };
+    const openPickedFile = async (file: File, handle?: any) => {
+        if (isLeFile(file.name)) {
+            await openDocument(await file.text(), handle ? { fileName: file.name, fileHandle: handle } : { fileName: file.name });
+        } else {
+            await importForeignFile(file);
+        }
+    };
+
+    // File > Open (a Logical English file, or another system's) and File >
+    // Import from Another System (only those): the same picker, offering the
+    // formats the server has translators for.
+    const pickAndOpen = async (onlyForeign: boolean) => {
+        const formats = await loadImportFormats();
+        const foreign = Array.from(new Set(formats.flatMap(f => f.extensions.map(e => '.' + e))));
+        if (onlyForeign && foreign.length === 0) {
+            alert(t('This server has no translator from another system.'));
+            return;
+        }
+        if (fileInput) fileInput.accept = (onlyForeign ? foreign : ['.le', ...foreign]).join(',');
         if ('showOpenFilePicker' in window) {
             try {
-                const [handle] = await (window as any).showOpenFilePicker({
-                    types: [{
-                        description: 'Logical English File',
-                        accept: { 'text/plain': ['.le'] },
-                    }],
-                    multiple: false
-                });
+                const types: any[] = onlyForeign ? [] : [{
+                    description: 'Logical English File',
+                    accept: { 'text/plain': ['.le'] },
+                }];
+                for (const f of formats) {
+                    types.push({ description: `${f.title} — ${t('translated on opening')}`,
+                                 accept: { 'application/octet-stream': f.extensions.map(e => '.' + e) } });
+                }
+                const [handle] = await (window as any).showOpenFilePicker({ types, multiple: false });
                 const file = await handle.getFile();
-                const content = await file.text();
-                await openDocument(content, { fileName: file.name, fileHandle: handle });
+                await openPickedFile(file, isLeFile(file.name) ? handle : undefined);
                 return;
             } catch (err: any) {
                 if (err.name === 'AbortError') return;
                 console.error('File System Access API failed, falling back to input', err);
             }
         }
-        
         fileInput?.click();
+    };
+    document.getElementById('menu-open')?.addEventListener('click', () => pickAndOpen(false));
+    document.getElementById('menu-import')?.addEventListener('click', () => pickAndOpen(true));
+    // The item names the systems this server translates from.
+    loadImportFormats().then(formats => {
+        const item = document.getElementById('menu-import');
+        if (!item) return;
+        if (formats.length === 0) { item.style.display = 'none'; return; }
+        item.title = `${item.title} (${formats.map(f => f.title).join(', ')})`;
     });
+
+    // File > Show the Original: the files a program was converted from — by
+    // convention the sources/ folder beside it (operation originals), which
+    // the migrations' twins and File > Open's translations both keep. One
+    // opens in the source viewer; several are listed first.
+    async function showOriginals(doc: any) {
+        let files: string[] = [];
+        try {
+            const r = await fetch('/leapi', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: 'myToken123', operation: 'originals',
+                                       source: doc.example || '', base: doc.baseUrl || '' })
+            });
+            files = (await r.json()).files || [];
+        } catch { files = []; }
+        const ctx = { source: doc.example || '', base: doc.baseUrl || '' };
+        const open = (f: string) => openSourceViewer({ document: f.replace(/^sources\//, ''), text: f }, undefined, ctx);
+        if (files.length === 0) {
+            alert(t('No original is kept for this program: it was not converted from another system\'s files (there is no sources folder beside it).'));
+            return;
+        }
+        if (files.length === 1) { open(files[0]); return; }
+        document.getElementById('originals-list')?.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'originals-list';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:flex;align-items:center;justify-content:center';
+        const box = document.createElement('div');
+        box.style.cssText = 'background:var(--menu-bg,#eee);color:inherit;border-radius:6px;padding:12px 16px;max-width:720px;max-height:80vh;overflow:auto;font-size:13px';
+        const h = document.createElement('h3');
+        h.textContent = t('The original files this program was converted from');
+        h.style.marginTop = '0';
+        box.appendChild(h);
+        for (const f of files) {
+            const row = document.createElement('div');
+            row.textContent = f.replace(/^sources\//, '');
+            row.title = t('Open it in the source viewer');
+            row.style.cssText = 'cursor:pointer;padding:3px 4px;font-family:monospace';
+            row.onmouseenter = () => { row.style.background = 'rgba(128,128,128,.25)'; };
+            row.onmouseleave = () => { row.style.background = ''; };
+            row.onclick = () => { overlay.remove(); open(f); };
+            box.appendChild(row);
+        }
+        overlay.appendChild(box);
+        overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+        document.body.appendChild(overlay);
+    }
+    document.getElementById('menu-show-original')?.addEventListener('click', () => showOriginals(activeDoc));
 
     fileInput?.addEventListener('change', (e) => {
         const file = (e.target as HTMLInputElement).files?.[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const content = e.target?.result as string;
-            if (content !== undefined) {
-                // Traditional input doesn't give us a handle we can write back to
-                openDocument(content, { fileName: file.name });
-            }
-        };
-        reader.readAsText(file);
+        // Traditional input doesn't give us a handle we can write back to
+        openPickedFile(file);
         fileInput.value = '';
     });
 
@@ -1651,6 +1811,171 @@ const queryChannel = new BroadcastChannel('le-query-editor');
         openExecutive(activeDoc);
     });
 
+    // An LPS program (`the target language is: lps.`) runs in time rather than
+    // answering queries: the Logical English → LPS page runs it, its text handed
+    // over by localStorage as for the executive view.
+    function openLps(doc: any) {
+        const p = new URLSearchParams();
+        try {
+            const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+            const keys = Object.keys(localStorage).filter(k => k.startsWith('le-lps-text:')).sort();
+            for (const k of keys.slice(0, Math.max(0, keys.length - 4))) localStorage.removeItem(k);
+            localStorage.setItem('le-lps-text:' + id, JSON.stringify({
+                le: doc.model.getValue(), source: doc.example || '', base: doc.baseUrl || '',
+                name: String(doc.fileName || '') }));
+            p.set('text', id);
+        } catch { /* no storage: the page opens on its sample */ }
+        window.open('lps.html?' + p.toString(), '_blank');
+    }
+
+    // The legal view of an LPS program (le_lps_legal.pl): an ordinary LE
+    // program, computed afresh each time and opened in a tab of its own. The
+    // LPS server (the one Run in LPS uses) draws it WITH the program's run —
+    // a scenario with the state before each call of the program's scenario,
+    // and whether each call may be made, as expectations; without it, this
+    // server draws it from the program alone (its initial state as the one
+    // scenario).
+    const LPS_API = new URLSearchParams(window.location.search).get('lpsapi')
+        ?? localStorage.getItem('lps-lpsapi') ?? 'http://localhost:3060/lpsapi';
+    async function legalViewWithRun(doc: any): Promise<string | null> {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 30000);
+        try {
+            const token = localStorage.getItem('lps-token') || '';
+            const body: any = { operation: 'le_legal_view', source: doc.model.getValue(),
+                                name: String(doc.fileName || 'program.le').split('/').pop() };
+            if (token) body.token = token;
+            const r = await fetch(LPS_API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                             body: JSON.stringify(body), signal: ctrl.signal });
+            if (!r.ok) return null;
+            const d = await r.json();
+            return d && d.ok && typeof d.source === 'string' ? d.source : null;
+        } catch { return null; } finally { clearTimeout(timer); }
+    }
+    async function openLegalView(doc: any) {
+        const stem = String(doc.fileName || 'program.le').split('/').pop()!.replace(/\.le$/, '');
+        if (!/the target language is\s*:?\s*lps\b/i.test(doc.model.getValue())) {
+            alert(t('The legal view is drawn from an LPS program: this document does not declare the target language lps (or does not load).'));
+            return;
+        }
+        const withRun = await legalViewWithRun(doc);
+        if (withRun) { await openDocument(withRun, { fileName: `${stem}_legal_view.le` }); return; }
+        try {
+            const response = await fetch('/leapi', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    operation: 'legalView', token: 'myToken123',
+                    le: doc.model.getValue(), source: doc.example || '', base: doc.baseUrl || '',
+                }),
+            });
+            const data = await response.json();
+            if (!data || data.error || typeof data.document !== 'string') {
+                alert(data?.error || t('The legal view of this LPS program could not be drawn.'));
+                return;
+            }
+            await openDocument(data.document, { fileName: `${stem}_legal_view.le` });
+        } catch (err: any) {
+            alert(t('The legal view of this LPS program could not be drawn.') + ` ${err?.message ?? ''}`);
+        }
+    }
+
+    // ---- Test report --------------------------------------------------------
+    // Every expectation of the program run (operation testReport), listed with
+    // its outcome; a row selects its scenario and query in the query panel.
+    async function openTestReport(doc: any) {
+        document.getElementById('test-report')?.remove();
+        const overlay = document.createElement('div');
+        overlay.id = 'test-report';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:3000;display:flex;align-items:center;justify-content:center';
+        const box = document.createElement('div');
+        box.style.cssText = 'background:var(--panel-bg,#252526);color:var(--text-color,#d4d4d4);border:1px solid #555;border-radius:8px;'
+            + 'width:min(1100px,95vw);max-height:88vh;display:flex;flex-direction:column;padding:14px 16px;font-size:13px';
+        overlay.appendChild(box);
+        const head = document.createElement('div');
+        head.style.cssText = 'display:flex;gap:12px;align-items:center;margin-bottom:8px';
+        const title = document.createElement('b');
+        title.textContent = `${t('Tests of')} ${doc.fileName}`;
+        const summary = document.createElement('span');
+        summary.textContent = t('Running the tests…');
+        const onlyFailures = document.createElement('label');
+        const cb = document.createElement('input'); cb.type = 'checkbox';
+        onlyFailures.appendChild(cb); onlyFailures.appendChild(document.createTextNode(' ' + t('only those that did not pass')));
+        onlyFailures.title = t('Hide the tests that passed');
+        const close = document.createElement('button');
+        close.textContent = t('Close');
+        close.style.marginLeft = 'auto';
+        close.onclick = () => overlay.remove();
+        head.append(title, summary, onlyFailures, close);
+        box.appendChild(head);
+        const scroller = document.createElement('div');
+        scroller.style.cssText = 'overflow:auto;flex:1';
+        box.appendChild(scroller);
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+        document.body.appendChild(overlay);
+        document.body.style.cursor = 'progress';
+        let data: any;
+        try {
+            data = await fetch('/leapi', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: 'myToken123', operation: 'testReport',
+                                       le: doc.model.getValue(), source: doc.example || '', base: doc.baseUrl || '' }),
+            }).then(r => r.json());
+        } catch (err: any) { data = { error: err.message }; }
+        finally { document.body.style.cursor = ''; }
+        if (!data || data.error) { summary.textContent = data?.error || t('no answer from the server'); return; }
+        const tests: any[] = data.tests || [];
+        summary.textContent = tests.length
+            ? `${data.passed} ${t('passed')}, ${data.failed} ${t('failed')}${data.errors ? `, ${data.errors} ${t('errors')}` : ''} — ${tests.length} ${t('tests')}`
+            : t('This program has no tests: a scenario states them with "<query> expects answers [...]".');
+        const render = () => {
+            scroller.innerHTML = '';
+            const table = document.createElement('table');
+            table.style.cssText = 'border-collapse:collapse;width:100%';
+            const hr = document.createElement('tr');
+            for (const h of ['', t('Scenario'), t('Query'), t('Expected'), t('Got')]) {
+                const th = document.createElement('th'); th.textContent = h;
+                th.style.cssText = 'text-align:left;border-bottom:1px solid #666;padding:4px 6px;position:sticky;top:0;background:var(--panel-bg,#252526)';
+                hr.appendChild(th);
+            }
+            table.appendChild(hr);
+            for (const r of tests) {
+                if (cb.checked && r.status === 'pass') continue;
+                const tr = document.createElement('tr');
+                tr.style.cursor = 'pointer';
+                tr.title = t('Select this scenario and query in the query panel');
+                const mark = r.status === 'pass' ? '✓' : r.status === 'fail' ? '✗' : '!';
+                const cells = [mark, r.scenario, r.query,
+                    r.status === 'pass' ? '' : (r.expected || []).join('; ') + ((r.expectedUnknowns || []).length ? ` (${t('unknowns')}: ${r.expectedUnknowns.join('; ')})` : ''),
+                    r.status === 'pass' ? '' : r.status === 'error' ? r.message : (r.actual || []).join('; ') + ((r.unknowns || []).length ? ` (${t('unknowns')}: ${r.unknowns.join('; ')})` : '')];
+                cells.forEach((c, i) => {
+                    const td = document.createElement('td'); td.textContent = String(c ?? '');
+                    td.style.cssText = 'border-bottom:1px solid #444;padding:4px 6px;vertical-align:top'
+                        + (i === 0 ? `;color:${r.status === 'pass' ? '#3fb950' : '#f85149'};font-weight:bold` : '');
+                    tr.appendChild(td);
+                });
+                tr.addEventListener('click', () => {
+                    if ([...scenarioSelect.options].some(o => o.value === r.scenario)) scenarioSelect.value = r.scenario;
+                    if ([...querySelect.options].some(o => o.value === r.query)) querySelect.value = r.query;
+                    scenarioSelect.dispatchEvent(new Event('change'));
+                    querySelect.dispatchEvent(new Event('change'));
+                    overlay.remove();
+                });
+                table.appendChild(tr);
+            }
+            scroller.appendChild(table);
+        };
+        cb.addEventListener('change', render);
+        cb.checked = data.failed + data.errors > 0;
+        render();
+    }
+    document.getElementById('menu-test-report')?.addEventListener('click', () => openTestReport(activeDoc));
+
+    document.getElementById('menu-run-lps')?.addEventListener('click', () => openLps(activeDoc));
+    document.getElementById('btn-run-lps')?.addEventListener('click', () => openLps(activeDoc));
+    document.getElementById('menu-legal-view')?.addEventListener('click', () => openLegalView(activeDoc));
+    document.getElementById('btn-legal-view')?.addEventListener('click', () => openLegalView(activeDoc));
+
     document.getElementById('menu-fold-all')?.addEventListener('click', () => {
         editor.focus();
         editor.trigger('keyboard', 'editor.foldAll', null);
@@ -1685,6 +2010,10 @@ const queryChannel = new BroadcastChannel('le-query-editor');
             || currentTargetLanguage !== 'prolog'
             || active !== 'prolog';
         engineControl.style.display = show ? '' : 'none';
+        // An LPS program runs in time: say so where the queries are, with the
+        // ways to see it work.
+        const lpsStrip = document.getElementById('lps-strip');
+        if (lpsStrip) lpsStrip.style.display = currentTargetLanguage === 'lps' ? 'flex' : 'none';
     }
     function updateEnginePickerChecks() {
         const a = document.getElementById('engine-always-check');

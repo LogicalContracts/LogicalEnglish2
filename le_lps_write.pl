@@ -317,8 +317,9 @@ select_update_goal(Conds, New, Expr, Rest) :-
 	).
 
 render_update(KB, Ns, Fluent, Old, Expr, S) :-
+	%  Old is mentioned inside the literal, so its name is taken before.
+	next_name_of(Ns, Old, OldName),
 	render(KB, Ns, Fluent, FS),
-	name_of(Ns, Old, OldName),
 	expr_text(Ns, Expr, ES),
 	%  The literal is written with its Old slot in place; the relative
 	%  clause re-states it, which is what the parser splits on.
@@ -488,16 +489,32 @@ rename_in(KB, G0, G) :-
 	;   G = G0
 	).
 
-bind_names([]).
-bind_names([V-Name|Rest]) :- ( var(V) -> V = Name ; true ), bind_names(Rest).
 
+%   The first mention of a variable, in the order the sentence is written, is
+%   its indefinite name (`a player`); every later one is definite (`the
+%   player`). The mark is a binding, so a rendering that fails and is
+%   retried another way (condition/4) takes its mentions back with it.
 name_of(Ns, V, Name) :-
-	(   var(V), member(V0-N, Ns), V0 == V
-	->  Name = N
+	(   var(V), member(V0-m(N, Seen), Ns), V0 == V
+	->  ( var(Seen) -> Seen = seen, Name = N ; definite(N, Name) )
 	;   var(V)
 	->  Name = 'a thing'
 	;   format(atom(Name), '~w', [V])
 	).
+
+%   The name the next mention of V will get, without mentioning it.
+next_name_of(Ns, V, Name) :-
+	(   var(V), member(V0-m(N, Seen), Ns), V0 == V
+	->  ( var(Seen) -> Name = N ; definite(N, Name) )
+	;   name_of(Ns, V, Name)
+	).
+
+definite(Name, Definite) :-
+	atomic_list_concat([W|Ws], ' ', Name),
+	Ws \== [],
+	le_i18n:class_member(article, W), !,
+	atomic_list_concat([the|Ws], ' ', Definite).
+definite(Name, Name).
 
 
 		 /*******************************
@@ -506,7 +523,7 @@ name_of(Ns, V, Name) :-
 
 %!  naming(+KB, +Term, -Names) is det.
 %
-%   Names is a list of Var-Name for every variable in Term, ordered by first
+%   Names is a list of Var-m(Name, Seen) for every variable in Term, ordered by first
 %   appearance, with the name taken from the type of the argument position the
 %   variable first appears in.
 naming(KB, Term, Names) :-
@@ -565,7 +582,7 @@ aggregate_inside(F, Out) :-
 
 %   `a player`, then `a second player`, then `a third player`.
 number_types([], _, []).
-number_types([V-Type|Rest], Counts, [V-Name|More]) :-
+number_types([V-Type|Rest], Counts, [V-m(Name, _Seen)|More]) :-
 	(   select(Type-N0, Counts, Counts0)
 	->  N is N0 + 1, Counts1 = [Type-N|Counts0]
 	;   N = 1, Counts1 = [Type-1|Counts]
