@@ -1,0 +1,358 @@
+% Test cases for the urological supplies policy (urological_supplies.le):
+% synthetic claims, one or two per criterion of LCD L33803 and per payment
+% condition of dmepos.le and Policy Article A52521, each stating only what
+% its record shows. Findings are recorded as the treating practitioner's,
+% the reviewer's or the Council's; a finding nobody made leaves the answer
+% conditional. Supplies are a one-off or a refill: no rental month. The
+% queries: whether the claim is payable (the first query, so "stage" reads
+% its checklist), whether it is reasonable and necessary, and what minimal
+% change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base urological_supplies cases includes these resources:
+    urological_supplies.
+
+the knowledge base urological_supplies cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a month of straight intermittent catheters (A4351,
+% 150 for a limit of 200) for a permanent urinary retention after a spinal
+% cord lesion: the retention documented, the practitioner's judgment of
+% permanence, Ann performs the procedure herself, and every documentation
+% requirement in the record. The prosthetic benefit asks nothing about the
+% residence; no code of the policy is on the CMS face-to-face list.
+scenario intermittent_complete is:
+    claim 1 is for the catheters.
+    the HCPCS code of the catheters is "A4351".
+    the catheters is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 150.
+    the medical record of Ann documents urinary retention.
+    the finding permanent impairment of urination about Ann is established, according to the treating practitioner, because "neurogenic bladder after a T10 spinal cord lesion in 2019; no recovery of voiding is expected".
+    Ann or a caregiver can perform the procedure.
+    the order for the catheters is dated 2026-02-20.
+    the order for the catheters is signed by the treating practitioner.
+    the order for the catheters includes beneficiary name.
+    the order for the catheters includes order date.
+    the order for the catheters includes description of the item.
+    the order for the catheters includes quantity to be dispensed.
+    the order for the catheters includes treating practitioner name.
+    the order for the catheters was communicated to the supplier on 2026-02-22.
+    the catheters was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the catheters.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Indwelling catheters: one Foley a month for Ben (claim 1, covered); two in
+% a month for Cy, whose record documents an obstructed catheter (claim 2,
+% covered); three for Dee with nothing in the record and the reviewer
+% finding no explanation (claim 3, not covered); an all-silicone catheter
+% for Eve's latex sensitivity (claim 4, covered); a specialty catheter for
+% Fay where the Council finds its need unsupported (claim 5, not covered);
+% a three-way catheter for Gus with no history of obstruction (claim 6, not
+% covered).
+scenario indwelling_catheters is:
+    claim 1 is for the Foley catheter.
+    the HCPCS code of the Foley catheter is "A4311".
+    the Foley catheter is furnished to Ben.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 1.
+    claim 2 is for the second Foley catheter.
+    the HCPCS code of the second Foley catheter is "A4311".
+    the second Foley catheter is furnished to Cy.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 2.
+    the medical record of Cy documents catheter obstruction.
+    claim 3 is for the third Foley catheter.
+    the HCPCS code of the third Foley catheter is "A4311".
+    the third Foley catheter is furnished to Dee.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 3.
+    the finding excess urological supplies explained about Dee is unsupported, according to the reviewer, because "the record gives no reason for changing the catheter more than once a month".
+    claim 4 is for the silicone catheter.
+    the HCPCS code of the silicone catheter is "A4344".
+    the silicone catheter is furnished to Eve.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 1.
+    the medical record of Eve documents sensitivity to latex.
+    claim 5 is for the specialty catheter.
+    the HCPCS code of the specialty catheter is "A4340".
+    the specialty catheter is furnished to Fay.
+    claim 5 is for a supply of 1 months.
+    the quantity billed on claim 5 is 1.
+    the finding specialty catheter necessary about Fay is unsupported, according to the Council, because "the physician's notes describe no encrustation, no failed straight catheter and no latex sensitivity; the specialty catheter was the supplier's standard product".
+    claim 6 is for the three way catheter.
+    the HCPCS code of the three way catheter is "A4346".
+    the three way catheter is furnished to Gus.
+    claim 6 is for a supply of 1 months.
+    the quantity billed on claim 6 is 1.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% Sterile intermittent catheter kits: Hal lives in a nursing facility
+% (claim 1, covered); Ida had two urinary tract infections in the twelve
+% months before the kits (claim 2, covered), Jo one (claim 3, not covered);
+% Kim's spinal cord injury establishes immunosuppression (claim 4,
+% covered); 250 kits for Lee in a nursing facility exceed the 200 the LCD
+% allows (claim 5, not covered, no explanation asked).
+scenario sterile_kits is:
+    claim 1 is for the kits.
+    the HCPCS code of the kits is "A4353".
+    the kits is furnished to Hal.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 150.
+    the residence of Hal is nursing facility.
+    Hal or a caregiver can perform the procedure.
+    claim 2 is for the second kits.
+    the HCPCS code of the second kits is "A4297".
+    the second kits is furnished to Ida.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 120.
+    2 urinary tract infections on intermittent catheterization in the twelve months before the sterile kits are documented for Ida.
+    Ida or a caregiver can perform the procedure.
+    claim 3 is for the third kits.
+    the HCPCS code of the third kits is "A4297".
+    the third kits is furnished to Jo.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 120.
+    1 urinary tract infections on intermittent catheterization in the twelve months before the sterile kits are documented for Jo.
+    Jo or a caregiver can perform the procedure.
+    claim 4 is for the fourth kits.
+    the HCPCS code of the fourth kits is "A4353".
+    the fourth kits is furnished to Kim.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 180.
+    the medical record of Kim documents spinal cord injury.
+    Kim or a caregiver can perform the procedure.
+    claim 5 is for the fifth kits.
+    the HCPCS code of the fifth kits is "A4353".
+    the fifth kits is furnished to Lee.
+    claim 5 is for a supply of 1 months.
+    the quantity billed on claim 5 is 250.
+    the residence of Lee is nursing facility.
+    Lee or a caregiver can perform the procedure.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% External collection devices for urinary incontinence: 30 male external
+% catheters for Mia (claim 1, covered); 60 for Ned, where the Council finds
+% the greater utilization unexplained (claim 2, not covered — the
+% Council-style unsupported finding); external catheters for Ola, who also
+% uses an indwelling catheter (claim 3, not covered); female pouches for
+% Pat, 30 for a month (claim 4, covered) and 40 (claim 5, not covered: one
+% a day).
+scenario external_devices is:
+    claim 1 is for the external catheters.
+    the HCPCS code of the external catheters is "A4349".
+    the external catheters is furnished to Mia.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 30.
+    the medical record of Mia documents urinary incontinence.
+    claim 2 is for the second external catheters.
+    the HCPCS code of the second external catheters is "A4349".
+    the second external catheters is furnished to Ned.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 60.
+    the medical record of Ned documents urinary incontinence.
+    the finding excess urological supplies explained about Ned is unsupported, according to the Council, because "the only support for two catheters a day is the supplier's refill log; the treating physician's notes describe no skin breakdown or leakage".
+    claim 3 is for the third external catheters.
+    the HCPCS code of the third external catheters is "A4349".
+    the third external catheters is furnished to Ola.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 30.
+    the medical record of Ola documents urinary incontinence.
+    the indwelling catheter is furnished to Ola.
+    the HCPCS code of the indwelling catheter is "A4311".
+    claim 4 is for the female pouches.
+    the HCPCS code of the female pouches is "A4328".
+    the female pouches is furnished to Pat.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 30.
+    claim 5 is for the extra female pouches.
+    the HCPCS code of the extra female pouches is "A4328".
+    the extra female pouches is furnished to Pat.
+    claim 5 is for a supply of 1 months.
+    the quantity billed on claim 5 is 40.
+    the medical record of Pat documents urinary incontinence.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% Supplies used with an indwelling catheter: Ray's vinyl leg bags (claim 1,
+% covered) and 5 units of tape (claim 2, covered), 20 units of tape (claim
+% 3, over the 10 the LCD allows); a leg bag for Sam, who is bedridden (claim
+% 4, not covered), a bedside drainage bag for him (claim 5, covered); Tom's
+% vinyl and latex leg bags together (claims 6 and 7, neither covered).
+scenario drainage_supplies is:
+    claim 1 is for the leg bags.
+    the HCPCS code of the leg bags is "A4358".
+    the leg bags is an accessory of the Foley catheter.
+    the leg bags is furnished to Ray.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 2.
+    claim 2 is for the tape.
+    the HCPCS code of the tape is "A4450".
+    the tape is an accessory of the Foley catheter.
+    the tape is furnished to Ray.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 5.
+    claim 3 is for the extra tape.
+    the HCPCS code of the extra tape is "A4450".
+    the extra tape is an accessory of the Foley catheter.
+    the extra tape is furnished to Ray.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 20.
+    the HCPCS code of the Foley catheter is "A4311".
+    the Foley catheter is furnished to Ray.
+    claim 4 is for the second leg bags.
+    the HCPCS code of the second leg bags is "A4358".
+    the second leg bags is an accessory of the second Foley catheter.
+    the second leg bags is furnished to Sam.
+    claim 4 is for a supply of 1 months.
+    the quantity billed on claim 4 is 2.
+    claim 5 is for the bedside bags.
+    the HCPCS code of the bedside bags is "A4357".
+    the bedside bags is an accessory of the second Foley catheter.
+    the bedside bags is furnished to Sam.
+    claim 5 is for a supply of 1 months.
+    the quantity billed on claim 5 is 2.
+    the HCPCS code of the second Foley catheter is "A4311".
+    the second Foley catheter is furnished to Sam.
+    Sam is bedridden.
+    claim 6 is for the vinyl leg bags.
+    the HCPCS code of the vinyl leg bags is "A4358".
+    the vinyl leg bags is an accessory of the third Foley catheter.
+    the vinyl leg bags is furnished to Tom.
+    claim 6 is for a supply of 1 months.
+    the quantity billed on claim 6 is 2.
+    claim 7 is for the latex leg bag.
+    the HCPCS code of the latex leg bag is "A5112".
+    the latex leg bag is an accessory of the third Foley catheter.
+    the latex leg bag is furnished to Tom.
+    claim 7 is for a supply of 1 months.
+    the quantity billed on claim 7 is 1.
+    the HCPCS code of the third Foley catheter is "A4311".
+    the third Foley catheter is furnished to Tom.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary", "claim 5 is reasonable and necessary"].
+
+% Reasonable and necessary with its order and delivery, but the record
+% documents neither urinary incontinence nor urinary retention — only the
+% practitioner's judgment of permanence: the statutory benefit (Policy
+% Article A52521) fails at the remedy, and the flip adds either condition.
+scenario no_documented_impairment is:
+    claim 1 is for the catheters.
+    the HCPCS code of the catheters is "A4351".
+    the catheters is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 150.
+    the finding permanent impairment of urination about Ann is established, according to the treating practitioner, because "neurogenic bladder after a T10 spinal cord lesion in 2019; no recovery of voiding is expected".
+    Ann or a caregiver can perform the procedure.
+    the order for the catheters is dated 2026-02-20.
+    the order for the catheters is signed by the treating practitioner.
+    the order for the catheters includes beneficiary name.
+    the order for the catheters includes order date.
+    the order for the catheters includes description of the item.
+    the order for the catheters includes quantity to be dispensed.
+    the order for the catheters includes treating practitioner name.
+    the order for the catheters was communicated to the supplier on 2026-02-22.
+    the catheters was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the catheters.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the medical record of Ann documents urinary incontinence"], ["add: the medical record of Ann documents urinary retention"]].
+
+% A retention after hip surgery: the treating practitioner orders catheters
+% as if it were permanent, the Council finds it temporary — the statutory
+% permanence fails at the remedy.
+scenario temporary_retention is:
+    claim 1 is for the catheters.
+    the HCPCS code of the catheters is "A4351".
+    the catheters is furnished to Val.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 120.
+    the medical record of Val documents urinary retention.
+    the finding permanent impairment of urination about Val is unsupported, according to the Council, because "the retention followed hip arthroplasty and the urologist expected voiding to return within weeks; the condition was not of long and indefinite duration".
+    Val or a caregiver can perform the procedure.
+    the order for the catheters is dated 2026-02-20.
+    the order for the catheters is signed by the treating practitioner.
+    the order for the catheters includes beneficiary name.
+    the order for the catheters includes order date.
+    the order for the catheters includes description of the item.
+    the order for the catheters includes quantity to be dispensed.
+    the order for the catheters includes treating practitioner name.
+    the order for the catheters was communicated to the supplier on 2026-02-22.
+    the catheters was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the catheters.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% A refill of intermittent catheters, the supply running out on 1 June,
+% Ann contacted on 15 May and the catheters delivered on 25 May: within the
+% refill windows of dmepos.le. No record of continued need is needed: the
+% permanent retention establishes it (Policy Article A52521).
+scenario refill is:
+    claim 1 is for the catheters.
+    the HCPCS code of the catheters is "A4351".
+    the catheters is furnished to Ann.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-05-25.
+    claim 1 is for a supply of 3 months.
+    the quantity billed on claim 1 is 450.
+    the current supply of the catheters is expected to end on 2026-06-01.
+    the beneficiary affirmed the need for the refill of the catheters on 2026-05-15.
+    the medical record of Ann documents urinary retention.
+    the finding permanent impairment of urination about Ann is established, according to the treating practitioner, because "neurogenic bladder after a T10 spinal cord lesion in 2019; no recovery of voiding is expected".
+    Ann or a caregiver can perform the procedure.
+    the order for the catheters is dated 2026-02-20.
+    the order for the catheters is signed by the treating practitioner.
+    the order for the catheters includes beneficiary name.
+    the order for the catheters includes order date.
+    the order for the catheters includes description of the item.
+    the order for the catheters includes quantity to be dispensed.
+    the order for the catheters includes treating practitioner name.
+    the order for the catheters was communicated to the supplier on 2026-02-22.
+    the catheters was delivered on 2026-05-25.
+    the supplier holds proof of delivery for the catheters.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% Urethral inserts for female stress incontinence (N39.3, the Article's
+% list): Wren, 64, can insert them (claim 1, covered); Xia is on
+% anticoagulants (claim 2, not covered).
+scenario urethral_inserts is:
+    claim 1 is for the inserts.
+    the HCPCS code of the inserts is "A4336".
+    the inserts is furnished to Wren.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 30.
+    Wren is female.
+    the age of Wren is 64 years.
+    the diagnosis code of Wren is "N39.3".
+    Wren or a caregiver can perform the procedure.
+    claim 2 is for the second inserts.
+    the HCPCS code of the second inserts is "A4336".
+    the second inserts is furnished to Xia.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 30.
+    Xia is female.
+    the age of Xia is 70 years.
+    the diagnosis code of Xia is "N39.3".
+    Xia or a caregiver can perform the procedure.
+    the medical record of Xia documents anticoagulant therapy.
+    rn expects answers ["claim 1 is reasonable and necessary"].

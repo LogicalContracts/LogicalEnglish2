@@ -1,0 +1,410 @@
+% Enteral Nutrition: LCD L38955 and its Policy Article A58833 (DME MACs). A
+% policy program of the DMEPOS model: it includes dmepos.le (orders,
+% delivery, benefit category, continued need, refills) and states when a
+% claim for an enteral formula, the pump, a feeding supply allowance, an
+% in-line digestive enzyme cartridge or a feeding tube is REASONABLE AND
+% NECESSARY:
+%   the coverage criteria of every item — the beneficiary requires feedings
+%   via an enteral access device to provide sufficient nutrients, has (a) a
+%   full or partial non-function or disease of the structures that normally
+%   permit food to reach the small bowel or (b) a disease that impairs
+%   digestion and/or absorption of an oral diet by the small bowel, and
+%   adequate nutrition is not possible by dietary adjustment and/or oral
+%   supplements;
+%   the formulas: the standard semi-synthetic intact protein formulas
+%   (B4150, B4152) on those criteria alone; the special formulas (B4149,
+%   B4153, B4154, B4155, B4157, B4161, B4162) when the record says why a
+%   standard formula cannot meet the beneficiary's needs;
+%   the pump (B9002) when the record justifies it (one of the LCD's examples
+%   documented, an administration rate below 100 ml an hour, or otherwise
+%   the judgment), and its supply allowance (B4035) likewise;
+%   the feeding supply allowances (syringe B4034, pump B4035, gravity B4036,
+%   elastomeric control B4148) corresponding to the method of
+%   administration, one kind at a time, one a day;
+%   the in-line digestive enzyme cartridge (B4105) for exocrine pancreatic
+%   insufficiency — a diagnosis of the Article's ICD-10 table
+%   (sources/icd10/A58833_icd10_covered.csv, 21 rows, group 1: the LCD's
+%   "Group 1 Codes" for B4105, the only group; loaded as the table
+%   enteral_icd10) — at most two a day;
+%   the feeding tubes: three nasogastric tubes (B4081, B4082, B4083) or one
+%   gastrostomy or jejunostomy tube (B4087, B4088) every three months.
+% The benefit is the Prosthetic Device benefit (Policy Article A58833,
+% Social Security Act §1861(s)(8)), which carries no condition on the place
+% of use; the food thickener (B4100) and the electrolyte fluids (B4102,
+% B4103) are in scope and in no benefit ("non-covered").
+%
+% The payment conditions the Article adds (its "statutory payment policy
+% requirements" and "POLICY SPECIFIC DOCUMENTATION REQUIREMENTS", section
+% remedy): the test of permanence — in the treating practitioner's
+% judgment the impairment will be of long and indefinite duration; the
+% nutrition not taken by mouth ("Orally administered enteral nutrition
+% products, related supplies and equipment will be denied non-covered, no
+% benefit"); no stay covered by Part A; a diagnosis code on each claim; and
+% the dispensing cap of the LCD's refill paragraph, a one-month quantity at
+% a time (the pump is not a supply). The supply allowances are daily
+% allowances to which the refill requirements do not apply: a claim for one
+% is never marked a refill.
+%
+% How the criteria are read. What the record states is a scenario fact:
+% that the beneficiary requires tube feedings, the impairment (a) or (b) in
+% the LCD's words, that oral nutrition is inadequate, the method of
+% administration (syringe, pump, gravity, elastomeric control), the
+% administration rate, the documented conditions (the shared template "the
+% medical record of B documents C": the LCD's examples of a pump's
+% justification), the diagnosis code, the stay, the oral use. "Part A" is
+% written "hospital insurance" (a capital letter alone would read as a
+% variable). Quantities: one supply allowance a day and two cartridges a
+% day are read with a month of 31 days; tubes every three months like the
+% tracheostomy table (the quantity times the three-month periods begun).
+% The findings this policy reads (the judged template of dmepos.le), and the
+% criterion each stands for:
+%   permanent gastrointestinal impairment (the Article's test of
+%   permanence: "there must be documentation to reflect that in the
+%   treating practitioner’s judgement, the impairment will be of long and
+%   indefinite duration"; parenteral_nutrition.le reads it under the same
+%   name);
+%   special formula necessary (a special formula: "the beneficiary’s
+%   medical records must specify why a standard formula cannot be used to
+%   meet the beneficiary’s metabolic needs"; "A diagnosis alone is not
+%   sufficient");
+%   enteral pump necessary (the pump, when none of the LCD's examples is
+%   documented and the rate is not below 100 ml an hour).
+%
+% Not modelled: the pediatric formulas (B4158, B4159, B4160: neither text
+% states their criteria); the additive B4104 ("not separately payable"),
+% the IV pole E0776 and the miscellaneous B9998 (unbundling); the units of
+% service of a formula against the calories ordered, the DIF of claims
+% before 2023, the PDAC Product Classification List, the BA, BO, KX, GA,
+% GY and GZ modifiers; self-blenderized formulas and grocery products (no
+% code).
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    *a beneficiary* requires feedings via an enteral access device to provide sufficient nutrients; undefined.
+    *a beneficiary* has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel; undefined.
+    *a beneficiary* has a disease impairing digestion or absorption of an oral diet by the small bowel; undefined.
+    adequate nutrition of *a beneficiary* is impossible by dietary adjustment or oral supplements; undefined.
+    the method of administration of the enteral nutrition of *a beneficiary* is *a method*; undefined.
+    the administration rate of the enteral nutrition of *a beneficiary* is *a number* ml per hour; undefined.
+    *a beneficiary* takes the enteral nutrition by mouth; undefined.
+    % candidate for dmepos.le (read by parenteral_nutrition.le as well, which
+    % includes this program)
+    *a beneficiary* is in an inpatient stay covered by hospital insurance; undefined.
+    % the tables
+    ICD10 code *a code* is in group *a group* of article *an article* as *a description* under table enteral_icd10.
+    % derived
+    *a beneficiary* meets the enteral nutrition coverage criteria.
+    *an item* is a justified enteral formula for *a beneficiary*.
+    the need for an enteral pump is documented for *a beneficiary*.
+    *a condition* is an enteral pump indication.
+    the feeding supply allowance for *a method* is *a code*.
+    *an item* corresponds to the method of administration.
+    *an item* is billed beside another kind of feeding supply allowance.
+    the diagnosis code of *a beneficiary* is exocrine pancreatic insufficiency.
+    *a claim* is within one enteral supply allowance a day.
+    *a claim* is within two enzyme cartridges a day.
+    *a claim* is within the usual number of feeding tubes.
+    *a claim* is within the dispensing limit for enteral nutrition.
+
+% The Policy Article's ICD-10 table: the Group 1 codes, the diagnoses of
+% exocrine pancreatic insufficiency for the enzyme cartridge B4105.
+the table enteral_icd10 is loaded from sources/icd10/A58833_icd10_covered.csv, with all matches:
+    code | group | article | description
+
+the knowledge base enteral_nutrition includes these resources:
+    dmepos.
+
+the knowledge base enteral_nutrition includes:
+
+LCD L38955 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=38955".
+the text of LCD L38955 is at "sources/lcd/L38955.txt".
+Policy Article A58833 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=58833".
+the text of Policy Article A58833 is at "sources/article/A58833.txt".
+
+% The LCD's examples of a documented justification of the pump.
+reflux is an enteral pump indication,
+    as stated in LCD L38955, confer "gravity feeding is not satisfactory due to reflux and/or aspiration".
+aspiration is an enteral pump indication,
+    as stated in LCD L38955, confer "gravity feeding is not satisfactory due to reflux and/or aspiration".
+severe diarrhea is an enteral pump indication,
+    as stated in LCD L38955, confer "severe diarrhea".
+dumping syndrome is an enteral pump indication,
+    as stated in LCD L38955, confer "dumping syndrome".
+blood glucose fluctuations is an enteral pump indication,
+    as stated in LCD L38955, confer "blood glucose fluctuations".
+circulatory overload is an enteral pump indication,
+    as stated in LCD L38955, confer "circulatory overload".
+gastrostomy tube used for feeding is an enteral pump indication,
+    as stated in LCD L38955, confer "gastrostomy/jejunostomy tube used for feeding".
+jejunostomy tube used for feeding is an enteral pump indication,
+    as stated in LCD L38955, confer "gastrostomy/jejunostomy tube used for feeding".
+
+% The supply allowance of each method of administration, in the LCD's order.
+the feeding supply allowance for syringe is "B4034",
+    as stated in LCD L38955, confer "The feeding supply allowance (B4034, B4035, B4036, and B4148) must correspond with the method of enteral nutrition administration (syringe, pump, gravity, elastomeric control fed)".
+the feeding supply allowance for pump is "B4035",
+    as stated in LCD L38955, confer "The feeding supply allowance (B4034, B4035, B4036, and B4148) must correspond with the method of enteral nutrition administration (syringe, pump, gravity, elastomeric control fed)".
+the feeding supply allowance for gravity is "B4036",
+    as stated in LCD L38955, confer "The feeding supply allowance (B4034, B4035, B4036, and B4148) must correspond with the method of enteral nutrition administration (syringe, pump, gravity, elastomeric control fed)".
+the feeding supply allowance for elastomeric control is "B4148",
+    as stated in LCD L38955, confer "The feeding supply allowance (B4034, B4035, B4036, and B4148) must correspond with the method of enteral nutrition administration (syringe, pump, gravity, elastomeric control fed)".
+
+% The diagnosis code of the claim, read against the Article's table.
+rule enteral_epi_diagnosis with provenance LCD L38955,
+        confer "have a diagnosis of Exocrine Pancreatic Insufficiency (EPI) (refer to the Group 1 Codes in the LCD-related Policy Article for applicable diagnoses)":
+the diagnosis code of a beneficiary is exocrine pancreatic insufficiency
+    if the diagnosis code of the beneficiary is a code
+    and ICD10 code the code is in group 1 of article "A58833" as a description under table enteral_icd10.
+
+% The codes this policy decides — outside the section checklist: a claim
+% of another policy fails here without failing its own applicability.
+% The codes this policy decides, and their benefit: the Prosthetic Device
+% benefit (Policy Article A58833), with no condition on the place of use —
+% but not the thickener and the electrolyte fluids.
+rule enteral_codes with provenance Policy Article A58833,
+        confer "Enteral nutrition is covered under the Prosthetic Device benefit (Social Security Act §1861(s)(8))":
+the policy for code a code is enteral_nutrition
+    if the code is in ["B4149", "B4150", "B4152", "B4153", "B4154", "B4155", "B4157", "B4161", "B4162", "B9002", "B4034", "B4035", "B4036", "B4148", "B4105", "B4081", "B4082", "B4083", "B4087", "B4088", "B4100", "B4102", "B4103"].
+
+section applicability is:
+
+% The codes are listed rather than read through "the policy for code", here
+% and in the rules below, so that a program including this one
+% (parenteral_nutrition.le) does not try this policy's scope and criteria
+% for its own claims — "stage" would blame them. The benefit leaves out:
+% "Food thickeners (B4100), baby food, and other regular grocery products
+% that can be blenderized and used with the enteral system will be denied
+% as non-covered. Electrolyte-containing fluids (B4102 and B4103) are not
+% indicated for the maintenance of weight and strength and are therefore
+% non-covered, no benefit."
+rule enteral_benefit with provenance Policy Article A58833,
+        confer "Enteral nutrition is covered under the Prosthetic Device benefit (Social Security Act §1861(s)(8))":
+the benefit category of code a code is prosthetic devices
+    if the code is in ["B4149", "B4150", "B4152", "B4153", "B4154", "B4155", "B4157", "B4161", "B4162", "B9002", "B4034", "B4035", "B4036", "B4148", "B4105", "B4081", "B4082", "B4083", "B4087", "B4088"].
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% The coverage criteria of every item.
+% ---------------------------------------------------------------------------
+
+rule enteral_criteria_structures with provenance LCD L38955,
+        confer "full or partial non-function or disease of the structures that normally permit food to reach the small bowel":
+a beneficiary meets the enteral nutrition coverage criteria
+    if the beneficiary requires feedings via an enteral access device to provide sufficient nutrients
+    and the beneficiary has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel
+    and adequate nutrition of the beneficiary is impossible by dietary adjustment or oral supplements.
+
+rule enteral_criteria_digestion with provenance LCD L38955,
+        confer "disease that impairs digestion and/or absorption of an oral diet, directly or indirectly, by the small bowel":
+a beneficiary meets the enteral nutrition coverage criteria
+    if the beneficiary requires feedings via an enteral access device to provide sufficient nutrients
+    and the beneficiary has a disease impairing digestion or absorption of an oral diet by the small bowel
+    and adequate nutrition of the beneficiary is impossible by dietary adjustment or oral supplements.
+
+% (the third condition of both rules: "Adequate nutrition must not be
+% possible by dietary adjustment and/or oral supplements")
+
+% ---------------------------------------------------------------------------
+% The formulas.
+% ---------------------------------------------------------------------------
+
+rule enteral_formula_claim with provenance LCD L38955,
+        confer "Enteral nutrition is covered for a beneficiary who requires feedings via an enteral access device to provide sufficient nutrients to maintain weight and strength commensurate with the beneficiary's overall health status":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["B4149", "B4150", "B4152", "B4153", "B4154", "B4155", "B4157", "B4161", "B4162"]
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the enteral nutrition coverage criteria
+    and the item is a justified enteral formula for the beneficiary.
+
+rule enteral_standard_formula with provenance LCD L38955,
+        confer "Enteral formulas consisting of semi-synthetic intact protein/protein isolates (B4150 or B4152) are appropriate for the majority of beneficiaries requiring enteral nutrition":
+an item is a justified enteral formula for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["B4150", "B4152"]
+    and the item is furnished to the beneficiary.
+
+rule enteral_special_formula with provenance LCD L38955,
+        confer "The medical necessity for special enteral formulas (B4149, B4153, B4154, B4155, B4157, B4161, and B4162) must be justified in each beneficiary":
+an item is a justified enteral formula for a beneficiary
+    if the HCPCS code of the item is a code
+    and the code is in ["B4149", "B4153", "B4154", "B4155", "B4157", "B4161", "B4162"]
+    and the item is furnished to the beneficiary
+    and the finding special formula necessary about the beneficiary is established.
+
+% ---------------------------------------------------------------------------
+% The pump and the supply allowances.
+% ---------------------------------------------------------------------------
+
+rule enteral_pump with provenance LCD L38955,
+        confer "If a pump (B9002) is ordered, there must be documentation in the beneficiary's medical record to justify its use":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "B9002"
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the enteral nutrition coverage criteria
+    and the need for an enteral pump is documented for the beneficiary.
+
+% one of the LCD's examples in the record; otherwise the rate below 100 ml
+% an hour; otherwise the judgment (the examples are "e.g.")
+rule enteral_pump_need with provenance LCD L38955,
+        confer "e.g., gravity feeding is not satisfactory due to reflux and/or aspiration, severe diarrhea, dumping syndrome, administration rate less than 100 ml/hr, blood glucose fluctuations, circulatory overload, gastrostomy/jejunostomy tube used for feeding":
+the need for an enteral pump is documented for a beneficiary
+    if the medical record of the beneficiary documents a condition
+    and the condition is an enteral pump indication
+    otherwise the administration rate of the enteral nutrition of the beneficiary is a number ml per hour
+    and the number < 100
+    otherwise the finding enteral pump necessary about the beneficiary is established.
+
+rule enteral_supply_allowance with provenance LCD L38955,
+        confer "If a feeding supply kit does not correspond with the method in which the enteral nutrition is being administered, then the feeding supply kit will be denied as not reasonable and necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["B4034", "B4036", "B4148"]
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the enteral nutrition coverage criteria
+    and the item corresponds to the method of administration
+    and it is not the case that
+        the item is billed beside another kind of feeding supply allowance
+    and the claim is within one enteral supply allowance a day.
+
+rule enteral_pump_supply_allowance with provenance LCD L38955,
+        confer "If a pump supply allowance (B4035) is provided and if the medical necessity of the pump is not documented, it will be denied as not reasonable and necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "B4035"
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the enteral nutrition coverage criteria
+    and the need for an enteral pump is documented for the beneficiary
+    and the item corresponds to the method of administration
+    and it is not the case that
+        the item is billed beside another kind of feeding supply allowance
+    and the claim is within one enteral supply allowance a day.
+
+rule enteral_allowance_method with provenance LCD L38955,
+        confer "The codes for feeding supply allowances (B4034, B4035, B4036, and B4148) are specific to the route of administration":
+an item corresponds to the method of administration
+    if the item is furnished to a beneficiary
+    and the method of administration of the enteral nutrition of the beneficiary is a method
+    and the feeding supply allowance for the method is a code
+    and the HCPCS code of the item is the code.
+
+rule enteral_one_kind_of_allowance with provenance LCD L38955,
+        confer "Claims for more than one type of kit code delivered on the same date or provided on an ongoing basis will be denied as not reasonable and necessary":
+an item is billed beside another kind of feeding supply allowance
+    if the HCPCS code of the item is a code
+    and the code is in ["B4034", "B4035", "B4036", "B4148"]
+    and the item is furnished to a beneficiary
+    and an other item is furnished to the beneficiary
+    and the HCPCS code of the other item is an other code
+    and the other code is in ["B4034", "B4035", "B4036", "B4148"]
+    and the other code is different from the code.
+
+% one unit of service a day, a month read as 31 days
+rule enteral_allowance_daily with provenance Policy Article A58833,
+        confer "The unit of service (UOS) for the supply allowance (B4034, B4035, B4036, or B4148) is one (1) UOS per day":
+a claim is within one enteral supply allowance a day
+    if the claim is for a supply of a number months
+    and the quantity billed on the claim is an other number
+    and a limit is 31 * the number
+    and the other number <= the limit.
+
+% ---------------------------------------------------------------------------
+% The enzyme cartridge and the feeding tubes.
+% ---------------------------------------------------------------------------
+
+rule enteral_enzyme_cartridge with provenance LCD L38955,
+        confer "In-line digestive enzyme cartridges (B4105) are reasonable and necessary for beneficiaries who: meet the coverage criteria for enteral nutrition; AND, have a diagnosis of Exocrine Pancreatic Insufficiency (EPI)":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "B4105"
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the enteral nutrition coverage criteria
+    and the diagnosis code of the beneficiary is exocrine pancreatic insufficiency
+    and the claim is within two enzyme cartridges a day.
+
+rule enteral_enzyme_quantity with provenance LCD L38955,
+        confer "More than two in-line digestive enzyme cartridges (B4105) per day will be denied as not reasonable and necessary":
+a claim is within two enzyme cartridges a day
+    if the claim is for a supply of a number months
+    and the quantity billed on the claim is an other number
+    and a limit is 2 * 31 * the number
+    and the other number <= the limit.
+
+rule enteral_feeding_tube with provenance LCD L38955,
+        confer "If the coverage requirements for enteral nutrition are met, medically necessary nutrients, administration supplies, and equipment are covered":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["B4081", "B4082", "B4083", "B4087", "B4088"]
+    and the item is furnished to a beneficiary
+    and the beneficiary meets the enteral nutrition coverage criteria
+    and the claim is within the usual number of feeding tubes.
+
+rule enteral_nasogastric_tubes with provenance LCD L38955,
+        confer "More than three nasogastric tubes (B4081, B4082, and B4083), or one gastrostomy/jejunostomy tube (B4087 or B4088) every three months is not reasonable and necessary":
+a claim is within the usual number of feeding tubes
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["B4081", "B4082", "B4083"]
+    and the claim is for a supply of a number months
+    and the quantity billed on the claim is an other number
+    and a limit is 3 * ceiling(the number / 3)
+    and the other number <= the limit.
+
+rule enteral_gastrostomy_tubes with provenance LCD L38955,
+        confer "More than three nasogastric tubes (B4081, B4082, and B4083), or one gastrostomy/jejunostomy tube (B4087 or B4088) every three months is not reasonable and necessary":
+a claim is within the usual number of feeding tubes
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["B4087", "B4088"]
+    and the claim is for a supply of a number months
+    and the quantity billed on the claim is an other number
+    and a limit is ceiling(the number / 3)
+    and the other number <= the limit.
+
+section remedy is:
+
+% The Policy Article's own conditions of payment: the test of permanence,
+% not by mouth, not in a stay covered by Part A, the diagnosis code on each
+% claim, and the dispensing cap of the LCD's refill paragraph.
+rule enteral_documentation with provenance Policy Article A58833,
+        confer "In addition, there are specific statutory payment policy requirements, discussed below, that also must be met":
+the policy specific documentation requirements are met for a claim
+    if the claim is for an item
+    and the HCPCS code of the item is a code
+    and the code is in ["B4149", "B4150", "B4152", "B4153", "B4154", "B4155", "B4157", "B4161", "B4162", "B9002", "B4034", "B4035", "B4036", "B4148", "B4105", "B4081", "B4082", "B4083", "B4087", "B4088"]
+    and the policy of the claim is enteral_nutrition
+    and the item is furnished to a beneficiary
+    and the finding permanent gastrointestinal impairment about the beneficiary is established
+    and it is not the case that
+        the beneficiary takes the enteral nutrition by mouth
+    and it is not the case that
+        the beneficiary is in an inpatient stay covered by hospital insurance
+    and the diagnosis code of the beneficiary is an other code
+    and the claim is within the dispensing limit for enteral nutrition.
+
+% (the permanence: "In order to satisfy the test of permanence, there must
+% be documentation to reflect that in the treating practitioner’s
+% judgement, the impairment will be of long and indefinite duration"; the
+% stay: "No payment from Part B is available when enteral nutrition
+% services are furnished to a beneficiary in a stay covered by Part A"; the
+% code: "The supplier must enter a diagnosis code corresponding to the
+% beneficiary's diagnosis on each claim")
+
+rule enteral_dispensing_limit with provenance LCD L38955,
+        confer "Regardless of utilization, a supplier must not dispense more than a 1-month quantity at a time":
+a claim is within the dispensing limit for enteral nutrition
+    if the claim is for a supply of a number months
+    and the number <= 1.
+
+% the pump is equipment, not a supply: a device of this model
+rule enteral_pump_not_dispensed:
+a claim is within the dispensing limit for enteral nutrition
+    if the claim is for an item
+    and the HCPCS code of the item is "B9002".

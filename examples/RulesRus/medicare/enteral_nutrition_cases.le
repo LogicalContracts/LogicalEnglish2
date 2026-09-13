@@ -1,0 +1,345 @@
+% Test cases for the enteral nutrition policy (enteral_nutrition.le):
+% synthetic claims, one or two per criterion of LCD L38955 and per payment
+% condition of dmepos.le and Policy Article A58833, each stating only what
+% its record shows. Findings are recorded as the treating practitioner's,
+% the reviewer's or the Council's; a finding nobody made leaves the answer
+% conditional. The queries: whether the claim is payable (the first query,
+% so "stage" reads its checklist), whether it is reasonable and necessary,
+% and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base enteral_nutrition cases includes these resources:
+    enteral_nutrition.
+
+the knowledge base enteral_nutrition cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete claim for a month of a standard formula (B4150) by gastrostomy
+% for a beneficiary whose tongue base cancer was resected and reconstructed:
+% criterion (a), tube feedings needed, oral intake inadequate, the
+% practitioner's judgment of permanence, the diagnosis code, and every
+% documentation requirement in the record. The prosthetic benefit asks
+% nothing about the residence; no code of the policy is on the CMS
+% face-to-face list.
+scenario formula_complete is:
+    claim 1 is for the formula.
+    the HCPCS code of the formula is "B4150".
+    the formula is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 450.
+    Ann requires feedings via an enteral access device to provide sufficient nutrients.
+    Ann has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Ann is impossible by dietary adjustment or oral supplements.
+    the finding permanent gastrointestinal impairment about Ann is established, according to the treating practitioner, because "resection of the base of tongue with free flap reconstruction; severe dysphagia with aspiration on every swallow study; no return to oral feeding is expected".
+    the diagnosis code of Ann is "C01".
+    the order for the formula is dated 2026-02-20.
+    the order for the formula is signed by the treating practitioner.
+    the order for the formula includes beneficiary name.
+    the order for the formula includes order date.
+    the order for the formula includes description of the item.
+    the order for the formula includes quantity to be dispensed.
+    the order for the formula includes treating practitioner name.
+    the order for the formula was communicated to the supplier on 2026-02-22.
+    the formula was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the formula.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The coverage criteria: Ben (short bowel after resection, criterion (b))
+% meets them (claim 1); Cy's record does not say oral supplements were
+% inadequate (claim 2); Dee has a functioning gastrointestinal tract — her
+% need is anorexia, neither (a) nor (b) (claim 3).
+scenario coverage_criteria is:
+    claim 1 is for the formula.
+    the HCPCS code of the formula is "B4152".
+    the formula is furnished to Ben.
+    claim 1 is for a supply of 1 months.
+    Ben requires feedings via an enteral access device to provide sufficient nutrients.
+    Ben has a disease impairing digestion or absorption of an oral diet by the small bowel.
+    adequate nutrition of Ben is impossible by dietary adjustment or oral supplements.
+    claim 2 is for the second formula.
+    the HCPCS code of the second formula is "B4150".
+    the second formula is furnished to Cy.
+    claim 2 is for a supply of 1 months.
+    Cy requires feedings via an enteral access device to provide sufficient nutrients.
+    Cy has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    claim 3 is for the third formula.
+    the HCPCS code of the third formula is "B4150".
+    the third formula is furnished to Dee.
+    claim 3 is for a supply of 1 months.
+    Dee requires feedings via an enteral access device to provide sufficient nutrients.
+    adequate nutrition of Dee is impossible by dietary adjustment or oral supplements.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Special formulas: a peptide-based formula (B4153) for Eve after the
+% standard formula failed (claim 1, covered); a diabetes formula (B4154)
+% for Fay on her diagnosis alone, which the Council finds insufficient
+% (claim 2, not covered — the Council-style unsupported finding).
+scenario special_formulas is:
+    claim 1 is for the peptide formula.
+    the HCPCS code of the peptide formula is "B4153".
+    the peptide formula is furnished to Eve.
+    claim 1 is for a supply of 1 months.
+    Eve requires feedings via an enteral access device to provide sufficient nutrients.
+    Eve has a disease impairing digestion or absorption of an oral diet by the small bowel.
+    adequate nutrition of Eve is impossible by dietary adjustment or oral supplements.
+    the finding special formula necessary about Eve is established, according to the treating practitioner, because "persistent malabsorption with steatorrhea on two standard polymeric formulas over six weeks".
+    claim 2 is for the diabetes formula.
+    the HCPCS code of the diabetes formula is "B4154".
+    the diabetes formula is furnished to Fay.
+    claim 2 is for a supply of 1 months.
+    Fay requires feedings via an enteral access device to provide sufficient nutrients.
+    Fay has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Fay is impossible by dietary adjustment or oral supplements.
+    the finding special formula necessary about Fay is unsupported, according to the Council, because "the order rests on the diagnosis of diabetes mellitus alone; the record shows no glucose fluctuations on a standard formula and no formula tried and failed".
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% The pump and the supply allowances: Gus's pump is justified by aspiration
+% documented (claim 1), with its pump allowance for a month (claim 2,
+% covered) — a gravity allowance billed for him as well matches no method
+% he uses (claim 3, not covered) and makes a second kind of allowance, so
+% the pump allowance is denied too; Hal's pump at 80 ml an hour (claim 4,
+% covered); Ida's pump at 120 ml an hour with nothing documented, the
+% reviewer finding no reason for it (claim 5, not covered).
+scenario pump_and_allowances is:
+    claim 1 is for the pump.
+    the HCPCS code of the pump is "B9002".
+    the pump is furnished to Gus.
+    the rental month of claim 1 is 1.
+    claim 2 is for the pump allowance.
+    the HCPCS code of the pump allowance is "B4035".
+    the pump allowance is furnished to Gus.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 31.
+    claim 3 is for the gravity allowance.
+    the HCPCS code of the gravity allowance is "B4036".
+    the gravity allowance is furnished to Gus.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 31.
+    Gus requires feedings via an enteral access device to provide sufficient nutrients.
+    Gus has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Gus is impossible by dietary adjustment or oral supplements.
+    the medical record of Gus documents aspiration.
+    the method of administration of the enteral nutrition of Gus is pump.
+    claim 4 is for the second pump.
+    the HCPCS code of the second pump is "B9002".
+    the second pump is furnished to Hal.
+    the rental month of claim 4 is 1.
+    Hal requires feedings via an enteral access device to provide sufficient nutrients.
+    Hal has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Hal is impossible by dietary adjustment or oral supplements.
+    the administration rate of the enteral nutrition of Hal is 80 ml per hour.
+    claim 5 is for the third pump.
+    the HCPCS code of the third pump is "B9002".
+    the third pump is furnished to Ida.
+    the rental month of claim 5 is 1.
+    Ida requires feedings via an enteral access device to provide sufficient nutrients.
+    Ida has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Ida is impossible by dietary adjustment or oral supplements.
+    the administration rate of the enteral nutrition of Ida is 120 ml per hour.
+    the finding enteral pump necessary about Ida is unsupported, according to the reviewer, because "the record documents neither intolerance of gravity feeding nor any other reason for a pump".
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% A gravity allowance alone, 31 days for a month (claim 1, covered), 40
+% (claim 2, more than one a day).
+scenario gravity_allowance is:
+    claim 1 is for the gravity allowance.
+    the HCPCS code of the gravity allowance is "B4036".
+    the gravity allowance is furnished to Jo.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 31.
+    claim 2 is for the extra gravity allowance.
+    the HCPCS code of the extra gravity allowance is "B4036".
+    the extra gravity allowance is furnished to Kim.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 40.
+    Jo requires feedings via an enteral access device to provide sufficient nutrients.
+    Jo has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Jo is impossible by dietary adjustment or oral supplements.
+    the method of administration of the enteral nutrition of Jo is gravity.
+    Kim requires feedings via an enteral access device to provide sufficient nutrients.
+    Kim has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Kim is impossible by dietary adjustment or oral supplements.
+    the method of administration of the enteral nutrition of Kim is gravity.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Enzyme cartridges and tubes: 60 cartridges a month for Lee's exocrine
+% pancreatic insufficiency (K86.81, claim 1, covered), 70 (claim 2, more
+% than two a day); cartridges for Mia, whose Crohn's code is not in the
+% Article's table (claim 3, not covered); one gastrostomy tube for three
+% months (claim 4, covered), two (claim 5, not covered).
+scenario cartridges_and_tubes is:
+    claim 1 is for the cartridges.
+    the HCPCS code of the cartridges is "B4105".
+    the cartridges is furnished to Lee.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 60.
+    claim 2 is for the extra cartridges.
+    the HCPCS code of the extra cartridges is "B4105".
+    the extra cartridges is furnished to Lee.
+    claim 2 is for a supply of 1 months.
+    the quantity billed on claim 2 is 70.
+    the diagnosis code of Lee is "K86.81".
+    Lee requires feedings via an enteral access device to provide sufficient nutrients.
+    Lee has a disease impairing digestion or absorption of an oral diet by the small bowel.
+    adequate nutrition of Lee is impossible by dietary adjustment or oral supplements.
+    claim 3 is for the second cartridges.
+    the HCPCS code of the second cartridges is "B4105".
+    the second cartridges is furnished to Mia.
+    claim 3 is for a supply of 1 months.
+    the quantity billed on claim 3 is 60.
+    the diagnosis code of Mia is "K50.00".
+    Mia requires feedings via an enteral access device to provide sufficient nutrients.
+    Mia has a disease impairing digestion or absorption of an oral diet by the small bowel.
+    adequate nutrition of Mia is impossible by dietary adjustment or oral supplements.
+    claim 4 is for the gastrostomy tube.
+    the HCPCS code of the gastrostomy tube is "B4087".
+    the gastrostomy tube is furnished to Lee.
+    claim 4 is for a supply of 3 months.
+    the quantity billed on claim 4 is 1.
+    claim 5 is for the extra gastrostomy tubes.
+    the HCPCS code of the extra gastrostomy tubes is "B4087".
+    the extra gastrostomy tubes is furnished to Lee.
+    claim 5 is for a supply of 3 months.
+    the quantity billed on claim 5 is 2.
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 4 is reasonable and necessary"].
+
+% Reasonable and necessary with its order and delivery, but Ann is in an
+% inpatient stay covered by Part A (Policy Article A58833): no Part B
+% payment. Payable fails at the remedy; the flip removes the stay.
+scenario part_a_stay is:
+    claim 1 is for the formula.
+    the HCPCS code of the formula is "B4150".
+    the formula is furnished to Ann.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 450.
+    Ann requires feedings via an enteral access device to provide sufficient nutrients.
+    Ann has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Ann is impossible by dietary adjustment or oral supplements.
+    the finding permanent gastrointestinal impairment about Ann is established, according to the treating practitioner, because "resection of the base of tongue with free flap reconstruction; severe dysphagia with aspiration on every swallow study; no return to oral feeding is expected".
+    the diagnosis code of Ann is "C01".
+    Ann is in an inpatient stay covered by hospital insurance.
+    the order for the formula is dated 2026-02-20.
+    the order for the formula is signed by the treating practitioner.
+    the order for the formula includes beneficiary name.
+    the order for the formula includes order date.
+    the order for the formula includes description of the item.
+    the order for the formula includes quantity to be dispensed.
+    the order for the formula includes treating practitioner name.
+    the order for the formula was communicated to the supplier on 2026-02-22.
+    the formula was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the formula.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["remove: Ann is in an inpatient stay covered by hospital insurance"]].
+
+% Tube feedings after a stroke expected to resolve: the reviewer finds the
+% impairment temporary — the test of permanence fails at the remedy.
+scenario temporary_impairment is:
+    claim 1 is for the formula.
+    the HCPCS code of the formula is "B4150".
+    the formula is furnished to Ned.
+    the date of service of claim 1 is 2026-03-01.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 450.
+    Ned requires feedings via an enteral access device to provide sufficient nutrients.
+    Ned has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Ned is impossible by dietary adjustment or oral supplements.
+    the finding permanent gastrointestinal impairment about Ned is unsupported, according to the reviewer, because "the speech therapist expects oral feeding to resume within four weeks as the dysphagia after the stroke is improving".
+    the diagnosis code of Ned is "I69.391".
+    the order for the formula is dated 2026-02-20.
+    the order for the formula is signed by the treating practitioner.
+    the order for the formula includes beneficiary name.
+    the order for the formula includes order date.
+    the order for the formula includes description of the item.
+    the order for the formula includes quantity to be dispensed.
+    the order for the formula includes treating practitioner name.
+    the order for the formula was communicated to the supplier on 2026-02-22.
+    the formula was delivered on 2026-03-01.
+    the supplier holds proof of delivery for the formula.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+
+% A refill of formula, the supply running out on 1 June, Ann contacted on
+% 15 May and the formula delivered on 25 May, with continued need and use in
+% the record: payable. A two-month refill exceeds the one-month cap.
+scenario refill is:
+    claim 1 is for the formula.
+    the HCPCS code of the formula is "B4150".
+    the formula is furnished to Ann.
+    claim 1 is a refill.
+    the date of service of claim 1 is 2026-05-25.
+    claim 1 is for a supply of 1 months.
+    the quantity billed on claim 1 is 450.
+    the current supply of the formula is expected to end on 2026-06-01.
+    the beneficiary affirmed the need for the refill of the formula on 2026-05-15.
+    the medical record documents continued need for the formula on 2026-04-10.
+    the record documents continued use of the formula on 2026-04-10.
+    claim 2 is for the second formula.
+    the HCPCS code of the second formula is "B4150".
+    the second formula is furnished to Ann.
+    claim 2 is a refill.
+    the date of service of claim 2 is 2026-05-25.
+    claim 2 is for a supply of 2 months.
+    the quantity billed on claim 2 is 900.
+    the current supply of the second formula is expected to end on 2026-06-01.
+    the beneficiary affirmed the need for the refill of the second formula on 2026-05-15.
+    the medical record documents continued need for the second formula on 2026-04-10.
+    the record documents continued use of the second formula on 2026-04-10.
+    Ann requires feedings via an enteral access device to provide sufficient nutrients.
+    Ann has a full or partial nonfunction or disease of the structures normally permitting food to reach the small bowel.
+    adequate nutrition of Ann is impossible by dietary adjustment or oral supplements.
+    the finding permanent gastrointestinal impairment about Ann is established, according to the treating practitioner, because "resection of the base of tongue with free flap reconstruction; severe dysphagia with aspiration on every swallow study; no return to oral feeding is expected".
+    the diagnosis code of Ann is "C01".
+    the order for the formula is dated 2026-02-20.
+    the order for the formula is signed by the treating practitioner.
+    the order for the formula includes beneficiary name.
+    the order for the formula includes order date.
+    the order for the formula includes description of the item.
+    the order for the formula includes quantity to be dispensed.
+    the order for the formula includes treating practitioner name.
+    the order for the formula was communicated to the supplier on 2026-02-22.
+    the formula was delivered on 2026-05-25.
+    the supplier holds proof of delivery for the formula.
+    the order for the second formula is dated 2026-02-20.
+    the order for the second formula is signed by the treating practitioner.
+    the order for the second formula includes beneficiary name.
+    the order for the second formula includes order date.
+    the order for the second formula includes description of the item.
+    the order for the second formula includes quantity to be dispensed.
+    the order for the second formula includes treating practitioner name.
+    the order for the second formula was communicated to the supplier on 2026-02-22.
+    the second formula was delivered on 2026-05-25.
+    the supplier holds proof of delivery for the second formula.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary", "claim 2 is reasonable and necessary"].
+    stage expects answers [].
+
+% A food thickener (B4100): non-covered, no benefit — the claim fails at
+% applicability.
+scenario thickener is:
+    claim 1 is for the thickener.
+    the HCPCS code of the thickener is "B4100".
+    the thickener is furnished to Ola.
+    claim 1 is for a supply of 1 months.
+    pay expects answers [].
+    rn expects answers [].
+    stage expects answers ["the query fails at applicability"].
