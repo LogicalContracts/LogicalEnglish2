@@ -1,0 +1,37 @@
+the target language is: prolog.
+
+the knowledge base uses temporal includes these resources:
+    temporal.
+
+the templates are:
+    *a person* was born on *a date*; undefined.
+    *a person* can drive on *a date*.
+    *a person* claimed *an amount* on *a date*; undefined.
+    the recent claims of *a person* on *a date* total *an amount*.
+
+the knowledge base uses temporal includes:
+
+a person can drive on a date if
+    the person was born on a birth date
+    and the age on the date of someone born on the birth date is a number N
+    and N >= 16.
+
+the recent claims of a person on a date total an amount T if
+    the person was born on a birth date
+    and T is the sum of each A such that
+        the person claimed an amount A on a claim date
+        and the claim date is within the last 3 months before the date.
+
+scenario one is:
+    ann was born on 2008-03-15.
+    bob was born on 2010-01-01.
+    ann claimed 100 on 2026-08-01.
+    ann claimed 50 on 2026-05-01.
+    drive expects answers ["ann can drive on 2026-09-13", "bob can drive on 2026-09-13"].
+    claims expects answers ["the recent claims of ann on 2026-09-13 total 100", "the recent claims of bob on 2026-09-13 total 0"].
+
+query drive is:
+    which person can drive on 2026-09-13.
+
+query claims is:
+    the recent claims of which person on 2026-09-13 total which amount.

@@ -1,0 +1,95 @@
+% lib/temporal.le — dates, periods and lock times, as LE templates.
+%
+% Extension E3 of InsurLE2/docs/MiggratingFromOtherSystems.md (§7.2): the
+% temporal and period LIBRARY the migrations share (Oracle Intelligent Advisor
+% rules that quantify over time, effective-dated product versions, Bitcoin
+% timelocks), so that no translator re-derives the same rules. A library, not
+% syntax: include it as a resource (a translator copies it beside the program
+% it writes, with temporal.pl), and use its templates like any other.
+%
+% LE itself already has `*a date* is *a number* days after *a date*`,
+% `... months after ...` and the date comparisons (`is after`, `is before or
+% equal to`, ...); this library adds what those do not give.
+%
+% What is NOT here: Oracle Intelligent Advisor's change-point semantics
+% (attributes as step functions recomputed over time). A rulebase that leans
+% on them is marked "approximated" in its migration ledger.
+
+the knowledge base temporal includes these resources:
+    temporal.pl.
+
+the templates are:
+    the age on *a date* of someone born on *a birth date* is *a number*.
+    the number of whole years from *a date* to *a second date* is *a number*.
+    the number of whole months from *a date* to *a second date* is *a number*.
+    the number of days from *a date* to *a second date* is *a number*.
+    *a later date* is *a number* years after *a date*.
+    *a later date* is *a number* calendar months after *a date*.
+    *a date* is in the period from *a start date* to *an end date*.
+    *a date* is within the last *a number* months before *a reference date*.
+    *a date* is within the last *a number* days before *a reference date*.
+    the first day of the month of *a date* is *a first date*.
+    the last day of the month of *a date* is *a last date*.
+    the year of *a date* is *a number*.
+    the month of *a date* is *a number*.
+    the weekday of *a date* is *a number*.
+    *a date* is in a leap year.
+    the lock time *a number* is a block height.
+    the lock time *a number* is a time.
+    block *a height* is at least *a number* blocks after block *a first height*.
+
+the knowledge base temporal includes:
+
+the age on a date of someone born on a birth date is a number N if
+    prolog le_temporal_years_between(the birth date, the date, N).
+
+the number of whole years from a date to a second date is a number N if
+    prolog le_temporal_years_between(the date, the second date, N).
+
+the number of whole months from a date to a second date is a number N if
+    prolog le_temporal_months_between(the date, the second date, N).
+
+the number of days from a date to a second date is a number N if
+    prolog le_temporal_days_between(the date, the second date, N).
+
+a later date is a number N years after a date if
+    prolog le_temporal_add_years(the date, N, the later date).
+
+a later date is a number N calendar months after a date if
+    prolog le_temporal_add_months(the date, N, the later date).
+
+a date is in the period from a start date to an end date if
+    prolog le_temporal_in_period(the date, the start date, the end date).
+
+a date is within the last a number N months before a reference date if
+    prolog le_temporal_within_months_before(the date, N, the reference date).
+
+a date is within the last a number N days before a reference date if
+    prolog le_temporal_within_days_before(the date, N, the reference date).
+
+the first day of the month of a date is a first date if
+    prolog le_temporal_month_start(the date, the first date).
+
+the last day of the month of a date is a last date if
+    prolog le_temporal_month_end(the date, the last date).
+
+the year of a date is a number N if
+    prolog le_temporal_year(the date, N).
+
+the month of a date is a number N if
+    prolog le_temporal_month(the date, N).
+
+the weekday of a date is a number N if
+    prolog le_temporal_weekday(the date, N).
+
+a date is in a leap year if
+    prolog (le_temporal_year(the date, Y), le_temporal_leap(Y)).
+
+the lock time a number N is a block height if
+    prolog le_temporal_lock_is_height(N).
+
+the lock time a number N is a time if
+    prolog le_temporal_lock_is_time(N).
+
+block a height H is at least a number N blocks after block a first height F if
+    H - F >= N.

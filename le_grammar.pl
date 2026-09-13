@@ -2619,6 +2619,10 @@ head_arg_type_checks([], _, _, _, _, _, []).
 head_arg_type_checks([Arg|Args], I, F, A, Templates, VM, Checks) :-
     (   var(Arg),
         vm_var_name(VM, Arg, Name),
+        % A variable named by an id ("a postcode P") is known in VM by the
+        % id alone, which says nothing about its type: checking "is a P"
+        % would reject every typed value.
+        \+ is_id(Name),
         head_noun_type(Name, Type), Type \== any,
         ambiguous_position(F, A, I, Templates)
     ->  Checks = [le_type_check(Arg, Type) | Checks0]
@@ -3321,7 +3325,7 @@ parse_expression(Parts, VMIn, VMOut, Templates, Expr, AllowVars) :-
     % contains an arithmetic operator, or a known arithmetic function (so a bare
     % "ceiling(...)" without a surrounding operator is still recognised).
     (   (   member(Part, Parts), (Part = punct(Op, _) ; Part = punctuation(Op, _)), member(Op, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!='])
-        ;   member(FPart, Parts), (FPart = word(Fn, _) ; FPart = word(Fn)), is_arith_function(Fn)
+        ;   member(FPart, Parts), (FPart = word(Fn, _) ; FPart = word(Fn)), ( is_arith_function(Fn) ; Fn == mod )
         ) ->
             exclude(is_indent_or_comment, Parts, CleanParts),
             maplist(part_to_token, CleanParts, Tokens),
@@ -3345,7 +3349,7 @@ is_indent_or_comment(indent(_, _)).
 is_indent_or_comment(line_comment(_, _)).
 is_indent_or_comment(multi_comment(_, _)).
 
-is_operator(W) :- member(W, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!=']).
+is_operator(W) :- member(W, ['+', '-', '*', '/', '(', ')', '=', '>', '<', '>=', '<=', '=<', '==', '!=', mod]).
 
 % multi_word_var(Words) parses a sequence of words that form a multi-word variable.
 multi_word_var([W|Rest]) --> 
@@ -3379,11 +3383,20 @@ term_logic(T, VMIn, VMOut, Ts, AllowVars) -->
     factor_logic(F1, VMIn, VM1, Ts, AllowVars), 
     term_tail(F1, T, VM1, VMOut, Ts, AllowVars).
 term_tail(F1, T, VMIn, VMOut, Ts, AllowVars) --> 
-    [punctuation(Op, _)], { member(Op, ['*', '/']) }, 
+    mul_operator(Op),
     factor_logic(F2, VMIn, VM1, Ts, AllowVars), 
     { T1 =.. [Op, F1, F2] }, 
     term_tail(T1, T, VM1, VMOut, Ts, AllowVars).
 term_tail(T, T, VM, VM, _, _) --> [].
+
+% The multiplicative operators: `*`, `/`, integer division `//` (written as two
+% slashes, which the tokenizer splits) and `mod`. Integer division and modulo
+% are what EVM arithmetic is made of (fixed point in 1e18 units), and without
+% them every such rule had to call Prolog (InsurLE2/docs/
+% MiggratingFromOtherSystems.md, E4). All four are evaluated by is/2.
+mul_operator('//') --> [punctuation('/', loc(_, E))], [punctuation('/', loc(E, _))], !.
+mul_operator(Op) --> [punctuation(Op, _)], { member(Op, ['*', '/']) }.
+mul_operator(mod) --> [word(mod, _)].
 
 % factor_logic(Factor, ...) parses an arithmetic factor (parenthesized expression, variable, or number).
 factor_logic(F, VMIn, VMOut, Ts, AllowVars) --> [punctuation('(', _)], expr_logic(F, VMIn, VMOut, Ts, AllowVars), [punctuation(')', _)].

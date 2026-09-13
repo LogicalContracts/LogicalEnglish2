@@ -443,7 +443,7 @@ hyp_part_to_string(var(Words), String) :-
 hyp_part_to_string(word(W), W).
 
 % --- 2. Undefined predicate ---
-undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)) :-
+undefined_predicate(KB, issue(Type, Description, Fix, Start, End)) :-
     current_predicate(KB:F/A), functor(Head, F, A),
     \+ is_system_predicate(F/A),
     \+ predicate_property(KB:Head, imported_from(_)),
@@ -464,8 +464,29 @@ undefined_predicate(KB, issue(undefined_predicate, Description, Fix, Start, End)
     % specific documentation requirements", which some policies state and
     % others need not).
     \+ ( in_included_resource(Start), le_kbs:template_of(KB, FL, AL, _, _) ),
-    le_i18n:le_msg(undefined_predicate_desc, [functor-FL, arity-AL], Description),
-    le_i18n:le_msg(undefined_predicate_fix, [], Fix).
+    (   opposite_form_of(KB, FL, AL, Positive)
+    ->  % The condition is the declared `; opposite:` form of a template, and
+        % nothing concludes it: an opposite states a negative CONCLUSION (the
+        % head of an `only if` rule, say); it is not the negation of the
+        % template in a condition. Say so, rather than "undefined predicate"
+        % (defect D3 of MiggratingFromOtherSystems.md, Appendix A).
+        Type = opposite_as_condition,
+        ( le_kbs:template_of(KB, FL, AL, _, Opposite) -> true ; Opposite = FL ),
+        le_i18n:le_msg(opposite_as_condition_desc, [opposite-Opposite, template-Positive], Description),
+        le_i18n:le_msg(opposite_as_condition_fix, [template-Positive], Fix)
+    ;   Type = undefined_predicate,
+        le_i18n:le_msg(undefined_predicate_desc, [functor-FL, arity-AL], Description),
+        le_i18n:le_msg(undefined_predicate_fix, [], Fix)
+    ).
+
+%   FL/AL is the opposite form declared by a template; Positive is that
+%   template's own wording, with its placeholders.
+opposite_form_of(KB, FL, AL, Positive) :-
+    current_predicate(KB:le_dict_opposite/3),
+    KB:le_dict_opposite(FL, AL, Dict), !,
+    arg(1, Dict, [F|Args]),
+    length(Args, N),
+    ( le_kbs:template_of(KB, F, N, _, Label) -> Positive = Label ; Positive = F ).
 
 % --- 2a. Suspicious "is a" (predicate absorbed into a constant type) ---
 % The generic "*X* is a *Y*" template matches almost any "... is ..." sentence,
@@ -621,6 +642,10 @@ untested_predicate(KB, issue(untested_predicate, Description, Fix, Start, End)) 
     \+ is_reachable_from_query(KB, F, A),
     predicate_le_label(KB, F, A, Label),
     first_rule_source(KB, F, A, Start, End),
+    % A library's rules (an included resource's) are there to be used or
+    % not: a program that includes lib/temporal.le is not asked to query
+    % every template of it.
+    \+ in_included_resource(Start),
     le_i18n:le_msg(untested_predicate_desc, [template-Label], Description),
     le_i18n:le_msg(untested_predicate_fix, [], Fix).
 
@@ -763,6 +788,8 @@ template_used(KB, F, A) :-
 %   Does this term mention F/A anywhere inside it? An LPS payload is a nest of
 %   `r/2`, `and/2`, `lps_at/2`, `le_at/3` and friends around the literals, and
 %   the only thing wanted here is whether the template appears at all.
+contains_literal(T, F, 0) :-
+    atom(T), T == F, !.                 % a propositional template: `there is a fire`
 contains_literal(T, F, A) :-
     compound(T),
     (   functor(T, F, A)
@@ -1202,10 +1229,10 @@ print_issue(issue(Type, Description, Fix, Start, End)) :-
 % Extend prolog:message to handle our issues
 :- multifile prolog:message//1.
 prolog:message(Type - [Msg, Start, End]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w at ~w-~w' - [Type, Msg, Start, End] ].
 prolog:message(Type - [Msg]) -->
-    { memberchk(Type, [missing_template, undefined_predicate, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
+    { memberchk(Type, [missing_template, undefined_predicate, opposite_as_condition, suspicious_is_a, misplaced_expectation, defined_scenario_element, untested_predicate, tests_not_run, rule_without_variables, missing_rules, too_many_facts, failed_test, redefined_system_template, scenario_before_rules, missing_trailing_dot, prepositional_arity, prepositional_first_arg, reserved_word_in_template, single_variable_fact, include_too_deep, restricted_resource, skipped_directive, module_directive_stripped, missing_resource, unsafe_prolog_goal, stray_asterisk, unmarked_meta_template, unused_template, unconsumed_facts, image_nonground, image_on_rule, image_bad_url, image_template_vars, judged_with_rules, judgment_without_provenance, fact_without_provenance, malformed_provenance, quote_not_found, unread_value, view_unknown_sentence, view_unknown_template, view_unknown_query, view_unknown_scenario, view_bad_question, view_duplicate_name, view_not_judged, view_derived_fact, view_no_result, view_said_twice, view_headed_by_unknown, view_stage_without_sections, view_nothing_cited, view_unknown_section, view_keeps_derived]) },
     [ '~w: ~w' - [Type, Msg] ].
 
 % ---------------------------------------------------------------------------

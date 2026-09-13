@@ -69,6 +69,7 @@ Templates map natural language sentences to Prolog predicates.
 ### Template additions (after `;`)
 A template definition can be followed by one or more additions, each introduced by `;`:
 - `; opposite: <template>` — declares the negation form, used for negative heads and for negation in proofs.
+  **The opposite form is not a negation in a condition.** Written as a condition, `the claimant does not have another form of income` is a goal of its own predicate, which only rules concluding it (an `only if` rule, §15.1) can prove; to test that the positive template does not hold, write `it is not the case that the claimant has another form of income`. The verifier reports an opposite form used as a condition that nothing concludes (`opposite_as_condition`).
 - `; synonym <template>` — declares an **equivalent surface form**. The synonym maps to the **same** Prolog predicate as the main template, so facts, rule heads, rule bodies and queries may be written with either form interchangeably. Several `; synonym ...` additions may be chained. Its `*variables*` are matched **positionally** to the main template's, so both forms must list their arguments in the same order.
   - Example: `*a payment* is in respect of *a claim*; synonym *a payment* covers *a claim*.` — writing `p covers c` is the same fact as `p is in respect of c`.
   - **Rendering:** the main (first) form is used by default. In explanations, a node is rendered with the form actually used at its source location (the surface form of the clause that proves it); a query renders its answers with the form used in the query.
@@ -275,7 +276,7 @@ In an explanation tree, a type check renders like the assertion it verifies, e.g
   - Dates: `2023-10-27`
 
 ## 7. Arithmetic and Comparisons
-- **Math:** `+`, `-`, `*`, `/`, `( )`
+- **Math:** `+`, `-`, `*`, `/`, `( )`, integer division `//` and remainder `mod` (`S = B // 3 + B mod 3`) — the arithmetic of fixed-point contract code (EVM amounts in 1e18 units)
 - **Functions:** the unary arithmetic functions `ceiling`, `floor`, `round`, `truncate`, `integer`, `abs`, `sign`, `sqrt` may be applied to a parenthesised argument, e.g. `the result is the multiple * ceiling(the amount / the multiple)`. They are evaluated by Prolog's `is/2` at solve time.
 - **Comparison:** `=`, `>`, `<`, `>=`, `<=`, `==`, `!=`
 - **Variable names in expressions:** a bare word used in an arithmetic expression is recognised as a variable only if it is an **id** (a single uppercase letter, or a short ALL-CAPS token — see §6.1), e.g. `ENT = ETI * ATR - TO`. A descriptive lower-/mixed-case word like `amount` or `exposure` is treated as part of a *type*, not a variable name, so it will not co-refer with a head variable inside an expression. Use ids (e.g. `EXP`, `IAOR`, `A`) for variables that participate in arithmetic.
@@ -407,6 +408,22 @@ the knowledge base layer includes:
 - **Caching:** a file `.pl` reloads when its modification time changes; a URL `.pl` is fetched once per server run — so editing the LE program does not re-load a large facts file.
 - See `examples/moreExamples/prolog_resources/` (postcodes: main → thin layer → facts `.pl`).
 
+### 14.2 Shipped libraries (`lib/`)
+Libraries are ordinary LE resources kept in `lib/` and copied beside the
+program that includes them (`le_migration:copy_library/2` does it for the
+translators), so a program and its libraries form one directory.
+- **`lib/temporal.le`** (+ `temporal.pl`) — dates, periods and lock times:
+  `the age on *a date* of someone born on *a birth date* is *a number*`,
+  whole years / months / days between two dates, `*a later date* is *a number*
+  years after *a date*`, `... calendar months after ...`, `*a date* is in the
+  period from *a start date* to *an end date*`, `*a date* is within the last
+  *a number* months before *a reference date*` (and `days`), the first and last
+  day of a month, year / month / weekday of a date, leap years, and Bitcoin
+  lock times (`the lock time *a number* is a block height` / `is a time`,
+  `block *a height* is at least *a number* blocks after block *a first
+  height*`). Its templates are not reported as untested in a program that
+  includes it. See `testing/fixtures/temporal/uses_temporal.le`.
+
 ## 15. LE Extensions
 Features beyond the core constructs summarised above. Some are implemented in
 the core grammar but were previously undocumented; the ones marked
@@ -475,7 +492,24 @@ we will pay a claim if
 ### 15.4 Grouped alternatives: `either:` / `any of:` / `at least one of:` / `all of:` **[requires le_extensions.pl]**
 A body line consisting of one of these connectives groups its indented
 children: `either`, `any of` and `at least one of` OR the children together;
-`all of` groups them conjunctively (useful inside an `or` block).
+`all of` groups them conjunctively (useful inside an `or` block). Each direct
+child is one alternative with its own structure, so an `all of` nested in an
+`either` stays a conjunction:
+```le
+the claimant is eligible for a pension if
+    either
+        the claimant is poor
+        all of
+            the claimant is sick
+            the claimant has been sick for more than 6 months
+            it is not the case that
+                the claimant has another form of income
+        the claimant has been entitled to a pension previously.
+```
+In a numbered body (§15.5) an item may be a negation — `1.2.3. it is not the
+case that the claimant has another form of income; or` — with the negated
+goal on the item's line or as its sub-items (`1.2.3. it is not the case
+that:` / `1.2.3.1. ...`).
 
 ### 15.5 Rule labels and numbered rule bodies **[numbering requires le_extensions.pl]**
 A rule may be labelled: `rule <name>: Head if ...` — the label becomes the

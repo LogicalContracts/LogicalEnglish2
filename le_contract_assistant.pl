@@ -364,7 +364,7 @@ job_dir(JobID, Dir) :-
 %   keep working.
 job_mode(Dict, Mode) :-
     (   get_dict(mode, Dict, M0), M0 \== null, ( string(M0) ; atom(M0) ),
-        atom_string(M, M0), memberchk(M, [contract, scenario, query])
+        atom_string(M, M0), memberchk(M, [contract, scenario, query, residue])
     ->  Mode = M
     ;   Mode = contract
     ).
@@ -426,6 +426,12 @@ fragment_program(_, Dict, Existing, Program) :-
 %
 %   The English to convert: the `text` field, or an uploaded text file.
 fragment_source_text(contract, _, _, none) :- !.
+fragment_source_text(residue, Dict, TextFile, Text) :- !,     % optional background
+    free_text(text, Dict, T0),
+    (   T0 \== none -> Text = T0
+    ;   TextFile \== none, exists_file(TextFile) -> read_text(TextFile, Text)
+    ;   Text = none
+    ).
 fragment_source_text(_, Dict, TextFile, Text) :-
     free_text(text, Dict, T0),
     (   T0 \== none
@@ -692,7 +698,9 @@ run_contract_pipeline(JobID) :-
 % scenario/query block for a program the user already has (fragment_stages/1).
 pipeline_for_mode(JobID) :-
     ca_config(JobID, Config),
-    (   fragment_mode(Config.get(mode, contract))
+    (   Config.get(mode, contract) == residue
+    ->  residue_stages(JobID)
+    ;   fragment_mode(Config.get(mode, contract))
     ->  fragment_stages(JobID)
     ;   pipeline_stages(JobID)
     ).
@@ -1299,6 +1307,399 @@ fragment_repair_loop(JobID, Config, Idx, Text, Iter, Best0, Streak0, Final, Scor
             best_result(Best, Final, Score)
         )
     ).
+
+% ======================= Residue mode: a fixed skeleton =======================
+%
+% The migration pipelines (le_writer.pl, le_migration.pl; InsurLE2/docs/
+% MiggratingFromOtherSystems.md §4.4) translate everything structural
+% deterministically and leave what has no deterministic reading — a rating
+% plugin, a Gosu method body, a helper function — as RESIDUE: a block in the
+% program, between two marker lines, holding the source fragment as comments:
+%
+%     % RESIDUE r3 BEGIN: the collision rating plugin
+%     %   source: plugins/rating.js lines 40-61
+%     %   javascript:
+%     %   | if (vehicle.age > 10) { premium = premium * 1.2; }
+%     % RESIDUE r3 END
+%
+% This mode fills in those blocks and nothing else. The skeleton — every line
+% outside the blocks — is FIXED: the reply is not a program but one LE block
+% per residue, which the job splices between the markers itself, so no reply
+% can touch the deterministic part, by construction. An optional
+% `% RESIDUE TEMPLATES BEGIN` / `END` region (in the templates section) is where
+% the templates a residue needs may be declared.
+%
+% The fitness function is the one of every other mode — verify, then the
+% program's own scenarios, which in a migration are the SOURCE's tests turned
+% into expectations (le_migration.pl) — with one addition from the fragment
+% modes: a test of the skeleton that passed before and fails after is an
+% error (`regression`), since the skeleton is right by construction.
+
+%!  residue_blocks(+Program, -Blocks) is det.
+%
+%   Blocks: res(Id, Title, SourceLines, BodyLines) in program order, where
+%   SourceLines are the block's comment lines and BodyLines its other lines
+%   (a placeholder, or an earlier translation).
+residue_blocks(Program, Blocks) :-
+    split_string(Program, "\n", "", Lines),
+    residue_scan(Lines, Blocks).
+
+residue_scan([], []).
+residue_scan([L|Ls], Blocks) :-
+    (   residue_begin(L, Id, Title)
+    ->  residue_take(Ls, Id, Inside, Rest),
+        partition(comment_line, Inside, Src, Body),
+        Blocks = [res(Id, Title, Src, Body)|More],
+        residue_scan(Rest, More)
+    ;   residue_scan(Ls, Blocks)
+    ).
+
+residue_take([], _, [], []).
+residue_take([L|Ls], Id, Inside, Rest) :-
+    (   residue_end(L, Id) -> Inside = [], Rest = Ls
+    ;   Inside = [L|In1], residue_take(Ls, Id, In1, Rest)
+    ).
+
+residue_begin(Line, Id, Title) :-
+    normalize_space(string(T), Line),
+    string_concat("% RESIDUE ", R0, T),
+    sub_string(R0, B, _, A, " BEGIN"),
+    sub_string(R0, 0, B, _, IdS), IdS \== "TEMPLATES", atom_string(Id, IdS),
+    sub_string(R0, _, A, 0, After),
+    ( string_concat(":", T1, After) -> normalize_space(string(Title), T1) ; Title = "" ).
+
+residue_end(Line, Id) :-
+    normalize_space(string(T), Line),
+    format(string(E), "% RESIDUE ~w END", [Id]),
+    T == E.
+
+comment_line(L) :- normalize_space(string(T), L), string_concat("%", _, T).
+
+%!  residue_splice(+Program, +Fills, -Filled) is det.
+%
+%   Fills: Id-Text pairs. Each block's non-comment lines are replaced by its
+%   fill (its source comments kept); a block with no fill keeps its lines.
+residue_splice(Program, Fills, Filled) :-
+    split_string(Program, "\n", "", Lines),
+    residue_splice_lines(Lines, Fills, Out),
+    atomic_list_concat(Out, "\n", Filled).
+
+residue_splice_lines([], _, []).
+residue_splice_lines([L|Ls], Fills, Out) :-
+    (   residue_begin(L, Id, _)
+    ->  residue_take(Ls, Id, Inside, Rest),
+        (   memberchk(Id-Fill, Fills)
+        ->  include(comment_line, Inside, Src),
+            split_string(Fill, "\n", "", FillLines0),
+            exclude(blank_line, FillLines0, FillLines),
+            append([[L], Src, FillLines], Block)
+        ;   Block = [L|Inside]
+        ),
+        format(string(EndL), "% RESIDUE ~w END", [Id]),
+        residue_splice_lines(Rest, Fills, More),
+        append(Block, [EndL|More], Out)
+    ;   Out = [L|More],
+        residue_splice_lines(Ls, Fills, More)
+    ).
+
+blank_line(L) :- normalize_space(string(""), L).
+
+%!  residue_fills(+Reply, +Ids, -Fills) is det.
+%
+%   The reply's blocks: a fence whose info line is `le residue <id>` (or
+%   `residue <id>`), for each id asked for; `templates` for the templates
+%   region.
+residue_fills(Reply, Ids, Fills) :-
+    findall(Id-Body,
+            ( fenced_block_with_info(Reply, Info, Body),
+              residue_info_id(Info, Id),
+              memberchk(Id, [templates|Ids]) ),
+            Fills0),
+    %  the last block given for an id wins (a model correcting itself)
+    reverse(Fills0, R), list_to_set_by_key(R, Fills).
+
+list_to_set_by_key([], []).
+list_to_set_by_key([K-V|Rest], [K-V|Out]) :-
+    exclude(same_residue_key(K), Rest, Rest1),
+    list_to_set_by_key(Rest1, Out).
+
+same_residue_key(K, K2-_) :- K2 == K.
+
+residue_info_id(Info, Id) :-
+    split_string(Info, " \t", " \t", Words0),
+    exclude(==(""), Words0, Words),
+    (   Words = ["le", "residue", IdS] -> true
+    ;   Words = ["residue", IdS] -> true
+    ;   Words = ["prolog", "residue", IdS]
+    ),
+    atom_string(Id, IdS).
+
+%   ```<info>\n<body>```, every fenced block of the reply with its info line.
+fenced_block_with_info(Reply, Info, Body) :-
+    atom_string(RA, Reply),
+    atomic_list_concat(Parts, '```', RA),
+    ( Parts = [_|Rest] -> odd_chunks(Rest, Chunks) ; Chunks = [] ),
+    member(Chunk0, Chunks),
+    atom_string(Chunk0, Chunk),
+    (   sub_string(Chunk, B, _, A, "\n")
+    ->  sub_string(Chunk, 0, B, _, Info0), sub_string(Chunk, _, A, 0, Body0)
+    ;   Info0 = Chunk, Body0 = ""
+    ),
+    normalize_space(string(Info), Info0),
+    Body = Body0.
+
+residue_stages(JobID) :-
+    ca_config(JobID, Config0),
+    ca_set_stage(JobID, 0, "Reading the skeleton and its residue"),
+    Program = Config0.program,
+    save_text_artifact(JobID, 'skeleton.le', Program),
+    residue_blocks(Program, Blocks),
+    length(Blocks, NBlocks),
+    (   NBlocks =:= 0
+    ->  throw(error(contract_assistant_error("the program has no residue blocks (% RESIDUE <id> BEGIN ... % RESIDUE <id> END): there is nothing for this mode to translate"), _))
+    ;   true
+    ),
+    findall(Id, member(res(Id, _, _, _), Blocks), Ids),
+    atomic_list_concat(Ids, ', ', IdsA),
+    ca_emit(JobID, "Skeleton: ~w residue block(s): ~w"-[NBlocks, IdsA]),
+    verify_le_text(Program, VBase),
+    score_summary(VBase, BaseSummary),
+    ca_emit(JobID, "The skeleton as it stands: ~w"-[BaseSummary]),
+    findall(Q-S, ( member(T, VBase.test_details), T.status == "pass",
+                   get_dict(query, T, Q), get_dict(scenario, T, S) ), Passing),
+    Config1 = Config0.put(_{residues: Blocks, residue_ids: Ids,
+                            baseline: _{passing: Passing}}),
+    residue_materials(Config1, Materials),
+    calibrate_and_estimate(JobID, Config1, Materials, Config2),
+    ca_set_stage(JobID, 2, "Translating the residue"),
+    NBranches = Config2.w,
+    numlist(1, NBranches, Idxs),
+    (   NBranches =:= 1
+    ->  maplist(run_residue_branch(JobID, Config2), Idxs, Branches0)
+    ;   concurrent_maplist(run_residue_branch(JobID, Config2), Idxs, Branches0)
+    ),
+    include(is_live_branch, Branches0, Branches),
+    (   Branches == []
+    ->  throw(error(contract_assistant_error("every attempt failed — see the run log"), _))
+    ;   true
+    ),
+    ca_set_stage(JobID, 6, "Selection & residue report"),
+    select_winner(JobID, Branches, branch(WIdx, WText, WScore)),
+    ca_emit(JobID, "Winner: attempt ~w (~w)"-[WIdx, WScore.summary]),
+    residue_report(Config2, WText, Report),
+    forall(member(R, Report),
+           ca_emit(JobID, "Residue ~w: ~w"-[R.id, R.status])),
+    save_text_artifact(JobID, 'winner.le', WText),
+    verify_le_text(WText, VFinal),
+    score_summary(VFinal, SummaryFinal),
+    branch_score(VFinal, SummaryFinal, FinalScore),
+    residue_ledger(Config2, Report, SummaryFinal, Ledger),
+    save_text_artifact(JobID, 'ledger.md', Ledger),
+    findall(SD, (member(branch(I, _, S), Branches), SD = S.put(branch, I)), AllScores),
+    Result = _{le: WText, filename: "program.le", mode: residue, winner: WIdx,
+               scores: AllScores, final_score: FinalScore, ledger: Ledger,
+               residue: Report,
+               interrogation: _{enabled: false}, paraphrase: _{enabled: false},
+               existing_code: _{enabled: false}},
+    save_json_artifact(JobID, 'scores.json',
+                       _{winner: WIdx, scores: AllScores, mode: residue, residue: Report}),
+    retractall(ca_result(JobID, _)),
+    assertz(ca_result(JobID, Result)).
+
+%   The skeleton, the residue to translate (each with its source), and the
+%   background text when one was given.
+residue_materials(Config, Materials) :-
+    findall(Block,
+            ( member(res(Id, Title, Src, _), Config.residues),
+              atomic_list_concat(Src, "\n", SrcT),
+              format(string(Block), "### Residue ~w: ~w\n\n```\n~w\n```", [Id, Title, SrcT]) ),
+            Blocks),
+    atomic_list_concat(Blocks, "\n\n", ResidueText),
+    (   Config.get(source_text, none) == none
+    ->  Background = ""
+    ;   format(string(Background), "\n\n### BACKGROUND (context only)\n\n~w", [Config.source_text])
+    ),
+    format(string(Materials),
+           "### THE SKELETON (fixed — every line outside the residue blocks stays as it is)\n\n```le\n~w\n```\n\n### THE RESIDUE TO TRANSLATE\n\n~w~w",
+           [Config.program, ResidueText, Background]).
+
+run_residue_branch(JobID, Config, Idx, Out) :-
+    catch(
+        run_residue_branch_(JobID, Config, Idx, Out),
+        BErr0,
+        (   BErr0 == contract_interrupt
+        ->  throw(BErr0)
+        ;   ( BErr0 = error(contract_assistant_error(BErr), _) -> true ; BErr = BErr0 ),
+            friendly_error(BErr, BErrS),
+            ca_emit(JobID, "Attempt ~w FAILED (~w)"-[Idx, BErrS]),
+            ca_set_branch(JobID, Idx, _{state: "failed", summary: BErrS}),
+            Out = failed(Idx)
+        )).
+
+run_residue_branch_(JobID, Config, Idx, branch(Idx, Final, Score)) :-
+    ca_set_branch(JobID, Idx, _{state: "drafting"}),
+    ca_check_alive(JobID),
+    residue_materials(Config, Materials),
+    instructions_block(Config, Instructions),
+    residue_ids_text(Config, IdsText),
+    ( Idx =:= 1 -> Temp = 0 ; Temp is 0.3 ),
+    stage_llm(JobID, Config, residue_draft(Idx), residue_style, 'residue_draft',
+              [ids-IdsText, instructions-Instructions, materials-Materials],
+              [temperature(Temp)], Reply),
+    residue_fills(Reply, Config.residue_ids, Fills),
+    length(Fills, NF),
+    ca_emit(JobID, "Attempt ~w: ~w residue block(s) drafted"-[Idx, NF]),
+    residue_repair_loop(JobID, Config, Idx, Fills, 0, none, 0, Final, Score),
+    branch_artifact_name(Idx, final, FinalName),
+    save_text_artifact(JobID, FinalName, Final),
+    ca_set_branch(JobID, Idx, _{state: "done", summary: Score.summary,
+                                errors: Score.errors, warnings: Score.warnings,
+                                tests_passed: Score.tests_passed,
+                                tests_failed: Score.tests_failed}).
+
+residue_ids_text(Config, Text) :-
+    findall(L, ( member(res(Id, Title, _, _), Config.residues),
+                 format(string(L), "- `~w`: ~w", [Id, Title]) ), Ls),
+    atomic_list_concat(Ls, "\n", Text).
+
+%!  residue_program(+Config, +Fills, -Program) is det.
+residue_program(Config, Fills, Program) :-
+    residue_splice(Config.program, Fills, Program0),
+    (   memberchk(templates-TFill, Fills)
+    ->  residue_templates_splice(Program0, TFill, Program)
+    ;   Program = Program0
+    ).
+
+%   The templates region: `% RESIDUE TEMPLATES BEGIN` ... `END`, or, without
+%   one, the end of the first templates section.
+residue_templates_splice(Program0, TFill, Program) :-
+    split_string(TFill, "\n", "", TL0), exclude(blank_line, TL0, TL1),
+    maplist(indent_template_line, TL1, TLines),
+    split_string(Program0, "\n", "", Lines),
+    (   append(Before, [B|After0], Lines),
+        normalize_space(string("% RESIDUE TEMPLATES BEGIN"), B)
+    ->  append(_, [E|After], After0),
+        normalize_space(string("% RESIDUE TEMPLATES END"), E), !,
+        append([Before, [B], TLines, [E], After], Out)
+    ;   append(Before, [H|After], Lines),
+        normalize_space(string(HT), H), le_i18n:kw_main_words(templates, TW),
+        atomic_list_concat(TW, ' ', TWA), format(string(HeaderS), "~w:", [TWA]), HT == HeaderS
+    ->  append([Before, [H], TLines, After], Out)
+    ;   Out = Lines
+    ),
+    atomic_list_concat(Out, "\n", Program).
+
+indent_template_line(L, I) :-
+    normalize_space(string(T), L), format(string(I), "    ~w", [T]).
+
+residue_verify(Config, Fills, Program, V) :-
+    residue_program(Config, Fills, Program),
+    verify_le_text(Program, V0),
+    %  a skeleton test that passed and no longer does
+    findall(Q-S,
+            ( member(Q-S, Config.baseline.passing),
+              \+ ( member(D, V0.test_details), D.status == "pass",
+                   get_dict(query, D, Q), get_dict(scenario, D, S) ) ),
+            Broken),
+    maplist(residue_regression_issue, Broken, RIs),
+    findall(I, ( member(res(Id, _, _, _), Config.residues), \+ memberchk(Id-_, Fills),
+                 format(string(M), "Residue ~w has no translation: give it a ```le residue ~w``` block (or, if it truly has no LE reading, a block holding only a comment that says why).", [Id, Id]),
+                 I = _{severity: "warning", type: "residue_open", message: M, fix: "", line: 0, source: ""} ),
+            Open),
+    append([RIs, Open, V0.issues], Issues),
+    partition_severity(Issues, NE, NW),
+    V = V0.put(_{issues: Issues, errors: NE, warnings: NW}).
+
+residue_regression_issue(Q-S, _{severity: "error", type: "regression", message: Msg,
+                                fix: "The skeleton is right by construction: change the residue, not the expectation.",
+                                line: 0, source: ""}) :-
+    format(string(Msg), "A test of the skeleton that passed without your residue fails with it: query '~w' in scenario '~w'.", [Q, S]).
+
+residue_repair_loop(JobID, Config, Idx, Fills, Iter, Best0, Streak0, Final, Score) :-
+    residue_verify(Config, Fills, Program, V),
+    score_summary(V, Summary),
+    ca_set_branch(JobID, Idx, _{state: "repairing", iteration: Iter, summary: Summary,
+                                errors: V.errors, warnings: V.warnings,
+                                tests_passed: V.tests_passed, tests_failed: V.tests_failed}),
+    ca_emit(JobID, "Attempt ~w iteration ~w: ~w"-[Idx, Iter, Summary]),
+    Cand = cand(Program, V, Summary),
+    best_of(Best0, Cand, Best),
+    ( ( Best0 == none ; Best == Cand ) -> Streak = 0 ; Streak is Streak0 + 1 ),
+    Patience = Config.repairs,
+    HardCap is max(2 * Patience, 6),
+    (   V.errors =:= 0, V.tests_failed =:= 0,
+        \+ ( member(I, V.issues), get_dict(type, I, "residue_open") )
+    ->  Final = Program, branch_score(V, Summary, Score)
+    ;   Streak >= Patience
+    ->  ca_emit(JobID, "Attempt ~w: no improvement in ~w round(s), keeping the best"-[Idx, Streak]),
+        best_result(Best, Final, Score)
+    ;   Iter >= HardCap
+    ->  ca_emit(JobID, "Attempt ~w: repair cap (~w) reached, keeping the best"-[Idx, HardCap]),
+        best_result(Best, Final, Score)
+    ;   deadline_exceeded(Config)
+    ->  ca_emit(JobID, "Attempt ~w: wall-clock budget exhausted, keeping the best"-[Idx]),
+        best_result(Best, Final, Score)
+    ;   ca_check_alive(JobID),
+        format_verify_feedback(V, Feedback),
+        residue_fills_text(Fills, Current),
+        residue_materials(Config, Materials),
+        instructions_block(Config, Instructions),
+        residue_ids_text(Config, IdsText),
+        catch(( stage_llm(JobID, Config, residue_repair(Idx, Iter), residue_style, 'residue_repair',
+                          [ids-IdsText, current-Current, feedback-Feedback,
+                           instructions-Instructions, program-Program, materials-Materials],
+                          [temperature(0)], Reply),
+                Next = reply(Reply) ),
+              error(contract_assistant_error(_), _),
+              Next = failed),
+        (   Next = reply(R)
+        ->  residue_fills(R, Config.residue_ids, New),
+            %  a block the reply does not repeat keeps its current text
+            findall(K-T, ( member(K-T, Fills), \+ memberchk(K-_, New) ), Kept),
+            append(New, Kept, Fills1),
+            length(New, NN),
+            ca_emit(JobID, "Attempt ~w repair ~w: ~w block(s) replaced"-[Idx, Iter, NN]),
+            Iter1 is Iter + 1,
+            residue_repair_loop(JobID, Config, Idx, Fills1, Iter1, Best, Streak, Final, Score)
+        ;   ca_emit(JobID, "Attempt ~w: repair call failed; keeping the best"-[Idx]),
+            best_result(Best, Final, Score)
+        )
+    ).
+
+residue_fills_text(Fills, Text) :-
+    findall(B, ( member(Id-T, Fills),
+                 format(string(B), "```le residue ~w\n~w\n```", [Id, T]) ), Bs),
+    ( Bs == [] -> Text = "(none yet)" ; atomic_list_concat(Bs, "\n\n", Text) ).
+
+%!  residue_report(+Config, +Program, -Report) is det.
+%
+%   Per residue: translated (LE statements in the block), declined (only a
+%   comment: the model says it has no LE reading), or open (untouched).
+residue_report(Config, Program, Report) :-
+    residue_blocks(Program, Blocks),
+    findall(_{id: IdS, title: T, status: St, lines: N},
+            ( member(res(Id, T, _, _), Config.residues),
+              ( member(res(Id, _, Src, Body), Blocks) -> true ; Src = [], Body = [] ),
+              exclude(blank_line, Body, Stmts),
+              length(Stmts, N),
+              length(Src, NSrc), Src0 = Config.residues,
+              once(member(res(Id, _, OrigSrc, _), Src0)), length(OrigSrc, NOrig),
+              (   N > 0 -> St = "translated"
+              ;   NSrc > NOrig -> St = "declined (explained in a comment)"
+              ;   St = "open"
+              ),
+              atom_string(Id, IdS) ),
+            Report).
+
+residue_ledger(Config, Report, Summary, Ledger) :-
+    findall(L, ( member(R, Report),
+                 format(string(L), "| ~w | ~w | ~w | ~w |", [R.id, R.title, R.status, R.lines]) ),
+            Rows),
+    atomic_list_concat(Rows, "\n", RowsT),
+    length(Config.residues, N),
+    format(string(Ledger),
+           "# Residue translation\n\n~w residue block(s); the delivered program: ~w.\n\n| Residue | Source | Status | LE lines |\n|---|---|---|---|\n~w\n\nThe skeleton (every line outside the residue blocks) was not changed: the replies were spliced between the markers by the job itself.\n",
+           [N, Summary, RowsT]).
 
 % ------------------------- Exercising the fragment ---------------------------
 
