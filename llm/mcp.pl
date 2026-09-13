@@ -449,6 +449,41 @@ call_tool("list_examples", _Args, Result) :-
     list_examples_with_summaries(Dir, '', Examples),
     Result = _{examples: Examples}.
 
+call_tool("get_example_details", Args, Result) :-
+    get_dict(example_name, Args, ExampleName),
+    % le_example_relpath also resolves per-language names ('pt/cidadania' ->
+    % examples/pt/cidadania); relative paths are fine, the server runs from
+    % the repo root.
+    le_kbs:le_example_relpath(ExampleName, Path0),
+    (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
+    % Read the metadata under a module reference (and retry if the module was
+    % reclaimed between load and reference) — same race as the listing above.
+    % The goal is explicitly mcp-qualified: relying on compile-time
+    % meta-argument qualification across the explicit le_kbs: call proved
+    % fragile (the goal ran in the wrong module and the catch masked it).
+    between(1, 3, _),
+    le_kbs:load(Path, KB),
+    (   catch(le_kbs:with_kb_reference(KB, mcp:example_details_result(KB, Result0)), _, fail)
+    ->  !, Result = Result0
+    ;   fail
+    ).
+
+call_tool("query", Args, Result) :-
+    le_tools:le_tool_query(Args, Result).
+
+call_tool("verify", Args, Result) :-
+    le_tools:le_tool_verify(Args, Result).
+
+call_tool(ToolName, _Args, Result) :-
+    format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
+    format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify.", [ToolName]),
+    Result = _{error: Msg}.
+
+example_details_result(KB, Result) :-
+    le_kbs:get_kb_metadata(KB, Metadata),
+    ( current_predicate(KB:scenario/2) -> findall(_{name: Name}, KB:scenario(Name, _), Scenarios); Scenarios = []),
+    Result = Metadata.put(_{scenarios: Scenarios}).
+
 %   Seconds a listing may spend loading programs for their summaries. A
 %   summary is cached per file (le_kbs:kb_summary_safe/3), but the first
 %   listing of a large tree would load every program in it — minutes, with
@@ -492,41 +527,6 @@ comment_prefix([L0|Ls], Cs) :-
     ;   string_concat("%", C0, L) -> normalize_space(string(C), C0), Cs = [C|More], comment_prefix(Ls, More)
     ;   Cs = []
     ).
-
-call_tool("get_example_details", Args, Result) :-
-    get_dict(example_name, Args, ExampleName),
-    % le_example_relpath also resolves per-language names ('pt/cidadania' ->
-    % examples/pt/cidadania); relative paths are fine, the server runs from
-    % the repo root.
-    le_kbs:le_example_relpath(ExampleName, Path0),
-    (exists_file(Path0) -> Path = Path0; atom_concat(Path0, '.le', Path), exists_file(Path)),
-    % Read the metadata under a module reference (and retry if the module was
-    % reclaimed between load and reference) — same race as the listing above.
-    % The goal is explicitly mcp-qualified: relying on compile-time
-    % meta-argument qualification across the explicit le_kbs: call proved
-    % fragile (the goal ran in the wrong module and the catch masked it).
-    between(1, 3, _),
-    le_kbs:load(Path, KB),
-    (   catch(le_kbs:with_kb_reference(KB, mcp:example_details_result(KB, Result0)), _, fail)
-    ->  !, Result = Result0
-    ;   fail
-    ).
-
-call_tool("query", Args, Result) :-
-    le_tools:le_tool_query(Args, Result).
-
-call_tool("verify", Args, Result) :-
-    le_tools:le_tool_verify(Args, Result).
-
-call_tool(ToolName, _Args, Result) :-
-    format(user_error, "MCP Error: Unknown tool called: ~w~n", [ToolName]),
-    format(string(Msg), "Unknown tool: ~w. Available tools are: list_examples, get_example_details, query, verify.", [ToolName]),
-    Result = _{error: Msg}.
-
-example_details_result(KB, Result) :-
-    le_kbs:get_kb_metadata(KB, Metadata),
-    ( current_predicate(KB:scenario/2) -> findall(_{name: Name}, KB:scenario(Name, _), Scenarios); Scenarios = []),
-    Result = Metadata.put(_{scenarios: Scenarios}).
 
 %!  list_examples_with_summaries(+Dir:atom, +Prefix:atom, -Examples:list) is det.
 %
