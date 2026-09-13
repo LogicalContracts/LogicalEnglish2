@@ -1,0 +1,392 @@
+% Transcutaneous Electrical Nerve Stimulators (TENS): LCD L33802 and its
+% Policy Article A52520 (DME MACs). A policy program of the DMEPOS model: it
+% includes dmepos.le (orders, delivery, benefit category, continued need,
+% refills) and states when a claim for a TENS unit — two lead (E0720) or
+% four or more lead (E0730) — a conductive garment (E0731), the monthly
+% supply allowance (A4595) or replacement lead wires (A4557) is REASONABLE
+% AND NECESSARY:
+%   I. acute post-operative pain: one month's rental, within 30 days of the
+%      day of surgery (an acute pain of any other kind has no rule: "A TENS
+%      unit will be denied as not reasonable and necessary for acute pain
+%      (less than three months duration) other than for post-operative
+%      pain");
+%   II. chronic, intractable pain other than chronic low back pain: an
+%      etiology accepted as responding to TENS, pain present for at least
+%      three months, other appropriate treatment modalities tried and
+%      failed — used first on a TRIAL of one to two months, paid as a
+%      rental and monitored by the treating practitioner, and PURCHASED
+%      after the trial when the treating practitioner determines that the
+%      beneficiary is likely to derive significant therapeutic benefit from
+%      continuous use over a long period (chronic low back pain has no
+%      rule: "TENS therapy for Chronic Low Back Pain (CLBP) will be denied
+%      as not reasonable and necessary");
+%   the four-lead unit ordered for use with four leads needs the record to
+%   say why two are insufficient; the supplies are covered with a purchased
+%   unit within the usual maximum (one unit of A4595 per month with two
+%   leads, two with four), the lead wires at most every twelve months, and
+%   the conductive garment when prescribed for covered TENS treatment and
+%   medically indicated — not during the trial unless a skin problem was
+%   documented before it.
+% The ordering practitioner must be the treating practitioner for the
+% condition: a fact of the order.
+%
+% How the criteria are read. The facts of a claim are what the record
+% shows: the surgery and its date, the location, severity, duration and
+% presumed etiology of the pain, the days of the trial, the leads the unit
+% is ordered for, the last replacement of the lead wires, the skin problem.
+% Four criteria are clinical judgments of the treating practitioner,
+% accepted or rejected on review — the judged template of dmepos.le, "the
+% finding F about B is established" (or unsupported), with who found it and
+% why. The findings this policy reads, and the criterion each stands for:
+%   pain etiology responds to stimulation (II.1: the presumed etiology of
+%   the pain is a type accepted as responding to TENS therapy — the LCD's
+%   examples of etiologies that are not: headache, visceral abdominal
+%   pain, pelvic pain, temporomandibular joint pain);
+%   other treatment modalities failed (II.3: other appropriate treatment
+%   modalities tried and failed);
+%   long term benefit likely (the purchase: the treating practitioner's
+%   determination, after the trial, that the beneficiary is likely to
+%   derive significant therapeutic benefit from continuous use of the unit
+%   over a long period of time);
+%   conductive garment medically indicated (E0731: one of the four
+%   indications — a large area or many sites stimulated so frequently that
+%   conventional electrodes are not feasible; sites inaccessible to
+%   conventional electrodes; a skin problem precluding them; stimulation
+%   beneath a cast).
+% The trial is two months at most in the rental (months 1 and 2) and at
+% least 30 days before the purchase; a claim with no rental month is a
+% purchase. The documentation the Policy Article requires of the record
+% (for acute pain: the date and nature of the surgery, the location and
+% severity of the pain; for chronic pain: the location, severity, duration
+% and presumed etiology of the pain and the prior treatment with its
+% results; for the purchase: the reevaluation at the end of the trial
+% stating how often the unit was used, for how long each time and with
+% what results; for the garment: the brand, name and model number on the
+% claim) is the policy's own condition of payment, in section remedy. Not
+% modelled: the reduced billing of supplies used less than daily; the
+% certificate of medical necessity (CMS Form 848) of a purchase before
+% 2023; the KX/GA/GZ modifiers; the garment with an acute post-operative
+% unit (whose one-month rental includes its supplies).
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the order for *an item* was written by the treating practitioner for the condition justifying the need; undefined.
+    *a beneficiary* has acute post-operative pain from surgery on *a date*; undefined.
+    the medical record of *a beneficiary* documents the nature of the surgery; undefined.
+    the location of the pain of *a beneficiary* is *a location*; undefined.
+    the severity of the pain of *a beneficiary* is *a severity*; undefined.
+    the pain of *a beneficiary* has been present for *a number* months; undefined.
+    the presumed etiology of the pain of *a beneficiary* is *an etiology*; undefined.
+    the medical record of *a beneficiary* documents the prior treatment of the pain and its results; undefined.
+    the trial of *an item* is monitored by the treating practitioner; undefined.
+    *a beneficiary* used *an item* on a trial basis for *a number* days; undefined.
+    the reevaluation of *a beneficiary* at the end of the trial period documents how the unit was used and its results; undefined.
+    *an item* is ordered for use with *a number* leads; undefined.
+    the medical record documents why two leads are insufficient for *a beneficiary*; undefined.
+    the lead wires of *a device* were last replaced on *a date*; undefined.
+    *an item* is prescribed by the treating practitioner for use in delivering covered TENS treatment; undefined.
+    the medical record of *a beneficiary* documents a skin problem prior to the start of the trial period; undefined.
+    *a claim* states the brand, name and model number of *an item*; undefined.
+    % derived
+    *an item* is a TENS unit.
+    *a beneficiary* meets the chronic pain criteria for TENS.
+    the lead configuration of *an item* is justified.
+    *an item* is a TENS unit on a covered trial.
+    *an item* is a TENS unit covered for purchase.
+    the usual maximum of TENS supplies per month for *a device* is *a number*.
+    *a claim* is within the usual maximum of TENS supplies.
+    the last replacement of the lead wires of *a device* was on *a date*.
+    the medical record of *a beneficiary* demonstrates the TENS coverage criteria for *a claim*.
+    the chronic pain record of *a beneficiary* is complete.
+    *a claim* identifies *an item* as the Policy Article requires.
+
+the knowledge base tens includes these resources:
+    dmepos.
+
+the knowledge base tens includes:
+
+LCD L33802 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=33802".
+the text of LCD L33802 is at "sources/lcd/L33802.txt".
+Policy Article A52520 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52520".
+the text of Policy Article A52520 is at "sources/article/A52520.txt".
+
+% What a TENS unit is.
+rule tens_unit with provenance Policy Article A52520,
+        confer "A transcutaneous electrical nerve stimulator (TENS) (E0720, E0730) is a device that utilizes electrical current delivered through electrodes placed on the surface of the skin to decrease the patient's perception of pain":
+an item is a TENS unit
+    if the HCPCS code of the item is a code
+    and the code is in ["E0720", "E0730"].
+
+section applicability is:
+
+% The codes this policy decides, and their benefit: durable medical
+% equipment (Policy Article A52520).
+rule tens_codes with provenance Policy Article A52520,
+        confer "Transcutaneous electrical nerve stimulation (TENS) equipment is covered under the Durable Medical Equipment benefit":
+the policy for code a code is tens
+    if the code is in ["E0720", "E0730", "E0731", "A4595", "A4557"].
+
+rule tens_benefit with provenance Policy Article A52520,
+        confer "Transcutaneous electrical nerve stimulation (TENS) equipment is covered under the Durable Medical Equipment benefit":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is tens.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% I. Acute post-operative pain: one month's rental within 30 days of the
+% surgery.
+% ---------------------------------------------------------------------------
+
+rule tens_acute with provenance LCD L33802,
+        confer "TENS is covered for acute post-operative pain. Coverage is limited to 30 days (one month's rental) from the day of surgery. Payment will be made only as a rental":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a TENS unit
+    and the item is furnished to a beneficiary
+    and the order for the item was written by the treating practitioner for the condition justifying the need
+    and the beneficiary has acute post-operative pain from surgery on a date
+    and the rental month of the claim is 1
+    and the date of service of the claim is an other date
+    and the other date is a number days after the date
+    and the number >= 0
+    and the number <= 30.
+
+% ---------------------------------------------------------------------------
+% II. Chronic pain other than low back pain: the trial rental, then the
+% purchase.
+% ---------------------------------------------------------------------------
+
+rule tens_trial with provenance LCD L33802,
+        confer "the TENS unit must be used by the beneficiary on a trial basis for a minimum of one month (30 days), but not to exceed two months. The trial period will be paid as a rental":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the item is a TENS unit on a covered trial
+    and the rental month of the claim is a number
+    and the number <= 2.
+
+rule tens_purchase with provenance LCD L33802,
+        confer "For coverage of a purchase, the treating practitioner must determine that the beneficiary is likely to derive significant therapeutic benefit from continuous use of the unit over a long period of time":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and it is not the case that
+        the rental month of the claim is a number
+    and the item is a TENS unit covered for purchase.
+
+% The trial: the chronic pain criteria, the order, the practitioner's
+% monitoring, the leads.
+rule tens_trial_criteria with provenance LCD L33802,
+        confer "The trial period must be monitored by the treating practitioner to determine the effectiveness of the TENS unit in modulating the pain":
+an item is a TENS unit on a covered trial
+    if the item is a TENS unit
+    and the item is furnished to a beneficiary
+    and the order for the item was written by the treating practitioner for the condition justifying the need
+    and the beneficiary meets the chronic pain criteria for TENS
+    and the trial of the item is monitored by the treating practitioner
+    and the lead configuration of the item is justified.
+
+% The purchase: a covered trial of at least 30 days, and the practitioner's
+% determination.
+rule tens_purchase_criteria with provenance LCD L33802,
+        confer "For coverage of a purchase, the treating practitioner must determine that the beneficiary is likely to derive significant therapeutic benefit from continuous use of the unit over a long period of time":
+an item is a TENS unit covered for purchase
+    if the item is a TENS unit on a covered trial
+    and the item is furnished to a beneficiary
+    and the beneficiary used the item on a trial basis for a number days
+    and the number >= 30
+    and the finding long term benefit likely about the beneficiary is established.
+
+% The chronic pain criteria: the etiology, not low back pain, three months,
+% the other modalities.
+rule tens_chronic_criteria with provenance LCD L33802,
+        confer "TENS is covered for chronic, intractable pain other than chronic low back pain when all of the following criteria must be met":
+a beneficiary meets the chronic pain criteria for TENS
+    if the finding pain etiology responds to stimulation about the beneficiary is established
+    and the location of the pain of the beneficiary is a location
+    and it is not the case that
+        the location of the pain of the beneficiary is low back
+    and the pain of the beneficiary has been present for a number months
+    and the number >= 3
+    and the finding other treatment modalities failed about the beneficiary is established.
+
+% The passages of the criteria the finding and the number stand for: "The
+% presumed etiology of the pain must be a type that is accepted as
+% responding to TENS therapy"; "The pain must have been present for at
+% least three months"; "Other appropriate treatment modalities must have
+% been tried and failed"; "TENS therapy for Chronic Low Back Pain (CLBP)
+% will be denied as not reasonable and necessary".
+
+% The leads: a unit ordered for four leads needs the record to say why two
+% are insufficient; any other order is justified as it stands.
+rule tens_leads_four with provenance LCD L33802,
+        confer "If it is ordered for use with 4 leads, the medical record must document why 2 leads are insufficient to meet the beneficiary’s needs":
+the lead configuration of an item is justified
+    if the item is ordered for use with 4 leads
+    and the item is furnished to a beneficiary
+    and the medical record documents why two leads are insufficient for the beneficiary.
+
+rule tens_leads_two with provenance LCD L33802,
+        confer "A 4-lead TENS unit may be used with either 2 leads or 4 leads, depending on the characteristics of the beneficiary's pain":
+the lead configuration of an item is justified
+    if the item is a TENS unit
+    and it is not the case that
+        the item is ordered for use with 4 leads.
+
+% ---------------------------------------------------------------------------
+% Supplies: with a purchased unit, within the usual maximum; lead wires at
+% most every twelve months (365 days).
+% ---------------------------------------------------------------------------
+
+rule tens_supplies with provenance LCD L33802,
+        confer "Separate allowance will be made for replacement supplies when they are reasonable and necessary and are used with a covered TENS":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4595"
+    and the item is an accessory of a device
+    and the device is a TENS unit covered for purchase
+    and the claim is within the usual maximum of TENS supplies.
+
+rule tens_supply_maximum with provenance LCD L33802,
+        confer "Usual maximum utilization is":
+a claim is within the usual maximum of TENS supplies
+    if the claim is for an item
+    and the item is an accessory of a device
+    and the usual maximum of TENS supplies per month for the device is a number
+    and the claim is for a supply of an other number months
+    and the quantity billed on the claim is a third number
+    and a limit is the number * the other number
+    and the third number <= the limit.
+
+rule tens_maximum_two_leads with provenance LCD L33802,
+        confer "2 TENS leads - a maximum of one unit of A4595 per month":
+the usual maximum of TENS supplies per month for a device is 1
+    if the device is a TENS unit
+    and it is not the case that
+        the device is ordered for use with 4 leads.
+
+rule tens_maximum_four_leads with provenance LCD L33802,
+        confer "4 TENS leads - a maximum of two units of A4595 per month":
+the usual maximum of TENS supplies per month for a device is 2
+    if the device is ordered for use with 4 leads.
+
+rule tens_lead_wires with provenance LCD L33802,
+        confer "Replacement of lead wires (A4557) more often than every 12 months would rarely be reasonable and necessary":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "A4557"
+    and the item is an accessory of a device
+    and the device is a TENS unit covered for purchase
+    and the date of service of the claim is a date
+    and the last replacement of the lead wires of the device was on an other date
+    and the date is a number days after the other date
+    and the number >= 365.
+
+rule tens_last_replacement_recorded with provenance LCD L33802,
+        confer "Replacement of lead wires (A4557) more often than every 12 months would rarely be reasonable and necessary":
+the last replacement of the lead wires of a device was on a date
+    if the lead wires of the device were last replaced on the date.
+
+% the purchased unit came with its lead wires: the delivery of the unit is
+% the first replacement date
+rule tens_last_replacement_purchase with provenance Policy Article A52520,
+        confer "If a TENS unit (E0720 or E0730) is purchased, the allowance is all-inclusive of items such as lead wires":
+the last replacement of the lead wires of a device was on a date
+    if the device was delivered on the date
+    and it is not the case that
+        the lead wires of the device were last replaced on an other date.
+
+% ---------------------------------------------------------------------------
+% The conductive garment (E0731).
+% ---------------------------------------------------------------------------
+
+rule tens_garment_after_trial with provenance LCD L33802,
+        confer "A conductive garment (E0731) used with a TENS unit is rarely reasonable and necessary, but is covered only if all of the following conditions are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0731"
+    and the item is an accessory of a device
+    and the device is a TENS unit covered for purchase
+    and the item is prescribed by the treating practitioner for use in delivering covered TENS treatment
+    and the device is furnished to a beneficiary
+    and the finding conductive garment medically indicated about the beneficiary is established.
+
+rule tens_garment_during_trial with provenance LCD L33802,
+        confer "A conductive garment is not covered for use with a TENS device during the trial period unless":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0731"
+    and the item is an accessory of a device
+    and the device is a TENS unit on a covered trial
+    and the item is prescribed by the treating practitioner for use in delivering covered TENS treatment
+    and the device is furnished to a beneficiary
+    and the finding conductive garment medically indicated about the beneficiary is established
+    and the medical record of the beneficiary documents a skin problem prior to the start of the trial period.
+
+% The passages of the garment's indications the finding stands for: "There
+% is such a large area or so many sites to be stimulated"; "the areas or
+% sites to be stimulated are inaccessible with the use of conventional
+% electrodes, adhesive tapes, and lead wires"; "The beneficiary has a
+% documented medical condition, such as skin problems, that preclude the
+% application of conventional electrodes, adhesive tapes, and lead wires";
+% "The beneficiary requires electrical stimulation beneath a cast to treat
+% chronic intractable pain".
+
+section remedy is:
+
+% The policy's own condition of payment: the record holds the information
+% the Policy Article lists for the kind of claim, and a garment claim names
+% the garment.
+rule tens_documentation with provenance Policy Article A52520,
+        confer "For all claims for TENS and related supplies there must be information in the medical record demonstrating that the coverage criteria are met":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is tens
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the medical record of the beneficiary demonstrates the TENS coverage criteria for the claim
+    and the claim identifies the item as the Policy Article requires.
+
+rule tens_record_acute with provenance Policy Article A52520,
+        confer "For acute post-operative pain covered under criterion I of the related LCD, there must be information about: The date of surgery The nature of the surgery The location and severity of the pain":
+the medical record of a beneficiary demonstrates the TENS coverage criteria for a claim
+    if the beneficiary has acute post-operative pain from surgery on a date
+    and the medical record of the beneficiary documents the nature of the surgery
+    and the location of the pain of the beneficiary is a location
+    and the severity of the pain of the beneficiary is a severity.
+
+rule tens_record_trial with provenance Policy Article A52520,
+        confer "For chronic pain covered under criterion II of the related LCD, there must be information in the medical record describing":
+the medical record of a beneficiary demonstrates the TENS coverage criteria for a claim
+    if the rental month of the claim is a number
+    and the chronic pain record of the beneficiary is complete.
+
+rule tens_record_purchase with provenance Policy Article A52520,
+        confer "Reevaluation of the beneficiary at the end of the trial period, must indicate How often the beneficiary used the TENS unit The typical duration of use each time The results (effectiveness of therapy)":
+the medical record of a beneficiary demonstrates the TENS coverage criteria for a claim
+    if it is not the case that
+        the rental month of the claim is a number
+    and the chronic pain record of the beneficiary is complete
+    and the reevaluation of the beneficiary at the end of the trial period documents how the unit was used and its results.
+
+rule tens_record_chronic with provenance Policy Article A52520,
+        confer "The location of the pain The severity of the pain The duration of time the beneficiary has had the pain The presumed etiology of the pain Prior treatment and results of that treatment":
+the chronic pain record of a beneficiary is complete
+    if the location of the pain of the beneficiary is a location
+    and the severity of the pain of the beneficiary is a severity
+    and the pain of the beneficiary has been present for a number months
+    and the presumed etiology of the pain of the beneficiary is an etiology
+    and the medical record of the beneficiary documents the prior treatment of the pain and its results.
+
+rule tens_garment_identified with provenance Policy Article A52520,
+        confer "Each claim for code E0731 must be accompanied by the brand, name and model number of the conductive garment":
+a claim identifies an item as the Policy Article requires
+    if the HCPCS code of the item is "E0731"
+    and the claim states the brand, name and model number of the item.
+
+rule tens_other_identified with provenance Policy Article A52520,
+        confer "Each claim for code E0731 must be accompanied by the brand, name and model number of the conductive garment":
+a claim identifies an item as the Policy Article requires
+    if the HCPCS code of the item is a code
+    and it is not the case that
+        the code is "E0731".

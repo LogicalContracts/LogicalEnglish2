@@ -1,0 +1,281 @@
+% Tumor Treatment Field Therapy (TTFT): LCD L34823 and its Policy Article
+% A52711 (DME MACs). A policy program of the DMEPOS model: it includes
+% dmepos.le (orders, delivery, benefit category, continued need and use,
+% refills) and states when a monthly rental claim for a tumor treatment
+% field therapy device (E0766, in the frequent and substantial service
+% payment category: one monthly amount for the device and all its supplies)
+% is REASONABLE AND NECESSARY:
+%   - initial coverage (the first three months) for a newly diagnosed
+%     glioblastoma multiforme (GBM), all of: (1) a histologically confirmed,
+%     newly diagnosed, supratentorial GBM (a WHO grade IV astrocytoma — the
+%     grade is a number in the record); (2) initial treatment with maximal
+%     debulking surgery (when feasible) followed by chemotherapy and
+%     radiotherapy; (3) therapy initiated within 7 weeks (49 days) of the
+%     last dose of concomitant chemotherapy or radiotherapy, whichever is
+%     later; (4) no evidence of progression by the RANO criteria; (5) a
+%     Karnofsky Performance Score (a number) of at least 70; (6) the
+%     beneficiary will use the device an average of 18 hours per day;
+%   - continued coverage beyond the third month: the initial criteria, and
+%     an in-person clinical re-evaluation by the treating practitioner no
+%     sooner than the 60th and no later than the 91st day after therapy
+%     began, with objective evidence of adherence (an average use of at
+%     least 18 hours per day in the usage data the practitioner reviewed);
+%     a later re-evaluation that shows the same restores coverage from its
+%     date;
+%   - a beneficiary entering fee-for-service Medicare while on TTFT for a
+%     newly diagnosed GBM (after the initial surgery and chemoradiation): an
+%     in-person evaluation after the enrollment, the adherence, and the
+%     benefit.
+% Recurrent GBM and every other indication are denied: no rule concludes
+% them (the record does not say newly diagnosed). The benefit is durable
+% medical equipment (Policy Article A52711, Social Security Act
+% §1861(s)(6)).
+%
+% How the criteria are read. What the record states is a scenario fact:
+% the WHO grade, the GBM newly diagnosed and supratentorial, the surgery (or
+% that it was not feasible), the dates of the last doses of chemotherapy and
+% of radiotherapy, the Karnofsky score, the dates of the re-evaluations, the
+% average daily use in the usage data, the enrollment in fee-for-service
+% Medicare. Therapy is taken to begin on the day the device is delivered
+% (as in pap.le). Seven weeks are read as 49 days. The findings (the judged
+% template of dmepos.le), and the criterion each stands for:
+%   disease progression absent (4: no evidence of progression by the RANO
+%   criteria); full daily use expected (6: will use the device an average of
+%   18 hours per day); deriving benefit from therapy (the beneficiary
+%   entering Medicare: the practitioner documents that the beneficiary is
+%   deriving benefit from the therapy).
+% The Policy Article has no ICD-10 table in sources/icd10 (none is loaded).
+%
+% The payment conditions the Policy Article adds, in section remedy: the
+% diagnosis code on each claim for E0766 (its "Miscellaneous"); for a claim
+% beyond the third month, the usage data in a written report reviewed by the
+% treating practitioner and included in the medical record.
+%
+% Not modelled: the days the practitioner documented a medical need to
+% limit or interrupt treatment (excluded from the average: the recorded
+% average is taken as already excluding them); the KX, GA, GZ and KF
+% modifiers; the proof of delivery of equipment retained from a prior payer.
+
+the target language is: prolog.
+
+the templates are:
+    % the record
+    the WHO grade of the histologically confirmed astrocytoma of *a beneficiary* is *a number*; undefined.
+    the glioblastoma of *a beneficiary* is newly diagnosed; undefined.
+    the glioblastoma of *a beneficiary* is supratentorial; undefined.
+    *a beneficiary* had maximal debulking surgery of the glioblastoma; undefined.
+    debulking surgery was not feasible for *a beneficiary*; undefined.
+    the last dose of concomitant chemotherapy of *a beneficiary* was on *a date*; undefined.
+    the last dose of concomitant radiotherapy of *a beneficiary* was on *a date*; undefined.
+    the Karnofsky performance score of *a beneficiary* is *a number*; undefined.
+    *a beneficiary* had an in person clinical reevaluation by the treating practitioner on *a date*; undefined.
+    the average daily use of *an item* in the usage data reviewed by the treating practitioner is *a number* hours; undefined.
+    *a beneficiary* was receiving tumor treatment field therapy before enrolling in fee for service Medicare; undefined.
+    *a beneficiary* enrolled in fee for service Medicare on *a date*; undefined.
+    the medical record of *a beneficiary* includes the written usage report reviewed by the treating practitioner; undefined.
+    % candidate for dmepos.le (also a template of afo_kafo.le and knee_orthoses.le)
+    *a claim* states the diagnosis code of the beneficiary; undefined.
+    % derived
+    *a beneficiary* has a newly diagnosed supratentorial glioblastoma.
+    *a beneficiary* received the initial treatment of the glioblastoma.
+    *a beneficiary* had debulking surgery when feasible.
+    the end of chemoradiation of *a beneficiary* is *a date*.
+    tumor treatment field therapy with *an item* was initiated on *a date*.
+    *an item* meets the initial TTFT coverage criteria.
+    *an item* meets the TTFT continued coverage criteria for *a claim*.
+    *a beneficiary* adheres to therapy with *an item*.
+    the usage report requirement is met for *a claim*.
+
+the knowledge base tumor_treatment_field includes these resources:
+    dmepos.
+
+the knowledge base tumor_treatment_field includes:
+
+LCD L34823 is published at "https://www.cms.gov/medicare-coverage-database/view/lcd.aspx?lcdid=34823".
+the text of LCD L34823 is at "sources/lcd/L34823.txt".
+Policy Article A52711 is published at "https://www.cms.gov/medicare-coverage-database/view/article.aspx?articleid=52711".
+the text of Policy Article A52711 is at "sources/article/A52711.txt".
+
+% therapy starts with the delivery of the device: a device of this model
+rule ttft_initiation:
+tumor treatment field therapy with an item was initiated on a date
+    if the item was delivered on the date.
+
+section applicability is:
+
+rule ttft_codes with provenance Policy Article A52711,
+        confer "Tumor treatment field therapy devices are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
+the policy for code a code is tumor_treatment_field
+    if the code is in ["E0766"].
+
+rule ttft_benefit with provenance Policy Article A52711,
+        confer "Tumor treatment field therapy devices are covered under the Durable Medical Equipment benefit (Social Security Act §1861(s)(6))":
+the benefit category of code a code is durable medical equipment
+    if the policy for code the code is tumor_treatment_field.
+
+section question is:
+
+% ---------------------------------------------------------------------------
+% Initial coverage: the first three months.
+% ---------------------------------------------------------------------------
+
+rule ttft_initial with provenance LCD L34823,
+        confer "Tumor treatment field therapy (E0766) is covered for the treatment of newly diagnosed Glioblastoma Multiforme (GBM) only when all of the following criteria are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0766"
+    and the rental month of the claim is a number
+    and the number <= 3
+    and the item meets the initial TTFT coverage criteria.
+
+rule ttft_initial_criteria with provenance LCD L34823,
+        confer "If all of the coverage criteria above are not met, claims for code E0766 will be denied as not reasonable and necessary":
+an item meets the initial TTFT coverage criteria
+    if the item is furnished to a beneficiary
+    and the beneficiary has a newly diagnosed supratentorial glioblastoma
+    and the beneficiary received the initial treatment of the glioblastoma
+    and tumor treatment field therapy with the item was initiated on a date
+    and the end of chemoradiation of the beneficiary is an other date
+    and the date is a number days after the other date
+    and the number >= 0
+    and the number <= 49
+    and the finding disease progression absent about the beneficiary is established
+    and the Karnofsky performance score of the beneficiary is a score
+    and the score >= 70
+    and the finding full daily use expected about the beneficiary is established.
+
+% The passages of the criteria the number and the findings stand for:
+% "Tumor treatment field therapy is initiated within 7 weeks from the last
+% dose of concomitant chemotherapy or radiotherapy, whichever is later"; "The
+% beneficiary has no evidence of progression by Response Assessment in
+% Neuro-Oncology (RANO) criteria"; "The beneficiary has a Karnofsky
+% Performance Score (KPS) of at least 70"; "The beneficiary will use TTFT for
+% an average of 18 hours per day".
+
+% Criterion 1.
+rule ttft_gbm with provenance LCD L34823,
+        confer "The beneficiary has histologically confirmed (World Health Organization (WHO) grade IV astrocytoma), newly diagnosed, supratentorial GBM":
+a beneficiary has a newly diagnosed supratentorial glioblastoma
+    if the WHO grade of the histologically confirmed astrocytoma of the beneficiary is 4
+    and the glioblastoma of the beneficiary is newly diagnosed
+    and the glioblastoma of the beneficiary is supratentorial.
+
+% Criterion 2: the surgery when feasible, then chemotherapy and radiotherapy.
+rule ttft_initial_treatment with provenance LCD L34823,
+        confer "The beneficiary has received initial treatment with maximal debulking surgery (when feasible), followed by chemotherapy and radiotherapy":
+a beneficiary received the initial treatment of the glioblastoma
+    if the beneficiary had debulking surgery when feasible
+    and the last dose of concomitant chemotherapy of the beneficiary was on a date
+    and the last dose of concomitant radiotherapy of the beneficiary was on an other date.
+
+rule ttft_surgery with provenance LCD L34823,
+        confer "The beneficiary has received initial treatment with maximal debulking surgery (when feasible), followed by chemotherapy and radiotherapy":
+a beneficiary had debulking surgery when feasible
+    if the beneficiary had maximal debulking surgery of the glioblastoma.
+
+rule ttft_surgery_not_feasible with provenance LCD L34823,
+        confer "The beneficiary has received initial treatment with maximal debulking surgery (when feasible), followed by chemotherapy and radiotherapy":
+a beneficiary had debulking surgery when feasible
+    if debulking surgery was not feasible for the beneficiary.
+
+% Criterion 3: the later of the two last doses.
+rule ttft_end_chemotherapy with provenance LCD L34823,
+        confer "Tumor treatment field therapy is initiated within 7 weeks from the last dose of concomitant chemotherapy or radiotherapy, whichever is later":
+the end of chemoradiation of a beneficiary is a date
+    if the last dose of concomitant chemotherapy of the beneficiary was on the date
+    and the last dose of concomitant radiotherapy of the beneficiary was on an other date
+    and the date is after or equal to the other date.
+
+rule ttft_end_radiotherapy with provenance LCD L34823,
+        confer "Tumor treatment field therapy is initiated within 7 weeks from the last dose of concomitant chemotherapy or radiotherapy, whichever is later":
+the end of chemoradiation of a beneficiary is a date
+    if the last dose of concomitant radiotherapy of the beneficiary was on the date
+    and the last dose of concomitant chemotherapy of the beneficiary was on an other date
+    and the date is after the other date.
+
+% ---------------------------------------------------------------------------
+% Continued coverage beyond the first three months.
+% ---------------------------------------------------------------------------
+
+rule ttft_continued with provenance LCD L34823,
+        confer "Continued coverage of TTFT (E0766) beyond the first three months of therapy requires that no sooner than the 60th day but no later than the 91st day after initiating therapy, the treating practitioner must conduct a clinical re-evaluation and document that the beneficiary is continuing to use and is benefiting from TTFT":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0766"
+    and the rental month of the claim is a number
+    and the number >= 4
+    and the item meets the initial TTFT coverage criteria
+    and the item meets the TTFT continued coverage criteria for the claim.
+
+rule ttft_continued_criteria with provenance LCD L34823,
+        confer "In-person clinical re-evaluation by the treating practitioner; and, Objective evidence of adherence to therapy, reviewed by the treating practitioner":
+an item meets the TTFT continued coverage criteria for a claim
+    if the item is furnished to a beneficiary
+    and tumor treatment field therapy with the item was initiated on a date
+    and the beneficiary had an in person clinical reevaluation by the treating practitioner on an other date
+    and the other date is a number days after the date
+    and the number >= 60
+    and the number <= 91
+    and the beneficiary adheres to therapy with the item.
+
+rule ttft_continued_late with provenance LCD L34823,
+        confer "If the practitioner re-evaluation does not occur until after the 91st day but the evaluation demonstrates that the beneficiary is benefiting from TTFT as defined in criteria 1 and 2 above, continued coverage of TTFT will commence with the date of that re-evaluation":
+an item meets the TTFT continued coverage criteria for a claim
+    if the item is furnished to a beneficiary
+    and tumor treatment field therapy with the item was initiated on a date
+    and the beneficiary had an in person clinical reevaluation by the treating practitioner on an other date
+    and the other date is a number days after the date
+    and the number > 91
+    and the beneficiary adheres to therapy with the item
+    and the date of service of the claim is a third date
+    and the third date is after or equal to the other date.
+
+rule ttft_adherence with provenance LCD L34823,
+        confer "Adherence to therapy is defined as the use of TTFT for an average of 18 hours per day":
+a beneficiary adheres to therapy with an item
+    if the average daily use of the item in the usage data reviewed by the treating practitioner is a number hours
+    and the number >= 18.
+
+% ---------------------------------------------------------------------------
+% Beneficiaries entering fee-for-service Medicare.
+% ---------------------------------------------------------------------------
+
+rule ttft_entering_medicare with provenance LCD L34823,
+        confer "For beneficiaries who are undergoing treatment with TTFT for newly diagnosed, supratentorial GBM prior to enrollment in Fee-For-Service (FFS) Medicare and are seeking Medicare coverage of TTFT, coverage will be provided if all of the following coverage requirements are met":
+a claim is reasonable and necessary
+    if the claim is for an item
+    and the HCPCS code of the item is "E0766"
+    and the item is furnished to a beneficiary
+    and the beneficiary was receiving tumor treatment field therapy before enrolling in fee for service Medicare
+    and the beneficiary has a newly diagnosed supratentorial glioblastoma
+    and the beneficiary received the initial treatment of the glioblastoma
+    and the beneficiary enrolled in fee for service Medicare on a date
+    and the beneficiary had an in person clinical reevaluation by the treating practitioner on an other date
+    and the other date is after or equal to the date
+    and the beneficiary adheres to therapy with the item
+    and the finding deriving benefit from therapy about the beneficiary is established.
+
+section remedy is:
+
+% The policy's own conditions of payment (Policy Article A52711).
+rule ttft_documentation with provenance Policy Article A52711,
+        confer "The supplier must enter the diagnosis code for code E0766 on each claim submitted":
+the policy specific documentation requirements are met for a claim
+    if the policy of the claim is tumor_treatment_field
+    and the claim states the diagnosis code of the beneficiary
+    and the usage report requirement is met for the claim.
+
+rule ttft_usage_report with provenance Policy Article A52711,
+        confer "Documentation of adherence to TTFT shall be accomplished through direct download or visual inspection of usage data with documentation provided in a written report format to be reviewed by the treating practitioner and included in the beneficiary’s medical record":
+the usage report requirement is met for a claim
+    if the rental month of the claim is a number
+    and the number >= 4
+    and the claim is for an item
+    and the item is furnished to a beneficiary
+    and the medical record of the beneficiary includes the written usage report reviewed by the treating practitioner.
+
+% the first three months: a device of this model
+rule ttft_no_usage_report:
+the usage report requirement is met for a claim
+    if the rental month of the claim is a number
+    and the number <= 3.

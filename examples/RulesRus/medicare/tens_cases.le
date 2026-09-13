@@ -1,0 +1,249 @@
+% Test cases for the TENS policy (tens.le): synthetic claims, one or two per
+% criterion of LCD L33802 and per payment condition of Policy Article A52520,
+% each stating only what its record shows. Findings are recorded as the
+% treating practitioner's or the Council's; a finding nobody made leaves the
+% answer conditional. The queries: whether the claim is payable (the first
+% query, so "stage" reads its checklist), whether it is reasonable and
+% necessary, and what minimal change would make it payable.
+
+the target language is: prolog.
+
+the knowledge base tens cases includes these resources:
+    tens.
+
+the knowledge base tens cases includes:
+
+query pay is:
+    which claim is payable.
+
+query rn is:
+    which claim is reasonable and necessary.
+
+query stage is:
+    the query fails at which section.
+
+query flip is:
+    which minimal change to the scenario makes it the case that
+        claim 1 is payable.
+
+% A complete purchase of a two-lead TENS unit (E0720) after a 45-day trial
+% for chronic knee pain from osteoarthritis: the chronic pain criteria, the
+% monitored trial, the practitioner's determination of long-term benefit,
+% the record the Policy Article lists, the order and the delivery.
+scenario purchase_complete is:
+    claim 1 is for the TENS unit.
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    the finding pain etiology responds to stimulation about Ann is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Ann is established, according to the treating practitioner, because "physical therapy and anti-inflammatory drugs gave no lasting relief".
+    the location of the pain of Ann is knee.
+    the severity of the pain of Ann is severe.
+    the pain of Ann has been present for 8 months.
+    the presumed etiology of the pain of Ann is osteoarthritis.
+    the medical record of Ann documents the prior treatment of the pain and its results.
+    the trial of the TENS unit is monitored by the treating practitioner.
+    Ann used the TENS unit on a trial basis for 45 days.
+    the finding long term benefit likely about Ann is established, according to the treating practitioner.
+    the reevaluation of Ann at the end of the trial period documents how the unit was used and its results.
+    the order for the TENS unit is dated 2026-01-05.
+    the order for the TENS unit is signed by the treating practitioner.
+    the order for the TENS unit includes beneficiary name.
+    the order for the TENS unit includes order date.
+    the order for the TENS unit includes description of the item.
+    the order for the TENS unit includes quantity to be dispensed.
+    the order for the TENS unit includes treating practitioner name.
+    the order for the TENS unit was communicated to the supplier on 2026-01-06.
+    the TENS unit was delivered on 2026-01-10.
+    the supplier holds proof of delivery for the TENS unit.
+    pay expects answers ["claim 1 is payable"].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers [].
+
+% The same purchase without the reevaluation at the end of the trial in the
+% record: reasonable and necessary, but the Article's documentation is
+% incomplete.
+scenario purchase_no_reevaluation is:
+    claim 1 is for the TENS unit.
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Ann.
+    the residence of Ann is private residence.
+    the date of service of claim 1 is 2026-03-01.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    the finding pain etiology responds to stimulation about Ann is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Ann is established, according to the treating practitioner, because "physical therapy and anti-inflammatory drugs gave no lasting relief".
+    the location of the pain of Ann is knee.
+    the severity of the pain of Ann is severe.
+    the pain of Ann has been present for 8 months.
+    the presumed etiology of the pain of Ann is osteoarthritis.
+    the medical record of Ann documents the prior treatment of the pain and its results.
+    the trial of the TENS unit is monitored by the treating practitioner.
+    Ann used the TENS unit on a trial basis for 45 days.
+    the finding long term benefit likely about Ann is established, according to the treating practitioner.
+    the order for the TENS unit is dated 2026-01-05.
+    the order for the TENS unit is signed by the treating practitioner.
+    the order for the TENS unit includes beneficiary name.
+    the order for the TENS unit includes order date.
+    the order for the TENS unit includes description of the item.
+    the order for the TENS unit includes quantity to be dispensed.
+    the order for the TENS unit includes treating practitioner name.
+    the order for the TENS unit was communicated to the supplier on 2026-01-06.
+    the TENS unit was delivered on 2026-01-10.
+    the supplier holds proof of delivery for the TENS unit.
+    pay expects answers [].
+    rn expects answers ["claim 1 is reasonable and necessary"].
+    stage expects answers ["the query fails at remedy"].
+    flip expects changes [["add: the reevaluation of Ann at the end of the trial period documents how the unit was used and its results"]].
+
+% Acute post-operative pain: a one-month rental starting four days after the
+% surgery is covered (claim 1); one starting 45 days after it is not
+% (claim 2).
+scenario acute_post_operative is:
+    claim 1 is for the TENS unit.
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Ben.
+    the rental month of claim 1 is 1.
+    the date of service of claim 1 is 2026-03-05.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    Ben has acute post-operative pain from surgery on 2026-03-01.
+    claim 2 is for the late TENS unit.
+    the HCPCS code of the late TENS unit is "E0720".
+    the late TENS unit is furnished to Cy.
+    the rental month of claim 2 is 1.
+    the date of service of claim 2 is 2026-04-15.
+    the order for the late TENS unit was written by the treating practitioner for the condition justifying the need.
+    Cy has acute post-operative pain from surgery on 2026-03-01.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Chronic low back pain: never covered, whatever the findings.
+scenario chronic_low_back_pain is:
+    claim 1 is for the TENS unit.
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Dee.
+    the rental month of claim 1 is 1.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    the finding pain etiology responds to stimulation about Dee is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Dee is established, according to the treating practitioner.
+    the residence of Dee is private residence.
+    the location of the pain of Dee is low back.
+    the pain of Dee has been present for 14 months.
+    the trial of the TENS unit is monitored by the treating practitioner.
+    rn expects answers [].
+    stage expects answers ["the query fails at question"].
+
+% A trial for shoulder pain present for two months: not yet chronic in the
+% LCD's sense (three months).
+scenario pain_too_recent is:
+    claim 1 is for the TENS unit.
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Eve.
+    the rental month of claim 1 is 1.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    the finding pain etiology responds to stimulation about Eve is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Eve is established, according to the treating practitioner.
+    the location of the pain of Eve is shoulder.
+    the pain of Eve has been present for 2 months.
+    the trial of the TENS unit is monitored by the treating practitioner.
+    rn expects answers [].
+
+% Four-lead units (E0730) on trial ordered for use with four leads: covered
+% when the record says why two leads are insufficient (claim 1), not
+% otherwise (claim 2).
+scenario four_leads is:
+    claim 1 is for the four lead unit.
+    the HCPCS code of the four lead unit is "E0730".
+    the four lead unit is furnished to Fay.
+    the rental month of claim 1 is 1.
+    the four lead unit is ordered for use with 4 leads.
+    the order for the four lead unit was written by the treating practitioner for the condition justifying the need.
+    the trial of the four lead unit is monitored by the treating practitioner.
+    the medical record documents why two leads are insufficient for Fay.
+    the finding pain etiology responds to stimulation about Fay is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Fay is established, according to the treating practitioner.
+    the location of the pain of Fay is neck.
+    the pain of Fay has been present for 6 months.
+    claim 2 is for the other four lead unit.
+    the HCPCS code of the other four lead unit is "E0730".
+    the other four lead unit is furnished to Gus.
+    the rental month of claim 2 is 1.
+    the other four lead unit is ordered for use with 4 leads.
+    the order for the other four lead unit was written by the treating practitioner for the condition justifying the need.
+    the trial of the other four lead unit is monitored by the treating practitioner.
+    the finding pain etiology responds to stimulation about Gus is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Gus is established, according to the treating practitioner.
+    the location of the pain of Gus is neck.
+    the pain of Gus has been present for 6 months.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% Supplies of a purchased two-lead unit: one supply allowance (A4595) for a
+% month is within the usual maximum (claim 1), two are not (claim 2); lead
+% wires (A4557) seven months after the unit was delivered are too soon
+% (claim 3).
+scenario supplies is:
+    claim 1 is for the supply allowance.
+    the HCPCS code of the supply allowance is "A4595".
+    the supply allowance is an accessory of the TENS unit.
+    the supply allowance is furnished to Hal.
+    the quantity billed on claim 1 is 1.
+    claim 1 is for a supply of 1 months.
+    claim 2 is for the double supply allowance.
+    the HCPCS code of the double supply allowance is "A4595".
+    the double supply allowance is an accessory of the TENS unit.
+    the double supply allowance is furnished to Hal.
+    the quantity billed on claim 2 is 2.
+    claim 2 is for a supply of 1 months.
+    claim 3 is for the lead wires.
+    the HCPCS code of the lead wires is "A4557".
+    the lead wires is an accessory of the TENS unit.
+    the lead wires is furnished to Hal.
+    the date of service of claim 3 is 2026-08-10.
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Hal.
+    the TENS unit was delivered on 2026-01-10.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    the finding pain etiology responds to stimulation about Hal is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Hal is established, according to the treating practitioner.
+    the location of the pain of Hal is knee.
+    the pain of Hal has been present for 8 months.
+    the trial of the TENS unit is monitored by the treating practitioner.
+    Hal used the TENS unit on a trial basis for 40 days.
+    the finding long term benefit likely about Hal is established, according to the treating practitioner.
+    rn expects answers ["claim 1 is reasonable and necessary"].
+
+% A conductive garment (E0731) during the trial of a covered unit, for sites
+% conventional electrodes cannot reach, but with no skin problem documented
+% before the trial: not covered.
+scenario garment_during_trial is:
+    claim 1 is for the conductive garment.
+    the HCPCS code of the conductive garment is "E0731".
+    the conductive garment is an accessory of the TENS unit.
+    the conductive garment is furnished to Ida.
+    the conductive garment is prescribed by the treating practitioner for use in delivering covered TENS treatment.
+    the finding conductive garment medically indicated about Ida is established, according to the treating practitioner, because "the sites to be stimulated are inaccessible with conventional electrodes".
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Ida.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    the finding pain etiology responds to stimulation about Ida is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Ida is established, according to the treating practitioner.
+    the location of the pain of Ida is back of the shoulder.
+    the pain of Ida has been present for 5 months.
+    the trial of the TENS unit is monitored by the treating practitioner.
+    rn expects answers [].
+
+% The Council finds the record does not show that other treatment modalities
+% were tried and failed: the purchase is not reasonable and necessary.
+scenario council_modalities_unsupported is:
+    claim 1 is for the TENS unit.
+    the HCPCS code of the TENS unit is "E0720".
+    the TENS unit is furnished to Jo.
+    the order for the TENS unit was written by the treating practitioner for the condition justifying the need.
+    the finding pain etiology responds to stimulation about Jo is established, according to the treating practitioner.
+    the finding other treatment modalities failed about Jo is unsupported, according to the Council, because "the record mentions only a prescription for an analgesic, with no note of its trial or its result".
+    the location of the pain of Jo is knee.
+    the pain of Jo has been present for 10 months.
+    the trial of the TENS unit is monitored by the treating practitioner.
+    Jo used the TENS unit on a trial basis for 35 days.
+    the finding long term benefit likely about Jo is established, according to the treating practitioner.
+    rn expects answers [].
