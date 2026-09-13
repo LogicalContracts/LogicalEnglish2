@@ -4,7 +4,7 @@
 % wheelchair with its options and cushion, a CPAP with its oxygen, a diabetic
 % with a monitor and shoes — and every claim meets every policy's codes.
 %
-% Coverage: every DME MAC policy program of this directory (49 programs,
+% Coverage: every DME MAC policy program of this directory (56 programs for the 58 LCDs,
 % the README lists them and the LCDs each encodes).
 
 the target language is: prolog.
@@ -12,11 +12,14 @@ the target language is: prolog.
 the knowledge base dmepos all includes these resources:
     aeds,
     afo_kafo,
+    bowel_management,
     breast_prostheses,
     canes_crutches,
     cervical_traction,
     cold_therapy,
     commodes,
+    enteral_nutrition,
+    external_infusion_pumps,
     eye_prostheses,
     facial_prostheses,
     glucose_monitors,
@@ -38,8 +41,10 @@ the knowledge base dmepos all includes these resources:
     oral_appliances,
     orthopedic_footwear,
     osteogenesis_stimulators,
+    ostomy_supplies,
     oxygen,
     pap,
+    parenteral_nutrition,
     patient_lifts,
     pmd,
     rad,
@@ -49,12 +54,14 @@ the knowledge base dmepos all includes these resources:
     spinal_orthoses,
     suction_pumps,
     support_surfaces,
+    surgical_dressings,
     tejsd,
     tens,
     therapeutic_shoes,
     tracheostomy_supplies,
     tremor_stimulator,
     tumor_treatment_field,
+    urological_supplies,
     vacuum_erection,
     walkers,
     wheelchair_options,
